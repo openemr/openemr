@@ -40,71 +40,186 @@
 --    arguments: table_name colname value colname2 value2
 --    behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2, the block will be executed.
 
+--  #IfNotRow2Dx2
+--    desc:      This is a very specialized function to allow adding items to the list_options table to avoid both redundant option_id and title in each element.
+--    arguments: table_name colname value colname2 value2 colname3 value3
+--    behavior:  The block will be executed if both statements below are true:
+--               1) The table table_name does not have a row where colname = value AND colname2 = value2.
+--               2) The table table_name does not have a row where colname = value AND colname3 = value3.
+
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement. 
 
-#IfNotRow2D list_options list_id language option_id armenian
+#IfNotRow2Dx2 list_options list_id language option_id armenian title Armenian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'armenian', 'Armenian', 10, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id chinese title Chinese
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'chinese', 'Chinese', 20, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id danish title Danish
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'danish', 'Danish', 30, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id deaf title Deaf
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'deaf', 'Deaf', 40, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id farsi title Farsi
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'farsi', 'Farsi', 60, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id french title French
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'french', 'French', 70, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id german title German
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'german', 'German', 80, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id greek title Greek
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'greek', 'Greek', 90, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id hmong title Hmong
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'hmong', 'Hmong', 100, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id italian title Italian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'italian', 'Italian', 110, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id japanese title Japanese
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'japanese', 'Japanese', 120, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id korean title Korean
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'korean', 'Korean', 130, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id laotian title Laotian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'laotian', 'Laotian', 140, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id mien title Mien
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'mien', 'Mien', 150, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id norwegian title Norwegian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'norwegian', 'Norwegian', 160, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id othrs title Others
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'othrs', 'Others', 170, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id portuguese title Portuguese
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'portuguese', 'Portuguese', 180, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id punjabi title Punjabi
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'punjabi', 'Punjabi', 190, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id russian title Russian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'russian', 'Russian', 200, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id tagalog title Tagalog
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'tagalog', 'Tagalog', 220, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id turkish title Turkish
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'turkish', 'Turkish', 230, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id vietnamese title Vietnamese
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'vietnamese', 'Vietnamese', 240, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id yiddish title Yiddish
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'yiddish', 'Yiddish', 250, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id language option_id zulu title Zulu
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'zulu', 'Zulu', 260, 0);
+#EndIf
 
 update list_options set seq = 50 where list_id = 'language' and option_id = 'English';
 update list_options set seq = 210 where list_id = 'language' and option_id = 'Spanish';
-#EndIf
 
-#IfNotRow2D list_options list_id ethrace option_id aleut
+#IfNotRow2Dx2 list_options list_id ethrace option_id aleut title ALEUT
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'aleut', 'ALEUT', 10,  0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id amer_indian title American Indian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'amer_indian', 'American Indian', 20, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id cambodian title Cambodian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'cambodian', 'Cambodian', 50, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id cs_american title Central/South American
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'cs_american', 'Central/South American', 70, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id chinese title Chinese
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'chinese', 'Chinese', 80, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id cuban title Cuban
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'cuban', 'Cuban', 90, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id eskimo title Eskimo
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'eskimo', 'Eskimo', 100, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id filipino title Filipino
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'filipino', 'Filipino', 110, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id guamanian title Guamanian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'guamanian', 'Guamanian', 120, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id hawaiian title Hawaiian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'hawaiian', 'Hawaiian', 130, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id othr_us title Hispanic - Other (Born in US)
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr_us', 'Hispanic - Other (Born in US)', 150, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id othr_non_us title Hispanic - Other (Born outside US)
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr_non_us', 'Hispanic - Other (Born outside US)', 160, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id hmong title Hmong
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'hmong', 'Hmong', 170, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id indian title Indian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'indian', 'Indian', 180, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id japanese title Japanese
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'japanese', 'Japanese', 190, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id korean title Korean
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'korean', 'Korean', 200, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id laotian title Laotian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'laotian', 'Laotian', 210, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id mexican title Mexican/MexAmer/Chicano
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'mexican', 'Mexican/MexAmer/Chicano', 220, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id mlt-race title Multiracial
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'mlt-race', 'Multiracial', 230, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id othr title Other
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr', 'Other', 240, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id othr_spec title Other - Specified
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr_spec', 'Other - Specified', 250, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id pac_island title Pacific Islander
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'pac_island', 'Pacific Islander', 260, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id puerto_rican title Puerto Rican
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'puerto_rican', 'Puerto Rican', 270, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id refused title Refused To State
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'refused', 'Refused To State', 280, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id samoan title Samoan
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'samoan', 'Samoan', 290, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id spec title Specified
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'spec', 'Specified', 300, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id thai title Thai
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'thai', 'Thai', 310, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id unknown title Unknown
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'unknown', 'Unknown', 320, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id unspec title Unspecified
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'unspec', 'Unspecified', 330, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id vietnamese title Vietnamese
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'vietnamese', 'Vietnamese', 340, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id white title White
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'white', 'White', 350, 0);
+#EndIf
+#IfNotRow2Dx2 list_options list_id ethrace option_id withheld title Withheld
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'withheld', 'Withheld', 360, 0);
 #EndIf
 

@@ -122,7 +122,24 @@ function upgradeFromSqlFile($filename) {
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
-
+    else if (preg_match('/^#IfNotRow2Dx2\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+	// If either check exist, then will skip
+	$firstCheck = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
+	$secondCheck = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[6], $matches[7]);
+	if ($firstCheck || $secondCheck) {
+	  $skipping = true;   
+	}
+	else {
+          $skipping = false;
+	}
+      }
+      else {
+        // If no such table then the row is deemed not "missing".
+        $skipping = true;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
     else if (preg_match('/^#EndIf/', $line)) {
       $skipping = false;
     }
