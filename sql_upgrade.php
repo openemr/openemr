@@ -211,9 +211,8 @@ if (!empty($_POST['form_submit'])) {
 <?php
 foreach ($versions as $version => $filename) {
   echo " <option value='$version'";
-  // Defaulting to 2.8.3 only because it was out there for a long time,
-  // and nothing should go wrong if that's too old.
-  if ($version === '2.8.3') echo " selected";
+  // Defaulting to most recent version, which is now 3.2.0.
+  if ($version === '3.2.0') echo " selected";
   echo ">$version</option>\n";
 }
 ?>
