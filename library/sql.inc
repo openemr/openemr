@@ -152,7 +152,8 @@ function sqlQuery($statement, $status_or_binds=FALSE)
     //   in query.
     $resource = mysql_query($statement, $GLOBALS['dbh']);
     auditSQLEvent($statement, TRUE);
-    $rez = @mysql_fetch_array($query, MYSQL_ASSOC);
+   //$rez = @mysql_fetch_array($query, MYSQL_ASSOC);
+    $rez = @mysql_fetch_array($resource, MYSQL_ASSOC); //Replace $query with $resource to calculate correct checksum
     if ($rez == FALSE)
       return FALSE;
     return $rez;
@@ -167,8 +168,16 @@ function sqlQuery($statement, $status_or_binds=FALSE)
 function sqlInsertClean_audit($statement)
 {
   // Get the mysql_insert_id() before the execution of the log statement
-  $lastid=mysql_insert_id($GLOBALS['dbh']);
-  $GLOBALS['lastidado']=$lastid;
+ //$lastid=mysql_insert_id($GLOBALS['dbh']);
+ //$GLOBALS['lastidado']=$lastid;
+// when audit is enabled and $GLOBALS['lastidado'] is not set, then set the GLOBALS irrespective of dbh and adodb handlers.
+  if ($GLOBALS['lastidado'] > 0)
+	{ /* do nothing */ }
+        else {
+                 $lastid=mysql_insert_id($GLOBALS['dbh']);
+                 $GLOBALS['lastidado']=$lastid;
+        }
+
   //----------run a mysql insert, return the last id generated
   $ret = mysql_query($statement, $GLOBALS['dbh']);
   if ($ret === FALSE) {
