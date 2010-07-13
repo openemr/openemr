@@ -693,3 +693,20 @@ INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, 
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists', 'code_types', 'Code Types', 1);
 #EndIf
 
+#IfMissingColumn codes reportable
+ALTER TABLE `codes` 
+  ADD `reportable` TINYINT(1) DEFAULT 0 COMMENT '0 = non-reportable, 1 = reportable',
+--UPDATE codes SET reportable = 0 ;
+#EndIf
+
+#IfNotTable syndromic_surveillance
+CREATE TABLE `syndromic_surveillance` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `lists_id` bigint(20) NOT NULL,
+  `submission_date` datetime NOT NULL,
+  `filename` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`id`),
+  KEY (`lists_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+#EndIf
+

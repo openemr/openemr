@@ -198,8 +198,24 @@ CREATE TABLE `codes` (
   `taxrates` varchar(255) NOT NULL default '',
   `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
   `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active',
+  `reportable` TINYINT(1) DEFAULT 0 COMMENT '0 = non-reportable, 1 = reportable',
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `syndromic_surveillance`
+-- 
+
+DROP TABLE IF EXISTS `syndromic_surveillance`;
+CREATE TABLE `syndromic_surveillance` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `lists_id` bigint(20) NOT NULL,
+  `submission_date` datetime NOT NULL,
+  `filename` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`id`),
+  KEY (`lists_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
