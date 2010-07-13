@@ -182,7 +182,7 @@ if ($_POST['form_save']) {
   echo "<html><body><script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
   echo " window.close();\n";
-  echo " opener.location.reload();\n";
+  echo " if ( opener ) { opener.location.reload(); } else { parent.location.reload(); } \n";
   echo " if (parent.refreshIssue) parent.refreshIssue($issue,'$tmp_title'); if ( parent.$ ) parent.$.fn.fancybox.close();\n";
   echo "</script></body></html>\n";
   exit();
@@ -341,7 +341,12 @@ div.section {
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
-  window.close();
+  closeme();
+ }
+
+ function closeme() {
+    if ( parent.$ ) parent.$.fn.fancybox.close();
+    window.close();
  }
 
  // Called when the Active checkbox is clicked.  For consistency we
@@ -624,7 +629,7 @@ function divclick(cb, divid) {
 <?php } ?>
 
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='closeme();' />
 
 </p>
 </center>
