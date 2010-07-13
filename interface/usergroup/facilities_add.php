@@ -64,10 +64,6 @@ $(document).ready(function(){
         toggle( $(this), "#DEM" );
     });
 
-    // load divs
-    $("#stats_div").load("stats.php");
-    $("#notes_div").load("pnotes_fragment.php");
-
     // fancy box
     enable_modals();
 
