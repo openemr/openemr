@@ -461,7 +461,7 @@ function genPopupsList($style='') {
 
 function goHome() {
     top.frames['RTop'].location='<?php echo $GLOBALS['default_top_pane']?>';
-    top.frames['RBot'].location='authorizations/authorizations.php';
+    top.frames['RBot'].location='messages/messages.php';
 }
 
  //
@@ -521,8 +521,8 @@ function goHome() {
    setRadio('rb_top', 'cal');
   }
   if (botName.length > 3 && botName.substring(3) > '0' && frname != 'RBot') {
-   loadFrame('aun0','RBot', '<?php echo $primary_docs['aun'][2]; ?>');
-   setRadio('rb_bot', 'aun');
+   loadFrame('ens0','RBot', '<?php echo $primary_docs['ens'][2]; ?>');
+   setRadio('rb_bot', 'ens');
   }
  }
 
@@ -561,13 +561,13 @@ function goHome() {
   var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
   $(encounter_block).hide();
 
-  // zero out the encounter frame, replace it with the authorizations frame
+  // zero out the encounter frame, replace it with the encounter list frame
   var f = document.forms[0];
   if ( f.cb_top.checked && f.cb_bot.checked ) {
       var encounter_frame = getEncounterTargetFrame('enc');
       if ( encounter_frame != undefined )  {
-          loadFrame('aun0',encounter_frame, '<?php echo $primary_docs['aun'][2]; ?>');
-          setRadio(encounter_frame, 'aun');
+          loadFrame('ens0',encounter_frame, '<?php echo $primary_docs['ens'][2]; ?>');
+          setRadio(encounter_frame, 'ens');
       }
    }
   }
@@ -868,7 +868,7 @@ function getEncounterTargetFrame( name ) {
 
 <ul id="navigation">
   <?php if (!$GLOBALS['disable_calendar'] && !$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
-  <?php genTreeLink('RTop','msg',xl('Messages')); ?>
+  <?php genTreeLink('RBot','msg',xl('Messages')); ?>
   <li class="open"><span><?php xl('Patient/Client','e') ?></span>
     <ul>
       <li><span><?php xl('Management','e') ?></span>
@@ -1114,7 +1114,7 @@ if (!empty($reg)) {
   echo "  <td class='smalltext' id='lbl_$key'>$label</td>\n";
   echo "  <td class='smalltext'><input type='radio' name='rb_bot' value='$key$usage' " .
        "onclick=\"loadFrame('$key$usage','RBot','$url')\"";
-  if ($key == 'aun') echo " checked";
+  if ($key == 'msg') echo " checked";
   echo " /></td>\n";
   echo " </tr>\n";
  }

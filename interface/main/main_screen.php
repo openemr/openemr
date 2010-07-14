@@ -81,7 +81,7 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
   <frameset rows='100%,*' id='fsright' bordercolor='#999999' frameborder='1'>
 <?php } ?>
    <frame src='<?php echo $frame1url ?>' name='RTop' scrolling='auto' />
-   <frame src='authorizations/authorizations.php' name='RBot' scrolling='auto' />
+   <frame src='messages/messages.php' name='RBot' scrolling='auto' />
   </frameset>
  </frameset>
 </frameset>
