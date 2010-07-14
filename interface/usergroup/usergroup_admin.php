@@ -389,7 +389,7 @@ function authorized_clicked() {
     <input type='checkbox' name='form_inactive' value='1' onclick='submit()' <?php if ($form_inactive) echo 'checked '; ?>/>
     <span class='text' style = "margin-left:-3px"> <?php xl('Include inactive users','e'); ?> </span>
 </form>
-<?
+<?php
 if($set_active_msg == 1){
 echo "<font class='alert'>".xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</font><br>";
 }
