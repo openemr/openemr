@@ -883,7 +883,6 @@ function getEncounterTargetFrame( name ) {
           <?php genTreeLink('RBot','nen',xl('New Visit')); ?>
           <?php genTreeLink('RBot','enc',xl('Current')); ?>
           <?php genTreeLink('RBot','ens',xl('List')); ?>
-          <?php if (!$GLOBALS['disable_chart_tracker']) genPopLink(xl('Chart Tracker'),'../../custom/chart_tracker.php'); ?>
         </ul>
       </li>
       <li><span><?php xl('Visit Forms','e') ?></span>
