@@ -116,8 +116,8 @@
   'new' => array(xl('New Pt')    , 0, 'new/new.php'),
   'dem' => array(xl('Patient')   , 1,  "patient_file/summary/demographics.php"),
   'his' => array(xl('History')   , 1, 'patient_file/history/history.php'),
-  'ens' => array(xl('Encounters'), 1, 'patient_file/history/encounters.php'),
-  'nen' => array(xl('New Enctr') , 1, 'forms/newpatient/new.php?autoloaded=1&calenc='),
+  'ens' => array(xl('Visit History'), 1, 'patient_file/history/encounters.php'),
+  'nen' => array(xl('Create Visit'), 1, 'forms/newpatient/new.php?autoloaded=1&calenc='),
   'pre' => array(xl('Rx')        , 1, 'patient_file/summary/rx_frameset.php'),
   'iss' => array(xl('Issues')    , 1, 'patient_file/summary/stats_full.php?active=all'),
   'imm' => array(xl('Immunize')  , 1, 'patient_file/summary/immunizations.php'),
@@ -871,18 +871,14 @@ function getEncounterTargetFrame( name ) {
   <?php genTreeLink('RBot','msg',xl('Messages')); ?>
   <li class="open"><span><?php xl('Patient/Client','e') ?></span>
     <ul>
-      <li><span><?php xl('Management','e') ?></span>
-        <ul>
           <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>
-          <?php genTreeLink('RTop','dem',xl('Current')); ?>
-        </ul>
-      </li>
+          <?php genTreeLink('RTop','dem',xl('Summary')); ?>
       <li class="open"><span><?php xl('Visits','e') ?></span>
         <ul>
           <?php if ($GLOBALS['ippf_specific'] && !$GLOBALS['disable_calendar']) genTreeLink('RTop','cal',xl('Calendar')); ?>
-          <?php genTreeLink('RBot','nen',xl('New Visit')); ?>
+          <?php genTreeLink('RBot','nen',xl('Create Visit')); ?>
           <?php genTreeLink('RBot','enc',xl('Current')); ?>
-          <?php genTreeLink('RBot','ens',xl('List')); ?>
+          <?php genTreeLink('RBot','ens',xl('Visit History')); ?>
         </ul>
       </li>
       <li><span><?php xl('Visit Forms','e') ?></span>
