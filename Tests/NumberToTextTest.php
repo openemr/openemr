@@ -10,7 +10,7 @@ class NumberToTextTest extends PHPUnit_Framework_TestCase
 {
 
   /**
-   * @dataProvider test_cases
+   * @dataProvider cases
    */
   public function testConvert( $numeral, $text )
   {
@@ -18,7 +18,7 @@ class NumberToTextTest extends PHPUnit_Framework_TestCase
     $this->assertEquals( $text, $ntt->convert(), "'$numeral' converts to '$text'" );
   }
 
-  public static function test_cases() {
+  public static function cases() {
 
     return array( array( 0,     'zero'),
                   array( 1,     'one'),
