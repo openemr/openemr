@@ -695,8 +695,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists', 'co
 
 #IfMissingColumn codes reportable
 ALTER TABLE `codes` 
-  ADD `reportable` TINYINT(1) DEFAULT 0 COMMENT '0 = non-reportable, 1 = reportable',
---UPDATE codes SET reportable = 0 ;
+  ADD `reportable` TINYINT(1) DEFAULT 0 COMMENT '0 = non-reportable, 1 = reportable';
 #EndIf
 
 #IfNotTable syndromic_surveillance
@@ -709,4 +708,3 @@ CREATE TABLE `syndromic_surveillance` (
   KEY (`lists_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 #EndIf
-
