@@ -298,7 +298,7 @@ onsubmit='return top.restoreSession()'>
 ?>
           </td>
           <td class='label'>
-            <?php xl('Issues From','e'); ?>:
+            <?php xl('From','e'); ?>:
           </td>
           <td>
             <input type='text' name='form_from_date' id="form_from_date"
@@ -349,10 +349,7 @@ onsubmit='return top.restoreSession()'>
                 </span>
               </a>
               <a href='#' class='css_button' onclick=
-              "if(confirm('<?php xl(
-              'This step will generate file which you have to save for future use. '.
-              'The file cannot be generated again. Do you want to proceed?',
-                'e'); ?>')) {
+              "if(confirm('<?php xl('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?','e'); ?>')) {
                      $('#form_get_hl7').attr('value','true'); 
                      $('#theform').submit();
               }">
