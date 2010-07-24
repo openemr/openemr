@@ -39,7 +39,14 @@ setIgroup="Default"         #practice group name
 setInst="1"                 #CONSTANT, don't set
 
 #FIRST DEAL WITH STUFF SPECIFIC TO THE CVS DEMO AND DEVELOPER APPLIANCE
-#Install php-gd (graphics) and php-mbstring (multibyte character support) packages
+#Connect to a new mandriva package repository (official repository no longer supports mandriva 2008)
+echo "Updating new Mandriva Package repository. This is a 100MB download, so may take several minutes."
+echo "Updating new Mandriva Package repository. This is a 100MB download, so may take several minutes." >> $LOG
+urpmi.addmedia main http://ftp.ussg.iu.edu/linux/mandrake/official/2008.0/i586/media/main/release with media_info/hdlist.cz
+urpmi.addmedia --update main_updates http://ftp.ussg.iu.edu/linux/mandrake/official/2008.0/i586/media/main/updates with media_info/hdlist.cz
+urpmi.addmedia contrib http://ftp.ussg.iu.edu/linux/mandrake/official/2008.0/i586/media/contrib/release with media_info/hdlist.cz
+ urpmi.addmedia --update contrib_updates http://ftp.ussg.iu.edu/linux/mandrake/official/2008.0/i586/media/contrib/updates with media_info/hdlist.cz
+#Install php-gd (graphics), php-mbstring (multibyte character support), php-zip, php-xsl and perl-CGI packages
 #  and restart apache (done after below suhosin patch).
 echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and xsl php package and perl-CGI package..."
 echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and xsl php package and perl-CGI package..." >> $LOG
