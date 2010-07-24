@@ -116,7 +116,7 @@ echo "Updating new Mandriva Package repository. This is a 100MB download, so may
 urpmi.addmedia main http://ftp.ussg.iu.edu/linux/mandrake/official/2008.0/i586/media/main/release with media_info/hdlist.cz
 urpmi.addmedia --update main_updates http://ftp.ussg.iu.edu/linux/mandrake/official/2008.0/i586/media/main/updates with media_info/hdlist.cz
 urpmi.addmedia contrib http://ftp.ussg.iu.edu/linux/mandrake/official/2008.0/i586/media/contrib/release with media_info/hdlist.cz
- urpmi.addmedia --update contrib_updates http://ftp.ussg.iu.edu/linux/mandrake/official/2008.0/i586/media/contrib/updates with media_info/hdlist.cz
+urpmi.addmedia --update contrib_updates http://ftp.ussg.iu.edu/linux/mandrake/official/2008.0/i586/media/contrib/updates with media_info/hdlist.cz
 #Install php-gd (graphics), php-mbstring (multibyte character support), php-zip, php-xsl and perl-CGI packages
 #  and restart apache (done after below suhosin patch).
 echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and xsl php package and perl-CGI package..."
