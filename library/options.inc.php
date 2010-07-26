@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
 // Copyright © 2010 by Andrew Moore <amoore@cpan.org>
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 //
@@ -73,8 +73,9 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title,
   return $s;
 }
 
-
-
+// $frow is a row from the layout_options table.
+// $currvalue is the current value, if any, of the associated item.
+//
 function generate_form_field($frow, $currvalue) {
   global $rootdir, $date_init;
 
@@ -272,7 +273,7 @@ function generate_form_field($frow, $currvalue) {
     echo "</select>";
   }
 
-  // a billing code (only one of these allowed!)
+  // a billing code
   else if ($data_type == 15) {
     $fldlength = htmlspecialchars( $frow['fld_length'], ENT_QUOTES);
     $maxlength = htmlspecialchars( $frow['max_length'], ENT_QUOTES);
@@ -283,7 +284,7 @@ function generate_form_field($frow, $currvalue) {
       " maxlength='$maxlength'" .
       " title='$description'" .
       " value='$currescaped'" .
-      " onclick='sel_related()' readonly" .
+      " onclick='sel_related(this)' readonly" .
       " />";
   }
 
@@ -631,6 +632,11 @@ function generate_form_field($frow, $currvalue) {
     echo " />".htmlspecialchars( xl('N/A'), ENT_QUOTES)."&nbsp;</td>";
     echo "</tr>";
     echo "</table>";
+  }
+
+  // static text.  read-only, of course.
+  else if ($data_type == 31) {
+    echo nl2br($frow['description']);
   }
 
 }
@@ -1072,6 +1078,11 @@ function generate_print_field($frow, $currvalue) {
     echo "</table>";
   }
 
+  // static text.  read-only, of course.
+  else if ($data_type == 31) {
+    echo nl2br($frow['description']);
+  }
+
 }
 
 function generate_display_field($frow, $currvalue) {
@@ -1303,6 +1314,11 @@ function generate_display_field($frow, $currvalue) {
     if ($restype == "quit".$field_id) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resdate,ENT_NOQUOTES) . "&nbsp;</td>";
     $s .= "</tr>";
     $s .= "</table>";
+  }
+
+  // static text.  read-only, of course.
+  else if ($data_type == 31) {
+    $s .= nl2br($frow['description']);
   }
 
   return $s;
