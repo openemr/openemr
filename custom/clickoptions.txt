@@ -36,3 +36,12 @@ immunizations::MMR
 immunizations::tetanus
 immunizations::varicella
 immunizations::Zostavax
+general::Osteopathy
+general::Chiropractic
+general::Prevention Rehab
+general::Podiatry
+general::Strength and Conditioning
+general::Nutritional
+general::Fitness Testing
+general::Pre Participation Assessment
+general::Screening / Testing
