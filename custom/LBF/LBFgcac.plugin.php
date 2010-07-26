@@ -132,8 +132,8 @@ function set_main_compl_list() {
 // Disable most form fields if refusing abortion.
 function client_status_changed() {
  var f = document.forms[0];
- var dis1 = false; // things to show unless refusing abortion
- var dis2 = false; // things to show if abortion is elsewhere
+ var dis1 = false; // true to disable complications
+ var dis2 = false; // true to disable procedures
  var cs = f.form_client_status;
  var csval = '';
  if (cs.type) { // cs = select list
@@ -149,7 +149,7 @@ function client_status_changed() {
    }
   }
  }
- if (csval == 'mara') {
+ if (csval == 'mara' || csval == 'defer') {
   dis1 = true;
   dis2 = true;
  }
@@ -164,19 +164,22 @@ function client_status_changed() {
   else if (e.name == 'form_in_ab_proc') {
    e.disabled = dis2;
   }
-  else if (e.name.substring(0,15) == 'form_contrameth') {
-   e.disabled = (csval != 'refin');
-  }
   else if (e.name == 'form_ab_location') {
    if (csval == 'maaa') {
-    e.disabled = (e.value == 'part' || e.value == 'oth');
+    e.disabled = (e.value == 'part' || e.value == 'oth' || e.value == 'na');
    }
-   else if (csval == 'mara') {
-    e.disabled = true;
+   else if (csval == 'mara' || csval == 'defer' || csval == 'self') {
+    e.disabled = true; // (e.value != 'na');
    }
-   else {
-    e.disabled = (e.value == 'proc' || e.value == 'ma');
+   // else if (csval == 'refout') {
+   //  e.disabled = (e.value == 'proc' || e.value == 'ma');
+   // }
+   else { // inbound referral
+    e.disabled = (e.value == 'na' || e.value == 'proc' || e.value == 'ma');
    }
+  }
+  else if (e.name == 'form_gc_rreason') {
+   e.disabled = (csval != 'mara' && csval != 'refout');
   }
  }
 }
@@ -225,29 +228,6 @@ else { // cs = array of radio buttons
 }
 f.onsubmit = function () { return mysubmit(); };
 ";
-
-  // Query services from this visit to set default contraception choices.
-  $res = sqlStatement(_LBFgcac_query_current_services());
-  while ($row = sqlFetchArray($res)) {
-    if (empty($row['related_code'])) continue;
-    $relcodes = explode(';', $row['related_code']);
-    foreach ($relcodes as $codestring) {
-      if ($codestring === '') continue;
-      list($codetype, $code) = explode(':', $codestring);
-      if ($codetype !== 'IPPF') continue;
-      $lres = sqlStatement("SELECT option_id, mapping FROM list_options " .
-        "WHERE list_id = 'contrameth'");
-      while ($lrow = sqlFetchArray($lres)) {
-        $maparr = explode(':', $lrow['mapping']);
-        if (empty($maparr[1])) continue;
-        $option_id = $lrow['option_id'];
-        if (preg_match('/^' . $maparr[1] . '/', $code)) {
-          echo "f['form_contrameth[$option_id]'].checked = true;\n";
-        }
-      }
-    }
-  }
-
 }
 
 // Generate default for client status.
