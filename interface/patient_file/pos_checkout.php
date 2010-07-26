@@ -399,7 +399,8 @@ function generate_receipt($patient_id, $encounter=0) {
     $inres = sqlStatement("SELECT s.sale_id, s.sale_date, s.fee, " .
       "s.quantity, s.drug_id, d.name " .
       "FROM drug_sales AS s LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
-      "WHERE s.pid = '$patient_id' AND s.encounter = '$encounter' AND s.fee != 0 " .
+      // "WHERE s.pid = '$patient_id' AND s.encounter = '$encounter' AND s.fee != 0 " .
+      "WHERE s.pid = '$patient_id' AND s.encounter = '$encounter' " .
       "ORDER BY s.sale_id");
     while ($inrow = sqlFetchArray($inres)) {
       $charges += sprintf('%01.2f', $inrow['fee']);
@@ -409,7 +410,8 @@ function generate_receipt($patient_id, $encounter=0) {
     // Service and tax items
     $inres = sqlStatement("SELECT * FROM billing WHERE " .
       "pid = '$patient_id' AND encounter = '$encounter' AND " .
-      "code_type != 'COPAY' AND activity = 1 AND fee != 0 " .
+      // "code_type != 'COPAY' AND activity = 1 AND fee != 0 " .
+      "code_type != 'COPAY' AND activity = 1 " .
       "ORDER BY id");
     while ($inrow = sqlFetchArray($inres)) {
       $charges += sprintf('%01.2f', $inrow['fee']);
@@ -958,6 +960,7 @@ $inv_date      = '';
 $inv_provider  = 0;
 $inv_payer     = 0;
 $gcac_related_visit = false;
+$gcac_service_provided = false;
 
 // Process billing table items.  Note this includes co-pays.
 // Items that are not allowed to have a fee are skipped.
@@ -1002,7 +1005,11 @@ while ($brow = sqlFetchArray($bres)) {
       if ($codestring === '') continue;
       list($codetype, $code) = explode(':', $codestring);
       if ($codetype !== 'IPPF') continue;
-      if (preg_match('/^25222/', $code)) $gcac_related_visit = true;
+      if (preg_match('/^25222/', $code)) {
+        $gcac_related_visit = true;
+        if (preg_match('/^25222[34]/', $code))
+          $gcac_service_provided = true;
+      }
     }
   }
 }
@@ -1200,12 +1207,19 @@ if ($gcac_related_visit) {
   }
 } // end if ($gcac_related_visit)
 *********************************************************************/
-if ($gcac_related_visit) {
-  $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
-    "WHERE pid = '$pid' AND encounter = '$inv_encounter' AND " .
-    "deleted = 0 AND formdir = 'LBFgcac'");
-  if (empty($grow['count'])) { // if there is no gcac form
-    echo " alert('" . xl('A GCAC visit form should be added to this visit.') . "');\n";
+
+if ($gcac_related_visit && !$gcac_service_provided) {
+  // Skip this warning if referral or abortion in TS.
+  $grow = sqlQuery("SELECT COUNT(*) AS count FROM transactions " .
+    "WHERE title = 'Referral' AND refer_date IS NOT NULL AND " .
+    "refer_date = '$inv_date' AND pid = '$pid'");
+  if (empty($grow['count'])) { // if there is no referral
+    $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
+      "WHERE pid = '$pid' AND encounter = '$inv_encounter' AND " .
+      "deleted = 0 AND formdir = 'LBFgcac'");
+    if (empty($grow['count'])) { // if there is no gcac form
+      echo " alert('" . xl('This visit will need a GCAC form, referral or procedure service.') . "');\n";
+    }
   }
 } // end if ($gcac_related_visit)
 ?>
