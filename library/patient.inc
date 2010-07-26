@@ -723,6 +723,18 @@ function fixDate($date, $default="0000-00-00") {
     return $fixed_date;
 }
 
+function pdValueOrNull($key, $value) {
+  if (($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
+    substr($key, 0, 8) == 'userdate') &&
+    (empty($value) || $value == '0000-00-00'))
+  {
+    return "NULL";
+  }
+  else {
+    return "'$value'";
+  }
+}
+
 // Create or update patient data from an array.
 //
 function updatePatientData($pid, $new, $create=false)
@@ -751,7 +763,7 @@ function updatePatientData($pid, $new, $create=false)
     $sql = "INSERT INTO patient_data SET pid = '$pid', date = NOW()";
     foreach ($new as $key => $value) {
       if ($key == 'id') continue;
-      $sql .= ", `$key` = '$value'";
+      $sql .= ", `$key` = " . pdValueOrNull($key, $value);
     }
     $db_id = sqlInsert($sql);
   }
@@ -766,7 +778,7 @@ function updatePatientData($pid, $new, $create=false)
     }
     $sql = "UPDATE patient_data SET date = NOW()";
     foreach ($new as $key => $value) {
-      $sql .= ", `$key` = '$value'";
+      $sql .= ", `$key` = " . pdValueOrNull($key, $value);
     }
     $sql .= " WHERE id = '$db_id'";
     sqlStatement($sql);
