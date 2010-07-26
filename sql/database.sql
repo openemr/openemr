@@ -1590,7 +1590,7 @@ CREATE TABLE `layout_options` (
   `datacols` tinyint(3) NOT NULL default '1',
   `default_value` varchar(255) NOT NULL default '',
   `edit_options` varchar(36) NOT NULL default '',
-  `description` varchar(255) NOT NULL default '',
+  `description` text,
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=MyISAM;
 
@@ -2282,6 +2282,9 @@ CREATE TABLE `lists` (
   `groupname` varchar(255) default NULL,
   `outcome` int(11) NOT NULL default '0',
   `destination` varchar(255) default NULL,
+  `reinjury_id` bigint(20)  NOT NULL DEFAULT 0,
+  `injury_part` varchar(31) NOT NULL DEFAULT '',
+  `injury_type` varchar(31) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
@@ -2984,6 +2987,7 @@ CREATE TABLE `transactions` (
   `refer_vitals`            tinyint(1)   NOT NULL DEFAULT 0,
   `refer_external`          tinyint(1)   NOT NULL DEFAULT 0,
   `refer_related_code`      varchar(255) NOT NULL DEFAULT '',
+  `refer_reply_date`        date         DEFAULT NULL,
   `reply_date`              date         DEFAULT NULL,
   `reply_from`              varchar(255) NOT NULL DEFAULT '',
   `reply_init_diag`         varchar(255) NOT NULL DEFAULT '',
@@ -2993,6 +2997,7 @@ CREATE TABLE `transactions` (
   `reply_services`          text         NOT NULL DEFAULT '',
   `reply_recommend`         text         NOT NULL DEFAULT '',
   `reply_rx_refer`          text         NOT NULL DEFAULT '',
+  `reply_related_code`      varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
