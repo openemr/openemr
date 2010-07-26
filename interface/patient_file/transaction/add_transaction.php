@@ -45,9 +45,15 @@ if ($mode) {
     if ($field_id == 'body' && $title != 'Referral') {
       $value = $_POST["body"];
     }
-    //use sql placemaker (note need to explicitly escape the column label)
-    $sets .= ", ".add_escape_custom($field_id)." = ?";
-    array_push($sqlBindArray,$value);
+    if ($data_type == 4 && empty($value)) {
+      // empty dates should be null
+      $sets .= ", $field_id = NULL";
+    }
+    else {
+      // use sql placemaker (note need to explicitly escape the column label)
+      $sets .= ", " . add_escape_custom($field_id) . " = ?";
+      array_push($sqlBindArray, $value);
+    }
   }
   if ($transid) {
     //use sql placemaker
@@ -161,10 +167,13 @@ function divclick(cb, divid) {
  return true;
 }
 
+// The ID of the input element to receive a found code.
+var current_sel_name = '';
+
 // This is for callback by the find-code popup.
 // Appends to or erases the current list of related codes.
 function set_related(codetype, code, selector, codedesc) {
- var frc = document.getElementById('form_related_code');
+ var frc = document.forms[0][current_sel_name];
  var s = frc.value;
  if (code) {
   if (s.length > 0) s += ';';
@@ -176,8 +185,9 @@ function set_related(codetype, code, selector, codedesc) {
 }
 
 // This invokes the find-code popup.
-function sel_related() {
- dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) echo '?codetype=IPPF' ?>', '_blank', 500, 400);
+function sel_related(e) {
+ current_sel_name = e.name;
+ dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) echo '?codetype=REF' ?>', '_blank', 500, 400);
 }
 
 // Process click on Delete link.
