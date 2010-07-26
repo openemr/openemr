@@ -81,3 +81,95 @@ CREATE TABLE player_event (
   PRIMARY KEY (`pid`,`date`,`pc_eid`)
 ) ENGINE=MyISAM;
 
+-- Added 2010-04-05:
+
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'injury_part';
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','injury_part','Injured Body Parts',1);
+DELETE FROM list_options WHERE list_id = 'injury_part';
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','ankle'    ,'Ankle',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','elbow'    ,'Elbow',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','foot'     ,'Foot / Toe',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','hand'     ,'Hand / Finger / Thumb',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','head'     ,'Head / Face',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','hip'      ,'Hip / Groin',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','knee'     ,'Knee',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','lowerback','Lower Back',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','lowerleg' ,'Lower Leg / Achilles',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','neck'     ,'Neck / Cervical Spine',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','pelvis'   ,'Pelvis',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','postthigh','Post Thigh / Hamstring',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','shoulder' ,'Shoulder / Clavicle',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','sternum'  ,'Sternum / Upper Back',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','thigh'    ,'Thigh / Quad',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','upperarm' ,'Upper Arm',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_part','wrist'    ,'Wrist',1);
+
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'injury_type';
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','injury_type','Injury Type',1);
+DELETE FROM list_options WHERE list_id = 'injury_type';
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','abrasion'   ,'Abrasion',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','concussion' ,'Concussion',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','dental'     ,'Dental Injury',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','dislocation','Dislocation / Subluxation',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','fracture'   ,'Fracture',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','haematoma'  ,'Haematoma / Contusion / Bruise',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','laceration' ,'Laceration',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','meniscal'   ,'Meniscal / Cartilage',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','muscle'     ,'Muscle Rupture/Tear/Strain',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','nerve'      ,'Nerve Injury',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','other'      ,'Other',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','otherbone'  ,'Other Bone Injury',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','overuse'    ,'Overuse Symptoms Non Specific',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','sprain'     ,'Sprain / Ligament Injury',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','synovitis'  ,'Synovitis / Effusion',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('injury_type','tendon'     ,'Tendon Rupture / Partial Tear / Tendinopathy',1);
+
+UPDATE lists AS l, lists_football_injury AS i SET l.extrainfo = i.fiside WHERE i.id = l.id;
+
+ALTER TABLE lists_football_injury
+  ADD ficondition           int(11)    NOT NULL DEFAULT 0,
+  ADD fimech_blocked        tinyint(1) NOT NULL DEFAULT 0,
+  ADD fimech_hitbyball      tinyint(1) NOT NULL DEFAULT 0,
+  ADD fimech_goalpost       tinyint(1) NOT NULL DEFAULT 0,
+  ADD fimech_ground         tinyint(1) NOT NULL DEFAULT 0,
+  ADD fimech_collother      tinyint(1) NOT NULL DEFAULT 0,
+  ADD fimech_tackside       tinyint(1) NOT NULL DEFAULT 0,
+  ADD fimech_tackback       tinyint(1) NOT NULL DEFAULT 0,
+  ADD fimech_sliding        tinyint(1) NOT NULL DEFAULT 0,
+  ADD fiweather_sunny       tinyint(1) NOT NULL DEFAULT 0,
+  ADD fiweather_rainy       tinyint(1) NOT NULL DEFAULT 0,
+  ADD fiweather_windy       tinyint(1) NOT NULL DEFAULT 0,
+  ADD fiweather_dry         tinyint(1) NOT NULL DEFAULT 0,
+  ADD fiweather_sleet       tinyint(1) NOT NULL DEFAULT 0,
+  ADD fiweather_overcast    tinyint(1) NOT NULL DEFAULT 0,
+  ADD fiweather_temperature varchar(7) NOT NULL DEFAULT '';
+
+-- Added 2010-06-22:
+
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','medical_system','Medical Systems',1);
+DELETE FROM list_options WHERE list_id = 'medical_system';
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','resp'  ,'Respiratory'      ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','cardio','Cardiovascular'   ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','gastro','Gastro Intestinal',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','genito','Genito Urinary'   ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','ent'   ,'ENT'              ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','endo'  ,'Endocrine'        ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','neuro' ,'Neurological'     ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','hemato','Haematological'   ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','psych' ,'Psychiatric / Psychological',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','skin'  ,'Skin'             ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_system','preg'  ,'Pregnancy'        ,1);
+
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','medical_type','Medical Types',1);
+DELETE FROM list_options WHERE list_id = 'medical_type';
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','neopl'  ,'Neoplastic'  ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','metabol','Metabolic'   ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','infect' ,'Infective'   ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','trauma' ,'Traumatic'   ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','autoimm','Autoimmune'  ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','vasc'   ,'Vascular'    ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','inflamm','Inflammatory',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','degen'  ,'Degenerative',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','idiopat','Idiopathic'  ,1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','na'     ,'N/A'         ,2);
+
