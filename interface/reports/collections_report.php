@@ -153,9 +153,14 @@ function endPatient($ptrow) {
   else {
     if ($ptrow['count'] > 1) {
       echo " <tr bgcolor='$bgcolor'>\n";
+      /***************************************************************
       echo "  <td class='detail' colspan='$initial_colspan'>";
       echo "&nbsp;</td>\n";
       echo "  <td class='detotal' colspan='$final_colspan'>&nbsp;Total Patient Balance:</td>\n";
+      ***************************************************************/
+      echo "  <td class='detotal' colspan='" . ($initial_colspan + $final_colspan) .
+        "'>&nbsp;" . xl('Total Patient Balance') . ":</td>\n";
+      /**************************************************************/
       if ($form_age_cols) {
         for ($c = 0; $c < $form_age_cols; ++$c) {
           echo "  <td class='detotal' align='right'>&nbsp;" .
