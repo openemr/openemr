@@ -708,3 +708,21 @@ CREATE TABLE `syndromic_surveillance` (
   KEY (`lists_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 #EndIf
+
+#IfMissingColumn lists reinjury_id
+ALTER TABLE lists
+  ADD reinjury_id bigint(20)  NOT NULL DEFAULT 0,
+  ADD injury_part varchar(31) NOT NULL DEFAULT '',
+  ADD injury_type varchar(31) NOT NULL DEFAULT '';
+#EndIf
+
+ALTER TABLE layout_options CHANGE description description text;
+
+#IfMissingColumn transactions refer_reply_date
+ALTER TABLE transactions ADD refer_reply_date date DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn transactions reply_related_code
+ALTER TABLE transactions ADD reply_related_code varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
