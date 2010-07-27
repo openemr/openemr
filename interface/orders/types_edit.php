@@ -149,7 +149,7 @@ if ($_POST['form_save']) {
     "laterality = "     . invalue('form_laterality')     . ", " .
     "description = "    . invalue('form_description')    . ", " .
     "units = "          . invalue('form_units')          . ", " .
-    "range = "          . invalue('form_range')          . ", " .
+    "`range` = "        . invalue('form_range')          . ", " .
     "standard_code = "  . invalue('form_standard_code')  . ", " .
     "related_code = "   . invalue('form_related_code')   . ", " .
     "seq = "            . invalue('form_seq');
