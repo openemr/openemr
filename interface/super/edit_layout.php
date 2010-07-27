@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -49,6 +49,7 @@ $datatypes = array(
   "26" => xl("List box w/add"),
   "27" => xl("Radio buttons"),
   "28" => xl("Lifestyle status"), // add for smoking status task
+  "31" => xl("Static Text"),
 );
 
 function nextGroupOrder($order) {
@@ -443,6 +444,7 @@ function writeFieldLine($linedata) {
          htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' maxlength='36' class='optin' />";
     echo "</td>\n";
  
+    /*****************************************************************
     echo "  <td align='center' class='optcell'>";
     if ($linedata['data_type'] == 2) {
       echo "<input type='text' name='fld[$fld_line_no][default]' value='" .
@@ -461,7 +463,31 @@ function writeFieldLine($linedata) {
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
      echo "<td align='center' class='translation'>" . htmlspecialchars(xl($linedata['description']), ENT_QUOTES) . "</td>\n";
     }
-    
+    *****************************************************************/
+
+    if ($linedata['data_type'] == 31) {
+      echo "  <td align='center' class='optcell'>";
+      echo "<textarea name='fld[$fld_line_no][desc]' rows='3' cols='35' class='optin'>" .
+           $linedata['description'] . "</textarea>";
+      echo "<input type='hidden' name='fld[$fld_line_no][default]' value='" .
+         htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' />";
+      echo "</td>\n";
+    }
+    else {
+      echo "  <td align='center' class='optcell'>";
+      echo "<input type='text' name='fld[$fld_line_no][desc]' value='" .
+        htmlspecialchars($linedata['description'], ENT_QUOTES) .
+        "' size='30' maxlength='63' class='optin' />";
+      echo "<input type='hidden' name='fld[$fld_line_no][default]' value='" .
+        htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' />";
+      echo "</td>\n";
+      // if not english and showing layout labels, then show the translation of Description
+      if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+        echo "<td align='center' class='translation'>" .
+        htmlspecialchars(xl($linedata['description']), ENT_QUOTES) . "</td>\n";
+      }
+    }
+
     echo " </tr>\n";
 }
 ?>
@@ -599,7 +625,6 @@ while ($row = sqlFetchArray($res)) {
   <th><?php xl('Label Cols','e'); ?></th>
   <th><?php xl('Data Cols','e'); ?></th>
   <th><?php xl('Options','e'); ?></th>
-  <th><?php xl('Default Value','e'); ?></th>
   <th><?php xl('Description','e'); ?></th>
   <?php // if not english and showing layout label translations, then show translation header for description
   if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
@@ -661,7 +686,6 @@ while ($row = sqlFetchArray($res)) {
   <th><?php xl('Label Cols','e'); ?></th>
   <th><?php xl('Data Cols','e'); ?></th>
   <th><?php xl('Options','e'); ?></th>
-  <th><?php xl('Default Value','e'); ?></th>
   <th><?php xl('Description','e'); ?></th>
  </tr>
 </thead>
@@ -692,9 +716,9 @@ foreach ($datatypes as $key=>$value) {
 <td><input type="textbox" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="31" class="listid"> </td>
 <td><input type="textbox" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3"> </td>
 <td><input type="textbox" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3"> </td>
-<td><input type="textbox" name="gnewedit_options" id="gnewedit_options" value="" size="3" maxlength="36"> </td>
-<td><input type="textbox" name="gnewdefault" id="gnewdefault" value="" size="20" maxlength="63"> </td>
-<td><input type="textbox" name="gnewdesc" id="gnewdesc" value="" size="20" maxlength="63"> </td>
+<td><input type="textbox" name="gnewedit_options" id="gnewedit_options" value="" size="3" maxlength="36">
+    <input type="hidden"  name="gnewdefault" id="gnewdefault" value="" /> </td>
+<td><input type="textbox" name="gnewdesc" id="gnewdesc" value="" size="30" maxlength="63"> </td>
 </tr>
 </tbody>
 </table>
@@ -720,7 +744,6 @@ foreach ($datatypes as $key=>$value) {
    <th><?php xl('Label Cols','e'); ?></th>
    <th><?php xl('Data Cols','e'); ?></th>
    <th><?php xl('Options','e'); ?></th>
-   <th><?php xl('Default Value','e'); ?></th>
    <th><?php xl('Description','e'); ?></th>
   </tr>
  </thead>
@@ -751,9 +774,9 @@ foreach ($datatypes as $key=>$value) {
    <td><input type="textbox" name="newlistid" id="newlistid" value="" size="8" maxlength="31" class="listid"> </td>
    <td><input type="textbox" name="newtitlecols" id="newtitlecols" value="" size="3" maxlength="3"> </td>
    <td><input type="textbox" name="newdatacols" id="newdatacols" value="" size="3" maxlength="3"> </td>
-   <td><input type="textbox" name="newedit_options" id="newedit_options" value="" size="3" maxlength="36"> </td>
-   <td><input type="textbox" name="newdefault" id="newdefault" value="" size="20" maxlength="63"> </td>
-   <td><input type="textbox" name="newdesc" id="newdesc" value="" size="20" maxlength="63"> </td>
+   <td><input type="textbox" name="newedit_options" id="newedit_options" value="" size="3" maxlength="36">
+       <input type="hidden"  name="newdefault" id="newdefault" value="" /> </td>
+   <td><input type="textbox" name="newdesc" id="newdesc" value="" size="30" maxlength="63"> </td>
   </tr>
   <tr>
    <td colspan="9">
