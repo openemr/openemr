@@ -6,6 +6,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 include_once("../interface/globals.php");
 require_once("../library/sql.inc");
 
@@ -25,11 +33,11 @@ require_once("../library/sql.inc");
 	function doSelectorButton() {
 		var selector = document.getElementById('selectorButton');
 		var value;
-		if ( selector.value == "<?php xl('Select All','e'); ?>" ) {
-			selector.value = "<?php xl('Unselect All','e'); ?>";
+		if ( selector.value == "<?php echo htmlspecialchars( xl('Select All'), ENT_QUOTES); ?>" ) {
+			selector.value = "<?php echo htmlspecialchars( xl('Unselect All'), ENT_QUOTES); ?>";
 			value = true;
 		} else {
-			selector.value = "<?php xl('Select All','e'); ?>";
+			selector.value = "<?php echo htmlspecialchars( xl('Select All'), ENT_QUOTES); ?>";
 			value = false;
 		}
 		var checkBoxes = document.getElementsByName( "searchFields" );
@@ -56,7 +64,7 @@ require_once("../library/sql.inc");
 		}
 	    if ( opener != null ) {
 			if ( fieldString == '' || fieldString == undefined ) {
-				alert("<?php xl('You must select some fields to continue.','e'); ?>");
+				alert("<?php echo htmlspecialchars( xl('You must select some fields to continue.'), ENT_QUOTES); ?>");
 				return false;
 			}
 			opener.processFilter( fieldString );
@@ -73,10 +81,10 @@ require_once("../library/sql.inc");
 		  <b><?php xl('Select Fields', 'e'); ?>:</b>
 		</td>
 	    <td>
-		<input type="button" value="<?php xl('Submit','e'); ?>" id="submit" onclick="javascript:doSubmit();"></input>
+		<input type="button" value="<?php echo htmlspecialchars( xl('Submit'), ENT_QUOTES); ?>" id="submit" onclick="javascript:doSubmit();"></input>
 	    </td>
 		<td>
-		<input type="button" value="<?php xl('Select All','e'); ?>" id="selectorButton" onclick="javascript:doSelectorButton();"></input>
+		<input type="button" value="<?php echo htmlspecialchars( xl('Select All'), ENT_QUOTES); ?>" id="selectorButton" onclick="javascript:doSelectorButton();"></input>
 		</td>
 	  </tr>
 	</table>
@@ -90,7 +98,7 @@ require_once("../library/sql.inc");
 				echo "<tr>";
 			}
 			echo "<td>";
-			echo "<input type='checkbox' value='${fieldId}' name='searchFields'/> <b>$fieldTitle</b>";
+			echo "<input type='checkbox' value='".htmlspecialchars( ${fieldId}, ENT_QUOTES)."' name='searchFields'/> <b>".htmlspecialchars( $fieldTitle, ENT_NOQUOTES)."</b>";
 			echo "</td>";
     }
 

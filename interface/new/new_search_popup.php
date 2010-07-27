@@ -7,6 +7,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/formdata.inc.php");
@@ -74,7 +82,7 @@ form {
 .oneResult {
 }
 .topResult {
- background-color: <?php echo $searchcolor; ?>;
+ background-color: <?php echo htmlspecialchars( $searchcolor, ENT_QUOTES); ?>;
 }
 .billing {
  color: red;
@@ -106,7 +114,7 @@ function submitList(offset) {
 <body class="body_top">
 
 <form method='post' action='new_search_popup.php' name='theform'>
-<input type='hidden' name='fstart'  value='<?php echo $fstart  ?>' />
+<input type='hidden' name='fstart'  value='<?php echo htmlspecialchars( $fstart, ENT_QUOTES);  ?>' />
 
 <?php
 $MAXSHOW = 100; // maximum number of results to display at once
@@ -117,20 +125,31 @@ $MAXSHOW = 100; // maximum number of results to display at once
 $message = "";
 $numfields = 0;
 $relevance = "0";
+// array to hold the sql parameters for binding
+//  Note in this special situation, there are two:
+//   1. For the main sql statement - $sqlBindArray
+//   2. For the _set_patient_inc_count function - $sqlBindArraySpecial
+//      (this only holds $where and not $relevance binded values)
+$sqlBindArray = array();
+$sqlBindArraySpecial = array();
 $where = "1 = 0";
 
 foreach ($_REQUEST as $key => $value) {
   if (substr($key, 0, 3) != 'mf_') continue; // "match field"
   $fldname = substr($key, 3);
-  $avalue = formDataCore($value);
-  $hvalue = htmlspecialchars(strip_escape_custom($value));
   // pubpid requires special treatment.  Match on that is fatal.
-  if ($fldname == 'pubpid')
-    $relevance .= " + 1000 * ( $fldname LIKE '$avalue' )";
-  else
-    $relevance .= " + ( $fldname LIKE '$avalue' )";
-  $where .= " OR $fldname LIKE '$avalue'";
-  echo "<input type='hidden' name='$key' value='$hvalue' />\n";
+  if ($fldname == 'pubpid') {
+    $relevance .= " + 1000 * ( ".add_escape_custom($fldname)." LIKE ? )";
+    array_push($sqlBindArray, $value);
+  }
+  else {
+    $relevance .= " + ( ".add_escape_custom($fldname)." LIKE ? )";
+    array_push($sqlBindArray, $value);
+  }
+  $where .= " OR ".add_escape_custom($fldname)." LIKE ?";
+  array_push($sqlBindArray, $value);
+  array_push($sqlBindArraySpecial, $value);
+  echo "<input type='hidden' name='".htmlspecialchars( $key, ENT_QUOTES)."' value='".htmlspecialchars( $value, ENT_QUOTES)."' />\n";
   ++$numfields;
 }
 
@@ -138,12 +157,12 @@ $sql = "SELECT *, ( $relevance ) AS relevance, " .
   "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS " .
   "FROM patient_data WHERE $where " .
   "ORDER BY relevance DESC, lname, fname, mname " .
-  "LIMIT $fstart, $MAXSHOW";
+  "LIMIT ".add_escape_custom($fstart).", ".add_escape_custom($MAXSHOW)."";
 
-$rez = sqlStatement($sql);
+$rez = sqlStatement($sql, $sqlBindArray);
 $result = array();
 while ($row = sqlFetchArray($rez)) $result[] = $row;
-_set_patient_inc_count($MAXSHOW, count($result), $where);
+_set_patient_inc_count($MAXSHOW, count($result), $where, $sqlBindArraySpecial);
 ?>
 
 </form>
@@ -154,7 +173,7 @@ _set_patient_inc_count($MAXSHOW, count($result), $where);
    &nbsp;
   </td>
   <td class='text' align='center'>
-<?php if ($message) echo "<font color='red'><b>$message</b></font>\n"; ?>
+<?php if ($message) echo "<font color='red'><b>".htmlspecialchars( $message, ENT_NOQUOTES)."</b></font>\n"; ?>
   </td>
   <td class='text' align='right'>
 <?php
@@ -169,7 +188,7 @@ if ($fend > $count) $fend = $count;
    </a>
    &nbsp;&nbsp;
 <?php } ?>
-   <?php echo ($fstart + 1) . " - $fend of $count" ?>
+   <?php echo ($fstart + 1) . htmlspecialchars( " - $fend of $count", ENT_NOQUOTES) ?>
 <?php if ($count > $fend) { ?>
    &nbsp;&nbsp;
    <a href="javascript:submitList(<?php echo $MAXSHOW ?>)">
@@ -183,8 +202,8 @@ if ($fend > $count) $fend = $count;
 <div id="searchResultsHeader">
 <table>
 <tr>
-<th class="srID"   ><?php xl('Hits'   ,'e');?></th>
-<th class="srName" ><?php xl('Name'   ,'e');?></th>
+<th class="srID"   ><?php echo htmlspecialchars( xl('Hits'), ENT_NOQUOTES);?></th>
+<th class="srName" ><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES);?></th>
 <?php
 // This gets address plus other fields that are mandatory, up to a limit of 5.
 $extracols = array();
@@ -197,7 +216,7 @@ $tres = sqlStatement("SELECT field_id, title FROM layout_options " .
 
 while ($trow = sqlFetchArray($tres)) {
   $extracols[$trow['field_id']] = $trow['title'];
-  echo "<th class='srMisc'>" . xl_layout_label($trow['title']) . "</th>\n";
+  echo "<th class='srMisc'>" . htmlspecialchars( xl_layout_label($trow['title']), ENT_NOQUOTES) . "</th>\n";
 }
 ?>
 
@@ -218,14 +237,14 @@ if ($result) {
       $relevance -= 999;
       $pubpid_matched = true;
     }
-    echo "<tr id='" . $iter['pid'] . "' class='oneresult";
+    echo "<tr id='" . htmlspecialchars( $iter['pid'], ENT_QUOTES) . "' class='oneresult";
     // Highlight entries where all fields matched.
     echo $numfields <= $iter['relevance'] ? " topresult" : "";
     echo "'>";
-    echo  "<td class='srID'>$relevance</td>\n";
-    echo  "<td class='srName'>" . $iter['lname'] . ", " . $iter['fname'] . "</td>\n";
+    echo  "<td class='srID'>".htmlspecialchars( $relevance, ENT_NOQUOTES)."</td>\n";
+    echo  "<td class='srName'>" . htmlspecialchars( $iter['lname'] . ", " . $iter['fname'], ENT_NOQUOTES) . "</td>\n";
     foreach ($extracols as $field_id => $title) {
-      echo "<td class='srMisc'>" . $iter[$field_id] . "</td>\n";
+      echo "<td class='srMisc'>" . htmlspecialchars( $iter[$field_id], ENT_NOQUOTES) . "</td>\n";
     }
   }
 }
@@ -235,10 +254,10 @@ if ($result) {
 
 <center>
 <?php if ($pubpid_matched) { ?>
-<input type='button' value='<?php echo xl('Cancel'); ?>'
+<input type='button' value='<?php echo htmlspecialchars( xl('Cancel'), ENT_QUOTES); ?>'
  onclick='window.close();' />
 <?php } else { ?>
-<input type='button' value='<?php echo xl('Confirm Create New Patient'); ?>'
+<input type='button' value='<?php echo htmlspecialchars( xl('Confirm Create New Patient'), ENT_QUOTES); ?>'
  onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
 <?php } ?>
 </center>
@@ -276,14 +295,14 @@ else {
 
 var f = opener.document.forms[0];
 <?php if ($pubpid_matched) { ?>
-alert('<?php xl('A patient with this ID already exists.','e'); ?>')
+alert('<?php echo htmlspecialchars( xl('A patient with this ID already exists.'), ENT_QUOTES); ?>')
 <?php } else { ?>
 opener.force_submit = true;
-f.create.value = '<?php xl('Confirm Create New Patient','e'); ?>';
+f.create.value = '<?php echo htmlspecialchars( xl('Confirm Create New Patient'), ENT_QUOTES); ?>';
 <?php } ?>
 
 <?php if (!count($result)) { ?>
-if (confirm('<?php xl('No matches were found. Create the new patient now?','e'); ?>')) {
+if (confirm('<?php echo htmlspecialchars( xl('No matches were found. Create the new patient now?'), ENT_QUOTES); ?>')) {
  opener.top.restoreSession();
  f.submit();
 }

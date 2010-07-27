@@ -147,12 +147,12 @@ $groupname
 
 ) {
 	
-	sqlQuery("insert into calendar set pid=$pid,time='$time',reason='$reason',owner='$owner',groupname='$groupname',date=now()");
+	sqlQuery("insert into calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now()", array($pid, $time, $reason, $owner, $groupname) );
 }
 
 //delete a calendar entry item
 function deleteCalendarItem( $calid,$pid) {
-	sqlQuery("delete from calendar where id='$calid' and pid='$pid'");
+	sqlQuery("delete from calendar where id=? and pid=?", array($calid, $pid) );
 	
 }
 
@@ -169,7 +169,7 @@ $groupname
 
 ) {
 	
-	sqlQuery("update calendar set pid=$pid,time='$time',reason='$reason',owner='$owner',groupname='$groupname',date=now() where id='$calid'");
+	sqlQuery("update calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now() where id=?", array($pid, $time, $reason, $owner, $groupname, $calid) );
 }
 
 

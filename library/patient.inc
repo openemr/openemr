@@ -6,6 +6,7 @@
 
 include_once("{$GLOBALS['srcdir']}/sql.inc");
 require_once(dirname(__FILE__) . "/classes/WSWrapper.class.php");
+require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 // These are for sports team use:
 $PLAYER_FITNESSES = array(
@@ -304,8 +305,8 @@ function getInsuranceData($pid, $type = "primary", $given = "insd.*, ic.name as 
 {
   $sql = "select $given from insurance_data as insd " .
     "left join insurance_companies as ic on ic.id = insd.provider " .
-    "where pid = '$pid' and type = '$type' order by date DESC limit 1";
-  return sqlQuery($sql);
+    "where pid = ? and type = ? order by date DESC limit 1";
+  return sqlQuery($sql, array($pid, $type) );
 }
 
 function getInsuranceDataByDate($pid, $date, $type,
@@ -327,12 +328,12 @@ function getEmployerData($pid, $given = "*")
     return sqlQuery($sql, array($pid) );
 }
 
-function _set_patient_inc_count($limit, $count, $where) {
+function _set_patient_inc_count($limit, $count, $where, $whereBindArray=array()) {
   // When the limit is exceeded, find out what the unlimited count would be.
   $GLOBALS['PATIENT_INC_COUNT'] = $count;
   // if ($limit != "all" && $GLOBALS['PATIENT_INC_COUNT'] >= $limit) {
   if ($limit != "all") {
-    $tmp = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE $where");
+    $tmp = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE $where", $whereBindArray);
     $GLOBALS['PATIENT_INC_COUNT'] = $tmp['count'];
   }
 }
@@ -358,70 +359,82 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
     if ($lname{0} != strtoupper($lname{0})) {$search_for_pieces1 = '%';}
     if ($fname{0} != strtoupper($fname{0})) {$search_for_pieces2 = '%';}
 
-    $where = "lname LIKE '" . $search_for_pieces1 . "$lname%' " .
-        "AND fname LIKE '" . $search_for_pieces2 . "$fname%' ";
+    $sqlBindArray = array();
+    $where = "lname LIKE ? AND fname LIKE ? ";
+    array_push($sqlBindArray, $search_for_pieces1.$lname."%", $search_for_pieces2.$fname."%");
         if (!empty($GLOBALS['pt_restrict_field'])) {
                 if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
-                        $where .= "AND ( patient_data.".$GLOBALS['pt_restrict_field']." = ( SELECT facility_id FROM users WHERE username = '".$_SESSION{"authUser"}."') OR patient_data.".$GLOBALS['pt_restrict_field']." = '' ) ";
+                        $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+                            " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
+                            add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
+			array_push($sqlBindArray, $_SESSION{"authUser"});
                 }
         }
 
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
-    $rez = sqlStatement($sql);
+    $rez = sqlStatement($sql, $sqlBindArray);
 
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter] = $row;
 
-    _set_patient_inc_count($limit, count($returnval), $where);
+    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
 }
 
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-    
-    $where = "pubpid LIKE '$pid%' ";
+
+    $sqlBindArray = array();
+    $where = "pubpid LIKE ? ";
+    array_push($sqlBindArray, $pid."%");
         if (!empty($GLOBALS['pt_restrict_field']) && $GLOBALS['pt_restrict_by_id'] ) {
                 if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
-                        $where .= "AND ( patient_data.".$GLOBALS['pt_restrict_field']." = ( SELECT facility_id FROM users WHERE username = '".$_SESSION{"authUser"}."') OR patient_data.".$GLOBALS['pt_restrict_field']." = '' ) ";
+                        $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+                                " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
+                                add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
+                        array_push($sqlBindArray, $_SESSION{"authUser"});
                 }
         }
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") $sql .= " limit $start, $limit";
-    $rez = sqlStatement($sql);
+    $rez = sqlStatement($sql, $sqlBindArray);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
-    _set_patient_inc_count($limit, count($returnval), $where);
+    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
 }
 
 function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-  $layoutCols = sqlStatement( "SELECT field_id FROM layout_options WHERE form_id='DEM' AND group_name not like ('%Employer%' ) AND uor !=0" );
+  $layoutCols = sqlStatement( "SELECT field_id FROM layout_options WHERE form_id='DEM' AND group_name not like (? ) AND uor !=0", array("%".Employer."%") );
 
+  $sqlBindArray = array();
   $where = "";
   for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
     if ( $iter > 0 ) {
       $where .= " or ";
     }
-    $where .= " ".$row["field_id"]." like '%".$searchTerm."%' ";
+    $where .= " ".add_escape_custom($row["field_id"])." like ? ";
+    array_push($sqlBindArray, "%".$searchTerm."%");
   }
 
   $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
   if ($limit != "all") $sql .= " limit $start, $limit";
-  $rez = sqlStatement($sql);
+  $rez = sqlStatement($sql, $sqlBindArray);
   for($iter=0; $row=sqlFetchArray($rez); $iter++)
     $returnval[$iter]=$row;
-  _set_patient_inc_count($limit, count($returnval), $where);
+  _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
   return $returnval;
 }
 
 function getByPatientDemographicsFilter($searchFields, $searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0" )
 {
 	$layoutCols = split( '~', $searchFields );
+  $sqlBindArray = array();
   $where = "";
   $i = 0;
   foreach ($layoutCols as $val ) {
@@ -429,19 +442,21 @@ function getByPatientDemographicsFilter($searchFields, $searchTerm = "%", $given
 		   $where .= " or ";
 		}
     if ($val == 'pid') {
-  		$where .= " $val = '$searchTerm' ";
+  		$where .= " ".add_escape_custom($val)." = ? ";
+                array_push($sqlBindArray, $searchTerm);
     }
     else {
-  		$where .= " $val like '$searchTerm%' ";
+  		$where .= " ".add_escape_custom($val)." like ? ";
+                array_push($sqlBindArray, $searchTerm."%");
     }
 		$i++;
 	}
   $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
   if ($limit != "all") $sql .= " limit $start, $limit";
-  $rez = sqlStatement($sql);
+  $rez = sqlStatement($sql, $sqlBindArray);
   for($iter=0; $row=sqlFetchArray($rez); $iter++)
       $returnval[$iter]=$row;
-  _set_patient_inc_count($limit, count($returnval), $where);
+  _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
   return $returnval;
 }
 
@@ -492,10 +507,15 @@ function getPatientName($pid) {
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     $DOB = fixDate($DOB, $DOB);
-    $where = "DOB like '$DOB%' ";
+    $sqlBindArray = array();
+    $where = "DOB like ? ";
+    array_push($sqlBindArray, $DOB."%");
         if (!empty($GLOBALS['pt_restrict_field'])) {
                 if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
-                        $where .= "AND ( patient_data.".$GLOBALS['pt_restrict_field']." = ( SELECT facility_id FROM users WHERE username = '".$_SESSION{"authUser"}."') OR patient_data.".$GLOBALS['pt_restrict_field']." = '' ) ";
+                        $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+                                " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
+                                add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
+                        array_push($sqlBindArray, $_SESSION{"authUser"});
                 }
         }
 
@@ -503,26 +523,28 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
 
     if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
-    $rez = sqlStatement($sql);
+    $rez = sqlStatement($sql, $sqlBindArray);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
-    _set_patient_inc_count($limit, count($returnval), $where);
+    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
 }
 
 /* find patient data by SSN */
 function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-    $where = "ss LIKE '$ss%'";
+    $sqlBindArray = array();
+    $where = "ss LIKE ?";
+    array_push($sqlBindArray, $ss."%");
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
-    $rez = sqlStatement($sql);
+    $rez = sqlStatement($sql, $sqlBindArray);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
-    _set_patient_inc_count($limit, count($returnval), $where);
+    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
 }
 
@@ -530,15 +552,17 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     $phone = ereg_replace( "[[:punct:]]","", $phone );
-    $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP '$phone'";
+    $sqlBindArray = array();
+    $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP ?";
+    array_push($sqlBindArray, $phone);
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
-    $rez = sqlStatement($sql);
+    $rez = sqlStatement($sql, $sqlBindArray);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
-    _set_patient_inc_count($limit, count($returnval), $where);
+    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
 }
 

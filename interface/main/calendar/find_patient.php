@@ -1,4 +1,13 @@
 <?php 
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 include_once("../../globals.php");
 include_once("$srcdir/calendar.inc");
 include_once("$srcdir/patient.inc");
@@ -19,7 +28,7 @@ if (isset($_POST["mode"]) && ($_POST["mode"] == "editappt")) {
   }
   $timesave = "$year-$month-$day $hour:$minute";
   //echo $timesave;
-  $providerres = sqlQuery("select name from groups where user='".$_POST["provider"]."' limit 1");
+  $providerres = sqlQuery("select name from groups where user=? limit 1", array($_POST["provider"]) );
 
   saveCalendarUpdate($_POST["calid"],$_POST["pid"],$timesave,$_POST["reason"],$_POST["provider"],$providerres{"name"});
 }
@@ -39,7 +48,7 @@ elseif (isset($_POST["mode"]) && ($_POST["mode"] == "saveappt")) {
     $hour += 12;
   }
   $timesave = "$year-$month-$day $hour:$minute";
-  $providerres = sqlQuery("select name from groups where user='".$_POST["provider"]."' limit 1");
+  $providerres = sqlQuery("select name from groups where user=? limit 1", array($_POST["provider"]) );
   newCalendarItem($_POST["pid"],$timesave,$_POST["reason"],$_POST["provider"],$providerres{"name"});
 } else {
   $body_code = "";
@@ -195,46 +204,46 @@ form {
 </head>
 <body class="body_bottom" <?php $body_code;?>>
 
-   <span class='bold'><?php xl('Patient Appointment','e'); ?></span>
+   <span class='bold'><?php echo htmlspecialchars( xl('Patient Appointment'), ENT_NOQUOTES); ?></span>
 <?php  if ($userauthorized == 1) { ?>
    <a class="more" style="font-size:8pt;"
     href="../authorizations/authorizations.php"
-    name="Authorizations"><?php xl('(Notes and Authorizations)','e'); ?></a>
+    name="Authorizations"><?php echo htmlspecialchars( xl('(Notes and Authorizations)'), ENT_NOQUOTES); ?></a>
 <?php  } else { ?>
    <a class="more" style="font-size:8pt;"
     href="../authorizations/authorizations.php"
-    name="Authorizations"><?php xl('(Patient Notes)','e'); ?></a>
+    name="Authorizations"><?php echo htmlspecialchars( xl('(Patient Notes)'), ENT_NOQUOTES); ?></a>
 <?php  } ?>
 
 <div id="searchCriteria">
 <form method='post' id="theform" name='findpatientform' action='find_patient.php?no_nav=1'>
    <input type='hidden' name='mode' value="findpatient">
-   <?php xl('Search by:','e'); ?>
+   <?php echo htmlspecialchars( xl('Search by:'), ENT_NOQUOTES); ?>
    <select name='findBy'>
-    <option value="Last"><?php xl ('Name','e'); ?></option>
+    <option value="Last"><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES); ?></option>
     <!-- (CHEMED) Search by phone number -->
-    <option value="Phone"<?php if ($searchby == 'Phone') echo ' selected' ?>><?php xl ('Phone','e'); ?></option>
-    <option value="ID"<?php if ($searchby == 'ID') echo ' selected' ?>><?php xl ('ID','e'); ?></option>
-    <option value="SSN"<?php if ($searchby == 'SSN') echo ' selected' ?>><?php xl ('SSN','e'); ?></option>
-    <option value="DOB"<?php if ($searchby == 'DOB') echo ' selected' ?>><?php xl ('DOB','e'); ?></option>
+    <option value="Phone"<?php if ($searchby == 'Phone') echo ' selected' ?>><?php echo htmlspecialchars( xl('Phone'), ENT_NOQUOTES); ?></option>
+    <option value="ID"<?php if ($searchby == 'ID') echo ' selected' ?>><?php echo htmlspecialchars( xl('ID'), ENT_NOQUOTES); ?></option>
+    <option value="SSN"<?php if ($searchby == 'SSN') echo ' selected' ?>><?php echo htmlspecialchars( xl('SSN'), ENT_NOQUOTES); ?></option>
+    <option value="DOB"<?php if ($searchby == 'DOB') echo ' selected' ?>><?php echo htmlspecialchars( xl('DOB'), ENT_NOQUOTES); ?></option>
    </select>
- <?php xl('for:','e'); ?>
-   <input type='text' id='lastname' name='lastname' size='12' value='<?php echo $_REQUEST['lastname']; ?>' title='<?php xl('If name, any part of lastname or lastname,firstname','e'); ?>'>
+ <?php echo htmlspecialchars( xl('for:'), ENT_NOQUOTES); ?>
+   <input type='text' id='lastname' name='lastname' size='12' value='<?php echo htmlspecialchars( $_REQUEST['lastname'], ENT_QUOTES); ?>' title='<?php echo htmlspecialchars( xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>'>
    &nbsp;
-   <input type='submit' id="submitbtn" value='<?php xl('Search','e'); ?>'>
+   <input type='submit' id="submitbtn" value='<?php echo htmlspecialchars( xl('Search'), ENT_QUOTES); ?>'>
    <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 
 <?php if (! isset($_REQUEST['lastname'])): ?>
-<div id="searchstatus">Enter your search criteria above</div>
+<div id="searchstatus"><?php echo htmlspecialchars( xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
 <?php elseif (count($result) == 0): ?>
-<div id="searchstatus" class="noResults">No records found. Please expand your search criteria.</div>
+<div id="searchstatus" class="noResults"><?php echo htmlspecialchars( xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?></div>
 <?php elseif (count($result)>=100): ?>
-<div id="searchstatus" class="tooManyResults">More than 100 records found. Please narrow your search criteria.</div>
+<div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars( xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
 <?php elseif (count($result)<100): ?>
-<div id="searchstatus" class="howManyResults"><?php echo count($result); ?> records found.</div>
+<div id="searchstatus" class="howManyResults"><?php echo htmlspecialchars( count($result)." ".xl('records found'), ENT_NOQUOTES); ?>.</div>
 <?php endif; ?>
 
-<a class='text' href="../../new/new_patient.php" target="_top"><?php  xl ('(New Patient)','e'); ?></a>
+<a class='text' href="../../new/new_patient.php" target="_top"><?php echo htmlspecialchars( xl('(New Patient)'), ENT_NOQUOTES); ?></a>
 
 </form>
 </div>
@@ -245,11 +254,11 @@ form {
 <div id="searchResultsHeader">
 <table>
  <tr>
-  <th class="srName"><?php xl ('Name','e'); ?></th>
-  <th class="srPhone"><?php xl ('Phone','e'); ?></th> <!-- (CHEMED) Search by phone number -->
-  <th class="srSS"><?php xl ('SS','e'); ?></th>
-  <th class="srDOB"><?php xl ('DOB','e'); ?></th>
-  <th class="srID"><?php xl ('ID','e'); ?></th>
+  <th class="srName"><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES); ?></th>
+  <th class="srPhone"><?php echo htmlspecialchars( xl('Phone'), ENT_NOQUOTES); ?></th> <!-- (CHEMED) Search by phone number -->
+  <th class="srSS"><?php echo htmlspecialchars( xl('SS'), ENT_NOQUOTES); ?></th>
+  <th class="srDOB"><?php echo htmlspecialchars( xl('DOB'), ENT_NOQUOTES); ?></th>
+  <th class="srID"><?php echo htmlspecialchars( xl('ID'), ENT_NOQUOTES); ?></th>
  </tr>
 </table> 
 </div>
@@ -261,28 +270,14 @@ form {
   $ampm = 1;
   if (date("H") >= 12) { $ampm = 2; }
 
-  //get the categories so you can get the details of the default category
-  $dbconn = $GLOBALS['adodb']['db'];
-
-  $sql = "SELECT pc_catid,pc_catname,pc_catcolor,pc_catdesc, " .
-    "pc_recurrtype,pc_recurrspec,pc_recurrfreq,pc_duration, " .
-    "pc_dailylimit,pc_end_date_flag,pc_end_date_type,pc_end_date_freq, " .
-    "pc_end_all_day FROM openemr_postcalendar_categories " .
-    "WHERE pc_catid = " . $GLOBALS['default_category'];
-  $catresult = $dbconn->Execute($sql);
-
-  $event_dur_minutes  = ($catresult->fields['pc_duration']%(60 * 60))/60;
-  $event_dur_hours = ($catresult->fields['pc_duration']/(60 * 60));
-  $event_title = $catresult->fields['pc_catname'];
-
   foreach ($result as $iter) {
     if ($total > 100) { break; }
 
     $iterpid   = $iter['pid'];
     $iterproviderid = $iter['providerID'];
-    $iterlname = addslashes($iter['lname']);
-    $iterfname = addslashes($iter['fname']);
-    $itermname = addslashes($iter['mname']);
+    $iterlname = $iter['lname'];
+    $iterfname = $iter['fname'];
+    $itermname = $iter['mname'];
     $iterdob   = $iter['DOB'];
 
     // the special genericname2 of 'Billing' means something, but I'm not sure
@@ -291,16 +286,16 @@ form {
     $trClass = "oneresult";
     if ($iter['genericname2'] == 'Billing') { $trClass .= " billing"; }
 
-    $trTitle = "Make new appointment for ".$iterfname. " ". $iterlname;
+    $trTitle = xl("Make new appointment for") . " " . $iterfname . " " . $iterlname;
         
-    echo " <tr class='".$trClass."' id='".$iterpid."~".$iterproviderid."' title='".$trTitle."'>";
-    echo "  <td class='srName'>$iterlname, $iterfname $itermname";
-    if ($iter['genericname2'] == 'Billing') { echo "<br>".$iter['genericval2']; }
+    echo " <tr class='".$trClass."' id='".htmlspecialchars( $iterpid."~".$iterproviderid, ENT_QUOTES)."' title='".htmlspecialchars( $trTitle, ENT_QUOTES)."'>";
+    echo "  <td class='srName'>".htmlspecialchars( $iterlname.", ".$iterfname." ".$itermname, ENT_NOQUOTES);
+    if ($iter['genericname2'] == 'Billing') { echo "<br>".htmlspecialchars( $iter['genericval2'], ENT_NOQUOTES); }
     echo "</td>\n";
-    echo "  <td class='srPhone'>" . $iter['phone_home'] . "</td>\n"; //(CHEMED) Search by phone number
-    echo "  <td class='srSS'>" . $iter['ss'] . "</td>\n";
-    echo "  <td class='srDOB'>" . $iter['DOB'] . "</td>\n";
-    echo "  <td class='srID'>" . $iter['pubpid'] . "</td>\n";
+    echo "  <td class='srPhone'>" . htmlspecialchars( $iter['phone_home'], ENT_NOQUOTES) . "</td>\n"; //(CHEMED) Search by phone number
+    echo "  <td class='srSS'>" . htmlspecialchars( $iter['ss'], ENT_NOQUOTES) . "</td>\n";
+    echo "  <td class='srDOB'>" . htmlspecialchars( $iter['DOB'], ENT_NOQUOTES) . "</td>\n";
+    echo "  <td class='srID'>" . htmlspecialchars( $iter['pubpid'], ENT_NOQUOTES) . "</td>\n";
     echo " </tr>";
   }
 

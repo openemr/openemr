@@ -4,13 +4,21 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/formdata.inc.php");
 
 $fstart = $_REQUEST['fstart'] + 0;
 $popup  = empty($_REQUEST['popup']) ? 0 : 1;
-$message = strip_escape_custom($_GET['message']);
+$message = $_GET['message'];
 ?>
 
 <html>
@@ -101,7 +109,7 @@ function submitList(offset) {
 <body class="body_top">
 
 <form method='post' action='patient_select.php' name='theform'>
-<input type='hidden' name='fstart'  value='<?php echo $fstart  ?>' />
+<input type='hidden' name='fstart'  value='<?php echo htmlspecialchars( $fstart, ENT_QUOTES); ?>' />
 
 <?php
 $MAXSHOW = 100; // maximum number of results to display at once
@@ -115,6 +123,7 @@ if ($popup) {
   echo "<input type='hidden' name='popup' value='1' />\n";
 
   // Construct WHERE clause and save search parameters as form fields.
+  $sqlBindArray = array();
   $where = "1 = 1";
   $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
@@ -124,34 +133,38 @@ if ($popup) {
     if (strpos($field_id, 'em_') === 0) continue;
     $data_type = $frow['data_type'];
     if (!empty($_REQUEST[$field_id])) {
-      $value = formData($field_id,"R",true);
+      $value = trim($_REQUEST[$field_id]);
       if ($field_id == 'pid') {
-        $where .= " AND $field_id = '$value'";
+        $where .= " AND $field_id = ?";
+	array_push($sqlBindArray,$value);
       }
       else if ($field_id == 'pubpid') {
-        $where .= " AND $field_id LIKE '$value'";
+        $where .= " AND $field_id LIKE ?";
+        array_push($sqlBindArray,$value);
       }
       else {
-        $where .= " AND $field_id LIKE '$value%'";
+        $where .= " AND $field_id LIKE ?";
+	array_push($sqlBindArray,$value."%");
       }
-      echo "<input type='hidden' name='$field_id' value='$value' />\n";
+      echo "<input type='hidden' name='" . htmlspecialchars( $field_id, ENT_QUOTES) .
+        "' value='" . htmlspecialchars( $value, ENT_QUOTES) . "' />\n";
     }
   }
 
   $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY $orderby LIMIT $fstart, $sqllimit";
-  $rez = sqlStatement($sql);
+  $rez = sqlStatement($sql,$sqlBindArray);
   $result = array();
   while ($row = sqlFetchArray($rez)) $result[] = $row;
-  _set_patient_inc_count($sqllimit, count($result), $where);
+  _set_patient_inc_count($sqllimit, count($result), $where, $sqlBindArray);
 }
 else {
-  $patient = formData("patient","R");
+  $patient = $_REQUEST['patient'];
   $findBy  = $_REQUEST['findBy'];
   $searchFields = $_REQUEST['searchFields'];
 
-  echo "<input type='hidden' name='patient' value='$patient' />\n";
-  echo "<input type='hidden' name='findBy'  value='$findBy' />\n";
+  echo "<input type='hidden' name='patient' value='" . htmlspecialchars( $patient, ENT_QUOTES) . "' />\n";
+  echo "<input type='hidden' name='findBy'  value='" . htmlspecialchars( $findBy, ENT_QUOTES) . "' />\n";
 
   if ($findBy == "Last")
       $result = getPatientLnames("$patient", $given, $orderby, $sqllimit, $fstart);
@@ -176,10 +189,10 @@ else {
 <table border='0' cellpadding='5' cellspacing='0' width='100%'>
  <tr>
   <td class='text'>
-   <a href="./patient_select_help.php" target=_new>[<?php xl('Help','e'); ?>]&nbsp</a>
+   <a href="./patient_select_help.php" target=_new>[<?php echo htmlspecialchars( xl('Help'), ENT_NOQUOTES); ?>]&nbsp</a>
   </td>
   <td class='text' align='center'>
-<?php if ($message) echo "<font color='red'><b>$message</b></font>\n"; ?>
+<?php if ($message) echo "<font color='red'><b>".htmlspecialchars( $message, ENT_NOQUOTES)."</b></font>\n"; ?>
   </td>
   <td class='text' align='right'>
 <?php
@@ -196,7 +209,7 @@ if ($fend > $count) $fend = $count;
    </a>
    &nbsp;&nbsp;
 <?php } ?>
-   <?php echo ($fstart + 1) . " - $fend of $count" ?>
+   <?php echo ($fstart + 1) . htmlspecialchars( " - $fend of $count", ENT_NOQUOTES); ?>
 <?php if ($count > $fend) { ?>
    &nbsp;&nbsp;
    <a href="javascript:submitList(<?php echo $MAXSHOW ?>)">
@@ -210,17 +223,17 @@ if ($fend > $count) $fend = $count;
 <div id="searchResultsHeader">
 <table>
 <tr>
-<th class="srName"><?php xl('Name','e');?></th>
-<th class="srPhone"><?php xl('Phone','e');?></th>
-<th class="srSS"><?php xl('SS','e');?></th>
-<th class="srDOB"><?php xl('DOB','e');?></th>
-<th class="srID"><?php xl('ID','e');?></th>
+<th class="srName"><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES);?></th>
+<th class="srPhone"><?php echo htmlspecialchars( xl('Phone'), ENT_NOQUOTES);?></th>
+<th class="srSS"><?php echo htmlspecialchars( xl('SS'), ENT_NOQUOTES);?></th>
+<th class="srDOB"><?php echo htmlspecialchars( xl('DOB'), ENT_NOQUOTES);?></th>
+<th class="srID"><?php echo htmlspecialchars( xl('ID'), ENT_NOQUOTES);?></th>
 
 <?php if (empty($GLOBALS['patient_search_results_style'])) { ?>
-<th class="srPID"><?php xl('PID','e');?></th>
-<th class="srNumEnc"><?php xl('[Number Of Encounters]','e');?></th>
-<th class="srNumDays"><?php xl('[Days Since Last Encounter]','e');?></th>
-<th class="srDateLast"><?php xl('[Date of Last Encounter]','e');?></th>
+<th class="srPID"><?php echo htmlspecialchars( xl('PID'), ENT_NOQUOTES);?></th>
+<th class="srNumEnc"><?php echo htmlspecialchars( xl('[Number Of Encounters]'), ENT_NOQUOTES);?></th>
+<th class="srNumDays"><?php echo htmlspecialchars( xl('[Days Since Last Encounter]'), ENT_NOQUOTES);?></th>
+<th class="srDateLast"><?php echo htmlspecialchars( xl('[Date of Last Encounter]'), ENT_NOQUOTES);?></th>
 <th class="srDateNext">
 <?php
 $add_days = 90;
@@ -229,7 +242,7 @@ if (!$popup && preg_match('/^(\d+)\s*(.*)/',$patient,$matches) > 0) {
   $patient = $matches[2];
 }
 ?>
-[<?php echo $add_days?> <?php xl('Days From Last Encounter','e'); ?>]
+[<?php echo htmlspecialchars( $add_days, ENT_NOQUOTES);?> <?php echo htmlspecialchars( xl('Days From Last Encounter'), ENT_NOQUOTES); ?>]
 </th>
 
 <?php
@@ -250,7 +263,7 @@ else {
     "ORDER BY group_name, seq LIMIT 5");
   while ($trow = sqlFetchArray($tres)) {
     $extracols[$trow['field_id']] = $trow['title'];
-    echo "<th class='srMisc'>" . $trow['title'] . "</th>\n";
+    echo "<th class='srMisc'>" . htmlspecialchars( $trow['title'], ENT_NOQUOTES) . "</th>\n";
   }
 }
 ?>
@@ -266,7 +279,7 @@ else {
 <?php
 if ($result) {
     foreach ($result as $iter) {
-        echo "<tr class='oneresult' id='".$iter['pid']."'>";
+        echo "<tr class='oneresult' id='".htmlspecialchars( $iter['pid'], ENT_QUOTES)."'>";
         echo  "<td class='srName'>" . htmlspecialchars($iter['lname'] . ", " . $iter['fname']) . "</td>\n";
         //other phone number display setup for tooltip
         $phone_biz = '';
@@ -282,22 +295,23 @@ if ($result) {
             $phone_cell = " [cell phone ".$iter{"phone_cell"}."] ";
         }
         $all_other_phones = $phone_biz.$phone_contact.$phone_cell;
-        if ($all_other_phones == '') {$all_other_phones = 'No other phone numbers listed';}
+        if ($all_other_phones == '') {$all_other_phones = xl('No other phone numbers listed');}
         //end of phone number display setup, now display the phone number(s)
-        echo "<td class='srPhone' title='$all_other_phones'>" . $iter['phone_home']. "</td>\n";
+        echo "<td class='srPhone' title='".htmlspecialchars( $all_other_phones, ENT_QUOTES)."'>" .
+	    htmlspecialchars( $iter['phone_home'], ENT_NOQUOTES) . "</td>\n";
         
-        echo "<td class='srSS'>" . $iter['ss'] . "</td>";
+        echo "<td class='srSS'>" . htmlspecialchars( $iter['ss'], ENT_NOQUOTES) . "</td>";
         if ($iter{"DOB"} != "0000-00-00 00:00:00") {
-            echo "<td class='srDOB'>" . $iter['DOB_TS'] . "</td>";
+            echo "<td class='srDOB'>" . htmlspecialchars( $iter['DOB_TS'], ENT_NOQUOTES) . "</td>";
         } else {
             echo "<td class='srDOB'>&nbsp;</td>";
         }
         
-        echo "<td class='srID'>" . $iter['pubpid'] . "</td>";
+        echo "<td class='srID'>" . htmlspecialchars( $iter['pubpid'], ENT_NOQUOTES) . "</td>";
 
         if (empty($GLOBALS['patient_search_results_style'])) {
 
-          echo "<td class='srPID'>" . $iter['pid'] . "</td>";
+          echo "<td class='srPID'>" . htmlspecialchars( $iter['pid'], ENT_NOQUOTES) . "</td>";
           
           //setup for display of encounter date info
           $encounter_count = 0;
@@ -309,15 +323,17 @@ if ($result) {
           // calculate date differences based on date of last encounter with billing entries
           $query = "select DATE_FORMAT(max(form_encounter.date),'%m/%d/%y') as mydate," .
                   " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
-                  " DATE_FORMAT(max(form_encounter.date) + interval " . $add_days .
+                  " DATE_FORMAT(max(form_encounter.date) + interval " .
+	          add_escape_custom($add_days) .
                   " day,'%m/%d/%y') as next_appt, dayname(max(form_encounter.date) + interval " .
-                  $add_days." day) as next_appt_day from form_encounter " .
+                  add_escape_custom($add_days) .
+	          " day) as next_appt_day from form_encounter " .
                   "join billing on billing.encounter = form_encounter.encounter and " .
                   "billing.pid = form_encounter.pid and billing.activity = 1 and " .
                   "billing.code_type not like 'COPAY' where ".
-                  "form_encounter.pid = " . $iter{"pid"};
-          $statement= sqlStatement($query);
-          if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
+                  "form_encounter.pid = ?";
+          $statement= sqlStatement($query, array($iter{"pid"}) );
+          if ($results = sqlFetchArray($statement)) {
               $last_date_seen = $results['mydate']; 
               $day_diff = $results['day_diff'];
               $next_appt_date= $results['next_appt_day'].', '.$results['next_appt'];
@@ -325,12 +341,14 @@ if ($result) {
           // calculate date differences based on date of last encounter regardless of billing
           $query = "select DATE_FORMAT(max(form_encounter.date),'%m/%d/%y') as mydate," .
                   " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
-                  " DATE_FORMAT(max(form_encounter.date) + interval " . $add_days .
+                  " DATE_FORMAT(max(form_encounter.date) + interval " .
+	          add_escape_custom($add_days) .
                   " day,'%m/%d/%y') as next_appt, dayname(max(form_encounter.date) + interval " .
-                  $add_days." day) as next_appt_day from form_encounter " .
-                  " where form_encounter.pid = " . $iter{"pid"};
-          $statement= sqlStatement($query);
-          if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
+                  add_escape_custom($add_days) .
+	          " day) as next_appt_day from form_encounter " .
+                  " where form_encounter.pid = ?";
+          $statement= sqlStatement($query, array($iter{"pid"}) );
+          if ($results = sqlFetchArray($statement)) {
               $last_date_seen = $results['mydate']; 
               $day_diff = $results['day_diff'];
               $next_appt_date= $results['next_appt_day'].', '.$results['next_appt'];
@@ -341,28 +359,28 @@ if ($result) {
           $query = "select count(distinct date) as encounter_count " .
                    " from billing ".
                    " where code_type not like 'COPAY' and activity = 1 " .
-                   " and pid = ".$iter{"pid"};
-          $statement= sqlStatement($query);
-          if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
+                   " and pid = ?";
+          $statement= sqlStatement($query, array($iter{"pid"}) );
+          if ($results = sqlFetchArray($statement)) {
               $encounter_count_billed = $results['encounter_count'];
           }
           // calculate count of encounters, regardless of billing
           $query = "select count(date) as encounter_count ".
                       " from form_encounter where ".
-                      " pid = ".$iter{"pid"};
-          $statement= sqlStatement($query);
-          if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
+                      " pid = ?";
+          $statement= sqlStatement($query, array($iter{"pid"}) );
+          if ($results = sqlFetchArray($statement)) {
               $encounter_count = $results['encounter_count'];
           }
-          echo "<td class='srNumEnc'>" . $encounter_count . "</td>\n";
-          echo "<td class='srNumDay'>" . $day_diff . "</td>\n";
-          echo "<td class='srDateLast'>" . $last_date_seen . "</td>\n";
-          echo "<td class='srDateNext'>" . $next_appt_date . "</td>\n";
+          echo "<td class='srNumEnc'>" . htmlspecialchars( $encounter_count, ENT_NOQUOTES) . "</td>\n";
+          echo "<td class='srNumDay'>" . htmlspecialchars( $day_diff, ENT_NOQUOTES) . "</td>\n";
+          echo "<td class='srDateLast'>" . htmlspecialchars( $last_date_seen, ENT_NOQUOTES) . "</td>\n";
+          echo "<td class='srDateNext'>" . htmlspecialchars( $next_appt_date, ENT_NOQUOTES) . "</td>\n";
         }
 
         else { // alternate search results style
           foreach ($extracols as $field_id => $title) {
-            echo "<td class='srMisc'>" . $iter[$field_id] . "</td>\n";
+            echo "<td class='srMisc'>" . htmlspecialchars( $iter[$field_id], ENT_NOQUOTES) . "</td>\n";
           }
         }
     }
