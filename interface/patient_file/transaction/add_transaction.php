@@ -46,8 +46,8 @@ if ($mode) {
       $value = $_POST["body"];
     }
     if ($data_type == 4 && empty($value)) {
-      // empty dates should be null
-      $sets .= ", $field_id = NULL";
+      // empty dates should be null (note need to explicitly escape the column label)
+      $sets .= ", " . add_escape_custom($field_id) . " = NULL";
     }
     else {
       // use sql placemaker (note need to explicitly escape the column label)
