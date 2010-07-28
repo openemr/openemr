@@ -636,7 +636,7 @@ function generate_form_field($frow, $currvalue) {
 
   // static text.  read-only, of course.
   else if ($data_type == 31) {
-    echo nl2br(htmlspecialchars( $frow['description'], ENT_NOQUOTES));
+    echo nl2br($frow['description']);
   }
 
 }
@@ -1080,7 +1080,7 @@ function generate_print_field($frow, $currvalue) {
 
   // static text.  read-only, of course.
   else if ($data_type == 31) {
-    echo nl2br(htmlspecialchars( $frow['description'], ENT_NOQUOTES));
+    echo nl2br($frow['description']);
   }
 
 }
@@ -1318,7 +1318,7 @@ function generate_display_field($frow, $currvalue) {
 
   // static text.  read-only, of course.
   else if ($data_type == 31) {
-    $s .= nl2br(htmlspecialchars( $frow['description'],ENT_NOQUOTES));
+    $s .= nl2br($frow['description']);
   }
 
   return $s;
