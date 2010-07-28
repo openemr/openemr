@@ -82,7 +82,13 @@
  // TBD: Include active_pid and/or active_encounter in relevant submitted
  // form data, and add logic to the save routines to make sure they match
  // the corresponding session values.
+ 
+ //SANITIZE ALL ESCAPES
+ $sanitize_all_escapes=true;
 
+ //STOP FAKE REGISTER GLOBALS
+ $fake_register_globals=false;
+ 
  include_once("../globals.php");
  include_once($GLOBALS['fileroot']."/library/acl.inc");
  include_once($GLOBALS['fileroot']."/custom/code_types.inc.php");
@@ -171,7 +177,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  function genTreeLink($frame, $name, $title, $mono=false) {
   global $primary_docs, $disallowed;
   if (empty($disallowed[$name])) {
-   $id = $name . $primary_docs[$name][1];
+   $id = htmlspecialchars($name . $primary_docs[$name][1], ENT_QUOTES);
    echo "<li><a href='' id='$id' onclick=\"";
    if ($mono) {
     if ($frame == 'RTop')
@@ -179,14 +185,14 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
     else
      echo "forceSpec(false,true);";
    }
-   echo "return loadFrame2('$id','$frame','" .
-        $primary_docs[$name][2] . "')\">" . $title . "</a></li>";
+   echo "return loadFrame2('$id','".htmlspecialchars($frame, ENT_QUOTES)."','" .
+        htmlspecialchars($primary_docs[$name][2], ENT_QUOTES) . "')\">" . htmlspecialchars($title, ENT_QUOTES) . "</a></li>";
   }
  }
  function genMiscLink($frame, $name, $level, $title, $url, $mono=false) {
   global $disallowed;
   if (empty($disallowed[$name])) {
-   $id = $name . $level;
+   $id = htmlspecialchars($name . $level, ENT_QUOTES);
    echo "<li><a href='' id='$id' onclick=\"";
    if ($mono) {
     if ($frame == 'RTop')
@@ -194,15 +200,15 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
     else
      echo "forceSpec(false,true);";
    }
-   echo "return loadFrame2('$id','$frame','" .
-        $url . "')\">" . $title . "</a></li>";
+   echo "return loadFrame2('$id','".htmlspecialchars($frame, ENT_QUOTES)."','" .
+        $url . "')\">" . htmlspecialchars($title, ENT_QUOTES) . "</a></li>";
   }
  }
  function genPopLink($title, $url, $linkid='') {
   echo "<li><a href='' ";
   if ($linkid) echo "id='$linkid' ";
   echo "onclick=\"return repPopup('$url')\"" .
-       ">" . $title . "</a></li>";
+       ">" . htmlspecialchars($title, ENT_QUOTES) . "</a></li>";
  }
  function genDualLink($topname, $botname, $title) {
   global $primary_docs, $disallowed;
@@ -212,7 +218,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
    echo "<li><a href='' id='$topid' " .
         "onclick=\"return loadFrameDual('$topid','$botid','" .
         $primary_docs[$topname][2] . "','" .
-        $primary_docs[$botname][2] . "')\">" . $title . "</a></li>";
+        $primary_docs[$botname][2] . "')\">" . htmlspecialchars($title, ENT_QUOTES) . "</a></li>";
   }
  }
 
@@ -220,34 +226,34 @@ function genPopupsList($style='') {
   global $disallowed, $webserver_root;
 ?>
 <select name='popups' onchange='selpopup(this)' style='background-color:transparent;font-size:9pt;<?php echo $style; ?>'>
- <option value=''><?php xl('Popups','e'); ?></option>
+ <option value=''><?php echo htmlspecialchars( xl('Popups'), ENT_QUOTES); ?></option>
 <?php if (!$disallowed['iss']) { ?>
- <option value='../patient_file/problem_encounter.php'><?php xl('Issues','e'); ?></option>
+ <option value='../patient_file/problem_encounter.php'><?php echo htmlspecialchars( xl('Issues'), ENT_QUOTES); ?></option>
 <?php } ?>
 <?php if (!$GLOBALS['ippf_specific']) { ?>
- <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
- <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
+ <option value='../../custom/export_xml.php'><?php echo htmlspecialchars( xl('Export'), ENT_QUOTES); ?></option>
+ <option value='../../custom/import_xml.php'><?php echo htmlspecialchars( xl('Import'), ENT_QUOTES); ?></option>
 <?php } ?>
 <?php if ($GLOBALS['athletic_team']) { ?>
- <option value='../reports/players_report.php'><?php xl('Roster','e'); ?></option>
+ <option value='../reports/players_report.php'><?php echo htmlspecialchars( xl('Roster'), ENT_QUOTES); ?></option>
 <?php } ;
  if (!$GLOBALS['disable_calendar']) { ?>
- <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><?php xl('Appts','e'); ?></option>
+ <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><?php echo htmlspecialchars( xl('Appts'), ENT_QUOTES); ?></option>
 <?php } ;
  if (file_exists("$webserver_root/custom/refer.php")) { ?>
- <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>
+ <option value='../../custom/refer.php'><?php echo htmlspecialchars( xl('Refer'), ENT_QUOTES); ?></option>
 <?php } ?>
 <?php // if (file_exists("$webserver_root/custom/fee_sheet_codes.php")) { ?>
- <option value='../patient_file/printed_fee_sheet.php?fill=1'><?php xl('Superbill','e'); ?></option>
+ <option value='../patient_file/printed_fee_sheet.php?fill=1'><?php echo htmlspecialchars( xl('Superbill'), ENT_QUOTES); ?></option>
 <?php // } ?>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
- <option value='../patient_file/front_payment.php'><?php xl('Prepay','e'); ?></option>
- <option value='../patient_file/pos_checkout.php'><?php xl('Checkout','e'); ?></option>
+ <option value='../patient_file/front_payment.php'><?php echo htmlspecialchars( xl('Prepay'), ENT_QUOTES); ?></option>
+ <option value='../patient_file/pos_checkout.php'><?php echo htmlspecialchars( xl('Checkout'), ENT_QUOTES); ?></option>
 <?php } else { ?>
- <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
+ <option value='../patient_file/front_payment.php'><?php echo htmlspecialchars( xl('Payment'), ENT_QUOTES); ?></option>
 <?php } ?>
 <?php if (is_dir("$webserver_root/custom/letter_templates")) { ?>
- <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
+ <option value='../patient_file/letter.php'><?php echo htmlspecialchars( xl('Letter'), ENT_QUOTES); ?></option>
 <?php } ?>
 </select>
 <?php
@@ -338,11 +344,11 @@ function genPopupsList($style='') {
  function loadFrame2(fname, frame, url) {
   var usage = fname.substring(3);
   if (active_pid == 0 && usage > '0') {
-   alert('<?php xl('You must first select or add a patient.','e') ?>');
+   alert('<?php echo htmlspecialchars( xl('You must first select or add a patient.'), ENT_QUOTES) ?>');
    return false;
   }
   if (active_encounter == 0 && usage > '1') {
-   alert('<?php xl('You must first select or create an encounter.','e') ?>');
+   alert('<?php echo htmlspecialchars( xl('You must first select or create an encounter.'), ENT_QUOTES) ?>');
    return false;
   }
   var f = document.forms[0];
@@ -381,11 +387,11 @@ function genPopupsList($style='') {
   var topusage = tname.substring(3);
   var botusage = bname.substring(3);
   if (active_pid == 0 && (topusage > '0' || botusage > '0')) {
-   alert('<?php xl('You must first select or add a patient.','e') ?>');
+   alert('<?php echo htmlspecialchars( xl('You must first select or add a patient.'), ENT_QUOTES) ?>');
    return false;
   }
   if (active_encounter == 0 && (topusage > '1' || botusage > '1')) {
-   alert('<?php xl('You must first select or create an encounter.','e') ?>');
+   alert('<?php echo htmlspecialchars( xl('You must first select or create an encounter.'), ENT_QUOTES) ?>');
    return false;
   }
   var f = document.forms[0];
@@ -517,11 +523,11 @@ function goHome() {
  function reloadPatient(frname) {
   var f = document.forms[0];
   if (topName.length > 3 && topName.substring(3) > '0' && frname != 'RTop') {
-   loadFrame('cal0','RTop', '<?php echo $primary_docs['cal'][2]; ?>');
+   loadFrame('cal0','RTop', '<?php echo htmlspecialchars($primary_docs['cal'][2], ENT_QUOTES); ?>');
    setRadio('rb_top', 'cal');
   }
   if (botName.length > 3 && botName.substring(3) > '0' && frname != 'RBot') {
-   loadFrame('ens0','RBot', '<?php echo $primary_docs['ens'][2]; ?>');
+   loadFrame('ens0','RBot', '<?php echo htmlspecialchars($primary_docs['ens'][2], ENT_QUOTES); ?>');
    setRadio('rb_bot', 'ens');
   }
  }
@@ -532,11 +538,11 @@ function goHome() {
  function reloadEncounter(frname) {
   var f = document.forms[0];
   if (topName.length > 3 && topName.substring(3) > '1' && frname != 'RTop') {
-   loadFrame('dem1','RTop', '<?php echo $primary_docs['dem'][2]; ?>');
+   loadFrame('dem1','RTop', '<?php echo htmlspecialchars($primary_docs['dem'][2], ENT_QUOTES); ?>');
    setRadio('rb_top', 'dem');
   }
   if (botName.length > 3 && botName.substring(3) > '1' && frname != 'RBot') {
-   loadFrame('ens1','RBot', '<?php echo $primary_docs['ens'][2]; ?>');
+   loadFrame('ens1','RBot', '<?php echo htmlspecialchars($primary_docs['ens'][2], ENT_QUOTES); ?>');
    setRadio('rb_bot', 'ens');
   }
  }
@@ -552,7 +558,7 @@ function goHome() {
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
   if (pid == active_pid) return;
-  setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
+  setDivContent('current_encounter', '<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES); ?></b>');
   active_pid = pid;
   active_encounter = 0;
   if (frname) reloadPatient(frname);
@@ -566,7 +572,7 @@ function goHome() {
   if ( f.cb_top.checked && f.cb_bot.checked ) {
       var encounter_frame = getEncounterTargetFrame('enc');
       if ( encounter_frame != undefined )  {
-          loadFrame('ens0',encounter_frame, '<?php echo $primary_docs['ens'][2]; ?>');
+          loadFrame('ens0',encounter_frame, '<?php echo htmlspecialchars($primary_docs['ens'][2], ENT_QUOTES); ?>');
           setRadio(encounter_frame, 'ens');
       }
    }
@@ -577,7 +583,7 @@ function loadCurrentPatientFromTitle() {
 }
 
 function getEncounterTargetFrame( name ) {
-    var bias = <?php echo $primary_docs[ 'enc'  ][ 1 ]?>;
+    var bias = <?php echo htmlspecialchars($primary_docs[ 'enc'  ][ 1 ], ENT_QUOTES)?>;
     var f = document.forms[0];
     var r = 'RTop';
     if (f.cb_top.checked && f.cb_bot.checked) {
@@ -604,7 +610,7 @@ function getEncounterTargetFrame( name ) {
  // reload encounter-specific content from the *other* frame.
  function setEncounter(edate, eid, frname) {
   if (eid == active_encounter) return;
-  if (!eid) edate = '<?php xl('None','e'); ?>';
+  if (!eid) edate = '<?php echo htmlspecialchars( xl('None'), ENT_QUOTES); ?>';
   var str = '<b>' + edate + '</b>';
   setDivContent('current_encounter', str);
   active_encounter = eid;
@@ -630,9 +636,9 @@ function getEncounterTargetFrame( name ) {
   var f = document.forms[0];
   active_pid = 0;
   active_encounter = 0;
-  setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
-  setDivContent('current_patient', '<b><?php xl('None','e'); ?></b>');
-  setTitleContent('current_patient', '<b><?php xl('None','e'); ?></b>');
+  setDivContent('current_encounter', '<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES); ?></b>');
+  setDivContent('current_patient', '<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES); ?></b>');
+  setTitleContent('current_patient', '<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES); ?></b>');
   reloadPatient('');
   syncRadios();
  }
@@ -643,7 +649,7 @@ function getEncounterTargetFrame( name ) {
  // stale content will be reloaded.
  function clearEncounter() {
   if (active_encounter == 0) return;
-  setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
+  setDivContent('current_encounter', '<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES); ?></b>');
   active_encounter = 0;
   reloadEncounter('');
   syncRadios();
@@ -723,9 +729,9 @@ function getEncounterTargetFrame( name ) {
 
 <center>
 <select name='sel_frame' style='background-color:transparent;font-size:9pt;width:<?php echo $GLOBALS['athletic_team'] ? 47 : 100; ?>%;'>
- <option value='0'><?php xl('Default','e'); ?></option>
- <option value='1'><?php xl('Top','e'); ?></option>
- <option value='2'><?php xl('Bottom','e'); ?></option>
+ <option value='0'><?php echo htmlspecialchars( xl('Default'), ENT_QUOTES); ?></option>
+ <option value='1'><?php echo htmlspecialchars( xl('Top'), ENT_QUOTES); ?></option>
+ <option value='2'><?php echo htmlspecialchars( xl('Bottom'), ENT_QUOTES); ?></option>
 </select>
 <?php if ($GLOBALS['athletic_team']) genPopupsList('width:47%'); ?>
 </center>
@@ -734,10 +740,10 @@ function getEncounterTargetFrame( name ) {
  <tr>
   <td class='smalltext' nowrap>
    <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked />
-   <b><?php xl('Top','e') ?></b>
+   <b><?php echo htmlspecialchars( xl('Top'), ENT_QUOTES) ?></b>
   </td>
   <td class='smalltext' align='right' nowrap>
-   <b><?php xl('Bot','e') ?></b>
+   <b><?php echo htmlspecialchars( xl('Bot'), ENT_QUOTES) ?></b>
    <input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' <?php if (empty($GLOBALS['athletic_team'])) echo 'checked '; ?>/>
   </td>
  </tr>
@@ -746,15 +752,15 @@ function getEncounterTargetFrame( name ) {
 <?php if ($GLOBALS['athletic_team']) { // Tree menu for athletic teams ?>
 
 <ul id="navigation">
-  <li class="open"><span><?php xl('Patient/Client','e') ?></span>
+  <li class="open"><span><?php echo htmlspecialchars( xl('Patient/Client'), ENT_QUOTES) ?></span>
     <ul>
-      <li class="open"><span><?php xl('Demographics','e') ?></span>
+      <li class="open"><span><?php echo htmlspecialchars( xl('Demographics'), ENT_QUOTES) ?></span>
         <ul>
           <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>
           <?php genTreeLink('RTop','dem',xl('Current')); ?>
         </ul>
       </li>
-      <li class="open"><span><?php xl('Medical Records','e') ?></span>
+      <li class="open"><span><?php echo htmlspecialchars( xl('Medical Records'), ENT_QUOTES) ?></span>
         <ul>
           <?php // genPopLink (xl('Team Roster'),'players_report.php'); ?>
 
@@ -788,9 +794,9 @@ function getEncounterTargetFrame( name ) {
       </li>
     </ul>
   </li>
-  <li class="open"><span><?php xl('Reports','e') ?></span>
+  <li class="open"><span><?php echo htmlspecialchars( xl('Reports'), ENT_QUOTES) ?></span>
     <ul>
-      <li class="open"><span><?php xl('Athletic/Injury','e') ?></span>
+      <li class="open"><span><?php echo htmlspecialchars( xl('Athletic/Injury'), ENT_QUOTES) ?></span>
         <ul>
           <?php genTreeLink('RTop','prp',xl('Patient Printed Report')); // also appears above ?>
           <?php genPopLink(xl('Games/Events Missed'),'absences_report.php'); ?>
@@ -798,21 +804,21 @@ function getEncounterTargetFrame( name ) {
           <?php genPopLink(xl('Team Injury Overview'),'injury_overview_report.php'); ?>
         </ul>
       </li>
-      <li><span><?php xl('Patient/Client','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Patient/Client'), ENT_QUOTES) ?></span>
         <ul>
           <?php genPopLink(xl('List'),'patient_list.php'); ?>
           <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genPopLink(xl('Prescriptions'),'prescriptions_report.php'); ?>
           <?php genPopLink(xl('Referrals'),'referrals_report.php'); ?>
         </ul>
       </li>
-      <li><span><?php xl('Visits','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Visits'), ENT_QUOTES) ?></span>
         <ul>
           <?php if (!$GLOBALS['disable_calendar']) genPopLink(xl('Appointments'),'appointments_report.php'); ?>
           <?php genPopLink(xl('Encounters'),'encounters_report.php'); ?>
           <?php if (!$GLOBALS['disable_calendar']) genPopLink(xl('Appt-Enc'),'appt_encounter_report.php'); ?>
         </ul>
       </li>
-      <li><span><?php xl('General','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('General'), ENT_QUOTES) ?></span>
         <ul>
           <?php genPopLink(xl('Services'),'services_by_category.php'); ?>
           <?php if ($GLOBALS['inhouse_pharmacy']) genPopLink(xl('Inventory'),'inventory_list.php'); ?>
@@ -821,14 +827,14 @@ function getEncounterTargetFrame( name ) {
       </li>
     </ul>
   </li>
-  <li><span><?php xl('Fees','e') ?></span>
+  <li><span><?php echo htmlspecialchars( xl('Fees'), ENT_QUOTES) ?></span>
     <ul>
       <?php genMiscLink('RBot','cod','2',xl('Fee Sheet'),'patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
       <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?>
     </ul>
   </li>
   <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0',xl('Inventory'),'drugs/drug_inventory.php'); ?>
-  <li><span><?php xl('Administration','e') ?></span>
+  <li><span><?php echo htmlspecialchars( xl('Administration'), ENT_QUOTES) ?></span>
     <ul>
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0',xl('Globals'),'super/edit_globals.php'); ?>
       <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0',xl('Facilities'),'usergroup/facilities.php'); ?>
@@ -841,7 +847,7 @@ function getEncounterTargetFrame( name ) {
       <?php if (acl_check('admin', 'acl'      )) genMiscLink('RTop','adm','0',xl('ACL'),'usergroup/adminacl.php'); ?>
       <?php if ( ($GLOBALS['include_de_identification']) && (acl_check('admin', 'super'    )) ) genMiscLink('RTop','adm','0',xl('De Identification'),'de_identification_forms/de_identification_screen1.php'); ?>
       <?php if ( ($GLOBALS['include_de_identification']) && (acl_check('admin', 'super'    )) ) genMiscLink('RTop','adm','0',xl('Re Identification'),'de_identification_forms/re_identification_input_screen.php'); ?>
-      <li><span><?php xl('Other','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Other'), ENT_QUOTES) ?></span>
         <ul>
           <?php if (acl_check('admin', 'forms'   )) genMiscLink('RTop','adm','0',xl('Forms'),'forms_admin/forms_admin.php'); ?>
           <?php if (acl_check('admin', 'calendar') && !$GLOBALS['disable_calendar']) genMiscLink('RTop','adm','0',xl('Calendar'),'main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
@@ -853,7 +859,7 @@ function getEncounterTargetFrame( name ) {
       </li>
     </ul>
   </li>
-  <li><span><?php xl('Miscellaneous','e') ?></span>
+  <li><span><?php echo htmlspecialchars( xl('Miscellaneous'), ENT_QUOTES) ?></span>
     <ul>
       <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
@@ -869,11 +875,11 @@ function getEncounterTargetFrame( name ) {
 <ul id="navigation">
   <?php if (!$GLOBALS['disable_calendar'] && !$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
   <?php genTreeLink('RBot','msg',xl('Messages')); ?>
-  <li class="open"><span><?php xl('Patient/Client','e') ?></span>
+  <li class="open"><span><?php echo htmlspecialchars(xl('Patient/Client'), ENT_QUOTES) ?></span>
     <ul>
           <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>
           <?php genTreeLink('RTop','dem',xl('Summary')); ?>
-      <li class="open"><span><?php xl('Visits','e') ?></span>
+      <li class="open"><span><?php echo htmlspecialchars( xl('Visits'), ENT_QUOTES) ?></span>
         <ul>
           <?php if ($GLOBALS['ippf_specific'] && !$GLOBALS['disable_calendar']) genTreeLink('RTop','cal',xl('Calendar')); ?>
           <?php genTreeLink('RBot','nen',xl('Create Visit')); ?>
@@ -881,7 +887,7 @@ function getEncounterTargetFrame( name ) {
           <?php genTreeLink('RBot','ens',xl('Visit History')); ?>
         </ul>
       </li>
-      <li><span><?php xl('Visit Forms','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Visit Forms'), ENT_QUOTES) ?></span>
         <ul>
 <?php
 // Generate the items for visit forms, both traditional and LBF.
@@ -915,7 +921,7 @@ if (!empty($reg)) {
       </li>
         </ul>
       </li>
-  <li><span><?php xl('Fees','e') ?></span>
+  <li><span><?php echo htmlspecialchars( xl('Fees'), ENT_QUOTES) ?></span>
     <ul>
       <?php genMiscLink('RBot','cod','2',xl('Fee Sheet'),'patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
       <?php if ($GLOBALS['use_charges_panel']) genTreeLink('RBot','cod',xl('Charges')); ?>
@@ -925,14 +931,14 @@ if (!empty($reg)) {
   </li>
   <?php // if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0',xl('Inventory'),'drugs/drug_inventory.php'); ?>
 <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) { ?>
-  <li><span><?php xl('Inventory','e') ?></span>
+  <li><span><?php echo htmlspecialchars( xl('Inventory'), ENT_QUOTES) ?></span>
     <ul>
       <?php genMiscLink('RTop','adm','0',xl('Management'),'drugs/drug_inventory.php'); ?>
       <?php genPopLink(xl('Destroyed'),'destroyed_drugs_report.php'); ?>
     </ul>
   </li>
 <?php } ?>
-  <li><span><?php xl('Procedures','e') ?></span>
+  <li><span><?php echo htmlspecialchars( xl('Procedures'), ENT_QUOTES) ?></span>
     <ul>
       <?php genTreeLink('RTop','ort',xl('Configuration')); ?>
       <?php genTreeLink('RTop','orp',xl('Pending Review')); ?>
@@ -941,7 +947,7 @@ if (!empty($reg)) {
     </ul>
   </li>
   <?php if (!$disallowed['adm']) { ?>
-  <li><span><?php xl('Administration','e') ?></span>
+  <li><span><?php echo htmlspecialchars( xl('Administration'), ENT_QUOTES) ?></span>
     <ul>
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0',xl('Globals'),'super/edit_globals.php'); ?>
       <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0',xl('Facilities'),'usergroup/facilities.php'); ?>
@@ -957,7 +963,7 @@ if (!empty($reg)) {
       <?php if ( ($GLOBALS['include_de_identification']) && (acl_check('admin', 'super'    )) ) genMiscLink('RTop','adm','0',xl('De Identification'),'de_identification_forms/de_identification_screen1.php'); ?>
           <?php if ( ($GLOBALS['include_de_identification']) && (acl_check('admin', 'super'    )) ) genMiscLink('RTop','adm','0',xl('Re Identification'),'de_identification_forms/re_identification_input_screen.php'); ?>
       <?php if (acl_check('admin', 'super') && !empty($GLOBALS['code_types']['IPPF'])) genMiscLink('RTop','adm','0',xl('Export'),'main/ippf_export.php'); ?>
-      <li><span><?php xl('Other','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Other'), ENT_QUOTES) ?></span>
         <ul>
           <?php if (acl_check('admin', 'language')) genMiscLink('RTop','adm','0',xl('Language'),'language/language.php'); ?>
           <?php if (acl_check('admin', 'forms'   )) genMiscLink('RTop','adm','0',xl('Forms'),'forms_admin/forms_admin.php'); ?>
@@ -970,16 +976,19 @@ if (!empty($reg)) {
     </ul>
   </li>
   <?php } ?>
-  <li><span><?php xl('Reports','e') ?></span>
+  <li><span><?php echo htmlspecialchars( xl('Reports'), ENT_QUOTES) ?></span>
     <ul>
-      <li><span><?php xl('Clients','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Clients'), ENT_QUOTES) ?></span>
         <ul>
-	  <?php genMiscLink('RTop','rep','0',xl('List'),'reports/patient_list.php'); ?>
-          <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genMiscLink('RTop','rep','0',xl('Rx'),'reports/prescriptions_report.php'); ?>
-	  <?php genMiscLink('RTop','rep','0',xl('Referrals'),'reports/referrals_report.php'); ?>
+	 		<?php genMiscLink('RTop','rep','0',xl('List'),'reports/patient_list.php'); ?>
+	  	  <?php if (acl_check('patients', 'med')) genMiscLink('RTop','rep','0',xl('Clinical'),'reports/clinical_reports.php'); ?>
+	  	  <?php genMiscLink('RTop','rep','0',xl('Referrals'),'reports/referrals_report.php'); ?>
+          <?php if (acl_check('patients', 'med')) genMiscLink('RTop','rep','0',xl('Billing Services/Encounter Summary'),'reports/billing_enc_summary.php'); ?>
+          <?php if (acl_check('patients', 'med')) genMiscLink('RTop','rep','0',xl('Facility/Prov Payment Summary'),'reports/payment_summary.php'); ?>
+          <?php if (acl_check('patients', 'med')) genMiscLink('RTop','rep','0',xl('Facility/Prov Patient Research Reports'),'reports/patient_research.php'); ?>
         </ul>
       </li>
-      <li class="open"><span><?php xl('Visits','e') ?></span>
+      <li class="open"><span><?php echo htmlspecialchars( xl('Visits'), ENT_QUOTES) ?></span>
         <ul>
           <?php if (!$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Appointments'),'reports/appointments_report.php'); ?>
           <?php  genMiscLink('RTop','rep','0',xl('Encounters'),'reports/encounters_report.php'); ?>
@@ -994,7 +1003,7 @@ if (!empty($reg)) {
         </ul>
       </li>
 <?php if (acl_check('acct', 'rep_a')) { ?>
-      <li><span><?php xl('Financial','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Financial'), ENT_QUOTES) ?></span>
         <ul>
           <?php genMiscLink('RTop','rep','0',xl('Sales'),'reports/sales_by_item.php'); ?>
           <?php genMiscLink('RTop','rep','0',xl('Cash Rec'), 'billing/sl_receipts_report.php'); ?>
@@ -1005,14 +1014,14 @@ if (!empty($reg)) {
       </li>
 <?php } ?>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
-      <li><span><?php xl('Inventory','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Inventory'), ENT_QUOTES) ?></span>
         <ul>
           <?php genPopLink(xl('List'),'inventory_list.php'); ?>
           <?php genPopLink(xl('Activity'),'inventory_activity.php'); ?>
         </ul>
       </li>
 <?php } ?>
-      <li><span><?php xl('Procedures','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Procedures'), ENT_QUOTES) ?></span>
         <ul>
           <?php genPopLink(xl('Pending Res'),'../orders/pending_orders.php'); ?>
           <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink(xl('Pending F/U'),'../orders/pending_followup.php'); ?>
@@ -1020,7 +1029,7 @@ if (!empty($reg)) {
         </ul>
       </li>
 <?php if (! $GLOBALS['simplified_demographics']) { ?>
-      <li><span><?php xl('Insurance','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Insurance'), ENT_QUOTES) ?></span>
         <ul>
           <?php genMiscLink('RTop','rep','0',xl('Distribution'),'reports/insurance_allocation_report.php'); ?>
           <?php genMiscLink('RTop','rep','0',xl('Indigents'),'billing/indigent_patients_report.php'); ?>
@@ -1029,7 +1038,7 @@ if (!empty($reg)) {
       </li>
 <?php } ?>
 <?php if (!empty($GLOBALS['code_types']['IPPF'])) { ?>
-      <li><span><?php xl('Statistics','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Statistics'), ENT_QUOTES) ?></span>
         <ul>
           <?php genPopLink(xl('IPPF Stats'),'ippf_statistics.php?t=i'); ?>
           <?php genPopLink(xl('GCAC Stats'),'ippf_statistics.php?t=g'); ?>
@@ -1039,7 +1048,7 @@ if (!empty($reg)) {
         </ul>
       </li>
 <?php } // end ippf-specific ?>
-      <li><span><?php xl('Blank Forms','e') ?></span>
+      <li><span><?php echo htmlspecialchars( xl('Blank Forms'), ENT_QUOTES) ?></span>
         <ul>
           <?php genPopLink(xl('Demographics'),'../patient_file/summary/demographics_print.php'); ?>
           <?php genPopLink(xl('Fee Sheet'),'../patient_file/printed_fee_sheet.php'); ?>
@@ -1058,7 +1067,7 @@ if (!empty($reg)) {
       <?php // genTreeLink('RTop','rep','Other'); ?>
     </ul>
   </li>
-  <li><span><?php xl('Miscellaneous','e') ?></span>
+  <li><span><?php echo htmlspecialchars( xl('Miscellaneous'), ENT_QUOTES) ?></span>
     <ul>
       <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
@@ -1082,10 +1091,10 @@ if (!empty($reg)) {
    <table cellpadding='0' cellspacing='0' border='0' width='100%'>
     <tr>
      <td class='smalltext' nowrap>
-      <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked /><b><?php xl('Top','e') ?></b>
+      <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked /><b><?php echo htmlspecialchars( xl('Top'), ENT_QUOTES) ?></b>
      </td>
      <td class='smalltext' align='right' nowrap>
-      <b><?php xl('Bot','e') ?></b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
+      <b><?php echo htmlspecialchars( xl('Bot'), ENT_QUOTES) ?></b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
      </td>
     </tr>
    </table>
@@ -1098,9 +1107,9 @@ if (!empty($reg)) {
  $default_top_rbid = $GLOBALS['athletic_team'] ? 'ros' : 'cal';
  foreach ($primary_docs as $key => $varr) {
   if (!empty($disallowed[$key])) continue;
-  $label = $varr[0];
-  $usage = $varr[1];
-  $url   = $varr[2];
+  $label = htmlspecialchars($varr[0], ENT_QUOTES);
+  $usage = htmlspecialchars($varr[1], ENT_QUOTES);
+  $url   = htmlspecialchars($varr[2], ENT_QUOTES);
   echo " <tr>\n";
   echo "  <td class='smalltext'><input type='radio' name='rb_top' value='$key$usage' " .
        "onclick=\"loadFrame('$key$usage','RTop','$url')\"";
@@ -1129,11 +1138,11 @@ if (!empty($reg)) {
 ?>
 
 <div id='current_patient' style = 'display:none'>
-<b><?php xl('None','e'); ?></b>
+<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES); ?></b>
 </div>
 
 <div id='current_encounter' style = 'display:none'>
-<b><?php xl('None','e'); ?></b>
+<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES); ?></b>
 </div>
 
 <?php if (!$GLOBALS['athletic_team']) genPopupsList(); ?>
@@ -1142,37 +1151,37 @@ if (!empty($reg)) {
 
 <table cellpadding='0' cellspacing='0' border='0'>
  <tr>
-  <td class='smalltext'><?php xl('Find','e') ?>:&nbsp;</td>
+  <td class='smalltext'><?php echo htmlspecialchars( xl('Find'), ENT_QUOTES) ?>:&nbsp;</td>
   <td class='smalltext' colspan='2'>
    <input type="entry" size="7" name="patient" class='inputtext' style='width:65px;' />
   </td>
  </tr>
  <tr>
-  <td class='smalltext'><?php xl('by','e') ?>:</td>
+  <td class='smalltext'><?php echo htmlspecialchars( xl('by'), ENT_QUOTES) ?>:</td>
   <td class='smalltext'>
-   <a href="javascript:findPatient('Last');" class="navitem"><?php xl('Name','e'); ?></a>
+   <a href="javascript:findPatient('Last');" class="navitem"><?php echo htmlspecialchars( xl('Name'), ENT_QUOTES); ?></a>
   </td>
   <td class='smalltext' align='right'>
-   <a href="javascript:findPatient('ID');"   class="navitem"><?php xl('ID','e'); ?></a>
+   <a href="javascript:findPatient('ID');"   class="navitem"><?php echo htmlspecialchars( xl('ID'), ENT_QUOTES); ?></a>
   </td>
  </tr>
  <tr>
   <td class='smalltext'>&nbsp;</td>
   <td class='smalltext'>
-   <a href="javascript:findPatient('SSN');"  class="navitem"><?php xl('SSN','e'); ?></a>
+   <a href="javascript:findPatient('SSN');"  class="navitem"><?php echo htmlspecialchars( xl('SSN'), ENT_QUOTES); ?></a>
   </td>
   <td class='smalltext' align='right'>
-   <a href="javascript:findPatient('DOB');"  class="navitem"><?php xl('DOB','e'); ?></a>
+   <a href="javascript:findPatient('DOB');"  class="navitem"><?php echo htmlspecialchars( xl('DOB'), ENT_QUOTES); ?></a>
   </td>
  </tr>
 
  <tr>
   <td class='smalltext'>&nbsp;</td>
   <td class='smalltext'>
-   <a href="javascript:findPatient('Any');"  class="navitem"><?php xl('Any', 'e'); ?></a>
+   <a href="javascript:findPatient('Any');"  class="navitem"><?php echo htmlspecialchars( xl('Any'), ENT_QUOTES); ?></a>
   </td>
   <td class='smalltext' align='right'>
-   <a href="javascript:initFilter();"  class="navitem"><?php xl('Filter', 'e'); ?></a>
+   <a href="javascript:initFilter();"  class="navitem"><?php echo htmlspecialchars( xl('Filter'), ENT_QUOTES); ?></a>
   </td>
  </tr>
 
@@ -1180,7 +1189,7 @@ if (!empty($reg)) {
 
 <hr />
 <?php if (!empty($GLOBALS['online_support_link'])) { ?>
-<a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php xl('Online Support','e'); ?></span></a>
+<a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php echo htmlspecialchars( xl('Online Support'), ENT_QUOTES); ?></span></a>
 <?php } ?>
 
 <input type='hidden' name='findBy' value='Last' />

@@ -714,9 +714,6 @@ ALTER TABLE lists
   ADD reinjury_id bigint(20)  NOT NULL DEFAULT 0,
   ADD injury_part varchar(31) NOT NULL DEFAULT '',
   ADD injury_type varchar(31) NOT NULL DEFAULT '';
-#EndIf
-
-ALTER TABLE layout_options CHANGE description description text;
 
 #IfMissingColumn transactions refer_reply_date
 ALTER TABLE transactions ADD refer_reply_date date DEFAULT NULL;
@@ -726,3 +723,14 @@ ALTER TABLE transactions ADD refer_reply_date date DEFAULT NULL;
 ALTER TABLE transactions ADD reply_related_code varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
+#IfMissingColumn immunizations facility_id
+ALTER TABLE `immunizations` ADD `facility_id` int(11) NOT NULL default '0';
+#EndIf
+
+#IfMissingColumn immunizations phone_num
+ALTER TABLE `immunizations` ADD `phone_num` varchar(255) NOT NULL default '';
+ALTER TABLE layout_options CHANGE description description text;
+
+#IfMissingColumn immunizations injection_site
+ALTER TABLE `immunizations` ADD `injection_site` varchar(255) NOT NULL default '';
+#EndIf

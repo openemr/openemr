@@ -1394,6 +1394,9 @@ CREATE TABLE `immunizations` (
   `update_date` timestamp NOT NULL,
   `created_by` bigint(20) default NULL,
   `updated_by` bigint(20) default NULL,
+  `facility_id` int(11) NOT NULL default '0',
+  `phone_num` varchar(255) NOT NULL default '',
+  `injection_site` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
@@ -1590,7 +1593,7 @@ CREATE TABLE `layout_options` (
   `datacols` tinyint(3) NOT NULL default '1',
   `default_value` varchar(255) NOT NULL default '',
   `edit_options` varchar(36) NOT NULL default '',
-  `description` text,
+  `description` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=MyISAM;
 
