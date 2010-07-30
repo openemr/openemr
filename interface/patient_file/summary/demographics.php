@@ -166,9 +166,14 @@ $(document).ready(function(){
         toggle( $(this), "#notes_div" );
     });
 
+    $("#disc_view").click( function() {
+        toggle( $(this), "#disc_div" );
+    });
+ 
     // load divs
     $("#stats_div").load("stats.php");
     $("#notes_div").load("pnotes_fragment.php");
+    $("#disc_div").load("disc_fragment.php");
 
     // fancy box
     enable_modals();
@@ -536,6 +541,18 @@ if ($GLOBALS['patient_id_category_name']) {
                 </div>
 			</td>
 		</tr>
+		 <tr>
+                        <td width='650px'>
+                                <div class="section-header">
+                    <a href='javascript:;' class='small' id='disc_view'><span class='text'><b><?php echo htmlspecialchars(xl("Disclosures"),ENT_NOQUOTES);?></b></span> (<span class="indicator"><?php echo htmlspecialchars(xl('collapse'),ENT_NOQUOTES); ?></span>)</a>
+                                </div>
+                                <!-- Demographics -->
+                <div id='disc_div' class='tab current' style='height:auto; width:100%' >
+                    <br/>
+                    <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+                </div>
+                        </td>
+              </tr>		
 
 	   </table>
 

@@ -726,3 +726,22 @@ ALTER TABLE transactions ADD refer_reply_date date DEFAULT NULL;
 ALTER TABLE transactions ADD reply_related_code varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
+#IfNotTable extended_log
+CREATE TABLE `extended_log` (
+  `id`          bigint(20)   NOT NULL AUTO_INCREMENT,
+  `date`        datetime     DEFAULT NULL,
+  `event`       varchar(255) DEFAULT NULL,
+  `user`        varchar(255) DEFAULT NULL,
+  `recipient`   varchar(255) DEFAULT NULL,
+  `description` longtext,
+  `patient_id`  bigint(20)   DEFAULT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id disclosure_type
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'disclosure_type','Disclosure Type', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('disclosure_type', 'disclosure-treatment', 'Treatment', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('disclosure_type', 'disclosure-payment', 'Payment', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('disclosure_type', 'disclosure-healthcareoperations', 'Health Care Operations', 30, 0);
+#EndIf
