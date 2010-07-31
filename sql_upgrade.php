@@ -18,6 +18,9 @@ $ignoreAuth = true; // no login required
 require_once('interface/globals.php');
 require_once('library/sql.inc');
 
+// Force logging off
+$GLOBALS["enable_auditlog"]=0;
+
 function tableExists($tblname) {
   $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
   if (empty($row)) return false;
