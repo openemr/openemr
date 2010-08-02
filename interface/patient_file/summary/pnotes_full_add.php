@@ -4,6 +4,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
@@ -20,10 +28,10 @@ if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
 // Check authorization.
 $thisauth = acl_check('patients', 'notes');
 if ($thisauth != 'write' && $thisauth != 'addonly')
-    die(xl('Not authorized'));
+    die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES));
 $tmp = getPatientData($pid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-    die(xl('Not authorized for this squad.'));
+    die(htmlspecialchars( xl('Not authorized for this squad.'), ENT_NOQUOTES));
 
 //the number of records to display per screen
 $N = 25;
@@ -73,8 +81,6 @@ if (isset($mode)) {
   }
   elseif ($mode == "new") {
     $note = $_POST['note'];
-    // The subroutine will do its own addslashes().
-    if (get_magic_quotes_gpc()) $note = stripslashes($note);
     if ($noteid) {
       updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
       $noteid = '';
@@ -137,19 +143,19 @@ document.forms[0].submit();
 
 <div id="pnotes"> <!-- large outer DIV -->
 
-<form border='0' method='post' name='new_note' id="new_note" target="_parent" action='pnotes_full.php?docid=<?php echo $docid; ?>'>
+<form border='0' method='post' name='new_note' id="new_note" target="_parent" action='pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>'>
 
     <div>
         <div style='float:left; margin-right: 5px'>
-            <span class="title"><?php xl('Patient Note','e'); ?></span>
+            <span class="title"><?php echo htmlspecialchars( xl('Patient Note'), ENT_NOQUOTES); ?></span>
         </div>
         <div>
             <?php if ($noteid) { ?>
             <!-- existing note -->
-            <a href="#" class="css_button" id="printnote"><span><?php xl('Print','e'); ?></span></a>
+            <a href="#" class="css_button" id="printnote"><span><?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?></span></a>
             <?php } ?>
             <a class="css_button large_button" id='cancel' href='javascript:;'>
-            <span class='css_button_span large_button_span'><?php xl('Cancel','e');?></span>
+            <span class='css_button_span large_button_span'><?php echo htmlspecialchars( xl('Cancel'), ENT_NOQUOTES);?></span>
             </a>
         </div>
     </div>
@@ -167,19 +173,20 @@ if ($docid) {
 <input type='hidden' name='mode' id="mode" value="new">
 <input type='hidden' name='trigger' id="trigger" value="add">
 <input type='hidden' name='offset' id="offset" value="<?php echo $offset ?>">
-<input type='hidden' name='form_active' id="form_active" value="<?php echo $form_active ?>">
-<input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo $form_inactive ?>">
-<input type='hidden' name='noteid' id="noteid" value="<?php echo $noteid ?>">
-<input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo $form_doc_only ?>">
+<input type='hidden' name='form_active' id="form_active" value="<?php echo htmlspecialchars( $form_active, ENT_QUOTES) ?>">
+<input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo htmlspecialchars( $form_inactive, ENT_QUOTES) ?>">
+<input type='hidden' name='noteid' id="noteid" value="<?php echo htmlspecialchars( $noteid, ENT_QUOTES) ?>">
+<input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo htmlspecialchars( $form_doc_only, ENT_QUOTES) ?>">
 <table border='0' cellspacing='8'>
  <tr>
   <td class='text'>
     <?php
      if ($noteid) {
        // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-       echo xl('Amend Existing Note')."<b> &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
+       echo htmlspecialchars( xl('Amend Existing Note'), ENT_NOQUOTES) . 
+         "<b> &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
      } else {
-       echo xl('Add New Note')."\n";
+       echo htmlspecialchars( xl('Add New Note'), ENT_NOQUOTES) . "\n";
      }
     ?>
   </td>
@@ -188,21 +195,21 @@ if ($docid) {
   <td class='text'>
     <br/>
 
-   <b><?php xl('Type','e'); ?>:</b>
+   <b><?php echo htmlspecialchars( xl('Type'), ENT_NOQUOTES); ?>:</b>
    <?php
    // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
     generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), $title);
    ?>
    &nbsp; &nbsp;
-   <b><?php xl('To','e'); ?>:</b>
+   <b><?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:</b>
    <select name='assigned_to'>
-    <option value=''>** <?php xl('Close','e'); ?> **</option>
+    <option value=''>** <?php echo htmlspecialchars( xl('Close'), ENT_NOQUOTES); ?> **</option>
 <?php
  while ($urow = sqlFetchArray($ures)) {
-  echo "    <option value='" . $urow['username'] . "'";
+  echo "    <option value='" . htmlspecialchars( $urow['username'], ENT_QUOTES) . "'";
   if ($urow['username'] == $assigned_to) echo " selected";
-  echo ">" . $urow['lname'];
-  if ($urow['fname']) echo ", " . $urow['fname'];
+  echo ">" . htmlspecialchars( $urow['lname'], ENT_NOQUOTES);
+  if ($urow['fname']) echo htmlspecialchars( ", ".$urow['fname'], ENT_NOQUOTES);
   echo "</option>\n";
  }
 ?>
@@ -214,7 +221,7 @@ if ($docid) {
 <?php
 if ($noteid) {
     $body = $prow['body'];
-    $body = nl2br($body);
+    $body = nl2br(htmlspecialchars( $body, ENT_NOQUOTES));
     echo "<div class='text'>".$body."</div>";
 }
 ?>
@@ -223,10 +230,10 @@ if ($noteid) {
 
     <?php if ($noteid) { ?>
     <!-- existing note -->
-    <a href="#" class="css_button" id="newnote" title="<?php xl('Add as a new note','e'); ?>" ><span><?php xl('Save as new note','e'); ?></span></a>
-    <a href="#" class="css_button" id="appendnote" title="<?php xl('Append to the existing note','e'); ?>"><span><?php xl('Append this note','e'); ?></span></a>
+    <a href="#" class="css_button" id="newnote" title="<?php echo htmlspecialchars( xl('Add as a new note'), ENT_QUOTES); ?>" ><span><?php echo htmlspecialchars( xl('Save as new note'), ENT_NOQUOTES); ?></span></a>
+    <a href="#" class="css_button" id="appendnote" title="<?php echo htmlspecialchars( xl('Append to the existing note'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars( xl('Append this note'), ENT_NOQUOTES); ?></span></a>
     <?php } else { ?>
-    <a href="#" class="css_button" id="newnote" title="<?php xl('Add as a new note','e'); ?>" ><span><?php xl('Save as new note','e'); ?></span></a>
+    <a href="#" class="css_button" id="newnote" title="<?php echo htmlspecialchars( xl('Add as a new note'), ENT_QUOTES); ?>" ><span><?php echo htmlspecialchars( xl('Save as new note'), ENT_NOQUOTES); ?></span></a>
     <?php } ?>
 
   </td>
@@ -235,7 +242,7 @@ if ($noteid) {
 <br>
 </form>
 <form border='0' method='post' name='update_activity' id='update_activity'
- action="pnotes_full.php?docid=<?php echo $docid; ?>">
+ action="pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>">
 
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
@@ -252,12 +259,12 @@ if ($noteid) {
 <?php
 if ($offset > ($N-1)) {
   echo "   <a class='link' href='pnotes_full.php" .
-    "?docid=$docid" .
-    "&form_active=$form_active" .
-    "&form_inactive=$form_inactive" .
-    "&form_doc_only=$form_doc_only" .
+    "?docid=" . htmlspecialchars( $docid, ENT_QUOTES) .
+    "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
+    "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
+    "&form_doc_only=" . htmlspecialchars( $form_doc_only, ENT_QUOTES) .
     "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
-    xl('Previous') . "]</a>\n";
+    htmlspecialchars( xl('Previous'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
   </td>
@@ -265,12 +272,12 @@ if ($offset > ($N-1)) {
 <?php
 if ($result_count == $N) {
   echo "   <a class='link' href='pnotes_full.php" .
-    "?docid=$docid" .
-    "&form_active=$form_active" .
-    "&form_inactive=$form_inactive" .
-    "&form_doc_only=$form_doc_only" .
+    "?docid=" . htmlspecialchars( $docid, ENT_QUOTES) .
+    "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
+    "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
+    "&form_doc_only=" . htmlspecialchars( $form_doc_only, ENT_QUOTES) .
     "&offset=" . ($offset+$N) . "' onclick='top.restoreSession()'>[" .
-    xl('Next') . "]</a>\n";
+    htmlspecialchars( xl('Next'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
   </td>
@@ -285,7 +292,7 @@ if ($result_count == $N) {
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   $ndata = getPatientData($pid, "fname, lname, pubpid");
 ?>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($ndata['fname']) . " " . addslashes($ndata['lname']) . "',$pid,'" . addslashes($ndata['pubpid']) . "',window.name"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars( $ndata['fname']." ".$ndata['lname'], ENT_QUOTES) . "',$pid,'" . htmlspecialchars( $ndata['pubpid'], ENT_QUOTES) . "',window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'pno');
 <?php
 }
@@ -299,7 +306,7 @@ if ($noteid /* && $title == 'New Document' */ ) {
     $docid = $matches[1];
     $docname = $matches[2];
 ?>
- window.open('../../../controller.php?document&retrieve&patient_id=<?php echo $pid ?>&document_id=<?php echo $docid ?>&<?php echo $docname?>&as_file=true',
+ window.open('../../../controller.php?document&retrieve&patient_id=<?php echo htmlspecialchars( $pid, ENT_QUOTES) ?>&document_id=<?php echo htmlspecialchars( $docid, ENT_QUOTES) ?>&<?php echo htmlspecialchars( $docname, ENT_QUOTES)?>&as_file=true',
   '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
 <?php
   }
@@ -351,11 +358,11 @@ $(document).ready(function(){
 
     var PrintNote = function () {
         top.restoreSession();
-        window.open('pnotes_print.php?noteid=<?php echo $noteid; ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
+        window.open('pnotes_print.php?noteid=<?php echo htmlspecialchars( $noteid, ENT_QUOTES); ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
     }
 
     var DeleteNote = function(note) {
-        if (confirm("<?php xl('Are you sure you want to delete this note?','e','','\n ') . xl('This action CANNOT be undone.','e'); ?>")) {
+        if (confirm("<?php echo htmlspecialchars( xl('Are you sure you want to delete this note?','','','\n ').xl('This action CANNOT be undone.'), ENT_QUOTES); ?>")) {
             top.restoreSession();
             // strip the 'del' part of the object's ID
             $("#noteid").val(note.id.replace(/del/, ""));

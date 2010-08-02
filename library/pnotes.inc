@@ -10,9 +10,9 @@ require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 function getPnoteById($id, $cols = "*")
 {
-  return sqlQuery("SELECT $cols FROM pnotes WHERE id='$id' " .
+  return sqlQuery("SELECT $cols FROM pnotes WHERE id=? " .
     " AND deleted != 1 ". // exclude ALL deleted notes
-    "order by date DESC limit 0,1");
+    "order by date DESC limit 0,1", array($id) );
 }
 
 function getPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
@@ -31,8 +31,10 @@ $sqlParameterArray = array();
     array_push($sqlParameterArray, '%'.$date.'%', $pid);
   }
   $sql .= " AND deleted != 1"; // exclude ALL deleted notes
-  if ($activity != "all")
-    $sql .= " AND activity = '$activity'";
+  if ($activity != "all") {
+    $sql .= " AND activity = ?";
+    array_push($sqlParameterArray, $activity);
+  }
   if ($username) {
     $sql .= " AND assigned_to LIKE ?";
     array_push($sqlParameterArray, $username);
@@ -62,21 +64,20 @@ function getPnotesByPid ($pid, $activity = "1", $cols = "*", $limit=10, $start=0
 }
 
 function addPnote($pid, $newtext, $authorized = '0', $activity = '1',
-  $title='Unassigned', $assigned_to = '', $datetime = '')
+  $title='Unassigned', $assigned_to = '', $datetime = '', $message_status = "New")
 {
   if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
 
   $body = date('Y-m-d H:i') . ' (' . $_SESSION['authUser'];
   if ($assigned_to) $body .= " to $assigned_to";
-  $body = addslashes($body . ') ' . $newtext);
+  $body = $body . ') ' . $newtext;
 
   return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
-    "authorized, activity, title, assigned_to) VALUES ('$datetime', '$body', '$pid', '" .
-    $_SESSION['authUser'] . "', '". $_SESSION['authProvider'] .
-    "', '$authorized', '$activity', '$title', '$assigned_to')");
+    "authorized, activity, title, assigned_to, message_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    array($datetime, $body, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status) );
 }
 
-function updatePnote($id, $newtext, $title, $assigned_to)
+function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "")
 {
   $row = getPnoteById($id);
   if (! $row) die("updatePnote() did not find id '$id'");
@@ -85,11 +86,25 @@ function updatePnote($id, $newtext, $title, $assigned_to)
   $body = $row['body'] . "\n" . date('Y-m-d H:i') .
     ' (' . $_SESSION['authUser'];
   if ($assigned_to) $body .= " to $assigned_to";
-  $body = addslashes($body . ') ' . $newtext);
+  $body = $body . ') ' . $newtext;
 
-  sqlStatement("UPDATE pnotes SET " .
-    "body = '$body', activity = '$activity', title='$title', " .
-    "assigned_to = '$assigned_to' WHERE id = '$id'");
+  if ($message_status) {
+    sqlStatement("UPDATE pnotes SET " .
+      "body = ?, activity = ?, title= ?, " .
+      "assigned_to = ?, message_status = ? WHERE id = ?",
+      array($body, $activity, $title, $assigned_to, $message_status, $id) );
+  }
+  else {
+    sqlStatement("UPDATE pnotes SET " .
+      "body = ?, activity = ?, title= ?, " .
+      "assigned_to = ? WHERE id = ?",
+      array($body, $activity, $title, $assigned_to, $id) );
+  }
+}
+
+function updatePnoteMessageStatus($id, $message_status)
+{
+  sqlStatement("update pnotes set message_status = ? where id = ?", array($message_status, $id) );
 }
 
 function authorizePnote($id, $authorized = "1")
@@ -99,19 +114,19 @@ function authorizePnote($id, $authorized = "1")
 
 function disappearPnote($id)
 {
-  sqlStatement("UPDATE pnotes SET activity = '0' WHERE id='$id'");
+  sqlStatement("UPDATE pnotes SET activity = '0' WHERE id=?", array($id) );
   return true;
 }
 
 function reappearPnote ($id)
 {
-  sqlStatement("UPDATE pnotes SET activity = '1' WHERE id='$id'");
+  sqlStatement("UPDATE pnotes SET activity = '1' WHERE id=?", array($id) );
   return true;
 }
 
 function deletePnote($id)
 {
-  sqlStatement("UPDATE pnotes SET deleted = '1' WHERE id='$id'");
+  sqlStatement("UPDATE pnotes SET deleted = '1' WHERE id=?", array($id) );
   return true;
 }
 ?>

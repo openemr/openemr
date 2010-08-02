@@ -97,7 +97,7 @@ $fake_register_globals=false;
 
         $body = $iter['body'];
         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-          $body = nl2br(oeFormatPatientNote($body));
+          $body = nl2br(htmlspecialchars(oeFormatPatientNote($body),ENT_NOQUOTES);
         } else {
           $body = htmlspecialchars(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
             ' (' . $iter['user'] . ') ',ENT_NOQUOTES) .

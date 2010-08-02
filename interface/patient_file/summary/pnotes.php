@@ -1,4 +1,13 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
  require_once("../../globals.php");
  require_once("$srcdir/pnotes.inc");
  require_once("$srcdir/acl.inc");
@@ -27,7 +36,7 @@
    $thisauth = 0;
  }
  if (!$thisauth) {
-  echo "<p>(" . xl('Notes not authorized') . ")</p>\n";
+  echo "<p>(" . htmlspecialchars( xl('Notes not authorized'), ENT_NOQUOTES) . ")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
@@ -38,21 +47,21 @@
 <?php if ($thisauth == 'write' || $thisauth == 'addonly'): ?>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="pnotes_full.php?docid=<?php echo $docid; ?>" onclick="top.restoreSession()">
+<a href="pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>" onclick="top.restoreSession()">
 <?php } else { ?>
-<a href="pnotes_full.php?docid=<?php echo $docid; ?>" target="Main" onclick="top.restoreSession()">
+<a href="pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>" target="Main" onclick="top.restoreSession()">
 <?php } ?>
 
-<span class="title"><?php xl('Notes','e'); ?>
+<span class="title"><?php echo htmlspecialchars( xl('Notes'), ENT_NOQUOTES); ?>
 <?php
   if ($docid) {
-    echo " " . xl("linked to document") . " ";
+    echo " " . htmlspecialchars( xl("linked to document"), ENT_NOQUOTES) . " ";
     $d = new Document($docid);	
     echo $d->get_url_file();
   }
 ?>
 </span>
-<span class=more><?php echo $tmore;?></span>
+<span class=more><?php echo htmlspecialchars( $tmore, ENT_NOQUOTES);?></span>
 </a>
 <?php endif; ?>
 
@@ -64,17 +73,15 @@
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 15;
 
-$conn = $GLOBALS['adodb']['db'];
-
 // Get the billing note if there is one.
 $billing_note = "";
 $colorbeg = "";
 $colorend = "";
 $sql = "select genericname2, genericval2 " .
-    "from patient_data where pid = '$pid' limit 1";
-$resnote = $conn->Execute($sql);
-if($resnote && !$resnote->EOF && $resnote->fields['genericname2'] == 'Billing') {
-  $billing_note = $resnote->fields['genericval2'];
+    "from patient_data where pid = ? limit 1";
+$resnote = sqlQuery($sql, array($pid) );
+if($resnote && $resnote['genericname2'] == 'Billing') {
+  $billing_note = $resnote['genericval2'];
   $colorbeg = "<span style='color:red'>";
   $colorend = "</span>";
 }
@@ -84,13 +91,17 @@ $balance = get_patient_balance($pid);
 if ($balance != "0") {
   $formatted = sprintf((xl('$').'%01.2f'), $balance);
   echo " <tr class='text billing'>\n";
-  echo "  <td>".$colorbeg.xl('Balance Due').$colorend."</td><td>".$colorbeg.$formatted.$colorend."</td>\n";
+  echo "  <td>" . $colorbeg . htmlspecialchars( xl('Balance Due'), ENT_NOQUOTES) .
+    $colorend . "</td><td>" . $colorbeg . 
+    htmlspecialchars( $formatted, ENT_NOQUOTES) . $colorend."</td>\n";
   echo " </tr>\n";
 }
 
 if ($billing_note) {
   echo " <tr class='text billing'>\n";
-  echo "  <td>".$colorbeg.xl('Billing Note').$colorend."</td><td>".$colorbeg.$billing_note.$colorend."</td>\n";
+  echo "  <td>" . $colorbeg . htmlspecialchars( xl('Billing Note'), ENT_NOQUOTES) .
+    $colorend . "</td><td>" . $colorbeg .
+    htmlspecialchars( $billing_note, ENT_NOQUOTES) . $colorend . "</td>\n";
   echo " </tr>\n";
 }
 
@@ -108,10 +119,11 @@ if ($result != null) {
       echo "  <td colspan='3' align='center'>\n";
       echo "   <a ";
       if (!$GLOBALS['concurrent_layout']) echo "target='Main' ";
-      echo "href='pnotes_full.php?active=1&docid=$docid' class='alert' " .
-        "onclick='top.restoreSession()'>";
-      echo xl('Some notes were not displayed.','','',' ') .
-        xl('Click here to view all.') . "</a>\n";
+      echo "href='pnotes_full.php?active=1&docid=" .
+	htmlspecialchars( $docid, ENT_QUOTES) . 
+	"' class='alert' onclick='top.restoreSession()'>";
+      echo htmlspecialchars( xl('Some notes were not displayed.','','',' '), ENT_NOQUOTES) .
+        htmlspecialchars( xl('Click here to view all.'), ENT_NOQUOTES) . "</a>\n";
       echo "  </td>\n";
       echo " </tr>\n";
       break;
@@ -119,13 +131,13 @@ if ($result != null) {
 
     $body = $iter['body'];
     if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-      $body = nl2br($body);
+      $body = nl2br(htmlspecialchars( $body, ENT_NOQUOTES));
     } else {
-      $body = date('Y-m-d H:i', strtotime($iter['date'])) .
-        ' (' . $iter['user'] . ') ' . nl2br($body);
+      $body = htmlspecialchars( date('Y-m-d H:i', strtotime($iter['date'])), ENT_NOQUOTES) .
+        ' (' . htmlspecialchars( $iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars( $body, ENT_NOQUOTES));
     }
 
-    echo " <tr class='text noterow' id='".$iter['id']."'>\n";
+    echo " <tr class='text noterow' id='".htmlspecialchars( $iter['id'], ENT_QUOTES)."'>\n";
       
     // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings  
     echo "  <td valign='top' class='bold'>";
@@ -161,11 +173,11 @@ var EditNote = function(note) {
     <?php if (!$GLOBALS['concurrent_layout']): ?>
     top.Main.location.href = "pnotes_full.php?docid=<?php echo $docid; ?>&noteid=" + note.id + "&active=1";
     <?php else: ?>
-    location.href = "pnotes_full.php?docid=<?php echo $docid; ?>noteid=" + note.id + "&active=1";
+    location.href = "pnotes_full.php?docid=<?php echo $docid; ?>&noteid=" + note.id + "&active=1";
     <?php endif; ?>
 <?php else: ?>
     // no-op
-    alert("<?php xl('You do not have access to view/edit this note','e'); ?>");
+    alert("<?php echo htmlspecialchars( xl('You do not have access to view/edit this note'), ENT_QUOTES); ?>");
 <?php endif; ?>
 }
 
