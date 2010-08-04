@@ -37,6 +37,7 @@
 //   Slovak                         // xl('Slovak')
 //   Spanish                        // xl('Spanish')
 //   Swedish                        // xl('Swedish')
+//   Turkish                        // xl('Turkish')
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
