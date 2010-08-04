@@ -30,7 +30,7 @@ function getEventByDate($date, $user="", $cols="DISTINCT date, event, user, grou
 }
 
 /******************
- * Get records from the LOG table
+ * Get records from the LOG and Extended_Log table
  * using the optional parameters:
  *   date : a specific date  (defaults to today)
  *   user : a specific user  (defaults to none)
@@ -63,6 +63,19 @@ function getEvents($params)
      $tevent = "";
     if (isset($params['tevent']) && $params['tevent'] != "") $tevent = $params['tevent'];
     
+     $event = "";
+    if (isset($params['event']) && $params['event'] != "") $event = $params['event'];
+    if ($event!=""){
+    if ($sortby == "comments") $sortby = "description";
+    $columns = "DISTINCT date, event, user, recipient,patient_id,description";
+    $sql = "SELECT $columns FROM extended_log WHERE date >= '$date1 00:00:00' AND date <= '$date2 23:59:59'";
+    if ($user != "") $sql .= " AND user LIKE '$user'";
+    if ($levent != "") $sql .= " AND event LIKE '$levent%'";
+    if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC "; // descending order
+    $sql .= " LIMIT 5000";
+    }
+    else
+    {
     // do the query
     $sql = "SELECT $cols FROM log WHERE date >= '$date1 00:00:00' AND date <= '$date2 23:59:59'";
     if ($user != "") $sql .= " AND user LIKE '$user'";
@@ -70,6 +83,7 @@ function getEvents($params)
     if ($tevent != "") $sql .= " AND event LIKE '%$tevent'";
     if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC "; // descending order
     $sql .= " LIMIT 5000";
+    }
     $res = sqlStatement($sql);
     for($iter=0; $row=sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
@@ -654,5 +668,52 @@ function auditSQLEvent($statement, $outcome)
     send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);
     //return $ret;
 }
-
+/**
+ * Record the patient disclosures.
+ * @param $dates    - The date when the disclosures are sent to the thrid party.
+ * @param $event    - The type of the disclosure.
+ * @param $pid      - The id of the patient for whom the disclosures are recorded.
+ * @param $comment  - The recipient name and description of the disclosure.
+ * @uname           - The username who is recording the disclosure.
+ */
+function recordDisclosure($dates,$event,$pid,$recipient,$description,$user)
+{
+        $adodb = $GLOBALS['adodb']['db'];
+        $crt_user= $_SERVER['SSL_CLIENT_S_DN_CN'];
+        $groupname=$_SESSION['authProvider'];
+        $success=1;
+        $sql = "insert into extended_log ( date, event, user, recipient, patient_id, description) " .
+            "values (" . $adodb->qstr($dates) . "," . $adodb->qstr($event) . "," . $adodb->qstr($user) .
+            "," . $adodb->qstr($recipient) . ",".
+            $adodb->qstr($pid) ."," .
+            $adodb->qstr($description) .")";
+        $ret = sqlInsertClean_audit($sql);
+}
+/**
+ * Edit the disclosures that is recorded.
+ * @param $dates  - The date when the disclosures are sent to the thrid party.
+ * @param $event  - The type of the disclosure.
+ * param $comment - The recipient and the description of the disclosure are appended.
+ * $logeventid    - The id of the record which is to be edited.
+ */
+function updateRecordedDisclosure($dates,$event,$recipient,$description,$disclosure_id)
+{
+         $adodb = $GLOBALS['adodb']['db'];
+         $sql="update extended_log set
+                event=" . $adodb->qstr($event) . ",
+                date=" .  $adodb->qstr($dates) . ",
+                recipient=" . $adodb->qstr($recipient) . ",
+                description=" . $adodb->qstr($description) . "
+                where id=" . $adodb->qstr($disclosure_id) . "";
+          $ret = sqlInsertClean_audit($sql);
+}
+/**
+ * Delete the disclosures that is recorded.
+ * $deleteid - The id of the record which is to be deleted.
+ */
+function deleteDisclosure($deletelid)
+{
+        $sql="delete from extended_log where id='$deletelid'";
+        $ret = sqlInsertClean_audit($sql);
+}
 ?>

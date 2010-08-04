@@ -1,4 +1,13 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
  include_once("../../globals.php");
  include_once("$srcdir/pnotes.inc");
  include_once("$srcdir/patient.inc");
@@ -10,9 +19,9 @@
  // Check authorization.
  $thisauth = acl_check('patients', 'notes');
  if (!$thisauth)
-  die(xl('Not authorized'));
+  die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES));
  if ($prow['squad'] && ! acl_check('squads', $prow['squad']))
-  die(xl('Not authorized for this squad.'));
+  die(htmlspecialchars( xl('Not authorized for this squad.'), ENT_NOQUOTES));
 
 $noteid = $_REQUEST['noteid'];
 
@@ -41,13 +50,14 @@ if ($noteid) {
 
 <p><?php echo "<b>" .
   generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) .
-  "</b>" . xl('for','',' ',' ') . "<b>$ptname</b>"; ?></p>
+  "</b>" . htmlspecialchars( xl('for','',' ',' '), ENT_NOQUOTES) .
+  "<b>" . htmlspecialchars( $ptname, ENT_NOQUOTES) . "</b>"; ?></p>
 
-<p><?php xl('Assigned To','e'); ?>: <?php echo $assigned_to; ?></p>
+<p><?php echo htmlspecialchars( xl('Assigned To'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars( $assigned_to, ENT_NOQUOTES); ?></p>
 
-<p><?php xl('Active','e'); ?>: <?php echo $activity ? xl('Yes') : xl('No'); ?></p>
+<p><?php echo htmlspecialchars( xl('Active'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars( ($activity ? xl('Yes') : xl('No')), ENT_NOQUOTES); ?></p>
 
-<p><?php echo nl2br($body); ?></p>
+<p><?php echo nl2br(htmlspecialchars( $body, ENT_NOQUOTES)); ?></p>
 
 <script language='JavaScript'>
 window.print();

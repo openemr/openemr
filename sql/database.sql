@@ -3324,3 +3324,25 @@ INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, 
 
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists', 'code_types', 'Code Types', 1);
 
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'disclosure_type','Disclosure Type', 3,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('disclosure_type', 'disclosure-treatment', 'Treatment', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('disclosure_type', 'disclosure-payment', 'Payment', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('disclosure_type', 'disclosure-healthcareoperations', 'Health Care Operations', 30, 0);
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `extended_log`
+--
+
+DROP TABLE IF EXISTS `extended_log`;
+CREATE TABLE `extended_log` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `event` varchar(255) default NULL,
+  `user` varchar(255) default NULL,
+  `recipient` varchar(255) default NULL,
+  `description` longtext,
+  `patient_id` bigint(20) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

@@ -43,7 +43,18 @@ require_once("$srcdir/formatting.inc.php");
     color: #336699;
 }
 </style>
-
+<script>
+//function to disable the event type field if the event name is disclosure
+function eventTypeChange(eventname)
+{
+         if (eventname == "disclosure") {
+            document.theform.type_event.disabled = true;
+          }
+         else {
+            document.theform.type_event.disabled = false;
+         }              
+}
+</script>
 </head>
 <body class="body_top">
 <font class="title"><?php  xl('Logs Viewer','e'); ?></font>
@@ -149,10 +160,25 @@ while ($erow = sqlFetchArray($res)) {
 	$ename_list[$j]=$ename;
 	$j=$j+1;
 }
+$res1 = sqlStatement("select distinct event from  extended_log order by event ASC");
+$j=0;
+while ($row = sqlFetchArray($res1)) {
+         if (!trim($row['event'])) continue;
+         $new_event = explode('-', $row['event']);
+         $no = count($new_event);
+         $events=$new_event[0];
+         for($i=1;$i<($no-1);$i++)
+         {
+                $events.="-".$new_event[$i];
+        }
+        if ($events=="disclosure")
+        $ename_list[$j]=$events;
+        $j=$j+1;
+}
 $ename_list=array_unique($ename_list);
 $ename_list=array_merge($ename_list);
 $ecount=count($ename_list);
-echo "<select name='eventname'>\n";
+echo "<select name='eventname' onchange='eventTypeChange(this.options[this.selectedIndex].value);'>\n";
 echo " <option value=''>" . xl('All') . "</option>\n";
 for($k=0;$k<$ecount;$k++) {
 echo " <option value='" .$ename_list[$k]. "'";
@@ -170,7 +196,13 @@ echo "</select>\n";
 <?php 
 $event_types=array("select", "update", "insert", "delete", "replace");
 $lcount=count($event_types);
-  echo "<select name='type_event'>\n";
+if($eventname=="disclosure"){
+ echo "<select name='type_event' disabled='disabled'>\n";
+ echo " <option value=''>" . xl('All') . "</option>\n";
+ echo "</option>\n";
+}
+else{
+  echo "<select name='type_event'>\n";}
   echo " <option value=''>" . xl('All') . "</option>\n";
   for($k=0;$k<$lcount;$k++) {
   echo " <option value='" .$event_types[$k]. "'";
@@ -266,6 +298,30 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
       
     }
   }
+if (($eventname=="disclosure") || ($gev == ""))
+{
+$eventname="disclosure";
+if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
+foreach ($ret as $iter) {
+        $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
+?>
+<TR class="oneresult">
+  <TD class="text"><?php echo htmlspecialchars(oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10),ENT_NOQUOTES); ?></TD>
+  <TD class="text"><?php echo htmlspecialchars(xl($iter["event"]),ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo htmlspecialchars($iter["user"],ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo htmlspecialchars($iter["crt_user"],ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo htmlspecialchars($iter["groupname"],ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo htmlspecialchars($iter["patient_id"],ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo htmlspecialchars($iter["success"],ENT_NOQUOTES);?></TD>
+  <TD class="text"><?php echo htmlspecialchars($comments,ENT_NOQUOTES);?></TD>
+  <?php  if($check_sum) { ?>
+  <TD class="text"><?php echo htmlspecialchars($iter["checksum"],ENT_NOQUOTES);?></TD>
+  <?php } ?>
+ </TR>
+<?php
+    }
+  }
+}
 ?>
 </table>
 </div>

@@ -12,6 +12,7 @@ require_once("$srcdir/auth.inc");
 include_once("$srcdir/formdata.inc.php");
 
 function lab_results_messages($set_pid, $rid, $provider_id="") {
+    global $userauthorized;
     if ($provider_id != "") {
         $where = "AND id = '".$provider_id."'";
     }
@@ -37,7 +38,6 @@ function lab_results_messages($set_pid, $rid, $provider_id="") {
 
             if ($thisauth) {
                 // Send lab result message to the ordering provider when there is a new lab report.
-                $userauthorized = formData("userauthorized");
                 $pname = getPatientName($set_pid);
                 $link = "<a href='../../orders/orders_results.php?review=1&set_pid=$set_pid'" .
                 " onclick='return top.restoreSession()'>here</a>";
@@ -45,8 +45,7 @@ function lab_results_messages($set_pid, $rid, $provider_id="") {
                 $note_type = "Lab Results";
                 $message_status = "New";
                 // Add pnote.
-                $noteid = addPnote($set_pid, $note, $userauthorized, '1', $note_type, $user_detail['username']);
-                sqlQ("update pnotes set message_status='".$message_status."' where id = '$noteid'");
+                $noteid = addPnote($set_pid, $note, $userauthorized, '1', $note_type, $user_detail['username'], '', $message_status);
             }
         }
     }
