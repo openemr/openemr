@@ -27,6 +27,7 @@
 //  rsn - adjustment reason, only for adjustments
 //  plv - provided for "integrated A/R" only: 0=pt, 1=Ins1, etc.
 //  dsc - for tax charges, a description of the tax
+//  arseq - ar_activity.sequence_no when it applies.
 
 require_once("sl_eob.inc.php");
 
@@ -197,7 +198,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
   // Get payments and adjustments.
   $res = sqlStatement("SELECT " .
     "a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
-    "a.post_time, a.session_id, " .
+    "a.post_time, a.session_id, a.sequence_no, " .
     "s.payer_id, s.reference, s.check_date, s.deposit_date " .
     "FROM ar_activity AS a " .
     "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
@@ -231,6 +232,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
       $tmp['src'] = empty($row['session_id']) ? $row['memo'] : $row['reference'];
       if ($ins_id) $tmp['ins'] = $ins_id;
       $tmp['plv'] = $row['payer_type'];
+      $tmp['arseq'] = $row['sequence_no'];
       $codes[$code]['dtl'][$tmpkey] = $tmp;
     }
   }

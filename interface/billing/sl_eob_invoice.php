@@ -1,5 +1,5 @@
 <?php
-  // Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
+  // Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
   // modify it under the terms of the GNU General Public License
@@ -10,16 +10,20 @@
   // sl_eob_search.php.  For automated (X12 835) remittance posting
   // see sl_eob_process.php.
 
-  include_once("../globals.php");
-  include_once("../../library/patient.inc");
-  include_once("../../library/forms.inc");
-  include_once("../../library/sl_eob.inc.php");
-  include_once("../../library/invoice_summary.inc.php");
-  include_once("../../custom/code_types.inc.php");
+  require_once("../globals.php");
+  require_once("$srcdir/log.inc");
+  require_once("$srcdir/patient.inc");
+  require_once("$srcdir/forms.inc");
+  require_once("$srcdir/sl_eob.inc.php");
+  require_once("$srcdir/invoice_summary.inc.php");
+  require_once("../../custom/code_types.inc.php");
 
   $debug = 0; // set to 1 for debugging mode
 
   $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
+
+  // If we permit deletion of transactions.  Might change this later.
+  $ALLOW_DELETE = $INTEGRATED_AR;
 
   $info_msg = "";
 
@@ -29,10 +33,33 @@
     if ($amount)
       printf("%.2f", $amount);
   }
+
+ // Delete rows, with logging, for the specified table using the
+ // specified WHERE clause.  Borrowed from deleter.php.
+ //
+ function row_delete($table, $where) {
+  $tres = sqlStatement("SELECT * FROM $table WHERE $where");
+  $count = 0;
+  while ($trow = sqlFetchArray($tres)) {
+   $logstring = "";
+   foreach ($trow as $key => $value) {
+    if (! $value || $value == '0000-00-00 00:00:00') continue;
+    if ($logstring) $logstring .= " ";
+    $logstring .= $key . "='" . addslashes($value) . "'";
+   }
+   newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "$table: $logstring");
+   ++$count;
+  }
+  if ($count) {
+   $query = "DELETE FROM $table WHERE $where";
+   // echo $query . "<br>\n";
+   sqlStatement($query);
+  }
+ }
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show(); ?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php xl('EOB Posting - Invoice','e')?></title>
 <script language="JavaScript">
@@ -73,8 +100,14 @@ function writeoff(code) {
 
 // Onsubmit handler.  A good excuse to write some JavaScript.
 function validate(f) {
+ var delcount = 0;
  for (var i = 0; i < f.elements.length; ++i) {
   var ename = f.elements[i].name;
+  // Count deletes.
+  if (ename.substring(0, 9) == 'form_del[') {
+   if (f.elements[i].checked) ++delcount;
+   continue;
+  }
   var pfxlen = ename.indexOf('[pay]');
   if (pfxlen < 0) continue;
   var pfx = ename.substring(0, pfxlen);
@@ -137,6 +170,13 @@ function validate(f) {
   }
   // TBD: validate the date format
  }
+ // Demand confirmation if deleting anything.
+ if (delcount > 0) {
+  if (!confirm('<?php echo xl('Really delete'); ?> ' + delcount +
+   ' <?php echo xl('transactions'); ?>?' +
+   ' <?php echo xl('This action will be logged'); ?>!')
+  ) return false;
+ }
  return true;
 }
 
@@ -186,6 +226,14 @@ function validate(f) {
         // openemr database exclusively.
         // And back to the sl_eob_invoice page, I think we may want to move
         // the source input fields from row level to header level.
+
+        // Handle deletes. row_delete() is borrowed from deleter.php.
+        if ($ALLOW_DELETE && !$debug) {
+          foreach ($_POST['form_del'] as $arseq => $dummy) {
+            row_delete("ar_activity", "pid = '$patient_id' AND " .
+              "encounter = '$encounter_id' AND sequence_no = '$arseq'");
+          }
+        }
       }
 
       $paytotal = 0;
@@ -237,8 +285,10 @@ function validate(f) {
 
       if ($INTEGRATED_AR) {
         $form_done = 0 + $_POST['form_done'];
+        $form_stmt_count = 0 + $_POST['form_stmt_count'];
         sqlStatement("UPDATE form_encounter " .
-          "SET last_level_closed = $form_done WHERE " .
+          "SET last_level_closed = $form_done, " .
+          "stmt_count = $form_stmt_count WHERE " .
           "pid = '$patient_id' AND encounter = '$encounter_id'");
       }
       else {
@@ -286,14 +336,6 @@ function validate(f) {
   }
 
   if ($INTEGRATED_AR) {
-    /*****************************************************************
-    $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
-      "FROM form_encounter AS e, patient_data AS p WHERE " .
-      "e.pid = '$patient_id' AND e.encounter = '$encounter_id' AND ".
-      "p.pid = e.pid");
-    if (empty($ferow)) die("There is no encounter $patient_id.$encounter_id.");
-    $svcdate = substr($ferow['date'], 0, 10);
-    *****************************************************************/
     // Get invoice charge details.
     $codes = ar_get_invoice_summary($patient_id, $encounter_id, true);
   }
@@ -367,6 +409,17 @@ function validate(f) {
   }
 ?>
   </td>
+<?php
+  if ($INTEGRATED_AR) {
+    echo "<td rowspan='3' valign='bottom'>\n";
+    echo xl('Statements Sent:');
+    echo "</td>\n";
+    echo "<td rowspan='3' valign='bottom'>\n";
+    echo "<input type='text' name='form_stmt_count' size='10' value='" .
+      (0 + $ferow['stmt_count']) . "' />\n";
+    echo "</td>\n";
+  }
+?>
  </tr>
  <tr>
   <td>
@@ -574,6 +627,11 @@ function validate(f) {
   <td class="dehead">
    <?php xl('Reason','e')?>
   </td>
+<?php if ($ALLOW_DELETE) { ?>
+  <td class="dehead">
+   <?php xl('Del','e')?>
+  </td>
+<?php } ?>
  </tr>
 <?php
   $encount = 0;
@@ -632,6 +690,15 @@ function validate(f) {
   <td class="detail">
    <?php echo $ddata['rsn'] ?>
   </td>
+<?php if ($ALLOW_DELETE) { ?>
+  <td class="detail">
+<?php if (!empty($ddata['arseq'])) { ?>
+   <input type="checkbox" name="form_del[<?php echo $ddata['arseq']; ?>]" />
+<?php } else { ?>
+   &nbsp;
+<?php } ?>
+  </td>
+<?php } ?>
  </tr>
 <?php
    } // end of prior detail line
@@ -693,6 +760,13 @@ while ($orow = sqlFetchArray($ores)) {
     // to the reason.
 ?>
   </td>
+
+<?php if ($ALLOW_DELETE) { ?>
+  <td class="detail">
+   &nbsp;
+  </td>
+<?php } ?>
+
  </tr>
 <?php
   } // end of code
