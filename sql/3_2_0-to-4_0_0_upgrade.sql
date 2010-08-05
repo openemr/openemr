@@ -745,3 +745,12 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('disclosure_type', 'disclosure-payment', 'Payment', 20, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('disclosure_type', 'disclosure-healthcareoperations', 'Health Care Operations', 30, 0);
 #EndIf
+
+#IfMissingColumn users dem_expand
+ALTER TABLE users
+  ADD `dem_expand` tinyint(1) NOT NULL default '1' COMMENT 'patient summary demographics expand flag',
+  ADD `ins_expand` tinyint(1) NOT NULL default '0' COMMENT 'patient summary insurance expand flag',
+  ADD `not_expand` tinyint(1) NOT NULL default '0' COMMENT 'patient summary notes expand flag',
+  ADD `dis_expand` tinyint(1) NOT NULL default '0' COMMENT 'patient summary disclosures expand flag';
+#EndIf
+

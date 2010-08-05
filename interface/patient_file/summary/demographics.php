@@ -21,10 +21,16 @@ $fake_register_globals=false;
  require_once("$srcdir/options.inc.php");
  require_once("../history/history.inc.php");
  require_once("$srcdir/formatting.inc.php");
+ require_once("$srcdir/user.inc");
   if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
  }
+
+// COLLECT the user settings
+//  currently collects flags to keep track of
+//  which sections to persistently expand/collapse
+$user_settings = getUserSettings($_SESSION['authUserID']);
 
 function print_as_money($money) {
 	preg_match("/(\d*)\.?(\d*)/",$money,$moneymatches);
@@ -141,9 +147,11 @@ function toggle( target, div ) {
     if ( $mode == "<?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?>" ) {
         $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('expand'),ENT_QUOTES); ?>" );
         $(div).hide();
+	$.post( "../../../library/ajax/user_settings.php", { target: div, mode: 0 });
     } else {
         $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?>" );
         $(div).show();
+	$.post( "../../../library/ajax/user_settings.php", { target: div, mode: 1 });
     }
 
 }
@@ -171,7 +179,19 @@ $(document).ready(function(){
     });
  
     // load divs
-    $("#stats_div").load("stats.php");
+    $("#stats_div").load("stats.php", { 'embeddedScreen' : true }, function() {
+	// special size for (note need to place here to get the dynamic link to work
+        $(".rx_modal").fancybox( {
+                'overlayOpacity' : 0.0,
+                'showCloseButton' : true,
+                'frameHeight' : 500,
+                'frameWidth' : 800,
+        	'centerOnScroll' : false,
+        	'callbackOnClose' : function()  {
+                refreshme();
+        	}
+        });
+    });
     $("#notes_div").load("pnotes_fragment.php");
     $("#disc_div").load("disc_fragment.php");
 
@@ -197,20 +217,6 @@ $(document).ready(function(){
 		'frameWidth' : 800,
         'centerOnScroll' : false
 	});
-
-
-    // special size for
-	$(".rx_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 500,
-		'frameWidth' : 800,
-        'centerOnScroll' : false,
-        'callbackOnClose' : function()  {
-            refreshme();
-        }
-	});
-
 
 });
 </script>
@@ -245,16 +251,9 @@ $(document).ready(function(){
 
  if ($thisauth == 'write') {
   foreach (pic_array() as $var) {print $var;}
-  echo "<td><a href='demographics_full.php'";
-  if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
-  echo " onclick='top.restoreSession()'><span class='title'>" .
+  echo "<td><span class='title'>" .
    htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) .
-   "</span></a>&nbsp;&nbsp;</td>";
-
-  echo "<td><a class='css_button' href='demographics_full.php'";
-  if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
-  echo " onclick='top.restoreSession()'><span>" .
-  htmlspecialchars(xl("Edit" ),ENT_NOQUOTES). "</span></a></td>";
+   "</span>&nbsp;&nbsp;</td>";
 
   if (acl_check('admin', 'super')) {
    echo "<td><a class='css_button iframe' href='../deleter.php?patient=" . 
@@ -296,16 +295,14 @@ if ($GLOBALS['patient_id_category_name']) {
 
 <tr>
 <td class="small" colspan='4'>
-<a href="rx_frameset.php" class='iframe rx_modal' onclick='top.restoreSession()'>
-<?php echo htmlspecialchars(xl('Rx'),ENT_NOQUOTES); ?></a>
-|
 <a href="../history/history.php" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
 |
 <a href="../report/patient_report.php" class='iframe  medium_modal' onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
 |
-<a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" class='iframe medium_modal' onclick='top.restoreSession()'>
+<?php //note that we have temporarily removed document screen from the modul view ?>
+<a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
 |
 <a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
@@ -324,12 +321,33 @@ if ($GLOBALS['patient_id_category_name']) {
 		<tr>
 			<td>
 				<div class="section-header">
-					<a href='javascript:;' class='small' id='dem_view'><span class='text'><b>
-					<?php echo htmlspecialchars(xl("Demographics"),ENT_NOQUOTES); ?></b></span> (<span class="indicator"><?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?></span>)</a>
+					<table><tr>
+					<?php if ($thisauth == 'write') {
+						echo "<td><a class='css_button_small' href='demographics_full.php'";
+						if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
+						echo " onclick='top.restoreSession()'><span>" .
+						htmlspecialchars(xl("Edit" ),ENT_NOQUOTES). "</span></a></td>";
+					} ?>
+					<td><a href='javascript:;' class='small' id='dem_view'><span class='text'><b>
+					<?php echo htmlspecialchars(xl("Demographics"),ENT_NOQUOTES); ?></b></span>
+					<?php if ($user_settings['dem_expand']) {
+						$label = xl('collapse');
+					}
+					else {
+						$label = xl('expand');
+					} ?>
+					(<span class="indicator"><?php echo htmlspecialchars($label, ENT_QUOTES); ?></span>)</a></td>
+					</tr></table>
 				</div>
 
 				<!-- Demographics -->
-				<div id="DEM">
+				<?php if ($user_settings['dem_expand']) {
+					$styling = "";
+				}
+				else {
+					$styling = "style='display:none'";
+				} ?>
+				<div id="DEM" <?php echo $styling; ?>>
 					<ul class="tabNav">
 					   <?php display_layout_tabs('DEM', $result, $result2); ?>
 					</ul>
@@ -361,11 +379,32 @@ if ($GLOBALS['patient_id_category_name']) {
 
 		   ?>
 			<div class="section-header">
-				<a href='javascript:;' class='small' id='ins_view'><span class='text'><b>
-				<?php echo htmlspecialchars(xl("Insurance"),ENT_NOQUOTES); ?></b></span> (<span class="indicator"><?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?></span>)</a>
+				<table><tr>
+				<?php if ($thisauth == 'write') {
+					echo "<td><a class='css_button_small' href='demographics_full.php'";
+					if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
+					echo " onclick='top.restoreSession()'><span>" .
+					htmlspecialchars(xl("Edit" ),ENT_NOQUOTES). "</span></a></td>";
+				} ?>
+				<td><a href='javascript:;' class='small' id='ins_view'><span class='text'><b>
+				<?php echo htmlspecialchars(xl("Insurance"),ENT_NOQUOTES); ?></b></span>
+				<?php if ($user_settings['ins_expand']) {
+					$label = xl('collapse');
+				}
+				else {
+					$label = xl('expand');
+				} ?>
+                                (<span class="indicator"><?php echo htmlspecialchars($label, ENT_QUOTES); ?></span>)</a></td>
+				</tr></table>
 			</div>
 
-			<div id="INSURANCE">
+			<?php if ($user_settings['ins_expand']) {
+				$styling = "";
+			}
+			else {
+				$styling = "style='display:none'";
+			} ?>
+			<div id="INSURANCE" <?php echo $styling; ?>>
 
 			   <?php
 			   if ( $insurance_count > 1 ) {
@@ -532,10 +571,30 @@ if ($GLOBALS['patient_id_category_name']) {
 		<tr>
 			<td width='650px'>
 				<div class="section-header">
-                    <a href='javascript:;' class='small' id='notes_view'><span class='text'><b><?php echo htmlspecialchars(xl("Notes"),ENT_NOQUOTES);?></b></span> (<span class="indicator"><?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?></span>)</a>
+                    <table><tr>
+                    <?php echo "<td><a class='css_button_small' href='pnotes_full.php'";
+                    if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
+                    echo " onclick='top.restoreSession()'><span>" .
+                    htmlspecialchars(xl("Edit" ),ENT_NOQUOTES). "</span></a></td>";
+                    ?>
+                    <td><a href='javascript:;' class='small' id='notes_view'><span class='text'><b><?php echo htmlspecialchars(xl("Notes"),ENT_NOQUOTES);?></b></span>
+                    <?php if ($user_settings['not_expand']) {
+                          $label = xl('collapse');
+                    }
+                    else {
+                          $label = xl('expand');
+                    } ?>
+                    (<span class="indicator"><?php echo htmlspecialchars($label, ENT_QUOTES); ?></span>)</a></td>
+                    </tr></table>
 				</div>
-				<!-- Demographics -->
-                <div id='notes_div' class='tab current' style='height:auto; width:100%' >
+                 <?php if ($user_settings['not_expand']) {
+                         $styling = "style='height:auto; width:100%;'";
+                 }
+                 else {
+                         $styling = "style='height:auto; width:100%; display:none;'";
+                 } ?>
+                 <div id='notes_div' class='tab current' <?php echo $styling; ?>>
+
                     <br/>
                     <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
                 </div>
@@ -544,10 +603,30 @@ if ($GLOBALS['patient_id_category_name']) {
 		 <tr>
                         <td width='650px'>
                                 <div class="section-header">
-                    <a href='javascript:;' class='small' id='disc_view'><span class='text'><b><?php echo htmlspecialchars(xl("Disclosures"),ENT_NOQUOTES);?></b></span> (<span class="indicator"><?php echo htmlspecialchars(xl('collapse'),ENT_NOQUOTES); ?></span>)</a>
+                    <table><tr>
+                    <?php echo "<td><a class='css_button_small' href='disclosure_full.php'";
+                    if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
+                    echo " onclick='top.restoreSession()'><span>" .
+                    htmlspecialchars(xl("Edit" ),ENT_NOQUOTES). "</span></a></td>";
+                    ?>
+                    <td><a href='javascript:;' class='small' id='disc_view'><span class='text'><b><?php echo htmlspecialchars(xl("Disclosures"),ENT_NOQUOTES);?></b></span>
+                    <?php if ($user_settings['dis_expand']) {
+                          $label = xl('collapse');
+                    }
+                    else {
+                          $label = xl('expand');
+                    } ?>
+                    (<span class="indicator"><?php echo htmlspecialchars($label, ENT_QUOTES); ?></span>)</a></td>
+                    </tr></table>
                                 </div>
-                                <!-- Demographics -->
-                <div id='disc_div' class='tab current' style='height:auto; width:100%' >
+                 <?php if ($user_settings['dis_expand']) {
+                         $styling = "style='height:auto; width:100%;'";
+                 }
+                 else {
+                         $styling = "style='height:auto; width:100%; display:none;'";
+                 } ?>
+                 <div id='disc_div' class='tab current' <?php echo $styling; ?>>
+
                     <br/>
                     <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
                 </div>

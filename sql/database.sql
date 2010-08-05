@@ -3060,6 +3060,10 @@ CREATE TABLE `users` (
   `pwd_history2` longtext default NULL,
   `default_warehouse` varchar(31) NOT NULL DEFAULT '',
   `irnpool` varchar(31) NOT NULL DEFAULT '',
+  `dem_expand` tinyint(1) NOT NULL default '1' COMMENT 'patient summary demographics expand flag',
+  `ins_expand` tinyint(1) NOT NULL default '0' COMMENT 'patient summary insurance expand flag',
+  `not_expand` tinyint(1) NOT NULL default '0' COMMENT 'patient summary notes expand flag',
+  `dis_expand` tinyint(1) NOT NULL default '0' COMMENT 'patient summary disclosures expand flag',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 

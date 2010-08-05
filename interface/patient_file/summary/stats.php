@@ -173,6 +173,10 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 <table id="patient_stats_prescriptions">
 <tr><td colspan='<?php echo $numcols ?>' class='issuetitle'>
 <span class='text'><b><?php echo htmlspecialchars(xl('Prescriptions'),ENT_NOQUOTES); ?></b></span>
+<?php if ($_POST['embeddedScreen']) { ?>
+  <a href="rx_frameset.php" class='iframe rx_modal small' onclick='top.restoreSession()'>
+    (<b><?php echo htmlspecialchars(xl('Manage'),ENT_NOQUOTES); ?>)</b></a>
+<?php } ?>
 </td></tr>
 </tr><td>
 <?php
