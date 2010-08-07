@@ -599,7 +599,7 @@ foreach ($providers as $provider) {
             }
             else {
                 // some sort of patient appointment
-                $divTitle .= "\r\n[".$catname ."] ".htmlspecialchars($fname, ENT_QUOTES)." ".htmlspecialchars($lname, ENT_QUOTES) . " | Comment:" . $comment . " ";
+                $divTitle .= "\r\n[".$catname ."] ".htmlspecialchars($fname, ENT_QUOTES)." ".htmlspecialchars($lname, ENT_QUOTES);
                 $content .= "<span class='appointment'>";
                 $content .= $dispstarth . ':' . $startm;
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
@@ -607,7 +607,6 @@ foreach ($providers as $provider) {
                 $content .= '&nbsp;'.htmlspecialchars($event['apptstatus']);
                 if ($patientid) {
                     $link_title = xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . "\n";
-					if ($comment) $link_title .= "$comment";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
                     $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='$link_title' alt='View Patient' />";

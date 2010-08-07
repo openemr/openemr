@@ -29,27 +29,21 @@ if (isset($_GET['mode'])) {
                       patient_id   = ?,
                       created_by = ?,
                       updated_by = ?,
-					  facility_id = ?,
-					  phone_num = ?,
-					  injection_site = ?,
                       create_date = now() ";
 	$sqlBindArray = array(
-	             formData('id', '', true),
-		     formData('administered_date', '', true), formData('administered_date', '', true),
-		     formData('form_immunization_id', '', true),
-		     formData('manufacturer', '', true),
-		     formData('lot_number', '', true),
-		     formData('administered_by_id', '', true), formData('administered_by_id', '', true),
-		     formData('administered_by', '', true), formData('administered_by', '', true),
-		     formData('education_date', '', true), formData('education_date', '', true),
-		     formData('vis_date', '', true), formData('vis_date', '', true),
-		     formData('note', '', true),
+	             trim($_GET['id']),
+		     trim($_GET['administered_date']), trim($_GET['administered_date']),
+		     trim($_GET['form_immunization_id']),
+		     trim($_GET['manufacturer']),
+		     trim($_GET['lot_number']),
+		     trim($_GET['administered_by_id']), trim($_GET['administered_by_id']),
+		     trim($_GET['administered_by']), trim($_GET['administered_by']),
+		     trim($_GET['education_date']), trim($_GET['education_date']),
+		     trim($_GET['vis_date']), trim($_GET['vis_date']),
+		     trim($_GET['note']),
 		     $pid,
 		     $_SESSION['authId'],
-		     $_SESSION['authId'],
-			 formData('form_facility_id', '', true),
-			 formData('form_phone_num', '', true),
-			 formData('form_injection_site', '', true)
+		     $_SESSION['authId']
 		     );
         sqlStatement($sql,$sqlBindArray);
         $administered_date=$education_date=date('Y-m-d');
@@ -58,28 +52,24 @@ if (isset($_GET['mode'])) {
     }
     elseif ($_GET['mode'] == "delete" ) {
         // log the event
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id ".formData('id', 'G')." deleted from pid ".$pid);
+        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id ".$_GET['id']." deleted from pid ".$pid);
         // delete the immunization
         $sql="DELETE FROM immunizations WHERE id =? LIMIT 1";
-        sqlStatement($sql, array(formData('id', 'G')));
+        sqlStatement($sql, array($_GET['id']));
     }
     elseif ($_GET['mode'] == "edit" ) {
         $sql = "select * from immunizations where id = ?";
-        $results = sqlQ($sql, array(formData('id', 'G')));
+        $results = sqlQ($sql, array($_GET['id']));
         while ($row = sqlFetchArray($results)) {
-			$administered_date = $row['administered_date'];
+            $administered_date = $row['administered_date'];
             $immunization_id = $row['immunization_id'];
-			$facility_id = $row['facility_id'];
-			$phone_num = $row['phone_num'];
             $manufacturer = $row['manufacturer'];
             $lot_number = $row['lot_number'];
             $administered_by_id = ($row['administered_by_id'] ? $row['administered_by_id'] : 0);
             $administered_by = $row['administered_by'];
             $education_date = $row['education_date'];
             $vis_date = $row['vis_date'];
-            $note = stripslashes($row['note']);
-			$injection_site = $row['injection_site'];
-			//$form_facility = $facility_id;
+            $note = $row['note'];
         }
 	//set id for page
 	$id = $_GET['id'];
@@ -137,7 +127,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
 <?php if ($GLOBALS['concurrent_layout']) { ?>
     <span class="title"><?php echo htmlspecialchars( xl('Immunizations'), ENT_NOQUOTES); ?></span>
 <?php } else { ?>
-    <a href="patient_summary.php" target="Main" onClick="top.restoreSession()">
+    <a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
     <span class="title"><?php echo htmlspecialchars( xl('Immunizations'), ENT_NOQUOTES); ?></span>
     <span class=back><?php echo htmlspecialchars( $tback, ENT_NOQUOTES); ?></span></a>
 <?php } ?>
@@ -152,43 +142,6 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
         <tr>
           <td align="right">
             <span class=text>
-              <?php echo htmlspecialchars( xl('Facility'), ENT_NOQUOTES); ?>
-            </span>
-          </td>
-          <td>
-				<?php
-				 // Build a drop-down list of facilities.
-				 //
-				 $query = "SELECT id, name FROM facility ORDER BY name";
-				 $fres = sqlStatement($query);
-				 echo "   <select name='form_facility_id'>\n";
-				 echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
-				 while ($frow = sqlFetchArray($fres)) {
-				  $facid = $frow['id'];
-				  echo "    <option value='$facid'";
-				  if ($facid == $facility_id) echo " selected";
-				  echo ">" . htmlspecialchars($frow['name']) . "\n";
-				 }
-				 echo "    <option value='0'";
-				 if ($facility_id === '0') echo " selected";
-				 echo ">-- " . xl('Unspecified') . " --\n";
-				 echo "   </select>\n";
-				?>
-          </td>
-        </tr>
-		<tr>
-          <td align="right">
-            <span class=text>
-              <?php echo htmlspecialchars( xl('Phone #'), ENT_NOQUOTES); ?>
-            </span>
-          </td>
-          <td>
-				<input type="text" name="form_phone_num" value="<?php echo htmlspecialchars($phone_num, ENT_NOQUOTES); ?>">
-          </td>
-        </tr>
-		<tr>
-          <td align="right">
-            <span class=text>
               <?php echo htmlspecialchars( xl('Immunization'), ENT_NOQUOTES); ?>
             </span>
           </td>
@@ -197,16 +150,6 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
                	// Modified 7/2009 by BM to incorporate the immunization items into the list_options listings
 		generate_form_field(array('data_type'=>1,'field_id'=>'immunization_id','list_id'=>'immunizations','empty_title'=>'SKIP'), $immunization_id);
               ?>
-          </td>
-        </tr>
-		<tr>
-          <td align="right">
-            <span class=text>
-              <?php echo htmlspecialchars( xl('Injection Site'), ENT_NOQUOTES); ?>
-            </span>
-          </td>
-          <td>
-				<input type="text" name="form_injection_site" value="<?php echo htmlspecialchars($injection_site, ENT_NOQUOTES); ?>">
           </td>
         </tr>
         <tr>
@@ -320,11 +263,11 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
           <td colspan="3" align="center">
 	
 	    <input type="button" name="save" id="save" value="<?php echo htmlspecialchars( xl('Save Immunization'), ENT_QUOTES); ?>">
-	    <!--
+	
             <input type="button" name="print" id="print" value="<?php echo htmlspecialchars( xl('Print Record') . xl('PDF','',' (',')'), ENT_QUOTES); ?>">
 	
 	    <input type="button" name="printHtml" id="printHtml" value="<?php echo htmlspecialchars( xl('Print Record') . xl('HTML','',' (',')'), ENT_QUOTES); ?>">
-            -->
+            
             <input type="reset" name="clear" id="clear" value="<?php echo htmlspecialchars( xl('Clear'), ENT_QUOTES); ?>">
           </td>
         </tr>
@@ -342,29 +285,26 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
           <?php echo htmlspecialchars( xl('Vaccine'), ENT_NOQUOTES); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'vacc') { echo 'v'; } ?></span>
     </th>
-	<!-- by kylim
     <th>
         <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=date';" title='<?php echo htmlspecialchars( xl('Sort by date'), ENT_QUOTES); ?>'>
           <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'date') { echo 'v'; } ?></span>
     </th>
-	-->
     <th><?php echo htmlspecialchars( xl('Manufacturer'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Lot Number'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Administered By'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Education Date'), ENT_NOQUOTES); ?></th>
-    <th><?php echo /*htmlspecialchars( xl('Note'), ENT_NOQUOTES);*/ htmlspecialchars( xl('Injection Site'), ENT_NOQUOTES);?></th>
+    <th><?php echo htmlspecialchars( xl('Note'), ENT_NOQUOTES); ?></th>
     <th>&nbsp;</th>
     </tr>
     
 <?php
-        $sql = "select i1.id ,i1.immunization_id ,i1.administered_date, i1.injection_site ".
+        $sql = "select i1.id ,i1.immunization_id ,i1.administered_date ".
                 ",i1.manufacturer ,i1.lot_number ".
                 ",ifnull(concat(u.lname,', ',u.fname),'Other') as administered_by ".
                 ",i1.education_date ,i1.note ".
                 " from immunizations i1 ".
                 " left join users u on i1.administered_by_id = u.id ".
-				" left join facility f on i1.facility_id = f.id ".
                 " where patient_id = ? ".
                 " order by ";
         if ($sortby == "vacc") { $sql .= " i1.immunization_id, i1.administered_date DESC"; }
@@ -380,13 +320,12 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             }
 	    // Modified 7/2009 by BM to utilize immunization items from the pertinent list in list_options
             echo "<td>" . generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']) . "</td>";
-            //echo "<td>" . htmlspecialchars( $row["administered_date"], ENT_NOQUOTES) . "</td>";
+            echo "<td>" . htmlspecialchars( $row["administered_date"], ENT_NOQUOTES) . "</td>";
             echo "<td>" . htmlspecialchars( $row["manufacturer"], ENT_NOQUOTES) . "</td>";
             echo "<td>" . htmlspecialchars( $row["lot_number"], ENT_NOQUOTES) . "</td>";
             echo "<td>" . htmlspecialchars( $row["administered_by"], ENT_NOQUOTES) . "</td>";
             echo "<td>" . htmlspecialchars( $row["education_date"], ENT_NOQUOTES) . "</td>";
-            //echo "<td>" . htmlspecialchars( $row["note"], ENT_NOQUOTES) . "</td>";
-			echo "<td>" . htmlspecialchars( $row["injection_site"], ENT_NOQUOTES) . "</td>"; // kylim: will be injection site soon
+            echo "<td>" . htmlspecialchars( $row["note"], ENT_NOQUOTES) . "</td>";
             echo "<td><input type='button' class='delete' id='".htmlspecialchars( $row["id"], ENT_QUOTES)."' value='" . htmlspecialchars( xl('Delete'), ENT_QUOTES) . "'></td>";
             echo "</tr>";
         }
