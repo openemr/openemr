@@ -195,7 +195,7 @@ $(document).ready(function(){
 </script>
 
 <style type="css/text">
-    #not_expand {
+    #pnotes_ps_expand {
         height:auto;
         width:100%;
     }
