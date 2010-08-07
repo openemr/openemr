@@ -1,4 +1,9 @@
 <table>
+  {if empty($prescriptions)}
+        <tr class='text'>
+                <td>&nbsp;&nbsp;{xl t='None'}</td>
+        </tr>
+  {/if}
 	{foreach from=$prescriptions item=prescription}
   {if $prescription->get_active() > 0}
 	<tr class='text'>

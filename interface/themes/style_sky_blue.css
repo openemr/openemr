@@ -696,6 +696,14 @@ div.tab table td.data {
 	margin-bottom:5px; width:685px; border-bottom: 1px solid;
 }
 
+.section-header-dynamic {
+	margin-bottom:5px; border-bottom: 1px solid;
+}
+
+.summary_item {
+	 background:#D7DFE7; padding:8px;
+}
+
 /*
 * REPORTS
 */
