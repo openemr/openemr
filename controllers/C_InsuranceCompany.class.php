@@ -76,6 +76,7 @@ class C_InsuranceCompany extends Controller {
 
 		//echo "action processeed";
 		$_POST['process'] = "";
+		header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_company&action=list");//Z&H
 	}
 
 	function _sync_ws($ic) {

@@ -32,7 +32,7 @@ var deleteLabel="{xl t="Delete"}";
 		<td valign="top">
 		{xl t="The new category will be a sub-category of "} {$parent_name}<br>
 		<form method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
-		{xl t="Category Name"}:&nbsp;<input type="text" name="name">&nbsp;&nbsp;
+		{xl t="Category Name"}:&nbsp;<input type="text" name="name" onKeyDown="PreventIt(event)" >&nbsp;&nbsp;
 		<input type="submit" name="Add Category" value="{xl t='Add Category'}">
 		<input type="hidden" name="parent_is" value="{$parent_is}">
 		<input type="hidden" name="process" value="{$PROCESS}" />

@@ -6,43 +6,43 @@
 <tr>
 	<td width="150px" VALIGN="MIDDLE" >{xl t='Name'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="name" value="{$pharmacy->name}"/>({xl t='Required'})
+		<input type="text" size="40" name="name" value="{$pharmacy->name}" onKeyDown="PreventIt(event)" />({xl t='Required'})
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="address_line1" value="{$pharmacy->address->line1}"/>
+		<input type="text" size="40" name="address_line1" value="{$pharmacy->address->line1}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="address_line2" value="{$pharmacy->address->line2}"/>
+		<input type="text" size="40" name="address_line2" value="{$pharmacy->address->line2}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='City, State Zip'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="25" name="city" value="{$pharmacy->address->city}"/> , <input type="text" size="2" maxlength="2" name="state" value="{$pharmacy->address->state}"/> <input type="text" size="5" name="zip" value="{$pharmacy->address->zip}"/>
+		<input type="text" size="25" name="city" value="{$pharmacy->address->city}" onKeyDown="PreventIt(event)" /> , <input type="text" size="2" maxlength="2" name="state" value="{$pharmacy->address->state}" onKeyDown="PreventIt(event)" /> <input type="text" size="5" name="zip" value="{$pharmacy->address->zip}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='Email'}</td>
 	<td VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="email" SIZE="35" VALUE="{$pharmacy->email}"/>
+		<input TYPE="TEXT" NAME="email" SIZE="35" VALUE="{$pharmacy->email}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='Phone'}</td>
 	<td VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="phone" SIZE="12" VALUE="{$pharmacy->get_phone()}"/>
+		<input TYPE="TEXT" NAME="phone" SIZE="12" VALUE="{$pharmacy->get_phone()}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='Fax'}</td>
 	<td VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="fax" SIZE="12" VALUE="{$pharmacy->get_fax()}"/>
+		<input TYPE="TEXT" NAME="fax" SIZE="12" VALUE="{$pharmacy->get_fax()}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 
@@ -71,8 +71,7 @@ function submit_pharmacy()
 	{
         top.restoreSession();
         document.pharmacy.submit();
-        Waittoredirect(500);
-        this.location.href="{/literal}{$WEB_ROOT}{literal}/controller.php?practice_settings&pharmacy&action=list";
+		//Z&H Removed redirection
 	}
 	else
 	{

@@ -47,3 +47,4 @@ function PreventIt(evt)//Specially for the browser chrome.
 		if (evt.stopPropagation) evt.stopPropagation();
 	 }
 }
+
