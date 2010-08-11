@@ -20,7 +20,11 @@ if(empty($_POST['start']) || empty($_POST['end'])) {
     $startdate = date('Y-m-d', (time() - 30*24*60*60));
     $enddate = date('Y-m-d', time());
 }
-
+else {
+    // set dates
+    $startdate = $_POST['start'];
+    $enddate = $_POST['end'];
+}
 ?>
 <html>
 
@@ -224,7 +228,7 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
     $res = sqlStatement("select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
-                        "date between '$start' and '$end' " .
+                        "date between '$startdate' and '$enddate' " .
                         "order by date DESC");
     while($result = sqlFetchArray($res)) {
         if ($result{"form_name"} == "New Patient Encounter") {
@@ -327,7 +331,6 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
     </body>
 
-<?php if(empty($_POST['start']) || empty($_POST['end'])) : ?>
 <!-- stuff for the popup calendar -->
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
@@ -336,8 +339,7 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
 <script language="Javascript">
- Calendar.setup({inputField:"start", ifFormat:"%Y%m%d", button:"img_from_date"});
- Calendar.setup({inputField:"end", ifFormat:"%Y%m%d", button:"img_to_date"});
+ Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
 </script>
-<?php endif; ?>
 </html>
