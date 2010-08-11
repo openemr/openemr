@@ -44,9 +44,9 @@ td,th {
 <form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return top.restoreSession()">
 <table>
 	<tr><th align="left">{xl t="Name"}</th><th align="left">{xl t="Unit"}</th>
-	<th align="right" class='currentvalues'>{$vitals->get_date()|date_format:"%m/%d/%Y"}</th>
+	<th align="right" class='currentvalues'>{$vitals->get_date()|date_format:"%m/%d/%Y<br>%H:%M:%S"}</th>
 	{foreach item=result from=$results}
-		<th align='right' class='historicalvalues'>{$result.date|date_format:"%m/%d/%Y"}</th>
+		<th align='right' class='historicalvalues'>{$result.date|date_format:"%m/%d/%Y<br>%H:%M:%S"}</th>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
