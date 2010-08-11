@@ -167,7 +167,8 @@ $(document).ready(function(){
     });
     $("#pnotes_ps_expand").load("pnotes_fragment.php");
     $("#disclosures_ps_expand").load("disc_fragment.php");
-
+    $("#vitals_ps_expand").load("vitals_fragment.php");
+	
     // fancy box
     enable_modals();
 
@@ -547,6 +548,24 @@ if ($GLOBALS['patient_id_category_name']) {
                 </div>
                         </td>
               </tr>		
+                 <tr>
+                        <td width='650px'>
+                <?php // vitals expand collapse widget
+                $widgetTitle = xl("Vitals");
+                $widgetLabel = "vitals";
+                $widgetButtonLabel = "Trend";
+                $widgetButtonLink = "../encounter/trend_form.php?formname=vitals";
+                $widgetButtonClass = "";
+                $linkMethod = "html";
+                $bodyClass = "tab current";
+                $widgetAuth = true;
+                $fixedWidth = true;
+                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+                    <br/>
+                    <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+                </div>
+                        </td>
+              </tr>
 
 	   </table>
 

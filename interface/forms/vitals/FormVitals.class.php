@@ -113,7 +113,7 @@ class FormVitals extends ORDataObject {
 	function get_date() {
 		
 	if(!$this->date){			
-    	        $this->date = date('Y-m-d h:i:s', time());
+    	        $this->date = date('YmdHis', time());
 	}
 		return $this->date;
 		

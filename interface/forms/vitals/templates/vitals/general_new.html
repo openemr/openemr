@@ -11,11 +11,13 @@
 .currentvalues {
     border-right: 1px solid black;
     padding-right:5px;
+    text-align: left;
 }
 .valuesunfocus {
     border-right: 1px solid black;
     padding-right:5px;
     background-color: #ccc;
+    text-align: left;
 }
 .unfocus {
     background-color: #ccc;
@@ -24,6 +26,7 @@
     background-color: #ccc;
     border-bottom: 1px solid #ddd;
     border-right: 1px solid #ddd;
+    text-align: right;
 }
 table {
     border-collapse: collapse;
@@ -35,107 +38,110 @@ td,th {
 .hide {
     display:none;
 }
+.readonly {
+    display:none;
+}
 </style>
 {/literal}
 
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
-<p><span class="title">{xl t="Vitals"}</span></p>
+<p><table><tr><td><span class="title">{xl t="Vitals"}</span></td><td>&nbsp;&nbsp;&nbsp;<a href="../summary/demographics.php" class="readonly css_button_small" onclick="top.restoreSession()"> <span>{xl t="View Patient"}</span></a></td></tr></table></p>
 <form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return top.restoreSession()">
 <table>
 	<tr><th align="left">{xl t="Name"}</th><th align="left">{xl t="Unit"}</th>
-	<th align="right" class='currentvalues'>{$vitals->get_date()|date_format:"%m/%d/%Y<br>%H:%M:%S"}</th>
+	<th class='currentvalues'>{$vitals->get_date()|date_format:"%m/%d/%Y<br>%H:%M:%S"}</th>
 	{foreach item=result from=$results}
-		<th align='right' class='historicalvalues'>{$result.date|date_format:"%m/%d/%Y<br>%H:%M:%S"}</th>
+		<th class='historicalvalues'>{$result.date|date_format:"%m/%d/%Y<br>%H:%M:%S"}</th>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Weight"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="lbs"}</td>
-		{if $units_of_measurement == 2}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="weight" id='weight' value="{if $vitals->get_weight() != 0}{$vitals->get_weight()}{/if}" onChange="convLbtoKg('weight');"/>
                 </td>		
 	{foreach item=result from=$results}
-		<td  align='right' class='historicalvalues'>{if $result.weight != 0}{$result.weight}{/if}</td>
+		<td  class='historicalvalues'>{if $result.weight != 0}{$result.weight}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
                 {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Weight"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="kg"}</td>
-                {if $units_of_measurement == 1}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+                {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="weightmetric" id='weightmetric' value="{if $vitals->get_weight() != 0}{math equation="number * constant" number=$vitals->get_weight() constant=0.45359237 format="%.2f"}{/if}" onChange="convKgtoLb('weight');"/>
                 </td>
         {foreach item=result from=$results}
-                <td  align='right' class='historicalvalues'>{if $result.weight != 0}{math equation="number * constant" number=$result.weight constant=0.45359237 format="%.2f"}{/if}</td>
+                <td  class='historicalvalues'>{if $result.weight != 0}{math equation="number * constant" number=$result.weight constant=0.45359237 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
 	        {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Height"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
-		{if $units_of_measurement == 2}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="height" id='height' value="{if $vitals->get_height() != 0}{$vitals->get_height()}{/if}" onChange="convIntoCm('height');"/>
                 </td>
 	{foreach item=result from=$results}
-		<td  align='right' class='historicalvalues'>{if $result.height != 0}{$result.height}{/if}</td>
+		<td class='historicalvalues'>{if $result.height != 0}{$result.height}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
                 {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Height"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
-                {if $units_of_measurement == 1}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+                {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="heightmetric" id='heightmetric' value="{if $vitals->get_height() != 0}{math equation="number * constant" number=$vitals->get_height() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('height');"/>
                 </td>
         {foreach item=result from=$results}
-                <td  align='right' class='historicalvalues'>{if $result.height != 0}{math equation="number * constant" number=$result.height constant=2.54 format="%.2f"}{/if}</td>
+                <td class='historicalvalues'>{if $result.height != 0}{math equation="number * constant" number=$result.height constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
 	<tr><td>{xl t="BP Systolic"}</td><td>{xl t="mm/hg"}</td>
-		<td align='right' class='currentvalues'><input type="text" size='5'
+		<td class='currentvalues'><input type="text" size='5'
 			name="bps" id='bps' value="{$vitals->get_bps()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'class='historicalvalues'>{$result.bps}</td>
+		<td class='historicalvalues'>{$result.bps}</td>
 	{/foreach}</tr>
 	<tr><td>{xl t="BP Diastolic"}</td><td>{xl t="mm/hg"}</td>
-		<td align='right' class='currentvalues'><input type="text" size='5'
+		<td class='currentvalues'><input type="text" size='5'
 			name="bpd" id='bpd' value="{$vitals->get_bpd()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right' class='historicalvalues'>{$result.bpd}</td>
+		<td  class='historicalvalues'>{$result.bpd}</td>
 	{/foreach}</tr>
 	<tr><td>{xl t="Pulse"}</td><td>{xl t="per min"}</td>
-			<td align='right' class='currentvalues'><input type="text" size='5'
+			<td class='currentvalues'><input type="text" size='5'
 			name="pulse" id='pulse' value="{if $vitals->get_pulse() != 0}{$vitals->get_pulse()|string_format:"%.0f"}{/if}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right' class='historicalvalues'>{if $result.pulse != 0}{$result.pulse|string_format:"%.0f"}{/if}</td>
+		<td class='historicalvalues'>{if $result.pulse != 0}{$result.pulse|string_format:"%.0f"}{/if}</td>
 	{/foreach}</tr>
 	<tr><td>{xl t="Respiration"}</td><td>{xl t="per min"}</td>
-		<td align='right' class='currentvalues'><input type="text" size='5'
+		<td class='currentvalues'><input type="text" size='5'
 			name="respiration" id='respiration' value="{if $vitals->get_respiration() != 0}{$vitals->get_respiration()|string_format:"%.0f"}{/if}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right' class='historicalvalues'>{if $result.respiration != 0}{$result.respiration|string_format:"%.0f"}{/if}</td>
+		<td class='historicalvalues'>{if $result.respiration != 0}{$result.respiration|string_format:"%.0f"}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
 	        {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Temperature"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="F"}</td>
-		{if $units_of_measurement == 2}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="temperature" id='temperature' value="{if $vitals->get_temperature() != 0}{$vitals->get_temperature()}{/if}" onChange="convFtoC('temperature');"/>
                 </td>
 	{foreach item=result from=$results}
-		<td  align='right' class='historicalvalues'>{if $result.temperature != 0}{$result.temperature}{/if}</td>
+		<td class='historicalvalues'>{if $result.temperature != 0}{$result.temperature}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
                 {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Temperature"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="C"}</td>
-                {if $units_of_measurement == 1}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+                {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="temperaturemetric" id='temperaturemetric' value="{if $vitals->get_temperature() != 0}{math equation="(number - constant2 ) * constant" number=$vitals->get_temperature() constant=0.5556 constant2=32 format="%.2f"}{/if}" onChange="convCtoF('temperature');"/>
                 </td>
         {foreach item=result from=$results}
-                <td  align='right' class='historicalvalues'>{if $result.temperature != 0}{math equation="(number - constant2 ) * constant" number=$result.temperature constant=0.5556 constant2=32 format="%.2f"}{/if}</td>
+                <td class='historicalvalues'>{if $result.temperature != 0}{math equation="(number - constant2 ) * constant" number=$result.temperature constant=0.5556 constant2=32 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
-	<tr><td>{xl t="Temp Location"}</td>
-			<td colspan='2' style='text-align:right' class='currentvalues'><select name="temp_method" id='temp_method'/><option value=""> </option>  
+	<tr><td>{xl t="Temp Location"}<td></td></td>
+			<td class='currentvalues'><select name="temp_method" id='temp_method'/><option value=""> </option>  
 			<option value="Oral"              {if $vitals->get_temp_method() == "Oral"              || $vitals->get_temp_method() == 2 } selected{/if}>{xl t="Oral"}
 			<option value="Tympanic Membrane" {if $vitals->get_temp_method() == "Tympanic Membrane" || $vitals->get_temp_method() == 1 } selected{/if}>{xl t="Tympanic Membrane"}
 			<option value="Rectal"            {if $vitals->get_temp_method() == "Rectal"            || $vitals->get_temp_method() == 3 } selected{/if}>{xl t="Rectal"}
@@ -143,76 +149,76 @@ td,th {
 			<option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xl t="Temporal Artery"}
 		</select></td>
 	{foreach item=result from=$results}
-		<td align='right' class='historicalvalues'>{if $result.temp_method}{xl t=$result.temp_method}{/if}</td>
+		<td class='historicalvalues'>{if $result.temp_method}{xl t=$result.temp_method}{/if}</td>
 	{/foreach}</tr>
 
 	<tr><td>{xl t="Oxygen Saturation"}</td><td>{xl t="%"}</td>
-		<td align='right' class='currentvalues'><input type="text" size='5'
+		<td class='currentvalues'><input type="text" size='5'
 			name="oxygen_saturation" id='oxygen_saturation' value="{if $vitals->get_oxygen_saturation() != 0}{$vitals->get_oxygen_saturation()|string_format:"%.0f"}{/if}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right' class='historicalvalues'>{if $result.oxygen_saturation != 0}{$result.oxygen_saturation|string_format:"%.0f"}{/if}</td>
+		<td  class='historicalvalues'>{if $result.oxygen_saturation != 0}{$result.oxygen_saturation|string_format:"%.0f"}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
 	        {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Head Circumference"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
-		{if $units_of_measurement == 2}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="head_circ" id='head_circ' value="{if $vitals->get_head_circ() != 0}{$vitals->get_head_circ()}{/if}" onChange="convIntoCm('head_circ');"/>
                 </td>
 	{foreach item=result from=$results}
-		<td  align='right' class='historicalvalues'>{if $result.head_circ != 0}{$result.head_circ}{/if}</td>
+		<td class='historicalvalues'>{if $result.head_circ != 0}{$result.head_circ}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
                 {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Head Circumference"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
-                {if $units_of_measurement == 1}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+                {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="head_circmetric" id='head_circmetric' value="{if $vitals->get_head_circ() != 0}{math equation="number * constant" number=$vitals->get_head_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('head_circ');"/>
                 </td>
         {foreach item=result from=$results}
-                <td  align='right' class='historicalvalues'>{if $result.head_circ != 0}{math equation="number * constant" number=$result.head_circ constant=2.54 format="%.2f"}{/if}</td>
+                <td class='historicalvalues'>{if $result.head_circ != 0}{math equation="number * constant" number=$result.head_circ constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
 	        {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Waist Circumference"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
-		{if $units_of_measurement == 2}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="waist_circ" id='waist_circ' value="{if $vitals->get_waist_circ() != 0}{$vitals->get_waist_circ()}{/if}" onChange="convIntoCm('waist_circ');"/>
                 </td>
 	{foreach item=result from=$results}
-		<td align='right' class='historicalvalues'>{if $result.waist_circ != 0}{$result.waist_circ}{/if}</td>
+		<td class='historicalvalues'>{if $result.waist_circ != 0}{$result.waist_circ}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
                 {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Waist Circumference"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
-                {if $units_of_measurement == 1}<td align='right' class="valuesunfocus">{else}<td align='right' class='currentvalues'>{/if}
+                {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name="waist_circmetric" id='waist_circmetric' value="{if $vitals->get_waist_circ() != 0}{math equation="number * constant" number=$vitals->get_waist_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('waist_circ');"/>
                 </td>
         {foreach item=result from=$results}
-                <td align='right' class='historicalvalues'>{if $result.waist_circ != 0}{math equation="number * constant" number=$result.waist_circ constant=2.54 format="%.2f"}{/if}</td>
+                <td class='historicalvalues'>{if $result.waist_circ != 0}{math equation="number * constant" number=$result.waist_circ constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
 	<tr><td>{xl t="BMI"}</td><td>{xl t="kg/m^2"}</td>
-		<td align='right' class='currentvalues'><input type="text" size='5'
+		<td class='currentvalues'><input type="text" size='5'
 			name="BMI" id='BMI' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5}{/if}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right' class='historicalvalues'>{if $result.BMI != 0}{$result.BMI|substr:0:5}{/if}</td>
+		<td class='historicalvalues'>{if $result.BMI != 0}{$result.BMI|substr:0:5}{/if}</td>
 	{/foreach}</tr>
 
   <tr><td>{xl t="BMI Status"}</td><td>{xl t="Type"}</td>
-    <td align='right' class='currentvalues'><input type="text" size='15'
+    <td class='currentvalues'><input type="text" size='15'
     name="BMI_status" id="BMI_status' value="{$vitals->get_BMI_status()}"/></td>
   {foreach item=result from=$results}
-    <td  align='right' class='historicalvalues'>{if $result.BMI_status}{xl t=$result.BMI_status}{/if}</td>
+    <td  class='historicalvalues'>{if $result.BMI_status}{xl t=$result.BMI_status}{/if}</td>
   {/foreach}
   </tr>
 
-  <tr><td>{xl t="Other Notes"}</td>
-    <td colspan='2' align='right' class='currentvalues'><input type="text" size='20'
+  <tr><td>{xl t="Other Notes"}<td></td></td>
+    <td class='currentvalues'><input type="text" size='20'
       name="note" id='note' value="{$vitals->get_note()}" /></td>
   {foreach item=result from=$results}
-    <td align='right' class='historicalvalues'>{$result.note}</td>
+    <td class='historicalvalues'>{$result.note}</td>
   {/foreach}</tr>
 
 	<tr>
@@ -228,8 +234,8 @@ td,th {
 	<tr><td colspan='3' style='text-align:center'>&nbsp;</td></tr>
 	<tr>
 	<td colspan='3' style='text-align:center'>
-        <input type="submit" name="Submit" value="{xl t="Save Form"}">
-        <input type="button" id="cancel" value="{xl t="Don't Save"}">
+        <input type="submit" class="editonly" name="Submit" value="{xl t="Save Form"}">
+        <input type="button" class="editonly" id="cancel" value="{xl t="Don't Save"}">
         </td>
 </tr>
 </table>
