@@ -1,8 +1,15 @@
 <html>
 <head>
 {php}html_header_show();{/php}
-<script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/jquery.js"></script>
 {literal}
+<script type="text/javascript">
+// Only load jquery if not already closing. This page serves two purposes now,
+//  for entring of vitals and for graphing/trending previous vitals by being embedded
+//  in the interface/patient_file/encounter/trend_form.php page.
+if (typeof jQuery == 'undefined') {
+  document.write("<script type='text/javascript' src='{/literal}{php}echo $GLOBALS['webroot'];{/php}{literal}/library/js/jquery.js'><\/script>")
+}
+</script>
 <style type="text/css" title="mystyles" media="all">
 .title {
 	font-size: 120%;
@@ -48,6 +55,7 @@ td,th {
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <p><table><tr><td><span class="title">{xl t="Vitals"}</span></td><td>&nbsp;&nbsp;&nbsp;<a href="../summary/demographics.php" class="readonly css_button_small" onclick="top.restoreSession()"> <span>{xl t="View Patient"}</span></a></td></tr></table></p>
 <form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return top.restoreSession()">
+<div id="chart"></div>
 <table>
 	<tr><th align="left">{xl t="Name"}</th><th align="left">{xl t="Unit"}</th>
 	<th class='currentvalues'>{$vitals->get_date()|date_format:"%m/%d/%Y<br>%H:%M:%S"}</th>
@@ -56,85 +64,85 @@ td,th {
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Weight"}</td>
+		{if $units_of_measurement == 2}<td class="unfocus graph" id="weight">{else}<td class="graph" id="weight">{/if}{xl t="Weight"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="lbs"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="weight" id='weight' value="{if $vitals->get_weight() != 0}{$vitals->get_weight()}{/if}" onChange="convLbtoKg('weight');"/>
+                <input type="text" size='5' name='weight' id='weight_input' value="{if $vitals->get_weight() != 0}{$vitals->get_weight()}{/if}" onChange="convLbtoKg('weight_input');"/>
                 </td>		
 	{foreach item=result from=$results}
 		<td  class='historicalvalues'>{if $result.weight != 0}{$result.weight}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Weight"}</td>
+                {if $units_of_measurement == 1}<td class="unfocus graph" id="weight_metric">{else}<td class="graph" id="weight_metric">{/if}{xl t="Weight"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="kg"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="weightmetric" id='weightmetric' value="{if $vitals->get_weight() != 0}{math equation="number * constant" number=$vitals->get_weight() constant=0.45359237 format="%.2f"}{/if}" onChange="convKgtoLb('weight');"/>
+                <input type="text" size='5' id='weight_input_metric' value="{if $vitals->get_weight() != 0}{math equation="number * constant" number=$vitals->get_weight() constant=0.45359237 format="%.2f"}{/if}" onChange="convKgtoLb('weight_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td  class='historicalvalues'>{if $result.weight != 0}{math equation="number * constant" number=$result.weight constant=0.45359237 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-	        {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Height"}</td>
+	        {if $units_of_measurement == 2}<td class="unfocus graph" id="height">{else}<td class="graph" id="height">{/if}{xl t="Height"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="height" id='height' value="{if $vitals->get_height() != 0}{$vitals->get_height()}{/if}" onChange="convIntoCm('height');"/>
+                <input type="text" size='5' name='height' id='height_input' value="{if $vitals->get_height() != 0}{$vitals->get_height()}{/if}" onChange="convIntoCm('height_input');"/>
                 </td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.height != 0}{$result.height}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Height"}</td>
+                {if $units_of_measurement == 1}<td class="unfocus graph" id="height_metric">{else}<td class="graph" id="height_metric">{/if}{xl t="Height"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="heightmetric" id='heightmetric' value="{if $vitals->get_height() != 0}{math equation="number * constant" number=$vitals->get_height() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('height');"/>
+                <input type="text" size='5' id='height_input_metric' value="{if $vitals->get_height() != 0}{math equation="number * constant" number=$vitals->get_height() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('height_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.height != 0}{math equation="number * constant" number=$result.height constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
-	<tr><td>{xl t="BP Systolic"}</td><td>{xl t="mm/hg"}</td>
+	<tr><td class="graph" id="bps">{xl t="BP Systolic"}</td><td>{xl t="mm/hg"}</td>
 		<td class='currentvalues'><input type="text" size='5'
-			name="bps" id='bps' value="{$vitals->get_bps()}"/></td>
+			name='bps' id='bps_input' value="{$vitals->get_bps()}"/></td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{$result.bps}</td>
 	{/foreach}</tr>
-	<tr><td>{xl t="BP Diastolic"}</td><td>{xl t="mm/hg"}</td>
+	<tr><td class="graph" id="bpd">{xl t="BP Diastolic"}</td><td>{xl t="mm/hg"}</td>
 		<td class='currentvalues'><input type="text" size='5'
-			name="bpd" id='bpd' value="{$vitals->get_bpd()}"/></td>
+			name='bpd' id='bpd_input' value="{$vitals->get_bpd()}"/></td>
 	{foreach item=result from=$results}
 		<td  class='historicalvalues'>{$result.bpd}</td>
 	{/foreach}</tr>
-	<tr><td>{xl t="Pulse"}</td><td>{xl t="per min"}</td>
+	<tr><td class="graph" id="pulse">{xl t="Pulse"}</td><td>{xl t="per min"}</td>
 			<td class='currentvalues'><input type="text" size='5'
-			name="pulse" id='pulse' value="{if $vitals->get_pulse() != 0}{$vitals->get_pulse()|string_format:"%.0f"}{/if}"/></td>
+			name='pulse' id='pulse_input' value="{if $vitals->get_pulse() != 0}{$vitals->get_pulse()|string_format:"%.0f"}{/if}"/></td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.pulse != 0}{$result.pulse|string_format:"%.0f"}{/if}</td>
 	{/foreach}</tr>
-	<tr><td>{xl t="Respiration"}</td><td>{xl t="per min"}</td>
+	<tr><td class="graph" id="respiration">{xl t="Respiration"}</td><td>{xl t="per min"}</td>
 		<td class='currentvalues'><input type="text" size='5'
-			name="respiration" id='respiration' value="{if $vitals->get_respiration() != 0}{$vitals->get_respiration()|string_format:"%.0f"}{/if}"/></td>
+			name='respiration' id='respiration_input' value="{if $vitals->get_respiration() != 0}{$vitals->get_respiration()|string_format:"%.0f"}{/if}"/></td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.respiration != 0}{$result.respiration|string_format:"%.0f"}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-	        {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Temperature"}</td>
+	        {if $units_of_measurement == 2}<td class="unfocus graph" id="temperature">{else}<td class="graph" id="temperature">{/if}{xl t="Temperature"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="F"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="temperature" id='temperature' value="{if $vitals->get_temperature() != 0}{$vitals->get_temperature()}{/if}" onChange="convFtoC('temperature');"/>
+                <input type="text" size='5' name='temperature' id='temperature_input' value="{if $vitals->get_temperature() != 0}{$vitals->get_temperature()}{/if}" onChange="convFtoC('temperature_input');"/>
                 </td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.temperature != 0}{$result.temperature}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Temperature"}</td>
+                {if $units_of_measurement == 1}<td class="unfocus graph" id="temperature_metric">{else}<td class="graph" id="temperature_metric">{/if}{xl t="Temperature"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="C"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="temperaturemetric" id='temperaturemetric' value="{if $vitals->get_temperature() != 0}{math equation="(number - constant2 ) * constant" number=$vitals->get_temperature() constant=0.5556 constant2=32 format="%.2f"}{/if}" onChange="convCtoF('temperature');"/>
+                <input type="text" size='5' id='temperature_input_metric' value="{if $vitals->get_temperature() != 0}{math equation="(number - constant2 ) * constant" number=$vitals->get_temperature() constant=0.5556 constant2=32 format="%.2f"}{/if}" onChange="convCtoF('temperature_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.temperature != 0}{math equation="(number - constant2 ) * constant" number=$result.temperature constant=0.5556 constant2=32 format="%.2f"}{/if}</td>
@@ -152,56 +160,56 @@ td,th {
 		<td class='historicalvalues'>{if $result.temp_method}{xl t=$result.temp_method}{/if}</td>
 	{/foreach}</tr>
 
-	<tr><td>{xl t="Oxygen Saturation"}</td><td>{xl t="%"}</td>
+	<tr><td class="graph" id="oxygen_saturation">{xl t="Oxygen Saturation"}</td><td>{xl t="%"}</td>
 		<td class='currentvalues'><input type="text" size='5'
-			name="oxygen_saturation" id='oxygen_saturation' value="{if $vitals->get_oxygen_saturation() != 0}{$vitals->get_oxygen_saturation()|string_format:"%.0f"}{/if}"/></td>
+			name='oxygen_saturation' id='oxygen_saturation_input' value="{if $vitals->get_oxygen_saturation() != 0}{$vitals->get_oxygen_saturation()|string_format:"%.0f"}{/if}"/></td>
 	{foreach item=result from=$results}
 		<td  class='historicalvalues'>{if $result.oxygen_saturation != 0}{$result.oxygen_saturation|string_format:"%.0f"}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-	        {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Head Circumference"}</td>
+	        {if $units_of_measurement == 2}<td class="unfocus graph" id="head_circ">{else}<td class="graph" id="head_circ">{/if}{xl t="Head Circumference"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="head_circ" id='head_circ' value="{if $vitals->get_head_circ() != 0}{$vitals->get_head_circ()}{/if}" onChange="convIntoCm('head_circ');"/>
+                <input type="text" size='5' name='head_circ' id='head_circ_input' value="{if $vitals->get_head_circ() != 0}{$vitals->get_head_circ()}{/if}" onChange="convIntoCm('head_circ_input');"/>
                 </td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.head_circ != 0}{$result.head_circ}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Head Circumference"}</td>
+                {if $units_of_measurement == 1}<td class="unfocus graph" id="head_circ_metric">{else}<td class="graph" id="head_circ_metric">{/if}{xl t="Head Circumference"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="head_circmetric" id='head_circmetric' value="{if $vitals->get_head_circ() != 0}{math equation="number * constant" number=$vitals->get_head_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('head_circ');"/>
+                <input type="text" size='5' id='head_circ_input_metric' value="{if $vitals->get_head_circ() != 0}{math equation="number * constant" number=$vitals->get_head_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('head_circ_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.head_circ != 0}{math equation="number * constant" number=$result.head_circ constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-	        {if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="Waist Circumference"}</td>
+	        {if $units_of_measurement == 2}<td class="unfocus graph" id="waist_circ">{else}<td class="graph" id="waist_circ">{/if}{xl t="Waist Circumference"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="waist_circ" id='waist_circ' value="{if $vitals->get_waist_circ() != 0}{$vitals->get_waist_circ()}{/if}" onChange="convIntoCm('waist_circ');"/>
+                <input type="text" size='5' name='waist_circ' id='waist_circ_input' value="{if $vitals->get_waist_circ() != 0}{$vitals->get_waist_circ()}{/if}" onChange="convIntoCm('waist_circ_input');"/>
                 </td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.waist_circ != 0}{$result.waist_circ}{/if}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                {if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="Waist Circumference"}</td>
+                {if $units_of_measurement == 1}<td class="unfocus graph" id="waist_circ_metric">{else}<td class="graph" id="waist_circ_metric">{/if}{xl t="Waist Circumference"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name="waist_circmetric" id='waist_circmetric' value="{if $vitals->get_waist_circ() != 0}{math equation="number * constant" number=$vitals->get_waist_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('waist_circ');"/>
+                <input type="text" size='5' id='waist_circ_input_metric' value="{if $vitals->get_waist_circ() != 0}{math equation="number * constant" number=$vitals->get_waist_circ() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('waist_circ_input');"/>
                 </td>
         {foreach item=result from=$results}
                 <td class='historicalvalues'>{if $result.waist_circ != 0}{math equation="number * constant" number=$result.waist_circ constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
-	<tr><td>{xl t="BMI"}</td><td>{xl t="kg/m^2"}</td>
+	<tr><td class="graph" id="BMI">{xl t="BMI"}</td><td>{xl t="kg/m^2"}</td>
 		<td class='currentvalues'><input type="text" size='5'
-			name="BMI" id='BMI' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5}{/if}"/></td>
+			name='BMI' id='BMI_input' value="{if $vitals->get_BMI() != 0}{$vitals->get_BMI()|substr:0:5}{/if}"/></td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{if $result.BMI != 0}{$result.BMI|substr:0:5}{/if}</td>
 	{/foreach}</tr>
@@ -273,7 +281,7 @@ $(document).ready(function(){
 function ShowGrowthchart(doPDF) {
     // get values from the current form elements
     {/literal}
-    vitals[0] = formdate+'-'+$("#height").val()+'-'+$("#weight").val()+'-'+$("#head_circ").val();
+    vitals[0] = formdate+'-'+$("#height_input").val()+'-'+$("#weight_input").val()+'-'+$("#head_circ_input").val();
     {literal}
     // build the data string
     var datastring = "";
@@ -292,15 +300,15 @@ function convLbtoKg(name) {
     var lb = $("#"+name).val();
 
     if (lb == "0") {
-        $("#"+name+"metric").val("0");
+        $("#"+name+"_metric").val("0");
     }		
     else if (lb == parseFloat(lb)) {
 	kg = lb*0.45359237;
         kg = kg.toFixed(2);
-        $("#"+name+"metric").val(kg);
+        $("#"+name+"_metric").val(kg);
     }
     else {
-        $("#"+name+"metric").val("");
+        $("#"+name+"_metric").val("");
     }
 
     if (name == "weight") {
@@ -309,7 +317,7 @@ function convLbtoKg(name) {
 } 
 
 function convKgtoLb(name) {
-    var kg = $("#"+name+"metric").val();
+    var kg = $("#"+name+"_metric").val();
 
     if (kg == "0") {
         $("#"+name).val("0");
@@ -323,7 +331,7 @@ function convKgtoLb(name) {
         $("#"+name).val("");
     }
 
-    if (name == "weight") {
+    if (name == "weight_input") {
         calculateBMI();
     }
 }
@@ -332,24 +340,24 @@ function convIntoCm(name) {
     var inch = $("#"+name).val();
 
     if (inch == "0") {
-        $("#"+name+"metric").val("0");
+        $("#"+name+"_metric").val("0");
     }    
     else if (inch == parseFloat(inch)) {
         cm = inch*2.54;
         cm = cm.toFixed(2);
-        $("#"+name+"metric").val(cm);
+        $("#"+name+"_metric").val(cm);
     }
     else {
-        $("#"+name+"metric").val("");
+        $("#"+name+"_metric").val("");
     }
 
-    if (name == "height") {
+    if (name == "height_input") {
         calculateBMI();
     }
 }
 
 function convCmtoIn(name) {
-    var cm = $("#"+name+"metric").val();
+    var cm = $("#"+name+"_metric").val();
 
     if (cm == "0") {
         $("#"+name).val("0");
@@ -363,7 +371,7 @@ function convCmtoIn(name) {
         $("#"+name).val("");
     }    
 
-    if (name == "height") {
+    if (name == "height_input") {
         calculateBMI();
     }
 }
@@ -371,20 +379,20 @@ function convCmtoIn(name) {
 function convFtoC(name) {
     var Fdeg = $("#"+name).val();
     if (Fdeg == "0") {
-        $("#"+name+"metric").val("0");
+        $("#"+name+"_metric").val("0");
     }
     else if (Fdeg == parseFloat(Fdeg)) {
         Cdeg = (Fdeg-32)*0.5556;
         Cdeg = Cdeg.toFixed(2);
-        $("#"+name+"metric").val(Cdeg);
+        $("#"+name+"_metric").val(Cdeg);
     }
     else {
-        $("#"+name+"metric").val("");
+        $("#"+name+"_metric").val("");
     }
 }
 
 function convCtoF(name) {
-    var Cdeg = $("#"+name+"metric").val();
+    var Cdeg = $("#"+name+"_metric").val();
     if (Cdeg == "0") {
         $("#"+name).val("0");
     }
@@ -400,18 +408,18 @@ function convCtoF(name) {
 
 function calculateBMI() {
     var bmi = 0;
-    var height = $("#height").val();
-    var weight = $("#weight").val();
+    var height = $("#height_input").val();
+    var weight = $("#weight_input").val();
     if(height == 0 || weight == 0) {
         $("#BMI").val("");
     }
     else if((height == parseFloat(height)) && (weight == parseFloat(weight))) {
         bmi = weight/height/height*703;
         bmi = bmi.toFixed(1);
-        $("#BMI").val(bmi);
+        $("#BMI_input").val(bmi);
     }
     else {
-        $("#BMI").val("");
+        $("#BMI_input").val("");
     }
 }
 

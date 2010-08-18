@@ -52,7 +52,7 @@ if ( !$result ) //If there are no disclosures recorded
   call_user_func("vitals_report", '', '', 2, $result['id']);
   ?>  <span class='text'>
   <br />
-  <a href='../encounter/trend_form.php?formname=vitals' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view all vitals.'),ENT_NOQUOTES);?></a>
+  <a href='../encounter/trend_form.php?formname=vitals' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view and graph all vitals.'),ENT_NOQUOTES);?></a>
   </span><?php
 } ?>
 <br />
