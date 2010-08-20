@@ -328,9 +328,9 @@ if ($res) {
         "code_type, code, code_text, billed"))
       {
         foreach ($billres as $billrow) {
-          $title = addslashes($billrow['code_text']);
-          $coded .= $billrow['code'] . ', ';
+          // $title = addslashes($billrow['code_text']);
           if ($billrow['code_type'] != 'COPAY' && $billrow['code_type'] != 'TAX') {
+            $coded .= $billrow['code'] . ', ';
             if ($billrow['billed']) ++$billed_count; else ++$unbilled_count;
           }
         }
