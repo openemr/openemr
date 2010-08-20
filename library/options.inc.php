@@ -131,6 +131,8 @@ function generate_form_field($frow, $currvalue) {
       " value='$currescaped'";
     if (strpos($frow['edit_options'], 'C') !== FALSE)
       echo " onchange='capitalizeMe(this)'";
+    else if (strpos($frow['edit_options'], 'U') !== FALSE)
+      echo " onchange='this.value = this.value.toUpperCase()'";
     $tmp = htmlspecialchars( $GLOBALS['gbl_mask_patient_id'], ENT_QUOTES);
     if ($field_id == 'pubpid' && strlen($tmp) > 0) {
       echo " onkeyup='maskkeyup(this,\"$tmp\")'";
