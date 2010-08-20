@@ -245,17 +245,20 @@ function writeFSLine($category, $option, $codes) {
   echo "</td>\n";
 
   echo "  <td align='left' class='optcell'>";
-  echo "<a href='' id='codelist_$opt_line_no' onclick='return select_code($opt_line_no)'>";
+  echo "   <div id='codelist_$opt_line_no'>";
   if (strlen($descs)) {
     $arrdescs = explode('~', $descs);
+    $i = 0;
     foreach ($arrdescs as $desc) {
-      echo "$desc<br />";
+      echo "<a href='' onclick='return delete_code($opt_line_no,$i)' title='" . xl('Delete') . "'>";
+      echo "[x]&nbsp;</a>$desc<br />";
+      ++$i;
     }
   }
-  else {
-    echo "[Add]";
-  }
-  echo "</a>";
+  echo "</div>";
+  echo "<a href='' onclick='return select_code($opt_line_no)'>";
+  echo "[" . xl('Add') . "]</a>";
+
   echo "<input type='hidden' name='opt[$opt_line_no][codes]' value='" .
        htmlspecialchars($codes, ENT_QUOTES) . "' />";
   echo "<input type='hidden' name='opt[$opt_line_no][descs]' value='" .
@@ -376,11 +379,41 @@ function displayCodes(lino) {
  if (descs.length) {
   var arrdescs = descs.split('~');
   for (var i = 0; i < arrdescs.length; ++i) {
-   s += arrdescs[i] + '<br />';
+   s += "<a href='' onclick='return delete_code(" + lino + "," + i + ")' title='<?php xl('Delete','e'); ?>'>";
+   s += "[x]&nbsp;</a>" + arrdescs[i] + "<br />";
   }
  }
- if (s.length == 0) s = '[Add]';
  setDivContent('codelist_' + lino, s);
+}
+
+// Helper function to remove a Fee Sheet code.
+function dc_substring(s, i) {
+ var r = '';
+ var j = s.indexOf('~', i);
+ if (j < 0) { // deleting last segment
+  if (i > 0) r = s.substring(0, i-1); // omits trailing ~
+ }
+ else { // not last segment
+  r = s.substring(0, i) + s.substring(j + 1);
+ }
+ return r;
+}
+
+// Remove a generated Fee Sheet code.
+function delete_code(lino, seqno) {
+ var f = document.forms[0];
+ var celem = f['opt[' + lino + '][codes]'];
+ var delem = f['opt[' + lino + '][descs]'];
+ var ci = 0;
+ var di = 0;
+ for (var i = 0; i < seqno; ++i) {
+  ci = celem.value.indexOf('~', ci) + 1;
+  di = delem.value.indexOf('~', di) + 1;
+ }
+ celem.value = dc_substring(celem.value, ci);
+ delem.value = dc_substring(delem.value, di);
+ displayCodes(lino);
+ return false;
 }
 
 // This invokes the find-code popup.
@@ -434,11 +467,11 @@ function mysubmit() {
    for (var j = i+1; f['opt[' + j + '][ct_key]'].value; ++j) {
     var jkey = 'opt[' + j + ']';
     if (f[ikey+'[ct_key]'].value == f[jkey+'[ct_key]'].value) {
-     alert('<?php echo xl('Duplicated name on line') ?>' + ' ' + j);
+     alert('<?php echo xl('Error: duplicated name on line') ?>' + ' ' + j);
      return;
     }
     if (parseInt(f[ikey+'[ct_id]'].value) == parseInt(f[jkey+'[ct_id]'].value)) {
-     alert('<?php echo xl('Duplicated ID on line') ?>' + ' ' + j);
+     alert('<?php echo xl('Error: duplicated ID on line') ?>' + ' ' + j);
      return;
     }
    }
@@ -548,7 +581,7 @@ if ($list_id) {
       writeFSLine('', '', '');
     }
   }
-  if ($list_id == 'code_types') {
+  else if ($list_id == 'code_types') {
     $res = sqlStatement("SELECT * FROM code_types " .
       "ORDER BY ct_seq, ct_key");
     while ($row = sqlFetchArray($res)) {
