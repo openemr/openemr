@@ -542,3 +542,65 @@ INSERT INTO layout_options VALUES ('REF','reply_rx_refer'    ,'2Counter-Referral
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag) VALUES ('REF',16, 5, 0, '', 0, 1, 1, 0);
 #EndIf
 
+#IfMissingColumn patient_data usertext11
+ALTER TABLE patient_data  ADD usertext11 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+#IfMissingColumn patient_data usertext12
+ALTER TABLE patient_data  ADD usertext12 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+#IfMissingColumn patient_data usertext13
+ALTER TABLE patient_data  ADD usertext13 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+#IfMissingColumn patient_data usertext14
+ALTER TABLE patient_data  ADD usertext14 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+#IfMissingColumn patient_data usertext15
+ALTER TABLE patient_data  ADD usertext15 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+#IfMissingColumn patient_data usertext16
+ALTER TABLE patient_data  ADD usertext16 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+#IfMissingColumn patient_data usertext17
+ALTER TABLE patient_data  ADD usertext17 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+#IfMissingColumn patient_data usertext18
+ALTER TABLE patient_data  ADD usertext18 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+#IfMissingColumn patient_data usertext19
+ALTER TABLE patient_data  ADD usertext19 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+#IfMissingColumn patient_data usertext20
+ALTER TABLE patient_data  ADD usertext20 varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id usertext11
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext11', '6Misc', 'User Defined Text 11', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+#IfNotRow2D layout_options form_id DEM field_id usertext12
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext12', '6Misc', 'User Defined Text 12', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+#IfNotRow2D layout_options form_id DEM field_id usertext13
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext13', '6Misc', 'User Defined Text 13', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+#IfNotRow2D layout_options form_id DEM field_id usertext14
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext14', '6Misc', 'User Defined Text 14', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+#IfNotRow2D layout_options form_id DEM field_id usertext15
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext15', '6Misc', 'User Defined Text 15', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+#IfNotRow2D layout_options form_id DEM field_id usertext16
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext16', '6Misc', 'User Defined Text 16', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+#IfNotRow2D layout_options form_id DEM field_id usertext17
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext17', '6Misc', 'User Defined Text 17', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+#IfNotRow2D layout_options form_id DEM field_id usertext18
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext18', '6Misc', 'User Defined Text 18', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+#IfNotRow2D layout_options form_id DEM field_id usertext19
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext19', '6Misc', 'User Defined Text 19', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+#IfNotRow2D layout_options form_id DEM field_id usertext20
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext20', '6Misc', 'User Defined Text 20', 8,2,0,10,63,'',1,1,'','','User Defined');
+#EndIf
+
