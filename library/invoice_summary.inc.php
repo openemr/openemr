@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@
 //  rsn - adjustment reason, only for adjustments
 //  plv - provided for "integrated A/R" only: 0=pt, 1=Ins1, etc.
 //  dsc - for tax charges, a description of the tax
+//  arseq - ar_activity.sequence_no when it applies.
 
 require_once("sl_eob.inc.php");
 
@@ -197,7 +198,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
   // Get payments and adjustments.
   $res = sqlStatement("SELECT " .
     "a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
-    "a.post_time, a.session_id, " .
+    "a.post_time, a.session_id, a.sequence_no, " .
     "s.payer_id, s.reference, s.check_date, s.deposit_date " .
     ",i.name " .
     "FROM ar_activity AS a " .
@@ -234,6 +235,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
       $tmp['insurance_company'] = substr($row['name'], 0, 10);
       if ($ins_id) $tmp['ins'] = $ins_id;
       $tmp['plv'] = $row['payer_type'];
+      $tmp['arseq'] = $row['sequence_no'];
       $codes[$code]['dtl'][$tmpkey] = $tmp;
     }
   }
