@@ -173,3 +173,12 @@ INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_typ
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','idiopat','Idiopathic'  ,1);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('medical_type','na'     ,'N/A'         ,2);
 
+-- Added 2010-08-18:
+
+DELETE FROM code_types;
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('OSICS10', 9, 1, 4, '', 0, 0, 0, 1);
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('OPCS'   , 6, 2, 0, '', 0, 0, 0, 0);
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('PTCJ'   , 7, 3, 0, '', 0, 0, 0, 0);
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('CPT4'   , 1, 4, 0, '', 0, 0, 0, 0);
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('SMPC'   ,10, 5, 0, '', 0, 0, 0, 0);
+

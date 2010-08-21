@@ -22,28 +22,12 @@ $fake_register_globals=false;
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../user.inc");
 
-//If 'mode' is either a 1 or 0 and 'target' is set
-//  Then will update the appropriate user flag
-if (($_POST['mode'] == 1 || $_POST['mode'] == 0) && isset($_POST['target'])) {
+//If 'mode' is either a 1 or 0 and 'target' ends with _expand
+//  Then will update the appropriate user _expand flag
+if (( $_POST['mode'] == 1 || $_POST['mode'] == 0 ) && ( substr($_POST['target'], -7, 7) == "_expand" )) {
 
-  //Set the demographics expand setting in the patient summary screen
-  if ($_POST['target'] == "#DEM") {
-    setUserSetting("dem_expand", $_POST['mode'], $_SESSION['authUserID']);
-  }
+  //set the user setting
+  setUserSetting($_POST['target'], $_POST['mode']);
 
-  //Set the insurance expand setting in the patient summary screen
-  if ($_POST['target'] == "#INSURANCE") {
-    setUserSetting("ins_expand", $_POST['mode'], $_SESSION['authUserID']);
-  }
-
-  //Set the patient notes expand setting in the patient summary screen
-  if ($_POST['target'] == "#notes_div") {
-    setUserSetting("not_expand", $_POST['mode'], $_SESSION['authUserID']);
-  }
-
-  //Set the disclosures expand setting in the patient summary screen
-  if ($_POST['target'] == "#disc_div") {
-    setUserSetting("dis_expand", $_POST['mode'], $_SESSION['authUserID']);
-  }
 }
 ?>

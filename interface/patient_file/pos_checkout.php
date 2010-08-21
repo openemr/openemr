@@ -36,7 +36,6 @@
 //   on receipt display
 //     show invoice number
 
-
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
@@ -54,8 +53,10 @@ $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 
 $details = empty($_GET['details']) ? 0 : 1;
 
+$patient_id = empty($_GET['ptid']) ? $pid : 0 + $_GET['ptid'];
+
 // Get the patient's name and chart number.
-$patdata = getPatientData($pid, 'fname,mname,lname,pubpid,street,city,state,postal_code');
+$patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 
 // Get the "next invoice reference number" from this user's pool.
 //
@@ -531,9 +532,9 @@ function generate_receipt($patient_id, $encounter=0) {
 <?php } ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <?php if ($details) { ?>
-<a href='pos_checkout.php?details=0&enc=<?php echo $encounter; ?>'><?php xl('Hide Details','e'); ?></a>
+<a href='pos_checkout.php?details=0&ptid=<?php echo $patient_id; ?>&enc=<?php echo $encounter; ?>'><?php xl('Hide Details','e'); ?></a>
 <?php } else { ?>
-<a href='pos_checkout.php?details=1&enc=<?php echo $encounter; ?>'><?php xl('Show Details','e'); ?></a>
+<a href='pos_checkout.php?details=1&ptid=<?php echo $patient_id; ?>&enc=<?php echo $encounter; ?>'><?php xl('Show Details','e'); ?></a>
 <?php } ?>
 </p>
 </div>
@@ -787,7 +788,7 @@ if ($_POST['form_save']) {
 // If an encounter ID was given, then we must generate a receipt.
 //
 if (!empty($_GET['enc'])) {
-  generate_receipt($pid, $_GET['enc']);
+  generate_receipt($patient_id, $_GET['enc']);
   exit();
 }
 
@@ -796,7 +797,7 @@ if (!empty($_GET['enc'])) {
 
 $query = "SELECT id, date, code_type, code, modifier, code_text, " .
   "provider_id, payer_id, units, fee, encounter " .
-  "FROM billing WHERE pid = '$pid' AND activity = 1 AND " .
+  "FROM billing WHERE pid = '$patient_id' AND activity = 1 AND " .
   "billed = 0 AND code_type != 'TAX' " .
   "ORDER BY encounter DESC, id ASC";
 $bres = sqlStatement($query);
@@ -806,14 +807,14 @@ $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, " .
   "FROM drug_sales AS s " .
   "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
   "LEFT OUTER JOIN prescriptions AS r ON r.id = s.prescription_id " .
-  "WHERE s.pid = '$pid' AND s.billed = 0 " .
+  "WHERE s.pid = '$patient_id' AND s.billed = 0 " .
   "ORDER BY s.encounter DESC, s.sale_id ASC";
 $dres = sqlStatement($query);
 
 // If there are none, just redisplay the last receipt and exit.
 //
 if (mysql_num_rows($bres) == 0 && mysql_num_rows($dres) == 0) {
-  generate_receipt($pid);
+  generate_receipt($patient_id);
   exit();
 }
 
@@ -936,7 +937,7 @@ while ($urow = sqlFetchArray($ures)) {
 <body class="body_top">
 
 <form method='post' action='pos_checkout.php'>
-<input type='hidden' name='form_pid' value='<?php echo $pid ?>' />
+<input type='hidden' name='form_pid' value='<?php echo $patient_id ?>' />
 
 <center>
 
@@ -1050,7 +1051,7 @@ foreach ($taxes as $key => $value) {
 
 if ($inv_encounter) {
   $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
-    "pid = '$pid' AND encounter = '$inv_encounter' " .
+    "pid = '$patient_id' AND encounter = '$inv_encounter' " .
     "ORDER BY id DESC LIMIT 1");
   $inv_provider = $erow['provider_id'] + 0;
 }
@@ -1212,10 +1213,10 @@ if ($gcac_related_visit && !$gcac_service_provided) {
   // Skip this warning if referral or abortion in TS.
   $grow = sqlQuery("SELECT COUNT(*) AS count FROM transactions " .
     "WHERE title = 'Referral' AND refer_date IS NOT NULL AND " .
-    "refer_date = '$inv_date' AND pid = '$pid'");
+    "refer_date = '$inv_date' AND pid = '$patient_id'");
   if (empty($grow['count'])) { // if there is no referral
     $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
-      "WHERE pid = '$pid' AND encounter = '$inv_encounter' AND " .
+      "WHERE pid = '$patient_id' AND encounter = '$inv_encounter' AND " .
       "deleted = 0 AND formdir = 'LBFgcac'");
     if (empty($grow['count'])) { // if there is no gcac form
       echo " alert('" . xl('This visit will need a GCAC form, referral or procedure service.') . "');\n";

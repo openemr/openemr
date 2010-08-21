@@ -127,7 +127,8 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
    <?php echo oeFormatShortDate($transdate); ?>
   </td>
   <td class="detail">
-   <?php echo $invnumber; ?>
+   <a href='../patient_file/pos_checkout.php?ptid=<?php echo $patient_id; ?>&enc=<?php echo $encounter_id; ?>'>
+   <?php echo $invnumber; ?></a>
   </td>
   <td align="right">
    <?php echo $qty; ?>

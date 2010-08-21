@@ -113,10 +113,7 @@ class FormVitals extends ORDataObject {
 	function get_date() {
 		
 	if(!$this->date){			
-		$dbconn = $GLOBALS['adodb']['db'];
-		$sql  = "SELECT date from form_encounter where encounter =" . $GLOBALS{'encounter'} ;
-		$result = $dbconn->Execute($sql);
-    	$this->date = $result->fields['date'];
+    	        $this->date = date('YmdHis', time());
 	}
 		return $this->date;
 		

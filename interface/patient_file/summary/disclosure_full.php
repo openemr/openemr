@@ -131,7 +131,7 @@ else
 {?>
 	<br>
 	<!-- Display None, if there is no disclosure -->
-	<span class='text' colspan='3'><?php echo htmlspecialchars(xl('None.'),ENT_NOQUOTES) ;?></span>
+	<span class='text' colspan='3'><?php echo htmlspecialchars(xl('None'),ENT_NOQUOTES) ;?></span>
 	<?php
 }
 ?>

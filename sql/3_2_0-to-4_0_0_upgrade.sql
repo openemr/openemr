@@ -746,11 +746,26 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('disclosure_type', 'disclosure-healthcareoperations', 'Health Care Operations', 30, 0);
 #EndIf
 
-#IfMissingColumn users dem_expand
-ALTER TABLE users
-  ADD `dem_expand` tinyint(1) NOT NULL default '1' COMMENT 'patient summary demographics expand flag',
-  ADD `ins_expand` tinyint(1) NOT NULL default '0' COMMENT 'patient summary insurance expand flag',
-  ADD `not_expand` tinyint(1) NOT NULL default '0' COMMENT 'patient summary notes expand flag',
-  ADD `dis_expand` tinyint(1) NOT NULL default '0' COMMENT 'patient summary disclosures expand flag';
+#IfNotTable user_settings
+CREATE TABLE `user_settings` (
+  `setting_user`  bigint(20)   NOT NULL DEFAULT 0,
+  `setting_label` varchar(63)  NOT NULL,
+  `setting_value` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`setting_user`, `setting_label`)
+) ENGINE=MyISAM;
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'allergy_ps_expand', '1');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'appointments_ps_expand', '1');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'demographics_ps_expand', '0');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'dental_ps_expand', '1');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'directives_ps_expand', '1');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'disclosures_ps_expand', '0');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'immunizations_ps_expand', '1');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'insurance_ps_expand', '0');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'medical_problem_ps_expand', '1');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'medication_ps_expand', '1');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'pnotes_ps_expand', '0');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'prescriptions_ps_expand', '1');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'surgery_ps_expand', '1');
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'vitals_ps_expand', '1');
 #EndIf
 

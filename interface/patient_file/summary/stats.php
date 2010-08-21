@@ -44,7 +44,7 @@ if (!$thisauth) {
 </script>
 
 <table id="patient_stats_issues">
-
+	
 <?php
 $numcols = '1';
 $ix = 0;
@@ -56,22 +56,39 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     $query .= "ORDER BY begdate";
     $pres = sqlStatement($query, array($pid, $key) );
 
-    if (sqlNumRows($pres) > 0 || $ix == 0) {
+    if (sqlNumRows($pres) > 0 || $ix == 0 || $key == "allergy") {
 
-        // output a header for the $ISSUE_TYPE
-        echo " <tr class='issuetitle'>\n";
-        echo "  <td colspan='$numcols'>\n";
-
-        ?>
-        <span class="text"><b><?php echo htmlspecialchars($arr[0],ENT_NOQUOTES); ?></b></span>
-        <a href="javascript:;" class="small" onclick="load_location('stats_full.php?active=all')">
+	if ($_POST['embeddedScreen']) {
+	    echo "<tr><td>";
+            // Issues expand collapse widget
+            $widgetTitle = $arr[0];
+            $widgetLabel = $key;
+            $widgetButtonLabel = "Edit";
+            $widgetButtonLink = "load_location(\"stats_full.php?active=all\")";
+            $widgetButtonClass = "";
+            $linkMethod = "javascript";
+            $bodyClass = "summary_item small";
+            $widgetAuth = true;
+            $fixedWidth = false;
+            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+	}
+	else { ?>
+            <tr class='issuetitle'>
+            <td colspan='$numcols'>
+            <span class="text"><b><?php echo htmlspecialchars($arr[0],ENT_NOQUOTES); ?></b></span>
+            <a href="javascript:;" class="small" onclick="load_location('stats_full.php?active=all')">
             (<b><?php echo htmlspecialchars(xl('Manage'),ENT_NOQUOTES); ?></b>)
-        </a>
-        <?php
-
-        echo "  </td>\n";
-        echo " </tr>\n";
-
+            </a>
+            </td>
+            </tr>
+        <?php }
+        echo "<table>";    
+	if (sqlNumRows($pres) == 0) {
+	echo " <tr>\n";
+	echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('None'), ENT_NOQUOTES) . "</td>\n";
+	echo " </tr>\n";
+	}
+        	    
         while ($row = sqlFetchArray($pres)) {
             // output each issue for the $ISSUE_TYPE
             if (!$row['enddate'] && !$row['returndate'])
@@ -83,17 +100,28 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
             echo " <tr class='text $rowclass;'>\n";
 
-            echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</td>\n";
+	    //turn allergies red and bold
+	    if ($key == "allergy") {
+                echo "  <td colspan='$numcols' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</td>\n";
+	    }
+	    else {
+	        echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</td>\n";
+	    }
 
             echo " </tr>\n";
         }
+	echo "</table>";
+	if ($_POST['embeddedScreen']) {
+	    echo "</div></td></tr>";
+        }
+	
     }
 
     ++$ix;
 }
 ?>
 </table> <!-- end patient_stats_issues -->
-
+	
 <table id="patient_stats_spreadsheets">
 <?php
 
@@ -136,6 +164,21 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 <div>
 <table id="patient_stats_imm">
 <tr>
+<?php if ($_POST['embeddedScreen']) {
+    echo "<td>";
+    // Issues expand collapse widget
+    $widgetTitle = xl('Immunizations');
+    $widgetLabel = "immunizations";
+    $widgetButtonLabel = "Edit";
+    $widgetButtonLink = "javascript:load_location(\"immunizations.php\")";
+    $widgetButtonClass = "";
+    $linkMethod = "javascript";
+    $bodyClass = "summary_item small";
+    $widgetAuth = true;
+    $fixedWidth = false;
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+}
+else { ?>
 <td colspan='<?php echo $numcols ?>' valign='top'>
 <span class="text"><b><?php echo htmlspecialchars(xl('Immunizations', 'e'),ENT_NOQUOTES); ?></b></span>
 <a href="javascript:;" class="small" onclick="javascript:load_location('immunizations.php')">
@@ -143,6 +186,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 </a>
 </td></tr>
 <tr><td>
+<?php } ?>
 
 <?php
   $sql = "select i1.id as id, i1.immunization_id as immunization_id,".
@@ -153,6 +197,12 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 
   $result = sqlStatement($sql, array($pid) );
 
+  if (sqlNumRows($result) == 0) {
+    echo " <table><tr>\n";
+    echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('None'), ENT_NOQUOTES) . "</td>\n";
+    echo " </tr></table>\n";
+  }   
+    
   while ($row=sqlFetchArray($result)){
     echo "&nbsp;&nbsp;";
     echo "<a class='link'";
@@ -162,6 +212,11 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     "</a><br>\n";
   }
 ?>
+
+<?php if ($_POST['embeddedScreen']) {
+    echo "</td></tr></div>";
+} ?>
+
 </td>
 </tr>
 </table> <!-- end patient_stats_imm-->
@@ -172,13 +227,26 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 <div>
 <table id="patient_stats_prescriptions">
 <tr><td colspan='<?php echo $numcols ?>' class='issuetitle'>
-<span class='text'><b><?php echo htmlspecialchars(xl('Prescriptions'),ENT_NOQUOTES); ?></b></span>
-<?php if ($_POST['embeddedScreen']) { ?>
-  <a href="rx_frameset.php" class='iframe rx_modal small' onclick='top.restoreSession()'>
-    (<b><?php echo htmlspecialchars(xl('Manage'),ENT_NOQUOTES); ?>)</b></a>
-<?php } ?>
-</td></tr>
-</tr><td>
+
+<?php if ($_POST['embeddedScreen']) {
+    // Issues expand collapse widget
+    $widgetTitle = xl('Prescriptions');
+    $widgetLabel = "prescriptions";
+    $widgetButtonLabel = "Edit";
+    $widgetButtonLink = "rx_frameset.php";
+    $widgetButtonClass = "iframe rx_modal";
+    $linkMethod = "html";
+    $bodyClass = "summary_item small";
+    $widgetAuth = true;
+    $fixedWidth = false;
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+}
+else { ?>
+    <span class='text'><b><?php echo htmlspecialchars(xl('Prescriptions'),ENT_NOQUOTES); ?></b></span>
+    </td></tr>
+    </tr><td>
+<?php } ?>	
+
 <?php
 $cwd= getcwd();
 chdir("../../../");
@@ -186,6 +254,11 @@ require_once("library/classes/Controller.class.php");
 $c = new Controller();
 echo $c->act(array("prescription" => "", "fragment" => "", "patient_id" => $pid));
 ?>
+	
+<?php if ($_POST['embeddedScreen']) {
+    echo "</div>";
+} ?>
+	
 </td></tr>
 </table> <!-- end patient_stats_prescriptions -->
 </div>
