@@ -63,7 +63,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             // Issues expand collapse widget
             $widgetTitle = $arr[0];
             $widgetLabel = $key;
-            $widgetButtonLabel = "Edit";
+            $widgetButtonLabel = xl("Edit");
             $widgetButtonLink = "load_location(\"stats_full.php?active=all\")";
             $widgetButtonClass = "";
             $linkMethod = "javascript";
@@ -169,7 +169,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     // Issues expand collapse widget
     $widgetTitle = xl('Immunizations');
     $widgetLabel = "immunizations";
-    $widgetButtonLabel = "Edit";
+    $widgetButtonLabel = xl("Edit");
     $widgetButtonLink = "javascript:load_location(\"immunizations.php\")";
     $widgetButtonClass = "";
     $linkMethod = "javascript";
@@ -232,7 +232,7 @@ else { ?>
     // Issues expand collapse widget
     $widgetTitle = xl('Prescriptions');
     $widgetLabel = "prescriptions";
-    $widgetButtonLabel = "Edit";
+    $widgetButtonLabel = xl("Edit");
     $widgetButtonLink = "rx_frameset.php";
     $widgetButtonClass = "iframe rx_modal";
     $linkMethod = "html";

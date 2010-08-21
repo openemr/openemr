@@ -297,7 +297,7 @@ if ($GLOBALS['patient_id_category_name']) {
 				<?php // Demographics expand collapse widget
 				$widgetTitle = xl("Demographics");
 				$widgetLabel = "demographics";
-				$widgetButtonLabel = "Edit";
+				$widgetButtonLabel = xl("Edit");
 				$widgetButtonLink = "demographics_full";
 				$widgetButtonClass = "";
 				$linkMethod = "html";
@@ -341,7 +341,7 @@ if ($GLOBALS['patient_id_category_name']) {
 			<?php // Insurance expand collapse widget
 			$widgetTitle = xl("Insurance");
 			$widgetLabel = "insurance";
-			$widgetButtonLabel = "Edit";
+			$widgetButtonLabel = xl("Edit");
 			$widgetButtonLink = "demographics_full";
 			$widgetButtonClass = "";
 			$linkMethod = "html";
@@ -517,7 +517,7 @@ if ($GLOBALS['patient_id_category_name']) {
 		<?php // Notes expand collapse widget
 		$widgetTitle = xl("Notes");
 		$widgetLabel = "pnotes";
-		$widgetButtonLabel = "Edit";
+		$widgetButtonLabel = xl("Edit");
 		$widgetButtonLink = "pnotes_full.php";
 		$widgetButtonClass = "";
 		$linkMethod = "html";
@@ -535,7 +535,7 @@ if ($GLOBALS['patient_id_category_name']) {
 		<?php // disclosures expand collapse widget
 		$widgetTitle = xl("Disclosures");
 		$widgetLabel = "disclosures";
-		$widgetButtonLabel = "Edit";
+		$widgetButtonLabel = xl("Edit");
 		$widgetButtonLink = "disclosure_full.php";
 		$widgetButtonClass = "";
 		$linkMethod = "html";
@@ -553,12 +553,19 @@ if ($GLOBALS['patient_id_category_name']) {
                 <?php // vitals expand collapse widget
                 $widgetTitle = xl("Vitals");
                 $widgetLabel = "vitals";
-                $widgetButtonLabel = "Trend";
+                $widgetButtonLabel = xl("Trend");
                 $widgetButtonLink = "../encounter/trend_form.php?formname=vitals";
                 $widgetButtonClass = "";
                 $linkMethod = "html";
                 $bodyClass = "tab current";
-                $widgetAuth = true;
+                // check to see if any vitals exist
+                $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid) );
+                if ($existVitals) {
+                  $widgetAuth = true;
+		}
+		else {
+		  $widgetAuth = false;   
+		}
                 $fixedWidth = true;
                 expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
                     <br/>
@@ -585,7 +592,7 @@ if ($GLOBALS['patient_id_category_name']) {
 	<?php // advance directives expand collapse widget
 	$widgetTitle = xl("Advance Directives");
 	$widgetLabel = "directives";
-	$widgetButtonLabel = "Edit";
+	$widgetButtonLabel = xl("Edit");
 	$widgetButtonLink = "return advdirconfigure();";
 	$widgetButtonClass = "";
 	$linkMethod = "javascript";
@@ -736,7 +743,7 @@ if ($GLOBALS['patient_id_category_name']) {
 	// appointments expand collapse widget
 	$widgetTitle = xl("Appointments");
 	$widgetLabel = "appointments";
-	$widgetButtonLabel = "Add";
+	$widgetButtonLabel = xl("Add");
 	$widgetButtonLink = "return newEvt();";
 	$widgetButtonClass = "";
 	$linkMethod = "javascript";

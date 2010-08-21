@@ -1906,7 +1906,7 @@ function dropdown_facility($selected = '', $name = 'form_facility', $allow_unspe
 //
 // $title is the title of the section (already translated)
 // $label is identifier used in the tag id's and sql columns
-// $buttonLabel is the button label text
+// $buttonLabel is the button label text (already translated)
 // $buttonLink is the button link information
 // $buttonClass is any additional needed class elements for the button tag
 // $linkMethod is the button link method ('javascript' vs 'html')
@@ -1943,7 +1943,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
       echo " target='Main'";
     }
     echo "><span>" .
-      htmlspecialchars( xl($buttonLabel), ENT_NOQUOTES) . "</span></a></td>";
+      htmlspecialchars( $buttonLabel, ENT_NOQUOTES) . "</span></a></td>";
   }
   echo "<td><a href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
     htmlspecialchars( $label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";

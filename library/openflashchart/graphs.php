@@ -20,6 +20,21 @@ require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once($GLOBALS['srcdir'] . "/openflashchart/php-ofc-library/open-flash-chart.php");
 require_once($GLOBALS['srcdir'] . "/formdata.inc.php");
 
+// Collect passed variable(s)
+//  $table is the sql table where data is
+//  $name is the sql column where data is
+//  $title is used as the title of the graph
+$table = trim($_POST['table']);
+$name = trim($_POST['name']);
+$title = trim($_POST['title']);
+
+// acl checks here
+//  For now, only allow access for med aco.
+//  This can be expanded depending on which table is accessed.
+if (!acl_check('patients', 'med')) {
+      exit;
+}
+
 // Conversion functions/constants
 function convertFtoC($a) {
   return ($a-32)*0.5556;  
@@ -48,27 +63,21 @@ function getIdealYSteps($a) {
   }
 }
 
-// Collect passed variable(s)
-$params = trim($_GET['params']);
-$paramsArray = explode("___",$params);
-$name = $paramsArray[0];
-$table = $paramsArray[1];
-
-//Make title (use case statement) and prepare other specific conversion/customizations
+//Customizations (such as titles and conversions)
 switch ($name) {
   case "weight":
-    $titleGraph = xl("Weight")." (".xl("lbs").")";
+    $titleGraph = $title." (".xl("lbs").")";
     break;
   case "weight_metric":
-    $titleGraph = xl("Weight")." (".xl("kg").")";
+    $titleGraph = $title." (".xl("kg").")";
     $multiplier = getLbstoKgMultiplier();
     $name = "weight";
     break;
   case "height":
-    $titleGraph = xl("Height")." (".xl("in").")";
+    $titleGraph = $title." (".xl("in").")";
     break;
   case "height_metric":
-    $titleGraph = xl("Height")." (".xl("cm").")";
+    $titleGraph = $title." (".xl("cm").")";
     $multiplier = getIntoCmMultiplier();
     $name = "height";
     break;
@@ -83,49 +92,43 @@ switch ($name) {
     $titleGraphLine2 = xl("BP Systolic");
     break;
   case "pulse":
-    $titleGraph = xl("Pulse")." (".xl("per min").")";
+    $titleGraph = $title." (".xl("per min").")";
     break;
   case "respiration":
-    $titleGraph = xl("Respiration")." (".xl("per min").")";
+    $titleGraph = $title." (".xl("per min").")";
     break;
   case "temperature":
-    $titleGraph = xl("Temperature")." (".xl("F").")";
+    $titleGraph = $title." (".xl("F").")";
     break;
   case "temperature_metric":
-    $titleGraph = xl("Temperature")." (".xl("C").")";
+    $titleGraph = $title." (".xl("C").")";
     $isConvertFtoC = 1;
     $name="temperature";
     break;
   case "oxygen_saturation":
-    $titleGraph = xl("Oxygen Saturation")." (".xl("%").")";
+    $titleGraph = $title." (".xl("%").")";
     break;
   case "head_circ":
-    $titleGraph = xl("Head Circumference")." (".xl("in").")";
+    $titleGraph = $title." (".xl("in").")";
     break;
   case "head_circ_metric":
-    $titleGraph = xl("Head Circumference")." (".xl("cm").")";
+    $titleGraph = $title." (".xl("cm").")";
     $multiplier = getIntoCmMultiplier();
     $name="head_circ";
     break;
   case "waist_circ":
-    $titleGraph = xl("Waist Circumference")." (".xl("in").")";
+    $titleGraph = $title." (".xl("in").")";
     break;
   case "waist_circ_metric":
-    $titleGraph = xl("Waist Circumference")." (".xl("cm").")";
+    $titleGraph = $title." (".xl("cm").")";
     $multiplier = getIntoCmMultiplier();
     $name="waist_circ";
     break;
   case "BMI":
-    $titleGraph = xl("BMI")." (".xl("kg/m^2").")";
+    $titleGraph = $title." (".xl("kg/m^2").")";
     break;
   default:
-    
-}
-
-// acl checks here
-//  For now, only allow access for med aco.
-if (!acl_check('patients', 'med')) {
-  exit;
+    $titleGraph = $title;
 }
 
 // Collect info
@@ -148,8 +151,9 @@ else {
 
 // If less than 2 values, then exit
 if (sqlNumRows($values) < 2) {
-  exit;
+      exit;
 }
+
 
 // If blood pressure, then collect the other reading to allow graphing both in same graph
 $isBP = 0;
@@ -278,7 +282,7 @@ else {
   }
 }
 // set the range and y-step
-$y->set_range( 0 , $maximum );
+$y->set_range( 0 , $maximum + getIdealYSteps( $maximum ) );
 $y->set_steps( getIdealYSteps( $maximum ) );
 
 // Build and show the chart
