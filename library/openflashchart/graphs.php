@@ -134,16 +134,20 @@ switch ($name) {
 // Collect info
 if ($table) {
   // Collect the pertinent info and ranges
+  //  (Note am skipping values of zero, this could be made to be
+  //   optional in the future when using lab values)
   $values = SqlStatement("SELECT " . add_escape_custom($name) . ", " .
                          "UNIX_TIMESTAMP(date) as unix_date " .
                          "FROM " .add_escape_custom($table) . " " .
-			 "WHERE pid=? ORDER BY date", array($pid) );
+			 "WHERE " . add_escape_custom($name) . "!=0 " .
+			 "AND pid=? ORDER BY date", array($pid) );
   $ranges = SqlQuery("SELECT MAX(CONVERT(" . add_escape_custom($name) . ",SIGNED)) AS " .
                    "max_" . add_escape_custom($name) . ", " .
                    "MAX(UNIX_TIMESTAMP(date)) as max_date, " .
                    "MIN(UNIX_TIMESTAMP(date)) as min_date  " .
                    "FROM " .add_escape_custom($table) . " " .
-		   "WHERE pid=?", array($pid) );
+		   "WHERE " . add_escape_custom($name) . "!=0 " . 
+		   "AND pid=?", array($pid) );
 }
 else {
   exit;

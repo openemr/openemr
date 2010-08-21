@@ -67,7 +67,13 @@ function show_graph(table_graph, name_graph, title_graph)
              data=returnData;
 	     // this function will automatically call open_flash_chart_data() in order to collect the raw data
              swfobject.embedSWF('../../../library/openflashchart/open-flash-chart.swf', "chart", "650", "200", "9.0.0");
-           }
+	     // ensure show the chart div
+	     $('#chart').show();
+           },
+	   error: function() {
+	     // hide the chart div
+	     $('#chart').hide();
+	   }	
         });
 }
 
