@@ -37,17 +37,44 @@ include_once("../../globals.php");
 </style>
 
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/openflashchart/js/json/json2.js"></script>
 <script type="text/javascript" src="../../../library/openflashchart/js/swfobject.js"></script>
 <script type="text/javascript">
 
+// variable that holds graph information for the open_flash_chart_data() function
+var data;
+
+// Function that is built into swfobject.js script that will collect the
+//   data used for the graph.
+function open_flash_chart_data()
+{
+  return JSON.stringify(data);
+}
+	
 // Show the selected chart in the 'chart' div element
-function show_graph(name,table)
+function show_graph(table_graph, name_graph, title_graph)
 {
   top.restoreSession();
-  //function only appears to allow passing of one parameter to data-file, so combine name____table for passing
-  parameters=name + "___" + table;
-  a=encodeURIComponent(parameters);
-  swfobject.embedSWF('../../../library/openflashchart/open-flash-chart.swf', "chart", "650", "200", "9.0.0", "", {"data-file":"../../../library/openflashchart/graphs.php?params=" + a} );
+  $.ajax({ url: '../../../library/openflashchart/graphs.php',
+           type: 'POST',
+           data: ({ table: table_graph,
+	            name: name_graph,
+	            title: title_graph
+           }),
+           dataType: "json",
+           success: function(returnData){
+	     // place the raw graph data in the data variable
+             data=returnData;
+	     // this function will automatically call open_flash_chart_data() in order to collect the raw data
+             swfobject.embedSWF('../../../library/openflashchart/open-flash-chart.swf', "chart", "650", "200", "9.0.0");
+	     // ensure show the chart div
+	     $('#chart').show();
+           },
+	   error: function() {
+	     // hide the chart div
+	     $('#chart').hide();
+	   }	
+        });
 }
 
 $(document).ready(function(){
@@ -56,7 +83,7 @@ $(document).ready(function(){
   $('.readonly').show();
 
   // Place click callback for graphing
-  $(".graph").click(function(e){show_graph(this.id,'form_vitals'); });
+  $(".graph").click(function(e){ show_graph( 'form_vitals', this.id, $(this).text() ) });
 
   // Show hovering effects for the .graph links
   $(".graph").hover(
@@ -69,8 +96,8 @@ $(document).ready(function(){
   );
 
   // show blood pressure graph by default
-  show_graph('bps','form_vitals');
-
+  show_graph('form_vitals','bps','');
+	
 });
 </script>
 	
