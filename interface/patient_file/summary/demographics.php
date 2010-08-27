@@ -298,7 +298,7 @@ if ($GLOBALS['patient_id_category_name']) {
 				$widgetTitle = xl("Demographics");
 				$widgetLabel = "demographics";
 				$widgetButtonLabel = xl("Edit");
-				$widgetButtonLink = "demographics_full";
+				$widgetButtonLink = "demographics_full.php";
 				$widgetButtonClass = "";
 				$linkMethod = "html";
 				$bodyClass = "";
@@ -342,7 +342,7 @@ if ($GLOBALS['patient_id_category_name']) {
 			$widgetTitle = xl("Insurance");
 			$widgetLabel = "insurance";
 			$widgetButtonLabel = xl("Edit");
-			$widgetButtonLink = "demographics_full";
+			$widgetButtonLink = "demographics_full.php";
 			$widgetButtonClass = "";
 			$linkMethod = "html";
 			$bodyClass = "";
