@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007, 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -9,7 +9,7 @@
 include_once("../globals.php");
 include_once($GLOBALS['srcdir'] . "/patient.inc");
 
-$template_dir = "$webserver_root/custom/letter_templates";
+$template_dir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
 
 // array of field name tags to allow internationalization
 //  of templates
@@ -450,7 +450,7 @@ function insertAtCursor(myField, myValue) {
    <select name="form_template" id="form_template">
    <option value="">(<?php xl('none','e'); ?>)</option>
 <?php
-$tpldir = "$webserver_root/custom/letter_templates";
+$tpldir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
 $dh = opendir($tpldir);
 if (! $dh) die(xl('Cannot read','','',' ') . $tpldir);
 while (false !== ($tfname = readdir($dh))) {

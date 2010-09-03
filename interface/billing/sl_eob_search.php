@@ -16,7 +16,7 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/sql-ledger.inc");
 require_once("$srcdir/invoice_summary.inc.php");
-require_once("../../custom/statement.inc.php");
+require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/formatting.inc.php");
@@ -603,11 +603,11 @@ if ($_POST['form_search'] || $_POST['form_print']) {
     echo "<!-- Notes from ERA upload processing:\n";
     $alertmsg .= parse_era($tmp_name, 'era_callback');
     echo "-->\n";
-    $erafullname = "$webserver_root/era/$eraname.edi";
+    $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
 
     if (is_file($erafullname)) {
       $alertmsg .= "Warning: Set $eraname was already uploaded ";
-      if (is_file("$webserver_root/era/$eraname.html"))
+      if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html"))
         $alertmsg .= "and processed. ";
       else
         $alertmsg .= "but not yet processed. ";

@@ -1,4 +1,8 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
 require_once($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
 require_once($GLOBALS['fileroot'] . "/library/classes/Prescription.class.php");
@@ -778,8 +782,8 @@ class C_Prescription extends Controller {
 					$err .= " _print_prescription returned empty file";
 					break;
 				}
-				$fileName = dirname(__FILE__)."/../documents/".$p->get_id()
-								.$p->get_patient_id()."_fax_.pdf";
+        $fileName = $GLOBALS['OE_SITE_DIR'] . "/documents/" . $p->get_id() .
+          $p->get_patient_id() . "_fax_.pdf";
 				//print "filename is $fileName";
 				touch($fileName); // php bug
 				$handle = fopen($fileName,"w");

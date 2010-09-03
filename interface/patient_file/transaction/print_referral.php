@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@ require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 include_once("$srcdir/patient.inc");
 
-$template_file = "$webserver_root/custom/referral_template.html";
+$template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 
 $TEMPLATE_LABELS = array(
   'label_clinic_id'             => htmlspecialchars( xl('Clinic ID')),

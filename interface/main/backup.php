@@ -1,6 +1,6 @@
 <?php
 /* $Id$ */
-// Copyright (C) 2008, 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 // Adapted for cross-platform operation by Bill Cernansky (www.mi-squared.com)
 //
 // This program is free software; you can redistribute it and/or
@@ -233,7 +233,24 @@ if ($form_step == 4) {
   echo nl2br($form_status);
   $cur_dir = getcwd();
   chdir($webserver_root);
-  $file_list = array('.');    // archive entire directory
+
+  // Select the files and directories to archive.  Basically everything
+  // except site-specific data for other sites.
+  $file_list = array();
+  $dh = opendir($webserver_root);
+  if (!$dh) die("Cannot read directory '$webserver_root'.");
+  while (false !== ($filename = readdir($dh))) {
+    if ($filename == '.' || $filename == '..') continue;
+    if ($filename == 'sites') {
+      // Omit other sites.
+      $file_list[] = "$filename/" . $_SESSION['site_id'];
+    }
+    else {
+      $file_list[] = $filename;
+    }
+  }
+  closedir($dh);
+
   $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "openemr.tar.gz";
   if (!create_tar_archive($arch_file, "gz", $file_list))
     die(xl("An error occurred while dumping OpenEMR web directory tree"));
@@ -506,11 +523,12 @@ function create_tar_archive($archiveName, $compressMethod, $itemArray) {
   else {
    // Create the tar files via command line tools
    //  (this method used when the tar pear library is not available)  
+   $files = '"' . implode('" "', $itemArray) . '"';
    if ($compressMethod == "gz") {
-    $command = "tar --same-owner --ignore-failed-read -zcphf $archiveName .";
+    $command = "tar --same-owner --ignore-failed-read -zcphf $archiveName $files";
    }
    else {
-    $command = "tar -cpf $archiveName .";   
+    $command = "tar -cpf $archiveName $files";
    }
    $temp0 = exec($command, $temp1, $temp2);
    if ($temp2) die("\"$command\" returned $temp2: $temp0");

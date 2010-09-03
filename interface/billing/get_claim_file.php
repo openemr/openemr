@@ -1,10 +1,15 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once(dirname(__FILE__) . "/../../includes/config.php");
 
 $fconfig = $GLOBALS['oer_config']['freeb'];
 $content_type = "text/plain";
-$claim_file_dir = "$webserver_root/edi/";
+$claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
 $fname = $_GET['key'];
 $fname = preg_replace("[/]","",$fname);

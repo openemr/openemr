@@ -458,7 +458,7 @@ require_once("$srcdir/formatting.inc.php");
 	// report files.  Do not save the report if this is a no-update situation.
 	//
 	if (!$debug) {
-		$nameprefix = "$webserver_root/era/$eraname";
+		$nameprefix = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname";
 		$namesuffix = '';
 		for ($i = 1; is_file("$nameprefix$namesuffix.html"); ++$i) {
 			$namesuffix = "_$i";
@@ -516,7 +516,7 @@ require_once("$srcdir/formatting.inc.php");
  </tr>
 
 <?php
-  $alertmsg = parse_era("$webserver_root/era/$eraname.edi", 'era_callback');
+  $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
 
   if (!$INTEGRATED_AR) slTerminate();
 ?>

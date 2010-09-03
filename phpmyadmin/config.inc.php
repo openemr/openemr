@@ -8,6 +8,14 @@
  *
  */
 
+/* OpenEMR Database Settings */
+if (empty($_SESSION['site_id'])) die("phpMyAdmin has no session site ID!");
+// This code is eval'd by phpmyadmin/libraries/Config.class.php
+// and so __FILE__ is not what you might think.
+$webserver_root = dirname(dirname(dirname(__FILE__)));
+if (stripos(PHP_OS,'WIN') === 0) $webserver_root = str_replace("\\","/",$webserver_root); 
+$GLOBALS['OE_SITE_DIR'] = "$webserver_root/sites/" . $_SESSION['site_id'];
+require_once("../library/sqlconf.php");
 
 // this is the acl check (note can't use globals.php)
 $GLOBALS['phpmyadmin_acl_check'] = true;
@@ -16,9 +24,6 @@ if (! acl_check('admin', 'database')) {
   echo "You do not have access to this resource<br>";
   exit;
 }
-
-/* OpenEMR Database Settings */
-require_once("../library/sqlconf.php");
 
 /* Servers configuration */
 $i = 0;

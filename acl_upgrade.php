@@ -38,6 +38,10 @@
 //     Section "patients" (Patients):
 //       ADD  sign  Sign Lab Results (Physicians)
 
+$ignoreAuth = true; // no login required
+
+require_once('interface/globals.php');
+
 //Ensure that phpGACL has been installed
 include_once('library/acl.inc');
 if (isset ($phpgacl_location)) {

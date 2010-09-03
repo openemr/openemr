@@ -1,4 +1,9 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 include_once("../globals.php");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/billrep.inc");
@@ -91,7 +96,7 @@ function send_batch() {
   global $bat_content, $bat_filename, $webserver_root;
   // If a writable edi directory exists, log the batch to it.
   // I guarantee you'll be glad we did this.  :-)
-  $fh = @fopen("$webserver_root/edi/$bat_filename", 'a');
+  $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
   if ($fh) {
     fwrite($fh, $bat_content);
     fclose($fh);
@@ -236,7 +241,7 @@ function process_form($ar) {
   if (isset($ar['bn_process_hcfa'])) {
     fclose($hlog);
     // If a writable edi directory exists (and it should), write the pdf to it.
-    $fh = @fopen("$webserver_root/edi/$bat_filename", 'a');
+    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
     if ($fh) {
       fwrite($fh, $pdf->ezOutput());
       fclose($fh);
@@ -248,7 +253,7 @@ function process_form($ar) {
 
   if (isset($ar['bn_hcfa_txt_file'])) {
     fclose($hlog);
-    $fh = @fopen("$webserver_root/edi/$bat_filename", 'a');
+    $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/edi/$bat_filename", 'a');
     if ($fh) {
       fwrite($fh, $bat_content);
       fclose($fh);

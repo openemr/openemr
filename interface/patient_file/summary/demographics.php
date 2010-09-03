@@ -647,8 +647,8 @@ if ($GLOBALS['patient_id_category_name']) {
 	if ($GLOBALS['cene_specific']) {
 	  echo "   <br />\n";
 
-	  $imagedir  = "$webserver_root/documents/$pid/demographics";
-	  $imagepath = "$web_root/documents/$pid/demographics";
+    $imagedir  = $GLOBALS['OE_SITE_DIR'] . "/documents/$pid/demographics";
+    $imagepath = "$web_root/sites/" . $_SESSION['site_id'] . "/documents/$pid/demographics";
 
 	  echo "   <a href='' onclick=\"return sendimage($pid, 'photo');\" " .
 		"title='Click to attach patient image'>\n";

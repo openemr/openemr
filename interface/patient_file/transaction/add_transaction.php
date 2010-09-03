@@ -1,4 +1,9 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 // add_transaction is a misnomer, as this script will now also edit
 // existing transactions.
 
@@ -15,7 +20,7 @@ require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 
 // Referral plugin support.
-$fname = "../../../custom/LBF/REF.plugin.php";
+$fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/REF.plugin.php";
 if (file_exists($fname)) include_once($fname);
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;

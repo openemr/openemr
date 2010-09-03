@@ -40,6 +40,7 @@ case "$1" in
       TMPDIR=/tmp/cvs-openemr-tmp
       WEB=/var/www
       OPENEMR=$WEB/cvs-openemr
+      SITEDIR=$OPENEMR/sites/default
       INSTALL_USER=cvsopenemr
       INSTALL_DATABASE=cvsopenemr
       INSTALL_SITE=localhost
@@ -221,11 +222,11 @@ case "$1" in
       #INSTALL AND CONFIGURE OPENEMR 
       # Set file and directory permissions 
       chmod 666 $OPENEMR/library/sqlconf.php 
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/documents 
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/edi 
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/era 
+      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents 
+      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/edi 
+      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/era 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/library/freeb 
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/custom/letter_templates 
+      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/letter_templates 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c 

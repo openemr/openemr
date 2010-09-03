@@ -2285,6 +2285,7 @@ CREATE TABLE `lists` (
   `reinjury_id` bigint(20)  NOT NULL DEFAULT 0,
   `injury_part` varchar(31) NOT NULL DEFAULT '',
   `injury_type` varchar(31) NOT NULL DEFAULT '',
+  `injury_grade` varchar(31) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
@@ -3375,3 +3376,13 @@ CREATE TABLE `extended_log` (
   `patient_id` bigint(20) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
+CREATE TABLE version (
+  v_major    int(11)     NOT NULL DEFAULT 0,
+  v_minor    int(11)     NOT NULL DEFAULT 0,
+  v_patch    int(11)     NOT NULL DEFAULT 0,
+  v_tag      varchar(31) NOT NULL DEFAULT '',
+  v_database int(11)     NOT NULL DEFAULT 0
+) ENGINE=MyISAM;
+INSERT INTO version (v_major, v_minor, v_patch, v_tag, v_database) VALUES (0, 0, 0, '', 0);
+

@@ -1,4 +1,8 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
 require_once(dirname(__FILE__) . "/../library/classes/Controller.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/Document.class.php");
@@ -228,7 +232,7 @@ class C_Document extends Controller {
 		$from_all = explode("/",$url);
 	        $from_filename = array_pop($from_all);
 	        $from_patientid = array_pop($from_all);
-                $temp_url = $GLOBALS["fileroot"].'/documents/'.$from_patientid.'/'.$from_filename;
+    $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_patientid . '/' . $from_filename;
 		if (file_exists($temp_url)) {
 			$url = $temp_url;
 		}
@@ -251,7 +255,7 @@ class C_Document extends Controller {
 		        else {
 			    //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
 			    $convertedFile = substr(basename($url), 0, strrpos(basename($url), '.')) . '_converted.jpg';			    
-			    $url = $GLOBALS["fileroot"].'/documents/'.$from_patientid.'/'.$convertedFile;
+          $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_patientid . '/' . $convertedFile;
                             header("Pragma: public");
 			    header("Expires: 0");
 			    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
