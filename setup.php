@@ -136,7 +136,7 @@ $checkPermissions = "TRUE";
 // installers)
 $manualPath = "";
 
-$GLOBALS['OE_SITE_DIR'] = $manualpath . "sites/$site_id";
+$OE_SITE_DIR = $manualpath . "sites/$site_id";
 $dumpfile = $manualPath."sql/database.sql";
 $translations_dumpfile_utf8 = $manualPath."contrib/util/language_translations/currentLanguage_utf8.sql";
 $translations_dumpfile_latin1 = $manualPath."contrib/util/language_translations/currentLanguage_utf8.sql";
