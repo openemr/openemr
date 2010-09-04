@@ -4,14 +4,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+$ignoreAuth = true;
 require_once("interface/globals.php");
 ?>                                                                                        
 <html>
 <head></head>
 
 <?php
-// include_once("library/sqlconf.php");
-
 if ($config == 1) {
 ?>                                                                                        
 <body ONLOAD="javascript:top.location.href='<?php echo "interface/login/login_frame.php"?>';">
