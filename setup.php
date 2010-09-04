@@ -4,6 +4,8 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+$COMMAND_LINE = php_sapi_name() == 'cli';
+
 // Dummy xl function so things needing it will work.
 function xl($s) {
   return $s;
@@ -84,7 +86,7 @@ $state = $_POST["state"];
 $ippf_specific = false;
 
 // If this script was invoked with no site ID, then ask for one.
-if (empty($_REQUEST['site'])) {
+if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
   echo "<html>\n";
   echo "<head>\n";
   echo "<title>OpenEMR Setup Tool</title>\n";
@@ -113,18 +115,15 @@ if (empty($_REQUEST['site'])) {
   exit();
 }
 
-// Support "?site=siteid" in the URL.
-$site_id = empty($_REQUEST['site']) ? 'default' : trim($_REQUEST['site']);
+// Support "?site=siteid" in the URL, otherwise assume "default".
+$site_id = 'default';
+if (!$COMMAND_LINE && !empty($_REQUEST['site'])) {
+  $site_id = trim($_REQUEST['site']);
+}
 
 // Die if site ID is empty or has invalid characters.
 if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id))
   die("Site ID '$site_id' contains invalid characters.");
-
-
-
-
-
-
 
 //If having problems with file and directory permission
 // checking, then can be manually disabled here.
