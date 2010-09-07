@@ -1,17 +1,5 @@
 <?php
-//////////////////////////////////////////////////////////////////////
-// ------------------ DO NOT MODIFY VIEW.PHP !!! ---------------------
-// View.php is an exact duplicate of new.php.  If you wish to make
-// any changes, then change new.php and either (recommended) make
-// view.php a symbolic link to new.php, or copy new.php to view.php.
-//
-// And if you check in a change to either module, be sure to check
-// in the other (identical) module also.
-//
-// This nonsense can go away when we move to subversion.
-//////////////////////////////////////////////////////////////////////
-
-// Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006, 2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -181,13 +169,16 @@ if ($formid) {
 
 <?php
  foreach ($pelines as $sysname => $sysarray) {
+  $sysnamedisp = $sysname;
   if ($sysname == '*') {
    // TBD: Show any remaining entries in $rows (should not be any).
    echo " <tr><td colspan='6'>\n";
    echo "   &nbsp;<br><b>" .xl('Treatment:'). "</b>\n";
    echo " </td></tr>\n";
   }
-  $sysnamedisp = $sysname;
+  else {
+    $sysnamedisp = xl($sysname);
+  }
   foreach ($sysarray as $line_id => $description) {
    if ($sysname != '*') {
     showExamLine($line_id, $description, $rows[$line_id], $sysnamedisp);

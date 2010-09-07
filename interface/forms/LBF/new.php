@@ -294,9 +294,9 @@ function sel_related() {
 ?>
 
 <p style='text-align:center'>
-<input type='submit' name='bn_save' value='Save' />
+<input type='submit' name='bn_save' value='<?php xl('Save','e') ?>' />
 &nbsp;
-<input type='button' value='Cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+<input type='button' value='<?php xl('Cancel','e') ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 &nbsp;
 </p>
 

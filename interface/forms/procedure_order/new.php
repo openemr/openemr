@@ -255,9 +255,9 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
 </table>
 
 <p>
-<input type='submit' name='bn_save' value='Save' />
+<input type='submit' name='bn_save' value='<?php xl('Save','e'); ?>' />
 &nbsp;
-<input type='button' value='Cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 </p>
 
 </center>
