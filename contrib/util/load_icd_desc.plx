@@ -2,7 +2,7 @@
 use strict;
 
 #######################################################################
-# Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
+# Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -25,9 +25,9 @@ use HTML::TokeParser; # libhtml-parser-perl
 #                 Parameters that you may customize                   #
 #######################################################################
 
-# Change this as needed for years other than 2009.
+# Change this as needed for years other than 2010.
 #
-my $START_URL = "http://www.icd9data.com/2009/Volume1/default.htm";
+my $START_URL = "http://www.icd9data.com/2010/Volume1/default.htm";
 
 # An empty database name will cause SQL INSERT statements to be dumped
 # to stdout, with no database access.  To update your OpenEMR database
