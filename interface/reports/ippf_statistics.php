@@ -111,7 +111,8 @@ $atotals = array();
 
 $arr_show   = array(
   '.total' => array('title' => 'Total'),
-  '.age'   => array('title' => 'Age Category'),
+  '.age2'  => array('title' => 'Age Category (2)'),
+  '.age9'  => array('title' => 'Age Category (9)'),
 ); // info about selectable columns
 
 $arr_titles = array(); // will contain column headers
@@ -459,7 +460,8 @@ function loadColumnData($key, $row, $quantity=1) {
     $areport[$key]['.prp'] = 0;       // previous pid
     $areport[$key]['.wom'] = 0;       // number of services for women
     $areport[$key]['.men'] = 0;       // number of services for men
-    $areport[$key]['.age'] = array(0,0,0,0,0,0,0,0,0); // age array
+    $areport[$key]['.age2'] = array(0,0);               // age array
+    $areport[$key]['.age9'] = array(0,0,0,0,0,0,0,0,0); // age array
     foreach ($arr_show as $askey => $dummy) {
       if (substr($askey, 0, 1) == '.') continue;
       $areport[$key][$askey] = array();
@@ -499,11 +501,13 @@ function loadColumnData($key, $row, $quantity=1) {
   else
     $areport[$key]['.wom'] += $quantity;
 
-  // Increment the correct age category.
+  // Increment the correct age categories.
   $age = getAge(fixDate($row['DOB']), $row['encdate']);
   $i = min(intval(($age - 5) / 5), 8);
   if ($age < 11) $i = 0;
-  $areport[$key]['.age'][$i] += $quantity;
+  $areport[$key]['.age9'][$i] += $quantity;
+  $i = $age < 25 ? 0 : 1;
+  $areport[$key]['.age2'][$i] += $quantity;
 
   foreach ($arr_show as $askey => $dummy) {
     if (substr($askey, 0, 1) == '.') continue;
@@ -1420,12 +1424,14 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
-      // if ($value == '1') { // Total Services
       if ($value == '.total') { // Total Services
         genHeadCell(xl('Total'));
       }
-      // else if ($value == '2') { // Age
-      else if ($value == '.age') { // Age
+      else if ($value == '.age2') { // Age
+        genHeadCell(xl('0-24' ), true);
+        genHeadCell(xl('25+'  ), true);
+      }
+      else if ($value == '.age9') { // Age
         genHeadCell(xl('0-10' ), true);
         genHeadCell(xl('11-14'), true);
         genHeadCell(xl('15-19'), true);
@@ -1487,9 +1493,14 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
         if ($value == '.total') { // Total Services
           genNumCell($totalsvcs, $cnum++);
         }
-        else if ($value == '.age') { // Age
+        else if ($value == '.age2') { // Age
+          for ($i = 0; $i < 2; ++$i) {
+            genNumCell($areport[$key]['.age2'][$i], $cnum++);
+          }
+        }
+        else if ($value == '.age9') { // Age
           for ($i = 0; $i < 9; ++$i) {
-            genNumCell($areport[$key]['.age'][$i], $cnum++);
+            genNumCell($areport[$key]['.age9'][$i], $cnum++);
           }
         }
         else if (!empty($arr_titles[$value])) {
