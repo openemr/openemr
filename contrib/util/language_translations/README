@@ -68,7 +68,8 @@ and then save in Open Office format; then can upload this file to
 google docs).
 
 The currentLanguage_utf8.sql and currentLanguage_latin1.sql holds current
-sql tables dumpfile.
+sql tables dumpfile.  Latest releases of this are available at:
+http://www.openmedsoftware.org/wiki/Install_Translations
 
 To insert these translation tables into your OpenEMR refer to
 instructions at this page in the wiki:

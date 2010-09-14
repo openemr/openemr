@@ -263,7 +263,7 @@ else {
     "ORDER BY group_name, seq LIMIT 5");
   while ($trow = sqlFetchArray($tres)) {
     $extracols[$trow['field_id']] = $trow['title'];
-    echo "<th class='srMisc'>" . htmlspecialchars( $trow['title'], ENT_NOQUOTES) . "</th>\n";
+    echo "<th class='srMisc'>" . htmlspecialchars(xl($trow['title']), ENT_NOQUOTES) . "</th>\n";
   }
 }
 ?>

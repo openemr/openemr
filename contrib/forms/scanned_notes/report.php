@@ -22,9 +22,6 @@ function scanned_notes_report($pid, $useless_encounter, $cols, $id) {
   "id = '$id' AND activity = '1'");
 
  if ($data) {
-  // $imagepath = "$webserver_root/documents/$pid/encounters/${thisenc}_$id.jpg";
-  // $imageurl  = "$web_root/documents/$pid/encounters/${thisenc}_$id.jpg";
-
   echo "<table cellpadding='0' cellspacing='0'>\n";
 
   if ($data['notes']) {
@@ -34,22 +31,12 @@ function scanned_notes_report($pid, $useless_encounter, $cols, $id) {
    echo " </tr>\n";
   }
 
-  /*******************************************************************
-  if (is_file($imagepath)) {
-   echo " <tr>\n";
-   echo "  <td valign='top'>\n";
-   // Gecko does the right thing with this width, but IE ignores it:
-   // echo "   <img src='$imageurl' style='width:100%' />\n";
-   echo "   <img src='$imageurl' />\n";
-   echo "  </td>\n";
-   echo " </tr>\n";
-  }
-  *******************************************************************/
-
   for ($i = -1; true; ++$i) {
     $suffix = ($i < 0) ? "" : "-$i";
-    $imagepath = "$webserver_root/documents/$pid/encounters/${thisenc}_$id$suffix.jpg";
-    $imageurl  = "$web_root/documents/$pid/encounters/${thisenc}_$id$suffix.jpg";
+    $imagepath = $GLOBALS['OE_SITE_DIR'] .
+      "/documents/$pid/encounters/${thisenc}_$id$suffix.jpg";
+    $imageurl  = "$web_root/sites/" . $_SESSION['site_id'] .
+      "/documents/$pid/encounters/${thisenc}_$id$suffix.jpg";
     if (is_file($imagepath)) {
       echo " <tr>\n";
       echo "  <td valign='top'>\n";

@@ -137,6 +137,7 @@ if ($_POST['form_save']) {
     "classification = '" . $_POST['form_classification'] . "', " .
     "reinjury_id = '" . $_POST['form_reinjury_id']  . "', " .
     "referredby = '"  . $_POST['form_referredby']   . "', " .
+    "injury_grade = '" . $_POST['form_injury_grade'] . "', " .
     "injury_part = '" . $form_injury_part           . "', " .
     "injury_type = '" . $form_injury_type           . "', " .
     "outcome = '"     . $_POST['form_outcome']      . "', " .
@@ -155,7 +156,7 @@ if ($_POST['form_save']) {
    $issue = sqlInsert("INSERT INTO lists ( " .
     "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
     "diagnosis, occurrence, classification, referredby, user, groupname, " .
-    "outcome, destination, reinjury_id, injury_part, injury_type " .
+    "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type " .
     ") VALUES ( " .
     "NOW(), " .
     "'$thispid', " .
@@ -175,6 +176,7 @@ if ($_POST['form_save']) {
     "'" . $_POST['form_outcome']     . "', " .
     "'" . $_POST['form_destination'] . "', " .
     "'" . $_POST['form_reinjury_id'] . "', " .
+    "'" . $_POST['form_injury_grade'] . "', " .
     "'" . $form_injury_part          . "', " .
     "'" . $form_injury_type          . "' "  .
    ")");
@@ -267,8 +269,8 @@ div.section {
  // statements that will build an array of arrays of Option objects.
  //
  $clickoptions = array();
- if (is_file("../../../custom/clickoptions.txt"))
-  $clickoptions = file("../../../custom/clickoptions.txt");
+ if (is_file($GLOBALS['OE_SITE_DIR'] . "/clickoptions.txt"))
+  $clickoptions = file($GLOBALS['OE_SITE_DIR'] . "/clickoptions.txt");
  $i = 0;
  foreach ($ISSUE_TYPES as $key => $value) {
   echo " aitypes[$i] = " . $value[3] . ";\n";
@@ -315,6 +317,7 @@ div.section {
   document.getElementById('row_comments'      ).style.display = (f.form_comments.value  ) ? '' : revdisp;
 <?php if ($GLOBALS['athletic_team']) { ?>
   document.getElementById('row_returndate' ).style.display = comdisp;
+  document.getElementById('row_injury_grade'  ).style.display = injdisp;
   document.getElementById('row_injury_part'   ).style.display = injdisp;
   document.getElementById('row_injury_type'   ).style.display = injdisp;
   document.getElementById('row_medical_system').style.display = nordisp;
@@ -480,6 +483,15 @@ function divclick(cb, divid) {
  </tr>
 
  <!-- For Athletic Teams -->
+
+ <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_injury_grade'>
+  <td valign='top' nowrap><b><?php xl('Grade of Injury','e'); ?>:</b></td>
+  <td>
+<?php
+echo generate_select_list('form_injury_grade', 'injury_grade', $irow['injury_grade'], '');
+?>
+  </td>
+ </tr>
 
  <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_injury_part'>
   <td valign='top' nowrap><b><?php xl('Injured Body Part','e'); ?>:</b></td>

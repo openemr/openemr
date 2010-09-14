@@ -22,7 +22,7 @@ function physical_exam_report($pid, $encounter, $cols, $id) {
  echo "<table cellpadding='0' cellspacing='0'>\n";
 
  foreach ($pelines as $sysname => $sysarray) {
-  $sysnamedisp = $sysname;
+  $sysnamedisp = xl($sysname);
   foreach ($sysarray as $line_id => $description) {
    $linedbrow = $rows[$line_id];
    if (!($linedbrow['wnl'] || $linedbrow['abn'] || $linedbrow['diagnosis'] ||

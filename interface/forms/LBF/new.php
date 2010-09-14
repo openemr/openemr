@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -106,7 +106,7 @@ if ($_POST['bn_save']) {
   exit;
 }
 
-$fname = "../../../custom/LBF/$formname.plugin.php";
+$fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
 if (file_exists($fname)) include_once($fname);
 
 $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
@@ -294,9 +294,9 @@ function sel_related() {
 ?>
 
 <p style='text-align:center'>
-<input type='submit' name='bn_save' value='Save' />
+<input type='submit' name='bn_save' value='<?php xl('Save','e') ?>' />
 &nbsp;
-<input type='button' value='Cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+<input type='button' value='<?php xl('Cancel','e') ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 &nbsp;
 </p>
 

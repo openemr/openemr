@@ -1,4 +1,9 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 //----------THINGS WE ALWAYS DO
 
 require_once("{$GLOBALS['srcdir']}/log.inc");
@@ -6,6 +11,8 @@ require_once("{$GLOBALS['srcdir']}/sql.inc");
 // added for the phpGACL group check -- JRM
 require_once("{$GLOBALS['srcdir']}/acl.inc");
 require_once("$srcdir/formdata.inc.php");
+
+$incoming_site_id = '';
 
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
     isset($_POST['authPass']) && isset($_POST['authProvider']))
@@ -94,9 +101,6 @@ function authNewSession ($user, $pass, $provider)
     // if the user is NOT active, get out
     if ($authDB['active'] != 1) { return false; }
 
-    // start the HTTP SESSION
-    if(!session_id()) { session_start(); }
-
     // compare the submitted password with the stored password
     if ($authDB['password'] == $pass)
     {
@@ -143,24 +147,22 @@ function authCheckSession ()
 
 function authCloseSession ()
 {
-    ob_start();
-    session_unset();
-//    $_SESSION = array();
-    session_destroy();
-    //setcookie(session_name(),"","","/");
-    //the following does the same as the above line:
-    //if(isset($_COOKIE[session_name()])) {
-    // session_start();
-    // session_destroy();
-    unset($_COOKIE[session_name()]);
-    //}
+  // Before destroying the session, save its site_id so that the next
+  // login will default to that same site.
+  global $incoming_site_id;
+  $incoming_site_id = $_SESSION['site_id'];
+  ob_start();
+  session_unset();
+  session_destroy();
+  unset($_COOKIE[session_name()]);
 }
 
 function authLoginScreen()
 {
-    //header("Location: https://{$_SERVER['HTTP_HOST']}{$GLOBALS['login_screen']}");
-    header("Location: {$GLOBALS['login_screen']}?error=1");
-    exit;
+  // See comment in authCloseSession().
+  global $incoming_site_id;
+  header("Location: {$GLOBALS['login_screen']}?error=1&site=$incoming_site_id");
+  exit;
 }
 
 // Check if the user's password has expired beyond the grace limit.

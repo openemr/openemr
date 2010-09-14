@@ -30,7 +30,7 @@ if (! $encounter) { // comes from globals.php
 }
 
 $formid = $_GET['id'];
-$imagedir = "$webserver_root/documents/$pid/encounters";
+$imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/$pid/encounters";
 
 // If Save was clicked, save the info.
 //
@@ -94,7 +94,8 @@ if ($_POST['bn_save']) {
 }
 
 $imagepath = "$imagedir/${encounter}_$formid.jpg";
-$imageurl = "$web_root/documents/$pid/encounters/${encounter}_$formid.jpg";
+$imageurl = "$web_root/sites/" . $_SESSION['site_id'] .
+  "/documents/$pid/encounters/${encounter}_$formid.jpg";
 
 if ($formid) {
  $row = sqlQuery("SELECT * FROM form_scanned_notes WHERE " .

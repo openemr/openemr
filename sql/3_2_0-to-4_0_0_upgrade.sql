@@ -769,3 +769,19 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'vitals_ps_expand', '1');
 #EndIf
 
+#IfNotTable version
+CREATE TABLE version (
+  v_major    int(11)     NOT NULL DEFAULT 0,
+  v_minor    int(11)     NOT NULL DEFAULT 0,
+  v_patch    int(11)     NOT NULL DEFAULT 0,
+  v_tag      varchar(31) NOT NULL DEFAULT '',
+  v_database int(11)     NOT NULL DEFAULT 0
+) ENGINE=MyISAM;
+INSERT INTO version (v_major, v_minor, v_patch, v_tag, v_database) VALUES (0, 0, 0, '', 0);
+#EndIf
+
+#IfMissingColumn lists injury_grade
+ALTER TABLE lists
+  ADD injury_grade varchar(31) NOT NULL DEFAULT '';
+#EndIf
+

@@ -252,7 +252,8 @@
       $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
       if (! is_file($to_file)) exec("convert -density 200 '$from_file' -append -resize 850 '$to_file'");
       if (is_file($to_file)) {
-       $to_url = $GLOBALS['webroot'] . "/documents/$pid/" . basename($to_file);
+       $to_url = $GLOBALS['webroot'] . "/sites/" . $_SESSION['site_id'] .
+        "/documents/$pid/" . basename($to_file);
        echo "<img src='$to_url'><br><br>\n";
       } else {
        echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .

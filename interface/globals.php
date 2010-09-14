@@ -77,8 +77,6 @@ if ($sanitize_all_escapes) {
   }
 }
 
-require_once(dirname(__FILE__) . "/../includes/config.php");
-
 //
 // The webserver_root and web_root are now automatically collected.
 // If not working, can set manually below.
@@ -101,6 +99,44 @@ if (preg_match("/^[^\/]/",$web_root)) {
 //   $webserver_root = "/var/www/openemr"
 //   $web_root =  "/openemr"
 //
+
+// This is the directory that contains site-specific data.  Change this
+// only if you have some reason to.
+$GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
+
+// The session name names a cookie stored in the browser.
+// If you modify session_name, then need to place the identical name in
+// the phpmyadmin file here: openemr/phpmyadmin/libraries/session.inc.php
+// at line 71. This was required after embedded new phpmyadmin version on
+// 05-12-2009 by Brady. Hopefully will figure out a more appropriate fix.
+// Now that restore_session() is implemented in javaScript, session IDs are
+// effectively saved in the top level browser window and there is no longer
+// any need to change the session name for different OpenEMR instances.
+session_name("OpenEMR");
+
+session_start();
+
+// Set the site ID if required.  This must be done before any database
+// access is attempted.
+if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
+  if (!empty($_GET['site'])) {
+    $tmp = $_GET['site'];
+  }
+  else {
+    if (!$ignoreAuth) die("Site ID is missing from session data!");
+    $tmp = $_SERVER['HTTP_HOST'];
+    if (!is_dir($GLOBALS['OE_SITES_BASE'] . "/$tmp")) $tmp = "default";
+  }
+  if (!isset($_SESSION['site_id']) || $_SESSION['site_id'] != $tmp) {
+    $_SESSION['site_id'] = $tmp;
+    error_log("Session site ID has been set to '$tmp'"); // debugging
+  }
+}
+
+// Set the site-specific directory path.
+$GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . "/" . $_SESSION['site_id'];
+
+require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
 
 // Collecting the utf8 disable flag from the sqlconf.php file in order
 // to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
@@ -237,18 +273,6 @@ $GLOBALS['default_top_pane'] = 'main_info.php';
 $GLOBALS['default_category'] = 5;
 $GLOBALS['default_event_title'] = 'Office Visit';
 
-// The session name appears in cookies stored in the browser.  If you have
-// multiple OpenEMR installations running on the same server, you should
-// customize this name so they cannot interfere with each other.
-//
-// Also, if modify session_name, then need to place the identical name in
-// the phpmyadmin file here: openemr/phpmyadmin/libraries/session.inc.php
-// at line 71. This was required after embedded new phpmyadmin version on
-// 05-12-2009 by Brady. Hopefully will figure out a more appropriate fix.
-session_name("OpenEMR");
-
-session_start();
-
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
 // thoroughly tested yet and some browsers might have trouble with it,
@@ -304,13 +328,8 @@ if (!empty($special_timeout)) {
 }
 
 //Version tags
-
-$v_major = '4';
-$v_minor = '0';
-$v_patch = '0';
-$tag = '-dev'; // minor revision number, should be empty for production releases
-
-$openemr_version = "$v_major.$v_minor.$v_patch".$tag;	// Version tag used by program
+require_once(dirname(__FILE__) . "/../version.php");
+$openemr_version = "$v_major.$v_minor.$v_patch".$v_tag;	// Version tag used by program
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];

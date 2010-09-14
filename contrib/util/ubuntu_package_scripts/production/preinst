@@ -204,10 +204,10 @@ case "$1" in
       if [ -d "$OPENEMR" ]; then
 
          #collect current version
-         v1=$(collect_var \$v_major $OPENEMR/interface/globals.php)
-         v2=$(collect_var \$v_minor $OPENEMR/interface/globals.php)
-         v3=$(collect_var \$v_patch $OPENEMR/interface/globals.php)
-         v4=$(collect_var \$tag $OPENEMR/interface/globals.php)
+         v1=$(collect_var \$v_major $OPENEMR/version.php)
+         v2=$(collect_var \$v_minor $OPENEMR/version.php)
+         v3=$(collect_var \$v_patch $OPENEMR/version.php)
+         v4=$(collect_var \$v_tag   $OPENEMR/version.php)
          RAWVERSION="$v1.$v2.$v3$v4"
 
          #attempt upgrade, if user desires

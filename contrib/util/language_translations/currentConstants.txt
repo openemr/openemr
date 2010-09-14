@@ -156,6 +156,7 @@ Age From
 Aging Columns:
 Alcohol
 Alcohol consumption
+ALEUT
 All
 All Categories
 All Codes
@@ -182,6 +183,9 @@ Allow Email
 Allow email messages?
 Allow Email?
 Allow Encounter Claims
+Allow Health Information Exchange
+Allow Immunization Info Sharing
+Allow Immunization Registry Use
 Allow Mail Message
 Allow SMS
 Allow SMS (text messages)?
@@ -200,6 +204,7 @@ alter
 Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse.  You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices.  In this case the other parameters mentioned above do not apply and will be ignored.  Uploading saves the file but does not yet process its contents -- that is done separately as described below.
 AM
 Amend Existing Note
+American Indian
 AMEX
 Amount
 Amount Charges
@@ -279,6 +284,7 @@ Are patient note titles to be translated?
 Are you prepared to complete a new GCAC issue for this visit?
 Are you sure you want to approve these events?
 Are you sure you want to completely remove this form?
+Are you sure you want to delete this disclosure?
 Are you sure you want to delete this event?
 Are you sure you want to delete this item from the database?
 Are you sure you want to delete this note?
@@ -478,6 +484,7 @@ Calendar UI
 Calendar View
 Call to addForm() goes here.<br>
 Calories
+Cambodian
 CAMOS
 Cancel
 Canceled
@@ -522,6 +529,7 @@ Caucasian
 Cell Phone
 Cell Phone Number
 Central Certification
+Central/South American
 Certificate Authority crt file location cannot be empty
 Certificate Authority key file location cannot be empty
 Certificate User
@@ -622,6 +630,7 @@ Click here to choose a start date
 click here to search
 click here to update priority, category and nickname settings
 Click here to view all.
+Click here to view and graph all vitals.
 Click here to view them all.
 Click on any of the time parts to increase it
 Click Refresh to view all results, or please input search criteria above to view specific results.
@@ -670,6 +679,7 @@ Code Finder
 Code must be two letter lowercase
 Code or symbol to indicate currency
 code type
+Code Types
 Codes
 Coding
 Coding - any encounters (write,wsome optional)
@@ -737,6 +747,7 @@ Contraception
 Contraception Issues
 Contraceptive Complication (specify)
 Contraceptive Method
+Contraceptive Products
 Contraceptive services previously started
 Contraceptives Start
 Control No.
@@ -794,6 +805,7 @@ Crohns Disease
 CSV Export
 CSV File
 CU.MM
+Cuban
 Currency Decimal Places
 Currency Decimal Point Symbol
 Currency Designator
@@ -858,6 +870,7 @@ Date of this order
 Date of this report
 Date of VIS Statement
 Date Ordered
+Date selector
 Date/Appt
 Date/Notes
 Date/Notes of Last
@@ -883,6 +896,7 @@ De Identification process is started and running in background
 De Identified data may not be complete
 De-identification files will be saved in
 DEA
+Deaf
 Debug Information
 Dec
 December
@@ -905,6 +919,7 @@ Default Value
 Default Warehouse
 Default X12 Partner
 Default/Global
+Del
 del
 Delayed Recurrence (> 12 Mo)
 Delete
@@ -932,6 +947,7 @@ Depressed
 Depression
 Description
 description
+Description of the Disclosure
 Description of this procedure or result code
 Description Translation
 Destination
@@ -945,6 +961,7 @@ Developmental abnormality
 Diabetes
 Diag
 Diagnosis
+Diagnosis Code
 Diagnosis must be coded into a linked encounter
 Diagnosis:
 Diagnosis: 
@@ -973,6 +990,10 @@ Discharge
 Discharge From Urethra
 Discharge Right
 Discharge Right:
+Disclosure Info
+Disclosure Type
+Disclosure Types
+Disclosures
 Discount
 Discount Amount
 Discount Level
@@ -995,6 +1016,7 @@ Display today\'s events in the block?
 Display topic in block?
 Display upcoming events in block?
 Displayed Columns
+Displaying the following number of most recent disclosures:
 Displaying the following number of most recent notes:
 Distribution
 Diverticulitis
@@ -1114,6 +1136,7 @@ Edit Categories
 Edit Definitions
 Edit definitions
 Edit Diagnoses for
+Edit Disclosure
 Edit Facilities
 Edit Facility
 Edit Facility Information
@@ -1132,6 +1155,9 @@ Ejaculations
 Elbow
 Elbow Problems
 Electronic Remits
+Eligibility
+Eligibility status for Vaccine for Children supplied vaccine
+Eligible
 Email
 Email Address
 Email address, if any, to receive administrative notifications.
@@ -1256,6 +1282,8 @@ Error, unable to open file
 Error, User Certificate Authentication is not enabled in OpenEMR
 Error. You need to install the Archive/Tar.php php module.
 ERROR: could not open table.sql, broken form?
+Error: duplicated ID on line
+Error: duplicated name on line
 ERROR: Field
 Error: passwords don't match. Please check your typing.
 Error: passwords don\'t match. Please check your typing.
@@ -1263,6 +1291,7 @@ Error: the file does not exist
 Error: Unable to create downloadable archive
 Errors
 Erythema:
+Eskimo
 Established Patient
 Ethnicity or Race
 Ethnicity-Race List (write,addonly optional)
@@ -1362,6 +1391,7 @@ Family History of Glaucoma
 Family History:
 Family Size
 Fancy
+Farsi
 Father
 Fatigue
 Fatigued
@@ -1405,6 +1435,7 @@ File Room
 File to upload
 File with same name already exists at location:
 Filename
+Filipino
 Fill here only if sending email notification to patients
 Fill in the values below
 Filter
@@ -1564,6 +1595,7 @@ Go
 Go to
 Go to week of
 Go Today
+Grade of Injury
 Grade:
 grams
 Grand Total
@@ -1581,6 +1613,8 @@ Groups and Access Controls
 Growth Chart
 Growth-Chart
 gtts(drops)
+Guamanian
+Guardian's Name
 Gynecological Exam
 h
 h.s.
@@ -1593,6 +1627,7 @@ Hand Problems
 Hardship w/o
 has been linked to visit
 has expired
+Hawaiian
 Hazardous activities
 Hazardous Activities
 HCFA left margin in points
@@ -1604,6 +1639,8 @@ Head Circ
 Head Circumference
 Headache
 Headaches
+health care operations
+Health Care Operations
 Health centre/clinic
 Health Maintenance Organization
 Health Maintenance Organization (HMO) Medicare Risk
@@ -1660,6 +1697,8 @@ Hip Replacement
 HIPAA Notice Received
 Hirsutism/Striae
 Hispanic
+Hispanic - Other (Born in US)
+Hispanic - Other (Born outside US)
 History
 History Data
 History Murmur
@@ -1669,6 +1708,7 @@ Hits
 HIV
 HL7 Viewer
 HMOL/L
+Hmong
 Hold down [Ctrl] for multiple selections or to unselect
 Hold down Ctrl to select multiple items
 Hold down Ctrl to select multiple squads
@@ -1756,6 +1796,7 @@ Incontinence
 increased:
 Indemnity Insurance
 Indeterminate
+Indian
 Indicates abnormality
 Indicates if this issue is currently active
 Indicator for specialized usage
@@ -1763,6 +1804,7 @@ Indigent Patients
 Indigent Patients Report
 Indigents
 Induced Abortion
+Ineligible
 Infection / Abscess
 Infections
 Infert Couns
@@ -1781,6 +1823,7 @@ inhilations
 Initial User
 Injectables
 Injection
+Injured Body Part
 Injured Out
 Injury
 Injury Mechanism
@@ -1889,6 +1932,7 @@ Issues and Encounters
 Issues and Encounters for
 Issues not authorized
 Issues Section
+Italian
 Item
 item
 Items load failed
@@ -1897,6 +1941,7 @@ IUD
 IV
 Jan
 January
+Japanese
 Jaundice
 Job Description
 Job ID
@@ -1923,6 +1968,7 @@ Kidney Transplant
 Knee
 Knee Problems
 Knee Replacement
+Korean
 Lab
 Lab Report
 Lab Results
@@ -1942,6 +1988,7 @@ Language Interface Tool
 Language List (write,addonly optional)
 Language Name
 Language:
+Laotian
 Last
 Last Activity Date
 Last Bill Date:
@@ -2053,10 +2100,12 @@ Lungs:
 Lupus
 M
 MA Category
+MA Client Accepting Abortion
 MA Stats
 Main
 Main Address
 Make modifications to current categories.
+Make new appointment for
 Make sure "
 Making batch text files for uploading to Clearing House and will mark as billed
 Malaise:
@@ -2100,6 +2149,8 @@ Medical Problems
 Medical Record
 Medical Record #
 Medical Records
+Medical System
+Medical Type
 Medical/History (write,addonly optional)
 Medicare Part B
 Medicare Referrer Is Renderer
@@ -2126,6 +2177,7 @@ Method
 Method and Specific Product
 Method for sending outgoing email.
 Method of Destruction
+Mexican/MexAmer/Chicano
 mg
 mg/1cc
 mg/2cc
@@ -2136,6 +2188,7 @@ MG/DL
 Middle
 Middle Name
 Middle name
+Mien
 Migrant or seasonal worker?
 Migrant/Seasonal
 Mil/CU.MM
@@ -2180,7 +2233,9 @@ Monthly Income
 Months
 More than 100 records found. Please narrow your search criteria.
 More than 50 results, please make your search more specific.
+Most recent vitals from:
 Mother
+Mother's Name
 Mouth
 Move
 Move Document to Category:
@@ -2194,6 +2249,7 @@ Ms.
 Multi Language Tool
 Multiple areas
 Multiple Lots
+Multiracial
 Murmur:
 Musc Ache
 Musc Aches
@@ -2311,6 +2367,7 @@ No matches were found. Create the new patient now?
 No notes
 No ogrganomegoly
 No openings were found for this period.
+No other phone numbers listed
 No Partners Found
 No Patient record found for given Selection criteria
 No Patient record found for the given Re Identification code
@@ -2331,6 +2388,7 @@ No skin dimpling or breast nodules
 No testicular tenderness, masses
 No thrills or heaves
 No visit
+No vitals have been documented.
 No, Cancel
 No:
 Nocturia
@@ -2513,6 +2571,7 @@ Osetoarthritis
 Other
 other
 Other (specify)
+Other - Specified
 Other Federal Program
 Other HCFA
 Other injury not elsewhere specified
@@ -2524,11 +2583,13 @@ Other Pertinent Symptoms:
 Other stress/Over use injury
 Other Surgical
 Other/Generic Abortion-Related
+Others
 otherwise you will destroy references to/from existing data.
 Ottawa Ankle Rules
 OU
 OUT
 Out Of Office
+Outbound Referral
 Outcome
 Outlook
 Overuse
@@ -2539,6 +2600,7 @@ P
 p.c.
 p.m.
 p.r.n.
+Pacific Islander
 Paedeatric
 Page
 Pages
@@ -2758,6 +2820,7 @@ Poor Circulation
 Poor Hearing
 Populate the year view with events?
 Popups
+Portuguese
 Portuguese (Brazilian)
 Portuguese (European)
 POS Code
@@ -2940,8 +3003,10 @@ PT_POSTAL
 PT_STATE
 PT_STREET
 Public
+Puerto Rican
 Pulmonary
 Pulse
+Punjabi
 Purchase
 Purchases
 q.3h
@@ -2982,11 +3047,13 @@ Re Identification
 Re Identification Process is completed
 Re Identification Process is ongoing
 Re-identification files will be saved in
+Re-Injury?
 Re-Open
 Re-opened
 Reactions
 Read
 Real Name
+Really delete
 Reason
 Reason for referral
 Reason for Visit
@@ -3004,11 +3071,17 @@ Receiver ID
 Receiver ID (ISA08)
 Receiver ID Qualifier (ISA07)
 Recent three passwords are not allowed.
+Recipient
+Recipient Name
+Recipient of the Disclosure
 Recommendation
 Recommendations
 Recommendations and treatment
 Recommendations by specialist
+Record
+Record Disclosure
 Record Payment
+records found
 records found.
 Recreational drug use
 Recreational Drugs
@@ -3047,6 +3120,7 @@ Refills
 refills
 Reflexes normal
 Refresh
+Refused To State
 reg_re
 register
 Registered
@@ -3165,6 +3239,7 @@ Sales by Item
 Sales by Product Report
 Saliva
 Same Day
+Samoan
 Sample
 Sanction Type
 Sat
@@ -3413,8 +3488,10 @@ Specialty Systems
 Specialty:
 Specific
 Specific Application
+Specific Contraceptive Service
 Specific Result
 Specific Service
+Specified
 Specifies formatting for codes. # = digit, * = any character. Empty if not used.
 Specifies formatting for invoice reference numbers.  # = digit, * = any character.  Empty if not used.
 Specifies formatting for product NDC fields.  # = digit, * = any character.  Empty if not used.
@@ -3461,7 +3538,9 @@ State/Locality
 State/Parish
 STATEMENT SUMMARY
 statements and updating invoices.
+Statements Sent:
 statements; invoices will not be updated.
+Static Text
 Statistics
 Stats
 Status
@@ -3573,6 +3652,7 @@ T.V.
 Table creation failed
 Table update failed
 tablet
+Tagalog
 Take
 Takes long
 Tax Rate
@@ -3603,6 +3683,7 @@ Tertiary Insurance Data
 Tertiary Insurance provider
 Test Scheduling
 Test System
+Text Diagnosis
 Text field
 Text-date
 text-date
@@ -3612,6 +3693,7 @@ Textbox
 textbox
 Textbox list
 textbox list
+Thai
 Thank You
 Thank you for choosing
 The above statement failed
@@ -3651,6 +3733,7 @@ There are
 There are currently no prescriptions
 There are errors with your submission.  These are outlined below.
 There are no charts checked out.
+There are no disclosures recorded for this patient.
 There are no New Submissions
 There are no notes on file for this patient.
 There are no transactions on file for this patient.
@@ -3678,8 +3761,9 @@ Things that front office can read and modify
 Things that physicians can read and enter but not modify
 Things that physicians can read and modify
 Third
-This action cannot be undone.
 This action CANNOT be undone.
+This action cannot be undone.
+This action will be logged
 This code type does not accept relations.
 This determines how appointments display on the calendar.
 This Encounter
@@ -3694,6 +3778,7 @@ This product allows only one lot per warehouse.
 This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?
 This user is not a member of any group
 This visit begins new contraceptive use
+This visit will need a GCAC form, referral or procedure service.
 This was the older metric-only Vitals form, now deprecated.
 This will create a backup in tar format and then send it to your web browser so you can save it
 Thoracic spine
@@ -3748,6 +3833,7 @@ To Issues
 To link this encounter/consult to an existing issue, click the 
 To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click [Save]. Hold down [Ctrl] button to select multiple issues.
 to login again
+To record disclosures, please click
 to run
 To setup https access with client certificate authentication, do the following
 To Skin
@@ -3787,6 +3873,7 @@ Total for
 Total for category
 Total Number of Issues
 Total Number of Patients
+Total Patient Balance
 Total SRH & Family Planning
 Totals
 Totals for
@@ -3798,6 +3885,7 @@ transaction
 Transaction failed, insufficient quantity in destination lot
 Transaction failed, quantity is less than zero
 Transaction Type
+transactions
 Transactions
 Transactions (write optional)
 Transactions/Referrals
@@ -3814,10 +3902,12 @@ translate this
 Translation
 Translations
 Trauma
+Treatment
 Treatment Goals
 Treatment Plan
 Treatment:
 Treatment: 
+Trend
 trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) );             $month_value
 Trigger point / compartment syndrome / DOMS / cramp
 Trimalleolar
@@ -3829,10 +3919,12 @@ Tue
 Tues &amp; Thur
 Tuesday
 Tumour
+Turkish
 twice daily
 Tympanic Membrane
 Type
 Type of columns displayed for patient search results
+Type of Disclosure
 Type of Events
 Type of screen layout
 Type or scan the patient identifier here
@@ -3977,6 +4069,8 @@ Vendor
 Version
 Vertigo
 Veterans Administration Plan
+VFC
+Vietnamese
 View
 view
 View Allergies
@@ -4041,6 +4135,7 @@ Wheezing
 Wheezing:
 Where may related scanned or paper documents be found?
 Whiplash
+White
 Who
 Who replied?
 Widowed
@@ -4048,6 +4143,7 @@ Width in pixels of the left navigation frame.
 With selected:
 with the old name
 With whom may we leave a message?
+Withheld
 within hours
 within hours:
 within minutes
@@ -4095,6 +4191,7 @@ YES!
 Yes, Delete and Log
 Yes/No
 Yes:
+Yiddish
 You are about to permanently replace the existing template. Are you sure you wish to continue?
 You are in Grace Login period. Change your password before
 You are not allowed to delete this event
@@ -4155,6 +4252,7 @@ Zero
 Zip
 Zip Code
 Zip/Country:
+Zulu
  but was 
  could not be accessed.
  Do you really want to delete

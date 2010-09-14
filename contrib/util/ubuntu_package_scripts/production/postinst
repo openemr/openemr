@@ -56,12 +56,12 @@ case "$1" in
       TMPDIR=/tmp/openemr-tmp
       WEB=/var/www
       OPENEMR=$WEB/openemr
+      SITEDIR=$OPENEMR/sites/default
       #hardcoded mysql user and database for install (not pertinent for upgrading)
       # upgrading can use whatever is found in openemr/library/sqlconf.php
       INSTALL_USER=openemr
       INSTALL_DATABASE=openemr
       INSTALL_SITE=localhost
-      INSTALL_WEBPATH=/openemr
       #php and apache files
       PHP=/etc/php5/apache2/php.ini
       APACHE=/etc/apache2/httpd.conf
@@ -148,12 +148,12 @@ case "$1" in
          SQLUTFFLAG=$(collect_var sqlutfflag $CONFIG)
 
          #configure openemr/library/sqlconf.php
-         insert_var "\$host" "\'$SQLLOCATION\';" $OPENEMR/library/sqlconf.php
-         insert_var "\$login" "\'$SQLUSER\';" $OPENEMR/library/sqlconf.php
-         insert_var "\$pass" "\'$SQLPASSWORD\';" $OPENEMR/library/sqlconf.php
-         insert_var "\$dbase" "\'$SQLDATABASE\';" $OPENEMR/library/sqlconf.php
-         insert_var "\$disable_utf8_flag" "$SQLUTFFLAG;" $OPENEMR/library/sqlconf.php
-         sed -i "s/^[ 	]*\$config[ 	=].*0/\$config = 1/" $OPENEMR/library/sqlconf.php
+         insert_var "\$host" "\'$SQLLOCATION\';"           $SITEDIR/sqlconf.php
+         insert_var "\$login" "\'$SQLUSER\';"              $SITEDIR/sqlconf.php
+         insert_var "\$pass" "\'$SQLPASSWORD\';"           $SITEDIR/sqlconf.php
+         insert_var "\$dbase" "\'$SQLDATABASE\';"          $SITEDIR/sqlconf.php
+         insert_var "\$disable_utf8_flag" "$SQLUTFFLAG;"   $SITEDIR/sqlconf.php
+         sed -i "s/^[ 	]*\$config[ 	=].*0/\$config = 1/" $SITEDIR/sqlconf.php
 
          #before run scripts, go to openemr directory
          cd $OPENEMR
@@ -170,10 +170,31 @@ case "$1" in
          #upgrade the gacl controls
          php -f $OPENEMR/acl_upgrade.php >> $LOG
 
-         #copy the old config files into new with the OLD at end to allow manual configuration of old
-         # optional settings.  Two files, openemr/interface/globals.php and openemr/includes/config.php
-         cp -f $TMPDIR/openemr_web_$OLD_VERSION/interface/globals.php $OPENEMR/interface/globals.php.OLD
-         cp -f $TMPDIR/openemr_web_$OLD_VERSION/includes/config.php $OPENEMR/includes/config.php.OLD
+         #copy the old config file into new with the OLD at end to allow manual configuration of old
+         # optional settings.
+         if [ -d $TMPDIR/openemr_web_$OLD_VERSION/sites/default ]; then
+           cp -f $TMPDIR/openemr_web_$OLD_VERSION/sites/default/config.php $SITEDIR/config.php.OLD
+         else
+           cp -f $TMPDIR/openemr_web_$OLD_VERSION/includes/config.php $SITEDIR/config.php.OLD
+         fi
+
+         # if site-specific directories are in the old locations, move them.
+         if [ -d $OPENEMR/documents ]; then
+           mv -f  $OPENEMR/documents/* $SITEDIR/documents/
+           rm -rf $OPENEMR/documents
+         fi
+         if [ -d $OPENEMR/era ]; then
+           mv -f  $OPENEMR/era/* $SITEDIR/era/
+           rm -rf $OPENEMR/era
+         fi
+         if [ -d $OPENEMR/edi ]; then
+           mv -f  $OPENEMR/edi/* $SITEDIR/edi/
+           rm -rf $OPENEMR/edi
+         fi
+         if [ -d $OPENEMR/custom/letter_templates ]; then
+           mv -f  $OPENEMR/custom/letter_templates/* $SITEDIR/letter_templates/
+           rm -rf $OPENEMR/custom/letter_templates
+         fi
 
          #upgrade php settings if change or have new recs in future (none yet)
 
@@ -188,11 +209,11 @@ case "$1" in
          chmod 600 $OPENEMR/gacl/setup.php
 
          #set writable directories
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/documents 
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/edi 
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/era 
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/library/freeb 
-         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/custom/letter_templates 
+         chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents
+         chown -R $WEB_GROUP.$WEB_USER $SITEDIR/edi
+         chown -R $WEB_GROUP.$WEB_USER $SITEDIR/era
+         chown -R $WEB_GROUP.$WEB_USER $OPENEMR/library/freeb
+         chown -R $WEB_GROUP.$WEB_USER $SITEDIR/letter_templates
          chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache 
          chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled 
          chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c 
@@ -215,8 +236,7 @@ case "$1" in
          output_both "OpenEMR upgrade is complete."
          echo ""
          output_both "Recommend setting optional configuration settings in:"
-         output_both "$OPENEMR/interface/globals.php"
-         output_both "$OPENEMR/includes/config.php"
+         output_both "$SITEDIR/config.php"
          output_both "(We have renamed your old configuration files to *.OLD)"
          output_both "(We recommend you delete the *.OLD files when done)"
          echo ""
@@ -302,12 +322,12 @@ case "$1" in
       #INSTALL AND CONFIGURE OPENEMR 
       output_both "Configuring OpenEMR" 
       # Set file and directory permissions 
-      chmod 666 $OPENEMR/library/sqlconf.php 
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/documents 
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/edi 
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/era 
+      chmod 666 $SITEDIR/sqlconf.php
+      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents 
+      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/edi 
+      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/era 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/library/freeb 
-      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/custom/letter_templates 
+      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/letter_templates 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c 
@@ -385,15 +405,15 @@ case "$1" in
          # Second, append information to secure selected directories in OpenEMR
          echo "#This is the start of the Apache configuration for OpenEMR." >> $APACHE
          echo "#Below will secure directories with patient information." >> $APACHE
-         echo "<Directory \"/var/www/openemr/documents\">" >> $APACHE
+         echo "<Directory \"$SITEDIR/documents\">" >> $APACHE
          echo " order deny,allow" >> $APACHE
          echo " Deny from all" >> $APACHE
          echo "</Directory>" >> $APACHE
-         echo "<Directory \"/var/www/openemr/edi\">" >> $APACHE
+         echo "<Directory \"$SITEDIR/edi\">" >> $APACHE
          echo " order deny,allow" >> $APACHE
          echo " Deny from all" >> $APACHE
          echo "</Directory>" >> $APACHE
-         echo "<Directory \"/var/www/openemr/era\">" >> $APACHE
+         echo "<Directory \"$SITEDIR/era\">" >> $APACHE
          echo " order deny,allow" >> $APACHE
          echo " Deny from all" >> $APACHE
          echo "</Directory>" >> $APACHE
@@ -409,15 +429,15 @@ case "$1" in
          output_both "We recommend placing below lines into your apache configuration file:"
          output_both "#This is the start of the Apache configuration for OpenEMR."
          output_both "#Below will secure directories with patient information."
-         output_both "<Directory \"/var/www/openemr/documents\">"
+         output_both "<Directory \"$SITEDIR/documents\">"
          output_both " order deny,allow"
          output_both " Deny from all"
          output_both "</Directory>"
-         output_both "<Directory \"/var/www/openemr/edi\">"
+         output_both "<Directory \"$SITEDIR/edi\">"
          output_both " order deny,allow"
          output_both " Deny from all"
          output_both "</Directory>"
-         output_both "<Directory \"/var/www/openemr/era\">"
+         output_both "<Directory \"$SITEDIR/era\">"
          output_both " order deny,allow"
          output_both " Deny from all"
          output_both "</Directory>"

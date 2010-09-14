@@ -115,7 +115,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   if (empty($units)) $units = 1;
   $units = max(1, intval($units));
   // We put unit price on the screen, not the total line item fee.
-  $price = sprintf('%01.2f', $fee / $units);
+  $price = $fee / $units;
   $strike1 = ($id && $del) ? "<strike>" : "";
   $strike2 = ($id && $del) ? "</strike>" : "";
   echo " <tr>\n";
@@ -263,7 +263,7 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
   if (empty($units)) $units = 1;
   $units = max(1, intval($units));
   // We put unit price on the screen, not the total line item fee.
-  $price = sprintf('%01.2f', $fee / $units);
+  $price = $fee / $units;
   $strike1 = ($sale_id && $del) ? "<strike>" : "";
   $strike2 = ($sale_id && $del) ? "</strike>" : "";
   echo " <tr>\n";

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -11,7 +11,7 @@ require_once("../globals.php");
 $patientid = $_REQUEST["patientid"];
 $what      = $_REQUEST["file"];
 
-$patientdir = "$webserver_root/documents/$patientid";
+$patientdir = $GLOBALS['OE_SITE_DIR'] . "/documents/$patientid";
 $imagedir   = "$patientdir/demographics";
 ?>
 <html>

@@ -246,7 +246,7 @@ function genPopupsList($style='') {
 <?php } else { ?>
  <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
 <?php } ?>
-<?php if (is_dir("$webserver_root/custom/letter_templates")) { ?>
+<?php if (is_dir($GLOBALS['OE_SITE_DIR'] . "/letter_templates")) { ?>
  <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
 <?php } ?>
 </select>
@@ -548,7 +548,7 @@ function goHome() {
  // of the frame that the call came from, so we know to only reload content
  // from the *other* frame if it is patient-specific.
  function setPatient(pname, pid, pubpid, frname, str_dob) {
-  var str = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentPatientFromTitle()"><b>' + pname + ' (' + pubpid + ')</b></a>';
+  var str = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentPatientFromTitle()" title="PID = ' + pid + '"><b>' + pname + ' (' + pubpid + ')</b></a>';
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
   if (pid == active_pid) return;
