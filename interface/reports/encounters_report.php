@@ -45,6 +45,7 @@ $form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_provider  = $_POST['form_provider'];
 $form_facility  = $_POST['form_facility'];
 $form_details   = $_POST['form_details'] ? true : false;
+$form_new_patients = $_POST['form_new_patients'] ? true : false;
 
 $form_orderby = $ORDERHASH[$_REQUEST['form_orderby']] ?
   $_REQUEST['form_orderby'] : 'doctor';
@@ -71,6 +72,9 @@ if ($form_provider) {
 }
 if ($form_facility) {
   $query .= "AND fe.facility_id = '$form_facility' ";
+}
+if ($form_new_patients) {
+  $query .= "AND fe.date = (SELECT MIN(fe2.date) FROM form_encounter AS fe2 WHERE fe2.pid = fe.pid) ";
 }
 $query .= "ORDER BY $orderby";
 
@@ -190,7 +194,9 @@ $res = sqlStatement($query);
 
 				?>
 			</td>
-			<td>&nbsp;
+			<td>
+        <input type='checkbox' name='form_new_patients' title='First-time visits only'<?php  if ($form_new_patients) echo ' checked'; ?>>
+        <?php  xl('New','e'); ?>
 			</td>
 		</tr>
 		<tr>
