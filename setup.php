@@ -455,7 +455,13 @@ if ($upgrade != 1) {
       array_push($dumpfiles, $manualPath . "sql/ippf_layout.sql");
       array_push($dumpfilesTitles, "IPPF Layout");
     }
-    
+
+    // Load ICD-9 codes if present.
+    if (file_exists("sql/icd9.sql")) {
+      array_push($dumpfiles, $manualPath . "sql/icd9.sql");
+      array_push($dumpfilesTitles, "ICD-9");
+    }
+
     $dumpfileCounter = 0;
     foreach ($dumpfiles as $var) {
         echo "Creating ".$dumpfilesTitles[$dumpfileCounter]." tables...\n";
