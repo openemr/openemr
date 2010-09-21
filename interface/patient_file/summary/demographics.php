@@ -17,10 +17,12 @@ $fake_register_globals=false;
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/classes/Address.class.php");
  require_once("$srcdir/classes/InsuranceCompany.class.php");
+ require_once("$srcdir/classes/Document.class.php");
  require_once("./patient_picture.php");
  require_once("$srcdir/options.inc.php");
  require_once("../history/history.inc.php");
  require_once("$srcdir/formatting.inc.php");
+
   if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
@@ -180,7 +182,7 @@ $(document).ready(function(){
 		'showCloseButton' : true,
 		'frameHeight' : 600,
 		'frameWidth' : 1000,
-        'centerOnScroll' : false
+                'centerOnScroll' : false
 	});
 
     // special size for
@@ -189,7 +191,15 @@ $(document).ready(function(){
 		'showCloseButton' : true,
 		'frameHeight' : 500,
 		'frameWidth' : 800,
-        'centerOnScroll' : false
+                'centerOnScroll' : false
+	});
+
+        // special size for
+	$(".image_view_modal").fancybox( {
+		'overlayOpacity' : 0.0,
+		'showCloseButton' : true,
+                'centerOnScroll' : false,
+                'autoScale' : true
 	});
 
 });
@@ -272,10 +282,11 @@ if ($GLOBALS['patient_id_category_name']) {
 <a href="../history/history.php" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
 |
-<a href="../report/patient_report.php" class='iframe  medium_modal' onclick='top.restoreSession()'>
+<?php //note that we have temporarily removed report screen from the modal view ?>
+<a href="../report/patient_report.php" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
 |
-<?php //note that we have temporarily removed document screen from the modul view ?>
+<?php //note that we have temporarily removed document screen from the modal view ?>
 <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
 |
@@ -588,8 +599,28 @@ if ($GLOBALS['patient_id_category_name']) {
     <tr>
     <td>
     <?php
-    if ($GLOBALS['advance_directives_warning']) { ?>
-	<?php // advance directives expand collapse widget
+            // If there is a patient ID card, then show a link to it.
+ 	if ($document_id) {
+            $docobj = new Document($document_id);
+            $image_file = $docobj->get_url_file();
+            // File ends in .pdf
+            if (preg_match('/\.pdf$/i',$image_file)) {
+                echo "<a href='" . $web_root . "/controller.php?document&retrieve" .
+                     "&patient_id=$pid&document_id=$document_id'" .
+                    " onclick='top.restoreSession()'>" .
+                    xl("Click for ID card") . "</a><br />";
+            } else {
+                // image file type(s) std list png, jpg, etc...
+                echo "<a href='" . $web_root . "/sites/" . $_SESSION['site_id'] .
+                     "/documents/$pid/$image_file'" .
+                " onclick='top.restoreSession()' class='iframe image_view_modal'>" .
+                    xl("Click to View ID card") . "</a><br />";
+            }
+ 	}
+
+    // Advance Directives
+    if ($GLOBALS['advance_directives_warning']) {
+	// advance directives expand collapse widget
 	$widgetTitle = xl("Advance Directives");
 	$widgetLabel = "directives";
 	$widgetButtonLabel = xl("Edit");
@@ -599,8 +630,7 @@ if ($GLOBALS['patient_id_category_name']) {
 	$bodyClass = "summary_item small";
 	$widgetAuth = true;
 	$fixedWidth = false;
-	expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
-		<?php
+	expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
           $counterFlag = false; //flag to record whether any categories contain ad records
           $query = "SELECT id FROM categories WHERE name='Advance Directive'";
           $myrow2 = sqlQuery($query);
@@ -641,14 +671,14 @@ if ($GLOBALS['patient_id_category_name']) {
               echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'),ENT_NOQUOTES);
           } ?>
       </div>
-      <? } ?>
-	<?php
+ <?php  }  // close advanced dir block
+ 
 	// This is a feature for a specific client.  -- Rod
 	if ($GLOBALS['cene_specific']) {
 	  echo "   <br />\n";
 
-    $imagedir  = $GLOBALS['OE_SITE_DIR'] . "/documents/$pid/demographics";
-    $imagepath = "$web_root/sites/" . $_SESSION['site_id'] . "/documents/$pid/demographics";
+          $imagedir  = $GLOBALS['OE_SITE_DIR'] . "/documents/$pid/demographics";
+          $imagepath = "$web_root/sites/" . $_SESSION['site_id'] . "/documents/$pid/demographics";
 
 	  echo "   <a href='' onclick=\"return sendimage($pid, 'photo');\" " .
 		"title='Click to attach patient image'>\n";
@@ -719,13 +749,6 @@ if ($GLOBALS['patient_id_category_name']) {
 	  echo "   <input type='hidden' name='form_issue_id' value='' />\n";
 	  echo "<p><input type='submit' name='form_submit' value='Change' /></p>\n";
 	  echo "   </form>\n";
-	}
-
-	// If there is a patient ID card, then show a link to it.
-	if ($document_id) {
-	  echo "<a href='" . $web_root . "/controller.php?document&retrieve" .
-		"&patient_id=$pid&document_id=$document_id' style='color:#00cc00' " .
-		"onclick='top.restoreSession()'>Click for ID card</a><br />";
 	}
 
 	// Show current and upcoming appointments.

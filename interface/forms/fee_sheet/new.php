@@ -686,6 +686,7 @@ endFSCategory();
 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'superbill' ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
+  global $code_types;
   ++$i;
   echo ($i <= 1) ? " <tr>\n" : "";
   echo "  <td width='50%' align='center' nowrap>\n";
@@ -695,7 +696,9 @@ while ($prow = sqlFetchArray($pres)) {
     "WHERE superbill = '" . $prow['option_id'] . "' AND active = 1 " .
     "ORDER BY code_text");
   while ($row = sqlFetchArray($res)) {
-    echo "    <option value='" . alphaCodeType($row['code_type']) . '|' .
+    $ctkey = alphaCodeType($row['code_type']);
+    if ($code_types[$ctkey]['nofs']) continue;
+    echo "    <option value='$ctkey|" .
       $row['code'] . ':'. $row['modifier']. "|'>" . $row['code_text'] . "</option>\n";
   }
   echo "   </select>\n";

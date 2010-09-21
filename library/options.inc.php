@@ -16,6 +16,17 @@
 //   $GLOBALS['translate_lists'] and $GLOBALS['translate_layout']
 //   flags in globals.php
 
+// Documentation for layout_options.edit_options:
+//
+// C = Capitalize first letter of each word (text fields)
+// D = Check for duplicates in New Patient form
+// H = Read-only field copied from static history
+// N = Show in New Patient form
+// O = Procedure Order ("pro_*") types only (address book)
+// U = Capitalize all letters (text fields)
+// V = Vendor types only (address book)
+// 1 = Write Once (not editable when not empty) (text fields)
+
 require_once("formdata.inc.php");
 require_once("formatting.inc.php");
 require_once("user.inc");
@@ -138,6 +149,8 @@ function generate_form_field($frow, $currvalue) {
       echo " onkeyup='maskkeyup(this,\"$tmp\")'";
       echo " onblur='maskblur(this,\"$tmp\")'";
     }
+    if (strpos($frow['edit_options'], '1') !== FALSE && strlen($currescaped) > 0)
+      echo " readonly";
     echo " />";
   }
 
