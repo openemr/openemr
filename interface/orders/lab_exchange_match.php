@@ -51,7 +51,7 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
         if ($gender =="F") $sex = "Female";
         if ($gender =="M") $sex = "Male";
         if ($where != "") $where .= "AND ";
-        $where .= "sex = '".add_escape_custom($sex)."' " ;
+        $where .= "(sex = '".add_escape_custom($sex)."' OR sex = '" . add_escape_custom($gender) ."')" ;
     }
     
     if ($ssn != ""){
