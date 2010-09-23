@@ -1,3 +1,9 @@
+cvs-openemr (1.0.0-5) stable; urgency=low
+
+  * change in directory architecture
+
+ -- Brady Miller <brady@sparmy.com>  Wed, 22 Sep 2010 22:22:56 -0700
+
 cvs-openemr (1.0.0-4) stable; urgency=low
 
   * minor bug fixes
