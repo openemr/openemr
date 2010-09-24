@@ -470,6 +470,10 @@ function calctotal() {
  </tr>
 
 <?php
+  if (!$INTEGRATED_AR) {
+
+  // SQL-Ledger does not include unbilled encounters, so list them here.
+
   $encs = array();
 
   // Get the unbilled service charges and payments by encounter for this patient.
@@ -564,18 +568,20 @@ function calctotal() {
 
   // Now list previously billed visits.
 
+  } // end if (!$INTEGRATED_AR)
+
   if ($INTEGRATED_AR) {
     $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
       "f.last_level_billed, f.last_level_closed, f.stmt_count, " .
       "p.fname, p.mname, p.lname, p.pubpid, p.genericname2, p.genericval2, " .
       "( SELECT SUM(s.fee) FROM drug_sales AS s WHERE " .
-      "s.pid = f.pid AND s.encounter = f.encounter AND s.billed != 0 ) AS sales, " .
+      "s.pid = f.pid AND s.encounter = f.encounter ) AS sales, " .
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
-      "b.activity = 1 AND b.code_type != 'COPAY' AND b.billed != 0 ) AS charges, " .
+      "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
-      "b.activity = 1 AND b.code_type = 'COPAY' AND b.billed != 0 ) AS copays, " .
+      "b.activity = 1 AND b.code_type = 'COPAY' ) AS copays, " .
       "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
       "a.pid = f.pid AND a.encounter = f.encounter AND " .
       "a.payer_type = 0 ) AS ptpaid, " .
@@ -595,28 +601,56 @@ function calctotal() {
 
     $ires = sqlStatement($query);
     $num_invoices = mysql_num_rows($ires);
+    $gottoday = false;
 
     while ($irow = sqlFetchArray($ires)) {
       $balance = $irow['charges'] + $irow['sales'] + $irow['copays']
         - $irow['ptpaid'] - $irow['inspaid'] - $irow['adjustments'];
-      if (!$balance) continue;
 
       $patient_id = $irow['pid'];
       $enc = $irow['encounter'];
       $svcdate = substr($irow['date'], 0, 10);
-      $duncount = $irow['stmt_count'];
-      if (! $duncount) {
-        for ($i = 1; $i <= 3 && arGetPayerID($irow['pid'], $irow['date'], $i); ++$i) ;
-        $duncount = $irow['last_level_closed'] + 1 - $i;
+
+      $insarr = getEffectiveInsurances($patient_id, $svcdate);
+      if ($irow['last_level_closed'] < count($insarr) && $irow['stmt_count'] == 0) {
+        // It's out to insurance so only the co-pay might be due
+        $duept = $insarr[0]['copay'] + $irow['copays'] - $irow['ptpaid'];
+        if ($duept < 0) $duept = 0; // no credit when still out to insurance.
+      }
+      else {
+        // not out to insurance, everything is due
+        if (sprintf("%.2f", $balance) == 0.00) continue;
+        $duept = $balance;
       }
 
       $inspaid = $irow['inspaid'] + $irow['adjustments'];
       $ptpaid  = $irow['ptpaid'] - $irow['copays'];
-      $duept   = ($duncount < 0) ? 0 : $balance;
 
-      echoLine("form_bpay[$enc]", $svcdate, $irow['charges'] + $irow['sales'],
+      // Without SQL-Ledger it doesn't much matter if we post as a co-pay to
+      // billing (form_upay) or as a pt payment to ar_activity (form_bpay).
+      // For consistency with other areas we do the former only if the visit
+      // is for today.
+      $dispdate = $svcdate;
+      $iname = "form_bpay[$enc]";
+      if (strcmp($dispdate, $today) == 0) {
+        if (!$gottoday) $dispdate = xl('Today');
+        $iname = "form_upay[$enc]";
+        $gottoday = true;
+      }
+
+      echoLine($iname, $dispdate, $irow['charges'] + $irow['sales'],
         $ptpaid, $inspaid, $duept);
     }
+
+    // If no billing was entered yet for today, then generate a line for
+    // entering today's co-pay.
+    //
+    if (! $gottoday) {
+      $inscopay = getCopay($pid, $today);
+      $duept = ($inscopay >= 0) ? $inscopay : 0;
+      echoLine("form_upay[0]", xl('Today'), 0, 0, 0, $duept);
+    }
+
   } // end $INTEGRATED_AR
   else {
     // Query for all open invoices.

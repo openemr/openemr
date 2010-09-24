@@ -1494,17 +1494,55 @@ function DBToDate ($date)
     return $date;
 }
 
+function getEffectiveInsurances($patient_id, $encdate) {
+  $insarr = array();
+  foreach (array('primary','secondary','tertiary') as $instype) {
+    $tmp = sqlQuery("SELECT * FROM insurance_data " .
+      "WHERE pid = '$patient_id' AND type = '$instype' " .
+      "AND date <= '$encdate' ORDER BY date DESC LIMIT 1");
+    if (empty($tmp['provider'])) break;
+    $insarr[] = $tmp;
+  }
+  return $insarr;
+}
+
 function get_patient_balance($pid) {
   if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
-    $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
-      "pid = '$pid' AND activity = 1");
-    $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
-      "pid = '$pid'");
-    $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
-      "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-      "pid = '$pid'");
-    return sprintf('%01.2f', $brow['amount'] + $srow['amount']
-      - $drow['payments'] - $drow['adjustments']);
+    $balance = 0;
+    $feres = sqlStatement("SELECT date, encounter, last_level_billed, " .
+      "last_level_closed, stmt_count " .
+      "FROM form_encounter WHERE pid = '$pid'");
+    while ($ferow = sqlFetchArray($feres)) {
+      $encounter = $ferow['encounter'];
+      $dos = substr($ferow['date'], 0, 10);
+      $insarr = getEffectiveInsurances($pid, $dos);
+      $inscount = count($insarr);
+      if ($ferow['last_level_closed'] < $inscount && $ferow['stmt_count'] == 0) {
+        // It's out to insurance so only the co-pay might be due.
+        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+          "pid = '$pid' AND encounter = '$encounter' AND " .
+          "code_type = 'copay' AND activity = 1");
+        $drow = sqlQuery("SELECT SUM(pay_amount) AS payments " .
+          "FROM ar_activity WHERE " .
+          "pid = '$pid' AND encounter = '$encounter' AND payer_type = 0");
+        $ptbal = $insarr[0]['copay'] - $brow['amount'] - $drow['payments'];
+        if ($ptbal > 0) $balance += $ptbal;
+      }
+      else {
+        // not out to insurance, everything is due
+        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+          "pid = '$pid' AND encounter = '$encounter' AND " .
+          "activity = 1");
+        $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
+          "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
+          "pid = '$pid' AND encounter = '$encounter'");
+        $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
+          "pid = '$pid' AND encounter = '$encounter'");
+        $balance += $brow['amount'] + $srow['amount']
+          - $drow['payments'] - $drow['adjustments'];
+      }
+    }
+    return sprintf('%01.2f', $balance);
   }
   else if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
     // require_once($GLOBALS['fileroot'] . "/library/classes/WSWrapper.class.php");
