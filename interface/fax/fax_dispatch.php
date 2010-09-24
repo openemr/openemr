@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -720,23 +720,29 @@ while ($urow = sqlFetchArray($ures)) {
 <?php
 $dh = opendir($faxcache);
 if (! $dh) die("Cannot read $faxcache");
-$page = 0;
+$jpgarray = array();
 while (false !== ($jfname = readdir($dh))) {
   if (preg_match("/^(.*)\.jpg/", $jfname, $matches)) {
-    ++$page;
-    $jfnamebase = $matches[1];
-    echo " <tr>\n";
-    echo "  <td valign='top'>\n";
-    echo "   <img src='../../faxcache/$mode/$filebase/$jfname' />\n";
-    echo "  </td>\n";
-    echo "  <td align='center' valign='top'>\n";
-    echo "   <input type='checkbox' name='form_images[]' value='$jfnamebase' checked />\n";
-    echo "   <br />$page\n";
-    echo "  </td>\n";
-    echo " </tr>\n";
+    $jpgarray[$matches[1]] = $jfname;
   }
 }
 closedir($dh);
+// readdir does not read in any particular order, we must therefore sort
+// by filename so the display order matches the original document.
+ksort($jpgarray);
+$page = 0;
+foreach ($jpgarray as $jfnamebase => $jfname) {
+  ++$page;
+  echo " <tr>\n";
+  echo "  <td valign='top'>\n";
+  echo "   <img src='../../faxcache/$mode/$filebase/$jfname' />\n";
+  echo "  </td>\n";
+  echo "  <td align='center' valign='top'>\n";
+  echo "   <input type='checkbox' name='form_images[]' value='$jfnamebase' checked />\n";
+  echo "   <br />$page\n";
+  echo "  </td>\n";
+  echo " </tr>\n";
+}
 ?>
 
 </table>
