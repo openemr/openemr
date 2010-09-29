@@ -25,6 +25,7 @@ class BaseHarness extends PHPUnit_Framework_TestCase
                             'collate'         => 'utf8_general_ci',
                             'openemrBasePath' => '',
                             'openemrWebPath'  => '',
+			    'site'            => 'default',
                             );
         return new Installer( $fixture_cgi, '' );
     }
@@ -40,11 +41,12 @@ class BaseHarness extends PHPUnit_Framework_TestCase
                           );
         $_SERVER['REQUEST_URI'] = '';
         $_SERVER['SERVER_NAME'] = '';
-
+	$_SERVER['HTTP_HOST']   = 'default';
         $ignoreAuth = 1;
 
         $installer = self::get_installer();
         if ( ! $installer->quick_install() ) {
+	  echo "quick_install failed:\n";
           echo $installer->error_message;
           exit;
         }

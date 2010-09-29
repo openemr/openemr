@@ -4,7 +4,6 @@
 
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) );
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/..');
-require_once 'acl.inc';
 
 class Installer
 {
@@ -22,10 +21,14 @@ class Installer
     $this->rootpass  = $cgi_variables['rootpass'];
     $this->dbname    = $cgi_variables['dbname'];
     $this->collate   = $cgi_variables['collate'];
+    $this->site      = $cgi_variables['site'];
     $this->loginhost = 'localhost';
 
+
     $this->manualPath = $manualPath;
-    $this->conffile  = $this->manualPath . 'library/sqlconf.php';
+    $GLOBALS['OE_SITE_DIR'] = $this->manualPath . "sites/" . $this->site;
+    require_once 'acl.inc'; // Have to delay this until after $GLOBALS['OE_SITE_DIR'] is set
+    $this->conffile  =  $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php';
     $this->openemrBasePath = $cgi_variables["openemrBasePath"];
     $this->openemrWebPath = $cgi_variables["openemrWebPath"];
 
@@ -37,7 +40,7 @@ class Installer
 
     $this->error_message = '';
     $this->dbh = false;
-    include_once($this->conffile);
+    require_once($this->conffile);
   }
 
   public function login_is_valid()
@@ -295,7 +298,7 @@ $config = 1; /////////////
     if ( ! $this->write_configuration_file() ) {
       return False;
     }
-    require 'sqlconf.php';
+    require $GLOBALS['OE_SITE_DIR'] . "/sqlconf.php";
     require_once 'translation.inc.php';
     $this->insert_globals();
     return True;
