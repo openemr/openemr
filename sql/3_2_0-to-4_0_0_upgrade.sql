@@ -785,3 +785,7 @@ ALTER TABLE lists
   ADD injury_grade varchar(31) NOT NULL DEFAULT '';
 #EndIf
 
+#IfMissingColumn form_encounter referral_source
+ALTER TABLE form_encounter ADD referral_source varchar(31) NOT NULL DEFAULT '';
+#EndIf
+
