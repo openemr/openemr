@@ -22,10 +22,11 @@ class InstallerTest extends PHPUnit_Framework_TestCase
                                    'port'            => '3306',
                                    'root'            => 'root',
                                    'rootpass'        => 'notapass',
-                                   'dbname'          => 'openemr_test',
+                                   'dbname'          => 'openemr_test_suite',
                                    'collate'         => '',
                                    'openemrBasePath' => '',
                                    'openemrWebPath'  => '',
+				   'site'            => 'default',
                                    );
     $this->manualPath = '';
     $this->installer = new Installer( $this->post_variables, $this->manualPath );
@@ -36,6 +37,13 @@ class InstallerTest extends PHPUnit_Framework_TestCase
     foreach ($this->post_variables as $attribute => $value) {
       $this->assertEquals( $value, $this->installer->$attribute, "fetching $attribute from Installer object" );
     }
+  }
+
+  public function testFilePaths()
+  {
+    $this->assertFileExists( $this->installer->conffile );
+    $this->assertFileExists( $this->installer->gaclSetupScript1 );
+    $this->assertFileExists( $this->installer->gaclSetupScript2 );
   }
 
   /**
@@ -134,6 +142,11 @@ class InstallerTest extends PHPUnit_Framework_TestCase
     $this->assertEquals( TRUE, $this->installer->write_configuration_file(), 'wrote configuration file' );
   }
 
+  public function tearDown()
+  {
+    $installer = $this->installer;
+    $installer->drop_database();
+  }
 }
 
 /*

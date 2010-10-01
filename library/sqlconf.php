@@ -9,6 +9,6 @@
 //  Needed by sql.inc
 
 // Database parameters are now site-specific.
-// $GLOBALS['OE_SITE_DIR'] is set in globals.php.
+// $GLOBALS['OE_SITE_DIR'] is set in interface/globals.php.
 require_once $GLOBALS['OE_SITE_DIR'] . "/sqlconf.php";
 ?>
