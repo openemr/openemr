@@ -434,6 +434,13 @@ $GLOBALS_METADATA = array(
       xl('Discounts at checkout time are entered as money amounts, as opposed to percentage.')
     ),
 
+    'gbl_visit_referral_source' => array(
+      xl('Referral Source for Encounters'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('A referral source may be specified for each visit.')
+    ),
+
     'gbl_mask_patient_id' => array(
       xl('Mask for Patient IDs'),
       'text',                           // data type

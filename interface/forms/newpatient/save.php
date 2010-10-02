@@ -28,6 +28,7 @@ $pc_catid    = $_POST['pc_catid'];
 $facility_id = $_POST['facility_id'];
 $reason      = $_POST['reason'];
 $mode        = $_POST['mode'];
+$referral_source = $_POST['form_referral_source'];
 
 if ($GLOBALS['concurrent_layout'])
   $normalurl = "$rootdir/patient_file/encounter/encounter_top.php";
@@ -48,6 +49,7 @@ if ($mode == 'new')
       "pc_catid = '$pc_catid', " .
       "facility_id = '$facility_id', " .
       "sensitivity = '$sensitivity', " .
+      "referral_source = '$referral_source', " .
       "pid = '$pid', " .
       "encounter = '$encounter', " .
       "provider_id = '$provider_id'"),
@@ -70,7 +72,8 @@ else if ($mode == 'update')
     "reason = '$reason', " .
     "pc_catid = '$pc_catid', " .
     "facility_id = '$facility_id', " .
-    "sensitivity = '$sensitivity' " .
+    "sensitivity = '$sensitivity', " .
+    "referral_source = '$referral_source' " .
     "WHERE id = '$id'");
 }
 else {
