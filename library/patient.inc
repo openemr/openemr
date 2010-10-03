@@ -1525,7 +1525,7 @@ function get_patient_balance($pid) {
         $drow = sqlQuery("SELECT SUM(pay_amount) AS payments " .
           "FROM ar_activity WHERE " .
           "pid = '$pid' AND encounter = '$encounter' AND payer_type = 0");
-        $ptbal = $insarr[0]['copay'] - $brow['amount'] - $drow['payments'];
+        $ptbal = $insarr[0]['copay'] + $brow['amount'] - $drow['payments'];
         if ($ptbal > 0) $balance += $ptbal;
       }
       else {
