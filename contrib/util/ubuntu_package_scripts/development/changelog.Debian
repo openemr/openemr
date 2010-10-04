@@ -1,3 +1,9 @@
+cvs-openemr (1.0.0-6) stable; urgency=low
+
+  * start utilizing the InstallerAuto class
+
+ -- Brady Miller <brady@sparmy.com>  Mon, 04 Oct 2010 02:38:33 -0700
+
 cvs-openemr (1.0.0-5) stable; urgency=low
 
   * change in directory architecture

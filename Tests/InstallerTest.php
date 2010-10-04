@@ -19,17 +19,15 @@ class InstallerTest extends PHPUnit_Framework_TestCase
                                    'igroup'          => 'initialgroup',
                                    'pass'            => 'validpassword',
                                    'server'          => 'localhost',
+                                   'loginhost'       => 'localhost',
                                    'port'            => '3306',
                                    'root'            => 'root',
                                    'rootpass'        => 'notapass',
                                    'dbname'          => 'openemr_test_suite',
                                    'collate'         => '',
-                                   'openemrBasePath' => '',
-                                   'openemrWebPath'  => '',
 				   'site'            => 'default',
                                    );
-    $this->manualPath = '';
-    $this->installer = new Installer( $this->post_variables, $this->manualPath );
+    $this->installer = new Installer( $this->post_variables );
   }
 
   public function testAttributes()
@@ -53,7 +51,7 @@ class InstallerTest extends PHPUnit_Framework_TestCase
   {
     $post_variables = $this->post_variables;
     $post_variables['login'] = $login;
-    $installer = new Installer( $post_variables, $this->manualPath );
+    $installer = new Installer( $post_variables );
     $this->assertEquals($expected_return, $installer->login_is_valid(), "testing login: '$login'" );
   }
 
@@ -73,7 +71,7 @@ class InstallerTest extends PHPUnit_Framework_TestCase
   {
     $post_variables = $this->post_variables;
     $post_variables['iuser'] = 'initial user';
-    $installer = new Installer( $post_variables, $this->manualPath );
+    $installer = new Installer( $post_variables );
 
     $this->assertEquals(FALSE, $installer->iuser_is_valid());
   }
@@ -87,7 +85,7 @@ class InstallerTest extends PHPUnit_Framework_TestCase
   {
     $post_variables = $this->post_variables;
     $post_variables['pass'] = '';
-    $installer = new Installer( $post_variables, $this->manualPath );
+    $installer = new Installer( $post_variables );
 
     $this->assertEquals(FALSE, $installer->password_is_valid());
   }

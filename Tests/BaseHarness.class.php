@@ -18,16 +18,15 @@ class BaseHarness extends PHPUnit_Framework_TestCase
                             'igroup'          => 'test_igroup',
                             'pass'            => 'test_pass',
                             'server'          => 'localhost',
-                            'port'            => '',
+                            'loginhost'       => 'localhost',
+                            'port'            => '3306',
                             'root'            => 'root',
                             'rootpass'        => getenv('EMR_ROOT_DATABASE_PASSWORD'),
                             'dbname'          => 'openemr_test_suite',
                             'collate'         => 'utf8_general_ci',
-                            'openemrBasePath' => '',
-                            'openemrWebPath'  => '',
 			    'site'            => 'default',
                             );
-        return new Installer( $fixture_cgi, '' );
+        return new Installer( $fixture_cgi );
     }
 
 

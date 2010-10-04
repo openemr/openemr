@@ -3,6 +3,7 @@
 //  MySQL Config
 //  Referenced from /library/sqlconf.php.
 
+global $disable_utf8_flag;
 $disable_utf8_flag = false;
 
 $host	= 'localhost';
@@ -12,6 +13,7 @@ $pass	= 'openemr';
 $dbase	= 'openemr';
 
 $sqlconf = array();
+global $sqlconf;
 $sqlconf["host"]= $host;
 $sqlconf["port"] = $port;
 $sqlconf["login"] = $login;

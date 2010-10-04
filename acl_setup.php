@@ -30,11 +30,11 @@
  // On 06/2009, added pertinent comments below each entry to allow capture
  //  of these terms by the translation engine.
 
- include_once('library/acl.inc');
+ require_once(dirname(__FILE__).'/library/acl.inc');
 
  if (! $phpgacl_location) die("You must first set up library/acl.inc to use phpGACL!");
 
- include_once("$phpgacl_location/gacl_api.class.php");
+ require_once("$phpgacl_location/gacl_api.class.php");
 
  $gacl = new gacl_api();
 

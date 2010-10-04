@@ -511,7 +511,7 @@ if (!isset($phpgacl_location)) {
 
 <body class="body_top">
  <span class='title'><?php xl('Access Control List Administration','e'); ?></span>&nbsp;
- <?php if ($phpgacl_location == ($GLOBALS['fileroot']."/gacl")) {
+ <?php if ($phpgacl_location) {
   echo "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><span class='back'>(" . xl('Advanced') . ")</span></a>";
  } ?>
  <br><br>	

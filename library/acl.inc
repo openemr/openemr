@@ -5,29 +5,19 @@
 // for users who are using an external version of php-GACL.
 // Also note that php-GACL access controls can be turned off
 // below.
- if (isset ($GLOBALS['fileroot'])) {
-  //normal use during OpenEMR
-  $phpgacl_location = $GLOBALS['fileroot'] . "/gacl";
- }
- else {  
-  //special case during OpenEMR and php-GACL install/upgrade scripts,
-  //which are run from main OpenEMR directory.
-  $phpgacl_location = "gacl";
- }
- if (isset ($GLOBALS['phpmyadmin_acl_check'])) {
-   //use for phpmyadmin acl check (ie. no globals.php is included)
-   $phpgacl_location = "../gacl";
- }
+
+  $phpgacl_location = dirname(__FILE__).'/../gacl';
+
 //
 // If using an external version of phpGACL, then uncomment the following
 // line and manually place the path below.  IN THIS CASE YOU MUST ALSO
-// COMMENT OUT ALL THREE $phpgacl_location ASSIGNMENTS ABOVE, OR BACKUPS WILL
+// COMMENT OUT ABOVB $phpgacl_location ASSIGNMENT ABOVE, OR BACKUPS WILL
 // NOT RESTORE PROPERLY!
 //
 //$phpgacl_location = "/var/www/gacl";
 //
 // If you want to turn off php-GACL, then uncomment the following line.
-// IN THIS CASE YOU MUST ALSO COMMENT OUT ALL $phpgacl_location ASSIGNMENTS
+// IN THIS CASE YOU MUST ALSO COMMENT OUT ABOVE $phpgacl_location ASSIGNMENT(S)
 // ABOVE, OR BACKUPS WILL NOT RESTORE PROPERLY!
 //
 //unset($phpgacl_location);
@@ -414,7 +404,7 @@
 	if (empty($arr_group_titles)) break;
       }
     }
-   return;
+   return true;
   }
 
   //

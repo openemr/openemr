@@ -2,45 +2,44 @@
 /* Copyright © 2010 by Andrew Moore */
 /* Licensing information appears at the end of this file. */
 
-set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) );
-set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/..');
-
 class Installer
 {
 
-  public function __construct( $cgi_variables, $manualPath )
+  public function __construct( $cgi_variables )
   {
-    $this->login     = $cgi_variables['login'];
+    // Installation variables
     $this->iuser     = $cgi_variables['iuser'];
     $this->iuname    = $cgi_variables['iuname'];
     $this->igroup    = $cgi_variables['igroup'];
-    $this->pass      = $cgi_variables['pass'];
-    $this->server    = $cgi_variables['server'];
+    $this->server    = $cgi_variables['server']; // mysql server (usually localhost)
+    $this->loginhost = $cgi_variables['loginhost']; // php/apache server (usually localhost)
     $this->port      = $cgi_variables['port'];
     $this->root      = $cgi_variables['root'];
     $this->rootpass  = $cgi_variables['rootpass'];
+    $this->login     = $cgi_variables['login'];
+    $this->pass      = $cgi_variables['pass'];
     $this->dbname    = $cgi_variables['dbname'];
     $this->collate   = $cgi_variables['collate'];
     $this->site      = $cgi_variables['site'];
-    $this->loginhost = 'localhost';
-
-
-    $this->manualPath = $manualPath;
-    $GLOBALS['OE_SITE_DIR'] = $this->manualPath . "sites/" . $this->site;
-    require_once 'acl.inc'; // Have to delay this until after $GLOBALS['OE_SITE_DIR'] is set
-    $this->conffile  =  $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php';
-    $this->openemrBasePath = $cgi_variables["openemrBasePath"];
-    $this->openemrWebPath = $cgi_variables["openemrWebPath"];
-
-    $this->gaclSetupScript1 = $this->manualPath . "gacl/setup.php";
-    $this->gaclSetupScript2 = $this->manualPath . "acl_setup.php";
 
     // Make this true for IPPF.
     $this->ippf_specific = false;
 
+    // Record name of sql access file
+    $GLOBALS['OE_SITE_DIR'] = dirname(__FILE__) . '/../../sites/' . $this->site;
+    $this->conffile  =  $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php';
+
+    // Record names of sql table files
+    $this->main_sql = dirname(__FILE__) . '/../../sql/database.sql';
+    $this->translation_sql = dirname(__FILE__) . '/../../contrib/util/language_translations/currentLanguage_utf8.sql';
+    $this->ippf_sql = dirname(__FILE__) . "/../../sql/ippf_layout.sql";
+
+    // Record name of php-gacl installation files
+    $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
+    $this->gaclSetupScript2 = dirname(__FILE__) . "/../../acl_setup.php";
+
     $this->error_message = '';
     $this->dbh = false;
-    require_once($this->conffile);
   }
 
   public function login_is_valid()
@@ -72,7 +71,7 @@ class Installer
 
   public function root_database_connection()
   {
-    $this->dbh = $this->connect_to_database( $this->server, $this->root, $this->rootpass );
+    $this->dbh = $this->connect_to_database( $this->server, $this->root, $this->rootpass, $this->port );
     if ( $this->dbh ) {
       return $this->dbh;
     } else {
@@ -83,7 +82,7 @@ class Installer
 
   public function user_database_connection()
   {
-    $this->dbh = $this->connect_to_database( $this->server, $this->login, $this->pass );
+    $this->dbh = $this->connect_to_database( $this->server, $this->login, $this->pass, $this->port );
     if ( ! $this->dbh ) {
       $this->error_message = "unable to connect to database as user: '$this->login'";
       return FALSE;
@@ -190,10 +189,12 @@ class Installer
     fwrite($fd,"\$dbase\t= '$this->dbname';\n\n") or $it_died++;
     fwrite($fd,"//Added ability to disable\n") or $it_died++;
     fwrite($fd,"//utf8 encoding - bm 05-2009\n") or $it_died++;
+    fwrite($fd,"global \$disable_utf8_flag;\n") or $it_died++;
     fwrite($fd,"\$disable_utf8_flag = false;\n") or $it_died++;
 
 $string = '
 $sqlconf = array();
+global $sqlconf;
 $sqlconf["host"]= $host;
 $sqlconf["port"] = $port;
 $sqlconf["login"] = $login;
@@ -211,20 +212,21 @@ $config = 1; /////////////
 ';
 ?><?php // done just for coloring
 
-      fwrite($fd,$string) or $it_died++;
+    fwrite($fd,$string) or $it_died++;
+    fclose($fd) or $it_died++;
 
-//it's rather irresponsible to not report errors when writing this file.
- if ($it_died != 0) {
-   $this->error_message = "ERROR. Couldn't write $it_died lines to config file '$this->conffile'.\n";
-   return FALSE;
- }
- fclose($fd);
+    //it's rather irresponsible to not report errors when writing this file.
+    if ($it_died != 0) {
+      $this->error_message = "ERROR. Couldn't write $it_died lines to config file '$this->conffile'.\n";
+      return FALSE;
+    }
 
- return TRUE;
+    return TRUE;
   }
 
   public function insert_globals() {
-    require_once("library/globals.inc.php");
+    function xl($s) { return $s; }
+    require(dirname(__FILE__) . '/../globals.inc.php');
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       foreach ($grparr as $fldid => $fldarr) {
         list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
@@ -238,6 +240,7 @@ $config = 1; /////////////
         }
       }
     }
+    return TRUE;
   }
 
   public function install_gacl()
@@ -253,8 +256,8 @@ $config = 1; /////////////
       $this->error_message = "install_gacl failed: unable to require gacl script 2";
       return FALSE;
     }
-    // return TRUE;
-    return $install_results_1 . $install_results_2;;
+    $this->debug_message .= $install_results_1 . $install_results_2;
+    return TRUE;
   }
 
   public function configure_gacl()
@@ -288,8 +291,7 @@ $config = 1; /////////////
     if ( ! $this->user_database_connection() ) {
       return False;
     }
-    $dump_results = $this->load_dumpfiles();
-    if (! $dump_results ) {
+    if (! $this->load_dumpfiles() ) {
       return False;
     }
     if ( ! $this->add_initial_user() ) {
@@ -298,9 +300,16 @@ $config = 1; /////////////
     if ( ! $this->write_configuration_file() ) {
       return False;
     }
-    require $GLOBALS['OE_SITE_DIR'] . "/sqlconf.php";
-    require_once 'translation.inc.php';
-    $this->insert_globals();
+    if ( ! $this->insert_globals() ) {
+      return False;
+    }
+    if ( ! $this->install_gacl()) {
+      return False;
+    }
+    if ( ! $this->configure_gacl()) {
+      return False;
+    }
+
     return True;
   }
 
@@ -318,7 +327,7 @@ $config = 1; /////////////
     }
   }
 
-  private function connect_to_database( $server, $user, $password, $port='3306' )
+  private function connect_to_database( $server, $user, $password, $port )
   {
     if ($server == "localhost")
       $dbh = mysql_connect($server, $user, $password);
@@ -339,10 +348,10 @@ $config = 1; /////////////
   // including the correct translation dumpfile
   // The keys are the paths of the dumpfiles, and the values are the titles
   private function dumpfiles() {
-    $dumpfiles = array( $this->manualPath."sql/database.sql" => 'Main',
-                        $this->manualPath."contrib/util/language_translations/currentLanguage_utf8.sql" => "Language Translation (utf8)" );
+    $dumpfiles = array( $this->main_sql => 'Main',
+                        $this->translation_sql => "Language Translation (utf8)" );
     if ($this->ippf_specific) {
-      $dumpfiles[ $this->manualPath."sql/ippf_layout.sql" ] = "IPPF Layout";
+      $dumpfiles[ $this->ippf_sql ] = "IPPF Layout";
     }
     return $dumpfiles;
   }
