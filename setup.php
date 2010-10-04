@@ -75,6 +75,33 @@ $config = ' . $config . '; /////////////
   return $it_died;
 }
 
+// Helper function to dump a site's database to a temporary file.
+// Making this a function is a convenient way to limit the scope of
+// the included variables.
+function dumpSourceDatabase($source_site_id) {
+  global $OE_SITES_BASE;
+
+  include("$OE_SITES_BASE/$source_site_id/sqlconf.php");
+
+  if (empty($config)) die("Source site $source_site_id has not been set up!");
+
+  if (stristr(PHP_OS, 'WIN')) {
+    $backup_file = 'C:/windows/temp/setup_dump.sql';
+  }
+  else {
+    $backup_file = '/tmp/setup_dump.sql';
+  }
+  $cmd = "mysqldump -u " . escapeshellarg($login) .
+    " -p" . escapeshellarg($pass) .
+    " --opt --quote-names -r $backup_file " .
+    escapeshellarg($dbase);
+
+  $tmp0 = exec($cmd, $tmp1=array(), $tmp2);
+  if ($tmp2) die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
+
+  return $backup_file;
+}
+
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
@@ -136,7 +163,8 @@ $checkPermissions = "TRUE";
 // installers)
 $manualPath = "";
 
-$GLOBALS['OE_SITE_DIR'] = $manualPath . "sites/$site_id";
+$OE_SITES_BASE = $manualpath . "sites";
+$GLOBALS['OE_SITE_DIR'] = "$OE_SITES_BASE/$site_id";
 
 $dumpfile = $manualPath."sql/database.sql";
 $translations_dumpfile_utf8 = $manualPath."contrib/util/language_translations/currentLanguage_utf8.sql";
@@ -157,27 +185,44 @@ $gaclSetupScript2 = $manualPath."acl_setup.php";
 
 //These are files and dir checked before install for
 // correct permissions.
-// $writableFileList = array($conffile, $conffile2);
-$writableFileList = array($conffile);
-$writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $billingLogDirectory, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
-
-//These are the dumpfiles that are loaded into database 
-// The subsequent array holds the title of dumpfiles
-$dumpfiles = array($dumpfile);
-$dumpfilesTitles = array("Main");
-
-// Create site directory if it is missing.
-if (empty($state) && !file_exists($OE_SITE_DIR)) {
-  recurse_copy($manualpath . "sites/default", $OE_SITE_DIR);
-  write_sqlconf($conffile, 'localhost', '3306', 'openemr', 'openemr', 'openemr', '0');
+if (is_dir($OE_SITE_DIR)) {
+  $writableFileList = array($conffile);
+  $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+}
+else {
+  $writableFileList = array();
+  $writableDirList = array($OE_SITES_BASE, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 }
 
-include_once($conffile);
+// Include the sqlconf file if it exists yet.
+$config = 0;
+if (file_exists($OE_SITE_DIR)) {
+  include_once($conffile);
+}
+else if ($state > 3) {
+  // State 3 should have created the site directory if it is missing.
+  die("Internal error, site directory is missing.");
+}
 ?>
 <HTML>
 <HEAD>
 <TITLE>OpenEMR Setup Tool</TITLE>
-<LINK REL=STYLESHEET HREF="interface/themes/style_blue.css">
+<LINK REL=STYLESHEET HREF="interface/themes/style_sky_blue.css">
+
+<style>
+.noclone { }
+</style>
+
+<script type="text/javascript" src="library/js/jquery.js"></script>
+
+<script language="javascript">
+// onclick handler for "clone database" checkbox
+function cloneClicked() {
+ var cb = document.forms[0].clone_database;
+ $('.noclone').css('display', cb.checked ? 'none' : 'block');
+}
+</script>
+
 </HEAD>
 <BODY>
 
@@ -204,8 +249,8 @@ include_once($conffile);
 <ul>
  <li>Access controls (php-GACL) are installed for fine-grained security, and can be administered in
      OpenEMR's admin->acl menu.</li>
- <li>Reading <?php echo $OE_SITE_DIR; ?>/config.php and openemr/interface/globals.php is a good idea. These files
-     contain many options to choose from including themes.</li>
+ <li>Reviewing <?php echo $OE_SITE_DIR; ?>/config.php is a good idea. This file
+     contains some settings that you may want to change.</li>
  <li>There's much information and many extra tools bundled within the OpenEMR installation directory. 
      Please refer to openemr/Documentation. Many forms and other useful scripts can be found at openemr/contrib.</li>
  <li>To ensure a consistent look and feel through out the application using 
@@ -218,7 +263,7 @@ include_once($conffile);
 We recommend you print these instructions for future reference.
 </p>	
 <p>
-<b>The initial OpenEMR user is "<?php echo $iuser; ?>" and the password is "pass".</b>
+<b>Unless you cloned a database, the initial OpenEMR user is "<?php echo $iuser; ?>" and the password is "pass".</b>
 You should change this password!
 </p>
 <p>
@@ -247,7 +292,9 @@ If you edited the PHP or Apache configuration files during this installation pro
   $iuser = $_POST["iuser"];
 	$iuname = $_POST["iuname"];
 	$igroup = $_POST["igroup"];
-        $inst = $_POST["inst"];
+  $inst = $_POST["inst"];
+  $source_site_id = empty($_POST['source_site_id']) ? 'default' : $_POST['source_site_id'];
+  $clone_database = !empty($_POST['clone_database']);
 
   /*******************************************************************
 	$openemrBasePath = $_POST["openemrBasePath"];
@@ -324,10 +371,48 @@ echo "<TR VALIGN='TOP'><TD><span class='text'>UTF-8 Collation: </span></TD><TD c
   "</TD></TR><TR VALIGN='TOP'><TD>&nbsp;</TD><TD colspan='2'><span class='text'>(This is the collation setting for mysql. Leave as 'General' if you are not sure. If the language you are planning to use in OpenEMR is in the menu, then you can select it. Otherwise, just select 'General'.)</span><br></TD></TR>";
 }
 echo "<TR VALIGN='TOP'><TD>&nbsp;</TD></TR>";
-echo "<TR VALIGN='TOP'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
-echo "<TR VALIGN='TOP'><TD><span class='text'>Initial User:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuser' VALUE='admin'></TD><TD><span class='text'>(This is the login name of user that will be created for you. Limit this to one word.)</span></TD></TR>
-<TR VALIGN='TOP'><TD><span class='text'>Initial User's Name:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuname' VALUE='Administrator'></TD><TD><span class='text'>(This is the real name of the 'initial user'.)</span></TD></TR>
-<TR VALIGN='TOP'><TD><span class='text'>Initial Group:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='igroup' VALUE='Default'></TD><TD><span class='text'>(This is the group that will be created for your users.  This should be the name of your practice.)</span></TD></TR>
+
+// Include a "source" site ID drop-list and a checkbox to indicate
+// if cloning its database.  When checked, do not display initial user
+// and group stuff below.
+$dh = opendir($OE_SITES_BASE);
+if (!$dh) die("Cannot read directory '$OE_SITES_BASE'.");
+$siteslist = array();
+while (false !== ($sfname = readdir($dh))) {
+  if (substr($sfname, 0, 1) == '.') continue;
+  if ($sfname == 'CVS'            ) continue;
+  if ($sfname == $site_id         ) continue;
+  $sitedir = "$OE_SITES_BASE/$sfname";
+  if (!is_dir($sitedir)               ) continue;
+  if (!is_file("$sitedir/sqlconf.php")) continue;
+  $siteslist[$sfname] = $sfname;
+}
+closedir($dh);
+// If this is not the first site...
+if (!empty($siteslist)) {
+  ksort($siteslist);
+  echo "<tr valign='top'>\n";
+  echo " <td class='text'>Source Site: </td>\n";
+  echo " <td class='text'><select name='source_site_id'>";
+  foreach ($siteslist as $sfname) {
+    echo "<option value='$sfname'";
+    if ($sfname == 'default') echo " selected";
+    echo ">$sfname</option>";
+  }
+  echo "</select></td>\n";
+  echo " <td class='text'>(The site directory that will be a model for the new site.)</td>\n";
+  echo "</tr>\n";
+  echo "<tr valign='top'>\n";
+  echo " <td class='text'>Clone Source Database: </td>\n";
+  echo " <td class='text'><input type='checkbox' name='clone_database' onclick='cloneClicked()' /></td>\n";
+  echo " <td class='text'>(Clone the source site's database instead of creating a fresh one.)</td>\n";
+  echo "</tr>\n";
+}
+
+echo "<TR VALIGN='TOP' class='noclone'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
+echo "<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuser' VALUE='admin'></TD><TD><span class='text'>(This is the login name of user that will be created for you. Limit this to one word.)</span></TD></TR>
+<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User's Name:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuname' VALUE='Administrator'></TD><TD><span class='text'>(This is the real name of the 'initial user'.)</span></TD></TR>
+<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial Group:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='igroup' VALUE='Default'></TD><TD><span class='text'>(This is the group that will be created for your users.  This should be the name of your practice.)</span></TD></TR>
 ";
 echo "<TR VALIGN='TOP'><TD>&nbsp;</TD></TR>";
 
@@ -440,6 +525,24 @@ else
 	flush();
 if ($upgrade != 1) {
 
+  // If cloning a site's database, dump it now and put the dump file
+  // info into $dumpfiles and $dumpfilesTitles, skipping the other entries
+  // below.
+  if ($clone_database) {
+    echo "Dumping source database..."; flush();
+
+    $backup_file = dumpSourceDatabase($source_site_id);
+    $dumpfiles = array($backup_file);
+    $dumpfilesTitles = array("");
+
+    echo " OK.<br>\n"; flush();
+  }
+  else {
+    //These are the dumpfiles that are loaded into database 
+    // The subsequent array holds the title of dumpfiles
+    $dumpfiles = array($dumpfile);
+    $dumpfilesTitles = array("Main");
+
     //select the correct translation dumpfile
     if ($collate) {
         array_push($dumpfiles,$translations_dumpfile_utf8);
@@ -461,6 +564,8 @@ if ($upgrade != 1) {
       array_push($dumpfiles, $manualPath . "sql/icd9.sql");
       array_push($dumpfilesTitles, "ICD-9");
     }
+
+  } // end if ($clone_database)
 
     $dumpfileCounter = 0;
     foreach ($dumpfiles as $var) {
@@ -500,6 +605,10 @@ if ($upgrade != 1) {
 	flush();
 	$dumpfileCounter++;
     }
+
+  // Also skip initial user and group and version table if cloning.
+  if (!$clone_database) {
+
 	echo "Adding Initial User...\n";
 	flush();
 	//echo "INSERT INTO groups VALUES (1,'$igroup','$iuser')<br>\n";
@@ -530,7 +639,14 @@ if ($upgrade != 1) {
     echo "OK<br>\n";
   }
 	flush();
+
+  } // end if (!$clone_database)
 }	
+
+// Create site directory if it is missing.
+if (!file_exists($OE_SITE_DIR)) {
+  recurse_copy($manualpath . "sites/$source_site_id", $OE_SITE_DIR);
+}
 
 echo "<br>Writing SQL Configuration...<br>";	
 @touch($conffile); // php bug
@@ -597,6 +713,9 @@ else {
 }
 *********************************************************************/
 
+// Do not initialize globals if cloning.
+if (!$clone_database) {
+
 echo "Writing global configuration defaults...<br>";
 require_once("library/globals.inc.php");
 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
@@ -614,11 +733,17 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 }
 echo "Successfully wrote global configuration defaults.<br><br>";
 
-echo "\n<br>Next step will install and configure access controls (php-GACL).<br>\n";
+  echo "\n<br>Next step will install and configure access controls (php-GACL).<br>\n";
+  $next_state = 4;
+}
+else {
+  // Database was cloned, skip ACL setup.
+  $next_state = 7;
+}
 	
 echo "
 <FORM METHOD='POST'>\n
-<INPUT TYPE='HIDDEN' NAME='state' VALUE='4'>
+<INPUT TYPE='HIDDEN' NAME='state' VALUE='$next_state'>
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>
 <INPUT TYPE='HIDDEN' NAME='iuname' VALUE='$iuname'>
