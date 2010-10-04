@@ -38,7 +38,11 @@ class Installer
     $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
     $this->gaclSetupScript2 = dirname(__FILE__) . "/../../acl_setup.php";
 
+    // Entities to hold error and debug messages
     $this->error_message = '';
+    $this->debug_message = '';
+
+    // Entity to hold sql connection
     $this->dbh = false;
   }
 

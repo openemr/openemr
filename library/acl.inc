@@ -11,7 +11,7 @@
 //
 // If using an external version of phpGACL, then uncomment the following
 // line and manually place the path below.  IN THIS CASE YOU MUST ALSO
-// COMMENT OUT ABOVB $phpgacl_location ASSIGNMENT ABOVE, OR BACKUPS WILL
+// COMMENT OUT ABOVE $phpgacl_location ASSIGNMENT ABOVE, OR BACKUPS WILL
 // NOT RESTORE PROPERLY!
 //
 //$phpgacl_location = "/var/www/gacl";

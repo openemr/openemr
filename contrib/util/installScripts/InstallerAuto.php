@@ -22,12 +22,27 @@
 //      that the ordering and number of custom settings that can be sent
 //      is flexible.
 //     php -f iuser=[iuser] iuname=[iuname] igroup=[igroup] server=[server]
-//       port=[port] root=[root] rootpass=[rootpass] login=[login] pass=[pass]
-//       dbname=[dbname] collate=[collate] site=[site]
+//       loginhost=[loginhost] port=[port] root=[root] rootpass=[rootpass]
+//       login=[login] pass=[pass] dbname=[dbname] collate=[collate] site=[site]
 //
 //   Examples:
 //     php -f InstallerAuto.php
 //     php -f InstallerAuto.php rootpass=howdy pass=hey
+//
+//   Description of settings (default value in parenthesis):
+//     iuser      -> initial user login name (admin)
+//     iuname     -> initial user last name (Administrator)
+//     igroup     -> practice group name (Default)
+//     server     -> mysql server (localhost)
+//     loginhost  -> php/apache server (localhost)
+//     port       -> MySQL port (3306)
+//     root       -> MySQL server root username (root)
+//     rootpass   -> MySQL server root password ()
+//     login      -> username to MySQL openemr database (openemr)
+//     pass       -> password to MySQL openemr database (openemr)
+//     dbname     -> MySQL openemr database name (openemr)
+//     collate    -> collation for mysql (utf8_general_ci)
+//     site       -> location of this instance in sites/ (default)
 //
 
 // This exit is to avoid malicious use of this script.

@@ -43,7 +43,6 @@ case "$1" in
       SITEDIR=$OPENEMR/sites/default
       INSTALL_USER=cvsopenemr
       INSTALL_DATABASE=cvsopenemr
-      INSTALL_SITE=localhost
       INSTALL_WEBPATH=/cvs-openemr
       #web user and group
       WEB_GROUP=www-data
