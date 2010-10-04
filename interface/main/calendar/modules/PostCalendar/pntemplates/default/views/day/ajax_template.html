@@ -599,7 +599,8 @@ foreach ($providers as $provider) {
             }
             else {
                 // some sort of patient appointment
-                $divTitle .= "\r\n[".$catname ."] ".htmlspecialchars($fname, ENT_QUOTES)." ".htmlspecialchars($lname, ENT_QUOTES) . " | Comment:" . $comment . " ";
+                $divTitle .= "\r\n[".$catname ."] " . htmlspecialchars($fname, ENT_QUOTES) . " " . htmlspecialchars($lname, ENT_QUOTES) .
+                 " | " . xl("Comment") . ":" . htmlspecialchars($comments, ENT_QUOTES) . " ";
                 $content .= "<span class='appointment'>";
                 $content .= $dispstarth . ':' . $startm;
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
