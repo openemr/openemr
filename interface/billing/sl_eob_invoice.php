@@ -803,14 +803,29 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
     style="background-color:<?php echo $bgcolor ?>">
 <?php
 // Adjustment reasons are now taken from the list_options table.
-echo "    <option value=''></option>\n";
-$ores = sqlStatement("SELECT option_id, title FROM list_options " .
+
+// ViCarePlus :: Fix for Aujustment Reasons Default :: Sep 27,2010
+// Issue :: Adjustment reasons - Default value is not getting selected in the EOB Posting-Invoice Page
+// When a Default value for "Reasons" is set from Administration -> Lists -> Adjustment_reasons, 
+// it is not getting reflected in the EOB Posting Invoice Page. Hence, a minor modification is done
+// in the query to fix this issue.  
+
+//echo "    <option value=''></option>\n";
+/*$ores = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'adjreason' ORDER BY seq, title");
 while ($orow = sqlFetchArray($ores)) {
   echo "    <option value='" . addslashes($orow['option_id']) . "'";
   echo ">" . $orow['title'] . "</option>\n";
+}*/
+$ores = sqlStatement("SELECT option_id, title,is_default FROM list_options " .
+  "WHERE list_id = 'adjreason'  ORDER BY is_default DESC, seq, title ASC");
+while ($orow = sqlFetchArray($ores)) {
+  echo "    <option value='" . addslashes($orow['option_id']) . "'";
+  echo ">" . $orow['title'] . "</option>\n";
 }
+echo "    <option value=''></option>\n";
 ?>
+
    </select>
 <?php
     // TBD: Maybe a comment field would be good here, for appending
