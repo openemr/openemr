@@ -93,7 +93,7 @@ function dumpSourceDatabase($source_site_id) {
   }
   $cmd = "mysqldump -u " . escapeshellarg($login) .
     " -p" . escapeshellarg($pass) .
-    " --opt --quote-names -r $backup_file " .
+    " --opt --skip-extended-insert --quote-names -r $backup_file " .
     escapeshellarg($dbase);
 
   $tmp0 = exec($cmd, $tmp1=array(), $tmp2);
