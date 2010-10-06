@@ -8,7 +8,7 @@
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
-# date:    05/15/10
+# date:    10/05/10
 #
 # Debian package pre-installation script steps:
 #  1) Create log file
@@ -47,6 +47,7 @@ CONFIG=$CONFIGDIR/openemr.conf
 TMPDIR=/tmp/openemr-tmp
 WEB=/var/www
 OPENEMR=$WEB/openemr
+SITEDIR=$OPENEMR/sites/default
 #hardcoded mysql user and database for install (not pertinent for upgrading)
 # upgrading can use whatever is found in openemr/library/sqlconf.php
 INSTALL_USER=openemr
@@ -141,6 +142,9 @@ upgrade_function () {
       fi
 
       #collect openemr mysql data
+      #TODO
+      #(TODO for post-4.0 release will need to look in sites directory if 4.0 or later)
+      #TODO
       SQLLOCATION=$(collect_var \$host $OPENEMR/library/sqlconf.php)
       SQLUSER=$(collect_var \$login $OPENEMR/library/sqlconf.php)
       SQLPASSWORD=$(collect_var \$pass $OPENEMR/library/sqlconf.php)
@@ -204,10 +208,16 @@ case "$1" in
       if [ -d "$OPENEMR" ]; then
 
          #collect current version
-         v1=$(collect_var \$v_major $OPENEMR/version.php)
-         v2=$(collect_var \$v_minor $OPENEMR/version.php)
-         v3=$(collect_var \$v_patch $OPENEMR/version.php)
-         v4=$(collect_var \$v_tag   $OPENEMR/version.php)
+         #TODO
+         #(TODO for post-4.0 release will need to look in version.php file for version)
+         #TODO (will need mechanism that works with pre 4.0 versions also; ie look in globals.php first, then look in version.php; and make flag for below issue)
+         v1=$(collect_var \$v_major $OPENEMR/interface/globals.php)
+         v2=$(collect_var \$v_minor $OPENEMR/interface/globals.php)
+         v3=$(collect_var \$v_patch $OPENEMR/interface/globals.php)
+         #TODO
+         #(TODO for post-4.0 release will need to use v_tag rather than tag)
+         #TODO (use flag from above to know whether to use tag vs v_tag)
+         v4=$(collect_var \$tag $OPENEMR/interface/globals.php)
          RAWVERSION="$v1.$v2.$v3$v4"
 
          #attempt upgrade, if user desires

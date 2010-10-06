@@ -8,7 +8,7 @@
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
-# date:    10/04/10
+# date:    10/05/10
 #
 # Debian package post installation script steps:
 #  1) Collect setting from package configuration file
@@ -149,7 +149,7 @@ case "$1" in
          SQLDATABASE=$(collect_var sqldatabase $CONFIG)
          SQLUTFFLAG=$(collect_var sqlutfflag $CONFIG)
 
-         #configure openemr/library/sqlconf.php
+         #configure openemr/sites/default/sqlconf.php
          insert_var "\$host" "\'$SQLLOCATION\';"           $SITEDIR/sqlconf.php
          insert_var "\$login" "\'$SQLUSER\';"              $SITEDIR/sqlconf.php
          insert_var "\$pass" "\'$SQLPASSWORD\';"           $SITEDIR/sqlconf.php
