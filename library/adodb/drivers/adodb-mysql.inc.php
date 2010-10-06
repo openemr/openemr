@@ -200,19 +200,17 @@ class ADODB_mysql extends ADOConnection {
 		}
 		$this->genID = mysql_insert_id($this->_connectionID);
 
-                // ViSolve:  If (auditlog enabled), the value of GlOBALS['lastidado'] variable - which contains the
-                //   correct mysql_insert_id value before the audit call - is greater than 0, 
-                //   then return GLOBALS['lastiddao'] else return the mysql_insert_id value
-		//The following lines are commented, functions are handled through SQL.inc functions itself.
-		/*if($GLOBALS['lastidado'] >0)
-                        $this->genID =$GLOBALS['lastidado'];
-                else
-                        $this->genID =mysql_insert_id($this->_connectionID);
-		*/
 		if ($rs) $rs->Close();
 		
 		$this->_logsql = $savelog;
-		return $this->genID;
+
+		// ViSolve : Sep 24,2010
+		// Instead of returning the generated LAST_INSERT_ID, the manipulated value 
+		// from the $GLOBALS['lastidado'] is returned.
+		if($GLOBALS['lastidado'])
+                 return $GLOBALS['lastidado'];
+		else
+                 return $this->genID;
 	}
 	
   	function &MetaDatabases()

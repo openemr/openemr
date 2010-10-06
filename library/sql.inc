@@ -171,12 +171,17 @@ function sqlInsertClean_audit($statement)
  //$lastid=mysql_insert_id($GLOBALS['dbh']);
  //$GLOBALS['lastidado']=$lastid;
 // when audit is enabled and $GLOBALS['lastidado'] is not set, then set the GLOBALS irrespective of dbh and adodb handlers.
-  if ($GLOBALS['lastidado'] > 0)
-	{ /* do nothing */ }
-        else {
-                 $lastid=mysql_insert_id($GLOBALS['dbh']);
-                 $GLOBALS['lastidado']=$lastid;
-        }
+
+// ViCarePlus :: Fix for Audit logging Issue :: Sep 24,2010 .
+// Issue:: The LAST_INSERT_ID of the audit log table overrides the value in the $GLOBALS['lastidado'] variable. 
+//         In a single transaction, when more than one query is being executed, this issue happens. 
+// Fix: This code has been taken care by the function auditSQLEvent() in log.inc file
+//  if ($GLOBALS['lastidado'] > 0)
+//	{ /* do nothing */ }
+//        else {
+//                 $lastid=mysql_insert_id($GLOBALS['dbh']);
+//                 $GLOBALS['lastidado']=$lastid;
+//        }
 
   //----------run a mysql insert, return the last id generated
   $ret = mysql_query($statement, $GLOBALS['dbh']);
