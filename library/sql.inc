@@ -7,6 +7,8 @@ include_once(dirname(__FILE__) . "/log.inc");
 if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC', 2);
 $database = NewADOConnection("mysql");
 $database->PConnect($host, $login, $pass, $dbase);
+$GLOBALS['adodb']['db'] = $database;
+$GLOBALS['dbh'] = $database->_connectionID;
 
 // Modified 5/2009 by BM for UTF-8 project ---------
 if (!$disable_utf8_flag) {
@@ -15,10 +17,6 @@ if (!$disable_utf8_flag) {
    error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: ".$database->ErrorMsg(), 0);
   }
 }
-// -------------------------------------------------
-
-$GLOBALS['adodb']['db'] = $database;
-$GLOBALS['dbh'] = $database->_connectionID;
 
 // set up associations in adodb calls (not sure why above define
 //  command does not work)
