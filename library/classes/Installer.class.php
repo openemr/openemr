@@ -8,19 +8,21 @@ class Installer
   public function __construct( $cgi_variables )
   {
     // Installation variables
-    $this->iuser     = $cgi_variables['iuser'];
-    $this->iuname    = $cgi_variables['iuname'];
-    $this->igroup    = $cgi_variables['igroup'];
-    $this->server    = $cgi_variables['server']; // mysql server (usually localhost)
-    $this->loginhost = $cgi_variables['loginhost']; // php/apache server (usually localhost)
-    $this->port      = $cgi_variables['port'];
-    $this->root      = $cgi_variables['root'];
-    $this->rootpass  = $cgi_variables['rootpass'];
-    $this->login     = $cgi_variables['login'];
-    $this->pass      = $cgi_variables['pass'];
-    $this->dbname    = $cgi_variables['dbname'];
-    $this->collate   = $cgi_variables['collate'];
-    $this->site      = $cgi_variables['site'];
+    $this->iuser                = $cgi_variables['iuser'];
+    $this->iuname               = $cgi_variables['iuname'];
+    $this->igroup               = $cgi_variables['igroup'];
+    $this->server               = $cgi_variables['server']; // mysql server (usually localhost)
+    $this->loginhost            = $cgi_variables['loginhost']; // php/apache server (usually localhost)
+    $this->port                 = $cgi_variables['port'];
+    $this->root                 = $cgi_variables['root'];
+    $this->rootpass             = $cgi_variables['rootpass'];
+    $this->login                = $cgi_variables['login'];
+    $this->pass                 = $cgi_variables['pass'];
+    $this->dbname               = $cgi_variables['dbname'];
+    $this->collate              = $cgi_variables['collate'];
+    $this->site                 = $cgi_variables['site'];
+    $this->source_site_id       = $cgi_variables['source_site_id'];
+    $this->clone_database       = $cgi_variables['clone_database'];
 
     // Make this true for IPPF.
     $this->ippf_specific = false;
@@ -28,6 +30,7 @@ class Installer
     // Record name of sql access file
     $GLOBALS['OE_SITE_DIR'] = dirname(__FILE__) . '/../../sites/' . $this->site;
     $this->conffile  =  $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php';
+    $GLOBALS['OE_SITES_BASE'] = $manualpath . "sites";
 
     // Record names of sql table files
     $this->main_sql = dirname(__FILE__) . '/../../sql/database.sql';
@@ -37,6 +40,8 @@ class Installer
     // Record name of php-gacl installation files
     $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
     $this->gaclSetupScript2 = dirname(__FILE__) . "/../../acl_setup.php";
+
+    $this->initialize_dumpfile_list();
 
     // Entities to hold error and debug messages
     $this->error_message = '';
@@ -123,48 +128,65 @@ class Installer
     return mysql_close($this->dbh);
   }
 
+  /**
+   * This method creates any dumpfiles necessary.
+   * This is actually only done if we're cloning an existing site
+   * and we need to dump their database into a file.
+   * @return bool indicating success
+   */
+  public function create_dumpfiles() {
+    if ( $this->clone_database ) {
+      $this->dumpSourceDatabase();
+    }
+    return True;
+  }
+  
   public function load_dumpfiles() {
     $sql_results = ''; // information string which is returned
-    foreach ($this->dumpfiles() as $filename => $title) {
+    foreach ($this->dumpfiles as $filename => $title) {
         $sql_results .= "Creating $title tables...\n";
-	// mysql_query("USE $dbname",$dbh);
-	$fd = fopen($filename, 'r');
-	if ($fd == FALSE) {
+        // mysql_query("USE $dbname",$dbh);
+        $fd = fopen($filename, 'r');
+        if ($fd == FALSE) {
           $this->error_message = "ERROR.  Could not open dumpfile '$filename'.\n";
           return FALSE;
-	}
-	$query = "";
-	$line = "";
-	while (!feof ($fd)){
-		$line = fgets($fd,1024);
-		$line = rtrim($line);
-		if (substr($line,0,2) == "--") // Kill comments
-			continue;
-		if (substr($line,0,1) == "#") // Kill comments
-			continue;
-		if ($line == "")
-			continue;
-		$query = $query.$line;		// Check for full query
-		$chr = substr($query,strlen($query)-1,1);
-		if ($chr == ";") { // valid query, execute
-			$query = rtrim($query,";");
-			$this->execute_sql( $query );
-			$query = "";
-		}
-	}
-	$sql_results .= "OK<br>\n";
-	fclose($fd);
+        }
+        $query = "";
+        $line = "";
+        while (!feof ($fd)){
+                $line = fgets($fd,1024);
+                $line = rtrim($line);
+                if (substr($line,0,2) == "--") // Kill comments
+                        continue;
+                if (substr($line,0,1) == "#") // Kill comments
+                        continue;
+                if ($line == "")
+                        continue;
+                $query = $query.$line;          // Check for full query
+                $chr = substr($query,strlen($query)-1,1);
+                if ($chr == ";") { // valid query, execute
+                        $query = rtrim($query,";");
+                        $this->execute_sql( $query );
+                        $query = "";
+                }
+        }
+        $sql_results .= "OK<br>\n";
+        fclose($fd);
     }
     return $sql_results;
   }
 
   public function add_initial_user() {
+    if ( $this->clone_database ) {
+      // we cloned the users. Don't insert a default.
+      return True;
+    }
     //echo "INSERT INTO groups VALUES (1,'$igroup','$iuser')<br>\n";
     if ($this->execute_sql("INSERT INTO groups (id, name, user) VALUES (1,'$this->igroup','$this->iuser')") == FALSE) {
       $this->error_message = "ERROR. Unable to add initial user group\n" .
         "<p>".mysql_error()." (#".mysql_errno().")\n";
       return FALSE;
-	}
+        }
     if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','1a1dc91c907325c69271ddf0c944bc72',1,'$this->iuname','',3,1,3)") == FALSE) {
       $this->error_message = "ERROR. Unable to add initial user\n" .
         "<p>".mysql_error()." (#".mysql_errno().")\n";
@@ -173,13 +195,33 @@ class Installer
     return TRUE;
   }
 
+  /**
+   * Create site directory if it is missing.
+   * @global string $GLOBALS['OE_SITE_DIR'] contains the name of the site directory to create
+   * @return name of the site directory or False
+   */
+  public function create_site_directory() {
+    if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
+      $source_directory      = $manualpath . "sites/" . $this->source_site_id;
+      $destination_directory = $GLOBALS['OE_SITE_DIR'];
+      if ( ! $this->recurse_copy( $source_directory, $destination_directory ) ) {
+        $this->error_message = "unable to copy directory: '$source_directory' to '$destination_directory'. " . $this->error_message;
+        return False;
+      }
+    }
+    return True;
+  }
+    
   public function write_configuration_file() {
     @touch($this->conffile); // php bug
     $fd = @fopen($this->conffile, 'w');
+    if ( ! $fd ) {
+      $this->error_message = 'unable to open configuration file for writing: ' . $this->conffile;
+      return False;
+    }
     $string = '<?php
 //  OpenEMR
 //  MySQL Config
-//  Referenced from sql.inc
 
 ';
 
@@ -229,6 +271,10 @@ $config = 1; /////////////
   }
 
   public function insert_globals() {
+    if ( $this->clone_database ) {
+      // we cloned the globals, so don't insert any
+      return True;
+    }
     function xl($s) { return $s; }
     require(dirname(__FILE__) . '/../globals.inc.php');
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
@@ -348,16 +394,30 @@ $config = 1; /////////////
    return TRUE;
   }
 
-  // These are the dumpfiles that are loaded into database
-  // including the correct translation dumpfile
-  // The keys are the paths of the dumpfiles, and the values are the titles
-  private function dumpfiles() {
-    $dumpfiles = array( $this->main_sql => 'Main',
-                        $this->translation_sql => "Language Translation (utf8)" );
-    if ($this->ippf_specific) {
-      $dumpfiles[ $this->ippf_sql ] = "IPPF Layout";
+  /**
+   * innitialize $this->dumpfiles, an array of the dumpfiles that will
+   * be loaded into the database, including the correct translation
+   * dumpfile.
+   * The keys are the paths of the dumpfiles, and the values are the titles
+   * @return array
+   */
+  private function initialize_dumpfile_list() {
+    if ( $this->clone_database ) {
+      $this->dumpfiles = array( $this->get_backup_filename() => 'clone database' );
+    } else {
+      $dumpfiles = array( $this->main_sql => 'Main',
+                          $this->translation_sql => "Language Translation (utf8)" );
+      if ($this->ippf_specific) {
+        $dumpfiles[ $this->ippf_sql ] = "IPPF Layout";
+      }
+      // Load ICD-9 codes if present.
+      $idc9_filename = $manualPath . 'sql/icd9.sql';
+      if (file_exists( $idc9_filename )) {
+        $dumpfiles[ $idc9_filename ] = "ICD-9";
+      }
+      $this->dumpfiles = $dumpfiles;
     }
-    return $dumpfiles;
+    return $this->dumpfiles;
   }
 
   // http://www.php.net/manual/en/function.include.php
@@ -371,6 +431,74 @@ $config = 1; /////////////
     }
     return false;
   }
+
+  /**
+   * 
+   * Directory copy logic borrowed from a user comment at
+   * http://www.php.net/manual/en/function.copy.php
+   * @param string $src name of the directory to copy
+   * @param string $dst name of the destination to copy to
+   * @return bool indicating success
+   */
+  private function recurse_copy($src, $dst) {
+    $dir = opendir($src);
+    if ( ! @mkdir($dst) ) {
+      $this->error_message = "unable to create directory: '$dst'";
+      return False;
+    }
+    while(false !== ($file = readdir($dir))) {
+      if ($file != '.' && $file != '..') {
+        if (is_dir($src . '/' . $file)) {
+          $this->recurse_copy($src . '/' . $file, $dst . '/' . $file);
+        }
+        else {
+          copy($src . '/' . $file, $dst . '/' . $file);
+        }
+      }
+    }
+    closedir($dir);
+    return True;
+  }
+
+  /**
+   * 
+   * dump a site's database to a temporary file.
+   * @param string $source_site_id the site_id of the site to dump
+   * @return filename of the backup
+   */
+  private function dumpSourceDatabase() {
+    global $OE_SITES_BASE;
+    $source_site_id = $this->source_site_id;
+    
+    include("$OE_SITES_BASE/$source_site_id/sqlconf.php");
+    
+    if (empty($config)) die("Source site $source_site_id has not been set up!");
+
+    $backup_file = $this->get_backup_filename();
+    $cmd = "mysqldump -u " . escapeshellarg($login) .
+      " -p" . escapeshellarg($pass) .
+      " --opt --skip-extended-insert --quote-names -r $backup_file " .
+      escapeshellarg($dbase);
+    
+    $tmp0 = exec($cmd, $tmp1=array(), $tmp2);
+    if ($tmp2) die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
+    
+    return $backup_file;
+  }
+
+  /**
+   * @return filename of the source backup database for cloning
+   */
+  private function get_backup_filename() {
+    if (stristr(PHP_OS, 'WIN')) {
+      $backup_file = 'C:/windows/temp/setup_dump.sql';
+    }
+    else {
+      $backup_file = '/tmp/setup_dump.sql';
+    }
+    return $backup_file;
+  }
+
 }
 
 /*
