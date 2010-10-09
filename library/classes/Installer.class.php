@@ -28,14 +28,15 @@ class Installer
     $this->ippf_specific = false;
 
     // Record name of sql access file
-    $GLOBALS['OE_SITE_DIR'] = dirname(__FILE__) . '/../../sites/' . $this->site;
+    $GLOBALS['OE_SITES_BASE'] = dirname(__FILE__) . '/../../sites';
+    $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . '/' . $this->site;
     $this->conffile  =  $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php';
-    $GLOBALS['OE_SITES_BASE'] = $manualpath . "sites";
 
     // Record names of sql table files
     $this->main_sql = dirname(__FILE__) . '/../../sql/database.sql';
     $this->translation_sql = dirname(__FILE__) . '/../../contrib/util/language_translations/currentLanguage_utf8.sql';
     $this->ippf_sql = dirname(__FILE__) . "/../../sql/ippf_layout.sql";
+    $this->icd9 = dirname(__FILE__) . "/../../sql/icd9.sql";
 
     // Record name of php-gacl installation files
     $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
@@ -202,7 +203,7 @@ class Installer
    */
   public function create_site_directory() {
     if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
-      $source_directory      = $manualpath . "sites/" . $this->source_site_id;
+      $source_directory      = $GLOBALS['OE_SITES_BASE'] . "/" . $this->source_site_id;
       $destination_directory = $GLOBALS['OE_SITE_DIR'];
       if ( ! $this->recurse_copy( $source_directory, $destination_directory ) ) {
         $this->error_message = "unable to copy directory: '$source_directory' to '$destination_directory'. " . $this->error_message;
@@ -411,9 +412,8 @@ $config = 1; /////////////
         $dumpfiles[ $this->ippf_sql ] = "IPPF Layout";
       }
       // Load ICD-9 codes if present.
-      $idc9_filename = $manualPath . 'sql/icd9.sql';
-      if (file_exists( $idc9_filename )) {
-        $dumpfiles[ $idc9_filename ] = "ICD-9";
+      if (file_exists( $this->icd9 )) {
+        $dumpfiles[ $this->icd9 ] = "ICD-9";
       }
       $this->dumpfiles = $dumpfiles;
     }

@@ -60,25 +60,18 @@ if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id))
 // checking, then can be manually disabled here.
 $checkPermissions = True;
 
-//Below section is only for variables that require a path.
-// The $manualPath variable can be edited by 3rd party
-// installation scripts to manually set path. (this will
-// allow straightforward use of this script by 3rd party
-// installers)
-$manualPath = "";
 $installer = new Installer( $_REQUEST );
-global $OE_SITE_DIR; // The Installer sets this based on manualPath
+global $OE_SITE_DIR; // The Installer sets this
 
-$icd9 = $manualPath."sql/icd9.sql";
 $docsDirectory = "$OE_SITE_DIR/documents";
 $billingDirectory = "$OE_SITE_DIR/edi";
 $billingDirectory2 = "$OE_SITE_DIR/era";
 
-$billingLogDirectory = $manualPath."library/freeb";
+$billingLogDirectory = dirname(__FILE__)."/library/freeb";
 $lettersDirectory = "$OE_SITE_DIR/letter_templates";
-$gaclWritableDirectory = $manualPath."gacl/admin/templates_c";
-$requiredDirectory1 = $manualPath."interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
-$requiredDirectory2 = $manualPath."interface/main/calendar/modules/PostCalendar/pntemplates/cache";
+$gaclWritableDirectory = dirname(__FILE__)."/gacl/admin/templates_c";
+$requiredDirectory1 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
+$requiredDirectory2 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/cache";
 
 //These are files and dir checked before install for
 // correct permissions.
@@ -160,7 +153,7 @@ function cloneClicked() {
 We recommend you print these instructions for future reference.
 </p>
 <p>
-<b>Unless you cloned a database, the initial OpenEMR user is "<?php echo $iuser; ?>" and the password is "pass".</b>
+<b>Unless you cloned a database, the initial OpenEMR user is "<?php echo $installer->iuser; ?>" and the password is "pass".</b>
 You should change this password!
 </p>
 <p>
@@ -297,7 +290,6 @@ else {
     break;
 
   case 3:
-    $iuser = $_POST["iuser"];
     
     if ( ! $installer->login_is_valid() ) {
       echo "ERROR. Please pick a proper 'Login Name'.<br>\n";
@@ -439,7 +431,6 @@ else {
 
     break;
   case 4:
-    $iuser = $_POST["iuser"];
     echo "<b>Step $state</b><br><br>\n";
     echo "Installing and Configuring Access Controls (php-GACL)...<br><br>";
     
@@ -452,7 +443,11 @@ else {
       echo $installer->error_message;
       break;
     }
-    echo "Gave the '$iuser' user (password is 'pass') administrator access.<br><br>";
+
+    // display the status information for gacl setup
+    echo $installer->debug_message;
+
+    echo "Gave the '$installer->iuser' user (password is 'pass') administrator access.<br><br>";
     
     echo "Done installing and configuring access controls (php-GACL).<br>";
     echo "Next step will configure PHP.";
@@ -460,7 +455,7 @@ else {
     echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='5'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
-<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>\n	
+<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n	
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
@@ -492,7 +487,7 @@ echo "Next step will configure Apache web server.";
 echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='6'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
-<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>\n
+<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
@@ -524,7 +519,7 @@ echo "Click 'continue' for further instructions.";
 echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='7'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
-<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>\n
+<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
