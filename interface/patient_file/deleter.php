@@ -299,7 +299,14 @@ document.deletefrm.submit();
   //
   echo "<script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
-  echo "parent.imdeleted();\n";
+  if ($encounterid) //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
+   {
+    echo "window.opener.imdeleted($encounterid);\n";
+   }
+  else
+   {
+    echo "parent.imdeleted();\n";
+   }
   echo "</script></body></html>\n";
   exit();
  }

@@ -126,10 +126,33 @@ if ($mode == 'new' && $GLOBALS['default_new_encounter_form'] == 'football_injury
     }
   }
 }
+$result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
+	" left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = '$pid' order by fe.date desc");
 ?>
 <html>
 <body>
-<script language="Javascript">
+<script language='JavaScript'>
+<?php if ($GLOBALS['concurrent_layout'])
+ {//Encounter details are stored to javacript as array.
+?>
+	EncounterDateArray=new Array;
+	CalendarCategoryArray=new Array;
+	EncounterIdArray=new Array;
+	Count=0;
+	 <?php
+			   if(sqlNumRows($result4)>0)
+				while($rowresult4 = sqlFetchArray($result4))
+				 {
+	?>
+					EncounterIdArray[Count]='<?php echo htmlspecialchars($rowresult4['encounter'], ENT_QUOTES); ?>';
+					EncounterDateArray[Count]='<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date']))), ENT_QUOTES); ?>';
+					CalendarCategoryArray[Count]='<?php echo htmlspecialchars($rowresult4['pc_catname'], ENT_QUOTES); ?>';
+					Count++;
+	 <?php
+				 }
+	 ?>
+	 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
+<?php } ?>
 <?php if ($GLOBALS['concurrent_layout'] && $mode == 'new') { ?>
  parent.left_nav.setEncounter(<?php echo "'" . oeFormatShortDate($date) . "', $encounter, window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'enc');
