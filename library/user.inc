@@ -12,6 +12,7 @@ require_once(dirname(__FILE__) . "/formdata.inc.php");
 //This will return the user setting(s) from the 'users' table.
 // $choice can be used to return only one specific user setting
 // $user is the user id number in the 'users' table
+// Returns the selected user setting (if does not exist, then returns 0)
 function getUserSetting($label,$user=NULL) {
 
   // if no user id is sent, then use the currently logged in user
@@ -42,7 +43,7 @@ function getUserSetting($label,$user=NULL) {
   return $result;
 }
 
-//This will check a user setting (does not check for default setting)
+//This will check a user setting
 // $name is the setting name in the 'users' table
 // $value is the setting value to be checked in the 'users' table
 // $user is the user id number in the 'users' table
@@ -54,16 +55,21 @@ function checkUserSetting($label, $value, $user=NULL) {
     $user = $_SESSION['authUserID'];
   }
 
-  // Check for the user settings (return true if positive or false if negative)
-  $row = sqlQuery("SELECT setting_value FROM user_settings " .
+  // Check for the user settings
+  //  If does not exist, then check for a default entry.
+  //  (return false if setting does not exist)
+  $result = sqlQuery("SELECT setting_value FROM user_settings " .
     "WHERE setting_user=? AND setting_label=? AND setting_value=?", array($user, $label, $value) );
-  if (empty($row)) {
-    return false;
+  if (empty($result)) {
+    $result = sqlQuery("SELECT setting_value FROM user_settings " .
+      "WHERE setting_user='0' AND setting_label=? AND setting_value=?", array($label, $value) );
+    if (empty($result)) {
+      return false;
+    }
   }
-  else {
-    return true;
-  }  
-
+  
+  // Setting exist, so return true
+  return true;
 }
 
 //This will set a user setting
