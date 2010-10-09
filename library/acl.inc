@@ -307,7 +307,7 @@
   //
   // This will either create or edit a user aro object, and then place it
   // in the requested groups. It will not allow removal of the 'admin'
-  // user from the 'admin' group.
+  // user or gacl_protected users from the 'admin' group.
   //   $arr_group_titles = titles of the groups that user will be added to.
   //   $user_name = username, which is login name.
   //   $first_name = first name
@@ -320,6 +320,18 @@
     if (isset ($phpgacl_location)) {
       include_once("$phpgacl_location/gacl_api.class.php");
       $gacl = new gacl_api();
+
+      //see if this user is gacl protected (ie. do not allow
+      //removal from the Administrators group)
+      require_once(dirname(__FILE__).'/user.inc');
+      require_once(dirname(__FILE__).'/calendar.inc');
+      $userNametoID = getIDfromUser($user_name);
+      if (checkUserSetting("gacl_protect","1",$userNametoID) || $user_name == "admin") {
+        $gacl_protect = true;
+      }
+      else {
+        $gacl_protect = false;
+      }
 
       //get array of all available group ID numbers
       $parent_id = $gacl->get_root_group_id();
@@ -378,11 +390,11 @@
 	  }
 
           //
-          //Below will not allow 'admin' user to be removed from 'admin' group
+          //Below will not allow 'admin' or gacl_protected user to be removed from 'admin' group
           //
-          if ($user_name == 'admin') {
+          if ($gacl_protect) {
             $boolean_admin=0;
-            $admin_id = $gacl->get_object_id($section_aro_value, 'admin', 'ARO');
+            $admin_id = $gacl->get_object_id($section_aro_value, $user_name, 'ARO');
             $arr_admin = $gacl->get_object_groups($admin_id, 'ARO', 'NO_RECURSE');
             foreach ($arr_admin as $value3) {
               $arr_admin_data = $gacl->get_group_data($value3, 'ARO');
@@ -394,7 +406,7 @@
               foreach ($arr_all_group_ids as $value4) {
                 $arr_temp = $gacl->get_group_data($value4, 'ARO');
                 if ($arr_temp[2] == 'admin') {
-                  $gacl->add_group_object($value4, $section_aro_value, 'admin', 'ARO');
+                  $gacl->add_group_object($value4, $section_aro_value, $user_name, 'ARO');
                 }
               }
             }

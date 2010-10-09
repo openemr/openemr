@@ -184,9 +184,17 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
 
  // Create the Administrator in the above-created "users" section
  // and add him/her to the above-created "admin" group.
- //
- $gacl->add_object('users', 'Administrator', 'admin' ,10, 0, 'ARO');
- $gacl->add_group_object($admin, 'users', 'admin', 'ARO');
+ // If this script is being used by OpenEMR's setup, then will
+ //   incorporate the installation values. Otherwise will
+//    hardcode the 'admin' user.
+ if ( isset($this->iuser) ) {
+  $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
+  $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
+ }
+ else {
+  $gacl->add_object('users', 'Administrator', 'admin' ,10, 0, 'ARO');
+  $gacl->add_group_object($admin, 'users', 'admin', 'ARO');
+ }
 
  // Declare return terms for language translations
  //  xl('write') xl('wsome') xl('addonly')

@@ -311,13 +311,6 @@ $config = 1; /////////////
     return TRUE;
   }
 
-  public function configure_gacl()
-  {
-    //give the administrator user admin priviledges
-    $groupArray = array("Administrators");
-    return set_user_aro($groupArray,$this->iuser,$this->iuname,"","");
-  }
-
   public function quick_install() {
     if ( ! $this->login_is_valid() ) {
       return False;
@@ -355,9 +348,6 @@ $config = 1; /////////////
       return False;
     }
     if ( ! $this->install_gacl()) {
-      return False;
-    }
-    if ( ! $this->configure_gacl()) {
       return False;
     }
 

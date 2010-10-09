@@ -438,11 +438,6 @@ else {
       echo $installer->error_message;
       break;
     }
-    
-    if ( ! $installer->configure_gacl() ) {
-      echo $installer->error_message;
-      break;
-    }
 
     // display the status information for gacl setup
     echo $installer->debug_message;

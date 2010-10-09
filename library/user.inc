@@ -42,6 +42,30 @@ function getUserSetting($label,$user=NULL) {
   return $result;
 }
 
+//This will check a user setting (does not check for default setting)
+// $name is the setting name in the 'users' table
+// $value is the setting value to be checked in the 'users' table
+// $user is the user id number in the 'users' table
+// Returns true if setting exist and false if does not exist
+function checkUserSetting($label, $value, $user=NULL) {
+
+  // if no user id is sent, then use the currently logged in user
+  if (!isset($user)) {
+    $user = $_SESSION['authUserID'];
+  }
+
+  // Check for the user settings (return true if positive or false if negative)
+  $row = sqlQuery("SELECT setting_value FROM user_settings " .
+    "WHERE setting_user=? AND setting_label=? AND setting_value=?", array($user, $label, $value) );
+  if (empty($row)) {
+    return false;
+  }
+  else {
+    return true;
+  }  
+
+}
+
 //This will set a user setting
 // $name is the setting name in the 'users' table
 // $value is the setting value to be set in the 'users' table
