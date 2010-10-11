@@ -1,4 +1,6 @@
 <?php
+// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -10,6 +12,7 @@ require_once(dirname(__FILE__) . "/formdata.inc.php");
 //This will return the user setting(s) from the 'users' table.
 // $choice can be used to return only one specific user setting
 // $user is the user id number in the 'users' table
+// Returns the selected user setting (if does not exist, then returns 0)
 function getUserSetting($label,$user=NULL) {
 
   // if no user id is sent, then use the currently logged in user
@@ -38,6 +41,35 @@ function getUserSetting($label,$user=NULL) {
   }
   
   return $result;
+}
+
+//This will check a user setting
+// $name is the setting name in the 'users' table
+// $value is the setting value to be checked in the 'users' table
+// $user is the user id number in the 'users' table
+// Returns true if setting exist and false if does not exist
+function checkUserSetting($label, $value, $user=NULL) {
+
+  // if no user id is sent, then use the currently logged in user
+  if (!isset($user)) {
+    $user = $_SESSION['authUserID'];
+  }
+
+  // Check for the user settings
+  //  If does not exist, then check for a default entry.
+  //  (return false if setting does not exist)
+  $result = sqlQuery("SELECT setting_value FROM user_settings " .
+    "WHERE setting_user=? AND setting_label=? AND setting_value=?", array($user, $label, $value) );
+  if (empty($result)) {
+    $result = sqlQuery("SELECT setting_value FROM user_settings " .
+      "WHERE setting_user='0' AND setting_label=? AND setting_value=?", array($label, $value) );
+    if (empty($result)) {
+      return false;
+    }
+  }
+  
+  // Setting exist, so return true
+  return true;
 }
 
 //This will set a user setting

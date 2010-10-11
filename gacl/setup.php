@@ -11,7 +11,6 @@ $db_name = $gacl->_db_name;
 $db_host = $gacl->_db_host;
 $db_user = $gacl->_db_user;
 $db_password = $gacl->_db_password;
-$db_name = $gacl->_db_name;
 
 $failed = 0;
 

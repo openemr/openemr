@@ -8,7 +8,7 @@
 # authors: Brady Miller <brady@sparmy.com>
 #          Amalu Obinna <amaluobinna@aol.com>
 #
-# date:    05/14/10
+# date:    10/05/10
 #
 # Debian package pre-installation script steps:
 #  1) Create log dir/file
@@ -41,6 +41,7 @@ CONFIG=$CONFIGDIR/cvs-openemr.conf
 TMPDIR=/tmp/cvs-openemr-tmp
 WEB=/var/www
 OPENEMR=$WEB/cvs-openemr
+SITEDIR=$OPENEMR/sites/default
 INSTALL_USER=cvsopenemr
 INSTALL_DATABASE=cvsopenemr
 

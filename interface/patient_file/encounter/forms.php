@@ -45,9 +45,10 @@ require_once("$srcdir/patient.inc");
  }
 
  // Called by the deleter.php window on a successful delete.
- function imdeleted() {
+ function imdeleted(EncounterId) {
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-  parent.parent.left_nav.clearEncounter();
+  top.window.parent.left_nav.removeOptionSelected(EncounterId);
+  top.window.parent.left_nav.clearEncounter();
 <?php } else { ?>
   top.restoreSession();
   top.Title.location.href = '../patient_file/encounter/encounter_title.php';

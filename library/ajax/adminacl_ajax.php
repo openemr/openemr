@@ -15,6 +15,8 @@
 //
 include_once("../../interface/globals.php");
 include_once("$srcdir/acl.inc");
+include_once("$srcdir/user.inc");
+include_once("$srcdir/calendar.inc");
 
 header("Content-type: text/xml");
 header("Cache-Control: no-cache");
@@ -76,10 +78,18 @@ if ($_POST["control"] == "membership") {
    echo user_group_listings_xml($_POST["name"], $error);
    exit;
   }
-  if (($_POST["name"] == "admin") && in_array("Administrators",$_POST["selection"])) {
+  // check if user is protected. If so, then state message unable to remove from admin group.
+  $userNametoID = getIDfromUser($_POST["name"]);
+  if (checkUserSetting("gacl_protect","1",$userNametoID) || ($_POST["name"] == "admin")) {
+    $gacl_protect = true;
+  }
+  else {
+    $gacl_protect = false;
+  }
+  if ($gacl_protect && in_array("Administrators",$_POST["selection"])) {
    //unable to remove admin user from administrators group, process remove,
    // send soft error, then return data
-   array_push($error, (xl('Not allowed to remove the admin user from the Administrators group') . "!"));
+   array_push($error, (xl('Not allowed to remove this user from the Administrators group') . "!"));
    remove_user_aros($_POST["name"], $_POST["selection"]);
    echo user_group_listings_xml($_POST["name"], $error);
    exit;

@@ -55,7 +55,7 @@ class gacl {
 	/*
 	--- phpGACL Configuration path/file ---
 	*/
-	var $config_file = './gacl.ini.php';
+	var $config_file = '';
 
 	/*
 	--- Private properties ---

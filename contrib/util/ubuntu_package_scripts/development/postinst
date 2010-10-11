@@ -8,7 +8,7 @@
 # authors: Brady Miller <brady@sparmy.com>
 #          Amalu Obinna <amaluobinna@aol.com>
 #
-# date:    05/14/10
+# date:    10/04/2010
 #
 # Debian package post installation script steps:
 #  1) Collect mysql root password
@@ -43,11 +43,13 @@ case "$1" in
       SITEDIR=$OPENEMR/sites/default
       INSTALL_USER=cvsopenemr
       INSTALL_DATABASE=cvsopenemr
-      INSTALL_SITE=localhost
       INSTALL_WEBPATH=/cvs-openemr
       #web user and group
       WEB_GROUP=www-data
       WEB_USER=www-data
+      #auto installer location
+      INST=$OPENEMR/contrib/util/installScripts/InstallerAuto.php
+      INSTTEMP=$OPENEMR/contrib/util/installScripts/InstallerAutoTemp.php
 
       #Standardized echo function to send to both echo and to log file
       #  requires one parameter (string)
@@ -193,33 +195,26 @@ case "$1" in
       output_both "Installing/Configuring OpenEMR cvs version..."
       mv $TMPDIR/openemr $OPENEMR
 
-      # CONFIGURE OPENEMR BELOW
-
-      # Create a random password for the openemr mysql user
-      password=$(makepasswd --char=12)
-
-      # openemr installation VARIABLES 
-      setHost="$INSTALL_SITE" #mysql server (if not different from php, then localhost) 
-      setLoginhost="$INSTALL_SITE" #php/apache server (if not different from mysql, then localhost) 
-      setPort="3306" #MySQL port 
-      setDbname="$INSTALL_DATABASE" #MySQL openemr database name 
-      setLogin="$INSTALL_USER" #username to MySQL openemr database 
-      setPass="$password" #password to MySQL openemr database 
-      setRoot="root" #MySQL server root username 
-      setRootpass="$MPASS" #MySQL server root password
-      setColl="utf8_general_ci"   #collation for mysql
-      setIuser="admin" #initial user login name 
-      setIuname="Administrator" #initial user full name 
-      setIgroup="Default" #practice group name 
-      setInst="1" #CONSTANT, don't set 
-
       #go to openemr directory
       cd $OPENEMR
 
       #secure openemr 
       chown -Rf root:root $OPENEMR 
+
+      #INSTALL AND CONFIGURE OPENEMR
+      # Create a random password for the openemr mysql user
+      password=$(makepasswd --char=12)
+
+      # openemr installation VARIABLES
+      if [ "$MPASS" == "" ] ; then
+        rootpass="rootpass=BLANK" #MySQL server root password
+      else
+        rootpass="rootpass=$MPASS" #MySQL server root password
+      fi
+      login="login=$INSTALL_USER" #username to MySQL openemr database
+      pass="pass=$password" #password to MySQL openemr database
+      dbname="dbname=$INSTALL_DATABASE" #MySQL openemr database name
  
-      #INSTALL AND CONFIGURE OPENEMR 
       # Set file and directory permissions 
       chmod 666 $OPENEMR/library/sqlconf.php 
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents 
@@ -231,56 +226,11 @@ case "$1" in
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c 
       # 
-      # CONVERT setup.php file to script, then run it 
-      # 
-      cp -f $OPENEMR/setup.php $OPENEMR/TEMPsetup.php
-      # Set the path variable in setup.php
-      sed -e 's@\$manualPath = \"\"\;@\$manualPath = \"'$OPENEMR'\/\"\;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
-      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
-      # Set the variables in setup.php
-      sed -e 's@\/\/END POST VARIABLES@\
-    $host = '\'''$setHost''\'';\
-    $server = '\'''$setHost''\'';\
-    $port = '$setPort';\
-    $dbname = '\'''$setDbname''\'';\
-    $root = '\'''$setRoot''\'';\
-    $login = '\'''$setLogin''\'';\
-    $pass = '\'''$setPass''\'';\
-    $loginhost = '\'''$setLoginhost''\'';\
-    $rootpass = '\'''$setRootpass''\'';\
-    $iuser = '\'''$setIuser''\'';\
-    $iuname = '\'''$setIuname''\'';\
-    $igroup = '\'''$setIgroup''\'';\
-    $collate = '\'''$setColl''\'';\
-    $inst = 1;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
-      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
-      # Remove form functionality
-      sed -e 's@<INPUT TYPE='\''SUBMIT'\'' VALUE='\''Continue'\''>@ @' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
-      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
-      #prepare gacl/setup.php script
-      cp $OPENEMR/gacl/setup.php $OPENEMR/gacl/TEMP2setup.php
-      sed -e 's@.\/gacl\/gacl.ini.php@'$OPENEMR'\/gacl\/gacl.ini.php@' <$OPENEMR/gacl/setup.php >$OPENEMR/gacl/TEMPsetup.php
-      mv -f $OPENEMR/gacl/TEMPsetup.php $OPENEMR/gacl/setup.php
-      sed -e 's@.\/gacl\/admin\/gacl_admin.inc.php@'$OPENEMR'\/gacl\/admin\/gacl_admin.inc.php@' <$OPENEMR/gacl/setup.php >$OPENEMR/gacl/TEMPsetup.php
-      mv -f $OPENEMR/gacl/TEMPsetup.php $OPENEMR/gacl/setup.php
-      sed -e 's@.\/gacl\/schema.xml@'$OPENEMR'\/gacl\/schema.xml@' <$OPENEMR/gacl/setup.php >$OPENEMR/gacl/TEMPsetup.php
-      mv -f $OPENEMR/gacl/TEMPsetup.php $OPENEMR/gacl/setup.php
-      #prepare library/acl.inc script
-      cp $OPENEMR/library/acl.inc $OPENEMR/library/TEMP2acl.inc
-      sed -e 's@\$phpgacl_location = \"gacl\";@\$phpgacl_location = \"'$OPENEMR'\/gacl\";@' <$OPENEMR/library/acl.inc >$OPENEMR/library/TEMPacl.inc
-      mv -f $OPENEMR/library/TEMPacl.inc $OPENEMR/library/acl.inc
-      # (step 3) Set up OpenEMR and MySQL
-      sed -e 's@$state = $_POST\["state"\];@$state = 3;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
-      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
-      php -f $OPENEMR/TEMPsetup.php >> $LOG
-      # (step 4) Configure sqlconf.php file
-      sed -e 's@$state = 3;@$state = 4;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
-      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
-      php -f $OPENEMR/TEMPsetup.php >> $LOG
-      rm -f $OPENEMR/TEMPsetup.php
-      #replace original acl.inc and gacl/setup.php script
-      mv $OPENEMR/library/TEMP2acl.inc $OPENEMR/library/acl.inc
-      mv $OPENEMR/gacl/TEMP2setup.php $OPENEMR/gacl/setup.php
+      # Run Auto Installer 
+      #
+      sed -e 's@^exit;@ @' <$INST >$INSTTEMP
+      php -f $INSTTEMP $rootpass $login $pass $dbname >> $LOG
+      rm -f $INSTTEMP 
 
       # NO NEED to secure files since this is a development/testing version
 

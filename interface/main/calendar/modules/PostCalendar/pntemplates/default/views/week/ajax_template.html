@@ -647,7 +647,8 @@ foreach ($providers as $provider) {
                 if ($patientid) {
                     // include patient name and link to their details
                     $link_title = htmlspecialchars($fname,ENT_QUOTES) . " " . htmlspecialchars($lname,ENT_QUOTES) . " \n";
-                    $link_title .= xl('Age') . ": ".$patient_age."\n" . xl('DOB') . ": ".$patient_dob."\n";
+                    $link_title = xl('Age') . ": " . $patient_age . " \n" . xl('DOB') . ": " . $patient_dob . " \n";
+		    if ($comment) $link_title .= "$comment";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
                     $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='$link_title' alt='View Patient' />";

@@ -477,6 +477,23 @@ function auditSQLEvent($statement, $outcome)
    	    if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
    	    return;
    }
+// ViCarePlus : Fix for Audit Issue :: Sep 24, 2010 
+
+// Issue:  When the audit logging is enabled and when SELECT QUERY (query=1 in globals.php) is enabled to log, 
+// the issue of LAST_INSERT_ID arises.  
+// This is because, the function sql_checksum_of_modified_row() is triggered more than 
+// once for SELECT Queries and thus the expected value (LAST_INSERT_ID) in the $GLOBALS['lastidado'] is getting altered. 
+// Since, the $GLOBALS['lastidado'] is manipulated by the other function calls(sql_checksum_of_modified_row), 
+// this issue is arised.
+
+// Fix:
+// The task of assigning LAST_INSERT_ID  to a global variable $GLOBALS['lastidado']  is moved from sql.inc to this file.
+// Following code will get executed, when (a) when audit is enabled (b) When break glass is invoked.
+// Retrieve LAST_INSERT_ID and assign it to a global variable and eventually it can be used by other functions.
+    $lastid=mysql_insert_id($GLOBALS['dbh']);
+    $GLOBALS['lastidado']=$lastid;
+// ViCarePlus : Audit fix - ends here :: Sep 24,2010 
+
    $statement = trim($statement);
 
     /* Don't audit SQL statements done to the audit log,

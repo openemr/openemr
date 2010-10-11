@@ -8,7 +8,7 @@
 # authors: Brady Miller <brady@sparmy.com>
 #          Amalu Obinna <amaluobinna@aol.com>
 #
-# date   05/14/10
+# date   10/05/10
 #
 # Un-install script steps:
 #  1) Collect the MySQL root user password
@@ -42,6 +42,7 @@ case "$1" in
       TMPDIR=/tmp/cvs-openemr-tmp
       WEB=/var/www
       OPENEMR=$WEB/cvs-openemr
+      SITEDIR=$OPENEMR/sites/default
 
       #Standardized echo function to send to both echo and to log file
       #  requires one parameter (string)
@@ -90,10 +91,10 @@ case "$1" in
       MPASS=$(collect_var pass $CONFIG)
 
       # Collect database information from sqlconf.php file
-      SQLLOCATION=$(collect_var \$host $OPENEMR/library/sqlconf.php)
-      SQLUSER=$(collect_var \$login $OPENEMR/library/sqlconf.php)
-      SQLPASSWORD=$(collect_var \$pass $OPENEMR/library/sqlconf.php)
-      SQLDATABASE=$(collect_var \$dbase $OPENEMR/library/sqlconf.php)
+      SQLLOCATION=$(collect_var \$host $SITEDIR/sqlconf.php)
+      SQLUSER=$(collect_var \$login $SITEDIR/sqlconf.php)
+      SQLPASSWORD=$(collect_var \$pass $SITEDIR/sqlconf.php)
+      SQLDATABASE=$(collect_var \$dbase $SITEDIR/sqlconf.php)
 
 ## BEGIN MYSQL ROOT PASSWORD GRAB
 ## note differences in removal wording and location option of database

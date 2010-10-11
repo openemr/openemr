@@ -571,6 +571,22 @@ function goHome() {
       }
    }
   }
+ function setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray) {
+ //This function lists all encounters of the patient.
+ //This function writes the drop down in the top frame.
+ //It is called when a new patient is create/selected from the search menu.
+  var str = '<Select class="text" id="EncounterHistory" onchange="toencounter(this.options[this.selectedIndex].value)">';
+  str+='<option value=""><?php echo htmlspecialchars( xl('Encounter History'), ENT_QUOTES) ?></option>';
+  str+='<option value="New Encounter"><?php echo htmlspecialchars( xl('New Encounter'), ENT_QUOTES) ?></option>';
+  str+='<option value="Past Encounter List"><?php echo htmlspecialchars( xl('Past Encounter List'), ENT_QUOTES) ?></option>';
+  for(CountEncounter=0;CountEncounter<EncounterDateArray.length;CountEncounter++)
+   {
+    str+='<option value="'+EncounterIdArray[CountEncounter]+'~'+EncounterDateArray[CountEncounter]+'">'+EncounterDateArray[CountEncounter]+'-'+CalendarCategoryArray[CountEncounter]+'</option>';
+   }
+  str+='</Select>';
+  $(parent.Title.document.getElementById('past_encounter_block')).show();
+  top.window.parent.Title.document.getElementById('past_encounter').innerHTML=str;
+ }
 
 function loadCurrentPatientFromTitle() {
     top.frames['RTop'].location='../patient_file/summary/demographics.php';
@@ -630,9 +646,10 @@ function getEncounterTargetFrame( name ) {
   var f = document.forms[0];
   active_pid = 0;
   active_encounter = 0;
-  setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
   setDivContent('current_patient', '<b><?php xl('None','e'); ?></b>');
   setTitleContent('current_patient', '<b><?php xl('None','e'); ?></b>');
+  top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
+  top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b>";
   reloadPatient('');
   syncRadios();
  }
@@ -643,11 +660,23 @@ function getEncounterTargetFrame( name ) {
  // stale content will be reloaded.
  function clearEncounter() {
   if (active_encounter == 0) return;
-  setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
+  top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b>";
   active_encounter = 0;
   reloadEncounter('');
   syncRadios();
  }
+function removeOptionSelected(EncounterId)
+{//Removes an item from the Encounter drop down.
+	var elSel = top.window.parent.Title.document.getElementById('EncounterHistory');
+	var i;
+	for (i = elSel.length - 1; i>=2; i--) {
+	 EncounterHistoryValue=elSel.options[i].value;
+	 EncounterHistoryValueArray=EncounterHistoryValue.split('~');
+		if (EncounterHistoryValueArray[0]==EncounterId) {
+			elSel.remove(i);
+		}
+	}
+}
 
  // You can call this to make sure the session pid is what we expect.
  function pidSanityCheck(pid) {

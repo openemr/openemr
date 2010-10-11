@@ -769,6 +769,10 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'vitals_ps_expand', '1');
 #EndIf
 
+#IfNotRow user_settings setting_label gacl_protect
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'gacl_protect', '0');
+#EndIf
+
 #IfNotTable version
 CREATE TABLE version (
   v_major    int(11)     NOT NULL DEFAULT 0,

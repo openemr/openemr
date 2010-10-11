@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../../globals.php");
 include_once("$srcdir/forms.inc");
 
@@ -28,3 +28,6 @@ function setencounter($enc) {
 	//the screen for a new encounter
 	return $return_val;
 }
+
+?>
+

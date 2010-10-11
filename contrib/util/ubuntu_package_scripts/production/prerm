@@ -8,7 +8,7 @@
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
-# date   08/21/09
+# date   10/05/09
 #
 # Un-install script steps:
 #  1) Collect configuration information
@@ -44,6 +44,7 @@ case "$1" in
       TMPDIR=/tmp/openemr-tmp
       WEB=/var/www
       OPENEMR=$WEB/openemr
+      SITEDIR=$OPENEMR/sites/default
 
       #Standardized echo function to send to both echo and to log file
       #  requires one parameter (string)
@@ -102,10 +103,10 @@ case "$1" in
       MPASS=$(collect_var pass $CONFIG)
 
       # Collect database information from sqlconf.php file
-      SQLLOCATION=$(collect_var \$host $OPENEMR/library/sqlconf.php)
-      SQLUSER=$(collect_var \$login $OPENEMR/library/sqlconf.php)
-      SQLPASSWORD=$(collect_var \$pass $OPENEMR/library/sqlconf.php)
-      SQLDATABASE=$(collect_var \$dbase $OPENEMR/library/sqlconf.php)
+      SQLLOCATION=$(collect_var \$host $SITEDIR/sqlconf.php)
+      SQLUSER=$(collect_var \$login $SITEDIR/sqlconf.php)
+      SQLPASSWORD=$(collect_var \$pass $SITEDIR/sqlconf.php)
+      SQLDATABASE=$(collect_var \$dbase $SITEDIR/sqlconf.php)
 
 ## BEGIN MYSQL ROOT PASSWORD GRAB
 ## note differences in removal wording and location option of database
