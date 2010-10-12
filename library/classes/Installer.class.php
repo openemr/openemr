@@ -9,6 +9,7 @@ class Installer
   {
     // Installation variables
     $this->iuser                = $cgi_variables['iuser'];
+    $this->iuserpass            = $cgi_variables['iuserpass'];
     $this->iuname               = $cgi_variables['iuname'];
     $this->igroup               = $cgi_variables['igroup'];
     $this->server               = $cgi_variables['server']; // mysql server (usually localhost)
@@ -73,7 +74,7 @@ class Installer
   public function password_is_valid()
   {
     if ( $this->pass == "" || !isset($this->pass) ) {
-      $this->error_message = "Initial user password is invalid: '$this->pass'";
+      $this->error_message = "The password for the new database account is invalid: '$this->pass'";
       return FALSE;
     }
     return TRUE;
@@ -188,7 +189,8 @@ class Installer
         "<p>".mysql_error()." (#".mysql_errno().")\n";
       return FALSE;
         }
-    if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','1a1dc91c907325c69271ddf0c944bc72',1,'$this->iuname','',3,1,3)") == FALSE) {
+    $password_hash = md5( $this->iuserpass );
+    if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','$password_hash',1,'$this->iuname','',3,1,3)") == FALSE) {
       $this->error_message = "ERROR. Unable to add initial user\n" .
         "<p>".mysql_error()." (#".mysql_errno().")\n";
       return FALSE;
