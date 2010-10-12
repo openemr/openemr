@@ -21,8 +21,8 @@
 //   2) Custom; can send configuration setting(s) via command line. Note 
 //      that the ordering and number of custom settings that can be sent
 //      is flexible.
-//     php -f iuser=[iuser] iuname=[iuname] igroup=[igroup] server=[server]
-//       loginhost=[loginhost] port=[port] root=[root] rootpass=[rootpass]
+//     php -f iuser=[iuser] iuname=[iuname] iuserpass=[iuserpass] igroup=[igroup]
+//       server=[server] loginhost=[loginhost] port=[port] root=[root] rootpass=[rootpass]
 //       login=[login] pass=[pass] dbname=[dbname] collate=[collate] site=[site]
 //
 //   Examples:
@@ -32,6 +32,7 @@
 //   Description of settings (default value in parenthesis):
 //     iuser      -> initial user login name (admin)
 //     iuname     -> initial user last name (Administrator)
+//     iuserpass  -> initial user password (pass)
 //     igroup     -> practice group name (Default)
 //     server     -> mysql server (localhost)
 //     loginhost  -> php/apache server (localhost)
@@ -54,6 +55,7 @@ require_once(dirname(__FILE__).'/../../../library/classes/Installer.class.php');
 $installSettings = array();
 $installSettings['iuser'] = 'admin';
 $installSettings['iuname'] = 'Administrator';
+$installSettings['iuserpass'] = 'pass';
 $installSettings['igroup'] = 'Default';
 $installSettings['server'] = 'localhost'; // mysql server
 $installSettings['loginhost'] = 'localhost'; // php/apache server
@@ -88,6 +90,7 @@ class InstallerAuto
     global $installSettings;
     $this->post_variables = array( 'iuser'       => $installSettings['iuser'],
                                    'iuname'      => $installSettings['iuname'],
+                                   'iuserpass'   => $installSettings['iuserpass'],
                                    'igroup'      => $installSettings['igroup'],
                                    'server'      => $installSettings['server'],
                                    'loginhost'   => $installSettings['loginhost'],
