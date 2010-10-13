@@ -306,6 +306,11 @@ else {
       echo "Click Back in browser to re-enter.<br>\n";
       break;
     }
+    if ( ! $installer->user_password_is_valid() ) {
+      echo "ERROR. Please pick a proper 'Initial User Password'.<br>\n";
+      echo "Click Back in browser to re-enter.<br>\n";
+      break;
+    }
     
     echo "<b>Step $state</b><br><br>\n";
     echo "Configuring OpenEMR...<br><br>\n";
@@ -451,7 +456,8 @@ else {
     echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='5'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
-<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n	
+<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n
+<INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>\n	
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
@@ -484,6 +490,7 @@ echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='6'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n
+<INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
@@ -516,6 +523,7 @@ echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='7'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n
+<INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 

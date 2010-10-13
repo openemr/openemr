@@ -80,6 +80,15 @@ class Installer
     return TRUE;
   }
 
+  public function user_password_is_valid()
+  {
+    if ( $this->iuserpass == "" || !isset($this->iuserpass) ) {
+      $this->error_message = "The password for the user is invalid: '$this->iuserpass'";
+      return FALSE;
+    }
+    return TRUE;
+  }
+
   public function root_database_connection()
   {
     $this->dbh = $this->connect_to_database( $this->server, $this->root, $this->rootpass, $this->port );
