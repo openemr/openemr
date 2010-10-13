@@ -67,7 +67,7 @@ urpmi.addmedia --update contrib_updates http://ftp.ussg.iu.edu/linux/mandrake/of
 #  and restart apache (done after below suhosin patch).
 echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and xsl php package and perl-CGI package..."
 echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and xsl php package and perl-CGI package..." >> $LOG
-urpmi --auto php-gd php-mbstring php-zip php-xsl perl-CGI patch >> $LOG
+urpmi --auto php-gd php-mbstring php-zip php-xsl perl-CGI patch git-core >> $LOG
 #
 #Patch the suhosin bug
 SUHOSINCONF=/etc/php.d/Z98_suhosin.ini
