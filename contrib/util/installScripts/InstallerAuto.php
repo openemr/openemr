@@ -21,6 +21,7 @@
 //     php -f iuser=[iuser] iuname=[iuname] iuserpass=[iuserpass] igroup=[igroup]
 //       server=[server] loginhost=[loginhost] port=[port] root=[root] rootpass=[rootpass]
 //       login=[login] pass=[pass] dbname=[dbname] collate=[collate] site=[site]
+//       source_site_id=[source_site_id] clone_database=[clone_database]
 //
 //   Description of settings (default value in parenthesis):
 //     iuser      -> initial user login name (admin)
@@ -111,29 +112,11 @@ $installSettings = $tempInstallSettings;
 class InstallerAuto
 {
   protected $installer;
-  protected $post_variables;
 
   function __construct()
   {
     global $installSettings;
-    $this->post_variables = array( 'iuser'       => $installSettings['iuser'],
-                                   'iuname'      => $installSettings['iuname'],
-                                   'iuserpass'   => $installSettings['iuserpass'],
-                                   'igroup'      => $installSettings['igroup'],
-                                   'server'      => $installSettings['server'],
-                                   'loginhost'   => $installSettings['loginhost'],
-                                   'port'        => $installSettings['port'],
-                                   'root'        => $installSettings['root'],
-                                   'rootpass'    => $installSettings['rootpass'],
-                                   'login'       => $installSettings['login'],
-                                   'pass'        => $installSettings['pass'],
-                                   'dbname'      => $installSettings['dbname'],
-                                   'collate'     => $installSettings['collate'],
-                                   'site'        => $installSettings['site'],
-                                   'source_site_id' => $installSettings['source_site_id'],
-                                   'clone_database' => $installSettings['clone_database']
-                                 );
-    $this->installer = new Installer( $this->post_variables );
+    $this->installer = new Installer( $installSettings );
     if ( ! $this->installer->quick_install() ) {
       echo "ERROR: " . $this->installer->error_message . "\n";
     }
