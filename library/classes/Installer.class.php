@@ -82,6 +82,11 @@ class Installer
 
   public function user_password_is_valid()
   {
+    // Skip this validation if cloning a database
+    if ( ! empty ($this->clone_database) ) {
+      return TRUE;
+    }
+
     if ( $this->iuserpass == "" || !isset($this->iuserpass) ) {
       $this->error_message = "The password for the user is invalid: '$this->iuserpass'";
       return FALSE;
