@@ -422,6 +422,7 @@ CREATE TABLE `facility` (
   `attn` varchar(65) default NULL,
   `domain_identifier` varchar(60) default NULL,
   `facility_npi` varchar(15) default NULL,
+  `tax_id_type` VARCHAR(31) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=4 ;
 
@@ -429,7 +430,7 @@ CREATE TABLE `facility` (
 -- Dumping data for table `facility`
 -- 
 
-INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', 1, 0, 0, NULL, '', '', '', '');
+INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', 1, 0, 0, NULL, '', '', '', '', '');
 
 -- --------------------------------------------------------
 

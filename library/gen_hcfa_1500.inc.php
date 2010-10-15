@@ -501,9 +501,14 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   }
 
   // 25. Federal Tax ID Number
-  // Using the Billing Facility EIN because that's what FreeB did.
+  // FrreB hard coded EIN. Changed it to included SSN as well.
   put_hcfa(56, 1, 15, $claim->billingFacilityETIN());
+  if($claim->federalIdType()=='SY'){
+  put_hcfa(56, 16, 1, 'X'); // The SSN checkbox
+  }
+  else{
   put_hcfa(56, 19, 1, 'X'); // The EIN checkbox
+  }
 
   // 26. Patient's Account No.
   // Instructions say hyphens are not allowed, but freeb used them.

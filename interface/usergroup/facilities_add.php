@@ -134,7 +134,7 @@ $(document).ready(function(){
         <tr>
         <td><span class="text"><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
         <td>&nbsp;</td>
-        <td><span class="text"><?php xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value=""></td>
+        <td><span class="text"><?php xl('Tax ID','e'); ?>: </span></td><td><select name=tax_id_type><option value="EI"><?php xl('EIN','e'); ?></option><option value="SY"><?php xl('SSN','e'); ?></option></select><input type=entry size=11 name=federal_ein value=""></td>
         </tr>
         <tr>
         <td height="22"><span class="text"><?php xl('Country','e'); ?>: </span></td><td><input type=entry size=20 name=country_code value=""></td>

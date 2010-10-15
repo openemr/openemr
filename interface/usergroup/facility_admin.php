@@ -95,9 +95,19 @@ $(document).ready(function(){
             <td><input type=entry size=20 name=city value="<?php echo htmlspecialchars($facility{"city"}, ENT_QUOTES) ?>"></td>
             <td><span class=text><?php xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value="<?php echo htmlspecialchars($facility{"postal_code"}, ENT_QUOTES) ?>"></td>
         </tr>
+	<?php 
+		$ssn='';
+		$ein='';
+		if($facility['tax_id_type']=='SY'){
+		$ssn='selected';
+		}
+		else{
+		$ein='selected';
+		}
+	?>
         <tr>
             <td><span class=text><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value="<?php echo htmlspecialchars($facility{"state"}, ENT_QUOTES) ?>"></td>
-            <td><span class=text><?php xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value="<?php echo htmlspecialchars($facility{"federal_ein"}, ENT_QUOTES) ?>"></td>
+            <td><span class=text><?php xl('Tax ID','e'); ?>: </span></td><td><select name=tax_id_type><option value="EI" <?php echo $ein;?>><?php xl('EIN','e'); ?></option><option value="SY" <?php echo $ssn;?>><?php xl('SSN','e'); ?></option></select><input type=entry size=11 name=federal_ein value="<?php echo htmlspecialchars($facility{"federal_ein"}, ENT_QUOTES) ?>"></td>
         </tr>
         <tr>
             <td><span class=text><?php xl('Country','e'); ?>: </span></td><td><input type=entry size=20 name=country_code value="<?php echo htmlspecialchars($facility{"country_code"}, ENT_QUOTES) ?>"></td>
