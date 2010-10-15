@@ -109,22 +109,15 @@ foreach ($installSettings as $setting => $value) {
 $installSettings = $tempInstallSettings;
 
 
-class InstallerAuto
-{
-  protected $installer;
-
-  function __construct()
-  {
-    global $installSettings;
-    $this->installer = new Installer( $installSettings );
-    if ( ! $this->installer->quick_install() ) {
-      echo "ERROR: " . $this->installer->error_message . "\n";
-    }
-    echo $this->installer->debug_message . "\n";
-  }
+// Install and configure OpenEMR using the Installer class
+$installer = new Installer( $installSettings );
+if ( ! $installer->quick_install() ) {
+  // Failed, report error
+  echo "ERROR: " . $installer->error_message . "\n";
 }
-
-// Run Installer
-new InstallerAuto();
+else {
+  // Successful
+  echo $installer->debug_message . "\n";
+}
 
 ?>
