@@ -315,7 +315,8 @@ else {
     
     echo "<b>Step $state</b><br><br>\n";
     echo "Configuring OpenEMR...<br><br>\n";
-    
+
+    // Skip below if database shell has already been created.
     if ($inst != 2) {
 
       echo "Connecting to MySQL Server...\n";
@@ -329,34 +330,39 @@ else {
 	echo "OK.<br>\n";
         flush();
       }
+    }
 
-      // Only pertinent if cloning another installation database
-      if ( ! empty($installer->clone_database)) {
+    // Only pertinent if cloning another installation database
+    if ( ! empty($installer->clone_database)) {
 
-        echo "Dumping source database...";
-        flush();
-        if ( ! $installer->create_dumpfiles() ) {
-          echo $installer->error_message;
-          break;
-        }
+      echo "Dumping source database...";
+      flush();
+      if ( ! $installer->create_dumpfiles() ) {
+        echo $installer->error_message;
+        break;
+      }
+      else {
         echo " OK.<br>\n";
         flush();
       }
+    }
 
-      // Only pertinent if mirroring another installation directory
-      if ( ! empty($installer->source_site_id)) {
+    // Only pertinent if mirroring another installation directory
+    if ( ! empty($installer->source_site_id)) {
 
-        echo "Creating site directory...";
-        if ( ! $installer->create_site_directory() ) {
-          echo $installer->error_message;
-          break;
-        }
-        else {
-          echo "OK.<BR>";
-          flush();
-        }
+      echo "Creating site directory...";
+      if ( ! $installer->create_site_directory() ) {
+        echo $installer->error_message;
+        break;
       }
+      else {
+        echo "OK.<BR>";
+        flush();
+      }
+    }
 
+    // Skip below if database shell has already been created.
+    if ($inst != 2) {
       echo "Creating database...\n";
       flush();
       if ( ! $installer->create_database() ) {
