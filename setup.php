@@ -10,7 +10,6 @@ require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-$upgrade = 0;
 $state = $_POST["state"];
 
 // Make this true for IPPF.
@@ -152,13 +151,10 @@ function cloneClicked() {
 <p>
 We recommend you print these instructions for future reference.
 </p>
-<p>
-<b>Unless you cloned a database, the initial OpenEMR user is "<?php echo $installer->iuser; ?>" and the password is "pass".</b>
-You should change this password!
-</p>
-<p>
-If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.
-</p>
+<?php if (empty($installer->clone_database)) {
+  echo "<p><b>The initial OpenEMR user is '".$installer->iuser."' and the password is '".$installer->iuserpass."'</b></p>";
+  echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
+} ?>
 <p>
  <a href='./?site=<?php echo $site_id; ?>'>Click here to start using OpenEMR. </a>
 </p>
@@ -279,6 +275,7 @@ else {
     
     echo "<TR VALIGN='TOP' class='noclone'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
     echo "<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuser' VALUE='admin'></TD><TD><span class='text'>(This is the login name of user that will be created for you. Limit this to one word.)</span></TD></TR>
+<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User Password:</span></TD><TD><INPUT SIZE='30' TYPE='PASSWORD' NAME='iuserpass' VALUE=''></TD><TD><span class='text'>(This is the password for the initial user account above.)</span></TD></TR>
 <TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User's Name:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuname' VALUE='Administrator'></TD><TD><span class='text'>(This is the real name of the 'initial user'.)</span></TD></TR>
 <TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial Group:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='igroup' VALUE='Default'></TD><TD><span class='text'>(This is the group that will be created for your users.  This should be the name of your practice.)</span></TD></TR>
 ";
@@ -290,16 +287,25 @@ else {
     break;
 
   case 3:
-    
-    if ( ! $installer->login_is_valid() ) {
-      echo "ERROR. Please pick a proper 'Login Name'.<br>\n";
-      echo "Click Back in browser to re-enter.<br>\n";
-      break;
-    }
-    if ( ! $installer->iuser_is_valid() ) {
-      echo "ERROR. The 'Initial User' field can only contain one word and no spaces.<br>\n";
-      echo "Click Back in browser to re-enter.<br>\n";
-      break;
+
+    // Form Validation
+    //   (applicable if not cloning from another database)
+    if (empty($installer->clone_database)) { 
+      if ( ! $installer->login_is_valid() ) {
+        echo "ERROR. Please pick a proper 'Login Name'.<br>\n";
+        echo "Click Back in browser to re-enter.<br>\n";
+        break;
+      }
+      if ( ! $installer->iuser_is_valid() ) {
+        echo "ERROR. The 'Initial User' field can only contain one word and no spaces.<br>\n";
+        echo "Click Back in browser to re-enter.<br>\n";
+        break;
+      }
+      if ( ! $installer->user_password_is_valid() ) {
+        echo "ERROR. Please pick a proper 'Initial User Password'.<br>\n";
+        echo "Click Back in browser to re-enter.<br>\n";
+        break;
+      }
     }
     if ( ! $installer->password_is_valid() ) {
       echo "ERROR. Please pick a proper 'Password'.<br>\n";
@@ -309,114 +315,158 @@ else {
     
     echo "<b>Step $state</b><br><br>\n";
     echo "Configuring OpenEMR...<br><br>\n";
-    
+
+    // Skip below if database shell has already been created.
     if ($inst != 2) {
+
       echo "Connecting to MySQL Server...\n";
       flush();
-      $dbh = $installer->root_database_connection();
-      if ($dbh == FALSE) {
+      if ( ! $installer->root_database_connection() ) {
 	echo "ERROR.  Check your login credentials.\n";
-	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
+	echo $installer->error_message;
 	break;
       }
       else {
 	echo "OK.<br>\n";
+        flush();
       }
+    }
+
+    // Only pertinent if cloning another installation database
+    if ( ! empty($installer->clone_database)) {
+
+      echo "Dumping source database...";
+      flush();
+      if ( ! $installer->create_dumpfiles() ) {
+        echo $installer->error_message;
+        break;
+      }
+      else {
+        echo " OK.<br>\n";
+        flush();
+      }
+    }
+
+    // Only pertinent if mirroring another installation directory
+    if ( ! empty($installer->source_site_id)) {
+
+      echo "Creating site directory...";
+      if ( ! $installer->create_site_directory() ) {
+        echo $installer->error_message;
+        break;
+      }
+      else {
+        echo "OK.<BR>";
+        flush();
+      }
+    }
+
+    // Skip below if database shell has already been created.
+    if ($inst != 2) {
       echo "Creating database...\n";
       flush();
-      if ( $installer->create_database()) {
-	echo "OK.<br>\n";
+      if ( ! $installer->create_database() ) {
+        echo "ERROR.  Check your login credentials.\n";
+        echo $installer->error_message;
+        break;
       } else {
-	echo "ERROR.  Check your login credentials.\n";
-	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
-	break;
+        echo "OK.<br>\n";
+        flush();
       }
+
       echo "Creating user with permissions for database...\n";
       flush();
       if ( ! $installer->grant_privileges() ) {
 	echo "ERROR when granting privileges to the specified user.\n";
-	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
-	echo "ERROR.\n";
+	echo $installer->error_message;
 	break;
       } else {
 	echo "OK.<br>\n";
+        flush();
       }
+
       echo "Reconnecting as new user...\n";
+      flush();
       $installer->disconnect();
     } else {
+
       echo "Connecting to MySQL Server...\n";
     }
-    $dbh = $installer->user_database_connection();
-    if ($dbh == FALSE) {
+    if ( ! $installer->user_database_connection() ) {
       echo "ERROR.  Check your login credentials.\n";
-      echo "<p>".mysql_error()." (#".mysql_errno().")\n";
-      break;
-    }
-    echo "OK.<br>\n";
-    flush();
-    
-    // If cloning a site's database, dump it now and put the dump file
-    // info into $installer->dumpfiles so that $installer->load_dumpfiles() can use it
-    echo "Dumping source database..."; flush();
-    if ( ! $installer->create_dumpfiles() ) {
       echo $installer->error_message;
       break;
     }
-    echo " OK.<br>\n"; flush();
+    else {
+      echo "OK.<br>\n";
+      flush();
+    }
+    
+    // Load the database files
+    $dump_results = $installer->load_dumpfiles();
+    if ( ! $dump_results ) {
+      echo $installer->error_message;
+      break;
+    } else {
+      echo $dump_results;
+      flush();
+    }
 
-    if ( $upgrade == 1 ) {
-      // Set our version numbers into the version table.
+    echo "Writing SQL configuration...\n";
+    flush();
+    if ( ! $installer->write_configuration_file() ) {
+      echo $installer->error_message;
+      break;
+    }
+    else {
+      echo "OK.<br>\n";
+      flush();
+    }
+
+    // Only pertinent if not cloning another installation database
+    if (empty($installer->clone_database)) {
+
       echo "Setting version indicators...\n";
-      include "version.php";
-      if (mysql_query("UPDATE version SET v_major = '$v_major', v_minor = '$v_minor', " .
-		      "v_patch = '$v_patch', v_tag = '$v_tag', v_database = '$v_database'") == FALSE) {
-	echo "ERROR.\n";
-	echo "<p>" . mysql_error() . " (#" . mysql_errno() . ")\n";
+      flush();
+      if ( ! $installer->add_version_info() ) {
+        echo "ERROR.\n";
+        echo $installer->error_message;;
+        break;
       }
       else {
-	echo "OK<br>\n";
+        echo "OK<br>\n";
+        flush();
       }
-    } else {
-      $dump_results = $installer->load_dumpfiles();
-      if ( ! $dump_results ) {
-	echo $installer->error_message;
-	break;
-      } else {
-	echo $dump_results;
+
+      echo "Writing global configuration defaults...\n";
+      flush();
+      if ( ! $installer->insert_globals() ) {
+        echo "ERROR.\n";
+        echo $installer->error_message;;
+        break;
       }
+      else {
+        echo "OK<br>\n";
+        flush();
+      }
+
       echo "Adding Initial User...\n";
       flush();
       if ( ! $installer->add_initial_user() ) {
-	echo $installer->error_message;
+        echo $installer->error_message;
+        break;
       }
       echo "OK<br>\n";
-    }
-    flush();
-      
-    if ( ! $installer->create_site_directory() ) {
-      echo $installer->error_message;
-      break;
-    }
-    echo "Successfully created site directory.<BR><BR>";
-
-    if ( ! $installer->write_configuration_file() ) {
-      echo $installer->error_message;
       flush();
-      break;
     }
     
-    echo "Successfully wrote SQL configuration.<BR><br>";
-    
-    echo "Writing global configuration defaults...<br>";
-    $installer->insert_globals();
-    echo "Successfully wrote global configuration defaults.<br><br>";
-    
-    echo "\n<br>Next step will install and configure access controls (php-GACL).<br>\n";
-    if ( $installer->clone_database ) {
+    if ( ! empty($installer->clone_database) ) {
       // Database was cloned, skip ACL setup.
+      echo "Click 'continue' for further instructions.";
       $next_state = 7;
     }
     else {
+      echo "\n<br>Next step will install and configure access controls (php-GACL).<br>\n";
       $next_state = 4; 
     }
     
@@ -425,7 +475,9 @@ else {
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='$next_state'>
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>
+<INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>
 <INPUT TYPE='HIDDEN' NAME='iuname' VALUE='$installer->iuname'>
+<INPUT TYPE='HIDDEN' NAME='clone_database' VALUE='$installer->clone_database'>
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
@@ -438,11 +490,12 @@ else {
       echo $installer->error_message;
       break;
     }
+    else {
+      // display the status information for gacl setup
+      echo $installer->debug_message;
+    }
 
-    // display the status information for gacl setup
-    echo $installer->debug_message;
-
-    echo "Gave the '$installer->iuser' user (password is 'pass') administrator access.<br><br>";
+    echo "Gave the '$installer->iuser' user (password is '$installer->iuserpass') administrator access.<br><br>";
     
     echo "Done installing and configuring access controls (php-GACL).<br>";
     echo "Next step will configure PHP.";
@@ -450,7 +503,8 @@ else {
     echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='5'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
-<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n	
+<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n
+<INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>\n	
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
@@ -483,6 +537,7 @@ echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='6'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n
+<INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
@@ -515,6 +570,7 @@ echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='7'>\n
 <INPUT TYPE='HIDDEN' NAME='site' VALUE='$site_id'>\n
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>\n
+<INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 

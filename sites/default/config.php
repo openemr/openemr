@@ -59,8 +59,7 @@ $GLOBALS['oer_config']['prescriptions']['format'] = "";
 // Set this to true if you want the drug DEA number printed on prescriptions by default
 $GLOBALS['oer_config']['prescriptions']['show_DEA'] = false;
 
-//Document storage repository document root, if it does not begin with a slash it is set relative to the file root
-//you must include a trailing slash in either case
+// Document storage repository document root. Must include a trailing slash.
 $GLOBALS['oer_config']['documents']['repopath'] = $GLOBALS['OE_SITE_DIR'] . "/documents/";
 $GLOBALS['oer_config']['documents']['file_command_path'] = "/usr/bin/file";
 
@@ -144,10 +143,4 @@ $GLOBALS['oer_config']['druglabels']['logo'] = dirname(__FILE__) .
   "/../../interface/pic/" . $GLOBALS['oer_config']['druglabels']['logo_pic'];
 
 $GLOBALS['oer_config']['documents']['repository'] = $GLOBALS['oer_config']['documents']['repopath'];
-if (strpos($GLOBALS['oer_config']['documents']['repository'],"/") !== 0) {
-	$GLOBALS['oer_config']['documents']['repository'] =
-    realpath(dirname(__FILE__) . "/../../" .
-    $GLOBALS['oer_config']['documents']['repository']) . "/";
-}
-
 ?>

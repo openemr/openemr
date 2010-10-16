@@ -172,10 +172,11 @@ function toencounter(pid, pubpid, pname, enc, datestr, dobstr) {
 <?php } ?>
 }
 
-function topatient(pid) {
+function topatient(pid, pubpid, pname, enc, datestr, dobstr) {
  top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+ parent.left_nav.setPatient(pname,pid,pubpid,'',dobstr);
  parent.frames[othername].location.href =
   '../patient_file/summary/demographics_full.php?pid=' + pid;
 <?php } else { ?>
@@ -183,6 +184,9 @@ function topatient(pid) {
 <?php } ?>
 }
 
+EncounterDateArray=new Array;
+CalendarCategoryArray=new Array;
+EncounterIdArray=new Array;
 </script>
 </head>
 <body class="body_top">
@@ -543,6 +547,30 @@ if ($ret = getBillsBetween($from_date,
       $lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>$ptname" .
         "</font></span><span class=small>&nbsp;(" . $iter['enc_pid'] . "-" .
         $iter['enc_encounter'] . ")</span>";
+
+		 //Encounter details are stored to javacript as array.
+		$result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
+			" left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = '".$iter['enc_pid']."' order by fe.date desc");
+		   if(sqlNumRows($result4)>0)
+			?>
+			<script language='JavaScript'>
+			Count=0;
+			EncounterDateArray[<?php echo $iter['enc_pid']; ?>]=new Array;
+			CalendarCategoryArray[<?php echo $iter['enc_pid']; ?>]=new Array;
+			EncounterIdArray[<?php echo $iter['enc_pid']; ?>]=new Array;
+			<?php
+			while($rowresult4 = sqlFetchArray($result4))
+			 {
+			?>
+				EncounterIdArray[<?php echo $iter['enc_pid']; ?>][Count]='<?php echo htmlspecialchars($rowresult4['encounter'], ENT_QUOTES); ?>';
+				EncounterDateArray[<?php echo $iter['enc_pid']; ?>][Count]='<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date']))), ENT_QUOTES); ?>';
+				CalendarCategoryArray[<?php echo $iter['enc_pid']; ?>][Count]='<?php echo htmlspecialchars( xl_appt_category($rowresult4['pc_catname']), ENT_QUOTES); ?>';
+				Count++;
+		 <?php
+			 }
+		 ?>
+		</script>
+		<?php		
 				
             //  Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09  JCH
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
@@ -550,13 +578,20 @@ if ($ret = getBillsBetween($from_date,
         ",'" . addslashes($name['pubpid']) .
         "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
         ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . 
-        xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "')\">[" .
+        xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
+				 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . 
+				 "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">[" .
         xl('To Enctr') . " " . oeFormatShortDate($raw_encounter_date) . "]</a>";
-				
+		
             //  Changed "To xxx" buttons to allow room for encounter date display 2/17/09  JCH
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
         "href=\"javascript:window.topatient(" . $iter['enc_pid'] .
-        ")\">[" . xl('To Dems') . "]</a>";
+        ",'" . addslashes($name['pubpid']) .
+        "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
+        ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . 
+        xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "');
+				 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . $iter['enc_pid'] . "],EncounterDateArray[" . $iter['enc_pid'] . 
+				 "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">[" . xl('To Dems') . "]</a>";
 
       if ($iter['id']) {
 

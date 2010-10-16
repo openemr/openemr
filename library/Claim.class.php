@@ -542,6 +542,16 @@ class Claim {
   function billingFacilityNPI() {
     return x12clean(trim($this->billing_facility['facility_npi']));
   }
+  
+  function federalIdType() {
+	if ($this->billing_facility['tax_id_type'])
+	{
+	return $this->billing_facility['tax_id_type'];
+	}
+	else{
+	return null;
+	}
+  }
 
   # The billing facility and the patient must both accept for this to return true.
   function billingFacilityAssignment($ins=0) {

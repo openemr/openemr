@@ -415,8 +415,9 @@
 	//if array of groups was empty, then we are done, and can break from loop
 	if (empty($arr_group_titles)) break;
       }
+      return true;
     }
-   return true;
+   return false;
   }
 
   //

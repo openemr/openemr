@@ -154,9 +154,14 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   // Add a REF*EI*<ein> segment if NPI was specified in the NM1 above.
   if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
     ++$edicount;
-    $out .= "REF" .
-      "*EI" .
-      "*" . $claim->billingFacilityETIN() .
+    $out .= "REF" ;
+	if($claim->federalIdType()){
+      $out .= "*" . $claim->federalIdType();
+	}
+	else{
+	  $out .= "*EI";//For dealing with the situation before adding selection for TaxId type In facility ie default to EIN.
+	}
+      $out .=  "*" . $claim->billingFacilityETIN() .
       "~\n";
   }
 

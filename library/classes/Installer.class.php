@@ -8,7 +8,10 @@ class Installer
   public function __construct( $cgi_variables )
   {
     // Installation variables
+    // For a good explanation of these variables, see documentation in
+    //   the contrib/util/installScripts/InstallerAuto.php file.
     $this->iuser                = $cgi_variables['iuser'];
+    $this->iuserpass            = $cgi_variables['iuserpass'];
     $this->iuname               = $cgi_variables['iuname'];
     $this->igroup               = $cgi_variables['igroup'];
     $this->server               = $cgi_variables['server']; // mysql server (usually localhost)
@@ -73,7 +76,16 @@ class Installer
   public function password_is_valid()
   {
     if ( $this->pass == "" || !isset($this->pass) ) {
-      $this->error_message = "Initial user password is invalid: '$this->pass'";
+      $this->error_message = "The password for the new database account is invalid: '$this->pass'";
+      return FALSE;
+    }
+    return TRUE;
+  }
+
+  public function user_password_is_valid()
+  {
+    if ( $this->iuserpass == "" || !isset($this->iuserpass) ) {
+      $this->error_message = "The password for the user is invalid: '$this->iuserpass'";
       return FALSE;
     }
     return TRUE;
@@ -83,10 +95,10 @@ class Installer
   {
     $this->dbh = $this->connect_to_database( $this->server, $this->root, $this->rootpass, $this->port );
     if ( $this->dbh ) {
-      return $this->dbh;
+      return TRUE;
     } else {
       $this->error_message = 'unable to connect to database as root';
-      return False;
+      return FALSE;
     }
   }
 
@@ -104,7 +116,7 @@ class Installer
       $this->error_message = "unable to select database: '$this->dbname'";
       return FALSE;
     }
-    return $this->dbh;
+    return TRUE;
   }
 
   public function create_database() {
@@ -136,17 +148,13 @@ class Installer
    * @return bool indicating success
    */
   public function create_dumpfiles() {
-    if ( $this->clone_database ) {
-      $this->dumpSourceDatabase();
-    }
-    return True;
+    return $this->dumpSourceDatabase();
   }
   
   public function load_dumpfiles() {
     $sql_results = ''; // information string which is returned
     foreach ($this->dumpfiles as $filename => $title) {
         $sql_results .= "Creating $title tables...\n";
-        // mysql_query("USE $dbname",$dbh);
         $fd = fopen($filename, 'r');
         if ($fd == FALSE) {
           $this->error_message = "ERROR.  Could not open dumpfile '$filename'.\n";
@@ -177,18 +185,24 @@ class Installer
     return $sql_results;
   }
 
-  public function add_initial_user() {
-    if ( $this->clone_database ) {
-      // we cloned the users. Don't insert a default.
-      return True;
+  public function add_version_info() {
+    include dirname(__FILE__) . "/../../version.php";
+    if ($this->execute_sql("UPDATE version SET v_major = '$v_major', v_minor = '$v_minor', v_patch = '$v_patch', v_tag = '$v_tag', v_database = '$v_database'") == FALSE) {
+      $this->error_message = "ERROR. Unable insert version information into database\n" .
+        "<p>".mysql_error()." (#".mysql_errno().")\n";
+      return FALSE;
     }
-    //echo "INSERT INTO groups VALUES (1,'$igroup','$iuser')<br>\n";
+    return TRUE;
+  }
+
+  public function add_initial_user() {
     if ($this->execute_sql("INSERT INTO groups (id, name, user) VALUES (1,'$this->igroup','$this->iuser')") == FALSE) {
       $this->error_message = "ERROR. Unable to add initial user group\n" .
         "<p>".mysql_error()." (#".mysql_errno().")\n";
       return FALSE;
-        }
-    if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','1a1dc91c907325c69271ddf0c944bc72',1,'$this->iuname','',3,1,3)") == FALSE) {
+    }
+    $password_hash = md5( $this->iuserpass );
+    if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','$password_hash',1,'$this->iuname','',3,1,3)") == FALSE) {
       $this->error_message = "ERROR. Unable to add initial user\n" .
         "<p>".mysql_error()." (#".mysql_errno().")\n";
       return FALSE;
@@ -272,10 +286,6 @@ $config = 1; /////////////
   }
 
   public function insert_globals() {
-    if ( $this->clone_database ) {
-      // we cloned the globals, so don't insert any
-      return True;
-    }
     function xl($s) { return $s; }
     require(dirname(__FILE__) . '/../globals.inc.php');
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
@@ -312,43 +322,78 @@ $config = 1; /////////////
   }
 
   public function quick_install() {
-    if ( ! $this->login_is_valid() ) {
-      return False;
+    // Validation of OpenEMR user settings
+    //   (applicable if not cloning from another database)
+    if (empty($this->clone_database)) {
+      if ( ! $this->login_is_valid() ) {
+        return False;
+      }
+      if ( ! $this->iuser_is_valid() ) {
+        return False;
+      }
+      if ( ! $this->user_password_is_valid() ) {
+        return False;
+      }
     }
-    if ( ! $this->iuser_is_valid() ) {
-      return False;
-    }
+    // Validation of mysql database password
     if ( ! $this->password_is_valid() ) {
       return False;
     }
-    $dbh = $this->root_database_connection();
-    if ($dbh == FALSE) {
+    // Connect to mysql via root user
+    if (! $this->root_database_connection() ) {
       return False;
     }
+    // Create the dumpfile
+    //   (applicable if cloning from another database)
+    if (! empty($this->clone_database)) {
+      if ( ! $this->create_dumpfiles() ) {
+        return False;
+      }
+    }
+    // Create the site directory
+    //   (applicable if mirroring another local site)
+    if ( ! empty($this->source_site_id) ) {
+      if ( ! $this->create_site_directory() ) {
+        return False;
+      }
+    }
+    // Create the mysql database
     if ( ! $this->create_database()) {
       return False;
     }
+    // Grant user privileges to the mysql database
     if ( ! $this->grant_privileges() ) {
       return False;
     }
+    // Connect to mysql via created user
     $this->disconnect();
     if ( ! $this->user_database_connection() ) {
       return False;
     }
-    if (! $this->load_dumpfiles() ) {
+    // Build the database
+    if ( ! $this->load_dumpfiles() ) {
       return False;
     }
-    if ( ! $this->add_initial_user() ) {
-      return False;
-    }
+    // Write the sql configuration file
     if ( ! $this->write_configuration_file() ) {
       return False;
     }
-    if ( ! $this->insert_globals() ) {
-      return False;
-    }
-    if ( ! $this->install_gacl()) {
-      return False;
+    // Load the version information, globals settings,
+    // initial user, and set up gacl access controls.
+    //  (applicable if not cloning from another database)
+    if (empty($this->clone_database)) {
+      if ( ! $this->add_version_info() ) {
+        return False;
+      }
+      if ( ! $this->insert_globals() ) {
+        return False;
+      }
+      if ( ! $this->add_initial_user() ) {
+        return False;
+      }
+      if ( ! $this->install_gacl()) {
+        return False;
+      }
     }
 
     return True;

@@ -793,3 +793,7 @@ ALTER TABLE lists
 ALTER TABLE form_encounter ADD referral_source varchar(31) NOT NULL DEFAULT '';
 #EndIf
 
+#IfMissingColumn facility tax_id_type
+ALTER TABLE facility ADD COLUMN tax_id_type VARCHAR(31) NOT NULL DEFAULT '' AFTER facility_npi;
+#EndIf
+

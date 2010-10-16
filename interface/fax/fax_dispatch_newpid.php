@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008, 2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -14,7 +14,7 @@
 require_once("../globals.php");
 require_once("$srcdir/sql.inc");
 
-$res = sqlStatement("SELECT date, encounter FROM form_encounter " .
+$res = sqlStatement("SELECT date, encounter, reason FROM form_encounter " .
   "WHERE pid = '" . $_GET['p'] . "' " .
   "ORDER BY date DESC, encounter DESC LIMIT 10");
 
@@ -23,7 +23,8 @@ echo "s.options.length = 0;\n";
 
 while ($row = sqlFetchArray($res)) {
   echo "s.options[s.options.length] = new Option(" .
-    "'" . substr($row['date'], 0, 10) . "', " .
+    "'" . substr($row['date'], 0, 10) . " " .
+    addslashes(strtr(substr($row['reason'], 0, 40), "\r\n", "  ")) . "', " .
     "'" . $row['encounter'] . "'" .
     ");\n";
 }
