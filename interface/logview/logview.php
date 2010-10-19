@@ -54,6 +54,19 @@ function eventTypeChange(eventname)
             document.theform.type_event.disabled = false;
          }              
 }
+
+// VicarePlus :: This invokes the find-patient popup.
+ function sel_patient() {
+  dlgopen('../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
+ }
+
+// VicarePlus :: This is for callback by the find-patient popup.
+ function setpatient(pid, lname, fname, dob) {
+  var f = document.theform;
+  f.form_patient.value = lname + ', ' + fname;
+  f.form_pid.value = pid;
+ }
+
 </script>
 </head>
 <body class="body_top">
@@ -66,6 +79,9 @@ $start_date = formData('start_date','G');
 
 if ($_GET["end_date"])
 $end_date = formData('end_date','G');
+
+if ($_GET["form_patient"])
+$form_patient = formData('form_patient','G');
 
 /*
  * Start date should not be greater than end date - Date Validation
@@ -82,6 +98,8 @@ if ($start_date && $end_date)
 ?>
 <?php
 $form_user = formData('form_user','R');
+$form_pid = formData('form_pid','R');
+if ($form_patient == '' ) $form_pid = '';
 
 $res = sqlStatement("select distinct LEFT(date,10) as date from log order by date desc limit 30");
 for($iter=0;$row=sqlFetchArray($res);$iter++) {
@@ -120,6 +138,14 @@ $sortby = formData('sortby','G') ;
 </td><td>
 <input type="text" size="10" name="end_date" id="end_date" value="<?php echo $end_date ? substr($end_date, 0, 10) : date('Y-m-d'); ?>" title="<?php  xl('yyyy-mm-dd Date of service','e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
 <img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_end_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php  xl('Click here to choose a date','e'); ?>">&nbsp;
+</td>
+<!--VicarePlus :: Feature For Generating Log For The Selected Patient --!>
+<td>
+&nbsp;&nbsp;<span class='text'><?php echo htmlspecialchars(xl('Patient'),ENT_NOQUOTES); ?>: </span>
+</td>
+<td>
+<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo $form_patient ? $form_patient : htmlspecialchars(xl('Click To Select'),ENT_QUOTES); ?>' onclick='sel_patient()' title='<?php echo htmlspecialchars(xl('Click to select patient'),ENT_QUOTES); ?>' />
+<input type='hidden' name='form_pid' value='<?php echo $form_pid; ?>' />
 </td>
 </tr>
 <tr><td>
@@ -270,7 +296,7 @@ if($eventname != "" && $type_event != "")
  else 
     {$gev = $getevent;}
     
-if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
+if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
 
 
   foreach ($ret as $iter) {
@@ -301,7 +327,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
 if (($eventname=="disclosure") || ($gev == ""))
 {
 $eventname="disclosure";
-if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
+if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
 foreach ($ret as $iter) {
         $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
 ?>
