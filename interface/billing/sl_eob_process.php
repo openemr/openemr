@@ -28,7 +28,7 @@ require_once("$srcdir/formatting.inc.php");
 	$last_invnumber = '';
 	$last_code = '';
 	$invoice_total = 0.00;
-
+	$InsertionId;//last inserted ID of 
   $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 
 ///////////////////////// Assorted Functions /////////////////////////
@@ -99,14 +99,74 @@ require_once("$srcdir/formatting.inc.php");
 
 	// This is called back by parse_era() once per claim.
 	//
+	function era_callback_check(&$out)
+	
+	{
+	global $InsertionId;//last inserted ID of 
+		global $StringToEcho,$debug;
+		
+		if($_GET['original']=='original')
+		{
+		$StringToEcho="<br/><br/><br/><br/><br/><br/>";
+		$StringToEcho.="<table border='1' cellpadding='0' cellspacing='0'  width='750'>";
+		$StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>".htmlspecialchars( xl('Check Number'), ENT_QUOTES)."</td><td class='dehead' width='400'  align='center'>".htmlspecialchars( xl('Payee Name'), ENT_QUOTES)."</td><td class='dehead'  width='150' align='center'>".htmlspecialchars( xl('Check Amount'), ENT_QUOTES)."</td></tr>";
+		$WarningFlag=false;
+		for ($check_count=1;$check_count<=$out['check_count'];$check_count++)
+		 { 
+			if($check_count%2==1)
+			 {
+				$bgcolor='#ddddff';
+			 }
+			else
+			 {
+				$bgcolor='#ffdddd';
+			 }
+			 $rs=sqlQ("select reference from ar_session where reference='".$out['check_number'.$check_count]."'");
+			 if(sqlNumRows($rs)>0)
+			 {
+				$bgcolor='#ff0000';
+				$WarningFlag=true;
+			 }
+			$StringToEcho.="<tr bgcolor='$bgcolor'>";
+			$StringToEcho.="<td><input type='checkbox'  name='chk".$out['check_number'.$check_count]."' value='".$out['check_number'.$check_count]."'/></td>";
+			$StringToEcho.="<td>".htmlspecialchars($out['check_number'.$check_count])."</td>";
+			$StringToEcho.="<td>".htmlspecialchars($out['payee_name'.$check_count])."</td>";
+			$StringToEcho.="<td align='right'>".htmlspecialchars(number_format($out['check_amount'.$check_count],2))."</td>";
+			$StringToEcho.="</tr>";
+		}
+		$StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit'  name='CheckSubmit' value='Submit'/></td></tr>";
+		if($WarningFlag==true)
+			$StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>".htmlspecialchars( xl('Warning Cheque Number already exist in the database'), ENT_QUOTES)."</td></tr>";
+ 		$StringToEcho.="</table>";
+		}
+		else
+		{
+		for ($check_count=1;$check_count<=$out['check_count'];$check_count++)
+		 { 
+		
+		if(isset($_REQUEST['chk'.$out['check_number'.$check_count]]))
+		{
+		$check_date=$out['check_date'.$check_count]?$out['check_date'.$check_count]:$_REQUEST['paydate'];
+		$post_to_date=$_REQUEST['post_to_date']!=''?$_REQUEST['post_to_date']:date('Y-m-d');
+		$deposit_date=$_REQUEST['deposit_date']!=''?$_REQUEST['deposit_date']:date('Y-m-d');
+		$InsertionId[$out['check_number'.$check_count]]=arPostSession($_REQUEST['InsId'],$out['check_number'.$check_count],$out['check_date'.$check_count],$out['check_amount'.$check_count],$post_to_date,$deposit_date,$debug);
+		
+		
+		}
+		}
+		}
+	}
 	function era_callback(&$out) {
 		global $encount, $debug, $claim_status_codes, $adjustment_reasons, $remark_codes;
 		global $invoice_total, $last_code, $paydate, $INTEGRATED_AR;
-
+		 global $InsertionId;//last inserted ID of
+		 
+		
 		// Some heading information.
+		if(isset($_REQUEST['chk'.$out['check_number']])){
 		if ($encount == 0) {
 			writeMessageLine('#ffffff', 'infdetail',
-				"Payer: " . htmlentities($out['payer_name']));
+				"Payer: " . htmlspecialchars($out['payer_name'], ENT_QUOTES));
 			if ($debug) {
 				writeMessageLine('#ffffff', 'infdetail',
 					"WITHOUT UPDATE is selected; no changes will be applied.");
@@ -314,9 +374,7 @@ require_once("$srcdir/formatting.inc.php");
 			if ($svc['paid']) {
 				if (!$error && !$debug) {
           if ($INTEGRATED_AR) {
-            $session_id = arGetSession($insurance_id, $out['check_number'],
-              $check_date);
-            arPostPayment($pid, $encounter, $session_id, $svc['paid'],
+            arPostPayment($pid, $encounter,$InsertionId[$out['check_number']], $svc['paid'],//$InsertionId[$out['check_number']] gives the session id
               $codekey, substr($inslabel,3), $out['check_number'], $debug);
           } else {
             slPostPayment($arrow['id'], $svc['paid'], $check_date,
@@ -363,9 +421,7 @@ require_once("$srcdir/formatting.inc.php");
 					// Post a zero-dollar adjustment just to save it as a comment.
 					if (!$error && !$debug) {
             if ($INTEGRATED_AR) {
-              $session_id = arGetSession($insurance_id, $out['check_number'],
-                $check_date);
-              arPostAdjustment($pid, $encounter, $session_id, 0, $codekey,
+              arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], 0, $codekey,//$InsertionId[$out['check_number']] gives the session id
                 substr($inslabel,3), $reason, $debug);
             } else {
               slPostAdjustment($arrow['id'], 0, $production_date,
@@ -380,9 +436,7 @@ require_once("$srcdir/formatting.inc.php");
 				else {
 					if (!$error && !$debug) {
             if ($INTEGRATED_AR) {
-              $session_id = arGetSession($insurance_id, $out['check_number'],
-                $check_date);
-              arPostAdjustment($pid, $encounter, $session_id, $adj['amount'],
+              arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], $adj['amount'],//$InsertionId[$out['check_number']] gives the session id
                 $codekey, substr($inslabel,3),
                 "Adjust code " . $adj['reason_code'], $debug);
             } else {
@@ -443,7 +497,7 @@ require_once("$srcdir/formatting.inc.php");
         }
       }
 		}
-
+}
 	}
 
 /////////////////////////// End Functions ////////////////////////////
@@ -487,46 +541,92 @@ require_once("$srcdir/formatting.inc.php");
 </script>
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<form action="sl_eob_process.php" method="get" >
 <center>
-
-<table border='0' cellpadding='2' cellspacing='0' width='100%'>
-
- <tr bgcolor="#cccccc">
-  <td class="dehead">
-   <?php xl('Patient','e') ?>
-  </td>
-  <td class="dehead">
-   <?php xl('Invoice','e') ?>
-  </td>
-  <td class="dehead">
-   <?php xl('Code','e') ?>
-  </td>
-  <td class="dehead">
-   <?php xl('Date','e') ?>
-  </td>
-  <td class="dehead">
-   <?php xl('Description','e') ?>
-  </td>
-  <td class="dehead" align="right">
-   <?php xl('Amount','e') ?>&nbsp;
-  </td>
-  <td class="dehead" align="right">
-   <?php xl('Balance','e') ?>&nbsp;
-  </td>
- </tr>
-
 <?php
-  $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+  if($_GET['original']=='original')
+  {
+  $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+  echo $StringToEcho;
+	}
+	else
+	{
+	?>
+		<table border='0' cellpadding='2' cellspacing='0' width='100%'>
+		
+		 <tr bgcolor="#cccccc">
+		  <td class="dehead">
+		   <?php echo htmlspecialchars( xl('Patient'), ENT_QUOTES) ?>
+		  </td>
+		  <td class="dehead">
+		   <?php echo htmlspecialchars( xl('Invoice'), ENT_QUOTES) ?>
+		  </td>
+		  <td class="dehead">
+		   <?php echo htmlspecialchars( xl('Code'), ENT_QUOTES) ?>
+		  </td>
+		  <td class="dehead">
+		   <?php echo htmlspecialchars( xl('Date'), ENT_QUOTES) ?>
+		  </td>
+		  <td class="dehead">
+		   <?php echo htmlspecialchars( xl('Description'), ENT_QUOTES) ?>
+		  </td>
+		  <td class="dehead" align="right">
+		   <?php echo htmlspecialchars( xl('Amount'), ENT_QUOTES) ?>&nbsp;
+		  </td>
+		  <td class="dehead" align="right">
+		   <?php echo htmlspecialchars( xl('Balance'), ENT_QUOTES) ?>&nbsp;
+		  </td>
+		 </tr>
+		
+		<?php
+		global $InsertionId;
+		
+		  $eraname=$_REQUEST['eraname'];
+		  $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi");
+		  $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
+		if(!$debug)
+		 {
+			  $StringIssue=htmlspecialchars( xl("Total Distribution for following check number is not full"), ENT_QUOTES).': ';
+			  $StringPrint='No';
+			  foreach($InsertionId as $key => $value)
+				{
+					$rs= sqlQ("select pay_total from ar_session where session_id='$value'");
+					$row=sqlFetchArray($rs);
+					$pay_total=$row['pay_total'];
+					$rs= sqlQ("select sum(pay_amount) sum_pay_amount from ar_activity where session_id='$value'");
+					$row=sqlFetchArray($rs);
+					$pay_amount=$row['sum_pay_amount'];
+					
+					if(($pay_total-$pay_amount)<>0)
+					{
+					$StringIssue.=$key.' ';
+					$StringPrint='Yes';
+					}
+				}
+			if($StringPrint=='Yes')
+				echo "<script>alert('$StringIssue')</script>";
+		 }
 
-  if (!$INTEGRATED_AR) slTerminate();
+		  if (!$INTEGRATED_AR) slTerminate();
+		 
+		?>
+		</table>
+<?php
+}
 ?>
-</table>
 </center>
 <script language="JavaScript">
 <?php
-	if ($alertmsg) echo " alert('" . htmlentities($alertmsg) . "');\n";
+	if ($alertmsg) echo " alert('" . htmlspecialchars($alertmsg, ENT_QUOTES) . "');\n";
 ?>
 </script>
+<input type="hidden" name="paydate" value="<?php echo DateToYYYYMMDD($_REQUEST['paydate']);?>" />
+<input type="hidden" name="post_to_date" value="<?php echo DateToYYYYMMDD($_REQUEST['post_to_date']);?>" />
+<input type="hidden" name="deposit_date" value="<?php echo DateToYYYYMMDD($_REQUEST['deposit_date']);?>" />
+<input type="hidden" name="debug" value="<?php echo $_REQUEST['debug'];?>" />
+<input type="hidden" name="InsId" value="<?php echo $_REQUEST['InsId'];?>" />
+<input type="hidden" name="eraname" value="<?php echo $eraname?>" />
+</form>
 </body>
 </html>
 <?php

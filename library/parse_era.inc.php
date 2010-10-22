@@ -303,6 +303,8 @@ function parse_era($filename, $cb) {
 			// ignore?
 		}
 		else if ($segid == 'PER' && $out['loopid'] == '2100') {
+		
+			$out['payer_insurance']  = trim($seg[2]);
 			$out['warnings'] .= 'Claim contact information: ' .
 				$seg[4] . "\n";
 		}
@@ -438,4 +440,74 @@ function parse_era($filename, $cb) {
 	if ($segid != 'IEA') return 'Premature end of ERA file';
 	return '';
 }
+//for getting the check details and provider details
+function parse_era_for_check($filename) {
+  $delimiter1 = '~';
+  $delimiter2 = '|';
+  $delimiter3 = '^';
+
+	$infh = fopen($filename, 'r');
+	if (! $infh) return "ERA input file open failed";
+
+	$out = array();
+	$out['loopid'] = '';
+	$out['st_segment_count'] = 0;
+	$buffer = '';
+	$segid = '';
+	$check_count=0;
+	while (true) {
+	
+    if (strlen($buffer) < 2048 && ! feof($infh)) $buffer .= fread($infh, 2048);
+		$tpos = strpos($buffer, $delimiter1);
+		if ($tpos === false) break;
+		$inline = substr($buffer, 0, $tpos);
+		$buffer = substr($buffer, $tpos + 1);
+
+    // If this is the ISA segment then figure out what the delimiters are.
+    if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
+      $delimiter2 = substr($inline, 3, 1);
+      $delimiter3 = substr($inline, -1);
+    }
+
+		$seg = explode($delimiter2, $inline);
+		$segid = $seg[0];
+
+		if ($segid == 'ISA') {
+			
+		}
+		else if ($segid == 'BPR') {
+		++$check_count;
+			//if ($out['loopid']) return 'Unexpected BPR segment';
+			$out['check_amount'.$check_count] = trim($seg[2]);
+			$out['check_date'.$check_count] = trim($seg[16]); // yyyymmdd
+			// TBD: BPR04 is a payment method code.
+		
+		}
+		else if ($segid == 'N1' && $seg[1] == 'PE') {
+			//if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';
+			$out['loopid'] = '1000B';
+			$out['payee_name'.$check_count]   = trim($seg[2]);
+			$out['payee_tax_id'.$check_count] = trim($seg[4]);
+			
+		}
+		else if ($segid == 'TRN') {
+			//if ($out['loopid']) return 'Unexpected TRN segment';
+			$out['check_number'.$check_count] = trim($seg[2]);
+			$out['payer_tax_id'.$check_count] = substr($seg[3], 1); // 9 digits
+			$out['payer_id'.$check_count] = trim($seg[4]);
+			// Note: TRN04 further qualifies the paying entity within the
+			// organization identified by TRN03.
+		}
+			
+		
+		
+		
+		++$out['st_segment_count'];
+	}
+	$out['check_count']=$check_count;
+	era_callback_check($out);
+
+	if ($segid != 'IEA') return 'Premature end of ERA file';
+	return '';
+	}
 ?>
