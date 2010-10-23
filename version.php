@@ -11,5 +11,12 @@ $v_tag   = '-dev'; // minor revision number, should be empty for production rele
 // Database version identifier, this is to be incremented whenever there
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
-$v_database = 3;
+//
+// Please add a comment that includes the database.sql version that relates to 
+// change below
+
+$v_database = 4;
+// 4) 3_2_0-to-4_0_0_upgrade.sql new revision: 1.31
+//    database.sql,v  new revision: 1.180
+
 ?>

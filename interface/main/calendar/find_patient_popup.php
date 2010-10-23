@@ -163,7 +163,7 @@ echo '
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' id="theform" action='find_patient_popup.php?'>
+<form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if(isset($_GET['pflag'])) echo "pflag=0"; ?>'>
    <?php echo htmlspecialchars( xl('Search by:'), ENT_NOQUOTES); ?>
    <select name='searchby'>
     <option value="Last"><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES); ?></option>
@@ -189,7 +189,8 @@ echo '
 <?php elseif (count($result) == 0): ?>
 <div id="searchstatus" class="noResults"><?php echo htmlspecialchars( xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
 <br>
-<a class="noresult" href='find_patient_popup.php?res=noresult'><?php echo htmlspecialchars( xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
+<!--VicarePlus :: If pflag is set the new patient create link will not be displayed --!>
+<a class="noresult" href='find_patient_popup.php?res=noresult' <?php if(isset($_GET['pflag'])) { ?> style="display:none;" <?php } ?>  ><?php echo htmlspecialchars( xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
 </div>
 <?php elseif (count($result)>=100): ?>
 <div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars( xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>

@@ -53,5 +53,49 @@ function oeFormatClientID($id) {
 
   return $id;
 }
+//----------------------------------------------------
+function DateFormatRead()
+ {//For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
+  //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.
+  //This will show the date as per the global settings.
+	if($GLOBALS['date_display_format']==0)
+	 {
+	  return "%Y-%m-%d";
+	 }
+	else if($GLOBALS['date_display_format']==1)
+	 {
+	  return "%m/%d/%Y";
+	 }
+	else if($GLOBALS['date_display_format']==2)
+	 {
+	  return "%d/%m/%Y";
+	 }
+ }
+function DateToYYYYMMDD($DateValue)
+ {//With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
+ //But in database the date can be stored only in the yyyy-mm-dd format.
+ //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
+	if(trim($DateValue)=='')
+	 {
+	  return '';
+	 }
+	 
+	if($GLOBALS['date_display_format']==0)
+	 {
+	  return $DateValue;
+	 }
+	else if($GLOBALS['date_display_format']==1 || $GLOBALS['date_display_format']==2)
+	 {
+	  $DateValueArray=split('/',$DateValue);
+	  if($GLOBALS['date_display_format']==1)
+	   {
+		  return $DateValueArray[2].'-'.$DateValueArray[0].'-'.$DateValueArray[1];
+	   }
+	  if($GLOBALS['date_display_format']==2)
+	   {
+		  return $DateValueArray[2].'-'.$DateValueArray[1].'-'.$DateValueArray[0];
+	   }
+	 }
+ }
 
 ?>

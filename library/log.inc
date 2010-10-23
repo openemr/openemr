@@ -54,6 +54,10 @@ function getEvents($params)
     $user = "";
     if (isset($params['user']) && $params['user'] != "") $user= $params['user'];
 
+    //VicarePlus :: For Generating log with patient id.
+    $patient = "";
+    if (isset($params['patient']) && $params['patient'] != "") $patient= $params['patient'];
+    
     $sortby = "";
     if (isset($params['sortby']) && $params['sortby'] != "") $sortby = $params['sortby'];
     
@@ -67,9 +71,13 @@ function getEvents($params)
     if (isset($params['event']) && $params['event'] != "") $event = $params['event'];
     if ($event!=""){
     if ($sortby == "comments") $sortby = "description";
+    if ($sortby == "groupname") $sortby = ""; //VicarePlus :: since there is no groupname in extended_log
+    if ($sortby == "success") $sortby = "";   //VicarePlus :: since there is no success field in extended_log
+    if ($sortby == "checksum") $sortby = "";  //VicarePlus :: since there is no checksum field in extended_log
     $columns = "DISTINCT date, event, user, recipient,patient_id,description";
     $sql = "SELECT $columns FROM extended_log WHERE date >= '$date1 00:00:00' AND date <= '$date2 23:59:59'";
     if ($user != "") $sql .= " AND user LIKE '$user'";
+    if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
     if ($levent != "") $sql .= " AND event LIKE '$levent%'";
     if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC "; // descending order
     $sql .= " LIMIT 5000";
@@ -79,6 +87,7 @@ function getEvents($params)
     // do the query
     $sql = "SELECT $cols FROM log WHERE date >= '$date1 00:00:00' AND date <= '$date2 23:59:59'";
     if ($user != "") $sql .= " AND user LIKE '$user'";
+    if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
     if ($levent != "") $sql .= " AND event LIKE '$levent%'";
     if ($tevent != "") $sql .= " AND event LIKE '%$tevent'";
     if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC "; // descending order
@@ -472,7 +481,7 @@ function auditSQLEvent($statement, $outcome)
 {
     $user =  $_SESSION['authUser'];
 	/* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-   if ($GLOBALS["enable_auditlog"] === 0)
+   if (isset($GLOBALS['enable_auditlog']) &&  ($GLOBALS["enable_auditlog"] === 0))
    {
    	    if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
    	    return;
