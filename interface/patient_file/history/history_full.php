@@ -89,6 +89,55 @@ function submitme() {
 function submit_history() {
     document.forms[0].submit();
 }
+
+//function for selecting the smoking status in radio button based on the selection of drop down list.
+function radioChange(rbutton)
+{
+     if (rbutton == 1 || rbutton == 2)
+     {
+     document.getElementById('radio_tobacco[current]').checked = true;
+     }
+     else if (rbutton == 3)
+     {
+     document.getElementById('radio_tobacco[quit]').checked = true;
+     }
+     else if (rbutton == 4)
+     {
+     document.getElementById('radio_tobacco[never]').checked = true;
+     }
+     else if (rbutton == 5 || rbutton == 9)
+     {
+     document.getElementById('radio_tobacco[not_applicable]').checked = true;
+     }
+     else if (rbutton == '')
+     {
+     var radList = document.getElementsByName('radio_tobacco');
+     for (var i = 0; i < radList.length; i++) {
+     if(radList[i].checked) radList[i].checked = false;
+     }
+     }
+}
+
+//function for selecting the smoking status in drop down list based on the selection in radio button.
+function smoking_statusClicked(cb) 
+{    
+     if (cb.value == 'currenttobacco')
+     {
+     document.getElementById('form_tobacco').selectedIndex = 1;
+     }
+     else if (cb.value == 'nevertobacco')
+     {
+     document.getElementById('form_tobacco').selectedIndex = 4;
+     }
+     else if (cb.value == 'quittobacco')
+     {
+     document.getElementById('form_tobacco').selectedIndex = 3;
+     }
+     else if (cb.value == 'not_applicabletobacco')
+     {
+     document.getElementById('form_tobacco').selectedIndex = 6;
+     }
+}
 </script>
 
 <script type="text/javascript">

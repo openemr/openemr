@@ -571,9 +571,16 @@ function generate_form_field($frow, $currvalue) {
   }
 
   // special case for history of lifestyle status; 3 radio buttons and a date text field:
-  else if ($data_type == 28) {
+  // VicarePlus :: A selection list box for smoking status:
+  else if ($data_type == 28 || $data_type == 32) {
     $tmp = explode('|', $currvalue);
     switch(count($tmp)) {
+      case "4": {
+        $resnote = $tmp[0]; 
+        $restype = $tmp[1];
+        $resdate = $tmp[2];
+        $reslist = $tmp[3];
+      } break;
       case "3": {
         $resnote = $tmp[0];
         $restype = $tmp[1];
@@ -601,6 +608,8 @@ function generate_form_field($frow, $currvalue) {
     $resdate = htmlspecialchars( $resdate, ENT_QUOTES);
     echo "<table cellpadding='0' cellspacing='0'>";
     echo "<tr>";
+    if ($data_type == 28)
+    {
 	// input text 
     echo "<td><input type='text'" .
       " name='form_$field_id_esc'" .
@@ -608,21 +617,40 @@ function generate_form_field($frow, $currvalue) {
       " size='$fldlength'" .
       " maxlength='$maxlength'" .
       " value='$resnote' />&nbsp;</td>";
-	echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;".htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;</td>";
+   echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
+      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
+      htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;&nbsp;</td>";
+    }
+    else if($data_type == 32)
+    {
+    // input text
+    echo "<tr><td><input type='text'" .
+      " name='form_text_$field_id_esc'" .
+      " id='form_text_$field_id_esc'" .
+      " size='$fldlength'" .
+      " maxlength='$maxlength'" .
+      " value='$resnote' />&nbsp;</td></tr>";
+    echo "<td>";
+    //Selection list for smoking status
+    $onchange = 'radioChange(this.options[this.selectedIndex].value)';//VicarePlus :: The javascript function for selection list.
+    echo generate_select_list("form_$field_id", $list_id, $reslist,
+      $description, $showEmpty ? $empty_title : '', '', $onchange)."</td>";
+    echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;&nbsp;</td>";
+    }
     // current
     echo "<td><input type='radio'" .
       " name='radio_{$field_id_esc}'" .
       " id='radio_{$field_id_esc}[current]'" .
       " value='current".$field_id_esc."'";
     if ($restype == "current".$field_id) echo " checked";
-	echo "/>".htmlspecialchars( xl('Current'), ENT_NOQUOTES)."&nbsp;</td>";
+      echo " if($data_type == 32) { onClick='smoking_statusClicked(this)' } />".htmlspecialchars( xl('Current'), ENT_NOQUOTES)."&nbsp;</td>";
     // quit
     echo "<td><input type='radio'" .
       " name='radio_{$field_id_esc}'" .
       " id='radio_{$field_id_esc}[quit]'" .
       " value='quit".$field_id_esc."'";
     if ($restype == "quit".$field_id) echo " checked";
-    echo "/>".htmlspecialchars( xl('Quit'), ENT_NOQUOTES)."&nbsp;</td>";
+    echo " if($data_type == 32) { onClick='smoking_statusClicked(this)' } />".htmlspecialchars( xl('Quit'), ENT_NOQUOTES)."&nbsp;</td>";
     // quit date
     echo "<td><input type='text' size='6' name='date_$field_id_esc' id='date_$field_id_esc'" .
       " value='$resdate'" .
@@ -638,14 +666,14 @@ function generate_form_field($frow, $currvalue) {
       " id='radio_{$field_id_esc}[never]'" .
       " value='never".$field_id_esc."'";
     if ($restype == "never".$field_id) echo " checked";
-    echo " />".htmlspecialchars( xl('Never'), ENT_NOQUOTES)."&nbsp;</td>";
+    echo " if($data_type == 32) { onClick='smoking_statusClicked(this)' } />".htmlspecialchars( xl('Never'), ENT_NOQUOTES)."&nbsp;</td>";
 	// Not Applicable
     echo "<td><input type='radio'" .
       " name='radio_{$field_id}'" .
       " id='radio_{$field_id}[not_applicable]'" .
       " value='not_applicable".$field_id."'";
     if ($restype == "not_applicable".$field_id) echo " checked";
-    echo " />".htmlspecialchars( xl('N/A'), ENT_QUOTES)."&nbsp;</td>";
+    echo " if($data_type == 32) { onClick='smoking_statusClicked(this)' } />".htmlspecialchars( xl('N/A'), ENT_QUOTES)."&nbsp;</td>";
     echo "</tr>";
     echo "</table>";
   }
@@ -1036,9 +1064,15 @@ function generate_print_field($frow, $currvalue) {
   }
 
   // special case for history of lifestyle status; 3 radio buttons and a date text field:
-  else if ($data_type == 28) {
+  else if ($data_type == 28 || $data_type == 32) {
     $tmp = explode('|', $currvalue);
 	switch(count($tmp)) {
+      case "4": {
+        $resnote = $tmp[0];
+        $restype = $tmp[1];
+        $resdate = $tmp[2];
+        $reslist = $tmp[3];
+      } break;
       case "3": {
         $resnote = $tmp[0];
         $restype = $tmp[1];
@@ -1064,12 +1098,30 @@ function generate_print_field($frow, $currvalue) {
     $fldlength = htmlspecialchars( $fldlength, ENT_QUOTES);
     $resnote = htmlspecialchars( $resnote, ENT_QUOTES);
     $resdate = htmlspecialchars( $resdate, ENT_QUOTES);
+    if($data_type == 28)
+    {
     echo "<td><input type='text'" .
       " size='$fldlength'" .
       " class='under'" .
       " value='$resnote' /></td>";
-    echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;".
+    echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
+      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
       htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;</td>";  
+    } 
+    else if($data_type == 32)
+    {
+    echo "<tr><td><input type='text'" .
+      " size='$fldlength'" .
+      " class='under'" .
+      " value='$resnote' /></td></tr>"; 
+    $fldlength = 30;
+    $smoking_status_title = generate_display_field(array('data_type'=>'1','list_id'=>$list_id),$reslist);
+    echo "<td><input type='text'" .
+      " size='$fldlength'" .
+      " class='under'" .
+      " value='$smoking_status_title' /></td>";
+    echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;&nbsp;</td>";
+    }
     echo "<td><input type='radio'";
     if ($restype == "current".$field_id) echo " checked";
     echo "/>".htmlspecialchars( xl('Current'), ENT_NOQUOTES)."&nbsp;</td>";
@@ -1294,9 +1346,16 @@ function generate_display_field($frow, $currvalue) {
   }
 
   // special case for history of lifestyle status; 3 radio buttons and a date text field:
-  else if ($data_type == 28) {
+  // VicarePlus :: A selection list for smoking status.
+  else if ($data_type == 28 || $data_type == 32) {
     $tmp = explode('|', $currvalue);
     switch(count($tmp)) {
+      case "4": {
+        $resnote = $tmp[0];
+        $restype = $tmp[1];
+        $resdate = $tmp[2];
+        $reslist = $tmp[3];
+      } break;
       case "3": {
         $resnote = $tmp[0];
         $restype = $tmp[1];
@@ -1325,7 +1384,19 @@ function generate_display_field($frow, $currvalue) {
 	if ($restype == "not_applicable".$field_id) $res = xl('N/A');
     // $s .= "<td class='text' valign='top'>$restype</td></tr>";
     // $s .= "<td class='text' valign='top'>$resnote</td></tr>";
+     if ($data_type == 28)
+    {
     if (!empty($resnote)) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote,ENT_NOQUOTES) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+    }
+     //VicarePlus :: Tobacco field has a listbox, text box, date field and 3 radio buttons.
+     else if ($data_type == 32)
+    {
+       $lrow = sqlQuery("SELECT title FROM list_options " .
+       "WHERE list_id = ? AND option_id = ?", array($list_id,$reslist) );
+       if (!empty($reslist)) $s .= "<td class='text' valign='top'>" . htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+       if (!empty($resnote)) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote,ENT_NOQUOTES) . "&nbsp;&nbsp;</td>";
+    }
+
 	if (!empty($res)) $s .= "<td class='text' valign='top'><b>" . htmlspecialchars(xl('Status'),ENT_NOQUOTES) . "</b>:&nbsp;" . htmlspecialchars($res,ENT_NOQUOTES) . "&nbsp;</td>";
     if ($restype == "quit".$field_id) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resdate,ENT_NOQUOTES) . "&nbsp;</td>";
     $s .= "</tr>";
@@ -1764,13 +1835,21 @@ function get_layout_form_value($frow, $maxlength=255) {
         $value .= "$key:$restype:$val";
       }
     }
-    else if ($data_type == 28) {
+    else if ($data_type == 28 || $data_type == 32) {
       // $_POST["form_$field_id"] is an date text fields with companion
       // radio buttons to be imploded into "notes|type|date".
       $restype = $_POST["radio_{$field_id}"];
       if (empty($restype)) $restype = '0';
       $resdate = str_replace('|', ' ', $_POST["date_$field_id"]);
       $resnote = str_replace('|', ' ', $_POST["form_$field_id"]);
+      if ($data_type == 32)
+      {
+      //VicarePlus :: Smoking status data is imploded into "list|type|date|note".
+      $reslist = str_replace('|', ' ', $_POST["form_$field_id"]);
+      $res_text_note = str_replace('|', ' ', $_POST["form_text_$field_id"]);
+      $value = "$res_text_note|$restype|$resdate|$reslist";
+      }
+      else
       $value = "$resnote|$restype|$resdate";
     }
     else {
