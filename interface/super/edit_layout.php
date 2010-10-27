@@ -50,6 +50,7 @@ $datatypes = array(
   "27" => xl("Radio buttons"),
   "28" => xl("Lifestyle status"), // add for smoking status task
   "31" => xl("Static Text"),
+  "32" => xl("Smoking Status"),
 );
 
 function nextGroupOrder($order) {
