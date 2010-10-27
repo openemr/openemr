@@ -1391,9 +1391,7 @@ function generate_display_field($frow, $currvalue) {
      //VicarePlus :: Tobacco field has a listbox, text box, date field and 3 radio buttons.
      else if ($data_type == 32)
     {
-       $lrow = sqlQuery("SELECT title FROM list_options " .
-       "WHERE list_id = ? AND option_id = ?", array($list_id,$reslist) );
-       if (!empty($reslist)) $s .= "<td class='text' valign='top'>" . htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+       if (!empty($reslist)) $s .= "<td class='text' valign='top'>" . generate_display_field(array('data_type'=>'1','list_id'=>$list_id),$reslist) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
        if (!empty($resnote)) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote,ENT_NOQUOTES) . "&nbsp;&nbsp;</td>";
     }
 
@@ -1844,7 +1842,7 @@ function get_layout_form_value($frow, $maxlength=255) {
       $resnote = str_replace('|', ' ', $_POST["form_$field_id"]);
       if ($data_type == 32)
       {
-      //VicarePlus :: Smoking status data is imploded into "list|type|date|note".
+      //VicarePlus :: Smoking status data is imploded into "note|type|date|list".
       $reslist = str_replace('|', ' ', $_POST["form_$field_id"]);
       $res_text_note = str_replace('|', ' ', $_POST["form_text_$field_id"]);
       $value = "$res_text_note|$restype|$resdate|$reslist";
