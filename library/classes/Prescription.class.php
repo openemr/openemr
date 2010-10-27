@@ -629,6 +629,7 @@ class Prescription extends ORDataObject {
     }
     
     function get_dispensation_count() {
+        if (empty($this->id)) return 0;
         $refills_row = sqlQuery("SELECT count(*) AS count FROM drug_sales " .
                     "WHERE prescription_id = '" . $this->id . "' AND quantity > 0");
         return $refills_row['count'];

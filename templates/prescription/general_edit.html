@@ -130,7 +130,7 @@ textarea {
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >&nbsp; {xl t='in-house'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<select name="drug_id" onchange="drugselected(this)">
-		{html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT}
+    {html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
 		</select>
 	</td>
 </tr>
