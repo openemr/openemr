@@ -18,10 +18,13 @@
 
  // get drugs
  $res = sqlStatement("SELECT d.*, " .
-  "di.inventory_id, di.lot_number, di.expiration, di.manufacturer, di.on_hand " .
+  "di.inventory_id, di.lot_number, di.expiration, di.manufacturer, " .
+  "di.on_hand, lo.title " .
   "FROM drugs AS d " .
-  "LEFT OUTER JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
+  "LEFT JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
   "AND di.destroy_date IS NULL " .
+  "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
+  "lo.option_id = di.warehouse_id " .
   "ORDER BY d.name, d.drug_id, di.expiration, di.lot_number");
 ?>
 <html>
@@ -74,6 +77,7 @@ function doiclick(id, lot) {
   <td><?php  xl('Unit','e'); ?></td>
   <td title=<?php xl('Click to receive (add) new lot','e','\'','\''); ?>><?php  xl('New','e'); ?></td>
   <td title=<?php xl('Click to edit','e','\'','\''); ?>><?php  xl('Lot','e'); ?></td>
+  <td><?php  xl('Warehouse','e'); ?></td>
   <td><?php  xl('QOH','e'); ?></td>
   <td><?php  xl('Expires','e'); ?></td>
  </tr>
@@ -108,10 +112,11 @@ function doiclick(id, lot) {
    $lot_number = htmlentities($row['lot_number']);
    echo "  <td onclick='doiclick($lastid," . $row['inventory_id'] . ")'>" .
     "<a href='' onclick='return false'>$lot_number</a></td>\n";
+   echo "  <td>" . $row['title'] . "</td>\n";
    echo "  <td>" . $row['on_hand'] . "</td>\n";
    echo "  <td>" . oeFormatShortDate($row['expiration']) . "</td>\n";
   } else {
-   echo "  <td colspan='3'>&nbsp;</td>\n";
+   echo "  <td colspan='4'>&nbsp;</td>\n";
   }
   echo " </tr>\n";
  } // end while
