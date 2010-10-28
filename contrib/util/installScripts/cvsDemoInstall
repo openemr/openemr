@@ -26,6 +26,10 @@ TMPDIR=/tmp/openemr-tmp
 INST=$OPENEMR/contrib/util/installScripts/InstallerAuto.php
 INSTTEMP=$OPENEMR/contrib/util/installScripts/InstallerAutoTemp.php
 
+# Turn off apache to avoid users messing up while setting up
+#  (start it again below after install/configure openemr
+service httpd stop
+
 # Connect to a new mandriva package repository (official repository no longer supports mandriva 2008)
 echo "Updating new Mandriva Package repository. This is a 100MB download, so may take several minutes."
 echo "Updating new Mandriva Package repository. This is a 100MB download, so may take several minutes." >> $LOG
@@ -96,15 +100,18 @@ echo "   Then will restart apache."
 echo "   Then will restart apache." >> $LOG
 echo ""
 sed -i 's/^extension = suhosin.so/; extension = suhosin.so/' $SUHOSINCONF
-service httpd restart
+service httpd start
 echo ""
 
-#Replace manual with newest version from cvs
+#Replace manual with newest version and add the refresh script
 echo "Configuring appliance"
 echo "Configuring appliance" >> $LOG
 cp -f $OPENEMR/contrib/util/installScripts/cvsDemoMisc/developerApplianceManual.txt /home/openemr/docs/manual.txt
 chown openemr:openemr /home/openemr/docs/manual.txt
 cp -f $OPENEMR/contrib/util/installScripts/cvsDemoMisc/developerApplianceManual.txt $WEB/manual.txt
+cp -f $OPENEMR/contrib/util/installScripts/cvsDemoMisc/refresh /home/openemr/git/
+chown openemr:openemr /home/openemr/git/refresh
+chmod +x /home/openemr/git/refresh
 echo "Done configuring appliance"
 echo "Done configuring appliance" >> $LOG
 

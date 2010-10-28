@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# Mandriva script to prepare a github repository for testing. This is
+#  specifically to allow quick testing of new code, and is not for
+#  production use.
+#
+# This script will copy the current checked git repository into
+#  the web directory (and remove the currently installed openemr).
+# Place this script in the git directory (one level above the openemr
+#  directory).
+# Note you need to install openemr with the mysql user 'openemr' and
+#  the mysql database 'openemr' for this script to completely remove
+#  OpenEMR.
+# Also note the root mysql password needs to be blank for the mysql
+#  and mysqladmin commands to work.
+#
+# This script can also be used on your cvs checkout if you place it in
+#  the cvs directory (one directory above openemr)
+#
+
+# Remove current test copy of openemr
+rm -fr /var/www/html/openemr/*
+
+# Remove current openemr mysql database
+mysqladmin -f -h localhost -u root drop openemr
+
+# Remove current openemr mysql user
+mysql -f -u root -h localhost -e "DELETE FROM mysql.user WHERE User = 'openemr';FLUSH PRIVILEGES;"
+
+# Copy the new openemr version to the web directory (note need to ignore the .git directory)
+rsync --recursive --exclude .git openemr/* /var/www/html/openemr/
+
+# Prepare file permissions
+chmod 666 /var/www/html/openemr/sites/default/sqlconf.php
+chown -R apache:apache /var/www/html/openemr/sites/default/documents
+chown -R apache:apache /var/www/html/openemr/sites/default/edi
+chown -R apache:apache /var/www/html/openemr/sites/default/era
+chown -R apache:apache /var/www/html/openemr/library/freeb
+chown -R apache:apache /var/www/html/openemr/sites/default/letter_templates
+chown -R apache:apache /var/www/html/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
+chown -R apache:apache /var/www/html/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache
+chown -R apache:apache /var/www/html/openemr/gacl/admin/templates_c
+
+# Restart the mysql server
+service mysqld restart
