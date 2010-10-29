@@ -3,7 +3,7 @@ OpenEMR Developer Appliance Manual
 
 Author: Brady Miller
 Email:  brady@sparmy.com
-Date:   2/4/2009
+Date:   10/28/2010
 
 
 Table of Contents
@@ -24,12 +24,12 @@ I. Introduction
 
 	The objective of this appliance is to simplify the process of
 development in OpenEMR, and allows the developer to start with the most
-recent CVS version of OpenEMR. Think of this as a portable and disposable
-OpenEMR development environment.
+recent development version of OpenEMR. Think of this as a portable and
+disposable OpenEMR development environment.
 
 	When starting the appliance for the first time, it will download,
-install, and configure the CVS version of OpenEMR.  It will also place
-a tarball and zip package of the CVS version to allow easy transfer to
+install, and configure the development version of OpenEMR.  It will also place
+a tarball and zip package of the development version to allow easy transfer to
 other systems for testing etc.
 
 	When shutting down the appliance, you have the option of
@@ -41,7 +41,7 @@ II. Instructions for use
 	A. Start the appliance
 		Start the appliance with VMware Player. If starting
 	the appliance for the first time, it will download, install,
-	and configure the CVS version of OpenEMR from
+	and configure the development version of OpenEMR from
 	Sourceforge. If it is not the first time, then it will just 
 	startup. An intro screen will provide further instructions.
 
@@ -54,22 +54,24 @@ II. Instructions for use
 
 	C. Helpful tips
 		-Note that the installed software is separate from
-	the CVS directory. This is for a reason; active development
-	should happen in the installed software directories, such as
-	/var/www/html/openemr. The changes can then be copied to the
-	CVS directory and then committed on sourceforge (this assumes
-	you have OpenEMR sourceforge developer access).
+	the git directory. This is for a reason; active development
+	should not happen in the installed software directories, such as
+	/var/www/html/openemr. The changes should be made in your local
+        git repository at /home/openemr/git/openemr. The current 
+        checked out copy of your git repository can be qucily tested
+        via the refresh script in the /home/openemr/git directory.
 		-The SSH port is open for a reason; works for
 	copy/paste and less awkward than using the VMWare console.
-		-Jed text editor works well.
+		-Jed or vim text editor works well.
 
 	D. How this thing was built and how it works
 		-For building instructions check out:
 		   /home/openemr/docs/HowThisApplianceWasBuilt.txt
 		-On startup the /etc/rc.d/init.d/StartupDeveloperAppliance
-	script is run, which downloads CVS.  This script then calls a 
-	script within OpenEMR openemr/contrib/util/installScripts/cvsDemoInstall
-	which installs and configures OpenEMR.
+	script is run, which first dowloads the cvs version.  This script 
+        then calls a script within OpenEMR openemr/contrib/util/installScripts/cvsDemoInstall
+	which then donwloads the git development version, which it
+        installs and configures OpenEMR from.
 
 
 III. User name and passwords
@@ -90,11 +92,11 @@ Php log file   -> http://'IP Address'/log/logPhp.txt
 User Manual    -> http://'IP Address'/manual.txt
 
 -Note that these are not listed ont he intro screen
-CVS packaged for linux     -> http://'IP Address'/files/openemr-cvs.tar.gz
-MD5 sum of linux package   -> http://'IP Address'/files/openemr-linux-md5.txt
-CVS packaged for windows   -> http://'IP Address'/files/openemr-cvs.zip
-MD5 sum of windows package -> http://'IP Address'/files/openemr-windows-md5.txt
-Date CVS was packaged      -> http://'IP Address'/files/date-cvs.txt
+Packaged for linux              -> http://'IP Address'/files/openemr-cvs.tar.gz
+MD5 sum of linux package        -> http://'IP Address'/files/openemr-linux-md5.txt
+Packaged for windows            -> http://'IP Address'/files/openemr-cvs.zip
+MD5 sum of windows package      -> http://'IP Address'/files/openemr-windows-md5.txt
+Date devel version was packaged -> http://'IP Address'/files/date-cvs.txt
 
 
 V. Appliance directory structure
@@ -103,8 +105,9 @@ V. Appliance directory structure
 /home/openemr/docs
  -manual.txt
  -HowThisApplianceWasBuilt.txt
-/home/openemr/cvs
- -openemr
+/home/openemr/git
+ -local openemr git repository
+ -refresh script
 /var/www/html
  -manual.txt
 /var/www/html/log

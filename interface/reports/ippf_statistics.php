@@ -186,7 +186,7 @@ function getListTitle($list, $option) {
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right=false, $class='') {
+function genAnyCell($data, $right=false, $class='', $colspan=1) {
   global $cellcount, $form_output;
   if (!is_array($data)) {
     $data = array(0 => $data);
@@ -199,15 +199,16 @@ function genAnyCell($data, $right=false, $class='') {
     else {
       echo "  <td";
       if ($class) echo " class='$class'";
-      if ($right) echo " align='right'";
+      if ($colspan > 1) echo " colspan='$colspan' align='center'";
+      else if ($right) echo " align='right'";
       echo ">$datum</td>\n";
     }
     ++$cellcount;
   }
 }
 
-function genHeadCell($data, $right=false) {
-  genAnyCell($data, $right, 'dehead');
+function genHeadCell($data, $right=false, $colspan=1) {
+  genAnyCell($data, $right, 'dehead', $colspan);
 }
 
 // Create an HTML table cell containing a numeric value, and track totals.
@@ -940,6 +941,11 @@ function process_referral($row) {
   if ($form_by !== '1') loadColumnData($key, $row);
 }
 
+function uses_description($form_by) {
+  return ($form_by === '4'  || $form_by === '102' || $form_by === '9' ||
+    $form_by === '10' || $form_by === '20' || $form_by === '104');
+}
+
   // If we are doing the CSV export then generate the needed HTTP headers.
   // Otherwise generate HTML.
   //
@@ -1411,17 +1417,47 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       echo "<table border='0' cellpadding='1' cellspacing='2' width='98%'>\n";
     } // end not csv export
 
+    // Generate first column headings line, with category titles.
+    //
     genStartRow("bgcolor='#dddddd'");
-
     // If the key is an MA or IPPF code, then add a column for its description.
-    if ($form_by === '4'  || $form_by === '102' || $form_by === '9' ||
-        $form_by === '10' || $form_by === '20'  || $form_by === '104')
-    {
+    if (uses_description($form_by)) {
+      genHeadCell(array('', ''));
+    } else {
+      genHeadCell('');
+    }
+    // Generate headings for values to be shown.
+    foreach ($form_show as $value) {
+      if ($value == '.total') { // Total Services
+        genHeadCell('');
+      }
+      else if ($value == '.age2') { // Age
+        genHeadCell($arr_show[$value]['title'], false, 2);
+      }
+      else if ($value == '.age9') { // Age
+        genHeadCell($arr_show[$value]['title'], false, 9);
+      }
+      else if ($arr_show[$value]['list_id']) {
+        genHeadCell($arr_show[$value]['title'], false, count($arr_titles[$value]));
+      }
+      else if (!empty($arr_titles[$value])) {
+        genHeadCell($arr_show[$value]['title'], false, count($arr_titles[$value]));
+      }
+    }
+    if ($form_output != 3) {
+      genHeadCell('');
+    }
+    genEndRow();
+
+    // Generate second column headings line, with individual titles.
+    //
+    genStartRow("bgcolor='#dddddd'");
+    // If the key is an MA or IPPF code, then add a column for its description.
+    if (uses_description($form_by)) {
       genHeadCell(array($arr_by[$form_by], xl('Description')));
     } else {
       genHeadCell($arr_by[$form_by]);
     }
-
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
       if ($value == '.total') { // Total Services
@@ -1442,7 +1478,6 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
         genHeadCell(xl('40-44'), true);
         genHeadCell(xl('45+'  ), true);
       }
-
       else if ($arr_show[$value]['list_id']) {
         foreach ($arr_titles[$value] as $key => $dummy) {
           genHeadCell(getListTitle($arr_show[$value]['list_id'],$key), true);
@@ -1454,11 +1489,9 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
         }
       }
     }
-
     if ($form_output != 3) {
       genHeadCell(xl('Total'), true);
     }
-
     genEndRow();
 
     $encount = 0;
@@ -1469,9 +1502,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       $dispkey = $key;
 
       // If the key is an MA or IPPF code, then add a column for its description.
-      if ($form_by === '4'  || $form_by === '102' || $form_by === '9' ||
-          $form_by === '10' || $form_by === '20'  || $form_by === '104')
-      {
+      if (uses_description($form_by)) {
         $dispkey = array($key, '');
         $type = $form_by === '102' ? 12 : 11; // MA or IPPF
         $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
@@ -1524,9 +1555,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       genStartRow("bgcolor='#dddddd'");
 
       // If the key is an MA or IPPF code, then add a column for its description.
-      if ($form_by === '4'  || $form_by === '102' || $form_by === '9' ||
-          $form_by === '10' || $form_by === '20'  || $form_by === '104')
-      {
+      if (uses_description($form_by)) {
         genHeadCell(array(xl('Totals'), ''));
       } else {
         genHeadCell(xl('Totals'));

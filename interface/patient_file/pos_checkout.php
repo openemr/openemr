@@ -1210,16 +1210,21 @@ if ($gcac_related_visit) {
 *********************************************************************/
 
 if ($gcac_related_visit && !$gcac_service_provided) {
-  // Skip this warning if referral or abortion in TS.
-  $grow = sqlQuery("SELECT COUNT(*) AS count FROM transactions " .
-    "WHERE title = 'Referral' AND refer_date IS NOT NULL AND " .
-    "refer_date = '$inv_date' AND pid = '$patient_id'");
-  if (empty($grow['count'])) { // if there is no referral
-    $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
-      "WHERE pid = '$patient_id' AND encounter = '$inv_encounter' AND " .
-      "deleted = 0 AND formdir = 'LBFgcac'");
-    if (empty($grow['count'])) { // if there is no gcac form
-      echo " alert('" . xl('This visit will need a GCAC form, referral or procedure service.') . "');\n";
+  // Skip this warning if the GCAC visit form is not allowed.
+  $grow = sqlQuery("SELECT COUNT(*) AS count FROM list_options " .
+    "WHERE list_id = 'lbfnames' AND option_id = 'LBFgcac'");
+  if (!empty($grow['count'])) { // if gcac is used
+    // Skip this warning if referral or abortion in TS.
+    $grow = sqlQuery("SELECT COUNT(*) AS count FROM transactions " .
+      "WHERE title = 'Referral' AND refer_date IS NOT NULL AND " .
+      "refer_date = '$inv_date' AND pid = '$patient_id'");
+    if (empty($grow['count'])) { // if there is no referral
+      $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
+        "WHERE pid = '$patient_id' AND encounter = '$inv_encounter' AND " .
+        "deleted = 0 AND formdir = 'LBFgcac'");
+      if (empty($grow['count'])) { // if there is no gcac form
+        echo " alert('" . xl('This visit will need a GCAC form, referral or procedure service.') . "');\n";
+      }
     }
   }
 } // end if ($gcac_related_visit)
