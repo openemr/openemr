@@ -179,7 +179,7 @@ plan=install"
       echo ""
       output_both "Upgrading is not available with the cvs-openemr package"
       output_both "This package is for testing most recent development (unstable) OpenEMR version"
-      unable_exit "To upgrade to most recent cvs version, recommend removing/reinstalling package"
+      unable_exit "To upgrade to most recent development version, recommend removing/reinstalling package"
    ;;
 
    abort-upgrade)
