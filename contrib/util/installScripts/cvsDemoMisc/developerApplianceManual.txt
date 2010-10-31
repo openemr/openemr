@@ -55,10 +55,10 @@ II. Instructions for use
 	C. Helpful tips
 		-Note that the installed software is separate from
 	the git directory. This is for a reason; active development
-	should not happen in the installed software directories, such as
+	should not happen in the installed software directory, which is
 	/var/www/html/openemr. The changes should be made in your local
         git repository at /home/openemr/git/openemr. The current 
-        checked out copy of your git repository can be qucily tested
+        checked out copy of your git repository can be quickly tested
         via the refresh script in the /home/openemr/git directory.
 		-The SSH port is open for a reason; works for
 	copy/paste and less awkward than using the VMWare console.
@@ -68,9 +68,9 @@ II. Instructions for use
 		-For building instructions check out:
 		   /home/openemr/docs/HowThisApplianceWasBuilt.txt
 		-On startup the /etc/rc.d/init.d/StartupDeveloperAppliance
-	script is run, which first dowloads the cvs version.  This script 
+	script is run, which first downloads the cvs version.  This script 
         then calls a script within OpenEMR openemr/contrib/util/installScripts/cvsDemoInstall
-	which then donwloads the git development version, which it
+	which then downloads the git development version, which it
         installs and configures OpenEMR from.
 
 
