@@ -325,6 +325,7 @@ CREATE TABLE `drug_sales` (
   `fee` decimal(12,2) NOT NULL default '0.00',
   `billed` tinyint(1) NOT NULL default '0' COMMENT 'indicates if the sale is posted to accounting',
   `xfer_inventory_id` int(11) NOT NULL DEFAULT 0,
+  `distributor_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'references users.id',
   `notes` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY  (`sale_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
@@ -2146,6 +2147,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','ord_lab','Lab Service'         ,15,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','spe'    ,'Specialist'          ,20,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','vendor' ,'Vendor'              ,25,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','dist'   ,'Distributor'         ,30,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','oth'    ,'Other'               ,95,0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_type','Procedure Types', 1,0);

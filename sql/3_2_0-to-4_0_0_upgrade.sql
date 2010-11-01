@@ -877,3 +877,12 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 
 UPDATE layout_options SET seq=2 WHERE form_id = 'HIS' AND field_id='coffee';
 UPDATE layout_options SET data_type=32,seq=1,fld_length=0,list_id='smoking_status' WHERE form_id = 'HIS' AND field_id='tobacco';
+
+#IfMissingColumn drug_sales distributor_id
+ALTER TABLE drug_sales ADD distributor_id bigint(20) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfNotRow2D list_options list_id abook_type option_id dist
+INSERT INTO list_options (list_id,option_id,title,seq,is_default) VALUES ('abook_type','dist','Distributor',30,0);
+#EndIf
+
