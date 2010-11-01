@@ -1040,6 +1040,7 @@ if (!empty($reg)) {
         <ul>
           <?php genPopLink(xl('List'),'inventory_list.php'); ?>
           <?php genPopLink(xl('Activity'),'inventory_activity.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Transactions'),'reports/inventory_transactions.php'); ?>
         </ul>
       </li>
 <?php } ?>
