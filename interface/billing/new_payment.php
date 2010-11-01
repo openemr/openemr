@@ -367,6 +367,12 @@ return false;
 		<td colspan="13" align="left" >
 				<!--Distribute section-->
 				<?php 
+				if($PaymentType=='patient' && $_POST["default_search_patient"] != "default_search_patient")
+				 {
+				  $_POST["default_search_patient"] = "default_search_patient";
+				  $_REQUEST['hidden_patient_code']=$TypeCode;
+				  $_REQUEST['RadioPaid']='Show_Paid';
+				 }
 				require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
 				?>
 			</td>
@@ -400,6 +406,7 @@ return false;
 	</td></tr></table>
 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo htmlspecialchars($hidden_patient_code);?>"/>
 <input type='hidden' name='mode' id='mode' value='' />
+<input type='hidden' name='default_search_patient' id='default_search_patient' value='<?php echo $_POST["default_search_patient"] ?>' />
 <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
 <input type="hidden" name="after_value" id="after_value" value="<?php echo htmlspecialchars($_POST["mode"]);?>"/>
 <input type="hidden" name="payment_id" id="payment_id" value="<?php echo htmlspecialchars($payment_id);?>"/>
