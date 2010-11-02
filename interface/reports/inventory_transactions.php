@@ -8,15 +8,18 @@
 
 // This is an inventory transactions list.
 
-// Disable magic quotes and fake register globals.
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/formdata.inc.php");
 
 function bucks($amount) {
   if ($amount != 0) return oeFormatMoney($amount);
@@ -84,10 +87,10 @@ function thisLineItem($row, $xfer=false) {
 
  <tr bgcolor="<?php echo $bgcolor; ?>">
   <td class="detail">
-   <?php echo oeFormatShortDate($row['sale_date']); ?>
+   <?php echo htmlspecialchars(oeFormatShortDate($row['sale_date'])); ?>
   </td>
   <td class="detail">
-   <?php echo $ttype; ?>
+   <?php echo htmlspecialchars($ttype); ?>
   </td>
   <td class="detail">
    <?php echo htmlspecialchars($row['name']); ?>
@@ -102,10 +105,10 @@ function thisLineItem($row, $xfer=false) {
    <?php echo htmlspecialchars($dpname); ?>
   </td>
   <td class="detail" align="right">
-   <?php echo 0 - $row['quantity']; ?>
+   <?php echo htmlspecialchars(0 - $row['quantity']); ?>
   </td>
   <td class="detail" align="right">
-   <?php echo bucks($row['fee']); ?>
+   <?php echo htmlspecialchars(bucks($row['fee'])); ?>
   </td>
   <td class="detail" align="center">
    <?php echo empty($row['billed']) ? '&nbsp;' : '*'; ?>
@@ -133,14 +136,14 @@ function thisLineItem($row, $xfer=false) {
 
 } // end function
 
-if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
+if (! acl_check('acct', 'rep')) die(htmlspecialchars( xl("Unauthorized access."), ENT_NOQUOTES));
 
 // this is "" or "submit" or "export".
-$form_action = formData('form_action');
+$form_action = $_POST['form_action'];
 
 $form_from_date  = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $form_to_date    = fixDate($_POST['form_to_date']  , date('Y-m-d'));
-$form_trans_type = isset($_POST['form_trans_type']) ? formData('form_trans_type') : '0';
+$form_trans_type = isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0';
 
 $encount = 0;
 
@@ -168,7 +171,7 @@ else {
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Inventory Transactions','e') ?></title>
+<title><?php echo htmlspecialchars( xl('Inventory Transactions'), ENT_NOQUOTES) ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
 <style type="text/css">
@@ -206,7 +209,7 @@ else {
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class='body_top'>
 <center>
 
-<h2><?php xl('Inventory Transactions','e')?></h2>
+<h2><?php echo htmlspecialchars( xl('Inventory Transactions'), ENT_NOQUOTES) ?></h2>
 
 <form method='post' action='inventory_transactions.php'>
 
@@ -219,7 +222,7 @@ else {
    <table class='text'>
     <tr>
      <td class='label'>
-      <?php xl('Type','e'); ?>:
+      <?php echo htmlspecialchars( xl('Type'), ENT_NOQUOTES); ?>:
      </td>
      <td nowrap>
       <select name='form_trans_type' onchange='trans_type_changed()'>
@@ -235,32 +238,34 @@ foreach (array(
 {
   echo "       <option value='$key'";
   if ($key == $form_trans_type) echo " selected";
-  echo ">$value</option>\n";
+  echo ">" . htmlspecialchars( $value, ENT_NOQUOTES) . "</option>\n";
 }
 ?>
       </select>
      </td>
      <td class='label'>
-      <?php xl('From','e'); ?>:
+      <?php echo htmlspecialchars( xl('From'), ENT_NOQUOTES); ?>:
      </td>
      <td nowrap>
       <input type='text' name='form_from_date' id="form_from_date" size='10'
-       value='<?php echo $form_from_date ?>' title='yyyy-mm-dd'
+       value='<?php echo htmlspecialchars( $form_from_date, ENT_QUOTES) ?>'
+       title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES) ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'>
       <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
        id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-       title='<?php xl('Click here to choose a date','e'); ?>'>
+       title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
      </td>
      <td class='label'>
       <?php xl('To','e'); ?>:
      </td>
      <td nowrap>
       <input type='text' name='form_to_date' id="form_to_date" size='10'
-       value='<?php echo $form_to_date ?>' title='yyyy-mm-dd'
+       value='<?php echo htmlspecialchars( $form_to_date, ENT_QUOTES) ?>'
+       title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES) ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'>
       <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
        id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-       title='<?php xl('Click here to choose a date','e'); ?>'>
+       title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
      </td>
     </tr>
    </table>
@@ -270,14 +275,14 @@ foreach (array(
     <tr>
      <td valign='middle'>
       <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
-       <span><?php xl('Submit','e'); ?></span>
+       <span><?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?></span>
       </a>
 <?php if ($form_action) { ?>
       <a href='#' class='css_button' onclick='window.print()' style='margin-left:1em'>
-       <span><?php xl('Print','e'); ?></span>
+       <span><?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?></span>
       </a>
       <a href='#' class='css_button' onclick='mysubmit("export")' style='margin-left:1em'>
-       <span><?php xl('CSV Export','e'); ?></span>
+       <span><?php echo htmlspecialchars( xl('CSV Export'), ENT_NOQUOTES); ?></span>
       </a>
 <?php } ?>
      </td>
@@ -294,34 +299,34 @@ foreach (array(
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   <?php xl('Date','e'); ?>
+   <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php xl('Transaction','e'); ?>
+   <?php echo htmlspecialchars( xl('Transaction'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php xl('Product','e'); ?>
+   <?php echo htmlspecialchars( xl('Product'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php xl('Lot','e'); ?>
+   <?php echo htmlspecialchars( xl('Lot'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php xl('Warehouse','e'); ?>
+   <?php echo htmlspecialchars( xl('Warehouse'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php xl('Who','e'); ?>
+   <?php echo htmlspecialchars( xl('Who'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="right">
-   <?php xl('Qty','e'); ?>
+   <?php echo htmlspecialchars( xl('Qty'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="right">
-   <?php xl('Amount','e'); ?>
+   <?php echo htmlspecialchars( xl('Amount'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="Center">
-   <?php xl('Billed','e'); ?>
+   <?php echo htmlspecialchars( xl('Billed'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php xl('Notes','e'); ?>
+   <?php echo htmlspecialchars( xl('Notes'), ENT_NOQUOTES); ?>
   </td>
  </tr>
 <?php
@@ -380,13 +385,13 @@ if ($form_action) {
 
  <tr bgcolor="#dddddd">
   <td class="dehead" colspan="6">
-   <?php xl('Grand Total','e'); ?>
+   <?php echo htmlspecialchars( xl('Grand Total'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $grandqty; ?>
+   <?php echo htmlspecialchars( $grandqty, ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo bucks($grandtotal); ?>
+   <?php echo htmlspecialchars( bucks($grandtotal), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" colspan="2">
 
