@@ -348,7 +348,7 @@ if ($form_action) {
     "LEFT JOIN list_options AS lo2 ON lo2.list_id = 'warehouse' AND " .
     "lo2.option_id = i2.warehouse_id " .
     "LEFT JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
-    "WHERE s.sale_date >= '$from_date' AND s.sale_date <= '$to_date' ";
+    "WHERE s.sale_date >= ? AND s.sale_date <= ? ";
   if ($form_trans_type == 2) { // purchase/return
     $query .= "AND s.pid = 0 AND s.distributor_id = 0 AND s.xfer_inventory_id = 0 AND s.fee != 0 ";
   }
@@ -366,7 +366,7 @@ if ($form_action) {
   }
   $query .= "ORDER BY s.sale_date, s.sale_id";
   //
-  $res = sqlStatement($query);
+  $res = sqlStatement($query, array($from_date, $to_date));
   while ($row = sqlFetchArray($res)) {
     thisLineItem($row);
   }
