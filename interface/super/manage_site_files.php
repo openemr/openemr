@@ -15,9 +15,8 @@ $fake_register_globals = false;
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
 
-if (!acl_check('admin', 'super')) die(xl('Not authorized','','','!'));
+if (!acl_check('admin', 'super')) die(htmlspecialchars(xl('Not authorized')));
 
 // Prepare array of names of editable files, relative to the site directory.
 $my_files = array(
@@ -38,7 +37,7 @@ while ($lrow = sqlFetchArray($lres)) {
   $my_files[] = "LBF/$option_id.plugin.php";
 }
 
-$form_filename = strip_escape_custom($_REQUEST['form_filename']);
+$form_filename = $_REQUEST['form_filename'];
 // Sanity check to prevent evildoing.
 if (!in_array($form_filename, $my_files)) $form_filename = '';
 $filepath = "$OE_SITE_DIR/$form_filename";
@@ -51,19 +50,19 @@ if (!empty($_POST['bn_save'])) {
     // even though only \n was originally there.  For consistency with
     // normal OpenEMR usage we translate those back.
     file_put_contents($filepath, str_replace("\r\n", "\n",
-      strip_escape_custom($_POST['form_filedata'])));
+      $_POST['form_filedata']));
     $form_filename = '';
   }
 
   // Handle uploads.
   if (is_uploaded_file($_FILES['form_image']['tmp_name']) && $_FILES['form_image']['size']) {
-    $form_dest_filename = strip_escape_custom($_POST['form_dest_filename']);
+    $form_dest_filename = $_POST['form_dest_filename'];
     if ($form_dest_filename == '') {
       $form_dest_filename = $_FILES['form_image']['name'];
     }
     $form_dest_filename = basename($form_dest_filename);
     if ($form_dest_filename == '') {
-      die(xl('Cannot find a destination filename'));
+      die(htmlspecialchars(xl('Cannot find a destination filename')));
     }
     $imagepath = "$imagedir/$form_dest_filename";
     // If the site's image directory does not yet exist, create it.
@@ -73,7 +72,7 @@ if (!empty($_POST['bn_save'])) {
     if (is_file($imagepath)) unlink($imagepath);
     $tmp_name = $_FILES['form_image']['tmp_name'];
     if (!move_uploaded_file($_FILES['form_image']['tmp_name'], $imagepath)) {
-      die(xl('Unable to create') . " '$imagepath'");
+      die(htmlspecialchars(xl('Unable to create') . " '$imagepath'"));
     }
   }
 }
@@ -81,7 +80,7 @@ if (!empty($_POST['bn_save'])) {
 <html>
 
 <head>
-<title><?php xl('File management','e'); ?></title>
+<title><?php echo htmlspecialchars(xl('File management')); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style type="text/css">
@@ -110,7 +109,7 @@ function msfFileChanged() {
 <table border='1' width='95%'>
 
  <tr bgcolor='#dddddd' class='dehead'>
-  <td colspan='2' align='center'><?php echo xl('Edit File in') . " $OE_SITE_DIR"; ?></td>
+  <td colspan='2' align='center'><?php echo htmlspecialchars(xl('Edit File in') . " $OE_SITE_DIR"); ?></td>
  </tr>
 
  <tr>
@@ -119,9 +118,9 @@ function msfFileChanged() {
     <option value=''></option>
 <?php
   foreach ($my_files as $filename) {
-    echo "    <option value='$filename'";
+    echo "    <option value='" . htmlspecialchars($filename, ENT_QUOTES) . "'";
     if ($filename == $form_filename) echo " selected";
-    echo ">$filename</option>\n";
+    echo ">" . htmlspecialchars($filename) . "</option>\n";
   }
 ?>
    </select>
@@ -135,20 +134,21 @@ function msfFileChanged() {
  </tr>
 
  <tr bgcolor='#dddddd' class='dehead'>
-  <td colspan='2' align='center'><?php echo xl('Upload Image to') . " $imagedir"; ?></td>
+  <td colspan='2' align='center'><?php echo htmlspecialchars(xl('Upload Image to') . " $imagedir"); ?></td>
  </tr>
 
  <tr>
   <td valign='top' class='detail' nowrap>
-   <?php xl('Source File','e'); ?>:
+   <?php echo htmlspecialchars(xl('Source File')); ?>:
    <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
    <input type="file" name="form_image" size="40" />&nbsp;
-   <?php xl('Destination Filename','e') ?>:
+   <?php echo htmlspecialchars(xl('Destination Filename')) ?>:
    <select name='form_dest_filename'>
-    <option value=''>(<?php xl('Use source filename','e') ?>)</option>
+    <option value=''>(<?php echo htmlspecialchars(xl('Use source filename')) ?>)</option>
 <?php
+  // Generate an <option> for each file already in the images directory.
   $dh = opendir($imagedir);
-  if (!$dh) die(xl('Cannot read directory') . " '$imagedir'");
+  if (!$dh) die(htmlspecialchars(xl('Cannot read directory') . " '$imagedir'"));
   $imagesslist = array();
   while (false !== ($sfname = readdir($dh))) {
     if (substr($sfname, 0, 1) == '.') continue;
@@ -158,8 +158,8 @@ function msfFileChanged() {
   closedir($dh);
   ksort($imageslist);
   foreach ($imageslist as $sfname) {
-    echo "    <option value='$sfname'";
-    echo ">$sfname</option>\n";
+    echo "    <option value='" . htmlspecialchars($sfname, ENT_QUOTES) . "'";
+    echo ">" . htmlspecialchars($sfname) . "</option>\n";
   }
 ?>
    </select>
@@ -169,7 +169,7 @@ function msfFileChanged() {
 </table>
 
 <p>
-<input type='submit' name='bn_save' value='<?php xl('Save','e') ?>' />
+<input type='submit' name='bn_save' value='<?php echo htmlspecialchars(xl('Save')) ?>' />
 </p>
 
 </center>
