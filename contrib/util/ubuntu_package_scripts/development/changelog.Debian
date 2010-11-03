@@ -1,3 +1,9 @@
+cvs-openemr (1.0.0-7) stable; urgency=low
+
+  * collect the development code from official github repository
+
+ -- Brady Miller <brady@sparmy.com>  Fri, 29 Oct 2010 02:27:18 -0700
+
 cvs-openemr (1.0.0-6) stable; urgency=low
 
   * start utilizing the InstallerAuto class

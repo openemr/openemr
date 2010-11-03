@@ -8,11 +8,11 @@
 # authors: Brady Miller <brady@sparmy.com>
 #          Amalu Obinna <amaluobinna@aol.com>
 #
-# date:    10/04/2010
+# date:    10/29/2010
 #
 # Debian package post installation script steps:
 #  1) Collect mysql root password
-#  2) Download OpenEMR from cvs
+#  2) Download OpenEMR from official github repository
 #  3) Install OpenEMR
 #  4) Configure OpenEMR
 #  5) Echo instructions on starting openemr
@@ -43,7 +43,6 @@ case "$1" in
       SITEDIR=$OPENEMR/sites/default
       INSTALL_USER=cvsopenemr
       INSTALL_DATABASE=cvsopenemr
-      INSTALL_WEBPATH=/cvs-openemr
       #web user and group
       WEB_GROUP=www-data
       WEB_USER=www-data
@@ -171,28 +170,23 @@ case "$1" in
          unable_exit "MySQl user '$INSTALL_USER' already exists"
       fi
 
-      output_both "Connecting with Sourceforge..."
       #Go into tmp directory
       mkdir -p $TMPDIR
       cd $TMPDIR
 
-      # Download cvs version of openemr
-      if !(yes "" | cvs -d:pserver:anonymous:@openemr.cvs.sourceforge.net:/cvsroot/openemr login >> $LOG); then
-         # unable to connect to CVS to download OpenEMR
-         unable_exit "Unable to download OpenEMR cvs version from sourceforge"
-         exit 1
-      fi
-      output_both "Downloading OpenEMR cvs version from sourceforge (please be patient)"
-      if !(cvs -q -z3 -d:pserver:anonymous@openemr.cvs.sourceforge.net:/cvsroot/openemr co -P openemr >> $LOG); then
+      # Download development version of openemr
+      output_both "Downloading official OpenEMR development version (please be patient)"
+      if !(git clone git://github.com/openemr/openemr.git >> $LOG); then
          # unable to download OpenEMR
+         unable_exit "Unable to download OpenEMR development version"
          exit 1
       fi
 
-      # Clean up the cvs code
-      rm -rf `find $TMPDIR -name CVS`
+      # Remove .git directory
+      rm -rf `find $TMPDIR -name .git`
 
       # Install openemr
-      output_both "Installing/Configuring OpenEMR cvs version..."
+      output_both "Installing/Configuring OpenEMR development version..."
       mv $TMPDIR/openemr $OPENEMR
 
       #go to openemr directory

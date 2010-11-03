@@ -115,7 +115,11 @@ td { font-size:10pt; }
  function validate() {
   var f = document.forms[0];
   if (f.form_source_lot.value == '0' && f.form_lot_number.value.search(/\S/) < 0) {
-   alert('<?php xl('A lot number is required!','e'); ?>');
+   alert('<?php xl('A lot number is required','e'); ?>');
+   return false;
+  }
+  if (f.form_trans_type.value == '6' && f.form_distributor_id.value == '') {
+   alert('<?php xl('A distributor is required','e'); ?>');
    return false;
   }
   return true;
@@ -130,11 +134,16 @@ td { font-size:10pt; }
   var showCost      = true;
   var showSourceLot = true;
   var showNotes     = true;
+  var showDistributor = false;
   if (type == '2') { // purchase
     showSourceLot = false;
   }
   else if (type == '3') { // return
     showSourceLot = false;
+  }
+  else if (type == '6') { // distribution
+    showSourceLot = false;
+    showDistributor = true;
   }
   else if (type == '4') { // transfer
     showCost = false;
@@ -155,6 +164,7 @@ td { font-size:10pt; }
   document.getElementById('row_cost'      ).style.display = showCost      ? '' : 'none';
   document.getElementById('row_source_lot').style.display = showSourceLot ? '' : 'none';
   document.getElementById('row_notes'     ).style.display = showNotes     ? '' : 'none';
+  document.getElementById('row_distributor').style.display = showDistributor ? '' : 'none';
  }
 
 </script>
@@ -175,6 +185,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   $form_quantity = formData('form_quantity') + 0;
   $form_cost = sprintf('%0.2f', formData('form_cost'));
   $form_source_lot = formData('form_source_lot') + 0;
+  $form_distributor_id = formData('form_distributor_id') + 0;
 
   // Some fixups depending on transaction type.
   if ($form_trans_type == '3') { // return
@@ -188,8 +199,15 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
     $form_quantity = 0;
     $form_cost = 0;
   }
+  else if ($form_trans_type == '6') { // distribution
+    $form_quantity = 0 - $form_quantity;
+    $form_cost = 0 - $form_cost;
+  }
   if ($form_trans_type != '4') { // not transfer
     $form_source_lot = 0;
+  }
+  if ($form_trans_type != '6') { // not distribution
+    $form_distributor_id = '0';
   }
 
   // If a transfer, make sure there is sufficient quantity in the source lot.
@@ -253,7 +271,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
       if (empty($form_sale_date)) $form_sale_date = date('Y-m-d');
       sqlInsert("INSERT INTO drug_sales ( " .
         "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
-        "sale_date, quantity, fee, xfer_inventory_id, notes " .
+        "sale_date, quantity, fee, xfer_inventory_id, distributor_id, notes " .
         ") VALUES ( " .
         "'$drug_id', '$lot_id', '0', '0', '0', " .
         "'" . $_SESSION['authUser'] . "', " .
@@ -261,6 +279,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
         "'" . (0 - $form_quantity)  . "', " .
         "'" . (0 - $form_cost)      . "', " .
         "'$form_source_lot', " .
+        "'$form_distributor_id', " .
         "'$form_notes' )");
 
       // If this is a transfer then reduce source QOH, and also copy some
@@ -365,8 +384,14 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'vendor_id',
   <td>
    <select name='form_trans_type' onchange='trans_type_changed()'>
 <?php
-foreach (array('0' => xl('None'), '2' => xl('Purchase'), '3' => xl('Return'),
-  '4' => xl('Transfer'), '5' => xl('Adjustment')) as $key => $value)
+foreach (array(
+  '0' => xl('None'),
+  '2' => xl('Purchase'),
+  '3' => xl('Return'),
+  '6' => xl('Distribution'),
+  '4' => xl('Transfer'),
+  '5' => xl('Adjustment'),
+) as $key => $value)
 {
   echo "<option value='$key'";
   if ($key == $form_trans_type) echo " selected";
@@ -374,6 +399,18 @@ foreach (array('0' => xl('None'), '2' => xl('Purchase'), '3' => xl('Return'),
 }
 ?>
    </select>
+  </td>
+ </tr>
+
+ <tr id='row_distributor'>
+  <td valign='top' nowrap><b><?php xl('Distributor','e'); ?>:</b></td>
+  <td>
+<?php
+// Address book entries for distributors.
+generate_form_field(array('data_type' => 14, 'field_id' => 'distributor_id',
+  'list_id' => '', 'edit_options' => 'R',
+  'description' => xl('Address book entry for the distributor')), '');
+?>
   </td>
  </tr>
 

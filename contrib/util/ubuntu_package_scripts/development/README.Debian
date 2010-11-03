@@ -6,7 +6,7 @@ About:
 ------
 OpenEMR is a comprehensive Open Source Medical Practice Management
 Application.
-This is a package to allow quick simple testing of most recent cvs
+This is a package to allow quick simple testing of most recent
 development code for OpenEMR (considered unstable) for testing purposes.
 
 
@@ -48,5 +48,5 @@ just installed it is very helpful.
 
 Authors of debianized OpenEMR:
 ------------------------------
--- Brady Miller <brady@sparmy.com> Mon, 04 Oct 2010 02:38:33 -0700
--- Amalu Obinna <amaluobinna@aol.com> Mon, 04 Oct 2010 02:38:33 -0700
+-- Brady Miller <brady@sparmy.com> Fri, 29 Oct 2010 02:24:28 -0700
+-- Amalu Obinna <amaluobinna@aol.com> Fri, 29 Oct 2010 02:24:28 -0700

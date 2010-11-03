@@ -29,7 +29,7 @@
 //===============================================================================
 if (isset($_POST["mode"]))
  {
-  if ($_POST["mode"] == "search" && $_REQUEST['hidden_patient_code']*1>0)
+  if (($_POST["mode"] == "search" || $_POST["default_search_patient"] == "default_search_patient") && $_REQUEST['hidden_patient_code']*1>0)
    {
 	$hidden_patient_code=$_REQUEST['hidden_patient_code'];
 	$RadioPaid=$_REQUEST['RadioPaid'];
@@ -61,10 +61,10 @@ if (isset($_POST["mode"]))
  }
 //===============================================================================
 ?>
-<table width="1004" border="0" cellspacing="0" cellpadding="0">
+<table width="1004" border="0" cellspacing="0" cellpadding="0"  id="TablePatientPortion">
 	  <tr height="5">
 		<td colspan="13" align="left" >
-			<table width="705" border="0" cellspacing="0" cellpadding="0" bgcolor="#DEDEDE"  id="TablePatientPortion">
+			<table width="705" border="0" cellspacing="0" cellpadding="0" bgcolor="#DEDEDE">
 			  <tr height="5">
 				<td class='title' width="700" ></td>
 			  </tr>

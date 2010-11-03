@@ -25,6 +25,7 @@
 // O = Procedure Order ("pro_*") types only (address book)
 // U = Capitalize all letters (text fields)
 // V = Vendor types only (address book)
+// R = Distributor types only (address book)
 // 1 = Write Once (not editable when not empty) (text fields)
 
 require_once("formdata.inc.php");
@@ -258,11 +259,15 @@ function generate_form_field($frow, $currvalue) {
   // ordering system.
   // Alternatively the letter V in edit_options means that abook_type
   // must be "vendor", indicating the Vendor type.
+  // Alternatively the letter R in edit_options means that abook_type
+  // must be "dist", indicating the Distributor type.
   else if ($data_type == 14) {
     if (strpos($frow['edit_options'], 'O') !== FALSE)
       $tmp = "abook_type LIKE 'ord\\_%'";
     else if (strpos($frow['edit_options'], 'V') !== FALSE)
       $tmp = "abook_type LIKE 'vendor%'";
+    else if (strpos($frow['edit_options'], 'R') !== FALSE)
+      $tmp = "abook_type LIKE 'dist'";
     else
       $tmp = "( username = '' OR authorized = 1 )";
     $ures = sqlStatement("SELECT id, fname, lname, organization, username FROM users " .
