@@ -113,6 +113,11 @@ include_once("../../library/acl.inc");
  title="Form Layout Management"><?php xl('Layouts','e'); ?></a>&nbsp;
 </td>
 <td valign="middle" nowrap>
+&nbsp;<a class="menu" target=Main href="../super/manage_site_files.php"
+ onclick="top.restoreSession()"
+ title="Site Files Management"><?php xl('Files','e'); ?></a>&nbsp;
+</td>
+<td valign="middle" nowrap>
 &nbsp;<a class="menu" target=Main href="../main/backup.php"
  onclick="top.restoreSession()"
  title="System Backup"><?php xl('Backup','e'); ?></a>&nbsp;
