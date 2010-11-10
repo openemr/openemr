@@ -16,6 +16,22 @@
  $thisauth = acl_check('admin', 'drugs');
  if (!$thisauth) die(xl('Not authorized'));
 
+// For each sorting option, specify the ORDER BY argument.
+//
+$ORDERHASH = array(
+  'prod' => 'd.name, d.drug_id, di.expiration, di.lot_number',
+  'ndc'  => 'd.ndc_number, d.name, d.drug_id, di.expiration, di.lot_number',
+  'form' => 'lof.title, d.name, d.drug_id, di.expiration, di.lot_number',
+  'lot'  => 'di.lot_number, d.name, d.drug_id, di.expiration',
+  'wh'   => 'lo.title, d.name, d.drug_id, di.expiration, di.lot_number',
+  'qoh'  => 'di.on_hand, d.name, d.drug_id, di.expiration, di.lot_number',
+  'exp'  => 'di.expiration, d.name, d.drug_id, di.lot_number',
+);
+
+// Get the order hash array value and key for this request.
+$form_orderby = $ORDERHASH[$_REQUEST['form_orderby']] ? $_REQUEST['form_orderby'] : 'prod';
+$orderby = $ORDERHASH[$form_orderby];
+
  // get drugs
  $res = sqlStatement("SELECT d.*, " .
   "di.inventory_id, di.lot_number, di.expiration, di.manufacturer, " .
@@ -25,7 +41,9 @@
   "AND di.destroy_date IS NULL " .
   "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
   "lo.option_id = di.warehouse_id " .
-  "ORDER BY d.name, d.drug_id, di.expiration, di.lot_number");
+  "LEFT JOIN list_options AS lof ON lof.list_id = 'drug_form' AND " .
+  "lof.option_id = d.form " .
+  "ORDER BY $orderby");
 ?>
 <html>
 
@@ -60,6 +78,15 @@ function doiclick(id, lot) {
  dlgopen('add_edit_lot.php?drug=' + id + '&lot=' + lot, '_blank', 600, 475);
 }
 
+// Process click on a column header for sorting.
+function dosort(orderby) {
+ var f = document.forms[0];
+ f.form_orderby.value = orderby;
+ top.restoreSession();
+ f.submit();
+ return false;
+}
+
 </script>
 
 </head>
@@ -69,17 +96,53 @@ function doiclick(id, lot) {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <td title=<?php xl('Click to edit','e','\'','\''); ?>><?php  xl('Name','e'); ?></td>
-  <td><?php  xl('Act','e'); ?></td>
-  <td><?php  xl('NDC','e'); ?></td>
-  <td><?php  xl('Form','e'); ?></td>
-  <td><?php  xl('Size','e'); ?></td>
-  <td><?php  xl('Unit','e'); ?></td>
-  <td title=<?php xl('Click to receive (add) new lot','e','\'','\''); ?>><?php  xl('New','e'); ?></td>
-  <td title=<?php xl('Click to edit','e','\'','\''); ?>><?php  xl('Lot','e'); ?></td>
-  <td><?php  xl('Warehouse','e'); ?></td>
-  <td><?php  xl('QOH','e'); ?></td>
-  <td><?php  xl('Expires','e'); ?></td>
+  <td title='<?php echo htmlspecialchars(xl('Click to edit'), ENT_QUOTES); ?>'>
+   <a href="#" onclick="return dosort('prod')"
+   <?php if ($form_orderby == "prod") echo " style=\"color:#00cc00\""; ?>>
+   <?php echo htmlspecialchars(xl('Name')); ?> </a>
+  </td>
+  <td>
+   <?php echo htmlspecialchars(xl('Act')); ?>
+  </td>
+  <td>
+   <a href="#" onclick="return dosort('ndc')"
+   <?php if ($form_orderby == "ndc") echo " style=\"color:#00cc00\""; ?>>
+   <?php echo htmlspecialchars(xl('NDC')); ?> </a>
+  </td>
+  <td>
+   <a href="#" onclick="return dosort('form')"
+   <?php if ($form_orderby == "form") echo " style=\"color:#00cc00\""; ?>>
+   <?php echo htmlspecialchars(xl('Form')); ?> </a>
+  </td>
+  <td>
+   <?php echo htmlspecialchars(xl('Size')); ?>
+  </td>
+  <td>
+   <?php echo htmlspecialchars(xl('Unit')); ?>
+  </td>
+  <td title='<?php echo htmlspecialchars(xl('Click to receive (add) new lot'), ENT_QUOTES); ?>'>
+   <?php echo htmlspecialchars(xl('New')); ?>
+  </td>
+  <td title='<?php echo htmlspecialchars(xl('Click to edit'), ENT_QUOTES); ?>'>
+   <a href="#" onclick="return dosort('lot')"
+   <?php if ($form_orderby == "lot") echo " style=\"color:#00cc00\""; ?>>
+   <?php echo htmlspecialchars(xl('Lot')); ?> </a>
+  </td>
+  <td>
+   <a href="#" onclick="return dosort('wh')"
+   <?php if ($form_orderby == "wh") echo " style=\"color:#00cc00\""; ?>>
+   <?php echo htmlspecialchars(xl('Warehouse')); ?> </a>
+  </td>
+  <td>
+   <a href="#" onclick="return dosort('qoh')"
+   <?php if ($form_orderby == "qoh") echo " style=\"color:#00cc00\""; ?>>
+   <?php echo htmlspecialchars(xl('QOH')); ?> </a>
+  </td>
+  <td>
+   <a href="#" onclick="return dosort('exp')"
+   <?php if ($form_orderby == "exp") echo " style=\"color:#00cc00\""; ?>>
+   <?php echo htmlspecialchars(xl('Expires')); ?> </a>
+  </td>
  </tr>
 <?php 
  $lastid = "";
@@ -124,8 +187,10 @@ function doiclick(id, lot) {
 </table>
 
 <center><p>
- <input type='button' value='<?php xl('Add Drug','e'); ?>' onclick='dodclick(0)' style='background-color:transparent' />
+ <input type='button' value='<?php echo htmlspecialchars(xl('Add Drug')); ?>' onclick='dodclick(0)' style='background-color:transparent' />
 </p></center>
+
+<input type="hidden" name="form_orderby" value="<?php echo $form_orderby ?>" />
 
 </form>
 </body>
