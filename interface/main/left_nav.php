@@ -1040,8 +1040,8 @@ if (!empty($reg)) {
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
       <li><span><?php xl('Inventory','e') ?></span>
         <ul>
-          <?php genPopLink(xl('List'),'inventory_list.php'); ?>
-          <?php genPopLink(xl('Activity'),'inventory_activity.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('List'),'reports/inventory_list.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Activity'),'reports/inventory_activity.php'); ?>
           <?php genMiscLink('RTop','rep','0',xl('Transactions'),'reports/inventory_transactions.php'); ?>
         </ul>
       </li>

@@ -6,6 +6,14 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/options.inc.php");
@@ -20,6 +28,9 @@ function addWarning($msg) {
   if ($warnings) $warnings .= '<br />';
   $warnings .= $msg;
 }
+
+// this is "" or "submit".
+$form_action = $_POST['form_action'];
 
 if (!empty($_POST['form_days'])) {
   $form_days = $_POST['form_days'] + 0;
@@ -45,6 +56,19 @@ $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand " .
 <title><?php  xl('Inventory List','e'); ?></title>
 
 <style>
+/* specifically include & exclude from printing */
+@media print {
+ #report_parameters {visibility: hidden; display: none;}
+ #report_parameters_daterange {visibility: visible; display: inline;}
+ #report_results {margin-top: 30px;}
+}
+/* specifically exclude some from the screen */
+@media screen {
+ #report_parameters_daterange {visibility: hidden; display: none;}
+}
+
+body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
+
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 tr.detail { font-size:10pt; }
 a, a:visited, a:hover { color:#0000cc; }
@@ -53,41 +77,74 @@ a, a:visited, a:hover { color:#0000cc; }
 <script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script language="JavaScript">
+ function mysubmit(action) {
+  var f = document.forms[0];
+  f.form_action.value = action;
+  top.restoreSession();
+  f.submit();
+ }
 </script>
 
 </head>
 
-<body>
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class='body_top'>
+
 <center>
 
+<h2><?php echo htmlspecialchars(xl('Inventory List'))?></h2>
+
 <form method='post' action='inventory_list.php' name='theform'>
-<table border='0' cellpadding='5' cellspacing='0' width='98%'>
+
+<div id="report_parameters">
+<!-- form_action is set to "submit" at form submit time -->
+<input type='hidden' name='form_action' value='' />
+<table>
  <tr>
-  <td class='title'>
-   <?php xl('Inventory List','e'); ?>
+  <td width='50%'>
+   <table class='text'>
+    <tr>
+     <td nowrap>
+      <?php echo htmlspecialchars(xl('For the past')); ?>
+      <input type="input" name="form_days" size='3' value="<?php echo $form_days; ?>" />
+      <?php echo htmlspecialchars(xl('days')); ?>
+     </td>
+    </tr>
+   </table>
   </td>
-  <td class='text' align='right'>
-   <?php xl('For the past','e'); ?>
-   <input type="input" name="form_days" size='3' value="<?php echo $form_days; ?>" />
-   <?php xl('days','e'); ?>&nbsp;
-   <input type="submit" value="<?php xl('Refresh','e'); ?>" />&nbsp;
-   <input type="button" value="<?php xl('Print','e'); ?>" onclick="window.print()" />
+  <td align='left' valign='middle'>
+   <table style='border-left:1px solid; width:100%; height:100%'>
+    <tr>
+     <td valign='middle'>
+      <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
+       <span><?php echo htmlspecialchars(xl('Submit'), ENT_NOQUOTES); ?></span>
+      </a>
+<?php if ($form_action) { ?>
+      <a href='#' class='css_button' onclick='window.print()' style='margin-left:1em'>
+       <span><?php echo htmlspecialchars(xl('Print'), ENT_NOQUOTES); ?></span>
+      </a>
+<?php } ?>
+     </td>
+    </tr>
+   </table>
   </td>
  </tr>
 </table>
-</form>
+</div>
 
-<table width='98%' cellpadding='2' cellspacing='2'>
+<?php if ($form_action) { // if submit ?>
+
+<div id="report_results">
+<table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <thead style='display:table-header-group'>
   <tr class='head'>
    <th><?php  xl('Name','e'); ?></th>
    <th><?php  xl('NDC','e'); ?></th>
    <th><?php  xl('Form','e'); ?></th>
-   <th align='right'><?php  xl('QOH','e'); ?></th>
-   <th align='right'><?php  xl('Reorder','e'); ?></th>
-   <th align='right'><?php  xl('Avg Monthly','e'); ?></th>
-   <th align='right'><?php  xl('Stock Months','e'); ?></th>
-   <th><?php xl('Warnings','e'); ?></th>
+   <th align='right'><?php echo htmlspecialchars(xl('QOH')); ?></th>
+   <th align='right'><?php echo htmlspecialchars(xl('Reorder')); ?></th>
+   <th align='right'><?php echo htmlspecialchars(xl('Avg Monthly')); ?></th>
+   <th align='right'><?php echo htmlspecialchars(xl('Stock Months')); ?></th>
+   <th><?php echo htmlspecialchars(xl('Warnings')); ?></th>
   </tr>
  </thead>
  <tbody>
@@ -118,13 +175,13 @@ while ($row = sqlFetchArray($res)) {
   if ($sale_quantity != 0) {
     $stock_months = sprintf('%0.1f', $on_hand * $months / $sale_quantity);
     if ($stock_months < 1.0) {
-      addWarning(xl('QOH is less than monthly usage'));
+      addWarning(htmlspecialchars(xl('QOH is less than monthly usage')));
     }
   }
 
   // Check for reorder point reached.
   if (!empty($row['reorder_point']) && $on_hand <= $row['reorder_point']) {
-    addWarning(xl('Reorder point has been reached'));
+    addWarning(htmlspecialchars(xl('Reorder point has been reached')));
   }
 
   // Compute the smallest quantity that might be taken from a lot based on the
@@ -156,15 +213,15 @@ while ($row = sqlFetchArray($res)) {
   while ($irow = sqlFetchArray($ires)) {
     $lotno = $irow['lot_number'];
     if ($irow['on_hand'] < $min_sale) {
-      addWarning(xl('Lot') . " '$lotno' " . xl('quantity seems unusable'));
+      addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('quantity seems unusable')));
     }
     if (!empty($irow['expiration'])) {
       $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
       if ($expdays <= 0) {
-        addWarning(xl('Lot') . " '$lotno' " . xl('has expired'));
+        addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('has expired')));
       }
       else if ($expdays <= 30) {
-        addWarning(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days'));
+        addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days')));
       }
     }
   }
@@ -186,6 +243,9 @@ while ($row = sqlFetchArray($res)) {
  </tbody>
 </table>
 
+<?php } // end if submit ?>
+
+</form>
 </center>
 </body>
 </html>

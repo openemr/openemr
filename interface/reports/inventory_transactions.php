@@ -31,7 +31,7 @@ function esc4Export($str) {
 }
 
 function thisLineItem($row, $xfer=false) {
-  global $grandtotal, $grandqty, $encount;
+  global $grandtotal, $grandqty, $encount, $form_action;
 
   $invnumber = '';
   $dpname = '';
@@ -69,7 +69,7 @@ function thisLineItem($row, $xfer=false) {
     $ttype = xl('Adjustment');
   }
 
-  if ($_POST['form_csvexport']) {
+  if ($form_action == 'export') {
     echo '"' . oeFormatShortDate($row['sale_date']) . '",';
     echo '"' . $ttype                               . '",';
     echo '"' . esc4Export($row['name'])             . '",';
@@ -136,7 +136,7 @@ function thisLineItem($row, $xfer=false) {
 
 } // end function
 
-if (! acl_check('acct', 'rep')) die(htmlspecialchars( xl("Unauthorized access."), ENT_NOQUOTES));
+if (! acl_check('acct', 'rep')) die(htmlspecialchars(xl("Unauthorized access."), ENT_NOQUOTES));
 
 // this is "" or "submit" or "export".
 $form_action = $_POST['form_action'];
@@ -171,7 +171,7 @@ else {
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php echo htmlspecialchars( xl('Inventory Transactions'), ENT_NOQUOTES) ?></title>
+<title><?php echo htmlspecialchars(xl('Inventory Transactions'), ENT_NOQUOTES) ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
 <style type="text/css">
@@ -209,7 +209,7 @@ else {
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class='body_top'>
 <center>
 
-<h2><?php echo htmlspecialchars( xl('Inventory Transactions'), ENT_NOQUOTES) ?></h2>
+<h2><?php echo htmlspecialchars(xl('Inventory Transactions'), ENT_NOQUOTES) ?></h2>
 
 <form method='post' action='inventory_transactions.php'>
 
@@ -222,7 +222,7 @@ else {
    <table class='text'>
     <tr>
      <td class='label'>
-      <?php echo htmlspecialchars( xl('Type'), ENT_NOQUOTES); ?>:
+      <?php echo htmlspecialchars(xl('Type'), ENT_NOQUOTES); ?>:
      </td>
      <td nowrap>
       <select name='form_trans_type' onchange='trans_type_changed()'>
@@ -238,34 +238,34 @@ foreach (array(
 {
   echo "       <option value='$key'";
   if ($key == $form_trans_type) echo " selected";
-  echo ">" . htmlspecialchars( $value, ENT_NOQUOTES) . "</option>\n";
+  echo ">" . htmlspecialchars($value, ENT_NOQUOTES) . "</option>\n";
 }
 ?>
       </select>
      </td>
      <td class='label'>
-      <?php echo htmlspecialchars( xl('From'), ENT_NOQUOTES); ?>:
+      <?php echo htmlspecialchars(xl('From'), ENT_NOQUOTES); ?>:
      </td>
      <td nowrap>
       <input type='text' name='form_from_date' id="form_from_date" size='10'
-       value='<?php echo htmlspecialchars( $form_from_date, ENT_QUOTES) ?>'
-       title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES) ?>'
+       value='<?php echo htmlspecialchars($form_from_date, ENT_QUOTES) ?>'
+       title='<?php echo htmlspecialchars(xl('yyyy-mm-dd'), ENT_QUOTES) ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'>
       <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
        id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-       title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+       title='<?php echo htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES); ?>'>
      </td>
      <td class='label'>
       <?php xl('To','e'); ?>:
      </td>
      <td nowrap>
       <input type='text' name='form_to_date' id="form_to_date" size='10'
-       value='<?php echo htmlspecialchars( $form_to_date, ENT_QUOTES) ?>'
-       title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES) ?>'
+       value='<?php echo htmlspecialchars($form_to_date, ENT_QUOTES) ?>'
+       title='<?php echo htmlspecialchars(xl('yyyy-mm-dd'), ENT_QUOTES) ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'>
       <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
        id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-       title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+       title='<?php echo htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES); ?>'>
      </td>
     </tr>
    </table>
@@ -275,14 +275,14 @@ foreach (array(
     <tr>
      <td valign='middle'>
       <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
-       <span><?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?></span>
+       <span><?php echo htmlspecialchars(xl('Submit'), ENT_NOQUOTES); ?></span>
       </a>
 <?php if ($form_action) { ?>
       <a href='#' class='css_button' onclick='window.print()' style='margin-left:1em'>
-       <span><?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?></span>
+       <span><?php echo htmlspecialchars(xl('Print'), ENT_NOQUOTES); ?></span>
       </a>
       <a href='#' class='css_button' onclick='mysubmit("export")' style='margin-left:1em'>
-       <span><?php echo htmlspecialchars( xl('CSV Export'), ENT_NOQUOTES); ?></span>
+       <span><?php echo htmlspecialchars(xl('CSV Export'), ENT_NOQUOTES); ?></span>
       </a>
 <?php } ?>
      </td>
@@ -293,46 +293,47 @@ foreach (array(
 </table>
 </div>
 
-<?php if ($form_action) { // if submit or export ?>
+<?php if ($form_action) { // if submit (already not export here) ?>
 
 <div id="report_results">
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php echo htmlspecialchars( xl('Transaction'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Transaction'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php echo htmlspecialchars( xl('Product'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Product'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php echo htmlspecialchars( xl('Lot'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Lot'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php echo htmlspecialchars( xl('Warehouse'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Warehouse'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php echo htmlspecialchars( xl('Who'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Who'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo htmlspecialchars( xl('Qty'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Qty'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo htmlspecialchars( xl('Amount'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Amount'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="Center">
-   <?php echo htmlspecialchars( xl('Billed'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Billed'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead">
-   <?php echo htmlspecialchars( xl('Notes'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Notes'), ENT_NOQUOTES); ?>
   </td>
  </tr>
 <?php
+} // end if submit
 } // end not export
 
-if ($form_action) {
+if ($form_action) { // if submit or export
   $from_date = $form_from_date;
   $to_date   = $form_to_date;
 
@@ -380,18 +381,19 @@ if ($form_action) {
     thisLineItem($row);
   }
 
-  if ($form_action != 'export') {
+  // Grand totals line.
+  if ($form_action != 'export') { // if submit
 ?>
 
  <tr bgcolor="#dddddd">
   <td class="dehead" colspan="6">
-   <?php echo htmlspecialchars( xl('Grand Total'), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(xl('Grand Total'), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo htmlspecialchars( $grandqty, ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars($grandqty, ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo htmlspecialchars( bucks($grandtotal), ENT_NOQUOTES); ?>
+   <?php echo htmlspecialchars(bucks($grandtotal), ENT_NOQUOTES); ?>
   </td>
   <td class="dehead" colspan="2">
 
@@ -399,16 +401,17 @@ if ($form_action) {
  </tr>
 
 <?php
-  } // End not export
-}
+  } // End if submit
+} // end if submit or export
 
 if ($form_action != 'export') {
+  if ($form_action) {
 ?>
-
 </table>
 </div>
-
-<?php } // end if ($form_action) ?>
+<?php
+  } // end if ($form_action)
+?>
 
 </form>
 </center>
