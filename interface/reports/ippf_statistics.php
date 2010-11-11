@@ -373,13 +373,9 @@ function getGcacClientStatus($row) {
 }
 *********************************************************************/
 
-// Get the "client status" as descriptive text.
+// Determine if a recent gcac service was performed.
 //
-function getGcacClientStatus($row) {
-  $pid = $row['pid'];
-  $encdate = $row['encdate'];
-
-  // Check for abortion service in Tally Sheet.
+function hadRecentAbService($pid, $encdate) {
   $query = "SELECT COUNT(*) AS count " .
     "FROM form_encounter AS fe, billing AS b, codes AS c WHERE " .
     "fe.pid = '$pid' AND " .
@@ -393,7 +389,17 @@ function getGcacClientStatus($row) {
     "c.code = b.code AND c.modifier = b.modifier AND " .
     "( c.related_code LIKE '%IPPF:252223%' OR c.related_code LIKE '%IPPF:252224%' )";
   $tmp = sqlQuery($query);
-  if (!empty($tmp['count'])) return xl('MA Client Accepting Abortion');
+  return !empty($tmp['count']);
+}
+
+// Get the "client status" as descriptive text.
+//
+function getGcacClientStatus($row) {
+  $pid = $row['pid'];
+  $encdate = $row['encdate'];
+
+  if (hadRecentAbService($pid, $encdate))
+    return xl('MA Client Accepting Abortion');
 
   // Check for a GCAC visit form.
   // This will the most recent GCAC visit form for visits within
@@ -659,20 +665,22 @@ function process_ippf_code($row, $code, $quantity=1) {
     if (empty($key)) return;
     $patient_id = $row['pid'];
     $encdate = $row['encdate'];
-    $query = "SELECT COUNT(*) AS count " .
-      "FROM forms AS f, form_encounter AS fe, lbf_data AS d " .
-      "WHERE f.pid = '$patient_id' AND " .
-      "f.formdir = 'LBFgcac' AND " .
-      "f.deleted = 0 AND " .
-      "fe.pid = f.pid AND fe.encounter = f.encounter AND " .
-      "fe.date <= '$encdate' AND " .
-      "DATE_ADD(fe.date, INTERVAL 14 DAY) > '$encdate' AND " .
-      "d.form_id = f.form_id AND " .
-      "d.field_id = 'client_status' AND " .
-      "( d.field_value = 'maaa' OR d.field_value = 'refout' )";
-    // echo "<!-- $key: $query -->\n"; // debugging
-    $irow = sqlQuery($query);
-    if (empty($irow['count'])) return;
+    // Skip this if no recent gcac service nor gcac form with acceptance.
+    if (!hadRecentAbService($patient_id, $encdate)) {
+      $query = "SELECT COUNT(*) AS count " .
+        "FROM forms AS f, form_encounter AS fe, lbf_data AS d " .
+        "WHERE f.pid = '$patient_id' AND " .
+        "f.formdir = 'LBFgcac' AND " .
+        "f.deleted = 0 AND " .
+        "fe.pid = f.pid AND fe.encounter = f.encounter AND " .
+        "fe.date <= '$encdate' AND " .
+        "DATE_ADD(fe.date, INTERVAL 14 DAY) > '$encdate' AND " .
+        "d.form_id = f.form_id AND " .
+        "d.field_id = 'client_status' AND " .
+        "( d.field_value = 'maaa' OR d.field_value = 'refout' )";
+      $irow = sqlQuery($query);
+      if (empty($irow['count'])) return;
+    }
   }
 
   // Post-Abortion Care and Followup by Source.
