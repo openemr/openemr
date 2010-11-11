@@ -15,7 +15,7 @@ $v_tag   = '-dev'; // minor revision number, should be empty for production rele
 // Please add a comment that includes the database.sql version that relates to 
 // change below
 
-$v_database = 6;
+$v_database = 7;
 // 4) 3_2_0-to-4_0_0_upgrade.sql new revision: 1.31
 //    database.sql,v  new revision: 1.180
 // 6) 2010-10-29 by sunsetsystems - 1.182 I guess - what are these entries for?

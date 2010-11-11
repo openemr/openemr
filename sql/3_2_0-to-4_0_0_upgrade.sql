@@ -865,6 +865,33 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_type', 'patient', 'Patient', 20, 0);
 #EndIf
 
+#IfNotTable eligibility_response
+CREATE TABLE `eligibility_response` (
+  `response_id` bigint(20) NOT NULL auto_increment,
+  `response_description` varchar(255) default NULL,
+  `response_status` enum('A','D') NOT NULL default 'A',
+  `response_vendor_id` bigint(20) default NULL,
+  `response_create_date` date default NULL,
+  `response_modify_date` date default NULL,
+  PRIMARY KEY  (`response_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+#EndIf
+
+#IfNotTable eligibility_verification
+CREATE TABLE `eligibility_verification` (
+  `verification_id` bigint(20) NOT NULL auto_increment,
+  `response_id` bigint(20) default NULL,
+  `insurance_id` bigint(20) default NULL,
+  `eligibility_check_date` datetime default NULL,
+  `copay` int(11) default NULL,
+  `deductible` int(11) default NULL,
+  `deductiblemet` enum('Y','N') default 'Y',
+  `create_date` date default NULL,
+  PRIMARY KEY  (`verification_id`),
+  KEY `insurance_id` (`insurance_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+#EndIf
+
 #IfNotRow2D list_options list_id lists option_id smoking_status
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'smoking_status','Smoking Status', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('smoking_status', '1', 'Current every day smoker', 10, 0);
@@ -885,4 +912,3 @@ ALTER TABLE drug_sales ADD distributor_id bigint(20) NOT NULL DEFAULT 0;
 #IfNotRow2D list_options list_id abook_type option_id dist
 INSERT INTO list_options (list_id,option_id,title,seq,is_default) VALUES ('abook_type','dist','Distributor',30,0);
 #EndIf
-

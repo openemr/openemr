@@ -378,6 +378,43 @@ CREATE TABLE `drugs` (
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `eligibility_response`
+--
+
+DROP TABLE IF EXISTS `eligibility_response`;
+CREATE TABLE `eligibility_response` (
+  `response_id` bigint(20) NOT NULL auto_increment,
+  `response_description` varchar(255) default NULL,
+  `response_status` enum('A','D') NOT NULL default 'A',
+  `response_vendor_id` bigint(20) default NULL,
+  `response_create_date` date default NULL,
+  `response_modify_date` date default NULL,
+  PRIMARY KEY  (`response_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `eligibility_verification`
+--
+
+DROP TABLE IF EXISTS `eligibility_verification`;
+CREATE TABLE `eligibility_verification` (
+  `verification_id` bigint(20) NOT NULL auto_increment,
+  `response_id` bigint(20) default NULL,
+  `insurance_id` bigint(20) default NULL,
+  `eligibility_check_date` datetime default NULL,
+  `copay` int(11) default NULL,
+  `deductible` int(11) default NULL,
+  `deductiblemet` enum('Y','N') default 'Y',
+  `create_date` date default NULL,
+  PRIMARY KEY  (`verification_id`),
+  KEY `insurance_id` (`insurance_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `employer_data`
 -- 

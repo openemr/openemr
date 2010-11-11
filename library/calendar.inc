@@ -90,8 +90,8 @@ function getUserFacilities($uID) {
 		  from users_facility uf
 		  left join facility f on (uf.facility_id = f.id)
 		  where uf.tablename='users' 
-		  and uf.table_id = '$uID' 
-	    ");
+		  and uf.table_id = ? 
+	    ", array($uID) );
   }
   $returnVal = array();
   while ($row = sqlFetchArray($rez)) 

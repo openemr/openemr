@@ -168,6 +168,9 @@ $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
 $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
+// Variable set for Eligibility Verification [EDI-271] path 
+$GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
+
 // Include the translation engine. This will also call sql.inc to
 //  open the openemr mysql connection.
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");

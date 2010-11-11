@@ -1020,6 +1020,10 @@ if (!empty($reg)) {
 <?php if (empty($GLOBALS['code_types']['IPPF'])) { ?>
           <?php genMiscLink('RTop','rep','0',xl('Superbill'),'reports/custom_report_range.php'); ?>
 <?php } ?>
+	  <?php  genMiscLink('RTop','rep','0',xl('Eligibility'),'reports/edi_270.php'); ?>
+	  <?php  genMiscLink('RTop','rep','0',xl('Eligibility Response'),'reports/edi_271.php'); ?>
+	  
+
           <?php if (!$GLOBALS['disable_chart_tracker']) genMiscLink('RTop','rep','0',xl('Chart Activity'),'reports/chart_location_activity.php'); ?>
           <?php if (!$GLOBALS['disable_chart_tracker']) genMiscLink('RTop','rep','0',xl('Charts Out'),'reports/charts_checked_out.php'); ?>
           <?php genMiscLink('RTop','rep','0',xl('Services'), 'reports/services_by_category.php'); ?>

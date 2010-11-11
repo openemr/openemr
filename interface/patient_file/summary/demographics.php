@@ -22,6 +22,7 @@ $fake_register_globals=false;
  require_once("$srcdir/options.inc.php");
  require_once("../history/history.inc.php");
  require_once("$srcdir/formatting.inc.php");
+ require_once("$srcdir/edi.inc");
 
   if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   include_once("$srcdir/pid.inc");
@@ -362,7 +363,7 @@ if ($GLOBALS['patient_id_category_name']) {
 			expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
 
 			   <?php
-			   if ( $insurance_count > 1 ) {
+			   if ( $insurance_count > 0 ) {
 
 				   ?><ul class="tabNav"><?php
 
@@ -392,6 +393,9 @@ if ($GLOBALS['patient_id_category_name']) {
 							$enddate = $row['date'];
 						}
 					}
+					// Display the eligibility tab
+					echo "<li><a href='/play/javascript-tabbed-navigation/'>" .
+						htmlspecialchars( xl('Eligibility'), ENT_NOQUOTES) . "</a></li>";
 
 					?></ul><?php
 
@@ -513,6 +517,11 @@ if ($GLOBALS['patient_id_category_name']) {
 						$first = false;
 					  } // end while
 					} // end foreach
+
+					// Display the eligibility information
+					echo "<div class='tab'>";
+					show_eligibility_information($pid,true);
+					echo "</div>";
 
 			///////////////////////////////// END INSURANCE SECTION
 			?>
