@@ -63,10 +63,20 @@
 <style>
 td { font-size:10pt; }
 .search { background-color:#aaffaa }
+
+#form_entry {
+	display:block;
+}
+
+#form_list {
+	display:none;
+}
+
 </style>
 
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
 <script language="JavaScript">
 
@@ -80,8 +90,10 @@ td { font-size:10pt; }
 
  // This is invoked when our Search button is clicked.
  function dosearch() {
-  var f = document.forms[0];
-  dlgopen('ins_list.php' +
+
+	$("#form_entry").hide();
+  	var f = document.forms[0];
+	var search_list = 'ins_list.php' +
    '?form_name='   + doescape(f.form_name.value  ) +
    '&form_attn='   + doescape(f.form_attn.value  ) +
    '&form_addr1='  + doescape(f.form_addr1.value ) +
@@ -90,8 +102,10 @@ td { font-size:10pt; }
    '&form_state='  + doescape(f.form_state.value ) +
    '&form_zip='    + doescape(f.form_zip.value   ) +
    '&form_phone='  + doescape(f.form_phone.value ) +
-   '&form_cms_id=' + doescape(f.form_cms_id.value) +
-   '', '_blank', 780, 500);
+   '&form_cms_id=' + doescape(f.form_cms_id.value);
+
+    top.restoreSession();
+    $("#form_list").load( search_list ).show();	
 
   return false;
  }
@@ -102,7 +116,9 @@ td { font-size:10pt; }
    alert('The target form was closed; I cannot apply your selection.');
   else
    opener.set_insurance(ins_id, ins_name);
-  window.close();
+   parent.$.fn.fancybox.close();
+   parent.location.reload();
+   top.restoreSession();
  }
 
  // This is set to true on a mousedown of the Save button.  The
@@ -197,8 +213,9 @@ td { font-size:10pt; }
   //
   echo "<script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
-  echo " window.close();\n";
-  echo " if (opener.set_insurance) opener.set_insurance($ins_id,'$ins_name');\n";
+  echo " parent.$.fn.fancybox.close();\n";
+  echo " top.restoreSession();\n";
+  echo " if (parent.set_insurance) parent.set_insurance($ins_id,'$ins_name');\n";
   echo "</script></body></html>\n";
   exit();
  }
@@ -208,6 +225,8 @@ td { font-size:10pt; }
   "SELECT id, name FROM x12_partners ORDER BY name"
  );
 ?>
+<div id="form_entry">
+
 <form method='post' name='theform' action='ins_search.php'
  onsubmit='return validate(this)'>
 <center>
@@ -341,10 +360,15 @@ td { font-size:10pt; }
 &nbsp;
 <input type='submit' value='<?php xl('Save as New','e'); ?>' name='form_save' onmousedown='save_clicked=true' />
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='parent.$.fn.fancybox.close();'/>
 </p>
 
 </center>
 </form>
+</div>
+
+<div id="form_list">
+</div>
+
 </body>
 </html>

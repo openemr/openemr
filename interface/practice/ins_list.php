@@ -75,12 +75,9 @@ td { font-size:10pt; }
 
  // This is invoked when an insurance company name is clicked.
  function setins(ins_id, ins_name) {
-  if (opener.closed || ! opener.set_insurance)
-   alert('The parent window was closed; I cannot apply your selection.');
-  else
-   opener.set_insurance(ins_id, ins_name);
-  window.close();
-  return false;
+   parent.set_insurance(ins_id, ins_name);
+   parent.$.fn.fancybox.close();
+   return false;
  }
 
 </script>

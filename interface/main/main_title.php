@@ -61,7 +61,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 </td>
 <td valign="middle">
         <div style='margin-left:10px; float:left; display:none' id="past_encounter_block">
-			<span class='title_bar_top' id="past_encounter"><b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b></span></td>
+		<span class='title_bar_top' id="past_encounter"><b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b></span></td>
         </div>
 </td>
 <td valign="middle">
@@ -72,19 +72,18 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <td valign="middle">
     <div style='float:right; margin-left:5px'>
-
         <div style='float:left; margin-top:3px' class = 'text'>
             <a href="javascript:;" onclick="javascript:parent.left_nav.goHome();" ><?php xl('Home','e'); ?></a>
             &nbsp;|&nbsp;
             <a href="../../Documentation/User_Guide/" target="RTop" id="help_link" onclick="top.restoreSession()"> <?php xl('Manual','e'); ?></a>
-            &nbsp;|&nbsp;
+            <br>
+            <span class='text'><?php xl('Logged in','e'); ?></span>:&nbsp;<span class="title_bar_top"><?php echo $res{"fname"}.' '.$res{"lname"};?></span>
+            <span style="font-size:0.7em;"> (<?php echo $_SESSION['authGroup']?>)</span>
         </div>
-
-        <div style='float:left'>
-        <span class='text'><?php xl('Logged in','e'); ?></span>:&nbsp;<span class="title_bar_top"><?php echo $res{"fname"}.' '.$res{"lname"};?></span>
-        <span style="font-size:0.7em;"> (<?php echo $_SESSION['authGroup']?>)</span>
+        <div style='float:right;margin-left:5px'>
+            <a href="../logout.php?auth=logout" target="_top" class="css_button_small" id="logout_link" onclick="top.restoreSession()" >
+                <span><?php xl('Logout', 'e'); ?></span></a>
         </div>
-        <div style='float:left;margin-left:5px'><a href="../logout.php?auth=logout" target="_top" class="css_button_small" id="logout_link"><span><?php xl('Logout', 'e'); ?></span></a></div>
     </div>
 </td>
 

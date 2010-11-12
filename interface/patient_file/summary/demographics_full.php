@@ -65,16 +65,23 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <script type="text/javascript">
 $(document).ready(function(){
     tabbify();
     enable_modals();
-});
-</script>
 
-<SCRIPT LANGUAGE="JavaScript"><!--
+    // special size for
+	$(".medium_modal").fancybox( {
+		'overlayOpacity' : 0.0,
+		'showCloseButton' : true,
+		'frameHeight' : 460,
+		'frameWidth' : 650
+	});
+
+});
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
@@ -103,7 +110,8 @@ function upperFirst(string,text) {
 <?php for ($i=1;$i<=3;$i++) { ?>
 function auto_populate_employer_address<?php echo $i ?>(){
  var f = document.demographics_form;
- if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
+ if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self")
+ {
   f.i<?php echo $i?>subscriber_fname.value=f.form_fname.value;
   f.i<?php echo $i?>subscriber_mname.value=f.form_mname.value;
   f.i<?php echo $i?>subscriber_lname.value=f.form_lname.value;
@@ -153,7 +161,6 @@ var insurance_index = 0;
 // The OnClick handler for searching/adding the insurance company.
 function ins_search(ins) {
 	insurance_index = ins;
-    dlgopen('../../practice/ins_search.php', '_blank', 550, 400);
 	return false;
 }
 
@@ -290,8 +297,6 @@ $(document).ready(function() {
 
 });
 
-//-->
-
 </script>
 </head>
 
@@ -412,7 +417,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 	   $result3 = $insurance_info[$i];
 	?>
 
-		<div class="tab <?php echo $i == 1 ? 'current': '' ?>" style='height:auto;width:950px'>		<!---ie 6 fix-->
+		<div class="tab <?php echo $i == 1 ? 'current': '' ?>" style='height:auto;width:auto'>		<!---display icky, fix to auto-->
 
 		<table border="0">
 
@@ -426,9 +431,9 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			  </td>
 			  <td class='required'>:</td>
 			  <td>
-			   <a class="css_button" onclick="ins_search(<?php echo $i?>)" href="../../practice/ins_search.php">
-					<span><?php echo xl('Search/Add') ?></span>
-				</a>
+                           <a href="../../practice/ins_search.php" class="iframe medium_modal css_button" onclick="ins_search(<?php echo $i?>)">
+				<span><?php echo xl('Search/Add') ?></span>
+        			</a>
 				<select name="i<?php echo $i?>provider">
 				<option value=""><?php xl('Unassigned','e'); ?></option>
 				<?php
@@ -536,14 +541,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 		  <td valign=top>
 		<table border="0">
 			<tr>
-				<td width=120><span class=required><?php xl('Subscriber','e'); ?> </span></td>
-				<td class=required>:</td>
-				<td colspan=3><input type=entry size=10 name=i<?php echo $i?>subscriber_fname	value="<?php echo $result3{"subscriber_fname"}?>" onchange="capitalizeMe(this);" />
-				<input type=entry size=3 name=i<?php echo $i?>subscriber_mname value="<?php echo $result3{"subscriber_mname"}?>" onchange="capitalizeMe(this);" />
-				<input type=entry size=10 name=i<?php echo $i?>subscriber_lname value="<?php echo $result3{"subscriber_lname"}?>" onchange="capitalizeMe(this);" /></td>
-				<td></td><td></td><td></td><td></td>
-			</tr>
-			<tr>
 				<td><span class=required><?php xl('Relationship','e'); ?></span></td>
 				<td class=required>:</td>
 				<td colspan=3><?php
@@ -552,6 +549,14 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 					?>
 
 				<a href="javascript:popUp('browse.php?browsenum=<?php echo $i?>')" class=text>(<?php xl('Browse','e'); ?>)</a></td>
+				<td></td><td></td><td></td><td></td>
+			</tr>
+                        <tr>
+				<td width=120><span class=required><?php xl('Subscriber','e'); ?> </span></td>
+				<td class=required>:</td>
+				<td colspan=3><input type=entry size=10 name=i<?php echo $i?>subscriber_fname	value="<?php echo $result3{"subscriber_fname"}?>" onchange="capitalizeMe(this);" />
+				<input type=entry size=3 name=i<?php echo $i?>subscriber_mname value="<?php echo $result3{"subscriber_mname"}?>" onchange="capitalizeMe(this);" />
+				<input type=entry size=10 name=i<?php echo $i?>subscriber_lname value="<?php echo $result3{"subscriber_lname"}?>" onchange="capitalizeMe(this);" /></td>
 				<td></td><td></td><td></td><td></td>
 			</tr>
 			<tr>

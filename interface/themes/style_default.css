@@ -177,7 +177,7 @@ a:hover {
 .bottom_line { background: url('../pic/aquabg.gif') repeat; }    /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
 .logobar { background-color: #24262c; height: 110px; }                 /* $GLOBALS['logoBarHeight'] */
 .navbar { height: 22px; }                   /* $GLOBALS['navBarHeight'] */
-.titlebar { height: 20px; }                 /* $GLOBALS['titleBarHeight'] */
+.titlebar { height: 40px; }                 /* $GLOBALS['titleBarHeight'] */
 
 
 /* style taken out of the addressbook code and put here instead */

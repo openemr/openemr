@@ -37,6 +37,14 @@ function getLanguages() {
     return $returnval;
 }
 
+function getInsuranceProvider($ins_id) {
+    
+    $sql = "select name from insurance_companies where id=?";
+    $row = sqlQuery($sql,array($ins_id));
+    return $row['name'];
+    
+}
+
 function getInsuranceProviders() {
     $returnval = array();
 

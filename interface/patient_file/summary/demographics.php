@@ -196,7 +196,7 @@ $(document).ready(function(){
 	});
 
         // special size for
-	$(".image_view_modal").fancybox( {
+	$("#image_view_modal").fancybox( {
 		'overlayOpacity' : 0.0,
 		'showCloseButton' : true,
                 'centerOnScroll' : false,
@@ -221,6 +221,12 @@ $(document).ready(function(){
 <?php
  $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
  $result2 = getEmployerData($pid);
+ $result3 = getInsuranceData($pid, "primary", "copay, provider, DATE_FORMAT(`date`,'%Y-%m-%d') as effdate");
+ $insco_name = "";
+
+ if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
+     $insco_name = getInsuranceProvider($result3['provider']);
+ }
 
  $thisauth = acl_check('patients', 'demo');
  if ($thisauth) {
@@ -251,7 +257,15 @@ $(document).ready(function(){
     echo "<td>&nbsp;&nbsp;&nbsp;<span class='bold'><font color='#ee6600'>" .
       htmlspecialchars(xl('Balance Due'),ENT_NOQUOTES) .
       ": " . htmlspecialchars(oeFormatMoney(get_patient_balance($pid)),ENT_NOQUOTES) .
-      "</font><br />";
+      "</font>";
+    if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
+      echo '&nbsp; ' . htmlspecialchars(xl('Primary Ins'),ENT_NOQUOTES) . ':&nbsp;' .  htmlspecialchars($insco_name,ENT_QUOTES);
+		if ($result3['copay'] > 0) {
+        	echo '&nbsp; ' . htmlspecialchars(xl('Copay'),ENT_NOQUOTES) . ':&nbsp;' .  htmlspecialchars($result3['copay'],ENT_QUOTES);
+		}
+        echo '&nbsp; ' . htmlspecialchars(xl('Eff Date'),ENT_NOQUOTES) . ':&nbsp;' .  htmlspecialchars(oeFormatShortDate($result3['effdate'],ENT_QUOTES));
+    }
+     echo "<br />";
 	  if ($result['genericname2'] == 'Billing') {
 		htmlspecialchars(xl('Billing Note'),ENT_NOQUOTES) . ":";
 		echo "<span class='bold'><font color='red'>" .
@@ -616,14 +630,18 @@ if ($GLOBALS['patient_id_category_name']) {
             if (preg_match('/\.pdf$/i',$image_file)) {
                 echo "<a href='" . $web_root . "/controller.php?document&retrieve" .
                      "&patient_id=$pid&document_id=$document_id'" .
-                    " onclick='top.restoreSession()'>" .
-                    xl("Click for ID card") . "</a><br />";
+                    " onclick='top.restoreSession()' class='css_button_small'>" .
+                    "<span>" .
+                    htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . htmlspecialchars( xl("PDF of Patient ID Card"), ENT_QUOTES ) .
+                    "</span> <br /><hr>";
             } else {
                 // image file type(s) std list png, jpg, etc...
                 echo "<a href='" . $web_root . "/sites/" . $_SESSION['site_id'] .
                      "/documents/$pid/$image_file'" .
-                " onclick='top.restoreSession()' class='iframe image_view_modal'>" .
-                    xl("Click to View ID card") . "</a><br />";
+                     " onclick='top.restoreSession()' class='css_button_small' id='image_view_modal'>" .
+                     "<span>" .
+                     htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . htmlspecialchars( xl("Patient ID Card"), ENT_QUOTES ) .
+                     "</span> <br /><hr>";
             }
  	}
 
