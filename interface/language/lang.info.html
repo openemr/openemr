@@ -65,42 +65,24 @@ The translation is done by the xl() custom function, which can be found
 at openemr/library/translation.inc.php.
 Its semantics are very simple.
 
-xl (string,'r',string-prepend,string-append)
+xl(string)
 
 Which with examples means:
 
-xl ('translate this')
+xl('translate this')
 
-By default the function will return (after all, is a function) the translation.
+By default the function will return the translation.
 
 First it uses the LANGUAGE constant defined to pick the translation.
 
 Second it goes for the translation, if none is found, then the same string entered is used and returned as is.
 
-The first optional and only argument is 'e' which stands for echo. Use it if you want the function to echo the translated result instead of returning it.
+Another example of use includes:
 
-i.e.
-xl ('translate this','e')
+echo ("this and " . xl('translate this') . " that too");
 
-But if you are already within another function, then you want the function to return something.
-
-i.e.
-echo ("this and" . xl('translate this') . "that too");
-
-The third and fourth optional arguments are strings to be prepend and appended respectively.
-
-i.e.
-xl ('translate this','e','&#60b>','&#60/b>');
-
-will echo
-&#60b>this translated&#60/b>
-
-If you want only something to be appended in the a return, then you must supply empty second and third arguments.
-
-i.e.
-xl ('translate this','','','&#60br>');
-will echo
-this translated&#60br>
+Further details and rules on use can be found on the wiki here:
+http://www.openmedsoftware.org/wiki/Development_Policies#Internationalization
 
 There are also wrappers to the xl() function that are used infrequently in specific situations. Please
 refer to openemr/library/translation.inc.php for more details.

@@ -4,6 +4,9 @@ require_once(dirname(__FILE__) . '/formdata.inc.php');
 
 // Translation function
 // This is the translation engine
+//  Note that it is recommended to no longer use the mode, prepend, or append
+//  parameters, since this is not compatible with the htmlspecialchars() php
+//  function.
 function xl($constant,$mode='r',$prepend='',$append='') {
   // set language id
   if (!empty($_SESSION['language_choice'])) {
