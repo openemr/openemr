@@ -81,6 +81,7 @@ sub scrape {
     # that must be followed.  We handle those recursively.
     if ($tag->[0] eq "li") {
       $tag = $parser->get_tag;
+      $tag = $parser->get_tag if ($tag->[0] eq "strong");
       next unless ($tag->[0] eq "a");
       my $nexturl = $browser->base();
       # $nexturl =~ s'/[^/]+$'/';
