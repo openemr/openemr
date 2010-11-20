@@ -349,8 +349,9 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
       $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.units, " .
         "b.code_text, fe.date, fe.facility_id, fe.invoice_refno, lo.title " .
         "FROM billing AS b " .
+        "JOIN code_types AS ct ON ct.ct_key = b.code_type " .
         "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
-        "LEFT JOIN codes AS c ON c.code = b.code AND c.modifier = b.modifier " .
+        "LEFT JOIN codes AS c ON c.code_type = ct.ct_id AND c.code = b.code AND c.modifier = b.modifier " .
         "LEFT JOIN list_options AS lo ON lo.list_id = 'superbill' AND lo.option_id = c.superbill " .
         "WHERE b.code_type != 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
         "fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59'";
