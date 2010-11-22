@@ -89,17 +89,24 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
   return $payid;
 }
 
-// Get the patient's encounter ID for today, creating it if there is none.
+// Get the patient's encounter ID for today, if it exists.
 // In the case of more than one encounter today, pick the last one.
+//
+function todaysEncounterIf($patient_id) {
+  global $today;
+  $tmprow = sqlQuery("SELECT encounter FROM form_encounter WHERE " .
+    "pid = '$patient_id' AND date = '$today 00:00:00' " .
+    "ORDER BY encounter DESC LIMIT 1");
+  return empty($tmprow['encounter']) ? 0 : $tmprow['encounter'];
+}
+
+// Get the patient's encounter ID for today, creating it if there is none.
 //
 function todaysEncounter($patient_id) {
   global $today;
 
-  $tmprow = sqlQuery("SELECT encounter FROM form_encounter WHERE " .
-    "pid = '$patient_id' AND date = '$today 00:00:00' " .
-    "ORDER BY encounter DESC LIMIT 1");
-
-  if (!empty($tmprow['encounter'])) return $tmprow['encounter'];
+  $encounter = todaysEncounterIf($patient_id);
+  if ($encounter) return $encounter;
 
   $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users " .
     "WHERE id = '" . $_SESSION["authUserID"] . "'");
@@ -306,6 +313,25 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
   window.close();
  }
 
+ // Called to switch to the specified encounter having the specified DOS.
+ // This also closes the popup window.
+ function toencounter(enc, datestr, topframe) {
+  topframe.restoreSession();
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+  // Hard-coding of RBot for this purpose is awkward, but since this is a
+  // pop-up and our openemr is left_nav, we have no good clue as to whether
+  // the top frame is more appropriate.
+  topframe.left_nav.forceDual();
+  topframe.left_nav.setEncounter(datestr, enc, '');
+  topframe.left_nav.setRadio('RBot', 'enc');
+  topframe.left_nav.loadFrame('enc2', 'RBot', 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
+<?php } else { ?>
+  topframe.Title.location.href = 'encounter/encounter_title.php?set_encounter='   + enc;
+  topframe.Main.location.href  = 'encounter/patient_encounter.php?set_encounter=' + enc;
+<?php } ?>
+  window.close();
+ }
+
 </script>
 </head>
 <body bgcolor='#ffffff'>
@@ -355,6 +381,15 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 <div id='hideonprint'>
 <p>
 <input type='button' value='<?php xl('Print','e'); ?>' onclick='printme()' />
+
+<?php
+  $todaysenc = todaysEncounterIf($pid);
+  if ($todaysenc && $todaysenc != $encounter) {
+    echo "&nbsp;<input type='button' " .
+      "value='" . htmlspecialchars(xl('Open Today`s Visit')) . "' " .
+      "onclick='toencounter($todaysenc,\"$today\",opener.top)' />\n";
+  }
+?>
 
 <?php if (acl_check('admin', 'super')) { ?>
 &nbsp;

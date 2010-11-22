@@ -31,7 +31,7 @@ $mode        = $_POST['mode'];
 $referral_source = $_POST['form_referral_source'];
 
 if ($GLOBALS['concurrent_layout'])
-  $normalurl = "$rootdir/patient_file/encounter/encounter_top.php";
+  $normalurl = "patient_file/encounter/encounter_top.php";
 else
   $normalurl = "$rootdir/patient_file/encounter/patient_encounter.php";
 
@@ -113,7 +113,7 @@ if ($mode == 'new' && $GLOBALS['default_new_encounter_form'] == 'football_injury
     "lists.title NOT LIKE '%Illness%'");
 
   if (mysql_num_rows($lres)) {
-    $nexturl = "$rootdir/patient_file/encounter/load_form.php?formname=" .
+    $nexturl = "patient_file/encounter/load_form.php?formname=" .
       $GLOBALS['default_new_encounter_form'];
     while ($lrow = sqlFetchArray($lres)) {
       $frow = sqlQuery("SELECT count(*) AS count " .
@@ -153,12 +153,14 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
 	 ?>
 	 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
 <?php } ?>
+ top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout'] && $mode == 'new') { ?>
  parent.left_nav.setEncounter(<?php echo "'" . oeFormatShortDate($date) . "', $encounter, window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'enc');
-<?php } ?>
- top.restoreSession();
+ parent.left_nav.loadFrame('enc2', window.name, '<?php echo $nexturl; ?>');
+<?php } else { ?>
  window.location="<?php echo $nexturl; ?>";
+<?php } ?>
 </script>
 
 </body>
