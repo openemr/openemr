@@ -17,6 +17,7 @@
   require_once("$srcdir/sl_eob.inc.php");
   require_once("$srcdir/invoice_summary.inc.php");
   require_once("../../custom/code_types.inc.php");
+  require_once("$srcdir/formdata.inc.php");
 
   $debug = 0; // set to 1 for debugging mode
 
@@ -290,32 +291,73 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
         $thispay  = trim($cdata['pay']);
         $thisadj  = trim($cdata['adj']);
         $thisins  = trim($cdata['ins']);
-        $reason   = trim($cdata['reason']);
-        if (strpos(strtolower($reason), 'ins') !== false)
-          $reason .= ' ' . $_POST['form_insurance'];
+        $reason   = strip_escape_custom($cdata['reason']);
+
+        // Get the adjustment reason type.  Possible values are:
+        // 1 = Charge adjustment
+        // 2 = Coinsurance
+        // 3 = Deductible
+        // 4 = Other pt resp
+        // 5 = Comment
+        $reason_type = '1';
+        if ($reason) {
+          $tmp = sqlQuery("SELECT option_value FROM list_options WHERE " .
+            "list_id = 'adjreason' AND " .
+            "option_id = '" . add_escape_custom($reason) . "'");
+          if (empty($tmp['option_value'])) {
+            // This should not happen but if it does, apply old logic.
+            if (preg_match("/To copay/", $reason)) {
+              $reason_type = 2;
+            }
+            else if (preg_match("/To ded'ble/", $reason)) {
+              $reason_type = 3;
+            }
+            $info_msg .= xl("No adjustment reason type found for") . " \"$reason\". ";
+          }
+          else {
+            $reason_type = $tmp['option_value'];
+          }
+        }
+
         if (! $thisins) $thisins = 0;
 
         if ($thispay) {
           if ($INTEGRATED_AR) {
             arPostPayment($patient_id, $encounter_id, $session_id,
-              $thispay, $code, $payer_type, $reason, $debug);
+              $thispay, $code, $payer_type, '', $debug);
           } else {
             slPostPayment($trans_id, $thispay, $thisdate, $thissrc, $code, $thisins, $debug);
           }
           $paytotal += $thispay;
         }
 
-        // Be sure to record adjustment reasons even for zero adjustments.
-        if ($thisadj || $reason) {
+        // Be sure to record adjustment reasons, even for zero adjustments if
+        // they happen to be comments.
+        if ($thisadj || ($reason && $reason_type == 5)) {
           // "To copay" and "To ded'ble" need to become a comment in a zero
           // adjustment, formatted just like sl_eob_process.php.
-          if (preg_match("/To copay/", $reason)) {
+          if ($reason_type == '2') {
             $reason = $_POST['form_insurance'] . " coins: $thisadj";
             $thisadj = 0;
           }
-          else if (preg_match("/To ded'ble/", $reason)) {
+          else if ($reason_type == '3') {
             $reason = $_POST['form_insurance'] . " dedbl: $thisadj";
             $thisadj = 0;
+          }
+          else if ($reason_type == '4') {
+            $reason = $_POST['form_insurance'] . " ptresp: $thisadj $reason";
+            $thisadj = 0;
+          }
+          else if ($reason_type == '5') {
+            $reason = $_POST['form_insurance'] . " note: $thisadj $reason";
+            $thisadj = 0;
+          }
+          else {
+            // An adjustment reason including "Ins" is assumed to be assigned by
+            // insurance, and in that case we identify which one by appending
+            // Ins1, Ins2 or Ins3.
+            if (strpos(strtolower($reason), 'ins') !== false)
+              $reason .= ' ' . $_POST['form_insurance'];
           }
           if ($INTEGRATED_AR) {
             arPostAdjustment($patient_id, $encounter_id, $session_id,
@@ -373,7 +415,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
     } else {
       echo "<script language='JavaScript'>\n";
     }
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
     if (! $debug) echo " window.close();\n";
     echo "</script></body></html>\n";
     if (!$INTEGRATED_AR) SLClose();
@@ -803,27 +845,14 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
     style="background-color:<?php echo $bgcolor ?>">
 <?php
 // Adjustment reasons are now taken from the list_options table.
-
-// ViCarePlus :: Fix for Aujustment Reasons Default :: Sep 27,2010
-// Issue :: Adjustment reasons - Default value is not getting selected in the EOB Posting-Invoice Page
-// When a Default value for "Reasons" is set from Administration -> Lists -> Adjustment_reasons, 
-// it is not getting reflected in the EOB Posting Invoice Page. Hence, a minor modification is done
-// in the query to fix this issue.  
-
-//echo "    <option value=''></option>\n";
-/*$ores = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'adjreason' ORDER BY seq, title");
-while ($orow = sqlFetchArray($ores)) {
-  echo "    <option value='" . addslashes($orow['option_id']) . "'";
-  echo ">" . $orow['title'] . "</option>\n";
-}*/
-$ores = sqlStatement("SELECT option_id, title,is_default FROM list_options " .
-  "WHERE list_id = 'adjreason'  ORDER BY is_default DESC, seq, title ASC");
-while ($orow = sqlFetchArray($ores)) {
-  echo "    <option value='" . addslashes($orow['option_id']) . "'";
-  echo ">" . $orow['title'] . "</option>\n";
-}
 echo "    <option value=''></option>\n";
+$ores = sqlStatement("SELECT option_id, title, is_default FROM list_options " .
+  "WHERE list_id = 'adjreason'  ORDER BY seq, title");
+while ($orow = sqlFetchArray($ores)) {
+  echo "    <option value='" . htmlspecialchars($orow['option_id'], ENT_QUOTES) . "'";
+  if ($orow['is_default']) echo " selected";
+  echo ">" . htmlspecialchars($orow['title']) . "</option>\n";
+}
 ?>
 
    </select>

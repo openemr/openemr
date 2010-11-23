@@ -912,3 +912,17 @@ ALTER TABLE drug_sales ADD distributor_id bigint(20) NOT NULL DEFAULT 0;
 #IfNotRow2D list_options list_id abook_type option_id dist
 INSERT INTO list_options (list_id,option_id,title,seq,is_default) VALUES ('abook_type','dist','Distributor',30,0);
 #EndIf
+
+#IfNotRow2D list_options list_id adjreason option_value 1
+UPDATE list_options SET option_value = 2 WHERE list_id = 'adjreason' AND option_value = 0 AND option_id LIKE 'To co%';
+UPDATE list_options SET option_value = 3 WHERE list_id = 'adjreason' AND option_value = 0 AND option_id LIKE 'To ded%';
+UPDATE list_options SET option_value = 4 WHERE list_id = 'adjreason' AND option_value = 0 AND option_id LIKE 'Ins termed';
+UPDATE list_options SET option_value = 4 WHERE list_id = 'adjreason' AND option_value = 0 AND option_id LIKE 'No coverage';
+UPDATE list_options SET option_value = 4 WHERE list_id = 'adjreason' AND option_value = 0 AND option_id LIKE 'Pre-existing';
+UPDATE list_options SET option_value = 5 WHERE list_id = 'adjreason' AND option_value = 0 AND option_id LIKE 'Ins info%';
+UPDATE list_options SET option_value = 5 WHERE list_id = 'adjreason' AND option_value = 0 AND option_id LIKE 'Ins recoup';
+UPDATE list_options SET option_value = 5 WHERE list_id = 'adjreason' AND option_value = 0 AND option_id LIKE '%refund';
+UPDATE list_options SET option_value = 5 WHERE list_id = 'adjreason' AND option_value = 0 AND option_id LIKE '%overpaid';
+UPDATE list_options SET option_value = 1 WHERE list_id = 'adjreason' AND option_value = 0;
+#EndIf
+

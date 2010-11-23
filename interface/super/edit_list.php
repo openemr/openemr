@@ -204,6 +204,29 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
     echo "</td>\n";
   }
 
+  // Adjustment reasons use option_value as a reason category.  This is
+  // needed to distinguish between adjustments that change the invoice
+  // balance and those that just shift responsibility of payment or
+  // are used as comments.
+  //
+  else if ($list_id == 'adjreason') {
+    echo "  <td align='center' class='optcell'>";
+    echo "<select name='opt[$opt_line_no][value]' class='optin'>";
+    foreach (array(
+      1 => xl('Charge adjustment'),
+      2 => xl('Coinsurance'),
+      3 => xl('Deductible'),
+      4 => xl('Other pt resp'),
+      5 => xl('Comment'),
+    ) as $key => $desc) {
+      echo "<option value='$key'";
+      if ($key == $value) echo " selected";
+      echo ">" . htmlspecialchars($desc) . "</option>";
+    }
+    echo "</select>";
+    echo "</td>\n";
+  }
+
   // IPPF includes the ability to map each list item to a "master" identifier.
   // Sports teams use this for some extra info for fitness levels.
   //
@@ -561,6 +584,8 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Effectiveness','e'); ?></b></td>
 <?php } else if ($list_id == 'fitness') { ?>
   <td><b><?php xl('Color:Abbr','e'); ?></b></td>
+<?php } else if ($list_id == 'adjreason') { ?>
+  <td><b><?php xl('Type','e'); ?></b></td>
 <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>
