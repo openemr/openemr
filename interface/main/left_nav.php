@@ -350,8 +350,11 @@ function genPopupsList($style='') {
   top.restoreSession();
   var i = url.indexOf('{PID}');
   if (i >= 0) url = url.substring(0,i) + active_pid + url.substring(i+5);
-  var fi = f.sel_frame.selectedIndex;
-  if (fi == 1) frame = 'RTop'; else if (fi == 2) frame = 'RBot';
+  if(f.sel_frame)
+   {
+	  var fi = f.sel_frame.selectedIndex;
+	  if (fi == 1) frame = 'RTop'; else if (fi == 2) frame = 'RBot';
+   }
   if (!f.cb_bot.checked) frame = 'RTop'; else if (!f.cb_top.checked) frame = 'RBot';
   top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
   if (frame == 'RTop') topName = fname; else botName = fname;
