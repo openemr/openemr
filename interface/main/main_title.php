@@ -53,7 +53,13 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
-<td valign="middle" class = 'text'><a href='' class="css_button_small" id='new0' style="font-weight:bold" onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')"><span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES) ?></span></a></td>
+<td valign="middle" class = 'text'>
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href='' class="css_button_small" id='new0' style="font-weight:bold" onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')"><span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES) ?></span></a>
+<?php } else { ?>
+&nbsp;
+<?php } ?>
+</td>
 <td valign="middle">
         <div style='margin-left:10px; float:left; display:none' id="current_patient_block">
             <span class='text'><?php xl('Patient','e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_patient"><b><?php xl('None','e'); ?></b></span>
