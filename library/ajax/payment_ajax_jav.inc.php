@@ -37,7 +37,7 @@ $(document).ready(function(){
 		 }
 		else
 		 {//Both insurance or patient can come.The drop down value in 'type_name' decides which one to process.
-		   ajaxFunction('non');
+		   ajaxFunction('non','Simple',document.getElementById('type_code'));
 		   return;
 		 }
   });	
@@ -48,18 +48,40 @@ $(document).ready(function(){
 		 }
 		else
 		 {
-		   ajaxFunction('patient');
+		   ajaxFunction('patient','Submit',document.getElementById('patient_code'));
 		   return;
 		 }
   });	
-  function ajaxFunction(Source) {
+  $("#form_pt_name").keyup(function(e){
+	  if (e.which == 9 || e.which == 13)
+		 {//tab key,enter key.Prevent ajax activity.
+		  return false;
+		 }
+		else
+		 {
+		   ajaxFunction('patient','Simple',document.getElementById('form_pt_name'));
+		   return;
+		 }
+  });	
+  $("#encounter_no").keyup(function(e){
+	  if (e.which == 9 || e.which == 13)
+		 {//tab key,enter key.Prevent ajax activity.
+		  return false;
+		 }
+		else
+		 {
+		   ajaxFunction('encounter');
+		   return;
+		 }
+  });	
+  function ajaxFunction(Source,SubmitOrSimple,SourceObject) {
   if(Source=='encounter')
    {
 	  document.getElementById('ajax_mode').value='encounter';
    }
   else if(Source=='patient')
    {
-	  if(document.getElementById('patient_code').value.length<3)
+	  if(SourceObject.value.length<3)
 	   return false;
 	  document.getElementById('ajax_mode').value='set_patient';
    }
@@ -83,14 +105,43 @@ $(document).ready(function(){
     dataType: "html",
     data: {
      ajax_mode: document.getElementById('ajax_mode').value,
-     patient_code: Source=='patient' ? document.getElementById('patient_code').value : '',
+     patient_code: Source=='patient' ? SourceObject.value : '',
     insurance_text_ajax: document.getElementById('type_code') ? document.getElementById('type_code').value : '',
-	encounter_patient_code:Source=='encounter' ? document.getElementById('hidden_patient_code').value : ''
+	encounter_patient_code:Source=='encounter' ? document.getElementById('hidden_patient_code').value : '',
+	submit_or_simple_type:SubmitOrSimple
    },
-    success: function(thedata){//alert(thedata)
+   //async: false,
+    success: function(thedata){
+	if(Source=='encounter')
+	 {
+		 ;
+	 }
+	else
+	 {
+		ThedataArray=thedata.split('~`~`');
+		thedata=ThedataArray[1];
+		if(Source=='patient')
+		 {
+		   if(ThedataArray[0]!=SourceObject.value.length)
+			{
+			 return;//To deal with speedy typing.
+			}
+		 }
+		else
+		 {
+		   if(ThedataArray[0]!=document.getElementById('type_code').value.length)
+			{
+			 return;//To deal with speedy typing.
+			}
+		 }
+	 }
 	document.getElementById('ajax_mode').value='';
 	  if(Source=='encounter')
 	   {
+		 if(document.getElementById('SelFacility'))
+		  {
+			document.getElementById('SelFacility').style.display='none';//In Internet explorer this drop down comes over the ajax listing.
+		  }
 		 $("#ajax_div_encounter_error").empty();
 		 $("#ajax_div_encounter").empty();
 		 $("#ajax_div_encounter").html(thedata);
@@ -98,6 +149,10 @@ $(document).ready(function(){
 	   }
 	  else if(Source=='patient')
 	   {
+		 if(document.getElementById('SelFacility'))
+		  {
+			document.getElementById('SelFacility').style.display='none';//In Internet explorer this drop down comes over the ajax listing.
+		  }
 		 $("#ajax_div_patient_error").empty();
 		 $("#ajax_div_patient").empty();
 		 $("#ajax_div_insurance_error").empty();
@@ -139,10 +194,18 @@ function PutTheValuesClick(Code,Name)
   document.getElementById('hidden_type_code').value=Code;
   document.getElementById('div_insurance_or_patient').innerHTML=Code;
   document.getElementById('ajax_div_insurance').style.display='none';
+	 $("#ajax_div_patient_error").empty();
+	 $("#ajax_div_patient").empty();
+	 $("#ajax_div_insurance_error").empty();
+	 $("#ajax_div_insurance").empty();
   document.getElementById('type_code').focus();
  }
 function PutTheValuesClickDistribute(Code,Name)
  {//Used while -->CLICK<-- over list in the patient portion before the start of distribution of amount.
+ if(document.getElementById('SelFacility'))
+  {
+	document.getElementById('SelFacility').style.display='';//In Internet explorer this drop down comes over the ajax listing.
+  }
   document.getElementById('patient_code').value=Name;
   document.getElementById('hidden_ajax_patient_close_value').value=Name;
   document.getElementById('hidden_patient_code').value=Code;
@@ -153,8 +216,21 @@ function PutTheValuesClickDistribute(Code,Name)
 	top.restoreSession();
 	document.forms[0].submit();
  }
+function PutTheValuesClickPatient(Code,Name)//Non submission patient ajax.
+ {
+  document.getElementById('form_pt_name').value=Name;
+  document.getElementById('hidden_ajax_patient_close_value').value=Name;
+  document.getElementById('hidden_patient_code').value=Code;
+  document.getElementById('ajax_div_patient').style.display='none';
+  document.getElementById('form_pt_code').innerHTML=Code;
+  document.getElementById('form_pt_name').focus();
+ }
 function PutTheValuesClickEncounter(Code,Name)
  {//Used while -->CLICK<-- over list in the encounter portion.
+ if(document.getElementById('SelFacility'))
+  {
+	document.getElementById('SelFacility').style.display='';//In Internet explorer this drop down comes over the ajax listing.
+  }
   document.getElementById('encounter_no').value=Code;
   document.getElementById('hidden_ajax_encounter_close_value').value=Code;
   document.getElementById('hidden_encounter_no').value=Code;
@@ -191,6 +267,20 @@ function PlaceValuesDistribute(evt,Code,Name)
 	else if(!((charCode == 38) || (charCode == 40)))
 	 {//if non arrow keys, focus on the parent text box(ie he again types and wants ajax to activate)
 	  document.getElementById('patient_code').focus();
+	 }
+ }
+function PlaceValuesPatient(evt,Code,Name)
+ {
+	evt = (evt) ? evt : window.event;
+	var charCode = (evt.which) ? evt.which : evt.keyCode;
+	if (charCode == 13)//enter key
+	 {//Vanish the list and populate the parent text box
+	  PutTheValuesClickPatient(Code,Name);
+	  PreventIt(evt)  //For browser chorome.It gets submitted,to prevent it the PreventIt(evt) is written  
+	 }
+	else if(!((charCode == 38) || (charCode == 40)))
+	 {//if non arrow keys, focus on the parent text box(ie he again types and wants ajax to activate)
+	  document.getElementById('form_pt_name').focus();
 	 }
  }
 function PlaceValuesEncounter(evt,Code,Name)
@@ -266,7 +356,14 @@ function HideTheAjaxDivs()
    {
 	  if(document.getElementById('ajax_div_patient').style.display!='none')
 	   {
-		  document.getElementById('patient_code').value=document.getElementById('hidden_ajax_patient_close_value').value;
+		 if(document.getElementById('SelFacility'))
+		  {
+			document.getElementById('SelFacility').style.display='';//In Internet explorer this drop down comes over the ajax listing.
+		  }
+		  if(document.getElementById('patient_code'))
+		  	document.getElementById('patient_code').value=document.getElementById('hidden_ajax_patient_close_value').value;
+		  else if(document.getElementById('form_pt_name'))
+		  	document.getElementById('form_pt_name').value=document.getElementById('hidden_ajax_patient_close_value').value;
 		 $("#ajax_div_patient_error").empty();
 		 $("#ajax_div_patient").empty();
 		 $("#ajax_div_insurance_error").empty();
@@ -278,6 +375,10 @@ function HideTheAjaxDivs()
    {
 	  if(document.getElementById('ajax_div_encounter').style.display!='none')
 	   {
+		 if(document.getElementById('SelFacility'))
+		  {
+			document.getElementById('SelFacility').style.display='';//In Internet explorer this drop down comes over the ajax listing.
+		  }
 		  document.getElementById('encounter_no').value=document.getElementById('hidden_ajax_encounter_close_value').value;
 		 $("#ajax_div_encounter_error").empty();
 		 $("#ajax_div_encounter").empty();

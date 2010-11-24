@@ -31,33 +31,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
  {//Function inserts the distribution.Payment,Adjustment,Deductable,Takeback & Follow up reasons are inserted as seperate rows.
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
-	if(trim(formData('type_name'   ))!='patient')
-	 {
-		$ferow = sqlQuery("select last_level_closed from form_encounter  where 
-		pid ='".trim(formData('hidden_patient_code' ))."' and encounter='".trim(formData("HiddenEncounter$CountRow" ))."'");
-		//multiple charges can come.
-		if($ferow['last_level_closed']<trim(formData("HiddenIns$CountRow"   )))
-		 {
-			sqlStatement("update form_encounter set last_level_closed='".trim(formData("HiddenIns$CountRow"   ))."' where 
-			pid ='".trim(formData('hidden_patient_code' ))."' and encounter='".trim(formData("HiddenEncounter$CountRow" ))."'");
-			//last_level_closed gets increased.
-			//-----------------------------------
-			// Determine the next insurance level to be billed.
-			$ferow = sqlQuery("SELECT date, last_level_closed " .
-			  "FROM form_encounter WHERE " .
-			  "pid = '".trim(formData('hidden_patient_code' ))."' AND encounter = '".trim(formData("HiddenEncounter$CountRow" ))."'");
-			$date_of_service = substr($ferow['date'], 0, 10);
-			$new_payer_type = 0 + $ferow['last_level_closed'];
-			if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0)
-			  ++$new_payer_type;
-			$new_payer_id = arGetPayerID(trim(formData('hidden_patient_code' )), $date_of_service, $new_payer_type);
-			if($new_payer_id>0)
-			 {
-			arSetupSecondary(trim(formData('hidden_patient_code' )), trim(formData("HiddenEncounter$CountRow" )),0);
-			 }
-			//-----------------------------------
-		 }
-	 }
+	$Affected='no';
   if (isset($_POST["Payment$CountRow"]) && $_POST["Payment$CountRow"]*1>0)
    {
 		if(trim(formData('type_name'   ))=='insurance')
@@ -93,6 +67,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', adj_amount = '"    . 0 .
 		"', account_code = '" . "$AccountCode"  .
 		"'");
+	  $Affected='yes';
    }
   if (isset($_POST["AdjAmount$CountRow"]) && $_POST["AdjAmount$CountRow"]*1!=0)
    {
@@ -123,6 +98,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', memo = '" . "$AdjustString"  .
 		"', account_code = '" . "$AccountCode"  .
 		"'");
+	  $Affected='yes';
    }
   if (isset($_POST["Deductible$CountRow"]) && $_POST["Deductible$CountRow"]*1>0)
    {
@@ -141,6 +117,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', memo = '"    . "Deductable $".trim(formData("Deductible$CountRow"   )) .
 		"', account_code = '" . "Deduct"  .
 		"'");
+	  $Affected='yes';		
    }
   if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"]*1>0)
    {
@@ -158,6 +135,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', adj_amount = '"    . 0 .
 		"', account_code = '" . "Takeback"  .
 		"'");
+	  $Affected='yes';		
    }
   if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"]=='y')
    {
@@ -176,6 +154,37 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 		"', follow_up = '"    . "y" .
 		"', follow_up_note = '"    . trim(formData("FollowUpReason$CountRow"   )) .
 		"'");
+	  $Affected='yes';		
+   }
+  if($Affected=='yes')
+   {
+	if(trim(formData('type_name'   ))!='patient')
+	 {
+		$ferow = sqlQuery("select last_level_closed from form_encounter  where 
+		pid ='".trim(formData('hidden_patient_code' ))."' and encounter='".trim(formData("HiddenEncounter$CountRow" ))."'");
+		//multiple charges can come.
+		if($ferow['last_level_closed']<trim(formData("HiddenIns$CountRow"   )))
+		 {
+			sqlStatement("update form_encounter set last_level_closed='".trim(formData("HiddenIns$CountRow"   ))."' where 
+			pid ='".trim(formData('hidden_patient_code' ))."' and encounter='".trim(formData("HiddenEncounter$CountRow" ))."'");
+			//last_level_closed gets increased.
+			//-----------------------------------
+			// Determine the next insurance level to be billed.
+			$ferow = sqlQuery("SELECT date, last_level_closed " .
+			  "FROM form_encounter WHERE " .
+			  "pid = '".trim(formData('hidden_patient_code' ))."' AND encounter = '".trim(formData("HiddenEncounter$CountRow" ))."'");
+			$date_of_service = substr($ferow['date'], 0, 10);
+			$new_payer_type = 0 + $ferow['last_level_closed'];
+			if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0)
+			  ++$new_payer_type;
+			$new_payer_id = arGetPayerID(trim(formData('hidden_patient_code' )), $date_of_service, $new_payer_type);
+			if($new_payer_id>0)
+			 {
+			arSetupSecondary(trim(formData('hidden_patient_code' )), trim(formData("HiddenEncounter$CountRow" )),0);
+			 }
+			//-----------------------------------
+		 }
+	 }
    }
 }
 //===============================================================================

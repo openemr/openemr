@@ -83,7 +83,7 @@ function AjaxDropDownCode()
 </tr>";
 	 }
 	$StringForAjax.="</table></div>";
-	echo $StringForAjax;
+	echo strlen($_REQUEST['insurance_text_ajax']).'~`~`'.$StringForAjax;
 	die;
    }
 //===============================================================================
@@ -96,14 +96,24 @@ function AjaxDropDownCode()
 	if(isset($_REQUEST['patient_code']) && $_REQUEST['patient_code']!='')
 	 {
 		$patient_code=formData('patient_code','',true);
-		$StringToAppend="PutTheValuesClickDistribute";
-		$StringToAppend2="PlaceValuesDistribute";
+		if(isset($_REQUEST['submit_or_simple_type']) && $_REQUEST['submit_or_simple_type']=='Simple')
+		 {
+			$StringToAppend="PutTheValuesClickPatient";
+			$StringToAppend2="PlaceValuesPatient";
+		 }
+		else
+		 {
+			$StringToAppend="PutTheValuesClickDistribute";
+			$StringToAppend2="PlaceValuesDistribute";
+		 }
+		$patient_code_complete=$_REQUEST['patient_code'];//we need the spaces here
 	 }
 	elseif(isset($_REQUEST['insurance_text_ajax']) && $_REQUEST['insurance_text_ajax']!='')
 	 {
 		$patient_code=formData('insurance_text_ajax','',true);
 		$StringToAppend="PutTheValuesClick";
 		$StringToAppend2="PlaceValues";
+		$patient_code_complete=$_REQUEST['insurance_text_ajax'];//we need the spaces here
 	 }
 	$CountIndex=1;
 	$StringForAjax="<div id='AjaxContainerPatient'><table width='452' border='1' cellspacing='0' cellpadding='0'>
@@ -122,7 +132,8 @@ function AjaxDropDownCode()
 
 	  ";
 	$res = sqlStatement("SELECT pid as id,fname,lname,mname,DOB FROM patient_data
-			 where  INSTR('$patient_code', fname) or  INSTR('$patient_code', lname) or  fname like '$patient_code%' or lname like '$patient_code%' or pid like '$patient_code%' ORDER BY lname");
+			 where  fname like '$patient_code%' or lname like '$patient_code%' or mname like '$patient_code%' or 
+			 CONCAT(lname,' ',fname,' ',mname) like '$patient_code%' or pid like '$patient_code%' ORDER BY lname");
 	while ($row = sqlFetchArray($res))
 	 {
 		if($CountIndex%2==1)
@@ -150,7 +161,7 @@ function AjaxDropDownCode()
   </tr>";
 	 }
 	$StringForAjax.="</table></div>";
-	echo $StringForAjax;
+	echo strlen($patient_code_complete).'~`~`'.$StringForAjax;
 	die;
    }
 //===============================================================================
