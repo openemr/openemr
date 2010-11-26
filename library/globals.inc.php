@@ -692,6 +692,34 @@ $GLOBALS_METADATA = array(
       xl('API key for SMS Gateway.')
     ),
 
+    'phone_notification_hour' => array(
+      xl('Phone Notification Hour'),
+      'num',                            // data type
+      '50',                             // default
+      xl('Number of hours in advance to send Phone notification.')
+    ),
+    
+    'phone_gateway_username' => array(
+      xl('Phone Gateway Username'),
+      'text',                           // data type
+      '',                               // default
+      xl('Username for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+    ),
+    
+    'phone_gateway_password' => array(
+      xl('Phone Gateway Password'),
+      'text',                           // data type
+      '',                               // default
+      xl('Password for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+    ),
+    
+    'phone_gateway_url' => array(
+      xl('Phone Gateway URL'),
+      'text',                           // data type
+      '',                               // default
+      xl('URL for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+    ),
+
   ),
 
   // Miscellaneous Tab

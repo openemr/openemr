@@ -75,16 +75,27 @@ function authorizeForm($id, $authorized = "1")
 	sqlQuery("update forms set authorized = '$authorized' where id = '$id'");
 }
 
-function getEncounters($pid)
+function getEncounters($pid,$dateStart='',$dateEnd='')
 {
 
- 	$res = sqlStatement("select distinct encounter from form_encounter where pid = ? order by date desc;", array($pid) );
+        if ($dateStart && $dateEnd) {
+                $res = sqlStatement("select distinct encounter from form_encounter where pid = ? and date >= ? and date <= ? order by date desc;", array($pid,$dateStart,$dateEnd) );
+        }
+        else if ($dateStart && !$dateEnd) {
+                $res = sqlStatement("select distinct encounter from form_encounter where pid = ? and date >= ? order by date desc;", array($pid,$dateStart) );
+        }
+        else if (!$dateStart && $dateEnd) {
+                $res = sqlStatement("select distinct encounter from form_encounter where pid = ? and date <= ? order by date desc;", array($pid,$dateEnd) );
+        }
+        else {
+                $res = sqlStatement("select distinct encounter from form_encounter where pid = ? order by date desc;", array($pid) );
+        }
 
-	for($iter=0; $row=sqlFetchArray($res); $iter++)
-	{
-		$all[$iter] = $row;
-	}
-	return $all;
+        for($iter=0; $row=sqlFetchArray($res); $iter++)
+        {
+                $all[$iter] = $row;
+        }
+        return $all;
 }
 
 function getEncounterDateByEncounter($encounter)

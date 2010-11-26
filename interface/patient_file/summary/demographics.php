@@ -171,7 +171,21 @@ $(document).ready(function(){
     $("#pnotes_ps_expand").load("pnotes_fragment.php");
     $("#disclosures_ps_expand").load("disc_fragment.php");
     $("#vitals_ps_expand").load("vitals_fragment.php");
-	
+    $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php", { 'embeddedScreen' : true }, function() {
+        // (note need to place javascript code here also to get the dynamic link to work)
+        $(".medium_modal").fancybox( {
+                'overlayOpacity' : 0.0,
+                'showCloseButton' : true,
+                'frameHeight' : 500,
+                'frameWidth' : 800,
+                'centerOnScroll' : false,
+                'callbackOnClose' : function()  {
+                refreshme();
+                }
+        });
+    });
+    $("#patient_reminders_ps_expand").load("patient_reminders_fragment.php");
+
     // fancy box
     enable_modals();
 
@@ -581,7 +595,26 @@ if ($GLOBALS['patient_id_category_name']) {
                     <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
                 </div>
                         </td>
-              </tr>		
+              </tr>
+                 <tr>
+                        <td width='650px'>
+                <?php // patient reminders collapse widget
+                $widgetTitle = xl("Patient Reminders");
+                $widgetLabel = "patient_reminders";
+                $widgetButtonLabel = xl("View");
+                $widgetButtonLink = "../reminder/patient_reminders.php?mode=simple&patient_id=".$pid;
+                $widgetButtonClass = "";
+                $linkMethod = "html";
+                $bodyClass = "tab current";
+                $widgetAuth = true;
+                $fixedWidth = true;
+                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+                    <br/>
+                    <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+                </div>
+                        </td>
+              </tr>
+		
                  <tr>
                         <td width='650px'>
                 <?php // vitals expand collapse widget
@@ -789,6 +822,21 @@ if ($GLOBALS['patient_id_category_name']) {
 	  "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
 	  "ORDER BY e.pc_eventDate, e.pc_startTime";
 	 $res = sqlStatement($query, array($pid) );
+
+        // clinical summary expand collapse widget
+	$widgetTitle = xl("Clinical Reminders");
+	$widgetLabel = "clinical_reminders";
+	$widgetButtonLabel = xl("Edit");
+	$widgetButtonLink = "return newEvt();";
+	$widgetButtonClass = "";
+	$linkMethod = "javascript";
+	$bodyClass = "summary_item small";
+	$widgetAuth = false;
+	$fixedWidth = false;
+	expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+          echo "<br/>";
+          echo "<div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>";
+	echo "</div>";
 
 	// appointments expand collapse widget
 	$widgetTitle = xl("Appointments");
