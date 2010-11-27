@@ -107,8 +107,8 @@ if ($update_pwd_failed==1) //display message if entered password matched one of 
 <input type=hidden name=secure_pwd value="<? echo $GLOBALS['secure_password']; ?>">
 <TABLE>
 <TR>
-<TD><span class=text><?php xl('Real Name','e'); ?>: </span></TD>
-<TD><span class=text><?php echo $iter["realname"]; ?></span></td>
+<TD><span class=text><?php xl('Full Name','e'); ?>: </span></TD>
+<TD><span class=text><?php echo htmlspecialchars($iter["fname"] . " " . $iter["lname"], ENT_NOQUOTES); ?></span></td>
 </TR>
 
 <TR>
