@@ -26,14 +26,14 @@ $today = date("Y-m-d");
 
 $form_date      = fixDate($_POST['form_date'], "");
 $form_to_date   = fixDate($_POST['form_to_date'], "");
-$is_ins_summary = $_POST['form_category'] == xl('Ins Summary');
-$is_due_ins     = ($_POST['form_category'] == xl('Due Ins')) || $is_ins_summary;
-$is_due_pt      = $_POST['form_category'] == xl('Due Pt');
-$is_all         = $_POST['form_category'] == xl('All');
+$is_ins_summary = $_POST['form_category'] == 'Ins Summary';
+$is_due_ins     = ($_POST['form_category'] == 'Due Ins') || $is_ins_summary;
+$is_due_pt      = $_POST['form_category'] == 'Due Pt';
+$is_all         = $_POST['form_category'] == 'All';
 $is_ageby_lad   = strpos($_POST['form_ageby'], 'Last') !== false;
 $form_facility  = $_POST['form_facility'];
 
-if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
+if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport']) {
   if ($is_ins_summary) {
     $form_cb_ssn      = false;
     $form_cb_dob      = false;
@@ -391,9 +391,9 @@ function checkAll(checked) {
 						<td>
 						   <select name='form_category'>
 						<?php
-						 foreach (array(xl('Open'),xl('Due Pt'),xl('Due Ins'),xl('Ins Summary'),xl('Credits'),xl('All')) as $value) {
-						  echo "    <option value='$value'";
-						  if ($_POST['form_category'] == $value) echo " selected";
+						 foreach (array('Open' => xl('Open'),'Due Pt' => xl('Due Pt'),'Due Ins' => xl('Due Ins'),'Ins Summary' => xl('Ins Summary'),'Credits' => xl('Credits'),'All' => xl('All')) as $key => $value) {
+						  echo "    <option value='$key'";
+						  if ($_POST['form_category'] == $key) echo " selected";
 						  echo ">$value</option>\n";
 						 }
 						?>
@@ -542,7 +542,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $pt_balance = 0 + sprintf("%.2f", $pt_balance); // yes this seems to be necessary
       $svcdate = substr($erow['date'], 0, 10);
 
-      if ($_POST['form_search'] && ! $is_all) {
+      if ($_POST['form_refresh'] && ! $is_all) {
         if ($pt_balance == 0) continue;
       }
       if ($_POST['form_category'] == 'Credits') {
@@ -729,7 +729,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       // "invoice.trans_id = ar.id AND invoice.fxsellprice < 0) AS adjustments " .
       "FROM ar JOIN customer ON customer.id = ar.customer_id " .
       "WHERE ( $where ) ";
-    if ($_POST['form_search'] && ! $is_all) {
+    if ($_POST['form_refresh'] && ! $is_all) {
       $query .= "AND ar.amount != ar.paid ";
     }
     $query .= "ORDER BY ar.invnumber";
@@ -1222,7 +1222,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     echo "</table>\n";
 	echo "</div>\n";
   }
-} // end if form_search
+} // end if form_refresh
 
 if (!$INTEGRATED_AR) SLClose();
 
