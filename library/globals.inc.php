@@ -462,6 +462,13 @@ $GLOBALS_METADATA = array(
       xl('Specifies formatting for product NDC fields.  # = digit, * = any character.  Empty if not used.')
     ),
 
+    'force_billing_widget_open' => array(
+      xl('Force Billing Widget Open'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
+    ),
+
   ),
 
   // Calendar Tab

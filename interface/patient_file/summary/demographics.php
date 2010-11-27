@@ -306,7 +306,13 @@ if ($GLOBALS['patient_id_category_name']) {
                                 $bodyClass = "notab";
                                 $widgetAuth = false;
                                 $fixedWidth = true;
-                                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+                                if ($GLOBALS['force_billing_widget_open']) {
+                                    $forceExpandAlways = true;
+                                }
+                                else {
+                                    $forceExpandAlways = false;
+                                }
+                                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth, $forceExpandAlways); ?>
 <br>
 <?php
  if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {

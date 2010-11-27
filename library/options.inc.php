@@ -2008,8 +2008,9 @@ function dropdown_facility($selected = '', $name = 'form_facility', $allow_unspe
 // $bodyClass is to set class(es) of the body
 // $auth is a flag to decide whether to show the button
 // $fixedWidth is to flag whether width is fixed
+// $forceExpandAlways is a flag to force the widget to always be expanded
 //
-function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth) {
+function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways=false) {
   if ($fixedWidth) {
     echo "<div class='section-header'>";
   }
@@ -2040,7 +2041,12 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     echo "><span>" .
       htmlspecialchars( $buttonLabel, ENT_NOQUOTES) . "</span></a></td>";
   }
-  echo "<td><a href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
+  if ($forceExpandAlways){
+    // Special case to force the widget to always be expanded
+    echo "<td><span class='text'><b>" . htmlspecialchars( $title, ENT_NOQUOTES) . "</b></span>";
+    $indicatorTag ="style='display:none'";
+  }
+  echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
     htmlspecialchars( $label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";
   echo htmlspecialchars( $title, ENT_NOQUOTES) . "</b></span>";
   if (getUserSetting($label."_ps_expand")) {
@@ -2053,7 +2059,11 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     "</span>)</a></td>";
   echo "</tr></table>";
   echo "</div>";
-  if (getUserSetting($label."_ps_expand")) {
+  if ($forceExpandAlways) {
+    // Special case to force the widget to always be expanded
+    $styling = "";
+  }
+  else if (getUserSetting($label."_ps_expand")) {
     $styling = "";
   }
   else {
