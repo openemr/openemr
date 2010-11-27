@@ -217,7 +217,6 @@ $(document).ready(function(){
 
 <body class="body_top">
 <table cellspacing='0' cellpadding='0' border='0'>
-<tr>
 <?php
  $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
  $result2 = getEmployerData($pid);
@@ -242,39 +241,17 @@ $(document).ready(function(){
 
  if ($thisauth == 'write') {
   foreach (pic_array() as $var) {print $var;}
-  echo "<td><span class='title'>" .
+  echo "<table><tr><td><span class='title'>" .
    htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) .
-   "</span>&nbsp;&nbsp;</td>";
+   "</span></td>";
 
   if (acl_check('admin', 'super')) {
-   echo "<td><a class='css_button iframe' href='../deleter.php?patient=" . 
+   echo "<td style='padding-left:1em;'><a class='css_button iframe' href='../deleter.php?patient=" . 
     htmlspecialchars($pid,ENT_QUOTES) . "'>" .
     "<span>".htmlspecialchars(xl('Delete'),ENT_NOQUOTES).
     "</span></a></td>";
   }
-	if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
-	  // Show current balance and billing note, if any.
-    echo "<td>&nbsp;&nbsp;&nbsp;<span class='bold'><font color='#ee6600'>" .
-      htmlspecialchars(xl('Balance Due'),ENT_NOQUOTES) .
-      ": " . htmlspecialchars(oeFormatMoney(get_patient_balance($pid)),ENT_NOQUOTES) .
-      "</font>";
-    if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
-      echo '&nbsp; ' . htmlspecialchars(xl('Primary Ins'),ENT_NOQUOTES) . ':&nbsp;' .  htmlspecialchars($insco_name,ENT_QUOTES);
-		if ($result3['copay'] > 0) {
-        	echo '&nbsp; ' . htmlspecialchars(xl('Copay'),ENT_NOQUOTES) . ':&nbsp;' .  htmlspecialchars($result3['copay'],ENT_QUOTES);
-		}
-        echo '&nbsp; ' . htmlspecialchars(xl('Eff Date'),ENT_NOQUOTES) . ':&nbsp;' .  htmlspecialchars(oeFormatShortDate($result3['effdate'],ENT_QUOTES));
-    }
-     echo "<br />";
-	  if ($result['genericname2'] == 'Billing') {
-		htmlspecialchars(xl('Billing Note'),ENT_NOQUOTES) . ":";
-		echo "<span class='bold'><font color='red'>" .
-		  htmlspecialchars($result['genericval2'],ENT_NOQUOTES) .
-		  "</font></span>";
-	  }
-	  echo "</span></td>";
-	}
-
+  echo "</tr></table>";
  }
 
 // Get the document ID of the patient ID card if access to it is wanted here.
@@ -290,8 +267,7 @@ if ($GLOBALS['patient_id_category_name']) {
   if ($tmp) $document_id = $tmp['id'];
 }
 ?>
-</tr>
-
+<table cellspacing='0' cellpadding='0' border='0'>
 <tr>
 <td class="small" colspan='4'>
 <a href="../history/history.php" onclick='top.restoreSession()'>
@@ -318,6 +294,53 @@ if ($GLOBALS['patient_id_category_name']) {
     <!-- start left column div -->
 	<div style='float:left; margin-right:20px'>
 		<table cellspacing=0 cellpadding=0>
+                <tr>
+                        <td>
+                                <?php // Billing expand collapse widget
+                                $widgetTitle = xl("Billing");
+                                $widgetLabel = "billing";
+                                $widgetButtonLabel = xl("Edit");
+                                $widgetButtonLink = "return newEvt();";
+                                $widgetButtonClass = "";
+                                $linkMethod = "javascript";
+                                $bodyClass = "notab";
+                                $widgetAuth = false;
+                                $fixedWidth = true;
+                                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+<br>
+<?php
+ if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
+ // Show current balance and billing note, if any.
+  echo "<div style='margin-left: 10px; margin-right: 10px'>" .
+   "<span class='bold'><font color='#ee6600'>" .
+   htmlspecialchars(xl('Balance Due'),ENT_NOQUOTES) .
+   ": " . htmlspecialchars(oeFormatMoney(get_patient_balance($pid)),ENT_NOQUOTES) .
+   "</font></span><br>";
+  if ($result['genericname2'] == 'Billing') {
+   echo "<span class='bold'><font color='red'>" .
+    htmlspecialchars(xl('Billing Note'),ENT_NOQUOTES) . ":" .
+    htmlspecialchars($result['genericval2'],ENT_NOQUOTES) .
+    "</font></span><br>";
+  } 
+  if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
+   echo "<span class='bold'>" .
+    htmlspecialchars(xl('Primary Insurance'),ENT_NOQUOTES) . ': ' . htmlspecialchars($insco_name,ENT_NOQUOTES) .
+    "</span>&nbsp;&nbsp;&nbsp;";
+   if ($result3['copay'] > 0) {
+    echo "<span class='bold'>" .
+     htmlspecialchars(xl('Copay'),ENT_NOQUOTES) . ': ' .  htmlspecialchars($result3['copay'],ENT_NOQUOTES) .
+     "</span>&nbsp;&nbsp;&nbsp;";
+   }
+   echo "<span class='bold'>" .
+    htmlspecialchars(xl('Effective Date'),ENT_NOQUOTES) . ': ' .  htmlspecialchars(oeFormatShortDate($result3['effdate'],ENT_NOQUOTES)) .
+    "</span>";
+  }
+  echo "</div><br>";
+ }
+?>
+                                </div>
+                        </td>
+                </tr>
 		<tr>
 			<td>
 				<?php // Demographics expand collapse widget
@@ -555,7 +578,7 @@ if ($GLOBALS['patient_id_category_name']) {
 		$widgetButtonLink = "pnotes_full.php";
 		$widgetButtonClass = "";
 		$linkMethod = "html";
-		$bodyClass = "tab current";
+		$bodyClass = "notab";
 		$widgetAuth = true;
 		$fixedWidth = true;
 		expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
@@ -573,7 +596,7 @@ if ($GLOBALS['patient_id_category_name']) {
 		$widgetButtonLink = "disclosure_full.php";
 		$widgetButtonClass = "";
 		$linkMethod = "html";
-		$bodyClass = "tab current";
+		$bodyClass = "notab";
 		$widgetAuth = true;
 		$fixedWidth = true;
 		expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
@@ -591,7 +614,7 @@ if ($GLOBALS['patient_id_category_name']) {
                 $widgetButtonLink = "../encounter/trend_form.php?formname=vitals";
                 $widgetButtonClass = "";
                 $linkMethod = "html";
-                $bodyClass = "tab current";
+                $bodyClass = "notab";
                 // check to see if any vitals exist
                 $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid) );
                 if ($existVitals) {

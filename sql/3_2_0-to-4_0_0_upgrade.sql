@@ -926,3 +926,7 @@ UPDATE list_options SET option_value = 5 WHERE list_id = 'adjreason' AND option_
 UPDATE list_options SET option_value = 1 WHERE list_id = 'adjreason' AND option_value = 0;
 #EndIf
 
+#IfNotRow2D user_settings setting_label billing_ps_expand setting_user 0
+INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'billing_ps_expand', '0');
+#EndIf
+
