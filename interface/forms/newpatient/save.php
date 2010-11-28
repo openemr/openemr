@@ -154,13 +154,15 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
 	 top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
 <?php } ?>
  top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout'] && $mode == 'new') { ?>
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<?php if ($mode == 'new') { ?>
  parent.left_nav.setEncounter(<?php echo "'" . oeFormatShortDate($date) . "', $encounter, window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'enc');
+<?php } // end if new encounter ?>
  parent.left_nav.loadFrame('enc2', window.name, '<?php echo $nexturl; ?>');
-<?php } else { ?>
+<?php } else { // end if concurrent layout ?>
  window.location="<?php echo $nexturl; ?>";
-<?php } ?>
+<?php } // end not concurrent layout ?>
 </script>
 
 </body>
