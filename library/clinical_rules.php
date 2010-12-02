@@ -396,13 +396,14 @@ function test_filter($patient_id,$rule,$dateTarget) {
   $filter = resolve_filter_sql($rule,'filt_database');
   if ((!empty($filter)) && !database_check($patient_id,$filter,'',$dateTarget)) return false;
 
-  // -------- Diagnosis Filter ----
-  // Set up diagnosis filter (includes)
-  $filter = resolve_filter_sql($rule,'filt_diagnosis');
-  if ((!empty($filter)) && !diagnosis_check($patient_id,$filter,$dateTarget)) return false;
-  // Set up diagnosis filter (excludes)
-  $filter = resolve_filter_sql($rule,'filt_diagnosis',0);
-  if ((!empty($filter)) && diagnosis_check($patient_id,$filter,$dateTarget)) return false;
+  // -------- Lists Filter ----
+  // Set up lists filter, which is fully customizable and currently includes diagnoses, meds,
+  //   surgeries and allergies.
+  $filter = resolve_filter_sql($rule,'filt_lists');
+  if ((!empty($filter)) && !lists_check($patient_id,$filter,$dateTarget)) return false;
+  // Set up exclusion filter
+  $filter = resolve_filter_sql($rule,'filt_lists',0);
+  if ((!empty($filter)) && lists_check($patient_id,$filter,$dateTarget)) return false;
 
   // -------- Clinic Visit(s) Filter --------
   $filter = resolve_filter_sql($rule,'filt_encounter_min');
@@ -661,21 +662,22 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='') {
   return $isMatch;
 }
 
-// Function to check diagnosis filters and targets
+// Function to check lists filters and targets
+//  Customizable and currently includes diagnoses, medications,
+//    allergies and surgeries.
 // Parameters:
 //   $patient_id - pid of selected patient.
-//   $filter     - array containing diagnosis filter/target elements
+//   $filter     - array containing lists filter/target elements
 //   $dateTarget - target date. blank is current date.
 // Return: boolean if check passed, otherwise false
-function diagnosis_check($patient_id,$filter,$dateTarget) {
+function lists_check($patient_id,$filter,$dateTarget) {
   $isMatch = false; //matching flag
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   foreach ( $filter as $row ) {
-    $temp_df = explode("::",$row['value']);
-    if (exist_diagnosis_item($patient_id, $temp_df[0], $temp_df[1], $dateTarget)) {
+    if (exist_lists_item($patient_id, $row['method_detail'], $row['value'], $dateTarget)) {
       // Record the match
       $isMatch = true;
     }
@@ -849,34 +851,54 @@ function exist_lifestyle_item($patient_id,$lifestyle,$status,$dateTarget) {
   }
 }
 
-// Function to check for diagnosis of a patient
+// Function to check for lists item of a patient
+//  Fully customizable and includes diagnoses, medications,
+//    allergies, and surgeries.
 // Parameters:
 //   $patient_id - pid of selected patient.
-//   $code_type  - code type (ie. ICD9)
-//   $diagnosis  - diagnosis code or label
+//   $type  - type (medical_problem, allergy, medication, etc)
+//   $value  - value searching for
 //   $dateTarget - target date. blank is current date.
 // Return: boolean if check passed, otherwise false
-function exist_diagnosis_item($patient_id,$code_type,$diagnosis,$dateTarget) {
+function exist_lists_item($patient_id,$type,$value,$dateTarget) {
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
-  if ($code_type=='CUSTOM') {
-    // Deal with custom code first (title column in lists table)
-    $response = sqlQuery("SELECT * FROM `lists` " .
-      "WHERE `type`='medical_problem' " .
-      "AND `date`<=? " .
-      "AND `pid`=? " .
-      "AND `title`=?", array($dateTarget,$patient_id,$diagnosis) );
-    if (!empty($response)) return true;
+  if ($type == "medical_problem") {
+    // Specific search for diagnoses
+    // Explode the value into diagnosis code type and code
+    $temp_diag_array = explode("::",$value);
+    $code_type = $temp_diag_array[0];
+    $diagnosis = $temp_diag_array[1];
+    if ($code_type=='CUSTOM') {
+      // Deal with custom code first (title column in lists table)
+      $response = sqlQuery("SELECT * FROM `lists` " .
+        "WHERE `type`=? " .
+        "AND `pid`=? " .
+        "AND `title`=? " .
+        "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+        "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$diagnosis,$dateTarget,$dateTarget,$dateTarget) );
+      if (!empty($response)) return true;
+    }
+    else {
+      // Deal with the set code types (diagnosis column in lists table)
+      $response = sqlQuery("SELECT * FROM `lists` " .
+        "WHERE `type`=? " .
+        "AND `pid`=? " .
+        "AND `diagnosis` LIKE ? " .
+        "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+        "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,"%".$code_type.":".$diagnosis."%",$dateTarget,$dateTarget,$dateTarget) );
+      if (!empty($response)) return true;
+    }
   }
-  else {
-    // Deal with the set code types (diagnosis column in lists table)
+  else { // generic lists item that requires no customization
     $response = sqlQuery("SELECT * FROM `lists` " .
-      "WHERE `type`='medical_problem' " .
-      "AND `date`<=? " .
+      "WHERE `type`=? " .
       "AND `pid`=? " .
-      "AND `diagnosis` LIKE ?", array($dateTarget,$patient_id,"%".$code_type.":".$diagnosis."%") );
+      "AND `title`=? ".
+      "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+      "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget) );
     if (!empty($response)) return true;
   }
 
