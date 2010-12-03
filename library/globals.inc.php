@@ -73,9 +73,9 @@ $GLOBALS_METADATA = array(
     'concurrent_layout' => array(
       xl('Layout Style'),               // descriptive name
       array(
-        '0' => 'Old style layout with no left menu',
-        '1' => 'Navigation menu consists of pairs of radio buttons',
-        '2' => 'Navigation menu is a tree view',
+        '0' => xl('Old style layout with no left menu'),
+        '1' => xl('Navigation menu consists of pairs of radio buttons'),
+        '2' => xl('Navigation menu is a tree view'),
       ),
       '2',                              // default = tree menu
       xl('Type of screen layout')
