@@ -151,9 +151,7 @@
  $tmp = acl_check('patients', 'demo');
  $disallowed['new'] = !($tmp == 'write' || $tmp == 'addonly');
 
-if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_directory']) ) {
-    $disallowed['fax'] = !($GLOBALS['hylafax_server'] || $GLOBALS['scanner_output_directory']);
-}
+ $disallowed['fax'] = !($GLOBALS['enable_hylafax'] || $GLOBALS['enable_scanner']);
 
  $disallowed['ros'] = !$GLOBALS['athletic_team'];
 

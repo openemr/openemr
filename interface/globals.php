@@ -375,18 +375,6 @@ $LAB_EXCHANGE_SITEID   = "";
 $LAB_EXCHANGE_TOKEN    = "";
 $LAB_EXCHANGE_ENDPOINT = "";
 
-// If you want Hylafax support then uncomment and customize the following
-// statements, and also customize custom/faxcover.txt:
-//
-// $GLOBALS['hylafax_server']   = 'localhost';
-// $GLOBALS['hylafax_basedir']  = '/var/spool/fax';
-// $GLOBALS['hylafax_enscript'] = 'enscript -M Letter -B -e^ --margins=36:36:36:36';
-
-// For scanner support, uncomment and customize the following.  This is
-// the directory in which scanned-in documents may be found, and may for
-// example be a smbfs-mounted share from the PC supporting the scanner:
-//
-// $GLOBALS['scanner_output_directory'] = '/mnt/scan_docs';
 
 // Customize these if you are using SQL-Ledger with OpenEMR, or if you are
 // going to run sl_convert.php to convert from SQL-Ledger.

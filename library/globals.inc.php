@@ -904,6 +904,48 @@ $GLOBALS_METADATA = array(
       xl('The payments posted cannot go below this date.This ensures that after taking the final report nobody post for previous dates.')
     ),
 
+    'enable_hylafax' => array(
+      xl('Enable Hylafax Support'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Enable Hylafax Support')
+    ),
+
+    'hylafax_server' => array(
+      xl('Hylafax Server'),
+      'text',                           // data type
+      'localhost',                      // default
+      xl('Hylafax server hostname.')
+    ),
+
+    'hylafax_basedir' => array(
+      xl('Hylafax Directory'),
+      'text',                           // data type
+      '/var/spool/fax',                 // default
+      xl('Location where Hylafax stores faxes.')
+    ),
+
+    'hylafax_enscript' => array(
+      xl('Hylafax Enscript Command'),
+      'text',                           // data type
+      'enscript -M Letter -B -e^ --margins=36:36:36:36', // default
+      xl('Enscript command used by Hylafax.')
+    ),
+
+    'enable_scanner' => array(
+      xl('Enable Scanner support'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Enable Scanner Support')
+    ),
+
+    'scanner_output_directory' => array(
+      xl('Scanner Directory'),
+      'text',                           // data type
+      '/mnt/scan_docs',                 // default
+      xl('Location where scans are stored.')
+    ),
+
   ),
 
 );
