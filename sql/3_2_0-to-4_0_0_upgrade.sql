@@ -930,3 +930,8 @@ UPDATE list_options SET option_value = 1 WHERE list_id = 'adjreason' AND option_
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'billing_ps_expand', '0');
 #EndIf
 
+#IfMissingColumn lists reaction
+ALTER TABLE lists
+ADD reaction varchar(255) NOT NULL DEFAULT '';
+#EndIf
+

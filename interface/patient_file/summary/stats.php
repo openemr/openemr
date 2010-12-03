@@ -56,7 +56,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     $query .= "ORDER BY begdate";
     $pres = sqlStatement($query, array($pid, $key) );
 
-    if (sqlNumRows($pres) > 0 || $ix == 0 || $key == "allergy") {
+    if (sqlNumRows($pres) > 0 || $ix == 0 || $key == "allergy" || $key == "medication") {
 
 	if ($_POST['embeddedScreen']) {
 	    echo "<tr><td>";
@@ -100,9 +100,13 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
             echo " <tr class='text $rowclass;'>\n";
 
-	    //turn allergies red and bold
+	    //turn allergies red and bold and show the reaction (if exist)
 	    if ($key == "allergy") {
-                echo "  <td colspan='$numcols' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</td>\n";
+                $reaction = "";
+                if (!empty($row['reaction'])) {
+                    $reaction = " (" . $row['reaction'] . ")";
+                }
+                echo "  <td colspan='$numcols' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . htmlspecialchars( $row['title'] . $reaction, ENT_NOQUOTES) . "</td>\n";
 	    }
 	    else {
 	        echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</td>\n";

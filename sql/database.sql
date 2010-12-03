@@ -2366,6 +2366,7 @@ CREATE TABLE `lists` (
   `injury_part` varchar(31) NOT NULL DEFAULT '',
   `injury_type` varchar(31) NOT NULL DEFAULT '',
   `injury_grade` varchar(31) NOT NULL DEFAULT '',
+  `reaction` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 

@@ -81,45 +81,56 @@ function newEncounter() {
 <form method='post' action='stats_full.php' onsubmit='return top.restoreSession()'>
 
 <table>
- <tr class='head'>
-  <th><?php xl('Type','e'); ?></th>
-  <th><?php xl('Title','e'); ?></th>
-  <th><?php xl('Begin','e'); ?></th>
-  <th><?php xl('End','e'); ?></th>
-  <th><?php xl('Diag','e'); ?></th>
-  <th><?php xl('Occurrence','e'); ?></th>
-<?php if ($GLOBALS['athletic_team']) { ?>
-  <th><?php xl('Missed','e'); ?></th>
-<?php } else { ?>
-  <th><?php xl('Referred By','e'); ?></th>
-<?php } ?>
-  <th><?php xl('Comments','e'); ?></th>
-  <th><?php xl('Enc','e'); ?></th>
- </tr>
 
 <?php
 $encount = 0;
 $lasttype = "";
+$first = 1; // flag for first section
+$something = 0; // flag that there is data to show
+// If empty
+if (sqlNumRows($pres) < 1) {
+  echo "<b>" . htmlspecialchars( xl("No Issues"), ENT_NOQUOTES) . "</b><br>";
+}
 while ($row = sqlFetchArray($pres)) {
+    $something = 1;
     if ($lasttype != $row['type']) {
         $encount = 0;
         $lasttype = $row['type'];
 
-   /****
-   $disptype = $lasttype;
-   switch ($lasttype) {
-    case "allergy"        : $disptype = "Allergies"       ; break;
-    case "problem"        :
-    case "medical_problem": $disptype = "Medical Problems"; break;
-    case "medication"     : $disptype = "Medications"     ; break;
-    case "surgery"        : $disptype = "Surgeries"       ; break;
-   }
-   ****/
         $disptype = $ISSUE_TYPES[$lasttype][0];
 
-        echo " <tr class='detail'>\n";
-        echo "  <td class='typehead' colspan='9'><b>$disptype</b></td>\n";
-        echo " </tr>\n";
+        if ($first) {
+          $first = 0;
+        }
+        else {
+          echo "</table>";
+        }
+
+        echo "  <b>$disptype</b>\n";
+
+        echo " <table style='margin-bottom:1em;text-align:center'>";
+        // Show header for each category
+        ?>
+        <tr class='head'>
+          <th><?php xl('Title','e'); ?></th>
+          <th><?php xl('Begin','e'); ?></th>
+          <th><?php xl('End','e'); ?></th>
+          <th><?php xl('Diag','e'); ?></th>
+          <th><?php echo htmlspecialchars(xl('Status'),ENT_NOQUOTES); ?></th>
+          <th><?php xl('Occurrence','e'); ?></th>
+          <?php if ($lasttype == "allergy") { ?>
+            <th><?php echo htmlspecialchars( xl('Reaction'), ENT_NOQUOTES); ?></th>
+          <?php } ?>
+          <?php if ($GLOBALS['athletic_team']) { ?>
+            <th><?php xl('Missed','e'); ?></th>
+          <?php } else { ?>
+            <th><?php xl('Referred By','e'); ?></th>
+          <?php } ?>
+          <th><?php xl('Comments','e'); ?></th>
+          <th><?php xl('Enc','e'); ?></th>
+        </tr>
+      <?php
+
     }
 
     $rowid = $row['id'];
@@ -143,16 +154,36 @@ while ($row = sqlFetchArray($pres)) {
         }
     }
 
+    // calculate the status
+    if ($row['outcome'] == "1" && $row['enddate'] != NULL) {
+      // Resolved
+      $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
+    }
+    else if($row['enddate'] == NULL) {
+      $statusCompute = xl("Active");
+    }
+    else {
+      $statusCompute = xl("Inactive");
+    }
+
     // output the TD row of info
-    echo " <tr class='$bgclass detail statrow' id='$rowid'>\n";
-    echo "  <td>&nbsp;</td>\n";
-    echo "  <td>$disptitle</td>\n";
+    if ($row['enddate'] == NULL) {
+      echo " <tr class='$bgclass detail statrow' style='color:red;font-weight:bold' id='$rowid'>\n";
+    }
+    else {
+      echo " <tr class='$bgclass detail statrow' id='$rowid'>\n";
+    }
+    echo "  <td style='text-align:left'>$disptitle</td>\n";
     echo "  <td>" . $row['begdate'] . "&nbsp;</td>\n";
     echo "  <td>" . $row['enddate'] . "&nbsp;</td>\n";
     echo "  <td>" . $codetext . "</td>\n";
+    echo "  <td>" . htmlspecialchars($statusCompute,ENT_NOQUOTES) . "&nbsp;</td>\n";
     echo "  <td class='nowrap'>";
     echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
     echo "</td>\n";
+    if ($lasttype == "allergy") {
+      echo "  <td>" . htmlspecialchars($row['reaction'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+    }
     if ($GLOBALS['athletic_team']) {
         echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
     }
@@ -165,7 +196,9 @@ while ($row = sqlFetchArray($pres)) {
     echo "  </td>";
     echo " </tr>\n";
 }
+if ($something) echo "</table>";
 ?>
+
 </table>
 
 <div style="text-align:center" class="buttons">
