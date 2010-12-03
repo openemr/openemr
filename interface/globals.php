@@ -265,13 +265,6 @@ $GLOBALS['state_custom_addlist_widget'] = true;
 $GLOBALS['state_list'] = "state";
 $GLOBALS['country_list'] = "country";
 
-// Option to set the top default window. By default, it is set
-// to the calendar screen. The starting directory is
-// interface/main/ , hence:
-//    The calendar screen is 'main_info.php' .
-//    The patient search/add screen is '../new/new.php' .
-$GLOBALS['default_top_pane'] = 'main_info.php';
-
 // Default category for find_patient screen
 $GLOBALS['default_category'] = 5;
 $GLOBALS['default_event_title'] = 'Office Visit';

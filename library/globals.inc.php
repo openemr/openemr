@@ -70,6 +70,16 @@ $GLOBALS_METADATA = array(
   //
   'Appearance' => array(
 
+    'default_top_pane' => array(
+      xl('Main Top Pane Screen'),       // descriptive name
+      array(
+        'main_info.php' => xl('Calendar Screen'),
+        '../new/new.php' => xl('Patient Search/Add Screen'),
+      ),
+      'main_info.php',                  // default = calendar
+      xl('Type of screen layout')
+    ),
+
     'concurrent_layout' => array(
       xl('Layout Style'),               // descriptive name
       array(
