@@ -337,7 +337,7 @@ function writeCTLine($ct_array) {
   echo ctGenCell($opt_line_no, $ct_array, 'ct_just', 4, 15,
     xl('If billing justification is used enter the name of the diagnosis code type.'));
   echo ctGenCell($opt_line_no, $ct_array, 'ct_mask', 6,  9,
-    xl('Specifies formatting for codes. # = digit, * = any character. Empty if not used.'));
+    xl('Specifies formatting for codes. # = digit, @ = alpha, * = any character. Empty if not used.'));
   echo ctGenCBox($opt_line_no, $ct_array, 'ct_fee',
     xl('Are fees charged for this type?'));
   echo ctGenCBox($opt_line_no, $ct_array, 'ct_rel',

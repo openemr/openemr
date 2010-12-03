@@ -445,21 +445,21 @@ $GLOBALS_METADATA = array(
       xl('Mask for Patient IDs'),
       'text',                           // data type
       '',                               // default
-      xl('Specifies formatting for the external patient ID.  # = digit, * = any character.  Empty if not used.')
+      xl('Specifies formatting for the external patient ID.  # = digit, @ = alpha, * = any character.  Empty if not used.')
     ),
 
     'gbl_mask_invoice_number' => array(
       xl('Mask for Invoice Numbers'),
       'text',                           // data type
       '',                               // default
-      xl('Specifies formatting for invoice reference numbers.  # = digit, * = any character.  Empty if not used.')
+      xl('Specifies formatting for invoice reference numbers.  # = digit, @ = alpha, * = any character.  Empty if not used.')
     ),
 
     'gbl_mask_product_id' => array(
       xl('Mask for Product IDs'),
       'text',                           // data type
       '',                               // default
-      xl('Specifies formatting for product NDC fields.  # = digit, * = any character.  Empty if not used.')
+      xl('Specifies formatting for product NDC fields.  # = digit, @ = alpha, * = any character.  Empty if not used.')
     ),
 
     'force_billing_widget_open' => array(
