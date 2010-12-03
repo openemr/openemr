@@ -1719,3 +1719,13 @@ INSERT INTO `layout_options` VALUES ('DEM', 'usertext18', '6Misc', 'User Defined
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext19', '6Misc', 'User Defined Text 19', 8,2,0,10,63,'',1,1,'','','User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext20', '6Misc', 'User Defined Text 20', 8,2,0,10,63,'',1,1,'','','User Defined');
 
+-- The following added 2010-12-01:
+
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','actorest','Actual or Estimated', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('actorest','act'  ,'Actual'   ,10,1);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('actorest','est'  ,'Estimated',20,0);
+UPDATE layout_options SET group_name = '1Who', title='', seq = 7, data_type = 1,
+  uor = 1, fld_length = 0, list_id = 'actorest', titlecols = 0, datacols = 0,
+  description = 'Indicates if DOB is estimated' WHERE
+  form_id = 'DEM' AND field_id = 'usertext3' AND uor = 0;
+
