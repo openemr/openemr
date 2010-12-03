@@ -254,21 +254,6 @@ else {
   $GLOBALS['ippf_specific'] = false;
 }
 
-//
-// Lists and Layouts Control Section
-//
-//
-// 'state_custom_addlist_widget'
-//  - If true, then will display a customized addlist widget for
-//    state list entries (will ask for title and abbreviation)
-$GLOBALS['state_custom_addlist_widget'] = true;
-$GLOBALS['state_list'] = "state";
-$GLOBALS['country_list'] = "country";
-
-// Default category for find_patient screen
-$GLOBALS['default_category'] = 5;
-$GLOBALS['default_event_title'] = 'Office Visit';
-
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
 // thoroughly tested yet and some browsers might have trouble with it,

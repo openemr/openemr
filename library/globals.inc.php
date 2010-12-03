@@ -851,6 +851,20 @@ $GLOBALS_METADATA = array(
       xl('Field type to use for employer or subscriber state in demographics.')
     ),
 
+    'state_list' => array(
+      xl('State list'),
+      'text',                           // data type
+      'state',                          // default
+      xl('List used by above State Data Type option.')
+    ),
+
+    'state_custom_addlist_widget' => array(
+      xl('State List Widget Custom Fields'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Show the custom state form for the add list widget (will ask for title and abbreviation).')
+    ),
+
     'country_data_type' => array(
       xl('Country Data Type'),
       array(
@@ -860,6 +874,13 @@ $GLOBALS_METADATA = array(
       ),
       '26',                             // default
       xl('Field type to use for employer or subscriber country in demographics.')
+    ),
+
+    'country_list' => array(
+      xl('Country list'),
+      'text',                           // data type
+      'country',                          // default
+      xl('List used by above Country Data Type option.')
     ),
 
     'print_command' => array(
