@@ -701,6 +701,103 @@ $GLOBALS_METADATA = array(
 
   ),
 
+  // Logging
+  //
+  'Logging' => array(
+
+    'enable_auditlog' => array(
+      xl('Enable Audit Logging'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enable Audit Logging.')
+    ),
+
+    'audit_events_patient-record' => array(
+      xl('Audit Logging Patient Record'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enable logging of patient record modifications.').' ('.xl('Note that Audit Logging needs to be enabled above').')'
+    ),
+
+    'audit_events_scheduling' => array(
+      xl('Audit Logging Scheduling'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enable logging of scheduling activities.').' ('.xl('Note that Audit Logging needs to be enabled above').')'
+    ),
+
+    'audit_events_order' => array(
+      xl('Audit Logging Order'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enable logging of ordering activities.').' ('.xl('Note that Audit Logging needs to be enabled above').')'
+    ),
+
+    'audit_events_security-administration' => array(
+      xl('Audit Logging Security Administration'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enable logging of security and administration activities.').' ('.xl('Note that Audit Logging needs to be enabled above').')'
+    ),
+
+    'audit_events_backup' => array(
+      xl('Audit Logging Backups'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enable logging of backup related activities.').' ('.xl('Note that Audit Logging needs to be enabled above').')'
+    ),
+
+    'audit_events_other' => array(
+      xl('Audit Logging Miscellaneous'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enable logging of miscellaneous activities.').' ('.xl('Note that Audit Logging needs to be enabled above').')'
+    ),
+
+    'audit_events_query' => array(
+      xl('Audit Logging SELECT Query'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Enable logging of all SQL SELECT queries.').' ('.xl('Note that Audit Logging needs to be enabled above').')'
+    ),
+
+    'enable_atna_audit' => array(
+      xl('Enable ATNA Auditing'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Enable Audit Trail and Node Authentication (ATNA).')
+    ),
+
+    'atna_audit_host' => array(
+      xl('ATNA audit host'),
+      'text',                           // data type
+      '',                               // default
+      xl('The hostname of the ATNA audit repository machine.')
+    ),
+
+    'atna_audit_port' => array(
+      xl('ATNA audit port'),
+      'text',                           // data type
+      '6514',                           // default
+      xl('Listening port of the RFC 5425 TLS syslog server.')
+    ),
+
+    'atna_audit_localcert' => array(
+      xl('ATNA audit local certificate'),
+      'text',                           // data type
+      '',                               // default
+      xl('Certificate to send to RFC 5425 TLS syslog server.')
+    ),
+
+    'atna_audit_cacert' => array(
+      xl('ATNA audit CA certificate'),
+      'text',                           // data type
+      '',                               // default
+      xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
+    ),
+
+  ),
+
   // Miscellaneous Tab
   //
   'Miscellaneous' => array(

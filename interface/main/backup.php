@@ -307,7 +307,7 @@ if ($form_step == 7) {   // create the final compressed tar containing all files
     die(xl("Error: Unable to create downloadable archive"));
   chdir($cur_dir);
    /* To log the backup event */
-  if ($GLOBALS["audit_events"]["backup"] == 1 ){
+  if ($GLOBALS['audit_events_backup']){
   newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0,"Backup is completed");
 }
   $auto_continue = true;
