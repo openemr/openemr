@@ -931,7 +931,6 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 #EndIf
 
 #IfMissingColumn lists reaction
-ALTER TABLE lists
-ADD reaction varchar(255) NOT NULL DEFAULT '';
+ALTER TABLE lists ADD reaction varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
