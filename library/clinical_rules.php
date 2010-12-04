@@ -459,6 +459,11 @@ function test_targets($patient_id,$rule,$group_id='',$dateTarget) {
   $target = resolve_target_sql($rule,$group_id,'target_database');
   if ((!empty($target)) && !database_check($patient_id,$target,$interval,$dateTarget)) return false;
 
+  // -------- Procedure (labs,imaging,test,procedures,etc) Target ----
+  // Procedure Target (includes)
+  $target = resolve_target_sql($rule,$group_id,'target_proc');
+  if ((!empty($target)) && !procedure_check($patient_id,$target,$interval,$dateTarget)) return false;
+
   // Passed all target tests, so return true.
   return true;
 }
@@ -662,6 +667,48 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='') {
   return $isMatch;
 }
 
+// Function to check procedure filters and targets
+// Parameters:
+//   $patient_id - pid of selected patient.
+//   $filter     - array containing filter/target elements
+//   $interval   - used for the interval elements
+//   $dateTarget - target date. blank is current date.
+// Return: boolean if check passed, otherwise false
+function procedure_check($patient_id,$filter,$interval='',$dateTarget='') {
+  $isMatch = false; //matching flag
+
+  // Set date to current if not set
+  $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+
+  // Unpackage interval information
+  // (Assume only one for now and only pertinent for targets)
+  $intervalType = '';
+  $intervalValue = '';
+  if (!empty($interval)) {
+    $intervalType = $interval[0]['value'];
+    $intervalValue = $interval[0]['interval'];
+  }
+
+  foreach( $filter as $row ) {
+    // Row description
+    // [0]=>title [1]=>code [2]=>value comparison [3]=>value [4]=>number of hits comparison [5]=>number of hits
+    //   code description
+    //     <type(ICD9,CPT)>:<identifier>; etc.
+    $temp_df = explode("::",$row['value']);
+    if (exist_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
+      // Record the match
+      $isMatch = true;
+    }
+    else {
+      // If this is a required entry then return false
+      if ($row['required_flag']) return false;
+    }
+  }
+
+  // return results of check
+  return $isMatch;
+}
+
 // Function to check lists filters and targets
 //  Customizable and currently includes diagnoses, medications,
 //    allergies and surgeries.
@@ -778,6 +825,61 @@ function exist_database_item($patient_id,$table,$column,$data,$min_items,$interv
   else {
     return false;
   }
+}
+
+// Function to check for existence of procedure(s) for a patient
+// Parameters:
+//   $patient_id     - pid of selected patient.
+//   $proc_title     - procedure title
+//   $proc_code      - procedure identifier code (array)
+//   $result_comp    - results comparison (eq,ne,gt,ge,lt,le)
+//   $result_data    - results data
+//   $num_items_comp - number items comparison (eq,ne,gt,ge,lt,le)
+//   $num_items      - number of items threshold
+//   $intervalType   - type of interval (ie. year)
+//   $intervalValue  - searched for within this many times of the interval type
+//   $dateTarget     - target date.
+// Return: boolean if check passed, otherwise false
+function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$result_data,$num_items_comp,$num_items,$intervalType='',$intervalValue='',$dateTarget='') {
+
+  // Set date to current if not set
+  $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+
+  // Get the interval sql query string
+  // TODO
+  $dateSql = sql_interval_string("PROCEDURE-EXCEPTION",$intervalType,$intervalValue,$dateTarget);
+
+  //
+  // TODO
+  // Figure out a way to use the identifiers codes
+  // TODO
+  //
+
+  // If just checking for existence (ie result_data is empty),
+  //   then simply set the comparison operator to ne.
+  if (empty($result_data)) {
+    $result_comp = "ne";
+  }
+  
+  // get the appropriate sql comparison operator
+  $compSql = convertCompSql($result_comp);
+
+  // collect specific items that fulfill request
+  $sql = sqlStatement("SELECT procedure_result.result " .
+         "FROM procedure_type, " .
+         "procedure_order, " .
+         "procedure_report, " .
+         "procedure_result " .
+         "WHERE procedure_type.procedure_type_id = procedure_order.procedure_type_id " .
+         "AND procedure_order.procedure_order_id = procedure_report.procedure_order_id " .
+         "AND procedure_report.procedure_report_id = procedure_result.procedure_report_id " .
+         "AND procedure_result.result" . $compSql . "? " .
+         "AND procedure_order.patient_id=? " .
+         $dateSql, array($result_data,$patient_id) );
+  // date is at p_report.date_collected
+
+  // See if number of returned items passes the comparison
+  return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
 }
 
 // Function to check for existance of data for a patient in the rule_patient_data table
@@ -907,7 +1009,7 @@ function exist_lists_item($patient_id,$type,$value,$dateTarget) {
 
 // Function to return part of sql query to deal with interval
 // Parameters:
-//   $table         - selected mysql table
+//   $table         - selected mysql table (or EXCEPTION(s))
 //   $intervalType  - type of interval (ie. year)
 //   $intervalValue - searched for within this many times of the interval type
 //   $dateTarget    - target date.
@@ -923,44 +1025,44 @@ function sql_interval_string($table,$intervalType,$intervalValue,$dateTarget) {
   if (!empty($intervalType)) {
     switch($intervalType) {
       case "year":
-        $dateSql = "AND (`" . add_escape_custom($date_label) .
-          "` BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
+        $dateSql = "AND (" . add_escape_custom($date_label) .
+          " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
           "', INTERVAL " . add_escape_custom($intervalValue) .
           " YEAR) AND '" . add_escape_custom($dateTarget) . "') ";
         break;
       case "month":
-        $dateSql = "AND (`" . add_escape_custom($date_label) .
-          "` BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
+        $dateSql = "AND (" . add_escape_custom($date_label) .
+          " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
           "', INTERVAL " . add_escape_custom($intervalValue) .
           " MONTH) AND '" . add_escape_custom($dateTarget) . "') ";
         break;
       case "week":
-        $dateSql = "AND (`" . add_escape_custom($date_label) .
-          "` BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
+        $dateSql = "AND (" . add_escape_custom($date_label) .
+          " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
           "', INTERVAL " . add_escape_custom($intervalValue) .
           " WEEK) AND '" . add_escape_custom($dateTarget) . "') ";
         break;
       case "day":
-        $dateSql = "AND (`" . add_escape_custom($date_label) .
-          "` BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
+        $dateSql = "AND (" . add_escape_custom($date_label) .
+          " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
           "', INTERVAL " . add_escape_custom($intervalValue) .
           " DAY) AND '" . add_escape_custom($dateTarget) . "') ";
         break;
       case "hour":
-        $dateSql = "AND (`" . add_escape_custom($date_label) .
-          "` BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
+        $dateSql = "AND (" . add_escape_custom($date_label) .
+          " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
           "', INTERVAL " . add_escape_custom($intervalValue) .
           " HOUR) AND '" . add_escape_custom($dateTarget) . "') ";
         break;
       case "minute":
-        $dateSql = "AND (`" . add_escape_custom($date_label) .
-          "` BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
+        $dateSql = "AND (" . add_escape_custom($date_label) .
+          " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
           "', INTERVAL " . add_escape_custom($intervalValue) .
           " MINUTE) AND '" . add_escape_custom($dateTarget) . "') ";
         break;
       case "second":
-        $dateSql = "AND (`" . add_escape_custom($date_label) .
-          "` BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
+        $dateSql = "AND (" . add_escape_custom($date_label) .
+          " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
           "', INTERVAL " . add_escape_custom($intervalValue) .
           " SECOND) AND '" . add_escape_custom($dateTarget) . "') ";
         break;
@@ -975,17 +1077,17 @@ function sql_interval_string($table,$intervalType,$intervalValue,$dateTarget) {
         $dateSql =" " .
           "AND ((" .
               "MONTH('" . add_escape_custom($dateTarget) . "') < 9 " .
-              "AND `" . add_escape_custom($date_label) . "` >= '" . $dateLastYear . "' ) " .
+              "AND " . add_escape_custom($date_label) . " >= '" . $dateLastYear . "' ) " .
             "OR (" .
               "MONTH('" . add_escape_custom($dateTarget) . "') >= 9 " .
-              "AND `" . add_escape_custom($date_label) . "` >= '" . $dateThisYear . "' ))" .
-          "AND `" . add_escape_custom($date_label) . "` <= '" . add_escape_custom($dateTarget) . "' ";
+              "AND " . add_escape_custom($date_label) . " >= '" . $dateThisYear . "' ))" .
+          "AND " . add_escape_custom($date_label) . " <= '" . add_escape_custom($dateTarget) . "' ";
         break;
     }
   }
   else {
-    $dateSql = "AND `" . add_escape_custom($date_label) .
-      "` <= '" . add_escape_custom($dateTarget)  . "' ";
+    $dateSql = "AND " . add_escape_custom($date_label) .
+      " <= '" . add_escape_custom($dateTarget)  . "' ";
   }
 
  // return the sql interval string
@@ -997,11 +1099,17 @@ function sql_interval_string($table,$intervalType,$intervalValue,$dateTarget) {
 //  Will need to expand this as algorithm grows.
 // Parameters:
 //   $label - element (pid or date)
-//   $table - selected mysql table
+//   $table - selected mysql table (or EXCEPTION(s))
 // Return: string containing official label of selected element
 function collect_database_label($label,$table) {
  
-  if ($table == 'immunizations') {
+  if ($table == 'PROCEDURE-EXCEPTION') {
+    // return cell to get procedure collection date
+    // special case since reuqires joing of multiple
+    // tables to get this value
+    $returnedLabel = "procedure_report.date_collected";
+  }
+  else if ($table == 'immunizations') {
     // return requested label for immunization table
     if ($label == "pid") {
       $returnedLabel = "patient_id";
@@ -1138,6 +1246,65 @@ function reminder_results_integrate($reminderOldArray, $reminderNew) {
   }
 
   return $results;
+}
+
+// Compares number of items with requested comparison operator
+// Parameters:
+//   $comp      - Comparison operator(eq,ne,gt,ge,lt,le)
+//   $thres     - Threshold used in comparison
+//   $num_items - Number of items
+// Return:
+//   Boolean of comparison results
+function itemsNumberCompare($comp, $thres, $num_items) {
+
+  if ( ($comp == "eq") && ($num_items == $thres) ) {
+    return true;
+  }
+  else if ( ($comp == "ne") && ($num_items != $thres) && ($num_items > 0) ) {
+    return true;
+  }
+  else if ( ($comp == "gt") && ($num_items > $thres) ) {
+    return true;
+  }
+  else if ( ($comp == "ge") && ($num_items >= $thres) ) {
+    return true;
+  }
+  else if ( ($comp == "lt") && ($num_items < $thres) && ($num_items > 0) ) {
+    return true;
+  }
+  else if ( ($comp == "le") && ($num_items <= $thres) && ($num_items > 0) ) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+// Converts a text comparison operator to sql equivalent
+// Parameters:
+//   $comp      - Comparison operator(eq,ne,gt,ge,lt,le)
+// Return:
+//   String containing sql compatible comparison operator
+function convertCompSql($comp) {
+
+  if ($comp == "eq") {
+    return "=";
+  }
+  else if ($comp == "ne") {
+    return "!=";
+  }
+  else if ($comp == "gt") {
+    return ">";
+  }
+  else if ($comp == "ge") {
+    return ">=";
+  }
+  else if ($comp == "lt") {
+    return "<";
+  }
+  else { // ($comp == "le")
+    return "<=";
+  }
 }
 
 // Function to find age in years (with decimal) on the target date
