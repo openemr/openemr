@@ -829,25 +829,30 @@ function exist_database_item($patient_id,$table,$column,$data,$min_items,$interv
 
 // Function to check for existence of procedure(s) for a patient
 // Parameters:
-//   $patient_id     - pid of selected patient.
-//   $proc_title     - procedure title
-//   $proc_code      - procedure identifier code (array)
-//   $result_comp    - results comparison (eq,ne,gt,ge,lt,le)
-//   $result_data    - results data
-//   $num_items_comp - number items comparison (eq,ne,gt,ge,lt,le)
-//   $num_items      - number of items threshold
-//   $intervalType   - type of interval (ie. year)
-//   $intervalValue  - searched for within this many times of the interval type
-//   $dateTarget     - target date.
+//   $patient_id      - pid of selected patient.
+//   $proc_title      - procedure title
+//   $proc_code       - procedure identifier code (array)
+//   $result_comp     - results comparison (eq,ne,gt,ge,lt,le)
+//   $result_data     - results data
+//   $num_items_comp  - number items comparison (eq,ne,gt,ge,lt,le)
+//   $num_items_thres - number of items threshold
+//   $intervalType    - type of interval (ie. year)
+//   $intervalValue   - searched for within this many times of the interval type
+//   $dateTarget      - target date.
 // Return: boolean if check passed, otherwise false
-function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$result_data,$num_items_comp,$num_items,$intervalType='',$intervalValue='',$dateTarget='') {
+function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$result_data='',$num_items_comp,$num_items_thres,$intervalType='',$intervalValue='',$dateTarget='') {
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
+  // Set the table exception (for looking up pertinent date and pid sql columns)
+  $table = "PROCEDURE-EXCEPTION";
+
+  // Collect the correct column label for patient id in the table
+  $patient_id_label = collect_database_label('pid',$table);
+
   // Get the interval sql query string
-  // TODO
-  $dateSql = sql_interval_string("PROCEDURE-EXCEPTION",$intervalType,$intervalValue,$dateTarget);
+  $dateSql = sql_interval_string($table,$intervalType,$intervalValue,$dateTarget);
 
   //
   // TODO
@@ -866,17 +871,17 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
 
   // collect specific items that fulfill request
   $sql = sqlStatement("SELECT procedure_result.result " .
-         "FROM procedure_type, " .
-         "procedure_order, " .
-         "procedure_report, " .
-         "procedure_result " .
+         "FROM `procedure_type`, " .
+         "`procedure_order`, " .
+         "`procedure_report`, " .
+         "`procedure_result` " .
          "WHERE procedure_type.procedure_type_id = procedure_order.procedure_type_id " .
          "AND procedure_order.procedure_order_id = procedure_report.procedure_order_id " .
          "AND procedure_report.procedure_report_id = procedure_result.procedure_report_id " .
-         "AND procedure_result.result" . $compSql . "? " .
-         "AND procedure_order.patient_id=? " .
-         $dateSql, array($result_data,$patient_id) );
-  // date is at p_report.date_collected
+         "AND procedure_type.name = ? " .
+         "AND procedure_result.result " . $compSql . " ? " .
+         "AND " . add_escape_custom($patient_id_label) . " = ? " .
+         $dateSql, array($proc_title,$result_data,$patient_id) );
 
   // See if number of returned items passes the comparison
   return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
@@ -1104,10 +1109,19 @@ function sql_interval_string($table,$intervalType,$intervalValue,$dateTarget) {
 function collect_database_label($label,$table) {
  
   if ($table == 'PROCEDURE-EXCEPTION') {
-    // return cell to get procedure collection date
+    // return cell to get procedure collection
     // special case since reuqires joing of multiple
     // tables to get this value
-    $returnedLabel = "procedure_report.date_collected";
+    if ($label == "pid") {
+      $returnedLabel = "procedure_order.patient_id";
+    }
+    else if ($label == "date") {
+      $returnedLabel = "procedure_result.date";
+    }
+    else {
+      // unknown label, so return the original label
+      $returnedLabel = $label;
+    }
   }
   else if ($table == 'immunizations') {
     // return requested label for immunization table
@@ -1115,7 +1129,7 @@ function collect_database_label($label,$table) {
       $returnedLabel = "patient_id";
     }
     else if ($label == "date") {
-      $returnedLabel = "administered_date";
+      $returnedLabel = "`administered_date`";
     }
     else {
       // unknown label, so return the original label
@@ -1128,7 +1142,7 @@ function collect_database_label($label,$table) {
       $returnedLabel = "pid";
     }
     else if ($label == "date") {
-      $returnedLabel = "date";
+      $returnedLabel = "`date`";
     }
     else {
       // unknown label, so return the original label
