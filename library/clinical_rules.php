@@ -172,6 +172,12 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       $dateCounter = 1; // for reminder mode to keep track of which date checking
       foreach ( $target_dates as $dateFocus ) {
 
+        //Skip if date is set to SKIP
+        if ($dateFocus == "SKIP") {
+          $dateCounter++;
+          continue;
+        }
+
         //Set date counter and reminder token (applicable for reminders only)
         if ($dateCounter == 1) {
           $reminder_due = "soon_due";
@@ -189,6 +195,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
           $pass_filter++;
         }
         else {
+          $dateCounter++;
           continue;
         }
 
@@ -244,6 +251,12 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 
           $dateCounter = 1; // for reminder mode to keep track of which date checking
           foreach ( $target_dates as $dateFocus ) {
+
+            //Skip if date is set to SKIP
+            if ($dateFocus == "SKIP") {
+              $dateCounter++;
+              continue;
+            }
 
             //Set date counter and reminder token (applicable for reminders only)
             if ($dateCounter == 1) {
@@ -463,6 +476,11 @@ function test_targets($patient_id,$rule,$group_id='',$dateTarget) {
   // Procedure Target (includes)
   $target = resolve_target_sql($rule,$group_id,'target_proc');
   if ((!empty($target)) && !procedure_check($patient_id,$target,$interval,$dateTarget)) return false;
+
+  // -------- Appointment Target ----
+  // Appointment Target (includes) (Specialized functionality for appointment reminders)
+  $target = resolve_target_sql($rule,$group_id,'target_appt');
+  if ((!empty($target)) && appointment_check($patient_id,$dateTarget)) return false;
 
   // Passed all target tests, so return true.
   return true;
@@ -713,6 +731,46 @@ function procedure_check($patient_id,$filter,$interval='',$dateTarget='') {
   }
 
   // return results of check
+  return $isMatch;
+}
+
+// Function to check for appointment
+// Parameters:
+//   $patient_id - pid of selected patient.
+//   $dateTarget - target date.
+// Return: boolean if appt exist, otherwise false
+function appointment_check($patient_id,$dateTarget='') {
+  $isMatch = false; //matching flag
+
+  // Set date to current if not set (although should always be set)
+  $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+  $dateTargetRound = date('Y-m-d',$dateTarget);
+
+  // Set current date
+  $currentDate = date('Y-m-d H:i:s');
+  $currentDateRound = date('Y-m-d',$dateCurrent);
+
+  // Basically, if the appointment is within the current date to the target date,
+  //  then return true. (will not send reminders on same day as appointment)
+  $sql = sqlStatement("SELECT openemr_postcalendar_events.pc_eid, " .
+    "openemr_postcalendar_events.pc_title, " .
+    "openemr_postcalendar_events.pc_eventDate, " .
+    "openemr_postcalendar_events.pc_startTime, " .
+    "openemr_postcalendar_events.pc_endTime " .
+    "FROM openemr_postcalendar_events " .
+    "WHERE openemr_postcalendar_events.pc_eventDate > ? " .
+    "AND openemr_postcalendar_events.pc_eventDate <= ? " .
+    "AND openemr_postcalendar_events.pc_pid = ?", array($currentDate,$dateTarget,$patient_id) );
+
+  // return results of check
+  //
+  // TODO: Figure out how to have multiple appointment and changing appointment reminders.
+  //         Plan to send back array of appt info (eid, time, date, etc.)
+  //         to do this.
+  if (sqlNumRows($sql) > 0) {
+    $isMatch = true;
+  }
+
   return $isMatch;
 }
 
@@ -1153,6 +1211,15 @@ function calculate_reminder_dates($rule, $dateTarget='',$type) {
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
+  // Collect the current date settings (to ensure not skip)
+  $res = resolve_reminder_sql($rule, $type.'_current');
+  if (!empty($res)) {
+    $row = $res[0];
+    if ($row ['method_detail'] == "SKIP") {
+      $dateTarget = "SKIP";
+    }
+  }
+
   // Collect the past_due date
   $past_due_date == "";
   $res = resolve_reminder_sql($rule, $type.'_post');
@@ -1163,6 +1230,12 @@ function calculate_reminder_dates($rule, $dateTarget='',$type) {
     }
     if ($row ['method_detail'] == "month") {
       $past_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " -" . $row ['value'] . " month"));
+    }
+    if ($row ['method_detail'] == "hour") {
+      $past_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " -" . $row ['value'] . " hour"));
+    }
+    if ($row ['method_detail'] == "SKIP") {
+      $past_due_date = "SKIP";
     }
   }
   else {
@@ -1180,6 +1253,12 @@ function calculate_reminder_dates($rule, $dateTarget='',$type) {
     }
     if ($row ['method_detail'] == "month") {
       $soon_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " +" . $row ['value'] . " month"));
+    }
+    if ($row ['method_detail'] == "hour") {
+      $soon_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " -" . $row ['value'] . " hour"));
+    }
+    if ($row ['method_detail'] == "SKIP") {
+      $soon_due_date = "SKIP";
     }
   }
   else {
