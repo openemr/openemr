@@ -31,6 +31,7 @@
 //   Greek                          // xl('Greek')
 //   Hebrew                         // xl('Hebrew')
 //   Norwegian                      // xl('Norwegian')
+//   Polish                         // xl('Polish')
 //   Portuguese (Brazilian)         // xl('Portuguese (Brazilian)')
 //   Portuguese (European)          // xl('Portuguese (European)')
 //   Russian                        // xl('Russian')
