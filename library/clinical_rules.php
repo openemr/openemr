@@ -627,9 +627,14 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='') {
   }
 
   foreach( $filter as $row ) {
+    // Row description
+    //   [0]=>special modes
     $temp_df = explode("::",$row['value']);
-    if ($temp_df[3] == "EXIST" || $temp_df[3] == "lt") {
-      if (exist_database_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[4], $intervalType, $intervalValue, $dateTarget, $temp_df[3])) {
+
+    if ($temp_df[0] == "CUSTOM") {
+      // Row description
+      //   [0]=>special modes(CUSTOM) [1]=>category [2]=>item [3]=>complete? [4]=>number of hits comparison [5]=>number of hits
+      if (exist_custom_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
         // Record the match
         $isMatch = true;
       }
@@ -638,17 +643,9 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='') {
        if ($row['required_flag']) return false;
       }
     }
-    else if ($temp_df[3] == "CUSTOM") {
-      if (exist_custom_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[4], $intervalType, $intervalValue, $dateTarget)) {
-        // Record the match
-        $isMatch = true;
-      }
-      else {
-       // If this is a required entry then return false
-       if ($row['required_flag']) return false;
-      }
-    }
-    else if ($temp_df[3] == "LIFESTYLE") {
+    else if ($temp_df[0] == "LIFESTYLE") {
+      // Row description
+      //   [0]=>special modes(LIFESTYLE) [1]=>column [2]=>status
       if (exist_lifestyle_item($patient_id, $temp_df[1], $temp_df[2], $dateTarget)) {
         // Record the match
         $isMatch = true;
@@ -659,7 +656,17 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='') {
       }  
     }
     else {
-
+      // Default mode
+      // Row description
+      //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
+      if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget)) {
+        // Record the match
+        $isMatch = true;
+      }
+      else {
+       // If this is a required entry then return false
+       if ($row['required_flag']) return false;
+      }
     }
   }
 
@@ -743,14 +750,15 @@ function lists_check($patient_id,$filter,$dateTarget) {
 //   $patient_id    - pid of selected patient.
 //   $table         - selected mysql table
 //   $column        - selected mysql column
-//   $data          - selected data in the mysql database
-//   $min_items     - mininum number of times the data element is recorded
+//   $data_comp       - data comparison (eq,ne,gt,ge,lt,le)
+//   $data            - selected data in the mysql database
+//   $num_items_comp  - number items comparison (eq,ne,gt,ge,lt,le)
+//   $num_items_thres - number of items threshold
 //   $intervalType  - type of interval (ie. year)
 //   $intervalValue - searched for within this many times of the interval type
 //   $dateTarget    - target date.
-//   $method        - method of database check (EXIST or lt)
 // Return: boolean if check passed, otherwise false
-function exist_database_item($patient_id,$table,$column,$data,$min_items,$intervalType='',$intervalValue='',$dateTarget='',$method='EXIST') {
+function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$num_items_comp,$num_items_thres,$intervalType='',$intervalValue='',$dateTarget='') {
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
@@ -761,6 +769,15 @@ function exist_database_item($patient_id,$table,$column,$data,$min_items,$interv
   // Get the interval sql query string
   $dateSql = sql_interval_string($table,$intervalType,$intervalValue,$dateTarget);
 
+  // If just checking for existence (ie. data is empty),
+  //   then simply set the comparison operator to ne.
+  if (empty($data)) {
+    $data_comp = "ne";
+  }
+
+  // get the appropriate sql comparison operator
+  $compSql = convertCompSql($data_comp);
+
   // check for items
   if (empty($column)) {
     // simple search for any table entries
@@ -768,63 +785,17 @@ function exist_database_item($patient_id,$table,$column,$data,$min_items,$interv
       "FROM `" . add_escape_custom($table)  . "` " .
       "WHERE `" . add_escape_custom($patient_id_label)  . "`=?", array($patient_id) );
   }
-  else if (empty($data)) {
-    // search for number of non blank items
+  else {
+    // search for number of specific items
     $sql = sqlStatement("SELECT `" . add_escape_custom($column) . "` " .
       "FROM `" . add_escape_custom($table)  . "` " .
-      "WHERE `" . add_escape_custom($column) ."`!='' " . 
-      "AND `" . add_escape_custom($patient_id_label)  . "`=?", array($patient_id) );
-  }
-  else {
-    if ($method == "EXIST") {
-      // search for number of specific items
-      $sql = sqlStatement("SELECT `" . add_escape_custom($column) . "` " .
-        "FROM `" . add_escape_custom($table)  . "` " .
-        "WHERE `" . add_escape_custom($column) ."`=? " .
-        "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
-        $dateSql, array($data,$patient_id) );
-    }
-    else if ($method == "lt") {
-      // search for number of specific items less than $data
-      $sql = sqlStatement("SELECT `" . add_escape_custom($column) . "` " .
-        "FROM `" . add_escape_custom($table)  . "` " .
-        "WHERE `" . add_escape_custom($column) ."`<? " .
-        "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
-        $dateSql, array($data,$patient_id) );
-    }
-    else if ($method == "le") {
-      // search for number of specific items less than or equal to $data
-      $sql = sqlStatement("SELECT `" . add_escape_custom($column) . "` " .
-        "FROM `" . add_escape_custom($table)  . "` " .
-        "WHERE `" . add_escape_custom($column) ."`<=? " .
-        "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
-        $dateSql, array($data,$patient_id) );
-    }
-    else if ($method == "gt") {
-      // search for number of specific items greater than $data
-      $sql = sqlStatement("SELECT `" . add_escape_custom($column) . "` " .
-        "FROM `" . add_escape_custom($table)  . "` " .
-        "WHERE `" . add_escape_custom($column) ."`>? " .
-        "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
-        $dateSql, array($data,$patient_id) );
-    }
-    else { //$method == "ge"
-      // search for number of specific items greater than or equal to $data
-      $sql = sqlStatement("SELECT `" . add_escape_custom($column) . "` " .
-        "FROM `" . add_escape_custom($table)  . "` " .
-        "WHERE `" . add_escape_custom($column) ."`>=? " .
-        "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
-        $dateSql, array($data,$patient_id) );
-    }
+      "WHERE `" . add_escape_custom($column) ."`" . $compSql . "? " .
+      "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
+      $dateSql, array($data,$patient_id) );
   }
 
-  // return whether the mininum number of items exist
-  if (sqlNumRows($sql) >= $min_items) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  // See if number of returned items passes the comparison
+  return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
 }
 
 // Function to check for existence of procedure(s) for a patient
@@ -892,13 +863,14 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
 //   $patient_id    - pid of selected patient.
 //   $category      - label in category column
 //   $item          - label in item column
-//   $complete       - label in complete column
-//   $min_items     - mininum number of times the data element is recorded
+//   $complete       - label in complete column (YES,NO, or blank)
+//   $num_items_comp  - number items comparison (eq,ne,gt,ge,lt,le)
+//   $num_items_thres - number of items threshold
 //   $intervalType  - type of interval (ie. year)
 //   $intervalValue - searched for within this many times of the interval type
 //   $dateTarget    - target date.
 // Return: boolean if check passed, otherwise false
-function exist_custom_item($patient_id,$category,$item,$complete,$min_items,$intervalType='',$intervalValue='',$dateTarget) {
+function exist_custom_item($patient_id,$category,$item,$complete,$num_items_comp,$num_items_thres,$intervalType='',$intervalValue='',$dateTarget) {
 
   // Set the table
   $table = 'rule_patient_data';
@@ -918,13 +890,8 @@ function exist_custom_item($patient_id,$category,$item,$complete,$min_items,$int
     "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
     $dateSql, array($category,$item,$complete,$patient_id) );
 
-  // return whether the mininum number of items exist
-  if (sqlNumRows($sql) >= $min_items) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  // See if number of returned items passes the comparison
+  return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
 }
 
 // Function to check for existance of data for a patient in lifestyle section

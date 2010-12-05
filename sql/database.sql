@@ -3618,7 +3618,7 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_tob_use_assess_cqm', 1, 1, 'filt_encounter_min', '', '2');
 
 -- NQF 0028b Tobacco Cessation Intervention
-INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_tob_cess_inter_cqm', 1, 1, 'filt_database', '', 'history_data::tobacco::current::LIFESTYLE::1');
+INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_tob_cess_inter_cqm', 1, 1, 'filt_database', '', 'LIFESTYLE::tobacco::current');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_tob_cess_inter_cqm', 1, 1, 'filt_age_min', 'year', '18');
 
 -- NQF 0421 Adult Weight Screening and Follow-Up
@@ -3664,7 +3664,7 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 -- no filters
 
 -- Tobacco Cessation Intervention
-INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_tob_cess_inter', 1, 1, 'filt_database', '', 'history_data::tobacco::current::LIFESTYLE::1');
+INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_tob_cess_inter', 1, 1, 'filt_database', '', 'LIFESTYLE::tobacco::current');
 
 -- Adult Weight Screening and Follow-Up
 -- no filters
@@ -3801,114 +3801,114 @@ CREATE TABLE `rule_target` (
 --
 
 -- NQF 0013 Hypertension: Blood Pressure Measurement
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_htn_bp_measure_cqm', 1, 1, 1, 'target_database', 'form_vitals::bps::::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_htn_bp_measure_cqm', 1, 1, 1, 'target_database', 'form_vitals::bpd::::EXIST::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_htn_bp_measure_cqm', 1, 1, 1, 'target_database', '::form_vitals::bps::::::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_htn_bp_measure_cqm', 1, 1, 1, 'target_database', '::form_vitals::bpd::::::ge::1', 0);
 
 -- NQF 0028a Tobacco Use Assessment
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_use_assess_cqm', 1, 1, 1, 'target_database', 'history_data::tobacco::::LIFESTYLE::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_use_assess_cqm', 1, 1, 1, 'target_database', 'LIFESTYLE::tobacco::', 0);
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_use_assess_cqm', 1, 1, 1, 'target_interval', 'year', 2);
 
 -- NQF 0028b Tobacco Cessation Intervention
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_cess_inter_cqm', 1, 1, 1, 'target_database', 'act_cat_inter::act_tobacco::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_cess_inter_cqm', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_inter::act_tobacco::YES::ge::1', 0);
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_cess_inter_cqm', 1, 1, 1, 'target_interval', 'year', 2);
 
 -- NQF 0421 Adult Weight Screening and Follow-Up
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_adult_wt_screen_fu_cqm', 1, 1, 1, 'target_database', 'form_vitals::weight::::EXIST::2', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_adult_wt_screen_fu_cqm', 1, 1, 1, 'target_database', '::form_vitals::weight::::::ge::2', 0);
 
 -- NQF 0024 Weight Assessment and Counseling for Children and Adolescents
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child_cqm', 1, 1, 1, 'target_database', 'form_vitals::weight::::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child_cqm', 2, 1, 1, 'target_database', 'act_cat_edu::act_wt::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child_cqm', 1, 1, 1, 'target_database', '::form_vitals::weight::::::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child_cqm', 2, 1, 1, 'target_database', 'CUSTOM::act_cat_edu::act_wt::YES::ge::1', 0);
 
 -- NQF 0041 Influenza Immunization for Patients >= 50 Years Old
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50_cqm', 1, 1, 1, 'target_interval', 'flu_season', 1);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50_cqm', 1, 1, 0, 'target_database', 'immunizations::immunization_id::30::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50_cqm', 1, 1, 0, 'target_database', 'immunizations::immunization_id::31::EXIST::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50_cqm', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::30::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50_cqm', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::31::ge::1', 0);
 
 -- NQF 0038 Childhood immunization Status
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_child_immun_stat_cqm', 1, 1, 1, 'target_database', 'immunizations::::::EXIST::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_child_immun_stat_cqm', 1, 1, 1, 'target_database', '::immunizations::::::::ge::1', 0);
 
 -- NQF 0043 Pneumonia Vaccination Status for Older Adults
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65_cqm', 1, 1, 0, 'target_database', 'immunizations::immunization_id::19::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65_cqm', 1, 1, 0, 'target_database', 'immunizations::immunization_id::20::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65_cqm', 1, 1, 0, 'target_database', 'immunizations::immunization_id::21::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65_cqm', 1, 1, 0, 'target_database', 'immunizations::immunization_id::22::EXIST::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65_cqm', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::19::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65_cqm', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::20::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65_cqm', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::21::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65_cqm', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::22::ge::1', 0);
 
 -- NQF 0055 Diabetes: Eye Exam
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_eye_cqm', 1, 1, 1, 'target_interval', 'year', 1);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_eye_cqm', 1, 1, 1, 'target_database', 'act_cat_exam::act_eye::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_eye_cqm', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_exam::act_eye::YES::ge::1', 0);
 
 -- NQF 0056 Diabetes: Foot Exam
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_foot_cqm', 1, 1, 1, 'target_interval', 'year', 1);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_foot_cqm', 1, 1, 1, 'target_database', 'act_cat_exam::act_foot::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_foot_cqm', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_exam::act_foot::YES::ge::1', 0);
 
 -- NQF 0061 Diabetes: Blood Pressure Management
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_bp_control_cqm', 1, 1, 1, 'target_database', 'form_vitals::bps::140::lt::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_bp_control_cqm', 1, 1, 1, 'target_database', 'form_vitals::bpd::90::lt::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_bp_control_cqm', 1, 1, 1, 'target_database', '::form_vitals::bps::lt::140::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_bp_control_cqm', 1, 1, 1, 'target_database', '::form_vitals::bpd::lt::90::ge::1', 0);
 
 --
 -- Standard clinical rule targets
 --
 
 -- Hypertension: Blood Pressure Measurement
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_htn_bp_measure', 1, 1, 1, 'target_database', 'form_vitals::bps::::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_htn_bp_measure', 1, 1, 1, 'target_database', 'form_vitals::bpd::::EXIST::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_htn_bp_measure', 1, 1, 1, 'target_database', '::form_vitals::bps::::::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_htn_bp_measure', 1, 1, 1, 'target_database', '::form_vitals::bpd::::::ge::1', 0);
 
 -- Tobacco Use Assessment
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_use_assess', 1, 1, 1, 'target_database', 'history_data::tobacco::::LIFESTYLE::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_use_assess', 1, 1, 1, 'target_database', 'LIFESTYLE::tobacco::', 0);
 
 -- Tobacco Cessation Intervention
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_cess_inter', 1, 1, 1, 'target_database', 'act_cat_inter::act_tobacco::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_tob_cess_inter', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_inter::act_tobacco::YES::ge::1', 0);
 
 -- Adult Weight Screening and Follow-Up
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_adult_wt_screen_fu', 1, 1, 1, 'target_database', 'form_vitals::weight::::EXIST::2', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_adult_wt_screen_fu', 1, 1, 1, 'target_database', '::form_vitals::weight::::::ge::2', 0);
 
 -- Weight Assessment and Counseling for Children and Adolescents
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 1, 1, 1, 'target_database', 'form_vitals::weight::::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 2, 1, 1, 'target_database', 'act_cat_edu::act_wt::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 1, 1, 1, 'target_database', '::form_vitals::weight::::::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 2, 1, 1, 'target_database', 'CUSTOM::act_cat_edu::act_wt::YES::ge::1', 0);
 
 -- Influenza Immunization for Patients >= 50 Years Old
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 1, 'target_interval', 'flu_season', 1);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', 'immunizations::immunization_id::30::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', 'immunizations::immunization_id::31::EXIST::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::30::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::31::ge::1', 0);
 
 -- Childhood immunization Status
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_child_immun_stat', 1, 1, 1, 'target_database', 'immunizations::::::EXIST::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_child_immun_stat', 1, 1, 1, 'target_database', '::immunizations::::::::ge::1', 0);
 
 -- Pneumonia Vaccination Status for Older Adults
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', 'immunizations::immunization_id::19::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', 'immunizations::immunization_id::20::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', 'immunizations::immunization_id::21::EXIST::1', 0);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', 'immunizations::immunization_id::22::EXIST::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::19::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::20::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::21::ge::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', '::immunizations::immunization_id::eq::22::ge::1', 0);
 
 -- Diabetes: Hemoglobin A1C
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_hemo_a1c', 1, 1, 1, 'target_interval', 'month', 3);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_hemo_a1c', 1, 1, 1, 'target_database', 'act_cat_measure::act_hemo_a1c::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_hemo_a1c', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_measure::act_hemo_a1c::YES::ge::1', 0);
 
 -- Diabetes: Urine Microalbumin
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_urine_alb', 1, 1, 1, 'target_interval', 'year', 1);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_urine_alb', 1, 1, 1, 'target_database', 'act_cat_measure::act_urine_alb::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_urine_alb', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_measure::act_urine_alb::YES::ge::1', 0);
 
 -- Diabetes: Eye Exam
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_eye', 1, 1, 1, 'target_interval', 'year', 1);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_eye', 1, 1, 1, 'target_database', 'act_cat_exam::act_eye::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_eye', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_exam::act_eye::YES::ge::1', 0);
 
 -- Diabetes: Foot Exam
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_foot', 1, 1, 1, 'target_interval', 'year', 1);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_foot', 1, 1, 1, 'target_database', 'act_cat_exam::act_foot::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_dm_foot', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_exam::act_foot::YES::ge::1', 0);
 
 -- Cancer Screening: Mammogram
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_mammo', 1, 1, 1, 'target_interval', 'year', 1);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_mammo', 1, 1, 1, 'target_database', 'act_cat_measure::act_mammo::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_mammo', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_measure::act_mammo::YES::ge::1', 0);
 
 -- Cancer Screening: Pap Smear
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_pap', 1, 1, 1, 'target_interval', 'year', 1);
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_pap', 1, 1, 1, 'target_database', 'act_cat_exam::act_pap::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_pap', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_exam::act_pap::YES::ge::1', 0);
 
 -- Cancer Screening: Colon Cancer Screening
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_colon', 1, 1, 1, 'target_database', 'act_cat_assess::act_colon_cancer_screen::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_colon', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_assess::act_colon_cancer_screen::YES::ge::1', 0);
 
 -- Cancer Screening: Prostate Cancer Screening
-INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_prostate', 1, 1, 1, 'target_database', 'act_cat_assess::act_prostate_cancer_screen::YES::CUSTOM::1', 0);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_prostate', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_assess::act_prostate_cancer_screen::YES::ge::1', 0);
 
 --
 -- Rules to specifically demonstrate passing of NIST criteria
@@ -4244,4 +4244,7 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_reminder_inactive_opt' ,'auto', 'Automatic', 10, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_reminder_inactive_opt' ,'due_status_update', 'Due Status Update', 20, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_reminder_inactive_opt' ,'manual', 'Manual', 20, 0);
+
+-- TEMPORARY REFERENCE
+-- [0]=>special modes(CUSTOM) [1]=>category [2]=>item [3]=>complete? [4]=>number of hits comparison [5]=>number of hits
 
