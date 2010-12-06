@@ -934,3 +934,34 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 ALTER TABLE lists ADD reaction varchar(255) NOT NULL DEFAULT '';
 #EndIf
 
+#IfNotRow2D list_options list_id lists option_id race
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'race','Race', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('race', 'amer_ind_or_alaska_native', 'American Indian or Alaska Native', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('race', 'Asian', 'Asian',20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('race', 'black_or_afri_amer', 'Black or African American',30,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('race', 'native_hawai_or_pac_island', 'Native Hawaiian or Other Pacific Islander',40,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('race', 'white', 'White',50,0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id ethnicity
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'ethnicity','Ethnicity', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethnicity', 'hisp_or_latin', 'Hispanic or Latino', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethnicity', 'not_hisp_or_latin', 'Not Hispanic or Latino', 10, 0);
+#EndIf
+
+#IfMissingColumn patient_data race
+ALTER TABLE `patient_data` ADD `race` varchar(255) NOT NULL default '';
+#EndIf
+
+#IfMissingColumn patient_data ethnicity
+ALTER TABLE `patient_data` ADD `ethnicity` varchar(255) NOT NULL default '';
+#EndIf
+
+#IfNotRow2D layout_options field_id race form_id DEM
+INSERT INTO `layout_options` VALUES ('DEM', 'race', '5Stats', 'Race', 3, 33, 1, 0, 0, 'race', 1, 1, '', '', 'Race');
+#EndIf
+
+UPDATE layout_options SET data_type=33,list_id='ethnicity',field_id='ethnicity',title='Ethnicity',description='Ethnicity' WHERE form_id = 'DEM' AND field_id = 'ethnoracial';
+UPDATE layout_options SET seq=4 WHERE form_id = 'DEM' and field_id='financial_review';
+
+UPDATE patient_data SET ethnicity= case WHEN ethnoracial IN ('Hispanic','othr_us','othr_non_us') THEN ethnoracial ELSE '' END, race = case WHEN ethnoracial NOT IN ('Hispanic','othr_us','othr_non_us') THEN ethnoracial ELSE '' END;

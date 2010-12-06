@@ -51,6 +51,7 @@ $datatypes = array(
   "28" => xl("Lifestyle status"), // add for smoking status task
   "31" => xl("Static Text"),
   "32" => xl("Smoking Status"),
+  "33" => xl("Race and Ethnicity"),
 );
 
 function nextGroupOrder($order) {
@@ -417,7 +418,7 @@ function writeFieldLine($linedata) {
     if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 21 ||
       $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
       $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
-      $linedata['data_type'] == 27)
+      $linedata['data_type'] == 27 || $linedata['data_type'] == 33)
     {
       echo "<input type='text' name='fld[$fld_line_no][list_id]' value='" .
         htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".
