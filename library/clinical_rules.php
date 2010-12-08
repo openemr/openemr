@@ -78,7 +78,7 @@ function clinical_summary_widget($patient_id,$dateTarget='') {
 //  (can also test on one patient or patients of one provider)
 // Parameters:
 //   $provider   - id of a selected provider. If blank, then will test entire clinic.
-//   $type       - rule filter (active_alert,passive_alert,cqm,patient_reminder). If blank then will test all rules.
+//   $type       - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder). If blank then will test all rules.
 //   $dateTarget - target date. If blank then will test with current date as target.
 //   $mode       - choose either 'report' or 'reminders' (required)
 //   $patient_id - pid of patient. If blank then will check all patients.
@@ -488,9 +488,9 @@ function test_targets($patient_id,$rule,$group_id='',$dateTarget) {
 
 // Function to return active rules
 // Parameters:
-//   $type       - rule filter (active_alert,passive_alert,cqm,patient_reminder)
+//   $type       - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder)
 //   $patient_id - pid of selected patient. (if custom rule does not exist then
-//                 will use the default rule.
+//                 will use the default rule)
 // Return: array containing rules
 function resolve_rules_sql($type='',$patient_id='0') {
 
@@ -510,7 +510,13 @@ function resolve_rules_sql($type='',$patient_id='0') {
 
     // Decide if use default vs custom rule (preference given to custom rule)
     if (!empty($customRule)) {
-      $goRule = $customRule;
+      if ($type == "cqm" || $type == "amc" ) {
+        // For CQM and AMC, do not use custom rules (these are to create standard clinic wide reports)
+        $goRule = $rule;
+      }
+      else {
+        $goRule = $customRule;
+      }
     }
     else {
       $goRule = $rule;

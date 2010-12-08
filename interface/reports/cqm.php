@@ -122,7 +122,9 @@ $provider  = trim($_POST['form_provider']);
                                  <select name='form_rule_filter'>
                                  <option value=''>-- <?php echo htmlspecialchars( xl('Show All'), ENT_NOQUOTES); ?> --</option>
                                  <option value='cqm' <?php if ($rule_filter == "cqm") echo "selected"; ?>>
-                                 <?php echo htmlspecialchars( xl('Official CQM Rules'), ENT_NOQUOTES); ?></option>
+                                 <?php echo htmlspecialchars( xl('Official Clinical Quality Measures (CQM) Rules'), ENT_NOQUOTES); ?></option>
+                                 <option value='amc' <?php if ($rule_filter == "amc") echo "selected"; ?>>
+                                 <?php echo htmlspecialchars( xl('Official Automated Measure Calculation Rules'), ENT_NOQUOTES); ?></option>
                                  <option value='passive_alert' <?php if ($rule_filter == "passive_alert") echo "selected"; ?>>
                                  <?php echo htmlspecialchars( xl('Passive Alert Rules'), ENT_NOQUOTES); ?></option>
                                  <option value='active_alert' <?php if ($rule_filter == "active_alert") echo "selected"; ?>>

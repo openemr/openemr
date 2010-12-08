@@ -3502,48 +3502,54 @@ CREATE TABLE `clinical_rules` (
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
   `pid` bigint(20) NOT NULL DEFAULT '0' COMMENT '0 is default for all patients, while > 0 is id from patient_data table',
   `active` tinyint(1) NOT NULL default 1,
-  `active_alert_flag` tinyint(1) NOT NULL default 0,
-  `passive_alert_flag` tinyint(1) NOT NULL default 0,
-  `cqm_flag` tinyint(1) NOT NULL default 0,
-  `cqm_code` varchar(10) NOT NULL default '',
-  `patient_reminder_flag` tinyint(1) NOT NULL default 0,
+  `active_alert_flag` tinyint(1) NOT NULL default 0 COMMENT 'Active Alert Widget Module flag - note not yet utilized',
+  `passive_alert_flag` tinyint(1) NOT NULL default 0 COMMENT 'Passive Alert Widget Module flag',
+  `cqm_flag` tinyint(1) NOT NULL default 0 COMMENT 'Clinical Quality Measure flag (unable to customize per patient)',
+  `cqm_code` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure identifier',
+  `amc_flag` tinyint(1) NOT NULL default 0 COMMENT 'Automated Measure Calculation flag (unable to customize per patient)',
+  `amc_code` varchar(10) NOT NULL default '' COMMENT 'Automated Measure Calculation indentifier (MU rule)',
+  `patient_reminder_flag` tinyint(1) NOT NULL default 0 COMMENT 'Clinical Reminder Module flag',
   PRIMARY KEY  (`id`,`pid`)
 ) ENGINE=MyISAM ;
 
 --
--- CQM rules first
+-- Automated Measure Calculation (AMC) rules
 --
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_htn_bp_measure_cqm', 0, 1, 0, 0, 1, '0013', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_tob_use_assess_cqm', 0, 1, 0, 0, 1, '0028a', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_tob_cess_inter_cqm', 0, 1, 0, 0, 1, '0028b', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_adult_wt_screen_fu_cqm', 0, 1, 0, 0, 1, '0421', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_wt_assess_couns_child_cqm', 0, 1, 0, 0, 1, '0024', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_influenza_ge_50_cqm', 0, 1, 0, 0, 1, '0041', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_child_immun_stat_cqm', 0, 1, 0, 0, 1, '0038', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_pneumovacc_ge_65_cqm', 0, 1, 0, 0, 1, '0043', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_dm_eye_cqm', 0, 1, 0, 0, 1, '0055', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_dm_foot_cqm', 0, 1, 0, 0, 1, '0056', 0);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_dm_bp_control_cqm', 0, 1, 0, 0, 1, '0061', 0);
+
+--
+-- Clinical Quality Measure (CMQ) rules
+--
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_htn_bp_measure_cqm', 0, 1, 0, 0, 1, '0013', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_use_assess_cqm', 0, 1, 0, 0, 1, '0028a', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_cess_inter_cqm', 0, 1, 0, 0, 1, '0028b', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_adult_wt_screen_fu_cqm', 0, 1, 0, 0, 1, '0421', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_wt_assess_couns_child_cqm', 0, 1, 0, 0, 1, '0024', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_influenza_ge_50_cqm', 0, 1, 0, 0, 1, '0041', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_child_immun_stat_cqm', 0, 1, 0, 0, 1, '0038', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_pneumovacc_ge_65_cqm', 0, 1, 0, 0, 1, '0043', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_eye_cqm', 0, 1, 0, 0, 1, '0055', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_foot_cqm', 0, 1, 0, 0, 1, '0056', 0, 0, 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_bp_control_cqm', 0, 1, 0, 0, 1, '0061', 0, 0, 0);
 
 --
 -- Standard clinical rules
 --
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_htn_bp_measure', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_tob_use_assess', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_tob_cess_inter', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_adult_wt_screen_fu', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_wt_assess_couns_child', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_influenza_ge_50', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_child_immun_stat', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_pneumovacc_ge_65', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_dm_hemo_a1c', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_dm_urine_alb', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_dm_eye', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_dm_foot', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_cs_mammo', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_cs_pap', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_cs_colon', 0, 1, 0, 1, 0, '', 1);
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `patient_reminder_flag` ) VALUES ('rule_cs_prostate', 0, 1, 0, 1, 0, '', 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_htn_bp_measure', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_use_assess', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_cess_inter', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_adult_wt_screen_fu', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_wt_assess_couns_child', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_influenza_ge_50', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_child_immun_stat', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_pneumovacc_ge_65', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_hemo_a1c', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_urine_alb', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_eye', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_foot', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_cs_mammo', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_cs_pap', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_cs_colon', 0, 1, 0, 1, 0, '', 0, 0, 1);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_cs_prostate', 0, 1, 0, 1, 0, '', 0, 0, 1);
 
 --
 -- Rules to specifically demonstrate passing of NIST criteria
@@ -3604,8 +3610,13 @@ CREATE TABLE `rule_filter` (
   KEY  (`id`)
 ) ENGINE=MyISAM ;
 
+
 --
--- CQM rule filters first
+-- Automated Measure Calculation (AMC) rule filters
+--
+
+--
+-- Clinical Quality Measure (CQM) rule filters
 --
 
 -- NQF 0013 Hypertension: Blood Pressure Measurement
@@ -3720,7 +3731,7 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_cs_prostate', 1, 1, 'filt_sex', '', 'Male');
 
 --
--- Rules to specifically demonstrate passing of NIST criteria
+-- Rule filters to specifically demonstrate passing of NIST criteria
 --
 
 -- Coumadin Management - INR Monitoring
@@ -3728,7 +3739,7 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_inr_monitor', 1, 0, 'filt_lists', 'medication', 'warfarin');
 
 --
--- For appointment reminder
+-- Rule Filters for appointment reminder
 --
 -- no filter
 
@@ -3808,7 +3819,11 @@ CREATE TABLE `rule_target` (
 ) ENGINE=MyISAM ;
 
 --
--- CQM rule targets first
+-- Automated Measure Calculation (AMC) rule targets
+--
+
+--
+-- Clinical Quality Measure (CQM) rule targets
 --
 
 -- NQF 0013 Hypertension: Blood Pressure Measurement
@@ -3922,7 +3937,7 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_cs_prostate', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_assess::act_prostate_cancer_screen::YES::ge::1', 0);
 
 --
--- Rules to specifically demonstrate passing of NIST criteria
+-- Rule targets to specifically demonstrate passing of NIST criteria
 --
 
 -- Coumadin Management - INR Monitoring
@@ -3930,7 +3945,7 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_inr_monitor', 1, 1, 1, 'target_proc', 'INR::::::::ge::1', 0);
 
 --
--- For appointment reminder
+-- Rule targets for appointment reminder
 --
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_appt_reminder', 1, 1, 1, 'target_appt', '', 0);
 
@@ -3979,7 +3994,11 @@ CREATE TABLE `rule_action` (
 ) ENGINE=MyISAM ;
 
 --
--- CQM rule targets first
+-- Automated Measure Calculation (AMC) rule target actions
+--
+
+--
+-- Clinical Quality Measures (CQM) rule targets actions
 --
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_wt_assess_couns_child_cqm', 1, 'act_cat_measure', 'act_wt');
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_wt_assess_couns_child_cqm', 2, 'act_cat_edu', 'act_wt');
@@ -4210,7 +4229,7 @@ INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES 
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_inr_monitor', 'patient_reminder_pre', 'week', '2');
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_inr_monitor', 'patient_reminder_post', 'month', '1');
 
--- Appointment Rrminder
+-- Appointment Reminder
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_appt_remind', 'patient_reminder_pre', 'hour', '72');
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_appt_remind', 'patient_reminder_post', 'SKIP', '0');
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_appt_remind', 'patient_reminder_current', 'SKIP', '0');
