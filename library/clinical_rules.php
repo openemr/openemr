@@ -488,14 +488,23 @@ function test_targets($patient_id,$rule,$group_id='',$dateTarget) {
 
 // Function to return active rules
 // Parameters:
-//   $type       - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder)
-//   $patient_id - pid of selected patient. (if custom rule does not exist then
-//                 will use the default rule)
+//   $type             - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder)
+//   $patient_id       - pid of selected patient. (if custom rule does not exist then
+//                        will use the default rule)
+//   $configurableOnly - true if only want the configurable (per patient) rules 
+//                       (ie. ignore cqm and amc rules)
 // Return: array containing rules
-function resolve_rules_sql($type='',$patient_id='0') {
+function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
 
-  // Collect all default rules into an array
-  $sql = sqlStatement("SELECT * FROM `clinical_rules` WHERE `pid`=0 ORDER BY `id`");
+  if ($configurableOnly) {
+    // Collect all default, configurable (per patient) rules into an array
+    //   (ie. ignore the cqm and amc rules)
+    $sql = sqlStatement("SELECT * FROM `clinical_rules` WHERE `pid`=0 AND `cqm_flag` !=1 AND `amc_flag` !=1 ORDER BY `id`");
+  }
+  else {
+    // Collect all default rules into an array
+    $sql = sqlStatement("SELECT * FROM `clinical_rules` WHERE `pid`=0 ORDER BY `id`");
+  }
   $returnArray= array();
   for($iter=0; $row=sqlFetchArray($sql); $iter++) {
     array_push($returnArray,$row);
@@ -524,13 +533,17 @@ function resolve_rules_sql($type='',$patient_id='0') {
 
     // Use the chosen rule if set
     if (!empty($type)) {
-      if ($goRule['active'] == 1 && $goRule["${type}_flag"] == 1) {
+      if ($goRule["${type}_flag"] == 1) {
         // active, so use the rule
         array_push($newReturnArray,$goRule);
       }
     }
     else {
-      if ($goRule['active'] == 1) {
+      if ($goRule['active_alert'] == 1 ||
+          $goRule['passive_alert'] == 1 ||
+          $goRule['cqm'] == 1 ||
+          $goRule['amc'] == 1 ||
+          $goRule['patient_reminder'] == 1) {
         // active, so use the rule
         array_push($newReturnArray,$goRule);
       }
