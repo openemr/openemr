@@ -630,7 +630,7 @@ class Claim {
   }
 
   function facilityPOS() {
-    return x12clean(trim($this->facility['pos_code']));
+    return sprintf('%02d', trim($this->facility['pos_code']));
   }
 
   function clearingHouseName() {
