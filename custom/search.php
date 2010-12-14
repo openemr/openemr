@@ -14,11 +14,10 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
 
-include_once("../interface/globals.php");
-require_once("../library/sql.inc");
-
+require_once("../interface/globals.php");
+require_once("$srcdir/sql.inc");
 ?>
-
+<html>
 <head>
   <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">
@@ -29,7 +28,7 @@ require_once("../library/sql.inc");
   background: #94D6E7;
  }
 </style>
-  <script language="javascript">
+<script language="javascript">
 	function doSelectorButton() {
 		var selector = document.getElementById('selectorButton');
 		var value;
@@ -54,6 +53,7 @@ require_once("../library/sql.inc");
 		// buildup fieldstring
 		var checkBoxes = document.getElementsByName( "searchFields" );
 		var fieldString = '';
+    var ssc = document.forms[0].search_service_code.value;
 		for (i = 0; i < checkBoxes.length; i++) {
 			if ( checkBoxes[i].checked ) {
 				if ( fieldString != '' ) {
@@ -62,19 +62,21 @@ require_once("../library/sql.inc");
 				fieldString += checkBoxes[i].value;
 			}
 		}
-	    if ( opener != null ) {
-			if ( fieldString == '' || fieldString == undefined ) {
+		if ( opener != null ) {
+			if (fieldString == undefined || (fieldString == '' && ssc.length == '')) {
 				alert("<?php echo htmlspecialchars( xl('You must select some fields to continue.'), ENT_QUOTES); ?>");
 				return false;
 			}
-			opener.processFilter( fieldString );
-        }
+			opener.processFilter(fieldString, ssc);
+		}
 	}
 
-  </script>
+</script>
 </head>
 
 <body>
+<form>
+
 	<table>
 	  <tr>
 		<td>
@@ -91,40 +93,55 @@ require_once("../library/sql.inc");
 
 	<?php
     function echoFilterItem($iter, $fieldId, $fieldTitle) {
-			if ( $iter == 0 || ($iter % 3 == 0) ) {
+			if ($iter % 3 == 0) {
 				if ( $iter > 0 ) {
-					echo "</tr>";
+					echo "</tr>\n";
 				}
-				echo "<tr>";
+				echo "<tr>\n";
 			}
 			echo "<td>";
 			echo "<input type='checkbox' value='".htmlspecialchars( ${fieldId}, ENT_QUOTES)."' name='searchFields'/> <b>".htmlspecialchars( $fieldTitle, ENT_NOQUOTES)."</b>";
-			echo "</td>";
+			echo "</td>\n";
     }
 
 		$layoutCols = sqlStatement( "SELECT field_id, title, description, group_name "
       . "FROM layout_options "
       . "WHERE form_id='DEM' "
-      . "AND group_name not like ('%Employer%' ) AND uor !=0 "
+      . "AND group_name not like ('%Employer%' ) AND uor != 0 "
       . "ORDER BY group_name,seq"
 		);
 
 		echo "<table>";
 
 		for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
-		    $label = $row['title'] ? $row['title'] : $row['description'];
-		    if ( !$label ) {
-		        $label = $row['field_id'];
-		    }
-            echoFilterItem(
-                $iter,
-                $row['field_id'],
-                xl_layout_label($label)
-            );
+			$label = $row['title'] ? $row['title'] : $row['description'];
+			if ( !$label ) {
+				$label = $row['field_id'];
+			}
+			echoFilterItem(
+				$iter,
+				$row['field_id'],
+				xl_layout_label($label)
+			);
 		}
-    echoFilterItem($iter, 'pid', xl('Internal Identifier (pid)'));
+    echoFilterItem($iter++, 'pid', xl('Internal Identifier (pid)'));
+
+		// Finish the row gracefully.
+		while ($iter++ % 3) echo "<td>&nbsp;</td>\n";
+		echo "</tr>\n";
+
+		// Write a final line to solicit an optional service code.
+		echo "<tr>\n";
+		echo "<td colspan='3'>";
+		echo "<input type='text' value='' name='search_service_code' size='8' /> " .
+			"<b>" . xl('Service Code') . "</b> (" .
+			htmlspecialchars(xl('if entered, select only those who have had this service')) . ")";
+		echo "</td>\n";
+		echo "</tr>\n";
 
 		echo "</table>";
 	?>
 
+</form>
 </body>
+</html>
