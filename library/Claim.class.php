@@ -406,10 +406,13 @@ class Claim {
       else
         $deductible = $ptresp - $coinsurance;
 
+      $deductible  = sprintf('%.2f', $deductible);
+      $coinsurance = sprintf('%.2f', $coinsurance);
+
       if ($date && $deductible != 0)
-        $aadj[] = array($date, 'PR', '1', sprintf('%.2f', $deductible));
+        $aadj[] = array($date, 'PR', '1', $deductible);
       if ($date && $coinsurance != 0)
-        $aadj[] = array($date, 'PR', '2', sprintf('%.2f', $coinsurance));
+        $aadj[] = array($date, 'PR', '2', $coinsurance);
 
     } // end if
 
