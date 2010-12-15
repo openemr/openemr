@@ -211,6 +211,15 @@ function exportEncounter($pid, $encounter, $date) {
     foreach ($relcodes as $codestring) {
       if ($codestring === '') continue;
       list($codetype, $code) = explode(':', $codestring);
+      if ($codetype == 'REF') {
+        // This is the expected case; a direct IPPF code is obsolete.
+        $rrow = sqlQuery("SELECT related_code FROM codes WHERE " .
+          "code_type = '16' AND code = '$code' AND active = 1 " .
+          "ORDER BY id LIMIT 1");
+        if (!empty($rrow['related_code'])) {
+          list($codetype, $code) = explode(':', $rrow['related_code']);
+        }
+      }
       if ($codetype !== 'IPPF') continue;
       OpenTag('IMS_eMRUpload_Service');
       Add('IppfServiceProductId', $code);
@@ -522,13 +531,20 @@ if (!empty($form_submit)) {
     AddIfPresent('UserText19', $row['usertext19']);
     AddIfPresent('UserText20', $row['usertext20']);
 
-    // Dump all visits for this patient at this facility.
+    // Dump the visits for this patient.
     $query = "SELECT " .
       "encounter, date " .
       "FROM form_encounter WHERE " .
       // "pid = '$last_pid' AND facility_id = '$last_facility' " .
-      "pid = '$last_pid' " .
-      "ORDER BY encounter";
+      "pid = '$last_pid' ";
+    if (true) {
+      // The new logic here is to restrict to the given date range.
+      // Set the above to false if all visits are wanted.
+      $query .= "AND " .
+      sprintf("date >= '%04u-%02u-01 00:00:00' AND ", $beg_year, $beg_month) .
+      sprintf("date < '%04u-%02u-01 00:00:00' ", $end_year, $end_month);
+    }
+    $query .= "ORDER BY encounter";
 
     // Add('Debug', $query); // debugging
 
