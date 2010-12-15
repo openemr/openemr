@@ -119,9 +119,9 @@ $sqllimit = $MAXSHOW;
 $given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
 $orderby = "lname ASC, fname ASC";
 
-$search_service_code = strip_escape_custom(trim($_POST['search_service_code']));
+$search_service_code = trim($_POST['search_service_code']);
 echo "<input type='hidden' name='search_service_code' value='" .
-  htmlentities($search_service_code) . "' />\n";
+  htmlspecialchars($search_service_code, ENT_QUOTES) . "' />\n";
 
 if ($popup) {
   echo "<input type='hidden' name='popup' value='1' />\n";
@@ -140,7 +140,7 @@ if ($popup) {
       $value = trim($_REQUEST[$field_id]);
       if ($field_id == 'pid') {
         $where .= " AND $field_id = ?";
-	array_push($sqlBindArray,$value);
+        array_push($sqlBindArray,$value);
       }
       else if ($field_id == 'pubpid') {
         $where .= " AND $field_id LIKE ?";
@@ -148,7 +148,7 @@ if ($popup) {
       }
       else {
         $where .= " AND $field_id LIKE ?";
-	array_push($sqlBindArray,$value."%");
+        array_push($sqlBindArray,$value."%");
       }
       echo "<input type='hidden' name='" . htmlspecialchars( $field_id, ENT_QUOTES) .
         "' value='" . htmlspecialchars( $value, ENT_QUOTES) . "' />\n";
@@ -158,13 +158,16 @@ if ($popup) {
   // If a non-empty service code was given, then restrict to patients who
   // have been provided that service.  Since the code is used in a LIKE
   // clause, % and _ wildcards are supported.
-  if ($search_service_code) $where .=
-    " AND ( SELECT COUNT(*) FROM billing AS b WHERE " .
-    "b.pid = patient_data.pid AND " .
-    "b.activity = 1 AND " .
-    "b.code_type != 'COPAY' AND " .
-    "b.code LIKE '" . add_escape_custom($search_service_code) . "' " .
-    ") > 0";
+  if ($search_service_code) {
+    $where .=
+      " AND ( SELECT COUNT(*) FROM billing AS b WHERE " .
+      "b.pid = patient_data.pid AND " .
+      "b.activity = 1 AND " .
+      "b.code_type != 'COPAY' AND " .
+      "b.code LIKE ? " .
+      ") > 0";
+    array_push($sqlBindArray, $search_service_code);
+  }
 
   $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY $orderby LIMIT $fstart, $sqllimit";

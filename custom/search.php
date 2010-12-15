@@ -80,7 +80,7 @@ require_once("$srcdir/sql.inc");
 	<table>
 	  <tr>
 		<td>
-		  <b><?php xl('Select Fields', 'e'); ?>:</b>
+		  <b><?php htmlspecialchars(xl('Select Fields', 'e')); ?>:</b>
 		</td>
 	    <td>
 		<input type="button" value="<?php echo htmlspecialchars( xl('Submit'), ENT_QUOTES); ?>" id="submit" onclick="javascript:doSubmit();"></input>
@@ -134,7 +134,7 @@ require_once("$srcdir/sql.inc");
 		echo "<tr>\n";
 		echo "<td colspan='3'>";
 		echo "<input type='text' value='' name='search_service_code' size='8' /> " .
-			"<b>" . xl('Service Code') . "</b> (" .
+			"<b>" . htmlspecialchars(xl('Service Code')) . "</b> (" .
 			htmlspecialchars(xl('if entered, select only those who have had this service')) . ")";
 		echo "</td>\n";
 		echo "</tr>\n";
