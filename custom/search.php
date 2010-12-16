@@ -80,7 +80,7 @@ require_once("$srcdir/sql.inc");
 	<table>
 	  <tr>
 		<td>
-		  <b><?php htmlspecialchars(xl('Select Fields', 'e')); ?>:</b>
+		  <b><?php echo htmlspecialchars(xl('Select Fields')); ?>:</b>
 		</td>
 	    <td>
 		<input type="button" value="<?php echo htmlspecialchars( xl('Submit'), ENT_QUOTES); ?>" id="submit" onclick="javascript:doSubmit();"></input>
