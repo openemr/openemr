@@ -209,7 +209,8 @@ if ($_POST['form_save']) {
   if ($info_msg) echo " alert('$info_msg');\n";
   echo " window.close();\n";
   echo " if ( opener ) { opener.location.reload(); } else { parent.location.reload(); } \n";
-  echo " if (parent.refreshIssue) parent.refreshIssue($issue,'$tmp_title'); if ( parent.$ ) parent.$.fn.fancybox.close();\n";
+  echo " if (parent.refreshIssue) parent.refreshIssue($issue,'$tmp_title');\n";
+  echo " if (parent.$) parent.$.fancybox.close();\n";
   echo "</script></body></html>\n";
   exit();
 }
@@ -374,7 +375,7 @@ div.section {
  }
 
  function closeme() {
-    if ( parent.$ ) parent.$.fn.fancybox.close();
+    if (parent.$) parent.$.fancybox.close();
     window.close();
  }
 

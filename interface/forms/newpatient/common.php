@@ -34,6 +34,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   "pid = $pid AND enddate IS NULL " .
   "ORDER BY type, begdate");
 ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
 <?php html_header_show();?>
@@ -41,11 +42,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.4.3.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.pack.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
@@ -97,8 +97,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  }
 
 $(document).ready(function(){
-    // fancy box
-    enable_modals();
+  enable_big_modals();
 });
 
 </script>
@@ -297,7 +296,8 @@ if ($fres) {
    <?php xl('Issues (Injuries/Medical/Allergy)','e'); ?>
     </div>
     <div style='float:left;margin-left:8px;margin-top:-3px'>
-      <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"><span><?php xl('Add','e'); ?></span></a>
+      <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
+       onclick="top.restoreSession()"><span><?php echo htmlspecialchars(xl('Add')); ?></span></a>
     </div>
   </td>
  </tr>
