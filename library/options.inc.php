@@ -21,8 +21,9 @@
 // C = Capitalize first letter of each word (text fields)
 // D = Check for duplicates in New Patient form
 // H = Read-only field copied from static history
+// L = Lab Order ("ord_lab") types only (address book)
 // N = Show in New Patient form
-// O = Procedure Order ("pro_*") types only (address book)
+// O = Procedure Order ("ord_*") types only (address book)
 // U = Capitalize all letters (text fields)
 // V = Vendor types only (address book)
 // R = Distributor types only (address book)
@@ -254,6 +255,9 @@ function generate_form_field($frow, $currvalue) {
   // Address book, preferring organization name if it exists and is not in
   // parentheses, and excluding local users who are not providers.
   // Supports "referred to" practitioners and facilities.
+  // Alternatively the letter L in edit_options means that abook_type
+  // must be "ord_lab", indicating types used with the procedure
+  // lab ordering system.
   // Alternatively the letter O in edit_options means that abook_type
   // must begin with "ord_", indicating types used with the procedure
   // ordering system.
@@ -262,7 +266,9 @@ function generate_form_field($frow, $currvalue) {
   // Alternatively the letter R in edit_options means that abook_type
   // must be "dist", indicating the Distributor type.
   else if ($data_type == 14) {
-    if (strpos($frow['edit_options'], 'O') !== FALSE)
+    if (strpos($frow['edit_options'], 'L') !== FALSE)
+      $tmp = "abook_type = 'ord_lab'";
+    else if (strpos($frow['edit_options'], 'O') !== FALSE)
       $tmp = "abook_type LIKE 'ord\\_%'";
     else if (strpos($frow['edit_options'], 'V') !== FALSE)
       $tmp = "abook_type LIKE 'vendor%'";

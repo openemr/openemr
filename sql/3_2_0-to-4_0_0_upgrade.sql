@@ -965,3 +965,12 @@ UPDATE layout_options SET data_type=33,list_id='ethnicity',field_id='ethnicity',
 UPDATE layout_options SET seq=4 WHERE form_id = 'DEM' and field_id='financial_review';
 
 UPDATE patient_data SET ethnicity= case WHEN ethnoracial IN ('Hispanic','othr_us','othr_non_us') THEN ethnoracial ELSE '' END, race = case WHEN ethnoracial NOT IN ('Hispanic','othr_us','othr_non_us') THEN ethnoracial ELSE '' END;
+
+UPDATE list_options SET option_value = 3 WHERE list_id = 'abook_type' AND option_value = 0 AND option_id = 'ord_img';
+UPDATE list_options SET option_value = 3 WHERE list_id = 'abook_type' AND option_value = 0 AND option_id = 'ord_imm';
+UPDATE list_options SET option_value = 3 WHERE list_id = 'abook_type' AND option_value = 0 AND option_id = 'ord_lab';
+UPDATE list_options SET option_value = 2 WHERE list_id = 'abook_type' AND option_value = 0 AND option_id = 'spe';
+UPDATE list_options SET option_value = 3 WHERE list_id = 'abook_type' AND option_value = 0 AND option_id = 'vendor';
+UPDATE list_options SET option_value = 3 WHERE list_id = 'abook_type' AND option_value = 0 AND option_id = 'dist';
+UPDATE list_options SET option_value = 1 WHERE list_id = 'abook_type' AND option_value = 0 AND option_id = 'oth';
+

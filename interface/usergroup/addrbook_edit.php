@@ -11,7 +11,11 @@
  require_once("$srcdir/options.inc.php");
  require_once("$srcdir/formdata.inc.php");
 
+ // Collect user id if editing entry
  $userid = $_REQUEST['userid'];
+ 
+ // Collect type if creating a new entry
+ $type = $_REQUEST['type'];
 
  $info_msg = "";
 
@@ -45,6 +49,7 @@
 <head>
 <title><?php echo $userid ? xl('Edit') : xl('Add New') ?> <?php xl('Person','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
 <style>
 td { font-size:10pt; }
@@ -71,6 +76,31 @@ td { font-size:10pt; }
 </style>
 
 <script language="JavaScript">
+
+ var type_options_js = Array();
+ <?php
+  // Collect the type options. Possible values are:
+  // 1 = Unassigned (default to patient centric)
+  // 2 = Person Centric
+  // 3 = Company Centric (Basically, do not show the Name fields)
+  $sql = sqlStatement("SELECT option_id, option_value FROM list_options WHERE " .
+   "list_id = 'abook_type'");
+  while ($row_query = sqlFetchArray($sql)) {
+   echo "type_options_js"."['" . htmlspecialchars($row_query['option_id'],ENT_QUOTES) . "']=" . htmlspecialchars($row_query['option_value'],ENT_QUOTES) . ";\n";
+  }
+ ?>
+
+ // Process to customize the form by type
+ function typeSelect(a) {
+  if (type_options_js[a] == 3) {
+   // Company centric, so hide the Name entries
+   document.getElementById("nameRow").style.display = "none";
+  }
+  else {
+   // show the name row
+   document.getElementById("nameRow").style.display = "";
+  }
+ }
 </script>
 
 </head>
@@ -197,7 +227,21 @@ td { font-size:10pt; }
  if ($userid) {
   $row = sqlQuery("SELECT * FROM users WHERE id = '$userid'");
  }
+
+ if ($type) { // note this only happens when its new
+  // Set up type
+  $row['abook_type'] = strip_escape_custom($type);
+ }
+
 ?>
+
+<script language="JavaScript">
+ $(document).ready(function() {
+  // customize the form via the type options
+  typeSelect("<?php echo $row['abook_type']; ?>");
+ });
+</script>
+
 <form method='post' name='theform' action='addrbook_edit.php?userid=<?php echo $userid ?>'>
 <center>
 
@@ -207,12 +251,12 @@ td { font-size:10pt; }
   <td width='1%' nowrap><b><?php xl('Type','e'); ?>:</b></td>
   <td>
 <?php
- generate_form_field(array('data_type'=>1,'field_id'=>'abook_type','list_id'=>'abook_type'), $row['abook_type']);
+ echo generate_select_list('form_abook_type', 'abook_type', $row['abook_type'], '', 'Unassigned', '', 'typeSelect(this.value)');
 ?>
   </td>
  </tr>
 
- <tr>
+ <tr id="nameRow">
   <td width='1%' nowrap><b><?php xl('Name','e'); ?>:</b></td>
   <td>
 <?php

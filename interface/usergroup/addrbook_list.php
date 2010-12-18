@@ -55,8 +55,15 @@ function refreshme() {
  document.forms[0].submit();
 }
 
-// Process click to pop up the add/edit window.
-function doedclick(userid) {
+// Process click to pop up the add window.
+function doedclick_add(type) {
+ top.restoreSession(); 
+ dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 550);
+}
+
+// Process click to pop up the edit window.
+function doedclick_edit(userid) {
+ top.restoreSession();
  dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 550);
 }
 
@@ -84,9 +91,7 @@ function doedclick(userid) {
 <?php
   echo xl('Type') . ": ";
   // Generates a select list named form_abook_type:
-  generate_form_field(array('data_type'=>1, 'field_id'=>'abook_type',
-    'list_id'=>'abook_type','empty_title'=>'All'),
-    strip_escape_custom($_REQUEST['form_abook_type']));
+  echo generate_select_list("form_abook_type", "abook_type", strip_escape_custom($_REQUEST['form_abook_type']), '', 'All');
 ?>
    <input type='checkbox' name='form_external' value='1'<?php if ($form_external) echo ' checked'; ?>
     title='<?php xl("Omit internal users?","e") ?>' />
@@ -94,7 +99,7 @@ function doedclick(userid) {
    <input type='submit' class='button' name='form_search' value='<?php xl("Search","e")?>' />
   </td>
   <td align='right'>
-   <input type='button' class='button' value='<?php xl("Add New","e"); ?>' onclick='doedclick(0)' />
+   <input type='button' class='button' value='<?php xl("Add New","e"); ?>' onclick='doedclick_add(document.forms[0].form_abook_type.value)' />
   </td>
  </tr>
 </table>
@@ -123,10 +128,16 @@ function doedclick(userid) {
   $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
   $username = $row['username'];
   if (! $row['active']) $username = '--';
-  $trTitle = xl('Edit','','',' ') . $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
+  if ( empty($row['fname']) && empty($row['mname']) && empty($row['lname']) ) {
+   $displayName = $row['organization'];
+  }
+  else {
+   $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
+  }
+  $trTitle = xl('Edit','','',' ') . $displayName;
   echo " <tr class='detail $bgclass' style='cursor:pointer' " .
-       "onclick='doedclick(" . $row['id'] . ")' title='$trTitle'>\n";
-  echo "  <td>" . $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] . "</td>\n";
+       "onclick='doedclick_edit(" . $row['id'] . ")' title='$trTitle'>\n";
+  echo "  <td>" . $displayName . "</td>\n";
   echo "  <td>" . ($username ? '*' : '') . "</td>\n";
   echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'),$row['ab_name']) . "</td>\n";
   echo "  <td>" . $row['specialty'] . "</td>\n";
