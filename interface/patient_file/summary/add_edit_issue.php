@@ -200,17 +200,20 @@ if ($_POST['form_save']) {
     sqlStatement($query);
   }
 
-  $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
-   substr($_POST['form_title'], 0, 40);
+  $tmp_title = addslashes($ISSUE_TYPES[$text_type][2] . ": $form_begin " .
+    substr($_POST['form_title'], 0, 40));
 
   // Close this window and redisplay the updated list of issues.
   //
   echo "<html><body><script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
-  echo " window.close();\n";
-  echo " if ( opener ) { opener.location.reload(); } else { parent.location.reload(); } \n";
+
   echo " if (parent.refreshIssue) parent.refreshIssue($issue,'$tmp_title');\n";
-  echo " if (parent.$) parent.$.fancybox.close();\n";
+  echo " else if (opener) opener.location.reload();\n";
+  echo " else parent.location.reload();\n";
+  echo " if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();\n";
+  echo " else window.close();\n";
+
   echo "</script></body></html>\n";
   exit();
 }
