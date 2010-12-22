@@ -244,7 +244,7 @@ else {
   $GLOBALS['concurrent_layout'] = 2;
   $timeout = 7200;
   $openemr_name = 'OpenEMR';
-  $css_header = "$rootdir/themes/style_sky_blue.css";
+  $css_header = "$rootdir/themes/style_default.css";
   $GLOBALS['css_header'] = $css_header;
   $GLOBALS['schedule_start'] = 8;
   $GLOBALS['schedule_end'] = 17;

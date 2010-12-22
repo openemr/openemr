@@ -30,6 +30,9 @@ $reason      = $_POST['reason'];
 $mode        = $_POST['mode'];
 $referral_source = $_POST['form_referral_source'];
 
+$facilityresult = sqlQuery("select name FROM facility WHERE id = $facility_id");
+$facility = $facilityresult['name'];
+
 if ($GLOBALS['concurrent_layout'])
   $normalurl = "patient_file/encounter/encounter_top.php";
 else
@@ -46,6 +49,7 @@ if ($mode == 'new')
       "date = '$date', " .
       "onset_date = '$onset_date', " .
       "reason = '$reason', " .
+      "facility = '$facility', " .
       "pc_catid = '$pc_catid', " .
       "facility_id = '$facility_id', " .
       "sensitivity = '$sensitivity', " .
@@ -70,6 +74,7 @@ else if ($mode == 'update')
     $datepart .
     "onset_date = '$onset_date', " .
     "reason = '$reason', " .
+    "facility = '$facility', " .
     "pc_catid = '$pc_catid', " .
     "facility_id = '$facility_id', " .
     "sensitivity = '$sensitivity', " .
