@@ -1,4 +1,5 @@
 <?php
+
 include_once("../../globals.php");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/acl.inc");
@@ -40,6 +41,29 @@ function checkAll(check) {
 <body class="body_top">
 <div id="patient_reports"> <!-- large outer DIV -->
 
+<?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>
+<div id="ccr_report">
+
+<form name='ccr_form' id='ccr_form' method='post' action='../../../ccr/createCCR.php'>
+<span class='title'><?php xl('Continuity of Care Record','e'); ?></span>&nbsp;&nbsp;
+<br/><br/>
+<input type='hidden' name='ccrAction'>
+<!-- call to generate CCR document -->
+<input type="button" class="generateCCR" value="<?php xl('View CCR','e'); ?>" />
+<hr/>
+<span class='title'><?php xl('Continuity of Care Document','e'); ?></span>&nbsp;&nbsp;
+<br/><br/>
+<input type="button" class="viewCCD" value="<?php xl('View CCD','e'); ?>" />
+
+</form>
+<hr/>
+
+</div>
+<?php } // end CCR/CCD reporting options ?>
+
+<form name='report_form' id="report_form" method='post' action='custom_report.php'>
+
+
 <span class='title'><?php xl('Patient Report','e'); ?></span>&nbsp;&nbsp;
 
 <!--
@@ -50,8 +74,6 @@ function checkAll(check) {
 |
 <a class="link_submit" href="#" onclick="return checkAll(false)"><?php xl('Clear All','e'); ?></a>
 <p>
-
-<form name='report_form' id="report_form" method='post' action='custom_report.php'>
 
 <table class="includes">
  <tr>
@@ -85,6 +107,9 @@ function checkAll(check) {
 
 <br>
 <input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />
+<br>
+
+<!-- old ccr button position -->
 <hr/>
 
 <table class="issues_encounters_forms">
@@ -300,6 +325,27 @@ $(document).ready(function(){
     $(".encounter").click(function() { SelectForms($(this)); });
 });
 
+$(document).ready(
+function(){
+	$(".generateCCR").click(
+	function() { 
+		//alert('in generateCCR');
+		var ccrAction = document.getElementsByName('ccrAction');
+		ccrAction[0].value = 'generate';
+		top.restoreSession(); 
+		$("#ccr_form").submit();
+	});
+	
+	$(".viewCCD").click(
+	function() { 
+		//alert('in viewCCD');
+		var ccrAction = document.getElementsByName('ccrAction');
+		ccrAction[0].value = 'viewccd';
+		top.restoreSession(); 
+		$("#ccr_form").submit();
+	});
+	
+});
 
 // select/deselect the Forms related to the selected Encounter
 // (it ain't pretty code folks)
