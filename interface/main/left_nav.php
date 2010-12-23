@@ -1107,6 +1107,7 @@ if (!empty($reg)) {
     <ul>
       <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
+      <?php genTreeLink('RTop','adb',xl('Addr Book')); ?>
       <?php genTreeLink('RTop','ort',xl('Order Catalog')); ?>
       <?php if (!$GLOBALS['disable_chart_tracker']) genTreeLink('RTop','cht',xl('Chart Tracker')); ?>
       <?php genTreeLink('RTop','ono',xl('Ofc Notes')); ?>

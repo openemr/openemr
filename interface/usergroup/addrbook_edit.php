@@ -247,6 +247,7 @@ td { font-size:10pt; }
 
 <table border='0' width='100%'>
 
+<?php if (acl_check('admin', 'practice' )) { // allow choose type option if have admin access ?>
  <tr>
   <td width='1%' nowrap><b><?php xl('Type','e'); ?>:</b></td>
   <td>
@@ -255,6 +256,7 @@ td { font-size:10pt; }
 ?>
   </td>
  </tr>
+<?php } // end of if has admin access ?>
 
  <tr id="nameRow">
   <td width='1%' nowrap><b><?php xl('Name','e'); ?>:</b></td>

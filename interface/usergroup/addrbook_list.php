@@ -134,9 +134,17 @@ function doedclick_edit(userid) {
   else {
    $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
   }
-  $trTitle = xl('Edit','','',' ') . $displayName;
-  echo " <tr class='detail $bgclass' style='cursor:pointer' " .
-       "onclick='doedclick_edit(" . $row['id'] . ")' title='$trTitle'>\n";
+  if ( acl_check('admin', 'practice' ) || (empty($username) && empty($row['ab_name'])) ) {
+   // Allow edit, since have access or (no item type and not a local user)
+   $trTitle = xl('Edit','','',' ') . $displayName;
+   echo " <tr class='detail $bgclass' style='cursor:pointer' " .
+        "onclick='doedclick_edit(" . $row['id'] . ")' title='$trTitle'>\n"; 
+  }
+  else {
+   // Do not allow edit, since no access and (item is a type or is a local user)
+   $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
+   echo " <tr class='detail $bgclass' title='$trTitle'>\n";
+  }
   echo "  <td>" . $displayName . "</td>\n";
   echo "  <td>" . ($username ? '*' : '') . "</td>\n";
   echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'),$row['ab_name']) . "</td>\n";
