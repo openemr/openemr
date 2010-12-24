@@ -58,13 +58,14 @@ function getEndInventory($product_id = 0, $warehouse_id = '~') {
     $prodcond = "AND di.drug_id = '$product_id'";
   }
 
-  // Get sum of current inventory quantities.
+  // Get sum of current inventory quantities + destructions done after the
+  // report end date (which is effectively a type of transaction).
   $eirow = sqlQuery("SELECT sum(di.on_hand) AS on_hand " .
     "FROM drug_inventory AS di WHERE " .
-    "( di.destroy_date IS NULL OR di.destroy_date > '$form_from_date' ) " .
+    "( di.destroy_date IS NULL OR di.destroy_date > '$form_to_date' ) " .
     "$prodcond $whidcond");
 
-  // Get sum of sales after the report end date.
+  // Get sum of sales/adjustments/purchases after the report end date.
   $sarow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
     "ds.sale_date > '$form_to_date' AND " .
@@ -97,13 +98,17 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
   // Warehouse name for this line item.
   if (empty($rowwh)) $rowwh = 'None';
 
+  // If new warehouse or product...
   if ($warehouse_id != $last_warehouse_id || $product_id != $last_product_id) {
+
+    // If there was anything to total...
     if (($product_first && $last_warehouse_id != '~') || (!$product_first && $last_product_id)) {
 
       $secei = getEndInventory($last_product_id, $last_warehouse_id);
 
       // Print second-column totals.
       if ($form_action == 'export') {
+        // Export:
         if (! $_POST['form_details']) {
           if ($product_first) {
             echo '"'  . esc4Export($product)   . '"';
@@ -123,7 +128,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
         }
       }
       else {
-        // Warehouse totals and not export:
+        // Not export:
 ?>
  <tr bgcolor="#ddddff">
 <?php if ($product_first) { ?>
@@ -176,6 +181,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
     }
   }
 
+  // If first column is changing, time for its totals.
   if (($product_first && $product_id != $last_product_id) ||
       (!$product_first && $warehouse_id != $last_warehouse_id))
   {
@@ -230,6 +236,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
     }
   }
 
+  // Detail line.
   if ($_POST['form_details'] && $product_id && ($qtys[0] + $qtys[1] + $qtys[2] + $qtys[3] + $qtys[4])) {
     if ($form_action == 'export') {
       if ($product_first) {
@@ -376,8 +383,9 @@ else {
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-
+<script type="text/javascript" src="../../library/textformat.js"></script>
 <script language='JavaScript'>
+ var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
  function mysubmit(action) {
   var f = document.forms[0];
   f.form_action.value = action;
@@ -552,10 +560,12 @@ if ($form_action) { // if submit or export
   $grandqtys = array(0, 0, 0, 0, 0);
   $priqtys   = array(0, 0, 0, 0, 0);
   $secqtys   = array(0, 0, 0, 0, 0);
+  $last_inventory_id = 0;
 
   $query = "SELECT s.sale_id, s.sale_date, s.quantity, s.fee, s.pid, s.encounter, " .
     "s.xfer_inventory_id, s.distributor_id, d.name, lo.title, " .
-    "di.drug_id, di.warehouse_id, di.inventory_id, fe.invoice_refno " .
+    "di.drug_id, di.warehouse_id, di.inventory_id, di.destroy_date, di.on_hand, " .
+    "fe.invoice_refno " .
     "FROM drug_inventory AS di " .
     "JOIN drugs AS d ON d.drug_id = di.drug_id " .
     "LEFT JOIN drug_sales AS s ON " .
@@ -565,7 +575,7 @@ if ($form_action) { // if submit or export
     "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
     "lo.option_id = di.warehouse_id " .
     "LEFT JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
-    "WHERE ( di.destroy_date IS NULL OR di.destroy_date > '$form_from_date' )";
+    "WHERE ( di.destroy_date IS NULL OR di.destroy_date >= '$form_from_date' )";
 
   // If a product was specified.
   if ($form_product) {
@@ -574,14 +584,29 @@ if ($form_action) { // if submit or export
 
   if ($product_first) {
     $query .= " ORDER BY d.name, d.drug_id, lo.title, di.warehouse_id, " .
-      "s.sale_date, s.sale_id";
+      "di.inventory_id, s.sale_date, s.sale_id";
   } else {
     $query .= " ORDER BY lo.title, di.warehouse_id, d.name, d.drug_id, " .
-      "s.sale_date, s.sale_id";
+      "di.inventory_id, s.sale_date, s.sale_id";
   }
 
   $res = sqlStatement($query);
   while ($row = sqlFetchArray($res)) {
+
+    // If new lot and it was destroyed during the reporting period,
+    // generate a pseudo-adjustment for that.
+    if ($row['inventory_id'] != $last_inventory_id) {
+      $last_inventory_id = $row['inventory_id'];
+      if (!empty($row['destroy_date']) && $row['on_hand'] != 0
+        && $row['destroy_date'] <= $form_to_date)
+      {
+        thisLineItem($row['drug_id'], $row['warehouse_id'], 0,
+          0, $row['name'], $row['title'], $row['destroy_date'],
+          array(0, 0, 0, 0, 0 - $row['on_hand']),
+          xl('Destroyed'));
+      }
+    }
+
     $qtys = array(0, 0, 0, 0, 0);
     if ($row['sale_id']) {
       if ($row['xfer_inventory_id']) {
