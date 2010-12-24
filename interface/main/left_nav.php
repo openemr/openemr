@@ -892,6 +892,7 @@ function removeOptionSelected(EncounterId)
   </li>
   <li><span><?php xl('Miscellaneous','e') ?></span>
     <ul>
+      <?php genTreeLink('RBot','msg',xl('Messages')); ?>
       <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
       <?php genTreeLink('RTop','adb',xl('Addr Book')); ?>

@@ -68,9 +68,8 @@ $fdefault = sqlQuery("SELECT * FROM list_options WHERE " .
 $maintop = $_GET['embed'] ? "top" : "opener.top";
 echo "  $maintop.restoreSession();\n";
 if ($GLOBALS['concurrent_layout']) {
-
-    echo "  $maintop.RTop.location = '../patient_file/summary/demographics.php?set_pid=' + pid;\n";
-
+  echo "  $maintop.RTop.location = '../patient_file/summary/demographics.php?set_pid=' + pid;\n";
+  echo "  $maintop.left_nav.forceDual();\n";
 } else {
   echo "  $maintop.location = '../patient_file/patient_file.php?set_pid=' + pid;\n";
 }
