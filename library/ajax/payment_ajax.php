@@ -75,8 +75,8 @@ function AjaxDropDownCode()
 		$Country=$row['country'];
 		$Address=$City.', '.$State.', '.$Country;
 		$StringForAjax.="<tr class='text'  bgcolor='$bgcolor' id=\"tr_insurance_$CountIndex\"
-		onkeydown=\"ProcessKeyForColoring(event,$CountIndex);PlaceValues(event,'".htmlspecialchars($Id,ENT_QUOTES)."','".htmlspecialchars($Name,ENT_QUOTES)."')\"
-			   onclick=\"PutTheValuesClick('".htmlspecialchars($Id,ENT_QUOTES)."','".htmlspecialchars($Name,ENT_QUOTES)."')\">
+		onkeydown='ProcessKeyForColoring(event,$CountIndex);PlaceValues(event,\"".htmlspecialchars($Id,ENT_QUOTES)."\",\"".htmlspecialchars($Name,ENT_QUOTES)."\")'
+			   onclick='PutTheValuesClick(\"".htmlspecialchars($Id,ENT_QUOTES)."\",\"".htmlspecialchars($Name,ENT_QUOTES)."\")'>
 			<td><a id='anchor_insurance_code_$CountIndex' href='#'>".htmlspecialchars($Id)."</a></td>
 			<td><a href='#'>".htmlspecialchars($Name)."</a></td>
 		    <td><a href='#'>".htmlspecialchars($Address)."</a></td>
@@ -152,7 +152,7 @@ function AjaxDropDownCode()
 		$Name=$lname.' '.$fname.' '.$mname;
 		$DOB=oeFormatShortDate($row['DOB']);
 		$StringForAjax.="<tr class='text'  bgcolor='$bgcolor' id=\"tr_insurance_$CountIndex\"
-		 onkeydown=\"ProcessKeyForColoring(event,$CountIndex);$StringToAppend2(event,'".htmlspecialchars($Id,ENT_QUOTES)."','".htmlspecialchars($Name,ENT_QUOTES)."')\"   onclick=\"$StringToAppend('".htmlspecialchars($Id,ENT_QUOTES)."','".htmlspecialchars($Name,ENT_QUOTES)."')\">
+		 onkeydown='ProcessKeyForColoring(event,$CountIndex);$StringToAppend2(event,\"".htmlspecialchars($Id,ENT_QUOTES)."\",\"".htmlspecialchars($Name,ENT_QUOTES)."\")'   onclick='$StringToAppend(\"".htmlspecialchars($Id,ENT_QUOTES)."\",\"".htmlspecialchars($Name,ENT_QUOTES)."\")'>
 			<td><a id='anchor_insurance_code_$CountIndex' href='#' >".htmlspecialchars($Id)."</a></td>
 			<td><a href='#'>".htmlspecialchars($lname)."</a></td>
 		    <td><a href='#'>".htmlspecialchars($fname)."</a></td>

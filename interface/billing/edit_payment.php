@@ -443,7 +443,7 @@ if (isset($_POST["mode"]))
 //Search Code
 //===============================================================================
 $payment_id=$payment_id*1 > 0 ? $payment_id : $_REQUEST['payment_id'];
-$ResultSearchSub = sqlStatement("SELECT distinct pid from ar_activity where  session_id ='$payment_id'");
+$ResultSearchSub = sqlStatement("SELECT  distinct encounter,code,modifier, pid from ar_activity where  session_id ='$payment_id' order by pid,encounter,code,modifier");
 //==============================================================================
 $DateFormat=DateFormatRead();
 //==============================================================================
@@ -652,6 +652,7 @@ function DeletePaymentDistribution(DeleteId)
 	else
 	 return false;
  }
+//========================================================================================
 </script>
 <script language="javascript" type="text/javascript">
 document.onclick=HideTheAjaxDivs;
@@ -772,12 +773,20 @@ return false;
 				$CountPatient=0;
 				$CountIndex=0;
 				$CountIndexAbove=0;
+				$paymenttot=0;
+				$adjamttot=0;
+				$deductibletot=0;
+				$takebacktot=0;
+				$allowedtot=0;
 				if($RowSearchSub = sqlFetchArray($ResultSearchSub))
 				 {
 					do 
 					 {
 						$CountPatient++;
 						$PId=$RowSearchSub['pid'];
+						$EncounterMaster=$RowSearchSub['encounter'];
+						$CodeMaster=$RowSearchSub['code'];
+						$ModifierMaster=$RowSearchSub['modifier'];
 					 	$res = sqlStatement("SELECT fname,lname,mname FROM patient_data	where pid ='$PId'");
 						$row = sqlFetchArray($res);
 						$fname=$row['fname'];
@@ -786,11 +795,11 @@ return false;
 						$NameDB=$lname.' '.$fname.' '.$mname;
 						$ResultSearch = sqlStatement("SELECT billing.id,last_level_closed,billing.encounter,form_encounter.`date`,billing.code,billing.modifier,fee
 						 FROM billing ,form_encounter
-						 where billing.encounter=form_encounter.encounter and code_type!='ICD9' and  code_type!='COPAY' and billing.activity!=0 and 
-						 form_encounter.pid ='$PId' and billing.pid ='$PId' and billing.encounter in (SELECT distinct encounter from ar_activity 
-						 where  session_id ='$payment_id' )
-						  and billing.code in (SELECT distinct code from ar_activity where  session_id ='$payment_id' )
-						   and billing.modifier in (SELECT distinct modifier from ar_activity where  session_id ='$payment_id' )
+						 where billing.encounter=form_encounter.encounter and billing.pid=form_encounter.pid and 
+						 code_type!='ICD9' and  code_type!='COPAY' and billing.activity!=0 and 
+						 form_encounter.pid ='$PId' and billing.pid ='$PId' and billing.encounter ='$EncounterMaster'
+						  and billing.code ='$CodeMaster'
+						   and billing.modifier ='$ModifierMaster'
 						 ORDER BY form_encounter.`date`,form_encounter.encounter,billing.code,billing.modifier");
 						if(sqlNumRows($ResultSearch)>0)
 						 {
@@ -809,7 +818,7 @@ return false;
 							<td width="50" class="left top" ><?php echo htmlspecialchars( xl('Charge'), ENT_QUOTES) ?></td>
 							<td width="40" class="left top" ><?php echo htmlspecialchars( xl('Copay'), ENT_QUOTES) ?></td>
 							<td width="40" class="left top" ><?php echo htmlspecialchars( xl('Remdr'), ENT_QUOTES) ?></td>
-							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Allowed'), ENT_QUOTES) ?></td>
+							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Allowed(c)'), ENT_QUOTES) ?></td><!-- (c) means it is calculated.Not stored one. -->
 							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Payment'), ENT_QUOTES) ?></td>
 							<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Adj Amount'), ENT_QUOTES) ?></td>
 							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Deductible'), ENT_QUOTES) ?></td>
@@ -973,6 +982,16 @@ return false;
 									$FollowUpDB=$rowPayment['follow_up'];
 									$FollowUpReasonDB=$rowPayment['follow_up_note'];
 
+									if($Ins==1)
+									 {
+										$AllowedDB=number_format($Fee-$AdjAmountDB,2);
+									 }
+									else
+									 {
+									  	$AllowedDB = 0;
+									 }
+									$AllowedDB=$AllowedDB == 0 ? '' : $AllowedDB;
+
 								if($CountIndex==$TotalRows)
 								 {
 									$StringClass=' bottom left top ';
@@ -998,6 +1017,11 @@ return false;
 								 {
 									$bgcolor='#AAFFFF';
 								 }
+								 $paymenttot=$paymenttot+$PaymentDB;
+								 $adjamttot=$adjamttot+$AdjAmountDB;
+								 $deductibletot=$deductibletot+$DeductibleDB;
+								 $takebacktot=$takebacktot+$TakebackDB;
+								 $allowedtot=$allowedtot+$AllowedDB;
 						  ?>
 						  <tr class="text"  bgcolor='<?php echo $bgcolor; ?>' id="trCharges<?php echo $CountIndex; ?>">
 						    <td align="left" class="<?php echo $StringClass; ?>" ><a href="#" onClick="javascript:return DeletePaymentDistribution('<?php echo  htmlspecialchars($payment_id.'_'.$PId.'_'.$Encounter.'_'.$Code.'_'.$Modifier); ?>');" ><img src="../pic/Delete.gif" border="0"/></a></td>
@@ -1010,11 +1034,11 @@ return false;
 							<td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenCopayAmount<?php echo $CountIndex; ?>" id="HiddenCopayAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Copay); ?>" type="hidden"/><?php echo htmlspecialchars(number_format($Copay,2)); ?></td>
 							<td align="right"   id="RemainderTd<?php echo $CountIndex; ?>"  class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars(round($Remainder,2)); ?></td>
 							<input name="HiddenRemainderTd<?php echo $CountIndex; ?>" id="HiddenRemainderTd<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars(round($RemainderJS,2)); ?>" type="hidden"/>
-							<td class="<?php echo $StringClass; ?>" ><input  name="Allowed<?php echo $CountIndex; ?>" id="Allowed<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"  autocomplete="off"  value=""  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);RestoreValues(<?php echo $CountIndex; ?>)"   type="text"   style="width:60px;text-align:right; font-size:12px" disabled /></td>
-							<td class="<?php echo $StringClass; ?>" ><input   type="text"  name="Payment<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  id="Payment<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($PaymentDB); ?>"  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);RestoreValues(<?php echo $CountIndex; ?>)"  style="width:60px;text-align:right; font-size:12px" /></td>
-							<td class="<?php echo $StringClass; ?>" ><input  name="AdjAmount<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  id="AdjAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($AdjAmountDB); ?>"   onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);RestoreValues(<?php echo $CountIndex; ?>)"  type="text"   style="width:70px;text-align:right; font-size:12px" /></td>
-							<td class="<?php echo $StringClass; ?>" ><input  name="Deductible<?php echo $CountIndex; ?>"  id="Deductible<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"  onChange="ValidateNumeric(this);"  value="<?php echo htmlspecialchars($DeductibleDB); ?>"   autocomplete="off"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
-							<td class="<?php echo $StringClass; ?>" ><input  name="Takeback<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"   id="Takeback<?php echo $CountIndex; ?>"   value="<?php echo htmlspecialchars($TakebackDB); ?>"   onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);RestoreValues(<?php echo $CountIndex; ?>)"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
+							<td class="<?php echo $StringClass; ?>" ><input  name="Allowed<?php echo $CountIndex; ?>" id="Allowed<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"  autocomplete="off"  value="<?php echo htmlspecialchars($AllowedDB); ?>"  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Allowed','allowtotal');UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Payment','paymenttotal');UpdateTotalValues(1,<?php echo $TotalRows; ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
+							<td class="<?php echo $StringClass; ?>" ><input   type="text"  name="Payment<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  id="Payment<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($PaymentDB); ?>"  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Payment','paymenttotal');RestoreValues(<?php echo $CountIndex; ?>)"  style="width:60px;text-align:right; font-size:12px" /></td>
+							<td class="<?php echo $StringClass; ?>" ><input  name="AdjAmount<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  id="AdjAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($AdjAmountDB); ?>"   onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)"  type="text"   style="width:70px;text-align:right; font-size:12px" /></td>
+							<td class="<?php echo $StringClass; ?>" ><input  name="Deductible<?php echo $CountIndex; ?>"  id="Deductible<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"  onChange="ValidateNumeric(this);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Deductible','deductibletotal');"  value="<?php echo htmlspecialchars($DeductibleDB); ?>"   autocomplete="off"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
+							<td class="<?php echo $StringClass; ?>" ><input  name="Takeback<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"   id="Takeback<?php echo $CountIndex; ?>"   value="<?php echo htmlspecialchars($TakebackDB); ?>"   onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Takeback','takebacktotal');RestoreValues(<?php echo $CountIndex; ?>)"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
 							<td align="center" class="<?php echo $StringClass; ?>" ><input type="checkbox" id="FollowUp<?php echo $CountIndex; ?>"  name="FollowUp<?php echo $CountIndex; ?>" value="y" onClick="ActionFollowUp(<?php echo $CountIndex; ?>)" <?php echo $FollowUpDB=='y' ? ' checked ' : ''; ?> /></td>
 							<td class="<?php echo $StringClass; ?> right" ><input  onKeyDown="PreventIt(event)" id="FollowUpReason<?php echo $CountIndex; ?>"    name="FollowUpReason<?php echo $CountIndex; ?>"  <?php echo $FollowUpDB=='y' ? '' : ' readonly '; ?>  type="text"  value="<?php echo htmlspecialchars($FollowUpReasonDB); ?>"    style="width:110px;font-size:12px" /></td>
 						  </tr>
@@ -1030,9 +1054,21 @@ return false;
 						if($Table=='yes')
 						 {
 						?>
+						 <tr class="text">
+						    <td align="left" colspan="9">&nbsp;</td>
+					        <td class="left bottom" bgcolor="#6699FF" id="allowtotal" align="right" ><?php echo htmlspecialchars(number_format($allowedtot,2)); ?></td>
+					        <td class="left bottom" bgcolor="#6699FF" id="paymenttotal" align="right" ><?php echo htmlspecialchars(number_format($paymenttot,2)); ?></td>
+	  						<td class="left bottom" bgcolor="#6699FF" id="AdjAmounttotal" align="right" ><?php echo htmlspecialchars(number_format($adjamttot,2)); ?></td>						
+			      			<td class="left bottom" bgcolor="#6699FF" id="deductibletotal" align="right"><?php echo htmlspecialchars(number_format($deductibletot,2)); ?></td>
+						    <td class="left bottom right" bgcolor="#6699FF" id="takebacktotal" align="right"><?php echo htmlspecialchars(number_format($takebacktot,2)); ?></td>
+						    <td  align="center">&nbsp;</td>
+						    <td  align="center">&nbsp;</td>
+				          </tr>
 						</table>
 						<?php
 						}
+						?>
+						<?
 						echo '<br/>';
 
 				}//if($RowSearchSub = sqlFetchArray($ResultSearchSub))

@@ -489,4 +489,20 @@ function FormValidations()
    }
   return true;
 }
+//========================================================================================
+function UpdateTotalValues(start,count,Payment,PaymentTotal)
+{//Used in totaling the columns.
+ var paymenttot=0;
+	 if(count > 0)
+	 {
+	   for(i=start;i<start+count;i++)
+	   {
+			 if(document.getElementById(Payment+i))
+			 {
+				   paymenttot=paymenttot+document.getElementById(Payment+i).value*1;
+			 }
+	   }
+		 document.getElementById(PaymentTotal).innerHTML=Math.round((paymenttot)*100)/100;
+	}
+}
 </script>

@@ -974,3 +974,9 @@ UPDATE list_options SET option_value = 3 WHERE list_id = 'abook_type' AND option
 UPDATE list_options SET option_value = 3 WHERE list_id = 'abook_type' AND option_value = 0 AND option_id = 'dist';
 UPDATE list_options SET option_value = 1 WHERE list_id = 'abook_type' AND option_value = 0 AND option_id = 'oth';
 
+#IfNotRow2D list_options list_id lists option_id payment_date
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'payment_date','Payment Date', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'date_val', 'Date', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'post_to_date', 'Post To Date', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_date', 'deposit_date', 'Deposit Date', 30, 0);
+#EndIf

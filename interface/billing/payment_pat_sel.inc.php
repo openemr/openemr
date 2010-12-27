@@ -220,6 +220,7 @@ if (isset($_POST["mode"]))
 
 						$Remainder=$Fee-$Copay-$MoneyGot-$MoneyAdjusted;
 
+					$TotalRows=sqlNumRows($ResultSearchNew);
 					if($CountIndexBelow==sqlNumRows($ResultSearchNew))
 					 {
 						$StringClass=' bottom left top ';
@@ -265,22 +266,22 @@ if (isset($_POST["mode"]))
 				 value="<?php echo htmlspecialchars(round($Remainder,2)); ?>" type="hidden"/>
 				<td class="<?php echo $StringClass; ?>" ><input  name="Allowed<?php echo $CountIndex; ?>" id="Allowed<?php echo $CountIndex; ?>" 
 				 onKeyDown="PreventIt(event)"  autocomplete="off"  
-				 onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);RestoreValues(<?php echo $CountIndex; ?>)" 
+				 onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)" 
 				   type="text"   style="width:60px;text-align:right; font-size:12px"  /></td>
 				<td class="<?php echo $StringClass; ?>" ><input   type="text"  name="Payment<?php echo $CountIndex; ?>" 
 				 onKeyDown="PreventIt(event)"   autocomplete="off"  id="Payment<?php echo $CountIndex; ?>" 
-				  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);RestoreValues(<?php echo $CountIndex; ?>)" 
+				  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Payment','initialpaymenttotal');RestoreValues(<?php echo $CountIndex; ?>)" 
 				   style="width:60px;text-align:right; font-size:12px" /></td>
 				<td class="<?php echo $StringClass; ?>" ><input  name="AdjAmount<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)" 
 				  autocomplete="off"  id="AdjAmount<?php echo $CountIndex; ?>"  
-				  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);RestoreValues(<?php echo $CountIndex; ?>)"  
+				  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)"  
 				  type="text"   style="width:70px;text-align:right; font-size:12px" /></td>
 				<td class="<?php echo $StringClass; ?>" ><input  name="Deductible<?php echo $CountIndex; ?>"  id="Deductible<?php echo $CountIndex; ?>" 
-				 onKeyDown="PreventIt(event)"  onChange="ValidateNumeric(this);"   autocomplete="off"   type="text"   
+				 onKeyDown="PreventIt(event)"  onChange="ValidateNumeric(this);UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Deductible','initialdeductibletotal');"   autocomplete="off"   type="text"   
 				 style="width:60px;text-align:right; font-size:12px" /></td>
 				<td class="<?php echo $StringClass; ?>" ><input  name="Takeback<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  
 				 id="Takeback<?php echo $CountIndex; ?>"  
-				 onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);RestoreValues(<?php echo $CountIndex; ?>)"  
+				 onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo $CountIndex; ?>)"  
 				  type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
 				<td align="center" class="<?php echo $StringClass; ?>" ><input type="checkbox" id="FollowUp<?php echo $CountIndex; ?>" 
 				 name="FollowUp<?php echo $CountIndex; ?>" value="y" onClick="ActionFollowUp(<?php echo $CountIndex; ?>)"  /></td>
@@ -291,6 +292,16 @@ if (isset($_POST["mode"]))
 					
 				 }while($RowSearch = sqlFetchArray($ResultSearchNew));
 			?>
+			 <tr class="text">
+				<td align="left" colspan="7">&nbsp;</td>
+				<td class="left bottom" bgcolor="#6699FF" id="initialallowtotal" align="right" >0</td>
+				<td class="left bottom" bgcolor="#6699FF" id="initialpaymenttotal" align="right" >0</td>
+				<td class="left bottom" bgcolor="#6699FF" id="initialAdjAmounttotal" align="right" >0</td>						
+				<td class="left bottom" bgcolor="#6699FF" id="initialdeductibletotal" align="right">0</td>
+				<td class="left bottom right" bgcolor="#6699FF" id="initialtakebacktotal" align="right">0</td>
+				<td  align="center">&nbsp;</td>
+				<td  align="center">&nbsp;</td>
+			  </tr>
 			</table>
 			<?php
 			 }//if($RowSearch = sqlFetchArray($ResultSearchNew))
