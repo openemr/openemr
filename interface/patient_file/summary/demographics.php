@@ -18,7 +18,6 @@ $fake_register_globals=false;
  require_once("$srcdir/classes/Address.class.php");
  require_once("$srcdir/classes/InsuranceCompany.class.php");
  require_once("$srcdir/classes/Document.class.php");
- require_once("./patient_picture.php");
  require_once("$srcdir/options.inc.php");
  require_once("../history/history.inc.php");
  require_once("$srcdir/formatting.inc.php");
@@ -42,6 +41,70 @@ function print_as_money($money) {
 		return "$ " . strrev($tmp);
 	}
 }
+
+// get an array from Photos category
+function pic_array($pid,$picture_directory) {
+    $pics = array();
+    $sql_query = "select documents.id from documents join categories_to_documents " .
+                 "on documents.id = categories_to_documents.document_id " .
+                 "join categories on categories.id = categories_to_documents.category_id " .
+                 "where categories.name like ? and documents.foreign_id = ?";
+    if ($query = sqlStatement($sql_query, array($picture_directory,$pid))) {
+      while( $results = sqlFetchArray($query) ) {
+            array_push($pics,$results['id']);
+        }
+      }
+    return ($pics);
+}
+// Get the document ID of the first document in a specific catg.
+function get_document_by_catg($pid,$doc_catg) {
+
+    $result = array();
+
+	if ($pid and $doc_catg) {
+	  $result = sqlQuery("SELECT d.id, d.date, d.url FROM " .
+	    "documents AS d, categories_to_documents AS cd, categories AS c " .
+	    "WHERE d.foreign_id = ? " .
+	    "AND cd.document_id = d.id " .
+	    "AND c.id = cd.category_id " .
+	    "AND c.name LIKE ? " .
+	    "ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg) );
+	    }
+
+	return($result['id']);
+}
+
+// Display image in 'widget style'
+function image_widget($doc_id,$doc_catg)
+{
+        global $pid, $web_root;
+        $docobj = new Document($doc_id);
+        $image_file = $docobj->get_url_file();
+        $extension = substr($image_file, strrpos($image_file,"."));
+        $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp'); // image ext supported by fancybox viewer
+        if ( in_array($extention,$viewable_types) == 0 ) { // extention matches list
+                $to_url = "<a href = $web_root" .
+				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id" .
+				"/tmp.$extension" .  // Force image type inot URL for fancybox
+				" onclick=top.restoreSession(); class='image_modal'>" .
+                " <img src = $web_root" .
+				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id" .
+				" width=100 alt='$doc_catg:$image_file' align='center'>" .
+                htmlspecialchars(" $doc_catg: $image_file") . 
+				" </a> <br /><br />";
+        }
+     	else {
+				$to_url = "<a href='" . $web_root . "/controller.php?document&retrieve" .
+                     "&patient_id=$pid&document_id=$doc_id'" .
+                    " onclick='top.restoreSession()' class='css_button_small'>" .
+                    "<span>" .
+                    htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . 
+					htmlspecialchars( "$doc_catg - $image_file", ENT_QUOTES ) .
+                    "</span> <br /><br />";
+		}
+          echo $to_url;
+}
+
 ?>
 <html>
 
@@ -58,7 +121,7 @@ function print_as_money($money) {
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script language="JavaScript">
+<script type="text/javascript" language="JavaScript">
 //Visolve - sync the radio buttons - Start
 if((top.window.parent) && (parent.window)){
         var wname = top.window.parent.left_nav;
@@ -177,33 +240,25 @@ $(document).ready(function(){
 
     tabbify();
 
-    // special size for
+// modal for dialog boxes
 	$(".large_modal").fancybox( {
 		'overlayOpacity' : 0.0,
 		'showCloseButton' : true,
 		'frameHeight' : 600,
 		'frameWidth' : 1000,
-                'centerOnScroll' : false
+        'centerOnScroll' : false
 	});
 
-    // special size for
-	$(".medium_modal").fancybox( {
+// modal for image viewer
+	$(".image_modal").fancybox( {
 		'overlayOpacity' : 0.0,
 		'showCloseButton' : true,
-		'frameHeight' : 500,
-		'frameWidth' : 800,
-                'centerOnScroll' : false
-	});
-
-        // special size for
-	$("#image_view_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-                'centerOnScroll' : false,
-                'autoScale' : true
+        'centerOnScroll' : false,
+		'autoscale' : true
 	});
 
 });
+
 </script>
 
 <style type="css/text">
@@ -240,7 +295,6 @@ $(document).ready(function(){
  }
 
  if ($thisauth == 'write') {
-  foreach (pic_array() as $var) {print $var;}
   echo "<table><tr><td><span class='title'>" .
    htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) .
    "</span></td>";
@@ -255,17 +309,11 @@ $(document).ready(function(){
  }
 
 // Get the document ID of the patient ID card if access to it is wanted here.
-$document_id = 0;
+$idcard_doc_id = false;
 if ($GLOBALS['patient_id_category_name']) {
-  $tmp = sqlQuery("SELECT d.id, d.date, d.url FROM " .
-    "documents AS d, categories_to_documents AS cd, categories AS c " .
-    "WHERE d.foreign_id = ? " .
-    "AND cd.document_id = d.id " .
-    "AND c.id = cd.category_id " .
-    "AND c.name LIKE ? " .
-    "ORDER BY d.date DESC LIMIT 1", array($pid, $GLOBALS['patient_id_category_name']) );
-  if ($tmp) $document_id = $tmp['id'];
+  $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
 }
+
 ?>
 <table cellspacing='0' cellpadding='0' border='0'>
 <tr>
@@ -589,7 +637,7 @@ if ($GLOBALS['patient_id_category_name']) {
 		$fixedWidth = true;
 		expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
                     <br/>
-                    <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+                    <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                 </div>
 			</td>
 		</tr>
@@ -650,30 +698,39 @@ if ($GLOBALS['patient_id_category_name']) {
     <table>
     <tr>
     <td>
+<div>
     <?php
-            // If there is a patient ID card, then show a link to it.
- 	if ($document_id) {
-            $docobj = new Document($document_id);
-            $image_file = $docobj->get_url_file();
-            // File ends in .pdf
-            if (preg_match('/\.pdf$/i',$image_file)) {
-                echo "<a href='" . $web_root . "/controller.php?document&retrieve" .
-                     "&patient_id=$pid&document_id=$document_id'" .
-                    " onclick='top.restoreSession()' class='css_button_small'>" .
-                    "<span>" .
-                    htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . htmlspecialchars( xl("PDF of Patient ID Card"), ENT_QUOTES ) .
-                    "</span> <br /><hr>";
-            } else {
-                // image file type(s) std list png, jpg, etc...
-                echo "<a href='" . $web_root . "/sites/" . $_SESSION['site_id'] .
-                     "/documents/$pid/$image_file'" .
-                     " onclick='top.restoreSession()' class='css_button_small' id='image_view_modal'>" .
-                     "<span>" .
-                     htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . htmlspecialchars( xl("Patient ID Card"), ENT_QUOTES ) .
-                     "</span> <br /><hr>";
-            }
- 	}
 
+    // If there is an ID Card or any Photos show the widget
+    $photos = pic_array($pid, $GLOBALS['patient_photo_category_name']);
+    if ($photos or $idcard_doc_id )
+    {
+        $widgetTitle = xl("ID Card") . '/' . xl("Photos");
+        $widgetLabel = "photos";
+        $linkMethod = "javascript";
+        $bodyClass = "notab";
+        $widgetAuth = false;
+        $fixedWidth = true;
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel ,
+                $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+                $widgetAuth, $fixedWidth);
+?>
+<br />
+<?php
+    	if ($idcard_doc_id) {
+        	image_widget($idcard_doc_id, $GLOBALS['patient_id_category_name']);
+		}
+
+        foreach ($photos as $photo_doc_id) {
+            image_widget($photo_doc_id, $GLOBALS['patient_photo_category_name']);
+        }
+    }
+?>
+
+<br />
+</div>
+<div>
+ <?php
     // Advance Directives
     if ($GLOBALS['advance_directives_warning']) {
 	// advance directives expand collapse widget

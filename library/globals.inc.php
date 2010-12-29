@@ -909,7 +909,14 @@ $GLOBALS_METADATA = array(
       xl('Patient ID Category Name'),
       'text',                           // data type
       'Patient ID card',                // default
-      xl('Optional category name of a document to link to from the patient summary page. Lets you click on a patient name to see their ID card.')
+      xl('Optional category name for an ID Card image that can be viewed from the patient summary page.')
+    ),
+
+    'patient_photo_category_name' => array(
+      xl('Patient Photo Category Name'),
+      'text',                  // data type
+      'Patient Photograph',    // default
+      xl('Optional category name for photo images that can be viewed from the patient summary page.')
     ),
 
     'MedicareReferrerIsRenderer' => array(

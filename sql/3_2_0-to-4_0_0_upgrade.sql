@@ -293,6 +293,12 @@ ALTER TABlE patient_data
   UPDATE categories_seq SET id = (select MAX(id) from categories);
 #EndIf
 
+#IfNotRow categories name Patient Photograph
+ INSERT INTO categories select (select MAX(id) from categories) + 1, 'Patient Photograph', '', 1, rght, rght + 1 from categories where name = 'Categories';
+ UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+ UPDATE categories_seq SET id = (select MAX(id) from categories);
+#Endif
+
 #IfMissingColumn patient_data completed_ad
 ALTER TABLE patient_data
   ADD completed_ad VARCHAR(3) NOT NULL DEFAULT 'NO',
