@@ -211,6 +211,7 @@ function parse_era($filename, $cb) {
 			$out['subscriber_fname']     = '';
 			$out['subscriber_mname']     = '';
 			$out['subscriber_member_id'] = '';
+			$out['crossover']=0;
 			$out['svc'] = array();
 			//
 			// This is the poorly-named "Patient Account Number".  For 837p
@@ -274,6 +275,10 @@ function parse_era($filename, $cb) {
 			$out['provider_fname']     = trim($seg[4]);
 			$out['provider_mname']     = trim($seg[5]);
 			$out['provider_member_id'] = trim($seg[9]);
+		}
+		else if ($segid == 'NM1' && $seg[1] == 'TT' && $out['loopid'] == '2100') {
+			$out['crossover']     = 1;
+			
 		}
 		// 74 = Corrected Insured
 		// TT = Crossover Carrier (Transfer To another payer)

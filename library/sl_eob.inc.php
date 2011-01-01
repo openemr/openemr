@@ -394,7 +394,12 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
 
   // Make this invoice re-billable, new style.
   //
-  function arSetupSecondary($patient_id, $encounter_id, $debug) {
+  function arSetupSecondary($patient_id, $encounter_id, $debug,$crossover=0) {
+  
+if($crossover==1)
+{$status=6;}//if claim forwarded setting a new status 
+else
+{$status=1;}
 
     // Determine the next insurance level to be billed.
     $ferow = sqlQuery("SELECT date, last_level_billed " .
@@ -410,12 +415,12 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
     if ($new_payer_id) {
       // Queue up the claim.
       if (!$debug)
-        updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type, 1, 5, '', 'hcfa');
+        updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type,$status, 5, '', 'hcfa','',$crossover);
     }
     else {
       // Just reopen the claim.
       if (!$debug)
-        updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, '');
+        updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '','','',$crossover);
     }
 
     return xl("Encounter ") . $encounter . xl(" is ready for re-billing.");

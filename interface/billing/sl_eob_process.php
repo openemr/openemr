@@ -19,6 +19,7 @@ require_once("claim_status_codes.php");
 require_once("adjustment_reason_codes.php");
 require_once("remark_codes.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/billing.inc");
 
 	$debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 	$paydate = parse_date($_GET['paydate']);
@@ -241,6 +242,15 @@ require_once("$srcdir/formatting.inc.php");
 
 		if ($csc == '4') {
 			$inverror = true;
+			if (!$debug) {
+			if ($pid && $encounter) {
+				foreach ($out['svc'] as $svc) {
+						foreach ($svc['adj'] as $adj) {
+							$code_value .= $svc['code'].'_'.$svc['mod'].'_'.$adj['group_code'].'_'.$adj['reason_code'].',';
+				}}
+				$code_value = substr($code_value,0,-1);
+				updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel,3),7,0,$code_value);
+			}}
 			writeMessageLine($bgcolor, 'errdetail',
 				"Not posting adjustments for denied claims, please follow up manually!");
 		}
@@ -472,14 +482,29 @@ require_once("$srcdir/formatting.inc.php");
 		if (!$error && !$debug && $insurance_done) {
       if ($INTEGRATED_AR) {
         $level_done = 0 + substr($inslabel, 3);
+
+        if($out['crossover']==1)
+		{
         sqlStatement("UPDATE form_encounter " .
-          "SET last_level_closed = $level_done WHERE " .
+          "SET last_level_closed = $level_done,last_level_billed=".$level_done." WHERE " .
           "pid = '$pid' AND encounter = '$encounter'");
+		  writeMessageLine($bgcolor, 'infdetail',
+            'This claim processed by Primary and automatically forwarded to Secondary. ');
+		 }
+		 else
+		 {
+		 "UPDATE form_encounter " .
+          "SET last_level_closed = $level_done WHERE " .
+          "pid = '$pid' AND encounter = '$encounter'";
+		  }
         // Check for secondary insurance.
         if ($primary && arGetPayerID($pid, $service_date, 2)) {
-          arSetupSecondary($pid, $encounter, $debug);
+          arSetupSecondary($pid, $encounter, $debug,$out['crossover']);
+		  
+		  if($crossover==1)
+		  {
           writeMessageLine($bgcolor, 'infdetail',
-            'This claim is now re-queued for secondary paper billing');
+            'This claim is now re-queued for secondary paper billing');}
         }
       } else {
         $shipvia = 'Done: Ins1';
@@ -492,8 +517,11 @@ require_once("$srcdir/formatting.inc.php");
         $insgot = strtolower($arrow['notes']);
         if ($primary && strpos($insgot, 'ins2') !== false) {
           slSetupSecondary($arrow['id'], $debug);
+		  if($crossover<>1)
+		  {
           writeMessageLine($bgcolor, 'infdetail',
             'This claim is now re-queued for secondary paper billing');
+			}
         }
       }
 		}

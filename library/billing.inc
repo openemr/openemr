@@ -86,7 +86,7 @@ function clearBilling($id)
 // payers.  That logic will tailor the payer choices to the encounter date.
 //
 function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $payer_type=-1,
-  $status=-1, $bill_process=-1, $process_file='', $target='', $partner_id=-1)
+  $status=-1, $bill_process=-1, $process_file='', $target='', $partner_id=-1,$crossover=0)
 {
   if (!$newversion) {
     $sql = "SELECT * FROM claims WHERE patient_id = '$patient_id' AND " .
@@ -107,7 +107,10 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $pay
   $billset = "";
   if (empty($payer_id) || $payer_id < 0) $payer_id = 0;
 
-  if ($status >= 0) {
+  if ($status==7) {//$status==7 is the claim denail case.
+    $claimset .= ", status = '$status'";
+  }
+  elseif ($status >= 0) {
     $claimset .= ", status = '$status'";
     if ($status > 1) {
       $billset .= ", billed = 1";
@@ -116,11 +119,17 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $pay
       $billset .= ", billed = 0";
     }
   }
-  if ($bill_process >= 0) {
+  if ($status==7) {//$status==7 is the claim denail case.
+    $billset  .= ", bill_process = '$status'";
+  }
+  elseif ($bill_process >= 0) {
     $claimset .= ", bill_process = '$bill_process'";
     $billset  .= ", bill_process = '$bill_process'";
   }
-  if ($process_file) {
+  if ($status==7) {//$status==7 is the claim denail case.
+    $claimset  .= ", process_file = '$process_file'";//Denial reason code is stored here
+  }
+  elseif ($process_file) {
     $claimset .= ", process_file = '$process_file', process_time = NOW()";
     $billset  .= ", process_file = '$process_file', process_date = NOW()";
   }
@@ -165,10 +174,23 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $pay
       "target = '$target', " .
       "x12_partner_id = '$partner_id'";
     ****/
+	if($crossover<>1)
+	{
     $sql = "INSERT INTO claims SET " .
       "patient_id = '$patient_id', " .
       "encounter_id = '$encounter_id', " .
       "bill_time = NOW() $claimset";
+	  }
+	 else
+	 {
+	 
+	 $sql = "INSERT INTO claims SET " .
+      "patient_id = '$patient_id', " .
+      "encounter_id = '$encounter_id', " .
+      "bill_time = NOW(), status=$status";
+	 
+	 }
+	
     sqlStatement($sql);
   }
 
