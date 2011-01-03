@@ -2,6 +2,7 @@
 include_once("../globals.php");
 
 include_once("$srcdir/patient.inc");
+include_once("$srcdir/../interface/reports/report.inc.php");
 include_once("$srcdir/billrep.inc");
 include_once("$srcdir/forms.inc");
 include_once("$srcdir/billing.inc");
@@ -82,7 +83,7 @@ if ($code_type == "all") {
 	$code_type = "%";
 }
 
-$list = getBillsListBetween($from_date,$to_date,$my_authorized,$unbilled,$code_type);
+$list = getBillsListBetween($code_type);
 
 
 ?>
@@ -138,7 +139,7 @@ if ($code_type == "all") {
 	$code_type = "%";
 }
 
-$list = getBillsListBetween($from_date,$to_date,$my_authorized,$unbilled,$code_type);
+$list = getBillsListBetween($code_type);
 
 
 ?>
@@ -154,7 +155,7 @@ $res_count = 0;
 $N = 1;
 
 $itero = array();
-if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,$code_type)) {
+if ($ret = getBillsBetween($code_type)) {
 $old_pid = -1;
 $first_time = 1;
 $encid = 0;
@@ -211,24 +212,5 @@ print "</tr></table>\n"; // small table
 
 
 ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </body>
 </html>
