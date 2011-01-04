@@ -23,6 +23,12 @@ require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/calendar_events.inc.php");
 
+// Temporary variable while new logic is being tested.
+// True means that missing days in the daily_fitness table default to
+// the previous entry's values, if there is one.
+// Otherwise the default fitness level (Fully Fit) is used.
+$PROPLOGIC = true;
+
 $plid = $_REQUEST['plid'] + 0; // pid
 $ymd = $_REQUEST['date'];
 if (empty($ymd)) die("Internal error: date parameter is missing");
@@ -55,12 +61,24 @@ $patrow = sqlQuery("SELECT " .
   "WHERE pid = '$plid' LIMIT 1");
 $squad = $patrow['squad'];
 
-// Get the daily_fitness row.
-$dfrow = sqlQuery("SELECT " .
-  "df.*, lf.option_id AS lf_id, lf.title AS lf_title " .
-  "FROM daily_fitness AS df " .
-  "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
-  "WHERE df.pid = '$plid' AND df.date = '$date'");
+if ($PROPLOGIC) {
+  // For a given date, fitness info is the last on or before that date,
+  // or if there is none then the defaults apply.
+  $dfrow = sqlQuery("SELECT " .
+    "df.*, lf.option_id AS lf_id, lf.title AS lf_title " .
+    "FROM daily_fitness AS df " .
+    "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
+    "WHERE df.pid = '$plid' AND df.date <= '$date' " .
+    "ORDER BY df.date DESC LIMIT 1");
+}
+else {
+  $dfrow = sqlQuery("SELECT " .
+    "df.*, lf.option_id AS lf_id, lf.title AS lf_title " .
+    "FROM daily_fitness AS df " .
+    "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
+    "WHERE df.pid = '$plid' AND df.date = '$date'");
+}
+
 if (empty($dfrow)) {
   $dfrow = array(
     'pid'      => '0',
@@ -85,7 +103,7 @@ $noteid = empty($nrow) ? '0' : $nrow['id'];
 if ($_POST['form_save']) {
 
   // Update daily_fitness.
-  if ($dfrow['pid']) {
+  if ($dfrow['date'] == $date) {
     sqlStatement("UPDATE daily_fitness SET " .
       "fitness = '$form_fitness', " .
       // "am = '$form_am', " .
@@ -96,7 +114,7 @@ if ($_POST['form_save']) {
   else {
     sqlStatement("INSERT INTO daily_fitness SET " .
       "pid = '$plid', " .
-      "date = '$date 00:00:00', " .
+      "date = '$date', " .
       "fitness = '$form_fitness', " .
       // "am = '$form_am', " .
       // "pm = '$form_pm', " .

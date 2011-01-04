@@ -325,6 +325,7 @@ div.section {
   document.getElementById('row_diagnosis'     ).style.display = comdisp;
   document.getElementById('row_occurrence'    ).style.display = comdisp;
   document.getElementById('row_classification').style.display = injdisp;
+  document.getElementById('row_reinjury_id'   ).style.display = injdisp;
   document.getElementById('row_reaction'      ).style.display = alldisp;
   document.getElementById('row_referredby'    ).style.display = (f.form_referredby.value) ? '' : comdisp;
   document.getElementById('row_comments'      ).style.display = (f.form_comments.value  ) ? '' : revdisp;
@@ -484,7 +485,7 @@ function divclick(cb, divid) {
  <tr id='row_titles'>
   <td valign='top' nowrap>&nbsp;</td>
   <td valign='top'>
-   <select name='form_titles' size='4' onchange='set_text()'>
+   <select name='form_titles' size='<?php echo $GLOBALS['athletic_team'] ? 10 : 4; ?>' onchange='set_text()'>
    </select> <?php xl('(Select one of these, or type your own title)','e'); ?>
   </td>
  </tr>

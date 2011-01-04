@@ -782,6 +782,7 @@ function removeOptionSelected(EncounterId)
 <?php if ($GLOBALS['athletic_team']) { // Tree menu for athletic teams ?>
 
 <ul id="navigation">
+  <?php genTreeLink('RBot','msg',xl('Messages')); ?>
   <li class="open"><span><?php xl('Patient/Client','e') ?></span>
     <ul>
       <li class="open"><span><?php xl('Demographics','e') ?></span>
@@ -892,7 +893,6 @@ function removeOptionSelected(EncounterId)
   </li>
   <li><span><?php xl('Miscellaneous','e') ?></span>
     <ul>
-      <?php genTreeLink('RBot','msg',xl('Messages')); ?>
       <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
       <?php genTreeLink('RTop','adb',xl('Addr Book')); ?>
