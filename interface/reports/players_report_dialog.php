@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -165,7 +165,7 @@ if ($_POST['form_save']) {
 <?php html_header_show(); ?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
-<title><?php xl('Record Payment','e'); ?></title>
+<title><?php echo htmlspecialchars(xl('Record of Fitness')); ?></title>
 
 <style type="text/css">
  body    { font-family:sans-serif; font-size:10pt; font-weight:normal }
@@ -178,6 +178,19 @@ if ($_POST['form_save']) {
 
 <script language="JavaScript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+ // Process click on issue title.
+ function newissue() {
+  dlgopen('../patient_file/summary/add_edit_issue.php', '_blank', 800, 600);
+  return false;
+ }
+
+ // callback from add_edit_issue.php:
+ function refreshIssue(issue, title) {
+  var s = document.forms[0].form_issue;
+  s.options[s.options.length] = new Option(title, issue, true, true);
+ }
+
 </script>
 
 </head>
@@ -226,6 +239,9 @@ while ($irow = sqlFetchArray($ires)) {
 }
 ?>
    </select>
+   &nbsp;
+   <input type='button' value='<?php echo htmlspecialchars(xl('Add Issue')); ?>'
+    onclick='newissue()' /> &nbsp;
   </td>
  </tr>
 

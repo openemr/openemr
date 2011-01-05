@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -208,9 +208,9 @@ if ($_POST['form_save']) {
   echo "<html><body><script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
 
-  echo " if (parent.refreshIssue) parent.refreshIssue($issue,'$tmp_title');\n";
-  echo " else if (opener) opener.location.reload();\n";
-  echo " else parent.location.reload();\n";
+  echo " var myboss = opener ? opener : parent;\n";
+  echo " if (myboss.refreshIssue) myboss.refreshIssue($issue,'$tmp_title');\n";
+  echo " else myboss.location.reload();\n";
   echo " if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();\n";
   echo " else window.close();\n";
 

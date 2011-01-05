@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -998,7 +998,7 @@ echo '
 
  <tr>
   <td width='1%' nowrap>
-   <b><?php xl('Category','e'); ?>:</b>
+   <b><?php echo htmlspecialchars($GLOBALS['athletic_team'] ? xl('Team/Squad') : xl('Category')); ?>:</b>
   </td>
   <td nowrap>
    <select name='form_category' onchange='set_category()' style='width:100%'>
@@ -1046,9 +1046,10 @@ echo '
    </select>
   </td>
  </tr>
+
  <tr>
   <td nowrap>
-   <b><?php xl('Title','e'); ?>:</b>
+   <b><?php echo htmlspecialchars($GLOBALS['athletic_team'] ? xl('Team/Squad') : xl('Title')); ?>:</b>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_title' value='<?php echo htmlspecialchars($row['pc_title'], ENT_QUOTES); ?>'
@@ -1278,7 +1279,7 @@ if  ($GLOBALS['select_multi_providers']) {
 
  <tr>
   <td nowrap>
-   <span id='title_apptstatus'><b><?php xl('Status','e'); ?>:</b></span>
+   <span id='title_apptstatus'><b><?php echo htmlspecialchars($GLOBALS['athletic_team'] ? xl('Session Type') : xl('Status')); ?>:</b></span>
    <span id='title_prefcat' style='display:none'><b><?php xl('Pref Cat','e'); ?>:</b></span>
   </td>
   <td nowrap>
