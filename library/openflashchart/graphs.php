@@ -1,5 +1,6 @@
 <?php
 // Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+// Modified 2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -7,8 +8,6 @@
 // of the License, or (at your option) any later version.
 //
 // Flexible script for graphing entities in OpenEMR
-//   Currently set up to set up vitals, and can be expanding
-//   to graph other stuff
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -23,12 +22,14 @@ require_once($GLOBALS['srcdir'] . "/openflashchart/php-ofc-library/open-flash-ch
 require_once($GLOBALS['srcdir'] . "/formdata.inc.php");
 
 // Collect passed variable(s)
-//  $table is the sql table where data is
-//  $name is the sql column where data is
+//  $table is the sql table (or form name if LBF)
+//  $name identifies the desired data item
 //  $title is used as the title of the graph
 $table = trim($_POST['table']);
 $name = trim($_POST['name']);
 $title = trim($_POST['title']);
+
+$is_lbf = substr($table, 0, 3) === 'LBF';
 
 // acl checks here
 //  For now, only allow access for med aco.
@@ -65,8 +66,79 @@ function getIdealYSteps($a) {
   }
 }
 
+function graphsGetValues($name) {
+  global $is_lbf, $pid, $table;
+  if ($is_lbf) {
+    // Like below, but for LBF data.
+    $values = sqlStatement("SELECT " .
+      "ld.field_value AS " . add_escape_custom($name) . ", " .
+      "UNIX_TIMESTAMP(f.date) as unix_date " .
+      "FROM forms AS f, lbf_data AS ld WHERE " .
+      "f.pid = ? AND " .
+      "f.formdir = ? AND " .
+      "f.deleted = 0 AND " .
+      "ld.form_id = f.form_id AND " .
+      "ld.field_id = ? AND " .
+      "ld.field_value != '0' " .
+      "ORDER BY f.date",
+      array($pid, $table, $name));
+  }
+  else {
+    // Collect the pertinent info and ranges
+    //  (Note am skipping values of zero, this could be made to be
+    //   optional in the future when using lab values)
+    $values = SqlStatement("SELECT " .
+      add_escape_custom($name) . ", " .
+      "UNIX_TIMESTAMP(date) as unix_date " .
+      "FROM " . add_escape_custom($table) . " " .
+      "WHERE " . add_escape_custom($name) . " != 0 " .
+      "AND pid = ? ORDER BY date", array($pid));
+  }
+  return $values;
+}
+
+function graphsGetRanges($name) {
+  global $is_lbf, $pid, $table;
+  if ($is_lbf) {
+    // Like below, but for LBF data.
+    $ranges = sqlQuery("SELECT " .
+      "MAX(CONVERT(ld.field_value, SIGNED)) AS max_" . add_escape_custom($name) . ", " .
+      "MAX(UNIX_TIMESTAMP(f.date)) AS max_date, " .
+      "MIN(UNIX_TIMESTAMP(f.date)) AS min_date " .
+      "FROM forms AS f, lbf_data AS ld WHERE " .
+      "f.pid = ? AND " .
+      "f.formdir = ? AND " .
+      "f.deleted = 0 AND " .
+      "ld.form_id = f.form_id AND " .
+      "ld.field_id = ? AND " .
+      "ld.field_value != '0'",
+      array($pid, $table, $name));
+  }
+  else {
+    $ranges = SqlQuery("SELECT " .
+      "MAX(CONVERT(" . add_escape_custom($name) . ",SIGNED)) AS " .
+      "max_" . add_escape_custom($name) . ", " .
+      "MAX(UNIX_TIMESTAMP(date)) as max_date, " .
+      "MIN(UNIX_TIMESTAMP(date)) as min_date  " .
+      "FROM " . add_escape_custom($table) . " " .
+		  "WHERE " . add_escape_custom($name) . " != 0 " . 
+		  "AND pid = ?", array($pid));
+  }
+  return $ranges;
+}
+
 //Customizations (such as titles and conversions)
-switch ($name) {
+
+if ($is_lbf) {
+  $titleGraph = $title;
+  if ($name == 'bp_systolic' || $name == 'bp_diastolic') {
+    $titleGraph = xl("Blood Pressure") . " (" . xl("mm/hg") . ")";
+    $titleGraphLine1 = xl("BP Systolic");
+    $titleGraphLine2 = xl("BP Diastolic");
+  }
+}
+else {
+ switch ($name) {
   case "weight":
     $titleGraph = $title." (".xl("lbs").")";
     break;
@@ -131,25 +203,14 @@ switch ($name) {
     break;
   default:
     $titleGraph = $title;
+ }
 }
 
 // Collect info
 if ($table) {
-  // Collect the pertinent info and ranges
-  //  (Note am skipping values of zero, this could be made to be
-  //   optional in the future when using lab values)
-  $values = SqlStatement("SELECT " . add_escape_custom($name) . ", " .
-                         "UNIX_TIMESTAMP(date) as unix_date " .
-                         "FROM " .add_escape_custom($table) . " " .
-			 "WHERE " . add_escape_custom($name) . "!=0 " .
-			 "AND pid=? ORDER BY date", array($pid) );
-  $ranges = SqlQuery("SELECT MAX(CONVERT(" . add_escape_custom($name) . ",SIGNED)) AS " .
-                   "max_" . add_escape_custom($name) . ", " .
-                   "MAX(UNIX_TIMESTAMP(date)) as max_date, " .
-                   "MIN(UNIX_TIMESTAMP(date)) as min_date  " .
-                   "FROM " .add_escape_custom($table) . " " .
-		   "WHERE " . add_escape_custom($name) . "!=0 " . 
-		   "AND pid=?", array($pid) );
+  // Like below, but for LBF data.
+  $values = graphsGetValues($name);
+  $ranges = graphsGetRanges($name);
 }
 else {
   exit;
@@ -160,25 +221,29 @@ if (sqlNumRows($values) < 2) {
       exit;
 }
 
-
 // If blood pressure, then collect the other reading to allow graphing both in same graph
 $isBP = 0;
-if ($name == "bps" || $name == "bpd") {
-  // Set BP flag and collect other pressure reading
-  $isBP = 1;
-  if ($name == "bps") $name_alt = "bpd";
-  if ($name == "bpd") $name_alt = "bps";
-  // Collect the pertinent vitals and ranges.
-  $values_alt = SqlStatement("SELECT " . add_escape_custom($name_alt) . ", " .
-                             "UNIX_TIMESTAMP(date) as unix_date " .
-                             "FROM " .add_escape_custom($table) . " " .
-			     "WHERE pid=? ORDER BY date", array($pid) );
-  $ranges_alt = SqlQuery("SELECT MAX(CONVERT(" . add_escape_custom($name_alt) . ",SIGNED)) AS " .
-                         "max_" . add_escape_custom($name_alt) . ", " .
-                         "MAX(UNIX_TIMESTAMP(date)) as max_date, " .
-                         "MIN(UNIX_TIMESTAMP(date)) as min_date  " .
-                         "FROM " .add_escape_custom($table) . " " .
-			 "WHERE pid=?", array($pid) );
+if ($is_lbf) {
+  if ($name == "bp_systolic" || $name == "bp_diastolic") {
+    // Set BP flag and collect other pressure reading
+    $isBP = 1;
+    if ($name == "bp_systolic") $name_alt = "bp_diastolic";
+    else $name_alt = "bp_systolic";
+    // Collect the pertinent vitals and ranges.
+    $values_alt = graphsGetValues($name_alt);
+    $ranges_alt = graphsGetRanges($name_alt);
+  }
+}
+else {
+  if ($name == "bps" || $name == "bpd") {
+    // Set BP flag and collect other pressure reading
+    $isBP = 1;
+    if ($name == "bps") $name_alt = "bpd";
+    if ($name == "bpd") $name_alt = "bps";
+    // Collect the pertinent vitals and ranges.
+    $values_alt = graphsGetValues($name_alt);
+    $ranges_alt = graphsGetRanges($name_alt);
+  }
 }
 
 // Prepare look and feel of data points
@@ -311,5 +376,5 @@ $chart->add_y_axis( $y );
 //error_log("Chart: ".$chart->toPrettyString(),0);
     
 echo $chart->toPrettyString();
-    
+
 ?>

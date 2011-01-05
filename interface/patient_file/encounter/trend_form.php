@@ -1,5 +1,6 @@
 <?php
 // Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+// Modified 2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -8,6 +9,9 @@
 
 $special_timeout = 3600;
 include_once("../../globals.php");
+
+$formname = $_GET["formname"];
+$is_lbf = substr($formname, 0, 3) === 'LBF';
 
 //Bring in the style sheet
 ?>
@@ -85,7 +89,7 @@ $(document).ready(function(){
   $('.readonly').show();
 
   // Place click callback for graphing
-  $(".graph").click(function(e){ show_graph( 'form_vitals', this.id, $(this).text() ) });
+  $(".graph").click(function(e){ show_graph('<?php echo $is_lbf ? $formname : 'form_vitals'; ?>', this.id, $(this).text()) });
 
   // Show hovering effects for the .graph links
   $(".graph").hover(
@@ -98,17 +102,22 @@ $(document).ready(function(){
   );
 
   // show blood pressure graph by default
+<?php if ($formname == 'LBFfms') { ?>
+  show_graph('<?php echo $formname; ?>','total','Sum of Scores');
+<?php } else if ($is_lbf) { ?>
+  show_graph('<?php echo $formname; ?>','bp_systolic','');
+<?php } else { ?>
   show_graph('form_vitals','bps','');
-	
+<?php } ?>
 });
 </script>
 	
 <?php
-if (substr($_GET["formname"], 0, 3) === 'LBF') {
+if ($is_lbf) {
   // Use the List Based Forms engine for all LBFxxxxx forms.
   include_once("$incdir/forms/LBF/new.php");
 }
 else {
-  include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
+  include_once("$incdir/forms/$formname/new.php");
 }
 ?>
