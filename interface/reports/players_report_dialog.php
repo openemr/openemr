@@ -181,7 +181,7 @@ if ($_POST['form_save']) {
 
  // Process click on issue title.
  function newissue() {
-  dlgopen('../patient_file/summary/add_edit_issue.php', '_blank', 800, 600);
+  dlgopen('../patient_file/summary/add_edit_issue.php?thispid=<?php echo $plid; ?>', '_blank', 800, 600);
   return false;
  }
 

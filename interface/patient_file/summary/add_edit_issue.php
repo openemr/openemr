@@ -455,7 +455,8 @@ function divclick(cb, divid) {
 
 <body class="body_top" style="padding-right:0.5em">
 
-<form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>&thisenc=<?php echo $thisenc ?>'
+<form method='post' name='theform'
+ action='add_edit_issue.php?issue=<?php echo $issue; ?>&thispid=<?php echo $thispid; ?>&thisenc=<?php echo $thisenc; ?>'
  onsubmit='return validate()'>
 
 <table border='0' width='100%'>
@@ -655,7 +656,7 @@ echo generate_select_list('form_medical_type', 'medical_type', $irow['injury_typ
    </select>
   </td>
  </tr>
- <!--Reaction For Medication Allergy--!>
+ <!-- Reaction For Medication Allergy -->
   <tr id='row_reaction'>
    <td valign='top' nowrap><b><?php echo htmlspecialchars( xl('Reaction') ,ENT_NOQUOTES); ?>:</b></td>
    <td>
@@ -663,7 +664,8 @@ echo generate_select_list('form_medical_type', 'medical_type', $irow['injury_typ
      style='width:100%' title='<?php echo htmlspecialchars(xl('Allergy Reaction'),ENT_QUOTES); ?>' />
    </td>
   </tr>
- <!--End of reaction--!>
+ <!-- End of reaction -->
+
  <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_referredby'>
   <td valign='top' nowrap><b><?php xl('Referred by','e'); ?>:</b></td>
   <td>
