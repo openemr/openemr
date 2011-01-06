@@ -158,9 +158,9 @@ function process_form($ar) {
 
       $tmp = 1;
       if (isset($ar['HiddenMarkAsCleared']) && $ar['HiddenMarkAsCleared']=='yes') 
-	   {
+       {
         $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);// $sql .= " billed = 1, ";
-	   }
+       }
       if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
         $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner']);
       } else if (isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file'])) {

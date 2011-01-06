@@ -1,6 +1,6 @@
 <?php
 // +-----------------------------------------------------------------------------+ 
-// Copyright (C) 2005-2010 Z&H Healthcare Solutions, LLC <sam@zhservices.com>
+// Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
 // This program is free software; you can redistribute it and/or
@@ -29,126 +29,126 @@
 <script type="text/javascript">
 //Calendar Functions to set From and To dates
 function calendar_function(val,from,to){
-	
-	var date = new Date();
-	fromdate=document.getElementById(from);
-	todate  =document.getElementById(to);
-	if(val=='this_month_to_date'){
-	var dt = date.getDate()-1;
-	fromdate.value=disp_date(-dt,0,0);
-	todate.value=disp_date(0,0,0);
-	}
-	else if(val=='today'){
-	fromdate.value=disp_date(0,0,0);
-	todate.value=disp_date(0,0,0);
-	}
-	else if(val=='last_month'){
-	var m = date.getMonth();
-	var yy = date.getYear();
-	var mt=daysInMonth(m,yy);
-	fromdate.value=last_month()+"-01";
-	todate.value=last_month()+"-"+mt;
-	}
-	else if(val=='this_calendar_year'){
-	var dt = date.getDate()-1;
-	var m = date.getMonth();
-	fromdate.value=disp_date(-dt,-m,0);
-	dt=30-dt;
-	m=11-m;
-	todate.value=disp_date(dt,m,0);
-	}
-	else if(val=='last_calendar_year'){
-	var dt = date.getDate()-1;
-	var m = date.getMonth();
-	fromdate.value=disp_date(-dt,-m,-1);
-	dt=30-dt;
-	m=11-m;
-	todate.value=disp_date(dt,m,-1);
-	}
-	else if(val=='this_week_to_date'){
-	fromdate.value=week_date();
-	todate.value=disp_date(0,0,0);
-	}
-	else{
-	fromdate.value='';
-	todate.value='';
-	}
-	
+    
+    var date = new Date();
+    fromdate=document.getElementById(from);
+    todate  =document.getElementById(to);
+    if(val=='this_month_to_date'){
+    var dt = date.getDate()-1;
+    fromdate.value=disp_date(-dt,0,0);
+    todate.value=disp_date(0,0,0);
+    }
+    else if(val=='today'){
+    fromdate.value=disp_date(0,0,0);
+    todate.value=disp_date(0,0,0);
+    }
+    else if(val=='last_month'){
+    var m = date.getMonth();
+    var yy = date.getYear();
+    var mt=daysInMonth(m,yy);
+    fromdate.value=last_month()+"-01";
+    todate.value=last_month()+"-"+mt;
+    }
+    else if(val=='this_calendar_year'){
+    var dt = date.getDate()-1;
+    var m = date.getMonth();
+    fromdate.value=disp_date(-dt,-m,0);
+    dt=30-dt;
+    m=11-m;
+    todate.value=disp_date(dt,m,0);
+    }
+    else if(val=='last_calendar_year'){
+    var dt = date.getDate()-1;
+    var m = date.getMonth();
+    fromdate.value=disp_date(-dt,-m,-1);
+    dt=30-dt;
+    m=11-m;
+    todate.value=disp_date(dt,m,-1);
+    }
+    else if(val=='this_week_to_date'){
+    fromdate.value=week_date();
+    todate.value=disp_date(0,0,0);
+    }
+    else{
+    fromdate.value='';
+    todate.value='';
+    }
+    
 }
 //Below functions are called in the above function
 function disp_date(dt,mt,yr){
-	var date = new Date();
-	var d  = date.getDate() + dt;
-	var day = (d < 10) ? '0' + d : d;
-	var m = date.getMonth() + 1 + mt;
-	var month = (m < 10) ? '0' + m : m;
-	var yy = date.getYear() + yr;
-	var year = (yy < 1000) ? yy + 1900 : yy;
-	current=(year + "-" + month + "-" + day);
-	return current;
+    var date = new Date();
+    var d  = date.getDate() + dt;
+    var day = (d < 10) ? '0' + d : d;
+    var m = date.getMonth() + 1 + mt;
+    var month = (m < 10) ? '0' + m : m;
+    var yy = date.getYear() + yr;
+    var year = (yy < 1000) ? yy + 1900 : yy;
+    current=(year + "-" + month + "-" + day);
+    return current;
 }
 function daysInMonth(month,year) {
 var dd = new Date(year, month, 0);
 return dd.getDate();
 } 
 function last_month(){
-	var date = new Date();
-	var yy=date.getYear();
-	var m=date.getMonth();
-	if(date.getMonth()==0){
-		yy--;
-		m=12;
-	}
-	var month = (m < 10) ? '0' + m : m;
-	var year = (yy < 1000) ? yy + 1900 : yy;
-	current=(year + "-" + month );
-	return current;
+    var date = new Date();
+    var yy=date.getYear();
+    var m=date.getMonth();
+    if(date.getMonth()==0){
+        yy--;
+        m=12;
+    }
+    var month = (m < 10) ? '0' + m : m;
+    var year = (yy < 1000) ? yy + 1900 : yy;
+    current=(year + "-" + month );
+    return current;
 }
 function week_date(){
-	var today = new Date();
-	var day = today.getDate();
-	var month = today.getMonth() + 1;
-	var year = today.getYear();
-	if (year < 2000)
-	year = year + 1900;
-	var offset = today.getDay();
-	var week;
+    var today = new Date();
+    var day = today.getDate();
+    var month = today.getMonth() + 1;
+    var year = today.getYear();
+    if (year < 2000)
+    year = year + 1900;
+    var offset = today.getDay();
+    var week;
 
-	if(offset != 0) {
-		day = day - offset;
-		if ( day < 1) {
-			if ( month == 1) day = 31 + day;
-			if (month == 2) day = 31 + day;
-			if (month == 3) {
-			if (( year == 00) || ( year == 04)) {
-			day = 29 + day;
-			}
-			else {
-			day = 28 + day;
-			   }
-			}
-			if (month == 4) day = 31 + day;
-			if (month == 5) day = 30 + day;
-			if (month == 6) day = 31 + day;
-			if (month == 7) day = 30 + day;
-			if (month == 8) day = 31 + day;
-			if (month == 9) day = 31 + day;
-			if (month == 10) day = 30 + day;
-			if (month == 11) day = 31 + day;
-			if (month == 12) day = 30 + day;
-			if (month == 1) {
-			month = 12;
-			year = year - 1;
-			}
-			else {
-			month = month - 1;
-			}
-		   }
-	}
-	month = (month < 10) ? '0' + month : month;
-	day = (day < 10) ? '0' + day : day;
-	week = year + "-" + month + "-" + day ;
-	return week;	
+    if(offset != 0) {
+        day = day - offset;
+        if ( day < 1) {
+            if ( month == 1) day = 31 + day;
+            if (month == 2) day = 31 + day;
+            if (month == 3) {
+            if (( year == 00) || ( year == 04)) {
+            day = 29 + day;
+            }
+            else {
+            day = 28 + day;
+               }
+            }
+            if (month == 4) day = 31 + day;
+            if (month == 5) day = 30 + day;
+            if (month == 6) day = 31 + day;
+            if (month == 7) day = 30 + day;
+            if (month == 8) day = 31 + day;
+            if (month == 9) day = 31 + day;
+            if (month == 10) day = 30 + day;
+            if (month == 11) day = 31 + day;
+            if (month == 12) day = 30 + day;
+            if (month == 1) {
+            month = 12;
+            year = year - 1;
+            }
+            else {
+            month = month - 1;
+            }
+           }
+    }
+    month = (month < 10) ? '0' + month : month;
+    day = (day < 10) ? '0' + day : day;
+    week = year + "-" + month + "-" + day ;
+    return week;    
 }
 //================================================================================================================================
 //Search Functionality
@@ -158,7 +158,7 @@ function CriteriaVisible()//This function is called when, on change event happen
    {
     choose_this_page_criteria_value=document.getElementById('choose_this_page_criteria').options[OptionIndex].value;
     if(document.getElementById('table_'+choose_this_page_criteria_value))
-	 document.getElementById('table_'+choose_this_page_criteria_value).style.display='none';
+     document.getElementById('table_'+choose_this_page_criteria_value).style.display='none';
    }
   choose_this_page_criteria_value=document.getElementById('choose_this_page_criteria').options[document.getElementById('choose_this_page_criteria').selectedIndex].value;
   document.getElementById('table_'+choose_this_page_criteria_value).style.display='';
@@ -194,27 +194,27 @@ function appendOptionRadioCriteria(text0,value0,text1,value1,seperator,Type)
   var elOptNew = document.createElement('option');
   if(Type=='radio' || Type=='query_drop_down')
    {
-	  elOptNew.text = text0+seperator+text1;
-	  elOptNew.value = value0+seperator+"'"+value1+"'";
+      elOptNew.text = text0+seperator+text1;
+      elOptNew.value = value0+seperator+"'"+value1+"'";
    }
   else if (Type=='radio_like')
    {
-	  elOptNew.text = text0+' = '+text1;
-	  elOptNew.value = value0+seperator+"'"+value1+"'";
+      elOptNew.text = text0+' = '+text1;
+      elOptNew.value = value0+seperator+"'"+value1+"'";
    }
   var elSel = document.getElementById('final_this_page_criteria');
   TheOptionIndex=checkOptionExist(value0,seperator);
   if(TheOptionIndex==-1)
    {
-	  if(value1!='all')
-	   {
-		  try {
-			elSel.add(elOptNew, null); // standards compliant; doesn't work in IE
-		  }
-		  catch(ex) {
-			elSel.add(elOptNew); // IE only
-		  }
-	   }
+      if(value1!='all')
+       {
+          try {
+            elSel.add(elOptNew, null); // standards compliant; doesn't work in IE
+          }
+          catch(ex) {
+            elSel.add(elOptNew); // IE only
+          }
+       }
    }
   else if(value1=='all')
    {
@@ -223,7 +223,7 @@ function appendOptionRadioCriteria(text0,value0,text1,value1,seperator,Type)
   else
    {
     elSel.options[TheOptionIndex].value=elOptNew.value;
-	elSel.options[TheOptionIndex].text=elOptNew.text;
+    elSel.options[TheOptionIndex].text=elOptNew.text;
    }
 }
 function appendOptionTextCriteria(text0,value0,text1,value1,seperator,Type)
@@ -232,25 +232,25 @@ function appendOptionTextCriteria(text0,value0,text1,value1,seperator,Type)
   elOptNew.text = text0+seperator+text1;
   if(Type=='text')
    {
-	  elOptNew.value = value0+seperator+"'"+value1+"'";
+      elOptNew.value = value0+seperator+"'"+value1+"'";
    }
   else if (Type=='text_like')
    {
-	  elOptNew.value = value0+seperator+"'"+value1+"%'";
+      elOptNew.value = value0+seperator+"'"+value1+"%'";
    }
   var elSel = document.getElementById('final_this_page_criteria');
   TheOptionIndex=checkOptionExist(value0,seperator);
   if(TheOptionIndex==-1)
    {
-	  if(!(value1=='' || value1=='&nbsp;'))//'&nbsp;' is for ajax case
-	   {
-		  try {
-			elSel.add(elOptNew, null); // standards compliant; doesn't work in IE
-		  }
-		  catch(ex) {
-			elSel.add(elOptNew); // IE only
-		  }
-	   }
+      if(!(value1=='' || value1=='&nbsp;'))//'&nbsp;' is for ajax case
+       {
+          try {
+            elSel.add(elOptNew, null); // standards compliant; doesn't work in IE
+          }
+          catch(ex) {
+            elSel.add(elOptNew); // IE only
+          }
+       }
    }
   else if(value1=='' || value1=='&nbsp;')
    {
@@ -259,7 +259,7 @@ function appendOptionTextCriteria(text0,value0,text1,value1,seperator,Type)
   else
    {
     elSel.options[TheOptionIndex].value=elOptNew.value;
-	elSel.options[TheOptionIndex].text=elOptNew.text;
+    elSel.options[TheOptionIndex].text=elOptNew.text;
    }
 }
 function appendOptionDateCriteria(text0,value0,text1,value1,seperator,FromDate,ToDate,Type)//For Date drop down
@@ -270,25 +270,25 @@ function appendOptionDateCriteria(text0,value0,text1,value1,seperator,FromDate,T
   ToDateValue=document.getElementById(ToDate).value;
   if(Type=='date')
    {
-  	  elOptNew.value = "("+value0+" between '"+FromDateValue+"' and '"+ToDateValue+"')";
+        elOptNew.value = "("+value0+" between '"+FromDateValue+"' and '"+ToDateValue+"')";
    }
   if(Type=='datetime')
    {
-	  elOptNew.value = "("+value0+" between '"+FromDateValue+" 00:00:00' and '"+ToDateValue+" 23:59:59')";
+      elOptNew.value = "("+value0+" between '"+FromDateValue+" 00:00:00' and '"+ToDateValue+" 23:59:59')";
    }
   var elSel = document.getElementById('final_this_page_criteria');
   TheOptionIndex=checkOptionExistDateCriteria(value0);
   if(TheOptionIndex==-1)
    {
-	  if(value1!='all')
-	   {
-		  try {
-			elSel.add(elOptNew, null); // standards compliant; doesn't work in IE
-		  }
-		  catch(ex) {
-			elSel.add(elOptNew); // IE only
-		  }
-	   }
+      if(value1!='all')
+       {
+          try {
+            elSel.add(elOptNew, null); // standards compliant; doesn't work in IE
+          }
+          catch(ex) {
+            elSel.add(elOptNew); // IE only
+          }
+       }
    }
   else if(value1=='all')
    {
@@ -297,7 +297,7 @@ function appendOptionDateCriteria(text0,value0,text1,value1,seperator,FromDate,T
   else
    {
     elSel.options[TheOptionIndex].value=elOptNew.value;
-	elSel.options[TheOptionIndex].text=elOptNew.text;
+    elSel.options[TheOptionIndex].text=elOptNew.text;
    }
 }
 function CleanUpAjax(text0,value0,seperator)
@@ -324,12 +324,12 @@ function removeOptionSelected()
   for (i = elSel.length - 1; i>=0; i--) {
     if (elSel.options[i].selected) {
       elSel.remove(i);
-	  OptionRemoved='yes';
+      OptionRemoved='yes';
     }
   }
   if(OptionRemoved=='no')
    {
-   	alert("<?php echo htmlspecialchars( xl('Select Criteria to Remove'), ENT_QUOTES) ?>")
+       alert("<?php echo htmlspecialchars( xl('Select Criteria to Remove'), ENT_QUOTES) ?>")
    }
 }
 function ProcessBeforeSubmitting()//Validations and necessary actions are taken here.
@@ -344,15 +344,15 @@ function ProcessBeforeSubmitting()//Validations and necessary actions are taken 
       elSel.remove(i);
   }
   for (var i=0; i<selObj.options.length; i++) {
-	  var elOptNew = document.createElement('option');
-	  elOptNew.text = 'Sample';//This value has no relevance can be any thing.
-	  elOptNew.value = selObj.options[i].text;
-	  try {
-		elSel.add(elOptNew, null); // standards compliant; doesn't work in IE
-	  }
-	  catch(ex) {
-		elSel.add(elOptNew); // IE only
-	  }
+      var elOptNew = document.createElement('option');
+      elOptNew.text = 'Sample';//This value has no relevance can be any thing.
+      elOptNew.value = selObj.options[i].text;
+      try {
+        elSel.add(elOptNew, null); // standards compliant; doesn't work in IE
+      }
+      catch(ex) {
+        elSel.add(elOptNew); // IE only
+      }
   }
   selectAllOptions('final_this_page_criteria');
   selectAllOptions('final_this_page_criteria_text');
@@ -375,19 +375,19 @@ function ValidateDateCriteria(selStr)
   var selObj = document.getElementById(selStr); 
   for (var i=0; i<selObj.options.length; i++) {
     if(selObj.options[i].value.indexOf('between') != -1)
-	 {
-		 DateArray=selObj.options[i].value.split("'");
-		 if(DateArray[1]>DateArray[3])
-		  {
-			 alert("<?php echo htmlspecialchars( xl('From Date Cannot be Greater than To Date.'), ENT_QUOTES) ?>");
-			 return false;
-		  }
-		 if(DateArray[1]=='' || DateArray[3]=='')
-		  {
-			 alert("<?php echo htmlspecialchars( xl('Date values Cannot be Blank.'), ENT_QUOTES) ?>");
-			 return false;
-		  }
-	 }
+     {
+         DateArray=selObj.options[i].value.split("'");
+         if(DateArray[1]>DateArray[3])
+          {
+             alert("<?php echo htmlspecialchars( xl('From Date Cannot be Greater than To Date.'), ENT_QUOTES) ?>");
+             return false;
+          }
+         if(DateArray[1]=='' || DateArray[3]=='')
+          {
+             alert("<?php echo htmlspecialchars( xl('Date values Cannot be Blank.'), ENT_QUOTES) ?>");
+             return false;
+          }
+     }
   }
   return true;
  }
@@ -399,9 +399,9 @@ function getPosition(who,TopOrLeft){//Returns the top and left position of the p
         who= who.offsetParent;
     }
     if(TopOrLeft=='Top')
-		return T;    
-	else if(TopOrLeft=='Left')
-		return L;    
+        return T;    
+    else if(TopOrLeft=='Left')
+        return L;    
 }
 //-------------------------------------------------------------------------------------------------------------------------
 //In Internet Explorer the ajax drop down of insurance was gettign hidden under the select drop down towards the right side.
@@ -410,15 +410,15 @@ function getPosition(who,TopOrLeft){//Returns the top and left position of the p
 function show_frame_to_hide() {//Show the iframe
 if(document.getElementById("AjaxContainerInsurance"))
  {
-	document.getElementById("frame_to_hide").style.top = getPosition(document.getElementById('ajax_div_insurance'),'Top') + "px";	
-	document.getElementById("frame_to_hide").style.left = getPosition(document.getElementById('final_this_page_criteria'),'Left') + "px";;	
-	document.getElementById("frame_to_hide").style.display = "inline";	
+    document.getElementById("frame_to_hide").style.top = getPosition(document.getElementById('ajax_div_insurance'),'Top') + "px";    
+    document.getElementById("frame_to_hide").style.left = getPosition(document.getElementById('final_this_page_criteria'),'Left') + "px";;    
+    document.getElementById("frame_to_hide").style.display = "inline";    
  }
 }
 function hide_frame_to_hide() {//Hide the iframe
 if(!document.getElementById("AjaxContainerInsurance"))
  {
-	document.getElementById("frame_to_hide").style.display = "none";	
+    document.getElementById("frame_to_hide").style.display = "none";    
  }
 }
 //-------------------------------------------------------------------------------------------------------------------------
