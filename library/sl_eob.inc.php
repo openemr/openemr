@@ -68,7 +68,7 @@
       $pid = $atmp[0];
       $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
         "pid = '$pid' AND encounter = '" . $atmp[1] . "' AND activity = 1");
-		
+        
       $encounter = $brow['encounter'];
     }
     else if ($acount == 1) {
@@ -225,11 +225,11 @@
   }
   //writing the check details to Session Table on ERA proxcessing
 function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_date,$deposit_date,$debug) {
-	  $query = "INSERT INTO ar_session( " .
+      $query = "INSERT INTO ar_session( " .
       "payer_id,user_id,closed,reference,check_date,pay_total,post_to_date,deposit_date,patient_id,payment_type,adjustment_code,payment_method " .
       ") VALUES ( " .
       "'$payer_id'," .
-	  $_SESSION['authUserID']."," .
+      $_SESSION['authUserID']."," .
       "0," .
       "'ePay - $check_number'," .
       "'$check_date', " .
@@ -240,8 +240,8 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
     if ($debug) {
       echo $query . "<br>\n";
     } else {
-	 $sessionId=sqlInsert($query);
-	return $sessionId;
+     $sessionId=sqlInsert($query);
+    return $sessionId;
     }
   }
   
@@ -395,12 +395,15 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
   // Make this invoice re-billable, new style.
   //
   function arSetupSecondary($patient_id, $encounter_id, $debug,$crossover=0) {
-  
-if($crossover==1)
-{$status=6;}//if claim forwarded setting a new status 
-else
-{$status=1;}
-
+    if ($crossover==1) {
+    //if claim forwarded setting a new status 
+    $status=6;
+    
+    } else {
+    
+    $status=1;
+    
+    }
     // Determine the next insurance level to be billed.
     $ferow = sqlQuery("SELECT date, last_level_billed " .
       "FROM form_encounter WHERE " .

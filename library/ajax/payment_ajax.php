@@ -1,6 +1,6 @@
 <?php
 // +-----------------------------------------------------------------------------+ 
-// Copyright (C) 2005-2010 Z&H Healthcare Solutions, LLC <sam@zhservices.com>
+// Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
 // This program is free software; you can redistribute it and/or
