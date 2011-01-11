@@ -82,27 +82,29 @@ function image_widget($doc_id,$doc_catg)
         $image_file = $docobj->get_url_file();
         $extension = substr($image_file, strrpos($image_file,"."));
         $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp'); // image ext supported by fancybox viewer
-        if ( in_array($extention,$viewable_types) == 0 ) { // extention matches list
-                $to_url = "<a href = $web_root" .
+        if ( in_array($extension,$viewable_types) ) { // extention matches list
+                $to_url = "<td> <a href = $web_root" .
 				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id" .
-				"/tmp.$extension" .  // Force image type inot URL for fancybox
+				"/tmp$extension" .  // Force image type URL for fancybox
 				" onclick=top.restoreSession(); class='image_modal'>" .
                 " <img src = $web_root" .
 				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id" .
-				" width=100 alt='$doc_catg:$image_file' align='center'>" .
-                htmlspecialchars(" $doc_catg: $image_file") . 
-				" </a> <br /><br />";
+				" width=100 alt='$doc_catg:$image_file'>  </a> </td> <td valign='center'>".
+                htmlspecialchars($doc_catg) . '<br />&nbsp;' . htmlspecialchars($image_file) .
+				"</td>";
         }
      	else {
-				$to_url = "<a href='" . $web_root . "/controller.php?document&retrieve" .
-                     "&patient_id=$pid&document_id=$doc_id'" .
+				$to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
+                    "&patient_id=$pid&document_id=$doc_id'" .
                     " onclick='top.restoreSession()' class='css_button_small'>" .
                     "<span>" .
                     htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . 
 					htmlspecialchars( "$doc_catg - $image_file", ENT_QUOTES ) .
-                    "</span> <br /><br />";
+                    "</span> </td>";
 		}
-          echo $to_url;
+        echo "<table><tr>";
+        echo $to_url;
+        echo "</tr></table>";
 }
 
 // Determine if the Vitals form is in use for this site.
@@ -671,7 +673,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 			</td>
 		</tr>
 		 <tr>
-                        <td width='650px'>
+       <td width='650px'>
 <?php
 // disclosures expand collapse widget
 $widgetTitle = xl("Disclosures");
@@ -687,9 +689,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
   $widgetAuth, $fixedWidth);
 ?>
-
                     <br/>
-                    <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+                    <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                 </div>
      </td>
     </tr>		
@@ -719,7 +720,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     $widgetAuth, $fixedWidth);
 ?>
       <br/>
-      <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+      <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
       </div>
      </td>
     </tr>
@@ -772,10 +773,11 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     <!-- end left column div -->
 
     <!-- start right column div -->
-	<div class='text'>
+	<div>
     <table>
     <tr>
     <td>
+
 <div>
     <?php
 
@@ -786,9 +788,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetTitle = xl("ID Card") . '/' . xl("Photos");
         $widgetLabel = "photos";
         $linkMethod = "javascript";
-        $bodyClass = "notab";
+        $bodyClass = "notab-right";
         $widgetAuth = false;
-        $fixedWidth = true;
+        $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel ,
                 $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
                 $widgetAuth, $fixedWidth);
@@ -997,7 +999,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 		<div id='stats_div'>
             <br/>
-            <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+            <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
         </div>
     </td>
     </tr>

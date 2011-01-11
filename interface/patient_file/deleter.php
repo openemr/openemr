@@ -341,7 +341,7 @@ document.deletefrm.submit();
 <p class="text">&nbsp;<br>
 <a href="#" onclick="submit_form()" class="css_button"><span><?php xl('Yes, Delete and Log','e'); ?></span></a>
 <input type='hidden' name='form_submit' value=<?php xl('Yes, Delete and Log','e','\'','\''); ?>/>
-<a href='#' class="css_button" onclick='parent.$.fn.fancybox.close();' /><span><?php echo xl('No, Cancel');?></span></a>
+<a href='#' class="css_button" onclick='parent.$.fn.fancybox.close();'><span><?php echo xl('No, Cancel');?></span></a>
 </p>
 
 </center>

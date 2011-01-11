@@ -361,20 +361,21 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $log .= "*** This claim has no charges!\n";
   }
 
+
   ++$edicount;
   $out .= "CLM" .       // Loop 2300 Claim
     "*$pid-$encounter" .
     "*"  . sprintf("%.2f",$clm_total_charges) . // Zirmed computes and replaces this
     "*"  .
     "*"  .
-    "*"  . $claim->facilityPOS() . "::" . $claim->frequencyTypeCode() .
+    "*" . sprintf('%02d', $claim->facilityPOS()) . "::" . $claim->frequencyTypeCode() . // Changed to correct single digit output
     "*Y" .
     "*A" .
     "*"  . ($claim->billingFacilityAssignment() ? 'Y' : 'N') .
     "*Y" .
     "*C" .
-    "~\n";
-
+    "~\n"; 
+    
   ++$edicount;
   $out .= "DTP" .       // Date of Onset
     "*431" .

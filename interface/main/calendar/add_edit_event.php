@@ -1366,7 +1366,7 @@ if ($repeatexdate != "") {
 </form>
 
 <div id="recurr_popup" style="visibility: hidden; position: absolute; top: 50px; left: 50px; width: 400px; border: 3px outset yellow; background-color: yellow; padding: 5px;">
-Apply the changes to the Current event only, to this and all Future occurrences, or to All occurances?
+<?php echo htmlspecialchars(xl('Apply the changes to the Current event only, to this and all Future occurrences, or to All occurrences?')) ?>
 <br>
 <input type="button" name="all_events" id="all_events" value="  All  ">
 <input type="button" name="future_events" id="future_events" value="Future">
