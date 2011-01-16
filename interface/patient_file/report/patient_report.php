@@ -27,7 +27,7 @@ $auth_demo     = acl_check('patients'  , 'demo');
 <script language='JavaScript'>
 
 function checkAll(check) {
- var f = document.forms[0];
+ var f = document.forms['report_form'];
  for (var i = 0; i < f.elements.length; ++i) {
   if (f.elements[i].type == 'checkbox') f.elements[i].checked = check;
  }
