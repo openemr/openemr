@@ -4,6 +4,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+
+// WHEN CONVERT THIS TO NEW SECURITY MODEL, NEED TO REMOVE FOLLOWING
+//   AT APPROXIMATELY LINE 377:
+//     $_REQUEST = stripslashes_deep($_REQUEST);
+// http://www.openmedsoftware.org/wiki/Active_Projects#PLAN
+
+
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
@@ -369,6 +376,7 @@ document.onclick=TakeActionOnHide;
 //$ThisPageSearchCriteriaDisplayMaster ==>It is the display on screen for the set of criteria.
 //$ThisPageSearchCriteriaKeyMaster ==>Corresponding database fields in the same order.
 //$ThisPageSearchCriteriaDataTypeMaster ==>Corresponding data type in the same order.
+$_REQUEST = stripslashes_deep($_REQUEST);//To deal with magic quotes on.
 $ThisPageSearchCriteriaDisplayRadioMaster=array();
 $ThisPageSearchCriteriaRadioKeyMaster=array();
 $ThisPageSearchCriteriaQueryDropDownMaster=array();

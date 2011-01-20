@@ -27,6 +27,11 @@
 ?>
 <!-- Common php functions are stored in this page.  -->
 <?php
+function stripslashes_deep($value)
+{
+    $value = is_array($value) ? array_map('stripslashes_deep', $value) : strip_escape_custom($value);
+    return $value;
+}
 function PrepareSearchItem($SearchItem)
  {//Parses the search value part of the criteria and prepares for sql.
   $SplitArray=split(' like ',$SearchItem);
@@ -34,7 +39,7 @@ function PrepareSearchItem($SearchItem)
    {
     $SplitArray[1] = substr($SplitArray[1], 0, -1); 
     $SplitArray[1] = substr($SplitArray[1], 1); 
-    $SearchItem=$SplitArray[0].' like '."'".formDataCore($SplitArray[1])."'";
+    $SearchItem=$SplitArray[0].' like '."'".add_escape_custom($SplitArray[1])."'";
    }
   else
    {
@@ -43,7 +48,7 @@ function PrepareSearchItem($SearchItem)
        {
         $SplitArray[1] = substr($SplitArray[1], 0, -1); 
         $SplitArray[1] = substr($SplitArray[1], 1); 
-        $SearchItem=$SplitArray[0].' = '."'".formDataCore($SplitArray[1])."'";
+        $SearchItem=$SplitArray[0].' = '."'".add_escape_custom($SplitArray[1])."'";
        }
    }
   return($SearchItem);
