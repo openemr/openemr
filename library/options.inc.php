@@ -1721,6 +1721,8 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					++$item_count;
 					echo generate_display_field($group_fields, $currvalue);
 				  }
+
+        disp_end_row();
 			?>
 
 			</table>
