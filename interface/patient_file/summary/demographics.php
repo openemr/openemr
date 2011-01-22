@@ -601,7 +601,7 @@ if ($GLOBALS['patient_id_category_name']) {
                 <?php // patient reminders collapse widget
                 $widgetTitle = xl("Patient Reminders");
                 $widgetLabel = "patient_reminders";
-                $widgetButtonLabel = xl("View");
+                $widgetButtonLabel = xl("Edit");
                 $widgetButtonLink = "../reminder/patient_reminders.php?mode=simple&patient_id=".$pid;
                 $widgetButtonClass = "";
                 $linkMethod = "html";
@@ -827,11 +827,11 @@ if ($GLOBALS['patient_id_category_name']) {
 	$widgetTitle = xl("Clinical Reminders");
 	$widgetLabel = "clinical_reminders";
 	$widgetButtonLabel = xl("Edit");
-	$widgetButtonLink = "return newEvt();";
+	$widgetButtonLink = "../reminder/clinical_reminders.php?patient_id=".$pid;;
 	$widgetButtonClass = "";
-	$linkMethod = "javascript";
+	$linkMethod = "html";
 	$bodyClass = "summary_item small";
-	$widgetAuth = false;
+	$widgetAuth = true;
 	$fixedWidth = false;
 	expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
           echo "<br/>";

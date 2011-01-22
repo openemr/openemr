@@ -1,5 +1,8 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
+// Copyright (C) 2011 by following authors:
+//   -Brady Miller <brady@sparmy.com>
+//   -Ensofttek, LLC
+//   -Medical Information Integration, LLC
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -524,7 +527,19 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
         $goRule = $rule;
       }
       else {
-        $goRule = $customRule;
+        // merge the custom rule with the default rule
+        $mergedRule = array();
+        foreach ($customRule as $key => $value) {
+          if ($value == NULL && preg_match("/_flag$/",$key)) {
+            // use default setting
+            $mergedRule[$key] = $rule[$key];
+          }
+          else {
+            // use custom setting
+            $mergedRule[$key] = $value;
+          }
+        }
+        $goRule = $mergedRule;
       }
     }
     else {
@@ -539,11 +554,11 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
       }
     }
     else {
-      if ($goRule['active_alert'] == 1 ||
-          $goRule['passive_alert'] == 1 ||
-          $goRule['cqm'] == 1 ||
-          $goRule['amc'] == 1 ||
-          $goRule['patient_reminder'] == 1) {
+      if ($goRule['active_alert_flag'] == 1 ||
+          $goRule['passive_alert_flag'] == 1 ||
+          $goRule['cqm_flag'] == 1 ||
+          $goRule['amc_flag'] == 1 ||
+          $goRule['patient_reminder_flag'] == 1) {
         // active, so use the rule
         array_push($newReturnArray,$goRule);
       }
@@ -552,6 +567,61 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
   $returnArray = $newReturnArray;
 
   return $returnArray;
+}
+
+// Function to return a specific rule
+// Parameters:
+//   $rule       - id(string) of rule
+//   $patient_id - pid of selected patient. (if set to 0, then will return
+//                 the default rule).
+// Return: array containing a rule
+function collect_rule($rule,$patient_id='0') {
+
+  return sqlQuery("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule,$patient_id) );
+  
+}
+
+// Function to set a specific rule activity for a specific patient
+// Parameters:
+//   $rule       - id(string) of rule
+//   $type       - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder)
+//   $setting    - activity of rule (yes,no,default)
+//   $patient_id - pid of selected patient.
+// Return: nothing
+function set_rule_activity_patient($rule,$type,$setting,$patient_id) {
+
+  // Don't allow messing with the default rules here
+  if ($patient_id == "0") {
+    return;
+  }
+
+  // Convert setting
+  if ($setting == "on") {
+    $setting = 1;
+  }
+  else if ($setting == "off") {
+    $setting = 0;
+  }
+  else { // $setting == "default"
+    $setting = NULL;
+  }
+
+  // Collect patient specific rule, if already exists.
+  $query = "SELECT * FROM `clinical_rules` WHERE `id` = ? AND `pid` = ?";
+  $patient_rule = sqlQuery($query, array($rule,$patient_id) );
+
+  error_log("DEBUG :".$rule.$type.$setting.$patient_id,0);
+
+  if (empty($patient_rule)) {
+    // Create a new patient specific rule with flags all set to default
+    $query = "INSERT into `clinical_rules` (`id`, `pid`) VALUES (?,?)";
+    sqlStatement($query, array($rule, $patient_id) ); 
+  }
+
+  // Update patient specific row
+  $query = "UPDATE `clinical_rules` SET `" . add_escape_custom($type) . "_flag`= ? WHERE id = ? AND pid = ?";
+  sqlStatement($query, array($setting,$rule,$patient_id) );
+
 }
 
 // Function to return applicable reminder dates (relative)

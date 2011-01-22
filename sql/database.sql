@@ -3501,13 +3501,13 @@ DROP TABLE IF EXISTS `clinical_rules`;
 CREATE TABLE `clinical_rules` (
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
   `pid` bigint(20) NOT NULL DEFAULT '0' COMMENT '0 is default for all patients, while > 0 is id from patient_data table',
-  `active_alert_flag` tinyint(1) NOT NULL default 0 COMMENT 'Active Alert Widget Module flag - note not yet utilized',
-  `passive_alert_flag` tinyint(1) NOT NULL default 0 COMMENT 'Passive Alert Widget Module flag',
-  `cqm_flag` tinyint(1) NOT NULL default 0 COMMENT 'Clinical Quality Measure flag (unable to customize per patient)',
+  `active_alert_flag` tinyint(1) COMMENT 'Active Alert Widget Module flag - note not yet utilized',
+  `passive_alert_flag` tinyint(1) COMMENT 'Passive Alert Widget Module flag',
+  `cqm_flag` tinyint(1) COMMENT 'Clinical Quality Measure flag (unable to customize per patient)',
   `cqm_code` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure identifier',
-  `amc_flag` tinyint(1) NOT NULL default 0 COMMENT 'Automated Measure Calculation flag (unable to customize per patient)',
+  `amc_flag` tinyint(1) COMMENT 'Automated Measure Calculation flag (unable to customize per patient)',
   `amc_code` varchar(10) NOT NULL default '' COMMENT 'Automated Measure Calculation indentifier (MU rule)',
-  `patient_reminder_flag` tinyint(1) NOT NULL default 0 COMMENT 'Clinical Reminder Module flag',
+  `patient_reminder_flag` tinyint(1) COMMENT 'Clinical Reminder Module flag',
   PRIMARY KEY  (`id`,`pid`)
 ) ENGINE=MyISAM ;
 
