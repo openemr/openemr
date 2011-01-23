@@ -17,9 +17,9 @@ $CPR = 4; // cells per row
 
 $pprow = array();
 
-if (! $encounter) { // comes from globals.php
- die("Internal error: we do not seem to be in an encounter!");
-}
+// if (! $encounter) { // comes from globals.php
+//  die("Internal error: we do not seem to be in an encounter!");
+// }
 
 function end_cell() {
   global $item_count, $cell_count, $historical_ids;
@@ -126,12 +126,6 @@ if ($_POST['bn_save']) {
 
 $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
 if (file_exists($fname)) include_once($fname);
-
-$enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
-  "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
-  "p.pid = '$pid' AND f.pid = '$pid' AND f.encounter = '$encounter' AND " .
-  "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
-  "fe.id = f.form_id LIMIT 1");
 ?>
 <html>
 <head>
@@ -206,13 +200,20 @@ function sel_related() {
 <form method="post" action="<?php echo $rootdir ?>/forms/LBF/new.php?formname=<?php echo $formname ?>&id=<?php echo $formid ?>"
  onsubmit="return top.restoreSession()">
 
-<p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>
 <?php
-  echo "$formtitle " . xl('for') . ' ';
-  echo $enrow['fname'] . ' ' . $enrow['mname'] . ' ' . $enrow['lname'];
-  echo ' ' . htmlspecialchars(xl('on')) . ' ' . substr($enrow['date'], 0, 10);
+  if ($encounter) {
+    $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
+      "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
+      "p.pid = '$pid' AND f.pid = '$pid' AND f.encounter = '$encounter' AND " .
+      "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
+      "fe.id = f.form_id LIMIT 1");
+    echo "<p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>\n";
+    echo "$formtitle " . xl('for') . ' ';
+    echo $enrow['fname'] . ' ' . $enrow['mname'] . ' ' . $enrow['lname'];
+    echo ' ' . htmlspecialchars(xl('on')) . ' ' . substr($enrow['date'], 0, 10);
+    echo "</p>\n";
+  }
 ?>
-</p>
 
 <!-- This is where a chart might display. -->
 <div id="chart"></div>
@@ -381,10 +382,12 @@ function sel_related() {
 ?>
 
 <p style='text-align:center'>
+<?php if ($encounter) { ?>
 <input type='submit' name='bn_save' value='<?php echo htmlspecialchars(xl('Save')) ?>' />
 &nbsp;
 <input type='button' value='<?php echo htmlspecialchars(xl('Cancel')) ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 &nbsp;
+<?php } ?>
 <?php if ($form_is_graphable) { ?>
 <input type='button' value='<?php echo htmlspecialchars(xl('Show Graph')) ?>' onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo $formname; ?>'" />
 &nbsp;

@@ -105,6 +105,10 @@ function image_widget($doc_id,$doc_catg)
           echo $to_url;
 }
 
+// Determine if the Vitals form is in use for this site.
+$tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE " .
+  "directory = 'vitals' AND state = 1");
+$vitals_is_registered = $tmp['count'];
 ?>
 <html>
 
@@ -233,39 +237,54 @@ $(document).ready(function(){
     });
     $("#pnotes_ps_expand").load("pnotes_fragment.php");
     $("#disclosures_ps_expand").load("disc_fragment.php");
+
+<?php if ($vitals_is_registered) { ?>
+    // Initialize the Vitals form if it is registered.
     $("#vitals_ps_expand").load("vitals_fragment.php");
-	
+<?php } ?>
+
+<?php
+  // Initialize for each applicable LBF form.
+  $gfres = sqlStatement("SELECT option_id FROM list_options WHERE " .
+    "list_id = 'lbfnames' AND option_value > 0 ORDER BY seq, title");
+  while($gfrow = sqlFetchArray($gfres)) {
+?>
+    $("#<?php echo $gfrow['option_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['option_id']; ?>");
+<?php
+  }
+?>
+
     // fancy box
     enable_modals();
 
     tabbify();
 
 // modal for dialog boxes
-	$(".large_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 600,
-		'frameWidth' : 1000,
-        'centerOnScroll' : false
-	});
+  $(".large_modal").fancybox( {
+    'overlayOpacity' : 0.0,
+    'showCloseButton' : true,
+    'frameHeight' : 600,
+    'frameWidth' : 1000,
+    'centerOnScroll' : false
+  });
 
 // modal for image viewer
-	$(".image_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-        'centerOnScroll' : false,
-		'autoscale' : true
-	});
+  $(".image_modal").fancybox( {
+    'overlayOpacity' : 0.0,
+    'showCloseButton' : true,
+    'centerOnScroll' : false,
+    'autoscale' : true
+  });
 
 });
 
 </script>
 
 <style type="css/text">
-    #pnotes_ps_expand {
-        height:auto;
-        width:100%;
-    }
+#pnotes_ps_expand {
+  height:auto;
+  width:100%;
+}
 </style>
 
 </head>
@@ -675,6 +694,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
      </td>
     </tr>		
 
+
+
+<?php if ($vitals_is_registered) { ?>
     <tr>
      <td width='650px'>
 <?php // vitals expand collapse widget
@@ -703,6 +725,51 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       </div>
      </td>
     </tr>
+<?php } // end if ($vitals_is_registered) ?>
+
+<?php
+  // This generates a section similar to Vitals for each LBF form that
+  // supports charting.  The form ID is used as the "widget label".
+  //
+  $gfres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+    "list_id = 'lbfnames' AND option_value > 0 ORDER BY seq, title");
+  while($gfrow = sqlFetchArray($gfres)) {
+?>
+    <tr>
+     <td width='650px'>
+<?php // vitals expand collapse widget
+    $vitals_form_id = $gfrow['option_id'];
+    $widgetTitle = $gfrow['title'];
+    $widgetLabel = $vitals_form_id;
+    $widgetButtonLabel = xl("Trend");
+    $widgetButtonLink = "../encounter/trend_form.php?formname=$vitals_form_id";
+    $widgetButtonClass = "";
+    $linkMethod = "html";
+    $bodyClass = "notab";
+    // check to see if any instances exist for this patient
+    $existVitals = sqlQuery(
+      "SELECT * FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0",
+      array($pid, $vitals_form_id));
+    $widgetAuth = $existVitals ? true : false;
+    $fixedWidth = true;
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+      $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+      $widgetAuth, $fixedWidth);
+?>
+       <br/>
+       <div style='margin-left:10px' class='text'>
+        <image src='../../pic/ajax-loader.gif'/>
+       </div>
+       <br/>
+      </div> <!-- This is required by expand_collapse_widget(). -->
+     </td>
+    </tr>
+<?php
+  } // end while
+?>
+
+
+
    </table>
 
   </div>
