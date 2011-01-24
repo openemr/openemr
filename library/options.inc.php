@@ -20,13 +20,14 @@
 //
 // C = Capitalize first letter of each word (text fields)
 // D = Check for duplicates in New Patient form
+// G = Graphable (for numeric fields in forms supporting historical data)
 // H = Read-only field copied from static history
 // L = Lab Order ("ord_lab") types only (address book)
 // N = Show in New Patient form
 // O = Procedure Order ("ord_*") types only (address book)
+// R = Distributor types only (address book)
 // U = Capitalize all letters (text fields)
 // V = Vendor types only (address book)
-// R = Distributor types only (address book)
 // 1 = Write Once (not editable when not empty) (text fields)
 
 require_once("formdata.inc.php");

@@ -17,9 +17,11 @@ $CPR = 4; // cells per row
 
 $pprow = array();
 
-// if (! $encounter) { // comes from globals.php
-//  die("Internal error: we do not seem to be in an encounter!");
-// }
+// $is_lbf is defined in trend_form.php and indicates that we are being
+// invoked from there; in that case the current encounter is irrelevant.
+if (empty($is_lbf) && !$encounter) {
+  die("Internal error: we do not seem to be in an encounter!");
+}
 
 function end_cell() {
   global $item_count, $cell_count, $historical_ids;
@@ -201,7 +203,7 @@ function sel_related() {
  onsubmit="return top.restoreSession()">
 
 <?php
-  if ($encounter) {
+  if (empty($is_lbf)) {
     $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
       "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
       "p.pid = '$pid' AND f.pid = '$pid' AND f.encounter = '$encounter' AND " .
@@ -294,14 +296,16 @@ function sel_related() {
       $historical_ids = array();
       if ($formhistory > 0) {
         echo " <tr>";
-        echo "<td colspan='$CPR' align='right' class='bold'>" . htmlspecialchars(xl('Current')) . "</th>\n";
+        echo "<td colspan='$CPR' align='right' class='bold'>";
+        if (empty($is_lbf)) echo htmlspecialchars(xl('Current'));
+        echo "</td>\n";
         $hres = sqlStatement("SELECT date, form_id FROM forms WHERE " .
           "pid = '$pid' AND formdir = '$formname' AND " .
           "form_id != '$formid' AND deleted = 0 " .
           "ORDER BY date DESC LIMIT $formhistory");
         while ($hrow = sqlFetchArray($hres)) {
           $historical_ids[$hrow['form_id']] = '';
-          echo "<td colspan='$CPR' align='right' class='bold'>&nbsp;" . $hrow['date'] . "</th>\n";
+          echo "<td colspan='$CPR' align='right' class='bold'>&nbsp;" . $hrow['date'] . "</td>\n";
           // TBD: Format date per globals.
         }
         echo " </tr>";
@@ -363,10 +367,13 @@ function sel_related() {
 
     ++$item_count;
 
-    if ($frow['edit_options'] == 'H')
-      echo generate_display_field($frow, $currvalue);
-    else
-      generate_form_field($frow, $currvalue);
+    // Skip current-value fields for the display-only case.
+    if (empty($is_lbf)) {
+      if ($frow['edit_options'] == 'H')
+        echo generate_display_field($frow, $currvalue);
+      else
+        generate_form_field($frow, $currvalue);
+    }
 
     // Append to historical data of other dates for this item.
     foreach ($historical_ids as $key => $dummy) {
@@ -382,15 +389,17 @@ function sel_related() {
 ?>
 
 <p style='text-align:center'>
-<?php if ($encounter) { ?>
+<?php if (empty($is_lbf)) { ?>
 <input type='submit' name='bn_save' value='<?php echo htmlspecialchars(xl('Save')) ?>' />
 &nbsp;
 <input type='button' value='<?php echo htmlspecialchars(xl('Cancel')) ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 &nbsp;
-<?php } ?>
 <?php if ($form_is_graphable) { ?>
 <input type='button' value='<?php echo htmlspecialchars(xl('Show Graph')) ?>' onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo $formname; ?>'" />
 &nbsp;
+<?php } ?>
+<?php } else { ?>
+<input type='button' value='<?php echo htmlspecialchars(xl('Back')) ?>' onclick='window.back();' />
 <?php } ?>
 </p>
 

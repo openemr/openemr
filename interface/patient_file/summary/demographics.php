@@ -694,8 +694,6 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
      </td>
     </tr>		
 
-
-
 <?php if ($vitals_is_registered) { ?>
     <tr>
      <td width='650px'>
@@ -767,8 +765,6 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 <?php
   } // end while
 ?>
-
-
 
    </table>
 
