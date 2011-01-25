@@ -71,7 +71,6 @@ function fms_numeric_changed(e) {
 // once when the page is loaded.
 //
 function LBFfms_javascript_onload() {
-
   echo "
 var f = document.forms[0];
 for (var i = 0; i < fms_numeric.length; ++i) {
@@ -90,4 +89,3 @@ f.form_total.readOnly = true;
 
 }
 ?>
-

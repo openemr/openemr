@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2011 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -83,10 +83,11 @@
  // form data, and add logic to the save routines to make sure they match
  // the corresponding session values.
 
- include_once("../globals.php");
- include_once($GLOBALS['fileroot']."/library/acl.inc");
- include_once($GLOBALS['fileroot']."/custom/code_types.inc.php");
- include_once($GLOBALS['fileroot']."/library/patient.inc");
+ require_once("../globals.php");
+ require_once($GLOBALS['fileroot']."/library/acl.inc");
+ require_once($GLOBALS['fileroot']."/custom/code_types.inc.php");
+ require_once($GLOBALS['fileroot']."/library/patient.inc");
+ require_once($GLOBALS['fileroot']."/library/lists.inc");
 
  // This array defines the list of primary documents that may be
  // chosen.  Each element value is an array of 3 values:
@@ -567,6 +568,49 @@ function goHome() {
   }
  }
 
+ // Clear and reload issue-related menu items for active_pid.
+ // Currently this only applies to athletic teams, but might be implemented
+ // in the general menu at some future time.
+ //
+ function reloadIssues() {
+<?php
+  if ($GLOBALS['athletic_team']) {
+    // Generates a menu item for each active issue that this patient
+    // has of each issue type.  Each one looks like this:
+    //   Onset-Date Issue-Title [List] [Add]
+    // where the first part is a link to open the issue dialog,
+    // [List] is a link that shows related encounters, and
+    // [Add] is a link that auto-creates and opens a new encounter.
+    foreach ($ISSUE_TYPES as $key => $value) {
+?>
+  $('#icontainer_<?php echo $key ?>').empty();
+  if (active_pid != 0) {
+   $('#icontainer_<?php echo $key ?>').append("<li>" +
+    "<a href='' id='xxx1' onclick='return repPopup(" +
+    "\"../patient_file/summary/add_edit_issue.php?thistype=" +
+    "<?php echo $key; ?>\")' " +
+    "title='<?php echo xl('Create new issue'); ?>'>" +
+    "<?php echo xl('New') . " " . $value[1]; ?></a></li>");
+   top.restoreSession();
+   $.getScript('../../library/ajax/left_nav_issues_ajax.php?type=<?php echo $key; ?>');
+  }
+<?php
+    }
+  }
+?>
+ } // end function reloadIssues
+
+ // This is referenced in left_nav_issues_ajax.php and is called when [Add]
+ // is clicked for an issue menu item to add encounter notes to a new or
+ // existing encounter linked to that issue.  So far this only applies to
+ // the Athletic Team version of the menu.
+ //
+ function addEncNotes(issue) {
+  top.restoreSession();
+  $.getScript('../../library/ajax/left_nav_encounter_ajax.php?issue=' + issue);
+  return false;
+ }
+
  // Call this to announce that the patient has changed.  You must call this
  // if you change the session PID, so that the navigation frame will show the
  // correct patient and so that the other frame will be reloaded if it contains
@@ -595,8 +639,10 @@ function goHome() {
           loadFrame('ens0',encounter_frame, '<?php echo $primary_docs['ens'][2]; ?>');
           setRadio(encounter_frame, 'ens');
       }
-   }
   }
+
+  reloadIssues(pid);
+ }
  function setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray) {
  //This function lists all encounters of the patient.
  //This function writes the drop down in the top frame.
@@ -848,46 +894,51 @@ $(document).ready(function(){
 <?php if ($GLOBALS['athletic_team']) { // Tree menu for athletic teams ?>
 
   <?php genTreeLink('RBot','msg',xl('Messages')); ?>
-  <li class="open"><a class="expanded" id="patimg" ><span><?php xl('Patient/Client','e') ?></span></a>
+  <li><a class="collapsed" id="patimg" ><span><?php xl('View','e') ?></span></a>
     <ul>
-      <li class="open"><a class="expanded_lv2"><span><?php xl('Demographics','e') ?></span></a>
-        <ul>
-          <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>
-          <?php genTreeLink('RTop','dem',xl('Current')); ?>
-        </ul>
-      </li>
-      <li class="open"><a class="collapsed_lv2"><span><?php xl('Medical Records','e') ?></span></a>
-        <ul>
-          <?php // genPopLink (xl('Team Roster'),'players_report.php'); ?>
-
-          <?php genTreeLink('RTop','ros',xl('Weekly Exposures'),true); ?>
-          <?php genMiscLink('RTop','ros','0',xl('Team Roster'),'reports/old_players_report.php?embed=1',true); ?>
-          <?php if (!$GLOBALS['disable_calendar']) genTreeLink('RTop','cal',xl('Calendar'),true); ?>
-
-          <?php genDualLink('nen','ens',xl('New Consultation')); // with ens on bottom ?>
-
-          <?php // genDualLink('enc','ens','Current Consultation'); // with ens on bottom ?>
-          <?php genTreeLink('RTop','enc',xl('Current Consultation')); // encounter_top will itself load ens on bottom ?>
-
-          <?php // genDualLink('dem','ens',xl('Previous Consultations')); // with dem on top ?>
-          <?php genTreeLink('RBot','ens',xl('Previous Consultations'),true); ?>
-          <?php genDualLink('his','ens',xl('Prev Med/Surg Hx')); // with ens on bottom ?>
-
-          <?php // genTreeLink('RBot','nen',xl('New Allergy')); // nen with Allergy in chief complaint ?>
-          <?php genPopLink(xl('New Allergy'),'../patient_file/summary/add_edit_issue.php?thistype=allergy','xxx1'); ?>
-
-          <?php genTreeLink('RTop','iss',xl('View/Edit Allergies')); // somehow emphasizing allergies...? ?>
-          <?php genDualLink('iss','ens',xl('Problems/Issues')); // with ens on bottom ?>
-          <?php genDualLink('tra','ens',xl('Transactions/Referrals')); // new transaction form on top and tra list on bottom (or ens if no tra) ?>
-          <?php if (!$GLOBALS['disable_immunizations']) genDualLink('his','imm',xl('Immunizations')); // imm on bottom, his on top ?>
-          <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genDualLink('his','pre',xl('Prescriptions')); // pre on bottom, his on top ?>
-          <?php genTreeLink('RTop','doc',xl('Document/Imaging Store'),true); ?>
-          <?php genTreeLink('RTop','prp',xl('Patient Printed Report')); ?>
-          <?php genDualLink('dem','pno',xl('Additional Notes')); // with dem on top ?>
-          <li><a href='' onClick="return repPopup('../patient_file/letter.php')" id='prp1'>Letter</a></li>
-          <?php genPopLink(xl('Address Book'),'../usergroup/addrbook_list.php?popup=1'); ?>
-         </ul>
-      </li>
+      <?php genTreeLink('RTop','ros',xl('Weekly Exposures'),true); ?>
+      <?php genMiscLink('RTop','ros','0',xl('Team Roster'),'reports/old_players_report.php?embed=1',true); ?>
+      <?php if (!$GLOBALS['disable_calendar']) genTreeLink('RTop','cal',xl('Calendar'),true); ?>
+    </ul>
+  </li>
+  <li class="open"><a class="collapsed" id="patimg" ><span><?php xl('Demographics','e') ?></span></a>
+    <ul>
+      <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>
+      <?php genTreeLink('RTop','dem',xl('Current')); ?>
+    </ul>
+  </li>
+  <li class="open"><a class="expanded" id="patimg" ><span><?php xl('Medical Records','e') ?></span></a>
+    <ul>
+      <?php genDualLink('iss','ens',xl('All Injuries/Problems/Issues')); // with ens on bottom ?>
+<?php
+  // Add a container for each issue type.
+  foreach ($ISSUE_TYPES as $key => $value) {
+    echo "      <li class='open'><a class='collapsed_lv2'><span>" . xl('Active') . " " . $value[0] . "</span></a>\n";
+    echo "        <ul id='icontainer_$key'>\n";
+    echo "        </ul>\n";
+    echo "      </li>\n";
+  }
+?>
+      <?php genDualLink('nen','ens',xl('New Consultation')); // with ens on bottom ?>
+      <?php // genDualLink('enc','ens','Current Consultation'); // with ens on bottom ?>
+      <?php genTreeLink('RTop','enc',xl('Current Consultation')); // encounter_top will itself load ens on bottom ?>
+      <?php // genDualLink('dem','ens',xl('Previous Consultations')); // with dem on top ?>
+      <?php genTreeLink('RBot','ens',xl('Previous Consultations'),true); ?>
+      <?php genDualLink('his','ens',xl('Prev Med/Surg Hx')); // with ens on bottom ?>
+      <?php // genPopLink(xl('New Allergy'),'../patient_file/summary/add_edit_issue.php?thistype=allergy','xxx1'); ?>
+      <?php // genTreeLink('RTop','iss',xl('View/Edit Allergies')); // somehow emphasizing allergies...? ?>
+      <?php if (!$GLOBALS['disable_immunizations']) genDualLink('his','imm',xl('Immunizations')); // imm on bottom, his on top ?>
+      <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genDualLink('his','pre',xl('Prescriptions')); // pre on bottom, his on top ?>
+      <?php genTreeLink('RTop','doc',xl('Document/Imaging Store'),true); ?>
+      <?php genDualLink('dem','pno',xl('Additional Notes')); // with dem on top ?>
+    </ul>
+  </li>
+  <li class="open"><a class="collapsed" id="patimg" ><span><?php xl('Medical Administration','e') ?></span></a>
+    <ul>
+      <?php genDualLink('tra','ens',xl('Transactions/Referrals')); // new transaction form on top and tra list on bottom (or ens if no tra) ?>
+      <?php genPopLink(xl('Address Book'),'../usergroup/addrbook_list.php?popup=1'); ?>
+      <li><a href='' onClick="return repPopup('../patient_file/letter.php')" id='prp1'>Letter</a></li>
+      <?php genTreeLink('RTop','prp',xl('Patient Printed Report')); ?>
     </ul>
   </li>
   <li class="open"><a class="collapsed" id="repimg" ><span><?php xl('Reports','e') ?></span></a>
