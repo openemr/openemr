@@ -169,7 +169,7 @@ function getResultData() {
 	from form_ankleinjury
 	where pid =".$pid;
 		
-	$result = mysql_query($sql);
+	$result = sqlStatement($sql);
 	return $result;
 }
 
