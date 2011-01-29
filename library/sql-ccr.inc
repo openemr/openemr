@@ -45,9 +45,9 @@ function getMedicationData() {
 			prescriptions.active,
 			prescriptions.provider_id 
 		FROM prescriptions 
-		WHERE prescriptions.patient_id =  ".$pid;
+		WHERE prescriptions.patient_id = ?";
 		
-	$result = sqlStatement($sql);
+	$result = sqlStatement($sql, array($pid) );
 	return $result;
 }
 
@@ -62,9 +62,9 @@ function getImmunizationData() {
 			immunizations.manufacturer,
 			list_options.title
 		FROM immunizations , list_options
-		WHERE immunizations.immunization_id = list_options.option_id and immunizations.patient_id = ".$pid." and list_id = 'immunizations' " ;
+		WHERE immunizations.immunization_id = list_options.option_id and immunizations.patient_id = ? and list_id = 'immunizations' " ;
 	
-	$result = sqlStatement($sql);
+	$result = sqlStatement($sql, array($pid) );
 	return $result;
 }
 
@@ -100,9 +100,9 @@ function getProcedureData() {
 	on form_encounter.facility_id = facility.id
 	left join users
 	on form_encounter.provider_id = users.id
-	where lists.type = 'surgery' and lists.pid=".$pid;
+	where lists.type = 'surgery' and lists.pid=?";
 
-	$result = sqlStatement($sql);
+	$result = sqlStatement($sql, array($pid) );
 	return $result;
 }
 
@@ -126,9 +126,9 @@ function getProblemData() {
 	on fe.provider_id = u.id
 	left join codes as cd
 	on cd.code = SUBSTRING(l.diagnosis, LOCATE(':',l.diagnosis)+1)
-	where l.type = 'medical_problem' and l.pid=".$pid;
+	where l.type = 'medical_problem' and l.pid=?";
 		
-	$result = sqlStatement($sql);
+	$result = sqlStatement($sql, array($pid) );
 	return $result;
 }
 
@@ -153,9 +153,9 @@ function getAlertData() {
 	on fe.provider_id = u.id
 	left join codes as cd
 	on cd.code = SUBSTRING(l.diagnosis, LOCATE(':',l.diagnosis)+1)
-	where l.type = 'allergy' and l.pid=".$pid;
+	where l.type = 'allergy' and l.pid=?";
 		
-	$result = sqlStatement($sql);
+	$result = sqlStatement($sql, array($pid) );
 	return $result;
 }
 
@@ -164,13 +164,16 @@ function getResultData() {
 
 	global $pid;
 
-	$sql = " 
-	select date, pid, groupname, ankle_able_to_bear_weight_steps, ankle_x_ray_interpretation
-	from form_ankleinjury
-	where pid =".$pid;
+        // Commented this out, since throws error because the form_ankleinjury table does not
+        // exist in default OpenEMR instance.
+
+	//$sql = " 
+	//select date, pid, groupname, ankle_able_to_bear_weight_steps, ankle_x_ray_interpretation
+	//from form_ankleinjury
+	//where pid =?";
 		
-	$result = sqlStatement($sql);
-	return $result;
+	//$result = sqlStatement($sql, array($pid) );
+	//return $result;
 }
 
 
@@ -180,9 +183,9 @@ function getActorData() {
 	$sql = " 
 	select fname, lname, DOB, sex, pid, street, city, state, postal_code, phone_contact
 	from patient_data
-	where pid=".$pid;
+	where pid=?";
 		
-	$result = sqlStatement($sql);
+	$result = sqlStatement($sql, array($pid) );
 	return $result;
 }
 
