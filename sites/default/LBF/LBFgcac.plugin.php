@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -149,7 +149,7 @@ function client_status_changed() {
    }
   }
  }
- if (csval == 'mara' || csval == 'defer') {
+ if (csval == 'mara' || csval == 'defer' || csval == 'refin') {
   dis1 = true;
   dis2 = true;
  }
