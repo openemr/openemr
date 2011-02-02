@@ -21,8 +21,6 @@
       <field name="signature_box" label="Signature" type="textfield" maxlength="60" hoverover="Sign here to signify all information in this form is correct" labelcols="1" cols="1"/>
     </section>
   </manual>
-  <!-- commented out, to make this example trivially simple -->
-  <!-- <signature field="signature_box" relationship="not-equal" constant=""/> -->
   <!-- list is empty, as its already in OpenEMR -->
   <list name="yesno" label="Yes/No" type="standard" id="yesno" import="no"/>
 </form>
