@@ -23,17 +23,16 @@ require_once("$srcdir/clinical_rules.php");
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-
+<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 </head>
 
 <?php
@@ -66,11 +65,25 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 ?>
 
 <ul class="tabNav">
-  <li class='current'><a href='/play/javascript-tabbed-navigation/'><?php echo htmlspecialchars( xl('Rules'), ENT_NOQUOTES); ?></a></li>
+  <li class='current'><a href='/play/javascript-tabbed-navigation/'><?php echo htmlspecialchars( xl('Main'), ENT_NOQUOTES); ?></a></li>
+  <li><a href='/play/javascript-tabbed-navigation/'><?php echo htmlspecialchars( xl('Plans'), ENT_NOQUOTES); ?></a></li>
+  <li><a href='/play/javascript-tabbed-navigation/'><?php echo htmlspecialchars( xl('Admin'), ENT_NOQUOTES); ?></a></li>
 </ul>
 
 <div class="tabContainer">
-  <div class="tab current" style="height:auto;width:97%;">
+  <div class="tab current text" style="height:auto;width:97%;">
+    <?php
+      clinical_summary_widget($pid,"reminders-all");
+    ?>
+  </div>
+
+  <div class="tab text" style="height:auto;width:97%;">
+    <?php
+      clinical_summary_widget($pid,"reminders-all",'',"plans");
+    ?>
+  </div>
+
+  <div class="tab" style="height:auto;width:97%;">
     <div id='report_results'>
       <table>
         <tr>
@@ -160,6 +173,8 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 <script type="text/javascript">
   $(document).ready(function() {
 
+    enable_modals();
+
     tabbify();
 
     $(".passive_alert").change(function() {
@@ -182,6 +197,21 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
       });
     });
 
+    $(".medium_modal").fancybox( {
+      'overlayOpacity' : 0.0,
+      'showCloseButton' : true,
+      'frameHeight' : 500,
+      'frameWidth' : 800,
+      'centerOnScroll' : false,
+      'callbackOnClose' : function()  {
+        refreshme();
+      }
+    });
+
+    function refreshme() {
+      top.restoreSession();
+      location.reload();
+    }
 
   });
 </script>

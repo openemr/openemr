@@ -19,17 +19,28 @@ require_once(dirname(__FILE__) . "/options.inc.php");
 // Display the clinical summary widget.
 // Parameters:
 //   $patient_id - pid of selected patient
+//   $mode       - choose either 'reminders-all' or 'reminders-due' (required)
 //   $dateTarget - target date. If blank then will test with current date as target.
-function clinical_summary_widget($patient_id,$dateTarget='') {
+//   $organize_mode - Way to organize the results (default or plans)
+function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode='default') {
   
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Collect active actions
-  $actions = test_rules_clinic('','passive_alert',$dateTarget,'reminders',$patient_id);
+  $actions = test_rules_clinic('','passive_alert',$dateTarget,$mode,$patient_id,'',$organize_mode);
 
   // Display the actions
   foreach ($actions as $action) {
+
+    // Deal with plan names first
+    if ($action['is_plan']) {
+      echo "<br><b>";
+      echo htmlspecialchars( xl("Plan"), ENT_NOQUOTES) . ": ";
+      echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'),$action['id']);
+      echo "</b><br>";
+      continue;
+    }
 
     if ($action['custom_flag']) {
       // Start link for reminders that use the custom rules input screen
@@ -58,11 +69,14 @@ function clinical_summary_widget($patient_id,$dateTarget='') {
 
     // Display due status
     if ($action['due_status']) {
-      // Color code the status (red for past due, yellow for due, and black for soon due)
+      // Color code the status (red for past due, purple for due, green for not due and black for soon due)
       if ($action['due_status'] == "past_due") {
         echo "&nbsp;&nbsp;(<span style='color:red'>";
       }
       else if ($action['due_status'] == "due") {
+        echo "&nbsp;&nbsp;(<span style='color:purple'>";
+      }
+      else if ($action['due_status'] == "not_due") {
         echo "&nbsp;&nbsp;(<span style='color:green'>";
       }
       else {
@@ -83,19 +97,50 @@ function clinical_summary_widget($patient_id,$dateTarget='') {
 //   $provider   - id of a selected provider. If blank, then will test entire clinic.
 //   $type       - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder). If blank then will test all rules.
 //   $dateTarget - target date. If blank then will test with current date as target.
-//   $mode       - choose either 'report' or 'reminders' (required)
+//   $mode       - choose either 'report' or 'reminders-all' or 'reminders-due' (required)
 //   $patient_id - pid of patient. If blank then will check all patients.
-// Return:
-//   Returns a two-dimensional array of results that depends on the mode:
-//     reminders mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
-//     report mode    - returns an array of rows for the Clinical Quality Measures (CQM) report
-function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='') {
+//   $plan       - test for specific plan only
+//   $organize_mode - Way to organize the results
+//     'default':
+//       Returns a two-dimensional array of results that depends on the mode:
+//       reminders-due mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
+//       reminders-all mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
+//       report mode    - returns an array of rows for the Clinical Quality Measures (CQM) report
+//    'plans':
+//       Returns as default, but organizes by the active plans
+//
+function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default') {
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Prepare the results array
   $results = array();
+
+  // If set organize-mode to plans, then collects active plans and run through this function recursively
+  if ($organize_mode == "plans") {
+
+    // First, collect active plans
+    if ($mode != "report") {
+      $plans_resolve = resolve_plans_sql('normal',$patient_id);
+    }
+    else { // $mode == "report"
+      $plans_resolve = resolve_plans_sql('cqm',$patient_id);
+    }
+
+    // Second, run through function recursively
+    foreach ($plans_resolve as $plan_item) {
+      $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id']);
+      if (!empty($newResults)) {
+        $plan_item['is_plan'] = TRUE;
+        array_push($results,$plan_item);
+        $results = array_merge($results,$newResults);
+      }
+    }
+    
+    // done, so now can return results
+    return $results;
+  }
 
   // Collect all patient ids
   $patientData = array();
@@ -132,13 +177,13 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   //    Reminder that action is post-due
   
   //Collect applicable rules  
-  if ($mode == "reminders") {
+  if ($mode != "report") {
     // Use per patient custom rules (if exist)
-    $rules = resolve_rules_sql($type,$patient_id);
+    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan);
   }
   else { // $mode = "report"
-    // Only use default rules (do not use patient custom rules
-    $rules = resolve_rules_sql($type);
+    // Only use default rules (do not use patient custom rules)
+    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan);
   }
 
   foreach( $rules as $rowRule ) {
@@ -147,7 +192,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     //  from rule_reminder table
 
     $target_dates = array();
-    if ($mode == "reminders") {
+    if ($mode != "report") {
       // Calculate the dates to check for
       if ($type == "patient_reminder") {
         $reminder_interval_type = "patient_reminder";
@@ -157,7 +202,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       }
       $target_dates = calculate_reminder_dates($rowRule['id'], $dateTarget, $reminder_interval_type);
     }
-    else { // $mode == "reports"
+    else { // $mode == "report"
       // Only use the target date in the report
       $target_dates[0] = $dateTarget;
     }
@@ -195,6 +240,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         // Check if pass filter
         $passFilter = test_filter($rowPatient['pid'],$rowRule['id'],$dateFocus);
         if ($passFilter) {
+          // increment pass filter counter
           $pass_filter++;
         }
         else {
@@ -205,12 +251,25 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         // Check if pass target
         $passTarget = test_targets($rowPatient['pid'],$rowRule['id'],'',$dateFocus); 
         if ($passTarget) {
+          // increment pass target counter
           $pass_target++;
+          // send to reminder results
+          if ($mode == "reminders-all") {
+            // place the completed actions into the reminder return array
+            $actionArray = resolve_action_sql($rowRule['id'],'1');
+            foreach ($actionArray as $action) {
+              $action_plus = $action;
+              $action_plus['due_status'] = "not_due";
+              $action_plus['pid'] = $rowPatient['pid'];
+              $results = reminder_results_integrate($results, $action_plus);
+            }
+          }
           break;
         }
         else {
-          if ($mode == "reminders") {
-            // place the actions into the reminder return array
+          // send to reminder results
+          if ($mode != "report") {
+            // place the uncompleted actions into the reminder return array
             $actionArray = resolve_action_sql($rowRule['id'],'1');
             foreach ($actionArray as $action) {
               $action_plus = $action;
@@ -239,7 +298,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     // Find the number of target groups, and go through each one if more than one
     $targetGroups = numberTargetGroups($rowRule['id']);
     if ($targetGroups > 1) {
-      if ($mode == "reminders") {
+      if ($mode != "report") {
         $start_id = 2;
       }
       else { // $mode == "report"
@@ -275,11 +334,24 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
             //Check if pass target
             $passTarget = test_targets($rowPatient['pid'],$rowRule['id'],$i,$dateFocus);
             if ($passTarget) {
+              // increment pass target counter
               $pass_target++;
+              // send to reminder results
+              if ($mode == "reminders-all") {
+                // place the completed actions into the reminder return array
+                $actionArray = resolve_action_sql($rowRule['id'],'1');
+                foreach ($actionArray as $action) {
+                  $action_plus = $action;
+                  $action_plus['due_status'] = "not_due";
+                  $action_plus['pid'] = $rowPatient['pid'];
+                  $results = reminder_results_integrate($results, $action_plus);
+                }
+              }
               break;
             }
             else {
-              if ($mode == "reminders") {
+              // send to reminder results
+              if ($mode != "rule") {
                 // place the actions into the reminder return array
                 $actionArray = resolve_action_sql($rowRule['id'],$i);
                 foreach ($actionArray as $action) {
@@ -489,6 +561,83 @@ function test_targets($patient_id,$rule,$group_id='',$dateTarget) {
   return true;
 }
 
+// Function to return active plans
+// Parameters:
+//   $type             - plan type filter (normal or cqm or blank)
+//   $patient_id       - pid of selected patient. (if custom plan does not exist then
+//                        will use the default plan)
+//   $configurableOnly - true if only want the configurable (per patient) plans
+//                       (ie. ignore cqm plans)
+// Return: array containing plans
+function resolve_plans_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
+
+  if ($configurableOnly) {
+    // Collect all default, configurable (per patient) plans into an array
+    //   (ie. ignore the cqm rules)
+    $sql = sqlStatement("SELECT * FROM `clinical_plans` WHERE `pid`=0 AND `cqm` !=1 ORDER BY `id`");
+  }
+  else {
+    // Collect all default plans into an array
+    $sql = sqlStatement("SELECT * FROM `clinical_plans` WHERE `pid`=0 ORDER BY `id`");
+  }
+  $returnArray= array();
+  for($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    array_push($returnArray,$row);
+  }
+
+  // Now collect the pertinent plans
+  $newReturnArray = array();
+
+  // Need to select rules (use custom if exist)
+  foreach ($returnArray as $plan) {
+    $customPlan = sqlQuery("SELECT * FROM `clinical_plans` WHERE `id`=? AND `pid`=?", array($plan['id'],$patient_id) );
+
+    // Decide if use default vs custom plan (preference given to custom plan)
+    if (!empty($customPlan)) {
+      if ($type == "cqm" ) {
+        // For CQM , do not use custom plans (these are to create standard clinic wide reports)
+        $goPlan = $plan;
+      }
+      else {
+        // merge the custom plan with the default plan
+        $mergedPlan = array();
+        foreach ($customPlan as $key => $value) {
+          if ($value == NULL && preg_match("/_flag$/",$key)) {
+            // use default setting
+            $mergedPlan[$key] = $plan[$key];
+          }
+          else {
+            // use custom setting
+            $mergedPlan[$key] = $value;
+          }
+        }
+        $goPlan = $mergedPlan;
+      }
+    }
+    else {
+      $goPlan = $plan;
+    }
+
+    // Use the chosen plan if set
+    if (!empty($type)) {
+      if ($goPlan["${type}_flag"] == 1) {
+        // active, so use the plan
+        array_push($newReturnArray,$goPlan);
+      }
+    }
+    else {
+      if ($goPlan['normal_flag'] == 1 ||
+          $goPlan['cqm_flag'] == 1) {
+        // active, so use the plan
+        array_push($newReturnArray,$goPlan);
+      }
+    }
+  }
+  $returnArray = $newReturnArray;
+
+  return $returnArray;
+}
+
 // Function to return active rules
 // Parameters:
 //   $type             - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder)
@@ -496,8 +645,9 @@ function test_targets($patient_id,$rule,$group_id='',$dateTarget) {
 //                        will use the default rule)
 //   $configurableOnly - true if only want the configurable (per patient) rules 
 //                       (ie. ignore cqm and amc rules)
+//   $plan             - collect rules for specific plan
 // Return: array containing rules
-function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
+function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$plan='') {
 
   if ($configurableOnly) {
     // Collect all default, configurable (per patient) rules into an array
@@ -511,6 +661,19 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
   $returnArray= array();
   for($iter=0; $row=sqlFetchArray($sql); $iter++) {
     array_push($returnArray,$row);
+  }
+
+  // Now filter rules for plan (if applicable)
+  if (!empty($plan)) {
+    $planReturnArray = array();
+    foreach ($returnArray as $rule) {
+      $standardRule = sqlQuery("SELECT * FROM `clinical_plans_rules` " .
+                               "WHERE `plan_id`=? AND `rule_id`=?", array($plan,$rule['id']) );
+      if (!empty($standardRule)) {
+        array_push($planReturnArray,$rule);
+      }
+    }
+    $returnArray = $planReturnArray;
   }
 
   // Now collect the pertinent rules

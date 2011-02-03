@@ -21,7 +21,7 @@ $fake_register_globals=false;
 require_once( dirname(__FILE__) . "/../../globals.php");
 require_once("$srcdir/clinical_rules.php");
 
-clinical_summary_widget($pid);
+clinical_summary_widget($pid,"reminders-due");
 
 ?>
 
