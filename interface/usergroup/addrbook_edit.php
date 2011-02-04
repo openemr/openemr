@@ -80,9 +80,9 @@ td { font-size:10pt; }
  var type_options_js = Array();
  <?php
   // Collect the type options. Possible values are:
-  // 1 = Unassigned (default to patient centric)
+  // 1 = Unassigned (default to person centric)
   // 2 = Person Centric
-  // 3 = Company Centric (Basically, do not show the Name fields)
+  // 3 = Company Centric
   $sql = sqlStatement("SELECT option_id, option_value FROM list_options WHERE " .
    "list_id = 'abook_type'");
   while ($row_query = sqlFetchArray($sql)) {
@@ -93,12 +93,22 @@ td { font-size:10pt; }
  // Process to customize the form by type
  function typeSelect(a) {
   if (type_options_js[a] == 3) {
-   // Company centric, so hide the Name entries
+   // Company centric:
+   //   1) Hide the person Name entries
+   //   2) Hide the Specialty entry
+   //   3) Show the director Name entries
    document.getElementById("nameRow").style.display = "none";
+   document.getElementById("specialtyRow").style.display = "none";
+   document.getElementById("nameDirectorRow").style.display = "";
   }
   else {
-   // show the name row
+   // Person centric:
+   //   1) Hide the director Name entries
+   //   2) Show the person Name entries
+   //   3) Show the Specialty entry
+   document.getElementById("nameDirectorRow").style.display = "none";
    document.getElementById("nameRow").style.display = "";
+   document.getElementById("specialtyRow").style.display = "";
   }
  }
 </script>
@@ -111,14 +121,34 @@ td { font-size:10pt; }
  //
  if ($_POST['form_save']) {
 
+ // Collect the form_abook_type option value
+ //  (ie. patient vs company centric)
+ $type_sql_row = sqlQuery("SELECT `option_value` FROM `list_options` WHERE `list_id` = 'abook_type' AND `option_id` = " . invalue('form_abook_type') . "");
+ $option_abook_type = $type_sql_row['option_value'];
+ // Set up any abook_type specific settings
+ if ($option_abook_type == 3) {
+  // Company centric
+  $form_title = invalue('form_director_title');
+  $form_fname = invalue('form_director_fname');
+  $form_lname = invalue('form_director_lname');
+  $form_mname = invalue('form_director_mname');
+ }
+ else {
+  // Person centric
+  $form_title = invalue('form_title');
+  $form_fname = invalue('form_fname');
+  $form_lname = invalue('form_lname');
+  $form_mname = invalue('form_mname');
+ }
+
   if ($userid) {
 
    $query = "UPDATE users SET " .
     "abook_type = "   . invalue('form_abook_type')   . ", " .
-    "title = "        . invalue('form_title')        . ", " .
-    "fname = "        . invalue('form_fname')        . ", " .
-    "lname = "        . invalue('form_lname')        . ", " .
-    "mname = "        . invalue('form_mname')        . ", " .
+    "title = "        . $form_title                  . ", " .
+    "fname = "        . $form_fname                  . ", " .
+    "lname = "        . $form_lname                  . ", " .
+    "mname = "        . $form_mname                  . ", " .
     "specialty = "    . invalue('form_specialty')    . ", " .
     "organization = " . invalue('form_organization') . ", " .
     "valedictory = "  . invalue('form_valedictory')  . ", " .
@@ -164,10 +194,10 @@ td { font-size:10pt; }
     "0, "                                . // authorized
     "'', "                               . // info
     "NULL, "                             . // source
-    invalue('form_title')         . ", " .
-    invalue('form_fname')         . ", " .
-    invalue('form_lname')         . ", " .
-    invalue('form_mname')         . ", " .
+    $form_title                   . ", " .
+    $form_fname                   . ", " .
+    $form_lname                   . ", " .
+    $form_mname                   . ", " .
     invalue('form_federaltaxid')  . ", " .
     "'', "                               . // federaldrugid
     invalue('form_upin')          . ", " .
@@ -273,7 +303,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr>
+ <tr id="specialtyRow">
   <td nowrap><b><?php xl('Specialty','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_specialty' maxlength='250'
@@ -288,6 +318,21 @@ td { font-size:10pt; }
    <input type='text' size='40' name='form_organization' maxlength='250'
     value='<?php echo htmlspecialchars($row['organization'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr id="nameDirectorRow">
+  <td width='1%' nowrap><b><?php xl('Director Name','e'); ?>:</b></td>
+  <td>
+<?php
+ generate_form_field(array('data_type'=>1,'field_id'=>'director_title','list_id'=>'titles','empty_title'=>' '), $row['title']);
+?>
+   <b><?php xl('Last','e'); ?>:</b><input type='text' size='10' name='form_director_lname' class='inputtext'
+     maxlength='50' value='<?php echo htmlspecialchars($row['lname'], ENT_QUOTES); ?>'/>&nbsp;
+   <b><?php xl('First','e'); ?>:</b> <input type='text' size='10' name='form_director_fname' class='inputtext'
+     maxlength='50' value='<?php echo htmlspecialchars($row['fname'], ENT_QUOTES); ?>' />&nbsp;
+   <b><?php xl('Middle','e'); ?>:</b> <input type='text' size='4' name='form_director_mname' class='inputtext'
+     maxlength='50' value='<?php echo htmlspecialchars($row['mname'], ENT_QUOTES); ?>' />
   </td>
  </tr>
 

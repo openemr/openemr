@@ -19,7 +19,7 @@
  $form_abook_type = formData("form_abook_type","R",true);
  $form_external = $_POST['form_external'] ? 1 : 0;
 
-$query = "SELECT u.*, lo.option_id AS ab_name FROM users AS u " .
+$query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM users AS u " .
   "LEFT JOIN list_options AS lo ON " .
   "list_id = 'abook_type' AND option_id = u.abook_type " .
   "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
@@ -128,12 +128,17 @@ function doedclick_edit(userid) {
   $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
   $username = $row['username'];
   if (! $row['active']) $username = '--';
-  if ( empty($row['fname']) && empty($row['mname']) && empty($row['lname']) ) {
+
+  // Collect the display name
+  if ($row['ab_option'] == 3) {
+   // Company centric listing
    $displayName = $row['organization'];
   }
   else {
+   // Person centric listing
    $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
   }
+
   if ( acl_check('admin', 'practice' ) || (empty($username) && empty($row['ab_name'])) ) {
    // Allow edit, since have access or (no item type and not a local user)
    $trTitle = xl('Edit','','',' ') . $displayName;
