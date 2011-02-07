@@ -275,6 +275,16 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Format used to display most dates.')
     ),
+    
+    'time_display_format' => array(
+      xl('Time Display Format'),
+      array(
+        '0' => xl('24 hr'),
+        '1' => xl('12 hr'),
+      ),
+      '0',
+      xl('Format used to display most times.')
+    ),
 
     'currency_decimals' => array(
       xl('Currency Decimal Places'),
@@ -313,8 +323,7 @@ $GLOBALS_METADATA = array(
       xl('Currency Designator'),
       'text',                           // data type
       '$',                              // default
-      xl('Code or symbol to indicate currency') . '. ' . xl('Examples') .
-        ': USD GBP EUR $ £ €'
+      xl('Code or symbol to indicate currency')
     ),
 
   ),
