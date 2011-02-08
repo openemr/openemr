@@ -210,7 +210,7 @@ class FormROS extends ORDataObject {
 	}
 
 	function get_date() {
-		return $this->section;
+		return $this->date;
 	}
 	
 	function set_date($date) {
