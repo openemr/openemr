@@ -26,7 +26,9 @@ require_once "$srcdir/clinical_rules.php";
 
 // Collect parameters (set defaults if empty)
 $target_date = (isset($_POST['form_target_date'])) ? trim($_POST['form_target_date']) : date('Y-m-d H:i:s');
-$rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : $rule_filter = "cqm";
+$rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : "";
+$plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
+$organize_method = (empty($plan_filter)) ? "default" : "plans";
 $provider  = trim($_POST['form_provider']);
 
 ?>
@@ -132,7 +134,21 @@ $provider  = trim($_POST['form_provider']);
                                  <option value='patient_reminder' <?php if ($rule_filter == "patient_reminder") echo "selected"; ?>>
                                  <?php echo htmlspecialchars( xl('Patient Reminder Rules'), ENT_NOQUOTES); ?></option>
                         </td>
-                        <td>&nbsp;</td>
+                </tr>
+                <tr>
+                        <td class='label'>
+                           <?php echo htmlspecialchars( xl('Plan Set'), ENT_NOQUOTES); ?>:
+                        </td>
+                        <td>
+                                 <select name='form_plan_filter'>
+                                 <option value=''>-- <?php echo htmlspecialchars( xl('Show All'), ENT_NOQUOTES); ?> --</option>
+                                 <option value='cqm' <?php if ($plan_filter == "cqm") echo "selected"; ?>>
+                                 <?php echo htmlspecialchars( xl('Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
+                                 <option value='normal' <?php if ($plan_filter == "normal") echo "selected"; ?>>
+                                 <?php echo htmlspecialchars( xl('Active Plans'), ENT_NOQUOTES); ?></option>
+                        </td>
+                </tr>
+                <tr>      
 			<td class='label'>
 			   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
 			</td>
@@ -148,7 +164,11 @@ $provider  = trim($_POST['form_provider']);
 				 $ures = sqlStatement($query);
 
 				 echo "   <select name='form_provider'>\n";
-				 echo "    <option value=''>-- " . htmlspecialchars( xl('All'), ENT_NOQUOTES) . " --\n";
+				 echo "    <option value=''>-- " . htmlspecialchars( xl('All (Cumulative)'), ENT_NOQUOTES) . " --\n";
+
+                                 echo "    <option value='collate'";
+                                 if ($_POST['form_provider'] == 'collate') echo " selected";
+                                 echo ">-- " . htmlspecialchars( xl('All (Collated)'), ENT_NOQUOTES) . " --\n";
 
 				 while ($urow = sqlFetchArray($ures)) {
 				  $provid = $urow['id'];
@@ -160,7 +180,7 @@ $provider  = trim($_POST['form_provider']);
 				 echo "   </select>\n";
 
 				?>
-			</td>
+                        </td>
 		</tr>
 	</table>
 
@@ -195,6 +215,8 @@ $provider  = trim($_POST['form_provider']);
 
 </div>  <!-- end of search parameters -->
 
+<br>
+
 <?php
  if ($_POST['form_refresh']) {
 ?>
@@ -213,24 +235,31 @@ $provider  = trim($_POST['form_provider']);
   </th>
 
   <th>
-   <?php echo htmlspecialchars( xl('Applicable Patients (Denominator)'), ENT_NOQUOTES); ?></a>
+   <?php echo htmlspecialchars( xl('Applicable Patients'), ENT_NOQUOTES); ?></a>
   </th>
 
   <th>
-   <?php echo htmlspecialchars( xl('Passed Patients (Numerator)'), ENT_NOQUOTES); ?></a>
+   <?php echo htmlspecialchars( xl('Excluded Patients'), ENT_NOQUOTES); ?></a>
   </th>
 
   <th>
-   <?php echo htmlspecialchars( xl('Percentage (Performance Calculation)'), ENT_NOQUOTES); ?></a>
+   <?php echo htmlspecialchars( xl('Passed Patients'), ENT_NOQUOTES); ?></a>
+  </th>
+
+  <th>
+   <?php echo htmlspecialchars( xl('Performance Percentage'), ENT_NOQUOTES); ?></a>
   </th>
 
  </thead>
  <tbody>  <!-- added for better print-ability -->
 <?php
-  
-  //collect the results
-  $dataSheet = test_rules_clinic($provider,$rule_filter,$target_date,"report"); 
 
+  //collect the results
+  $dataSheet = test_rules_clinic($provider,$rule_filter,$target_date,"report",'',$plan_filter,$organize_method);
+
+  $firstProviderFlag = TRUE;
+  $firstPlanFlag = TRUE;
+  $existProvider = FALSE;
   foreach ($dataSheet as $row) {
 
 ?>
@@ -238,36 +267,68 @@ $provider  = trim($_POST['form_provider']);
  <tr bgcolor='<?php echo $bgcolor ?>'>
 
   <?php
-   $firstLabelFlag = 1;
-   if ($row[0] == "main") {
-     array_shift($row);
-     foreach($row as $element) {
-       echo "<td class='detail'>";
-       if ($firstLabelFlag) { 
-         echo "<b>".generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$element)."</b>";
-         $firstLabelFlag = 0;
+   if (isset($row['is_main']) || isset($row['is_sub'])) {
+     echo "<td class='detail'>";
+     if (isset($row['is_main'])) {
+       echo "<b>".generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id'])."</b>";
+       if (!empty($row['cqm_pqri_code']) || !empty($row['cqm_nqf_code']) || !empty($row['amc_code'])) {
+         echo " (";
+         if (!empty($row['cqm_pqri_code'])) {
+         echo " " . htmlspecialchars( xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
+         }
+         if (!empty($row['cqm_nqf_code'])) {
+         echo " " . htmlspecialchars( xl('NQF') . ":" . $row['cqm_nqf_code'], ENT_NOQUOTES) . " ";
+         }
+         if (!empty($row['amc_code'])) {
+         echo " " . htmlspecialchars( xl('AMC') . ":" . $row['amc_code'], ENT_NOQUOTES) . " ";
+         }
+         echo ")";
        }
-       else {
-         echo htmlspecialchars( $element, ENT_NOQUOTES);
-       }
-       echo "</td>";
      }
+     else { // isset($row['is_sub'])
+       echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$row['action_category']);
+       echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$row['action_item']);
+     }
+     echo "</td>";
+     echo "<td align='center'>" . $row['total_patients'] . "</td>";
+     echo "<td align='center'>" . $row['pass_filter'] . "</td>";
+     echo "<td align='center'>" . $row['excluded'] . "</td>";
+     echo "<td align='center'>" . $row['pass_target'] . "</td>";
+     echo "<td align='center'>" . $row['percentage'] . "</td>";
    }
-   else { // $row[0] == "sub"
-     array_shift($row);
-     foreach($row as $element) {
-       echo "<td class='detail'>";
-       if ($firstLabelFlag) {
-         $titles = explode("::",$element);
-         echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$titles[0]) .
-           ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$titles[1]);
-         $firstLabelFlag = 0;
-       }
-       else {
-         echo htmlspecialchars( $element, ENT_NOQUOTES);
-       }
-       echo "</td>";
+   else if (isset($row['is_provider'])) {
+     // Display the provider information
+     if (!$firstProviderFlag) {
+       echo "<tr><td>&nbsp</td></tr>";
      }
+     echo "<td class='detail' align='center'><b>";
+     echo htmlspecialchars( xl("Provider").": " . $row['prov_lname'] . "," . $row['prov_fname'], ENT_NOQUOTES);
+     if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
+       echo " (";
+       if (!empty($row['npi'])) {
+        echo " " . htmlspecialchars( xl('NPI') . ":" . $row['npi'], ENT_NOQUOTES) . " ";
+       }
+       if (!empty($row['federaltaxid'])) {
+        echo " " . htmlspecialchars( xl('TID') . ":" . $row['federaltaxid'], ENT_NOQUOTES) . " ";
+       }
+       echo ")";
+     }
+     echo "</b></td>";
+     $firstProviderFlag = FALSE;
+     $existProvider = TRUE;
+   }
+   else { // isset($row['is_plan'])
+     if (!$firstPlanFlag && !$existProvider) {
+       echo "<tr><td>&nbsp</td></tr>";
+     }
+     echo "<td class='detail' align='center'><b>";
+     echo htmlspecialchars( xl("Plan"), ENT_NOQUOTES) . ": ";
+     echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'),$row['id']);
+     if (!empty($row['cqm_measure_group'])) {
+       echo " (". htmlspecialchars( xl('Measure Group Code') . ": " . $row['cqm_measure_group'], ENT_NOQUOTES) . ")";
+     }
+     echo "</b></td>";
+     $firstPlanFlag = FALSE;
    }
   ?>
  </tr>

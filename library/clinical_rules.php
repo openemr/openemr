@@ -94,20 +94,21 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 // Test the clinic rules of entire clinic and create a report or patient reminders
 //  (can also test on one patient or patients of one provider)
 // Parameters:
-//   $provider   - id of a selected provider. If blank, then will test entire clinic.
+//   $provider   - id of a selected provider. If blank, then will test entire clinic. If 'collate', then will test each
+//                 provider separately in entire clinic.
 //   $type       - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder). If blank then will test all rules.
 //   $dateTarget - target date. If blank then will test with current date as target.
 //   $mode       - choose either 'report' or 'reminders-all' or 'reminders-due' (required)
 //   $patient_id - pid of patient. If blank then will check all patients.
 //   $plan       - test for specific plan only
-//   $organize_mode - Way to organize the results
+//   $organize_mode - Way to organize the results (default, plans)
 //     'default':
-//       Returns a two-dimensional array of results that depends on the mode:
-//       reminders-due mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
-//       reminders-all mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
-//       report mode    - returns an array of rows for the Clinical Quality Measures (CQM) report
-//    'plans':
-//       Returns as default, but organizes by the active plans
+//       Returns a two-dimensional array of results organized by rules:
+//         reminders-due mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
+//         reminders-all mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
+//         report mode    - returns an array of rows for the Clinical Quality Measures (CQM) report
+//     'plans':
+//       Returns similar to default, but organizes by the active plans
 //
 function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default') {
 
@@ -117,17 +118,32 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   // Prepare the results array
   $results = array();
 
+  // If set the $provider to collate, then run through this function recursively.
+  if ($provider == "collate") {
+    // First, collect an array of all providers
+    $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname"; 
+    $ures = sqlStatement($query);
+    // Second, run through each provider recursively
+    while ($urow = sqlFetchArray($ures)) {
+      $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan,$organize_mode);
+      if (!empty($newResults)) {
+        $provider_item['is_provider'] = TRUE;
+        $provider_item['prov_lname'] = $urow['lname'];
+        $provider_item['prov_fname'] = $urow['fname'];
+        $provider_item['npi'] = $urow['npi'];
+        $provider_item['federaltaxid'] = $urow['federaltaxid'];
+        array_push($results,$provider_item);
+        $results = array_merge($results,$newResults);
+      }
+    }
+    // done, so now can return results
+    return $results;
+  }
+
   // If set organize-mode to plans, then collects active plans and run through this function recursively
   if ($organize_mode == "plans") {
-
     // First, collect active plans
-    if ($mode != "report") {
-      $plans_resolve = resolve_plans_sql('normal',$patient_id);
-    }
-    else { // $mode == "report"
-      $plans_resolve = resolve_plans_sql('cqm',$patient_id);
-    }
-
+    $plans_resolve = resolve_plans_sql($plan,$patient_id);
     // Second, run through function recursively
     foreach ($plans_resolve as $plan_item) {
       $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id']);
@@ -137,7 +153,6 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         $results = array_merge($results,$newResults);
       }
     }
-    
     // done, so now can return results
     return $results;
   }
@@ -210,6 +225,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     //Reset the counters
     $total_patients = 0;
     $pass_filter = 0;
+    $exclude_filter = 0;
     $pass_target = 0;
 
     foreach( $patientData as $rowPatient ) {
@@ -239,6 +255,14 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 
         // Check if pass filter
         $passFilter = test_filter($rowPatient['pid'],$rowRule['id'],$dateFocus);
+        if ($passFilter === "EXCLUDED") {
+          // increment EXCLUDED and pass_filter counters
+          //  and set as FALSE for reminder functionality.
+          $pass_filter++;
+          $exclude_filter++;
+          $passFilter = FALSE;
+          error_log("DEBUG: ".$rowPatient['pid'].$rowRule['id'].$dateFocus,0);
+        }
         if ($passFilter) {
           // increment pass filter counter
           $pass_filter++;
@@ -285,13 +309,14 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 
     // Calculate and save the data for the rule
     if ($pass_filter > 0) {
-      $percentage = number_format(($pass_target/$pass_filter)*100) . xl('%');
+      $percentage = number_format(($pass_target/($pass_filter-$exclude_filter))*100) . xl('%');
     }
     else {
       $percentage = "0". xl('%');
     }
     if ($mode == "report") {
-      $newRow=array("main", $rowRule['id'], $total_patients, $pass_filter, $pass_target, $percentage);
+      $newRow=array('is_main'=>TRUE,'total_patients'=>$total_patients,'excluded'=>$exclude_filter,'pass_filter'=>$pass_filter,'pass_target'=>$pass_target,'percentage'=>$percentage);
+      $newRow=array_merge($newRow,$rowRule);
       array_push($results, $newRow);
     }
 
@@ -351,7 +376,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
             }
             else {
               // send to reminder results
-              if ($mode != "rule") {
+              if ($mode != "report") {
                 // place the actions into the reminder return array
                 $actionArray = resolve_action_sql($rowRule['id'],$i);
                 foreach ($actionArray as $action) {
@@ -368,7 +393,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 
         // Calculate and save the data for the rule
         if ($pass_filter > 0) {
-          $percentage = number_format(($pass_target/$pass_filter)*100) . xl('%');
+          $percentage = number_format(($pass_target/($pass_filter-$exclude_filter))*100) . xl('%');
         }
         else {
           $percentage = "0". xl('%');
@@ -378,7 +403,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         $actionArray = resolve_action_sql($rowRule['id'],$i);
         $action = $actionArray[0];
         if ($mode == "report") {
-          $newRow=array("sub", $action['category']."::".$action['item'], " ", " ", $pass_target, $percentage);
+          $newRow=array('is_sub'=>TRUE,'action_category'=>$action['category'],'action_item'=>$action['item'],'total_patients'=>'','excluded'=>'','pass_filter'=>'','pass_target'=>$pass_target,'percentage'=>$percentage);
           array_push($results, $newRow);
         }
       }
@@ -395,7 +420,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 //   $rule       - id(string) of selected rule
 //   $dateTarget - target date.
 // Return:
-//   boolean (if pass filter then true, otherwise false)
+//   boolean (if pass filter then TRUE, if excluded then 'EXCLUDED', if not pass filter then FALSE)
 function test_filter($patient_id,$rule,$dateTarget) {
 
   // Set date to current if not set
@@ -427,7 +452,11 @@ function test_filter($patient_id,$rule,$dateTarget) {
     }
   }
 
-  // -------- Age Filter ------------
+  //
+  // ----------------- INCLUSIONS -----------------
+  //
+
+  // -------- Age Filter (inclusion) ------------
   // Calculate patient age in years and months
   if (!empty($adjustedDate1)) {
     // See above Special Filters section in for details.
@@ -438,7 +467,7 @@ function test_filter($patient_id,$rule,$dateTarget) {
     $patientAgeYears = convertDobtoAgeYearDecimal($patientData['DOB_TS'],$dateTarget);
     $patientAgeMonths = convertDobtoAgeMonthDecimal($patientData['DOB_TS'],$dateTarget);
   }
-  // Min age (year) Filter (includes) (assume that there in not more than one of each)
+  // Min age (year) Filter (assume that there in not more than one of each)
   $filter = resolve_filter_sql($rule,'filt_age_min');
   if (!empty($filter)) {
     $row = $filter[0];
@@ -453,7 +482,7 @@ function test_filter($patient_id,$rule,$dateTarget) {
       }
     }
   }
-  // Max age (year) Filter (includes) (assume that there in not more than one of each)
+  // Max age (year) Filter (assume that there in not more than one of each)
   $filter = resolve_filter_sql($rule,'filt_age_max');
   if (!empty($filter)) {
     $row = $filter[0];
@@ -469,8 +498,8 @@ function test_filter($patient_id,$rule,$dateTarget) {
     }
   }
 
-  // -------- Gender Filter ---------
-  // Gender Filter (includes) (assume that there in not more than one of each)
+  // -------- Gender Filter (inclusion) ---------
+  // Gender Filter (assume that there in not more than one of each)
   $filter = resolve_filter_sql($rule,'filt_sex');
   if (!empty($filter)) {
     $row = $filter[0];
@@ -479,19 +508,16 @@ function test_filter($patient_id,$rule,$dateTarget) {
     }
   }
 
-  // -------- Database Filter ------
-  // Database Filter (includes)
+  // -------- Database Filter (inclusion) ------
+  // Database Filter
   $filter = resolve_filter_sql($rule,'filt_database');
   if ((!empty($filter)) && !database_check($patient_id,$filter,'',$dateTarget)) return false;
 
-  // -------- Lists Filter ----
+  // -------- Lists Filter (inclusion) ----
   // Set up lists filter, which is fully customizable and currently includes diagnoses, meds,
   //   surgeries and allergies.
   $filter = resolve_filter_sql($rule,'filt_lists');
   if ((!empty($filter)) && !lists_check($patient_id,$filter,$dateTarget)) return false;
-  // Set up exclusion filter
-  $filter = resolve_filter_sql($rule,'filt_lists',0);
-  if ((!empty($filter)) && lists_check($patient_id,$filter,$dateTarget)) return false;
 
   // -------- Clinic Visit(s) Filter --------
   $filter = resolve_filter_sql($rule,'filt_encounter_min');
@@ -508,6 +534,16 @@ function test_filter($patient_id,$rule,$dateTarget) {
     (empty($encounters)) ? $totalNumberAppt = 0 : $totalNumberAppt = count($encounters);
     if ($row['value'] && $totalNumberAppt < $row['value']) return false;
   }
+
+  //
+  // ----------------- EXCLUSIONS -----------------
+  //
+
+  // -------- Lists Filter (EXCLUSION) ----
+  // Set up lists EXCLUSION filter, which is fully customizable and currently includes diagnoses, meds,
+  //   surgeries and allergies.
+  $filter = resolve_filter_sql($rule,'filt_lists',0);
+  if ((!empty($filter)) && lists_check($patient_id,$filter,$dateTarget)) return "EXCLUDED";
 
   // Passed all filters, so return true.
   return true;
