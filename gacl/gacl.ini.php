@@ -1,4 +1,4 @@
-;<? if (; //Cause parse error to hide from prying eyes?>
+;<?php trigger_error('This is a hidden INI file, not PHP.  Go away!', E_USER_ERROR); ?>
 ;
 debug 			= FALSE
 
