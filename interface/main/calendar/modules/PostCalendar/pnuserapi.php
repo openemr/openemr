@@ -1360,7 +1360,7 @@ function calculateEvents($days,$events,$viewtype) {
         array_push($days[$event['eventDate']],$event);
           if ($viewtype == "week") {
             //echo "non repeating date eventdate: $eventD  startime:$eventS block #: " . getBlockTime($eventS) ."<br />";
-            fillBlocks($eventD,&$days);
+            fillBlocks($eventD,$days);
             //echo "for $eventD loading " . getBlockTime($eventS) . "<br /><br />";
             $gbt = getBlockTime($eventS);
             $days[$eventD]['blocks'][$gbt][$eventD][] = $event;
@@ -1410,7 +1410,7 @@ function calculateEvents($days,$events,$viewtype) {
             if ($excluded == false) array_push($days[$occurance],$event);
 
             if ($viewtype == "week") {
-              fillBlocks($occurance, &$days);
+              fillBlocks($occurance, $days);
               //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
               $gbt = getBlockTime($eventS);
               $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
