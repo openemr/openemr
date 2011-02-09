@@ -1471,7 +1471,7 @@ function calculateEvents($days,$events,$viewtype) {
             if ($excluded == false) array_push($days[$occurance],$event);
 
             if ($viewtype == "week") {
-              fillBlocks($occurance,&$days);
+              fillBlocks($occurance,$days);
               //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
               $gbt = getBlockTime($eventS);
               $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
@@ -1488,7 +1488,7 @@ function calculateEvents($days,$events,$viewtype) {
   return $days;
 }
 
-function fillBlocks($td,&$ar) {
+function fillBlocks($td,$ar) {
 	if (strlen ($td) > 0 && !isset($ar[$td]['blocks'])) {
 			$ar[$td]['blocks'] = array();
 			for ($j=0;$j<48;$j++)
