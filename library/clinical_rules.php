@@ -94,8 +94,10 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 // Test the clinic rules of entire clinic and create a report or patient reminders
 //  (can also test on one patient or patients of one provider)
 // Parameters:
-//   $provider   - id of a selected provider. If blank, then will test entire clinic. If 'collate', then will test each
-//                 provider separately in entire clinic.
+//   $provider   - id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or
+//                   'collate_inner', then will test each provider in entire clinic; outer will nest plans
+//                   inside collated providers, while inner will nest the providers inside the plans (note
+//                   inner and outer are only different if organize_mode is set to plans).
 //   $type       - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder). If blank then will test all rules.
 //   $dateTarget - target date. If blank then will test with current date as target.
 //   $mode       - choose either 'report' or 'reminders-all' or 'reminders-due' (required)
@@ -118,8 +120,9 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   // Prepare the results array
   $results = array();
 
-  // If set the $provider to collate, then run through this function recursively.
-  if ($provider == "collate") {
+  // If set the $provider to collate_outer (or collate_inner without plans organize mode),
+  // then run through this function recursively and return results.
+  if (($provider == "collate_outer") || ($provider == "collate_inner" && $organize_mode != 'plans')) {
     // First, collect an array of all providers
     $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname"; 
     $ures = sqlStatement($query);
@@ -140,17 +143,46 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     return $results;
   }
 
-  // If set organize-mode to plans, then collects active plans and run through this function recursively
+  // If set organize-mode to plans, then collects active plans and run through this
+  // function recursively and return results.
   if ($organize_mode == "plans") {
     // First, collect active plans
     $plans_resolve = resolve_plans_sql($plan,$patient_id);
     // Second, run through function recursively
     foreach ($plans_resolve as $plan_item) {
-      $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id']);
-      if (!empty($newResults)) {
-        $plan_item['is_plan'] = TRUE;
-        array_push($results,$plan_item);
-        $results = array_merge($results,$newResults);
+      //  (if collate_inner, then nest a collation of providers within each plan)
+      if ($provider == "collate_inner") {
+        // First, collect an array of all providers
+        $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname";
+        $ures = sqlStatement($query);
+        // Second, run through each provider recursively
+        $provider_results = array();
+        while ($urow = sqlFetchArray($ures)) {
+          $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan_item['id']);
+          if (!empty($newResults)) {
+            $provider_item['is_provider'] = TRUE;
+            $provider_item['prov_lname'] = $urow['lname'];
+            $provider_item['prov_fname'] = $urow['fname'];
+            $provider_item['npi'] = $urow['npi'];
+            $provider_item['federaltaxid'] = $urow['federaltaxid'];
+            array_push($provider_results,$provider_item);
+            $provider_results = array_merge($provider_results,$newResults);
+          }
+        }
+        if (!empty($provider_results)) {
+          $plan_item['is_plan'] = TRUE;
+          array_push($results,$plan_item);
+          $results = array_merge($results,$provider_results);
+        }
+      }
+      else {
+        // (not collate_inner, so do not nest providers within each plan)
+        $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id']);
+        if (!empty($newResults)) {
+          $plan_item['is_plan'] = TRUE;
+          array_push($results,$plan_item);
+          $results = array_merge($results,$newResults);
+        }
       }
     }
     // done, so now can return results
@@ -261,7 +293,6 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
           $pass_filter++;
           $exclude_filter++;
           $passFilter = FALSE;
-          error_log("DEBUG: ".$rowPatient['pid'].$rowRule['id'].$dateFocus,0);
         }
         if ($passFilter) {
           // increment pass filter counter

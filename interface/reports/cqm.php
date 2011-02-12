@@ -166,9 +166,13 @@ $provider  = trim($_POST['form_provider']);
 				 echo "   <select name='form_provider'>\n";
 				 echo "    <option value=''>-- " . htmlspecialchars( xl('All (Cumulative)'), ENT_NOQUOTES) . " --\n";
 
-                                 echo "    <option value='collate'";
-                                 if ($_POST['form_provider'] == 'collate') echo " selected";
-                                 echo ">-- " . htmlspecialchars( xl('All (Collated)'), ENT_NOQUOTES) . " --\n";
+                                 echo "    <option value='collate_outer'";
+                                 if ($_POST['form_provider'] == 'collate_outer') echo " selected";
+                                 echo ">-- " . htmlspecialchars( xl('All (Collated Format A)'), ENT_NOQUOTES) . " --\n";
+
+                                 echo "    <option value='collate_inner'";
+                                 if ($_POST['form_provider'] == 'collate_inner') echo " selected";
+                                 echo ">-- " . htmlspecialchars( xl('All (Collated Format B)'), ENT_NOQUOTES) . " --\n";
 
 				 while ($urow = sqlFetchArray($ures)) {
 				  $provid = $urow['id'];
@@ -298,7 +302,7 @@ $provider  = trim($_POST['form_provider']);
    }
    else if (isset($row['is_provider'])) {
      // Display the provider information
-     if (!$firstProviderFlag) {
+     if (!$firstProviderFlag && $_POST['form_provider'] == 'collate_outer') {
        echo "<tr><td>&nbsp</td></tr>";
      }
      echo "<td class='detail' align='center'><b>";
@@ -318,7 +322,7 @@ $provider  = trim($_POST['form_provider']);
      $existProvider = TRUE;
    }
    else { // isset($row['is_plan'])
-     if (!$firstPlanFlag && !$existProvider) {
+     if (!$firstPlanFlag && $_POST['form_provider'] != 'collate_outer') {
        echo "<tr><td>&nbsp</td></tr>";
      }
      echo "<td class='detail' align='center'><b>";
