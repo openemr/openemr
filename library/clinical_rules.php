@@ -641,7 +641,7 @@ function resolve_plans_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
   if ($configurableOnly) {
     // Collect all default, configurable (per patient) plans into an array
     //   (ie. ignore the cqm rules)
-    $sql = sqlStatement("SELECT * FROM `clinical_plans` WHERE `pid`=0 AND `cqm` !=1 ORDER BY `id`");
+    $sql = sqlStatement("SELECT * FROM `clinical_plans` WHERE `pid`=0 AND `cqm_flag` !=1 ORDER BY `id`");
   }
   else {
     // Collect all default plans into an array
@@ -703,6 +703,59 @@ function resolve_plans_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
   $returnArray = $newReturnArray;
 
   return $returnArray;
+}
+
+// Function to return a specific plan
+// Parameters:
+//   $plan       - id(string) of plan
+//   $patient_id - pid of selected patient. (if set to 0, then will return
+//                 the default rule).
+// Return: array containing a rule
+function collect_plan($plan,$patient_id='0') {
+
+  return sqlQuery("SELECT * FROM `clinical_plans` WHERE `id`=? AND `pid`=?", array($plan,$patient_id) );
+
+}
+
+// Function to set a specific plan activity for a specific patient
+// Parameters:
+//   $plan       - id(string) of plan
+//   $type       - plan filter (normal,cqm)
+//   $setting    - activity of plan (yes,no,default)
+//   $patient_id - pid of selected patient.
+// Return: nothing
+function set_plan_activity_patient($plan,$type,$setting,$patient_id) {
+
+  // Don't allow messing with the default plans here
+  if ($patient_id == "0") {
+    return;
+  }
+
+  // Convert setting
+  if ($setting == "on") {
+    $setting = 1;
+  }
+  else if ($setting == "off") {
+    $setting = 0;
+  }
+  else { // $setting == "default"
+    $setting = NULL;
+  }
+
+  // Collect patient specific plan, if already exists.
+  $query = "SELECT * FROM `clinical_plans` WHERE `id` = ? AND `pid` = ?";
+  $patient_plan = sqlQuery($query, array($plan,$patient_id) );
+
+  if (empty($patient_plan)) {
+    // Create a new patient specific plan with flags all set to default
+    $query = "INSERT into `clinical_plans` (`id`, `pid`) VALUES (?,?)";
+    sqlStatement($query, array($plan, $patient_id) );
+  }
+
+  // Update patient specific row
+  $query = "UPDATE `clinical_plans` SET `" . add_escape_custom($type) . "_flag`= ? WHERE id = ? AND pid = ?";
+  sqlStatement($query, array($setting,$plan,$patient_id) );
+
 }
 
 // Function to return active rules
@@ -839,8 +892,6 @@ function set_rule_activity_patient($rule,$type,$setting,$patient_id) {
   // Collect patient specific rule, if already exists.
   $query = "SELECT * FROM `clinical_rules` WHERE `id` = ? AND `pid` = ?";
   $patient_rule = sqlQuery($query, array($rule,$patient_id) );
-
-  error_log("DEBUG :".$rule.$type.$setting.$patient_id,0);
 
   if (empty($patient_rule)) {
     // Create a new patient specific rule with flags all set to default

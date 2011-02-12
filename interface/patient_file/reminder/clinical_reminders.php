@@ -60,7 +60,8 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 <br>
 
 <?php
-  // collect the pertinent rules
+  // collect the pertinent plans and rules
+  $plans_default = resolve_plans_sql('','0',TRUE);
   $rules_default = resolve_rules_sql('','0',TRUE);
 ?>
 
@@ -85,6 +86,55 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 
   <div class="tab" style="height:auto;width:97%;">
     <div id='report_results'>
+      <table>
+        <tr>
+          <th rowspan="2"><?php echo htmlspecialchars( xl('Plan'), ENT_NOQUOTES); ?></th>
+          <th colspan="2"><?php echo htmlspecialchars( xl('Show'), ENT_NOQUOTES); ?></th>
+        </tr>
+        <tr>
+          <th><?php echo htmlspecialchars( xl('Patient Setting'), ENT_NOQUOTES); ?></th>
+          <th style="left-margin:1em;"><?php echo htmlspecialchars( xl('Practice Default Setting'), ENT_NOQUOTES); ?></th>
+        </tr>
+        <?php foreach ($plans_default as $plan) { ?>
+          <tr>
+            <td style="border-right:1px solid black;"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $plan['id']); ?></td>
+            <td align="center">
+              <?php
+              $patient_plan = collect_plan($plan['id'],$patient_id);
+              // Set the patient specific setting for gui
+              if (empty($patient_plan)) {
+                $select = "default";
+              }
+              else {
+                if ($patient_plan['normal_flag'] == "1") {
+                  $select = "on";
+                }
+                else if ($patient_plan['normal_flag'] == "0"){
+                  $select = "off";
+                }
+                else { // $patient_rule['normal_flag'] == NULL
+                  $select = "default";
+                }
+              } ?>
+              <select class="plan_show" name="<?php echo htmlspecialchars( $plan['id'], ENT_NOQUOTES); ?>">
+                <option value="default" <?php if ($select == "default") echo "selected"; ?>><?php echo htmlspecialchars( xl('Default'), ENT_NOQUOTES); ?></option>
+                <option value="on" <?php if ($select == "on") echo "selected"; ?>><?php echo htmlspecialchars( xl('On'), ENT_NOQUOTES); ?></option>
+                <option value="off" <?php if ($select == "off") echo "selected"; ?>><?php echo htmlspecialchars( xl('Off'), ENT_NOQUOTES); ?></option>
+              </select>
+            </td>
+            <td align="center" style="border-right:1px solid black;">
+              <?php if ($plan['normal_flag'] == "1") {
+                echo htmlspecialchars( xl('On'), ENT_NOQUOTES);
+              }
+              else {
+                echo htmlspecialchars( xl('Off'), ENT_NOQUOTES);
+              } ?>
+            </td>
+          </tr>
+        <?php } ?>
+      </table>
+      <br>
+      <br>
       <table>
         <tr>
           <th rowspan="2"><?php echo htmlspecialchars( xl('Rule'), ENT_NOQUOTES); ?></th>
@@ -192,6 +242,16 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
       $.post( "../../../library/ajax/rule_setting.php", {
         rule: this.name,
         type: 'active_alert',
+        setting: this.value,
+        patient_id: '<?php echo htmlspecialchars($patient_id, ENT_QUOTES); ?>'
+      });
+    });
+
+    $(".plan_show").change(function() {
+      top.restoreSession();
+      $.post( "../../../library/ajax/plan_setting.php", {
+        plan: this.name,
+        type: 'normal',
         setting: this.value,
         patient_id: '<?php echo htmlspecialchars($patient_id, ENT_QUOTES); ?>'
       });
