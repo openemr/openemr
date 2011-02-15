@@ -752,8 +752,9 @@ if ($_POST['form_save']) {
       // Post the payment as a billed copay into the billing table.
       // Maybe this should even be done for the SL case.
       if (!empty($form_source)) $paydesc .= " $form_source";
+      # jason forced auth line to 1 here
       addBilling($form_encounter, 'COPAY', $amount, $paydesc, $form_pid,
-        0, 0, '', '', 0 - $amount, '', '', 1);
+        1, 0, '', '', 0 - $amount, '', '', 1);
     }
     else {
       $msg = invoice_add_line_item($invoice_info, 'COPAY',
