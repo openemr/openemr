@@ -721,6 +721,30 @@ $GLOBALS_METADATA = array(
     ),
 
   ),
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // PQRI Tab
+  //
+  'PQRI Registry' => array(
+
+    'pqri_registry_name' => array(
+      xl('PQRI Registry Name'),
+      'text',                           // data type
+      'Model Registry',                               // default
+      xl('PQRI Registry Name')
+    ),
+    
+    'pqri_registry_id' => array(
+      xl('PQRI Registry ID'),
+      'text',                           // data type
+      '125789123',                               // default
+      xl('PQRI Registry ID')
+    ),
+    
+      
+  ),
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // Miscellaneous Tab
   //
