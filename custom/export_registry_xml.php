@@ -17,8 +17,8 @@ $fake_register_globals=false;
 //
 
 
-include_once("../interface/globals.php");
-include_once("../library/patient.inc");
+require_once("../interface/globals.php");
+require_once("../library/patient.inc");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 require_once("../library/classes/PQRIXml.class.php");
