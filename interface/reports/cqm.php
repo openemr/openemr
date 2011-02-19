@@ -255,7 +255,7 @@ $provider  = trim($_POST['form_provider']);
   </th>
 
   <th>
-   <?php echo htmlspecialchars( xl('Applicable Patients'), ENT_NOQUOTES); ?></a>
+   <?php echo htmlspecialchars( xl('Applicable Patients') .' (' . xl('Denominator') . ')', ENT_NOQUOTES); ?></a>
   </th>
 
   <th>
@@ -263,7 +263,7 @@ $provider  = trim($_POST['form_provider']);
   </th>
 
   <th>
-   <?php echo htmlspecialchars( xl('Passed Patients'), ENT_NOQUOTES); ?></a>
+   <?php echo htmlspecialchars( xl('Passed Patients') . ' (' . xl('Numerator') . ')', ENT_NOQUOTES); ?></a>
   </th>
 
   <th>

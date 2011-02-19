@@ -235,9 +235,31 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 
   foreach( $rules as $rowRule ) {
 
+    // If using cqm or amc type, then use the hard-coded rules set.
+    // Note these rules are only used in report mode.
+    if ($rowRule['cqm_flag'] || $rowRule['amc_flag']) {
+
+      // Ensure the ruleSet class file has been included
+      // (will only require if needed, since it's gonna be large)
+      require_once(dirname(__FILE__) . "/classes/rulesets/ruleSet.class.php");
+
+      // Run the class rule set
+      $rule_results = new ruleSet($rowRule,$dateTarget,$patientData);
+      
+      // Collect/add the results to the results array
+      $tempResults = $rule_results->return_results();
+      if (!empty($tempResults)) {
+        foreach ($tempResults as $tempResult) {
+          array_push($results,$tempResult);
+        }
+      }
+
+      // Go on to the next rule
+      continue;
+    }
+
     // If in reminder mode then need to collect the measurement dates
     //  from rule_reminder table
-
     $target_dates = array();
     if ($mode != "report") {
       // Calculate the dates to check for
@@ -339,12 +361,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     }
 
     // Calculate and save the data for the rule
-    if ($pass_filter > 0) {
-      $percentage = number_format(($pass_target/($pass_filter-$exclude_filter))*100) . xl('%');
-    }
-    else {
-      $percentage = "0". xl('%');
-    }
+    $percentage = calculate_percentage($pass_filter,$exclude_filter,$pass_target);
     if ($mode == "report") {
       $newRow=array('is_main'=>TRUE,'total_patients'=>$total_patients,'excluded'=>$exclude_filter,'pass_filter'=>$pass_filter,'pass_target'=>$pass_target,'percentage'=>$percentage);
       $newRow=array_merge($newRow,$rowRule);
@@ -423,12 +440,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         }
 
         // Calculate and save the data for the rule
-        if ($pass_filter > 0) {
-          $percentage = number_format(($pass_target/($pass_filter-$exclude_filter))*100) . xl('%');
-        }
-        else {
-          $percentage = "0". xl('%');
-        }
+          $percentage = calculate_percentage($pass_filter,$exclude_filter,$pass_target);
 
         // Collect action for title (just use the first one, if more than one)
         $actionArray = resolve_action_sql($rowRule['id'],$i);
@@ -460,44 +472,15 @@ function test_filter($patient_id,$rule,$dateTarget) {
   // Collect patient information
   $patientData = getPatientData($patient_id, "sex, DATE_FORMAT(DOB,'%Y %m %d') as DOB_TS");
 
-  // -------- Special Filters --------
-  // Check for special flag required by many of the CQM rules, that uses a standard
-  //   measurement year (Jan1-Dec31). This adjusted date would then be used for
-  //   date to calculate patient age and as the start range if filtering for clinic
-  //   appointments. The value (usually will be 1) of this
-  //   contains how many years to include.
-  $adjustedDate1 = '';
-  $adjustedDate2 = '';
-  $filter = resolve_filter_sql($rule,'filt_measure_period');
-  if (!empty($filter)) {
-    $row = $filter[0];
-    if ($row['method_detail'] == "year") {
-      $tempDateArray = explode("-",$dateTarget);
-      $tempYear = $tempDateArray[0];
-      // Set too one second before the measurement period
-      $adjustedDate1 = ($tempYear - $row['value']) . "-12-31 23:59:59";
-      // Set too the first second of the measurement period
-      $adjustedDate2 = ($tempYear - ($row['value']-1)) . "-01-01 00:00:00";
-      // Set target date to the last second of the measurement period
-      $dateTarget = ($tempYear - ($row['value']-1)) . "-12-31 23:59:59";
-    }
-  }
-
   //
   // ----------------- INCLUSIONS -----------------
   //
 
   // -------- Age Filter (inclusion) ------------
   // Calculate patient age in years and months
-  if (!empty($adjustedDate1)) {
-    // See above Special Filters section in for details.
-    $patientAgeYears = convertDobtoAgeYearDecimal($patientData['DOB_TS'],$adjustedDate1);
-    $patientAgeMonths = convertDobtoAgeMonthDecimal($patientData['DOB_TS'],$adjustedDate1);
-  }
-  else {
-    $patientAgeYears = convertDobtoAgeYearDecimal($patientData['DOB_TS'],$dateTarget);
-    $patientAgeMonths = convertDobtoAgeMonthDecimal($patientData['DOB_TS'],$dateTarget);
-  }
+  $patientAgeYears = convertDobtoAgeYearDecimal($patientData['DOB_TS'],$dateTarget);
+  $patientAgeMonths = convertDobtoAgeMonthDecimal($patientData['DOB_TS'],$dateTarget);
+
   // Min age (year) Filter (assume that there in not more than one of each)
   $filter = resolve_filter_sql($rule,'filt_age_min');
   if (!empty($filter)) {
@@ -549,22 +532,6 @@ function test_filter($patient_id,$rule,$dateTarget) {
   //   surgeries and allergies.
   $filter = resolve_filter_sql($rule,'filt_lists');
   if ((!empty($filter)) && !lists_check($patient_id,$filter,$dateTarget)) return false;
-
-  // -------- Clinic Visit(s) Filter --------
-  $filter = resolve_filter_sql($rule,'filt_encounter_min');
-  if (!empty($filter)) {
-    $row = $filter[0];
-    // For total number of appointments, simply get number of encounters
-    if (!empty($adjustedDate2)) {
-      // See above Special Filters section in for details.
-      $encounters = getEncounters($patient_id,$adjustedDate2,$dateTarget);
-    }
-    else {
-      $encounters = getEncounters($patient_id,'',$dateTarget);
-    }
-    (empty($encounters)) ? $totalNumberAppt = 0 : $totalNumberAppt = count($encounters);
-    if ($row['value'] && $totalNumberAppt < $row['value']) return false;
-  }
 
   //
   // ----------------- EXCLUSIONS -----------------
@@ -1780,3 +1747,20 @@ function convertDobtoAgeMonthDecimal($dob,$target) {
 
     return (12 * $iDiffYear) + $iDiffMonth;
 }
+
+// Function to calculate the percentage
+// Parameters:
+//   $pass_filter    - number of patients that pass filter
+//   $exclude_filter - number of patients that are excluded
+//   $pass_target    - number of patients that pass target
+// Return: String of a number formatted into a percentage
+function calculate_percentage($pass_filt,$exclude_filt,$pass_targ) {
+  if ($pass_filt > 0) {
+    $perc = number_format(($pass_targ/($pass_filt-$exclude_filt))*100) . xl('%');
+  }
+  else {
+    $perc = "0". xl('%');
+  }
+  return $perc;
+}
+
