@@ -695,7 +695,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $widgetButtonLink = "../reminder/patient_reminders.php?mode=simple&patient_id=".$pid;
                 $widgetButtonClass = "";
                 $linkMethod = "html";
-                $bodyClass = "tab current";
+                $bodyClass = "notab";
                 $widgetAuth = true;
                 $fixedWidth = true;
                 expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
