@@ -62,9 +62,10 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
 
+</head>
+
 <?php if ($GLOBALS['concurrent_layout']) { // start new layout ?>
 
-</head>
 <!-- border (mozilla) and framespacing (ie) are the same thing.      -->
 <!-- frameborder specifies a 3d look, not whether there are borders. -->
 <frameset rows='<?php echo $GLOBALS['titleBarHeight'] + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>

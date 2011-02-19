@@ -20,12 +20,14 @@
 //
 // C = Capitalize first letter of each word (text fields)
 // D = Check for duplicates in New Patient form
+// G = Graphable (for numeric fields in forms supporting historical data)
 // H = Read-only field copied from static history
+// L = Lab Order ("ord_lab") types only (address book)
 // N = Show in New Patient form
-// O = Procedure Order ("pro_*") types only (address book)
+// O = Procedure Order ("ord_*") types only (address book)
+// R = Distributor types only (address book)
 // U = Capitalize all letters (text fields)
 // V = Vendor types only (address book)
-// R = Distributor types only (address book)
 // 1 = Write Once (not editable when not empty) (text fields)
 
 require_once("formdata.inc.php");
@@ -254,6 +256,9 @@ function generate_form_field($frow, $currvalue) {
   // Address book, preferring organization name if it exists and is not in
   // parentheses, and excluding local users who are not providers.
   // Supports "referred to" practitioners and facilities.
+  // Alternatively the letter L in edit_options means that abook_type
+  // must be "ord_lab", indicating types used with the procedure
+  // lab ordering system.
   // Alternatively the letter O in edit_options means that abook_type
   // must begin with "ord_", indicating types used with the procedure
   // ordering system.
@@ -262,7 +267,9 @@ function generate_form_field($frow, $currvalue) {
   // Alternatively the letter R in edit_options means that abook_type
   // must be "dist", indicating the Distributor type.
   else if ($data_type == 14) {
-    if (strpos($frow['edit_options'], 'O') !== FALSE)
+    if (strpos($frow['edit_options'], 'L') !== FALSE)
+      $tmp = "abook_type = 'ord_lab'";
+    else if (strpos($frow['edit_options'], 'O') !== FALSE)
       $tmp = "abook_type LIKE 'ord\\_%'";
     else if (strpos($frow['edit_options'], 'V') !== FALSE)
       $tmp = "abook_type LIKE 'vendor%'";
@@ -688,6 +695,50 @@ function generate_form_field($frow, $currvalue) {
     echo nl2br($frow['description']);
   }
 
+  //VicarePlus :: A single selection list for Race and Ethnicity, which is specialized to check the 'ethrace' list if the entry does not exist in the list_id of the given list. At some point in the future (when able to input two lists via the layouts engine), this function could be expanded to allow using any list as a backup entry.
+  else if ($data_type == 33) {
+        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
+        if ($showEmpty) echo "<option value=''>" . htmlspecialchars( xl($empty_title), ENT_QUOTES) . "</option>";
+        $lres = sqlStatement("SELECT * FROM list_options " .
+        "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+        $got_selected = FALSE;
+        while ($lrow = sqlFetchArray($lres)) {
+         $optionValue = htmlspecialchars( $lrow['option_id'], ENT_QUOTES);
+         echo "<option value='$optionValue'";
+         if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
+          (strlen($currvalue)  > 0 && $lrow['option_id'] == $currvalue))
+          {
+          echo " selected";
+          $got_selected = TRUE;
+          }
+         
+         echo ">" . htmlspecialchars( xl_list_label($lrow['title']), ENT_NOQUOTES) . "</option>\n";
+         }
+        if (!$got_selected && strlen($currvalue) > 0)
+        {
+        //Check 'ethrace' list if the entry does not exist in the list_id of the given list(Race or Ethnicity).
+         $list_id='ethrace';
+         $lrow = sqlQuery("SELECT title FROM list_options " .
+         "WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue) );
+         if ($lrow > 0)
+                {
+                $s = htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
+                echo "<option value='$currvalue' selected> $s </option>";
+                echo "</select>";
+                }
+         else
+                {
+                echo "<option value='$currescaped' selected>* $currescaped *</option>";
+                echo "</select>";
+                $fontTitle = htmlspecialchars( xl('Please choose a valid selection from the list.'), ENT_NOQUOTES);
+                $fontText = htmlspecialchars( xl('Fix this'), ENT_NOQUOTES);
+                echo " <font color='red' title='$fontTitle'>$fontText!</font>";
+                }
+        }
+        else {
+        echo "</select>";
+        }
+  }
 }
 
 function generate_print_field($frow, $currvalue) {
@@ -721,7 +772,7 @@ function generate_print_field($frow, $currvalue) {
   }
 
   // generic single-selection list
-  if ($data_type == 1 || $data_type == 26) {
+  if ($data_type == 1 || $data_type == 26 || $data_type == 33) {
     if (empty($fld_length)) {
       if ($list_id == 'titles') {
         $fld_length = 3;
@@ -1166,10 +1217,18 @@ function generate_display_field($frow, $currvalue) {
 
   // generic selection list or the generic selection list with add on the fly
   // feature, or radio buttons
-  if ($data_type == 1 || $data_type == 26 || $data_type == 27) {
+  if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33) {
     $lrow = sqlQuery("SELECT title FROM list_options " .
       "WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue) );
       $s = htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
+    //For lists Race and Ethnicity if there is no matching value in the corresponding lists check ethrace list
+    if ($lrow == 0 && $data_type == 33)
+    {
+    $list_id='ethrace';
+    $lrow_ethrace = sqlQuery("SELECT title FROM list_options " .
+      "WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue) );
+    $s = htmlspecialchars(xl_list_label($lrow_ethrace['title']),ENT_NOQUOTES);
+    }
   }
 
   // simple text field
@@ -1663,6 +1722,8 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					++$item_count;
 					echo generate_display_field($group_fields, $currvalue);
 				  }
+
+        disp_end_row();
 			?>
 
 			</table>
@@ -1898,6 +1959,7 @@ function generate_layout_validation($form_id) {
       case 13:
       case 14:
       case 26:
+      case 33:
         echo
         " if (f.$fldname.selectedIndex <= 0) {\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
@@ -2008,8 +2070,9 @@ function dropdown_facility($selected = '', $name = 'form_facility', $allow_unspe
 // $bodyClass is to set class(es) of the body
 // $auth is a flag to decide whether to show the button
 // $fixedWidth is to flag whether width is fixed
+// $forceExpandAlways is a flag to force the widget to always be expanded
 //
-function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth) {
+function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways=false) {
   if ($fixedWidth) {
     echo "<div class='section-header'>";
   }
@@ -2040,7 +2103,12 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     echo "><span>" .
       htmlspecialchars( $buttonLabel, ENT_NOQUOTES) . "</span></a></td>";
   }
-  echo "<td><a href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
+  if ($forceExpandAlways){
+    // Special case to force the widget to always be expanded
+    echo "<td><span class='text'><b>" . htmlspecialchars( $title, ENT_NOQUOTES) . "</b></span>";
+    $indicatorTag ="style='display:none'";
+  }
+  echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
     htmlspecialchars( $label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";
   echo htmlspecialchars( $title, ENT_NOQUOTES) . "</b></span>";
   if (getUserSetting($label."_ps_expand")) {
@@ -2053,7 +2121,11 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     "</span>)</a></td>";
   echo "</tr></table>";
   echo "</div>";
-  if (getUserSetting($label."_ps_expand")) {
+  if ($forceExpandAlways) {
+    // Special case to force the widget to always be expanded
+    $styling = "";
+  }
+  else if (getUserSetting($label."_ps_expand")) {
     $styling = "";
   }
   else {

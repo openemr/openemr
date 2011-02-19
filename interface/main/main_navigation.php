@@ -88,9 +88,9 @@ include_once("../../library/acl.inc");
 <?php } ?>
 
 <?php
- if ($GLOBALS['hylafax_server'] || $GLOBALS['scanner_output_directory']) {
+ if ($GLOBALS['enable_hylafax'] || $GLOBALS['enable_scanner']) {
   $faxcount = 0;
-  if ($GLOBALS['hylafax_server']) {
+  if ($GLOBALS['enable_hylafax']) {
    // Count the number of faxes in the recvq:
    $statlines = array();
    exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);

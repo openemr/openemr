@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,6 +22,12 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/calendar_events.inc.php");
+
+// Temporary variable while new logic is being tested.
+// True means that missing days in the daily_fitness table default to
+// the previous entry's values, if there is one.
+// Otherwise the default fitness level (Fully Fit) is used.
+$PROPLOGIC = true;
 
 $plid = $_REQUEST['plid'] + 0; // pid
 $ymd = $_REQUEST['date'];
@@ -55,12 +61,24 @@ $patrow = sqlQuery("SELECT " .
   "WHERE pid = '$plid' LIMIT 1");
 $squad = $patrow['squad'];
 
-// Get the daily_fitness row.
-$dfrow = sqlQuery("SELECT " .
-  "df.*, lf.option_id AS lf_id, lf.title AS lf_title " .
-  "FROM daily_fitness AS df " .
-  "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
-  "WHERE df.pid = '$plid' AND df.date = '$date'");
+if ($PROPLOGIC) {
+  // For a given date, fitness info is the last on or before that date,
+  // or if there is none then the defaults apply.
+  $dfrow = sqlQuery("SELECT " .
+    "df.*, lf.option_id AS lf_id, lf.title AS lf_title " .
+    "FROM daily_fitness AS df " .
+    "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
+    "WHERE df.pid = '$plid' AND df.date <= '$date' " .
+    "ORDER BY df.date DESC LIMIT 1");
+}
+else {
+  $dfrow = sqlQuery("SELECT " .
+    "df.*, lf.option_id AS lf_id, lf.title AS lf_title " .
+    "FROM daily_fitness AS df " .
+    "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
+    "WHERE df.pid = '$plid' AND df.date = '$date'");
+}
+
 if (empty($dfrow)) {
   $dfrow = array(
     'pid'      => '0',
@@ -85,7 +103,7 @@ $noteid = empty($nrow) ? '0' : $nrow['id'];
 if ($_POST['form_save']) {
 
   // Update daily_fitness.
-  if ($dfrow['pid']) {
+  if ($dfrow['date'] == $date) {
     sqlStatement("UPDATE daily_fitness SET " .
       "fitness = '$form_fitness', " .
       // "am = '$form_am', " .
@@ -96,7 +114,7 @@ if ($_POST['form_save']) {
   else {
     sqlStatement("INSERT INTO daily_fitness SET " .
       "pid = '$plid', " .
-      "date = '$date 00:00:00', " .
+      "date = '$date', " .
       "fitness = '$form_fitness', " .
       // "am = '$form_am', " .
       // "pm = '$form_pm', " .
@@ -147,7 +165,7 @@ if ($_POST['form_save']) {
 <?php html_header_show(); ?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
-<title><?php xl('Record Payment','e'); ?></title>
+<title><?php echo htmlspecialchars(xl('Record of Fitness')); ?></title>
 
 <style type="text/css">
  body    { font-family:sans-serif; font-size:10pt; font-weight:normal }
@@ -160,6 +178,19 @@ if ($_POST['form_save']) {
 
 <script language="JavaScript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+ // Process click on issue title.
+ function newissue() {
+  dlgopen('../patient_file/summary/add_edit_issue.php?thispid=<?php echo $plid; ?>', '_blank', 800, 600);
+  return false;
+ }
+
+ // callback from add_edit_issue.php:
+ function refreshIssue(issue, title) {
+  var s = document.forms[0].form_issue;
+  s.options[s.options.length] = new Option(title, issue, true, true);
+ }
+
 </script>
 
 </head>
@@ -208,6 +239,9 @@ while ($irow = sqlFetchArray($ires)) {
 }
 ?>
    </select>
+   &nbsp;
+   <input type='button' value='<?php echo htmlspecialchars(xl('Add Issue')); ?>'
+    onclick='newissue()' /> &nbsp;
   </td>
  </tr>
 

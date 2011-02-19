@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Conversion of CCR to Level 3 CCD
+
+Orginal Author:   	Ken Miller
+Solventus LLC
+ken.miller@solventus.coms
+
+Contributors:
+Richard Braman, EHR Doctors, Inc rbraman@ehrdoctors.com
+George Lilly (WorldVistA glilly@glilly.net)
+xxxx - Oroville Hospital
+
+Date: 	2010-05-5
+Version: 	0.1
+
+License :
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see http://www.gnu.org/licenses.
+
+-->
+<domains>
+    <domain name="telecommunicationsAddressUse">
+        <item>
+            <ccrtext>Home</ccrtext>
+            <cdadisplayname>home address</cdadisplayname>
+            <cdacode>H</cdacode>
+        </item>
+        <item>
+            <ccrtext>Primary Home</ccrtext>
+            <cdadisplayname>primary home</cdadisplayname>
+            <cdacode>HP</cdacode>
+        </item>
+        <item>
+            <ccrtext>Vacation Home</ccrtext>
+            <cdadisplayname>primary home</cdadisplayname>
+            <cdacode>HV</cdacode>
+        </item>
+        <item>
+            <ccrtext>Office</ccrtext>
+            <cdadisplayname>office</cdadisplayname>
+            <cdacode>WP</cdacode>
+        </item>
+        <item>
+            <ccrtext>Work</ccrtext>
+            <cdadisplayname>office</cdadisplayname>
+            <cdacode>WP</cdacode>
+        </item>
+        <item>
+            <ccrtext>Mobile</ccrtext>
+            <cdadisplayname>mobile contact</cdadisplayname>
+            <cdacode>MC</cdacode>
+        </item>
+        <item>
+            <ccrtext>Pager</ccrtext>
+            <cdadisplayname>pager</cdadisplayname>
+            <cdacode>PG</cdacode>
+        </item>
+    </domain>
+    <domain name="HumanLanguage" codeSystemName="IETF RFC 1766">
+        <item>
+            <ccrtext>English</ccrtext>
+            <cdacode>en-us</cdacode>
+        </item>
+        <item>
+            <ccrtext>Spanish</ccrtext>
+            <cdacode>es</cdacode>
+        </item>
+        <item>
+            <ccrtext>French</ccrtext>
+            <cdacode>fr</cdacode>
+        </item>
+        <item>
+            <ccrtext>German</ccrtext>
+            <cdacode>de</cdacode>
+        </item>
+    </domain>
+    <domain name="MaritalStatus" codeSystemName="HL7 Marital status" codeSystem="2.16.840.1.113883.5.2">
+        <item>
+            <ccrtext>Annulled</ccrtext>
+            <cdadisplaytext>Annulled</cdadisplaytext>
+            <cdacode>A</cdacode>
+        </item>
+        <item>
+            <ccrtext>Divorced</ccrtext>
+            <cdadisplaytext>Divorced</cdadisplaytext>
+            <cdacode>D</cdacode>
+        </item>
+        <item>
+            <ccrtext>Interlocutory</ccrtext>
+            <cdadisplaytext>Interlocutory</cdadisplaytext>
+            <cdacode>I</cdacode>
+        </item>
+        <item>
+            <ccrtext>Separated</ccrtext>
+            <cdadisplaytext>Legally Separated</cdadisplaytext>
+            <cdacode>L</cdacode>
+        </item>
+        <item>
+            <ccrtext>Married</ccrtext>
+            <cdadisplaytext>Married</cdadisplaytext>
+            <cdacode>M</cdacode>
+        </item>
+        <item>
+            <ccrtext>Polygamous</ccrtext>
+            <cdadisplaytext>Polygamous</cdadisplaytext>
+            <cdacode>P</cdacode>
+        </item>
+        <item>
+            <ccrtext>Single</ccrtext>
+            <cdadisplaytext>Single</cdadisplaytext>
+            <cdacode>S</cdacode>
+        </item>
+        <item>
+            <ccrtext>Domestic Partner</ccrtext>
+            <cdadisplaytext>Domestic Partner</cdadisplaytext>
+            <cdacode>T</cdacode>
+        </item>
+        <item>
+            <ccrtext>Widowed</ccrtext>
+            <cdacode>W</cdacode>
+        </item>
+    </domain>
+    <domain name="AdministrativeGender" codeSystemName="HL7 Administrative Gender" codeSystem="2.16.840.1.113883.5.1">
+        <item>
+            <ccrtext>Female</ccrtext>
+            <cdadisplayname>Female</cdadisplayname>
+            <cdacode>F</cdacode>
+        </item>
+        <item>
+            <ccrtext>Male</ccrtext>
+            <cdadisplayname>Male</cdadisplayname>
+            <cdacode>M</cdacode>
+        </item>
+        <item>
+            <ccrtext>Undifferentiated</ccrtext>
+            <cdadisplayname>Undifferentiated</cdadisplayname>
+            <cdacode>UN</cdacode>
+        </item>
+    </domain>    
+    <domain name="RouteOfAdministration" codeSystemName="HL7 Route of Administration" codeSystem="2.16.840.1.113883.5.112">
+        <item>
+            <ccrtext>swallow, oral</ccrtext>
+            <cdacode>PO</cdacode>
+        </item>
+        <item>
+            <ccrtext>by mouth</ccrtext>
+            <cdacode>PO</cdacode>
+        </item>
+        <item>
+            <ccrtext>oral, mouth</ccrtext>
+            <cdacode>PO</cdacode>
+        </item>
+        <item>
+            <ccrtext>chew, oral</ccrtext>
+            <cdacode>CHEW</cdacode>
+        </item>
+        <item>
+            <ccrtext>injection, intravenous</ccrtext>
+            <cdacode>IVINJ</cdacode>
+        </item>
+        <item>
+            <ccrtext>injection, intramuscular</ccrtext>
+            <cdacode>IM</cdacode>
+        </item>
+        <item>
+            <ccrtext>injection, subcutaneous</ccrtext>
+            <cdacode>SQ</cdacode>
+        </item>
+    </domain>
+
+    <domain name="ObservationInterpretation" codeSystemName="HL7 Observation Interpretation" codeSystem="2.16.840.1.113883.5.83">
+        <item>
+            <ccrtext>Normal</ccrtext>
+            <cdacode>N</cdacode>
+        </item>
+        <item>
+            <ccrtext>Abnormal</ccrtext>
+            <cdacode>A</cdacode>
+        </item>
+        <item>
+            <ccrtext>Abnormal High</ccrtext>
+            <cdadescription>High</cdadescription>
+            <cdacode>H</cdacode>
+        </item>
+        <item>
+            <ccrtext>Abnormal Low</ccrtext>
+            <cdadescription>High</cdadescription>
+            <cdacode>L</cdacode>
+        </item>
+    </domain>
+</domains>

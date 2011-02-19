@@ -359,7 +359,10 @@ if ($result = getEncounters($pid)) {
                 // However athletic teams want it.
                 //
                 if ($GLOBALS['athletic_team']) {
-                  if ($enc['formdir'] != 'physical_exam' && substr($enc['formdir'],0,3) != 'LBF') {
+                  if ($enc['formdir'] != 'physical_exam' &&
+                    $enc['formdir'] != 'procedure_order' &&
+                    substr($enc['formdir'],0,3) != 'LBF')
+                  {
                     $frow = sqlQuery("select * from form_" . add_escape_custom($enc['formdir']) .
                                     " where id = ?", array($enc['form_id']) );
                     foreach ($frow as $fkey => $fvalue) {

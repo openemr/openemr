@@ -1,5 +1,5 @@
 <?php 
-// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -14,6 +14,12 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/calendar_events.inc.php");
+
+// Temporary variable while new logic is being tested.
+// True means that missing days in the daily_fitness table default to
+// the previous entry's values, if there is one.
+// Otherwise the default fitness level (Fully Fit) is used.
+$PROPLOGIC = true;
 
 // Might want something different here.
 //
@@ -142,28 +148,50 @@ $form_by   = $_POST['form_by'];
       if (!eventMatchesDay($erow, $date)) continue;
 
       $pres = sqlStatement("SELECT pd.lname, pd.fname, pd.mname, " .
-        "pd.pid, pe.minutes, pe.fitness_related, df.issue_id, l.diagnosis " .
+        "pd.pid, pe.minutes, pe.fitness_related " .
         "FROM patient_data AS pd " .
         "LEFT JOIN player_event AS pe ON pe.pid = pd.pid AND pe.date = '$date' AND pe.pc_eid = '$eid' " .
-        "LEFT JOIN daily_fitness AS df ON df.pid = pd.pid AND df.date = '$date' " .
-        "LEFT JOIN lists AS l ON l.id = df.issue_id " .
         "WHERE pd.squad = '$squad'");
 
       while ($prow = sqlFetchArray($pres)) {
 
         // Each iteration of this loop is for a particular player and a
         // particular event on a particular day.
-        //
+
+        $patient_id = 0 + $prow['pid'];
+
+        if ($PROPLOGIC) {
+          // For a given date, fitness info is the last on or before that date,
+          // or if there is none then the defaults apply.
+          $dfrow = sqlQuery("SELECT df.issue_id, l.diagnosis " .
+            "FROM daily_fitness AS df " .
+            "LEFT JOIN lists AS l ON l.id = df.issue_id " .
+            "WHERE df.pid = '$patient_id' AND df.date <= '$date' " .
+            "ORDER BY df.date DESC LIMIT 1");
+        }
+        else {
+          $dfrow = sqlQuery("SELECT df.issue_id, l.diagnosis " .
+            "FROM daily_fitness AS df " .
+            "LEFT JOIN lists AS l ON l.id = df.issue_id " .
+            "WHERE df.pid = '$patient_id' AND df.date = '$date'");
+        }
+        if (empty($dfrow)) {
+          $dfrow = array(
+            'issue_id' => '0',
+            'diagnosis' => '',
+          );
+        }
+
         // For each ($key,$date) accumulate event minutes and missed minutes.
         // Then we can total fractions of days missed just before sorting.
 
         $fitness_related = isset($prow['fitness_related']) ? $prow['fitness_related'] :
-          !empty($prow['issue_id']);
+          !empty($dfrow['issue_id']);
 
         if ($form_by == 'p') {
           $key = trim($prow['lname'] . ', ' . $prow['fname'] . ' ' . $prow['mname']);
         } else {
-          $key = $fitness_related ? $prow['diagnosis'] : 'z';
+          $key = $fitness_related ? $dfrow['diagnosis'] : 'z';
         }
         if (empty($areport[$key])) {
           $areport[$key] = array();

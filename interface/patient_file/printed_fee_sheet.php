@@ -82,14 +82,17 @@ if (empty($SBCODES)) {
   // Create one more group, for Products.
   if ($GLOBALS['sell_non_drug_products']) {
     $SBCODES[] = '*G|' . xl('Products');
-    $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
+    $tres = sqlStatement("SELECT " .
+      "dt.drug_id, dt.selector, d.name, d.ndc_number " .
       "FROM drug_templates AS dt, drugs AS d WHERE " .
       "d.drug_id = dt.drug_id AND d.active = 1 " .
       "ORDER BY d.name, dt.selector, dt.drug_id");
     while ($trow = sqlFetchArray($tres)) {
       $tmp = $trow['selector'];
       if ($trow['name'] !== $trow['selector']) $tmp .= ' ' . $trow['name'];
-      $SBCODES[] = $trow['drug_id'] . '|' . $tmp;
+      $prodcode = empty($trow['ndc_number']) ? ('(' . $trow['drug_id'] . ')') :
+        $trow['ndc_number'];
+      $SBCODES[] = "$prodcode|$tmp";
     }
   }
 

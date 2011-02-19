@@ -1,6 +1,6 @@
 <?php
 // +-----------------------------------------------------------------------------+ 
-// Copyright (C) 2005-2010 Z&H Healthcare Solutions, LLC <sam@zhservices.com>
+// Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
 // This program is free software; you can redistribute it and/or
@@ -488,5 +488,21 @@ function FormValidations()
 	return false;
    }
   return true;
+}
+//========================================================================================
+function UpdateTotalValues(start,count,Payment,PaymentTotal)
+{//Used in totaling the columns.
+ var paymenttot=0;
+	 if(count > 0)
+	 {
+	   for(i=start;i<start+count;i++)
+	   {
+			 if(document.getElementById(Payment+i))
+			 {
+				   paymenttot=paymenttot+document.getElementById(Payment+i).value*1;
+			 }
+	   }
+		 document.getElementById(PaymentTotal).innerHTML=Math.round((paymenttot)*100)/100;
+	}
 }
 </script>

@@ -82,9 +82,13 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "*" .
     "*" .
     "*" .
-    "*46" .
-    "*" . $claim->billingFacilityETIN() .
-    "~\n";
+    "*46";
+   if (trim($claim->x12gsreceiverid()) == '470819582') { // if ECLAIMS EDI
+    $out  .=  "*" . $claim->clearingHouseETIN();
+   } else {
+    $out  .=  "*" . $claim->billingFacilityETIN();
+   }
+    $out .= "~\n";
 
   ++$edicount;
   $out .= "PER" .
@@ -357,20 +361,21 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $log .= "*** This claim has no charges!\n";
   }
 
+
   ++$edicount;
   $out .= "CLM" .       // Loop 2300 Claim
     "*$pid-$encounter" .
     "*"  . sprintf("%.2f",$clm_total_charges) . // Zirmed computes and replaces this
     "*"  .
     "*"  .
-    "*"  . $claim->facilityPOS() . "::" . $claim->frequencyTypeCode() .
+    "*" . sprintf('%02d', $claim->facilityPOS()) . "::" . $claim->frequencyTypeCode() . // Changed to correct single digit output
     "*Y" .
     "*A" .
     "*"  . ($claim->billingFacilityAssignment() ? 'Y' : 'N') .
     "*Y" .
     "*C" .
-    "~\n";
-
+    "~\n"; 
+    
   ++$edicount;
   $out .= "DTP" .       // Date of Onset
     "*431" .
@@ -404,7 +409,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "~\n";
   }
 
-  if ($claim->cliaCode()) {
+  if ($claim->cliaCode() and $claim->claimType() === 'MB') {
     // Required by Medicare when in-house labs are done.
     ++$edicount;
     $out .= "REF" .     // Clinical Laboratory Improvement Amendment Number
@@ -499,13 +504,17 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
 
   // REF*1C is required here for the Medicare provider number if NPI was
   // specified in NM109.  Not sure if other payers require anything here.
-  if ($claim->providerNumber()) {
-    ++$edicount;
-    $out .= "REF" .
-      "*" . $claim->providerNumberType() .
-      "*" . $claim->providerNumber() .
-      "~\n";
-  }
+  // --- apparently ECLAIMS, INC wants the data in 2010 but NOT in 2310B - tony@mi-squared.com
+
+   if (trim($claim->x12gsreceiverid()) != '470819582') { // if NOT ECLAIMS EDI
+      if ($claim->providerNumber()) {
+        ++$edicount;
+        $out .= "REF" .
+          "*" . $claim->providerNumberType() .
+          "*" . $claim->providerNumber() .
+          "~\n";
+      }
+   }
 
   // Loop 2310D is omitted in the case of home visits (POS=12).
   if ($claim->facilityPOS() != 12) {

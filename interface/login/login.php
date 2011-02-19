@@ -203,7 +203,7 @@ if ($result = sqlFetchArray($statement)) {
 </form>
 
 <address>
-<a href="copyright_notice.html" target="main"><?php xl('Copyright Notice','e'); ?></a><br />
+<a href="../../copyright_notice.html" target="main"><?php xl('Copyright Notice','e'); ?></a><br />
 </address>
 
 </center>

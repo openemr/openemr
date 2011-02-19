@@ -436,7 +436,6 @@ end_group();
 
 ?>
 </div></div>
-</form>
 </div>
 <p>
 <div id='otherdiv' style='display:none'>
@@ -444,9 +443,8 @@ end_group();
 <textarea name='body' rows='6' cols='40' wrap='virtual'><?php echo htmlspecialchars( $body, ENT_NOQUOTES); ?>
 </textarea>
 </div>
+</form>
 </p>
-
-
 
 <!-- include support for the list-add selectbox feature -->
 <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>

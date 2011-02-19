@@ -676,8 +676,8 @@ ul.tabNav li.current a { background:#D7DFE7 ;padding: 8px; }
 div.tabContainer { clear: both; float: left; width: 100%; }
 div.tabContainer div.tab { border: 1px solid #dedede; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; }
-div.tab { 	min-height: 180px; background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px;width:665px;}
-div.tab_long { 	min-height: 180px; background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
+div.tab { 	min-height: 180px; background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px;width:96%;}
+div.tab_long { 	min-height: 180px; background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px;width:96%;}
 div.tab p:last-child { margin-bottom: 0; }
 
 div.tab table td {
@@ -690,6 +690,14 @@ div.tab table td.label {
 
 div.tab table td.data {
 	min-width:120px; /*170px*/
+}
+
+div.notab {
+    background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px; width:100%;
+}
+
+div.notab-right {
+    background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px; width:100%;
 }
 
 .section-header {

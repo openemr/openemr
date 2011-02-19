@@ -71,7 +71,8 @@ class C_X12Partner extends Controller {
 		//echo "action processeed";
 		$_POST['process'] = "";
 		$this->_state = false;
-		return $this->edit_action(null,$this->x12_partner[0]);
+		header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&x12_partner&action=list");//Z&H
+		//return $this->edit_action(null,$this->x12_partner[0]);
 	}
 
 }

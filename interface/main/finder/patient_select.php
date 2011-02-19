@@ -12,9 +12,9 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
 
-include_once("../../globals.php");
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/formdata.inc.php");
+require_once("../../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/formdata.inc.php");
 
 $fstart = $_REQUEST['fstart'] + 0;
 $popup  = empty($_REQUEST['popup']) ? 0 : 1;
@@ -119,6 +119,10 @@ $sqllimit = $MAXSHOW;
 $given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
 $orderby = "lname ASC, fname ASC";
 
+$search_service_code = trim($_POST['search_service_code']);
+echo "<input type='hidden' name='search_service_code' value='" .
+  htmlspecialchars($search_service_code, ENT_QUOTES) . "' />\n";
+
 if ($popup) {
   echo "<input type='hidden' name='popup' value='1' />\n";
 
@@ -136,7 +140,7 @@ if ($popup) {
       $value = trim($_REQUEST[$field_id]);
       if ($field_id == 'pid') {
         $where .= " AND $field_id = ?";
-	array_push($sqlBindArray,$value);
+        array_push($sqlBindArray,$value);
       }
       else if ($field_id == 'pubpid') {
         $where .= " AND $field_id LIKE ?";
@@ -144,11 +148,25 @@ if ($popup) {
       }
       else {
         $where .= " AND $field_id LIKE ?";
-	array_push($sqlBindArray,$value."%");
+        array_push($sqlBindArray,$value."%");
       }
       echo "<input type='hidden' name='" . htmlspecialchars( $field_id, ENT_QUOTES) .
         "' value='" . htmlspecialchars( $value, ENT_QUOTES) . "' />\n";
     }
+  }
+
+  // If a non-empty service code was given, then restrict to patients who
+  // have been provided that service.  Since the code is used in a LIKE
+  // clause, % and _ wildcards are supported.
+  if ($search_service_code) {
+    $where .=
+      " AND ( SELECT COUNT(*) FROM billing AS b WHERE " .
+      "b.pid = patient_data.pid AND " .
+      "b.activity = 1 AND " .
+      "b.code_type != 'COPAY' AND " .
+      "b.code LIKE ? " .
+      ") > 0";
+    array_push($sqlBindArray, $search_service_code);
   }
 
   $sql = "SELECT $given FROM patient_data " .
@@ -179,7 +197,8 @@ else {
   else if ($findBy == "Any")
       $result = getByPatientDemographics("$patient", $given, $orderby, $sqllimit, $fstart);
   else if ($findBy == "Filter") {
-      $result = getByPatientDemographicsFilter($searchFields, "$patient", $given, $orderby, $sqllimit, $fstart);
+    $result = getByPatientDemographicsFilter($searchFields, "$patient",
+      $given, $orderby, $sqllimit, $fstart, $search_service_code);
   }
 }
 ?>

@@ -18,7 +18,6 @@ $fake_register_globals=false;
  require_once("$srcdir/classes/Address.class.php");
  require_once("$srcdir/classes/InsuranceCompany.class.php");
  require_once("$srcdir/classes/Document.class.php");
- require_once("./patient_picture.php");
  require_once("$srcdir/options.inc.php");
  require_once("../history/history.inc.php");
  require_once("$srcdir/formatting.inc.php");
@@ -42,6 +41,76 @@ function print_as_money($money) {
 		return "$ " . strrev($tmp);
 	}
 }
+
+// get an array from Photos category
+function pic_array($pid,$picture_directory) {
+    $pics = array();
+    $sql_query = "select documents.id from documents join categories_to_documents " .
+                 "on documents.id = categories_to_documents.document_id " .
+                 "join categories on categories.id = categories_to_documents.category_id " .
+                 "where categories.name like ? and documents.foreign_id = ?";
+    if ($query = sqlStatement($sql_query, array($picture_directory,$pid))) {
+      while( $results = sqlFetchArray($query) ) {
+            array_push($pics,$results['id']);
+        }
+      }
+    return ($pics);
+}
+// Get the document ID of the first document in a specific catg.
+function get_document_by_catg($pid,$doc_catg) {
+
+    $result = array();
+
+	if ($pid and $doc_catg) {
+	  $result = sqlQuery("SELECT d.id, d.date, d.url FROM " .
+	    "documents AS d, categories_to_documents AS cd, categories AS c " .
+	    "WHERE d.foreign_id = ? " .
+	    "AND cd.document_id = d.id " .
+	    "AND c.id = cd.category_id " .
+	    "AND c.name LIKE ? " .
+	    "ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg) );
+	    }
+
+	return($result['id']);
+}
+
+// Display image in 'widget style'
+function image_widget($doc_id,$doc_catg)
+{
+        global $pid, $web_root;
+        $docobj = new Document($doc_id);
+        $image_file = $docobj->get_url_file();
+        $extension = substr($image_file, strrpos($image_file,"."));
+        $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp'); // image ext supported by fancybox viewer
+        if ( in_array($extension,$viewable_types) ) { // extention matches list
+                $to_url = "<td> <a href = $web_root" .
+				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id" .
+				"/tmp$extension" .  // Force image type URL for fancybox
+				" onclick=top.restoreSession(); class='image_modal'>" .
+                " <img src = $web_root" .
+				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id" .
+				" width=100 alt='$doc_catg:$image_file'>  </a> </td> <td valign='center'>".
+                htmlspecialchars($doc_catg) . '<br />&nbsp;' . htmlspecialchars($image_file) .
+				"</td>";
+        }
+     	else {
+				$to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
+                    "&patient_id=$pid&document_id=$doc_id'" .
+                    " onclick='top.restoreSession()' class='css_button_small'>" .
+                    "<span>" .
+                    htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . 
+					htmlspecialchars( "$doc_catg - $image_file", ENT_QUOTES ) .
+                    "</span> </td>";
+		}
+        echo "<table><tr>";
+        echo $to_url;
+        echo "</tr></table>";
+}
+
+// Determine if the Vitals form is in use for this site.
+$tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE " .
+  "directory = 'vitals' AND state = 1");
+$vitals_is_registered = $tmp['count'];
 ?>
 <html>
 
@@ -58,7 +127,7 @@ function print_as_money($money) {
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script language="JavaScript">
+<script type="text/javascript" language="JavaScript">
 //Visolve - sync the radio buttons - Start
 if((top.window.parent) && (parent.window)){
         var wname = top.window.parent.left_nav;
@@ -170,7 +239,6 @@ $(document).ready(function(){
     });
     $("#pnotes_ps_expand").load("pnotes_fragment.php");
     $("#disclosures_ps_expand").load("disc_fragment.php");
-    $("#vitals_ps_expand").load("vitals_fragment.php");
     $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php", { 'embeddedScreen' : true }, function() {
         // (note need to place javascript code here also to get the dynamic link to work)
         $(".medium_modal").fancybox( {
@@ -186,52 +254,59 @@ $(document).ready(function(){
     });
     $("#patient_reminders_ps_expand").load("patient_reminders_fragment.php");
 
+<?php if ($vitals_is_registered) { ?>
+    // Initialize the Vitals form if it is registered.
+    $("#vitals_ps_expand").load("vitals_fragment.php");
+<?php } ?>
+
+<?php
+  // Initialize for each applicable LBF form.
+  $gfres = sqlStatement("SELECT option_id FROM list_options WHERE " .
+    "list_id = 'lbfnames' AND option_value > 0 ORDER BY seq, title");
+  while($gfrow = sqlFetchArray($gfres)) {
+?>
+    $("#<?php echo $gfrow['option_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['option_id']; ?>");
+<?php
+  }
+?>
+
     // fancy box
     enable_modals();
 
     tabbify();
 
-    // special size for
-	$(".large_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 600,
-		'frameWidth' : 1000,
-                'centerOnScroll' : false
-	});
+// modal for dialog boxes
+  $(".large_modal").fancybox( {
+    'overlayOpacity' : 0.0,
+    'showCloseButton' : true,
+    'frameHeight' : 600,
+    'frameWidth' : 1000,
+    'centerOnScroll' : false
+  });
 
-    // special size for
-	$(".medium_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 500,
-		'frameWidth' : 800,
-                'centerOnScroll' : false
-	});
-
-        // special size for
-	$("#image_view_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-                'centerOnScroll' : false,
-                'autoScale' : true
-	});
+// modal for image viewer
+  $(".image_modal").fancybox( {
+    'overlayOpacity' : 0.0,
+    'showCloseButton' : true,
+    'centerOnScroll' : false,
+    'autoscale' : true
+  });
 
 });
+
 </script>
 
 <style type="css/text">
-    #pnotes_ps_expand {
-        height:auto;
-        width:100%;
-    }
+#pnotes_ps_expand {
+  height:auto;
+  width:100%;
+}
 </style>
 
 </head>
 
 <body class="body_top">
-<table cellspacing='0' cellpadding='0' border='0'>
-<tr>
+
 <?php
  $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
  $result2 = getEmployerData($pid);
@@ -255,59 +330,29 @@ $(document).ready(function(){
  }
 
  if ($thisauth == 'write') {
-  foreach (pic_array() as $var) {print $var;}
-  echo "<td><span class='title'>" .
+  echo "<table><tr><td><span class='title'>" .
    htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) .
-   "</span>&nbsp;&nbsp;</td>";
+   "</span></td>";
 
   if (acl_check('admin', 'super')) {
-   echo "<td><a class='css_button iframe' href='../deleter.php?patient=" . 
+   echo "<td style='padding-left:1em;'><a class='css_button iframe' href='../deleter.php?patient=" . 
     htmlspecialchars($pid,ENT_QUOTES) . "'>" .
     "<span>".htmlspecialchars(xl('Delete'),ENT_NOQUOTES).
     "</span></a></td>";
   }
-	if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
-	  // Show current balance and billing note, if any.
-    echo "<td>&nbsp;&nbsp;&nbsp;<span class='bold'><font color='#ee6600'>" .
-      htmlspecialchars(xl('Balance Due'),ENT_NOQUOTES) .
-      ": " . htmlspecialchars(oeFormatMoney(get_patient_balance($pid)),ENT_NOQUOTES) .
-      "</font>";
-    if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
-      echo '&nbsp; ' . htmlspecialchars(xl('Primary Ins'),ENT_NOQUOTES) . ':&nbsp;' .  htmlspecialchars($insco_name,ENT_QUOTES);
-		if ($result3['copay'] > 0) {
-        	echo '&nbsp; ' . htmlspecialchars(xl('Copay'),ENT_NOQUOTES) . ':&nbsp;' .  htmlspecialchars($result3['copay'],ENT_QUOTES);
-		}
-        echo '&nbsp; ' . htmlspecialchars(xl('Eff Date'),ENT_NOQUOTES) . ':&nbsp;' .  htmlspecialchars(oeFormatShortDate($result3['effdate'],ENT_QUOTES));
-    }
-     echo "<br />";
-	  if ($result['genericname2'] == 'Billing') {
-		htmlspecialchars(xl('Billing Note'),ENT_NOQUOTES) . ":";
-		echo "<span class='bold'><font color='red'>" .
-		  htmlspecialchars($result['genericval2'],ENT_NOQUOTES) .
-		  "</font></span>";
-	  }
-	  echo "</span></td>";
-	}
-
+  echo "</tr></table>";
  }
 
 // Get the document ID of the patient ID card if access to it is wanted here.
-$document_id = 0;
+$idcard_doc_id = false;
 if ($GLOBALS['patient_id_category_name']) {
-  $tmp = sqlQuery("SELECT d.id, d.date, d.url FROM " .
-    "documents AS d, categories_to_documents AS cd, categories AS c " .
-    "WHERE d.foreign_id = ? " .
-    "AND cd.document_id = d.id " .
-    "AND c.id = cd.category_id " .
-    "AND c.name LIKE ? " .
-    "ORDER BY d.date DESC LIMIT 1", array($pid, $GLOBALS['patient_id_category_name']) );
-  if ($tmp) $document_id = $tmp['id'];
+  $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
 }
-?>
-</tr>
 
-<tr>
-<td class="small" colspan='4'>
+?>
+<table cellspacing='0' cellpadding='0' border='0'>
+ <tr>
+  <td class="small" colspan='4'>
 <a href="../history/history.php" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
 |
@@ -321,80 +366,137 @@ if ($GLOBALS['patient_id_category_name']) {
 |
 <a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
-</td>
-</tr>
+  </td>
+ </tr>
 </table> <!-- end header -->
 
 <div style='margin-top:10px'> <!-- start main content div -->
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
- <tr>
-  <td align="left" valign="top">
+ <table border="0" cellspacing="0" cellpadding="0" width="100%">
+  <tr>
+   <td align="left" valign="top">
     <!-- start left column div -->
-	<div style='float:left; margin-right:20px'>
-		<table cellspacing=0 cellpadding=0>
-		<tr>
-			<td>
-				<?php // Demographics expand collapse widget
-				$widgetTitle = xl("Demographics");
-				$widgetLabel = "demographics";
-				$widgetButtonLabel = xl("Edit");
-				$widgetButtonLink = "demographics_full.php";
-				$widgetButtonClass = "";
-				$linkMethod = "html";
-				$bodyClass = "";
-				$widgetAuth = ($thisauth == "write");
-				$fixedWidth = true;
-				expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+    <div style='float:left; margin-right:20px'>
+     <table cellspacing=0 cellpadding=0>
+      <tr>
+       <td>
+<?php
+// Billing expand collapse widget
+$widgetTitle = xl("Billing");
+$widgetLabel = "billing";
+$widgetButtonLabel = xl("Edit");
+$widgetButtonLink = "return newEvt();";
+$widgetButtonClass = "";
+$linkMethod = "javascript";
+$bodyClass = "notab";
+$widgetAuth = false;
+$fixedWidth = true;
+if ($GLOBALS['force_billing_widget_open']) {
+  $forceExpandAlways = true;
+}
+else {
+  $forceExpandAlways = false;
+}
+expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+  $widgetAuth, $fixedWidth, $forceExpandAlways);
+?>
+        <br>
+<?php
+ if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
+ // Show current balance and billing note, if any.
+  echo "        <div style='margin-left: 10px; margin-right: 10px'>" .
+   "<span class='bold'><font color='#ee6600'>" .
+   htmlspecialchars(xl('Balance Due'),ENT_NOQUOTES) .
+   ": " . htmlspecialchars(oeFormatMoney(get_patient_balance($pid)),ENT_NOQUOTES) .
+   "</font></span><br>";
+  if ($result['genericname2'] == 'Billing') {
+   echo "<span class='bold'><font color='red'>" .
+    htmlspecialchars(xl('Billing Note'),ENT_NOQUOTES) . ":" .
+    htmlspecialchars($result['genericval2'],ENT_NOQUOTES) .
+    "</font></span><br>";
+  } 
+  if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
+   echo "<span class='bold'>" .
+    htmlspecialchars(xl('Primary Insurance'),ENT_NOQUOTES) . ': ' . htmlspecialchars($insco_name,ENT_NOQUOTES) .
+    "</span>&nbsp;&nbsp;&nbsp;";
+   if ($result3['copay'] > 0) {
+    echo "<span class='bold'>" .
+     htmlspecialchars(xl('Copay'),ENT_NOQUOTES) . ': ' .  htmlspecialchars($result3['copay'],ENT_NOQUOTES) .
+     "</span>&nbsp;&nbsp;&nbsp;";
+   }
+   echo "<span class='bold'>" .
+    htmlspecialchars(xl('Effective Date'),ENT_NOQUOTES) . ': ' .  htmlspecialchars(oeFormatShortDate($result3['effdate'],ENT_NOQUOTES)) .
+    "</span>";
+  }
+  echo "</div><br>";
+ }
+?>
+        </div> <!-- required for expand_collapse_widget -->
+       </td>
+      </tr>
+      <tr>
+       <td>
+<?php
+// Demographics expand collapse widget
+$widgetTitle = xl("Demographics");
+$widgetLabel = "demographics";
+$widgetButtonLabel = xl("Edit");
+$widgetButtonLink = "demographics_full.php";
+$widgetButtonClass = "";
+$linkMethod = "html";
+$bodyClass = "";
+$widgetAuth = ($thisauth == "write");
+$fixedWidth = true;
+expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+  $widgetAuth, $fixedWidth);
+?>
+         <div id="DEM" >
+          <ul class="tabNav">
+           <?php display_layout_tabs('DEM', $result, $result2); ?>
+          </ul>
+          <div class="tabContainer">
+           <?php display_layout_tabs_data('DEM', $result, $result2); ?>
+          </div>
+         </div>
+        </div> <!-- required for expand_collapse_widget -->
+       </td>
+      </tr>
 
-					<div id="DEM" >
-					<ul class="tabNav">
-					   <?php display_layout_tabs('DEM', $result, $result2); ?>
-					</ul>
-					<div class="tabContainer">
-					   <?php display_layout_tabs_data('DEM', $result, $result2); ?>
-					</div>
-					</div>
-				</div>
-			</td>
-		</tr>
+      <tr>
+       <td>
+<?php
+$insurance_count = 0;
+foreach (array('primary','secondary','tertiary') as $instype) {
+  $enddate = 'Present';
+  $query = "SELECT * FROM insurance_data WHERE " .
+    "pid = ? AND type = ? " .
+    "ORDER BY date DESC";
+  $res = sqlStatement($query, array($pid, $instype) );
+  while( $row = sqlFetchArray($res) ) {
+    if ($row['provider'] ) $insurance_count++;
+  }
+}
 
-		<tr>
-		<td>
-		   <?php
+if ( $insurance_count > 0 ) {
+  // Insurance expand collapse widget
+  $widgetTitle = xl("Insurance");
+  $widgetLabel = "insurance";
+  $widgetButtonLabel = xl("Edit");
+  $widgetButtonLink = "demographics_full.php";
+  $widgetButtonClass = "";
+  $linkMethod = "html";
+  $bodyClass = "";
+  $widgetAuth = ($thisauth == "write");
+  $fixedWidth = true;
+  expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+    $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+    $widgetAuth, $fixedWidth);
 
-			$insurance_count = 0;
-			foreach (array('primary','secondary','tertiary') as $instype) {
-				$enddate = 'Present';
+  if ( $insurance_count > 0 ) {
+?>
 
-				$query = "SELECT * FROM insurance_data WHERE " .
-				"pid = ? AND type = ? " .
-				"ORDER BY date DESC";
-				$res = sqlStatement($query, array($pid, $instype) );
-				while( $row = sqlFetchArray($res) ) {
-					if ($row['provider'] ) $insurance_count++;
-				}
-			}
-
-		   if ( $insurance_count > 0 ) {
-
-		   ?>
-			<?php // Insurance expand collapse widget
-			$widgetTitle = xl("Insurance");
-			$widgetLabel = "insurance";
-			$widgetButtonLabel = xl("Edit");
-			$widgetButtonLink = "demographics_full.php";
-			$widgetButtonClass = "";
-			$linkMethod = "html";
-			$bodyClass = "";
-			$widgetAuth = ($thisauth == "write");
-			$fixedWidth = true;
-			expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
-
-			   <?php
-			   if ( $insurance_count > 0 ) {
-
-				   ?><ul class="tabNav"><?php
-
+        <ul class="tabNav"><?php
 					///////////////////////////////// INSURANCE SECTION
 					$first = true;
 					foreach (array('primary','secondary','tertiary') as $instype) {
@@ -562,41 +664,29 @@ if ($GLOBALS['patient_id_category_name']) {
 
 		<tr>
 			<td width='650px'>
-		<?php // Notes expand collapse widget
-		$widgetTitle = xl("Notes");
-		$widgetLabel = "pnotes";
-		$widgetButtonLabel = xl("Edit");
-		$widgetButtonLink = "pnotes_full.php";
-		$widgetButtonClass = "";
-		$linkMethod = "html";
-		$bodyClass = "tab current";
-		$widgetAuth = true;
-		$fixedWidth = true;
-		expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+
+<?php
+// Notes expand collapse widget
+$widgetTitle = xl("Notes");
+$widgetLabel = "pnotes";
+$widgetButtonLabel = xl("Edit");
+$widgetButtonLink = "pnotes_full.php";
+$widgetButtonClass = "";
+$linkMethod = "html";
+$bodyClass = "notab";
+$widgetAuth = true;
+$fixedWidth = true;
+expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+  $widgetAuth, $fixedWidth);
+?>
+
                     <br/>
-                    <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+                    <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                 </div>
 			</td>
 		</tr>
 		 <tr>
-                        <td width='650px'>
-		<?php // disclosures expand collapse widget
-		$widgetTitle = xl("Disclosures");
-		$widgetLabel = "disclosures";
-		$widgetButtonLabel = xl("Edit");
-		$widgetButtonLink = "disclosure_full.php";
-		$widgetButtonClass = "";
-		$linkMethod = "html";
-		$bodyClass = "tab current";
-		$widgetAuth = true;
-		$fixedWidth = true;
-		expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
-                    <br/>
-                    <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
-                </div>
-                        </td>
-              </tr>
-                 <tr>
                         <td width='650px'>
                 <?php // patient reminders collapse widget
                 $widgetTitle = xl("Patient Reminders");
@@ -614,70 +704,145 @@ if ($GLOBALS['patient_id_category_name']) {
                 </div>
                         </td>
               </tr>
-		
-                 <tr>
-                        <td width='650px'>
-                <?php // vitals expand collapse widget
-                $widgetTitle = xl("Vitals");
-                $widgetLabel = "vitals";
-                $widgetButtonLabel = xl("Trend");
-                $widgetButtonLink = "../encounter/trend_form.php?formname=vitals";
-                $widgetButtonClass = "";
-                $linkMethod = "html";
-                $bodyClass = "tab current";
-                // check to see if any vitals exist
-                $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid) );
-                if ($existVitals) {
-                  $widgetAuth = true;
-		}
-		else {
-		  $widgetAuth = false;   
-		}
-                $fixedWidth = true;
-                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+       <tr>
+       <td width='650px'>
+<?php
+// disclosures expand collapse widget
+$widgetTitle = xl("Disclosures");
+$widgetLabel = "disclosures";
+$widgetButtonLabel = xl("Edit");
+$widgetButtonLink = "disclosure_full.php";
+$widgetButtonClass = "";
+$linkMethod = "html";
+$bodyClass = "notab";
+$widgetAuth = true;
+$fixedWidth = true;
+expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+  $widgetAuth, $fixedWidth);
+?>
                     <br/>
-                    <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+                    <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                 </div>
-                        </td>
-              </tr>
+     </td>
+    </tr>		
 
-	   </table>
+<?php if ($vitals_is_registered) { ?>
+    <tr>
+     <td width='650px'>
+<?php // vitals expand collapse widget
+  $widgetTitle = xl("Vitals");
+  $widgetLabel = "vitals";
+  $widgetButtonLabel = xl("Trend");
+  $widgetButtonLink = "../encounter/trend_form.php?formname=vitals";
+  $widgetButtonClass = "";
+  $linkMethod = "html";
+  $bodyClass = "notab";
+  // check to see if any vitals exist
+  $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid) );
+  if ($existVitals) {
+    $widgetAuth = true;
+  }
+  else {
+    $widgetAuth = false;
+  }
+  $fixedWidth = true;
+  expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+    $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+    $widgetAuth, $fixedWidth);
+?>
+      <br/>
+      <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
+      </div>
+     </td>
+    </tr>
+<?php } // end if ($vitals_is_registered) ?>
 
+<?php
+  // This generates a section similar to Vitals for each LBF form that
+  // supports charting.  The form ID is used as the "widget label".
+  //
+  $gfres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+    "list_id = 'lbfnames' AND option_value > 0 ORDER BY seq, title");
+  while($gfrow = sqlFetchArray($gfres)) {
+?>
+    <tr>
+     <td width='650px'>
+<?php // vitals expand collapse widget
+    $vitals_form_id = $gfrow['option_id'];
+    $widgetTitle = $gfrow['title'];
+    $widgetLabel = $vitals_form_id;
+    $widgetButtonLabel = xl("Trend");
+    $widgetButtonLink = "../encounter/trend_form.php?formname=$vitals_form_id";
+    $widgetButtonClass = "";
+    $linkMethod = "html";
+    $bodyClass = "notab";
+    // check to see if any instances exist for this patient
+    $existVitals = sqlQuery(
+      "SELECT * FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0",
+      array($pid, $vitals_form_id));
+    $widgetAuth = $existVitals ? true : false;
+    $fixedWidth = true;
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+      $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+      $widgetAuth, $fixedWidth);
+?>
+       <br/>
+       <div style='margin-left:10px' class='text'>
+        <image src='../../pic/ajax-loader.gif'/>
        </div>
+       <br/>
+      </div> <!-- This is required by expand_collapse_widget(). -->
+     </td>
+    </tr>
+<?php
+  } // end while
+?>
 
+   </table>
 
-	</div>
+  </div>
     <!-- end left column div -->
 
     <!-- start right column div -->
-	<div class='text'>
+	<div>
     <table>
     <tr>
     <td>
-    <?php
-            // If there is a patient ID card, then show a link to it.
- 	if ($document_id) {
-            $docobj = new Document($document_id);
-            $image_file = $docobj->get_url_file();
-            // File ends in .pdf
-            if (preg_match('/\.pdf$/i',$image_file)) {
-                echo "<a href='" . $web_root . "/controller.php?document&retrieve" .
-                     "&patient_id=$pid&document_id=$document_id'" .
-                    " onclick='top.restoreSession()' class='css_button_small'>" .
-                    "<span>" .
-                    htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . htmlspecialchars( xl("PDF of Patient ID Card"), ENT_QUOTES ) .
-                    "</span> <br /><hr>";
-            } else {
-                // image file type(s) std list png, jpg, etc...
-                echo "<a href='" . $web_root . "/sites/" . $_SESSION['site_id'] .
-                     "/documents/$pid/$image_file'" .
-                     " onclick='top.restoreSession()' class='css_button_small' id='image_view_modal'>" .
-                     "<span>" .
-                     htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" . htmlspecialchars( xl("Patient ID Card"), ENT_QUOTES ) .
-                     "</span> <br /><hr>";
-            }
- 	}
 
+<div>
+    <?php
+
+    // If there is an ID Card or any Photos show the widget
+    $photos = pic_array($pid, $GLOBALS['patient_photo_category_name']);
+    if ($photos or $idcard_doc_id )
+    {
+        $widgetTitle = xl("ID Card") . '/' . xl("Photos");
+        $widgetLabel = "photos";
+        $linkMethod = "javascript";
+        $bodyClass = "notab-right";
+        $widgetAuth = false;
+        $fixedWidth = false;
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel ,
+                $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+                $widgetAuth, $fixedWidth);
+?>
+<br />
+<?php
+    	if ($idcard_doc_id) {
+        	image_widget($idcard_doc_id, $GLOBALS['patient_id_category_name']);
+		}
+
+        foreach ($photos as $photo_doc_id) {
+            image_widget($photo_doc_id, $GLOBALS['patient_photo_category_name']);
+        }
+    }
+?>
+
+<br />
+</div>
+<div>
+ <?php
     // Advance Directives
     if ($GLOBALS['advance_directives_warning']) {
 	// advance directives expand collapse widget
@@ -881,7 +1046,7 @@ if ($GLOBALS['patient_id_category_name']) {
 
 		<div id='stats_div'>
             <br/>
-            <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+            <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
         </div>
     </td>
     </tr>

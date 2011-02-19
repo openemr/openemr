@@ -364,6 +364,7 @@ $visit_row = sqlQuery("SELECT fe.date, opc.pc_catname " .
   "FROM form_encounter AS fe " .
   "LEFT JOIN openemr_postcalendar_categories AS opc ON opc.pc_catid = fe.pc_catid " .
   "WHERE fe.pid = '$pid' AND fe.encounter = '$encounter' LIMIT 1");
+$visit_date = substr($visit_row['date'], 0, 10);
 
 // If Save was clicked, save the new and modified billing lines;
 // then if no error, redirect to $returnurl.
@@ -465,7 +466,8 @@ if ($_POST['bn_save']) {
         $query = "UPDATE drug_sales AS dsr, drug_sales AS ds, " .
           "drug_inventory AS di " .
           "SET di.on_hand = di.on_hand + dsr.quantity - $units, " .
-          "ds.quantity = '$units', ds.fee = '$fee' WHERE " .
+          "ds.quantity = '$units', ds.fee = '$fee', " .
+          "ds.sale_date = '$visit_date' WHERE " .
           "dsr.sale_id = '$sale_id' AND ds.sale_id = dsr.sale_id AND " .
           "di.inventory_id = ds.inventory_id";
         sqlStatement($query);
@@ -474,8 +476,8 @@ if ($_POST['bn_save']) {
 
     // Otherwise it's a new item...
     else if (! $del) {
-      $sale_id = sellDrug($drug_id, $units, $fee, $pid, $encounter, 0, '', '',
-        $default_warehouse);
+      $sale_id = sellDrug($drug_id, $units, $fee, $pid, $encounter, 0,
+        $visit_date, '', $default_warehouse);
       if (!$sale_id) die("Insufficient inventory for product ID \"$drug_id\".");
     }
   } // end for

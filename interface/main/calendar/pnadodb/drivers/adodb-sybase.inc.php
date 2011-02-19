@@ -33,7 +33,6 @@ class ADODB_sybase extends ADOConnection {
 	var $concat_operator = '+'; 
 	var $sysDate = 'GetDate()';
 	var $arrayClass = 'ADORecordSet_array_sybase';
-	var $sysDate = 'GetDate()';
 	var $leftOuter = '*=';
 	var $rightOuter = '=*';
 	

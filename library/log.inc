@@ -455,7 +455,7 @@ function create_tls_conn($host, $port, $localcert, $cafile) {
 function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comments)
 {
     /* If no ATNA repository server is configured, return */
-    if ($GLOBALS['atna_audit_host'] === null || $GLOBALS['atna_audit_host'] == "") {
+    if ($GLOBALS['atna_audit_host'] === null || $GLOBALS['atna_audit_host'] == "" || !($GLOBALS['enable_atna_audit'])) {
         return;
     }
     $host = $GLOBALS['atna_audit_host'];
@@ -481,7 +481,7 @@ function auditSQLEvent($statement, $outcome)
 {
     $user =  $_SESSION['authUser'];
 	/* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-   if (isset($GLOBALS['enable_auditlog']) &&  ($GLOBALS["enable_auditlog"] === 0))
+   if (!($GLOBALS['enable_auditlog']))
    {
    	    if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
    	    return;
@@ -656,14 +656,14 @@ function auditSQLEvent($statement, $outcome)
         }
     }
 
-    /* If query events are not enabled in globals.php,don't log them */
-    if (($querytype == "select") && ($GLOBALS["audit_events"]["query"]) != 1)
+    /* If query events are not enabled, don't log them */
+    if (($querytype == "select") && !($GLOBALS['audit_events_query']))
     { 
        if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
        return;
     }
- 
-    if (($GLOBALS["audit_events"][$event]) === 0) 
+
+    if (!($GLOBALS["audit_events_${event}"])) 
     {
     	if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
     	return;

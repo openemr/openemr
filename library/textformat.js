@@ -239,13 +239,18 @@ function maskkeyup(elem, mask) {
   var ec = v.charAt(i);
   var mc = mask.charAt(i);
   if (mc == '#' && (ec < '0' || ec > '9')) {
+   // digit required but this is not one
+   break;
+  }
+  if (mc == '@' && ec.toLowerCase() == ec.toUpperCase()) {
+   // alpha character required but this is not one
    break;
   }
  }
  v = v.substring(0, i);
  while (i < mask.length) {
   var mc = mask.charAt(i++);
-  if (mc == '*' || mc == '#') break;
+  if (mc == '*' || mc == '#' || mc == '@') break;
   v += mc;
  }
  elem.value = v;
@@ -257,15 +262,18 @@ function maskblur(elem, mask) {
  var v = elem.value;
  var i = mask.length;
  if (i > 0 && v.length > 0 && v.length != i) {
+  // there is a mask and a value but the value is not long enough
   for (; i > 0 && mask.charAt(i-1) == '#'; --i);
   // i is now index to first # in # string at end of mask
   if (i > v.length) {
+   // value is too short even if trailing digits in the mask are ignored
    if (confirm('Field entry is incomplete! Try again?'))
     elem.focus();
    else
     elem.value = '';
    return;
   }
+  // if the mask ends with digits then right-justify them in the value
   while (v.length < mask.length) {
    v = v.substring(0, i) + '0' + v.substring(i, v.length);
   }

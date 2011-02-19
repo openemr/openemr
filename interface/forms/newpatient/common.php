@@ -34,6 +34,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   "pid = $pid AND enddate IS NULL " .
   "ORDER BY type, begdate");
 ?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
 <?php html_header_show();?>
@@ -41,11 +42,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.4.3.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.pack.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
@@ -62,7 +62,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
  // Process click on issue title.
  function newissue() {
-  dlgopen('../../patient_file/summary/add_edit_issue.php', '_blank', 600, 475);
+  dlgopen('../../patient_file/summary/add_edit_issue.php', '_blank', 800, 600);
   return false;
  }
 
@@ -75,12 +75,13 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  function saveClicked() {
   var f = document.forms[0];
 
+<?php if (!$GLOBALS['athletic_team']) { ?>
   var category = document.forms[0].pc_catid.value;
-
   if ( category == '_blank' ) {
-	alert("<?php echo xl('You must select a visit category.', 'e'); ?>");
-	return;
+   alert("<?php echo xl('You must select a visit category'); ?>");
+   return;
   }
+<?php } ?>
 
 <?php if (false /* $GLOBALS['ippf_specific'] */) { // ippf decided not to do this ?>
   if (f['issues[]'].selectedIndex < 0) {
@@ -97,8 +98,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
  }
 
 $(document).ready(function(){
-    // fancy box
-    enable_modals();
+  enable_big_modals();
 });
 
 </script>
@@ -155,7 +155,7 @@ $(document).ready(function(){
   <td width='34%' rowspan='2' align='center' valign='center' class='text'>
    <table>
 
-    <tr>
+    <tr<?php if ($GLOBALS['athletic_team']) echo " style='visibility:hidden;'"; ?>>
      <td class='bold' nowrap><?php xl('Visit Category:','e'); ?></td>
      <td class='text'>
       <select name='pc_catid' id='pc_catid'>
@@ -259,32 +259,27 @@ if ($fres) {
      </td>
     </tr>
 
-    <tr<?php if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden;'"; ?>>
+    <tr<?php if ($GLOBALS['ippf_specific'] || $GLOBALS['athletic_team']) echo " style='visibility:hidden;'"; ?>>
      <td class='bold' nowrap><?php xl('Onset/hosp. date:','e'); ?></td>
      <td class='text' nowrap>
       <input type='text' size='10' name='form_onset_date' id='form_onset_date'
        value='<?php echo $viewmode ? substr($result['onset_date'], 0, 10) : date('Y-m-d'); ?>'
        title='<?php xl('yyyy-mm-dd Date of onset or hospitalization','e'); ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-
         <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
         id='img_form_onset_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
         title='<?php xl('Click here to choose a date','e'); ?>'>
-
      </td>
     </tr>
 
     <tr>
      <td class='text' colspan='2' style='padding-top:1em'>
-
 <?php if ($GLOBALS['athletic_team']) { ?>
       <p><i>Click [Add Issue] to add a new issue if:<br />
       New injury likely to miss &gt; 1 day<br />
       New significant illness/medical<br />
       New allergy - only if nil exist</i></p>
 <?php } ?>
-
-
      </td>
     </tr>
 
@@ -297,7 +292,13 @@ if ($fres) {
    <?php xl('Issues (Injuries/Medical/Allergy)','e'); ?>
     </div>
     <div style='float:left;margin-left:8px;margin-top:-3px'>
-      <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"><span><?php xl('Add','e'); ?></span></a>
+<?php if ($GLOBALS['athletic_team']) { // they want the old-style popup window ?>
+      <a href="#" class="css_button_small link_submit"
+       onclick="return newissue()"><span><?php echo htmlspecialchars(xl('Add')); ?></span></a>
+<?php } else { ?>
+      <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"
+       onclick="top.restoreSession()"><span><?php echo htmlspecialchars(xl('Add')); ?></span></a>
+<?php } ?>
     </div>
   </td>
  </tr>

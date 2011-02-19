@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005, 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,6 +13,12 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/calendar_events.inc.php");
+
+// Temporary variable while new logic is being tested.
+// True means that missing days in the daily_fitness table default to
+// the previous entry's values, if there is one.
+// Otherwise the default fitness level (Fully Fit) is used.
+$PROPLOGIC = true;
 
 $squads = acl_get_squads();
 $auth_notes_a  = acl_check('encounters', 'notes_a');
@@ -81,6 +87,7 @@ $maintop = $_GET['embed'] ? "top" : "opener.top";
 echo "  $maintop.restoreSession();\n";
 if ($GLOBALS['concurrent_layout']) {
   echo "  $maintop.RTop.location = '../patient_file/summary/demographics.php?set_pid=' + pid;\n";
+  // echo "  $maintop.left_nav.forceDual();\n"; // Decided not to do this.
 } else {
   echo "  $maintop.location = '../patient_file/patient_file.php?set_pid=' + pid;\n";
 }
@@ -192,10 +199,21 @@ foreach ($ordres as $row) {
     $date = date('Y-m-d', $time);
     $ymd = date('Ymd', $time);
 
-    $dfrow = sqlQuery("SELECT df.*, lf.title AS lf_title, lf.mapping AS lf_mapping " .
-      "FROM daily_fitness AS df " .
-      "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
-      "WHERE df.pid = '$patient_id' AND df.date = '$date'");
+    if ($PROPLOGIC) {
+      // For a given date, fitness info is the last on or before that date,
+      // or if there is none then the defaults apply.
+      $dfrow = sqlQuery("SELECT df.*, lf.title AS lf_title, lf.mapping AS lf_mapping " .
+        "FROM daily_fitness AS df " .
+        "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
+        "WHERE df.pid = '$patient_id' AND df.date <= '$date' " .
+        "ORDER BY df.date DESC LIMIT 1");
+    }
+    else {
+      $dfrow = sqlQuery("SELECT df.*, lf.title AS lf_title, lf.mapping AS lf_mapping " .
+        "FROM daily_fitness AS df " .
+        "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
+        "WHERE df.pid = '$patient_id' AND df.date = '$date'");
+    }
 
     if (empty($dfrow)) {
       $dfrow = array(
@@ -233,7 +251,10 @@ foreach ($ordres as $row) {
       "onmouseover='mov1(this,$patient_id)' " .
       "onmouseout='ttMouseOut()' " .
       ">\n";
-    echo $mapping[1];
+    if ($PROPLOGIC && (empty($dfrow['date']) || $dfrow['date'] != $date))
+      echo '<i>' . $mapping[1] . '</i>';
+    else
+      echo $mapping[1];
     echo "  </td>\n";
     echo "  <td class='detail' align='right' " .
       "bgcolor='$bgcolor' " .

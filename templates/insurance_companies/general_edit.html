@@ -1,10 +1,10 @@
 {literal}
 <script language="javascript">
 function submit_insurancecompany() {
-    if(document.insurancecompany.name.value.length>0) { document.insurancecompany.submit();
-        jsWaitForDelay(500);
+    if(document.insurancecompany.name.value.length>0) { 
         top.restoreSession();
-        document.location.href="{/literal}{$WEB_ROOT}{literal}/controller.php?practice_settings&insurance_company&action=list";
+	    document.insurancecompany.submit();
+		//Z&H Removed redirection
     } else{
         document.insurancecompany.name.style.backgroundColor="red";
         document.insurancecompany.name.focus();
@@ -28,47 +28,47 @@ function jsWaitForDelay(delay) {
 <tr>
 	<td width="220px" VALIGN="MIDDLE" >{xl t='Name'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="name" value="{$insurancecompany->get_name()}"/> ({xl t='Required'})
+		<input type="text" size="40" name="name" value="{$insurancecompany->get_name()}" onKeyDown="PreventIt(event)" /> ({xl t='Required'})
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='Attn'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="attn" value="{$insurancecompany->get_attn()}"/>
+		<input type="text" size="40" name="attn" value="{$insurancecompany->get_attn()}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="address_line1" value="{$insurancecompany->address->line1}"/>
+		<input type="text" size="40" name="address_line1" value="{$insurancecompany->address->line1}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="40" name="address_line2" value="{$insurancecompany->address->line2}"/>
+		<input type="text" size="40" name="address_line2" value="{$insurancecompany->address->line2}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='City, State Zip'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="25" name="city" value="{$insurancecompany->address->city}"/> , <input type="text" size="2" maxlength="2" name="state" value="{$insurancecompany->address->state}"/> <input type="text" size="5" name="zip" value="{$insurancecompany->address->zip}"/>
+		<input type="text" size="25" name="city" value="{$insurancecompany->address->city}" onKeyDown="PreventIt(event)" /> , <input type="text" size="2" maxlength="2" name="state" value="{$insurancecompany->address->state}" onKeyDown="PreventIt(event)" /> <input type="text" size="5" name="zip" value="{$insurancecompany->address->zip}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='Phone'}</td>
 	<td VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="phone" SIZE="12" VALUE="{$insurancecompany->get_phone()}"/>
+		<input TYPE="TEXT" NAME="phone" SIZE="12" VALUE="{$insurancecompany->get_phone()}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='CMS ID'}</td>
 	<td VALIGN="MIDDLE" >
-		<input type="text" size="15" name="cms_id" value="{$insurancecompany->get_cms_id()}"/>
+		<input type="text" size="15" name="cms_id" value="{$insurancecompany->get_cms_id()}" onKeyDown="PreventIt(event)" />
 {php} if ($GLOBALS['support_encounter_claims']) { {/php}
     &nbsp;&nbsp;{xl t='For Encounter Claims'}:
-		<input type="text" size="15" name="alt_cms_id" value="{$insurancecompany->get_alt_cms_id()}"/>
+		<input type="text" size="15" name="alt_cms_id" value="{$insurancecompany->get_alt_cms_id()}" onKeyDown="PreventIt(event)" />
 {php} } {/php}
 	</td>
 </tr>

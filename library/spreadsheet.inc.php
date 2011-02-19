@@ -412,7 +412,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
    x = "<select class='selgen' onchange='newptp(this)'>";
    x += "<option value=''>-- Select --</option>";
 <?php
-  foreach ($bcodes['PTCJ']['Physiotherapy Procedures'] as $key => $value) {
+  foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
     echo "   x += \"<option value='$key'\";\n";
     echo "   if (dflt == '$key') x += ' selected';\n";
     echo "   x += '>$value</option>';\n";

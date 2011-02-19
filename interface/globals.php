@@ -244,7 +244,7 @@ else {
   $GLOBALS['concurrent_layout'] = 2;
   $timeout = 7200;
   $openemr_name = 'OpenEMR';
-  $css_header = "$rootdir/themes/style_sky_blue.css";
+  $css_header = "$rootdir/themes/style_default.css";
   $GLOBALS['css_header'] = $css_header;
   $GLOBALS['schedule_start'] = 8;
   $GLOBALS['schedule_end'] = 17;
@@ -253,28 +253,6 @@ else {
   $GLOBALS['disable_non_default_groups'] = true;
   $GLOBALS['ippf_specific'] = false;
 }
-
-//
-// Lists and Layouts Control Section
-//
-//
-// 'state_custom_addlist_widget'
-//  - If true, then will display a customized addlist widget for
-//    state list entries (will ask for title and abbreviation)
-$GLOBALS['state_custom_addlist_widget'] = true;
-$GLOBALS['state_list'] = "state";
-$GLOBALS['country_list'] = "country";
-
-// Option to set the top default window. By default, it is set
-// to the calendar screen. The starting directory is
-// interface/main/ , hence:
-//    The calendar screen is 'main_info.php' .
-//    The patient search/add screen is '../new/new.php' .
-$GLOBALS['default_top_pane'] = 'main_info.php';
-
-// Default category for find_patient screen
-$GLOBALS['default_category'] = 5;
-$GLOBALS['default_event_title'] = 'Office Visit';
 
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
@@ -382,18 +360,6 @@ $LAB_EXCHANGE_SITEID   = "";
 $LAB_EXCHANGE_TOKEN    = "";
 $LAB_EXCHANGE_ENDPOINT = "";
 
-// If you want Hylafax support then uncomment and customize the following
-// statements, and also customize custom/faxcover.txt:
-//
-// $GLOBALS['hylafax_server']   = 'localhost';
-// $GLOBALS['hylafax_basedir']  = '/var/spool/fax';
-// $GLOBALS['hylafax_enscript'] = 'enscript -M Letter -B -e^ --margins=36:36:36:36';
-
-// For scanner support, uncomment and customize the following.  This is
-// the directory in which scanned-in documents may be found, and may for
-// example be a smbfs-mounted share from the PC supporting the scanner:
-//
-// $GLOBALS['scanner_output_directory'] = '/mnt/scan_docs';
 
 // Customize these if you are using SQL-Ledger with OpenEMR, or if you are
 // going to run sl_convert.php to convert from SQL-Ledger.
@@ -405,35 +371,6 @@ $sl_services_id = 'MS';         // sql-ledger parts table id for medical service
 $sl_dbname      = 'sql-ledger'; // sql-ledger database name
 $sl_dbuser      = 'sql-ledger'; // sql-ledger database login name
 $sl_dbpass      = 'secret';     // sql-ledger database login password
-
-///////////////////////// AUDIT LOGGING CONFIG ////////////////
-//$GLOBALS["enable_auditlog"]=0 is to off the logging feature in openemr
-//$GLOBALS["enable_auditlog"]=1 is to on the logging feature in openemr
-//patient-record:- set 1 (0 to off) to log the patient related activites like creation of new patient, encounters, history//etc.
-//scheduling:- set 1 (0 to off) to log the patient related scheduling like Appointments.
-//query:- set 1 (0 to off) to log all SQL SELECT queries.
-//order:- set 1 (0 to off) to log an orders like medical service or medical item (like a prescription).
-//security-administration:- set 1 to (0 to off) to log events such as creating/updating users/facility etc.
-//backup:- set 1 (0 to off) to log backup related activites.
-$GLOBALS["enable_auditlog"]=1;
-$GLOBALS["audit_events"]=array("patient-record"=>1,
-                                "scheduling"=>1,
-                                "query"=>0,
-                                "order"=>1,
-                                "security-administration"=>1,
-                                "backup"=>1,
-                                );
-
-// Configure the settings below to enable Audit Trail and Node Authentication (ATNA).
-// See RFC 3881, RFC 5424, RFC 5425 for details.
-// atna_audit_host = The hostname of the audit repository machine
-// atna_audit_port = Listening port of the RFC 5425 TLS syslog server
-// atna_audit_localcert - Certificate to send to RFC 5425 TLS syslog server
-// atna_audit_cacert - CA Certificate for verifying the RFC 5425 TLS syslog server
-$GLOBALS['atna_audit_host'] = '';
-$GLOBALS['atna_audit_port'] = 6514;
-$GLOBALS['atna_audit_localcert'] = '';
-$GLOBALS['atna_audit_cacert'] = '';
 //////////////////////////////////////////////////////////////////
 
 // Don't change anything below this line. ////////////////////////////

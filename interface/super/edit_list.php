@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -195,9 +195,9 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
     "onclick='defClicked($opt_line_no)' class='optin'$checked />";
   echo "</td>\n";
 
-  // Tax rates and contraceptive methods have an additional attribute.
+  // Tax rates, contraceptive methods and LBF names have an additional attribute.
   //
-  if ($list_id == 'taxrate' || $list_id == 'contrameth') {
+  if ($list_id == 'taxrate' || $list_id == 'contrameth' || $list_id == 'lbfnames') {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][value]' value='" .
         htmlspecialchars($value, ENT_QUOTES) . "' size='8' maxlength='15' class='optin' />";
@@ -218,6 +218,25 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
       3 => xl('Deductible'),
       4 => xl('Other pt resp'),
       5 => xl('Comment'),
+    ) as $key => $desc) {
+      echo "<option value='$key'";
+      if ($key == $value) echo " selected";
+      echo ">" . htmlspecialchars($desc) . "</option>";
+    }
+    echo "</select>";
+    echo "</td>\n";
+  }
+
+  // Address book categories use option_value to flag category as a
+  // person-centric vs company-centric vs indifferent.
+  //
+  else if ($list_id == 'abook_type') {
+    echo "  <td align='center' class='optcell'>";
+    echo "<select name='opt[$opt_line_no][value]' class='optin'>";
+    foreach (array(
+      1 => xl('Unassigned'),
+      2 => xl('Person'),
+      3 => xl('Company'),
     ) as $key => $desc) {
       echo "<option value='$key'";
       if ($key == $value) echo " selected";
@@ -337,7 +356,7 @@ function writeCTLine($ct_array) {
   echo ctGenCell($opt_line_no, $ct_array, 'ct_just', 4, 15,
     xl('If billing justification is used enter the name of the diagnosis code type.'));
   echo ctGenCell($opt_line_no, $ct_array, 'ct_mask', 6,  9,
-    xl('Specifies formatting for codes. # = digit, * = any character. Empty if not used.'));
+    xl('Specifies formatting for codes. # = digit, @ = alpha, * = any character. Empty if not used.'));
   echo ctGenCBox($opt_line_no, $ct_array, 'ct_fee',
     xl('Are fees charged for this type?'));
   echo ctGenCBox($opt_line_no, $ct_array, 'ct_rel',
@@ -582,9 +601,11 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Rate'   ,'e'); ?></b></td>
 <?php } else if ($list_id == 'contrameth') { ?>
   <td><b><?php xl('Effectiveness','e'); ?></b></td>
+<?php } else if ($list_id == 'lbfnames') { ?>
+  <td title='<?php xl('Number of past history columns','e'); ?>'><b><?php xl('Repeats','e'); ?></b></td>
 <?php } else if ($list_id == 'fitness') { ?>
   <td><b><?php xl('Color:Abbr','e'); ?></b></td>
-<?php } else if ($list_id == 'adjreason') { ?>
+<?php } else if ($list_id == 'adjreason' || $list_id == 'abook_type') { ?>
   <td><b><?php xl('Type','e'); ?></b></td>
 <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID','e'); ?></b></td>

@@ -6,8 +6,6 @@ if (document.x12_partner.name.value.length>0)
 {
 top.restoreSession();
 document.x12_partner.submit();
-Waittoredirect(1000);
-this.location.href="{/literal}{$WEB_ROOT}{literal}/controller.php?practice_settings&x12_partner&action=list";
 }
 else
 {
@@ -34,11 +32,11 @@ document.x12_partner.name.focus();
     </tr>
     <tr>
         <td ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Partner'}&nbsp;{xl t='Name'}</td>
-        <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="name" value="{$partner->get_name()}"/></td>
+        <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="name" value="{$partner->get_name()}" onKeyDown="PreventIt(event)" /></td>
     </tr>
     <tr>
         <td ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='ID'}&nbsp;{xl t='Number'}&nbsp;({xl t='ETIN'})</td>
-        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="id_number" value="{$partner->get_id_number()}"/></td>
+        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="id_number" value="{$partner->get_id_number()}" onKeyDown="PreventIt(event)" /></td>
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Receiver ID Qualifier (ISA07)'}</td>
@@ -46,7 +44,7 @@ document.x12_partner.name.focus();
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Receiver ID (ISA08)'}</td>
-        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_receiver_id" value="{$partner->get_x12_receiver_id()}"/></td>
+        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_receiver_id" value="{$partner->get_x12_receiver_id()}" onKeyDown="PreventIt(event)" /></td>
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Sender ID Qualifier (ISA05)'}</td>
@@ -54,7 +52,7 @@ document.x12_partner.name.focus();
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Sender ID (ISA06)'}</td>
-        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_sender_id" value="{$partner->get_x12_sender_id()}"/></td>
+        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_sender_id" value="{$partner->get_x12_sender_id()}" onKeyDown="PreventIt(event)" /></td>
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Acknowledgment Requested (ISA14)'}</td>
@@ -66,15 +64,15 @@ document.x12_partner.name.focus();
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Application Sender Code (GS02)'}</td>
-        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_gs02" value="{$partner->get_x12_gs02()}"/></td>
+        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_gs02" value="{$partner->get_x12_gs02()}" onKeyDown="PreventIt(event)" /></td>
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Submitter EDI Access Number (PER06)'}</td>
-        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_per06" value="{$partner->get_x12_per06()}"/></td>
+        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_per06" value="{$partner->get_x12_per06()}" onKeyDown="PreventIt(event)" /></td>
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Version'}</td>
-        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_version" value="{$partner->get_x12_version()}"/></td>
+        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_version" value="{$partner->get_x12_version()}" onKeyDown="PreventIt(event)" /></td>
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Processing'}&nbsp;{xl t='Format'}</td>

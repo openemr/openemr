@@ -67,6 +67,7 @@ class C_Pharmacy extends Controller {
 		$this->pharmacies[0]->persist();
 		//echo "action processeed";
 		$_POST['process'] = "";
+		header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&pharmacy&action=list");//Z&H
 	}
 
 }

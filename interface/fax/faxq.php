@@ -24,7 +24,7 @@
  $dlines = array();
  $slines = array();
 
- if ($GLOBALS['hylafax_server']) {
+ if ($GLOBALS['enable_hylafax']) {
   // Get the recvq entries, parse and sort by filename.
   $statlines = array();
   exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
@@ -57,7 +57,7 @@
  }
 
  $scandir = $GLOBALS['scanner_output_directory'];
- if ($scandir) {
+ if ($scandir && $GLOBALS['enable_scanner']) {
   // Get the directory entries, parse and sort by date and time.
   $dh = opendir($scandir);
   if (! $dh) die("Cannot read $scandir");
@@ -178,20 +178,24 @@ function dosdclick(sfname) {
  id='bigtable' width='100%' height='100%'>
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'
-   <?php if ($GLOBALS['hylafax_server']) { ?>
+   <?php if ($GLOBALS['enable_hylafax']) { ?>
    style='color: #cc0000; border-right: 2px solid #000000; border-bottom: 2px solid transparent;'
    <?php } else { ?>
-   style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer;'
+   style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer; display:none;'
    <?php } ?>
    onclick='tabclick("faxin")'><?php xl('Faxes In','e'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
+   <?php if ($GLOBALS['enable_hylafax']) { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer;'
+   <?php } else { ?>
+   style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer; display:none;'
+   <?php } ?>
    onclick='tabclick("faxout")'><?php xl('Faxes Out','e'); ?></td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
-   <?php if ($GLOBALS['hylafax_server']) { ?>
+   <?php if ($GLOBALS['enable_scanner']) { ?>
    style='color: #777777; border-bottom: 2px solid #000000; cursor: pointer;'
    <?php } else { ?>
-   style='color: #cc0000; border-bottom: 2px solid transparent;'
+   style='color: #cc0000; border-bottom: 2px solid transparent; display:none;'
    <?php } ?>
    onclick='tabclick("scanin")'><?php xl('Scanner In','e'); ?></td>
  </tr>
@@ -201,7 +205,7 @@ function dosdclick(sfname) {
    <form method='post' action='faxq.php'>
 
    <table width='100%' cellpadding='1' cellspacing='2' id='table_faxin'
-    <?php if (!$GLOBALS['hylafax_server']) echo "style='display:none;'"; ?>>
+    <?php if (!$GLOBALS['enable_hylafax']) echo "style='display:none;'"; ?>>
     <tr class='head'>
      <td colspan='2' title='Click to view'><?php xl('Document','e'); ?></td>
      <td><?php xl('Received','e'); ?></td>
@@ -267,7 +271,7 @@ function dosdclick(sfname) {
    </table>
 
    <table width='100%' cellpadding='1' cellspacing='2' id='table_scanin'
-    <?php if ($GLOBALS['hylafax_server']) echo "style='display:none;'"; ?>>
+    <?php if ($GLOBALS['enable_hylafax']) echo "style='display:none;'"; ?>>
     <tr class='head'>
      <td colspan='2' title='Click to view'><?php xl('Filename','e'); ?></td>
      <td><?php xl('Scanned','e'); ?></td>

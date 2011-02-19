@@ -16,7 +16,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
 else if (!empty($GLOBALS['athletic_team'])) {
   $ISSUE_TYPES = array(
     'football_injury' => array(xl('Football Injuries'),xl('Injury') ,xl('I'),2),
-    'medical_problem' => array(xl('Medical Problems') ,xl('Problem'),xl('P'),0),
+    'medical_problem' => array(xl('Medical Problems') ,xl('Medical'),xl('P'),0),
     'allergy'         => array(xl('Allergies')        ,xl('Allergy'),xl('A'),1),
     'general'         => array(xl('General')          ,xl('General'),xl('G'),1),
   );

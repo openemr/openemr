@@ -1,6 +1,6 @@
 <?php
 // +-----------------------------------------------------------------------------+ 
-// Copyright (C) 2005-2010 Z&H Healthcare Solutions, LLC <sam@zhservices.com>
+// Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
 // This program is free software; you can redistribute it and/or
@@ -80,16 +80,31 @@ if (isset($_POST["mode"]))
     $PaymentFrom=trim(formData('hidden_type_code' ));
     $PaymentStatus=trim(formData('PaymentStatus' ));
     $PaymentSortBy=trim(formData('PaymentSortBy' ));
+    $PaymentDate=trim(formData('payment_date' ));
 	$QueryString.="Select * from  ar_session where  ";
 	$And='';
+	
+	if($PaymentDate=='date_val')
+	 {
+	  $PaymentDateString=' check_date ';
+	 }
+	elseif($PaymentDate=='post_to_date')
+	 {
+	  $PaymentDateString=' post_to_date ';
+	 }
+	elseif($PaymentDate=='deposit_date')
+	 {
+	  $PaymentDateString=' deposit_date ';
+	 }
+	
 	if($FromDate!='')
 	 {
-		 $QueryString.=" $And check_date >='".DateToYYYYMMDD($FromDate)."'";
+		 $QueryString.=" $And $PaymentDateString >='".DateToYYYYMMDD($FromDate)."'";
 		 $And=' and ';
 	 }
 	if($ToDate!='')
 	 {
-		 $QueryString.=" $And check_date <='".DateToYYYYMMDD($ToDate)."'";
+		 $QueryString.=" $And $PaymentDateString <='".DateToYYYYMMDD($ToDate)."'";
 		 $And=' and ';
 	 }
 	if($PaymentMethod!='')
@@ -99,7 +114,7 @@ if (isset($_POST["mode"]))
 	 }
 	if($CheckNumber!='')
 	 {
-		 $QueryString.=" $And reference like'".$CheckNumber."%'";
+		 $QueryString.=" $And reference like '%".$CheckNumber."%'";
 		 $And=' and ';
 	 }
 	if($PaymentAmount!='')
@@ -346,6 +361,7 @@ document.onclick=HideTheAjaxDivs;
 .class1{width:125px;}
 .class2{width:250px;}
 .class3{width:100px;}
+.class4{width:103px;}
 #ajax_div_insurance {
 	position: absolute;
 	z-index:10;
@@ -414,24 +430,31 @@ document.onclick=HideTheAjaxDivs;
           </tr>
           <tr>
             <td align="right"></td>
-            <td align="left" class="text"><?php echo htmlspecialchars( xl('From Date'), ENT_QUOTES).':' ?></td>
-            <td><input type='text'  style="width:105px;" name='FromDate' id='FromDate' class="text" value='<?php echo htmlspecialchars($FromDate); ?>' />
-	   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
-		id='img_FromDate' border='0' alt='[?]' style='cursor:pointer'
-		title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-	   <script>
-		Calendar.setup({inputField:"FromDate", ifFormat:"<?php echo $DateFormat; ?>", button:"img_FromDate"});
-	   </script></td>
-            <td align="left"></td>
-            <td align="left" class="text"><?php echo htmlspecialchars( xl('To Date'), ENT_QUOTES).':' ?></td>
-            <td><input type='text'  style="width:105px;"  name='ToDate' id='ToDate' class="text" value='<?php echo htmlspecialchars($ToDate); ?>' />
-	   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
-		id='img_ToDate' border='0' alt='[?]' style='cursor:pointer'
-		title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
-	   <script>
-		Calendar.setup({inputField:"ToDate", ifFormat:"<?php echo $DateFormat; ?>", button:"img_ToDate"});
-	   </script></td>
-            <td class="text"></td>
+            <td align="left" class="text"><?php	echo generate_select_list("payment_date", "payment_date", "$PaymentDate", "Payment Date","","class4 text");?></td>
+            <td colspan="4">
+				<table  border="0" cellspacing="0" cellpadding="0">
+				  <tr>
+					<td align="left" class="text"><?php echo htmlspecialchars( xl('From'), ENT_QUOTES).':' ?></td>
+					<td><input type='text'  style="width:90px;" name='FromDate' id='FromDate' class="text" value='<?php echo htmlspecialchars($FromDate); ?>' />
+					   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
+						id='img_FromDate' border='0' alt='[?]' style='cursor:pointer'
+						title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
+					   <script>
+						Calendar.setup({inputField:"FromDate", ifFormat:"<?php echo $DateFormat; ?>", button:"img_FromDate"});
+					   </script></td>
+					<td width="53">&nbsp;</td>
+					<td align="left" class="text"><?php echo htmlspecialchars( xl('To'), ENT_QUOTES).':' ?></td>
+					<td><input type='text'  style="width:103px;"  name='ToDate' id='ToDate' class="text" value='<?php echo htmlspecialchars($ToDate); ?>' />
+					   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
+						id='img_ToDate' border='0' alt='[?]' style='cursor:pointer'
+						title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
+					   <script>
+						Calendar.setup({inputField:"ToDate", ifFormat:"<?php echo $DateFormat; ?>", button:"img_ToDate"});
+					   </script></td>
+				  </tr>
+				</table>	   
+	    </td>
+        <td class="text"></td>
 	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
 	    <td align="left"><?php	echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method"," ","class1 text");?></td>
 	    <td></td>
@@ -444,12 +467,10 @@ document.onclick=HideTheAjaxDivs;
 		<td align="left"><input   type="text" name="payment_amount"   autocomplete="off"  id="payment_amount" onKeyUp="ValidateNumeric(this);"  value="<?php echo htmlspecialchars(formData('payment_amount'));?>"  style="text-align:right"    class="class1 text "   /></td>
 	    <td align="left" ></td>
 		<td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
-		<td align="left"><?php	echo generate_select_list("type_name", "payment_type", "$type_name","Paying Entity"," ","class1 text","SearchPayingEntityAction()");?>
-	   </td>
+		<td align="left"><?php	echo generate_select_list("type_name", "payment_type", "$type_name","Paying Entity"," ","class1 text","SearchPayingEntityAction()");?>	   </td>
 	    <td align="left" ></td>
 		<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
-		<td align="left"><?php	echo generate_select_list("adjustment_code", "payment_adjustment_code", "$adjustment_code","Paying Category"," ","class1 text");?>
-			</td>
+		<td align="left"><?php	echo generate_select_list("adjustment_code", "payment_adjustment_code", "$adjustment_code","Paying Category"," ","class1 text");?>			</td>
             <td></td>
 			<td align="left" class=" text " ><?php echo htmlspecialchars( xl('Pay Status'), ENT_QUOTES).':' ?></td>
 			<td align="left" ><?php echo generate_select_list("PaymentStatus", "payment_status", "$PaymentStatus","Pay Status"," ","class1 text");?></td>
@@ -466,21 +487,15 @@ document.onclick=HideTheAjaxDivs;
 				style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo htmlspecialchars($div_after_save);?>"  autocomplete="off"   /><br> 
 				<!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
 					<div id='ajax_div_insurance_section'>
-					<div id='ajax_div_insurance_error'>
-					</div>
+					<div id='ajax_div_insurance_error'>					</div>
 					<div id="ajax_div_insurance" style="display:none;"></div>
 					</div>
-					</div>
-
-				</td>
+					</div>				</td>
 				<td width="50" style="padding-left:5px;"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:50px; height:17px;"><?php echo htmlspecialchars(formData('hidden_type_code'));?></div><input type="hidden" name="description"  id="description" /><input type="text" name="deposit_date"  id="deposit_date"  style="display:none"/></td>
 			  </tr>
-			</table>
-
-			</td>
+			</table>			</td>
             <td align="left" class="text"><?php echo htmlspecialchars( xl('Sort Result by'), ENT_QUOTES).':' ?></td>
-            <td align="left" class="text"><?php echo generate_select_list("PaymentSortBy", "payment_sort_by", "$PaymentSortBy","Sort Result by"," ","class1 text");?>
-            </td>
+            <td align="left" class="text"><?php echo generate_select_list("PaymentSortBy", "payment_sort_by", "$PaymentSortBy","Sort Result by"," ","class1 text");?>            </td>
             <td align="left" class="text"></td>
             <td align="left" class="text"><table  border="0" cellspacing="0" cellpadding="0">
 				  <tr>
@@ -512,7 +527,7 @@ document.onclick=HideTheAjaxDivs;
 							  <tr class="text" bgcolor="#dddddd">
 								<td width="25" class="left top" >&nbsp;</td>
 								<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Id'), ENT_QUOTES) ?></td>
-								<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Check Date'), ENT_QUOTES) ?></td>
+								<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES) ?></td>
 								<td width="83" class="left top" ><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES) ?></td>
 								<td width="245" class="left top" ><?php echo htmlspecialchars( xl('Payer'), ENT_QUOTES) ?></td>
 								<td width="57" class="left top" ><?php echo htmlspecialchars( xl('Ins Code'), ENT_QUOTES) ?></td>

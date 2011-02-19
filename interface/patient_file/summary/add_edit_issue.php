@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -141,7 +141,8 @@ if ($_POST['form_save']) {
     "injury_part = '" . $form_injury_part           . "', " .
     "injury_type = '" . $form_injury_type           . "', " .
     "outcome = '"     . $_POST['form_outcome']      . "', " .
-    "destination = '" . $_POST['form_destination']   . "' "  .
+    "destination = '" . $_POST['form_destination']   . "', " .
+    "reaction ='"     . $_POST['form_reaction']     . "' " .
     "WHERE id = '$issue'";
     sqlStatement($query);
     if ($text_type == "medication" && enddate != '') {
@@ -156,7 +157,8 @@ if ($_POST['form_save']) {
    $issue = sqlInsert("INSERT INTO lists ( " .
     "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
     "diagnosis, occurrence, classification, referredby, user, groupname, " .
-    "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type " .
+    "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
+    "reaction " .
     ") VALUES ( " .
     "NOW(), " .
     "'$thispid', " .
@@ -178,7 +180,8 @@ if ($_POST['form_save']) {
     "'" . $_POST['form_reinjury_id'] . "', " .
     "'" . $_POST['form_injury_grade'] . "', " .
     "'" . $form_injury_part          . "', " .
-    "'" . $form_injury_type          . "' "  .
+    "'" . $form_injury_type          . "', " .
+    "'" . $_POST['form_reaction']         . "' " .
    ")");
 
   }
@@ -197,16 +200,20 @@ if ($_POST['form_save']) {
     sqlStatement($query);
   }
 
-  $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
-   substr($_POST['form_title'], 0, 40);
+  $tmp_title = addslashes($ISSUE_TYPES[$text_type][2] . ": $form_begin " .
+    substr($_POST['form_title'], 0, 40));
 
   // Close this window and redisplay the updated list of issues.
   //
   echo "<html><body><script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
-  echo " window.close();\n";
-  echo " if ( opener ) { opener.location.reload(); } else { parent.location.reload(); } \n";
-  echo " if (parent.refreshIssue) parent.refreshIssue($issue,'$tmp_title'); if ( parent.$ ) parent.$.fn.fancybox.close();\n";
+
+  echo " var myboss = opener ? opener : parent;\n";
+  echo " if (myboss.refreshIssue) myboss.refreshIssue($issue,'$tmp_title');\n";
+  echo " else myboss.location.reload();\n";
+  echo " if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();\n";
+  echo " else window.close();\n";
+
   echo "</script></body></html>\n";
   exit();
 }
@@ -308,11 +315,18 @@ div.section {
   var revdisp = (aitypes[index] == 1) ? '' : 'none';
   var injdisp = (aitypes[index] == 2) ? '' : 'none';
   var nordisp = (aitypes[index] == 0) ? '' : 'none';
+  // reaction row should be displayed only for medication allergy.
+  var alldisp =  (index == <?php echo issueTypeIndex('allergy'); ?>) ? '' : 'none';
   document.getElementById('row_enddate'       ).style.display = comdisp;
+  // Note that by default all the issues will not show the active row
+  //  (which is desired functionality, since then use the end date
+  //   to inactivate the item.)
   document.getElementById('row_active'        ).style.display = revdisp;
   document.getElementById('row_diagnosis'     ).style.display = comdisp;
   document.getElementById('row_occurrence'    ).style.display = comdisp;
   document.getElementById('row_classification').style.display = injdisp;
+  document.getElementById('row_reinjury_id'   ).style.display = injdisp;
+  document.getElementById('row_reaction'      ).style.display = alldisp;
   document.getElementById('row_referredby'    ).style.display = (f.form_referredby.value) ? '' : comdisp;
   document.getElementById('row_comments'      ).style.display = (f.form_comments.value  ) ? '' : revdisp;
 <?php if ($GLOBALS['athletic_team']) { ?>
@@ -365,7 +379,7 @@ div.section {
  }
 
  function closeme() {
-    if ( parent.$ ) parent.$.fn.fancybox.close();
+    if (parent.$) parent.$.fancybox.close();
     window.close();
  }
 
@@ -380,6 +394,17 @@ div.section {
    var today = new Date();
    f.form_end.value = '' + (today.getYear() + 1900) + '-' +
     (today.getMonth() + 1) + '-' + today.getDate();
+  }
+ }
+
+ // Called when resolved outcome is chosen and the end date is entered.
+ function outcomeClicked(cb) {
+  var f = document.forms[0];
+  if (cb.value == '1'){
+   var today = new Date();
+   f.form_end.value = '' + (today.getYear() + 1900) + '-' +
+    (today.getMonth() + 1) + '-' + today.getDate();
+   f.form_end.focus();
   }
  }
 
@@ -430,7 +455,8 @@ function divclick(cb, divid) {
 
 <body class="body_top" style="padding-right:0.5em">
 
-<form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>&thisenc=<?php echo $thisenc ?>'
+<form method='post' name='theform'
+ action='add_edit_issue.php?issue=<?php echo $issue; ?>&thispid=<?php echo $thispid; ?>&thisenc=<?php echo $thisenc; ?>'
  onsubmit='return validate()'>
 
 <table border='0' width='100%'>
@@ -460,7 +486,7 @@ function divclick(cb, divid) {
  <tr id='row_titles'>
   <td valign='top' nowrap>&nbsp;</td>
   <td valign='top'>
-   <select name='form_titles' size='4' onchange='set_text()'>
+   <select name='form_titles' size='<?php echo $GLOBALS['athletic_team'] ? 10 : 4; ?>' onchange='set_text()'>
    </select> <?php xl('(Select one of these, or type your own title)','e'); ?>
   </td>
  </tr>
@@ -630,6 +656,15 @@ echo generate_select_list('form_medical_type', 'medical_type', $irow['injury_typ
    </select>
   </td>
  </tr>
+ <!-- Reaction For Medication Allergy -->
+  <tr id='row_reaction'>
+   <td valign='top' nowrap><b><?php echo htmlspecialchars( xl('Reaction') ,ENT_NOQUOTES); ?>:</b></td>
+   <td>
+    <input type='text' size='40' name='form_reaction' value='<?php echo $irow['reaction'] ?>'
+     style='width:100%' title='<?php echo htmlspecialchars(xl('Allergy Reaction'),ENT_QUOTES); ?>' />
+   </td>
+  </tr>
+ <!-- End of reaction -->
 
  <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_referredby'>
   <td valign='top' nowrap><b><?php xl('Referred by','e'); ?>:</b></td>
@@ -650,8 +685,7 @@ echo generate_select_list('form_medical_type', 'medical_type', $irow['injury_typ
   <td valign='top' nowrap><b><?php xl('Outcome','e'); ?>:</b></td>
   <td>
    <?php
-    // Modified 6/2009 by BM to incorporate the outcome items into the list_options listings
-    generate_form_field(array('data_type'=>1,'field_id'=>'outcome','list_id'=>'outcome','empty_title'=>'SKIP'), $irow['outcome']);
+    echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
    ?>
   </td>
  </tr>
