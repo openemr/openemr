@@ -544,7 +544,7 @@ if(sqlNumRows($result) > 0)
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 			<td align="center">
-			<span onclick="javascript:Toggle_trGrpHeader2(<? echo $row_id; ?>,<? echo $img_id; ?>);"><img src="../pic/blue-down-arrow.gif" id="<? echo $img_id; $img_id++; ?>" title="Click here to view patient details" /></span>
+			<span onclick="javascript:Toggle_trGrpHeader2(<? echo $row_id; ?>,<? echo $img_id; ?>);"><img src="../pic/blue-down-arrow.gif" id="<? echo $img_id; $img_id++; ?>" title="<?php echo htmlspecialchars( xl('Click here to view patient details'), ENT_QUOTES); ?>" /></span>
 			</td></tr>
 			<table width="100%" align="center" id = "<? echo $row_id; $row_id++;?>" class="border1" style="display:none; font-size:13px;" cellpadding=5>
 				<tr bgcolor="#C3FDB8" align="left"> 
@@ -707,7 +707,7 @@ if(sqlNumRows($result) > 0)
 				<td><b><?php echo htmlspecialchars(xl('History Date'),ENT_NOQUOTES); ?></b></td>
 				<td><b><?php echo htmlspecialchars(xl('Tobacco'),ENT_NOQUOTES);?></b></td>
 				<td><b><?php echo htmlspecialchars(xl('Alcohol'),ENT_NOQUOTES);?></b></td>
-				<td colspan=8><b><?php echo htmlspecialchars(xl('ReCreational Drugs'),ENT_NOQUOTES);?></b></td>
+				<td colspan=8><b><?php echo htmlspecialchars(xl('Recreational Drugs'),ENT_NOQUOTES);?></b></td>
 				</tr>
                         	<tr bgcolor="#FFFFFF">
 				<?php	
