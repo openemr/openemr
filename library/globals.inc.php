@@ -993,5 +993,39 @@ $GLOBALS_METADATA = array(
 
   ),
 
+  // Connectors Tab
+  //
+  'Connectors' => array(
+
+    'lab_exchange_enable' => array(
+      xl('Enable Lab Exchange'),
+      'bool',                           // data type
+      '0',
+      xl('Enable the OpenEMR Support LLC Lab Exchange Service.')
+    ),
+
+    'lab_exchange_siteid' => array(
+      xl('Lab Exchange Site ID'),
+      'text',                           // data type
+      '3',
+      xl('Site ID for the OpenEMR Support LLC Lab Exchange Service.')
+    ),
+
+    'lab_exchange_token' => array(
+      xl('Lab Exchange Token ID'),
+      'text',                           // data type
+      '12345',
+      xl('Token ID for the OpenEMR Support LLC Lab Exchange Service.')
+    ),
+
+    'lab_exchange_endpoint' => array(
+      xl('Lab Exchange Site Address'),
+      'text',                           // data type
+      'https://openemrsupport.com:29443/len/api',
+      xl('Https link for the OpenEMR Support LLC Lab Exchange Service.')
+    ),
+
+  ),
+
 );
 ?>
