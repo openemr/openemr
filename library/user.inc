@@ -76,8 +76,8 @@ function checkUserSetting($label, $value, $user=NULL) {
 // $name is the setting name in the 'users' table
 // $value is the setting value to be set in the 'users' table
 // $user is the user id number in the 'users' table
-function setUserSetting($label, $value, $user=NULL) {
-
+// $createDefault is flag to create a default value if it does not yet exist
+function setUserSetting($label, $value, $user=NULL, $createDefault=TRUE) {
   // if no user id is sent, then use the currently logged in user
   if (!isset($user)) {
     $user = $_SESSION['authUserID'];
@@ -111,11 +111,30 @@ function setUserSetting($label, $value, $user=NULL) {
     $newDefault=true;
   }
 
-  // Place a default setting if it does not already exist
-  if ($newDefault) {
+  // Place a default setting if it does not already exist (and createDefault flag is set)
+  if ($newDefault && $createDefault) {
     sqlStatement("INSERT INTO user_settings " .
       "(setting_user, setting_label, setting_value) " .
       "VALUES ('0',?,?)", array($label, $value) );
+  }
+}
+
+//This will remove the selected user setting from the 'user_settings' table.
+// $label is used to determine which setting to remove
+// $user is the user id number in the 'users' table
+function removeUserSetting($label,$user=NULL) {
+  // if no user id is sent, then use the currently logged in user
+  if (!isset($user)) {
+    $user = $_SESSION['authUserID'];
+  }
+  
+  // Collect entry if it exist.
+  //  If it exists, then delete the entry.
+  $result = sqlQuery("SELECT setting_value FROM user_settings " .
+    "WHERE setting_user=? AND setting_label=?", array($user, $label) );
+  if (!empty($result)) {
+    sqlQuery("DELETE FROM user_settings " .
+      "WHERE setting_user=? AND setting_label=?", array($user, $label) );
   }
 }
 

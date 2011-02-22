@@ -163,11 +163,11 @@ a:hover {
  * Here we have taken variables from globals.php and turned them into CSS classes 
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
-.body_top { background-color: #94d6e7; margin: 8px }    /* $top_bg_line */
-.bgcolor2 { background-color: #94d6e7; }    /* $GLOBALS['style']['BGCOLOR2'] */
+.body_top { background-color: #8CACBB; margin: 8px }    /* $top_bg_line */
+.bgcolor2 { background-color: #B6D2E0; }    /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
-.body_title { background-color: #aaffff; }  /* $title_bg_line */
-.body_nav { background-color: #94d6e7; }    /* $nav_bg_line */
+.body_title { background-color: #8497BF; }  /* $title_bg_line */
+.body_nav { background-color: #E1E4E9; }    /* $nav_bg_line */
 .body_filler { background-color: #f7f0d5; } /* $login_filler_line */
 .body_login { background: url('../pic/aquabg.gif') repeat; } /* $login_body_line */
 .table_bg { background-color: #ccc; }           /* $table_bg */
@@ -177,7 +177,7 @@ a:hover {
 .bottom_line { background: url('../pic/aquabg.gif') repeat; }    /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
 .logobar { background-color: #24262c; height: 110px; }                 /* $GLOBALS['logoBarHeight'] */
 .navbar { height: 22px; }                   /* $GLOBALS['navBarHeight'] */
-.titlebar { height: 40px; }                 /* $GLOBALS['titleBarHeight'] */
+.titlebar { height: 20px; }                 /* $GLOBALS['titleBarHeight'] */
 
 
 /* style taken out of the addressbook code and put here instead */
@@ -670,14 +670,14 @@ ul.tabNav li.current { padding-top: 0;
     vertical-align: bottom;
     text-align: left;
 }
-ul.tabNav a { background:#A7A7A7; border: 1px solid #dedede; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
+ul.tabNav a { background:#A7A7A7; border: 1px solid #FFFFFF; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
 ul.tabNav li.current a { background:#D7DFE7 ;padding: 8px; }
 
 div.tabContainer { clear: both; float: left; width: 100%; }
-div.tabContainer div.tab { border: 1px solid #dedede; color: #000; display: none; padding: 10px; }
+div.tabContainer div.tab { border: 1px solid #FFFFFF; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; }
-div.tab { 	min-height: 180px; background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px;width:96%;}
-div.tab_long { 	min-height: 180px; background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px;width:96%;}
+div.tab { 	min-height: 180px; background: #FFFFFF none repeat scroll 0 0; margin-bottom: 10px;width:665px;}
+div.tab_long { 	min-height: 180px; background: #FFFFFF none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
 div.tab p:last-child { margin-bottom: 0; }
 
 div.tab table td {
@@ -690,14 +690,6 @@ div.tab table td.label {
 
 div.tab table td.data {
 	min-width:120px; /*170px*/
-}
-
-div.notab {
-    background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px; width:100%;
-}
-
-div.notab-right {
-    background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px; width:100%;
 }
 
 .section-header {
@@ -807,7 +799,7 @@ font-size:9pt;
 	font-family: helvetica;
 	font-size: 8pt;
 	border: 2px outset rgb(102, 102, 102);
-	background-color: #94D6E7;
+	background-color: #e4db96;
 	padding: 5px;
 	position: absolute;
 	display: block;
@@ -857,7 +849,7 @@ font-size:9pt;
 .de_id_upgrade_login{
 	width: 40%;
 	border:1px solid Black;
-        background-color:#DEDEDE;
+        background-color:#FFFFFF;
 }
 
 #navigation-slide, #navigation-slide *{
@@ -870,8 +862,7 @@ font-size:9pt;
 }
 
 #navigation-slide a{
-    background: #FFFFFF;
-    border-top: 2px solid #EAE6FF;
+    background: #ffffff;
     color: #000;
     display: block;
     font-weight: bold;
@@ -881,30 +872,30 @@ font-size:9pt;
 
 #navigation-slide li a.collapsed{
     background: #999; /* for non-css3 browsers */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1063fc', endColorstr='#80ffff'); /* for IE */
-    background: -webkit-gradient(linear, left top, left bottom, from(#1063fc), to(#80ffff)); /* for webkit browsers */
-    background: -moz-linear-gradient(top,  #1063fc,  #80ffff); /* for firefox 3.6+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2D566A', endColorstr='#B6D2E0'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#2D566A), to(#B6D2E0)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #2D566A,  #B6D2E0); /* for firefox 3.6+ */
 }
 
 #navigation-slide li a.expanded{
     background: #999; /* for non-css3 browsers */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#80ffff', endColorstr='#1063fc'); /* for IE */
-    background: -webkit-gradient(linear, left top, left bottom, from(#80ffff), to(#1063fc)); /* for webkit browsers */
-    background: -moz-linear-gradient(top,  #80ffff,  #1063fc); /* for firefox 3.6+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#B6D2E0', endColorstr='#2D566A'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#B6D2E0), to(#2D566A)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #B6D2E0,  #2D566A); /* for firefox 3.6+ */
 }
 
 #navigation-slide ul li a.collapsed_lv2{
     background: #999; /* for non-css3 browsers */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#69c6e4', endColorstr='#8e8ae3'); /* for IE */
-    background: -webkit-gradient(linear, left top, left bottom, from(#69c6e4), to(#8e8ae3)); /* for webkit browsers */
-    background: -moz-linear-gradient(top,  #69c6e4,  #8e8ae3); /* for firefox 3.6+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#6aa4bf', endColorstr='#dae9ef'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#6aa4bf), to(#dae9ef)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #6aa4bf,  #dae9ef); /* for firefox 3.6+ */
 }
 
 #navigation-slide ul li a.expanded_lv2{
     background: #999; /* for non-css3 browsers */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#8e8ae3', endColorstr='#69c6e4'); /* for IE */
-    background: -webkit-gradient(linear, left top, left bottom, from(#8e8ae3), to(#69c6e4)); /* for webkit browsers */
-    background: -moz-linear-gradient(top,  #8e8ae3,  #69c6e4); /* for firefox 3.6+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#dae9ef', endColorstr='#6aa4bf'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#dae9ef), to(#6aa4bf)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #dae9ef,  #6aa4bf); /* for firefox 3.6+ */
 }
 
 #sddm li
@@ -912,11 +903,11 @@ font-size:9pt;
 	padding: 0;
 	list-style: none;
         float:left;
-        border: 1px solid #EAE6FF;
+        border: 1px solid #8CACBB;
         background: #999; /* for non-css3 browsers */
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1063fc', endColorstr='#80ffff'); /* for IE */
-        background: -webkit-gradient(linear, left top, left bottom, from(#1063fc), to(#80ffff)); /* for webkit browsers */
-        background: -moz-linear-gradient(top,  #1063fc,  #80ffff); /* for firefox 3.6+ */
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2D566A', endColorstr='#B6D2E0'); /* for IE */
+        background: -webkit-gradient(linear, left top, left bottom, from(#2D566A), to(#B6D2E0)); /* for webkit browsers */
+        background: -moz-linear-gradient(top,  #2D566A,  #B6D2E0); /* for firefox 3.6+ */
 }
 
 #sddm li a
@@ -932,7 +923,7 @@ font-size:9pt;
 
 #sddm li a:hover
 {
-    background: #8ca3ee;
+    background: #b7beca;
 }
 
 #sddm div
@@ -942,7 +933,7 @@ font-size:9pt;
     display: none;
     margin: 0;
     padding: 0;
-    background: #C9F1B5;
+    background: #C0DCF1;
     border-left: 1px solid #000000;
     border-right: 1px solid #000000;
     border-bottom: 1px solid #000000;
@@ -958,7 +949,7 @@ font-size:9pt;
     white-space:normal;
     text-align: left;
     text-decoration: none;
-    background: #dff4ff;
+    background: #e1e4e9;
     color: #2875DE;
     font-size: 0.8em;
     font-weight:normal;
@@ -966,6 +957,6 @@ font-size:9pt;
 
 #sddm div a:hover
 {
-    background: #8ca3ee;
+    background: #b7beca;
     color: #000000;
 }
