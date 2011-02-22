@@ -109,7 +109,9 @@ foreach ($dataSheet as $row) {
 	           $physician_ids['tin'] = $row['federaltaxid'];
 	       }
 	     }
-    	
+	     $physician_ids['encounter-from-date'] = '01-01-' . date('Y', strtotime($target_date )); 
+	     $physician_ids['encounter-to-date'] = '12-31-' . date('Y', strtotime($target_date ));
+	     
        	 $xml->open_provider($physician_ids);
 	     $firstProviderFlag = FALSE;
 	     $existProvider = TRUE;
