@@ -40,7 +40,7 @@ require_once(dirname(__FILE__) . "/uuid.php");
 
 <?php
 
-function createCCR($action){
+function createCCR($action,$raw="no"){
 
 	$authorID = getUuid();
 	
@@ -115,21 +115,29 @@ function createCCR($action){
 	   
 	   
 	   if ($action=="generate"){
-	   	gnrtCCR($ccr);
+	   	gnrtCCR($ccr,$raw);
 	   }
 	   
 	   if($action == "viewccd"){
-	   	viewCCD($ccr);
+	   	viewCCD($ccr,$raw);
 	   }
 	}
 	
-	function gnrtCCR($ccr){
+	function gnrtCCR($ccr,$raw="no"){
 		global $css_header;
 		echo "\n css_header=$css_header";
 		$ccr->preserveWhiteSpace = false;
 		$ccr->formatOutput = true;
 		$ccr->save('generatedXml/ccrDebug.xml');
-		
+
+                if ($raw == "yes") {
+                  echo '-->';
+                  echo "<textarea rows='25' cols='500' style='width:95%' readonly>";
+                  echo $ccr->saveXml();
+                  echo "</textarea>";
+                  return;
+                }	
+
 		$xmlDom = new DOMDocument();
 		$xmlDom->loadXML($ccr->saveXML());
 		
@@ -146,13 +154,21 @@ function createCCR($action){
 		
 	}
 	
-	function viewCCD($ccr){
+	function viewCCD($ccr,$raw="no"){
 		
 		$ccr->preserveWhiteSpace = false;
 		$ccr->formatOutput = true;
 		
 		$ccr->save('generatedXml/ccrForCCD.xml');
 		
+                if ($raw == "yes") {
+                  echo '-->';
+                  echo "<textarea rows='25' cols='500' style='width:95%' readonly>";
+                  echo $ccr->saveXml();
+                  echo "</textarea>";
+                  return;
+                }
+
 		$xmlDom = new DOMDocument();
 		$xmlDom->loadXML($ccr->saveXML());
 		
@@ -199,6 +215,6 @@ function createCCR($action){
 	}
 
 	
-createCCR($_POST['ccrAction']);
+createCCR($_POST['ccrAction'],$_POST['raw']);
 
 ?>

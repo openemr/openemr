@@ -45,15 +45,17 @@ function checkAll(check) {
 <div id="ccr_report">
 
 <form name='ccr_form' id='ccr_form' method='post' action='../../../ccr/createCCR.php'>
-<span class='title'><?php xl('Continuity of Care Record','e'); ?></span>&nbsp;&nbsp;
+<span class='title'><?php xl('Continuity of Care Record (CCR)','e'); ?></span>&nbsp;&nbsp;
 <br/><br/>
 <input type='hidden' name='ccrAction'>
-<!-- call to generate CCR document -->
-<input type="button" class="generateCCR" value="<?php xl('View CCR','e'); ?>" />
+<input type='hidden' name='raw'>
+<input type="button" class="generateCCR" value="<?php xl('Formatted Report','e'); ?>" />
+<input type="button" class="generateCCR_raw" value="<?php xl('Raw Report','e'); ?>" />
 <hr/>
-<span class='title'><?php xl('Continuity of Care Document','e'); ?></span>&nbsp;&nbsp;
+<span class='title'><?php xl('Continuity of Care Document (CCD)','e'); ?></span>&nbsp;&nbsp;
 <br/><br/>
-<input type="button" class="viewCCD" value="<?php xl('View CCD','e'); ?>" />
+<input type="button" class="viewCCD" value="<?php xl('Formatted Report','e'); ?>" />
+<input type="button" class="viewCCD_raw" value="<?php xl('Raw Report','e'); ?>" />
 
 </form>
 <hr/>
@@ -332,19 +334,41 @@ function(){
 		//alert('in generateCCR');
 		var ccrAction = document.getElementsByName('ccrAction');
 		ccrAction[0].value = 'generate';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'no';
 		top.restoreSession(); 
 		$("#ccr_form").submit();
 	});
-	
+        $(".generateCCR_raw").click(
+        function() {
+                //alert('in generateCCR');
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'generate';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'yes';
+                top.restoreSession();
+                $("#ccr_form").submit();
+        });
 	$(".viewCCD").click(
 	function() { 
 		//alert('in viewCCD');
 		var ccrAction = document.getElementsByName('ccrAction');
 		ccrAction[0].value = 'viewccd';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'no';
 		top.restoreSession(); 
 		$("#ccr_form").submit();
 	});
-	
+        $(".viewCCD_raw").click(
+        function() {
+                //alert('in viewCCD');
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'viewccd';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'yes';
+                top.restoreSession();
+                $("#ccr_form").submit();
+        });
 });
 
 // select/deselect the Forms related to the selected Encounter
