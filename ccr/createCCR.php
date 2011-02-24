@@ -161,13 +161,15 @@ function createCCR($action,$raw="no"){
 		
 		$ccr->save('generatedXml/ccrForCCD.xml');
 		
-                if ($raw == "yes") {
-                  echo '-->';
-                  echo "<textarea rows='25' cols='500' style='width:95%' readonly>";
-                  echo $ccr->saveXml();
-                  echo "</textarea>";
-                  return;
-                }
+                // This is same xml as gnrtCCR and does not seem to be used below
+                //   so commenting this out for now.
+                //if ($raw == "yes") {
+                //  echo '-->';
+                //  echo "<textarea rows='25' cols='500' style='width:95%' readonly>";
+                //  echo $ccr->saveXml();
+                //  echo "</textarea>";
+                //  return;
+                //}
 
 		$xmlDom = new DOMDocument();
 		$xmlDom->loadXML($ccr->saveXML());
@@ -186,6 +188,13 @@ function createCCR($action,$raw="no"){
 		
 		$ccd->save('generatedXml/ccdDebug.xml');
 		
+                if ($raw == "yes") {
+                  echo '-->';
+                  echo "<textarea rows='25' cols='500' style='width:95%' readonly>";
+                  echo $ccd->saveXml();
+                  echo "</textarea>";
+                  return;
+                }
 
 		$ss = new DOMDocument();
 		$ss->load("ccd/cda.xsl");
