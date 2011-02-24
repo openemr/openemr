@@ -159,9 +159,9 @@ $old_category = '';
 if (!empty($reg)) {
   $StringEcho= '<ul id="sddm">';
   if(isset($hide)){
-    $StringEcho.= "<li><a id='enc2' >Encounter Summary</a></li>";
+    $StringEcho.= "<li><a id='enc2' >" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
   }else{
-    $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">Encounter Summary</a></li>";
+    $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
   }
   foreach ($reg as $entry) {
     $new_category = trim($entry['category']);
