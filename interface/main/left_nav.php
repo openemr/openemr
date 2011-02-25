@@ -575,9 +575,7 @@ function goHome() {
   active_pid = pid;
   active_encounter = 0;
   if (frname) reloadPatient(frname);
-  <?php if ($GLOBALS['concurrent_layout'] < 3) { ?>
   syncRadios();
-  <?php } ?>
   $(parent.Title.document.getElementById('current_patient_block')).show();
   var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
   $(encounter_block).hide();
@@ -646,9 +644,7 @@ function getEncounterTargetFrame( name ) {
   setDivContent('current_encounter', str);
   active_encounter = eid;
   reloadEncounter(frname);
-  <?php if ($GLOBALS['concurrent_layout'] < 3) { ?>
   syncRadios();
-  <?php } ?>
   var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
   var encounter = $(parent.Title.document.getElementById('current_encounter'));
   var estr = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentEncounterFromTitle()"><b>' + edate + ' (' + eid + ')</b></a>';
@@ -674,9 +670,7 @@ function getEncounterTargetFrame( name ) {
   top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
   top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b>";
   reloadPatient('');
-  <?php if ($GLOBALS['concurrent_layout'] < 3) { ?>
   syncRadios();
-  <?php } ?>
  }
 
  // You must call this if you delete the active encounter (or if for any other
@@ -688,9 +682,7 @@ function getEncounterTargetFrame( name ) {
   top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b>";
   active_encounter = 0;
   reloadEncounter('');
-  <?php if ($GLOBALS['concurrent_layout'] < 3) { ?>
   syncRadios();
-  <?php } ?>
  }
 function removeOptionSelected(EncounterId)
 {//Removes an item from the Encounter drop down.
@@ -774,16 +766,16 @@ $(document).ready(function(){
       $("#navigation-slide > li  > ul > li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
       $(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
     });
-    $("#cal0").prepend('<img src="../../images/calendar.png" class="nav-menu-img" />');
-    $("#msg0").prepend('<img src="../../images/messages.png" class="nav-menu-img" />');
-    $("#patimg").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#repimg").prepend('<img src="../../images/reports.png" class="nav-menu-img" />');
-    $("#feeimg").prepend('<img src="../../images/fee.png" class="nav-menu-img" />');
-    $("#adm0").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
-    $("#invimg").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
-    $("#admimg").prepend('<img src="../../images/admin.png" class="nav-menu-img" />');
-    $("#misimg").prepend('<img src="../../images/misc.png" class="nav-menu-img" />');
-    $("#proimg").prepend('<img src="../../images/procedures.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#cal0").prepend('<img src="../../images/calendar.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#msg0").prepend('<img src="../../images/messages.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#patimg").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#repimg").prepend('<img src="../../images/reports.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#feeimg").prepend('<img src="../../images/fee.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#adm0").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#invimg").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#admimg").prepend('<img src="../../images/admin.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#misimg").prepend('<img src="../../images/misc.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#proimg").prepend('<img src="../../images/procedures.png" class="nav-menu-img" />');
     $("#navigation-slide > li").each(function(index) {
       if($(" > ul > li", this).size() == 0){
         $(" > a", this).addClass("collapsed");
@@ -1305,9 +1297,7 @@ if (!empty($reg)) {
 </form>
 
 <script language='JavaScript'>
-<?php if ($GLOBALS['concurrent_layout'] < 3) { ?>
 syncRadios();
-<?php } ?>
 </script>
 
 </body>
