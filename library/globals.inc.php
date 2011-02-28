@@ -636,6 +636,20 @@ $GLOBALS_METADATA = array(
   //
   'Notifications' => array(
 
+    'patient_reminder_sender_name' => array(
+      xl('Patient Reminder Sender Name'),
+      'text',                           // data type
+      '',                               // default
+      xl('Name of the sender for patient reminders.')
+    ),
+    
+    'patient_reminder_sender_email' => array(
+      xl('Patient Reminder Sender Email'),
+      'text',                           // data type
+      '',                               // default
+      xl('Email address of the sender for patient reminders. Replies to patient reminders will be directed to this address. It is important to use an address from your clinic\'s domain to avoid help prevent patient reminders from going to junk mail folders.')
+    ),
+    
     'practice_return_email_path' => array(
       xl('Notification Email Address'),
       'text',                           // data type

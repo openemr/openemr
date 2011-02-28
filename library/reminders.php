@@ -186,22 +186,26 @@ function send_reminders() {
     // Collect patient information that reminder is going to.
     $sql = "SELECT `fname`, `lname`, `email`, `phone_home`, `hipaa_voice`, `hipaa_allowemail` from `patient_data` where `pid`=?";
     $result = sqlQuery($sql, array($reminder['pid']) );
-    $patientfname = $rez['fname'];
-    $patientlname = $rez['lname'];
-    $patientemail = $rez['email'];
-    $patientphone = $rez['phone_home'];
-    $hipaa_voice = $rez['hipaa_voice'];
-    $hipaa_allowemail = $rez['hipaa_allowemail'];
+	$patientfname = $result['fname'];
+    $patientlname = $result['lname'];
+	$patientemail = $result['email'];
+    $patientphone = $result['phone_home'];
+    $hipaa_voice = $result['hipaa_voice'];
+    $hipaa_allowemail = $result['hipaa_allowemail'];
 
     // Email to patient if Allow Email and set reminder sent flag.
     if ($hipaa_allowemail == "YES") {
       $mail = new MyMailer();
+	  $sender_name = $GLOBALS['patient_reminder_sender_name'];
+      $email_address = $GLOBALS['patient_reminder_sender_email'];
       $mail->FromName = $sender_name;  // required
       $mail->Sender = $sender_name;    // required
       $mail->From = $email_address;    // required
       $mail->AddAddress($patientemail, $patientfname.", ".$patientlname);   // required
       $mail->AddReplyTo($email_address,$sender_name);  // required
-      $mail->Body = str_replace("[[sender]]", $sender_name, str_replace("[[patient_name]]", $patientfname, $GLOBALS['reminder_message']));
+      $category_title = generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$reminder['category']);
+      $item_title = generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$reminder['item']);
+	  $mail->Body = "Dear ".$patientfname.", This is a message from your clinic to remind you of your ".$category_title.": ".$item_title;
       $mail->Subject = "Clinic Reminder";
       if ($mail->Send()) {
         // deal with and keep track of this successful email

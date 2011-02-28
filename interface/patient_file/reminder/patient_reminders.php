@@ -97,7 +97,7 @@ if ($mode == "simple") {
 
 <?php
 // This is for sorting the records.
-$sort = array("category, item", "lname, fname", "due_status", "date_created", "date_sent", "voice_status", "email_status", "sms_status", "mail_status");
+$sort = array("category, item", "lname, fname", "due_status", "date_created", "hipaa_allowemail", "hipaa_allowsms", "date_sent", "voice_status", "email_status", "sms_status", "mail_status");
 if($sortby == "") {
   $sortby = $sort[0];
 }
@@ -222,15 +222,18 @@ else {
         <th><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES) . " " . $sortlink[1]; ?></th>
         <th><?php echo htmlspecialchars( xl('Due Status'), ENT_NOQUOTES) . " " . $sortlink[2]; ?></th>
         <th><?php echo htmlspecialchars( xl('Date Created'), ENT_NOQUOTES) . " " . $sortlink[3]; ?></th>
-        <th><?php echo htmlspecialchars( xl('Date Sent'), ENT_NOQUOTES) . " " . $sortlink[4]; ?></th>
-        <th><?php echo htmlspecialchars( xl('Voice'), ENT_NOQUOTES) . " " . $sortlink[5]; ?></th>
-        <th><?php echo htmlspecialchars( xl('Email'), ENT_NOQUOTES) . " " . $sortlink[6]; ?></th>
-        <th><?php echo htmlspecialchars( xl('SMS'), ENT_NOQUOTES) . " " . $sortlink[7]; ?></th>
-        <th><?php echo htmlspecialchars( xl('Mail'), ENT_NOQUOTES) . " " . $sortlink[8]; ?></th>
+        <th><?php echo htmlspecialchars( xl('Email Auth'), ENT_NOQUOTES) . " " . $sortlink[4]; ?></th>
+        <th><?php echo htmlspecialchars( xl('SMS Auth'), ENT_NOQUOTES) . " " . $sortlink[5]; ?></th>
+        <th><?php echo htmlspecialchars( xl('Date Sent'), ENT_NOQUOTES) . " " . $sortlink[6]; ?></th>
+        <th><?php echo htmlspecialchars( xl('Voice Sent'), ENT_NOQUOTES) . " " . $sortlink[7]; ?></th>
+        <th><?php echo htmlspecialchars( xl('Email Sent'), ENT_NOQUOTES) . " " . $sortlink[8]; ?></th>
+        <th><?php echo htmlspecialchars( xl('SMS Sent'), ENT_NOQUOTES) . " " . $sortlink[9]; ?></th>
+        <th><?php echo htmlspecialchars( xl('Mail Sent'), ENT_NOQUOTES) . " " . $sortlink[10]; ?></th>
       </thead>
       <tbody>
 <?php
-      $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, b.fname, b.lname " .
+      $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, a.voice_status, " .
+      				"a.sms_status, a.email_status, a.mail_status, b.fname, b.lname, b.hipaa_allowemail, b.hipaa_allowsms " .
         "FROM `patient_reminders` as a, `patient_data` as b " .
         "WHERE a.active='1' AND a.pid=b.pid " . $add_sql .
         "ORDER BY " . add_escape_custom($sortby) . " " .
@@ -245,6 +248,8 @@ else {
           <td><?php echo htmlspecialchars($myrow['lname'].", ".$myrow['fname'], ENT_NOQUOTES); ?></td>
           <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$myrow['due_status']); ?></td>
           <td><?php echo ($myrow['date_created']) ? htmlspecialchars($myrow['date_created'], ENT_NOQUOTES) : " "; ?></td>
+          <td><?php echo ($myrow['hipaa_allowemail']=='YES') ? htmlspecialchars( xl("YES"), ENT_NOQUOTES) : htmlspecialchars( xl("NO"), ENT_NOQUOTES); ?></td>
+          <td><?php echo ($myrow['hipaa_allowsms']=='YES') ? htmlspecialchars( xl("YES"), ENT_NOQUOTES) : htmlspecialchars( xl("NO"), ENT_NOQUOTES); ?></td>
           <td><?php echo ($myrow['date_sent']) ? htmlspecialchars($myrow['date_sent'], ENT_NOQUOTES) : htmlspecialchars( xl("Not Sent Yet") , ENT_NOQUOTES); ?></td>
           <td><?php echo ($myrow['voice_status']==1) ? htmlspecialchars( xl("YES"), ENT_NOQUOTES) : htmlspecialchars( xl("NO"), ENT_NOQUOTES); ?></td>
           <td><?php echo ($myrow['email_status']==1) ? htmlspecialchars( xl("YES"), ENT_NOQUOTES) : htmlspecialchars( xl("NO"), ENT_NOQUOTES); ?></td>
