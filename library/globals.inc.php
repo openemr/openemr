@@ -17,6 +17,7 @@
 // Otherwise configure it as needed (print /d:PRN) might be an option for Windows parallel printers
 
 //  Current supported languages:    // Allow capture of term for translation:
+//   Amharic                        // xl('Amharic')
 //   Arabic                         // xl('Arabic')
 //   Armenian                       // xl('Armenian')
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
