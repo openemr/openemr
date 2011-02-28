@@ -439,7 +439,7 @@ function genPopupsList($style='') {
  // depending on whether there is an active patient or encounter.
  function syncRadios() {
   var f = document.forms[0];
-<?php if ($GLOBALS['concurrent_layout'] == 2) { ?>
+<?php if (($GLOBALS['concurrent_layout'] == 2)||($GLOBALS['concurrent_layout'] == 3)) { ?>
   var nlinks = document.links.length;
   for (var i = 0; i < nlinks; ++i) {
    var lnk = document.links[i];
@@ -449,7 +449,14 @@ function genPopupsList($style='') {
     var da = false;
     if (active_pid == 0) da = true;
     if (active_encounter == 0 && usage > '1') da = true;
-    lnk.style.color = da ? '#888888' : '#0000ff';
+    <?php
+    if ($GLOBALS['concurrent_layout'] == 2){
+      $color = "'#0000ff'";
+    }else{
+      $color = "'#000000'";
+    }
+    ?>
+    lnk.style.color = da ? '#888888' : <?php echo $color; ?>;
    }
   }
 <?php } else if ($GLOBALS['concurrent_layout'] < 2) { ?>
@@ -759,11 +766,11 @@ $(document).ready(function(){
       $(this).toggleClass("expanded").toggleClass("collapsed").parent().find('> ul').slideToggle("medium");
     });
     $("#navigation-slide > li  > ul > li > a.expanded_lv2").click(function() {
-      $("#navigation-slide > li  > ul > li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
+      $("#navigation-slide > li > a.expanded").next("ul").find("li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
       $(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
     });
     $("#navigation-slide > li  > ul > li > a.collapsed_lv2").click(function() {
-      $("#navigation-slide > li  > ul > li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
+      $("#navigation-slide > li > a.expanded").next("ul").find("li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
       $(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
     });
     $("#navigation-slide > li  > a#cal0").prepend('<img src="../../images/calendar.png" class="nav-menu-img" />');
@@ -1080,7 +1087,7 @@ if (!empty($reg)) {
 	  <?php genMiscLink('RTop','rep','0',xl('Referrals'),'reports/referrals_report.php'); ?>
         </ul>
       </li>
-      <li class="open"><a class="collapsed_lv2"><span><?php xl('Visits','e') ?></span></a>
+      <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>
         <ul>
           <?php if (!$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Appointments'),'reports/appointments_report.php'); ?>
           <?php  genMiscLink('RTop','rep','0',xl('Encounters'),'reports/encounters_report.php'); ?>
