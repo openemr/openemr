@@ -100,14 +100,14 @@ $GLOBALS_METADATA = array(
         '2' => xl('Navigation menu is a tree view'),
         '3' => xl('Navigation uses a sliding menu'),
       ),
-      '2',                              // default = tree menu
+      '3',                              // default = tree menu
       xl('Type of screen layout')
     ),
 
     'css_header' => array(
       xl('Theme'),
       'css',
-      'style_default.css',
+      'style_oemr.css',
       xl('Pick a CSS theme.')
     ),
 
