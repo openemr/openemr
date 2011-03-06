@@ -43,7 +43,7 @@ use strict;
 # was likely modified in the spreadsheet, and can then use log output
 # to localize and fix the problem.  As of list of 3.0.1 constants
 # the known number of mismatched constants is 57 .
-my $mismatchesKnown = 92;
+my $mismatchesKnown = 96;
 
 # Hold variables to calculate language database statistics
 my $totalConstants;
