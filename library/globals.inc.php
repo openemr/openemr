@@ -748,7 +748,7 @@ $GLOBALS_METADATA = array(
       xl('Enable Audit Logging'),
       'bool',                           // data type
       '1',                              // default
-      xl('Enable Audit Logging.')
+      xl('Enable Audit Logging')
     ),
 
     'audit_events_patient-record' => array(
@@ -990,7 +990,7 @@ $GLOBALS_METADATA = array(
     ),
 
     'enable_scanner' => array(
-      xl('Enable Scanner support'),
+      xl('Enable Scanner Support'),
       'bool',                           // data type
       '0',                              // default
       xl('Enable Scanner Support')

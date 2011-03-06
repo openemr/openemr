@@ -154,7 +154,7 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
 
 				?></td>
 				<td><input type='checkbox' name='form_show_available'
-					title='<?php xl('Show available times','e'); ?>'
+					title='<?php xl('Show Available Times','e'); ?>'
 					<?php  if ( $show_available_times ) echo ' checked'; ?>> <?php  xl( 'Show Available Times','e' ); ?>
 				</td>
 			</tr>

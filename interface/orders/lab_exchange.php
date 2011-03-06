@@ -247,7 +247,7 @@ else {
     }
 
         // report on lab_patient_errors
-    $lab_query_report .= "<br>". xl("Provider Matching Errors:") . "<hr><table style=\"font-size:12px;\" cellpadding='3px'>";
+    $lab_query_report .= "<br>". xl("Provider Matching Errors") . ":<hr><table style=\"font-size:12px;\" cellpadding='3px'>";
 
     if(count($lab_provider_errors) == 0)
         $lab_query_report .= "<tr><td>" .xl("No errors found"). "</td></tr>";
@@ -270,7 +270,7 @@ else {
 
 
     // report on lab_patient_errors
-    $lab_query_report .= "<br>". xl("Patient Lookup Errors:") . "<hr><table style=\"font-size:12px;\" cellpadding='3px'>";
+    $lab_query_report .= "<br>". xl("Patient Lookup Errors") . ":<hr><table style=\"font-size:12px;\" cellpadding='3px'>";
 
     if(count($lab_patient_errors) == 0)
         $lab_query_report .= "<tr><td>" .xl("No errors found"). "</td></tr>";
@@ -280,7 +280,7 @@ else {
             xl("First Name") . "</td><td>" .
             xl("Middle Name") . "</td><td>" .
             xl("Last Name") . "</td><td>" .
-            xl("DoB") . "</td><td>" .
+            xl("DOB") . "</td><td>" .
             xl("Gender") . "</td><td>" .
             xl("External Id") . "</td><td>" .
             xl("SSN") . "</td><td>" .
@@ -308,7 +308,7 @@ else {
     $lab_query_report .= "</table>";
 
     // report on lab_patient_success
-    $lab_query_report .= "<br><br>". xl("New results from Lab Exchange:") . "<hr><table style=\"font-size:12px;\" >";
+    $lab_query_report .= "<br><br>". xl("New results from Lab Exchange") . ":<hr><table style=\"font-size:12px;\" >";
 
     if(count($lab_patient_success) == 0)
         $lab_query_report .= "<tr><td>" . xl("No new results found") . "</td></tr>";
@@ -318,7 +318,7 @@ else {
             xl("First Name") . "</td><td>" .
             xl("Middle Name") . "</td><td>" .
             xl("Last Name") .   "</td><td>" .
-            xl("DoB") . "</td><td>" .
+            xl("DOB") . "</td><td>" .
             xl("Gender") . "</td><td>" .
             xl("External Id") . "</td><td>" .
             xl("SSN") . "</td><td>" .

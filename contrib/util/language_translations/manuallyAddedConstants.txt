@@ -43,7 +43,6 @@ Central/South American
 Change In Vision
 Chart Note
 Chart Storage Locations
-Check Number
 Child
 Choices
 Cirrhosis Of The Liver
@@ -94,7 +93,6 @@ DTaP 3
 DTaP 4
 DTaP 5
 Durable Power of Attorney
-Eligibility
 Eligibility status for Vaccine for Children supplied vaccine
 Eligible
 Emergency Contact Person
@@ -190,7 +188,6 @@ Japanese
 Joint Pain
 Korean
 Lab Report
-Lab Results
 Lab Service
 Laotian
 Last Activity Date
@@ -249,9 +246,6 @@ No Show
 Noninsulin Dependent Diabetes
 Normal BL
 Normal Office Visit
-Obesity I
-Obesity II
-Obesity III
 On Site
 Order Priorities
 Order Statuses
@@ -259,7 +253,6 @@ Other (specify)
 Other - Specified
 Others
 Out Of Office
-Overweight
 Pacific Islander
 Patient ID card
 Patient Information
@@ -308,7 +301,6 @@ Reason for referral
 Recommendation
 Recommendations by specialist
 Recreational drug use
-Recreational Drugs
 Refer By
 Referral By
 Referral Card
@@ -374,7 +366,6 @@ Thrombosis/Stroke
 Titles
 Tobacco use
 Treatment
-Underweight
 Units/L
 Urine
 Urine Dribbling
@@ -416,7 +407,6 @@ Warehouses
 Weeks
 Where may related scanned or paper documents be found?
 White
-Who
 Who replied?
 Widowed
 With whom may we leave a message?
@@ -429,3 +419,34 @@ Yiddish
 Zulu
 % Canceled < 24h
 - None
+Ethnicity
+Date Master Criteria
+Payment Adjustment Code
+Payment Ins
+Payment Sort By
+Payment Status
+Payment Type
+Smoking Status
+This Month to Date
+Last Month
+This Week to Date
+This Calendar Year
+Last Calendar Year
+Hispanic or Latino
+Not Hispanic or Latino
+Family Payment
+Group Payment
+Insurance Payment
+Pre Payment
+Id
+Check Date
+Paying Entity
+Ins Code
+Fully Paid
+Unapplied
+Current every day smoker
+Current some day smoker
+Former smoker
+Never smoker
+Smoker, current status unknown
+Unknown if ever smoked

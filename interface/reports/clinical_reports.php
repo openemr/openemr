@@ -309,7 +309,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 				<!-- Sort by ends -->
 					</tr>
 					<tr>
-						<td colspan=3><span id="date_error" style="color: #F00; font-siz: 11px; display: none;"><?php echo htmlspecialchars(xl('From date cannot be greater than To date'),ENT_NOQUOTES); ?></span>&nbsp;</td>
+						<td colspan=3><span id="date_error" style="color: #F00; font-siz: 11px; display: none;"><?php echo htmlspecialchars(xl('From Date Cannot be Greater than To Date.'),ENT_NOQUOTES); ?></span>&nbsp;</td>
 					</tr>
 				</table>
 				</div></td>
