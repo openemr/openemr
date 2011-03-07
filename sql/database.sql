@@ -275,6 +275,7 @@ CREATE TABLE `documents` (
   `revision` timestamp NOT NULL,
   `foreign_id` int(11) default NULL,
   `docdate` date default NULL,
+  `hash` varchar(40) DEFAULT NULL COMMENT '40-character SHA-1 hash of document',
   `list_id` bigint(20) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),

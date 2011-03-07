@@ -1007,3 +1007,6 @@ UPDATE globals SET gl_value = 'style_oemr.css' WHERE gl_name = 'css_header' AND 
 UPDATE user_settings SET setting_value = 'style_oemr.css' WHERE setting_label = 'global:css_header' AND setting_value = 'style_default.css';
 #EndIf
 
+#IfMissingColumn documents hash
+ALTER TABLE documents ADD hash varchar(40) DEFAULT NULL COMMENT '40-character SHA-1 hash of document';
+#EndIf
