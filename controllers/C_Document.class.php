@@ -44,6 +44,7 @@ class C_Document extends Controller {
 		$category_name = $this->tree->get_node_name($category_id);
 		$this->assign("category_id", $category_id);
 		$this->assign("category_name", $category_name);
+		$this->assign("hide_encryption", $GLOBALS['hide_document_encryption'] );
 		$this->assign("patient_id", $patient_id);
 		$activity = $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
 		$this->assign("activity", $activity);
@@ -54,6 +55,14 @@ class C_Document extends Controller {
 		
 		if ($_POST['process'] != "true")
 			return;
+			
+		$doDecryption = false;
+		$encrypted = $_POST['encrypted'];
+		$passphrase = $_POST['passphrase'];
+		if ( !$GLOBALS['hide_document_encryption'] && 
+		    $encrypted && $passphrase ) {
+		    $doDecryption = true;
+		}
 			
 		if (is_numeric($_POST['category_id'])) {	
 			$category_id = $_POST['category_id'];
@@ -83,20 +92,36 @@ class C_Document extends Controller {
 		  			$error .= "The system was unable to create the directory for this upload, '" . $this->file_path . "'.\n";
 		  		}
 		  	}
-		  	
+  		    if ( $_POST['destination'] != '' ) {
+  		        $fname = $_POST['destination'];
+  		    }
 		  	$fname = preg_replace("/[^a-zA-Z0-9_.]/","_",$fname);
-		  	if (file_exists($this->file_path.$file['name'])) {
+		  	if (file_exists($this->file_path.$fname)) {
                                 $error .= xl('File with same name already exists at location:','','',' ') . $this->file_path . "\n";
-		  		$fname = basename($this->_rename_file($this->file_path.$file['name']));
+		  		$fname = basename($this->_rename_file($this->file_path.$fname));
 		  		$file['name'] = $fname;
                                 $error .= xl('Current file name was changed to','','',' ') . $fname ."\n";
 		  	}
-		  	if (move_uploaded_file($file['tmp_name'],$this->file_path.$file['name'])) {
+		  	
+		  	if ( $doDecryption ) {
+		  	    $tmpfile = fopen( $file['tmp_name'], "r" );
+		  	    $filetext = fread( $tmpfile, $file['size'] );
+		        $plaintext = $this->decrypt( $filetext, $passphrase );
+		        unlink( $file['tmp_name'] );
+		        $tmpfile = fopen( $file['tmp_name'], "w+" );
+                fwrite( $tmpfile, $plaintext );
+                fclose( $tmpfile );
+                $file['size'] = filesize( $tmpfilepath.$tmpfilename );
+		  	} 
+		  	
+		  	if (move_uploaded_file($file['tmp_name'],$this->file_path.$fname)) {
         		$this->assign("upload_success", "true");
 		  		$d = new Document();
-		  		$d->url = "file://" .$this->file_path.$file['name'];
+		  		$d->url = "file://" .$this->file_path.$fname;
 		  		$d->mimetype = $file['type'];
 		  		$d->size = $file['size'];
+		  		$sha1Hash = sha1_file( $this->file_path.$fname );
+		  		$d->hash = $sha1Hash;
 		  		$d->type = $d->type_array['file_url'];
 		  		$d->set_foreign_id($patient_id);
 		  		$d->persist();
@@ -154,6 +179,7 @@ class C_Document extends Controller {
 		$this->assign("web_path", $this->_link("retrieve") . "document_id=" . $d->get_id() . "&");
 		$this->assign("NOTE_ACTION",$this->_link("note"));
 		$this->assign("MOVE_ACTION",$this->_link("move") . "document_id=" . $d->get_id() . "&process=true");
+		$this->assign("hide_encryption", $GLOBALS['hide_document_encryption'] );
 
 		// Added by Rod to support document delete:
 		$delete_string = '';
@@ -163,6 +189,9 @@ class C_Document extends Controller {
 		}
 		$this->assign("delete_string", $delete_string);
 		$this->assign("REFRESH_ACTION",$this->_link("list"));
+		
+		$this->assign("VALIDATE_ACTION",$this->_link("validate") .
+			"document_id=" . $d->get_id() . "&process=true");
 
 		// Added by Rod to support document date update:
 		$this->assign("DOCDATE", $d->get_docdate());
@@ -202,8 +231,43 @@ class C_Document extends Controller {
 		return $this->list_action($patient_id);
 	}
 	
+	function encrypt( $plaintext, $key, $cypher = 'tripledes', $mode = 'cfb' )
+    {
+        $td = mcrypt_module_open( $cypher, '', $mode, '');
+        $iv = mcrypt_create_iv( mcrypt_enc_get_iv_size( $td ), MCRYPT_RAND );
+        mcrypt_generic_init( $td, $key, $iv );
+        $crypttext = mcrypt_generic( $td, $plaintext );
+        mcrypt_generic_deinit( $td );
+        return $iv.$crypttext;
+    }
+
+    function decrypt( $crypttext, $key, $cypher = 'tripledes', $mode = 'cfb' )
+    {
+        $plaintext = '';
+        $td = mcrypt_module_open( $cypher, '', $mode, '' );
+        $ivsize = mcrypt_enc_get_iv_size( $td) ;
+        $iv = substr( $crypttext, 0, $ivsize );
+        $crypttext = substr( $crypttext, $ivsize );
+        if( $iv )
+        {
+            mcrypt_generic_init( $td, $key, $iv );
+            $plaintext = mdecrypt_generic( $td, $crypttext );
+        }
+        return $plaintext;
+    }
+	
+	
 	function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true) {
 	    
+	    $encrypted = $_POST['encrypted'];
+		$passphrase = $_POST['passphrase'];
+		$doEncryption = false;
+		if ( !$GLOBALS['hide_document_encryption'] &&
+		    $encrypted == "true" && 
+		    $passphrase ) {
+		    $doEncryption = true;        
+		}
+		
 	        //controller function ruins booleans, so need to manually re-convert to booleans
 	        if ($as_file == "true") {
 		        $as_file=true;
@@ -242,14 +306,34 @@ class C_Document extends Controller {
 		else {
 		        if ($original_file) {
 			    //normal case when serving the file referenced in database
-                            header("Pragma: public");
-			    header("Expires: 0");
-			    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-			    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename($d->get_url()) . "\"");
-			    header("Content-Type: " . $d->get_mimetype());
-			    header("Content-Length: " . $d->get_size());
+                header('Content-Description: File Transfer');
+                header('Content-Transfer-Encoding: binary');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header('Pragma: public');
 			    $f = fopen($url,"r");
-			    fpassthru($f);
+			    if ( $doEncryption ) {
+			  		$filetext = fread( $f, filesize($url) );
+			        $ciphertext = $this->encrypt( $filetext, $passphrase );
+			        $tmpfilepath = $GLOBALS['temporary_files_dir'];
+			        $tmpfilename = "/encrypted_".$d->get_url_file();
+			        $tmpfile = fopen( $tmpfilepath.$tmpfilename, "w+" );
+                    fwrite( $tmpfile, $ciphertext );
+                    fclose( $tmpfile );
+                    header('Content-Disposition: attachment; filename='.$tmpfilename );
+			        header("Content-Type: application/octet-stream" );
+			        header("Content-Length: " . filesize( $tmpfilepath.$tmpfilename ) );
+			        ob_clean();
+		            flush();
+		            readfile( $tmpfilepath.$tmpfilename );
+                    unlink( $tmpfilepath.$tmpfilename );
+			    } else {
+			        header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename($d->get_url()) . "\"");
+			        header("Content-Type: " . $d->get_mimetype());
+			        $size = filesize($d->get_url_filepath());
+			        header("Content-Length: " . $size );
+			        fpassthru($f);
+			    }
 			    exit;
 		        }
 		        else {
@@ -487,6 +571,32 @@ class C_Document extends Controller {
 		$this->assign("messages",$messages);
 		return $this->view_action($patient_id,$document_id);
 	}
+	
+	function validate_action_process($patient_id="", $document_id) {
+	    if ($_POST['process'] != "true") {
+			die("process is '" . $_POST['process'] . "', expected 'true'");
+			return;
+		}
+		
+		$d = new Document( $document_id );
+		$current_hash = sha1_file( $d->get_url_filepath() );
+		$messages = xl('Current Hash').": ".$current_hash."<br>";
+		$messages .= xl('Stored Hash').": ".$d->get_hash()."<br>";
+		if ( $d->get_hash() == '' ) {
+		    $d->hash = $current_hash;
+		    $d->persist();
+		    $d->populate();
+		    $messages .= xl('Hash did not exist for this file. A new hash was generated.');
+		} else if ( $current_hash != $d->get_hash() ) {
+		    $messages .= xl('Hash does not match. Data integrity has been compromised.');
+		} else {
+		    $messages .= xl('Document passed integrity check.');
+		}
+		
+		$this->_state = false;
+		$this->assign("messages", $messages);
+		return $this->view_action($patient_id, $document_id);
+	}
 
 	// Added by Rod for metadata update.
 	//
@@ -497,9 +607,28 @@ class C_Document extends Controller {
 		}
 
 		$docdate = $_POST['docdate'];
+		$docname = $_POST['docname'];
 		$issue_id = $_POST['issue_id'];
 
 		if (is_numeric($document_id)) {
+		    $messages = '';
+		    $d = new Document( $document_id );
+		    $file_name = $d->get_url_file();
+		    if ( $docname != '' &&
+		         $docname != $file_name ) {
+		        $path = $d->get_url_filepath();
+		        $path = str_replace( $file_name, "", $path );  
+		        $new_url = $this->_rename_file( $path.$docname );
+     		    if ( rename( $d->get_url(), $new_url ) ) {
+     		        $d->url = $new_url;
+     	            $d->persist();
+     	            $d->populate();
+     				$messages .= xl('Document successfully renamed.')."<br>";
+     		  	} else {
+     		  		$messages .= xl('The file could not be succesfully renamed, this error is usually related to permissions problems on the storage system.')."<br>";
+     		  	}
+		    }
+		 
 			if (preg_match('/^\d\d\d\d-\d+-\d+$/', $docdate)) {
 				$docdate = "'$docdate'";
 			} else {
@@ -512,7 +641,7 @@ class C_Document extends Controller {
 				"list_id = '$issue_id' " .
 				"WHERE id = '$document_id'";
 			$this->tree->_db->Execute($sql);
-			$messages .= xl('Document date and issue updated successfully') . "\n";
+			$messages .= xl('Document date and issue updated successfully') . "<br>";
 		}
 
 		$this->_state = false;
