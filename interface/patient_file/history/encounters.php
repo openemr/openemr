@@ -252,7 +252,8 @@ if ($issue) {
     "ie.list_id = ? AND ie.encounter = fe.encounter ";
   array_push($sqlBindArray, $pid, $issue);
 }
-$query .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ?";
+$query .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? " .
+  "ORDER BY fe.date DESC, fe.id DESC";
 $sqlBindArray[] = $pid;
 $res4 = sqlStatement($query, $sqlBindArray);
 
