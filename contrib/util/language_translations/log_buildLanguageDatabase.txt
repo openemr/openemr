@@ -290,8 +290,8 @@ Following constant not same:
 	spreadsheet- ID:4681 val:45
 
 Done checking constants:
-	96 mismatches found (known is 92)
-ERROR: Constant(s) have been modified by translators
+	96 mismatches found (known is 96)
+Good, constants weren't modified by translators
 
 Checking constants:
 
@@ -585,34 +585,34 @@ Following constant not same:
 	spreadsheet- ID:4681 val:45
 
 Done checking constants:
-	96 mismatches found (known is 92)
-ERROR: Constant(s) have been modified by translators
+	96 mismatches found (known is 96)
+Good, constants weren't modified by translators
 
 
 Language Statistics:
 Total number of english constants: 4724
-Total number of definitions: 41344
+Total number of definitions: 42103
 Amharic: 0% (0 definitions)
 Arabic: 17% (822 definitions)
 Armenian: 0% (0 definitions)
 Bahasa Indonesia: 54% (2554 definitions)
 Chinese (Simplified): 37% (1768 definitions)
 Chinese (Traditional): % (7 definitions)
-Danish: 51% (2399 definitions)
+Danish: 51% (2412 definitions)
 dummy: 1% (4724 definitions)
-Dutch: 92% (4362 definitions)
+Dutch: 99% (4661 definitions)
 English (Indian): 2% (101 definitions)
 English (Standard): 0% (0 definitions)
-French: 3% (155 definitions)
-German: 31% (1452 definitions)
-Greek: 88% (4138 definitions)
+French: 5% (229 definitions)
+German: 31% (1453 definitions)
+Greek: 88% (4152 definitions)
 Hebrew: 0% (0 definitions)
 Norwegian: 19% (901 definitions)
 Polish: 0% (0 definitions)
 Portuguese (Brazilian): 72% (3393 definitions)
-Portuguese (European): 74% (3509 definitions)
+Portuguese (European): 78% (3708 definitions)
 Russian: 8% (375 definitions)
 Slovak: 0% (0 definitions)
-Spanish: 83% (3935 definitions)
+Spanish: 84% (3945 definitions)
 Swedish: 51% (2393 definitions)
-Turkish: 92% (4356 definitions)
+Turkish: 95% (4505 definitions)

@@ -50,17 +50,11 @@ script to create the list of constants. Then run the
 combineConstantsSpreadsheet.pl script to re-build an official language spreadsheet
 to export to Google Docs.
 
-The Google Docs spreadsheet after conversion to tsv format (and processed by
-the buildLanguageDatabase.pl is kept in the
-current_spreadsheet.tsv file. Conversion is done by exporting spreadsheet
-from google docs (ods format). Then, open this file in OpenOffice. Then in
-open office change the formatting of the first row and column to numbers
-with no decimal places. Then, in Open Office 
-select File->Save as. For 'Save as type:' select 'TEXT CSV (.csv)', toggle
-on 'Edit Filter Setting', and change filename extension to .tsv. If asked
-for confirmation select 'Yes'. Then select 'Unicode (UTF-8)' for 'Character
-set', select {Tab} for 'Field delimiter', and select nothing (make blank by
-removing the " character) for 'Text delimiter', and then click 'OK'.
+The Google Docs spreadsheet after download in tsv format (and processed by
+the buildLanguageDatabase.pl) is kept in the
+current_spreadsheet.tsv file. Downloading of the most current google doc
+spreadsheet is now done via commandline and is described at bottom of
+this README file.
 
 The current_spreadsheet.tsv file is what can be uploaded to Google Docs for
 collaboration (open the current_spreadsheet.tsv in Open Office first,
@@ -74,3 +68,20 @@ http://www.openmedsoftware.org/wiki/Install_Translations
 To insert these translation tables into your OpenEMR refer to
 instructions at this page in the wiki:
 http://www.oemr.org/modules/wiwimod/index.php?page=InstallTranslations
+
+To create a new set of translation tables from the most current google docs
+spreadsheet, then follow these instructions, which are specific for linux
+and are run in a temporary directory entitled 'translations' that should be
+placed one directory above openemr (for paths in following commands to work):
+cd (to your openemr directory)
+cd ../
+mkdir translations
+cd translations
+wget -O spreadsheet.tsv "https://spreadsheets.google.com/ccc?key=0AtTW60zHo6HzcGg0UE9JMGJHM1NsSWpuYkh0Snl4Q0E&output=txt"
+cp ../openemr/contrib/util/language_translations/buildLanguageDatabase.pl .
+chmod +x buildLanguageDatabase.pl
+cp ../openemr/contrib/util/language_translations/log_buildLanguageDatabase.txt .
+cp ../openemr/contrib/util/language_translations/currentConstants.txt .
+./buildLanguageDatabase.pl spreadsheet.tsv currentConstants.txt
+(sanity check) diff log_buildLanguageDatabase.txt log.txt
+
