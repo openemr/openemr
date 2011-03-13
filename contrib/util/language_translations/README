@@ -77,11 +77,15 @@ cd (to your openemr directory)
 cd ../
 mkdir translations
 cd translations
-wget -O spreadsheet.tsv "https://spreadsheets.google.com/ccc?key=0AtTW60zHo6HzcGg0UE9JMGJHM1NsSWpuYkh0Snl4Q0E&output=txt"
+wget --no-check-certificate -O spreadsheet.tsv "https://spreadsheets.google.com/ccc?key=0AtTW60zHo6HzcGg0UE9JMGJHM1NsSWpuYkh0Snl4Q0E&output=txt"
 cp ../openemr/contrib/util/language_translations/buildLanguageDatabase.pl .
 chmod +x buildLanguageDatabase.pl
 cp ../openemr/contrib/util/language_translations/log_buildLanguageDatabase.txt .
 cp ../openemr/contrib/util/language_translations/currentConstants.txt .
 ./buildLanguageDatabase.pl spreadsheet.tsv currentConstants.txt
-(sanity check) diff log_buildLanguageDatabase.txt log.txt
+(SANITY CHECK) diff log_buildLanguageDatabase.txt log.txt
+    (The SANITY CHECK is very important and should not contain any ERRORS.
+    (Errors are almost always secondary to translators mistakenly putting
+    tab or carriage return characters in their translations and requires
+    manual repair in the google doc spreadsheet)).
 
