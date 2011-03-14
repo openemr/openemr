@@ -26,6 +26,7 @@ class Installer
     $this->site                 = $cgi_variables['site'];
     $this->source_site_id       = $cgi_variables['source_site_id'];
     $this->clone_database       = $cgi_variables['clone_database'];
+    $this->development_translations = $cgi_variables['development_translations'];
 
     // Make this true for IPPF.
     $this->ippf_specific = false;
@@ -38,6 +39,7 @@ class Installer
     // Record names of sql table files
     $this->main_sql = dirname(__FILE__) . '/../../sql/database.sql';
     $this->translation_sql = dirname(__FILE__) . '/../../contrib/util/language_translations/currentLanguage_utf8.sql';
+    $this->devel_translation_sql = "http://github.com/openemr/translations_development_openemr/raw/master/languageTranslations_utf8.sql";
     $this->ippf_sql = dirname(__FILE__) . "/../../sql/ippf_layout.sql";
     $this->icd9 = dirname(__FILE__) . "/../../sql/icd9.sql";
 
@@ -45,6 +47,7 @@ class Installer
     $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
     $this->gaclSetupScript2 = dirname(__FILE__) . "/../../acl_setup.php";
 
+    // Prepare the dumpfile list
     $this->initialize_dumpfile_list();
 
     // Entities to hold error and debug messages
@@ -441,8 +444,15 @@ $config = 1; /////////////
     if ( $this->clone_database ) {
       $this->dumpfiles = array( $this->get_backup_filename() => 'clone database' );
     } else {
-      $dumpfiles = array( $this->main_sql => 'Main',
-                          $this->translation_sql => "Language Translation (utf8)" );
+      $dumpfiles = array( $this->main_sql => 'Main' );
+      if (! empty($this->development_translations)) {
+        // Use the online development translation set
+        $dumpfiles[ $this->devel_translation_sql ] = "Online Development Language Translations (utf8)";
+      }
+      else {
+        // Use the local translation set
+        $dumpfiles[ $this->translation_sql ] = "Language Translation (utf8)";
+      }
       if ($this->ippf_specific) {
         $dumpfiles[ $this->ippf_sql ] = "IPPF Layout";
       }
