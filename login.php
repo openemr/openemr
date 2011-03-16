@@ -1,7 +1,7 @@
 <?
 $ignoreAuth=true;
 include_once("../globals.php");
-include_once("$srcdir/md5.js");
+include_once("$srcdir/sha1.js");
 include_once("$srcdir/sql.inc");
 ?>
 <html>
@@ -61,7 +61,8 @@ if (count($result) != 1) {
 </td></tr>
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
-<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value="<? xl('Login','e'); ?>">
+<!-- ViCareplus : As per NIST standard, the SHA1 encryption algorithm is used-->
+<input type="submit" onClick="javascript:this.form.authPass.value=SHA1(this.form.clearPass.value);this.form.clearPass.value='';" value="<? xl('Login','e'); ?>">
 </td></tr>
 </table>
 

@@ -74,7 +74,7 @@ INSERT INTO `sequences` VALUES (1);
 # Dumping data for table `users`
 #
 #setup script does this automatically
-INSERT INTO `users` VALUES (1, 'admin', '1a1dc91c907325c69271ddf0c944bc72', 1, NULL, NULL, 'Admin', NULL, 'Administrator', '', NULL, '');
+INSERT INTO `users` VALUES (1, 'admin', '9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684', 1, NULL, NULL, 'Admin', NULL, 'Administrator', '', NULL, '');
 
 # phpMyAdmin SQL Dump
 # version 2.5.5-pl1

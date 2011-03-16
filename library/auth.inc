@@ -29,10 +29,22 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     	authCheckExpired();
     }
     $ip=$_SERVER['REMOTE_ADDR'];
-    if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider']))
+     //VicarePlus :: authNewPass is set ,only if the password in DB is encrypted using MD5.
+    if (isset($_POST['authNewPass']))
+    {
+    if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider'], $_POST['authNewPass']))
     {
         $_SESSION['loginfailure'] = 1;
         authLoginScreen();
+    }
+    }
+    else
+    {
+    if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider'],''))
+    {
+        $_SESSION['loginfailure'] = 1;
+        authLoginScreen();
+    }
     }
     $_SESSION['loginfailure'] = null;
     unset($_SESSION['loginfailure']);
@@ -83,7 +95,7 @@ if (!isset($_SESSION["last_update"])) {
 
 //----------THINGS WE DO IF WE STILL LIKE YOU
 
-function authNewSession ($user, $pass, $provider)
+function authNewSession ($user, $pass, $provider, $new_upgrade_pass)
 {
     $ip = $_SERVER['REMOTE_ADDR'];
     // check to see if the user belongs to *any* OpenEMR groups in phpGACL -- JRM
@@ -106,6 +118,21 @@ function authNewSession ($user, $pass, $provider)
         return false;
     }
 
+    //VicarePlus :: If the password in DB is encrypted using 'md5' , it is updated with 'sha1' encryption and
+    //Vicareplus :: the user is asked to login again. 
+    if (strlen($pass) == 32)
+    {
+    if ($authDB['password'] == $pass)
+    {
+    sqlStatement("update users set password='$new_upgrade_pass' where username = '$user'");
+    $_SESSION['relogin'] = 1;
+    }
+    else
+    {
+    newEvent( 'login', $user, $provider, 0, "failure: $ip. user password mismatch ($pass)");
+    return false;
+    }
+    }
     // compare the submitted password with the stored password
     if ($authDB['password'] == $pass)
     {

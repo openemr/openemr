@@ -1,7 +1,7 @@
 <?php
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/md5.js");
+require_once("$srcdir/sha1.js");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/auth.inc");
 require_once("$srcdir/formdata.inc.php");
@@ -125,8 +125,8 @@ if ($_GET["privatemode"]=="user_admin") {
           formData('irnpool','G') .
           "' WHERE id = '" . formData('id','G') . "'");
       }
-
-     if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
+     //VicarePlus: Empty string of SHA1 is validated
+     if ($_GET["newauthPass"] && $_GET["newauthPass"] != "da39a3ee5e6b4b0d3255bfef95601890afd80709") { // account for empty
 	$tqvar = formData('newauthPass','G');
 // When the user password is updated and the password history option is enabled, update the password history in database. A new password expiration is also calculated
 	if($GLOBALS['password_history'] != 0 ){

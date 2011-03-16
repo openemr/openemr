@@ -16,7 +16,7 @@ Try | grep -v INSERT, then add:
 
 INSERT INTO groups VALUES (1,'Default','admin');
 under groups
-INSERT INTO users VALUES (1,'admin','1a1dc91c907325c69271ddf0c944bc72',1,NULL,NULL,"Administrator");
+INSERT INTO users VALUES (1,'admin','9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684',1,NULL,NULL,"Administrator");
 under users
 
 Drop this file in the /sql dir.

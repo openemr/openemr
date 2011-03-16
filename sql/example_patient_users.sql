@@ -5,5 +5,5 @@
 #
 # This inserts (iff don't already exist) the referenced users
 
-INSERT INTO `users` ( `username`, `password`, `authorized`, `info`, `source`, `fname`, `mname`, `lname`, `federaltaxid`, `federaldrugid`, `upin`) VALUES ( 'davis', '1a1dc91c907325c69271ddf0c944bc72', 1, NULL, NULL, 'Admin', NULL, 'davis', '', NULL, '');
-INSERT INTO `users` ( `username`, `password`, `authorized`, `info`, `source`, `fname`, `mname`, `lname`, `federaltaxid`, `federaldrugid`, `upin`) VALUES ( 'hamming', '1a1dc91c907325c69271ddf0c944bc72', 1, NULL, NULL, 'Admin', NULL, 'hamming', '', NULL, '');
+INSERT INTO `users` ( `username`, `password`, `authorized`, `info`, `source`, `fname`, `mname`, `lname`, `federaltaxid`, `federaldrugid`, `upin`) VALUES ( 'davis', '9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684', 1, NULL, NULL, 'Admin', NULL, 'davis', '', NULL, '');
+INSERT INTO `users` ( `username`, `password`, `authorized`, `info`, `source`, `fname`, `mname`, `lname`, `federaltaxid`, `federaldrugid`, `upin`) VALUES ( 'hamming', '9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684', 1, NULL, NULL, 'Admin', NULL, 'hamming', '', NULL, '');

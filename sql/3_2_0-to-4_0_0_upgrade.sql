@@ -1010,3 +1010,7 @@ UPDATE user_settings SET setting_value = 'style_oemr.css' WHERE setting_label = 
 #IfMissingColumn documents hash
 ALTER TABLE documents ADD hash varchar(40) DEFAULT NULL COMMENT '40-character SHA-1 hash of document';
 #EndIf
+
+#IfTable users
+UPDATE users SET pwd_history1='',pwd_history2='';
+#EndIf
