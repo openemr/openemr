@@ -6,15 +6,40 @@
 
 $ignoreAuth=true;
 include_once("../globals.php");
-include_once("$srcdir/md5.js");
+include_once("$srcdir/sha1.js");
 include_once("$srcdir/sql.inc");
+include_once("$srcdir/md5.js");
 ?>
 <html>
 <head>
 <?php html_header_show(); ?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
+<script language='JavaScript' src="../../library/js/jquery-1.4.3.min.js"></script>
 <script language='JavaScript'>
+
+//VicarePlus :: Validation function for checking the hashing algorithm used for encrypting password
+function chk_hash_fn()
+{
+var str = document.forms[0].authUser.value;
+   $.ajax({
+  url: "validateUser.php?u="+str,
+  context: document.body,
+  success: function(data){
+        if(data == 0) //VicarePlus :: If the hashing algorithm is 'MD5'
+        {
+                document.forms[0].authPass.value=MD5(document.forms[0].clearPass.value);
+                document.forms[0].authNewPass.value=SHA1(document.forms[0].clearPass.value);
+        }
+        else  //VicarePlus :: If the hashing algorithm is 'SHA1'
+        {
+                document.forms[0].authPass.value=SHA1(document.forms[0].clearPass.value);
+        }
+                document.forms[0].clearPass.value='';
+                document.login_form.submit();
+                }
+        });
+}
 
 function imsubmitted() {
 <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
@@ -24,16 +49,14 @@ function imsubmitted() {
  olddate.setFullYear(olddate.getFullYear() - 1);
  document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=/; expires=' + olddate.toGMTString();
 <?php } ?>
- return true;
+ return false; //Currently the submit action is handled by the chk_hash_fn() function itself.
 }
-
 </script>
 
 </head>
 <body <?php echo $login_body_line;?> onload="javascript:document.login_form.authUser.focus();" >
 
 <span class="text"></span>
-
 <center>
 
 <form method="POST"
@@ -126,6 +149,14 @@ Invalid username or password
 </td></tr>
 <?php endif; ?>
 
+<?php if ($_SESSION['relogin'] == 1): ?>
+<tr><td colspan='2' class='text' style='color:red;background-color:#dfdfdf;border:solid 1px #bfbfbf;text-align:center'>
+<b><?php echo xl('Password security has recently been upgraded.'); ?><br>
+<?php echo xl('Please login again.'); ?></b>
+<?php unset($_SESSION['relogin']); ?>
+</td></tr>
+<?php endif; ?>
+
 <tr>
 <td><span class="text"><?php xl('Username:','e'); ?></span></td>
 <td>
@@ -164,10 +195,12 @@ if (count($result3) != 1) { ?>
 
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
+<input type="hidden" name="authNewPass">
 <?php if ($GLOBALS['use_adldap_auth'] == true): ?>
-<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);" value=<?php xl('Login','e');?>>
+<!-- ViCareplus : As per NIST standard, the SHA1 encryption algorithm is used -->
+<input type="submit" onClick="javascript:this.form.authPass.value=SHA1(this.form.clearPass.value);" value=<?php xl('Login','e');?>>
 <?php else: ?>
-<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<?php xl('Login','e');?>>
+<input type="submit" onClick="chk_hash_fn();" value=<?php xl('Login','e');?>>
 <?php endif; ?>
 </td></tr>
 <tr><td colspan='2' class='text' style='color:red'>

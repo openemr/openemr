@@ -5,7 +5,7 @@
 // of the License, or (at your option) any later version.
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/md5.js");
+require_once("$srcdir/sha1.js");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/formdata.inc.php");
@@ -198,7 +198,8 @@ function submitform() {
 		}
 		//Checking for password history if the 'password history' feature is enabled.
 		if(document.forms[0].pwd_history.value == 1){
-			var p  = MD5(document.forms[0].clearPass.value);
+			// ViCareplus : As per NIST standard, the SHA1 encryption algorithm is used
+			var p  = SHA1(document.forms[0].clearPass.value);
 			var p1 = document.forms[0].pwd.value;
 			var p2 = document.forms[0].pwd_history1.value;
 			var p3 = document.forms[0].pwd_history2.value;
@@ -227,7 +228,8 @@ function submitform() {
           }
 
 	if(flag == 0){
-		document.forms[0].newauthPass.value=MD5(document.forms[0].clearPass.value);document.forms[0].clearPass.value='';
+		// ViCareplus : As per NIST standard, SHA1 encryption algorithm is used
+		document.forms[0].newauthPass.value=SHA1(document.forms[0].clearPass.value);document.forms[0].clearPass.value='';
 		document.forms[0].submit();
 		parent.$.fn.fancybox.close(); 
 	}

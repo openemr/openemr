@@ -204,7 +204,7 @@ class Installer
         "<p>".mysql_error()." (#".mysql_errno().")\n";
       return FALSE;
     }
-    $password_hash = md5( $this->iuserpass );
+    $password_hash = sha1( $this->iuserpass );
     if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','$password_hash',1,'$this->iuname','',3,1,3)") == FALSE) {
       $this->error_message = "ERROR. Unable to add initial user\n" .
         "<p>".mysql_error()." (#".mysql_errno().")\n";
