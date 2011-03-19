@@ -209,6 +209,13 @@ $GLOBALS_METADATA = array(
       xl('Select which languages, if any, may be chosen at login. (only pertinent if above All Languages Allowed is turned off)')
     ),
 
+    'allow_debug_language' => array(
+      xl('Allow Debugging Language'),
+      'bool',                           // data type
+      '1',                              // default = true during development and false for production releases
+      xl('This will allow selection of the debugging (\'dummy\') language.')
+    ),
+
     'translate_layout' => array(
       xl('Translate Layouts'),
       'bool',                           // data type
