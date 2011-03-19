@@ -5,7 +5,7 @@
 <script type="text/javascript" src="library/dynarch_calendar.js"></script>
 {php} include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); {/php}
 <script type="text/javascript" src="library/dynarch_calendar_setup.js"></script>
-<script language="JavaScript"><!--
+<script language="JavaScript">
  var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
 
  // Process click on Delete link.
@@ -32,14 +32,14 @@
  {literal}}{/literal}
 
  function submitNonEmpty( e ) {literal}{{/literal}
-	if ( e.value.length == 0 ) {literal}{{/literal}
+	if ( e.elements['passphrase'].value.length == 0 ) {literal}{{/literal}
 		alert( "{xl t='You must enter a pass phrase to encrypt the document'}" );
 	{literal}}{/literal} else {literal}{{/literal}
 		e.submit();
 	{literal}}{/literal}
  {literal}}{/literal}
 
---></script>
+</script>
 
 </head>
 
@@ -62,12 +62,12 @@
                         <b>{xl t='Encryption'}</b>&nbsp; 
                     </div>
                     <div style="float:none">
-                        <a href="javascript:;" onclick="submitNonEmpty( document.forms['document_encrypt'].elements['passphrase'] );">(<span>{xl t='download encrypted file'})</span></a>
+                        <a href="javascript:;" onclick="submitNonEmpty( document.forms['document_encrypt'] );">(<span>{xl t='download encrypted file'})</span></a>
                     </div> 
                 </div>
                 <div>
                     {xl t='Pass Phrase'}:
-                    <input title="{xl t='Supports TripleDES encryption/decryption only'}. {xl t='Leaving the pass phrase blank will not encrypt the document'}" type='text' size='20' name='passphrase' id='passphrase' value=''/>
+                    <input title="{xl t='Supports TripleDES encryption/decryption only.'} {xl t='Leaving the pass phrase blank will not encrypt the document'}" type='text' size='20' name='passphrase' id='passphrase' value=''/>
                     <input type="hidden" name="encrypted" value="true"></input>
               	</div>
                 </form>
