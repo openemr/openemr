@@ -142,12 +142,14 @@ mkdir $WEB/files
 
 # Save the tar.gz cvs package
 cd $TMPDIR
+rm -f $WEB/files/openemr-cvs.tar.gz
 tar -czf $WEB/files/openemr-cvs.tar.gz openemr
 cd $WEB/files
 md5sum openemr-cvs.tar.gz > openemr-linux-md5.txt
 
 # Save the .zip cvs package
 cd $TMPDIR
+rm -f $WEB/files/openemr-cvs.zip
 zip -rq $WEB/files/openemr-cvs.zip openemr
 cd $WEB/files
 md5sum openemr-cvs.zip > openemr-windows-md5.txt
