@@ -1,0 +1,12 @@
+
+Language Statistics:
+Total number of languages with translations: 7
+Total number of constants: 4724
+Total number of real definitions: 24788
+Dutch: 99.98% (4723 definitions)
+English (Indian): 2.12% (100 definitions)
+Greek: 87.89% (4152 definitions)
+Portuguese (Brazilian): 71.82% (3393 definitions)
+Portuguese (European): 79.89% (3774 definitions)
+Spanish: 83.51% (3945 definitions)
+Turkish: 99.51% (4701 definitions)
