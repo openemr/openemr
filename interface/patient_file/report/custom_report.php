@@ -327,20 +327,19 @@ foreach ($ar as $key => $val) {
                 else {
                     // echo "<b>NOTE</b>: ".xl('Document')."'" . $fname ."' ".xl('cannot be displayed inline because its type is not supported by the browser.')."<br><br>";	
                     // This requires ImageMagick to be installed.
-		    $url_file = $d->get_url_filepath();
-		    // just grab the last two levels, which contain filename and patientid
-		    $from_all = explode("/",$url_file);
-		    $from_filename = array_pop($from_all);
-		    $from_patientid = array_pop($from_all);
-		    $from_file = $GLOBALS["fileroot"].'/documents/'.$from_patientid.'/'.$from_filename;
+                    $url_file = $d->get_url_filepath();
+                    // just grab the last two levels, which contain filename and patientid
+                    $from_all = explode("/",$url_file);
+                    $from_filename = array_pop($from_all);
+                    $from_patientid = array_pop($from_all);
+                    $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .'/documents/'. $from_patientid.'/'.$from_filename;
                     $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                     if (! is_file($to_file)) exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
                     if (is_file($to_file)) {
-			echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . "&as_file=false&original_file=false'><br><br>";
+                        echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . "&as_file=false&original_file=false'><br><br>";
                     } else {
                         echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .
-                            xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') .
-                            "<br><br>";
+                        xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
                     }
                 } // end if-else
             } // end Documents loop
