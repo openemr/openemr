@@ -620,7 +620,14 @@ class C_Document extends Controller {
 		        $path = str_replace( $file_name, "", $path );  
 		        $new_url = $this->_rename_file( $path.$docname );
      		    if ( rename( $d->get_url(), $new_url ) ) {
-     		        $d->url = $new_url;
+     		        // check the "converted" file, and delete it if it exists. It will be regenerated when report is run
+     		        $url = preg_replace("|^(.*)://|","",$d->get_url());
+     		        $convertedFile = substr(basename($url), 0, strrpos(basename($url), '.')) . '_converted.jpg';			    
+                    $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $patient_id . '/' . $convertedFile;
+     				if ( file_exists( $url ) ) {
+     				    unlink( $url );
+     				}
+     				$d->url = $new_url;
      	            $d->persist();
      	            $d->populate();
      				$messages .= xl('Document successfully renamed.')."<br>";
