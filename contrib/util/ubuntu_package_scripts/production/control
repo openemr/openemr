@@ -7,7 +7,7 @@ Section: web
 Architecture: all
 Source: openemr
 Homepage: http://www.oemr.org/
-Depends: mysql-server, apache2-mpm-prefork, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, imagemagick
+Depends: mysql-server, apache2-mpm-prefork, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, php5-curl, php5-mcrypt, imagemagick
 Description: Comprehensive Medical Practice Management Application
  OpenEMR provides office scheduling, electronic medical records,
  prescriptions, insurance billing, accounting and access controls.
