@@ -114,7 +114,7 @@ $GLOBALS_METADATA = array(
     'gbl_nav_area_width' => array(
       xl('Navigation Area Width'),
       'num',
-      '130',
+      '182',
       xl('Width in pixels of the left navigation frame.')
     ),
 
