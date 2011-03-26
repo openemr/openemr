@@ -209,6 +209,7 @@ case "$1" in
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php
          chmod 600 $OPENEMR/gacl/setup.php
+         chmod 600 $OPENEMR/admin.php
 
          #set writable directories
          chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents
