@@ -1,14 +1,14 @@
 This package was debianized by Brady Miller <brady@sparmy.com> on
-Fri, 29 Oct 2010 02:24:28 -0700.
+Fri, 25 Mar 2011 21:33:23 -0700.
 
 Upstream Author: 
     http://www.oemr.org
 
 Copyright: 
-    Copyright (C) 2010 http://www.oemr.org
+    Copyright (C) 2011 http://www.oemr.org
 
 License:
     GPL
 
-The Debian packaging is (C) 2010, Brady Miller <brady@sparmy.com> and
+The Debian packaging is (C) 2011, Brady Miller <brady@sparmy.com> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
