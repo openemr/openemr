@@ -330,7 +330,7 @@ class C_Document extends Controller {
 			    } else {
 			        header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename($d->get_url()) . "\"");
 			        header("Content-Type: " . $d->get_mimetype());
-			        header("Content-Length: " . $d->get_size());
+			        header("Content-Length: " . filesize($url));
 			        fpassthru($f);
 			    }
 			    exit;
