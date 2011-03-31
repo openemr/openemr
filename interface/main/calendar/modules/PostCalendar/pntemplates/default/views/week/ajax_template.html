@@ -35,11 +35,11 @@ $timeslotHeightUnit="px";
   dlgopen('add_edit_event.php?startampm=' + startampm +
    '&starttimeh=' + starttimeh + '&starttimem=' + starttimem +
    '&date=' + eventdate + '&userid=' + providerid + '&catid=' + catid,
-   '_blank', 550, 310);
+   '_blank', 575, 375);
  }
 
- function oldEvt(eventdate, eventid) {
-  dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid, '_blank', 550, 310);
+ function oldEvt(eventdate, eventid, pccattype) {
+  dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid+'&prov=' + pccattype, '_blank', 575, 375);
  }
 
  function goPid(pid) {
@@ -122,9 +122,6 @@ $timeslotHeightUnit="px";
  //==================================
  //FACILITY FILTERING (CHEMED)
  $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
- if (count($facilities) == 1 || !$_SESSION['pc_facility']) {
-  $_SESSION['pc_facility'] = $facilities[0]['id'];
- }
  if ( $_SESSION['pc_facility'] ) {
     $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
  } else {
@@ -134,38 +131,44 @@ $timeslotHeightUnit="px";
  //==================================
 
 [-/php-]
-
+<div id="topheader">&nbsp;</div>
+<div id="topToolbarRight">  <!-- this wraps some of the top toolbar items -->
 <div id="functions">
 <!-- stuff form element here to avoid the margin padding it introduces into the page in some browsers -->
 <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="jumpdate" id="jumpdate" value="">
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo $viewtype;[-/php-]">
 [-php-]
-echo "   <input type='button' value='" .xl ("Add"). "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' />\n";
-echo "   <input type='button' value='" . xl ("Search") .
-    "' onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' />\n";
+echo "   <a href='#' value='" .xl ("Add"). "' onclick='newEvt(1, 9, 00, $Date, 0, 0)'  class='css_button'/><span>".xl("Add")."</span></a>\n";
+echo "   <a href='#' value='" . xl ("Search") .
+    "' onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"'  class='css_button'/><span>".xl("Search")."</span></a>\n";
 [-/php-]
 </div>
 
-<div id="topToolbarRight">  <!-- this wraps some of the top toolbar items -->
 
-<div id="dateNAV">
+<div id="dateNAV" style="width:34%">
+<a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
 <a href='[-php-]echo $PREV_WEEK_URL[-/php-]' onclick='top.restoreSession()'>
-<img id="prevweek" src="[-$TPL_IMAGE_PATH-]/leftbtn.gif" border="0" title="[-php-]echo xl("Previous Week")[-/php-]" alt="[-php-]echo xl ("Previous Week")[-/php-]" /></a>
+<img id="prevweek" src="[-$TPL_IMAGE_PATH-]/leftbtn.gif" border="0" title="[-php-]echo xl("Previous Week")[-/php-]" alt="[-php-]echo xl ("Previous Week")[-/php-]" style="padding-top:5px"/></a>
 <a href='[-php-]echo $NEXT_WEEK_URL[-/php-]' onclick='top.restoreSession()'>
 <img id="nextweek" src="[-$TPL_IMAGE_PATH-]/rightbtn.gif" border="0" title="[-php-]echo xl("Next Week")[-/php-]" alt="[-php-]echo xl ("Next Week")[-/php-]" /></a>
 &nbsp;
-<input type='submit' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);' />
+[-php-]
+$atmp = array_keys($A_EVENTS);
+echo date('d M Y', strtotime($atmp[0]));
+echo " - ";
+echo date('d M Y', strtotime($atmp[count($atmp)-1]));
+[-/php-]
 </div>
 
 <div id="viewPicker">
-<img id="printview" src="[-$TPL_IMAGE_PATH-]/print.gif" border="0" title="[-php-]echo xl("Print View")[-/php-]" alt="[-php-]echo xl ("Print View")[-/php-]" />
-&nbsp;
-<img id="dayview" src="[-$TPL_IMAGE_PATH-]/day.gif" border="0" title="[-php-]echo xl("Day View")[-/php-]" alt="[-php-]echo xl ("Day View")[-/php-]" />
-&nbsp;
-<img id="weekview" class="currentview" src="[-$TPL_IMAGE_PATH-]/week.gif" border="0" title="[-php-]echo xl ("Week View")[-/php-]" alt="[-php-]echo xl ("Week View")[-/php-]" />
-&nbsp;
-<img id="monthview" src="[-$TPL_IMAGE_PATH-]/month.gif" border="0" title="[-php-]echo xl ("Month View")[-/php-]" alt="[-php-]echo xl ("Month View")[-/php-]" />
+[-php-]
+echo "   <a href='#' type='button' id='printview' title='" .xl ("Print View"). "' class='css_button'/><span>".xl("Print")."</span></a>\n";
+echo "   <a href='#' type='button' value='" .xl ("Refresh"). "' onclick='javascript:location.reload(true)' class='css_button'/><span>".xl("Refresh")."</span></a>\n";
+echo "   <a href='#' type='button' id='dayview' title='" .htmlspecialchars( xl('Day View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Day'), ENT_QUOTES) ."</span></a>\n";
+echo "   <a href='#' type='button' id='weekview' title='" .htmlspecialchars( xl('Week View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Week'), ENT_QUOTES)."</span></a>\n";
+echo "   <a href='#' type='button' id='monthview' title='" .htmlspecialchars( xl('Month View'), ENT_QUOTES). "' class='css_button'/><span>".htmlspecialchars( xl('Month'), ENT_QUOTES)."</span></a>\n";
+[-/php-]
 </div>
 </div> <!-- end topToolbarRight -->
 
@@ -278,12 +281,6 @@ while ($currdate <= $enddate) {
 </div>
 
 <div id="bigCalHeader">
-[-php-]
-$atmp = array_keys($A_EVENTS);
-echo date('d M Y', strtotime($atmp[0]));
-echo " - ";
-echo date('d M Y', strtotime($atmp[count($atmp)-1]));
-[-/php-]
 </div>
 
 <div id="providerPicker">
@@ -301,33 +298,47 @@ if ($_SESSION['authorizeduser'] == 1) {
     $_SESSION['pc_facility'] = key($facilities);
 }
 if (count($facilities) > 1) {
-    echo "   <select name='pc_facility' id='pc_facility'>\n";
+    echo "   <select name='pc_facility' id='pc_facility'  class='view1' >\n";
     if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
     // echo "    <option value='0' $selected>"  .xl('All Facilities'). "</option>\n";
     if (!$GLOBALS['restrict_user_facility']) echo "    <option value='0' $selected>" . xl('All Facilities') . "</option>\n";
     foreach ($facilities as $fa) {
         $selected = ( $_SESSION['pc_facility'] == $fa['id']) ? "selected='selected'" : "" ;
-        echo "    <option value='" .$fa['id']. "' $selected>"  .$fa['name']. "</option>\n";
+        echo "    <option style=background-color:".htmlspecialchars($fa['color'],ENT_QUOTES)." value='" .htmlspecialchars($fa['id'],ENT_QUOTES). "' $selected>"  .htmlspecialchars($fa['name'],ENT_QUOTES). "</option>\n";
     }
     echo "   </select>\n";
 }
 // EOS FF
 // ==============================
  echo "</div>";
- echo "   <select multiple size='5' name='pc_username[]' id='pc_username'>\n";
+ echo "   <select multiple size='5' name='pc_username[]' id='pc_username' class='view2'>\n";
  echo "    <option value='__PC_ALL__'>"  .xl ("All Users"). "</option>\n";
  foreach ($provinfo as $doc) {
   $username = $doc['username'];
   echo "    <option value='$username'";
   foreach ($providers as $provider)
    if ($provider['username'] == $username) echo " selected";
-  echo ">" . $doc['lname'] . ", " . $doc['fname'] . "</option>\n";
+  echo ">" . htmlspecialchars($doc['lname'],ENT_QUOTES) . ", " . htmlspecialchars($doc['fname'],ENT_QUOTES) . "</option>\n";
  }
  echo "   </select>\n";
 
 [-/php-]
 </div>
-
+[-php-]
+if($_SESSION['pc_facility'] == 0){
+[-/php-]
+<div id="facilityColor">
+ <table>
+[-php-]
+foreach ($facilities as $f){
+echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-weight:bold>".htmlspecialchars($f['name'],ENT_QUOTES)."</div></td></tr>";
+}
+[-/php-]
+ </table>
+</div>
+[-php-]
+}
+[-/php-]
 </form>
 
 [-assign var="dayname" value=$DATE|date_format:"%w"-]
@@ -365,7 +376,7 @@ foreach ($providers as $provider) {
     echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
     echo " <tr>\n";
     echo "  <td colspan='8' class='providerheader'>";
-    echo $provider['fname'] . " " . $provider['lname'];
+    echo htmlspecialchars($provider['fname'],ENT_QUOTES) . " " . htmlspecialchars($provider['lname'],ENT_QUOTES);
     echo "</td>\n";
     echo " </tr>\n";
 
@@ -397,6 +408,7 @@ foreach ($providers as $provider) {
     // output the TD with the times DIV
     echo "<tr>";
     echo "<td id='times'><div><table>\n";
+//==================================================================================================================
     foreach ($times as $slottime) {
         $startampm = ($slottime['mer']) == "pm" ? 2 : 1;
         $starttimeh = $slottime['hour'];
@@ -406,7 +418,7 @@ foreach ($providers as $provider) {
 
         echo "<tr><td class='timeslot'>";
 //         echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$Date,$providerid,$in_cat_id)' title='New Appointment' alt='New Appointment'>";
-        echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$defaultDate,$providerid,$in_cat_id)' title='" . xl('New Appointment') . "' alt='New Appointment'>";
+        echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$defaultDate,$providerid,$in_cat_id)' title='" . htmlspecialchars(xl("New Appointment"),ENT_QUOTES) . "' alt='".htmlspecialchars(xl("New Appointment"),ENT_QUOTES)."'>";
 
         //echo $slottime['hour'] * 60 + $slottime['minute'];
         echo "$disptimeh:$starttimem</a>";
@@ -602,6 +614,10 @@ foreach ($providers as $provider) {
             }
 
             $eventid = $event['eid'];
+	    $eventtype = sqlQuery("SELECT pc_cattype FROM openemr_postcalendar_categories as oc LEFT OUTER JOIN openemr_postcalendar_events as oe ON oe.pc_catid=oc.pc_catid WHERE oe.pc_eid='".$eventid."'");
+	    $pccattype = '';
+	    if($eventtype['pc_cattype']==1)
+	    $pccattype = 'true';
             $patientid = $event['pid'];
             $commapos = strpos($event['patient_name'], ",");
             $lname = substr($event['patient_name'], 0, $commapos);
@@ -619,7 +635,12 @@ foreach ($providers as $provider) {
 
             // the divTitle is what appears when the user hovers the mouse over the DIV
             $divTitle = date("D, d M Y", strtotime($date));
-
+	    $result = sqlStatement("SELECT name,id,color FROM facility WHERE id=(SELECT pc_facility FROM openemr_postcalendar_events WHERE pc_eid=".$eventid.")");
+	    $row = sqlFetchArray($result);
+	    $color=$event["catcolor"];
+	    if($GLOBALS['event_color']==2)
+	    $color=$row['color'];
+	      $divTitle .= "\n" .htmlspecialchars($row['name'],ENT_QUOTES);
             if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
                 if      ($catid ==  2) $catname = xl("IN");
                 else if ($catid ==  3) $catname = xl("OUT");
@@ -639,16 +660,15 @@ foreach ($providers as $provider) {
             }
             else {
                 // some sort of patient appointment
-                $divTitle .= "\r\n[".$catname ."] ".htmlspecialchars($fname,ENT_QUOTES)." ".htmlspecialchars($lname,ENT_QUOTES);
+                $divTitle .= "\r\n[".$catname.' '.htmlspecialchars($comment, ENT_QUOTES) ."] ".htmlspecialchars($fname,ENT_QUOTES)." ".htmlspecialchars($lname,ENT_QUOTES);
                 $content .= "<span class='appointment".$apptToggle."'>";
                 $content .= $dispstarth . ':' . $startm;
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 $content .= htmlspecialchars($event['apptstatus']);
                 if ($patientid) {
                     // include patient name and link to their details
-                    $link_title = htmlspecialchars($fname,ENT_QUOTES) . " " . htmlspecialchars($lname,ENT_QUOTES) . " \n";
-                    $link_title = xl('Age') . ": " . $patient_age . " \n" . xl('DOB') . ": " . $patient_dob . " \n";
-		    if ($comment) $link_title .= "$comment";
+                    $link_title = htmlspecialchars($fname,ENT_QUOTES)." ".htmlspecialchars($lname,ENT_QUOTES). " \n";
+                    $link_title .= xl('Age') . ": ".$patient_age."\n" . xl('DOB') . ": ".$patient_dob.htmlspecialchars($comment, ENT_QUOTES)."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
                     $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='$link_title' alt='View Patient' />";
@@ -664,22 +684,47 @@ foreach ($providers as $provider) {
             $divTitle .= "\n(" . xl('double click to edit') . ")";
 
             // output the DIV and content
-            echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
-                    "; background-color:".$event["catcolor"].
-                    "; $divWidth".
-                    "; $divLeft".
-                    "' title='".$divTitle."'".
-                    " id='".$eventdate."-".$eventid."'".
-                    ">";
-            echo $content;
-            echo "</div>\n";
+			if($_SESSION['pc_facility'] == 0){
+				// output the DIV and content
+				echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
+						"; background-color:".$color.
+						"; $divWidth".
+						"; $divLeft".
+						"' title='".$divTitle."'".
+						" id='".$eventdate."-".$eventid."-".$pccattype."'".
+						">";
+				echo $content;
+				echo "</div>\n";
+			}
+			elseif($_SESSION['pc_facility'] == $row['id']){
+				echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
+						"; background-color:".$event["catcolor"].
+						"; $divWidth".
+						"; $divLeft".
+						"' title='".$divTitle."'".
+						" id='".$eventdate."-".$eventid."-".$pccattype."'".
+						">";
+				echo $content;
+				echo "</div>\n";
+			}
+			else{
+				echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
+						"; background-color:#DDDDDD".
+						"; $divWidth".
+						"; $divLeft".
+						"' title='".$divTitle."'".
+						" id='".$eventdate."-".$eventid."-".$pccattype."'".
+						">";
+				echo "<span style='color:red;text-align:center;font-weight:bold'>".htmlspecialchars($row['name'],ENT_QUOTES)."</span>";
+				echo "</div>\n";
+			}
         } // end EVENT loop
 
         echo "</div>";
         echo "</td>\n";
         
     } // end date
-
+//==================================================================================================================
     echo " </tr>\n";
 
     echo "</table>\n";
@@ -723,7 +768,7 @@ foreach ($providers as $provider) {
         var parts = new Array();
         parts = objID.split("-");
         // call the oldEvt function to bring up the event editor
-        oldEvt(parts[0], parts[1]);
+        oldEvt(parts[0], parts[1], parts[2]);
         return true;
     }
 

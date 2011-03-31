@@ -51,3 +51,28 @@
 --    all blocks are terminated with and #EndIf statement.
 
 
+#IfMissingColumn form_encounter billing_facility
+ALTER TABLE form_encounter ADD COLUMN billing_facility INTEGER;
+
+INSERT INTO form_encounter(billing_facility) SELECT id FROM facility ORDER BY billing_location DESC, id ASC LIMIT 1
+#EndIf
+
+#IfMissingColumn facility color
+ALTER TABLE facility ADD COLUMN color VARCHAR(7);
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_events pc_billing_location
+ALTER TABLE openemr_postcalendar_events ADD COLUMN pc_billing_location smallint(6);
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_events pc_cattype
+ALTER TABLE `openemr_postcalendar_categories` ADD `pc_cattype` INT( 11 ) NOT NULL COMMENT 'Used in grouping categories';
+
+UPDATE `openemr_postcalendar_categories` SET `pc_cattype`='1' WHERE `pc_catid`='4';
+UPDATE `openemr_postcalendar_categories` SET `pc_cattype`='1' WHERE `pc_catid`='2';
+UPDATE `openemr_postcalendar_categories` SET `pc_cattype`='1' WHERE `pc_catid`='3';
+UPDATE `openemr_postcalendar_categories` SET `pc_cattype`='1' WHERE `pc_catid`='8';
+UPDATE `openemr_postcalendar_categories` SET `pc_cattype`='1' WHERE `pc_catid`='11';
+#EndIf
+
+

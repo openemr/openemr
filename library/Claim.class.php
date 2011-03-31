@@ -193,9 +193,9 @@ class Claim {
     $provider_id = $this->encounter['provider_id'];
     $sql = "SELECT * FROM users WHERE id = '$provider_id'";
     $this->provider = sqlQuery($sql);
-
+// Selecting the billing facility assigned  to the service facility
     $sql = "SELECT * FROM facility " .
-      "ORDER BY billing_location DESC, id ASC LIMIT 1";
+    " where id ='" . addslashes($this->encounter['billing_facility']) . "' ";
     $this->billing_facility = sqlQuery($sql);
 
     $sql = "SELECT * FROM insurance_numbers WHERE " .
@@ -938,8 +938,15 @@ class Claim {
     return '';
   }
 
-  function onsetDate() {
-    return str_replace('-', '', substr($this->encounter['onset_date'], 0, 10));
+  function onsetDate() {//Without the else clause in the claim zero value is coming.
+    $replace_value=str_replace('-', '', substr($this->encounter['onset_date'], 0, 10));
+	if($replace_value*1<>0)
+    {
+	 return $replace_value;
+	}
+	else{
+	 return '';
+	}
   }
 
   function serviceDate() {

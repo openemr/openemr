@@ -74,10 +74,12 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "~\n";
 
   ++$edicount;
+  //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
+  $billingFacilityName=substr($claim->billingFacilityName(),0,35);
   $out .= "NM1" .       // Loop 1000A Submitter
     "*41" .
     "*2" .
-    "*" . $claim->billingFacilityName() .
+    "*" . $billingFacilityName .
     "*" .
     "*" .
     "*" .
@@ -127,10 +129,12 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   $HLBillingPayToProvider = $HLcount++;
 
   ++$edicount;
+  //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
+  $billingFacilityName=substr($claim->billingFacilityName(),0,35);
   $out .= "NM1" .       // Loop 2010AA Billing Provider
     "*85" .
     "*2" .
-    "*" . $claim->billingFacilityName() .
+    "*" . $billingFacilityName .
     "*" .
     "*" .
     "*" .
@@ -181,10 +185,12 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   }
 
   ++$edicount;
+  //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
+  $billingFacilityName=substr($claim->billingFacilityName(),0,35);
   $out .= "NM1" .       // Loop 2010AB Pay-To Provider
     "*87" .
     "*2" .
-    "*" . $claim->billingFacilityName() .
+    "*" . $billingFacilityName .
     "*" .
     "*" .
     "*" .
@@ -276,10 +282,12 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "~\n";
 
   ++$edicount;
+  //Field length is limited to 35. See nucc dataset page 81 www.nucc.org
+  $payerName=substr($claim->payerName($ins),0,35);
   $out .= "NM1" .       // Loop 2010BB Payer
     "*PR" .
     "*2" .
-    "*" . $claim->payerName() .
+    "*" . $payerName .
     "*" .
     "*" .
     "*" .
@@ -419,6 +427,14 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   }
 
   // Note: This would be the place to implement the NTE segment for loop 2300.
+  if ($claim->additionalNotes()) {
+    // Claim note.
+    ++$edicount;
+    $out .= "NTE" .     // comments box 19
+      "*" .
+      "*" . $claim->additionalNotes() .
+      "~\n";
+  }
 
   // Diagnoses, up to 8 per HI segment.
   $da = $claim->diagArray();
@@ -522,8 +538,10 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $out .= "NM1" .       // Loop 2310D Service Location
       "*77" .
       "*2";
+   //Field length is limited to 35. See nucc dataset page 77 www.nucc.org
+	$facilityName=substr($claim->facilityName(),0,35);
     if ($claim->facilityName() || $claim->facilityNPI() || $claim->facilityETIN()) { $out .=
-      "*" . $claim->facilityName();
+      "*" . $facilityName;
     }
     if ($claim->facilityNPI() || $claim->facilityETIN()) { $out .=
       "*" .
@@ -694,10 +712,12 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "~\n";
 
     ++$edicount;
+    //Field length is limited to 35. See nucc dataset page 81 www.nucc.org
+    $payerName=substr($claim->payerName($ins),0,35);
     $out .= "NM1" . // Loop 2330B Payer info for other insco. Page 359.
       "*PR" .
       "*2" .
-      "*" . $claim->payerName($ins) .
+      "*" . $payerName .
       "*" .
       "*" .
       "*" .
