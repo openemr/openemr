@@ -210,6 +210,7 @@ if ($_POST['form_save']) {
 
   echo " var myboss = opener ? opener : parent;\n";
   echo " if (myboss.refreshIssue) myboss.refreshIssue($issue,'$tmp_title');\n";
+  echo " else if (myboss.reloadIssues) myboss.reloadIssues();\n";
   echo " else myboss.location.reload();\n";
   echo " if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();\n";
   echo " else window.close();\n";

@@ -1,0 +1,58 @@
+/*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+#encounters {
+    width:100%;
+}
+#encounters .billing_note {
+    width: 25%;
+}
+#encounters .billing_note_text {
+    padding: 5px;
+    border: 2px outset black;
+    background-color: lightgrey;
+}
+#encounters .billing_note_text_highlight {
+    background-color:#f7f5d1;
+}
+#encounters table {
+    border-collapse: collapse;
+    width:100%;
+}
+#encounters tr {
+    cursor: pointer;
+}
+#encounters th {
+    text-align: left;
+}
+#encounters #tooltipdiv {
+    position:absolute;
+    width:500px;
+    border:1px solid black;
+    padding:2px;
+    background-color:#ffffaa;
+    visibility:hidden;
+    z-index:1000;
+    font-size:9pt;
+}
+#encounters .highlight {
+    background-color: #fff;
+}
+#encounters .tooltip {
+    position:absolute;
+    border:1px solid #333;
+    background:#f7f5d1;
+    padding:2px 5px;
+    color:#333;
+    display:none;
+}
+#encounters>table>*>tr>td {
+    border-top    : 1px solid black;
+    vertical-align: top;
+}
+div.encreport td {
+  font-size     : 8pt;
+  vertical-align: top;
+}
+

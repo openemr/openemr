@@ -1,107 +1,678 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/oemr.dwt" codeOutsideHTMLIsLocked="false" -->
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<!-- InstanceBeginEditable name="doctitle" -->
-<title>OpenEMR v3.1.0 Users Guide</title>
-<!-- InstanceEndEditable -->
-<!-- InstanceBeginEditable name="head" -->
-<!-- InstanceEndEditable -->
-</head>
-
-<body>
-<h1>OpenEMR Users Guide (version 3.1.0)</h1>
-<h3>Table of Contents</h3>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><HTML>
+<HEAD>
+<TITLE>OpenEMR 4.0 Users Guide</TITLE>
+</HEAD>
+<BODY>
+<hr>
+<h1>OpenEMR 4.0 Users Guide</h1>
+<p>For a PDF version of the guide click <a href="OpenEMR_4.0_Users_Guide.pdf">HERE<a></p>
+<hr>
+<h2>Table of Contents</h2>
 <ul>
-<li><a href="01.html">Getting Started</a></li>
-<ul><!-- InstanceBeginEditable name="TOC1" --> 
-<li>Getting to the Login Page</li>
-<li>Logging In</li>
-<li>Changing Passwords</li>
-<!-- InstanceEndEditable --></ul>
-<li><a href="02.html">Main Screen & Navigation</a></li>
-<ul><!-- InstanceBeginEditable name="TOC2" -->
-<li>Navigation</li>
-<ul>
-<li>Traditional</li>
-<li>Tree View</li>
-<li>Radio Buttons</li>
+<li>Getting Started pg 3
+ </li>
+<li>Getting to the Login Page pg 3
+   </li>
+<li>Logging In pg 3
+     </li>
+<li>Changing Passwords pg 4
+</li>
+<li>Main Screen & Navigation pg 5
+ </li>
+<li>Navigation pg 5
+   </li>
+<li>Traditional pg 5
+     </li>
+<li>Tree View pg 6
+       </li>
+<li>Radio Buttons pg 7
+</li>
+<li>Setting Up Your Clinic pg 8
+ </li>
+<li>Facility Administration pg 8
+   </li>
+<li>User Administration pg 9
+     </li>
+<li>Practice Administration pg 11
+       </li>
+<li>Lists pg 15
+         </li>
+<li>Address Book pg 17
+</li>
+<li>Adding a New Patient pg 20
+ </li>
+<li>Patient Demographics pg 20
+   </li>
+<li>Patient History pg 23
+     </li>
+<li>Uploading Documents pg 24
+</li>
+<li>Using the Calendar pg 27
+ </li>
+<li>Setting Up Schedules pg 27
+   </li>
+<li>Making Appointments pg 30
+     </li>
+<li>Appointment Status pg 33
+</li>
+<li>New Encounters & Coding pg 35
+ </li>
+<li>Opening a New Encounter pg 36
+   </li>
+<li>Encounter Forms pg 38
+     </li>
+<li>Using the Fee Sheet pg 40
+       </li>
+<li>Adding Prescriptions pg 44
+</li>
+<li>Issues & Immunizations pg 47
+ </li>
+<li>Adding Issues pg 47
+   </li>
+<li>Associating Issues with Encounters pg 50
+     </li>
+<li>Immunizations pg 52
+</li>
+<li>Patient Notes & Transactions pg 54
+ </li>
+<li>Patient Notes pg 54
+   </li>
+<li>Transactions pg 57
+     </li>
+<li>Referrals pg 57
+       </li>
+<li>Basic Transactions pg 59
+</li>
+<li>Basic Billing pg 61
+ </li>
+<li>Billing Reports pg 62
+   </li>
+<li>Generating Claims pg 63
+     </li>
+<li>Generating HCFA Forms pg 66
+</li>
+<li>Accounting & Receivables pg 69
+ </li>
+<li>Explanation of Benefits pg 69
+   </li>
+<li>Entering Payments pg 70
+     </li>
+<li>Patient Invoices and Payments pg 72
+</li>
+<li>Reporting pg 73
+ </li>
+<li>General Reports pg 73
+   </li>
+<li>Examples of Commonly Used Reports pg 73
+     </li>
+<li>Billing Reports pg 77
+       </li>
+<li>Patient Reports pg 78</li>
 </ul>
-<!-- InstanceEndEditable --></ul>
-<li><a href="03.html">Setting Up Your Clinic</a></li>
-<ul><!-- InstanceBeginEditable name="TOC3" -->
-<li>Facility Administration</li>
-<li>User Administration</li>
-<li>Practice Administration</li>
-<li>Lists</li>
-<li>Address Book</li>
-<!-- InstanceEndEditable --></ul>
-<li><a href="04.html">Adding a New Patient</a></li>
-<ul><!-- InstanceBeginEditable name="TOC4" -->
-<li>Patient Demographics</li>
-<li>Patient History</li>
-<li>Uploading Documents</li>
-<!-- InstanceEndEditable --></ul>
-<li><a href="05.html">Using the Calendar</a></li>
-<ul><!-- InstanceBeginEditable name="TOC5" -->
-<li>Setting Up Schedules</li>
-<li>Making Appointments</li>
-<li>Appointment Status</li>
-<!-- InstanceEndEditable --></ul>
-<li><a href="06.html">New Encounters & Coding</a></li>
-<ul><!-- InstanceBeginEditable name="TOC6" -->
-<li>Opening a New Encounter</li>
-<li>Encounter Forms</li>
-<li>Using the Fee Sheet</li>
-<li>Adding Prescriptions</li>
-<!-- InstanceEndEditable --></ul>
-<li><a href="07.html">Issues & Immunizations</a></li>
-<ul><!-- InstanceBeginEditable name="TOC7" -->
-<li>Adding Issues</li>
-<li>Associating Issues with Encounters</li>
-<li>Immunizations</li>
-<!-- InstanceEndEditable --></ul>
-<li><a href="08.html">Patient Notes & Transactions</a></li>
-<ul><!-- InstanceBeginEditable name="TOC8" -->
-<li>Patient Notes</li>
-<li>Transactions</li>
-<ul>
-<li>Referrals</li>
-<li>Basic Transactions</li>
-</ul>
-<!-- InstanceEndEditable --></ul>
-<li><a href="09.html">Basic Billing</a></li>
-<ul><!-- InstanceBeginEditable name="TOC9" -->
-<li>Billing Reports</li>
-<li>Generating Claims</li>
-<li>Generating HCFA Forms</li>
-<!-- InstanceEndEditable --></ul>
-<li><a href="10.html">Accounting & Receivables</a></li>
-<ul><!-- InstanceBeginEditable name="TOC10" -->
-<li>Explanation of Benefits</li>
-<li>Entering Payments</li>
-<li>Patient Invoices and Payments</li>
-<!-- InstanceEndEditable --></ul>
-<li><a href="11.html">Reporting</a></li>
-<ul><!-- InstanceBeginEditable name="TOC11" -->
-<li>General Reports</li>
-<li>Billing Reports</li>
-<li>Patient Reports</li>
-<!-- InstanceEndEditable --></ul>
-<li><a href="index.html">Index</a></li>
-</ul>
-<br />
-<center>
-<!-- InstanceBeginEditable name="nav1" -->
-<a href="11.html"><< Prev</a> < Index > <a href="01.html">Next >></a>
-<!-- InstanceEndEditable -->
-</center>
-<!-- InstanceBeginEditable name="body" -->
-
-<!-- InstanceEndEditable -->
-<center>
-<!-- InstanceBeginEditable name="nav2" -->
-<!-- InstanceEndEditable -->
-</center>
-</body>
-<!-- InstanceEnd --></html>
+<hr><br /><br /><br />
+<A name=3></a><IMG src="OpenEMR_4.0_Users_Guide-3_1.jpg"><br>
+Getting Started<br>
+<b>Getting to the Login Page</b><br>
+In your browser's address bar you will need to enter the location of your OpenEMR installation.  For most users <br>this address will consist of the name of your server followed by a forward leaning slash, &quot;openemr&quot; and another <br>forward leaning slash. This should look like this:<br>
+http://MyServerName/openemr/ <br>
+Be sure to check with your Administrator, as the location of your OpenEMR installation may be different.  As <br>an example the OpenEMR live demo is located at:<a href="http://www.oemr.org/demo/openemr/"> http://www.oemr.org/demo/openemr/</a><br>
+Once you  have entered the correct address, you should be presented with the login screen:<br>
+<b>Logging In</b><br>
+The login screen contains two input boxes: 'Username' and 'Password'.  The first time you log in to a fresh <br>installation of OpenEMR you will need to log in as &quot;admin&quot; with a password of &quot;pass&quot;. Your administrator may <br>provide with a your own username and password.  ( Note that the OpenEMR login is case-sensitive.)  <br>
+You will also be presented with a drop-down list of possible languages in which you can view OpenEMR.  The <br>default language (English) should already be selected.  <br>
+Once you have entered the correct username and password, simply click the 'Login' button or press 'Enter'.<br>
+<b>Changing Passwords</b><br>
+If this is your first time logging in to OpenEMR it is recommended that you change your password to something <br>more secure.  To do this select 'Miscellaneous - Password' from the navigation list on the left, or simply <br>'Password' in the Radio Button navigation scheme.<br>
+3<br>
+<hr>
+<A name=4></a><IMG src="OpenEMR_4.0_Users_Guide-4_1.jpg"><br>
+This will bring up the "Password Change" screen.  Enter your new password into the two input boxes, make <br>sure you type the same thing into each box.  And remember that OpenEMR's username and passwords are case <br>sensitive.<br>
+Once you've done this, click the 'Save Changes' button.  You will then be required to login again with your new <br>password.<br>
+( Note: If you are using the OpenEMR demo instance, please do NOT change the admin password! )<br>
+4<br>
+<hr>
+<A name=5></a><IMG src="OpenEMR_4.0_Users_Guide-5_1.jpg"><br>
+Main Screen &amp; Navigation<br>
+A successful login will bring you to the main screen of OpenEMR.  The user is presented with two windows, <br>the Calendar, and below that, the Messages page.<br>
+<b>Navigation</b><br>
+OpenEMR can be configured with your choice of three navigation schemes.  Traditional, Tree View, or Radio <br>Buttons.  You can specify which scheme you would like to use by editing the file openemr/interface/globals.php <br>( Detailed instructions can be<a href="http://www.openmedsoftware.org/wiki/OpenEMR_Layout_Selection"> found here. )</a><br>
+<b>Traditional </b><br>
+The Traditional navigation scheme uses context-sensitive menus located at the top of the screen, which change <br>depending on what page is being viewed.  The patient search function is also located at the top left corner of the <br>screen.  <br>
+In the Traditional navigation scheme related pages are linked.  Pages load simultaneously to facilitate the data <br>entry process.<br>
+5<br>
+<hr>
+<A name=6></a><IMG src="OpenEMR_4.0_Users_Guide-6_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-6_2.jpg"><br>
+<b>Tree View</b><br>
+The Tree View is the default navigation scheme for OpenEMR 3.2.  This navigation scheme presents a <br>hierarchical list of page links on the left side of the screen which can be directed to load in either the top or <br>bottom widow of the main screen.<br>
+The patient search function is located below the navigation list on the left hand side of the screen.  Along with a <br>link to OpenEMR's support page on Sourceforge.net.<br>
+6<br>
+<hr>
+<A name=7></a><IMG src="OpenEMR_4.0_Users_Guide-7_1.jpg"><br>
+<b>Radio Buttons</b><br>
+The Radio Button navigation scheme functions similar to the Tree View except that the links are presented as an <br>unordered list, with a series of radio buttons to the right and left of each item.  <br>
+Selecting the left radio button will load the desired page in the top window, while selecting the right hand button <br>will load the page in the bottom window.  You can also disable the top or bottom window by clicking on the <br>appropriate checkbox at the top of the navigation menu.<br>
+For the purpose of this Users Guide, we will assume you are using the default navigation scheme (Tree View). <br>A complete cross reference of menu items for both the Radio Button and the Tree View navigation schemes can <br>be<a href="http://www.openmedsoftware.org/wiki/Cross_Reference_Views"> found here.</a><br>
+7<br>
+<hr>
+<A name=8></a><IMG src="OpenEMR_4.0_Users_Guide-8_1.jpg"><br>
+Setting Up Your Clinic<br>
+To begin using OpenEMR, navigate to your server's installation directory and log in using your assigned <br>username and password.<br>
+A successful login brings you to the appointment calendar.  Before you begin scheduling appointments you'll <br>want to configure some basic information for your users.  To start setting up your clinic, select 'Administration' <br>from the navigation list on the left of the screen.  This will bring up a list of available administration pages. <br>Click 'Facilities' to bring up the Facility Administration page.<br>
+This is one of several pages within the Administration section of OpenEMR.  Administration also includes <br>sections for managing your facility's Forms, Practice information, Calendar categories, Lists, Database <br>administration, and more.  Links to these sections can be found in the left hand navigation list under <br>'Administration' (or at the top of the page if you're using one of the other navigation schemes).<br>
+<b>Facility Administration</b><br>
+We'll start by setting up your facility for your users.  There is a default clinic already built in.  It will need to be <br>updated with the correct information for your clinic.  To do this, simply click on the name of the clinic, in this <br>case "Your Clinic Name Here", to edit it's details.<br>
+This pops up a lightbox containing a form for editing your clinic's information.<br>
+8<br>
+<hr>
+<A name=9></a><IMG src="OpenEMR_4.0_Users_Guide-9_1.jpg"><br>
+Enter the correct name, address &amp; contact information for your clinic.  This information will be used for billing, <br>so make sure to include who to direct billing information to, and enter your facility's NPI and CLIA number. <br>Indicate whether your facility is a billing and/or service location by clicking the checkbox next to the <br>appropriate option.  If your clinic is a billing location, you may also want to check the "Accepts Assignment" <br>box.<br>
+When you are finished entering your clinic's information click the 'Save' button to update your clinic and return <br>to the Facility Administration page.<br>
+Your clinic may have additional facilities in which care is given, such as a hospital.  To create a new facility, <br>click 'Add' and enter the relevant data as you did for the other clinic.  Click 'Save' when finished.<br>
+<b>User Administration</b><br>
+Clicking 'Administration - Users' in the navigation list will bring you to the User / Group Administration page. <br>This page contains a list of your clinic's users. If you have not yet added any users, then only &quot;admin&quot; will be <br>shown. <br>
+9<br>
+<hr>
+<A name=10></a><IMG src="OpenEMR_4.0_Users_Guide-10_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-10_2.jpg"><br>
+You can add a new user by clicking the 'Add User' button, or you can modify an existing user by clicking on <br>their username. <br>
+Both methods will pop up a lightbox containing the user profile page.  Here you can edit a user's password, <br>facility information and access controls, as well as their authorization status.  Authorized users are practitioners, <br>and will appear in the appointment calendar.  They can also be associated with encounters for billing purposes, <br>and are able to authorize encounter information entered by non-authorized users so that the encounter will be <br>billable.<br>
+To authorize your practitioners be sure to click the 'Provider' check box.   Other facility staff do not need to be <br>authorized.  Practitioners will also need their UPIN and Federal Tax ID entered for correct billing, as well as <br>their Federal Drug ID for prescription writing.<br>
+Once your user's information has been updated successfully click 'Save' to return to the User / Group <br>Administration page.<br>
+10<br>
+<hr>
+<A name=11></a><IMG src="OpenEMR_4.0_Users_Guide-11_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-11_2.jpg"><br>
+<b>Practice Administration</b><br>
+Next you'll need to enter the relevant practice information for your clinic.  This includes pharmacy and <br>insurance company information, as well as the types of documents your clinic accepts.<br>
+Clicking the 'Practice' link in the navigation menu will bring you to the Practice Administration page where you <br>will be presented with a list of links for editing your facilities' information.<br>
+The Practice Administration page initially presents you with the list of your clinics pharmacies.  Click the 'Add <br>a Pharmacy' button to enter the contact information for your clinic's pharmacy.  A drop down menu lets you <br>select the preferred method for transferring prescription information.  Once you've entered the correct <br>information, click 'Save' to add your new pharmacy.<br>
+Before setting up any insurance companies, you'll want to enter your X12 Partner information.  These are the <br>clearinghouses or large payers to whom you will send electronic billing. Most practices will probably just use a <br>single clearinghouse.  <br>
+11<br>
+<hr>
+<A name=12></a><IMG src="OpenEMR_4.0_Users_Guide-12_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-12_2.jpg"><br>
+To add one of these clearinghouses, click on 'X12 Partners' and then click the 'Add New Partner' button.<br>
+The ID numbers that you enter here will need to be provided to you by the clearinghouse/partner. The Version <br>number refers to the version of the X12 837p protocol specification used and should probably not be changed. <br>Click 'Save' to save the information you've entered.<br>
+Selecting 'Insurance Companies' from the links at the top of the page brings up a list of Companies that have <br>been added to your clinic.  If this is a new installation of OpenEMR, this list will be empty.  You can add a new <br>insurance company by clicking 'Add a Company'.  Or, you can edit an existing company by clicking on it's <br>name in the list.<br>
+ Once you have entered the correct information, click 'Save' to save any changes, or add the new company to the <br>list.  <br>
+12<br>
+<hr>
+<A name=13></a><IMG src="OpenEMR_4.0_Users_Guide-13_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-13_2.jpg"><br>
+In practice, many insurance companies have multiple insurance plans with a separate billing address for each <br>plan.  At this time, you will need to add each plan as a separate insurance company.  <br>
+Many insurance companies also assign their own doctor-specific ID numbers, and these numbers must appear in <br>your claims. Click on 'Insurance Numbers' to see a list of your clinic's providers and their default ID numbers.<br>
+Click on a provider's name to bring up a list of insurance companies and the corresponding ID numbers that <br>have been entered for that provider.  <br>
+13<br>
+<hr>
+<A name=14></a><IMG src="OpenEMR_4.0_Users_Guide-14_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-14_2.jpg"><br>
+Selecting 'Add New...' presents a form for adding this provider's numbers for another insurance company. Fill in <br>this information and click the 'Save' button to add the new number. You can also edit an existing set of numbers <br>by clicking on the company name in the list.  <br>
+Note that one of the selections in the drop down list of insurance companies is &quot;Default&quot;; you can use this to fill <br>in default numbers for insurance companies not otherwise entered.<br>
+Next click on 'Documents' to see a list of patient documents that have been uploaded.  Clicking the 'Edit <br>Categories' button displays a hierarchy of the different types of documents that you can attach to a patient. The <br>default set is shown. To add more categories click on the desired parent folder's name, fill in the name of the <br>new document type, and click 'Add Category'.<br>
+14<br>
+<hr>
+<A name=15></a><IMG src="OpenEMR_4.0_Users_Guide-15_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-15_2.jpg"><br>
+<b>Lists</b><br>
+Select 'Lists' from the menu at left.  This brings you to OpenEMR's List Management system.  This is where <br>many of the selection lists within OpenEMR are stored and edited.  Before you begin using OpenEMR you will <br>need to populate these lists with data appropriate to your clinic.<br>
+Select 'State' from the drop-down list.  OpenEMR comes configured with only one state by default.  If your <br>clinic sees patients from only one state you can simply replace the default state by clicking in the 'ID' and 'Title' <br>fields and replacing them with the appropriate information.<br>
+Alternatively, you can add multiple states by filling in the empty fields that are provided for you.  You can also <br>specify which state you would like to use as the default by selecting the checkbox next to that state.<br>
+When you are finished modifying the list, click 'Save'.  This will update the list and generates a new set of <br>empty fields should you need to add additional states to the list.<br>
+15<br>
+<hr>
+<A name=16></a><IMG src="OpenEMR_4.0_Users_Guide-16_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-16_2.jpg"><br>
+The drop-down contains lists for Race/Ethnicity, common billing codes that appear in the Fee Sheet, Price <br>Levels, common Exams/Tests, etc.  All of these lists may be modified in this same manner.<br>
+<b>Address Book</b><br>
+OpenEMR also contains a built-in address book for storing useful contact information for your staff as well as <br>other doctors, clinics, etc. that your office may contact on a regular basis.  <br>
+Select 'Addr Bk' (under 'Miscellaneous') from the navigation menu to bring up your clinic's Address Book.<br>
+This will present you with a list of all of the contacts currently contained in your Address Book.  Click on a <br>person's name to edit their contact information, or click 'Add New' to enter a new contact into your address <br>book.<br>
+In the 'Add New Person' dialog box, select a title, and enter their name and address.  If you are adding a <br>
+16<br>
+<hr>
+<A name=17></a><IMG src="OpenEMR_4.0_Users_Guide-17_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-17_2.jpg"><br>
+physician to your address book, be sure to include their UPIN and other ID numbers for billing and referrals. <br>Entering a 'Specialty' will allow you to narrow your search parameters when writing letters to a particular <br>physician, etc.<br>
+When you are finished entering the new contact information, click 'Save'.<br>
+Note that the new contact has been added to the list.<br>
+You can search for a particular contact in the address book by entering their name and/or specialty at the top of <br>the page and clicking 'Search'.  This brings up a list of any contacts matching your search parameters.<br>
+17<br>
+<hr>
+<A name=18></a><IMG src="OpenEMR_4.0_Users_Guide-18_1.jpg"><br>
+18<br>
+<hr>
+<A name=19></a><IMG src="OpenEMR_4.0_Users_Guide-19_1.jpg"><br>
+Adding A New Patient<br>
+Once you have entered all the necessary clinic information you can begin entering patient data.<br>
+Select 'Patient/Client – New/Search' in the navigation menu on the left of the screen to begin entering a new <br>patient into the system.                                                       <br>
+<b>Patient Demographics</b><br>
+In the Search or Add Patient page enter the patient's name &amp; birth date.  If you have an existing chart for this <br>patient, you may enter the chart number under 'External ID'. If you do not enter a number the system will <br>automatically assign one that is equal to its internal patient ID. When you are finished click 'Create New <br>Patient'. <br>
+<i>NOTE:</i>  Clicking the calendar button next to the "DOB" field will pop up an easy to use date selection tool <br>found throughout the OpenEMR program.  Simply click the arrows to the right or left of "Today" to advance the <br>date forward or back a single month or year, or hold an arrow down to select the month or year manually. <br>Selecting the day of the month will then fill the selected date into it's respective field in the proper format <br>(YYYY-MM-DD)<br>
+You should now be presented with the Patient Summary Page, which contains a summary of the patient's <br>identifying information, including employment, insurance and provider information in sections that may be <br>expanded or collapsed at will by clicking the link to the right of the desired section.  The page also includes <br>links to the patient's medical history, documents, etc. at the top of the screen, as well as a list of "issues" <br>associated with that patient, and any appointments they may have scheduled.  <br>
+Notice that additional patient related pages are now accessible via the navigation menu to the left.<br>
+19<br>
+<hr>
+<A name=20></a><IMG src="OpenEMR_4.0_Users_Guide-20_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-20_2.jpg"><br>
+To continue entering patient information click 'Edit' next to the desired section.<br>
+This will bring up a series of tabs containing inputs for the various types of patient data.  Click on the tab for the <br>section you would like to work with and fill in the desired fields.  Note that fields labeled in red are required in <br>order for billing to work properly.<br>
+To enter a patient's insurance information for the first time click 'edit' next to the Demographics section.  The <br>Insurance information section can be found below the Demographics tabs.<br>
+20<br>
+<hr>
+<A name=21></a><IMG src="OpenEMR_4.0_Users_Guide-21_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-21_2.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-21_3.jpg"><br>
+Select the patient's insurance company from the drop-down list, or you can search for it by clicking <br>'Search/Add'.  Doing so brings up a dialog box containing several fields which are searchable (labeled in green). <br>Entering a partial value into one or more fields and clicking the 'Search' button pops up a second dialog <br>containing a list of all insurance companies matching those parameters.  <br>
+Selecting the desired name from the list will automatically make it the selection for that patient.<br>
+21<br>
+<hr>
+<A name=22></a><IMG src="OpenEMR_4.0_Users_Guide-22_1.jpg"><br>
+If the desired insurance company is not yet entered, you can also add it here by completing all the fields and <br>clicking 'Save as New'. This also selects the newly added insurance company for this patient. <br>
+If the patient is the also the insured party, then selecting "self" from the drop-down list will automatically <br>populate the "subscriber" section with the relevant data for you.<br>
+When you are finished, click 'Save' at the top of the page to save and return to the Demographics summary.  You <br>can see that Insurance now has it's own section, and all of the new patient data is now visible on the summary <br>page.<br>
+<b>Patient History</b><br>
+Next select 'History' at the top of the Patient Summary page  This brings up a page containing information about <br>the patient's medical history.<br>
+Clicking 'Edit' will bring up a data entry page with tabbed sections, similar to that of the Demographics page.<br>
+Access the desired sections by clicking on the appropriate tab and enter in the patient's data as necessary, then <br>click 'Save'.<br>
+22<br>
+<hr>
+<A name=23></a><IMG src="OpenEMR_4.0_Users_Guide-23_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-23_2.jpg"><br>
+<b>Uploading Documents</b><br>
+Select 'Documents' at the top of the patient Summary page.  Here you may upload files that you have scanned <br>and/or saved, such as a patient's ID or insurance card.  <br>First, click the appropriate Document Category for the file you wish to upload, then click 'Browse'.  This will <br>present you with the standard dialog for locating the file on your computer.  Once the desired file has been <br>selected, click 'Upload' to save the file in OpenEMR.  <br>
+Once the file is uploaded, you will be presented with a report, confirming the file has been uploaded <br>successfully.  To see the new file, click on the plus sign next to the appropriate document category which <br>displays a list of all the files in that category.  Click on the name of the new file to view it. <br>
+23<br>
+<hr>
+<A name=24></a><IMG src="OpenEMR_4.0_Users_Guide-24_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-24_2.jpg"><br>
+Here you can also attach a note to the document, associate it with a particular issue, or move it to a different <br>category or patient.  <br>
+24<br>
+<hr>
+<A name=25></a><IMG src="OpenEMR_4.0_Users_Guide-25_1.jpg"><br>
+Using The Calendar<br>
+In this section we'll discuss setting up a provider's schedule in the calendar and adding patient appointments.<br>
+<b>Setting Up Schedules</b><br>
+Login to OpenEMR using your assigned username and password.  <br>
+For users who are not practitioners, such as someone who works at the front desk, the Calendar will show the <br>schedules of all the practitioners at the clinic by default.  When you first start using OpenEMR you will need to <br>set up schedules for all of your practitioners.<br>
+To do this, select from the 'Providers' list on the right the person who's schedule you wish to set up.  Next click <br>the time at which that provider is scheduled to enter the office.<br>
+25<br>
+<hr>
+<A name=26></a><IMG src="OpenEMR_4.0_Users_Guide-26_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-26_2.jpg"><br>
+This will present you with the 'Add New Event' dialog box.  <br>
+The clinic and provider name should be automatically filled in for you, as well as the time that you selected. <br>Choose "In Office" from the 'Category' drop-down list.  <br>
+You can also choose to make this a repeating event, which allows you to set up an event only once for a given <br>period of time. Do this by selecting the 'Repeats' checkbox, and setting the appropriate frequency &amp; duration.<br>
+When you are finished click 'Save' to update the calendar.  Now you will see a block of available time slots for <br>that provider's schedule.  Scroll down and click on the time that the provider is scheduled to leave the office for <br>the day.<br>
+The same process is used to create a repeating "Out Of Office" event.<br>
+26<br>
+<hr>
+<A name=27></a><IMG src="OpenEMR_4.0_Users_Guide-27_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-27_2.jpg"><br>
+You can also add a lunch break in your practitioners' schedules.  This is done the same way, with the exception <br>of the duration, which in this case is non-zero.<br>
+Now you can see your practitioner's full schedule laid out on the Calendar page.  Continue setting up the <br>Calendar in this fashion until all your practitioners' schedules have been entered.<br>
+27<br>
+<hr>
+<A name=28></a><IMG src="OpenEMR_4.0_Users_Guide-28_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-28_2.jpg"><br>
+<b>Making Appointments</b><br>
+Now that the clinic and all it's practitioners are set up, you can begin scheduling appointments for your patients.<br>
+To locate a patient in the system, enter all or part of their name into the search field in the bottom left corner of <br>the screen (below the navigation list) and click 'Name'.  This will bring up a list of all the patients in your <br>system matching that name.  If you need to narrow the list, you can enter a longer search term, such as their full <br>name (Eg. "rourk, rod").<br>
+Click on the desired name to bring up the Demographics summary for that patient.  If you have the patient on <br>the phone, now would be a good time to confirm that their contact and insurance information is up to date.  If <br>the patient is not already in the system, you can select 'New/Search' from the menu to begin entering their <br>information.<br>
+28<br>
+<hr>
+<A name=29></a><IMG src="OpenEMR_4.0_Users_Guide-29_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-29_2.jpg"><br>
+The right-hand side of the Patient Summary shows a list of all current and future appointments for that patient. <br>Click 'expand' next to the Appointments section if the list is not already visible.  Click 'Add' to schedule an <br>office visit.  <br>
+This will present you with the same 'Add New Event' dialog used earlier.  This time "Established Patient" is <br>selected as the Category.  You can change the category to "New Patient" if this is their first visit.  If a primary <br>provider has been entered for that patient, they will be selected automatically.<br>
+Click 'Find Available' to see a list of appointment times available for that provider for the next 7 days.  You can <br>change the start date or the number of days shown and click 'Search' to display a new list using those <br>parameters.  <br>
+29<br>
+<hr>
+<A name=30></a><IMG src="OpenEMR_4.0_Users_Guide-30_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-30_2.jpg"><br>
+Once a date and time have been agreed upon, selecting that time from the list will close the window, and the <br>selected time will appear in the 'Add Event' dialog.  <br>
+Make sure to enter the correct duration for the appointment and click 'Save'.<br>
+Return to the calendar using the navigation menu on the left.  Advancing to the appropriate date, using the <br>arrows at the top of the screen, shows the new appointment listed in the provider's schedule.  Mousing over the <br>patient's name displays a toot-tip with information about that patient, such as date of birth.<br>
+30<br>
+<hr>
+<A name=31></a><IMG src="OpenEMR_4.0_Users_Guide-31_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-31_2.png"><br>
+<b>Appointment Status</b><br>
+OpenEMR's calendar system includes a status indicator, allowing doctors and staff to see at a glance what is <br>going on with all appointments and the corresponding encounters for the day. <br>
+To change the status of a given appointment, double-click on the appointment block.  This brings up the 'Edit <br>Event' window.  Choose the correct appointment status from the drop-down list.  Notice each status has a unique <br>symbol associated with it.<br>
+You can also type a note into the 'Comments' line if more information is needed.  Click 'Save' to update the <br>status of the appointment.<br>
+31<br>
+<hr>
+<A name=32></a><IMG src="OpenEMR_4.0_Users_Guide-32_1.jpg"><br>
+You can see that the symbol next to the appointment time has changed to indicate it's new status.  Any <br>comments are now also visible when mousing over the patient's name on the appointment calendar.<br>
+32<br>
+<hr>
+<A name=33></a><IMG src="OpenEMR_4.0_Users_Guide-33_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-33_2.jpg"><br>
+Encounters &amp; Coding<br>
+Patient encounters are handled primarily by a clinic's providers.  <br>
+Logging in as a provider presents you with the Calendar page showing only that provider's schedule by default. <br>To view another provider's schedule, select the desired user from the list to the left of the calendar.  <br>
+The bottom window also shows any notes left for that provider about their patients.  <br>
+The Calendar shows the appointments scheduled for that day.  Providers can see the status of any given <br>appointment, indicated by the symbol shown between the appointment time and the patient's name.  The "@" <br>symbol, for example, indicates that the patient has arrived at the clinic and is ready to begin their appointment.<br>
+33<br>
+<hr>
+<A name=34></a><IMG src="OpenEMR_4.0_Users_Guide-34_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-34_2.jpg"><br>
+<b>Opening a New Encounter</b><br>
+To begin the encounter, click on the patients name in the Appointment Calendar.  This brings you to the patient's <br>Summary page, as well as the Past Encounters &amp; Documents page which lists any previous encounters or files <br>that were uploaded for that patient.<br>
+Select ' History' at the top of the page to view a summary of the patients Medical History and Lifestyle <br>information.  Click 'Edit' to enter any information that may be incomplete.  <br>
+The Patient Encounters &amp; Documents page at the bottom of the screen displays a list of all encounters that have <br>been entered for this patient.  For new patients, there may be no encounters listed.  <br>
+34<br>
+<hr>
+<A name=35></a><IMG src="OpenEMR_4.0_Users_Guide-35_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-35_2.jpg"><br>
+By default, OpenEMR is set to generate an empty Encounter when a patient's status has been set to "Arrived <br>(@)".  To open this encounter and begin entering data, click on the new entry in the Encounters list, then click <br>'Edit' next to the provider's name.<br>
+If your clinic's version of OpenEMR is configured differently, you can begin a New Encounter manually by <br>selecting 'Create Visit' from the navigation list on the left.  Both methods will bring you to the New Encounter <br>Form.<br>
+Here you can enter a brief description of the encounter and the date of service.  Encounters for new patients will <br>not have any Issues or Diagnoses associated with them at this time, so click 'Save' to continue with the <br>encounter.<br>
+35<br>
+<hr>
+<A name=36></a><IMG src="OpenEMR_4.0_Users_Guide-36_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-36_2.jpg"><br>
+<b>Encounter Forms</b><br>
+This will bring you back to the summary page for This Encounter.  Displayed is a list of all the forms associated <br>with this encounter.  You may click 'Edit' next to any of these forms to edit its contents.  <br>
+To the right is a drop-down list of forms that can be added to the encounter.  OpenEMR comes configured with <br>several common encounter forms by default, but your clinic may have their own customized encounter forms as <br>well.<br>
+Select 'SOAP' from the drop-down list to add it to the encounter.  <br>
+The SOAP form will contain a subjective &amp; objective record of the patient’s vital information, as well as any <br>notes on the assessment of the patient's health and suggested treatment plans.<br>
+Enter the appropriate information and click 'Save Form' to return to the Encounter summary page.  <br>
+36<br>
+<hr>
+<A name=37></a><IMG src="OpenEMR_4.0_Users_Guide-37_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-37_2.jpg"><br>
+You'll see that the SOAP form has been added to the list of forms for this encounter. Also shown is a summary <br>of its contents. <br>
+<b>Using the Fee Sheet</b><br>
+Next select the 'Fee Sheet' from the drop-down list.  The Fee Sheet is different from most other forms in that it <br>enters and modifies billing information that is stored elsewhere in the system; it is not really an encounter form, <br>and when used it will not appear in the encounter's list of forms. <br>
+The Fee Sheet includes several drop-down lists of the most commonly used billing codes. It can and should be <br>customized so that it's most suitably adapted to your practice; <br>
+Included is a search feature, where you can search for and select from the thousands of billing codes in the <br>database. And below that is a list of all the billing codes, along with their charges and other related information, <br>that have been selected for this encounter. <br>
+37<br>
+<hr>
+<A name=38></a><IMG src="OpenEMR_4.0_Users_Guide-38_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-38_2.jpg"><br>
+For example, selecting 'Detailed' from the "New Patient" drop-down adds the associated CPT code to the list.  <br>
+Look for an appropriate billing code by entering a search term in the box to the left of the 'Search' button.  Make <br>sure the correct code type is selected and click 'Search'.<br>
+A drop-down list will then be populated with any billing codes that match your search parameters.  Selecting the <br>desired code from the list will add it to the list of codes for this encounter.<br>
+The Fee Sheet also allows you to justify the selected codes for billing purposes.  Justification is the association <br>of ICD9 codes with procedure codes. Insurance companies require this for billing, in order to &quot;justify&quot; paying <br>for procedures.<br>
+To do this, click the drop-down menu under 'Justify' for the desired CPT code.  Select the appropriate ICD9 <br>code from the list and click 'Save'.<br>
+38<br>
+<hr>
+<A name=39></a><IMG src="OpenEMR_4.0_Users_Guide-39_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-39_2.jpg"><br>
+To see the Feet Sheet has been associated with this encounter, click 'Visit History' in the navigation menu to go <br>to the list of encounters for this patient.  You can see that the CPT &amp; ICD9 codes are listed next to the new <br>encounter, as well as the SOAP form that was added earlier.<br>
+<b>Adding Prescriptions</b><br>
+To prescribe medication for this patient click 'Edit' next to the Prescriptions section in the Patient Summary <br>window, and click 'Add'.<br>
+39<br>
+<hr>
+<A name=40></a><IMG src="OpenEMR_4.0_Users_Guide-40_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-40_2.jpg"><br>
+This presents you with a form for entering prescription data, including dosage, refills, and whether or not <br>generic over-the-counter substitutions are allowed for this patient.  <br>
+The Prescription form includes a search function for looking up a particular type of medication.  Selecting <br>'(click here to search)' next to the Drug field will bring up a new field into which a search term may be entered. <br>
+Clicking 'Search' displays a drop-down list of possible medications generated by connecting to the web site <br>www.rxlist.com.<br>
+Selecting the desired medication will fill in the Drug field for you.  Also, clicking 'Yes' next to "Add to <br>Medication List" will allow the prescription to be included in the Issues list as a Medication.  <br>
+40<br>
+<hr>
+<A name=41></a><IMG src="OpenEMR_4.0_Users_Guide-41_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-41_2.jpg"><br>
+Enter the correct data to complete the form and click 'Save'.  You are then presented with a form for generating a <br>PDF of the prescription information.  It may be printed or sent by email or fax. &quot;Auto Send&quot; will use whichever <br>default method was selected when you set up the pharmacy. <br>
+Clicking 'Print (PDF)' will generate the following PDF document to be saved or printed as necessary.  The <br>default template for this form may also be customized to your clinic's own specifications.<br>
+41<br>
+<hr>
+<A name=42></a><IMG src="OpenEMR_4.0_Users_Guide-42_1.jpg"><br>
+42<br>
+<hr>
+<A name=43></a><IMG src="OpenEMR_4.0_Users_Guide-43_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-43_2.jpg"><br>
+Issues &amp; Immunizations<br>
+<b>Adding Issues</b><br>
+An &quot;issue&quot; is a medical problem, allergy, medication, surgery or dental issue. These issues are related in that <br>they can all be associated with multiple encounters. <br>
+This is especially useful with medical problems, where the user may want to quickly determine which <br>encounters treated a particular problem, or which problems were treated by a particular encounter. <br>
+The Issues list can be found on the right-hand side of the Patient Summary page.  <br>
+You can see that the prescription added earlier has been listed in the Medications section.  Clicking 'Edit' next to <br>one of these sections will present you with a complete list of all issues for this patient.  Click 'Add Issue' to add <br>a new medical issue you want to kept track of for this patient.<br>
+43<br>
+<hr>
+<A name=44></a><IMG src="OpenEMR_4.0_Users_Guide-44_1.png"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-44_2.jpg"><br>
+This pops up the 'Add Issue' dialog box.  <br>
+The default issue type is set to 'Problem'.  For each issue type there is a list of commonly selected titles which <br>are customizable for your clinic's specific needs.  If the desired title is not included, it can be typed into the text <br>box below the list. <br>
+Enter the appropriate beginning and end dates, and select the 'Occurrence' from the drop-down list provided.<br>Clicking in the 'Diagnosis' field will present a search dialog for locating the correct ICD9 code for this issue. <br>Enter the appropriate search term and click 'Search' to bring up a list of possible ICD9 codes.  Selecting the <br>desired code will close the search window and enter the selected code in the text field.<br>
+44<br>
+<hr>
+<A name=45></a><IMG src="OpenEMR_4.0_Users_Guide-45_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-45_2.jpg"><br>
+Complete the remainder of the form as necessary and click 'Save'.  <br>
+Additional issues are entered in the same manner; clicking 'Add Issue' and selecting the appropriate type, such <br>as 'Allergy'.  Notice that the 'Add New Issue' dialog also uses the OpenEMR date selection tool described <br>earlier.  <br>
+45<br>
+<hr>
+<A name=46></a><IMG src="OpenEMR_4.0_Users_Guide-46_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-46_2.jpg"><br>
+Once the new issues have been added successfully you should see an updated list of all the issues that have been <br>entered for this patient.  You may click on an issue in the list at any time to edit it.<br>
+<b>Associating Issues with Encounters</b><br>
+The far right column in the Issues list represents the number of encounters associated with a given issue.  Click <br>on the '0' next to a newly added issue to bring up the 'Issues &amp; Encounters' dialog.<br>
+46<br>
+<hr>
+<A name=47></a><IMG src="OpenEMR_4.0_Users_Guide-47_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-47_2.jpg"><br>
+This dialog contains a list of all the issues and encounters associated with this patient.  It is used to set (and <br>view) the relationships between issues and encounters.  Note that the issue that was just clicked on has been <br>highlighted.  <br>
+Select the appropriate encounter from the list on the right to highlight it.  Clicking 'Save' now links the selected <br>issue to the selected encounter.<br>
+Continue associating issues with encounters as necessary.  Refreshing the Issues list shows the current <br>information for all issues.<br>
+47<br>
+<hr>
+<A name=48></a><IMG src="OpenEMR_4.0_Users_Guide-48_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-48_2.jpg"><br>
+<b>Immunizations</b><br>
+Click 'Back' to return to the Patient Summary page.  Now click 'Edit' next to the Immunizations section.  This <br>page contains a form for entering information on the any immunizations the patient has received.<br>
+Select the type of immunization from the drop-down list provided, and enter any data you may have, including <br>the date of the shot, and the name of the provider who administered it.  <br>
+Click 'Save Immunization'.  The newly added immunization now appears in the list at the bottom of the screen.<br>
+48<br>
+<hr>
+<A name=49></a><IMG src="OpenEMR_4.0_Users_Guide-49_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-49_2.jpg"><br>
+Return to the Summary page via the navigation menu on the left.  Notice that the lower left portion of the <br>patient summary now shows an updated list of all active issues, immunizations and prescriptions. <br>
+49<br>
+<hr>
+<A name=50></a><IMG src="OpenEMR_4.0_Users_Guide-50_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-50_2.jpg"><br>
+Patient Notes &amp; Transactions<br>
+Patient notes store patient information that is unrelated to the patient's medical condition. Such information may <br>include outstanding balances, changing insurance information or patient requests for actions by the clinic.<br>
+Transactions are somewhat similar, but record events that have already occurred. These may be referrals, <br>requests from either the patient or the doctor, or legal transactions.<br>
+<b>Patient Notes</b><br>
+To begin, log in to OpenEMR, and use the search function in the lower left-hand corner to locate the patient for <br>which you would like to add a note.  <br>
+Click on the desired patient to bring up the Patient Summary page.<br>
+50<br>
+<hr>
+<A name=51></a><IMG src="OpenEMR_4.0_Users_Guide-51_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-51_2.jpg"><br>
+If the user is not Authorized they will be unable to see the patient's medical details such as issues, <br>immunizations and prescriptions.<br>
+Click 'Edit' next to the Notes section to bring up the Patient Notes page, then click 'Add'.<br>
+This will pop up a lightbox with a text field for entering the note, as well as drop-down lists for selecting the <br>type of note, and the person to whom the note is addressed.<br>
+Type your note in the text box and click 'Save as new note'.<br>
+The new note now appears in the list on the Patient Notes page. The checkbox is used to control whether the <br>note is &quot;active&quot;. Above are options to view only the active or inactive notes. <br>
+Click 'View Patient' to return to the patient summary.<br>
+The new note is now listed on the Summary page.<br>
+51<br>
+<hr>
+<A name=52></a><IMG src="OpenEMR_4.0_Users_Guide-52_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-52_2.jpg"><br>
+<b>Transactions</b><br>
+Select 'Transactions' at the top of the Patient Summary to go to the Transactions page.<br>
+The Transactions page contains two basic form types.  A simple form for internal transactions such as patient <br>requests or billing transactions, and a Referral form.<br>
+<b>Referrals</b><br>
+Click 'Add' and select 'Referral' from the drop-down list to begin a new Referral transaction.<br>
+Another drop-down contains a list of physicians and clinics from the Address Book to which you can refer your <br>patient.  Select the referring physician, risk level, etc., and enter a reason for the referral.<br>
+52<br>
+<hr>
+<A name=53></a><IMG src="OpenEMR_4.0_Users_Guide-53_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-53_2.jpg"><br>
+Click 'Save'.<br>
+The referral is now in the Patient Transactions list.  <br>
+Click 'Print' next to the transaction to generate a printable version of the Referral form.<br>
+Depending on your system's configuration, you may be asked to save the file, or it may be printed <br>automatically.<br>
+53<br>
+<hr>
+<A name=54></a><IMG src="OpenEMR_4.0_Users_Guide-54_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-54_2.jpg"><br>
+When you are finished return to the Transaction list and click 'Add'.<br>
+<b>Basic Transactions</b><br>
+Other transaction types use the simple transaction form. Select the desired type from the list and enter the <br>transaction details in the text box provided.  Click 'Save' when finished.<br>
+The new transaction has now been added to the list along with the referral.  Click 'Edit' next to a transaction to <br>edit its contents.<br>
+54<br>
+<hr>
+<A name=55></a><IMG src="OpenEMR_4.0_Users_Guide-55_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-55_2.jpg"><br>
+Basic Billing<br>
+Only the Administrator, authorized users, and those with Access Control designated as 'Accounting' in their user <br>profile can access OpenEMR's Billing system.<br>
+To begin, log in with your designated username and password.<br>
+Select 'Fees - Billing' from the navigation menu on the left.  This brings you to the main Billing screen.  This <br>
+55<br>
+<hr>
+<A name=56></a><IMG src="OpenEMR_4.0_Users_Guide-56_1.jpg"><br>
+will present you with options to generate a variety of printable and electronic claims and reports.<br>
+<b>Billing Reports</b><br>
+The Billing Report page will automatically display any billable encounters that were generated today.  To view <br>billables from a different time period enter the 'From' and 'To' dates using the date selection tool, and click <br>'Update List' in the top right corner of the screen.<br>
+The list should now display all billables from the selected date range.<br>
+56<br>
+<hr>
+<A name=57></a><IMG src="OpenEMR_4.0_Users_Guide-57_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-57_2.jpg"><br>
+<b>Generating Claims</b><br>
+Clicking the checkbox to the right of the desired encounter will enable a set of buttons for generating claims. <br>Your system should be configured with the appropriate set of forms for the insurance companies and <br>clearinghouses used by your clinic.<br>
+Click 'Generate X12' to create a claim file that is suitable for sending to the clearinghouse.<br>
+57<br>
+<hr>
+<A name=58></a><IMG src="OpenEMR_4.0_Users_Guide-58_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-58_2.png"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-58_3.jpg"><br>
+OpenEMR will present you with a confirmation popup, reminding you to check the log file after you have <br>finished generating your claims.<br>
+Click 'OK' to proceed.<br>
+The standard Save File dialog should appear, allowing you to save the generated batch file to your computer.  <br>
+Once the file has been saved, click 'View Log' to check whether the claims were generated successfully.<br>
+58<br>
+<hr>
+<A name=59></a><IMG src="OpenEMR_4.0_Users_Guide-59_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-59_2.jpg"><br>
+If there were any errors in the claim generation process, they will be displayed here.  Otherwise you will see a <br>note indicating that the file was generated successfully.<br>
+The downloaded claim file should contain the necessary encounter information, formatted for billing.  This is <br>what will be sent to the clearinghouse, by whatever method has been specified. <br>
+Uncheck 'Show Unbilled Only' and click 'Update List' to refresh the billing list and see the updated status of the <br>encounter.<br>
+59<br>
+<hr>
+<A name=60></a><IMG src="OpenEMR_4.0_Users_Guide-60_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-60_2.jpg"><br>
+Click 'Mark as Cleared' to indicate that billing has been completed for this encounter.<br>
+You will then be presented with a screen indicating that the claim has been "marked as billed only."<br>
+Click 'Back' to return to the Billing Report page.<br>
+60<br>
+<hr>
+<A name=61></a><IMG src="OpenEMR_4.0_Users_Guide-61_1.jpg"><br>
+<b>Generating HCFA Forms</b><br>
+In OpenEMR multiple forms may be generated for each claim.  <br>
+For example, re-enter the desired date range, uncheck 'Show Unbilled Only' and click 'Update List' again to <br>show the current status of the claim.  You can see that the claim has been "Marked as cleared."<br>
+Check the box to the right of the encounter and click 'Generate CMS 1500'.<br>
+OpenEMR will now generate a PDF of the HCFA claim, based on the standard HCFA form template.  The new <br>form can be viewed using a PDF viewer, or printed automatically on a pre-printed HCFA 1500 form, depending <br>on your system's configuration.  <br>
+61<br>
+<hr>
+<A name=62></a><IMG src="OpenEMR_4.0_Users_Guide-62_1.jpg"><br>
+Returning to the Billing Report and clicking 'Update List', you can see that the status of the billable encounter <br>has been updated.<br>
+62<br>
+<hr>
+<A name=63></a><IMG src="OpenEMR_4.0_Users_Guide-63_1.jpg"><br>
+63<br>
+<hr>
+<A name=64></a><IMG src="OpenEMR_4.0_Users_Guide-64_1.jpg"><br>
+Accounting &amp; Receivables<br>
+Users classified as Accounting or Administrator are also authorized to enter receivables for the clinic.  Checks <br>received from insurance companies can be entered here and distributed to cover the appropriate encounters. <br>Patients can also be billed, and their payments recorded.<br>
+<b>Explanation of Benefits </b><br>
+To begin, select 'Fees - Billing' from the navigation menu and click 'EOBs' to bring up the Explanation of <br>Benefits Search window.  This is where you can upload an ERA file (click 'Help' in the upper right-hand corner <br>for more information) or begin inputting payments manually.<br>
+At the top you may enter a source ( Eg. check number ), pay date and check amount. The amount field will be <br>automatically decremented as payments are entered into the associated invoices.  When all invoices have been <br>completed this value should be zero.<br>
+64<br>
+<hr>
+<A name=65></a><IMG src="OpenEMR_4.0_Users_Guide-65_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-65_2.jpg"><br>
+The search fields, with the blue background, are for locating a specific invoice (or invoices).  Enter the <br>appropriate parameters, such as the date of service, and click 'Search' to bring up a list of all invoices (claims) <br>matching the requested parameters.<br>
+The list shows the patient and invoice number, as well as the current balance to be paid.  The number with a '-' <br>in the 'Prv' column indicates the number of insurance companies for which this invoice is awaiting payment.<br>
+<b>Entering Payments</b><br>
+Clicking the invoice number you wish to work with opens the EOB Invoice window.  Notice that the source and <br>pay date from the previous window have been copied over; this saves time in the common case where a single <br>check from the insurance company pays for multiple claims. <br>
+65<br>
+<hr>
+<A name=66></a><IMG src="OpenEMR_4.0_Users_Guide-66_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-66_2.jpg"><br>
+The EOB Invoice page contains a detailed list of payments made on this invoice so far.  Enter the payment <br>amount next to the remaining balance, and check 'Needs secondary billing'.  This will allow the claim to be re-<br>billed to the secondary insurance. Select 'Done with Ins1' above to indicate that the primary insurance EOB has <br>been posted.  When you are finished, click 'Save'.<br>
+Once payment has been billed and received from secondary insurance, it can be entered in the same way.  Enter <br>the source and pay date, etc. and locate the appropriate invoice(s) using the search function.  <br>
+Payment amounts are now shown along with the remaining balance.  The number in the 'Prv' column has also <br>decreased.  Select the invoice number to bring up the EOB Invoice window again.<br>
+66<br>
+<hr>
+<A name=67></a><IMG src="OpenEMR_4.0_Users_Guide-67_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-67_2.jpg"><br>
+Enter the payment amount and select 'Ins2' to indicate that the secondary insurance EOB has been posted.<br>
+Invoice adjustments may also be made here.  Enter the adjustment amount (or click 'W' to waive the entire <br>remaining balance), and select a reason for the adjustment from the drop-down list provided.  Click 'Save' when <br>finished.<br>
+<b>Patient Invoices and Payments</b><br>
+Once payments from the insurance companies have been received and entered, you can use OpenEMR's EOB <br>page to generate invoices for billing patients the remaining amounts.<br>
+Select 'Due Pt' from the drop-down list and click 'Search' to display a list of all invoices that are awaiting <br>payment from patients.  Invoices still awaiting payments from insurance companies will not be shown.<br>
+67<br>
+<hr>
+<A name=68></a><IMG src="OpenEMR_4.0_Users_Guide-68_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-68_2.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-68_3.jpg"><br>
+Check the box next to the desired invoice and click 'Print Selected Statements' to generate an invoice for that <br>patient using a customizable template.  Depending on your clinic's OpenEMR configuration, the invoice may be <br>printed automatically.<br>
+A '1' in the  'Prv' column now indicates that the patient has been billed once for this claim.  This number will <br>increment every time a new invoice is printed for this encounter.  This is useful when printing so that second <br>and later notices may be worded differently from the initial statement. <br>
+You can also click on the patient's name in the invoice list to create a billing note for that patient.  Enter your <br>note into the text field and click 'Save'.<br>
+Once payment has been received, it can be entered into the invoice in the same manner as the insurance <br>payments.  In the 'Now posting for' list be sure to select 'Patient'.  Enter the payment amount as before and click <br>'Save'.  <br>
+68<br>
+<hr>
+<A name=69></a><IMG src="OpenEMR_4.0_Users_Guide-69_1.jpg"><br>
+69<br>
+<hr>
+<A name=70></a><IMG src="OpenEMR_4.0_Users_Guide-70_1.jpg"><br>
+Reporting<br>
+Within OpenEMR there are a wide array of reports you can generate which may be useful for your practice. <br>These include general reports such as appointment and encounter reports, billing reports, and patient specific <br>reporting.<br>
+<b>General Reports</b><br>
+Most general reporting tools can be found by selecting 'Reports' from the navigation menu at left.  In the Tree <br>View scheme, the list of available reports is divided into a hierarchical list within the navigation menu.<br>
+<b>Examples of Commonly Used Reports</b><br>
+Clicking 'Reports – Visits – Superbill' brings up the Superbill Report page.  This presents you with a dialog for <br>selecting a date range.  <br>
+70<br>
+<hr>
+<A name=71></a><IMG src="OpenEMR_4.0_Users_Guide-71_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-71_2.jpg"><br>
+Clicking 'Submit' produces a report for each encounter in the date range, and shows patient demographics and <br>insurance information <br>
+As well as the billing codes and amounts. <br>
+71<br>
+<hr>
+<A name=72></a><IMG src="OpenEMR_4.0_Users_Guide-72_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-72_2.jpg"><br>
+The Appointments Report ('Reports – Visits – Appointments') gives you a list of appointments for a given <br>provider, or for all providers, in a specified date range. It can be sorted by clicking on any of the four column <br>headings. <br>
+The Appointments and Encounters Report ( 'Reports – Visits – Appt-Enc' )gives you a useful cross-reference of <br>appointments with their corresponding encounters. This allows you to easily spot many types of errors, such as <br>appointments with missing encounters, encounters with missing appointments, missing charges, and <br>authorizations or justifications that are required but not done. <br>
+72<br>
+<hr>
+<A name=73></a><IMG src="OpenEMR_4.0_Users_Guide-73_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-73_2.jpg"><br>
+The Insurance Distribution report (listed under 'Reports – Insurance) shows you how many patients seen over a <br>given time period use each kind of insurance. <br>
+The Indigent Patients report lists all encounters for patients that were seen without insurance. (None shown <br>here.)<br>
+73<br>
+<hr>
+<A name=74></a><IMG src="OpenEMR_4.0_Users_Guide-74_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-74_2.jpg"><br>
+<b>Billing Reports</b><br>
+From the main Billing page click 'Reports', or select 'Reports – Financial – Cash Rec' from the navigation menu.<br>
+This is the Cash Receipts report.  It breaks down gross income by provider for a given time period. <br>
+74<br>
+<hr>
+<A name=75></a><IMG src="OpenEMR_4.0_Users_Guide-75_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-75_2.jpg"><br>
+The user can also elect to see a detailed breakdown of cash receipts, itemizing each procedure for which a <br>charge was made.  <br>
+<b>Patient Reports</b><br>
+When a patient is active within the system, the user has the option of generating a report for that specific <br>patient.  To do so, click on 'Report' at the top of the Patient Summary page.<br>
+The user can choose to include or omit a wide variety of patient information. When satisfied with your <br>selections, click 'Generate Report'.<br>
+75<br>
+<hr>
+<A name=76></a><IMG src="OpenEMR_4.0_Users_Guide-76_1.jpg"><br>
+<IMG src="OpenEMR_4.0_Users_Guide-76_2.jpg"><br>
+This produces a report including all the specified patient information.<br>
+76<br>
+<hr>
+<A name=77></a><IMG src="OpenEMR_4.0_Users_Guide-77_1.jpg"><br>
+77<br>
+<hr>
+</BODY>
+</HTML>

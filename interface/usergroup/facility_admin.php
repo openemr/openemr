@@ -36,9 +36,8 @@ parent.$.fn.fancybox.close();
 <script type="text/javascript">
 function submitform() {
     if (document.forms[0].facility.value.length>0) {
+        top.restoreSession();
         document.forms[0].submit();
-        parent.$.fn.fancybox.close();
-		parent.location.reload();
     } else {
         document.forms[0].facility.style.backgroundColor="red";
         document.forms[0].facility.focus();
@@ -70,7 +69,7 @@ $(document).ready(function(){
   </tr>
 </table>
 
-<form name='facility' method='post' action="facilities.php" >
+<form name='facility' method='post' action="facilities.php" target="_parent">
     <input type=hidden name=mode value="facility">
     <input type=hidden name=newmode value="admin_facility">	<!--	Diffrentiate Admin and add post backs -->
     <input type=hidden name=fid value="<?php echo $my_fid;?>">

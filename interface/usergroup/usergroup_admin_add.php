@@ -1,7 +1,7 @@
 <?php
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/md5.js");
+require_once("$srcdir/sha1.js");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
@@ -40,7 +40,8 @@ function submitform() {
 				}
 			}
 		} //secure_pwd if ends here
-		document.forms[0].newauthPass.value=MD5(document.forms[0].stiltskin.value);
+		// ViCareplus : As per NIST standard, SHA1 encryption algorithm is used		
+		document.forms[0].newauthPass.value=SHA1(document.forms[0].stiltskin.value);
 		document.forms[0].stiltskin.value='';
 		document.forms[0].submit();
 	} else {

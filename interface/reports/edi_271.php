@@ -55,7 +55,7 @@
 			{
 				if(move_uploaded_file($_FILES['uploaded']['tmp_name'], $target)) 
 				{ 
-					$message	= htmlspecialchars( xl('The following EDI file has been uploaded:').' "'. basename( $_FILES['uploaded']['name']).'"', ENT_NOQUOTES); 
+					$message	= htmlspecialchars( xl('The following EDI file has been uploaded').': "'. basename( $_FILES['uploaded']['name']).'"', ENT_NOQUOTES); 
 					
 					// Stores the content of the file    
 					$Response271= file($FilePath);

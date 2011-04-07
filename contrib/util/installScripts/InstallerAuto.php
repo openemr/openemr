@@ -42,6 +42,8 @@
 //                         Advanced option of multi site module to allow cloning/mirroring of another local site.
 //     clone_database -> if set to anything, then will clone database from source_site_id ()
 //                         Advanced option of multi site module to allow cloning/mirroring of another local database.
+//     development_translations -> If set to anything, will then download and use the development set (updated daily)
+//                                   of translations from the github repository.
 //
 //     Examples of use:
 //     1) Install using default configuration settings
@@ -89,6 +91,7 @@ $installSettings['collate'] = 'utf8_general_ci';
 $installSettings['site'] = 'default';
 $installSettings['source_site_id'] = 'BLANK';
 $installSettings['clone_database'] = 'BLANK';
+$installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
 for ($i=1;$i < count($argv); $i++) {

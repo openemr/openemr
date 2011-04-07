@@ -29,6 +29,24 @@ function oeFormatShortDate($date='today') {
   return $date;
 }
 
+// 0 - Time format 24 hr
+// 1 - Time format 12 hr
+function oeFormatTime( $time, $format = "" ) 
+{
+	$formatted = $time;
+	if ( $format == "" ) {
+		$format = $GLOBALS['time_display_format'];
+	}
+	
+	if ( $format == 0 ) {
+		$formatted = date( "H:i", strtotime( $time ) );	
+	} else if ( $format == 1 ) {
+		$formatted = date( "g:i a", strtotime( $time ) );		
+	}
+	
+	return $formatted;
+}
+
 // Format short date from time.
 function oeFormatSDFT($time) {
   return oeFormatShortDate(date('Y-m-d', $time));

@@ -137,7 +137,7 @@ require_once("$srcdir/billing.inc");
         }
         $StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit'  name='CheckSubmit' value='Submit'/></td></tr>";
         if($WarningFlag==true)
-            $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>".htmlspecialchars( xl('Warning Cheque Number already exist in the database'), ENT_QUOTES)."</td></tr>";
+            $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>".htmlspecialchars( xl('Warning, Check Number already exist in the database'), ENT_QUOTES)."</td></tr>";
          $StringToEcho.="</table>";
         }
         else

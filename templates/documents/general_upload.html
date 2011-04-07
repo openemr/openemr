@@ -10,7 +10,15 @@
     {xl t="Upload Document"} {if $category_name} {xl t="to category"} '{$category_name}'{/if}
 </div>
 <div class="text">
-    <input type="file" name="file"> <input type="submit" value="{xl t='Upload'}">
+    <p><span>{xl t="Source File Path"}:</span> <input type="file" name="file" id="source-name"/></p>
+    <p><span title="{xl t='Leave Blank To Keep Original Filename'}">{xl t="Optional Destination Name"}:</span> <input type="text" name="destination" title="{xl t='Leave Blank To Keep Original Filename'}" id="destination-name" /></p>
+    {if !$hide_encryption}
+	</br>
+	<p><span title="{xl t='Check the box if this is an encrypted file'}">{xl t="Is The File Encrypted?"}:</span> <input type="checkbox" name="encrypted" title="{xl t='Check the box if this is an encrypted file'}" id="encrypted" /></p>
+	<p><span title="{xl t='Pass phrase to decrypt document'}">{xl t="Pass Phrase"}:</span> <input type="text" name="passphrase" title="{xl t='Pass phrase to decrypt document'}" id="passphrase" /></p>
+	<p><i>{xl t='Supports TripleDES encryption/decryption only.'}</i></p>
+    {/if}
+    <p><input type="submit" value="{xl t='Upload'}" /></p>
 </div>
 {if !empty($file)}
 <div class="text bold">
@@ -24,6 +32,7 @@
     {xl t='URL'}: {$file->get_url()}<br>
     {xl t='Size'}: {$file->get_size()}<br>
     {xl t='Date'}: {$file->get_date()}<br>
+    {xl t='Hash'}: {$file->get_hash()}<br>
     {xl t='MimeType'}: {$file->get_mimetype()}<br>
     {xl t='Revision'}: {$file->revision}<br>
 </div>

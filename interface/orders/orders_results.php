@@ -11,6 +11,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("../orders/lab_exchange_tools.php");
 
 // Indicates if we are entering in batch mode.
 $form_batch = empty($_GET['batch']) ? 0 : 1;
@@ -331,8 +332,9 @@ if ($form_batch) {
 <?php
 } // end header for batch option
 ?>
-   <input type='checkbox' name='form_all' value='1'<?php if ($_POST['form_all']) echo " checked"; ?>><?php xl('Include Completed','e') ?>
-   &nbsp;
+   <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
+<!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) echo " checked"; ?>><?php xl('Include Completed','e') ?>
+   &nbsp;-->
    <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
   </td>
  </tr>
@@ -403,9 +405,12 @@ $orderby =
   "ptrc.seq, ptrc.name, ptrc.procedure_type_id, " .
   "pt2.seq, pt2.name, pt2.procedure_type_id";
 
-$where = empty($_POST['form_all']) ?
-  "( pr.report_status IS NULL OR pr.report_status = '' OR pr.report_status = 'prelim' )" :
-  "1 = 1";
+// removed by jcw -- check/submit sequece too tedious.  This is a quick fix
+//$where = empty($_POST['form_all']) ?
+//  "( pr.report_status IS NULL OR pr.report_status = '' OR pr.report_status = 'prelim' )" :
+//  "1 = 1";
+
+ $where = "1 = 1";
 
 if ($form_batch) {
   $res = sqlStatement("SELECT po.patient_id, " .
@@ -430,6 +435,7 @@ $encount = 0;
 $lino = 0;
 $extra_html = '';
 $lastrcn = '';
+$facilities = array();
 
 while ($row = sqlFetchArray($res)) {
   $order_id  = empty($row['procedure_order_id' ]) ? 0 : ($row['procedure_order_id' ] + 0);
@@ -459,7 +465,13 @@ while ($row = sqlFetchArray($res)) {
   $units_name       = empty($row['units_name'      ]) ? xl('Units not defined') : $row['units_name'];
 
   $review_status    = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
-  
+
+  //echo $facility. "<br>";
+  if($facility <> "" && !in_array($facility, $facilities))
+  {
+      $facilities[] = $facility;
+  }
+
   // skip report_status = receive to make sure do not show the report before it reviewed and sign off by Physicians
   if ($form_review) {
     if ($review_status == "reviewed") continue;
@@ -613,13 +625,36 @@ while ($row = sqlFetchArray($res)) {
     "</textarea></td></tr>\n" .
     "</table>\n" .
     "<p><center><input type='button' value='" . xl('Close') . "' " .
-    "onclick='extShow($lino, false)' /></center></p>\n" .
-    "</div>\n";
+    "onclick='extShow($lino, false)' /></center></p>\n".
+    "</div>";
 
   $lastpoid = $order_id;
   $lastprid = $report_id;
   ++$lino;
+
 }
+// display facility information
+$extra_html .= "<table>";
+$extra_html .= "<th>". xl('Performing Laboratory Facility') . "</th>";
+foreach($facilities as $facilityID)
+{
+    foreach(explode(":", $facilityID) as $lab_facility)
+    {
+
+        $facility_array = getFacilityInfo($lab_facility);
+        if($facility_array)
+        {
+            $extra_html .=
+                "<tr><td><hr></td></tr>" .
+                "<tr><td>". htmlspecialchars($facility_array['fname']) . " " . htmlspecialchars($facility_array['lname']) . ", " . htmlspecialchars($facility_array['title']). "</td></tr>" .
+                "<tr><td>". htmlspecialchars($facility_array['organization']) . "</td></tr>" .
+                "<tr><td>". htmlspecialchars($facility_array['street']) . " " .htmlspecialchars($facility_array['city']) . " " . htmlspecialchars($facility_array['state']) . "</td></tr>" .
+                "<tr><td>". htmlspecialchars(formatPhone($facility_array['phone'])) . "</td></tr>";
+        }
+    }
+}
+
+$extra_html .= "</table>\n";
 ?>
 </table>
 

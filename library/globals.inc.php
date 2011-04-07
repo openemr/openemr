@@ -17,6 +17,7 @@
 // Otherwise configure it as needed (print /d:PRN) might be an option for Windows parallel printers
 
 //  Current supported languages:    // Allow capture of term for translation:
+//   Amharic                        // xl('Amharic')
 //   Arabic                         // xl('Arabic')
 //   Armenian                       // xl('Armenian')
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
@@ -30,6 +31,7 @@
 //   German                         // xl('German')
 //   Greek                          // xl('Greek')
 //   Hebrew                         // xl('Hebrew')
+//   Italian                        // xl('Italian')
 //   Norwegian                      // xl('Norwegian')
 //   Polish                         // xl('Polish')
 //   Portuguese (Brazilian)         // xl('Portuguese (Brazilian)')
@@ -65,6 +67,16 @@ else {
 // xl('Notifications')
 // xl('Miscellaneous')
 
+// List of user specific tabs and globals
+$USER_SPECIFIC_TABS = array('Appearance',
+                            'Locale');
+$USER_SPECIFIC_GLOBALS = array('default_top_pane',
+                               'concurrent_layout',
+                               'css_header',
+                               'units_of_measurement',
+                               'date_display_format',
+                               'time_display_format');
+
 $GLOBALS_METADATA = array(
 
   // Appearance Tab
@@ -87,22 +99,23 @@ $GLOBALS_METADATA = array(
         '0' => xl('Old style layout with no left menu'),
         '1' => xl('Navigation menu consists of pairs of radio buttons'),
         '2' => xl('Navigation menu is a tree view'),
+        '3' => xl('Navigation uses a sliding menu'),
       ),
-      '2',                              // default = tree menu
+      '3',                              // default = tree menu
       xl('Type of screen layout')
     ),
 
     'css_header' => array(
       xl('Theme'),
       'css',
-      'style_default.css',
+      'style_oemr.css',
       xl('Pick a CSS theme.')
     ),
 
     'gbl_nav_area_width' => array(
       xl('Navigation Area Width'),
       'num',
-      '130',
+      '150',
       xl('Width in pixels of the left navigation frame.')
     ),
 
@@ -197,6 +210,13 @@ $GLOBALS_METADATA = array(
       xl('Select which languages, if any, may be chosen at login. (only pertinent if above All Languages Allowed is turned off)')
     ),
 
+    'allow_debug_language' => array(
+      xl('Allow Debugging Language'),
+      'bool',                           // data type
+      '1',                              // default = true during development and false for production releases
+      xl('This will allow selection of the debugging (\'dummy\') language.')
+    ),
+
     'translate_layout' => array(
       xl('Translate Layouts'),
       'bool',                           // data type
@@ -275,6 +295,16 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Format used to display most dates.')
     ),
+    
+    'time_display_format' => array(
+      xl('Time Display Format'),
+      array(
+        '0' => xl('24 hr'),
+        '1' => xl('12 hr'),
+      ),
+      '0',
+      xl('Format used to display most times.')
+    ),
 
     'currency_decimals' => array(
       xl('Currency Decimal Places'),
@@ -313,8 +343,7 @@ $GLOBALS_METADATA = array(
       xl('Currency Designator'),
       'text',                           // data type
       '$',                              // default
-      xl('Code or symbol to indicate currency') . '. ' . xl('Examples') .
-        ': USD GBP EUR $ £ €'
+      xl('Code or symbol to indicate currency')
     ),
 
   ),
@@ -485,6 +514,13 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',                              // default = false
       xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
+    ),
+    
+    'hide_document_encryption' => array(
+      xl('Hide Encryption/Decryption Options In Document Management'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('This will deactivate document the encryption and decryption features, and hide them in the UI.')
     ),
 
   ),
@@ -792,7 +828,7 @@ $GLOBALS_METADATA = array(
       xl('Enable Audit Logging'),
       'bool',                           // data type
       '1',                              // default
-      xl('Enable Audit Logging.')
+      xl('Enable Audit Logging')
     ),
 
     'audit_events_patient-record' => array(
@@ -1034,7 +1070,7 @@ $GLOBALS_METADATA = array(
     ),
 
     'enable_scanner' => array(
-      xl('Enable Scanner support'),
+      xl('Enable Scanner Support'),
       'bool',                           // data type
       '0',                              // default
       xl('Enable Scanner Support')
@@ -1045,6 +1081,40 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       '/mnt/scan_docs',                 // default
       xl('Location where scans are stored.')
+    ),
+
+  ),
+
+  // Connectors Tab
+  //
+  'Connectors' => array(
+
+    'lab_exchange_enable' => array(
+      xl('Enable Lab Exchange'),
+      'bool',                           // data type
+      '0',
+      xl('Enable the OpenEMR Support LLC Lab Exchange Service.')
+    ),
+
+    'lab_exchange_siteid' => array(
+      xl('Lab Exchange Site ID'),
+      'text',                           // data type
+      '3',
+      xl('Site ID for the OpenEMR Support LLC Lab Exchange Service.')
+    ),
+
+    'lab_exchange_token' => array(
+      xl('Lab Exchange Token ID'),
+      'text',                           // data type
+      '12345',
+      xl('Token ID for the OpenEMR Support LLC Lab Exchange Service.')
+    ),
+
+    'lab_exchange_endpoint' => array(
+      xl('Lab Exchange Site Address'),
+      'text',                           // data type
+      'https://openemrsupport.com:29443/len/api',
+      xl('Https link for the OpenEMR Support LLC Lab Exchange Service.')
     ),
 
   ),

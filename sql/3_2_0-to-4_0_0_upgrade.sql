@@ -998,3 +998,19 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('date_master_criteria', 'last_calendar_year', 'Last Calendar Year', 70, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('date_master_criteria', 'custom', 'Custom', 80, 0);
 #EndIf
+
+#IfTable globals
+UPDATE globals SET gl_value = 'style_oemr.css' WHERE gl_name = 'css_header' AND gl_value = 'style_default.css';
+#EndIf
+
+#IfTable user_settings
+UPDATE user_settings SET setting_value = 'style_oemr.css' WHERE setting_label = 'global:css_header' AND setting_value = 'style_default.css';
+#EndIf
+
+#IfMissingColumn documents hash
+ALTER TABLE documents ADD hash varchar(40) DEFAULT NULL COMMENT '40-character SHA-1 hash of document';
+#EndIf
+
+#IfTable users
+UPDATE users SET pwd_history1='',pwd_history2='';
+#EndIf

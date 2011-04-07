@@ -190,6 +190,20 @@ $GLOBALS['sell_non_drug_products'] = 0;
 
 $glrow = sqlQuery("SHOW TABLES LIKE 'globals'");
 if (!empty($glrow)) {
+  // Collect user specific settings from user_settings table.
+  //
+  $gl_user = array();
+  if (!empty($_SESSION['authUserID'])) {
+    $glres_user = sqlStatement("SELECT `setting_label`, `setting_value` " .
+      "FROM `user_settings` " .
+      "WHERE `setting_user` = ? " .
+      "AND `setting_label` LIKE 'global:%'", array($_SESSION['authUserID']) );
+    for($iter=0; $row=sqlFetchArray($glres_user); $iter++) {
+      //remove global_ prefix from label
+      $row['setting_label'] = substr($row['setting_label'],7);
+      $gl_user[$iter]=$row;
+    }
+  }
   // Set global parameters from the database globals table.
   // Some parameters require custom handling.
   //
@@ -199,6 +213,14 @@ if (!empty($glrow)) {
   while ($glrow = sqlFetchArray($glres)) {
     $gl_name  = $glrow['gl_name'];
     $gl_value = $glrow['gl_value'];
+    // Adjust for user specific settings
+    if (!empty($gl_user)) {
+      foreach ($gl_user as $setting) {
+        if ($gl_name == $setting['setting_label']) {
+          $gl_value = $setting['setting_value'];
+        }
+      }
+    }
     if ($gl_name == 'language_menu_other') {
       $GLOBALS['language_menu_show'][] = $gl_value;
     }
@@ -216,7 +238,7 @@ if (!empty($glrow)) {
       else if ($gl_value == '3') $GLOBALS['sell_non_drug_products'] = 2;
     }
     else {
-      $GLOBALS[$gl_name] = $glrow['gl_value'];
+      $GLOBALS[$gl_name] = $gl_value;
     }
   }
   // Language cleanup stuff.
@@ -346,20 +368,6 @@ $GLOBALS['layout_search_color'] = '#ffff55';
 
 //EMAIL SETTINGS
 $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
-
-// The following credentials are provided by OpenEMR Support LLC for testing.
-// When you sign up with their Lab Exchange service, they will provide you with your own credentials.
-
-/* use this for testing
-$LAB_EXCHANGE_SITEID   = "3";
-$LAB_EXCHANGE_TOKEN    = "12345";
-$LAB_EXCHANGE_ENDPOINT = "https://openemrsupport.com:29443/len/api";
-*/
-
-$LAB_EXCHANGE_SITEID   = "";
-$LAB_EXCHANGE_TOKEN    = "";
-$LAB_EXCHANGE_ENDPOINT = "";
-
 
 // Customize these if you are using SQL-Ledger with OpenEMR, or if you are
 // going to run sl_convert.php to convert from SQL-Ledger.

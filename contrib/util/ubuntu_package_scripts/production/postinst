@@ -162,15 +162,19 @@ case "$1" in
 
          #upgrade the sql database
          CONC_VERSION=$(echo $OLD_VERSION | cut -d \- -f 1)
-         cp -f $OPENEMR/sql_upgrade.php $OPENEMR/TEMPsql_upgrade.php
+         echo "<?php \$_GET['site'] = 'default'; ?>" > $OPENEMR/TEMPsql_upgrade.php
+         cat $OPENEMR/sql_upgrade.php >> $OPENEMR/TEMPsql_upgrade.php
          sed -i "/input type='submit'/d" $OPENEMR/TEMPsql_upgrade.php
          sed -i "s/!empty(\$_POST\['form_submit'\])/empty(\$_POST\['form_submit'\])/" $OPENEMR/TEMPsql_upgrade.php
          sed -i "s/^[ 	]*\$form_old_version[ 	=].*$/\$form_old_version = \"$CONC_VERSION\";/" $OPENEMR/TEMPsql_upgrade.php
          php -f $OPENEMR/TEMPsql_upgrade.php >> $LOG
-         rm $OPENEMR/TEMPsql_upgrade.php                  
+         rm -f $OPENEMR/TEMPsql_upgrade.php                  
 
          #upgrade the gacl controls
-         php -f $OPENEMR/acl_upgrade.php >> $LOG
+         echo "<?php \$_GET['site'] = 'default'; ?>" > $OPENEMR/TEMPacl_upgrade.php
+         cat $OPENEMR/acl_upgrade.php >> $OPENEMR/TEMPacl_upgrade.php
+         php -f $OPENEMR/TEMPacl_upgrade.php >> $LOG
+         rm -f $OPENEMR/TEMPacl_upgrade.php
 
          #copy the old config file into new with the OLD at end to allow manual configuration of old
          # optional settings.
@@ -209,6 +213,7 @@ case "$1" in
          chmod 600 $OPENEMR/sql_upgrade.php
          chmod 600 $OPENEMR/ippf_upgrade.php
          chmod 600 $OPENEMR/gacl/setup.php
+         chmod 600 $OPENEMR/admin.php
 
          #set writable directories
          chown -R $WEB_GROUP.$WEB_USER $SITEDIR/documents

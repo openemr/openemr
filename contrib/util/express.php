@@ -144,7 +144,8 @@ if ($upgrade != 1) {
 		flush();
 		break;
 	}
-	if (mysql_query("INSERT INTO users (id, username, password, authorized, lname,fname) VALUES (1,'$iuser','1a1dc91c907325c69271ddf0c944bc72',1,'$iuname','')") == FALSE) {
+	//// ViCareplus : As per NIST standard, SHA1 hash/digest of 'pass' is used
+	if (mysql_query("INSERT INTO users (id, username, password, authorized, lname,fname) VALUES (1,'$iuser','9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684',1,'$iuname','')") == FALSE) {
 		echo "ERROR.  Could not run queries.\n";
 		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		flush();

@@ -130,6 +130,8 @@ upgrade_function () {
             OLD_VERSION="3.1.0-1" 
          elif [ "$OLD_VERSION" == "3.2.0" ]; then
             OLD_VERSION="3.2.0-1"
+         elif [ "$OLD_VERSION" == "3.2.0.1" ]; then
+            OLD_VERSION="3.2.0-1"
          else
             unable_exit "Unable to upgrade from $OLD_VERSION version package with $UPGRADETYPE method, so can not upgrade the OpenEMR Package."
          fi

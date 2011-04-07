@@ -1,12 +1,12 @@
 Package: cvs-openemr
-Version: 1.0.0-7
+Version: 1.0.0-8
 Maintainer: Brady Miller <brady@sparmy.com>
 Installed-Size: 46000
 Priority: optional
 Section: web
 Architecture: all
 Homepage: http://www.oemr.org/
-Depends: mysql-server, apache2-mpm-prefork, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, imagemagick, git-core
+Depends: mysql-server, apache2-mpm-prefork, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, php5-curl, php5-mcrypt, imagemagick, git-core
 Description: Comprehensive Medical Practice Management Application
  OpenEMR provides office scheduling, electronic medical records,
  prescriptions, insurance billing, accounting and access controls.

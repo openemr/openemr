@@ -37,8 +37,6 @@ function submitform() {
     if (document.forms[0].facility.value.length>0) {
         top.restoreSession();
         document.forms[0].submit();
-		parent.$.fn.fancybox.close();
-		parent.location.reload();
     } else {
         document.forms[0].facility.style.backgroundColor="red";
         document.forms[0].facility.focus();
@@ -113,7 +111,7 @@ $(document).ready(function(){
 
 <br>
 
-<form name='facility' method='post' action="facilities.php" onsubmit='return top.restoreSession()'>
+<form name='facility' method='post' action="facilities.php" target='_parent'>
     <input type=hidden name=mode value="facility">
     <table border=0 cellpadding=0 cellspacing=0>
         <tr>

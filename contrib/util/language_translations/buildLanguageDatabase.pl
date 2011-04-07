@@ -43,7 +43,7 @@ use strict;
 # was likely modified in the spreadsheet, and can then use log output
 # to localize and fix the problem.  As of list of 3.0.1 constants
 # the known number of mismatched constants is 57 .
-my $mismatchesKnown = 92;
+my $mismatchesKnown = 96;
 
 # Hold variables to calculate language database statistics
 my $totalConstants;
@@ -56,6 +56,7 @@ my $de = "\t";
 my $filenameOut;
 my $inputFilename;
 my $logFile = "log.txt";
+my $stats = "stats.txt";
 my $constantIdColumn = 0; # 0 is lowest
 my $constantColumn = 1; # 0 is lowest 
 my $constantRow = 5; # 0 is lowest
@@ -77,6 +78,9 @@ my $utf8;
 
 # open output file
 open(LOGFILE, ">$logFile") or die "unable to open log file";
+
+# open output file
+open(STATFILE, ">$stats") or die "unable to open stats file";
 
 # collect parameters
 if (@ARGV > 2) {
@@ -184,21 +188,53 @@ for (my $i=0;$i<2;$i++) {
 
  # calculate statistics
  if ($utf8) {
-  print LOGFILE "\nLanguage Statistics:\n";
-  print LOGFILE "Total number of english constants: ".$totalConstants."\n";
-  print LOGFILE "Total number of definitions: ".$totalDefinitions."\n";
   my $count = 0;
+  my $countLanguages = 0;
+  my $subtractDefinitions = 0;
   my @tempArray;
+  my @statArray;
   foreach my $var (@languages) {
-    if ($var ne "English") {
-     push (@tempArray, $var.": ".fstr((($numberConstantsLanguages[$count]/$totalConstants)*100),0)."% (".$numberConstantsLanguages[$count]." definitions)\n");
-     # push (@tempArray, $var.": ".($numberConstantsLanguages[$count])." definitions\n");
+   # push all info into the log file
+   push (@tempArray, $var.": ".fstr((($numberConstantsLanguages[$count]/$totalConstants)*100),2)."% (".$numberConstantsLanguages[$count]." definitions)\n");
+   if ($var eq "dummy") {
+    # do not count dummy language or dummy language constants
+    $subtractDefinitions += $numberConstantsLanguages[$count];
+   }
+   else {
+    if ($numberConstantsLanguages[$count] > 0) {
+     # only count non-empty languages in total count
+     $countLanguages += 1;
+     # only include non-empty and non-dummy languages in stats
+     push (@statArray, $var.": ".fstr((($numberConstantsLanguages[$count]/$totalConstants)*100),2)."% (".$numberConstantsLanguages[$count]." definitions)\n");     
+    }
    }
    $count += 1;
   }
+  print LOGFILE "\nLanguage Statistics:\n";
+  print STATFILE "\nLanguage Statistics:\n";
+
+  # Report total number of real non empty languages
+  print LOGFILE "Total number of languages with translations: ".$countLanguages."\n";
+  print STATFILE "Total number of languages with translations: ".$countLanguages."\n";
+
+  # Report total number of constants
+  print LOGFILE "Total number of constants: ".$totalConstants."\n";
+  print STATFILE "Total number of constants: ".$totalConstants."\n";
+
+  # Report total number of real definitions
+  print LOGFILE "Total number of real definitions: ".($totalDefinitions-$subtractDefinitions)."\n";
+  print STATFILE "Total number of real definitions: ".($totalDefinitions-$subtractDefinitions)."\n";
+
+  # Send log stat info
   my @sorted_tempArray = sort { lc($a) cmp lc($b) } @tempArray;
   foreach my $var (@sorted_tempArray) {
    print LOGFILE $var;
+  }
+
+  # Send official stat info
+  my @sorted_statArray = sort { lc($a) cmp lc($b) } @statArray;
+  foreach my $var (@sorted_statArray) {
+   print STATFILE $var;
   }
  }
 
@@ -217,7 +253,7 @@ for (my $i=0;$i<2;$i++) {
 }
 
 close(LOGFILE);
-
+close(STATFILE);
 
 #
 #

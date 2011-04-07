@@ -25,11 +25,16 @@ require_once("$srcdir/formatting.inc.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/formdata.inc.php");
 
+// "issue" parameter exists if we are being invoked by clicking an issue title
+// in the left_nav menu.  Currently that is just for athletic teams.  In this
+// case we only display encounters that are linked to the specified issue.
+$issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
+
  $accounting_enabled = $GLOBALS['oer_config']['ws_accounting']['enabled'];
  $INTEGRATED_AR = $accounting_enabled === 2;
 
  //maximum number of encounter entries to display on this page:
- $N = 12;
+ // $N = 12;
 
  // Get relevant ACL info.
  $auth_notes_a  = acl_check('encounters', 'notes_a');
@@ -104,6 +109,8 @@ function showDocument(&$drow) {
 <html>
 <head>
 <?php html_header_show();?>
+<!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
+<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/encounters.css" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
@@ -163,20 +170,31 @@ function editNote(feid) {
 </head>
 
 <body class="body_bottom">
-<div id="patient_pastenc"> <!-- large outer DIV -->
+<div id="encounters"> <!-- large outer DIV -->
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <!-- <a href='encounters_full.php'> -->
 <?php } else { ?>
 <!-- <a href='encounters_full.php' target='Main'> -->
 <?php } ?>
-<font class='title'><?php echo htmlspecialchars( xl('Past Encounters and Documents'), ENT_NOQUOTES); ?></font>
+<font class='title'>
+<?php
+if ($issue) {
+  echo htmlspecialchars(xl('Past Encounters for'), ENT_NOQUOTES) . ' ';
+  $tmp = sqlQuery("SELECT title FROM lists WHERE id = ?", array($issue));
+  echo htmlspecialchars($tmp['title'], ENT_NOQUOTES);
+}
+else {
+  echo htmlspecialchars(xl('Past Encounters and Documents'), ENT_NOQUOTES);
+}
+?>
+</font>
 &nbsp;&nbsp;
 
 <?php if ($billing_view) { ?>
-<a href='encounters.php?billing=0' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Clinical View'), ENT_NOQUOTES); ?>)</a>
+<a href='encounters.php?billing=0&issue=<?php echo $issue; ?>' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Clinical View'), ENT_NOQUOTES); ?>)</a>
 <?php } else { ?>
-<a href='encounters.php?billing=1' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Billing View'), ENT_NOQUOTES); ?>)</a>
+<a href='encounters.php?billing=1&issue=<?php echo $issue; ?>' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Billing View'), ENT_NOQUOTES); ?>)</a>
 <?php } ?>
 
 <br>
@@ -188,7 +206,9 @@ function editNote(feid) {
 <?php if ($billing_view) { ?>
   <th class='billing_note'><?php echo htmlspecialchars( xl('Billing Note'), ENT_NOQUOTES); ?></th>
 <?php } else { ?>
+<?php if (!$issue) { ?>
   <th><?php echo htmlspecialchars( xl('Issue'), ENT_NOQUOTES);       ?></th>
+<?php } ?>
   <th><?php echo htmlspecialchars( xl('Reason/Form'), ENT_NOQUOTES); ?></th>
   <th><?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES);    ?></th>
 <?php } ?>
@@ -211,7 +231,7 @@ function editNote(feid) {
 
 <?php
 $drow = false;
-if (! $billing_view) {
+if (!$billing_view && !$issue) {
     // Query the documents for this patient.
     $dres = sqlStatement("SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
                     "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
@@ -220,54 +240,47 @@ if (! $billing_view) {
     $drow = sqlFetchArray($dres);
 }
 
-$count = 0;
-if ($result = getEncounters($pid)) {
+// $count = 0;
 
-    if ($billing_view && $accounting_enabled && !$INTEGRATED_AR) SLConnect();
+$sqlBindArray = array();
+$query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " .
+  "FROM form_encounter AS fe " .
+  "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
+  "f.formdir = 'newpatient' AND f.deleted = 0 ";
+if ($issue) {
+  $query .= "JOIN issue_encounter AS ie ON ie.pid = ? AND " .
+    "ie.list_id = ? AND ie.encounter = fe.encounter ";
+  array_push($sqlBindArray, $pid, $issue);
+}
+$query .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? " .
+  "ORDER BY fe.date DESC, fe.id DESC";
+$sqlBindArray[] = $pid;
+$res4 = sqlStatement($query, $sqlBindArray);
 
-    foreach ($result as $iter ) {
-        /*************************************************************
-        // $count++; // Forget about limiting the number of encounters
-        if ($count > $N) {
-            //we have more encounters to print, but we've reached our display maximum
-            print "<tr><td colspan='4' align='center'>" .
-                "<a target='Main' href='encounters_full.php' class='alert' onclick='top.restoreSession()'>" .
-                xl('Some encounters were not displayed. Click here to view all.') .
-                "</a></td></tr>\n";
-            break;
-        }
-        *************************************************************/
+if ($billing_view && $accounting_enabled && !$INTEGRATED_AR) SLConnect();
 
-        // $href = "javascript:window.toencounter(" . $iter['encounter'] . ")";
+while ($result4 = sqlFetchArray($res4)) {
+
+        // $href = "javascript:window.toencounter(" . $result4['encounter'] . ")";
         $reason_string = "";
         $auth_sensitivity = true;
 
         $raw_encounter_date = '';
 
-        if ($result4 = sqlQuery("SELECT fe.*, u.fname, u.mname, u.lname " .
-          "FROM form_encounter AS fe " .
-          "LEFT JOIN users AS u ON u.id = fe.provider_id " .
-          "WHERE fe.encounter = ? " .
-          "AND fe.pid = ?", array($iter["encounter"],$pid) ))
-        {
-            $raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
-            $encounter_date = date("D F jS", strtotime($result4{"date"}));
+        $raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
+        $encounter_date = date("D F jS", strtotime($result4{"date"}));
 
-            // if ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser']))
-            $reason_string .= htmlspecialchars( $result4{"reason"}, ENT_NOQUOTES) . "<br>\n";
-            // else
-            //   $reason_string = "(No access)";
+        // if ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
+        $reason_string .= htmlspecialchars( $result4{"reason"}, ENT_NOQUOTES) . "<br>\n";
+        // else
+        //   $reason_string = "(No access)";
 
-            if ($result4['sensitivity']) {
-                $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
-                if (!$auth_sensitivity) {
-                    $reason_string = "(".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
-                }
+        if ($result4['sensitivity']) {
+            $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
+            if (!$auth_sensitivity) {
+                $reason_string = "(".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
             }
         }
-
-        $erow = sqlQuery("SELECT user FROM forms WHERE encounter = ? " .
-        "AND formdir = 'newpatient' LIMIT 1", array($iter['encounter']) );
 
         // This generates document lines as appropriate for the date order.
         while ($drow && $raw_encounter_date && $drow['docdate'] > $raw_encounter_date) {
@@ -280,15 +293,16 @@ if ($result = getEncounters($pid)) {
         $encarr = array();
         $encounter_rows = 1;
         if (!$billing_view && $auth_sensitivity &&
-            ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser'])))
+            ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser'])))
         {
-            $encarr = getFormByEncounter($pid, $iter['encounter'], "formdir, user, form_name, form_id, deleted");
+            $encarr = getFormByEncounter($pid, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
             $encounter_rows = count($encarr);
         }
 
-        $rawdata = $iter['encounter'] . "~" . oeFormatShortDate($raw_encounter_date);
-        echo "<tr class='encrow text' id='".htmlspecialchars( $rawdata, ENT_QUOTES) .
-	  "' title='" . htmlspecialchars( xl('View encounter','','',' ') . "$pid.{$iter['encounter']}", ENT_QUOTES) . "'>\n";
+        $rawdata = $result4['encounter'] . "~" . oeFormatShortDate($raw_encounter_date);
+        echo "<tr class='encrow text' id='" . htmlspecialchars($rawdata, ENT_QUOTES) .
+          "' title='" . htmlspecialchars(xl('View encounter','','',' ') .
+          "$pid.{$result4['encounter']}", ENT_QUOTES) . "'>\n";
 
         // show encounter date
         echo "<td valign='top'>" . htmlspecialchars( oeFormatShortDate($raw_encounter_date), ENT_NOQUOTES) . "</td>\n";
@@ -310,6 +324,7 @@ if ($result = getEncounters($pid)) {
         }
         else {
 
+          if (!$issue) { // only if listing for multiple issues
             // show issues for this encounter
             echo "<td>";
             if ($auth_med && $auth_sensitivity) {
@@ -318,7 +333,7 @@ if ($result = getEncounters($pid)) {
                                     "issue_encounter.pid = ? AND " .
                                     "issue_encounter.encounter = ? AND " .
                                     "lists.id = issue_encounter.list_id " .
-                                    "ORDER BY lists.type, lists.begdate", array($pid,$iter['encounter']) );
+                                    "ORDER BY lists.type, lists.begdate", array($pid,$result4['encounter']) );
                 for ($i = 0; $irow = sqlFetchArray($ires); ++$i) {
                     if ($i > 0) echo "<br>";
                     $tcode = $irow['type'];
@@ -330,6 +345,7 @@ if ($result = getEncounters($pid)) {
                 echo "(" . htmlspecialchars( xl('No access'), ENT_NOQUOTES) . ")";
             }
             echo "</td>\n";
+          } // end if (!$issue)
 
             // show encounter reason/title
             echo "<td>".$reason_string;
@@ -351,7 +367,8 @@ if ($result = getEncounters($pid)) {
                     ($auth_notes && $enc['user'] == $_SESSION['authUser']) ||
                     ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
                 else continue;
-    
+
+                /*****************************************************    
                 // build the potentially HUGE tooltip used by ttshow
                 $title = xl('View encounter');
                 //
@@ -373,10 +390,32 @@ if ($result = getEncounters($pid)) {
                     $title = htmlspecialchars(strtr($title, "\t\n\r", "   "), ENT_QUOTES);
                   }
                 } // end athletic team
-
                 echo "<span class='form_tt' title=\"$title\">";
                 echo htmlspecialchars( xl_form_title($enc['form_name']), ENT_NOQUOTES);
                 echo "</span><br>";
+                *****************************************************/
+
+                // Show the form name.  In addition, for the specific-issue case show
+                // the data collected by the form (this used to be a huge tooltip
+                // but we did away with that).
+                //
+                echo htmlspecialchars(xl_form_title($enc['form_name']), ENT_NOQUOTES);
+                echo "<br>";
+                if ($issue) {
+                  echo "<div class='encreport' style='padding-left:10px;'>";
+                  // Use the form's report.php for display.  Forms with names starting with LBF
+                  // are list-based forms sharing a single collection of code.
+                  $formdir = $enc['formdir'];
+                  if (substr($formdir,0,3) == 'LBF') {
+                    include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
+                    call_user_func("lbf_report", $pid, $result4['encounter'], 2, $enc['form_id'], $formdir);
+                  }
+                  else  {
+                    include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+                    call_user_func($formdir . "_report", $pid, $result4['encounter'], 2, $enc['form_id']);
+                  }
+                  echo "</div>";
+                }
 
             } // end encounter Forms loop
     
@@ -397,14 +436,14 @@ if ($result = getEncounters($pid)) {
         //this is where we print out the text of the billing that occurred on this encounter
         $thisauth = $auth_coding_a;
         if (!$thisauth && $auth_coding) {
-            if ($erow['user'] == $_SESSION['authUser'])
+            if ($result4['user'] == $_SESSION['authUser'])
                 $thisauth = $auth_coding;
         }
         $coded = "";
         $arid = 0;
         if ($thisauth && $auth_sensitivity) {
             $binfo = array('', '', '', '', '');
-            if ($subresult2 = getBillingByEncounter($pid, $iter['encounter'], "code_type, code, modifier, code_text, fee"))
+            if ($subresult2 = getBillingByEncounter($pid, $result4['encounter'], "code_type, code, modifier, code_text, fee"))
             {
                 // Get A/R info, if available, for this encounter.
                 $arinvoice = array();
@@ -413,13 +452,13 @@ if ($result = getEncounters($pid)) {
                 if ($billing_view && $accounting_enabled) {
                     if ($INTEGRATED_AR) {
                         $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
-                                    "pid = ? AND encounter = ?", array($pid,$iter['encounter']) );
+                                    "pid = ? AND encounter = ?", array($pid,$result4['encounter']) );
                         $arid = 0 + $tmp['id'];
-                        if ($arid) $arinvoice = ar_get_invoice_summary($pid, $iter['encounter'], true);
+                        if ($arid) $arinvoice = ar_get_invoice_summary($pid, $result4['encounter'], true);
                     }
                     else {
                         $arid = SLQueryValue("SELECT id FROM ar WHERE invnumber = " .
-                                        "'$pid.{$iter['encounter']}'");
+                                        "'$pid.{$result4['encounter']}'");
                         if ($arid) $arinvoice = get_invoice_summary($arid, true);
                     }
                     if ($arid) {
@@ -436,7 +475,7 @@ if ($result = getEncounters($pid)) {
                   "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
                   "WHERE s.pid = ? AND s.encounter = ? " .
                   "ORDER BY s.sale_id";
-                $sres = sqlStatement($query, array($pid,$iter['encounter']) );
+                $sres = sqlStatement($query, array($pid,$result4['encounter']) );
                 while ($srow = sqlFetchArray($sres)) {
                   $subresult2[] = array('code_type' => 'PROD',
                     'code' => 'PROD:' . $srow['drug_id'], 'modifier' => '',
@@ -449,16 +488,24 @@ if ($result = getEncounters($pid)) {
                     // Next 2 lines were to skip diagnoses, but that seems unpopular.
                     // if ($iter2['code_type'] != 'COPAY' &&
                     //   !$code_types[$iter2['code_type']]['fee']) continue;
-                    $title = htmlspecialchars( ($iter2['code_text']), ENT_QUOTES);
+                    $title = htmlspecialchars(($iter2['code_text']), ENT_QUOTES);
                     $codekey = $iter2['code'];
-                    if ($iter2['code_type'] == 'COPAY') $codekey = 'CO-PAY';
+                    $codekeydisp = $codekey;
+                    if ($iter2['code_type'] == 'COPAY') {
+                      $codekey = 'CO-PAY';
+                      $codekeydisp = xl('CO-PAY');
+                    }
+                    $codekeydisp = htmlspecialchars($codekeydisp, ENT_NOQUOTES);
                     if ($iter2['modifier']) $codekey .= ':' . $iter2['modifier'];
                     if ($binfo[0]) $binfo[0] .= '<br>';
-                    // $binfo[0] .= "<span class='form_tt' title='".$title."'>".
-                    $binfo[0] .= "<span title='$title'>".
-                                //onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>" .
-                                $arlinkbeg . htmlspecialchars( ($codekey == 'CO-PAY' ? xl($codekey) : $codekey), ENT_NOQUOTES) .
-                                $arlinkend . "</span>";
+                    if ($issue && !$billing_view) {
+                      // Single issue clinical view: show code description after the code.
+                      $binfo[0] .= "$arlinkbeg$codekeydisp $title$arlinkend";
+                    }
+                    else {
+                      // Otherwise offer the description as a tooltip.
+                      $binfo[0] .= "<span title='$title'>$arlinkbeg$codekeydisp$arlinkend</span>";
+                    }
                     if ($billing_view && $accounting_enabled) {
                         if ($binfo[1]) {
                             for ($i = 1; $i < 5; ++$i) $binfo[$i] .= '<br>';
@@ -515,7 +562,7 @@ if ($result = getEncounters($pid)) {
                 $responsible = -1;
                 if ($arid) {
                     if ($INTEGRATED_AR) {
-                        $responsible = ar_responsible_party($pid, $iter['encounter']);
+                        $responsible = ar_responsible_party($pid, $result4['encounter']);
                     } else {
                         $responsible = responsible_party($arid);
                     }
@@ -552,15 +599,12 @@ if ($result = getEncounters($pid)) {
 
         echo "</tr>\n";
 
+} // end while
 
-    } // end foreach $result
-
-    if ($billing_view && $accounting_enabled && !$INTEGRATED_AR) SLClose();
-
-} // end if
+if ($billing_view && $accounting_enabled && !$INTEGRATED_AR) SLClose();
 
 // Dump remaining document lines if count not exceeded.
-while ($drow && $count <= $N) {
+while ($drow /* && $count <= $N */) {
     showDocument($drow);
     $drow = sqlFetchArray($dres);
 }
@@ -568,7 +612,7 @@ while ($drow && $count <= $N) {
 
 </table>
 
-</div> <!-- end 'pastenc' large outer DIV -->
+</div> <!-- end 'encounters' large outer DIV -->
 </body>
 
 <script language="javascript">
@@ -604,7 +648,7 @@ this.tooltip = function(){
     $(".form_tt").hover(function(e){                                             
         this.t = this.title;
         this.title = "";                                      
-        $("#patient_pastenc").append("<p class='tooltip text'>"+ this.t +"</p>");
+        $("#encounters").append("<p class='tooltip text'>"+ this.t +"</p>");
         $(".tooltip")
             .css("top",(e.pageY - xOffset) + "px")
             .css("left",(e.pageX + yOffset) + "px")

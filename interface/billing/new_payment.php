@@ -198,7 +198,7 @@ function FinishPayments()
  	PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
 	if(PostValue==1)
 	 {
-	  alert("<?php echo htmlspecialchars( xl('Cannot Post Payments.UNDISTRIBUTED is Negative.'), ENT_QUOTES) ?>")
+	  alert("<?php echo htmlspecialchars( xl('Cannot Post Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
 	  return false;
 	 }
 	if(PostValue==2)
@@ -206,7 +206,7 @@ function FinishPayments()
 		if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post and Finish Payments?'), ENT_QUOTES) ?>"))
 		 {
 			UnappliedAmount=document.getElementById('TdUnappliedAmount').innerHTML*1;
-			if(confirm("<?php echo htmlspecialchars( xl('UNDISTRIBUTED is'), ENT_QUOTES) ?>" + ' ' + UnappliedAmount +  '.' + "<?php echo htmlspecialchars('\n');echo htmlspecialchars( xl('Would you like the balance amount to apply to Global Account?'), ENT_QUOTES) ?>"))
+			if(confirm("<?php echo htmlspecialchars( xl('Undistributed is'), ENT_QUOTES) ?>" + ' ' + UnappliedAmount +  '.' + "<?php echo htmlspecialchars('\n');echo htmlspecialchars( xl('Would you like the balance amount to apply to Global Account?'), ENT_QUOTES) ?>"))
 			 {
 				document.getElementById('mode').value='FinishPayments';
 				document.getElementById('global_amount').value='yes';

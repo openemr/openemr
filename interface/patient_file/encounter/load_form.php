@@ -11,6 +11,14 @@ if (substr($_GET["formname"], 0, 3) === 'LBF') {
   include_once("$incdir/forms/LBF/new.php");
 }
 else {
+	if( (!empty($_GET['pid'])) && ($_GET['pid'] > 0) )
+	 {
+		$pid = $_GET['pid'];
+		$encounter = $_GET['encounter'];
+	 }
+         if($_GET["formname"] != "newpatient" ){
+            include_once("$incdir/patient_file/encounter/new_form.php");
+         }
   include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
 }
 ?>

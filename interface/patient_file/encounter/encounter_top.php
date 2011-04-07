@@ -18,8 +18,7 @@ if (isset($_GET["set_encounter"])) {
 <head>
 <? html_header_show();?>
 </head>
-<frameset cols="*,200">
+<frameset cols="*">
  <frame src="forms.php" name="Forms" scrolling="auto">
- <frame src="new_form.php" name="New Form" scrolling="auto">
 </frameset>
 </html>

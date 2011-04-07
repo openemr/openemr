@@ -305,7 +305,7 @@ else
 	 {
 		if(!DateCheckGreater(document.getElementById('FromDate').value,document.getElementById('ToDate').value,'<?php echo DateFormatRead();?>'))
 		 {
-			alert("<?php echo htmlspecialchars( xl('From Date cannot be greater than To Date.'), ENT_QUOTES) ?>");
+			alert("<?php echo htmlspecialchars( xl('From Date Cannot be Greater than To Date.'), ENT_QUOTES) ?>");
 			document.getElementById('FromDate').focus();
 			return false;
 		 }
@@ -526,7 +526,7 @@ document.onclick=HideTheAjaxDivs;
 						?>
 							  <tr class="text" bgcolor="#dddddd">
 								<td width="25" class="left top" >&nbsp;</td>
-								<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Id'), ENT_QUOTES) ?></td>
+								<td width="60" class="left top" ><?php echo htmlspecialchars( xl('ID'), ENT_QUOTES) ?></td>
 								<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES) ?></td>
 								<td width="83" class="left top" ><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES) ?></td>
 								<td width="245" class="left top" ><?php echo htmlspecialchars( xl('Payer'), ENT_QUOTES) ?></td>

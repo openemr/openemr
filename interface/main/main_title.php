@@ -81,7 +81,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
         <div style='float:left; margin-top:3px' class = 'text'>
             <a href="javascript:;" onclick="javascript:parent.left_nav.goHome();" ><?php xl('Home','e'); ?></a>
             &nbsp;|&nbsp;
-            <a href="../../Documentation/User_Guide/" target="RTop" id="help_link" onclick="top.restoreSession()"> <?php xl('Manual','e'); ?></a>
+            <a href="../../Documentation/User_Guide/index.html" target="_blank" id="help_link" onclick="top.restoreSession()"> <?php xl('Manual','e'); ?></a>
             <br>
             <span class='text'><?php xl('Logged in','e'); ?></span>:&nbsp;<span class="title_bar_top"><?php echo $res{"fname"}.' '.$res{"lname"};?></span>
             <span style="font-size:0.7em;"> (<?php echo $_SESSION['authGroup']?>)</span>
