@@ -1,23 +1,37 @@
 <?php
-require_once( "model/CdrActivationManager.class.php");
-
+// Copyright (C) 2011 Ensoftek, Inc
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// A copy of the GNU General Public License is included along with this program:
+// openemr/interface/login/GnuGPL.html
+// For more information write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+// 
 class Controller_alerts extends BaseController {
 
-    function _action_default() {
-        $c = new CdrActivationManager();
+    function _action_listactmgr() {
+        $c = new CdrAlertManager();
         $this->viewBean->rules = $c->populate();
-        $this->set_view("list.php");
+        $this->set_view("list_actmgr.php");
     }
 
-    function _action_submit() {
+    
+    function _action_submitactmgr() {
 
-        //$this->viewBean->name = _post("name");
-        //$this->viewBean->age = _post("age");
-
-		$ids = _post("id");
-		$actives = _post("active");
-		$passives =  _post("passive");
-		$reminders =  _post("reminder");
+		
+		$ids = $_POST["id"];
+		$actives = $_POST["active"];
+		$passives =  $_POST["passive"];
+		$reminders =  $_POST["reminder"];
 		
 			
 		// The array of check-boxes we get from the POST are only those of the checked ones with value 'on'.
@@ -52,15 +66,12 @@ class Controller_alerts extends BaseController {
 		        
 		        
 		}
-		//print_r($actives_final);
-		//print_r($passives_final);
-		//print_r($reminders_final);
 
 		// Reflect the changes to the database.
-         $c = new CdrActivationManager();
+         $c = new CdrAlertManager();
          $c->update($ids, $actives_final, $passives_final, $reminders_final);
          
-         $this->forward("default");
+         $this->forward("listactmgr");
     }
 
 }
