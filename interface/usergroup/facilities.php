@@ -137,7 +137,7 @@ $(document).ready(function(){
   <tr height="25">
 		<td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl( "Currently there are no facilities." ); ?></td>
 	</tr>
-  <?}
+  <?php }
 ?>
 	</table>
         </div>
