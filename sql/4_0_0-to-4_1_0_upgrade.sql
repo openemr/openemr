@@ -54,7 +54,7 @@
 #IfMissingColumn form_encounter billing_facility
 ALTER TABLE form_encounter ADD COLUMN billing_facility INTEGER;
 
-INSERT INTO form_encounter(billing_facility) SELECT id FROM facility ORDER BY billing_location DESC, id ASC LIMIT 1
+update form_encounter set billing_facility = (SELECT id FROM facility ORDER BY billing_location DESC, id ASC LIMIT 1);
 #EndIf
 
 #IfMissingColumn facility color
