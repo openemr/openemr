@@ -19,17 +19,10 @@ class Controller_browse extends BaseController {
     function _action_getrows() {
         $rows = array();
 
-        $rules = resolve_rules_sql();
+        $rules = resolve_rules_sql('','0',TRUE);
         foreach( $rules as $rowRule ) {
-            $titleResult = sqlFetchArray( sqlStatement(
-                    "SELECT title FROM list_options WHERE option_id = ?", array( $rowRule['id'] ) ) );
-            $title = $titleResult['title'];
-            $type = $rowRule['patient_reminder_flag'] == 1 ? "Reminder" : "CQM/AMC";
-
-            if ( $rowRule['cqm_flag'] == 1  || $rowRule['amc_flag'] == 1 ) {
-                // for now, only
-                continue;
-            }
+            $title = getLabel($rowRule['id'],'clinical_rules');
+            $type = "Reminder";
 
             $row = array(
                 "title" => $title,

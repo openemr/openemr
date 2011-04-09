@@ -837,14 +837,8 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$pla
       }
     }
     else {
-      if ($goRule['active_alert_flag'] == 1 ||
-          $goRule['passive_alert_flag'] == 1 ||
-          $goRule['cqm_flag'] == 1 ||
-          $goRule['amc_flag'] == 1 ||
-          $goRule['patient_reminder_flag'] == 1) {
-        // active, so use the rule
-        array_push($newReturnArray,$goRule);
-      }
+      // no filter, so return the rule
+      array_push($newReturnArray,$goRule);
     }
   }
   $returnArray = $newReturnArray;

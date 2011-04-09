@@ -37,7 +37,7 @@ class CdrAlertManager{
         function populate() {
         	    $cdra = array();
         	
-        	    $rules = resolve_rules_sql(NULL, 0, TRUE);
+        	    $rules = resolve_rules_sql('', 0, TRUE);
         	    
         	    foreach( $rules as $rowRule ) {
 		              $rule_id = $rowRule['id'];
