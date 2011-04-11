@@ -59,7 +59,7 @@ var rule_edit = function( args ) {
                 var el = grp[i];
                 if ( el.selectedIndex != undefined ) {
                     // its a selectbox
-                    if ( el.selectedIndex > 0 ) {
+                    if ( el.selectedIndex >= 0 ) {
                         ct++;
                     }
                 } else {
