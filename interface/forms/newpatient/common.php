@@ -213,7 +213,7 @@ if ($fres) {
 		<td class='text'>
 			<div id="ajaxdiv">
 			<?php
-			billing_facility('billing_facility',$result['pc_billing_location']);
+			billing_facility('billing_facility',$result['billing_facility']);
 			?>
 			</div>
 		</td>
