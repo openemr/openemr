@@ -2144,15 +2144,9 @@ function billing_facility($name,$select){
 	$qsql = sqlStatement("SELECT id, name FROM facility WHERE billing_location = 1");
 		echo "   <select id='".htmlspecialchars($name, ENT_QUOTES)."' name='".htmlspecialchars($name, ENT_QUOTES)."'>";
 			while ($facrow = sqlFetchArray($qsql)) {
-				if ($_SESSION['authorizedUser'] || in_array($facrow, $facils)) {
-				  $selected = ( $facrow['id'] == $select ) ?'selected="selected"' : '' ;
-				  echo "<option value=".htmlspecialchars($facrow['id'],ENT_QUOTES)." $selected>".htmlspecialchars($facrow['name'], ENT_QUOTES)."</option>";
-				}
-				else{
-				$selected = ( $facrow['id'] == $result['billing_facility'] ) ? 'selected="selected"' : '' ;
+				$selected = ( $facrow['id'] == $select ) ? 'selected="selected"' : '' ;
 				 echo "<option value=".htmlspecialchars($facrow['id'],ENT_QUOTES)." $selected>".htmlspecialchars($facrow['name'], ENT_QUOTES)."</option>";
 				}
-			  }
 			  echo "</select>";
 }
 
