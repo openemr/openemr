@@ -54,7 +54,7 @@ function _get( $var, $default='' ) {
  * @return <type>
  */
 function _post( $var, $default='' ) {
-    $val = htmlspecialchars( $_POST[$var] );
+    $val = $_POST[$var];
     return isset($val) && $val != '' ? $val : $default;
 }
 

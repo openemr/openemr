@@ -128,7 +128,7 @@ class Rule {
     }
 
     function isEditable() {
-        return $this->isReminder();
+        return true;
     }
 
     function getRuleTypeLabels() {
