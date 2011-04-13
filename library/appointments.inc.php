@@ -81,7 +81,8 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 	$facility_filter = '';
 	if ( $facility_id ) {
 		$event_facility_filter = " AND e.pc_facility = '$facility_id'";
-		$provider_facility_filter = " AND users.facility_id = '$facility_id'";
+		$provider_facility_filter = " AND u.facility_id = '$facility_id'";
+		$facility_filter = $event_facility_filter . $provider_facility_filter;
 	}
 	
 	$where .= $facility_filter;
@@ -102,7 +103,8 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	$facility_filter = '';
 	if ( $facility_id ) {
 		$event_facility_filter = " AND e.pc_facility = '$facility_id'";
-		$provider_facility_filter = " AND users.facility_id = '$facility_id'";
+		$provider_facility_filter = " AND u.facility_id = '$facility_id'";
+		$facility_filter = $event_facility_filter . $provider_facility_filter;
 	}
 	
 	$where .= $facility_filter;
@@ -115,7 +117,7 @@ function getRecurringEvents( $event, $from_date, $to_date )
 	$repeatEvents = array();
 	$from_date_time = strtotime( $from_date . " 00:00:00" );
 	$thistime = strtotime( $event['pc_eventDate'] . " 00:00:00" );
-	$thistime = max( $thistime, $from_date_time );
+	//$thistime = max( $thistime, $from_date_time );
 	if ( $event['pc_recurrtype'] )
 	{
 		preg_match( '/"event_repeat_freq_type";s:1:"(\d)"/', $event['pc_recurrspec'], $matches );
@@ -134,13 +136,15 @@ function getRecurringEvents( $event, $from_date, $to_date )
 		{
 			// Skip the event if a repeat frequency > 1 was specified and this is
 			// not the desired occurrence.
-			if ( !$repeatix)
-			{
-				$newEvent = $event;
-				$eventDate = date( "Y-m-d", $thistime );
-				$newEvent['pc_eventDate'] = $eventDate;
-				$newEvent['pc_endDate'] = $eventDate;
-				$repeatEvents []= $newEvent;
+			if ( !$repeatix ) {
+			    $inRange = ( $thistime >= $from_date_time && $thistime < $upToDate );
+			    if ( $inRange ) {
+    				$newEvent = $event;
+    				$eventDate = date( "Y-m-d", $thistime );
+    				$newEvent['pc_eventDate'] = $eventDate;
+    				$newEvent['pc_endDate'] = $eventDate;
+    				$repeatEvents []= $newEvent;
+			    }
 			}
 				
 			if  ( ++$repeatix >= $repeatfreq ) $repeatix = 0;
