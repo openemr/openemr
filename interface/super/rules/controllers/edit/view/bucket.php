@@ -6,7 +6,6 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 ?>
-
 <head>
     <script language="javascript" src="<?php js_src('bucket.js') ?>"></script>
 

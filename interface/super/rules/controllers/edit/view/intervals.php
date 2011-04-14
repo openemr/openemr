@@ -1,7 +1,6 @@
 <?php require_once( $GLOBALS["srcdir"] . "/../interface/super/rules/controllers/edit/helper/common.php" ); ?>
 <?php $rule = $viewBean->rule ?>
 <?php $intervals = $rule->reminderIntervals ?>
-
 <script language="javascript" src="<?php js_src('edit.js') ?>"></script>
 <script type="text/javascript">
     var edit = new rule_edit( {});

@@ -5,5 +5,5 @@
  // modify it under the terms of the GNU General Public License
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
-?>
-<?php if ( file_exists($viewBean->_view_body) ) { require_once($viewBean->_view_body); } ?>
+ 
+if ( file_exists($viewBean->_view_body) ) { require_once($viewBean->_view_body); } ?>

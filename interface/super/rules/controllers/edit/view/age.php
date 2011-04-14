@@ -6,7 +6,6 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 ?>
-
 <!-- age -->
 <p class="row">
     <span class="left_col colhead req" data-fld="fld_value"><?php echo out( xl( 'Age' ) );?> <?php echo out( xl( $criteria->getType() ) ); ?></span>

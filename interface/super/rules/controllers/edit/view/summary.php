@@ -5,9 +5,7 @@
  // modify it under the terms of the GNU General Public License
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
-?>
-
-<?php $rule = $viewBean->rule ?>
+ $rule = $viewBean->rule ?>
 
 <script language="javascript" src="<?php js_src('edit.js') ?>"></script>
 <script type="text/javascript">

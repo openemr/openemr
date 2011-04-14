@@ -1780,6 +1780,3 @@ function convertDobtoAgeMonthDecimal($dob,$target) {
 
     return (12 * $iDiffYear) + $iDiffMonth;
 }
-
-?>
-

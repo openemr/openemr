@@ -6,7 +6,6 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 ?>
-
 <p class="row">
     <span class="left_col colhead req" data-fld="fld_value"><?php echo out( $criteria->getTitle() ); ?></span>
     <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="field" value="<?php echo out( $criteria->getRequirements() ); ?>"></span>

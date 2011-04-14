@@ -6,7 +6,6 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 ?>
-
 <p class="row">
     <span class="left_col colhead req" data-fld="fld_sex"><?php echo xl('Sex');?></span>
     <span class="end_col">
