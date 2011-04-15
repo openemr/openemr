@@ -5,6 +5,12 @@
 </head>
 <body>
 <?php
+
+// This exit is to avoid malicious use of this script.
+//  (before running this script, comment out the exit command)
+//  (when you are done running the script, remember to comment it out)
+exit;
+
 if (!$_POST['submit']) {
 ?>
 <form method=post>
