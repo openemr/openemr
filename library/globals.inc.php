@@ -797,10 +797,30 @@ $GLOBALS_METADATA = array(
 
   ),
   
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // PQRI Tab
+  // CDR (Clinical Decision Rules)
   //
-  'PQRI Registry' => array(
+  'CDR' => array(
+
+    'enable_cdr' => array(
+      xl('Enable Clinical Decisions Rules (CDR)'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Clinical Decisions Rules (CDR)')
+    ),
+    
+    'enable_cdr_crw' => array(
+      xl('Enable Clinical Reminder Widget'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Clinical Reminder Widget')
+    ),
+
+    'enable_cdr_prw' => array(
+      xl('Enable Patient Reminder Widget'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Patient Reminder Widget')
+    ),
 
     'pqri_registry_name' => array(
       xl('PQRI Registry Name'),
@@ -808,17 +828,15 @@ $GLOBALS_METADATA = array(
       'Model Registry',                               // default
       xl('PQRI Registry Name')
     ),
-    
+
     'pqri_registry_id' => array(
       xl('PQRI Registry ID'),
       'text',                           // data type
       '125789123',                               // default
       xl('PQRI Registry ID')
     ),
-    
       
   ),
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // Logging
   //
