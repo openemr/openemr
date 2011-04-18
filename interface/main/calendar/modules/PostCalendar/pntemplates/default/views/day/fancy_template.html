@@ -404,7 +404,12 @@ function compareEvents($a,$b) {
                [-$event.data.startTime|date_format:"%I:%M %p"-]
               </a>
            </p>
-           <p>[-$event.data.duration-][-php-] xl('min','e'); [-/php-]</p>
+
+           <p><font color="[-$event.data.facility.color-]">
+            [-$event.data.facility.name-]
+               </font></p>
+
+            <p>[-$event.data.duration-][-php-] xl('min','e'); [-/php-]</p>
 
             [-if $event.data.pid gt 0-]
               <p><a href='javascript:goPid([-$event.data.pid-])'>[-$event.data.patient_name|default:'No name'-]</a></p>
