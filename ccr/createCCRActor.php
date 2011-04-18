@@ -26,12 +26,12 @@
 
 
 $result = getActorData();
-while ($row = sqlFetchArray($result)) {
+while ($row = sqlFetchArray($result[0])) {
 
 	$e_Actor = $ccr->createElement('Actor');
 	$e_Actors->appendChild($e_Actor);
 
-	$e_ActorObjectID = $ccr->createElement('ActorObjectID', $row['pid']);
+	$e_ActorObjectID = $ccr->createElement('ActorObjectID', 'A1234'); // Refer createCCRHeader.php
 	$e_Actor->appendChild($e_ActorObjectID);
 	
 	$e_Person = $ccr->createElement('Person');
@@ -116,11 +116,18 @@ while ($row = sqlFetchArray($result)) {
 	$e_Value = $ccr->createElement('Value', $row['phone_contact']);
 	$e_Telephone->appendChild($e_Value);
 
+  $e_Source = $ccr->createElement('Source');
+	$e_Actor->appendChild($e_Source);
 
+	$e_Actor = $ccr->createElement('Actor');
+	$e_Source->appendChild($e_Actor);
 
+	$e_ActorID = $ccr->createElement('ActorID', $authorID);
+	$e_Actor->appendChild($e_ActorID);
 
+}
 
-
+$row1 = sqlFetchArray($result[1]);
 	//////// Actor Information Systems
 	
 	$e_Actor = $ccr->createElement('Actor');
@@ -132,19 +139,90 @@ while ($row = sqlFetchArray($result)) {
 	$e_InformationSystem = $ccr->createElement('InformationSystem');
 	$e_Actor->appendChild($e_InformationSystem);
 
-	$e_Name = $ccr->createElement('Name', ' Garden Health System v1.0');
+	$e_Name = $ccr->createElement('Name', $row1['facility']);
 	$e_InformationSystem->appendChild($e_Name);
 	
 	$e_Source = $ccr->createElement('Source');
-	$e_IDs->appendChild($e_Source);
+	$e_Actor->appendChild($e_Source);
 
 	$e_Actor = $ccr->createElement('Actor');
 	$e_Source->appendChild($e_Actor);
 
 	$e_ActorID = $ccr->createElement('ActorID', $authorID);
 	$e_Actor->appendChild($e_ActorID);
+  
+  //////// Actor Information Systems
+  $e_Actor = $ccr->createElement('Actor');
+	$e_Actors->appendChild($e_Actor);
 
-	}
+	$e_ActorObjectID = $ccr->createElement('ActorObjectID', $oemrID);
+	$e_Actor->appendChild($e_ActorObjectID);
+
+	$e_InformationSystem = $ccr->createElement('InformationSystem');
+	$e_Actor->appendChild($e_InformationSystem);
+
+	$e_Name = $ccr->createElement('Name', 'OEMR');
+	$e_InformationSystem->appendChild($e_Name);
+  
+  $e_Type = $ccr->createElement('Type', 'OpenEMR');
+	$e_InformationSystem->appendChild($e_Type);
+  
+  $e_Version = $ccr->createElement('Version', '4.x');
+	$e_InformationSystem->appendChild($e_Version);
+  
+  $e_IDs = $ccr->createElement('IDs');
+	$e_Actor->appendChild($e_IDs);
+  
+  $e_Type = $ccr->createElement('Type');
+  $e_IDs->appendChild($e_Type);
+  
+  $e_Text = $ccr->createElement('Text', 'Certification #');
+	$e_Type->appendChild($e_Text);
+  
+  $e_ID = $ccr->createElement('ID', 'EHRX-OEMRXXXXXX-2011');
+	$e_IDs->appendChild($e_ID);
+  
+  $e_Source = $ccr->createElement('Source');
+	$e_IDs->appendChild($e_Source);
+
+	$e_SourceActor = $ccr->createElement('Actor');
+	$e_Source->appendChild($e_SourceActor);
+  
+	$e_ActorID = $ccr->createElement('ActorID', $authorID);
+	$e_SourceActor->appendChild($e_ActorID);
+  
+  $e_Address = $ccr->createElement('Address');
+	$e_Actor->appendChild($e_Address);
+	
+	$e_Line1 = $ccr->createElement('Line1','000 Sample Line');
+	$e_Address->appendChild($e_Line1);
+	
+	$e_Line2 = $ccr->createElement('Line2');
+	$e_Address->appendChild($e_Line1);
+
+	$e_City = $ccr->createElement('City','Sample City');
+	$e_Address->appendChild($e_City);
+
+	$e_State = $ccr->createElement('State','Sample State');
+	$e_Address->appendChild($e_State);
+	
+	$e_PostalCode = $ccr->createElement('PostalCode','00000');
+	$e_Address->appendChild($e_PostalCode);
+  
+  $e_Telephone = $ccr->createElement('Telephone');
+	$e_Actor->appendChild($e_Telephone);
+  
+  $e_Phone = $ccr->createElement('Value','000-000-0000');
+	$e_Telephone->appendChild($e_Phone);
+  
+	$e_Source = $ccr->createElement('Source');
+	$e_Actor->appendChild($e_Source);
+
+	$e_Actor = $ccr->createElement('Actor');
+	$e_Source->appendChild($e_Actor);
+
+	$e_ActorID = $ccr->createElement('ActorID', $authorID);
+	$e_Actor->appendChild($e_ActorID);
 
 ?>
 

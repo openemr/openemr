@@ -43,8 +43,12 @@ function getMedicationData() {
 			prescriptions.drug,
 			prescriptions.medication,
 			prescriptions.active,
-			prescriptions.provider_id 
+			prescriptions.provider_id,
+			prescriptions.size,
+			lo.title
 		FROM prescriptions 
+		LEFT JOIN list_options AS lo
+		ON lo.list_id = 'drug_units' AND prescriptions.unit = lo.option_id
 		WHERE prescriptions.patient_id = ?";
 		
 	$result = sqlStatement($sql, array($pid) );
@@ -141,6 +145,7 @@ function getAlertData() {
 	select fe.reason, fe.provider_id, fe.facility_id, fe.encounter,
 		ie.list_id, l.pid, l.title as alert_title, l.outcome, 
 		l.groupname, l.begdate, l.enddate, l.type, l.diagnosis, l.date ,
+    l.reaction , l.comments ,
 			f.street, f.city, f.state, u.title, u.fname, u.lname, cd.code_text
 	from lists as l 
 	left join issue_encounter as ie
@@ -163,6 +168,31 @@ function getAlertData() {
 function getResultData() {
 
 	global $pid;
+  
+  $sql = "
+    SELECT 
+      prs.procedure_result_id AS pid,
+      pt.name AS name,
+      pt.procedure_type_id AS type,
+      prs.date AS date,
+      CONCAT_WS(' ',prs.result,lo.title) AS result,
+      prs.range AS range,
+      prs.abnormal AS abnormal,
+      prs.comments AS comments
+    FROM
+      procedure_result AS prs 
+      LEFT JOIN procedure_report AS prp 
+        ON prs.procedure_report_id = prp.procedure_report_id 
+      LEFT JOIN procedure_order AS po 
+        ON prp.procedure_order_id = po.procedure_order_id
+      LEFT JOIN procedure_type AS pt 
+        ON prs.procedure_type_id = pt.procedure_type_id
+      LEFT JOIN list_options AS lo
+        ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id
+    WHERE po.patient_id=?";
+		
+	//$result = sqlStatement($sql, array($pid) );
+	//return $result;
 
         // Commented this out, since throws error because the form_ankleinjury table does not
         // exist in default OpenEMR instance.
@@ -172,8 +202,8 @@ function getResultData() {
 	//from form_ankleinjury
 	//where pid =?";
 		
-	//$result = sqlStatement($sql, array($pid) );
-	//return $result;
+	$result = sqlStatement($sql, array($pid) );
+	return $result;
 }
 
 
@@ -185,7 +215,15 @@ function getActorData() {
 	from patient_data
 	where pid=?";
 		
-	$result = sqlStatement($sql, array($pid) );
+	$result[0] = sqlStatement($sql, array($pid) );
+  
+  $sql2 = " 
+	select facility
+	from users
+	where id=?";
+		
+	$result[1] = sqlStatement($sql2, array($_SESSION['authUserID']) );
+  
 	return $result;
 }
 

@@ -29,8 +29,11 @@ global $pid;
            $e_ccrDocObjID = $ccr->createElement('CCRDocumentObjectID', getUuid());
            $e_ccr->appendChild($e_ccrDocObjID);
 
-           $e_Language = $ccr->createElement('Language', 'English');
+           $e_Language = $ccr->createElement('Language');
            $e_ccr->appendChild($e_Language);
+           
+           $e_Text = $ccr->createElement('Text', 'English');
+           $e_Language->appendChild($e_Text);
 
            $e_Version = $ccr->createElement('Version', 'V1.0');
            $e_ccr->appendChild($e_Version);
@@ -45,7 +48,7 @@ global $pid;
            $e_ccr->appendChild($e_patient);
 
            //$e_ActorID = $ccr->createElement('ActorID', $row['patient_id']);
-           $e_ActorID = $ccr->createElement('ActorID', $pid);
+           $e_ActorID = $ccr->createElement('ActorID', 'A1234'); // This value and ActorID in createCCRActor.php should be same.
            $e_patient->appendChild($e_ActorID);
 
            //Header From:
@@ -72,7 +75,7 @@ global $pid;
            $e_To->appendChild($e_ActorLink);
 
            //$e_ActorID = $ccr->createElement('ActorID', $row['patient_id']);
-           $e_ActorID = $ccr->createElement('ActorID', $pid);
+           $e_ActorID = $ccr->createElement('ActorID', 'A1234');
            $e_ActorLink->appendChild($e_ActorID);
 
            $e_ActorRole = $ccr->createElement('ActorRole');

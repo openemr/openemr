@@ -43,6 +43,9 @@ require_once(dirname(__FILE__) . "/uuid.php");
 function createCCR($action,$raw="no"){
 
 	$authorID = getUuid();
+  $patientID = getUuid();
+  $sourceID = getUuid();
+  $oemrID = getUuid();
 	
 	echo '<!--';
 

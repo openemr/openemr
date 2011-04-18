@@ -52,7 +52,7 @@ do {
 	$e_ID = $ccr->createElement('ID', $row['pid']);
 	$e_IDs->appendChild($e_ID);
 
-	$e_IDs->appendChild(sourceType($ccr, $authorID));
+	$e_IDs->appendChild(sourceType($ccr, $sourceID));
 	
 	$e_Type = $ccr->createElement('Type');
 	$e_Alert->appendChild($e_Type);
@@ -72,7 +72,7 @@ do {
 	$e_Value = $ccr->createElement('Value', $row['diagnosis']);
 	$e_Code->appendChild($e_Value);
 	
-	$e_Alert->appendChild(sourceType($ccr, $authorID));
+	$e_Alert->appendChild(sourceType($ccr, $sourceID));
 	
 	$e_Agent = $ccr->createElement('Agent');
 	$e_Alert->appendChild($e_Agent);
@@ -82,6 +82,9 @@ do {
 
 	$e_EnvironmentalAgent = $ccr->createElement('EnvironmentalAgent');
 	$e_EnvironmentalAgents->appendChild($e_EnvironmentalAgent);
+  
+  $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', getUuid());
+	$e_EnvironmentalAgent->appendChild($e_CCRDataObjectID);
 	
 	$e_DateTime = $ccr->createElement('DateTime');
 	$e_EnvironmentalAgent->appendChild($e_DateTime);
@@ -107,7 +110,7 @@ do {
 	$e_Text = $ccr->createElement('Text',$row['outcome']);
 	$e_Status->appendChild($e_Text);
 	
-	$e_EnvironmentalAgent->appendChild(sourceType($ccr, $authorID));
+	$e_EnvironmentalAgent->appendChild(sourceType($ccr, $sourceID));
 
 	$e_Reaction = $ccr->createElement('Reaction');
 	$e_Alert->appendChild($e_Reaction);
@@ -115,7 +118,7 @@ do {
 	$e_Description = $ccr->createElement('Description');
 	$e_Reaction->appendChild($e_Description);
 	
-	$e_Text = $ccr->createElement('Text', 'None');
+	$e_Text = $ccr->createElement('Text', $row['reaction']);
 	$e_Description->appendChild($e_Text);
 	
 	$e_Status = $ccr->createElement('Status');

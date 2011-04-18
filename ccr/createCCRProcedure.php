@@ -64,14 +64,17 @@
 		
 		$e_Value = $ccr->createElement('Value', 'None');
 		$e_Code->appendChild($e_Value);
-
+    
+    $e_Value = $ccr->createElement('CodingSystem', 'CPT-4');
+		$e_Code->appendChild($e_Value);
+    
 		$e_Status = $ccr->createElement('Status');
 		$e_Procedure->appendChild($e_Status);
 
 		$e_Text->nodeValue = $row['outcome'];
 		$e_Status->appendChild(clone $e_Text);
 		
-		$e_Procedure->appendChild(sourceType($ccr, $authorID));
+		$e_Procedure->appendChild(sourceType($ccr, $sourceID));
 
 		$e_Locations = $ccr->createElement('Locations');
 		$e_Procedure->appendChild($e_Locations);

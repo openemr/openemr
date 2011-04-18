@@ -58,7 +58,7 @@
 		$e_Text = $ccr->createElement('Text','ACTIVE');
 		$e_Status->appendChild($e_Text);
 		
-		$e_Immunization->appendChild(sourceType($ccr, $authorID));
+		$e_Immunization->appendChild(sourceType($ccr, $sourceID));
 
 		$e_Product = $ccr->createElement('Product');
 		$e_Immunization->appendChild($e_Product);

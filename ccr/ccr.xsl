@@ -2733,7 +2733,8 @@ table.internal tr.even{
           <th>
             <font color="#CCCCCC" size="2">
 <!--	The stylesheet used to generate this view of the CCR was provided by the American Academy of Family Physicians and the CCR Acceleration Task Force -->
-	The stylesheet used to generate this view of the CCR was provided by Garden Health.
+<!--The stylesheet used to generate this view of the CCR was provided by Garden Health.-->
+  The stylesheet used to generate this view of the CCR was provided by OEMR.
 </font>
           </th>
         </tr>
