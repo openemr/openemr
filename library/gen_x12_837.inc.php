@@ -283,7 +283,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
 
   ++$edicount;
   //Field length is limited to 35. See nucc dataset page 81 www.nucc.org
-  $payerName=substr($claim->payerName($ins),0,35);
+  $payerName=substr($claim->payerName(),0,35);
   $out .= "NM1" .       // Loop 2010BB Payer
     "*PR" .
     "*2" .
