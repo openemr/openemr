@@ -157,6 +157,13 @@ $GLOBALS_METADATA = array(
       xl('Navigation area uses full height of frameset')
     ),
 
+    'gbl_nav_visit_forms' => array(
+      xl('Navigation Area Visit Forms'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Navigation area includes encounter forms')
+    ),
+
     'simplified_demographics' => array(
       xl('Simplified Demographics'),
       'bool',                           // data type
