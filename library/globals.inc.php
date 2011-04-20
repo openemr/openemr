@@ -150,6 +150,13 @@ $GLOBALS_METADATA = array(
       xl('Type of columns displayed for patient search results')
     ),
 
+    'gbl_tall_nav_area' => array(
+      xl('Tall Navigation Area'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Navigation area uses full height of frameset')
+    ),
+
     'simplified_demographics' => array(
       xl('Simplified Demographics'),
       'bool',                           // data type
