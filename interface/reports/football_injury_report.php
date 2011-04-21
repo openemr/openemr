@@ -225,7 +225,7 @@ $arr_types_ucsmc = array(
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 </script>
 </head>
 
@@ -233,7 +233,7 @@ $arr_types_ucsmc = array(
 
 <center>
 
-<h2><? xl('Football Injury Report','e'); ?></h2>
+<h2><?php xl('Football Injury Report','e'); ?></h2>
 
 <form name='theform' method='post' action='football_injury_report.php'>
 

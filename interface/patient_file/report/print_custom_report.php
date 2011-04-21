@@ -64,10 +64,11 @@
 </p>
 
 <a href="javascript:window.close();"><font class=title><?print $titleres{"fname"} . " " . $titleres{"lname"};?></font></a><br>
-<span class=text><? xl('Generated on','e'); ?>: <?print date("Y-m-d");?></span>
+<span class=text><?php xl('Generated on','e'); ?>: <?print date("Y-m-d");?></span>
 <br><br>
 
-<?
+<?php
+
  //$provider = getProviderName($titleres['providerID']);
 
  //print "Provider: " . $provider  . "</br>";

@@ -19,7 +19,7 @@ include_once("$srcdir/calendar.inc");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>Form: High risk screening record</title>
 
@@ -39,7 +39,7 @@ window.onload = initialize;
 
 
 
-<? 
+<?php 
 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
 
@@ -63,9 +63,9 @@ window.onload = initialize;
 
 
 
-<form action="<?echo $rootdir;?>/forms/high_risk_screening_record/save.php?mode=update&id=<? echo $id; ?>" method="post" enctype="multipart/form-data" name="my_form">
+<form action="<?echo $rootdir;?>/forms/high_risk_screening_record/save.php?mode=update&id=<?php echo $id; ?>" method="post" enctype="multipart/form-data" name="my_form">
 
-<? include("../../acog_menu.inc"); ?>
+<?php include("../../acog_menu.inc"); ?>
 
 <div class="srvChapter">High risk screening  record <a href="#" onMouseOver="toolTip('See Table of High-Risk Factors.')" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 
@@ -77,7 +77,8 @@ window.onload = initialize;
 
       <td colspan="6" class="fibody2" id="bordR">patient name: 
 
-        <input name="pname" type="text" class="fullin" id="pname" style="width: 70%" value="<?
+        <input name="pname" type="text" class="fullin" id="pname" style="width: 70%" value="<?php
+
 
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
 
@@ -85,7 +86,8 @@ window.onload = initialize;
 
       <td colspan="5" class="fibody2" id="bordR">Birth date: 
 
-        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?
+        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?php
+
 
           echo $patient{'DOB'};
 
@@ -93,7 +95,8 @@ window.onload = initialize;
 
       <td colspan="4" class="fibody2">ID No:
 
-        <input name="hr_pid" type="text" class="fullin" id="hr_pid" style="width:80%" value="<?
+        <input name="hr_pid" type="text" class="fullin" id="hr_pid" style="width:80%" value="<?php
+
 
           echo $patient{'id'};
 
@@ -291,7 +294,7 @@ $rsi++;
 
       <td align="left" width="120"> <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save Data]</a> </td>
 
-      <td align="left" nowrap> <a href="<? echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<? echo $id; ?>&formname=<? echo $formname; ?>" target="_blank" class="link_submit"
+      <td align="left" nowrap> <a href="<?php echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<?php echo $id; ?>&formname=<?php echo $formname; ?>" target="_blank" class="link_submit"
 
        onclick="top.restoreSession()">[Printable form]</a> </td>
 

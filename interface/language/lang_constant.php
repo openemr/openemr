@@ -37,8 +37,8 @@ if ($_POST['add']){
 <TABLE>
 <FORM name="cons_form" METHOD=POST ACTION="?m=constant" onsubmit="return top.restoreSession()">
 <TR>
-	<TD><? echo htmlspecialchars(xl('constant name'),ENT_NOQUOTES); ?></TD>
-	<TD><INPUT TYPE="text" NAME="constant_name" size="100" value="<? echo htmlspecialchars($val_constant,ENT_QUOTES); ?>"></TD>
+	<TD><?php echo htmlspecialchars(xl('constant name'),ENT_NOQUOTES); ?></TD>
+	<TD><INPUT TYPE="text" NAME="constant_name" size="100" value="<?php echo htmlspecialchars($val_constant,ENT_QUOTES); ?>"></TD>
 </TR>
 <TR>
 	<TD></TD>

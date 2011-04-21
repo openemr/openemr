@@ -175,7 +175,7 @@ function bottomHeaderRx() {
         print $camos_content[0]; 
     ?>
   </div>
-  <? print $sigline[$_GET[sigline]] ?>
+  <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
 <?php
 } // end of deciding if we are printing the above rx block
@@ -183,85 +183,100 @@ else {
   print "<img src='./xout.jpg' id='rx1'>\n";
 }
 ?>
-<?
+<?php
+
 if ($camos_content[1]) { //decide if we are printing this rx
 ?>
 <div id='rx2'  class='rx' >
   <div class='topheader'>
-  <?
+  <?php
+
     topHeaderRx();
   ?>
   </div>
     <hr/>
   <div class='bottomheader'>
-  <?
+  <?php
+
     bottomHeaderRx();  
   ?>
   </div>
   <div class='content'>
-    <?
+    <?php
+
         print $camos_content[1]; 
     ?>
   </div>
-  <? print $sigline[$_GET[sigline]] ?>
+  <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
-<?
+<?php
+
 } // end of deciding if we are printing the above rx block
 else {
   print "<img src='./xout.jpg' id='rx2'>\n";
 }
 ?>
-<?
+<?php
+
 if ($camos_content[2]) { //decide if we are printing this rx
 ?>
 <div id='rx3'  class='rx' >
   <div class='topheader'>
-  <?
+  <?php
+
     topHeaderRx();  
   ?>
   </div>
     <hr/>
   <div class='bottomheader'>
-  <?
+  <?php
+
     bottomHeaderRx();
   ?>
   </div>
   <div class='content'>
-    <?
+    <?php
+
         print $camos_content[2]; 
     ?>
   </div>
-  <? print $sigline[$_GET[sigline]] ?>
+  <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
-<?
+<?php
+
 } // end of deciding if we are printing the above rx block
 else {
   print "<img src='./xout.jpg' id='rx3'>\n";
 }
 ?>
-<?
+<?php
+
 if ($camos_content[3]) { //decide if we are printing this rx
 ?>
 <div id='rx4'  class='rx' >
   <div class='topheader'>
-  <?
+  <?php
+
     topHeaderRx();
   ?>
   </div>
     <hr/>
   <div class='bottomheader'>
-  <?
+  <?php
+
     bottomHeaderRx();
   ?>
   </div>
   <div class='content'>
-    <?
+    <?php
+
         print $camos_content[3]; 
     ?>
   </div>
-  <? print $sigline[$_GET[sigline]] ?>
+  <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
-<?
+<?php
+
 } // end of deciding if we are printing the above rx block
 else {
   print "<img src='./xout.jpg' id='rx4'>\n";
@@ -451,7 +466,8 @@ function cycle_engine(cb,seed) {
 <?php } ?>
 	
 <input type=submit name='print_html' value='<?php xl('Print (HTML)','e'); ?>'>
-<?
+<?php
+
 //check if an encounter is set
 if ($_SESSION['encounter'] == NULL) { 
   $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
@@ -506,43 +522,43 @@ foreach($rxarray as $val) {
 <table>
 <tr>
   <td> <?php xl('First Name','e'); ?>: </td> 
-  <td> <input type=text name=practice_fname value ='<? echo htmlspecialchars($practice_fname,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_fname value ='<?php echo htmlspecialchars($practice_fname,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Last Name','e'); ?>: </td> 
-  <td> <input type=text name=practice_lname value ='<? echo htmlspecialchars($practice_lname,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_lname value ='<?php echo htmlspecialchars($practice_lname,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Title','e'); ?>: </td> 
-  <td> <input type=text name=practice_title value ='<? echo htmlspecialchars($practice_title,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_title value ='<?php echo htmlspecialchars($practice_title,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Street Address','e'); ?>: </td> 
-  <td> <input type=text name=practice_address value ='<? echo htmlspecialchars($practice_address,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_address value ='<?php echo htmlspecialchars($practice_address,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('City','e'); ?>: </td> 
-  <td> <input type=text name=practice_city value ='<? echo htmlspecialchars($practice_city,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_city value ='<?php echo htmlspecialchars($practice_city,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('State','e'); ?>: </td> 
-  <td> <input type=text name=practice_state value ='<? echo htmlspecialchars($practice_state,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_state value ='<?php echo htmlspecialchars($practice_state,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Zip','e'); ?>: </td> 
-  <td> <input type=text name=practice_zip value ='<? echo htmlspecialchars($practice_zip,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_zip value ='<?php echo htmlspecialchars($practice_zip,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Phone','e'); ?>: </td> 
-  <td> <input type=text name=practice_phone value ='<? echo htmlspecialchars($practice_phone,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_phone value ='<?php echo htmlspecialchars($practice_phone,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Fax','e'); ?>: </td> 
-  <td> <input type=text name=practice_fax value ='<? echo htmlspecialchars($practice_fax,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_fax value ='<?php echo htmlspecialchars($practice_fax,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('DEA','e'); ?>: </td> 
-  <td> <input type=text name=practice_dea value ='<? echo htmlspecialchars($practice_dea,ENT_QUOTES); ?>'> </td>
+  <td> <input type=text name=practice_dea value ='<?php echo htmlspecialchars($practice_dea,ENT_QUOTES); ?>'> </td>
 </tr>
 </table>
 <input type=submit name=update value='<?php xl('Update','e'); ?>'>

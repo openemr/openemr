@@ -11,7 +11,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 <form method=post action="<?echo $rootdir;?>/forms/Chiro_personal_injury_form/save.php?mode=new" name="my_form" onSubmit="return top.restoreSession()">
 <h1> Chiro personal injury form </h1>
 <hr>
-<input type="submit" name="submit form" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <? xl("[do not save]",'e') ?> </a>
+<input type="submit" name="submit form" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
 
 <Table width="100%" cellpadding="0" cellspacing="0">       
 
@@ -119,7 +119,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 
 <table>
 
-<tr><td class="text" > Sex:(Sexo):</td><td class="text"   ><label><input type="checkbox" name="_sex[]" value="male" /> <? Xl("male",'e') ?> </label> <label><input type="checkbox" name="_sex[]" value="female" /> <? Xl("female",'e') ?> </label></td></tr>
+<tr><td class="text" > Sex:(Sexo):</td><td class="text"   ><label><input type="checkbox" name="_sex[]" value="male" /> <?php Xl("male",'e') ?> </label> <label><input type="checkbox" name="_sex[]" value="female" /> <?php Xl("female",'e') ?> </label></td></tr>
 
 </table>
     </td>
@@ -149,7 +149,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 
 <table>
 
-<tr><td class="text" > Nature of Accident(Accidence):</td><td class="text"   ><label><input type="checkbox" name="_nature_of_accident[]" value="automobile" /> <? Xl("Automobile(Auto)",'e') ?> </label> <label><input type="checkbox" name="_nature_of_accident[]" value="slip and fall" /> <? Xl("Slip And Fall(Caida)",'e') ?> </label> <label><input type="checkbox" name="_nature_of_accident[]" value="work related" /> <? Xl("Work Related(Trabajo)",'e') ?> </label></td></tr>
+<tr><td class="text" > Nature of Accident(Accidence):</td><td class="text"   ><label><input type="checkbox" name="_nature_of_accident[]" value="automobile" /> <?php Xl("Automobile(Auto)",'e') ?> </label> <label><input type="checkbox" name="_nature_of_accident[]" value="slip and fall" /> <?php Xl("Slip And Fall(Caida)",'e') ?> </label> <label><input type="checkbox" name="_nature_of_accident[]" value="work related" /> <?php Xl("Work Related(Trabajo)",'e') ?> </label></td></tr>
 
 </table>
 
@@ -347,7 +347,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
     
 
     </table>
-<table></table><input type="submit" name="submit form" value="submit form" />  <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <? xl("[do not save]",'e') ?> </a>
+<table></table><input type="submit" name="submit form" value="submit form" />  <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
 
 </form>
 <?php

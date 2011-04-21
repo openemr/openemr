@@ -17,7 +17,7 @@ formHeader("Form: Forms2_Cardiology");
             <tr>
 
                 <td class="text">
-                    <strong> <? xl("Recommended Subacute Bacterial Endocarditis Prophylaxis",'e') ?> </strong></td>
+                    <strong> <?php xl("Recommended Subacute Bacterial Endocarditis Prophylaxis",'e') ?> </strong></td>
             </tr>
 
             <tr>
@@ -26,7 +26,7 @@ formHeader("Form: Forms2_Cardiology");
 
 <table>
 
-<tr><td> recommended subacute bacterial endocarditis prophylaxis</td> <td><label><input type="checkbox" name="_recommended_subacute_bacterial_endocarditis_prophylaxis[]" value="None" /> <? xl("None",'e') ?> </label> <label><input type="checkbox" name="_recommended_subacute_bacterial_endocarditis_prophylaxis[]" value="Standard" /> <? xl("Standard",'e') ?> </label></td></tr>
+<tr><td> recommended subacute bacterial endocarditis prophylaxis</td> <td><label><input type="checkbox" name="_recommended_subacute_bacterial_endocarditis_prophylaxis[]" value="None" /> <?php xl("None",'e') ?> </label> <label><input type="checkbox" name="_recommended_subacute_bacterial_endocarditis_prophylaxis[]" value="Standard" /> <?php xl("Standard",'e') ?> </label></td></tr>
 
 </table>
 
@@ -49,7 +49,7 @@ formHeader("Form: Forms2_Cardiology");
 
                 <td class='text'>
 
-                    <strong> <? xl("Check the letter below describing the level of exercise tolerance in which the
+                    <strong> <?php xl("Check the letter below describing the level of exercise tolerance in which the
                         applicant is able to participate.",'e') ?> </strong></td>
             </tr>
 
@@ -108,7 +108,7 @@ formHeader("Form: Forms2_Cardiology");
             <tr>
 
                 <td class='text' colspan="3">
-                    <b> <? xl("Allergies:",'e') ?> </b></td>
+                    <b> <?php xl("Allergies:",'e') ?> </b></td>
             </tr>
 
             <tr>
@@ -222,7 +222,7 @@ formHeader("Form: Forms2_Cardiology");
             <tr>
 
                 <td class='text' colspan="2">
-                    <strong> <? xl("Medications:",'e') ?> </strong></td>
+                    <strong> <?php xl("Medications:",'e') ?> </strong></td>
             </tr>
 
             <tr>
@@ -351,7 +351,7 @@ formHeader("Form: Forms2_Cardiology");
 
                 <td class='text' align="center">
 
-                    <strong> <? xl("Non-prescription medications we stock in the camp infirmary are listed below:
+                    <strong> <?php xl("Non-prescription medications we stock in the camp infirmary are listed below:
                         Please check those which we SHOULD NOT administer",'e') ?> </strong></td>
             </tr>
 
@@ -361,7 +361,7 @@ formHeader("Form: Forms2_Cardiology");
 
 <table>
 
-<tr><td> non prescription medications</td> <td><label><input type="checkbox" name="_non_prescription_medications[]" value="Acetaminophen" /> <? xl("Acetaminophen",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Advil" /> <? xl("Advil",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Benadryl" /> <? xl("Benadryl",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Caladryl" /> <? xl("Caladryl",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Chloraseptic Spray" /> <? xl("Chloraseptic Spray",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Cough Medicine" /> <? xl("Cough Medicine",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Dramamine" /> <? xl("Dramamine",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Kaopectate" /> <? xl("Kaopectate",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Meclazine" /> <? xl("Meclazine",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Milk of Magnesia" /> <? xl("Milk of Magnesia",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Pepto Bismol" /> <? xl("Pepto Bismol",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Sudafed" /> <? xl("Sudafed",'e') ?> </label></td></tr>
+<tr><td> non prescription medications</td> <td><label><input type="checkbox" name="_non_prescription_medications[]" value="Acetaminophen" /> <?php xl("Acetaminophen",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Advil" /> <?php xl("Advil",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Benadryl" /> <?php xl("Benadryl",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Caladryl" /> <?php xl("Caladryl",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Chloraseptic Spray" /> <?php xl("Chloraseptic Spray",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Cough Medicine" /> <?php xl("Cough Medicine",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Dramamine" /> <?php xl("Dramamine",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Kaopectate" /> <?php xl("Kaopectate",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Meclazine" /> <?php xl("Meclazine",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Milk of Magnesia" /> <?php xl("Milk of Magnesia",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Pepto Bismol" /> <?php xl("Pepto Bismol",'e') ?> </label> <label><input type="checkbox" name="_non_prescription_medications[]" value="Sudafed" /> <?php xl("Sudafed",'e') ?> </label></td></tr>
 
 </table>
                 </td>
@@ -414,7 +414,7 @@ formHeader("Form: Forms2_Cardiology");
             <tr>
 
                 <td class='text' colspan="4">
-                    <strong> <? xl("Cardiac Rhythm/Device History",'e') ?> </strong></td>
+                    <strong> <?php xl("Cardiac Rhythm/Device History",'e') ?> </strong></td>
             </tr>
 
             <tr>
@@ -423,7 +423,7 @@ formHeader("Form: Forms2_Cardiology");
 
 <table>
 
-<tr><td> does applicant have a history of dysrhythmias</td> <td><label><input type="radio" name="_does_applicant_have_a_history_of_dysrhythmias" value="Yes" /> <? xl("Yes",'e') ?> </label> <label><input type="radio" name="_does_applicant_have_a_history_of_dysrhythmias" value="NO" /> <? xl("NO",'e') ?> </label></td></tr>
+<tr><td> does applicant have a history of dysrhythmias</td> <td><label><input type="radio" name="_does_applicant_have_a_history_of_dysrhythmias" value="Yes" /> <?php xl("Yes",'e') ?> </label> <label><input type="radio" name="_does_applicant_have_a_history_of_dysrhythmias" value="NO" /> <?php xl("NO",'e') ?> </label></td></tr>
 
 </table>
                 </td>
@@ -462,7 +462,7 @@ formHeader("Form: Forms2_Cardiology");
 
 <table>
 
-<tr><td> does applicant have a pacemaker or icd</td> <td><label><input type="radio" name="_does_applicant_have_a_pacemaker_or_icd" value="Yes" /> <? xl("Yes",'e') ?> </label> <label><input type="radio" name="_does_applicant_have_a_pacemaker_or_icd" value="NO" /> <? xl("NO",'e') ?> </label></td></tr>
+<tr><td> does applicant have a pacemaker or icd</td> <td><label><input type="radio" name="_does_applicant_have_a_pacemaker_or_icd" value="Yes" /> <?php xl("Yes",'e') ?> </label> <label><input type="radio" name="_does_applicant_have_a_pacemaker_or_icd" value="NO" /> <?php xl("NO",'e') ?> </label></td></tr>
 
 </table>
                 </td>
@@ -492,7 +492,7 @@ formHeader("Form: Forms2_Cardiology");
             <tr>
 
                 <td class='text' colspan="4">
-                    <strong> <? xl("Pacemaker",'e') ?> </strong></td>
+                    <strong> <?php xl("Pacemaker",'e') ?> </strong></td>
             </tr>
 
             <tr>
@@ -570,7 +570,7 @@ formHeader("Form: Forms2_Cardiology");
             <tr>
 
                 <td class='text' colspan="6">
-                    <strong> <? xl("ICD",'e') ?> </strong></td>
+                    <strong> <?php xl("ICD",'e') ?> </strong></td>
             </tr>
 
             <tr>
@@ -632,7 +632,7 @@ Calendar.setup({inputField:'_icd_date_of_last_interrogation', ifFormat:'%Y-%m-%d
             <tr>
 
                 <td class='text' colspan="2">
-                    <strong> <? xl("Cardiac Transplant Only",'e') ?> </strong></td>
+                    <strong> <?php xl("Cardiac Transplant Only",'e') ?> </strong></td>
             </tr>
 
             <tr>
@@ -683,7 +683,7 @@ Calendar.setup({inputField:'_icd_date_of_last_interrogation', ifFormat:'%Y-%m-%d
 
 <table>
 
-<tr><td> evidence of rejection</td> <td><label><input type="radio" name="_evidence_of_rejection" value="Yes" /> <? xl("Yes",'e') ?> </label> <label><input type="radio" name="_evidence_of_rejection" value="NO" /> <? xl("NO",'e') ?> </label></td></tr>
+<tr><td> evidence of rejection</td> <td><label><input type="radio" name="_evidence_of_rejection" value="Yes" /> <?php xl("Yes",'e') ?> </label> <label><input type="radio" name="_evidence_of_rejection" value="NO" /> <?php xl("NO",'e') ?> </label></td></tr>
 
 </table>
                 </td>
@@ -727,7 +727,7 @@ Calendar.setup({inputField:'_last_cardiac_biopsy_date', ifFormat:'%Y-%m-%d', but
             <tr>
 
                 <td class='text' colspan="5">
-                    <strong> <? xl("Physical Exam:",'e') ?> </strong></td>
+                    <strong> <?php xl("Physical Exam:",'e') ?> </strong></td>
             </tr>
 
             <tr>

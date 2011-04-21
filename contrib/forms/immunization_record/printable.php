@@ -15,17 +15,17 @@ include_once("$srcdir/api.inc");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>Form: ACOG Immunization record</title>
 
-<? include("../../acog_printable_h.css"); ?>
+<?php include("../../acog_printable_h.css"); ?>
 
 </head>
 
 
 
-<? 
+<?php 
 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
 
@@ -57,11 +57,11 @@ include_once("$srcdir/api.inc");
 
     <tr align="left" valign="bottom">
 
-      <td colspan="4" class="fibody2" id="bordR">Patient name: <? echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
+      <td colspan="4" class="fibody2" id="bordR">Patient name: <?php echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
 
-      <td colspan="2" class="fibody2" id="bordR">Birth date: <? echo $patient{'DOB'}; ?></td>
+      <td colspan="2" class="fibody2" id="bordR">Birth date: <?php echo $patient{'DOB'}; ?></td>
 
-      <td colspan="2" class="fibody2">ID No: <?  echo $patient{'id'};  ?></td>
+      <td colspan="2" class="fibody2">ID No: <?php  echo $patient{'id'};  ?></td>
 
       </tr>
 
@@ -175,7 +175,8 @@ include_once("$srcdir/api.inc");
 
   <table width="100%"  border="0" cellspacing="0" cellpadding="2">
 
-<?
+<?php
+
 
 $vacci=0;
 

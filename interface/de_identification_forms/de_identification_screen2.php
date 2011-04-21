@@ -93,7 +93,8 @@ if($deIdentificationStatus == 0)
 <body class="body_top">
 <strong>De Identification</strong>
 <form name="De Identification1" id="De Identification1" method="post"><br />
-	<?
+	<?php
+
 	$query = "SELECT count(*) as count FROM metadata_de_identification";
 	$res = sqlStatement($query);
 	if ($row = sqlFetchArray($res))

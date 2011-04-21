@@ -94,7 +94,8 @@ $row = sqlFetchArray($res);
       $iter=$row;
 ?>
 <div id="display_msg">
-<?
+<?php
+
 if ($update_pwd_failed==1) //display message if entered password matched one of last three passwords.
 {
   echo "<font class='redtext'>". xl("Recent three passwords are not allowed.") ."</font>";
@@ -105,7 +106,7 @@ if ($update_pwd_failed==1) //display message if entered password matched one of 
 <span class="text"><?php xl('Once you change your password, you will have to re-login.','e'); ?><br></span>
 <FORM NAME="user_form" METHOD="GET" ACTION="user_info.php"
  onsubmit="top.restoreSession()">
-<input type=hidden name=secure_pwd value="<? echo $GLOBALS['secure_password']; ?>">
+<input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
 <TABLE>
 <TR>
 <TD><span class=text><?php xl('Full Name','e'); ?>: </span></TD>

@@ -169,7 +169,8 @@ if ($fd == FALSE) {
 	flush();
 	break;
 }
-$string = "<?
+$string = "<?php
+
 //  OpenEMR
 //  MySQL Config
 //  Referenced from sql.inc
@@ -204,7 +205,7 @@ $config = 1; /////////////
 //////////////////////////
 ?>
 ';
-?><? // done just for coloring
+?><?php // done just for coloring
 
 fwrite($fd,$string) or $it_died++;
 

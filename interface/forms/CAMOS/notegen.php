@@ -49,7 +49,7 @@ if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['
 <tr><td>
 <span class='text'><?php xl('Start (yyyy-mm-dd): ','e') ?></span>
 </td><td>
-<input type='text' size='10' name='start' id='start' value='<? echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>' 
+<input type='text' size='10' name='start' id='start' value='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>' 
 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
 title='<?php xl('yyyy-mm-dd last date of this event','e'); ?>' />
 <img src='<?php echo $depth ?>interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -63,7 +63,7 @@ Calendar.setup({inputField:'start', ifFormat:'%Y-%m-%d', button:'img_start'});
 <tr><td>
 <span class='text'><?php xl('End (yyyy-mm-dd): ','e') ?></span>
 </td><td>
-<input type='text' size='10' name='end' id='end' value ='<? echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>' 
+<input type='text' size='10' name='end' id='end' value ='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>' 
 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
 title='<?php xl('yyyy-mm-dd last date of this event','e'); ?>' />
 <img src='<?php echo $depth ?>interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'

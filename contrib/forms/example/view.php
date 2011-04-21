@@ -1,4 +1,5 @@
-<?
+<?php
+
 include("../../../library/api.inc");
 formHeader("View my form");
 ?>
@@ -9,7 +10,8 @@ formHeader("View my form");
 <br>
 
 <span class=text>Reason for Visit:</span><br>
-<textarea name=reason cols=40 rows=6 wrap=virtual><?
+<textarea name=reason cols=40 rows=6 wrap=virtual><?php
+
 $result = formFetch('newer_patient', "7");
 
 echo $result["reason"];

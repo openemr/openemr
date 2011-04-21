@@ -1,4 +1,5 @@
-<?
+<?php
+
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -256,7 +257,7 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <title><?php xl('Export Patient Demographics','e'); ?></title>
 </head>
@@ -269,7 +270,7 @@ paste this into an email or to any other desired destination.','e'); ?></p>
 <form>
 
 <textarea rows='10' cols='50' style='width:95%' readonly>
-<? echo $out ?>
+<?php echo $out ?>
 </textarea>
 
 <p><input type='button' value=<?php xl('OK','e','\'','\''); ?> onclick='window.close()' /></p>

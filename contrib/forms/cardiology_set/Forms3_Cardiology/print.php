@@ -704,7 +704,7 @@ formHeader("Form: Forms3_Cardiology");
 
 <table>
 
-<tr><td class='text'  ><? xl("Examination",'e') ?></td> 
+<tr><td class='text'  ><?php xl("Examination",'e') ?></td> 
 <td class='text'  ><textarea name="examination"  rows="4" cols="40"></textarea></td></tr>
 
 </table>

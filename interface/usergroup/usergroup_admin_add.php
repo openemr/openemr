@@ -78,7 +78,7 @@ function authorized_clicked() {
 <form name='new_user' method='post'  target="_parent" action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=new_user>
-<input type=hidden name=secure_pwd value="<? echo $GLOBALS['secure_password']; ?>">
+<input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
 <span class="bold">&nbsp;</span>
 </td><td>
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">

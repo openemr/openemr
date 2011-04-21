@@ -89,7 +89,7 @@ function codeselect(selobj) {
 </script>
 
 <form method="post" action="<?php echo coding_form_action(); ?>">
-<span class="title"><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Fee' : 'Coding' ?> Sheet</span><br>
+<span class="title"><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Fee' : 'Coding' ?> Sheet</span><br>
 <input type='hidden' name='newcodes' value=''>
 
 <center>
@@ -178,7 +178,8 @@ echo " </tr>\n";
  <tr>
   <td>
    Search&nbsp;
-<?
+<?php
+
 	foreach ($code_types as $key => $value) {
 		echo "   <input type='radio' name='search_type' value='$key'";
 		if ($key == $default_search_type) echo " checked";
@@ -202,17 +203,18 @@ echo " </tr>\n";
  <tr>
   <td class='billcell'><b>Type</b></td>
   <td class='billcell'><b>Code</b></td>
-<? if (modifiers_are_used()) { ?>
+<?php if (modifiers_are_used()) { ?>
   <td class='billcell'><b>Mod</b></td>
-<? } ?>
-<? if (fees_are_used()) { ?>
+<?php } ?>
+<?php if (fees_are_used()) { ?>
   <td class='billcell' align='right'><b>Fee</b>&nbsp;</td>
-<? } ?>
+<?php } ?>
   <td class='billcell' align='center'><b>Auth</b></td>
   <td class='billcell' align='center'><b>Delete</b></td>
   <td class='billcell'><b>Description</b></td>
  </tr>
-<?
+<?php
+
 
 // This writes a billing line item to the output page.
 //
@@ -368,7 +370,8 @@ if ($_POST['newcodes']) {
 
 <span class="billcell">PROVIDER:</span>
 
-<?
+<?php
+
 // Build a drop-down list of providers.  This includes users who
 // have the word "provider" anywhere in their "additional info"
 // field, so that we can define providers (for billing purposes)
@@ -404,7 +407,7 @@ echo "   </select>\n";
 &nbsp;<br>
 UCSMC codes provided by the University of Calgary Sports Medicine Centre
 </p>
-<? } ?>
+<?php } ?>
 
 </center>
 

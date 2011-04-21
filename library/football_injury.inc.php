@@ -242,7 +242,7 @@ function issue_football_injury_form($issue) {
      <td nowrap>
       Min of Injury
       <input type='text' name='form_injmin' size='4'
-       value='<? echo addslashes($firow['fiinjmin']) ?>' />
+       value='<?php echo addslashes($firow['fiinjmin']) ?>' />
      </td>
 <?php
 $i = 1;
@@ -538,14 +538,14 @@ while ($i % 4 > 0) {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo cbficell('form_mech_nofoul' , 'No Foul'      , 'fimech_nofoul' ) ?>
-     <? echo cbficell('form_mech_oppfoul', 'Opponent Foul', 'fimech_oppfoul') ?>
-     <? echo cbficell('form_mech_ownfoul', 'Own Foul'     , 'fimech_ownfoul') ?>
+     <?php echo cbficell('form_mech_nofoul' , 'No Foul'      , 'fimech_nofoul' ) ?>
+     <?php echo cbficell('form_mech_oppfoul', 'Opponent Foul', 'fimech_oppfoul') ?>
+     <?php echo cbficell('form_mech_ownfoul', 'Own Foul'     , 'fimech_ownfoul') ?>
      <td width='25%'>&nbsp;</td>
     </tr>
     <tr>
-     <? echo cbficell('form_mech_yellow' , 'Yellow Card'  , 'fimech_yellow' ) ?>
-     <? echo cbficell('form_mech_red'    , 'Red Card'     , 'fimech_red'    ) ?>
+     <?php echo cbficell('form_mech_yellow' , 'Yellow Card'  , 'fimech_yellow' ) ?>
+     <?php echo cbficell('form_mech_red'    , 'Red Card'     , 'fimech_red'    ) ?>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
     </tr>
@@ -562,9 +562,9 @@ while ($i % 4 > 0) {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbficell('form_removed', '1', 'Immediately', 'firemoved') ?>
-     <? echo rbficell('form_removed', '2', 'Later'      , 'firemoved') ?>
-     <? echo rbficell('form_removed', '3', 'Not at All' , 'firemoved') ?>
+     <?php echo rbficell('form_removed', '1', 'Immediately', 'firemoved') ?>
+     <?php echo rbficell('form_removed', '2', 'Later'      , 'firemoved') ?>
+     <?php echo rbficell('form_removed', '3', 'Not at All' , 'firemoved') ?>
      <td width='25%'>&nbsp;</td>
     </tr>
    </table>

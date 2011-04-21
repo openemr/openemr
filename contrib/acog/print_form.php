@@ -1,4 +1,5 @@
-<?
+<?php
+
 $special_timeout = 3600;
 include_once("../../../interface/globals.php");
 // if (!allowed("frmprint")){ msgDenied(); }

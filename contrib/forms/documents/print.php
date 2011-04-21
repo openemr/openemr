@@ -1,4 +1,5 @@
-<?
+<?php
+
 # print scanned documents
 
 include("../../../library/api.inc");

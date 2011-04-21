@@ -1,4 +1,5 @@
-<?
+<?php
+
 $ignoreAuth=true;
 include_once("../globals.php");
 include_once("$srcdir/sha1.js");
@@ -16,7 +17,8 @@ include_once("$srcdir/sql.inc");
 
 <form method="POST" action="../main/main_screen.php?auth=login" target="_top" name=login_form>
 
-<?
+<?php
+
 $res = sqlStatement("select distinct name from groups");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
 	$result[$iter] = $row;
@@ -33,21 +35,24 @@ if (count($result) == 1) {
 </td>
 <td align='center' valign='middle' width=34%>
 <table>
-<?
+<?php
+
 if (count($result) != 1) {
 ?>
 <tr>
 <td><span class="text"><?xl('Group:','e')?></span></td>
 <td>
 <select name=authProvider>
-<?
+<?php
+
 	foreach ($result as $iter) {
 		echo "<option value='".$iter{"name"}."'>".$iter{"name"}."</option>\n";
 	}
 ?>
 </select>
 </td></tr>
-<?
+<?php
+
 }
 ?>
 <tr>
@@ -62,7 +67,7 @@ if (count($result) != 1) {
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
 <!-- ViCareplus : As per NIST standard, the SHA1 encryption algorithm is used-->
-<input type="submit" onClick="javascript:this.form.authPass.value=SHA1(this.form.clearPass.value);this.form.clearPass.value='';" value="<? xl('Login','e'); ?>">
+<input type="submit" onClick="javascript:this.form.authPass.value=SHA1(this.form.clearPass.value);this.form.clearPass.value='';" value="<?php xl('Login','e'); ?>">
 </td></tr>
 </table>
 

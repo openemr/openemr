@@ -725,7 +725,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Examination",'e') ?> </td> <td class='text' ><textarea name="examination"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"examination"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' > <?php xl("Examination",'e') ?> </td> <td class='text' ><textarea name="examination"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"examination"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr>             

@@ -1,4 +1,4 @@
-<? function plist_report( $pid, $encounter, $cols, $id) { ?>
+<?php function plist_report( $pid, $encounter, $cols, $id) { ?>
 
 <?php
 include_once("../../globals.php");
@@ -14,19 +14,19 @@ include_once("$srcdir/api.inc");
 <table width="70%"  border="0" cellspacing="0" cellpadding="4">
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">Patient name:</td>
-    <td align="left" valign="bottom" class="fibody5"><? echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
+    <td align="left" valign="bottom" class="fibody5"><?php echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
   </tr>
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">Birth date: </td>
-    <td align="left" valign="bottom" class="fibody5"><?  echo $patient{'DOB'};  ?></td>
+    <td align="left" valign="bottom" class="fibody5"><?php  echo $patient{'DOB'};  ?></td>
   </tr>
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">ID No:</td>
-    <td align="left" valign="bottom" class="fibody5"><? echo $patient{'id'};  ?></td>
+    <td align="left" valign="bottom" class="fibody5"><?php echo $patient{'id'};  ?></td>
   </tr>
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">Date</td>
-    <td align="left" valign="bottom" class="fibody5"><? echo date('Y-m-d'); ?></td>
+    <td align="left" valign="bottom" class="fibody5"><?php echo date('Y-m-d'); ?></td>
   </tr>
 </table>
 <div class="srvChapter">Problem list </div>
@@ -37,16 +37,16 @@ include_once("$srcdir/api.inc");
       <td width="50%" class="ficaption3">Family history:</td>
     </tr>
     <tr>
-      <td class="fibody5" id="bordR"><? echo $repdata{'pl_high_risk'} ?>&nbsp;</td>
-      <td class="fibody5"><? echo $repdata{'pl_family_history'} ?>&nbsp;</td>
+      <td class="fibody5" id="bordR"><?php echo $repdata{'pl_high_risk'} ?>&nbsp;</td>
+      <td class="fibody5"><?php echo $repdata{'pl_family_history'} ?>&nbsp;</td>
     </tr>
     <tr>
       <td class="ficaption3" id="bordR">Drug/Latex/Transfusion/Allergic reactions: </td>
       <td class="ficaption3">Current medications:</td>
     </tr>
     <tr>
-      <td class="fibody5" id="bordR"><? echo $repdata{'pl_reactions'} ?>&nbsp;</td>
-      <td class="fibody5"><? echo $repdata{'pl_medications'} ?>&nbsp;</td>
+      <td class="fibody5" id="bordR"><?php echo $repdata{'pl_reactions'} ?>&nbsp;</td>
+      <td class="fibody5"><?php echo $repdata{'pl_medications'} ?>&nbsp;</td>
     </tr>
   </table>
 </div>
@@ -60,7 +60,8 @@ include_once("$srcdir/api.inc");
       <td width="120" align="center" valign="bottom" class="ficaption2" id="bordR">Onset age and date </td>
       <td width="120" align="center" valign="bottom" class="ficaption2">Resolution date </td>
     </tr>
-<?
+<?php
+
 $pli = 1;
 
 while ($pli < 26){
@@ -79,4 +80,4 @@ $pli++;
 ?>	
   </table>
 </div>
-<? } ?>
+<?php } ?>

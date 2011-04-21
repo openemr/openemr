@@ -72,7 +72,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <script language="JavaScript">
 </script>
@@ -80,7 +80,7 @@ if ($formid) {
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
  bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<? echo $rootdir ?>/forms/hist_exam_plan/new.php?id=<? echo $formid ?>"
+<form method="post" action="<?php echo $rootdir ?>/forms/hist_exam_plan/new.php?id=<?php echo $formid ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
@@ -95,21 +95,21 @@ if ($formid) {
  <tr>
   <td width='5%'  nowrap> History </td>
   <td width='95%' nowrap>
-   <textarea name='form_history' rows='8' style='width:100%'><? echo $row['history'] ?></textarea>
+   <textarea name='form_history' rows='8' style='width:100%'><?php echo $row['history'] ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> Examination </td>
   <td nowrap>
-   <textarea name='form_examination' rows='8' style='width:100%'><? echo $row['examination'] ?></textarea>
+   <textarea name='form_examination' rows='8' style='width:100%'><?php echo $row['examination'] ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> Plan </td>
   <td nowrap>
-   <textarea name='form_plan' rows='8' style='width:100%'><? echo $row['plan'] ?></textarea>
+   <textarea name='form_plan' rows='8' style='width:100%'><?php echo $row['plan'] ?></textarea>
   </td>
  </tr>
 

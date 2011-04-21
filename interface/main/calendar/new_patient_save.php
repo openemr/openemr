@@ -1,4 +1,5 @@
-<?
+<?php
+
 include_once("../../globals.php");
 
 include_once("$srcdir/sql.inc");

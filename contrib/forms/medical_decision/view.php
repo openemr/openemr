@@ -19,7 +19,7 @@ include_once("$srcdir/calendar.inc");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>Medical decision making</title>
 
@@ -45,7 +45,7 @@ window.onload = initialize;
 
 <div class="srvChapter">Medical decision making <a href="#" onMouseOver="toolTip('The <b>Medical Decision Making</b> section provides space to document minutes counseled, total encounter time, and other services needed to determine the correct level of medical decision making. <br><br><b>Amount and complexility of data reviewed</b><br>Minimal/none = 1 box, limited = 2 boxes, moderate = 3 boxes, extensive = 4+ boxes<br><br>The following items (if checked) count as 2 boxes:<li>OLD RECORDS REVIEWED AND SUMMARIZED</li><li>HISTORY OBTAINED FROM OTHER SOURCE</li><li>INDEPENDENT REVIEW OF IMAGE/SPECIMEN</li>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 
-<? 
+<?php 
 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
 
@@ -65,9 +65,9 @@ window.onload = initialize;
 
 ?>
 
-<form action="<?echo $rootdir;?>/forms/medical_decision/save.php?mode=update&id=<? echo $id ?>" method="post" enctype="multipart/form-data" name="my_form">
+<form action="<?echo $rootdir;?>/forms/medical_decision/save.php?mode=update&id=<?php echo $id ?>" method="post" enctype="multipart/form-data" name="my_form">
 
-<? include("../../acog_menu.inc"); ?>
+<?php include("../../acog_menu.inc"); ?>
 
 <div style="border: solid 2px black; background-color: white;">
 
@@ -81,7 +81,8 @@ window.onload = initialize;
 
         <td width="40%" class="bordR">Patient name <br> 
 
-          <input name="pname" type="text" class="fullin" id="pname" value="<?
+          <input name="pname" type="text" class="fullin" id="pname" value="<?php
+
 
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
 
@@ -91,7 +92,8 @@ window.onload = initialize;
 
           <br> 
 
-          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?
+          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?php
+
 
           echo $patient{'DOB'};
 
@@ -99,7 +101,8 @@ window.onload = initialize;
 
         <td width="20%" class="bordR">ID No<br> 
 
-          <input name="md_pid" type="text" class="fullin" id="md_pid" size="12" value="<?
+          <input name="md_pid" type="text" class="fullin" id="md_pid" size="12" value="<?php
+
 
           echo $patient{'id'};
 
@@ -107,7 +110,8 @@ window.onload = initialize;
 
         <td width="20%">date<br>
 
-        <input name="md_date" type="text" class="fullin" id="md_date" value="<?
+        <input name="md_date" type="text" class="fullin" id="md_date" value="<?php
+
 
         echo date('Y-m-d');
 
@@ -147,7 +151,7 @@ window.onload = initialize;
 
     <td class="fibody3"><p>
 
-      <input name="test_lab" type="checkbox"  value="1" <? echo (($fdata{'test_lab'} == '1')?' checked ':''); ?>>
+      <input name="test_lab" type="checkbox"  value="1" <?php echo (($fdata{'test_lab'} == '1')?' checked ':''); ?>>
 
       Laboratory</p>
 
@@ -155,41 +159,41 @@ window.onload = initialize;
 
         <p>
 
-          <input name="test_lab_cervical" type="checkbox"  value="1" <? echo (($fdata{'test_lab_cervical'} == '1')?' checked ':''); ?>>
+          <input name="test_lab_cervical" type="checkbox"  value="1" <?php echo (($fdata{'test_lab_cervical'} == '1')?' checked ':''); ?>>
 
           cervical cytology</p>
 
         <p>
 
-          <input name="test_lab_hpv" type="checkbox"  value="1" <? echo (($fdata{'test_lab_hpv'} == '1')?' checked ':''); ?>>
+          <input name="test_lab_hpv" type="checkbox"  value="1" <?php echo (($fdata{'test_lab_hpv'} == '1')?' checked ':''); ?>>
 
           HPV test</p>
 
         <p>
 
-          <input name="test_lab_wet_mount" type="checkbox"  value="1" <? echo (($fdata{'test_lab_wet_mount'} == '1')?' checked ':''); ?>>
+          <input name="test_lab_wet_mount" type="checkbox"  value="1" <?php echo (($fdata{'test_lab_wet_mount'} == '1')?' checked ':''); ?>>
 
           wet mount</p>
 
         <p>
 
-          <input name="test_lab_chlamydia" type="checkbox"  value="checkbox" <? echo (($fdata{'test_lab_chlamydia'} == 'checkbox')?' checked ':''); ?>>
+          <input name="test_lab_chlamydia" type="checkbox"  value="checkbox" <?php echo (($fdata{'test_lab_chlamydia'} == 'checkbox')?' checked ':''); ?>>
 
           chlamydia</p>
 
         <p>
 
-          <input name="test_lab_gonorrhea" type="checkbox"  value="1" <? echo (($fdata{'test_lab_gonorrhea'} == '1')?' checked ':''); ?>>
+          <input name="test_lab_gonorrhea" type="checkbox"  value="1" <?php echo (($fdata{'test_lab_gonorrhea'} == '1')?' checked ':''); ?>>
 
           gonorrhea</p>
 
         <p>
 
-          <input name="test_lab_other" type="checkbox"  value="1" <? echo (($fdata{'test_lab_other'} == '1')?' checked ':''); ?>>
+          <input name="test_lab_other" type="checkbox"  value="1" <?php echo (($fdata{'test_lab_other'} == '1')?' checked ':''); ?>>
 
           other <span class="ficaption2">
 
-          <input name="test_lab_other_data" type="text" class="fullin"  style="width:60px" value="<? echo $fdata{'test_lab_other_data'}; ?>">
+          <input name="test_lab_other_data" type="text" class="fullin"  style="width:60px" value="<?php echo $fdata{'test_lab_other_data'}; ?>">
 
           </span></p>
 
@@ -197,7 +201,7 @@ window.onload = initialize;
 
       <p>
 
-        <input name="test_rad" type="checkbox"  value="1" <? echo (($fdata{'test_rad'} == '1')?' checked ':''); ?>>
+        <input name="test_rad" type="checkbox"  value="1" <?php echo (($fdata{'test_rad'} == '1')?' checked ':''); ?>>
 
         Radiology / Ultrasound</p>
 
@@ -205,17 +209,17 @@ window.onload = initialize;
 
         <p>
 
-          <input name="test_rad_mammogram" type="checkbox"  value="1" <? echo (($fdata{'test_rad_mammogram'} == '1')?' checked ':''); ?>>
+          <input name="test_rad_mammogram" type="checkbox"  value="1" <?php echo (($fdata{'test_rad_mammogram'} == '1')?' checked ':''); ?>>
 
           mammogram</p>
 
         <p>
 
-          <input name="test_rad_other" type="checkbox"  value="checkbox" <? echo (($fdata{'test_rad_other'} == 'checkbox')?' checked ':''); ?>>
+          <input name="test_rad_other" type="checkbox"  value="checkbox" <?php echo (($fdata{'test_rad_other'} == 'checkbox')?' checked ':''); ?>>
 
           other <span class="ficaption2">
 
-          <input name="test_rad_other_data" type="text" class="fullin"  style="width:60px" value="<? echo $fdata{'test_rad_other_data'}; ?>">
+          <input name="test_rad_other_data" type="text" class="fullin"  style="width:60px" value="<?php echo $fdata{'test_rad_other_data'}; ?>">
 
           </span> </p>
 
@@ -223,53 +227,53 @@ window.onload = initialize;
 
     <td class="fibody3"><p>
 
-      <input name="previous_test_results" type="checkbox"  value="1" <? echo (($fdata{'previous_test_results'} == '1')?' checked ':''); ?>>
+      <input name="previous_test_results" type="checkbox"  value="1" <?php echo (($fdata{'previous_test_results'} == '1')?' checked ':''); ?>>
 
       previous test results:</p>
 
       <p>
 
-        <input name="previous_test_results_data" type="text" class="fullin2"  value="<? echo $fdata{'previous_test_results_data'}; ?>">
+        <input name="previous_test_results_data" type="text" class="fullin2"  value="<?php echo $fdata{'previous_test_results_data'}; ?>">
 
       </p> <p>
 
-        <input name="test_results_discussion" type="checkbox"  value="1" <? echo (($fdata{'test_results_discussion'} == '1')?' checked ':''); ?>>
+        <input name="test_results_discussion" type="checkbox"  value="1" <?php echo (($fdata{'test_results_discussion'} == '1')?' checked ':''); ?>>
 
         discussion of test results with performing physician:</p>
 
       <p>
 
-        <input name="test_results_discussion_data" type="text" class="fullin2"  value="<? echo $fdata{'test_results_discussion_data'}; ?>">
+        <input name="test_results_discussion_data" type="text" class="fullin2"  value="<?php echo $fdata{'test_results_discussion_data'}; ?>">
 
       </p> <p>
 
-        <input name="old_records_reviewed" type="checkbox"  value="1" <? echo (($fdata{'old_records_reviewed'} == '1')?' checked ':''); ?>>
+        <input name="old_records_reviewed" type="checkbox"  value="1" <?php echo (($fdata{'old_records_reviewed'} == '1')?' checked ':''); ?>>
 
         old records reviewed and summarized:</p>
 
       <p>
 
-        <input name="old_records_reviewed_data" type="text" class="fullin2"  value="<? echo $fdata{'old_records_reviewed_data'}; ?>">
+        <input name="old_records_reviewed_data" type="text" class="fullin2"  value="<?php echo $fdata{'old_records_reviewed_data'}; ?>">
 
       </p> <p>
 
-        <input name="history_other_source" type="checkbox"  value="1" <? echo (($fdata{'history_other_source'} == '1')?' checked ':''); ?>>
+        <input name="history_other_source" type="checkbox"  value="1" <?php echo (($fdata{'history_other_source'} == '1')?' checked ':''); ?>>
 
         history obtained from other source:</p>
 
       <p>
 
-        <input name="history_other_source_data" type="text" class="fullin2"  value="<? echo $fdata{'history_other_source_data'}; ?>">
+        <input name="history_other_source_data" type="text" class="fullin2"  value="<?php echo $fdata{'history_other_source_data'}; ?>">
 
       </p> <p>
 
-        <input name="independent_review" type="checkbox"  value="1" <? echo (($fdata{'independent_review'} == '1')?' checked ':''); ?>>
+        <input name="independent_review" type="checkbox"  value="1" <?php echo (($fdata{'independent_review'} == '1')?' checked ':''); ?>>
 
         independent review of image/specimen:</p>
 
       <p>
 
-        <input name="independent_review_data" type="text" class="fullin2"  value="<? echo $fdata{'independent_review_data'}; ?>">
+        <input name="independent_review_data" type="text" class="fullin2"  value="<?php echo $fdata{'independent_review_data'}; ?>">
 
       </p></td>
 
@@ -289,11 +293,11 @@ window.onload = initialize;
 
       <tr>
 
-        <td colspan="2" align="left" valign="top" class="fibody2"> <input name="established_problem" type="radio" value="1" <? echo (($fdata{'established_problem'} == '1')?' checked ':''); ?>>
+        <td colspan="2" align="left" valign="top" class="fibody2"> <input name="established_problem" type="radio" value="1" <?php echo (($fdata{'established_problem'} == '1')?' checked ':''); ?>>
 
           Established problem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-          <input name="established_problem" type="radio" value="0" <? echo (($fdata{'established_problem'} == '0')?' checked ':''); ?>> 
+          <input name="established_problem" type="radio" value="0" <?php echo (($fdata{'established_problem'} == '0')?' checked ':''); ?>> 
 
         New problem </td>
 
@@ -307,7 +311,7 @@ window.onload = initialize;
 
       <tr>
 
-        <td colspan="2" align="left" valign="top" class="fibody2"><textarea name="assessment_and_plan" rows="7" wrap="PHYSICAL" class="fullin2" ><? echo $fdata{'assessment_and_plan'}; ?></textarea></td>
+        <td colspan="2" align="left" valign="top" class="fibody2"><textarea name="assessment_and_plan" rows="7" wrap="PHYSICAL" class="fullin2" ><?php echo $fdata{'assessment_and_plan'}; ?></textarea></td>
 
       </tr>
 
@@ -319,25 +323,25 @@ window.onload = initialize;
 
             <p>
 
-            <input name="md_risk" type="radio" value="minimal" <? echo (($fdata{'md_risk'} == 'minimal')?' checked ':''); ?>>
+            <input name="md_risk" type="radio" value="minimal" <?php echo (($fdata{'md_risk'} == 'minimal')?' checked ':''); ?>>
 
             Minimal (EG, cold, aches and pains, over-the-counter medications)</p>
 
             <p>
 
-            <input name="md_risk" type="radio" value="low" <? echo (($fdata{'md_risk'} == 'low')?' checked ':''); ?>>
+            <input name="md_risk" type="radio" value="low" <?php echo (($fdata{'md_risk'} == 'low')?' checked ':''); ?>>
 
             low (EG, cystitis, vaginitis, prescription renewal, minor surgery without risk factors) </p>
 
             <p>
 
-              <input name="md_risk" type="radio" value="moderate" <? echo (($fdata{'md_risk'} == 'moderate')?' checked ':''); ?>>
+              <input name="md_risk" type="radio" value="moderate" <?php echo (($fdata{'md_risk'} == 'moderate')?' checked ':''); ?>>
 
             moderate (EG, breast mass, irregular bleeding, headaches, minor surgery with risk factors, major surgery without risk factors, new prescription)</p>
 
             <p>
 
-              <input name="md_risk" type="radio" value="high" <? echo (($fdata{'md_risk'} == 'high')?' checked ':''); ?>>
+              <input name="md_risk" type="radio" value="high" <?php echo (($fdata{'md_risk'} == 'high')?' checked ':''); ?>>
 
             high (EG, pelvic pain, rectal bleeding, multiple complaints, major surgery with risk factors, chemotherapy, emergency surgery)  </p>
 
@@ -353,11 +357,11 @@ window.onload = initialize;
 
             <td width="20%" rowspan="3" align="left" valign="top" class="ficaption3">Patient counseled about:</td>
 
-            <td width="15%" align="left" valign="baseline" nowrap class="fibody3"><input name="pc_smoking" type="checkbox"  value="1" <? echo (($fdata{'pc_smoking'} == '1')?' checked ':''); ?>>
+            <td width="15%" align="left" valign="baseline" nowrap class="fibody3"><input name="pc_smoking" type="checkbox"  value="1" <?php echo (($fdata{'pc_smoking'} == '1')?' checked ':''); ?>>
 
               smoking cessation </td>
 
-            <td width="15%" align="left" valign="baseline" nowrap class="fibody3"><input name="pc_contraception" type="checkbox"  value="1" <? echo (($fdata{'pc_contraception'} == '1')?' checked ':''); ?>>
+            <td width="15%" align="left" valign="baseline" nowrap class="fibody3"><input name="pc_contraception" type="checkbox"  value="1" <?php echo (($fdata{'pc_contraception'} == '1')?' checked ':''); ?>>
 
               contraception</td>
 
@@ -369,11 +373,11 @@ window.onload = initialize;
 
           <tr>
 
-            <td align="left" valign="baseline" nowrap class="fibody3"><input name="pc_weight" type="checkbox"  value="1" <? echo (($fdata{'pc_weight'} == '1')?' checked ':''); ?>>
+            <td align="left" valign="baseline" nowrap class="fibody3"><input name="pc_weight" type="checkbox"  value="1" <?php echo (($fdata{'pc_weight'} == '1')?' checked ':''); ?>>
 
               weight management </td>
 
-            <td align="left" valign="baseline" nowrap class="fibody3"><input name="pc_safe_sex" type="checkbox"  value="1" <? echo (($fdata{'pc_safe_sex'} == '1')?' checked ':''); ?>>
+            <td align="left" valign="baseline" nowrap class="fibody3"><input name="pc_safe_sex" type="checkbox"  value="1" <?php echo (($fdata{'pc_safe_sex'} == '1')?' checked ':''); ?>>
 
               safe sex </td>
 
@@ -385,11 +389,11 @@ window.onload = initialize;
 
           <tr>
 
-            <td align="left" valign="baseline" nowrap class="fibody3"><input name="pc_exercise" type="checkbox"  value="1" <? echo (($fdata{'pc_exercise'} == '1')?' checked ':''); ?>>
+            <td align="left" valign="baseline" nowrap class="fibody3"><input name="pc_exercise" type="checkbox"  value="1" <?php echo (($fdata{'pc_exercise'} == '1')?' checked ':''); ?>>
 
               exercise</td>
 
-            <td align="left" valign="baseline" nowrap class="fibody3"><input name="pc_other" type="checkbox"  value="1" <? echo (($fdata{'pc_other'} == '1')?' checked ':''); ?>>
+            <td align="left" valign="baseline" nowrap class="fibody3"><input name="pc_other" type="checkbox"  value="1" <?php echo (($fdata{'pc_other'} == '1')?' checked ':''); ?>>
 
               other</td>
 
@@ -405,7 +409,7 @@ window.onload = initialize;
 
       <tr>
 
-        <td width="50%" align="left" valign="top" class="ficaption2" id="bordR"><input name="patient_education" type="checkbox"  value="1" <? echo (($fdata{'patient_education'} == '1')?' checked ':''); ?>>
+        <td width="50%" align="left" valign="top" class="ficaption2" id="bordR"><input name="patient_education" type="checkbox"  value="1" <?php echo (($fdata{'patient_education'} == '1')?' checked ':''); ?>>
 
         Patient education materials provided</td>
 
@@ -425,11 +429,11 @@ window.onload = initialize;
 
         <td align="left" valign="top" class="ficaption2" id="bordR">Minutes counseled: 
 
-        <input name="minutes_counseled" type="text" class="fullin"  style="width:60px" value="<? echo $fdata{'minutes_counseled'}; ?>"></td>
+        <input name="minutes_counseled" type="text" class="fullin"  style="width:60px" value="<?php echo $fdata{'minutes_counseled'}; ?>"></td>
 
         <td align="left" valign="top" class="ficaption2">Total encounter time: 
 
-        <input name="total_encounter_time" type="text" class="fullin"  style="width:60px" value="<? echo $fdata{'total_encounter_time'}; ?>"></td>
+        <input name="total_encounter_time" type="text" class="fullin"  style="width:60px" value="<?php echo $fdata{'total_encounter_time'}; ?>"></td>
 
       </tr>
 
@@ -439,7 +443,8 @@ window.onload = initialize;
 
         <td align="left" class="ficaption2">Date: 
 
-        <input name="md_date" type="text" class="fullin" id="md_date" style="width:80px" value="<?
+        <input name="md_date" type="text" class="fullin" id="md_date" style="width:80px" value="<?php
+
 
         echo date('Y-m-d');
 
@@ -455,7 +460,7 @@ window.onload = initialize;
 
   <tr><td align="left" width="120"> <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save Data]</a> </td>
 
-  <td align="left" nowrap> <a href="<? echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<? echo $id; ?>&formname=<? echo $formname; ?>"
+  <td align="left" nowrap> <a href="<?php echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<?php echo $id; ?>&formname=<?php echo $formname; ?>"
 
    target="_blank" class="link_submit" onclick="top.restoreSession()">[Printable form]</a> </td>
 

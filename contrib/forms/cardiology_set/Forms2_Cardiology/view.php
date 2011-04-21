@@ -44,7 +44,7 @@
              <tr> 
  
                  <td class="text"> 
-                     <strong> <? xl("Recommended Subacute Bacterial Endocarditis Prophylaxis",'e') ?> </strong></td> 
+                     <strong> <?php xl("Recommended Subacute Bacterial Endocarditis Prophylaxis",'e') ?> </strong></td> 
              </tr> 
  
              <tr> 
@@ -53,8 +53,8 @@
   
  <table> 
   
- <tr><td> recommended subacute bacterial endocarditis prophylaxis</td> <td><label><input type="checkbox" name="_recommended_subacute_bacterial_endocarditis_prophylaxis[]" value="None" <?php $result = chkdata_CB($obj,"_recommended_subacute_bacterial_endocarditis_prophylaxis","None"); echo $result;?> <? xl(">None",'e') ?> </label> 
- <label><input type="checkbox" name="_recommended_subacute_bacterial_endocarditis_prophylaxis[]" value="Standard" <?php $result = chkdata_CB($obj,"_recommended_subacute_bacterial_endocarditis_prophylaxis","Standard"); echo $result;?> <? xl(">Standard",'e') ?> </label></td></tr> 
+ <tr><td> recommended subacute bacterial endocarditis prophylaxis</td> <td><label><input type="checkbox" name="_recommended_subacute_bacterial_endocarditis_prophylaxis[]" value="None" <?php $result = chkdata_CB($obj,"_recommended_subacute_bacterial_endocarditis_prophylaxis","None"); echo $result;?> <?php xl(">None",'e') ?> </label> 
+ <label><input type="checkbox" name="_recommended_subacute_bacterial_endocarditis_prophylaxis[]" value="Standard" <?php $result = chkdata_CB($obj,"_recommended_subacute_bacterial_endocarditis_prophylaxis","Standard"); echo $result;?> <?php xl(">Standard",'e') ?> </label></td></tr> 
   
  </table> 
   
@@ -77,7 +77,7 @@
  
                  <td class='text'> 
  
-                     <strong> <? xl("Check the letter below describing the level of exercise tolerance in which the 
+                     <strong> <?php xl("Check the letter below describing the level of exercise tolerance in which the 
                          applicant is able to participate.",'e') ?> </strong></td> 
              </tr> 
  
@@ -136,7 +136,7 @@
              <tr> 
  
                  <td class='text' colspan="3"> 
-                     <b> <? xl("Allergies:",'e') ?> </b></td> 
+                     <b> <?php xl("Allergies:",'e') ?> </b></td> 
              </tr> 
  
              <tr> 
@@ -250,7 +250,7 @@
              <tr> 
  
                  <td class='text' colspan="2"> 
-                     <strong> <? xl("Medications:",'e') ?> </strong></td> 
+                     <strong> <?php xl("Medications:",'e') ?> </strong></td> 
              </tr> 
  
              <tr> 
@@ -379,7 +379,7 @@
  
                  <td class='text' align="center"> 
  
-                     <strong> <? xl("Non-prescription medications we stock in the camp infirmary are listed below: 
+                     <strong> <?php xl("Non-prescription medications we stock in the camp infirmary are listed below: 
                          Please check those which we SHOULD NOT administer",'e') ?> </strong></td> 
              </tr> 
  
@@ -389,18 +389,18 @@
   
  <table> 
   
- <tr><td> non prescription medications</td> <td><label><input type="checkbox" name="_non_prescription_medications[]" value="Acetaminophen" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Acetaminophen"); echo $result;?> <? xl(">Acetaminophen",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Advil" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Advil"); echo $result;?> <? xl(">Advil",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Benadryl" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Benadryl"); echo $result;?> <? xl(">Benadryl",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Caladryl" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Caladryl"); echo $result;?> <? xl(">Caladryl",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Chloraseptic Spray" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Chloraseptic Spray"); echo $result;?> <? xl(">Chloraseptic Spray",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Cough Medicine" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Cough Medicine"); echo $result;?> <? xl(">Cough Medicine",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Dramamine" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Dramamine"); echo $result;?> <? xl(">Dramamine",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Kaopectate" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Kaopectate"); echo $result;?> <? xl(">Kaopectate",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Meclazine" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Meclazine"); echo $result;?> <? xl(">Meclazine",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Milk of Magnesia" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Milk of Magnesia"); echo $result;?> <? xl(">Milk of Magnesia",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Pepto Bismol" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Pepto Bismol"); echo $result;?> <? xl(">Pepto Bismol",'e') ?> </label> 
- <label><input type="checkbox" name="_non_prescription_medications[]" value="Sudafed" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Sudafed"); echo $result;?> <? xl(">Sudafed",'e') ?> </label></td></tr> 
+ <tr><td> non prescription medications</td> <td><label><input type="checkbox" name="_non_prescription_medications[]" value="Acetaminophen" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Acetaminophen"); echo $result;?> <?php xl(">Acetaminophen",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Advil" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Advil"); echo $result;?> <?php xl(">Advil",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Benadryl" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Benadryl"); echo $result;?> <?php xl(">Benadryl",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Caladryl" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Caladryl"); echo $result;?> <?php xl(">Caladryl",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Chloraseptic Spray" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Chloraseptic Spray"); echo $result;?> <?php xl(">Chloraseptic Spray",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Cough Medicine" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Cough Medicine"); echo $result;?> <?php xl(">Cough Medicine",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Dramamine" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Dramamine"); echo $result;?> <?php xl(">Dramamine",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Kaopectate" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Kaopectate"); echo $result;?> <?php xl(">Kaopectate",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Meclazine" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Meclazine"); echo $result;?> <?php xl(">Meclazine",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Milk of Magnesia" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Milk of Magnesia"); echo $result;?> <?php xl(">Milk of Magnesia",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Pepto Bismol" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Pepto Bismol"); echo $result;?> <?php xl(">Pepto Bismol",'e') ?> </label> 
+ <label><input type="checkbox" name="_non_prescription_medications[]" value="Sudafed" <?php $result = chkdata_CB($obj,"_non_prescription_medications","Sudafed"); echo $result;?> <?php xl(">Sudafed",'e') ?> </label></td></tr> 
   
  </table> 
                  </td> 
@@ -453,7 +453,7 @@
              <tr> 
  
                  <td class='text' colspan="4"> 
-                     <strong> <? xl("Cardiac Rhythm/Device History",'e') ?> </strong></td> 
+                     <strong> <?php xl("Cardiac Rhythm/Device History",'e') ?> </strong></td> 
              </tr> 
  
              <tr> 
@@ -462,8 +462,8 @@
   
  <table> 
   
- <tr><td> does applicant have a history of dysrhythmias</td> <td><label><input type="radio" name="_does_applicant_have_a_history_of_dysrhythmias" value="Yes" <?php $result = chkdata_Radio($obj,"_does_applicant_have_a_history_of_dysrhythmias","Yes"); echo $result;?> <? xl(">Yes",'e') ?> </label> 
- <label><input type="radio" name="_does_applicant_have_a_history_of_dysrhythmias" value="NO" <?php $result = chkdata_Radio($obj,"_does_applicant_have_a_history_of_dysrhythmias","NO"); echo $result;?> <? xl(">NO",'e') ?> </label></td></tr> 
+ <tr><td> does applicant have a history of dysrhythmias</td> <td><label><input type="radio" name="_does_applicant_have_a_history_of_dysrhythmias" value="Yes" <?php $result = chkdata_Radio($obj,"_does_applicant_have_a_history_of_dysrhythmias","Yes"); echo $result;?> <?php xl(">Yes",'e') ?> </label> 
+ <label><input type="radio" name="_does_applicant_have_a_history_of_dysrhythmias" value="NO" <?php $result = chkdata_Radio($obj,"_does_applicant_have_a_history_of_dysrhythmias","NO"); echo $result;?> <?php xl(">NO",'e') ?> </label></td></tr> 
   
  </table> 
                  </td> 
@@ -502,8 +502,8 @@
   
  <table> 
   
- <tr><td> does applicant have a pacemaker or icd</td> <td><label><input type="radio" name="_does_applicant_have_a_pacemaker_or_icd" value="Yes" <?php $result = chkdata_Radio($obj,"_does_applicant_have_a_pacemaker_or_icd","Yes"); echo $result;?> <? xl(">Yes",'e') ?> </label> 
- <label><input type="radio" name="_does_applicant_have_a_pacemaker_or_icd" value="NO" <?php $result = chkdata_Radio($obj,"_does_applicant_have_a_pacemaker_or_icd","NO"); echo $result;?> <? xl(">NO",'e') ?> </label></td></tr> 
+ <tr><td> does applicant have a pacemaker or icd</td> <td><label><input type="radio" name="_does_applicant_have_a_pacemaker_or_icd" value="Yes" <?php $result = chkdata_Radio($obj,"_does_applicant_have_a_pacemaker_or_icd","Yes"); echo $result;?> <?php xl(">Yes",'e') ?> </label> 
+ <label><input type="radio" name="_does_applicant_have_a_pacemaker_or_icd" value="NO" <?php $result = chkdata_Radio($obj,"_does_applicant_have_a_pacemaker_or_icd","NO"); echo $result;?> <?php xl(">NO",'e') ?> </label></td></tr> 
   
  </table> 
                  </td> 
@@ -533,7 +533,7 @@
              <tr> 
  
                  <td class='text' colspan="4"> 
-                     <strong> <? xl("Pacemaker",'e') ?> </strong></td> 
+                     <strong> <?php xl("Pacemaker",'e') ?> </strong></td> 
              </tr> 
  
              <tr> 
@@ -611,7 +611,7 @@
              <tr> 
  
                  <td class='text' colspan="6"> 
-                     <strong> <? xl("ICD",'e') ?> </strong></td> 
+                     <strong> <?php xl("ICD",'e') ?> </strong></td> 
              </tr> 
  
              <tr> 
@@ -673,7 +673,7 @@
              <tr> 
  
                  <td class='text' colspan="2"> 
-                     <strong> <? xl("Cardiac Transplant Only",'e') ?> </strong></td> 
+                     <strong> <?php xl("Cardiac Transplant Only",'e') ?> </strong></td> 
              </tr> 
  
              <tr> 
@@ -724,8 +724,8 @@
   
  <table> 
   
- <tr><td> evidence of rejection</td> <td><label><input type="radio" name="_evidence_of_rejection" value="Yes" <?php $result = chkdata_Radio($obj,"_evidence_of_rejection","Yes"); echo $result;?> <? xl(">Yes",'e') ?> </label> 
- <label><input type="radio" name="_evidence_of_rejection" value="NO" <?php $result = chkdata_Radio($obj,"_evidence_of_rejection","NO"); echo $result;?> <? xl(">NO",'e') ?> </label></td></tr> 
+ <tr><td> evidence of rejection</td> <td><label><input type="radio" name="_evidence_of_rejection" value="Yes" <?php $result = chkdata_Radio($obj,"_evidence_of_rejection","Yes"); echo $result;?> <?php xl(">Yes",'e') ?> </label> 
+ <label><input type="radio" name="_evidence_of_rejection" value="NO" <?php $result = chkdata_Radio($obj,"_evidence_of_rejection","NO"); echo $result;?> <?php xl(">NO",'e') ?> </label></td></tr> 
   
  </table> 
                  </td> 
@@ -769,7 +769,7 @@
              <tr> 
  
                  <td class='text' colspan="5"> 
-                     <strong> <? xl("Physical Exam:",'e') ?> </strong></td> 
+                     <strong> <?php xl("Physical Exam:",'e') ?> </strong></td> 
              </tr> 
  
              <tr> 

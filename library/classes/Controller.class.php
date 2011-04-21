@@ -19,7 +19,7 @@ class Controller extends Smarty {
                $this->compile_check = true;
                $this->assign("PROCESS", "true");
                $this->assign("HEADER", "<html><head>
-<? html_header_show();?></head><body>");
+<?php html_header_show();?></head><body>");
                $this->assign("FOOTER", "</body></html>");
                $this->assign("CONTROLLER", "controller.php?");
                $this->assign("CONTROLLER_THIS", "controller.php?" . $_SERVER['QUERY_STRING']);

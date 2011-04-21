@@ -1,4 +1,5 @@
-<?
+<?php
+
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -262,14 +263,14 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <title>Export Patient Demographics</title>
 </head>
 <body>
 <center>
 <p>&nbsp;</p>
-<p>Demographics for <? echo $row['fname'] . " " . $row['lname'] ?>
+<p>Demographics for <?php echo $row['fname'] . " " . $row['lname'] ?>
  have been exported to LabWorks.</p>
 <p>&nbsp;</p>
 <form>

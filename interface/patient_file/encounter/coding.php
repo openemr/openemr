@@ -78,7 +78,7 @@ $pres = "prescription";
  target="Codes" onclick="top.restoreSession()"><?php xl('List Prescriptions','e'); ?></a></dd>
 <dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo $pres?>&edit&id=&pid=<?php echo $pid?>"
  target="Codes" onclick="top.restoreSession()"><?php xl('Add Prescription','e'); ?></a></dd>
-<? }; // if (!$GLOBALS['disable_prescriptions']) ?>
+<?php }; // if (!$GLOBALS['disable_prescriptions']) ?>
 </dl>
 
 </body>

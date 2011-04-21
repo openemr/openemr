@@ -212,7 +212,8 @@ function dosdclick(sfname) {
      <td><?php xl('From','e'); ?></td>
      <td align='right'><?php xl('Pages','e'); ?></td>
     </tr>
-<?
+<?php
+
  $encount = 0;
  foreach ($mlines as $matches) {
   ++$encount;

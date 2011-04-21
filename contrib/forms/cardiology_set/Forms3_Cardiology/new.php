@@ -8,10 +8,10 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <? xl("[do not save]",'e') ?> </a>
+<a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
 <form method=post action="<?echo $rootdir;?>/forms/Forms3_Cardiology/save.php?mode=new" name="Forms3_Cardiology" onSubmit="return top.restoreSession()">
 <hr>
-<h1> <? xl("Forms3_Cardiology",'e') ?> </h1>
+<h1> <?php xl("Forms3_Cardiology",'e') ?> </h1>
 <hr>
 <input type="submit" name="submit form" value="submit form" />
 
@@ -709,7 +709,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 
 <table>
 
-<tr><td class='text'  ><? xl("Examination",'e') ?></td> 
+<tr><td class='text'  ><?php xl("Examination",'e') ?></td> 
 <td class='text'  ><textarea name="examination"  rows="4" cols="40"></textarea></td></tr>
 
 </table>
@@ -724,7 +724,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 </table>
 <table></table><input type="submit" name="submit form" value="submit form" />
 </form>
-<a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <? xl("[do not save]",'e') ?> </a>
+<a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
 <?php
 formFooter();
 ?>

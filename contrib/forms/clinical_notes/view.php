@@ -117,7 +117,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <script language="JavaScript">
 </script>
@@ -125,7 +125,7 @@ if ($formid) {
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
  bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<? echo $rootdir ?>/forms/clinical_notes/new.php?id=<? echo $formid ?>"
+<form method="post" action="<?php echo $rootdir ?>/forms/clinical_notes/new.php?id=<?php echo $formid ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
@@ -140,21 +140,21 @@ if ($formid) {
  <tr>
   <td width='5%'  nowrap> History </td>
   <td width='95%' nowrap>
-   <textarea name='form_history' rows='7' style='width:100%'><? echo $row['history'] ?></textarea>
+   <textarea name='form_history' rows='7' style='width:100%'><?php echo $row['history'] ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> Examination </td>
   <td nowrap>
-   <textarea name='form_examination' rows='7' style='width:100%'><? echo $row['examination'] ?></textarea>
+   <textarea name='form_examination' rows='7' style='width:100%'><?php echo $row['examination'] ?></textarea>
   </td>
  </tr>
 
  <tr>
   <td nowrap> Plan </td>
   <td nowrap>
-   <textarea name='form_plan' rows='7' style='width:100%'><? echo $row['plan'] ?></textarea>
+   <textarea name='form_plan' rows='7' style='width:100%'><?php echo $row['plan'] ?></textarea>
   </td>
  </tr>
 
@@ -164,22 +164,22 @@ if ($formid) {
    <table width='100%'>
     <tr>
      <td width='5%' nowrap>
-      <? echo rbinput('fu_required', '1', 'Required in:', 'followup_required') ?>
+      <?php echo rbinput('fu_required', '1', 'Required in:', 'followup_required') ?>
      </td>
      <td nowrap>
       <input type='text' name='fu_timing' size='10' style='width:100%'
        title='When to follow up'
-       value='<? echo addslashes($row['followup_timing']) ?>' />
+       value='<?php echo addslashes($row['followup_timing']) ?>' />
      </td>
     </tr>
     <tr>
      <td colspan='2' nowrap>
-      <? echo rbinput('fu_required', '2', 'Pending investigation', 'followup_required') ?>
+      <?php echo rbinput('fu_required', '2', 'Pending investigation', 'followup_required') ?>
      </td>
     </tr>
     <tr>
      <td colspan='2' nowrap>
-      <? echo rbinput('fu_required', '0', 'None required', 'followup_required') ?>
+      <?php echo rbinput('fu_required', '0', 'None required', 'followup_required') ?>
      </td>
     </tr>
    </table>
@@ -197,10 +197,10 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? // echo rbcell('outcome', '1', 'Resolved'  , 'outcome') ?>
-     <? // echo rbcell('outcome', '2', 'Improved'  , 'outcome') ?>
-     <? // echo rbcell('outcome', '3', 'Status Quo', 'outcome') ?>
-     <? // echo rbcell('outcome', '4', 'Worse'     , 'outcome') ?>
+     <?php // echo rbcell('outcome', '1', 'Resolved'  , 'outcome') ?>
+     <?php // echo rbcell('outcome', '2', 'Improved'  , 'outcome') ?>
+     <?php // echo rbcell('outcome', '3', 'Status Quo', 'outcome') ?>
+     <?php // echo rbcell('outcome', '4', 'Worse'     , 'outcome') ?>
     </tr>
    </table>
   </td>
@@ -211,8 +211,8 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? // echo rbcell('destination', '1', 'GP'                 , 'destination') ?>
-     <? // echo rbcell('destination', '2', 'Hospital Specialist', 'destination') ?>
+     <?php // echo rbcell('destination', '1', 'GP'                 , 'destination') ?>
+     <?php // echo rbcell('destination', '2', 'Hospital Specialist', 'destination') ?>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
     </tr>

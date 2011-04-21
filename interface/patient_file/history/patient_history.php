@@ -13,7 +13,7 @@ include_once("../../globals.php");
 	
 <HTML>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <TITLE>
 <?php echo htmlspecialchars(xl('Patient History'),ENT_NOQUOTES); ?>
 </TITLE>

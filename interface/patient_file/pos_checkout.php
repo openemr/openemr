@@ -1078,7 +1078,8 @@ if ($inv_encounter) {
   </td>
   <td>
    <select name='form_method'>
-<?
+<?php
+
  foreach ($payment_methods as $value) {
   echo "    <option value='$value'";
   echo ">$value</option>\n";
