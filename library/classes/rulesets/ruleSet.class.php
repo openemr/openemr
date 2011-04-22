@@ -8,6 +8,8 @@
 
 require_once(dirname(__FILE__) . "/../../clinical_rules.php");
 require_once(dirname(__FILE__) . "/../../forms.inc");
+require_once(dirname(__FILE__) . "/../../patient.inc");
+
 
 class ruleSet
 {
@@ -245,6 +247,22 @@ class ruleSet
     }
   }
 
+  // Function to get patient dob
+  // Parameter:
+  //   $patient_id - patient id
+  // Return: DOB (string)
+  private function get_DOB($patient_id) {
+    $dob = getPatientData($patient_id, "DATE_FORMAT(DOB,'%Y %m %d') as TS_DOB");
+    return $dob['TS_DOB'];
+  }
+
+  // Function to get patient id from the patient array
+  // Paramter:
+  //  $array_patient - array holding patient id in the 'id' column
+  private function get_patient_id($array_patient) {
+    return $array_patient['pid'];
+  }
+
   //  Hypertension: Blood Pressure Measurement (NQF 0013)
   //
   //  (note it only needs to process one group)
@@ -285,47 +303,50 @@ class ruleSet
       // increment total patients counter
       $total_pat++;
 
+      // get patient id
+      $patient_id = $this->get_patient_id($rowPatient);
+
       // filter for age greater than 18
       // utilize the convertDobtoAgeYearDecimal() function from library/clinical_rules.php
-      if (convertDobtoAgeYearDecimal($rowPatient['DOB'],$begin_measurement) < 18) continue;
+      if (convertDobtoAgeYearDecimal( $this->get_DOB($patient_id), $begin_measurement ) < 18) continue;
 
       // filter for diagnosis of HTN
       // utlize the exist_lists_item() function from library/clinical_rules.php
-      if (!( (exist_lists_item($rowPatient['pid'],'medical_problem','CUSTOM::HTN',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::401.0',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::401.1',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::401.9',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::402.00',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::402.01',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::402.10',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::402.11',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::402.90',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::402.91',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::403.00',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::403.01',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::403.10',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::403.11',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::403.90',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::403.91',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.00',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.01',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.02',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.03',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.10',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.11',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.12',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.13',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.90',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.91',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.92',$end_measurement)) ||
-             (exist_lists_item($rowPatient['pid'],'medical_problem','ICD9::404.93',$end_measurement)) )) {
+      if (!( (exist_lists_item($patient_id,'medical_problem','CUSTOM::HTN',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::401.0',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::401.1',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::401.9',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::402.00',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::402.01',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::402.10',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::402.11',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::402.90',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::402.91',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::403.00',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::403.01',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::403.10',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::403.11',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::403.90',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::403.91',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.00',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.01',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.02',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.03',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.10',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.11',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.12',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.13',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.90',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.91',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.92',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::404.93',$end_measurement)) )) {
          continue;
        }
 
       // filter for 2 specified encounters
       // make a function for this and wrap in the encounter titles
-      if (!( ($this->exist_encounter($rowPatient['pid'],'enc_outpatient',$begin_measurement,$end_measurement,2)) ||
-             ($this->exist_encounter($rowPatient['pid'],'enc_nurs_fac',$begin_measurement,$end_measurement,2)) )) {
+      if (!( ($this->exist_encounter($patient_id,'enc_outpatient',$begin_measurement,$end_measurement,2)) ||
+             ($this->exist_encounter($patient_id,'enc_nurs_fac',$begin_measurement,$end_measurement,2)) )) {
         continue;
       }
 
@@ -339,14 +360,17 @@ class ruleSet
                  "ON ( DATE(form_vitals.date) = DATE(form_encounter.date)) " .
                  "LEFT JOIN `enc_category_map` " .
                  "ON (enc_category_map.main_cat_id = form_encounter.pc_catid) " .
-                 "WHERE form_vitals.bps IS NOT NULL " .
+                 "WHERE form_vitals.pid = ?" .
+                 "AND form_vitals.bps IS NOT NULL " .
                  "AND form_vitals.bpd IS NOT NULL " .
                  "AND form_vitals.date >= ? " .
                  "AND form_vitals.date <= ? " .
                  "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' OR enc_category_map.rule_enc_id = 'enc_nurs_fac' )";
-      $res = sqlStatement($query, array($begin_measurement,$end_measurement) );
+      $res = sqlStatement($query, array($patient_id,$begin_measurement,$end_measurement) );
       $number = sqlNumRows($res);
       if ($number < 1) continue;
+
+      error_log("passed target",0);
 
       // Target has been passed
       $pass_targ++;
