@@ -5,14 +5,14 @@
   </tr>
   <tr>
         <td>
-        	<a href="javascript:document.cdralertmgr.submit();" class="css_button"><span><?php echo out( xl('Save') ); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" ><span><?php echo out( xl('Reset') ); ?></span></a>
+        	<a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Save') ); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Reset') ); ?></span></a>
         </td>
   </tr>        
 </table>
 
 &nbsp;
 
-<form name="cdralertmgr" method="post" action="index.php?action=alerts!submitactmgr" >
+<form name="cdralertmgr" method="post" action="index.php?action=alerts!submitactmgr" onsubmit="return top.restoreSession()">
 <table cellpadding="1" cellspacing="0" class="showborder">
         <tr class="showborder_head">
                 <th width="250px"><?php echo out( xl('Title') ); ?></th>

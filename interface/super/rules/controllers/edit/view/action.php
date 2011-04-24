@@ -23,10 +23,10 @@
   <tr>
         <td class="title"><?php echo out( xl( 'Rule Edit' ) ); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo $action->id ?>" class="iframe_medium css_button">
+            <a href="index.php?action=detail!view&id=<?php echo $action->id ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
                 <span><?php echo out( xl( 'Cancel' ) ); ?></span>
             </a>
-            <a href="javascript:;" class="iframe_medium css_button" id="btn_save"><span><?php echo out( xl('Save' ) );  ?></span></a>
+            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo out( xl('Save' ) );  ?></span></a>
         </td>
   </tr>
 </table>
@@ -34,7 +34,7 @@
 <div class="rule_detail edit text">
     <p class="header"><?php echo out( xl( 'Action' ) ); ?> </p>
 
-    <form action="index.php?action=edit!submit_action" method="post" id="frm_submit">
+    <form action="index.php?action=edit!submit_action" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
     <input type="hidden" name="guid" value="<?php echo out( $action->guid ); ?>"/>
     <input type="hidden" name="group_id" value="<?php echo out( $action->groupId ); ?>"/>
     <input type="hidden" name="id" value="<?php echo out( $action->id ); ?>"/>
@@ -47,7 +47,7 @@
                                    "name" => "fld_category_lbl",
                                    "title" => xl("Category"),
                                    "value" => out( $action->getCategoryLabel() ) ) ); ?>
-    <br/><a href="javascript:;" id="change_category">(change)</a>
+    <br/><a href="javascript:;" id="change_category" onclick="top.restoreSession()">(change)</a>
     <input type="hidden" id="fld_category" name="fld_category" value="<?php echo out( $action->category ); ?>" />
 
     <!-- item -->
@@ -55,7 +55,7 @@
                                    "name" => "fld_item_lbl",
                                    "title" => xl("Item"),
                                    "value" => out( $action->getItemLabel() ) ) ); ?>
-    <br/><a href="javascript:;" id="change_item">(change)</a>
+    <br/><a href="javascript:;" id="change_item" onclick="top.restoreSession()">(change)</a>
     <input type="hidden" id="fld_item" name="fld_item" value="<?php echo out( $action->item ); ?>" />
 
     <!-- reminder link  -->

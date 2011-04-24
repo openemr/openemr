@@ -20,7 +20,7 @@
                                "name" => "fld_category_lbl",
                                "title" => xl("Category"),
                                "value" => $criteria->getCategoryLabel() ) ); ?>
-<br/><a href="javascript:;" id="change_category">(change)</a>
+<br/><a href="javascript:;" id="change_category" onclick="top.restoreSession()">(change)</a>
 <input type="hidden" id="fld_category" name="fld_category" value="<?php echo $criteria->category?>" />
 
 <!-- item -->
@@ -28,7 +28,7 @@
                                "name" => "fld_item_lbl",
                                "title" => xl("Item"),
                                "value" => $criteria->getItemLabel() ) ); ?>
-<br/><a href="javascript:;" id="change_item">(change)</a>
+<br/><a href="javascript:;" id="change_item" onclick="top.restoreSession()">(change)</a>
 <input type="hidden" id="fld_item" name="fld_item" value="<?php echo out( $criteria->item ); ?>" />
 
 <!-- completed -->

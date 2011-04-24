@@ -17,10 +17,10 @@
   <tr>
         <td class="title"><?php echo $rule->id ? out( xl( 'Rule Edit' ) ) : out( xl( 'Rule Add' ) ); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo out( $rule->id ); ?>" class="iframe_medium css_button">
+            <a href="index.php?action=detail!view&id=<?php echo out( $rule->id ); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
                 <span><?php echo out( xl( 'Cancel' ) ); ?></span>
             </a>
-            <a href="javascript:;" class="iframe_medium css_button" id="btn_save"><span><?php echo out( xl( 'Save' ) ); ?></span></a>
+            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo out( xl( 'Save' ) ); ?></span></a>
         </td>
   </tr>
 </table>
@@ -28,7 +28,7 @@
 <div class="rule_detail edit summry text">
     <p class="header"><?php echo out( xl( 'Summary' ) ); ?> </p>
 
-    <form action="index.php?action=edit!submit_summary" method="post" id="frm_submit">
+    <form action="index.php?action=edit!submit_summary" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
     <input type="hidden" name="id" value="<?php echo out( $rule->id ); ?>"/>
 
     <p class="row">

@@ -18,7 +18,7 @@
   <tr>
         <td class="title"><?php echo out( xl( 'Rules Configuration' ) ); ?></td>
         <td>
-            <a href="index.php?action=edit!summary" class="iframe_medium css_button">
+            <a href="index.php?action=edit!summary" class="iframe_medium css_button" onclick="top.restoreSession()">
                 <span><?php echo out( xl( 'Add new' ) ); ?></span>
             </a>
         </td>
@@ -34,7 +34,7 @@
 
 <!-- template -->
 <div class="rule_row data template">
-    <span class="rule_title"><a href="index.php?action=detail!view"></a></span>
-    <span class="rule_type"><a href="index.php?action=detail!view"></a></span>
+    <span class="rule_title"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></span>
+    <span class="rule_type"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></span>
 </div>
 
