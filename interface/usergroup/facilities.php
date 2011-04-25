@@ -8,7 +8,7 @@ $alertmsg = '';
 
 /*		Inserting New facility					*/
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] != "admin_facility") {
-  sqlStatement("INSERT INTO facility SET " .
+  $insert_id=sqlInsert("INSERT INTO facility SET " .
   "name = '"         . trim(formData('facility'    )) . "', " .
   "phone = '"        . trim(formData('phone'       )) . "', " .
   "fax = '"          . trim(formData('fax'         )) . "', " .
@@ -18,6 +18,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
   "postal_code = '"  . trim(formData('postal_code' )) . "', " .
   "country_code = '" . trim(formData('country_code')) . "', " .
   "federal_ein = '"  . trim(formData('federal_ein' )) . "', " .
+  "color = '"  . trim(formData('ncolor' )) . "', " .
   "service_location = '"  . trim(formData('service_location' )) . "', " .
   "billing_location = '"  . trim(formData('billing_location' )) . "', " .
   "accepts_assignment = '"  . trim(formData('accepts_assignment' )) . "', " .
@@ -41,6 +42,7 @@ if ($_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility")
 		postal_code='" . trim(formData('postal_code')) . "',
 		country_code='" . trim(formData('country_code')) . "',
 		federal_ein='" . trim(formData('federal_ein')) . "',
+		color='" . trim(formData('ncolor')) . "',
 		service_location='" . trim(formData('service_location')) . "',
 		billing_location='" . trim(formData('billing_location')) . "',
 		accepts_assignment='" . trim(formData('accepts_assignment')) . "',
@@ -119,6 +121,9 @@ $(document).ready(function(){
           for ($iter3 = 0;$frow = sqlFetchArray($fres);$iter3++)
             $result2[$iter3] = $frow;
           foreach($result2 as $iter3) {
+			$varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
+			$varcity="";
+			$varstate="";
           $varstreet=$iter3{street };
           if ($iter3{street }!="")$varstreet=$iter3{street }.",";
           if ($iter3{city}!="")$varcity=$iter3{city}.",";
@@ -137,7 +142,7 @@ $(document).ready(function(){
   <tr height="25">
 		<td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl( "Currently there are no facilities." ); ?></td>
 	</tr>
-  <?}
+  <?php }
 ?>
 	</table>
         </div>

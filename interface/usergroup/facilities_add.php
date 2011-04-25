@@ -4,6 +4,7 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/classes/POSRef.class.php");
+require_once("$srcdir/options.inc.php");
 
 $alertmsg = '';
 ?>
@@ -16,6 +17,9 @@ $alertmsg = '';
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
+<script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
+<script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
+<script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
 <?php
 // Old Browser comp trigger on js
 
@@ -34,12 +38,18 @@ parent.$.fn.fancybox.close();
 /// todo, move this to a common library
 
 function submitform() {
-    if (document.forms[0].facility.value.length>0) {
+    if (document.forms[0].facility.value.length>0 && document.forms[0].ncolor.value != '') {
         top.restoreSession();
         document.forms[0].submit();
-    } else {
+	} else {
+        if(document.forms[0].facility.value.length<=0){
         document.forms[0].facility.style.backgroundColor="red";
         document.forms[0].facility.focus();
+	}
+	else if(document.forms[0].ncolor.value == ''){
+	document.forms[0].ncolor.style.backgroundColor="red";
+        document.forms[0].ncolor.focus();	
+	}
     }
 }
 
@@ -90,7 +100,17 @@ $(document).ready(function(){
 		  parent.$.fn.fancybox.close();
 	 });
 });
-
+var cp = new ColorPicker('window');
+  // Runs when a color is clicked
+function pickColor(color) {
+ 	document.getElementById('ncolor').value = color;
+}
+var field;
+function pick(anchorname,target) {
+	var cp = new ColorPicker('window');
+  	field=target;
+        cp.show(anchorname);
+}
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
@@ -149,7 +169,7 @@ $(document).ready(function(){
         <tr>
           <td><span class='text'><?php xl('Service Location','e'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
           <td>&nbsp;</td>
-          <td>&nbsp;</td> <td>&nbsp;</td>
+          <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span><span class="mandatory">&nbsp;*</span></td> <td><input type=entry name=ncolor id=ncolor size=20 value="">[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</td>
         </tr>
 
         <tr>

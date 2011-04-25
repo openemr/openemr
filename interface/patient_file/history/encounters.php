@@ -231,13 +231,20 @@ else {
 
 <?php
 $drow = false;
-if (!$billing_view && !$issue) {
-    // Query the documents for this patient.
-    $dres = sqlStatement("SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
-                    "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
-                    "d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id " .
-                    "ORDER BY d.docdate DESC, d.id DESC", array($pid) );
-    $drow = sqlFetchArray($dres);
+if (!$billing_view) {
+  // Query the documents for this patient.  If this list is issue-specific
+  // then also limit the query to documents that are linked to the issue.
+  $queryarr = array($pid);
+  $query = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
+    "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
+    "d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id ";
+  if ($issue) {
+    $query .= "AND d.list_id = ? ";
+    $queryarr[] = $issue;
+  }
+  $query .= "ORDER BY d.docdate DESC, d.id DESC";
+  $dres = sqlStatement($query, $queryarr);
+  $drow = sqlFetchArray($dres);
 }
 
 // $count = 0;

@@ -3,6 +3,7 @@ include_once("../globals.php");
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
 require_once("$srcdir/classes/POSRef.class.php");
+require_once("$srcdir/options.inc.php");
 
 if (isset($_GET["fid"])) {
 	$my_fid = $_GET["fid"];
@@ -33,14 +34,23 @@ parent.$.fn.fancybox.close();
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
+<script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
+<script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
 <script type="text/javascript">
 function submitform() {
-    if (document.forms[0].facility.value.length>0) {
+    if (document.forms[0].facility.value.length>0 && document.forms[0].ncolor.value != '') {
         top.restoreSession();
         document.forms[0].submit();
     } else {
+	if(document.forms[0].facility.value.length<=0){
         document.forms[0].facility.style.backgroundColor="red";
         document.forms[0].facility.focus();
+	}
+	else if(document.forms[0].ncolor.value == ''){
+	document.forms[0].ncolor.style.backgroundColor="red";
+        document.forms[0].ncolor.focus();	
+	}
     }
 }
 
@@ -49,7 +59,17 @@ $(document).ready(function(){
 		  parent.$.fn.fancybox.close();
 	 });
 });
-
+var cp = new ColorPicker('window');
+  // Runs when a color is clicked
+function pickColor(color) {
+ 	document.getElementById('ncolor').value = color;
+}
+var field;
+function pick(anchorname,target) {
+	var cp = new ColorPicker('window');
+  	field=target;
+        cp.show(anchorname);
+}
 </script>
 
 </head>
@@ -114,7 +134,7 @@ $(document).ready(function(){
         </tr>
          <tr>
           <td><span class='text'><?php xl('Billing Location','e'); ?>: </span></td>
-          <td><input type='checkbox' name='billing_location' value='1' <?php if ($facility['billing_location'] == 1) echo 'checked'; ?>></td>
+          <td><input type='checkbox' name='billing_location' value='1' <?php if ($facility['billing_location'] != 0) echo 'checked'; ?>></td>
           <td rowspan='2'><span class='text'><?php xl('Accepts Assignment','e'); ?><br>(<?php xl('only if billing location','e'); ?>): </span></td>
           <td><input type='checkbox' name='accepts_assignment' value='1' <?php if ($facility['accepts_assignment'] == 1) echo 'checked'; ?>></td>
          </tr>
@@ -123,6 +143,9 @@ $(document).ready(function(){
           <td><input type='checkbox' name='service_location' value='1' <?php if ($facility['service_location'] == 1) echo 'checked'; ?>></td>
           <td>&nbsp;</td>
          </tr>
+	 <tr>
+	  <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span><span class="mandatory">&nbsp;*</span></td> <td><input type=entry name=ncolor id=ncolor size=20 value="<?php echo htmlspecialchars($facility{"color"}, ENT_QUOTES) ?>"></td>
+	  <td>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php  echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</td><td>&nbsp;</td>
 
         <tr>
             <td><span class=text><?php xl('POS Code','e'); ?>: </span></td>

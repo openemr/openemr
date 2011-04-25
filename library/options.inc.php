@@ -2151,4 +2151,15 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
   echo "<div id='" . htmlspecialchars( $label, ENT_QUOTES) . "_ps_expand' " . $styling . ">";
 }
 
+//billing_facility fuction will give the dropdown list which contain billing faciliies.
+function billing_facility($name,$select){
+	$qsql = sqlStatement("SELECT id, name FROM facility WHERE billing_location = 1");
+		echo "   <select id='".htmlspecialchars($name, ENT_QUOTES)."' name='".htmlspecialchars($name, ENT_QUOTES)."'>";
+			while ($facrow = sqlFetchArray($qsql)) {
+				$selected = ( $facrow['id'] == $select ) ? 'selected="selected"' : '' ;
+				 echo "<option value=".htmlspecialchars($facrow['id'],ENT_QUOTES)." $selected>".htmlspecialchars($facrow['name'], ENT_QUOTES)."</option>";
+				}
+			  echo "</select>";
+}
+
 ?>

@@ -120,4 +120,5 @@ define('_PC_DURATION_MIN', xl ('Minutes') );
 define('_PC_CAT_LIMITS', xl ('Category Limits') );
 define('_PC_NEW_LIMIT_TITLE', xl ('New Limit of Events') );
 define('_PC_COLOR_PICK_TITLE', xl ('pick') );
+define('_PC_CAT_TYPE', xl ('Type') );
 ?>

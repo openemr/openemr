@@ -66,6 +66,8 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 
 <?php if ($GLOBALS['concurrent_layout']) { // start new layout ?>
 
+<?php if (empty($GLOBALS['gbl_tall_nav_area'])) { // not tall nav area ?>
+
 <!-- border (mozilla) and framespacing (ie) are the same thing.      -->
 <!-- frameborder specifies a 3d look, not whether there are borders. -->
 <frameset rows='<?php echo $GLOBALS['titleBarHeight'] + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
@@ -86,6 +88,29 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
   </frameset>
  </frameset>
 </frameset>
+
+<?php } else { // use tall nav area ?>
+
+<frameset cols='<?php echo $nav_area_width; ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4' onunload='imclosing()'>
+ <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
+  <frame src='left_nav.php' name='left_nav' />
+  <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
+   border='0' framespacing='0' />
+ </frameset>
+ <frameset rows='<?php echo $GLOBALS['titleBarHeight'] + 5 ?>,*' frameborder='1' border='1' framespacing='1'>
+  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' />
+<?php if (empty($GLOBALS['athletic_team'])) { ?>
+  <frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1' border='4' framespacing='4'>
+<?php } else { ?>
+  <frameset rows='100%,*' id='fsright' bordercolor='#999999' frameborder='1' border='4' framespacing='4'>
+<?php } ?>
+   <frame src='<?php echo $frame1url ?>' name='RTop' scrolling='auto' />
+   <frame src='messages/messages.php' name='RBot' scrolling='auto' />
+  </frameset>
+ </frameset>
+</frameset>
+
+<?php } // end tall nav area ?>
 
 <?php } else { // start old layout ?>
 
