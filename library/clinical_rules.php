@@ -369,15 +369,17 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     }
 
     // Find the number of target groups, and go through each one if more than one
-    $targetGroups = numberTargetGroups($rowRule['id']);
-    if ($targetGroups > 1) {
-      if ($mode != "report") {
-        $start_id = 2;
-      }
-      else { // $mode == "report"
-        $start_id = 1;
-      }
-      for ($i = $start_id; $i <= $targetGroups; $i++){
+    $targetGroups = returnTargetGroups($rowRule['id']);
+    if (count($targetGroups) > 1) {
+      $firstGroup = true;
+      foreach ($targetGroups as $i) {
+
+        // skip first group if not in report mode
+        //  (this is because first group was already queried above)
+        if ($mode != "report" && $firstGroup) {
+         $firstGroup = false;
+         continue;
+        }
 
         //Reset the target counter
         $pass_target = 0;
@@ -547,20 +549,21 @@ function test_filter($patient_id,$rule,$dateTarget) {
   return true;
 }
 
-// Return the number of target groups of a selected rule
+// Return an array containing existing group ids for a rule
 // Parameters:
 //   $rule - id(string) of rule
 // Return:
-//   integer, number of target groups associated with rule
-function numberTargetGroups($rule) {
-  $numberGroups = 1;
+//   array, listing of group ids
+function returnTargetGroups($rule) {
 
-  $sql = sqlQuery("SELECT max(`group_id`) as numberGroups FROM `rule_target` " .
+  $sql = sqlStatement("SELECT DISTINCT `group_id` FROM `rule_target` " .
     "WHERE `id`=?", array($rule) );
 
-  if ($sql['numberGroups']) $numberGroups = $sql['numberGroups'];
-
-  return $numberGroups;
+  $groups = array();
+  for($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    array_push($groups,$row['group_id']);
+  }
+  return $groups;
 }
 
 // Test targets of a selected rule on a selected patient
