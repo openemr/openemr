@@ -65,7 +65,7 @@ ALTER TABLE facility ADD COLUMN color VARCHAR(7);
 ALTER TABLE openemr_postcalendar_events ADD COLUMN pc_billing_location smallint(6);
 #EndIf
 
-#IfMissingColumn openemr_postcalendar_events pc_cattype
+#IfMissingColumn openemr_postcalendar_categories pc_cattype
 ALTER TABLE `openemr_postcalendar_categories` ADD `pc_cattype` INT( 11 ) NOT NULL COMMENT 'Used in grouping categories';
 
 UPDATE `openemr_postcalendar_categories` SET `pc_cattype`='1' WHERE `pc_catid`='4';
