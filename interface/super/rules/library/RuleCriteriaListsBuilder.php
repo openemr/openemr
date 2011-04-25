@@ -30,6 +30,12 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
             } else if ( $methodDetail == 'medication' ) {
                 // its a medication
                 return RuleCriteriaType::from( RuleCriteriaType::medication );
+            } else if ( $methodDetail == 'allergy' ) {
+                // its a medication
+                return RuleCriteriaType::from( RuleCriteriaType::allergy );
+            } else if ( $methodDetail == 'surgery' ) {
+                // its a medication
+                return RuleCriteriaType::from( RuleCriteriaType::surgery );
             }
         }
 
@@ -56,6 +62,14 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
             return new RuleCriteriaMedication( xl( "Medication" ), $value );
         }
 
+        if ( $ruleCriteriaType->code == 'surgery' ) {
+            return new RuleCriteriaSurgery( xl( "Surgery" ), $value );
+        }
+
+
+        if ( $ruleCriteriaType->code == 'allergy' ) {
+            return new RuleCriteriaAllergy( xl( "Allergy" ), $value );
+        }
         // its unknown
         return null;
     }
