@@ -6,9 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-    if(!extension_loaded("curl"))
-        throw(new Exception(
-            "Curl extension is required"));
+    if(!extension_loaded("curl")) die("Curl extension is required");
             
     class MaviqClient {
     
