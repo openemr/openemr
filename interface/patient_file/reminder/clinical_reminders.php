@@ -66,9 +66,9 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 ?>
 
 <ul class="tabNav">
-  <li class='current'><a href='/play/javascript-tabbed-navigation/'><?php echo htmlspecialchars( xl('Main'), ENT_NOQUOTES); ?></a></li>
-  <li><a href='/play/javascript-tabbed-navigation/'><?php echo htmlspecialchars( xl('Plans'), ENT_NOQUOTES); ?></a></li>
-  <li><a href='/play/javascript-tabbed-navigation/'><?php echo htmlspecialchars( xl('Admin'), ENT_NOQUOTES); ?></a></li>
+  <li class='current'><a href='/play/javascript-tabbed-navigation/' onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Main'), ENT_NOQUOTES); ?></a></li>
+  <li><a href='/play/javascript-tabbed-navigation/' onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Plans'), ENT_NOQUOTES); ?></a></li>
+  <li><a href='/play/javascript-tabbed-navigation/' onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Admin'), ENT_NOQUOTES); ?></a></li>
 </ul>
 
 <div class="tabContainer">

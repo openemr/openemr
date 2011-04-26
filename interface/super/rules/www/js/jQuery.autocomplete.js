@@ -323,6 +323,7 @@ jQuery.autocomplete = function(input, options) {
 			receiveData(q, data);
 		// if an AJAX url has been supplied, try loading the data now
 		} else if( (typeof options.url == "string") && (options.url.length > 0) ){
+                        top.restoreSession();
 			$.get(makeUrl(q), function(data) {
 				data = parseData(data);
 				addToCache(q, data);
@@ -393,6 +394,7 @@ jQuery.autocomplete = function(input, options) {
 		if (data) {
 			findValueCallback(q, data);
 		} else if( (typeof options.url == "string") && (options.url.length > 0) ){
+                        top.restoreSession();
 			$.get(makeUrl(q), function(data) {
 				data = parseData(data)
 				addToCache(q, data);

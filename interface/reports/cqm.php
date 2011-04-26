@@ -53,6 +53,7 @@ $provider  = trim($_POST['form_provider']);
 
  function refreshme() {
     // location.reload();
+    top.restoreSession();
     document.forms[0].submit();
  }
 
@@ -101,7 +102,7 @@ $provider  = trim($_POST['form_provider']);
 <span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> - 
 <?php echo htmlspecialchars( xl('Clinical Quality Measures'), ENT_NOQUOTES); ?></span>
 
-<form method='post' name='theform' id='theform' action='cqm.php'>
+<form method='post' name='theform' id='theform' action='cqm.php' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -203,7 +204,7 @@ $provider  = trim($_POST['form_provider']);
 		<tr>
 			<td>
 				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#theform").submit();'>
 					<span>
 						<?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
 					</span>

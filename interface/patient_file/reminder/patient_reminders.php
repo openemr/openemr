@@ -172,7 +172,7 @@ else {
 <?php if ($mode == "simple") { // show the per patient rule setting option ?>
   <ul class="tabNav">
     <li class='current'><a href='/play/javascript-tabbed-navigation/'><?php echo htmlspecialchars( xl('Main'), ENT_NOQUOTES); ?></a></li>
-    <li ><a href='/play/javascript-tabbed-navigation/'><?php echo htmlspecialchars( xl('Rules'), ENT_NOQUOTES); ?></a></li>
+    <li ><a href='/play/javascript-tabbed-navigation/' onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Rules'), ENT_NOQUOTES); ?></a></li>
   </ul>
   <div class="tabContainer">
   <div class="tab current" style="height:auto;width:97%;">

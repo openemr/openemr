@@ -5,5 +5,9 @@
  // modify it under the terms of the GNU General Public License
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
+?>
+<script type="text/javascript">
+  top.restoreSession();
+  window.location = "<?php echo $_redirect ?>";
+</script>
  
-header("Location: $_redirect"); exit; ?>

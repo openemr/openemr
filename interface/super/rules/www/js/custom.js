@@ -19,7 +19,7 @@ var custom = function( args ) {
     var fn_fill_columns = function( table, callback ) {
         var colSelect = $("#fld_column");
         colSelect.find(".populated").remove();
-
+        top.restoreSession();
         $.getJSON('index.php?action=edit!columns&table=' + table,
             function(data) {
                 $.each( data, function(i, item) {

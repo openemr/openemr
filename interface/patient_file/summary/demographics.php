@@ -241,6 +241,7 @@ $(document).ready(function(){
     $("#disclosures_ps_expand").load("disc_fragment.php");
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) { ?>
+      top.restoreSession();
       $("#clinical_reminders_ps_expand").load("clinical_reminders_fragment.php", { 'embeddedScreen' : true }, function() {
           // (note need to place javascript code here also to get the dynamic link to work)
           $(".medium_modal").fancybox( {
@@ -257,6 +258,7 @@ $(document).ready(function(){
     <?php } // end crw?>
 
     <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) { ?>
+      top.restoreSession();
       $("#patient_reminders_ps_expand").load("patient_reminders_fragment.php");
     <?php } // end prw?>
 

@@ -81,6 +81,7 @@ var rule_edit = function( args ) {
     var fn_wire_events = function() {
         $('#btn_save').click( function() {
            if ( fn_validate() ) {
+               top.restoreSession();
                $('#frm_submit').submit();
            }
         });

@@ -20,6 +20,7 @@ var list_rules = function( args ) {
             sort = 'title';
         }
 
+        top.restoreSession();
         $.getJSON('index.php?action=browse!getrows',
             function(data) {
                 data.sort(function(a, b) {

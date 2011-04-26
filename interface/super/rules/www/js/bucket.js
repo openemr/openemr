@@ -20,6 +20,7 @@ var bucket = function( args ) {
 
     var fn_prep_options = function( select, listType, hidden, showMe ) {
         select.append( "<option value=''></option>");
+        top.restoreSession();
         $.getJSON('index.php?action=edit!' + listType,
             function(data) {
                 $.each( data, function(i, item) {

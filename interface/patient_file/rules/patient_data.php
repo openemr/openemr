@@ -111,6 +111,7 @@ if ($_POST['form_complete']) {
   // Close this window and refresh the patient summary display.
   echo "<html>\n<body>\n<script language='JavaScript'>\n";
   echo " window.close();\n";
+  echo " top.restoreSession();\n";
   echo " if ( opener ) { opener.location.reload(); } else { parent.location.reload(); } \n";
   echo "</script>\n</body>\n</html>\n";
   exit();
@@ -143,7 +144,7 @@ if (isset($entryID)) {
 </table>
 
 <br><br>
-<form action='patient_data.php' name='patient_data' method='post'>
+<form action='patient_data.php' name='patient_data' method='post' onsubmit='return top.restoreSession()'>
   <table border=0 cellpadding=1 cellspacing=1>
   <?php
     echo "<tr><td class='required'>";
