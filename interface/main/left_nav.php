@@ -116,6 +116,7 @@
   'sup' => array(xl('Superbill') , 0, 'patient_file/encounter/superbill_custom_full.php'),
   'aun' => array(xl('Authorizations'), 0, 'main/authorizations/authorizations.php'),
   'new' => array(xl('New Pt')    , 0, 'new/new.php'),
+  'ped' => array(xl('Patient Education'), 0, 'reports/patient_edu_web_lookup.php'),
   'lab' => array(xl('Check Lab Results')  , 0, 'orders/lab_exchange.php'),
   'dem' => array(xl('Patient')   , 1,  "patient_file/summary/demographics.php"),
   'his' => array(xl('History')   , 1, 'patient_file/history/history.php'),
@@ -1287,6 +1288,7 @@ if (!empty($reg)) {
   </li>
   <li><a class="collapsed" id="misimg" ><span><?php xl('Miscellaneous','e') ?></span></a>
     <ul>
+      <?php genTreeLink('RTop','ped',xl('Patient Education')); ?> 
       <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
       <?php genTreeLink('RTop','adb',xl('Addr Book')); ?>
