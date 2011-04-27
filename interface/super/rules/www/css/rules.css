@@ -1,0 +1,156 @@
+/* 
+    Document   : rules
+    Created on : Jan 19, 2011, 10:55:44 PM
+    Author     : aron
+*/
+
+/* 
+ * browse rules
+ */
+root { 
+    display: block;
+}
+
+.rule_container {
+    width: 40%;
+}
+.rule_row {
+    padding-bottom: 2px;
+    margin-left: 15px;
+}
+.rule_row span {
+    display: block;
+    float:left;
+}
+
+.rule_row .rule_title {
+    width: 90%;
+}
+
+.rule_row .rule_type {
+    width: 10%;
+}
+
+.rule_row.header {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.rule_container {
+
+    margin-top: 10px;
+}
+
+.template {
+    display: none;
+}
+
+/*
+ * browse rules
+ */
+.rule_detail {
+     max-width: 100%;
+}
+
+.rule_detail .section {
+    margin-bottom: 30px;
+}
+
+.rule_detail .section .section {
+	margin-left: 30px;
+}
+
+.rule_detail .section .section .row {
+	margin-bottom: 20px;
+}
+
+.rule_detail .section .group {
+	margin-top: 12px;
+	border: 1px dotted;
+}
+
+.rule_detail .header, .rule_detail .ruletitle {
+     font-size: 18px;
+}
+
+.rule_detail .ruletitle {
+    margin-top: 6px;
+}
+
+.left_col {
+    display:block;
+    float: left;
+    width: 100px;
+}
+
+.mid_col {
+    float: left;
+    display:block;
+    width: 200px;
+}
+
+.end_col {
+    display:block;
+}
+
+.rule_detail p {
+    margin-bottom: -10px;
+}
+
+.rule_detail table {
+}
+
+.colhead {
+}
+
+.action_link {
+    font-size: small;
+}
+
+/*
+* edit rule
+*/
+
+.rule_detail input[type='text'] {
+    width:350px;
+    margin-top:-1px;
+}
+
+.rule_detail.edit.summry .left_col {
+    width: 60px;
+    text-align: right;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+#required_msg {
+    margin-top:30px;
+    width: 80%;
+    border-top: 1px solid;
+    display:none;
+}
+
+.rule_detail.edit p.header {
+    margin-bottom:5px;
+}
+
+.field_err_marker {
+    background-color: red;
+}
+
+.field_err_lbl_marker {
+    color: red;
+}
+
+.intervals .mid_col {
+    width:100px;
+}
+
+.intervals input[type='text'] {
+    width:90px;
+    margin-top:-1px;
+}
+
+input[type='text'].short {
+    width: 80px;
+}

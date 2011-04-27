@@ -698,6 +698,20 @@ $GLOBALS_METADATA = array(
   //
   'Notifications' => array(
 
+    'patient_reminder_sender_name' => array(
+      xl('Patient Reminder Sender Name'),
+      'text',                           // data type
+      '',                               // default
+      xl('Name of the sender for patient reminders.')
+    ),
+    
+    'patient_reminder_sender_email' => array(
+      xl('Patient Reminder Sender Email'),
+      'text',                           // data type
+      '',                               // default
+      xl('Email address of the sender for patient reminders. Replies to patient reminders will be directed to this address. It is important to use an address from your clinic\'s domain to avoid help prevent patient reminders from going to junk mail folders.')
+    ),
+    
     'practice_return_email_path' => array(
       xl('Notification Email Address'),
       'text',                           // data type
@@ -779,6 +793,75 @@ $GLOBALS_METADATA = array(
       xl('API key for SMS Gateway.')
     ),
 
+    'phone_notification_hour' => array(
+      xl('Phone Notification Hour'),
+      'num',                            // data type
+      '50',                             // default
+      xl('Number of hours in advance to send Phone notification.')
+    ),
+    
+    'phone_gateway_username' => array(
+      xl('Phone Gateway Username'),
+      'text',                           // data type
+      '',                               // default
+      xl('Username for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+    ),
+    
+    'phone_gateway_password' => array(
+      xl('Phone Gateway Password'),
+      'text',                           // data type
+      '',                               // default
+      xl('Password for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+    ),
+    
+    'phone_gateway_url' => array(
+      xl('Phone Gateway URL'),
+      'text',                           // data type
+      '',                               // default
+      xl('URL for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+    ),
+
+  ),
+  
+  // CDR (Clinical Decision Rules)
+  //
+  'CDR' => array(
+
+    'enable_cdr' => array(
+      xl('Enable Clinical Decisions Rules (CDR)'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Clinical Decisions Rules (CDR)')
+    ),
+    
+    'enable_cdr_crw' => array(
+      xl('Enable Clinical Reminder Widget'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Clinical Reminder Widget')
+    ),
+
+    'enable_cdr_prw' => array(
+      xl('Enable Patient Reminder Widget'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Patient Reminder Widget')
+    ),
+
+    'pqri_registry_name' => array(
+      xl('PQRI Registry Name'),
+      'text',                           // data type
+      'Model Registry',                               // default
+      xl('PQRI Registry Name')
+    ),
+
+    'pqri_registry_id' => array(
+      xl('PQRI Registry ID'),
+      'text',                           // data type
+      '125789123',                               // default
+      xl('PQRI Registry ID')
+    ),
+      
   ),
 
   // Logging

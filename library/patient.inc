@@ -302,10 +302,23 @@ function getEthnoRacials() {
     return $returnval;
 }
 
-function getHistoryData($pid, $given = "*")
+function getHistoryData($pid, $given = "*", $dateStart='',$dateEnd='')
 {
-    $sql = "select $given from history_data where pid=? order by date DESC limit 0,1";
-    return sqlQuery($sql, array($pid) );
+
+    if ($dateStart && $dateEnd) {
+        $res = sqlQuery("select $given from history_data where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd) );
+    }
+    else if ($dateStart && !$dateEnd) {
+        $res = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart) );
+    }
+    else if (!$dateStart && $dateEnd) {
+        $res = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd) );
+    }
+    else {
+        $res = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid) );
+    }
+
+    return $res;
 }
 
 // function getInsuranceData($pid, $type = "primary", $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
