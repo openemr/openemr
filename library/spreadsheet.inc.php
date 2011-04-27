@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -115,7 +115,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
     }
     // If adding a new form...
     else {
-      sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE");
+      sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
       $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM form_$spreadsheet_form_name");
       $formid = $tmprow['maxid'] + 1;
       if ($formid <= 0) $formid = 1;
@@ -156,7 +156,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
       }
       // If adding a new template...
       else {
-        sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE");
+        sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
         $tmprow = sqlQuery("SELECT MIN(id) AS minid FROM form_$spreadsheet_form_name");
         $tempid = $tmprow['minid'] - 1;
         if ($tempid >= 0) $tempid = -1;
