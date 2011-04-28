@@ -418,15 +418,15 @@ class RuleManager {
     }
 
     function deleteRuleAction( $rule, $guid ) {
-        sqlQuery( "DELETE FROM rule_action WHERE PASSWORD( CONCAT(id, category, item, group_id) ) = '". $guid . "'" );
+        sqlStatement( "DELETE FROM rule_action WHERE PASSWORD( CONCAT(id, category, item, group_id) ) = '". $guid . "'" );
     }
 
     function deleteRuleTarget( $rule, $guid ) {
-        sqlQuery( "DELETE FROM rule_target WHERE PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = '". $guid . "'" );
+        sqlStatement( "DELETE FROM rule_target WHERE PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = '". $guid . "'" );
     }
 
     function deleteRuleFilter( $rule, $guid ) {
-        sqlQuery( "DELETE FROM rule_filter WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = '". $guid . "'" );
+        sqlStatement( "DELETE FROM rule_filter WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = '". $guid . "'" );
     }
 
     function updateSummary( $ruleId, $types, $title ) {
@@ -436,7 +436,7 @@ class RuleManager {
             // add
             $result = sqlQuery( "select count(*)+1 AS id from clinical_rules" );
             $ruleId = "rule_" . $result['id'];
-            sqlQuery( sqlStatement( "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag ) " . 
+            sqlStatement( "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag ) " . 
                     "VALUES (?,?,?,?,?,?,?) ",
                     array(
                         $ruleId,
@@ -447,7 +447,7 @@ class RuleManager {
                         in_array(RuleType::AMC, $types) ? 1 : 0,
                         in_array(RuleType::PatientReminder, $types) ? 1 : 0
                     )
-            ));
+            );
 
             // do label
             $this->doRuleLabel(false, "clinical_rules", $ruleId, $title);
@@ -455,18 +455,18 @@ class RuleManager {
         } else {
             // edit
             // update flags
-            sqlQuery(sqlStatement( self::SQL_UPDATE_FLAGS, array(
+            sqlStatement( self::SQL_UPDATE_FLAGS, array(
                 in_array(RuleType::ActiveAlert, $types) ? 1 : 0,
                 in_array(RuleType::PassiveAlert, $types) ? 1 : 0,
                 in_array(RuleType::CQM, $types) ? 1 : 0,
                 in_array(RuleType::AMC, $types) ? 1 : 0,
                 in_array(RuleType::PatientReminder, $types) ? 1 : 0,
                 $rule->id )
-            ));
+            );
 
             // update title
-            sqlQuery( sqlStatement( self::SQL_UPDATE_TITLE, array( $title,
-                $ruleId ) ));
+            sqlStatement( self::SQL_UPDATE_TITLE, array( $title,
+                $ruleId ) );
             return $ruleId;
         }
     }
@@ -478,18 +478,18 @@ class RuleManager {
      */
     function updateIntervals( $rule, $intervals ) {
         // remove old intervals
-        sqlQuery(sqlStatement( self::SQL_REMOVE_INTERVALS, array( $rule->id )));
+        sqlStatement( self::SQL_REMOVE_INTERVALS, array( $rule->id ));
 
         // insert new intervals
         foreach( $intervals->getTypes() as $type ) {
             $typeDetails = $intervals->getDetailFor($type);
             foreach( $typeDetails as $detail ) {
-                sqlQuery( sqlStatement( self::SQL_INSERT_INTERVALS, array(
+                sqlStatement( self::SQL_INSERT_INTERVALS, array(
                     $rule->id,                                                      //id
                     $type->code . "_reminder_" . $detail->intervalRange->code,      // method
                     $detail->timeUnit->code,                                        // method_detail
                     $detail->amount                                                 // value
-                )));
+                ));
 
             }
         }
@@ -507,24 +507,24 @@ class RuleManager {
         $guid = $criteria->guid;
         if ( is_null( $guid ) ) {
             /// insert
-            sqlQuery(sqlStatement( self::SQL_INSERT_FILTER, array(
+            sqlStatement( self::SQL_INSERT_FILTER, array(
                 $rule->id,
                 $dbView->inclusion ? 1 : 0,
                 $dbView->optional ? 1 : 0,
                 $dbView->method = $method,
                 $dbView->methodDetail = $dbView->methodDetail,
                 $dbView->value = $dbView->value)
-            ));
+            );
         } else {
             // update flags
-            sqlQuery(sqlStatement( self::SQL_UPDATE_FILTER, array(
+            sqlStatement( self::SQL_UPDATE_FILTER, array(
                 $dbView->inclusion ? 1 : 0,
                 $dbView->optional ? 1 : 0,
                 $dbView->method = $method,
                 $dbView->methodDetail = $dbView->methodDetail,
                 $dbView->value = $dbView->value,
                 $criteria->guid )
-            ));
+            );
         }
     }
 
@@ -550,24 +550,24 @@ class RuleManager {
                 }
             }
             
-            sqlQuery(sqlStatement( self::SQL_INSERT_TARGET, array(
+            sqlStatement( self::SQL_INSERT_TARGET, array(
                 $rule->id,
                 $dbView->inclusion ? 1 : 0,
                 $dbView->optional ? 1 : 0,
                 $dbView->method = $method,
                 $dbView->value = $dbView->value,
                 $group_id )
-            ));
+            );
 
         } else {
             // update flags
-            sqlQuery(sqlStatement( self::SQL_UPDATE_TARGET, array(
+            sqlStatement( self::SQL_UPDATE_TARGET, array(
                 $dbView->inclusion ? 1 : 0,
                 $dbView->optional ? 1 : 0,
                 $dbView->method = $method,
                 $dbView->value = $dbView->value,
                 $criteria->guid )
-            ));
+            );
         }
 
         // interval
@@ -581,21 +581,21 @@ class RuleManager {
                   WHERE rule_target.method = ?
                     AND rule_target.id = ?";
 
-            sqlQuery(sqlStatement( $intervalSql, array(
+            sqlStatement( $intervalSql, array(
                 $dbView->intervalType,
                 $dbView->interval,
                 'target_interval',
                 $rule->id )
-            ));
+            );
         } else {
             // insert
-            sqlQuery(sqlStatement( "INSERT INTO rule_target ( rule_target.value, rule_target.interval, rule_target.method, rule_target.id ) "
+            sqlStatement( "INSERT INTO rule_target ( rule_target.value, rule_target.interval, rule_target.method, rule_target.id ) "
                                  . "VALUES ( ?, ?, ?, ? ) ", array(
                 $dbView->intervalType,
                 $dbView->interval,
                 'target_interval',
                 $rule->id )
-            ));
+            );
         }
     }
 
@@ -671,63 +671,63 @@ class RuleManager {
         // persist action itself
         if ( !$guid ) {
             // its a brand new action
-            sqlQuery(sqlStatement(
+            sqlStatement(
                     "INSERT INTO rule_action (id, group_id, category, item ) VALUES (?,?,?,?)",
                     array( $ruleId, $groupId, $category, $item )
-            ));
+            );
 
         } else {
             // its an action edit
             if ( !is_null( $groupId ) ) {
-                sqlQuery(sqlStatement(
+                sqlStatement(
                     "UPDATE rule_action SET group_id = ?, category = ?, item = ? " .
                      "WHERE PASSWORD( CONCAT(rule_action.id, rule_action.category, rule_action.item, rule_action.group_id ) ) = ? ",
                     array( $groupId, $category, $item, $guid )
-                ));
+                );
             }
         }
 
         // handle rule action_item
         $result = sqlQuery( "SELECT * FROM rule_action_item WHERE category = ? AND item = ?", array($category, $item));
         if ( $result ) {
-            sqlQuery(sqlStatement( "UPDATE rule_action_item SET clin_rem_link = ?, reminder_message = ?, custom_flag = ? "
+            sqlStatement( "UPDATE rule_action_item SET clin_rem_link = ?, reminder_message = ?, custom_flag = ? "
                                   . "WHERE category = ? AND item = ?", array(
                 $link,
                 $message,
                 $customOption,
                 $category,
                 $item )
-            ));
+            );
         } else {
-            sqlQuery(sqlStatement( "INSERT INTO rule_action_item (clin_rem_link, reminder_message, custom_flag, category, item) "
+            sqlStatement( "INSERT INTO rule_action_item (clin_rem_link, reminder_message, custom_flag, category, item) "
                                  . "VALUES (?,?,?,?,?)", array(
                 $link,
                 $message,
                 $customOption,
                 $category,
                 $item )
-            ));
+            );
         }
     }
 
     private function doRuleLabel( $exists, $listId, $optionId, $title ) {
         if ( $exists) {
             // edit
-            sqlQuery(sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = ? AND option_id = ?", array(
+            sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = ? AND option_id = ?", array(
                 $title,
                 $listId,
                 $optionId )
-            ));
+            );
         } else {
             // update
             $result = sqlQuery( "select max(seq)+10 AS seq from list_options where list_id = ?", array($listId) );
             $seq = $result['seq'];
-            sqlQuery(sqlStatement("INSERT INTO list_options (list_id,option_id,title,seq) VALUES ( ?, ?, ?, ? )", array(
+            sqlStatement("INSERT INTO list_options (list_id,option_id,title,seq) VALUES ( ?, ?, ?, ? )", array(
                 $listId,
                 $optionId,
                 $title,
                 $seq )
-            ));
+            );
         }
     }
 

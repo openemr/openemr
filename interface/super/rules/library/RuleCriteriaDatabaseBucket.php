@@ -92,19 +92,19 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria {
         $dbLbl = getLabel($category, 'rule_action_category');
         if ( $category && $dbLbl != $categoryLbl ) {
             // update
-            sqlQuery(sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = 'rule_action_category' AND option_id = ?", array(
+            sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = 'rule_action_category' AND option_id = ?", array(
                 $categoryLbl,
                 $category )
-            ));
+            );
         }
 
         $dbLbl = getLabel($item, 'rule_action');
         if ( $item && $dbLbl != $itemLbl ) {
             // update
-            sqlQuery(sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = 'rule_action' AND option_id = ?", array(
+            sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = 'rule_action' AND option_id = ?", array(
                 $itemLbl,
                 $item )
-            ));
+            );
         }
 
         $this->category = $category;
