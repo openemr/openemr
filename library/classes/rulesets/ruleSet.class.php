@@ -113,6 +113,11 @@ class ruleSet
         // PQRI 3
         $this->rule_dm_bp_control_cqm();
         break;
+      case "rule_dm_a1c_cqm":
+        // Diabetes: Hemoglobin A1C >9.0% 
+        // NQF 0059
+        $this->rule_dm_a1c_cqm();
+        break;
       case "problem_list_amc":
         // Maintain an up-to-date problem list of current and active diagnoses.
         // 170.302(c)
@@ -992,6 +997,135 @@ class ruleSet
   private function rule_dm_bp_control_cqm() {
 
   }
+  
+  // Diabetes Control: Hemoglobin A1C >9.0% (NQF 0059) (PQRI 1) 
+  private function rule_dm_a1c_cqm() {
+    $rule_id=$this->rule['id'];
+    $dateTarget = $this->dateTarget;
+    $patientData =$this->patientData;
+
+    // Calculate measurement period
+    $tempDateArray = explode("-",$dateTarget);
+    $tempYear = $tempDateArray[0];
+    $begin_measurement = $tempDateArray[0] . "-01-01 00:00:00";
+    $end_measurement = $tempDateArray[0] . "-12-31 23:59:59";
+
+    // Collect results
+    $total_pat = 0;
+    $pass_filt = 0;
+    $exclude_filt = 0;
+    $pass_targ = 0;
+    $perc = 0;
+    foreach ( $patientData as $rowPatient ) {
+      // increment total patients counter
+      $total_pat++;
+
+      // get patient id
+      $patient_id = $this->get_patient_id($rowPatient);
+
+      // filter for age less than 18 AND greater than 75
+      // utilize the convertDobtoAgeYearDecimal() function from library/clinical_rules.php
+      if ( (convertDobtoAgeYearDecimal( $this->get_DOB($patient_id), $begin_measurement ) < 18) ||
+            (convertDobtoAgeYearDecimal( $this->get_DOB($patient_id), $begin_measurement ) > 75) ) {
+            	continue;
+      }
+
+      // filter for diagnosis of Diabetes
+      // utlize the exist_lists_item() function from library/clinical_rules.php
+      if (!( (exist_lists_item($patient_id,'medical_problem','CUSTOM::diabetes',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.0',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.00',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.02',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.03',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.10',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.11',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.13',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.20',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.21',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.22',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.23',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.30',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.31',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.32',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.33',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.40',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.41',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.42',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.43',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.50',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.51',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.52',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.53',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.60',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.61',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.62',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.31',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.7',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.70',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.71',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.72',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.73',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.80',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.81',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.82',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.83',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.9',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.90',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.91',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.92',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::250.93',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::357.2',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::362.0',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::362.01',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::362.02',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::362.03',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::362.04',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::362.05',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::362.05',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::366.41',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::648.0',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::648.00',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::648.01',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::648.02',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::648.03',$end_measurement)) ||
+             (exist_lists_item($patient_id,'medical_problem','ICD9::648.04',$end_measurement)) )) {
+         continue;
+       }
+
+      // Filter has been passed
+      $pass_filt++;
+       
+	  // collect specific items that fulfill request(Hemoglobin A1C >9.0%)
+	  $proc_code = "CPT4:83036";// CPT Code for Hemoglobin A1C
+	  $sql = sqlStatement("SELECT procedure_result.result " .
+	         "FROM `procedure_type`, " .
+	         "`procedure_order`, " .
+	         "`procedure_report`, " .
+	         "`procedure_result` " .
+	         "WHERE procedure_type.procedure_type_id = procedure_order.procedure_type_id " .
+	         "AND procedure_order.procedure_order_id = procedure_report.procedure_order_id " .
+	  		 "AND procedure_report.procedure_report_id = procedure_result.procedure_report_id " .
+	         "AND procedure_type.standard_code = ? " .
+	         "AND procedure_result.result <= 9 " .
+	         "AND procedure_order.patient_id = ? ", array($proc_code,$patient_id) );
+      $number = sqlNumRows($sql);
+      if ($number < 1) continue;
+	  
+
+      error_log("passed target",0);
+
+      // Target has been passed
+      $pass_targ++;
+    }
+    
+    // Calculate Percentage (use calculate_percentage() function from library/clinical_rules.php
+    $perc = calculate_percentage($pass_filt,$exclude_filt,$pass_targ);
+
+    // Set results
+    $this->set_result($rule_id,$total_pat,$pass_filt,$exclude_filt,$pass_targ,$perc);
+  }
+  
 
   // TODO
   // Maintain an up-to-date problem list of current and active diagnoses.
