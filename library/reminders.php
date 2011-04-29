@@ -199,7 +199,7 @@ function send_reminders() {
 	  $sender_name = $GLOBALS['patient_reminder_sender_name'];
       $email_address = $GLOBALS['patient_reminder_sender_email'];
       $mail->FromName = $sender_name;  // required
-      $mail->Sender = $sender_name;    // required
+      $mail->Sender = $email_address;    // required
       $mail->From = $email_address;    // required
       $mail->AddAddress($patientemail, $patientfname.", ".$patientlname);   // required
       $mail->AddReplyTo($email_address,$sender_name);  // required
@@ -209,7 +209,7 @@ function send_reminders() {
       $mail->Subject = "Clinic Reminder";
       if ($mail->Send()) {
         // deal with and keep track of this successful email
-        sqlQuery("UPDATE `patient_reminders` SET `email_status`='1', `date_sent`=NOW() WHERE id=?", array($reminder['id']) );
+        sqlStatement("UPDATE `patient_reminders` SET `email_status`='1', `date_sent`=NOW() WHERE id=?", array($reminder['id']) );
         $logging['number_success_emails']++;
       }
       else {
@@ -246,7 +246,7 @@ function send_reminders() {
       }
       else {
         // deal with and keep track of this succesful call
-        sqlQuery("UPDATE `patient_reminders` SET `voice_status`='1', `date_sent`=NOW() WHERE id=?", array($reminder['id']) );
+        sqlStatement("UPDATE `patient_reminders` SET `voice_status`='1', `date_sent`=NOW() WHERE id=?", array($reminder['id']) );
         $logging['number_success_calls']++;
       }
     }
