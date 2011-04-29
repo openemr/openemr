@@ -244,6 +244,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       require_once(dirname(__FILE__) . "/classes/rulesets/ruleSet.class.php");
 
       // Run the class rule set
+      // $patientData contains pid's only
       $rule_results = new ruleSet($rowRule,$dateTarget,$patientData);
       
       // Collect/add the results to the results array
@@ -1711,7 +1712,7 @@ function convertCompSql($comp) {
 //   $target     - date to calculate age on
 // Return: decimal, years(decimal) from dob to target(date)
 function convertDobtoAgeYearDecimal($dob,$target) { 
-
+     
     // Grab year, month, and day from dob and dateTarget
     $dateDOB = explode(" ",$dob);
     $dateTarget = explode(" ",$target);
