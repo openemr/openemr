@@ -13,8 +13,6 @@ require_once( 'codes.php' );
 
 class ruleSet
 {
-  const CODE_TYPE_ICD9 ='ICD9';
-  const CODE_TYPE_ICD9 ='ICD9';
   // Main input variables:
   // $rule        -  array containing rule information
   // $dateTarget  - target date
@@ -31,10 +29,12 @@ class ruleSet
 
   // Main processed results variable:
   // $results - holds the result array used in reports
-
+  
+  private $codes; // code lookup class
 
   // Construction function
   public function __construct( $rule, $dateTarget, $patientData ) {
+    $this->codes = new Code_Lookup();  
     $this->rule = $rule;
     $this->dateTarget = $dateTarget;
     $this->patientData = $patientData;
@@ -254,32 +254,7 @@ class ruleSet
     }
   }
   
-  private function check_for_pregnancy( $patient_id, $end_measurement ) {
-      global $pregnancy_codes;
-      
-      foreach( $pregnancy_codes as $pregnancy_code ) {
-          if ( exist_lists_item( $patient_id,'medical_problem','ICD9::'.$pregnancy_code,$end_measurement ) ) {
-              return true;
-          }
-      }
-      return false;
-  }
   
-  private function check_for_obgyn( $patient_id, $end_measurement ) {
-      global $obgyn_codes;
-      
-      foreach( $obgyn_codes as $obgyn_code ) {
-          if ( exist_lists_item( $patient_id,'medical_problem','ICD9::'.$obgyn_code,$end_measurement ) ) {
-              return true;
-          }
-      }
-      return false;
-  }
-  
-  private function check_for_allergy( $patient_id, $end_measurement ) {
-          
-  }
-
   // Function to get patient dob
   // Parameter:
   //   $patient_id - patient id
@@ -557,7 +532,7 @@ class ruleSet
                      "WHERE form_vitals.BMI IS NOT NULL " .
                      "AND form_vitals.BMI IS NOT NULL " .
                      "AND form_vitals.pid = ? AND form_vitals.BMI >= 30 " .
-                     "ANS ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
+                     "AND ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
                      "AND ( DATE( form_vitals.date ) <= DATE( form_encounter.date ) ) " .
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
           $res = sqlStatement( $query, array( $patient_id ) );
@@ -578,7 +553,7 @@ class ruleSet
                      "WHERE form_vitals.BMI IS NOT NULL " .
                      "AND form_vitals.BMI IS NOT NULL " .
                      "AND form_vitals.pid = ? AND form_vitals.BMI < 22 " .
-                     "ANS ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
+                     "AND ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
                      "AND ( DATE( form_vitals.date ) <= DATE( form_encounter.date ) ) " .
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
           $res = sqlStatement( $query, array( $patient_id ) );
@@ -598,7 +573,7 @@ class ruleSet
       // OR:ÒPhysical exam not done: patient reasonÓ; 
       // OR:ÒPhysical exam not done: medical reasonÓ; 
       // OR:ÒPhysical rationale physical exam not done: system reasonÓ;      
-      if ( $this->check_for_pregnancy( $patient_id, $end_measurement ) ) {
+      if ( $this->codes->check_for_pregnancy( $patient_id, $end_measurement ) ) {
           $exclude_filt++;
       }
 
@@ -671,7 +646,7 @@ class ruleSet
                      "WHERE form_vitals.BMI IS NOT NULL " .
                      "AND form_vitals.BMI IS NOT NULL " .
                      "AND form_vitals.pid = ? AND form_vitals.BMI >= 25 " .
-                     "ANS ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
+                     "AND ( DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) ) " .
                      "AND ( DATE( form_vitals.date ) <= DATE( form_encounter.date ) ) " .
                      "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' )";
           $res = sqlStatement( $query, array( $patient_id ) );
@@ -692,7 +667,7 @@ class ruleSet
       // OR:ÒPhysical exam not done: patient reasonÓ; 
       // OR:ÒPhysical exam not done: medical reasonÓ; 
       // OR:ÒPhysical rationale physical exam not done: system reasonÓ;
-      if ( $this->check_for_pregnancy( $patient_id, $end_measurement ) ) {
+      if ( $this->codes->check_for_pregnancy( $patient_id, $end_measurement ) ) {
           $exclude_filt++;
       }
       
@@ -724,7 +699,7 @@ class ruleSet
     $total_pat = 0;
     $pass_filt = 0;
     $exclude_filt = 0;
-    $pass_targ = array( 1, 2, 3 );
+    $pass_targ = array( 1 => 0, 2 => 0, 3 => 0 );
     $perc = 0;
     foreach ( $patientData as $rowPatient ) {
       $patient_id = $this->get_patient_id( $rowPatient ); 
@@ -739,7 +714,7 @@ class ruleSet
       // filter for 1 specified encounters
       // make a function for this and wrap in the encounter titles
       if (  ( !( $this->exist_encounter($patient_id,'enc_out_pcp_obgyn',$begin_measurement,$end_measurement,1) ) ) ||
-               ( $this->check_for_pregnancy( $patient_id, $end_measurement ) ||
+               ( $this->codes->check_for_pregnancy( $patient_id, $end_measurement ) ||
                ( $this->exist_encounter($patient_id,'enc_pregnancy',$begin_measurement,$end_measurement,1) ) ) ) {
           continue;
       }
@@ -779,7 +754,7 @@ class ruleSet
     $total_pat = 0;
     $pass_filt = 0;
     $exclude_filt = 0;
-    $pass_targ = array( 1, 2, 3 );
+    $pass_targ = array( 1 => 0, 2 => 0, 3 => 0 );
     $perc = 0;
     foreach ( $patientData as $rowPatient ) {
       $patient_id = $this->get_patient_id( $rowPatient ); 
@@ -794,7 +769,7 @@ class ruleSet
       // filter for 1 specified encounters
       // make a function for this and wrap in the encounter titles
       if (  ( !( $this->exist_encounter($patient_id,'enc_out_pcp_obgyn',$begin_measurement,$end_measurement,1) ) ) ||
-               ( $this->check_for_pregnancy( $patient_id, $end_measurement ) ||
+               ( $this->codes->check_for_pregnancy( $patient_id, $end_measurement ) ||
                ( $this->exist_encounter($patient_id,'enc_pregnancy',$begin_measurement,$end_measurement,1) ) ) ) {
           continue;
       }
@@ -834,7 +809,7 @@ class ruleSet
     $total_pat = 0;
     $pass_filt = 0;
     $exclude_filt = 0;
-    $pass_targ = array( 1, 2, 3 );
+    $pass_targ = array( 1 => 0, 2 => 0, 3 => 0 );
     $perc = 0;
     foreach ( $patientData as $rowPatient ) {
       $patient_id = $this->get_patient_id( $rowPatient ); 
@@ -849,7 +824,7 @@ class ruleSet
       // filter for 1 specified encounters
       // make a function for this and wrap in the encounter titles
       if (  ( !( $this->exist_encounter($patient_id,'enc_out_pcp_obgyn',$begin_measurement,$end_measurement,1) ) ) ||
-               ( $this->check_for_pregnancy( $patient_id, $end_measurement ) ||
+               ( $this->codes->check_for_pregnancy( $patient_id, $end_measurement ) ||
                ( $this->exist_encounter($patient_id,'enc_pregnancy',$begin_measurement,$end_measurement,1) ) ) ) {
           continue;
       }
@@ -909,7 +884,7 @@ class ruleSet
     $total_pat = 0;
     $pass_filt = 0;
     $exclude_filt = 0;
-    $pass_targ = array( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );
+    $pass_targ = array( 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0, 11 => 0, 12 => 0 );
     $perc = 0;
     foreach ( $patientData as $rowPatient ) {
       $patient_id = $this->get_patient_id( $rowPatient ); 
@@ -944,33 +919,43 @@ class ruleSet
         "AND DATE( immunizations.administered_date ) < DATE_ADD( patient_data.DOB, INTERVAL 2 YEAR ) ";
     
       $result = sqlStatement( $query, array( $patient_id ) );
-      if ( count( $result ) >= 4 ) {
+      if ( count( $result ) >= 4 && 
+          !( $this->codes->check_for_dtap_allergy( $patient_id, $end_measurement ) ) &&
+          !( exist_lists_item( $patient_id, 'medical_problem', 'ICD9::323.51', $end_measurement ) ) &&
+          !( $this->codes->check_for_progressive_neurological_disorder( $patient_id, $end_measurement ) ) ) {
          $pass_targ[1]++;
       }
       
       // Numerator 2
-      $query = "SELECT immunizations.administered_date, immunizations.patient_id, immunizations.immunization_id, list_options.title, patient_data.pid, patient_data.DOB " .
+    $query = "SELECT immunizations.administered_date, immunizations.patient_id, immunizations.immunization_id, list_options.title, patient_data.pid, patient_data.DOB " .
     	"FROM immunizations " .
     	"LEFT JOIN list_options " .
         "ON immunizations.immunization_id = list_options.option_id AND list_id = immunizations" .
         "LEFT JOIN patient_data " .
         "ON immunizations.patient_id = patient_data.pid " .
     	"WHERE immunizations.patient_id = ? " .
-        "AND ( list_options.option_id = 1 ". // Check for DTap list option ids (1-5)
-        	"OR list_options.option_id = 2 ".
-        	"OR list_options.option_id = 3 ".
-        	"OR list_options.option_id = 4 ".
-        	"OR list_options.option_id = 5 ) " . 
+        "AND ( list_options.option_id = 13 ". // Check for IPV list option ids (11-14)
+        	"OR list_options.option_id = 11 ".
+        	"OR list_options.option_id = 12 ".
+        	"OR list_options.option_id = 14 ".
         "AND DATE( immunizations.administered_date ) >= DATE_ADD( patient_data.DOB, INTERVAL 42 DAY ) " .
         "AND DATE( immunizations.administered_date ) < DATE_ADD( patient_data.DOB, INTERVAL 2 YEAR ) ";
     
       $result = sqlStatement( $query, array( $patient_id ) );
-      if ( count( $result ) >= 4 && 
-          !(exist_lists_item( $patient_id,'allergy','RxNorm::204525',$end_measurement )) ) {
-         $pass_targ[1]++;
-      }
-      
-      
+      if ( count( $result ) >= 3 && 
+          !( $this->codes->check_for_ipv_allergy( $patient_id, $end_measurement ) ) &&
+          !( $this->codes->check_for_neomycin_allergy( $patient_id, $end_measurement ) ) &&
+          !( $this->codes->check_for_streptomycin_allergy( $patient_id, $end_measurement ) ) &&
+          !( $this->codes->check_for_polymyxin_allergy( $patient_id, $end_measurement ) ) ) {
+         $pass_targ[2]++;
+      }  
+    }
+    
+    foreach ( $pass_targ as $pass_targ_count ) {
+        // Calculate Percentage (use calculate_percentage() function from library/clinical_rules.php
+        $perc = calculate_percentage($pass_filt,$exclude_filt,$pass_targ_count);
+        // Set results
+        $this->set_result($rule_id,$total_pat,$pass_filt,$exclude_filt,$pass_targ_count,$perc);
     }
   }
 
