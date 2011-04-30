@@ -1085,13 +1085,6 @@ class ruleSet
          continue;
        }
 
-  // TODO
-  // Diabetes: LDL Management & Control (NQF 0064) (PQRI 2)
-  private function rule_dm_ldl_cqm() {
-
-  }
-
-
       // Filter has been passed
       $pass_filt++;
        
@@ -1124,7 +1117,12 @@ class ruleSet
     // Set results
     $this->set_result($rule_id,$total_pat,$pass_filt,$exclude_filt,$pass_targ,$perc);
   }
-  
+
+  // TODO
+  // Diabetes: LDL Management & Control (NQF 0064) (PQRI 2)
+  private function rule_dm_ldl_cqm() {
+
+  }
 
   // TODO
   // Maintain an up-to-date problem list of current and active diagnoses.
