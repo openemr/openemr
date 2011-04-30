@@ -176,7 +176,7 @@ function getResultData() {
       pt.procedure_type_id AS type,
       prs.date AS date,
       CONCAT_WS(' ',prs.result,lo.title) AS result,
-      prs.range AS range,
+      prs.range AS `range`,
       prs.abnormal AS abnormal,
       prs.comments AS comments
     FROM
@@ -190,17 +190,6 @@ function getResultData() {
       LEFT JOIN list_options AS lo
         ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id
     WHERE po.patient_id=?";
-		
-	//$result = sqlStatement($sql, array($pid) );
-	//return $result;
-
-        // Commented this out, since throws error because the form_ankleinjury table does not
-        // exist in default OpenEMR instance.
-
-	//$sql = " 
-	//select date, pid, groupname, ankle_able_to_bear_weight_steps, ankle_x_ray_interpretation
-	//from form_ankleinjury
-	//where pid =?";
 		
 	$result = sqlStatement($sql, array($pid) );
 	return $result;
