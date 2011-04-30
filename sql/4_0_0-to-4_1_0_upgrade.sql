@@ -900,6 +900,30 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_reminder_inactive_opt' ,'manual', 'Manual', 20, 0);
 #EndIf
 
+#IfNotRow2D clinical_plans_rules plan_id dm_plan_cqm rule_id rule_dm_a1c_cqm
+INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan_cqm', 'rule_dm_a1c_cqm');
+#EndIf
+
+#IfNotRow clinical_rules id rule_dm_a1c_cqm
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_a1c_cqm', 0, 0, 0, 1, '0059', '1', 0, '', 0);
+#EndIf
+
+#IfNotRow2D list_options list_id clinical_rules option_id rule_dm_a1c_cqm
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_dm_a1c_cqm', 'Diabetes: HbA1c Poor Control (CQM)', 285, 0);
+#EndIf
+
+#IfNotRow2D clinical_plans_rules plan_id dm_plan_cqm rule_id rule_dm_ldl_cqm
+INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('dm_plan_cqm', 'rule_dm_ldl_cqm');
+#EndIf
+
+#IfNotRow clinical_rules id rule_dm_ldl_cqm
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_ldl_cqm', 0, 0, 0, 1, '0064', '2', 0, '', 0);
+#EndIf
+
+#IfNotRow2D list_options list_id clinical_rules option_id rule_dm_ldl_cqm
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_dm_ldl_cqm', 'Diabetes: LDL Management & Control (CQM)', 300, 0);
+#EndIf
+
 #IfMissingColumn form_encounter billing_facility
 ALTER TABLE form_encounter ADD COLUMN billing_facility INTEGER;
 

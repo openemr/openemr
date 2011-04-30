@@ -114,9 +114,16 @@ class ruleSet
         $this->rule_dm_bp_control_cqm();
         break;
       case "rule_dm_a1c_cqm":
-        // Diabetes: Hemoglobin A1C >9.0% 
+        // Diabetes: HbA1c Poor Control
         // NQF 0059
+        // PQRI 1
         $this->rule_dm_a1c_cqm();
+        break;
+      case "rule_dm_ldl_cqm":
+        // Diabetes: LDL Management & Control
+        // NQF 0064
+        // PQRI 2
+        $this->rule_dm_ldl_cqm();
         break;
       case "problem_list_amc":
         // Maintain an up-to-date problem list of current and active diagnoses.
@@ -983,7 +990,7 @@ class ruleSet
 
   }
   
-  // Diabetes Control: Hemoglobin A1C >9.0% (NQF 0059) (PQRI 1) 
+  // Diabetes: HbA1c Poor Control (NQF 0059) (PQRI 1) 
   private function rule_dm_a1c_cqm() {
     $rule_id=$this->rule['id'];
     $dateTarget = $this->dateTarget;
@@ -1077,6 +1084,13 @@ class ruleSet
              (exist_lists_item($patient_id,'medical_problem','ICD9::648.04',$end_measurement)) )) {
          continue;
        }
+
+  // TODO
+  // Diabetes: LDL Management & Control (NQF 0064) (PQRI 2)
+  private function rule_dm_ldl_cqm() {
+
+  }
+
 
       // Filter has been passed
       $pass_filt++;
