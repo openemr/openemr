@@ -958,6 +958,28 @@ class ruleSet
       }  
     }
     
+    // Numerator 3
+    
+    // Numerator 4
+    $query = "SELECT immunizations.administered_date, immunizations.patient_id, immunizations.immunization_id, list_options.title, patient_data.pid, patient_data.DOB " .
+    	"FROM immunizations " .
+    	"LEFT JOIN list_options " .
+        "ON immunizations.immunization_id = list_options.option_id AND list_id = immunizations" .
+        "LEFT JOIN patient_data " .
+        "ON immunizations.patient_id = patient_data.pid " .
+    	"WHERE immunizations.patient_id = ? " .
+        "AND ( list_options.option_id = 80 ". // Check for HiB list option ids 
+        	"OR list_options.option_id = 85 ".
+        	"OR list_options.option_id = 90 ".
+        "AND DATE( immunizations.administered_date ) >= DATE_ADD( patient_data.DOB, INTERVAL 42 DAY ) " .
+        "AND DATE( immunizations.administered_date ) < DATE_ADD( patient_data.DOB, INTERVAL 2 YEAR ) ";
+    
+      $result = sqlStatement( $query, array( $patient_id ) );
+      if ( count( $result ) >= 2 && 
+          !( $this->codes->check_for_hib_allergy( $patient_id, $end_measurement ) ) ) {
+         $pass_targ[4]++;
+      }
+    
     foreach ( $pass_targ as $pass_targ_count ) {
         // Calculate Percentage (use calculate_percentage() function from library/clinical_rules.php
         $perc = calculate_percentage($pass_filt,$exclude_filt,$pass_targ_count);
