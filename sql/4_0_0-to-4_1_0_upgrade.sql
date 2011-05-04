@@ -948,4 +948,17 @@ UPDATE `openemr_postcalendar_categories` SET `pc_cattype`='1' WHERE `pc_catid`='
 UPDATE `openemr_postcalendar_categories` SET `pc_cattype`='1' WHERE `pc_catid`='11';
 #EndIf
 
+#IfMissingColumn patient_data deceased_date
+ALTER TABLE `patient_data` ADD COLUMN `deceased_date` datetime default NULL;
+#EndIf
+
+#IfMissingColumn patient_data deceased_reason
+ALTER TABLE `patient_data` ADD COLUMN `deceased_reason` varchar(255) NOT NULL default '';
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id deceased_date
+UPDATE `layout_options` SET `seq` = `seq` + 2 WHERE `form_id` = 'DEM' AND `group_name` LIKE '%Misc';
+INSERT INTO `layout_options` ( `form_id`, `field_id`, `group_name` , `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description` ) VALUES ('DEM', 'deceased_date', '6Misc', 'Date Deceased', 1, 4, 1, 20, 20, '', 1, 3, '', 'D', 'If person is deceased, then enter date of death.');
+INSERT INTO `layout_options` ( `form_id`, `field_id`, `group_name` , `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description` ) VALUES ('DEM', 'deceased_reason', '6Misc', 'Reason Deceased', 2, 2, 1, 30, 255, '', 1, 3, '', '', 'Reason for Death.');
+#EndIf
 

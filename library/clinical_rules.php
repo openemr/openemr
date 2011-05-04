@@ -308,6 +308,16 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
           $reminder_due = "past_due";
         }
 
+        // First, deal with deceased patients
+        //  (for now will simply not pass the filter, but can add a database item
+        //   if ever want to create rules for dead people)
+        // Could also place this function at the total_patients level if wanted.
+        //  (But then would lose the option of making rules for dead people)
+        // Note using the dateTarget rather than dateFocus
+        if (is_patient_deceased($rowPatient['pid'],$dateTarget)) {
+          continue;
+        }
+
         // Check if pass filter
         $passFilter = test_filter($rowPatient['pid'],$rowRule['id'],$dateFocus);
         if ($passFilter === "EXCLUDED") {
@@ -406,6 +416,16 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
             else { // $dateCounter == 3
               $reminder_due = "past_due";
             }    
+
+            // First, deal with deceased patients
+            //  (for now will simply not pass the filter, but can add a database item
+            //   if ever want to create rules for dead people)
+            // Could also place this function at the total_patients level if wanted.
+            //  (But then would lose the option of making rules for dead people)
+            // Note using the dateTarget rather than dateFocus
+            if (is_patient_deceased($rowPatient['pid'],$dateTarget)) {
+              continue;
+            }
 
             //Check if pass target
             $passTarget = test_targets($rowPatient['pid'],$rowRule['id'],$i,$dateFocus);

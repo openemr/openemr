@@ -1467,4 +1467,37 @@ function get_patient_balance($pid) {
   }
   return '';
 }
+
+// Function to check if patient is deceased.
+//  Param:
+//    $pid  - patient id
+//    $date - date checking if deceased (will default to current date if blank)
+//  Return:
+//    If deceased, then will return the number of
+//      days that patient has been deceased.
+//    If not deceased, then will return false.
+function is_patient_deceased($pid,$date) {
+
+  // Set date to current if not set
+  $date = ($date) ? $date : date('Y-m-d H:i:s');
+
+  // Query for deceased status (gets days deceased if patient is deceased)
+  $results = sqlQuery("SELECT DATEDIFF(?,`deceased_date`) as `days_deceased` " .
+                      "FROM `patient_data` " .
+                      "WHERE `pid` = ? AND `deceased_date` IS NOT NULL AND `deceased_date` != '0000-00-00 00:00:00' AND `deceased_date` <= ?", array($date,$pid,$date) );
+
+  if (empty($results)) {
+    // Patient is alive, so return false
+    return false;
+  }
+  else {
+    // Patient is dead, so return the number of days patient has been deceased.
+    //  Don't let it be zero days or else will confuse calls to this function.
+    if ($results['days_deceased'] === 0) {
+      $results['days_deceased'] = 1;
+    }
+    return $results['days_deceased'];
+  }
+}
+
 ?>
