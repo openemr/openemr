@@ -1,15 +1,24 @@
 <?php
-include_once("$srcdir/../interface/globals.php");
-include_once("$srcdir/log.inc");
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
-//function called to set the global session variable for patient id (pid) number
+require_once("$srcdir/../interface/globals.php");
+require_once("$srcdir/log.inc");
+
+// Function called to set the global session variable for patient id (pid) number.
 function setpid($new_pid) {
-global $pid;
+  global $pid, $encounter;
 
-$_SESSION['pid']=$new_pid;
-$pid=$new_pid;
+  if (isset($_SESSION['pid']) && $pid == $new_pid && $pid == $_SESSION['pid'])
+    return;
 
-newEvent("view",$_SESSION["authUser"],$_SESSION["authProvider"],1,$pid);
+  $_SESSION['pid'] = $new_pid;
+  $pid = $new_pid;
 
+  $_SESSION['encounter'] = $encounter = 0;
+
+  newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], $pid);
 }
 ?>

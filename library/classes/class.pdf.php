@@ -1923,7 +1923,11 @@ function stream($options=''){
   header("Content-Length: ".strlen(ltrim($tmp)));
   $fileName = (isset($options['Content-Disposition'])?$options['Content-Disposition']:'file.pdf');
   // header("Content-Disposition: inline; filename=".$fileName);
-  header("Content-Disposition: attachment; filename=".$fileName); // modded by Rod
+  // This supports a new "inline" keyword in the options array.  If true, the
+  // Content-Disposition header is set to indicate an inline document:
+  header("Content-Disposition: " .
+    (empty($options['inline']) ? "attachment" : "inline") .
+    "; filename=" . $fileName);
   // End of Rod's mods.
 
   if (isset($options['Accept-Ranges']) && $options['Accept-Ranges']==1){
