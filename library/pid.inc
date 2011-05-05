@@ -11,13 +11,13 @@ require_once("$srcdir/log.inc");
 function setpid($new_pid) {
   global $pid, $encounter;
 
-  if (isset($_SESSION['pid']) && $pid == $new_pid && $pid == $_SESSION['pid'])
-    return;
+  // Be careful not to clear the encounter unless the pid is really changing.
+  if (!isset($_SESSION['pid']) || $pid != $new_pid || $pid != $_SESSION['pid']) {
+    $_SESSION['encounter'] = $encounter = 0;
+  }
 
   $_SESSION['pid'] = $new_pid;
   $pid = $new_pid;
-
-  $_SESSION['encounter'] = $encounter = 0;
 
   newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], $pid);
 }
