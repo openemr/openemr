@@ -1,0 +1,78 @@
+<html>
+<head>
+    <script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/jquery-ui-1.8.6.custom.min.js"></script>
+    <script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="{$form->template_dir}/css/ui-lightness/jquery-ui-1.8.6.custom.css" />
+    <link rel="stylesheet" type="text/css" href="{$form->template_dir}/css/clickmap.css" />
+</head>
+<body>
+<div class="outer-container">
+	<div id="container" class="container">
+		<img src="{$form->image}"/>
+	</div>
+	<div id="legend" class="legend">
+		<div class="body">
+			<ul></ul>
+		</div>
+	</div>
+</div>
+<p style="clear:both">
+
+<div class="nav">
+	<button id="btn_save">{xl t="Save"}</button>
+	<button id="btn_clear">{xl t="Clear"}</button>
+	<button id="cancel">{xl t="Cancel"}</button>
+	<p>
+        {xl t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
+        {xl t="The 'Clear' button will remove all annotations."}
+    </p>
+</div>
+
+<div class="dialog-form" style="display:none">
+	<fieldset>
+	<label for="label">{xl t="Label"}</label>
+	<input type="text" name="label" id="label" class="text ui-widget-content ui-corner-all label" />
+	<label for="options"></label>
+	<select name="options">
+	</select>
+	<label for="detail">{xl t="Detail"}</label>
+	<textarea name="detail" id="detail" class="textarea ui-widget-content ui-corner-all detail"></textarea>
+	</fieldset>
+</div>
+
+<div class="marker-template" style="display:none">
+	<span class='count'></span>
+</div>
+
+<script type="text/javascript">
+var cancellink = '{$DONT_SAVE_LINK}';
+{literal}
+    $(document).ready( function() {
+                $("#cancel").click(function() { location.href=cancellink; });
+		var optionsLabel = {/literal}{$form->optionsLabel}{literal};
+		var options = {/literal}{$form->optionList}{literal};
+		var data = {/literal}{$form->data}{literal};
+		var hideNav = {/literal}{$form->hideNav}{literal};
+
+		clickmap( {
+                        hideNav: hideNav,
+                        data: data,
+			dropdownOptions: { label: optionsLabel, options: options },
+			container: $("#container")
+		} );
+	});
+{/literal}
+</script>
+
+<form id="submitForm" name="submitForm" method="post" action="{$form->saveAction}" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="id" value="{$form->get_id()}" />
+    <input type="hidden" name="pid" value="{$form->get_pid()}" />
+    <input type="hidden" name="process" value="true" />
+    <input type="hidden" name="data" id="data" value=""/>
+</form>
+</body>
+
+</html>
