@@ -60,10 +60,10 @@
 		$e_Code = $ccr->createElement('Code');
 		$e_Description->appendChild($e_Code);
 		
-		$e_Value = $ccr->createElement('Value', 'None');
+		$e_Value = $ccr->createElement('Value', $row['code']);
 		$e_Code->appendChild($e_Value);
     
-    $e_Value = $ccr->createElement('CodingSystem', 'CPT-4');
+    $e_Value = $ccr->createElement('CodingSystem', $row['coding']);
 		$e_Code->appendChild($e_Value);
     
 		$e_Status = $ccr->createElement('Status');

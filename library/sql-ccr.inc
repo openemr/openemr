@@ -79,34 +79,56 @@ function getProcedureData() {
 
 	$sql = " 
 	SELECT 
-		lists.date, 
-		lists.pid,
-		lists.type,
-		lists.title as proc_title,
-		lists.diagnosis,
-		lists.outcome,
-		lists.groupname,
-		form_encounter.onset_date,
-		form_encounter.encounter,
-		lists.comments,
-		facility.city,
-		facility.street,
-		facility.state,
-		users.title,
-		users.fname,
-		users.lname
-	from lists
-	left join issue_encounter
-	on issue_encounter.list_id = lists.id
-	left join form_encounter
-	on form_encounter.encounter = issue_encounter.encounter
-	left join facility
-	on form_encounter.facility_id = facility.id
-	left join users
-	on form_encounter.provider_id = users.id
-	where lists.type = 'surgery' and lists.pid=?";
+    lists.title as proc_title,
+    lists.date as `date`,
+    list_options.title as outcome,
+    '' as laterality,
+    '' as body_site,
+    lists.type as `type`,
+    lists.diagnosis as `code`,
+    IF(SUBSTRING(lists.diagnosis,1,LOCATE(':',lists.diagnosis)-1) = 'ICD9','ICD9-CM',SUBSTRING(lists.diagnosis,1,LOCATE(':',lists.diagnosis)-1)) AS coding
+  FROM
+    lists 
+    LEFT JOIN issue_encounter 
+      ON issue_encounter.list_id = lists.id 
+    LEFT JOIN form_encounter 
+      ON form_encounter.encounter = issue_encounter.encounter 
+    LEFT JOIN facility 
+      ON form_encounter.facility_id = facility.id 
+    LEFT JOIN users 
+      ON form_encounter.provider_id = users.id 
+    LEFT JOIN list_options
+      ON lists.outcome = list_options.option_id
+      AND list_options.list_id = 'outcome'
+  WHERE lists.type = 'surgery' 
+    AND lists.pid = ? 
+  UNION
+  SELECT 
+    pt.name as proc_title,
+    prs.date as `date`,
+    '' as outcome,
+    ptt.laterality as laterality,
+    ptt.body_site as body_site,
+    'Lab Order' as `type`,
+    ptt.standard_code as `code`,
+    IF(SUBSTRING(ptt.standard_code,1,LOCATE(':',ptt.standard_code)-1) = 'ICD9','ICD9-CM',SUBSTRING(ptt.standard_code,1,LOCATE(':',ptt.standard_code)-1)) AS coding
+  FROM
+    procedure_result AS prs 
+    LEFT JOIN procedure_report AS prp 
+      ON prs.procedure_report_id = prp.procedure_report_id 
+    LEFT JOIN procedure_order AS po 
+      ON prp.procedure_order_id = po.procedure_order_id 
+    LEFT JOIN procedure_type AS pt 
+      ON prs.procedure_type_id = pt.procedure_type_id 
+    LEFT JOIN procedure_type AS ptt 
+      ON pt.parent = ptt.procedure_type_id 
+      AND ptt.procedure_type = 'ord' 
+    LEFT JOIN list_options AS lo 
+      ON lo.list_id = 'proc_unit' 
+      AND pt.units = lo.option_id 
+  WHERE po.patient_id = ? ";
 
-	$result = sqlStatement($sql, array($pid) );
+	$result = sqlStatement($sql, array($pid,$pid) );
 	return $result;
 }
 
@@ -171,14 +193,15 @@ function getResultData() {
   
   $sql = "
     SELECT 
-      prs.procedure_result_id AS pid,
-      pt.name AS name,
-      pt.procedure_type_id AS type,
-      prs.date AS date,
-      CONCAT_WS(' ',prs.result,lo.title) AS result,
-      prs.range AS `range`,
-      prs.abnormal AS abnormal,
-      prs.comments AS comments
+      prs.procedure_result_id as pid,
+      pt.name as `name`,
+      pt.procedure_type_id as `type`,
+      prs.date as `date`,
+      concat_ws(' ',prs.result,lo.title) as result,
+      prs.range as `range`,
+      prs.abnormal as abnormal,
+      prs.comments as comments,
+      ptt.lab_id AS lab
     FROM
       procedure_result AS prs 
       LEFT JOIN procedure_report AS prp 
