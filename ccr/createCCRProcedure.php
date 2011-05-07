@@ -30,8 +30,6 @@
 
 	do {
 
-		echo 'encounter :'.$row['encounter'].'\n';
-
 		$e_Procedure = $ccr->createElement('Procedure');
 		$e_Procedures->appendChild($e_Procedure);
 

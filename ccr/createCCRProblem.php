@@ -33,7 +33,6 @@
 	do {
 		
 		$pCount++;
-		echo 'encounter :'.$row['encounter'].'\n';
 
 		$e_Problem = $ccr->createElement('Problem');
 		$e_Problems->appendChild($e_Problem);
@@ -154,4 +153,3 @@
 	}
 */
 ?>
-

@@ -30,8 +30,6 @@
 
 	do {
 
-		echo "immunization_id :".$row['immunization_id']."\n";
-
 		$e_Immunization = $ccr->createElement('Immunization');
 		$e_Immunizations->appendChild($e_Immunization);
 

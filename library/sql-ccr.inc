@@ -216,4 +216,19 @@ function getActorData() {
 	return $result;
 }
 
+
+function getReportFilename() {
+        global $pid;
+
+        $sql = "
+        select fname, lname, pid
+        from patient_data
+        where pid=?";
+
+        $result = sqlQuery($sql, array($pid) );
+	$result_filename = $result['lname']."-".$result['fname']."-".$result['pid']."-".date("mdY",time());
+
+        return $result_filename;
+}
+
 ?>

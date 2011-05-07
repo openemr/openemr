@@ -159,4 +159,3 @@ do {
 } while ($value = sqlFetchArray($result));
 
 ?>
-

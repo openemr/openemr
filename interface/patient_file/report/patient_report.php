@@ -46,18 +46,27 @@ function checkAll(check) {
 
 <form name='ccr_form' id='ccr_form' method='post' action='../../../ccr/createCCR.php'>
 <span class='title'><?php xl('Continuity of Care Record (CCR)','e'); ?></span>&nbsp;&nbsp;
-<br/><br/>
+<br/>
+<span class='text'>(<?php xl('Pop ups need to be enabled to see these reports','e'); ?>)</span>
+<br/>
+<br/>
 <input type='hidden' name='ccrAction'>
 <input type='hidden' name='raw'>
-<input type="button" class="generateCCR" value="<?php xl('Formatted Report','e'); ?>" />
+<input type="button" class="generateCCR" value="<?php xl('View/Print','e'); ?>" />
+<input type="button" class="generateCCR_download_h" value="<?php echo xl('Download')." (Hybrid)"; ?>" />
+<input type="button" class="generateCCR_download_p" value="<?php echo xl('Download')." (Pure)"; ?>" />
 <input type="button" class="generateCCR_raw" value="<?php xl('Raw Report','e'); ?>" />
 <hr/>
 <span class='title'><?php xl('Continuity of Care Document (CCD)','e'); ?></span>&nbsp;&nbsp;
-<br/><br/>
-<input type="button" class="viewCCD" value="<?php xl('Formatted Report','e'); ?>" />
+<br/>
+<span class='text'>(<?php xl('Pop ups need to be enabled to see these reports','e'); ?>)</span>
+<br/>
+<br/>
+<input type="button" class="viewCCD" value="<?php xl('View/Print','e'); ?>" />
 <input type="button" class="viewCCD_raw" value="<?php xl('Raw Report','e'); ?>" />
 
 </form>
+<hr/>
 <hr/>
 
 </div>
@@ -331,43 +340,65 @@ $(document).ready(
 function(){
 	$(".generateCCR").click(
 	function() { 
-		//alert('in generateCCR');
 		var ccrAction = document.getElementsByName('ccrAction');
 		ccrAction[0].value = 'generate';
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'no';
-		top.restoreSession(); 
+		top.restoreSession();
+		ccr_form.setAttribute("target", "_blank");
 		$("#ccr_form").submit();
+                ccr_form.setAttribute("target", "");
 	});
         $(".generateCCR_raw").click(
         function() {
-                //alert('in generateCCR');
                 var ccrAction = document.getElementsByName('ccrAction');
                 ccrAction[0].value = 'generate';
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'yes';
                 top.restoreSession();
+                ccr_form.setAttribute("target", "_blank");
+                $("#ccr_form").submit();
+                ccr_form.setAttribute("target", "");
+        });
+        $(".generateCCR_download_h").click(
+        function() {
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'generate';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'hybrid';
+                top.restoreSession();
+                $("#ccr_form").submit();
+        });
+        $(".generateCCR_download_p").click(
+        function() {
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'generate';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'pure';
+                top.restoreSession();
                 $("#ccr_form").submit();
         });
 	$(".viewCCD").click(
 	function() { 
-		//alert('in viewCCD');
 		var ccrAction = document.getElementsByName('ccrAction');
 		ccrAction[0].value = 'viewccd';
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'no';
-		top.restoreSession(); 
+		top.restoreSession();
+                ccr_form.setAttribute("target", "_blank"); 
 		$("#ccr_form").submit();
+                ccr_form.setAttribute("target", "");
 	});
         $(".viewCCD_raw").click(
         function() {
-                //alert('in viewCCD');
                 var ccrAction = document.getElementsByName('ccrAction');
                 ccrAction[0].value = 'viewccd';
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'yes';
                 top.restoreSession();
+                ccr_form.setAttribute("target", "_blank");
                 $("#ccr_form").submit();
+                ccr_form.setAttribute("target", "");
         });
 });
 

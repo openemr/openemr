@@ -225,4 +225,3 @@ $row1 = sqlFetchArray($result[1]);
 	$e_Actor->appendChild($e_ActorID);
 
 ?>
-

@@ -61,12 +61,6 @@ this XSLT back to the community.
         <title>Continuity of Care Record</title>
       </head>
       <body>
-	  
-		<a href="../interface/patient_file/report/patient_report.php">
-			<span >Patient Report</span>
-			<span >(Back)</span>
-		</a><br/><br/>
-
         <table cellPadding="1" cellSpacing="1">
           <tbody>
             <tr>
