@@ -43,6 +43,11 @@ function createCCR($action,$raw="no"){
   $patientID = getUuid();
   $sourceID = getUuid();
   $oemrID = getUuid();
+  
+  $result = getActorData();
+  while($res = sqlFetchArray($result[2])){
+    ${"labID{$res['id']}"} = getUuid();
+  }
 
 	   $ccr = new DOMDocument('1.0','UTF-8');
 	   $e_styleSheet = $ccr->createProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="stylesheet/ccr.xsl"');

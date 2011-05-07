@@ -141,6 +141,54 @@ $row1 = sqlFetchArray($result[1]);
 
 	$e_Name = $ccr->createElement('Name', $row1['facility']);
 	$e_InformationSystem->appendChild($e_Name);
+  
+  $e_Type = $ccr->createElement('Type', 'Facility');
+	$e_InformationSystem->appendChild($e_Type);
+  
+  $e_IDs = $ccr->createElement('IDs');
+	$e_Actor->appendChild($e_IDs);
+  
+  $e_Type = $ccr->createElement('Type');
+  $e_IDs->appendChild($e_Type);
+  
+  $e_Text = $ccr->createElement('Text', '');
+	$e_Type->appendChild($e_Text);
+  
+  $e_ID = $ccr->createElement('ID', '');
+	$e_IDs->appendChild($e_ID);
+  
+  $e_Source = $ccr->createElement('Source');
+	$e_IDs->appendChild($e_Source);
+
+	$e_SourceActor = $ccr->createElement('Actor');
+	$e_Source->appendChild($e_SourceActor);
+  
+	$e_ActorID = $ccr->createElement('ActorID', $authorID);
+	$e_SourceActor->appendChild($e_ActorID);
+  
+  $e_Address = $ccr->createElement('Address');
+	$e_Actor->appendChild($e_Address);
+	
+	$e_Line1 = $ccr->createElement('Line1',$row1['street']);
+	$e_Address->appendChild($e_Line1);
+	
+	$e_Line2 = $ccr->createElement('Line2');
+	$e_Address->appendChild($e_Line1);
+
+	$e_City = $ccr->createElement('City',$row1['city']);
+	$e_Address->appendChild($e_City);
+
+	$e_State = $ccr->createElement('State',$row1['state'].' ');
+	$e_Address->appendChild($e_State);
+	
+	$e_PostalCode = $ccr->createElement('PostalCode',$row1['postal_code']);
+	$e_Address->appendChild($e_PostalCode);
+  
+  $e_Telephone = $ccr->createElement('Telephone');
+	$e_Actor->appendChild($e_Telephone);
+  
+  $e_Phone = $ccr->createElement('Value',$row1['phone']);
+	$e_Telephone->appendChild($e_Phone);
 	
 	$e_Source = $ccr->createElement('Source');
 	$e_Actor->appendChild($e_Source);
@@ -194,19 +242,19 @@ $row1 = sqlFetchArray($result[1]);
   $e_Address = $ccr->createElement('Address');
 	$e_Actor->appendChild($e_Address);
 	
-	$e_Line1 = $ccr->createElement('Line1','000 Sample Line');
+	$e_Line1 = $ccr->createElement('Line1','2365 Springs Rd. NE');
 	$e_Address->appendChild($e_Line1);
 	
 	$e_Line2 = $ccr->createElement('Line2');
 	$e_Address->appendChild($e_Line1);
 
-	$e_City = $ccr->createElement('City','Sample City');
+	$e_City = $ccr->createElement('City','Hickory');
 	$e_Address->appendChild($e_City);
 
-	$e_State = $ccr->createElement('State','Sample State');
+	$e_State = $ccr->createElement('State','NC ');
 	$e_Address->appendChild($e_State);
 	
-	$e_PostalCode = $ccr->createElement('PostalCode','00000');
+	$e_PostalCode = $ccr->createElement('PostalCode','28601');
 	$e_Address->appendChild($e_PostalCode);
   
   $e_Telephone = $ccr->createElement('Telephone');
@@ -223,5 +271,77 @@ $row1 = sqlFetchArray($result[1]);
 
 	$e_ActorID = $ccr->createElement('ActorID', $authorID);
 	$e_Actor->appendChild($e_ActorID);
+  
+while ($row2 = sqlFetchArray($result[2])) {
+
+	$e_Actor = $ccr->createElement('Actor');
+	$e_Actors->appendChild($e_Actor);
+
+	$e_ActorObjectID = $ccr->createElement('ActorObjectID', ${"labID{$row2['id']}"});
+	$e_Actor->appendChild($e_ActorObjectID);
+	
+	$e_InformationSystem = $ccr->createElement('InformationSystem');
+	$e_Actor->appendChild($e_InformationSystem);
+
+	$e_Name = $ccr->createElement('Name', $row2['lname']." ".$row2['fname']);
+	$e_InformationSystem->appendChild($e_Name);
+  
+  $e_Type = $ccr->createElement('Type', 'Lab Service');
+	$e_InformationSystem->appendChild($e_Type);
+  
+  $e_IDs = $ccr->createElement('IDs');
+	$e_Actor->appendChild($e_IDs);
+  
+  $e_Type = $ccr->createElement('Type');
+  $e_IDs->appendChild($e_Type);
+  
+  $e_Text = $ccr->createElement('Text', '');
+	$e_Type->appendChild($e_Text);
+  
+  $e_ID = $ccr->createElement('ID', '');
+	$e_IDs->appendChild($e_ID);
+  
+  $e_Source = $ccr->createElement('Source');
+	$e_IDs->appendChild($e_Source);
+
+	$e_SourceActor = $ccr->createElement('Actor');
+	$e_Source->appendChild($e_SourceActor);
+  
+	$e_ActorID = $ccr->createElement('ActorID', $authorID);
+	$e_SourceActor->appendChild($e_ActorID);
+  
+  $e_Address = $ccr->createElement('Address');
+	$e_Actor->appendChild($e_Address);
+	
+	$e_Line1 = $ccr->createElement('Line1',$row2['street']);
+	$e_Address->appendChild($e_Line1);
+	
+	$e_Line2 = $ccr->createElement('Line2');
+	$e_Address->appendChild($e_Line1);
+
+	$e_City = $ccr->createElement('City',$row2['city']);
+	$e_Address->appendChild($e_City);
+
+	$e_State = $ccr->createElement('State',$row2['state'].' ');
+	$e_Address->appendChild($e_State);
+	
+	$e_PostalCode = $ccr->createElement('PostalCode',$row2['zip']);
+	$e_Address->appendChild($e_PostalCode);
+  
+  $e_Telephone = $ccr->createElement('Telephone');
+	$e_Actor->appendChild($e_Telephone);
+  
+  $e_Phone = $ccr->createElement('Value',$row2['phone']);
+	$e_Telephone->appendChild($e_Phone);
+	
+	$e_Source = $ccr->createElement('Source');
+	$e_Actor->appendChild($e_Source);
+
+	$e_Actor = $ccr->createElement('Actor');
+	$e_Source->appendChild($e_Actor);
+
+	$e_ActorID = $ccr->createElement('ActorID', $authorID);
+	$e_Actor->appendChild($e_ActorID);
+}
 
 ?>

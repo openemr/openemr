@@ -194,11 +194,11 @@ function getResultData() {
   $sql = "
     SELECT 
       prs.procedure_result_id as pid,
-      pt.name as `name`,
-      pt.procedure_type_id as `type`,
-      prs.date as `date`,
+      pt.name as name,
+      pt.procedure_type_id as type,
+      prs.date as date,
       concat_ws(' ',prs.result,lo.title) as result,
-      prs.range as `range`,
+      prs.range as range,
       prs.abnormal as abnormal,
       prs.comments as comments,
       ptt.lab_id AS lab
@@ -210,6 +210,9 @@ function getResultData() {
         ON prp.procedure_order_id = po.procedure_order_id
       LEFT JOIN procedure_type AS pt 
         ON prs.procedure_type_id = pt.procedure_type_id
+        LEFT JOIN procedure_type AS ptt 
+        ON pt.parent = ptt.procedure_type_id
+        AND ptt.procedure_type = 'ord'
       LEFT JOIN list_options AS lo
         ON lo.list_id = 'proc_unit' AND pt.units = lo.option_id
     WHERE po.patient_id=?";
@@ -230,11 +233,29 @@ function getActorData() {
 	$result[0] = sqlStatement($sql, array($pid) );
   
   $sql2 = " 
-	select facility
-	from users
-	where id=?";
+	SELECT * FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
 		
 	$result[1] = sqlStatement($sql2, array($_SESSION['authUserID']) );
+  
+  $sql3 = "
+  SELECT 
+    u.*
+  FROM
+    procedure_type AS pt 
+    LEFT JOIN procedure_order AS po 
+      ON po.procedure_type_id = pt.procedure_type_id 
+    LEFT JOIN forms AS f 
+      ON f.form_id = po.procedure_order_id 
+    LEFT JOIN list_options AS lo 
+      ON lo.title = f.form_name
+    LEFT JOIN users AS u
+    ON pt.lab_id = u.id
+  WHERE f.pid = ? 
+    AND lo.list_id = 'proc_type' 
+    AND lo.option_id = 'ord'
+    GROUP BY u.id";
+		
+	$result[2] = sqlStatement($sql3, array($pid) );
   
 	return $result;
 }

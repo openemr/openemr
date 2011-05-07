@@ -58,7 +58,7 @@ do {
   $e_Actor = $ccr->createElement('Actor');
   $e_Source->appendChild($e_Actor);
   
-  $e_ActorID = $ccr->createElement('ActorID',$uuid);
+  $e_ActorID = $ccr->createElement('ActorID',${"labID{$row['lab']}"});
   $e_Actor->appendChild($e_ActorID);
 	
 	$e_Test = $ccr->createElement('Test');
