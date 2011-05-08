@@ -1202,6 +1202,7 @@ if (!empty($reg)) {
           <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genMiscLink('RTop','rep','0',xl('Rx'),'reports/prescriptions_report.php'); ?>
           <?php if (acl_check('patients', 'med')) genMiscLink('RTop','rep','0',xl('Clinical'),'reports/clinical_reports.php'); ?>
 	  <?php genMiscLink('RTop','rep','0',xl('Referrals'),'reports/referrals_report.php'); ?>
+	  <?php genMiscLink('RTop','rep','0',xl('Immunization Registry'),'reports/immunization_report.php'); ?>
         </ul>
       </li>
       <li><a class="collapsed_lv2"><span><?php xl('Clinic','e') ?></span></a>

@@ -1752,6 +1752,7 @@ CREATE TABLE `immunizations` (
   `patient_id` int(11) default NULL,
   `administered_date` date default NULL,
   `immunization_id` int(11) default NULL,
+  `cvx_code` int(11) default NULL,
   `manufacturer` varchar(100) default NULL,
   `lot_number` varchar(50) default NULL,
   `administered_by_id` bigint(20) default NULL,
@@ -4596,6 +4597,7 @@ CREATE TABLE code_types (
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('ICD9' , 2, 1, 2, ''    , 0, 0, 0, 1);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('CPT4' , 1, 2, 2, 'ICD9', 1, 0, 0, 0);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('HCPCS', 3, 3, 2, 'ICD9', 1, 0, 0, 0);
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('CVX'  , 100, 100, 0, '', 0, 0, 1, 0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists', 'code_types', 'Code Types', 1);
 

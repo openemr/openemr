@@ -29,6 +29,7 @@ $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name "
 //collect immunizations
 $sqlstmt = "select date_format(i1.administered_date,'%Y-%m-%d') as '" . xl('Date') . "\n" . xl('Administered') . "' ".
             ",i1.immunization_id as '" . xl('Vaccine') . "' ".
+            ",c.code_text_short as cvx_text ".
             ",i1.manufacturer as '" . xl('Manufacturer') . "' ".
             ",i1.lot_number as '" . xl('Lot') . "\n" . xl('Number') . "' ".
             ",concat(u.lname,', ',u.fname) as '" . xl('Administered By') . "' ".
@@ -37,7 +38,11 @@ $sqlstmt = "select date_format(i1.administered_date,'%Y-%m-%d') as '" . xl('Date
             " from immunizations i1 ".
             " left join users u on i1.administered_by_id = u.id ".
             " left join patient_data p on i1.patient_id = p.pid ".
-            " where p.pid = ?";
+            " left join codes c on i1.cvx_code = c.code ".
+            " left join code_types ct on c.code_type = ct.ct_id ".
+            " where p.pid = ? ".
+            " AND ( i1.cvx_code = '0' ) OR ".
+                " ( i1.cvx_code != '0' AND ct.ct_key = 'CVX' ) ";
 
 // sort the results, as they are on the user's screen
 $sqlstmt .= " order by ";
@@ -48,10 +53,22 @@ $res3 = sqlStatement($sqlstmt, array($pid) );
 
 while ($data[] = sqlFetchArray($res3)) {}
 
-// added 7-2009 by BM to support immunization list in list_options
 for ($i=0;$i<count($data);$i++) {
-  $data[$i][xl('Vaccine')] = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $data[$i][xl('Vaccine')]);
+  // Figure out which name to use (ie. from cvx list or from the custom list)
+  if ($GLOBALS['use_custom_immun_list']) {
+   $data[$i][xl('Vaccine')] = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $data[$i][xl('Vaccine')]);
+  }
+  else {
+    if (!(empty($data[$i]['cvx_text']))) {
+      $data[$i][xl('Vaccine')] = htmlspecialchars( xl($data[$i]['cvx_text']), ENT_NOQUOTES);
+    }
+    else {
+      $data[$i][xl('Vaccine')] = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $data[$i][xl('Vaccine')]);
+    }
+  }
+  unset( $data[$i]['cvx_text'] );
 }
+
 
 $title = xl('Shot Record as of:','','',' ') . date('m/d/Y h:i:s a');
 

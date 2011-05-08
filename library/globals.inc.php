@@ -555,6 +555,13 @@ $GLOBALS_METADATA = array(
       xl('This will deactivate document the encryption and decryption features, and hide them in the UI.')
     ),
 
+    'use_custom_immun_list' => array(
+      xl('Use Custom Immunization List'),
+      'bool',                           // data type
+      '0',                              // default = true
+      xl('This will use the custom immunizations list rather than the standard CVX immunization list.')
+    ),
+
   ),
 
   // Calendar Tab
