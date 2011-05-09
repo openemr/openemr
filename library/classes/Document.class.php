@@ -191,7 +191,6 @@ class Document extends ORDataObject{
 		  	$mimetype = exec($command);
 		  	$mime_array = split(":", $mimetype);
 		  	$mimetype = $mime_array[1];
-		  		
 		  	$d->set_mimetype($mimetype);
 			$d->url = $url;
 		  	$d->size = filesize($filename);

@@ -178,7 +178,7 @@ function createCCR($action,$raw="no"){
                 }
 
 		else {
-			header("Content-type: text/xml");
+			header("Content-type: application/xml");
                 	echo $ccr->saveXml();
 		}
 		

@@ -118,7 +118,12 @@ class C_Document extends Controller {
         		$this->assign("upload_success", "true");
 		  		$d = new Document();
 		  		$d->url = "file://" .$this->file_path.$fname;
-		  		$d->mimetype = $file['type'];
+				if ($file['type'] == 'text/xml') {
+					$d->mimetype = 'application/xml';
+				}
+				else {
+					$d->mimetype = $file['type'];
+				}                                 
 		  		$d->size = $file['size'];
 		  		$sha1Hash = sha1_file( $this->file_path.$fname );
 		  		$d->hash = $sha1Hash;
