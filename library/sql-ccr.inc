@@ -193,15 +193,15 @@ function getResultData() {
   
   $sql = "
     SELECT 
-      prs.procedure_result_id as pid,
-      pt.name as name,
-      pt.procedure_type_id as type,
-      prs.date as date,
-      concat_ws(' ',prs.result,lo.title) as result,
-      prs.range as range,
-      prs.abnormal as abnormal,
-      prs.comments as comments,
-      ptt.lab_id AS lab
+      prs.procedure_result_id as `pid`,
+      pt.name as `name`,
+      pt.procedure_type_id as `type`,
+      prs.date as `date`,
+      concat_ws(' ',prs.result,lo.title) as `result`,
+      prs.range as `range`,
+      prs.abnormal as `abnormal`,
+      prs.comments as `comments`,
+      ptt.lab_id AS `lab`
     FROM
       procedure_result AS prs 
       LEFT JOIN procedure_report AS prp 
