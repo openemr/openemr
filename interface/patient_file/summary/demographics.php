@@ -381,6 +381,9 @@ if ($GLOBALS['patient_id_category_name']) {
 |
 <a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
+|
+<a href="stats_full.php?active=all" onclick='top.restoreSession()'>
+<?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
   </td>
  </tr>
 </table> <!-- end header -->

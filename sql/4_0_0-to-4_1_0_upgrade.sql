@@ -962,3 +962,12 @@ INSERT INTO `layout_options` ( `form_id`, `field_id`, `group_name` , `title`, `s
 INSERT INTO `layout_options` ( `form_id`, `field_id`, `group_name` , `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description` ) VALUES ('DEM', 'deceased_reason', '6Misc', 'Reason Deceased', 2, 2, 1, 30, 255, '', 1, 3, '', '', 'Reason for Death.');
 #EndIf
 
+#IfNotTable lists_touch
+CREATE TABLE `lists_touch` (
+  `pid` bigint(20) default NULL,
+  `type` varchar(255) default NULL,
+  `date` datetime default NULL,
+  PRIMARY KEY  (`pid`,`type`)
+) ENGINE=MyISAM ;
+#EndIf
+

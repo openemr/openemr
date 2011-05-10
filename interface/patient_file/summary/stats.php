@@ -64,7 +64,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $widgetTitle = $arr[0];
             $widgetLabel = $key;
             $widgetButtonLabel = xl("Edit");
-            $widgetButtonLink = "load_location(\"stats_full.php?active=all\")";
+            $widgetButtonLink = "load_location(\"stats_full.php?active=all&category=" . $key . "\")";
             $widgetButtonClass = "";
             $linkMethod = "javascript";
             $bodyClass = "summary_item small";
@@ -76,7 +76,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             <tr class='issuetitle'>
             <td colspan='$numcols'>
             <span class="text"><b><?php echo htmlspecialchars($arr[0],ENT_NOQUOTES); ?></b></span>
-            <a href="javascript:;" class="small" onclick="load_location('stats_full.php?active=all')">
+            <a href="javascript:;" class="small" onclick="load_location('stats_full.php?active=all&category=" . $key . "')">
             (<b><?php echo htmlspecialchars(xl('Manage'),ENT_NOQUOTES); ?></b>)
             </a>
             </td>
@@ -84,9 +84,14 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         <?php }
         echo "<table>";    
 	if (sqlNumRows($pres) == 0) {
-	echo " <tr>\n";
-	echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('None'), ENT_NOQUOTES) . "</td>\n";
-	echo " </tr>\n";
+          if ( getListTouch($pid,$key) ) {
+            // Data entry has happened to this type, so can display an explicit None.
+            echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('None'), ENT_NOQUOTES) . "</td></tr>\n";
+          }
+          else {
+            // Data entry has not happened to this type, so show 'Nothing Recorded"
+            echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('Nothing Recorded'), ENT_NOQUOTES) . "</td></tr>\n";
+          }
 	}
         	    
         while ($row = sqlFetchArray($pres)) {

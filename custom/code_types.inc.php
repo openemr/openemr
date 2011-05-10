@@ -100,6 +100,7 @@ function related_codes_are_used() {
 function lookup_code_descriptions($codes) {
   global $code_types;
   $code_text = '';
+  $sqlArray = array();
   if (!empty($codes)) {
     $relcodes = explode(';', $codes);
     foreach ($relcodes as $codestring) {
@@ -109,10 +110,13 @@ function lookup_code_descriptions($codes) {
       if (empty($code)) {
         $code = $codetype;
       } else {
-        $wheretype = "code_type = '" . $code_types[$codetype]['id'] . "' AND ";
+        $wheretype = "code_type = ? AND ";
+        array_push($sqlArray,$code_types[$codetype]['id']);
       }
-      $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-        "$wheretype code = '$code' ORDER BY id LIMIT 1");
+      $sql = "SELECT code_text FROM codes WHERE " .
+        "$wheretype code = ? ORDER BY id LIMIT 1";
+      array_push($sqlArray,$code);
+      $crow = sqlQuery($sql,$sqlArray);
       if (!empty($crow['code_text'])) {
         if ($code_text) $code_text .= '; ';
         $code_text .= $crow['code_text'];

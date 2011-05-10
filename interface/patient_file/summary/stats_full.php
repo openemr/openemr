@@ -6,6 +6,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
@@ -19,11 +27,11 @@ require_once("$srcdir/options.inc.php");
   if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
    $thisauth = 0;
  }
- if (!$thisauth) die(xl('Not authorized'));
+ if (!$thisauth) die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES) );
 
- // get issues
- $pres = sqlStatement("SELECT * FROM lists WHERE pid = $pid " .
-  "ORDER BY type, begdate");
+ // Collect parameter(s)
+ $category = empty($_REQUEST['category']) ? '' : $_REQUEST['category'];
+
 ?>
 <html>
 
@@ -32,7 +40,7 @@ require_once("$srcdir/options.inc.php");
 
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
-<title><?php xl('Patient Issues','e'); ?></title>
+<title><?php echo htmlspecialchars( xl('Patient Issues'), ENT_NOQUOTES) ; ?></title>
 
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
@@ -45,11 +53,12 @@ function refreshIssue(issue, title) {
     location.reload();
 }
 
-function dopclick(id) {
+function dopclick(id,category) {
     <?php if ($thisauth == 'write'): ?>
-    dlgopen('add_edit_issue.php?issue=' + id, '_blank', 550, 400);
+    if (category == 0) category = '';
+    dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 550, 400);
     <?php else: ?>
-    alert("<?php xl('You are not authorized to add/edit issues','e'); ?>");
+    alert("<?php echo addslashes( xl('You are not authorized to add/edit issues') ); ?>");
     <?php endif; ?>
 }
 
@@ -76,6 +85,14 @@ function newEncounter() {
 </head>
 
 <body class="body_top">
+
+<br>
+<div style="text-align:center" class="buttons">
+  <a href='javascript:;' class='css_button' id='back'><span><?php echo htmlspecialchars( xl('Back'), ENT_NOQUOTES); ?></span></a>
+</div>
+<br>
+<br>
+
 <div id='patient_stats'>
 
 <form method='post' action='stats_full.php' onsubmit='return top.restoreSession()'>
@@ -86,59 +103,71 @@ function newEncounter() {
 $encount = 0;
 $lasttype = "";
 $first = 1; // flag for first section
-$something = 0; // flag that there is data to show
-// If empty
-if (sqlNumRows($pres) < 1) {
-  echo "<b>" . htmlspecialchars( xl("No Issues"), ENT_NOQUOTES) . "</b><br>";
-}
-while ($row = sqlFetchArray($pres)) {
-    $something = 1;
-    if ($lasttype != $row['type']) {
-        $encount = 0;
-        $lasttype = $row['type'];
+foreach ($ISSUE_TYPES as $focustype => $focustitles) {
 
-        $disptype = $ISSUE_TYPES[$lasttype][0];
+  if ($category) {
+    // Only show this category
+    if ($focustype != $category) continue;
+  }
 
-        if ($first) {
-          $first = 0;
-        }
-        else {
-          echo "</table>";
-        }
+  if ($first) {
+    $first = 0;
+  }
+  else {
+    echo "</table>";
+  }
 
-        echo "  <b>$disptype</b>\n";
+  // Show header
+  $disptype = $focustitles[0];
+  echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" . htmlspecialchars($focustype,ENT_QUOTES)  . "\")'><span>" . htmlspecialchars( xl('Add'), ENT_NOQUOTES) . "</span></a>\n";
+  echo "  <span class='title'>" . htmlspecialchars($disptype,ENT_NOQUOTES) . "</span>\n";
+  echo " <table style='margin-bottom:1em;text-align:center'>";
+  ?>
+  <tr class='head'>
+    <th><?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Begin'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('End'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Diag'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars(xl('Status'),ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Occurrence'), ENT_NOQUOTES); ?></th>
+    <?php if ($focustype == "allergy") { ?>
+      <th><?php echo htmlspecialchars( xl('Reaction'), ENT_NOQUOTES); ?></th>
+    <?php } ?>
+    <?php if ($GLOBALS['athletic_team']) { ?>
+      <th><?php echo htmlspecialchars( xl('Missed'), ENT_NOQUOTES); ?></th>
+    <?php } else { ?>
+      <th><?php echo htmlspecialchars( xl('Referred By'), ENT_NOQUOTES); ?></th>
+    <?php } ?>
+    <th><?php echo htmlspecialchars( xl('Comments'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Enc'), ENT_NOQUOTES); ?></th>
+    </tr>
+  <?php
 
-        echo " <table style='margin-bottom:1em;text-align:center'>";
-        // Show header for each category
-        ?>
-        <tr class='head'>
-          <th><?php xl('Title','e'); ?></th>
-          <th><?php xl('Begin','e'); ?></th>
-          <th><?php xl('End','e'); ?></th>
-          <th><?php xl('Diag','e'); ?></th>
-          <th><?php echo htmlspecialchars(xl('Status'),ENT_NOQUOTES); ?></th>
-          <th><?php xl('Occurrence','e'); ?></th>
-          <?php if ($lasttype == "allergy") { ?>
-            <th><?php echo htmlspecialchars( xl('Reaction'), ENT_NOQUOTES); ?></th>
-          <?php } ?>
-          <?php if ($GLOBALS['athletic_team']) { ?>
-            <th><?php xl('Missed','e'); ?></th>
-          <?php } else { ?>
-            <th><?php xl('Referred By','e'); ?></th>
-          <?php } ?>
-          <th><?php xl('Comments','e'); ?></th>
-          <th><?php xl('Enc','e'); ?></th>
-        </tr>
-      <?php
+  // collect issues
+  $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
+   "ORDER BY begdate", array($pid,$focustype) );
 
+  // if no issues (will place a 'None' text vs. toggle algorithm here)
+  if (sqlNumRows($pres) < 1) {
+    if ( getListTouch($pid,$focustype) ) {
+      // Data entry has happened to this type, so can display an explicit None.
+      echo "<tr><td class='text'><b>" . htmlspecialchars( xl("None"), ENT_NOQUOTES) . "</b></td></tr>";
     }
+    else {
+      // Data entry has not happened to this type, so can show the none selection option.
+      echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" . htmlspecialchars($focustype,ENT_QUOTES) . "' value='none' /><b>" . htmlspecialchars( xl("None"), ENT_NOQUOTES) . "</b></td></tr>";
+    }
+  }
+
+  // display issues
+  while ($row = sqlFetchArray($pres)) {
 
     $rowid = $row['id'];
 
     $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
 
     $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
-      "list_id = $rowid");
+      "list_id = ?", array($rowid) );
 
     // encount is used to toggle the color of the table-row output below
     ++$encount;
@@ -150,7 +179,7 @@ while ($row = sqlFetchArray($pres)) {
         $diags = explode(";", $row['diagnosis']);
         foreach ($diags as $diag) {
             $codedesc = lookup_code_descriptions($diag);
-            $codetext .= $diag." (".$codedesc.")<br>";
+            $codetext .= htmlspecialchars($diag,ENT_NOQUOTES) . " (" . htmlspecialchars($codedesc,ENT_NOQUOTES) . ")<br>";
         }
     }
 
@@ -160,10 +189,10 @@ while ($row = sqlFetchArray($pres)) {
       $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
     }
     else if($row['enddate'] == NULL) {
-      $statusCompute = xl("Active");
+      $statusCompute = htmlspecialchars( xl("Active") ,ENT_NOQUOTES);
     }
     else {
-      $statusCompute = xl("Inactive");
+      $statusCompute = htmlspecialchars( xl("Inactive") ,ENT_NOQUOTES);
     }
 
     // output the TD row of info
@@ -173,42 +202,35 @@ while ($row = sqlFetchArray($pres)) {
     else {
       echo " <tr class='$bgclass detail statrow' id='$rowid'>\n";
     }
-    echo "  <td style='text-align:left'>$disptitle</td>\n";
-    echo "  <td>" . $row['begdate'] . "&nbsp;</td>\n";
-    echo "  <td>" . $row['enddate'] . "&nbsp;</td>\n";
+    echo "  <td style='text-align:left'>" . htmlspecialchars($disptitle,ENT_NOQUOTES) . "</td>\n";
+    echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+    echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+    // both codetext and statusCompute have already been escaped above with htmlspecialchars)
     echo "  <td>" . $codetext . "</td>\n";
-    echo "  <td>" . htmlspecialchars($statusCompute,ENT_NOQUOTES) . "&nbsp;</td>\n";
+    echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
     echo "  <td class='nowrap'>";
     echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
     echo "</td>\n";
-    if ($lasttype == "allergy") {
+    if ($focustype == "allergy") {
       echo "  <td>" . htmlspecialchars($row['reaction'],ENT_NOQUOTES) . "&nbsp;</td>\n";
     }
     if ($GLOBALS['athletic_team']) {
         echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
     }
     else {
-        echo "  <td>" . $row['referredby'] . "</td>\n";
+        echo "  <td>" . htmlspecialchars($row['referredby'],ENT_NOQUOTES) . "</td>\n";
     }
-    echo "  <td>" . $row['comments'] . "</td>\n";
-    echo "  <td id='e_$rowid' class='noclick center' title='" . xl('View related encounters') . "'>";
-    echo "  <input type='button' value='" . $ierow['count'] . "' class='editenc' id='".$rowid."' />";
+    echo "  <td>" . htmlspecialchars($row['comments'],ENT_NOQUOTES) . "</td>\n";
+    echo "  <td id='e_$rowid' class='noclick center' title='" . htmlspecialchars( xl('View related encounters'), ENT_QUOTES) . "'>";
+    echo "  <input type='button' value='" . htmlspecialchars($ierow['count'],ENT_QUOTES) . "' class='editenc' id='" . htmlspecialchars($rowid,ENT_QUOTES) . "' />";
     echo "  </td>";
     echo " </tr>\n";
+  }
 }
-if ($something) echo "</table>";
+echo "</table>";
 ?>
 
 </table>
-
-<div style="text-align:center" class="buttons">
- <p>
- <input type='button' value='<?php xl('Add Issue','e'); ?>' id='addissue' class='btn' /> &nbsp;
- <input type='button' value='<?php xl('Add Encounter','e'); ?>' id='newencounter' class='btn' /> &nbsp;
- <input type='button' value='<?php xl('To History','e'); ?>' id='history' class='btn' /> &nbsp;
- <input type='button' value='<?php xl('Back','e'); ?>' id='back' class='btn' />
- </p>
-</div>
 
 </form>
 </div> <!-- end patient_stats -->
@@ -222,12 +244,17 @@ $(document).ready(function(){
     $(".statrow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".statrow").mouseout(function() { $(this).toggleClass("highlight"); });
 
-    $(".statrow").click(function() { dopclick(this.id); });
+    $(".statrow").click(function() { dopclick(this.id,0); });
     $(".editenc").click(function(event) { doeclick(this.id); event.stopPropagation(); });
-    $("#addissue").click(function() { dopclick(0); });
     $("#newencounter").click(function() { newEncounter(); });
     $("#history").click(function() { GotoHistory(); });
     $("#back").click(function() { GoBack(); });
+
+    $(".noneCheck").click(function() {
+      top.restoreSession();
+      $.post( "../../../library/ajax/lists_touch.php", { type: this.name, patient_id: <?php echo htmlspecialchars($pid,ENT_QUOTES); ?> });
+      $(this).hide(); 
+    });
 });
 
 var GotoHistory = function() {
