@@ -529,7 +529,7 @@ $GLOBALS_METADATA = array(
     'activate_ccr_ccd_report' => array(
       xl('Activate CCR/CCD Reporting'),
       'bool',                           // data type
-      '0',                              // default = false
+      '1',                              // default = true
       xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
     ),
     

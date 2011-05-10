@@ -53,9 +53,9 @@ function checkAll(check) {
 <input type='hidden' name='ccrAction'>
 <input type='hidden' name='raw'>
 <input type="button" class="generateCCR" value="<?php xl('View/Print','e'); ?>" />
-<input type="button" class="generateCCR_download_h" value="<?php echo xl('Download')." (Hybrid)"; ?>" />
-<input type="button" class="generateCCR_download_p" value="<?php echo xl('Download')." (Pure)"; ?>" />
-<input type="button" class="generateCCR_raw" value="<?php xl('Raw Report','e'); ?>" />
+<!-- <input type="button" class="generateCCR_download_h" value="<?php echo xl('Download')." (Hybrid)"; ?>" /> -->
+<input type="button" class="generateCCR_download_p" value="<?php echo xl('Download'); ?>" />
+<!-- <input type="button" class="generateCCR_raw" value="<?php xl('Raw Report','e'); ?>" /> -->
 <hr/>
 <span class='title'><?php xl('Continuity of Care Document (CCD)','e'); ?></span>&nbsp;&nbsp;
 <br/>
@@ -63,7 +63,7 @@ function checkAll(check) {
 <br/>
 <br/>
 <input type="button" class="viewCCD" value="<?php xl('View/Print','e'); ?>" />
-<input type="button" class="viewCCD_raw" value="<?php xl('Raw Report','e'); ?>" />
+<!-- <input type="button" class="viewCCD_raw" value="<?php xl('Raw Report','e'); ?>" /> -->
 
 </form>
 <hr/>
