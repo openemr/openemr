@@ -199,6 +199,13 @@ $GLOBALS_METADATA = array(
       'http://sourceforge.net/projects/openemr/support',
       xl('URL for OpenEMR support.')
     ),
+      
+    'encounter_page_size' => array(
+      xl('Encounter Page Size'),
+      'num',
+      '20',
+      xl('Number of encounters to display per page.')
+    )      
 
   ),
 
