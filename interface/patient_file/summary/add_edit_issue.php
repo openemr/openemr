@@ -186,6 +186,9 @@ if ($_POST['form_save']) {
 
   }
 
+  // For record/reporting purposes, place entry in lists_touch table.
+  setListTouch($thispid,$text_type);
+
   if ($text_type == 'football_injury') issue_football_injury_save($issue);
   if ($text_type == 'ippf_gcac'      ) issue_ippf_gcac_save($issue);
   if ($text_type == 'contraceptive'  ) issue_ippf_con_save($issue);
