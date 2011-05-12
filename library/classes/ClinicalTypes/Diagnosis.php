@@ -3,10 +3,23 @@ require_once( 'ClinicalType.php' );
 
 class Diagnosis extends ClinicalType
 {
+    const OPTION_STATE = 'state';
+    const STATE_ACTIVE = 'active';
+    const STATE_INACTIVE = 'inactive';
+    const STATE_RESOLVED = 'resolved';
+    
     const HYPERTENSION = 'diag_hypertension';
     const PREGNANCY = 'diag_pregnancy';
     const ENCEPHALOPATHY = 'diag_encephalopathy';
     const PROG_NEURO_DISORDER = 'diag_prog_neuro_disorder';
+    const CANCER_LYMPH_HIST = 'diag_cancer_lypmh_hist';
+    const ASYMPTOMATIC_HIV = 'diag_asymptomatic_hiv';
+    const MULT_MYELOMA = 'diag_mult_myeloma';
+    const LUKEMIA = 'diag_lukemia';
+    const IMMUNODEF = 'diag_immunodef';
+    const MEASLES = 'diag_measles';
+    const MUMPS = 'diag_mumps';
+    const RUBELLA = 'diag_rubella';
         
     public function getListType() {
         return 'medical_problem';

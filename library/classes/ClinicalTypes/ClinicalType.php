@@ -17,7 +17,7 @@ abstract class ClinicalType
     const CHARACTERISTIC = 'Characteristic';
     const PHYSICAL_EXAM = 'PhysicalExam';
     
-    private $_optionId;
+    private $_optionId; 
     private $_title;
     private $_notes;
     

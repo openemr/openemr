@@ -18,6 +18,19 @@ class Encounter extends ClinicalType
     const ENC_OUT_PCP_OBGYN = 'enc_out_pcp_obgyn';
     const ENC_PREGNANCY = 'enc_pregnancy';
     
+    public static function getEncounterTypes()
+    {
+        $oClass = new ReflectionClass( 'Encounter' );
+        $constants = $oClass->getConstants();
+        $encounters = array();
+        foreach ( $constants as $constant ) {
+            if ( strpos( $constant, 'enc' ) === 0 ) {
+                $encounters[]= $constant;
+            }
+        }
+        return $encounters;
+    }
+    
     public function getListId() 
     {
         return "rule_enc_types";
