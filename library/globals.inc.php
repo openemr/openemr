@@ -202,7 +202,15 @@ $GLOBALS_METADATA = array(
       
     'encounter_page_size' => array(
       xl('Encounter Page Size'),
-      'num',
+      array(
+        '0' => xl('Show All'),
+        '5' => '5',
+        '10' => '10',
+        '15' => '15',
+        '20' => '20',
+        '25' => '25',
+        '50' => '50',
+      ),
       '20',
       xl('Number of encounters to display per page.')
     )      

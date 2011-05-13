@@ -184,10 +184,7 @@ function changePageSize()
     pagestart=$(this).attr("pagestart");
     issue=$(this).attr("issue");
     pagesize=$(this).val();
-    if(pagesize=="ALL")
-    {
-        pagesize=0;
-    }
+    top.restoreSession();
     window.location.href="encounters.php?billing="+billing+"&issue="+issue+"&pagestart="+pagestart+"&pagesize="+pagesize;
 }
 window.onload=function()
@@ -257,13 +254,13 @@ $getStringForPage="&pagesize=".$pagesize."&pagestart=".$pagestart;
 <?php } ?>
 
 <span style="float:right">
-    Results per page:
-    <select id="selPagesize" billing="<?php echo $billing_view?>" issue="<?php echo $issue?>" pagestart="<?php echo $pagestart?>" >
+    <?php echo htmlspecialchars( xl('Results per page'), ENT_NOQUOTES); ?>:
+    <select id="selPagesize" billing="<?php echo htmlspecialchars($billing_view,ENT_QUOTES); ?>" issue="<?php echo htmlspecialchars($issue,ENT_QUOTES); ?>" pagestart="<?php echo htmlspecialchars($pagestart,ENT_QUOTES); ?>" >
 <?php
     $pagesizes=array(5,10,15,20,25,50,0);
     for($idx=0;$idx<count($pagesizes);$idx++)
     {
-        echo "<OPTION";
+        echo "<OPTION value='" . $pagesizes[$idx] . "'";
         if($pagesize==$pagesizes[$idx])
         {
             echo " SELECTED='true'>";
@@ -274,7 +271,7 @@ $getStringForPage="&pagesize=".$pagesize."&pagestart=".$pagestart;
         }
         if($pagesizes[$idx]==0)
         {
-            echo "ALL";
+            echo htmlspecialchars( xl('ALL'), ENT_NOQUOTES);
         }
         else
         {
@@ -365,7 +362,7 @@ $numRes = $count['c'];
 
 if($pagesize>0)
 {
-    $query .= " LIMIT ".$pagestart.",".$pagesize;
+    $query .= " LIMIT " . add_escape_custom($pagestart) . "," . add_escape_custom($pagesize);
 }
 $upper  = $pagestart+$pagesize;
 if(($upper>$numRes) || ($pagesize==0))
@@ -376,12 +373,12 @@ if(($upper>$numRes) || ($pagesize==0))
 
 if(($pagesize > 0) && ($pagestart>0))
 {
-    generatePageElement($pagestart-$pagesize,$pagesize,$billing_view,$issue,"&lArr;".xl("Prev")." ");
+    generatePageElement($pagestart-$pagesize,$pagesize,$billing_view,$issue,"&lArr;" . htmlspecialchars( xl("Prev"), ENT_NOQUOTES) . " ");
 }
-echo ($pagestart + 1)."-".$upper." of " .$numRes;
+echo ($pagestart + 1)."-".$upper." " . htmlspecialchars( xl('of'), ENT_NOQUOTES) . " " .$numRes;
 if(($pagesize>0) && ($pagestart+$pagesize <= $numRes))
 {
-    generatePageElement($pagestart+$pagesize,$pagesize,$billing_view,$issue," ".xl("Next")."&rArr;");
+    generatePageElement($pagestart+$pagesize,$pagesize,$billing_view,$issue," " . htmlspecialchars( xl("Next"), ENT_NOQUOTES) . "&rArr;");
 }
 
 
