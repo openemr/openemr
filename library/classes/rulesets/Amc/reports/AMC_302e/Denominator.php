@@ -6,10 +6,6 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-//
-// This file contains a function to keep track of which issues
-// types get modified.
-//
 
 class AMC_302e_Denominator implements AmcFilterIF
 {
