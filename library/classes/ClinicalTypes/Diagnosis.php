@@ -20,6 +20,9 @@ class Diagnosis extends ClinicalType
     const MEASLES = 'diag_measles';
     const MUMPS = 'diag_mumps';
     const RUBELLA = 'diag_rubella';
+    const HEP_B = 'diag_hep_b';
+    const HEP_A = 'diag_hep_a';
+    const VZV = 'diag_vzv';
         
     public function getListType() {
         return 'medical_problem';

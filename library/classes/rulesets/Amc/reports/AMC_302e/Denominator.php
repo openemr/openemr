@@ -22,7 +22,8 @@ class AMC_302e_Denominator implements AmcFilterIF
     {
         // Seen by the EP or admitted to the eligible hospitals or CAHs inpatient or emergency department (POS 21 or 23)
         //  (basically needs an before the end date)
-        if (Helper::checkAnyEncounter($patient, $dateBegin, $dateEnd, 1)) {
+        $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
+        if (Helper::checkAnyEncounter($patient, $dateBegin, $dateEnd, $options )) {
             return true;
         }
         else {

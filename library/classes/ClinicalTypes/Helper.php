@@ -38,6 +38,12 @@ class Helper
     {
         $typeObj = new $type( $subType );
         if ( $typeObj instanceof ClinicalType ) {
+            if ( $beginDate == null ) {
+               $beginDate = $patient->dob;
+            }
+            if ( $endDate == null ) {
+                $endDate = date( "Y-m-d" );
+            }
             return $typeObj->doPatientCheck( $patient, $beginDate, $endDate, $options );
         } else {
             throw new Exception( "Type must be a subclass of AbstractClinicalType" );

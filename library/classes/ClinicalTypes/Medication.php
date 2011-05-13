@@ -9,17 +9,18 @@ class Medication extends ClinicalType
     const OPTION_UNIQUE_DATES = 'unique';
     
     const DTAP = 'med_dtap';
-    const HEP_A = 'med_hep_a_vac';
-    const HEP_B = 'med_hep_b_vac';
+    const HEP_A_VAC = 'med_hep_a_vac';
+    const HEP_B_VAC = 'med_hep_b_vac';
     const HIB = 'med_hib';
-    const MEASLES = 'med_meas_vac';
+    const MEASLES_VAC = 'med_meas_vac';
     const MMR = 'med_mmr';
     const IPV = 'med_ipv';
-    const MUMPS = 'med_mumps_vac';
-    const PNEUMOCOCCAL = 'med_pneumococcal_vac';
-    const ROTAVIRUS = 'med_rotavirus_vac';
-    const RUBELLA = 'med_rubella_vac';
+    const MUMPS_VAC = 'med_mumps_vac';
+    const PNEUMOCOCCAL_VAC = 'med_pneumococcal_vac';
+    const ROTAVIRUS_VAC = 'med_rotavirus_vac';
+    const RUBELLA_VAC = 'med_rubella_vac';
     const VZV = 'med_vzv';
+    const INFLUENZA_VAC = 'med_influenza_vac';
     
     public function getListId() {
         return "Clinical_Rules_Med_Types";

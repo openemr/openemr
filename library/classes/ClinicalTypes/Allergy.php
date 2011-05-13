@@ -13,6 +13,13 @@ class Allergy extends ClinicalType
     const MEASLES_VAC = 'med_allergy_measles_vac';
     const RUBELLA_VAC = 'med_allergy_rubella_vac';
     const MMR = 'med_allergy_mmr';
+    const BAKERS_YEAST = 'subst_allergy_bakers_yeast';
+    const VZV = 'med_allergy_vzv';
+    const PNEUM_VAC = 'med_allergy_pneum_vac';
+    const HEP_A_VAC = 'med_allergy_hep_a_vac';
+    const HEP_B_VAC = 'med_allergy_hep_b_vac';
+    const ROTAVIRUS_VAC = 'med_allergy_rotavirus_vac';
+    const INFLUENZA_VAC = 'med_allergy_flu_vac';
     
     public function getType() {
         return 'allergy';

@@ -11,7 +11,7 @@ class NFQ_0038_Numerator4 implements CqmFilterIF
         $dobPlus42Days = date( 'Y-m-d 00:00:00', strtotime( '+42 day', strtotime( $patient->dob ) ) );
         $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
         if ( Helper::checkMed( Medication::HIB, $dobPlus42Days, $dobPlus2Years, $options ) &&
-            !Helper::checkAllergy( Allergy::HIB, $patient ) ) {
+            !Helper::checkAllergy( Allergy::HIB, $patient, $patient->dob, $dateEnd ) ) {
             return true;
         }
         return false;
