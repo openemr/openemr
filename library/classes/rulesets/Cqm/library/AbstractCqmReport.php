@@ -1,4 +1,11 @@
 <?php
+// Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
 require_once( dirname(__FILE__)."/../../../../clinical_rules.php" );
 
 abstract class AbstractCqmReport implements RsReportIF
@@ -74,6 +81,11 @@ abstract class AbstractCqmReport implements RsReportIF
                     throw new Exception( "Denominator must be an instance of CqmFilterIF" );
                 }
                 $numerators = $populationCriteria->createNumerators();
+                if ( !is_array( $numerators ) ) {
+                    $tmpNumerators = array();
+                    $tmpNumerators[]= $numerators;
+                    $numerators = $tmpNumerators;
+                } 
                 $exclusion = $populationCriteria->createExclusion();
                 if ( !$exclusion instanceof CqmFilterIF ) {
                     throw new Exception( "Exclusion must be an instance of CqmFilterIF" );
@@ -83,7 +95,7 @@ abstract class AbstractCqmReport implements RsReportIF
                 $initialPatientPopulation = 0;
                 $denominatorPatientPopulation = 0;
                 $exclusionsPatientPopulation = 0;
-                $numeratorPatientPopulations = array();
+                $numeratorPatientPopulations = $this->initNumeratorPopulations( $numerators );
                 foreach ( $this->_cqmPopulation as $patient ) 
                 { 
                     if ( !$initialPatientPopulationFilter->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) ) 
@@ -105,13 +117,9 @@ abstract class AbstractCqmReport implements RsReportIF
                         $exclusionsPatientPopulation++;
                     }
                        
-                    if ( is_array( $numerators ) ) {
-                        foreach ( $numerators as $numerator ) {
-                            $this->testNumerator( $patient, $numerator, $numeratorPatientPopulations );
-                        }
-                    } else {
-                        $this->testNumerator( $patient, $numerators, $numeratorPatientPopulations );
-                    } 
+                    foreach ( $numerators as $numerator ) {
+                        $this->testNumerator( $patient, $numerator, $numeratorPatientPopulations );
+                    }
                 }
                 
                 // tally results, run exclusion on each numerator
@@ -127,15 +135,20 @@ abstract class AbstractCqmReport implements RsReportIF
 
         return $this->_resultsArray;
     }
+    
+    private function initNumeratorPopulations( array $numerators )
+    {
+        $numeratorPatientPopulations = array();
+        foreach ( $numerators as $numerator ) {
+            $numeratorPatientPopulations[$numerator->getTitle()] = 0;
+        }
+        return $numeratorPatientPopulations;
+    }
 
     private function testNumerator( $patient, $numerator, &$numeratorPatientPopulations )
     {
         if ( $numerator instanceof CqmFilterIF  ) 
         {
-            if ( !isset( $numeratorPatientPopulations[$numerator->getTitle()] ) ) {
-                $numeratorPatientPopulations[$numerator->getTitle()] = 0;
-            }
-                
             if ( $numerator->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) ) {
                 $numeratorPatientPopulations[$numerator->getTitle()]++;
             }

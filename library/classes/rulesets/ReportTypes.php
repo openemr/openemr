@@ -1,4 +1,11 @@
 <?php
+// Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
 class ReportTypes
 {
     const TYPE_INDEX = 0;
@@ -23,14 +30,14 @@ class ReportTypes
     	"rule_tob_cess_inter_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
         "rule_adult_wt_screen_fu_cqm" => array( ReportTypes::CQM, "NFQ_0421" ),
         "rule_wt_assess_couns_child_cqm" => array( ReportTypes::CQM, "NFQ_0024" ),
-        "rule_influenza_ge_50_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
-        "rule_child_immun_stat_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
-        "rule_pneumovacc_ge_65_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
+        "rule_influenza_ge_50_cqm" => array( ReportTypes::CQM, "NFQ_0041" ),
+        "rule_child_immun_stat_cqm" => array( ReportTypes::CQM, "NFQ_0038" ),
+        "rule_pneumovacc_ge_65_cqm" => array( ReportTypes::CQM, "NFQ_0043" ),
     	"rule_dm_eye_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
         "rule_dm_foot_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
         "rule_dm_bp_control_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
-        "rule_dm_a1c_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
-        "rule_dm_ldl_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
+        "rule_dm_a1c_cqm" => array( ReportTypes::CQM, "NFQ_0059" ), // Diabetes: HbA1c Poor Control (NQF 0059)
+        "rule_dm_ldl_cqm" => array( ReportTypes::CQM, "NFQ_0064" ), // Diabetes: LDL Management & Control (NQF 0064)
     	"problem_list_amc" => array( ReportTypes::AMC, "AMC_302c" ),
     	"med_list_amc" => array( ReportTypes::AMC, "AMC_302d" ),
     	"med_allergy_list_amc" => array( ReportTypes::AMC, "AMC_302e" ),

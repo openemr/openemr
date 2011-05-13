@@ -19,13 +19,13 @@ class AMC_302e_Numerator implements AmcFilterIF
         return "AMC_302e Numerator";
     }
     
-    public function test( AmcPatient $patient, $dateBegin, $dateEnd ) 
+    public function test( AmcPatient $patient, $beginDate, $endDate ) 
     {
         // Have at least one entry or an indication that no problems are known for the 
         // patient recorded as structured data.
         //  (true if an entry in lists_touch or an active entry in lists preceding the date-end)
-        $firstCheck = sqlQuery("SELECT * FROM `lists_touch` WHERE `pid`=? AND `type`=? AND `date`<=?", array($patient->id,'allergy',$dateEnd) );
-        $secondCheck = sqlQuery("SELECT * FROM `lists` WHERE `activity`='1' AND `pid`=? AND `type`=? AND `date`<=?", array($patient->id,'allergy',$dateEnd) );
+        $firstCheck = sqlQuery("SELECT * FROM `lists_touch` WHERE `pid`=? AND `type`=? AND `date`<=?", array($patient->id,'allergy',$endDate) );
+        $secondCheck = sqlQuery("SELECT * FROM `lists` WHERE `activity`='1' AND `pid`=? AND `type`=? AND `date`<=?", array($patient->id,'allergy',$endDate) );
         if ( !(empty($firstCheck)) || !(empty($secondCheck)) ) {
           return true;
         }
