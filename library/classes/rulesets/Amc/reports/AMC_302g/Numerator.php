@@ -7,23 +7,22 @@
 // of the License, or (at your option) any later version.
 //
 
-class AMC_302e_Denominator implements AmcFilterIF
+
+class AMC_302g_Numerator implements AmcFilterIF
 {
     public function getTitle()
     {
-        return "AMC_302e Denominator";
+        return "AMC_302g Numerator";
     }
     
     public function test( AmcPatient $patient, $beginDate, $endDate ) 
     {
-        // Seen by the EP or admitted to the eligible hospitals or CAHs inpatient or emergency department (POS 21 or 23)
-        //  (basically needs an encounter within the report dates)
-        $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
-        if (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options )) {
-            return true;
+        // Is smoking status recorded as structured data before the end date of the report
+        if ( exist_lifestyle_item($patient->id,'tobacco','',$endDate) ) {
+          return true;
         }
         else {
-            return false;
+          return false;
         }
     }
 }

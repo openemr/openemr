@@ -15,7 +15,7 @@ class AMC_304c_Numerator implements AmcFilterIF
         return "AMC_304c Numerator";
     }
     
-    public function test( AmcPatient $patient, $dateBegin, $dateEnd ) 
+    public function test( AmcPatient $patient, $beginDate, $endDate ) 
     {
         // have demographics recorded as structured data
         //  Need preferred language, gender, race, ethnicity, date of birth.

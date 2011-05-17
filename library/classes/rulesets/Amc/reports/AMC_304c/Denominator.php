@@ -14,13 +14,13 @@ class AMC_304c_Denominator implements AmcFilterIF
         return "AMC_304c Denominator";
     }
     
-    public function test( AmcPatient $patient, $dateBegin, $dateEnd ) 
+    public function test( AmcPatient $patient, $beginDate, $endDate ) 
     {
         // All unique patients seen by the EP or admitted to the eligible
         // hospital’s or CAH’s inpatient or emergency department (POS 21 or 23)
-        //  (basically needs an encounter before the end date)
+        //  (basically needs an encounter within the report dates)
         $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
-        if (Helper::checkAnyEncounter($patient, $dateBegin, $dateEnd, $options)) {
+        if (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) {
             return true;
         }
         else {
