@@ -1,0 +1,84 @@
+	body {
+	    font-family: sans-serif;
+	}
+
+	    .body_top {
+		background: url(../images/background.png);
+		background-repeat: no-repeat;
+		background-color: #6692d1;
+	    }
+
+	input {
+	    -webkit-border-radius: 3px;
+	    -moz-border-radius: 3px;
+	    border-radius: 3px;
+	}
+
+        ul {
+    	    list-style-type:none;
+	}
+	
+        span.expand_section {
+	    cursor:pointer;
+	    color:white;
+	}
+    
+	td.menuheadtoolbar {
+	    text-align:left;
+	}
+	
+	.copyright {
+	    color: black;
+	    font-size: small;
+	    
+	    position: absolute;
+	    bottom: -24px;
+	    left: 139px;
+	}
+	
+	.shadow {
+	    -moz-box-shadow: 0px 0px 57px 0.8px white;
+	    box-shadow: 0px 0px 57px 0.8px white;
+	}
+	
+	.algnRight {
+	    text-align: right;
+	}
+	
+	.heading {
+	    position: absolute;
+	    top: -60px;
+	    margin-left: -21px;
+	    color: gray;
+	    font-style: italic;
+	}
+	
+	#wrapper {
+	    width: 400px;
+	    background-color: white;
+	    padding: 20px;
+/*	    padding-top: 0px;*/
+	    position: absolute;
+	    -webkit-box-shadow: 0px 0px 17px 0.8px gray;
+	    -moz-box-shadow: 0px 0px 17px 0.8px gray;
+	    box-shadow: 0px 0px 17px 0.8px gray;
+	    
+	    -webkit-border-radius: 13px;
+	    -moz-border-radius: 13px;
+
+	}
+	
+	    .centerwrapper {
+		top: 50%;
+		margin-top: -120px;
+		left: 50%;
+		margin-left: -200px;
+	    }
+	    
+	    .lefttop {
+		margin-left: 75px;
+		margin-top: 75px;
+	    }
+	
+	#gradient  {
+	}

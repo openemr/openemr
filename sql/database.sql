@@ -3190,6 +3190,21 @@ INSERT INTO `openemr_session_info` VALUES ('978d31441dccd350d406bfab98978f20', '
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `patient_access_onsite`
+--
+
+CREATE TABLE `patient_access_onsite`(
+  `id` INT NOT NULL AUTO_INCREMENT ,
+  `pid` INT(11),
+  `portal_username` VARCHAR(100) ,
+  `portal_pwd` VARCHAR(100) ,
+  `portal_pwd_status` TINYINT DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
+  PRIMARY KEY (`id`)
+)ENGINE=MyISAM AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `patient_data`
 -- 

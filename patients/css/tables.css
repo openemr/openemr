@@ -1,0 +1,51 @@
+table.class1{
+	border-bottom: solid 1px #89A7D6;
+	font-size: 13px;
+	padding: 10px;
+}
+
+tr.class1 {
+	vertical-align: middle;
+	text-align: left;
+}
+
+tr.class1_odd:hover {
+	background-color: #9AC3CB;
+}
+
+tr.class1_even:hover {
+	background-color: #9AC3CB;
+}
+
+tr.header {
+	padding: 0.3em;
+	vertical-align: middle;
+	text-align: left;
+	background-color: #638ECF;
+	border-bottom: solid 1px #89A7D6;
+	color: white;
+}
+
+tr.header th {
+	padding: 0.3em;
+}
+
+tr.class1_odd {
+	background-color: white;
+	vertical-align: middle;
+	text-align: left;
+}
+
+tr.class1_even {
+	background-color: #D3E1ED;
+	vertical-align: middle;
+	text-align: left;
+}
+
+tr.class1_odd td {
+	padding: 3px;
+}
+
+tr.class1_even td {
+	padding: 3px;
+}

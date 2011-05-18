@@ -387,18 +387,15 @@ $(document).ready(function(){
 
     // check/uncheck all Forms of an encounter
     $(".encounter").click(function() { SelectForms($(this)); });
-});
 
-$(document).ready(
-function(){
 	$(".generateCCR").click(
-	function() {
-    if(document.getElementById('show_date').checked == true){
-      if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-        alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
-        return false;
-      }
-    }
+        function() {
+                if(document.getElementById('show_date').checked == true){
+                        if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
+                                alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
+                                return false;
+                        }
+                }
 		var ccrAction = document.getElementsByName('ccrAction');
 		ccrAction[0].value = 'generate';
                 var raw = document.getElementsByName('raw');
@@ -430,6 +427,12 @@ function(){
         });
         $(".generateCCR_download_p").click(
         function() {
+                if(document.getElementById('show_date').checked == true){
+                        if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
+                                alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
+                                return false;
+                        }
+                }
                 var ccrAction = document.getElementsByName('ccrAction');
                 ccrAction[0].value = 'generate';
                 var raw = document.getElementsByName('raw');
