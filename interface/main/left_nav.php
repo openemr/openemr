@@ -1199,7 +1199,9 @@ if (!empty($reg)) {
       </li>
       <li><a class="collapsed_lv2"><span><?php xl('Clinic','e') ?></span></a>
         <ul>
-          <?php genMiscLink('RTop','rep','0',xl('Quality Measures'),'reports/cqm.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Standard Measures'),'reports/cqm.php?type=standard'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Quality Measures (CQM)'),'reports/cqm.php?type=cqm'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Automated Measures (AMC)'),'reports/cqm.php?type=amc'); ?>
         </ul>
       </li>
       <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>

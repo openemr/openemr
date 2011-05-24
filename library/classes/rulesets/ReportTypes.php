@@ -43,16 +43,16 @@ class ReportTypes
     	"med_allergy_list_amc" => array( ReportTypes::AMC, "AMC_302e" ),
     	"record_vitals_amc" => array( ReportTypes::AMC, "AMC_302f" ),
     	"record_smoke_amc" => array( ReportTypes::AMC, "AMC_302g" ),
-    	"lab_result_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_302h
-    	"med_reconc_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_302j
-        "patient_edu_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_302m
-        "cpoe_med_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304a
-        "e_prescribe_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304b
+    	"lab_result_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_302h, labs
+    	"med_reconc_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_302j, transitions
+        "patient_edu_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_302m, patients
+        "cpoe_med_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304a, patients
+        "e_prescribe_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304b, prescriptions
         "record_dem_amc" => array( ReportTypes::AMC, "AMC_304c" ),
         "send_reminder_amc" => array( ReportTypes::AMC, "AMC_304d" ),
-        "provide_rec_pat_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304f
-        "timely_access_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304g
-    	"provide_sum_pat_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304h
-        "send_sum_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ) //AMC_304i
+        "provide_rec_pat_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304f, patients
+        "timely_access_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304g, patients
+    	"provide_sum_pat_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304h, visits
+        "send_sum_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ) //AMC_304i, transitions
     );
 }
