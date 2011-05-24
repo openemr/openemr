@@ -49,7 +49,7 @@ class ReportTypes
         "cpoe_med_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304a
         "e_prescribe_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304b
         "record_dem_amc" => array( ReportTypes::AMC, "AMC_304c" ),
-        "send_reminder_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304d
+        "send_reminder_amc" => array( ReportTypes::AMC, "AMC_304d" ),
         "provide_rec_pat_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304f
         "timely_access_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304g
     	"provide_sum_pat_amc" => array( ReportTypes::AMC, "AMC_Unimplemented" ), //AMC_304h
