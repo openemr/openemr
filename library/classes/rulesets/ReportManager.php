@@ -25,7 +25,7 @@ class ReportManager
         }
     }
 
-    public function runReport( $rowRule, $patients, $dateTarget ) 
+    public function runReport( $rowRule, $patients, $dateTarget, $options=array() ) 
     {
         $ruleId = $rowRule['id'];
         $patientData = array();
@@ -44,7 +44,7 @@ class ReportManager
         
         $report = null;
         if ( $reportFactory instanceof  RsReportFactoryAbstract ) {
-            $report = $reportFactory->createReport( ReportTypes::getClassName( $ruleId ), $rowRule, $patientData, $dateTarget );
+            $report = $reportFactory->createReport( ReportTypes::getClassName( $ruleId ), $rowRule, $patientData, $dateTarget, $options );
         }
         
         $results = array();

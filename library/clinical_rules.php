@@ -112,8 +112,9 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 //         report mode    - returns an array of rows for the Clinical Quality Measures (CQM) report
 //     'plans':
 //       Returns similar to default, but organizes by the active plans
+//  $options - can hold various option (for now, used to hold the manual number of labs for the AMC report)
 //
-function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default') {
+function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array()) {
 
   // If dateTarget is an array, then organize them.
   if (is_array($dateTarget)) {
@@ -250,7 +251,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       $manager = new ReportManager();
       if ($rowRule['amc_flag']) {
         // Send array of dates ('dateBegin' and 'dateTarget')
-        $tempResults = $manager->runReport( $rowRule, $patientData, $dateArray );
+        $tempResults = $manager->runReport( $rowRule, $patientData, $dateArray, $options );
       }
       else {
         // Send target date
@@ -1507,7 +1508,7 @@ function collect_database_label($label,$table) {
       $returnedLabel = "procedure_order.patient_id";
     }
     else if ($label == "date") {
-      $returnedLabel = "procedure_result.date";
+      $returnedLabel = "procedure_report.date_collected";
     }
     else {
       // unknown label, so return the original label

@@ -25,6 +25,23 @@ CREATE TABLE `addresses` (
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `amc_misc_data`
+--
+
+DROP TABLE IF EXISTS `amc_misc_data`;
+CREATE TABLE `amc_misc_data` (
+  `amc_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
+  `pid` bigint(20) default NULL,
+  `map_category` varchar(255) NOT NULL default '' COMMENT 'Maps to an object category (such as prescriptions etc.)',
+  `map_id` bigint(20) NOT NULL default '0' COMMENT 'Maps to an object id (such as prescription id etc.)',
+  `date_created` datetime default NULL,
+  `date_completed` datetime default NULL,
+  KEY  (`amc_id`,`pid`,`map_id`)
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `array`
 -- 
@@ -1990,6 +2007,7 @@ INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowemail', '3Choices', 'All
 INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_reg_use', '3Choices', 'Allow Immunization Registry Use', 9, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
 INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_info_share', '3Choices', 'Allow Immunization Info Sharing', 10, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
 INSERT INTO `layout_options` VALUES ('DEM', 'allow_health_info_ex', '3Choices', 'Allow Health Information Exchange', 11, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_patient_portal', '3Choices', 'Allow Patient Portal', 12, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
 INSERT INTO `layout_options` VALUES ('DEM', 'occupation', '4Employer', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation');
 INSERT INTO `layout_options` VALUES ('DEM', 'em_name', '4Employer', 'Employer Name', 2, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name');
 INSERT INTO `layout_options` VALUES ('DEM', 'em_street', '4Employer', 'Employer Address', 3, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number');
@@ -3246,6 +3264,7 @@ CREATE TABLE `patient_data` (
   `allow_imm_reg_use` varchar(255) NOT NULL DEFAULT '',
   `allow_imm_info_share` varchar(255) NOT NULL DEFAULT '',
   `allow_health_info_ex` varchar(255) NOT NULL DEFAULT '',
+  `allow_patient_portal` varchar(31) NOT NULL DEFAULT '',
   `deceased_date` datetime default NULL,
   `deceased_reason` varchar(255) NOT NULL default '',
   UNIQUE KEY `pid` (`pid`),

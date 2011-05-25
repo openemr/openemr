@@ -971,3 +971,23 @@ CREATE TABLE `lists_touch` (
 ) ENGINE=MyISAM ;
 #EndIf
 
+#IfNotTable amc_misc_data
+CREATE TABLE `amc_misc_data` (
+  `amc_id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
+  `pid` bigint(20) default NULL,
+  `map_category` varchar(255) NOT NULL default '' COMMENT 'Maps to an object category (such as prescriptions etc.)',
+  `map_id` bigint(20) NOT NULL default '0' COMMENT 'Maps to an object id (such as prescription id etc.)',
+  `date_created` datetime default NULL,
+  `date_completed` datetime default NULL,
+  KEY  (`amc_id`,`pid`,`map_id`)
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id allow_patient_portal
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_patient_portal', '3Choices', 'Allow Patient Portal', 12, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+#EndIf
+
+#IfMissingColumn patient_data allow_patient_portal
+ALTER TABLE `patient_data` ADD COLUMN `allow_patient_portal` varchar(31) NOT NULL DEFAULT '';
+#EndIf
+

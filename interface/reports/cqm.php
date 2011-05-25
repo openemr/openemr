@@ -6,9 +6,6 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
- // This report shows upcoming appointments with filtering and
- // sorting by patient, practitioner, appointment type, and date.
-
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
 //
@@ -30,6 +27,7 @@ $type_report = (isset($_GET['type'])) ? trim($_GET['type']) : "standard";
 // Collect form parameters (set defaults if empty)
 if ($type_report == "amc") {
   $begin_date = (isset($_POST['form_begin_date'])) ? trim($_POST['form_begin_date']) : "";
+  $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
 }
 $target_date = (isset($_POST['form_target_date'])) ? trim($_POST['form_target_date']) : date('Y-m-d H:i:s');
 $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : "";
@@ -253,6 +251,19 @@ $provider  = trim($_POST['form_provider']);
 				?>
                         </td>
 		</tr>
+
+                <?php if ($type_report == "amc") { ?>
+                  <tr>
+                        <td>
+                               <?php echo htmlspecialchars( xl('Number labs'), ENT_NOQUOTES); ?>:<br>
+                               (<?php echo htmlspecialchars( xl('Non-electronic'), ENT_NOQUOTES); ?>)
+                        </td>
+                        <td>
+                               <input type="text" name="labs_manual_entry" value="<?php echo htmlspecialchars($labs_manual,ENT_QUOTES); ?>">
+                        </td>
+                  </tr>
+                <?php } ?>
+
 	</table>
 
 	</div>
@@ -317,7 +328,11 @@ $provider  = trim($_POST['form_provider']);
   </th>
 
   <th>
-   <?php echo htmlspecialchars( xl('Applicable Patients') .' (' . xl('Denominator') . ')', ENT_NOQUOTES); ?></a>
+   <?php if ($type_report == "amc") { ?>
+    <?php echo htmlspecialchars( xl('Denominator'), ENT_NOQUOTES); ?></a>
+   <?php } else { ?>
+    <?php echo htmlspecialchars( xl('Applicable Patients') .' (' . xl('Denominator') . ')', ENT_NOQUOTES); ?></a>
+   <?php } ?>
   </th>
 
   <?php if ($type_report != "amc") { ?>
@@ -327,7 +342,11 @@ $provider  = trim($_POST['form_provider']);
   <?php } ?>
 
   <th>
-   <?php echo htmlspecialchars( xl('Passed Patients') . ' (' . xl('Numerator') . ')', ENT_NOQUOTES); ?></a>
+   <?php if ($type_report == "amc") { ?>
+    <?php echo htmlspecialchars( xl('Numerator'), ENT_NOQUOTES); ?></a>
+   <?php } else { ?>
+    <?php echo htmlspecialchars( xl('Passed Patients') . ' (' . xl('Numerator') . ')', ENT_NOQUOTES); ?></a>
+   <?php } ?>
   </th>
 
   <th>
@@ -339,11 +358,14 @@ $provider  = trim($_POST['form_provider']);
 <?php
 
   if ($type_report == "amc") {
-    // For AMC, need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
+    // For AMC:
+    //   need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
+    //   need to to send a manual data entry option (number of labs)
     $array_date = array();
     $array_date['dateBegin'] = $begin_date;
     $array_date['dateTarget'] = $target_date;
-    $dataSheet = test_rules_clinic($provider,$rule_filter,$array_date,"report",'',$plan_filter,$organize_method);
+    $options = array('labs_manual'=>$labs_manual);
+    $dataSheet = test_rules_clinic($provider,$rule_filter,$array_date,"report",'',$plan_filter,$organize_method,$options);
   }
   else {
     $dataSheet = test_rules_clinic($provider,$rule_filter,$target_date,"report",'',$plan_filter,$organize_method);

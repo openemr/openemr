@@ -129,6 +129,7 @@
   'orp' => array(xl('Proc Pending Rev'), 1, 'orders/orders_results.php?review=1'),
   'orr' => array(xl('Proc Res')  , 1, 'orders/orders_results.php'),
   'prp' => array(xl('Pt Report') , 1, 'patient_file/report/patient_report.php'),
+  'prq' => array(xl('Pt Rec Request') , 1, 'patient_file/transaction/record_request.php'),
   'pno' => array(xl('Pt Notes')  , 1, 'patient_file/summary/pnotes.php'),
   'tra' => array(xl('Transact')  , 1, 'patient_file/transaction/transactions.php'),
   'sum' => array(xl('Summary')   , 1, 'patient_file/summary/summary_bottom.php'),
@@ -1089,6 +1090,12 @@ if ($GLOBALS['athletic_team']) {
         </ul>
       </li>
 
+      <li><a class="collapsed_lv2"><span><?php xl('Records','e') ?></span></a>
+        <ul>
+          <?php genTreeLink('RTop','prq',xl('Patient Record Request')); ?>
+        </ul>
+      </li>
+
 <?php if ($GLOBALS['gbl_nav_visit_forms']) { ?>
       <li><a class="collapsed_lv2"><span><?php xl('Visit Forms','e') ?></span></a>
         <ul>
@@ -1199,9 +1206,10 @@ if (!empty($reg)) {
       </li>
       <li><a class="collapsed_lv2"><span><?php xl('Clinic','e') ?></span></a>
         <ul>
-          <?php genMiscLink('RTop','rep','0',xl('Standard Measures'),'reports/cqm.php?type=standard'); ?>
-          <?php genMiscLink('RTop','rep','0',xl('Quality Measures (CQM)'),'reports/cqm.php?type=cqm'); ?>
-          <?php genMiscLink('RTop','rep','0',xl('Automated Measures (AMC)'),'reports/cqm.php?type=amc'); ?>
+          <?php if ($GLOBALS['enable_cdr']) genMiscLink('RTop','rep','0',xl('Standard Measures'),'reports/cqm.php?type=standard'); ?>
+          <?php if ($GLOBALS['enable_cqm']) genMiscLink('RTop','rep','0',xl('Quality Measures (CQM)'),'reports/cqm.php?type=cqm'); ?>
+          <?php if ($GLOBALS['enable_amc']) genMiscLink('RTop','rep','0',xl('Automated Measures (AMC)'),'reports/cqm.php?type=amc'); ?>
+          <?php if ($GLOBALS['enable_amc_tracking']) genMiscLink('RTop','rep','0',xl('AMC Tracking'),'reports/amc_tracking.php'); ?>
         </ul>
       </li>
       <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>

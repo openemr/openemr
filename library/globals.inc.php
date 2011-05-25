@@ -864,6 +864,13 @@ $GLOBALS_METADATA = array(
       xl('Enable Patient Reminder Widget')
     ),
 
+    'enable_cqm' => array(
+      xl('Enable CQM Reporting'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Clinical Quality Measure (CQM) Reporting')
+    ),
+
     'pqri_registry_name' => array(
       xl('PQRI Registry Name'),
       'text',                           // data type
@@ -877,7 +884,28 @@ $GLOBALS_METADATA = array(
       '125789123',                               // default
       xl('PQRI Registry ID')
     ),
-      
+
+    'enable_amc' => array(
+      xl('Enable AMC Reporting'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Automated Measure Calculations (AMC) Reporting')
+    ),
+
+    'enable_amc_prompting' => array(
+      xl('Enable AMC Prompting'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Prompting For Automated Measure Calculations (AMC) Required Data')
+    ),
+
+    'enable_amc_tracking' => array(
+      xl('Enable AMC Tracking'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Reporting of Tracking Date For Automated Measure Calculations (AMC)')
+    ),
+ 
   ),
 
   // Logging

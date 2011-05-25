@@ -19,11 +19,11 @@ class AmcReportFactory extends RsReportFactoryAbstract
         }
     }
     
-    public function createReport( $className, $rowRule, $patientData, $dateTarget ) 
+    public function createReport( $className, $rowRule, $patientData, $dateTarget, $options ) 
     {
         $reportObject = null;
         if ( class_exists( $className ) ) {
-            $reportObject = new $className( $rowRule, $patientData, $dateTarget );
+            $reportObject = new $className( $rowRule, $patientData, $dateTarget, $options );
         } else {
             $reportObject = new AMC_Unimplemented();
         }

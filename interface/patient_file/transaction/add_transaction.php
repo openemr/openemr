@@ -18,6 +18,7 @@ $fake_register_globals=false;
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/amc.php");
 
 // Referral plugin support.
 $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/REF.plugin.php";
@@ -70,6 +71,16 @@ if ($mode) {
     array_push($sqlBindArray,$pid);
     $sets .= ", pid = ?";
     $transid = sqlInsert("INSERT INTO transactions SET $sets", $sqlBindArray);
+  }
+
+  // Set the AMC sent records flag
+  if (!(empty($_POST['send_sum_flag']))) {
+    // add the sent records flag
+    processAmcCall('send_sum_amc', true, 'add', $pid, 'transactions', $transid); 
+  }
+  else {
+    // remove the sent records flag
+    processAmcCall('send_sum_amc', true, 'remove', $pid, 'transactions', $transid);
   }
 
   if ($GLOBALS['concurrent_layout'])
@@ -292,6 +303,22 @@ div.tab {
 	</table>
 
 <div id='referdiv'>
+
+    <?php if ($GLOBALS['enable_amc_prompting']) { ?>
+        <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
+            <div style='float:left;margin:5px 5px 5px 5px;'>
+                <?php // Display the send records checkbox (AMC prompting)
+                    $itemAMC = amcCollect("send_sum_amc", $pid, 'transactions', $transid);
+                ?>
+                <?php if (!(empty($itemAMC))) { ?>
+                    <input type="checkbox" id="send_sum_flag" name="send_sum_flag" checked>
+                <?php } else { ?>
+                    <input type="checkbox" id="send_sum_flag" name="send_sum_flag">
+                <?php } ?>
+                <span class="text"><?php echo xl('Sent Medical Records?') ?></span><br>
+            </div>
+        </div>
+    <?php } ?>
 
 					<div id="DEM">
 						<ul class="tabNav">

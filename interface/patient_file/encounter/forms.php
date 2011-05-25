@@ -10,6 +10,7 @@ require_once("$srcdir/calendar.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/amc.php");
 ?>
 <html>
 
@@ -145,12 +146,62 @@ if (is_numeric($pid)) {
 }
 ?>
 </div>
-<div style='float:left;margin-left:10px'>
-<?php if (acl_check('admin', 'super')) { ?>
-    <a href='toggledivs(this.id,this.id);' class='css_button' onclick='return deleteme()'><span><?php echo xl('Delete') ?></span></a>
-	&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php xl('Expand All','e'); ?></a>
-	&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php xl('Collapse All','e'); ?></a>
-<?php } ?>
+
+<div>
+    <div style='float:left;margin-left:10px'>
+        <?php if (acl_check('admin', 'super')) { ?>
+            <a href='toggledivs(this.id,this.id);' class='css_button' onclick='return deleteme()'><span><?php echo xl('Delete') ?></span></a>
+        <?php } ?>
+        &nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php xl('Expand All','e'); ?></a>
+        &nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php xl('Collapse All','e'); ?></a>
+    </div>
+
+    <?php if ($GLOBALS['enable_amc_prompting']) { ?>
+        <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
+            <div style='float:left;margin:5px 5px 5px 5px;'>
+
+                <?php // Display the education resource checkbox (AMC prompting)
+                    $itemAMC = amcCollect("patient_edu_amc", $pid, 'form_encounter', $encounter);
+                ?>
+                <?php if (!(empty($itemAMC))) { ?>
+                    <input type="checkbox" id="prov_edu_res" checked>
+                <?php } else { ?>
+                    <input type="checkbox" id="prov_edu_res">
+                <?php } ?>
+                <span class="text"><?php echo xl('Provided Education Resource(s)?') ?></span><br>
+
+                <?php // Display the Provided Clinical Summary checkbox (AMC prompting)
+                    $itemAMC = amcCollect("provide_sum_pat_amc", $pid, 'form_encounter', $encounter);
+                ?>
+                <?php if (!(empty($itemAMC))) { ?>
+                    <input type="checkbox" id="provide_sum_pat_flag" checked>
+                <?php } else { ?>
+                    <input type="checkbox" id="provide_sum_pat_flag">
+                <?php } ?>
+                <span class="text"><?php echo xl('Provided Clinical Summary?') ?></span><br>
+
+                <?php // Display the medication reconciliation checkboxes (AMC prompting)
+                    $itemAMC = amcCollect("med_reconc_amc", $pid, 'form_encounter', $encounter);
+                ?>
+                <?php if (!(empty($itemAMC))) { ?>
+                    <input type="checkbox" id="trans_trand_care" checked>
+                    <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span><br>
+                    <?php if (!(empty($itemAMC['date_completed']))) { ?>
+                        <input type="checkbox" id="med_reconc_perf" checked>
+                    <?php } else { ?>
+                        <input type="checkbox" id="med_reconc_perf">
+                    <?php } ?>
+                    <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span><br>
+                <?php } else { ?>
+                    <input type="checkbox" id="trans_trand_care">
+                    <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span><br>
+                    <input type="checkbox" id="med_reconc_perf" DISABLED>
+                    <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span><br>
+                <?php } ?>
+
+            </div>
+        </div>
+    <?php } ?>
 </div>
 <br/>
 <br/>
@@ -270,6 +321,87 @@ $(document).ready(function(){
     $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".onerow").click(function() { GotoForm(this); });
+
+    $("#prov_edu_res").click(function() {
+        if ( $('#prov_edu_res').attr('checked') ) {
+            var mode = "add";
+        }
+        else {
+            var mode = "remove";
+        }
+        top.restoreSession();
+        $.post( "../../../library/ajax/amc_misc_data.php",
+            { amc_id: "patient_edu_amc",
+              complete: true,
+              mode: mode,
+              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              object_category: "form_encounter",
+              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+            }
+        );
+    });
+
+    $("#provide_sum_pat_flag").click(function() {
+        if ( $('#provide_sum_pat_flag').attr('checked') ) {
+            var mode = "add";
+        }
+        else {
+            var mode = "remove";
+        }
+        top.restoreSession();
+        $.post( "../../../library/ajax/amc_misc_data.php",
+            { amc_id: "provide_sum_pat_amc",
+              complete: true,
+              mode: mode,
+              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              object_category: "form_encounter",
+              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+            }
+        );
+    });
+
+    $("#trans_trand_care").click(function() {
+        if ( $('#trans_trand_care').attr('checked') ) {
+            var mode = "add";
+            // Enable the reconciliation checkbox
+            $("#med_reconc_perf").removeAttr("disabled");
+        }
+        else {
+            var mode = "remove";
+            //Disable the reconciliation checkbox (also uncheck it if applicable)
+            $("#med_reconc_perf").attr("disabled", true);
+            $("#med_reconc_perf").removeAttr("checked");
+        }
+        top.restoreSession();
+        $.post( "../../../library/ajax/amc_misc_data.php",
+            { amc_id: "med_reconc_amc",
+              complete: false,
+              mode: mode,
+              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              object_category: "form_encounter",
+              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+            }
+        );
+    });
+
+    $("#med_reconc_perf").click(function() {
+        if ( $('#med_reconc_perf').attr('checked') ) {
+            var mode = "complete";
+        }
+        else {
+            var mode = "uncomplete";
+        }
+        top.restoreSession();
+        $.post( "../../../library/ajax/amc_misc_data.php",
+            { amc_id: "med_reconc_amc",
+              complete: true,
+              mode: mode,
+              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              object_category: "form_encounter",
+              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+            }
+        );
+    });
 
     // $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
