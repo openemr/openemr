@@ -338,8 +338,16 @@ $provider  = trim($_POST['form_provider']);
  <tbody>  <!-- added for better print-ability -->
 <?php
 
-  //collect the results
-  $dataSheet = test_rules_clinic($provider,$rule_filter,$target_date,"report",'',$plan_filter,$organize_method);
+  if ($type_report == "amc") {
+    // For AMC, need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
+    $array_date = array();
+    $array_date['dateBegin'] = $begin_date;
+    $array_date['dateTarget'] = $target_date;
+    $dataSheet = test_rules_clinic($provider,$rule_filter,$array_date,"report",'',$plan_filter,$organize_method);
+  }
+  else {
+    $dataSheet = test_rules_clinic($provider,$rule_filter,$target_date,"report",'',$plan_filter,$organize_method);
+  }
 
   $firstProviderFlag = TRUE;
   $firstPlanFlag = TRUE;

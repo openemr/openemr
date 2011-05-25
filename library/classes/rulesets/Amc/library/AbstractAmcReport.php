@@ -38,11 +38,9 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_amcPopulation = new AmcPopulation( $patientIdArray );
         $this->_rowRule = $rowRule;
         $this->_ruleId = isset( $rowRule['id'] ) ? $rowRule['id'] : '';
-        // Calculate measurement period
-        $tempDateArray = explode( "-",$dateTarget );
-        $tempYear = $tempDateArray[0];
-        $this->_beginMeasurement = $tempDateArray[0] . "-01-01 00:00:00";
-        $this->_endMeasurement = $tempDateArray[0] . "-12-31 23:59:59";
+        // Parse measurement period, which is stored as array in $dateTarget ('dateBegin' and 'dateTarget').
+        $this->_beginMeasurement = $dateTarget['dateBegin'];
+        $this->_endMeasurement = $dateTarget['dateTarget'];
     }
     
     public abstract function createNumerator();
@@ -69,20 +67,29 @@ abstract class AbstractAmcReport implements RsReportIF
         $denominatorPatients = 0;
         foreach ( $this->_amcPopulation as $patient ) 
         {
-            if ( !$denominator->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) ) {
+            // If begin measurement is empty, then make the begin
+            //  measurement the patient dob.
+            $tempBeginMeasurement = "";
+            if (empty($this->_beginMeasurement)) {
+                $tempBeginMeasurement = $patient->dob;
+            }
+            else {
+                $tempBeginMeasurement = $this->_beginMeasurement;
+            }
+
+            if ( !$denominator->test( $patient, $tempBeginMeasurement, $this->_endMeasurement ) ) {
                 continue;
             }
             
             $denominatorPatients++;
             
-            if ( !$numerator->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) ) {
+            if ( !$numerator->test( $patient, $tempBeginMeasurement, $this->_endMeasurement ) ) {
                 continue;
             }
             
             $numeratorPatients++;
         }
         
-        // TODO calculate results
         $percentage = calculate_percentage( $denominatorPatients, 0, $numeratorPatients );
         $result = new AmcResult( $this->_rowRule, $totalPatients, $denominatorPatients, 0, $numeratorPatients, $percentage );
         $this->_resultsArray[]= $result;

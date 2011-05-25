@@ -100,6 +100,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 //                   inner and outer are only different if organize_mode is set to plans).
 //   $type       - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder). If blank then will test all rules.
 //   $dateTarget - target date. If blank then will test with current date as target.
+//                              If an array, then is holding two dates ('dateBegin' and 'dateTarget')
 //   $mode       - choose either 'report' or 'reminders-all' or 'reminders-due' (required)
 //   $patient_id - pid of patient. If blank then will check all patients.
 //   $plan       - test for specific plan only
@@ -113,6 +114,12 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 //       Returns similar to default, but organizes by the active plans
 //
 function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default') {
+
+  // If dateTarget is an array, then organize them.
+  if (is_array($dateTarget)) {
+    $dateArray = $dateTarget;
+    $dateTarget = $dateTarget['dateTarget'];
+  }
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
@@ -241,7 +248,14 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 
       require_once( dirname(__FILE__)."/classes/rulesets/ReportManager.php");
       $manager = new ReportManager();
-      $tempResults = $manager->runReport( $rowRule, $patientData, $dateTarget );
+      if ($rowRule['amc_flag']) {
+        // Send array of dates ('dateBegin' and 'dateTarget')
+        $tempResults = $manager->runReport( $rowRule, $patientData, $dateArray );
+      }
+      else {
+        // Send target date
+        $tempResults = $manager->runReport( $rowRule, $patientData, $dateTarget );
+      }
       if (!empty($tempResults)) {
         foreach ($tempResults as $tempResult) {
           array_push($results,$tempResult);
