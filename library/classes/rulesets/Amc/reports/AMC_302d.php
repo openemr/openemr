@@ -14,6 +14,11 @@ class AMC_302d extends AbstractAmcReport
     {
         return "AMC_302d";
     }
+
+    public function getObjectToCount()
+    {
+        return "patients";
+    }
     
     public function createDenominator() 
     {

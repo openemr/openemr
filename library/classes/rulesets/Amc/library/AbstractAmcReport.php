@@ -45,6 +45,7 @@ abstract class AbstractAmcReport implements RsReportIF
     
     public abstract function createNumerator();
     public abstract function createDenominator();
+    public abstract function getObjectToCount();
         
     public function getResults() {
         return $this->_resultsArray;
@@ -63,8 +64,16 @@ abstract class AbstractAmcReport implements RsReportIF
         }
         
         $totalPatients = count( $this->_amcPopulation );
-        $numeratorPatients = 0;
-        $denominatorPatients = 0;
+
+        // Figure out object to be counted
+        //   (patients, labs, transitions, visits, or prescriptions)
+        $object_to_count = $this->getObjectToCount();
+        if (empty($object_to_count)) {
+            $object_to_count="patients";
+        }
+        
+        $numeratorObjects = 0;
+        $denominatorObjects = 0;
         foreach ( $this->_amcPopulation as $patient ) 
         {
             // If begin measurement is empty, then make the begin
@@ -77,21 +86,26 @@ abstract class AbstractAmcReport implements RsReportIF
                 $tempBeginMeasurement = $this->_beginMeasurement;
             }
 
-            if ( !$denominator->test( $patient, $tempBeginMeasurement, $this->_endMeasurement ) ) {
-                continue;
+            if ($object_to_count == "patients") {
+                //Counting patients
+                if ( !$denominator->test( $patient, $tempBeginMeasurement, $this->_endMeasurement ) ) {
+                    continue;
+                }
+                $denominatorObjects++;
+                if ( !$numerator->test( $patient, $tempBeginMeasurement, $this->_endMeasurement ) ) {
+                    continue;
+                }            
+                $numeratorObjects++;
             }
-            
-            $denominatorPatients++;
-            
-            if ( !$numerator->test( $patient, $tempBeginMeasurement, $this->_endMeasurement ) ) {
-                continue;
+            else {
+                //Counting other objects (ie. not patients)
+                //Need to create the objects and send each one through the test function.
+
             }
-            
-            $numeratorPatients++;
         }
         
-        $percentage = calculate_percentage( $denominatorPatients, 0, $numeratorPatients );
-        $result = new AmcResult( $this->_rowRule, $totalPatients, $denominatorPatients, 0, $numeratorPatients, $percentage );
+        $percentage = calculate_percentage( $denominatorObjects, 0, $numeratorObjects );
+        $result = new AmcResult( $this->_rowRule, $totalPatients, $denominatorObjects, 0, $numeratorObjects, $percentage );
         $this->_resultsArray[]= $result;
     }
 }
