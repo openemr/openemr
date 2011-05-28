@@ -771,6 +771,22 @@ INSERT INTO `enc_category_map` ( `rule_enc_id`, `main_cat_id` ) VALUES ('enc_inf
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `standardized_tables_track`
+--
+
+DROP TABLE IF EXISTS `standardized_tables_track`;
+CREATE TABLE `standardized_tables_track` (
+  `id` int(11) NOT NULL auto_increment,
+  `imported_date` datetime default NULL,
+  `name` varchar(255) NOT NULL default '' COMMENT 'name of standardized tables such as RXNORM',
+  `revision_version` varchar(255) NOT NULL default '' COMMENT 'revision of standardized tables that were imported',
+  `revision_date` datetime default NULL COMMENT 'revision of standardized tables that were imported',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `facility`
 -- 
@@ -4690,4 +4706,5 @@ CREATE TABLE version (
   v_database int(11)     NOT NULL DEFAULT 0
 ) ENGINE=MyISAM;
 INSERT INTO version (v_major, v_minor, v_patch, v_tag, v_database) VALUES (0, 0, 0, '', 0);
+
 
