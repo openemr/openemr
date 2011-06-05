@@ -9,15 +9,24 @@
 // This report lists all players/patients by name within squad.
 // It is applicable only for sports teams.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/lists.inc");
 require_once("$srcdir/calendar_events.inc.php");
 
-// Temporary variable while new logic is being tested.
+// Temporary variable while new "propagation" logic is being tested.
 // True means that missing days in the daily_fitness table default to
 // the previous entry's values, if there is one.
-// Otherwise the default fitness level (Fully Fit) is used.
+// Otherwise the default fitness level (Fully Fit) is used (old logic).
 $PROPLOGIC = true;
 
 $squads = acl_get_squads();
@@ -26,6 +35,18 @@ $auth_notes_a  = acl_check('encounters', 'notes_a');
 $alertmsg = ''; // not used yet but maybe later
 
 $form_date = fixDate($_POST['form_date'], date('Y-m-d'));
+
+// Figure out the desired or default squad to select.
+if (!empty($_POST['form_squad'])) {
+  $form_squad = $_POST['form_squad'];
+  $_SESSION['roster_squad'] = $form_squad;
+}
+else if (!empty($_SESSION['roster_squad'])) {
+  $form_squad = $_SESSION['roster_squad'];
+}
+else {
+  $form_squad = array_shift(array_keys($squads));
+}
 
 // $now = time();
 $now = mktime(0, 0, 0, substr($form_date, 5, 2),
@@ -36,6 +57,9 @@ $fdefault = sqlQuery("SELECT * FROM list_options WHERE " .
   "list_id = 'fitness' ORDER BY is_default DESC, seq ASC LIMIT 1");
 
 $query = "SELECT pid, squad, fitness, lname, fname FROM patient_data";
+if (!empty($form_squad)) {
+  $query .= " WHERE squad LIKE '$form_squad'";
+}
 $res = sqlStatement($query);
 
 // Sort the patients in squad priority order.
@@ -110,8 +134,46 @@ if (empty($_GET['embed'])) echo "  window.close();\n";
  }
 
  function refreshme() {
+  top.restoreSession();
   // location.reload();
   document.forms[0].submit();
+ }
+
+ // Process click on issue title or [Add Issue].
+ function openissue(pid, issue) {
+  dlgopen('../patient_file/summary/add_edit_issue.php?thispid=' + pid + '&issue=' + issue, '_blank', 800, 600);
+  return false;
+ }
+
+ // callback from add_edit_issue.php:
+ function refreshIssue(issue, title) {
+  refreshme();
+ }
+
+ // Process click on Treatment Protocols form title.
+ function opentpform(id) {
+  dlgopen('../forms/treatment_protocols/new.php?popup=1&id=' + id, '_blank', 800, 600);
+  return false;
+ }
+
+ // This is called from left_nav_encounter_ajax.php to create the new TP form.
+ function createtpform(encounter) {
+  dlgopen('../forms/treatment_protocols/new.php?popup=1&id=0&thisenc=' + encounter, '_blank', 800, 600);
+  return false;
+ }
+
+ // Process click on [Add Rehab Form] to add a new encounter and TP form.
+ function newtpform(issue) {
+  top.restoreSession();
+  $.getScript('../../library/ajax/left_nav_encounter_ajax.php?issue=' + issue + '&followup=createtpform');
+  return false;
+ }
+
+ // Process click on issue title to add a new encounter and switch to it and its patient.
+ function newvisit(issue) {
+  top.restoreSession();
+  $.getScript('../../library/ajax/left_nav_encounter_ajax.php?issue=' + issue);
+  return false;
  }
 
 </script>
@@ -142,6 +204,24 @@ if (empty($_GET['embed'])) echo "  window.close();\n";
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a start date','e'); ?>'>
+
+
+
+   &nbsp;
+   <select name='form_squad' title='<?php xl('Select desired squad','e'); ?>'>
+<?php
+	if ($squads) {
+		foreach ($squads as $key => $value) {
+			echo "    <option value='$key'";
+			if (!empty($form_squad) && $form_squad == $key) echo " selected";
+			echo ">" . $value[3] . "</option>\n";
+		}
+	}
+?>
+   </select>
+
+
+
    &nbsp;
    <input type='submit' name='form_refresh' value='<?php  xl('Refresh','e'); ?>'>
   </td>
@@ -157,9 +237,11 @@ if (empty($_GET['embed'])) echo "  window.close();\n";
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
 
  <tr bgcolor="#dddddd">
+  <!--
   <td class="dehead">
    &nbsp;<?php  xl('Squad','e'); ?>
   </td>
+  -->
   <td class="dehead">
    &nbsp;<?php  xl('Player','e'); ?>
   </td>
@@ -187,9 +269,11 @@ foreach ($ordres as $row) {
   $patient_id = $row['pid'];
 ?>
  <tr>
+  <!--
   <td class="detail">
    &nbsp;<?php  echo ($squadname == $lastsquad) ? "" : $squadname ?>
   </td>
+  -->
   <td class="detail">
    &nbsp;<a href='javascript:gopid(<?php  echo $patient_id ?>)' style='color:#000000'><?php  echo $row['lname'] . ", " . $row['fname'] ?></a>
   </td>
@@ -209,6 +293,7 @@ foreach ($ordres as $row) {
         "ORDER BY df.date DESC LIMIT 1");
     }
     else {
+      // This is obsolete.
       $dfrow = sqlQuery("SELECT df.*, lf.title AS lf_title, lf.mapping AS lf_mapping " .
         "FROM daily_fitness AS df " .
         "LEFT JOIN list_options AS lf ON lf.list_id = 'fitness' AND lf.option_id = df.fitness " .
@@ -220,8 +305,8 @@ foreach ($ordres as $row) {
         'fitness' => $fdefault['option_id'],
         'lf_title' => $fdefault['title'],
         'lf_mapping' => $fdefault['mapping'],
-        // 'am' => '',
-        // 'pm' => '',
+        'am' => '',
+        'pm' => '',
       );
     }
 
@@ -247,25 +332,108 @@ foreach ($ordres as $row) {
 
     echo "  <td class='detail' " .
       "bgcolor='$bgcolor' " .
-      "onclick='rosdlgclick($patient_id,$ymd)' " .
-      "onmouseover='mov1(this,$patient_id)' " .
-      "onmouseout='ttMouseOut()' " .
+      // "onclick='rosdlgclick($patient_id,$ymd)' " .
+      // "onmouseover='mov1(this,$patient_id)' " .
+      // "onmouseout='ttMouseOut()' " .
+      "valign='top' " .
+      // "nowrap" .
       ">\n";
     if ($PROPLOGIC && (empty($dfrow['date']) || $dfrow['date'] != $date))
       echo '<i>' . $mapping[1] . '</i>';
     else
-      echo $mapping[1];
+      echo $mapping[1]; // this is obsolete
+    // Append % fitness to this line.
+    if ($partmins < $eventmins) {
+      echo sprintf(" %d", $partmins * 100 / $eventmins) . '%';
+    }
+
+    // Write a line for each active issue, and below it enumerate the forms.
+    // Each form can be clicked to pop it up for editing, or the issue can be
+    // clicked to add a form.
+    // At end of forms for each issue, a line to add a new form.
+    // At end of issues, a line to add a new issue.
+    //
+    $ires = sqlStatement("SELECT id, type, title, begdate " .
+      "FROM lists WHERE pid = ? AND activity = 1 AND " .
+      "( type = 'football_injury' OR type = 'medical_problem' ) AND " .
+      "begdate <= ? AND ( enddate IS NULL OR enddate >= ? ) " .
+      "ORDER BY begdate, id", array($patient_id, $date, $date));
+    while ($irow = sqlFetchArray($ires)) {
+      $issue_id = 0 + $irow['id'];
+      $tcode = $irow['type'];
+      if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
+      echo "<br />";
+      // echo "<a href='javascript:;' class='link' onclick='return openissue($patient_id,$issue_id)'>";
+      echo "<a href='javascript:;' class='link' onclick='return newvisit($issue_id)'>";
+      echo "<b>$tcode</b>: " . htmlspecialchars($irow['title'], ENT_NOQUOTES);
+      echo "</a>\n";
+      $fres = sqlStatement("SELECT f.date, f.encounter, f.form_id, tp.value FROM " .
+        "issue_encounter AS ie, forms AS f , form_treatment_protocols AS tp WHERE " .
+        "ie.pid = ? AND ie.list_id = ? AND " .
+        "f.pid = ie.pid AND f.encounter = ie.encounter AND " .
+        "f.formdir = 'treatment_protocols' AND f.deleted = 0 AND " .
+        "tp.id = f.form_id AND tp.rownbr = -1 AND tp.colnbr = -1 AND " .
+        "SUBSTR(tp.value,3,10) <= ? " . // TBD: implement form end date also
+        "ORDER BY f.encounter DESC, f.id DESC",
+        array($patient_id, $irow['id'], $date));
+      $form_id = 0;
+      while ($frow = sqlFetchArray($fres)) {
+        $form_id = 0 + $frow['form_id'];
+        list($form_completed, $start_date, $template_name) = explode('|', $frow['value'], 3);
+        echo "<br />";
+        echo "<a href='javascript:;' class='link' onclick='return opentpform($form_id)'>";
+        echo "&nbsp;&nbsp;";
+        echo "$start_date ";
+        echo htmlspecialchars($template_name, ENT_NOQUOTES);
+        echo "</a>\n";
+      }
+      // If there were no rehab forms, insert a link for adding one. In this case the link will
+      // create a new encounter but will not switch to it.
+      if (!$form_id) {
+        echo "<br /><a href='javascript:;' class='link' onclick='return newtpform($issue_id)'>";
+        echo "&nbsp;&nbsp;";
+        echo htmlspecialchars('[' . xl('Add') . ']', ENT_NOQUOTES);
+        echo "</a>\n";
+      }
+    }
+    // echo "<br /><a href='javascript:;' class='link' onclick='return openissue($patient_id,0)'>";
+    // echo htmlspecialchars('[' . xl('Add Issue') . ']', ENT_NOQUOTES);
+    // echo "</a>\n";
     echo "  </td>\n";
-    echo "  <td class='detail' align='right' " .
+
+    echo "  <td " .
+      // "class='detail' " .
+      // "class='small' " .
+      // "align='right' " .
       "bgcolor='$bgcolor' " .
-      "style='width:40pt;' " .
+      // "style='width:20pt;font-size:70%;' " .
+      "style='font-size:70%;' " .
       "onclick='rosdlgclick($patient_id,$ymd)' " .
       "onmouseover='mov2(this,$patient_id,$ymd)' " .
       "onmouseout='ttMouseOut()' " .
-      "nowrap>\n";
-    if ($partmins < $eventmins) {
-      echo ((int)($partmins * 100 / $eventmins)) . "%\n";
+      "valign='top' " .
+      // "nowrap" .
+      ">\n";
+    // echo "<a href='javascript:;' class='link' onclick='return openissue($patient_id,0)'>";
+    // echo htmlspecialchars('[' . xl('New')) . '&nbsp;' . htmlspecialchars(xl('Inj/Rehab') . ']', ENT_NOQUOTES);
+    // echo "</a>\n";
+    // echo "<a href='javascript:;' class='link' " .
+    //   "onclick='return rosdlgclick($patient_id,$ymd)'>";
+    if (!empty($dfrow['am'])) {
+      // echo "<br />";
+      echo '<b>' . htmlspecialchars(xl('AM'), ENT_NOQUOTES) . '</b>: ';
+      echo htmlspecialchars($dfrow['am'], ENT_NOQUOTES);
     }
+    if (!empty($dfrow['pm'])) {
+      if (!empty($dfrow['am'])) echo "<br />";
+      echo '<b>' . htmlspecialchars(xl('PM'), ENT_NOQUOTES) . '</b>: ';
+      echo htmlspecialchars($dfrow['pm'], ENT_NOQUOTES);
+    }
+    if (empty($dfrow['am']) && empty($dfrow['pm'])) {
+      // echo "<br />";
+      echo htmlspecialchars('[' . xl('New Inj/Status') . ']', ENT_NOQUOTES);
+    }
+    // echo "</a>\n";
     echo "  </td>\n";
 
     $time += 60 * 60 * 24;

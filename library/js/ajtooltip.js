@@ -54,7 +54,8 @@ function ttMake() {
  // var y = ttGetY(ttElem) - ttobject.offsetHeight - 10;
  // if (y < 0) y = ttGetY(ttElem) + ttElem.offsetHeight + 10;
  var dh = window.innerHeight ? window.innerHeight : document.body.clientHeight;
- var y = ttGetY(ttElem) + ttobject.offsetHeight + 10;
+ // var y = ttGetY(ttElem) + ttobject.offsetHeight + 10;
+ var y = ttGetY(ttElem) + ttElem.offsetHeight;
  if (y + 40 > dh) y = 0;
  ttobject.style.left = x;
  ttobject.style.top  = y;
