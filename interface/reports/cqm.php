@@ -399,12 +399,17 @@ $provider  = trim($_POST['form_provider']);
          echo ")";
        }
        
-       if ( isset( $row['population_label'] ) ) {
-           echo ", " . htmlspecialchars( xl( $row['population_label'] ), ENT_NOQUOTES) . " ";
+//       if ( isset( $row['population_label'] ) ) {
+//           echo ", " . htmlspecialchars( xl( $row['population_label'] ), ENT_NOQUOTES) . " ";
+//       }
+//       if ( isset( $row['numerator_label'] ) ) {
+//           echo ", " . htmlspecialchars( xl( $row['numerator_label'] ), ENT_NOQUOTES) . " ";
+//       }    
+
+       if ( isset( $row['concatenated_label'] ) ) {
+           echo ", " . htmlspecialchars( xl( $row['concatenated_label'] ), ENT_NOQUOTES) . " ";
        }
-       if ( isset( $row['numerator_label'] ) ) {
-           echo ", " . htmlspecialchars( xl( $row['numerator_label'] ), ENT_NOQUOTES) . " ";
-       }    
+       
      }
      else { // isset($row['is_sub'])
        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$row['action_category']);

@@ -23,6 +23,25 @@ require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 require_once("../library/classes/PQRIXml.class.php");
 
+function getLabelNumber($label) {
+	
+	if ( strlen($label) == 0) {
+		return "1";
+	}
+
+	$tokens = explode(" ", $label);
+	
+	$num_tokens = sizeof($tokens);
+	if ( $tokens[$num_tokens-1] != null ) {
+		if ( is_numeric($tokens[$num_tokens-1])) {
+			return $tokens[$num_tokens-1];
+		}
+	}
+
+	return "1";
+	
+}
+
 function getMeasureNumber($row) {
        if (!empty($row['cqm_pqri_code']) || !empty($row['cqm_nqf_code']) ) {
          if (!empty($row['cqm_pqri_code'])) {
@@ -82,6 +101,8 @@ foreach ($dataSheet as $row) {
 			// Add PQRI measures
  			$pqri_measures = array();
 			$pqri_measures['pqri-measure-number'] =  getMeasureNumber($row);
+			$pqri_measures['patient-population'] = getLabelNumber($row['population_label']);
+			$pqri_measures['numerator'] = getLabelNumber($row['numerator_label']);
 			$pqri_measures['eligible-instances'] = $row['pass_filter'];
 	       	$pqri_measures['meets-performance-instances'] = $row['pass_target'];
 		    $pqri_measures['performance-exclusion-instances'] =  $row['excluded'];
