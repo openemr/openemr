@@ -187,15 +187,15 @@ if (is_numeric($pid)) {
                     <input type="checkbox" id="trans_trand_care" checked>
                     <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span><br>
                     <?php if (!(empty($itemAMC['date_completed']))) { ?>
-                        <input type="checkbox" id="med_reconc_perf" checked>
+                        <input type="checkbox" style="margin-left:2em;" id="med_reconc_perf" checked>
                     <?php } else { ?>
-                        <input type="checkbox" id="med_reconc_perf">
+                        <input type="checkbox" style="margin-left:2em;" id="med_reconc_perf">
                     <?php } ?>
                     <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span><br>
                 <?php } else { ?>
                     <input type="checkbox" id="trans_trand_care">
                     <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span><br>
-                    <input type="checkbox" id="med_reconc_perf" DISABLED>
+                    <input type="checkbox" style="margin-left:2em;" id="med_reconc_perf" DISABLED>
                     <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span><br>
                 <?php } ?>
 
