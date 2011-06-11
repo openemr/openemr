@@ -1152,3 +1152,65 @@ VALUES
 DROP TABLE `temp_table_one`;
 #EndIf
 
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::15::ge::1
+DELETE FROM `rule_target` WHERE `id` = 'rule_influenza_ge_50' AND `value` LIKE '::immunizations::immunization_id::%';
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::15::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::16::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::16::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::88::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::88::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::111::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::111::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::125::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::125::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::126::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::126::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::127::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::127::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::128::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::128::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::135::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::135::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::140::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::140::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_influenza_ge_50 value ::immunizations::cvx_code::eq::141::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_influenza_ge_50', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::141::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_pneumovacc_ge_65 value ::immunizations::cvx_code::eq::33::ge::1
+DELETE FROM `rule_target` WHERE `id` = 'rule_pneumovacc_ge_65' AND `value` LIKE '::immunizations::immunization_id::%';
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::33::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_pneumovacc_ge_65 value ::immunizations::cvx_code::eq::100::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::100::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_pneumovacc_ge_65 value ::immunizations::cvx_code::eq::109::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::109::ge::1', 0);
+#EndIf
+
+#IfNotRow2D rule_target id rule_pneumovacc_ge_65 value ::immunizations::cvx_code::eq::133::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_pneumovacc_ge_65', 1, 1, 0, 'target_database', '::immunizations::cvx_code::eq::133::ge::1', 0);
+#EndIf
+
