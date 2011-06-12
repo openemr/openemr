@@ -128,44 +128,34 @@ class Codes
             'CPT' => array( '83036','83037' )
         ),
         Medication::DTAP_VAC => array(
-            'OPTION_ID' => array( 1, 2, 3, 4, 5, ),
-            'CVX' => array()
+            'CVX' => array( 20, 50, 106, 107, 110, 120, 130, 132 )
         ),
         Medication::HEP_A_VAC => array(
-            'OPTION_ID' => array( 33, 34 ),
-            'CVX' => array()
+            'CVX' => array( 31, 52, 83, 84, 85, 104)
         ),
         Medication::HEP_B_VAC => array(
-            'OPTION_ID' => array( 27, 28, 29 ),
-            'CVX' => array()
+            'CVX' => array( 8, 42, 43, 44, 45, 51, 102, 104, 110, 132 )
         ),
         Medication::HIB => array(
-            'OPTION_ID' => array( 15, 16, 17, 18 ),
-            'CVX' => array()
+            'CVX' => array( 17, 22, 46, 47, 48, 49, 50, 51, 102, 120, 132 )
         ),
         Medication::IPV => array(
-            'OPTION_ID' => array( 11, 12, 13, 14 ),
-            'CVX' => array()
+            'CVX' => array( 10, 110, 120, 130, 132 )
         ),
-        Medication::MEASLES_VAC => array( // TODO
-            'OPTION_ID' => array(),
-            'CVX' => array()
+        Medication::MEASLES_VAC => array(
+            'CVX' => array( 3, 4, 5, 94 )
         ),
         Medication::MMR => array(
-            'OPTION_ID' => array( 23, 24 ),
-            'CVX' => array()
+            'CVX' => array( 3, 94 )
         ),
-        Medication::MUMPS_VAC => array( // TODO
-        	'OPTION_ID' => array(),
-            'CVX' => array()
+        Medication::MUMPS_VAC => array(
+            'CVX' => array( 3, 7, 38, 94 )
         ),
         Medication::PNEUMOCOCCAL_VAC => array(
-            'OPTION_ID' => array( 19, 20, 21, 22 ),
-            'CVX' => array()
+            'CVX' => array ( 33, 100, 109, 133 )
         ),
-        Medication::RUBELLA_VAC => array( // TODO
-            'OPTION_ID' => array(),
-            'CVX' => array()
+        Medication::RUBELLA_VAC => array(
+            'CVX' => array( 3, 4, 6, 38, 94 )
         ),
         PhysicalExam::FINDING_BMI_PERC => array(
             'ICD9' => array( 'V85.5','V85.51','V85.52','V85.53','V85.54' ) 
