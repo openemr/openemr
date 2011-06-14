@@ -1755,7 +1755,10 @@ function convertDobtoAgeYearDecimal($dob,$target) {
     { 
         $iDiffYear--; 
     } 
-         
+
+    // Ensure diffYear is not less than 0
+    if ($iDiffYear < 0) $iDiffYear = 0;
+     
     return $iDiffYear; 
 }  
 
@@ -1780,6 +1783,9 @@ function convertDobtoAgeMonthDecimal($dob,$target) {
     {
         $iDiffYear--;
     }
+
+    // Ensure diffYear is not less than 0
+    if ($iDiffYear < 0) $iDiffYear = 0;
 
     return (12 * $iDiffYear) + $iDiffMonth;
 }
