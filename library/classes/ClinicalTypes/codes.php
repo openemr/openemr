@@ -157,6 +157,15 @@ class Codes
         Medication::RUBELLA_VAC => array(
             'CVX' => array( 3, 4, 6, 38, 94 )
         ),
+        Medication::ROTAVIRUS_VAC => array(
+            'CVX' => array( 74, 116, 119, 122 )
+        ),
+        Medication::VZV => array(
+            'CVX' => array( 21, 21 )
+        ),
+        Medication::INFLUENZA_VAC => array(
+            'CVX' => array( 15, 16, 88, 111, 125, 126, 127, 128, 135, 140, 141, 144 )
+        ),
         PhysicalExam::FINDING_BMI_PERC => array(
             'ICD9' => array( 'V85.5','V85.51','V85.52','V85.53','V85.54' ) 
         ), 
