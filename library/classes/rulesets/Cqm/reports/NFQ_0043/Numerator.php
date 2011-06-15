@@ -10,7 +10,7 @@ class NFQ_0043_Numerator implements CqmFilterIF
 {
     public function getTitle()
     {
-        return "NFQ 0041 Numerator";
+        return "Numerator";
     }
     
     public function test( CqmPatient $patient, $beginDate, $endDate ) 

@@ -33,13 +33,19 @@ class CqmResult implements RsResultIF
     public function format()
     {
     	$concatenated_label = '';
-		if ( $this->numeratorLabel != "Numerator" ) {
-		 	$concatenated_label = $this->populationLabel . ", " . $this->numeratorLabel;  
+	if ( $this->numeratorLabel != "Numerator" ) {
+		if ( $this->populationLabel != "Population Criteria" ) {
+			$concatenated_label = $this->populationLabel . ", " . $this->numeratorLabel;
 		}
-		else 
-		{
-			$concatenated_label = $this->populationLabel; 
+		else {
+			$concatenated_label = $this->numeratorLabel;
 		}
+	}
+	else {
+		if ( $this->populationLabel != "Population Criteria" ) {
+			$concatenated_label = $this->populationLabel;
+		}
+	}
     	
         $rowFormat = array( 
         	'is_main'=>TRUE, // TO DO: figure out way to do this when multiple groups.
