@@ -13,10 +13,10 @@
 </td></tr>
 
 <tr  class="showborder_head">
-    <th class="small">{xl t='Company'} Name</th>
-    <th class="small">{xl t='Provider'} Number</th>
-    <th class="small">{xl t='Rendering Provider'} #</th>
-    <th class="small">{xl t='Group'} #</th>
+    <th class="small">{xl t='Company Name'}</th>
+    <th class="small">{xl t='Provider Number'}</th>
+    <th class="small">{xl t='Rendering Provider Number'}</th>
+    <th class="small">{xl t='Group Number'}</th>
 </tr>
 {foreach name=inums item=num_set from=$provider->get_insurance_numbers()}
 <tr>
@@ -62,7 +62,7 @@
         </td>
 </tr>
 <tr>
-        <td style="border-style:none;" VALIGN="MIDDLE" >Provider Number({xl t='Type'})</td>
+        <td style="border-style:none;" VALIGN="MIDDLE" >{xl t='Provider Number'} ({xl t='Type'})</td>
         <td style="border-style:none;" VALIGN="MIDDLE" >
            {html_options name="provider_number_type" options=$ic_type_options_array values=$ins->provider_number_type_array selected=$ins->get_provider_number_type()}
         </td>
