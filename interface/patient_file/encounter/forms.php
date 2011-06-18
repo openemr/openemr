@@ -159,7 +159,9 @@ if (is_numeric($pid)) {
     <?php if ($GLOBALS['enable_amc_prompting']) { ?>
         <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
             <div style='float:left;margin:5px 5px 5px 5px;'>
-
+                <table>
+                <tr>
+                <td>
                 <?php // Display the education resource checkbox (AMC prompting)
                     $itemAMC = amcCollect("patient_edu_amc", $pid, 'form_encounter', $encounter);
                 ?>
@@ -168,8 +170,13 @@ if (is_numeric($pid)) {
                 <?php } else { ?>
                     <input type="checkbox" id="prov_edu_res">
                 <?php } ?>
-                <span class="text"><?php echo xl('Provided Education Resource(s)?') ?></span><br>
-
+                </td>
+                <td>
+                <span class="text"><?php echo xl('Provided Education Resource(s)?') ?></span>
+                </td>
+                </tr>
+                <tr>
+                <td>
                 <?php // Display the Provided Clinical Summary checkbox (AMC prompting)
                     $itemAMC = amcCollect("provide_sum_pat_amc", $pid, 'form_encounter', $encounter);
                 ?>
@@ -178,27 +185,59 @@ if (is_numeric($pid)) {
                 <?php } else { ?>
                     <input type="checkbox" id="provide_sum_pat_flag">
                 <?php } ?>
-                <span class="text"><?php echo xl('Provided Clinical Summary?') ?></span><br>
-
+                </td>
+                <td>
+                <span class="text"><?php echo xl('Provided Clinical Summary?') ?></span>
+                </td>
+                </tr>
                 <?php // Display the medication reconciliation checkboxes (AMC prompting)
                     $itemAMC = amcCollect("med_reconc_amc", $pid, 'form_encounter', $encounter);
                 ?>
                 <?php if (!(empty($itemAMC))) { ?>
+                    <tr>
+                    <td>
                     <input type="checkbox" id="trans_trand_care" checked>
-                    <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span><br>
+                    </td>
+                    <td>
+                    <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span>
+                    </td>
+                    </tr>
+                    </table>
+                    <table style="margin-left:2em;">
+                    <tr>
+                    <td>
                     <?php if (!(empty($itemAMC['date_completed']))) { ?>
-                        <input type="checkbox" style="margin-left:2em;" id="med_reconc_perf" checked>
+                        <input type="checkbox" id="med_reconc_perf" checked>
                     <?php } else { ?>
-                        <input type="checkbox" style="margin-left:2em;" id="med_reconc_perf">
+                        <input type="checkbox" id="med_reconc_perf">
                     <?php } ?>
-                    <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span><br>
+                    </td>
+                    <td>
+                    <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
+                    </td>
+                    </tr>
+                    </table>
                 <?php } else { ?>
+                    <tr>
+                    <td>
                     <input type="checkbox" id="trans_trand_care">
-                    <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span><br>
-                    <input type="checkbox" style="margin-left:2em;" id="med_reconc_perf" DISABLED>
-                    <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span><br>
+                    </td>
+                    <td>
+                    <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span>
+                    </td>
+                    </tr>
+                    </table>
+                    <table style="margin-left:2em;">
+                    <tr>
+                    <td>
+                    <input type="checkbox" id="med_reconc_perf" DISABLED>
+                    </td>
+                    <td>
+                    <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
+                    </td>
+                    </tr>
+                    </table>
                 <?php } ?>
-
             </div>
         </div>
     <?php } ?>
