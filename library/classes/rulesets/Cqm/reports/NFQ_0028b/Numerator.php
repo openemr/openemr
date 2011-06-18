@@ -1,12 +1,12 @@
 <?php
-// Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
+// Copyright (C) 2011 Brady Miller <brady@sparmy.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-class NFQ_0028a_Numerator implements CqmFilterIF
+class NFQ_0028b_Numerator implements CqmFilterIF
 {
     public function getTitle()
     {
@@ -15,7 +15,7 @@ class NFQ_0028a_Numerator implements CqmFilterIF
 
     public function test( CqmPatient $patient, $beginDate, $endDate )
     {
-        // See if user has been a tobacco user before or simultaneosly to the encounter within two years (24 months)
+        // See if user has been counseled to stop smoking or been prescribed a smoking cessations medication within last 24 months
         foreach ( $this->getApplicableEncounters() as $encType ) 
         {
             $dates = Helper::fetchEncounterDates( $encType, $patient, $beginDate, $endDate );
@@ -25,9 +25,14 @@ class NFQ_0028a_Numerator implements CqmFilterIF
                 $date = date( 'Y-m-d 23:59:59', strtotime( $date ));
                 $beginMinus24Months = strtotime( '-24 month' , strtotime ( $date ) );
                 $beginMinus24Months = date( 'Y-m-d 00:00:00' , $beginMinus24Months );
-                // this is basically a check to see if the patient's tobacco status has been evaluated in the two years previous to encounter.
-                if ( Helper::check( ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date ) ||
-                    Helper::check( ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date ) ) {
+                $smoke_cess = sqlQuery("SELECT * FROM `rule_patient_data` " .
+                                       "WHERE `category`='act_cat_inter' AND `item`='act_tobacco' AND `complete`='YES' " .
+                                       "AND `pid`=? AND `date`>=? AND `date`<=?", array($patient->id,$beginMinus24Months,$date) );
+                // this is basically a check to see if the patient's action has occurred in the two years previous to encounter.
+                // TODO: how to check for the smoking cessation medication types (can also just be a smoking cessation order, ie. prescription)
+                if ( !(empty($smoke_cess)) ||
+                     Helper::checkMed( Medication::SMOKING_CESSATION, $patient, $beginMinus24Months, $date ) ||
+                     Helper::checkMed( Medication::SMOKING_CESSATION_ORDER, $patient, $beginMinus24Months, $date ) ) {
                     return true;
                 }
             }

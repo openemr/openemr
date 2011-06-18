@@ -27,7 +27,7 @@ class ReportTypes
     protected static $_types = array(
         "rule_htn_bp_measure_cqm" => array( ReportTypes::CQM, "NFQ_0013" ), 
         "rule_tob_use_assess_cqm" => array( ReportTypes::CQM, "NFQ_0028a" ),
-    	"rule_tob_cess_inter_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
+    	"rule_tob_cess_inter_cqm" => array( ReportTypes::CQM, "NFQ_0028b" ),
         "rule_adult_wt_screen_fu_cqm" => array( ReportTypes::CQM, "NFQ_0421" ),
         "rule_wt_assess_couns_child_cqm" => array( ReportTypes::CQM, "NFQ_0024" ),
         "rule_influenza_ge_50_cqm" => array( ReportTypes::CQM, "NFQ_0041" ),
@@ -36,8 +36,8 @@ class ReportTypes
     	"rule_dm_eye_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
         "rule_dm_foot_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
         "rule_dm_bp_control_cqm" => array( ReportTypes::CQM, "NFQ_Unimplemented" ),
-        "rule_dm_a1c_cqm" => array( ReportTypes::CQM, "NFQ_0059" ), // Diabetes: HbA1c Poor Control (NQF 0059)
-        "rule_dm_ldl_cqm" => array( ReportTypes::CQM, "NFQ_0064" ), // Diabetes: LDL Management & Control (NQF 0064)
+        "rule_dm_a1c_cqm" => array( ReportTypes::CQM, "NFQ_0059" ),
+        "rule_dm_ldl_cqm" => array( ReportTypes::CQM, "NFQ_0064" ),
     	"problem_list_amc" => array( ReportTypes::AMC, "AMC_302c" ),
     	"med_list_amc" => array( ReportTypes::AMC, "AMC_302d" ),
     	"med_allergy_list_amc" => array( ReportTypes::AMC, "AMC_302e" ),
