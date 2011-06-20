@@ -96,9 +96,9 @@ function createCCR($action,$raw="no"){
 
 	   /////////////////// Procedures
 
-	   $e_Procedures = $ccr->createElement('Procedures');
-	   require_once("createCCRProcedure.php");
-	   $e_Body->appendChild($e_Procedures);
+	   //$e_Procedures = $ccr->createElement('Procedures');
+	   //require_once("createCCRProcedure.php");
+	   //$e_Body->appendChild($e_Procedures);
 
 	   //////////////////// Footer
 

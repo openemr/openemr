@@ -20,6 +20,11 @@ $auth_demo     = acl_check('patients'  , 'demo');
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
 <!-- include jQuery support -->
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
@@ -32,6 +37,15 @@ function checkAll(check) {
   if (f.elements[i].type == 'checkbox') f.elements[i].checked = check;
  }
  return false;
+}
+
+function show_date_fun(){
+  if(document.getElementById('show_date').checked == true){
+    document.getElementById('date_div').style.display = '';
+  }else{
+    document.getElementById('date_div').style.display = 'none';
+  }
+  return;
 }
 
 </script>
@@ -52,6 +66,45 @@ function checkAll(check) {
 <br/>
 <input type='hidden' name='ccrAction'>
 <input type='hidden' name='raw'>
+<input type="checkbox" name="show_date" id="show_date" onchange="show_date_fun();" ><span class='text'><?php xl('Use Date Range','e'); ?>
+<br>
+<div id="date_div" style="display:none" >
+  <br>
+  <table border="0" cellpadding="0" cellspacing="0" >
+    <tr>
+      <td>
+        <span class='bold'><?php xl('Start Date','e');?>: </span>
+      </td>
+      <td>
+        <input type='text' size='10' name='Start' id='Start'
+         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+         title='<?php xl('yyyy-mm-dd','e'); ?>' />
+        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+         id='img_start' border='0' alt='[?]' style='cursor:pointer'
+         title='<?php xl('Click here to choose a date','e'); ?>' >
+        <script LANGUAGE="JavaScript">
+         Calendar.setup({inputField:"Start", ifFormat:"%Y-%m-%d", button:"img_start"});
+        </script>
+      </td>
+      <td>
+        &nbsp;
+        <span class='bold'><?php xl('End Date','e');?>: </span>
+      </td>
+      <td>
+        <input type='text' size='10' name='End' id='End'
+         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+         title='<?php xl('yyyy-mm-dd','e'); ?>' />
+        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+         id='img_end' border='0' alt='[?]' style='cursor:pointer'
+         title='<?php xl('Click here to choose a date','e'); ?>' >
+        <script LANGUAGE="JavaScript">
+         Calendar.setup({inputField:"End", ifFormat:"%Y-%m-%d", button:"img_end"});
+        </script>
+      </td>
+    </tr>
+  </table>
+</div>
+<br>
 <input type="button" class="generateCCR" value="<?php xl('View/Print','e'); ?>" />
 <!-- <input type="button" class="generateCCR_download_h" value="<?php echo xl('Download')." (Hybrid)"; ?>" /> -->
 <input type="button" class="generateCCR_download_p" value="<?php echo xl('Download'); ?>" />
@@ -339,7 +392,13 @@ $(document).ready(function(){
 $(document).ready(
 function(){
 	$(".generateCCR").click(
-	function() { 
+	function() {
+    if(document.getElementById('show_date').checked == true){
+      if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
+        alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
+        return false;
+      }
+    }
 		var ccrAction = document.getElementsByName('ccrAction');
 		ccrAction[0].value = 'generate';
                 var raw = document.getElementsByName('raw');

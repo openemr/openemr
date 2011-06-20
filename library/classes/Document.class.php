@@ -336,7 +336,10 @@ class Document extends ORDataObject{
 	function get_list_id() {
 		return $this->list_id;
 	}
-	
+	function get_ccr_type($doc_id){
+    $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?",array($doc_id));
+    return $type['name'];
+  }
 	/*
 	*	Overridden function to stor current object state in the db.
 	*	current overide is to allow for a just in time foreign id, often this is needed 

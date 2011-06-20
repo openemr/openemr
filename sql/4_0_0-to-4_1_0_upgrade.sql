@@ -1238,3 +1238,14 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_enc_types' ,'enc_influenza', 'encounter influenza', 150, 0);
 #EndIf
 
+#IfNotRow categories name CCR
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'CCR', '', 1, rght, rght + 1 from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#Endif
+
+#IfNotRow categories name CCD
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'CCD', '', 1, rght, rght + 1 from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#Endif

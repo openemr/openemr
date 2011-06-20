@@ -1466,20 +1466,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
                                                                 <br/>
                                                             </div>
                                                         </xsl:for-each>
-                                                        <xsl:for-each select="a:Test[a:TestResult/a:Description/a:Text!='']">
-                                                            <div>
-                                                                <xsl:attribute name="id">
-                                                                    <xsl:value-of select="a:CCRDataObjectID"/>
-                                                                </xsl:attribute>
-
-                                                                <xsl:value-of select="a:Description/a:Text"/>
-                                                                <xsl:text xml:space="preserve"> </xsl:text>
-                                                                <xsl:value-of select="a:TestResult/a:Description/a:Text" disable-output-escaping="yes"/>
-                                                                <xsl:text xml:space="preserve"> </xsl:text>
-                                                                <xsl:value-of select="a:Flag/a:Text"/>
-                                                                <br/>
-                                                            </div>
-                                                        </xsl:for-each>
                                                     </td>
                                                     <td>
                                                         <xsl:call-template name="actorName">
