@@ -281,6 +281,12 @@ function policykeyup(e) {
   var c = v.charAt(i);
   if (c >= '0' && c <= '9') continue;
   if (c >= 'A' && c <= 'Z') continue;
+  if (c == '*') continue;
+  if (c == '-') continue;
+  if (c == '_') continue;
+  if (c == '(') continue;
+  if (c == ')') continue;
+  if (c == '#') continue;
   v = v.substring(0, i) + v.substring(i + i);
   --i;
  }
@@ -404,10 +410,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 	<div id="INSURANCE" >
 		<ul class="tabNav">
 		<?php
-
 		foreach (array('primary','secondary','tertiary') as $instype) {
 			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?php
-
 		}
 		?>
 		</ul>
@@ -415,7 +419,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 	<div class="tabContainer">
 
 	<?php
-
 	  for($i=1;$i<=3;$i++) {
 	   $result3 = $insurance_info[$i];
 	?>
@@ -487,7 +490,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			<tr>
 			 <td><span class=required><?php xl('Group Number','e'); ?></span></td>
 			 <td class='required'>:</td>
-			 <td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>"></td>
+			 <td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>" onkeyup='policykeyup(this)'></td>
 			</tr>
 
 			<tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
