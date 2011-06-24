@@ -72,19 +72,25 @@ function validEmail($email){
     return false;
 }
 
-function messageCreate($patient_id,$uname,$pass){
-    $message = htmlspecialchars( xl("Patient Portal Web Address"),ENT_NOQUOTES) . ":<br>" .
-               "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_QUOTES) . "'>" .
-               htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_NOQUOTES) . "</a><br><br>" .
-               htmlspecialchars(xl("User Name"),ENT_NOQUOTES) . ": " .
-               htmlspecialchars($uname,ENT_NOQUOTES) . "<br><br>" .
-               htmlspecialchars(xl("Password"),ENT_NOQUOTES) . ": " .
-               htmlspecialchars($pass,ENT_NOQUOTES) . "<br><br>";
+function messageCreate($uname,$pass,$site){
+    $message = htmlspecialchars( xl("Patient Portal Web Address"),ENT_NOQUOTES) . ":<br>";
+    if ($site == "on") {
+        $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_QUOTES) . "'>" .
+                    htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_NOQUOTES) . "</a><br><br>";
+    } // $site == "off"
+    else {
+        $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_offsite_address'],ENT_QUOTES) . "'>" .
+                    htmlspecialchars($GLOBALS['portal_offsite_address'],ENT_NOQUOTES) . "</a><br><br>";
+    }
+        $message .= htmlspecialchars(xl("User Name"),ENT_NOQUOTES) . ": " .
+                    htmlspecialchars($uname,ENT_NOQUOTES) . "<br><br>" .
+                    htmlspecialchars(xl("Password"),ENT_NOQUOTES) . ": " .
+                    htmlspecialchars($pass,ENT_NOQUOTES) . "<br><br>";
     return $message;
 }
 
 function emailLogin($patient_id,$message){
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($pid) );
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
     if ( $patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email']) ) {
         return false;
     }
@@ -118,7 +124,7 @@ function emailLogin($patient_id,$message){
 }
 
 function displayLogin($patient_id,$message,$emailFlag){
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($pid) );
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
     if ($emailFlag) {
         $message = "<br><br>" . 
                    htmlspecialchars(xl("Email was sent to following address"),ENT_NOQUOTES) . ": " .
@@ -138,7 +144,7 @@ if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){
     }
    
     // Create the message
-    $message = messageCreate($pid,$_REQUEST['uname'],$_REQUEST['pwd']);
+    $message = messageCreate($_REQUEST['uname'],$_REQUEST['pwd'],$portalsite);
     // Email and display/print the message
     if ( emailLogin($pid,$message) ) {
         // email was sent
