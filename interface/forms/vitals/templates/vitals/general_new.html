@@ -103,13 +103,13 @@ td,th {
                 <td class='historicalvalues'>{if $result.height != 0}{math equation="number * constant" number=$result.height constant=2.54 format="%.2f"}{/if}</td>
         {/foreach}</tr>
 	
-	<tr><td class="graph" id="bps">{xl t="BP Systolic"}</td><td>{xl t="mm/hg"}</td>
+	<tr><td class="graph" id="bps">{xl t="BP Systolic"}</td><td>{xl t="mmHg"}</td>
 		<td class='currentvalues'><input type="text" size='5'
 			name='bps' id='bps_input' value="{$vitals->get_bps()}"/></td>
 	{foreach item=result from=$results}
 		<td class='historicalvalues'>{$result.bps}</td>
 	{/foreach}</tr>
-	<tr><td class="graph" id="bpd">{xl t="BP Diastolic"}</td><td>{xl t="mm/hg"}</td>
+	<tr><td class="graph" id="bpd">{xl t="BP Diastolic"}</td><td>{xl t="mmHg"}</td>
 		<td class='currentvalues'><input type="text" size='5'
 			name='bpd' id='bpd_input' value="{$vitals->get_bpd()}"/></td>
 	{foreach item=result from=$results}

@@ -132,7 +132,7 @@ function graphsGetRanges($name) {
 if ($is_lbf) {
   $titleGraph = $title;
   if ($name == 'bp_systolic' || $name == 'bp_diastolic') {
-    $titleGraph = xl("Blood Pressure") . " (" . xl("mm/hg") . ")";
+    $titleGraph = xl("Blood Pressure") . " (" . xl("mmHg") . ")";
     $titleGraphLine1 = xl("BP Systolic");
     $titleGraphLine2 = xl("BP Diastolic");
   }
@@ -156,12 +156,12 @@ else {
     $name = "height";
     break;
   case "bps":
-    $titleGraph = xl("Blood Pressure")." (".xl("mm/hg").")";
+    $titleGraph = xl("Blood Pressure")." (".xl("mmHg").")";
     $titleGraphLine1 = xl("BP Systolic");
     $titleGraphLine2 = xl("BP Diastolic");
     break;
   case "bpd":
-    $titleGraph = xl("Blood Pressure")." (".xl("mm/hg").")";
+    $titleGraph = xl("Blood Pressure")." (".xl("mmHg").")";
     $titleGraphLine1 = xl("BP Diastolic");
     $titleGraphLine2 = xl("BP Systolic");
     break;
