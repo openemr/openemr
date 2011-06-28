@@ -42,7 +42,7 @@ class MyMailer extends PHPMailer
             {
 		global $SMTP_Auth;
                 $this->Mailer = "smtp";
-                $this->SMTPAuth = '$SMTP_Auth';
+                $this->SMTPAuth = $SMTP_Auth;
                 $this->Host = $GLOBALS['SMTP_HOST'];
                 $this->Username = $GLOBALS['SMTP_USER'];
                 $this->Password = $GLOBALS['SMTP_PASS'];
