@@ -37,7 +37,7 @@ $fake_register_globals=false;
  require_once("$srcdir/sql.inc");
  require_once("$srcdir/formdata.inc.php");
  require_once("$srcdir/sha1.js");
- require_once("$srcdir/classes/class.phpmailer.php");
+ require_once("$srcdir/classes/postmaster.php");
 
 // Collect portalsite parameter (either off for offsite or on for onsite); only allow off or on
 isset($_GET['portalsite']) ? $portalsite = $_GET['portalsite'] : $portalsite = "off";
@@ -101,7 +101,7 @@ function emailLogin($patient_id,$message){
         return false;
     }
 
-    $mail = new PHPMailer();
+    $mail = new MyMailer();
     $pt_name=$patientData['fname'].' '.$patientData['lname'];
     $pt_email=$patientData['email'];
     $email_subject=xl('Access Your Patient Portal');
@@ -128,7 +128,7 @@ function displayLogin($patient_id,$message,$emailFlag){
     if ($emailFlag) {
         $message = "<br><br>" . 
                    htmlspecialchars(xl("Email was sent to following address"),ENT_NOQUOTES) . ": " .
-                   htmlspecialchars($patientData['email'],ENT_NOQUOTES) .
+                   htmlspecialchars($patientData['email'],ENT_NOQUOTES) . "<br><br>" .
                    $message;
     }
     echo "<html><body onload='window.print();'>" . $message . "</body></html>";

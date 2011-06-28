@@ -29,9 +29,9 @@ class MyMailer extends PHPMailer
     
     function emailMethod()
     {
-        global $EMAIL_METHOD, $HTML_CHARSET;
+        global $HTML_CHARSET;
         $this->CharSet = $HTML_CHARSET;
-        switch($EMAIL_METHOD)
+        switch($GLOBALS['EMAIL_METHOD'])
         {
             case "PHPMAIL" :
             {
@@ -40,13 +40,13 @@ class MyMailer extends PHPMailer
             break;
             case "SMTP" :
             {
-				global $SMTP_Auth, $SMTP_HOST, $SMTP_USER, $SMTP_PASS, $SMTP_PORT;
+		global $SMTP_Auth;
                 $this->Mailer = "smtp";
-                $this->SMTPAuth = $SMTP_Auth;
-                $this->Host = $SMTP_HOST;
-                $this->Username = $SMTP_USER;
-                $this->Password = $SMTP_PASS;
-                $this->Port = $SMTP_PORT;
+                $this->SMTPAuth = '$SMTP_Auth';
+                $this->Host = $GLOBALS['SMTP_HOST'];
+                $this->Username = $GLOBALS['SMTP_USER'];
+                $this->Password = $GLOBALS['SMTP_PASS'];
+                $this->Port = $GLOBALS['SMTP_PORT'];
             }
             break;
             case "SENDMAIL" :
