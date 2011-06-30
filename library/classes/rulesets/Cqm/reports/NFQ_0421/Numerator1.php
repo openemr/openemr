@@ -55,8 +55,8 @@ class NFQ_0421_Numerator1 implements CqmFilterIF
             $res = sqlStatement( $query, array( $patient->id ) );
             $number = sqlNumRows($res);
             if ( $number >= 1 &&
-                ( Helper::check( ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT ) ||
-                  Helper::check( ClinicalType::COMMUNICATION, Communication::DIET_CNSLT ) ) ) {
+                ( Helper::check( ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT, $patient ) ||
+                  Helper::check( ClinicalType::COMMUNICATION, Communication::DIET_CNSLT, $patient ) ) ) {
                 $return = true;
                 break;
             }
@@ -78,8 +78,8 @@ class NFQ_0421_Numerator1 implements CqmFilterIF
             $res = sqlStatement( $query, array( $patient->id ) );
             $number = sqlNumRows($res);
             if ( $number >= 1 && 
-                ( Helper::check( ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT ) ||
-                  Helper::check( ClinicalType::COMMUNICATION, Communication::DIET_CNSLT ) ) ) {
+                ( Helper::check( ClinicalType::CARE_GOAL, CareGoal::FOLLOW_UP_PLAN_BMI_MGMT, $patient ) ||
+                  Helper::check( ClinicalType::COMMUNICATION, Communication::DIET_CNSLT, $patient ) ) ) {
                 $return = true;
                 break;
             }
