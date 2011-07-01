@@ -1476,10 +1476,10 @@ function get_patient_balance($pid) {
 //    If deceased, then will return the number of
 //      days that patient has been deceased.
 //    If not deceased, then will return false.
-function is_patient_deceased($pid,$date) {
+function is_patient_deceased($pid,$date='') {
 
   // Set date to current if not set
-  $date = ($date) ? $date : date('Y-m-d H:i:s');
+  $date = (!empty($date)) ? $date : date('Y-m-d H:i:s');
 
   // Query for deceased status (gets days deceased if patient is deceased)
   $results = sqlQuery("SELECT DATEDIFF(?,`deceased_date`) as `days_deceased` " .
