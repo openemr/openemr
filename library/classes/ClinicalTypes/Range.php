@@ -8,8 +8,8 @@
 //
 class Range
 {
-    const NEG_INF = -1E100000000;
-    const POS_INF = INF;
+    const NEG_INF = -999999;
+    const POS_INF = 999999;
     
     public $lowerBound;
     public $upperBound;

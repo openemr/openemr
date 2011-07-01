@@ -23,7 +23,6 @@ class LabResult extends ClinicalType
     public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
     {
         $data = Codes::lookup( $this->getOptionId() );
-        $type = $this->getListType();
         
         $range = new Range( Range::NEG_INF, Range::POS_INF );
         if ( isset( $options[self::OPTION_RANGE] ) &&
