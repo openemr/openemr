@@ -127,6 +127,9 @@ class Codes
         LabResult::HB1AC_TEST => array(
             'CPT' => array( '83036','83037' )
         ),
+        LabResult::LDL_TEST => array(
+            'CPT' => array( '80061','83700','83701','83704','83721')
+        ),
         Medication::DTAP_VAC => array(
             'CVX' => array( 20, 50, 106, 107, 110, 120, 130, 132 )
         ),
