@@ -205,8 +205,8 @@ else { ?>
          " left join codes c on i1.cvx_code = c.code ".
          " left join code_types ct on c.code_type = ct.ct_id ".
          " where i1.patient_id = ? ".
-         " AND ( cvx_code = '0' ) OR ".
-         " ( cvx_code != '0' AND ct.ct_key = 'CVX') ";
+         " AND (( cvx_code = '0' ) OR ".
+         " ( cvx_code != '0' AND ct.ct_key = 'CVX')) ";
          //" ( cvx_code != '0' AND ct.ct_key = 'CVX' AND c.code_type = ct.ct_id) ";
          //" ( cvx_code != '0' AND c.code_type = '4') ";
          " order by i1.administered_date desc";
