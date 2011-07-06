@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2011 Ensoftek 
  //
  // This program is free software; you can redistribute it and/or
@@ -168,8 +168,8 @@ $xml->close_submission();
 
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php echo htmlspecialchars( xl('Export PQRI Report'), ENT_NOQUOTES); ?></title>
 </head>
 <body>
@@ -180,7 +180,7 @@ $xml->close_submission();
 <form>
 
 <textarea rows='50' cols='500' style='width:95%' readonly>
-<? echo $xml->getXml(); ?>
+<?php echo $xml->getXml(); ?>
 </textarea>
 
 <p><input type='button' value='<?php echo htmlspecialchars( xl('OK'), ENT_QUOTES); ?>' onclick='window.close()' /></p>
