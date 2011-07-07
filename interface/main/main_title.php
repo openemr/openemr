@@ -52,17 +52,14 @@ function toencounter(rawdata) {
 }
 function showhideMenu() {
 	var m = parent.document.getElementById("fsbody");
-    var targetWidth = '0,*';
-    if (m.cols == targetWidth) {
-      m.cols = '<?php echo $GLOBALS['gbl_nav_area_width'] ?>,*';
-      document.getElementById("showMenuLink").style.display = 'inline';
-      document.getElementById("hideMenuLink").style.display = 'none';
-    }
-    else {
-      m.cols = targetWidth;
-      document.getElementById("showMenuLink").style.display = 'none';
-      document.getElementById("hideMenuLink").style.display = 'inline';
-    }
+	var targetWidth = '0,*';
+	if (m.cols == targetWidth) {
+		m.cols = '<?php echo $GLOBALS['gbl_nav_area_width'] ?>,*';
+		document.getElementById("showMenuLink").innerHTML = 'Hide Menu';
+	} else {
+		m.cols = targetWidth;
+		document.getElementById("showMenuLink").innerHTML = 'Show Menu';
+	}
 }
 </script>
 </head>
@@ -72,54 +69,50 @@ function showhideMenu() {
 $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
 ?>
 
-<table style="border-width:1em;" cellspacing="0" cellpadding="0" width="100%" height="100%">
+<table cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
-<td valign="top" align="left" class = 'text'>
+<td align="left">
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<table cellspacing="0" cellpadding="0"  width="100%" height="100%"><tr><td valign="top" align="center" >
-<a href='' class="css_button_small" id='new0' style="font-weight:bold;margin: 0px 0px 0px 0px;" onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
-	<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES) ?></span></a>
-</td></tr>
-<tr><td valign="middle" align="left" ><B>
-      <a id='showMenuLink' class='text' onclick='javascript:showhideMenu();'><?php xl('Hide Menu','e'); ?></a>
-      <a id='hideMenuLink' class='text' style='display:none;' onclick='javascript:showhideMenu();'><?php xl('Show Menu','e'); ?></a>
-</B></td></tr>
-</table>
+	<table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;"><tr><td style="vertical-align:text-bottom;">
+		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
+		<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES) ?></span></a>
+	</td></tr>
+	<tr><td valign="baseline"><B>
+		<a class="text" style='vertical-align:text-bottom;' href="main_title.php" id='showMenuLink' onclick='javascript:showhideMenu();return false;'><?php xl('Hide Menu','e'); ?></a></B>
+	</td></tr></table>
 <?php } else { ?>
 &nbsp;
 <?php } ?>
 </td>
-<td valign="middle">
+<td style="margin:3px 0px 3px 0px;vertical-align:middle;">
         <div style='margin-left:10px; float:left; display:none' id="current_patient_block">
             <span class='text'><?php xl('Patient','e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_patient"><b><?php xl('None','e'); ?></b></span>
         </div>
 </td>
-<td valign="middle">
-        <div style='margin-left:5px; float:left; display:none' id="past_encounter_block">
-		<span class='title_bar_top' id="past_encounter"><b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b></span>
-        </div><BR>
-        <div style='margin-left:10px; float:left; display:none' class='text' id="current_encounter_block" >
-            <span class='text'><B><?php xl('Selected Encounter','e'); ?></B>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php xl('None','e'); ?></b></span>
-        </div>
+<td style="margin:3px 0px 3px 0px;vertical-align:middle;" align="left">
+	<table cellspacing="0" cellpadding="1" ><tr><td>
+		<div style='margin-left:5px; float:left; display:none' id="past_encounter_block">
+			<span class='title_bar_top' id="past_encounter"><b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b></span>
+		</div></td></tr>
+	<tr><td valign="baseline" align="center">	
+        <div style='display:none' class='text' id="current_encounter_block" >
+            <span class='text'><?php xl('Selected Encounter','e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php xl('None','e'); ?></b></span>
+        </div></td></tr></table>
 </td>
 
-<td valign="top" align="right" class = 'text'>
-    <div style='float:right; margin-left:5px'>
-        <div style='float:right; margin-top:3px' class = 'text'>
-            <a href="javascript:;" onclick="javascript:parent.left_nav.goHome();" ><?php xl('Home','e'); ?></a>&nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="../../Documentation/User_Guide/index.html" target="_blank" id="help_link" onclick="top.restoreSession()"> <?php xl('Manual','e'); ?></a>
-            <div style='float:right;margin-left:15px'>
-	            <a href="../logout.php?auth=logout" target="_top" class="css_button_small" id="logout_link" onclick="top.restoreSession()" >
-                <span><?php xl('Logout', 'e'); ?></span></a>
-        	</div>
-    	</div>
-        <br>
-            <a class="title_bar_top"><?php echo $res{"fname"}.' '.$res{"lname"};?></a>
-            <a style="font-size:0.7em;"> (<?php echo $_SESSION['authGroup']?>)</a>
-    </div>
+<td align="right">
+	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
+		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
+		&nbsp;|&nbsp;
+		<a href="../../Documentation/User_Guide/index.html" target="_blank" id="help_link" onclick="top.restoreSession()" >
+			<?php xl('Manual','e'); ?></a>&nbsp;</td>
+		<td align="right" style="vertical-align:top;"><a href="../logout.php?auth=logout" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
+			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
+	</tr><tr>
+		<td colspan='2' valign="baseline" align='right'><B>
+			<span class="text title_bar_top" title="<?php echo htmlspecialchars( xl('Authorization group') .': '.$_SESSION['authGroup'], ENT_QUOTES); ?>"><?php echo htmlspecialchars($res{"fname"}.' '.$res{"lname"},ENT_NOQUOTES); ?></span></span></td>
+    	</tr></table>
 </td>
-
-
 </tr>
 </table>
 
