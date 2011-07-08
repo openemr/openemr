@@ -58,7 +58,7 @@ class Medication extends ClinicalType
         	"FROM immunizations " .
                 "WHERE patient_id = ? " .
                 "AND administered_date >= ? " .
-                "AND administered_date < ? ";
+                "AND administered_date <= ? ";
             $query.= "AND ( ";
             $count = 0;
             array_push($sqlQueryBind,$patient->id,$beginDate,$endDate);
