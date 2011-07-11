@@ -20,8 +20,15 @@ class Communication extends ClinicalType
     
     public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null ) 
     {
-        // TODO read from referrals to check for ditary consult
-        return true;
+        // TODO Read from referrals to check for ditary consult?
+        // TODO How to check for patient communication?
+        // for now, check for any encounter
+        $encounters = getEncounters( $patient->id, $beginDate, $endDate );
+        ( empty($encounters) ) ? $totalNumberAppt = 0 : $totalNumberAppt = count( $encounters );
+        if ( $totalNumberAppt < 1 ) {
+            return false;
+        } else {
+            return true;
+        }
     }
-    
 }
