@@ -15,9 +15,10 @@ class NFQ_0041_Denominator implements CqmFilterIF
     
     public function test( CqmPatient $patient, $beginDate, $endDate )
     {
-        $periodPlus58Days = date( 'Y-m-d 00:00:00', strtotime( '+58 day', strtotime( $endDate ) ) );
-        $periodMinus122Days = date( 'Y-m-d 00:00:00', strtotime( '-122 day', strtotime( $beginDate ) ) );
-        if ( Helper::checkEncounter( Encounter::ENC_INFLUENZA, $patient, $periodMinus122Days, $periodPlus58Days ) ) {
+        $periodPlus58Days = date( 'Y-m-d 00:00:00', strtotime( '+58 day', strtotime( $beginDate ) ) );
+        $periodMinus122Days = date( 'Y-m-d 00:00:00', strtotime( '-122 day', strtotime( $endDate ) ) );
+        if ( Helper::checkEncounter( Encounter::ENC_INFLUENZA, $patient, $beginDate, $periodPlus58Days ) || 
+            Helper::checkEncounter( Encounter::ENC_INFLUENZA, $patient, $periodMinus122Days, $endDate ) ) {
             return true;
         }
         

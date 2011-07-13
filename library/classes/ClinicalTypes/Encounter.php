@@ -71,7 +71,11 @@ class Encounter extends ClinicalType
     {
         $encounters = getEncounters( $patient->id, $beginMeasurement, $endMeasurement, $this->getOptionId() );
         ( empty($encounters) ) ? $totalNumberAppt = 0 : $totalNumberAppt = count( $encounters );
-        if ( $totalNumberAppt < $options[self::OPTION_ENCOUNTER_COUNT] ) {
+        $requiredCount = 1;
+        if ( isset( $options[self::OPTION_ENCOUNTER_COUNT]  ) ) {
+            $requiredCount = $options[self::OPTION_ENCOUNTER_COUNT];
+        }
+        if ( $totalNumberAppt < $requiredCount ) {
             return false;
         } else {
             return true;
