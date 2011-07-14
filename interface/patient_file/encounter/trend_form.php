@@ -13,6 +13,15 @@ include_once("../../globals.php");
 $formname = $_GET["formname"];
 $is_lbf = substr($formname, 0, 3) === 'LBF';
 
+if ($is_lbf) {
+  // Determine the default field ID and its title for graphing.
+  // This is from the last graphable field in the form.
+  $default = sqlQuery("SELECT field_id, title FROM layout_options WHERE " .
+    "form_id = ? AND uor > 0 AND edit_options LIKE '%G%' " .
+    "ORDER BY group_name DESC, seq DESC, title DESC LIMIT 1",
+    array($formname));
+}
+
 //Bring in the style sheet
 ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
@@ -102,10 +111,8 @@ $(document).ready(function(){
   );
 
   // show blood pressure graph by default
-<?php if ($formname == 'LBFfms') { ?>
-  show_graph('<?php echo $formname; ?>','total','Sum of Scores');
-<?php } else if ($is_lbf) { ?>
-  show_graph('<?php echo $formname; ?>','bp_systolic','');
+<?php if ($is_lbf) { ?>
+  show_graph('<?php echo $formname; ?>','<?php echo $default['field_id']; ?>','<?php echo $default['title']; ?>');
 <?php } else { ?>
   show_graph('form_vitals','bps','');
 <?php } ?>

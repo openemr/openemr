@@ -277,3 +277,35 @@ ALTER TABLE daily_fitness
   ADD `am` text NOT NULL DEFAULT '',
   ADD `pm` text NOT NULL DEFAULT '';
 
+-- Added 2011-07-12:
+
+DELETE FROM list_options WHERE list_id = 'lbfnames' AND option_id = 'LBFathv';
+INSERT INTO list_options ( list_id, option_id, title, seq, option_value ) VALUES ('lbfnames','LBFathv','Athletic Vitals',1,5);
+DELETE FROM layout_options WHERE form_id = 'LBFathv';
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','weight_lbs'    ,'1','Weight (lbs)'           , 1,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','weight_kg'     ,'1','Weight (kg)'            , 2,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','height_in'     ,'1','Height (in)'            , 3,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','height_cm'     ,'1','Height (cm)'            , 4,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','bp_systolic'   ,'1','BP Systolic'            , 5,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','bp_diastolic'  ,'1','BP Diastolic'           , 6,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','pulse'         ,'1','Pulse'                  , 7,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','respiration'   ,'1','Respiration'            , 8,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','temperature_f' ,'1','Temperature (F)'        , 9,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','temperature_c' ,'1','Temperature (C)'        ,10,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','temp_location' ,'1','Temp Location'          ,11,1,1,0,255,'',1,3,'','' ,'');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','bmi'           ,'1','BMI'                    ,12,2,1,5,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathv','bmi_status'    ,'1','BMI Status'             ,13,2,1,8,255,'',1,3,'','' ,'');
+
+DELETE FROM list_options WHERE list_id = 'lbfnames' AND option_id = 'LBFathbf';
+INSERT INTO list_options ( list_id, option_id, title, seq, option_value ) VALUES ('lbfnames','LBFathbf','Athletic Body Fat',1,5);
+DELETE FROM layout_options WHERE form_id = 'LBFathbf';
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathbf','sf_bicep'      ,'1','Skin Fold - Bicep'      ,21,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathbf','sf_tricep'     ,'1','Skin Fold - Tricep'     ,22,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathbf','sf_subscapular','1','Skin Fold - Subscapular',23,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathbf','sf_abdomen'    ,'1','Skin Fold - Abdomen'    ,24,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathbf','sf_suprailiac' ,'1','Skin Fold - Suprailiac' ,25,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathbf','sf_thigh'      ,'1','Skin Fold - Thigh'      ,26,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathbf','sf_calf'       ,'1','Skin Fold - Calf'       ,27,2,1,3,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathbf','sf_sum'        ,'1','Sum of Skin Folds'      ,28,2,1,4,255,'',1,3,'','G','');
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('LBFathbf','body_fat'      ,'1','Body Fat %'             ,29,2,1,3,255,'',1,3,'','G','');
+
