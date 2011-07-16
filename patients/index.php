@@ -36,7 +36,7 @@
 
 <html>
 <head>
-    <title><?php echo htmlspecialchars( xl('Access your patient information'), ENT_NOQUOTES); ?></title>
+    <title><?php echo htmlspecialchars( xl('Patient Portal Login'), ENT_NOQUOTES); ?></title>
 
     <script type="text/javascript" src="../library/js/jquery-1.5.js"></script>
     <script type="text/javascript" src="../library/js/jquery.gritter.min.js"></script>
@@ -165,7 +165,7 @@
       </div>
     <?php } else { ?>
       <div id="wrapper" class="centerwrapper">
-	<h2 class="title"><?php echo htmlspecialchars( xl('Access your patient information'), ENT_NOQUOTES); ?></h2>
+	<h2 class="title"><?php echo htmlspecialchars( xl('Patient Portal Login'), ENT_NOQUOTES); ?></h2>
 	<form action="get_patient_info.php" method="POST" onsubmit="return process()" >
 	    <table>
 		<tr>

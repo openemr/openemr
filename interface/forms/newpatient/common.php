@@ -209,7 +209,7 @@ if ($fres) {
      </td>
     </tr>
 	<tr>
-		<td class='bold' nowrap><?php echo htmlspecialchars( xl('Billing Facility:'), ENT_NOQUOTES); ?></td>
+		<td class='bold' nowrap><?php echo htmlspecialchars( xl('Billing Facility'), ENT_NOQUOTES); ?>:</td>
 		<td class='text'>
 			<div id="ajaxdiv">
 			<?php

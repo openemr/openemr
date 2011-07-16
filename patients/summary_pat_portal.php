@@ -274,7 +274,7 @@ $(document).ready(function(){
 <body class="body_top">
 
 <div id="wrapper" class="lefttop" style="width: 700px;">
-<h2 class="heading"><?php echo htmlspecialchars( xl('Your patient information'), ENT_NOQUOTES); ?></h2>
+<h2 class="heading"><?php echo htmlspecialchars( xl('Patient Portal'), ENT_NOQUOTES); ?></h2>
 
 <?php
  $result = getPatientData($pid);
