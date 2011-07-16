@@ -435,6 +435,17 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
               continue;
             }
 
+            // Check if pass filter
+            $passFilter = test_filter($rowPatient['pid'],$rowRule['id'],$dateFocus);
+            if ($passFilter === "EXCLUDED") {
+              $passFilter = FALSE;
+            }
+            if (!$passFilter) {
+              // increment pass filter counter
+              $dateCounter++;
+              continue;
+            }
+
             //Check if pass target
             $passTarget = test_targets($rowPatient['pid'],$rowRule['id'],$i,$dateFocus);
             if ($passTarget) {
@@ -443,7 +454,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
               // send to reminder results
               if ($mode == "reminders-all") {
                 // place the completed actions into the reminder return array
-                $actionArray = resolve_action_sql($rowRule['id'],'1');
+                $actionArray = resolve_action_sql($rowRule['id'],$i);
                 foreach ($actionArray as $action) {
                   $action_plus = $action;
                   $action_plus['due_status'] = "not_due";

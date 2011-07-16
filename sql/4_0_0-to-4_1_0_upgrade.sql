@@ -40,6 +40,14 @@
 --    arguments: table_name colname value colname2 value2
 --    behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2, the block will be executed.
 
+--  #IfNotRow3D
+--    arguments: table_name colname value colname2 value2 colname3 value3
+--    behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.
+
+--  #IfNotRow4D
+--    arguments: table_name colname value colname2 value2 colname3 value3 colname4 value4
+--    behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3 AND colname4 = value4, the block will be executed.
+
 --  #IfNotRow2Dx2
 --    desc:      This is a very specialized function to allow adding items to the list_options table to avoid both redundant option_id and title in each element.
 --    arguments: table_name colname value colname2 value2 colname3 value3
@@ -1270,5 +1278,77 @@ CREATE TABLE `standardized_tables_track` (
   `revision_date` datetime default NULL COMMENT 'revision of standardized tables that were imported',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotRow2D list_options list_id rule_action option_id act_bmi
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_bmi', 'BMI', 43, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id rule_action option_id act_nutrition
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_nutrition', 'Nutrition', 45, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id rule_action option_id act_exercise
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_exercise', 'Exercise', 47, 0);
+#EndIf
+
+#IfNotRow4D rule_action id rule_wt_assess_couns_child group_id 3 category act_cat_edu item act_nutrition
+INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_wt_assess_couns_child', '3', 'act_cat_edu', 'act_nutrition');
+#EndIf
+
+#IfNotRow4D rule_action id rule_wt_assess_couns_child group_id 4 category act_cat_edu item act_exercise
+INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_wt_assess_couns_child', '4', 'act_cat_edu', 'act_exercise');
+#EndIf
+
+#IfNotRow4D rule_action id rule_wt_assess_couns_child group_id 5 category act_cat_measure item act_bmi
+INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_wt_assess_couns_child', '5', 'act_cat_measure', 'act_bmi');
+#EndIf
+
+#IfNotRow2D rule_action_item category act_cat_measure item act_bmi
+INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_measure', 'act_bmi', '', '', 0);
+#EndIf
+
+#IfNotRow2D rule_action_item category act_cat_edu item act_nutrition
+INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_edu', 'act_nutrition', '', '', 1);
+#EndIf
+
+#IfNotRow2D rule_action_item category act_cat_edu item act_exercise
+INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_edu', 'act_exercise', '', '', 1);
+#EndIf
+
+#IfNotRow2D rule_filter id rule_wt_assess_couns_child method filt_age_min
+INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_wt_assess_couns_child', 1, 1, 'filt_age_min', 'year', '2');
+#EndIf
+
+#IfNotRow3D rule_target id rule_wt_assess_couns_child group_id 1 method target_interval
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 1, 1, 1, 'target_interval', 'year', 3);
+#EndIf
+
+#IfNotRow3D rule_target id rule_wt_assess_couns_child group_id 2 method target_interval
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 2, 1, 1, 'target_interval', 'year', 3);
+#EndIf
+
+#IfNotRow4D rule_target id rule_wt_assess_couns_child group_id 3 method target_database value CUSTOM::act_cat_edu::act_nutrition::YES::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 3, 1, 1, 'target_database', 'CUSTOM::act_cat_edu::act_nutrition::YES::ge::1', 0);
+#EndIf
+
+#IfNotRow3D rule_target id rule_wt_assess_couns_child group_id 3 method target_interval
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 3, 1, 1, 'target_interval', 'year', 3);
+#EndIf
+
+#IfNotRow4D rule_target id rule_wt_assess_couns_child group_id 4 method target_database value CUSTOM::act_cat_edu::act_exercise::YES::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 4, 1, 1, 'target_database', 'CUSTOM::act_cat_edu::act_exercise::YES::ge::1', 0);
+#EndIf
+
+#IfNotRow3D rule_target id rule_wt_assess_couns_child group_id 4 method target_interval
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 4, 1, 1, 'target_interval', 'year', 3);
+#EndIf
+
+#IfNotRow4D rule_target id rule_wt_assess_couns_child group_id 5 method target_database value ::form_vitals::BMI::::::ge::1
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 5, 1, 1, 'target_database', '::form_vitals::BMI::::::ge::1', 0);
+#EndIf
+
+#IfNotRow3D rule_target id rule_wt_assess_couns_child group_id 5 method target_interval
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 5, 1, 1, 'target_interval', 'year', 3);
 #EndIf
 
