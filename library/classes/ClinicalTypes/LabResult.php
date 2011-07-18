@@ -43,8 +43,8 @@ class LabResult extends ClinicalType
                     "AND procedure_order.procedure_order_id = procedure_report.procedure_order_id " .
                     "AND procedure_report.procedure_report_id = procedure_result.procedure_report_id " .
                     "AND ( procedure_type.standard_code = ? OR procedure_type.procedure_code = ? ) " .
-                    "AND procedure_result.date >= ?  " .
-                	"AND procedure_result.date < ?  " .
+                    "AND procedure_report.date_collected >= ?  " .
+                	"AND procedure_report.date_collected <= ?  " .
                     "AND procedure_order.patient_id = ? ";
                 if ( $range->lowerBound != Range::NEG_INF ) {
                     $sql .= "AND procedure_result.result >= ? ";
