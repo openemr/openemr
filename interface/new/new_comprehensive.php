@@ -10,6 +10,7 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/erx_javascript.inc.php");
 
 // Check authorization.
 $thisauth = acl_check('patients', 'demo');
@@ -250,6 +251,33 @@ function trimlen(s) {
 
 function validate(f) {
 <?php generate_layout_validation('DEM'); ?>
+  <?php if($GLOBALS['erx_enable']){ ?>
+  alertMsg='';
+  for(i=0;i<f.length;i++){
+    if(f[i].type=='text' && f[i].value)
+    {
+      if(f[i].name == 'form_fname' || f[i].name == 'form_mname' || f[i].name == 'form_lname')
+      {
+        alertMsg += checkLength(f[i].name,f[i].value,35);
+        alertMsg += checkUsername(f[i].name,f[i].value);
+      }
+      else if(f[i].name == 'form_street' || f[i].name == 'form_city')
+      {
+        alertMsg += checkLength(f[i].name,f[i].value,35);
+        alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+      }
+      else if(f[i].name == 'form_phone_home')
+      {
+       alertMsg += checkPhone(f[i].name,f[i].value);
+      }
+    }
+  }
+  if(alertMsg)
+  {
+    alert(alertMsg);
+    return false;
+  }
+  <?php } ?>
  return true;
 }
 

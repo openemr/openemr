@@ -329,7 +329,9 @@ class Prescription extends ORDataObject {
     function get_substitute() {
         return $this->substitute;
     }
-
+    function set_erx_source($erx_source) {
+        $this->erx_source = $erx_source;
+    }
     function set_medication($med) {
         global $ISSUE_TYPES;
 

@@ -26,6 +26,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
   "domain_identifier = '"  . trim(formData('domain_identifier' )) . "', " .
   "attn = '"  . trim(formData('attn' )) . "', " .
   "tax_id_type = '"  . trim(formData('tax_id_type' )) . "', " .
+  "primary_business_entity = '"  . trim(formData('primary_business_entity' )) . "', ".
   "facility_npi = '" . trim(formData('facility_npi')) . "'");
 }
 
@@ -49,7 +50,8 @@ if ($_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility")
 		pos_code='" . trim(formData('pos_code')) . "',
 		domain_identifier='" . trim(formData('domain_identifier')) . "',
 		facility_npi='" . trim(formData('facility_npi')) . "',
-		attn='" . trim(formData('attn')) . "' , 
+		attn='" . trim(formData('attn')) . "' ,
+		primary_business_entity='" . trim(formData('primary_business_entity')) . "' ,
 		tax_id_type='" . trim(formData('tax_id_type')) . "' 
 	where id='" . trim(formData('fid')) . "'" );
 }

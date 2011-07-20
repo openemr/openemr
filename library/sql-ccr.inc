@@ -55,6 +55,7 @@ function getMedicationData() {
         IF(prescriptions.active=1,'Active','Prior History No Longer Active') AS active,
         prescriptions.provider_id,
         prescriptions.size,
+	prescriptions.rxnorm_drugcode,
         IFNULL(prescriptions.refills,0) AS refills,
         lo2.title AS form,
         lo.title
@@ -78,6 +79,7 @@ function getMedicationData() {
         IF((enddate = '0000-00-00' OR enddate >= CURDATE()),'Active','Prior History No Longer Active') AS active,
         '' AS provider_id,
         '' AS size,
+'' AS rxnorm_drugcode,
         0 AS refills,
         '' AS form,
         '' AS title 
@@ -100,6 +102,7 @@ function getMedicationData() {
         IF(prescriptions.active=1,'Active','Prior History No Longer Active') AS active,
         prescriptions.provider_id,
         prescriptions.size,
+	prescriptions.rxnorm_drugcode,
         IFNULL(prescriptions.refills,0) AS refills,
         lo2.title AS form,
         lo.title
@@ -122,6 +125,7 @@ function getMedicationData() {
         IF((enddate = '0000-00-00' OR enddate >= CURDATE()),'Active','Prior History No Longer Active') AS active,
         '' AS provider_id,
         '' AS size,
+	'' AS rxnorm_drugcode,
         0 AS refills,
         '' AS form,
         '' AS title 

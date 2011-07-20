@@ -8,6 +8,7 @@ require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/erx_javascript.inc.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -65,7 +66,6 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <script type="text/javascript">
@@ -229,7 +229,37 @@ function validate(f) {
  if ( errMsgs.length > 0 ) {
 	alert(msg);
  }
-
+ 
+//Patient Data validations
+ <?php if($GLOBALS['erx_enable']){ ?>
+ alertMsg='';
+ for(i=0;i<f.length;i++){
+  if(f[i].type=='text' && f[i].value)
+  {
+   if(f[i].name == 'form_fname' || f[i].name == 'form_mname' || f[i].name == 'form_lname')
+   {
+    alertMsg += checkLength(f[i].name,f[i].value,35);
+    alertMsg += checkUsername(f[i].name,f[i].value);
+   }
+   else if(f[i].name == 'form_street' || f[i].name == 'form_city')
+   {
+    alertMsg += checkLength(f[i].name,f[i].value,35);
+    alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+   }
+   else if(f[i].name == 'form_phone_home')
+   {
+    alertMsg += checkPhone(f[i].name,f[i].value);
+   }
+  }
+ }
+ if(alertMsg)
+ {
+   alert(alertMsg);
+   return false;
+ }
+ <?php } ?>
+ //return false;
+ 
 // Some insurance validation.
  for (var i = 1; i <= 3; ++i) {
   subprov = 'i' + i + 'provider';

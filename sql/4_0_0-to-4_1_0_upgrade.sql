@@ -1352,3 +1352,64 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_wt_assess_couns_child', 5, 1, 1, 'target_interval', 'year', 3);
 #EndIf
 
+#IfMissingColumn prescriptions site
+ALTER TABLE `prescriptions` ADD COLUMN `site` VARCHAR(50) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn prescriptions prescriptionguid
+ALTER TABLE `prescriptions` ADD COLUMN `prescriptionguid` VARCHAR(50) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn prescriptions erx_source
+ALTER TABLE `prescriptions` ADD COLUMN `erx_source` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0-OpenEMR 1-External';
+#EndIf
+
+#IfMissingColumn prescriptions rxnorm_drugcode
+ALTER TABLE `prescriptions` ADD COLUMN `rxnorm_drugcode` INT(11) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn prescriptions datetime
+ALTER TABLE `prescriptions` ADD COLUMN `datetime` DATETIME DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn prescriptions user
+ALTER TABLE `prescriptions` ADD COLUMN `user` VARCHAR(50) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn prescriptions erx_uploaded
+ALTER TABLE `prescriptions` ADD COLUMN `erx_uploaded` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0-Pending NewCrop upload 1-Uploaded to NewCrop';
+#EndIf
+
+#IfMissingColumn lists external_allergyid
+ALTER TABLE `lists` ADD COLUMN `external_allergyid` INT(11) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn lists erx_source
+ALTER TABLE `lists` ADD COLUMN `erx_source` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-OpenEMR 1-External';
+#EndIf
+
+#IfMissingColumn patient_data soap_import_status
+ALTER TABLE `patient_data` ADD COLUMN `soap_import_status` TINYINT(4) DEFAULT NULL COMMENT '1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import';
+#EndIf
+
+#IfMissingColumn facility primary_business_entity
+ALTER TABLE `facility` ADD COLUMN `primary_business_entity` INT(10) NOT NULL DEFAULT '0' COMMENT '0-Not Set as business entity 1-Set as business entity';
+#EndIf
+
+#IfMissingColumn users state_license_number
+ALTER TABLE `users` ADD COLUMN `state_license_number` VARCHAR(25) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn users newcrop_user_role
+ALTER TABLE `users` ADD COLUMN `newcrop_user_role` VARCHAR(30) DEFAULT NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id newcrop_erx_role
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('lists','newcrop_erx_role','NewCrop eRx Role','221','0','0','','');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('newcrop_erx_role','erxadmin','NewCrop Admin','5','0','0','','');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('newcrop_erx_role','erxdoctor','NewCrop Doctor','20','0','0','','');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('newcrop_erx_role','erxmanager','NewCrop Manager','15','0','0','','');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('newcrop_erx_role','erxmidlevelPrescriber','NewCrop Midlevel Prescriber','25','0','0','','');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('newcrop_erx_role','erxnurse','NewCrop Nurse','10','0','0','','');
+INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('newcrop_erx_role','erxsupervisingDoctor','NewCrop Supervising Doctor','30','0','0','','');
+#EndIf

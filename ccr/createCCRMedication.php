@@ -67,6 +67,15 @@ do {
 	$e_Text = $ccr->createElement('Text',$value['drug']);
 	$e_ProductName->appendChild(clone $e_Text);
 
+	$e_Code = $ccr->createElement('Code');
+	$e_ProductName->appendChild($e_Code);
+
+	$e_Value = $ccr->createElement('Value',$value['rxnorm_drugcode']);
+	$e_Code->appendChild($e_Value);
+  
+	$e_Value = $ccr->createElement('CodingSystem', 'RxNorm');
+	$e_Code->appendChild($e_Value);
+
 	$e_Strength = $ccr->createElement('Strength');
 	$e_Product->appendChild($e_Strength);
 
@@ -79,7 +88,7 @@ do {
 	$e_Unit = $ccr->createElement('Unit', $value['title']);
 	$e_Units->appendChild($e_Unit);
   
-  $e_Form = $ccr->createElement('Form');
+	$e_Form = $ccr->createElement('Form');
 	$e_Product->appendChild($e_Form);
 
 	$e_Text = $ccr->createElement('Text', $value['form']);

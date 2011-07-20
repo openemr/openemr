@@ -119,6 +119,9 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
 
   // Show header
   $disptype = $focustitles[0];
+  if(($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable'])
+  echo "<a href='../../eRx.php?page=medentry' class='css_button_small' onclick='top.restoreSession()' ><span>" . htmlspecialchars( xl('Add'), ENT_NOQUOTES) . "</span></a>\n";
+  else
   echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" . htmlspecialchars($focustype,ENT_QUOTES)  . "\")'><span>" . htmlspecialchars( xl('Add'), ENT_NOQUOTES) . "</span></a>\n";
   echo "  <span class='title'>" . htmlspecialchars($disptype,ENT_NOQUOTES) . "</span>\n";
   echo " <table style='margin-bottom:1em;text-align:center'>";

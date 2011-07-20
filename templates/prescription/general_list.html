@@ -160,10 +160,16 @@ function Checking(chk) {
 	 <td align="center">
       <input id="check_list" type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'}">
     </td>
+	{if $prescription->erx_source==0}
     <td class="editscript"  id="{$prescription->id}">
         <a class='editscript css_button_small' id='{$prescription->id}' href="controller.php?prescription&edit&id={$prescription->id}" style="margin-top:-2px"><span>{xl t='Edit'}</span></a>
         {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
     </td>
+	{else}
+    <td class="editscript"  id="{$prescription->id}">
+	{if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
+    </td>
+	{/if}
     <td id="{$prescription->id}">
       {$prescription->date_added}<br />
       {$prescription->date_modified}&nbsp;

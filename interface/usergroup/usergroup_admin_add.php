@@ -6,6 +6,7 @@ require_once("$srcdir/sql.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
+require_once("$srcdir/erx_javascript.inc.php");
 
 $alertmsg = '';
 
@@ -43,6 +44,50 @@ function submitform() {
 		// ViCareplus : As per NIST standard, SHA1 encryption algorithm is used		
 		document.forms[0].newauthPass.value=SHA1(document.forms[0].stiltskin.value);
 		document.forms[0].stiltskin.value='';
+		<?php if($GLOBALS['erx_enable']){ ?>
+		alertMsg='';
+		f=document.forms[0];
+		for(i=0;i<f.length;i++){
+			if(f[i].type=='text' && f[i].value)
+			{
+				if(f[i].name == 'rumple')
+				{
+					alertMsg += checkLength(f[i].name,f[i].value,35);
+					alertMsg += checkUsername(f[i].name,f[i].value);
+				}
+				else if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
+				{
+					alertMsg += checkLength(f[i].name,f[i].value,35);
+					alertMsg += checkUsername(f[i].name,f[i].value);
+				}
+				else if(f[i].name == 'federaltaxid')
+				{
+					alertMsg += checkLength(f[i].name,f[i].value,10);
+					alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+				}
+				else if(f[i].name == 'state_license_number')
+				{
+					alertMsg += checkLength(f[i].name,f[i].value,10);
+					alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+				}
+				else if(f[i].name == 'npi')
+				{
+					alertMsg += checkLength(f[i].name,f[i].value,35);
+					alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+				}
+				else if(f[i].name == 'federaldrugid')
+				{
+					alertMsg += checkLength(f[i].name,f[i].value,30);
+					alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+				}
+			}
+		}
+		if(alertMsg)
+		{
+			alert(alertMsg);
+			return false;
+		}
+		<?php } ?>
 		document.forms[0].submit();
 	} else {
 		if (document.forms[0].rumple.value.length<=0)
@@ -165,6 +210,15 @@ if ($fres) {
 </select></td>
 </tr>
 <!-- END (CHEMED) Calendar UI preference -->
+
+<tr>
+<td><span class="text"><?php xl('State License Number','e'); ?>: </span></td>
+<td><input type="text" name="state_license_number" style="width:120px;"></td>
+<td class='text'><?php xl('NewCrop eRX Role','e'); ?>:</td>
+<td>
+  <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'],'','--Select Role--','','','',array('style'=>'width:120px')); ?>  
+</td>
+</tr>
 
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>

@@ -13,7 +13,6 @@ include_once("$srcdir/lists.inc");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/options.inc.php");
 include_once("$srcdir/formdata.inc.php");
-
 ?>
 
 <div id="patient_stats_summary">
@@ -62,10 +61,18 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 	    echo "<tr><td>";
             // Issues expand collapse widget
             $widgetTitle = $arr[0];
-            $widgetLabel = $key;
-            $widgetButtonLabel = xl("Edit");
-            $widgetButtonLink = "load_location(\"stats_full.php?active=all&category=" . $key . "\")";
-            $widgetButtonClass = "";
+            $widgetLabel = $key;	    
+	    if(($key == "allergy" || $key == "medication") && $GLOBALS['erx_enable'])
+	    {
+		$widgetButtonLabel = xl("Add");
+		$widgetButtonLink = "load_location(\"../../eRx.php?page=medentry\")";
+	    }
+	    else
+	    {
+		$widgetButtonLabel = xl("Edit");
+		$widgetButtonLink = "load_location(\"stats_full.php?active=all&category=" . $key . "\")";
+	    }
+	    $widgetButtonClass = "";
             $linkMethod = "javascript";
             $bodyClass = "summary_item small";
             $widgetAuth = true;
@@ -254,19 +261,75 @@ else { ?>
 <?php if (!$GLOBALS['disable_prescriptions']) { ?>
 <div>
 <table id="patient_stats_prescriptions">
+<?php if($GLOBALS['erx_enable']){ ?>
+<tr><td>
+<?php if ($_POST['embeddedScreen']) {
+    $widgetTitle = '';
+    $widgetTitle = xl('Current Medications');
+    $widgetLabel = "current_prescriptions";
+    $widgetButtonLabel = '';
+    $widgetButtonLink = '';
+    $widgetButtonClass = '';
+    $linkMethod = "";
+    $bodyClass = "summary_item small";
+    $widgetAuth = false;
+    $fixedWidth = false;
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+}
+?>
+
+<?php
+$res=sqlStatement("select * from prescriptions where patient_id=? and active='1'",array($pid));
+?>
+<table>
+<?php
+if(sqlNumRows($res)==0)
+{
+    ?>
+    <tr class=text>
+	    <td><?php echo htmlspecialchars(xl('None'), ENT_NOQUOTES);?></td>
+    </tr>
+    <?php
+}
+while($row_currentMed=sqlFetchArray($res))
+{
+    $rin=generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'),$row_currentMed['form']);
+    $rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'),$row_currentMed['route']);
+    $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'),$row_currentMed['interval']);
+    ?>
+    <tr class=text style='font-weight:bold;color:blue;'>
+	    <td><?php echo $row_currentMed['drug'];?></td>
+	    <td><?php echo htmlspecialchars($row_currentMed['dosage']." ".xl("in")." ".$rin['title']." ".$rint['title'],ENT_NOQUOTES);?></td>
+    </tr>
+<?php
+}
+?>
+</table>
+</td></tr>
+<?php } ?>
 <tr><td colspan='<?php echo $numcols ?>' class='issuetitle'>
 
 <?php if ($_POST['embeddedScreen']) {
     // Issues expand collapse widget
-    $widgetTitle = xl('Prescriptions');
     $widgetLabel = "prescriptions";
-    $widgetButtonLabel = xl("Edit");
-    $widgetButtonLink = "rx_frameset.php";
-    $widgetButtonClass = "iframe rx_modal";
     $linkMethod = "html";
+    if($GLOBALS['erx_enable'])    
+    {
+	$widgetTitle = xl('Prescription History');
+	$widgetButtonLabel = xl("Add/Edit eRx");
+	$widgetButtonLink = "../../eRx.php?page=compose";
+	$widgetButtonClass = "";
+    }
+    else
+    {
+	$widgetTitle = xl('Prescription');
+	$widgetButtonLabel = xl("Edit");
+	$widgetButtonLink = "rx_frameset.php";
+	$widgetButtonClass = "iframe rx_modal";
+    }
     $bodyClass = "summary_item small";
     $widgetAuth = true;
-    $fixedWidth = false;
+    $fixedWidth = false;	
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 }
 else { ?>
