@@ -55,10 +55,10 @@ function showhideMenu() {
 	var targetWidth = '0,*';
 	if (m.cols == targetWidth) {
 		m.cols = '<?php echo $GLOBALS['gbl_nav_area_width'] ?>,*';
-		document.getElementById("showMenuLink").innerHTML = 'Hide Menu';
+		document.getElementById("showMenuLink").innerHTML = '<?php echo htmlspecialchars( xl('Hide Menu'), ENT_QUOTES); ?>';
 	} else {
 		m.cols = targetWidth;
-		document.getElementById("showMenuLink").innerHTML = 'Show Menu';
+		document.getElementById("showMenuLink").innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
 	}
 }
 </script>
