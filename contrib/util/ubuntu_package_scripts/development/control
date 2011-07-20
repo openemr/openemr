@@ -1,12 +1,13 @@
-Package: cvs-openemr
-Version: 1.0.0-8
+Package: git-openemr
+Version: 1.0.0-1
 Maintainer: Brady Miller <brady@sparmy.com>
 Installed-Size: 46000
 Priority: optional
 Section: web
 Architecture: all
 Homepage: http://www.oemr.org/
-Depends: mysql-server, apache2-mpm-prefork, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, php5-curl, php5-mcrypt, imagemagick, git-core
+Pre-Depends: debconf
+Depends: mysql-server, apache2-mpm-prefork, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, php5-curl, php5-mcrypt, php-soap, imagemagick, git-core
 Description: Comprehensive Medical Practice Management Application
  OpenEMR provides office scheduling, electronic medical records,
  prescriptions, insurance billing, accounting and access controls.
@@ -16,7 +17,7 @@ Description: Comprehensive Medical Practice Management Application
  package is easily removed and will not interfere with the
  production version package of OpenEMR, which is entitled openemr.
  .
- To use OpenEMR after installation, go to http://localhost/cvs-openemr ,
+ To use OpenEMR after installation, go to http://localhost/git-openemr ,
  the user is 'admin' and password is 'pass'.
  .
  The OpenEMR project home page and wiki (documentation)

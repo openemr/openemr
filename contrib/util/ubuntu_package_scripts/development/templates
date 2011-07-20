@@ -1,0 +1,137 @@
+Template: git-openemr/mysql_p_install_1
+Type: string
+Description: MySQL Root Password:
+ If you enter the correct MySQL root password,
+ then OpenEMR will be installed and automatically
+ configured.
+ .
+ If you do not enter the correct MySQL root password,
+ then OpenEMR will be installed, but will not be
+ automatically configured.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your first attempt.
+
+Template: git-openemr/mysql_p_install_2
+Type: string
+Description: MySQL Root Password:
+ If you enter the correct MySQL root password,
+ then OpenEMR will be installed and automatically
+ configured.
+ .
+ If you do not enter the correct MySQL root password,
+ then OpenEMR will be installed, but will not be
+ automatically configured.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your second attempt.
+
+Template: git-openemr/mysql_p_install_3
+Type: string
+Description: MySQL Root Password:
+ If you enter the correct MySQL root password,
+ then OpenEMR will be installed and automatically
+ configured.
+ .
+ If you do not enter the correct MySQL root password,
+ then OpenEMR will be installed, but will not be
+ automatically configured.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your last attempt.
+
+Template: git-openemr/mysql_p_remove_1
+Type: string
+Description: MySQL Root Password:
+ In order to remove this package, you need to enter
+ the correct MySQL root password.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your first attempt.
+
+Template: git-openemr/mysql_p_remove_2
+Type: string
+Description: MySQL Root Password:
+ In order to remove this package, you need to enter
+ the correct MySQL root password.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your second attempt.
+
+Template: git-openemr/mysql_p_remove_3
+Type: string
+Description: MySQL Root Password:
+ In order to remove this package, you need to enter
+ the correct MySQL root password.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your last attempt.
+
+Template: git-openemr/no_configure_mysql_root
+Type: note
+Description: NOTICE
+ OpenEMR is going to be installed, however it will
+ not be automatically configured (because you did not
+ provide the MySQL root password).
+
+Template: git-openemr/no_configure_mysql_database
+Type: note
+Description: NOTICE
+ OpenEMR is going to be installed, however it will
+ not be automatically configured (because a gitopenemr
+ MySQL database already exists).
+
+Template: git-openemr/no_configure_mysql_user
+Type: note
+Description: NOTICE
+ OpenEMR is going to be installed, however it will
+ not be automatically configured (because a gitopenemr
+ MySQL user already exists).
+
+Template: git-openemr/success_install
+Type: note
+Description: CONGRATULATIONS
+ OpenEMR has been successfully installed.
+ .
+ You can now set up the OpenEMR development version
+ by browsing to: http://localhost/git-openemr
+
+Template: git-openemr/success_install_config
+Type: note
+Description: CONGRATULATIONS
+ OpenEMR has been successfully installed and configured.
+ .
+ You can now use the OpenEMR development version
+ by browsing to: http://localhost/git-openemr
+ .
+ (user is 'admin' and password is 'pass')
+
+Template: git-openemr/unable_remove
+Type: error
+Description: ERROR
+ Unable to remove the git-openemr package, because
+ you did not provide the correct MySQL root password.
+ .
+ Ensure you know the MySQL root password before
+ attempting to remove this package in the future.
+
+Template: git-openemr/www_path_already_exists
+Type: error
+Description: ERROR
+ Unable to install the git-openemr package, because
+ an instance of OpenEMR already exist at /var/www/git-openemr.
+
+Template: git-openemr/upgrade_not_supported
+Type: error
+Description: ERROR
+ The git-openemr package does not support upgrades.
+ .
+ To upgrade to the most recent OpenEMR development
+ version, recommend removing then reinstalling
+ this package.
+
+Template: git-openemr/unable_download
+Type: error
+Description: ERROR
+ Unable able to download the most recent OpenEMR
+ development code from github, so aborting installation.

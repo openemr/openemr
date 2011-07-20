@@ -1,4 +1,4 @@
-cvs-openemr for Debian
+git-openemr for Debian
 ------------------------
 
 
@@ -12,7 +12,7 @@ development code for OpenEMR (considered unstable) for testing purposes.
 
 Instructions for use:
 ---------------------
-To use cvs-OpenEMR, go to http://localhost/cvs-openemr :  user is 'admin' and
+To use git-OpenEMR, go to http://localhost/git-openemr :  user is 'admin' and
 password is 'pass' (recommend changing password after login).
 
 To ensure a consistent look and feel through out the application using
@@ -48,5 +48,5 @@ just installed it is very helpful.
 
 Authors of debianized OpenEMR:
 ------------------------------
--- Brady Miller <brady@sparmy.com> Fri, 25 Mar 2011 21:33:23 -0700
--- Amalu Obinna <amaluobinna@aol.com> Fri, 25 Mar 2011 21:33:23 -0700
+-- Brady Miller <brady@sparmy.com> Tue, 26 Jul 2011 17:40:00 -0700
+-- Amalu Obinna <amaluobinna@aol.com> Tue, 26 Jul 2011 17:40:00 -0700

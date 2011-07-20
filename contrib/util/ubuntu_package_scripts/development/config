@@ -1,0 +1,25 @@
+#!/bin/bash -e
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+# Copyright 2011
+# authors: Brady Miller <brady@sparmy.com>
+#
+# Debian package configure script steps:
+#  1) Collect the mysql root password
+#
+# summary of how this script can be called:
+#        * <config> `configure' <installed-version>
+#        * <config> `reconfigure' <installed-version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+# DUMMY CONFIG FILE
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+# Dummy script to allow prompting within other maintainer scripts
