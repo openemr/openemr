@@ -12,5 +12,5 @@ $v_tag   = '-dev'; // minor revision number, should be empty for production rele
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 35;
+$v_database = 36;
 ?>

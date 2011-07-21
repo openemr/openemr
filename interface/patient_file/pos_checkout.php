@@ -277,16 +277,17 @@ function generate_receipt($patient_id, $encounter=0) {
   $frow = sqlQuery("SELECT * FROM facility " .
     "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
 
-  $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
+  $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code,providerID');
 
   // Get the most recent invoice data or that for the specified encounter.
   //
+  // Adding a provider check so that their info can be displayed on receipts
   if ($INTEGRATED_AR) {
     if ($encounter) {
-      $ferow = sqlQuery("SELECT id, date, encounter FROM form_encounter " .
+      $ferow = sqlQuery("SELECT id, date, encounter, provider_id FROM form_encounter " .
         "WHERE pid = '$patient_id' AND encounter = '$encounter'");
     } else {
-      $ferow = sqlQuery("SELECT id, date, encounter FROM form_encounter " .
+      $ferow = sqlQuery("SELECT id, date, encounter, provider_id FROM form_encounter " .
         "WHERE pid = '$patient_id' " .
         "ORDER BY id DESC LIMIT 1");
     }
@@ -294,6 +295,19 @@ function generate_receipt($patient_id, $encounter=0) {
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
     $svcdate = substr($ferow['date'], 0, 10);
+    
+    if ($GLOBALS['receipts_by_provider']){
+      if (isset($ferow['provider_id']) ) {
+        $encprovider = $ferow['provider_id'];
+      } else if (isset($patdata['providerID'])){
+        $encprovider = $patdata['providerID'];
+      } else { $encprovider = -1; }
+    }
+    
+    if ($encprovider){
+      $providerrow = sqlQuery("SELECT fname, mname, lname, title, street, streetb, " .
+        "city, state, zip, phone, fax FROM users WHERE id = $encprovider");
+    }
   }
   else {
     SLConnect();
@@ -363,15 +377,13 @@ function generate_receipt($patient_id, $encounter=0) {
 </head>
 <body class="body_top">
 <center>
-<p><b><?php echo $frow['name'] ?>
-<br><?php echo $frow['street'] ?>
-<br><?php echo $frow['city'] . ', ' . $frow['state'] . ' ' . $frow['postal_code'] ?>
-<br><?php echo $frow['phone'] ?>
-<br>&nbsp;
-<br>
+<?php 
+  if ( $GLOBALS['receipts_by_provider'] && !empty($providerrow) ) { printProviderHeader($providerrow); }
+  else { printFacilityHeader($frow); }
+?>
 <?php
   echo xl("Receipt Generated") . date(' F j, Y');
-  if ($invoice_refno) echo " " . xl("for Invoice") . " $invoice_refno";
+  if ($invoice_refno) echo " " . xl("for Invoice") . " $invoice_refno dated " . $svcdate;
 ?>
 <br>&nbsp;
 </b></p>
@@ -584,6 +596,26 @@ $pres = sqlStatement("SELECT option_id, title, option_value " .
   "FROM list_options WHERE list_id = 'taxrate' ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
   $taxes[$prow['option_id']] = array($prow['title'], $prow['option_value'], 0);
+}
+
+// Print receipt header for facility
+function printFacilityHeader($frow){
+	echo "<p><b>" . $frow['name'] .
+    "<br>" . $frow['street'] .
+    "<br>" . $frow['city'] . ', ' . $frow['state'] . ' ' . $frow['postal_code'] .
+    "<br>" . $frow['phone'] .
+    "<br>&nbsp" .
+    "<br>";
+}
+
+// Pring receipt header for Provider
+function printProviderHeader($pvdrow){
+	echo "<p><b>" . $pvdrow['title'] . " " . $pvdrow['fname'] . " " . $pvdrow['mname'] . " " . $pvdrow['lname'] . " " . 
+    "<br>" . $pvdrow['street'] .
+    "<br>" . $pvdrow['city'] . ', ' . $pvdrow['state'] . ' ' . $pvdrow['postal_code'] .
+    "<br>" . $pvdrow['phone'] .
+    "<br>&nbsp" .
+    "<br>";
 }
 
 // Mark the tax rates that are referenced in this invoice.

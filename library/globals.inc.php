@@ -498,6 +498,13 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('Set a facility cookie to remember the selected facility between logins.')
     ),
+    
+    'receipts_by_provider' => array(
+      xl('Print Receipts by Provider'),
+      'bool',
+      '0',                              // default
+      xl('Causes Receipts to Print Encounter/Primary Provider Info')
+    ),
 
     'discount_by_money' => array(
       xl('Discounts as Monetary Amounts'),
