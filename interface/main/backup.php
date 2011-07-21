@@ -392,10 +392,10 @@ if ($form_step == 202) {
     if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
       $form_status .= xl('Applying') . "...<br />";
       echo nl2br($form_status);
-      $cmd = "$mysql_cmd -u " . escapeshellarg($sqlconf["login"]) .
+      $cmd = "$mysql_cmd -u" . escapeshellarg($sqlconf["login"]) .
         " -p" . escapeshellarg($sqlconf["pass"]) . " " .
         escapeshellarg($sqlconf["dbase"]) .
-        " < $EXPORT_FILE;";
+        " < $EXPORT_FILE";
     }
     else {
       echo xl('Internal error accessing uploaded file!');
