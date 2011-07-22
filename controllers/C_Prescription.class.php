@@ -364,7 +364,6 @@ class C_Prescription extends Controller {
                 echo ("div.paddingdiv {\n");
                 echo (" width: 524pt;\n");
 	        echo (" height: 668pt;\n");
-	        echo (" page-break-after: always;\n");
                 echo ("}\n");
                 echo ("div.scriptdiv {\n");
 	        echo (" padding-top: 12pt;\n");
