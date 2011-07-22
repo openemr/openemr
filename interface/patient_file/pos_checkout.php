@@ -382,8 +382,8 @@ function generate_receipt($patient_id, $encounter=0) {
   else { printFacilityHeader($frow); }
 ?>
 <?php
-  echo xl("Receipt Generated") . date(' F j, Y');
-  if ($invoice_refno) echo " " . xl("for Invoice") . " $invoice_refno dated " . $svcdate;
+  echo xl("Receipt Generated") . ":" . date(' F j, Y');
+  if ($invoice_refno) echo " " . xl("Invoice Number") . ": " . $invoice_refno . " " . xl("Service Date")  . ": " . $svcdate;
 ?>
 <br>&nbsp;
 </b></p>
