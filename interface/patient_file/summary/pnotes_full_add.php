@@ -114,6 +114,10 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
  "ORDER BY lname, fname");
 
+$pres = sqlQuery("SELECT lname, fname " .
+ "FROM patient_data WHERE pid = ?", array($pid) );
+$patientname = $pres['lname'] . ", " . $pres['fname'];
+
 //retrieve all notes
 $result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to',
   $pid, $N, $offset);
@@ -221,6 +225,7 @@ if ($docid) {
 <?php
 if ($noteid) {
     $body = $prow['body'];
+    $body = preg_replace(array('/(\sto\s)-patient-(\))/','/(:\d{2}\s\()'.$pid.'(\sto\s)/'),'${1}'.$patientname.'${2}',$body);
     $body = nl2br(htmlspecialchars( $body, ENT_NOQUOTES));
     echo "<div class='text'>".$body."</div>";
 }

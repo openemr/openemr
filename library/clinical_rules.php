@@ -201,7 +201,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   $patientData = array();
   if (!empty($patient_id)) {
     // only look at the selected patient
-    array_push($patientData,$patient_id);
+    $patientData[0]['pid'] = $patient_id;
   }
   else {
     if (empty($provider)) {

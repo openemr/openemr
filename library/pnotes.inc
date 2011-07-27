@@ -22,12 +22,12 @@ $sqlParameterArray = array();
   if ($docid) {
     $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
     "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
-    "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2";
+    "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid != p.user";
     array_push($sqlParameterArray, '%'.$date.'%', $docid);
   }
   else {
     $sql = "SELECT $cols FROM pnotes AS p " .
-      "WHERE date LIKE ? AND pid LIKE ?";
+      "WHERE date LIKE ? AND pid LIKE ? AND p.pid != p.user";
     array_push($sqlParameterArray, '%'.$date.'%', $pid);
   }
   $sql .= " AND deleted != 1"; // exclude ALL deleted notes
@@ -49,6 +49,152 @@ $sqlParameterArray = array();
 
   for ($iter = 0;$row = sqlFetchArray($res);$iter++)
     $all[$iter] = $row;
+  return $all;
+}
+
+function getSentPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
+  $limit = "all", $start = 0, $username = '', $docid = 0, $status = "")
+{
+$sqlParameterArray = array();
+  if ($docid) {
+    $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
+    "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
+    "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid = p.user";
+    array_push($sqlParameterArray, '%'.$date.'%', $docid);
+  }
+  else {
+    $sql = "SELECT $cols FROM pnotes AS p " .
+      "WHERE date LIKE ? AND pid LIKE ? AND p.pid = p.user";
+    array_push($sqlParameterArray, '%'.$date.'%', $pid);
+  }
+  $sql .= " AND deleted != 1"; // exclude ALL deleted notes
+  if ($activity != "all") {
+    $sql .= " AND activity = ?";
+    array_push($sqlParameterArray, $activity);
+  }
+  if ($username) {
+    $sql .= " AND assigned_to LIKE ?";
+    array_push($sqlParameterArray, $username);
+  }
+  if ($status)
+    $sql .= " AND message_status IN ('".str_replace(",", "','", $status)."')";
+  $sql .= " ORDER BY date DESC";
+  if($limit != "all")
+    $sql .= " LIMIT $start, $limit";
+
+  $res = sqlStatement($sql, $sqlParameterArray);
+
+  for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    $all[$iter] = $row;
+  return $all;
+}
+
+function getPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
+{
+  if($limit){
+    $limit = "LIMIT $offset, $limit";
+  }
+  $sql = "
+    SELECT
+      p.id,
+      p.date,
+      p.user,
+      p.title,
+      REPLACE(
+        p.body,
+        '-patient-',
+        CONCAT(pd.fname, ' ', pd.lname)
+      ) AS body,
+      p.message_status,
+      'Message' as `type`
+    FROM
+      pnotes AS p 
+      LEFT JOIN patient_data AS pd 
+        ON pd.id = p.pid 
+    WHERE assigned_to = '-patient-' 
+      AND p.deleted != 1 
+      AND p.pid = ?
+      $search
+    ORDER BY `date` desc
+    $limit
+  ";
+  $res = sqlStatement($sql, array($pid));
+  for($iter = 0;$row = sqlFetchArray($res);$iter++){
+    $all[$iter] = $row;
+  }
+  return $all;
+}
+
+function getPatientNotifications($pid = '', $limit = '', $offset = 0, $search = '')
+{
+  if($limit){
+    $limit = "LIMIT $offset, $limit";
+  }
+  $sql = "
+    SELECT
+      pr.id,
+      date_created AS `date`,
+      'Patient Reminders' AS `user`,
+      due_status AS title,
+      CONCAT(lo.title, ':', lo2.title) AS body,
+      '' as message_status,
+      'Notification' as `type`
+    FROM
+      patient_reminders AS pr 
+      LEFT JOIN list_options AS lo 
+        ON lo.option_id = pr.category 
+        AND lo.list_id = 'rule_action_category' 
+      LEFT JOIN list_options AS lo2 
+        ON lo2.option_id = pr.item 
+        AND lo2.list_id = 'rule_action' 
+    WHERE pid = ?
+      AND active = 1
+      AND date_created > DATE_SUB(NOW(), INTERVAL 1 MONTH)
+      $search
+    ORDER BY `date` desc
+    $limit
+  ";
+  $res = sqlStatement($sql, array($pid));
+  for($iter = 0;$row = sqlFetchArray($res);$iter++){
+    $all[$iter] = $row;
+  }
+  return $all;
+}
+
+function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
+{
+  if($limit){
+    $limit = "LIMIT $offset, $limit";
+  }
+  $sql = "
+    SELECT
+      p.id,
+      p.date,
+      p.assigned_to,
+      p.title,
+      REPLACE(
+        p.body,
+        '-patient-',
+        CONCAT(pd.lname, ' ', pd.fname)
+      ) AS body,
+      p.activity,
+      p.message_status,
+      'Message' as `type`
+    FROM
+      pnotes AS p 
+      LEFT JOIN patient_data AS pd 
+        ON pd.id = p.pid 
+    WHERE `user` = ?
+      AND p.deleted != 1 
+      AND p.pid = ?
+      $search
+    ORDER BY `date` desc
+    $limit
+  ";
+  $res = sqlStatement($sql, array($pid,$pid));
+  for($iter = 0;$row = sqlFetchArray($res);$iter++){
+    $all[$iter] = $row;
+  }
   return $all;
 }
 
@@ -75,6 +221,20 @@ function addPnote($pid, $newtext, $authorized = '0', $activity = '1',
   return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
     "authorized, activity, title, assigned_to, message_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     array($datetime, $body, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status) );
+}
+
+function addMailboxPnote($pid, $newtext, $authorized = '0', $activity = '1',
+  $title='Unassigned', $assigned_to = '', $datetime = '', $message_status = "New")
+{
+  if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
+
+  $body = date('Y-m-d H:i') . ' (' . $pid;
+  if ($assigned_to) $body .= " to $assigned_to";
+  $body = $body . ') ' . $newtext;
+
+  return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
+    "authorized, activity, title, assigned_to, message_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    array($datetime, $body, $pid, $pid, 'Default', $authorized, $activity, $title, $assigned_to, $message_status) );
 }
 
 function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "")
