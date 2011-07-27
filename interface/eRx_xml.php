@@ -67,7 +67,7 @@ function validation($val_check,$val,$msg)
 
 function stripSpecialCharacterFacility($str)
 {
-    $str=preg_replace("/[^a-zA-Z'\-\s.,]/","",$str);
+    $str=preg_replace("/[^a-zA-Z0-9'\-\s.,]/","",$str);
     return $str;
 }
 
