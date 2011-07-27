@@ -969,3 +969,91 @@ font-size:9pt;
     background: #8ca3ee;
     color: #000000;
 }
+
+.text-area{
+  background-color:#FFFFFF;
+  border:1px solid black;
+  width:100%;
+  height:100px;
+  overflow:auto;
+  text-align:left;
+}
+.example_menu {
+            font-size: 70%;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            vertical-align: top;
+            width: 136px;
+}
+.expand_all,
+.collapse_all {
+	cursor: pointer;
+}
+.example_menu ul {
+	display: none;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+#menu1 li, #menu2 li, #menu3 li, #menu4 li, #menu5 li, .example_menu li {
+	background-image: none;
+	margin: 0;
+	padding: 0;
+	border-bottom:1px solid white;
+}
+.example_menu ul ul {
+	display: block;
+}
+.example_menu a {
+	color: #000;
+	cursor: pointer;
+	display: block;
+	font-weight: bold;
+	margin-left: 0;
+	padding: 2px 2px 2px 17px;
+	width: 160px;
+}
+.example_menu a.expanded {
+	background: #bbb url('collapse.gif') no-repeat 3px 50%;
+}
+.example_menu a.collapsed {
+	background: #bbb url('expand.gif') no-repeat 3px 50%;
+}
+.example_menu a:hover {
+	text-decoration: none;
+}
+.example_menu ul li span {
+	 background: #d9d1a4;
+	color: #000;
+	display: block;
+	font-weight: normal;
+	width:100%;
+}
+.example_menu ul a:Subjective {
+	font-weight: normal;
+}
+.example_menu ul a:hover {
+	background : #f5f5f5;
+	text-decoration: underline;
+}
+.example_menu li.active a {
+	background: #fff;
+}
+.example_menu li.active li a {
+	background: #e8e8e8;
+}
+#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 li.footer, .example_menu .footer {
+	background: transparent url('footer.jpg') no-repeat 0 0;
+	border-top: 2px solid #fff;
+	height: 9px;
+	line-height: 15px;
+	margin: 0 0 10px 0;
+	width: 131px;
+}
+.example_menu .footer span {
+	display: none;
+}
+.cke_contents {
+height: 300px !important;
+}

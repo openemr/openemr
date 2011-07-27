@@ -76,6 +76,8 @@ addObjectSectionAcl('sensitivities', 'Sensitivities');
 addObjectSectionAcl('lists', 'Lists');
 //Add 'Placeholder' object section (added in 3.0.2)
 addObjectSectionAcl('placeholder', 'Placeholder');
+//Add 'Nation Notes' object section (added in 4.1.0)
+addObjectSectionAcl('nationnotes','Nation Notes');
 
 //Add new Objects
 echo "<BR/><B>Adding new objects</B><BR/>";
@@ -103,6 +105,8 @@ addObjectAcl('lists', 'Lists', 'ethrace', 'Ethnicity-Race List (write,addonly op
 addObjectAcl('placeholder', 'Placeholder', 'filler', 'Placeholder (Maintains empty ACLs)');
 //Add 'Sign Lab Results (write,addonly optional)' object (added in 3.3.0)
 addObjectAcl('patients', 'Patients', 'sign', 'Sign Lab Results (write,addonly optional)');
+//Add 'nationnotes' object (added in 4.1.0)
+addObjectAcl('nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure');
 
 //Update already existing Objects
 echo "<BR/><B>Upgrading objects</B><BR/>";
@@ -228,7 +232,10 @@ updateAcl($emergency_write, 'Emergency Login', 'sensitivities', 'Sensitivities',
 updateAcl($emergency_write, 'Emergency Login', 'sensitivities', 'Sensitivities', 'normal', 'Normal', 'write');
 //Insert the 'sign' object from the 'patients' section into the Physicians group write ACL (added in 3.3.0)
 updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'sign', 'Sign Lab Results (write,addonly optional)', 'write');
-
+//Insert the 'sign' object from the 'nationnotes' section into the Administrators group write ACL (added in 3.3.0)
+updateAcl($admin_write, 'Administrators','nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure','write');
+//Insert the 'sign' object from the 'nationnotes' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login','nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure','write');
 
 //Function will return an array that contains the ACL ID number.
 //It will also check to ensure the ACL exist and is not duplicated.

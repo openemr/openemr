@@ -82,7 +82,9 @@
   //
   // Section "placeholder" (Placeholder):
   //   filler     Placeholder (Maintains empty ACLs)
-  
+  //
+  // Section "nationnotes" (Nation Notes):
+  //   nn_configure     Nation Notes
 
   if (isset ($phpgacl_location)) {
     include_once("$phpgacl_location/gacl.class.php");

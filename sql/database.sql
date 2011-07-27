@@ -4584,7 +4584,7 @@ CREATE TABLE `users_facility` (
 CREATE TABLE `lbf_data` (
   `form_id`     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'references forms.form_id',
   `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
-  `field_value` varchar(255) NOT NULL,
+  `field_value` TEXT NOT NULL,
   PRIMARY KEY (`form_id`,`field_id`)
 ) ENGINE=MyISAM COMMENT='contains all data from layout-based forms';
 
@@ -4746,5 +4746,44 @@ CREATE TABLE version (
   v_database int(11)     NOT NULL DEFAULT 0
 ) ENGINE=MyISAM;
 INSERT INTO version (v_major, v_minor, v_patch, v_tag, v_database) VALUES (0, 0, 0, '', 0);
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customlists`
+--
+
+CREATE TABLE `customlists` (
+  `cl_list_slno` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `cl_list_id` int(10) unsigned NOT NULL COMMENT 'ID OF THE lIST FOR NEW TAKE SELECT MAX(cl_list_id)+1',
+  `cl_list_item_id` int(10) unsigned DEFAULT NULL COMMENT 'ID OF THE lIST FOR NEW TAKE SELECT MAX(cl_list_item_id)+1',
+  `cl_list_type` int(10) unsigned NOT NULL COMMENT '0=>List Name 1=>list items 2=>Context 3=>Template 4=>Sentence 5=> SavedTemplate 6=>CustomButton',
+  `cl_list_item_short` varchar(10) DEFAULT NULL,
+  `cl_list_item_long` text NOT NULL,
+  `cl_list_item_level` int(11) DEFAULT NULL COMMENT 'Flow level for List Designation',
+  `cl_order` int(11) DEFAULT NULL,
+  `cl_deleted` tinyint(1) DEFAULT '0',
+  `cl_creator` int(11) DEFAULT NULL,
+  PRIMARY KEY (`cl_list_slno`)
+) ENGINE=InnoDB AUTO_INCREMENT=1;
+INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (1,2,'Subjective');
+INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (2,2,'Objective');
+INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (3,2,'Assessment');
+INSERT INTO customlists(cl_list_id,cl_list_type,cl_list_item_long) VALUES (4,2,'Plan');
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `template_users`
+--
+
+CREATE TABLE `template_users` (
+  `tu_id` int(11) NOT NULL AUTO_INCREMENT,
+  `tu_user_id` int(11) DEFAULT NULL,
+  `tu_facility_id` int(11) DEFAULT NULL,
+  `tu_template_id` int(11) DEFAULT NULL,
+  `tu_template_order` int(11) DEFAULT NULL,
+  PRIMARY KEY (`tu_id`),
+  UNIQUE KEY `templateuser` (`tu_user_id`,`tu_template_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+
 
 

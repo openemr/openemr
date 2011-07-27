@@ -154,15 +154,40 @@ div.section {
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../../library/js/jquery.js"></script>
 
 <script language="JavaScript">
-
+$(document).ready(function(){
+// fancy box
+    if(window.enable_modals){
+	enable_modals();
+	}
+	if(window.tabbify){
+    tabbify();
+	}
+    // special size for
+	$(".iframe_medium").fancybox( {
+		'overlayOpacity' : 0.0,
+		'showCloseButton' : true,
+		'frameHeight' : 580,
+		'frameWidth' : 900
+	});
+	
+	$(function(){
+		// add drag and drop functionality to fancybox
+		$("#fancy_outer").easydrag();
+	});
+});
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 // Supports customizable forms.
@@ -291,7 +316,7 @@ function sel_related() {
         echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
       }
       // echo " <table border='0' cellpadding='0' width='100%'>\n";
-      echo " <table border='0' cellpadding='0'>\n";
+      echo " <table border='0' cellpadding='0' width='100%'>\n";
       $display_style = 'none';
 
       // Initialize historical data array and write date headers.
@@ -330,7 +355,7 @@ function sel_related() {
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
       end_cell();
-      echo "<td valign='top' colspan='$titlecols' nowrap";
+      echo "<td valign='top' colspan='$titlecols' width='1%' nowrap";
       echo " class='";
       echo ($frow['uor'] == 2) ? "required" : "bold";
       if ($graphable) echo " graph";
@@ -356,7 +381,7 @@ function sel_related() {
     // Handle starting of a new data cell.
     if ($datacols > 0) {
       end_cell();
-      echo "<td valign='top' align='right' colspan='$datacols' class='text'";
+      echo "<td valign='top' colspan='$datacols' class='text'";
       if ($cell_count > 0) echo " style='padding-left:5pt'";
       echo ">";
 

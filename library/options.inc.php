@@ -751,6 +751,14 @@ function generate_form_field($frow, $currvalue) {
         echo "</select>";
         }
   }
+  else if($data_type == 34){
+    $arr = explode("|*|*|*|",$currvalue);
+    echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc,ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
+    echo "<div id='form_{$field_id}_div' class='text-area'>".htmlspecialchars($arr[0],ENT_QUOTES)."</div>";
+    echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' stye='display:none'>".$currvalue."</textarea></div>";
+    echo "</a>";
+  }
+  
 }
 
 function generate_print_field($frow, $currvalue) {
@@ -1218,6 +1226,13 @@ function generate_print_field($frow, $currvalue) {
   else if ($data_type == 31) {
     echo nl2br($frow['description']);
   }
+  
+  else if($data_type == 34){
+    echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc,ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
+    echo "<div id='form_{$field_id}_div' class='text-area'></div>";
+    echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' stye='display:none'></textarea></div>";
+    echo "</a>";
+  }
 
 }
 
@@ -1480,6 +1495,13 @@ function generate_display_field($frow, $currvalue) {
   // static text.  read-only, of course.
   else if ($data_type == 31) {
     $s .= nl2br($frow['description']);
+  }
+  
+  else if($data_type == 34){
+    $arr = explode("|*|*|*|",$currvalue);
+    for($i=0;$i<sizeof($arr);$i++){
+      $s.=$arr[$i];
+    }
   }
 
   return $s;
@@ -1934,7 +1956,7 @@ function get_layout_form_value($frow, $maxlength=255) {
   }
 
   // Better to die than to silently truncate data!
-  if ($maxlength && $data_type != 3 && strlen($value) > $maxlength)
+  if ($maxlength && ($data_type != 3 && $data_type != 34) && strlen($value) > $maxlength)
     die(htmlspecialchars( xl('ERROR: Field') . " '$field_id' " . xl('is too long'), ENT_NOQUOTES) .
     ":<br />&nbsp;<br />".htmlspecialchars( $value, ENT_NOQUOTES));
 
