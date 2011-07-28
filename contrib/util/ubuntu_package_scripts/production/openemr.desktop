@@ -1,6 +1,6 @@
 [Desktop Entry]
 Terminal=false
-Exec=firefox -url http://localhost/openemr
+Exec=sensible-browser http://localhost/git-openemr
 Type=Application
 Categories=Application;Office;
 StartupNotify=true

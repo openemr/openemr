@@ -1,18 +1,17 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
+# Copyright 2011
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
-# date   10/05/09
-#
 # Un-install script steps:
-#  1) Collect configuration information
-#  2) Obtain the MySQL root user password
+#  1) Warn and confirm the user wants to remove the package (mandatory)
+#  2) Collect the MySQL root user password (mandatory)
 #  3) Remove OpenEMR etc directory
 #  4) Remove rest of OpenEMR web directory
 #  5) Remove tmp directory
@@ -32,6 +31,8 @@
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+# Source debconf library.
+. /usr/share/debconf/confmodule
 
 case "$1" in
    remove)
@@ -46,10 +47,9 @@ case "$1" in
       OPENEMR=$WEB/openemr
       SITEDIR=$OPENEMR/sites/default
 
-      #Standardized echo function to send to both echo and to log file
+      #Standardized echo function to send to only log file
       #  requires one parameter (string)
-      output_both () {
-         echo $1
+      log_only () {
          echo "`date`: $1" >> $LOG
       }
 
@@ -57,11 +57,8 @@ case "$1" in
       #openemr package
       #  requires one parameter (string with reason for exiting)
       unable_exit () {
-         echo $1
          echo "`date`: $1" >> $LOG
-         echo "EXITING.........."
          echo "`date`: EXITING.........." >> $LOG
-         sleep 5
          exit 1
       }
 
@@ -77,8 +74,13 @@ case "$1" in
             USE=$4
          else
             USE=root
-         fi      
-         echo `mysql -u "$USE" -h "$HOST" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$"`
+         fi
+
+         if [ "`mysql -u "$USE" -h "$HOST" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$"`" == "$2" ]; then
+            return 0
+         else
+            return 1
+         fi
       }
 
       #function to collect variables from config files
@@ -87,20 +89,57 @@ case "$1" in
          echo `grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi"`
       }
 
+      #function to prompt for input
+      # 1st param is name, 2nd param is priority, 3rd param is where result gets sent back in
+      # return the input
+      prompt_input () {
+         db_set "$1" ""
+         db_fset "$1" seen false
+         db_input "$2" "$1" || true
+         db_go || true
+         db_get "$1"
+         local input_value="$RET"
+         db_set "$1" ""
+         db_fset "$1" seen false
+         local __result=$3
+         eval $__result="'$input_value'"
+      }
+
       #Confirm that user really wants to uninstall
-      echo ""
-      output_both "All of your OpenEMR data will be DELETED!!"
-      echo ""
-      echo -n "Are you sure you really want to remove the OpenEMR package? [y/N]"
-      read CONFIRM
-      if ! [[ $CONFIRM =~ [Yy]  ]]; then
+      prompt_input openemr/confirm_remove critical ret_result
+      if [ "$ret_result" == "no" ]; then
          unable_exit "You have chosen to not uninstall the OpenEMR package."
+      fi
+
+      #collect the mysql root password
+      MPASS=""
+      if check_mysql "$MPASS" "mysql"; then
+         log_only "Passed the mysql check loop"
+      else
+         #the blank initial mysql password didn't work, so prompt for password
+         # (will give 3 chances to provide correct password)
+         COUNTDOWN=1
+         while true; do
+            prompt_input openemr/mysql_p_remove_${COUNTDOWN} critical ret_result
+            MPASS="$ret_result"
+            if check_mysql "$MPASS" "mysql"; then
+               #the mysql root password works, so can exit loop
+               log_only "Passed the mysql check loop"
+               break
+            else
+               #the mysql root password did not work
+               if [ "$COUNTDOWN" -ge "3" ]; then
+                  prompt_input openemr/unable_remove critical ret_result
+                  unable_exit "OpenEMR removal attempt failed (can try again when you know the mysql root password)"
+               fi
+            fi
+            let "COUNTDOWN += 1"
+         done
       fi
 
       #collect scripting information from config file
       PROCESS=$(collect_var process $CONFIG)
       PLAN=$(collect_var plan $CONFIG)
-      MPASS=$(collect_var pass $CONFIG)
 
       # Collect database information from sqlconf.php file
       SQLLOCATION=$(collect_var \$host $SITEDIR/sqlconf.php)
@@ -108,59 +147,34 @@ case "$1" in
       SQLPASSWORD=$(collect_var \$pass $SITEDIR/sqlconf.php)
       SQLDATABASE=$(collect_var \$dbase $SITEDIR/sqlconf.php)
 
-## BEGIN MYSQL ROOT PASSWORD GRAB
-## note differences in removal wording and location option of database
-## compared to install function
-         if [ "`check_mysql "$MPASS" "mysql" "$SQLLOCATION"`" != "mysql" ]; then
-            #the initial mysql password didn't work, so ask for password
-            COUNTDOWN=1
-            while true; do
-               echo ""
-               echo -n "Please enter your MySQL root password:"
-               read MPASS 
-               echo ""   
-               if [ "`check_mysql "$MPASS" "mysql" "$SQLLOCATION"`" == "mysql" ]; then
-                  #the mysql root password works, so can exit loop
-                  break
-               else
-                  #the mysql root password did not work
-                  if [ "$COUNTDOWN" -ge "5" ]; then
-                     output_both "5 attempts to enter your mysql root password have failed"
-                     output_both "Recommend repeating OpenEMR package removal when you know your mysql root password"
-                     unable_exit "Giving up on OpenEMR package removal."
-                  fi
-                  echo "The entered MySQL root password did not work."
-                  echo "$COUNTDOWN of 5 total attempts."
-                  echo "PLEASE TRY AGAIN..."
-               fi
-               let "COUNTDOWN += 1"
-            done
-         fi
-## END MYSQL ROOT PASSWORD GRAB
-
       #remove etc directory
       rm -rf $CONFIGDIR
-      output_both "Removed OpenEMR etc directory"
+      log_only "Removed OpenEMR etc directory"
 
       #remove rest of web directory
       rm -rf $OPENEMR
-      output_both "Finished removing OpenEMR web directory"
+      log_only "Finished removing OpenEMR web directory"
 
       #remove tmp directory
       sudo rm -fr $TMPDIR
-      output_both "Removed OpenEMR tmp directory"
+      log_only "Removed OpenEMR tmp directory"
 
-      #remove openemr mysql database
-      mysqladmin -f -u root -h "$SQLLOCATION" --password="$MPASS" drop "$SQLDATABASE" > /dev/null
-      output_both "Removed OpenEMR MySQL database"
+      #remove openemr mysql database (ensure the database exists)
+      if check_mysql "$MPASS" "$SQLDATABASE"; then
+         mysqladmin -f -u root -h "$SQLLOCATION" --password="$MPASS" drop "$SQLDATABASE" >> $LOG 2>&1
+         log_only "Removed OpenEMR MySQL database"
+      fi
 
       #remove openemr mysql user
-      mysql -f -u root -h "$SQLLOCATION" --password="$MPASS" -e "DELETE FROM mysql.user WHERE User = '$SQLUSER';FLUSH PRIVILEGES;"
-      output_both "Removed OpenEMR MySQL user"
+      mysql -f -u root -h "$SQLLOCATION" --password="$MPASS" -e "DELETE FROM mysql.user WHERE User = '$SQLUSER';FLUSH PRIVILEGES;" >> $LOG 2>&1
+      log_only "Removed OpenEMR MySQL user"
 
       #removes the configuration section for OpenEMR in Apache config file
       sed -i '/#This is the start of the Apache configuration for OpenEMR./,/#This is the end of the Apache configuration for OpenEMR./d' /etc/apache2/httpd.conf
-      output_both "Removed OpenEMR Apache configuration"
+      log_only "Removed OpenEMR Apache configuration"
+
+      #stop db
+      db_stop
 
       exit 0
    ;;

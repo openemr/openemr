@@ -1,14 +1,13 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
+# Copyright 2011
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
-#
-# date   08/21/09
 #
 # Un-install script steps:
 #  1) Remove OpenEMR log directory
@@ -27,6 +26,9 @@
 # the debian-policy package
 #
 
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
 #constants
 
 LOGDIR=/var/log/openemr
@@ -35,18 +37,14 @@ case "$1" in
    remove)
       #remove log directory
       rm -rf $LOGDIR
-      echo "Removed OpenEMR package log directory"
-
-      echo ""
-      echo "Done removing the OpenEMR package"
-      echo ""
-
+      # Remove db prompt stuff.
+      db_purge
       exit 0
    ;;
 
    purge)
       echo "postrm asked to do purge"
-      exit o
+      exit 0
    ;;
 
    upgrade)

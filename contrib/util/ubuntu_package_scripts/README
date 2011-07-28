@@ -17,6 +17,8 @@ Directory structure of package.
 /DEBIAN/postinst
 /DEBIAN/prerm
 /DEBIAN/postrm
+/DEBIAN/config
+/DEBIAN/templates
 
 
 DEVELOPMENT CVS PACKAGE

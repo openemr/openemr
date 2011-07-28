@@ -1,3 +1,10 @@
+openemr (4.1.0-1) stable; urgency=low
+
+  * New upstream version
+  * Standardized Package Prompting
+
+ -- Brady Miller <brady@sparmy.com>  Wed, 27 Jul 2011 18:44:33 -0700
+
 openemr (4.0.0-1) stable; urgency=low
 
   * New upstream version

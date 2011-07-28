@@ -1,0 +1,195 @@
+Template: openemr/mysql_p_install_1
+Type: string
+Description: MySQL Root Password:
+ If you enter the correct MySQL root password,
+ then OpenEMR will be installed and automatically
+ configured.
+ .
+ If you do not enter the correct MySQL root password,
+ then OpenEMR will be installed, but will not be
+ automatically configured.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your first attempt.
+
+Template: openemr/mysql_p_install_2
+Type: string
+Description: MySQL Root Password:
+ If you enter the correct MySQL root password,
+ then OpenEMR will be installed and automatically
+ configured.
+ .
+ If you do not enter the correct MySQL root password,
+ then OpenEMR will be installed, but will not be
+ automatically configured.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your second attempt.
+
+Template: openemr/mysql_p_install_3
+Type: string
+Description: MySQL Root Password:
+ If you enter the correct MySQL root password,
+ then OpenEMR will be installed and automatically
+ configured.
+ .
+ If you do not enter the correct MySQL root password,
+ then OpenEMR will be installed, but will not be
+ automatically configured.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your last attempt.
+
+Template: openemr/mysql_p_remove_1
+Type: string
+Description: MySQL Root Password:
+ In order to remove this package, you need to enter
+ the correct MySQL root password.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your first attempt.
+
+Template: openemr/mysql_p_remove_2
+Type: string
+Description: MySQL Root Password:
+ In order to remove this package, you need to enter
+ the correct MySQL root password.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your second attempt.
+
+Template: openemr/mysql_p_remove_3
+Type: string
+Description: MySQL Root Password:
+ In order to remove this package, you need to enter
+ the correct MySQL root password.
+ .
+ You will be given 3 attempts to answer this question.
+ This is your last attempt.
+
+Template: openemr/upgrade_confirm
+Type: select
+Choices: yes, no
+Description: Attempt OpenEMR Upgrade?
+ Found a version of OpenEMR at /var/www/openemr.
+ Do you want to attempt an upgrade (ensure you have
+ a backup before proceeding)?
+
+Template: openemr/confirm_remove
+Type: select
+Choices: no, yes
+Description: Confirm OpenEMR Removal?
+ Are you sure you really want to remove the OpenEMR package?
+ All OpenEMR data will be removed if you remove this package!
+
+Template: openemr/upgrade_no
+Type: note
+Description: NOTICE
+ You have chosen to not install the OpenEMR package.
+
+Template: openemr/no_configure_mysql_root
+Type: note
+Description: NOTICE
+ OpenEMR is going to be installed, however it will
+ not be automatically configured (because you did not
+ provide the MySQL root password).
+
+Template: openemr/no_configure_mysql_database
+Type: note
+Description: NOTICE
+ OpenEMR is going to be installed, however it will
+ not be automatically configured (because a openemr
+ MySQL database already exists).
+
+Template: openemr/no_configure_mysql_user
+Type: note
+Description: NOTICE
+ OpenEMR is going to be installed, however it will
+ not be automatically configured (because a openemr
+ MySQL user already exists).
+
+Template: openemr/apache_configure
+Type: note
+Description: NOTICE
+ Entries have been added to your apache configuration
+ to secure directories with patient information. Placed
+ backup of your original apache configuration file to
+ /etc/apache2/httpd.conf.BAK .
+
+Template: openemr/php_configure
+Type: note
+Description: NOTICE
+ To ensure compatibility with php, settings have been
+ modified in your php configuration file, and a backup
+ of your original php configuration file has been placed
+ at /etc/php5/apache2/php.ini.BAK . For more information
+ on the php settings that have been modified, please see
+ the log file for more information after the installation
+ is complete, /var/log/openemr/install .
+
+Template: openemr/success_install
+Type: note
+Description: CONGRATULATIONS
+ OpenEMR has been successfully installed.
+ .
+ You can now set up the OpenEMR development version
+ by browsing to: http://localhost/openemr
+
+Template: openemr/success_install_config
+Type: note
+Description: CONGRATULATIONS
+ OpenEMR has been successfully installed and configured.
+ .
+ You can now use the OpenEMR development version
+ by browsing to: http://localhost/openemr
+ .
+ (user is 'admin' and password is 'pass')
+
+Template: openemr/success_upgrade
+Type: note
+Description: CONGRATULATIONS
+ OpenEMR has been successfully upgraded.
+ .
+ Recommend setting optional configuration settings in
+ /var/www/openemr/sites/default/config.php  (We have
+ renamed your old configuration files to *.OLD)
+ (We recommend you delete the *.OLD files when done)
+ .
+ We have placed backup of your old OpenEMR in
+ /tmp/openemr-tmp/ (We recommend you copy this
+ somewhere protected since it contains confidential
+ patient information)
+
+Template: openemr/unable_remove
+Type: error
+Description: ERROR
+ Unable to remove the openemr package, because
+ you did not provide the correct MySQL root password.
+ .
+ Ensure you know the MySQL root password before
+ attempting to remove this package in the future.
+
+Template: openemr/www_path_already_exists
+Type: error
+Description: ERROR
+ Unable to install the openemr package, because
+ an instance of OpenEMR already exist at /var/www/openemr.
+
+Template: openemr/upgrade_not_supported
+Type: error
+Description: ERROR
+ This package does not support upgrading your
+ current version of OpenEMR.
+
+Template: openemr/upgrade_not_installed
+Type: error
+Description: ERROR
+ This package can not upgrade OpenEMR, because
+ OpenEMR is not installed at /var/www/openemr
+
+Template: openemr/upgrade_not_database
+Type: error
+Description: ERROR
+ This package can not upgrade OpenEMR, because
+ unable to confirm presence of a mysql credentials
+ and/or database.
