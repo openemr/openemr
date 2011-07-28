@@ -34,6 +34,7 @@ $fake_register_globals=false;
 require_once('../globals.php');
 require_once('../eRx_xml.php');
 require_once('../../library/xmltoarray_parser_htmlfix.php');
+require_once($GLOBALS['fileroot'] . "/library/amc.php");
 set_time_limit(0);
 if(!$patientid)
 $patientid=$pid;
@@ -132,10 +133,10 @@ for($i=0;$i<sizeof($medArray);$i++)
     }
     
     $check=sqlStatement("select * from prescriptions where prescriptionguid=? and patient_id=? and prescriptionguid is not null",array($medArray[$i]['PrescriptionGuid'],$medArray[$i]['ExternalPatientID']));
-    
+    $prescription_id='';
     if(sqlNumRows($check)==0)
     {        
-        sqlQuery("insert into prescriptions 
+        $prescription_id=sqlInsert("insert into prescriptions 
         (
             patient_id,provider_id,date_added,drug,drug_id,form,dosage,size,unit,route,`INTERVAL`,refills,note,`DATETIME`,
             `USER`,site,prescriptionguid,erx_source,rxnorm_drugcode
@@ -158,6 +159,10 @@ for($i=0;$i<sizeof($medArray);$i++)
         $medArray[$i]['PrescriptionNotes'],$_SESSION['authUserID'],
         $medArray[$i]['SiteID'],$medArray[$i]['rxcui'],$medArray[$i]['PrescriptionGuid'],$medArray[$i]['ExternalPatientID']));
     }
+    $result=sqlFetchArray($check);
+    if($result['id'])
+    $prescription_id=$result['id'];
+    processAmcCall('e_prescribe_amc', true, 'add', $medArray[$i]['ExternalPatientID'], 'prescriptions', $prescription_id);
 }
 sqlQuery("update patient_data set soap_import_status=? where pid=?",array('2',$pid));
 if($xml_response_count==0)
