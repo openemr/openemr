@@ -57,7 +57,8 @@ function QuotedOrNull($fld) {
 $current_report_id = 0;
 
 if ($_POST['form_submit']) {
-  foreach ($_POST['form_line'] as $lino => $line_value) {
+ if($_POST['form_line']!='') { 
+ foreach ($_POST['form_line'] as $lino => $line_value) {
     list($order_id, $restyp_id, $report_id, $result_id) = explode(':', $line_value);
 
     // Not using xl() here because these errors are for debugging only.
@@ -113,6 +114,7 @@ if ($_POST['form_submit']) {
     }
 
   } // end foreach
+ }
 }
 ?>
 <html>
