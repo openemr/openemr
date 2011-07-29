@@ -285,13 +285,13 @@ else {
         $sortorder = "asc";
     }
     for($i = 0; $i < count($sort); $i++) {
-        $sortlink[$i] = "<a href=\"messages.php?showall=$showall&sortby=$sort[$i]&sortorder=asc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>";
+        $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sort[$i]&sortorder=asc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>";
     }
     for($i = 0; $i < count($sort); $i++) {
         if($sortby == $sort[$i]) {
             switch($sortorder) {
-                case "asc"      : $sortlink[$i] = "<a href=\"messages.php?showall=$showall&sortby=$sortby&sortorder=desc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>"; break;
-                case "desc"     : $sortlink[$i] = "<a href=\"messages.php?showall=$showall&sortby=$sortby&sortorder=asc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Down'), ENT_QUOTES)."\"></a>"; break;
+                case "asc"      : $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=desc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>"; break;
+                case "desc"     : $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=asc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Down'), ENT_QUOTES)."\"></a>"; break;
             } break;
         }
     }
@@ -324,14 +324,14 @@ else {
         $start = 0;
     }
     if($prev >= 0) {
-        $prevlink = "<a href=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$prev\" onclick=\"top.restoreSession()\"><<</a>";
+        $prevlink = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=$sortorder&begin=$prev\" onclick=\"top.restoreSession()\"><<</a>";
     }
     else {
         $prevlink = "<<";
     }
 
     if($next < $total) {
-        $nextlink = "<a href=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$next\" onclick=\"top.restoreSession()\">>></a>";
+        $nextlink = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=$sortorder&begin=$next\" onclick=\"top.restoreSession()\">>></a>";
     }
     else {
         $nextlink = ">>";
