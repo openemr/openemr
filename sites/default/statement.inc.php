@@ -163,7 +163,7 @@ function create_statement($stmt) {
 $out  = sprintf("%-30s %-23s %-s\n",$clinic_name,$stmt['patient'],$stmt['today']);
 $out .= sprintf("%-30s %s: %-s\n",$clinic_addr,$label_chartnum,$stmt['pid']);
 $out .= sprintf("%-30s %-s\n",$clinic_csz,$label_insinfo);
-$out .= sprintf("%-30s %s: %-s\n",null,$label_totaldue);
+$out .= sprintf("%-30s %s: %-s\n",null,$label_totaldue,null);
 $out .= "\n\n";
 $out .= sprintf("%-30s %-s\n",$label_addressee,$label_remitto);
 $out .= sprintf("%-32s %s\n",$stmt['to'][0],$remit_name);
