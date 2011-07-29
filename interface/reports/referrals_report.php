@@ -174,6 +174,7 @@
   $query = "SELECT t.id, t.refer_date, t.reply_date, t.body, " .
     "ut.organization, uf.facility_id, p.pubpid, " .
     "CONCAT(uf.fname,' ', uf.lname) AS referer_name, " .
+    "CONCAT(ut.fname,' ', ut.lname) AS referer_to, " .
     "CONCAT(p.fname,' ', p.lname) AS patient_name " .
     "FROM transactions AS t " .
     "LEFT OUTER JOIN patient_data AS p ON p.pid = t.pid " .
@@ -196,10 +197,18 @@
         if (!empty($row['facility_id'])) continue;
       }
     }
+    
 ?>
  <tr>
   <td>
-   <?php echo $row['organization'] ?>
+   <?php if($row['organization']!=NULL || $row['organization']!='') {
+   			echo $row['organization'];
+   		}
+   		else {
+   				echo $row['referer_to'];
+   		}	 
+   			
+   	?>
   </td>
   <td>
    <a href='#' onclick="return show_referral(<?php echo $row['id']; ?>)">
