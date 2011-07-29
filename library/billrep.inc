@@ -11,7 +11,7 @@
          {
             foreach($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value)
              {
-              $criteria_value=PrepareSearchItem($criteria_value);
+              $criteria_value=PrepareSearchItem(stripslashes($criteria_value));
               $SplitArray=array();
               //---------------------------------------------------------
               if(strpos($criteria_value,"billing.billed = '1'")!== false)
