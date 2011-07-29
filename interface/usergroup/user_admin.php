@@ -189,6 +189,30 @@ function checkChange()
 function submitform() {
 	top.restoreSession();
 	var flag=0;
+	function trimAll(sString)
+	{
+		while (sString.substring(0,1) == ' ')
+		{
+			sString = sString.substring(1, sString.length);
+		}
+		while (sString.substring(sString.length-1, sString.length) == ' ')
+		{
+			sString = sString.substring(0,sString.length-1);
+		}
+		return sString;
+	}
+	if(trimAll(document.getElementById('fname').value) == ""){
+		alert("<?php xl('Required field missing: Please enter the First name','e');?>");
+		document.getElementById('fname').style.backgroundColor="red";
+		document.getElementById('fname').focus();
+		return false;
+	}
+	if(trimAll(document.getElementById('lname').value) == ""){
+		alert("<?php xl('Required field missing: Please enter the Last name','e');?>");
+		document.getElementById('lname').style.backgroundColor="red";
+		document.getElementById('lname').focus();
+		return false;
+	}
 	if(document.forms[0].clearPass.value!="")
 	{
 		//Checking for the strong password if the 'secure password' feature is enabled
@@ -367,12 +391,12 @@ $bg_count=count($acl_name);
 
 <TR>
 <TD><span class=text><?php xl('First Name','e'); ?>: </span></TD>
-<TD><input type=entry name=fname style="width:150px;" value="<?php echo $iter["fname"]; ?>"></td>
+<TD><input type=entry name=fname id=fname style="width:150px;" value="<?php echo $iter["fname"]; ?>"><span class="mandatory">&nbsp;*</span></td>
 <td><span class=text><?php xl('Middle Name','e'); ?>: </span></TD><td><input type=entry name=mname style="width:150px;"  value="<?php echo $iter["mname"]; ?>"></td>
 </TR>
 
 <TR>
-<td><span class=text><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name=lname style="width:150px;"  value="<?php echo $iter["lname"]; ?>"></td>
+<td><span class=text><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name=lname id=lname style="width:150px;"  value="<?php echo $iter["lname"]; ?>"><span class="mandatory">&nbsp;*</span></td>
 <td><span class=text><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id style="width:150px;" >
 <?php
 $fres = sqlStatement("select * from facility where service_location != 0 order by name");

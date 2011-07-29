@@ -24,9 +24,21 @@ $alertmsg = '';
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 
 <script language="JavaScript">
+function trimAll(sString)
+{
+	while (sString.substring(0,1) == ' ')
+	{
+		sString = sString.substring(1, sString.length);
+	}
+	while (sString.substring(sString.length-1, sString.length) == ' ')
+	{
+		sString = sString.substring(0,sString.length-1);
+	}
+	return sString;
+} 
 
 function submitform() {
-	if (document.forms[0].rumple.value.length>0 && document.forms[0].stiltskin.value.length>0) {
+	if (document.forms[0].rumple.value.length>0 && document.forms[0].stiltskin.value.length>0 && document.getElementById('fname').value.length >0 && document.getElementById('lname').value.length >0) {
 		top.restoreSession();
 
 		//Checking if secure password is enabled or disabled.
@@ -91,9 +103,31 @@ function submitform() {
 		document.forms[0].submit();
 	} else {
 		if (document.forms[0].rumple.value.length<=0)
-		{document.forms[0].rumple.focus();document.forms[0].rumple.style.backgroundColor="red";}
+		{
+			document.forms[0].rumple.style.backgroundColor="red";
+			alert("<?php xl('Required field missing: Please enter the User Name','e');?>");
+			document.forms[0].rumple.focus();
+			return false;
+		}
 		if (document.forms[0].stiltskin.value.length<=0)
-		{document.forms[0].stiltskin.focus();document.forms[0].stiltskin.style.backgroundColor="red";}
+		{
+			document.forms[0].stiltskin.style.backgroundColor="red";
+			alert("<?php echo xl('Please enter the password'); ?>");
+			document.forms[0].stiltskin.focus();
+			return false;
+		}
+		if(trimAll(document.getElementById('fname').value) == ""){
+			document.getElementById('fname').style.backgroundColor="red";
+			alert("<?php xl('Required field missing: Please enter the First name','e');?>");
+			document.getElementById('fname').focus();
+			return false;
+		}
+		if(trimAll(document.getElementById('lname').value) == ""){
+			document.getElementById('lname').style.backgroundColor="red";
+			alert("<?php xl('Required field missing: Please enter the Last name','e');?>");
+			document.getElementById('lname').focus();
+			return false;
+		}
 	}
 }
 function authorized_clicked() {
@@ -152,11 +186,11 @@ foreach ($result2 as $iter) {
 </td>
 </tr>
 <tr>
-<td><span class="text"><?php xl('First Name','e'); ?>: </span></td><td><input type=entry name='fname' style="width:120px;"></td>
+<td><span class="text"><?php xl('First Name','e'); ?>: </span></td><td><input type=entry name='fname' id='fname' style="width:120px;"><span class="mandatory">&nbsp;*</span></td>
 <td><span class="text"><?php xl('Middle Name','e'); ?>: </span></td><td><input type=entry name='mname' style="width:120px;"></td>
 </tr>
 <tr>
-<td><span class="text"><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name='lname' style="width:120px;"></td>
+<td><span class="text"><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name='lname' id='lname' style="width:120px;"><span class="mandatory">&nbsp;*</span></td>
 <td><span class="text"><?php xl('Default Facility','e'); ?>: </span></td><td><select style="width:120px;" name=facility_id>
 <?php
 $fres = sqlStatement("select * from facility where service_location != 0 order by name");
