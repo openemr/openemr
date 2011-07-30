@@ -34,6 +34,7 @@ $fake_register_globals=false;
 require_once('../globals.php');
 require_once('../eRx_xml.php');
 require_once('../../library/xmltoarray_parser_htmlfix.php');
+require_once("{$GLOBALS['srcdir']}/lists.inc");
 set_time_limit(0);
 if(!$patientid)
 $patientid=$pid;
@@ -91,6 +92,7 @@ for($i=0;$i<sizeof($allergyArray);$i++)
     {
         sqlQuery("insert into lists (date,type,title,pid,user,outcome,external_allergyid,erx_source) values (NOW(),'allergy',?,?,?,?,?,'1')",
         array($allergyArray[$i]['AllergyName'], $patientid, $_SESSION['authUserID'], $routcome['option_id'], $allergyArray[$i]['AllergyId']));
+        setListTouch ($patientid,'allergy');
     }
     elseif($row['erx_source']==0)
     {
