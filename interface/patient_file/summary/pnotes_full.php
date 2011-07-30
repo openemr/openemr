@@ -49,13 +49,13 @@ $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1
 if($_REQUEST['s'] == '1'){
   $inbox = "";
   $outbox = "current";
-  $inbox_style = "style='display:none;border:9px solid #FFFFFF;'";
+  $inbox_style = "style='display:none;border:5px solid #FFFFFF;'";
   $outbox_style = "style='border:5px solid #FFFFFF;'";
 }else{
   $inbox = "current";
   $outbox = "";
   $inbox_style = "style='border:5px solid #FFFFFF;'";;
-  $outbox_style = "style='display:none;border:9px solid #FFFFFF;'";
+  $outbox_style = "style='display:none;border:5px solid #FFFFFF;'";
 }
 
 if (!isset($offset)) $offset = 0;
@@ -293,7 +293,6 @@ if ($billing_note) {
  </tr></table>
 <?php endif; ?>
 
-<div>
 <table border='0' cellpadding="1"  class="text" width = "80%">
 <?php
 // display all of the notes for the day, as well as others that are active
@@ -427,7 +426,6 @@ if ($result_count == $N) {
  </tr>
 </table>
 
-</div> <!-- close the previous-notes DIV -->
 </div>
   <div id='outbox_div' <?php echo $outbox_style; ?> >
 <table border='0' cellpadding="1" class="text">
@@ -439,7 +437,6 @@ if ($result_count == $N) {
  </tr></table>
 <?php endif; ?>
 
-<div>
 <table border='0' cellpadding="1"  class="text" width = "80%">
 <?php
 // display all of the notes for the day, as well as others that are active
@@ -539,7 +536,6 @@ if ($result_sent != "") {
 ?>
 
 </table>
-</div>
 
 <table width='400' border='0' cellpadding='0' cellspacing='0'>
  <tr>
@@ -574,7 +570,6 @@ if ($result_sent_count == $M) {
  </tr>
 </table>
 
-</div> <!-- close the previous-notes DIV -->
   </div>
 </div>
 <script language='JavaScript'>
