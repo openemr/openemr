@@ -34,12 +34,25 @@ function cascwin(url, winname, width, height, options) {
     height = height + 28;
  }
 
- return window.open(url, winname, options +
+retval=window.open(url, winname, options +
  ",width="   + width + ",height="  + height +
  ",left="    + newx  + ",top="     + newy   +
  ",screenX=" + newx  + ",screenY=" + newy);
+ if(navigator.userAgent.indexOf("Firefox")!=-1)
+ {
+    // hook the resize code to the window onload event of the newly created window.
+    retval.onload=function()
+        {
+            //find the body element
+            body=$(retval.document).find("body");
+            //change the innerDimensions (the viewport size) of the new window.
+            retval.innerHeight=(body.outerHeight(true)+10);
+            retval.innerWidth=(body.outerWidth(true));
+        };
 }
-
+  
+return retval;
+}
 // recursive window focus-event grabber
 function grabfocus(w) {
  for (var i = 0; i < w.frames.length; ++i) grabfocus(w.frames[i]);
