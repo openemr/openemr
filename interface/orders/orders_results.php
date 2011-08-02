@@ -40,7 +40,6 @@ if ($_GET['set_pid'] && $form_review) {
     parent.left_nav.setRadio(window.name, 'orp');
   </script>
   <?php
-
 }
 
 if (!$form_batch && !$pid && !$form_review) die(xl('There is no current patient'));
@@ -348,7 +347,7 @@ if ($form_batch) {
  <tr class='head'>
   <td colspan='2'><?php echo $form_batch ? xl('Patient') : xl('Order'); ?></td>
   <td colspan='4'><?php xl('Report','e'); ?></td>
-  <td colspan='5'><?php xl('Results and','e'); ?> <span class='reccolor''>
+  <td colspan='6'><?php xl('Results and','e'); ?> <span class='reccolor''>
    <?php  xl('Recommendations','e'); ?></span></td>
  </tr>
 
@@ -363,6 +362,7 @@ if ($form_batch) {
   <td><?php xl('Name (click for more)','e'); ?></td>
   <td><?php xl('Abn','e'); ?></td>
   <td><?php xl('Value','e'); ?></td>
+  <td><?php xl('Units', 'e'); ?></td>
   <td><?php xl('Range','e'); ?></td>
  </tr>
 
@@ -377,7 +377,7 @@ $selects =
   "pt2.description AS result_description, lo.title AS units_name, " .
   "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, pr.report_status, pr.review_status, " .
   "ps.procedure_result_id, ps.abnormal, ps.result, ps.range, ps.result_status, " .
-  "ps.facility, ps.comments";
+  "ps.facility, ps.comments, ps.units ";
 
 // This join syntax means that results must all be at the same "level".
 // Either there is one result the same as the order, or all results are
@@ -458,6 +458,7 @@ while ($row = sqlFetchArray($res)) {
   $report_status    = empty($row['report_status'   ]) ? '' : $row['report_status']; 
   $result_abnormal  = empty($row['abnormal'        ]) ? '' : $row['abnormal'];
   $result_result    = empty($row['result'          ]) ? '' : $row['result'];
+  $result_unit      = empty($row['units'           ]) ? '' : $row['units'];
   $facility         = empty($row['facility'        ]) ? '' : $row['facility'];
   $comments         = empty($row['comments'        ]) ? '' : $row['comments'];
   $result_range     = empty($row['range'           ]) ? $row['result_def_range'] : $row['range'];
@@ -591,6 +592,11 @@ while ($row = sqlFetchArray($res)) {
       " />";
   }
   echo "</td>\n";
+
+  echo "<td>";
+  echo $result_unit;
+  echo "</td>";
+
 
   echo "  <td>";
   echo "<input type='text' size='8' name='form_result_range[$lino]'" .
