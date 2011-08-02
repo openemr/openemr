@@ -317,14 +317,16 @@ if ($res) {
     $errmsg  = "";
     if ($form_details) {
       // Fetch all other forms for this encounter.
-      $encnames = '';
+      $encnames = '';      
       $encarr = getFormByEncounter($patient_id, $row['encounter'],
         "formdir, user, form_name, form_id");
-      foreach ($encarr as $enc) {
-        if ($enc['formdir'] == 'newpatient') continue;
-        if ($encnames) $encnames .= '<br />';
-        $encnames .= $enc['form_name'];
-      }
+      if($encarr!='') {
+	      foreach ($encarr as $enc) {
+	        if ($enc['formdir'] == 'newpatient') continue;
+	        if ($encnames) $encnames .= '<br />';
+	        $encnames .= $enc['form_name'];
+	      }
+      }     
 
       // Fetch coding and compute billing status.
       $coded = "";
