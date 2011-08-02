@@ -5,7 +5,7 @@
 include_once("../globals.php");
 include_once("../../library/patient.inc");
 include_once("../../library/acl.inc");
-include_once("../forms/football_injury_audit/fia.inc.php");
+include_once("../../contrib/forms/football_injury_audit/fia.inc.php");
 
 // Might want something different here.
 //
@@ -331,8 +331,10 @@ $arr_types_ucsmc = array(
 		// discard extra FIA forms.
 
 		$squadmatches = '1 = 2'; // an always-false condition
+		if($form_squads!='') {
 		foreach ($form_squads as $squad)
 			$squadmatches .= " OR pd.squad = '$squad'";
+		}
 
     /*****************************************************************
 		$query = "SELECT lists.id AS listid, lists.diagnosis, lists.pid, " .
@@ -540,6 +542,7 @@ $arr_types_ucsmc = array(
   </td>
 
 <?php
+	if($form_show!='') {
 		// Generate headings for values to be shown.
 		foreach ($form_show as $value) {
 			if ($value == '1') { // Number of injuries
@@ -565,6 +568,7 @@ $arr_types_ucsmc = array(
 				}
 			}
 		}
+	}
 
 		echo " </tr>\n";
 
