@@ -694,7 +694,7 @@ function goHome() {
  //This function lists all encounters of the patient.
  //This function writes the drop down in the top frame.
  //It is called when a new patient is create/selected from the search menu.
-  var str = '<Select class="text" id="EncounterHistory" onchange="toencounter(this.options[this.selectedIndex].value)">';
+  var str = '<Select class="text" id="EncounterHistory" onchange="{top.restoreSession();toencounter(this.options[this.selectedIndex].value)}">';
   str+='<option value=""><?php echo htmlspecialchars( xl('Encounter History'), ENT_QUOTES) ?></option>';
   str+='<option value="New Encounter"><?php echo htmlspecialchars( xl('New Encounter'), ENT_QUOTES) ?></option>';
   str+='<option value="Past Encounter List"><?php echo htmlspecialchars( xl('Past Encounter List'), ENT_QUOTES) ?></option>';
