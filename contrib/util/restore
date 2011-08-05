@@ -555,9 +555,9 @@ if [ $CHANGES -gt 0 ]; then
   dlg_info "Modifying $OEDIR/sites/$SITEID/sqlconf.php ..."
   cd $OEDIR/sites/$SITEID
   mv sqlconf.php sqlconf.php.old
-  sed "s^dbase\t= ['\"].*['\"]^dbase\t= '$OEDBNAME'^" sqlconf.php.old | \
-  sed "s^login\t= ['\"].*['\"]^login\t= '$OEDBUSER'^"                 | \
-  sed "s^pass\t= ['\"].*['\"]^pass\t= '$OEDBPASS'^" > sqlconf.php
+  sed "s^dbase\s*=\s*['\"].*['\"]^dbase\t= '$OEDBNAME'^" sqlconf.php.old | \
+  sed "s^login\s*=\s*['\"].*['\"]^login\t= '$OEDBUSER'^"                 | \
+  sed "s^pass\s*=\s*['\"].*['\"]^pass\t= '$OEDBPASS'^" > sqlconf.php
   #
   # Logic to fix the path to ws_server.pl in includes/config.php was removed.
   # Not gonna worry about this because SL is deprecated, the old logic was not
