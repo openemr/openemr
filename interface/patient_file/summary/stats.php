@@ -64,7 +64,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $widgetTitle = $arr[0];
             $widgetLabel = $key;
             $widgetButtonLabel = xl("Edit");
-            $widgetButtonLink = "load_location(\"stats_full.php?active=all\")";
+            $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all\")";
             $widgetButtonClass = "";
             $linkMethod = "javascript";
             $bodyClass = "summary_item small";
@@ -174,7 +174,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     $widgetTitle = xl('Immunizations');
     $widgetLabel = "immunizations";
     $widgetButtonLabel = xl("Edit");
-    $widgetButtonLink = "javascript:load_location(\"immunizations.php\")";
+    $widgetButtonLink = "javascript:load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/immunizations.php\")";
     $widgetButtonClass = "";
     $linkMethod = "javascript";
     $bodyClass = "summary_item small";
@@ -237,7 +237,7 @@ else { ?>
     $widgetTitle = xl('Prescriptions');
     $widgetLabel = "prescriptions";
     $widgetButtonLabel = xl("Edit");
-    $widgetButtonLink = "rx_frameset.php";
+    $widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/rx_frameset.php";
     $widgetButtonClass = "iframe rx_modal";
     $linkMethod = "html";
     $bodyClass = "summary_item small";
