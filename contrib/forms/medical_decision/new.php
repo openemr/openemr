@@ -19,7 +19,7 @@ include_once("$srcdir/calendar.inc");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>Medical decision making</title>
 
@@ -45,7 +45,7 @@ window.onload = initialize;
 
 <div class="srvChapter">Medical decision making <a href="#" onMouseOver="toolTip('The <b>Medical Decision Making</b> section provides space to document minutes counseled, total encounter time, and other services needed to determine the correct level of medical decision making. <br><br><b>Amount and complexility of data reviewed</b><br>Minimal/none = 1 box, limited = 2 boxes, moderate = 3 boxes, extensive = 4+ boxes<br><br>The following items (if checked) count as 2 boxes:<li>OLD RECORDS REVIEWED AND SUMMARIZED</li><li>HISTORY OBTAINED FROM OTHER SOURCE</li><li>INDEPENDENT REVIEW OF IMAGE/SPECIMEN</li>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 
-<? 
+<?php 
 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
 
@@ -59,7 +59,7 @@ window.onload = initialize;
 
 <form action="<?echo $rootdir;?>/forms/medical_decision/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
 
-<? include("../../acog_menu.inc"); ?>
+<?php include("../../acog_menu.inc"); ?>
 
 <div style="border: solid 2px black; background-color: white;">
 
@@ -73,7 +73,8 @@ window.onload = initialize;
 
         <td width="40%" class="bordR">Patient name <br>          
 
-          <input name="pname" type="text" class="fullin" id="pname" value="<?
+          <input name="pname" type="text" class="fullin" id="pname" value="<?php
+
 
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
 
@@ -83,7 +84,8 @@ window.onload = initialize;
 
           <br>          
 
-          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?
+          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?php
+
 
           echo $patient{'DOB'};
 
@@ -91,7 +93,8 @@ window.onload = initialize;
 
         <td width="20%" class="bordR">ID No<br>          
 
-          <input name="md_pid" type="text" class="fullin" id="md_pid" size="12" value="<?
+          <input name="md_pid" type="text" class="fullin" id="md_pid" size="12" value="<?php
+
 
           echo $patient{'id'};
 
@@ -99,7 +102,8 @@ window.onload = initialize;
 
         <td width="20%">date<br>
 
-        <input name="md_date" type="text" class="fullin" id="md_date" value="<?
+        <input name="md_date" type="text" class="fullin" id="md_date" value="<?php
+
 
         echo date('Y-m-d');
 
@@ -431,7 +435,8 @@ window.onload = initialize;
 
         <td align="left" class="ficaption2">Date: 
 
-        <input name="md_date" type="text" class="fullin" id="md_date" style="width:80px" value="<?
+        <input name="md_date" type="text" class="fullin" id="md_date" style="width:80px" value="<?php
+
 
         echo date('Y-m-d');
 

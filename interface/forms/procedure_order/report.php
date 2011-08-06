@@ -13,9 +13,9 @@ include_once($GLOBALS["srcdir"] . "/options.inc.php");
 function procedure_order_report($pid, $encounter, $cols, $id) {
  $cols = 1; // force always 1 column
  $count = 0;
- $data = sqlQuery("SELECT * " .
-  "FROM procedure_order WHERE " .
-  "procedure_order_id = '$id' AND activity = '1'");
+ $data = sqlQuery("SELECT pt.name as Procedure_Order,po.* " .
+  "FROM procedure_order as po, procedure_type as pt WHERE " .
+  "po.procedure_type_id = pt.procedure_type_id AND po.procedure_order_id = '$id' AND po.activity = '1'");
  if ($data) {
   print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
   foreach($data as $key => $value) {

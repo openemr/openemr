@@ -1,0 +1,57 @@
+body {
+	background-color: lightblue;		
+}
+
+.outer-container {
+	margin: 20px;
+}
+
+#container {
+	position: relative;
+	margin: 20px;	
+	border: 2px dashed;
+}
+
+.marker {
+	position: absolute;
+	border: 1px solid; 
+	background-color: red;
+	min-width:12px; 
+	min-height: 12px;
+	text-align:center;
+}	
+
+.count {
+	font-size: 12px;
+	font-weight: bold;
+	color: white;
+	margin:2px;
+}
+
+.nav {
+	margin-left:40px;
+}
+
+.legend {
+	margin-left:20px;
+}
+
+.legend header {
+	font-weight: bold;
+}
+
+.legend, .container { float: left; }
+
+p { width: 400px; }
+
+.dialog-form .label {
+	width: 60px;
+}
+.dialog-form .detail {
+	width: 310px;
+	height: 100px;
+}
+
+label, input { display:block; }
+fieldset { padding:0; border:0; }
+

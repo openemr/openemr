@@ -403,16 +403,19 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 	?>
 	<div id="INSURANCE" >
 		<ul class="tabNav">
-		<?
+		<?php
+
 		foreach (array('primary','secondary','tertiary') as $instype) {
-			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?
+			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?php
+
 		}
 		?>
 		</ul>
 
 	<div class="tabContainer">
 
-	<?
+	<?php
+
 	  for($i=1;$i<=3;$i++) {
 	   $result3 = $insurance_info[$i];
 	?>
@@ -644,7 +647,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 	</div>
 </div>
 
-<? } // end of "if not simplified_demographics" ?>
+<?php } // end of "if not simplified_demographics" ?>
 </div></div>
 
 

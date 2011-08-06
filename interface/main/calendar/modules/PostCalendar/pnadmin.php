@@ -980,7 +980,7 @@ EOF;
 	$output->Text($header);
 	$output->Text(postcalendar_adminmenu());
 
-    list($id,$del,$name,$desc,$color,
+    list($id,$del,$name,$value_cat_type,$desc,$color,
         $event_repeat,$event_repeat_freq,
 		$event_repeat_freq_type,$event_repeat_on_num,
 		$event_repeat_on_day,$event_repeat_on_freq,$durationh,$durationm,
@@ -988,8 +988,8 @@ EOF;
 		$newname,$newdesc,$newcolor,$new_event_repeat,$new_event_repeat_freq,
 		$new_event_repeat_freq_type,$new_event_repeat_on_num,$new_event_repeat_on_day,
 		$new_event_repeat_on_freq,$new_durationh,$new_durationm,$new_limitid,$new_end_date_flag,
-		$new_end_date_type,$new_end_date_freq,$new_end_all_day
-		) = pnVarCleanFromInput('id','del','name','desc','color',
+		$new_end_date_type,$new_end_date_freq,$new_end_all_day,$new_value_cat_type
+		) = pnVarCleanFromInput('id','del','name','value_cat_type','desc','color',
                           	'event_repeat','event_repeat_freq','event_repeat_freq_type',
                           	'event_repeat_on_num','event_repeat_on_day',
                           	'event_repeat_on_freq','durationh','durationm',
@@ -999,7 +999,7 @@ EOF;
 							'newevent_repeat_freq_type','newevent_repeat_on_num',
 							'newevent_repeat_on_day','newevent_repeat_on_freq',
 							'newdurationh','newdurationm','newlimitid','newend_date_flag',
-							'newend_date_type','newend_date_freq','newend_all_day'
+							'newend_date_type','newend_date_freq','newend_all_day','newvalue_cat_type'
                           	);
     //data validation
     foreach($name as $i=>$item)
@@ -1060,6 +1060,7 @@ EOF;
     if(!empty($newname)) {
         $output->FormHidden('newname',$newname);
         $output->FormHidden('newdesc',$newdesc);
+        $output->FormHidden('newvalue_cat_type',$new_value_cat_type);
         $output->FormHidden('newcolor',$newcolor);
         $output->FormHidden('newevent_repeat',$new_event_repeat);
         $output->FormHidden('newevent_recurrfreq',$new_event_repeat_freq);
@@ -1079,6 +1080,7 @@ EOF;
     $output->FormHidden('del',serialize($del));
     $output->FormHidden('name',serialize($name));
     $output->FormHidden('desc',serialize($desc));
+    $output->FormHidden('value_cat_type',serialize($value_cat_type));
     $output->FormHidden('color',serialize($color));
     $output->FormHidden('event_repeat',serialize($event_repeat));
     $output->FormHidden('event_recurrspec',$event_recurrspec);
@@ -1105,25 +1107,26 @@ function postcalendar_admin_categoriesUpdate()
 	list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
 
-    list($id,$del,$name,$desc,$color,
+    list($id,$del,$name,$value_cat_type,$desc,$color,
         $event_repeat_array,$event_recurrspec_array,$dels,$durationh,$durationm,
         $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$newname,$newdesc,$newcolor,
         $new_event_repeat,$new_event_recurrspec,$new_event_recurrfreq,
         $new_duration,$new_dailylimitid,$new_end_date_flag,$new_end_date_type,
-        $new_end_date_freq,$new_end_all_day
-		) = pnVarCleanFromInput('id','del','name','desc','color','event_repeat',
+        $new_end_date_freq,$new_end_all_day,$new_value_cat_type
+		) = pnVarCleanFromInput('id','del','name','value_cat_type','desc','color','event_repeat',
 							'event_recurrspec','dels','durationh','durationm',
 							'end_date_flag','end_date_type','end_date_freq','end_all_day',
 							'newname','newdesc','newcolor',
 							'newevent_repeat','newevent_recurrspec',
 							'newevent_recurrfreq','newduration','newlimitid',
 							'newend_date_flag','newend_date_type',
-							'newend_date_freq','newend_all_day'
+							'newend_date_freq','newend_all_day','newvalue_cat_type'
                           	);
 	
     $id = unserialize($id);
     $del = unserialize($del);
     $name = unserialize($name);
+    $value_cat_type = unserialize($value_cat_type);
     $desc = unserialize($desc);
     $color = unserialize($color);
 	$event_repeat_array = unserialize($event_repeat_array);
@@ -1162,6 +1165,7 @@ function postcalendar_admin_categoriesUpdate()
             	$update_sql = "UPDATE $pntable[postcalendar_categories]
 		                             SET pc_catname='".pnVarPrepForStore($name[$k])."',
 		                                 pc_catdesc='".trim(pnVarPrepForStore($desc[$k]))."',
+		                                 pc_cattype='".trim(pnVarPrepForStore($value_cat_type[$k]))."',
 		                                 pc_catcolor='".pnVarPrepForStore($color[$k])."',
 		                                 pc_recurrtype='".pnVarPrepForStore($event_repeat_array[$i])."',
 		                                 pc_recurrspec='".pnVarPrepForStore($recurrspec)."',
@@ -1200,7 +1204,7 @@ function postcalendar_admin_categoriesUpdate()
     	$new_event_recurrspec = serialize($new_event_recurrspec);
     	
         if(!pnModAPIFunc(__POSTCALENDAR__,'admin','addCategories',
-        	array('name'=>$newname,'desc'=>$newdesc,'color'=>$newcolor,
+        	array('name'=>$newname,'desc'=>$newdesc,'value_cat_type'=>$new_value_cat_type,'color'=>$newcolor,
         	'repeat'=>$new_event_repeat,'spec'=>$new_event_recurrspec,
         	'recurrfreq'=>$new_recurrfreq,'duration'=>$new_duration,'limitid'=>$new_dailylimitid,
         	'end_date_flag'=>$new_end_date_flag,'end_date_type'=>$new_end_date_flag,
@@ -1284,6 +1288,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('_PC_REP_CAT_TITLE_S',_PC_REP_CAT_TITLE_S);
     $tpl->assign('_PC_NEW_CAT_TITLE_S',_PC_NEW_CAT_TITLE_S);
     $tpl->assign('_PC_CAT_NAME',_PC_CAT_NAME);
+    $tpl->assign('_PC_CAT_TYPE',_PC_CAT_TYPE);
     $tpl->assign('_PC_CAT_NAME_XL',_PC_CAT_NAME_XL);
     $tpl->assign('_PC_CAT_DESC',_PC_CAT_DESC);
     $tpl->assign('_PC_CAT_DESC_XL',_PC_CAT_DESC_XL);
@@ -1395,6 +1400,18 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     }
     $tpl->assign('InputRepeatOnDay', 'event_repeat_on_day');
     $tpl->assign('repeat_on_day',$repeat_on_day);
+
+    unset($in);
+    $in = array(_PC_CAT_PATIENT,_PC_CAT_PROVIDER);
+    $keys = array(TYPE_ON_PATIENT,TYPE_ON_PROVIDER);
+    $cat_type = array();
+    foreach($in as $k=>$v) {
+        array_push($cat_type,array('value'=>$keys[$k],
+                                        'selected'=>($keys[$k]==$value_cat_type ? 'selected' : ''),
+                                        'name'=>$v));
+    }
+    $tpl->assign('InputCatType', 'value_cat_type');
+    $tpl->assign('cat_type',$cat_type);
 
     unset($in);
     $in = array(_PC_OF_EVERY_MONTH,_PC_OF_EVERY_2MONTH,_PC_OF_EVERY_3MONTH,_PC_OF_EVERY_4MONTH,_PC_OF_EVERY_6MONTH,_PC_OF_EVERY_YEAR);

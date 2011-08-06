@@ -560,7 +560,7 @@ require_once("$srcdir/billing.inc");
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">
  body       { font-family:sans-serif; font-size:8pt; font-weight:normal }

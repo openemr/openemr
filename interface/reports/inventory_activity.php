@@ -385,7 +385,7 @@ else {
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script language='JavaScript'>
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
  function mysubmit(action) {
   var f = document.forms[0];
   f.form_action.value = action;

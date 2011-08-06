@@ -26,6 +26,7 @@ $onset_date  = $_POST['form_onset_date'];
 $sensitivity = $_POST['form_sensitivity'];
 $pc_catid    = $_POST['pc_catid'];
 $facility_id = $_POST['facility_id'];
+$billing_facility = $_POST['billing_facility'];
 $reason      = $_POST['reason'];
 $mode        = $_POST['mode'];
 $referral_source = $_POST['form_referral_source'];
@@ -52,6 +53,7 @@ if ($mode == 'new')
       "facility = '$facility', " .
       "pc_catid = '$pc_catid', " .
       "facility_id = '$facility_id', " .
+      "billing_facility = '$billing_facility', " .
       "sensitivity = '$sensitivity', " .
       "referral_source = '$referral_source', " .
       "pid = '$pid', " .
@@ -77,6 +79,7 @@ else if ($mode == 'update')
     "facility = '$facility', " .
     "pc_catid = '$pc_catid', " .
     "facility_id = '$facility_id', " .
+    "billing_facility = '$billing_facility', " .
     "sensitivity = '$sensitivity', " .
     "referral_source = '$referral_source' " .
     "WHERE id = '$id'");

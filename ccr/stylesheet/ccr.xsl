@@ -61,12 +61,6 @@ this XSLT back to the community.
         <title>Continuity of Care Record</title>
       </head>
       <body>
-	  
-		<a href="../interface/patient_file/report/patient_report.php">
-			<span >Patient Report</span>
-			<span >(Back)</span>
-		</a><br/><br/>
-
         <table cellPadding="1" cellSpacing="1">
           <tbody>
             <tr>
@@ -2733,7 +2727,8 @@ table.internal tr.even{
           <th>
             <font color="#CCCCCC" size="2">
 <!--	The stylesheet used to generate this view of the CCR was provided by the American Academy of Family Physicians and the CCR Acceleration Task Force -->
-	The stylesheet used to generate this view of the CCR was provided by Garden Health.
+<!--The stylesheet used to generate this view of the CCR was provided by Garden Health.-->
+  The stylesheet used to generate this view of the CCR was provided by OEMR.
 </font>
           </th>
         </tr>

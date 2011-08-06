@@ -234,8 +234,8 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 					</tr>
 					<tr>
 						<td class='label'><?php echo htmlspecialchars(xl('Age Range'),ENT_NOQUOTES); ?>:</td>
-						<td><? echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?> 
-							<input name='age_from' class="numeric_only" type='text' id="age_from" value="<?php echo htmlspecialchars($age_from,ENT_QUOTES); ?>" size='3' maxlength='3' /> <? echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?> 
+						<td><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?> 
+							<input name='age_from' class="numeric_only" type='text' id="age_from" value="<?php echo htmlspecialchars($age_from,ENT_QUOTES); ?>" size='3' maxlength='3' /> <?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?> 
 							<input name='age_to' class="numeric_only" type='text' id="age_to" value="<?php echo htmlspecialchars($age_to,ENT_QUOTES); ?>" size='3' maxlength='3' /></td>
 						<td class='label'><?php echo htmlspecialchars(xl('Problem DX'),ENT_NOQUOTES); ?>:</td>
 						<td><input type='text' name='form_diagnosis' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_diagnosis,ENT_QUOTES); ?>' onclick='sel_diagnosis(this)' title='<?php echo htmlspecialchars(xl('Click to select or change diagnoses'),ENT_QUOTES); ?>' readonly /></td>
@@ -544,9 +544,9 @@ if(sqlNumRows($result) > 0)
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 			<td align="center">
-			<span onclick="javascript:Toggle_trGrpHeader2(<? echo $row_id; ?>,<? echo $img_id; ?>);"><img src="../pic/blue-down-arrow.gif" id="<? echo $img_id; $img_id++; ?>" title="<?php echo htmlspecialchars( xl('Click here to view patient details'), ENT_QUOTES); ?>" /></span>
+			<span onclick="javascript:Toggle_trGrpHeader2(<?php echo $row_id; ?>,<?php echo $img_id; ?>);"><img src="../pic/blue-down-arrow.gif" id="<?php echo $img_id; $img_id++; ?>" title="<?php echo htmlspecialchars( xl('Click here to view patient details'), ENT_QUOTES); ?>" /></span>
 			</td></tr>
-			<table width="100%" align="center" id = "<? echo $row_id; $row_id++;?>" class="border1" style="display:none; font-size:13px;" cellpadding=5>
+			<table width="100%" align="center" id = "<?php echo $row_id; $row_id++;?>" class="border1" style="display:none; font-size:13px;" cellpadding=5>
 				<tr bgcolor="#C3FDB8" align="left"> 
 				<td><b><?php echo htmlspecialchars(xl('Patient Name'),ENT_NOQUOTES); ?></b></td>
 				<td><b><?php echo htmlspecialchars(xl('PID'),ENT_NOQUOTES);?></b></td>

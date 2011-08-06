@@ -306,6 +306,7 @@ function postcalendar_adminapi_addCategories($args)
     
     $name = pnVarPrepForStore($name);
     $desc = trim(pnVarPrepForStore($desc));
+    $value_cat_type = pnVarPrepForStore($value_cat_type);
     $color = pnVarPrepForStore($color);
     $recurrtype = pnVarPrepForStore($repeat);
     $recurrspec = pnVarPrepForStore($spec);
@@ -321,11 +322,11 @@ function postcalendar_adminapi_addCategories($args)
                                 (pc_catid,pc_catname,pc_catdesc,pc_catcolor,
                                 pc_recurrtype,pc_recurrspec,pc_recurrfreq,pc_duration,
     							pc_dailylimit,pc_end_date_flag,pc_end_date_type,
-    							pc_end_date_freq,pc_end_all_day)
+    							pc_end_date_freq,pc_end_all_day,pc_cattype)
                                 VALUES ('','$name','$desc','$color',
                                 '$recurrtype','$recurrspec','$recurrfreq',
                                 '$duration','$limitid','$end_date_flag','$end_date_type',
-                                '$end_date_freq','$end_all_day')";
+                                '$end_date_freq','$end_all_day','$value_cat_type')";
                                 
                                 
     //print "sql is $sql \n";

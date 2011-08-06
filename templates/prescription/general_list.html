@@ -39,10 +39,13 @@ function Check(chk) {
     if (len==undefined) {chk.checked=true;}
     else {
         for (pr = 0; pr < chk.length; pr++){
-            chk[pr].checked=true;
-            changeLinkHref_All('multiprint',true,chk[pr].value);
-            changeLinkHref_All('multiprintcss',true, chk[pr].value);
-            changeLinkHref_All('multiprintToFax',true, chk[pr].value);
+            if($(chk[pr]).parents("tr.inactive").length==0)
+                {
+                    chk[pr].checked=true;
+                    changeLinkHref_All('multiprint',true,chk[pr].value);
+                    changeLinkHref_All('multiprintcss',true, chk[pr].value);
+                    changeLinkHref_All('multiprintToFax',true, chk[pr].value);
+                }
         }
     }
 }

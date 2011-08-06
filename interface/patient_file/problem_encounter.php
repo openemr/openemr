@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -75,9 +75,9 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title><? xl('Issues and Encounters','e'); ?></title>
+<?php html_header_show();?>
+<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
+<title><?php xl('Issues and Encounters','e'); ?></title>
 
 <style>
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
@@ -259,7 +259,7 @@ function doclick(pfx, id) {
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'
  bgcolor='#ffffff' onunload='imclosing()'>
 <form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
-<?
+<?php
  echo "<input type='hidden' name='form_pid' value='$pid' />\n";
  // pelist looks like /problem,encounter/problem,encounter/[...].
  echo "<input type='hidden' name='form_pelist' value='/";
@@ -275,7 +275,7 @@ function doclick(pfx, id) {
 
  <tr>
   <td colspan='2' align='center'>
-   <b><? xl('Issues and Encounters for','e'); ?> <? echo $patdata['fname'] . " " . $patdata['lname'] . " ($pid)</b>\n"; ?>
+   <b><?php xl('Issues and Encounters for','e'); ?> <?php echo $patdata['fname'] . " " . $patdata['lname'] . " ($pid)</b>\n"; ?>
   </td>
  </tr>
 
@@ -285,15 +285,15 @@ function doclick(pfx, id) {
     <tr class='head'>
      <td colspan='3' align='center'>
       <input type='radio' name='form_key' value='p' onclick='clearall()' checked />
-      <b><? xl('Issues Section','e'); ?></b>
+      <b><?php xl('Issues Section','e'); ?></b>
      </td>
     </tr>
     <tr class='head'>
-     <td><? xl('Type','e'); ?></td>
-     <td><? xl('Title','e'); ?></td>
-     <td><? xl('Description','e'); ?></td>
+     <td><?php xl('Type','e'); ?></td>
+     <td><?php xl('Title','e'); ?></td>
+     <td><?php xl('Description','e'); ?></td>
     </tr>
-<?
+<?php
  while ($row = sqlFetchArray($pres)) {
   $rowid = $row['id'];
   echo "    <tr class='detail' id='p_$rowid' onclick='doclick(\"p\", $rowid)'>\n";
@@ -311,14 +311,14 @@ function doclick(pfx, id) {
     <tr class='head'>
      <td colspan='2' align='center'>
       <input type='radio' name='form_key' value='e' onclick='clearall()' />
-      <b><? xl('Encounters Section','e'); ?></b>
+      <b><?php xl('Encounters Section','e'); ?></b>
      </td>
     </tr>
     <tr class='head'>
-     <td><? xl('Date','e'); ?></td>
-     <td><? xl('Presenting Complaint','e'); ?></td>
+     <td><?php xl('Date','e'); ?></td>
+     <td><?php xl('Presenting Complaint','e'); ?></td>
     </tr>
-<?
+<?php
  while ($row = sqlFetchArray($eres)) {
   $rowid = $row['encounter'];
   echo "    <tr class='detail' id='e_$rowid' onclick='doclick(\"e\", $rowid)'>\n";
@@ -347,13 +347,13 @@ function doclick(pfx, id) {
 
 </form>
 
-<p><b><? xl('Instructions:','e'); ?></b> <? xl('Choose a section and click an item within it; then in
+<p><b><?php xl('Instructions:','e'); ?></b> <?php xl('Choose a section and click an item within it; then in
 the other section you will see the related items highlighted, and you can click
 in that section to add and delete relationships.','e'); ?>
 </p>
 
 <script>
-<?
+<?php
  echo $endjs;
  if ($_REQUEST['issue']) {
   echo "doclick('p', " . $_REQUEST['issue'] . ");\n";

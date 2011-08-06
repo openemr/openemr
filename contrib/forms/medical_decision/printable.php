@@ -14,7 +14,7 @@ include_once("$srcdir/calendar.inc");
 
 ?>
 
-<? 
+<?php 
 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
 
@@ -39,11 +39,11 @@ include_once("$srcdir/calendar.inc");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>Medical decision making</title>
 
-<? include("../../acog_printable_v.css"); ?>
+<?php include("../../acog_printable_v.css"); ?>
 
 </head>
 
@@ -61,13 +61,13 @@ include_once("$srcdir/calendar.inc");
 
       <tr align="left" valign="bottom">
 
-        <td width="40%" class="fibody2" id="bordR">Patient name:  <? echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};          ?></td>
+        <td width="40%" class="fibody2" id="bordR">Patient name:  <?php echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};          ?></td>
 
-        <td width="20%" class="fibody2" id="bordR">Birth date: <? echo $patient{'DOB'};         ?></td>
+        <td width="20%" class="fibody2" id="bordR">Birth date: <?php echo $patient{'DOB'};         ?></td>
 
-        <td width="20%" class="fibody2" id="bordR">ID No: <?  echo $patient{'id'};  ?></td>
+        <td width="20%" class="fibody2" id="bordR">ID No: <?php  echo $patient{'id'};  ?></td>
 
-        <td width="20%" class="fibody2">date: <? echo date('Y-m-d'); ?></td>
+        <td width="20%" class="fibody2">date: <?php echo date('Y-m-d'); ?></td>
 
       </tr>
 
@@ -103,7 +103,7 @@ include_once("$srcdir/calendar.inc");
 
     <td class="fibody3"><p>
 
-      <? echo (($fdata{'test_lab'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+      <?php echo (($fdata{'test_lab'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Laboratory</p>
 
@@ -111,41 +111,41 @@ include_once("$srcdir/calendar.inc");
 
         <p>
 
-          <? echo (($fdata{'test_lab_cervical'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <?php echo (($fdata{'test_lab_cervical'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
           cervical cytology</p>
 
         <p>
 
-          <? echo (($fdata{'test_lab_hpv'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <?php echo (($fdata{'test_lab_hpv'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
           HPV test</p>
 
         <p>
 
-          <? echo (($fdata{'test_lab_wet_mount'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <?php echo (($fdata{'test_lab_wet_mount'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
           wet mount</p>
 
         <p>
 
-          <? echo (($fdata{'test_lab_chlamydia'} == 'checkbox')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <?php echo (($fdata{'test_lab_chlamydia'} == 'checkbox')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
           chlamydia</p>
 
         <p>
 
-          <? echo (($fdata{'test_lab_gonorrhea'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <?php echo (($fdata{'test_lab_gonorrhea'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
           gonorrhea</p>
 
         <p>
 
-          <? echo (($fdata{'test_lab_other'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <?php echo (($fdata{'test_lab_other'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
           other <span class="ficaption2">
 
-          <? echo $fdata{'test_lab_other_data'}; ?>
+          <?php echo $fdata{'test_lab_other_data'}; ?>
 
           </span></p>
 
@@ -153,7 +153,7 @@ include_once("$srcdir/calendar.inc");
 
       <p>
 
-        <? echo (($fdata{'test_rad'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+        <?php echo (($fdata{'test_rad'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
         Radiology / Ultrasound</p>
 
@@ -161,17 +161,17 @@ include_once("$srcdir/calendar.inc");
 
         <p>
 
-          <? echo (($fdata{'test_rad_mammogram'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <?php echo (($fdata{'test_rad_mammogram'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
           mammogram</p>
 
         <p>
 
-          <? echo (($fdata{'test_rad_other'} == 'checkbox')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <?php echo (($fdata{'test_rad_other'} == 'checkbox')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
           other <span class="ficaption2">
 
-          <? echo $fdata{'test_rad_other_data'}; ?>
+          <?php echo $fdata{'test_rad_other_data'}; ?>
 
           </span> </p>
 
@@ -179,53 +179,53 @@ include_once("$srcdir/calendar.inc");
 
     <td class="fibody3"><p>
 
-      <? echo (($fdata{'previous_test_results'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+      <?php echo (($fdata{'previous_test_results'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       previous test results:</p>
 
       <p>
 
-        <? echo $fdata{'previous_test_results_data'}; ?>
+        <?php echo $fdata{'previous_test_results_data'}; ?>
 
       </p> <p>
 
-        <? echo (($fdata{'test_results_discussion'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+        <?php echo (($fdata{'test_results_discussion'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
         discussion of test results with performing physician:</p>
 
       <p>
 
-        <? echo $fdata{'test_results_discussion_data'}; ?>
+        <?php echo $fdata{'test_results_discussion_data'}; ?>
 
       </p> <p>
 
-        <? echo (($fdata{'old_records_reviewed'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+        <?php echo (($fdata{'old_records_reviewed'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
         old records reviewed and summarized:</p>
 
       <p>
 
-        <? echo $fdata{'old_records_reviewed_data'}; ?>
+        <?php echo $fdata{'old_records_reviewed_data'}; ?>
 
       </p> <p>
 
-        <? echo (($fdata{'history_other_source'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+        <?php echo (($fdata{'history_other_source'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
         history obtained from other source:</p>
 
       <p>
 
-        <? echo $fdata{'history_other_source_data'}; ?>
+        <?php echo $fdata{'history_other_source_data'}; ?>
 
       </p> <p>
 
-        <? echo (($fdata{'independent_review'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+        <?php echo (($fdata{'independent_review'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
         independent review of image/specimen:</p>
 
       <p>
 
-        <? echo $fdata{'independent_review_data'}; ?>
+        <?php echo $fdata{'independent_review_data'}; ?>
 
       </p></td>
 
@@ -245,11 +245,11 @@ include_once("$srcdir/calendar.inc");
 
       <tr>
 
-        <td colspan="2" align="left" valign="top" class="fibody2"> <? echo (($fdata{'established_problem'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+        <td colspan="2" align="left" valign="top" class="fibody2"> <?php echo (($fdata{'established_problem'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
           Established problem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-          <? echo (($fdata{'established_problem'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <?php echo (($fdata{'established_problem'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
         New problem </td>
 
@@ -263,7 +263,7 @@ include_once("$srcdir/calendar.inc");
 
       <tr>
 
-        <td colspan="2" align="left" valign="top" class="fibody5"><? echo $fdata{'assessment_and_plan'}; ?></td>
+        <td colspan="2" align="left" valign="top" class="fibody5"><?php echo $fdata{'assessment_and_plan'}; ?></td>
 
       </tr>
 
@@ -275,25 +275,25 @@ include_once("$srcdir/calendar.inc");
 
             <p>
 
-            <? echo (($fdata{'md_risk'} == 'minimal')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <?php echo (($fdata{'md_risk'} == 'minimal')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
             Minimal (EG, cold, aches and pains, over-the-counter medications)</p>
 
             <p>
 
-            <? echo (($fdata{'md_risk'} == 'low')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <?php echo (($fdata{'md_risk'} == 'low')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
             low (EG, cystitis, vaginitis, prescription renewal, minor surgery without risk factors) </p>
 
             <p>
 
-              <? echo (($fdata{'md_risk'} == 'moderate')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+              <?php echo (($fdata{'md_risk'} == 'moderate')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
             moderate (EG, breast mass, irregular bleeding, headaches, minor surgery with risk factors, major surgery without risk factors, new prescription)</p>
 
             <p>
 
-              <? echo (($fdata{'md_risk'} == 'high')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+              <?php echo (($fdata{'md_risk'} == 'high')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
             high (EG, pelvic pain, rectal bleeding, multiple complaints, major surgery with risk factors, chemotherapy, emergency surgery)  </p>
 
@@ -309,11 +309,11 @@ include_once("$srcdir/calendar.inc");
 
             <td width="20%" rowspan="3" align="left" valign="top" class="ficaption3">Patient counseled about:</td>
 
-            <td width="15%" align="left" valign="baseline" nowrap class="fibody3"><? echo (($fdata{'pc_smoking'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <td width="15%" align="left" valign="baseline" nowrap class="fibody3"><?php echo (($fdata{'pc_smoking'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
               smoking cessation </td>
 
-            <td width="15%" align="left" valign="baseline" nowrap class="fibody3"><? echo (($fdata{'pc_contraception'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <td width="15%" align="left" valign="baseline" nowrap class="fibody3"><?php echo (($fdata{'pc_contraception'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
               contraception</td>
 
@@ -325,11 +325,11 @@ include_once("$srcdir/calendar.inc");
 
           <tr>
 
-            <td align="left" valign="baseline" nowrap class="fibody3"><? echo (($fdata{'pc_weight'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <td align="left" valign="baseline" nowrap class="fibody3"><?php echo (($fdata{'pc_weight'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
               weight management </td>
 
-            <td align="left" valign="baseline" nowrap class="fibody3"><? echo (($fdata{'pc_safe_sex'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <td align="left" valign="baseline" nowrap class="fibody3"><?php echo (($fdata{'pc_safe_sex'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
               safe sex </td>
 
@@ -341,11 +341,11 @@ include_once("$srcdir/calendar.inc");
 
           <tr>
 
-            <td align="left" valign="baseline" nowrap class="fibody3"><? echo (($fdata{'pc_exercise'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <td align="left" valign="baseline" nowrap class="fibody3"><?php echo (($fdata{'pc_exercise'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
               exercise</td>
 
-            <td align="left" valign="baseline" nowrap class="fibody3"><? echo (($fdata{'pc_other'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <td align="left" valign="baseline" nowrap class="fibody3"><?php echo (($fdata{'pc_other'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
               other</td>
 
@@ -361,7 +361,7 @@ include_once("$srcdir/calendar.inc");
 
       <tr>
 
-        <td width="50%" align="left" valign="top" class="ficaption2" id="bordR"><? echo (($fdata{'patient_education'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+        <td width="50%" align="left" valign="top" class="ficaption2" id="bordR"><?php echo (($fdata{'patient_education'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
         Patient education materials provided</td>
 
@@ -381,11 +381,11 @@ include_once("$srcdir/calendar.inc");
 
         <td align="left" valign="top" class="ficaption2" id="bordR">Minutes counseled: 
 
-        <? echo $fdata{'minutes_counseled'}; ?></td>
+        <?php echo $fdata{'minutes_counseled'}; ?></td>
 
         <td align="left" valign="top" class="ficaption2">Total encounter time: 
 
-        <? echo $fdata{'total_encounter_time'}; ?></td>
+        <?php echo $fdata{'total_encounter_time'}; ?></td>
 
       </tr>
 
@@ -393,7 +393,7 @@ include_once("$srcdir/calendar.inc");
 
         <td height="50" align="left" class="ficaption2" id="bordR">Signature:</td>
 
-        <td align="left" class="ficaption2">Date: <? echo $fdata['date']; ?></td>
+        <td align="left" class="ficaption2">Date: <?php echo $fdata['date']; ?></td>
 
       </tr>
 

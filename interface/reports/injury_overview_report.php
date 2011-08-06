@@ -53,7 +53,7 @@ function lookup_code_descriptions($codes) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php xl('Injury Overview Report','e'); ?></title>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <style type="text/css">
@@ -69,7 +69,7 @@ function lookup_code_descriptions($codes) {
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -92,7 +92,7 @@ function dopclick(id,pid) {
 
 <center>
 
-<h2><? xl('Injury Overview Report','e'); ?></h2>
+<h2><?php xl('Injury Overview Report','e'); ?></h2>
 
 <form name='theform' method='post' action='injury_overview_report.php'
  onsubmit='return top.restoreSession()'>

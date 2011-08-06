@@ -96,8 +96,8 @@ if (preg_match("/^[^\/]/",$web_root)) {
 // The webserver_root and web_root are now automatically collected in
 //  real time per above code. If above is not working, can uncomment and
 //  set manually here:
-//   $webserver_root = "/var/www/openemr"
-//   $web_root =  "/openemr"
+//   $webserver_root = "/var/www/openemr";
+//   $web_root =  "/openemr";
 //
 
 // This is the directory that contains site-specific data.  Change this
@@ -127,6 +127,8 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     $tmp = $_SERVER['HTTP_HOST'];
     if (!is_dir($GLOBALS['OE_SITES_BASE'] . "/$tmp")) $tmp = "default";
   }
+  if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp))
+    die("Site ID '$tmp' contains invalid characters.");
   if (!isset($_SESSION['site_id']) || $_SESSION['site_id'] != $tmp) {
     $_SESSION['site_id'] = $tmp;
     error_log("Session site ID has been set to '$tmp'"); // debugging

@@ -47,7 +47,15 @@
             							<td valign="top" align="left">
             								<input type="hidden" name="newid" value=""/>
             								[-$_PC_CAT_NAME-]:<br />
-            								&nbsp;<input type="text" name="newname" value="" size="20"/>
+            								&nbsp;<input type="text" name="newname" value="" size="20"/><br />
+            								[-$_PC_CAT_TYPE-]:<br />
+            								&nbsp;<select name="new[-$InputCatType-]">
+               									[-foreach item=repeat from=$cat_type-]
+                    								<option value="[-$repeat.value-]" >
+                    									[-$repeat.name-]
+                    								</option>
+                								[-/foreach-]
+                								</select>
             							</td>
             							<td valign="top" align="left">
                 							[-$_PC_CAT_COLOR-]:<br />
@@ -193,7 +201,15 @@
             							<td valign="top" align="left">
             								<input type="hidden" name="id[]" value="[-$cat.id-]"/>
             								[-$_PC_CAT_NAME-]:<br />
-            								&nbsp;<input type="text" name="name[]" value="[-$cat.name-]" size="20"/>
+            								&nbsp;<input type="text" name="name[]" value="[-$cat.name-]" size="20"/><br />
+            								[-$_PC_CAT_TYPE-]:<br />
+            								&nbsp;<select name="[-$InputCatType-][]">
+               									[-foreach item=repeat from=$cat_type-]
+                    								<option value="[-$repeat.value-]" [-if $cat.value_cat_type == $repeat.value-]selected [-/if-]>
+                    									[-$repeat.name-]
+                    								</option>
+                								[-/foreach-]
+                								</select>
             							</td>
                                                                 [-if (($GLOBALS['translate_appt_categories']) && ($_SESSION['language_choice'] > 1))-]
                                                                  <td valign="top" align="left">[-$_PC_CAT_NAME_XL-]:<br />

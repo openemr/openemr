@@ -1,4 +1,5 @@
-<?
+<?php
+
 function high_risk_screening_record_report( $pid, $encounter, $cols, $id) {
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
@@ -19,9 +20,9 @@ include_once("$srcdir/calendar.inc");
 <div style="border: solid 2px black; background-color:#FFFFFF;">
   <table  border="0" cellpadding="2" cellspacing="0">
     <tr align="left" valign="bottom">
-      <td colspan="6" class="fibody2" id="bordR">Patient name: <?  echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};  ?></td>
-      <td colspan="5" class="fibody2" id="bordR">Birth date: <?  echo $patient{'DOB'}; ?></td>
-      <td colspan="4" class="fibody2">ID No: <? echo $patient{'id'}; ?></td>
+      <td colspan="6" class="fibody2" id="bordR">Patient name: <?php  echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};  ?></td>
+      <td colspan="5" class="fibody2" id="bordR">Birth date: <?php  echo $patient{'DOB'}; ?></td>
+      <td colspan="4" class="fibody2">ID No: <?php echo $patient{'id'}; ?></td>
       </tr>
     <tr align="center" valign="middle">
       <td class="ficaption2" id="bordR">&nbsp;</td>
@@ -116,4 +117,4 @@ $rsi++;
 </div>
 <p><sup>*</sup>See Table of High-Risk Factors.</p>
 <p><sup>**</sup>Check state requirements before recording results.</p>
-<? } ?>
+<?php } ?>

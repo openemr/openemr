@@ -19,11 +19,11 @@ include_once("$srcdir/calendar.inc");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>Physical examination</title>
 
-<? include("../../acog_printable_v.css"); ?>
+<?php include("../../acog_printable_v.css"); ?>
 
 </head>
 
@@ -33,7 +33,7 @@ include_once("$srcdir/calendar.inc");
 
 <div class="srvChapter">Physical examination  </div>
 
-<? 
+<?php 
 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
 
@@ -55,13 +55,13 @@ include_once("$srcdir/calendar.inc");
 
       <tr align="left" valign="top" class="fibody">
 
-        <td width="40%" nowrap id="bordR">Patient name: <b><?  echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};  ?></b></td>
+        <td width="40%" nowrap id="bordR">Patient name: <b><?php  echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};  ?></b></td>
 
-        <td width="20%" nowrap id="bordR">Birth date: <? echo $patient{'DOB'}; ?></td>
+        <td width="20%" nowrap id="bordR">Birth date: <?php echo $patient{'DOB'}; ?></td>
 
-        <td width="20%" nowrap id="bordR">ID No: <? echo $patient{'id'};  ?></td>
+        <td width="20%" nowrap id="bordR">ID No: <?php echo $patient{'id'};  ?></td>
 
-        <td width="20%" nowrap>Date: <? echo date('Y-m-d');  ?></td>
+        <td width="20%" nowrap>Date: <?php echo date('Y-m-d');  ?></td>
 
       </tr>
 
@@ -81,31 +81,31 @@ include_once("$srcdir/calendar.inc");
 
           <td width="14%" nowrap>Height<br>
 
-            <? echo $fdata{'height'}; ?></td>
+            <?php echo $fdata{'height'}; ?></td>
 
           <td width="14%" nowrap>Weight<br>
 
-            <? echo $fdata{'weight'}; ?></td>
+            <?php echo $fdata{'weight'}; ?></td>
 
           <td width="14%" nowrap>BMI<br>
 
-            <? echo $fdata{'bmi'}; ?></td>
+            <?php echo $fdata{'bmi'}; ?></td>
 
           <td nowrap>Blood pressure (sitting) <br>
 
-            <? echo $fdata{'blood_pressure'}; ?></td>
+            <?php echo $fdata{'blood_pressure'}; ?></td>
 
           <td width="14%" nowrap>Temperature<br>
 
-            <? echo $fdata{'temperature'}; ?></td>
+            <?php echo $fdata{'temperature'}; ?></td>
 
           <td width="14%" nowrap>Pulse<br>
 
-            <? echo $fdata{'pulse'}; ?></td>
+            <?php echo $fdata{'pulse'}; ?></td>
 
           <td width="14%" nowrap>Respiration<br>
 
-            <? echo $fdata{'respiration'}; ?></td>
+            <?php echo $fdata{'respiration'}; ?></td>
 
         </tr>
 
@@ -115,13 +115,13 @@ include_once("$srcdir/calendar.inc");
 
         <tr class="fibody">
 
-          <td width="150" nowrap><? echo (($fdata{'general_well_developed'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="150" nowrap><?php echo (($fdata{'general_well_developed'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Well-developed
 
 </td>
 
-          <td width="90" nowrap><? echo (($fdata{'general_well_developed'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="90" nowrap><?php echo (($fdata{'general_well_developed'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Other
 
@@ -131,13 +131,13 @@ include_once("$srcdir/calendar.inc");
 
           <td>&nbsp;</td>
 
-          <td width="120"><? echo (($fdata{'general_no_deformities'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="120"><?php echo (($fdata{'general_no_deformities'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             No deformities
 
 </td>
 
-          <td width="100"><? echo (($fdata{'general_no_deformities'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="100"><?php echo (($fdata{'general_no_deformities'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Other
 
@@ -149,13 +149,13 @@ include_once("$srcdir/calendar.inc");
 
         <tr class="fibody">
 
-          <td width="150" nowrap><? echo (($fdata{'general_well_nourished'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="150" nowrap><?php echo (($fdata{'general_well_nourished'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Well-nourished
 
 </td>
 
-          <td width="90" nowrap><? echo (($fdata{'general_well_nourished'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="90" nowrap><?php echo (($fdata{'general_well_nourished'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Other
 
@@ -165,13 +165,13 @@ include_once("$srcdir/calendar.inc");
 
           <td>&nbsp;</td>
 
-          <td width="120"><? echo (($fdata{'general_well_groomed'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="120"><?php echo (($fdata{'general_well_groomed'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Well-groomed
 
 </td>
 
-          <td width="100"><? echo (($fdata{'general_well_groomed'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="100"><?php echo (($fdata{'general_well_groomed'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Other
 
@@ -183,15 +183,15 @@ include_once("$srcdir/calendar.inc");
 
         <tr class="fibody">
 
-          <td width="150" nowrap><? echo (($fdata{'general_normal_habitus'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="150" nowrap><?php echo (($fdata{'general_normal_habitus'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Normal habitus</td>
 
-          <td width="90" nowrap><? echo (($fdata{'general_normal_habitus'} == '2')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="90" nowrap><?php echo (($fdata{'general_normal_habitus'} == '2')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Obese</td>
 
-          <td width="100" nowrap><? echo (($fdata{'general_normal_habitus'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="100" nowrap><?php echo (($fdata{'general_normal_habitus'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Other</td>
 
@@ -219,15 +219,15 @@ include_once("$srcdir/calendar.inc");
 
           <td width="150" nowrap><li>Neck</li></td>
 
-          <td width="90" nowrap> <? echo (($fdata{'neck_neck'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap> <?php echo (($fdata{'neck_neck'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'neck_neck'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'neck_neck'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
             ABNormal</td>
 
-          <td><? echo $fdata{'neck_neck_data'}; ?></td>
+          <td><?php echo $fdata{'neck_neck_data'}; ?></td>
 
           </tr>
 
@@ -237,15 +237,15 @@ include_once("$srcdir/calendar.inc");
 
           <td width="90" nowrap>
 
-            <? echo (($fdata{'neck_thyroid'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <?php echo (($fdata{'neck_thyroid'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'neck_thyroid'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'neck_thyroid'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 ABNormal</td>
 
-          <td><? echo $fdata{'neck_thyroid_data'}; ?></td>
+          <td><?php echo $fdata{'neck_thyroid_data'}; ?></td>
 
           </tr>
 
@@ -265,15 +265,15 @@ ABNormal</td>
 
           <td nowrap>
 
-            <? echo (($fdata{'respiratory_effort'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+            <?php echo (($fdata{'respiratory_effort'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td nowrap><? echo (($fdata{'respiratory_effort'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'respiratory_effort'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'respiratory_effort_data'}; ?></td>
+          <td><?php echo $fdata{'respiratory_effort_data'}; ?></td>
 
         </tr>
 
@@ -281,15 +281,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Auscultated lungs </li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'auscultated_lungs'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'auscultated_lungs'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'auscultated_lungs'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'auscultated_lungs'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 ABNormal</td>
 
-          <td><? echo $fdata{'auscultated_lungs_data'}; ?></td>
+          <td><?php echo $fdata{'auscultated_lungs_data'}; ?></td>
 
         </tr>
 
@@ -319,15 +319,15 @@ ABNormal</td>
 
           <td width="150" nowrap><blockquote> Sounds</blockquote></td>
 
-          <td width="90" nowrap><? echo (($fdata{'auscultated_heart_sounds'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'auscultated_heart_sounds'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'auscultated_heart_sounds'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'auscultated_heart_sounds'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 ABNormal</td>
 
-          <td><? echo $fdata{'auscultated_heart_sounds_data'}; ?></td>
+          <td><?php echo $fdata{'auscultated_heart_sounds_data'}; ?></td>
 
         </tr>
 
@@ -335,15 +335,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Murmurs</blockquote></td>
 
-          <td nowrap><? echo (($fdata{'auscultated_heart_murmurs'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'auscultated_heart_murmurs'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 Normal</td>
 
-          <td nowrap><? echo (($fdata{'auscultated_heart_murmurs'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'auscultated_heart_murmurs'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 ABNormal</td>
 
-          <td><? echo $fdata{'auscultated_heart_murmurs_data'}; ?></td>
+          <td><?php echo $fdata{'auscultated_heart_murmurs_data'}; ?></td>
 
         </tr>
 
@@ -351,15 +351,15 @@ ABNormal</td>
 
           <td nowrap><li>Perirheral vascular </li></td>
 
-          <td nowrap><? echo (($fdata{'peripheral_vascular'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'peripheral_vascular'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 Normal</td>
 
-          <td nowrap><? echo (($fdata{'peripheral_vascular'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'peripheral_vascular'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 ABNormal</td>
 
-          <td><? echo $fdata{'peripheral_vascular_data'}; ?></td>
+          <td><?php echo $fdata{'peripheral_vascular_data'}; ?></td>
 
         </tr>
 
@@ -377,15 +377,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Abdomen</li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'gastr_abdomen'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'gastr_abdomen'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'gastr_abdomen'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'gastr_abdomen'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
 ABNormal</td>
 
-          <td><? echo $fdata{'gastr_abdomen_data'}; ?></td>
+          <td><?php echo $fdata{'gastr_abdomen_data'}; ?></td>
 
         </tr>
 
@@ -393,15 +393,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Hernia</li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'gastr_hernia'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'gastr_hernia'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       none</td>
 
-          <td width="100" nowrap><? echo (($fdata{'gastr_hernia'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'gastr_hernia'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       present</td>
 
-          <td><? echo $fdata{'gastr_hernia_data'}; ?></td>
+          <td><?php echo $fdata{'gastr_hernia_data'}; ?></td>
 
         </tr>
 
@@ -421,15 +421,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Liver </blockquote></td>
 
-          <td nowrap><? echo (($fdata{'gastr_liver'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gastr_liver'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     Normal</td>
 
-          <td nowrap><? echo (($fdata{'gastr_liver'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gastr_liver'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     ABNormal</td>
 
-          <td><? echo $fdata{'gastr_liver_data'}; ?></td>
+          <td><?php echo $fdata{'gastr_liver_data'}; ?></td>
 
         </tr>
 
@@ -437,15 +437,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Spleen </blockquote></td>
 
-          <td nowrap><? echo (($fdata{'gastr_spleen'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gastr_spleen'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     Normal</td>
 
-          <td nowrap><? echo (($fdata{'gastr_spleen'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gastr_spleen'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     ABNormal</td>
 
-          <td><? echo $fdata{'gastr_spleen_data'}; ?></td>
+          <td><?php echo $fdata{'gastr_spleen_data'}; ?></td>
 
         </tr>
 
@@ -453,15 +453,15 @@ ABNormal</td>
 
           <td nowrap><li><a name="sg"></a>Stool guaIac, if indic.</li></td>
 
-          <td nowrap><? echo (($fdata{'gastr_stool_guaiac'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gastr_stool_guaiac'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     positive</td>
 
-          <td nowrap><? echo (($fdata{'gastr_stool_guaiac'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gastr_stool_guaiac'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     negative</td>
 
-          <td><? echo $fdata{'gastr_stool_guaiac_data'}; ?></td>
+          <td><?php echo $fdata{'gastr_stool_guaiac_data'}; ?></td>
 
         </tr>
 
@@ -485,15 +485,15 @@ ABNormal</td>
 
           <td width="150" nowrap><blockquote> Neck </blockquote></td>
 
-          <td width="90" nowrap><? echo (($fdata{'lymph_neck'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'lymph_neck'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'lymph_neck'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'lymph_neck'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       ABNormal</td>
 
-          <td><? echo $fdata{'lymph_neck_data'}; ?></td>
+          <td><?php echo $fdata{'lymph_neck_data'}; ?></td>
 
         </tr>
 
@@ -501,15 +501,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Axilla </blockquote></td>
 
-          <td nowrap><? echo (($fdata{'lymph_axilla'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'lymph_axilla'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Normal</td>
 
-          <td nowrap><? echo (($fdata{'lymph_axilla'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'lymph_axilla'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       ABNormal</td>
 
-          <td><? echo $fdata{'lymph_axilla_data'}; ?></td>
+          <td><?php echo $fdata{'lymph_axilla_data'}; ?></td>
 
         </tr>
 
@@ -517,15 +517,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Groin </blockquote></td>
 
-          <td nowrap><? echo (($fdata{'lymph_groin'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'lymph_groin'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     Normal</td>
 
-          <td nowrap><? echo (($fdata{'lymph_groin'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'lymph_groin'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     ABNormal</td>
 
-          <td><? echo $fdata{'lymph_groin_data'}; ?></td>
+          <td><?php echo $fdata{'lymph_groin_data'}; ?></td>
 
         </tr>
 
@@ -533,15 +533,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Other site </blockquote></td>
 
-          <td nowrap><? echo (($fdata{'lymph_other'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'lymph_other'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     Normal</td>
 
-          <td nowrap><? echo (($fdata{'lymph_other'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'lymph_other'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
     ABNormal</td>
 
-          <td><? echo $fdata{'lymph_other_data'}; ?></td>
+          <td><?php echo $fdata{'lymph_other_data'}; ?></td>
 
         </tr>
 
@@ -559,15 +559,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>inspected/palpated</li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'skin_inspected'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'skin_inspected'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'skin_inspected'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'skin_inspected'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       ABNormal</td>
 
-          <td><? echo $fdata{'skin_inspected_data'}; ?></td>
+          <td><?php echo $fdata{'skin_inspected_data'}; ?></td>
 
         </tr>
 
@@ -585,21 +585,21 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Orientation</li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'neur_orient_time'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'neur_orient_time'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Time</td>
 
-          <td width="100" nowrap><? echo (($fdata{'neur_orient_place'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'neur_orient_place'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Place</td>
 
-          <td width="100"><? echo (($fdata{'neur_orient_person'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="100"><?php echo (($fdata{'neur_orient_person'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Person
 
 </td>
 
-          <td width="100"><? echo (($fdata{'neur_orient_comments'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="100"><?php echo (($fdata{'neur_orient_comments'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Comments
 
@@ -613,27 +613,27 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Mood and affect </li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'neur_mood_normal'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'neur_mood_normal'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'neur_mood_depressed'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'neur_mood_depressed'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Depressed</td>
 
-          <td width="100"><? echo (($fdata{'neur_mood_anxious'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="100"><?php echo (($fdata{'neur_mood_anxious'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Anxious
 
 </td>
 
-          <td width="100"><? echo (($fdata{'neur_mood_agitated'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td width="100"><?php echo (($fdata{'neur_mood_agitated'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Agitated
 
 </td>
 
-          <td><? echo (($fdata{'neur_mood_other'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
+          <td><?php echo (($fdata{'neur_mood_other'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?> 
 
             Other
 
@@ -655,19 +655,20 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Breasts</li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'gynec_breasts'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'gynec_breasts'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'gynec_breasts'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'gynec_breasts'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
       ABNormal</td>
 
-          <td><? echo $fdata{'gynec_breasts_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_breasts_data'}; ?></td>
 
           <td width="231" rowspan="12" align="center" valign="middle">
 
-          <img src="<?
+          <img src="<?php
+
 
           echo "$rootdir/forms/$formname/";
 
@@ -679,15 +680,15 @@ ABNormal</td>
 
           <td nowrap><li>External genitalia </li></td>
 
-          <td nowrap><? echo (($fdata{'gynec_ext_genitalia'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_ext_genitalia'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td nowrap><? echo (($fdata{'gynec_ext_genitalia'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_ext_genitalia'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_ext_genitalia_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_ext_genitalia_data'}; ?></td>
 
           </tr>
 
@@ -695,15 +696,15 @@ ABNormal</td>
 
           <td nowrap><li>Urethral meatus </li></td>
 
-          <td nowrap><? echo (($fdata{'gynec_urethral_meatus'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_urethral_meatus'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td nowrap><? echo (($fdata{'gynec_urethral_meatus'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_urethral_meatus'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_urethral_meatus_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_urethral_meatus_data'}; ?></td>
 
           </tr>
 
@@ -711,15 +712,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Urethra</li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'gynec_urethra'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'gynec_urethra'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'gynec_urethra'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'gynec_urethra'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_urethra_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_urethra_data'}; ?></td>
 
           </tr>
 
@@ -727,15 +728,15 @@ ABNormal</td>
 
           <td nowrap><li>Bladder</li></td>
 
-          <td nowrap><? echo (($fdata{'gynec_bladder'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_bladder'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td nowrap><? echo (($fdata{'gynec_bladder'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_bladder'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_bladder_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_bladder_data'}; ?></td>
 
           </tr>
 
@@ -743,15 +744,15 @@ ABNormal</td>
 
           <td nowrap><li>Vagina/Pelvic support</li></td>
 
-          <td nowrap><? echo (($fdata{'gynec_vagina_support'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_vagina_support'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td nowrap><? echo (($fdata{'gynec_vagina_support'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_vagina_support'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_vagina_support_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_vagina_support_data'}; ?></td>
 
           </tr>
 
@@ -759,15 +760,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Cervix</li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'gynec_cervix'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'gynec_cervix'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'gynec_cervix'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'gynec_cervix'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_cervix_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_cervix_data'}; ?></td>
 
           </tr>
 
@@ -775,15 +776,15 @@ ABNormal</td>
 
           <td nowrap><li>Uterus</li></td>
 
-          <td nowrap><? echo (($fdata{'gynec_uterus'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_uterus'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td nowrap><? echo (($fdata{'gynec_uterus'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_uterus'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_uterus_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_uterus_data'}; ?></td>
 
           </tr>
 
@@ -791,15 +792,15 @@ ABNormal</td>
 
           <td nowrap><li>Adnexa/Parametria</li></td>
 
-          <td nowrap><? echo (($fdata{'gynec_adnexa'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_adnexa'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td nowrap><? echo (($fdata{'gynec_adnexa'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_adnexa'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_adnexa_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_adnexa_data'}; ?></td>
 
           </tr>
 
@@ -807,15 +808,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Anus/Perineum</li></td>
 
-          <td width="90" nowrap><? echo (($fdata{'gynec_anus'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="90" nowrap><?php echo (($fdata{'gynec_anus'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td width="100" nowrap><? echo (($fdata{'gynec_anus'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td width="100" nowrap><?php echo (($fdata{'gynec_anus'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_anus_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_anus_data'}; ?></td>
 
           </tr>
 
@@ -823,15 +824,15 @@ ABNormal</td>
 
           <td nowrap><li>Rectal</li></td>
 
-          <td nowrap><? echo (($fdata{'gynec_rectal'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_rectal'} == '0')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   Normal</td>
 
-          <td nowrap><? echo (($fdata{'gynec_rectal'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
+          <td nowrap><?php echo (($fdata{'gynec_rectal'} == '1')?'<img src="../../pic/mrkcheck.png" width="12" height="11"> ':'<img src="../../pic/mrkempty.png" width="12" height="11"> '); ?>
 
   ABNormal</td>
 
-          <td><? echo $fdata{'gynec_rectal_data'}; ?></td>
+          <td><?php echo $fdata{'gynec_rectal_data'}; ?></td>
 
           </tr>
 
@@ -851,7 +852,7 @@ ABNormal</td>
 
     <td align="left" valign="top" style="border-bottom:2px solid black;border-top:2px solid black;">Total number of bulleted elements examined 
 
-      <? echo $fdata{'tot_num_examined'}; ?></td>
+      <?php echo $fdata{'tot_num_examined'}; ?></td>
 
   </tr>
 

@@ -692,6 +692,14 @@ div.tab table td.data {
 	min-width:120px; /*170px*/
 }
 
+div.notab {
+    background: #D7DFE7 none repeat scroll 0 0; margin-bottom: 10px; width:100%;
+}
+
+div.notab-right {
+    background: #D7DFE7 none repeat scroll 0 0; margin-bottom: 10px; width:100%;
+}
+
 .section-header {
 	margin-bottom:5px; width:685px; border-bottom: 1px solid;
 }

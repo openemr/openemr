@@ -1,4 +1,5 @@
-<?
+<?php
+
 function immunization_record_report( $pid, $encounter, $cols, $id) { 
 
 include_once("../../globals.php");
@@ -16,9 +17,9 @@ include_once("$srcdir/api.inc");
 <div style="border: solid 2pt black; background-color:#FFFFFF;">
   <table width="100%"  border="0" cellspacing="0" cellpadding="2">
     <tr align="left" valign="bottom">
-      <td colspan="4" class="fibody2" id="bordR">Patient name: <? echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
-      <td colspan="2" class="fibody2" id="bordR">Birth date: <? echo $patient{'DOB'}; ?></td>
-      <td colspan="2" class="fibody2">ID No: <?  echo $patient{'id'};  ?></td>
+      <td colspan="4" class="fibody2" id="bordR">Patient name: <?php echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
+      <td colspan="2" class="fibody2" id="bordR">Birth date: <?php echo $patient{'DOB'}; ?></td>
+      <td colspan="2" class="fibody2">ID No: <?php  echo $patient{'id'};  ?></td>
       </tr>
     <tr align="center" valign="middle">
       <td width="9%" class="ficaption2" id="bordR">age</td>
@@ -75,7 +76,8 @@ include_once("$srcdir/api.inc");
 <p>&nbsp;</p>
 <div style="border: solid 2pt black; background-color:#FFFFFF;">
   <table width="100%"  border="0" cellspacing="0" cellpadding="2">
-<?
+<?php
+
 $vacci=0;
   $vacc_tetanus = explode("|~", $ir["vacc_tetanus"]);
   $vacc_influenza = explode("|~", $ir["vacc_influenza"]);
@@ -103,4 +105,4 @@ $vacci++;
   </table>
 </div>
 <p><sup>*</sup>For immunizations based on risk refer to the Table of High-Risk Factors.</p>
-<? } ?>
+<?php } ?>

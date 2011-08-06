@@ -1,4 +1,5 @@
-<?
+<?php
+
 /*
 nikkipost.php - Control panel for O-Kiraku Nikki
 Copyright (C) 2003 Javi Lavandeira (http://www.ag0ny.com)

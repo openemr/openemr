@@ -58,7 +58,7 @@
                          </h3> 
                      </td> 
                  </tr> 
-                 <tr><td class='text'   colspan="5"><b> <? xl("FULL LEGAL NAME(FIRST NAME)",'e') ?> </b></td></tr> 
+                 <tr><td class='text'   colspan="5"><b> <?php xl("FULL LEGAL NAME(FIRST NAME)",'e') ?> </b></td></tr> 
   
                  <tr>                     
   
@@ -302,8 +302,8 @@
   
  <table> 
   
- <tr><td class='text' > sex</td> <td class='text' ><br> <label><input type="checkbox" name="_sex[]" value="MALE" <?php $result = chkdata_CB($obj,"_sex","MALE"); echo $result;?> <? xl(">MALE",'e') ?> </label> 
- <br> <label><input type="checkbox" name="_sex[]" value="FEMALE" <?php $result = chkdata_CB($obj,"_sex","FEMALE"); echo $result;?> <? xl(">FEMALE",'e') ?> </label></td></tr> 
+ <tr><td class='text' > sex</td> <td class='text' ><br> <label><input type="checkbox" name="_sex[]" value="MALE" <?php $result = chkdata_CB($obj,"_sex","MALE"); echo $result;?> <?php xl(">MALE",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="_sex[]" value="FEMALE" <?php $result = chkdata_CB($obj,"_sex","FEMALE"); echo $result;?> <?php xl(">FEMALE",'e') ?> </label></td></tr> 
   
  </table> 
                      </td> 
@@ -312,8 +312,8 @@
   
  <table> 
   
- <tr><td class='text' > marital status</td> <td class='text' ><br> <label><input type="checkbox" name="_marital_status[]" value="MARRIED" <?php $result = chkdata_CB($obj,"_marital_status","MARRIED"); echo $result;?> <? xl(">MARRIED",'e') ?> </label> 
- <br> <label><input type="checkbox" name="_marital_status[]" value="SINGLE" <?php $result = chkdata_CB($obj,"_marital_status","SINGLE"); echo $result;?> <? xl(">SINGLE",'e') ?> </label></td></tr> 
+ <tr><td class='text' > marital status</td> <td class='text' ><br> <label><input type="checkbox" name="_marital_status[]" value="MARRIED" <?php $result = chkdata_CB($obj,"_marital_status","MARRIED"); echo $result;?> <?php xl(">MARRIED",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="_marital_status[]" value="SINGLE" <?php $result = chkdata_CB($obj,"_marital_status","SINGLE"); echo $result;?> <?php xl(">SINGLE",'e') ?> </label></td></tr> 
   
  </table> 
                      </td> 
@@ -660,11 +660,11 @@
   
  <table> 
   
- <tr><td class='text' > concerning insurance deatils</td> <td class='text' ><label><input type="checkbox" name="_concerning_insurance_deatils[]" value="SPOUCE IS POLICY HOLDER" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","SPOUCE IS POLICY HOLDER"); echo $result;?> <? xl(">SPOUCE IS POLICY HOLDER",'e') ?> </label>
-   <label><input type="checkbox" name="_concerning_insurance_deatils[]" value="MEDICARE" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","MEDICARE"); echo $result;?> <? xl(">MEDICARE",'e') ?> </label>
-   <label><input type="checkbox" name="_concerning_insurance_deatils[]" value="MEDICAL" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","MEDICAL"); echo $result;?> <? xl(">MEDICAL",'e') ?> </label>
-   <label><input type="checkbox" name="_concerning_insurance_deatils[]" value="HMO" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","HMO"); echo $result;?> <? xl(">HMO",'e') ?> </label>
-   <label><input type="checkbox" name="_concerning_insurance_deatils[]" value="WORK COMP" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","WORK COMP"); echo $result;?> <? xl(">WORK COMP",'e') ?> </label></td></tr> 
+ <tr><td class='text' > concerning insurance deatils</td> <td class='text' ><label><input type="checkbox" name="_concerning_insurance_deatils[]" value="SPOUCE IS POLICY HOLDER" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","SPOUCE IS POLICY HOLDER"); echo $result;?> <?php xl(">SPOUCE IS POLICY HOLDER",'e') ?> </label>
+   <label><input type="checkbox" name="_concerning_insurance_deatils[]" value="MEDICARE" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","MEDICARE"); echo $result;?> <?php xl(">MEDICARE",'e') ?> </label>
+   <label><input type="checkbox" name="_concerning_insurance_deatils[]" value="MEDICAL" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","MEDICAL"); echo $result;?> <?php xl(">MEDICAL",'e') ?> </label>
+   <label><input type="checkbox" name="_concerning_insurance_deatils[]" value="HMO" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","HMO"); echo $result;?> <?php xl(">HMO",'e') ?> </label>
+   <label><input type="checkbox" name="_concerning_insurance_deatils[]" value="WORK COMP" <?php $result = chkdata_CB($obj,"_concerning_insurance_deatils","WORK COMP"); echo $result;?> <?php xl(">WORK COMP",'e') ?> </label></td></tr> 
   
  </table> 
                      </td> 
@@ -1028,71 +1028,71 @@
      </tr> 
   
  </table> 
- <table><tr><td class='text'   colspan="3"><h3> <? xl("Health History (Confidential)",'e') ?> </h3></td></tr> 
+ <table><tr><td class='text'   colspan="3"><h3> <?php xl("Health History (Confidential)",'e') ?> </h3></td></tr> 
   
  <tr> 
- <td class='text'   colspan="3" style="border: 1px #000000 solid"><h3> <? xl("History and Physical",'e') ?> </h3></td></tr> 
+ <td class='text'   colspan="3" style="border: 1px #000000 solid"><h3> <?php xl("History and Physical",'e') ?> </h3></td></tr> 
   
  <tr><td class='text'  > 
- <? xl("Heart problems",'e') ?> <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Heart Attack" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Heart Attack"); echo $result;?> <? xl(">Heart Attack",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Angina" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Angina"); echo $result;?> <? xl(">Angina",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Heart Murmur" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Heart Murmur"); echo $result;?> <? xl(">Heart Murmur",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Rheumatic Fever" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Rheumatic Fever"); echo $result;?> <? xl(">Rheumatic Fever",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Abnormal Rhythm-arrhythmia" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Abnormal Rhythm-arrhythmia"); echo $result;?> <? xl(">Abnormal Rhythm(arrhythmia)",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Palpitations and irregular heartbeats" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Palpitations and irregular heartbeats"); echo $result;?> <? xl(">Palpitations and irregular heartbeats",'e') ?> </label><br>
- <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Fainting" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Fainting"); echo $result;?> <? xl(">Fainting",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Enlarge Heart" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Enlarge Heart"); echo $result;?> <? xl(">Enlarge Heart",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Chest Pains or Pressure" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Chest Pains or Pressure"); echo $result;?> <? xl(">Chest Pains or Pressure",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Shortness of Breath" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Shortness of Breath"); echo $result;?> <? xl(">Shortness of Breath",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Dizziness" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Dizziness"); echo $result;?> <? xl(">Dizziness",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Swollen Legs" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Swollen Legs"); echo $result;?> <? xl(">Swollen Legs",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Heart Failure" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Heart Failure"); echo $result;?> <? xl(">Heart Failure",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Blue Lips or Fingernails" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Blue Lips or Fingernails"); echo $result;?> <? xl(">Blue Lips or Fingernails",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Leg Cramps when you walk" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Leg Cramps when you walk"); echo $result;?> <? xl(">Leg Cramps when you walk",'e') ?> </label>
+ <?php xl("Heart problems",'e') ?> <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Heart Attack" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Heart Attack"); echo $result;?> <?php xl(">Heart Attack",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Angina" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Angina"); echo $result;?> <?php xl(">Angina",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Heart Murmur" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Heart Murmur"); echo $result;?> <?php xl(">Heart Murmur",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Rheumatic Fever" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Rheumatic Fever"); echo $result;?> <?php xl(">Rheumatic Fever",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Abnormal Rhythm-arrhythmia" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Abnormal Rhythm-arrhythmia"); echo $result;?> <?php xl(">Abnormal Rhythm(arrhythmia)",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Palpitations and irregular heartbeats" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Palpitations and irregular heartbeats"); echo $result;?> <?php xl(">Palpitations and irregular heartbeats",'e') ?> </label><br>
+ <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Fainting" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Fainting"); echo $result;?> <?php xl(">Fainting",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Enlarge Heart" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Enlarge Heart"); echo $result;?> <?php xl(">Enlarge Heart",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Chest Pains or Pressure" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Chest Pains or Pressure"); echo $result;?> <?php xl(">Chest Pains or Pressure",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Shortness of Breath" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Shortness of Breath"); echo $result;?> <?php xl(">Shortness of Breath",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Dizziness" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Dizziness"); echo $result;?> <?php xl(">Dizziness",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Swollen Legs" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Swollen Legs"); echo $result;?> <?php xl(">Swollen Legs",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Heart Failure" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Heart Failure"); echo $result;?> <?php xl(">Heart Failure",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Blue Lips or Fingernails" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Blue Lips or Fingernails"); echo $result;?> <?php xl(">Blue Lips or Fingernails",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heart_problems_or_symptoms[]" value="Leg Cramps when you walk" <?php $result = chkdata_CB($obj,"heart_problems_or_symptoms","Leg Cramps when you walk"); echo $result;?> <?php xl(">Leg Cramps when you walk",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top"> 
-  <? xl("Have you ever had",'e') ?> <br> <label><input type="checkbox" name="have_you_ever_had[]" value="A Stress Test" <?php $result = chkdata_CB($obj,"have_you_ever_had","A Stress Test"); echo $result;?> <? xl(">A Stress Test",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="An Echocardiogram" <?php $result = chkdata_CB($obj,"have_you_ever_had","An Echocardiogram"); echo $result;?> <? xl(">An Echocardiogram",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Cardiac Catheterization" <?php $result = chkdata_CB($obj,"have_you_ever_had","Cardiac Catheterization"); echo $result;?> <? xl(">Cardiac Catheterization",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Coronary Angioplasty" <?php $result = chkdata_CB($obj,"have_you_ever_had","Coronary Angioplasty"); echo $result;?> <? xl(">Coronary Angioplasty",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Coronary Bypass Surgery" <?php $result = chkdata_CB($obj,"have_you_ever_had","Coronary Bypass Surgery"); echo $result;?> <? xl(">Coronary Bypass Surgery",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Valve Surgery" <?php $result = chkdata_CB($obj,"have_you_ever_had","Valve Surgery"); echo $result;?> <? xl(">Valve Surgery",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Electrophysiology Study or Proc" <?php $result = chkdata_CB($obj,"have_you_ever_had","Electrophysiology Study or Proc"); echo $result;?> <? xl(">Electrophysiology Study or Proc",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="A Pacemaker" <?php $result = chkdata_CB($obj,"have_you_ever_had","A Pacemaker"); echo $result;?> <? xl(">A Pacemaker",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Implanted Defibrillator" <?php $result = chkdata_CB($obj,"have_you_ever_had","Implanted Defibrillator"); echo $result;?> <? xl(">Implanted Defibrillator",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="ECG" <?php $result = chkdata_CB($obj,"have_you_ever_had","ECG"); echo $result;?> <? xl(">ECG",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="24 Holter Monitor" <?php $result = chkdata_CB($obj,"have_you_ever_had","24 Holter Monitor"); echo $result;?> <? xl(">24 Holter Monitor",'e') ?> </label> 
- <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Event Recorder " <?php $result = chkdata_CB($obj,"have_you_ever_had","Event Recorder "); echo $result;?> <? xl(">Event Recorder ",'e') ?> </label>
+  <?php xl("Have you ever had",'e') ?> <br> <label><input type="checkbox" name="have_you_ever_had[]" value="A Stress Test" <?php $result = chkdata_CB($obj,"have_you_ever_had","A Stress Test"); echo $result;?> <?php xl(">A Stress Test",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="An Echocardiogram" <?php $result = chkdata_CB($obj,"have_you_ever_had","An Echocardiogram"); echo $result;?> <?php xl(">An Echocardiogram",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Cardiac Catheterization" <?php $result = chkdata_CB($obj,"have_you_ever_had","Cardiac Catheterization"); echo $result;?> <?php xl(">Cardiac Catheterization",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Coronary Angioplasty" <?php $result = chkdata_CB($obj,"have_you_ever_had","Coronary Angioplasty"); echo $result;?> <?php xl(">Coronary Angioplasty",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Coronary Bypass Surgery" <?php $result = chkdata_CB($obj,"have_you_ever_had","Coronary Bypass Surgery"); echo $result;?> <?php xl(">Coronary Bypass Surgery",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Valve Surgery" <?php $result = chkdata_CB($obj,"have_you_ever_had","Valve Surgery"); echo $result;?> <?php xl(">Valve Surgery",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Electrophysiology Study or Proc" <?php $result = chkdata_CB($obj,"have_you_ever_had","Electrophysiology Study or Proc"); echo $result;?> <?php xl(">Electrophysiology Study or Proc",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="A Pacemaker" <?php $result = chkdata_CB($obj,"have_you_ever_had","A Pacemaker"); echo $result;?> <?php xl(">A Pacemaker",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Implanted Defibrillator" <?php $result = chkdata_CB($obj,"have_you_ever_had","Implanted Defibrillator"); echo $result;?> <?php xl(">Implanted Defibrillator",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="ECG" <?php $result = chkdata_CB($obj,"have_you_ever_had","ECG"); echo $result;?> <?php xl(">ECG",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="24 Holter Monitor" <?php $result = chkdata_CB($obj,"have_you_ever_had","24 Holter Monitor"); echo $result;?> <?php xl(">24 Holter Monitor",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="have_you_ever_had[]" value="Event Recorder " <?php $result = chkdata_CB($obj,"have_you_ever_had","Event Recorder "); echo $result;?> <?php xl(">Event Recorder ",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top">   
-  <? xl("Check if you have",'e') ?> <br> <label><input type="checkbox" name="check_if_you_have[]" value="High Blood Pressure" <?php $result = chkdata_CB($obj,"check_if_you_have","High Blood Pressure"); echo $result;?> <? xl(">High Blood Pressure",'e') ?> </label>  <br> <label><input type="checkbox" name="check_if_you_have[]" value="High Cholestrol" <?php $result = chkdata_CB($obj,"check_if_you_have","High Cholestrol"); echo $result;?> <? xl(">High Cholestrol",'e') ?> </label> 
- <br> <label><input type="checkbox" name="check_if_you_have[]" value="Ever Smoked" <?php $result = chkdata_CB($obj,"check_if_you_have","Ever Smoked"); echo $result;?> <? xl(">Ever Smoked",'e') ?> </label> 
- <br> <label><input type="checkbox" name="check_if_you_have[]" value="Diabetes" <?php $result = chkdata_CB($obj,"check_if_you_have","Diabetes"); echo $result;?> <? xl(">Diabetes",'e') ?> </label> 
- <br> <label><input type="checkbox" name="check_if_you_have[]" value="Do You Exercise" <?php $result = chkdata_CB($obj,"check_if_you_have","Do You Exercise"); echo $result;?> <? xl(">Do You Exercise",'e') ?> </label><br> <? xl("Close family member with",'e') ?> <br> <label><input type="checkbox" name="close_family_member_with[]" value="Heart Attack" <?php $result = chkdata_CB($obj,"close_family_member_with","Heart Attack"); echo $result;?> <? xl(">Heart Attack",'e') ?> </label> 
- <br> <label><input type="checkbox" name="close_family_member_with[]" value="Angina" <?php $result = chkdata_CB($obj,"close_family_member_with","Angina"); echo $result;?> <? xl(">Angina",'e') ?> </label><br><? xl("If a woman have you",'e') ?> <br> <label><input type="checkbox" name="if_a_woman_have_you[]" value="Passed Menopause" <?php $result = chkdata_CB($obj,"if_a_woman_have_you","Passed Menopause"); echo $result;?> <? xl(">Passed Menopause",'e') ?> </label><br> <? xl("Menopause passed on what age",'e') ?> <input type="text" name="menopause_passed_on_what_age" value="<?php $result = chkdata_Txt($obj,"menopause_passed_on_what_age"); echo $result;?>">
+  <?php xl("Check if you have",'e') ?> <br> <label><input type="checkbox" name="check_if_you_have[]" value="High Blood Pressure" <?php $result = chkdata_CB($obj,"check_if_you_have","High Blood Pressure"); echo $result;?> <?php xl(">High Blood Pressure",'e') ?> </label>  <br> <label><input type="checkbox" name="check_if_you_have[]" value="High Cholestrol" <?php $result = chkdata_CB($obj,"check_if_you_have","High Cholestrol"); echo $result;?> <?php xl(">High Cholestrol",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="check_if_you_have[]" value="Ever Smoked" <?php $result = chkdata_CB($obj,"check_if_you_have","Ever Smoked"); echo $result;?> <?php xl(">Ever Smoked",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="check_if_you_have[]" value="Diabetes" <?php $result = chkdata_CB($obj,"check_if_you_have","Diabetes"); echo $result;?> <?php xl(">Diabetes",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="check_if_you_have[]" value="Do You Exercise" <?php $result = chkdata_CB($obj,"check_if_you_have","Do You Exercise"); echo $result;?> <?php xl(">Do You Exercise",'e') ?> </label><br> <?php xl("Close family member with",'e') ?> <br> <label><input type="checkbox" name="close_family_member_with[]" value="Heart Attack" <?php $result = chkdata_CB($obj,"close_family_member_with","Heart Attack"); echo $result;?> <?php xl(">Heart Attack",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="close_family_member_with[]" value="Angina" <?php $result = chkdata_CB($obj,"close_family_member_with","Angina"); echo $result;?> <?php xl(">Angina",'e') ?> </label><br><?php xl("If a woman have you",'e') ?> <br> <label><input type="checkbox" name="if_a_woman_have_you[]" value="Passed Menopause" <?php $result = chkdata_CB($obj,"if_a_woman_have_you","Passed Menopause"); echo $result;?> <?php xl(">Passed Menopause",'e') ?> </label><br> <?php xl("Menopause passed on what age",'e') ?> <input type="text" name="menopause_passed_on_what_age" value="<?php $result = chkdata_Txt($obj,"menopause_passed_on_what_age"); echo $result;?>">
   
-<br> <label><input type="checkbox" name="have_you_take_estrogen_replacement" value="yes" <?php $result = chkdata_CB($obj,"have_you_take_estrogen_replacement","yes"); echo $result;?>></label>  <? xl("Have you take estrogen replacement",'e') ?> 
+<br> <label><input type="checkbox" name="have_you_take_estrogen_replacement" value="yes" <?php $result = chkdata_CB($obj,"have_you_take_estrogen_replacement","yes"); echo $result;?>></label>  <?php xl("Have you take estrogen replacement",'e') ?> 
  </td> 
  </tr> 
   
 
- <tr><td class='text' colspan="3" > <? xl("Please tell us anything else about heart",'e') ?> <textarea name="please_tell_us_anything_else_about_heart"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"please_tell_us_anything_else_about_heart"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' colspan="3" > <?php xl("Please tell us anything else about heart",'e') ?> <textarea name="please_tell_us_anything_else_about_heart"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"please_tell_us_anything_else_about_heart"); echo $result;?></textarea></td></tr> 
   
  
- <tr><td class='text'   colspan="3" style="border: 1px #000000 solid; height: 28px;"><h3> <? xl("Current Medications",'e') ?> </h3></td></tr> 
+ <tr><td class='text'   colspan="3" style="border: 1px #000000 solid; height: 28px;"><h3> <?php xl("Current Medications",'e') ?> </h3></td></tr> 
   
  <tr> 
   
  <td class='text'   colspan="3"> 
-     <strong> <? xl("Please tell us about medicines(name,dose or strength,how many times a day).Include over the counter medictaions:",'e') ?> </strong></td></tr> 
+     <strong> <?php xl("Please tell us about medicines(name,dose or strength,how many times a day).Include over the counter medictaions:",'e') ?> </strong></td></tr> 
   
  <tr><td class='text'   colspan="3"> 
   
  <table> 
   
- <tr><td class='text' > <? xl("Medicine detail1",'e') ?> <textarea name="medicine_detail1"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail1"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' > <?php xl("Medicine detail1",'e') ?> <textarea name="medicine_detail1"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail1"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1101,7 +1101,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Medicine detail2",'e') ?> <textarea name="medicine_detail2"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail2"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' > <?php xl("Medicine detail2",'e') ?> <textarea name="medicine_detail2"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail2"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1110,7 +1110,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Medicine detail3",'e') ?> <textarea name="medicine_detail3"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail3"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' > <?php xl("Medicine detail3",'e') ?> <textarea name="medicine_detail3"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail3"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1119,7 +1119,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Medicine detail4",'e') ?> <textarea name="medicine_detail4"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail4"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' > <?php xl("Medicine detail4",'e') ?> <textarea name="medicine_detail4"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail4"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1128,7 +1128,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Medicine detail5",'e') ?> <textarea name="medicine_detail5"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail5"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' > <?php xl("Medicine detail5",'e') ?> <textarea name="medicine_detail5"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail5"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1137,7 +1137,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Medicine detail6",'e') ?> <textarea name="medicine_detail6"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail6"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' > <?php xl("Medicine detail6",'e') ?> <textarea name="medicine_detail6"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail6"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1146,7 +1146,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Medicine detail7",'e') ?> <textarea name="medicine_detail7"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail7"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' > <?php xl("Medicine detail7",'e') ?> <textarea name="medicine_detail7"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail7"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1155,71 +1155,71 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Medicine detail8",'e') ?> <textarea name="medicine_detail8"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail8"); echo $result;?></textarea></td></tr> 
-  
- </table> 
- </td></tr> 
-  
- <tr> 
- <td class='text'   colspan="3" style="border: 1px #000000 solid;"><h3> <? xl("Allergies",'e') ?> </h3></td></tr> 
-  
- <tr><td class='text'   colspan="3"> 
-  
- <table> 
-  
- <tr><td class='text' > <? xl("Are you allergic to any medications",'e') ?>
-     <label><input type="checkbox" name="are_you_allergic_to_any_medications[]" value="Yes" <?php $result = chkdata_CB($obj,"are_you_allergic_to_any_medications","Yes"); echo $result;?> <? xl(">Yes",'e') ?> </label>
-     <label><input type="checkbox" name="are_you_allergic_to_any_medications[]" value="No" <?php $result = chkdata_CB($obj,"are_you_allergic_to_any_medications","No"); echo $result;?> <? xl(">No",'e') ?> </label></td></tr> 
-  
- </table> 
- </td></tr> 
-  
- <tr><td class='text'   colspan="3"> 
-  
- <table> 
-  
- <tr><td class='text' > <? xl("Lis medicine to which you are allergic",'e') ?> <input type="text" name="lis_medicine_to_which_you_are_allergic" value="<?php $result = chkdata_Txt($obj,"lis_medicine_to_which_you_are_allergic"); echo $result;?>"></td></tr> 
-  
- </table> 
- </td></tr> 
-  
- <tr><td class='text'   colspan="3"> 
-  
- <table> 
-  
- <tr><td class='text' > <? xl("What kind of reaction did you have",'e') ?> <input type="text" name="what_kind_of_reaction_did_you_have" value="<?php $result = chkdata_Txt($obj,"what_kind_of_reaction_did_you_have"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("Medicine detail8",'e') ?> <textarea name="medicine_detail8"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"medicine_detail8"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr> 
   
  <tr> 
+ <td class='text'   colspan="3" style="border: 1px #000000 solid;"><h3> <?php xl("Allergies",'e') ?> </h3></td></tr> 
+  
+ <tr><td class='text'   colspan="3"> 
+  
+ <table> 
+  
+ <tr><td class='text' > <?php xl("Are you allergic to any medications",'e') ?>
+     <label><input type="checkbox" name="are_you_allergic_to_any_medications[]" value="Yes" <?php $result = chkdata_CB($obj,"are_you_allergic_to_any_medications","Yes"); echo $result;?> <?php xl(">Yes",'e') ?> </label>
+     <label><input type="checkbox" name="are_you_allergic_to_any_medications[]" value="No" <?php $result = chkdata_CB($obj,"are_you_allergic_to_any_medications","No"); echo $result;?> <?php xl(">No",'e') ?> </label></td></tr> 
+  
+ </table> 
+ </td></tr> 
+  
+ <tr><td class='text'   colspan="3"> 
+  
+ <table> 
+  
+ <tr><td class='text' > <?php xl("Lis medicine to which you are allergic",'e') ?> <input type="text" name="lis_medicine_to_which_you_are_allergic" value="<?php $result = chkdata_Txt($obj,"lis_medicine_to_which_you_are_allergic"); echo $result;?>"></td></tr> 
+  
+ </table> 
+ </td></tr> 
+  
+ <tr><td class='text'   colspan="3"> 
+  
+ <table> 
+  
+ <tr><td class='text' > <?php xl("What kind of reaction did you have",'e') ?> <input type="text" name="what_kind_of_reaction_did_you_have" value="<?php $result = chkdata_Txt($obj,"what_kind_of_reaction_did_you_have"); echo $result;?>"></td></tr> 
+  
+ </table> 
+ </td></tr> 
+  
+ <tr> 
   
 <td class='text'    valign="top"> 
   
- <? xl("Constitutional",'e') ?> <br> <label><input type="checkbox" name="constitutional[]" value="Lack of energy" <?php $result = chkdata_CB($obj,"constitutional","Lack of energy"); echo $result;?> <? xl(">Lack of energy",'e') ?> </label> 
- <br> <label><input type="checkbox" name="constitutional[]" value="Trouble sleeping" <?php $result = chkdata_CB($obj,"constitutional","Trouble sleeping"); echo $result;?> <? xl(">Trouble sleeping",'e') ?> </label> 
- <br> <label><input type="checkbox" name="constitutional[]" value="Loss of appetite" <?php $result = chkdata_CB($obj,"constitutional","Loss of appetite"); echo $result;?> <? xl(">Loss of appetite",'e') ?> </label> 
- <br> <label><input type="checkbox" name="constitutional[]" value="Weight changes" <?php $result = chkdata_CB($obj,"constitutional","Weight changes"); echo $result;?> <? xl(">Weight changes",'e') ?> </label> 
- <br> <label><input type="checkbox" name="constitutional[]" value="Fever" <?php $result = chkdata_CB($obj,"constitutional","Fever"); echo $result;?> <? xl(">Fever",'e') ?> </label>
+ <?php xl("Constitutional",'e') ?> <br> <label><input type="checkbox" name="constitutional[]" value="Lack of energy" <?php $result = chkdata_CB($obj,"constitutional","Lack of energy"); echo $result;?> <?php xl(">Lack of energy",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="constitutional[]" value="Trouble sleeping" <?php $result = chkdata_CB($obj,"constitutional","Trouble sleeping"); echo $result;?> <?php xl(">Trouble sleeping",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="constitutional[]" value="Loss of appetite" <?php $result = chkdata_CB($obj,"constitutional","Loss of appetite"); echo $result;?> <?php xl(">Loss of appetite",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="constitutional[]" value="Weight changes" <?php $result = chkdata_CB($obj,"constitutional","Weight changes"); echo $result;?> <?php xl(">Weight changes",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="constitutional[]" value="Fever" <?php $result = chkdata_CB($obj,"constitutional","Fever"); echo $result;?> <?php xl(">Fever",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top"> 
   
- <? xl("Heent",'e') ?> <br> <label><input type="checkbox" name="heent[]" value="Blurred vision" <?php $result = chkdata_CB($obj,"heent","Blurred vision"); echo $result;?> <? xl(">Blurred vision",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heent[]" value="Glaucoma" <?php $result = chkdata_CB($obj,"heent","Glaucoma"); echo $result;?> <? xl(">Glaucoma",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heent[]" value="Cataracts" <?php $result = chkdata_CB($obj,"heent","Cataracts"); echo $result;?> <? xl(">Cataracts",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heent[]" value="Buzzing or ringing in ears" <?php $result = chkdata_CB($obj,"heent","Buzzing or ringing in ears"); echo $result;?> <? xl(">Buzzing or ringing in ears",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heent[]" value="Hay fever" <?php $result = chkdata_CB($obj,"heent","Hay fever"); echo $result;?> <? xl(">Hay fever",'e') ?> </label> 
- <br> <label><input type="checkbox" name="heent[]" value="Sinus problem" <?php $result = chkdata_CB($obj,"heent","Sinus problem"); echo $result;?> <? xl(">Sinus problem",'e') ?> </label>
+ <?php xl("Heent",'e') ?> <br> <label><input type="checkbox" name="heent[]" value="Blurred vision" <?php $result = chkdata_CB($obj,"heent","Blurred vision"); echo $result;?> <?php xl(">Blurred vision",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heent[]" value="Glaucoma" <?php $result = chkdata_CB($obj,"heent","Glaucoma"); echo $result;?> <?php xl(">Glaucoma",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heent[]" value="Cataracts" <?php $result = chkdata_CB($obj,"heent","Cataracts"); echo $result;?> <?php xl(">Cataracts",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heent[]" value="Buzzing or ringing in ears" <?php $result = chkdata_CB($obj,"heent","Buzzing or ringing in ears"); echo $result;?> <?php xl(">Buzzing or ringing in ears",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heent[]" value="Hay fever" <?php $result = chkdata_CB($obj,"heent","Hay fever"); echo $result;?> <?php xl(">Hay fever",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="heent[]" value="Sinus problem" <?php $result = chkdata_CB($obj,"heent","Sinus problem"); echo $result;?> <?php xl(">Sinus problem",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top"> 
   
-<? xl("Respiratory",'e') ?> <br> <label><input type="checkbox" name="respiratory[]" value="Wheezing" <?php $result = chkdata_CB($obj,"respiratory","Wheezing"); echo $result;?> <? xl(">Wheezing",'e') ?> </label> 
- <br> <label><input type="checkbox" name="respiratory[]" value="Cough" <?php $result = chkdata_CB($obj,"respiratory","Cough"); echo $result;?> <? xl(">Cough",'e') ?> </label> 
- <br> <label><input type="checkbox" name="respiratory[]" value="Coughing Blood" <?php $result = chkdata_CB($obj,"respiratory","Coughing Blood"); echo $result;?> <? xl(">Coughing Blood",'e') ?> </label> 
- <br> <label><input type="checkbox" name="respiratory[]" value="Asthma" <?php $result = chkdata_CB($obj,"respiratory","Asthma"); echo $result;?> <? xl(">Asthma",'e') ?> </label> 
- <br> <label><input type="checkbox" name="respiratory[]" value="Tuberculosis" <?php $result = chkdata_CB($obj,"respiratory","Tuberculosis"); echo $result;?> <? xl(">Tuberculosis",'e') ?> </label>
+<?php xl("Respiratory",'e') ?> <br> <label><input type="checkbox" name="respiratory[]" value="Wheezing" <?php $result = chkdata_CB($obj,"respiratory","Wheezing"); echo $result;?> <?php xl(">Wheezing",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="respiratory[]" value="Cough" <?php $result = chkdata_CB($obj,"respiratory","Cough"); echo $result;?> <?php xl(">Cough",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="respiratory[]" value="Coughing Blood" <?php $result = chkdata_CB($obj,"respiratory","Coughing Blood"); echo $result;?> <?php xl(">Coughing Blood",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="respiratory[]" value="Asthma" <?php $result = chkdata_CB($obj,"respiratory","Asthma"); echo $result;?> <?php xl(">Asthma",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="respiratory[]" value="Tuberculosis" <?php $result = chkdata_CB($obj,"respiratory","Tuberculosis"); echo $result;?> <?php xl(">Tuberculosis",'e') ?> </label>
  </td> 
  </tr> 
   
@@ -1227,53 +1227,31 @@
   
 <td class='text'    valign="top"> 
   
- <? xl("Digestive",'e') ?> <br> <label><input type="checkbox" name="digestive[]" value="Indigestion" <?php $result = chkdata_CB($obj,"digestive","Indigestion"); echo $result;?> <? xl(">Indigestion",'e') ?> </label> 
- <br> <label><input type="checkbox" name="digestive[]" value="Change in bowel habits" <?php $result = chkdata_CB($obj,"digestive","Change in bowel habits"); echo $result;?> <? xl(">Change in bowel habits",'e') ?> </label> 
- <br> <label><input type="checkbox" name="digestive[]" value="Bloody or tarry stools" <?php $result = chkdata_CB($obj,"digestive","Bloody or tarry stools"); echo $result;?> <? xl(">Bloody or tarry stools",'e') ?> </label> 
- <br> <label><input type="checkbox" name="digestive[]" value="Jaundice" <?php $result = chkdata_CB($obj,"digestive","Jaundice"); echo $result;?> <? xl(">Jaundice",'e') ?> </label> 
- <br> <label><input type="checkbox" name="digestive[]" value="Liver problems" <?php $result = chkdata_CB($obj,"digestive","Liver problems"); echo $result;?> <? xl(">Liver problems",'e') ?> </label> 
- <br> <label><input type="checkbox" name="digestive[]" value="Ulcers" <?php $result = chkdata_CB($obj,"digestive","Ulcers"); echo $result;?> <? xl(">Ulcers",'e') ?> </label> 
- <br> <label><input type="checkbox" name="digestive[]" value="Gallstone" <?php $result = chkdata_CB($obj,"digestive","Gallstone"); echo $result;?> <? xl(">Gallstone",'e') ?> </label>
+ <?php xl("Digestive",'e') ?> <br> <label><input type="checkbox" name="digestive[]" value="Indigestion" <?php $result = chkdata_CB($obj,"digestive","Indigestion"); echo $result;?> <?php xl(">Indigestion",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="digestive[]" value="Change in bowel habits" <?php $result = chkdata_CB($obj,"digestive","Change in bowel habits"); echo $result;?> <?php xl(">Change in bowel habits",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="digestive[]" value="Bloody or tarry stools" <?php $result = chkdata_CB($obj,"digestive","Bloody or tarry stools"); echo $result;?> <?php xl(">Bloody or tarry stools",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="digestive[]" value="Jaundice" <?php $result = chkdata_CB($obj,"digestive","Jaundice"); echo $result;?> <?php xl(">Jaundice",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="digestive[]" value="Liver problems" <?php $result = chkdata_CB($obj,"digestive","Liver problems"); echo $result;?> <?php xl(">Liver problems",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="digestive[]" value="Ulcers" <?php $result = chkdata_CB($obj,"digestive","Ulcers"); echo $result;?> <?php xl(">Ulcers",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="digestive[]" value="Gallstone" <?php $result = chkdata_CB($obj,"digestive","Gallstone"); echo $result;?> <?php xl(">Gallstone",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top"> 
   
-  <? xl("Urinary",'e') ?> <br> <label><input type="checkbox" name="urinary[]" value="Frequency" <?php $result = chkdata_CB($obj,"urinary","Frequency"); echo $result;?> <? xl(">Frequency",'e') ?> </label> 
- <br> <label><input type="checkbox" name="urinary[]" value="Infections" <?php $result = chkdata_CB($obj,"urinary","Infections"); echo $result;?> <? xl(">Infections",'e') ?> </label> 
- <br> <label><input type="checkbox" name="urinary[]" value="Stones" <?php $result = chkdata_CB($obj,"urinary","Stones"); echo $result;?> <? xl(">Stones",'e') ?> </label> 
- <br> <label><input type="checkbox" name="urinary[]" value="Bladder incontinence" <?php $result = chkdata_CB($obj,"urinary","Bladder incontinence"); echo $result;?> <? xl(">Bladder incontinence",'e') ?> </label>
+  <?php xl("Urinary",'e') ?> <br> <label><input type="checkbox" name="urinary[]" value="Frequency" <?php $result = chkdata_CB($obj,"urinary","Frequency"); echo $result;?> <?php xl(">Frequency",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="urinary[]" value="Infections" <?php $result = chkdata_CB($obj,"urinary","Infections"); echo $result;?> <?php xl(">Infections",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="urinary[]" value="Stones" <?php $result = chkdata_CB($obj,"urinary","Stones"); echo $result;?> <?php xl(">Stones",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="urinary[]" value="Bladder incontinence" <?php $result = chkdata_CB($obj,"urinary","Bladder incontinence"); echo $result;?> <?php xl(">Bladder incontinence",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top"> 
   
-<? xl("Musculoskeletal",'e') ?> <br> <label><input type="checkbox" name="musculoskeletal[]" value="Joint pain swelling or redness" <?php $result = chkdata_CB($obj,"musculoskeletal","Joint pain swelling or redness"); echo $result;?> <? xl(">Joint pain swelling or redness",'e') ?> </label> 
- <br> <label><input type="checkbox" name="musculoskeletal[]" value="arthritis" <?php $result = chkdata_CB($obj,"musculoskeletal","arthritis"); echo $result;?> <? xl(">arthritis",'e') ?> </label> 
- <br> <label><input type="checkbox" name="musculoskeletal[]" value="back pain" <?php $result = chkdata_CB($obj,"musculoskeletal","back pain"); echo $result;?> <? xl(">back pain",'e') ?> </label> 
- <br> <label><input type="checkbox" name="musculoskeletal[]" value="muscle aches" <?php $result = chkdata_CB($obj,"musculoskeletal","muscle aches"); echo $result;?> <? xl(">muscle aches",'e') ?> </label> 
- <br> <label><input type="checkbox" name="musculoskeletal[]" value="muscle tenderness" <?php $result = chkdata_CB($obj,"musculoskeletal","muscle tenderness"); echo $result;?> <? xl(">muscle tenderness",'e') ?> </label> 
- <br> <label><input type="checkbox" name="musculoskeletal[]" value="gout" <?php $result = chkdata_CB($obj,"musculoskeletal","gout"); echo $result;?> <? xl(">gout",'e') ?> </label>
- </td> 
- </tr> 
-  
- <tr> 
-  
-<td class='text'    valign="top"> 
-  
-  <? xl("Dermatological",'e') ?> <br> <label><input type="checkbox" name="dermatological[]" value="Rash" <?php $result = chkdata_CB($obj,"dermatological","Rash"); echo $result;?> <? xl(">Rash",'e') ?> </label> 
- <br> <label><input type="checkbox" name="dermatological[]" value="Itching" <?php $result = chkdata_CB($obj,"dermatological","Itching"); echo $result;?> <? xl(">Itching",'e') ?> </label> 
- <br> <label><input type="checkbox" name="dermatological[]" value="other skin problems" <?php $result = chkdata_CB($obj,"dermatological","other skin problems"); echo $result;?> <? xl(">other skin problems",'e') ?> </label>
- </td> 
-  
-<td class='text'    valign="top"> 
-  
- <? xl("Men",'e') ?> <br> <label><input type="checkbox" name="men[]" value="Prostate problems" <?php $result = chkdata_CB($obj,"men","Prostate problems"); echo $result;?> <? xl(">Prostate problems",'e') ?> </label> 
- <br> <label><input type="checkbox" name="men[]" value="night time urination" <?php $result = chkdata_CB($obj,"men","night time urination"); echo $result;?> <? xl(">night time urination",'e') ?> </label>
- </td> 
-  
-<td class='text'    valign="top"> 
-  
-> <? xl("Women",'e') ?> <br> <label><input type="checkbox" name="women[]" value="Abnormal Menstrua periods" <?php $result = chkdata_CB($obj,"women","Abnormal Menstrua periods"); echo $result;?> <? xl(">Abnormal Menstrua periods",'e') ?> </label> 
- <br> <label><input type="checkbox" name="women[]" value="could you be pregnant" <?php $result = chkdata_CB($obj,"women","could you be pregnant"); echo $result;?> <? xl(">could you be pregnant",'e') ?> </label>
+<?php xl("Musculoskeletal",'e') ?> <br> <label><input type="checkbox" name="musculoskeletal[]" value="Joint pain swelling or redness" <?php $result = chkdata_CB($obj,"musculoskeletal","Joint pain swelling or redness"); echo $result;?> <?php xl(">Joint pain swelling or redness",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="musculoskeletal[]" value="arthritis" <?php $result = chkdata_CB($obj,"musculoskeletal","arthritis"); echo $result;?> <?php xl(">arthritis",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="musculoskeletal[]" value="back pain" <?php $result = chkdata_CB($obj,"musculoskeletal","back pain"); echo $result;?> <?php xl(">back pain",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="musculoskeletal[]" value="muscle aches" <?php $result = chkdata_CB($obj,"musculoskeletal","muscle aches"); echo $result;?> <?php xl(">muscle aches",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="musculoskeletal[]" value="muscle tenderness" <?php $result = chkdata_CB($obj,"musculoskeletal","muscle tenderness"); echo $result;?> <?php xl(">muscle tenderness",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="musculoskeletal[]" value="gout" <?php $result = chkdata_CB($obj,"musculoskeletal","gout"); echo $result;?> <?php xl(">gout",'e') ?> </label>
  </td> 
  </tr> 
   
@@ -1281,27 +1259,21 @@
   
 <td class='text'    valign="top"> 
   
- <? xl("Female reproductive",'e') ?> <br> <label><input type="checkbox" name="female_reproductive[]" value="breast lumps" <?php $result = chkdata_CB($obj,"female_reproductive","breast lumps"); echo $result;?> <? xl(">breast lumps",'e') ?> </label> 
- <br> <label><input type="checkbox" name="female_reproductive[]" value="recent mamogram" <?php $result = chkdata_CB($obj,"female_reproductive","recent mamogram"); echo $result;?> <? xl(">recent mamogram",'e') ?> </label> 
- <br> <label><input type="checkbox" name="female_reproductive[]" value="pap smear or pelvic exam" <?php $result = chkdata_CB($obj,"female_reproductive","pap smear or pelvic exam"); echo $result;?> <? xl(">pap smear or pelvic exam",'e') ?> </label>
+  <?php xl("Dermatological",'e') ?> <br> <label><input type="checkbox" name="dermatological[]" value="Rash" <?php $result = chkdata_CB($obj,"dermatological","Rash"); echo $result;?> <?php xl(">Rash",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="dermatological[]" value="Itching" <?php $result = chkdata_CB($obj,"dermatological","Itching"); echo $result;?> <?php xl(">Itching",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="dermatological[]" value="other skin problems" <?php $result = chkdata_CB($obj,"dermatological","other skin problems"); echo $result;?> <?php xl(">other skin problems",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top"> 
   
- <? xl("Neurological",'e') ?> <br> <label><input type="checkbox" name="neurological[]" value="Paralysis-even temporary" /> <? xl("Paralysis-even temporary",'e') ?> </label> 
- <br> <label><input type="checkbox" name="neurological[]" value="stroke" <?php $result = chkdata_CB($obj,"neurological","stroke"); echo $result;?> <? xl(">stroke",'e') ?> </label> 
- <br> <label><input type="checkbox" name="neurological[]" value="numbness" <?php $result = chkdata_CB($obj,"neurological","numbness"); echo $result;?> <? xl(">numbness",'e') ?> </label> 
- <br> <label><input type="checkbox" name="neurological[]" value="loss of balance" <?php $result = chkdata_CB($obj,"neurological","loss of balance"); echo $result;?> <? xl(">loss of balance",'e') ?> </label> 
- <br> <label><input type="checkbox" name="neurological[]" value="dizziness" <?php $result = chkdata_CB($obj,"neurological","dizziness"); echo $result;?> <? xl(">dizziness",'e') ?> </label>
+ <?php xl("Men",'e') ?> <br> <label><input type="checkbox" name="men[]" value="Prostate problems" <?php $result = chkdata_CB($obj,"men","Prostate problems"); echo $result;?> <?php xl(">Prostate problems",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="men[]" value="night time urination" <?php $result = chkdata_CB($obj,"men","night time urination"); echo $result;?> <?php xl(">night time urination",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top"> 
   
- <? xl("Psychiatric",'e') ?> <br> <label><input type="checkbox" name="psychiatric[]" value="Unusual thoughts" <?php $result = chkdata_CB($obj,"psychiatric","Unusual thoughts"); echo $result;?> <? xl(">Unusual thoughts",'e') ?> </label> 
- <br> <label><input type="checkbox" name="psychiatric[]" value="Nervousness" <?php $result = chkdata_CB($obj,"psychiatric","Nervousness"); echo $result;?> <? xl(">Nervousness",'e') ?> </label> 
- <br> <label><input type="checkbox" name="psychiatric[]" value="crying or sadness" <?php $result = chkdata_CB($obj,"psychiatric","crying or sadness"); echo $result;?> <? xl(">crying or sadness",'e') ?> </label> 
- <br> <label><input type="checkbox" name="psychiatric[]" value="depression" <?php $result = chkdata_CB($obj,"psychiatric","depression"); echo $result;?> <? xl(">depression",'e') ?> </label> 
- <br> <label><input type="checkbox" name="psychiatric[]" value="suicide attempts" <?php $result = chkdata_CB($obj,"psychiatric","suicide attempts"); echo $result;?> <? xl(">suicide attempts",'e') ?> </label>
+> <?php xl("Women",'e') ?> <br> <label><input type="checkbox" name="women[]" value="Abnormal Menstrua periods" <?php $result = chkdata_CB($obj,"women","Abnormal Menstrua periods"); echo $result;?> <?php xl(">Abnormal Menstrua periods",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="women[]" value="could you be pregnant" <?php $result = chkdata_CB($obj,"women","could you be pregnant"); echo $result;?> <?php xl(">could you be pregnant",'e') ?> </label>
  </td> 
  </tr> 
   
@@ -1309,20 +1281,48 @@
   
 <td class='text'    valign="top"> 
   
-<? xl("Endocrinology",'e') ?> <br> <label><input type="checkbox" name="endocrinology[]" value="Thyroid disorder" <?php $result = chkdata_CB($obj,"endocrinology","Thyroid disorder"); echo $result;?> <? xl(">Thyroid disorder",'e') ?> </label> 
- <br> <label><input type="checkbox" name="endocrinology[]" value="Diabetes" <?php $result = chkdata_CB($obj,"endocrinology","Diabetes"); echo $result;?> <? xl(">Diabetes",'e') ?> </label> 
- <br> <label><input type="checkbox" name="endocrinology[]" value="Excess thirst" <?php $result = chkdata_CB($obj,"endocrinology","Excess thirst"); echo $result;?> <? xl(">Excess thirst",'e') ?> </label> 
- <br> <label><input type="checkbox" name="endocrinology[]" value="Excess hunger" <?php $result = chkdata_CB($obj,"endocrinology","Excess hunger"); echo $result;?> <? xl(">Excess hunger",'e') ?> </label> 
- <br> <label><input type="checkbox" name="endocrinology[]" value="excess urination" <?php $result = chkdata_CB($obj,"endocrinology","excess urination"); echo $result;?> <? xl(">excess urination",'e') ?> </label>
+ <?php xl("Female reproductive",'e') ?> <br> <label><input type="checkbox" name="female_reproductive[]" value="breast lumps" <?php $result = chkdata_CB($obj,"female_reproductive","breast lumps"); echo $result;?> <?php xl(">breast lumps",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="female_reproductive[]" value="recent mamogram" <?php $result = chkdata_CB($obj,"female_reproductive","recent mamogram"); echo $result;?> <?php xl(">recent mamogram",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="female_reproductive[]" value="pap smear or pelvic exam" <?php $result = chkdata_CB($obj,"female_reproductive","pap smear or pelvic exam"); echo $result;?> <?php xl(">pap smear or pelvic exam",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top"> 
   
- <? xl("Hematological",'e') ?> <br> <label><input type="checkbox" name="hematological[]" value="Bleeding" <?php $result = chkdata_CB($obj,"hematological","Bleeding"); echo $result;?> <? xl(">Bleeding",'e') ?> </label> 
- <br> <label><input type="checkbox" name="hematological[]" value="Easy bruising" <?php $result = chkdata_CB($obj,"hematological","Easy bruising"); echo $result;?> <? xl(">Easy bruising",'e') ?> </label> 
- <br> <label><input type="checkbox" name="hematological[]" value="risk factors for hiv" <?php $result = chkdata_CB($obj,"hematological","risk factors for hiv"); echo $result;?> <? xl(">risk factors for hiv",'e') ?> </label> 
- <br> <label><input type="checkbox" name="hematological[]" value="Anemia" <?php $result = chkdata_CB($obj,"hematological","Anemia"); echo $result;?> <? xl(">Anemia",'e') ?> </label> 
- <br> <label><input type="checkbox" name="hematological[]" value="Cancer" <?php $result = chkdata_CB($obj,"hematological","Cancer"); echo $result;?> <? xl(">Cancer",'e') ?> </label>
+ <?php xl("Neurological",'e') ?> <br> <label><input type="checkbox" name="neurological[]" value="Paralysis-even temporary" /> <?php xl("Paralysis-even temporary",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="neurological[]" value="stroke" <?php $result = chkdata_CB($obj,"neurological","stroke"); echo $result;?> <?php xl(">stroke",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="neurological[]" value="numbness" <?php $result = chkdata_CB($obj,"neurological","numbness"); echo $result;?> <?php xl(">numbness",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="neurological[]" value="loss of balance" <?php $result = chkdata_CB($obj,"neurological","loss of balance"); echo $result;?> <?php xl(">loss of balance",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="neurological[]" value="dizziness" <?php $result = chkdata_CB($obj,"neurological","dizziness"); echo $result;?> <?php xl(">dizziness",'e') ?> </label>
+ </td> 
+  
+<td class='text'    valign="top"> 
+  
+ <?php xl("Psychiatric",'e') ?> <br> <label><input type="checkbox" name="psychiatric[]" value="Unusual thoughts" <?php $result = chkdata_CB($obj,"psychiatric","Unusual thoughts"); echo $result;?> <?php xl(">Unusual thoughts",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="psychiatric[]" value="Nervousness" <?php $result = chkdata_CB($obj,"psychiatric","Nervousness"); echo $result;?> <?php xl(">Nervousness",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="psychiatric[]" value="crying or sadness" <?php $result = chkdata_CB($obj,"psychiatric","crying or sadness"); echo $result;?> <?php xl(">crying or sadness",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="psychiatric[]" value="depression" <?php $result = chkdata_CB($obj,"psychiatric","depression"); echo $result;?> <?php xl(">depression",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="psychiatric[]" value="suicide attempts" <?php $result = chkdata_CB($obj,"psychiatric","suicide attempts"); echo $result;?> <?php xl(">suicide attempts",'e') ?> </label>
+ </td> 
+ </tr> 
+  
+ <tr> 
+  
+<td class='text'    valign="top"> 
+  
+<?php xl("Endocrinology",'e') ?> <br> <label><input type="checkbox" name="endocrinology[]" value="Thyroid disorder" <?php $result = chkdata_CB($obj,"endocrinology","Thyroid disorder"); echo $result;?> <?php xl(">Thyroid disorder",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="endocrinology[]" value="Diabetes" <?php $result = chkdata_CB($obj,"endocrinology","Diabetes"); echo $result;?> <?php xl(">Diabetes",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="endocrinology[]" value="Excess thirst" <?php $result = chkdata_CB($obj,"endocrinology","Excess thirst"); echo $result;?> <?php xl(">Excess thirst",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="endocrinology[]" value="Excess hunger" <?php $result = chkdata_CB($obj,"endocrinology","Excess hunger"); echo $result;?> <?php xl(">Excess hunger",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="endocrinology[]" value="excess urination" <?php $result = chkdata_CB($obj,"endocrinology","excess urination"); echo $result;?> <?php xl(">excess urination",'e') ?> </label>
+ </td> 
+  
+<td class='text'    valign="top"> 
+  
+ <?php xl("Hematological",'e') ?> <br> <label><input type="checkbox" name="hematological[]" value="Bleeding" <?php $result = chkdata_CB($obj,"hematological","Bleeding"); echo $result;?> <?php xl(">Bleeding",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="hematological[]" value="Easy bruising" <?php $result = chkdata_CB($obj,"hematological","Easy bruising"); echo $result;?> <?php xl(">Easy bruising",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="hematological[]" value="risk factors for hiv" <?php $result = chkdata_CB($obj,"hematological","risk factors for hiv"); echo $result;?> <?php xl(">risk factors for hiv",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="hematological[]" value="Anemia" <?php $result = chkdata_CB($obj,"hematological","Anemia"); echo $result;?> <?php xl(">Anemia",'e') ?> </label> 
+ <br> <label><input type="checkbox" name="hematological[]" value="Cancer" <?php $result = chkdata_CB($obj,"hematological","Cancer"); echo $result;?> <?php xl(">Cancer",'e') ?> </label>
  </td> 
   
 <td class='text'    valign="top">&nbsp; 
@@ -1333,19 +1333,19 @@
   
  <tr><td class='text'   colspan="3"> 
   
- <? xl("Have you had any operations",'e') ?> <textarea name="have_you_had_any_operations"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"have_you_had_any_operations"); echo $result;?></textarea>
+ <?php xl("Have you had any operations",'e') ?> <textarea name="have_you_had_any_operations"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"have_you_had_any_operations"); echo $result;?></textarea>
  </td></tr> 
   
  <tr><td class='text'   colspan="3"> 
   
  <table> 
   
- <tr><td class='text' > <? xl("Are you being treated now or have been treated for any illness",'e') ?> <textarea name="are_you_being_treated_now_or_have_been_treated_for_any_illness"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"are_you_being_treated_now_or_have_been_treated_for_any_illness"); echo $result;?></textarea></td></tr> 
+ <tr><td class='text' > <?php xl("Are you being treated now or have been treated for any illness",'e') ?> <textarea name="are_you_being_treated_now_or_have_been_treated_for_any_illness"  rows="4" cols="40"><?php $result = chkdata_Txt($obj,"are_you_being_treated_now_or_have_been_treated_for_any_illness"); echo $result;?></textarea></td></tr> 
   
  </table> 
  </td></tr> 
   
- <tr><td class='text'   colspan="3" style="border: 1px #000000 solid;"><h3> <? xl("Social History 
+ <tr><td class='text'   colspan="3" style="border: 1px #000000 solid;"><h3> <?php xl("Social History 
  ",'e') ?></h3> </td></tr> 
   
  <tr> 
@@ -1365,11 +1365,11 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Marital status",'e') ?>
-     <label><input type="checkbox" name="marital_status[]" value="single" <?php $result = chkdata_CB($obj,"marital_status","single"); echo $result;?> <? xl(">single",'e') ?> </label>
-     <label><input type="checkbox" name="marital_status[]" value="married" <?php $result = chkdata_CB($obj,"marital_status","married"); echo $result;?> <? xl(">married",'e') ?> </label> 
-  <label><input type="checkbox" name="marital_status[]" value="widowed" <?php $result = chkdata_CB($obj,"marital_status","widowed"); echo $result;?> <? xl(">widowed",'e') ?> </label> 
-  <label><input type="checkbox" name="marital_status[]" value="divorced" <?php $result = chkdata_CB($obj,"marital_status","divorced"); echo $result;?> <? xl(">divorced",'e') ?> </label></td></tr> 
+ <tr><td class='text' > <?php xl("Marital status",'e') ?>
+     <label><input type="checkbox" name="marital_status[]" value="single" <?php $result = chkdata_CB($obj,"marital_status","single"); echo $result;?> <?php xl(">single",'e') ?> </label>
+     <label><input type="checkbox" name="marital_status[]" value="married" <?php $result = chkdata_CB($obj,"marital_status","married"); echo $result;?> <?php xl(">married",'e') ?> </label> 
+  <label><input type="checkbox" name="marital_status[]" value="widowed" <?php $result = chkdata_CB($obj,"marital_status","widowed"); echo $result;?> <?php xl(">widowed",'e') ?> </label> 
+  <label><input type="checkbox" name="marital_status[]" value="divorced" <?php $result = chkdata_CB($obj,"marital_status","divorced"); echo $result;?> <?php xl(">divorced",'e') ?> </label></td></tr> 
   
  </table> 
  </td> 
@@ -1378,9 +1378,9 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Do you smoke",'e') ?>
-     <label><input type="checkbox" name="do_you_smoke[]" value="Yes" <?php $result = chkdata_CB($obj,"do_you_smoke","Yes"); echo $result;?> <? xl(">Yes",'e') ?> </label>
-     <label><input type="checkbox" name="do_you_smoke[]" value="No" <?php $result = chkdata_CB($obj,"do_you_smoke","No"); echo $result;?> <? xl(">No",'e') ?> </label></td></tr> 
+ <tr><td class='text' > <?php xl("Do you smoke",'e') ?>
+     <label><input type="checkbox" name="do_you_smoke[]" value="Yes" <?php $result = chkdata_CB($obj,"do_you_smoke","Yes"); echo $result;?> <?php xl(">Yes",'e') ?> </label>
+     <label><input type="checkbox" name="do_you_smoke[]" value="No" <?php $result = chkdata_CB($obj,"do_you_smoke","No"); echo $result;?> <?php xl(">No",'e') ?> </label></td></tr> 
   
  </table> 
  </td> 
@@ -1392,7 +1392,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Occupation",'e') ?> <input type="text" name="occupation" value="<?php $result = chkdata_Txt($obj,"occupation"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("Occupation",'e') ?> <input type="text" name="occupation" value="<?php $result = chkdata_Txt($obj,"occupation"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 
@@ -1401,7 +1401,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("How many packs per day",'e') ?> <input type="text" name="how_many_packs_per_day" value="<?php $result = chkdata_Txt($obj,"how_many_packs_per_day"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("How many packs per day",'e') ?> <input type="text" name="how_many_packs_per_day" value="<?php $result = chkdata_Txt($obj,"how_many_packs_per_day"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 
@@ -1413,7 +1413,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Leisure activities",'e') ?> <input type="text" name="leisure_activities" value="<?php $result = chkdata_Txt($obj,"leisure_activities"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("Leisure activities",'e') ?> <input type="text" name="leisure_activities" value="<?php $result = chkdata_Txt($obj,"leisure_activities"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 
@@ -1422,7 +1422,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("For how many years",'e') ?> <input type="text" name="for_how_many_years" value="<?php $result = chkdata_Txt($obj,"for_how_many_years"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("For how many years",'e') ?> <input type="text" name="for_how_many_years" value="<?php $result = chkdata_Txt($obj,"for_how_many_years"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 
@@ -1434,7 +1434,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Educational level",'e') ?> <input type="text" name="educational_level" value="<?php $result = chkdata_Txt($obj,"educational_level"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("Educational level",'e') ?> <input type="text" name="educational_level" value="<?php $result = chkdata_Txt($obj,"educational_level"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 
@@ -1443,7 +1443,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("How much alcohol do you drink",'e') ?> <input type="text" name="how_much_alcohol_do_you_drink" value="<?php $result = chkdata_Txt($obj,"how_much_alcohol_do_you_drink"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("How much alcohol do you drink",'e') ?> <input type="text" name="how_much_alcohol_do_you_drink" value="<?php $result = chkdata_Txt($obj,"how_much_alcohol_do_you_drink"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 
@@ -1460,7 +1460,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Do you use any drugs",'e') ?> <input type="text" name="do_you_use_any_drugs" value="<?php $result = chkdata_Txt($obj,"do_you_use_any_drugs"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("Do you use any drugs",'e') ?> <input type="text" name="do_you_use_any_drugs" value="<?php $result = chkdata_Txt($obj,"do_you_use_any_drugs"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 
@@ -1470,19 +1470,19 @@
   <h3>
  Family History: </h3>
  </td></tr> 
- <tr><td class='text'   colspan="3"> <? xl("Check if any close family members(parents,brothers and sisters,children) have:",'e') ?> </td></tr> 
+ <tr><td class='text'   colspan="3"> <?php xl("Check if any close family members(parents,brothers and sisters,children) have:",'e') ?> </td></tr> 
   
  <tr><td class='text'   colspan="3"> 
   
  <table> 
   
- <tr><td class='text' > <? xl("Heart problems",'e') ?>
-     <label><input type="checkbox" name="heart_problems[]" value="Mother" <?php $result = chkdata_CB($obj,"heart_problems","Mother"); echo $result;?> <? xl(">Mother",'e') ?> </label>
-     <label><input type="checkbox" name="heart_problems[]" value="Father" <?php $result = chkdata_CB($obj,"heart_problems","Father"); echo $result;?> <? xl(">Father",'e') ?> </label>
-     <label><input type="checkbox" name="heart_problems[]" value="Brother" <?php $result = chkdata_CB($obj,"heart_problems","Brother"); echo $result;?> <? xl(">Brother",'e') ?> </label> 
-  <label><input type="checkbox" name="heart_problems[]" value="Sister" <?php $result = chkdata_CB($obj,"heart_problems","Sister"); echo $result;?> <? xl(">Sister",'e') ?> </label>
- <label><input type="checkbox" name="heart_problems[]" value="Child" <?php $result = chkdata_CB($obj,"heart_problems","Child"); echo $result;?> <? xl(">Child",'e') ?> </label>
- <label><input type="checkbox" name="heart_problems[]" value="None" <?php $result = chkdata_CB($obj,"heart_problems","None"); echo $result;?> <? xl(">None",'e') ?> </label></td></tr> 
+ <tr><td class='text' > <?php xl("Heart problems",'e') ?>
+     <label><input type="checkbox" name="heart_problems[]" value="Mother" <?php $result = chkdata_CB($obj,"heart_problems","Mother"); echo $result;?> <?php xl(">Mother",'e') ?> </label>
+     <label><input type="checkbox" name="heart_problems[]" value="Father" <?php $result = chkdata_CB($obj,"heart_problems","Father"); echo $result;?> <?php xl(">Father",'e') ?> </label>
+     <label><input type="checkbox" name="heart_problems[]" value="Brother" <?php $result = chkdata_CB($obj,"heart_problems","Brother"); echo $result;?> <?php xl(">Brother",'e') ?> </label> 
+  <label><input type="checkbox" name="heart_problems[]" value="Sister" <?php $result = chkdata_CB($obj,"heart_problems","Sister"); echo $result;?> <?php xl(">Sister",'e') ?> </label>
+ <label><input type="checkbox" name="heart_problems[]" value="Child" <?php $result = chkdata_CB($obj,"heart_problems","Child"); echo $result;?> <?php xl(">Child",'e') ?> </label>
+ <label><input type="checkbox" name="heart_problems[]" value="None" <?php $result = chkdata_CB($obj,"heart_problems","None"); echo $result;?> <?php xl(">None",'e') ?> </label></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1491,13 +1491,13 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("High blood pressure",'e') ?>
-     <label><input type="checkbox" name="high_blood_pressure[]" value="Mother" <?php $result = chkdata_CB($obj,"high_blood_pressure","Mother"); echo $result;?> <? xl(">Mother",'e') ?> </label>
-     <label><input type="checkbox" name="high_blood_pressure[]" value="Father" <?php $result = chkdata_CB($obj,"high_blood_pressure","Father"); echo $result;?> <? xl(">Father",'e') ?> </label>
-     <label><input type="checkbox" name="high_blood_pressure[]" value="Brother" <?php $result = chkdata_CB($obj,"high_blood_pressure","Brother"); echo $result;?> <? xl(">Brother",'e') ?> </label>
-     <label><input type="checkbox" name="high_blood_pressure[]" value="Sister" <?php $result = chkdata_CB($obj,"high_blood_pressure","Sister"); echo $result;?> <? xl(">Sister",'e') ?> </label>
-     <label><input type="checkbox" name="high_blood_pressure[]" value="Child" <?php $result = chkdata_CB($obj,"high_blood_pressure","Child"); echo $result;?> <? xl(">Child",'e') ?> </label>
-     <label><input type="checkbox" name="high_blood_pressure[]" value="None" <?php $result = chkdata_CB($obj,"high_blood_pressure","None"); echo $result;?> <? xl(">None",'e') ?> </label></td></tr> 
+ <tr><td class='text' > <?php xl("High blood pressure",'e') ?>
+     <label><input type="checkbox" name="high_blood_pressure[]" value="Mother" <?php $result = chkdata_CB($obj,"high_blood_pressure","Mother"); echo $result;?> <?php xl(">Mother",'e') ?> </label>
+     <label><input type="checkbox" name="high_blood_pressure[]" value="Father" <?php $result = chkdata_CB($obj,"high_blood_pressure","Father"); echo $result;?> <?php xl(">Father",'e') ?> </label>
+     <label><input type="checkbox" name="high_blood_pressure[]" value="Brother" <?php $result = chkdata_CB($obj,"high_blood_pressure","Brother"); echo $result;?> <?php xl(">Brother",'e') ?> </label>
+     <label><input type="checkbox" name="high_blood_pressure[]" value="Sister" <?php $result = chkdata_CB($obj,"high_blood_pressure","Sister"); echo $result;?> <?php xl(">Sister",'e') ?> </label>
+     <label><input type="checkbox" name="high_blood_pressure[]" value="Child" <?php $result = chkdata_CB($obj,"high_blood_pressure","Child"); echo $result;?> <?php xl(">Child",'e') ?> </label>
+     <label><input type="checkbox" name="high_blood_pressure[]" value="None" <?php $result = chkdata_CB($obj,"high_blood_pressure","None"); echo $result;?> <?php xl(">None",'e') ?> </label></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1506,13 +1506,13 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Diabetes",'e') ?>
-     <label><input type="checkbox" name="diabetes[]" value="Mother" <?php $result = chkdata_CB($obj,"diabetes","Mother"); echo $result;?> <? xl(">Mother",'e') ?> </label>
-     <label><input type="checkbox" name="diabetes[]" value="Father" <?php $result = chkdata_CB($obj,"diabetes","Father"); echo $result;?> <? xl(">Father",'e') ?> </label>
-     <label><input type="checkbox" name="diabetes[]" value="Brother" <?php $result = chkdata_CB($obj,"diabetes","Brother"); echo $result;?> <? xl(">Brother",'e') ?> </label> 
-<label><input type="checkbox" name="diabetes[]" value="Sister" <?php $result = chkdata_CB($obj,"diabetes","Sister"); echo $result;?> <? xl(">Sister",'e') ?> </label>
- <label><input type="checkbox" name="diabetes[]" value="Child" <?php $result = chkdata_CB($obj,"diabetes","Child"); echo $result;?> <? xl(">Child",'e') ?> </label>
- <label><input type="checkbox" name="diabetes[]" value="None" <?php $result = chkdata_CB($obj,"diabetes","None"); echo $result;?> <? xl(">None",'e') ?> </label></td></tr> 
+ <tr><td class='text' > <?php xl("Diabetes",'e') ?>
+     <label><input type="checkbox" name="diabetes[]" value="Mother" <?php $result = chkdata_CB($obj,"diabetes","Mother"); echo $result;?> <?php xl(">Mother",'e') ?> </label>
+     <label><input type="checkbox" name="diabetes[]" value="Father" <?php $result = chkdata_CB($obj,"diabetes","Father"); echo $result;?> <?php xl(">Father",'e') ?> </label>
+     <label><input type="checkbox" name="diabetes[]" value="Brother" <?php $result = chkdata_CB($obj,"diabetes","Brother"); echo $result;?> <?php xl(">Brother",'e') ?> </label> 
+<label><input type="checkbox" name="diabetes[]" value="Sister" <?php $result = chkdata_CB($obj,"diabetes","Sister"); echo $result;?> <?php xl(">Sister",'e') ?> </label>
+ <label><input type="checkbox" name="diabetes[]" value="Child" <?php $result = chkdata_CB($obj,"diabetes","Child"); echo $result;?> <?php xl(">Child",'e') ?> </label>
+ <label><input type="checkbox" name="diabetes[]" value="None" <?php $result = chkdata_CB($obj,"diabetes","None"); echo $result;?> <?php xl(">None",'e') ?> </label></td></tr> 
   
  </table> 
  </td></tr> 
@@ -1521,12 +1521,12 @@
   
  <table> 
   
- <tr><td class='text' > cancer<label><input type="checkbox" name="_cancer[]" value="Mother" <?php $result = chkdata_CB($obj,"_cancer","Mother"); echo $result;?> <? xl(">Mother",'e') ?> </label>
-   <label><input type="checkbox" name="_cancer[]" value="Father" <?php $result = chkdata_CB($obj,"_cancer","Father"); echo $result;?> <? xl(">Father",'e') ?> </label> 
-  <label><input type="checkbox" name="_cancer[]" value="Brother" <?php $result = chkdata_CB($obj,"_cancer","Brother"); echo $result;?> <? xl(">Brother",'e') ?> </label>
- <label><input type="checkbox" name="_cancer[]" value="Sister" <?php $result = chkdata_CB($obj,"_cancer","Sister"); echo $result;?> <? xl(">Sister",'e') ?> </label>
- <label><input type="checkbox" name="_cancer[]" value="Child" <?php $result = chkdata_CB($obj,"_cancer","Child"); echo $result;?> <? xl(">Child",'e') ?> </label>
- <label><input type="checkbox" name="_cancer[]" value="None" <?php $result = chkdata_CB($obj,"_cancer","None"); echo $result;?> <? xl(">None",'e') ?> </label></td></tr> 
+ <tr><td class='text' > cancer<label><input type="checkbox" name="_cancer[]" value="Mother" <?php $result = chkdata_CB($obj,"_cancer","Mother"); echo $result;?> <?php xl(">Mother",'e') ?> </label>
+   <label><input type="checkbox" name="_cancer[]" value="Father" <?php $result = chkdata_CB($obj,"_cancer","Father"); echo $result;?> <?php xl(">Father",'e') ?> </label> 
+  <label><input type="checkbox" name="_cancer[]" value="Brother" <?php $result = chkdata_CB($obj,"_cancer","Brother"); echo $result;?> <?php xl(">Brother",'e') ?> </label>
+ <label><input type="checkbox" name="_cancer[]" value="Sister" <?php $result = chkdata_CB($obj,"_cancer","Sister"); echo $result;?> <?php xl(">Sister",'e') ?> </label>
+ <label><input type="checkbox" name="_cancer[]" value="Child" <?php $result = chkdata_CB($obj,"_cancer","Child"); echo $result;?> <?php xl(">Child",'e') ?> </label>
+ <label><input type="checkbox" name="_cancer[]" value="None" <?php $result = chkdata_CB($obj,"_cancer","None"); echo $result;?> <?php xl(">None",'e') ?> </label></td></tr> 
   
  </table> 
      </td></tr> 
@@ -1544,7 +1544,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Year",'e') ?> <input type="text" name="year" value="<?php $result = chkdata_Txt($obj,"year"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("Year",'e') ?> <input type="text" name="year" value="<?php $result = chkdata_Txt($obj,"year"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 
@@ -1553,7 +1553,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Hospital",'e') ?> <input type="text" name="hospital" value="<?php $result = chkdata_Txt($obj,"hospital"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("Hospital",'e') ?> <input type="text" name="hospital" value="<?php $result = chkdata_Txt($obj,"hospital"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 
@@ -1562,7 +1562,7 @@
   
  <table> 
   
- <tr><td class='text' > <? xl("Reason",'e') ?> <input type="text" name="reason" value="<?php $result = chkdata_Txt($obj,"reason"); echo $result;?>"></td></tr> 
+ <tr><td class='text' > <?php xl("Reason",'e') ?> <input type="text" name="reason" value="<?php $result = chkdata_Txt($obj,"reason"); echo $result;?>"></td></tr> 
   
  </table> 
  </td> 

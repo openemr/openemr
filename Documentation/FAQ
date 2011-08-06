@@ -11,7 +11,7 @@ It should be set to the absolute path of the openemr web directory, as shown abo
 
 * During installation of setup.php, I see ';?> at the top of each step.
 
-PHP can be called from within Apache with either long tags: <?php or short tags: <? 
+PHP can be called from within Apache with either long tags: <?php or short tags: <?php 
 OpenEMR uses short tags throughout its program code, though some default installations have short tags disabled. If you see this error, short tags are not enabled. Please consult PHP's documentation at: http://www.zend.com/manual/language.basic-syntax.php. The solution is to enable the short_open_tag configuration flag in the PHP config file, or by compiling PHP with the --enable-short-tags option to configure. (Zend PHP Website)
 
 

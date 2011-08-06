@@ -12,9 +12,7 @@ $fake_register_globals = false;
 require_once("../../interface/globals.php");
 require_once("$srcdir/forms.inc");
 
-// Functions here were cloned from front_payment.php.  They should
-// be consolidated into a shared module somewhere.
-
+/*********************************************************************
 // Get the patient's encounter ID for today, if it exists.
 // In the case of more than one encounter today, pick the last one.
 //
@@ -25,6 +23,7 @@ function todaysEncounterIf($patient_id) {
     array($patient_id, "$today 00:00:00"));
   return empty($tmprow['encounter']) ? 0 : $tmprow['encounter'];
 }
+*********************************************************************/
 
 // Get the patient's encounter ID for today, creating it if there is none.
 //
@@ -32,8 +31,14 @@ function todaysEncounter($patient_id, $reason='') {
   global $today, $userauthorized;
 
   if (empty($reason)) $reason = xl('Please indicate visit reason');
+
+  // Was going to use the existing encounter for today if there is one, but
+  // decided it's right to always create a new one.  Leaving the code here
+  // (and corresponding function above) in case it is ever wanted later.
+  /*******************************************************************
   $encounter = todaysEncounterIf($patient_id);
   if ($encounter) return $encounter;
+  *******************************************************************/
 
   $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users " .
     "WHERE id = ?", array($_SESSION["authUserID"]));

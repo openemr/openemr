@@ -183,7 +183,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
@@ -209,7 +209,7 @@ function docoding() {
 </head>
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<? echo $rootdir ?>/forms/football_injury_audit/new.php?id=<? echo $formid ?>"
+<form method="post" action="<?php echo $rootdir ?>/forms/football_injury_audit/new.php?id=<?php echo $formid ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
@@ -230,11 +230,11 @@ function docoding() {
      <td nowrap>
       Min of Injury
       <input type='text' name='form_injmin' size='4'
-       value='<? echo addslashes($row['fiinjmin']) ?>' />
+       value='<?php echo addslashes($row['fiinjmin']) ?>' />
      </td>
-     <? echo rbcell('form_injtime', '1', 'Warm Up'   , 'fiinjtime') ?>
-     <? echo rbcell('form_injtime', '2', 'Extra Time', 'fiinjtime') ?>
-     <? echo rbcell('form_injtime', '3', 'Cool Down' , 'fiinjtime') ?>
+     <?php echo rbcell('form_injtime', '1', 'Warm Up'   , 'fiinjtime') ?>
+     <?php echo rbcell('form_injtime', '2', 'Extra Time', 'fiinjtime') ?>
+     <?php echo rbcell('form_injtime', '3', 'Cool Down' , 'fiinjtime') ?>
     </tr>
    </table>
   </td>
@@ -245,10 +245,10 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbcell('form_injtime', '4', 'Warm Up'       , 'fiinjtime') ?>
-     <? echo rbcell('form_injtime', '5', 'During Session', 'fiinjtime') ?>
-     <? echo rbcell('form_injtime', '6', 'Cool Down'     , 'fiinjtime') ?>
-     <? echo rbcell('form_injtime', '7', 'Rehabilitation', 'fiinjtime') ?>
+     <?php echo rbcell('form_injtime', '4', 'Warm Up'       , 'fiinjtime') ?>
+     <?php echo rbcell('form_injtime', '5', 'During Session', 'fiinjtime') ?>
+     <?php echo rbcell('form_injtime', '6', 'Cool Down'     , 'fiinjtime') ?>
+     <?php echo rbcell('form_injtime', '7', 'Rehabilitation', 'fiinjtime') ?>
     </tr>
    </table>
   </td>
@@ -259,19 +259,19 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbcell('form_matchtype', '1', 'Premiership'         , 'fimatchtype') ?>
-     <? echo rbcell('form_matchtype', '2', 'FA Cup'              , 'fimatchtype') ?>
-     <? echo rbcell('form_matchtype', '3', 'League Cup'          , 'fimatchtype') ?>
-     <? echo rbcell('form_matchtype', '4', 'Champions League Cup', 'fimatchtype') ?>
+     <?php echo rbcell('form_matchtype', '1', 'Premiership'         , 'fimatchtype') ?>
+     <?php echo rbcell('form_matchtype', '2', 'FA Cup'              , 'fimatchtype') ?>
+     <?php echo rbcell('form_matchtype', '3', 'League Cup'          , 'fimatchtype') ?>
+     <?php echo rbcell('form_matchtype', '4', 'Champions League Cup', 'fimatchtype') ?>
     </tr>
     <tr>
-     <? echo rbcell('form_matchtype', '5', 'Championship Match'  , 'fimatchtype') ?>
-     <? echo rbcell('form_matchtype', '6', 'League One Match'    , 'fimatchtype') ?>
-     <? echo rbcell('form_matchtype', '7', 'League Two Match'    , 'fimatchtype') ?>
-     <? echo rbcell('form_matchtype', '8', 'International Match' , 'fimatchtype') ?>
+     <?php echo rbcell('form_matchtype', '5', 'Championship Match'  , 'fimatchtype') ?>
+     <?php echo rbcell('form_matchtype', '6', 'League One Match'    , 'fimatchtype') ?>
+     <?php echo rbcell('form_matchtype', '7', 'League Two Match'    , 'fimatchtype') ?>
+     <?php echo rbcell('form_matchtype', '8', 'International Match' , 'fimatchtype') ?>
     </tr>
     <tr>
-     <? echo rbcell('form_matchtype', '9', 'Friendly'            , 'fimatchtype') ?>
+     <?php echo rbcell('form_matchtype', '9', 'Friendly'            , 'fimatchtype') ?>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
@@ -289,18 +289,18 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo cbcell('form_mech_tackling' , 'Tackling' , 'fimech_tackling' ) ?>
-     <? echo cbcell('form_mech_tackled'  , 'Tackled'  , 'fimech_tackled'  ) ?>
-     <? echo cbcell('form_mech_collision', 'Collision', 'fimech_collision') ?>
-     <? echo cbcell('form_mech_kicked'   , 'Kicked'   , 'fimech_kicked'   ) ?>
+     <?php echo cbcell('form_mech_tackling' , 'Tackling' , 'fimech_tackling' ) ?>
+     <?php echo cbcell('form_mech_tackled'  , 'Tackled'  , 'fimech_tackled'  ) ?>
+     <?php echo cbcell('form_mech_collision', 'Collision', 'fimech_collision') ?>
+     <?php echo cbcell('form_mech_kicked'   , 'Kicked'   , 'fimech_kicked'   ) ?>
     </tr>
     <tr>
-     <? echo cbcell('form_mech_elbow' , 'Use of Elbow' , 'fimech_elbow' ) ?>
+     <?php echo cbcell('form_mech_elbow' , 'Use of Elbow' , 'fimech_elbow' ) ?>
      <td colspan='3' nowrap>
       Other:
       <input type='text' name='form_mech_othercon' size='10'
        title='Describe other'
-       value='<? echo addslashes($row['fimech_othercon']) ?>' />
+       value='<?php echo addslashes($row['fimech_othercon']) ?>' />
      </td>
     </tr>
    </table>
@@ -312,14 +312,14 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo cbcell('form_mech_nofoul' , 'No Foul'      , 'fimech_nofoul' ) ?>
-     <? echo cbcell('form_mech_oppfoul', 'Opponent Foul', 'fimech_oppfoul') ?>
-     <? echo cbcell('form_mech_ownfoul', 'Own Foul'     , 'fimech_ownfoul') ?>
+     <?php echo cbcell('form_mech_nofoul' , 'No Foul'      , 'fimech_nofoul' ) ?>
+     <?php echo cbcell('form_mech_oppfoul', 'Opponent Foul', 'fimech_oppfoul') ?>
+     <?php echo cbcell('form_mech_ownfoul', 'Own Foul'     , 'fimech_ownfoul') ?>
      <td width='25%'>&nbsp;</td>
     </tr>
     <tr>
-     <? echo cbcell('form_mech_yellow' , 'Yellow Card'  , 'fimech_yellow' ) ?>
-     <? echo cbcell('form_mech_red'    , 'Red Card'     , 'fimech_red'    ) ?>
+     <?php echo cbcell('form_mech_yellow' , 'Yellow Card'  , 'fimech_yellow' ) ?>
+     <?php echo cbcell('form_mech_red'    , 'Red Card'     , 'fimech_red'    ) ?>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
     </tr>
@@ -332,30 +332,30 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo cbcell('form_mech_passing'  , 'Passing'  , 'fimech_passing'  ) ?>
-     <? echo cbcell('form_mech_shooting' , 'Shooting' , 'fimech_shooting' ) ?>
-     <? echo cbcell('form_mech_running'  , 'Running'  , 'fimech_running'  ) ?>
-     <? echo cbcell('form_mech_dribbling', 'Dribbling', 'fimech_dribbling') ?>
+     <?php echo cbcell('form_mech_passing'  , 'Passing'  , 'fimech_passing'  ) ?>
+     <?php echo cbcell('form_mech_shooting' , 'Shooting' , 'fimech_shooting' ) ?>
+     <?php echo cbcell('form_mech_running'  , 'Running'  , 'fimech_running'  ) ?>
+     <?php echo cbcell('form_mech_dribbling', 'Dribbling', 'fimech_dribbling') ?>
     </tr>
     <tr>
-     <? echo cbcell('form_mech_heading'  , 'Heading'  , 'fimech_heading'  ) ?>
-     <? echo cbcell('form_mech_jumping'  , 'Jumping'  , 'fimech_jumping'  ) ?>
-     <? echo cbcell('form_mech_landing'  , 'Landing'  , 'fimech_landing'  ) ?>
-     <? echo cbcell('form_mech_fall'     , 'Fall'     , 'fimech_fall'     ) ?>
+     <?php echo cbcell('form_mech_heading'  , 'Heading'  , 'fimech_heading'  ) ?>
+     <?php echo cbcell('form_mech_jumping'  , 'Jumping'  , 'fimech_jumping'  ) ?>
+     <?php echo cbcell('form_mech_landing'  , 'Landing'  , 'fimech_landing'  ) ?>
+     <?php echo cbcell('form_mech_fall'     , 'Fall'     , 'fimech_fall'     ) ?>
     </tr>
     <tr>
-     <? echo cbcell('form_mech_stretching', 'Stretching'      , 'fimech_stretching') ?>
-     <? echo cbcell('form_mech_turning'   , 'Twisting/Turning', 'fimech_turning'   ) ?>
-     <? echo cbcell('form_mech_throwing'  , 'Throwing'        , 'fimech_throwing'  ) ?>
-     <? echo cbcell('form_mech_diving'    , 'Diving'          , 'fimech_diving'    ) ?>
+     <?php echo cbcell('form_mech_stretching', 'Stretching'      , 'fimech_stretching') ?>
+     <?php echo cbcell('form_mech_turning'   , 'Twisting/Turning', 'fimech_turning'   ) ?>
+     <?php echo cbcell('form_mech_throwing'  , 'Throwing'        , 'fimech_throwing'  ) ?>
+     <?php echo cbcell('form_mech_diving'    , 'Diving'          , 'fimech_diving'    ) ?>
     </tr>
     <tr>
-     <? echo cbcell('form_mech_overuse', 'Overuse', 'fimech_overuse' ) ?>
+     <?php echo cbcell('form_mech_overuse', 'Overuse', 'fimech_overuse' ) ?>
      <td colspan='3' nowrap>
       Other:
       <input type='text' name='form_mech_othernon' size='10'
        title='Describe other'
-       value='<? echo addslashes($row['fimech_othernon']) ?>' />
+       value='<?php echo addslashes($row['fimech_othernon']) ?>' />
      </td>
     </tr>
    </table>
@@ -371,14 +371,14 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbcell('form_surface', '1', 'Pitch'      , 'fisurface') ?>
-     <? echo rbcell('form_surface', '2', 'Training'   , 'fisurface') ?>
-     <? echo rbcell('form_surface', '3', 'Artificial' , 'fisurface') ?>
-     <? echo rbcell('form_surface', '4', 'Indoor'     , 'fisurface') ?>
+     <?php echo rbcell('form_surface', '1', 'Pitch'      , 'fisurface') ?>
+     <?php echo rbcell('form_surface', '2', 'Training'   , 'fisurface') ?>
+     <?php echo rbcell('form_surface', '3', 'Artificial' , 'fisurface') ?>
+     <?php echo rbcell('form_surface', '4', 'Indoor'     , 'fisurface') ?>
     </tr>
     <tr>
-     <? echo rbcell('form_surface', '5', 'Gym'        , 'fisurface') ?>
-     <? echo rbcell('form_surface', '6', 'Other'      , 'fisurface') ?>
+     <?php echo rbcell('form_surface', '5', 'Gym'        , 'fisurface') ?>
+     <?php echo rbcell('form_surface', '6', 'Other'      , 'fisurface') ?>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
     </tr>
@@ -391,14 +391,14 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbcell('form_position', '1', 'Defender'          , 'fiposition') ?>
-     <? echo rbcell('form_position', '2', 'Midfield Offensive', 'fiposition') ?>
-     <? echo rbcell('form_position', '3', 'Midfield Defensive', 'fiposition') ?>
-     <? echo rbcell('form_position', '4', 'Forward'           , 'fiposition') ?>
+     <?php echo rbcell('form_position', '1', 'Defender'          , 'fiposition') ?>
+     <?php echo rbcell('form_position', '2', 'Midfield Offensive', 'fiposition') ?>
+     <?php echo rbcell('form_position', '3', 'Midfield Defensive', 'fiposition') ?>
+     <?php echo rbcell('form_position', '4', 'Forward'           , 'fiposition') ?>
     </tr>
     <tr>
-     <? echo rbcell('form_position', '5', 'Goal Keeper'       , 'fiposition') ?>
-     <? echo rbcell('form_position', '6', 'Substitute'        , 'fiposition') ?>
+     <?php echo rbcell('form_position', '5', 'Goal Keeper'       , 'fiposition') ?>
+     <?php echo rbcell('form_position', '6', 'Substitute'        , 'fiposition') ?>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
     </tr>
@@ -411,10 +411,10 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbcell('form_footwear', '1', 'Molded Stud'    , 'fifootwear') ?>
-     <? echo rbcell('form_footwear', '2', 'Detachable Stud', 'fifootwear') ?>
-     <? echo rbcell('form_footwear', '3', 'Indoor Shoes'   , 'fifootwear') ?>
-     <? echo rbcell('form_footwear', '4', 'Blades'         , 'fifootwear') ?>
+     <?php echo rbcell('form_footwear', '1', 'Molded Stud'    , 'fifootwear') ?>
+     <?php echo rbcell('form_footwear', '2', 'Detachable Stud', 'fifootwear') ?>
+     <?php echo rbcell('form_footwear', '3', 'Indoor Shoes'   , 'fifootwear') ?>
+     <?php echo rbcell('form_footwear', '4', 'Blades'         , 'fifootwear') ?>
     </tr>
    </table>
   </td>
@@ -425,10 +425,10 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbcell('form_side', '1', 'Left'          , 'fiside') ?>
-     <? echo rbcell('form_side', '2', 'Right'         , 'fiside') ?>
-     <? echo rbcell('form_side', '3', 'Bilateral'     , 'fiside') ?>
-     <? echo rbcell('form_side', '4', 'Not Applicable', 'fiside') ?>
+     <?php echo rbcell('form_side', '1', 'Left'          , 'fiside') ?>
+     <?php echo rbcell('form_side', '2', 'Right'         , 'fiside') ?>
+     <?php echo rbcell('form_side', '3', 'Bilateral'     , 'fiside') ?>
+     <?php echo rbcell('form_side', '4', 'Not Applicable', 'fiside') ?>
     </tr>
    </table>
   </td>
@@ -443,9 +443,9 @@ function docoding() {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbcell('form_removed', '1', 'Immediately', 'firemoved') ?>
-     <? echo rbcell('form_removed', '2', 'Later'      , 'firemoved') ?>
-     <? echo rbcell('form_removed', '3', 'Not at All' , 'firemoved') ?>
+     <?php echo rbcell('form_removed', '1', 'Immediately', 'firemoved') ?>
+     <?php echo rbcell('form_removed', '2', 'Later'      , 'firemoved') ?>
+     <?php echo rbcell('form_removed', '3', 'Not at All' , 'firemoved') ?>
      <td width='25%'>&nbsp;</td>
     </tr>
    </table>

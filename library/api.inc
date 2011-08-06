@@ -13,7 +13,7 @@ function formHeader ($title = "My Form")
 	?>
 	<html>
 	<head>
-<? html_header_show();?>
+<?php html_header_show();?>
 	<link rel=stylesheet href="<?=$GLOBALS['css_header']?>" type="text/css">
 	<title><?=$title?></title>
 	</head>

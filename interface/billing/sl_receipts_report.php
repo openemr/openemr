@@ -170,7 +170,7 @@
 				<?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('CPT', 'e') . ':'; ?>
 			</td>
 			<td>
-			   <input type='text' name='form_cptcode' size='5' value='<? echo $form_cptcode; ?>'
+			   <input type='text' name='form_cptcode' size='5' value='<?php echo $form_cptcode; ?>'
 				title='<?php xl('Optional procedure code','e'); ?>'
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
 			</td>
@@ -179,14 +179,14 @@
 			   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('ICD', 'e') . ':'; ?>
 			</td>
 			<td>
-			   <input type='text' name='form_icdcode' size='5' value='<? echo $form_icdcode; ?>'
+			   <input type='text' name='form_icdcode' size='5' value='<?php echo $form_icdcode; ?>'
 				title='<?php xl('Enter a diagnosis code to exclude all invoices not containing it','e'); ?>'
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
 			</td>
 
 			<td>
-			   <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
-			   <input type='checkbox' name='form_procedures' value='1'<? if ($form_procedures) echo " checked"; ?>><?xl('Procedures','e')?>
+			   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
+			   <input type='checkbox' name='form_procedures' value='1'<?php if ($form_procedures) echo " checked"; ?>><?xl('Procedures','e')?>
 			</td>
 		</tr>
 	</table>
@@ -582,7 +582,7 @@
 
  <tr bgcolor="#ddddff">
   <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
-   <? echo xl('Totals for ') . $docname ?>
+   <?php echo xl('Totals for ') . $docname ?>
   </td>
   <td align="right">
    <?php bucks($doctotal1) ?>

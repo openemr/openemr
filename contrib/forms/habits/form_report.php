@@ -1,4 +1,5 @@
-<?
+<?php
+
 # this file is form_report.php,
 # is called by all reporting pages, print, view, and report.
 

@@ -87,6 +87,12 @@ class Document extends ORDataObject{
 	var $docdate;
 	
 	/*
+	* 40-character sha1 hash key of the document from when it was uploaded. 
+	* @var string
+	*/
+	var $hash;
+	
+	/*
 	* DB identifier reference to the lists table (the related issue), 0 if none.
 	* @var int
 	*/
@@ -113,6 +119,7 @@ class Document extends ORDataObject{
 		$this->url = "";
 		$this->mimetype = "";
 		$this->docdate = date("Y-m-d");
+		$this->hash = "";
 		$this->list_id = 0;
 		
 		if ($id != "") {
@@ -184,7 +191,6 @@ class Document extends ORDataObject{
 		  	$mimetype = exec($command);
 		  	$mime_array = split(":", $mimetype);
 		  	$mimetype = $mime_array[1];
-		  		
 		  	$d->set_mimetype($mimetype);
 			$d->url = $url;
 		  	$d->size = filesize($filename);
@@ -213,6 +219,7 @@ class Document extends ORDataObject{
 		. "owner: " . $this->owner . "\n"
 		. "revision: " . $this->revision . "\n"
 		. "docdate: " . $this->docdate . "\n"
+		. "hash: " . $this->hash . "\n"
 		. "list_id: " . $this->list_id . "\n";
 
 		if ($html) {
@@ -256,6 +263,12 @@ class Document extends ORDataObject{
 	}
 	function get_date() {
 		return $this->date;
+	}
+    function set_hash($hash) {
+		$this->hash = $hash;
+	}
+	function get_hash() {
+		return $this->hash;
 	}
 	function set_url($url) {
 		$this->url = $url;

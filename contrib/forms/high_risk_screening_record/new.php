@@ -26,7 +26,7 @@ if ($old) {
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title>Form: High risk screening record</title>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../../acog.css" type="text/css">
@@ -36,7 +36,7 @@ window.onload = initialize;
 </script>
 </head>
 
-<? 
+<?php 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
    if ($fres){
      $patient = sqlFetchArray($fres);
@@ -45,21 +45,24 @@ window.onload = initialize;
 <body <?echo $top_bg_line;?>>
 
 <form action="<?echo $rootdir;?>/forms/high_risk_screening_record/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
-<? include("../../acog_menu.inc"); ?>
+<?php include("../../acog_menu.inc"); ?>
 <div class="srvChapter">High risk screening  record <a href="#" onMouseOver="toolTip('See Table of High-Risk Factors.')" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 <div style="border: solid 2px black; background-color:#FFFFFF;">
   <table  border="0" cellpadding="2" cellspacing="0">
     <tr align="left" valign="bottom">
       <td colspan="6" class="fibody2" id="bordR">patient name: 
-        <input name="pname" type="text" class="fullin" id="pname" style="width: 70%" value="<?
+        <input name="pname" type="text" class="fullin" id="pname" style="width: 70%" value="<?php
+
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
           ?>"></td>
       <td colspan="5" class="fibody2" id="bordR">Birth date: 
-        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?
+        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?php
+
           echo $patient{'DOB'};
           ?>"></td>
       <td colspan="4" class="fibody2">ID No:
-        <input name="hr_pid" type="text" class="fullin" id="hr_pid" style="width:80%" value="<?
+        <input name="hr_pid" type="text" class="fullin" id="hr_pid" style="width:80%" value="<?php
+
           echo $patient{'id'};
           ?>"></td>
       </tr>

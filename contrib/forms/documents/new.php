@@ -1,4 +1,5 @@
-<?
+<?php
+
 
 // file new.php
 
@@ -19,7 +20,7 @@ formHeader("Scanned Documents Input");
 ?>
 
 <html><head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 

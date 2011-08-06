@@ -48,13 +48,25 @@ function get_pharmacies() {
 // Function to generate a drop-list.
 //
 function generate_select_list($tag_name, $list_id, $currvalue, $title,
-  $empty_name=' ', $class='', $onchange='')
+  $empty_name=' ', $class='', $onchange='', $tag_id = '', $custom_attributes = null )
 {
   $s = '';
   $tag_name_esc = htmlspecialchars( $tag_name, ENT_QUOTES);
-  $s .= "<select name='$tag_name_esc' id='$tag_name_esc'";
+  $s .= "<select name='$tag_name_esc'";
+  $tag_id_esc = $tag_name_esc;
+  if ( $tag_id != '' ) {
+      $tag_id_esc = htmlspecialchars( $tag_id, ENT_QUOTES);
+  }   
+  $s .=  " id='$tag_id_esc'";
   if ($class) $s .= " class='$class'";
   if ($onchange) $s .= " onchange='$onchange'";
+  if ( $custom_attributes != null && is_array($custom_attributes) ) {
+      foreach ( $custom_attributes as $attr => $val ) {
+          if ( isset($custom_attributes[$attr] ) ) {
+              $s .= " ".htmlspecialchars( $attr, ENT_QUOTES)."='".htmlspecialchars( $val, ENT_QUOTES)."'";
+          }
+      }
+  }
   $selectTitle = htmlspecialchars( $title, ENT_QUOTES);
   $s .= " title='$selectTitle'>";
   $selectEmptyName = htmlspecialchars( xl($empty_name), ENT_NOQUOTES);
@@ -2137,6 +2149,17 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
   //next, create the first div tag to hold the information
   // note the code that calls this function will then place the ending div tag after the data
   echo "<div id='" . htmlspecialchars( $label, ENT_QUOTES) . "_ps_expand' " . $styling . ">";
+}
+
+//billing_facility fuction will give the dropdown list which contain billing faciliies.
+function billing_facility($name,$select){
+	$qsql = sqlStatement("SELECT id, name FROM facility WHERE billing_location = 1");
+		echo "   <select id='".htmlspecialchars($name, ENT_QUOTES)."' name='".htmlspecialchars($name, ENT_QUOTES)."'>";
+			while ($facrow = sqlFetchArray($qsql)) {
+				$selected = ( $facrow['id'] == $select ) ? 'selected="selected"' : '' ;
+				 echo "<option value=".htmlspecialchars($facrow['id'],ENT_QUOTES)." $selected>".htmlspecialchars($facrow['name'], ENT_QUOTES)."</option>";
+				}
+			  echo "</select>";
 }
 
 ?>

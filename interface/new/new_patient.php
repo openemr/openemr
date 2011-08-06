@@ -4,7 +4,7 @@ $_SESSION["encounter"] = "";
 ?>
 <HTML>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <TITLE>
 <?php echo $openemr_name; ?>
 </TITLE>

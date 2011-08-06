@@ -26,7 +26,7 @@ if ($old) {
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title>Form: ACOG Immunization record</title>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../../acog.css" type="text/css">
@@ -38,7 +38,7 @@ window.onload = initialize;
 </script>
 </head>
 
-<? 
+<?php 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
    if ($fres){
      $patient = sqlFetchArray($fres);
@@ -48,21 +48,24 @@ window.onload = initialize;
 
 
 <form action="<?echo $rootdir;?>/forms/immunization_record/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
-<? include("../../acog_menu.inc"); ?>
+<?php include("../../acog_menu.inc"); ?>
 <div class="srvChapter">Immunization record<sup><a href="#" onClick="toolTip('The Immunization Record lists immunization services recommended by ACOG for either routine use or in high-risk patients, as defined in the enclosed table of high-risk factors. space for listing problems and immunization services allows the same form to be used for years.<br><br>For immunizations based on risk refer to the Table of High-Risk Factors')" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0"></a></sup></div>
 <div style="border: solid 2px black; background-color:#FFFFFF;">
   <table width="100%"  border="0" cellspacing="0" cellpadding="2">
     <tr align="left" valign="bottom">
       <td colspan="4" class="fibody2" id="bordR">patient name: 
-        <input name="pname" type="text" class="fullin" id="pname" style="width: 74%" value="<?
+        <input name="pname" type="text" class="fullin" id="pname" style="width: 74%" value="<?php
+
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
           ?>"></td>
       <td colspan="2" class="fibody2" id="bordR">Birth date: 
-        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?
+        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?php
+
           echo $patient{'DOB'};
           ?>"></td>
       <td colspan="2" class="fibody2">ID No: 
-        <input name="pl_pid" type="text" class="fullin" id="pl_pid" style="width:80%" value="<?
+        <input name="pl_pid" type="text" class="fullin" id="pl_pid" style="width:80%" value="<?php
+
           echo $patient{'id'};
           ?>"></td>
       </tr>
@@ -124,7 +127,8 @@ window.onload = initialize;
 <p>&nbsp;</p>
 <div style="border: solid 2px black; background-color:#FFFFFF;">
   <table width="100%"  border="0" cellspacing="0" cellpadding="2">
-<?
+<?php
+
 $vacci=0;
 while ($vacci<20){
 print <<<EOL

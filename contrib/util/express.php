@@ -5,6 +5,12 @@
 </head>
 <body>
 <?php
+
+// This exit is to avoid malicious use of this script.
+//  (before running this script, comment out the exit command)
+//  (when you are done running the script, remember to uncomment the exit command)
+exit;
+
 if (!$_POST['submit']) {
 ?>
 <form method=post>
@@ -144,7 +150,8 @@ if ($upgrade != 1) {
 		flush();
 		break;
 	}
-	if (mysql_query("INSERT INTO users (id, username, password, authorized, lname,fname) VALUES (1,'$iuser','1a1dc91c907325c69271ddf0c944bc72',1,'$iuname','')") == FALSE) {
+	//// ViCareplus : As per NIST standard, SHA1 hash/digest of 'pass' is used
+	if (mysql_query("INSERT INTO users (id, username, password, authorized, lname,fname) VALUES (1,'$iuser','9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684',1,'$iuname','')") == FALSE) {
 		echo "ERROR.  Could not run queries.\n";
 		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		flush();
@@ -162,7 +169,8 @@ if ($fd == FALSE) {
 	flush();
 	break;
 }
-$string = "<?
+$string = "<?php
+
 //  OpenEMR
 //  MySQL Config
 //  Referenced from sql.inc
@@ -197,7 +205,7 @@ $config = 1; /////////////
 //////////////////////////
 ?>
 ';
-?><? // done just for coloring
+?><?php // done just for coloring
 
 fwrite($fd,$string) or $it_died++;
 

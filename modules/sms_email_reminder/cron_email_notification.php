@@ -1,4 +1,5 @@
-<?
+<?php
+
 ////////////////////////////////////////////////////////////////////
 // Package:	cron_email_notification
 // Purpose:	to be run by cron every hour, look for appointments

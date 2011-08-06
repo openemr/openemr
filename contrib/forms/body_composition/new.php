@@ -128,7 +128,7 @@ else {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <script language="JavaScript">
 </script>
@@ -159,7 +159,7 @@ else {
   <td nowrap>Height in inches</td>
   <td nowrap>
    <input type='text' name='form_height' size='6'
-    value='<? echo addslashes($row['height']) ?>' /> &nbsp;
+    value='<?php echo addslashes($row['height']) ?>' /> &nbsp;
   </td>
   <td nowrap>
    &nbsp;
@@ -170,7 +170,7 @@ else {
   <td nowrap>Weight in pounds</td>
   <td nowrap>
    <input type='text' name='form_weight' size='6'
-    value='<? echo addslashes($row['weight']) ?>' /> &nbsp;
+    value='<?php echo addslashes($row['weight']) ?>' /> &nbsp;
   </td>
   <td align='center' nowrap>
 <?php

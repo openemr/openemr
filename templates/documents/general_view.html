@@ -31,6 +31,13 @@
   return false;
  {literal}}{/literal}
 
+ function submitNonEmpty( e ) {literal}{{/literal}
+	if ( e.elements['passphrase'].value.length == 0 ) {literal}{{/literal}
+		alert( "{xl t='You must enter a pass phrase to encrypt the document'}" );
+	{literal}}{/literal} else {literal}{{/literal}
+		e.submit();
+	{literal}}{/literal}
+ {literal}}{/literal}
 
 </script>
 
@@ -47,7 +54,40 @@
     </tr>
     <tr>
 		<td valign="top">
-
+			{if !$hide_encryption}
+			<div class="text">
+                <form method="post" name="document_encrypt" action="{$web_path}" onsubmit="return top.restoreSession()">
+                <div>
+                    <div style="float:left">
+                        <b>{xl t='Encryption'}</b>&nbsp; 
+                    </div>
+                    <div style="float:none">
+                        <a href="javascript:;" onclick="submitNonEmpty( document.forms['document_encrypt'] );">(<span>{xl t='download encrypted file'})</span></a>
+                    </div> 
+                </div>
+                <div>
+                    {xl t='Pass Phrase'}:
+                    <input title="{xl t='Supports TripleDES encryption/decryption only.'} {xl t='Leaving the pass phrase blank will not encrypt the document'}" type='text' size='20' name='passphrase' id='passphrase' value=''/>
+                    <input type="hidden" name="encrypted" value="true"></input>
+              	</div>
+                </form>
+            </div>
+            <br/>
+            {/if}
+			<div class="text">
+                <form method="post" name="document_validate" action="{$VALIDATE_ACTION}" onsubmit="return top.restoreSession()">
+                <div>
+                    <div style="float:left">
+                        <b>{xl t='Sha-1 Hash'}:</b>&nbsp;
+                        <i>{$file->get_hash()}</i>&nbsp;
+                    </div>
+                    <div style="float:none">
+                        <a href="javascript:;" onclick="document.forms['document_validate'].submit();">(<span>{xl t='validate'})</span></a>
+                    </div>
+                </div>
+                </form>
+            </div>
+            <br/>
             <div class="text">
                 <form method="post" name="document_update" action="{$UPDATE_ACTION}" onsubmit="return top.restoreSession()">
                 <div>
@@ -58,6 +98,10 @@
                         <a href="javascript:;" onclick="document.forms['document_update'].submit();">(<span>{xl t='submit'})</span></a>
                     </div>
                 </div>
+                <div>
+                    {xl t='Rename'}:
+                    <input type='text' size='20' name='docname' id='docname' value='{$file->get_url_web()}'/>
+              	</div>
                 <div>
                     {xl t='Date'}:
                     <input type='text' size='10' name='docdate' id='docdate'

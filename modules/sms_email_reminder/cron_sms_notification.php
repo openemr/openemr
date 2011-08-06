@@ -1,4 +1,5 @@
-<?
+<?php
+
 ////////////////////////////////////////////////////////////////////
 // Package:	sms_cron_notification
 // Purpose:	to be run by cron every hour, look for appointments

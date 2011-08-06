@@ -102,9 +102,9 @@ function getEvents($params)
 
 /* Given an SQL insert/update that was just performeds:
  * - Find the table and primary id of the row that was created/modified
- * - Calculate the MD5 checksum of that row (with all the
+ * - Calculate the SHA1 checksum of that row (with all the
  *   column values concatenated together).
- * - Return the MD5 checksum as a 32 char hex string.
+ * - Return the SHA1 checksum as a 40 char hex string.
  * If this is not an insert/update query, return "".
  * If multiple rows were modified, return "".
  * If we're unable to determine the row modified, return "".
@@ -260,7 +260,8 @@ function sql_checksum_of_modified_row($statement)
             $column_values .= $field;
         }
     }
-    return md5($column_values);
+    // ViCarePlus: As per NIST standard, the encryption algorithm SHA1 is used
+    return sha1($column_values);
 }
 
 /* Create an XML audit record corresponding to RFC 3881.

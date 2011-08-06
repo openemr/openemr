@@ -17,17 +17,29 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     cursor: pointer; cursor: hand;
 }
 #functions {
-    width: 20%; /* can't make this 25% for some reason */
+    width: 13.5%; /* can't make this 25% for some reason */
     float: left;
     padding: 0px 5px 0px 5px;
-    margin-right: 5%; /* added because of the width issue above */
+    margin-right: 0%; /* added because of the width issue above */
+}
+#topheader {
+	background-color:#E3E9FF;
+	height:50px;
+    float: right;
+    width: 100%;
+	border-TOP:1px solid black;
 }
 #topToolbarRight {
+	background-color:#BBCCFF;
     float: right;
-    width: 70%;
+    width: 100%;
+	border-bottom:1px solid black;
+	border-TOP:1px solid black;
 }
 #dateNAV {
     float: left;
+	font-family: Arial, Helvetica, sans-serif;
+    font-size: 14pt;
 }
 #dateDisplay {
     float: left;
@@ -47,28 +59,42 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 #providerPicker {
     font-family: Arial, Helvetica, sans-serif;
-    width: 25%;
+    width: 15%;
     float: left;
     position: absolute;
     display: inline;
-    top: 200px;
-    left: 0px;
+    top: 220px;
+    left: 3px;
     padding: 5px;
-    text-align:center;
 }
 #providerPicker #pc_facility {
-    width: 150px;
+    width: 94%;
 }
 #providerPicker #pc_username {
-    width: 150px;
+    width: 94%;
+}
+#facilityColor {
+    font-family: Arial, Helvetica, sans-serif;
+    width: 15%;
+    float: left;
+    position: absolute;
+    display: inline;
+    top: 335px;
+    left: 0px;
+    padding: 5px;
+}
+#facilityColor table{
+	width:96%;
+	border-collapse: collapse;
 }
 #bigCal {
-    width:70%;
+    width:85%;
     height: 80%;
     overflow: auto;
     float: right;
     background-color: #FFF3D1;
     position: relative;
+	border-left:1px solid black;
 }
 #bigCal table {
     border-collapse: collapse;
@@ -83,23 +109,24 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
 /* these are for the small datepicker DIV */
 #datePicker {
-    width: 25%;
+    width: 15%;
     float: left;
     position: absolute;
     display: inline;
-    top: 50px;
+    top: 83px;
     left: 0px;
     padding: 5px;
-    text-align: center;
 }
 #datePicker table {
+	width:96%;
     border-collapse: collapse;
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: 3px;
 }
 #datePicker td {
+	width: 19.5px;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 0.7em;
+    text-align: center;
     /* font-size: 9pt;  */
 }
 #datePicker .tdMonthName-small {
@@ -127,7 +154,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     vertical-align: top;
     border: none;
     padding: 2px 3px 2px 3px;
-    background-color: #dddddd;
+    background-color: #ffffff;
     color: #999999;
 }
 #datePicker .tdOtherMonthDay-small {
@@ -161,7 +188,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
 /* the DIV of times */
 #times {
-    border-right: 1px solid #999;
+	border-right: 1px solid #999;
     width: 2em;
     background-color: #FFF3D1;
     padding: 0px;
@@ -286,4 +313,10 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     margin: -3px;
     background-color: black;
 }
-
+.view1 {
+font-size:10px;
+}
+.view2 {
+background-color:#94D6E7;
+font-size:10px;
+}

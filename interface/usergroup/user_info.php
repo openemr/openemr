@@ -1,6 +1,6 @@
 <?php
 include_once("../globals.php");
-include_once("$srcdir/md5.js");
+include_once("$srcdir/sha1.js");
 include_once("$srcdir/sql.inc");
 include_once("$srcdir/auth.inc");
 ?>
@@ -46,9 +46,10 @@ function pwdvalidation()
     return false;
   }
 }
-  document.user_form.authPass.value=MD5(document.user_form.clearPass.value);
+  // ViCareplus : As per NIST standard, SHA1 encryption algorithm is used
+  document.user_form.authPass.value=SHA1(document.user_form.clearPass.value);
   document.user_form.clearPass.value='';
-  document.user_form.authPass2.value=MD5(document.user_form.clearPass2.value);
+  document.user_form.authPass2.value=SHA1(document.user_form.clearPass2.value);
   document.user_form.clearPass2.value='';
 }
 
@@ -64,7 +65,7 @@ function pwdvalidation()
 $update_pwd_failed=0;
 $ip=$_SERVER['REMOTE_ADDR'];
 if ($_GET["mode"] == "update") {
-  if ($_GET["authPass"] && $_GET["authPass2"] && $_GET["authPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
+  if ($_GET["authPass"] && $_GET["authPass2"] && $_GET["authPass"] != "da39a3ee5e6b4b0d3255bfef95601890afd80709") { // account for empty
     $tqvar = addslashes($_GET["authPass"]);
     $tqvar2 = addslashes($_GET["authPass2"]);
     if ($tqvar == $tqvar2)  {
@@ -93,7 +94,8 @@ $row = sqlFetchArray($res);
       $iter=$row;
 ?>
 <div id="display_msg">
-<?
+<?php
+
 if ($update_pwd_failed==1) //display message if entered password matched one of last three passwords.
 {
   echo "<font class='redtext'>". xl("Recent three passwords are not allowed.") ."</font>";
@@ -104,7 +106,7 @@ if ($update_pwd_failed==1) //display message if entered password matched one of 
 <span class="text"><?php xl('Once you change your password, you will have to re-login.','e'); ?><br></span>
 <FORM NAME="user_form" METHOD="GET" ACTION="user_info.php"
  onsubmit="top.restoreSession()">
-<input type=hidden name=secure_pwd value="<? echo $GLOBALS['secure_password']; ?>">
+<input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
 <TABLE>
 <TR>
 <TD><span class=text><?php xl('Full Name','e'); ?>: </span></TD>
@@ -146,5 +148,5 @@ if ($update_pwd_failed==1) //display message if entered password matched one of 
 </HTML>
 
 <?php
-//  d41d8cd98f00b204e9800998ecf8427e == blank
+//  da39a3ee5e6b4b0d3255bfef95601890afd80709 == blank
 ?>

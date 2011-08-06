@@ -116,6 +116,7 @@
   'sup' => array(xl('Superbill') , 0, 'patient_file/encounter/superbill_custom_full.php'),
   'aun' => array(xl('Authorizations'), 0, 'main/authorizations/authorizations.php'),
   'new' => array(xl('New Pt')    , 0, 'new/new.php'),
+  'ped' => array(xl('Patient Education'), 0, 'reports/patient_edu_web_lookup.php'),
   'lab' => array(xl('Check Lab Results')  , 0, 'orders/lab_exchange.php'),
   'dem' => array(xl('Patient')   , 1,  "patient_file/summary/demographics.php"),
   'his' => array(xl('History')   , 1, 'patient_file/history/history.php'),
@@ -255,6 +256,46 @@ function genPopupsList($style='') {
 <?php
 }
 
+function genFindBlock() {
+?>
+<table cellpadding='0' cellspacing='0' border='0'>
+ <tr>
+  <td class='smalltext'><?php xl('Find','e') ?>:&nbsp;</td>
+  <td class='smalltext' colspan='2'>
+   <input type="entry" size="7" name="patient" class='inputtext' style='width:65px;' />
+  </td>
+ </tr>
+ <tr>
+  <td class='smalltext'><?php xl('by','e') ?>:</td>
+  <td class='smalltext'>
+   <a href="javascript:findPatient('Last');" class="navitem"><?php xl('Name','e'); ?></a>
+  </td>
+  <td class='smalltext' align='right'>
+   <a href="javascript:findPatient('ID');"   class="navitem"><?php xl('ID','e'); ?></a>
+  </td>
+ </tr>
+ <tr>
+  <td class='smalltext'>&nbsp;</td>
+  <td class='smalltext'>
+   <a href="javascript:findPatient('SSN');"  class="navitem"><?php xl('SSN','e'); ?></a>
+  </td>
+  <td class='smalltext' align='right'>
+   <a href="javascript:findPatient('DOB');"  class="navitem"><?php xl('DOB','e'); ?></a>
+  </td>
+ </tr>
+ <tr>
+  <td class='smalltext'>&nbsp;</td>
+  <td class='smalltext'>
+   <a href="javascript:findPatient('Any');"  class="navitem"><?php xl('Any', 'e'); ?></a>
+  </td>
+  <td class='smalltext' align='right'>
+   <a href="javascript:initFilter();"  class="navitem"><?php xl('Filter', 'e'); ?></a>
+  </td>
+ </tr>
+</table>
+<?php
+} // End function genFindBlock()
+
 ?>
 <html>
 <head>
@@ -294,6 +335,9 @@ function genPopupsList($style='') {
 }
 #navigation-slide ul {
  background-color:transparent;
+}
+#navigation-slide a{
+ width: 92%;
 }
 .nav-menu-img{
   width:25px;
@@ -862,6 +906,15 @@ $(document).ready(function(){
 
 <form method='post' name='find_patient' target='RTop'
  action='<?php echo $rootdir ?>/main/finder/patient_select.php'>
+
+<?php
+// Find widget is at the top for the athletic team layout.
+if ($GLOBALS['athletic_team']) {
+  genFindBlock();
+  echo "<hr />\n";
+}
+?>
+
 <?php if ( ( $GLOBALS['concurrent_layout'] == 2) || ($GLOBALS['concurrent_layout'] == 3) ) { ?>
 <center>
 <select name='sel_frame' style='background-color:transparent;font-size:9pt;width:<?php echo $GLOBALS['athletic_team'] ? 47 : 100; ?>%;'>
@@ -1017,7 +1070,6 @@ $(document).ready(function(){
       <?php genMiscLink('RTop','prf','0',xl('Preferences'),'super/edit_globals.php?mode=user'); ?>
     </ul>
   </li>
-</ul>
 
 <?php } else { // not athletic team ?>
 
@@ -1036,6 +1088,8 @@ $(document).ready(function(){
           <?php genTreeLink('RBot','ens',xl('Visit History')); ?>
         </ul>
       </li>
+
+<?php if ($GLOBALS['gbl_nav_visit_forms']) { ?>
       <li><a class="collapsed_lv2"><span><?php xl('Visit Forms','e') ?></span></a>
         <ul>
 <?php
@@ -1068,8 +1122,10 @@ if (!empty($reg)) {
 ?>
         </ul>
       </li>
-        </ul>
-      </li>
+<?php } // end if gbl_nav_visit_forms ?>
+
+    </ul>
+  </li>
   <li><a class="collapsed" id="feeimg" ><span><?php xl('Fees','e') ?></span></a>
     <ul>
       <?php genMiscLink('RBot','cod','2',xl('Fee Sheet'),'patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
@@ -1112,6 +1168,9 @@ if (!empty($reg)) {
       <?php if (acl_check('admin', 'acl'      )) genMiscLink('RTop','adm','0',xl('ACL'),'usergroup/adminacl.php'); ?>
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0',xl('Files'),'super/manage_site_files.php'); ?>
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0',xl('Backup'),'main/backup.php'); ?>
+      <?php if (acl_check('admin', 'super'    ) && $GLOBALS['enable_cdr']) genMiscLink('RTop','adm','0',xl('Rules'),'super/rules/index.php?action=browse!list'); ?>
+      <?php if (acl_check('admin', 'super'    ) && $GLOBALS['enable_cdr']) genMiscLink('RTop','adm','0',xl('Alerts'),'super/rules/index.php?action=alerts!listactmgr'); ?>
+      <?php if (acl_check('admin', 'super'    ) && $GLOBALS['enable_cdr']) genMiscLink('RTop','adm','0',xl('Patient Reminders'),'patient_file/reminder/patient_reminders.php?mode=admin&patient_id='); ?>
       <?php if ( ($GLOBALS['include_de_identification']) && (acl_check('admin', 'super'    )) ) genMiscLink('RTop','adm','0',xl('De Identification'),'de_identification_forms/de_identification_screen1.php'); ?>
           <?php if ( ($GLOBALS['include_de_identification']) && (acl_check('admin', 'super'    )) ) genMiscLink('RTop','adm','0',xl('Re Identification'),'de_identification_forms/re_identification_input_screen.php'); ?>
       <?php if (acl_check('admin', 'super') && !empty($GLOBALS['code_types']['IPPF'])) genMiscLink('RTop','adm','0',xl('Export'),'main/ippf_export.php'); ?>
@@ -1136,6 +1195,11 @@ if (!empty($reg)) {
           <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genMiscLink('RTop','rep','0',xl('Rx'),'reports/prescriptions_report.php'); ?>
           <?php if (acl_check('patients', 'med')) genMiscLink('RTop','rep','0',xl('Clinical'),'reports/clinical_reports.php'); ?>
 	  <?php genMiscLink('RTop','rep','0',xl('Referrals'),'reports/referrals_report.php'); ?>
+        </ul>
+      </li>
+      <li><a class="collapsed_lv2"><span><?php xl('Clinic','e') ?></span></a>
+        <ul>
+          <?php genMiscLink('RTop','rep','0',xl('Quality Measures'),'reports/cqm.php'); ?>
         </ul>
       </li>
       <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>
@@ -1224,6 +1288,7 @@ if (!empty($reg)) {
   </li>
   <li><a class="collapsed" id="misimg" ><span><?php xl('Miscellaneous','e') ?></span></a>
     <ul>
+      <?php genTreeLink('RTop','ped',xl('Patient Education')); ?> 
       <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
       <?php genTreeLink('RTop','adb',xl('Addr Book')); ?>
@@ -1235,9 +1300,10 @@ if (!empty($reg)) {
       <?php genMiscLink('RTop','prf','0',xl('Preferences'),'super/edit_globals.php?mode=user'); ?>
     </ul>
   </li>
-</ul>
 
 <?php } // end not athletic team ?>
+
+</ul>
 
 <?php } else { // end ($GLOBALS['concurrent_layout'] == 2 || $GLOBALS['concurrent_layout'] == 3) ?>
 
@@ -1301,49 +1367,15 @@ if (!empty($reg)) {
 <b><?php xl('None','e'); ?></b>
 </div>
 
-<?php if (!$GLOBALS['athletic_team']) genPopupsList(); ?>
+<?php
+if (!$GLOBALS['athletic_team']) {
+  genPopupsList();
+  echo "<hr />\n";
+  genFindBlock();
+  echo "<hr />\n";
+}
+?>
 
-<hr />
-
-<table cellpadding='0' cellspacing='0' border='0'>
- <tr>
-  <td class='smalltext'><?php xl('Find','e') ?>:&nbsp;</td>
-  <td class='smalltext' colspan='2'>
-   <input type="entry" size="7" name="patient" class='inputtext' style='width:65px;' />
-  </td>
- </tr>
- <tr>
-  <td class='smalltext'><?php xl('by','e') ?>:</td>
-  <td class='smalltext'>
-   <a href="javascript:findPatient('Last');" class="navitem"><?php xl('Name','e'); ?></a>
-  </td>
-  <td class='smalltext' align='right'>
-   <a href="javascript:findPatient('ID');"   class="navitem"><?php xl('ID','e'); ?></a>
-  </td>
- </tr>
- <tr>
-  <td class='smalltext'>&nbsp;</td>
-  <td class='smalltext'>
-   <a href="javascript:findPatient('SSN');"  class="navitem"><?php xl('SSN','e'); ?></a>
-  </td>
-  <td class='smalltext' align='right'>
-   <a href="javascript:findPatient('DOB');"  class="navitem"><?php xl('DOB','e'); ?></a>
-  </td>
- </tr>
-
- <tr>
-  <td class='smalltext'>&nbsp;</td>
-  <td class='smalltext'>
-   <a href="javascript:findPatient('Any');"  class="navitem"><?php xl('Any', 'e'); ?></a>
-  </td>
-  <td class='smalltext' align='right'>
-   <a href="javascript:initFilter();"  class="navitem"><?php xl('Filter', 'e'); ?></a>
-  </td>
- </tr>
-
-</table>
-
-<hr />
 <?php if (!empty($GLOBALS['online_support_link'])) { ?>
 <a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php xl('Online Support','e'); ?></span></a>
 <?php } ?>

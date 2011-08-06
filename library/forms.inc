@@ -75,16 +75,46 @@ function authorizeForm($id, $authorized = "1")
 	sqlQuery("update forms set authorized = '$authorized' where id = '$id'");
 }
 
-function getEncounters($pid)
+function getEncounters($pid,$dateStart='',$dateEnd='',$encounterRuleType='')
 {
 
- 	$res = sqlStatement("select distinct encounter from form_encounter where pid = ? order by date desc;", array($pid) );
+        $arraySqlBind = array();
+        
+        if ($encounterRuleType) {
+                // Only collect certain type of encounters (list_options item from the rule_enc_types list that is mapped via enc_category_map table)
+                $from = "form_encounter LEFT JOIN enc_category_map ON (form_encounter.pc_catid = enc_category_map.main_cat_id)";
+                $where = "enc_category_map.rule_enc_id = ? and ";
+                array_push($arraySqlBind,$encounterRuleType);
+        }
+        else {
+                // Collect all encounters
+                $from = "form_encounter";
+        }
 
-	for($iter=0; $row=sqlFetchArray($res); $iter++)
-	{
-		$all[$iter] = $row;
-	}
-	return $all;
+        if ($dateStart && $dateEnd) {
+                $where .= "form_encounter.pid = ? and form_encounter.date >= ? and form_encounter.date <= ?";
+                array_push($arraySqlBind,$pid,$dateStart,$dateEnd);
+        }
+        else if ($dateStart && !$dateEnd) {
+                $where .= "form_encounter.pid = ? and form_encounter.date >= ?";
+                array_push($arraySqlBind,$pid,$dateStart);
+        }
+        else if (!$dateStart && $dateEnd) {
+                $where .= "form_encounter.pid = ? and form_encounter.date <= ?";
+                array_push($arraySqlBind,$pid,$dateEnd);
+        }
+        else {
+                $where .= "form_encounter.pid = ?";
+                array_push($arraySqlBind,$pid);
+        }
+
+        $res = sqlStatement("SELECT distinct encounter FROM $from WHERE $where ORDER by date desc;", $arraySqlBind);
+
+        for($iter=0; $row=sqlFetchArray($res); $iter++)
+        {
+                $all[$iter] = $row;
+        }
+        return $all;
 }
 
 function getEncounterDateByEncounter($encounter)

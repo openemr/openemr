@@ -1,7 +1,7 @@
 <?php
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/md5.js");
+require_once("$srcdir/sha1.js");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
@@ -40,7 +40,8 @@ function submitform() {
 				}
 			}
 		} //secure_pwd if ends here
-		document.forms[0].newauthPass.value=MD5(document.forms[0].stiltskin.value);
+		// ViCareplus : As per NIST standard, SHA1 encryption algorithm is used		
+		document.forms[0].newauthPass.value=SHA1(document.forms[0].stiltskin.value);
 		document.forms[0].stiltskin.value='';
 		document.forms[0].submit();
 	} else {
@@ -77,7 +78,7 @@ function authorized_clicked() {
 <form name='new_user' method='post'  target="_parent" action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=new_user>
-<input type=hidden name=secure_pwd value="<? echo $GLOBALS['secure_password']; ?>">
+<input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
 <span class="bold">&nbsp;</span>
 </td><td>
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">

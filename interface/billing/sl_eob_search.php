@@ -1035,7 +1035,8 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   </td>
 <?php } ?>
  </tr>
-<?
+<?php
+
     } // end for
   } // end not $INTEGRATED_AR
 } // end search/print logic

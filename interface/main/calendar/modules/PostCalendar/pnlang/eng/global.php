@@ -186,4 +186,6 @@ define('_PC_SUBMIT_ERROR6', xl ('Your repeating frequency must be an integer.') 
 define('_PC_ADMIN_EVENT_ERROR', xl ('There was an error while processing your request.') );
 define('_PC_ADMIN_EVENTS_DELETED', xl ('Your event has been deleted.') );
 @ define('_NO_DIRECT_ACCESS', xl ('You can not access this function directly.') );
+define('_PC_CAT_PATIENT', xl ('Patient') );
+define('_PC_CAT_PROVIDER', xl ('Provider') );
 ?>

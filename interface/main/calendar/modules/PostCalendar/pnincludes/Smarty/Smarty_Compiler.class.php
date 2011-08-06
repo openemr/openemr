@@ -111,7 +111,7 @@ class Smarty_Compiler extends Smarty {
 
         /* loop through text blocks */
         for ($curr_tb = 0, $for_max = count($text_blocks); $curr_tb < $for_max; $curr_tb++) {
-            /* match anything within <? ?> */
+            /* match anything within <?php ?> */
             if (preg_match_all('!(<\?[^?]*?\?>|<script\s+language\s*=\s*[\"\']?php[\"\']?\s*>)!is', $text_blocks[$curr_tb], $sp_match)) {
                 /* found at least one match, loop through each one */
                 for ($curr_sp = 0, $for_max2 = count($sp_match[0]); $curr_sp < $for_max2; $curr_sp++) {

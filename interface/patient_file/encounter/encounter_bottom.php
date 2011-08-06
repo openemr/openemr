@@ -6,7 +6,7 @@ include_once("$srcdir/encounter.inc");
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 </head>
 <frameset rows="*" cols="200,400,*">
  <?php 

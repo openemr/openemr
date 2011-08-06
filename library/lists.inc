@@ -88,4 +88,29 @@ function reappearList ($id)
 	sqlStatement("update lists set activity = '1' where id='$id'");
 	return true;
 }
+
+function getListTouch ($patient_id,$type)
+{
+	$ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type) );
+
+	if (!empty($ret)) {
+		return $ret['date'];
+	}
+	else {
+		return false;
+	}
+}
+
+function setListTouch ($patient_id,$type)
+{
+	$ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type) );
+
+	if (!empty($ret)) {
+                // Already touched, so can exit
+		return;
+	}
+	else {
+		sqlStatement("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", array($patient_id,$type) );
+	}
+}
 ?>

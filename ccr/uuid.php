@@ -32,7 +32,7 @@ function getUuid() {
   
    // The field names refer to RFC 4122 section 4.1.2
 
-   return sprintf('%04x%04x-%04x-%03x4-%04x-%04x%04x%04x',
+   return sprintf('A%04x%04x-%04x-%03x4-%04x-%04x%04x%04x',
        mt_rand(0, 65535), mt_rand(0, 65535), // 32 bits for "time_low"
        mt_rand(0, 65535), // 16 bits for "time_mid"
        mt_rand(0, 4095),  // 12 bits before the 0100 of (version) 4 for "time_hi_and_version"

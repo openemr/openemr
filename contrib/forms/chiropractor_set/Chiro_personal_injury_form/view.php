@@ -32,14 +32,14 @@
  <form method=post action="<?echo $rootdir?>/forms/Chiro_personal_injury_form/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form" onSubmit="return top.restoreSession()"> 
  <h1> Chiro personal injury form </h1> 
  <hr> 
- <input type="submit" name="submit form" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <? xl("[do not save]",'e') ?> </a>
+ <input type="submit" name="submit form" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
 
   
 <table width="100%" cellpadding="0" cellspacing="0"> 
   
          <tr> 
   
-            <td class="text"    style="border:solid 1px #000000"    colspan="3" align="center"><h3> <? xl("Patient History Questionnaire",'e') ?> </h3> 
+            <td class="text"    style="border:solid 1px #000000"    colspan="3" align="center"><h3> <?php xl("Patient History Questionnaire",'e') ?> </h3> 
              </td> 
          </tr> 
   
@@ -147,8 +147,8 @@
   
  <table> 
   
- <tr><td class="text" > Sex : (Sexo) M/F</td><td class="text"   ><label><input type="checkbox" name="_sex[]" value="Male" <?php $result = chkdata_CB($obj,"_sex","Male"); echo $result;?> <? xl(">Male",'e') ?> </label> 
- <label><input type="checkbox" name="_sex[]" value="Female" <?php $result = chkdata_CB($obj,"_sex","Female"); echo $result;?> <? xl(">Female",'e') ?> </label></td></tr> 
+ <tr><td class="text" > Sex : (Sexo) M/F</td><td class="text"   ><label><input type="checkbox" name="_sex[]" value="Male" <?php $result = chkdata_CB($obj,"_sex","Male"); echo $result;?> <?php xl(">Male",'e') ?> </label> 
+ <label><input type="checkbox" name="_sex[]" value="Female" <?php $result = chkdata_CB($obj,"_sex","Female"); echo $result;?> <?php xl(">Female",'e') ?> </label></td></tr> 
   
  </table> 
      </td> 
@@ -180,9 +180,9 @@
   
  <tr>
   <td class="text"   > Nature Of Accident(Accidence):</td> 
-  <td class="text"   ><label><input type="checkbox" name="_nature_of_accident[]" value="Automobile" <?php $result = chkdata_CB($obj,"_nature_of_accident","Automobile"); echo $result;?> <? xl(">Automobile",'e') ?> </label> 
- <label><input type="checkbox" name="_nature_of_accident[]" value="slip and fall" <?php $result = chkdata_CB($obj,"_nature_of_accident","slip and fall"); echo $result;?> <? xl(">slip and fall",'e') ?> </label> 
- <label><input type="checkbox" name="_nature_of_accident[]" value="work related" <?php $result = chkdata_CB($obj,"_nature_of_accident","work related"); echo $result;?> <? xl(">work related",'e') ?> </label></td></tr> 
+  <td class="text"   ><label><input type="checkbox" name="_nature_of_accident[]" value="Automobile" <?php $result = chkdata_CB($obj,"_nature_of_accident","Automobile"); echo $result;?> <?php xl(">Automobile",'e') ?> </label> 
+ <label><input type="checkbox" name="_nature_of_accident[]" value="slip and fall" <?php $result = chkdata_CB($obj,"_nature_of_accident","slip and fall"); echo $result;?> <?php xl(">slip and fall",'e') ?> </label> 
+ <label><input type="checkbox" name="_nature_of_accident[]" value="work related" <?php $result = chkdata_CB($obj,"_nature_of_accident","work related"); echo $result;?> <?php xl(">work related",'e') ?> </label></td></tr> 
   
  </table> 
   
@@ -282,7 +282,7 @@
   
  <table> 
   
- <tr><td class="text" > Attorney’s Phone # (Telefone de Abegado)</td><td class="text"   ><input type="text" name="_attorney_phone_number" value="<?php $result = chkdata_Txt($obj,"_attorney_phone_number"); echo $result;?>"></td></tr> 
+ <tr><td class="text" > Attorneyâ€™s Phone # (Telefone de Abegado)</td><td class="text"   ><input type="text" name="_attorney_phone_number" value="<?php $result = chkdata_Txt($obj,"_attorney_phone_number"); echo $result;?>"></td></tr> 
   
  </table> 
      </td> 
@@ -380,7 +380,7 @@
   
      </table>
 
- <table></table><input type="submit" name="submit form" value="submit form" />  <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <? xl("[do not save]",'e') ?> </a>
+ <table></table><input type="submit" name="submit form" value="submit form" />  <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
 
   
  </form> 

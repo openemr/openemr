@@ -1,4 +1,5 @@
-<?
+<?php
+
 // this should be, but it is not a real class,
 // uses function getPatientDAta sn sqlQuery from the library directory
 // 
@@ -52,22 +53,22 @@ class C_WellChildCare {
 	//common part
 	?>
 	<TABLE span class="text">
-	<TR><TD colspan=6><b><U>Well Child Care:</U></b> <? echo $this->patient_demo['age'] ?></TD></TR>
+	<TR><TD colspan=6><b><U>Well Child Care:</U></b> <?php echo $this->patient_demo['age'] ?></TD></TR>
 	<TR>
 		<TD>Height:(inches)</TD>
-		<TD><INPUT TYPE="text" NAME="height" size="6" maxlength="6" value="<? print $obj["height"]; ?>"></TD>
+		<TD><INPUT TYPE="text" NAME="height" size="6" maxlength="6" value="<?php print $obj["height"]; ?>"></TD>
 		<TD>Weight:(#)</TD>
-		<TD><INPUT TYPE="text" NAME="weight" size="6" maxlength="6" value="<? print $obj["weight"]; ?>"></TD>
+		<TD><INPUT TYPE="text" NAME="weight" size="6" maxlength="6" value="<?php print $obj["weight"]; ?>"></TD>
 		<TD>Head Circ:(cm)</TD>
-		<TD><INPUT TYPE="text" NAME="head_c" size="4" maxlength="4" value="<? print $obj["head_c"]; ?>"></TD>
+		<TD><INPUT TYPE="text" NAME="head_c" size="4" maxlength="4" value="<?php print $obj["head_c"]; ?>"></TD>
 	</TR>
 	<TR>
 		<TD>Temp:(F)</TD>
-		<TD><INPUT TYPE="text" NAME="temp" size="6" maxlength="6" value="<? print $obj["temp"]; ?>"></TD>
+		<TD><INPUT TYPE="text" NAME="temp" size="6" maxlength="6" value="<?php print $obj["temp"]; ?>"></TD>
 		<TD>Pulse:</TD>
-		<TD><INPUT TYPE="text" NAME="pulse" size="2" maxlength="2" value="<? print $obj["pulse"]; ?>"></TD>
+		<TD><INPUT TYPE="text" NAME="pulse" size="2" maxlength="2" value="<?php print $obj["pulse"]; ?>"></TD>
 		<TD>Resp:</TD>
-		<TD><INPUT TYPE="text" NAME="respiration" size="2" maxlength="2" value="<? print $obj["respiration"]; ?>"></TD>
+		<TD><INPUT TYPE="text" NAME="respiration" size="2" maxlength="2" value="<?php print $obj["respiration"]; ?>"></TD>
 	</TR>
 	<TR><TD colspan=6><b>Sensory screen & developmental assesment:</b></TD></TR>
 	<TR>
@@ -89,23 +90,24 @@ class C_WellChildCare {
 	<TR><TD colspan=6><b>Assessment and Recommendations:</b></TD></TR>
 
 	<!-- // show this 2 week info  -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] < 30) {
 	?>
 	<TR>
 		<TD>Birth weight:</TD>
-		<TD><? 
+		<TD><?php 
 			if ( $obj["birth_wt"]!='' ) print $obj["birth_wt"]; 
 				else print '<INPUT TYPE=text NAME=birth_wt size=5 maxlength=5>'; 
 			?>
 		<TD>Birth height:</TD>
-		<TD><? 
+		<TD><?php 
 			if ( $obj["birth_ht"]!='' ) print $obj["birth_ht"]; 
 				else print '<INPUT TYPE=text NAME=birth_ht size=5 maxlength=5>'; 
 			?>
 		</TD>
 		<TD>Gravida/Para:</TD>
-		<TD><? 
+		<TD><?php 
 			if ( $obj["gravida"]!='' ) print $obj["gravida"]; 
 				else print '<INPUT TYPE=text NAME=gravida size=5 maxlength=5>'; 
 			if ( $obj["para"]!='' ) print $obj["para"]; 
@@ -113,11 +115,13 @@ class C_WellChildCare {
 			?>
 		</TD>
 	</TR>
-	<?
+	<?php
+
 	}
 	?>
 	<!-- two weeks spec -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] < 30 ) {
 	?>
 		<TR>
@@ -148,7 +152,8 @@ class C_WellChildCare {
 	}
 	?>
 	<!-- // from 2 weeks to two years -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] < 750 ) {
 	?>
 		<TR>
@@ -171,7 +176,8 @@ class C_WellChildCare {
 	}
 	?>
 	<!-- // 2 months -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 31 AND $this->patient_demo['alldays'] <= 90 ) {
 	?>
 	<TR>
@@ -194,7 +200,8 @@ class C_WellChildCare {
 	}
 	?>
 	<!-- // 4 months -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 91 AND $this->patient_demo['alldays'] <= 150 ) {
 	?>
 		<TR>
@@ -218,7 +225,8 @@ class C_WellChildCare {
 	?>
 
 	<!-- // 6 months -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 151 AND $this->patient_demo['alldays'] <= 230 ) {
 	?>
 		<TR>
@@ -241,7 +249,8 @@ class C_WellChildCare {
 	}
 	?>
 	<!-- common part from 9 to 24 months -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 230 AND $this->patient_demo['alldays'] <= 730 ) {
 	?>
 	<TR>
@@ -252,11 +261,13 @@ class C_WellChildCare {
 		<TD></TD>
 		<TD></TD>
 	</TR>
-	<?
+	<?php
+
 	}
 	?>
 	<!-- common part from 12 to 24 months -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 350 AND $this->patient_demo['alldays'] <= 730 ) {
 	?>
 	<TR>
@@ -267,12 +278,14 @@ class C_WellChildCare {
 		<TD></TD>
 		<TD></TD>
 	</TR>
-	<?
+	<?php
+
 	}
 	?>
 
 	<!-- // 9 months -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 231 AND $this->patient_demo['alldays'] <= 320 ) {
 	?>
 	<TR>
@@ -295,7 +308,8 @@ class C_WellChildCare {
 	}
 	?>
 	<!-- // 12 months -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 321 AND $this->patient_demo['alldays'] <= 410 ) {
 	?>
 	<TR>
@@ -319,7 +333,8 @@ class C_WellChildCare {
 	?>
 
 	<!-- // 15 months -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 411 AND $this->patient_demo['alldays'] <= 500 ) {
 	?>
 	<TR>
@@ -344,7 +359,8 @@ class C_WellChildCare {
 
 
 	<!-- // 18 months -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 501 AND $this->patient_demo['alldays'] <= 640 ) {
 	?>
 	<TR>
@@ -367,7 +383,8 @@ class C_WellChildCare {
 	}
 	?>
 	<!-- // 24 months to 3 years -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 641 AND $this->patient_demo['alldays'] <= 1095 ) {
 	?>
 	<TR>
@@ -391,7 +408,8 @@ class C_WellChildCare {
 	?>
 
 	<!-- // 3 to 5 years -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 1096 AND $this->patient_demo['alldays'] <= 1825 ) {
 	?>
 	<TR>
@@ -419,7 +437,8 @@ class C_WellChildCare {
 	}
 	?>
 	<!--  // 5 to 7.5 years -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 1826 AND $this->patient_demo['alldays'] <= 2737 ) {
 	?>
 	<TR>
@@ -443,7 +462,8 @@ class C_WellChildCare {
 	?>
 
 	<!-- // 7.5 to 9.5 years -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 2738 AND $this->patient_demo['alldays'] <= 3467 ) {
 	?>
 	<TR>
@@ -459,7 +479,8 @@ class C_WellChildCare {
 	?>
 
 	<!-- // 9.5 to 11 years -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 3468 AND $this->patient_demo['alldays'] <= 4015 ) {
 	?>
 	<TR>
@@ -475,7 +496,8 @@ class C_WellChildCare {
 	?>
 
 	<!-- // more than 9.5 years -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 3468 ) {
 	?>
 	<TR>
@@ -490,7 +512,8 @@ class C_WellChildCare {
 	}
 	?>
 	<!-- // more than 13.5 years -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 4745 ) {
 	?>
 	<TR>
@@ -502,7 +525,8 @@ class C_WellChildCare {
 	}
 	?>
 	<!-- // common part since 18 monhts -->
-	<?
+	<?php
+
 	if ($this->patient_demo['alldays'] >= 501  ) {
 	?>
 	<TR>
@@ -523,54 +547,55 @@ class C_WellChildCare {
 	<tr><td colspan=8><b>Physical Exam:</b>Are the following Normal?</td></tr>
 	<TR>
 		<TD>Skin:</TD>
-		<TD><SELECT NAME="normal_skin"><option <? if ( $obj["normal_skin"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_skin"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_skin"><option <?php if ( $obj["normal_skin"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_skin"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Head:</TD>
-		<TD><SELECT NAME="normal_head"><option <? if ( $obj["normal_head"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_head"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_head"><option <?php if ( $obj["normal_head"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_head"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Eyes:</TD>
-		<TD><SELECT NAME="normal_eyes"><option <? if ( $obj["normal_eyes"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_eyes"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_eyes"><option <?php if ( $obj["normal_eyes"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_eyes"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Ears:</TD>
-		<TD><SELECT NAME="normal_ears"><option <? if ( $obj["normal_ears"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_ears"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_ears"><option <?php if ( $obj["normal_ears"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_ears"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 	</TR>
 	<TR>
 		<TD>Nose:</TD>
-		<TD><SELECT NAME="normal_nose"><option <? if ( $obj["normal_nose"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_nose"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_nose"><option <?php if ( $obj["normal_nose"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_nose"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Mouth/Thr.</TD>
-		<TD><SELECT NAME="normal_mouth_thr"><option <? if ( $obj["normal_mouth_thr"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_mouth_thr"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_mouth_thr"><option <?php if ( $obj["normal_mouth_thr"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_mouth_thr"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Nodes:</TD>
-		<TD><SELECT NAME="normal_nodes"><option <? if ( $obj["normal_nodes"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_nodes"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_nodes"><option <?php if ( $obj["normal_nodes"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_nodes"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Heart:</TD>
-		<TD><SELECT NAME="normal_heart"><option <? if ( $obj["normal_heart"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_heart"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_heart"><option <?php if ( $obj["normal_heart"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_heart"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 	</TR>
 	<TR>
 		<TD>Lungs:</TD>
-		<TD><SELECT NAME="normal_lungs"><option <? if ( $obj["normal_lungs"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_lungs"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_lungs"><option <?php if ( $obj["normal_lungs"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_lungs"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Abdomen:</TD>
-		<TD><SELECT NAME="normal_abdomen"><option <? if ( $obj["normal_abdomen"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_abdomen"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_abdomen"><option <?php if ( $obj["normal_abdomen"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_abdomen"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Fem. Pulse:</TD>
-		<TD><SELECT NAME="normal_fem_pulse"><option <? if ( $obj["normal_fem_pulse"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_fem_pulse"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_fem_pulse"><option <?php if ( $obj["normal_fem_pulse"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_fem_pulse"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Ext. Gen:</TD>
-		<TD><SELECT NAME="normal_genitalia"><option <? if ( $obj["normal_genitalia"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_genitalia"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_genitalia"><option <?php if ( $obj["normal_genitalia"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_genitalia"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 	</TR>
 	<TR>
 		<TD>Extrem:</TD>
-		<TD><SELECT NAME="normal_extremities"><option <? if ( $obj["normal_extremities"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_extremities"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_extremities"><option <?php if ( $obj["normal_extremities"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_extremities"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Spine:</TD>
-		<TD><SELECT NAME="normal_spine"><option <? if ( $obj["normal_spine"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_spine"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_spine"><option <?php if ( $obj["normal_spine"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_spine"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Neuro:</TD>
-		<TD><SELECT NAME="normal_neuro"><option <? if ( $obj["normal_neuro"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_neuro"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
+		<TD><SELECT NAME="normal_neuro"><option <?php if ( $obj["normal_neuro"]=='yes' ) print 'selected'; ?> >yes<option <?if ( $obj["normal_neuro"]=='no' ) print 'selected';  ?>>no</SELECT></TD>
 		<TD>Tanner St.</TD>
-		<TD><SELECT NAME="tanner_stage"><option <? if ( $obj["tanner_stage"]=='n/a' ) print 'selected'; ?> >n/a<option <? if ( $obj["tanner_stage"]=='I' ) print 'selected'; ?> >I<option <?if ( $obj["tanner_stage"]=='II' ) print 'selected';  ?>>II<option <?if ( $obj["tanner_stage"]=='III' ) print 'selected';  ?>>III<option <?if ( $obj["tanner_stage"]=='IV' ) print 'selected';  ?>>IV<option <?if ( $obj["tanner_stage"]=='V' ) print 'selected';  ?>>V</SELECT></TD>
+		<TD><SELECT NAME="tanner_stage"><option <?php if ( $obj["tanner_stage"]=='n/a' ) print 'selected'; ?> >n/a<option <?php if ( $obj["tanner_stage"]=='I' ) print 'selected'; ?> >I<option <?if ( $obj["tanner_stage"]=='II' ) print 'selected';  ?>>II<option <?if ( $obj["tanner_stage"]=='III' ) print 'selected';  ?>>III<option <?if ( $obj["tanner_stage"]=='IV' ) print 'selected';  ?>>IV<option <?if ( $obj["tanner_stage"]=='V' ) print 'selected';  ?>>V</SELECT></TD>
 	</TR>
 	<tr>
 		<TD colspan=8><b>Notes, Coments, Assesment & Plan</b></TD>
 	</TR>
 	<tr>
-		<TD colspan=8><TEXTAREA NAME="notes" ROWS="2" COLS="50"><? echo $obj["notes"] ?></TEXTAREA></TD>
+		<TD colspan=8><TEXTAREA NAME="notes" ROWS="2" COLS="50"><?php echo $obj["notes"] ?></TEXTAREA></TD>
 	</tr>
 	</TABLE>
 
 	</FORM>
-	<?
+	<?php
+
 	}
 }
 ?>

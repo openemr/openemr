@@ -1,4 +1,4 @@
-<? 
+<?php 
 ////////////////////////////////////////////////////////////////////
 // CRON FUNCTIONS - to use with cron_sms and cron_email backend
 // scripts to notify events

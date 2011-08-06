@@ -42,7 +42,7 @@ urpmi.addmedia --update contrib_updates http://ftp.ussg.iu.edu/linux/mandrake/of
 #  and restart apache (done after below suhosin patch).
 echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and xsl php package and perl-CGI package and git packages..."
 echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and xsl php package and perl-CGI package and git packages..." >> $LOG
-urpmi --auto php-gd php-mbstring php-zip php-xsl php-curl perl-CGI patch git-core qgit >> $LOG
+urpmi --auto php-gd php-mbstring php-zip php-xsl php-curl php-mcrypt perl-CGI patch git-core qgit >> $LOG
 
 # COLLECT THE GIT REPO (if it doesn't exist)
 if ! [ -d $GITMAIN ]; then
@@ -139,12 +139,14 @@ mkdir $WEB/files
 
 # Save the tar.gz cvs package
 cd $TMPDIR
+rm -f $WEB/files/openemr-cvs.tar.gz
 tar -czf $WEB/files/openemr-cvs.tar.gz openemr
 cd $WEB/files
 md5sum openemr-cvs.tar.gz > openemr-linux-md5.txt
 
 # Save the .zip cvs package
 cd $TMPDIR
+rm -f $WEB/files/openemr-cvs.zip
 zip -rq $WEB/files/openemr-cvs.zip openemr
 cd $WEB/files
 md5sum openemr-cvs.zip > openemr-windows-md5.txt

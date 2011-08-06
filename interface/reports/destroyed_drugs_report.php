@@ -19,8 +19,8 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><? xl('Destroyed Drugs','e'); ?></title>
+<?php html_header_show();?>
+<title><?php xl('Destroyed Drugs','e'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
 <style  type="text/css">@import url(../../library/dynarch_calendar.css);</style>
@@ -30,7 +30,7 @@
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 </script>
 </head>
 
@@ -38,7 +38,7 @@
 
 <center>
 
-<h2><? xl('Destroyed Drugs','e'); ?></h2>
+<h2><?php xl('Destroyed Drugs','e'); ?></h2>
 
 <form name='theform' method='post' action='destroyed_drugs_report.php'>
 
@@ -46,24 +46,24 @@
 
  <tr>
   <td>
-   <? xl('From','e'); ?>:
+   <?php xl('From','e'); ?>:
    <input type='text' name='form_from_date' id='form_from_date'
-    size='10' value='<? echo $form_from_date ?>'
+    size='10' value='<?php echo $form_from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title=<?php xl('yyyy-mm-dd','e','\'','\''); ?>>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
     title=<?php xl('Click here to choose a date','e','\'','\''); ?>>
 
-   &nbsp;<? xl('To','e'); ?>:
+   &nbsp;<?php xl('To','e'); ?>:
    <input type='text' name='form_to_date' id='form_to_date'
-    size='10' value='<? echo $form_to_date ?>'
+    size='10' value='<?php echo $form_to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title=<?php xl('yyyy-mm-dd','e','\'','\''); ?>>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
     title=<?php xl('Click here to choose a date','e','\'','\''); ?>>
 
    &nbsp;
-   <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>>
+   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
    &nbsp;
    <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
@@ -79,31 +79,32 @@
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <tr bgcolor="#dddddd">
   <td class='dehead'>
-   <? xl('Drug Name','e'); ?>
+   <?php xl('Drug Name','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('NDC','e'); ?>
+   <?php xl('NDC','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Lot','e'); ?>
+   <?php xl('Lot','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Qty','e'); ?>
+   <?php xl('Qty','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Date Destroyed','e'); ?>
+   <?php xl('Date Destroyed','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Method','e'); ?>
+   <?php xl('Method','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Witness','e'); ?>
+   <?php xl('Witness','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Notes','e'); ?>
+   <?php xl('Notes','e'); ?>
   </td>
  </tr>
-<?
+<?php
+
  if ($_POST['form_refresh']) {
   $where = "i.destroy_date >= '$form_from_date' AND " .
    "i.destroy_date <= '$form_to_date'";

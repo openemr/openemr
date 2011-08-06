@@ -3,8 +3,8 @@ include_once("../../globals.php");
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><? xl('Patient Summary','e'); ?></title>
+<?php html_header_show();?>
+<title><?php xl('Patient Summary','e'); ?></title>
 </head>
 
 <?php if ($GLOBALS['athletic_team']) { ?>

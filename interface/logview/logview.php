@@ -121,7 +121,8 @@ $get_edate=$end_date ? $end_date : date("Y-m-d");
 
 <br>
 <FORM METHOD="GET" name="theform" id="theform">
-<?
+<?php
+
 $sortby = formData('sortby','G') ;
 ?>
 <input type="hidden" name="sortby" id="sortby" value="<?php echo $sortby; ?>">
@@ -242,7 +243,8 @@ echo "</select>\n";
 <tr><td>
 <span class='text'><?php xl('Include Checksum','e'); ?>: </span>
 </td><td>
-<?
+<?php
+
 $check_sum = formData('check_sum','G');
 ?>
 <input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') echo "checked";  ?>"></input>
@@ -273,7 +275,8 @@ $check_sum = formData('check_sum','G');
   <th id="sortby_checksum" class="text" title="<?php xl('Sort by Checksum','e'); ?>"><?php  xl('Checksum','e'); ?></th>
   <?php } ?>
  </tr>
-<?
+<?php
+
 $eventname = formData('eventname','G');
 $type_event = formData('type_event','G');
 ?>

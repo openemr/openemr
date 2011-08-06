@@ -1068,7 +1068,8 @@ return false;
 						<?php
 						}
 						?>
-						<?
+						<?php
+
 						echo '<br/>';
 
 				}//if($RowSearchSub = sqlFetchArray($ResultSearchSub))

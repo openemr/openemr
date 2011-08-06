@@ -1,4 +1,5 @@
-<?
+<?php
+
 # file habits/save.php
 # saves what cames from habits/new.php
 

@@ -10,7 +10,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 <form method=post action="<?echo $rootdir;?>/forms/Chirpractic_physical_therapy_form/save.php?mode=new" name="my_form" onSubmit="return top.restoreSession()">
 <h1> Chiropractic physical therapy form</h1>
 <hr>
-<input type="submit" name="submit form" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <? xl("[do not save]",'e') ?> </a><br>
+<input type="submit" name="submit form" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a><br>
 <br>
 <table cellspacing="0" cellpadding="0" style="width: 100%">
 
@@ -152,7 +152,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Sex:</td> <td class="text" ><label><input type="checkbox" name="_sex[]" value="Male" /> <? xl("Male",'e') ?> </label> <label><input type="checkbox" name="_sex[]" value="Female" /> <? xl("Female",'e') ?> </label></td></tr>
+<tr><td class="text" > Sex:</td> <td class="text" ><label><input type="checkbox" name="_sex[]" value="Male" /> <?php xl("Male",'e') ?> </label> <label><input type="checkbox" name="_sex[]" value="Female" /> <?php xl("Female",'e') ?> </label></td></tr>
 
 </table>
                 </td>
@@ -197,7 +197,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Check One</td> <td class="text" ><label><input type="checkbox" name="_check_one[]" value="Married" /> <? xl("Married",'e') ?> </label> <label><input type="checkbox" name="_check_one[]" value="Single" /> <? xl("Single",'e') ?> </label> <label><input type="checkbox" name="_check_one[]" value="Widowed" /> <? xl("Widowed",'e') ?> </label> <label><input type="checkbox" name="_check_one[]" value="Divorced" /> <? xl("Divorced",'e') ?> </label> <label><input type="checkbox" name="_check_one[]" value="Separated" /> <? xl("Separated",'e') ?> </label></td></tr>
+<tr><td class="text" > Check One</td> <td class="text" ><label><input type="checkbox" name="_check_one[]" value="Married" /> <?php xl("Married",'e') ?> </label> <label><input type="checkbox" name="_check_one[]" value="Single" /> <?php xl("Single",'e') ?> </label> <label><input type="checkbox" name="_check_one[]" value="Widowed" /> <?php xl("Widowed",'e') ?> </label> <label><input type="checkbox" name="_check_one[]" value="Divorced" /> <?php xl("Divorced",'e') ?> </label> <label><input type="checkbox" name="_check_one[]" value="Separated" /> <?php xl("Separated",'e') ?> </label></td></tr>
 
 </table>
                 </td>
@@ -263,7 +263,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Who Is Responsible For Your Bill:</td> <td class="text" ><label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Self" /> <? xl("Self",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Spouse" /> <? xl("Spouse",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Workmans Comp" /> <? xl("Workmans Comp",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Medicaid" /> <? xl("Medicaid",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Medicare" /> <? xl("Medicare",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Auto Insurance" /> <? xl("Auto Insurance",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Personal health insurance " /> <? xl("Personal health insurance ",'e') ?> </label></td></tr>
+<tr><td class="text" > Who Is Responsible For Your Bill:</td> <td class="text" ><label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Self" /> <?php xl("Self",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Spouse" /> <?php xl("Spouse",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Workmans Comp" /> <?php xl("Workmans Comp",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Medicaid" /> <?php xl("Medicaid",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Medicare" /> <?php xl("Medicare",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Auto Insurance" /> <?php xl("Auto Insurance",'e') ?> </label> <label><input type="checkbox" name="_who_is_responsible_for_your_bill[]" value="Personal health insurance " /> <?php xl("Personal health insurance ",'e') ?> </label></td></tr>
 
 </table>
 
@@ -334,7 +334,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > check</td> <td class="text" ><label><input type="checkbox" name="_check[]" value="Gradual Onset" /> <? xl("Gradual Onset",'e') ?> </label> <label><input type="checkbox" name="_check[]" value="Job Related" /> <? xl("Job Related",'e') ?> </label> <label><input type="checkbox" name="_check[]" value="Auto Related" /> <? xl("Auto Related",'e') ?> </label></td></tr>
+<tr><td class="text" > check</td> <td class="text" ><label><input type="checkbox" name="_check[]" value="Gradual Onset" /> <?php xl("Gradual Onset",'e') ?> </label> <label><input type="checkbox" name="_check[]" value="Job Related" /> <?php xl("Job Related",'e') ?> </label> <label><input type="checkbox" name="_check[]" value="Auto Related" /> <?php xl("Auto Related",'e') ?> </label></td></tr>
 
 </table>
                 </td>
@@ -346,7 +346,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Medication You Now Take:</td> <td class="text" ><label><input type="checkbox" name="_medication_you_now_take[]" value="Nerve Pills" /> <? xl("Nerve Pills",'e') ?> </label> <label><input type="checkbox" name="_medication_you_now_take[]" value="Pain Killers or Muscle relaxers" /> <? xl("Pain Killers or Muscle relaxers",'e') ?> </label> <label><input type="checkbox" name="_medication_you_now_take[]" value="Insulin" /> <? xl("Insulin",'e') ?> </label> <label><input type="checkbox" name="_medication_you_now_take[]" value="Blood pressure medicine " /> <? xl("Blood pressure medicine ",'e') ?> </label></td></tr>
+<tr><td class="text" > Medication You Now Take:</td> <td class="text" ><label><input type="checkbox" name="_medication_you_now_take[]" value="Nerve Pills" /> <?php xl("Nerve Pills",'e') ?> </label> <label><input type="checkbox" name="_medication_you_now_take[]" value="Pain Killers or Muscle relaxers" /> <?php xl("Pain Killers or Muscle relaxers",'e') ?> </label> <label><input type="checkbox" name="_medication_you_now_take[]" value="Insulin" /> <?php xl("Insulin",'e') ?> </label> <label><input type="checkbox" name="_medication_you_now_take[]" value="Blood pressure medicine " /> <?php xl("Blood pressure medicine ",'e') ?> </label></td></tr>
 
 </table>
 
@@ -380,7 +380,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Major Surgery Or Operations:</td> <td class="text" ><label><input type="checkbox" name="_major_surgery_or_operations[]" value="Appendectomy" /> <? xl("Appendectomy",'e') ?> </label> <label><input type="checkbox" name="_major_surgery_or_operations[]" value="Tonsillectomy" /> <? xl("Tonsillectomy",'e') ?> </label> <label><input type="checkbox" name="_major_surgery_or_operations[]" value="Gall Bladder" /> <? xl("Gall Bladder",'e') ?> </label> <label><input type="checkbox" name="_major_surgery_or_operations[]" value="Hernia" /> <? xl("Hernia",'e') ?> </label> <label><input type="checkbox" name="_major_surgery_or_operations[]" value="BrokenBone" /> <? xl("BrokenBone",'e') ?> </label></td></tr>
+<tr><td class="text" > Major Surgery Or Operations:</td> <td class="text" ><label><input type="checkbox" name="_major_surgery_or_operations[]" value="Appendectomy" /> <?php xl("Appendectomy",'e') ?> </label> <label><input type="checkbox" name="_major_surgery_or_operations[]" value="Tonsillectomy" /> <?php xl("Tonsillectomy",'e') ?> </label> <label><input type="checkbox" name="_major_surgery_or_operations[]" value="Gall Bladder" /> <?php xl("Gall Bladder",'e') ?> </label> <label><input type="checkbox" name="_major_surgery_or_operations[]" value="Hernia" /> <?php xl("Hernia",'e') ?> </label> <label><input type="checkbox" name="_major_surgery_or_operations[]" value="BrokenBone" /> <?php xl("BrokenBone",'e') ?> </label></td></tr>
 
 </table>
 
@@ -422,7 +422,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Previous Chiropractic Care:</td> <td class="text" ><label><input type="checkbox" name="_previous_chiropractic_care[]" value="None " /> <? xl("None ",'e') ?> </label> Doctors Name:</td> <td class="text" ><input type="text" name="_doctors_name"  /> Appox Date of Last Visit:<input type="text" name="_appox_date_of_last_visit"  /></td></tr>
+<tr><td class="text" > Previous Chiropractic Care:</td> <td class="text" ><label><input type="checkbox" name="_previous_chiropractic_care[]" value="None " /> <?php xl("None ",'e') ?> </label> Doctors Name:</td> <td class="text" ><input type="text" name="_doctors_name"  /> Appox Date of Last Visit:<input type="text" name="_appox_date_of_last_visit"  /></td></tr>
 
 </table>
                 </td>
@@ -449,11 +449,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Coughing Or Sneezing</td> <td class="text" ><select name="_coughing_or_sneezing" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -463,11 +463,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Climbing</td> <td class="text" ><select name="_climbing" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -480,11 +480,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Getting In And Out Of A Car</td> <td class="text" ><select name="_getting_in_and_out_of_a_car" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -494,11 +494,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Kneeling</td> <td class="text" ><select name="_kneeling" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -511,11 +511,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Bending Forward To Brush Teeth</td> <td class="text" ><select name="_bending_forward_to_brush_teeth" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -525,11 +525,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Balancing</td> <td class="text" ><select name="_balancing" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -542,11 +542,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Turing Over In Bed</td> <td class="text" ><select name="_turing_over_in_bed" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -556,11 +556,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Dressing Self</td> <td class="text" ><select name="_dressing_self" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -573,11 +573,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Walking Short Distance</td> <td class="text" ><select name="_walking_short_distance" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -587,11 +587,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Sleeping</td> <td class="text" ><select name="_sleeping" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -604,11 +604,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Standing More Than One Hour</td> <td class="text" ><select name="_standing_more_than_one_hour" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -618,11 +618,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Stooping</td> <td class="text" ><select name="_stooping" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -635,11 +635,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Sitting At Table</td> <td class="text" ><select name="_sitting_at_table" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -649,11 +649,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Gripping</td> <td class="text" ><select name="_gripping" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -666,11 +666,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Lying On Back</td> <td class="text" ><select name="_lying_on_back" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -680,11 +680,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Pushing</td> <td class="text" ><select name="_pushing" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -697,11 +697,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Lying Flat On Stomach</td> <td class="text" ><select name="_lying_flat_on_stomach" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -711,11 +711,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Pulling</td> <td class="text" ><select name="_pulling" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -728,11 +728,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Lying On Side With Knees Bent</td> <td class="text" ><select name="_lying_on_side_with_knees_bent" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -742,11 +742,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Reaching</td> <td class="text" ><select name="_reaching" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -759,11 +759,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Bending Over Forward</td> <td class="text" ><select name="_bending_over_forward" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
 
@@ -773,11 +773,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <tr><td class="text" > Sexual Activity</td> <td class="text" ><select name="_sexual_activity" >
 <option value=" "> </option>
-<option value="U-unable"> <? xl("U-unable",'e') ?> </option>
-<option value="P-painful"> <? xl("P-painful",'e') ?> </option>
-<option value="D-Diificult"> <? xl("D-Diificult",'e') ?> </option>
-<option value="L-Limited"> <? xl("L-Limited",'e') ?> </option>
-<option value="N-Normal"> <? xl("N-Normal",'e') ?> </option>
+<option value="U-unable"> <?php xl("U-unable",'e') ?> </option>
+<option value="P-painful"> <?php xl("P-painful",'e') ?> </option>
+<option value="D-Diificult"> <?php xl("D-Diificult",'e') ?> </option>
+<option value="L-Limited"> <?php xl("L-Limited",'e') ?> </option>
+<option value="N-Normal"> <?php xl("N-Normal",'e') ?> </option>
 </select></td></tr>
 </table>                </td>
             </tr>
@@ -787,9 +787,9 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 			
 			</tr>
             <tr>
-              <td class="text"  style="border: solid 1px #000000" ><label><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="Blurring Vision" /> <? xl("Blurring Vision",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="buzzing or ringing in ears" /> <? xl("Buzzing Or Ringing In Ears",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="confusion" /> <? xl("Confusion",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="convulsions" /> <? xl("Convulsions",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="depression or crying spells" /> <? xl("depression or crying spells",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="Dizziness" /> <? xl("dizziness",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="fainting" /> <? xl("Fainting",'e') ?> </label></td>
+              <td class="text"  style="border: solid 1px #000000" ><label><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="Blurring Vision" /> <?php xl("Blurring Vision",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="buzzing or ringing in ears" /> <?php xl("Buzzing Or Ringing In Ears",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="confusion" /> <?php xl("Confusion",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="convulsions" /> <?php xl("Convulsions",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="depression or crying spells" /> <?php xl("depression or crying spells",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="Dizziness" /> <?php xl("dizziness",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="fainting" /> <?php xl("Fainting",'e') ?> </label></td>
               <td class="text"  style="border: solid 1px #000000"  valign="top"> <label>
-              <input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="paralysis" /> <? xl("Paralysis",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="loss of sleep" /> <? xl("Loss Of Sleep",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="low resistance" /> <? xl("Low Resistance",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="muscle jerking" /> <? xl("Muscle Jerking",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="headaches" /> <? xl("Headaches",'e') ?> </label> <br>How Often Do You Have Headaches <input type="text" name="_how_often_do_you_have_headaches"  /></td>
+              <input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="paralysis" /> <?php xl("Paralysis",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="loss of sleep" /> <?php xl("Loss Of Sleep",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="low resistance" /> <?php xl("Low Resistance",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="muscle jerking" /> <?php xl("Muscle Jerking",'e') ?> </label> <label><br><input type="checkbox" name="_checking_symptoms_of_nervous_systems[]" value="headaches" /> <?php xl("Headaches",'e') ?> </label> <br>How Often Do You Have Headaches <input type="text" name="_how_often_do_you_have_headaches"  /></td>
             </tr>
 
             <tr>
@@ -807,14 +807,14 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Symptoms Are Better In</td> <td class="text" ><label><input type="checkbox" name="_symptoms_are_better_in[]" value="AM" /> <? xl("AM",'e') ?> </label> <label><input type="checkbox" name="_symptoms_are_better_in[]" value="Midday" /> <? xl("Midday",'e') ?> </label> <label><input type="checkbox" name="_symptoms_are_better_in[]" value="PM" /> <? xl("PM",'e') ?> </label></td></tr>
+<tr><td class="text" > Symptoms Are Better In</td> <td class="text" ><label><input type="checkbox" name="_symptoms_are_better_in[]" value="AM" /> <?php xl("AM",'e') ?> </label> <label><input type="checkbox" name="_symptoms_are_better_in[]" value="Midday" /> <?php xl("Midday",'e') ?> </label> <label><input type="checkbox" name="_symptoms_are_better_in[]" value="PM" /> <?php xl("PM",'e') ?> </label></td></tr>
 </table>                </td>
 
                 <td class="text"  style="border: solid 1px #000000" >
 
 <table>
 
-<tr><td class="text" > Symptoms Are Worse In</td> <td class="text" ><label><input type="checkbox" name="_symptoms_are_worse_in[]" value="AM" /> <? xl("AM",'e') ?> </label> <label><input type="checkbox" name="_symptoms_are_worse_in[]" value="Midday" /> <? xl("Midday",'e') ?> </label> <label><input type="checkbox" name="_symptoms_are_worse_in[]" value="PM" /> <? xl("PM",'e') ?> </label></td></tr>
+<tr><td class="text" > Symptoms Are Worse In</td> <td class="text" ><label><input type="checkbox" name="_symptoms_are_worse_in[]" value="AM" /> <?php xl("AM",'e') ?> </label> <label><input type="checkbox" name="_symptoms_are_worse_in[]" value="Midday" /> <?php xl("Midday",'e') ?> </label> <label><input type="checkbox" name="_symptoms_are_worse_in[]" value="PM" /> <?php xl("PM",'e') ?> </label></td></tr>
 </table>                </td>
             </tr>
 
@@ -841,7 +841,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Are You Pregnant</td> <td class="text" ><label><input type="checkbox" name="_are_you_pregnant[]" value="Yes" /> <? xl("Yes",'e') ?> </label> <label><input type="checkbox" name="_are_you_pregnant[]" value="No" /> <? xl("No",'e') ?> </label></td></tr>
+<tr><td class="text" > Are You Pregnant</td> <td class="text" ><label><input type="checkbox" name="_are_you_pregnant[]" value="Yes" /> <?php xl("Yes",'e') ?> </label> <label><input type="checkbox" name="_are_you_pregnant[]" value="No" /> <?php xl("No",'e') ?> </label></td></tr>
 </table>                </td>
 
                 <td class="text"  style="border: solid 1px #000000">
@@ -881,7 +881,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Cancer</td> <td class="text" ><label><input type="checkbox" name="_cancer[]" value="Mother" /> <? xl("Mother",'e') ?> </label> <label><input type="checkbox" name="_cancer[]" value="Father" /> <? xl("Father",'e') ?> </label> <label><input type="checkbox" name="_cancer[]" value="Brother" /> <? xl("Brother",'e') ?> </label> <label><input type="checkbox" name="_cancer[]" value="Sister" /> <? xl("Sister",'e') ?> </label> <label><input type="checkbox" name="_cancer[]" value="None" /> <? xl("None",'e') ?> </label></td></tr>
+<tr><td class="text" > Cancer</td> <td class="text" ><label><input type="checkbox" name="_cancer[]" value="Mother" /> <?php xl("Mother",'e') ?> </label> <label><input type="checkbox" name="_cancer[]" value="Father" /> <?php xl("Father",'e') ?> </label> <label><input type="checkbox" name="_cancer[]" value="Brother" /> <?php xl("Brother",'e') ?> </label> <label><input type="checkbox" name="_cancer[]" value="Sister" /> <?php xl("Sister",'e') ?> </label> <label><input type="checkbox" name="_cancer[]" value="None" /> <?php xl("None",'e') ?> </label></td></tr>
 </table>                </td>
             </tr>
 
@@ -891,7 +891,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Diabetes</td> <td class="text" ><label><input type="checkbox" name="_diabetes[]" value="Mother" /> <? xl("Mother",'e') ?> </label> <label><input type="checkbox" name="_diabetes[]" value="Father" /> <? xl("Father",'e') ?> </label> <label><input type="checkbox" name="_diabetes[]" value="Brother" /> <? xl("Brother",'e') ?> </label> <label><input type="checkbox" name="_diabetes[]" value="Sister" /> <? xl("Sister",'e') ?> </label> <label><input type="checkbox" name="_diabetes[]" value="None" /> <? xl("None",'e') ?> </label></td></tr>
+<tr><td class="text" > Diabetes</td> <td class="text" ><label><input type="checkbox" name="_diabetes[]" value="Mother" /> <?php xl("Mother",'e') ?> </label> <label><input type="checkbox" name="_diabetes[]" value="Father" /> <?php xl("Father",'e') ?> </label> <label><input type="checkbox" name="_diabetes[]" value="Brother" /> <?php xl("Brother",'e') ?> </label> <label><input type="checkbox" name="_diabetes[]" value="Sister" /> <?php xl("Sister",'e') ?> </label> <label><input type="checkbox" name="_diabetes[]" value="None" /> <?php xl("None",'e') ?> </label></td></tr>
 </table>                </td>
             </tr>
 
@@ -901,7 +901,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Heart Problems</td> <td class="text" ><label><input type="checkbox" name="_heart_problems[]" value="Mother" /> <? xl("Mother",'e') ?> </label> <label><input type="checkbox" name="_heart_problems[]" value="Father" /> <? xl("Father",'e') ?> </label> <label><input type="checkbox" name="_heart_problems[]" value="Brother" /> <? xl("Brother",'e') ?> </label> <label><input type="checkbox" name="_heart_problems[]" value="Sister" /> <? xl("Sister",'e') ?> </label> <label><input type="checkbox" name="_heart_problems[]" value="None" /> <? xl("None",'e') ?> </label></td></tr>
+<tr><td class="text" > Heart Problems</td> <td class="text" ><label><input type="checkbox" name="_heart_problems[]" value="Mother" /> <?php xl("Mother",'e') ?> </label> <label><input type="checkbox" name="_heart_problems[]" value="Father" /> <?php xl("Father",'e') ?> </label> <label><input type="checkbox" name="_heart_problems[]" value="Brother" /> <?php xl("Brother",'e') ?> </label> <label><input type="checkbox" name="_heart_problems[]" value="Sister" /> <?php xl("Sister",'e') ?> </label> <label><input type="checkbox" name="_heart_problems[]" value="None" /> <?php xl("None",'e') ?> </label></td></tr>
 </table>                </td>
             </tr>
 
@@ -911,7 +911,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Back Or Neck Problems</td> <td class="text" ><label><input type="checkbox" name="_back_or_neck_problems[]" value="Mother" /> <? xl("Mother",'e') ?> </label> <label><input type="checkbox" name="_back_or_neck_problems[]" value="Father" /> <? xl("Father",'e') ?> </label> <label><input type="checkbox" name="_back_or_neck_problems[]" value="Brother" /> <? xl("Brother",'e') ?> </label> <label><input type="checkbox" name="_back_or_neck_problems[]" value="Sister" /> <? xl("Sister",'e') ?> </label> <label><input type="checkbox" name="_back_or_neck_problems[]" value="None" /> <? xl("None",'e') ?> </label></td></tr>
+<tr><td class="text" > Back Or Neck Problems</td> <td class="text" ><label><input type="checkbox" name="_back_or_neck_problems[]" value="Mother" /> <?php xl("Mother",'e') ?> </label> <label><input type="checkbox" name="_back_or_neck_problems[]" value="Father" /> <?php xl("Father",'e') ?> </label> <label><input type="checkbox" name="_back_or_neck_problems[]" value="Brother" /> <?php xl("Brother",'e') ?> </label> <label><input type="checkbox" name="_back_or_neck_problems[]" value="Sister" /> <?php xl("Sister",'e') ?> </label> <label><input type="checkbox" name="_back_or_neck_problems[]" value="None" /> <?php xl("None",'e') ?> </label></td></tr>
 </table>                </td>
             </tr>
 
@@ -936,19 +936,19 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Have You Retained An Attorney</td> <td class="text" ><label><input type="checkbox" name="_have_you_retained_an_attorney[]" value="Yes" /> <? xl("Yes",'e') ?> </label> <label><input type="checkbox" name="_have_you_retained_an_attorney[]" value="no" /> <? xl("no",'e') ?> </label></td></tr>
+<tr><td class="text" > Have You Retained An Attorney</td> <td class="text" ><label><input type="checkbox" name="_have_you_retained_an_attorney[]" value="Yes" /> <?php xl("Yes",'e') ?> </label> <label><input type="checkbox" name="_have_you_retained_an_attorney[]" value="no" /> <?php xl("no",'e') ?> </label></td></tr>
 </table>                            </td>
 
-                            <td class="text"  style="border: solid 1px #000000" width="50%"> <? xl("&nbsp;
+                            <td class="text"  style="border: solid 1px #000000" width="50%"> <?php xl("&nbsp;
                                 ",'e') ?> </td>
                         </tr>
 
                         <tr>
 
                             <td class="text"  style="border: solid 1px #000000">
-                              <? xl("If yes",'e') ?> </td>
+                              <?php xl("If yes",'e') ?> </td>
 
-                            <td class="text"  style="border: solid 1px #000000"> <? xl("&nbsp;
+                            <td class="text"  style="border: solid 1px #000000"> <?php xl("&nbsp;
                                 ",'e') ?> </td>
                         </tr>
 
@@ -997,7 +997,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Were The Policy Notified</td> <td class="text" ><label><input type="checkbox" name="_were_the_policy_notified[]" value="Yes" /> <? xl("Yes",'e') ?> </label> <label><input type="checkbox" name="_were_the_policy_notified[]" value="no" /> <? xl("no",'e') ?> </label></td></tr>
+<tr><td class="text" > Were The Policy Notified</td> <td class="text" ><label><input type="checkbox" name="_were_the_policy_notified[]" value="Yes" /> <?php xl("Yes",'e') ?> </label> <label><input type="checkbox" name="_were_the_policy_notified[]" value="no" /> <?php xl("no",'e') ?> </label></td></tr>
 </table>                            </td>
                         </tr>
 
@@ -1007,7 +1007,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > What Direction Were You Headed</td> <td class="text" ><label><input type="checkbox" name="_what_direction_were_you_headed[]" value="North" /> <? xl("North",'e') ?> </label> <label><input type="checkbox" name="_what_direction_were_you_headed[]" value="East" /> <? xl("East",'e') ?> </label> <label><input type="checkbox" name="_what_direction_were_you_headed[]" value="South" /> <? xl("South",'e') ?> </label> <label><input type="checkbox" name="_what_direction_were_you_headed[]" value="West" /> <? xl("West",'e') ?> </label></td></tr>
+<tr><td class="text" > What Direction Were You Headed</td> <td class="text" ><label><input type="checkbox" name="_what_direction_were_you_headed[]" value="North" /> <?php xl("North",'e') ?> </label> <label><input type="checkbox" name="_what_direction_were_you_headed[]" value="East" /> <?php xl("East",'e') ?> </label> <label><input type="checkbox" name="_what_direction_were_you_headed[]" value="South" /> <?php xl("South",'e') ?> </label> <label><input type="checkbox" name="_what_direction_were_you_headed[]" value="West" /> <?php xl("West",'e') ?> </label></td></tr>
 </table>                            </td>
                         </tr>
 
@@ -1017,7 +1017,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > What Direction Was Other Vechicle</td> <td class="text" ><label><input type="checkbox" name="_what_direction_was_other_vechicle[]" value="North" /> <? xl("North",'e') ?> </label> <label><input type="checkbox" name="_what_direction_was_other_vechicle[]" value="East" /> <? xl("East",'e') ?> </label> <label><input type="checkbox" name="_what_direction_was_other_vechicle[]" value="South" /> <? xl("South",'e') ?> </label> <label><input type="checkbox" name="_what_direction_was_other_vechicle[]" value="Wst" /> <? xl("Wst",'e') ?> </label></td></tr>
+<tr><td class="text" > What Direction Was Other Vechicle</td> <td class="text" ><label><input type="checkbox" name="_what_direction_was_other_vechicle[]" value="North" /> <?php xl("North",'e') ?> </label> <label><input type="checkbox" name="_what_direction_was_other_vechicle[]" value="East" /> <?php xl("East",'e') ?> </label> <label><input type="checkbox" name="_what_direction_was_other_vechicle[]" value="South" /> <?php xl("South",'e') ?> </label> <label><input type="checkbox" name="_what_direction_was_other_vechicle[]" value="Wst" /> <?php xl("Wst",'e') ?> </label></td></tr>
 </table>                            </td>
                         </tr>
 
@@ -1037,7 +1037,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Were You Struck From</td> <td class="text" ><label><input type="checkbox" name="_were_you_struck_from[]" value="behind" /> <? xl("behind",'e') ?> </label> <label><input type="checkbox" name="_were_you_struck_from[]" value="front" /> <? xl("front",'e') ?> </label> <label><input type="checkbox" name="_were_you_struck_from[]" value="left side" /> <? xl("left side",'e') ?> </label> <label><input type="checkbox" name="_were_you_struck_from[]" value="right side" /> <? xl("right side",'e') ?> </label></td></tr>
+<tr><td class="text" > Were You Struck From</td> <td class="text" ><label><input type="checkbox" name="_were_you_struck_from[]" value="behind" /> <?php xl("behind",'e') ?> </label> <label><input type="checkbox" name="_were_you_struck_from[]" value="front" /> <?php xl("front",'e') ?> </label> <label><input type="checkbox" name="_were_you_struck_from[]" value="left side" /> <?php xl("left side",'e') ?> </label> <label><input type="checkbox" name="_were_you_struck_from[]" value="right side" /> <?php xl("right side",'e') ?> </label></td></tr>
 </table>                            </td>
                         </tr>
 
@@ -1067,7 +1067,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Did You Lose Any Time From Work</td> <td class="text" ><label><input type="checkbox" name="_did_you_lose_any_time_from_work[]" value="Yes" /> <? xl("Yes",'e') ?> </label> <label><input type="checkbox" name="_did_you_lose_any_time_from_work[]" value="No" /> <? xl("No",'e') ?> </label></td></tr>
+<tr><td class="text" > Did You Lose Any Time From Work</td> <td class="text" ><label><input type="checkbox" name="_did_you_lose_any_time_from_work[]" value="Yes" /> <?php xl("Yes",'e') ?> </label> <label><input type="checkbox" name="_did_you_lose_any_time_from_work[]" value="No" /> <?php xl("No",'e') ?> </label></td></tr>
 </table>                            </td>
                         </tr>
 
@@ -1107,7 +1107,7 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > If Taken To The Hospital Did You</td> <td class="text" ><label><input type="checkbox" name="_if_taken_to_the_hospital_did_you[]" value="Go by ambulance" /> <? xl("Go by ambulance",'e') ?> </label> <label><input type="checkbox" name="_if_taken_to_the_hospital_did_you[]" value="Drove self" /> <? xl("Drove self",'e') ?> </label> <label><input type="checkbox" name="_if_taken_to_the_hospital_did_you[]" value="Taken by someone else" /> <? xl("Taken by someone else",'e') ?> </label></td></tr>
+<tr><td class="text" > If Taken To The Hospital Did You</td> <td class="text" ><label><input type="checkbox" name="_if_taken_to_the_hospital_did_you[]" value="Go by ambulance" /> <?php xl("Go by ambulance",'e') ?> </label> <label><input type="checkbox" name="_if_taken_to_the_hospital_did_you[]" value="Drove self" /> <?php xl("Drove self",'e') ?> </label> <label><input type="checkbox" name="_if_taken_to_the_hospital_did_you[]" value="Taken by someone else" /> <?php xl("Taken by someone else",'e') ?> </label></td></tr>
 </table>                            </td>
                         </tr>
 
@@ -1117,14 +1117,14 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 
 <table>
 
-<tr><td class="text" > Have You Ever Been Involved In An Accident Before</td> <td class="text" ><label><input type="checkbox" name="_have_you_ever_been_involved_in_an_accident_before[]" value="yes" /> <? xl("yes",'e') ?> </label> <label><input type="checkbox" name="_have_you_ever_been_involved_in_an_accident_before[]" value="no" /> <? xl("no",'e') ?> </label></td></tr>
+<tr><td class="text" > Have You Ever Been Involved In An Accident Before</td> <td class="text" ><label><input type="checkbox" name="_have_you_ever_been_involved_in_an_accident_before[]" value="yes" /> <?php xl("yes",'e') ?> </label> <label><input type="checkbox" name="_have_you_ever_been_involved_in_an_accident_before[]" value="no" /> <?php xl("no",'e') ?> </label></td></tr>
 </table>                            </td>
                         </tr>
                     </table>                </td>
             </tr>
         </table>
 
-<table></table><input type="submit" name="submit form" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <? xl("[do not save]",'e') ?> </a>
+<table></table><input type="submit" name="submit form" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
 </form>
 <?php
 formFooter();

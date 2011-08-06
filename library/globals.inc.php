@@ -31,6 +31,8 @@
 //   German                         // xl('German')
 //   Greek                          // xl('Greek')
 //   Hebrew                         // xl('Hebrew')
+//   Hindi                          // xl('Hindi')
+//   Italian                        // xl('Italian')
 //   Norwegian                      // xl('Norwegian')
 //   Polish                         // xl('Polish')
 //   Portuguese (Brazilian)         // xl('Portuguese (Brazilian)')
@@ -68,13 +70,15 @@ else {
 
 // List of user specific tabs and globals
 $USER_SPECIFIC_TABS = array('Appearance',
-                            'Locale');
+                            'Locale',
+                            'Calendar');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'concurrent_layout',
                                'css_header',
                                'units_of_measurement',
                                'date_display_format',
-                               'time_display_format');
+                               'time_display_format',
+                               'event_color');
 
 $GLOBALS_METADATA = array(
 
@@ -114,7 +118,7 @@ $GLOBALS_METADATA = array(
     'gbl_nav_area_width' => array(
       xl('Navigation Area Width'),
       'num',
-      '130',
+      '150',
       xl('Width in pixels of the left navigation frame.')
     ),
 
@@ -145,6 +149,20 @@ $GLOBALS_METADATA = array(
       ),
       '0',                              // default
       xl('Type of columns displayed for patient search results')
+    ),
+
+    'gbl_tall_nav_area' => array(
+      xl('Tall Navigation Area'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Navigation area uses full height of frameset')
+    ),
+
+    'gbl_nav_visit_forms' => array(
+      xl('Navigation Area Visit Forms'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Navigation area includes encounter forms')
     ),
 
     'simplified_demographics' => array(
@@ -207,6 +225,13 @@ $GLOBALS_METADATA = array(
       'm_lang',                         // data type
       '',                               // default = none
       xl('Select which languages, if any, may be chosen at login. (only pertinent if above All Languages Allowed is turned off)')
+    ),
+
+    'allow_debug_language' => array(
+      xl('Allow Debugging Language'),
+      'bool',                           // data type
+      '1',                              // default = true during development and false for production releases
+      xl('This will allow selection of the debugging (\'dummy\') language.')
     ),
 
     'translate_layout' => array(
@@ -504,8 +529,15 @@ $GLOBALS_METADATA = array(
     'activate_ccr_ccd_report' => array(
       xl('Activate CCR/CCD Reporting'),
       'bool',                           // data type
-      '0',                              // default = false
+      '1',                              // default = true
       xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
+    ),
+    
+    'hide_document_encryption' => array(
+      xl('Hide Encryption/Decryption Options In Document Management'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('This will deactivate document the encryption and decryption features, and hide them in the UI.')
     ),
 
   ),
@@ -573,6 +605,16 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '1',                              // default
       xl('Automatically create a new encounter when appointment status is set to "@" (arrived).')
+    ),
+    
+    'event_color' => array(
+      xl('Appointment/Event Color'),
+      array(
+        '1' => 'Category Color Schema',
+        '2' => 'Facility Color Schema',
+      ),                           // data type
+      '1',                              // default
+      xl('This determines which color schema used for appointment')
     ),
 
   ),
@@ -657,6 +699,20 @@ $GLOBALS_METADATA = array(
   //
   'Notifications' => array(
 
+    'patient_reminder_sender_name' => array(
+      xl('Patient Reminder Sender Name'),
+      'text',                           // data type
+      '',                               // default
+      xl('Name of the sender for patient reminders.')
+    ),
+    
+    'patient_reminder_sender_email' => array(
+      xl('Patient Reminder Sender Email'),
+      'text',                           // data type
+      '',                               // default
+      xl('Email address of the sender for patient reminders. Replies to patient reminders will be directed to this address. It is important to use an address from your clinic\'s domain to avoid help prevent patient reminders from going to junk mail folders.')
+    ),
+    
     'practice_return_email_path' => array(
       xl('Notification Email Address'),
       'text',                           // data type
@@ -738,6 +794,75 @@ $GLOBALS_METADATA = array(
       xl('API key for SMS Gateway.')
     ),
 
+    'phone_notification_hour' => array(
+      xl('Phone Notification Hour'),
+      'num',                            // data type
+      '50',                             // default
+      xl('Number of hours in advance to send Phone notification.')
+    ),
+    
+    'phone_gateway_username' => array(
+      xl('Phone Gateway Username'),
+      'text',                           // data type
+      '',                               // default
+      xl('Username for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+    ),
+    
+    'phone_gateway_password' => array(
+      xl('Phone Gateway Password'),
+      'text',                           // data type
+      '',                               // default
+      xl('Password for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+    ),
+    
+    'phone_gateway_url' => array(
+      xl('Phone Gateway URL'),
+      'text',                           // data type
+      '',                               // default
+      xl('URL for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.')
+    ),
+
+  ),
+  
+  // CDR (Clinical Decision Rules)
+  //
+  'CDR' => array(
+
+    'enable_cdr' => array(
+      xl('Enable Clinical Decisions Rules (CDR)'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Clinical Decisions Rules (CDR)')
+    ),
+    
+    'enable_cdr_crw' => array(
+      xl('Enable Clinical Reminder Widget'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Clinical Reminder Widget')
+    ),
+
+    'enable_cdr_prw' => array(
+      xl('Enable Patient Reminder Widget'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Patient Reminder Widget')
+    ),
+
+    'pqri_registry_name' => array(
+      xl('PQRI Registry Name'),
+      'text',                           // data type
+      'Model Registry',                               // default
+      xl('PQRI Registry Name')
+    ),
+
+    'pqri_registry_id' => array(
+      xl('PQRI Registry ID'),
+      'text',                           // data type
+      '125789123',                               // default
+      xl('PQRI Registry ID')
+    ),
+      
   ),
 
   // Logging

@@ -55,7 +55,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-
+<?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
 <script language="JavaScript">
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -100,7 +100,12 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 $(document).ready(function(){
   enable_big_modals();
 });
-
+function bill_loc(){
+var pid=<?php echo $pid;?>;
+var dte=document.getElementById('form_date').value;
+var facility=document.forms[0].facility_id.value;
+ajax_bill_loc(pid,dte,facility);
+}
 </script>
 </head>
 
@@ -136,10 +141,10 @@ $(document).ready(function(){
     <div style = 'float:left; margin-top:-3px'>
   <?php if ($GLOBALS['concurrent_layout']) { ?>
       <a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
-        class="css_button link_submit" onclick="top.restoreSession()"><span><?php xl('Cancel','e'); ?></span></a>
+        class="css_button link_submit" onClick="top.restoreSession()"><span><?php xl('Cancel','e'); ?></span></a>
   <?php } else { ?>
       <a href="<?php echo "$rootdir/patient_file/encounter/patient_encounter.php"; ?>"
-        class="css_button link_submit" target='Main' onclick="top.restoreSession()">
+        class="css_button link_submit" target='Main' onClick="top.restoreSession()">
       <span><?php xl('Cancel','e'); ?>]</span></a>
   <?php } // end not concurrent layout ?>
   <?php } // end not autoloading ?>
@@ -178,7 +183,7 @@ $(document).ready(function(){
     <tr>
      <td class='bold' nowrap><?php xl('Facility:','e'); ?></td>
      <td class='text'>
-      <select name='facility_id'>
+      <select name='facility_id' onChange="bill_loc()">
 <?php
 
 if ($viewmode) {
@@ -203,7 +208,16 @@ if ($fres) {
       </select>
      </td>
     </tr>
-
+	<tr>
+		<td class='bold' nowrap><?php echo htmlspecialchars( xl('Billing Facility:'), ENT_NOQUOTES); ?></td>
+		<td class='text'>
+			<div id="ajaxdiv">
+			<?php
+			billing_facility('billing_facility',$result['billing_facility']);
+			?>
+			</div>
+		</td>
+     </tr>
     <tr>
 <?php
  $sensitivities = acl_get_sensitivities();
@@ -261,9 +275,9 @@ if ($fres) {
 
     <tr<?php if ($GLOBALS['ippf_specific'] || $GLOBALS['athletic_team']) echo " style='visibility:hidden;'"; ?>>
      <td class='bold' nowrap><?php xl('Onset/hosp. date:','e'); ?></td>
-     <td class='text' nowrap>
+     <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' name='form_onset_date' id='form_onset_date'
-       value='<?php echo $viewmode ? substr($result['onset_date'], 0, 10) : date('Y-m-d'); ?>'
+       value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? substr($result['onset_date'], 0, 10) : ''; ?>' 
        title='<?php xl('yyyy-mm-dd Date of onset or hospitalization','e'); ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
         <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'

@@ -13,7 +13,7 @@ formHeader("Lab Results");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>New Patient Encounter</title>
 
