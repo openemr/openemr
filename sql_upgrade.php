@@ -51,6 +51,18 @@ function tableHasRow2D($tblname, $colname, $value, $colname2, $value2) {
   return $row['count'] ? true : false;
 }
 
+function tableHasRow3D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3) {
+  $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
+    "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3'");
+  return $row['count'] ? true : false;
+}
+
+function tableHasRow4D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3, $colname4, $value4) {
+  $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
+    "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3' AND $colname4 LIKE '$value4'");
+  return $row['count'] ? true : false;
+}
+
 function upgradeFromSqlFile($filename) {
   global $webserver_root;
 
@@ -118,6 +130,26 @@ function upgradeFromSqlFile($filename) {
     else if (preg_match('/^#IfNotRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
       if (tableExists($matches[1])) {
         $skipping = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
+      }
+      else {
+        // If no such table then the row is deemed not "missing".
+        $skipping = true;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfNotRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+        $skipping = tableHasRow3D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6], $matches[7]);
+      }
+      else {
+        // If no such table then the row is deemed not "missing".
+        $skipping = true;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfNotRow4D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+        $skipping = tableHasRow4D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6], $matches[7], $matches[8], $matches[9]);
       }
       else {
         // If no such table then the row is deemed not "missing".

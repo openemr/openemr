@@ -83,6 +83,13 @@ if ($_POST['formaction']=='save' && $list_id) {
             $value = empty($iter['value']) ? 0 : (formTrim($iter['value']) + 0);
             $id = formTrim($iter['id']);
             if (strlen($id) > 0) {
+
+              // Special processing for the immunizations list
+              // Map the entered cvx codes into the immunizations table cvx_code
+              sqlStatement ("UPDATE `immunizations` " .
+                            "SET `cvx_code`='".$value."' " .
+                            "WHERE `immunization_id`='".$id."'");
+
               // Force List Based Form names to start with LBF.
               if ($list_id == 'lbfnames' && substr($id,0,3) != 'LBF')
                 $id = "LBF$id";
@@ -244,6 +251,17 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
     }
     echo "</select>";
     echo "</td>\n";
+  }
+
+  // Immunization categories use option_value to map list items
+  // to CVX codes.
+  //
+  else if ($list_id == 'immunizations') {
+  echo "  <td align='center' class='optcell'>";
+  echo "<input type='text' size='10' name='opt[$opt_line_no][value]' " .
+       "value='" . htmlspecialchars($value,ENT_QUOTES) . "' onclick='sel_cvxcode(this)' " .
+       "title='" . htmlspecialchars( xl('Click to select or change CVX code'), ENT_QUOTES) . "'/>";
+  echo "</td>\n";
   }
 
   // IPPF includes the ability to map each list item to a "master" identifier.
@@ -522,6 +540,28 @@ function mysubmit() {
  f.submit();
 }
 
+// This invokes the find-code popup.
+function sel_cvxcode(e) {
+ current_sel_name = e.name;
+ dlgopen('../patient_file/encounter/find_code_popup.php?codetype=CVX', '_blank', 500, 400);
+}
+
+//This is for callback by the find-code popup.
+//Appends to or erases the current list of diagnoses.
+function set_related(codetype, code, selector, codedesc) {
+	var f = document.forms[0][current_sel_name];
+	var s = f.value;
+	
+	if (code) {
+		s = code;
+	}
+	else {
+		s = '0';
+	}
+	
+	f.value = s;
+}
+
 </script>
 
 </head>
@@ -607,6 +647,8 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Color:Abbr','e'); ?></b></td>
 <?php } else if ($list_id == 'adjreason' || $list_id == 'abook_type') { ?>
   <td><b><?php xl('Type','e'); ?></b></td>
+<?php } else if ($list_id == 'immunizations') { ?>
+  <td><b>&nbsp&nbsp&nbsp&nbsp<?php xl('CVX Code Mapping','e'); ?></b></td>
 <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>

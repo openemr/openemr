@@ -100,6 +100,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 //                   inner and outer are only different if organize_mode is set to plans).
 //   $type       - rule filter (active_alert,passive_alert,cqm,amc,patient_reminder). If blank then will test all rules.
 //   $dateTarget - target date. If blank then will test with current date as target.
+//                              If an array, then is holding two dates ('dateBegin' and 'dateTarget')
 //   $mode       - choose either 'report' or 'reminders-all' or 'reminders-due' (required)
 //   $patient_id - pid of patient. If blank then will check all patients.
 //   $plan       - test for specific plan only
@@ -111,8 +112,15 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 //         report mode    - returns an array of rows for the Clinical Quality Measures (CQM) report
 //     'plans':
 //       Returns similar to default, but organizes by the active plans
+//  $options - can hold various option (for now, used to hold the manual number of labs for the AMC report)
 //
-function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default') {
+function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array()) {
+
+  // If dateTarget is an array, then organize them.
+  if (is_array($dateTarget)) {
+    $dateArray = $dateTarget;
+    $dateTarget = $dateTarget['dateTarget'];
+  }
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
@@ -241,32 +249,20 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 
       require_once( dirname(__FILE__)."/classes/rulesets/ReportManager.php");
       $manager = new ReportManager();
-      $tempResults = $manager->runReport( $rowRule, $patientData, $dateTarget );
+      if ($rowRule['amc_flag']) {
+        // Send array of dates ('dateBegin' and 'dateTarget')
+        $tempResults = $manager->runReport( $rowRule, $patientData, $dateArray, $options );
+      }
+      else {
+        // Send target date
+        $tempResults = $manager->runReport( $rowRule, $patientData, $dateTarget );
+      }
       if (!empty($tempResults)) {
         foreach ($tempResults as $tempResult) {
           array_push($results,$tempResult);
         }
       }
-      
-      
-//          // Ensure the ruleSet class file has been included
-//      // (will only require if needed, since it's gonna be large)
-//      require_once(dirname(__FILE__) . "/classes/rulesets/ruleSet.class.php");
-//
-//      // Run the class rule set
-//      // $patientData contains pid's only
-//      $rule_results = new ruleSet($rowRule,$dateTarget,$patientData);
-//      
-//      
-//      
-//      // Collect/add the results to the results array
-//      $tempResults = $rule_results->return_results();
-//      if (!empty($tempResults)) {
-//        foreach ($tempResults as $tempResult) {
-//          array_push($results,$tempResult);
-//        }
-//      }
-      
+ 
       // Go on to the next rule
       continue;
     }
@@ -439,6 +435,17 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
               continue;
             }
 
+            // Check if pass filter
+            $passFilter = test_filter($rowPatient['pid'],$rowRule['id'],$dateFocus);
+            if ($passFilter === "EXCLUDED") {
+              $passFilter = FALSE;
+            }
+            if (!$passFilter) {
+              // increment pass filter counter
+              $dateCounter++;
+              continue;
+            }
+
             //Check if pass target
             $passTarget = test_targets($rowPatient['pid'],$rowRule['id'],$i,$dateFocus);
             if ($passTarget) {
@@ -447,7 +454,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
               // send to reminder results
               if ($mode == "reminders-all") {
                 // place the completed actions into the reminder return array
-                $actionArray = resolve_action_sql($rowRule['id'],'1');
+                $actionArray = resolve_action_sql($rowRule['id'],$i);
                 foreach ($actionArray as $action) {
                   $action_plus = $action;
                   $action_plus['due_status'] = "not_due";
@@ -1512,7 +1519,7 @@ function collect_database_label($label,$table) {
       $returnedLabel = "procedure_order.patient_id";
     }
     else if ($label == "date") {
-      $returnedLabel = "procedure_result.date";
+      $returnedLabel = "procedure_report.date_collected";
     }
     else {
       // unknown label, so return the original label
@@ -1745,9 +1752,12 @@ function convertCompSql($comp) {
 // Return: decimal, years(decimal) from dob to target(date)
 function convertDobtoAgeYearDecimal($dob,$target) { 
      
-    // Grab year, month, and day from dob and dateTarget
+    // Prepare dob (Y M D)
     $dateDOB = explode(" ",$dob);
-    $dateTarget = explode(" ",$target);
+
+    // Prepare target (Y-M-D H:M:S)
+    $dateTargetTemp = explode(" ",$target);
+    $dateTarget = explode("-",$dateTargetTemp[0]);
 
     // Collect differences 
     $iDiffYear  = $dateTarget[0] - $dateDOB[0]; 
@@ -1759,7 +1769,10 @@ function convertDobtoAgeYearDecimal($dob,$target) {
     { 
         $iDiffYear--; 
     } 
-         
+
+    // Ensure diffYear is not less than 0
+    if ($iDiffYear < 0) $iDiffYear = 0;
+     
     return $iDiffYear; 
 }  
 
@@ -1770,9 +1783,12 @@ function convertDobtoAgeYearDecimal($dob,$target) {
 // Return: decimal, months(decimal) from dob to target(date)
 function convertDobtoAgeMonthDecimal($dob,$target) {
 
-    // Grab year, month, and day from dob and dateTarget
+    // Prepare dob (Y M D)
     $dateDOB = explode(" ",$dob);
-    $dateTarget = explode(" ",$target);
+
+    // Prepare target (Y-M-D H:M:S)
+    $dateTargetTemp = explode(" ",$target);
+    $dateTarget = explode("-",$dateTargetTemp[0]);
 
     // Collect differences
     $iDiffYear  = $dateTarget[0] - $dateDOB[0];
@@ -1784,6 +1800,9 @@ function convertDobtoAgeMonthDecimal($dob,$target) {
     {
         $iDiffYear--;
     }
+
+    // Ensure diffYear is not less than 0
+    if ($iDiffYear < 0) $iDiffYear = 0;
 
     return (12 * $iDiffYear) + $iDiffMonth;
 }

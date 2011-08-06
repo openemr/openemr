@@ -601,6 +601,7 @@ this XSLT back to the community.
                               <tbody>
                                 <tr>
                                   <th>Medication</th>
+								  <th>RxNorm Code</th>
                                   <th>Date</th>
                                   <th>Status</th>
                                   <th>Form</th>
@@ -623,6 +624,9 @@ this XSLT back to the community.
                                           <xsl:text>)</xsl:text>
                                         </xsl:if>
                                       </strong>
+                                    </td>
+									<td>
+                                      <xsl:value-of select="a:Product/a:ProductName/a:Code/a:Value"/>
                                     </td>
                                     <td>
                                       <table class="internal">

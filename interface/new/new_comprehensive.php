@@ -10,6 +10,7 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/erx_javascript.inc.php");
 
 // Check authorization.
 $thisauth = acl_check('patients', 'demo');
@@ -208,6 +209,26 @@ function capitalizeMe(elem) {
  elem.value = s;
 }
 
+// Onkeyup handler for policy number.  Allows only A-Z and 0-9.
+function policykeyup(e) {
+ var v = e.value.toUpperCase();
+ for (var i = 0; i < v.length; ++i) {
+  var c = v.charAt(i);
+  if (c >= '0' && c <= '9') continue;
+  if (c >= 'A' && c <= 'Z') continue;
+  if (c == '*') continue;
+  if (c == '-') continue;
+  if (c == '_') continue;
+  if (c == '(') continue;
+  if (c == ')') continue;
+  if (c == '#') continue;
+  v = v.substring(0, i) + v.substring(i + i);
+  --i;
+ }
+ e.value = v;
+ return;
+}
+
 function divclick(cb, divid) {
  var divstyle = document.getElementById(divid).style;
  if (cb.checked) {
@@ -230,6 +251,33 @@ function trimlen(s) {
 
 function validate(f) {
 <?php generate_layout_validation('DEM'); ?>
+  <?php if($GLOBALS['erx_enable']){ ?>
+  alertMsg='';
+  for(i=0;i<f.length;i++){
+    if(f[i].type=='text' && f[i].value)
+    {
+      if(f[i].name == 'form_fname' || f[i].name == 'form_mname' || f[i].name == 'form_lname')
+      {
+        alertMsg += checkLength(f[i].name,f[i].value,35);
+        alertMsg += checkUsername(f[i].name,f[i].value);
+      }
+      else if(f[i].name == 'form_street' || f[i].name == 'form_city')
+      {
+        alertMsg += checkLength(f[i].name,f[i].value,35);
+        alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+      }
+      else if(f[i].name == 'form_phone_home')
+      {
+       alertMsg += checkPhone(f[i].name,f[i].value);
+      }
+    }
+  }
+  if(alertMsg)
+  {
+    alert(alertMsg);
+    return false;
+  }
+  <?php } ?>
  return true;
 }
 
@@ -517,7 +565,7 @@ if (! $GLOBALS['simplified_demographics']) {
     </tr>
 
     <tr>
-     <td><span class=required><?php xl('Group Number','e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>"></td>
+     <td><span class=required><?php xl('Group Number','e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>" onkeyup='policykeyup(this)'></td>
     </tr>
 
     <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>

@@ -2106,8 +2106,11 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
       echo "<td><a class='" . $class_string . "' href='javascript:;' onclick='" . $buttonLink . "'";
     }
     else {
-      echo "<td><a class='" . $class_string . "' href='" . $buttonLink . "'" .
-        " onclick='top.restoreSession()'";
+      echo "<td><a class='" . $class_string . "' href='" . $buttonLink . "'";
+      if (!isset($_SESSION['patient_portal_onsite'])) {
+        // prevent an error from occuring when calling the function from the patient portal
+        echo " onclick='top.restoreSession()'";
+      }
     }
     if (!$GLOBALS['concurrent_layout']) {
       echo " target='Main'";
@@ -2123,7 +2126,12 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
   echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
     htmlspecialchars( $label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";
   echo htmlspecialchars( $title, ENT_NOQUOTES) . "</b></span>";
-  if (getUserSetting($label."_ps_expand")) {
+
+  if (isset($_SESSION['patient_portal_onsite'])) {
+    // collapse all entries in the patient portal
+    $text = xl('expand');
+  }
+  else if (getUserSetting($label."_ps_expand")) {
     $text = xl('collapse');
   }
   else {
@@ -2136,6 +2144,10 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
   if ($forceExpandAlways) {
     // Special case to force the widget to always be expanded
     $styling = "";
+  }
+  else if (isset($_SESSION['patient_portal_onsite'])) {
+    // collapse all entries in the patient portal
+    $styling = "style='display:none'";
   }
   else if (getUserSetting($label."_ps_expand")) {
     $styling = "";

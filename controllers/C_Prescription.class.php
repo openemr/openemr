@@ -9,6 +9,7 @@ require_once($GLOBALS['fileroot'] . "/library/classes/Prescription.class.php");
 require_once($GLOBALS['fileroot'] . "/library/classes/Provider.class.php");
 require_once($GLOBALS['fileroot'] . "/library/classes/RXList.class.php");
 require_once($GLOBALS['fileroot'] . "/library/registry.inc");
+require_once($GLOBALS['fileroot'] . "/library/amc.php");
 
 class C_Prescription extends Controller {
 
@@ -178,6 +179,17 @@ class C_Prescription extends Controller {
 			$this->_state = false;
 			return $this->edit_action($this->prescriptions[0]->id);
 		}
+
+    // Set the AMC reporting flag (to record percentage of prescriptions that
+    // are set as e-prescriptions)
+    if (!(empty($_POST['escribe_flag']))) {
+      // add the e-prescribe flag
+      processAmcCall('e_prescribe_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id); 
+    }
+    else {
+      // remove the e-prescribe flag
+      processAmcCall('e_prescribe_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+    }
 
     if ($this->prescriptions[0]->get_active() > 0) {
       return $this->send_action($this->prescriptions[0]->id);

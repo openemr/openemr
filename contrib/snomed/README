@@ -1,0 +1,7 @@
+Steps to install the SNOMED database:
+1) Copy the zipped SNOMED database file into this directory (this file can be downloaded from
+   http://www.nlm.nih.gov/research/umls/licensedcontent/snomedctfiles.html; note you'll need to
+   get an account and that only the biannual International Release currently works)
+2) In OpenEMR, go to Administration->Other->SNOMED in order to then install/upgrade
+   the SNOMED database.
+

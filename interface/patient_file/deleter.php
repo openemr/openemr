@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -101,6 +101,18 @@ function form_delete($formdir, $formid) {
     row_delete("form_$formdir", "id = '$formid'");
 }
 
+// Delete a specified document including its associated relations and file.
+//
+function delete_document($document) {
+  $trow = sqlQuery("SELECT url FROM documents WHERE id = '$document'");
+  $url = $trow['url'];
+  row_delete("categories_to_documents", "document_id = '$document'");
+  row_delete("documents", "id = '$document'");
+  row_delete("gprelations", "type1 = 1 AND id1 = '$document'");
+  if (substr($url, 0, 7) == 'file://') {
+    @unlink(substr($url, 7));
+  }
+}
 ?>
 <html>
 <head>
@@ -129,7 +141,7 @@ document.deletefrm.submit();
   if ($patient) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
    row_modify("billing"       , "activity = 0", "pid = '$patient'");
-   row_modify("pnotes"        , "activity = 0", "pid = '$patient'");
+   row_modify("pnotes"        , "deleted = 1" , "pid = '$patient'");
    // row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
    row_delete("prescriptions"  , "patient_id = '$patient'");
    row_delete("claims"         , "patient_id = '$patient'");
@@ -144,7 +156,6 @@ document.deletefrm.submit();
    row_delete("employer_data"  , "pid = '$patient'");
    row_delete("history_data"   , "pid = '$patient'");
    row_delete("insurance_data" , "pid = '$patient'");
-   row_delete("patient_data"   , "pid = '$patient'");
 
    $res = sqlStatement("SELECT * FROM forms WHERE pid = '$patient'");
    while ($row = sqlFetchArray($res)) {
@@ -152,9 +163,24 @@ document.deletefrm.submit();
    }
    row_delete("forms", "pid = '$patient'");
 
+   // integration_mapping is used for sql-ledger and is virtually obsolete now.
    $row = sqlQuery("SELECT id FROM patient_data WHERE pid = '$patient'");
    row_delete("integration_mapping", "local_table = 'patient_data' AND " .
     "local_id = '" . $row['id'] . "'");
+
+   // Delete all documents for the patient.
+   $res = sqlStatement("SELECT id FROM documents WHERE foreign_id = '$patient'");
+   while ($row = sqlFetchArray($res)) {
+    delete_document($row['id']);
+   }
+
+   // This table exists only for athletic teams.
+   $tmp = sqlQuery("SHOW TABLES LIKE 'daily_fitness'");
+   if (!empty($tmp)) {
+    row_delete("daily_fitness", "pid = '$patient'");
+   }
+
+   row_delete("patient_data", "pid = '$patient'");
   }
   else if ($encounterid) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
@@ -184,14 +210,7 @@ document.deletefrm.submit();
   }
   else if ($document) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
-   $trow = sqlQuery("SELECT url FROM documents WHERE id = '$document'");
-   $url = $trow['url'];
-   row_delete("categories_to_documents", "document_id = '$document'");
-   row_delete("documents", "id = '$document'");
-   row_delete("gprelations", "type1 = 1 AND id1 = '$document'");
-   if (substr($url, 0, 7) == 'file://') {
-    @unlink(substr($url, 7));
-   }
+   delete_document($document);
   }
   else if ($payment) {
    if (!acl_check('admin', 'super')) die("Not authorized!");

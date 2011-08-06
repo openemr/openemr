@@ -94,6 +94,12 @@ while ($row = sqlFetchArray($result[0])) {
 	// address
 	$e_Address = $ccr->createElement('Address');
 	$e_Actor->appendChild($e_Address);
+    
+  $e_Type = $ccr->createElement('Type');
+  $e_Address->appendChild($e_Type);
+  
+  $e_Text = $ccr->createElement('Text', 'H');
+	$e_Type->appendChild($e_Text);
 	
 	$e_Line1 = $ccr->createElement('Line1', $row['street']);
 	$e_Address->appendChild($e_Line1);
@@ -168,6 +174,12 @@ $row1 = sqlFetchArray($result[1]);
   
   $e_Address = $ccr->createElement('Address');
 	$e_Actor->appendChild($e_Address);
+  
+  $e_Type = $ccr->createElement('Type');
+  $e_Address->appendChild($e_Type);
+  
+  $e_Text = $ccr->createElement('Text', 'WP');
+	$e_Type->appendChild($e_Text);
 	
 	$e_Line1 = $ccr->createElement('Line1',$row1['street']);
 	$e_Address->appendChild($e_Line1);
@@ -241,6 +253,12 @@ $row1 = sqlFetchArray($result[1]);
   
   $e_Address = $ccr->createElement('Address');
 	$e_Actor->appendChild($e_Address);
+    
+  $e_Type = $ccr->createElement('Type');
+  $e_Address->appendChild($e_Type);
+  
+  $e_Text = $ccr->createElement('Text', 'WP');
+	$e_Type->appendChild($e_Text);
 	
 	$e_Line1 = $ccr->createElement('Line1','2365 Springs Rd. NE');
 	$e_Address->appendChild($e_Line1);
@@ -312,6 +330,12 @@ while ($row2 = sqlFetchArray($result[2])) {
   
   $e_Address = $ccr->createElement('Address');
 	$e_Actor->appendChild($e_Address);
+    
+  $e_Type = $ccr->createElement('Type');
+  $e_Address->appendChild($e_Type);
+  
+  $e_Text = $ccr->createElement('Text', 'WP');
+	$e_Type->appendChild($e_Text);
 	
 	$e_Line1 = $ccr->createElement('Line1',$row2['street']);
 	$e_Address->appendChild($e_Line1);

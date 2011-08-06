@@ -1,25 +1,47 @@
 <?php
+// Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
 require_once( 'ClinicalType.php' );
-/*
- * This class represents types of medication administered to a patient.
- */
+
 class Medication extends ClinicalType
 {
     const OPTION_COUNT = 'count';
     const OPTION_UNIQUE_DATES = 'unique';
     
-    const DTAP = 'med_dtap';
-    const HEP_A = 'med_hep_a_vac';
-    const HEP_B = 'med_hep_b_vac';
-    const HIB = 'med_hib';
-    const MEASLES = 'med_meas_vac';
-    const MMR = 'med_mmr';
-    const IPV = 'med_ipv';
-    const MUMPS = 'med_mumps_vac';
-    const PNEUMOCOCCAL = 'med_pneumococcal_vac';
-    const ROTAVIRUS = 'med_rotavirus_vac';
-    const RUBELLA = 'med_rubella_vac';
-    const VZV = 'med_vzv';
+    const DTAP_VAC = 'med_admin_dtap';
+    const HEP_A_VAC = 'med_admin_hep_a_vac';
+    const HEP_B_VAC = 'med_admin_hep_b_vac';
+    const HIB = 'med_admin_hib';
+    const MEASLES_VAC = 'med_admin_meas_vac';
+    const MMR = 'med_admin_mmr';
+    const IPV = 'med_admin_ipv';
+    const MUMPS_VAC = 'med_admin_mumps_vac';
+    const PNEUMOCOCCAL_VAC = 'med_admin_pneumococcal_vac';
+    const ROTAVIRUS_VAC = 'med_admin_rotavirus_vac';
+    const RUBELLA_VAC = 'med_admin_rubella_vac';
+    const VZV = 'med_admin_vzv';
+    const INFLUENZA_VAC = 'med_admin_influenza_vac';
+    
+    const NO_INFLUENZA_CONTRADICTION = 'med_not_done_flu_immun_contradiction';
+    const NO_INFLUENZA_DECLINED = 'med_not_done_flu_immun_declined';
+    const NO_INFLUENZA_PATIENT = 'med_not_done_flu_vac_pat_reas';
+    const NO_INFLUENZA_MEDICAL = 'med_not_done_flu_vac_med_reas';
+    const NO_INFLUENZA_SYSTEM = 'med_not_done_flu_vac_sys_reas';
+    
+    const ADVERSE_EVT_FLU_IMMUN = 'med_adverse_evt_flu_immun';
+    const INTOLERANCE_FLU_IMMUN = 'med_intolerance_flu_immun';
+    
+    const DISP_DIABETES = 'med_disp_diabetes';
+    const ORDER_DIABETES = 'med_order_diabetes';
+    const ACTIVE_DIABETES = 'med_active_diabetes';
+
+    const SMOKING_CESSATION = 'med_active_smoking_cessation';
+    const SMOKING_CESSATION_ORDER = 'med_order_smoking_cessation';
     
     public function getListId() {
         return "Clinical_Rules_Med_Types";
@@ -28,28 +50,39 @@ class Medication extends ClinicalType
     public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null ) 
     {
         $return = false;
-        $listOptions = Codes::lookup( $this->getOptionId(), 'OPTION_ID' );
+        $listOptions = Codes::lookup( $this->getOptionId(), 'CVX' );
         if ( count( $listOptions ) > 0 ) 
         {
-            $query = "SELECT immunizations.administered_date, immunizations.patient_id, immunizations.immunization_id, list_options.title, patient_data.pid, patient_data.DOB " .
+            $sqlQueryBind= array();
+            $query = "SELECT * " .
         	"FROM immunizations " .
-        	"LEFT JOIN list_options " .
-            "ON immunizations.immunization_id = list_options.option_id AND list_id = immunizations" .
-            "LEFT JOIN patient_data " .
-            "ON immunizations.patient_id = patient_data.pid " .
-        	"WHERE immunizations.patient_id = ? " .
-            "AND DATE( immunizations.administered_date ) >= ? " .
-            "AND DATE( immunizations.administered_date ) < ? " .
-            "AND ( ";
+                "WHERE patient_id = ? " .
+                "AND administered_date >= ? " .
+                "AND administered_date <= ? ";
+            $query.= "AND ( ";
+            $count = 0;
+            array_push($sqlQueryBind,$patient->id,$beginDate,$endDate);
             foreach( $listOptions as $option_id ) {
-            	$query.= "list_options.option_id = ".$option_id." "; 
+            	$query.= "cvx_code = ? ";
+            	$count++;
+            	if ( $count < count( $listOptions ) ) {
+            	    $query.= "OR ";
+            	}
+                array_push($sqlQueryBind,$option_id);
             }
             $query.= " ) "; 
-            $result = sqlStatement( $query, array( $patient->id, $beginDate, $endDate ) );
+
+            $result = sqlStatement( $query, $sqlQueryBind );
+            $rows = array();
+            for( $iter = 0; $row = sqlFetchArray( $result ); $iter++ ) {
+                    $rows[$iter] = $row;
+            }
+            
             if ( isset( $options[self::OPTION_COUNT] ) && 
-                count( $result ) >= $options[self::OPTION_COUNT] ) {
+                count( $rows ) >= $options[self::OPTION_COUNT] ) {
                 $return = true;    
-            } else if ( count( $result ) > 0 ) {
+            } else if ( !isset( $options[self::OPTION_COUNT] ) &&
+                count( $rows ) > 0 ) {
                 $return = true;
             }
         }

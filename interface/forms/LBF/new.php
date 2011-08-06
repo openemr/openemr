@@ -283,7 +283,7 @@ function sel_related() {
       $last_group = $this_group;
 
       // If group name is blank, no checkbox or div.
-      if (strlen($this_group > 1)) {
+      if (strlen($this_group) > 1) {
         echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
           "onclick='return divclick(this,\"div_$group_seq\");'";
         if ($display_style == 'block') echo " checked";

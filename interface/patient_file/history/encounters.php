@@ -105,6 +105,19 @@ function showDocument(&$drow) {
 
   echo "</tr>\n";
 }
+
+function generatePageElement($start,$pagesize,$billing,$issue,$text)
+{
+    if($start<0)
+    {
+        $start = 0;
+    }
+    $url="encounters.php?"."pagestart=".$start."&"."pagesize=".$pagesize;
+    $url.="&billing=".$billing;
+    $url.="&issue=".$issue;
+
+    echo "<A HREF='".$url."' onclick='top.restoreSession()'>".$text."</A>";
+}
 ?>
 <html>
 <head>
@@ -165,6 +178,19 @@ function editNote(feid) {
     setDivContent('note_' + feid, c);
  }
 
+function changePageSize()
+{
+    billing=$(this).attr("billing");
+    pagestart=$(this).attr("pagestart");
+    issue=$(this).attr("issue");
+    pagesize=$(this).val();
+    top.restoreSession();
+    window.location.href="encounters.php?billing="+billing+"&issue="+issue+"&pagestart="+pagestart+"&pagesize="+pagesize;
+}
+window.onload=function()
+{
+    $("#selPagesize").change(changePageSize);
+}
 </script>
 
 </head>
@@ -190,12 +216,73 @@ else {
 ?>
 </font>
 &nbsp;&nbsp;
+<?php
+// Setup the GET string to append when switching between billing and clinical views.
 
+
+$pagestart=0;
+if(isset($_GET['pagesize']))
+{
+    $pagesize=$_GET['pagesize'];
+}
+else
+{
+    if(array_key_exists('encounter_page_size',$GLOBALS))
+    {
+        $pagesize=$GLOBALS['encounter_page_size'];
+    }
+    else
+    {
+        $pagesize=0;
+    }    
+}
+if(isset($_GET['pagestart']))
+{
+    $pagestart=$_GET['pagestart'];
+}
+else
+{
+    $pagestart=0;
+}
+$getStringForPage="&pagesize=".$pagesize."&pagestart=".$pagestart;
+
+?>
 <?php if ($billing_view) { ?>
-<a href='encounters.php?billing=0&issue=<?php echo $issue; ?>' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Clinical View'), ENT_NOQUOTES); ?>)</a>
+<a href='encounters.php?billing=0&issue=<?php echo $issue.$getStringForPage; ?>' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Clinical View'), ENT_NOQUOTES); ?>)</a>
 <?php } else { ?>
-<a href='encounters.php?billing=1&issue=<?php echo $issue; ?>' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Billing View'), ENT_NOQUOTES); ?>)</a>
+<a href='encounters.php?billing=1&issue=<?php echo $issue.$getStringForPage; ?>' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Billing View'), ENT_NOQUOTES); ?>)</a>
 <?php } ?>
+
+<span style="float:right">
+    <?php echo htmlspecialchars( xl('Results per page'), ENT_NOQUOTES); ?>:
+    <select id="selPagesize" billing="<?php echo htmlspecialchars($billing_view,ENT_QUOTES); ?>" issue="<?php echo htmlspecialchars($issue,ENT_QUOTES); ?>" pagestart="<?php echo htmlspecialchars($pagestart,ENT_QUOTES); ?>" >
+<?php
+    $pagesizes=array(5,10,15,20,25,50,0);
+    for($idx=0;$idx<count($pagesizes);$idx++)
+    {
+        echo "<OPTION value='" . $pagesizes[$idx] . "'";
+        if($pagesize==$pagesizes[$idx])
+        {
+            echo " SELECTED='true'>";
+        }
+        else
+        {
+            echo ">";
+        }
+        if($pagesizes[$idx]==0)
+        {
+            echo htmlspecialchars( xl('ALL'), ENT_NOQUOTES);
+        }
+        else
+        {
+            echo $pagesizes[$idx];
+        }
+        echo "</OPTION>";
+        
+    }
+?>
+    </select>
+</span>
 
 <br>
 
@@ -250,18 +337,52 @@ if (!$billing_view) {
 // $count = 0;
 
 $sqlBindArray = array();
-$query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " .
-  "FROM form_encounter AS fe " .
+
+$from = "FROM form_encounter AS fe " .
   "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
   "f.formdir = 'newpatient' AND f.deleted = 0 ";
 if ($issue) {
-  $query .= "JOIN issue_encounter AS ie ON ie.pid = ? AND " .
+  $from .= "JOIN issue_encounter AS ie ON ie.pid = ? AND " .
     "ie.list_id = ? AND ie.encounter = fe.encounter ";
   array_push($sqlBindArray, $pid, $issue);
 }
-$query .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? " .
-  "ORDER BY fe.date DESC, fe.id DESC";
+$from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? ";
 $sqlBindArray[] = $pid;
+
+$query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .  
+        "ORDER BY fe.date DESC, fe.id DESC";
+
+$countQuery = "SELECT COUNT(*) as c " . $from;
+
+
+$countRes = sqlStatement($countQuery,$sqlBindArray);
+$count = sqlFetchArray($countRes);
+$numRes = $count['c'];
+
+
+if($pagesize>0)
+{
+    $query .= " LIMIT " . add_escape_custom($pagestart) . "," . add_escape_custom($pagesize);
+}
+$upper  = $pagestart+$pagesize;
+if(($upper>$numRes) || ($pagesize==0))
+{
+    $upper=$numRes;
+}
+
+
+if(($pagesize > 0) && ($pagestart>0))
+{
+    generatePageElement($pagestart-$pagesize,$pagesize,$billing_view,$issue,"&lArr;" . htmlspecialchars( xl("Prev"), ENT_NOQUOTES) . " ");
+}
+echo ($pagestart + 1)."-".$upper." " . htmlspecialchars( xl('of'), ENT_NOQUOTES) . " " .$numRes;
+if(($pagesize>0) && ($pagestart+$pagesize <= $numRes))
+{
+    generatePageElement($pagestart+$pagesize,$pagesize,$billing_view,$issue," " . htmlspecialchars( xl("Next"), ENT_NOQUOTES) . "&rArr;");
+}
+
+
+
 $res4 = sqlStatement($query, $sqlBindArray);
 
 if ($billing_view && $accounting_enabled && !$INTEGRATED_AR) SLConnect();

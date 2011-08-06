@@ -222,7 +222,52 @@ function toggleIndicator(target,div) {
 }
 
 $(document).ready(function(){
-
+	<?php
+	if($GLOBALS['erx_enable']){
+		//$soap_status=sqlQuery("select soap_import_status from patient_data where pid=?",array($pid));
+		$soap_status=sqlStatement("select soap_import_status,pid from patient_data where soap_import_status in ('1','3')");
+		while($row_soapstatus=sqlFetchArray($soap_status)){
+			//if($soap_status['soap_import_status']=='1' || $soap_status['soap_import_status']=='3'){ ?>
+			top.restoreSession();
+			$.ajax({
+				type: "POST",
+				url: "../../soap_functions/soap_patientfullmedication.php",
+				dataType: "html",
+				data: {
+					patient:<?php echo $row_soapstatus['pid']; ?>,
+				},
+				async: false,
+				success: function(thedata){
+					alert(thedata);
+				},
+				error:function(){
+					alert('ajax error');
+				}	
+			});
+			<?php
+			//}	
+			//elseif($soap_status['soap_import_status']=='3'){ ?>
+			top.restoreSession();
+			$.ajax({
+				type: "POST",
+				url: "../../soap_functions/soap_allergy.php",
+				dataType: "html",
+				data: {
+					patient:<?php echo $row_soapstatus['pid']; ?>,
+				},
+				async: false,
+				success: function(thedata){
+					alert(thedata);
+				},
+				error:function(){
+					alert('ajax error');
+				}	
+			});
+			<?php
+			//} 
+		}
+	}
+	?>
     // load divs
     $("#stats_div").load("stats.php", { 'embeddedScreen' : true }, function() {
 	// (note need to place javascript code here also to get the dynamic link to work)
@@ -299,6 +344,22 @@ $(document).ready(function(){
     'centerOnScroll' : false,
     'autoscale' : true
   });
+  
+  $(".iframe1").fancybox( {
+  'left':10,
+	'overlayOpacity' : 0.0,
+	'showCloseButton' : true,
+	'frameHeight' : 300,
+	'frameWidth' : 350
+  });
+// special size for patient portal
+  $(".small_modal").fancybox( {
+	'overlayOpacity' : 0.0,
+	'showCloseButton' : true,
+	'frameHeight' : 180,
+	'frameWidth' : 380,
+            'centerOnScroll' : false
+  });
 
 });
 
@@ -348,6 +409,51 @@ $(document).ready(function(){
     "<span>".htmlspecialchars(xl('Delete'),ENT_NOQUOTES).
     "</span></a></td>";
   }
+  if($GLOBALS['erx_enable']){
+	echo '<td style="padding-left:1em;"><a class="css_button" href="../../eRx.php?page=medentry" onclick="top.restoreSession()">';
+	echo "<span>".htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES)."</span></a></td>";
+	echo '<td style="padding-left:1em;"><a class="css_button iframe1" href="../../soap_functions/soap_accountStatusDetails.php" onclick="top.restoreSession()">';
+	echo "<span>".htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES)."</span></a></td><td id='accountstatus'></td>";
+   }
+  //Patient Portal
+  $portalUserSetting = true; //flag to see if patient has authorized access to portal
+  if($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']){
+    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
+    if ($portalStatus['allow_patient_portal']=='YES') {
+      $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));
+      echo "<td style='padding-left:1em;'><a class='css_button iframe small_modal' href='create_portallogin.php?portalsite=on&patient=" . htmlspecialchars($pid,ENT_QUOTES) . "' onclick='top.restoreSession()'>";
+      if (empty($portalLogin)) {
+        echo "<span>".htmlspecialchars(xl('Create Onsite Portal Credentials'),ENT_NOQUOTES)."</span></a></td>";
+      }
+      else {
+        echo "<span>".htmlspecialchars(xl('Reset Onsite Portal Credentials'),ENT_NOQUOTES)."</span></a></td>";
+      }
+    }
+    else {
+      $portalUserSetting = false;
+    }
+  }
+  if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']){
+    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
+    if ($portalStatus['allow_patient_portal']=='YES') {
+      $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
+      echo "<td style='padding-left:1em;'><a class='css_button iframe small_modal' href='create_portallogin.php?portalsite=off&patient=" . htmlspecialchars($pid,ENT_QUOTES) . "' onclick='top.restoreSession()'>";
+      if (empty($portalLogin)) {
+        "<span>".htmlspecialchars(xl('Create Offsite Portal Credentials'),ENT_NOQUOTES)."</span></a></td>";
+      }
+      else {
+        "<span>".htmlspecialchars(xl('Reset Offsite Portal Credentials'),ENT_NOQUOTES)."</span></a></td>";
+      }
+    }
+    else {
+      $portalUserSetting = false;
+    }
+  }
+  if (!($portalUserSetting)) {
+    // Show that the patient has not authorized portal access
+    echo "<td style='padding-left:1em;'>" . htmlspecialchars( xl('Patient has not authorized the Patient Portal.'), ENT_NOQUOTES) . "</td>";
+  }
+  //Patient Portal
 
   // If patient is deceased, then show this (along with the number of days patient has been deceased for)
   $days_deceased = is_patient_deceased($pid);

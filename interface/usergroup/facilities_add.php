@@ -5,6 +5,7 @@ require_once("$srcdir/sql.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/classes/POSRef.class.php");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/erx_javascript.inc.php");
 
 $alertmsg = '';
 ?>
@@ -38,6 +39,39 @@ parent.$.fn.fancybox.close();
 /// todo, move this to a common library
 
 function submitform() {
+	<?php if($GLOBALS['erx_enable']){ ?>
+	alertMsg='';
+	f=document.forms[0];
+	for(i=0;i<f.length;i++){
+		if(f[i].type=='text' && f[i].value)
+		{
+			if(f[i].name == 'facility' || f[i].name == 'Washington')
+			{
+				alertMsg += checkLength(f[i].name,f[i].value,35);
+				alertMsg += checkSpecialCharacter(f[i].name,f[i].value);
+			}
+			else if(f[i].name == 'street')
+			{
+				alertMsg += checkLength(f[i].name,f[i].value,35);
+				alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+			}
+			else if(f[i].name == 'phone' || f[i].name == 'fax')
+			{
+				alertMsg += checkPhone(f[i].name,f[i].value);
+			}
+			else if(f[i].name == 'federal_ein')
+			{
+				alertMsg += checkLength(f[i].name,f[i].value,10);
+				alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+			}
+		}		
+	}
+	if(alertMsg)
+	{
+		alert(alertMsg);
+		return false;
+	}
+	<?php } ?>
     if (document.forms[0].facility.value.length>0 && document.forms[0].ncolor.value != '') {
         top.restoreSession();
         document.forms[0].submit();
@@ -111,6 +145,13 @@ function pick(anchorname,target) {
   	field=target;
         cp.show(anchorname);
 }
+function displayAlert()
+{
+	if(document.getElementById('primary_business_entity').checked==false)
+	alert("<?php echo addslashes(xl('Primary Business Entity tax id is used as account id for NewCrop ePrescription. Changing the facility will affect the working in NewCrop.'));?>");
+	else if(document.getElementById('primary_business_entity').checked==true)
+	alert("<?php echo addslashes(xl('Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in NewCrop ePrescription.'));?>");
+}
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
@@ -171,7 +212,17 @@ function pick(anchorname,target) {
           <td>&nbsp;</td>
           <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span><span class="mandatory">&nbsp;*</span></td> <td><input type=entry name=ncolor id=ncolor size=20 value="">[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</td>
         </tr>
-
+	<?php
+	 $disabled='';
+	 $resPBE=sqlStatement("select * from facility where primary_business_entity='1' and id!='".$my_fid."'");
+	 if(sqlNumRows($resPBE)>0)
+	 $disabled='disabled';
+	 ?>
+	 <tr>
+          <td><span class='text'><?php xl('Primary Business Entity','e'); ?>: </span></td>
+          <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if($GLOBALS['erx_enable']){ ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
+          <td>&nbsp;</td>
+         </tr>
         <tr>
             <td><span class=text><?php xl('POS Code','e'); ?>: </span></td>
             <td colspan="6">

@@ -1,4 +1,11 @@
 <?php
+// Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
 require_once( 'ClinicalType.php' );
 
 class PhysicalExam extends ClinicalType
@@ -27,6 +34,24 @@ class PhysicalExam extends ClinicalType
                 }
             }
         }
+        
+        if ( $this->getOptionId() == self::FINDING_BMI_PERC ) {
+            // check for any BMI percentile finding
+            // there are a few BMI codes, but it doesn't matter, 
+            // because we just want to check for any finding    
+            $query = "SELECT form_vitals.BMI " .
+                "FROM `form_vitals` " .
+                "WHERE form_vitals.BMI IS NOT NULL " .
+                "AND form_vitals.pid = ? " .
+                "AND DATE( form_vitals.date ) >= ? " .
+                "AND DATE( form_vitals.date ) <= ? ";
+            $res = sqlStatement( $query, array( $patient->id, $beginDate, $endDate ) );
+            $number = sqlNumRows($res);
+            if ( $number >= 1 ) {
+                return true;
+            }    
+        }
+        
         return false;
     }
 }

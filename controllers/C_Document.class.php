@@ -790,12 +790,30 @@ class C_Document extends Controller {
 			$icon = "file3.png";
 			if (is_array($categories[$id])) {
 				foreach ($categories[$id] as $doc) {
-					$current_node->addItem(new HTML_TreeNode(array(
-						'text' => $doc['docdate'] . ' ' . basename($doc['url']),
-						'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
-						'icon' => $icon,
-						'expandedIcon' => $expandedIcon
-					)));
+          if($this->tree->get_node_name($id) == "CCR"){
+            $current_node->addItem(new HTML_TreeNode(array(
+              'text' => $doc['docdate'] . ' ' . basename($doc['url']),
+              'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+              'icon' => $icon,
+              'expandedIcon' => $expandedIcon,
+              'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . $doc['document_id'] . "','CCR');")
+            )));
+          }elseif($this->tree->get_node_name($id) == "CCD"){
+            $current_node->addItem(new HTML_TreeNode(array(
+              'text' => $doc['docdate'] . ' ' . basename($doc['url']),
+              'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+              'icon' => $icon,
+              'expandedIcon' => $expandedIcon,
+              'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . $doc['document_id'] . "','CCD');")
+            )));
+          }else{
+            $current_node->addItem(new HTML_TreeNode(array(
+              'text' => $doc['docdate'] . ' ' . basename($doc['url']),
+              'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+              'icon' => $icon,
+              'expandedIcon' => $expandedIcon
+            )));
+          }
 				}
 			}
 

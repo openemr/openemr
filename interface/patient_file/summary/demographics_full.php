@@ -8,6 +8,7 @@ require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/erx_javascript.inc.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -65,7 +66,6 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <script type="text/javascript">
@@ -229,7 +229,37 @@ function validate(f) {
  if ( errMsgs.length > 0 ) {
 	alert(msg);
  }
-
+ 
+//Patient Data validations
+ <?php if($GLOBALS['erx_enable']){ ?>
+ alertMsg='';
+ for(i=0;i<f.length;i++){
+  if(f[i].type=='text' && f[i].value)
+  {
+   if(f[i].name == 'form_fname' || f[i].name == 'form_mname' || f[i].name == 'form_lname')
+   {
+    alertMsg += checkLength(f[i].name,f[i].value,35);
+    alertMsg += checkUsername(f[i].name,f[i].value);
+   }
+   else if(f[i].name == 'form_street' || f[i].name == 'form_city')
+   {
+    alertMsg += checkLength(f[i].name,f[i].value,35);
+    alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+   }
+   else if(f[i].name == 'form_phone_home')
+   {
+    alertMsg += checkPhone(f[i].name,f[i].value);
+   }
+  }
+ }
+ if(alertMsg)
+ {
+   alert(alertMsg);
+   return false;
+ }
+ <?php } ?>
+ //return false;
+ 
 // Some insurance validation.
  for (var i = 1; i <= 3; ++i) {
   subprov = 'i' + i + 'provider';
@@ -281,6 +311,12 @@ function policykeyup(e) {
   var c = v.charAt(i);
   if (c >= '0' && c <= '9') continue;
   if (c >= 'A' && c <= 'Z') continue;
+  if (c == '*') continue;
+  if (c == '-') continue;
+  if (c == '_') continue;
+  if (c == '(') continue;
+  if (c == ')') continue;
+  if (c == '#') continue;
   v = v.substring(0, i) + v.substring(i + i);
   --i;
  }
@@ -404,10 +440,8 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 	<div id="INSURANCE" >
 		<ul class="tabNav">
 		<?php
-
 		foreach (array('primary','secondary','tertiary') as $instype) {
 			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?php
-
 		}
 		?>
 		</ul>
@@ -415,7 +449,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 	<div class="tabContainer">
 
 	<?php
-
 	  for($i=1;$i<=3;$i++) {
 	   $result3 = $insurance_info[$i];
 	?>
@@ -487,7 +520,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			<tr>
 			 <td><span class=required><?php xl('Group Number','e'); ?></span></td>
 			 <td class='required'>:</td>
-			 <td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>"></td>
+			 <td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>" onkeyup='policykeyup(this)'></td>
 			</tr>
 
 			<tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>

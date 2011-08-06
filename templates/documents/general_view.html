@@ -183,7 +183,8 @@
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
 			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></iframe>
-			{else}
+			{elseif $file->get_ccr_type($file->get_id()) ne "CCR" and
+       $file->get_ccr_type($file->get_id()) ne "CCD"}
 			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=true"></iframe>
 			{/if}
 		</td>

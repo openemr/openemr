@@ -271,3 +271,9 @@ INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type
 INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, edit_options) VALUES ('LBFfms','imping_r_2','1',''                 ,34,1,1,1,1,'boolean',0,2,'');
 INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, edit_options) VALUES ('LBFfms','total'     ,'1','Sum of Scores'  ,35,2,1,3,3,'',2,2,'G');
 
+-- Added 2011-05-25:
+
+ALTER TABLE daily_fitness
+  ADD `am` text NOT NULL DEFAULT '',
+  ADD `pm` text NOT NULL DEFAULT '';
+

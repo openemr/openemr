@@ -7,7 +7,7 @@ include_once("../../globals.php");
 <title><?php xl('Prescriptions','e'); ?></title>
 </head>
 
-<frameset cols="18%,*">
+<frameset cols="18%,*" id="presc_frame">
  <frame src="rx_left.php" name="RxLeft" scrolling="auto">
  <frame src="<?php echo $GLOBALS['webroot'] ?>/controller.php?prescription&list&id=<?php echo $pid ?>"
   name="RxRight" scrolling="auto">

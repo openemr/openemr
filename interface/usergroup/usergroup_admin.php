@@ -49,6 +49,10 @@ if ($_GET["privatemode"]=="user_admin") {
         $tqvar = formData('taxid','G');
         sqlStatement("update users set federaltaxid='$tqvar' where id={$_GET["id"]}");
       }
+      if ($_GET["state_license_number"]) {
+        $tqvar = formData('state_license_number','G');
+        sqlStatement("update users set state_license_number='$tqvar' where id={$_GET["id"]}");
+      }
       if ($_GET["drugid"]) {
         $tqvar = formData('drugid','G');
         sqlStatement("update users set federaldrugid='$tqvar' where id={$_GET["id"]}");
@@ -173,6 +177,8 @@ if ($_GET["privatemode"]=="user_admin") {
         $tqvar = formData('comments','G');
         sqlStatement("update users set info = '$tqvar' where id = {$_GET["id"]}");
       }
+	$erxrole = formData('erxrole','G');
+	sqlStatement("update users set newcrop_user_role = '$erxrole' where id = {$_GET["id"]}");
 
       if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
         // Set the access control group of user
@@ -217,6 +223,8 @@ if (isset($_POST["mode"])) {
         "', mname = '"         . trim(formData('mname'        )) .
         "', lname = '"         . trim(formData('lname'        )) .
         "', federaltaxid = '"  . trim(formData('federaltaxid' )) .
+	"', state_license_number = '"  . trim(formData('state_license_number' )) .
+	"', newcrop_user_role = '"  . trim(formData('erxrole' )) .
         "', authorized = '"    . trim(formData('authorized'   )) .
         "', info = '"          . trim(formData('info'         )) .
         "', federaldrugid = '" . trim(formData('federaldrugid')) .

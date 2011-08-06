@@ -109,6 +109,20 @@
 </td></tr>
 </table>
 
+{php} if ($GLOBALS['enable_amc_prompting']) { {/php}
+  <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
+    <div style='float:left;margin:5px 5px 5px 5px;'>
+      {amcCollect amc_id='e_prescribe_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
+      {if not $amcCollectReturn}
+        <input type="checkbox" id="escribe_flag" name="escribe_flag">
+      {else}
+        <input type="checkbox" id="escribe_flag" name="escribe_flag" checked>
+      {/if}
+      <span class="text">{xl t='E-Prescription?'}</span><br>
+    </div>
+  </div>
+{php} } {/php}
+
 <table CELLSPACING="0" CELLPADDING="3" BORDER="0">
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Currently Active'}</td>

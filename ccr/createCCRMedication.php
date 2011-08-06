@@ -47,15 +47,13 @@ do {
 	$e_Type = $ccr->createElement('Type');
 	$e_Medication->appendChild($e_Type);
 
-	// $e_Text = $ccr->createElement('Text', $value['medication']);
 	$e_Text = $ccr->createElement('Text', 'Medication');
 	$e_Type->appendChild($e_Text);
 
 	$e_Status = $ccr->createElement('Status');
 	$e_Medication->appendChild($e_Status);
 
-	// $e_Text = $ccr->createElement('Text',$value['active']);
-	$e_Text = $ccr->createElement('Text', 'Active');
+	$e_Text = $ccr->createElement('Text',$value['active']);
 	$e_Status->appendChild($e_Text);
 
 	$e_Medication->appendChild(sourceType($ccr, $sourceID));
@@ -69,6 +67,15 @@ do {
 	$e_Text = $ccr->createElement('Text',$value['drug']);
 	$e_ProductName->appendChild(clone $e_Text);
 
+	$e_Code = $ccr->createElement('Code');
+	$e_ProductName->appendChild($e_Code);
+
+	$e_Value = $ccr->createElement('Value',$value['rxnorm_drugcode']);
+	$e_Code->appendChild($e_Value);
+  
+	$e_Value = $ccr->createElement('CodingSystem', 'RxNorm');
+	$e_Code->appendChild($e_Value);
+
 	$e_Strength = $ccr->createElement('Strength');
 	$e_Product->appendChild($e_Strength);
 
@@ -81,10 +88,10 @@ do {
 	$e_Unit = $ccr->createElement('Unit', $value['title']);
 	$e_Units->appendChild($e_Unit);
   
-  $e_Form = $ccr->createElement('Form');
+	$e_Form = $ccr->createElement('Form');
 	$e_Product->appendChild($e_Form);
 
-	$e_Text = $ccr->createElement('Text', 'Tablets');
+	$e_Text = $ccr->createElement('Text', $value['form']);
 	$e_Form->appendChild($e_Text);
 
 	$e_Quantity = $ccr->createElement('Quantity');
@@ -96,7 +103,7 @@ do {
 	$e_Units = $ccr->createElement('Units');
 	$e_Quantity->appendChild($e_Units);
 
-	$e_Unit = $ccr->createElement('Unit', 'Tablets');
+	$e_Unit = $ccr->createElement('Unit', '');
 	$e_Units->appendChild($e_Unit);
 
 	$e_Directions = $ccr->createElement('Directions');
@@ -105,11 +112,10 @@ do {
 	$e_Direction = $ccr->createElement('Direction');
 	$e_Directions->appendChild($e_Direction);
 
-	$e_Description = $ccr->createElement('Description', $value['note']);
+	$e_Description = $ccr->createElement('Description');
 	$e_Direction->appendChild($e_Description);
 
-	// $e_Text = $ccr->createElement('Text',$value['note']);
-	$e_Text = $ccr->createElement('Text', 'Note');
+	$e_Text = $ccr->createElement('Text', '');
 	$e_Description->appendChild(clone $e_Text);
 
 	$e_Route = $ccr->createElement('Route');
@@ -124,27 +130,13 @@ do {
 	$e_Text = $ccr->createElement('Text', 'Oral');
 	$e_Site->appendChild($e_Text);
 	
-	//$e_Indications = $ccr->createElement('Indications');
-	//$e_Medication->appendChild($e_Indications);
-	//
-	//$e_Indication = $ccr->createElement('Indication');
-	//$e_Indications->appendChild($e_Indication);
-
-	// $e_Indication->appendChild(sourceType($ccr, $authorID));
-
-	//$e_InternalCCRLink = $ccr->createElement('InternalCCRLink');
-	//$e_Indication->appendChild($e_InternalCCRLink);
-	//
-	//$e_LinkID = $ccr->createElement('LinkID', 'PROB1');
-	//$e_InternalCCRLink->appendChild($e_LinkID);
-
 	$e_PatientInstructions = $ccr->createElement('PatientInstructions');
 	$e_Medication->appendChild($e_PatientInstructions);
 
 	$e_Instruction = $ccr->createElement('Instruction');
 	$e_PatientInstructions->appendChild($e_Instruction);
 
-	$e_Text = $ccr->createElement('Text', 'Patient Instructions');
+	$e_Text = $ccr->createElement('Text', $value['note']);
 	$e_Instruction->appendChild($e_Text);
 
 	$e_Refills = $ccr->createElement('Refills');
@@ -153,7 +145,7 @@ do {
 	$e_Refill = $ccr->createElement('Refill');
 	$e_Refills->appendChild($e_Refill);
 
-	$e_Number = $ccr->createElement('Number', 4);
+	$e_Number = $ccr->createElement('Number', $value['refills']);
 	$e_Refill->appendChild($e_Number);
 
 } while ($value = sqlFetchArray($result));

@@ -11,6 +11,7 @@ require_once("$srcdir/calendar.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
+require_once("$srcdir/erx_javascript.inc.php");
 
 if (!$_GET["id"] || !acl_check('admin', 'users'))
   exit();
@@ -181,6 +182,10 @@ parent.$.fn.fancybox.close();
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 
 <script language="JavaScript">
+function checkChange()
+{
+  alert("<?php echo addslashes(xl('If you change e-RX Role for ePrescription, it may affect the ePrescription workflow. If you face any difficulty, contact your ePrescription vendor.'));?>");
+}
 function submitform() {
 	top.restoreSession();
 	var flag=0;
@@ -226,7 +231,45 @@ function submitform() {
                  document.forms[0].check_acl.value = 1; 
             }
           }
-
+	  <?php if($GLOBALS['erx_enable']){ ?>
+	alertMsg='';
+	f=document.forms[0];
+	for(i=0;i<f.length;i++){
+	  if(f[i].type=='text' && f[i].value)
+	  {
+	    if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
+	    {
+	      alertMsg += checkLength(f[i].name,f[i].value,35);
+	      alertMsg += checkUsername(f[i].name,f[i].value);
+	    }
+	    else if(f[i].name == 'taxid')
+	    {
+	      alertMsg += checkLength(f[i].name,f[i].value,10);
+	      alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+	    }
+	    else if(f[i].name == 'state_license_number')
+	    {
+	      alertMsg += checkLength(f[i].name,f[i].value,10);
+	      alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+	    }
+	    else if(f[i].name == 'npi')
+	    {
+	      alertMsg += checkLength(f[i].name,f[i].value,10);
+	      alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+	    }
+	    else if(f[i].name == 'drugid')
+	    {
+	      alertMsg += checkLength(f[i].name,f[i].value,30);
+	      alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+	    }
+	  }
+	}
+	if(alertMsg)
+	{
+	  alert(alertMsg);
+	  return false;
+	}
+	<?php } ?>
 	if(flag == 0){
 		// ViCareplus : As per NIST standard, SHA1 encryption algorithm is used
 		document.forms[0].newauthPass.value=SHA1(document.forms[0].clearPass.value);document.forms[0].clearPass.value='';
@@ -249,6 +292,7 @@ function getSelected(opt) {
             }
             return selected;
          }
+
 function authorized_clicked() {
  var f = document.forms[0];
  f.calendar.disabled = !f.authorized.checked;
@@ -419,6 +463,15 @@ foreach($result as $iter2) {
 </select></td>
 </tr>
 <!-- END (CHEMED) Calendar UI preference -->
+
+<tr>
+<td><span class="text"><?php xl('State License Number','e'); ?>: </span></td>
+<td><input type="text" name="state_license_number" style="width:150px;"  value="<?php echo $iter["state_license_number"]?>"></td>
+<td class='text'><?php xl('NewCrop eRX Role','e'); ?>:</td>
+<td>
+  <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'],'','--Select Role--','','','',array('style'=>'width:150px')); ?>
+</td>
+</tr>
 
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>

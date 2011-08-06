@@ -1,6 +1,8 @@
 Additional history notes
 Address Book Types
 Adjustment Reasons
+Adult Weight Screening and Follow-Up
+Adult Weight Screening and Follow-Up (CQM)
 Advance Directive
 Alcohol consumption
 ALEUT
@@ -16,14 +18,21 @@ Allow SMS (text messages)?
 Allow telephone messages?
 Allow Voice Message
 American Indian
+American Indian or Alaska Native
+Appointment
+Appointment Reminder Rule
 Appointment Statuses
 Arm
 Asian
+Automatic
 autosaved
+Back Pain
+Bank Draft
 Bilateral
 Bill/Collect
 Billing Code for Requested Service
 Black
+Black or African American
 Blood
 Boolean
 Both Ears
@@ -37,6 +46,10 @@ Buttock
 Caffeine consumption
 Cambodian
 Canceled
+Cancer Screening: Colon Cancer Screening
+Cancer Screening: Mammogram
+Cancer Screening: Pap Smear
+Cancer Screening: Prostate Cancer Screening
 Caucasian
 Cell Phone Number
 Central/South American
@@ -44,20 +57,40 @@ Change In Vision
 Chart Note
 Chart Storage Locations
 Check Date
+Check Payment
 Child
+Childhood immunization Status (CQM)
 Choices
+Chronic Kidney Disease (CKD)
 Cirrhosis Of The Liver
 City Name
+Clinical Plans
+Clinical Rule Action Category
+Clinical Rule Filter Methods
+Clinical Rule Target Methods
+Clinical Rules
+Clinical Rules Age Intervals
+Clinical Rules Comparisons
+Clinical Rules Encounter Types
+Clinical Rules Reminder Due Options
+Clinical Rules Reminder Inactivation Options
+Clinical Rules Reminder Intervals
+Clinical Rules Reminder Methods
+Clinical Rules Target Intervals
 Code Types
+Colon Cancer Screening
 Complete
 Contact Email Address
 Contact Lenses
 Contraceptive Complication (specify)
 Contraceptives Start
+Coronary Artery Bypass Graft (CABG)
 Corrected
+Coumadin Management - INR Monitoring
 Counseling activities
 Counter-Referral
 Coupon
+Credit Card
 Crohns Disease
 CU.MM
 Cuban
@@ -69,7 +102,16 @@ Date of referral
 Date of reply
 Date Of Signature
 Deaf
-delete
+Diabetes Mellitus
+Diabetes: Blood Pressure Management (CQM)
+Diabetes: Eye Exam
+Diabetes: Eye Exam (CQM)
+Diabetes: Foot Exam
+Diabetes: Foot Exam (CQM)
+Diabetes: HbA1c Poor Control (CQM)
+Diabetes: Hemoglobin A1C
+Diabetes: LDL Management & Control (CQM)
+Diabetes: Urine Microalbumin
 Dictation
 Did you receive a copy of the HIPAA Notice?
 Direct Mail
@@ -96,7 +138,10 @@ DTaP 2
 DTaP 3
 DTaP 4
 DTaP 5
+Due Soon
+Due Status Update
 Durable Power of Attorney
+Electronic
 Eligibility status for Vaccine for Children supplied vaccine
 Eligible
 Emergency Contact Person
@@ -104,6 +149,23 @@ Emergency Contact Phone Number
 Emergency Phone
 Employee
 Employer Name
+encounter acute inpatient or ED
+encounter health and behavior assessment
+encounter influenza
+encounter nursing discharge
+encounter nursing facility
+encounter occupational therapy
+encounter office visit
+encounter outpatient
+encounter outpatient w/PCP & obgyn
+encounter pregnancy
+encounter preventive medicine - individual counseling
+encounter preventive medicine 40 and older
+encounter preventive medicine group counseling
+encounter preventive medicine other services
+encounter preventive medicine services 18 and older
+encounter psychiatric & psychologic
+Encounter: encounter non-acute inpt, outpatient, or ophthalmology
 Endo Abnormal Blood
 ENT Discharge
 ENT Pain
@@ -111,8 +173,11 @@ Eskimo
 Established Patient
 Ethnicity or Race
 Exam and test results
+Examination
 Exams/Tests
+Exercise
 Exercise patterns
+Exist
 Exposure To Foreign Countries
 External ID
 External identifier
@@ -131,14 +196,18 @@ Final
 Final diagnosis by specialist
 Findings by specialist
 FL
+Flu Season
 Former smoker
 Forwarded
 G/DL
 Gall Bladder Condition
 Gastro Pain
+Generate and transmit permissible prescriptions electronically.
 Glaucoma Family History
 GM/DL
 grams
+Greater Than
+Greater Than or Equal To
 Group Payment
 Guamanian
 Guardian's Name
@@ -148,6 +217,7 @@ Head Circ
 Health Care Operations
 Heart Disease
 Heat Or Cold
+Hemoglobin A1C
 Hepatitis A 1
 Hepatitis A 2
 Hepatitis B 1
@@ -169,8 +239,11 @@ Hmong
 Home Phone Number
 Homeless or similar?
 Homeless, etc.
+Hour
 How did they hear about us
 Hypertension
+Hypertension: Blood Pressure Measurement
+Hypertension: Blood Pressure Measurement (CQM)
 Id
 Imaging Service
 Immunization Service
@@ -179,20 +252,25 @@ In Office
 Include Vitals
 Include vitals data?
 Incomplete
+Incorporate clinical lab-test results into certified EHR technology as structured data.
 Indian
 Ineligible
 Infertility
 Influenza 1
 Influenza 2
+Influenza Immunization for Patients >= 50 Years Old
+Influenza Immunization for Patients >= 50 Years Old (CQM)
+Influenza Vaccine
 Injection
+INR
 Insurance Payment
 Interpreter needed?
+Intervention
 Invoice Reference Number Pools
 IPV 1
 IPV 2
 IPV 3
 IPV 4
-Italian
 IU/L
 Japanese
 Joint Pain
@@ -206,6 +284,8 @@ Last Month
 Layout-Based Visit Forms
 Leave Message With
 Left Ear
+Less Than
+Less Than or Equal To
 Level of urgency
 License/ID
 Living Will
@@ -213,8 +293,12 @@ login
 logout
 Low
 Lunch
-Main
+Maintain active medication allergy list.
+Maintain active medication list.
+Maintain an up-to-date problem list of current and active diagnoses.
 Married
+Maximum Age
+Measurement
 Medium
 Menstrual Flow
 Menstrual Frequency
@@ -227,13 +311,14 @@ MG/DL
 Mien
 Migrant or seasonal worker?
 Mil/CU.MM
+Minimum Age
+Minute
 Misc
 Misc Billing Options
 Misc Billing Options HCFA
 MMR 1
 MMR 2
 Mobile Phone
-Months
 Mother's Name
 Mr.
 Mrs.
@@ -248,6 +333,7 @@ Musc Warm
 Name 1
 Name 2
 Name/Value
+Native Hawaiian or Other Pacific Islander
 Negative
 Neuro Numbness
 Neuro Weakness
@@ -259,8 +345,11 @@ No Show
 Noninsulin Dependent Diabetes
 Normal BL
 Normal Office Visit
+Not Due
 Not Hispanic or Latino
+Nutrition
 On Site
+Opthalmic
 Order Priorities
 Order Statuses
 Other (specify)
@@ -268,10 +357,13 @@ Other - Specified
 Others
 Out Of Office
 Pacific Islander
+Past Due
+Past Due Interval (Clinical Reminders)
+Past Due Interval (Patient Reminders)
+Pat
 Patient ID card
 Patient Information
 Patient Note Types
-Patient Reminders
 Payment Adjustment Code
 Payment Ins
 Payment Sort By
@@ -280,6 +372,7 @@ Payment Type
 Pending followup
 Percent
 Percentile
+Perioperative Care
 PG
 Pharmacy
 PID (Pelvic Inflammatory Disease)
@@ -287,6 +380,10 @@ Pneumococcal Conjugate 1
 Pneumococcal Conjugate 2
 Pneumococcal Conjugate 3
 Pneumococcal Conjugate 4
+Pneumococcal Vaccine
+Pneumonia Vaccination Status for Older Adults
+Pneumonia Vaccination Status for Older Adults (CQM)
+Podiatric
 Portuguese
 Positive
 Pre Payment
@@ -297,6 +394,7 @@ Prescriptions and/or referrals by specialist
 Prescriptions/Referrals
 Presumed Diagnosis
 Presumed diagnosis by specialist
+Preventative Care
 Prior Auth
 Prior Authorization Form
 Procedure Body Sites
@@ -310,6 +408,10 @@ Procedure Routes
 Procedure Specimen Types
 Procedure Types
 Procedure Units
+Prostate Cancer Screening
+Provide clinical summaries for patients for each office visit.
+Provide patients with an electronic copy of their health information (including diagnostic test results, problem list, medication lists, medication allergies), upon request.
+Provide patients with timely electronic access to their health information (including lab results, problem list, medication lists, medication allergies) within four business days of the information being available to the EP.
 Psych Diagnosis
 Psych Medication
 Puerto Rican
@@ -320,16 +422,19 @@ Read
 Reason for referral
 Recommendation
 Recommendations by specialist
+Record and chart changes in vital signs.
+Record demographics.
+Record smoking status for patients 13 years old or older.
 Recreational drug use
 Refer By
 Referral By
 Referral Card
-Referral Date
 Referral To
 Referrer Diagnosis
 Referrer diagnosis
 Referring Provider
 Refused To State
+Reminder
 Reply From
 Requested Service
 Reserved
@@ -339,6 +444,7 @@ Reserved to define when an event did not occur as specified.
 Reserved todefine when a provider may haveavailable appointments after.
 Resolved
 Reviewed
+Rheumatoid Arthritis
 Right Ear
 Ringing In Ears
 Risk Factors
@@ -350,6 +456,7 @@ Sample
 Seatbelt use
 See Growth-Chart
 Self
+Send reminders to patients per patient preference for preventive/follow up care.
 Separated
 Service Category
 Service provided by specialist
@@ -365,6 +472,8 @@ Skin Other
 Sleep patterns
 Smoker, current status unknown
 Social Security Number
+Soon Due Interval (Clinical Reminders)
+Soon Due Interval (Patient Reminders)
 Specialist
 Specified
 Squad Membership
@@ -382,13 +491,19 @@ Td
 Temp Method
 Test Scheduling
 Thai
+The EP, eligible hospital or CAH who receives a patient from another setting of care or provider of care or believes an encounter is relevant should perform medication reconciliation.
+The EP, eligible hospital or CAH who transitions their patient to another setting of care or provider of care or refers their patient to another provider of care should provide summary of care record for each transition of care or referral.
 This Calendar Year
 This Month to Date
 This Week to Date
 Thous/CU.MM
 Thrombosis/Stroke
 Titles
+Tobacco Cessation Intervention
+Tobacco Cessation Intervention (CQM)
 Tobacco use
+Tobacco Use Assessment
+Tobacco Use Assessment (CQM)
 Treatment
 Units/L
 Unknown if ever smoked
@@ -396,8 +511,11 @@ Urine
 Urine Dribbling
 Urine Frequency
 Urine Hesitancy
+Urine Microalbumin
 Urine Stream
 Urine Urgency
+Use certified EHR technology to identify patient-specific education resources and provide those resources to the patient if appropriate.
+Use CPOE for medication orders directly entered by any licensed healthcare professional who can enter orders into the medical record per state, local and professional guidelines.
 User Defined
 User Defined Area 11
 User Defined Area 12
@@ -429,7 +547,8 @@ view
 Waist Circ
 Walk-In
 Warehouses
-Weeks
+Weight Assessment and Counseling for Children and Adolescents
+Weight Assessment and Counseling for Children and Adolescents (CQM)
 Where may related scanned or paper documents be found?
 White
 Who replied?

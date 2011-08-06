@@ -31,10 +31,26 @@ $sanitize_all_escapes=true;
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
 //
- 
+
+// check if using the patient portal
+//(if so, then use the portal authorization)
+if (isset($_GET['portal_auth'])) {
+  $landingpage = "../patients/index.php";
+  session_start();
+  if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite']) ) {
+    $pid = $_SESSION['pid'];
+    $ignoreAuth=true;
+    global $ignoreAuth;
+  }
+  else {
+    session_destroy();
+    header('Location: '.$landingpage.'?w');
+    exit;
+  }
+}
+
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 require_once(dirname(__FILE__) . "/../library/sql-ccr.inc");
-require_once(dirname(__FILE__) . "/../library/sql.inc");
 require_once(dirname(__FILE__) . "/uuid.php");
 
 function createCCR($action,$raw="no"){
@@ -96,9 +112,9 @@ function createCCR($action,$raw="no"){
 
 	   /////////////////// Procedures
 
-	   $e_Procedures = $ccr->createElement('Procedures');
-	   require_once("createCCRProcedure.php");
-	   $e_Body->appendChild($e_Procedures);
+	   //$e_Procedures = $ccr->createElement('Procedures');
+	   //require_once("createCCRProcedure.php");
+	   //$e_Body->appendChild($e_Procedures);
 
 	   //////////////////// Footer
 

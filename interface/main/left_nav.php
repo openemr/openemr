@@ -129,10 +129,13 @@
   'orp' => array(xl('Proc Pending Rev'), 1, 'orders/orders_results.php?review=1'),
   'orr' => array(xl('Proc Res')  , 1, 'orders/orders_results.php'),
   'prp' => array(xl('Pt Report') , 1, 'patient_file/report/patient_report.php'),
+  'prq' => array(xl('Pt Rec Request') , 1, 'patient_file/transaction/record_request.php'),
   'pno' => array(xl('Pt Notes')  , 1, 'patient_file/summary/pnotes.php'),
   'tra' => array(xl('Transact')  , 1, 'patient_file/transaction/transactions.php'),
   'sum' => array(xl('Summary')   , 1, 'patient_file/summary/summary_bottom.php'),
   'enc' => array(xl('Encounter') , 2, 'patient_file/encounter/encounter_top.php'),
+  'erx' => array(xl('e-Rx') , 1, 'eRx.php'),
+  'err' => array(xl('e-Rx Renewal') , 1, 'eRx.php?page=status'),
  );
  $primary_docs['npa']=array(xl('Payments')   , 0, 'billing/new_payment.php');
  if ($GLOBALS['use_charges_panel'] || $GLOBALS['concurrent_layout'] == 2) {
@@ -1089,6 +1092,12 @@ if ($GLOBALS['athletic_team']) {
         </ul>
       </li>
 
+      <li><a class="collapsed_lv2"><span><?php xl('Records','e') ?></span></a>
+        <ul>
+          <?php genTreeLink('RTop','prq',xl('Patient Record Request')); ?>
+        </ul>
+      </li>
+
 <?php if ($GLOBALS['gbl_nav_visit_forms']) { ?>
       <li><a class="collapsed_lv2"><span><?php xl('Visit Forms','e') ?></span></a>
         <ul>
@@ -1152,6 +1161,20 @@ if (!empty($reg)) {
       <?php genTreeLink('RTop','orb',xl('Batch Results')); ?>
     </ul>
   </li>
+  <?php
+  $newcrop_user_role=sqlQuery("select newcrop_user_role from users where username='".$_SESSION['authUser']."'");
+  if($newcrop_user_role['newcrop_user_role'] && $GLOBALS['erx_enable']) { ?>
+  <li><a class="collapsed" id="feeimg" ><span><?php xl('New Crop','e') ?></span></a>
+    <ul>
+      <li><a class="collapsed_lv2"><span><?php xl('Status','e') ?></span></a>
+        <ul>
+          <?php genTreeLink('RTop','erx',xl('e-Rx')); ?>
+          <?php genTreeLink('RTop','err',xl('e-Rx Renewal')); ?>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <?php } ?>
   <?php if (!$disallowed['adm']) { ?>
   <li><a class="collapsed" id="admimg" ><span><?php xl('Administration','e') ?></span></a>
     <ul>
@@ -1182,6 +1205,8 @@ if (!empty($reg)) {
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Logs'),'logview/logview.php'); ?>
           <?php if ( (!$GLOBALS['disable_phpmyadmin_link']) && (acl_check('admin', 'database')) ) genMiscLink('RTop','adm','0',xl('Database'),'../phpmyadmin/index.php'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Certificates'),'usergroup/ssl_certificates_admin.php'); ?>
+          <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('RxNorm'),'../interface/code_systems/standard_tables_manage.php?mode=rxnorm'); ?>
+          <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('SNOMED'),'../interface/code_systems/standard_tables_manage.php?mode=snomed'); ?>
         </ul>
       </li>
     </ul>
@@ -1195,11 +1220,15 @@ if (!empty($reg)) {
           <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genMiscLink('RTop','rep','0',xl('Rx'),'reports/prescriptions_report.php'); ?>
           <?php if (acl_check('patients', 'med')) genMiscLink('RTop','rep','0',xl('Clinical'),'reports/clinical_reports.php'); ?>
 	  <?php genMiscLink('RTop','rep','0',xl('Referrals'),'reports/referrals_report.php'); ?>
+	  <?php genMiscLink('RTop','rep','0',xl('Immunization Registry'),'reports/immunization_report.php'); ?>
         </ul>
       </li>
       <li><a class="collapsed_lv2"><span><?php xl('Clinic','e') ?></span></a>
         <ul>
-          <?php genMiscLink('RTop','rep','0',xl('Quality Measures'),'reports/cqm.php'); ?>
+          <?php if ($GLOBALS['enable_cdr']) genMiscLink('RTop','rep','0',xl('Standard Measures'),'reports/cqm.php?type=standard'); ?>
+          <?php if ($GLOBALS['enable_cqm']) genMiscLink('RTop','rep','0',xl('Quality Measures (CQM)'),'reports/cqm.php?type=cqm'); ?>
+          <?php if ($GLOBALS['enable_amc']) genMiscLink('RTop','rep','0',xl('Automated Measures (AMC)'),'reports/cqm.php?type=amc'); ?>
+          <?php if ($GLOBALS['enable_amc_tracking']) genMiscLink('RTop','rep','0',xl('AMC Tracking'),'reports/amc_tracking.php'); ?>
         </ul>
       </li>
       <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>

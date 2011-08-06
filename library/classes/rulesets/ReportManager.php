@@ -1,4 +1,11 @@
 <?php
+// Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
 require_once( "ReportTypes.php" );
 
 class ReportManager
@@ -18,7 +25,7 @@ class ReportManager
         }
     }
 
-    public function runReport( $rowRule, $patients, $dateTarget ) 
+    public function runReport( $rowRule, $patients, $dateTarget, $options=array() ) 
     {
         $ruleId = $rowRule['id'];
         $patientData = array();
@@ -37,7 +44,7 @@ class ReportManager
         
         $report = null;
         if ( $reportFactory instanceof  RsReportFactoryAbstract ) {
-            $report = $reportFactory->createReport( ReportTypes::getClassName( $ruleId ), $rowRule, $patientData, $dateTarget );
+            $report = $reportFactory->createReport( ReportTypes::getClassName( $ruleId ), $rowRule, $patientData, $dateTarget, $options );
         }
         
         $results = array();

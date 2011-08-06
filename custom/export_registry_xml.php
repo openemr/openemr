@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2011 Ensoftek 
  //
  // This program is free software; you can redistribute it and/or
@@ -22,6 +22,25 @@ require_once("../library/patient.inc");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 require_once("../library/classes/PQRIXml.class.php");
+
+function getLabelNumber($label) {
+	
+	if ( strlen($label) == 0) {
+		return "1";
+	}
+
+	$tokens = explode(" ", $label);
+	
+	$num_tokens = sizeof($tokens);
+	if ( $tokens[$num_tokens-1] != null ) {
+		if ( is_numeric($tokens[$num_tokens-1])) {
+			return $tokens[$num_tokens-1];
+		}
+	}
+
+	return "1";
+	
+}
 
 function getMeasureNumber($row) {
        if (!empty($row['cqm_pqri_code']) || !empty($row['cqm_nqf_code']) ) {
@@ -82,6 +101,8 @@ foreach ($dataSheet as $row) {
 			// Add PQRI measures
  			$pqri_measures = array();
 			$pqri_measures['pqri-measure-number'] =  getMeasureNumber($row);
+			$pqri_measures['patient-population'] = getLabelNumber($row['population_label']);
+			$pqri_measures['numerator'] = getLabelNumber($row['numerator_label']);
 			$pqri_measures['eligible-instances'] = $row['pass_filter'];
 	       	$pqri_measures['meets-performance-instances'] = $row['pass_target'];
 		    $pqri_measures['performance-exclusion-instances'] =  $row['excluded'];
@@ -147,8 +168,8 @@ $xml->close_submission();
 
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php echo htmlspecialchars( xl('Export PQRI Report'), ENT_NOQUOTES); ?></title>
 </head>
 <body>
@@ -159,7 +180,7 @@ $xml->close_submission();
 <form>
 
 <textarea rows='50' cols='500' style='width:95%' readonly>
-<? echo $xml->getXml(); ?>
+<?php echo $xml->getXml(); ?>
 </textarea>
 
 <p><input type='button' value='<?php echo htmlspecialchars( xl('OK'), ENT_QUOTES); ?>' onclick='window.close()' /></p>

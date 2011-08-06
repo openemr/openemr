@@ -6,9 +6,6 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
- // This report shows upcoming appointments with filtering and
- // sorting by patient, practitioner, appointment type, and date.
-
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
 //
@@ -24,7 +21,14 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/formdata.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
-// Collect parameters (set defaults if empty)
+// Collect report type parameter (standard, amc, or cqm)
+$type_report = (isset($_GET['type'])) ? trim($_GET['type']) : "standard";
+
+// Collect form parameters (set defaults if empty)
+if ($type_report == "amc") {
+  $begin_date = (isset($_POST['form_begin_date'])) ? trim($_POST['form_begin_date']) : "";
+  $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
+}
 $target_date = (isset($_POST['form_target_date'])) ? trim($_POST['form_target_date']) : date('Y-m-d H:i:s');
 $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : "";
 $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
@@ -40,7 +44,15 @@ $provider  = trim($_POST['form_provider']);
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<title><?php echo htmlspecialchars( xl('Clinical Quality Measures'), ENT_NOQUOTES); ?></title>
+<?php if ($type_report == "standard") { ?>
+  <title><?php echo htmlspecialchars( xl('Standard Measures'), ENT_NOQUOTES); ?></title>
+<?php } ?>
+<?php if ($type_report == "cqm") { ?>
+  <title><?php echo htmlspecialchars( xl('Clinical Quality Measures (CQM)'), ENT_NOQUOTES); ?></title>
+<?php } ?>
+<?php if ($type_report == "amc") { ?>
+  <title><?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC)'), ENT_NOQUOTES); ?></title>
+<?php } ?>
 
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
@@ -100,9 +112,19 @@ $provider  = trim($_POST['form_provider']);
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
 <span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> - 
-<?php echo htmlspecialchars( xl('Clinical Quality Measures'), ENT_NOQUOTES); ?></span>
 
-<form method='post' name='theform' id='theform' action='cqm.php' onsubmit='return top.restoreSession()'>
+<?php if ($type_report == "standard") { ?>
+  <?php echo htmlspecialchars( xl('Standard Measures'), ENT_NOQUOTES); ?></span>
+<?php } ?>
+<?php if ($type_report == "cqm") { ?>
+  <?php echo htmlspecialchars( xl('Clinical Quality Measures (CQM)'), ENT_NOQUOTES); ?></span>
+<?php } ?>
+<?php if ($type_report == "amc") { ?>
+  <?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC)'), ENT_NOQUOTES); ?></span>
+<?php } ?>
+
+
+<form method='post' name='theform' id='theform' action='cqm.php?type=<?php echo htmlspecialchars($type_report,ENT_QUOTES) ;?>' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -112,9 +134,29 @@ $provider  = trim($_POST['form_provider']);
 	<div style='float:left'>
 
 	<table class='text'>
+
+		<?php if ($type_report == "amc") { ?>
+                   <tr>
+                      <td class='label'>
+                         <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
+                      </td>
+                      <td>
+                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo htmlspecialchars( $begin_date, ENT_QUOTES); ?>'
+                            onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                         <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+                            id='img_begin_date' border='0' alt='[?]' style='cursor:pointer'
+                            title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                      </td>
+                   </tr>
+		<?php } ?>
+
                 <tr>
                         <td class='label'>
-                           <?php xl('Target Date','e'); ?>:
+                           <?php if ($type_report == "amc") { ?>
+                              <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
+                           <?php } else { ?>
+                              <?php echo htmlspecialchars( xl('Target Date'), ENT_NOQUOTES); ?>:
+                           <?php } ?>
                         </td>
                         <td>
                            <input type='text' name='form_target_date' id="form_target_date" size='20' value='<?php echo htmlspecialchars( $target_date, ENT_QUOTES); ?>'
@@ -124,38 +166,53 @@ $provider  = trim($_POST['form_provider']);
                                 title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
                         </td>
                 </tr>
-		<tr>
+
+                <?php if ($type_report == "cqm") { ?>
+                    <input type='hidden' name='form_rule_filter' value='cqm'>
+                <?php } ?>
+                <?php if ($type_report == "amc") { ?>
+                    <input type='hidden' name='form_rule_filter' value='amc'>
+                <?php } ?>
+                <?php if ($type_report == "standard") { ?>
+                    <tr>
                         <td class='label'>
-                           <?php echo htmlspecialchars( xl('Rule Set'), ENT_NOQUOTES); ?>:
+                            <?php echo htmlspecialchars( xl('Rule Set'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
-                                 <select name='form_rule_filter'>
-                                 <option value=''>-- <?php echo htmlspecialchars( xl('Show All'), ENT_NOQUOTES); ?> --</option>
-                                 <option value='cqm' <?php if ($rule_filter == "cqm") echo "selected"; ?>>
-                                 <?php echo htmlspecialchars( xl('Official Clinical Quality Measures (CQM) Rules'), ENT_NOQUOTES); ?></option>
-                                 <option value='amc' <?php if ($rule_filter == "amc") echo "selected"; ?>>
-                                 <?php echo htmlspecialchars( xl('Official Automated Measure Calculation Rules'), ENT_NOQUOTES); ?></option>
-                                 <option value='passive_alert' <?php if ($rule_filter == "passive_alert") echo "selected"; ?>>
-                                 <?php echo htmlspecialchars( xl('Passive Alert Rules'), ENT_NOQUOTES); ?></option>
-                                 <option value='active_alert' <?php if ($rule_filter == "active_alert") echo "selected"; ?>>
-                                 <?php echo htmlspecialchars( xl('Active Alert Rules'), ENT_NOQUOTES); ?></option>
-                                 <option value='patient_reminder' <?php if ($rule_filter == "patient_reminder") echo "selected"; ?>>
-                                 <?php echo htmlspecialchars( xl('Patient Reminder Rules'), ENT_NOQUOTES); ?></option>
+                            <select name='form_rule_filter'>
+                            <option value='passive_alert' <?php if ($rule_filter == "passive_alert") echo "selected"; ?>>
+                            <?php echo htmlspecialchars( xl('Passive Alert Rules'), ENT_NOQUOTES); ?></option>
+                            <option value='active_alert' <?php if ($rule_filter == "active_alert") echo "selected"; ?>>
+                            <?php echo htmlspecialchars( xl('Active Alert Rules'), ENT_NOQUOTES); ?></option>
+                            <option value='patient_reminder' <?php if ($rule_filter == "patient_reminder") echo "selected"; ?>>
+                            <?php echo htmlspecialchars( xl('Patient Reminder Rules'), ENT_NOQUOTES); ?></option>
+                            </select>
                         </td>
-                </tr>
-                <tr>
+                    </tr>
+                <?php } ?>
+
+                <?php if ($type_report == "amc") { ?>
+                    <input type='hidden' name='form_plan_filter' value=''>
+                <?php } else { ?>
+                    <tr>
                         <td class='label'>
                            <?php echo htmlspecialchars( xl('Plan Set'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
                                  <select name='form_plan_filter'>
-                                 <option value=''>-- <?php echo htmlspecialchars( xl('Show All'), ENT_NOQUOTES); ?> --</option>
-                                 <option value='cqm' <?php if ($plan_filter == "cqm") echo "selected"; ?>>
-                                 <?php echo htmlspecialchars( xl('Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
-                                 <option value='normal' <?php if ($plan_filter == "normal") echo "selected"; ?>>
-                                 <?php echo htmlspecialchars( xl('Active Plans'), ENT_NOQUOTES); ?></option>
+                                 <option value=''>-- <?php echo htmlspecialchars( xl('Ignore'), ENT_NOQUOTES); ?> --</option>
+                                 <?php if ($type_report == "cqm") { ?>
+                                   <option value='cqm' <?php if ($plan_filter == "cqm") echo "selected"; ?>>
+                                   <?php echo htmlspecialchars( xl('Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
+                                 <?php } ?>
+                                 <?php if ($type_report == "standard") { ?>
+                                   <option value='normal' <?php if ($plan_filter == "normal") echo "selected"; ?>>
+                                   <?php echo htmlspecialchars( xl('Active Plans'), ENT_NOQUOTES); ?></option>
+                                 <?php } ?>
                         </td>
-                </tr>
+                    </tr>
+                <?php } ?>
+
                 <tr>      
 			<td class='label'>
 			   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
@@ -194,6 +251,19 @@ $provider  = trim($_POST['form_provider']);
 				?>
                         </td>
 		</tr>
+
+                <?php if ($type_report == "amc") { ?>
+                  <tr>
+                        <td>
+                               <?php echo htmlspecialchars( xl('Number labs'), ENT_NOQUOTES); ?>:<br>
+                               (<?php echo htmlspecialchars( xl('Non-electronic'), ENT_NOQUOTES); ?>)
+                        </td>
+                        <td>
+                               <input type="text" name="labs_manual_entry" value="<?php echo htmlspecialchars($labs_manual,ENT_QUOTES); ?>">
+                        </td>
+                  </tr>
+                <?php } ?>
+
 	</table>
 
 	</div>
@@ -209,16 +279,18 @@ $provider  = trim($_POST['form_provider']);
 						<?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
 					</span>
 					</a>
-					<a href='#' class='css_button' onclick='return GenXml("false")'>
-						<span>
-							<?php echo htmlspecialchars( xl('Generate PQRI report (Method A)'), ENT_NOQUOTES); ?>
-						</span>
-					</a>
-                                        <a href='#' class='css_button' onclick='return GenXml("true")'>
-                                                <span>
-                                                        <?php echo htmlspecialchars( xl('Generate PQRI report (Method E)'), ENT_NOQUOTES); ?>
-                                                </span>
-                                        </a>
+					<?php if ($type_report == "cqm") { ?>
+						<a href='#' class='css_button' onclick='return GenXml("false")'>
+							<span>
+								<?php echo htmlspecialchars( xl('Generate PQRI report (Method A)'), ENT_NOQUOTES); ?>
+							</span>
+						</a>
+                                        	<a href='#' class='css_button' onclick='return GenXml("true")'>
+                                                	<span>
+                                                        	<?php echo htmlspecialchars( xl('Generate PQRI report (Method E)'), ENT_NOQUOTES); ?>
+                                                	</span>
+                                        	</a>
+					<?php } ?>
                                         <?php if ($_POST['form_refresh']) { ?>
 					<a href='#' class='css_button' onclick='window.print()'>
 						<span>
@@ -256,15 +328,25 @@ $provider  = trim($_POST['form_provider']);
   </th>
 
   <th>
-   <?php echo htmlspecialchars( xl('Applicable Patients') .' (' . xl('Denominator') . ')', ENT_NOQUOTES); ?></a>
+   <?php if ($type_report == "amc") { ?>
+    <?php echo htmlspecialchars( xl('Denominator'), ENT_NOQUOTES); ?></a>
+   <?php } else { ?>
+    <?php echo htmlspecialchars( xl('Applicable Patients') .' (' . xl('Denominator') . ')', ENT_NOQUOTES); ?></a>
+   <?php } ?>
   </th>
 
-  <th>
-   <?php echo htmlspecialchars( xl('Excluded Patients'), ENT_NOQUOTES); ?></a>
-  </th>
+  <?php if ($type_report != "amc") { ?>
+   <th>
+    <?php echo htmlspecialchars( xl('Excluded Patients'), ENT_NOQUOTES); ?></a>
+   </th>
+  <?php } ?>
 
   <th>
-   <?php echo htmlspecialchars( xl('Passed Patients') . ' (' . xl('Numerator') . ')', ENT_NOQUOTES); ?></a>
+   <?php if ($type_report == "amc") { ?>
+    <?php echo htmlspecialchars( xl('Numerator'), ENT_NOQUOTES); ?></a>
+   <?php } else { ?>
+    <?php echo htmlspecialchars( xl('Passed Patients') . ' (' . xl('Numerator') . ')', ENT_NOQUOTES); ?></a>
+   <?php } ?>
   </th>
 
   <th>
@@ -275,8 +357,19 @@ $provider  = trim($_POST['form_provider']);
  <tbody>  <!-- added for better print-ability -->
 <?php
 
-  //collect the results
-  $dataSheet = test_rules_clinic($provider,$rule_filter,$target_date,"report",'',$plan_filter,$organize_method);
+  if ($type_report == "amc") {
+    // For AMC:
+    //   need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
+    //   need to to send a manual data entry option (number of labs)
+    $array_date = array();
+    $array_date['dateBegin'] = $begin_date;
+    $array_date['dateTarget'] = $target_date;
+    $options = array('labs_manual'=>$labs_manual);
+    $dataSheet = test_rules_clinic($provider,$rule_filter,$array_date,"report",'',$plan_filter,$organize_method,$options);
+  }
+  else {
+    $dataSheet = test_rules_clinic($provider,$rule_filter,$target_date,"report",'',$plan_filter,$organize_method);
+  }
 
   $firstProviderFlag = TRUE;
   $firstPlanFlag = TRUE;
@@ -305,13 +398,11 @@ $provider  = trim($_POST['form_provider']);
          }
          echo ")";
        }
-       
-       if ( isset( $row['population_label'] ) ) {
-           echo ", " . htmlspecialchars( xl( $row['population_label'] ), ENT_NOQUOTES) . " ";
+
+       if ( !(empty($row['concatenated_label'])) ) {
+           echo ", " . htmlspecialchars( xl( $row['concatenated_label'] ), ENT_NOQUOTES) . " ";
        }
-       if ( isset( $row['numerator_label'] ) ) {
-           echo ", " . htmlspecialchars( xl( $row['numerator_label'] ), ENT_NOQUOTES) . " ";
-       }    
+       
      }
      else { // isset($row['is_sub'])
        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$row['action_category']);
@@ -320,7 +411,9 @@ $provider  = trim($_POST['form_provider']);
      echo "</td>";
      echo "<td align='center'>" . $row['total_patients'] . "</td>";
      echo "<td align='center'>" . $row['pass_filter'] . "</td>";
-     echo "<td align='center'>" . $row['excluded'] . "</td>";
+     if ($type_report != "amc") {
+       echo "<td align='center'>" . $row['excluded'] . "</td>";
+     }
      echo "<td align='center'>" . $row['pass_target'] . "</td>";
      echo "<td align='center'>" . $row['percentage'] . "</td>";
    }
@@ -385,6 +478,9 @@ $provider  = trim($_POST['form_provider']);
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="Javascript">
+ <?php if ($type_report == "amc") { ?>
+  Calendar.setup({inputField:"form_begin_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_begin_date", showsTime:'true'});
+ <?php } ?>
  Calendar.setup({inputField:"form_target_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_target_date", showsTime:'true'});
 </script>
 

@@ -273,7 +273,7 @@ function ar_responsible_party($patient_id, $encounter_id) {
   $next_level = $row['last_level_closed'] + 1;
   if ($next_level <= $row['last_level_billed'])
     return $next_level;
-  if (arGetPayerID($patient_id, substr($row['date'], 0, 10), $payer_type))
+  if (arGetPayerID($patient_id, substr($row['date'], 0, 10), $next_level))
     return $next_level;
   // There is no unclosed insurance, so see if there is an unpaid balance.
   // Currently hoping that form_encounter.balance_due can be discarded.

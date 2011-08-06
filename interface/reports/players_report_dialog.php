@@ -41,6 +41,12 @@ $form_to      = formData('form_to');
 $form_note = empty($_POST['form_note']) ? '' : $_POST['form_note'];
 if (get_magic_quotes_gpc()) $form_note = stripslashes($form_note);
 
+$form_am = empty($_POST['form_am']) ? '' : $_POST['form_am'];
+if (get_magic_quotes_gpc()) $form_am = stripslashes($form_am);
+
+$form_pm = empty($_POST['form_pm']) ? '' : $_POST['form_pm'];
+if (get_magic_quotes_gpc()) $form_pm = stripslashes($form_pm);
+
 function gen_list_options($list_id, $default='') {
   $res = sqlStatement("SELECT * FROM list_options WHERE " .
     "list_id = '$list_id' ORDER BY seq");
@@ -106,8 +112,8 @@ if ($_POST['form_save']) {
   if ($dfrow['date'] == $date) {
     sqlStatement("UPDATE daily_fitness SET " .
       "fitness = '$form_fitness', " .
-      // "am = '$form_am', " .
-      // "pm = '$form_pm', " .
+      "am = '$form_am', " .
+      "pm = '$form_pm', " .
       "issue_id = '$form_issue'" .
       "WHERE pid = '$plid' AND date = '$date'");
   }
@@ -116,8 +122,8 @@ if ($_POST['form_save']) {
       "pid = '$plid', " .
       "date = '$date', " .
       "fitness = '$form_fitness', " .
-      // "am = '$form_am', " .
-      // "pm = '$form_pm', " .
+      "am = '$form_am', " .
+      "pm = '$form_pm', " .
       "issue_id = '$form_issue'");
   }
 
@@ -312,6 +318,24 @@ while ($urow = sqlFetchArray($ures)) {
 }
 ?>
    </select>
+  </td>
+ </tr>
+
+ <tr>
+  <td>
+   <b><?php xl('AM Program','e'); ?></b>
+  </td>
+  <td>
+   <textarea name='form_am' rows='3' cols='80'><?php echo $dfrow['am']; ?></textarea>
+  </td>
+ </tr>
+
+ <tr>
+  <td>
+   <b><?php xl('PM Program','e'); ?></b>
+  </td>
+  <td>
+   <textarea name='form_pm' rows='3' cols='80'><?php echo $dfrow['pm']; ?></textarea>
   </td>
  </tr>
 

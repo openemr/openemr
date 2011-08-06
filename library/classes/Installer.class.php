@@ -42,6 +42,7 @@ class Installer
     $this->devel_translation_sql = "http://github.com/openemr/translations_development_openemr/raw/master/languageTranslations_utf8.sql";
     $this->ippf_sql = dirname(__FILE__) . "/../../sql/ippf_layout.sql";
     $this->icd9 = dirname(__FILE__) . "/../../sql/icd9.sql";
+    $this->cvx = dirname(__FILE__) . "/../../sql/cvx_codes.sql";
 
     // Record name of php-gacl installation files
     $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
@@ -459,6 +460,10 @@ $config = 1; /////////////
       // Load ICD-9 codes if present.
       if (file_exists( $this->icd9 )) {
         $dumpfiles[ $this->icd9 ] = "ICD-9";
+      }
+      // Load CVX codes if present
+      if (file_exists( $this->cvx )) {
+        $dumpfiles[ $this->cvx ] = "CVX Immunization Codes";
       }
       $this->dumpfiles = $dumpfiles;
     }

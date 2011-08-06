@@ -48,6 +48,9 @@ if (empty($spreadsheet_title)) $spreadsheet_title = 'Injury Log';
 // Putting an error message in here will result in a javascript alert.
 $alertmsg = '';
 
+// Determine the encounter that we are working with.
+$thisenc = empty($_GET['thisenc']) ? $encounter : $_GET['thisenc'] + 0;
+
 // If we are invoked as a popup (not in an encounter):
 $popup = $_GET['popup'];
 
@@ -115,6 +118,9 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
     }
     // If adding a new form...
     else {
+      $tmprow = sqlQuery("SELECT pid FROM form_encounter WHERE encounter = ? ORDER BY id DESC LIMIT 1",
+        array($thisenc));
+      $thispid = $tmprow['pid'];
       sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
       $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM form_$spreadsheet_form_name");
       $formid = $tmprow['maxid'] + 1;
@@ -126,8 +132,8 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
         "'$form_completed|$start_date|$template_name' " .
         ")");
       sqlStatement("UNLOCK TABLES");
-      addForm($encounter, $spreadsheet_title, $formid, "$spreadsheet_form_name",
-        $pid, $userauthorized);
+      addForm($thisenc, $spreadsheet_title, $formid, "$spreadsheet_form_name",
+        $thispid, $userauthorized);
     }
     $saveid = $formid;
   }
@@ -281,6 +287,11 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
  var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
  var ssChanged = false; // if they have changed anything in the spreadsheet
  var startDate = '<?php echo $start_date ? $start_date : date('Y-m-d'); ?>';
+
+ // In case we are a popup (top level) window, handle top.restoreSession() calls.
+ function restoreSession() {
+  return opener.top.restoreSession();
+ }
 
  // Helper function to set the contents of a block.
  function setBlockContent(id, content) {
@@ -527,7 +538,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 </head>
 
 <body class="body_top">
-<form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=$formid"; if ($popup) echo '&popup=1'; ?>"
+<form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=$formid&thisenc=$thisenc"; if ($popup) echo '&popup=1'; ?>"
  onsubmit="return top.restoreSession()">
 <center>
 

@@ -1,0 +1,7 @@
+Steps to install the RxNorm database:
+1) Copy the zipped RxNorm database file into this directory (this file can be downloaded from
+   http://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html; note you'll need to
+   get an account and that only the Full Monthly Releases currently work)
+2) In OpenEMR, go to Administration->Other->RxNorm in order to then install/upgrade
+   the RxNorm database.
+

@@ -173,16 +173,19 @@ class Parser_HL7v2 {
 				$composites[$key] = $this->__parse_composite($composite);
 			}
 		}
+		
+		$pos = 0;
 
 		// Find out where we are
 		if (is_array($this->message[$type])) {
 			$pos = count($this->message[$type]);
-		} else {
-			$pos = 0;
 		}
-
+		
+		//Ramesh Nagul - EnSoftek commented line out as it is throwing an error in parsing.
+		//$this->message[$type][$pos] = $composites;
 		// Add parsed segment to message
-		$this->message[$type][$pos] = $composites;
+		//Fix is below
+		$this->map[$pos][$type] = $composites;
 	} // end method __default_segment_parser
 
 	function __parse_composite ($composite) {
