@@ -43,8 +43,8 @@ function attr($text) {
 }
 
 /*
-This function is for compatibility with the out function defined as part of the
-CDR Admin framework.
+This function is a compatibility replacement for the out function removed from
+the CDR Admin framework.
 */
 function out($text) {
 	return attr($text);
