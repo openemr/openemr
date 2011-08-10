@@ -65,12 +65,12 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 	    if(($key == "allergy" || $key == "medication") && $GLOBALS['erx_enable'])
 	    {
 		$widgetButtonLabel = xl("Add");
-		$widgetButtonLink = "load_location(\"../../eRx.php?page=medentry\")";
+		$widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/eRx.php?page=medentry\")";
 	    }
 	    else
 	    {
 		$widgetButtonLabel = xl("Edit");
-		$widgetButtonLink = "load_location(\"stats_full.php?active=all&category=" . $key . "\")";
+		$widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=" . $key . "\")";
 	    }
 	    $widgetButtonClass = "";
             $linkMethod = "javascript";
@@ -186,7 +186,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     $widgetTitle = xl('Immunizations');
     $widgetLabel = "immunizations";
     $widgetButtonLabel = xl("Edit");
-    $widgetButtonLink = "javascript:load_location(\"immunizations.php\")";
+    $widgetButtonLink = "javascript:load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/immunizations.php\")";
     $widgetButtonClass = "";
     $linkMethod = "javascript";
     $bodyClass = "summary_item small";
@@ -317,14 +317,14 @@ while($row_currentMed=sqlFetchArray($res))
     {
 	$widgetTitle = xl('Prescription History');
 	$widgetButtonLabel = xl("Add/Edit eRx");
-	$widgetButtonLink = "../../eRx.php?page=compose";
+	$widgetButtonLink = $GLOBALS['webroot'] . "/interface/eRx.php?page=compose";
 	$widgetButtonClass = "";
     }
     else
     {
 	$widgetTitle = xl('Prescription');
 	$widgetButtonLabel = xl("Edit");
-	$widgetButtonLink = "rx_frameset.php";
+	$widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/rx_frameset.php";
 	$widgetButtonClass = "iframe rx_modal";
     }
     $bodyClass = "summary_item small";
