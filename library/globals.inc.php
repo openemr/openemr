@@ -871,6 +871,13 @@ $GLOBALS_METADATA = array(
       xl('Enable Clinical Reminder Widget')
     ),
 
+    'enable_cdr_crp' => array(
+      xl('Enable Clinical Reminder Popup'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Clinical Reminder Popup')
+    ),
+
     'enable_cdr_prw' => array(
       xl('Enable Patient Reminder Widget'),
       'bool',                           // data type

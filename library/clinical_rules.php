@@ -91,6 +91,66 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
   }
 }
 
+// Display the active screen reminder.
+// Parameters:
+//   $patient_id - pid of selected patient
+//   $mode       - choose either 'reminders-all' or 'reminders-due' (required)
+//   $dateTarget - target date. If blank then will test with current date as target.
+//   $organize_mode - Way to organize the results (default or plans)
+function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='default') {
+
+  // Set date to current if not set
+  $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+
+  // Collect active actions
+  $actions = test_rules_clinic('','active_alert',$dateTarget,$mode,$patient_id,'',$organize_mode);
+
+  if (empty($actions)) {
+    return false;
+  }
+
+  $returnOutput = "";
+
+  // Display the actions
+  foreach ($actions as $action) {
+
+    // Deal with plan names first
+    if ($action['is_plan']) {
+      $returnOutput .= "<br><b>";
+      $returnOutput .= htmlspecialchars( xl("Plan"), ENT_NOQUOTES) . ": ";
+      $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'),$action['id']);
+      $returnOutput .= "</b><br>";
+      continue;
+    }
+
+    // Display Reminder Details
+    $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$action['category']) .
+      ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$action['item']);
+
+    // Display due status
+    if ($action['due_status']) {
+      // Color code the status (red for past due, purple for due, green for not due and black for soon due)
+      if ($action['due_status'] == "past_due") {
+        $returnOutput .= "&nbsp;&nbsp;(<span style='color:red'>";
+      }
+      else if ($action['due_status'] == "due") {
+        $returnOutput .= "&nbsp;&nbsp;(<span style='color:purple'>";
+      }
+      else if ($action['due_status'] == "not_due") {
+        $returnOutput .= "&nbsp;&nbsp;(<span style='color:green'>";
+      }
+      else {
+        $returnOutput .= "&nbsp;&nbsp;(<span>";
+      }
+        $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$action['due_status']) . "</span>)<br>";
+    }
+    else {
+      $returnOutput .= "<br>";
+    }
+  }
+  return $returnOutput;
+}
+
 // Test the clinic rules of entire clinic and create a report or patient reminders
 //  (can also test on one patient or patients of one provider)
 // Parameters:

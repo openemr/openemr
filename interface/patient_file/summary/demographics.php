@@ -22,11 +22,18 @@ $fake_register_globals=false;
  require_once("../history/history.inc.php");
  require_once("$srcdir/formatting.inc.php");
  require_once("$srcdir/edi.inc");
+ require_once("$srcdir/clinical_rules.php");
 
   if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
  }
+
+  $active_reminders = false;
+  if (($_SESSION['alert_notify_pid'] != $pid) && $_GET['set_pid'] && acl_check('patients', 'med') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crp']) {
+    // showing a new patient, so check for active reminders
+    $active_reminders = active_alert_summary($pid,"reminders-due");
+  }
 
 function print_as_money($money) {
 	preg_match("/(\d*)\.?(\d*)/",$money,$moneymatches);
@@ -361,6 +368,17 @@ $(document).ready(function(){
             'centerOnScroll' : false
   });
 
+  <?php if ($active_reminders) { ?>
+    // show the active reminder modal
+    $("#reminder_popup_link").fancybox({
+      'overlayOpacity' : 0.0,
+      'showCloseButton' : true,
+      'frameHeight' : 500,
+      'frameWidth' : 500,
+      'centerOnScroll' : false
+    }).trigger('click');
+  <?php } ?>
+
 });
 
 </script>
@@ -375,6 +393,8 @@ $(document).ready(function(){
 </head>
 
 <body class="body_top">
+
+<a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='visibility: false;' class='iframe' onclick='top.restoreSession()'></a>
 
 <?php
  $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
