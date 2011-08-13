@@ -107,9 +107,10 @@ foreach ($dataSheet as $row) {
 	       	$pqri_measures['meets-performance-instances'] = $row['pass_target'];
 		    $pqri_measures['performance-exclusion-instances'] =  $row['excluded'];
 		    $performance_not_met_instances = (int)$row['pass_filter'] - (int)$row['pass_target'] - (int)$row['excluded'];
-            $pqri_measures['performance-not-met-instances'] = (string)$performance-not-met-instances;
+            $pqri_measures['performance-not-met-instances'] = (string)$performance_not_met_instances;
 			$pqri_measures['performance-rate'] = $row['percentage'];
-	        $pqri_measures['reporting-rate'] = '';
+	        $pqri_measures['reporting-rate'] = (($row['pass_filter']-$row['excluded'])/$row['pass_filter'])*100;
+                $pqri_measures['reporting-rate']=$pqri_measures['reporting-rate'].'%';
 	        $xml->add_pqri_measures($pqri_measures);	
 		}
 		else { // $row[0] == "sub"
