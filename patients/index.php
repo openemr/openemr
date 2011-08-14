@@ -31,7 +31,61 @@
 
     // security measure -- will check on next page.
     $_SESSION['itsme'] = 1;
-    // 
+    //
+
+    //
+    // Deal with language selection
+    //
+    // collect default language id (skip this if this is a password update)
+    if (!(isset($_SESSION['password_update']))) {
+      $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']) );
+      for ($iter = 0;$row = sqlFetchArray($res2);$iter++) {
+        $result2[$iter] = $row;
+      }
+      if (count($result2) == 1) {
+        $defaultLangID = $result2[0]{"lang_id"};
+        $defaultLangName = $result2[0]{"lang_description"};
+      }
+      else {
+        //default to english if any problems
+        $defaultLangID = 1;
+        $defaultLangName = "English";
+      }
+      // set session variable to default so login information appears in default language
+      $_SESSION['language_choice'] = $defaultLangID;
+      // collect languages if showing language menu
+      if ($GLOBALS['language_menu_login']) {
+        // sorting order of language titles depends on language translation options.
+        $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+        if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
+          $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
+          $res3=SqlStatement($sql);
+        }
+        else {
+          // Use and sort by the translated language name.
+          $sql = "SELECT ll.lang_id, " .
+                 "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
+                 "ll.lang_description " .
+                 "FROM lang_languages AS ll " .
+                 "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
+                 "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+                 "ld.lang_id = ? " .
+                 "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
+          $res3=SqlStatement($sql, array($mainLangID) );
+        }
+        for ($iter = 0;$row = sqlFetchArray($res3);$iter++) {
+          $result3[$iter] = $row;
+        }
+        if (count($result3) == 1) {
+          //default to english if only return one language
+          $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='1' />\n";
+        }
+      }
+      else {
+        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLanguage,ENT_QUOTES)."' />\n";
+      }
+    }
+
 ?>
 
 <html>
@@ -179,10 +233,38 @@
 			<input type="hidden" id="code" name="code" type="hidden" />
 		    </td>
 		</tr>
+
+                <?php if ($GLOBALS['language_menu_login']) { ?>
+                 <?php if (count($result3) != 1) { ?>
+                  <tr>
+                    <td><span class="text"><?php echo htmlspecialchars( xl('Language'), ENT_NOQUOTES); ?></span></td>
+                    <td>
+                        <select name=languageChoice size="1">
+                            <?php
+                            echo "<option selected='selected' value='".htmlspecialchars($defaultLangID,ENT_QUOTES)."'>" . htmlspecialchars( xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";
+                            foreach ($result3 as $iter) {
+                                if ($GLOBALS['language_menu_showall']) {
+                                    if ( !$GLOBALS['allow_debug_language'] && $iter[lang_description] == 'dummy') continue; // skip the dummy language
+                                    echo "<option value='".htmlspecialchars($iter[lang_id],ENT_QUOTES)."'>".htmlspecialchars($iter[trans_lang_description],ENT_NOQUOTES)."</option>\n";
+                                }
+                                else {
+                                    if (in_array($iter[lang_description], $GLOBALS['language_menu_show'])) {
+                                        if ( !$GLOBALS['allow_debug_language'] && $iter[lang_description] == 'dummy') continue; // skip the dummy language
+                                        echo "<option value='".htmlspecialchars($iter[lang_id],ENT_QUOTES)."'>".htmlspecialchars($iter[trans_lang_description],ENT_NOQUOTES)."</option>\n";
+                                    }
+                                }
+                            }
+                            ?>
+                        </select>
+                    </td>
+                  </tr>
+                <?php }} ?>
+
 		<tr>
 		    <td colspan=2><br><center><input type="submit" value="<?php echo htmlspecialchars( xl('Log In'), ENT_QUOTES);?>" /></center></td>
 		</tr>
 	    </table>
+            <?php if (!(empty($hiddenLanguageField))) echo $hiddenLanguageField; ?>
 	</form>
     
         <div class="copyright"><?php echo htmlspecialchars( xl('Powered by'), ENT_NOQUOTES);?> <a href="../../">OpenEMR</a></div>

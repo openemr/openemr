@@ -46,8 +46,21 @@
         $ignoreAuth = 1;
     //
 
-    //Authentication
+    //Authentication (and language setting)
 	require_once('../interface/globals.php');
+
+        // set the language
+        if (!empty($_POST['languageChoice'])) {
+                $_SESSION['language_choice'] = $_POST['languageChoice'];
+        }
+        else if (empty($_SESSION['language_choice'])) {
+                // just in case both are empty, then use english
+                $_SESSION['language_choice'] = 1;
+        }
+        else {
+                // keep the current session language token
+        }
+
         $authorizedPortal=false; //flag
 
         $sql = "SELECT * FROM `patient_access_onsite` WHERE `portal_username` = ? AND `portal_pwd` = ?";

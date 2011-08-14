@@ -1194,6 +1194,26 @@ $GLOBALS_METADATA = array(
 
   ),
 
+  // Portal Tab
+  //
+  'Portal' => array(
+
+    'portal_onsite_enable' => array(
+      xl('Enable Onsite Patient Portal'),
+      'bool',                           // data type
+      '0',
+      xl('Enable Onsite Patient Portal.')
+    ),
+
+    'portal_onsite_address' => array(
+      xl('Onsite Patient Portal Site Address'),
+      'text',                           // data type
+      'https://your_web_site.com/openemr/patients',
+      xl('Website link for the Onsite Patient Portal.')
+    ),
+
+  ),
+
   // Connectors Tab
   //
   'Connectors' => array(
@@ -1224,20 +1244,6 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       'https://openemrsupport.com:29443/len/api',
       xl('Https link for the OpenEMR Support LLC Lab Exchange Service.')
-    ),
-
-    'portal_onsite_enable' => array(
-      xl('Enable Onsite Patient Portal'),
-      'bool',                           // data type
-      '0',
-      xl('Enable Onsite Patient Portal.')
-    ),
-
-    'portal_onsite_address' => array(
-      xl('Onsite Patient Portal Site Address'),
-      'text',                           // data type
-      'https://your_web_site.com/openemr/patients',
-      xl('Website link for the Onsite Patient Portal.')
     ),
 
     'erx_enable' => array(
