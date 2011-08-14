@@ -6,13 +6,7 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-/**
- * This is a shortcut for htmlspecial vars.
- * @param <type> $txt 
- */
-function out( $txt ) {
-    return htmlspecialchars( $txt , ENT_QUOTES );
-}
+require_once(dirname(__FILE__)."/../../../../library/htmlspecialchars.inc.php");
 
 /**
  * This is a wrapper for implode function, which calls each function in the 
