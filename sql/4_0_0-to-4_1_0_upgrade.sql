@@ -1514,3 +1514,23 @@ ALTER TABLE openemr_postcalendar_events ADD pc_sendalertemail VARCHAR(3) NOT NUL
 UPDATE `rule_target` SET `value` = 'INR::CPT4:85610::::::ge::1' WHERE `id` = 'rule_inr_monitor' AND `group_id` = 1 AND `method` = 'target_proc' AND `value` = 'INR::::::::ge::1';
 #EndIf
 
+#IfNotRow2D list_options list_id rule_targets option_id target_appt
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_targets' ,'target_appt', 'Appointment', 30, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id rule_filters option_id filt_proc
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_filters', 'filt_proc', 'Procedure', 60, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id rule_filters option_id filt_lists
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_filters', 'filt_lists', 'Lists', 70, 0);
+#EndIf
+
+#IfNotRow4D rule_target id rule_adult_wt_screen_fu group_id 1 method target_database value ::form_vitals::weight::::::ge::1
+UPDATE `rule_target` SET `value` = '::form_vitals::weight::::::ge::1' WHERE `id` = 'rule_adult_wt_screen_fu' AND `group_id` = 1 AND `method` = 'target_database' AND `value` = '::form_vitals::weight::::::ge::2';
+#EndIf
+
+#IfNotRow2D rule_filter id rule_adult_wt_screen_fu method filt_age_min
+INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_adult_wt_screen_fu', 1, 1, 'filt_age_min', 'year', '18');
+#EndIf
+

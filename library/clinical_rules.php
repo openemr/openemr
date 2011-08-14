@@ -351,91 +351,97 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     $exclude_filter = 0;
     $pass_target = 0;
 
-    foreach( $patientData as $rowPatient ) {
+    // Find the number of target groups
+    $targetGroups = returnTargetGroups($rowRule['id']);
 
-      // Count the total patients
-      $total_patients++;
+    if ( (count($targetGroups) == 1) || ($mode == "report") ) {
+      //skip this section if not report and more than one target group
+      foreach( $patientData as $rowPatient ) {
 
-      $dateCounter = 1; // for reminder mode to keep track of which date checking
-      foreach ( $target_dates as $dateFocus ) {
+        // Count the total patients
+        $total_patients++;
 
-        //Skip if date is set to SKIP
-        if ($dateFocus == "SKIP") {
-          $dateCounter++;
-          continue;
-        }
+        $dateCounter = 1; // for reminder mode to keep track of which date checking
+        foreach ( $target_dates as $dateFocus ) {
 
-        //Set date counter and reminder token (applicable for reminders only)
-        if ($dateCounter == 1) {
-          $reminder_due = "soon_due";
-        }
-        else if ($dateCounter == 2) {
-          $reminder_due = "due";
-        }
-        else { // $dateCounter == 3
-          $reminder_due = "past_due";
-        }
+          //Skip if date is set to SKIP
+          if ($dateFocus == "SKIP") {
+            $dateCounter++;
+            continue;
+          }
 
-        // First, deal with deceased patients
-        //  (for now will simply not pass the filter, but can add a database item
-        //   if ever want to create rules for dead people)
-        // Could also place this function at the total_patients level if wanted.
-        //  (But then would lose the option of making rules for dead people)
-        // Note using the dateTarget rather than dateFocus
-        if (is_patient_deceased($rowPatient['pid'],$dateTarget)) {
-          continue;
-        }
+          //Set date counter and reminder token (applicable for reminders only)
+          if ($dateCounter == 1) {
+            $reminder_due = "soon_due";
+          }
+          else if ($dateCounter == 2) {
+            $reminder_due = "due";
+          }
+          else { // $dateCounter == 3
+            $reminder_due = "past_due";
+          }
 
-        // Check if pass filter
-        $passFilter = test_filter($rowPatient['pid'],$rowRule['id'],$dateFocus);
-        if ($passFilter === "EXCLUDED") {
-          // increment EXCLUDED and pass_filter counters
-          //  and set as FALSE for reminder functionality.
-          $pass_filter++;
-          $exclude_filter++;
-          $passFilter = FALSE;
-        }
-        if ($passFilter) {
-          // increment pass filter counter
-          $pass_filter++;
-        }
-        else {
-          $dateCounter++;
-          continue;
-        }
+          // First, deal with deceased patients
+          //  (for now will simply not pass the filter, but can add a database item
+          //   if ever want to create rules for dead people)
+          // Could also place this function at the total_patients level if wanted.
+          //  (But then would lose the option of making rules for dead people)
+          // Note using the dateTarget rather than dateFocus
+          if (is_patient_deceased($rowPatient['pid'],$dateTarget)) {
+            continue;
+          }
 
-        // Check if pass target
-        $passTarget = test_targets($rowPatient['pid'],$rowRule['id'],'',$dateFocus); 
-        if ($passTarget) {
-          // increment pass target counter
-          $pass_target++;
-          // send to reminder results
-          if ($mode == "reminders-all") {
-            // place the completed actions into the reminder return array
-            $actionArray = resolve_action_sql($rowRule['id'],'1');
-            foreach ($actionArray as $action) {
-              $action_plus = $action;
-              $action_plus['due_status'] = "not_due";
-              $action_plus['pid'] = $rowPatient['pid'];
-              $results = reminder_results_integrate($results, $action_plus);
+          // Check if pass filter
+          $passFilter = test_filter($rowPatient['pid'],$rowRule['id'],$dateFocus);
+          if ($passFilter === "EXCLUDED") {
+            // increment EXCLUDED and pass_filter counters
+            //  and set as FALSE for reminder functionality.
+            $pass_filter++;
+            $exclude_filter++;
+            $passFilter = FALSE;
+          }
+          if ($passFilter) {
+            // increment pass filter counter
+            $pass_filter++;
+          }
+          else {
+            $dateCounter++;
+            continue;
+          }
+
+          // Check if pass target
+          $passTarget = test_targets($rowPatient['pid'],$rowRule['id'],'',$dateFocus); 
+          if ($passTarget) {
+            // increment pass target counter
+            $pass_target++;
+            // send to reminder results
+            if ($mode == "reminders-all") {
+              // place the completed actions into the reminder return array
+              $actionArray = resolve_action_sql($rowRule['id'],'1');
+              foreach ($actionArray as $action) {
+                $action_plus = $action;
+                $action_plus['due_status'] = "not_due";
+                $action_plus['pid'] = $rowPatient['pid'];
+                $results = reminder_results_integrate($results, $action_plus);
+              }
+            }
+            break;
+          }
+          else {
+            // send to reminder results
+            if ($mode != "report") {
+              // place the uncompleted actions into the reminder return array
+              $actionArray = resolve_action_sql($rowRule['id'],'1');
+              foreach ($actionArray as $action) {
+                $action_plus = $action;
+                $action_plus['due_status'] = $reminder_due;
+                $action_plus['pid'] = $rowPatient['pid'];
+                $results = reminder_results_integrate($results, $action_plus);
+              }
             }
           }
-          break;
+          $dateCounter++;
         }
-        else {
-          // send to reminder results
-          if ($mode != "report") {
-            // place the uncompleted actions into the reminder return array
-            $actionArray = resolve_action_sql($rowRule['id'],'1');
-            foreach ($actionArray as $action) {
-              $action_plus = $action;
-              $action_plus['due_status'] = $reminder_due;
-              $action_plus['pid'] = $rowPatient['pid'];
-              $results = reminder_results_integrate($results, $action_plus);
-            }
-          }
-        }
-        $dateCounter++;
       }
     }
 
@@ -447,18 +453,9 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       array_push($results, $newRow);
     }
 
-    // Find the number of target groups, and go through each one if more than one
-    $targetGroups = returnTargetGroups($rowRule['id']);
+    // Now run through the target groups if more than one
     if (count($targetGroups) > 1) {
-      $firstGroup = true;
       foreach ($targetGroups as $i) {
-
-        // skip first group if not in report mode
-        //  (this is because first group was already queried above)
-        if ($mode != "report" && $firstGroup) {
-         $firstGroup = false;
-         continue;
-        }
 
         //Reset the target counter
         $pass_target = 0;
@@ -634,6 +631,11 @@ function test_filter($patient_id,$rule,$dateTarget) {
   //   surgeries and allergies.
   $filter = resolve_filter_sql($rule,'filt_lists');
   if ((!empty($filter)) && !lists_check($patient_id,$filter,$dateTarget)) return false;
+
+  // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inlcusion) ----
+  // Procedure Target (includes) (may need to include an interval in the future)
+  $filter = resolve_filter_sql($rule,'filt_proc');
+  if ((!empty($filter)) && !procedure_check($patient_id,$filter,'',$dateTarget)) return false;
 
   //
   // ----------------- EXCLUSIONS -----------------
