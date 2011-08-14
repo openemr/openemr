@@ -1510,3 +1510,7 @@ ALTER TABLE openemr_postcalendar_events ADD pc_sendalertsms VARCHAR(3) NOT NULL 
 ALTER TABLE openemr_postcalendar_events ADD pc_sendalertemail VARCHAR(3) NOT NULL DEFAULT 'NO';
 #EndIf
 
+#IfNotRow4D rule_target id rule_inr_monitor group_id 1 method target_proc value INR::CPT4:85610::::::ge::1
+UPDATE `rule_target` SET `value` = 'INR::CPT4:85610::::::ge::1' WHERE `id` = 'rule_inr_monitor' AND `group_id` = 1 AND `method` = 'target_proc' AND `value` = 'INR::::::::ge::1';
+#EndIf
+

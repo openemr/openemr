@@ -1152,7 +1152,7 @@ function procedure_check($patient_id,$filter,$interval='',$dateTarget='') {
     // Row description
     // [0]=>title [1]=>code [2]=>value comparison [3]=>value [4]=>number of hits comparison [5]=>number of hits
     //   code description
-    //     <type(ICD9,CPT)>:<identifier>; etc.
+    //     <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.
     $temp_df = explode("::",$row['value']);
     if (exist_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
       // Record the match
@@ -1294,7 +1294,7 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
 // Parameters:
 //   $patient_id      - pid of selected patient.
 //   $proc_title      - procedure title
-//   $proc_code       - procedure identifier code (array)
+//   $proc_code       - procedure identifier code (array of <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.)
 //   $result_comp     - results comparison (eq,ne,gt,ge,lt,le)
 //   $result_data     - results data
 //   $num_items_comp  - number items comparison (eq,ne,gt,ge,lt,le)
@@ -1317,12 +1317,6 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
   // Get the interval sql query string
   $dateSql = sql_interval_string($table,$intervalType,$intervalValue,$dateTarget);
 
-  //
-  // TODO
-  // Figure out a way to use the identifiers codes
-  // TODO
-  //
-
   // If just checking for existence (ie result_data is empty),
   //   then simply set the comparison operator to ne.
   if (empty($result_data)) {
@@ -1332,20 +1326,42 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
   // get the appropriate sql comparison operator
   $compSql = convertCompSql($result_comp);
 
-  // collect specific items that fulfill request
-  $sql = sqlStatement("SELECT procedure_result.result " .
-         "FROM `procedure_type`, " .
-         "`procedure_order`, " .
-         "`procedure_report`, " .
-         "`procedure_result` " .
-         "WHERE procedure_type.procedure_type_id = procedure_order.procedure_type_id " .
-         "AND procedure_order.procedure_order_id = procedure_report.procedure_order_id " .
-         "AND procedure_report.procedure_report_id = procedure_result.procedure_report_id " .
-         "AND procedure_type.name = ? " .
-         "AND procedure_result.result " . $compSql . " ? " .
-         "AND " . add_escape_custom($patient_id_label) . " = ? " .
-         $dateSql, array($proc_title,$result_data,$patient_id) );
+  // explode the code array
+  $codes= array();
+  if (!empty($proc_code)) {
+    $codes = explode("||",$proc_code);
+  }
+  else {
+    $codes[0] = '';
+  }
 
+  // ensure proc_title is at least blank
+  if (empty($proc_title)) {
+    $proc_title = '';
+  }
+
+  // collect specific items (use both title and/or codes) that fulfill request
+  $sqlBindArray=array();
+  $sql_query = "SELECT procedure_result.result " .
+               "FROM `procedure_type`, " .
+               "`procedure_order`, " .
+               "`procedure_report`, " .
+               "`procedure_result` " .
+               "WHERE procedure_type.procedure_type_id = procedure_order.procedure_type_id " .
+               "AND procedure_order.procedure_order_id = procedure_report.procedure_order_id " .
+               "AND procedure_report.procedure_report_id = procedure_result.procedure_report_id " .
+               "AND ";
+  foreach ($codes as $tem) {
+    $sql_query .= "( ( (procedure_type.standard_code = ? AND procedure_type.standard_code != '') " .
+                  "OR (procedure_type.procedure_code = ? AND procedure_type.procedure_code != '') ) OR ";
+    array_push($sqlBindArray,$tem,$tem);
+  }
+  $sql_query .= "(procedure_type.name = ? AND procedure_type.name != '') ) " .
+                "AND procedure_result.result " . $compSql . " ? " .
+                "AND " . add_escape_custom($patient_id_label) . " = ? " . $dateSql;
+  array_push($sqlBindArray,$proc_title,$result_data,$patient_id);
+  $sql = sqlStatement($sql_query,$sqlBindArray);
+ 
   // See if number of returned items passes the comparison
   return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
 }
