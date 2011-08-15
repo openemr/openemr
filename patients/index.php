@@ -82,7 +82,7 @@
         }
       }
       else {
-        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLanguage,ENT_QUOTES)."' />\n";
+        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLangID,ENT_QUOTES)."' />\n";
       }
     }
 

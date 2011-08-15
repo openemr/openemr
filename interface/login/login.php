@@ -118,7 +118,7 @@ if ($GLOBALS['language_menu_login']) {
         }
 }
 else {
-        echo "<input type='hidden' name='languageChoice' value='".$defaultLanguage."' />\n";   
+        echo "<input type='hidden' name='languageChoice' value='".$defaultLangID."' />\n";   
 }
 ?>
 
