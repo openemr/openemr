@@ -70,7 +70,7 @@ class RuleManager {
             cqm_flag = ?,
             amc_flag = ?,
             patient_reminder_flag = ?
-      WHERE id = ?";
+      WHERE id = ? AND pid = 0";
 
     const SQL_UPDATE_TITLE =
     "UPDATE list_options

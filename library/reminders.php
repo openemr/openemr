@@ -78,7 +78,28 @@ function update_reminders($dateTarget='', $patient_id='') {
 
   // Collect reminders (note that this function removes redundant and keeps the most distant
   //   reminder (ie. prefers 'past_due' over 'due' over 'soon_due')
-  $collectedReminders = test_rules_clinic('','patient_reminder',$dateTarget,'reminders',$patient_id);
+  // Note that due to a limitation in the test_rules_clinic function, the patient_id is explicitly
+  //  needed to work correctly. So rather than pass in a '' patient_id to do the entire clinic,
+  //  we instead need to pass in each patient_id separately.
+  $collectedReminders = array();
+  if (!(empty($patient_id))) {
+    // only one patient id, so run the function
+    $collectedReminders = test_rules_clinic('','patient_reminder',$dateTarget,'reminders-due',$patient_id);
+  }
+  else {
+    // as described above, need to pass in each patient_id
+    // Collect all patient ids
+    $patientData = array();
+    $rez = sqlStatement("SELECT `pid` FROM `patient_data`");
+    for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+      $patientData[$iter]=$row;
+    }
+    foreach ($patientData as $patient) {
+      $tempCollectReminders = test_rules_clinic('','patient_reminder',$dateTarget,'reminders-due',$patient['pid']);
+      $collectedReminders = array_merge($collectedReminders,$tempCollectReminders);
+    }
+  }
+
   $logging['total_active_actions'] = count($collectedReminders);
 
   // For logging purposes only:

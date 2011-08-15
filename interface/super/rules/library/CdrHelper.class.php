@@ -57,7 +57,7 @@ class CdrResults{
     			$query = "UPDATE clinical_rules SET active_alert_flag = ?" .
     			                  ", passive_alert_flag = ?" .
     			                  ", patient_reminder_flag = ?" .
-					  		  " WHERE id = ?";
+					  		  " WHERE id = ? AND pid = 0";
     
 			   sqlStatement($query, array($this->active_flag,$this->passive_flag,$this->reminder_flag,$this->id) );
     

@@ -291,9 +291,15 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   //    Reminder that action is due
   //    Reminder that action is post-due
   
-  //Collect applicable rules  
+  //Collect applicable rules
+  // Note that due to a limitation in the this function, the patient_id is explicitly
+  //  for grouping items when not being done in real-time or for official reporting.
+  //  So for cases such as patient reminders on a clinic scale, the calling function
+  //  will actually need rather than pass in a explicit patient_id for each patient in
+  //  a separate call to this function. 
   if ($mode != "report") {
     // Use per patient custom rules (if exist)
+    // Note as discussed above, this only works for single patient instances.
     $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan);
   }
   else { // $mode = "report"
