@@ -393,8 +393,16 @@ class Claim {
       $thispaidanything = 0;
       foreach($this->invoice as $codekey => $codeval) {
         foreach ($codeval['dtl'] as $key => $value) {
-          if (preg_match("/$inslabel/i", $value['src'], $tmp)) {
-            $thispaidanything += $value['pmt'];
+          if (isset($value['plv'])) {
+            // New method; plv exists to indicate the payer level.
+            if ($value['plv'] == $insnumber) {
+              $thispaidanything += $value['pmt'];
+            }
+          }
+          else {
+            if (preg_match("/$inslabel/i", $value['src'], $tmp)) {
+              $thispaidanything += $value['pmt'];
+            }
           }
         }
       }
@@ -472,8 +480,17 @@ class Claim {
     $amount = 0;
     foreach($this->invoice as $codekey => $codeval) {
       foreach ($codeval['dtl'] as $key => $value) {
-        if (!preg_match("/Ins/i", $value['src'], $tmp)) {
-          $amount += $value['pmt'];
+        if (isset($value['plv'])) {
+          // New method; plv exists to indicate the payer level.
+          if ($value['plv'] == 0) { // 0 indicates patient
+            $amount += $value['pmt'];
+          }
+        }
+        else {
+          // Old method: With SQL-Ledger payer level was stored in the memo.
+          if (!preg_match("/Ins/i", $value['src'], $tmp)) {
+            $amount += $value['pmt'];
+          }
         }
       }
     }
