@@ -4,7 +4,7 @@
 // numbers are stored in the database and used to determine which sql
 // upgrade file is the starting point for the next upgrade.
 $v_major = '4';
-$v_minor = '1';
+$v_minor = '2';
 $v_patch = '0';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 
