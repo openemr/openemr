@@ -51,6 +51,9 @@ if ! [ -d $GITMAIN ]; then
  mkdir -p $GITMAIN
  cd $GITMAIN
  git clone git://github.com/openemr/openemr.git
+ cd openemr
+ git checkout origin/rel-410
+ cd ..
 else
  echo "The OpenEMR git repository already exist"
  echo "The OpenEMR git repository already exist" >> $LOG
