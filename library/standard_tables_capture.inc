@@ -76,6 +76,7 @@ function rxnorm_import($is_windows_flag) {
     // set paths
     $dirScripts = $GLOBALS['temporary_files_dir']."/rxnorm/scripts/mysql";
     $dir = $GLOBALS['temporary_files_dir']."/rxnorm/rrf";
+    $dir=str_replace('\\','/',$dir);
 
     // load scripts
     $file_load = file_get_contents($dirScripts.'/Table_scripts_mysql_rxn.sql', true);
@@ -174,6 +175,7 @@ function snomed_import() {
     $dir_snomed = $GLOBALS['temporary_files_dir']."/snomed/";
     $sub_path="Terminology/Content/";
     $dir=$dir_snomed;
+    $dir=str_replace('\\','/',$dir);
 
     // executing the create statement for tables, these are defined in snomed_capture.inc file
     foreach($table_array_for_snomed as $val){
