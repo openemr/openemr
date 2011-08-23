@@ -207,15 +207,12 @@ else { ?>
 <?php
   $sql = "select i1.id as id, i1.immunization_id as immunization_id, i1.cvx_code as cvx_code, c.code_text_short as cvx_text, ".
          " if (i1.administered_date, concat(i1.administered_date,' - '), substring(i1.note,1,20)) as immunization_data ".
-         //" from immunizations i1, code_types ct ".
          " from immunizations i1 ".
-         " left join codes c on i1.cvx_code = c.code ".
+         " left join codes c on CAST(IFNULL(i1.cvx_code,0) AS CHAR) = c.code ".
          " left join code_types ct on c.code_type = ct.ct_id ".
          " where i1.patient_id = ? ".
-         " AND (( cvx_code = '0' ) OR ".
-         " ( cvx_code != '0' AND ct.ct_key = 'CVX')) ";
-         //" ( cvx_code != '0' AND ct.ct_key = 'CVX' AND c.code_type = ct.ct_id) ";
-         //" ( cvx_code != '0' AND c.code_type = '4') ";
+         " AND (( cvx_code = '0' OR cvx_code IS NULL ) OR ".
+         " ( cvx_code != '0' AND ct.ct_key = 'CVX')) ".
          " order by i1.administered_date desc";
 
   $result = sqlStatement($sql, array($pid) );
