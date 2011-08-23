@@ -521,7 +521,7 @@ if ($GLOBALS['patient_id_category_name']) {
     <!-- start left column div -->
     <div style='float:left; margin-right:20px'>
      <table cellspacing=0 cellpadding=0>
-      <tr>
+      <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
        <td>
 <?php
 // Billing expand collapse widget
