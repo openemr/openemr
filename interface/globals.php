@@ -86,13 +86,28 @@ if (IS_WINDOWS) {
  //convert windows path separators
  $webserver_root = str_replace("\\","/",$webserver_root); 
 }
+
 // Auto collect the relative html path, i.e. what you would type into the web
 // browser after the server address to get to OpenEMR.
+
+// wh25aug11 - adapted from http://stackoverflow.com/questions/176712/how-can-i-find-an-applications-base-url
+// works better than trimming if there's a symlink or a ~user directory involved
+$tempPath1 = explode('/', str_replace('\\', '/', dirname(dirname($_SERVER['SCRIPT_FILENAME']))));
+$tempPath2 = explode('/', substr($webserver_root, 0, -1));
+$tempPath3 = explode('/', str_replace('\\', '/', dirname(dirname($_SERVER['PHP_SELF']))));
+
+for ($i = count($tempPath2); $i < count($tempPath1); $i++)
+    array_pop ($tempPath3);
+
 $web_root = substr($webserver_root, strlen($_SERVER['DOCUMENT_ROOT']));
+$web_root = implode('/', $tempPath3);
 // Ensure web_root starts with a path separator
 if (preg_match("/^[^\/]/",$web_root)) {
  $web_root = "/".$web_root;
 }
+unset($tempPath1, $tempPath2, $tempPath3);
+// wh25aug11 / end
+
 // The webserver_root and web_root are now automatically collected in
 //  real time per above code. If above is not working, can uncomment and
 //  set manually here:
