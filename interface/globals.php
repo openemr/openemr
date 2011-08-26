@@ -99,7 +99,6 @@ $tempPath3 = explode('/', str_replace('\\', '/', dirname(dirname($_SERVER['PHP_S
 for ($i = count($tempPath2); $i < count($tempPath1); $i++)
     array_pop ($tempPath3);
 
-$web_root = substr($webserver_root, strlen($_SERVER['DOCUMENT_ROOT']));
 $web_root = implode('/', $tempPath3);
 // Ensure web_root starts with a path separator
 if (preg_match("/^[^\/]/",$web_root)) {
