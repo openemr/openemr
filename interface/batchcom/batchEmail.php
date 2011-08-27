@@ -27,19 +27,19 @@ while ($row=sqlFetchArray($res)) {
     // prepare text for ***NAME*** tag
     $pt_name=$row['title'].' '.$row['fname'].' '.$row['lname'];
     $pt_email=$row['email'];
-    $email_subject=$_POST['email_subject'];
+	
+	$email_subject=$_POST['email_subject'];
     $email_body=$_POST['email_body'];
     $email_subject=ereg_replace('\*{3}NAME\*{3}', $pt_name, $email_subject );
     $email_body=   ereg_replace('\*{3}NAME\*{3}', $pt_name, $email_body );
 
     $headers = "MIME-Version: 1.0\r\n";
-    $headers .= "To: $pt_name<$pt_email>\r\n";
-    $headers .= "From: <$email_sender>\r\n";
-    $headers .= "Reply-to: <$email_sender>\r\n";
+	$headers .= "To: $pt_name<".$pt_email.">\r\n";
+    $headers .= "From: <".$email_sender.">\r\n";
+    $headers .= "Reply-to: <".$email_sender.">\r\n";
     $headers .= "X-Priority: 3\r\n";
     $headers .= "X-Mailer: PHP mailer\r\n";
-    
-    if ( mail ('',$email_subject,$email_body,$headers)) {
+    if ( mail($pt_email,$email_subject,$email_body,$headers)) {
 
         echo ("<br>Email sent to $pt_name at $pt_email");
         $patient_id=$row['id'];
