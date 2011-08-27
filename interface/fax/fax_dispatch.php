@@ -187,9 +187,10 @@ if ($_POST['form_save']) {
         //
         $imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/$patient_id/encounters";
         $imagepath = "$imagedir/${encounter_id}_$formid.jpg";
-        //
+        echo $imagedir;
+		die;
         if (! is_dir($imagedir)) {
-          $tmp0 = exec("mkdir -p '$imagedir'", $tmp1, $tmp2);
+		  $tmp0 = exec('mkdir -p "'.$imagedir.'"', $tmp1, $tmp2);
           if ($tmp2) die("mkdir returned $tmp2: $tmp0");
           exec("touch '$imagedir/index.html'");
         }
@@ -333,8 +334,10 @@ $using_scanned_notes = $tmp['count'];
 // If the image cache does not yet exist for this fax, build it.
 // This will contain a .tif image as well as a .jpg image for each page.
 //
+echo $faxcache;
+
 if (! is_dir($faxcache)) {
-  $tmp0 = exec("mkdir -p '$faxcache'", $tmp1, $tmp2);
+  $tmp0 = exec('mkdir -p "'.$faxcache.'"', $tmp1, $tmp2);
   if ($tmp2) die("mkdir returned $tmp2: $tmp0");
   if (strtolower($ext) != '.tif') {
     // convert's default density for PDF-to-TIFF conversion is 72 dpi which is
@@ -720,29 +723,23 @@ while ($urow = sqlFetchArray($ures)) {
 <?php
 $dh = opendir($faxcache);
 if (! $dh) die("Cannot read $faxcache");
-$jpgarray = array();
+$page = 0;
 while (false !== ($jfname = readdir($dh))) {
   if (preg_match("/^(.*)\.jpg/", $jfname, $matches)) {
-    $jpgarray[$matches[1]] = $jfname;
+    ++$page;
+    $jfnamebase = $matches[1];
+    echo " <tr>\n";
+    echo "  <td valign='top'>\n";
+    echo "   <img src='../../sites/" . $_SESSION['site_id'] . "/faxcache/$mode/$filebase/$jfname' />\n";
+    echo "  </td>\n";
+    echo "  <td align='center' valign='top'>\n";
+    echo "   <input type='checkbox' name='form_images[]' value='$jfnamebase' checked />\n";
+    echo "   <br />$page\n";
+    echo "  </td>\n";
+    echo " </tr>\n";
   }
 }
 closedir($dh);
-// readdir does not read in any particular order, we must therefore sort
-// by filename so the display order matches the original document.
-ksort($jpgarray);
-$page = 0;
-foreach ($jpgarray as $jfnamebase => $jfname) {
-  ++$page;
-  echo " <tr>\n";
-  echo "  <td valign='top'>\n";
-  echo "   <img src='../../sites/" . $_SESSION['site_id'] . "/faxcache/$mode/$filebase/$jfname' />\n";
-  echo "  </td>\n";
-  echo "  <td align='center' valign='top'>\n";
-  echo "   <input type='checkbox' name='form_images[]' value='$jfnamebase' checked />\n";
-  echo "   <br />$page\n";
-  echo "  </td>\n";
-  echo " </tr>\n";
-}
 ?>
 
 </table>
