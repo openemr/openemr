@@ -364,7 +364,8 @@ foreach ($ordres as $row) {
       if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
       echo "<br />";
       // echo "<a href='javascript:;' class='link' onclick='return openissue($patient_id,$issue_id)'>";
-      echo "<a href='javascript:;' class='link' onclick='return newvisit($issue_id)'>";
+      echo "<a href='javascript:;' class='link' onclick='return newvisit($issue_id)' title='" .
+        xl('Click to add new consultation') . "'>";
       echo "<b>$tcode</b>: " . htmlspecialchars($irow['title'], ENT_NOQUOTES);
       echo "</a>\n";
       $fres = sqlStatement("SELECT f.date, f.encounter, f.form_id, tp.value FROM " .
@@ -392,7 +393,7 @@ foreach ($ordres as $row) {
       if (!$form_id) {
         echo "<br /><a href='javascript:;' class='link' onclick='return newtpform($issue_id)'>";
         echo "&nbsp;&nbsp;";
-        echo htmlspecialchars('[' . xl('Add') . ']', ENT_NOQUOTES);
+        echo htmlspecialchars('[' . xl('Add Rehab') . ']', ENT_NOQUOTES);
         echo "</a>\n";
       }
     }

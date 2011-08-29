@@ -22,7 +22,8 @@ if (isset($_GET['date'])) {
   while ($row = sqlFetchArray($res)) {
     $s .= nl2br(htmlentities($row['body'],ENT_QUOTES)) . "<br />";
   }
-  if ($s === '') $s = "No notes";
+  if ($s === '') $s = xl('No notes') . '<br />';
+  $s .= xl('Click here to add new injury change status and edit daily activity');
 }
 else {
   // get issues
