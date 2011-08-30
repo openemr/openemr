@@ -648,7 +648,7 @@ while ($row = sqlFetchArray($res)) {
 <?php } else if ($list_id == 'adjreason' || $list_id == 'abook_type') { ?>
   <td><b><?php xl('Type','e'); ?></b></td>
 <?php } else if ($list_id == 'immunizations') { ?>
-  <td><b>&nbsp&nbsp&nbsp&nbsp<?php xl('CVX Code Mapping','e'); ?></b></td>
+  <td><b>&nbsp;&nbsp;&nbsp;&nbsp;<?php xl('CVX Code Mapping','e'); ?></b></td>
 <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>
