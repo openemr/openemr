@@ -100,13 +100,13 @@ function related_codes_are_used() {
 function lookup_code_descriptions($codes) {
   global $code_types;
   $code_text = '';
-  $sqlArray = array();
   if (!empty($codes)) {
     $relcodes = explode(';', $codes);
     foreach ($relcodes as $codestring) {
       if ($codestring === '') continue;
       list($codetype, $code) = explode(':', $codestring);
       $wheretype = "";
+      $sqlArray = array();
       if (empty($code)) {
         $code = $codetype;
       } else {
