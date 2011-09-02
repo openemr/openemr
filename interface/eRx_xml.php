@@ -26,35 +26,35 @@
 // +------------------------------------------------------------------------------+
 function getErxPath()
 {
-    if($GLOBALS['erx_source']==1)
-    return $GLOBALS['erx_path'];
-    else if($GLOBALS['erx_source']==2)
+    //if($GLOBALS['erx_source']==1)
+    //return $GLOBALS['erx_path'];
+    //else if($GLOBALS['erx_source']==2)
     return $GLOBALS['erx_path_production'];
 }
 
 function getErxSoapPath()
 {
-    if($GLOBALS['erx_source']==1)
-    return $GLOBALS['erx_path_soap'];
-    else if($GLOBALS['erx_source']==2)
+    //if($GLOBALS['erx_source']==1)
+    //return $GLOBALS['erx_path_soap'];
+    //else if($GLOBALS['erx_source']==2)
     return $GLOBALS['erx_path_soap_production'];
 }
 
 function getErxCredentials()
 {
     $cred=array();
-    if($GLOBALS['erx_source']==1)
-    {
-        $cred[]=$GLOBALS['partner_name'];
-        $cred[]=$GLOBALS['erx_name'];
-        $cred[]=$GLOBALS['erx_password'];
-    }
-    else if($GLOBALS['erx_source']==2)
-    {
+    //if($GLOBALS['erx_source']==1)
+    //{
+    //    $cred[]=$GLOBALS['partner_name'];
+    //    $cred[]=$GLOBALS['erx_name'];
+    //    $cred[]=$GLOBALS['erx_password'];
+    //}
+    //else if($GLOBALS['erx_source']==2)
+    //{
         $cred[]=$GLOBALS['partner_name_production'];
         $cred[]=$GLOBALS['erx_name_production'];
         $cred[]=$GLOBALS['erx_password_production'];
-    }
+    //}
     return $cred;
 }
 
@@ -768,13 +768,38 @@ function checkError($xml)
     curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
     curl_setopt($ch, CURLOPT_USERAGENT,"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-     
     
     $result=curl_exec($ch)  or die( curl_error($ch)) ;
+    preg_match('/<textarea.*>(.*)Original XML:/is',$result,$error_message);    
+    erx_error_log($error_message[1]);    
+    $arr=split('Error',$error_message[1]);
+    //echo "Te: ".count($arr);
+    //print_r($arr);
+    if(count($arr)==1)
+    {
+        echo nl2br($error_message[1]);
+    }
+    else
+    {
+        for($i=1;$i<count($arr);$i++)
+        {
+            echo $arr[$i]."<br><br>";
+        }
+    }
     curl_close($ch);
     if(strpos($result,'RxEntry.aspx'))
         return '1';
     else
         return '0';
+}
+function erx_error_log($message)
+{
+    $date = date("Y-m");
+    if(!is_dir('erx_error'))
+    mkdir('erx_error');
+    $filename = "erx_error/erx_error"."-".$date.".log";
+    $f=fopen($filename,'a');
+    fwrite($f,date("Y-m-d H:i:s")." ==========> ".$message."\r\n");
+    fclose($f);
 }
 ?>

@@ -1169,7 +1169,8 @@ if (!empty($reg)) {
       <li><a class="collapsed_lv2"><span><?php xl('Status','e') ?></span></a>
         <ul>
           <?php genTreeLink('RTop','erx',xl('e-Rx')); ?>
-          <?php genTreeLink('RTop','err',xl('e-Rx Renewal')); ?>
+          <?php //genTreeLink('RTop','err',xl('e-Rx Renewal')); ?>
+          <?php genMiscLink('RTop','err','0',xl('e-Rx Renewal'),'eRx.php?page=status'); ?>
         </ul>
       </li>
     </ul>
