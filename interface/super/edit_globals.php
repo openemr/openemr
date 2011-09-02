@@ -249,6 +249,14 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         "size='50' maxlength='255' value='$fldvalue' />\n";
     }
 
+    else if ($fldtype == 'pass') {
+	  if ($_GET['mode'] == "user") {
+        $globalTitle = $globalValue;
+      }
+      echo "  <input type='password' name='form_$i' " .
+        "size='50' maxlength='255' value='$fldvalue' />\n";
+    }
+
     else if ($fldtype == 'lang') {
       $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
       echo "  <select name='form_$i' id='form_$i'>\n";
