@@ -1635,4 +1635,8 @@ CREATE TABLE  `patient_access_offsite` (
 UPDATE globals SET gl_value = 'style_purple.css' WHERE gl_name = 'css_header' AND gl_value = 'style_tan.css';
 #EndIf
 
+#IfMissingColumn form_misc_billing_options date_initial_treatment
+ALTER TABLE `form_misc_billing_options` 
+  ADD date_initial_treatment date default NULL;
+#EndIf
 

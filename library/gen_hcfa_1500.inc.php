@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -301,8 +301,11 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(32, 5, 2, substr($tmp,6,2));
   put_hcfa(32, 8, 4, substr($tmp,0,4));
 
-  // Box 15. Date of First Occurrence
-  // Not currently supported.
+  // Box 15. First Date of Same or Similar Illness, if applicable
+  $tmp = $claim->dateInitialTreatment();
+  put_hcfa(32,36, 2, substr($tmp,4,2));
+  put_hcfa(32,39, 2, substr($tmp,6,2));
+  put_hcfa(32,42, 4, substr($tmp,0,4));
 
   // Box 16. Dates Patient Unable to Work in Current Occupation
   if ($claim->isUnableToWork()) {

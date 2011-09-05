@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -383,7 +383,16 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "*Y" .
     "*C" .
     "~\n"; 
-    
+
+  if ($claim->dateInitialTreatment()) {
+    ++$edicount;
+    $out .= "DTP" .       // Date of Initial Treatment
+      "*454" .
+      "*D8" .
+      "*" . $claim->dateInitialTreatment() .
+      "~\n";
+  }
+
   ++$edicount;
   $out .= "DTP" .       // Date of Onset
     "*431" .

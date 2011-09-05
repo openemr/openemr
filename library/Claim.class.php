@@ -221,6 +221,7 @@ class Claim {
       "ON fpa.id = forms.form_id WHERE " .
       "forms.encounter = '{$this->encounter_id}' AND " .
       "forms.pid = '{$this->pid}' AND " .
+      "forms.deleted = 0 AND " .
       "forms.formdir = 'misc_billing_options' " .
       "ORDER BY forms.date";
     $this->billing_options = sqlQuery($sql);
@@ -1043,6 +1044,10 @@ class Claim {
 
   function additionalNotes() {
     return x12clean(trim($this->billing_options['comments']));
+  }
+
+  function dateInitialTreatment() {
+    return str_replace('-', '', substr($this->billing_options['date_initial_treatment'], 0, 10));
   }
 
   // Returns an array of unique diagnoses.  Periods are stripped.
