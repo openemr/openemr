@@ -1211,6 +1211,34 @@ $GLOBALS_METADATA = array(
       'https://your_web_site.com/openemr/patients',
       xl('Website link for the Onsite Patient Portal.')
     ),
+    
+    'portal_offsite_enable' => array(
+      xl('Enable Offsite Patient Portal'),
+      'bool',                           // data type
+      '0',
+      xl('Enable Offsite Patient Portal.')
+    ),
+
+    'portal_offsite_username' => array(
+      xl('Offsite Patient Portal Username'),
+      'text',                           // data type
+      '',
+      xl('Offsite Patient Portal Username(Put Blank If not Registered).')
+    ),
+
+    'portal_offsite_password' => array(
+      xl('Offsite Patient Portal Password'),
+      'pwd',                           // data type
+      '',
+      xl('Offsite Patient Portal Password(Put Blank If not Registered).')
+    ),
+
+    'portal_offsite_address' => array(
+      xl('Offsite Patient Portal Site Address'),
+      'text',                           // data type
+      'https://mydocsportal.com/provider.php',
+      xl('Offsite Https link for the Patient Portal.')
+    ),
 
   ),
 
@@ -1245,7 +1273,7 @@ $GLOBALS_METADATA = array(
       'https://openemrsupport.com:29443/len/api',
       xl('Https link for the OpenEMR Support LLC Lab Exchange Service.')
     ),
-
+    
     'erx_enable' => array(
       xl('Enable NewCrop eRx Service'),
       'bool',                           // data type

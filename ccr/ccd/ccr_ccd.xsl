@@ -622,11 +622,13 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" exclude-result-prefixes="a
                                                     <td>
                                                         <xsl:value-of select="a:Type/a:Text"/>
                                                     </td>
+                        			    			<td>
                                                     <table>
                                                         <tbody>
                                                             <xsl:apply-templates select="a:DateTime"/>
                                                         </tbody>
                                                     </table>
+						    						</td>
                                                     <td>
                                                         <xsl:apply-templates select="a:Description/a:Code"/>
                                                     </td>

@@ -85,6 +85,10 @@
   //
   // Section "nationnotes" (Nation Notes):
   //   nn_configure     Nation Notes
+  //
+  // Section "patientportal" (Patient Portal):
+  //   portal     Patient Portal
+  
 
   if (isset ($phpgacl_location)) {
     include_once("$phpgacl_location/gacl.class.php");

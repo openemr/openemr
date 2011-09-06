@@ -69,12 +69,24 @@ switch($task) {
         $assigned_to = $_POST['assigned_to'];
         $form_message_status = $_POST['form_message_status'];
         $reply_to = $_POST['reply_to'];
-        if ($noteid) {
-          updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status);
-          $noteid = '';
-        }
-        else {
-          $noteid = addPnote($reply_to, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
+        $assigned_to_list = explode(';',$assigned_to);
+        foreach($assigned_to_list as $assigned_to){
+          if ($noteid && $assigned_to != '-patient-') {
+            updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status);
+            $noteid = '';
+          }
+          else {
+            if($noteid && $assigned_to == '-patient-'){
+              $row = getPnoteById($noteid);
+              if (! $row) die("getPnoteById() did not find id '$noteid'");
+              $pres = sqlQuery("SELECT lname, fname " .
+                "FROM patient_data WHERE pid = ?", array($reply_to) );
+              $patientname = $pres['lname'] . ", " . $pres['fname'];
+              $note .= "\n\n$patientname on ".$row['date']." wrote:\n\n";
+              $note .= $row['body'];
+            }
+            addPnote($reply_to, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
+          }
         }
     } break;
     case "save" : {
@@ -139,10 +151,14 @@ echo "
    ?>
    &nbsp; &nbsp;
    <b><?php echo htmlspecialchars( xl('To'), ENT_QUOTES); ?>:</b>
-   <select name='assigned_to'>
+   <input type='textbox' name='assigned_to_text' id='assigned_to_text' size='50' readonly='readonly' value='<?php echo htmlspecialchars(xl("Select Users From The Dropdown List"), ENT_QUOTES)?>' >
+   <input type='hidden' name='assigned_to' id='assigned_to' >
+   <select name='users' id='users' onchange='addtolist(this);' >
 
 <?php
-
+  echo "<option value='" . htmlspecialchars( '--', ENT_QUOTES) . "'";
+  echo ">" . htmlspecialchars( xl('Select User'), ENT_NOQUOTES);
+  echo "</option>\n";
 $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  "WHERE username != '' AND active = 1 AND " .
  "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
@@ -231,6 +247,9 @@ $(document).ready(function(){
       if (document.forms[0].reply_to.value.length == 0) {
        alert('<?php echo htmlspecialchars( xl('Please choose a patient'), ENT_QUOTES); ?>');
       }
+      else if (document.forms[0].assigned_to.value.length == 0) {
+       alert('<?php echo addslashes(xl('Recipient List Is Empty')); ?>');
+      }
       else
       {
         $("#new_note").submit();
@@ -267,6 +286,23 @@ $(document).ready(function(){
  function sel_patient() {
   dlgopen('../../main/calendar/find_patient_popup.php', '_blank', 500, 400);
  }
+ 
+  function addtolist(sel){
+    var itemtext = document.getElementById('assigned_to_text');
+    var item = document.getElementById('assigned_to');
+    if(sel.value != '--'){
+      if(item.value){
+        if(item.value.indexOf(sel.value) == -1){
+          itemtext.value = itemtext.value +' ; '+ sel.options[sel.selectedIndex].text;
+          item.value = item.value +';'+ sel.value;
+        }
+      }else{
+        itemtext.value = sel.options[sel.selectedIndex].text;
+        item.value = sel.value;
+      }
+    }
+  }
+ 
 </script><?php
 }
 else {
