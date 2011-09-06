@@ -78,6 +78,8 @@ addObjectSectionAcl('lists', 'Lists');
 addObjectSectionAcl('placeholder', 'Placeholder');
 //Add 'Nation Notes' object section (added in 4.1.0)
 addObjectSectionAcl('nationnotes','Nation Notes');
+//Add 'Patient Portal' object section (added in 4.1.0)
+addObjectSectionAcl('patientportal', 'Patient Portal');
 
 //Add new Objects
 echo "<BR/><B>Adding new objects</B><BR/>";
@@ -107,6 +109,8 @@ addObjectAcl('placeholder', 'Placeholder', 'filler', 'Placeholder (Maintains emp
 addObjectAcl('patients', 'Patients', 'sign', 'Sign Lab Results (write,addonly optional)');
 //Add 'nationnotes' object (added in 4.1.0)
 addObjectAcl('nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure');
+//Add 'patientportal' object (added in 4.1.0)
+addObjectAcl('patientportal', 'Patient Portal', 'portal', 'Patient Portal');
 
 //Update already existing Objects
 echo "<BR/><B>Upgrading objects</B><BR/>";
@@ -236,6 +240,10 @@ updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'sign', 'Sign Lab Re
 updateAcl($admin_write, 'Administrators','nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure','write');
 //Insert the 'sign' object from the 'nationnotes' section into the Emergency Login group write ACL (added in 3.3.0)
 updateAcl($emergency_write, 'Emergency Login','nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure','write');
+//Insert the 'patientportal' object from the 'patientportal' section into the Administrators group write ACL (added in 4.1.0)
+updateAcl($admin_write, 'Administrators','patientportal', 'Patient Portal', 'portal', 'Patient Portal','write');
+//Insert the 'patientportal' object from the 'patientportal' section into the Emergency Login group write ACL (added in 4.1.0)
+updateAcl($emergency_write, 'Emergency Login','patientportal', 'Patient Portal', 'portal', 'Patient Portal','write');
 
 //Function will return an array that contains the ACL ID number.
 //It will also check to ensure the ACL exist and is not duplicated.

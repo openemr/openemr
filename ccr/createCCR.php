@@ -210,13 +210,13 @@ function createCCR($action,$raw="no"){
 		$ccr->preserveWhiteSpace = false;
 		$ccr->formatOutput = true;
 		
-		$ccr->save('generatedXml/ccrForCCD.xml');
+		$ccr->save(dirname(__FILE__) .'/generatedXml/ccrForCCD.xml');
 
 		$xmlDom = new DOMDocument();
 		$xmlDom->loadXML($ccr->saveXML());
 		
 		$ccr_ccd = new DOMDocument();
-		$ccr_ccd->load('ccd/ccr_ccd.xsl');
+		$ccr_ccd->load(dirname(__FILE__) .'/ccd/ccr_ccd.xsl');
 
 		$xslt = new XSLTProcessor();
 		$xslt->importStylesheet($ccr_ccd);
@@ -227,7 +227,7 @@ function createCCR($action,$raw="no"){
 		
 		$ccd->loadXML($xslt->transformToXML($xmlDom));
 		
-		$ccd->save('generatedXml/ccdDebug.xml');
+		$ccd->save(dirname(__FILE__) .'/generatedXml/ccdDebug.xml');
 		
                 if ($raw == "yes") {
                   // simply send the xml to a textarea (nice debugging tool)
@@ -238,7 +238,7 @@ function createCCR($action,$raw="no"){
                 }
 
 		$ss = new DOMDocument();
-		$ss->load("stylesheet/cda.xsl");
+		$ss->load(dirname(__FILE__) ."/stylesheet/cda.xsl");
 				
 		$xslt->importStyleSheet($ss);
 
@@ -310,6 +310,9 @@ function createCCR($action,$raw="no"){
 		echo $main_xml;
 	}
 	
+if($_POST['ccrAction'])
+{
 createCCR($_POST['ccrAction'],$_POST['raw']);
+}
 
 ?>
