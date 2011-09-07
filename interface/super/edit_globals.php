@@ -17,6 +17,14 @@ if ($_GET['mode'] != "user") {
   $thisauth = acl_check('admin', 'super');
   if (!$thisauth) die(xl('Not authorized'));
 }
+?>
+
+<html>
+
+<head>
+<?php
+
+html_header_show();
 
 // If we are saving user_specific globals.
 //
@@ -107,10 +115,6 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
   echo "}</script>";
 }
 ?>
-<html>
-
-<head>
-<?php html_header_show();?>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="../../library/dialog.js"></script>
