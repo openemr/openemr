@@ -211,8 +211,8 @@ else { ?>
          " left join codes c on CAST(IFNULL(i1.cvx_code,0) AS CHAR) = c.code ".
          " left join code_types ct on c.code_type = ct.ct_id ".
          " where i1.patient_id = ? ".
-         " AND (( cvx_code = '0' OR cvx_code IS NULL ) OR ".
-         " ( cvx_code != '0' AND ct.ct_key = 'CVX')) ".
+         " AND (( i1.cvx_code = '0' OR i1.cvx_code IS NULL ) OR ".
+         " ( ( i1.cvx_code != '0' AND i1.cvx_code IS NOT NULL ) AND ct.ct_key = 'CVX') ) ".
          " order by i1.administered_date desc";
 
   $result = sqlStatement($sql, array($pid) );

@@ -41,8 +41,8 @@ $sqlstmt = "select date_format(i1.administered_date,'%Y-%m-%d') as '" . xl('Date
             " left join codes c on CAST(IFNULL(i1.cvx_code,0) AS CHAR) = c.code ".
             " left join code_types ct on c.code_type = ct.ct_id ".
             " where p.pid = ? ".
-            " AND (( i1.cvx_code = '0'  OR cvx_code IS NULL ) OR ".
-                " ( i1.cvx_code != '0' AND ct.ct_key = 'CVX' )) ";
+            " AND ( ( i1.cvx_code = '0'  OR i1.cvx_code IS NULL ) OR ".
+                " ( ( i1.cvx_code != '0' AND i1.cvx_code IS NOT NULL ) AND ct.ct_key = 'CVX' ) ) ";
 
 // sort the results, as they are on the user's screen
 $sqlstmt .= " order by ";
