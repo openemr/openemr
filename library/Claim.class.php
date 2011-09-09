@@ -193,9 +193,16 @@ class Claim {
     $provider_id = $this->encounter['provider_id'];
     $sql = "SELECT * FROM users WHERE id = '$provider_id'";
     $this->provider = sqlQuery($sql);
-// Selecting the billing facility assigned  to the service facility
-    $sql = "SELECT * FROM facility " .
-    " where id ='" . addslashes($this->encounter['billing_facility']) . "' ";
+    // Selecting the billing facility assigned  to the encounter.  If none,
+    // try the first (and hopefully only) facility marked as a billing location.
+    if (empty($this->encounter['billing_facility'])) {
+      $sql = "SELECT * FROM facility " .
+        "ORDER BY billing_location DESC, id ASC LIMIT 1";
+    }
+    else {
+      $sql = "SELECT * FROM facility " .
+      " where id ='" . addslashes($this->encounter['billing_facility']) . "' ";
+    }
     $this->billing_facility = sqlQuery($sql);
 
     $sql = "SELECT * FROM insurance_numbers WHERE " .
