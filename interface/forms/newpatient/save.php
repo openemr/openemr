@@ -10,26 +10,19 @@ require_once("$srcdir/sql.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
-
-foreach ($_POST as $k => $var) {
-  if (! is_array($var)) $_POST[$k] = mysql_escape_string($var);
-  echo "$var\n";
-}
+require_once("$srcdir/formdata.inc.php");
 
 $conn = $GLOBALS['adodb']['db'];
 
-// $date = $_POST["year"]."-".$_POST["month"]."-".$_POST["day"];
-// $onset_date = $_POST["onset_year"]."-".$_POST["onset_month"]."-".$_POST["onset_day"];
-
-$date        = $_POST['form_date'];
-$onset_date  = $_POST['form_onset_date'];
-$sensitivity = $_POST['form_sensitivity'];
-$pc_catid    = $_POST['pc_catid'];
-$facility_id = $_POST['facility_id'];
-$billing_facility = $_POST['billing_facility'];
-$reason      = $_POST['reason'];
-$mode        = $_POST['mode'];
-$referral_source = $_POST['form_referral_source'];
+$date             = formData('form_date');
+$onset_date       = formData('form_onset_date');
+$sensitivity      = formData('form_sensitivity');
+$pc_catid         = formData('pc_catid');
+$facility_id      = formData('facility_id');
+$billing_facility = formData('billing_facility');
+$reason           = formData('reason');
+$mode             = formData('mode');
+$referral_source  = formData('form_referral_source');
 
 $facilityresult = sqlQuery("select name FROM facility WHERE id = $facility_id");
 $facility = $facilityresult['name'];
@@ -70,7 +63,6 @@ else if ($mode == 'update')
   }
   $encounter = $result['encounter'];
   // See view.php to allow or disallow updates of the encounter date.
-  // $datepart = $_POST["day"] ? "date = '$date', " : "";
   $datepart = acl_check('encounters', 'date_a') ? "date = '$date', " : "";
   sqlStatement("UPDATE form_encounter SET " .
     $datepart .
