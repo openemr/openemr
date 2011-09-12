@@ -700,7 +700,7 @@ function PatientFreeformAllergy($doc,$r,$pid)
                 );
             $b->appendChild( $allergyName );
             }
-            if($val['title2']){
+            if($val['title2'] && ($val['title2']=='Mild' || $val['title2']=='Moderate' || $val['title2']=='Severe')){
             $allergySeverityTypeID = $doc->createElement( "allergySeverityTypeID" );
                 $allergySeverityTypeID->appendChild(
                     $doc->createTextNode( $val['title2'] )
