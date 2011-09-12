@@ -1629,3 +1629,7 @@ CREATE TABLE `patient_access_offsite`(
   PRIMARY KEY (`id`)
 )ENGINE=MyISAM AUTO_INCREMENT=1;
 #EndIf
+
+#IfTable globals
+UPDATE globals SET gl_value = 'style_purple.css' WHERE gl_name = 'css_header' AND gl_value = 'style_tan.css';
+#EndIf
