@@ -197,7 +197,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
 
   // Get payments and adjustments.
   $res = sqlStatement("SELECT " .
-    "a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
+    "a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, a.reason_code, " .
     "a.post_time, a.session_id, a.sequence_no, " .
     "s.payer_id, s.reference, s.check_date, s.deposit_date " .
     ",i.name " .
@@ -222,6 +222,9 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
       $tmp = array();
       $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
       if ($row['pay_amount'] != 0) $tmp['pmt'] = $row['pay_amount'];
+      if ( isset($row['reason_code'] ) ) {
+      	$tmp['msp'] = $row['reason_code'];
+      }
       if ($row['adj_amount'] != 0 || $row['pay_amount'] == 0) {
         $tmp['chg'] = 0 - $row['adj_amount'];
         // $tmp['rsn'] = (empty($row['memo']) || empty($row['session_id'])) ? 'Unknown adjustment' : $row['memo'];

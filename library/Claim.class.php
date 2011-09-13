@@ -284,7 +284,7 @@ class Claim {
       $coinsurance = 0;
       $inslabel = ($this->payerSequence($ins) == 'S') ? 'Ins2' : 'Ins1';
       $insnumber = substr($inslabel, 3);
-
+	  
       // Compute this procedure's patient responsibility amount as of this
       // prior payer, which is the original charge minus all insurance
       // payments and "hard" adjustments up to this payer.
@@ -302,6 +302,8 @@ class Claim {
             if ($value['plv'] > 0 && $value['plv'] <= $insnumber)
               $ptresp += $value['chg']; // adjustments are negative charges
           }
+          
+          $msp = isset( $value['msp'] ) ? $value['msp'] : null; // record the reason for adjustment
         }
         else {
           // Old method: With SQL-Ledger payer level was stored in the memo.
@@ -426,9 +428,9 @@ class Claim {
       $coinsurance = sprintf('%.2f', $coinsurance);
 
       if ($date && $deductible != 0)
-        $aadj[] = array($date, 'PR', '1', $deductible);
+        $aadj[] = array($date, 'PR', '1', $deductible, $msp);
       if ($date && $coinsurance != 0)
-        $aadj[] = array($date, 'PR', '2', $coinsurance);
+        $aadj[] = array($date, 'PR', '2', $coinsurance, $msp);
 
     } // end if
 
