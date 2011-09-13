@@ -52,12 +52,12 @@ if ($_POST['form_save'] && $_GET['mode'] == "user") {
   echo "parent.left_nav.location.reload();";
   echo "parent.Title.location.reload();";
   echo "if(self.name=='RTop'){";
-  echo "parent.RTop.location.href='edit_globals.php?mode=user';";
   echo "parent.RBot.location.reload();";
   echo "}else{";
-  echo "parent.RBot.location.href='edit_globals.php?mode=user';";
   echo "parent.RTop.location.reload();";
-  echo "}</script>";
+  echo "}";
+  echo "self.location.href='edit_globals.php?mode=user&unique=yes';";
+  echo "</script>";
 }
 
 // If we are saving main globals.
@@ -107,12 +107,12 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
   echo "parent.left_nav.location.reload();";
   echo "parent.Title.location.reload();";
   echo "if(self.name=='RTop'){";
-  echo "parent.RTop.location.href='edit_globals.php';";
   echo "parent.RBot.location.reload();";
   echo "}else{";
-  echo "parent.RBot.location.href='edit_globals.php';";
   echo "parent.RTop.location.reload();";
-  echo "}</script>";
+  echo "}";
+  echo "self.location.href='edit_globals.php?unique=yes';";
+  echo "</script>";
 }
 ?>
 
