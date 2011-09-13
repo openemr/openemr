@@ -1441,7 +1441,7 @@ if ($repeatexdate != "") {
 &nbsp;
 <input type='button' name='form_duplicate' id='form_duplicate' value='<?php xl('Create Duplicate','e');?>' />
 </p></td></tr></table>
-<?php if ($informant) echo "<p class='text'>" . xl('Last update by') . " $informant</p>\n"; ?>
+<?php if ($informant) echo "<p class='text'>" . xl('Last update by') . " $informant " . xl('on') . " " . $row['pc_time'] . "</p>\n"; ?>
 </center>
 </form>
 
