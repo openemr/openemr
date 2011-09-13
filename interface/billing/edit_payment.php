@@ -164,6 +164,7 @@ if (isset($_POST["mode"]))
 					"', pay_amount = '" . trim(formData("Payment$CountRow"   ))  .
 					"', account_code = '" . "$AccountCode"  .
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
+				    "', reason_code = '"   . trim(formData("ReasonCode$CountRow"   )) .
 					"' where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
@@ -178,6 +179,7 @@ if (isset($_POST["mode"]))
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
+				    "', reason_code = '"   . trim(formData("ReasonCode$CountRow"   )) .
 					"', post_time = '"  . trim($created_time					) .
 					"', post_user = '" . trim($user_id            )  .
 					"', session_id = '"    . trim(formData('payment_id')) .
@@ -823,6 +825,7 @@ return false;
 							<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Adj Amount'), ENT_QUOTES) ?></td>
 							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Deductible'), ENT_QUOTES) ?></td>
 							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Takeback'), ENT_QUOTES) ?></td>
+							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('MSP Code'), ENT_QUOTES) ?></td>
 							<td width="40" class="left top" ><?php echo htmlspecialchars( xl('Resn'), ENT_QUOTES) ?></td>
 							<td width="110" class="left top right" ><?php echo htmlspecialchars( xl('Follow Up Reason'), ENT_QUOTES) ?></td>
 						  </tr>
@@ -981,6 +984,11 @@ return false;
 									$rowPayment = sqlFetchArray($resPayment);
 									$FollowUpDB=$rowPayment['follow_up'];
 									$FollowUpReasonDB=$rowPayment['follow_up_note'];
+									
+									$resPayment = sqlStatement("SELECT reason_code from ar_activity where  session_id ='$payment_id' and
+									pid ='$PId' and  encounter  ='$Encounter' and  code='$Code' and modifier='$Modifier'");
+									$rowPayment = sqlFetchArray($resPayment);
+									$ReasonCodeDB=$rowPayment['reason_code'];
 
 									if($Ins==1)
 									 {
@@ -1039,6 +1047,7 @@ return false;
 							<td class="<?php echo $StringClass; ?>" ><input  name="AdjAmount<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  id="AdjAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($AdjAmountDB); ?>"   onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)"  type="text"   style="width:70px;text-align:right; font-size:12px" /></td>
 							<td class="<?php echo $StringClass; ?>" ><input  name="Deductible<?php echo $CountIndex; ?>"  id="Deductible<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"  onChange="ValidateNumeric(this);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Deductible','deductibletotal');"  value="<?php echo htmlspecialchars($DeductibleDB); ?>"   autocomplete="off"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
 							<td class="<?php echo $StringClass; ?>" ><input  name="Takeback<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"   id="Takeback<?php echo $CountIndex; ?>"   value="<?php echo htmlspecialchars($TakebackDB); ?>"   onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Takeback','takebacktotal');RestoreValues(<?php echo $CountIndex; ?>)"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
+							<td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenReasonCode<?php echo $CountIndex; ?>" id="HiddenReasonCode<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($ReasonCodeDB); ?>" type="hidden"/><?php echo generate_select_list( "ReasonCode$CountIndex", "msp_remit_codes", "$ReasonCodeDB", "MSP Code" ); ?></td>							
 							<td align="center" class="<?php echo $StringClass; ?>" ><input type="checkbox" id="FollowUp<?php echo $CountIndex; ?>"  name="FollowUp<?php echo $CountIndex; ?>" value="y" onClick="ActionFollowUp(<?php echo $CountIndex; ?>)" <?php echo $FollowUpDB=='y' ? ' checked ' : ''; ?> /></td>
 							<td class="<?php echo $StringClass; ?> right" ><input  onKeyDown="PreventIt(event)" id="FollowUpReason<?php echo $CountIndex; ?>"    name="FollowUpReason<?php echo $CountIndex; ?>"  <?php echo $FollowUpDB=='y' ? '' : ' readonly '; ?>  type="text"  value="<?php echo htmlspecialchars($FollowUpReasonDB); ?>"    style="width:110px;font-size:12px" /></td>
 						  </tr>

@@ -924,6 +924,12 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
           "*" . $a[3] .
           "~\n";
         if (!$tmpdate) $tmpdate = $a[0];
+        if ( isset($a[4]) &&
+        	$a[4] != null ) {
+        	$out .= "CAS02" . // Previous payer's adjustment reason
+	          "*" . $a[4] .
+	          "~\n";	
+        }
       }
 
       if ($tmpdate) {
