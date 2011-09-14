@@ -179,7 +179,9 @@ upgrade_function () {
       fi
 
       #ensure the mysql database and user exist
-      if ! [ "`check_mysql "$SQLPASSWORD" "$SQLDATABASE" "$SQLLOCATION" "$SQLUSER"`" == "$SQLDATABASE" ]; then
+      if check_mysql "$SQLPASSWORD" "$SQLDATABASE" "$SQLLOCATION" "$SQLUSER"; then
+         log_only "For upgrade, confirmed that the mysql database and mysql user exist"
+      else
          prompt_input openemr/upgrade_not_database critical ret_result
          unable_exit "MySQL '$SQLDATABASE' database does not exist, unable to upgrade."
       fi

@@ -514,7 +514,9 @@ case "$1" in
               log_only "Your PHP configuration is perfect for OpenEMR."
               break
             else
-              prompt_input openemr/php_configure high ret_result
+              if [ "$i" -eq "1" ]; then
+                prompt_input openemr/php_configure high ret_result
+              fi
             fi
             if [ "$i" -eq "1" ]; then
                log_only "(We have placed a backup of your php configuration at $PHP.BAK)"
