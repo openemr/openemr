@@ -15,6 +15,9 @@ V...................Upgrading
 
 I. Overview of Directories
 
+NOTE: Most recent documentation can be found on the online documentation at
+http://www.open-emr.org .
+
 accounting    - Contains information and scripts to support SQL-Ledger
 contrib       - Contains many user-contributed encounter forms and utilities
 custom        - Contains scripts and other text files commonly customized
@@ -25,6 +28,9 @@ sql           - Contains initial database images
 gacl          - Contains embedded php-GACL (access controls)
 
 II. Unpacking
+
+NOTE: Most recent documentation can be found on the online documention at
+http://www.open-emr.org .
 
 The OpenEMR release archive should be named as follows:
 
@@ -44,6 +50,9 @@ openemr-<version>.deb.  This may work with some other Debian-like
 Linux distributions such as Ubuntu.
 
 III. Setup
+
+NOTE: Most recent documentation can be found on the online documentation at
+http://www.open-emr.org .
 
 To run OpenEMR, MySQL and Apache or another PHP-capable webserver must be configured.
 To download Apache, visit www.apache.org
@@ -69,11 +78,12 @@ The setup script will step you through the configuration of the OpenEMR.
 
 The first screen of the setup script will ensure that the webserver user
 (in linux, often is "apache", "www-data", or "nobody") has write privileges on
-certain files and directories. The files include openemr/interface/globals.php and
-openemr/library/sqlconf.php. In linux, these can be set by "chmod a+w filename"
+certain files and directories. The files include
+openemr/sites/default/sqlconf.php. In linux, these can be set by "chmod a+w filename"
 command to grant global write permissions to the file, The directories include
-openemr/gacl/admin/templates_c, openemr/edi, openemr/era, openemr/documents,
-openemr/library/freeb, openemr/custom/letter_templates, 
+openemr/gacl/admin/templates_c, openemr/sites/default/edi,
+openemr/sites/default/era, openemr/sites/default/documents, openemr/library/freeb,
+openemr/custom/letter_templates, 
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled, and 
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  In
 linux, if the webserver user name is "apache", then the command
@@ -136,8 +146,10 @@ Otherwise, just select 'General'. Choosing 'None' is not recommended and
 will force latin1 encoding.
 
 The "Initial User" is the username of the first user, which is what they will
-use to login.  Limit this to one word only.  Their default password will
-always be "pass", without the quotes.
+use to login.  Limit this to one word only.
+
+The "Initial User Password" is the password of the user entered into the above
+"Initial User" field.
 
 The "Initial User's Name" is the value to be used as their last name.  This
 information may be changed in the user administration page.
@@ -147,23 +159,12 @@ will be created.  A user may belong to multiple groups, which again, can be
 altered on the user administration page. It is suggested that no more than
 one group per office be used.
 
-The "Absolute Path" is the full absolute directory path to openemr.  The
-default value is automatically created, so this should not need to be
-modified.  Note that it needs to end without a trailing slash.  To avoid
-confusion, either forward or backward slashes can be used.
-
-The "Relative HTML Path" is the relative html path to openemr, ie. what you
-would type into the web browser after the server address to get to OpenEMR.
-For example, if you type "http://127.0.0.1/clinic/openemr/"  to load OpenEMR,
-set this to "/clinic/openemr" without the trailing slash.  To avoid
-confusion, either forward or backward slashes can be used.
-
 Step 3 is where setup will configure OpenEMR.  It will first create the database
 and connect to it to create the initial tables.  It will then write the mysql
-database configuration to a file.  It will then write the webserver root
-directory to the /openemr/interface/globals.php file.  Should anything fail
-during step 3, you may have to remove the existing database or tables before
-you can try again. If no errors occur, you will see a "Continue" button at the bottom.
+database configuration to the openemr/sites/default/sqlconf.php file.
+Should anything fail during step 3, you may have to remove the existing database or
+tables before you can try again. If no errors occur, you will see a "Continue"
+button at the bottom.
 
 Step 4 will install and configure the embedded phpGACL access controls.  It
 will first write configuration settings to files.  It will then configure the
@@ -183,17 +184,19 @@ the xampp\apache\bin\ directory.  To ensure proper functioning of OpenEMR
 you must make sure that settings in the php.ini file include 
 "short_open_tag = On", "display_errors = Off", "register_globals = Off",
 "magic_quotes_gpc = On", "max_execution_time" set to at least 60, 
-"max_input_time" set to at least 90 , and "memory_limit" set to at least
-"128M".  In order to take full advantage of the patient documents capability
-you must make sure that settings in php.ini file include "file_uploads = On",
-that "upload_max_filesize" is appropriate for your use and that
-"upload_tmp_dir" is set to a correct value that will work on your system.
+"max_input_time" set to at least 90 , "post_max_size" set to at least 30M,
+and "memory_limit" set to at least "128M".  In order to take full advantage
+of the patient documents capability you must make sure that settings in
+php.ini file include "file_uploads = On", that "upload_max_filesize" is
+appropriate for your use and that "upload_tmp_dir" is set to a correct
+value that will work on your system.
 
 Step 6 gives instructions on configuring the Apache web server.  We suggest
 you print these instructions for future reference. Instructions are given to
-secure the "openemrwebroot/documents", "openemrwebroot/edi" and
-"openemrwebroot/era" directories, which contain patient information. This can
-be done be either placing pertinent .htaccess fiels in these directories
+secure the "openemrwebroot/sites/default/documents",
+"openemrwebroot/sites/default/edi" and "openemrwebroot/sites/default/era"
+directories, which contain patient information. This can
+be done be either placing pertinent .htaccess files in these directories
 or by editing the apache configuration file.  The location of the apache
 configuration file is dependent on the operating system.  In linux, you can
 type 'httpd -V' on the commandline; the location to the configuration file
@@ -202,15 +205,15 @@ In windows, the XAMPP 1.7.0 package places the configuration file at
 xampp\apache\conf\httpd.conf.  To secure the /documents, /edi and /era
 directories you can paste following to the end of the apache configuration
 file (ensure you put full path to directories):
-<Directory "openemrwebroot/documents">
+<Directory "openemrwebroot/sites/default/documents">
 order deny,allow
 Deny from all
 </Directory>
-<Directory "openemrwebroot/edi">
+<Directory "openemrwebroot/sites/default/edi">
 order deny,allow
 Deny from all
 </Directory>
-<Directory "openemrwebroot/era">
+<Directory "openemrwebroot/sites/default/era">
 order deny,allow
 Deny from all
 </Directory>
@@ -221,30 +224,31 @@ information. We suggest you print these instructions for future reference.
 Once the system has been configured properly, you may login.  Connect to the
 webserver where the files are stored with your web browser.  Login to the system
 using the username that you picked (default 'admin' without quotes), and the
-password 'pass', without the quotes.  From there, select the "Administration"
+password.  From there, select the "Administration"
 option, and customize the system to your needs.  Add users and groups as is
 needed. For information on using OpenEMR, consult the User Documentation located
-in the Documentation folder, the wiki at http://www.oemr.org, and the forums
-at http://sourceforge.net/projects/openemr.
+in the Documentation folder, the documentation at http://www.open-emr.org, and
+the forums at http://sourceforge.net/projects/openemr.
 
-Reading openemr/includes/config.php and openemr/interface/globals.php is a
-good idea. These files contain many options to choose from including themes.
+Reading openemr/sites/default/config.php is a good idea. This file contains some
+options to choose from including themes.
 
 To create custom encounter forms, see the files
 
   openemr/Documentation/3rd Party Form API.txt
   openemr/interface/forms/OpenEMR_form_example-rev2.tar.gz
 
-and read the included documentation. Many forms exist in contrib/forms as well
-as in interface/forms and may be used as examples.
+and read the included documentation and online documentation at www.openemr.org.
+Many forms exist in contrib/forms as well as in interface/forms and may be used
+as examples.
 
 Other configuration settings are stored under includes/config.php.
 Everything should work out of the installation without touching those, but if 
-you want fax, sql-ledger, and/or Freeb integration you will need to adjust some
-parameters in that file.
+you want fax integration you will need to adjust some parameters in that file.
 
-General-purpose fax support requires customization of interface/globals.php
-and custom/faxcover.txt; it also requires the following utilities:
+General-purpose fax support requires customization within OpenEMR at
+Administration->Globals and custom/faxcover.txt; it also requires
+the following utilities:
 
 * faxstat and sendfax from the HylaFAX client package
 * mogrify from the ImageMagick package
@@ -259,33 +263,34 @@ configured automatically during OpenEMR setup.  It can be administered
 within OpenEMR in the admin->acl menu.  This is very powerful
 access control software.  To learn more about phpGACL
 (see http://phpgacl.sourceforge.net/), recommend reading the phpGACL manual,
-the /openemr/Documentation/README.phpgacl file, and the online wiki at
-www.oemr.org. Also recommend reading the comments in /openemr/library/acl.inc.
+the /openemr/Documentation/README.phpgacl file, and the online documentation at
+http://www.open-emr.org . Also recommend reading the comments in
+/openemr/library/acl.inc.
 
 V. Upgrading
+
+NOTE: Most recent documentation can be found on the online documentation at
+http://www.open-emr.org .
 
 Be sure to back up your OpenEMR installation and database before upgrading!
 
 Upgrading OpenEMR is currently done by replacing the old openemr directory with
-a newer version. Copy the following file from the old version to the new
-version:
-
-  openemr/library/sqlconf.php
-
-Ensure you copy your settings from the following old openemr
+a newer version. And, ensure you copy your settings from the following old openemr
 files to the new configuration files (we do not recommend simply
 copying the entire files):
 
-  openemr/interface/globals.php 
-  openemr/includes/config.php (if you have modified it)
+  openemr/sites/default/sqlconf.php
+    --Also in this sqlconf.php file, set the $config variable (found near bottom
+      of file within bunch of slashes) to 1 ($config = 1;)
+  openemr/sites/default/config.php
 
 The following directories should be copied from the old version to the
 new version:
 
-  openemr\documents 
-  openemr\era 
-  openemr\edi 
-  openemr\custom\letter_templates
+  openemr/sites/default/documents 
+  openemr/sites/default/era 
+  openemr/sites/default/edi 
+  openemr/sites/default/letter_templates
 
 If there are other files that you have customized, then you will also need
 to treat those carefully.
@@ -295,11 +300,6 @@ browser (for example http://openemr.location/sql_upgrade.php).  It will
 prompt you to select the old release number, and will display the SQL
 commands issued as the upgrade occurs.
 
-Next, if you are converting from SQL-Ledger to OpenEMR's internal A/R
-management (normally you should), run the sl_convert.php script
-(e.g. http://openemr.location/sl_convert.php).  Note this script may
-run for several minutes or longer.
+To upgrade phpGACL, run the acl_upgrade.php script from your web browser
+(e.g. http://openemr.location/acl_upgrade.php).
 
-If phpGACL is installed (automatically installed since OpenEMR version 2.9.0.3),
-then you should upgrade your Access Controls by running the acl_upgrade.php
-program using your web browser (e.g. http://openemr.location/acl_upgrade.php).
