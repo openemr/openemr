@@ -3335,6 +3335,7 @@ INSERT INTO `openemr_session_info` VALUES ('978d31441dccd350d406bfab98978f20', '
 -- Table structure for table `patient_access_onsite`
 --
 
+DROP TABLE IF EXISTS `patient_access_onsite`;
 CREATE TABLE `patient_access_onsite`(
   `id` INT NOT NULL AUTO_INCREMENT ,
   `pid` INT(11),
