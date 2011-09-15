@@ -57,17 +57,27 @@ require_once("../interface/globals.php");
   return $randkey;
   }
  }
+ for($i=1;$i<=5;$i++){//some times php is continuing without getting the return value from the function md5_pass()
+   if(!$randkey){
+     if($i>1)
+     sleep(1);
+     $randkey = md5_pass();
+   }
+   else{
+     break;
+   }
+ }
 ?>
 <html>
 <head>
     <?php include_once($GLOBALS['fileroot']."/library/sha1.js");?>
 <script type="text/javascript">
  function getshansubmit(){
-	randkey = "<?php echo md5_pass();?>";
+   	randkey = "<?php echo $randkey;?>";
 	pass = SHA1(document.portal.pass.value+"<?php echo gmdate('Y-m-d H');?>"+randkey);
 	document.portal.pwd.value=pass;
 	document.portal.randkey.value=randkey;
-   document.forms[0].submit();
+	document.forms[0].submit();
  }
  
 </script>

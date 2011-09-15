@@ -45,7 +45,7 @@ class Userforms extends UserAudit{
 	return $ISSUE_TYPES;
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in issue_type error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
       
@@ -87,7 +87,7 @@ class Userforms extends UserAudit{
        return $out;
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in print_report error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
     
@@ -122,7 +122,7 @@ class Userforms extends UserAudit{
 	return $html;
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in print_ccr_report error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
     

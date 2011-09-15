@@ -307,7 +307,7 @@ class existingpatient {
             break;
         
             case 'P20':	
-            if($data[1][1]>0) 
+            if($pid) 
              {
               $string_query=" and pid !=?";
              }
@@ -325,7 +325,7 @@ class existingpatient {
         
 			//getting DOB and SSN for verifying the duplicate patient existance
             case 'P21':	
-            if($data[1][1]>0) 
+            if($pid) 
              {
               $string_query=" and pid !=?";
              }

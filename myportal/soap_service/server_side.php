@@ -69,7 +69,7 @@ class UserService extends Userforms
 	 return $doc->saveXML();
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in text_to_xml");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
 
@@ -108,7 +108,7 @@ class UserService extends Userforms
 	 @unlink($file_name_with_path);
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in delete_file error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
         
@@ -150,7 +150,7 @@ class UserService extends Userforms
 	   return $doc->saveXML();
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in file_to_xml error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
     
@@ -195,7 +195,7 @@ class UserService extends Userforms
 	       chmod($file_name_with_path,0777);
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in store_to_file error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
 	}
 	
@@ -313,7 +313,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in batch_despatch error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
     
@@ -331,7 +331,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		 }
 		else
 		 {
-			throw new SoapFault("Server", "credentials failed in insert_login_details error message");
+			throw new SoapFault("Server", "credentials failed");
 		 }
 	}
    
@@ -380,7 +380,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 			 }
        }
        else{
-	       throw new SoapFault("Server", "credentials failed in update_password error message");
+	       throw new SoapFault("Server", "credentials failed");
        }
     }
     
@@ -405,7 +405,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		     }
 	      }
 	      else{
-		     throw new SoapFault("Server", "credentials failed in update_openemr_appointment error message");
+		     throw new SoapFault("Server", "credentials failed");
 	      }
        }
        
@@ -421,7 +421,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	            sqlStatement($qry,array($var['dld_id']));
        }
        else{
-	       throw new SoapFault("Server", "credentials failed in update_dlm_dld error message");
+	       throw new SoapFault("Server", "credentials failed");
        }
     }
     
@@ -434,7 +434,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	sqlStatement($qry,$data[1]);
       }
       else{
-	throw new SoapFault("Server", "credentials failed in update_dld_approve_deny error message");
+	throw new SoapFault("Server", "credentials failed");
       }
     }
     
@@ -446,7 +446,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	sqlStatement($qry,$data[1]);
       }
       else{
-	throw new SoapFault("Server", "credentials failed in update_dld_approve_deny error message");
+	throw new SoapFault("Server", "credentials failed");
       }
     }
     
@@ -458,7 +458,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	sqlStatement($qry,$data[1]);
       }
       else{
-	throw new SoapFault("Server", "credentials failed in update_dld_approve_deny error message");
+	throw new SoapFault("Server", "credentials failed");
       }
   }
     
@@ -471,7 +471,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	       " VALUES (?,?,?,?,?,?,?)",array($pid,$data[2],$data[3],$data[4],$data[5],$data[6],$data[7]));
        }
        else{
-	       throw new SoapFault("Server", "credentials failed in insert_dld error message");
+	       throw new SoapFault("Server", "credentials failed");
        }
     }
     
@@ -484,7 +484,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	       dlm_filename,dlm_filepath,dlm_effective_date,content) values (?,?,?,?,?,?,?,?,?)",array($data[1],$data[2],$data[3],$data[4],$data[5],$data[6],$data[7],$data[8],$data[9]));
        }
        else{
-	       throw new SoapFault("Server", "credentials failed in insert_dlm error message");
+	       throw new SoapFault("Server", "credentials failed");
        }
     }
     
@@ -508,7 +508,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		return $return_array;
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in batch_select error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
     
@@ -531,7 +531,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		return $return_array;
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in batch_function error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
  
