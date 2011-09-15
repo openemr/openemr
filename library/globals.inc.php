@@ -196,7 +196,7 @@ $GLOBALS_METADATA = array(
     'online_support_link' => array(
       xl('Online Support Link'),
       'text',                           // data type
-      'http://sourceforge.net/projects/openemr/support',
+      'http://open-emr.org/',
       xl('URL for OpenEMR support.')
     ),
       
