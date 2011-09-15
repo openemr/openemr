@@ -82,7 +82,7 @@ class UserAudit extends UserMail{
 		  }
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in delete_if_new_patient error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
        }
        
@@ -98,9 +98,11 @@ class UserAudit extends UserMail{
 	       $comments=$var['comments'];
 	       $user_id=$var['user_id'];
 	       sqlStatement("UPDATE audit_master SET approval_status=?, comments=?,modified_time=NOW(),user_id=? WHERE id=? ",array($approval_status,$comments,$user_id,$audit_master_id));
-	      }
+		   $dld_pid = sqlQuery("SELECT pid from audit_master WHERE id=?",array($audit_master_id));
+		   sqlStatement("UPDATE documents_legal_detail SET dld_signed=? WHERE dld_pid=? AND dld_signed=0",array($approval_status,$dld_pid['pid']));
+		  }
 	      else{
-	      throw new SoapFault("Server", "credentials failed in update_audit_master error message");
+	      throw new SoapFault("Server", "credentials failed");
 	      }
        }
     
@@ -227,7 +229,7 @@ class UserAudit extends UserMail{
 	      }
 	}
 	else{
-		throw new SoapFault("Server", "credentials failed in updated_audited_data error message");
+		throw new SoapFault("Server", "credentials failed");
 	}
     }
     
@@ -287,7 +289,7 @@ class UserAudit extends UserMail{
 	      }
 	     else
 	      {
-		     throw new SoapFault("Server", "credentials failed in insert_to_be_audit_data error message");
+		     throw new SoapFault("Server", "credentials failed");
 	      }
     }
     
@@ -314,7 +316,7 @@ class UserAudit extends UserMail{
 		 }
 		else
 		 {
-			throw new SoapFault("Server", "credentials failed in insert_audit_master error message");
+			throw new SoapFault("Server", "credentials failed");
 		 }
        }
 }

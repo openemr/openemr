@@ -61,7 +61,7 @@ class UserMail {
         return $result_sent_notes;
       }
     }else{
-      throw new SoapFault("Server", "credentials failed in getMails error message");
+      throw new SoapFault("Server", "credentials failed");
     }
   }
 
@@ -78,7 +78,7 @@ class UserMail {
       }
       return $result;
     }else{
-      throw new SoapFault("Server", "credentials failed in getMailDetails error message");
+      throw new SoapFault("Server", "credentials failed");
     }
   }
 
@@ -96,7 +96,7 @@ class UserMail {
       }
       return 1;
     }else{
-      throw new SoapFault("Server", "credentials failed in getMailDetails error message");
+      throw new SoapFault("Server", "credentials failed");
     }
   }
 
@@ -111,7 +111,7 @@ class UserMail {
         updatePnoteMessageStatus($id,$data[2]);
       }
     }else{
-      throw new SoapFault("Server", "credentials failed in getMailDetails error message");
+      throw new SoapFault("Server", "credentials failed");
     }
   }
 }

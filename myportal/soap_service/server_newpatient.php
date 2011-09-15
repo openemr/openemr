@@ -118,36 +118,14 @@ class newpatient{
             break;
 			
             case 'P20':	
-            if($data[1][1]>0) 
-             {
-              $string_query=" and pid !=?";
-             }
-             if($string_query)
-             {
-             $x=array($data[1][0],$pid);
-             }
-             else
-             {
-             $x=array($data[1][0]);
-             }
-            $query="select count(*) AS count from patient_data where pubpid = ? $string_query";
+            $x=array($data[1][0]);
+            $query="select count(*) AS count from patient_data where pubpid = ?";
             return array($query,$x);
             break;
 	    //getting DOB and SSN for verifying the duplicate patient existance
             case 'P21':	
-            if($data[1][1]>0) 
-             {
-              $string_query=" and pid !=?";
-             }
-             if($string_query)
-             {
-             $x=array($data[1][0],$pid);
-             }
-             else
-             {
-             $x=array($data[1][0]);
-             }
-            $query="select  ss,DOB  from patient_data where DOB=? $string_query  ";
+            $x=array($data[1][0]);
+            $query="select  ss,DOB  from patient_data where DOB=?";
             return array($query,$x);
             break;
 	    //master data for calendar from Globals
