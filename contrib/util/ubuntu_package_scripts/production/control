@@ -6,7 +6,7 @@ Priority: optional
 Section: web
 Architecture: all
 Source: openemr
-Homepage: http://www.oemr.org/
+Homepage: http://www.open-emr.org/
 Pre-Depends: debconf
 Depends: mysql-server, apache2-mpm-prefork, makepasswd, libapache2-mod-php5, libdate-calc-perl, libdbd-mysql-perl, libdbi-perl, libhtml-parser-perl, libtiff-tools, libwww-mechanize-perl, libxml-parser-perl, php5, php5-mysql, php5-cli, php5-gd, php5-xsl, php5-curl, php5-mcrypt, php-soap, imagemagick 
 Description: Comprehensive Medical Practice Management Application
@@ -17,6 +17,5 @@ Description: Comprehensive Medical Practice Management Application
  the user is 'admin' and password is 'pass' (recommend changing password
  after login).
  .
- The OpenEMR project home page and wiki (documentation)
- can be found at http://www.oemr.org and the OpenEMR forums can be
- found at http://sourceforge.net/projects/openemr
+ The OpenEMR project home page and wiki (documentation) and forums
+ can be found at http://www.open-emr.org .

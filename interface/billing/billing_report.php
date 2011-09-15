@@ -8,7 +8,7 @@
 // WHEN CONVERT THIS TO NEW SECURITY MODEL, NEED TO REMOVE FOLLOWING
 //   AT APPROXIMATELY LINE 377:
 //     $_REQUEST = stripslashes_deep($_REQUEST);
-// http://www.openmedsoftware.org/wiki/Active_Projects#PLAN
+// http://open-emr.org/wiki/index.php/Active_Projects#PLAN
 
 
 require_once("../globals.php");
