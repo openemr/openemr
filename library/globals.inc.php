@@ -1333,5 +1333,124 @@ $GLOBALS_METADATA = array(
       xl('Enable import status message for NewCrop erx')
     ),
   ),
+  
+  'Rx' => array(
+    'rx_enable_DEA' => array(
+      xl('Rx Enable DEA #'),
+      'bool',                           // data type
+      '1',
+      xl('Rx Enable DEA #')
+    ),
+    'rx_show_DEA' => array(
+      xl('Rx Show DEA #'),
+      'bool',                           // data type
+      '0',
+      xl('Rx Show DEA #')
+    ),
+    'rx_enable_NPI' => array(
+      xl('Rx Enable NPI'),
+      'bool',                           // data type
+      '0',
+      xl('Rx Enable NPI')
+    ),
+    'rx_show_NPI' => array(
+      xl('Rx Show NPI'),
+      'bool',                           // data type
+      '0',
+      xl('Rx Show NPI')
+    ),
+    'rx_enable_SLN' => array(
+      xl('Rx Enable State Lic. #'),
+      'bool',                           // data type
+      '0',
+      xl('Rx Enable State Lic. #')
+    ),
+    'rx_show_SLN' => array(
+      xl('Rx Show State Lic. #'),
+      'bool',                           // data type
+      '0',
+      xl('Rx Show State Lic. #')
+    ),
+    'rx_paper_size' => array(
+      xl('Rx Paper Size'),               // descriptive name
+      array(
+        'LETTER' => xl('Letter Paper Size'),
+        'LEGAL' => xl('Legal Paper Size'),
+        'FOLIO' => xl('Folio Paper Size'),
+        'EXECUTIVE' => xl('Executive Paper Size'),
+        '4A0' => ('4A0' . " " . xl('Paper Size')),
+        '2A0' => ('2A0' . " " . xl('Paper Size')),
+        'A0' => ('A0' . " " . xl('Paper Size')),
+        'A1' => ('A1' . " " . xl('Paper Size')),
+        'A2' => ('A2' . " " . xl('Paper Size')),
+        'A3' => ('A3' . " " . xl('Paper Size')),
+        'A4' => ('A4' . " " . xl('Paper Size')),
+        'A5' => ('A5' . " " . xl('Paper Size')),
+        'A6' => ('A6' . " " . xl('Paper Size')),
+        'A7' => ('A7' . " " . xl('Paper Size')),
+        'A8' => ('A8' . " " . xl('Paper Size')),
+        'A9' => ('A9' . " " . xl('Paper Size')),
+        'A10' => ('A10' . " " . xl('Paper Size')),
+        'B0' => ('B0' . " " . xl('Paper Size')),
+        'B1' => ('B1' . " " . xl('Paper Size')),
+        'B2' => ('B2' . " " . xl('Paper Size')),
+        'B3' => ('B3' . " " . xl('Paper Size')),
+        'B4' => ('B4' . " " . xl('Paper Size')),
+        'B5' => ('B5' . " " . xl('Paper Size')),
+        'B6' => ('B6' . " " . xl('Paper Size')),
+        'B7' => ('B7' . " " . xl('Paper Size')),
+        'B8' => ('B8' . " " . xl('Paper Size')),
+        'B9' => ('B9' . " " . xl('Paper Size')),
+        'B10' => ('B10' . " " . xl('Paper Size')),
+        'C0' => ('C0' . " " . xl('Paper Size')),
+        'C1' => ('C1' . " " . xl('Paper Size')),
+        'C2' => ('C2' . " " . xl('Paper Size')),
+        'C3' => ('C3' . " " . xl('Paper Size')),
+        'C4' => ('C4' . " " . xl('Paper Size')),
+        'C5' => ('C5' . " " . xl('Paper Size')),
+        'C6' => ('C6' . " " . xl('Paper Size')),
+        'C7' => ('C7' . " " . xl('Paper Size')),
+        'C8' => ('C8' . " " . xl('Paper Size')),
+        'C9' => ('C9' . " " . xl('Paper Size')),
+        'C10' => ('C10' . " " . xl('Paper Size')),
+        'RA0' => ('RA0' . " " . xl('Paper Size')),
+        'RA1' => ('RA1' . " " . xl('Paper Size')),
+        'RA2' => ('RA2' . " " . xl('Paper Size')),
+        'RA3' => ('RA3' . " " . xl('Paper Size')),
+        'RA4' => ('RA4' . " " . xl('Paper Size')),
+        'SRA0' => ('SRA0' . " " . xl('Paper Size')),
+        'SRA1' => ('SRA1' . " " . xl('Paper Size')),
+        'SRA2' => ('SRA2' . " " . xl('Paper Size')),
+        'SRA3' => ('SRA3' . " " . xl('Paper Size')),
+        'SRA4' => ('SRA4' . " " . xl('Paper Size')),
+      ),
+      'LETTER',                              // default = tree menu
+      xl('Rx Paper Size')
+    ),
+    'rx_left_margin' => array(
+      xl('Rx Left Margin (px)'),
+      'num',
+      '30',
+      xl('Rx Left Margin (px)')
+    ),
+    'rx_right_margin' => array(
+      xl('Rx Right Margin (px)'),
+      'num',
+      '30',
+      xl('Rx Right Margin (px)')
+    ),
+    'rx_top_margin' => array(
+      xl('Rx Top Margin (px)'),
+      'num',
+      '72',
+      xl('Rx Top Margin (px)')
+    ),
+    'rx_bottom_margin' => array(
+      xl('Rx Bottom Margin (px)'),
+      'num',
+      '30',
+      xl('Rx Bottom Margin (px)')
+    ),
+  ),
 );
 ?>

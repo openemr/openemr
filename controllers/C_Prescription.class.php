@@ -241,11 +241,32 @@ class C_Prescription extends Controller {
     // necessary.  If you need to change this back, then please make it a
     // configurable option.  Faxed prescriptions were not changed.  -- Rod
     // Now it is configureable. Change value in
-    //     <openemr root>/includes/config.php - Tekknogenius
-    if ($this->is_faxing || $GLOBALS['oer_config']['prescriptions']['show_DEA'])
-      $pdf->ezText('<b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id, 12);
-    else
-      $pdf->ezText('<b>' . xl('DEA') . ':</b> ________________________', 12);
+    //     Administration->Globals->Rx
+    if ($GLOBALS['rx_enable_DEA']) {
+        if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
+            $pdf->ezText('<b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id, 12);
+        }
+        else {
+            $pdf->ezText('<b>' . xl('DEA') . ':</b> ________________________', 12);
+        }
+    }
+
+    if ($GLOBALS['rx_enable_NPI']) {
+	if ($this->is_faxing || $GLOBALS['rx_show_NPI']) {
+            $pdf->ezText('<b>' . xl('NPI') . ':</b>' . $p->provider->npi, 12);
+        }
+	else {
+	    $pdf->ezText('<b>' . xl('NPI') . ':</b> _________________________', 12);
+        }
+    }
+    if ($GLOBALS['rx_enable_SLN']) {
+        if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
+            $pdf->ezText('<b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number, 12);
+        }
+	else {
+	    $pdf->ezText('<b>' . xl('State Lic. #') . ':</b> ___________________', 12);
+        }
+    }
 		$pdf->ezColumnsStop();
 		if ($my_y < $pdf->y){
 			$pdf->ezSetY($my_y);
@@ -297,8 +318,31 @@ class C_Prescription extends Controller {
 	        echo ("</td>\n");
 	        echo ("<td>\n");
                 echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>'. '<br>');
-                if ($GLOBALS['oer_config']['prescriptions']['show_DEA']) echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span>');
-                else echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________');
+                
+                if ($GLOBALS['rx_enable_DEA']) {
+                    if ($GLOBALS['rx_show_DEA']) {
+                        echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span><br>');
+                    }
+                    else {
+                        echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________<br>' );
+                    }
+                }
+                if ($GLOBALS['rx_enable_NPI']) {
+                    if ($GLOBALS['rx_show_NPI']) {
+                        echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . $p->provider->npi . '</span><br>');
+                    }
+                    else {
+                        echo ('<b><span class="large">' . xl('NPI') . ':</span></b> ________________________<br>');
+                    }
+               }
+               if ($GLOBALS['rx_enable_SLN']) {
+                   if ($GLOBALS['rx_show_SLN']) {
+                       echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number . '</span><br>');
+                   }
+                   else {
+                       echo ('<b><span class="large">' . xl('State Lic. #') . ':</span></b> ________________________<br>');
+                   }
+               }
 	        echo ("</td>\n");
 	        echo ("</tr>\n");
 	        echo ("<tr>\n");
@@ -480,8 +524,8 @@ class C_Prescription extends Controller {
 		}
 		$pdf->ezSetY($my_y);
 		$pdf->ezText($d,10);
-		$pdf->ez['leftMargin'] = $GLOBALS['oer_config']['prescriptions']['left'];
-		$pdf->ez['rightMargin'] = $GLOBALS['oer_config']['prescriptions']['right'];
+		$pdf->ez['leftMargin'] = $GLOBALS['rx_left_margin'];
+		$pdf->ez['rightMargin'] = $GLOBALS['rx_right_margin'];
 		$pdf->ezText('');
 		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
 		$pdf->ezText('');
@@ -506,11 +550,11 @@ class C_Prescription extends Controller {
 			$this->function_argument_error();
 		}
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
-		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
-			,$GLOBALS['oer_config']['prescriptions']['bottom']
-			,$GLOBALS['oer_config']['prescriptions']['left']
-			,$GLOBALS['oer_config']['prescriptions']['right']
+		$pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
+			,$GLOBALS['rx_bottom_margin']
+			,$GLOBALS['rx_left_margin']
+			,$GLOBALS['rx_right_margin']
 		);
 		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 
@@ -641,11 +685,11 @@ class C_Prescription extends Controller {
 
 	function _print_prescription($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
-		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
-			,$GLOBALS['oer_config']['prescriptions']['bottom']
-			,$GLOBALS['oer_config']['prescriptions']['left']
-			,$GLOBALS['oer_config']['prescriptions']['right']
+		$pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
+			,$GLOBALS['rx_bottom_margin']
+			,$GLOBALS['rx_left_margin']
+			,$GLOBALS['rx_right_margin']
 		);
 
 		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
@@ -679,11 +723,11 @@ class C_Prescription extends Controller {
 
 	function _print_prescription_old($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
-		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
-                      ,$GLOBALS['oer_config']['prescriptions']['bottom']
-		                  ,$GLOBALS['oer_config']['prescriptions']['left']
-                      ,$GLOBALS['oer_config']['prescriptions']['right']
+		$pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
+                      ,$GLOBALS['rx_bottom_margin']
+		                  ,$GLOBALS['rx_left_margin']
+                      ,$GLOBALS['rx_right_margin']
                       );
 		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 		if(!empty($this->pconfig['logo'])) {

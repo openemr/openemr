@@ -25,15 +25,6 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA //
 //  ------------------------------------------------------------------------ //
 
-// To use RelayHealth, Call 888-PHYAURA (749-2872) and press 1 to Sign-up
-// for the service and receive your Client ID.  Then you may uncomment
-// and alter the following as appropriate.
-//
-// $GLOBALS['ssi']['rh']['ApplicationName'] = 'PhyauraSSI';
-// $GLOBALS['ssi']['rh']['PartnerName']     = 'Phyaura';
-// $GLOBALS['ssi']['rh']['location']        = 'https://api.integration.relayhealth.com/SSI/SingleSignIn.svc';
-// $GLOBALS['ssi']['rh']['wsdl']            = 'https://api.integration.relayhealth.com/SSI/SingleSignIn.svc?wsdl';
-
 $GLOBALS['oer_config']['freeb']['claim_file_dir'] 	= "/usr/share/freeb/public/";
 //currently can be pdf or txt
 $GLOBALS['oer_config']['freeb']['default_format'] 	= "pdf";
@@ -55,9 +46,6 @@ $GLOBALS['oer_config']['ofx']['acctid'] 	= "123456789";
 
 //use FL for FLORIDA compatible format, leave blank for default
 $GLOBALS['oer_config']['prescriptions']['format'] = "";
-
-// Set this to true if you want the drug DEA number printed on prescriptions by default
-$GLOBALS['oer_config']['prescriptions']['show_DEA'] = false;
 
 // Document storage repository document root. Must include a trailing slash.
 $GLOBALS['oer_config']['documents']['repopath'] = $GLOBALS['OE_SITE_DIR'] . "/documents/";
@@ -87,19 +75,6 @@ $GLOBALS['oer_config']['prescriptions']['sendfax'] = '';
 // you can also append a comma to add a one second delay
 // i.e. 9, will dial 9 for external tone, and wait a second.
 $GLOBALS['oer_config']['prescriptions']['prefix'] = '';
-
-// select paper size for prescription printing
-// see library/classes/class.ezpdf.php for complete list of paper sizes
-// ex. "LETTER", "A4", "LEGAL" ...
-$GLOBALS['oer_config']['prescriptions']['paper_size'] = "LETTER";
-
-// change page margins for prescription printing
-// note, values are in pixels (72 dots per inch)
-// to convert from centimeters use the following: (centimeters / 2.54 ) * 72;
-$GLOBALS['oer_config']['prescriptions']['left']   = 30;
-$GLOBALS['oer_config']['prescriptions']['right']  = 30;
-$GLOBALS['oer_config']['prescriptions']['top']    = 72;
-$GLOBALS['oer_config']['prescriptions']['bottom'] = 30;
 
 // Similarly for bottle labels if you are dispensing drugs.  Note that paper
 // size here or for prescriptions may be an array (0, 0, width, height).

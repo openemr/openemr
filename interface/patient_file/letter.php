@@ -126,11 +126,11 @@ if ($_POST['formaction']=="generate") {
     if ($form_format == "pdf") {
       // documentation for ezpdf is here --> http://www.ros.co.nz/pdf/
       require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-      $pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
-      $pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
-                      ,$GLOBALS['oer_config']['prescriptions']['bottom']
-                      ,$GLOBALS['oer_config']['prescriptions']['left']
-                      ,$GLOBALS['oer_config']['prescriptions']['right']
+      $pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+      $pdf->ezSetMargins($GLOBALS['rx_top_margin']
+                      ,$GLOBALS['rx_bottom_margin']
+                      ,$GLOBALS['rx_left_margin']
+                      ,$GLOBALS['rx_right_margin']
                       );
       if (file_exists("$template_dir/custom_pdf.php")) {
         include("$template_dir/custom_pdf.php");

@@ -22,6 +22,8 @@ class Provider extends ORDataObject{
         var $federal_drug_id;
         var $insurance_numbers;
         var $specialty;
+        var $npi;
+        var $state_license_number;
 
         /**
          * Constructor sets all Prescription attributes to their default value
@@ -30,20 +32,24 @@ class Provider extends ORDataObject{
                 $this->id = $id;
                 $this->federal_drug_id = "";
                 $this->_table = "users";
+                $this-> npi = "";
                 $this->insurance_numbers = array();
+                $this->state_license_number = "";
                 if ($id != "") {
                         $this->populate();
                 }
         }
 
         function populate() {
-                $res = sqlQuery("SELECT fname,lname,federaldrugid, specialty FROM users where id =". mysql_real_escape_string($this->id));
+                $res = sqlQuery("SELECT fname,lname,federaldrugid, specialty, npi, state_license_number FROM users where id =". mysql_real_escape_string($this->id));
 
                 if (is_array($res)) {
                         $this->lname = $res['lname'];
                         $this->fname = $res['fname'];
                         $this->federal_drug_id = $res['federaldrugid'];
                         $this->specialty = $res['specialty'];
+                        $this->npi = $res['npi'];
+                        $this->state_license_number = $res['state_license_number'];
                 }
 
                 $ins = new InsuranceNumbers();
@@ -106,6 +112,13 @@ class Provider extends ORDataObject{
                 if (!empty($this->insurance_numbers)) {
                         return $this->insurance_numbers[0]->get_group_number();
                 }
+        function get_npi() {
+                return $this->npi;
+        }
+        
+        function get_state_license_number() {
+                return $this->state_license_number;
+        }
         }
 
 } // end of Provider
