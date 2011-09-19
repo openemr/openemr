@@ -260,7 +260,7 @@ font-weight: bold;
     display: inline;
     border:none; 
     width:100%; 
-    height:200px;
+    height:600px;
     overflow: auto;
 }
 #documents_actions form {
