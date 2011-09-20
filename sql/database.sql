@@ -3033,6 +3033,7 @@ CREATE TABLE `lists` (
   `reaction` varchar(255) NOT NULL DEFAULT '',
   `external_allergyid` INT(11) DEFAULT NULL,
   `erx_source` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-OpenEMR 1-External',
+  `erx_uploaded` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-Pending NewCrop upload 1-Uploaded TO NewCrop',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
@@ -3704,6 +3705,7 @@ CREATE TABLE `prescriptions` (
   `date_added` date default NULL,
   `date_modified` date default NULL,
   `provider_id` int(11) default NULL,
+  `encounter` int(11) default NULL,
   `start_date` date default NULL,
   `drug` varchar(150) default NULL,
   `drug_id` int(11) NOT NULL default '0',
@@ -4911,4 +4913,3 @@ CREATE TABLE `template_users` (
   PRIMARY KEY (`tu_id`),
   UNIQUE KEY `templateuser` (`tu_user_id`,`tu_template_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1;
-

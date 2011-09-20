@@ -74,7 +74,7 @@ $prescIds='';
 if($pid)
 {
     Patient($doc,$r,$pid);
-    $res_presc=sqlStatement("select id from prescriptions where patient_id=? and erx_source='0' and erx_uploaded='0'",array($pid));    
+    $res_presc=sqlStatement("select id from prescriptions where patient_id=? and erx_source='0' and erx_uploaded='0'",array($pid));
     while($row_presc=sqlFetchArray($res_presc))
     {
         $prescIds.=$row_presc['id'].":";
@@ -96,6 +96,7 @@ if($pid)
     {
         OutsidePrescription($doc,$r,$pid,0);
     }
+    PatientMedication($doc,$r,$pid);
 }
 $xml = $doc->saveXML();
 $xml = preg_replace('/"/',"'",$xml);

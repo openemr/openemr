@@ -626,7 +626,7 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
     if($prescid)
     {
         $prec=sqlQuery("SELECT p.note,p.dosage,p.substitute,p.per_refill,p.form,p.route,p.interval,p.drug,l1.title AS title1,l2.title AS title2,l3.title AS title3,p.id AS prescid,
-            DATE_FORMAT(date_added,'%Y%m%d') AS date_added,CONCAT(fname,' ',mname,' ',lname) AS docname
+            DATE_FORMAT(date_added,'%Y%m%d') AS date_added,CONCAT(fname,' ',mname,' ',lname) AS docname,p.quantity
             FROM prescriptions AS p
             LEFT JOIN users AS u ON p.provider_id=u.id
             LEFT JOIN list_options AS l1 ON l1.list_id='drug_form' AND l1.option_id=p.form
@@ -649,7 +649,7 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
                 $doc->createTextNode( $prec['docname'] )
             );
             $b->appendChild( $doctorName );
-            $s=$prec['drug'].": Take ".$prec['dosage']." In ".$prec['title1']." ".$prec['title2']." ".$prec['title3'];
+            $s=$prec['drug'];
             $sig = $doc->createElement( "drug" );
             $sig->appendChild(
                 $doc->createTextNode( $s )
@@ -657,10 +657,10 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
             $b->appendChild( $sig );
             $dispenseNumber = $doc->createElement( "dispenseNumber" );
             $dispenseNumber->appendChild(
-                $doc->createTextNode( '30' )
+                $doc->createTextNode( $prec['quantity'] )
             );
             $b->appendChild( $dispenseNumber );
-            $s=$prec['dosage']." ".$prec['title3'];
+            $s="Take ".$prec['dosage']." In ".$prec['title1']." ".$prec['title2']." ".$prec['title3'];
             $sig = $doc->createElement( "sig" );
             $sig->appendChild(
                 $doc->createTextNode( $s )
@@ -677,6 +677,58 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
             );
             $b->appendChild( $prescriptionType );
         $r->appendChild( $b );
+    }
+}
+
+function PatientMedication($doc,$r,$pid)
+{
+    global $msg;
+    $res_med=sqlStatement("select * from lists where type='medication' and pid=? and erx_uploaded='0'",array($pid));
+    while($row_med=sqlFetchArray($res_med))
+    {
+        $b = $doc->createElement( "OutsidePrescription" );
+            $externalId = $doc->createElement( "externalId" );
+            $externalId->appendChild(
+                $doc->createTextNode( $row_med['id'] )
+            );
+            $b->appendChild( $externalId );
+            $date = $doc->createElement( "date" );
+            $date->appendChild(
+                $doc->createTextNode( $row_med['begdate'] )
+            );
+            $b->appendChild( $date );
+            $doctorName = $doc->createElement( "doctorName" );
+            $doctorName->appendChild(
+                $doc->createTextNode( "" )
+            );
+            $b->appendChild( $doctorName );
+            $sig = $doc->createElement( "drug" );
+            $sig->appendChild(
+                $doc->createTextNode( $row_med['title'] )
+            );
+            $b->appendChild( $sig );
+            $dispenseNumber = $doc->createElement( "dispenseNumber" );
+            $dispenseNumber->appendChild(
+                $doc->createTextNode( $prec['quantity'] )
+            );
+            $b->appendChild( $dispenseNumber );
+            $sig = $doc->createElement( "sig" );
+            $sig->appendChild(
+                $doc->createTextNode( "" )
+            );
+            $b->appendChild( $sig );
+            $refillCount = $doc->createElement( "refillCount" );
+            $refillCount->appendChild(
+                $doc->createTextNode( "" )
+            );
+            $b->appendChild( $refillCount );
+            $prescriptionType = $doc->createElement( "prescriptionType" );
+            $prescriptionType->appendChild(
+                $doc->createTextNode( 'reconcile' )
+            );
+            $b->appendChild( $prescriptionType );
+        $r->appendChild( $b );
+        sqlQuery("update lists set erx_uploaded='1' where id=?",array($row_med['id']));
     }
 }
 
