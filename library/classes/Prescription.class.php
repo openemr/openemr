@@ -244,6 +244,9 @@ class Prescription extends ORDataObject {
         if ($html) { return nl2br($string); }
         else { return $string; }
     }
+    function get_encounter(){
+	return $_SESSION['encounter'];
+    }
 
     function get_unit_display( $display_form="" ) {
     	return( $this->unit_array[$this->unit] );
