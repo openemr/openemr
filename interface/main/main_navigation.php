@@ -144,8 +144,8 @@ include_once("../../library/acl.inc");
 </td>
 
 <td align="center" nowrap>
-&nbsp;<a href="../../Documentation/User_Guide/index.html" target="_blank" class="menu" onclick="top.restoreSession()"> 
-<?php xl('Help','e'); ?></a>&nbsp;&nbsp;
+&nbsp;<a href="http://www.oemr.org/wiki/OpenEMR_4.1_Users_Guide" target="_blank" class="menu"> 
+<?php xl('Manual','e'); ?></a>&nbsp;&nbsp;
 </td>
 
 </tr>
