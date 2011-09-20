@@ -109,6 +109,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
       . $rx->form_array[$rx->form]. ' '
       . $rx->route_array[$rx->route] . ' '
       . $rx->interval_array[$rx->interval] . '<br/>'
+      . $rx->note . '<br/>'
       . 'refills:' . $rx->refills . '';
 //      . $rx->substitute_array[$rx->substitute]. ''
 //      . $rx->per_refill . '';
