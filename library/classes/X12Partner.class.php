@@ -34,7 +34,8 @@ class X12Partner extends ORDataObject{
 		$this->processing_format_array = $this->_load_enum("processing_format",false);
 		$this->processing_format = $this->processing_format_array[0];		
 		//most recent x12 version mandated by HIPAA and CMS
-		$this->x12_version = "004010X098A1";
+		// $this->x12_version = "004010X098A1";
+		$this->x12_version = "005010X222A1";
 		$this->x12_isa05 = "ZZ";
 		$this->x12_isa07 = "ZZ";
 		$this->x12_isa14 = "0";
@@ -196,6 +197,13 @@ class X12Partner extends ORDataObject{
       '30' => 'U.S. Federal Tax ID Number',
       '33' => 'NAIC Company Code',
       'ZZ' => 'Mutually Defined',
+    );
+  }
+
+  function get_x12_version_array() {
+    return array(
+      '005010X222A1' => '005010X222A1',
+      '004010X098A1' => '004010X098A1',
     );
   }
 }
