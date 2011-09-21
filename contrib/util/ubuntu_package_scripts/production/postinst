@@ -195,19 +195,27 @@ case "$1" in
 
          # if site-specific directories are in the old locations, move them.
          if [ -d $OPENEMR/documents ]; then
-           mv -f  $OPENEMR/documents/* $SITEDIR/documents/
+           if [ "$(ls $OPENEMR/documents)" ]; then
+             mv -f  $OPENEMR/documents/* $SITEDIR/documents/
+           fi
            rm -rf $OPENEMR/documents
          fi
          if [ -d $OPENEMR/era ]; then
-           mv -f  $OPENEMR/era/* $SITEDIR/era/
+           if [ "$(ls $OPENEMR/era)" ]; then
+             mv -f  $OPENEMR/era/* $SITEDIR/era/
+           fi
            rm -rf $OPENEMR/era
          fi
          if [ -d $OPENEMR/edi ]; then
-           mv -f  $OPENEMR/edi/* $SITEDIR/edi/
+           if [ "$(ls $OPENEMR/edi)" ]; then
+             mv -f  $OPENEMR/edi/* $SITEDIR/edi/
+           fi
            rm -rf $OPENEMR/edi
          fi
          if [ -d $OPENEMR/custom/letter_templates ]; then
-           mv -f  $OPENEMR/custom/letter_templates/* $SITEDIR/letter_templates/
+           if [ "$(ls $OPENEMR/custom/letter_templates)" ]; then
+             mv -f  $OPENEMR/custom/letter_templates/* $SITEDIR/letter_templates/
+           fi
            rm -rf $OPENEMR/custom/letter_templates
          fi
 
