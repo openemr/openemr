@@ -1652,7 +1652,6 @@ ALTER TABLE `lists` ADD COLUMN `erx_uploaded` ENUM('0','1') DEFAULT '0' NOT NULL
 ALTER TABLE ar_activity ADD COLUMN reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code';
 #EndIf
 
--- MSP remit codes
 #IfNotRow2D list_options list_id lists option_id msp_remit_codes
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('lists','msp_remit_codes','MSP Remit Codes','221','0','0','','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('msp_remit_codes', '1', '1', 1, 0, 0, '', 'Deductible Amount');
