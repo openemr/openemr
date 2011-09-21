@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -344,6 +344,7 @@ $contraception = 0;
 $ndc_uom_choices = array(
   'ML' => 'ML',
   'GR' => 'Grams',
+  'ME' => 'Milligrams',
   'F2' => 'I.U.',
   'UN' => 'Units'
 );

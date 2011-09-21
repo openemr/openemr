@@ -56,7 +56,7 @@ function append_claim(&$segs) {
         $bat_recvid = trim($elems[8]);
         $bat_sender = $GS02 ? $GS02 : $bat_sendid;
         $bat_content = substr($seg, 0, 70) .
-          "$bat_yymmdd*$bat_hhmm*U*00401*$bat_icn*" .
+          "$bat_yymmdd*$bat_hhmm*" . $elems[11] . "*" . $elems[12] . "*$bat_icn*" .
           $elems[14] . "*" . $elems[15] . "*:~";
       }
       continue;
@@ -68,13 +68,15 @@ function append_claim(&$segs) {
       if ($bat_gscount == 0) {
         ++$bat_gscount;
         $bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] .
-          "*$bat_yyyymmdd*$bat_hhmm*1*X*004010X098A1~";
+          "*$bat_yyyymmdd*$bat_hhmm*1*X*" . $elems[8] . "~";
       }
       continue;
     }
     if ($elems[0] == 'ST') {
       ++$bat_stcount;
-      $bat_content .= sprintf("ST*837*%04d~", $bat_stcount);
+      $bat_content .= sprintf("ST*837*%04d", $bat_stcount);
+      if (!empty($elems[3])) $bat_content .= "*" . $elems[3];
+      $bat_content .= "~";
       continue;
     }
     if ($elems[0] == 'SE') {

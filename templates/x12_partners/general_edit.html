@@ -72,7 +72,7 @@ document.x12_partner.name.focus();
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Version'}</td>
-        <td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_version" value="{$partner->get_x12_version()}" onKeyDown="PreventIt(event)" /></td>
+        <td COLSPAN="2" VALIGN="MIDDLE" >{html_options name="x12_version" options=$partner->get_x12_version_array() selected=$partner->get_x12_version()}</td>
     </tr>
     <tr>
         <td VALIGN="MIDDLE" >{xl t='Processing'}&nbsp;{xl t='Format'}</td>

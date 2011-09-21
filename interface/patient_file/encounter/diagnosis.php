@@ -26,6 +26,7 @@ $target = $GLOBALS['concurrent_layout'] ? '_parent' : 'Main';
 $ndc_uom_choices = array(
   'ML' => 'ML',
   'GR' => 'Grams',
+  'ME' => 'Milligrams',
   'F2' => 'I.U.',
   'UN' => 'Units'
 );
