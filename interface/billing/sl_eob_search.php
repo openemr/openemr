@@ -1066,7 +1066,7 @@ if (!$INTEGRATED_AR) SLClose();
   var f = document.forms[0];
   var debug = f.form_without.checked ? '1' : '0';
   var paydate = f.form_paydate.value;
-  window.open('sl_eob_process.php?eraname=<?php echo $eraname ?>&debug=' + debug + '&paydate=' + paydate, '_blank');
+  window.open('sl_eob_process.php?eraname=<?php echo $eraname ?>&debug=' + debug + '&paydate=' + paydate + '&original=original', '_blank');
   return false;
  }
 <?php
