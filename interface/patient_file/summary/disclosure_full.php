@@ -86,9 +86,18 @@ deleteDisclosure($deletelid);
 <br>
 <?php
 $N=15;
+$offset = $_REQUEST['offset'];
+if (!isset($offset)) $offset = 0;
+
+
+$r2= sqlStatement("select id,event,recipient,description,date from extended_log where patient_id=? AND event in (select option_id from list_options where list_id='disclosure_type') order by date desc ", array($pid) );
+$totalRecords=sqlNumRows($r2);
+
+//echo "select id,event,recipient,description,date from extended_log where patient_id=$pid AND event in (select option_id from list_options where list_id='disclosure_type') order by date desc limit $offset ,$N";
 //display all of the disclosures for the day, as well as others that are active from previous dates, up to a certain number, $N
-$r1= sqlStatement("select id,event,recipient,description,date from extended_log where patient_id=? AND event in (select option_id from list_options where list_id='disclosure_type') order by date desc limit 0,$N", array($pid) );
+$r1= sqlStatement("select id,event,recipient,description,date from extended_log where patient_id=? AND event in (select option_id from list_options where list_id='disclosure_type') order by date desc limit $offset,$N", array($pid) );
 $n=sqlNumRows($r1);
+$noOfRecordsLeft=($totalRecords - $offset);
 if ($n>0){?>
 	<table border='0' class="text">
 		<tr>
@@ -135,6 +144,28 @@ else
 	<?php
 }
 ?>
+</table>
+<table width='400' border='0' cellpadding='0' cellspacing='0'>
+ <tr>
+  <td>
+<?php 
+if ($offset > ($N-1) && $n!=0) {
+  echo "   <a class='link' href='disclosure_full.php?active=" . $active .
+    "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
+    xl('Previous') . "]</a>\n";
+}
+?>
+  
+<?php 
+
+if ($n >= $N && $noOfRecordsLeft!=$N) {
+  echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . $active. 
+    "&offset=" . ($offset+$N)  ."&leftrecords=".$noOfRecordsLeft."' onclick='top.restoreSession()'>[" .
+    xl('Next') . "]</a>\n";
+}
+?>
+  </td>
+ </tr>
 </table>
 </div>
 </body>
