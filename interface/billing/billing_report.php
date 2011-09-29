@@ -486,7 +486,7 @@ if(!isset($_REQUEST['mode']))//default case
                 title="Process all queued bills to create electronic data (and print if requested)"><?php echo htmlspecialchars(xl('[Start Batch Processing]'), ENT_QUOTES) ?></a>
                &nbsp;
                -->
-               <a href='../../library/freeb/process_bills.php' target='_blank' class='link_submit'
+               <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
                 title='<?php htmlspecialchars(xl('See messages from the last set of generated claims'), ENT_QUOTES); ?>'><?php echo htmlspecialchars(xl('[View Log]'), ENT_QUOTES) ?></a>
             <?php } ?>
             </td>
