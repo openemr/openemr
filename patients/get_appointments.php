@@ -80,7 +80,6 @@
 			 }
 			 if (isset($res) && $res != null) {
 				if ( $count < 1 ) { echo "&nbsp;&nbsp;" . htmlspecialchars('None',ENT_NOQUOTES); }
-				echo "</div>";
 			 }
 	} else { // if no appts
 		echo htmlspecialchars( xl('No Appointments'),ENT_NOQUOTES);
