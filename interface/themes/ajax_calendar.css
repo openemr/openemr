@@ -59,13 +59,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 #providerPicker {
     font-family: Arial, Helvetica, sans-serif;
-    width: 15%;
-    float: left;
-    position: absolute;
-    display: inline;
-    top: 220px;
-    left: 3px;
-    padding: 5px;
+    width: 100%
 }
 #providerPicker #pc_facility {
     width: 94%;
@@ -75,13 +69,8 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 #facilityColor {
     font-family: Arial, Helvetica, sans-serif;
-    width: 15%;
+    width: 100%;
     float: left;
-    position: absolute;
-    display: inline;
-    top: 335px;
-    left: 0px;
-    padding: 5px;
 }
 #facilityColor table{
 	width:96%;
@@ -107,15 +96,15 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     margin: 0px;
 }
 
+#bottomLeft
+{
+    width: 14%;
+    float: left;
+    
+}
 /* these are for the small datepicker DIV */
 #datePicker {
-    width: 15%;
-    float: left;
-    position: absolute;
-    display: inline;
-    top: 83px;
-    left: 0px;
-    padding: 5px;
+    width: 100%;
 }
 #datePicker table {
 	width:96%;
