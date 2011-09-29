@@ -171,7 +171,7 @@ echo "   <a href='#' type='button' id='monthview' title='" .htmlspecialchars( xl
 [-/php-]
 </div>
 </div> <!-- end topToolbarRight -->
-
+<div id="bottomLeft">
 <div id="datePicker">
 
 <table border="0" cellpadding="0" cellspacing="0">
@@ -346,6 +346,7 @@ echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-
 [-assign var="month"   value=$DATE|date_format:"%m"|string_format:"%1d"-]
 [-assign var="year"    value=$DATE|date_format:"%Y"|string_format:"%4d"-]
 
+</div> <!-- end bottomLeft -->
 <div id="bigCal">
 [-php-]
 /* used in debugging
