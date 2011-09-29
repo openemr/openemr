@@ -32,12 +32,19 @@ $exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
                     " and title='".trim($title). "'" 
                     );
-if ($exists_title) { exit; }
+if ($exists_title) {
+	echo '{"error":"' . addslashes( xl('Record already exist')) . '"}'; 
+	exit; 
+}
+
 $exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
                     " and option_id='".trim($option_id)."'"
                     );
-if ($exists_id) { exit; }
+if ($exists_id) { 
+	echo '{"error":"' . addslashes( xl('Record already exist')) . '"}';
+	exit; 
+}
 
 // determine the sequential order of the new item,
 // it should be the maximum number for the specified list plus one
@@ -59,7 +66,7 @@ $rc = sqlInsert("INSERT INTO list_options ( " .
 );
 
 // return JSON data of list items on success
-echo '{ "options": [';
+echo '{ "error":"", "options": [';
 // send the 'Unassigned' empty variable
 echo '{"id":"","title":"' . xl('Unassigned') . '"}';
 $comma = ",";

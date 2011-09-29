@@ -161,7 +161,8 @@ $(document).ready(function(){
 		     newitem: newitem,
 		     newitem_abbr: newitem_abbr},
                     function(jsondata, txtresponse) {
-		        //process each widget with the same list
+		    	 if( jsondata.error == '' ){
+			  //process each widget with the same list
 			$("select.addtolistclass_"+listid).each(function(){
 			    var pointer = $(this);
 			    var currentselected = pointer.val();
@@ -188,6 +189,10 @@ $(document).ready(function(){
         
                         // now hide the DIV
                         $('#newlistitem').hide();
+		     }else{
+             	
+                 alert( jsondata.error );
+             }
                     }
                 );
 
