@@ -67,13 +67,13 @@ function validation($val_check,$val,$msg)
 
 function stripSpecialCharacterFacility($str)
 {
-    $str=preg_replace("/[^a-zA-Z0-9'\-\s.,]/","",$str);
+    $str=preg_replace("/[^a-zA-Z0-9 '().,#:\/\-@_%]/","",$str);
     return $str;
 }
 
 function stripSpecialCharacter($str)
 {
-    $str=preg_replace("/[^a-zA-Z'\s]/","",$str);
+    $str=preg_replace("/[^a-zA-Z0-9 '().,#:\/\-@_%]/","",$str);
     return $str;
 }
 
@@ -114,12 +114,12 @@ function credentials($doc,$r)
     $b->appendChild( $password );
     $productName = $doc->createElement( "productName" );
     $productName->appendChild(
-        $doc->createTextNode( 'SuperDuperSoftware' )
+        $doc->createTextNode( 'OpenEMR' )
     );
     $b->appendChild( $productName );
     $productVersion = $doc->createElement( "productVersion" );
     $productVersion->appendChild(
-        $doc->createTextNode( 'SuperDuperSoftware' )
+        $doc->createTextNode( $GLOBALS['openemr_version'] )
     );
     $b->appendChild( $productVersion );
     $r->appendChild( $b );
@@ -499,12 +499,14 @@ function MidlevelPrescriber($doc,$r)
             $doc->createTextNode( $user_details['mname'] )
         );
         $LicensedPrescriberName->appendChild( $middle );
+        if($user_details['title']){
         $msg = validation(xl('Midlevel Prescriber Prefix'),$user_details['title'],$msg);
         $prefix = $doc->createElement( "prefix" );
         $prefix->appendChild(
             $doc->createTextNode( $user_details['title'] )
         );
         $LicensedPrescriberName->appendChild( $prefix );
+        }
     $b->appendChild( $LicensedPrescriberName );
     $msg = validation(xl('Midlevel Prescriber DEA'),$user_details['federaldrugid'],$msg);
     $dea = $doc->createElement( "dea" );
@@ -632,7 +634,7 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
             LEFT JOIN list_options AS l1 ON l1.list_id='drug_form' AND l1.option_id=p.form
             LEFT JOIN list_options AS l2 ON l2.list_id='drug_route' AND l2.option_id=p.route
             LEFT JOIN list_options AS l3 ON l3.list_id='drug_interval' AND l3.option_id=p.interval
-            WHERE p.id=?",array($prescid));
+            WHERE p.drug<>'' and p.id=?",array($prescid));
         $b = $doc->createElement( "OutsidePrescription" );
             $externalId = $doc->createElement( "externalId" );
             $externalId->appendChild(
@@ -649,7 +651,7 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
                 $doc->createTextNode( $prec['docname'] )
             );
             $b->appendChild( $doctorName );
-            $s=$prec['drug'];
+            $s=stripSpecialCharacter($prec['drug']);
             $sig = $doc->createElement( "drug" );
             $sig->appendChild(
                 $doc->createTextNode( $s )
@@ -661,6 +663,7 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
             );
             $b->appendChild( $dispenseNumber );
             $s="Take ".$prec['dosage']." In ".$prec['title1']." ".$prec['title2']." ".$prec['title3'];
+            $s=stripSpecialCharacter($s);
             $sig = $doc->createElement( "sig" );
             $sig->appendChild(
                 $doc->createTextNode( $s )
@@ -680,10 +683,13 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
     }
 }
 
-function PatientMedication($doc,$r,$pid)
+function PatientMedication($doc,$r,$pid,$med_limit)
 {
     global $msg;
-    $res_med=sqlStatement("select * from lists where type='medication' and pid=? and erx_uploaded='0'",array($pid));
+    $active='';
+    if($GLOBALS['erx_upload_active']==1)
+        $active = " and enddate is null or enddate = ''";
+    $res_med=sqlStatement("select * from lists where type='medication' and pid=? and title<>'' and erx_uploaded='0' $active limit 0,$med_limit",array($pid));
     while($row_med=sqlFetchArray($res_med))
     {
         $b = $doc->createElement( "OutsidePrescription" );
@@ -702,6 +708,7 @@ function PatientMedication($doc,$r,$pid)
                 $doc->createTextNode( "" )
             );
             $b->appendChild( $doctorName );
+            $row_med['title'] = stripSpecialCharacter($row_med['title']);
             $sig = $doc->createElement( "drug" );
             $sig->appendChild(
                 $doc->createTextNode( $row_med['title'] )
@@ -728,7 +735,7 @@ function PatientMedication($doc,$r,$pid)
             );
             $b->appendChild( $prescriptionType );
         $r->appendChild( $b );
-        sqlQuery("update lists set erx_uploaded='1' where id=?",array($row_med['id']));
+        sqlQuery("update lists set erx_uploaded='1',enddate=".date('Y-m-d')." where id=?",array($row_med['id']));
     }
 }
 
@@ -779,7 +786,7 @@ function PatientFreeformHealthplans($doc,$r,$pid)
         $b = $doc->createElement( "PatientFreeformHealthplans" );
             $allergyName = $doc->createElement( "healthplanName" );
                 $allergyName->appendChild(
-                    $doc->createTextNode( $row['name'] )
+                    $doc->createTextNode( stripSpecialCharacter(trimData($row['name'],35)) )
                 );
             $b->appendChild( $allergyName );
         $r->appendChild( $b );
@@ -804,6 +811,15 @@ function PrescriptionRenewalResponse($doc,$r,$pid)
 
 function checkError($xml)
 {
+    if(!extension_loaded('soap')){
+        die("PLEASE ENABLE SOAP EXTENSION");
+    }
+    if(!extension_loaded('curl')){
+        die("PLEASE ENABLE CURL EXTENSION");
+    }
+    if(!extension_loaded('openssl')){
+        die("PLEASE ENABLE OPENSSL EXTENSION");
+    }
     $ch = curl_init($xml);
     
     $data = array('RxInput' => $xml);
@@ -822,8 +838,11 @@ function checkError($xml)
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
     $result=curl_exec($ch)  or die( curl_error($ch)) ;
-    preg_match('/<textarea.*>(.*)Original XML:/is',$result,$error_message);    
-    erx_error_log($error_message[1]);    
+    preg_match('/<textarea.*>(.*)Original XML:/is',$result,$error_message);
+    if(strpos($result,'RxEntry.aspx')){
+    erx_error_log($xml);
+    erx_error_log($result);
+    }
     $arr=split('Error',$error_message[1]);
     //echo "Te: ".count($arr);
     //print_r($arr);
@@ -844,14 +863,24 @@ function checkError($xml)
     else
         return '0';
 }
+
 function erx_error_log($message)
 {
-    $date = date("Y-m");
-    if(!is_dir('erx_error'))
-    mkdir('erx_error');
-    $filename = "erx_error/erx_error"."-".$date.".log";
+    $date = date("Y-m-d");
+    if(!is_dir($GLOBALS['OE_SITE_DIR'].'/documents/erx_error'))
+    mkdir($GLOBALS['OE_SITE_DIR'].'/documents/erx_error',0777,true);
+    $filename = $GLOBALS['OE_SITE_DIR']."/documents/erx_error/erx_error"."-".$date.".log";
     $f=fopen($filename,'a');
     fwrite($f,date("Y-m-d H:i:s")." ==========> ".$message."\r\n");
     fclose($f);
+}
+
+function stripStrings($str,$pattern)
+{
+    $result = $str;
+    foreach($pattern as $key=>$value){
+        $result = preg_replace("/$key/",$value,$result);
+    }
+    return $result;
 }
 ?>

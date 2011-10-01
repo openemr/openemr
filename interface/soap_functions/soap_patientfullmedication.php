@@ -85,6 +85,7 @@ foreach($array as $key => $value){
 $medArray=$array['NewDataSet']['Table'];
 //print_r($medArray);die;
 sqlQuery("update prescriptions set active=0 where patient_id=? and erx_source='1'",array($patientid));
+$j=0;
 for($i=0;$i<sizeof($medArray);$i++)
 {
     $provider=sqlQuery("select id from users where username=?",array($medArray[$i]['ExternalPhysicianID']));    
@@ -138,15 +139,16 @@ for($i=0;$i<sizeof($medArray);$i++)
     {        
         $prescription_id=sqlInsert("insert into prescriptions 
         (
-            patient_id,provider_id,date_added,drug,drug_id,form,dosage,size,unit,route,`INTERVAL`,refills,note,`DATETIME`,
+            patient_id,provider_id,encounter,date_added,drug,drug_id,form,dosage,size,unit,route,`INTERVAL`,refills,note,`DATETIME`,
             `USER`,site,prescriptionguid,erx_source,rxnorm_drugcode
         )
         values
-        (?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),?,?,?,'1',?)",
-        array($medArray[$i]['ExternalPatientID'], $provider['id'], substr($medArray[$i]['PrescriptionDate'],0,10), $medArray[$i]['DrugName'],
+        (?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),?,?,?,'1',?)",
+        array($medArray[$i]['ExternalPatientID'], $provider['id'],$encounter, substr($medArray[$i]['PrescriptionDate'],0,10), $medArray[$i]['DrugName'],
         $medArray[$i]['DrugID'], $rin['option_id'], $medArray[$i]['DosageNumberDescription'], $medArray[$i]['Strength'], $runit['option_id'],
         $rroute['option_id'], $rint['option_id'], $medArray[$i]['Refills'], $medArray[$i]['PrescriptionNotes'], 
         $_SESSION['authUserID'], $medArray[$i]['SiteID'], $medArray[$i]['PrescriptionGuid'], $medArray[$i]['rxcui']));
+        $j++;
     }
     else
     {
@@ -164,6 +166,7 @@ for($i=0;$i<sizeof($medArray);$i++)
     $prescription_id=$result['id'];
     processAmcCall('e_prescribe_amc', true, 'add', $medArray[$i]['ExternalPatientID'], 'prescriptions', $prescription_id);
 }
+if($j!=0)
 sqlQuery("update patient_data set soap_import_status=? where pid=?",array('2',$pid));
 if($xml_response_count==0)
 echo htmlspecialchars( xl("Nothing to import for Prescription"), ENT_NOQUOTES);

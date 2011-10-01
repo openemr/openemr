@@ -76,6 +76,7 @@ foreach($array as $key => $value){
 $allergyArray=$array['NewDataSet']['Table'];
 
 sqlQuery("update lists set enddate=NOW() where type='allergy' and pid=?",array($patientid));
+$j=0;
 for($i=0;$i<sizeof($allergyArray);$i++)
 {
     $qoutcome=sqlStatement("SELECT option_id FROM list_options WHERE list_id='outcome' AND title = ?",array($allergyArray[$i]['AllergySeverityName']));
@@ -93,6 +94,7 @@ for($i=0;$i<sizeof($allergyArray);$i++)
         sqlQuery("insert into lists (date,type,title,pid,user,outcome,external_allergyid,erx_source) values (NOW(),'allergy',?,?,?,?,?,'1')",
         array($allergyArray[$i]['AllergyName'], $patientid, $_SESSION['authUserID'], $routcome['option_id'], $allergyArray[$i]['AllergyId']));
         setListTouch ($patientid,'allergy');
+        $j++;
     }
     elseif($row['erx_source']==0)
     {
@@ -104,8 +106,9 @@ for($i=0;$i<sizeof($allergyArray);$i++)
         sqlQuery("update lists set outcome=? where pid=? and erx_source='1' and external_allergyid=? and title=?",
         array($routcome['option_id'], $patientid, $allergyArray[$i]['AllergyId'], $allergyArray[$i]['AllergyName']));
     }
-	sqlQuery("update lists set enddate = null where type='allergy' and pid=? and title=?",array($patientid,$allergyArray[$i]['AllergyName']));
+    sqlQuery("update lists set enddate = null where type='allergy' and pid=? and title=?",array($patientid,$allergyArray[$i]['AllergyName']));
 }
+if($j!=0)
 sqlQuery("update patient_data set soap_import_status=? where pid=?",array('4',$patientid));
 if($xml_response_count==0)
 echo htmlspecialchars( xl("Nothing to import for Allergy"), ENT_NOQUOTES);

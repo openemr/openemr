@@ -48,7 +48,7 @@ function submitform() {
 			if(f[i].name == 'facility' || f[i].name == 'Washington')
 			{
 				alertMsg += checkLength(f[i].name,f[i].value,35);
-				alertMsg += checkSpecialCharacter(f[i].name,f[i].value);
+				alertMsg += checkFacilityName(f[i].name,f[i].value);
 			}
 			else if(f[i].name == 'street')
 			{
@@ -62,7 +62,7 @@ function submitform() {
 			else if(f[i].name == 'federal_ein')
 			{
 				alertMsg += checkLength(f[i].name,f[i].value,10);
-				alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+				alertMsg += checkFederalEin(f[i].name,f[i].value);
 			}
 		}		
 	}
