@@ -22,13 +22,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     padding: 0px 5px 0px 5px;
     margin-right: 0%; /* added because of the width issue above */
 }
-#topheader {
-	background-color:#E3E9FF;
-	height:50px;
-    float: right;
-    width: 100%;
-	border-TOP:1px solid black;
-}
+
 #topToolbarRight {
 	background-color:#BBCCFF;
     float: right;
@@ -76,15 +70,17 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 	width:96%;
 	border-collapse: collapse;
 }
-#bigCal {
-    width:85%;
-    height: 80%;
-    overflow: auto;
-    float: right;
-    background-color: #FFF3D1;
+#bottom{
+    float:left;
     position: relative;
-	border-left:1px solid black;
+    width:100%;
+ }
+#bigCal {
+    overflow: hidden;
+    background-color: #FFF3D1;
+    border-left:1px solid black;
 }
+
 #bigCal table {
     border-collapse: collapse;
     border: none;
@@ -98,8 +94,10 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
 #bottomLeft
 {
-    width: 14%;
+    width: 15%;
+    min-width:140px;
     float: left;
+    clear: left;
     
 }
 /* these are for the small datepicker DIV */
