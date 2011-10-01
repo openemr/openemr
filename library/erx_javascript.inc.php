@@ -45,6 +45,16 @@ function checkSpecialCharacter(eleName,eleVal)
     return m;
 }
 
+function checkFacilityName(eleName,eleVal)
+{
+    var regE = /[^a-zA-Z0-9 '().,#:\/\-@_%]/;
+    var m='';
+    eleName=eleName.replace('form_','');
+    if(regE.test(eleVal)==true)
+        m += '<?php echo xl("Invalid character in")." "?>'+eleName.toUpperCase()+"\n";
+    return m;
+}
+
 function checkPhone(eleName,eleVal)
 {
     var regE = /[^0-9']/;
@@ -72,9 +82,29 @@ function checkTaxNpiDea(eleName,eleVal)
     return m;
 }
 
+function checkFederalEin(eleName,eleVal)
+{
+    var regE = /[^a-zA-Z0-9 '().,#:\/\-@_%]/;
+    var m='';
+    eleName=eleName.replace('_',' ');
+    if(regE.test(eleVal)==true)
+        m += '<?php echo xl("Invalid character in")." " ?>'+eleName.toUpperCase()+"\n";
+    return m;
+}
+
+function checkStateLicenseNumber(eleName,eleVal)
+{
+    var regE = /[^a-zA-Z0-9 '.,()#:\/\-@_%\r\n]/;
+    var m='';
+    eleName=eleName.replace('_',' ');
+    if(regE.test(eleVal)==true)
+        m += '<?php echo xl("Invalid character in")." " ?>'+eleName.toUpperCase()+"\n";
+    return m;
+}
+
 function checkUsername(eleName,eleVal)
 {
-    var regE = /[^a-zA-Z0-9_\-']/;
+    var regE = /[^a-zA-Z0-9 '().,#:\/\-@_%]/;
     var m='';
     eleName=eleName.replace('form_','');
     if(regE.test(eleVal)==true)
@@ -85,6 +115,17 @@ function checkUsername(eleName,eleVal)
 function checkAlphaNumeric(eleName,eleVal)
 {
     var regE = /[^a-zA-Z0-9\s]/;
+    var m='';
+    eleName=eleName.replace('form_','');
+    eleName=eleName.replace('_',' ');
+    if(regE.test(eleVal)==true)
+        m += '<?php echo xl("Invalid character in")." " ?>'+eleName.toUpperCase()+"\n";
+    return m;
+}
+
+function checkAlphaNumericExtended(eleName,eleVal)
+{
+    var regE = /[^a-zA-Z0-9 '().,#:\/\-@_%]/;
     var m='';
     eleName=eleName.replace('form_','');
     eleName=eleName.replace('_',' ');

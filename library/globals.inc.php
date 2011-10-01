@@ -72,14 +72,16 @@ else {
 // List of user specific tabs and globals
 $USER_SPECIFIC_TABS = array('Appearance',
                             'Locale',
-                            'Calendar');
+                            'Calendar',
+                            'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'concurrent_layout',
                                'css_header',
                                'units_of_measurement',
                                'date_display_format',
                                'time_display_format',
-                               'event_color');
+                               'event_color',
+                               'erx_import_status_message');
 
 $GLOBALS_METADATA = array(
 
@@ -1315,6 +1317,20 @@ $GLOBALS_METADATA = array(
       'pass',                           // data type
       '',
       xl('Contact ZMG, LLC (zmghealth@gmail.com) for subscribing the eRx service')
+    ),
+    
+    'erx_upload_active' => array(
+      xl('Only upload active prescriptions'),
+      'bool',                           // data type
+      '0',
+      xl('Only upload active prescriptions')
+    ),
+    
+    'erx_import_status_message' => array(
+      xl('Enable import status message for NewCrop erx'),
+      'bool',                           // data type
+      '0',
+      xl('Enable import status message for NewCrop erx')
     ),
   ),
 );

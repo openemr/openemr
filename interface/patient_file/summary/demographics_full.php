@@ -244,7 +244,7 @@ function validate(f) {
    else if(f[i].name == 'form_street' || f[i].name == 'form_city')
    {
     alertMsg += checkLength(f[i].name,f[i].value,35);
-    alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+    alertMsg += checkAlphaNumericExtended(f[i].name,f[i].value);
    }
    else if(f[i].name == 'form_phone_home')
    {

@@ -269,12 +269,12 @@ function submitform() {
 	    else if(f[i].name == 'taxid')
 	    {
 	      alertMsg += checkLength(f[i].name,f[i].value,10);
-	      alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+	      alertMsg += checkFederalEin(f[i].name,f[i].value);
 	    }
 	    else if(f[i].name == 'state_license_number')
 	    {
 	      alertMsg += checkLength(f[i].name,f[i].value,10);
-	      alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+	      alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
 	    }
 	    else if(f[i].name == 'npi')
 	    {
