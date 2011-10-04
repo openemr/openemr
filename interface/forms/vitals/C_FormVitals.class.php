@@ -43,7 +43,7 @@ class C_FormVitals extends Controller {
     	$dbconn = $GLOBALS['adodb']['db'];
     	//Combined query for retrieval of vital information which is not deleted
     	$sql = "SELECT form_vitals.* from form_vitals,forms where form_vitals.id != $form_id and form_vitals.pid =". $GLOBALS['pid'];
-    	$sql .=" and forms.deleted!=1 and forms.form_name='Vitals' and form_vitals.id=forms.form_id";
+    	$sql .=" and forms.deleted!=1 and form_vitals.id=forms.form_id";
         $sql .= " ORDER BY form_vitals.date DESC";
     	$result = $dbconn->Execute($sql);
 
