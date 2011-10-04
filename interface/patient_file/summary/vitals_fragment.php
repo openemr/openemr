@@ -32,7 +32,7 @@ require_once("../../globals.php");
 <br>
 <?php
 //retrieve most recent set of vitals.
-$result=sqlQuery("SELECT FORM_VITALS.date, FORM_VITALS.id FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id WHERE FORM_VITALS.pid=$pid AND FORMS.deleted != '1' ORDER BY FORM_VITALS.date DESC" );
+$result=sqlQuery("SELECT FORM_VITALS.date, FORM_VITALS.id FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1' ORDER BY FORM_VITALS.date DESC", array($pid) );
     
 if ( !$result ) //If there are no disclosures recorded
 { ?>
