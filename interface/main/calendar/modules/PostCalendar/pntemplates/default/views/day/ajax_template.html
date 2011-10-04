@@ -149,7 +149,7 @@ echo "   <a href='#' value='" . xl ("Search") .
 </div>
 
 
-<div id="dateNAV" style="width:33%;">
+<div id="dateNAV"">
 <a href='#' name='bnsubmit' value='[-php-]echo xl ("Today")[-/php-]' onClick='GoToToday(theform);'  class='css_button'/><span>[-php-] echo xl("Today")[-/php-]</span></a>
 <a href='[-php-]echo $PREV_DAY_URL[-/php-]' onclick='top.restoreSession()'>
 <img id="prevday" src="[-$TPL_IMAGE_PATH-]/leftbtn.gif" border="0" title="[-php-]echo xl("Previous Day")[-/php-]" alt="[-php-]echo xl ("Previous Day")[-/php-]" style="padding-top:5px"/></a>
@@ -630,7 +630,6 @@ foreach ($providers as $provider) {
                 $content .= '&nbsp;'.htmlspecialchars($event['apptstatus']);
                 if ($patientid) {
                     $link_title = htmlspecialchars($fname,ENT_QUOTES)." ".htmlspecialchars($lname,ENT_QUOTES). " \n";
-                    $link_title .= xl('Age') . ": " . $patient_age . " \n" . xl('DOB') . ": " . $patient_dob . " \n";
                     $link_title .= xl('Age') . ": ".$patient_age."\n" . xl('DOB') . ": ".$patient_dob.htmlspecialchars($comment, ENT_QUOTES)."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
