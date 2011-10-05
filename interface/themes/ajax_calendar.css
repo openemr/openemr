@@ -18,6 +18,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 #functions {
     width: 13.5%; /* can't make this 25% for some reason */
+    min-width: 105px;
     float: left;
     padding: 0px 5px 0px 5px;
     margin-right: 0%; /* added because of the width issue above */
@@ -53,13 +54,13 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 #providerPicker {
     font-family: Arial, Helvetica, sans-serif;
-    width: 100%
+    width: 100%;
 }
 #providerPicker #pc_facility {
-    width: 94%;
+    width: 100%;
 }
 #providerPicker #pc_username {
-    width: 94%;
+    width: 100%;
 }
 #facilityColor {
     font-family: Arial, Helvetica, sans-serif;
@@ -67,7 +68,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     float: left;
 }
 #facilityColor table{
-	width:96%;
+	width:100%;
 	border-collapse: collapse;
 }
 #bottom{
