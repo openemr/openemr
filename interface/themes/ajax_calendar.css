@@ -123,6 +123,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     font-size: 12px;
     font-style: normal;
     background-color: #FFF2E8;
+    cursor: pointer;
 }
 #datePicker .tdDOW-small {
     font-family: Arial, Helvetica, sans-serif;

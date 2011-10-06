@@ -169,14 +169,19 @@ echo "   <a href='#' type='button' id='monthview' title='" .htmlspecialchars( xl
 <div id="bottom">
 <div id="bottomLeft">
 <div id="datePicker">
+[-php-]
+    // caldate depends on what the user has clicked
+    $caldate = strtotime($Date);
+    $cMonth = date("m", $caldate);
+    $cYear = date("Y", $caldate);
+    $cDay = date("d", $caldate);
+
+    include_once($GLOBALS['webserver_root'].'/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php');
+[-/php-]
+    
 <table border="0" cellpadding="0" cellspacing="0">
 <tr>
 [-php-]
-// caldate depends on what the user has clicked
-$caldate = strtotime($Date);
-$cMonth = date("m", $caldate);
-$cYear = date("Y", $caldate);
-$cDay = date("d", $caldate);
 
 // compute the previous month date
 // stay on the same day if possible
@@ -574,6 +579,12 @@ foreach ($providers as $provider) {
         $(".month_event").dblclick(function() { EditEvent(this); });
         $(".month_event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".month_event").mouseout(function() { $(this).toggleClass("event_highlight"); });
+
+        $(".tdMonthName-small").click(function() {
+            
+            dpCal=$("#datePicker>table"); 
+            mp = $("#monthPicker"); mp.width(dpCal.width()); if(mp.find(":hidden").length) mp.show(); else mp.hide();});
+
     });
     
     /* edit an existing event */
