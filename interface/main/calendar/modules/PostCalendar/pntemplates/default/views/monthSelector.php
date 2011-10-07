@@ -1,3 +1,27 @@
+// +-----------------------------------------------------------------------------+
+// Copyright (C) 2011 IntegralEMR LLC <kevin.y@integralemr.com>
+//
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+//
+// A copy of the GNU General Public License is included along with this program:
+// openemr/interface/login/GnuGPL.html
+// For more information write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//
+// Author:   Kevin Yeh <kevin.y@integralemr.com>
+//
+// +------------------------------------------------------------------------------+
 <?php
 
 $DOM=new DOMDocument;
@@ -9,9 +33,8 @@ $tblMonths=$DOM->createElement("TABLE");
 $divMonths->appendChild($tblMonths);
 $tbodyMonths=$DOM->createElement("TBODY");
 $tblMonths->appendChild($tbodyMonths);
-$now=new DateTime();
-$pMonth = date("m", $now->getTimestamp());
-$pYear = date("Y", $now->getTimestamp());
+$pMonth = date("m");
+$pYear = date("Y");
 
 $tdClasses = "tdDatePicker tdMonthName-small";
 for($idx=0;$idx<13;$idx++)
