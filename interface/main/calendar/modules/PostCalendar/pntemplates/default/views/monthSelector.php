@@ -1,3 +1,4 @@
+<?php
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 IntegralEMR LLC <kevin.y@integralemr.com>
 //
@@ -22,7 +23,6 @@
 // Author:   Kevin Yeh <kevin.y@integralemr.com>
 //
 // +------------------------------------------------------------------------------+
-<?php
 
 $DOM=new DOMDocument;
 $divMonths= $DOM->createElement("DIV");
