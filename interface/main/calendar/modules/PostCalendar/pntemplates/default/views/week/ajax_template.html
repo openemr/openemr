@@ -781,7 +781,7 @@ foreach ($providers as $provider) {
         $(".tdMonthName-small").click(function() {
             
             dpCal=$("#datePicker>table"); 
-            mp = $("#monthPicker"); mp.width(dpCal.width()); if(mp.find(":hidden").length) mp.show(); else mp.hide();});
+            mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});
 
     });
 
