@@ -54,7 +54,7 @@ global $ignoreAuth;
 <?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<style type="text/css">@import url:<?php echo $web_root; ?>/library/dynarch_calendar.css);</style>
+<link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/dynarch_calendar.css">
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/textformat.js"></script>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
