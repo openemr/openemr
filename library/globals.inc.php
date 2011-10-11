@@ -1332,6 +1332,20 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Enable import status message for NewCrop erx')
     ),
+    
+    'erx_medication_display' => array(
+      xl('Do not display Medications uploaded to NewCrop'),
+      'bool',                           // data type
+      '0',
+      xl('Do not display Medications uploaded to NewCrop')
+    ),
+	
+	'erx_allergy_display' => array(
+      xl('Do not display Allergy uploaded to NewCrop'),
+      'bool',                           // data type
+      '0',
+      xl('Do not display Allergy uploaded to NewCrop')
+    ),
   ),
   
   'Rx' => array(
