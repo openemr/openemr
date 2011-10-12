@@ -36,6 +36,12 @@ require_once('../eRx_xml.php');
 require_once('../../library/xmltoarray_parser_htmlfix.php');
 require_once($GLOBALS['fileroot'] . "/library/amc.php");
 set_time_limit(0);
+
+function number($str)
+{
+    return preg_replace('/[^0-9.]/','',$str);
+}
+
 if(!$patientid)
 $patientid=$pid;
 if($_REQUEST['patient'])
@@ -92,7 +98,7 @@ for($i=0;$i<sizeof($medArray);$i++)
     if($medArray[$i]['DosageForm']){
     $qin=sqlStatement("SELECT option_id FROM list_options WHERE list_id='drug_form' AND title = ?",array($medArray[$i]['DosageForm']));
     $rin=sqlFetchArray($qin);
-    if(!$rin['option_id'])
+    if(sqlNumRows($qin)<=0)
     {
         $rin=sqlQuery("SELECT option_id AS option_id FROM list_options WHERE list_id='drug_form' ORDER BY ABS(option_id) DESC LIMIT 1");
         sqlQuery("INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('drug_form',?,?,?)",array(($rin['option_id']+1),$medArray[$i]['DosageForm'],($rin['option_id']+1)));
@@ -103,7 +109,7 @@ for($i=0;$i<sizeof($medArray);$i++)
     if($medArray[$i]['Route']){
     $qroute=sqlStatement("SELECT option_id FROM list_options WHERE list_id='drug_route' AND title = ?",array($medArray[$i]['Route']));
     $rroute=sqlFetchArray($qroute);
-    if(!$rroute['option_id'])
+    if(sqlNumRows($qroute)<=0)
     {
         $rroute=sqlQuery("SELECT option_id AS option_id FROM list_options WHERE list_id='drug_route' ORDER BY ABS(option_id) DESC LIMIT 1");
         sqlQuery("INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('drug_route',?,?,?)",array(($rroute['option_id']+1),$medArray[$i]['Route'],($rroute['option_id']+1)));
@@ -114,7 +120,7 @@ for($i=0;$i<sizeof($medArray);$i++)
     if($medArray[$i]['StrengthUOM']){
     $qunit=sqlStatement("SELECT option_id FROM list_options WHERE list_id='drug_units' AND title = ?",array($medArray[$i]['StrengthUOM']));
     $runit=sqlFetchArray($qunit);
-    if(!$runit['option_id'])
+    if(sqlNumRows($qunit)<=0)
     {
         $runit=sqlQuery("SELECT option_id AS option_id FROM list_options WHERE list_id='drug_units' ORDER BY ABS(option_id) DESC LIMIT 1");
         sqlQuery("INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('drug_units',?,?,?)",array(($runit['option_id']+1),$medArray[$i]['StrengthUOM'],($runit['option_id']+1)));
@@ -125,7 +131,7 @@ for($i=0;$i<sizeof($medArray);$i++)
     if($medArray[$i]['DosageFrequencyDescription']){
     $qint=sqlStatement("SELECT option_id FROM list_options WHERE list_id='drug_interval' AND title = ?",array($medArray[$i]['DosageFrequencyDescription']));
     $rint=sqlFetchArray($qint);
-    if(!$rint['option_id'])
+    if(sqlNumRows($qint)<=0)
     {
         $rint=sqlQuery("SELECT option_id AS option_id FROM list_options WHERE list_id='drug_interval' ORDER BY ABS(option_id) DESC LIMIT 1");
         sqlQuery("INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('drug_interval',?,?,?)",array(($rint['option_id']+1),$medArray[$i]['DosageFrequencyDescription'],($rint['option_id']+1)));
@@ -145,7 +151,7 @@ for($i=0;$i<sizeof($medArray);$i++)
         values
         (?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),?,?,?,'1',?)",
         array($medArray[$i]['ExternalPatientID'], $provider['id'],$encounter, substr($medArray[$i]['PrescriptionDate'],0,10), $medArray[$i]['DrugName'],
-        $medArray[$i]['DrugID'], $rin['option_id'], $medArray[$i]['DosageNumberDescription'], $medArray[$i]['Strength'], $runit['option_id'],
+        $medArray[$i]['DrugID'], $rin['option_id'], $medArray[$i]['DosageNumberDescription'], number($medArray[$i]['Strength']), $runit['option_id'],
         $rroute['option_id'], $rint['option_id'], $medArray[$i]['Refills'], $medArray[$i]['PrescriptionNotes'], 
         $_SESSION['authUserID'], $medArray[$i]['SiteID'], $medArray[$i]['PrescriptionGuid'], $medArray[$i]['rxcui']));
         $j++;
@@ -157,7 +163,7 @@ for($i=0;$i<sizeof($medArray);$i++)
         `DATETIME`=NOW(),`USER`=?, site=? ,erx_source='1', rxnorm_drugcode=?, active='1'
         WHERE prescriptionguid=? AND patient_id=?
         ",array($provider['id'],$medArray[$i]['DrugName'],$medArray[$i]['DrugID'],$rin['option_id'],$medArray[$i]['DosageNumberDescription'],
-        $medArray[$i]['Strength'],$runit['option_id'],$rroute['option_id'],$rint['option_id'],$medArray[$i]['Refills'],
+        number($medArray[$i]['Strength']),$runit['option_id'],$rroute['option_id'],$rint['option_id'],$medArray[$i]['Refills'],
         $medArray[$i]['PrescriptionNotes'],$_SESSION['authUserID'],
         $medArray[$i]['SiteID'],$medArray[$i]['rxcui'],$medArray[$i]['PrescriptionGuid'],$medArray[$i]['ExternalPatientID']));
     }

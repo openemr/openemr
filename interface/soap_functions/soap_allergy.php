@@ -75,7 +75,7 @@ foreach($array as $key => $value){
 }
 $allergyArray=$array['NewDataSet']['Table'];
 
-sqlQuery("update lists set enddate=NOW() where type='allergy' and pid=?",array($patientid));
+
 $j=0;
 for($i=0;$i<sizeof($allergyArray);$i++)
 {
@@ -87,15 +87,15 @@ for($i=0;$i<sizeof($allergyArray);$i++)
         sqlQuery("INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('outcome',?,?,?)",array(($routcome['option_id']+1),$allergyArray[$i]['AllergySeverityName'],($routcome['option_id']+1)));
         $routcome['option_id']=$routcome['option_id']+1;
     }
-    $res=sqlStatement("select * from lists where pid=? and type='allergy' and title=?",array($patientid,$allergyArray[$i]['AllergyName']));
+    $res=sqlStatement("select * from lists where pid=? and type='allergy' and title=? and (enddate is null or enddate = '' or enddate = '0000-00-00')",array($patientid,$allergyArray[$i]['AllergyName']));
     $row=sqlFetchArray($res);
     if(sqlNumRows($res)==0)
     {
-        sqlQuery("insert into lists (date,type,title,pid,user,outcome,external_allergyid,erx_source) values (NOW(),'allergy',?,?,?,?,?,'1')",
+        sqlQuery("insert into lists (date,type,title,pid,user,outcome,external_allergyid,erx_source,begdate) values (NOW(),'allergy',?,?,?,?,?,'1',now())",
         array($allergyArray[$i]['AllergyName'], $patientid, $_SESSION['authUserID'], $routcome['option_id'], $allergyArray[$i]['AllergyId']));
         setListTouch ($patientid,'allergy');
         $j++;
-    }
+    }	
     elseif($row['erx_source']==0)
     {
         sqlQuery("update lists set outcome=?, erx_source='1', external_allergyid=? where pid=? and title=?",
@@ -106,8 +106,49 @@ for($i=0;$i<sizeof($allergyArray);$i++)
         sqlQuery("update lists set outcome=? where pid=? and erx_source='1' and external_allergyid=? and title=?",
         array($routcome['option_id'], $patientid, $allergyArray[$i]['AllergyId'], $allergyArray[$i]['AllergyName']));
     }
-    sqlQuery("update lists set enddate = null where type='allergy' and pid=? and title=?",array($patientid,$allergyArray[$i]['AllergyName']));
+    //sqlQuery("update lists set enddate = null where type='allergy' and pid=? and title=?",array($patientid,$allergyArray[$i]['AllergyName']));
 }
+$res=sqlStatement("select id,title from lists where pid=? and type='allergy' and erx_source='1' and (enddate is null or enddate = '' or enddate = '0000-00-00')",array($patientid));
+while($row=sqlFetchArray($res))
+{
+	$flag=0;
+	for($i=0;$i<sizeof($allergyArray);$i++){
+		if($allergyArray[$i]['AllergyName']==$row['title'])
+		{
+			$flag=1;
+			break;
+		}		
+	}
+	if($flag==0)
+		sqlQuery("update lists set enddate=now() where pid=? and id=? and type='allergy'",array($patientid,$row['id']));
+}
+
+$xml1_0=array();
+$xml1_0['credentials']['PartnerName']=$cred['0'];
+$xml1_0['credentials']['Name']=$cred['1'];
+$xml1_0['credentials']['Password']=$cred['2'];
+
+$xml1_0['accountRequest']['AccountId']='1';
+$xml1_0['accountRequest']['SiteId']=$erxSiteID['federal_ein'];
+
+$xml1_0['patientRequest']['PatientId']=$patientid;
+
+$xml1_0['patientInformationRequester']['UserType']='D';
+$xml1_0['patientInformationRequester']['UserId']=$user_details['id'];
+
+$xml = $client->GetPatientFreeFormAllergyHistory($xml1_0);
+$xml_response=$xml->GetPatientFreeFormAllergyHistoryResult->patientFreeFormAllergyExtendedDetail->PatientFreeFormAllergyExtendedDetail;
+$xml_response_count=$xml->GetPatientFreeFormAllergyHistoryResult->result->RowCount;
+if($xml_response_count>1){
+    for($i=0;$i<sizeof($xml_response);$i++)
+    {
+        sqlQuery("update lists set erx_uploaded='0' where id=?",array($xml_response[$i]->ExternalId));
+    }
+}
+elseif($xml_response_count==1){
+    sqlQuery("update lists set erx_uploaded='0' where id=?",array($xml_response->ExternalId));
+}
+
 if($j!=0)
 sqlQuery("update patient_data set soap_import_status=? where pid=?",array('4',$patientid));
 if($xml_response_count==0)

@@ -51,7 +51,11 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     // $result = getListByType($pid, $key, "id,title,begdate,enddate,returndate,extrainfo", "all", "all", 0);
 
     $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
-    $query .= "enddate IS NULL ";
+    $query .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
+    if($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key=='medication')
+		$query .= "and erx_uploaded != '1' ";
+	if($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $key=='allergy')
+		$query .= "and erx_uploaded != '1' ";
     $query .= "ORDER BY begdate";
     $pres = sqlStatement($query, array($pid, $key) );
 
@@ -290,13 +294,14 @@ if(sqlNumRows($res)==0)
 }
 while($row_currentMed=sqlFetchArray($res))
 {
+    $runit=generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'),$row_currentMed['unit']);
     $rin=generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'),$row_currentMed['form']);
     $rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'),$row_currentMed['route']);
     $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'),$row_currentMed['interval']);
     ?>
     <tr class=text style='font-weight:bold;color:blue;'>
 	    <td><?php echo $row_currentMed['drug'];?></td>
-	    <td><?php echo htmlspecialchars($row_currentMed['dosage']." ".xl("in")." ".$rin['title']." ".$rint['title'],ENT_NOQUOTES);?></td>
+	    <td><?php $unit=''; if($row_currentMed['size']>0) $unit=$row_currentMed['size']." ".$runit." "; echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint,ENT_NOQUOTES);?></td>
     </tr>
 <?php
 }

@@ -142,7 +142,8 @@ if ($_POST['form_save']) {
     "injury_type = '" . $form_injury_type           . "', " .
     "outcome = '"     . $_POST['form_outcome']      . "', " .
     "destination = '" . $_POST['form_destination']   . "', " .
-    "reaction ='"     . $_POST['form_reaction']     . "' " .
+    "reaction ='"     . $_POST['form_reaction']     . "', " .
+    "erx_uploaded = '0' " .
     "WHERE id = '$issue'";
     sqlStatement($query);
     if ($text_type == "medication" && enddate != '') {
