@@ -147,7 +147,10 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
   <?php
 
   // collect issues
-  $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
+  $condition = '';
+  if($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication')
+   $condition .= "and erx_uploaded != '1' ";
+  $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition" .
    "ORDER BY begdate", array($pid,$focustype) );
 
   // if no issues (will place a 'None' text vs. toggle algorithm here)
@@ -197,13 +200,15 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     else {
       $statusCompute = htmlspecialchars( xl("Inactive") ,ENT_NOQUOTES);
     }
-
+    $click_class='';
+    if($row['erx_source']==0)
+    $click_class='statrow';
     // output the TD row of info
     if ($row['enddate'] == NULL) {
-      echo " <tr class='$bgclass detail statrow' style='color:red;font-weight:bold' id='$rowid'>\n";
+      echo " <tr class='$bgclass detail $click_class' style='color:red;font-weight:bold' id='$rowid'>\n";
     }
     else {
-      echo " <tr class='$bgclass detail statrow' id='$rowid'>\n";
+      echo " <tr class='$bgclass detail $click_class' id='$rowid'>\n";
     }
     echo "  <td style='text-align:left'>" . htmlspecialchars($disptitle,ENT_NOQUOTES) . "</td>\n";
     echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
