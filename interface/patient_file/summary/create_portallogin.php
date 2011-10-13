@@ -79,8 +79,9 @@ function messageCreate($uname,$pass,$site){
                     htmlspecialchars($GLOBALS['portal_onsite_address'],ENT_NOQUOTES) . "</a><br><br>";
     } // $site == "off"
     else {
-        $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_offsite_address'],ENT_QUOTES) . "'>" .
-                    htmlspecialchars($GLOBALS['portal_offsite_address'],ENT_NOQUOTES) . "</a><br><br>";
+	$offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ?  htmlspecialchars($GLOBALS['portal_offsite_address_patient_link'],ENT_QUOTES) : htmlspecialchars("https://mydocsportal.com",ENT_QUOTES);
+        $message .= "<a href='" . $offsite_portal_patient_link . "'>" .
+                    $offsite_portal_patient_link . "</a><br><br>";
     }
         $message .= htmlspecialchars(xl("User Name"),ENT_NOQUOTES) . ": " .
                     htmlspecialchars($uname,ENT_NOQUOTES) . "<br><br>" .
