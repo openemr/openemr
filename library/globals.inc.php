@@ -1242,6 +1242,12 @@ $GLOBALS_METADATA = array(
       'https://mydocsportal.com/provider.php',
       xl('Offsite Https link for the Patient Portal.')
     ),
+    'portal_offsite_address_patient_link' => array(
+      xl('Offsite Patient Portal Site Address (Patient Link)'),
+      'text',                           // data type
+      'https://mydocsportal.com',
+      xl('Offsite Https link for the Patient Portal.(Patient Link)')
+    ),
 
   ),
 
