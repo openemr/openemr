@@ -1376,7 +1376,8 @@ CREATE TABLE `form_vitals` (
   `waist_circ` float(5,2) default '0.00',
   `head_circ` float(4,2) default '0.00',
   `oxygen_saturation` float(5,2) default '0.00',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -1398,7 +1399,8 @@ CREATE TABLE `forms` (
   `authorized` tinyint(4) default NULL,
   `deleted` tinyint(4) DEFAULT '0' NOT NULL COMMENT 'flag indicates form has been deleted',
   `formdir` longtext,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -1897,7 +1899,8 @@ CREATE TABLE `immunizations` (
   `update_date` timestamp NOT NULL,
   `created_by` bigint(20) default NULL,
   `updated_by` bigint(20) default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `patient_id` (`patient_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -3249,7 +3252,9 @@ CREATE TABLE `lists` (
   `external_allergyid` INT(11) DEFAULT NULL,
   `erx_source` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-OpenEMR 1-External',
   `erx_uploaded` ENUM('0','1') DEFAULT '0' NOT NULL  COMMENT '0-Pending NewCrop upload 1-Uploaded TO NewCrop',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`),
+  KEY `type` (`type`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -3902,7 +3907,8 @@ CREATE TABLE `pnotes` (
   `assigned_to` varchar(255) default NULL,
   `deleted` tinyint(4) default 0 COMMENT 'flag indicates note is deleted',
   `message_status` VARCHAR(20) NOT NULL DEFAULT 'New',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -3945,7 +3951,8 @@ CREATE TABLE `prescriptions` (
   `prescriptionguid` VARCHAR(50) DEFAULT NULL,
   `erx_source` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0-OpenEMR 1-External',
   `erx_uploaded` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0-Pending NewCrop upload 1-Uploaded to NewCrop',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `patient_id` (`patient_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -4660,7 +4667,8 @@ CREATE TABLE `transactions` (
   `reply_recommend`         text         NOT NULL DEFAULT '',
   `reply_rx_refer`          text         NOT NULL DEFAULT '',
   `reply_related_code`      varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -4977,7 +4985,8 @@ CREATE TABLE `procedure_order` (
   `activity`               tinyint(1)   NOT NULL DEFAULT 1  COMMENT '0 if deleted',
   `control_id`             bigint(20)   NOT NULL            COMMENT 'This is the CONTROL ID that is sent back from lab',
   PRIMARY KEY (`procedure_order_id`),
-  KEY datepid (date_ordered, patient_id)
+  KEY datepid (date_ordered, patient_id),
+  KEY `patient_id` (`patient_id`)
 ) ENGINE=MyISAM;
 
 CREATE TABLE `procedure_report` (
@@ -5080,7 +5089,8 @@ CREATE TABLE `extended_log` (
   `recipient` varchar(255) default NULL,
   `description` longtext,
   `patient_id` bigint(20) default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `patient_id` (`patient_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 CREATE TABLE version (
