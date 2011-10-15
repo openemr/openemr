@@ -191,7 +191,7 @@ class Installer
 
   public function add_version_info() {
     include dirname(__FILE__) . "/../../version.php";
-    if ($this->execute_sql("UPDATE version SET v_major = '$v_major', v_minor = '$v_minor', v_patch = '$v_patch', v_tag = '$v_tag', v_database = '$v_database'") == FALSE) {
+    if ($this->execute_sql("UPDATE version SET v_major = '$v_major', v_minor = '$v_minor', v_patch = '$v_patch', v_realpatch = '$v_realpatch', v_tag = '$v_tag', v_database = '$v_database'") == FALSE) {
       $this->error_message = "ERROR. Unable insert version information into database\n" .
         "<p>".mysql_error()." (#".mysql_errno().")\n";
       return FALSE;
