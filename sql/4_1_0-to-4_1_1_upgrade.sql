@@ -93,3 +93,7 @@ CREATE INDEX `patient_id` ON `extended_log` (`patient_id`);
 CREATE INDEX `patient_id` ON `prescriptions` (`patient_id`);
 #EndIf
 
+#IfMissingColumn version v_realpatch
+ALTER TABLE `version` ADD COLUMN `v_realpatch` int(11) NOT NULL DEFAULT 0;
+#EndIf
+
