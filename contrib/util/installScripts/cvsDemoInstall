@@ -86,6 +86,11 @@ sed -e 's@^exit;@ @' <$INST >$INSTTEMP
 php -f $INSTTEMP >> $LOG
 rm -f $INSTTEMP
 #
+# Run the sql_patch.php script. Note that in the main 'master' branch this will do nothing, however in the
+# branches it will install the new Globals and Database modifications
+cd $OPENEMR
+php -f sql_patch.php >> $LOG
+#
 #reinstitute file permissions
 chmod 644 $OPENEMR/sites/default/sqlconf.php
 echo "Done configuring OpenEMR"
