@@ -84,9 +84,13 @@ php -f $INSTTEMP development_translations=yes >> $LOG
 rm -f $INSTTEMP
 #
 # Run the sql_patch.php script. Note that in the main 'master' branch this will do nothing, however in the
-# branches it will install the new Globals and Database modifications
+# branches it will install the new Globals and Database modifications (note need to copy to TEMP file etc.
+# in order to work around the site variable that is required)
 cd $OPENEMR
-php -f sql_patch.php >> $LOG
+echo "<?php \$_GET['site'] = 'default'; ?>" > $OPENEMR/TEMPsql_patch.php
+cat $OPENEMR/sql_patch.php >> $OPENEMR/TEMPsql_patch.php
+php -f TEMPsql_patch.php >> $LOG
+rm -f $OPENEMR/TEMPsql_patch.php
 #
 #reinstitute file permissions
 chmod 644 $OPENEMR/sites/default/sqlconf.php
