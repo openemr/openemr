@@ -941,7 +941,7 @@ class Claim {
     if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndcinfo, $tmp)) {
       $ndc = $tmp[1];
       if (preg_match('/^(\d+)-(\d+)-(\d+)$/', $ndc, $tmp)) {
-        return sprintf('%05d-%04d-%02d', $tmp[1], $tmp[2], $tmp[3]);
+        return sprintf('%05d%04d%02d', $tmp[1], $tmp[2], $tmp[3]);
       }
       return x12clean($ndc); // format is bad but return it anyway
     }
