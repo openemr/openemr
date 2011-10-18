@@ -439,9 +439,13 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     //
     $ndc = $claim->cptNDCID($hcfa_proc_index);
     if ($ndc) {
-      if (preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp)) {
+      if (preg_match('/^(\d\d\d\d\d)-(\d\d\d\d)-(\d\d)$/', $ndc, $tmp)) {
         $ndc = $tmp[1] . $tmp[2] . $tmp[3];
-      } else {
+      }
+      else if(preg_match('/^\d{11}$/', $ndc)){
+        
+      }
+      else {
         $log .= "*** NDC code '$ndc' has invalid format!\n";
       }
       put_hcfa($lino, 1, 50, "N4$ndc   " . $claim->cptNDCUOM($hcfa_proc_index) .

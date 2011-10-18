@@ -220,8 +220,12 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "*" . $claim->billingFacilityETIN() .
       "~\n";
   }
-
+  if($claim->isSelfOfInsured()){
   $PatientHL = 0;
+  }
+  else{
+  $PatientHL = 1;
+  }
 
   ++$edicount;
   $out .= "HL" .        // Loop 2000B Subscriber HL Loop
@@ -237,9 +241,13 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $log .= "*** Error: Insurance information is missing!\n";
   }
   ++$edicount;
+  $x="";
+  if($claim->isSelfOfInsured()){
+  $x=18;
+  }
   $out .= "SBR" .       // Subscriber Information
     "*" . $claim->payerSequence() .
-    "*" . $claim->insuredRelationship() .
+    "*" . $x .
     "*" . $claim->groupNumber() .
     "*" . $claim->groupName() .
     "*" . $claim->insuredTypeCode() . // applies for secondary medicare
@@ -831,7 +839,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
         "*" . $ndc .
         "~\n";
 
-      if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp)) {
+      if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp) && !preg_match('/^\d{11}$/', $ndc)) {
         $log .= "*** NDC code '$ndc' has invalid format!\n";
       }
 
