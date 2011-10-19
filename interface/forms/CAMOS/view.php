@@ -4,8 +4,8 @@ include_once("../../globals.php");
 include_once("../../../library/api.inc");
 formHeader("Form: CAMOS");
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
-$textarea_rows = 20;
-$textarea_cols = 40;
+$textarea_rows = 22;
+$textarea_cols = 90;
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
