@@ -1238,7 +1238,7 @@ function generate_print_field($frow, $currvalue) {
 
 function generate_display_field($frow, $currvalue) {
   $data_type  = $frow['data_type'];
-  $field_id   = $frow['field_id'];
+  $field_id   = isset($frow['field_id'])  ? $frow['field_id'] : null;
   $list_id    = $frow['list_id'];
   $s = '';
 
@@ -1667,12 +1667,12 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 
 	$first = true;
 	while ($frow = sqlFetchArray($fres)) {
-		$this_group = $frow['group_name'];
-		$titlecols  = $frow['titlecols'];
-		$datacols   = $frow['datacols'];
-		$data_type  = $frow['data_type'];
-		$field_id   = $frow['field_id'];
-		$list_id    = $frow['list_id'];
+		$this_group = isset($frow['group_name']) ? $frow['group_name'] : "" ;
+		$titlecols  = isset($frow['titlecols']) ? $frow['titlecols'] : "";
+		$datacols   = isset($frow['datacols']) ? $frow['datacols'] : "";
+		$data_type  = isset($frow['data_type']) ? $frow['data_type'] : "";
+		$field_id   = isset($frow['field_id']) ? $frow['field_id'] : "";
+		$list_id    = isset($frow['list_id']) ? $frow['list_id'] : "";
 		$currvalue  = '';
 
 		$group_fields_query = sqlStatement("SELECT * FROM layout_options " .
@@ -2145,6 +2145,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     echo "<td><span class='text'><b>" . htmlspecialchars( $title, ENT_NOQUOTES) . "</b></span>";
     $indicatorTag ="style='display:none'";
   }
+  $indicatorTag = isset($indicatorTag) ?  $indicatorTag : "";
   echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
     htmlspecialchars( $label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";
   echo htmlspecialchars( $title, ENT_NOQUOTES) . "</b></span>";

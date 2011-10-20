@@ -143,13 +143,13 @@ else {
 </td></tr>
 <?php } ?>
 
-<?php if ($_SESSION['loginfailure'] == 1): ?>
+<?php if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)): ?>
 <tr><td colspan='2' class='text' style='color:red'>
 Invalid username or password
 </td></tr>
 <?php endif; ?>
 
-<?php if ($_SESSION['relogin'] == 1): ?>
+<?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)): ?>
 <tr><td colspan='2' class='text' style='color:red;background-color:#dfdfdf;border:solid 1px #bfbfbf;text-align:center'>
 <b><?php echo xl('Password security has recently been upgraded.'); ?><br>
 <?php echo xl('Please login again.'); ?></b>
@@ -179,12 +179,12 @@ if (count($result3) != 1) { ?>
         foreach ($result3 as $iter) {
 	        if ($GLOBALS['language_menu_showall']) {
                     if ( !$GLOBALS['allow_debug_language'] && $iter[lang_description] == 'dummy') continue; // skip the dummy language
-                    echo "<option value='".$iter[lang_id]."'>".$iter[trans_lang_description]."</option>\n";
+                    echo "<option value='".$iter['lang_id']."'>".$iter['trans_lang_description']."</option>\n";
 		}
 	        else {
 		    if (in_array($iter[lang_description], $GLOBALS['language_menu_show'])) {
-                        if ( !$GLOBALS['allow_debug_language'] && $iter[lang_description] == 'dummy') continue; // skip the dummy language
-		        echo "<option value='".$iter[lang_id]."'>" . $iter[trans_lang_description] . "</option>\n";
+                        if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
+		        echo "<option value='".$iter['lang_id']."'>" . $iter['trans_lang_description'] . "</option>\n";
 		    }
 		}
         }
@@ -196,7 +196,7 @@ if (count($result3) != 1) { ?>
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
 <input type="hidden" name="authNewPass">
-<?php if ($GLOBALS['use_adldap_auth'] == true): ?>
+<?php if (isset($GLOBALS['use_adldap_auth']) && ($GLOBALS['use_adldap_auth']== true)): ?>
 <!-- ViCareplus : As per NIST standard, the SHA1 encryption algorithm is used -->
 <input type="submit" onClick="javascript:this.form.authPass.value=SHA1(this.form.clearPass.value);" value=<?php xl('Login','e');?>>
 <?php else: ?>
