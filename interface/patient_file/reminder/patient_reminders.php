@@ -19,6 +19,9 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/reminders.php");
 require_once("$srcdir/clinical_rules.php");
+
+//Remove time limit, since script can take many minutes
+set_time_limit(0);
 ?>
 
 <html>
