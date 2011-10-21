@@ -101,7 +101,7 @@ $fake_register_globals=false;
     </table>
 
     <?php
-    if ( isset($has_note) && ($has_note < 1 )) { ?>
+    if ( !isset($has_note) || ($has_note < 1 )) { ?>
         <span class='text'>
             <?php echo htmlspecialchars(xl( "There are no notes on file for this patient."),ENT_NOQUOTES);
                   echo " ";
