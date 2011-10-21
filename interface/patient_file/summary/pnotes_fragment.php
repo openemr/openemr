@@ -37,7 +37,7 @@ $fake_register_globals=false;
 
     <?php
 
-     $has_notes = 0;
+     $has_note = 0;
      $thisauth = acl_check('patients', 'notes');
      if ($thisauth) {
       $tmp = getPatientData($pid, "squad");
@@ -101,7 +101,7 @@ $fake_register_globals=false;
     </table>
 
     <?php
-    if ( $has_note < 1 ) { ?>
+    if ($has_note < 1 ) { ?>
         <span class='text'>
             <?php echo htmlspecialchars(xl( "There are no notes on file for this patient."),ENT_NOQUOTES);
                   echo " ";
@@ -131,7 +131,7 @@ $fake_register_globals=false;
     $M = 3; ?>
     <br/>
     <?php
-     $has_sent_notes = 0;
+     $has_sent_note = 0;
      if (!$thisauth) {
       echo "<p>(" . htmlspecialchars(xl('Notes not authorized'),ENT_NOQUOTES) . ")</p>\n";
      } else { ?>
@@ -174,7 +174,7 @@ $fake_register_globals=false;
     } ?>
     </table>
     <?php
-    if ( $has_sent_note < 1 ) { ?>
+    if ($has_sent_note < 1 ) { ?>
         <span class='text'>
             <?php echo htmlspecialchars(xl( "There are no notes on file for this patient."),ENT_NOQUOTES);
                   echo " ";

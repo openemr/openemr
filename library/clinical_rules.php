@@ -34,7 +34,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
   foreach ($actions as $action) {
 
     // Deal with plan names first
-    if ($action['is_plan']) {
+    if (isset($action['is_plan']) &&$action['is_plan'])  {
       echo "<br><b>";
       echo htmlspecialchars( xl("Plan"), ENT_NOQUOTES) . ": ";
       echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'),$action['id']);
@@ -1683,7 +1683,7 @@ function calculate_reminder_dates($rule, $dateTarget='',$type) {
   }
 
   // Collect the past_due date
-  $past_due_date == "";
+  $past_due_date = "";
   $res = resolve_reminder_sql($rule, $type.'_post');
   if (!empty($res)) {
     $row = $res[0];
@@ -1706,7 +1706,7 @@ function calculate_reminder_dates($rule, $dateTarget='',$type) {
   }
 
   // Collect the soon_due date
-  $soon_due_date == "";
+  $soon_due_date = "";
   $res = resolve_reminder_sql($rule, $type.'_pre');
   if (!empty($res)) {
     $row = $res[0];

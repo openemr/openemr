@@ -2,7 +2,10 @@
 
 require_once(dirname(__FILE__) . "/../Smarty.class.php");
 require_once(dirname(__FILE__) . "/../formdata.inc.php");
-define("SMARTY_DIR", dirname(__FILE__) . "/../");
+if (!defined('SMARTY_DIR')) {
+    define("SMARTY_DIR", dirname(__FILE__) . "/../");
+}
+
 
 class Controller extends Smarty {
 
@@ -122,7 +125,7 @@ class Controller extends Smarty {
 
                $output = "";
                //print_r($args_array);
-               if ($_POST['process'] == "true") {
+               if (isset($_POST['process']) && ($_POST['process']== "true")) {
 
                        if (is_callable(array(&$c_obj,$c_action . "_action_process"))) {
                                //echo "ca: " . $c_action . "_action_process";

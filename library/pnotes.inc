@@ -47,6 +47,7 @@ $sqlParameterArray = array();
 
   $res = sqlStatement($sql, $sqlParameterArray);
 
+  $all=array();
   for ($iter = 0;$row = sqlFetchArray($res);$iter++)
     $all[$iter] = $row;
   return $all;
@@ -84,6 +85,7 @@ $sqlParameterArray = array();
 
   $res = sqlStatement($sql, $sqlParameterArray);
 
+  $all=array();
   for ($iter = 0;$row = sqlFetchArray($res);$iter++)
     $all[$iter] = $row;
   return $all;
