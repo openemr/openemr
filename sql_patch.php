@@ -56,8 +56,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
 }
 
 echo "<font color='green'>Updating version indicators...</font><br />\n";
-sqlStatement("UPDATE version SET v_major = '$v_major', v_minor = '$v_minor', " .
-  "v_patch = '$v_patch', v_realpatch = '$v_realpatch', v_tag = '$v_tag', v_database = '$v_database'");
+sqlStatement("UPDATE version SET v_realpatch = '$v_realpatch'");
 
 echo "<p><font color='green'>Database patch finished.</font></p>\n";
 echo "</body></html>\n";
