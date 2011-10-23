@@ -97,19 +97,27 @@ foreach ($siteslist as $sfname) {
     }
     else {
       $row = sqlQuery("SELECT * FROM version LIMIT 1");
+      $database_patch_txt = "";
+      if ( !(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0 ) {
+        $database_patch_txt = " (" . $row['v_realpatch'] .")";
+      }
       $openemr_version = $row['v_major'] . "." . $row['v_minor'] . "." .
-        $row['v_patch'] . $row['v_tag'];
+        $row['v_patch'] . $row['v_tag'] . $database_patch_txt;
       $database_version = 0 + $row['v_database'];
+      $database_patch = 0 + $row['v_realpatch'];
     }
 
     // Display relevant columns.
     echo "  <td>$openemr_name</td>\n";
     echo "  <td>$openemr_version</td>\n";
-    if ($v_database == $database_version) {
-      echo "  <td><a href='interface/login/login_frame.php?site=$sfname'>Log In</a></td>\n";
+    if ($v_database != $database_version) {
+      echo "  <td><a href='sql_upgrade.php?site=$sfname'>Upgrade Database</a></td>\n";
+    }
+    else if ( ($v_realpatch != $database_patch) ) {
+      echo "  <td><a href='sql_patch.php?site=$sfname'>Patch Database</a></td>\n";
     }
     else {
-      echo "  <td><a href='sql_upgrade.php?site=$sfname'>Upgrade Database</a></td>\n";
+      echo "  <td><a href='interface/login/login_frame.php?site=$sfname'>Log In</a></td>\n";
     }
   }
   echo " </tr>\n";
