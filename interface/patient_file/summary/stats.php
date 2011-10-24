@@ -47,6 +47,8 @@ if (!$thisauth) {
 <?php
 $numcols = '1';
 $ix = 0;
+$erx_upload_complete = 0;
+$old_key="";$display_current_medications_below=1;
 foreach ($ISSUE_TYPES as $key => $arr) {
     // $result = getListByType($pid, $key, "id,title,begdate,enddate,returndate,extrainfo", "all", "all", 0);
 
@@ -58,10 +60,81 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 		$query .= "and erx_uploaded != '1' ";
     $query .= "ORDER BY begdate";
     $pres = sqlStatement($query, array($pid, $key) );
-
+    if($old_key=="medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1)
+    {
+	$display_current_medications_below=0;
+	?>
+	<div>
+	    <table id="patient_stats_prescriptions">
+	    <?php if($GLOBALS['erx_enable']){ ?>
+	    <tr><td>
+	    <?php if ($_POST['embeddedScreen']) {
+		$widgetTitle = '';
+		$widgetTitle = xl('Current Medications');
+		$widgetLabel = "current_prescriptions";    
+		$widgetButtonLabel = '';
+		$widgetButtonLink = '';
+		$widgetAuth = false;
+		$widgetButtonClass = '';
+		$bodyClass = "summary_item small";
+		$fixedWidth = false;
+		expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+	    }
+	    ?>
+	    
+	    <?php
+	    $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'",array($pid));
+	    ?>
+	    <table>
+	    <?php
+	    if(sqlNumRows($res)==0)
+	    {
+		?>
+		<tr class=text>
+			<td><?php echo htmlspecialchars(xl('None'), ENT_NOQUOTES);?></td>
+		</tr>
+		<?php
+	    }
+	    while($row_currentMed=sqlFetchArray($res))
+	    {
+		$runit=generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'),htmlspecialchars($row_currentMed['unit'],ENT_NOQUOTES));
+		$rin=generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'),htmlspecialchars($row_currentMed['form'],ENT_NOQUOTES));
+		$rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'),htmlspecialchars($row_currentMed['route'],ENT_NOQUOTES));
+		$rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'),htmlspecialchars($row_currentMed['interval'],ENT_NOQUOTES));
+		?>
+		<tr class=text >
+			<td><?php echo htmlspecialchars($row_currentMed['drug'],ENT_NOQUOTES);?></td>
+			<td><?php
+			    $unit='';
+			    if($row_currentMed['size']>0)
+				$unit=$row_currentMed['size']." ".$runit." ";
+			    echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint,ENT_NOQUOTES);
+			?></td>
+		</tr>
+	    <?php
+	    }
+	    ?>
+	    </table>
+	    </td></tr>
+	    <?php }
+	    $old_key='';
+    }
     if (sqlNumRows($pres) > 0 || $ix == 0 || $key == "allergy" || $key == "medication") {
-
+	$old_key=$key;
 	if ($_POST['embeddedScreen']) {
+	    
+	    if($GLOBALS['erx_enable'] && $key == "medication"){
+		$query_uploaded = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND ";
+		$query_uploaded .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
+		$query_uploaded .= "and erx_uploaded != '1' ";
+		$query_uploaded .= "ORDER BY begdate";
+		$res_uploaded = sqlStatement($query_uploaded, array($pid) );
+		if(sqlNumRows($res_uploaded) == 0){
+		    $erx_upload_complete = 1;
+		    continue;
+		}
+	    }
+	    
 	    echo "<tr><td>";
             // Issues expand collapse widget
             $widgetTitle = $arr[0];
@@ -136,7 +209,6 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         }
 	
     }
-
     ++$ix;
 }
 ?>
@@ -262,18 +334,17 @@ else { ?>
 <?php if (!$GLOBALS['disable_prescriptions']) { ?>
 <div>
 <table id="patient_stats_prescriptions">
-<?php if($GLOBALS['erx_enable']){ ?>
+<?php if($GLOBALS['erx_enable'] && $display_current_medications_below==1){ ?>
 <tr><td>
 <?php if ($_POST['embeddedScreen']) {
     $widgetTitle = '';
     $widgetTitle = xl('Current Medications');
-    $widgetLabel = "current_prescriptions";
+    $widgetLabel = "current_prescriptions";    
     $widgetButtonLabel = '';
     $widgetButtonLink = '';
-    $widgetButtonClass = '';
-    $linkMethod = "";
-    $bodyClass = "summary_item small";
     $widgetAuth = false;
+    $widgetButtonClass = '';
+    $bodyClass = "summary_item small";
     $fixedWidth = false;
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 }
@@ -299,7 +370,7 @@ while($row_currentMed=sqlFetchArray($res))
     $rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'),$row_currentMed['route']);
     $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'),$row_currentMed['interval']);
     ?>
-    <tr class=text style='font-weight:bold;color:blue;'>
+    <tr class=text >
 	    <td><?php echo $row_currentMed['drug'];?></td>
 	    <td><?php $unit=''; if($row_currentMed['size']>0) $unit=$row_currentMed['size']." ".$runit." "; echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint,ENT_NOQUOTES);?></td>
     </tr>
@@ -353,8 +424,44 @@ echo $c->act(array("prescription" => "", "fragment" => "", "patient_id" => $pid)
 } ?>
 	
 </td></tr>
+
+<?php }
+
+if($erx_upload_complete == 1){
+    echo "<tr><td>";
+    // Old Medication Widget
+    $widgetTitle = "Old Medication";
+    $widgetLabel = "old_medication";
+    $widgetButtonLabel = xl("Edit");
+    $widgetButtonLink = "load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")";
+    $widgetButtonClass = "";
+    $linkMethod = "javascript";
+    $bodyClass = "summary_item small";
+    $widgetAuth = true;
+    $fixedWidth = false;
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    $query_uploaded_old = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND ";
+    $query_uploaded_old .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
+    $query_uploaded_old .= "ORDER BY begdate";
+    $res_uploaded_old = sqlStatement($query_uploaded_old, array($pid) );
+    echo "<table>";
+    while ($row = sqlFetchArray($res_uploaded_old)) {
+	// output each issue for the $ISSUE_TYPE
+	if (!$row['enddate'] && !$row['returndate'])
+	    $rowclass="noend_noreturn";
+	else if (!$row['enddate'] && $row['returndate'])
+	    $rowclass="noend";
+	else if ($row['enddate'] && !$row['returndate'])
+	    $rowclass = "noreturn";
+	echo " <tr class='text $rowclass;'>\n";
+	echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</td>\n";
+	echo " </tr>\n";
+    }
+    echo "</table>";
+    echo "</div></td></tr>";
+}
+
+?>
 </table> <!-- end patient_stats_prescriptions -->
 </div>
-<?php } ?>
-
 </div> <!-- end patient_stats_summary -->

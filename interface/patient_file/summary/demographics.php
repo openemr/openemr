@@ -244,10 +244,7 @@ $(document).ready(function(){
 				data: {
 					patient:<?php echo $row_soapstatus['pid']; ?>,
 				},
-				<?php
-				if($GLOBALS['erx_import_status_message']){ ?>
 				async: false,
-				<?php } ?>
 				success: function(thedata){
 					//alert(thedata);
 					msg_updation+=thedata;
@@ -267,10 +264,7 @@ $(document).ready(function(){
 				data: {
 					patient:<?php echo $row_soapstatus['pid']; ?>,
 				},
-				<?php
-				if($GLOBALS['erx_import_status_message']){ ?>
 				async: false,
-				<?php } ?>
 				success: function(thedata){
 					//alert(thedata);
 					msg_updation+=thedata;

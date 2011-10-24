@@ -97,3 +97,6 @@ CREATE INDEX `patient_id` ON `prescriptions` (`patient_id`);
 ALTER TABLE `version` ADD COLUMN `v_realpatch` int(11) NOT NULL DEFAULT 0;
 #EndIf
 
+#IfMissingColumn prescriptions drug_info_erx
+ALTER TABLE `prescriptions` ADD COLUMN `drug_info_erx` TEXT DEFAULT NULL;
+#EndIf
