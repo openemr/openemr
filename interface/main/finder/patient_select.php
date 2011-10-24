@@ -16,9 +16,9 @@ require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/formdata.inc.php");
 
-$fstart = $_REQUEST['fstart'] + 0;
+$fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] : 0;
 $popup  = empty($_REQUEST['popup']) ? 0 : 1;
-$message = $_GET['message'];
+$message = isset($_GET['message']) ? $_GET['message'] : "";
 ?>
 
 <html>

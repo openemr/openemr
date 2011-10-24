@@ -4,6 +4,7 @@
  $_SESSION["encounter"] = "";
 
  // Fetching the password expiration date
+ $is_expired=false;
  if($GLOBALS['password_expiration_days'] != 0){
  $is_expired = false;
  $q=formData('authUser','P');

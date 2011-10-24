@@ -377,8 +377,8 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
     }
     $search_for_pieces1 = '';
     $search_for_pieces2 = '';
-    if ($lname{0} != strtoupper($lname{0})) {$search_for_pieces1 = '%';}
-    if ($fname{0} != strtoupper($fname{0})) {$search_for_pieces2 = '%';}
+    if ((strlen($lname) < 1)|| ($lname{0} != strtoupper($lname{0}))) {$search_for_pieces1 = '%';}
+    if ((strlen($fname) < 1)|| ($fname{0} != strtoupper($fname{0}))) {$search_for_pieces2 = '%';}
 
     $sqlBindArray = array();
     $where = "lname LIKE ? AND fname LIKE ? ";
@@ -397,6 +397,7 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
 
     $rez = sqlStatement($sql, $sqlBindArray);
 
+    $returnval=array();
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter] = $row;
 

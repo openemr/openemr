@@ -53,7 +53,7 @@ if ($fake_register_globals) {
 
 // This is for sanitization of all escapes.
 //  (ie. reversing magic quotes if it's set)
-if ($sanitize_all_escapes) {
+if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
   if (get_magic_quotes_gpc()) {
     function undoMagicQuotes($array, $topLevel=true) {
       $newArray = array();
@@ -362,7 +362,7 @@ $GLOBALS['include_de_identification']=0;
 // don't include the authentication module - we do this to avoid
 // include loops.
 
-if (!$ignoreAuth) {
+if (!isset($ignoreAuth) || !$ignoreAuth) {
   include_once("$srcdir/auth.inc");
 }
 

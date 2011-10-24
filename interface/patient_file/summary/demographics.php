@@ -24,13 +24,13 @@ $fake_register_globals=false;
  require_once("$srcdir/edi.inc");
  require_once("$srcdir/clinical_rules.php");
 
-  if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+  if ($GLOBALS['concurrent_layout'] && isset($_GET['set_pid'])) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
  }
 
   $active_reminders = false;
-  if (($_SESSION['alert_notify_pid'] != $pid) && $_GET['set_pid'] && acl_check('patients', 'med') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crp']) {
+  if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && acl_check('patients', 'med') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crp']) {
     // showing a new patient, so check for active reminders
     $active_reminders = active_alert_summary($pid,"reminders-due");
   }
@@ -1223,7 +1223,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 </div> <!-- end main content div -->
 
-<?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
+<?php if ($GLOBALS['concurrent_layout'] && isset($_GET['set_pid'])) { ?>
 <script language='JavaScript'>
  top.window.parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars(($result['fname']) . " " . ($result['lname']),ENT_QUOTES) .
    "'," . htmlspecialchars($pid,ENT_QUOTES) . ",'" . htmlspecialchars(($result['pubpid']),ENT_QUOTES) .
