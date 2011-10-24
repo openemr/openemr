@@ -400,7 +400,7 @@ else {
           FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username) 
           JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE pnotes.message_status != 'Done' 
           AND pnotes.deleted != '1' AND pnotes.assigned_to LIKE ?".
-          "order by ".add_escape_custom($sortby)." ".add_escape_custom($sortorder).
+          " order by ".add_escape_custom($sortby)." ".add_escape_custom($sortorder).
           " limit ".add_escape_custom($begin).", ".add_escape_custom($listnumber);
         $result = sqlStatement($sql, array($usrvar) );
         while ($myrow = sqlFetchArray($result)) {
