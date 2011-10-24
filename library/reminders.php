@@ -317,6 +317,7 @@ function fetch_reminders($patient_id='',$type='',$due_status='',$select='*') {
     $where . " ORDER BY " . $order;
   $rez = sqlStatement($sql, $arraySqlBind);
 
+  $returnval=array();
   for($iter=0; $row=sqlFetchArray($rez); $iter++)
     $returnval[$iter]=$row;
 

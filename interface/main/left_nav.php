@@ -239,7 +239,7 @@ function genPopupsList($style='') {
  <option value='../reports/players_report.php'><?php xl('Roster','e'); ?></option>
 <?php } ;
  if (!$GLOBALS['disable_calendar']) { ?>
- <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><?php xl('Appts','e'); ?></option>
+ <option value='../reports/appointments_report.php?patient=<?php if(isset($pid)) {echo $pid;} ?>'><?php xl('Appts','e'); ?></option>
 <?php } ;
  if (file_exists("$webserver_root/custom/refer.php")) { ?>
  <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>

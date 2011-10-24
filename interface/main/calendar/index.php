@@ -37,18 +37,17 @@ include "includes/pnre.inc.php";
 include 'includes/pnAPI.php';
 
 // From Michael Brinson 2006-09-19:
-if ($_POST['pc_username']) $_SESSION['pc_username'] = $_POST['pc_username'];
+if (isset($_POST['pc_username'])) $_SESSION['pc_username'] = $_POST['pc_username'];
 
 //(CHEMED) Facility filter
-if ($_POST['all_users']) $_SESSION['pc_username'] = $_POST['all_users'];
+if (isset($_POST['all_users'])) $_SESSION['pc_username'] = $_POST['all_users'];
 
 // bug fix to allow default selection of a provider
 // added 'if..POST' check -- JRM
-if ($_GET['pc_username']) $_SESSION['pc_username'] = $_GET['pc_username'];
-if ($_POST['pc_username']) $_SESSION['pc_username'] = $_POST['pc_username'];
+if (isset($_REQUEST['pc_username'])) $_SESSION['pc_username'] = $_REQUEST['pc_username'];
 
 // (CHEMED) Get the width of vieport
-if ($_GET['framewidth']) $_SESSION['pc_framewidth'] = $_GET['framewidth'];
+if (isset($_GET['framewidth'])) $_SESSION['pc_framewidth'] = $_GET['framewidth'];
 
 // FACILITY FILTERING (lemonsoftware) (CHEMED)
 $_SESSION['pc_facility'] = 0;
@@ -71,12 +70,13 @@ if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
 if (isset($_POST['pc_facility']))  $_SESSION['pc_facility'] = $_POST['pc_facility'];
 /********************************************************************/
 
-if ($_GET['pc_facility'])  $_SESSION['pc_facility'] = $_GET['pc_facility'];
+if (isset($_GET['pc_facility']))  $_SESSION['pc_facility'] = $_GET['pc_facility'];
 if ($GLOBALS['set_facility_cookie'] && ($_SESSION['pc_facility'] > 0)) setcookie("pc_facility", $_SESSION['pc_facility'], time() + (3600 * 365));
 
-// allow tracking of current viewtype -- JRM
-if ($_GET['viewtype']) $_SESSION['viewtype'] = $_GET['viewtype'];
-if ($_POST['viewtype']) $_SESSION['viewtype'] = $_POST['viewtype'];
+// Simplifying by just using request variable instead of checking for both post and get - KHY
+if (isset($_REQUEST['viewtype'])) $_SESSION['viewtype'] = $_REQUEST['viewtype'];
+
+
 
 
 //if (empty($_GET['no_nav'])) {

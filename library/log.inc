@@ -4,7 +4,7 @@ require_once(dirname(__FILE__). "/sql.inc");
 
 function newEvent($event, $user, $groupname, $success, $comments="") {
     $adodb = $GLOBALS['adodb']['db'];
-    $crt_user=$_SERVER['SSL_CLIENT_S_DN_CN'];
+    $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
     /* More details added to the log */
     $sql = "insert into log ( date, event, user, groupname, success, comments, crt_user) " .
             "values ( NOW(), " . $adodb->qstr($event) . "," . $adodb->qstr($user) .
@@ -480,9 +480,9 @@ function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comm
  */
 function auditSQLEvent($statement, $outcome)
 {
-    $user =  $_SESSION['authUser'];
+    $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
 	/* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-   if (!($GLOBALS['enable_auditlog']))
+   if (!isset($GLOBALS['enable_auditlog']) || !($GLOBALS['enable_auditlog']))
    {
    	    if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
    	    return;
@@ -514,7 +514,7 @@ function auditSQLEvent($statement, $outcome)
         return;
     }
 
-    $group = $_SESSION['authGroup'];
+    $group = isset($_SESSION['authGroup']) ?  $_SESSION['authGroup'] : "";
     $comments = $statement;
     $success = 1;
     $checksum = "";

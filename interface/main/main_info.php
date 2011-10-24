@@ -35,11 +35,11 @@ var framesrc = '<frame ';
 
 // this allows us to keep our viewtype between screens -- JRM
 $viewtype = 'day';
-if ($_SESSION['viewtype']) { $viewtype = $_SESSION['viewtype']; }
+if (isset($_SESSION['viewtype'])) { $viewtype = $_SESSION['viewtype']; }
 
 // this allows us to keep our selected providers between screens -- JRM
 $pcuStr = "pc_username=".$_SESSION['authUser'];
-if ($_SESSION['pc_username']) {
+if (isset($_SESSION['pc_username'])) {
     $pcuStr = "";
     if (count($_SESSION['pc_username']) > 1) {
         // loop over the array of values in pc_username to build

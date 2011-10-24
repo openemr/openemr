@@ -37,9 +37,13 @@ require_once("$srcdir/formatting.inc.php");
 <body class="body_top">
 <?php
 // Check to see if the user has Admin rights, and if so, allow access to See All.
-$showall = $_GET['show_all'];
+$showall = isset($_GET['show_all']) ? $_GET['show_all'] : "" ;
 if ($showall == "yes") {
     $show_all = $showall;
+}
+else
+{
+    $show_all= "no";
 }
 if (acl_check('admin', 'super'    )) {
 if ($show_all=='yes') {
@@ -55,8 +59,7 @@ else {
 <table><tr><td><span class="title"><?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href=<?php echo $lnkvar; ?></a></td></tr></table><br>
 <?php
 //collect the task setting
-if (isset($_GET['task'])) $task=$_GET['task'];
-if (isset($_POST['task'])) $task=$_POST['task'];
+$task= isset($_REQUEST['task']) ? $_REQUEST['task'] : "";
 
 switch($task) {
     case "add" :
@@ -306,20 +309,13 @@ $(document).ready(function(){
 </script><?php
 }
 else {
-    $sortby = $_REQUEST['sortby'];
-    $sortorder = $_REQUEST['sortorder'];
-    $begin = $_REQUEST['begin'];
+
     // This is for sorting the records.
     $sort = array("users.lname", "patient_data.lname", "pnotes.title", "pnotes.date", "pnotes.message_status");
-    $sortby = $_REQUEST['sortby'];
-    $sortorder = $_REQUEST['sortorder'];
-    $begin = $_REQUEST['begin'];
-    if($sortby == "") {
-        $sortby = $sort[0];
-    }
-    if($sortorder == "") {
-        $sortorder = "asc";
-    }
+    $sortby = isset($_REQUEST['sortby']) ? $_REQUEST['sortby'] : $sort[0];
+    $sortorder = isset($_REQUEST['sortorder']) ? $_REQUEST['sortorder'] : "asc";
+    $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
+
     for($i = 0; $i < count($sort); $i++) {
         $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sort[$i]&sortorder=asc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>";
     }
@@ -333,7 +329,7 @@ else {
     }
     // Manage page numbering and display beneath the Messages table.
     $listnumber = 25;
-    $show_all=='yes' ? $usrvar='_%' : $usrvar=$_SESSION['authUser'] ;
+    $show_all='yes' ? $usrvar='_%' : $usrvar=$_SESSION['authUser'] ;
     $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, 
       IF(pnotes.user != pnotes.pid,users.fname,patient_data.fname), IF(pnotes.user != pnotes.pid,users.lname,patient_data.lname), patient_data.fname, 
       patient_data.lname FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username) 
@@ -392,7 +388,7 @@ else {
         </tr>";
         // Display the Messages table body.
         $count = 0;
-        $show_all=='yes' ? $usrvar='_%' : $usrvar=$_SESSION['authUser'] ;
+        $show_all='yes' ? $usrvar='_%' : $usrvar=$_SESSION['authUser'] ;
         $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, 
           IF(pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
           IF(pnotes.user != pnotes.pid,users.lname,patient_data.lname) as users_lname,
