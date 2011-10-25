@@ -24,7 +24,14 @@
 //
 // +------------------------------------------------------------------------------+
 
-$DOM=new DOMDocument;
+$DOMClass="DOMDocument";
+if(!class_exists($DOMClass))
+{
+    error_log("Creation of month drop down failed:".PHP_EOL."Do you have php-xml installed?");
+    return;
+}
+$DOM=new $DOMClass;
+
 $divMonths= $DOM->createElement("DIV");
 $divMonths->setAttribute("ID","monthPicker");
 $divMonths->setAttribute("style","display:none;position: absolute; top: 15px;");
