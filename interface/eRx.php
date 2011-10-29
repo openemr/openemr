@@ -33,6 +33,22 @@ $fake_register_globals=false;
 //
 require('globals.php');
 require('eRx_xml.php');
+$message='';
+if(!extension_loaded('soap')){
+    $message.=htmlspecialchars( xl("PLEASE ENABLE SOAP EXTENSION"), ENT_QUOTES)."<br>";
+}
+if(!extension_loaded('curl')){
+    $message.=htmlspecialchars( xl("PLEASE ENABLE CURL EXTENSION"), ENT_QUOTES)."<br>";
+}
+if(!extension_loaded('openssl')){
+    $message.=htmlspecialchars( xl("PLEASE ENABLE OPENSSL EXTENSION"), ENT_QUOTES)."<br>";
+}
+if(!extension_loaded('xml')){
+    $message.=htmlspecialchars( xl("PLEASE ENABLE XML EXTENSION"), ENT_QUOTES)."<br>";
+}
+if($message){
+    echo $message;die;
+}
 $userRole=sqlQuery("select * from users where username=?",array($_SESSION['authUser']));
 $userRole['newcrop_user_role'] = preg_replace('/erx/','',$userRole['newcrop_user_role']);
 $msg='';

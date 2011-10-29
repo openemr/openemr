@@ -200,9 +200,11 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     else {
       $statusCompute = htmlspecialchars( xl("Inactive") ,ENT_NOQUOTES);
     }
-    $click_class='';
-    if($row['erx_source']==0)
     $click_class='statrow';
+    if($row['erx_source']==1 && $focustype=='allergy')
+    $click_class='';
+    elseif($row['erx_uploaded']==1 && $focustype=='medication')
+    $click_class='';
     // output the TD row of info
     if ($row['enddate'] == NULL) {
       echo " <tr class='$bgclass detail $click_class' style='color:red;font-weight:bold' id='$rowid'>\n";

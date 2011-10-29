@@ -145,13 +145,13 @@ for($i=0;$i<sizeof($medArray);$i++)
     {        
         $prescription_id=sqlInsert("insert into prescriptions 
         (
-            patient_id,provider_id,encounter,date_added,drug,drug_id,form,dosage,size,unit,route,`INTERVAL`,refills,note,`DATETIME`,
+            patient_id,provider_id,encounter,date_added,drug,drug_id,drug_info_erx,form,dosage,size,unit,route,`INTERVAL`,refills,note,`DATETIME`,
             `USER`,site,prescriptionguid,erx_source,rxnorm_drugcode
         )
         values
-        (?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),?,?,?,'1',?)",
+        (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),?,?,?,'1',?)",
         array($medArray[$i]['ExternalPatientID'], $provider['id'],$encounter, substr($medArray[$i]['PrescriptionDate'],0,10), $medArray[$i]['DrugName'],
-        $medArray[$i]['DrugID'], $rin['option_id'], $medArray[$i]['DosageNumberDescription'], number($medArray[$i]['Strength']), $runit['option_id'],
+        $medArray[$i]['DrugID'], $medArray[$i]['DrugInfo'], $rin['option_id'], $medArray[$i]['DosageNumberDescription'], number($medArray[$i]['Strength']), $runit['option_id'],
         $rroute['option_id'], $rint['option_id'], $medArray[$i]['Refills'], $medArray[$i]['PrescriptionNotes'], 
         $_SESSION['authUserID'], $medArray[$i]['SiteID'], $medArray[$i]['PrescriptionGuid'], $medArray[$i]['rxcui']));
         $j++;
@@ -159,10 +159,10 @@ for($i=0;$i<sizeof($medArray);$i++)
     else
     {
         sqlQuery("update prescriptions set 
-        provider_id=?, drug=?, drug_id=?, form=?, dosage=?, size=? ,unit=?, route=?, `INTERVAL`=?, refills=?, note=?, 
+        provider_id=?, drug=?, drug_id=?, drug_info_erx=?, form=?, dosage=?, size=? ,unit=?, route=?, `INTERVAL`=?, refills=?, note=?, 
         `DATETIME`=NOW(),`USER`=?, site=? ,erx_source='1', rxnorm_drugcode=?, active='1'
         WHERE prescriptionguid=? AND patient_id=?
-        ",array($provider['id'],$medArray[$i]['DrugName'],$medArray[$i]['DrugID'],$rin['option_id'],$medArray[$i]['DosageNumberDescription'],
+        ",array($provider['id'],$medArray[$i]['DrugName'],$medArray[$i]['DrugID'],$medArray[$i]['DrugInfo'],$rin['option_id'],$medArray[$i]['DosageNumberDescription'],
         number($medArray[$i]['Strength']),$runit['option_id'],$rroute['option_id'],$rint['option_id'],$medArray[$i]['Refills'],
         $medArray[$i]['PrescriptionNotes'],$_SESSION['authUserID'],
         $medArray[$i]['SiteID'],$medArray[$i]['rxcui'],$medArray[$i]['PrescriptionGuid'],$medArray[$i]['ExternalPatientID']));

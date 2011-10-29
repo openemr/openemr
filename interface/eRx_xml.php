@@ -89,6 +89,27 @@ function trimData($str,$length)
     return $str;
 }
 
+function stringToNumeric($str)
+{	
+	if(is_numeric($str)){
+    return array($str,"");
+    }
+    else{
+    for($i=0;$i<strlen($str);$i++){
+        $x=substr($str,$i,1);
+        if(is_numeric($x) && !$txt){
+        $num.=$x;
+        }
+        else{
+        $txt.=$x;
+        
+        }
+    }
+    return array($num,$txt);
+    }
+    $str=substr($str,0,($length-1));
+    return $str;
+}
 function credentials($doc,$r)
 {
     global $msg;
@@ -600,8 +621,10 @@ function Patient($doc,$r,$pid)
         $PatientAddress->appendChild( $zip );
         }
         //$msg = validation(xl('Patient Country'),$patient_data['country_code'],$msg);
-        if(trim($patient_data['country_code'])=='')
-            $dem_check.=htmlspecialchars( xl("Patient Country is missing"), ENT_NOQUOTES)."<br>";
+        if(trim($patient_data['country_code'])=='' && $GLOBALS['erx_default_patient_country']=='')
+            $dem_check.=htmlspecialchars( xl("Patient Country is missing. Also you have not set default Patient Country in Global Settings"), ENT_NOQUOTES)."<br>";
+        elseif(trim($patient_data['country_code'])=='')
+            $patient_data['country_code'] = $GLOBALS['erx_default_patient_country'];
         $county_code = substr($patient_data['country_code'],0,2);
         $country = $doc->createElement( "country" );
         $country->appendChild(
@@ -678,15 +701,16 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
             $s=stripSpecialCharacter($prec['drug']);
             $sig = $doc->createElement( "drug" );
             $sig->appendChild(
-                $doc->createTextNode( $s )
+                $doc->createTextNode( trimData($s,80) )
             );
             $b->appendChild( $sig );
+            $x=stringToNumeric($prec['quantity']);
             $dispenseNumber = $doc->createElement( "dispenseNumber" );
             $dispenseNumber->appendChild(
-                $doc->createTextNode( $prec['quantity'] )
+                $doc->createTextNode( $x[0] )
             );
             $b->appendChild( $dispenseNumber );
-            $s="Take ".$prec['dosage']." In ".$prec['title1']." ".$prec['title2']." ".$prec['title3'];
+            $s=trimData($x[1]."  Take ".$prec['dosage']." In ".$prec['title1']." ".$prec['title2']." ".$prec['title3'],140);
             $s=stripSpecialCharacter($s);
             $sig = $doc->createElement( "sig" );
             $sig->appendChild(
@@ -694,8 +718,9 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
             );
             $b->appendChild( $sig );
             $refillCount = $doc->createElement( "refillCount" );
+            $x=stringToNumeric($prec['per_refill']); 
             $refillCount->appendChild(
-                $doc->createTextNode( $prec['per_refill'] )
+                $doc->createTextNode( $x[0])
             );
             $b->appendChild( $refillCount );
             $prescriptionType = $doc->createElement( "prescriptionType" );
@@ -738,7 +763,7 @@ function PatientMedication($doc,$r,$pid,$med_limit)
             $row_med['title'] = stripSpecialCharacter($row_med['title']);
             $sig = $doc->createElement( "drug" );
             $sig->appendChild(
-                $doc->createTextNode( $row_med['title'] )
+                $doc->createTextNode( trimData($row_med['title'],80) )
             );
             $b->appendChild( $sig );
             $dispenseNumber = $doc->createElement( "dispenseNumber" );
@@ -785,7 +810,7 @@ function PatientFreeformAllergy($doc,$r,$pid)
             if($val['title1']){
             $allergyName = $doc->createElement( "allergyName" );
                 $allergyName->appendChild(
-                    $doc->createTextNode( $val['title1'] )
+                    $doc->createTextNode( trimData(stripSpecialCharacter($val['title1']),70) )
                 );
             $b->appendChild( $allergyName );
             }
@@ -799,7 +824,7 @@ function PatientFreeformAllergy($doc,$r,$pid)
             if($val['comments']){
             $allergyComment = $doc->createElement( "allergyComment" );
                 $allergyComment->appendChild(
-                    $doc->createTextNode( stripSpecialCharacter($val['comments']) )
+                    $doc->createTextNode( trimData(stripSpecialCharacter($val['comments']),200) )
                 );
             $b->appendChild( $allergyComment );
             }
@@ -842,16 +867,7 @@ function PrescriptionRenewalResponse($doc,$r,$pid)
 }
 
 function checkError($xml)
-{
-    if(!extension_loaded('soap')){
-        die("PLEASE ENABLE SOAP EXTENSION");
-    }
-    if(!extension_loaded('curl')){
-        die("PLEASE ENABLE CURL EXTENSION");
-    }
-    if(!extension_loaded('openssl')){
-        die("PLEASE ENABLE OPENSSL EXTENSION");
-    }
+{    
     $ch = curl_init($xml);
     
     $data = array('RxInput' => $xml);
