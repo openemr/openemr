@@ -780,11 +780,16 @@ if ( $insurance_count > 0 ) {
 							<?php if ($row['copay'] != "") { ?>
 								  <span class='bold'><?php echo htmlspecialchars(xl('CoPay'),ENT_NOQUOTES); ?>: </span>
 								  <span class='text'><?php echo htmlspecialchars($row['copay'],ENT_NOQUOTES); ?></span>
+                  <br />
 							<?php } ?>
-							<br>
 								  <span class='bold'><?php echo htmlspecialchars(xl('Accept Assignment'),ENT_NOQUOTES); ?>:</span>
 								  <span class='text'><?php if($row['accept_assignment'] == "TRUE") echo xl("YES"); ?>
 								  <?php if($row['accept_assignment'] == "FALSE") echo xl("NO"); ?></span>
+							<?php if (!empty($row['policy_type'])) { ?>
+                  <br />
+								  <span class='bold'><?php echo htmlspecialchars(xl('Secondary Medicare Type'),ENT_NOQUOTES); ?>: </span>
+								  <span class='text'><?php echo htmlspecialchars($policy_types[$row['policy_type']],ENT_NOQUOTES); ?></span>
+							<?php } ?>
 								 </td>
 								 <td valign='top'></td>
 								 <td valign='top'></td>
