@@ -1959,6 +1959,7 @@ CREATE TABLE `insurance_data` (
   `pid` bigint(20) NOT NULL default '0',
   `subscriber_sex` varchar(25) default NULL,
   `accept_assignment` varchar(5) NOT NULL DEFAULT 'TRUE',
+  `policy_type` varchar(25) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;

@@ -640,7 +640,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			<tr>
 				<td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code','e') : xl('Postal Code','e') ?> </span></td><td class=required>:</td><td><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>"></td>
 
-
 				<td colspan=2>
 				</td><td></td>
 			</tr>
@@ -665,9 +664,22 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 				<td colspan=2>
 				</td><td></td>
 			</tr>
+      <tr>
+        <td><span class='bold'><?php xl('Secondary Medicare Type','e'); ?></span></td>
+        <td class='bold'>:</td>
+        <td colspan='6'>
+          <select name=i<?php echo $i?>policy_type>
+<?php
+  foreach ($policy_types AS $key => $value) {
+    echo "            <option value ='$key'";
+    if ($key == $result3['policy_type']) echo " selected";
+    echo ">" . htmlspecialchars($value) . "</option>\n";
+  }
+?>
+          </select>
+        </td>
+      </tr>
 		</table>
-
-
 
 		  </td>
 		 </tr>
@@ -682,10 +694,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <?php } // end of "if not simplified_demographics" ?>
 </div></div>
-
-
-
-
 
 </form>
 

@@ -108,3 +108,8 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nat
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nation_notes_replace_buttons','Normal','Normal',30);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nation_notes_replace_buttons','Abnormal','Abnormal',40);
 #EndIf
+
+#IfMissingColumn insurance_data policy_type
+ALTER TABLE `insurance_data` ADD COLUMN `policy_type` varchar(25) NOT NULL default '';
+#EndIf
+

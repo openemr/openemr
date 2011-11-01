@@ -708,8 +708,7 @@ class Claim {
 
   function insuredTypeCode($ins=0) {
     if (strcmp($this->claimType($ins),'MB') == 0 && $this->payerSequence($ins) != 'P')
-      return '12'; // medicare secondary working aged beneficiary or
-                   // spouse with employer group health plan
+      return $this->payers[$ins]['data']['policy_type'];
     return '';
   }
 

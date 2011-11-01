@@ -757,7 +757,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "*" . $claim->insuredRelationship($ins) .
       "*" . $claim->groupNumber($ins) .
       "*" . (($CMS_5010 && $claim->groupNumber($ins)) ? '' : $claim->groupName($ins)) .
-      "*" . ($CMS_5010 ? '' : $tmp2) .
+      "*" . ($CMS_5010 ? $claim->insuredTypeCode($ins) : $tmp2) .
       "*" .
       "*" .
       "*" .
