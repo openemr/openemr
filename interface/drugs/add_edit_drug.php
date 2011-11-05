@@ -1,10 +1,13 @@
 <?php
- // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2011 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
+
+$sanitize_all_escapes  = true;
+$fake_register_globals = false;
 
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
@@ -28,6 +31,12 @@ function bucks($amount) {
   return '';
 }
 
+// Format a string to be used in a quoted HTML form attribute.
+//
+function htmlAttr($value) {
+  return htmlspecialchars($value, ENT_QUOTES);
+}
+
 // Write a line of data for one template to the form.
 //
 function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $prices, $taxrates) {
@@ -36,41 +45,45 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 
   echo " <tr>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='form_tmpl[$tmpl_line_no][selector]' value='$selector' size='8' maxlength='100'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][selector]' value='" . htmlAttr($selector) . "' size='8' maxlength='100'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='form_tmpl[$tmpl_line_no][dosage]' value='$dosage' size='6' maxlength='10'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][dosage]' value='" . htmlAttr($dosage) . "' size='6' maxlength='10'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  generate_form_field(array('data_type'=>1,'field_id'=>'tmpl['.$tmpl_line_no.'][period]','list_id'=>'drug_interval','empty_title'=>'SKIP'), $period);
+  generate_form_field(array(
+    'data_type'   => 1,
+    'field_id'    => 'tmpl[' . $tmpl_line_no . '][period]',
+    'list_id'     => 'drug_interval',
+    'empty_title' => 'SKIP'
+    ), $period);
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='form_tmpl[$tmpl_line_no][quantity]' value='$quantity' size='3' maxlength='7'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][quantity]' value='" . htmlAttr($quantity) . "' size='3' maxlength='7'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='form_tmpl[$tmpl_line_no][refills]' value='$refills' size='3' maxlength='5'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][refills]' value='" . htmlAttr($refills) . "' size='3' maxlength='5'>";
   echo "</td>\n";
   foreach ($prices as $pricelevel => $price) {
     echo "  <td class='tmplcell'>";
-    echo "<input type='text' name='form_tmpl[$tmpl_line_no][price][$pricelevel]' value='$price' size='6' maxlength='12'>";
+    echo "<input type='text' name='form_tmpl[$tmpl_line_no][price][" . htmlAttr($pricelevel) . "]' value='" . htmlAttr($price) . "' size='6' maxlength='12'>";
     echo "</td>\n";
   }
   $pres = sqlStatement("SELECT option_id FROM list_options " .
     "WHERE list_id = 'taxrate' ORDER BY seq");
   while ($prow = sqlFetchArray($pres)) {
     echo "  <td class='tmplcell'>";
-    echo "<input type='checkbox' name='form_tmpl[$tmpl_line_no][taxrate][" . $prow['option_id'] . "]' value='1'";
+    echo "<input type='checkbox' name='form_tmpl[$tmpl_line_no][taxrate][" . htmlAttr($prow['option_id']) . "]' value='1'";
     if (strpos(":$taxrates", $prow['option_id']) !== false) echo " checked";
     echo " /></td>\n";
   }
   echo " </tr>\n";
 }
 
-// Translation for form fields.
+// Translation for form fields used in SQL queries.
+//
 function escapedff($name) {
-  $field = trim($_POST[$name]);
-  if (!get_magic_quotes_gpc()) return addslashes($field);
-  return $field;
+  return mysql_real_escape_string(trim($_POST[$name]));
 }
 function numericff($name) {
   $field = trim($_POST[$name]) + 0;
@@ -143,7 +156,7 @@ if ($_POST['form_save']) {
     "size = '"  . escapedff('form_size')  . "' AND " .
     "unit = '"  . escapedff('form_unit')  . "' AND " .
     "route = '" . escapedff('form_route') . "' AND " .
-    "drug_id != '$drug_id'");
+    "drug_id != ?", array($drug_id));
   if ($crow['count']) {
     $alertmsg = xl('Cannot add this entry because it already exists!');
   }
@@ -158,6 +171,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
      "ndc_number = '"     . escapedff('form_ndc_number')    . "', " .
      "on_order = '"       . escapedff('form_on_order')      . "', " .
      "reorder_point = '"  . escapedff('form_reorder_point') . "', " .
+     "max_level = '"      . escapedff('form_max_level')     . "', " .
      "form = '"           . escapedff('form_form')          . "', " .
      "size = '"           . escapedff('form_size')          . "', " .
      "unit = '"           . escapedff('form_unit')          . "', " .
@@ -167,22 +181,22 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
      "allow_multiple = "  . (empty($_POST['form_allow_multiple' ]) ? 0 : 1) . ", " .
      "allow_combining = " . (empty($_POST['form_allow_combining']) ? 0 : 1) . ", " .
      "active = "          . (empty($_POST['form_active']) ? 0 : 1) . " " .
-     "WHERE drug_id = '$drug_id'");
-    sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
+     "WHERE drug_id = ?", array($drug_id));
+    sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
    }
    else { // deleting
     if (acl_check('admin', 'super')) {
-     sqlStatement("DELETE FROM drug_inventory WHERE drug_id = '$drug_id'");
-     sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
-     sqlStatement("DELETE FROM drugs WHERE drug_id = '$drug_id'");
-     sqlStatement("DELETE FROM prices WHERE pr_id = '$drug_id' AND pr_selector != ''");
+     sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ?", array($drug_id));
+     sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
+     sqlStatement("DELETE FROM drugs WHERE drug_id = ?", array($drug_id));
+     sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
     }
    }
   }
   else if ($_POST['form_save']) { // saving a new drug
    $new_drug = true;
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
-    "name, ndc_number, on_order, reorder_point, form, " .
+    "name, ndc_number, on_order, reorder_point, max_level, form, " .
     "size, unit, route, cyp_factor, related_code, " .
     "allow_multiple, allow_combining, active " .
     ") VALUES ( " .
@@ -190,6 +204,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
     "'" . escapedff('form_ndc_number')    . "', " .
     "'" . escapedff('form_on_order')      . "', " .
     "'" . escapedff('form_reorder_point') . "', " .
+    "'" . escapedff('form_max_level')     . "', " .
     "'" . escapedff('form_form')          . "', " .
     "'" . escapedff('form_size')          . "', " .
     "'" . escapedff('form_unit')          . "', " .
@@ -207,9 +222,9 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
    // If using the simplified drug form, then force the one and only
    // selector name to be the same as the product name.
    if ($GLOBALS['sell_non_drug_products'] == 2) {
-    $tmpl["1"]['selector'] = escapedff('form_name');
+    $tmpl["1"]['selector'] = $_POST['form_name'];
    }
-   sqlStatement("DELETE FROM prices WHERE pr_id = '$drug_id' AND pr_selector != ''");
+   sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
    for ($lino = 1; isset($tmpl["$lino"]['selector']); ++$lino) {
     $iter = $tmpl["$lino"];
     $selector = trim($iter['selector']);
@@ -222,15 +237,9 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
      }
      sqlInsert("INSERT INTO drug_templates ( " .
       "drug_id, selector, dosage, period, quantity, refills, taxrates " .
-      ") VALUES ( " .
-      "$drug_id, "                          .
-      "'" . $selector               . "', " .
-      "'" . trim($iter['dosage'])   . "', " .
-      "'" . trim($iter['period'])   . "', " .
-      "'" . trim($iter['quantity']) . "', " .
-      "'" . trim($iter['refills'])  . "', " .
-      "'" . $taxrates               . "' "  .
-      ")");
+      ") VALUES ( ?, ?, ?, ?, ?, ?, ? )",
+      array($drug_id, $selector, trim($iter['dosage']), trim($iter['period']),
+      trim($iter['quantity']), trim($iter['refills']), $taxrates));
 
      // Add prices for this drug ID and selector.
      foreach ($iter['price'] as $key => $value) {
@@ -238,11 +247,24 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
       if ($value) {
         sqlStatement("INSERT INTO prices ( " .
           "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
-          "'$drug_id', '$selector', '$key', '$value' )");
+          "?, ?, ?, ? )",
+          array($drug_id, $selector, $key, $value));
       }
      } // end foreach price
     } // end if selector is present
    } // end for each selector
+   // Save warehouse-specific mins and maxes for this drug.
+   sqlStatement("DELETE FROM product_warehouse WHERE pw_drug_id = ?", array($drug_id));
+   foreach ($_POST['form_wh_min'] as $whid => $whmin) {
+    if (!get_magic_quotes_gpc()) $whid = addslashes($whid);
+    $whmin = 0 + $whmin;
+    $whmax = 0 + $_POST['form_wh_max'][$whid];
+    if ($whmin != 0 || $whmax != 0) {
+      sqlStatement("INSERT INTO product_warehouse ( " .
+        "pw_drug_id, pw_warehouse, pw_min_level, pw_max_level ) VALUES ( " .
+        "?, ?, ?, ? )", array($drug_id, $whid, $whmin, $whmax));
+    }
+   }
   } // end if saving a drug
 
   // Close this window and redisplay the updated list of drugs.
@@ -260,9 +282,9 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
 }
 
 if ($drug_id) {
-  $row = sqlQuery("SELECT * FROM drugs WHERE drug_id = '$drug_id'");
+  $row = sqlQuery("SELECT * FROM drugs WHERE drug_id = ?", array($drug_id));
   $tres = sqlStatement("SELECT * FROM drug_templates WHERE " .
-   "drug_id = '$drug_id' ORDER BY selector");
+   "drug_id = ? ORDER BY selector", array($drug_id));
 }
 else {
   $row = array(
@@ -273,6 +295,7 @@ else {
     'ndc_number' => '',
     'on_order' => '0',
     'reorder_point' => '0',
+    'max_level' => '0',
     'form' => '',
     'size' => '',
     'unit' => '',
@@ -291,7 +314,7 @@ else {
  <tr>
   <td valign='top' nowrap><b><?php xl('Name','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_name' maxlength='80' value='<?php echo $row['name'] ?>' style='width:100%' />
+   <input type='text' size='40' name='form_name' maxlength='80' value='<?php echo htmlAttr($row['name']) ?>' style='width:100%' />
   </td>
  </tr>
 
@@ -316,7 +339,7 @@ else {
   <td valign='top' nowrap><b><?php xl('NDC Number','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_ndc_number' maxlength='20'
-    value='<?php echo $row['ndc_number'] ?>' style='width:100%'
+    value='<?php echo htmlAttr($row['ndc_number']) ?>' style='width:100%'
     onkeyup='maskkeyup(this,"<?php echo addslashes($GLOBALS['gbl_mask_product_id']); ?>")'
     onblur='maskblur(this,"<?php echo addslashes($GLOBALS['gbl_mask_product_id']); ?>")'
     />
@@ -326,14 +349,74 @@ else {
  <tr>
   <td valign='top' nowrap><b><?php xl('On Order','e'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_on_order' maxlength='7' value='<?php echo $row['on_order'] ?>' />
+   <input type='text' size='5' name='form_on_order' maxlength='7' value='<?php echo htmlAttr($row['on_order']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Reorder At','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Limits','e'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_reorder_point' maxlength='7' value='<?php echo $row['reorder_point'] ?>' />
+   <table>
+    <tr>
+     <td valign='top' nowrap>&nbsp;</td>
+     <td valign='top' nowrap><?php xl('Global','e'); ?></td>
+<?php
+  // One column header per warehouse title.
+  $pwarr = array();
+  $pwres = sqlStatement("SELECT lo.option_id, lo.title, " .
+    "pw.pw_min_level, pw.pw_max_level " .
+    "FROM list_options AS lo " .
+    "LEFT JOIN product_warehouse AS pw ON " .
+    "pw.pw_drug_id = ? AND " .
+    "pw.pw_warehouse = lo.option_id WHERE " .
+    "lo.list_id = 'warehouse' ORDER BY lo.seq, lo.title",
+    array($drug_id));
+  while ($pwrow = sqlFetchArray($pwres)) {
+    $pwarr[] = $pwrow;
+    echo "     <td valign='top' nowrap>" .
+      htmlspecialchars($pwrow['title']) . "</td>\n";
+  }
+?>
+    </tr>
+    <tr>
+     <td valign='top' nowrap><?php xl('Min','e'); ?>&nbsp;</td>
+     <td valign='top'>
+      <input type='text' size='5' name='form_reorder_point' maxlength='7'
+       value='<?php echo htmlAttr($row['reorder_point']) ?>'
+       title='<?php xl('Reorder point, 0 if not applicable','e'); ?>'
+       />&nbsp;&nbsp;
+     </td>
+<?php
+  foreach ($pwarr as $pwrow) {
+    echo "     <td valign='top'>";
+    echo "<input type='text' name='form_wh_min[" .
+      htmlAttr($pwrow['option_id']) .
+      "]' value='" . (0 + $pwrow['pw_min_level']) . "' size='5' " .
+      "title='" . xl('Warehouse minimum, 0 if not applicable') . "' />";
+    echo "&nbsp;&nbsp;</td>\n";
+  }
+?>
+    </tr>
+    <tr>
+     <td valign='top' nowrap><?php xl('Max','e'); ?>&nbsp;</td>
+     <td>
+      <input type='text' size='5' name='form_max_level' maxlength='7'
+       value='<?php echo htmlAttr($row['max_level']) ?>'
+       title='<?php xl('Maximum reasonable inventory, 0 if not applicable','e'); ?>'
+       />
+     </td>
+<?php
+  foreach ($pwarr as $pwrow) {
+    echo "     <td valign='top'>";
+    echo "<input type='text' name='form_wh_max[" .
+      htmlspecialchars($pwrow['option_id']) .
+      "]' value='" . (0 + $pwrow['pw_max_level']) . "' size='5' " .
+      "title='" . xl('Warehouse maximum, 0 if not applicable') . "' />";
+    echo "</td>\n";
+  }
+?>
+    </tr>
+   </table>
   </td>
  </tr>
 
@@ -349,7 +432,7 @@ else {
  <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php xl('Pill Size','e'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_size' maxlength='7' value='<?php echo $row['size'] ?>' />
+   <input type='text' size='5' name='form_size' maxlength='7' value='<?php echo htmlAttr($row['size']) ?>' />
   </td>
  </tr>
 
@@ -374,7 +457,7 @@ else {
  <tr class='ippfonly'>
   <td valign='top' nowrap><b><?php xl('CYP Factor','e'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_cyp_factor' maxlength='20' value='<?php echo $row['cyp_factor'] ?>' />
+   <input type='text' size='10' name='form_cyp_factor' maxlength='20' value='<?php echo htmlAttr($row['cyp_factor']) ?>' />
   </td>
  </tr>
 
@@ -382,7 +465,7 @@ else {
   <td valign='top' nowrap><b><?php xl('Relate To','e'); ?>:</b></td>
   <td>
    <input type='text' size='50' name='form_related_code'
-    value='<?php echo $row['related_code'] ?>' onclick='sel_related()'
+    value='<?php echo htmlAttr($row['related_code']) ?>' onclick='sel_related()'
     title='<?php xl('Click to select related code','e'); ?>'
     style='width:100%' readonly />
   </td>
@@ -432,9 +515,10 @@ else {
       $prices = array();
       $pres = sqlStatement("SELECT lo.option_id, p.pr_price " .
         "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
-        "p.pr_id = '$drug_id' AND p.pr_selector = '$selector' AND " .
+        "p.pr_id = ? AND p.pr_selector = ? AND " .
         "p.pr_level = lo.option_id " .
-        "WHERE list_id = 'pricelevel' ORDER BY lo.seq");
+        "WHERE list_id = 'pricelevel' ORDER BY lo.seq",
+        array($drug_id, $selector));
       while ($prow = sqlFetchArray($pres)) {
         $prices[$prow['option_id']] = $prow['pr_price'];
       }

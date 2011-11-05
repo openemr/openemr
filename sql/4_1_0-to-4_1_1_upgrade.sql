@@ -113,3 +113,18 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nat
 ALTER TABLE `insurance_data` ADD COLUMN `policy_type` varchar(25) NOT NULL default '';
 #EndIf
 
+#IfMissingColumn drugs max_level
+ALTER TABLE drugs ADD max_level float NOT NULL DEFAULT 0.0;
+ALTER TABLE drugs CHANGE reorder_point reorder_point float NOT NULL DEFAULT 0.0;
+#EndIf
+
+#IfNotTable product_warehouse
+CREATE TABLE `product_warehouse` (
+  `pw_drug_id`   int(11) NOT NULL,
+  `pw_warehouse` varchar(31) NOT NULL,
+  `pw_min_level` float       DEFAULT 0,
+  `pw_max_level` float       DEFAULT 0,
+  PRIMARY KEY  (`pw_drug_id`,`pw_warehouse`)
+) ENGINE=MyISAM;
+#EndIf
+

@@ -735,7 +735,8 @@ CREATE TABLE `drugs` (
   `name` varchar(255) NOT NULL DEFAULT '',
   `ndc_number` varchar(20) NOT NULL DEFAULT '',
   `on_order` int(11) NOT NULL default '0',
-  `reorder_point` int(11) NOT NULL default '0',
+  `reorder_point` float NOT NULL DEFAULT 0.0,
+  `max_level` float NOT NULL DEFAULT 0.0,
   `last_notify` date NOT NULL default '0000-00-00',
   `reactions` text,
   `form` int(3) NOT NULL default '0',
@@ -5148,3 +5149,12 @@ CREATE TABLE `template_users` (
   PRIMARY KEY (`tu_id`),
   UNIQUE KEY `templateuser` (`tu_user_id`,`tu_template_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1;
+
+CREATE TABLE `product_warehouse` (
+  `pw_drug_id`   int(11) NOT NULL,
+  `pw_warehouse` varchar(31) NOT NULL,
+  `pw_min_level` float       DEFAULT 0,
+  `pw_max_level` float       DEFAULT 0,
+  PRIMARY KEY  (`pw_drug_id`,`pw_warehouse`)
+) ENGINE=MyISAM;
+
