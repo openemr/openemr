@@ -79,7 +79,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $billed = FALSE, $code_text = NULL, $justify = NULL, $provider_id = 0)
 {
   global $code_types, $ndc_applies, $ndc_uom_choices, $justinit, $pid;
-  global $contraception, $usbillstyle;
+  global $contraception, $usbillstyle, $hasCharges;
 
   if ($codetype == 'COPAY') {
     if (!$code_text) $code_text = 'Cash';
@@ -247,6 +247,8 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
 
   // For IPPF.  Track contraceptive services.
   if (!$del) $contraception |= contraceptionClass($codetype, $code);
+
+  if ($fee != 0) $hasCharges = true;
 }
 
 // This writes a product (drug_sales) line item to the output page.
@@ -254,7 +256,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
 function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
   $fee = NULL, $sale_id = 0, $billed = FALSE)
 {
-  global $code_types, $ndc_applies, $pid, $usbillstyle;
+  global $code_types, $ndc_applies, $pid, $usbillstyle, $hasCharges;
 
   $drow = sqlQuery("SELECT name FROM drugs WHERE drug_id = '$drug_id'");
   $code_text = $drow['name'];
@@ -310,6 +312,8 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
 
   echo "  <td class='billcell'>$strike1" . ucfirst(strtolower($code_text)) . "$strike2</td>\n";
   echo " </tr>\n";
+
+  if ($fee != 0) $hasCharges = true;
 }
 
 // Build a drop-down list of providers.  This includes users who
@@ -367,10 +371,10 @@ $visit_row = sqlQuery("SELECT fe.date, opc.pc_catname " .
   "WHERE fe.pid = '$pid' AND fe.encounter = '$encounter' LIMIT 1");
 $visit_date = substr($visit_row['date'], 0, 10);
 
-// If Save was clicked, save the new and modified billing lines;
-// then if no error, redirect to $returnurl.
+// If Save or Save-and-Close was clicked, save the new and modified billing
+// lines; then if no error, redirect to $returnurl.
 //
-if ($_POST['bn_save']) {
+if ($_POST['bn_save'] || $_POST['bn_save_close']) {
   $main_provid = 0 + $_POST['ProviderID'];
   $main_supid  = 0 + $_POST['SupervisorID'];
   if ($main_supid == $main_provid) $main_supid = 0;
@@ -492,6 +496,29 @@ if ($_POST['bn_save']) {
   sqlStatement("UPDATE form_encounter SET provider_id = '$main_provid', " .
     "supervisor_id = '$main_supid'  WHERE " .
     "pid = '$pid' AND encounter = '$encounter'");
+
+  // Save-and-Close is currently IPPF-specific but might be more generally
+  // useful.  It provides the ability to mark an encounter as billed
+  // directly from the Fee Sheet, if there are no charges.
+  if ($_POST['bn_save_close']) {
+    $tmp1 = sqlQuery("SELECT SUM(ABS(fee)) AS sum FROM drug_sales WHERE " .
+      "pid = '$pid' AND encounter = '$encounter'");
+    $tmp2 = sqlQuery("SELECT SUM(ABS(fee)) AS sum FROM billing WHERE " .
+      "pid = '$pid' AND encounter = '$encounter' AND billed = 0 AND " .
+      "activity = 1");
+    if ($tmp1['sum'] + $tmp2['sum'] == 0) {
+      sqlStatement("update drug_sales SET billed = 1 WHERE " .
+        "pid = '$pid' AND encounter = '$encounter' AND billed = 0");
+      sqlStatement("UPDATE billing SET billed = 1, bill_date = NOW() WHERE " .
+        "pid = '$pid' AND encounter = '$encounter' AND billed = 0 AND " .
+        "activity = 1");
+    }
+    else {
+      // Would be good to display an error message here... they clicked
+      // Save and Close but the close could not be done.  However the
+      // framework does not provide an easy way to do that.
+    }
+  }
 
   // More IPPF stuff.
   if (!empty($_POST['contrastart'])) {
@@ -837,6 +864,8 @@ $justinit = "var f = document.forms[0];\n";
 
 // $encounter_provid = -1;
 
+$hasCharges = false;
+
 // Generate lines for items already in the billing table for this encounter,
 // and also set the rendering provider if we come across one.
 //
@@ -1087,6 +1116,10 @@ if (true) {
 <?php if (!$isBilled) { ?>
 <input type='submit' name='bn_save' value='<?php xl('Save','e');?>' />
 &nbsp;
+<?php if (!$hasCharges) { ?>
+<input type='submit' name='bn_save_close' value='<?php xl('Save and Close','e');?>' />
+&nbsp;
+<?php } ?>
 <input type='submit' name='bn_refresh' value='<?php xl('Refresh','e');?>'>
 &nbsp;
 <?php } ?>
