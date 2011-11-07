@@ -41,7 +41,7 @@ $content = $_REQUEST['content'];
         <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
         <script type="text/javascript">
     function showWhereInTextarea(){
-    top.restoreSession();
+    opener.restoreSession();
     var textarea = document.getElementById('quest');
     start = textarea.value.indexOf("??");
     len =2;
@@ -60,13 +60,13 @@ $content = $_REQUEST['content'];
     document.getElementById('quest').focus();
     }
     function replace_quest(val){
-        top.restoreSession();
+        opener.restoreSession();
         var textarea = document.getElementById('quest').value;
         textarea=textarea.replace(/\?\?/i,val);
         document.getElementById('quest').value=textarea;
     }
     function save_this(){
-            top.restoreSession();
+            opener.restoreSession();
             var textFrom = document.getElementById('quest').value;
             window.opener.CKEDITOR.instances.textarea1.insertText(textFrom);
             window.close();

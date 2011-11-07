@@ -105,6 +105,7 @@ $(document).ready(function(){
 	});
 
 });
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script> 
 </head>
 <body class="body_top">
