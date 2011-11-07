@@ -77,10 +77,14 @@ $content = $_REQUEST['content'];
         <table>
             <tr class="text">
                 <td>
-                    <a href="#" onclick="replace_quest('Yes')" class="css_button"><span><?php echo htmlspecialchars(xl('Yes'),ENT_QUOTES);?></span></a>
-                    <a href="#" onclick="replace_quest('No')" class="css_button"><span><?php echo htmlspecialchars(xl('No'),ENT_QUOTES);?></span></a>
-                    <a href="#" onclick="replace_quest('Normal')" class="css_button"><span><?php echo htmlspecialchars(xl('Normal'),ENT_QUOTES);?></span></a>
-                    <a href="#" onclick="replace_quest('Abnormal')" class="css_button"><span><?php echo htmlspecialchars(xl('Abnormal'),ENT_QUOTES);?></span></a>
+                    <?php
+                    $res = sqlStatement("SELECT * FROM list_options WHERE list_id=? ORDER BY seq",array('nation_notes_replace_buttons'));
+                    while($row = sqlFetchArray($res)){
+                    ?>
+                    <a href="#" onclick="replace_quest('<?php echo xl_list_label($row['option_id']);?>')" class="css_button"><span><?php echo htmlspecialchars(xl_list_label($row['title']),ENT_QUOTES);?></span></a>
+                    <?php
+                    }
+                    ?>
                 </td>
             </tr>
             <tr class="text">
