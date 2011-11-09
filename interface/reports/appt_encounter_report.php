@@ -136,7 +136,7 @@ function postError($msg) {
   if ($form_facility !== '') {
    $query .= "AND fe.facility_id = '$form_facility' ";
   }
-  $query .= ") ORDER BY docname, pc_eventDate, pc_startTime";
+  $query .= ") ORDER BY docname, IFNULL(pc_eventDate, encdate), pc_startTime";
 
   $res = sqlStatement($query);
  }
