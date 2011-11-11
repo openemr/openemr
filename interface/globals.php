@@ -290,7 +290,7 @@ $GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 
 // Theme definition.  All this stuff should be moved to CSS.
 //
-if ($GLOBALS['concurrent_layout']) {
+if (isset($GLOBALS['concurrent_layout'])) {
  $top_bg_line = ' bgcolor="#dddddd" ';
  $GLOBALS['style']['BGCOLOR2'] = "#dddddd";
  $bottom_bg_line = $top_bg_line;
