@@ -72,7 +72,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 <table cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
 <td align="left">
-<?php if ($GLOBALS['concurrent_layout']) { ?>
+<?php if (isset($GLOBALS['concurrent_layout'])) { ?>
 	<table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;"><tr><td style="vertical-align:text-bottom;">
 		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
 		<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES) ?></span></a>

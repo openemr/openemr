@@ -72,6 +72,10 @@ function postcalendar_userapi_buildView($args)
 
 	// For each hour in the schedule...
 	//
+        
+        if(!isset($GLOBALS['calendar_interval']))
+            $GLOBALS['calendar_interval'] = 15;
+        
 	for($blocknum = $schedule_start; $blocknum <= $schedule_end; $blocknum++){
 		$mer = ($blocknum >= 12) ? 'pm' : 'am';
 

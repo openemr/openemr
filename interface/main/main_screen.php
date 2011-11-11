@@ -35,7 +35,7 @@
    $frame1url = "calendar/index.php?pid=" . $_GET['pid'];
    if (isset($_GET['date'])) $frame1url .= "&date=" . $_GET['date'];
   } else {
-   if ($GLOBALS['concurrent_layout']) {
+   if (isset($GLOBALS['concurrent_layout'])) {
     // new layout
     if ($GLOBALS['default_top_pane']) {
       $frame1url=$GLOBALS['default_top_pane'];
@@ -43,9 +43,11 @@
      $frame1url = "main_info.php";
      }
     }
-   else
+   else{
     // old layout
+    if(!isset($_GET['mode']))$_GET['mode'] = '';
     $frame1url = "main.php?mode=" . $_GET['mode'];
+   }
   }
  }
 
@@ -65,7 +67,7 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 
 </head>
 
-<?php if ($GLOBALS['concurrent_layout']) { // start new layout ?>
+<?php if (isset($GLOBALS['concurrent_layout'])) { // start new layout ?>
 
 <?php if (empty($GLOBALS['gbl_tall_nav_area'])) { // not tall nav area ?>
 
