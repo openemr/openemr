@@ -3,28 +3,23 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-
 // Set the site ID if required.  This must be done before any database
 // access is attempted.
 
 if (!empty($_GET['site']))
-  $site_id = $_GET['site'];
+    $site_id = $_GET['site'];
 else if (is_dir("sites/" . $_SERVER['HTTP_HOST']))
-  $site_id = $_SERVER['HTTP_HOST'];
+    $site_id = $_SERVER['HTTP_HOST'];
 else
-  $site_id = 'default';
+    $site_id = 'default';
 
 if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id))
-  die("Site ID '$site_id' contains invalid characters.");
+    die("Site ID '$site_id' contains invalid characters.");
 
-require_once("sites/$site_id/sqlconf.php");
-?>
-<html>
-<?php if ($config == 1) { ?>
-<body ONLOAD="javascript:top.location.href='<?php echo "interface/login/login_frame.php?site=$site_id" ?>';">
-<?php } else { ?>
-<body ONLOAD="javascript:top.location.href='<?php echo "setup.php?site=$site_id" ?>';">     
-<?php } ?>
-Redirecting...
-</body>
-</html>
+require_once "sites/$site_id/sqlconf.php";
+
+if ($config == 1) {
+    header("Location: interface/login/login_frame.php?site=$site_id");
+} else {
+    header("Location: setup.php?site=$site_id");
+}
