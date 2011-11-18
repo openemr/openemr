@@ -635,14 +635,15 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "~\n";
   }
 
-  // REF*1C is required here for the Medicare provider number if NPI was
+  // 4010: REF*1C is required here for the Medicare provider number if NPI was
   // specified in NM109.  Not sure if other payers require anything here.
   // --- apparently ECLAIMS, INC wants the data in 2010 but NOT in 2310B - tony@mi-squared.com
   //
-  // Loop 2010AA does not normally provide this for 5010, so assuming the
-  // eclaims exception no longer applies here.  -- Rod 2011-10-30
+  // 5010 spec says nothing here if NPI was specified.
   //
-  if ($CMS_5010 || trim($claim->x12gsreceiverid()) != '470819582') { // if NOT ECLAIMS EDI
+  if (($CMS_5010 && !$claim->providerNPI() && in_array($claim->providerNumberType(), array('0B','1G','G2','LU')))
+      || (!$CMS_5010 && trim($claim->x12gsreceiverid()) != '470819582')) // if NOT ECLAIMS EDI
+  {
     if ($claim->providerNumber()) {
       ++$edicount;
       $out .= "REF" .
