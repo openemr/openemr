@@ -25,6 +25,7 @@ $sanitize_all_escapes = true;
 $fake_register_globals = false;
 
 require_once("../../globals.php");
+require_once("$srcdir/formatting.inc.php");
 
 $lbf_form_id = $_GET['formname'];
 ?>
@@ -32,10 +33,15 @@ $lbf_form_id = $_GET['formname'];
 <br />
 <?php
 // Retrieve most recent instance of this form for this patient.
-$result = sqlQuery("SELECT date, form_id, form_name FROM forms WHERE pid = ? " .
-  "AND formdir = ? AND deleted = 0 ORDER BY date DESC LIMIT 1",
+$result = sqlQuery("SELECT f.form_id, f.form_name, fe.date " .
+  "FROM forms AS f, form_encounter AS fe WHERE " .
+  "f.pid = ? AND f.formdir = ? AND " .
+  "f.deleted = 0 AND " .
+  "fe.pid = f.pid AND fe.encounter = f.encounter " .
+  "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
+  "LIMIT 1",
   array($pid, $lbf_form_id));
-    
+
 if (!$result) { //If there are none
 ?>
   <span class='text'> <?php echo htmlspecialchars(xl("None have been documented"), ENT_NOQUOTES); ?>
@@ -44,7 +50,7 @@ if (!$result) { //If there are none
   <span class='text'><b>
 <?php
   echo htmlspecialchars(xl('Most recent from') . ": " .
-    substr($result['date'], 0, 10), ENT_NOQUOTES);
+    oeFormatShortDate(substr($result['date'], 0, 10)), ENT_NOQUOTES);
 ?>
   </b></span>
   <br />
