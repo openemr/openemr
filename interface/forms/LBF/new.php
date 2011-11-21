@@ -12,6 +12,7 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 $CPR = 4; // cells per row
 
@@ -326,14 +327,21 @@ function sel_related() {
         echo "<td colspan='$CPR' align='right' class='bold'>";
         if (empty($is_lbf)) echo htmlspecialchars(xl('Current'));
         echo "</td>\n";
-        $hres = sqlStatement("SELECT date, form_id FROM forms WHERE " .
-          "pid = '$pid' AND formdir = '$formname' AND " .
-          "form_id != '$formid' AND deleted = 0 " .
-          "ORDER BY date DESC LIMIT $formhistory");
+        $hres = sqlStatement("SELECT f.form_id, fe.date " .
+          "FROM forms AS f, form_encounter AS fe WHERE " .
+          "f.pid = ? AND f.formdir = ? AND " .
+          "f.form_id != ? AND f.deleted = 0 AND " .
+          "fe.pid = f.pid AND fe.encounter = f.encounter " .
+          "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
+          "LIMIT ?",
+          array($pid, $formname, $formid, $formhistory));
+        // For some readings like vitals there may be multiple forms per encounter.
+        // We sort these sensibly, however only the encounter date is shown here;
+        // at some point we may wish to show also the data entry date/time.
         while ($hrow = sqlFetchArray($hres)) {
           $historical_ids[$hrow['form_id']] = '';
-          echo "<td colspan='$CPR' align='right' class='bold'>&nbsp;" . $hrow['date'] . "</td>\n";
-          // TBD: Format date per globals.
+          echo "<td colspan='$CPR' align='right' class='bold'>&nbsp;" .
+            oeFormatShortDate(substr($hrow['date'], 0, 10)) . "</td>\n";
         }
         echo " </tr>";
       }
