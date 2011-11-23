@@ -13,13 +13,15 @@ $fake_register_globals = false;
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
+ require_once("$srcdir/formdata.inc.php");
+ require_once("$srcdir/htmlspecialchars.inc.php");
 
  $alertmsg = '';
  $drug_id = $_REQUEST['drug'];
  $info_msg = "";
  $tmpl_line_no = 0;
 
- if (!acl_check('admin', 'drugs')) die(xl('Not authorized'));
+ if (!acl_check('admin', 'drugs')) die(xlt('Not authorized'));
 
 // Format dollars for display.
 //
@@ -83,7 +85,7 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 // Translation for form fields used in SQL queries.
 //
 function escapedff($name) {
-  return mysql_real_escape_string(trim($_POST[$name]));
+  return add_escape_custom(trim($_POST[$name]));
 }
 function numericff($name) {
   $field = trim($_POST[$name]) + 0;
@@ -93,7 +95,7 @@ function numericff($name) {
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php echo $drug_id ? xl("Edit") : xl("Add New"); xl('Drug','e',' '); ?></title>
+<title><?php echo $drug_id ? xlt("Edit") : xlt("Add New"); echo ' ' . xlt('Drug'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -158,7 +160,7 @@ if ($_POST['form_save']) {
     "route = '" . escapedff('form_route') . "' AND " .
     "drug_id != ?", array($drug_id));
   if ($crow['count']) {
-    $alertmsg = xl('Cannot add this entry because it already exists!');
+    $alertmsg = addslashes(xl('Cannot add this entry because it already exists!'));
   }
 }
 
@@ -256,7 +258,6 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
    // Save warehouse-specific mins and maxes for this drug.
    sqlStatement("DELETE FROM product_warehouse WHERE pw_drug_id = ?", array($drug_id));
    foreach ($_POST['form_wh_min'] as $whid => $whmin) {
-    if (!get_magic_quotes_gpc()) $whid = addslashes($whid);
     $whmin = 0 + $whmin;
     $whmax = 0 + $_POST['form_wh_max'][$whid];
     if ($whmin != 0 || $whmax != 0) {
@@ -312,31 +313,31 @@ else {
 <table border='0' width='100%'>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Name','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Name'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_name' maxlength='80' value='<?php echo htmlAttr($row['name']) ?>' style='width:100%' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Active','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Active'); ?>:</b></td>
   <td>
    <input type='checkbox' name='form_active' value='1'<?php if ($row['active']) echo ' checked'; ?> />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Allow','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Allow'); ?>:</b></td>
   <td>
    <input type='checkbox' name='form_allow_multiple' value='1'<?php if ($row['allow_multiple']) echo ' checked'; ?> />
-   <?php xl('Multiple Lots','e'); ?> &nbsp;
+   <?php echo xlt('Multiple Lots'); ?> &nbsp;
    <input type='checkbox' name='form_allow_combining' value='1'<?php if ($row['allow_combining']) echo ' checked'; ?> />
-   <?php xl('Combining Lots','e'); ?>
+   <?php echo xlt('Combining Lots'); ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('NDC Number','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('NDC Number'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_ndc_number' maxlength='20'
     value='<?php echo htmlAttr($row['ndc_number']) ?>' style='width:100%'
@@ -347,19 +348,19 @@ else {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('On Order','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('On Order'); ?>:</b></td>
   <td>
    <input type='text' size='5' name='form_on_order' maxlength='7' value='<?php echo htmlAttr($row['on_order']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Limits','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Limits'); ?>:</b></td>
   <td>
    <table>
     <tr>
      <td valign='top' nowrap>&nbsp;</td>
-     <td valign='top' nowrap><?php xl('Global','e'); ?></td>
+     <td valign='top' nowrap><?php echo xlt('Global'); ?></td>
 <?php
   // One column header per warehouse title.
   $pwarr = array();
@@ -379,11 +380,11 @@ else {
 ?>
     </tr>
     <tr>
-     <td valign='top' nowrap><?php xl('Min','e'); ?>&nbsp;</td>
+     <td valign='top' nowrap><?php echo xlt('Min'); ?>&nbsp;</td>
      <td valign='top'>
       <input type='text' size='5' name='form_reorder_point' maxlength='7'
        value='<?php echo htmlAttr($row['reorder_point']) ?>'
-       title='<?php xl('Reorder point, 0 if not applicable','e'); ?>'
+       title='<?php echo xla('Reorder point, 0 if not applicable'); ?>'
        />&nbsp;&nbsp;
      </td>
 <?php
@@ -392,17 +393,17 @@ else {
     echo "<input type='text' name='form_wh_min[" .
       htmlAttr($pwrow['option_id']) .
       "]' value='" . (0 + $pwrow['pw_min_level']) . "' size='5' " .
-      "title='" . xl('Warehouse minimum, 0 if not applicable') . "' />";
+      "title='" . xla('Warehouse minimum, 0 if not applicable') . "' />";
     echo "&nbsp;&nbsp;</td>\n";
   }
 ?>
     </tr>
     <tr>
-     <td valign='top' nowrap><?php xl('Max','e'); ?>&nbsp;</td>
+     <td valign='top' nowrap><?php echo xlt('Max'); ?>&nbsp;</td>
      <td>
       <input type='text' size='5' name='form_max_level' maxlength='7'
        value='<?php echo htmlAttr($row['max_level']) ?>'
-       title='<?php xl('Maximum reasonable inventory, 0 if not applicable','e'); ?>'
+       title='<?php echo xla('Maximum reasonable inventory, 0 if not applicable'); ?>'
        />
      </td>
 <?php
@@ -411,7 +412,7 @@ else {
     echo "<input type='text' name='form_wh_max[" .
       htmlspecialchars($pwrow['option_id']) .
       "]' value='" . (0 + $pwrow['pw_max_level']) . "' size='5' " .
-      "title='" . xl('Warehouse maximum, 0 if not applicable') . "' />";
+      "title='" . xla('Warehouse maximum, 0 if not applicable') . "' />";
     echo "</td>\n";
   }
 ?>
@@ -421,7 +422,7 @@ else {
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><b><?php xl('Form','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Form'); ?>:</b></td>
   <td>
 <?php
  generate_form_field(array('data_type'=>1,'field_id'=>'form','list_id'=>'drug_form','empty_title'=>'SKIP'), $row['form']);
@@ -430,14 +431,14 @@ else {
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><b><?php xl('Pill Size','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Pill Size'); ?>:</b></td>
   <td>
    <input type='text' size='5' name='form_size' maxlength='7' value='<?php echo htmlAttr($row['size']) ?>' />
   </td>
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><b><?php xl('Units','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Units'); ?>:</b></td>
   <td>
 <?php
  generate_form_field(array('data_type'=>1,'field_id'=>'unit','list_id'=>'drug_units','empty_title'=>'SKIP'), $row['unit']);
@@ -446,7 +447,7 @@ else {
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><b><?php xl('Route','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Route'); ?>:</b></td>
   <td>
 <?php
  generate_form_field(array('data_type'=>1,'field_id'=>'route','list_id'=>'drug_route','empty_title'=>'SKIP'), $row['route']);
@@ -455,34 +456,34 @@ else {
  </tr>
 
  <tr class='ippfonly'>
-  <td valign='top' nowrap><b><?php xl('CYP Factor','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('CYP Factor'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_cyp_factor' maxlength='20' value='<?php echo htmlAttr($row['cyp_factor']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Relate To','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Relate To'); ?>:</b></td>
   <td>
    <input type='text' size='50' name='form_related_code'
     value='<?php echo htmlAttr($row['related_code']) ?>' onclick='sel_related()'
-    title='<?php xl('Click to select related code','e'); ?>'
+    title='<?php echo xla('Click to select related code'); ?>'
     style='width:100%' readonly />
   </td>
  </tr>
 
  <tr>
   <td valign='top' nowrap>
-   <b><?php $GLOBALS['sell_non_drug_products'] == 2 ? xl('Fees','e') : xl('Templates','e'); ?>:</b>
+   <b><?php echo $GLOBALS['sell_non_drug_products'] == 2 ? xlt('Fees') : xlt('Templates'); ?>:</b>
   </td>
   <td>
    <table border='0' width='100%'>
     <tr>
-     <td class='drugsonly'><b><?php xl('Name'    ,'e'); ?></b></td>
-     <td class='drugsonly'><b><?php xl('Schedule','e'); ?></b></td>
-     <td class='drugsonly'><b><?php xl('Interval','e'); ?></b></td>
-     <td class='drugsonly'><b><?php xl('Qty'     ,'e'); ?></b></td>
-     <td class='drugsonly'><b><?php xl('Refills' ,'e'); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Name'    ); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Schedule'); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Interval'); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Qty'     ); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Refills' ); ?></b></td>
 <?php
   // Show a heading for each price level.  Also create an array of prices
   // for new template lines.
@@ -538,15 +539,15 @@ else {
 </table>
 
 <p>
-<input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
+<input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' />
 
 <?php if (acl_check('admin', 'super')) { ?>
 &nbsp;
-<input type='submit' name='form_delete' value='<?php xl('Delete','e'); ?>' style='color:red' />
+<input type='submit' name='form_delete' value='<?php echo xla('Delete'); ?>' style='color:red' />
 <?php } ?>
 
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
+<input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
 
 </p>
 
