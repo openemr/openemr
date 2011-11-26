@@ -62,29 +62,27 @@ if (isset($_GET['mode'])) {
     }
     elseif ($_GET['mode'] == "edit" ) {
         $sql = "select * from immunizations where id = ?";
-        $results = sqlQ($sql, array($_GET['id']));
-        while ($row = sqlFetchArray($results)) {
-            $administered_date = $row['administered_date'];
-            $immunization_id = $row['immunization_id'];
-            $cvx_code = $row['cvx_code'];
-            $code_text = '';
-            if ( !(empty($cvx_code)) ) {
-                $query = "SELECT codes.code_text as `code_text`, codes.code as `code` " .
-                         "FROM codes " .
-                         "LEFT JOIN code_types on codes.code_type = code_types.ct_id " .
-                         "WHERE code_types.ct_key = 'CVX' AND codes.code = ?";
-                $row = sqlQuery($query, array($cvx_code));
-                $code_text = $row['code_text'];
-            }
-            $manufacturer = $row['manufacturer'];
-            $lot_number = $row['lot_number'];
-            $administered_by_id = ($row['administered_by_id'] ? $row['administered_by_id'] : 0);
-            $administered_by = $row['administered_by'];
-            $education_date = $row['education_date'];
-            $vis_date = $row['vis_date'];
-            $note = $row['note'];
+        $result = sqlQuery($sql, array($_GET['id']));
+        $administered_date = $result['administered_date'];
+        $immunization_id = $result['immunization_id'];
+        $cvx_code = $result['cvx_code'];
+        $code_text = '';
+        if ( !(empty($cvx_code)) ) {
+            $query = "SELECT codes.code_text as `code_text`, codes.code as `code` " .
+                     "FROM codes " .
+                     "LEFT JOIN code_types on codes.code_type = code_types.ct_id " .
+                     "WHERE code_types.ct_key = 'CVX' AND codes.code = ?";
+            $result_code_text = sqlQuery($query, array($cvx_code));
+            $code_text = $result_code_text['code_text'];
         }
-       
+        $manufacturer = $result['manufacturer'];
+        $lot_number = $result['lot_number'];
+        $administered_by_id = ($result['administered_by_id'] ? $result['administered_by_id'] : 0);
+        $administered_by = $result['administered_by'];
+        $education_date = $result['education_date'];
+        $vis_date = $result['vis_date'];
+        $note = $result['note'];
+
 	//set id for page
 	$id = $_GET['id'];
 	
