@@ -250,12 +250,33 @@ foreach ($ar as $key => $val) {
                 echo "<hr />";
                 echo "<div class='text immunizations'>\n";
                 print "<h1>".xl('Patient Immunization').":</h1>";
-                $sql = "select i1.immunization_id as immunization_id, if(i1.administered_date,concat(i1.administered_date,' - ') ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 where i1.patient_id = $pid order by administered_date desc";
+                $sql = "select i1.immunization_id, i1.administered_date, substring(i1.note,1,20) as immunization_note, c.code_text_short ".
+                   " from immunizations i1 ".
+                   " left join codes c on CAST(IFNULL(i1.cvx_code,0) AS CHAR) = c.code ".
+                   " left join code_types ct on c.code_type = ct.ct_id ".
+                   " where patient_id = '$pid' ".
+                   " AND (( i1.cvx_code = '0' OR i1.cvx_code IS NULL ) OR ".
+                   " ( (i1.cvx_code != '0' AND i1.cvx_code IS NOT NULL ) AND ct.ct_key = 'CVX') ) ".
+                   " order by administered_date desc";
                 $result = sqlStatement($sql);
                 while ($row=sqlFetchArray($result)) {
-                    echo $row{'immunization_data'} .
-		      generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']) .
-		      "<br>\n";
+                  // Figure out which name to use (ie. from cvx list or from the custom list)
+                  if ($GLOBALS['use_custom_immun_list']) {
+                     $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                  }
+                  else {
+                     if (!empty($row['code_text_short'])) {
+                        $vaccine_display = htmlspecialchars( xl($row['code_text_short']), ENT_NOQUOTES);
+                     }
+                     else {
+                        $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                     }
+                  }
+                  echo $vaccine_display . " - " . $row['administered_date'];
+                  if ($row['immunization_note']) {
+                     echo " - " . $row['immunization_note'];
+                  }
+                  echo "<br>\n";
                 }
                 echo "</div>\n";
             }
