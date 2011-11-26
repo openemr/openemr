@@ -1,7 +1,7 @@
 <?php
 
 include_once(dirname(__FILE__) . "/sqlconf.php");
-require_once(dirname(__FILE__) . "/adodb/adodb.inc.php");
+require_once(dirname(__FILE__) . "/adodb5/adodb.inc.php");
 include_once(dirname(__FILE__) . "/log.inc");
 
 if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC', 2);

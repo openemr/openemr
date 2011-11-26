@@ -495,10 +495,10 @@
 		}
 
 		function registerMethods(&$obj) {
-			$cvars = $this->getObjectVars(&$obj);
+			$cvars = $this->getObjectVars($obj);
 			foreach($cvars as $ckey => $cvar) {
 				if (is_object($cvar)) {
-					$this->registerMethods(&$cvars[$ckey]);
+					$this->registerMethods($cvars[$ckey]);
 				}
 			}
 
@@ -535,7 +535,7 @@
 			$result=array();
 			$vars=get_object_vars($obj);
 			foreach ($vars as $var => $value)	{
-				$result[$var]=&$this->getVar(&$obj, $var);
+				$result[$var]=&$this->getVar($obj, $var);
 			}
 			return $result;
 		}

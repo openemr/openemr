@@ -482,7 +482,7 @@ class gacl {
 				return FALSE;
 			}
 
-			$row =& $rs->FetchRow();
+			$row = $rs->FetchRow();
 
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.

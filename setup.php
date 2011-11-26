@@ -10,7 +10,10 @@ require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-$state = $_POST["state"];
+if($_SERVER['REQUEST_METHOD'] == 'POST')
+    $state = $_POST["state"];
+else
+    $state = '';
 
 // Make this true for IPPF.
 $ippf_specific = false;
@@ -161,11 +164,11 @@ We recommend you print these instructions for future reference.
 <?php
   exit();
  }
-?>
 
-<?php
-
-$inst = $_POST["inst"];
+if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST["inst"]))
+    $inst = $_POST["inst"];
+else
+    $inst = '';
 
 if (($config == 1) && ($state < 4)) {
   echo "OpenEMR has already been installed.  If you wish to force re-installation, then edit $installer->conffile (change the 'config' variable to 0), and re-run this script.<br>\n";
