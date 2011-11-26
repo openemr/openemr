@@ -272,7 +272,7 @@ foreach ($ar as $key => $val) {
                         $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
                      }
                   }
-                  echo $vaccine_display . " - " . $row['administered_date'];
+                  echo $row['administered_date'] . " - " . $vaccine_display;
                   if ($row['immunization_note']) {
                      echo " - " . $row['immunization_note'];
                   }
