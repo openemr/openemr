@@ -38,18 +38,6 @@ retval=window.open(url, winname, options +
  ",width="   + width + ",height="  + height +
  ",left="    + newx  + ",top="     + newy   +
  ",screenX=" + newx  + ",screenY=" + newy);
- if(navigator.userAgent.indexOf("Firefox")!=-1)
- {
-    // hook the resize code to the window onload event of the newly created window.
-    retval.onload=function()
-        {
-            //find the body element
-            body=$(retval.document).find("body");
-            //change the innerDimensions (the viewport size) of the new window.
-            retval.innerHeight=(body.outerHeight(true)+10);
-            retval.innerWidth=(body.outerWidth(true));
-        };
-}
   
 return retval;
 }
