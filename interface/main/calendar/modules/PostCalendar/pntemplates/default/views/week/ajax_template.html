@@ -448,7 +448,8 @@ foreach ($providers as $provider) {
         // having a 'title' for the TD makes the date appear by the mouse pointer
         // this is nice when all you see are times on the left side and no head
         // row with the dates or day-of-week (DOW)
-        echo "<td class='schedule' title='".date("l, d M Y", strtotime($date))."'>";
+        $headDate=strtotime($date);
+        echo "<td class='schedule' title='".date("l, d M Y",$headDate )."' date='".date("Ymd",$headDate )."' provider='$providerid'>";
         echo "<div class='calendar_day'>";
 
         // determine if events overlap and adjust their width and left position as needed
@@ -755,7 +756,6 @@ foreach ($providers as $provider) {
     echo " </tr>\n";
 
     echo "</table>\n";
-    echo "<P>";
 } // end provider
 
  // [-*footer*-]
@@ -768,8 +768,11 @@ foreach ($providers as $provider) {
 </body>
 
 <script language='JavaScript'>
+    var tsHeight='[-php-] echo $timeslotHeightVal.$timeslotHeightUnit; [-/php-]';
+    var tsHeightNum=[-php-] echo $timeslotHeightVal; [-/php-];
 
     $(document).ready(function(){
+        setupDirectTime();
         $("#pc_username").change(function() { ChangeProviders(this); });
         $("#pc_facility").change(function() { ChangeProviders(this); });
         $("#dayview").click(function() { ChangeView(this); });
@@ -786,11 +789,11 @@ foreach ($providers as $provider) {
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
 
+        
         $(".tdMonthName-small").click(function() {
             
             dpCal=$("#datePicker>table"); 
-            mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});
-
+            mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});    
     });
 
     /* edit an existing event */

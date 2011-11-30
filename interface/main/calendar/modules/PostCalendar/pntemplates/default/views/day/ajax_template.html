@@ -403,7 +403,7 @@ foreach ($providers as $provider) {
     // having a 'title' for the TD makes the date appear by the mouse pointer
     // this is nice when all you see are times on the left side and no head
     // row with the dates or day-of-week (DOW)
-    echo "<td class='schedule' title='".htmlspecialchars($provider["fname"],ENT_QUOTES)." ".htmlspecialchars($provider["lname"],ENT_QUOTES)."'>";
+    echo "<td class='schedule' title='".htmlspecialchars($provider["fname"],ENT_QUOTES)." ".htmlspecialchars($provider["lname"],ENT_QUOTES)."' date='".date("Ymd",$caldate )."' provider='$providerid'>";
     echo "<div class='providerheader'>";
     echo htmlspecialchars($provider['fname'],ENT_QUOTES)." ".htmlspecialchars($provider['lname'],ENT_QUOTES)."</div>";
     echo "<div class='calendar_day'>";
@@ -782,8 +782,11 @@ echo "<P>";
 </body>
 
 <script language='JavaScript'>
+    var tsHeight='[-php-] echo $timeslotHeightVal.$timeslotHeightUnit; [-/php-]';
+    var tsHeightNum=[-php-] echo $timeslotHeightVal; [-/php-];
 
     $(document).ready(function(){
+        setupDirectTime();
         $("#pc_username").change(function() { ChangeProviders(this); });
         $("#pc_facility").change(function() { ChangeProviders(this); });
         //$("#dayview").click(function() { ChangeView(this); });
