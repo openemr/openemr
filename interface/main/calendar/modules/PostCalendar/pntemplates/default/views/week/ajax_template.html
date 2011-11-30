@@ -34,8 +34,16 @@ $timeslotHeightUnit="px";
  function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
   dlgopen('add_edit_event.php?startampm=' + startampm +
    '&starttimeh=' + starttimeh + '&starttimem=' + starttimem +
-   '&date=' + eventdate + '&userid=' + providerid + '&catid=' + catid,
-   '_blank', 575, 375);
+   '&date=' + eventdate + '&userid=' + providerid + '&catid=' + catid[-php-]
+    if(isset($_SESSION[pid]))
+        {
+            if($_SESSION[pid]>0)
+                {
+                    echo "+'&patientid=$_SESSION[pid]'";
+                }
+        }
+    [-/php-]
+   ,'_blank', 575, 375);
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
