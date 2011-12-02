@@ -128,3 +128,8 @@ CREATE TABLE `product_warehouse` (
 ) ENGINE=MyISAM;
 #EndIf
 
+# Increase size from 5 to 12 to support 4 modifiers with colon separation
+#IfNotColumnType billing modifier varchar(12)
+   ALTER TABLE `billing` MODIFY `modifier` varchar(12);
+   UPDATE `code_types` SET `ct_mod` = '12' where ct_key = 'CPT4' OR ct_key = 'HCPCS';
+#Endif

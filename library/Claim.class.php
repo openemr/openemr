@@ -916,7 +916,14 @@ class Claim {
   }
 
   function cptModifier($prockey) {
-    return x12clean(trim($this->procs[$prockey]['modifier']));
+    // Split on the colon and clean each modifier
+    $mods = array();
+    $cln_mods = array();
+    $mods = split(':',trim($this->procs[$prockey]['modifier']));
+    foreach ($mods as $mod) {
+        array_push($cln_mods, x12clean($mod));
+    }
+    return (implode (':', $cln_mods));
   }
 
   // Returns the procedure code, followed by ":modifier" if there is one.
