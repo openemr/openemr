@@ -40,7 +40,7 @@ function endFSCategory() {
 
 // Generate JavaScript to build the array of diagnoses.
 function genDiagJS($code_type, $code) {
-  if ($code_type == 'ICD9') {
+  if ($GLOBALS['code_types'][$code_type]['diag']) {
     echo "diags.push('$code');\n";
   }
 }
