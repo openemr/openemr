@@ -162,7 +162,9 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     if (modifiers_are_used(true)) {
       if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
         echo "  <td class='billcell'><input type='text' name='bill[$lino][mod]' " .
-          "value='$modifier' size='" . $code_types[$codetype]['mod'] . "'></td>\n";
+             "value='$modifier' " .
+             "title='" . xl("Multiple modifiers are separated by colons, maximum of 4 (M1:M2:M3:M4)") . "' " .
+             "value='$modifier' size='" . $code_types[$codetype]['mod'] . "'></td>\n";
       } else {
         echo "  <td class='billcell'>&nbsp;</td>\n";
       }
@@ -186,7 +188,8 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
         }
         echo "</td>\n";
         if ($code_types[$codetype]['just'] || $justify) {
-          echo "  <td class='billcell' align='center'$usbillstyle>";
+          echo "  <td class='billcell' align='center'$usbillstyle ";
+          echo "title='" . xl("Select one or more diagnosis codes to justify the service") . "' >";
           echo "<select name='bill[$lino][justify]' onchange='setJustify(this)'>";
           echo "<option value='$justify'>$justify</option></select>";
           echo "</td>\n";
@@ -820,7 +823,7 @@ echo " </tr>\n";
   <td class='billcell'><b><?php xl('Type','e');?></b></td>
   <td class='billcell'><b><?php xl('Code','e');?></b></td>
 <?php if (modifiers_are_used(true)) { ?>
-  <td class='billcell'><b><?php xl('Mod','e');?></b></td>
+  <td class='billcell'><b><?php xl('Modifiers','e');?></b></td>
 <?php } ?>
 <?php if (fees_are_used()) { ?>
   <td class='billcell' align='right'><b><?php xl('Price','e');?></b>&nbsp;</td>

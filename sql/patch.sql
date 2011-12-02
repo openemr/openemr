@@ -104,3 +104,8 @@ ALTER TABLE `prescriptions` ADD COLUMN `drug_info_erx` TEXT DEFAULT NULL;
 ALTER TABLE `insurance_data` ADD COLUMN `policy_type` varchar(25) NOT NULL default '';
 #EndIf
 
+#IfNotColumnType billing modifier varchar(12)
+   ALTER TABLE `billing` MODIFY `modifier` varchar(12);
+   UPDATE `code_types` SET `ct_mod` = '12' where ct_key = 'CPT4' OR ct_key = 'HCPCS';
+#Endif
+
