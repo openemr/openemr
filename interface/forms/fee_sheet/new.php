@@ -77,7 +77,7 @@ function contraceptionClass($code_type, $code) {
 //
 function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $auth = TRUE, $del = FALSE, $units = NULL, $fee = NULL, $id = NULL,
-  $billed = FALSE, $code_text = NULL, $justify = NULL, $provider_id = 0)
+  $billed = FALSE, $code_text = NULL, $justify = NULL, $provider_id = 0, $notecodes='')
 {
   global $code_types, $ndc_applies, $ndc_uom_choices, $justinit, $pid;
   global $contraception, $usbillstyle, $hasCharges;
@@ -153,6 +153,12 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     echo "  <td class='billcell' align='center'>";
     genProviderSelect('', '-- Default --', $provider_id, true);
     echo "</td>\n";
+    if ($codetype == 'HCPCS' || $codetype == 'CPT4') {
+      echo "  <td class='billcell' align='center'$usbillstyle>$notecodes</td>\n";
+    }
+    else {
+      echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
+    }
     echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox'" .
       ($auth ? " checked" : "") . " disabled /></td>\n";
     echo "  <td class='billcell' align='center'><input type='checkbox'" .
@@ -208,6 +214,13 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     echo "  <td class='billcell' align='center'>";
     genProviderSelect("bill[$lino][provid]", '-- Default --', $provider_id);
     echo "</td>\n";
+    if ($codetype == 'HCPCS' || $codetype == 'CPT4') {
+      echo "  <td class='billcell' align='center'$usbillstyle><input type='text' name='bill[$lino][notecodes]' " .
+        "value='$notecodes' maxlength='10' style='width:120px;' /></td>\n";
+    }
+    else {
+      echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
+    }
     echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox' name='bill[$lino][auth]' " .
       "value='1'" . ($auth ? " checked" : "") . " /></td>\n";
     echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][del]' " .
@@ -408,6 +421,7 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
       $code = sprintf('%01.2f', 0 - $fee);
     }
     $justify   = trim($iter['justify']);
+    $notecodes = trim($iter['notecodes']);
     if ($justify) $justify = str_replace(',', ':', $justify) . ':';
     // $auth      = $iter['auth'] ? "1" : "0";
     $auth      = "1";
@@ -429,7 +443,7 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
         sqlQuery("UPDATE billing SET code = '$code', " .
           "units = '$units', fee = '$fee', modifier = '$modifier', " .
           "authorized = $auth, provider_id = '$provid', " .
-          "ndc_info = '$ndc_info', justify = '$justify' WHERE " .
+          "ndc_info = '$ndc_info', justify = '$justify', notecodes = '$notecodes' WHERE " .
           "id = '$id' AND billed = 0 AND activity = 1");
       }
     }
@@ -858,6 +872,7 @@ echo " </tr>\n";
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php xl('Justify','e');?></b></td>
 <?php } ?>
   <td class='billcell' align='center'><b><?php xl('Provider','e');?></b></td>
+  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php xl('Note Codes','e');?></b></td>
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php xl('Auth','e');?></b></td>
   <td class='billcell' align='center'><b><?php xl('Delete','e');?></b></td>
   <td class='billcell'><b><?php xl('Description','e');?></b></td>
@@ -886,6 +901,7 @@ if ($billresult) {
     $authorized = $iter["authorized"];
     $ndc_info   = $iter["ndc_info"];
     $justify    = trim($iter['justify']);
+    $notecodes  = trim($iter['notecodes']);
     if ($justify) $justify = substr(str_replace(':', ',', $justify), 0, strlen($justify) - 1);
     $provider_id = $iter['provider_id'];
 
@@ -908,7 +924,7 @@ if ($billresult) {
     echoLine($bill_lino, $iter["code_type"], trim($iter["code"]),
       $modifier, $ndc_info,  $authorized,
       $del, $units, $fee, $iter["id"], $iter["billed"],
-      $iter["code_text"], $justify, $provider_id);
+      $iter["code_text"], $justify, $provider_id, $notecodes);
   }
 }
 
@@ -930,7 +946,7 @@ if ($_POST['bill']) {
     if ($iter['code_type'] == 'COPAY' && $fee > 0) $fee = 0 - $fee;
     echoLine(++$bill_lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
       $ndc_info, $iter["auth"], $iter["del"], $units,
-      $fee, NULL, FALSE, NULL, $iter["justify"], 0 + $iter['provid']);
+      $fee, NULL, FALSE, NULL, $iter["justify"], 0 + $iter['provid'], $iter['notecodes']);
   }
 }
 

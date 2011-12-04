@@ -135,6 +135,7 @@ CREATE TABLE `billing` (
   `target` varchar(30) default NULL,
   `x12_partner_id` int(11) default NULL,
   `ndc_info` varchar(255) default NULL,
+  `notecodes` varchar(25) NOT NULL default '',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;

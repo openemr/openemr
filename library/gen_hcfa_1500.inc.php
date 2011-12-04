@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2011 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -434,6 +434,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
     ++$svccount;
     $lino = $svccount * 2 + 41;
+
+    //Note Codes.
+    put_hcfa($lino, 25, 7, $claim->cptNotecodes($hcfa_proc_index));
 
     // Drug Information. Medicaid insurers want this with HCPCS codes.
     //
