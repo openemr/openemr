@@ -926,6 +926,10 @@ class Claim {
     return (implode (':', $cln_mods));
   }
 
+  function cptNotecodes($prockey) {
+    return x12clean(trim($this->procs[$prockey]['notecodes']));
+  }
+
   // Returns the procedure code, followed by ":modifier" if there is one.
   function cptKey($prockey) {
     $tmp = $this->cptModifier($prockey);

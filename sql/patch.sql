@@ -109,3 +109,7 @@ ALTER TABLE `insurance_data` ADD COLUMN `policy_type` varchar(25) NOT NULL defau
    UPDATE `code_types` SET `ct_mod` = '12' where ct_key = 'CPT4' OR ct_key = 'HCPCS';
 #Endif
 
+#IfMissingColumn billing notecodes
+ALTER TABLE `billing` ADD `notecodes` varchar(25) NOT NULL default '';
+#EndIf
+

@@ -969,6 +969,15 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "*" . $claim->serviceDate() .
       "~\n";
 
+    $testnote = rtrim($claim->cptNotecodes($prockey));
+    if (!empty($testnote)) {
+      ++$edicount;
+      $out .= "NTE" .     // Explain Unusual Circumstances.
+        "*ADD" .
+        "*" . $claim->cptNotecodes($prockey) .
+        "~\n";
+    }
+      
     // Segment DTP*471 (Prescription Date) omitted.
     // Segment DTP*607 (Revision/Recertification Date) omitted.
     // Segment DTP*463 (Begin Therapy Date) omitted.
