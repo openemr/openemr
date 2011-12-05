@@ -14,6 +14,7 @@ require_once("../../../custom/code_types.inc.php");
 require_once("../../drugs/drugs.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/formdata.inc.php");
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
@@ -154,7 +155,8 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     genProviderSelect('', '-- Default --', $provider_id, true);
     echo "</td>\n";
     if ($codetype == 'HCPCS' || $codetype == 'CPT4') {
-      echo "  <td class='billcell' align='center'$usbillstyle>$notecodes</td>\n";
+      echo "  <td class='billcell' align='center'$usbillstyle>" .
+        htmlspecialchars($notecodes, ENT_NOQUOTES) . "</td>\n";
     }
     else {
       echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
@@ -216,7 +218,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     echo "</td>\n";
     if ($codetype == 'HCPCS' || $codetype == 'CPT4') {
       echo "  <td class='billcell' align='center'$usbillstyle><input type='text' name='bill[$lino][notecodes]' " .
-        "value='$notecodes' maxlength='10' style='width:120px;' /></td>\n";
+        "value='" . htmlspecialchars($notecodes, ENT_QUOTES) . "' maxlength='10' size='8' /></td>\n";
     }
     else {
       echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
@@ -417,7 +419,7 @@ if ($_POST['bn_save']) {
       $code = sprintf('%01.2f', 0 - $fee);
     }
     $justify   = trim($iter['justify']);
-    $notecodes = trim($iter['notecodes']);
+    $notecodes = trim(strip_escape_custom($iter['notecodes']));
     if ($justify) $justify = str_replace(',', ':', $justify) . ':';
     // $auth      = $iter['auth'] ? "1" : "0";
     $auth      = "1";
@@ -439,7 +441,8 @@ if ($_POST['bn_save']) {
         sqlQuery("UPDATE billing SET code = '$code', " .
           "units = '$units', fee = '$fee', modifier = '$modifier', " .
           "authorized = $auth, provider_id = '$provid', " .
-          "ndc_info = '$ndc_info', justify = '$justify', notecodes = '$notecodes' WHERE " .
+          "ndc_info = '$ndc_info', justify = '$justify', notecodes = '" .
+          add_escape_custom($notecodes) . "' WHERE " .
           "id = '$id' AND billed = 0 AND activity = 1");
       }
     }
@@ -448,7 +451,7 @@ if ($_POST['bn_save']) {
     else if (! $del) {
       $code_text = addslashes($codesrow['code_text']);
       addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
-        $provid, $modifier, $units, $fee, $ndc_info, $justify);
+        $provid, $modifier, $units, $fee, $ndc_info, $justify, 0, $notecodes);
     }
   } // end for
 
@@ -888,6 +891,7 @@ if ($billresult) {
         trim($bline['ndcqty']);
       }
       $justify    = $bline['justify'];
+      $notecodes  = strip_escape_custom(trim($bline['notecodes']));
       $provider_id = 0 + $bline['provid'];
     }
 
@@ -917,7 +921,8 @@ if ($_POST['bill']) {
     if ($iter['code_type'] == 'COPAY' && $fee > 0) $fee = 0 - $fee;
     echoLine(++$bill_lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
       $ndc_info, $iter["auth"], $iter["del"], $units,
-      $fee, NULL, FALSE, NULL, $iter["justify"], 0 + $iter['provid'], $iter['notecodes']);
+      $fee, NULL, FALSE, NULL, $iter["justify"], 0 + $iter['provid'],
+      strip_escape_custom($iter['notecodes']));
   }
 }
 
