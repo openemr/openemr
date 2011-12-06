@@ -329,7 +329,13 @@ else {
     }
     // Manage page numbering and display beneath the Messages table.
     $listnumber = 25;
-    $show_all='yes' ? $usrvar='_%' : $usrvar=$_SESSION['authUser'] ;
+
+    if ($show_all == 'yes' ) {
+	$usrvar='_%'; 
+    } else {
+	$usrvar=$_SESSION['authUser'] ;
+    }	
+
     $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, 
       IF(pnotes.user != pnotes.pid,users.fname,patient_data.fname), IF(pnotes.user != pnotes.pid,users.lname,patient_data.lname), patient_data.fname, 
       patient_data.lname FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username) 
@@ -388,7 +394,12 @@ else {
         </tr>";
         // Display the Messages table body.
         $count = 0;
-        $show_all='yes' ? $usrvar='_%' : $usrvar=$_SESSION['authUser'] ;
+    if ($show_all == 'yes' ) {
+	$usrvar='_%'; 
+    } else {
+	$usrvar=$_SESSION['authUser'] ;
+    }	
+
         $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, 
           IF(pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
           IF(pnotes.user != pnotes.pid,users.lname,patient_data.lname) as users_lname,
