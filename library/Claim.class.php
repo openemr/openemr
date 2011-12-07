@@ -923,7 +923,6 @@ class Claim {
     foreach ($mods as $mod) {
         array_push($cln_mods, x12clean($mod));
     }
-    error_log(implode (':', $cln_mods)); //DEBUG
     return (implode (':', $cln_mods));
   }
 
