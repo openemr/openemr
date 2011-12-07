@@ -171,7 +171,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
       if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
         echo "  <td class='billcell'><input type='text' name='bill[$lino][mod]' " .
              "value='$modifier' " .
-             "title='" . xl("Multiple modifiers are separated by colons, maximum of 4 (M1:M2:M3:M4)") . "' " .
+             "title='" . xl("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
              "value='$modifier' size='" . $code_types[$codetype]['mod'] . "'></td>\n";
       } else {
         echo "  <td class='billcell'>&nbsp;</td>\n";

@@ -916,13 +916,14 @@ class Claim {
   }
 
   function cptModifier($prockey) {
-    // Split on the colon and clean each modifier
+    // Split on the colon or space and clean each modifier
     $mods = array();
     $cln_mods = array();
-    $mods = split(':',trim($this->procs[$prockey]['modifier']));
+    $mods = preg_split("/[: ]/",trim($this->procs[$prockey]['modifier']));
     foreach ($mods as $mod) {
         array_push($cln_mods, x12clean($mod));
     }
+    error_log(implode (':', $cln_mods)); //DEBUG
     return (implode (':', $cln_mods));
   }
 
