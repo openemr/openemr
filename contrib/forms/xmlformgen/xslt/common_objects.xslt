@@ -202,7 +202,7 @@ while ($frow = sqlFetchArray($fres)) {
     $group_name = substr($this_group, 1);
     $last_group = $this_group;
     echo "<div><span class='sectionlabel'><input type='checkbox' id='form_cb_$group_seq' value='1' " .
-      "onclick='return divclick(this,\"$field_id\");'";
+      "data-section=\"$field_id\"";
     if (strcmp($check_first_section, 'true')) echo " checked='checked'";
 
     // Modified 6-09 by BM - Translate if applicable
@@ -271,12 +271,12 @@ $cells_per_row=]]></xsl:text>
 </xsl:if>
 </xsl:template>
 <xsl:template match="manual" mode="head">
-<xsl:if test="$page='show' or $page='view' or $page='new'">
-<xsl:if test="//manual//field[@type='checkbox_list' or @type='exams' or @type='textbox' or @type='textarea' or @type='provider' or @type='date' or @type='textfield' or @type='dropdown_list']">
+<xsl:if test="$page='show' or $page='view' or $page='new' or $page='report' or $page='print'">
+<xsl:if test="//manual//field[@type='checkbox_list' or @type='checkbox_combo_list' or @type='exams' or @type='textbox' or @type='textarea' or @type='provider' or @type='date' or @type='textfield' or @type='dropdown_list']">
 <xsl:text disable-output-escaping="yes"><![CDATA[/* in order to use the layout engine's draw functions, we need a fake table of layout data. */
 $manual_layouts = array( 
 ]]></xsl:text>
-<xsl:for-each select="//manual//field[@type='checkbox_list' or @type='exams' or @type='textbox' or @type='textarea' or @type='provider' or @type='date' or @type='textfield' or @type='dropdown_list']">
+<xsl:for-each select="//manual//field[@type='checkbox_list' or @type='checkbox_combo_list' or @type='exams' or @type='textbox' or @type='textarea' or @type='provider' or @type='date' or @type='textfield' or @type='dropdown_list']">
 <xsl:text disable-output-escaping="yes"><![CDATA[ ']]></xsl:text>
 <xsl:value-of select="@name" />
 <xsl:text disable-output-escaping="yes"><![CDATA[' => 
@@ -286,6 +286,12 @@ $manual_layouts = array(
 <xsl:text disable-output-escaping="yes"><![CDATA[',
           'data_type' => '21',
           'fld_length' => '0',
+          'description' => ']]></xsl:text>
+</xsl:if>
+<xsl:if test="@type='checkbox_combo_list'">
+<xsl:text disable-output-escaping="yes"><![CDATA[',
+          'data_type' => '25',
+          'fld_length' => '140',
           'description' => ']]></xsl:text>
 </xsl:if>
 <xsl:if test="@type='exams'">

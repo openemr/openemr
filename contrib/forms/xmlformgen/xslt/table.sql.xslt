@@ -52,6 +52,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:text disable-output-escaping="yes"><![CDATA[ varchar(255),
     ]]></xsl:text>
 </xsl:if>
+<xsl:if test="@type='checkbox_combo_list'">
+<xsl:text disable-output-escaping="yes"><![CDATA[ varchar(255),
+    ]]></xsl:text>
+</xsl:if>
 <xsl:if test="@type='exams'">
 <xsl:text disable-output-escaping="yes"><![CDATA[ TEXT NOT NULL,
     ]]></xsl:text>
@@ -104,6 +108,9 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:value-of select="../@id"/>
 <xsl:text disable-output-escaping="yes"><![CDATA[',
     option_id=']]></xsl:text>
+<xsl:value-of select="@id"/>
+<xsl:text disable-output-escaping="yes"><![CDATA[',
+    title=']]></xsl:text>
 <xsl:value-of select="@label"/>
 <xsl:if test="@order">
 <xsl:text disable-output-escaping="yes"><![CDATA[',

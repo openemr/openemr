@@ -25,9 +25,9 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:template match="section">
 <xsl:text disable-output-escaping="yes"><![CDATA[<tr><td class='sectionlabel'><input type='checkbox' id='form_cb_m_]]></xsl:text>
 <xsl:value-of select="position()"/>
-<xsl:text disable-output-escaping="yes"><![CDATA[' value='1' onclick='return divclick(this,"]]></xsl:text>
+<xsl:text disable-output-escaping="yes"><![CDATA[' value='1' data-section="]]></xsl:text>
 <xsl:value-of select="@name"/>
-<xsl:text disable-output-escaping="yes"><![CDATA[")' checked="checked" />]]></xsl:text>
+<xsl:text disable-output-escaping="yes"><![CDATA[" checked="checked" />]]></xsl:text>
 <xsl:value-of select="@label"/>
 <xsl:text disable-output-escaping="yes"><![CDATA[</td></tr><tr><td>]]></xsl:text>
 <xsl:text disable-output-escaping="yes"><![CDATA[<div id="]]></xsl:text>
@@ -128,7 +128,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:text disable-output-escaping="yes"><![CDATA[<td class='emptycell' colspan='1'></td>]]></xsl:text>
  </xsl:if>
 </xsl:template>
-<xsl:template match="field[@type='checkbox_list' or @type='exams' or @type='textbox' or @type='textarea' or @type='provider' or @type='textfield' or @type='dropdown_list']">
+<xsl:template match="field[@type='checkbox_list' or @type='checkbox_combo_list' or @type='exams' or @type='textbox' or @type='textarea' or @type='provider' or @type='textfield' or @type='dropdown_list']">
 <xsl:if test="@labelcols>0">
  <xsl:text disable-output-escaping="yes"><![CDATA[<td class='fieldlabel' colspan=']]></xsl:text>
  <xsl:value-of select="@labelcols"/>

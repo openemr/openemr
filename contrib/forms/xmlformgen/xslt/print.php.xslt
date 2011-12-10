@@ -37,7 +37,8 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 ]]></xsl:text>
 <!-- these templates generate PHP code -->
 <xsl:apply-templates select="table|RealName|safename|acl|style"/>
-<xsl:apply-templates select="layout" mode="head"/>
+<xsl:apply-templates select="table" mode="fetch"/>
+<xsl:apply-templates select="layout|manual" mode="head"/>
 <xsl:text disable-output-escaping="yes"><![CDATA[
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 

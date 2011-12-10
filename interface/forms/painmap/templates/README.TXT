@@ -1,6 +1,9 @@
 The painmap form will use the image named 'painmap.png'.
 It is currently a copy of 'body-map-male-n-female.png
-The other supplied form is a body-map-female.png
+
+Other supplied forms are:
+- body-map-female.png
+- podiatry-feet.png
 
 Copy any PNG image you prefer in it's place prior to
 entering actual form data as the XY coordinates will
