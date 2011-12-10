@@ -107,17 +107,6 @@ else
 // this line is to assist the calendar text boxes
 var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 
-<!-- support code for collapsing sections -->
-function divclick(cb, divid) {
- var divstyle = document.getElementById(divid).style;
- if (cb.checked) {
-  divstyle.display = 'block';
- } else {
-  divstyle.display = 'none';
- }
- return true;
-}
-
 <!-- FIXME: this needs to detect access method, and construct a URL appropriately! -->
 function PrintForm() {
     newwin = window.open("<?php echo $rootdir.'/forms/'.$form_folder.'/print.php?id='.$_GET['id']; ?>","print_<?php echo $form_name; ?>");
@@ -173,6 +162,18 @@ $(document).ready(function(){
     $(".save").click(function() { top.restoreSession(); document.forms["<?php echo $form_folder; ?>"].submit(); });
     $(".dontsave").click(function() { location.href='<?php echo $returnurl; ?>'; });
     $(".print").click(function() { PrintForm(); });
+    
+    $(".sectionlabel input").click( function() {
+    	var section = $(this).attr("data-section");
+		if ( $(this).attr('checked' ) ) {
+			$("#"+section).show();
+		} else {
+			$("#"+section).hide();
+		}
+    });
+
+    $(".sectionlabel input").attr( 'checked', 'checked' );
+    $(".section").show();
 });
 </script>
 </body>

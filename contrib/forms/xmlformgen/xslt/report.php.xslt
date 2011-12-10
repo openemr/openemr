@@ -30,7 +30,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 require_once('../../globals.php');
 /* for acl_check(), ?? */
 require_once($GLOBALS['srcdir'].'/api.inc');
-
+/* for generate_display_field() */
+require_once($GLOBALS['srcdir'].'/options.inc.php');
 /* The name of the function is significant and must match the folder name */
 function ]]></xsl:text>
 <xsl:value-of select="safename" />
@@ -49,8 +50,9 @@ $field_names = array(]]></xsl:text>
 <xsl:text disable-output-escaping="yes"><![CDATA[']]></xsl:text>
 <xsl:if test="position()!=last()">,</xsl:if>
 </xsl:for-each>
-<xsl:text disable-output-escaping="yes"><![CDATA[);
-/* an array of the lists the fields may draw on. */
+<xsl:text disable-output-escaping="yes"><![CDATA[);]]></xsl:text>
+<xsl:apply-templates select="layout|manual" mode="head"/>
+<xsl:text disable-output-escaping="yes"><![CDATA[/* an array of the lists the fields may draw on. */
 $lists = array(]]></xsl:text>
 <xsl:for-each select="//field[@type='radio_group' or @type='checkbox_group' or @type='scrolling_list_multiples']">
 <xsl:text disable-output-escaping="yes"><![CDATA[']]></xsl:text>
@@ -82,6 +84,7 @@ $lists = array(]]></xsl:text>
         echo '<table><tr>';
 
         foreach($data as $key => $value) {
+
             if ($key == 'id' || $key == 'pid' || $key == 'user' ||
                 $key == 'groupname' || $key == 'authorized' ||
                 $key == 'activity' || $key == 'date' || 
@@ -104,13 +107,20 @@ $lists = array(]]></xsl:text>
               $value = $dateparts[0];
             }
 
-            /* replace underscores with spaces, and uppercase all words. */
-            /* this is a primitive form of converting the column names into something displayable. */
-            $key=ucwords(str_replace('_',' ',$key));
-            $mykey = $key;
-            $myval = $value;
-            echo '<td><span class=bold>'.xl("$mykey").': </span><span class=text>'.xl("$myval").'</span></td>';
-
+	    echo "<td><span class='bold'>";
+            
+]]></xsl:text> 
+<xsl:for-each select="//field">
+<xsl:text disable-output-escaping="yes"><![CDATA[
+            if ($key == ']]></xsl:text>
+<xsl:value-of select="@name" /><xsl:text disable-output-escaping="yes"><![CDATA[' ) 
+            { 
+                echo xl_layout_label(']]></xsl:text><xsl:value-of select="@label"/><xsl:text disable-output-escaping="yes"><![CDATA[').":";
+            }
+]]></xsl:text>
+</xsl:for-each>
+<xsl:text disable-output-escaping="yes"><![CDATA[
+                echo '</span><span class=text>'.generate_display_field( $manual_layouts[$key], $value ).'</span></td>';
 
             $count++;
             if ($count == $cols) {

@@ -51,10 +51,10 @@ $field_names = array(]]></xsl:text>
 <xsl:text disable-output-escaping="yes"><![CDATA[);
 /* an array of the lists the fields may draw on. */
 $lists = array(]]></xsl:text>
-<xsl:for-each select="//field[@type='checkbox_list' or @type='dropdown_list']">
+<xsl:for-each select="//field[@type='checkbox_list' or @type='checkbox_combo_list' or @type='dropdown_list']">
 <xsl:text disable-output-escaping="yes"><![CDATA[']]></xsl:text>
 <xsl:value-of select="@name" />
-<xsl:if test="@type='dropdown_list' or @type='checkbox_list'">
+<xsl:if test="@type='dropdown_list' or @type='checkbox_list' or @type='checkbox_combo_list'">
 <xsl:text disable-output-escaping="yes"><![CDATA[' => ']]></xsl:text>
 <xsl:variable name="i" select="@list"/>
 <xsl:value-of select="//list[@name=$i]/@id"/>
@@ -77,7 +77,7 @@ foreach($field_names as $key=>$val)
     {
         $field_names[$key]=$_POST[$key];
     }
-    if (($val == 'checkbox_list'))
+    if (($val == 'checkbox_list' ))
     {
         $field_names[$key]='';
         if (isset($_POST['form_'.$key]) && $_POST['form_'.$key] != 'none' ) /* if the form submitted some entries selected in that field */
@@ -94,6 +94,26 @@ foreach($field_names as $key=>$val)
 	                    $field_names[$key] = $field_names[$key].$lrow[option_id];
                         }
                     }
+            }
+        }
+    }
+    if (($val == 'checkbox_combo_list'))
+    {
+        $field_names[$key]='';
+        if (isset($_POST['check_'.$key]) && $_POST['check_'.$key] != 'none' ) /* if the form submitted some entries selected in that field */
+        {
+            $lres=sqlStatement("select * from list_options where list_id = '".$lists[$key]."' ORDER BY seq, title");
+            while ($lrow = sqlFetchArray($lres))
+            {
+                if (is_array($_POST['check_'.$key]))
+                {
+                    if ($_POST['check_'.$key][$lrow[option_id]])
+                    {
+                        if ($field_names[$key] != '')
+                          $field_names[$key]=$field_names[$key].'|';
+                        $field_names[$key] = $field_names[$key].$lrow[option_id].":xx".$_POST['form_'.$key][$lrow[option_id]];
+                    }
+                }
             }
         }
     }

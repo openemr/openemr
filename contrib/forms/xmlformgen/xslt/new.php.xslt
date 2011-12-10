@@ -85,17 +85,6 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 // this line is to assist the calendar text boxes
 var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 
-<!-- support code for collapsing sections -->
-function divclick(cb, divid) {
- var divstyle = document.getElementById(divid).style;
- if (cb.checked) {
-  divstyle.display = 'block';
- } else {
-  divstyle.display = 'none';
- }
- return true;
-}
-
 <!-- a validator for all the fields expected in this form -->
 function validate() {
   return true;
@@ -169,6 +158,18 @@ require_once($GLOBALS['srcdir'].'/options_listadd.inc');
 $(document).ready(function(){
     $(".save").click(function() { top.restoreSession(); document.forms["<?php echo $form_folder; ?>"].submit(); });
     $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl"; ?>'; });
+
+	$(".sectionlabel input").click( function() {
+    	var section = $(this).attr("data-section");
+		if ( $(this).attr('checked' ) ) {
+			$("#"+section).show();
+		} else {
+			$("#"+section).hide();
+		}
+    });
+
+    $(".sectionlabel input").attr( 'checked', 'checked' );
+    $(".section").show();
 });
 </script>
 </body>
