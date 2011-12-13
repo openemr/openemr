@@ -107,7 +107,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "*" . $claim->billingContactName() .
     "*TE" .
     "*" . $claim->billingContactPhone();
-  if ($claim->x12gsper06()) {
+  if (!$CMS_5010 && $claim->x12gsper06()) {
     $out .= "*ED*" . $claim->x12gsper06();
   }
   $out .= "~\n";
@@ -347,7 +347,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   //   $log .= "*** CMS ID is missing for payer '" . $claim->payerName() . "'.\n";
   // }
 
-  if (!$CMS_5010) {
+  if (true) { // !$CMS_5010
     // The 5010 spec says:
     // "Required when the payer address is available and the submitter intends
     // for the claim to be printed on paper at the next EDI location (for example, a
@@ -598,7 +598,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
         "~\n";
     }
 
-    if ($claim->referrerUPIN()) {
+    if (!CMS_5010 && $claim->referrerUPIN()) {
       ++$edicount;
       $out .= "REF" .   // Referring Provider Secondary Identification
         "*1G" .
