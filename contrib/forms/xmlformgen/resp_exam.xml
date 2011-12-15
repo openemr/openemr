@@ -44,6 +44,8 @@
 		
 	</manual>
 	
-	<list name="present_absent" label="Present Absent" type="standard" id="present_absent" import="no">    
+	<list id="present_absent" name="present_absent" label="Present Absent" type="standard" import="yes">
+	    <listitem id='1' label="Present" order='1'>Present</listitem>
+		<listitem id='2' label="Absent" order='2'>Absent</listitem>   
 	</list>
 </form>
