@@ -1,19 +1,24 @@
 <?php
 /* 
-V4.20 22 Feb 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
 Set tabs to 4 for best viewing.
   
-  Latest version is available at http://php.weblogs.com/
+  Latest version is available at http://adodb.sourceforge.net
   
 	Microsoft ADO data driver. Requires ADO. Works only on MS Windows.
 */
-  define("_ADODB_ADO_LAYER", 1 );
+
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
+	
+define("_ADODB_ADO_LAYER", 1 );
 /*--------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------*/
-  
+
+	
 class ADODB_ado extends ADOConnection {
 	var $databaseType = "ado";	
 	var $_bindInputArray = false;
@@ -45,7 +50,9 @@ class ADODB_ado extends ADOConnection {
 	
 	function _affectedrows()
 	{
-			return $this->_affectedRows->value;
+		if (PHP_VERSION >= 5) return $this->_affectedRows;
+		
+		return $this->_affectedRows->value;
 	}
 	
 	// you can also pass a connection string like this:
@@ -140,7 +147,7 @@ class ADODB_ado extends ADOConnection {
 
 */
 	
-	function &MetaTables()
+	function MetaTables()
 	{
 		$arr= array();
 		$dbc = $this->_connectionID;
@@ -162,10 +169,10 @@ class ADODB_ado extends ADOConnection {
 		return $arr;
 	}
 	
-	function &MetaColumns($table)
+	function MetaColumns($table, $normalize=true)
 	{
 		$table = strtoupper($table);
-		$arr= array();
+		$arr = array();
 		$dbc = $this->_connectionID;
 		
 		$adors=@$dbc->OpenSchema(4);//tables
@@ -189,18 +196,19 @@ class ADODB_ado extends ADOConnection {
 			}
 			$adors->Close();
 		}
-		
-		return $arr;
+		$false = false;
+		return empty($arr) ? $false : $arr;
 	}
 	
 
 
 	
 	/* returns queryID or false */
-	function &_query($sql,$inputarr=false) 
+	function _query($sql,$inputarr=false) 
 	{
 		
 		$dbc = $this->_connectionID;
+		$false = false;
 		
 	//	return rs	
 		if ($inputarr) {
@@ -213,31 +221,45 @@ class ADODB_ado extends ADOConnection {
 			$oCmd->CommandText = $sql;
 			$oCmd->CommandType = 1;
 
-			foreach($inputarr as $val) {
+      // Map by http://msdn.microsoft.com/library/default.asp?url=/library/en-us/ado270/htm/mdmthcreateparam.asp
+      // Check issue http://bugs.php.net/bug.php?id=40664 !!!
+			while(list(, $val) = each($inputarr)) {
+				$type = gettype($val);
+				$len=strlen($val);
+				if ($type == 'boolean')
+					$this->adoParameterType = 11;
+				else if ($type == 'integer')
+					$this->adoParameterType = 3;
+				else if ($type == 'double')
+					$this->adoParameterType = 5;
+				elseif ($type == 'string')
+					$this->adoParameterType = 202;
+				else if (($val === null) || (!defined($val)))
+					$len=1;
+				else
+					$this->adoParameterType = 130;
+				
 				// name, type, direction 1 = input, len,
-				$this->adoParameterType = 130;
-				$p = $oCmd->CreateParameter('name',$this->adoParameterType,1,strlen($val),$val);
-				//print $p->Type.' '.$p->value;
+        		$p = $oCmd->CreateParameter('name',$this->adoParameterType,1,$len,$val);
+
 				$oCmd->Parameters->Append($p);
 			}
 			$p = false;
 			$rs = $oCmd->Execute();
 			$e = $dbc->Errors;
-			if ($dbc->Errors->Count > 0) return false;
+			if ($dbc->Errors->Count > 0) return $false;
 			return $rs;
 		}
 		
 		$rs = @$dbc->Execute($sql,$this->_affectedRows, $this->_execute_option);
-		/*
-			$rs =  new COM('ADODB.Recordset');
-			if ($rs) {
-				$rs->Open ($sql, $dbc, $this->_cursor_type,$this->_lock_type, $this->_execute_option);							
-			}
-		*/
-		if ($dbc->Errors->Count > 0) return false;
-		if (! $rs) return false;
+
+		if ($dbc->Errors->Count > 0) return $false;
+		if (! $rs) return $false;
 		
-		if ($rs->State == 0) return true; // 0 = adStateClosed means no records returned
+		if ($rs->State == 0) {
+			$true = true;
+			return $true; // 0 = adStateClosed means no records returned
+		}
 		return $rs;
 	}
 
@@ -257,6 +279,7 @@ class ADODB_ado extends ADOConnection {
 		$this->transCnt += 1;
 		return true;
 	}
+	
 	function CommitTrans($ok=true) 
 	{ 
 		if (!$ok) return $this->RollbackTrans();
@@ -277,7 +300,9 @@ class ADODB_ado extends ADOConnection {
 
 	function ErrorMsg() 
 	{
+		if (!$this->_connectionID) return "No connection established";
 		$errc = $this->_connectionID->Errors;
+		if (!$errc) return "No Errors object found";
 		if ($errc->Count == 0) return '';
 		$err = $errc->Item($errc->Count-1);
 		return $err->Description;
@@ -338,8 +363,7 @@ class ADORecordSet_ado extends ADORecordSet {
 		$t = $f->Type;
 		$o->type = $this->MetaType($t);
 		$o->max_length = $f->DefinedSize;
-		$o->ado_type = $t;
-		
+		$o->ado_type = $t;	
 
 		//print "off=$off name=$o->name type=$o->type len=$o->max_length<br>";
 		return $o;
@@ -543,11 +567,18 @@ class ADORecordSet_ado extends ADORecordSet {
 		
 		if ($this->hideErrors)  $olde = error_reporting(E_ERROR|E_CORE_ERROR);// sometimes $f->value be null
 		for ($i=0,$max = $this->_numOfFields; $i < $max; $i++) {
-
+			//echo "<p>",$t,' ';var_dump($f->value); echo '</p>';
 			switch($t) {
 			case 135: // timestamp
 				if (!strlen((string)$f->value)) $this->fields[] = false;
-				else $this->fields[] = adodb_date('Y-m-d H:i:s',(float)$f->value);
+				else {
+					if (!is_numeric($f->value)) # $val = variant_date_to_timestamp($f->value);
+						// VT_DATE stores dates as (float) fractional days since 1899/12/30 00:00:00
+						$val=(float) variant_cast($f->value,VT_R8)*3600*24-2209161600;
+					else 
+						$val = $f->value;
+					$this->fields[] = adodb_date('Y-m-d H:i:s',$val);
+				}
 				break;			
 			case 133:// A date value (yyyymmdd) 
 				if ($val = $f->value) {
@@ -557,7 +588,13 @@ class ADORecordSet_ado extends ADORecordSet {
 				break;
 			case 7: // adDate
 				if (!strlen((string)$f->value)) $this->fields[] = false;
-				else $this->fields[] = adodb_date('Y-m-d',(float)$f->value);
+				else {
+					if (!is_numeric($f->value)) $val = variant_date_to_timestamp($f->value);
+					else $val = $f->value;
+					
+					if (($val % 86400) == 0) $this->fields[] = adodb_date('Y-m-d',$val);
+					else $this->fields[] = adodb_date('Y-m-d H:i:s',$val);
+				}
 				break;
 			case 1: // null
 				$this->fields[] = false;
@@ -565,6 +602,16 @@ class ADORecordSet_ado extends ADORecordSet {
 			case 6: // currency is not supported properly;
 				ADOConnection::outp( '<b>'.$f->Name.': currency type not supported by PHP</b>');
 				$this->fields[] = (float) $f->value;
+				break;
+			case 11: //BIT;
+				$val = "";
+				if(is_bool($f->value))	{
+					if($f->value==true) $val = 1;
+					else $val = 0;
+				}
+				if(is_null($f->value)) $val = null;
+				
+				$this->fields[] = $val;
 				break;
 			default:
 				$this->fields[] = $f->value; 
@@ -578,7 +625,7 @@ class ADORecordSet_ado extends ADORecordSet {
 		@$rs->MoveNext(); // @ needed for some versions of PHP!
 		
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			$this->fields = &$this->GetRowAssoc(ADODB_ASSOC_CASE);
+			$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
 		}
 		return true;
 	}

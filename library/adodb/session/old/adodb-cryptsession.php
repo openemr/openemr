@@ -1,6 +1,6 @@
 <?php
 /*
-V4.20 22 Feb 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -18,15 +18,15 @@ wrapper library.
  Example
  =======
  
- 	GLOBAL $HTTP_SESSION_VARS;
 	include('adodb.inc.php');
 	#---------------------------------#
 	include('adodb-cryptsession.php'); 
 	#---------------------------------#
 	session_start();
 	session_register('AVAR');
-	$HTTP_SESSION_VARS['AVAR'] += 1;
-	print "<p>\$HTTP_SESSION_VARS['AVAR']={$HTTP_SESSION_VARS['AVAR']}</p>";
+	$_SESSION['AVAR'] += 1;
+	print "
+-- \$_SESSION['AVAR']={$_SESSION['AVAR']}</p>";
 
  
  Installation
@@ -192,7 +192,8 @@ $Crypt = new MD5Crypt;
     	'sesskey',$autoQuote = true);
 
 	if (!$rs) {
-		ADOConnection::outp( '<p>Session Replace: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
+		ADOConnection::outp( '
+-- Session Replace: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
 	} else {
 		// bug in access driver (could be odbc?) means that info is not commited
 		// properly unless select statement executed in Win2000
@@ -263,6 +264,8 @@ function adodb_sess_gc($maxlifetime) {
 	// suggested by Cameron, "GaM3R" <gamr@outworld.cx>
 	if (defined('ADODB_SESSION_OPTIMIZE'))
 	{
+	global $ADODB_SESSION_DRIVER;
+	
 		switch( $ADODB_SESSION_DRIVER ) {
 			case 'mysql':
 			case 'mysqlt':
@@ -278,7 +281,7 @@ function adodb_sess_gc($maxlifetime) {
 	if ($ADODB_SESS_CONN->dataProvider === 'oci8') $sql = 'select  TO_CHAR('.($ADODB_SESS_CONN->sysTimeStamp).', \'RRRR-MM-DD HH24:MI:SS\') from '. $ADODB_SESSION_TBL;
 	else $sql = 'select '.$ADODB_SESS_CONN->sysTimeStamp.' from '. $ADODB_SESSION_TBL;
 	
-	$rs =& $ADODB_SESS_CONN->SelectLimit($sql,1);
+	$rs = $ADODB_SESS_CONN->SelectLimit($sql,1);
 	if ($rs && !$rs->EOF) {
 	
 		$dbts = reset($rs->fields);
@@ -286,11 +289,11 @@ function adodb_sess_gc($maxlifetime) {
 		$dbt = $ADODB_SESS_CONN->UnixTimeStamp($dbts);
 		$t = time();
 		if (abs($dbt - $t) >= ADODB_SESSION_SYNCH_SECS) {
-		global $HTTP_SERVER_VARS;
 			$msg = 
-			__FILE__.": Server time for webserver {$HTTP_SERVER_VARS['HTTP_HOST']} not in synch with database: database=$dbt ($dbts), webserver=$t (diff=".(abs($dbt-$t)/3600)." hrs)";
+			__FILE__.": Server time for webserver {$_SERVER['HTTP_HOST']} not in synch with database: database=$dbt ($dbts), webserver=$t (diff=".(abs($dbt-$t)/3600)." hrs)";
 			error_log($msg);
-			if ($ADODB_SESS_DEBUG) ADOConnection::outp("<p>$msg</p>");
+			if ($ADODB_SESS_DEBUG) ADOConnection::outp("
+-- $msg</p>");
 		}
 	}
 	
@@ -310,12 +313,12 @@ session_set_save_handler(
 /*  TEST SCRIPT -- UNCOMMENT */
 /*
 if (0) {
-GLOBAL $HTTP_SESSION_VARS;
 
 	session_start();
 	session_register('AVAR');
-	$HTTP_SESSION_VARS['AVAR'] += 1;
-	print "<p>\$HTTP_SESSION_VARS['AVAR']={$HTTP_SESSION_VARS['AVAR']}</p>";
+	$_SESSION['AVAR'] += 1;
+	print "
+-- \$_SESSION['AVAR']={$_SESSION['AVAR']}</p>";
 }
 */
 ?>

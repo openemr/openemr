@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version V4.20 22 Feb 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * @version V5.14 8 Sept 2011   (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
  * Whenever there is any discrepancy between the two licenses,
  * the BSD license will take precedence.
@@ -12,7 +12,8 @@
  *
  * Exception-handling code using PHP5 exceptions (try-catch-throw).
  */
-	
+
+
 if (!defined('ADODB_ERROR_HANDLER_TYPE')) define('ADODB_ERROR_HANDLER_TYPE',E_USER_ERROR); 
 define('ADODB_ERROR_HANDLER','adodb_throw');
 
@@ -44,8 +45,10 @@ var $database = '';
 		}
 	
 		$this->dbms = $dbms;
-		$this->host = $thisConnection->host;
-		$this->database = $thisConnection->database;
+		if ($thisConnection) {
+			$this->host = $thisConnection->host;
+			$this->database = $thisConnection->database;
+		}
 		$this->fn = $fn;
 		$this->msg = $errmsg;
 				
@@ -68,7 +71,8 @@ var $database = '';
 function adodb_throw($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
 {
 global $ADODB_EXCEPTION;
-
+	
+	if (error_reporting() == 0) return; // obey @ protocol
 	if (is_string($ADODB_EXCEPTION)) $errfn = $ADODB_EXCEPTION;
 	else $errfn = 'ADODB_EXCEPTION';
 	throw new $errfn($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection);

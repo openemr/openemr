@@ -78,11 +78,11 @@ else echo "<b>*** OK: Passed</b>";
 
 echo "<pre>";
 echo "INSERTED: ", $enc;
-echo "<hr>";
+echo "<hr />";
 echo"RETURNED: ", rawurlencode($v);
-echo "<hr><p>";
+echo "<hr /><p>";
 echo "INSERTED: ", $val;
-echo "<hr>";
+echo "<hr />";
 echo "RETURNED: ", $v;
 
 ?>

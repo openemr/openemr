@@ -1,16 +1,19 @@
 <?php
 /* 
-V4.20 22 Feb 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
 Set tabs to 4 for best viewing.
   
-  Latest version is available at http://php.weblogs.com/
+  Latest version is available at http://adodb.sourceforge.net
   
   MSSQL support via ODBC. Requires ODBC. Works on Windows and Unix. 
   For Unix configuration, see http://phpbuilder.com/columns/alberto20000919.php3
 */
+
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
 
 if (!defined('_ADODB_ODBC_LAYER')) {
 	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
@@ -20,8 +23,9 @@ if (!defined('_ADODB_ODBC_LAYER')) {
 class  ADODB_odbc_mssql extends ADODB_odbc {	
 	var $databaseType = 'odbc_mssql';
 	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d h:i:sA'";
+	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $_bindInputArray = true;
+	var $metaDatabasesSQL = "select name from sysdatabases where name <> 'master'";
 	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE'))";
 	var $metaColumnsSQL = "select c.name,t.name,c.length from syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id where o.name='%s'";
 	var $hasTop = 'top';		// support mssql/interbase SELECT TOP 10 * FROM TABLE
@@ -29,11 +33,10 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	var $sysTimeStamp = 'GetDate()';
 	var $leftOuter = '*=';
 	var $rightOuter = '=*';
-	var $upperCase = 'upper';
 	var $substr = 'substring';
 	var $length = 'len';
 	var $ansiOuter = true; // for mssql7 or later
-	var $identitySQL = 'select @@IDENTITY'; // 'select SCOPE_IDENTITY'; # for mssql 2000
+	var $identitySQL = 'select SCOPE_IDENTITY()'; // 'select SCOPE_IDENTITY'; # for mssql 2000
 	var $hasInsertID = true;
 	var $connectStmt = 'SET CONCAT_NULL_YIELDS_NULL OFF'; # When SET CONCAT_NULL_YIELDS_NULL is ON, 
 														  # concatenating a null value with a string yields a NULL result
@@ -41,7 +44,7 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	function ADODB_odbc_mssql()
 	{
 		$this->ADODB_odbc();
-		$this->curmode = SQL_CUR_USE_ODBC;	
+		//$this->curmode = SQL_CUR_USE_ODBC;	
 	}
 
 	// crashes php...
@@ -91,7 +94,7 @@ from sysforeignkeys
 where upper(object_name(fkeyid)) = $table
 order by constraint_name, referenced_table_name, keyno";
 		
-		$constraints =& $this->GetArray($sql);
+		$constraints = $this->GetArray($sql);
 		
 		$ADODB_FETCH_MODE = $save;
 		
@@ -113,14 +116,14 @@ order by constraint_name, referenced_table_name, keyno";
 		return $arr2;
 	}
 	
-	function &MetaTables($ttype=false,$showSchema=false,$mask=false) 
+	function MetaTables($ttype=false,$showSchema=false,$mask=false) 
 	{
 		if ($mask) {$this->debug=1;
 			$save = $this->metaTablesSQL;
 			$mask = $this->qstr($mask);
 			$this->metaTablesSQL .= " AND name like $mask";
 		}
-		$ret =& ADOConnection::MetaTables($ttype,$showSchema);
+		$ret = ADOConnection::MetaTables($ttype,$showSchema);
 		
 		if ($mask) {
 			$this->metaTablesSQL = $save;
@@ -128,39 +131,104 @@ order by constraint_name, referenced_table_name, keyno";
 		return $ret;
 	}
 	
-	function &MetaColumns($table)
+	function MetaColumns($table, $normalize=true)
 	{
-		return ADOConnection::MetaColumns($table);
+		$arr = ADOConnection::MetaColumns($table);
+		return $arr;
 	}
 	
-	function _query($sql,$inputarr)
+	
+	function MetaIndexes($table,$primary=false, $owner=false)
+	{
+		$table = $this->qstr($table);
+
+		$sql = "SELECT i.name AS ind_name, C.name AS col_name, USER_NAME(O.uid) AS Owner, c.colid, k.Keyno, 
+			CASE WHEN I.indid BETWEEN 1 AND 254 AND (I.status & 2048 = 2048 OR I.Status = 16402 AND O.XType = 'V') THEN 1 ELSE 0 END AS IsPK,
+			CASE WHEN I.status & 2 = 2 THEN 1 ELSE 0 END AS IsUnique
+			FROM dbo.sysobjects o INNER JOIN dbo.sysindexes I ON o.id = i.id 
+			INNER JOIN dbo.sysindexkeys K ON I.id = K.id AND I.Indid = K.Indid 
+			INNER JOIN dbo.syscolumns c ON K.id = C.id AND K.colid = C.Colid
+			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND O.Name LIKE $table
+			ORDER BY O.name, I.Name, K.keyno";
+
+		global $ADODB_FETCH_MODE;
+		$save = $ADODB_FETCH_MODE;
+        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        if ($this->fetchMode !== FALSE) {
+        	$savem = $this->SetFetchMode(FALSE);
+        }
+        
+        $rs = $this->Execute($sql);
+        if (isset($savem)) {
+        	$this->SetFetchMode($savem);
+        }
+        $ADODB_FETCH_MODE = $save;
+
+        if (!is_object($rs)) {
+        	return FALSE;
+        }
+
+		$indexes = array();
+		while ($row = $rs->FetchRow()) {
+			if (!$primary && $row[5]) continue;
+			
+            $indexes[$row[0]]['unique'] = $row[6];
+            $indexes[$row[0]]['columns'][] = $row[1];
+    	}
+        return $indexes;
+	}
+	
+	function _query($sql,$inputarr=false)
 	{
 		if (is_string($sql)) $sql = str_replace('||','+',$sql);
 		return ADODB_odbc::_query($sql,$inputarr);
 	}
 	
-	// "Stein-Aksel Basma" <basma@accelero.no>
-	// tested with MSSQL 2000
-	function &MetaPrimaryKeys($table)
+	function SetTransactionMode( $transaction_mode ) 
 	{
-		$sql = "select k.column_name from information_schema.key_column_usage k,
-		information_schema.table_constraints tc 
-		where tc.constraint_name = k.constraint_name and tc.constraint_type =
-		'PRIMARY KEY' and k.table_name = '$table'";
-		
-		$a = $this->GetCol($sql);
-		if ($a && sizeof($a)>0) return $a;
-		return false;	  
+		$this->_transmode  = $transaction_mode;
+		if (empty($transaction_mode)) {
+			$this->Execute('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+			return;
+		}
+		if (!stristr($transaction_mode,'isolation')) $transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
+		$this->Execute("SET TRANSACTION ".$transaction_mode);
 	}
 	
-	function &SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+	// "Stein-Aksel Basma" <basma@accelero.no>
+	// tested with MSSQL 2000
+	function MetaPrimaryKeys($table)
+	{
+	global $ADODB_FETCH_MODE;
+	
+		$schema = '';
+		$this->_findschema($table,$schema);
+		//if (!$schema) $schema = $this->database;
+		if ($schema) $schema = "and k.table_catalog like '$schema%'"; 
+	
+		$sql = "select distinct k.column_name,ordinal_position from information_schema.key_column_usage k,
+		information_schema.table_constraints tc 
+		where tc.constraint_name = k.constraint_name and tc.constraint_type =
+		'PRIMARY KEY' and k.table_name = '$table' $schema order by ordinal_position ";
+		
+		$savem = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		$a = $this->GetCol($sql);
+		$ADODB_FETCH_MODE = $savem;
+		
+		if ($a && sizeof($a)>0) return $a;
+		$false = false;
+		return $false;	  
+	}
+	
+	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
 				'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop." $nrows ",$sql);
-			$rs =& $this->Execute($sql,$inputarr);
+			$rs = $this->Execute($sql,$inputarr);
 		} else
-			$rs =& ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+			$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 			
 		return $rs;
 	}

@@ -5,23 +5,44 @@
     * 
     * @author Daniele Baroncelli
     * @author Gaetano Giunta
-    * @copyright (c) 2003 Giunta/Baroncelli. All rights reserved.
+    * @copyright (c) 2003-2004 Giunta/Baroncelli. All rights reserved.
     * 
     * @todo some more error checking here and there
     * @todo document the xmlrpc-struct used to encode recordset info
+    * @todo verify if using xmlrpc_encode($rs->GetArray()) would work with:
+    *       - ADODB_FETCH_BOTH
+    *       - null values
     */
 
     /**
     * Include the main libraries
     */    
     require_once('xmlrpc.inc');
-    require_once('adodb.inc.php');
+    if (!defined('ADODB_DIR')) require_once('adodb.inc.php');
             
     /**
     * Builds an xmlrpc struct value out of an AdoDB recordset
     */
     function rs2xmlrpcval(&$adodbrs) {
 
+        $header = rs2xmlrpcval_header($adodbrs);
+        $body = rs2xmlrpcval_body($adodbrs);
+
+        // put it all together and build final xmlrpc struct
+        $xmlrpcrs = new xmlrpcval ( array(
+                "header" => $header,
+                "body" => $body,
+                ), "struct");
+
+        return $xmlrpcrs;
+
+    }
+
+    /**
+    * Builds an xmlrpc struct value describing an AdoDB recordset
+    */
+    function rs2xmlrpcval_header($adodbrs)
+    {
         $numfields = $adodbrs->FieldCount();
         $numrecords = $adodbrs->RecordCount();
 
@@ -56,21 +77,33 @@
                 "fieldinfo" => $fieldinfo
                 ), "struct");
 
+        return $header;
+    }
+
+    /**
+    * Builds an xmlrpc struct value out of an AdoDB recordset
+    * (data values only, no data definition)
+    */
+    function rs2xmlrpcval_body($adodbrs)
+    {
+        $numfields = $adodbrs->FieldCount();
+
         // build structure containing recordset data
+        $adodbrs->MoveFirst();
         $rows = array();
         while (!$adodbrs->EOF) {
             $columns = array();
             // This should work on all cases of fetch mode: assoc, num, both or default
             if ($adodbrs->fetchMode == 'ADODB_FETCH_BOTH' || count($adodbrs->fields) == 2 * $adodbrs->FieldCount())
                 for ($i = 0; $i < $numfields; $i++)
-                    if ($columns[$i] === null)
+                    if ($adodbrs->fields[$i] === null)
                         $columns[$i] = new xmlrpcval ('');
                     else
                         $columns[$i] = xmlrpc_encode ($adodbrs->fields[$i]);
             else
                 foreach ($adodbrs->fields as $val)
                     if ($val === null)
-                        $columns[$i] = new xmlrpcval ('');
+                        $columns[] = new xmlrpcval ('');
                     else
                         $columns[] = xmlrpc_encode ($val);
 
@@ -80,16 +113,9 @@
         }
         $body = new xmlrpcval ($rows, "array");
 
-        // put it all together and build final xmlrpc struct
-        $xmlrpcrs = new xmlrpcval ( array(
-                "header" => $header,
-                "body" => $body,
-                ), "struct");
-
-        return $xmlrpcrs;
-
+        return $body;    
     }
-
+    
     /**
     * Returns an xmlrpc struct value as string out of an AdoDB recordset
     */    
@@ -112,7 +138,7 @@
         $data_array = array();
  
         // rebuild column information  
-        $header =& $xmlrpcval->structmem('header');
+        $header = $xmlrpcval->structmem('header');
         
         $numfields = $header->structmem('fieldcount');
         $numfields = $numfields->scalarval();
@@ -121,9 +147,9 @@
         $sqlstring = $header->structmem('sql');
         $sqlstring = $sqlstring->scalarval();
         
-        $fieldinfo =& $header->structmem('fieldinfo');
+        $fieldinfo = $header->structmem('fieldinfo');
         for ($i = 0; $i < $numfields; $i++) {
-            $temp =& $fieldinfo->arraymem($i);
+            $temp = $fieldinfo->arraymem($i);
             $fld = new ADOFieldObject();
             while (list($key,$value) = $temp->structeach()) {
                 if ($key == "name") $fld->name = $value->scalarval();
@@ -137,12 +163,12 @@
         } // for
 
         // fetch recordset information into php array
-        $body =& $xmlrpcval->structmem('body');
+        $body = $xmlrpcval->structmem('body');
         for ($i = 0; $i < $numrecords; $i++) {
             $data_array[$i]= array();
-            $xmlrpcrs_row =& $body->arraymem($i);
+            $xmlrpcrs_row = $body->arraymem($i);
             for ($j = 0; $j < $numfields; $j++) {
-                $temp =& $xmlrpcrs_row->arraymem($j);
+                $temp = $xmlrpcrs_row->arraymem($j);
                 $data_array[$i][$j] = $temp->scalarval();
             } // for j
         } // for i

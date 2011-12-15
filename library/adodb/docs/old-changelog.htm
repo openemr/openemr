@@ -1,4 +1,126 @@
+<html><title>Old Changelog: ADOdb</title><body>
 <h3>Old Changelog</h3>
+
+</p><p><b>3.92 22 Sept 2003</b> 
+</p><p>Added GetAssoc and CacheGetAssoc to connection object.
+</p><p>Removed TextMax and CharMax functions from adodb.inc.php. 
+</p><p>HasFailedTrans() returned false when trans failed. Fixed. 
+</p><p>Moved perf driver classes into adodb/perf/*.php. 
+</p><p>Misc improvements to performance monitoring, including UI(). 
+</p><p>RETVAL in mssql Parameter(), we do not append @ now. 
+</p><p>Added Param($name) to connection class, returns '?' or ":$name", for defining 
+  bind parameters portably. 
+</p><p>LogSQL traps affected_rows() and saves its value properly now. Also fixed oci8 
+  _stmt and _affectedrows() bugs. 
+</p><p>Session code timestamp check for oci8 works now. Formerly default NLS_DATE_FORMAT 
+  stripped off time portion. Thx to Tony Blair (tonanbarbarian#hotmail.com). Also 
+  added new $conn-&gt;datetime field to oci8, controls whether MetaType() returns 
+  'D' ($this-&gt;datetime==false) or 'T' ($this-&gt;datetime == true) for DATE type. 
+</p><p>Fixed bugs in adodb-cryptsession.inc.php and adodb-session-clob.inc.php. 
+</p><p>Fixed misc bugs in adodb_key_exists, GetInsertSQL() and GetUpdateSQL(). 
+</p><p>Tuned include_once handling to reduce file-system checking overhead. 
+</p><p><b>3.91 9 Sept 2003</b> 
+</p><p>Only released to InterAkt 
+</p><p>Added LogSQL() for sql logging and $ADODB_NEWCONNECTION to override factory 
+  for driver instantiation. 
+</p><p>Added IfNull($field,$ifNull) function, thx to johnwilk#juno.com 
+</p><p>Added portable substr support. 
+</p><p>Now rs2html() has new parameter, $echo. Set to false to return $html instead 
+  of echoing it. 
+</p><p><b>3.90 5 Sept 2003</b> 
+</p><p>First beta of performance monitoring released. 
+</p><p>MySQL supports MetaTable() masking. 
+</p><p>Fixed key_exists() bug in adodb-lib.inc.php 
+</p><p>Added sp_executesql Prepare() support to mssql. 
+</p><p>Added bind support to db2. 
+</p><p>Added swedish language file - Christian Tiberg" christian#commsoft.nu 
+</p><p>Bug in drop index for mssql data dict fixed. Thx to Gert-Rainer Bitterlich. 
+</p><p>Left join setting for oci8 was wrong. Thx to johnwilk#juno.com 
+</p><p><b>3.80 27 Aug 2003</b> 
+</p><p>Patch for PHP 4.3.3 cached recordset csv2rs() fread loop incompatibility. 
+</p><p>Added matching mask for MetaTables. Only for oci8, mssql and postgres currently. 
+</p><p>Rewrite of "oracle" driver connection code, merging with "oci8", by Gaetano. 
+</p><p>Added better debugging for Smart Transactions. 
+</p><p>Postgres DBTimeStamp() was wrongly using TO_DATE. Changed to TO_TIMESTAMP. 
+</p><p>ADODB_FETCH_CASE check pushed to ADONewConnection to allow people to define 
+  it after including adodb.inc.php. 
+</p><p>Added portugese (brazilian) to languages. Thx to "Levi Fukumori". 
+</p><p>Removed arg3 parameter from Execute/SelectLimit/Cache* functions. 
+</p><p>Execute() now accepts 2-d array as $inputarray. Also changed docs of fnExecute() 
+  to note change in sql query counting with 2-d arrays. 
+</p><p>Added MONEY to MetaType in PostgreSQL. 
+</p><p>Added more debugging output to CacheFlush(). 
+</p><p><b>3.72 9 Aug 2003</b> 
+</p><p>Added qmagic($str), which is a qstr($str) that auto-checks for magic quotes 
+  and does the right thing... 
+</p><p>Fixed CacheFlush() bug - Thx to martin#gmx.de 
+</p><p>Walt Boring contributed MetaForeignKeys for postgres7. 
+</p><p>_fetch() called _BlobDecode() wrongly in interbase. Fixed. 
+</p><p>adodb_time bug fixed with dates after 2038 fixed by Jason Pell. http://phplens.com/lens/lensforum/msgs.php?id=6980 
+</p><p><b>3.71 4 Aug 2003</b> 
+</p><p>The oci8 driver, MetaPrimaryKeys() did not check the owner correctly when $owner 
+  == false. 
+</p><p>Russian language file contributed by "Cyrill Malevanov" cyrill#malevanov.spb.ru. 
+</p><p>Spanish language file contributed by "Horacio Degiorgi" horaciod#codigophp.com. 
+</p><p>Error handling in oci8 bugfix - if there was an error in Execute(), then when 
+  calling ErrorNo() and/or ErrorMsg(), the 1st call would return the error, but 
+  the 2nd call would return no error. 
+</p><p>Error handling in odbc bugfix. ODBC would always return the last error, even 
+  if it happened 5 queries ago. Now we reset the errormsg to '' and errorno to 
+  0 everytime before CacheExecute() and Execute(). 
+</p><p><b>3.70 29 July 2003</b> 
+</p><p>Added new SQLite driver. Tested on PHP 4.3 and PHP 5. 
+</p><p>Added limited "sapdb" driver support - mainly date support. 
+</p><p>The oci8 driver did not identify NUMBER with no defined precision correctly. 
+</p><p>Added ADODB_FORCE_NULLS, if set, then PHP nulls are converted to SQL nulls 
+  in GetInsertSQL/GetUpdateSQL. 
+</p><p>DBDate() and DBTimeStamp() format for postgresql had problems. Fixed. 
+</p><p>Added tableoptions to ChangeTableSQL(). Thx to Mike Benoit. 
+</p><p>Added charset support to postgresql. Thx to Julian Tarkhanov. 
+</p><p>Changed OS check for MS-Windows to prevent confusion with darWIN (MacOS) 
+</p><p>Timestamp format for db2 was wrong. Changed to yyyy-mm-dd-hh.mm.ss.nnnnnn. 
+</p><p>adodb-cryptsession.php includes wrong. Fixed. 
+</p><p>Added MetaForeignKeys(). Supported by mssql, odbc_mssql and oci8. 
+</p><p>Fixed some oci8 MetaColumns/MetaPrimaryKeys bugs. Thx to Walt Boring. 
+</p><p>adodb_getcount() did not init qryRecs to 0. Missing "WHERE" clause checking 
+  in GetUpdateSQL fixed. Thx to Sebastiaan van Stijn. 
+</p><p>Added support for only 'VIEWS' and "TABLES" in MetaTables. From Walt Boring. 
+</p><p>Upgraded to adodb-xmlschema.inc.php 0.0.2. 
+</p><p>NConnect for mysql now returns value. Thx to Dennis Verspuij. 
+</p><p>ADODB_FETCH_BOTH support added to interbase/firebird. 
+</p><p>Czech language file contributed by Kamil Jakubovic jake#host.sk. 
+</p><p>PostgreSQL BlobDecode did not use _connectionID properly. Thx to Juraj Chlebec. 
+</p><p>Added some new initialization stuff for Informix. Thx to "Andrea Pinnisi" pinnisi#sysnet.it 
+</p><p>ADODB_ASSOC_CASE constant wrong in sybase _fetch(). Fixed. 
+</p><p><b>3.60 16 June 2003</b> 
+</p><p>We now SET CONCAT_NULL_YIELDS_NULL OFF for odbc_mssql driver to be compat with 
+  mssql driver. 
+</p><p>The property $emptyDate missing from connection class. Also changed 1903 to 
+  constant (TIMESTAMP_FIRST_YEAR=100). Thx to Sebastiaan van Stijn. 
+</p><p>ADOdb speedup optimization - we now return all arrays by reference. 
+</p><p>Now DBDate() and DBTimeStamp() now accepts the string 'null' as a parameter. 
+  Suggested by vincent. 
+</p><p>Added GetArray() to connection class. 
+</p><p>Added not_null check in informix metacolumns(). 
+</p><p>Connection parameters for postgresql did not work correctly when port was defined. 
+</p><p>DB2 is now a tested driver, making adodb 100% compatible. Extensive changes 
+  to odbc driver for DB2, including implementing serverinfo() and SQLDate(), switching 
+  to SQL_CUR_USE_ODBC as the cursor mode, and lastAffectedRows and SelectLimit() 
+  fixes. 
+</p><p>The odbc driver's FetchField() field names did not obey ADODB_ASSOC_CASE. Fixed. 
+</p><p>Some bugs in adodb_backtrace() fixed. 
+</p><p>Added "INT IDENTITY" type to adorecordset::MetaType() to support odbc_mssql 
+  properly. 
+</p><p>MetaColumns() for oci8, mssql, odbc revised to support scale. Also minor revisions 
+  to odbc MetaColumns() for vfp and db2 compat. 
+</p><p>Added unsigned support to mysql datadict class. Thx to iamsure. 
+</p><p>Infinite loop in mssql MoveNext() fixed when ADODB_FETCH_ASSOC used. Thx to 
+  Josh R, Night_Wulfe#hotmail.com. 
+</p><p>ChangeTableSQL contributed by Florian Buzin. 
+</p><p>The odbc_mssql driver now sets CONCAT_NULL_YIELDS_NULL OFF for compat with 
+  mssql driver. 
+</p>
+
 <p><b>3.50 19 May 2003</b></p>
 <p>Fixed mssql compat with FreeTDS. FreeTDS does not implement mssql_fetch_assoc(). 
 <p>Merged back connection and recordset code into adodb.inc.php. 
@@ -697,4 +819,4 @@ and Insert_ID. Added above functions to test.php.</p>
 </p>
 <p><b>0.10 Sept 9 2000</b></p>
 <p>First release</p>
-<p>
+</body></html>

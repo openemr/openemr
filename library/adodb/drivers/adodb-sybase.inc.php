@@ -1,12 +1,12 @@
 <?php
 /* 
-V4.20 22 Feb 2004  (c) 2000-2004 John Lim. All rights reserved.
+V5.14 8 Sept 2011  (c) 2000-2011 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
   Set tabs to 4 for best viewing.
   
-  Latest version is available at http://php.weblogs.com/
+  Latest version is available at http://adodb.sourceforge.net
   
   Sybase driver contributed by Toni (toni.tunkkari@finebyte.com)
   
@@ -15,9 +15,12 @@ V4.20 22 Feb 2004  (c) 2000-2004 John Lim. All rights reserved.
   Date patch by Toni 15 Feb 2002
 */
  
+ // security - hide paths
+if (!defined('ADODB_DIR')) die();
+
 class ADODB_sybase extends ADOConnection {
 	var $databaseType = "sybase";	
-	//var $dataProvider = 'sybase';
+	var $dataProvider = 'sybase';
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $fmtDate = "'Y-m-d'";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
@@ -83,16 +86,18 @@ class ADODB_sybase extends ADOConnection {
 	}
 	
 	// http://www.isug.com/Sybase_FAQ/ASE/section6.1.html#6.1.4
-	function RowLock($tables,$where) 
+	function RowLock($tables,$where,$col='top 1 null as ignore') 
 	{
 		if (!$this->_hastrans) $this->BeginTrans();
 		$tables = str_replace(',',' HOLDLOCK,',$tables);
-		return $this->GetOne("select top 1 null as ignore from $tables HOLDLOCK where $where");
+		return $this->GetOne("select $col from $tables HOLDLOCK where $where");
 		
 	}	
 		
-	function SelectDB($dbName) {
-		$this->databaseName = $dbName;
+	function SelectDB($dbName) 
+	{
+		$this->database = $dbName;
+		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		if ($this->_connectionID) {
 			return @sybase_select_db($dbName);		
 		}
@@ -102,18 +107,28 @@ class ADODB_sybase extends ADOConnection {
 	/*	Returns: the last error message from previous database operation
 		Note: This function is NOT available for Microsoft SQL Server.	*/	
 
-	function ErrorMsg() 
+	
+	function ErrorMsg()
 	{
 		if ($this->_logsql) return $this->_errorMsg;
-		$this->_errorMsg = sybase_get_last_message();
+		if (function_exists('sybase_get_last_message'))
+			$this->_errorMsg = sybase_get_last_message();
+		else
+			$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : 'SYBASE error messages not supported on this platform';
 		return $this->_errorMsg;
 	}
 
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
-		if (!function_exists('sybase_connect')) return false;
+		if (!function_exists('sybase_connect')) return null;
 		
+		if ($this->charSet) {
+ 			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword, $this->charSet);
+       	} else {
+       		$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
+       	}
+
 		$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
@@ -122,16 +137,20 @@ class ADODB_sybase extends ADOConnection {
 	// returns true or false
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
-		if (!function_exists('sybase_connect')) return false;
+		if (!function_exists('sybase_connect')) return null;
 		
-		$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword);
+		if ($this->charSet) {
+ 			$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword, $this->charSet);
+       	} else {
+       		$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword);
+       	}
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
 		return true;	
 	}
 	
 	// returns query ID if successful, otherwise false
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 	global $ADODB_COUNTRECS;
 	
@@ -142,18 +161,22 @@ class ADODB_sybase extends ADOConnection {
 	}
 	
 	// See http://www.isug.com/Sybase_FAQ/ASE/section6.2.html#6.2.12
-	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0) 
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0) 
 	{
 		if ($secs2cache > 0) {// we do not cache rowcount, so we have to load entire recordset
-			$rs =& ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+			$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 			return $rs;
 		}
-		$cnt = ($nrows > 0) ? $nrows : 0;
+		
+		$nrows = (integer) $nrows;
+		$offset = (integer) $offset;
+		
+		$cnt = ($nrows >= 0) ? $nrows : 999999999;
 		if ($offset > 0 && $cnt) $cnt += $offset;
 		
 		$this->Execute("set rowcount $cnt"); 
-		$rs =& ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
-		$this->Execute("set rowcount 0"); 
+		$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,0);
+		$this->Execute("set rowcount 0");
 		
 		return $rs;
 	}
@@ -164,12 +187,12 @@ class ADODB_sybase extends ADOConnection {
 		return @sybase_close($this->_connectionID);
 	}
 	
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 		return ADORecordSet_array_sybase::UnixDate($v);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 		return ADORecordSet_array_sybase::UnixTimeStamp($v);
 	}	
@@ -198,7 +221,7 @@ class ADODB_sybase extends ADOConnection {
                 $s .= "convert(char(3),$col,0)";
                 break;
             case 'm':
-                $s .= "replace(str(month($col),2),' ','0')";
+                $s .= "str_replace(str(month($col),2),' ','0')";
                 break;
             case 'Q':
             case 'q':
@@ -206,21 +229,21 @@ class ADODB_sybase extends ADOConnection {
                 break;
             case 'D':
             case 'd':
-                $s .= "replace(str(datepart(dd,$col),2),' ','0')";
+                $s .= "str_replace(str(datepart(dd,$col),2),' ','0')";
                 break;
             case 'h':
                 $s .= "substring(convert(char(14),$col,0),13,2)";
                 break;
 
             case 'H':
-                $s .= "replace(str(datepart(hh,$col),2),' ','0')";
+                $s .= "str_replace(str(datepart(hh,$col),2),' ','0')";
                 break;
 
             case 'i':
-                $s .= "replace(str(datepart(mi,$col),2),' ','0')";
+                $s .= "str_replace(str(datepart(mi,$col),2),' ','0')";
                 break;
             case 's':
-                $s .= "replace(str(datepart(ss,$col),2),' ','0')";
+                $s .= "str_replace(str(datepart(ss,$col),2),' ','0')";
                 break;
             case 'a':
             case 'A':
@@ -280,14 +303,14 @@ class ADORecordset_sybase extends ADORecordSet {
 		}
 		if (!$mode) $this->fetchMode = ADODB_FETCH_ASSOC;
 		else $this->fetchMode = $mode;
-		return $this->ADORecordSet($id,$mode);
+		$this->ADORecordSet($id,$mode);
 	}
 	
 	/*	Returns: an object containing field information. 
 		Get column information in the Recordset object. fetchField() can be used in order to obtain information about
 		fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
 		fetchField() is retrieved.	*/
-	function &FetchField($fieldOffset = -1) 
+	function FetchField($fieldOffset = -1) 
 	{
 		if ($fieldOffset != -1) {
 			$o = @sybase_fetch_field($this->_queryID, $fieldOffset);
@@ -340,12 +363,12 @@ class ADORecordset_sybase extends ADORecordSet {
 	}
 	
 	// sybase/mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 		return ADORecordSet_array_sybase::UnixDate($v);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 		return ADORecordSet_array_sybase::UnixTimeStamp($v);
 	}
@@ -358,12 +381,12 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 	}
 	
 		// sybase/mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 	global $ADODB_sybase_mths;
 	
 		//Dec 30 2000 12:00AM
-		if (!ereg( "([A-Za-z]{3})[-/\. ]+([0-9]{1,2})[-/\. ]+([0-9]{4})"
+		if (!preg_match( "/([A-Za-z]{3})[-/\. ]+([0-9]{1,2})[-/\. ]+([0-9]{4})/"
 			,$v, $rr)) return parent::UnixDate($v);
 			
 		if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
@@ -375,12 +398,12 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 		return  mktime(0,0,0,$themth,$rr[2],$rr[3]);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 	global $ADODB_sybase_mths;
 		//11.02.2001 Toni Tunkkari toni.tunkkari@finebyte.com
 		//Changed [0-9] to [0-9 ] in day conversion
-		if (!ereg( "([A-Za-z]{3})[-/\. ]([0-9 ]{1,2})[-/\. ]([0-9]{4}) +([0-9]{1,2}):([0-9]{1,2}) *([apAP]{0,1})"
+		if (!preg_match( "/([A-Za-z]{3})[-/\. ]([0-9 ]{1,2})[-/\. ]([0-9]{4}) +([0-9]{1,2}):([0-9]{1,2}) *([apAP]{0,1})/"
 			,$v, $rr)) return parent::UnixTimeStamp($v);
 		if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
 		

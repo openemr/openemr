@@ -156,7 +156,7 @@ based on the $ADODB_FETCH_MODE setting when the recordset was created by Execute
   $recordset passed to it. An example with the relevant lines in bold:
 <pre>   include('adodb.inc.php'); 
    <b>include('tohtml.inc.php');</b> /* includes the rs2html function */
-   $conn = &amp;ADONewConnection('mysql'); 
+   $conn = ADONewConnection('mysql'); 
    $conn-&gt;PConnect('localhost','userid','password','database');
    $rs = $conn-&gt;Execute('select * from table');
   <b> rs2html($rs)</b>; /* recordset to html table */ </pre>

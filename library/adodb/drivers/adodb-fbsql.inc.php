@@ -1,12 +1,15 @@
 <?php
 /*
- @version V4.20 22 Feb 2004 (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+ @version V5.14 8 Sept 2011 (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
  Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
  Contribution by Frank M. Kromann <frank@frontbase.com>. 
   Set tabs to 8.
 */ 
+
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
 
 if (! defined("_ADODB_FBSQL_LAYER")) {
  define("_ADODB_FBSQL_LAYER", 1 );
@@ -34,7 +37,7 @@ class ADODB_fbsql extends ADOConnection {
 			return fbsql_affected_rows($this->_connectionID);
 	}
   
-  	function &MetaDatabases()
+  	function MetaDatabases()
 	{
 		$qid = fbsql_list_dbs($this->_connectionID);
 		$arr = array();
@@ -77,7 +80,7 @@ class ADODB_fbsql extends ADOConnection {
 		return true;	
 	}
 	
- 	function &MetaColumns($table) 
+ 	function MetaColumns($table, $normalize=true) 
 	{
 		if ($this->metaColumnsSQL) {
 			
@@ -115,7 +118,7 @@ class ADODB_fbsql extends ADOConnection {
 	// returns true or false
 	function SelectDB($dbName) 
 	{
-		$this->databaseName = $dbName;
+		$this->database = $dbName;
 		if ($this->_connectionID) {
 			return @fbsql_select_db($dbName,$this->_connectionID);		
 		}
@@ -124,7 +127,7 @@ class ADODB_fbsql extends ADOConnection {
 	
 	
 	// returns queryID or false
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 		return fbsql_query("$sql;",$this->_connectionID);
 	}
@@ -167,9 +170,10 @@ class ADORecordSet_fbsql extends ADORecordSet{
 		}
 		switch ($mode) {
 		case ADODB_FETCH_NUM: $this->fetchMode = FBSQL_NUM; break;
-		default:
-		case ADODB_FETCH_BOTH: $this->fetchMode = FBSQL_BOTH; break;
 		case ADODB_FETCH_ASSOC: $this->fetchMode = FBSQL_ASSOC; break;
+		case ADODB_FETCH_BOTH: 
+		default:
+		$this->fetchMode = FBSQL_BOTH; break;
 		}
 		return $this->ADORecordSet($queryID);
 	}
@@ -183,7 +187,7 @@ class ADORecordSet_fbsql extends ADORecordSet{
 	
 
 
-	function &FetchField($fieldOffset = -1) {
+	function FetchField($fieldOffset = -1) {
 		if ($fieldOffset != -1) {
 			$o =  @fbsql_fetch_field($this->_queryID, $fieldOffset);
 			//$o->max_length = -1; // fbsql returns the max length less spaces -- so it is unrealiable

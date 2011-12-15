@@ -1,9 +1,7 @@
 <?php
 
-// $CVSHeader$
-
 /*
-V4.01 23 Oct 2003  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
          Contributed by Ross Smith (adodb@netebb.com). 
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
@@ -11,6 +9,9 @@ V4.01 23 Oct 2003  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights rese
 	  Set tabs to 4 for best viewing.
 
 */
+
+// security - hide paths
+if (!defined('ADODB_SESSION')) die();
 
 include_once ADODB_SESSION . '/crypt.inc.php';
 
@@ -20,14 +21,14 @@ class ADODB_Encrypt_MD5 {
 	/**
 	 */
 	function write($data, $key) {
-		$md5crypt =& new MD5Crypt();
+		$md5crypt = new MD5Crypt();
 		return $md5crypt->encrypt($data, $key);
 	}
 
 	/**
 	 */
 	function read($data, $key) {
-		$md5crypt =& new MD5Crypt();
+		$md5crypt = new MD5Crypt();
 		return $md5crypt->decrypt($data, $key);
 	}
 

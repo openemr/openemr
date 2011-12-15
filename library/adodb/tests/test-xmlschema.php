@@ -1,14 +1,14 @@
 <?PHP
 
-// V4.20 22 Feb 2004
+// V4.50 6 July 2004
 
 error_reporting(E_ALL);
-
-require( "../adodb-xmlschema.inc.php" );
+include_once( "../adodb.inc.php" );
+include_once( "../adodb-xmlschema03.inc.php" );
 
 // To build the schema, start by creating a normal ADOdb connection:
 $db = ADONewConnection( 'mysql' );
-$db->Connect( 'localhost', 'root', '', 'schematest' );
+$db->Connect( 'localhost', 'root', '', 'test' ) || die('fail connect1');
 
 // To create a schema object and build the query array.
 $schema = new adoSchema( $db );
@@ -18,11 +18,11 @@ $schema = new adoSchema( $db );
 // uncomment the following line:
 #$schema->upgradeSchema();
 
+print "<b>SQL to build xmlschema.xml</b>:\n<pre>";
 // Build the SQL array
 $sql = $schema->ParseSchema( "xmlschema.xml" );
 
-print "Here's the SQL to do the build:\n<pre>";
-print_r( $sql );
+var_dump( $sql );
 print "</pre>\n";
 
 // Execute the SQL on the database
@@ -31,4 +31,24 @@ print "</pre>\n";
 // Finally, clean up after the XML parser
 // (PHP won't do this for you!)
 //$schema->Destroy();
+
+
+
+print "<b>SQL to build xmlschema-mssql.xml</b>:\n<pre>";
+
+$db2 = ADONewConnection('mssql');
+$db2->Connect('','adodb','natsoft','northwind') || die("Fail 2");
+
+$db2->Execute("drop table simple_table");
+
+$schema = new adoSchema( $db2 );
+$sql = $schema->ParseSchema( "xmlschema-mssql.xml" );
+
+print_r( $sql );
+print "</pre>\n";
+
+$db2->debug=1;
+
+foreach ($sql as $s)
+$db2->Execute($s);
 ?>

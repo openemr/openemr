@@ -1,16 +1,17 @@
 <?php 
 /*
-  V4.20 22 Feb 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V4.93 10 Oct 2006  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
   
   Some pretty-printing by Chris Oxenreider <oxenreid@state.net>
 */ 
-  
+
 // specific code for tohtml
-GLOBAL $gSQLMaxRows,$gSQLBlockRows;
-	 
+GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
+
+$ADODB_ROUND=4; // rounding
 $gSQLMaxRows = 1000; // max no of rows to download
 $gSQLBlockRows=20; // max no of rows per table block
 
@@ -35,10 +36,12 @@ $gSQLBlockRows=20; // max no of rows per table block
 //	$rs->Close();
 //
 // RETURNS: number of rows displayed
+
+
 function rs2html(&$rs,$ztabhtml=false,$zheaderarray=false,$htmlspecialchars=true,$echo = true)
 {
 $s ='';$rows=0;$docnt = false;
-GLOBAL $gSQLMaxRows,$gSQLBlockRows;
+GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 
 	if (!$rs) {
 		printf(ADODB_BAD_RS,'rs2html');
@@ -52,11 +55,15 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows;
 	$hdr = "<TABLE COLS=$ncols $ztabhtml><tr>\n\n";
 	for ($i=0; $i < $ncols; $i++) {	
 		$field = $rs->FetchField($i);
-		if ($zheaderarray) $fname = $zheaderarray[$i];
-		else $fname = htmlspecialchars($field->name);	
-		$typearr[$i] = $rs->MetaType($field->type,$field->max_length);
- 		//print " $field->name $field->type $typearr[$i] ";
-			
+		if ($field) {
+			if ($zheaderarray) $fname = $zheaderarray[$i];
+			else $fname = htmlspecialchars($field->name);	
+			$typearr[$i] = $rs->MetaType($field->type,$field->max_length);
+ 			//print " $field->name $field->type $typearr[$i] ";
+		} else {
+			$fname = 'Field '.($i+1);
+			$typearr[$i] = 'C';
+		}
 		if (strlen($fname)==0) $fname = '&nbsp;';
 		$hdr .= "<TH>$fname</TH>";
 	}
@@ -76,17 +83,52 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows;
 			
 			$type = $typearr[$i];
 			switch($type) {
-			case 'T':
-				$s .= "	<TD>".$rs->UserTimeStamp($v,"D d, M Y, h:i:s") ."&nbsp;</TD>\n";
-			break;
 			case 'D':
-				$s .= "	<TD>".$rs->UserDate($v,"D d, M Y") ."&nbsp;</TD>\n";
+				if (strpos($v,':') !== false);
+				else {
+					if (empty($v)) {
+					$s .= "<TD> &nbsp; </TD>\n";
+					} else {
+						$s .= "	<TD>".$rs->UserDate($v,"D d, M Y") ."</TD>\n";				
+					}
+					break;
+				}
+			case 'T':
+				if (empty($v)) $s .= "<TD> &nbsp; </TD>\n";
+				else $s .= "	<TD>".$rs->UserTimeStamp($v,"D d, M Y, H:i:s") ."</TD>\n";
 			break;
-			case 'I':
+			
 			case 'N':
-				$s .= "	<TD align=right>".stripslashes((trim($v))) ."&nbsp;</TD>\n";
+				if (abs(abs($v) - round($v,0)) < 0.00000001)
+					$v = round($v);
+				else
+					$v = round($v,$ADODB_ROUND);
+			case 'I':
+				$vv = stripslashes((trim($v)));
+				if (strlen($vv) == 0) $vv .= '&nbsp;';
+				$s .= "	<TD align=right>".$vv ."</TD>\n";
 			   	
 			break;
+			/*
+			case 'B':
+				if (substr($v,8,2)=="BM" ) $v = substr($v,8);
+				$mtime = substr(str_replace(' ','_',microtime()),2);
+				$tmpname = "tmp/".uniqid($mtime).getmypid();
+				$fd = @fopen($tmpname,'a');
+				@ftruncate($fd,0);
+				@fwrite($fd,$v);
+				@fclose($fd);
+				if (!function_exists ("mime_content_type")) {
+				  function mime_content_type ($file) {
+				    return exec("file -bi ".escapeshellarg($file));
+				  }
+				}
+				$t = mime_content_type($tmpname);
+				$s .= (substr($t,0,5)=="image") ? " <td><img src='$tmpname' alt='$t'></td>\\n" : " <td><a
+				href='$tmpname'>$t</a></td>\\n";
+				break;
+			*/
+
 			default:
 				if ($htmlspecialchars) $v = htmlspecialchars(trim($v));
 				$v = trim($v);
@@ -140,7 +182,7 @@ function arr2html(&$arr,$ztabhtml='',$zheaderarray='')
 	
 	for ($i=0; $i<sizeof($arr); $i++) {
 		$s .= '<TR>';
-		$a = &$arr[$i];
+		$a = $arr[$i];
 		if (is_array($a)) 
 			for ($j=0; $j<sizeof($a); $j++) {
 				$val = $a[$j];
@@ -156,4 +198,4 @@ function arr2html(&$arr,$ztabhtml='',$zheaderarray='')
 	print $s;
 }
 
-
+?>

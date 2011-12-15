@@ -1,6 +1,6 @@
 <?php
 /**
-* @version V4.20 22 Feb 2004 (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+* @version V5.14 8 Sept 2011 (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
 * Released under both BSD license and Lesser GPL library license.
 * Whenever there is any discrepancy between the two licenses,
 * the BSD license will take precedence.
@@ -12,6 +12,9 @@
 *  Portable MSSQL Driver that supports || instead of +
 *
 */
+
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
 
 
 /*
@@ -42,7 +45,7 @@ class ADODB_mssqlpo extends ADODB_mssql {
 		return array($sql,$stmt);
 	}
 	
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 		if (is_string($sql)) $sql = str_replace('||','+',$sql);
 		return ADODB_mssql::_query($sql,$inputarr);

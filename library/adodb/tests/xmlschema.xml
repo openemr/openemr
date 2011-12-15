@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<schema version="0.2">
+<schema version="0.3">
   <table name="mytable">
     <field name="row1" type="I">
       <descr>An integer row that's a primary key and autoincrements</descr>
@@ -22,6 +22,9 @@
     </query>
     <query platform="mysql">
       insert into mytable ( row1, row2 ) values ( 12, 'mysql stuff' )
+    </query>
+	<query platform="mssql">
+      insert into mytable ( row1, row2 ) values ( 12, 'Microsoft stuff' )
     </query>
   </sql>
   <table name="obsoletetable">

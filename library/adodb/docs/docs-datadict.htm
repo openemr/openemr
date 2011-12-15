@@ -1,0 +1,330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>ADOdb Data Dictionary Manual</title>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <style type="text/css">
+      body, td {
+        /*font-family: Arial, Helvetica, sans-serif;*/
+        font-size: 11pt;
+      }
+      pre {
+        font-size: 9pt;
+         background-color: #EEEEEE; padding: .5em; margin: 0px; 
+      }
+      .toplink {
+        font-size: 8pt;
+      }
+    </style>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<h2>ADOdb Data Dictionary Library for PHP</h2>
+<p>V5.14 8 Sept 2011  (c) 2000-2010 John Lim (<a
+ href="mailto:jlim#natsoft.com">jlim#natsoft.com</a>).<br>
+AXMLS (c) 2004 ars Cognita, Inc</p>
+<p><font size="1">This software is dual licensed using BSD-Style and
+LGPL. This means you can use it in compiled proprietary and commercial
+products.</font></p>
+
+<p>Useful ADOdb links: <a href="http://adodb.sourceforge.net/#download">Download</a>
+&nbsp; <a href="http://adodb.sourceforge.net/#docs">Other Docs</a>
+</p>
+<p>This documentation describes a PHP class library to automate the
+creation of tables, indexes and foreign key constraints portably for
+multiple databases. Richard Tango-Lowy and Dan Cech have been kind
+enough to contribute <a href="#xmlschema">AXMLS</a>, an XML schema
+system for defining databases. You can contact them at
+dcech#phpwerx.net and richtl#arscognita.com.</p>
+<p>Currently the following databases are supported:</p>
+<p> <b>Well-tested:</b> PostgreSQL, MySQL, Oracle, MSSQL.<br>
+<b>Beta-quality:</b> DB2, Informix, Sybase, Interbase, Firebird, SQLite.<br>
+<b>Alpha-quality:</b> MS Access (does not support DEFAULT values) and
+generic ODBC.
+</p>
+<h3>Example Usage</h3>
+<pre>  include_once('adodb.inc.php');<br>  <font color="#006600"># First create a normal connection</font><br>  $db = NewADOConnection('mysql');<br>  $db-&gt;Connect(...);<br><br>  <font
+ color="#006600"># Then create a data dictionary object, using this connection</font><br>  $dict = <strong>NewDataDictionary</strong>($db);<br><br>  <font
+ color="#006600"># We have a portable declarative data dictionary format in ADOdb, similar to SQL.<br>  # Field types use 1 character codes, and fields are separated by commas.<br>  # The following example creates three fields: "col1", "col2" and "col3":</font><br>  $flds = " <br>  <font
+ color="#663300"><strong> col1 C(32) NOTNULL DEFAULT 'abc',<br>   col2 I  DEFAULT 0,<br>   col3 N(12.2)</strong></font><br>  ";<br><br>  <font
+ color="#006600"># We demonstrate creating tables and indexes</font><br>  $sqlarray = $dict-&gt;<strong>CreateTableSQL</strong>($tabname, $flds, $taboptarray);<br>  $dict-&gt;<strong>ExecuteSQLArray</strong>($sqlarray);<br><br>  $idxflds = 'co11, col2';<br>  $sqlarray = $dict-&gt;<strong>CreateIndexSQL</strong>($idxname, $tabname, $idxflds);<br>  $dict-&gt;<strong>ExecuteSQLArray</strong>($sqlarray);<br></pre>
+<h3>More Complex Table Sample</h3>
+<p>
+The following string will create a table with a primary key event_id and multiple indexes, including one compound index idx_ev1. The ability to define indexes using the INDEX keyword was added in ADOdb 4.94 by Gaetano Giunta.
+<pre>
+$flds = "
+  event_id I(11) NOTNULL AUTOINCREMENT PRIMARY,
+  event_type I(4) NOTNULL  <b>INDEX idx_evt</b>,
+  event_start_date T DEFAULT NULL <b>INDEX id_esd</b>,
+  event_end_date T DEFAULT '0000-00-00 00:00:00' <b>INDEX id_eted</b>,
+  event_parent I(11) UNSIGNED NOTNULL DEFAULT 0 <b>INDEX id_evp</b>,
+  event_owner I(11) DEFAULT 0 <b>INDEX idx_ev1</b>,
+  event_project I(11) DEFAULT 0 <b>INDEX idx_ev1</b>,
+  event_times_recuring I(11) UNSIGNED NOTNULL DEFAULT 0,
+  event_icon C(20) DEFAULT 'obj/event',
+  event_description X
+";
+$sqlarray = $db-><b>CreateTableSQL</b>($tablename, $flds);
+$dict-><b>ExecuteSQLArray</b>($sqlarray);
+</pre>
+<h3>Class Factory</h3>
+<h4>NewDataDictionary($connection, $drivername=false)</h4>
+<p>Creates a new data dictionary object. You pass a database connection object in $connection. The $connection does not have to be actually connected to the database. Some database connection objects are generic (eg. odbtp and odbc). Since 4.53, you can tell ADOdb  the actual database with $drivername. E.g.</p>
+<pre>
+$db = NewADOConnection('odbtp');
+$datadict = NewDataDictionary($db, 'mssql'); # force mssql
+</pre>
+<h3>Class Functions</h3>
+<h4>function CreateDatabase($dbname, $optionsarray=false)</h4>
+<p>Create a database with the name $dbname;</p>
+<h4>function CreateTableSQL($tabname, $fldarray, $taboptarray=false)</h4>
+<pre>  RETURNS:      an array of strings, the sql to be executed, or false<br>  $tabname:     name of table<br>  $fldarray:    string (or array) containing field info<br>  $taboptarray: array containing table options<br></pre>
+<p>The new format of $fldarray uses a free text format, where each
+field is comma-delimited.
+The first token for each field is the field name, followed by the type
+and optional
+field size. Then optional keywords in $otheroptions:</p>
+<pre>  "$fieldname $type $colsize $otheroptions"</pre>
+<p>The older (and still supported) format of $fldarray is a
+2-dimensional array, where each row in the 1st dimension represents one
+field. Each row has this format:</p>
+<pre>  array($fieldname, $type, [,$colsize] [,$otheroptions]*)</pre>
+<p>The first 2 fields must be the field name and the field type. The
+field type can be a portable type codes or the actual type for that
+database.</p>
+<p>Legal portable type codes include:</p>
+<pre>  C:  Varchar, capped to 255 characters.<br>  X:  Larger varchar, capped to 4000 characters (to be compatible with Oracle). <br>  XL: For Oracle, returns CLOB, otherwise the largest varchar size.<br><br>  C2: Multibyte varchar<br>  X2: Multibyte varchar (largest size)<br><br>  B:  BLOB (binary large object)<br><br>  D:  Date (some databases do not support this, and we return a datetime type)<br>  T:  Datetime or Timestamp accurate to the second.<br>  TS: Datetime or Timestamp supporting Sub-second accuracy.<br>       Supported by Oracle, PostgreSQL and SQL Server currently. <br>       Otherwise equivalent to T.<br>
+  L:  Integer field suitable for storing booleans (0 or 1)<br>  I:  Integer (mapped to I4)<br>  I1: 1-byte integer<br>  I2: 2-byte integer<br>  I4: 4-byte integer<br>  I8: 8-byte integer<br>  F:  Floating point number<br>  N:  Numeric or decimal number<br></pre>
+<p>The $colsize field represents the size of the field. If a decimal
+number is used, then it is assumed that the number following the dot is
+the precision, so 6.2 means a number of size 6 digits and 2 decimal
+places. It is recommended that the default for number types be
+represented as a string to avoid any rounding errors.</p>
+<p>The $otheroptions include the following keywords (case-insensitive):</p>
+<pre>  AUTO            For autoincrement number. Emulated with triggers if not available.<br>                  Sets NOTNULL also.<br>  AUTOINCREMENT   Same as auto.<br>  KEY             Primary key field. Sets NOTNULL also. Compound keys are supported.<br>  PRIMARY         Same as KEY.<br>  DEF             Synonym for DEFAULT for lazy typists.<br>  DEFAULT         The default value. Character strings are auto-quoted unless<br>                  the string begins and ends with spaces, eg ' SYSDATE '.<br>  NOTNULL         If field is not null.<br>  DEFDATE         Set default value to call function to get today's date.<br>  DEFTIMESTAMP    Set default to call function to get today's datetime.<br>  NOQUOTE         Prevents autoquoting of default string values.<br>  CONSTRAINTS     Additional constraints defined at the end of the field<br>                  definition.<br></pre>
+<p>The Data Dictonary accepts two formats, the older array
+specification:</p>
+<pre>  $flds = array(<br>    array('COLNAME',   'DECIMAL', '8.4', 'DEFAULT' =gt; 0, 'NOTNULL'),<br>    array('id',        'I'      , 'AUTO'),<br>    array('`MY DATE`', 'D'      , 'DEFDATE'),<br>    array('NAME',      'C'      , '32', 'CONSTRAINTS' =gt; 'FOREIGN KEY REFERENCES reftable')<br>  );<br></pre>
+<p>Or the simpler declarative format:</p>
+<pre>  $flds = "<font color="#660000"><strong><br>    COLNAME DECIMAL(8.4) DEFAULT 0 NOTNULL,<br>    id I AUTO,<br>    `MY DATE` D DEFDATE,<br>    NAME C(32) CONSTRAINTS 'FOREIGN KEY REFERENCES reftable'</strong></font><br>  ";<br></pre>
+<p>Note that if you have special characters in the field name (e.g. My
+Date), you should enclose it in back-quotes. Normally field names are
+not case-sensitive, but if you enclose it in back-quotes, some
+databases will treat the names as case-sensitive (eg. Oracle) , and
+others won't. So be careful.</p>
+<p>The $taboptarray is the 3rd parameter of the CreateTableSQL
+function. This contains table specific settings. Legal keywords include:</p>
+<ul>
+  <li><b>REPLACE</b><br>
+Indicates that the previous table definition should be removed
+(dropped)together with ALL data. See first example below. </li>
+  <li><b>DROP</b><br>
+Drop table. Useful for removing unused tables. </li>
+  <li><b>CONSTRAINTS</b><br>
+Define this as the key, with the constraint as the value. See the
+postgresql <a href="#foreignkey">example</a> below. Additional constraints defined for the whole
+table. You will probably need to prefix this with a comma. </li>
+</ul>
+<p>Database specific table options can be defined also using the name
+of the database type as the array key. In the following example, <em>create
+the table as ISAM with MySQL, and store the table in the "users"
+tablespace if using Oracle</em>. And because we specified REPLACE, drop
+the table first.</p>
+<pre>  $taboptarray = array('mysql' =gt; 'TYPE=ISAM', 'oci8' =gt; 'tablespace users', 'REPLACE');</pre>
+<p><a name=foreignkey></a>You can also define foreign key constraints. The following is syntax
+for postgresql:
+</p>
+<pre>  $taboptarray = array('constraints' =gt; ', FOREIGN KEY (col1) REFERENCES reftable (refcol)');</pre>
+<h4>function DropTableSQL($tabname)</h4>
+<p>Returns the SQL to drop the specified table.</p>
+<h4>function ChangeTableSQL($tabname, $flds, $tableOptions=false, $dropOldFlds=false)</h4>
+<p>Checks to see if table exists, if table does not exist, behaves like
+CreateTableSQL. If table exists, generates appropriate ALTER TABLE
+MODIFY COLUMN commands if field already exists, or ALTER TABLE ADD
+$column if field does not exist.</p>
+<p>The class must be connected to the database for ChangeTableSQL to
+detect the existence of the table. Idea and code contributed by Florian
+Buzin.</p>
+<p>Old fields not defined in $flds are not dropped by default. To drop old fields, set $dropOldFlds to true.
+<h4>function RenameTableSQL($tabname,$newname)</h4>
+<p>Rename a table.  Returns the an array of strings, which is the SQL required to rename a table. Since ADOdb 4.53. Contributed by Ralf Becker.</p>
+<h4> function RenameColumnSQL($tabname,$oldcolumn,$newcolumn,$flds='')</h4>
+<p>Rename a table field. Returns the an array of strings, which is the SQL required to rename a column. The optional $flds is a complete column-defintion-string like for AddColumnSQL, only used by mysql at the moment. Since ADOdb 4.53. Contributed by Ralf Becker.</p>
+<h4>function CreateIndexSQL($idxname, $tabname, $flds,
+$idxoptarray=false)</h4>
+<pre>  RETURNS:      an array of strings, the sql to be executed, or false<br>  $idxname:     name of index<br>  $tabname:     name of table<br>  $flds:        list of fields as a comma delimited string or an array of strings<br>  $idxoptarray: array of index creation options<br></pre>
+<p>$idxoptarray is similar to $taboptarray in that index specific
+information can be embedded in the array. Other options include:</p>
+<pre>  CLUSTERED     Create clustered index (only mssql)<br>  BITMAP        Create bitmap index (only oci8)<br>  UNIQUE        Make unique index<br>  FULLTEXT      Make fulltext index (only mysql)<br>  HASH          Create hash index (only postgres)<br>  DROP          Drop legacy index<br></pre>
+<h4>function DropIndexSQL ($idxname, $tabname = NULL)</h4>
+<p>Returns the SQL to drop the specified index.</p>
+<h4>function AddColumnSQL($tabname, $flds)</h4>
+<p>Add one or more columns. Not guaranteed to work under all situations.</p>
+<h4>function AlterColumnSQL($tabname, $flds)</h4>
+<p>Warning, not all databases support this feature.</p>
+<h4>function DropColumnSQL($tabname, $flds)</h4>
+<p>Drop 1 or more columns.</p>
+<h4>function SetSchema($schema)</h4>
+<p>Set the schema.</p>
+<h4>function MetaTables()</h4>
+<h4>function MetaColumns($tab, $upper=true, $schema=false)</h4>
+<h4>function MetaPrimaryKeys($tab,$owner=false,$intkey=false)</h4>
+<h4>function MetaIndexes($table, $primary = false, $owner = false)</h4>
+<p>These functions are wrappers for the corresponding functions in the
+connection object. However, the table names will be autoquoted by the
+TableName function (see below) before being passed to the connection
+object.</p>
+<h4>function NameQuote($name = NULL)</h4>
+<p>If the provided name is quoted with backquotes (`) or contains
+special characters, returns the name quoted with the appropriate quote
+character, otherwise the name is returned unchanged.</p>
+<h4>function TableName($name)</h4>
+<p>The same as NameQuote, but will prepend the current schema if
+specified</p>
+<h4>function MetaType($t,$len=-1,$fieldobj=false)</h4>
+<h4>function ActualType($meta)</h4>
+<p>Convert between database-independent 'Meta' and database-specific
+'Actual' type codes.</p>
+<h4>function ExecuteSQLArray($sqlarray, $contOnError = true)</h4>
+<pre>  RETURNS:      0 if failed, 1 if executed all but with errors, 2 if executed successfully<br>  $sqlarray:    an array of strings with sql code (no semicolon at the end of string)<br>  $contOnError: if true, then continue executing even if error occurs<br></pre>
+<p>Executes an array of SQL strings returned by CreateTableSQL or
+CreateIndexSQL.</p>
+<hr />
+<a name="xmlschema"></a>
+<h2>ADOdb XML Schema (AXMLS)</h2>
+<p>This is a class contributed by Richard Tango-Lowy and Dan Cech that
+allows the user to quickly
+and easily build a database using the excellent ADODB database library
+and a simple XML formatted file.
+You can <a href="http://sourceforge.net/projects/adodb-xmlschema/">download
+the latest version of AXMLS here</a>.</p>
+<h3>Quick Start</h3>
+<p>Adodb-xmlschema, or AXMLS, is a set of classes that allow the user
+to quickly and easily build or upgrade a database on almost any RDBMS
+using the excellent ADOdb database library and a simple XML formatted
+schema file. Our goal is to give developers a tool that's simple to
+use, but that will allow them to create a single file that can build,
+upgrade, and manipulate databases on most RDBMS platforms.</p>
+<span style="font-weight: bold;"> Installing axmls</span>
+<p>The easiest way to install AXMLS to download and install any recent
+version of the ADOdb database abstraction library. To install AXMLS
+manually, simply copy the adodb-xmlschema.inc.php file and the xsl
+directory into your adodb directory.</p>
+<span style="font-weight: bold;"> Using AXMLS in Your Application</span>
+<p>There are two steps involved in using AXMLS in your application:
+first, you must create a schema, or XML representation of your
+database, and second, you must create the PHP code that will parse and
+execute the schema.</p>
+<p>Let's begin with a schema that describes a typical, if simplistic
+user management table for an application.</p>
+<pre class="listing"><pre>&lt;?xml version="1.0"?&gt;<br>&lt;schema version="0.2"&gt;<br><br>  &lt;table name="users"&gt;<br>    &lt;desc&gt;A typical users table for our application.&lt;/desc&gt;<br>    &lt;field name="userId" type="I"&gt;<br>      &lt;descr&gt;A unique ID assigned to each user.&lt;/descr&gt;<br><br>      &lt;KEY/&gt;<br>      &lt;AUTOINCREMENT/&gt;<br>    &lt;/field&gt;<br>    <br>    &lt;field name="userName" type="C" size="16"&gt;&lt;NOTNULL/&gt;&lt;/field&gt;<br><br>    <br>    &lt;index name="userName"&gt;<br>      &lt;descr&gt;Put a unique index on the user name&lt;/descr&gt;<br>      &lt;col&gt;userName&lt;/col&gt;<br>      &lt;UNIQUE/&gt;<br><br>    &lt;/index&gt;<br>  &lt;/table&gt;<br>  <br>  &lt;sql&gt;<br>    &lt;descr&gt;Insert some data into the users table.&lt;/descr&gt;<br>    &lt;query&gt;insert into users (userName) values ( 'admin' )&lt;/query&gt;<br><br>    &lt;query&gt;insert into users (userName) values ( 'Joe' )&lt;/query&gt;<br>  &lt;/sql&gt;<br>&lt;/schema&gt;			<br></pre></pre>
+<p>Let's take a detailed look at this schema.</p>
+<p>The opening &lt;?xml version="1.0"?&gt; tag is required by XML. The
+&lt;schema&gt; tag tells the parser that the enclosed markup defines an
+XML schema. The version="0.2" attribute sets <em>the version of the
+AXMLS DTD used by the XML schema.</em> </p>
+<p>All versions of AXMLS prior to version 1.0 have a schema version of
+"0.1". The current schema version is "0.2".</p>
+<pre class="listing"><pre>&lt;?xml version="1.0"?&gt;<br>&lt;schema version="0.2"&gt;<br>  ...<br>&lt;/schema&gt;<br></pre></pre>
+<p>Next we define one or more tables. A table consists of a fields (and
+other objects) enclosed by &lt;table&gt; tags. The name="" attribute
+specifies the name of the table that will be created in the database.</p>
+<pre class="listing"><pre>&lt;table name="users"&gt;<br><br>    &lt;desc&gt;A typical users table for our application.&lt;/desc&gt;<br>    &lt;field name="userId" type="I"&gt;<br><br>      &lt;descr&gt;A unique ID assigned to each user.&lt;/descr&gt;<br>      &lt;KEY/&gt;<br>      &lt;AUTOINCREMENT/&gt;<br>    &lt;/field&gt;<br>    <br>    &lt;field name="userName" type="C" size="16"&gt;&lt;NOTNULL/&gt;&lt;/field&gt;<br><br>    <br>&lt;/table&gt;<br></pre></pre>
+<p>This table is called "users" and has a description and two fields.
+The description is optional, and is currently only for your own
+information; it is not applied to the database.</p>
+<p>The first &lt;field&gt; tag will create a field named "userId" of
+type "I", or integer. (See the ADOdb Data Dictionary documentation for
+a list of valid types.) This &lt;field&gt; tag encloses two special
+field options: &lt;KEY/&gt;, which specifies this field as a primary
+key, and &lt;AUTOINCREMENT/&gt;, which specifies that the database
+engine should automatically fill this field with the next available
+value when a new row is inserted.</p>
+<p>The second &lt;field&gt; tag will create a field named "userName" of
+type "C", or character, and of length 16 characters. The
+&lt;NOTNULL/&gt; option specifies that this field does not allow NULLs.</p>
+<p>There are two ways to add indexes to a table. The simplest is to
+mark a field with the &lt;KEY/&gt; option as described above; a primary
+key is a unique index. The second and more powerful method uses the
+&lt;index&gt; tags.</p>
+<pre class="listing"><pre>&lt;table name="users"&gt;<br>  ...<br>    <br>  &lt;index name="userName"&gt;<br>    &lt;descr&gt;Put a unique index on the user name&lt;/descr&gt;<br>    &lt;col&gt;userName&lt;/col&gt;<br><br>    &lt;UNIQUE/&gt;<br>  &lt;/index&gt;<br>    <br>&lt;/table&gt;<br></pre></pre>
+<p>The &lt;index&gt; tag specifies that an index should be created on
+the enclosing table. The name="" attribute provides the name of the
+index that will be created in the database. The description, as above,
+is for your information only. The &lt;col&gt; tags list each column
+that will be included in the index. Finally, the &lt;UNIQUE/&gt; tag
+specifies that this will be created as a unique index.</p>
+<p>Finally, AXMLS allows you to include arbitrary SQL that will be
+applied to the database when the schema is executed.</p>
+<pre class="listing"><pre>&lt;sql&gt;<br>  &lt;descr&gt;Insert some data into the users table.&lt;/descr&gt;<br>  &lt;query&gt;insert into users (userName) values ( 'admin' )&lt;/query&gt;<br><br>  &lt;query&gt;insert into users (userName) values ( 'Joe' )&lt;/query&gt;<br>&lt;/sql&gt;<br></pre></pre>
+<p>The &lt;sql&gt; tag encloses any number of SQL queries that you
+define for your own use.</p>
+<p>Now that we've defined an XML schema, you need to know how to apply
+it to your database. Here's a simple PHP script that shows how to load
+the schema.</p>
+<pre class="listing"><pre>&lt;?PHP<br>/* You must tell the script where to find the ADOdb and<br> * the AXMLS libraries.<br> */
+require( "path_to_adodb/adodb.inc.php");
+require( "path_to_adodb/adodb-xmlschema.inc.php" ); # or adodb-xmlschema03.inc.php
+
+/* Configuration information. Define the schema filename,<br> * RDBMS platform (see the ADODB documentation for valid<br> * platform names), and database connection information here.<br> */<br>$schemaFile = 'example.xml';<br>$platform = 'mysql';<br>$dbHost = 'localhost';<br>$dbName = 'database';<br>$dbUser = 'username';<br>$dbPassword = 'password';<br><br>/* Start by creating a normal ADODB connection.<br> */<br>$db = ADONewConnection( $platform );<br>$db-&gt;Connect( $dbHost, $dbUser, $dbPassword, $dbName );<br><br>/* Use the database connection to create a new adoSchema object.<br> */<br>$schema = new adoSchema( $db );<br><br>/* Call ParseSchema() to build SQL from the XML schema file.<br> * Then call ExecuteSchema() to apply the resulting SQL to <br> * the database.<br> */<br>$sql = $schema-&gt;ParseSchema( $schemaFile );<br>$result = $schema-&gt;ExecuteSchema();<br>?&gt;<br></pre></pre>
+<p>Let's look at each part of the example in turn. After you manually
+create the database, there are three steps required to load (or
+upgrade) your schema.</p>
+<p>First, create a normal ADOdb connection. The variables and values
+here should be those required to connect to your database.</p>
+<pre class="listing"><pre>$db = ADONewConnection( 'mysql' );<br>$db-&gt;Connect( 'host', 'user', 'password', 'database' );<br></pre></pre>
+<p>Second, create the adoSchema object that load and manipulate your
+schema. You must pass an ADOdb database connection object in order to
+create the adoSchema object.</p>
+<pre class="listing">$schema = new adoSchema( $db );<br></pre>
+<p>Third, call ParseSchema() to parse the schema and then
+ExecuteSchema() to apply it to the database. You must pass
+ParseSchema() the path and filename of your schema file.</p>
+<pre class="listing">$schema-&gt;ParseSchema( $schemaFile ); <br>$schema-&gt;ExecuteSchema();</pre>
+<p>Execute the above code and then log into your database. If you've
+done all this right, you should see your tables, indexes, and SQL.</p>
+<p>You can find the source files for this tutorial in the examples
+directory as tutorial_shema.xml and tutorial.php. See the class
+documentation for a more detailed description of the adoSchema methods,
+including methods and schema elements that are not described in this
+tutorial.</p>
+<h3>XML Schema Version 3</h3>
+<p>In March 2006, we added adodb-xmlschema03.inc.php to the release, which supports version 3 of XML Schema. 
+The adodb-xmlschema.inc.php remains the same as previous releases, and supports version 2 of XML Schema. 
+Version 3 provides some enhancements:
+
+<ul>
+     <li> Support for updating table data during an upgrade.
+     <li> Support for platform-specific table options and platform negation.
+     <li> Support for unsigned fields.
+     <li> Fixed opt and constraint support
+     <li> Many other fixes such as OPT tag, which allows you to set optional platform settings:
+</ul>
+
+<p>Example usage:
+<pre>&lt;?xml version="1.0"?>
+<b>&lt;schema version="0.3"></b>
+ &lt;table name="ats_kb">
+  &lt;descr>ATS KnowledgeBase&lt;/descr>
+  &lt;opt platform="mysql">TYPE=INNODB&lt;/opt>
+  &lt;field name="recid" type="I"/>
+  &lt;field name="organization_code" type="I4"/> 
+  &lt;field name="sub_code" type="C" size="20"/>
+  etc...
+</pre>
+<p>To use it, change your code to include adodb-xmlschema03.inc.php.
+
+<h3>Upgrading</h3>
+<p>
+If your schema version is older, than XSLT is used to transform the
+schema to the newest version. This means that if you are using an older
+XML schema format, you need to have the XSLT extension installed.
+If you do not want to require your users to have the XSLT extension
+installed, make sure you modify your XML schema to conform to the
+latest version.
+<hr />
+<address>If you have any questions or comments, please email them to
+Richard at richtl#arscognita.com.
+</address>
+</body>
+</html>

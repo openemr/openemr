@@ -2,7 +2,7 @@
 <body bgcolor=white>
 <?php
 /** 
- * V4.20 22 Feb 2004  (c) 2001-2002 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * V4.50 6 July 2004  (c) 2001-2002 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -12,10 +12,14 @@
  
  // documentation on usage is at http://php.weblogs.com/adodb_csv
  
+ echo PHP_VERSION,'<br>';
+ var_dump(parse_url('odbc_mssql://userserver/'));
+ die();
+ 
 include('../adodb.inc.php');
 include('../tohtml.inc.php');
 
- function &send2server($url,$sql)
+ function send2server($url,$sql)
  {
 	$url .= '?sql='.urlencode($sql);
 	print "<p>$url</p>";
@@ -44,32 +48,32 @@ if ($testhttp) {
 	print "<h3>Test Error</h3>";
 	$rs = send2server($serverURL,$sql1);
 	print_pre($rs);
-	print "<hr>";
+	print "<hr />";
 	
 	print "<h3>Test Insert</h3>";
 	
 	$rs = send2server($serverURL,$sql2);
 	print_pre($rs);
-	print "<hr>";
+	print "<hr />";
 	
 	print "<h3>Test Insert2</h3>";
 	
 	$rs = send2server($serverURL,$sql3);
 	print_pre($rs);
-	print "<hr>";
+	print "<hr />";
 	
 	print "<h3>Test Delete</h3>";
 	
 	$rs = send2server($serverURL,$sql4);
 	print_pre($rs);
-	print "<hr>";
+	print "<hr />";
 	
 	
 	print "<h3>Test Select</h3>";
 	$rs = send2server($serverURL,$sql5);
 	if ($rs) rs2html($rs);
 	
-	print "<hr>";
+	print "<hr />";
 }
 
 

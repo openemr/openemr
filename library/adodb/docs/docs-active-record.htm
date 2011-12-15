@@ -1,0 +1,1090 @@
+<html>
+<style>
+pre {
+  background-color: #eee;
+  padding: 0.75em 1.5em;
+  font-size: 12px;
+  border: 1px solid #ddd;
+}
+
+li,p {
+font-family: Arial, Helvetica, sans-serif ;
+}
+</style>
+<title>ADOdb Active Record</title>
+<body>
+<h1>ADOdb Active Record</h1>
+<p> (c) 2000-2010 John Lim (jlim#natsoft.com)</p>
+<p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
+  means you can use it in compiled proprietary and commercial products.</font></p>
+<p><hr>
+<ol>
+
+<h3><li>Introduction</h3>
+<p>
+ADOdb_Active_Record is an Object Relation Mapping (ORM) implementation using PHP. In an ORM system, the tables and rows of the database are abstracted into native PHP objects. This allows the programmer to focus more on manipulating the data and less on writing SQL queries.
+<p>
+This implementation differs from Zend Framework's implementation in the following ways:
+<ul>
+<li>Works with PHP4 and PHP5 and provides equivalent functionality in both versions of PHP.<p>
+<li>ADOdb_Active_Record works when you are connected to multiple databases. Zend's only works when connected to a default database.<p>
+<li>Support for $ADODB_ASSOC_CASE. The field names are upper-cased, lower-cased or left in natural case depending on this setting.<p>
+<li>No field name conversion to camel-caps style, unlike Zend's implementation which will convert field names such as 'first_name' to 'firstName'.<p>
+<li>NewADOConnection::GetActiveRecords() and ADOConnection::GetActiveRecordsClass() functions in adodb.inc.php.<p>
+<li>Caching of table metadata so it is only queried once per table, no matter how many Active Records are created.<p>
+<li>PHP5 version of ADOdb_Active_Record now supports <a href=#onetomany>one-to-many</a> relationships.<p>
+<li>New adodb-active-recordx.inc.php, which is an <a href=#recordx>Active Record eXtended</a> implementation that support JOINs for higher performance when loading children, and other nice features.<p>
+<li>Lots of  <a href=#additional>additional functionality</a>.<p> 
+</ul>
+<P>
+ADOdb_Active_Record is designed upon the principles of the "ActiveRecord" design pattern, which was first described by Martin Fowler. The ActiveRecord pattern has been implemented in many forms across the spectrum of programming languages. ADOdb_Active_Record attempts to represent the database as closely to native PHP objects as possible.
+<p>
+ADOdb_Active_Record maps a database table to a PHP class, and each instance of that class represents a table row. Relations between tables can also be defined, allowing the ADOdb_Active_Record objects to be nested.
+<p>
+
+<h3><li>Setting the Database Connection</h3>
+<p>
+The first step to using  ADOdb_Active_Record is to set the default connection that an ADOdb_Active_Record objects will use to connect to a database. 
+
+<pre>
+require_once('adodb/adodb-active-record.inc.php');
+
+$db = NewADOConnection('mysql://root:pwd@localhost/dbname');
+ADOdb_Active_Record::SetDatabaseAdapter($db);
+</pre>        
+
+<h3><li>Table Rows as Objects</h3>
+<p>
+First, let's create a temporary table in our MySQL database that we can use for demonstrative purposes throughout the rest of this tutorial. We can do this by sending a CREATE query:
+
+<pre>
+$db->Execute("CREATE TEMPORARY TABLE `persons` (
+                `id` int(10) unsigned NOT NULL auto_increment,
+                `name_first` varchar(100) NOT NULL default '',
+                `name_last` varchar(100) NOT NULL default '',
+                `favorite_color` varchar(100) NOT NULL default '',
+                PRIMARY KEY  (`id`)
+            ) ENGINE=MyISAM;
+           ");
+ </pre>   
+<p>
+ADOdb_Active_Records are object representations of table rows. Each table in the database is represented by a class in PHP. To begin working with a table as a ADOdb_Active_Record, a class that extends ADOdb_Active_Record needs to be created for it.
+
+<pre>
+class person extends ADOdb_Active_Record{}
+$person = new person();
+</pre>   
+
+<p>
+In the above example, a new ADOdb_Active_Record object $person was created to access the "persons" table. Zend_Db_DataObject takes the name of the class, pluralizes it (according to American English rules), and assumes that this is the name of the table in the database. Also note that with MySQL, table names are case-sensitive, so your class name must match the table name's case. With other databases with case-insensitive tables, your class can be capitalized differently.
+<p>
+This kind of behavior is typical of ADOdb_Active_Record. It will assume as much as possible by convention rather than explicit configuration. In situations where it isn't possible to use the conventions that ADOdb_Active_Record expects, options can be overridden as we'll see later.
+
+<h3><li>Table Columns as Object Properties</h3>
+<p>
+When the $person object was instantiated, ADOdb_Active_Record read the table metadata from the database itself, and then exposed the table's columns (fields) as object properties.
+<p>
+Our "persons" table has three fields: "name_first", "name_last", and "favorite_color". Each of these fields is now a property of the $person object. To see all these properties, use the ADOdb_Active_Record::getAttributeNames() method:
+<pre>
+var_dump($person->getAttributeNames());
+
+/**
+ * Outputs the following:
+ * array(4) {
+ *    [0]=>
+ *    string(2) "id"
+ *    [1]=>
+ *    string(9) "name_first"
+ *    [2]=>
+ *    string(8) "name_last"
+ *    [3]=>
+ *    string(13) "favorite_color"
+ *  }
+ */
+    </pre>   
+<p>
+One big difference between ADOdb and Zend's implementation is we do not automatically convert to camelCaps style.
+<p>
+<h3><li>Inserting and Updating a Record</h3><p>
+
+An ADOdb_Active_Record object is a representation of a single table row. However, when our $person object is instantiated, it does not reference any particular row. It is a blank record that does not yet exist in the database. An ADOdb_Active_Record object is considered blank when its primary key is NULL. The primary key in our persons table is "id".
+<p>
+To insert a new record into the database, change the object's properties and then call the ADOdb_Active_Record::save() method:
+<pre>
+$person = new person();
+$person->name_first = 'Andi';
+$person->name_last  = 'Gutmans';
+$person->save();
+ </pre>   
+<p>
+Oh, no! The above code snippet does not insert a new record into the database. Instead, outputs an error:
+<pre>
+1048: Column 'favorite_color' cannot be null
+ </pre>   
+<p>
+This error occurred because MySQL rejected the INSERT query that was generated by ADOdb_Active_Record. If exceptions are enabled in ADOdb and you are using PHP5, an error will be thrown. In the definition of our table, we specified all of the fields as NOT NULL; i.e., they must contain a value.
+<p>
+ADOdb_Active_Records are bound by the same contraints as the database tables they represent. If the field in the database cannot be NULL, the corresponding property in the ADOdb_Active_Record also cannot be NULL. In the example above, we failed to set the property $person->favoriteColor, which caused the INSERT to be rejected by MySQL.
+<p>
+To insert a new ADOdb_Active_Record in the database, populate all of ADOdb_Active_Record's properties so that they satisfy the constraints of the database table, and then call the save() method:
+<pre>
+/**
+ * Calling the save() method will successfully INSERT
+ * this $person into the database table.
+ */
+$person = new person();
+$person->name_first     = 'Andi';
+$person->name_last      = 'Gutmans';
+$person->favorite_color = 'blue';
+$person->save();
+</pre>
+<p>
+Once this $person has been INSERTed into the database by calling save(), the primary key can now be read as a property. Since this is the first row inserted into our temporary table, its "id" will be 1:
+<pre>
+var_dump($person->id);
+
+/**
+ * Outputs the following:
+ * string(1)
+ */
+ </pre>       
+<p>
+From this point on, updating it is simply a matter of changing the object's properties and calling the save() method again:
+
+<pre>
+$person->favorite_color = 'red';
+$person->save();
+   </pre>
+<p>
+The code snippet above will change the favorite color to red, and then UPDATE the record in the database.
+
+<a name=additional>
+<h2>ADOdb Specific Functionality</h2>
+<h3><li>Setting the Table Name</h3>
+<p>The default behaviour on creating an ADOdb_Active_Record is to "pluralize" the class name and
+ use that as the table name. Often, this is not the case. For example, the person class could be reading 
+ from the "People" table. 
+<p>We provide two ways to define your own table:
+<p>1. Use a constructor parameter to override the default table naming behaviour.
+<pre>
+	class person extends ADOdb_Active_Record{}
+	$person = new person('People');
+</pre>
+<p>2. Define it in a class declaration:
+<pre>
+	class person extends ADOdb_Active_Record
+	{
+	var $_table = 'People';
+	}
+	$person = new person();
+</pre>
+
+<h3><li>$ADODB_ASSOC_CASE</h3>
+<p>This allows you to control the case of field names and properties. For example, all field names in Oracle are upper-case by default. So you 
+can force field names to be lowercase using $ADODB_ASSOC_CASE. Legal values are as follows:
+<pre>
+ 0: lower-case
+ 1: upper-case
+ 2: native-case
+</pre>
+<p>So to force all Oracle field names to lower-case, use
+<pre>
+$ADODB_ASSOC_CASE = 0;
+$person = new person('People');
+$person->name = 'Lily';
+$ADODB_ASSOC_CASE = 2;
+$person2 = new person('People');
+$person2->NAME = 'Lily'; 
+</pre>
+
+<p>Also see <a href=http://phplens.com/adodb/reference.constants.adodb_assoc_case.html>$ADODB_ASSOC_CASE</a>.
+
+<h3><li>ADOdb_Active_Record::Save()</h3>
+<p>
+Saves a record by executing an INSERT or UPDATE SQL statement as appropriate. 
+<p>Returns false on  unsuccessful INSERT, true if successsful INSERT.
+<p>Returns 0 on failed UPDATE, and 1 on UPDATE if data has changed, and -1 if no data was changed, so no UPDATE statement was executed.
+
+<h3><li>ADOdb_Active_Record::Replace()</h3>
+<p>
+ADOdb supports replace functionality, whereby the record is inserted if it does not exists, or updated otherwise.
+<pre>
+$rec = new ADOdb_Active_Record("product");
+$rec->name = 'John';
+$rec->tel_no = '34111145';
+$ok = $rec->replace(); // 0=failure, 1=update, 2=insert
+</pre>
+
+
+<h3><li>ADOdb_Active_Record::Load($where)</h3>
+<p>Sometimes, we want to load a single record into an Active Record. We can do so using:
+<pre>
+$person->load("id=3");
+
+// or using bind parameters
+
+$person->load("id=?", array(3));
+</pre>
+<p>Returns false if an error occurs.
+
+<h3><li>ADOdb_Active_Record::Find($whereOrderBy, $bindarr=false, $pkeyArr=false)</h3>
+<p>We want to retrieve an array of active records based on some search criteria. For example:
+<pre>
+class person extends ADOdb_Active_Record {
+var $_table = 'people';
+}
+
+$person = new person();
+$peopleArray = $person->Find("name like ? order by age", array('Sm%'));
+</pre>
+
+<h3><li>Quoting Identifiers</h3>
+<p>You can force column names to be quoted in INSERT and UPDATE statements, typically because you are using reserved words as column names by setting
+<pre>
+ADODB_Active_Record::$_quoteNames = true;
+</pre>
+<p>Default is false.
+
+<h3><li>Error Handling and Debugging</h3>
+<p>
+In PHP5, if adodb-exceptions.inc.php is included, then errors are thrown. Otherwise errors are handled by returning a value. False by default means an error has occurred. You can get the last error message using the ErrorMsg() function. 
+<p>
+To check for errors in ADOdb_Active_Record, do not poll ErrorMsg() as the last error message will always be returned, even if it occurred several operations ago. Do this instead:
+<pre>
+# right!
+$ok = $rec->Save();
+if (!$ok) $err = $rec->ErrorMsg();
+
+# wrong :(
+$rec->Save();
+if ($rec->ErrorMsg()) echo "Wrong way to detect error";
+</pre>
+<p>The ADOConnection::Debug property is obeyed. So
+if $db->debug is enabled, then ADOdb_Active_Record errors are also outputted to standard output and written to the browser.
+
+<h3><li>ADOdb_Active_Record::Set()</h3>
+<p>You can convert an array to an ADOdb_Active_Record using Set(). The array must be numerically indexed, and have all fields of the table defined in the array. The elements of the array must be in the table's natural order too.
+<pre>
+$row = $db->GetRow("select * from tablex where id=$id");
+
+# PHP4 or PHP5 without enabling exceptions
+$obj = new ADOdb_Active_Record('Products');
+if ($obj->ErrorMsg()){
+	echo $obj->ErrorMsg();
+} else {
+	$obj->Set($row);
+}
+
+# in PHP5, with exceptions enabled:
+
+include('adodb-exceptions.inc.php');
+try {
+	$obj = new ADOdb_Active_Record('Products');
+	$obj->Set($row);
+} catch(exceptions $e) {
+	echo $e->getMessage();
+}
+</pre>
+<p>
+<h3><li>Primary Keys</h3>
+<p>
+ADOdb_Active_Record does not require the table to have a primary key. You can insert records for such a table, but you will not be able to update nor delete. 
+<p>Sometimes you are retrieving data from a view or table that has no primary key, but has a unique index. You can dynamically set the primary key of a table through the constructor:
+<pre>
+	$pkeys = array('category','prodcode');
+	
+	// set primary key using constructor
+	$rec = new ADOdb_Active_Record('Products', $pkeys);
+	
+	// or define a new class
+	class Product extends ADOdb_Active_Record {
+		function __construct()
+		{
+			parent::__construct('Products', array('prodid'));
+		}
+	}
+	
+	$rec = new Product();
+</pre>
+
+
+<h3><li>Retrieval of Auto-incrementing ID</h3>
+When creating a new record, the retrieval of the last auto-incrementing ID is not reliable for databases that do not support the Insert_ID() function call (check $connection->hasInsertID). In this case we perform a <b>SELECT MAX($primarykey) FROM $table</b>, which will not work reliably in a multi-user environment. You can override the ADOdb_Active_Record::LastInsertID() function in this case.
+
+<h3><li>Dealing with Multiple Databases</h3>
+<p>
+Sometimes we want to load data from one database and insert it into another using ActiveRecords. This can be done using the optional parameter of the ADOdb_Active_Record constructor. In the following example, we read data from db.table1 and store it in db2.table2:
+<pre>
+$db = NewADOConnection(...);
+$db2 = NewADOConnection(...);
+
+ADOdb_Active_Record::SetDatabaseAdapter($db2);
+
+$activeRecs = $db->GetActiveRecords('table1');
+
+foreach($activeRecs as $rec) {
+	$rec2 = new ADOdb_Active_Record('table2',$db2);
+	$rec2->id = $rec->id;
+	$rec2->name = $rec->name;
+	
+	$rec2->Save();
+}
+</pre>
+<p>
+If you have to pass in a primary key called "id" and the 2nd db connection in the constructor, you can do so too:
+<pre>
+$rec = new ADOdb_Active_Record("table1",array("id"),$db2);
+</pre>
+<p>You can now give a named label in SetDatabaseAdapter, allowing to determine in your class definition which database to load, using var $_dbat.
+<pre>
+$db1 = NewADOConnection(...); // some ADOdb DB
+ADOdb_Active_Record::SetDatabaseAdapter($db1, 'mysql');
+$db2 = NewADOConnection(...); // some ADOdb DB
+ADOdb_Active_Record::SetDatabaseAdapter($db2, 'oracle');
+
+class FooRecord extends ADOdb_Active_Record
+{
+<b>var $_dbat = 'mysql';</b>  // uses 'mysql' connection
+...
+}
+</pre>
+<h3><li>$ADODB_ACTIVE_CACHESECS</h3>
+<p>You can cache the table metadata (field names, types, and other info such primary keys) in $ADODB_CACHE_DIR (which defaults to /tmp) by setting
+the global variable $ADODB_ACTIVE_CACHESECS to a value greater than 0. This will be the number of seconds to cache.
+ You should set this to a value of 30 seconds or greater for optimal performance.
+
+<h3><li>Active Record Considered Bad?</h3>
+<p>Although the Active Record concept is useful, you have to be aware of some pitfalls when using Active Record. The level of granularity of Active Record is individual records. It encourages code like the following, used to increase the price of all furniture products by 10%:
+<pre>
+ $recs = $db->GetActiveRecords("Products","category='Furniture'");
+ foreach($recs as $rec) {
+    $rec->price *= 1.1; // increase price by 10% for all Furniture products
+    $rec->save();
+ }
+</pre>
+Of course an UPDATE statement is superior because it's simpler and much more efficient (probably by a factor of x10 or more):
+<pre>
+   $db->Execute("update Products set price = price * 1.1 where category='Furniture'");
+</pre>
+<p>For performance sensitive code, using direct SQL will always be faster than using Active Records due to overhead and the fact that all fields in a row are retrieved (rather than only the subset you need) whenever an Active Record is loaded.
+
+<h3><li>Transactions</h3>
+<p>
+The default transaction mode in ADOdb is autocommit. So that is the default with active record too. 
+The general rules for managing transactions still apply. Active Record to the database is a set of insert/update/delete statements, and the db has no knowledge of active records.
+<p>
+Smart transactions, that does an auto-rollback if an error occurs, is still the best method to multiple activities (inserts/updates/deletes) that need to be treated as a single transaction:
+<pre>
+$conn->StartTrans();
+$parent->save();
+$child->save();
+$conn->CompleteTrans();
+</pre>
+
+<a name=onetomany>
+<h2>One to Many Relations</h2>
+<p>Since ADOdb 5.06, we support parent child relationships. This is done using the ClassBelongsTo() and ClassHasMany() functions. 
+<a name=tablehasmany>
+<h3><li>ClassHasMany</h3>
+<p>To globally define a one-to-many relationship we use the static function ADODB_Active_Record::ClassHasMany($class, $relation, $foreignKey = '', $foreignClass = 'ADODB_Active_Record'). For example, we have 2 tables, <strong>persons</strong> (parent table) and <strong>children</strong> (child table)
+linked by <strong>persons.id = children.person_id</strong>. The variable $person->children is an array that holds the children. To define this relationship:
+<pre>
+	class person extends ADOdb_Active_Record{}
+	ADODB_Active_Record::ClassHasMany('person', 'children','person_id');
+	
+	$person = new person();
+	$person->Load("id=1");
+	foreach($person->children as $c) {
+		echo " $c->name_first ";
+		$c->name_first .= ' K.';
+		$c->Save();  ## each child record must be saved individually
+	}
+</pre>
+<p>If no data is loaded, then children is set to an empty array:
+<pre>
+	$person2 = new person();
+	$p = $person2->children;  ## $p is an empty array()
+</pre>
+<P>By default, data returned by HasMany() is unsorted. To define an order by clause (or define a SELECT LIMIT window), see <a href=#loadrelations>LoadRelations()</a> below. Another point is that all children are loaded only when the child member is accessed (in __get), and not when the Load() function of the parent object is called. This helps to conserve memory.
+
+<p>To create and save new parent and child records:
+<pre>
+
+	class person extends ADOdb_Active_Record{}
+	class children extends ADOdb_Active_Record{}
+	ADODB_Active_Record::ClassHasMany('person', 'children','person_id');
+	
+	$person = new person();
+	
+	for ($i=0; $i<10; $i++) 
+		$person->children[0] = new children('children');
+	 
+	 // modify fields of $person, then...
+	$person->save();
+	
+	foreach($person->children as $c) {
+		// modify fields of $c then...
+		$c->save();
+	}
+</pre>
+<p>You can have multiple relationships (warning: relations are case-sensitive, 'Children' !== 'children'):
+<pre>
+	ADODB_Active_Record::ClassHasMany('person', 'children','person_id');
+	ADODB_Active_Record::ClassHasMany('person', 'siblings','person_id');
+	$person = new person();
+	$person->Load('id=1');
+	var_dump($person->children);
+	var_dump($person->siblings);
+</pre>
+<p>By default, the child class is ADOdb_Active_Record. Sometimes you might want the child class to be based on your own class which has additional functions. You can do so using the last parameter:
+<pre>
+	class person extends ADOdb_Active_Record{}
+	class child extends ADOdb_Active_Record { .... some modifications here ... }
+	ADODB_Active_Record::ClassHasMany('person', 'children','person_id', 'child');
+</pre>
+<p>Lastly some troubleshooting issues. We use the __get() method to set 
+$p->children below. So once $p->children is defined by accessing it, we don't change the child reference, as shown below:
+<pre>
+	ADODB_Active_Record::ClassHasMany('person', 'children','person_id');
+	$p = new person();
+	$p->Load('id=1');
+	# $p->children points to person_id = 1
+	var_dump($p->children);
+	
+	$p->Load('id=2');
+	# $p->children still points to person_id = 1
+	var_dump($p->children); 
+</pre>
+<p>The solution to the above is to unset($p->children) before $p->Load('id=2').
+<h3><li>TableHasMany</h3>
+For some classes, the mapping between class name and table name (which is the pluralised version) might not match. For example, 
+the class name might be <b>person</b>, but the table name might be <b>people</b>. So we have 2 tables, <strong>people</strong> (parent table) and <strong>children</strong> (child table)
+linked by <strong>people.id = children.person_id</strong>.
+<p>Then you use the following static function
+ ADODB_Active_Record::TableHasMany($table, $relation, $foreignKey = '', $foreignClass = 'ADODB_Active_Record') like this:
+<pre>
+ADODB_Active_Record::TableHasMany('people', 'children', 'person_id')
+</pre>
+<h3><li>TableKeyHasMany</h3>
+For some classes, the mapping between class name and table name (which is the pluralised version) might not match or the primary key is not the default <b>id</b>. For example, 
+the class name might be <b>person</b>, but the table name might be <b>people</b>. So we have 2 tables, <strong>people</strong> (parent table) and <strong>children</strong> (child table)
+linked by <strong>people.pid = children.person_id</strong>.
+<p>Then you use the following static function
+ ADODB_Active_Record::TableKeyHasMany($table, $tablePKey, $relation, $foreignKey = '', $foreignClass = 'ADODB_Active_Record') like this:
+<pre>
+ADODB_Active_Record::TableKeyHasMany('people', 'pid', 'children', 'person_id')
+</pre>
+
+
+<h3><li>A Complete ClassHasMany example</h3>
+<p>Here is sample usage using mysql:
+<pre>
+	include_once('../adodb.inc.php');
+	include_once('../adodb-active-record.inc.php');
+
+	$db = NewADOConnection('mysql://root@localhost/northwind');
+	ADOdb_Active_Record::SetDatabaseAdapter($db);
+
+	$db->Execute("CREATE TEMPORARY TABLE `persons` (
+	                `id` int(10) unsigned NOT NULL auto_increment,
+	                `name_first` varchar(100) NOT NULL default '',
+	                `name_last` varchar(100) NOT NULL default '',
+	                `favorite_color` varchar(100) NOT NULL default '',
+	                PRIMARY KEY  (`id`)
+	            ) ENGINE=MyISAM;
+	           ");
+			   
+	$db->Execute("CREATE TEMPORARY TABLE `children` (
+	                `id` int(10) unsigned NOT NULL auto_increment,
+					`person_id` int(10) unsigned NOT NULL,
+					`gender` varchar(10) default 'F',
+	                `name_first` varchar(100) NOT NULL default '',
+	                `name_last` varchar(100) NOT NULL default '',
+	                `favorite_pet` varchar(100) NOT NULL default '',
+	                PRIMARY KEY  (`id`)
+	            ) ENGINE=MyISAM;
+	           ");
+			   
+	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'Jill','Lim')");
+	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'Joan','Lim')");
+	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'JAMIE','Lim')");
+			   
+	class person extends ADOdb_Active_Record{}
+	ADODB_Active_Record::ClassHasMany('person', 'children','person_id');	
+	
+	$person = new person();
+	
+	$person->name_first     = 'John';
+	$person->name_last      = 'Lim';
+	$person->favorite_color = 'lavender';
+	$person->save(); // this save will perform an INSERT successfully
+	
+	$person2 = new person(); # no need to define HasMany() again, adodb remembers definition
+	$person2->Load('id=1');
+	
+	$c = $person2->children;
+	if (is_array($c) && sizeof($c) == 3 && $c[0]->name_first=='Jill' && $c[1]->name_first=='Joan'
+		&& $c[2]->name_first == 'JAMIE') echo "OK Loaded HasMany&lt;br>";
+	else {
+		echo "Error loading hasMany should have 3 array elements Jill Joan Jamie&lt;br>";
+	}
+</pre>
+
+<h3><li>HasMany</h3>
+<p>This older method is deprecated and ClassHasMany/TableHasMany/TableKeyHasMany should be used. 
+<p>The older way to define a one-to-many relationship is to use $parentobj->HasMany($relation, $foreignKey = ''). For example, we have 2 tables, <strong>persons</strong> (parent table) and <strong>children</strong> (child table)
+linked by <strong>persons.id = children.person_id</strong>. The variable $person->children is an array that holds the children. To define this relationship:
+<pre>
+	class person extends ADOdb_Active_Record{}
+	
+	$person = new person();
+	$person->HasMany('children','person_id');
+	$person->Load("id=1");
+	foreach($person->children as $c) {
+		echo " $c->name_first ";
+		$c->name_first .= ' K.';
+		$c->Save();  ## each child record must be saved individually
+	}
+</pre>
+<p>This HasMany() definition is global for the current script. This means that you only need to define it once. In the following example, $person2 knows about <em>children</em>.
+<pre>
+	$person = new person();
+	$person->HasMany('children','person_id');
+	
+	$person2 = new person();
+	$person->Load("id=1");
+	$p = $person2->children;
+</pre>
+
+
+<h3><li>ClassBelongsTo</h3>
+<p>You can define the parent of the current object using ADODB_Active_Record::ClassBelongsTo($class, $relationName, $foreignKey, $parentPrimaryKey = 'id', $parentClass = 'ADODB_Active_Record'). In the example below,
+we have a child table <strong>kids</strong>, and a parent table <strong>person</strong>. We have a link <strong>kids.person_id = persons.id</strong>. We create a child first, then link it to the parent:
+<pre>
+	class kid extends ADOdb_Active_Record{};
+	ADODB_Active_Record::ClassBelongsTo('kid','person','person_id','id'); 
+
+	$ch = new kid(); // default tablename will be 'kids', with primary key 'id' 
+	$ch->Load('id=1');
+	$p = $ch->person;
+	if (!$p || $p->name_first != 'John') echo "Error loading belongsTo&lt;br>";
+	else echo "OK loading BelongTo&lt;br>";
+</pre>
+<p>
+<p>Note that relationships are case-sensitive, so ClassBelongsTo('kid','PARENT', 'parent_id') and ClassBelongsTo('kid', 'parent', 'parent_id') are not the same. 
+<p>Also if no data is loaded into the child instance, then $p will return null;
+<pre>
+	ADODB_Active_Record::ClassBelongsTo('kid','person','person_id','id'); 
+	
+	$ch = new kid();
+	$p = $ch->person; # $p is null
+</pre>
+<p>Another way to define the class of the parent (which otherwise defaults to ADODB_Active_Record) as follows:
+<pre>
+
+	class kid extends ADOdb_Active_Record{};
+	class person extends ADOdb_Active_Record{... your modifications ... };
+	ADODB_Active_Record::ClassBelongsTo('kid','person','person_id','id', 'person'); 
+</pre>
+<h3><li>TableBelongsTo</h3>
+<p>If the child table differs from the convention that the child table name is the plural of the child class name, use this function:
+ADODB_Active_Record::TableBelongsTo($childTable, $relationName, $foreignKey, $parentPrimaryKey = 'id', $parentClass = 'ADODB_Active_Record').
+<p>E.g. the class is <b>child</b>, but the table name is <b>children</b>, and the link between the two tables is children.person_id = person.id:
+<pre>
+	ADODB_Active_Record::TableBelongsTo('children','person','person_id','id');
+</pre>
+<h3><li>TableKeyBelongsTo</h3>
+<p>If the child table differs from the convention that the child table name is the plural of the child class name or the primary key is not 'id', use this function:
+ADODB_Active_Record::TableKeyBelongsTo($childTable, $childKey, $relationName, $foreignKey, $parentPrimaryKey = 'id', $parentClass = 'ADODB_Active_Record').
+<p>E.g. the class is <b>child</b>, but the table name is <b>children</b> and primary key is <b>ch_id</b>, and the link between the two tables is children.person_id = person.id:
+<pre>
+	ADODB_Active_Record::TableKeyBelongsTo('children','ch_id', 'person','person_id','id');
+</pre>
+<h3><li>BelongsTo</h3>
+<p>The following is deprecated. Use ClassBelongsTo/TableBelongsTo/TableKeyBelongsTo instead.
+<p>The older way to define the parent of the current object is using BelongsTo($relationName, $foreignKey, $parentPrimaryKey = 'id'). In the example below,
+we have a child table <strong>children</strong>, and a parent table <strong>person</strong>. We have a link <strong>children.person_id = persons.id</strong>. We create a child first, then link it to the parent:
+<pre>
+	class Child extends ADOdb_Active_Record{};
+	$ch = new Child('children',array('id'));
+	$ch->BelongsTo('person','person_id','id');  ## this can be simplified to $ch->BelongsTo('person')
+	                                            ## as foreign key defaults to $table.'_id' and 
+	                                            ## parent pkey defaults to 'id' 
+	$ch->Load('id=1');
+	$p = $ch->person;
+	if (!$p || $p->name_first != 'John') echo "Error loading belongsTo&lt;br>";
+	else echo "OK loading BelongTo&lt;br>";
+</pre>
+<p>You only need to define BelongsTo() once in a script as it is global for all instances. 
+<a name=loadrelations>
+<h3><li>LoadRelations</h3>
+<p>Sometimes you want to load only a subset of data in a relationship. For example, you could load all female children sorted by children.name
+using LoadRelations($relation, $whereOrderBy = '', $offset = -1, $limit = -1):
+<pre>
+	# assume this has been called: 
+	#   ADODB_Active_Record::ClassHasMany('person', 'children','person_id');
+	$person = new person(); 
+	$person->Load('id=23');  
+	# Load doesn't load children until $person->children is accessed or LoadRelations is called:
+	$person->LoadRelations('children',"gender='F' order by name");
+</pre>
+<p>Lastly, if you have lots of child data, you can define a window of data of records to load. In the following
+example, we load a window of 100 records at a time:
+<pre>
+
+	# assume this has been called: 
+	#  ADODB_Active_Record::ClassHasMany('Account', 'transactions','account_id'); 
+	$acc = new Account();
+	$acc->Load('id=23');
+	
+	$start = 0;
+	while(true) {
+		$acc->LoadRelations('transactions',"tx_done=0 order by trxdate", $start, $start+100);
+		if (!$acc->transactions) break;
+		foreach ($acc->transactions as $k => $trx) {
+			## process
+			$trx->tx_done = 1;
+			$trx->save();
+		}
+		$start += 100;
+		unset($acc->transactions);
+
+
+	}
+</pre>
+<p>The $offset is 0-based, and $limit is the number of records to retrieve. The default is to ignore $offset (-1) and $limit (-1).
+<h3><li>Acknowledgements</h3>
+<p>Thanks to Chris Ravenscroft for original one-to-many code (chris#voilaweb.com).
+<h2>ADOConnection Supplement</h2>
+
+<h3><li>ADOConnection::GetActiveRecords()</h3>
+<p>
+This allows you to retrieve an array of ADOdb_Active_Records. Returns false if an error occurs.
+<pre>
+$table = 'products';
+$whereOrderBy = "name LIKE 'A%' ORDER BY Name";
+$activeRecArr = $db->GetActiveRecords($table, $whereOrderBy);
+foreach($activeRecArr as $rec) {
+	$rec->id = rand();
+	$rec->save();
+}
+</pre>
+<p>
+And to retrieve all records ordered by specific fields:
+<pre>
+$whereOrderBy = "1=1 ORDER BY Name";
+$activeRecArr = $db->GetActiveRecords($table);
+</pre>
+<p>
+To use bind variables (assuming ? is the place-holder for your database):
+<pre>
+$activeRecArr = $db->GetActiveRecords($tableName, 'name LIKE ?',
+						array('A%'));
+</pre>
+<p>You can also define the primary keys of the table by passing an array of field names:
+<pre>
+$activeRecArr = $db->GetActiveRecords($tableName, 'name LIKE ?',
+						array('A%'), array('id'));
+</pre>
+
+<h3><li>ADOConnection::GetActiveRecordsClass()</h3>
+<p>
+This allows you to retrieve an array of objects derived from ADOdb_Active_Records. Returns false if an error occurs.
+<pre>
+class Product extends ADOdb_Active_Record{};
+$table = 'products';
+$whereOrderBy = "name LIKE 'A%' ORDER BY Name";
+$activeRecArr = $db->GetActiveRecordsClass('Product',$table, $whereOrderBy);
+
+# the objects in $activeRecArr are of class 'Product'
+foreach($activeRecArr as $rec) {
+	$rec->id = rand();
+	$rec->save();
+}
+</pre>
+<p>
+To use bind variables (assuming ? is the place-holder for your database):
+<pre>
+$activeRecArr = $db->GetActiveRecordsClass($className,$tableName, 'name LIKE ?',
+						array('A%'));
+</pre>
+<p>You can also define the primary keys of the table by passing an array of field names:
+<pre>
+$activeRecArr = $db->GetActiveRecordsClass($className,$tableName, 'name LIKE ?',
+						array('A%'), array('id'));
+</pre>
+
+</ol>
+
+<h3><li>ADOConnection::ErrorMsg()</h3>
+<p>Returns last error message.
+<h3><li>ADOConnection::ErrorNo()</h3>
+<p>Returns last error number.
+
+<h2>ActiveRecord Code Sample</h2>
+<p>The following works with PHP4 and PHP5
+<pre>
+include('../adodb.inc.php');
+include('../adodb-active-record.inc.php');
+
+// uncomment the following if you want to test exceptions
+#if (PHP_VERSION >= 5) include('../adodb-exceptions.inc.php');
+
+$db = NewADOConnection('mysql://root@localhost/northwind');
+$db->debug=1;
+ADOdb_Active_Record::SetDatabaseAdapter($db);
+
+$db->Execute("CREATE TEMPORARY TABLE `persons` (
+                `id` int(10) unsigned NOT NULL auto_increment,
+                `name_first` varchar(100) NOT NULL default '',
+                `name_last` varchar(100) NOT NULL default '',
+                `favorite_color` varchar(100) NOT NULL default '',
+                PRIMARY KEY  (`id`)
+            ) ENGINE=MyISAM;
+           ");
+		   
+class person extends ADOdb_Active_Record{}
+$person = new person();
+
+echo "&lt;p>Output of getAttributeNames: ";
+var_dump($person->getAttributeNames());
+
+/**
+ * Outputs the following:
+ * array(4) {
+ *    [0]=>
+ *    string(2) "id"
+ *    [1]=>
+ *    string(9) "name_first"
+ *    [2]=>
+ *    string(8) "name_last"
+ *    [3]=>
+ *    string(13) "favorite_color"
+ *  }
+ */
+
+$person = new person();
+$person->name_first = 'Andi';
+$person->name_last  = 'Gutmans';
+$person->save(); // this save() will fail on INSERT as favorite_color is a must fill...
+
+
+$person = new person();
+$person->name_first     = 'Andi';
+$person->name_last      = 'Gutmans';
+$person->favorite_color = 'blue';
+$person->save(); // this save will perform an INSERT successfully
+
+echo "&lt;p>The Insert ID generated:"; print_r($person->id);
+
+$person->favorite_color = 'red';
+$person->save(); // this save() will perform an UPDATE
+
+$person = new person();
+$person->name_first     = 'John';
+$person->name_last      = 'Lim';
+$person->favorite_color = 'lavender';
+$person->save(); // this save will perform an INSERT successfully
+
+// load record where id=2 into a new ADOdb_Active_Record
+$person2 = new person();
+$person2->Load('id=2');
+var_dump($person2);
+
+// retrieve an array of records
+$activeArr = $db->GetActiveRecordsClass($class = "person",$table = "persons","id=".$db->Param(0),array(2));
+$person2 = $activeArr[0];
+echo "&lt;p>Name first (should be John): ",$person->name_first, "&lt;br>Class = ",get_class($person2);	
+</pre>
+
+
+
+<a name=recordx>
+<h2>Active Record eXtended</h2>
+<p>This is the original one-to-many Active Record implementation submitted by
+Chris Ravenscroft  (chris#voilaweb.com). The reason why we are offering both versions is that the Extended version
+is more powerful but more complex. My personal preference is to keep it simpler, but your view may vary. 
+<p>To use, just include adodb-active-recordx.inc.php instead of adodb-active-record.inc.php.
+<p>It provides a new function called Find() that is quite intuitive to use as shown in the example below. It also supports loading all relationships using a single query (using joins).
+<pre>
+&lt;?php
+	function ar_assert($obj, $cond)
+	{
+		global $err_count;
+		$res = var_export($obj, true);
+		return (strpos($res, $cond));
+	}
+
+	include_once('../adodb.inc.php');
+	include_once('../adodb-active-recordx.inc.php');
+	
+
+	$db = NewADOConnection('mysql://root@localhost/northwind');
+	$db->debug=0;
+	ADOdb_Active_Record::SetDatabaseAdapter($db);
+	echo "&lt;pre>\n";
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "Preparing database using SQL queries (creating 'people', 'children')\n";
+
+	$db->Execute("DROP TABLE `people`");
+	$db->Execute("DROP TABLE `children`");
+
+	$db->Execute("CREATE TABLE `people` (
+	                `id` int(10) unsigned NOT NULL auto_increment,
+	                `name_first` varchar(100) NOT NULL default '',
+	                `name_last` varchar(100) NOT NULL default '',
+	                `favorite_color` varchar(100) NOT NULL default '',
+	                PRIMARY KEY  (`id`)
+	            ) ENGINE=MyISAM;
+	           ");
+	$db->Execute("CREATE TABLE `children` (
+	                `id` int(10) unsigned NOT NULL auto_increment,
+					`person_id` int(10) unsigned NOT NULL,
+	                `name_first` varchar(100) NOT NULL default '',
+	                `name_last` varchar(100) NOT NULL default '',
+	                `favorite_pet` varchar(100) NOT NULL default '',
+	                PRIMARY KEY  (`id`)
+	            ) ENGINE=MyISAM;
+	           ");
+			   
+	
+	$db->Execute("insert into children (person_id,name_first,name_last,favorite_pet) values (1,'Jill','Lim','tortoise')");
+	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'Joan','Lim')");
+	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'JAMIE','Lim')");
+			   
+	// This class _implicitely_ relies on the 'people' table (pluralized form of 'person')
+	class Person extends ADOdb_Active_Record
+	{
+		function __construct()
+		{
+			parent::__construct();
+			$this->hasMany('children');
+		}
+	}
+	// This class _implicitely_ relies on the 'children' table
+	class Child extends ADOdb_Active_Record
+	{
+		function __construct()
+		{
+			parent::__construct();
+			$this->belongsTo('person');
+		}
+	}
+	// This class _explicitely_ relies on the 'children' table and shares its metadata with Child
+	class Kid extends ADOdb_Active_Record
+	{
+		function __construct()
+		{
+			parent::__construct('children');
+			$this->belongsTo('person');
+		}
+	}
+	// This class _explicitely_ relies on the 'children' table but does not share its metadata
+	class Rugrat extends ADOdb_Active_Record
+	{
+		function __construct()
+		{
+			parent::__construct('children', false, false, array('new' => true));
+		}
+	}
+	
+	echo "Inserting person in 'people' table ('John Lim, he likes lavender')\n";
+	echo "---------------------------------------------------------------------------\n";
+	$person = new Person();
+	$person->name_first     = 'John';
+	$person->name_last      = 'Lim';
+	$person->favorite_color = 'lavender';
+	$person->save(); // this save will perform an INSERT successfully
+
+	$err_count = 0;
+
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "person->Find('id=1') [Lazy Method]\n";
+	echo "person is loaded but its children will be loaded on-demand later on\n";
+	echo "---------------------------------------------------------------------------\n";
+	$person5 = new Person();
+	$people5 = $person5->Find('id=1');
+	echo (ar_assert($people5, "'name_first' => 'John'")) ? "[OK] Found John\n" : "[!!] Find failed\n";
+	echo (ar_assert($people5, "'favorite_pet' => 'tortoise'")) ? "[!!] Found relation when I shouldn't\n" : "[OK] No relation yet\n";
+	foreach($people5 as $person)
+	{
+		foreach($person->children as $child)
+		{
+			if($child->name_first);
+		}
+	}
+	echo (ar_assert($people5, "'favorite_pet' => 'tortoise'")) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n";
+
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "person->Find('id=1' ... ADODB_WORK_AR) [Worker Method]\n";
+	echo "person is loaded, and so are its children\n";
+	echo "---------------------------------------------------------------------------\n";
+	$person6 = new Person();
+	$people6 = $person6->Find('id=1', false, false, array('loading' => ADODB_WORK_AR));
+	echo (ar_assert($people6, "'name_first' => 'John'")) ? "[OK] Found John\n" : "[!!] Find failed\n";
+	echo (ar_assert($people6, "'favorite_pet' => 'tortoise'")) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n";
+
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "person->Find('id=1' ... ADODB_JOIN_AR) [Join Method]\n";
+	echo "person and its children are loaded using a single query\n";
+	echo "---------------------------------------------------------------------------\n";
+	$person7 = new Person();
+	// When I specifically ask for a join, I have to specify which table id I am looking up
+	// otherwise the SQL parser will wonder which table's id that would be.
+	$people7 = $person7->Find('people.id=1', false, false, array('loading' => ADODB_JOIN_AR));
+	echo (ar_assert($people7, "'name_first' => 'John'")) ? "[OK] Found John\n" : "[!!] Find failed\n";
+	echo (ar_assert($people7, "'favorite_pet' => 'tortoise'")) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n";
+	
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "person->Load('people.id=1') [Join Method]\n";
+	echo "Load() always uses the join method since it returns only one row\n";
+	echo "---------------------------------------------------------------------------\n";
+	$person2 = new Person();
+	// Under the hood, Load(), since it returns only one row, always perform a join
+	// Therefore we need to clarify which id we are talking about.
+	$person2->Load('people.id=1');
+	echo (ar_assert($person2, "'name_first' => 'John'")) ? "[OK] Found John\n" : "[!!] Find failed\n";
+	echo (ar_assert($person2, "'favorite_pet' => 'tortoise'")) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n";
+
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "child->Load('children.id=1') [Join Method]\n";
+	echo "We are now loading from the 'children' table, not from 'people'\n";
+	echo "---------------------------------------------------------------------------\n";
+	$ch = new Child();
+	$ch->Load('children.id=1');
+	echo (ar_assert($ch, "'name_first' => 'Jill'")) ? "[OK] Found Jill\n" : "[!!] Find failed\n";
+	echo (ar_assert($ch, "'favorite_color' => 'lavender'")) ? "[OK] Found relation: person\n" : "[!!] Missing relation: person\n";
+
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "child->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n";
+	echo "---------------------------------------------------------------------------\n";
+	$ch2 = new Child();
+	$ach2 = $ch2->Find('id=1', false, false, array('loading' => ADODB_WORK_AR));
+	echo (ar_assert($ach2, "'name_first' => 'Jill'")) ? "[OK] Found Jill\n" : "[!!] Find failed\n";
+	echo (ar_assert($ach2, "'favorite_color' => 'lavender'")) ? "[OK] Found relation: person\n" : "[!!] Missing relation: person\n";
+
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "kid->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n";
+	echo "Where we see that kid shares relationships with child because they are stored\n";
+	echo "in the common table's metadata structure.\n";
+	echo "---------------------------------------------------------------------------\n";
+	$ch3 = new Kid('children');
+	$ach3 = $ch3->Find('children.id=1', false, false, array('loading' => ADODB_WORK_AR));
+	echo (ar_assert($ach3, "'name_first' => 'Jill'")) ? "[OK] Found Jill\n" : "[!!] Find failed\n";
+	echo (ar_assert($ach3, "'favorite_color' => 'lavender'")) ? "[OK] Found relation: person\n" : "[!!] Missing relation: person\n";
+
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "kid->Find('children.id=1' ... ADODB_LAZY_AR) [Lazy Method]\n";
+	echo "Of course, lazy loading also retrieve medata information...\n";
+	echo "---------------------------------------------------------------------------\n";
+	$ch32 = new Kid('children');
+	$ach32 = $ch32->Find('children.id=1', false, false, array('loading' => ADODB_LAZY_AR));
+	echo (ar_assert($ach32, "'name_first' => 'Jill'")) ? "[OK] Found Jill\n" : "[!!] Find failed\n";
+	echo (ar_assert($ach32, "'favorite_color' => 'lavender'")) ? "[!!] Found relation when I shouldn't\n" : "[OK] No relation yet\n";
+	foreach($ach32 as $akid)
+	{
+		if($akid->person);
+	}
+	echo (ar_assert($ach32, "'favorite_color' => 'lavender'")) ? "[OK] Found relation: person\n" : "[!!] Missing relation: person\n";
+	
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "rugrat->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n";
+	echo "In rugrat's constructor it is specified that\nit must forget any existing relation\n";
+	echo "---------------------------------------------------------------------------\n";
+	$ch4 = new Rugrat('children');
+	$ach4 = $ch4->Find('children.id=1', false, false, array('loading' => ADODB_WORK_AR));
+	echo (ar_assert($ach4, "'name_first' => 'Jill'")) ? "[OK] Found Jill\n" : "[!!] Find failed\n";
+	echo (ar_assert($ach4, "'favorite_color' => 'lavender'")) ? "[!!] Found relation when I shouldn't\n" : "[OK] No relation found\n";
+
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "kid->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n";
+	echo "Note how only rugrat forgot its relations - kid is fine.\n";
+	echo "---------------------------------------------------------------------------\n";
+	$ch5 = new Kid('children');
+	$ach5 = $ch5->Find('children.id=1', false, false, array('loading' => ADODB_WORK_AR));
+	echo (ar_assert($ach5, "'name_first' => 'Jill'")) ? "[OK] Found Jill\n" : "[!!] Find failed\n";
+	echo (ar_assert($ach5, "'favorite_color' => 'lavender'")) ? "[OK] I did not forget relation: person\n" : "[!!] I should not have forgotten relation: person\n";
+	
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "rugrat->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n";
+	echo "---------------------------------------------------------------------------\n";
+	$ch6 = new Rugrat('children');
+	$ch6s = $ch6->Find('children.id=1', false, false, array('loading' => ADODB_WORK_AR));
+	$ach6 = $ch6s[0];
+	echo (ar_assert($ach6, "'name_first' => 'Jill'")) ? "[OK] Found Jill\n" : "[!!] Find failed\n";
+	echo (ar_assert($ach6, "'favorite_color' => 'lavender'")) ? "[!!] Found relation when I shouldn't\n" : "[OK] No relation yet\n";
+	echo "\nLoading relations:\n";
+	$ach6->belongsTo('person');
+	$ach6->LoadRelations('person', 'order by id', 0, 2);
+	echo (ar_assert($ach6, "'favorite_color' => 'lavender'")) ? "[OK] Found relation: person\n" : "[!!] Missing relation: person\n";
+
+	echo "\n\n---------------------------------------------------------------------------\n";
+	echo "Test suite complete.\n";
+	echo "---------------------------------------------------------------------------\n";
+?>
+</pre>
+ <h3>Todo (Code Contributions welcome)</h3>
+ <p>Check _original and current field values before update, only update changes. Also if the primary key value is changed, then on update, we should save and use the original primary key values in the WHERE clause!
+
+ <p>PHP5 specific:  Make GetActiveRecords*() return an Iterator.
+ <p>PHP5 specific: Change PHP5 implementation of Active Record to use __get() and __set() for better performance.
+
+<h3> Change Log</h3>
+<p>0.93
+<p>You can force column names to be quoted in INSERT and UPDATE statements, typically because you are using reserved words as column names by setting
+ADODB_Active_Record::$_quoteNames = true;
+
+<p>0.92
+<p>Fixed some issues with incompatible fetch modes (ADODB_FETCH_ASSOC) causing problems in UpdateActiveTable.
+<p>Added support for functions that support predefining one-to-many relationships:<br> 
+&nbsp; <i>ClassHasMany ClassBelongsTo TableHasMany TableBelongsTo TableKeyHasMany TableKeyBelongsTo</i>. <br>
+<p>You can also define your child/parent class in these functions, instead of the default ADODB_Active_Record.
+
+<P>0.91
+<p>HasMany hardcoded primary key field name to "id". Fixed.
+
+<p>0.90
+<p>Support for belongsTo and hasMany. Thanks to Chris Ravenscroft (chris#voilaweb.com).
+<p>Added LoadRelations().
+
+<p>0.08
+Added support for assoc arrays in Set().
+
+<p>0.07
+<p>$ADODB_ASSOC_CASE=2 did not work properly. Fixed.
+<p>Added === check in ADODB_SetDatabaseAdapter for $db, adodb-active-record.inc.php. Thx Christian Affolter.
+
+<p>0.06
+<p>Added ErrorNo().
+<p>Fixed php 5.2.0 compat issues.
+ 
+<p>0.05
+<p>If inserting a record and the value of a primary key field is null, then we do not insert that field in as
+we assume it is an auto-increment field. Needed by mssql.
+
+<p>0.04 5 June 2006 <br>
+<p>Added support for declaring table name in $_table in class declaration. Thx Bill Dueber for idea.
+<p>Added find($where,$bindarr=false) method to retrieve an array of active record objects.
+
+<p>0.03 <br>
+- Now we only update fields that have changed, using $this->_original.<br>
+- We do not include auto_increment fields in replace(). Thx Travis Cline<br>
+- Added ADODB_ACTIVE_CACHESECS.<br>
+
+<p>0.02 <br>
+- Much better error handling. ErrorMsg() implemented. Throw implemented if adodb-exceptions.inc.php detected.<br>
+- You can now define the primary keys of the view or table you are accessing manually.<br>
+- The Active Record allows you to create an object which does not have a primary key. You can INSERT but not UPDATE in this case.
+- Set() documented.<br>
+- Fixed _pluralize bug with y suffix.
+
+<p>
+ 0.01 6 Mar 2006<br>
+- Fixed handling of nulls when saving (it didn't save nulls, saved them as '').<br>
+- Better error handling messages.<br>
+- Factored out a new method GetPrimaryKeys().<br>
+ <p>
+ 0.00 5 Mar 2006<br>
+ 1st release
+</body>
+</html>

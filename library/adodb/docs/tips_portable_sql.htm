@@ -8,6 +8,7 @@
 <body bgcolor=white>
 <table width=100% border=0><tr><td><h2>Tips on Writing Portable SQL &nbsp;</h2></td><td>
  <div align=right><img src="cute_icons_for_site/adodb.gif"></div></td></tr></table>
+  <p>Updated 6 Oct 2006. Added OffsetDate example.
   <p>Updated 18 Sep 2003. Added Portable Native SQL section.
 <p>
 
@@ -17,7 +18,7 @@
   Dimension in my Mac days, to the databases I currently use, which are: Oracle, 
   FoxPro, Access, MS SQL Server and MySQL. Although most of the advice here applies 
   to using SQL with Perl, Python and other programming languages, I will focus on PHP and how 
-  the <a href="http://php.weblogs.com/adodb">ADOdb</a> database abstraction library 
+  the <a href="http://adodb.sourceforge.net/">ADOdb</a> database abstraction library 
   offers some solutions.<p></p>
 <p>Most database vendors practice product lock-in. The best or fastest way to 
   do things is often implemented using proprietary extensions to SQL. This makes 
@@ -268,7 +269,11 @@ $sql2 = $datadict-><strong>CreateIndexSQL</strong>('idx_name_age', 'tabname', 'N
   in ISO format.</p>
 <pre>$date1 = $connection-&gt;DBDate(time( ));<br>$date2 = $connection-&gt;DBTimeStamp('2002-02-23 13:03:33');</pre>
 <p>We also provide functions to convert database dates to Unix timestamps:</p>
-<pre>$unixts = $recordset-&gt;UnixDate('#2002-02-30#'); <font color="green"># MS Access date =&gt; unix timestamp</font></pre>
+<pre>$unixts = $recordset-&gt;UnixDate('#2002-02-30#'); <font color="green"># MS Access date =gt; unix timestamp</font></pre>
+<p>For date calculations, we have OffsetDate which allows you to calculate dates such as <i>yesterday</i> and <i>next week</i> in a RDBMS independant fashion. For example, if we want to set a field to 6 hour from now, use:
+<pre>
+$sql = 'update table set dtimefld='.$db-&gt;OffsetDate($db-&gtsysTimeStamp, 6/24).' where ...';
+</pre>
 <p>The maximum length of a char/varchar field is also database specific. You can 
   only assume that field lengths of up to 250 characters are supported. This is 
   normally impractical for web based forum or content management systems. You 
@@ -334,13 +339,13 @@ $conn->UpdateBlob('blobtable','blobcol',$blobvalue,'id=1');
   the SQL based on the database. For example, each MySQL SQL statement would be 
   stored in a separate variable, in a file called 'mysql-lang.inc.php'.</p>
 <pre>$sqlGetPassword = '<font color="#993300">select password from users where userid=%s</font>';
-$sqlSearchKeyword = &quot;<font color="#993300">SELECT * FROM articles WHERE match (title,body) against (%s</font>)&quot;;</pre>
+$sqlSearchKeyword = quot;<font color="#993300">SELECT * FROM articles WHERE match (title,body) against (%s</font>)&quot;;</pre>
 <p>In our main PHP file:</p>
 <pre><font color=green># define which database to load...</font>
 <b>$database = '<font color="#993300">mysql</font>';
 include_once(&quot;<font color="#993300">$database-lang.inc.php</font>&quot;);</b>
 
-$db = &amp;NewADOConnection($database);
+$db = NewADOConnection($database);
 $db->PConnect(...) or die('<font color="#993300">Failed to connect to database</font>');
 
 <font color=green># search for a keyword $word</font>

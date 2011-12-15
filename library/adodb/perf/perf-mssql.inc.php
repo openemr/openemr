@@ -1,17 +1,20 @@
 <?php
 
 /* 
-V4.20 22 Feb 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
   Set tabs to 4 for best viewing.
   
-  Latest version is available at http://php.weblogs.com/
+  Latest version is available at http://adodb.sourceforge.net
   
   Library for basic performance monitoring and tuning 
   
 */
+
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
 
 /*
 	MSSQL has moved most performance info to Performance Monitor
@@ -68,7 +71,7 @@ class perf_mssql extends adodb_perf{
 			$this->sql1 = 'sql1';
 			//$this->explain = false;
 		}
-		$this->conn =& $conn;
+		$this->conn = $conn;
 	}
 	
 	function Explain($sql,$partial=false)
@@ -93,10 +96,10 @@ class perf_mssql extends adodb_perf{
 		
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		$rs =& $this->conn->Execute($sql);
+		$rs = $this->conn->Execute($sql);
 		//adodb_printr($rs);
 		$ADODB_FETCH_MODE = $save;
-		if ($rs) {
+		if ($rs && !$rs->EOF) {
 			$rs->MoveNext();
 			$s .= '<table bgcolor=white border=0 cellpadding="1" callspacing=0><tr><td nowrap align=center> Rows<td nowrap align=center> IO<td nowrap align=center> CPU<td align=left> &nbsp; &nbsp; Plan</tr>';
 			while (!$rs->EOF) {

@@ -1,16 +1,18 @@
 <?php
 /* 
-V4.20 22 Feb 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
   Set tabs to 4 for best viewing.
   
-  Latest version is available at http://php.weblogs.com/
+  Latest version is available at http://adodb.sourceforge.net
   
   Microsoft Access data driver. Requires ODBC. Works only on MS Windows.
 */
 if (!defined('_ADODB_ODBC_LAYER')) {
+	if (!defined('ADODB_DIR')) die();
+	
 	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
 }
  if (!defined('_ADODB_ACCESS')) {
@@ -25,6 +27,7 @@ class  ADODB_access extends ADODB_odbc {
 	var $sysDate = "FORMAT(NOW,'yyyy-mm-dd')";
 	var $sysTimeStamp = 'NOW';
 	var $hasTransactions = false;
+	var $upperCase = 'ucase';
 	
 	function ADODB_access()
 	{
@@ -34,6 +37,11 @@ class  ADODB_access extends ADODB_odbc {
 		$this->ADODB_odbc();
 	}
 	
+	function Time()
+	{
+		return time();
+	}
+	
 	function BeginTrans() { return false;}
 	
 	function IfNull( $field, $ifNull ) 
@@ -41,7 +49,7 @@ class  ADODB_access extends ADODB_odbc {
 		return " IIF(IsNull($field), $ifNull, $field) "; // if Access
 	}
 /*
-	function &MetaTables()
+	function MetaTables()
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -54,7 +62,7 @@ class  ADODB_access extends ADODB_odbc {
 		
 		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 		
-		$arr = &$rs->GetArray();
+		$arr = $rs->GetArray();
 		//print_pre($arr);
 		$arr2 = array();
 		for ($i=0; $i < sizeof($arr); $i++) {

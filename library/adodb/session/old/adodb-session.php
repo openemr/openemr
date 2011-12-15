@@ -1,6 +1,6 @@
 <?php
 /*
-V4.20 22 Feb 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.93 10 Oct 2006  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -15,24 +15,24 @@ wrapper library.
  Example
  =======
  
- 	GLOBAL $HTTP_SESSION_VARS;
 	include('adodb.inc.php');
 	include('adodb-session.php');
 	session_start();
 	session_register('AVAR');
-	$HTTP_SESSION_VARS['AVAR'] += 1;
-	print "<p>\$HTTP_SESSION_VARS['AVAR']={$HTTP_SESSION_VARS['AVAR']}</p>";
+	$_SESSION['AVAR'] += 1;
+	print "
+-- \$_SESSION['AVAR']={$_SESSION['AVAR']}</p>";
 	
 To force non-persistent connections, call adodb_session_open first before session_start():
 
- 	GLOBAL $HTTP_SESSION_VARS;
 	include('adodb.inc.php');
 	include('adodb-session.php');
 	adodb_sess_open(false,false,false);
 	session_start();
 	session_register('AVAR');
-	$HTTP_SESSION_VARS['AVAR'] += 1;
-	print "<p>\$HTTP_SESSION_VARS['AVAR']={$HTTP_SESSION_VARS['AVAR']}</p>";
+	$_SESSION['AVAR'] += 1;
+	print "
+-- \$_SESSION['AVAR']={$_SESSION['AVAR']}</p>";
 
  
  Installation
@@ -67,7 +67,7 @@ To force non-persistent connections, call adodb_session_open first before sessio
 	$ADODB_SESSION_DB ='database';
 	$ADODB_SESSION_TBL = 'sessions'
 	
-  3. Recommended is PHP 4.0.6 or later. There are documented
+  3. Recommended is PHP 4.1.0 or later. There are documented
 	 session bugs in earlier versions of PHP.
 
   4. If you want to receive notifications when a session expires, then
@@ -106,6 +106,37 @@ if (!defined('ADODB_SESSION')) {
  
  /* if database time and system time is difference is greater than this, then give warning */
  define('ADODB_SESSION_SYNCH_SECS',60); 
+
+ /*
+	Thanks Joe Li. See http://phplens.com/lens/lensforum/msgs.php?id=11487&x=1
+*/
+function adodb_session_regenerate_id() 
+{
+	$conn = ADODB_Session::_conn();
+	if (!$conn) return false;
+
+	$old_id = session_id();
+	if (function_exists('session_regenerate_id')) {
+		session_regenerate_id();
+	} else {
+		session_id(md5(uniqid(rand(), true)));
+		$ck = session_get_cookie_params();
+		setcookie(session_name(), session_id(), false, $ck['path'], $ck['domain'], $ck['secure']);
+		//@session_start();
+	}
+	$new_id = session_id();
+	$ok = $conn->Execute('UPDATE '. ADODB_Session::table(). ' SET sesskey='. $conn->qstr($new_id). ' WHERE sesskey='.$conn->qstr($old_id));
+	
+	/* it is possible that the update statement fails due to a collision */
+	if (!$ok) {
+		session_id($old_id);
+		if (empty($ck)) $ck = session_get_cookie_params();
+		setcookie(session_name(), session_id(), false, $ck['path'], $ck['domain'], $ck['secure']);
+		return false;
+	}
+	
+	return true;
+}
 
 /****************************************************************************************\
 	Global definitions
@@ -193,7 +224,8 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 	else $ok = $ADODB_SESS_CONN->Connect($ADODB_SESSION_CONNECT,
 			$ADODB_SESSION_USER,$ADODB_SESSION_PWD,$ADODB_SESSION_DB);
 	
-	if (!$ok) ADOConnection::outp( "<p>Session: connection failed</p>",false);
+	if (!$ok) ADOConnection::outp( "
+-- Session: connection failed</p>",false);
 }
 
 /****************************************************************************************\
@@ -252,7 +284,8 @@ function adodb_sess_write($key, $val)
 	// crc32 optimization since adodb 2.1
 	// now we only update expiry date, thx to sebastian thom in adodb 2.32
 	if ($ADODB_SESSION_CRC !== false && $ADODB_SESSION_CRC == strlen($val).crc32($val)) {
-		if ($ADODB_SESS_DEBUG) echo "<p>Session: Only updating date - crc32 not changed</p>";
+		if ($ADODB_SESS_DEBUG) echo "
+-- Session: Only updating date - crc32 not changed</p>";
 		$qry = "UPDATE $ADODB_SESSION_TBL SET expiry=$expiry WHERE sesskey='$key' AND expiry >= " . time();
 		$rs = $ADODB_SESS_CONN->Execute($qry);	
 		return true;
@@ -269,7 +302,8 @@ function adodb_sess_write($key, $val)
     	'sesskey',$autoQuote = true);
 	
 	if (!$rs) {
-		ADOConnection::outp( '<p>Session Replace: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
+		ADOConnection::outp( '
+-- Session Replace: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
 	}  else {
 		// bug in access driver (could be odbc?) means that info is not commited
 		// properly unless select statement executed in Win2000
@@ -316,7 +350,7 @@ function adodb_sess_gc($maxlifetime)
 		$fn = next($ADODB_SESSION_EXPIRE_NOTIFY);
 		$savem = $ADODB_SESS_CONN->SetFetchMode(ADODB_FETCH_NUM);
 		$t = time();
-		$rs =& $ADODB_SESS_CONN->Execute("SELECT expireref,sesskey FROM $ADODB_SESSION_TBL WHERE expiry < $t");
+		$rs = $ADODB_SESS_CONN->Execute("SELECT expireref,sesskey FROM $ADODB_SESSION_TBL WHERE expiry < $t");
 		$ADODB_SESS_CONN->SetFetchMode($savem);
 		if ($rs) {
 			$ADODB_SESS_CONN->BeginTrans();
@@ -336,7 +370,8 @@ function adodb_sess_gc($maxlifetime)
 		$qry = "DELETE FROM $ADODB_SESSION_TBL WHERE expiry < " . time();
 		$ADODB_SESS_CONN->Execute($qry);
 	
-		if ($ADODB_SESS_DEBUG) ADOConnection::outp("<p><b>Garbage Collection</b>: $qry</p>");
+		if ($ADODB_SESS_DEBUG) ADOConnection::outp("
+-- <b>Garbage Collection</b>: $qry</p>");
 	}
 	// suggested by Cameron, "GaM3R" <gamr@outworld.cx>
 	if (defined('ADODB_SESSION_OPTIMIZE')) {
@@ -359,7 +394,7 @@ function adodb_sess_gc($maxlifetime)
 	if ($ADODB_SESS_CONN->dataProvider === 'oci8') $sql = 'select  TO_CHAR('.($ADODB_SESS_CONN->sysTimeStamp).', \'RRRR-MM-DD HH24:MI:SS\') from '. $ADODB_SESSION_TBL;
 	else $sql = 'select '.$ADODB_SESS_CONN->sysTimeStamp.' from '. $ADODB_SESSION_TBL;
 	
-	$rs =& $ADODB_SESS_CONN->SelectLimit($sql,1);
+	$rs = $ADODB_SESS_CONN->SelectLimit($sql,1);
 	if ($rs && !$rs->EOF) {
 	
 		$dbts = reset($rs->fields);
@@ -368,11 +403,12 @@ function adodb_sess_gc($maxlifetime)
 		$t = time();
 	
 		if (abs($dbt - $t) >= ADODB_SESSION_SYNCH_SECS) {
-		global $HTTP_SERVER_VARS;
+		
 			$msg = 
-			__FILE__.": Server time for webserver {$HTTP_SERVER_VARS['HTTP_HOST']} not in synch with database: database=$dbt ($dbts), webserver=$t (diff=".(abs($dbt-$t)/3600)." hrs)";
+			__FILE__.": Server time for webserver {$_SERVER['HTTP_HOST']} not in synch with database: database=$dbt ($dbts), webserver=$t (diff=".(abs($dbt-$t)/3600)." hrs)";
 			error_log($msg);
-			if ($ADODB_SESS_DEBUG) ADOConnection::outp("<p>$msg</p>");
+			if ($ADODB_SESS_DEBUG) ADOConnection::outp("
+-- $msg</p>");
 		}
 	}
 	
@@ -392,12 +428,12 @@ session_set_save_handler(
 /*  TEST SCRIPT -- UNCOMMENT */
 
 if (0) {
-GLOBAL $HTTP_SESSION_VARS;
 
 	session_start();
 	session_register('AVAR');
-	$HTTP_SESSION_VARS['AVAR'] += 1;
-	ADOConnection::outp( "<p>\$HTTP_SESSION_VARS['AVAR']={$HTTP_SESSION_VARS['AVAR']}</p>",false);
+	$_SESSION['AVAR'] += 1;
+	ADOConnection::outp( "
+-- \$_SESSION['AVAR']={$_SESSION['AVAR']}</p>",false);
 }
 
 ?>

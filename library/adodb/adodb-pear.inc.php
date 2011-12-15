@@ -1,6 +1,6 @@
 <?php
 /** 
- * @version V4.20 22 Feb 2004 (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+ * @version V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license. 
  * Whenever there is any discrepancy between the two licenses, 
  * the BSD license will take precedence. 
@@ -28,6 +28,12 @@
 	nextID
 	disconnect
 	
+	getOne
+	getAssoc
+	getRow
+	getCol
+	getAll
+	
  DB_Result
  ---------
  	numRows - returns -1 if not supported
@@ -45,6 +51,11 @@ include_once ADODB_PEAR."/adodb.inc.php";
 if (!defined('DB_OK')) {
 define("DB_OK",	1);
 define("DB_ERROR",-1);
+
+// autoExecute constants
+define('DB_AUTOQUERY_INSERT', 1);
+define('DB_AUTOQUERY_UPDATE', 2);
+
 /**
  * This is a special constant that tells DB the user hasn't specified
  * any particular get mode, so the default should be used.
@@ -98,11 +109,11 @@ class DB
 	 * error
 	 */
 
-	function &factory($type)
+	function factory($type)
 	{
 		include_once(ADODB_DIR."/drivers/adodb-$type.inc.php");
-		$obj = &NewADOConnection($type);
-		if (!is_object($obj)) $obj =& new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
+		$obj = NewADOConnection($type);
+		if (!is_object($obj)) $obj = new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
 		return $obj;
 	}
 
@@ -125,7 +136,7 @@ class DB
 	 * @see DB::parseDSN
 	 * @see DB::isError
 	 */
-	function &connect($dsn, $options = false)
+	function connect($dsn, $options = false)
 	{
 		if (is_array($dsn)) {
 			$dsninfo = $dsn;
@@ -146,14 +157,15 @@ class DB
 			 @include_once("adodb-$type.inc.php");
 		}
 
-		@$obj =& NewADOConnection($type);
+		@$obj = NewADOConnection($type);
 		if (!is_object($obj)) {
-			$obj =& new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
+			$obj = new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
 			return $obj;
 		}
 		if (is_array($options)) {
 			foreach($options as $k => $v) {
 				switch(strtolower($k)) {
+				case 'persist':
 				case 'persistent': 	$persist = $v; break;
 				#ibase
 				case 'dialect': 	$obj->dialect = $v; break;
@@ -198,9 +210,10 @@ class DB
 	 */
 	function isError($value)
 	{
-		return (is_object($value) &&
-				(get_class($value) == 'db_error' ||
-				 is_subclass_of($value, 'db_error')));
+		if (!is_object($value)) return false;
+		$class = strtolower(get_class($value));
+		return $class == 'pear_error' || is_subclass_of($value, 'pear_error') || 
+				$class == 'db_error' || is_subclass_of($value, 'db_error');
 	}
 
 
@@ -215,9 +228,11 @@ class DB
 	 */
 	function isWarning($value)
 	{
+		return false;
+		/*
 		return is_object($value) &&
 			(get_class( $value ) == "db_warning" ||
-			 is_subclass_of($value, "db_warning"));
+			 is_subclass_of($value, "db_warning"));*/
 	}
 
 	/**

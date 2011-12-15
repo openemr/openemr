@@ -1,15 +1,17 @@
 <?php
 /* 
-V4.20 22 Feb 2004  (c) 2000-2004 John Lim (jlim@natsoft.com.my). All rights reserved.
+V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
 Set tabs to 4 for best viewing.
   
-  Latest version is available at http://php.weblogs.com/
+  Latest version is available at http://adodb.sourceforge.net
   
   Oracle support via ODBC. Requires ODBC. Works on Windows. 
 */
+// security - hide paths
+if (!defined('ADODB_DIR')) die();
 
 if (!defined('_ADODB_ODBC_LAYER')) {
 	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
@@ -34,46 +36,44 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 		$this->ADODB_odbc();
 	}
 		
-	function &MetaTables() 
+	function MetaTables() 
 	{
-		if ($this->metaTablesSQL) {
-			$rs = $this->Execute($this->metaTablesSQL);
-			if ($rs === false) return false;
-			$arr = $rs->GetArray();
-			$arr2 = array();
-			for ($i=0; $i < sizeof($arr); $i++) {
-				$arr2[] = $arr[$i][0];
-			}
-			$rs->Close();
-			return $arr2;
+		$false = false;
+		$rs = $this->Execute($this->metaTablesSQL);
+		if ($rs === false) return $false;
+		$arr = $rs->GetArray();
+		$arr2 = array();
+		for ($i=0; $i < sizeof($arr); $i++) {
+			$arr2[] = $arr[$i][0];
 		}
-		return false;
+		$rs->Close();
+		return $arr2;
 	}
 	
-	function &MetaColumns($table) 
+	function MetaColumns($table, $normalize=true) 
 	{
-		if (!empty($this->metaColumnsSQL)) {
-		
-			$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
-			if ($rs === false) return false;
-
-			$retarr = array();
-			while (!$rs->EOF) { //print_r($rs->fields);
-				$fld = new ADOFieldObject();
-				$fld->name = $rs->fields[0];
-				$fld->type = $rs->fields[1];
-				$fld->max_length = $rs->fields[2];
-				
-				
-				if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;	
-				else $retarr[strtoupper($fld->name)] = $fld;
-				
-				$rs->MoveNext();
-			}
-			$rs->Close();
-			return $retarr;	
+	global $ADODB_FETCH_MODE;
+	
+		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
+		if ($rs === false) {	
+			$false = false;
+			return $false;
 		}
-		return false;
+		$retarr = array();
+		while (!$rs->EOF) { //print_r($rs->fields);
+			$fld = new ADOFieldObject();
+			$fld->name = $rs->fields[0];
+			$fld->type = $rs->fields[1];
+			$fld->max_length = $rs->fields[2];
+			
+			
+			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;	
+			else $retarr[strtoupper($fld->name)] = $fld;
+			
+			$rs->MoveNext();
+		}
+		$rs->Close();
+		return $retarr;	
 	}
 
 	// returns true or false

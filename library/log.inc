@@ -11,8 +11,7 @@ function newEvent($event, $user, $groupname, $success, $comments="") {
             "," . $adodb->qstr($groupname) . "," . $adodb->qstr($success) . "," .
             $adodb->qstr($comments) ."," .
             $adodb->qstr($crt_user) .  ")";
-    //$ret = sqlInsertClean($sql);
-    // Call the new function created for audit log
+
     $ret = sqlInsertClean_audit($sql);
     send_atna_audit_msg($user, $groupname, $event, 0, $success, $comments);
 }
@@ -487,22 +486,7 @@ function auditSQLEvent($statement, $outcome)
    	    if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
    	    return;
    }
-// ViCarePlus : Fix for Audit Issue :: Sep 24, 2010 
 
-// Issue:  When the audit logging is enabled and when SELECT QUERY (query=1 in globals.php) is enabled to log, 
-// the issue of LAST_INSERT_ID arises.  
-// This is because, the function sql_checksum_of_modified_row() is triggered more than 
-// once for SELECT Queries and thus the expected value (LAST_INSERT_ID) in the $GLOBALS['lastidado'] is getting altered. 
-// Since, the $GLOBALS['lastidado'] is manipulated by the other function calls(sql_checksum_of_modified_row), 
-// this issue is arised.
-
-// Fix:
-// The task of assigning LAST_INSERT_ID  to a global variable $GLOBALS['lastidado']  is moved from sql.inc to this file.
-// Following code will get executed, when (a) when audit is enabled (b) When break glass is invoked.
-// Retrieve LAST_INSERT_ID and assign it to a global variable and eventually it can be used by other functions.
-    $lastid=mysql_insert_id($GLOBALS['dbh']);
-    $GLOBALS['lastidado']=$lastid;
-// ViCarePlus : Audit fix - ends here :: Sep 24,2010 
 
    $statement = trim($statement);
 
@@ -689,8 +673,7 @@ function auditSQLEvent($statement, $outcome)
          $adodb->qstr($checksum) . "," .
          $adodb->qstr($_SERVER['SSL_CLIENT_S_DN_CN']) .")";
 
-    //$ret = sqlInsertClean($sql);
-    //ViSolve: Call the new function created for audit logs
+
     sqlInsertClean_audit($sql);
     send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);
     //return $ret;
