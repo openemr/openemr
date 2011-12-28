@@ -1199,6 +1199,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "*000000001" .
     "~\n";
 
+  // Remove any trailing empty fields (delimiters) from each segment.
+  $out = preg_replace('/\*+~/', '~', $out);
+
   $log .= "\n";
   return $out;
 }
