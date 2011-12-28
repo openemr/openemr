@@ -5,6 +5,9 @@
  // modify it under the terms of the GNU General Public License
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
+ 
+ // Improved slightly by tony@mi-squared.com 2011, added organization to view
+ // and search
 
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
@@ -23,12 +26,20 @@ $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM
   "LEFT JOIN list_options AS lo ON " .
   "list_id = 'abook_type' AND option_id = u.abook_type " .
   "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
+if ($form_organization) $query .= "AND u.organization LIKE '$form_organization%' ";
 if ($form_lname) $query .= "AND u.lname LIKE '$form_lname%' ";
 if ($form_fname) $query .= "AND u.fname LIKE '$form_fname%' ";
 if ($form_specialty) $query .= "AND u.specialty LIKE '%$form_specialty%' ";
 if ($form_abook_type) $query .= "AND u.abook_type LIKE '$form_abook_type' ";
 if ($form_external) $query .= "AND u.username = '' ";
-$query .= "ORDER BY u.lname, u.fname, u.mname LIMIT 500";
+if ($form_lname) { 
+    $query .= "ORDER BY u.lname, u.fname, u.mname";
+} else if ($form_organization) {
+    $query .= "ORDER BY u.organization";
+} else {
+    $query .= "ORDER BY u.organization, u.lname, u.fname";
+}
+$query .= " LIMIT 500";
 $res = sqlStatement($query);
 ?>
 <html>
@@ -79,6 +90,9 @@ function doedclick_edit(userid) {
 <table>
  <tr class='search'> <!-- bgcolor='#ddddff' -->
   <td>
+   <?php xl('Organization','e')?>:
+   <input type='text' name='form_organization' size='10' value='<?php echo htmlspecialchars(strip_escape_custom($_POST['form_organization']),ENT_QUOTES); ?>'
+    class='inputtext' title='<?php xl("All or part of the organization","e") ?>' />&nbsp;
    <?php xl('First Name','e')?>:
    <input type='text' name='form_fname' size='10' value='<?php echo htmlspecialchars(strip_escape_custom($_POST['form_fname']),ENT_QUOTES); ?>'
     class='inputtext' title='<?php xl("All or part of the first name","e") ?>' />&nbsp;
@@ -96,17 +110,16 @@ function doedclick_edit(userid) {
    <input type='checkbox' name='form_external' value='1'<?php if ($form_external) echo ' checked'; ?>
     title='<?php xl("Omit internal users?","e") ?>' />
    <?php xl('External Only','e')?>&nbsp;&nbsp;
-   <input type='submit' class='button' name='form_search' value='<?php xl("Search","e")?>' />
-  </td>
-  <td align='right'>
+   <input type='submit' title='<?php xl("Use % alone in a field to just sort on that column","e") ?>' class='button' name='form_search' value='<?php xl("Search","e")?>' />
    <input type='button' class='button' value='<?php xl("Add New","e"); ?>' onclick='doedclick_add(document.forms[0].form_abook_type.value)' />
-  </td>
- </tr>
+</td>
+</tr>
 </table>
 
 <table>
  <tr class='head'>
-  <td title=<?php xl('Click to view or edit','e','\'','\''); ?>><?php xl('Name','e'); ?></td>
+  <td title=<?php xl('Click to view or edit','e','\'','\''); ?>><?php xl('Organization','e'); ?></td>
+  <td><?php xl('Name','e'); ?></td>
   <td><?php xl('Local','e'); ?></td><!-- empty for external -->
   <td><?php xl('Type','e'); ?></td>
   <td><?php xl('Specialty','e'); ?></td>
@@ -129,15 +142,7 @@ function doedclick_edit(userid) {
   $username = $row['username'];
   if (! $row['active']) $username = '--';
 
-  // Collect the display name
-  if ($row['ab_option'] == 3) {
-   // Company centric listing
-   $displayName = $row['organization'];
-  }
-  else {
-   // Person centric listing
-   $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
-  }
+  $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname']; // Person Name
 
   if ( acl_check('admin', 'practice' ) || (empty($username) && empty($row['ab_name'])) ) {
    // Allow edit, since have access or (no item type and not a local user)
@@ -150,6 +155,7 @@ function doedclick_edit(userid) {
    $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
    echo " <tr class='detail $bgclass' title='$trTitle'>\n";
   }
+  echo "  <td>" . $row['organization'] . "</td>\n";
   echo "  <td>" . $displayName . "</td>\n";
   echo "  <td>" . ($username ? '*' : '') . "</td>\n";
   echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'),$row['ab_name']) . "</td>\n";
