@@ -7,7 +7,10 @@
 // of the License, or (at your option) any later version.
 
 require_once("Claim.class.php");
-
+function stripZipCode($zip)
+{
+    return str_replace('-','',$zip);
+}
 function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
 
   $today = time();
@@ -174,7 +177,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   $out .= "N4" .
     "*" . $claim->billingFacilityCity() .
     "*" . $claim->billingFacilityState() .
-    "*" . $claim->billingFacilityZip() .
+    "*" . stripZipCode($claim->billingFacilityZip()) .
     "~\n";
 
   if ($CMS_5010 || ($claim->billingFacilityNPI() && $claim->billingFacilityETIN())) {
@@ -233,7 +236,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $out .= "N4" .
       "*" . $claim->billingFacilityCity() .
       "*" . $claim->billingFacilityState() .
-      "*" . $claim->billingFacilityZip() .
+      "*" . stripZipCode($claim->billingFacilityZip()) .
       "~\n";
 
     if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
@@ -306,7 +309,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $out .= "N4" .
       "*" . $claim->insuredCity() .
       "*" . $claim->insuredState() .
-      "*" . $claim->insuredZip() .
+      "*" . stripZipCode($claim->insuredZip()) .
       "~\n";
 
     ++$edicount;
@@ -362,7 +365,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $out .= "N4" .
       "*" . $claim->payerCity() .
       "*" . $claim->payerState() .
-      "*" . $claim->payerZip() .
+      "*" . stripZipCode($claim->payerZip()) .
       "~\n";
   }
 
@@ -403,7 +406,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $out .= "N4" .
       "*" . $claim->patientCity() .
       "*" . $claim->patientState() .
-      "*" . $claim->patientZip() .
+      "*" . stripZipCode($claim->patientZip()) .
       "~\n";
 
     ++$edicount;
@@ -692,7 +695,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       $out .= "N4" .
         "*" . $claim->facilityCity() .
         "*" . $claim->facilityState() .
-        "*" . $claim->facilityZip() .
+        "*" . stripZipCode($claim->facilityZip()) .
         "~\n";
     }
   }
@@ -854,7 +857,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $out .= "N4" .
       "*" . $claim->insuredCity($ins) .
       "*" . $claim->insuredState($ins) .
-      "*" . $claim->insuredZip($ins) .
+      "*" . stripZipCode($claim->insuredZip($ins)) .
       "~\n";
 
     // Segment REF (Other Subscriber Secondary Identification) omitted.
@@ -892,7 +895,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       $out .= "N4" .
         "*" . $claim->payerCity($ins) .
         "*" . $claim->payerState($ins) .
-        "*" . $claim->payerZip($ins) .
+        "*" . stripZipCode($claim->payerZip($ins)) .
         "~\n";
     } // end Gateway EDI
 
