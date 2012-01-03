@@ -8,6 +8,7 @@
 
 // This report shows upcoming appointments with filtering and
 // sorting by patient, practitioner, appointment type, and date.
+// 2012-01-01 - Added display of home and cell phone and fixed header
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -53,7 +54,7 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
-<script LANGUAGE="JavaScript">
+<script type="text/javascript">
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
@@ -112,16 +113,13 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
 <div id="report_parameters_daterange"><?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
 </div>
 
-<form method='post' name='theform' id='theform'
-	action='appointments_report.php'>
-<form name='theform' id='theform' method='post'
-	action='referrals_report.php'>
+<form method='post' name='theform' id='theform' action='appointments_report.php'>
 
 <div id="report_parameters">
 
 <table>
 	<tr>
-		<td width='550px'>
+		<td width='650px'>
 		<div style='float: left'>
 
 		<table class='text'>
@@ -192,6 +190,7 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
 				</span> </a> <?php } ?></div>
 				</td>
 			</tr>
+                        <tr>&nbsp;&nbsp;<?php xl('Most column headers can be clicked to change sort order','e') ?></tr>
 		</table>
 		</td>
 	</tr>
@@ -225,6 +224,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	<?php if ($form_orderby == "pubpid") echo " style=\"color:#00cc00\"" ?>><?php  xl('ID','e'); ?></a>
 		</th>
 
+         	<th><?php xl('Home','e'); //Sorting by phone# not really useful ?></th>
+
+                <th><?php xl('Cell','e'); //Sorting by phone# not really useful ?></th>
+                
 		<th><a href="nojs.php" onclick="return dosort('type')"
 	<?php if ($form_orderby == "type") echo " style=\"color:#00cc00\"" ?>><?php  xl('Type','e'); ?></a>
 		</th>
@@ -251,8 +254,8 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	foreach ( $appointments as $appointment ) {
 		$patient_id = $appointment['pid'];
 		$docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
-		$errmsg  = "";
-
+                
+                $errmsg  = "";
 
 		?>
 
@@ -270,6 +273,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 		</td>
 
 		<td class="detail">&nbsp;<?php echo $appointment['pubpid'] ?></td>
+
+                <td class="detail">&nbsp;<?php echo $appointment['phone_home'] ?></td>
+
+                <td class="detail">&nbsp;<?php echo $appointment['phone_cell'] ?></td>
 
 		<td class="detail">&nbsp;<?php echo xl_appt_category($appointment['pc_catname']) ?>
 		</td>
@@ -294,7 +301,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	name="patient" value="<?php echo $patient ?>" /> <input type='hidden'
 	name='form_refresh' id='form_refresh' value='' /></form>
 
-<script>
+<script type="text/javascript">
 
 <?php
 if ($alertmsg) { echo " alert('$alertmsg');\n"; }
@@ -306,13 +313,13 @@ if ($alertmsg) { echo " alert('$alertmsg');\n"; }
 
 <!-- stuff for the popup calendar -->
 <style type="text/css">
-@import url(../../library/dynarch_calendar.css);
+    @import url(../../library/dynarch_calendar.css);
 </style>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript"
 	src="../../library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
+<script type="text/javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
 </script>
