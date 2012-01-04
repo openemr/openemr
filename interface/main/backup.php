@@ -33,7 +33,7 @@
 // Linux and with Windows XP.
 // Do not assume that it works for you until you have successfully
 // tested a restore!
-
+set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
