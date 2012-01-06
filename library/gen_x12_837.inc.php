@@ -449,7 +449,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     ($CMS_5010 ? "" : "*C") .
     "~\n"; 
 
-  if ($claim->onsetDate()) {
+  if ($claim->onsetDate() && ($claim->onsetDate()!==$claim->serviceDate())) {
     ++$edicount;
     $out .= "DTP" .       // Date of Onset
       "*431" .
