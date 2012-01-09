@@ -32,8 +32,8 @@ $exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
                     " and title='".trim($title). "'" 
                     );
-if ($exists_title) {
-	echo '{"error":"' . addslashes( xl('Record already exist')) . '"}'; 
+if ($exists_title) { 
+	echo json_encode(array("error"=> xl('Record already exist') ));
 	exit; 
 }
 
@@ -42,7 +42,7 @@ $exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
                     " and option_id='".trim($option_id)."'"
                     );
 if ($exists_id) { 
-	echo '{"error":"' . addslashes( xl('Record already exist')) . '"}';
+	echo json_encode(array("error"=> xl('Record already exist') ));
 	exit; 
 }
 
