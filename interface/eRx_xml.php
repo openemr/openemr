@@ -202,18 +202,20 @@ function destination($doc,$r,$page='',$pid)
 function account($doc,$r)
 {
     global $msg;
-    $erxSiteID=sqlQuery("SELECT federal_ein FROM facility WHERE primary_business_entity='1'");
+    $erxSiteID=sqlQuery("SELECT * FROM facility WHERE primary_business_entity='1'");
     if(!$erxSiteID['federal_ein'])
-    {echo htmlspecialchars( xl("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system."), ENT_NOQUOTES);die;}
-    $userRole=sqlQuery("SELECT * FROM users AS u LEFT JOIN facility AS f ON f.id=u.facility_id WHERE u.username=?",array($_SESSION['authUser']));
+    {
+	echo htmlspecialchars( xl("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system."), ENT_NOQUOTES);
+	die;
+    }
     $b = $doc->createElement( "Account" );
     $b->setAttribute('ID','1');
-    $userRole['name']=stripSpecialCharacterFacility($userRole['name']);
-    $userRole['name']=trimData($userRole['name'],35);
-    $msg = validation(xl('Account Name'),$userRole['name'],$msg);
+    $erxSiteID['name']=stripSpecialCharacterFacility($erxSiteID['name']);
+    $erxSiteID['name']=trimData($erxSiteID['name'],35);
+    $msg = validation(xl('Account Name'),$erxSiteID['name'],$msg);
     $accountName = $doc->createElement( "accountName" );
     $accountName->appendChild(
-        $doc->createTextNode( $userRole['name'] )
+        $doc->createTextNode( $erxSiteID['name'] )
     );
     $b->appendChild( $accountName );
     $msg = validation(xl('Site ID'),$_SESSION['site_id'],$msg);
@@ -222,53 +224,68 @@ function account($doc,$r)
         $doc->createTextNode( $erxSiteID['federal_ein'] )
     );
     $b->appendChild( $siteID );
-    $userRole['street']=stripSpecialCharacterFacility($userRole['street']);
-    $userRole['street']=trimData($userRole['street'],35);
+    $erxSiteID['street']=stripSpecialCharacterFacility($erxSiteID['street']);
+    $erxSiteID['street']=trimData($erxSiteID['street'],35);
     $AccountAddress = $doc->createElement( "AccountAddress" );
-        $msg = validation(xl('Facility Street'),$userRole['street'],$msg);
+        $msg = validation(xl('Facility Street'),$erxSiteID['street'],$msg);
         $address1 = $doc->createElement( "address1" );
         $address1->appendChild(
-            $doc->createTextNode( $userRole['street'] )
+            $doc->createTextNode( $erxSiteID['street'] )
         );
         $AccountAddress->appendChild( $address1 );
-        $msg = validation(xl('Facility City'),$userRole['city'],$msg);
+        $msg = validation(xl('Facility City'),$erxSiteID['city'],$msg);
         $city = $doc->createElement( "city" );
         $city->appendChild(
-            $doc->createTextNode( $userRole['city'] )
+            $doc->createTextNode( $erxSiteID['city'] )
         );
         $AccountAddress->appendChild( $city );
-        $msg = validation(xl('Facility State'),$userRole['state'],$msg);
+        $msg = validation(xl('Facility State'),$erxSiteID['state'],$msg);
         $state = $doc->createElement( "state" );
         $state->appendChild(
-            $doc->createTextNode( $userRole['state'] )
+            $doc->createTextNode( $erxSiteID['state'] )
         );
         $AccountAddress->appendChild( $state );
-        $msg = validation(xl('Facility Zip'),$userRole['postal_code'],$msg);
+        $jasonbigzip=$erxSiteID['postal_code'];
+	$jasonbigzip=preg_replace('/[^0-9]/','',$jasonbigzip);
+	if(strlen($jasonbigzip) >=5){
+	    $jasonzip=substr($jasonbigzip,0,5);
+	    $zip4=substr($jasonbigzip,5,4);
+	}
+	else{
+	    $msg = validation(xl('Facility Zip'),$jasonzip,$msg);
+	}
         $zip = $doc->createElement( "zip" );
         $zip->appendChild(
-            $doc->createTextNode( $userRole['postal_code'] )
+            $doc->createTextNode( $jasonzip )
         );
         $AccountAddress->appendChild( $zip );
-        $msg = validation(xl('Facility Country code'),$userRole['country_code'],$msg);
-        $county_code = substr($userRole['country_code'],0,2);
+	if(strlen($zip4)==4){
+	    $zipFour = $doc->createElement( "zip4" );
+	    $zipFour->appendChild(
+		$doc->createTextNode( $zip4 )
+	    );
+	    $AccountAddress->appendChild( $zipFour );
+	}
+        $msg = validation(xl('Facility Country code'),$erxSiteID['country_code'],$msg);
+        $county_code = substr($erxSiteID['country_code'],0,2);
         $country = $doc->createElement( "country" );
         $country->appendChild(
             $doc->createTextNode( $county_code )
         );    
         $AccountAddress->appendChild( $country );
     $b->appendChild( $AccountAddress );
-    $msg = validation(xl('Facility Phone'),$userRole['phone'],$msg);
+    $msg = validation(xl('Facility Phone'),$erxSiteID['phone'],$msg);
     $accountPrimaryPhoneNumber = $doc->createElement( "accountPrimaryPhoneNumber" );
-    $userRole['phone'] = stripPhoneSlashes($userRole['phone']);
+    $erxSiteID['phone'] = stripPhoneSlashes($erxSiteID['phone']);
     $accountPrimaryPhoneNumber->appendChild(        
-        $doc->createTextNode( $userRole['phone'] )
+        $doc->createTextNode( $erxSiteID['phone'] )
     );
     $b->appendChild( $accountPrimaryPhoneNumber );
-    $msg = validation(xl('Facility Fax'),$userRole['fax'],$msg);
+    $msg = validation(xl('Facility Fax'),$erxSiteID['fax'],$msg);
     $accountPrimaryFaxNumber = $doc->createElement( "accountPrimaryFaxNumber" );
-    $userRole['fax'] = stripPhoneSlashes($userRole['fax']);
+    $erxSiteID['fax'] = stripPhoneSlashes($erxSiteID['fax']);
     $accountPrimaryFaxNumber->appendChild(
-        $doc->createTextNode( $userRole['fax'] )
+        $doc->createTextNode( $erxSiteID['fax'] )
     );
     $b->appendChild( $accountPrimaryFaxNumber );
     $r->appendChild( $b );
@@ -311,13 +328,27 @@ function location($doc,$r)
         );
         $LocationAddress->appendChild($state);
         }
-        if($userRole['postal_code']){
-        $zip = $doc->createElement( 'zip' );
+	$jasonbigzip=$userRole['postal_code'];
+	$jasonbigzip=preg_replace('/[^0-9]/','',$jasonbigzip);
+	if(strlen($jasonbigzip) >=5){
+	    $jasonzip=substr($jasonbigzip,0,5);
+	    $zip4=substr($jasonbigzip,5,4);
+	}
+	else{
+	    $msg = validation(xl('Facility Zip'),$jasonzip,$msg);
+	}
+        $zip = $doc->createElement( "zip" );
         $zip->appendChild(
-            $doc->createTextNode( $userRole['postal_code'] )
+            $doc->createTextNode( $jasonzip )
         );
-        $LocationAddress->appendChild($zip);
-        }
+        $LocationAddress->appendChild( $zip );
+	if(strlen($zip4)==4){
+	    $zipFour = $doc->createElement( "zip4" );
+	    $zipFour->appendChild(
+		$doc->createTextNode( $zip4 )
+	    );
+	    $LocationAddress->appendChild( $zipFour );
+	}
         if($userRole['country_code']){
         $county_code = substr($userRole['country_code'],0,2);
         $country = $doc->createElement( 'country' );
@@ -674,13 +705,14 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
     global $msg;
     if($prescid)
     {
-        $prec=sqlQuery("SELECT p.note,p.dosage,p.substitute,p.per_refill,p.form,p.route,p.interval,p.drug,l1.title AS title1,l2.title AS title2,l3.title AS title3,p.id AS prescid,
-            DATE_FORMAT(date_added,'%Y%m%d') AS date_added,CONCAT(fname,' ',mname,' ',lname) AS docname,p.quantity
+        $prec=sqlQuery("SELECT p.note,p.dosage,p.substitute,p.per_refill,p.form,p.route,p.size,p.interval,p.drug,l1.title AS title1,l2.title AS title2,l3.title AS title3,l4.title AS title4,p.id AS prescid,
+            DATE_FORMAT(date_added,'%Y%m%d') AS date_added,CONCAT_WS(fname,' ',mname,' ',lname) AS docname,p.quantity
             FROM prescriptions AS p
             LEFT JOIN users AS u ON p.provider_id=u.id
             LEFT JOIN list_options AS l1 ON l1.list_id='drug_form' AND l1.option_id=p.form
             LEFT JOIN list_options AS l2 ON l2.list_id='drug_route' AND l2.option_id=p.route
             LEFT JOIN list_options AS l3 ON l3.list_id='drug_interval' AND l3.option_id=p.interval
+            LEFT JOIN list_options AS l4 ON l4.list_id='drug_units' AND l4.option_id=p.unit
             WHERE p.drug<>'' and p.id=?",array($prescid));
         $b = $doc->createElement( "OutsidePrescription" );
             $externalId = $doc->createElement( "externalId" );
@@ -710,7 +742,7 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
                 $doc->createTextNode( $x[0] )
             );
             $b->appendChild( $dispenseNumber );
-            $s=trimData($x[1]."  Take ".$prec['dosage']." In ".$prec['title1']." ".$prec['title2']." ".$prec['title3'],140);
+            $s=trimData($x[1].$prec['size']." ".$prec['title4']." ".$prec['dosage']." In ".$prec['title1']." ".$prec['title2']." ".$prec['title3'],140);
             $s=stripSpecialCharacter($s);
             $sig = $doc->createElement( "sig" );
             $sig->appendChild(
