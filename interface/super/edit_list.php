@@ -485,28 +485,44 @@ function select_code(lino) {
 }
 
 // This is for callback by the find-code popup.
-// For Fee Sheet administration.
 function set_related(codetype, code, selector, codedesc) {
- var f = document.forms[0];
- var celem = f['opt[' + current_lino + '][codes]'];
- var delem = f['opt[' + current_lino + '][descs]'];
- var i = 0;
- while ((i = codedesc.indexOf('~')) >= 0) {
-  codedesc = codedesc.substring(0, i) + ' ' + codedesc.substring(i+1);
- }
- if (code) {
-  if (celem.value) {
-   celem.value += '~';
-   delem.value += '~';
+ if (typeof(current_sel_name) == 'undefined')
+ {
+ // Coming from Fee Sheet edit
+  var f = document.forms[0];
+  var celem = f['opt[' + current_lino + '][codes]'];
+  var delem = f['opt[' + current_lino + '][descs]'];
+  var i = 0;
+  while ((i = codedesc.indexOf('~')) >= 0) {
+   codedesc = codedesc.substring(0, i) + ' ' + codedesc.substring(i+1);
   }
-  celem.value += codetype + '|' + code + '|' + selector;
-  if (codetype == 'PROD') delem.value += code + ':' + selector + ' ' + codedesc;
-  else delem.value += codetype + ':' + code + ' ' + codedesc;
- } else {
-  celem.value = '';
-  delem.value = '';
+  if (code) {
+   if (celem.value) {
+    celem.value += '~';
+    delem.value += '~';
+   }
+   celem.value += codetype + '|' + code + '|' + selector;
+   if (codetype == 'PROD') delem.value += code + ':' + selector + ' ' + codedesc;
+   else delem.value += codetype + ':' + code + ' ' + codedesc;
+  } else {
+   celem.value = '';
+   delem.value = '';
+  }
+  displayCodes(current_lino);
  }
- displayCodes(current_lino);
+ else
+ {
+  // Coming from Immunizations edit
+     var f = document.forms[0][current_sel_name];
+     var s = f.value;
+     if (code) {
+         s = code;
+     }
+     else {
+         s = '0';
+     }
+     f.value = s;
+ }
 }
 
 // Called when a "default" checkbox is clicked.  Clears all the others.
@@ -544,22 +560,6 @@ function mysubmit() {
 function sel_cvxcode(e) {
  current_sel_name = e.name;
  dlgopen('../patient_file/encounter/find_code_popup.php?codetype=CVX', '_blank', 500, 400);
-}
-
-//This is for callback by the find-code popup.
-//Appends to or erases the current list of diagnoses.
-function set_related(codetype, code, selector, codedesc) {
-	var f = document.forms[0][current_sel_name];
-	var s = f.value;
-	
-	if (code) {
-		s = code;
-	}
-	else {
-		s = '0';
-	}
-	
-	f.value = s;
 }
 
 </script>
