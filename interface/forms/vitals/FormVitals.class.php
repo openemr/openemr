@@ -110,19 +110,23 @@ class FormVitals extends ORDataObject {
 		return $this->activity;
 	}
 	
-	function get_date() {
-		
-	if(!$this->date){			
-    	        $this->date = date('YmdHis', time());
-	}
-		return $this->date;
-		
-	}
-	function set_date($dt) {
-		if (!empty($dt)) {
-			$this->date = $dt;
-		}
-	}
+  function get_date() {
+    if(!$this->date){			
+      $this->date = date('YmdHis', time());
+    }
+    return $this->date;
+  }
+
+  function set_date($dt) {
+    if (!empty($dt)) {
+      $dt = str_replace('-', '', $dt);
+      $dt = str_replace(':', '', $dt);
+      $dt = str_replace(' ', '', $dt);
+      while (strlen($dt) < 14) $dt .= '0';
+      $this->date = $dt;
+    }
+  }
+
 	function get_user() {
 		return $this->user;
 	}
