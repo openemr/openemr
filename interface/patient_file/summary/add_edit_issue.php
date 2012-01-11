@@ -225,7 +225,7 @@ if ($_POST['form_save']) {
 
 $irow = array();
 if ($issue)
-  $irow = sqlQuery("SELECT * FROM lists WHERE id = $issue");
+  $irow = sqlQuery("SELECT * FROM lists WHERE id = ?",array($issue));
 else if ($thistype)
   $irow['type'] = $thistype;
 
