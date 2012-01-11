@@ -572,12 +572,12 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
   // 32. Service Facility Location Information: City State Zip
   $tmp = $claim->facilityCity() ? ($claim->facilityCity() . ' ') : '';
-  put_hcfa(60, 23, 25, $tmp . $claim->facilityState() . ' ' .
+  put_hcfa(60, 23, 27, $tmp . $claim->facilityState() . ' ' .
     $claim->facilityZip());
 
-  // 32. Billing Provider: City State Zip
+  // 33. Billing Provider: City State Zip
   $tmp = $claim->billingFacilityCity() ? ($claim->billingFacilityCity() . ' ') : '';
-  put_hcfa(60, 50, 25, $tmp . $claim->billingFacilityState() . ' ' .
+  put_hcfa(60, 50, 27, $tmp . $claim->billingFacilityState() . ' ' .
     $claim->billingFacilityZip());
 
   // 32a. Service Facility NPI
