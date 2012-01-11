@@ -42,9 +42,12 @@ class C_FormVitals extends Controller {
 
     	$dbconn = $GLOBALS['adodb']['db'];
     	//Combined query for retrieval of vital information which is not deleted
-    	$sql = "SELECT form_vitals.* from form_vitals,forms where form_vitals.id != $form_id and form_vitals.pid =". $GLOBALS['pid'];
-    	$sql .=" and forms.deleted!=1 and form_vitals.id=forms.form_id";
-        $sql .= " ORDER BY form_vitals.date DESC";
+      $sql = "SELECT fv.*, fe.date AS encdate " .
+        "FROM form_vitals AS fv, forms AS f, form_encounter AS fe WHERE " .
+        "fv.id != $form_id and fv.pid = " . $GLOBALS['pid'] . " AND " .
+        "f.formdir = 'vitals' AND f.deleted = 0 AND f.form_id = fv.id AND " .
+        "fe.pid = f.pid AND fe.encounter = f.encounter " .
+        "ORDER BY encdate DESC, fv.date DESC";
     	$result = $dbconn->Execute($sql);
 
         // get the patient's current age
@@ -55,9 +58,9 @@ class C_FormVitals extends Controller {
     	$i = 1;
     	while($result && !$result->EOF)
     	{
-    		
     		$results[$i]['id'] = $result->fields['id'];
-    		$results[$i]['date'] = $result->fields['date'];
+    		$results[$i]['encdate'] = substr($result->fields['encdate'], 0, 10);
+        $results[$i]['date'] = $result->fields['date'];
     		$results[$i]['activity'] = $result->fields['activity'];
     		$results[$i]['bps'] = $result->fields['bps'];
     		$results[$i]['bpd'] = $result->fields['bpd'];
