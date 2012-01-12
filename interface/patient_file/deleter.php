@@ -129,6 +129,15 @@ function submit_form()
 {
 document.deletefrm.submit();
 }
+// Java script function for closing the popup
+function popup_close() {
+	if(parent.$==undefined) {
+	  	window.close();
+	 }
+	 else {
+	  	parent.$.fn.fancybox.close(); 
+	 }	  
+}
 </script>
 </head>
 
@@ -360,7 +369,7 @@ document.deletefrm.submit();
 <p class="text">&nbsp;<br>
 <a href="#" onclick="submit_form()" class="css_button"><span><?php xl('Yes, Delete and Log','e'); ?></span></a>
 <input type='hidden' name='form_submit' value=<?php xl('Yes, Delete and Log','e','\'','\''); ?>/>
-<a href='#' class="css_button" onclick='parent.$.fn.fancybox.close();'><span><?php echo xl('No, Cancel');?></span></a>
+<a href='#' class="css_button" onclick=popup_close();><span><?php echo xl('No, Cancel');?></span></a>
 </p>
 
 </center>
