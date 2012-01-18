@@ -54,6 +54,7 @@ function updateApptTime(marker,index,y,date,provider)
                 if(index==0)
                     {
                         marker.hide();
+                        return;
                     }
             }
         marker.css("top",y);
