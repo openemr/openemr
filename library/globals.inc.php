@@ -1351,6 +1351,18 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Do not display Allergy uploaded to NewCrop')
     ),
+        
+    'erx_default_patient_country' => array(
+        xl('Default Patient Country'),
+        array(
+            '' => '',
+            'US' => 'USA',
+            'CA' => 'Canada',
+            'MX' => 'Mexico'
+        ),
+        '',
+        xl('Default Patient Country'),
+    ),
   ),
 );
 ?>
