@@ -302,11 +302,7 @@ f.create.value = '<?php echo htmlspecialchars( xl('Confirm Create New Patient'),
 <?php } ?>
 
 <?php if (!count($result)) { ?>
-if (confirm('<?php echo htmlspecialchars( xl('No matches were found. Create the new patient now?'), ENT_QUOTES); ?>')) {
- opener.top.restoreSession();
- f.submit();
-}
-window.close();
+$("<td><?php echo htmlspecialchars( xl('No matches were found.'), ENT_QUOTES); ?></td>").appendTo("#searchResults tr");
 <?php } ?>
 
 </script>
