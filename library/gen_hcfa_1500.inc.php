@@ -435,9 +435,6 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     ++$svccount;
     $lino = $svccount * 2 + 41;
 
-    //Note Codes.
-    put_hcfa($lino, 25, 7, $claim->cptNotecodes($hcfa_proc_index));
-
     // Drug Information. Medicaid insurers want this with HCPCS codes.
     //
     $ndc = $claim->cptNDCID($hcfa_proc_index);
@@ -454,6 +451,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
       put_hcfa($lino, 1, 50, "N4$ndc   " . $claim->cptNDCUOM($hcfa_proc_index) .
         $claim->cptNDCQuantity($hcfa_proc_index));
     }
+
+    //Note Codes.
+    put_hcfa($lino, 25, 7, $claim->cptNotecodes($hcfa_proc_index));
 
     // 24i and 24j Top. ID Qualifier and Rendering Provider ID
     if ($claim->supervisorNumber()) {
