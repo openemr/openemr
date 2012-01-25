@@ -557,6 +557,44 @@ INSERT INTO `config_seq` VALUES (0);
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `dated_reminders`
+--
+
+DROP TABLE IF EXISTS `dated_reminders`;
+CREATE TABLE `dated_reminders` (
+  `dr_id` int(11) NOT NULL AUTO_INCREMENT,
+  `dr_from_ID` int(11) NOT NULL,
+  `dr_message_text` varchar(160) NOT NULL,
+  `dr_message_sent_date` datetime NOT NULL,
+  `dr_message_due_date` date NOT NULL,
+  `pid` int(11) NOT NULL,
+  `message_priority` tinyint(1) NOT NULL,
+  `message_processed` tinyint(1) NOT NULL DEFAULT '0',
+  `processed_date` timestamp NULL DEFAULT NULL,
+  `dr_processed_by` int(11) NOT NULL,
+  PRIMARY KEY (`dr_id`),
+  KEY `dr_from_ID` (`dr_from_ID`,`dr_message_due_date`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dated_reminders_link`
+--
+
+DROP TABLE IF EXISTS `dated_reminders_link`;
+CREATE TABLE `dated_reminders_link` (           
+  `dr_link_id` int(11) NOT NULL AUTO_INCREMENT,
+  `dr_id` int(11) NOT NULL,
+  `to_id` int(11) NOT NULL,
+  PRIMARY KEY (`dr_link_id`),
+  KEY `to_id` (`to_id`),
+  KEY `dr_id` (`dr_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `documents`
 -- 

@@ -35,7 +35,17 @@ require_once("$srcdir/formatting.inc.php");
 </head>
 
 <body class="body_top">
-<?php
+
+<span class="title"><?php echo xlt('Message and Reminder Center'); ?></span>
+<br /><br />
+<span class="title"><?php echo xlt('Reminders'); ?></span>
+
+<?php       
+        
+        // TajEmo Work by CB 2012/01/11 02:51:25 PM adding dated reminders
+        // I am asuming that at this point security checks have been performed
+        require_once '../dated_reminders/dated_reminders.php';   
+        
 // Check to see if the user has Admin rights, and if so, allow access to See All.
 $showall = isset($_GET['show_all']) ? $_GET['show_all'] : "" ;
 if ($showall == "yes") {
