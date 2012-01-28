@@ -16,6 +16,10 @@ require_once("$srcdir/gprelations.inc.php");
 if ($_GET['file']) {
   $mode = 'fax';
   $filename = $_GET['file'];
+
+  // ensure the file variable has no illegal characters
+  check_file_dir_name($filename); 
+
   $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
 }
 else if ($_GET['scan']) {
