@@ -2,7 +2,10 @@
 include_once("../../globals.php");
 
 // allow a custom 'delete' form
-$deleteform = $incdir . "/forms/" . $_GET["formname"]."/delete.php";
+$deleteform = $incdir . "/forms/" . $_REQUEST["formname"]."/delete.php";
+
+check_file_dir_name($_REQUEST["formname"]);
+
 if (file_exists($deleteform)) {
     include_once($deleteform);
     exit;
