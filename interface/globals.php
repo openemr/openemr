@@ -180,6 +180,9 @@ include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 // Include convenience functions with shorter names than "htmlspecialchars"
 include_once (dirname(__FILE__) . "/../library/htmlspecialchars.inc.php");
 
+// Include sanitization/checking function (for security)
+include_once (dirname(__FILE__) . "/../library/sanitize.inc.php");
+
 // Includes functions for date internationalization
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
 

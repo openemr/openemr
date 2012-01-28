@@ -125,6 +125,10 @@ if ($is_lbf) {
   include_once("$incdir/forms/LBF/new.php");
 }
 else {
+
+  // ensure the path variable has no illegal characters
+  check_file_dir_name($formname);
+
   include_once("$incdir/forms/$formname/new.php");
 }
 ?>
