@@ -3,32 +3,32 @@ require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 if (!empty($GLOBALS['ippf_specific'])) {
   $ISSUE_TYPES = array(
-    // table type               plural                 singular          abbrev style
-    'medical_problem' => array(xl('Medical Problems'),xl('Problem')      ,xl('P'),0),
-    'allergy'         => array(xl('Allergies')       ,xl('Allergy')      ,xl('Y'),0),
-    'medication'      => array(xl('Medications')     ,xl('Medication')   ,xl('M'),0),
-    'surgery'         => array(xl('Surgeries')       ,xl('Surgery')      ,xl('S'),0),
-    'ippf_gcac'       => array(xl('Abortions')       ,xl('Abortion')     ,xl('A'),3),
-    'contraceptive'   => array(xl('Contraception')   ,xl('Contraception'),xl('C'),4),
+    // table type, plural, singular, abbrev, style, force show patient summary screen
+    'medical_problem' => array(xl('Medical Problems'),xl('Problem')      ,xl('P'),0,1),
+    'allergy'         => array(xl('Allergies')       ,xl('Allergy')      ,xl('Y'),0,1),
+    'medication'      => array(xl('Medications')     ,xl('Medication')   ,xl('M'),0,1),
+    'surgery'         => array(xl('Surgeries')       ,xl('Surgery')      ,xl('S'),0,0),
+    'ippf_gcac'       => array(xl('Abortions')       ,xl('Abortion')     ,xl('A'),3,0),
+    'contraceptive'   => array(xl('Contraception')   ,xl('Contraception'),xl('C'),4,0),
 //  'ippf_srh'        => array(xl('SRH')             ,xl('SRH')          ,xl('R'),5),
   );
 }
 else if (!empty($GLOBALS['athletic_team'])) {
   $ISSUE_TYPES = array(
-    'football_injury' => array(xl('Football Injuries'),xl('Injury') ,xl('I'),2),
-    'medical_problem' => array(xl('Medical Problems') ,xl('Medical'),xl('P'),0),
-    'allergy'         => array(xl('Allergies')        ,xl('Allergy'),xl('A'),1),
-    'general'         => array(xl('General')          ,xl('General'),xl('G'),1),
+    'football_injury' => array(xl('Football Injuries'),xl('Injury') ,xl('I'),2,1),
+    'medical_problem' => array(xl('Medical Problems') ,xl('Medical'),xl('P'),0,0),
+    'allergy'         => array(xl('Allergies')        ,xl('Allergy'),xl('A'),1,0),
+    'general'         => array(xl('General')          ,xl('General'),xl('G'),1,0),
   );
 }
 else { // default version
   $ISSUE_TYPES = array(
-    // table type                plural                 singular    abbrev style
-    'medical_problem' => array(xl('Medical Problems'),xl('Problem')   ,xl('P'),0),
-    'allergy'         => array(xl('Allergies')       ,xl('Allergy')   ,xl('A'),0),
-    'medication'      => array(xl('Medications')     ,xl('Medication'),xl('M'),0),
-    'surgery'         => array(xl('Surgeries')       ,xl('Surgery')   ,xl('S'),0),
-    'dental'          => array(xl('Dental Issues')   ,xl('Dental')    ,xl('D'),0),
+    // table type, plural, singular, abbrev, style, force show patient summary screen
+    'medical_problem' => array(xl('Medical Problems'),xl('Problem')   ,xl('P'),0,1),
+    'allergy'         => array(xl('Allergies')       ,xl('Allergy')   ,xl('A'),0,1),
+    'medication'      => array(xl('Medications')     ,xl('Medication'),xl('M'),0,1),
+    'surgery'         => array(xl('Surgeries')       ,xl('Surgery')   ,xl('S'),0,0),
+    'dental'          => array(xl('Dental Issues')   ,xl('Dental')    ,xl('D'),0,0),
     //
     // Styles are:
     // 0 - Normal, as in 2.8.1.
@@ -36,6 +36,12 @@ else { // default version
     //     no diagnosis, occurrence, end date, referred-by or sports fields.
     //     Internally we'll still use a null end date to indicate active.
     // 2 - Football Injury.
+    //
+    // force show patient summary screen is:
+    // 0 - Do not show this category on the patient summary screen if there have
+    //     been no issues entered in for this category.
+    // 1 - Show this category on the patient summary screen even if no issues have
+    //     been entered for this category.
     //
   );
 }
