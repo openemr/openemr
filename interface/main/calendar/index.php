@@ -44,7 +44,7 @@ if (isset($_POST['all_users'])) $_SESSION['pc_username'] = $_POST['all_users'];
 
 // bug fix to allow default selection of a provider
 // added 'if..POST' check -- JRM
-if (isset($_REQUEST['pc_username'])) $_SESSION['pc_username'] = $_REQUEST['pc_username'];
+if (isset($_REQUEST['pc_username']) && $_REQUEST['pc_username']) $_SESSION['pc_username'] = $_REQUEST['pc_username'];
 
 // (CHEMED) Get the width of vieport
 if (isset($_GET['framewidth'])) $_SESSION['pc_framewidth'] = $_GET['framewidth'];
