@@ -33,8 +33,8 @@
 // @ returns array with reminders for specified user, defaults to current user if none specified
 // ------------------------------------------------   
    function RemindersArray($days_to_show,$today,$alerts_to_show,$userID = false){
+        if(!$userID) $userID = $_SESSION['authId'];    
         global $hasAlerts;
-        if(!$userID) $userID = $_SESSION['authId'];
 // ----- define a blank reminders array
         $reminders = array();         
         
@@ -82,6 +82,59 @@
 // @ END OF RemindersArray function 
 // ------------------------------------------------   
 
+
+
+
+// ------------------------------------------------
+// @ GetDueReminder function
+// @ returns int with number of due reminders for specified user, defaults to current user if none specified
+// ------------------------------------------------   
+   function GetDueReminderCount($days_to_show,$today,$userID = false){
+        if(!$userID) $userID = $_SESSION['authId']; 
+        
+// ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)  
+          $drSQL = sqlStatement(
+                            "SELECT count(dr.dr_id) c
+                            FROM `dated_reminders` dr 
+                            JOIN `users` u ON dr.dr_from_ID = u.id 
+                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
+                            WHERE drl.to_id = ? 
+                            AND dr.`message_processed` = 0
+                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL $days_to_show DAY)"
+                            , array($userID)
+                            );                       
+        
+          $drRow=sqlFetchArray($drSQL);  
+          return $drRow['c'];
+     }  
+// ------------------------------------------------
+// @ END OF GetDueReminder function 
+// ------------------------------------------------   
+
+// ------------------------------------------------
+// @ GetAllReminderCount function
+// @ returns int with number of unprocessed reminders for specified user, defaults to current user if none specified
+// ------------------------------------------------   
+   function GetAllReminderCount($userID = false){
+        if(!$userID) $userID = $_SESSION['authId']; 
+        
+// ----- sql statement for getting uncompleted reminders  
+          $drSQL = sqlStatement(
+                            "SELECT count(dr.dr_id) c
+                            FROM `dated_reminders` dr 
+                            JOIN `users` u ON dr.dr_from_ID = u.id 
+                            JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
+                            WHERE drl.to_id = ? 
+                            AND dr.`message_processed` = 0"
+                            , array($userID)
+                            );                       
+        
+          $drRow=sqlFetchArray($drSQL);  
+          return $drRow['c'];
+     }  
+// ------------------------------------------------
+// @ END OF GetAllReminderCount function 
+// ------------------------------------------------  
 
 // ------------------------------------------------
 // @ getRemindersHTML(array $reminders)
@@ -135,17 +188,18 @@
 // @ setReminderAsProccessed(int $rID)
 // @ marks reminder as processed
 // ------------------------------------------------   
-function setReminderAsProcessed($rID){
+function setReminderAsProcessed($rID,$userID = false){
+  if(!$userID) $userID = $_SESSION['authId'];    
   if(is_numeric($rID) and $rID > 0){  
 // --- check if this user can remove this message
 // --- need a better way of checking the current user, I don't like using $_SESSION for checks
-      $rdrSQL = sqlStatement("SELECT count(dr.dr_id) c FROM `dated_reminders` dr JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id WHERE drl.to_id = ? AND dr.`dr_id` = ? LIMIT 0,1", array($_SESSION['authId'],$rID));  
+      $rdrSQL = sqlStatement("SELECT count(dr.dr_id) c FROM `dated_reminders` dr JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id WHERE drl.to_id = ? AND dr.`dr_id` = ? LIMIT 0,1", array($userID,$rID));  
       $rdrRow=sqlFetchArray($rdrSQL);
     
 // --- if this user can delete this message (ie if it was sent to this user)
       if($rdrRow['c'] == 1){  
 // ----- update the data, set the message to proccesses
-        sqlStatement("UPDATE `dated_reminders` SET  `message_processed` = 1, `processed_date` = NOW(), `dr_processed_by` = ? WHERE `dr_id` = ? ", array(intval($_SESSION['authId']),intval($rID)));  
+        sqlStatement("UPDATE `dated_reminders` SET  `message_processed` = 1, `processed_date` = NOW(), `dr_processed_by` = ? WHERE `dr_id` = ? ", array(intval($userID),intval($rID)));  
       } 
    }
 }    
@@ -158,10 +212,11 @@ function setReminderAsProcessed($rID){
 // @ getReminderById(int $mID)
 // @ returns an array with message details for forwarding
 // ------------------------------------------------ 
-function getReminderById($mID){
+function getReminderById($mID,$userID = false){
+  if(!$userID) $userID = $_SESSION['authId'];   
   $rdrSQL = sqlStatement("SELECT * FROM `dated_reminders` dr 
                             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
-                            WHERE drl.to_id = ? AND dr.`dr_id` = ? LIMIT 0,1", array($_SESSION['authId'],$mID));  
+                            WHERE drl.to_id = ? AND dr.`dr_id` = ? LIMIT 0,1", array($userID,$mID));  
   $rdrRow=sqlFetchArray($rdrSQL);
   if(!empty($rdrRow)){ 
     return $rdrRow;  
