@@ -40,7 +40,8 @@
 //   Portuguese (European)          // xl('Portuguese (European)')
 //   Russian                        // xl('Russian')
 //   Slovak                         // xl('Slovak')
-//   Spanish                        // xl('Spanish')
+//   Spanish (Latin American)       // xl('Spanish (Latin American)')
+//   Spanish (Spain)                // xl('Spanish (Spain)')
 //   Swedish                        // xl('Swedish')
 //   Turkish                        // xl('Turkish')
 
