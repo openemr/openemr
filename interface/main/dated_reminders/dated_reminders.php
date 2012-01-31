@@ -130,7 +130,8 @@
              }
              if(id == 'new'){
               $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
-             }    
+             }
+             top.restoreSession();
              $.post("<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders.php", { drR: id }, 
                function(data) {
                 if(data == 'error'){     
