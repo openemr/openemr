@@ -340,6 +340,33 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
       <br />
       <input type="submit" id="sendButton" value="<?php echo xla('Send This Message') ?>" />
     </form>
+    <?php 
+        $_GET['sentBy_me'] = $_SESSION['authId'];
+        $_GET['sd'] = strtotime(date('Y/m/d')); 
+        echo '<h2>',xlt('Messages You have sent Today'),'</h2>';
+        echo '<table border="1" width="100%" cellpadding="5px" id="logTable">
+                <thead>
+                  <tr>
+                    <th>'.xlt('ID').'</th>
+                    <th>'.xlt('To').'</th>
+                    <th>'.xlt('Patient').'</th>
+                    <th>'.xlt('Message').'</th>
+                    <th>'.xlt('Due Date').'</th>
+                  </tr>
+                </thead>
+                <tbody>';
+        $remindersArray = logRemindersArray();
+        foreach($remindersArray as $RA){ 
+          echo '<tr class="heading">
+                  <td>',text($RA['messageID']),'</td>
+                  <td>',text($RA['ToName']),'</td>
+                  <td>',text($RA['PatientName']),'</td>     
+                  <td>',text($RA['message']),'</td>    
+                  <td>',text($RA['dDate']),'</td>   
+                </tr>';
+        }
+        echo '</tbody></table>'; 
+    ?>
   </body>  
 <!-- stuff for the popup calendar -->
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
