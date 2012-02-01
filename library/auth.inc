@@ -89,7 +89,11 @@ if (!isset($_SESSION["last_update"])) {
         authCloseSession();
         authLoginScreen();
     } else {
-        if (empty($GLOBALS['DAEMON_FLAG'])) $_SESSION["last_update"] = time();
+        // Have a mechanism to skip the timeout reset mechanism if a skip_timeout_reset parameter exists. This
+        //  can be used by scripts that continually request information from the server; for example the Messages
+        //  and Reminders automated intermittent requests that happen in the Messages Center script and in 
+        //  the left navigation menu script.
+        if (empty($GLOBALS['DAEMON_FLAG']) && empty($_REQUEST['skip_timeout_reset'])) $_SESSION["last_update"] = time();
     }
 }
 

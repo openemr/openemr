@@ -363,7 +363,10 @@ function genFindBlock() {
  // tajemo work by CB 2012/01/31 12:32:57 PM dated reminders counter
  function getReminderCount(){ 
    top.restoreSession();
-   $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php", 
+   // Send the skip_timeout_reset parameter to not count this as a manual entry in the
+   //  timing out mechanism in OpenEMR.
+   $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/dated_reminders_counter.php",
+     { skip_timeout_reset: "1" }, 
      function(data) {
        $("#reminderCountSpan").html(data);
     // run updater every 60 seconds 

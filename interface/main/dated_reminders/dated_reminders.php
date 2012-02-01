@@ -132,7 +132,10 @@
               $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
              }
              top.restoreSession();
-             $.post("<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders.php", { drR: id }, 
+             // Send the skip_timeout_reset parameter to not count this as a manual entry in the
+             //  timing out mechanism in OpenEMR.
+             $.post("<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders.php",
+               { drR: id, skip_timeout_reset: "1" }, 
                function(data) {
                 if(data == 'error'){     
                   alert("<?php echo addslashes(xl('Error Removing Message')) ?>");  
