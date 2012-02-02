@@ -38,6 +38,7 @@
 //   Polish                         // xl('Polish')
 //   Portuguese (Brazilian)         // xl('Portuguese (Brazilian)')
 //   Portuguese (European)          // xl('Portuguese (European)')
+//   Romanian                       // xl('Romanian')
 //   Russian                        // xl('Russian')
 //   Slovak                         // xl('Slovak')
 //   Spanish (Latin American)       // xl('Spanish (Latin American)')
