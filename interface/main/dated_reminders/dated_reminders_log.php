@@ -116,7 +116,7 @@
 <?php 
   if($isAdmin){
     $allUsers = array();
-    $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND id != ?',array(intval($_SESSION['authId'])));
+    $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
     for($i=0; $uRow=sqlFetchArray($uSQL); $i++){ $allUsers[] = $uRow; } 
 ?>     
     <form method="get" id="logForm" onsubmit="return top.restoreSession()">         
@@ -130,33 +130,25 @@
 <!----------------------------------------------------------------------------------------------------------------------------------------------------->   
       </blockquote>
       <p style="line-height:1.8em;">       
-        <?php echo xlt('Sent By') ?> :                                     
-        <input type="checkbox" id="sentBy_all"><label for="sentBy_all"><?php echo xlt('Select All') ?></label><br />
-        <input class="sentBy" type="checkbox" name="sentBy_me" value="<?php echo attr(intval($_SESSION['authId'])) ?>" id="sentBy_me"><label for="sentBy_me"><?php echo xlt('Me') ?></label>&nbsp;&nbsp;&nbsp;&nbsp;   
-        <?php //  
-            $i = 2;   
+        <?php echo xlt('Sent By, Leave Blank For All') ?> :                                     
+        <select id="sentBy" name="sentBy[]" multiple="multiple">
+          <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself'); ?></option>
+          <?php      
             foreach($allUsers as $user){
-              echo '<input class="sentBy" type="checkbox" name="sentBy_',$i,'" id="sentBy_',$i,'" value="',attr($user['id']),'"><label for="sentBy_',$i,'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</label>&nbsp;&nbsp;&nbsp;&nbsp; ';
-              // line break for every 4 users
-              if($i % 4 == 0) echo "<br />";  
-              $i++; 
+              echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>'; 
             }
-        ?>    
-      </p>         
-<!----------------------------------------------------------------------------------------------------------------------------------------------------->     
-      <p style="line-height:1.8em;">  
-      <?php echo xlt('Sent To') ?> :     
-        <input type="checkbox" id="sentTo_all"><label for="sentTo_all"><?php echo xlt('Select All') ?></label><br />
-        <input class="sentTo" type="checkbox" name="sentTo_me" value="<?php echo attr(intval($_SESSION['authId'])) ?>" id="sentTo_me"><label for="sentTo_me"><?php echo xlt('Me') ?></label>&nbsp;&nbsp;&nbsp;&nbsp;   
-        <?php //  
-            $i = 2;   
+        ?>
+        </select>   
+        
+      <?php echo xlt('Sent To, Leave Blank For All') ?> :     
+        <select id="sentTo" name="sentTo[]" multiple="multiple">
+          <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself'); ?></option>
+          <?php      
             foreach($allUsers as $user){
-              echo '<input class="sentTo" type="checkbox" name="sentTo_',$i,'" id="sentTo_',$i,'" value="',attr($user['id']),'"><label for="sentTo_',$i,'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</label>&nbsp;&nbsp;&nbsp;&nbsp; ';
-              // line break for every 4 users
-              if($i % 4 == 0) echo "<br />";  
-              $i++; 
+              echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>'; 
             }
-        ?>  
+        ?>
+        </select>  
       </p>    
 <!-----------------------------------------------------------------------------------------------------------------------------------------------------> 
       <input type="checkbox" name="processed" id="processed"><label for="processed"><?php echo xlt('Processed') ?></label>      

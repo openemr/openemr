@@ -56,9 +56,12 @@
 // --------- loop through the results
         for($i=0; $drRow=sqlFetchArray($drSQL); $i++){  
 // --------- need to run patient query seperately to allow for reminders not linked to a patient  
-          $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.id = ?",array($drRow['pid']));  
-          $pRow = sqlFetchArray($pSQL);
-             
+          $pRow = array();
+          if($drRow['pid'] > 0){ 
+            $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?",array($drRow['pid']));  
+            $pRow = sqlFetchArray($pSQL);
+           }
+               
 // --------- fill the $reminders array 
       		$reminders[$i]['messageID'] = $drRow['dr_id'];  
           $reminders[$i]['PatientID'] = $drRow['pid'];
@@ -75,7 +78,7 @@
           if(strtotime($drRow['dr_message_due_date']) <= $today) $hasAlerts = true;  
       	} 
 // --------- END OF loop through the results
-
+         
         return $reminders;
      }   
 // ------------------------------------------------
@@ -143,7 +146,7 @@
      function getRemindersHTML($reminders = array(),$today){ 
        global $hasAlerts;      
 // --- initialize the string as blank
-       $pdHTML = '';        
+       $pdHTML = '';       
 // --- loop through the $reminders
        foreach($reminders as $r){ 
 // --- initialize $warning as the date, this is placed in front of the message
@@ -167,7 +170,7 @@
                           <a class="dnRemover css_button_small" onclick="updateme('."'".attr($r['messageID'])."'".')" id="'.attr($r['messageID']).'" href="#">
                             <span>'.xlt('Set As Completed').'</span>
                           </a> 
-                          <span title="'.xla('Click Patient Name to Open Patient').'" class="'.attr($class).'">'. 
+                          <span title="'.($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '').'" class="'.attr($class).'">'. 
                             $warning.'         
                             <span onclick="goPid('.attr($r['PatientID']).')" class="patLink" id="'.attr($r['PatientID']).'">'.
                               text($r['PatientName']).'
@@ -252,7 +255,7 @@ function sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority){
            strlen($message) <= 144 and strlen($message) > 0 and 
 // ------- check if PatientID is set and in numeric
            is_numeric($patID)                 
-         ){   
+         ){    
 // ------- check for valid recipient           
              $cRow=sqlFetchArray(sqlStatement('SELECT count(id) FROM  `users` WHERE  `id` = ?',array($sendDMTo)));    
              if($cRow == 0){ 
@@ -280,7 +283,7 @@ function sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority){
 // ---- returns string, blank if no current patient
 function getPatName($patientID){  
   $patientID = intval($patientID);
-  $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.id = ?",array($patientID));  
+  $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?",array($patientID));  
   $pRow = sqlFetchArray($pSQL); 
   return (empty($pRow) ? '' : $pRow['ptitle'].' '.$pRow['pfname'].' '.$pRow['pmname'].' '.$pRow['plname']);
 }   
@@ -292,22 +295,8 @@ function logRemindersArray(){
         $input = array(); 
         // set blank string for the query
         $where = '';        
-        $sentBy = array();       
-        $sentTo = array();     
-        
-// ----- HANDLE SENT BY AND SEND TO FILTER
-// ----- CREATES ARRAYS OF EACH TO BE HANDLED LATER  
-          foreach($_GET as $key=>$val){
-          // check for matches, make sure they are integers
-            if(preg_match('/^sentBy/',$key) and is_numeric($val)){
-              $sentBy[] = intval($val);
-              unset($_GET[$key]);
-            } 
-            if(preg_match('/^sentTo/',$key) and is_numeric($val)){
-              $sentTo[] = intval($val);
-              unset($_GET[$key]);
-            }  
-          }  
+        $sentBy = $_GET['sentBy'];       
+        $sentTo = $_GET['sentTo'];  
 //------------------------------------------
 // ----- HANDLE SENT BY FILTER 
           if(!empty($sentBy)){

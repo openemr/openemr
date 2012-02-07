@@ -75,21 +75,14 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
 
 // ---------------END FORWARDING MESSAGES ----------------   
 
- 
+       
+      
 // --- add reminders 
-      if($_POST){ 
+      if($_POST){  
 // --- initialize $output as blank      
         $output = '';  
- 
  // ------ fills an array with all recipients       
-          $sendTo = array();
-          foreach($_POST as $key=>$val){
-          // check for recipients, make sure they are integers
-            if(preg_match('/^sendTo_/',$key) and is_numeric($val)){
-              $sendTo[] = intval($val);
-              unset($_POST[$key]);
-            }  
-          } 
+          $sendTo = $_POST['sendTo']; 
       
       // for incase of data error, this allows the previously entered data to re-populate the boxes
         $this_message['message'] = (isset($_POST['message']) ? $_POST['message'] : '');  
@@ -116,10 +109,15 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
            $message = $_POST['message'];
            $fromID = $_SESSION['authId']; 
            $patID = $_POST['PatientID'];   
-
-            
+           if(isset($_POST['sendSeperately']) and $_POST['sendSeperately']){
+             foreach($sendTo as $st){
+               $ReminderSent = sendReminder(array($st),$fromID,$message,$dueDate,$patID,$priority);
+             }
+           }
+           else{
 // -------- Send the reminder           
-           $ReminderSent = sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority);
+             $ReminderSent = sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority);
+            }
 // --------------------------------------------------------------------------------------------------------------------------
            if(!$ReminderSent){ 
              $output .= '<div style="text-size:2em; text-align:center; color:red">* '.xlt('Please select a valid recipient').'</div> ';
@@ -210,13 +208,8 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
           
           // check to see if a recipient has been set
           // todo : check if they are all numeric , no rush as this is checked in the php after the post
-          noRecipient = true;
-          $('.sendTo').each(function(index) {
-              if($(this).is(":checked")){
-                noRecipient = false;
-              }
-          });
-          if(noRecipient){
+          
+          if (!$("#sendTo option:selected").length){
              errorMessage = errorMessage + '* <?php echo xla('Please Select A Recipient') ?><br />';
           }  
           
@@ -287,28 +280,23 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
         <input type='text' size='10' id='patientName' name='patientName' style='width:200px;cursor:pointer;cursor:hand' 
                value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' 
                title='<?php xla('Click to select patient'); ?>' readonly /> 
-        <input name="PatientID" id="PatientID" type="hidden" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" /> 
+        <input name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" /> 
         <button <?php echo ($patientID > 0 ? '' : 'style="display:'.attr('none').'"') ?> id="removePatient"><?php echo xlt('unlink patient') ?></button> 
         
         
      <br /><br />  
-     
-        
-     <?php echo xlt('Send to') ?> :  <p style="line-height:1.8em;">
-               <input class="sendTo" type="checkbox" name="sendTo_me" value="<?php echo attr(intval($_SESSION['authId'])) ?>" id="me"><label for="me"><?php echo xlt('Myself') ?></label>&nbsp;&nbsp;&nbsp;&nbsp; 
-                <?php //     
-                    $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND id != ?',array(intval($_SESSION['authId'])));
-                    for($i=2; $uRow=sqlFetchArray($uSQL); $i++){  
-                      echo '<input class="sendTo" type="checkbox" name="sendTo_',$i,'" id="sendTo_',$i,'" value="',attr($uRow['id']),'"><label for="sendTo_',$i,'">',text($uRow['fname'].' '.$uRow['mname'].' '.$uRow['lname']),'</label>&nbsp;&nbsp;&nbsp;&nbsp; ';
-                      // line break for every 4 users
-                      if($i % 4 == 0) echo "<br />";  
-                    }
-                ?>      
-               </p> 
+       <?php echo xlt('Send to') ?> :     <select id="sendTo" name="sendTo[]" multiple="multiple">
+                                            <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself'); ?></option>
+                                            <?php //     
+                                                $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
+                                                for($i=2; $uRow=sqlFetchArray($uSQL); $i++){  
+                                                  echo '<option value="',attr($uRow['id']),'">',text($uRow['fname'].' '.$uRow['mname'].' '.$uRow['lname']),'</option>';  
+                                                }
+                                            ?>    
+                                          </select> 
+      &nbsp;&nbsp;&nbsp; <label for="sendSeperately"><?php echo xlt('Each recipient must set their own messages as completed') ?></label> <input type="checkbox" name="sendSeperately" id="sendSeperately" />                                           
                
-               
-               
-                   
+                                         <br />  <br />  
       <?php echo xlt('Due Date') ?> : <input type='text' name='dueDate' id="dueDate" size='20' value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />      
       <?php echo xlt('OR') ?> 
       <?php echo xlt('Select a time span') ?> : <select id="timeSpan">
