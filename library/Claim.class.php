@@ -17,6 +17,21 @@ function x12clean($str) {
   return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?= ]/', '', strtoupper($str));
 }
 
+// Make sure dates have no formatting and zero filled becomes blank
+// Handles date time stamp formats as well 
+//
+function cleanDate($date_field)
+  {
+      $cleandate = str_replace('-', '', substr($date_field, 0, 10));
+      
+      if(substr_count($cleandate,'0')==8)
+      {
+          $cleandate='';
+      }
+      
+      return ($cleandate);
+  }
+  
 class Claim {
 
   var $pid;               // patient id
@@ -37,7 +52,7 @@ class Claim {
   var $invoice;           // result from get_invoice_summary()
   var $payers;            // array of arrays, for all payers
   var $copay;             // total of copays from the billing table
-
+  
   function loadPayerInfo(&$billrow) {
     global $sl_err;
     $encounter_date = substr($this->encounter['date'], 0, 10);
@@ -995,15 +1010,13 @@ class Claim {
     return '';
   }
 
-  function onsetDate() {//Without the else clause in the claim zero value is coming.
-    $replace_value=str_replace('-', '', substr($this->encounter['onset_date'], 0, 10));
-	if($replace_value*1<>0)
-    {
-	 return $replace_value;
-	}
-	else{
-	 return '';
-	}
+  function onsetDate() {
+    return cleanDate($this->encounter['onset_date']);
+  }
+  
+  function onsetDateValid()
+  {
+      return onsetDate()!=='';
   }
 
   function serviceDate() {
@@ -1035,11 +1048,11 @@ class Claim {
   }
 
   function offWorkFrom() {
-    return str_replace('-', '', substr($this->billing_options['off_work_from'], 0, 10));
+    return cleanDate($this->billing_options['off_work_from']);
   }
 
   function offWorkTo() {
-    return str_replace('-', '', substr($this->billing_options['off_work_to'], 0, 10));
+    return cleanDate($this->billing_options['off_work_to']);
   }
 
   function isHospitalized() {
@@ -1047,11 +1060,11 @@ class Claim {
   }
 
   function hospitalizedFrom() {
-    return str_replace('-', '', substr($this->billing_options['hospitalization_date_from'], 0, 10));
+    return cleanDate($this->billing_options['hospitalization_date_from']);
   }
 
   function hospitalizedTo() {
-    return str_replace('-', '', substr($this->billing_options['hospitalization_date_to'], 0, 10));
+    return cleanDate($this->billing_options['hospitalization_date_to']);
   }
 
   function isOutsideLab() {
@@ -1079,7 +1092,7 @@ class Claim {
   }
 
   function dateInitialTreatment() {
-    return str_replace('-', '', substr($this->billing_options['date_initial_treatment'], 0, 10));
+    return cleanDate($this->billing_options['date_initial_treatment']);
   }
 
   // Returns an array of unique diagnoses.  Periods are stripped.
