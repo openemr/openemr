@@ -449,7 +449,10 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     ($CMS_5010 ? "" : "*C") .
     "~\n"; 
 
-  if ($claim->onsetDate() && ($claim->onsetDate()!==$claim->serviceDate())) {
+  if ($claim->onsetDate() && 
+      ($claim->onsetDate()!== $claim->serviceDate()) &&
+      ($claim->onsetDateValid()) 
+     ) {
     ++$edicount;
     $out .= "DTP" .       // Date of Onset
       "*431" .
@@ -458,7 +461,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "~\n";
   }
 
-  if ($claim->dateInitialTreatment()) {
+  if ($claim->dateInitialTreatment() && ($claim->onsetDateValid())) {
     ++$edicount;
     $out .= "DTP" .       // Date of Initial Treatment
       "*454" .
@@ -477,7 +480,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   // Segment DTP*297 (Last Worked Date) omitted.
   // Segment DTP*296 (Authorized Return to Work Date) omitted.
 
-  if (strcmp($claim->facilityPOS(),'21') == 0) {
+  if (strcmp($claim->facilityPOS(),'21') == 0 && $claim->onsetDateValid() ) {
     ++$edicount;
     $out .= "DTP" .     // Date of Hospitalization
       "*435" .
