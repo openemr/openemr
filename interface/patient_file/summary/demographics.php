@@ -88,7 +88,7 @@ function image_widget($doc_id,$doc_catg)
         $docobj = new Document($doc_id);
         $image_file = $docobj->get_url_file();
         $extension = substr($image_file, strrpos($image_file,"."));
-        $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp'); // image ext supported by fancybox viewer
+        $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP'); // image ext supported by fancybox viewer
         if ( in_array($extension,$viewable_types) ) { // extention matches list
                 $to_url = "<td> <a href = $web_root" .
 				"/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id" .
