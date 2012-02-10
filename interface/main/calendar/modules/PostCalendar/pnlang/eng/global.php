@@ -74,7 +74,7 @@ define('_CALLONGFIRSTDAY', xl ('Sunday') );
 define('_CALLONGSECONDDAY', xl ('Monday') );
 define('_CALLONGTHIRDDAY', xl ('Tuesday') );
 define('_CALLONGFOURTHDAY', xl ('Wednesday') );
-define('_CALLONGFIFTHDAY', xl ('Thurdsay') );
+define('_CALLONGFIFTHDAY', xl ('Thursday') );
 define('_CALLONGSIXTHDAY', xl ('Friday') );
 define('_CALLONGSEVENTHDAY', xl ('Saturday') );
 define('_CALMONDAYSHORT', 'M');
