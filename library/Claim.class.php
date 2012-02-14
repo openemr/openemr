@@ -537,6 +537,15 @@ class Claim {
     return $tmp;
   }
 
+  function x12gs03() {
+    //In some clearing houses ISA08 and GS03 are different
+    //Example: http://www.acs-gcro.com/downloads/DOL/DOL_CG_X12N_5010_837_v1_02.pdf - Page 18
+    if($this->x12_partner['x12_gs03'] !== '')
+     return $this->x12_partner['x12_gs03'];
+    else
+      return $this->x12gsreceiverid();
+  }
+
   function x12gsreceiverid() {
     $tmp = $this->x12_partner['x12_receiver_id'];
     while (strlen($tmp) < 15) $tmp .= " ";

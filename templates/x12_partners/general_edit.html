@@ -78,6 +78,10 @@ document.x12_partner.name.focus();
         <td VALIGN="MIDDLE" >{xl t='Processing'}&nbsp;{xl t='Format'}</td>
         <td COLSPAN="2" VALIGN="MIDDLE" >{html_options name="processing_format" options=$partner->get_processing_format_array() selected=$partner->get_processing_format()}</td>
     </tr>
+    <tr>
+	<td VALIGN="MIDDLE" >{xl t='Application Receiver Code (GS03 - If blank ISA08 will be used)'}</td>
+	<td COLSPAN="2" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_gs03" value="{$partner->get_x12_gs03()}" onKeyDown="PreventIt(event)" maxlength="15"/></td>
+    </tr>
 <tr height="25"><td colspan="2">&nbsp;</td></tr>
 <tr>
 	<td colspan="2">

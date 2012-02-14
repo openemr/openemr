@@ -50,7 +50,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   $out .= "GS" .
     "*HC" .
     "*" . $claim->x12gsgs02() .
-    "*" . trim($claim->x12gsreceiverid()) .
+    "*" . trim($claim->x12gs03()) .
     "*" . date('Ymd', $today) .
     "*" . date('Hi', $today) .
     "*1" .

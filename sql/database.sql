@@ -4841,6 +4841,7 @@ CREATE TABLE `x12_partners` (
   `x12_isa15` char(1)     NOT NULL DEFAULT 'P',
   `x12_gs02`  varchar(15) NOT NULL DEFAULT '',
   `x12_per06` varchar(80) NOT NULL DEFAULT '',
+  `x12_gs03`  varchar(15) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM;
 

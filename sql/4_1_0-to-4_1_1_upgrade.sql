@@ -167,3 +167,7 @@ CREATE TABLE `dated_reminders_link` (
             KEY `dr_id` (`dr_id`)
           ) ENGINE=MyISAM AUTO_INCREMENT=1;
 #EndIf
+
+#IfMissingColumn x12_partners x12_gs03
+ALTER TABLE `x12_partners` ADD COLUMN `x12_gs03` VARCHAR(15) NOT NULL DEFAULT '';
+#EndIf

@@ -22,6 +22,7 @@ class X12Partner extends ORDataObject{
 	var $x12_version;
 	var $processing_format;
 	var $processing_format_array;
+	var $x12_gs03; // Application Sender's Code. Default to ISA08.
 
 	/**
 	 * Constructor sets all Insurance attributes to their default value
@@ -170,6 +171,14 @@ class X12Partner extends ORDataObject{
 	
 	function set_processing_format($string) {
 			$this->processing_format = $string;
+	}
+	
+	function get_x12_gs03() {
+		return $this->x12_gs03;
+	}
+	
+	function set_x12_gs03($string) {
+			$this->x12_gs03 = $string;
 	}
 
   function get_x12_isa14_array() {
