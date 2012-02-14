@@ -13,16 +13,16 @@ class X12Partner extends ORDataObject{
 	var	$id_number;
 	var $x12_sender_id;   // ISA06
 	var $x12_receiver_id; // ISA08
-  var $x12_isa05; // Sender Interchange ID Qualifier. ZZ = mutually defined, 01 = Duns, etc.
-  var $x12_isa07; // Receiver Interchange ID Qualifier.
-  var $x12_isa14; // Acknowledgment Requested. 0 = No, 1 = Yes.
-  var $x12_isa15; // Usage Indicator. T = testing, P = production.
-  var $x12_gs02;  // Application Sender's Code. Default to ISA06.
-  var $x12_per06; // The submitter's EDI Access Number, if any.
+        var $x12_isa05; // Sender Interchange ID Qualifier. ZZ = mutually defined, 01 = Duns, etc.
+        var $x12_isa07; // Receiver Interchange ID Qualifier.
+        var $x12_isa14; // Acknowledgment Requested. 0 = No, 1 = Yes.
+        var $x12_isa15; // Usage Indicator. T = testing, P = production.
+        var $x12_gs02;  // Application Sender's Code. Default to ISA06.
+        var $x12_per06; // The submitter's EDI Access Number, if any.
 	var $x12_version;
 	var $processing_format;
 	var $processing_format_array;
-	var $x12_gs03; // Application Sender's Code. Default to ISA08.
+	var $x12_gs03; // Application Sender's Code. If this isn't set then we will use the $x12_receiver_id(ISA08).
 
 	/**
 	 * Constructor sets all Insurance attributes to their default value
@@ -172,11 +172,11 @@ class X12Partner extends ORDataObject{
 	function set_processing_format($string) {
 			$this->processing_format = $string;
 	}
-	
+
 	function get_x12_gs03() {
 		return $this->x12_gs03;
 	}
-	
+
 	function set_x12_gs03($string) {
 			$this->x12_gs03 = $string;
 	}

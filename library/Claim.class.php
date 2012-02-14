@@ -538,12 +538,23 @@ class Claim {
   }
 
   function x12gs03() {
-    //In some clearing houses ISA08 and GS03 are different
-    //Example: http://www.acs-gcro.com/downloads/DOL/DOL_CG_X12N_5010_837_v1_02.pdf - Page 18
+   /*
+    * GS03: Application Receiver's Code
+    * Code Identifying Party Receiving Transmission
+    *
+    * In most cases, the ISA08 and GS03 are the same. However
+    *
+    * In some clearing houses ISA08 and GS03 are different
+    * Example: http://www.acs-gcro.com/downloads/DOL/DOL_CG_X12N_5010_837_v1_02.pdf - Page 18
+    * In this .pdf, the ISA08 is specified to be 100000 while the GS03 is specified to be 77044
+    *
+    * Therefore if the x12_gs03 segement is explicitly specified we use that value,
+    * otherwise we simply use the same receiver ID as specified for ISA03
+    */
     if($this->x12_partner['x12_gs03'] !== '')
-     return $this->x12_partner['x12_gs03'];
+        return $this->x12_partner['x12_gs03'];
     else
-      return $this->x12gsreceiverid();
+        return $this->x12_partner['x12_receiver_id'];
   }
 
   function x12gsreceiverid() {
