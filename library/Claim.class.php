@@ -1174,6 +1174,20 @@ class Claim {
       $this->provider : $this->procs[$prockey]['provider'];
     return x12clean(trim($tmp['npi']));
   }
+  
+  function NPIValid($npi)
+  {
+      // A NPI MUST be a 10 digit number
+      if($npi==='') return false;
+      if(strlen($npi)!=10) return false;
+      if(!preg_match("/[0-9]*/",$npi)) return false;
+      return true;      
+      
+  }
+  function providerNPIValid($prockey=-1)
+  {
+      return $this->NPIValid($this->providerNPI($prockey));
+  }
 
   function providerUPIN($prockey=-1) {
     $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
