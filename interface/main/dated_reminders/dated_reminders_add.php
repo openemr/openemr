@@ -263,7 +263,11 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
         	} else {
         		limitCount.value = limitNum - limitField.value.length;
         	}
-      }
+        }
+        
+        function selectAll(){
+          $("#sendTo").each(function(){$("#sendTo option").attr("selected","selected"); }); 
+        }
     </script> 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
   </head>
@@ -273,64 +277,116 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
 
 
     <h1><?php echo xlt('Send a Reminder') ?></h1>
-    <form id="addDR" style="margin-left:40px;" id="newMessage" method="post" onsubmit="return top.restoreSession()">
-     <div style="text-size:2em; text-align:center; color:red" id="errorMessage"></div>   
+    <form id="addDR" style="margin:0 0 10px 0;" id="newMessage" method="post" onsubmit="return top.restoreSession()">
+     <div style="text-align:center; color:red" id="errorMessage"></div>   
      
+     <fieldset>          
         <?php echo xlt('Link To Patient') ?> :
         <input type='text' size='10' id='patientName' name='patientName' style='width:200px;cursor:pointer;cursor:hand' 
                value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' 
                title='<?php xla('Click to select patient'); ?>' readonly /> 
-        <input name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" /> 
-        <button <?php echo ($patientID > 0 ? '' : 'style="display:'.attr('none').'"') ?> id="removePatient"><?php echo xlt('unlink patient') ?></button> 
-        
-        
-     <br /><br />  
-       <?php echo xlt('Send to') ?> :     <select id="sendTo" name="sendTo[]" multiple="multiple">
-                                            <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself'); ?></option>
-                                            <?php //     
-                                                $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
-                                                for($i=2; $uRow=sqlFetchArray($uSQL); $i++){  
-                                                  echo '<option value="',attr($uRow['id']),'">',text($uRow['fname'].' '.$uRow['mname'].' '.$uRow['lname']),'</option>';  
-                                                }
-                                            ?>    
-                                          </select> 
-      &nbsp;&nbsp;&nbsp; <label for="sendSeperately"><?php echo xlt('Each recipient must set their own messages as completed') ?></label> <input type="checkbox" name="sendSeperately" id="sendSeperately" />                                           
-               
-                                         <br />  <br />  
-      <?php echo xlt('Due Date') ?> : <input type='text' name='dueDate' id="dueDate" size='20' value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />      
-      <?php echo xlt('OR') ?> 
-      <?php echo xlt('Select a time span') ?> : <select id="timeSpan">
-                                <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
-                                <?php 
-                                  $optionTxt = '';
-                                  foreach($dateRanges as $val=>$txt){   
-                                    $optionTxt .= '<option value="'.attr($val).'">'.text($txt).'</option>';  
-                                 } 
-                                 echo $optionTxt;
-                                ?>     
-                             </select>    
-      <br />         
-      <br />
-      <?php echo xlt('Priority') ?> :    
-                 <input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_3" value='3'> <label for="priority_3"><?php echo xlt('Low') ?></label> 
-                 <input <?php echo ($this_message['message_priority'] == 2 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_2" value='2'> <label for="priority_2"><?php echo xlt('Medium') ?></label>   
-                 <input <?php echo ($this_message['message_priority'] == 1 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_1" value='1'> <label for="priority_1"><?php echo xlt('High') ?></label> 
-      <br />         
-      <br />
-      <?php echo xlt('Type Your message here') ?> : <br /><br />
-      <font size="1">(<?php echo xlt('Maximum characters') ?>: 144)<br>
-      <textarea onKeyDown="limitText(this.form.message,this.form.countdown,144);" 
-                onKeyUp="limitText(this.form.message,this.form.countdown,144);" 
-                style="width:98%; height:50px" name="message" id="message"><?php echo text($this_message['message']); ?></textarea>
-      <br>
-      <?php echo xlt('Characters Remaining') ?> : <input readonly type="text" name="countdown" size="3" value="144"> </font>                
-      <br />
-      <br />
-      <input type="submit" id="sendButton" value="<?php echo xla('Send This Message') ?>" />
+        <input type="hidden" name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" /> 
+        <button <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient"><?php echo xlt('unlink patient') ?></button>  
+    </fieldset> 
+    
+      
+     <br />
+     
+     
+    <fieldset>          
+         <table style="width:100%;" cellpadding="5px">
+          <tr>
+            <td style="width:20%; text-align:right" valign="top"> 
+              <?php echo xlt('Send to') ?> :  <br /><?php echo xlt('([ctrl] + click to select multiple recipients)'); ?> 
+            </td> 
+             <td  style="width:60%;">     
+              <select style="width:100%" id="sendTo" name="sendTo[]" multiple="multiple">
+                <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
+                <?php //     
+                    $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
+                    for($i=2; $uRow=sqlFetchArray($uSQL); $i++){  
+                      echo '<option value="',attr($uRow['id']),'">',text($uRow['fname'].' '.$uRow['mname'].' '.$uRow['lname']),'</option>';  
+                    }
+                ?>    
+              </select> <br /> 
+              <input title="<?php echo xlt('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" type="checkbox" name="sendSeperately" id="sendSeperately" />  <label title="<?php echo xlt('Selecting this will create a message that needs to be proccessed by each recipient individually, this is not a group task') ?>" for="sendSeperately">(<?php echo xlt('each recipient must set their own messages as completed ? ') ?>)</label>                                       
+            </td>
+            <td style="text-align:right"> 
+              <a class="css_button_small" style="cursor:pointer" onclick="selectAll();" ><span><?php echo xlt('Send to all') ?></span></a>
+            </td> 
+          </table>
+    </fieldset>   
+     
+      <br />   
+       
+    <fieldset>          
+            <?php echo xlt('Due Date') ?> : <input type='text' name='dueDate' id="dueDate" size='20' value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />      
+            <?php echo xlt('OR') ?> 
+            <?php echo xlt('Select a time span') ?> : <select id="timeSpan">
+                                      <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
+                                      <?php 
+                                        $optionTxt = '';
+                                        foreach($dateRanges as $val=>$txt){   
+                                          $optionTxt .= '<option value="'.attr($val).'">'.text($txt).'</option>';  
+                                       } 
+                                       echo $optionTxt;
+                                      ?>     
+                                   </select>    
+          </td>  
+    </fieldset>   
+     
+                
+      <br />  
+      
+      
+      
+    <fieldset>
+            <?php echo xlt('Priority') ?> :    
+             <input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_3" value='3'> <label for="priority_3"><?php echo xlt('Low') ?></label> 
+             <input <?php echo ($this_message['message_priority'] == 2 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_2" value='2'> <label for="priority_2"><?php echo xlt('Medium') ?></label>   
+             <input <?php echo ($this_message['message_priority'] == 1 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_1" value='1'> <label for="priority_1"><?php echo xlt('High') ?></label>     
+    </fieldset>                       
+     
+     
+      <br />  
+      
+      
+    <fieldset>
+      <table style="width:100%;">
+        <tr>
+          <td valign="top" style="width:25%">
+            <?php echo xlt('Type Your message here') ?> :<br /><br /> 
+            <font size="1">(<?php echo xlt('Maximum characters') ?>: 255)<br />
+          </td>  
+          <td valign="top" style="width:75%">
+                <textarea onKeyDown="limitText(this.form.message,this.form.countdown,255);" 
+                onKeyUp="limitText(this.form.message,this.form.countdown,255);" 
+                style="width:100%; height:50px" name="message" id="message"><?php echo text($this_message['message']); ?></textarea>  
+                <br />
+                <?php echo xlt('Characters Remaining') ?> : <input style="border:0; background:none;" readonly type="text" name="countdown" size="3" value="255"> </font>   
+          </td>  
+        </tr>
+      </table> 
+    </fieldset>
+    
+    
+      <p align="center">
+        <input type="submit" id="sendButton" value="<?php echo xla('Send This Message') ?>" />
+      </p>
     </form>
     <?php 
         $_GET['sentBy_me'] = $_SESSION['authId'];
         $_GET['sd'] = strtotime(date('Y/m/d')); 
+        $TempRemindersArray = logRemindersArray();
+        $remindersArray = array();
+        foreach($TempRemindersArray as $RA){
+          $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID']; 
+          $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'].', '.$RA['ToName'] : $RA['ToName']);
+          $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
+          $remindersArray[$RA['messageID']]['message'] = $RA['message'];   
+          $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate']; 
+        }
+        
         echo '<h2>',xlt('Messages You have sent Today'),'</h2>';
         echo '<table border="1" width="100%" cellpadding="5px" id="logTable">
                 <thead>
@@ -342,8 +398,8 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
                     <th>'.xlt('Due Date').'</th>
                   </tr>
                 </thead>
-                <tbody>';
-        $remindersArray = logRemindersArray();
+                <tbody>'; 
+        
         foreach($remindersArray as $RA){ 
           echo '<tr class="heading">
                   <td>',text($RA['messageID']),'</td>
