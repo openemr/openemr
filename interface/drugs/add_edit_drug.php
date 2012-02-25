@@ -33,12 +33,6 @@ function bucks($amount) {
   return '';
 }
 
-// Format a string to be used in a quoted HTML form attribute.
-//
-function htmlAttr($value) {
-  return htmlspecialchars($value, ENT_QUOTES);
-}
-
 // Write a line of data for one template to the form.
 //
 function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $prices, $taxrates) {
@@ -47,10 +41,10 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 
   echo " <tr>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='form_tmpl[$tmpl_line_no][selector]' value='" . htmlAttr($selector) . "' size='8' maxlength='100'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][selector]' value='" . attr($selector) . "' size='8' maxlength='100'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='form_tmpl[$tmpl_line_no][dosage]' value='" . htmlAttr($dosage) . "' size='6' maxlength='10'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][dosage]' value='" . attr($dosage) . "' size='6' maxlength='10'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
   generate_form_field(array(
@@ -61,21 +55,21 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
     ), $period);
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='form_tmpl[$tmpl_line_no][quantity]' value='" . htmlAttr($quantity) . "' size='3' maxlength='7'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][quantity]' value='" . attr($quantity) . "' size='3' maxlength='7'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='form_tmpl[$tmpl_line_no][refills]' value='" . htmlAttr($refills) . "' size='3' maxlength='5'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][refills]' value='" . attr($refills) . "' size='3' maxlength='5'>";
   echo "</td>\n";
   foreach ($prices as $pricelevel => $price) {
     echo "  <td class='tmplcell'>";
-    echo "<input type='text' name='form_tmpl[$tmpl_line_no][price][" . htmlAttr($pricelevel) . "]' value='" . htmlAttr($price) . "' size='6' maxlength='12'>";
+    echo "<input type='text' name='form_tmpl[$tmpl_line_no][price][" . attr($pricelevel) . "]' value='" . attr($price) . "' size='6' maxlength='12'>";
     echo "</td>\n";
   }
   $pres = sqlStatement("SELECT option_id FROM list_options " .
     "WHERE list_id = 'taxrate' ORDER BY seq");
   while ($prow = sqlFetchArray($pres)) {
     echo "  <td class='tmplcell'>";
-    echo "<input type='checkbox' name='form_tmpl[$tmpl_line_no][taxrate][" . htmlAttr($prow['option_id']) . "]' value='1'";
+    echo "<input type='checkbox' name='form_tmpl[$tmpl_line_no][taxrate][" . attr($prow['option_id']) . "]' value='1'";
     if (strpos(":$taxrates", $prow['option_id']) !== false) echo " checked";
     echo " /></td>\n";
   }
@@ -89,7 +83,7 @@ function escapedff($name) {
 }
 function numericff($name) {
   $field = trim($_POST[$name]) + 0;
-  return $field;
+  return add_escape_custom($field);
 }
 ?>
 <html>
@@ -315,7 +309,7 @@ else {
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Name'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_name' maxlength='80' value='<?php echo htmlAttr($row['name']) ?>' style='width:100%' />
+   <input type='text' size='40' name='form_name' maxlength='80' value='<?php echo attr($row['name']) ?>' style='width:100%' />
   </td>
  </tr>
 
@@ -340,7 +334,7 @@ else {
   <td valign='top' nowrap><b><?php echo xlt('NDC Number'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_ndc_number' maxlength='20'
-    value='<?php echo htmlAttr($row['ndc_number']) ?>' style='width:100%'
+    value='<?php echo attr($row['ndc_number']) ?>' style='width:100%'
     onkeyup='maskkeyup(this,"<?php echo addslashes($GLOBALS['gbl_mask_product_id']); ?>")'
     onblur='maskblur(this,"<?php echo addslashes($GLOBALS['gbl_mask_product_id']); ?>")'
     />
@@ -350,7 +344,7 @@ else {
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('On Order'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_on_order' maxlength='7' value='<?php echo htmlAttr($row['on_order']) ?>' />
+   <input type='text' size='5' name='form_on_order' maxlength='7' value='<?php echo attr($row['on_order']) ?>' />
   </td>
  </tr>
 
@@ -375,7 +369,7 @@ else {
   while ($pwrow = sqlFetchArray($pwres)) {
     $pwarr[] = $pwrow;
     echo "     <td valign='top' nowrap>" .
-      htmlspecialchars($pwrow['title']) . "</td>\n";
+      text($pwrow['title']) . "</td>\n";
   }
 ?>
     </tr>
@@ -383,7 +377,7 @@ else {
      <td valign='top' nowrap><?php echo xlt('Min'); ?>&nbsp;</td>
      <td valign='top'>
       <input type='text' size='5' name='form_reorder_point' maxlength='7'
-       value='<?php echo htmlAttr($row['reorder_point']) ?>'
+       value='<?php echo attr($row['reorder_point']) ?>'
        title='<?php echo xla('Reorder point, 0 if not applicable'); ?>'
        />&nbsp;&nbsp;
      </td>
@@ -391,8 +385,8 @@ else {
   foreach ($pwarr as $pwrow) {
     echo "     <td valign='top'>";
     echo "<input type='text' name='form_wh_min[" .
-      htmlAttr($pwrow['option_id']) .
-      "]' value='" . (0 + $pwrow['pw_min_level']) . "' size='5' " .
+      attr($pwrow['option_id']) .
+      "]' value='" . attr(0 + $pwrow['pw_min_level']) . "' size='5' " .
       "title='" . xla('Warehouse minimum, 0 if not applicable') . "' />";
     echo "&nbsp;&nbsp;</td>\n";
   }
@@ -402,7 +396,7 @@ else {
      <td valign='top' nowrap><?php echo xlt('Max'); ?>&nbsp;</td>
      <td>
       <input type='text' size='5' name='form_max_level' maxlength='7'
-       value='<?php echo htmlAttr($row['max_level']) ?>'
+       value='<?php echo attr($row['max_level']) ?>'
        title='<?php echo xla('Maximum reasonable inventory, 0 if not applicable'); ?>'
        />
      </td>
@@ -411,7 +405,7 @@ else {
     echo "     <td valign='top'>";
     echo "<input type='text' name='form_wh_max[" .
       htmlspecialchars($pwrow['option_id']) .
-      "]' value='" . (0 + $pwrow['pw_max_level']) . "' size='5' " .
+      "]' value='" . attr(0 + $pwrow['pw_max_level']) . "' size='5' " .
       "title='" . xla('Warehouse maximum, 0 if not applicable') . "' />";
     echo "</td>\n";
   }
@@ -433,7 +427,7 @@ else {
  <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php echo xlt('Pill Size'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_size' maxlength='7' value='<?php echo htmlAttr($row['size']) ?>' />
+   <input type='text' size='5' name='form_size' maxlength='7' value='<?php echo attr($row['size']) ?>' />
   </td>
  </tr>
 
@@ -458,7 +452,7 @@ else {
  <tr class='ippfonly'>
   <td valign='top' nowrap><b><?php echo xlt('CYP Factor'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_cyp_factor' maxlength='20' value='<?php echo htmlAttr($row['cyp_factor']) ?>' />
+   <input type='text' size='10' name='form_cyp_factor' maxlength='20' value='<?php echo attr($row['cyp_factor']) ?>' />
   </td>
  </tr>
 
@@ -466,7 +460,7 @@ else {
   <td valign='top' nowrap><b><?php echo xlt('Relate To'); ?>:</b></td>
   <td>
    <input type='text' size='50' name='form_related_code'
-    value='<?php echo htmlAttr($row['related_code']) ?>' onclick='sel_related()'
+    value='<?php echo attr($row['related_code']) ?>' onclick='sel_related()'
     title='<?php echo xla('Click to select related code'); ?>'
     style='width:100%' readonly />
   </td>

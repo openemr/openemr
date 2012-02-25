@@ -45,13 +45,13 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
 
   if (empty($default_warehouse)) {
     // Get the default warehouse, if any, for the user.
-    $rowuser = sqlQuery("SELECT default_warehouse FROM users WHERE username = '$user'");
+    $rowuser = sqlQuery("SELECT default_warehouse FROM users WHERE username = ?", array($user));
     $default_warehouse = $rowuser['default_warehouse'];
   }
 
   // Get relevant options for this product.
   $rowdrug = sqlQuery("SELECT allow_combining, reorder_point, name " .
-    "FROM drugs WHERE drug_id = '$drug_id'");
+    "FROM drugs WHERE drug_id = ?", array($drug_id));
   $allow_combining = $rowdrug['allow_combining'];
 
   // Combining is never allowed for prescriptions and will not work with
@@ -75,8 +75,8 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
     "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
     "lo.option_id = di.warehouse_id " .
     "WHERE " .
-    "di.drug_id = '$drug_id' AND di.destroy_date IS NULL " .
-    "ORDER BY $orderby");
+    "di.drug_id = ? AND di.destroy_date IS NULL " .
+    "ORDER BY $orderby", array($drug_id));
 
   // First pass.  Pick out lots to be used in filling this order, figure out
   // if there is enough quantity on hand and check for lots to be destroyed.
@@ -162,13 +162,11 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
 
     // Update inventory and create the sale line item.
     sqlStatement("UPDATE drug_inventory SET " .
-      "on_hand = on_hand - $thisqty " .
-      "WHERE inventory_id = $inventory_id");
+      "on_hand = on_hand - ? " .
+      "WHERE inventory_id = ?", array($thisqty,$inventory_id));
     $sale_id = sqlInsert("INSERT INTO drug_sales ( " .
-      "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
-      "sale_date, quantity, fee ) VALUES ( " .
-      "'$drug_id', '$inventory_id', '$prescription_id', '$patient_id', " .
-      "'$encounter_id', '$user', '$sale_date', '$thisqty', '$thisfee' )");
+      "drug_id, inventory_id, prescription_id, pid, encounter, user, sale_date, quantity, fee ) " . 
+      "VALUES (?,?,?,?,?,?,?,?,?)", array($drug_id,$inventory_id,$prescription_id,$patient_id,$encounter_id,$user,$sale_date,$thisqty,$thisfee));
   }
 
   // If appropriate, generate email to notify that re-order is due.
