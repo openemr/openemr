@@ -33,6 +33,7 @@
 //   Greek                          // xl('Greek')
 //   Hebrew                         // xl('Hebrew')
 //   Hindi                          // xl('Hindi')
+//   Hungarian                      // xl('Hungarian')
 //   Italian                        // xl('Italian')
 //   Norwegian                      // xl('Norwegian')
 //   Polish                         // xl('Polish')
