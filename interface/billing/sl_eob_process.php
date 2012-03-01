@@ -164,7 +164,9 @@ require_once("$srcdir/billing.inc");
          
         
         // Some heading information.
-        if(isset($_REQUEST['chk'.$out['check_number']])){
+        $chk_123=$out['check_number'];
+        $chk_123=str_replace(' ','_',$chk_123);
+        if(isset($_REQUEST['chk'.$chk_123])){
         if ($encount == 0) {
             writeMessageLine('#ffffff', 'infdetail',
                 "Payer: " . htmlspecialchars($out['payer_name'], ENT_QUOTES));
