@@ -161,27 +161,29 @@ function DOBandEncounter()
                         $username = $tmprow['username'];
                         $facility = $tmprow['facility'];
                         // $facility_id = $tmprow['facility_id'];
-                        // use the session facility if it is set, otherwise the one from the provider.
                         $facility_id = $_SESSION['pc_facility'] ? $_SESSION['pc_facility'] : $tmprow['facility_id'];
                         $conn = $GLOBALS['adodb']['db'];
                         $encounter = $conn->GenID("sequences");
+         
             addForm($encounter, "New Patient Encounter",
                     sqlInsert("INSERT INTO form_encounter SET " .
                         "date = '$event_date', " .
                         "onset_date = '$event_date', " .
                         "reason = '" . formData("form_comments") . "', " .
                         "facility = '$facility', " .
-                        // "facility_id = '$facility_id', " .
                         "facility_id = '" . (int)$_POST['facility'] . "', " .
                         "billing_facility = '" . (int)$_POST['billing_facility'] . "', " .
                         "provider_id = '" . (int)$_POST['form_provider'] . "', " .
                         "pid = '" . $_POST['form_pid'] . "', " .
-                        "encounter = '$encounter'"
+                        "encounter = '$encounter', " .
+                        "pc_catid = '" . $_POST['form_category'] . "'"
                     ),
                     "newpatient", $_POST['form_pid'], "1", "NOW()", $username
                 );
-            $info_msg .= "New encounter $encounter was created. ";
-        }
+            $info_msg .= xl("New encounter created with id"); 
+            $info_msg .= " $encounter";
+        } 
+       
     }
  }
 //================================================================================================================
