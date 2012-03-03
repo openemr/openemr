@@ -31,11 +31,8 @@ function addBilling($encounter_id, $code_type, $code, $code_text, $pid,
   $sql = "insert into billing (date, encounter, code_type, code, code_text, " .
     "pid, authorized, user, groupname, activity, billed, provider_id, " .
     "modifier, units, fee, ndc_info, justify, notecodes) values (" .
-    "NOW(), '$encounter_id', '$code_type', '$code', '$code_text', '$pid', " .
-    "'$authorized', '" . $_SESSION['authId'] . "', '" .
-    $_SESSION['authProvider'] . "', 1, $billed, $provider, '$modifier', '$units', " .
-    "'$fee', '$ndc_info', '$justify', ?)";
-  return sqlInsert($sql, array($notecodes));
+    "NOW(), ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)";
+  return sqlInsert($sql, array($encounter_id,$code_type,$code,$code_text,$pid,$authorized,$_SESSION['authId'],$_SESSION['authProvider'],$billed,$provider,$modifier,$units,$fee,$ndc_info,$justify,$notecodes));
 }
 
 function authorizeBilling($id, $authorized = "1")

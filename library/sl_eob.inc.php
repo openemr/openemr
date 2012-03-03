@@ -305,7 +305,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
     addBilling($encounter_id,
       'CPT4',
       $codeonly,
-      addslashes($description),
+      $description,
       $patient_id,
       0,
       0,

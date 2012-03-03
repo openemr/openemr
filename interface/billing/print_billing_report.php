@@ -1,4 +1,8 @@
 <?php 
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+
 include_once("../globals.php");
 
 include_once("$srcdir/patient.inc");
@@ -63,7 +67,7 @@ if (!isset($_GET["mode"])) {
 <body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
-<a href="javascript:window.close();" target=Main><font class=title><?php xl('Billing Report','e')?></font></a>
+<a href="javascript:window.close();" target=Main><font class=title><?php echo xlt('Billing Report')?></font></a>
 <br>
 
 
@@ -170,23 +174,23 @@ foreach ($ret as $iter) {
             print "<table border=0><tr>\n";     // small table
             $first_time=0;
         }
-        print "<tr><td colspan=5><hr><span class=bold>" . $name{"fname"} . " " . $name{"lname"} . "</span><br><br>\n";
+        print "<tr><td colspan=5><hr><span class=bold>" . text($name{"fname"}) . " " . text($name{"lname"}) . "</span><br><br>\n";
         //==================================
 
 
-print "<font class=bold>Patient Data:</font><br>";
+print "<font class=bold>" . xlt("Patient Data") . ":</font><br>";
 printRecDataOne($patient_data_array, getRecPatientData ($iter{"pid"}), $COLS);
         
-print "<font class=bold>Employer Data:</font><br>";
+print "<font class=bold>" . xlt("Employer Data") . ":</font><br>";
 printRecDataOne($employer_data_array, getRecEmployerData ($iter{"pid"}), $COLS);
 
-print "<font class=bold>Primary Insurance Data:</font><br>";
+print "<font class=bold>" . xlt("Primary Insurance Data") . ":</font><br>";
 printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"primary"), $COLS);
 
-print "<font class=bold>Secondary Insurance Data:</font><br>";
+print "<font class=bold>" . xlt("Secondary Insurance Data") . ":</font><br>";
 printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"secondary"), $COLS);
 
-print "<font class=bold>Tertiary Insurance Data:</font><br>";
+print "<font class=bold>" . xlt("Tertiary Insurance Data") . ":</font><br>";
 printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"tertiary"), $COLS);
 
 
@@ -197,7 +201,7 @@ printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"tertia
         $old_pid = $iter{"pid"};
         
     }
-    print "<td width=100><span class=text>" . $iter{"code_type"} . ": </span></td><td width=100><span class=text>" . $iter{"code"} . "</span></td><td width=100><span class=small>(" . date("Y-m-d",strtotime($iter{"date"})) . ")</span></td>\n";
+    print "<td width=100><span class=text>" . text($iter{"code_type"}) . ": </span></td><td width=100><span class=text>" . text($iter{"code"}) . "</span></td><td width=100><span class=small>(" . text(date("Y-m-d",strtotime($iter{"date"}))) . ")</span></td>\n";
     $res_count++;
     if ($res_count == $N) {
         print "</tr><tr>\n";

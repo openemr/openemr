@@ -4,11 +4,12 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../../globals.php");
-include_once("$srcdir/billing.inc");
-include_once("$srcdir/sql.inc");
-include_once("$srcdir/acl.inc");
+require_once("../../globals.php");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/sql.inc");
+require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/formdata.inc.php");
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -46,12 +47,12 @@ if (isset($mode)) {
 		$provid = $tmp['id'] ? $tmp['id'] : $_SESSION["authUserID"];
 
 		if (strtolower($type) == "copay") {
-			addBilling($encounter, $type, sprintf("%01.2f", $code), $payment_method,
+			addBilling($encounter, $type, sprintf("%01.2f", $code), strip_escape_custom($payment_method),
 				$pid, $userauthorized, $provid, $modifier, $units,
 				sprintf("%01.2f", 0 - $code));
 		}
 		elseif (strtolower($type) == "other") {
-			addBilling($encounter, $type, $code, $text, $pid, $userauthorized,
+			addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized,
 				$provid, $modifier, $units, sprintf("%01.2f", $fee));
 		}
 		else {
@@ -63,7 +64,7 @@ if (isset($mode)) {
           "ORDER BY date DESC LIMIT 1");
         if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
       }
-      addBilling($encounter, $type, $code, $text, $pid, $userauthorized,
+      addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized,
         $provid, $modifier, $units, $fee, $ndc_info);
 		}
 	}

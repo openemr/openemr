@@ -58,7 +58,7 @@ if ($_POST['bn_save']) {
 				$query .= "(modifier is null or modifier = '')";
 			}
 			$result = sqlQuery($query);
-			$code_text = addslashes($result['code_text']);
+			$code_text = $result['code_text'];
 			addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
 				$provid, $modifier, "", $fee);
 		}

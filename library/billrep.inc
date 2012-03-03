@@ -1,5 +1,6 @@
 <?php
     require_once("{$GLOBALS['srcdir']}/sql.inc");
+    require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
     function GenerateTheQueryPart()
      {
         global $query_part,$query_part2,$billstring,$auth;
@@ -12,7 +13,7 @@
          {
             foreach($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value)
              {
-              $criteria_value=PrepareSearchItem(stripslashes($criteria_value));
+              $criteria_value=PrepareSearchItem($criteria_value);
               $SplitArray=array();
               //---------------------------------------------------------
               if(strpos($criteria_value,"billing.billed = '1'")!== false)
@@ -42,7 +43,7 @@
               elseif(strpos($criteria_value,"patient_data.fname")!== false)
                {
                 $SplitArray=split(' like ',$criteria_value);
-                $query_part .= " AND ($criteria_value or patient_data.lname like ".$SplitArray[1].")";
+                $query_part .= " AND ($criteria_value or patient_data.lname like ".add_escape_custom($SplitArray[1]).")";
                }
               //---------------------------------------------------------
               elseif(strpos($criteria_value,"billing.authorized")!== false)
@@ -97,7 +98,7 @@
             "LEFT OUTER JOIN billing ON " .
             "billing.encounter = form_encounter.encounter AND " .
             "billing.pid = form_encounter.pid AND " .
-            "billing.code_type LIKE '$code_type' AND " .
+            "billing.code_type LIKE ? AND " .
             "billing.activity = 1 " .
             "LEFT OUTER JOIN patient_data on patient_data.pid = form_encounter.pid " .
             "LEFT OUTER JOIN claims on claims.patient_id = form_encounter.pid and claims.encounter_id = form_encounter.encounter " .
@@ -105,7 +106,7 @@
             "WHERE 1=1 $query_part  " . " $auth " ." $billstring " .
             "ORDER BY form_encounter.encounter, form_encounter.pid, billing.code_type, billing.code ASC";
             //echo $sql;
-        $res = sqlStatement($sql);
+        $res = sqlStatement($sql,array($code_type));
 
         for($iter=0; $row=sqlFetchArray($res); $iter++)
         {
@@ -170,11 +171,11 @@
             "insurance_data.pid = form_encounter.pid and insurance_data.type = 'primary' ".
             $auth  .
             $billstring . $query_part . " and " .
-            "billing.code_type like '$code_type' and " .
+            "billing.code_type like ? and " .
             "billing.activity = 1 " .
             "order by billing.pid, billing.date ASC";
 
-        $res = sqlStatement($sql);
+        $res = sqlStatement($sql,array($code_type));
         $string = "( ";
         for($iter=0; $row=sqlFetchArray($res); $iter++)
         {

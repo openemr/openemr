@@ -323,7 +323,7 @@ function getRecHistoryData ($pid) {
 	//column name->dates->values
 	//$return{"lname"}[0..n]{"date"}
 	//$return{"lname"}[0..n]{"value"}
-	$res = sqlStatement("select * from history_data where pid='$pid' order by date");
+	$res = sqlStatement("select * from history_data where pid=? order by date", array($pid) );
 	
 	while($result = sqlFetchArray($res)) {
 		foreach ($result as $key => $val) {
@@ -347,7 +347,7 @@ function getRecEmployerData ($pid) {
 	//column name->dates->values
 	//$return{"lname"}[0..n]{"date"}
 	//$return{"lname"}[0..n]{"value"}
-	$res = sqlStatement("select * from employer_data where pid='$pid' order by date");
+	$res = sqlStatement("select * from employer_data where pid=? order by date", array($pid) );
 	
 	while($result = sqlFetchArray($res)) {
 		foreach ($result as $key => $val) {
@@ -371,7 +371,7 @@ function getRecPatientData ($pid) {
 	//column name->dates->values
 	//$return{"lname"}[0..n]{"date"}
 	//$return{"lname"}[0..n]{"value"}
-	$res = sqlStatement("select * from patient_data where pid='$pid' order by date");
+	$res = sqlStatement("select * from patient_data where pid=? order by date", array($pid) );
 	
 	while($result = sqlFetchArray($res)) {
 		foreach ($result as $key => $val) {
@@ -395,7 +395,7 @@ function getRecInsuranceData ($pid, $ins_type) {
 	//column name->dates->values
 	//$return{"lname"}[0..n]{"date"}
 	//$return{"lname"}[0..n]{"value"}
-	$res = sqlStatement("select *, ic.name as provider_name from insurance_data left join insurance_companies as ic on ic.id = provider where pid='$pid' and type='$ins_type' order by date");
+	$res = sqlStatement("select *, ic.name as provider_name from insurance_data left join insurance_companies as ic on ic.id = provider where pid=? and type=? order by date", array($pid,$ins_type) );
 	
 	while($result = sqlFetchArray($res)) {
 		foreach ($result as $key => $val) {
@@ -466,7 +466,7 @@ function printRecDataOne($data_array, $recres, $N) {
 				print "</tr><tr>\n";
 				$count = 0;
 			}
-			print "<td valign=top><span class=bold>$aval</span><br><span class=text>";
+			print "<td valign=top><span class=bold>" . text($aval) . "</span><br><span class=text>";
 			printDataOne($recres, $akey, "<br>", "Y-m-d");
 			print "</span></td>\n";
 			$count++;
@@ -482,7 +482,7 @@ function printDataOne ($retar, $key, $sep, $date_format) {
 		if ($retar{$key}[$length]{"value"} != "0000-00-00 00:00:00") {
       $tmp = $retar{$key}[$length]{"value"};
       if (strstr($key, 'DOB')) $tmp = oeFormatShortDate($tmp);
-			print "$tmp$sep";
+			print text($tmp) . $sep;
 		}
 	}
 }

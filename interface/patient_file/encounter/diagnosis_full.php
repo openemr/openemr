@@ -1,12 +1,13 @@
 <?php
-include_once("../../globals.php");
-include_once("$srcdir/billing.inc");
+require_once("../../globals.php");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/formdata.inc.php");
 
 $targparm = $GLOBALS['concurrent_layout'] ? "" : "target='Main'";
 
 if (isset($mode)) {
 	if ($mode == "add") {
-		addBilling($encounter, $type, $code, $text,$pid, $userauthorized,$_SESSION['authUserID']);
+		addBilling($encounter, $type, $code, strip_escape_custom($text),$pid, $userauthorized,$_SESSION['authUserID']);
 	}
 	elseif ($mode == "delete") {
 		deleteBilling($id);
