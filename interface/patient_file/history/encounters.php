@@ -127,6 +127,7 @@ function generatePageElement($start,$pagesize,$billing,$issue,$text)
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajtooltip.js"></script>
 
 <script language="JavaScript">
 
@@ -191,6 +192,14 @@ window.onload=function()
 {
     $("#selPagesize").change(changePageSize);
 }
+
+// Mouseover handler for encounter form names. Brings up a custom tooltip
+// to display the form's contents.
+function efmouseover(elem, ptid, encid, formname, formid) {
+ ttMouseOver(elem, "encounters_ajax.php?ptid=" + ptid + "&encid=" + encid +
+  "&formname=" + formname + "&formid=" + formid);
+}
+
 </script>
 
 </head>
@@ -429,11 +438,12 @@ while ($result4 = sqlFetchArray($res4)) {
 
         $rawdata = $result4['encounter'] . "~" . oeFormatShortDate($raw_encounter_date);
         echo "<tr class='encrow text' id='" . htmlspecialchars($rawdata, ENT_QUOTES) .
-          "' title='" . htmlspecialchars(xl('View encounter','','',' ') .
-          "$pid.{$result4['encounter']}", ENT_QUOTES) . "'>\n";
+          "'>\n";
 
         // show encounter date
-        echo "<td valign='top'>" . htmlspecialchars( oeFormatShortDate($raw_encounter_date), ENT_NOQUOTES) . "</td>\n";
+        echo "<td valign='top' title='" . htmlspecialchars(xl('View encounter','','',' ') .
+          "$pid.{$result4['encounter']}", ENT_QUOTES) . "'>" .
+          htmlspecialchars(oeFormatShortDate($raw_encounter_date), ENT_NOQUOTES) . "</td>\n";
 
         if ($billing_view) {
 
@@ -496,44 +506,17 @@ while ($result4 = sqlFetchArray($res4)) {
                     ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
                 else continue;
 
-                /*****************************************************    
-                // build the potentially HUGE tooltip used by ttshow
-                $title = xl('View encounter');
-                //
-                // Normally skip the tooltip because of poor database performance.
-                // However athletic teams want it.
-                //
-                if ($GLOBALS['athletic_team']) {
-                  if ($enc['formdir'] != 'physical_exam' &&
-                    $enc['formdir'] != 'procedure_order' &&
-                    substr($enc['formdir'],0,3) != 'LBF')
-                  {
-                    $frow = sqlQuery("select * from form_" . add_escape_custom($enc['formdir']) .
-                                    " where id = ?", array($enc['form_id']) );
-                    foreach ($frow as $fkey => $fvalue) {
-                        if (! preg_match('/[A-Za-z]/', $fvalue)) continue;
-                        if ($title) $title .= "; ";
-                        $title .= strtoupper($fkey) . ': ' . $fvalue;
-                    }
-                    $title = htmlspecialchars(strtr($title, "\t\n\r", "   "), ENT_QUOTES);
-                  }
-                } // end athletic team
-                echo "<span class='form_tt' title=\"$title\">";
-                echo htmlspecialchars( xl_form_title($enc['form_name']), ENT_NOQUOTES);
-                echo "</span><br>";
-                *****************************************************/
-
                 // Show the form name.  In addition, for the specific-issue case show
                 // the data collected by the form (this used to be a huge tooltip
                 // but we did away with that).
                 //
-                echo htmlspecialchars(xl_form_title($enc['form_name']), ENT_NOQUOTES);
-                echo "<br>";
+                $formdir = $enc['formdir'];
                 if ($issue) {
+                  echo htmlspecialchars(xl_form_title($enc['form_name']), ENT_NOQUOTES);
+                  echo "<br>";
                   echo "<div class='encreport' style='padding-left:10px;'>";
                   // Use the form's report.php for display.  Forms with names starting with LBF
                   // are list-based forms sharing a single collection of code.
-                  $formdir = $enc['formdir'];
                   if (substr($formdir,0,3) == 'LBF') {
                     include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
                     call_user_func("lbf_report", $pid, $result4['encounter'], 2, $enc['form_id'], $formdir);
@@ -542,6 +525,14 @@ while ($result4 = sqlFetchArray($res4)) {
                     include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
                     call_user_func($formdir . "_report", $pid, $result4['encounter'], 2, $enc['form_id']);
                   }
+                  echo "</div>";
+                }
+                else {
+                  echo "<div " .
+                    "onmouseover='efmouseover(this,$pid," . $result4['encounter'] .
+                    ",\"$formdir\"," . $enc['form_id'] . ")' " .
+                    "onmouseout='ttMouseOut()'>";
+                  echo htmlspecialchars(xl_form_title($enc['form_name']), ENT_NOQUOTES);
                   echo "</div>";
                 }
 
@@ -741,6 +732,11 @@ while ($drow /* && $count <= $N */) {
 </table>
 
 </div> <!-- end 'encounters' large outer DIV -->
+
+<div id='tooltipdiv'
+ style='position:absolute;width:400pt;border:1px solid black;padding:2px;background-color:#ffffaa;visibility:hidden;z-index:1000;font-size:9pt;'
+></div>
+
 </body>
 
 <script language="javascript">
@@ -758,45 +754,7 @@ $(document).ready(function(){
     $(".billing_note_text").mouseover(function() { $(this).toggleClass("billing_note_text_highlight"); });
     $(".billing_note_text").mouseout(function() { $(this).toggleClass("billing_note_text_highlight"); });
     $(".billing_note_text").click(function(evt) { evt.stopPropagation(); editNote(this.id); });
-
-    // set up the tooltip function
-    //tooltip();
 });
-
-/* COMMENTED out July 2009 -- JRM
-this.tooltip = function(){  
-    // CONFIG
-    xOffset = 10;
-    yOffset = 20;       
-    // these 2 variable determine popup's distance from the cursor
-    // you might want to adjust to get the right result     
-    // END CONFIG
-
-    // display the floating tooltip paragraph
-    $(".form_tt").hover(function(e){                                             
-        this.t = this.title;
-        this.title = "";                                      
-        $("#encounters").append("<p class='tooltip text'>"+ this.t +"</p>");
-        $(".tooltip")
-            .css("top",(e.pageY - xOffset) + "px")
-            .css("left",(e.pageX + yOffset) + "px")
-            .fadeIn("fast");        
-    },
-
-    // destroy the tooltip paragraph
-    function(){
-        this.title = this.t;        
-        $(".tooltip").remove();
-    }); 
-
-    // mouse moves on tooltip paragraph
-    $(".form_tt").mousemove(function(e){
-        $(".tooltip")
-            .css("top",(e.pageY - xOffset) + "px")
-            .css("left",(e.pageX + yOffset) + "px");
-    }); 
-};
-*/
 
 </script>
 
