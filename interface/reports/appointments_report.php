@@ -183,11 +183,15 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
 		<table style='border-left: 1px solid; width: 100%; height: 100%'>
 			<tr>
 				<td>
-				<div style='margin-left: 15px'><a href='#' class='css_button'
-					onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-				<span> <?php xl('Submit','e'); ?> </span> </a> <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
-				<a href='#' class='css_button' onclick='window.print()'> <span> <?php xl('Print','e'); ?>
-				</span> </a> <?php } ?></div>
+				<div style='margin-left: 15px'>
+                                <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+				<span> <?php xl('Submit','e'); ?> </span> </a> 
+                                <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+				<a href='#' class='css_button' onclick='window.print()'> 
+                                    <span> <?php xl('Print','e'); ?> </span> </a> 
+                                <a href='#' class='css_button' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2","_blank")'> 
+                                    <span> <?php xl('Superbills','e'); ?> </span> </a> 
+                                <?php } ?></div>
 				</td>
 			</tr>
                         <tr>&nbsp;&nbsp;<?php xl('Most column headers can be clicked to change sort order','e') ?></tr>
@@ -250,8 +254,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	}
 
 	$appointments = sortAppointments( $appointments, $form_orderby );
-
+        $pid_list = array();  // Initialize list of PIDs for Superbill option
+        
 	foreach ( $appointments as $appointment ) {
+                array_push($pid_list,$appointment['pid']);
 		$patient_id = $appointment['pid'];
 		$docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
                 
@@ -288,7 +294,8 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	<?php
 	$lastdocname = $docname;
 	}
-	
+	// assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
+        $_SESSION['pidList'] = $pid_list;
 	?>
 	</tbody>
 </table>
