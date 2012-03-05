@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009, 2012 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,7 +34,10 @@ else {
   }
   if ($s === '') $s = "No issues";
 }
-// echo "ttTitle = '$s';";
-$s = str_replace("\r", "", $s);
-echo "ttobject.innerHTML = '" . str_replace("\n", "", $s) . "';";
+
+// $s = str_replace("\r", "", $s);
+// $s = str_replace("\n", "", $s);
+// echo "ttCallback('$s');\n";
+
+echo $s;
 ?>
