@@ -168,7 +168,6 @@ function DOBandEncounter()
             addForm($encounter, "New Patient Encounter",
                     sqlInsert("INSERT INTO form_encounter SET " .
                         "date = '$event_date', " .
-                        "onset_date = '$event_date', " .
                         "reason = '" . formData("form_comments") . "', " .
                         "facility = '$facility', " .
                         "facility_id = '" . (int)$_POST['facility'] . "', " .
