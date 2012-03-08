@@ -33,7 +33,7 @@
   require_once("../../globals.php");
   require_once("$srcdir/htmlspecialchars.inc.php");
   require_once("$srcdir/acl.inc");    
-  require_once("$srcdir/dated_reminders.php"); 
+  require_once("$srcdir/dated_reminder_functions.php"); 
   
   
   $isAdmin =acl_check('admin', 'users'); 

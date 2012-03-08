@@ -33,7 +33,7 @@
  //       $sanitize_all_escapes=true; 
         require_once("../../globals.php");
         require_once("$srcdir/htmlspecialchars.inc.php");  
-        require_once("$srcdir/dated_reminders.php"); 
+        require_once("$srcdir/dated_reminder_functions.php"); 
              
         $days_to_show = 5;
         $alerts_to_show = 5;
