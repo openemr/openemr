@@ -32,7 +32,7 @@
     
     require_once("../../globals.php"); 
     require_once("$srcdir/htmlspecialchars.inc.php");  
-    require_once("$srcdir/dated_reminders.php"); 
+    require_once("$srcdir/dated_reminder_functions.php"); 
   
   $dateRanges = array();
 // $dateranges = array ( number_period => text to display ) == period is always in the singular 
