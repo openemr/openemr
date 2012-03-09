@@ -36,7 +36,7 @@ $fake_register_globals=false;
 
 require_once("../../interface/globals.php");  
 require_once("$srcdir/htmlspecialchars.inc.php");  
-require_once("$srcdir/dated_reminders.php"); 
+require_once("$srcdir/dated_reminder_functions.php"); 
 
 $dueReminders = GetDueReminderCount(5,strtotime(date('Y/m/d')));
 echo ($dueReminders > 0 ? '('.text(intval($dueReminders)).')' : '');
