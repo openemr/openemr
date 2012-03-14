@@ -140,8 +140,8 @@
      
  // Create ACOs for patients.
  //
- $gacl->add_object('patients', 'Appointments (write optional)'            , 'appt' , 10, 0, 'ACO');
-     // xl('Appointments (write optional)')
+ $gacl->add_object('patients', 'Appointments (write,wsome optional)'      , 'appt' , 10, 0, 'ACO');
+     // xl('Appointments (write,wsome optional)')
  $gacl->add_object('patients', 'Demographics (write,addonly optional)'    , 'demo' , 10, 0, 'ACO');
      // xl('Demographics (write,addonly optional)')
  $gacl->add_object('patients', 'Medical/History (write,addonly optional)' , 'med'  , 10, 0, 'ACO');

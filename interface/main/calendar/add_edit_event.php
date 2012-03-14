@@ -23,13 +23,18 @@
  $fake_register_globals=false;
  $sanitize_all_escapes=true;
 
- include_once("../../globals.php");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/forms.inc");
- include_once("$srcdir/calendar.inc");
- include_once("$srcdir/formdata.inc.php");
- include_once("$srcdir/options.inc.php");
- include_once("$srcdir/encounter_events.inc.php");
+ require_once("../../globals.php");
+ require_once("$srcdir/patient.inc");
+ require_once("$srcdir/forms.inc");
+ require_once("$srcdir/calendar.inc");
+ require_once("$srcdir/formdata.inc.php");
+ require_once("$srcdir/options.inc.php");
+ require_once("$srcdir/encounter_events.inc.php");
+ require_once("$srcdir/acl.inc");
+
+ $my_permission = acl_check('patients', 'appt');
+ if ($my_permission !== 'write' && $my_permission !== 'wsome')
+   die(xl('Access not allowed'));
 
  // Things that might be passed by our opener.
  //
@@ -918,7 +923,7 @@ td { font-size:0.8em; }
  }
 
     // Invoke the find-available popup.
-    function find_available() {
+    function find_available(extra) {
         top.restoreSession();
         // (CHEMED) Conditional value selection, because there is no <select> element
         // when making an appointment for a specific provider
@@ -933,10 +938,15 @@ td { font-size:0.8em; }
         <?php }?>
         var c = document.forms[0].form_category;
 	var formDate = document.forms[0].form_date;
-        dlgopen('find_appt_popup.php?providerid=' + s +
+        dlgopen('<?php echo $GLOBALS['web_root']; ?>/interface/main/calendar/find_appt_popup.php' +
+                '?providerid=' + s +
                 '&catid=' + c.options[c.selectedIndex].value +
                 '&facility=' + f +
-                '&startdate=' + formDate.value, '_blank', 500, 400);
+                '&startdate=' + formDate.value +
+                '&evdur=' + document.forms[0].form_duration.value +
+                '&eid=<?php echo 0 + $eid; ?>' +
+                extra,
+                '_blank', 500, 400);
         //END (CHEMED) modifications
     }
 
@@ -1422,7 +1432,7 @@ if ($repeatexdate != "") {
 $(document).ready(function(){
     $("#form_save").click(function() { validate("save"); });
     $("#form_duplicate").click(function() { validate("duplicate"); });
-    $("#find_available").click(function() { find_available(); });
+    $("#find_available").click(function() { find_available(''); });
     $("#form_delete").click(function() { deleteEvent(); });
     $("#cancel").click(function() { window.close(); });
 
@@ -1498,9 +1508,18 @@ function deleteEvent() {
 }
 
 function SubmitForm() {
-    $('#theform').submit();
+  var f = document.forms[0];
+  if (f.form_action.value != 'delete') {
+    // Check slot availability.
+    var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
+    if (f.form_ampm.value == '2' && mins < 720) mins += 720;
+    find_available('&cktime=' + mins);
+  }
+  else {
     top.restoreSession();
-    return true;
+    f.submit();
+  }
+  return true;
 }
 
 </script>

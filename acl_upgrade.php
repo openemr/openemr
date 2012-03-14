@@ -219,7 +219,7 @@ updateAcl($emergency_write, 'Emergency Login', 'lists', 'Lists', 'language', 'La
 //Insert the 'ethrace' object from the 'lists' section into the Emergency Login group write ACL (added in 3.3.0)
 updateAcl($emergency_write, 'Emergency Login', 'lists', 'Lists', 'ethrace', 'Ethnicity-Race List (write,addonly optional)', 'write');
 //Insert the 'appt' object from the 'patients' section into the Emergency Login group write ACL (added in 3.3.0)
-updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'appt', 'Appointments (write optional)', 'write');
+updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'appt', 'Appointments (write,wsome optional)', 'write');
 //Insert the 'demo' object from the 'patients' section into the Emergency Login group write ACL (added in 3.3.0)
 updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'demo', 'Demographics (write,addonly optional)', 'write');
 //Insert the 'med' object from the 'patients' section into the Emergency Login group write ACL (added in 3.3.0)

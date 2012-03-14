@@ -47,7 +47,7 @@
   //   rep_a       Financial Reporting - anything
   //
   // Section "patients" (Patient Information):
-  //   appt        Appointments (write optional)
+  //   appt        Appointments (write,wsome optional)
   //   demo        Demographics (write,addonly optional)
   //   med         Medical Records and History (write,addonly optional)
   //   trans       Transactions, e.g. referrals (write optional)
@@ -89,7 +89,6 @@
   // Section "patientportal" (Patient Portal):
   //   portal     Patient Portal
   
-
   if (isset ($phpgacl_location)) {
     include_once("$phpgacl_location/gacl.class.php");
     $gacl_object = new gacl();

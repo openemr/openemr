@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2012 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -8,6 +8,14 @@
 
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
+
+ $my_permission = acl_check('patients', 'appt');
+ if ($my_permission != 'write' && $my_permission != 'wsome')
+  die(xl('Access not allowed'));
+
+ // If the caller is updating an existing event, then get its ID so
+ // we don't count it as a reserved time slot.
+ $eid = empty($_REQUEST['eid']) ? 0 : 0 + $_REQUEST['eid'];
 
  $input_catid = $_REQUEST['catid'];
 
@@ -81,6 +89,14 @@
 
  $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 
+ // Compute the number of time slots for the given event duration, or if
+ // none is given then assume the default category duration.
+ $evslots = $catslots;
+ if (isset($_REQUEST['evdur'])) {
+  $evslots = 60 * $_REQUEST['evdur'];
+  $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
+ }
+
  // If we have a provider, search.
  //
  if ($_REQUEST['providerid']) {
@@ -99,6 +115,7 @@
    "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid " .
    "FROM openemr_postcalendar_events " .
    "WHERE pc_aid = '$providerid' AND " .
+   "pc_eid != '$eid' AND " .
    "((pc_endDate >= '$sdate' AND pc_eventDate < '$edate') OR " .
    "(pc_endDate = '0000-00-00' AND pc_eventDate >= '$sdate' AND pc_eventDate < '$edate'))";
   // phyaura whimmel facility filtering
@@ -120,21 +137,28 @@
     $repeatfreq = $matches[1];
     if (! $repeatfreq) $repeatfreq = 1;
 
+    // This gets an array of exception dates for the event.
+    $exdates = array();
+    if (preg_match('/"exdate";s:\d+:"([0-9,]*)"/', $row['pc_recurrspec'], $matches)) {
+      $exdates = explode(",", $matches[1]);
+    }
+
     $endtime = strtotime($row['pc_endDate'] . " 00:00:00") + (24 * 60 * 60);
     if ($endtime > $slotetime) $endtime = $slotetime;
 
     $repeatix = 0;
     while ($thistime < $endtime) {
+     $adate = getdate($thistime);
+     $thisymd = sprintf('%04d%02d%02d', $adate['year'], $adate['mon'], $adate['mday']);
 
      // Skip the event if a repeat frequency > 1 was specified and this is
-     // not the desired occurrence.
-     if (! $repeatix) {
+     // not the desired occurrence, or if this date is in the exception array.
+     if (!$repeatix && !in_array($thisymd, $exdates)) {
       doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
        $row['pc_duration'], $row['pc_prefcatid']);
      }
      if (++$repeatix >= $repeatfreq) $repeatix = 0;
 
-     $adate = getdate($thistime);
      if ($repeattype == 0)        { // daily
       $adate['mday'] += 1;
      } else if ($repeattype == 1) { // weekly
@@ -170,6 +194,34 @@
    if ($slots[$i] & 2) $inoffice = false;
    if (! $inoffice) $slots[$i] |= 4;
   }
+ }
+
+ // The cktime parameter is a number of minutes into the starting day of a
+ // tentative appointment that is to be checked.  If it is present then we are
+ // being asked to check if this indicated slot is available, and to submit
+ // the opener and go away quietly if it is.  If it's not then we have more
+ // work to do.
+ $ckavail = true;
+ if (isset($_REQUEST['cktime'])) {
+  $cktime = 0 + $_REQUEST['cktime'];
+  $ckindex = (int) ($cktime * 60 / $slotsecs);
+  for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
+      if ($slots[$j] >= 4) $ckavail = false;
+  }
+  if ($ckavail) {
+    // The chosen appointment time is available.
+    echo "<html><script language='JavaScript'>\n";
+    echo "function mytimeout() {\n";
+    echo " opener.top.restoreSession();\n";
+    echo " opener.document.forms[0].submit();\n";
+    echo " window.close();\n";
+    echo "}\n";
+    echo "</script></head><body onload='setTimeout(\"mytimeout()\",250);'>" .
+      xlt('Time slot is open, saving event') . "...</body></html>";
+    exit();
+  }
+  // The appointment slot is not available.  A message will be displayed
+  // after this page is loaded.
  }
 ?>
 <html>
@@ -293,7 +345,7 @@ form {
     for ($i = 0; $i < $slotcount; ++$i) {
 
         $available = true;
-        for ($j = $i; $j < $i + $catslots; ++$j) {
+        for ($j = $i; $j < $i + $evslots; ++$j) {
             if ($slots[$j] >= 4) $available = false;
         }
         if (!$available) continue; // skip reserved slots
@@ -332,9 +384,9 @@ form {
         echo (strlen(date('g',$utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
             $anchor . date("g:i", $utime) . "</a> ";
 
-        // If category duration is more than 1 slot, increment $i appropriately.
+        // If the duration is more than 1 slot, increment $i appropriately.
         // This is to avoid reporting available times on undesirable boundaries.
-        $i += $catslots - 1;
+        $i += $evslots - 1;
     }
     if ($lastdate) {
         echo "</td>\n";
@@ -364,6 +416,18 @@ $(document).ready(function(){
     $(".oneresult a").mouseout(function() { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
     //$(".event").dblclick(function() { EditEvent(this); });
 });
+
+<?php if (!$ckavail) { ?>
+<?php if ($my_permission == 'write') { ?>
+ if (confirm('<?php echo addslashes(xl('This appointment slot is already used, use it anyway?')); ?>')) {
+  opener.top.restoreSession();
+  opener.document.forms[0].submit();
+  window.close();
+ }
+<?php } else { ?>
+ alert('<?php echo addslashes(xl('This appointment slot is not available, please choose another.')); ?>');
+<?php } ?>
+<?php } ?>
 
 </script>
 
