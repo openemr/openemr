@@ -11,4 +11,4 @@ other platforms.
 
 The setup documentation can be found in the INSTALL file and extensive
 documentation and forums can be found on the OpenEMR website at:
-http://www.open-emr.org
+<http://www.open-emr.org>
