@@ -1,9 +1,12 @@
 Welcome to OpenEMR!!!
 
-OpenEMR is a free Open source, Practice management, Electronic Medical
-Records, prescription writing and medical billing application for
-Unix-like systems (Linux, UNIX, and BSD systems), Microsoft systems,
-Mac OS X and other platforms.
+OpenEMR is a Free and Open Source electronic health records and
+medical practice management application. It is ONC Complete
+Ambulatory EHR Certified and it features fully integrated electronic
+health records, practice management, scheduling, electronic billing,
+internationalization, free support, a vibrant community, and a whole
+lot more. It can run on Windows, Linux, Mac OS X, and many other platforms.
 
-Setup documentation can be found in the INSTALL file, and extensive
-documentation can be found on the OpenEMR project web page at http://www.open-emr.org
+The setup documentation can be found in the INSTALL file and extensive
+documentation and forums can be found on the OpenEMR website at:
+http://www.open-emr.org
