@@ -1016,7 +1016,7 @@ class Claim {
   
   function onsetDateValid()
   {
-      return onsetDate()!=='';
+      return $this->onsetDate()!=='';
   }
 
   function serviceDate() {
