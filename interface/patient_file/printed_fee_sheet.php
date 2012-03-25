@@ -430,7 +430,7 @@ foreach ($pid_list as $pid) {
 <td colspan='4' valign='top' class='fshead' style='height:${lheight}pt'>";
 
             if (empty($GLOBALS['ippf_specific'])) {
-                $html .= xl('Insurance:', 'r');
+                $html .= xl('Insurance', 'r').":";
                 if ($form_fill) {
                     foreach (array('primary', 'secondary', 'tertiary') as $instype) {
                         $query = "SELECT * FROM insurance_data WHERE " .

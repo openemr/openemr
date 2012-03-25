@@ -128,7 +128,7 @@ $xml = preg_replace('/"/',"'",$xml);
 $xml = stripStrings($xml,array('&#xD;'=>'','\t'=>''));
 //$xml = stripStrings($xml,array('&#xD;'=>'','\t'=>'','\r'=>'','\n'=>''));
 if($dem_check){
-    echo "<b>".htmlspecialchars( xl("Warning:"), ENT_NOQUOTES)."</b><br><br>";
+    echo "<b>".htmlspecialchars( xl("Warning"), ENT_NOQUOTES).":</b><br><br>";
     echo $dem_check."<br>";
     echo htmlspecialchars( xl("The page will be redirected to Demographics. You can edit the country field and clickthrough to NewCrop again."), ENT_NOQUOTES);
     ob_end_flush();
@@ -150,7 +150,7 @@ if($msg)
 }
 if($warning_msg)
 {    
-    echo "<font style='font-weight:bold;font-size:15px'>".htmlspecialchars( xl("Warning : "), ENT_NOQUOTES)."</font><br>".$warning_msg;
+    echo "<font style='font-weight:bold;font-size:15px'>".htmlspecialchars( xl("Warning"), ENT_NOQUOTES)." : </font><br>".$warning_msg;
     echo "<br><b>".htmlspecialchars( xl('This will not prevent you from going to the e-Prescriptions site.'), ENT_NOQUOTES)."</b>";
     sleep(2);
 }

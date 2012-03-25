@@ -309,7 +309,7 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
                     }
                 ?>    
               </select> <br /> 
-              <input title="<?php echo xlt('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" type="checkbox" name="sendSeperately" id="sendSeperately" />  <label title="<?php echo xlt('Selecting this will create a message that needs to be proccessed by each recipient individually, this is not a group task') ?>" for="sendSeperately">(<?php echo xlt('each recipient must set their own messages as completed ? ') ?>)</label>                                       
+              <input title="<?php echo xlt('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" type="checkbox" name="sendSeperately" id="sendSeperately" />  <label title="<?php echo xlt('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" for="sendSeperately">(<?php echo xlt('Each recipient must set their own messages as completed.') ?>)</label>                                       
             </td>
             <td style="text-align:right"> 
               <a class="css_button_small" style="cursor:pointer" onclick="selectAll();" ><span><?php echo xlt('Send to all') ?></span></a>
@@ -322,7 +322,7 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
     <fieldset>          
             <?php echo xlt('Due Date') ?> : <input type='text' name='dueDate' id="dueDate" size='20' value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />      
             <?php echo xlt('OR') ?> 
-            <?php echo xlt('Select a time span') ?> : <select id="timeSpan">
+            <?php echo xlt('Select a Time Span') ?> : <select id="timeSpan">
                                       <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
                                       <?php 
                                         $optionTxt = '';
