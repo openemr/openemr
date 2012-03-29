@@ -1,0 +1,196 @@
+
+/*=============================================================
+*	
+* Login Page
+*
+*============================================================*/
+
+.login-box {
+	padding: 20px 20px 25px 25px;
+	text-align: left;
+	border: solid 1px #bebebe; 
+	border-radius: 8px; 
+	-webkit-border-radius: 8px; 
+	-moz-border-radius: 8px; 
+	background: #f0f0f0;
+	box-shadow: 0px 1px 2px #f3f3f3;
+	-webkit-box-shadow: 0px 1px 2px #f3f3f3;
+	-moz-box-shadow: 0px 1px 2px #f3f3f3;
+	width:	650px;
+}
+
+.logo-left{ 
+	float: left;
+}
+
+.table-right {
+	padding: 40px 20px 0px 80px;
+	float: left;
+}
+
+.entryfield {
+	position: relative;
+	border-width: 1px;
+	border: 1px solid #aaa;
+	padding: 6px;
+	font-color: #666;
+	-webkit-border-radius: 5px; 
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.entryfield_small {
+	position: relative;
+	border-width: 1px;
+	border: 1px solid #aaa;
+	padding: 4px;
+	font-color: #666;
+	-webkit-border-radius: 5px; 
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.entryfield:focus {
+	background: #f3fcff;
+    border-color: rgba(51, 125, 215, 0.75) !important;
+    box-shadow: 0 0 7px rgba(82, 168, 236, 0.5);
+    outline: none;
+	-webkit-transition: 0.2s linear all;
+	-moz-transition: 0.2s linear all;
+	transition: 0.2s linear all;
+}
+
+.version {
+	float: right;
+	font-size: 10px;
+	text-align: right;
+}
+
+.title_name {
+	margin-top: 10px;
+	padding-left: 5px;
+}
+
+.titlebar {
+	height:40px; !important
+}
+
+/* :..[ Social Icons ]..: */
+
+.demo {margin-left: auto; margin-right: auto; display: block; width: 200px; height: auto; padding:20px 0px 0 0 }
+
+/* :..[ Buttons ]..: */
+
+button, .button, .css_button, ul.button-bar li a {
+	/* 	(X-browser-) inline-block */
+	position: relative; /* Google Thinks So: http://vlst.nl/x/3u */
+	display: -moz-inline-stack;  /* Fx: TODO: also test -moz-inline-box?! */
+	display: inline-block; /* Proper */
+	*zoom: 1; /* IE 6-7 */
+	*display: inline; /* IE 6-7 */
+
+	/*	Padding/Margins */
+	padding: .2em 1em .275em;
+	margin: 0 .5em;
+
+	/*	Generic Font Styles */
+	/* outline: none; */ /* Here be dragons! */
+	font: normal 14px/100% Arial, Helvetica, sans-serif;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	vertical-align: middle; /* from: http://vlst.nl/x/3v */
+	*vertical-align: auto; /* from: http://vlst.nl/x/3v */
+
+	/*	Text-Shadow */
+	text-shadow: 0 1px 1px rgba(0,0,0,.4); /* Outset */
+	text-shadow: 0 1px 0 rgba(255,255,255,.6); /* Inset */
+
+	/*	Border Radius */
+	-webkit-border-radius: .3em;
+	-moz-border-radius: .3em;
+	-o-border-radius: .3em; /* Opera removed support but it might work in older (pre 10.5) versions? */
+	border-radius: .3em;
+
+	/*	Box Shadow */
+	-webkit-box-shadow: 0 0 3px rgba(0,0,0,.5);
+	-moz-box-shadow: 0 0 3px rgba(0,0,0,.5);
+	box-shadow: 0 0 3px rgba(0,0,0,.5);
+	/* We could simulate this in IE with ('glow') filters, but we will not... */
+
+	/*	DEFAULT Color: Grey */
+	color: #333;
+	border: solid 1px #999;
+	background: #EEE; /* Basic fallback */
+	/* Fx < 3.6 & other browsers supporting data uri's */
+	background: url("data:image/jpeg,%FF%D8%FF%E0%00%10JFIF%00%01%01%00%00%01%00%01%00%00%FF%DB%00C%00%08%06%06%07%06%05%08%07%07%07%09%09%08%0A%0C%14%0D%0C%0B%0B%0C%19%12%13%0F%14%1D%1A%1F%1E%1D%1A%1C%1C%20%24.'%20%22%2C%23%1C%1C(7)%2C01444%1F'9%3D82%3C.342%FF%DB%00C%01%09%09%09%0C%0B%0C%18%0D%0D%182!%1C!22222222222222222222222222222222222222222222222222%FF%C0%00%11%08%002%00%01%03%01%22%00%02%11%01%03%11%01%FF%C4%00%17%00%01%01%01%01%00%00%00%00%00%00%00%00%00%00%00%00%00%03%02%07%FF%C4%00%15%10%01%01%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%12%FF%C4%00%14%01%01%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%FF%C4%00%14%11%01%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%FF%DA%00%0C%03%01%00%02%11%03%11%00%3F%00%EF%B4%23%40%25B4%02T%23%400%00%3F%FF%D9") repeat-x 0 0;
+	/* Webkit/Safari */
+	background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#DDD));
+	/* Fx 3.6+ */
+	background: -moz-linear-gradient(top,  #FFF,  #DDD);
+	/* We could have this in IE with ('gradient') filters, but we will not... */
+}
+
+/* Ugly hack: but Fx needs this to have INPUT elements the same height as A elements (?) */
+button, input.button, ul.button-bar li a,  x:-moz-any-link { padding: .35em 1em; }
+
+
+.large {
+	font: bold 1em/2em Arial, Helvetica;
+	padding: 0 1.5em;
+    margin: 0.5em;
+}
+
+.medium {
+	font-size: 12px;
+	padding: .4em 1.5em .42em;
+}
+
+.small {
+	font-size: 11px;
+	padding: .2em 1em .275em;
+}
+
+.extra_small {
+	font-size: 10px; 
+	padding: .2em 1em .275em;
+}
+
+.rounded { 
+	-webkit-border-radius: 1em; !important
+	-moz-border-radius: 1em; !important
+	border-radius: 1em; !important
+}
+
+.button:hover
+{
+        background-color: #ddd;
+        background-image: -webkit-gradient(linear, left top, left bottom, from(#fafafa), to(#ddd));
+        background-image: -webkit-linear-gradient(top, #fafafa, #ddd);
+        background-image: -moz-linear-gradient(top, #fafafa, #ddd);
+        background-image: -ms-linear-gradient(top, #fafafa, #ddd);
+        background-image: -o-linear-gradient(top, #fafafa, #ddd);
+        background-image: linear-gradient(top, #fafafa, #ddd);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#fafafa', EndColorStr='#dddddd');
+}
+
+.button:active
+{
+        -moz-box-shadow: 0 0 4px 2px rgba(0,0,0,.3) inset;
+        -webkit-box-shadow: 0 0 4px 2px rgba(0,0,0,.3) inset;
+        box-shadow: 0 0 4px 2px rgba(0,0,0,.3) inset;
+        position: relative;
+        top: 1px;
+}
+
+.button:focus
+{
+        outline: 0;
+        background: #fafafa;
+}    
+
+
+
+
+
+

@@ -307,7 +307,6 @@ if ($GLOBALS['concurrent_layout']) {
  $nav_bg_line = ' bgcolor="#94d6e7" ';
 }
 $login_filler_line = ' bgcolor="#f7f0d5" ';
-$login_body_line = ' background="'.$rootdir.'/pic/aquabg.gif" ';
 $logocode = "<img src='$web_root/sites/" . $_SESSION['site_id'] . "/images/login_logo.gif'>";
 $linepic = "$rootdir/pic/repeat_vline9.gif";
 $table_bg = ' bgcolor="#cccccc" ';
@@ -316,7 +315,7 @@ $GLOBALS['style']['TEXTCOLOR11'] = "#222222";
 $GLOBALS['style']['HIGHLIGHTCOLOR'] = "#dddddd";
 $GLOBALS['style']['BOTTOM_BG_LINE'] = $bottom_bg_line;
 // The height in pixels of the Logo bar at the top of the login page:
-$GLOBALS['logoBarHeight'] = 120;
+$GLOBALS['logoBarHeight'] = 110;
 // The height in pixels of the Navigation bar:
 $GLOBALS['navBarHeight'] = 22;
 // The height in pixels of the Title bar:
