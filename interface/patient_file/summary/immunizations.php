@@ -361,11 +361,9 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
                 ",i1.education_date ,i1.note ".
                 " from immunizations i1 ".
                 " left join users u on i1.administered_by_id = u.id ".
-                " left join codes c on CAST(IFNULL(i1.cvx_code,0) AS CHAR) = c.code ".
-                " left join code_types ct on c.code_type = ct.ct_id ".
-                " where patient_id = ? ".
-                " AND (( i1.cvx_code = '0' OR i1.cvx_code IS NULL ) OR ".
-                " ( (i1.cvx_code != '0' AND i1.cvx_code IS NOT NULL ) AND ct.ct_key = 'CVX') ) ".
+                " left join code_types ct on ct.ct_key = 'CVX' ".
+                " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".
+                " where i1.patient_id = ? ".
                 " order by ";
         if ($sortby == "vacc") { 
             $sql .= " c.code_text_short, i1.immunization_id, i1.administered_date DESC"; 
