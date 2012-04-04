@@ -252,11 +252,9 @@ foreach ($ar as $key => $val) {
                 print "<h1>".xl('Patient Immunization').":</h1>";
                 $sql = "select i1.immunization_id, i1.administered_date, substring(i1.note,1,20) as immunization_note, c.code_text_short ".
                    " from immunizations i1 ".
-                   " left join codes c on CAST(IFNULL(i1.cvx_code,0) AS CHAR) = c.code ".
-                   " left join code_types ct on c.code_type = ct.ct_id ".
-                   " where patient_id = '$pid' ".
-                   " AND (( i1.cvx_code = '0' OR i1.cvx_code IS NULL ) OR ".
-                   " ( (i1.cvx_code != '0' AND i1.cvx_code IS NOT NULL ) AND ct.ct_key = 'CVX') ) ".
+                   " left join code_types ct on ct.ct_key = 'CVX' ".
+                   " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".
+                   " where i1.patient_id = '$pid' ".
                    " order by administered_date desc";
                 $result = sqlStatement($sql);
                 while ($row=sqlFetchArray($result)) {
