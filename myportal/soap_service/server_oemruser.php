@@ -212,6 +212,16 @@ class OEMRUser{
             return array($query,$data[1]);
             break;
             
+            case 'payment_settings_all':
+            $query = "SELECT service_name,login_id,transaction_key,md5 FROM payment_gateway_details";
+            return array($query);
+            break;
+            
+            case 'payment_gateways_list':
+            $query = "SELECT option_id, title FROM list_options WHERE list_id = 'payment_gateways' ORDER BY seq";
+            return array($query);
+            break;
+            
         }
     }
 }

@@ -562,6 +562,16 @@ class existingpatient {
             $query = "SELECT pid FROM audit_master WHERE approval_status=1 and type=1 and pid=?";
             return array($query,array($pid));
             break;
+            
+            case 'payment_settings':
+            $query = "SELECT login_id,transaction_key,md5 FROM payment_gateway_details WHERE service_name=?";
+            return array($query,$data[1]);
+            break;
+            
+            case 'authorizenet_id':
+            $query = "SELECT authorize_net_id FROM patient_access_offsite WHERE pid=?";
+            return array($query,array($pid));
+            break;
         }
     }
 }

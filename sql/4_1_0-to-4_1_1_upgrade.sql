@@ -171,3 +171,27 @@ CREATE TABLE `dated_reminders_link` (
 #IfMissingColumn x12_partners x12_gs03
 ALTER TABLE `x12_partners` ADD COLUMN `x12_gs03` VARCHAR(15) NOT NULL DEFAULT '';
 #EndIf
+
+#IfNotTable payment_gateway_details
+CREATE TABLE `payment_gateway_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `service_name` varchar(100) DEFAULT NULL,
+  `login_id` varchar(255) DEFAULT NULL,
+  `transaction_key` varchar(255) DEFAULT NULL,
+  `md5` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id payment_gateways
+insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('lists','payment_gateways','Payment Gateways','297','1','0','','');
+insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_gateways','authorize_net','Authorize.net','1','0','0','','');
+#EndIf
+
+#IfNotRow2D list_options list_id payment_method option_id authorize.net
+insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_method','authorize_net','Authorize.net','60','0','0','','');
+#EndIf
+
+#IfMissingColumn patient_access_offsite authorize_net_id
+ALTER TABLE `patient_access_offsite` ADD COLUMN `authorize_net_id` VARCHAR(20) COMMENT 'authorize.net profile id';
+#EndIf

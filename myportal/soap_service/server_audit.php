@@ -113,7 +113,7 @@ class UserAudit extends UserMail{
   public function update_audited_data($var)
        {
 	      $data_credentials=$var[0];
-	$validtables = array("patient_data","employer_data","insurance_data","history_data","openemr_postcalendar_events");
+	$validtables = array("patient_data","employer_data","insurance_data","history_data","openemr_postcalendar_events","ar_session");
         if(UserService::valid($data_credentials)){
 	      $audit_master_id = $var['audit_master_id'];
 	      $res = sqlStatement("SELECT * FROM  audit_master  where id=? and  approval_status='1' and  type='3' ",array($audit_master_id));
@@ -155,6 +155,10 @@ class UserAudit extends UserMail{
 				  
 				  if($table=='openemr_postcalendar_events'){
 				    $newdata['openemr_postcalendar_events'][$rowfield['field_name']]=$rowfield['field_value'];
+				  }
+				  
+				  if($table=='ar_session'){
+					$newdata['ar_session'][$rowfield['field_name']]=$rowfield['field_value'];
 				  }
 
 			    }
@@ -221,6 +225,23 @@ class UserAudit extends UserMail{
 				    "'" . add_escape_custom($newdata['openemr_postcalendar_events']['pc_aid'])."', " .
 				    "'" . add_escape_custom($newdata['openemr_postcalendar_events']['pc_facility'])               . "')"
 				);
+			    }
+				elseif($table=='ar_session'){
+			      sqlInsert("INSERT INTO ar_session ( " .
+				    "payer_id, user_id, reference, check_date, pay_total, modified_time, payment_type, description, post_to_date, patient_id, payment_method" .
+				    ") VALUES ( " .
+				    "'" . add_escape_custom($newdata['ar_session']['payer_id']) . "', " .
+				    "'" . add_escape_custom($newdata['ar_session']['user_id']) . "', " .
+					"'" . add_escape_custom($newdata['ar_session']['reference']) . "', " .
+				    "NOW(), " .
+				    "'" . add_escape_custom($newdata['ar_session']['pay_total']) . "', " .
+				    "NOW(), " .
+				    "'" . add_escape_custom($newdata['ar_session']['payment_type']) . "', " .
+				    "'" . add_escape_custom($newdata['ar_session']['description']) . "', " .
+					"NOW(), " . 
+				    "'" . $pid . "', " .
+				    "'" . add_escape_custom($newdata['ar_session']['payment_method']) . "')"
+				  );
 			    }
 			 }
 		     else{

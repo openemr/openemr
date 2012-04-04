@@ -2827,6 +2827,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_method', 'check_payment', 'Check Payment', 10, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_method', 'credit_card', 'Credit Card', 30, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_method', 'electronic', 'Electronic', 40, 0);
+insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_method','authorize_net','Authorize.net','60','0','0','','');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'payment_sort_by','Payment Sort By', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('payment_sort_by', 'check_date', 'Check Date', 20, 0);
@@ -3264,6 +3265,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nat
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nation_notes_replace_buttons','No','No',20);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nation_notes_replace_buttons','Normal','Normal',30);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('nation_notes_replace_buttons','Abnormal','Abnormal',40);
+insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('lists','payment_gateways','Payment Gateways','297','1','0','','');
+insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) values('payment_gateways','authorize_net','Authorize.net','1','0','0','','');
+
 -- --------------------------------------------------------
 
 -- 
@@ -3749,6 +3753,7 @@ CREATE TABLE  `patient_access_offsite` (
   `portal_username` varchar(100) NOT NULL,
   `portal_pwd` varchar(100) NOT NULL,
   `portal_pwd_status` tinyint(4) DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
+  `authorize_net_id` VARCHAR(20) COMMENT 'authorize.net profile id',
   PRIMARY KEY (`id`),
   UNIQUE KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1;
@@ -3773,6 +3778,20 @@ CREATE TABLE `payments` (
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payment_gateway_details`
+--
+CREATE TABLE `payment_gateway_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `service_name` varchar(100) DEFAULT NULL,
+  `login_id` varchar(255) DEFAULT NULL,
+  `transaction_key` varchar(255) DEFAULT NULL,
+  `md5` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 

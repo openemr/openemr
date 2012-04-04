@@ -559,7 +559,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 
 
   public function getversion($data){
-         return 1;
+         return '1.1';
     }
     
     
@@ -609,8 +609,51 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	 }
 	 return $doc->saveXML();
     }
+	
+  //Writing facility payment configuration to table
+  public function save_payment_configuration($var){
+	$data_credentials=$var[0];
+	if(UserService::valid($data_credentials))
+		 {
+			if($var['service'] == 'paypal'){
+				if($var['paypal'] != ''){
+					$update_sql = "UPDATE payment_gateway_details SET login_id = ? WHERE service_name = 'paypal'";
+					sqlStatement($update_sql,array($var['login_id']));
+				}else{
+					$save_sql = "INSERT INTO payment_gateway_details (service_name,login_id) VALUES (?,?)";
+					sqlStatement($save_sql,array($var['service'],$var['login_id']));
+				}
+			}elseif($var['service'] == 'authorize_net'){
+				if($var['authorize_net'] != ''){
+					$update_sql = "UPDATE payment_gateway_details SET login_id = ?, transaction_key = ?, md5= ? WHERE service_name = 'authorize_net'";
+					sqlStatement($update_sql,array($var['login_id'],$var['transaction_key'],$var['md5']));
+				}else{
+					$save_sql = "INSERT INTO payment_gateway_details (service_name,login_id,transaction_key,md5) VALUES (?,?,?,?)";
+					sqlStatement($save_sql,array($var['service'],$var['login_id'],$var['transaction_key'],$var['md5']));
+				}
+			}
+		 }
+		else
+		 {
+			throw new SoapFault("Server", "credentials failed");
+		 }
+	}
     
- 
+ //Writing patient's authorizenet profile id to table
+  public function insert_authorizenet_details($var){
+	global $pid;
+	$data_credentials=$var[0];
+	if(UserService::valid($data_credentials))
+		 {
+			$authorizenetid=$var['authorizenetid'];
+			$query="UPDATE patient_access_offsite SET authorize_net_id = ? WHERE pid = ?";
+			sqlInsert($query,array($authorizenetid,$pid));
+		 }
+		else
+		 {
+			throw new SoapFault("Server", "credentials failed");
+		 }
+	}
 
   public function valid($credentials){
 	$timminus = date("Y-m-d H:m",(strtotime(date("Y-m-d H:m"))-7200)).":00";
