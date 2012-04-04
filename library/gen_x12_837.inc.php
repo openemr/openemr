@@ -9,7 +9,7 @@
 require_once("Claim.class.php");
 function stripZipCode($zip)
 {
-    return str_replace('-','',$zip);
+    return preg_replace('/[-\s]*/','',$zip);
 }
 function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
 
