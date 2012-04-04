@@ -322,8 +322,8 @@ $(document).ready(function(){
       $("#patient_reminders_ps_expand").load("patient_reminders_fragment.php");
     <?php } // end prw?>
 
-<?php if ($vitals_is_registered) { ?>
-    // Initialize the Vitals form if it is registered.
+<?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
+    // Initialize the Vitals form if it is registered and user is authorized.
     $("#vitals_ps_expand").load("vitals_fragment.php");
 <?php } ?>
 
@@ -886,7 +886,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
      </td>
     </tr>		
 
-<?php if ($vitals_is_registered) { ?>
+<?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
     <tr>
      <td width='650px'>
 <?php // vitals expand collapse widget
@@ -915,7 +915,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       </div>
      </td>
     </tr>
-<?php } // end if ($vitals_is_registered) ?>
+<?php } // end if ($vitals_is_registered && acl_check('patients', 'med')) ?>
 
 <?php
   // This generates a section similar to Vitals for each LBF form that
