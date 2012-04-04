@@ -239,7 +239,7 @@ class UserAudit extends UserMail{
 				    "'" . add_escape_custom($newdata['ar_session']['payment_type']) . "', " .
 				    "'" . add_escape_custom($newdata['ar_session']['description']) . "', " .
 					"NOW(), " . 
-				    "'" . $pid . "', " .
+				    "'" . add_escape_custom($pid) . "', " .
 				    "'" . add_escape_custom($newdata['ar_session']['payment_method']) . "')"
 				  );
 			    }
