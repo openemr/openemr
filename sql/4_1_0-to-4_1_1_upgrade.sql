@@ -195,3 +195,11 @@ insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfMissingColumn patient_access_offsite authorize_net_id
 ALTER TABLE `patient_access_offsite` ADD COLUMN `authorize_net_id` VARCHAR(20) COMMENT 'authorize.net profile id';
 #EndIf
+
+#IfMissingColumn facility website
+ALTER TABLE `facility` ADD COLUMN `website` varchar(255) default NULL;
+#EndIf
+
+#IfMissingColumn facility email
+ALTER TABLE `facility` ADD COLUMN `email` varchar(255) default NULL;
+#EndIf

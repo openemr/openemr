@@ -173,6 +173,11 @@ function displayAlert()
             <td width="21"><span class=text><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
           </span></td><td><input type=entry size=20 name=facility_npi value="<?php echo htmlspecialchars($facility{"facility_npi"}, ENT_QUOTES) ?>"></td>
         </tr>
+		 <tr>
+            <td><span class=text><?php xl('Website','e'); ?>: </span></td><td><input type=entry size=20 name=website value="<?php echo htmlspecialchars($facility{"website"}, ENT_QUOTES) ?>"></td>
+            <td><span class=text><?php xl('Email','e'); ?>: </span></td><td><input type=entry size=20 name=email value="<?php echo htmlspecialchars($facility{"email"}, ENT_QUOTES) ?>"></td>
+        </tr>
+		
          <tr>
           <td><span class='text'><?php xl('Billing Location','e'); ?>: </span></td>
           <td><input type='checkbox' name='billing_location' value='1' <?php if ($facility['billing_location'] != 0) echo 'checked'; ?>></td>

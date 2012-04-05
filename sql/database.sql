@@ -950,6 +950,8 @@ CREATE TABLE `facility` (
   `postal_code` varchar(11) default NULL,
   `country_code` varchar(10) default NULL,
   `federal_ein` varchar(15) default NULL,
+  `website` varchar(255) default NULL,
+  `email` varchar(255) default NULL,
   `service_location` tinyint(1) NOT NULL default '1',
   `billing_location` tinyint(1) NOT NULL default '0',
   `accepts_assignment` tinyint(1) NOT NULL default '0',
@@ -968,7 +970,7 @@ CREATE TABLE `facility` (
 -- Dumping data for table `facility`
 -- 
 
-INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', 1, 1, 0, NULL, '', '', '', '', '','#99FFFF','0');
+INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '','#99FFFF','0');
 
 -- --------------------------------------------------------
 

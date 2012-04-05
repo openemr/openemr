@@ -18,6 +18,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
   "postal_code = '"  . trim(formData('postal_code' )) . "', " .
   "country_code = '" . trim(formData('country_code')) . "', " .
   "federal_ein = '"  . trim(formData('federal_ein' )) . "', " .
+  "website = '"      . trim(formData('website'     )) . "', " .
+  "email = '"      	 . trim(formData('email'       )) . "', " .
   "color = '"  . trim(formData('ncolor' )) . "', " .
   "service_location = '"  . trim(formData('service_location' )) . "', " .
   "billing_location = '"  . trim(formData('billing_location' )) . "', " .
@@ -43,6 +45,8 @@ if ($_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility")
 		postal_code='" . trim(formData('postal_code')) . "',
 		country_code='" . trim(formData('country_code')) . "',
 		federal_ein='" . trim(formData('federal_ein')) . "',
+		website='" . trim(formData('website')) . "',
+		email='" . trim(formData('email')) . "',
 		color='" . trim(formData('ncolor')) . "',
 		service_location='" . trim(formData('service_location')) . "',
 		billing_location='" . trim(formData('billing_location')) . "',
