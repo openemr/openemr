@@ -87,6 +87,13 @@ foreach ($files_array as $file) {
                 $temp_date = array(substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6)=>$mainPATH."/".$matches[0]);
                 $revisions = array_merge($revisions,$temp_date);
             }
+            else if (preg_match("/SnomedCT_Release_INT_([0-9]{8}).zip/",$file,$matches)) {
+                $temp_date = array(substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6)=>$mainPATH."/".$matches[0]);
+                $revisions = array_merge($revisions,$temp_date);
+            }
+            else {
+                // nothing
+            }
         }
     }
 }
