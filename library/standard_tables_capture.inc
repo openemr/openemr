@@ -189,6 +189,9 @@ function snomed_import() {
         while (false !== ($filename = readdir($handle))) {
             if ($filename != "." && $filename != ".." && strpos($filename,"zip")==0) {
                 $path=$dir."".$filename."/".$sub_path;
+                if (!(is_dir($path))) {
+                    $path=$dir."".$filename."/RF1Release/".$sub_path;
+                }
                 if( is_dir($path) && $handle1 = opendir($path)) {
                     while (false !== ($filename1 = readdir($handle1))) {
                         $load_script="Load data local infile '#FILENAME#' into table #TABLE# fields terminated by '\\t' ESCAPED BY '' lines terminated by '\\n' ignore 1 lines   ";
