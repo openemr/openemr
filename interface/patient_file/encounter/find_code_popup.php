@@ -6,6 +6,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/csv_like_join.php");
@@ -22,8 +25,8 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Code Finder','e'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<title><?php echo xlt('Code Finder'); ?></title>
+<link rel="stylesheet" href='<?php echo attr($css_header) ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -33,7 +36,7 @@ td { font-size:10pt; }
 
  function selcode(codetype, code, selector, codedesc) {
   if (opener.closed || ! opener.set_related)
-   alert('The destination form was closed; I cannot act on your selection.');
+   alert('<?php echo addslashes( xl('The destination form was closed; I cannot act on your selection.') ); ?>');
   else
    opener.set_related(codetype, code, selector, codedesc);
   window.close();
@@ -47,7 +50,7 @@ td { font-size:10pt; }
 <body class="body_top">
 
 <?php if (isset($allowed_codes)) { ?>
-  <form method='post' name='theform' action='find_code_popup.php?codetype=<?php echo $codetype ?>'>
+  <form method='post' name='theform' action='find_code_popup.php?codetype=<?php echo attr($codetype) ?>'>
 <?php } else { ?>
   <form method='post' name='theform' action='find_code_popup.php'>
 <?php } ?>
@@ -68,17 +71,15 @@ td { font-size:10pt; }
 <?php
 if (isset($allowed_codes)) {
 	if (count($allowed_codes) === 1) {
-  echo "<input type='text' name='form_code_type' value='$codetype' size='5' readonly>\n";
+  echo "<input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly>\n";
 	} else {
 ?>
    <select name='form_code_type'>
 <?php
 		foreach ($allowed_codes as $code) {
-			$value = htmlspecialchars($code, ENT_QUOTES);
 			$selected_attr = ($form_code_type == $code) ? " selected='selected'" : '';
-			$text = htmlspecialchars($code, ENT_NOQUOTES);
 ?>
-   	<option value='<?php echo $value ?>'<?php echo $selected_attr?>><?php echo $text ?></option>
+   	<option value='<?php echo attr($code) ?>'<?php echo $selected_attr?>><?php echo xlt($code_types[$code]['label']) ?></option>
 <?php
 		}
 ?>
@@ -90,24 +91,24 @@ else {
   echo "   <select name='form_code_type'";
   echo ">\n";
   foreach ($code_types as $key => $value) {
-    echo "    <option value='$key'";
+    echo "    <option value='" . attr($key) . "'";
     if ($codetype == $key || $form_code_type == $key) echo " selected";
-    echo ">$key</option>\n";
+    echo ">" . xlt($value['label']) . "</option>\n";
   }
   echo "    <option value='PROD'";
   if ($codetype == 'PROD' || $form_code_type == 'PROD') echo " selected";
-  echo ">Product</option>\n";
+  echo ">" . xlt("Product") . "</option>\n";
   echo "   </select>&nbsp;&nbsp;\n";
 }
 ?>
 
- <?php xl('Search for:','e'); ?>
-   <input type='text' name='search_term' size='12' value='<?php echo $_REQUEST['search_term']; ?>'
-    title='<?php xl('Any part of the desired code or its description','e'); ?>' />
+ <?php echo xlt('Search for:'); ?>
+   <input type='text' name='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>'
+    title='<?php echo xla('Any part of the desired code or its description'); ?>' />
    &nbsp;
-   <input type='submit' name='bn_search' value='<?php xl('Search','e'); ?>' />
+   <input type='submit' name='bn_search' value='<?php echo xla('Search'); ?>' />
    &nbsp;&nbsp;&nbsp;
-   <input type='button' value='<?php xl('Erase','e'); ?>' onclick="selcode('', '', '', '')" />
+   <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
    </b>
   </td>
  </tr>
@@ -123,19 +124,13 @@ else {
 
 <table border='0'>
  <tr>
-  <td><b><?php xl ('Code','e'); ?></b></td>
-  <td><b><?php xl ('Description','e'); ?></b></td>
+  <td><b><?php echo xlt('Code'); ?></b></td>
+  <td><b><?php echo xlt('Description'); ?></b></td>
  </tr>
 <?php
   $search_term = $_REQUEST['search_term'];
-  if ($form_code_type == 'PROD') {
-    $query = "SELECT dt.drug_id, dt.selector, d.name " .
-      "FROM drug_templates AS dt, drugs AS d WHERE " .
-      "( d.name LIKE '%$search_term%' OR " .
-      "dt.selector LIKE '%$search_term%' ) " .
-      "AND d.drug_id = dt.drug_id " .
-      "ORDER BY d.name, dt.selector, dt.drug_id";
-    $res = sqlStatement($query);
+  $res = code_set_search($form_code_type,$search_term);
+  if ($form_code_type == 'PROD') { // Special case that displays search for products/drugs
     while ($row = sqlFetchArray($res)) {
       $drug_id = addslashes($row['drug_id']);
       $selector = addslashes($row['selector']);
@@ -143,27 +138,20 @@ else {
       $anchor = "<a href='' " .
         "onclick='return selcode(\"PROD\", \"$drug_id\", \"$selector\", \"$desc\")'>";
       echo " <tr>";
-      echo "  <td>$anchor$drug_id:$selector</a></td>\n";
-      echo "  <td>$anchor$desc</a></td>\n";
+      echo "  <td>$anchor" . text($drug_id.":".$selector) . "</a></td>\n";
+      echo "  <td>$anchor" . text($desc) . "</a></td>\n";
       echo " </tr>";
     }
   }
   else {
-    $query = "SELECT code_type, code, modifier, code_text FROM codes " .
-      "WHERE (code_text LIKE '%$search_term%' OR " .
-      "code LIKE '%$search_term%') " .
-      "AND code_type = '" . $code_types[$form_code_type]['id'] . "' " .
-      "ORDER BY code";
-    // echo "\n<!-- $query -->\n"; // debugging
-    $res = sqlStatement($query);
-    while ($row = sqlFetchArray($res)) {
+    while ($row = sqlFetchArray($res)) { // Display normal search
       $itercode = addslashes($row['code']);
-      $itertext = addslashes(ucfirst(strtolower(trim($row['code_text']))));
+      $itertext = addslashes(trim($row['code_text']));
       $anchor = "<a href='' " .
-        "onclick='return selcode(\"$form_code_type\", \"$itercode\", \"\", \"$itertext\")'>";
+        "onclick='return selcode(\"" . addslashes($form_code_type) . "\", \"$itercode\", \"\", \"$itertext\")'>";
       echo " <tr>";
-      echo "  <td>$anchor$itercode</a></td>\n";
-      echo "  <td>$anchor$itertext</a></td>\n";
+      echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
+      echo "  <td>$anchor" . text($itertext) . "</a></td>\n";
       echo " </tr>";
     }
   }

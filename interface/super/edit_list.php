@@ -55,9 +55,12 @@ if ($_POST['formaction']=='save' && $list_id) {
         $ct_rel  = empty($iter['ct_rel' ]) ? 0 : 1;
         $ct_nofs = empty($iter['ct_nofs']) ? 0 : 1;
         $ct_diag = empty($iter['ct_diag']) ? 0 : 1;
+        $ct_active = empty($iter['ct_active' ]) ? 0 : 1;
+        $ct_label = formTrim($iter['ct_label']);
+        $ct_external = formTrim($iter['ct_external']) + 0;
         if (strlen($ct_key) > 0 && $ct_id > 0) {
           sqlInsert("INSERT INTO code_types ( " .
-            "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag " .
+            "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external " .
             ") VALUES ( "   .
             "'$ct_key' , " .
             "'$ct_id'  , " .
@@ -68,7 +71,10 @@ if ($_POST['formaction']=='save' && $list_id) {
             "'$ct_fee' , " .
             "'$ct_rel' , " .
             "'$ct_nofs', " .
-            "'$ct_diag' "  .
+            "'$ct_diag', " .
+            "'$ct_active', " .
+            "'$ct_label', " .
+            "'$ct_external' " .
             ")");
         }
       }
@@ -363,10 +369,14 @@ function writeCTLine($ct_array) {
 
   echo " <tr bgcolor='$bgcolor'>\n";
 
-  echo ctGenCell($opt_line_no, $ct_array, 'ct_key' , 4, 15,
+  echo ctGenCBox($opt_line_no, $ct_array, 'ct_active',
+    xl('Is this code type active?'));
+  echo ctGenCell($opt_line_no, $ct_array, 'ct_key' , 6, 15,
     xl('Unique human-readable identifier for this type'));
   echo ctGenCell($opt_line_no, $ct_array, 'ct_id'  , 2, 11,
     xl('Unique numeric identifier for this type'));
+  echo ctGenCell($opt_line_no, $ct_array, 'ct_label' , 6, 30,
+    xl('Label for this type'));
   echo ctGenCell($opt_line_no, $ct_array, 'ct_seq' , 2,  3,
     xl('Numeric display order'));
   echo ctGenCell($opt_line_no, $ct_array, 'ct_mod' , 1,  2,
@@ -383,6 +393,8 @@ function writeCTLine($ct_array) {
     xl('Is this type hidden in the fee sheet?'));
   echo ctGenCBox($opt_line_no, $ct_array, 'ct_diag',
     xl('Is this a diagnosis type?'));
+  echo ctGenCell($opt_line_no, $ct_array, 'ct_external' , 1,  2,
+    xl('Are the codes stored in external sql tables (0-No, 1-ICD10, 2-SNOMED(RF1), 3-SNOMED(RF2)) ?'));
 
   echo " </tr>\n";
 }
@@ -618,8 +630,10 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Option'   ,'e'); ?></b></td>
   <td><b><?php xl('Generates','e'); ?></b></td>
 <?php } else if ($list_id == 'code_types') { ?>
-  <td><b><?php xl('Name'        ,'e'); ?></b></td>
+  <td><b><?php xl('Active'      ,'e'); ?></b></td>
+  <td><b><?php xl('Key'        ,'e'); ?></b></td>
   <td><b><?php xl('ID'          ,'e'); ?></b></td>
+  <td><b><?php xl('Label'       ,'e'); ?></b></td>
   <td><b><?php xl('Seq'         ,'e'); ?></b></td>
   <td><b><?php xl('ModLength'   ,'e'); ?></b></td>
   <td><b><?php xl('Justify'     ,'e'); ?></b></td>
@@ -628,6 +642,7 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Relations'   ,'e'); ?></b></td>
   <td><b><?php xl('Hide'        ,'e'); ?></b></td>
   <td><b><?php xl('Diagnosis'   ,'e'); ?></b></td>
+  <td><b><?php xl('External'    ,'e'); ?></b></td>
 <?php } else { ?>
   <td title=<?php xl('Click to edit','e','\'','\''); ?>><b><?php  xl('ID','e'); ?></b></td>
   <td><b><?php xl('Title'  ,'e'); ?></b></td>	

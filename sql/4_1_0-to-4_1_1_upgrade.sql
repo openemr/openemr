@@ -203,3 +203,50 @@ ALTER TABLE `facility` ADD COLUMN `website` varchar(255) default NULL;
 #IfMissingColumn facility email
 ALTER TABLE `facility` ADD COLUMN `email` varchar(255) default NULL;
 #EndIf
+
+#IfMissingColumn code_types ct_active
+ALTER TABLE `code_types` ADD COLUMN `ct_active` tinyint(1) NOT NULL default 1 COMMENT '1 if this is active';
+#EndIf
+
+#IfMissingColumn code_types ct_label
+ALTER TABLE `code_types` ADD COLUMN `ct_label` varchar(31) NOT NULL default '' COMMENT 'label of this code type';
+UPDATE `code_types` SET ct_label = ct_key;
+#EndIf
+
+#IfMissingColumn code_types ct_external
+ALTER TABLE `code_types` ADD COLUMN `ct_external` tinyint(1) NOT NULL default 0 COMMENT '0 if stored codes in codes tables, 1 or greater if codes stored in external tables';
+#EndIf
+
+#IfNotRow code_types ct_key DSMIV
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (
+  `id` int(11) NOT NULL DEFAULT '0',
+  `seq` int(11) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM ;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES ( IF( ((SELECT MAX(`ct_id`) FROM `code_types`)>=100), ((SELECT MAX(`ct_id`) FROM `code_types`) + 1), 100 ) , IF( ((SELECT MAX(`ct_seq`) FROM `code_types`)>=100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100 )  );
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external ) VALUES ('DSMIV' , (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 2, '', 0, 0, 0, 1, 0, 'DSMIV', 0);
+DROP TABLE `temp_table_one`;
+#EndIf
+
+#IfNotRow code_types ct_key ICD10
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (
+  `id` int(11) NOT NULL DEFAULT '0',
+  `seq` int(11) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM ;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES ( IF( ((SELECT MAX(`ct_id`) FROM `code_types`)>=100), ((SELECT MAX(`ct_id`) FROM `code_types`) + 1), 100 ) , IF( ((SELECT MAX(`ct_seq`) FROM `code_types`)>=100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100 )  );
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external ) VALUES ('ICD10' , (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 2, '', 0, 0, 0, 1, 0, 'ICD10', 1);
+DROP TABLE `temp_table_one`;
+#EndIf
+
+#IfNotRow code_types ct_key SNOMED
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (
+  `id` int(11) NOT NULL DEFAULT '0',
+  `seq` int(11) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM ;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES ( IF( ((SELECT MAX(`ct_id`) FROM `code_types`)>=100), ((SELECT MAX(`ct_id`) FROM `code_types`) + 1), 100 ) , IF( ((SELECT MAX(`ct_seq`) FROM `code_types`)>=100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100 )  );
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external ) VALUES ('SNOMED' , (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 2, '', 0, 0, 0, 1, 0, 'SNOMED', 2);
+DROP TABLE `temp_table_one`;
+#EndIf
+

@@ -406,11 +406,6 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
     $code      = $iter['code'];
     $del       = $iter['del'];
 
-    // Get some information about this service code.
-    $codesrow = sqlQuery("SELECT code_text FROM codes WHERE " .
-      "code_type = '" . $code_types[$code_type]['id'] .
-      "' AND code = '$code' LIMIT 1");
-
     // Skip disabled (billed) line items.
     if ($iter['billed']) continue;
 
@@ -453,7 +448,7 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
 
     // Otherwise it's a new item...
     else if (! $del) {
-      $code_text = addslashes($codesrow['code_text']);
+      $code_text = addslashes(lookup_code_descriptions($code_type.":".$code));
       addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
         $provid, $modifier, $units, $fee, $ndc_info, $justify, 0, $notecodes);
     }
@@ -799,13 +794,10 @@ echo "  <td colspan='$FEE_SHEET_COLUMNS' align='center' nowrap>\n";
 //
 $numrows = 0;
 if ($_POST['bn_search'] && $_POST['search_term']) {
-  $query = "SELECT code, modifier, code_text FROM codes WHERE " .
-    "(code_text LIKE '%" . $_POST['search_term'] . "%' OR " .
-    "code LIKE '%" . $_POST['search_term'] . "%') AND " .
-    "code_type = '" . $code_types[$search_type]['id'] . "' " .
-    "AND active = 1 ORDER BY code";
-  $res = sqlStatement($query);
-  $numrows = mysql_num_rows($res); // FIXME - not portable!
+  $res = code_set_search($search_type,$_POST['search_term']);
+  if (!empty($res)) {
+    $numrows = sqlNumRows($res);
+  }
 }
 
 echo "   <select name='Search Results' style='width:98%' " .
