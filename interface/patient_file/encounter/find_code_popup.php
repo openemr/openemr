@@ -45,7 +45,13 @@ td { font-size:10pt; }
 </head>
 
 <body class="body_top">
-<form method='post' name='theform' action='find_code_popup.php?codetype=<?php echo $codetype ?>'>
+
+<?php if (isset($allowed_codes)) { ?>
+  <form method='post' name='theform' action='find_code_popup.php?codetype=<?php echo $codetype ?>'>
+<?php } else { ?>
+  <form method='post' name='theform' action='find_code_popup.php'>
+<?php } ?>
+
 <center>
 
 <table border='0' cellpadding='5' cellspacing='0'>
