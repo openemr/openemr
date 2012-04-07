@@ -78,7 +78,7 @@ if (isset($allowed_codes)) {
 			$selected_attr = ($form_code_type == $code) ? " selected='selected'" : '';
 			$text = htmlspecialchars($code, ENT_NOQUOTES);
 ?>
-   	<option value='<?php echo $value ?>'<?php echo $select_attr?>><?php echo $text ?></option>
+   	<option value='<?php echo $value ?>'<?php echo $selected_attr?>><?php echo $text ?></option>
 <?php
 		}
 ?>
