@@ -256,11 +256,11 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
              "ON ref.formatted_dx_code = c.code AND c.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE ref.formatted_dx_code = ? AND ref.valid_for_coding = '1' $active_query $query_filter_elements ";
+     $query .= "WHERE ref.formatted_dx_code = ? AND ref.valid_for_coding = '1' AND ref.active = '1' $active_query $query_filter_elements ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE (ref.long_desc LIKE ? OR ref.formatted_dx_code LIKE ?) AND ref.valid_for_coding = '1' $active_query $query_filter_elements";
+     $query .= "WHERE (ref.long_desc LIKE ? OR ref.formatted_dx_code LIKE ?) AND ref.valid_for_coding = '1' AND ref.active = '1' $active_query $query_filter_elements ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
     $query .= "ORDER BY ref.formatted_dx_code+0, ref.formatted_dx_code $limit_query";
@@ -322,11 +322,11 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
              "ON ref.formatted_dx_code = c.code AND c.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE ref.formatted_dx_code = ? $active_query $query_filter_elements ";
+     $query .= "WHERE ref.formatted_dx_code = ? AND ref.active = '1' $active_query $query_filter_elements ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE (ref.long_desc LIKE ? OR ref.formatted_dx_code LIKE ?) $active_query $query_filter_elements ";
+     $query .= "WHERE (ref.long_desc LIKE ? OR ref.formatted_dx_code LIKE ?) AND ref.active = '1' $active_query $query_filter_elements ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
     $query .= "ORDER BY ref.formatted_dx_code+0, ref.formatted_dx_code $limit_query";
@@ -353,11 +353,11 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
              "ON ref.formatted_sg_code = c.code AND c.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE ref.formatted_sg_code = ? $active_query ";
+     $query .= "WHERE ref.formatted_sg_code = ? AND ref.active = '1' $active_query ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE (ref.long_desc LIKE ? OR ref.formatted_sg_code LIKE ?) $active_query ";
+     $query .= "WHERE (ref.long_desc LIKE ? OR ref.formatted_sg_code LIKE ?) AND ref.active = '1' $active_query ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
     $query .= "ORDER BY ref.formatted_sg_code+0, ref.formatted_sg_code $limit_query";
@@ -385,11 +385,11 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
              "ON ref.pcs_code = c.code AND c.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE ref.pcs_code = ? AND ref.valid_for_coding = '1' $active_query ";
+     $query .= "WHERE ref.pcs_code = ? AND ref.valid_for_coding = '1' AND ref.active = '1' $active_query ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE (ref.long_desc LIKE ? OR ref.pcs_code LIKE ?) AND ref.valid_for_coding = '1' $active_query ";
+     $query .= "WHERE (ref.long_desc LIKE ? OR ref.pcs_code LIKE ?) AND ref.valid_for_coding = '1' AND ref.active = '1' $active_query ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
     $query .= "ORDER BY ref.pcs_code+0, ref.pcs_code $limit_query";
@@ -451,8 +451,9 @@ function lookup_code_descriptions($codes) {
         $check_table = sqlQuery("SHOW TABLES LIKE 'icd10_dx_order_code'");
         if ( !(empty($check_table)) ) {
           if ( !(empty($code)) ) {
+            // Will grab from previous inactive revisions if unable to find in current revision
             $sql = "SELECT `long_desc` FROM `icd10_dx_order_code` " .
-                   "WHERE `formatted_dx_code` = ? LIMIT 1";
+                   "WHERE `formatted_dx_code` = ? ORDER BY `revision` DESC LIMIT 1";
             $crow = sqlQuery($sql, array($code) );
             if (!empty($crow['long_desc'])) {
               if ($code_text) $code_text .= '; ';
@@ -484,8 +485,9 @@ function lookup_code_descriptions($codes) {
         $check_table = sqlQuery("SHOW TABLES LIKE 'icd9_dx_code'");
         if ( !(empty($check_table)) ) {
           if ( !(empty($code)) ) {
+            // Will grab from previous inactive revisions if unable to find in current revision
             $sql = "SELECT `long_desc` FROM `icd9_dx_code` " .
-                   "WHERE `formatted_dx_code` = ? LIMIT 1";
+                   "WHERE `formatted_dx_code` = ? ORDER BY `revision` DESC LIMIT 1";
             $crow = sqlQuery($sql, array($code) );
             if (!empty($crow['long_desc'])) {
               if ($code_text) $code_text .= '; ';
@@ -499,8 +501,9 @@ function lookup_code_descriptions($codes) {
         $check_table = sqlQuery("SHOW TABLES LIKE 'icd9_sg_code'");
         if ( !(empty($check_table)) ) {
           if ( !(empty($code)) ) {
+            // Will grab from previous inactive revisions if unable to find in current revision
             $sql = "SELECT `long_desc` FROM `icd9_sg_code` " .
-                   "WHERE `formatted_sg_code` = ? LIMIT 1";
+                   "WHERE `formatted_sg_code` = ? ORDER BY `revision` DESC LIMIT 1";
             $crow = sqlQuery($sql, array($code) );
             if (!empty($crow['long_desc'])) {
               if ($code_text) $code_text .= '; ';
@@ -514,8 +517,9 @@ function lookup_code_descriptions($codes) {
         $check_table = sqlQuery("SHOW TABLES LIKE 'icd10_pcs_order_code'");
         if ( !(empty($check_table)) ) {
           if ( !(empty($code)) ) {
-            $sql = "SELECT `long_desc` FROM `icd10_dx_order_code` " .
-                   "WHERE `pcs_code` = ? LIMIT 1";
+            // Will grab from previous inactive revisions if unable to find in current revision
+            $sql = "SELECT `long_desc` FROM `icd10_pcs_order_code` " .
+                   "WHERE `pcs_code` = ? ORDER BY `revision` DESC LIMIT 1";
             $crow = sqlQuery($sql, array($code) );
             if (!empty($crow['long_desc'])) {
               if ($code_text) $code_text .= '; ';

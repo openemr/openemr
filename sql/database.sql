@@ -934,6 +934,7 @@ CREATE TABLE `standardized_tables_track` (
   `name` varchar(255) NOT NULL default '' COMMENT 'name of standardized tables such as RXNORM',
   `revision_version` varchar(255) NOT NULL default '' COMMENT 'revision of standardized tables that were imported',
   `revision_date` datetime default NULL COMMENT 'revision of standardized tables that were imported',
+  `file_checksum` varchar(32) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
@@ -1939,6 +1940,221 @@ CREATE TABLE `history_data` (
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd9_dx_code`
+--
+
+DROP TABLE IF EXISTS `icd9_dx_code`;
+CREATE TABLE `icd9_dx_code` (
+  `dx_id` SERIAL,
+  `dx_code`             varchar(5),
+  `formatted_dx_code`   varchar(6),
+  `short_desc`          varchar(60),
+  `long_desc`           varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0,
+  KEY `dx_code` (`dx_code`),
+  KEY `formatted_dx_code` (`formatted_dx_code`),
+  KEY `active` (`active`)
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd9_sg_code`
+--
+
+DROP TABLE IF EXISTS `icd9_sg_code`;
+CREATE TABLE `icd9_sg_code` (
+  `sg_id` SERIAL,
+  `sg_code`             varchar(5),
+  `formatted_sg_code`   varchar(6),
+  `short_desc`          varchar(60),
+  `long_desc`           varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0,
+  KEY `sg_code` (`sg_code`),
+  KEY `formatted_sg_code` (`formatted_sg_code`),
+  KEY `active` (`active`)
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd9_dx_long_code`
+--
+
+DROP TABLE IF EXISTS `icd9_dx_long_code`;
+CREATE TABLE `icd9_dx_long_code` (
+  `dx_id` SERIAL,
+  `dx_code`             varchar(5),
+  `long_desc`           varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd9_sg_long_code`
+--
+
+DROP TABLE IF EXISTS `icd9_sg_long_code`;
+CREATE TABLE `icd9_sg_long_code` (
+  `sq_id` SERIAL,
+  `sg_code`             varchar(5),
+  `long_desc`           varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd10_dx_order_code`
+--
+
+DROP TABLE IF EXISTS `icd10_dx_order_code`;
+CREATE TABLE `icd10_dx_order_code` (
+  `dx_id`               SERIAL,
+  `dx_code`             varchar(7),
+  `formatted_dx_code`   varchar(10),
+  `valid_for_coding`    char,
+  `short_desc`          varchar(60),
+  `long_desc`           varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0,
+  KEY `formatted_dx_code` (`formatted_dx_code`),
+  KEY `active` (`active`)
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd10_pcs_order_code`
+--
+
+DROP TABLE IF EXISTS `icd10_pcs_order_code`;
+CREATE TABLE `icd10_pcs_order_code` (
+  `pcs_id`              SERIAL,
+  `pcs_code`            varchar(7),
+  `valid_for_coding`    char,
+  `short_desc`          varchar(60),
+  `long_desc`           varchar(300),
+  `active` tinyint default 0,
+  `revision` int default 0,
+  KEY `pcs_code` (`pcs_code`),
+  KEY `active` (`active`)
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd10_gem_pcs_9_10`
+--
+
+DROP TABLE IF EXISTS `icd10_gem_pcs_9_10`;
+CREATE TABLE `icd10_gem_pcs_9_10` (
+  `map_id` SERIAL,
+  `pcs_icd9_source` varchar(5) default NULL,
+  `pcs_icd10_target` varchar(7) default NULL,
+  `flags` varchar(5) default NULL,
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd10_gem_pcs_10_9`
+--
+
+DROP TABLE IF EXISTS `icd10_gem_pcs_10_9`;
+CREATE TABLE `icd10_gem_pcs_10_9` (
+  `map_id` SERIAL,
+  `pcs_icd10_source` varchar(7) default NULL,
+  `pcs_icd9_target` varchar(5) default NULL,
+  `flags` varchar(5) default NULL,
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd10_gem_dx_9_10`
+--
+
+DROP TABLE IF EXISTS `icd10_gem_dx_9_10`;
+CREATE TABLE `icd10_gem_dx_9_10` (
+  `map_id` SERIAL,
+  `dx_icd9_source` varchar(5) default NULL,
+  `dx_icd10_target` varchar(7) default NULL,
+  `flags` varchar(5) default NULL,
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd10_gem_dx_10_9`
+--
+
+DROP TABLE IF EXISTS `icd10_gem_dx_10_9`;
+CREATE TABLE `icd10_gem_dx_10_9` (
+  `map_id` SERIAL,
+  `dx_icd10_source` varchar(7) default NULL,
+  `dx_icd9_target` varchar(5) default NULL,
+  `flags` varchar(5) default NULL,
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd10_reimbr_dx_9_10`
+--
+
+DROP TABLE IF EXISTS `icd10_reimbr_dx_9_10`;
+CREATE TABLE `icd10_reimbr_dx_9_10` (
+  `map_id` SERIAL,
+  `code`        varchar(8),
+  `code_cnt`    tinyint,
+  `ICD9_01`     varchar(5),
+  `ICD9_02`     varchar(5),
+  `ICD9_03`     varchar(5),
+  `ICD9_04`     varchar(5),
+  `ICD9_05`     varchar(5),
+  `ICD9_06`     varchar(5),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `icd10_reimbr_pcs_9_10`
+--
+
+DROP TABLE IF EXISTS `icd10_reimbr_pcs_9_10`;
+CREATE TABLE `icd10_reimbr_pcs_9_10` (
+  `map_id`      SERIAL,
+  `code`        varchar(8),
+  `code_cnt`    tinyint,
+  `ICD9_01`     varchar(5),
+  `ICD9_02`     varchar(5),
+  `ICD9_03`     varchar(5),
+  `ICD9_04`     varchar(5),
+  `ICD9_05`     varchar(5),
+  `ICD9_06`     varchar(5),
+  `active` tinyint default 0,
+  `revision` int default 0
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -4740,6 +4956,41 @@ INSERT INTO `sequences` VALUES (1);
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `supported_external_dataloads`
+--
+
+DROP TABLE IF EXISTS `supported_external_dataloads`;
+CREATE TABLE `supported_external_dataloads` (
+  `load_id` SERIAL,
+  `load_type` varchar(24) NOT NULL DEFAULT '',
+  `load_source` varchar(24) NOT NULL DEFAULT 'CMS',
+  `load_release_date` date NOT NULL,
+  `load_filename` varchar(256) NOT NULL DEFAULT '',
+  `load_checksum` varchar(32) NOT NULL DEFAULT ''
+) ENGINE=MyISAM;
+
+--
+-- Dumping data for table `supported_external_dataloads`
+--
+
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD9', 'CMS', '2011-10-01', 'cmsv29_master_descriptions.zip', 'c360c2b5a29974d6c58617c7378dd7c4');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD9', 'CMS', '2012-10-01', 'cmsv30_master_descriptions.zip', 'eb26446536435f5f5e677090a7976b15');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', '2012_PCS_long_and_abbreviated_titles.zip', '201a732b649d8c7fba807cc4c083a71a');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', 'DiagnosisGEMs_2012.zip', '6758c4a3384c47161ce24f13a2464b53');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', 'ICD10OrderFiles_2012.zip', 'a76601df7a9f5270d8229828a833f6a1');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', 'ProcedureGEMs_2012.zip', 'f37416d8fab6cd2700b634ca5025295d');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2011-10-01', 'ReimbursementMapping_2012.zip', '8b438d1fd1f34a9bb0e423c15e89744b');
+
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `transactions`
 -- 
@@ -5155,7 +5406,7 @@ CREATE TABLE code_types (
   ct_claim tinyint(1) NOT NULL default 0 COMMENT '1 if this is used in claims',
   PRIMARY KEY (ct_key)
 ) ENGINE=MyISAM;
-INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim ) VALUES ('ICD9' , 2, 1, 0, ''    , 0, 0, 0, 1, 1, 'ICD9 Diagnosis', 0, 1);
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim ) VALUES ('ICD9' , 2, 1, 0, ''    , 0, 0, 0, 1, 1, 'ICD9 Diagnosis', 4, 1);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim ) VALUES ('CPT4' , 1, 2, 12, 'ICD9', 1, 0, 0, 0, 1, 'CPT4 Procedure/Service', 0, 1);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim ) VALUES ('HCPCS', 3, 3, 12, 'ICD9', 1, 0, 0, 0, 1, 'HCPCS Procedure/Service', 0, 1);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim ) VALUES ('CVX'  , 100, 100, 0, '', 0, 0, 1, 0, 1, 'CVX Immunization', 0, 0);

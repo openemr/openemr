@@ -1,2 +1,2 @@
-Directory to place SNOMED Database files.
+Directory to place ICD10 Database files.
 In OpenEMR, go to Administration -> Other -> 'External Data Loads' for instructions.
