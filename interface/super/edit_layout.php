@@ -15,6 +15,7 @@ $layouts = array(
   'DEM' => xl('Demographics'),
   'HIS' => xl('History'),
   'REF' => xl('Referrals'),
+  'FACUSR' => xl('Facility Specific User Information')
 );
 if ($GLOBALS['ippf_specific']) {
   $layouts['GCA'] = xl('Abortion Issues');
@@ -131,7 +132,7 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       ",'" . $listval . "'" .
       " )");
 
-    if (substr($layout_id,0,3) != 'LBF') {
+    if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
       // Add the field to the table too (this is critical)
       if ($layout_id == "DEM") { $tablename = "patient_data"; }
       else if ($layout_id == "HIS") { $tablename = "history_data"; }
@@ -177,7 +178,7 @@ else if ($_POST['formaction'] == "deletefields" && $layout_id) {
     $sqlstmt .= ")";
     sqlStatement($sqlstmt);
 
-    if (substr($layout_id,0,3) != 'LBF') {
+    if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
         // drop the field from the table too (this is critical) 
         if ($layout_id == "DEM") { $tablename = "patient_data"; }
         else if ($layout_id == "HIS") { $tablename = "history_data"; }
@@ -232,7 +233,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       ",'" . $listval       . "'" .
       " )");
 
-    if (substr($layout_id,0,3) != 'LBF') {
+    if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
       // Add the field to the table too (this is critical)
       if ($layout_id == "DEM") { $tablename = "patient_data"; }
       else if ($layout_id == "HIS") { $tablename = "history_data"; }
@@ -250,7 +251,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
 
 else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     // drop the fields from the related table (this is critical)
-    if (substr($layout_id,0,3) != 'LBF') {
+    if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
         $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
                             " form_id = '".$_POST['layout_id']."' ".
                             " AND group_name = '".$_POST['deletegroupname']."'"

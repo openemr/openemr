@@ -972,6 +972,24 @@ CREATE TABLE `facility` (
 
 INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '','#99FFFF','0');
 
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `facility_user_ids`
+-- 
+
+DROP TABLE IF EXISTS `facility_user_ids`;
+CREATE TABLE  `facility_user_ids` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uid` bigint(20) DEFAULT NULL,
+  `facility_id` bigint(20) DEFAULT NULL,
+  `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
+  `field_value` TEXT NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uid` (`uid`,`facility_id`,`field_id`)
+) ENGINE=MyISAM  AUTO_INCREMENT=1 ;
+
 -- --------------------------------------------------------
 
 -- 
@@ -2279,6 +2297,8 @@ INSERT INTO layout_options VALUES ('HIS','additional_history','5Other','Addition
 INSERT INTO layout_options VALUES ('HIS','userarea11'        ,'5Other','User Defined Area 11',6,3,0,30,3,'',1,3,'','','User Defined');
 INSERT INTO layout_options VALUES ('HIS','userarea12'        ,'5Other','User Defined Area 12',7,3,0,30,3,'',1,3,'','','User Defined');
 
+INSERT INTO `layout_options` VALUES ('FACUSR', 'provider_id', '1General', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility');
+
 -- --------------------------------------------------------
 
 -- 
@@ -3345,6 +3365,7 @@ CREATE TABLE `log` (
   `crt_user` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
 
 -- --------------------------------------------------------
 

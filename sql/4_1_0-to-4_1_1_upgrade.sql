@@ -288,3 +288,19 @@ UPDATE `billing` SET `activity`=0 WHERE `code_type`='COPAY';
 DROP TABLE IF EXISTS `temp_table_one`;
 #EndIf
 
+#IfNotTable facility_user_ids
+CREATE TABLE  `facility_user_ids` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `uid` bigint(20) DEFAULT NULL,
+  `facility_id` bigint(20) DEFAULT NULL,
+  `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
+  `field_value` TEXT NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uid` (`uid`,`facility_id`,`field_id`)
+) ENGINE=MyISAM  AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfNotRow layout_options form_id FACUSR
+INSERT INTO `layout_options` (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('FACUSR', 'provider_id', '1General', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility');
+#EndIf
+
