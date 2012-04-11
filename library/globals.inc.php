@@ -48,6 +48,7 @@
 //   Spanish (Spain)                // xl('Spanish (Spain)')
 //   Swedish                        // xl('Swedish')
 //   Turkish                        // xl('Turkish')
+//   Ukrainian                      // xl('Ukrainian')
 //   Vietnamese                     // xl('Vietnamese')
 
 // OS-dependent stuff.
