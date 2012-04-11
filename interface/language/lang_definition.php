@@ -151,7 +151,7 @@ if ($_POST['edit']){
 		$lang_name = $row['lang_description'];
 	}
 	$sql .= ") ORDER BY lc.constant_name ".$case_insensitive_collation;
-	$res = SqlStatement($sql, array($bind_sql_array) );
+	$res = SqlStatement($sql,$bind_sql_array);
 	    
         $isResults = false; //flag to record whether there are any results
 	echo ('<table><FORM METHOD=POST ACTION="?m=definition" onsubmit="return top.restoreSession()">');
