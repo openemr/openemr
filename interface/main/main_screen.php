@@ -25,29 +25,33 @@
   $_SESSION['expiration_msg'] = 1; // only show the expired message once
  }
 }
- if ($GLOBALS['athletic_team']) {
+
+if ($is_expired) {
+  $frame1url = "pwd_expires_alert.php"; //php file which display's password expiration message.
+}
+else if (!empty($_POST['patientID'])) {
+  $patientID = 0 + $_POST['patientID'];
+  $frame1url = "../patient_file/summary/demographics.php?set_pid=$patientID";
+}
+else if ($GLOBALS['athletic_team']) {
   $frame1url = "../reports/players_report.php?embed=1";
- } else {
-  if ($is_expired) {
-   $frame1url = "pwd_expires_alert.php"; //php file which display's password expiration message.
-  }
-  elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
-   $frame1url = "calendar/index.php?pid=" . $_GET['pid'];
-   if (isset($_GET['date'])) $frame1url .= "&date=" . $_GET['date'];
+}
+else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
+  $frame1url = "calendar/index.php?pid=" . $_GET['pid'];
+  if (isset($_GET['date'])) $frame1url .= "&date=" . $_GET['date'];
+}
+else if ($GLOBALS['concurrent_layout']) {
+  // new layout
+  if ($GLOBALS['default_top_pane']) {
+    $frame1url=$GLOBALS['default_top_pane'];
   } else {
-   if ($GLOBALS['concurrent_layout']) {
-    // new layout
-    if ($GLOBALS['default_top_pane']) {
-      $frame1url=$GLOBALS['default_top_pane'];
-     } else {
-     $frame1url = "main_info.php";
-     }
-    }
-   else
-    // old layout
-    $frame1url = "main.php?mode=" . $_GET['mode'];
+    $frame1url = "main_info.php";
   }
- }
+}
+else {
+  // old layout
+  $frame1url = "main.php?mode=" . $_GET['mode'];
+}
 
 $nav_area_width = $GLOBALS['athletic_team'] ? '230' : '130';
 if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
