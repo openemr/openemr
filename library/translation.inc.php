@@ -33,7 +33,7 @@ function xl($constant,$mode='r',$prepend='',$append='') {
       "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
       "lang_id='$lang_id' AND constant_name = '" .
       add_escape_custom($constant) . "' LIMIT 1";
-    $res = SqlStatement($sql);
+    $res = sqlStatementNoLog($sql);
     $row = SqlFetchArray($res);
     $string = $row['definition'];
     if ($string == '') { $string = "$constant"; }
