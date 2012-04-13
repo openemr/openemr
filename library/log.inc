@@ -1,6 +1,7 @@
 <?php
 #require_once("{$GLOBALS['srcdir']}/sql.inc");
 require_once(dirname(__FILE__). "/sql.inc");
+require_once(dirname(__FILE__). "/formdata.inc.php");
 
 function newEvent($event, $user, $groupname, $success, $comments="") {
     $adodb = $GLOBALS['adodb']['db'];
@@ -477,8 +478,9 @@ function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comm
  * successfully completed.  Determine the event type based on
  * the tables present in the SQL query.
  */
-function auditSQLEvent($statement, $outcome)
+function auditSQLEvent($statement, $outcome, $binds=NULL)
 {
+
     $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
 	/* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
    if (!isset($GLOBALS['enable_auditlog']) || !($GLOBALS['enable_auditlog']))
@@ -500,13 +502,35 @@ function auditSQLEvent($statement, $outcome)
 
     $group = isset($_SESSION['authGroup']) ?  $_SESSION['authGroup'] : "";
     $comments = $statement;
+
+    $processed_binds = "";
+    if (is_array($binds)) {
+        // Need to include the binded variable elements in the logging
+        $first_loop=true;
+        foreach ($binds as $value_bind) {
+            if ($first_loop) {
+                //no comma
+                $processed_binds .= "'" . add_escape_custom($value_bind) . "'";
+                $first_loop=false;
+            }
+            else {
+                //add a comma
+                $processed_binds .= ",'" . add_escape_custom($value_bind) . "'";
+            }
+        }
+        if (!empty($processed_binds)) {
+            $processed_binds = "(" . $processed_binds . ")";
+            $comments .= " " . $processed_binds;
+        }
+    }
+
     $success = 1;
     $checksum = "";
     if ($outcome === FALSE) {
         $success = 0;
     }
     if ($outcome !== FALSE) {
-        $checksum = sql_checksum_of_modified_row($statement);
+        $checksum = sql_checksum_of_modified_row($comments);
     }
     /* Determine the query type (select, update, insert, delete) */
     $querytype = "select";
@@ -672,7 +696,6 @@ function auditSQLEvent($statement, $outcome)
          $adodb->qstr($success) . "," . 
          $adodb->qstr($checksum) . "," .
          $adodb->qstr($_SERVER['SSL_CLIENT_S_DN_CN']) .")";
-
 
     sqlInsertClean_audit($sql);
     send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);

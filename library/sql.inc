@@ -16,7 +16,7 @@ class ADODB_mysql_log extends ADODB_mysql
             // we insert into the audit log
             $GLOBALS['lastidado']=$this->Insert_ID();
             $outcome= ($retval === false) ? false : true;
-            auditSQLEvent($sql,$outcome);
+            auditSQLEvent($sql,$outcome,$inputarr);
             return $retval;
         }
 
@@ -93,10 +93,10 @@ function sqlStatement($statement, $binds=NULL )
     // Use mysql_query and return a resource.
     $resource = mysql_query($statement, $GLOBALS['dbh']);
     if ($resource === FALSE) {
-      auditSQLEvent($statement, FALSE);
+      auditSQLEvent($statement, FALSE, $binds);
       HelpfulDie("query failed: $statement", mysql_error($GLOBALS['dbh']));
     }
-    auditSQLEvent($statement, TRUE);
+    auditSQLEvent($statement, TRUE, $binds);
     return $resource;
   }
 }
@@ -207,7 +207,7 @@ function sqlQuery($statement, $status_or_binds=FALSE)
     // run mysql_query to bypass the audit engine if error
     //   in query.
     $resource = mysql_query($statement, $GLOBALS['dbh']);
-    auditSQLEvent($statement, TRUE);
+    auditSQLEvent($statement, TRUE, $status_or_binds);
    //$rez = @mysql_fetch_array($query, MYSQL_ASSOC);
     $rez = @mysql_fetch_array($resource, MYSQL_ASSOC); //Replace $query with $resource to calculate correct checksum
     if ($rez == FALSE)
