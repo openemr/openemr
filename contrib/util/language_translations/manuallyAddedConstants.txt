@@ -120,7 +120,6 @@ Discount Level
 Discrete Result
 Divorced
 Do Not Resuscitate Order
-Doctor
 Domestic Partner
 Dr.
 Drivers License or State ID
@@ -291,7 +290,6 @@ License/ID
 Living Will
 login
 logout
-Low
 Lunch
 Maintain active medication allergy list.
 Maintain active medication list.
@@ -299,7 +297,6 @@ Maintain an up-to-date problem list of current and active diagnoses.
 Married
 Maximum Age
 Measurement
-Medium
 Menstrual Flow
 Menstrual Frequency
 Message Status
@@ -542,7 +539,6 @@ Varicella 1
 Varicella 2
 Varicose Veins
 VFC
-Vietnamese
 view
 Waist Circ
 Walk-In
