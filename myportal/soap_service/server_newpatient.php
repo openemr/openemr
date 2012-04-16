@@ -84,7 +84,7 @@ class newpatient{
             $query=" select insd.*, ic.name as provider_name from insurance_data as insd " .
                 "left join insurance_companies as ic on ic.id = insd.provider " .
                 "where pid = ? and type =? order by date DESC limit 1 ";
-            array_push($data[1],$pid);
+            array_unshift($data[1],$pid);
             return array($query,$data[1]);
             break;
 	    // Entries pending  for approval demo and documents.
