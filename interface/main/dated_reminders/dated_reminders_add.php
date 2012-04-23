@@ -100,7 +100,7 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
 // ------- check priority, only allow 1-3 
            isset($_POST['priority']) and intval($_POST['priority']) <= 3 and       
 // ------- check message, only up to 144 characters
-           isset($_POST['message']) and strlen($_POST['message']) <= 144 and strlen($_POST['message']) > 0 and 
+           isset($_POST['message']) and strlen($_POST['message']) <= 255 and strlen($_POST['message']) > 0 and 
 // ------- check if PatientID is set and in numeric
            isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])                 
          ){   
@@ -375,8 +375,8 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
       </p>
     </form>
     <?php 
-        $_GET['sentBy_me'] = $_SESSION['authId'];
-        $_GET['sd'] = strtotime(date('Y/m/d')); 
+        $_GET['sentBy'] = array($_SESSION['authId']);
+        $_GET['sd'] = date('Y/m/d'); 
         $TempRemindersArray = logRemindersArray();
         $remindersArray = array();
         foreach($TempRemindersArray as $RA){
