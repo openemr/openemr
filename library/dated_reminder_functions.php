@@ -252,7 +252,7 @@ function sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority){
 // ------- check priority, only allow 1-3 
            intval($priority) <= 3 and       
 // ------- check message, only up to 144 characters
-           strlen($message) <= 144 and strlen($message) > 0 and 
+           strlen($message) <= 255 and strlen($message) > 0 and 
 // ------- check if PatientID is set and in numeric
            is_numeric($patID)                 
          ){    
@@ -345,7 +345,7 @@ function logRemindersArray(){
           $where = ($where == '' ? '' : 'WHERE '.$where);  
             
 // ----- define a blank reminders array
-        $reminders = array();         
+        $reminders = array();  
         
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)  
           $drSQL = sqlStatement(       
@@ -358,8 +358,7 @@ function logRemindersArray(){
                             JOIN `users` u ON dr.dr_from_ID = u.id  
                             JOIN `users` tu ON drl.to_id = tu.id        
                             $where"   
-                            ,$input);                       
-        
+                            ,$input);
 // --------- loop through the results
         for($i=0; $drRow=sqlFetchArray($drSQL); $i++){  
 // --------- need to run patient query seperately to allow for messages not linked to a patient  
