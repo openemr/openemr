@@ -251,7 +251,7 @@ function sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority){
            preg_match('/\d{4}[-]\d{2}[-]\d{2}/',$dueDate) and     
 // ------- check priority, only allow 1-3 
            intval($priority) <= 3 and       
-// ------- check message, only up to 144 characters
+// ------- check message, only up to 255 characters
            strlen($message) <= 255 and strlen($message) > 0 and 
 // ------- check if PatientID is set and in numeric
            is_numeric($patID)                 
