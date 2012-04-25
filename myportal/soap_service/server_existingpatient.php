@@ -164,7 +164,7 @@ class existingpatient {
                 return array($query,array($pid,'pre_payment'));
             break;
             case 'A10':
-                $query = "SELECT sum(pay_total)  as pay_amount FROM ar_session,ar_activity WHERE patient_id=? AND adjustment_code=?
+                $query = "SELECT sum(pay_amount)  as pay_amount FROM ar_session,ar_activity WHERE patient_id=? AND adjustment_code=?
                           AND pid=? AND ar_session.session_id=ar_activity.session_id  and pay_amount>0";
                 return array($query,array($pid,'pre_payment',$pid));
             break;
@@ -173,7 +173,7 @@ class existingpatient {
                 return array($query,array($pid,'pre_payment'));
             break;
             case 'A12':
-                $query = "SELECT sum(pay_total)  as pay_amount FROM ar_session,ar_activity WHERE patient_id=? AND adjustment_code!=?
+                $query = "SELECT sum(pay_amount)  as pay_amount FROM ar_session,ar_activity WHERE patient_id=? AND adjustment_code!=?
                           AND pid=? AND ar_session.session_id=ar_activity.session_id  and pay_amount>0";
                 return array($query,array($pid,'pre_payment',$pid));
             break;
