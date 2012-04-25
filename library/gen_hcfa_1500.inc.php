@@ -51,7 +51,7 @@ function gen_hcfa_1500($pid, $encounter, &$log) {
 
   while ($hcfa_proc_index < $claim->procCount()) {
     if ($hcfa_proc_index) $hcfa_data .= "\014"; // append form feed for new page
-    gen_hcfa_1500_page($pid, $encounter, &$log, &$claim);
+    gen_hcfa_1500_page($pid, $encounter, $log, $claim);
   }
 
   $log .= "\n";
