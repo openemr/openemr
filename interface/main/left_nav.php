@@ -101,7 +101,7 @@
   'ros' => array(xl('Roster')    , 0, 'reports/players_report.php?embed=1'),
   'cal' => array(xl('Calendar')  , 0, 'main/main_info.php'),
   'app' => array(xl('Portal Activity')  , 0, '../myportal/index.php'),
-  'msg' => array(xl('Messages')  , 0, 'main/messages/messages.php'),
+  'msg' => array(xl('Messages')  , 0, 'main/messages/messages.php?form_active=1'),
   'pwd' => array(xl('Password')  , 0, 'usergroup/user_info.php'),
   'prf' => array(xl('Preferences')  , 0, 'super/edit_globals.php?mode=user'),
   'adm' => array(xl('Admin')     , 0, 'usergroup/admin_frameset.php'),
@@ -550,7 +550,7 @@ function genFindBlock() {
 
 function goHome() {
     top.frames['RTop'].location='<?php echo $GLOBALS['default_top_pane']?>';
-    top.frames['RBot'].location='messages/messages.php';
+    top.frames['RBot'].location='messages/messages.php?form_active=1';
 }
 
  // Reference to the search.php window.

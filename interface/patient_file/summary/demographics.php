@@ -827,7 +827,7 @@ if ( $insurance_count > 0 ) {
 $widgetTitle = xl("Notes");
 $widgetLabel = "pnotes";
 $widgetButtonLabel = xl("Edit");
-$widgetButtonLink = "pnotes_full.php";
+$widgetButtonLink = "pnotes_full.php?form_active=1";
 $widgetButtonClass = "";
 $linkMethod = "html";
 $bodyClass = "notab";

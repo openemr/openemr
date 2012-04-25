@@ -61,17 +61,19 @@ if($_REQUEST['s'] == '1'){
 if (!isset($offset)) $offset = 0;
 if (!isset($offset_sent)) $offset_sent = 0;
 
-// if (!isset($active)) $active = "all";
-
-$active = 'all';
+// Collect active variable and applicable html code for links
 if ($form_active) {
-  if (!$form_inactive) $active = '1';
+  $active = '1';
+  $activity_string_html = 'form_active=1';
+}
+else if ($form_inactive) {
+  $active = '0';
+  $activity_string_html = 'form_inactive=1';
 }
 else {
-  if ($form_inactive)
-    $active = '0';
-  else
-    $form_active = $form_inactive = '1';
+  $active = 'all';
+  $activity_string_html = '';
+  $form_active = $form_inactive = '1';
 }
 
 // form parameter docid can be passed to restrict the display to a document.
@@ -136,9 +138,9 @@ $pres = sqlQuery("SELECT lname, fname " .
 $patientname = $pres['lname'] . ", " . $pres['fname'];
 
 //retrieve all notes
-$result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to',
+$result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to,message_status',
   $pid, $N, $offset);
-$result_sent = getSentPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to',
+$result_sent = getSentPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to,message_status',
   $pid, $M, $offset_sent);
 ?>
 
@@ -187,7 +189,7 @@ function show_div(name){
 
 <div id="pnotes"> <!-- large outer DIV -->
 
-<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>'>
+<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>&<?php echo attr($activity_string_html);?>'>
 
 
     <div>
@@ -204,6 +206,26 @@ function show_div(name){
         </a>
     </div>
     <br/>
+    <br/>
+    <div>
+    <?php if ($active == "all") { ?>
+      <span><?php echo xlt('Show All'); ?></span>
+    <?php } else { ?>
+      <a href="pnotes_full.php" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
+    <?php } ?>
+    |
+    <?php if ($active == '1') { ?>
+      <span><?php echo xlt('Show Active'); ?></span>
+    <?php } else { ?>
+      <a href="pnotes_full.php?form_active=1" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
+    <?php } ?>
+    |
+    <?php if ($active == '0') { ?>
+      <span><?php echo xlt('Show Inactive'); ?></span>
+    <?php } else { ?>
+      <a href="pnotes_full.php?form_inactive=1" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
+    <?php } ?>
+    </div>
 
     <?php
     $title_docname = "";
@@ -275,7 +297,7 @@ if ($billing_note) {
 <div class='tabContainer' >
   <div id='inbox_div' <?php echo $inbox_style; ?> >
 <form border='0' method='post' name='update_activity' id='update_activity'
- action="pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>">
+ action="pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>&<?php echo attr($activity_string_html);?>">
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
 <input type='hidden' name='mode' value="update">
@@ -288,7 +310,7 @@ if ($billing_note) {
   <td colspan='5' style="padding: 5px;" >
     <a href="#" class="change_activity" ><span><?php echo htmlspecialchars( xl('Update Active'), ENT_NOQUOTES); ?></span></a>
     |
-    <a href="pnotes_full.php" class="" id='Submit'><span><?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?></span></a>
+    <a href="pnotes_full.php?<?php echo attr($activity_string_html);?>" class="" id='Submit'><span><?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
@@ -331,7 +353,7 @@ if ($result != "") {
         ' (' . htmlspecialchars( $iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars( oeFormatPatientNote($body), ENT_NOQUOTES));
     }
     $body = preg_replace('/(\sto\s)-patient-(\))/','${1}'.$patientname.'${2}',$body);
-    if ($iter{"activity"}) {
+    if ( ($iter{"activity"}) && ($iter['message_status'] != "Done") ) {
       $checked = "checked";
     } else {
       $checked = "";
@@ -405,7 +427,7 @@ if ($offset > ($N-1)) {
     "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars( $form_doc_only, ENT_QUOTES) .
-    "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
+    "&offset=" . ($offset-$N) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
     htmlspecialchars( xl('Previous'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
@@ -418,7 +440,7 @@ if ($result_count == $N) {
     "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars( $form_doc_only, ENT_QUOTES) .
-    "&offset=" . ($offset+$N) . "' onclick='top.restoreSession()'>[" .
+    "&offset=" . ($offset+$N) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
     htmlspecialchars( xl('Next'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
@@ -432,7 +454,7 @@ if ($result_count == $N) {
 <?php if ($result_sent != ""): ?>
  <tr>
   <td colspan='5' style="padding: 5px;" >
-    <a href="pnotes_full.php?s=1" class="" id='Submit'><span><?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?></span></a>
+    <a href="pnotes_full.php?s=1&<?php echo attr($activity_string_html);?>" class="" id='Submit'><span><?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
@@ -475,7 +497,7 @@ if ($result_sent != "") {
         ' (' . htmlspecialchars( $iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars( oeFormatPatientNote($body), ENT_NOQUOTES));
     }
     $body = preg_replace('/(:\d{2}\s\()'.$pid.'(\sto\s)/','${1}'.$patientname.'${2}',$body);
-    if ($iter{"activity"}) {
+    if (($iter{"activity"}) && ($iter['message_status'] != "Done") ) {
       $checked = "checked";
     } else {
       $checked = "";
@@ -548,7 +570,7 @@ if ($offset_sent > ($M-1)) {
     "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars( $form_doc_only, ENT_QUOTES) .
-    "&offset_sent=" . ($offset_sent-$M) . "' onclick='top.restoreSession()'>[" .
+    "&offset_sent=" . ($offset_sent-$M) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
     htmlspecialchars( xl('Previous'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>
@@ -562,7 +584,7 @@ if ($result_sent_count == $M) {
     "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars( $form_doc_only, ENT_QUOTES) .
-    "&offset_sent=" . ($offset_sent+$M) . "' onclick='top.restoreSession()'>[" .
+    "&offset_sent=" . ($offset_sent+$M) . "&" . attr($activity_string_html) . "' onclick='top.restoreSession()'>[" .
     htmlspecialchars( xl('Next'), ENT_NOQUOTES) . "]</a>\n";
 }
 ?>

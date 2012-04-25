@@ -66,11 +66,50 @@ else {
 }
 }
 ?>
-<table><tr><td><span class="title"><?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href=<?php echo $lnkvar; ?></a></td></tr></table><br>
+<br>
+<table><tr><td><span class="title"><?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href=<?php echo $lnkvar; ?></a></td></tr></table>
 <?php
 //collect the task setting
 $task= isset($_REQUEST['task']) ? $_REQUEST['task'] : "";
 
+// Collect active variable and applicable html code for links
+$form_active = $_REQUEST['form_active'];
+$form_inactive = $_REQUEST['form_inactive'];
+if ($form_active) {
+  $active = '1';
+  $activity_string_html = 'form_active=1';
+}
+else if ($form_inactive) {
+  $active = '0';
+  $activity_string_html = 'form_inactive=1';
+}
+else {
+  $active = 'all';
+  $activity_string_html = '';
+}
+
+//show the activity links
+if (empty($task) || $task=="add") { ?>
+  <?php if ($active == "all") { ?>
+    <span><?php echo xlt('Show All'); ?></span>
+  <?php } else { ?>
+    <a href="messages.php" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
+  <?php } ?>
+  |
+  <?php if ($active == '1') { ?>
+    <span><?php echo xlt('Show Active'); ?></span>
+  <?php } else { ?>
+    <a href="messages.php?form_active=1" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
+  <?php } ?>
+  |
+  <?php if ($active == '0') { ?>
+    <span><?php echo xlt('Show Inactive'); ?></span>
+  <?php } else { ?>
+    <a href="messages.php?form_inactive=1" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
+  <?php } ?>
+<?php } ?>
+
+<?php
 switch($task) {
     case "add" :
     {
@@ -146,7 +185,7 @@ switch($task) {
 if($task == "addnew" or $task == "edit") {
  // Display the Messages page layout.
 echo "
-<form name=new_note id=new_note action=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$begin\" method=post>
+<form name=new_note id=new_note action=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$begin&$activity_string_html\" method=post>
 <input type=hidden name=noteid id=noteid value=".htmlspecialchars( $noteid, ENT_QUOTES).">
 <input type=hidden name=task id=task value=add>";
 ?>
@@ -193,7 +232,12 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 </tr>
 <tr>
   <td class='text' align='center'>
-   <b class='<?php echo ($task=="addnew"?"required":"") ?>'><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</b><?php
+   <?php if ($task != "addnew") { ?>
+     <a class="patLink" onclick="goPid('<?php echo attr($result['pid']);?>')"><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</a>
+   <?php } else { ?>
+     <b class='<?php echo ($task=="addnew"?"required":"") ?>'><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</b>
+   <?php } ?>
+ <?php
  if ($reply_to) {
   $prow = sqlQuery("SELECT lname, fname " .
    "FROM patient_data WHERE pid = ?", array($reply_to) );
@@ -327,37 +371,19 @@ else {
     $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
 
     for($i = 0; $i < count($sort); $i++) {
-        $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sort[$i]&sortorder=asc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>";
+        $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sort[$i]&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>";
     }
     for($i = 0; $i < count($sort); $i++) {
         if($sortby == $sort[$i]) {
             switch($sortorder) {
-                case "asc"      : $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=desc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>"; break;
-                case "desc"     : $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=asc\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Down'), ENT_QUOTES)."\"></a>"; break;
+                case "asc"      : $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>"; break;
+                case "desc"     : $sortlink[$i] = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Down'), ENT_QUOTES)."\"></a>"; break;
             } break;
         }
     }
     // Manage page numbering and display beneath the Messages table.
     $listnumber = 25;
-
-    if ($show_all == 'yes' ) {
-	$usrvar='_%'; 
-    } else {
-	$usrvar=$_SESSION['authUser'] ;
-    }	
-
-    $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, 
-      IF(pnotes.user != pnotes.pid,users.fname,patient_data.fname), IF(pnotes.user != pnotes.pid,users.lname,patient_data.lname), patient_data.fname, 
-      patient_data.lname FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username) 
-      JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE pnotes.message_status != 'Done' 
-      AND pnotes.deleted != '1' AND pnotes.assigned_to LIKE ?";
-    $result = sqlStatement($sql, array($usrvar) );
-    if(sqlNumRows($result) != 0) {
-        $total = sqlNumRows($result);
-    }
-    else {
-        $total = 0;
-    }
+    $total = getPnotesByUser($active,$show_all,$_SESSION['authUser'],true);
     if($begin == "" or $begin == 0) {
         $begin = 0;
     }
@@ -372,14 +398,14 @@ else {
         $start = 0;
     }
     if($prev >= 0) {
-        $prevlink = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=$sortorder&begin=$prev\" onclick=\"top.restoreSession()\"><<</a>";
+        $prevlink = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=$sortorder&begin=$prev&$activity_string_html\" onclick=\"top.restoreSession()\"><<</a>";
     }
     else {
         $prevlink = "<<";
     }
 
     if($next < $total) {
-        $nextlink = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=$sortorder&begin=$next\" onclick=\"top.restoreSession()\">>></a>";
+        $nextlink = "<a href=\"messages.php?show_all=$showall&sortby=$sortby&sortorder=$sortorder&begin=$next&$activity_string_html\" onclick=\"top.restoreSession()\">>></a>";
     }
     else {
         $nextlink = ">>";
@@ -387,7 +413,7 @@ else {
     // Display the Messages table header.
     echo "
     <table width=100%><tr><td><table border=0 cellpadding=1 cellspacing=0 width=90%  style=\"border-left: 1px #000000 solid; border-right: 1px #000000 solid; border-top: 1px #000000 solid;\">
-    <form name=wikiList action=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$begin\" method=post>
+    <form name=wikiList action=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$begin&$activity_string_html\" method=post>
     <input type=hidden name=task value=delete>
         <tr height=\"24\" style=\"background:lightgrey\">
             <td align=\"center\" width=\"25\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><input type=checkbox id=\"checkAll\" onclick=\"selectAll()\"></td>
@@ -404,22 +430,7 @@ else {
         </tr>";
         // Display the Messages table body.
         $count = 0;
-    if ($show_all == 'yes' ) {
-	$usrvar='_%'; 
-    } else {
-	$usrvar=$_SESSION['authUser'] ;
-    }	
-
-        $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, 
-          IF(pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
-          IF(pnotes.user != pnotes.pid,users.lname,patient_data.lname) as users_lname,
-          patient_data.fname as patient_data_fname, patient_data.lname as patient_data_lname
-          FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username) 
-          JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE pnotes.message_status != 'Done' 
-          AND pnotes.deleted != '1' AND pnotes.assigned_to LIKE ?".
-          " order by ".add_escape_custom($sortby)." ".add_escape_custom($sortorder).
-          " limit ".add_escape_custom($begin).", ".add_escape_custom($listnumber);
-        $result = sqlStatement($sql, array($usrvar) );
+        $result = getPnotesByUser($active,$show_all,$_SESSION['authUser'],false,$sortby,$sortorder,$begin,$listnumber);
         while ($myrow = sqlFetchArray($result)) {
             $name = $myrow['user'];
             $name = $myrow['users_lname'];
@@ -439,7 +450,7 @@ else {
                 <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
 	          htmlspecialchars( $name, ENT_NOQUOTES) . "</td><td width=5></td></tr></table></td>
                 <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\"><a href=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$begin&task=edit&noteid=" .
-	          htmlspecialchars( $myrow['id'], ENT_QUOTES) . "\" onclick=\"top.restoreSession()\">" .
+	          htmlspecialchars( $myrow['id'], ENT_QUOTES) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
 		  htmlspecialchars( $patient, ENT_NOQUOTES) . "</a></td><td width=5></td></tr></table></td>
                 <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
 	          htmlspecialchars( $myrow['title'], ENT_NOQUOTES) . "</td><td width=5></td></tr></table></td>
@@ -454,7 +465,7 @@ else {
     </form></table>
     <table border=0 cellpadding=5 cellspacing=0 width=90%>
         <tr>
-            <td class=\"text\"><a href=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$begin&task=addnew\" onclick=\"top.restoreSession()\">" .
+            <td class=\"text\"><a href=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$begin&task=addnew&$activity_string_html\" onclick=\"top.restoreSession()\">" .
               htmlspecialchars( xl('Add New'), ENT_NOQUOTES) . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" onclick=\"top.restoreSession()\">" .
               htmlspecialchars( xl('Delete'), ENT_NOQUOTES) . "</a></td>
             <td align=right class=\"text\">$prevlink &nbsp; $end of $total &nbsp; $nextlink</td>
