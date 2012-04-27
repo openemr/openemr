@@ -26,6 +26,7 @@
  include_once("$srcdir/calendar.inc");
  include_once("$srcdir/formdata.inc.php");
  include_once("$srcdir/options.inc.php");
+ include_once("$srcdir/encounter_events.inc.php");
 
  // Things that might be passed by our opener.
  //
@@ -62,39 +63,6 @@
 
  <?php
 
-// insert an event
-// $args is mainly filled with content from the POST http var
-function InsertEvent($args) {
-    return sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
-                    "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
-                    "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-                    "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-                    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location " .
-                    ") VALUES ( " .
-                    "'" . $args['form_category']             . "', " .
-                    "'" . $args['new_multiple_value']             . "', " .
-                    "'" . $args['form_provider']                           . "', " .
-                    "'" . $args['form_pid']                  . "', " .
-                    "'" . formDataCore($args['form_title'])  . "', " .
-                    "NOW(), "                                         .
-                    "'" . formDataCore($args['form_comments']) . "', " .
-                    "'" . $_SESSION['authUserID']             . "', " .
-                    "'" . $args['event_date']                         . "', " .
-                    "'" . fixDate($args['form_enddate'])     . "', " .
-                    "'" . $args['duration']                    . "', " .
-                    "'" . ($args['form_repeat'] ? '1' : '0') . "', " .
-                    "'" . serialize($args['recurrspec'])              . "', " .
-                    "'" . $args['starttime'] ."', " .
-                    "'" . $args['endtime'] ."', " .
-                    "'" . $args['form_allday']               . "', " .
-                    "'" . $args['form_apptstatus']           . "', " .
-                    "'" . $args['form_prefcat']              . "', " .
-                    "'" . $args['locationspec'] ."', "                               .
-                    "1, " .
-                    "1, " .(int)$args['facility']. ",".(int)$args['billing_facility']." )"
-                );
-}
-//================================================================================================================
 function InsertEventFull()
  {
 	global $new_multiple_value,$provider,$event_date,$duration,$recurrspec,$starttime,$endtime,$locationspec;
@@ -141,49 +109,23 @@ function InsertEventFull()
 function DOBandEncounter()
  {
    global $event_date,$info_msg;
-    // Save new DOB if it's there.
-    $patient_dob = trim($_POST['form_dob']);
-    if ($patient_dob && $_POST['form_pid']) {
-        sqlStatement("UPDATE patient_data SET DOB = '$patient_dob' WHERE " .
-                    "pid = '" . $_POST['form_pid'] . "'");
-    }
+	 // Save new DOB if it's there.
+	 $patient_dob = trim($_POST['form_dob']);
+	 if ($patient_dob && $_POST['form_pid']) {
+			 sqlStatement("UPDATE patient_data SET DOB = '$patient_dob' WHERE " .
+									 "pid = '" . $_POST['form_pid'] . "'");
+	 }
 
-    // Auto-create a new encounter if appropriate.
-    //
-    if ($GLOBALS['auto_create_new_encounters'] &&
-            $_POST['form_apptstatus'] == '@' && $event_date == date('Y-m-d'))
-    {
-        $tmprow = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
-                        "pid = '" . $_POST['form_pid'] . "' AND date = '$event_date 00:00:00'");
-        if ($tmprow['count'] == 0) {
-            $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = '" .
-                        $_POST['form_provider'] . "'");
-                        $username = $tmprow['username'];
-                        $facility = $tmprow['facility'];
-                        // $facility_id = $tmprow['facility_id'];
-                        $facility_id = $_SESSION['pc_facility'] ? $_SESSION['pc_facility'] : $tmprow['facility_id'];
-                        $conn = $GLOBALS['adodb']['db'];
-                        $encounter = $conn->GenID("sequences");
-         
-            addForm($encounter, "New Patient Encounter",
-                    sqlInsert("INSERT INTO form_encounter SET " .
-                        "date = '$event_date', " .
-                        "reason = '" . formData("form_comments") . "', " .
-                        "facility = '$facility', " .
-                        "facility_id = '" . (int)$_POST['facility'] . "', " .
-                        "billing_facility = '" . (int)$_POST['billing_facility'] . "', " .
-                        "provider_id = '" . (int)$_POST['form_provider'] . "', " .
-                        "pid = '" . $_POST['form_pid'] . "', " .
-                        "encounter = '$encounter', " .
-                        "pc_catid = '" . $_POST['form_category'] . "'"
-                    ),
-                    "newpatient", $_POST['form_pid'], "1", "NOW()", $username
-                );
-            $info_msg .= xl("New encounter created with id"); 
-            $info_msg .= " $encounter";
-        } 
-       
-    }
+	 // Auto-create a new encounter if appropriate.
+	 //
+	 if ($GLOBALS['auto_create_new_encounters'] && $_POST['form_apptstatus'] == '@' && $event_date == date('Y-m-d'))
+	 {
+		 $encounter = todaysEncounterCheck($_POST['form_pid'], $event_date, formData("form_comments"), $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false);
+		 if($encounter){
+				 $info_msg .= xl("New encounter created with id"); 
+				 $info_msg .= " $encounter";
+		 }
+	 }
  }
 //================================================================================================================
 

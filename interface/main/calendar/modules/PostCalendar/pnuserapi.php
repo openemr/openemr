@@ -30,6 +30,7 @@
 //  Require utility classes
 //=========================================================================
 require_once($GLOBALS['fileroot']."/library/patient.inc");
+include_once($GLOBALS['fileroot']."/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
@@ -1500,48 +1501,6 @@ function fillBlocks($td,$ar) {
 		}
 
 
-}
-
-/**
- *	__increment()
- *	returns the next valid date for an event based on the
- *	current day,month,year,freq and type
- *  @private
- *	@returns string YYYY-MM-DD
- */
-function &__increment($d,$m,$y,$f,$t)
-{
-    if($t == REPEAT_EVERY_DAY) {
-        return date('Y-m-d',mktime(0,0,0,$m,($d+$f),$y));
-    } elseif($t == REPEAT_EVERY_WORK_DAY) {
-        // a workday is defined as Mon,Tue,Wed,Thu,Fri
-        // repeating on every or Nth work day means to not include
-        // weekends (Sat/Sun) in the increment... tricky
-
-        // ugh, a day-by-day loop seems necessary here, something where
-        // we can check to see if the day is a Sat/Sun and increment
-        // the frequency count so as to ignore the weekend. hmmmm....
-        $orig_freq = $f;
-        for ($daycount=1; $daycount<=$orig_freq; $daycount++) {
-            $nextWorkDOW = date('D',mktime(0,0,0,$m,($d+$daycount),$y));
-            if ($nextWorkDOW == "Sat") { $f++; }
-            else if ($nextWorkDOW == "Sun") { $f++; }
-        }
-        // and finally make sure we haven't landed on a Sat/Sun
-        // adjust as necessary
-        $nextWorkDOW = date('D',mktime(0,0,0,$m,($d+$f),$y));
-        if ($nextWorkDOW == "Sat") { $f+=2; }
-        else if ($nextWorkDOW == "Sun") { $f++; }
-
-        return date('Y-m-d',mktime(0,0,0,$m,($d+$f),$y));
-
-    } elseif($t == REPEAT_EVERY_WEEK) {
-        return date('Y-m-d',mktime(0,0,0,$m,($d+(7*$f)),$y));
-    } elseif($t == REPEAT_EVERY_MONTH) {
-        return date('Y-m-d',mktime(0,0,0,($m+$f),$d,$y));
-    } elseif($t == REPEAT_EVERY_YEAR) {
-        return date('Y-m-d',mktime(0,0,0,$m,$d,($y+$f)));
-    }
 }
 
 ?>

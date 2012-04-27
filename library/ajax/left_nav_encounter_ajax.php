@@ -13,54 +13,7 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/formatting.inc.php");
-
-/*********************************************************************
-// Get the patient's encounter ID for today, if it exists.
-// In the case of more than one encounter today, pick the last one.
-//
-function todaysEncounterIf($patient_id) {
-  global $today;
-  $tmprow = sqlQuery("SELECT encounter FROM form_encounter WHERE " .
-    "pid = ? AND date = ? ORDER BY encounter DESC LIMIT 1",
-    array($patient_id, "$today 00:00:00"));
-  return empty($tmprow['encounter']) ? 0 : $tmprow['encounter'];
-}
-*********************************************************************/
-
-// Get the patient's encounter ID for today, creating it if there is none.
-//
-function todaysEncounter($patient_id, $reason='') {
-  global $today, $userauthorized;
-
-  if (empty($reason)) $reason = xl('Please indicate visit reason');
-
-  // Was going to use the existing encounter for today if there is one, but
-  // decided it's right to always create a new one.  Leaving the code here
-  // (and corresponding function above) in case it is ever wanted later.
-  /*******************************************************************
-  $encounter = todaysEncounterIf($patient_id);
-  if ($encounter) return $encounter;
-  *******************************************************************/
-
-  $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users " .
-    "WHERE id = ?", array($_SESSION["authUserID"]));
-  $username = $tmprow['username'];
-  $facility = $tmprow['facility'];
-  $facility_id = $tmprow['facility_id'];
-  $conn = $GLOBALS['adodb']['db'];
-  $encounter = $conn->GenID("sequences");
-  $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
-  addForm($encounter, "New Patient Encounter",
-    sqlInsert("INSERT INTO form_encounter SET date = ?, onset_date = ?, "  .
-      "reason = ?, facility = ?, facility_id = ?, pid = ?, encounter = ?, " .
-      "provider_id = ?",
-      array($today, $today, $reason, $facility, $facility_id, $patient_id,
-        $encounter, $provider_id)
-    ),
-    "newpatient", $patient_id, $userauthorized, "NOW()", $username
-  );
-  return $encounter;
-}
+require_once("$srcdir/encounter_events.inc.php");
 
 $issue = $_GET['issue'];
 $today = date('Y-m-d');

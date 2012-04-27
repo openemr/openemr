@@ -123,6 +123,12 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   echo " <tr>\n";
   echo "  <td class='billcell'>$strike1" .
     ($codetype == 'COPAY' ? xl($codetype) : $codetype) . $strike2;
+  //if the line to ouput is copay, show the date here passed as $ndc_info,
+  //since this variable is not applicable in the case of copay.
+  if($codetype == 'COPAY'){
+    echo "(".htmlspecialchars($ndc_info).")";
+    $ndc_info = '';
+  }
   if ($id) {
     echo "<input type='hidden' name='bill[$lino][id]' value='$id'>";
   }
@@ -400,6 +406,10 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
   $default_warehouse = $_POST['default_warehouse'];
 
   $bill = $_POST['bill'];
+  $copay_update = FALSE;
+  $update_session_id = '';
+  $cod0 = '';//takes the code of the first non-empty modifier from the fee sheet, against which the copay is posted
+  $mod0 = '';//takes the first non-empty modifier from the fee sheet, against which the copay is posted
   for ($lino = 1; $bill["$lino"]['code_type']; ++$lino) {
     $iter = $bill["$lino"];
     $code_type = $iter['code_type'];
@@ -411,11 +421,46 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
 
     $id        = $iter['id'];
     $modifier  = trim($iter['mod']);
+    if(!$mod0 && $modifier != ''){
+      $mod0 = $modifier;
+      $cod0 = $code;
+    }
     $units     = max(1, intval(trim($iter['units'])));
     $fee       = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
-    if ($code_type == 'COPAY') {
-      if ($fee > 0) $fee = 0 - $fee;
-      $code = sprintf('%01.2f', 0 - $fee);
+    
+    if($code_type == 'COPAY'){
+      if($id == ''){
+        //adding new copay from fee sheet into ar_session and ar_activity tables
+        if($fee < 0){
+          $fee = $fee * -1;
+        }
+        $session_id = idSqlStatement("INSERT INTO ar_session(payer_id,user_id,pay_total,payment_type,description,".
+          "patient_id,payment_method,adjustment_code,post_to_date) VALUES('0',?,?,'patient','COPAY',?,'','patient_payment',now())",
+          array($_SESSION['authId'],$fee,$pid));
+        SqlStatement("INSERT INTO ar_activity (pid,encounter,code,modifier,payer_type,post_time,post_user,session_id,".
+          "pay_amount,account_code) VALUES (?,?,?,?,0,now(),?,?,?,'PCP')",
+          array($pid,$encounter,$cod0,$mod0,$_SESSION['authId'],$session_id,$fee));
+      }else{
+        //editing copay saved to ar_session and ar_activity
+        if($fee < 0){
+          $fee = $fee * -1;
+        }
+        $session_id = $id;
+        $res_amount = sqlQuery("SELECT pay_amount FROM ar_activity WHERE pid=? AND encounter=? AND session_id=?",
+          array($pid,$encounter,$session_id));
+        if($fee != $res_amount['pay_amount']){
+          sqlStatement("UPDATE ar_session SET user_id=?,pay_total=?,modified_time=now(),post_to_date=now() WHERE session_id=?",
+            array($_SESSION['authId'],$fee,$session_id));
+          sqlStatement("UPDATE ar_activity SET code=?, modifier=?, post_user=?, post_time=now(),".
+            "pay_amount=?, modified_time=now() WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
+            array($cod0,$mod0,$_SESSION['authId'],$fee,$pid,$encounter,$session_id));
+        }
+      }
+      if(!$mod0){
+        $copay_update = TRUE;
+        $update_session_id = $session_id;
+      }
+      continue;
     }
     $justify   = trim($iter['justify']);
     $notecodes = trim(strip_escape_custom($iter['notecodes']));
@@ -453,6 +498,14 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
         $provid, $modifier, $units, $fee, $ndc_info, $justify, 0, $notecodes);
     }
   } // end for
+  
+  //if modifier is not inserted during loop update the record using the first
+  //non-empty modifier and code
+  if($copay_update == TRUE && $update_session_id != '' && $mod0 != ''){
+    sqlStatement("UPDATE ar_activity SET code=?, modifier=?".
+      " WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
+      array($cod0,$mod0,$pid,$encounter,$update_session_id));
+  }
 
   // Doing similarly to the above but for products.
   $prod = $_POST['prod'];
@@ -915,13 +968,27 @@ if ($billresult) {
       $notecodes  = strip_escape_custom(trim($bline['notecodes']));
       $provider_id = 0 + $bline['provid'];
     }
-
+    
+    if($iter['code_type'] == 'COPAY'){//moved copay display to below
+      --$bill_lino;
+      continue;
+    }
+    
     // list($code, $modifier) = explode("-", $iter["code"]);
     echoLine($bill_lino, $iter["code_type"], trim($iter["code"]),
       $modifier, $ndc_info,  $authorized,
       $del, $units, $fee, $iter["id"], $iter["billed"],
       $iter["code_text"], $justify, $provider_id, $notecodes);
   }
+}
+
+$resMoneyGot = sqlStatement("SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date ".
+  "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
+  array($pid,$encounter));//new fees screen copay gives account_code='PCP'
+while($rowMoneyGot = sqlFetchArray($resMoneyGot)){
+  $PatientPay=$rowMoneyGot['PatientPay']*-1;
+  $id=$rowMoneyGot['id'];
+  echoLine(++$bill_lino,'COPAY','','',$rowMoneyGot['date'],'1','','',$PatientPay,$id);
 }
 
 // Echo new billing items from this form here, but omit any line
@@ -939,7 +1006,13 @@ if ($_POST['bill']) {
     // $fee = 0 + trim($iter['fee']);
     $units = max(1, intval(trim($iter['units'])));
     $fee = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
-    if ($iter['code_type'] == 'COPAY' && $fee > 0) $fee = 0 - $fee;
+    //the date is passed as $ndc_info, since this variable is not applicable in the case of copay.
+    $ndc_info = '';
+    if ($iter['code_type'] == 'COPAY'){
+      $ndc_info = date("Y-m-d");
+      if($fee > 0)
+      $fee = 0 - $fee;
+    }
     echoLine(++$bill_lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
       $ndc_info, $iter["auth"], $iter["del"], $units,
       $fee, NULL, FALSE, NULL, $iter["justify"], 0 + $iter['provid'],
@@ -1001,7 +1074,7 @@ if ($_POST['newcodes']) {
       $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = '$pid' " .
         "AND type = 'primary' ORDER BY date DESC LIMIT 1");
       $code = sprintf('%01.2f', 0 + $tmp['copay']);
-      echoLine(++$bill_lino, $newtype, $code, '', '', '1', '0', '1',
+      echoLine(++$bill_lino, $newtype, $code, '', date("Y-m-d"), '1', '0', '1',
         sprintf('%01.2f', 0 - $code));
     }
     else if ($newtype == 'PROD') {

@@ -870,9 +870,7 @@ return false;
 									$Copay=$rowCopay['copay']*-1;
 
 									$resMoneyGot = sqlStatement("SELECT sum(pay_amount) as PatientPay FROM ar_activity where
-									pid ='$PId'  and  encounter  ='$Encounter' and  payer_type=0 and 
-									(code='CO-PAY' or account_code='PCP')");//new fees screen copay gives account_code='PCP'
-									//openemr payment screen copay gives code='CO-PAY'
+									pid ='$PId'  and  encounter  ='$Encounter' and  payer_type=0 and account_code='PCP'");//new fees screen copay gives account_code='PCP'
 									$rowMoneyGot = sqlFetchArray($resMoneyGot);
 									$PatientPay=$rowMoneyGot['PatientPay'];
 									
@@ -884,9 +882,8 @@ return false;
 									 {//Fetch all values
 										$resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
 										pid ='$PId' and  code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  !(payer_type=0 and 
-										(code='CO-PAY' or account_code='PCP'))");
+										account_code='PCP')");
 										//new fees screen copay gives account_code='PCP'
-										//openemr payment screen copay gives code='CO-PAY'
 										$rowMoneyGot = sqlFetchArray($resMoneyGot);
 										$MoneyGot=$rowMoneyGot['MoneyGot'];
 	

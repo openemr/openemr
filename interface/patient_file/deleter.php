@@ -223,21 +223,18 @@ function popup_close() {
   }
   else if ($payment) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
-    list($patient_id, $timestamp) = explode(".", $payment);
+    list($patient_id, $timestamp, $ref_id) = explode(".", $payment);
     $timestamp = decorateString('....-..-.. ..:..:..', $timestamp);
     $payres = sqlStatement("SELECT * FROM payments WHERE " .
       "pid = '$patient_id' AND dtime = '$timestamp'");
     while ($payrow = sqlFetchArray($payres)) {
-      if ($payrow['amount1'] != 0) {
-        // Mark the payment as inactive.
-        row_modify("billing", "activity = 0",
-          "pid = '$patient_id' AND " .
-          "encounter = '" . $payrow['encounter'] . "' AND " .
-          "code_type = 'COPAY' AND " .
-          "fee = '" . (0 - $payrow['amount1']) . "' AND " .
-          "LEFT(date, 10) = '" . substr($timestamp, 0, 10) . "' AND " .
-          "activity = 1 LIMIT 1");
-      }
+      // Delete the payment.
+      row_delete("ar_activity",
+        "pid = '$patient_id' AND " .
+        "session_id = '$ref_id'");
+      row_delete("ar_session",
+        "patient_id = '$patient_id' AND " .
+        "session_id = '$ref_id'");
       if ($payrow['amount2'] != 0) {
         if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
           $thissrc = '';

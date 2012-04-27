@@ -781,12 +781,25 @@ if ($_POST['form_save']) {
     $form_source = trim($_POST['form_source']);
     $paydesc = trim($_POST['form_method']);
     if ($INTEGRATED_AR) {
-      // Post the payment as a billed copay into the billing table.
-      // Maybe this should even be done for the SL case.
-      if (!empty($form_source)) $paydesc .= " $form_source";
-      # jason forced auth line to 1 here
-      addBilling($form_encounter, 'COPAY', $amount, $paydesc, $form_pid,
-        1, 0, '', '', 0 - $amount, '', '', 1);
+      //Fetching the existing code and modifier
+			$ResultSearchNew = sqlStatement("SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key ".
+				"WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
+				array($form_pid,$form_encounter));
+			if($RowSearch = sqlFetchArray($ResultSearchNew))
+			{
+				$Code=$RowSearch['code'];
+				$Modifier=$RowSearch['modifier'];
+			}else{
+				$Code='';
+				$Modifier='';
+			}
+      $session_id=idSqlStatement("INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total,".
+        " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) ".
+        " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())",
+        array($_SESSION['authId'],$form_source,$dosdate,$amount,$form_pid,$paydesc));
+      $insrt_id=idSqlStatement("INSERT INTO ar_activity (pid,encounter,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
+        " VALUES (?,?,?,?,0,?,?,?,?,'PCP')",
+        array($form_pid,$form_encounter,$Code,$Modifier,$dosdate,$_SESSION['authId'],$session_id,$amount));
     }
     else {
       $msg = invoice_add_line_item($invoice_info, 'COPAY',
@@ -1110,13 +1123,16 @@ if ($inv_encounter) {
   </td>
   <td>
    <select name='form_method'>
-<?php
-
- foreach ($payment_methods as $value) {
-  echo "    <option value='$value'";
-  echo ">$value</option>\n";
- }
-?>
+    <?php
+    $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
+    $bres1112 = sqlStatement($query1112,array('payment_method'));
+    while ($brow1112 = sqlFetchArray($bres1112)) 
+     {
+      if($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
+     continue;
+    echo "<option value='".htmlspecialchars($brow1112['option_id'], ENT_QUOTES)."'>".htmlspecialchars(xl_list_label($brow1112['title']), ENT_QUOTES)."</option>";
+     }
+    ?>
    </select>
   </td>
  </tr>

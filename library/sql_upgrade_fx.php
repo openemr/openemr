@@ -179,6 +179,16 @@ function upgradeFromSqlFile($filename) {
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
+    else if (preg_match('/^#IfRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+        $skipping = !(tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]));
+      }
+      else {
+        // If no such table then should skip.
+        $skipping = true;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
     else if (preg_match('/^#EndIf/', $line)) {
       $skipping = false;
     }

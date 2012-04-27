@@ -1030,6 +1030,52 @@ if(is_array($ret))
     else {
       $rhtml .= "<td></td>\n";
     }
+    if($last_encounter_id != $this_encounter_id){
+      $rhtml2 = "";
+      $rowcnt = 0;
+      $resMoneyGot = sqlStatement("SELECT pay_amount as PatientPay,date(post_time) as date FROM ar_activity where ".
+        "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'",
+        array($iter['enc_pid'],$iter['enc_encounter']));
+        //new fees screen copay gives account_code='PCP'
+      if(sqlNumRows($resMoneyGot) > 0){
+        $lcount += 2;
+        $rcount++;
+      }
+      //checks whether a copay exists for the encounter and if exists displays it.
+      while($rowMoneyGot = sqlFetchArray($resMoneyGot)){
+        $rowcnt++;
+        $PatientPay=$rowMoneyGot['PatientPay'];
+        $date=$rowMoneyGot['date'];
+        if($PatientPay > 0){
+          if($rhtml){
+            $rhtml2 .= "<tr bgcolor='$bgcolor'>\n";
+          }
+          $rhtml2 .= "<td width='50'>";
+          $rhtml2 .= "<span class='text'>".xla('COPAY').": </span>";
+          $rhtml2 .= "</td>\n";
+          $rhtml2 .= "<td><span class='text'>".attr(oeFormatMoney($PatientPay))."</span><span style='font-size:8pt;'>&nbsp;</span></td>\n";
+          $rhtml2 .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+          $rhtml2 .= "</span></td>\n";
+          $rhtml2 .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+          $rhtml2 .= "</span></td>\n";
+          $rhtml2 .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
+          $rhtml2 .= attr(oeFormatSDFT(strtotime($date)));
+          $rhtml2 .= "</span></td>\n";
+          if ($iter['id'] && $iter['authorized'] != 1) {
+            $rhtml2 .= "<td><span class=alert>".xla("Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.")."</span></td>\n";
+          }else{
+            $rhtml2 .= "<td></td>\n";
+          }
+          if(!$iter['id'] && $rowcnt == 1){
+            $rhtml2 .= "<td><input type='checkbox' value='0' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . $CheckBoxBilling*1 . "'>&nbsp;</td>\n";
+            $CheckBoxBilling++;
+          }else{
+            $rhtml2 .= "<td></td>\n";
+          }
+        }
+      }
+      $rhtml .= $rhtml2;
+    }
     $rhtml .= "</tr>\n";
     $last_encounter_id = $this_encounter_id;
     
