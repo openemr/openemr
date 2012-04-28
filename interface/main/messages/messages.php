@@ -55,22 +55,6 @@ else
 {
     $show_all= "no";
 }
-if (acl_check('admin', 'super'    )) {
-if ($show_all=='yes') {
-    $showall = "yes";
-    $lnkvar="'messages.php?show_all=no' name='Just Mine' onclick=\"top.restoreSession()\"> (".htmlspecialchars( xl('Just Mine'), ENT_NOQUOTES).")";
-}
-else {
-    $showall = "no";
-    $lnkvar="'messages.php?show_all=yes' name='See All' onclick=\"top.restoreSession()\"> (".htmlspecialchars( xl('See All'), ENT_NOQUOTES).")";
-}
-}
-?>
-<br>
-<table><tr><td><span class="title"><?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href=<?php echo $lnkvar; ?></a></td></tr></table>
-<?php
-//collect the task setting
-$task= isset($_REQUEST['task']) ? $_REQUEST['task'] : "";
 
 // Collect active variable and applicable html code for links
 $form_active = $_REQUEST['form_active'];
@@ -88,8 +72,25 @@ else {
   $activity_string_html = '';
 }
 
+//collect the task setting
+$task= isset($_REQUEST['task']) ? $_REQUEST['task'] : "";
+
+if (acl_check('admin', 'super'    )) {
+if ($show_all=='yes') {
+    $showall = "yes";
+    $lnkvar="'messages.php?show_all=no&$activity_string_html' name='Just Mine' onclick=\"top.restoreSession()\"> (".htmlspecialchars( xl('Just Mine'), ENT_NOQUOTES).")";
+}
+else {
+    $showall = "no";
+    $lnkvar="'messages.php?show_all=yes&$activity_string_html' name='See All' onclick=\"top.restoreSession()\"> (".htmlspecialchars( xl('See All'), ENT_NOQUOTES).")";
+}
+}
+?>
+<br>
+<table><tr><td><span class="title"><?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href=<?php echo $lnkvar; ?></a></td></tr></table>
+<?php
 //show the activity links
-if (empty($task) || $task=="add") { ?>
+if (empty($task) || $task=="add" || $task=="delete") { ?>
   <?php if ($active == "all") { ?>
     <span><?php echo xlt('Show All'); ?></span>
   <?php } else { ?>
