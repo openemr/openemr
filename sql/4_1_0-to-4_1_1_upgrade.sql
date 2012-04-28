@@ -200,40 +200,6 @@ insert into `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ALTER TABLE `patient_access_offsite` ADD COLUMN `authorize_net_id` VARCHAR(20) COMMENT 'authorize.net profile id';
 #EndIf
 
-#IfRow2D billing code_type COPAY activity 1
-DROP TABLE IF EXISTS `temp_table_one`;
-CREATE TABLE `temp_table_one` (
-  id             int unsigned  NOT NULL AUTO_INCREMENT,
-  session_id     int unsigned  NOT NULL,
-  payer_id       int(11)       NOT NULL DEFAULT 0,
-  user_id        int(11)       NOT NULL,
-  pay_total      decimal(12,2) NOT NULL DEFAULT 0,
-  payment_type varchar( 50 ) NOT NULL DEFAULT 'patient',
-  description text NOT NULL,
-  adjustment_code varchar( 50 ) NOT NULL DEFAULT 'patient_payment',
-  post_to_date date NOT NULL,
-  patient_id int( 11 ) NOT NULL,
-  payment_method varchar( 25 ) NOT NULL DEFAULT 'cash',
-  pid            int(11)       NOT NULL,
-  encounter      int(11)       NOT NULL,
-  code           varchar(9)    NOT NULL,
-  modifier       varchar(5)    NOT NULL DEFAULT '',
-  payer_type     int           NOT NULL DEFAULT 0,
-  post_time      datetime      NOT NULL,
-  post_user      int(11)       NOT NULL,
-  pay_amount     decimal(12,2) NOT NULL DEFAULT 0,
-  account_code varchar(15) NOT NULL DEFAULT 'PCP',
-  PRIMARY KEY (id)
-) ENGINE=MyISAM AUTO_INCREMENT=1;
-INSERT INTO `temp_table_one` (`user_id`, `pay_total`, `patient_id`, `post_to_date`, `pid`, `encounter`, `post_time`, `post_user`, `pay_amount`, `description`) SELECT `user`, (`fee`*-1), `pid`, `date`, `pid`, `encounter`, `date`, `user`, (`fee`*-1), 'COPAY' FROM `billing` WHERE `code_type`='COPAY' AND `activity`!=0;
-UPDATE `temp_table_one` SET `session_id`= ((SELECT MAX(session_id) FROM ar_session)+`id`);
-UPDATE `billing`, `code_types`, `temp_table_one` SET temp_table_one.code=billing.code, temp_table_one.modifier=billing.modifier WHERE billing.code_type=code_types.ct_key AND code_types.ct_fee=1 AND temp_table_one.pid=billing.pid AND temp_table_one.encounter=billing.encounter AND billing.activity!=0;
-INSERT INTO `ar_session` (`payer_id`, `user_id`, `pay_total`, `payment_type`, `description`, `patient_id`, `payment_method`, `adjustment_code`, `post_to_date`) SELECT `payer_id`, `user_id`, `pay_total`, `payment_type`, `description`, `patient_id`, `payment_method`, `adjustment_code`, `post_to_date` FROM `temp_table_one`; 
-INSERT INTO `ar_activity` (`pid`, `encounter`, `code`, `modifier`, `payer_type`, `post_time`, `post_user`, `session_id`, `pay_amount`, `account_code`) SELECT `pid`, `encounter`, `code`, `modifier`, `payer_type`, `post_time`, `post_user`, `session_id`, `pay_amount`, `account_code` FROM `temp_table_one`;
-UPDATE `billing` SET `activity`=0 WHERE `code_type`='COPAY';
-DROP TABLE IF EXISTS `temp_table_one`;
-#EndIf
-
 #IfMissingColumn facility website
 ALTER TABLE `facility` ADD COLUMN `website` varchar(255) default NULL;
 #EndIf
@@ -286,5 +252,39 @@ CREATE TABLE `temp_table_one` (
 INSERT INTO `temp_table_one` (`id`, `seq`) VALUES ( IF( ((SELECT MAX(`ct_id`) FROM `code_types`)>=100), ((SELECT MAX(`ct_id`) FROM `code_types`) + 1), 100 ) , IF( ((SELECT MAX(`ct_seq`) FROM `code_types`)>=100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100 )  );
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external ) VALUES ('SNOMED' , (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 2, '', 0, 0, 0, 1, 0, 'SNOMED', 2);
 DROP TABLE `temp_table_one`;
+#EndIf
+
+#IfRow2D billing code_type COPAY activity 1
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (
+  id             int unsigned  NOT NULL AUTO_INCREMENT,
+  session_id     int unsigned  NOT NULL,
+  payer_id       int(11)       NOT NULL DEFAULT 0,
+  user_id        int(11)       NOT NULL,
+  pay_total      decimal(12,2) NOT NULL DEFAULT 0,
+  payment_type varchar( 50 ) NOT NULL DEFAULT 'patient',
+  description text NOT NULL,
+  adjustment_code varchar( 50 ) NOT NULL DEFAULT 'patient_payment',
+  post_to_date date NOT NULL,
+  patient_id int( 11 ) NOT NULL,
+  payment_method varchar( 25 ) NOT NULL DEFAULT 'cash',
+  pid            int(11)       NOT NULL,
+  encounter      int(11)       NOT NULL,
+  code           varchar(9)    NOT NULL,
+  modifier       varchar(5)    NOT NULL DEFAULT '',
+  payer_type     int           NOT NULL DEFAULT 0,
+  post_time      datetime      NOT NULL,
+  post_user      int(11)       NOT NULL,
+  pay_amount     decimal(12,2) NOT NULL DEFAULT 0,
+  account_code varchar(15) NOT NULL DEFAULT 'PCP',
+  PRIMARY KEY (id)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+INSERT INTO `temp_table_one` (`user_id`, `pay_total`, `patient_id`, `post_to_date`, `pid`, `encounter`, `post_time`, `post_user`, `pay_amount`, `description`) SELECT `user`, (`fee`*-1), `pid`, `date`, `pid`, `encounter`, `date`, `user`, (`fee`*-1), 'COPAY' FROM `billing` WHERE `code_type`='COPAY' AND `activity`!=0;
+UPDATE `temp_table_one` SET `session_id`= ((SELECT MAX(session_id) FROM ar_session)+`id`);
+UPDATE `billing`, `code_types`, `temp_table_one` SET temp_table_one.code=billing.code, temp_table_one.modifier=billing.modifier WHERE billing.code_type=code_types.ct_key AND code_types.ct_fee=1 AND temp_table_one.pid=billing.pid AND temp_table_one.encounter=billing.encounter AND billing.activity!=0;
+INSERT INTO `ar_session` (`payer_id`, `user_id`, `pay_total`, `payment_type`, `description`, `patient_id`, `payment_method`, `adjustment_code`, `post_to_date`) SELECT `payer_id`, `user_id`, `pay_total`, `payment_type`, `description`, `patient_id`, `payment_method`, `adjustment_code`, `post_to_date` FROM `temp_table_one`;
+INSERT INTO `ar_activity` (`pid`, `encounter`, `code`, `modifier`, `payer_type`, `post_time`, `post_user`, `session_id`, `pay_amount`, `account_code`) SELECT `pid`, `encounter`, `code`, `modifier`, `payer_type`, `post_time`, `post_user`, `session_id`, `pay_amount`, `account_code` FROM `temp_table_one`;
+UPDATE `billing` SET `activity`=0 WHERE `code_type`='COPAY';
+DROP TABLE IF EXISTS `temp_table_one`;
 #EndIf
 

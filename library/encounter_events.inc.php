@@ -111,7 +111,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 	}
 	$dos = $enc_date ? $enc_date : $today;
 	$visit_reason = $reason ? $reason : 'Please indicate visit reason';
-  $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = '" . $_SESSION["authUserID"] . "'");
+  $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]) );
   $username = $tmprow['username'];
   $facility = $tmprow['facility'];
   $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
@@ -285,7 +285,7 @@ function InsertEvent($args,$from = 'general') {
 			"pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location " .
 			") VALUES (?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?)",
 			array($args['form_category'],$args['new_multiple_value'],$args['form_provider'],$args['form_pid'],
-			formDataCore($args['form_title']),formDataCore($args['form_comments']),$_SESSION['authUserID'],$args['event_date'],
+			$args['form_title'],$args['form_comments'],$_SESSION['authUserID'],$args['event_date'],
 			fixDate($args['form_enddate']),$args['duration'],($args['form_repeat'] ? '1' : '0'),serialize($args['recurrspec']),
 			$args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'],
 			$args['locationspec'],(int)$args['facility'],(int)$args['billing_facility'])
