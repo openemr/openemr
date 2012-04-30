@@ -85,7 +85,7 @@ class Controller extends Smarty {
        }
                $args = array_reverse(array_keys($qarray));
                $c_name = preg_replace("/[^A-Za-z0-9_]/","",array_pop($args));
-               $parts = split("_",$c_name);
+               $parts = explode("_",$c_name);
                $name = "";
 
                foreach($parts as $p) {
@@ -153,7 +153,7 @@ class Controller extends Smarty {
        }
 
        function _link($action = "default",$inlining = false) {
-               $url_parts = split("&",$_SERVER['REQUEST_URI']);
+               $url_parts = explode("&",$_SERVER['REQUEST_URI']);
                $link = array_shift($url_parts);
                //print_r($url_parts);
 
