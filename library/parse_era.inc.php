@@ -352,14 +352,12 @@ function parse_era($filename, $cb) {
         $out['svc'][$i]['mod']  = substr($svc[1], 5);
       } else {
         $out['svc'][$i]['code'] = $svc[1];
-        //$out['svc'][$i]['mod']  = $svc[2] ? $svc[2] : '';
         $out['svc'][$i]['mod']  = $svc[2] ? $svc[2] . ':' : '';
         $out['svc'][$i]['mod']  .= $svc[3] ? $svc[3] . ':' : '';
         $out['svc'][$i]['mod']  .= $svc[4] ? $svc[4] . ':' : '';
         $out['svc'][$i]['mod']  .= $svc[5] ? $svc[5] . ':' : '';
         $out['svc'][$i]['mod'] = preg_replace('/:$/','',$out['svc'][$i]['mod']);
       }
-            // TBD: There may be up to 4 procedure modifiers in $svc[2] thru [5].
             $out['svc'][$i]['chg']  = $seg[2];
             $out['svc'][$i]['paid'] = $seg[3];
             $out['svc'][$i]['adj']  = array();
