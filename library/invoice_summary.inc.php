@@ -134,6 +134,42 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
   $keysuff1 = 1000;
   $keysuff2 = 5000;
 
+  //Get CO-PAYs from ar_activity
+  $resPCP = sqlStatement("
+      SELECT post_time as date, co.code_type, co.code, co.modifier, co.code_text, pay_amount AS fee , units, account_code
+      FROM ar_activity AS ar, codes AS co 
+      WHERE ar.code=co.code AND ar.modifier=co.modifier
+      AND account_code = 'PCP'
+      AND pid=? AND encounter=? ORDER BY  fee DESC,CODE,modifier
+    ",array($patient_id,$encounter_id));
+  
+  while ($rowPCP = sqlFetchArray($resPCP)) {
+    $amount = sprintf('%01.2f', $rowPCP['fee']);
+
+    $code = 'CO-PAY';
+    $codes[$code]['bal'] += $amount;
+    if ($rowPCP['modifier']) $code .= ':' . strtoupper($rowPCP['modifier']);
+    $codes[$code]['chg'] += $amount;
+    
+    // Add the details if they want 'em.
+    if ($with_detail) {
+      if (! $codes[$code]['dtl']) $codes[$code]['dtl'] = array();
+      $tmp = array();
+        $tmp['pmt'] = 0 - $amount;
+        $tmp['src'] = 'Pt Paid';
+        $tmp['plv'] = 0;
+        $tmp['tab'] = 'ar_activity';
+        $tmp['id'] = $rowPCP['id'];
+
+        $tmpkey = substr($rowPCP['date'], 0, 10) . $keysuff2++;
+      $tmp['code_text'] = $rowPCP['code_text'];//Z&H
+      $tmp['code_value'] = $rowPCP['code'];//Z&H
+	  $tmp['modifier'] = $rowPCP['modifier'];
+	  $tmp['justify'] = $rowPCP['justify'];
+      $codes[$code]['dtl'][$tmpkey] = $tmp;
+    }
+  }
+
   // Get charges from services.
   $res = sqlStatement("SELECT " .
     "date, code_type, code, modifier, code_text, fee " .
