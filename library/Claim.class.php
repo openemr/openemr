@@ -252,7 +252,7 @@ class Claim {
 
     $referrer_id = (empty($GLOBALS['MedicareReferrerIsRenderer']) ||
       $this->insurance_numbers['provider_number_type'] != '1C') ?
-      $this->patient_data['providerID'] : $provider_id;
+      $this->patient_data['ref_providerID'] : $provider_id;
     $sql = "SELECT * FROM users WHERE id = '$referrer_id'";
     $this->referrer = sqlQuery($sql);
     if (!$this->referrer) $this->referrer = array();

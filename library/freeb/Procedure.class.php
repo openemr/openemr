@@ -1032,7 +1032,7 @@ class Procedure Extends DataObjectBase {
 		}
 		else {
 			if (!$results->EOF) {
-				$pkey =	$results->fields['providerID'];
+				$pkey =	$results->fields['ref_providerID'];
 			}
 		}
 

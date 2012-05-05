@@ -304,3 +304,11 @@ CREATE TABLE  `facility_user_ids` (
 INSERT INTO `layout_options` (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('FACUSR', 'provider_id', '1General', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility');
 #EndIf
 
+#IfMissingColumn patient_data ref_providerID
+ALTER TABLE `patient_data` ADD COLUMN `ref_providerID` int(11) default NULL;
+UPDATE `patient_data` SET `ref_providerID`=`providerID`;
+INSERT INTO `layout_options` (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('DEM', 'ref_providerID', '3Choices', 'Referring Provider', 2, 11, 1, 0, 0, '', 1, 3, '', '', 'Referring Provider');
+UPDATE `layout_options` SET `description`='Provider' WHERE `form_id`='DEM' AND `field_id`='providerID';
+UPDATE `layout_options` SET `seq`=(1+`seq`) WHERE `form_id`='DEM' AND `group_name` LIKE '%Choices' AND `field_id` != 'providerID' AND `field_id` != 'ref_providerID';
+#EndIf
+
