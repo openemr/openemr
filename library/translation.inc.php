@@ -18,7 +18,8 @@ function xl($constant,$mode='r',$prepend='',$append='') {
 
   if ($lang_id == 1 && !empty($GLOBALS['skip_english_translation'])) {
     // language id = 1, so no need to translate
-    $string = $constant;
+    //  -- remove comments
+    $string = preg_replace('/\{\{.*\}\}/', '', $constant);
   }
   else {
     // TRANSLATE
@@ -38,9 +39,9 @@ function xl($constant,$mode='r',$prepend='',$append='') {
     $string = $row['definition'];
     if ($string == '') { $string = "$constant"; }
     
-    // remove dangerous characters
-    $patterns = array ('/\n/','/\r/','/"/',"/'/");
-    $replace = array (' ','','`','`');
+    // remove dangerous characters and remove comments
+    $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
+    $replace = array (' ','','`','`','');
     $string = preg_replace($patterns, $replace, $string);
   }
     
