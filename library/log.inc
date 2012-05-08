@@ -480,7 +480,6 @@ function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comm
  */
 function auditSQLEvent($statement, $outcome, $binds=NULL)
 {
-
     $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
 	/* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
    if (!isset($GLOBALS['enable_auditlog']) || !($GLOBALS['enable_auditlog']))
@@ -749,4 +748,5 @@ function deleteDisclosure($deletelid)
         $sql="delete from extended_log where id='$deletelid'";
         $ret = sqlInsertClean_audit($sql);
 }
+
 ?>
