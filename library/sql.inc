@@ -3,7 +3,7 @@
 include_once(dirname(__FILE__) . "/sqlconf.php");
 require_once(dirname(__FILE__) . "/adodb/adodb.inc.php");
 require_once(dirname(__FILE__) . "/adodb/drivers/adodb-mysql.inc.php");
-
+require_once(dirname(__FILE__) . "/query_profile.php");
 include_once(dirname(__FILE__) . "/log.inc");
 
 class ADODB_mysql_log extends ADODB_mysql
@@ -79,6 +79,7 @@ if (!$GLOBALS['dbh']) {
 //   and resource objects).
 function sqlStatement($statement, $binds=NULL )
 {
+  debugLogQuery($statement);
   if (is_array($binds)) {
     // Use adodb Execute with binding and return a recordset.
     //   Note that the auditSQLEvent function is embedded
@@ -107,6 +108,7 @@ function sqlStatement($statement, $binds=NULL )
 //   in very special situations.
 function sqlStatementNoLog($statement, $binds=NULL )
 {
+  debugLogQuery($statement);
   if (is_array($binds)) {
     // Use adodb ExecuteNoLog with binding and return a recordset.
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement, $binds );
@@ -159,6 +161,7 @@ function sqlFetchArray($r)
 //   insert.
 function sqlInsert($statement, $binds=array())
 {
+  debugLogQuery($statement);
   //Run a adodb execute
   // Note the auditSQLEvent function is embedded in the
   //   adodb Execute function.
@@ -183,6 +186,7 @@ function sqlInsert($statement, $binds=array())
 //     does not work.
 function sqlQuery($statement, $status_or_binds=FALSE)
 {
+  debugLogQuery($statement);
   if ((is_array($status_or_binds)) || ($status_or_binds === FALSE)) {
     // run the adodb Execute function
     //   Note the auditSQLEvent function is embedded in the
@@ -222,7 +226,7 @@ function sqlQuery($statement, $status_or_binds=FALSE)
  */
 function sqlInsertClean_audit($statement)
 {
-
+  debugLogQuery($statement);
   $ret = $GLOBALS['adodb']['db']->ExecuteNoLog($statement);
   if ($ret === FALSE) {
     HelpfulDie("insert failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
@@ -245,6 +249,7 @@ function getSqlLastID() {
 //   of columns that exist in a table.
 function sqlListFields($table) {
   $sql = "SHOW COLUMNS FROM ". mysql_real_escape_string($table);
+  debugLogQuery($sql);
   $resource = sqlQ($sql);
   $field_list = array();
   while($row = mysql_fetch_array($resource)) {

@@ -24,6 +24,7 @@ require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/query_profile.php");
 
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
@@ -757,5 +758,6 @@ $(document).ready(function(){
 });
 
 </script>
-
+<?php queryProfileAsHtmlComment(); ?>
 </html>
+

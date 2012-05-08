@@ -2,49 +2,100 @@
 include_once(dirname(__FILE__) . '/sql.inc'); // fixes vulnerability with register_globals
 require_once(dirname(__FILE__) . '/formdata.inc.php');
 
+function getSessionLanguage() {
+  if (!empty($_SESSION['language_choice'])) {
+    return $_SESSION['language_choice'];
+  }
+  else {
+    return 1; // English
+  }
+}
+
+function shouldSkipTranslation() {
+  $session_language = getSessionLanguage();
+  if ($session_language == 1 && !empty($GLOBALS['skip_english_translation'])) {
+    return true;
+  }
+  return false;
+}
+
+function cleanTranslatedPhrase($phrase) {
+  // TODO: Not sure why we have to do this, can't you just keep
+  // the data in the DB clean?
+
+  $patterns = array ('/\n/','/\r/','/"/',"/'/");
+  $replace = array (' ','','`','`');
+  $cleaned_phrase = preg_replace($patterns, $replace, $phrase);
+  return $cleaned_phrase;
+}
+
+function cleanConstant($constant) {
+  // TODO: Again, why?
+  $patterns = array ('/\n/','/\r/');
+  $replace = array (' ','');
+  $constant = preg_replace($patterns, $replace, $constant);
+  return $constant;
+}
+
+function precacheTranslation() {
+  $translation_cache = array();
+  $session_language = getSessionLanguage();
+  $lang_cache_query = "SELECT * FROM lang_definitions JOIN lang_constants " .
+    "ON lang_definitions.cons_id = lang_constants.cons_id WHERE " .
+    "lang_id = ?";
+  $lang_cache_result = sqlStatementNoLog($lang_cache_query, [$session_language]);
+
+  while($translation_row = SqlFetchArray($lang_cache_result)) {
+    $translated_phrase = $translation_row["definition"];
+    if($translated_phrase == "") {
+      continue;
+    }
+    $translated_phrase = cleanTranslatedPhrase($translatedPhrase);
+    $constant_name = cleanConstant($translation_row["constant_name"]);
+    $translation_cache[$constant_name] = $translated_phrase;
+  }
+  return $translation_cache;
+}
+
+function getTranslationCache() {
+  if (!array_key_exists("__translation_cache", $GLOBALS)) {
+    // Cache not yet initialized... circular imports?
+    $GLOBALS["__translation_cache"] = precacheTranslation();
+  }
+  return $GLOBALS["__translation_cache"];
+}
+
+function translationCacheLookup($cleaned_constant) {
+  $cache = getTranslationCache();
+  if (!array_key_exists($cleaned_constant, $cache)) {
+    return null;
+  }
+  return $cache[$cleaned_constant];
+}
+
+function translateSingle($constant) {
+  if (shouldSkipTranslation()) {
+    return $constant;
+  }
+
+  // Try the cache
+  $constant = cleanConstant($constant);
+  $cache_hit = translationCacheLookup($constant);
+  if ($cache_hit != null) {
+    return $cache_hit;
+  }
+
+  return $constant;
+}
+
 // Translation function
 // This is the translation engine
 //  Note that it is recommended to no longer use the mode, prepend, or append
 //  parameters, since this is not compatible with the htmlspecialchars() php
 //  function.
 function xl($constant,$mode='r',$prepend='',$append='') {
-  // set language id
-  if (!empty($_SESSION['language_choice'])) {
-    $lang_id = $_SESSION['language_choice'];
-  }
-  else {
-    $lang_id = 1;
-  } 
-
-  if ($lang_id == 1 && !empty($GLOBALS['skip_english_translation'])) {
-    // language id = 1, so no need to translate
-    $string = $constant;
-  }
-  else {
-    // TRANSLATE
-    // first, clean lines
-    // convert new lines to spaces and remove windows end of lines
-    $patterns = array ('/\n/','/\r/');
-    $replace = array (' ','');
-    $constant = preg_replace($patterns, $replace, $constant);
-
-    // second, attempt translation
-    $sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
-      "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
-      "lang_id='$lang_id' AND constant_name = '" .
-      add_escape_custom($constant) . "' LIMIT 1";
-    $res = sqlStatementNoLog($sql);
-    $row = SqlFetchArray($res);
-    $string = $row['definition'];
-    if ($string == '') { $string = "$constant"; }
-    
-    // remove dangerous characters
-    $patterns = array ('/\n/','/\r/','/"/',"/'/");
-    $replace = array (' ','','`','`');
-    $string = preg_replace($patterns, $replace, $string);
-  }
-    
-  $string = "$prepend" . "$string" . "$append";
+  $translation = translateSingle($constant);
+  $string = $prepend . $translation . $append;
   if ($mode=='e') {
     echo $string;
   } else {

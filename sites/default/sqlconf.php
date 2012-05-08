@@ -11,6 +11,7 @@ $port	= '3306';
 $login	= 'openemr';
 $pass	= 'openemr';
 $dbase	= 'openemr';
+$query_debug = true;
 
 $sqlconf = array();
 global $sqlconf;
