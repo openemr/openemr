@@ -9,6 +9,7 @@ require_once(dirname(__FILE__) . "/../library/classes/Document.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/CategoryTree.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/TreeMenu.php");
 require_once(dirname(__FILE__) . "/../library/classes/Note.class.php");
+require_once(dirname(__FILE__) . "/../library/classes/CouchDB.class.php");
 
 class C_Document extends Controller {
 
@@ -29,9 +30,12 @@ class C_Document extends Controller {
 		
 		//get global config options for this namespace
 		$this->_config = $GLOBALS['oer_config']['documents'];
-		
+		if($GLOBALS['document_storage_method']==1){
+			$this->file_path = $GLOBALS['OE_SITE_DIR'].'/documents/temp/';
+		}
+		else{
 		$this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9]/","_",$_GET['patient_id']) . "/";
-		
+		}
 		$this->_args = array("patient_id" => $_GET['patient_id']);
 		
 		$this->assign("STYLE", $GLOBALS['style']);
@@ -52,7 +56,15 @@ class C_Document extends Controller {
 	}
 	
 	function upload_action_process() {
-		
+		$couchDB = false;
+		$harddisk = false;
+		if($GLOBALS['document_storage_method']==0){
+			$harddisk = true;
+		}
+		if($GLOBALS['document_storage_method']==1){
+			$couchDB = true;
+		}
+				
 		if ($_POST['process'] != "true")
 			return;
 			
@@ -104,44 +116,112 @@ class C_Document extends Controller {
 		  	}
 		  	
 		  	if ( $doDecryption ) {
-		  	    $tmpfile = fopen( $file['tmp_name'], "r" );
-		  	    $filetext = fread( $tmpfile, $file['size'] );
-		        $plaintext = $this->decrypt( $filetext, $passphrase );
-		        unlink( $file['tmp_name'] );
-		        $tmpfile = fopen( $file['tmp_name'], "w+" );
-                fwrite( $tmpfile, $plaintext );
-                fclose( $tmpfile );
-                $file['size'] = filesize( $tmpfilepath.$tmpfilename );
-		  	} 
-		  	
-		  	if (move_uploaded_file($file['tmp_name'],$this->file_path.$fname)) {
-        		$this->assign("upload_success", "true");
-		  		$d = new Document();
-		  		$d->url = "file://" .$this->file_path.$fname;
-				if ($file['type'] == 'text/xml') {
-					$d->mimetype = 'application/xml';
+				$tmpfile = fopen( $file['tmp_name'], "r" );
+				$filetext = fread( $tmpfile, $file['size'] );
+				$plaintext = $this->decrypt( $filetext, $passphrase );
+				fclose($tmpfile);
+				unlink( $file['tmp_name'] );
+				$tmpfile = fopen( $file['tmp_name'], "w+" );
+				fwrite( $tmpfile, $plaintext );
+				fclose( $tmpfile );
+				$file['size'] = filesize( $file['tmp_name'] );
+		  	}
+			$docid = '';
+			$resp = '';			
+		  	if($couchDB == true){
+				$couch = new CouchDB();
+				$docname = $_SESSION['authId'].$patient_id.$encounter.$fname.date("%Y-%m-%d H:i:s");
+				$docid = $couch->stringToId($docname);
+				$tmpfile = fopen( $file['tmp_name'], "rb" );
+				$filetext = fread( $tmpfile, $file['size'] );				
+				fclose( $tmpfile );
+				//--------Temporarily writing the file for calculating the hash--------//
+				//-----------Will be removed after calculating the hash value----------//
+				$temp_file = fopen($this->file_path.$fname,"w");
+				fwrite($temp_file,$filetext);
+				fclose($temp_file);
+				//---------------------------------------------------------------------//
+				
+				$json = json_encode(base64_encode($filetext));
+				$db = $GLOBALS['couchdb_dbase'];
+				$data = array($db,$docid,$patient_id,$encounter,$file['type'],$json);
+				$resp = $couch->check_saveDOC($data);
+				if(!$resp->id || !$resp->_rev){
+					$data = array($db,$docid,$patient_id,$encounter);
+					$resp = $couch->retrieve_doc($data);
+					$docid = $resp->_id;
+					$revid = $resp->_rev;
 				}
-				else {
-					$d->mimetype = $file['type'];
-				}                                 
-		  		$d->size = $file['size'];
-		  		$sha1Hash = sha1_file( $this->file_path.$fname );
-		  		$d->hash = $sha1Hash;
-		  		$d->type = $d->type_array['file_url'];
-		  		$d->set_foreign_id($patient_id);
-		  		$d->persist();
-		  		$d->populate();
-		  		$this->assign("file",$d);
-		  		
-		  		if (is_numeric($d->get_id()) && is_numeric($category_id)) {
-		  		  $sql = "REPLACE INTO categories_to_documents set category_id = '" . $category_id . "', document_id = '" . $d->get_id() . "'";
-		  		  $d->_db->Execute($sql);
-		  		}
-		  	}
-		  	else {
-		  		$error .= "The file could not be succesfully stored, this error is usually related to permissions problems on the storage system.\n";
-		  	}
-		  }
+				else{
+					$docid = $resp->id;
+					$revid = $resp->rev;
+				}
+				if(!$docid && !$revid){ //if couchdb save failed
+					$error .=  "<font color='red'><b>".xl("The file could not be saved to CouchDB.") . "</b></font>\n";
+					if($GLOBALS['couchdb_log']==1){
+						ob_start();
+						var_dump($resp);
+						$couchError=ob_get_clean();
+						$log_content = date('Y-m-d H:i:s')." ==> Uploading document: ".$fname."\r\n";
+						$log_content .= date('Y-m-d H:i:s')." ==> Failed to Store document content to CouchDB.\r\n";
+						$log_content .= date('Y-m-d H:i:s')." ==> Document ID: ".$docid."\r\n";
+						$log_content .= date('Y-m-d H:i:s')." ==> ".print_r($data,1)."\r\n";
+						$log_content .= $couchError;
+						$this->document_upload_download_log($patient_id,$log_content);//log error if any, for testing phase only
+					}
+				}				
+			}
+			if($harddisk == true){
+				$uploadSuccess = false;
+				if(move_uploaded_file($file['tmp_name'],$this->file_path.$fname)){
+					$uploadSuccess = true;
+				}
+				else{
+					$error .= xl("The file could not be succesfully stored, this error is usually related to permissions problems on the storage system")."\n";
+					}
+			}
+			$this->assign("upload_success", "true");
+			$d = new Document();
+			$d->storagemethod = $GLOBALS['document_storage_method'];
+			if($harddisk == true)
+				$d->url = "file://" .$this->file_path.$fname;
+			else
+				$d->url = $fname;
+			if($couchDB == true){
+				$d->couch_docid = $docid;
+				$d->couch_revid = $revid;
+			}
+			if ($file['type'] == 'text/xml') {
+				$d->mimetype = 'application/xml';
+			}
+			else {
+				$d->mimetype = $file['type'];
+			}                                 
+			$d->size = $file['size'];
+			$d->owner = $_SESSION['authUserID'];			
+			$sha1Hash = sha1_file( $this->file_path.$fname );
+			if($couchDB == true){
+				//Removing the temporary file which is used to create the hash
+				unlink($this->file_path.$fname);
+			}
+			$d->hash = $sha1Hash;
+			$d->type = $d->type_array['file_url'];
+			$d->set_foreign_id($patient_id);
+			if($harddisk == true || ($couchDB == true && $docid && $revid)){
+				$d->persist();
+				$d->populate();
+			}
+			$this->assign("file",$d);
+			
+			if (is_numeric($d->get_id()) && is_numeric($category_id)){
+				$sql = "REPLACE INTO categories_to_documents set category_id = '" . $category_id . "', document_id = '" . $d->get_id() . "'";
+				$d->_db->Execute($sql);
+			}
+			if($GLOBALS['couchdb_log']==1 && $log_content!=''){
+				$log_content .= "\r\n\r\n";
+				$this->document_upload_download_log($patient_id,$log_content);
+			}
+		}
 		}
 		$this->assign("error", nl2br($error));
 		//$this->_state = false;
@@ -289,7 +369,61 @@ class C_Document extends Controller {
 	    
 		$d = new Document($document_id);
 		$url =  $d->get_url();
+		$storagemethod = $d->get_storagemethod();
+		$couch_docid = $d->get_couch_docid();
+		$couch_revid = $d->get_couch_revid();
 		
+		if($couch_docid && $couch_revid && $original_file){
+			$couch = new CouchDB();
+			$data = array($GLOBALS['couchdb_dbase'],$couch_docid);
+			$resp = $couch->retrieve_doc($data);
+			$content = $resp->data;
+			if($content=='' && $GLOBALS['couchdb_log']==1){				
+				$log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
+				$log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
+				$log_content .= date('Y-m-d H:i:s')." ==> CouchDB Document Id: ".$couch_docid."\r\n";
+				$log_content .= date('Y-m-d H:i:s')." ==> CouchDB Revision Id: ".$couch_revid."\r\n";
+				$log_content .= date('Y-m-d H:i:s')." ==> Failed to fetch document content from CouchDB.\r\n";
+				$log_content .= date('Y-m-d H:i:s')." ==> Will try to download file from HardDisk if exists.\r\n\r\n";
+				$this->document_upload_download_log($d->get_foreign_id(),$log_content);
+				die(xl("File retrieval from CouchDB failed"));
+			}
+			header('Content-Description: File Transfer');
+			header('Content-Transfer-Encoding: binary');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+			header('Pragma: public');
+			$tmpcouchpath = $GLOBALS['OE_SITE_DIR'].'/documents/temp/couch_'.date("YmdHis").$d->get_url_file();
+			$fh = fopen($tmpcouchpath,"w");
+			fwrite($fh,base64_decode($content));
+			fclose($fh);
+			$f = fopen($tmpcouchpath,"r");
+			if ( $doEncryption ) {
+				$filetext = fread( $f, filesize($tmpcouchpath) );
+			        $ciphertext = $this->encrypt( $filetext, $passphrase );
+			        $tmpfilepath = $GLOBALS['temporary_files_dir'];
+			        $tmpfilename = "/encrypted_".$d->get_url_file();
+			        $tmpfile = fopen( $tmpfilepath.$tmpfilename, "w+" );
+				fwrite( $tmpfile, $ciphertext );
+				fclose( $tmpfile );
+				header('Content-Disposition: attachment; filename='.$tmpfilename );
+			        header("Content-Type: application/octet-stream" );
+			        header("Content-Length: " . filesize( $tmpfilepath.$tmpfilename ) );
+			        ob_clean();
+				flush();
+				readfile( $tmpfilepath.$tmpfilename );
+				unlink( $tmpfilepath.$tmpfilename );
+			} else {
+				header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename($d->get_url()) . "\"");
+			        header("Content-Type: " . $d->get_mimetype());
+			        header("Content-Length: " . filesize($tmpcouchpath));
+			        fpassthru($f);
+			}
+			fclose($f);
+			if($content!='')
+			unlink($tmpcouchpath);
+			exit;//exits only if file download from CouchDB is successfull. 
+		}
 		//strip url of protocol handler
 		$url = preg_replace("|^(.*)://|","",$url);
 		
@@ -301,12 +435,23 @@ class C_Document extends Controller {
 		$from_all = explode("/",$url);
 	        $from_filename = array_pop($from_all);
 	        $from_patientid = array_pop($from_all);
-    $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_patientid . '/' . $from_filename;
+    if($couch_docid && $couch_revid){
+	//for couchDB no URL is available in the table, hence using the foreign_id which is patientID
+	$temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $d->get_foreign_id() . '_' . $from_filename;
+	
+	}
+	else{
+	$temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_patientid . '/' . $from_filename;
+	}
+	
 		if (file_exists($temp_url)) {
 			$url = $temp_url;
 		}
+		 
+		 
 		if (!file_exists($url)) {
-			echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.','','',' ') . $url;	
+			echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.','','',' ') . $url;
+		
 		}
 		else {
 		        if ($original_file) {
@@ -342,9 +487,14 @@ class C_Document extends Controller {
 		        }
 		        else {
 			    //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
-			    $convertedFile = substr(basename($url), 0, strrpos(basename($url), '.')) . '_converted.jpg';			    
-          $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_patientid . '/' . $convertedFile;
-                            header("Pragma: public");
+			   	$convertedFile = substr(basename($url), 0, strrpos(basename($url), '.')) . '_converted.jpg';			    
+				if($couch_docid && $couch_revid){
+				$url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $convertedFile;
+				}
+				else{
+				$url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_patientid . '/' . $convertedFile;
+                }
+				header("Pragma: public");
 			    header("Expires: 0");
 			    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 			    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename($url) . "\"");
@@ -352,9 +502,15 @@ class C_Document extends Controller {
 			    header("Content-Length: " . filesize($url));
 			    $f = fopen($url,"r");
 			    fpassthru($f);
+				if($couch_docid && $couch_revid){
+				fclose($f);
+				unlink($url);
+				$url=str_replace("_converted.jpg",'.pdf',$url);
+				unlink($url);
+				}
 			    exit;
 			}
-		}
+		}		
 	}
 	
 	function queue_action($patient_id="") {
@@ -527,11 +683,50 @@ class C_Document extends Controller {
 				$messages .= xl('Document could not be moved to patient id','','',' \'') . $new_patient_id  . xl('because that id does not exist.','','\' ') . "\n";
 			}
 			else {
-				//set the new patient
+			
+				$couch_docid = $d->get_couch_docid();
+				$couch_revid = $d->get_couch_revid();
+				//set the new patient in CouchDB
+				$couchsavefailed=false;
+				if($couch_docid && $couch_revid){
+				$couch = new CouchDB();
+				$db = $GLOBALS['couchdb_dbase'];
+				$data=array($db,$couch_docid);
+				$couchresp=$couch->retrieve_doc($data);
+				//CouchDB doesnot support updating a single value in a document.
+				//Have to retrieve the entire document,update the necessary value and save again
+				list($db,$docid,$revid,$patient_id,$encounter,$type,$json) = $data;
+				$data=array($db,$couch_docid,$couch_revid,$new_patient_id,$couchresp->encounter,$couchresp->mimetype,json_encode($couchresp->data));
+				$resp = $couch->update_doc($data);
+				//Sometimes the response from CouchDB is not available
+				//still it would have saved in the DB. Hence check one more time
+				if(!$resp->_id || !$resp->_rev){
+					$data = array($db,$couch_docid,$new_patient_id,$couchresp->encounter);
+					$resp = $couch->retrieve_doc($data);
+					
+					
+				}
+				if($resp->_rev ==$couch_revid){
+					$couchsavefailed=true;
+					}
+				else{
+				$d->set_couch_revid($resp->_rev);
+				}
+				}
+				
+				
+				//set the new patient in mysql
 				$d->set_foreign_id($new_patient_id);
 				$d->persist();
 				$this->_state = false;
+				if(!$couchsavefailed){
+				
 				$messages .= xl('Document moved to patient id','','',' \'') . $new_patient_id  . xl('successfully.','','\' ') . "\n";
+				}
+				else{
+				
+				$messages .= xl('Document moved to patient id','','',' \'') . $new_patient_id  . xl('Failed.','','\' ') . "\n";
+				}
 				$this->assign("messages",$messages);
 				return $this->list_action($patient_id);
 			}
@@ -579,6 +774,20 @@ class C_Document extends Controller {
 	function validate_action_process($patient_id="", $document_id) {
 
                 $d = new Document($document_id);
+		if($d->couch_docid && $d->couch_revid){
+			$file_path = $GLOBALS['OE_SITE_DIR'].'/documents/temp/';
+			$url = $file_path.$d->get_url();
+			$couch = new CouchDB();
+			$data = array($GLOBALS['couchdb_dbase'],$d->couch_docid);
+			$resp = $couch->retrieve_doc($data);
+			$content = $resp->data;
+			//--------Temporarily writing the file for calculating the hash--------//
+			//-----------Will be removed after calculating the hash value----------//
+			$temp_file = fopen($url,"w");
+			fwrite($temp_file,base64_decode($content));
+			fclose($temp_file);			
+		}
+		else{
                 $url =  $d->get_url();
 
                 //strip url of protocol handler
@@ -601,7 +810,7 @@ class C_Document extends Controller {
 			die("process is '" . $_POST['process'] . "', expected 'true'");
 			return;
 		}
-		
+		}
 		$d = new Document( $document_id );
 		$current_hash = sha1_file( $url );
 		$messages = xl('Current Hash').": ".$current_hash."<br>";
@@ -616,15 +825,19 @@ class C_Document extends Controller {
 		} else {
 		    $messages .= xl('Document passed integrity check.');
 		}
-		
 		$this->_state = false;
 		$this->assign("messages", $messages);
+		if($d->couch_docid && $d->couch_revid){
+			//Removing the temporary file which is used to create the hash
+			unlink($GLOBALS['OE_SITE_DIR'].'/documents/temp/'.$d->get_url());
+		}
 		return $this->view_action($patient_id, $document_id);
 	}
 
 	// Added by Rod for metadata update.
 	//
 	function update_action_process($patient_id="", $document_id) {
+		
 		if ($_POST['process'] != "true") {
 			die("process is '" . $_POST['process'] . "', expected 'true'");
 			return;
@@ -668,10 +881,21 @@ class C_Document extends Controller {
 			if (!is_numeric($issue_id)) {
 				$issue_id = 0;
 			}
+			$couch_docid = $d->get_couch_docid();
+			$couch_revid = $d->get_couch_revid();
+			if($couch_docid && $couch_revid ){
+			$sql = "UPDATE documents SET docdate = $docdate, url = '".$_POST['docname']."', " .
+					"list_id = '$issue_id' " .
+					"WHERE id = '$document_id'";
+			$this->tree->_db->Execute($sql);
+			
+			}
+			else{
 			$sql = "UPDATE documents SET docdate = $docdate, " .
 				"list_id = '$issue_id' " .
 				"WHERE id = '$document_id'";
-			$this->tree->_db->Execute($sql);
+			$this->tree->_db->Execute($sql);	
+			}
 			$messages .= xl('Document date and issue updated successfully') . "<br>";
 		}
 
@@ -819,6 +1043,17 @@ class C_Document extends Controller {
 
 		}
 		return $node;
+	}
+	
+	//function for logging  the errors in writing file to CouchDB/Hard Disk
+	function document_upload_download_log($patientid,$content){
+		$log_path = $GLOBALS['OE_SITE_DIR']."/documents/couchdb/";
+		$log_file = 'log.txt';
+		if(!is_dir($log_path))
+		    mkdir($log_path,0777,true);
+		$LOG = fopen($log_path.$log_file,'a');
+		fwrite($LOG,$content);
+		fclose($LOG);
 	}
 
 }

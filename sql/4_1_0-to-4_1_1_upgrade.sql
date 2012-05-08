@@ -312,3 +312,15 @@ UPDATE `layout_options` SET `description`='Provider' WHERE `form_id`='DEM' AND `
 UPDATE `layout_options` SET `seq`=(1+`seq`) WHERE `form_id`='DEM' AND `group_name` LIKE '%Choices' AND `field_id` != 'providerID' AND `field_id` != 'ref_providerID';
 #EndIf
 
+#IfMissingColumn documents couch_docid
+ALTER TABLE `documents` ADD COLUMN `couch_docid` VARCHAR(100) NULL;
+#EndIf
+
+#IfMissingColumn documents couch_revid
+ALTER TABLE `documents` ADD COLUMN `couch_revid` VARCHAR(100) NULL;
+#EndIf
+
+#IfMissingColumn documents storagemethod
+ALTER TABLE `documents` ADD COLUMN `storagemethod` TINYINT(4) DEFAULT '0' NOT NULL COMMENT '0->Harddisk,1->CouchDB';
+#EndIf
+

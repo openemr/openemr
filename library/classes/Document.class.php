@@ -1,6 +1,7 @@
 <?php
 
 require_once(dirname(__FILE__) . "/ORDataObject.class.php");
+require_once(dirname(__FILE__) . "/CouchDB.class.php");
 
 /**
  * class Document
@@ -268,7 +269,7 @@ class Document extends ORDataObject{
 		$this->hash = $hash;
 	}
 	function get_hash() {
-		return $this->hash;
+	    return $this->hash;
 	}
 	function set_url($url) {
 		$this->url = $url;
@@ -354,6 +355,45 @@ class Document extends ORDataObject{
 		}
 		parent::persist();
 	}
+        
+        function set_storagemethod($str) {
+	    $this->storagemethod = $str;
+	}
+        
+        function get_storagemethod() {
+	    return $this->storagemethod;
+	}
+        
+        function set_couch_docid($str) {
+	    $this->couch_docid = $str;
+	}
+        
+        function get_couch_docid() {
+	    return $this->couch_docid;
+	}
+        
+        function set_couch_revid($str) {
+	    $this->couch_revid = $str;
+	}
+        
+        function get_couch_revid() {
+	    return $this->couch_revid;
+	}
+        
+        function get_couch_url($pid,$encounter){
+            $couch_docid = $this->get_couch_docid();
+            $couch_url = $this->get_url();
+            $couch = new CouchDB();
+            $data = array($GLOBALS['couchdb_dbase'],$couch_docid,$pid,$encounter);
+            $resp = $couch->retrieve_doc($data);
+            $content = $resp->data;
+			$temp_url=$couch_url;
+			$temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $pid . '_' . $couch_url;
+			$f_CDB = fopen($temp_url,'w');
+            fwrite($f_CDB,base64_decode($content));
+            fclose($f_CDB);
+			return $temp_url;
+        }
 
 } // end of Document
 

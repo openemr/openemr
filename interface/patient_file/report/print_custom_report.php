@@ -250,6 +250,9 @@
 
       // This requires ImageMagick to be installed.
       $from_file = $d->get_url_filepath();
+      if($d->get_storagemethod()==1 ){
+	$from_file = $d->get_couch_url($pid,$encounter);
+      }
       $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
       if (! is_file($to_file)) exec("convert -density 200 '$from_file' -append -resize 850 '$to_file'");
       if (is_file($to_file)) {
@@ -261,7 +264,9 @@
         xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') .
         "<br><br>";
       }
-
+      if($d->get_storagemethod()==1 ){
+       unlink($from_file);
+      }
      }
     }
    }

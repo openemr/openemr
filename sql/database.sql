@@ -614,6 +614,9 @@ CREATE TABLE `documents` (
   `docdate` date default NULL,
   `hash` varchar(40) DEFAULT NULL COMMENT '40-character SHA-1 hash of document',
   `list_id` bigint(20) NOT NULL default '0',
+  `couch_docid` VARCHAR(100) DEFAULT NULL,
+  `couch_revid` VARCHAR(100) DEFAULT NULL,
+  `storagemethod` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->Harddisk,1->CouchDB',
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
@@ -4889,7 +4892,7 @@ CREATE TABLE `x12_partners` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM;
 
-------------------------------------------------------------------------------------- 
+-- -----------------------------------------------------------------------------------
 -- Table structure for table `automatic_notification`
 -- 
 

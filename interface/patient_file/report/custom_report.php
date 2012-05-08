@@ -324,6 +324,8 @@ foreach ($ar as $key => $val) {
                 if (!is_numeric($document_id)) continue;
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
+				$couch_docid = $d->get_couch_docid();
+				$couch_revid = $d->get_couch_revid();
                 $extension = substr($fname, strrpos($fname,"."));
                 echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
                 $notes = Note::notes_factory($d->get_id());
@@ -347,19 +349,32 @@ foreach ($ar as $key => $val) {
                     // echo "<b>NOTE</b>: ".xl('Document')."'" . $fname ."' ".xl('cannot be displayed inline because its type is not supported by the browser.')."<br><br>";	
                     // This requires ImageMagick to be installed.
                     $url_file = $d->get_url_filepath();
+                    if($couch_docid && $couch_revid){
+                      $url_file = $d->get_couch_url($pid,$encounter);
+                    }
                     // just grab the last two levels, which contain filename and patientid
                     $from_all = explode("/",$url_file);
                     $from_filename = array_pop($from_all);
                     $from_patientid = array_pop($from_all);
+					if($couch_docid && $couch_revid){
+					$from_file = $GLOBALS['OE_SITE_DIR'].'/documents/temp/'.$from_filename;
+                    $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
+		            }
+					else{
                     $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .'/documents/'. $from_patientid.'/'.$from_filename;
                     $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
-                    if (! is_file($to_file)) exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
+					}
+					if (! is_file($to_file)) exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
                     if (is_file($to_file)) {
                         echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . "&as_file=false&original_file=false'><br><br>";
                     } else {
                         echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .
                         xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
+						if($couch_docid && $couch_revid){
+						unlink($from_file);
+						}
                     }
+                    
                 } // end if-else
             } // end Documents loop
             echo "</div>";
