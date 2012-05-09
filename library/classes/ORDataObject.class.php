@@ -126,10 +126,12 @@ class ORDataObject {
 				//why is there a foreach here? at some point later there will be a scheme to autoload all enums 
 				//for an object rather than 1x1 manually as it is now
 				foreach($cols as $col) {
-	  		      if ($col->name == $field_name && substr($col->type,0,4) == "enum") {
-	  		        preg_match_all("|[\'](.*)[\']|U",$col->type,$enum_types);
-	  		        //position 1 is where preg_match puts the matches sans the delimiters
-	  		        $enum = $enum_types[1];
+	  		      if ($col->name == $field_name && $col->type == "enum") {
+                                for($idx=0;$idx<count($col->enums);$idx++)
+                                {
+                                    $col->enums[$idx]=str_replace("'","",$col->enums[$idx]);
+                                }
+	  		        $enum = $col->enums;
 	  		        //for future use
 	  		        //$enum[$col->name] = $enum_types[1];
 	  		      }
