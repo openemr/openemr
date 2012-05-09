@@ -13,6 +13,7 @@ $fake_register_globals = false;
 
 require_once("../../globals.php");
 require_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 
@@ -136,6 +137,9 @@ while ($row = sqlFetchArray($res)) {
       if ($row['fname']) $name .= $row['fname'];
       if ($row['mname']) $name .= ' ' . $row['mname'];
       $arow[] = $name;
+    }
+    else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
+      $arow[] = oeFormatShortDate($row[$colname]);
     }
     else {
       $arow[] = $row[$colname];

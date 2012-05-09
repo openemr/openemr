@@ -84,6 +84,8 @@ $USER_SPECIFIC_TABS = array('Appearance',
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'concurrent_layout',
                                'css_header',
+                               'gbl_pt_list_page_size',
+                               'gbl_pt_list_new_window',
                                'units_of_measurement',
                                'date_display_format',
                                'time_display_format',
@@ -223,7 +225,26 @@ $GLOBALS_METADATA = array(
       ),
       '20',
       xl('Number of encounters to display per page.')
-    )      
+    ),
+
+    'gbl_pt_list_page_size' => array(
+      xl('Patient List Page Size'),
+      array(
+        '10'  =>  '10',
+        '25'  =>  '25',
+        '50'  =>  '50',
+        '100' => '100',
+      ),
+      '10',
+      xl('Number of patients to display per page in the patient list.')
+    ),
+
+    'gbl_pt_list_new_window' => array(
+      xl('Patient List New Window'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Default state of New Window checkbox in the patient list.')
+    ),
 
   ),
 

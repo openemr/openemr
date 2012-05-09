@@ -19,7 +19,7 @@ $popup = empty($_REQUEST['popup']) ? 0 : 1;
 // Generate some code based on the list of columns.
 //
 $colcount = 0;
-$footer  = "";
+$header0 = "";
 $header  = "";
 $coljson = "";
 $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
@@ -30,8 +30,8 @@ while ($row = sqlFetchArray($res)) {
   $header .= "   <th>";
   $header .= text($title);
   $header .= "</th>\n";
-  $footer .= "   <th><input type='text' ";
-  $footer .= "value='" . xl('Search') . " " . attr($title) . "' class='search_init' /></th>\n";
+  $header0 .= "   <td align='center'><input type='text' size='10' ";
+  $header0 .= "value='' class='search_init' /></td>\n";
   if ($coljson) $coljson .= ", ";
   $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"}";
   ++$colcount;
@@ -56,10 +56,6 @@ while ($row = sqlFetchArray($res)) {
 
 <script language="JavaScript">
 
-// This holds the prompt values for the column-specific search fields.
-//
-var asInitVals = new Array();
-
 $(document).ready(function() {
 
  // Initializing the DataTable.
@@ -75,12 +71,14 @@ $(document).ready(function() {
   // See: http://datatables.net/usage/columns and
   // http://datatables.net/release-datatables/extras/ColReorder/server_side.html
   "aoColumns": [ <?php echo $coljson; ?> ],
+  "aLengthMenu": [ 10, 25, 50, 100 ],
+  "iDisplayLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
   // language strings are included so we can translate them
   "oLanguage": {
    "sSearch"      : "<?php echo xla('Search all columns'); ?>:",
    "sLengthMenu"  : "<?php echo xla('Show') . ' _MENU_ ' . xla('entries'); ?>",
    "sZeroRecords" : "<?php echo xla('No matching records found'); ?>",
-   "sInfo"        : "<?php echo xla('Showing') . ' _START_ ' . xla('to') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('entries'); ?>",
+   "sInfo"        : "<?php echo xla('Showing') . ' _START_ ' . xla('to{{range}}') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('entries'); ?>",
    "sInfoEmpty"   : "<?php echo xla('Nothing to show'); ?>",
    "sInfoFiltered": "(<?php echo xla('filtered from') . ' _MAX_ ' . xla('total entries'); ?>)",
    "oPaginate": {
@@ -93,32 +91,15 @@ $(document).ready(function() {
  } );
 
  // This puts our custom HTML into the table header.
- $("div.mytopdiv").html("<form name='myform'><input type='checkbox' name='form_new_window' value='1' /><?php echo xlt('Open in New Window'); ?></form>");
+ $("div.mytopdiv").html("<form name='myform'><input type='checkbox' name='form_new_window' value='1'<?php
+  if (!empty($GLOBALS['gbl_pt_list_new_window'])) echo ' checked'; ?> /><?php
+  echo xlt('Open in New Window'); ?></form>");
 
- // The rest of this is to support column-specific search fields.
+ // This is to support column-specific search fields.
  // Borrowed from the multi_filter.html example.
-
- $("tfoot input").keyup(function () {
+ $("thead input").keyup(function () {
   // Filter on the column (the index) of this element
-	oTable.fnFilter( this.value, $("tfoot input").index(this) );
- });
-
- $("tfoot input").each(function (i) {
-  asInitVals[i] = this.value;
- } );
-
- $("tfoot input").focus(function () {
-  if (this.className == "search_init") {
-   this.className = "";
-   this.value = "";
-  }
- } );
-
- $("tfoot input").blur(function (i) {
-  if (this.value == "") {
-   this.className = "search_init";
-   this.value = asInitVals[$("tfoot input").index(this)];
-  }
+	oTable.fnFilter( this.value, $("thead input").index(this) );
  });
 
  // OnClick handler for the rows
@@ -161,6 +142,9 @@ function openNewTopWindow(pid) {
 <table cellpadding="0" cellspacing="0" border="0" class="display" id="pt_table">
  <thead>
   <tr>
+<?php echo $header0; ?>
+  </tr>
+  <tr>
 <?php echo $header; ?>
   </tr>
  </thead>
@@ -170,11 +154,6 @@ function openNewTopWindow(pid) {
    <td colspan="<?php echo $colcount; ?>" class="dataTables_empty">...</td>
   </tr>
  </tbody>
- <tfoot>
-  <tr>
-<?php echo $footer; ?>
-  </tr>
- </tfoot>
 </table>
 
 </div>
