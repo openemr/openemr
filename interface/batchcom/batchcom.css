@@ -2,7 +2,25 @@
 			margin: 20px;
 			border: thin blue
 			}
-
+.table {
+      font-size: 13px;
+      }
+.body_top {
+      font-size: 0.8em;
+     }
+ 
 .help {
 
 		}
+
+table.batchcom th {
+        font-size:0.8em;
+        }
+table.batchcom td {
+        font-size:0.8em;
+}
+.pclist {
+       font-size:0.9em;
+       font-weight:bold;
+}
+

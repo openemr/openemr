@@ -47,13 +47,8 @@ if ($_POST['form_action']=='Process') {
     //process sql
     if (!$form_err) {
 
-        $sql=" 
-                SELECT DISTINCT patient_data.* , MAX( cal_events.pc_endDate ) AS last_ap, MAX( forms.date) AS last_visit, (DATEDIFF(CURDATE(),patient_data.DOB)/365.25) AS pat_age 
-                FROM (patient_data, forms)  
-                LEFT JOIN  openemr_postcalendar_events AS cal_events ON patient_data.pid=cal_events.pc_pid
-                LEFT JOIN  forms AS forms2 ON patient_data.pid=forms2.pid
-            ";
-
+           
+         $sql="select patient_data.*, cal_events.pc_eventDate as next_appt,cal_events.pc_startTime as appt_start_time,cal_date.last_appt,forms.last_visit from patient_data left outer join openemr_postcalendar_events as cal_events on patient_data.pid=cal_events.pc_pid and curdate() < cal_events.pc_eventDate left outer join (select pc_pid,max(pc_eventDate) as last_appt from openemr_postcalendar_events where curdate() >= pc_eventDate group by pc_pid ) as cal_date on cal_date.pc_pid=patient_data.pid left outer join (select pid,max(date) as last_visit from forms where curdate() >= date group by pid) as forms on forms.pid=patient_data.pid";
         //appointment dates
         if ($_POST['app_s']!=0 AND $_POST['app_s']!='') {
             $and=where_or_and ($and);        
@@ -68,11 +63,11 @@ if ($_POST['form_action']=='Process') {
         // encounter dates
         if ($_POST['seen_since']!=0 AND $_POST['seen_since']!='') {
             $and=where_or_and ($and);
-            $sql.=" $and forms2.date > '".$_POST['seen_since']."' " ;
+            $sql.=" $and forms.date > '".$_POST['seen_since']."' " ;
         } 
         if ($_POST['seen_upto']!=0 AND $_POST['not_seen_since']!='') {
             $and=where_or_and ($and);
-            $sql.=" $and forms2.date > '".$_POST['seen_since']."' " ;
+            $sql.=" $and forms.date > '".$_POST['seen_since']."' " ;
         }
 
         // age
@@ -104,21 +99,33 @@ if ($_POST['form_action']=='Process') {
             break;
         endswitch;
 
-        // add to complete query sintax
-        $sql.=' GROUP BY patient_data.pid';
-
         // sort by
         $sql.=' ORDER BY '.$_POST['sort_by'];
-
-        // echo $sql;
+        //echo $sql;
         // send query for results.
         $res = sqlStatement($sql);
 
         // if no results.
         if (mysql_num_rows($res)==0){
-            
-            echo (xl('No results, please try again.','','<br>'));
-        
+	?>
+        <html>
+	<head>
+	<?php html_header_show();?>
+	<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+	<link rel="stylesheet" href="batchcom.css" type="text/css">
+	<script type="text/javascript" src="../../library/overlib_mini.js"></script>
+	<script type="text/javascript" src="../../library/calendar.js"></script>
+	</head>
+	<body class="body_top">
+	<!-- larry's sms/email notification -->
+	<span class="title"><?php include_once("batch_navigation.php");?></span>
+	<!--- end of larry's insert -->
+	<span class="title"><?php xl('Batch Communication Tool','e')?></span>
+	<br><br>
+	<div class="text">
+        <?php    
+            echo (xl('No results found, please try again.','','<br>'));
+        ?> </div></body></html> <?php
         //if results
         } else { 
             switch ($_POST['process_type']):
@@ -160,76 +167,97 @@ if ($_POST['form_action']=='Process') {
 
 <!-- for the popup date selector -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-
 <FORM name="select_form" METHOD=POST ACTION="">
-
 <div class="text">
-    <div class="main_box">
+<div class="main_box">
+    <table class="table" ><tr><td >
         <?php
         if ($form_err) {
             echo (xl('The following errors occurred')."<br>$form_err<br><br>");
         }
-        
-        xl('Process','e')?>:<SELECT NAME="process_type">
+
+        xl('Process','e')?>:</td><td><SELECT NAME="process_type">
                 <?php
                 foreach ($choices as $value) {
                     echo ("<option>$value</option>");
                 }
                 ?>
-                </SELECT>
+                </SELECT></td>
+            <td>&nbsp;</td><td>&nbsp;</td>
+            </tr><tr><td >
 
-        <br><?php xl('Overwrite HIPAA choice','e')?> :<SELECT NAME="hipaa_choice">
+        <?php xl('Overwrite HIPAA choice','e')?> :</td><td align='left'><SELECT NAME="hipaa_choice">
                                     <?php
                                     foreach ($hipaa as $value) {
                                         echo ("<option>$value</option>");
                                     }
                                     ?>
-                                    </SELECT>
-        <br>
-        <?php xl('Age From','e')?>:<INPUT TYPE="text" size="2" NAME="age_from"> <?php xl('Up to','e')?>:<INPUT TYPE="text" size="2" NAME="age_upto"> 
-        <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_gender" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_gender" value="OR">
+                                    </SELECT></td>
+           <td>&nbsp;</td><td>&nbsp;</td>
+           </tr><tr><td>
+           <?php xl('Age From','e')?>:<INPUT TYPE="text" size="2" NAME="age_from"></td><td> <?php xl('Up to','e')?>:<INPUT TYPE="text" size="2" NAME="age_upto"></td><td>
+        <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_gender" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_gender" value="OR"></td><td>
         <?php xl('Gender','e')?> :<SELECT NAME="gender">
                 <?php
                 foreach ($gender as $value) {
                     echo ("<option>$value</option>");
                 }
                 ?>
-                </SELECT>
+                </SELECT></td>
+           </tr><tr><td>
         <!-- later gator
         <br>Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20">
 
                         </SELECT>
         -->
-        <br><?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="OR"> <?php xl('Appointment within','e')?>:<INPUT TYPE='text' size='12' NAME='app_s'> <a href="javascript:show_calendar('select_form.app_s')"
+      <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="OR"></td><td> <?php xl('Appointment within','e')?>:</td><td><INPUT TYPE='text' size='12' NAME='app_s'> <a href="javascript:show_calendar('select_form.app_s')"
     title="<?php xl('Click here to choose a date','e')?>"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a>
-        
-        <?php xl('And','e')?> :<INPUT TYPE='text' size='12' NAME='app_e'> <a href="javascript:show_calendar('select_form.app_e')"
-    title="<?php xl('Click here to choose a date','e')?>"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a></td><td>
 
-        <br><?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"> <?php xl('Seen since','e')?> :<INPUT TYPE='text' size='12' NAME='seen_since'> <a href="javascript:show_calendar('select_form.seen_since')"
+        <?php xl('And','e')?> :  <INPUT TYPE='text' size='12' NAME='app_e'> <a href="javascript:show_calendar('select_form.app_e')"
     title="<?php xl('Click here to choose a date','e')?>"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a></td>
+     </tr><tr><td>
+   
+     <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"></td><td> <?php xl('Seen since','e')?> :</td><td><INPUT TYPE='text' size='12' NAME='seen_since'> <a href="javascript:show_calendar('select_form.seen_since')"
+    title="<?php xl('Click here to choose a date','e')?>"
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a></td>
+  <td>&nbsp;</td>
+   </tr><tr><td>
 
-        <br><?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"> <?php xl('Not seen since','e')?> :<INPUT TYPE='text' size='12' NAME='not_seen_since'> <a href="javascript:show_calendar('select_form.not_seen_since')"
+        <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"></td><td> <?php xl('Not seen since','e')?> :</td><td><INPUT TYPE='text' size='12' NAME='not_seen_since'> <a href="javascript:show_calendar('select_form.not_seen_since')"
     title="<?php xl('Click here to choose a date','e')?>"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-        <br><?php xl('Sort by','e')?> :<SELECT NAME="sort_by">
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a></td>
+ <td>&nbsp;</td>
+   </tr><tr><td>
+        <?php xl('Sort by','e')?> :</td><td><SELECT NAME="sort_by">
                 <?php
                 foreach ($sort_by as $key => $value) {
                     echo ("<option value=\"".$value."\">$key</option>");
                 }
                 ?>
-                </SELECT>
-    <br>(<?php xl('Fill here only if sending email notification to patients','e')?>)
-    <br><?php xl('Email Sender','e')?> :<INPUT TYPE="text" NAME="email_sender" value="your@example.com">
-    <br><?php xl('Email Subject','e')?>: <INPUT TYPE="text" NAME="email_subject" value="From your clinic">
-    <br><?php xl('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***','e')?>
-    <br><TEXTAREA NAME="email_body" ROWS="8" COLS="35"></TEXTAREA>
+                </SELECT></td>
+     <td>&nbsp;</td><td>&nbsp;</td>
+       </tr><tr><td colspan='3'>
+    (<?php xl('Fill here only if sending email notification to patients','e')?>)</td>
+   <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+   </tr><tr><td>
+    <?php xl('Email Sender','e')?> :</td><td><INPUT TYPE="text" NAME="email_sender" value="your@example.com"></td>
+  <td>&nbsp;</td><td>&nbsp;</td>
+   </tr><tr><td>
+    <?php xl('Email Subject','e')?>:</td><td><INPUT TYPE="text" NAME="email_subject" value="From your clinic"></td>
+  <td>&nbsp;</td><td>&nbsp;</td>
+  </tr><tr><td colspan='3'>
+    <?php xl('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***','e')?></td>
+   <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+   <tr><td colspan='4'>
+    <TEXTAREA NAME="email_body" ROWS="8" COLS="40"></TEXTAREA></td>
+    <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+     </tr><tr><td>
 
-    <br><INPUT TYPE="submit" name="form_action" value=<?php xl('Process','e','\'','\''); ?>><?php xl('Takes long','e')?>
-
-    </div>
+    <INPUT TYPE="submit" name="form_action" value=<?php xl('Process','e','\'','\''); ?>> </td><td><?php xl('Process takes some time','e')?></td> <td>&nbsp;</td><td>&nbsp;</td></tr>
+</table>
+</div>
 </div>
 </FORM>
+
