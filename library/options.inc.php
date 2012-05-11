@@ -147,12 +147,15 @@ function generate_form_field($frow, $currvalue) {
   // simple text field
   else if ($data_type == 2) {
     $fldlength = htmlspecialchars( $frow['fld_length'], ENT_QUOTES);
-    $maxlength = htmlspecialchars( $frow['max_length'], ENT_QUOTES);
+    $maxlength = $frow['max_length'];
+    $string_maxlength = "";
+    // if max_length is set to zero, then do not set a maxlength
+    if ($maxlength) $string_maxlength = "maxlength='".attr($maxlength)."'";
     echo "<input type='text'" .
       " name='form_$field_id_esc'" .
       " id='form_$field_id_esc'" .
       " size='$fldlength'" .
-      " maxlength='$maxlength'" .
+      " $string_maxlength" .
       " title='$description'" .
       " value='$currescaped'";
     if (strpos($frow['edit_options'], 'C') !== FALSE)
@@ -172,7 +175,7 @@ function generate_form_field($frow, $currvalue) {
   // long or multi-line text field
   else if ($data_type == 3) {
     $textCols = htmlspecialchars( $frow['fld_length'], ENT_QUOTES);
-    $textRows = htmlspecialchars( $frow['max_length'], ENT_QUOTES);
+    $textRows = htmlspecialchars( $frow['fld_rows'], ENT_QUOTES);
     echo "<textarea" .
       " name='form_$field_id_esc'" .
       " id='form_$field_id_esc'" .
@@ -316,12 +319,15 @@ function generate_form_field($frow, $currvalue) {
   // a billing code
   else if ($data_type == 15) {
     $fldlength = htmlspecialchars( $frow['fld_length'], ENT_QUOTES);
-    $maxlength = htmlspecialchars( $frow['max_length'], ENT_QUOTES);
+    $maxlength = $frow['max_length'];
+    $string_maxlength = "";
+    // if max_length is set to zero, then do not set a maxlength
+    if ($maxlength) $string_maxlength = "maxlength='".attr($maxlength)."'";
     echo "<input type='text'" .
       " name='form_$field_id_esc'" .
       " id='form_related_code'" .
       " size='$fldlength'" .
-      " maxlength='$maxlength'" .
+      " $string_maxlength" .
       " title='$description'" .
       " value='$currescaped'" .
       " onclick='sel_related(this)' readonly" .
@@ -380,19 +386,21 @@ function generate_form_field($frow, $currvalue) {
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
       $option_id_esc = htmlspecialchars( $option_id, ENT_QUOTES);
-      $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+      $maxlength = $frow['max_length'];
+      $string_maxlength = "";
+      // if max_length is set to zero, then do not set a maxlength
+      if ($maxlength) $string_maxlength = "maxlength='".attr($maxlength)."'";
       $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
 
       // Added 5-09 by BM - Translate label if applicable
       echo "<tr><td>" . htmlspecialchars( xl_list_label($lrow['title']), ENT_NOQUOTES) . "&nbsp;</td>";
       $fldlength = htmlspecialchars( $fldlength, ENT_QUOTES);
-      $maxlength = htmlspecialchars( $maxlength, ENT_QUOTES);
       $optionValue = htmlspecialchars( $avalue[$option_id], ENT_QUOTES);
       echo "<td><input type='text'" .
         " name='form_{$field_id_esc}[$option_id_esc]'" .
         " id='form_{$field_id_esc}[$option_id_esc]'" .
         " size='$fldlength'" .
-        " maxlength='$maxlength'" .
+        " $string_maxlength" .
         " value='$optionValue'";
       echo " /></td></tr>";
     }
@@ -408,7 +416,10 @@ function generate_form_field($frow, $currvalue) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
-    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+    $maxlength = $frow['max_length'];
+    $string_maxlength = "";
+    // if max_length is set to zero, then do not set a maxlength
+    if ($maxlength) $string_maxlength = "maxlength='".attr($maxlength)."'";
     $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
@@ -439,13 +450,12 @@ function generate_form_field($frow, $currvalue) {
         echo " /></td>";
       }
       $fldlength = htmlspecialchars( $fldlength, ENT_QUOTES);
-      $maxlength = htmlspecialchars( $maxlength, ENT_QUOTES);
       $resnote = htmlspecialchars( $resnote, ENT_QUOTES);
       echo "<td><input type='text'" .
         " name='form_{$field_id_esc}[$option_id_esc]'" .
         " id='form_{$field_id_esc}[$option_id_esc]'" .
         " size='$fldlength'" .
-        " maxlength='$maxlength'" .
+        " $string_maxlength" .
         " value='$resnote' /></td>";
       echo "</tr>";
     }
@@ -477,7 +487,10 @@ function generate_form_field($frow, $currvalue) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
-    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+    $maxlength = $frow['max_length'];
+    $string_maxlength = "";
+    // if max_length is set to zero, then do not set a maxlength
+    if ($maxlength) $string_maxlength = "maxlength='".attr($maxlength)."'";
     $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
@@ -496,13 +509,12 @@ function generate_form_field($frow, $currvalue) {
       if ($restype) echo " checked";
       echo " />&nbsp;</td>";
       $fldlength = htmlspecialchars( $fldlength, ENT_QUOTES);
-      $maxlength = htmlspecialchars( $maxlength, ENT_QUOTES);
       $resnote = htmlspecialchars( $resnote, ENT_QUOTES);
       echo "<td><input type='text'" .
         " name='form_{$field_id_esc}[$option_id_esc]'" .
         " id='form_{$field_id_esc}[$option_id_esc]'" .
         " size='$fldlength'" .
-        " maxlength='$maxlength'" .
+        " $string_maxlength" .
         " value='$resnote' /></td>";
       echo "</tr>";
     }
@@ -623,11 +635,13 @@ function generate_form_field($frow, $currvalue) {
         $restype = $resdate = $resnote = "";
       } break;
     }
-    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+    $maxlength = $frow['max_length'];
+    $string_maxlength = "";
+    // if max_length is set to zero, then do not set a maxlength
+    if ($maxlength) $string_maxlength = "maxlength='".attr($maxlength)."'";
     $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
 
     $fldlength = htmlspecialchars( $fldlength, ENT_QUOTES);
-    $maxlength = htmlspecialchars( $maxlength, ENT_QUOTES);
     $resnote = htmlspecialchars( $resnote, ENT_QUOTES);
     $resdate = htmlspecialchars( $resdate, ENT_QUOTES);
     echo "<table cellpadding='0' cellspacing='0'>";
@@ -639,7 +653,7 @@ function generate_form_field($frow, $currvalue) {
       " name='form_$field_id_esc'" .
       " id='form_$field_id_esc'" .
       " size='$fldlength'" .
-      " maxlength='$maxlength'" .
+      " $string_maxlength" .
       " value='$resnote' />&nbsp;</td>";
    echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
@@ -652,7 +666,7 @@ function generate_form_field($frow, $currvalue) {
       " name='form_text_$field_id_esc'" .
       " id='form_text_$field_id_esc'" .
       " size='$fldlength'" .
-      " maxlength='$maxlength'" .
+      " $string_maxlength" .
       " value='$resnote' />&nbsp;</td></tr>";
     echo "<td>";
     //Selection list for smoking status
@@ -843,7 +857,7 @@ function generate_print_field($frow, $currvalue) {
   // long or multi-line text field
   else if ($data_type == 3) {
     $fldlength = htmlspecialchars( $fld_length, ENT_QUOTES);
-    $maxlength = htmlspecialchars( $frow['max_length'], ENT_QUOTES);
+    $maxlength = htmlspecialchars( $frow['fld_rows'], ENT_QUOTES);
     echo "<textarea" .
       " cols='$fldlength'" .
       " rows='$maxlength'>" .
@@ -1007,7 +1021,6 @@ function generate_print_field($frow, $currvalue) {
     echo "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
-      $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
       $fldlength = empty($fld_length) ?  20 : $fld_length;
       echo "<tr><td>" . htmlspecialchars( xl_list_label($lrow['title']), ENT_NOQUOTES) . "&nbsp;</td>";
       $fldlength = htmlspecialchars( $fldlength, ENT_QUOTES);
@@ -1030,7 +1043,6 @@ function generate_print_field($frow, $currvalue) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
-    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
     $fldlength = empty($fld_length) ?  20 : $fld_length;
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
@@ -1087,7 +1099,6 @@ function generate_print_field($frow, $currvalue) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
-    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
     $fldlength = empty($fld_length) ?  20 : $fld_length;
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
@@ -1175,7 +1186,6 @@ function generate_print_field($frow, $currvalue) {
         $restype = $resdate = $resnote = "";
       } break;
     }
-    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
     $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
     echo "<table cellpadding='0' cellspacing='0'>";
     echo "<tr>";
@@ -1909,11 +1919,12 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 // From the currently posted HTML form, this gets the value of the
 // field corresponding to the provided layout_options table row.
 //
-function get_layout_form_value($frow, $maxlength=255) {
+function get_layout_form_value($frow) {
   // Bring in $sanitize_all_escapes variable, which will decide
   //  the variable escaping method.
   global $sanitize_all_escapes;
-    
+
+  $maxlength = $frow['max_length'];
   $data_type = $frow['data_type'];
   $field_id  = $frow['field_id'];
   $value  = '';
@@ -1979,7 +1990,7 @@ function get_layout_form_value($frow, $maxlength=255) {
   }
 
   // Better to die than to silently truncate data!
-  if ($maxlength && ($data_type != 3 && $data_type != 34) && strlen($value) > $maxlength)
+  if ($maxlength && $maxlength != 0 && strlen($value) > $maxlength)
     die(htmlspecialchars( xl('ERROR: Field') . " '$field_id' " . xl('is too long'), ENT_NOQUOTES) .
     ":<br />&nbsp;<br />".htmlspecialchars( $value, ENT_NOQUOTES));
 

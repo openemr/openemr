@@ -80,10 +80,6 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         $iter = $fld[$lino];
         $field_id = formTrim($iter['id']);
         $data_type = formTrim($iter['data_type']);
-        // For a textarea (data type 3) max_length has a special meaning, to
-        // specify its height (in rows).  This kludge assigns a fixed height,
-        // but this GUI really needs to support max_length directly.
-        $max_length = $data_type == 3 ? 3 : 255;
         $listval = $data_type == 34 ? formTrim($iter['contextName']) : formTrim($iter['list_id']);
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
@@ -91,8 +87,9 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "group_name = '"    . formTrim($iter['group'])     . "', " .
                 "seq = '"           . formTrim($iter['seq'])       . "', " .
                 "uor = '"           . formTrim($iter['uor'])       . "', " .
-                "fld_length = '"    . formTrim($iter['length'])    . "', " .
-                "max_length = '$max_length', "                             .
+                "fld_length = '"    . formTrim($iter['lengthWidth'])    . "', " .
+                "fld_rows = '"    . formTrim($iter['lengthHeight'])    . "', " .
+                "max_length = '"    . formTrim($iter['maxSize'])    . "', "                             .
                 "titlecols = '"     . formTrim($iter['titlecols']) . "', " .
                 "datacols = '"      . formTrim($iter['datacols'])  . "', " .
                 "data_type= '$data_type', "                                .
@@ -111,7 +108,7 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
     $max_length = $data_type == 3 ? 3 : 255;
     $listval = $data_type == 34 ? formTrim($_POST['contextName']) : formTrim($_POST['newlistid']);
     sqlStatement("INSERT INTO layout_options (" .
-      " form_id, field_id, title, group_name, seq, uor, fld_length" .
+      " form_id, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id " .
       ") VALUES ( " .
@@ -121,14 +118,15 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       ",'" . formTrim($_POST['newfieldgroupid']) . "'" .
       ",'" . formTrim($_POST['newseq']         ) . "'" .
       ",'" . formTrim($_POST['newuor']         ) . "'" .
-      ",'" . formTrim($_POST['newlength']      ) . "'" .
+      ",'" . formTrim($_POST['newlengthWidth']      ) . "'" .
+      ",'" . formTrim($_POST['newlengthHeight']      ) . "'" .
       ",'" . formTrim($_POST['newtitlecols']   ) . "'" .
       ",'" . formTrim($_POST['newdatacols']    ) . "'" .
       ",'$data_type'"                                  .
       ",'" . formTrim($_POST['newedit_options']) . "'" .
       ",'" . formTrim($_POST['newdefault']     ) . "'" .
       ",'" . formTrim($_POST['newdesc']        ) . "'" .
-      ",'$max_length'"                                 .
+      ",'"    . formTrim($_POST['newmaxSize'])    . "'"                                 .
       ",'" . $listval . "'" .
       " )");
 
@@ -142,7 +140,7 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
       sqlStatement("ALTER TABLE `" . $tablename . "` ADD ".
                       "`" . formTrim($_POST['newid']) . "`" .
-                      " VARCHAR( 255 )");
+                      " TEXT NOT NULL");
       newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
         $tablename . " ADD " . formTrim($_POST['newid']));
     }
@@ -212,7 +210,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
     $listval = $data_type == 34 ? formTrim($_POST['gcontextName']) : formTrim($_POST['gnewlistid']);
     // add a new group to the layout, with the defined field
     sqlStatement("INSERT INTO layout_options (" .
-      " form_id, field_id, title, group_name, seq, uor, fld_length" .
+      " form_id, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id " .
       ") VALUES ( " .
@@ -222,14 +220,15 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       ",'" . formTrim($maxnum . $_POST['newgroupname']) . "'" .
       ",'" . formTrim($_POST['gnewseq']         ) . "'" .
       ",'" . formTrim($_POST['gnewuor']         ) . "'" .
-      ",'" . formTrim($_POST['gnewlength']      ) . "'" .
+      ",'" . formTrim($_POST['gnewlengthWidth']      ) . "'" .
+      ",'" . formTrim($_POST['gnewlengthHeight']      ) . "'" .
       ",'" . formTrim($_POST['gnewtitlecols']   ) . "'" .
       ",'" . formTrim($_POST['gnewdatacols']    ) . "'" .
       ",'$data_type'"                                   .
       ",'" . formTrim($_POST['gnewedit_options']) . "'" .
       ",'" . formTrim($_POST['gnewdefault']     ) . "'" .
       ",'" . formTrim($_POST['gnewdesc']        ) . "'" .
-      ",'$max_length'"                                  .
+      ",'"    . formTrim($_POST['gnewmaxSize'])    . "'"                                  .
       ",'" . $listval       . "'" .
       " )");
 
@@ -243,7 +242,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
       sqlStatement("ALTER TABLE `" . $tablename . "` ADD ".
                       "`" . formTrim($_POST['gnewid']) . "`" .
-                      " VARCHAR( 255 )");
+                      " TEXT NOT NULL");
       newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
         $tablename . " ADD " . formTrim($_POST['gnewid']));
     }
@@ -410,14 +409,32 @@ function writeFieldLine($linedata) {
       $linedata['data_type'] == 27 || $linedata['data_type'] == 28 ||
       $linedata['data_type'] == 32)
     {
-      echo "<input type='text' name='fld[$fld_line_no][length]' value='" .
+      // Show the width field
+      echo "<input type='text' name='fld[$fld_line_no][lengthWidth]' value='" .
         htmlspecialchars($linedata['fld_length'], ENT_QUOTES) .
-        "' size='1' maxlength='10' class='optin' />";
+        "' size='1' maxlength='10' class='optin' title='" . xla('Width') . "' />";
+      if ($linedata['data_type'] == 3) {
+        // Show the height field
+        echo "<input type='text' name='fld[$fld_line_no][lengthHeight]' value='" .
+          htmlspecialchars($linedata['fld_rows'], ENT_QUOTES) .
+          "' size='1' maxlength='10' class='optin' title='" . xla('Height') . "' />";
+      }
+      else {
+        // Hide the height field
+        echo "<input type='hidden' name='fld[$fld_line_no][lengthHeight]' value=''>";
+      }
     }
     else {
-      // all other data_types
-      echo "<input type='hidden' name='fld[$fld_line_no][length]' value=''>";
+      // all other data_types (hide both the width and height fields
+      echo "<input type='hidden' name='fld[$fld_line_no][lengthWidth]' value=''>";
+      echo "<input type='hidden' name='fld[$fld_line_no][lengthHeight]' value=''>";
     }
+    echo "</td>\n";
+
+    echo "  <td align='center' class='optcell'>";
+    echo "<input type='text' name='fld[$fld_line_no][maxSize]' value='" .
+      htmlspecialchars($linedata['max_length'], ENT_QUOTES) .
+      "' size='1' maxlength='10' class='optin' title='" . xla('Maximum Size (entering 0 will allow any size)') . "' />";
     echo "</td>\n";
 
     echo "  <td align='center' class='optcell'>";
@@ -649,6 +666,7 @@ while ($row = sqlFetchArray($res)) {
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
   <th><?php xl('Size','e'); ?></th>
+  <th><?php xl('Maximum Size','e'); ?></th>
   <th><?php xl('List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
   <th><?php xl('Data Cols','e'); ?></th>
@@ -710,6 +728,7 @@ while ($row = sqlFetchArray($res)) {
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
   <th><?php xl('Size','e'); ?></th>
+  <th><?php xl('Maximum Size','e'); ?></th>
   <th><?php xl('List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
   <th><?php xl('Data Cols','e'); ?></th>
@@ -740,7 +759,9 @@ foreach ($datatypes as $key=>$value) {
 ?>
 </select>
 </td>
-<td><input type="textbox" name="gnewlength" id="gnewlength" value="" size="1" maxlength="3"> </td>
+<td><input type="textbox" name="gnewlengthWidth" id="gnewlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>">
+    <input type="textbox" name="gnewlengthHeight" id="gnewlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>"></td>
+<td><input type="textbox" name="gnewmaxSize" id="gnewmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>"></td>
 <td><input type="textbox" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="31" class="listid">
     <select name='gcontextName' id='gcontextName' style='display:none'>
         <?php
@@ -777,6 +798,7 @@ foreach ($datatypes as $key=>$value) {
    <th><?php xl('UOR','e'); ?></th>
    <th><?php xl('Data Type','e'); ?></th>
    <th><?php xl('Size','e'); ?></th>
+   <th><?php xl('Maximum Size','e'); ?></th>
    <th><?php xl('List','e'); ?></th>
    <th><?php xl('Label Cols','e'); ?></th>
    <th><?php xl('Data Cols','e'); ?></th>
@@ -807,7 +829,9 @@ foreach ($datatypes as $key=>$value) {
 ?>
     </select>
    </td>
-   <td><input type="textbox" name="newlength" id="newlength" value="" size="1" maxlength="3"> </td>
+   <td><input type="textbox" name="newlengthWidth" id="newlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>">
+       <input type="textbox" name="newlengthHeight" id="newlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>"></td>
+   <td><input type="textbox" name="newmaxSize" id="newmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>"></td>
    <td><input type="textbox" name="newlistid" id="newlistid" value="" size="8" maxlength="31" class="listid">
        <select name='contextName' id='contextName' style='display:none'>
         <?php
@@ -927,7 +951,7 @@ $(document).ready(function(){
             return false;
         }
         // length must be numeric and less than 999
-        if (! IsNumeric($("#gnewlength").val(), 0, 999)) {
+        if (! IsNumeric($("#gnewlengthWidth").val(), 0, 999)) {
             alert("<?php xl('Size must be a number between 1 and 999','e'); ?>");
             return false;
         }
@@ -1078,7 +1102,7 @@ $(document).ready(function(){
             return false;
         }
         // length must be numeric and less than 999
-        if (! IsNumeric($("#newlength").val(), 0, 999)) {
+        if (! IsNumeric($("#newlengthWidth").val(), 0, 999)) {
             alert("<?php xl('Size must be a number between 1 and 999','e'); ?>");
             return false;
         }
@@ -1195,7 +1219,9 @@ function ResetNewFieldValues () {
     $("#newid").val("");
     $("#newtitle").val("");
     $("#newuor").val(1);
-    $("#newlength").val("");
+    $("#newlengthWidth").val("");
+    $("#newlengthHeight").val("");
+    $("#newmaxSize").val("");
     $("#newdatatype").val("");
     $("#newlistid").val("");
     $("#newtitlecols").val("");

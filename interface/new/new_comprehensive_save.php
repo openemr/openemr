@@ -61,8 +61,6 @@ while ($frow = sqlFetchArray($fres)) {
     $tblname = 'employer_data';
   }
 
-  // if (isset($_POST["form_$field_id"])) $value = $_POST["form_$field_id"];
-  // if (!get_magic_quotes_gpc()) $value = addslashes($value);
   $value = get_layout_form_value($frow);
 
   if ($field_id == 'pubpid' && empty($value)) $value = $pid;

@@ -132,7 +132,6 @@ CREATE TABLE `product_warehouse` (
 ) ENGINE=MyISAM;
 #EndIf
 
-# Increase size from 5 to 12 to support 4 modifiers with colon separation
 #IfNotColumnType billing modifier varchar(12)
    ALTER TABLE `billing` MODIFY `modifier` varchar(12);
    UPDATE `code_types` SET `ct_mod` = '12' where ct_key = 'CPT4' OR ct_key = 'HCPCS';
@@ -141,8 +140,6 @@ CREATE TABLE `product_warehouse` (
 #IfMissingColumn billing notecodes
 ALTER TABLE `billing` ADD `notecodes` varchar(25) NOT NULL default '';
 #EndIf
-
-
 
 #IfNotTable dated_reminders
 CREATE TABLE `dated_reminders` (
@@ -335,5 +332,39 @@ insert into list_options (list_id, option_id, title, seq, option_value, mapping,
 
 #IfNotRow2D code_types ct_key DSMIV ct_mod 0
 UPDATE `code_types` SET `ct_mod`=0 WHERE `ct_key`='DSMIV' OR `ct_key`='ICD9' OR `ct_key`='ICD10' OR `ct_key`='SNOMED';
+#EndIf
+
+#IfMissingColumn layout_options fld_rows
+ALTER TABLE `layout_options` ADD COLUMN `fld_rows` int(11) NOT NULL default '0';
+UPDATE `layout_options` SET `fld_rows`=max_length WHERE `data_type`='3';
+UPDATE `layout_options` SET `max_length`='0' WHERE `data_type`='3';
+UPDATE `layout_options` SET `max_length`='0' WHERE `data_type`='34';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='history_father';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='history_mother';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='history_siblings';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='history_spouse';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='history_offspring';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='relatives_cancer';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='relatives_tuberculosis';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='relatives_diabetes';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='relatives_high_blood_pressure';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='relatives_heart_problems';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='relatives_stroke';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='relatives_epilepsy';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='relatives_mental_illness';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='relatives_suicide';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='coffee';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='tobacco';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='alcohol';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='recreational_drugs';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='counseling';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='exercise_patterns';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='hazardous_activities';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='sleep_patterns';
+UPDATE `layout_options` SET `max_length`='0' WHERE `form_id`='seatbelt_use';
+#EndIf
+
+#IfNotColumnType history_data usertext11 TEXT
+ALTER TABLE `history_data` CHANGE `usertext11` `usertext11` TEXT NOT NULL;
 #EndIf
 
