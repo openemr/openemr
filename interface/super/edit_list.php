@@ -362,7 +362,7 @@ function ctGenCbox($opt_line_no, $ct_array, $name, $title='') {
 // Write a form line as above but for the special case of Code Types.
 //
 function writeCTLine($ct_array) {
-  global $opt_line_no;
+  global $opt_line_no,$cd_external_options;
 
   ++$opt_line_no;
   $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
@@ -393,9 +393,17 @@ function writeCTLine($ct_array) {
     xl('Is this type hidden in the fee sheet?'));
   echo ctGenCBox($opt_line_no, $ct_array, 'ct_diag',
     xl('Is this a diagnosis type?'));
-  echo ctGenCell($opt_line_no, $ct_array, 'ct_external' , 1,  2,
-    xl('Are the codes stored in external sql tables (0-No, 1-ICD10, 2-SNOMED(RF1), 3-SNOMED(RF2)) ?'));
-
+  // Show the external code types selector
+  $value_ct_external = isset($ct_array['ct_external']) ? $ct_array['ct_external'] : '';
+  echo "  <td title='" . xla('Is this using external sql tables? If it is, then choose the format.') . "' align='center' class='optcell'>";
+  echo "<select name='opt[$opt_line_no][ct_external]' class='optin'>";
+  foreach ( $cd_external_options as $key => $desc) {
+    echo "<option value='" . attr($key) . "'";
+    if ($key == $value_ct_external) echo " selected";
+    echo ">" . text($desc) . "</option>";
+  }
+  echo "</select>";
+  echo "</td>\n";
   echo " </tr>\n";
 }
 ?>

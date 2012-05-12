@@ -39,7 +39,7 @@ $active = 1;
 $reportable = 0;
 
 if (isset($mode)) {
-  $code_id    = $_POST['code_id'] + 0;
+  $code_id    = empty($_POST['code_id']) ? '' : $_POST['code_id'] + 0;
   $code       = $_POST['code'];
   $code_type  = $_POST['code_type'];
   $code_text  = $_POST['code_text'];
@@ -61,7 +61,7 @@ if (isset($mode)) {
     sqlStatement("DELETE FROM codes WHERE id = ?", array($code_id) );
     $code_id = 0;
   }
-  else if ($mode == "add") { // this covers both adding and modifying
+  else if ($mode == "add" || $mode == "modify_complete") { // this covers both adding and modifying
     $crow = sqlQuery("SELECT COUNT(*) AS count FROM codes WHERE " .
       "code_type = '"    . ffescape($code_type)    . "' AND " .
       "code = '"         . ffescape($code)         . "' AND " .
@@ -125,6 +125,27 @@ if (isset($mode)) {
       $taxrates     = $row['taxrates'];
       $active       = 0 + $row['active'];
       $reportable   = 0 + $row['reportable'];
+    }
+  }
+  else if ($mode == "modify") { // someone clicked [Modify]
+    // this is to modify external code types, of which the modifications
+    // are stored in the codes table
+    $code_type_name_external = $_POST['code_type_name_external'];
+    $code_external = $_POST['code_external'];
+    $code_id = $_POST['code_id'];
+    $results = code_set_search($code_type_name_external,$code_external,false,false,true); // only will return one item
+    while ($row = sqlFetchArray($results)) {
+      $code         = $row['code'];
+      $code_text    = $row['code_text'];
+      $code_type    = $code_types[$code_type_name_external]['id'];
+      $modifier     = $row['modifier'];
+      // $units        = $row['units'];
+      $superbill    = $row['superbill'];
+      $related_code = $row['related_code'];
+      $cyp_factor   = $row['cyp_factor'];
+      $taxrates     = $row['taxrates'];
+      $active       = $row['active'];
+      $reportable   = $row['reportable'];
     }
   }
 }
@@ -234,6 +255,12 @@ function submitUpdate() {
  f.submit();
 }
 
+function submitModifyComplete() {
+ var f = document.forms[0];
+ f.mode.value = 'modify_complete';
+ f.submit();
+}
+
 function submitList(offset) {
  var f = document.forms[0];
  var i = parseInt(f.fstart.value) + offset;
@@ -248,6 +275,17 @@ function submitEdit(id) {
  f.code_id.value = id;
  f.submit();
 }
+
+function submitModify(code_type_name,code,id) {
+ var f = document.forms[0];
+ f.mode.value = 'modify';
+ f.code_external.value = code;
+ f.code_id.value = id;
+ f.code_type_name_external.value = code_type_name;
+ f.submit();
+}
+
+
 
 function submitDelete(id) {
  var f = document.forms[0];
@@ -268,20 +306,10 @@ foreach ($code_types as $key => $value) {
  return '';
 }
 
-function codeTypeChanged(code) {
- var f = document.forms[0];
- if (f.code_type.value == 2) 
-   f.reportable.disabled = false;
- else {
-   f.reportable.checked = false;
-   f.reportable.disabled = true;
- }
-}
-
 </script>
 
 </head>
-<body class="body_top" onLoad="codeTypeChanged();" >
+<body class="body_top" >
 
 <?php if ($GLOBALS['concurrent_layout']) {
 } else { ?>
@@ -305,33 +333,60 @@ function codeTypeChanged(code) {
 
  <tr>
   <td><?php echo xlt('Type'); ?>:</td>
-  <td width="5"></td>
+  <td width="5">
+  </td>
   <td>
-   <select name="code_type" onChange="codeTypeChanged();">
-<?php $external_sets = array(); ?>
-<?php foreach ($code_types as $key => $value) { ?>
-  <?php if ( !($value['external']) ) { ?>
-    <option value="<?php  echo attr($value['id']) ?>"<?php if ($GLOBALS['code_type'] == $value['id']) echo " selected" ?>><?php echo xlt($value['label']) ?></option>
-  <?php } else {
-    array_push($external_sets,$key);
-  } ?>
-<?php } ?>
+
+   <?php if ($mode != "modify") { ?>
+     <select name="code_type">
+   <?php } ?>
+
+   <?php $external_sets = array(); ?>
+   <?php foreach ($code_types as $key => $value) { ?>
+     <?php if ( !($value['external']) ) { ?>
+       <?php if ($mode != "modify") { ?>
+         <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) echo " selected" ?>><?php echo xlt($value['label']) ?></option>
+       <?php } ?>
+     <?php } ?>
+     <?php if ($value['external']) {
+       array_push($external_sets,$key);
+     } ?>
+   <?php } // end foreach ?>
+
+   <?php if ($mode != "modify") { ?>
    </select>
+   <?php } ?>
+
+   <?php if ($mode == "modify") { ?>
+      <input type='text' size='4' name='code_type' readonly='readonly' style='display:none' value='<?php echo attr($code_type) ?>' />
+      <?php echo attr($code_type_name_external) ?>
+   <?php } ?>
+
    &nbsp;&nbsp;
    <?php echo xlt('Code'); ?>:
-   <input type='text' size='6' name='code' value='<?php echo attr($code) ?>'
-    onkeyup='maskkeyup(this,getCTMask())'
-    onblur='maskblur(this,getCTMask())'
-   />
+
+   <?php if ($mode == "modify") { ?>
+     <input type='text' size='6' name='code' readonly='readonly' value='<?php echo attr($code) ?>' />
+   <?php } else { ?>
+     <input type='text' size='6' name='code' value='<?php echo attr($code) ?>'
+      onkeyup='maskkeyup(this,getCTMask())'
+      onblur='maskblur(this,getCTMask())'
+     />
+   <?php } ?>
+
 <?php if (modifiers_are_used()) { ?>
    &nbsp;&nbsp;<?php echo xlt('Modifier'); ?>:
-   <input type='text' size='3' name='modifier' value='<?php echo attr($modifier) ?>'>
+   <?php if ($mode == "modify") { ?>
+     <input type='text' size='3' name='modifier' readonly='readonly' value='<?php echo attr($modifier) ?>'>
+   <?php } else { ?>
+     <input type='text' size='3' name='modifier' value='<?php echo attr($modifier) ?>'>
+   <?php } ?>
 <?php } else { ?>
    <input type='hidden' name='modifier' value=''>
 <?php } ?>
 
    &nbsp;&nbsp;
-   <input type='checkbox' name='active' value='1'<?php if (!empty($active)) echo ' checked'; ?> />
+   <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == NULL) ) echo ' checked'; ?> />
    <?php echo xlt('Active'); ?>
   </td>
  </tr>
@@ -340,7 +395,13 @@ function codeTypeChanged(code) {
   <td><?php echo xlt('Description'); ?>:</td>
   <td></td>
   <td>
-   <input type='text' size='50' name="code_text" value='<?php echo attr($code_text) ?>'>
+
+   <?php if ($mode == "modify") { ?>
+     <input type='text' size='50' name="code_text" readonly="readonly" value='<?php echo attr($code_text) ?>'>
+   <?php } else { ?>
+     <input type='text' size='50' name="code_text" value='<?php echo attr($code_text) ?>'>
+   <?php } ?>
+
   </td>
  </tr>
 
@@ -420,9 +481,15 @@ if ($taxline) {
  <tr>
   <td colspan="3" align="center">
    <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br>
-   <a href='javascript:submitUpdate();' class='link'>[<?php echo xlt('Update'); ?>]</a>
-   &nbsp;&nbsp;
-   <a href='javascript:submitAdd();' class='link'>[<?php echo xlt('Add as New'); ?>]</a>
+   <input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external) ?>">
+   <input type="hidden" name="code_external" value="<?php echo attr($code_external) ?>">
+   <?php if ($mode == "modify") { ?>
+     <a href='javascript:submitModifyComplete();' class='link'>[<?php echo xlt('Update'); ?>]</a>
+   <?php } else { ?>
+     <a href='javascript:submitUpdate();' class='link'>[<?php echo xlt('Update'); ?>]</a>
+     &nbsp;&nbsp;
+     <a href='javascript:submitAdd();' class='link'>[<?php echo xlt('Add as New'); ?>]</a>
+   <?php } ?>
   </td>
  </tr>
 
@@ -516,10 +583,10 @@ if (in_array($filter_key,$external_sets)) {
 }
 
 if ($filter) {
- $res = code_set_search($filter_key,$search,false,false,$fstart,($fend - $fstart));
+ $res = code_set_search($filter_key,$search,false,false,false,$fstart,($fend - $fstart));
 }
 else {
- $res = code_set_search("--ALL--",$search,false,false,$fstart,($fend - $fstart));
+ $res = code_set_search("--ALL--",$search,false,false,false,$fstart,($fend - $fstart));
 }
 
 for ($i = 0; $row = sqlFetchArray($res); $i++) $all[$i] = $row;
@@ -540,10 +607,14 @@ if (!empty($all)) {
     echo " <tr>\n";
     echo "  <td class='text'>" . text($iter["code"]) . "</td>\n";
     echo "  <td class='text'>" . text($iter["modifier"]) . "</td>\n";
-    // For active flag, always yes when shwoing external code sets
-    echo "  <td class='text'>" . ( ($iter["active"] || $is_external_set) ? xlt('Yes') : xlt('No')) . "</td>\n";
+    if ($is_external_set) {
+      echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"]==NULL) ? xlt('Yes') : xlt('No')) . "</td>\n";
+    }
+    else {
+      echo "  <td class='text'>" . ( ($iter["active"]) ? xlt('Yes') : xlt('No')) . "</td>\n";
+    }
     echo "  <td class='text'>" . ($iter["reportable"] ? xlt('Yes') : xlt('No')) . "</td>\n";
-    echo "  <td class='text'>" . text($key) . "</td>\n";
+    echo "  <td class='text'>" . text($iter['code_type_name']) . "</td>\n";
     echo "  <td class='text'>" . text($iter['code_text']) . "</td>\n";
 
     if (related_codes_are_used()) {
@@ -566,7 +637,10 @@ if (!empty($all)) {
       echo "<td class='text' align='right'>" . text(bucks($prow['pr_price'])) . "</td>\n";
     }
 
-    if (!($is_external_set)) { //Unable to modify external code sets
+    if ($is_external_set) {
+      echo "  <td align='right'><a class='link' href='javascript:submitModify(\"" . attr($iter['code_type_name']) . "\",\"" . attr($iter['code']) . "\",\"" . attr($iter['id']) . "\")'>[" . xlt('Modify') . "]</a></td>\n";
+    }
+    else {
       echo "  <td align='right'><a class='link' href='javascript:submitDelete(" . attr($iter['id']) . ")'>[" . xlt('Delete') . "]</a></td>\n";
       echo "  <td align='right'><a class='link' href='javascript:submitEdit("   . attr($iter['id']) . ")'>[" . xlt('Edit') . "]</a></td>\n";
     }

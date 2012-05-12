@@ -11,7 +11,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/formatting.inc.php");
+require_once("../../custom/code_types.inc.php");
 
 if(isset($_POST['form_from_date'])) {
   $from_date = $_POST['form_from_date'] !== "" ? 
@@ -283,16 +283,21 @@ onsubmit='return top.restoreSession()'>
 <?php
  // Build a drop-down list of codes.
  //
- $query1 = "select id, concat('ICD9:',code) as name from codes ".
+ $query1 = "select id, code as name, code_type from codes ".
    " where reportable=1 ORDER BY name";
  $cres = sqlStatement($query1);
  echo "   <select multiple='multiple' size='3' name='form_code[]'>\n";
  //echo "    <option value=''>-- " . xl('All Codes') . " --\n";
  while ($crow = sqlFetchArray($cres)) {
-  $codeid = $crow['id'];
-  echo "    <option value='$codeid'";
-  if (in_array($codeid, $form_code)) echo " selected";
-  echo ">" . $crow['name'] . "\n";
+  if (convert_type_id_to_key($crow['code_type']) == "ICD9") {
+   // This report currently only works for ICD9 codes. Need to make this work for other
+   // diagnosis code sets in the future.
+   $crow['name'] = convert_type_id_to_key($crow['code_type']) . ":" . $crow['name'];
+   $codeid = $crow['id'];
+   echo "    <option value='$codeid'";
+   if (in_array($codeid, $form_code)) echo " selected";
+   echo ">" . $crow['name'] . "\n";
+  }
  }
  echo "   </select>\n";
 ?>
@@ -427,7 +432,8 @@ onsubmit='return top.restoreSession()'>
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
-  <?php echo xl('Click Refresh to view all results, or please input search criteria above to view specific results.', 'e' ); ?>
+  <?php echo xlt('Click Refresh to view all results, or please input search criteria above to view specific results.'); ?><br>
+  (<?php echo xlt('This report currently only works for ICD9 codes.'); ?>)
 </div>
 <?php } ?>
 </form>
