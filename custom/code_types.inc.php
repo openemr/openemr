@@ -195,7 +195,9 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
    $active_query = '';
    if ($active) {
     // Only filter for active codes
-    $active_query=" AND (codes.active = 1 || codes.active = NULL) ";
+    // If there is no entry in codes sql table, then default to active
+    //  (this is reason for including NULL below)
+    $active_query=" AND (codes.active = 1 || codes.active IS NULL) ";
    }
    // Ensure the icd10_dx_order_code sql table exists
    $check_table = sqlQuery("SHOW TABLES LIKE 'icd10_dx_order_code'");
@@ -224,7 +226,9 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
   else if ($code_types[$form_code_type]['external'] == 2 ) { // Search from SNOMED (RF1) codeset tables
    if ($active) {
     // Only filter for active codes
-    $active_query=" AND (codes.active = 1 || codes.active = NULL) ";
+    // If there is no entry in codes sql table, then default to active
+    //  (this is reason for including NULL below)
+    $active_query=" AND (codes.active = 1 || codes.active IS NULL) ";
    }
    // Ensure the sct_concepts sql table exists
    $check_table = sqlQuery("SHOW TABLES LIKE 'sct_concepts'");
@@ -257,7 +261,9 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
   else if ($code_types[$form_code_type]['external'] == 4 ) { // Search from ICD9 codeset tables
    if ($active) {
     // Only filter for active codes
-    $active_query=" AND (codes.active = 1 || codes.active = NULL) ";
+    // If there is no entry in codes sql table, then default to active
+    //  (this is reason for including NULL below)
+    $active_query=" AND (codes.active = 1 || codes.active IS NULL) ";
    }
    // Ensure the icd9_dx_code sql table exists
    $check_table = sqlQuery("SHOW TABLES LIKE 'icd9_dx_code'");

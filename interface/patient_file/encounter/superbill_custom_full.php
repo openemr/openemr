@@ -608,6 +608,8 @@ if (!empty($all)) {
     echo "  <td class='text'>" . text($iter["code"]) . "</td>\n";
     echo "  <td class='text'>" . text($iter["modifier"]) . "</td>\n";
     if ($is_external_set) {
+      // If there is no entry in codes sql table, then default to active
+      //  (this is reason for including NULL below)
       echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"]==NULL) ? xlt('Yes') : xlt('No')) . "</td>\n";
     }
     else {
