@@ -212,11 +212,11 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
              "ON icd10_dx_order_code.formatted_dx_code = codes.code AND codes.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE `formatted_dx_code` = ? $active_query ";
+     $query .= "WHERE icd10_dx_order_code.formatted_dx_code = ? AND icd10_dx_order_code.valid_for_coding = '1' $active_query ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE (`long_desc` LIKE ? OR `formatted_dx_code` LIKE ?) $active_query ";
+     $query .= "WHERE (icd10_dx_order_code.long_desc LIKE ? OR icd10_dx_order_code.formatted_dx_code LIKE ?) AND icd10_dx_order_code.valid_for_coding = '1' $active_query ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
     $query .= "ORDER BY `formatted_dx_code`+0, `formatted_dx_code` $limit_query";
