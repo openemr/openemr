@@ -203,23 +203,23 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
    $check_table = sqlQuery("SHOW TABLES LIKE 'icd10_dx_order_code'");
    if ( !(empty($check_table)) ) {
     $sql_bind_array = array();
-    $query = "SELECT icd10_dx_order_code.dx_code as code, icd10_dx_order_code.long_desc as code_text, " .
+    $query = "SELECT icd10_dx_order_code.formatted_dx_code as code, icd10_dx_order_code.long_desc as code_text, " .
              "codes.id, codes.code_type, codes.modifier, codes.units, codes.fee, " .
              "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, codes.active, codes.reportable, " .
              "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
              "FROM `icd10_dx_order_code` " .
              "LEFT OUTER JOIN `codes` " .
-             "ON icd10_dx_order_code.dx_code = codes.code AND codes.code_type = ? ";
+             "ON icd10_dx_order_code.formatted_dx_code = codes.code AND codes.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE `dx_code` = ? $active_query ";
+     $query .= "WHERE `formatted_dx_code` = ? $active_query ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE (`long_desc` LIKE ? OR `dx_code` LIKE ?) $active_query ";
+     $query .= "WHERE (`long_desc` LIKE ? OR `formatted_dx_code` LIKE ?) $active_query ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
-    $query .= "ORDER BY `dx_code`+0, `dx_code` $limit_query";
+    $query .= "ORDER BY `formatted_dx_code`+0, `formatted_dx_code` $limit_query";
     $res = sqlStatement($query,$sql_bind_array);
    }
   }
@@ -269,23 +269,23 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
    $check_table = sqlQuery("SHOW TABLES LIKE 'icd9_dx_code'");
    if ( !(empty($check_table)) ) {
     $sql_bind_array = array();
-    $query = "SELECT icd9_dx_code.dx_code as code, icd9_dx_code.long_desc as code_text, " .
+    $query = "SELECT icd9_dx_code.formatted_dx_code as code, icd9_dx_code.long_desc as code_text, " .
              "codes.id, codes.code_type, codes.modifier, codes.units, codes.fee, " .
              "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, codes.active, codes.reportable, " .
              "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
              "FROM `icd9_dx_code` " .
              "LEFT OUTER JOIN `codes` " .
-             "ON icd9_dx_code.dx_code = codes.code AND codes.code_type = ? ";
+             "ON icd9_dx_code.formatted_dx_code = codes.code AND codes.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE icd9_dx_code.dx_code = ? $active_query ";
+     $query .= "WHERE icd9_dx_code.formatted_dx_code = ? $active_query ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE (icd9_dx_code.long_desc LIKE ? OR icd9_dx_code.dx_code LIKE ?) $active_query ";
+     $query .= "WHERE (icd9_dx_code.long_desc LIKE ? OR icd9_dx_code.formatted_dx_code LIKE ?) $active_query ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
-    $query .= "ORDER BY `dx_code`+0, `dx_code` $limit_query";
+    $query .= "ORDER BY `formatted_dx_code`+0, `formatted_dx_code` $limit_query";
     $res = sqlStatement($query,$sql_bind_array);
    }
   }
@@ -339,7 +339,7 @@ function lookup_code_descriptions($codes) {
         if ( !(empty($check_table)) ) {
           if ( !(empty($code)) ) {
             $sql = "SELECT `long_desc` FROM `icd10_dx_order_code` " .
-                   "WHERE `dx_code` = ? LIMIT 1";
+                   "WHERE `formatted_dx_code` = ? LIMIT 1";
             $crow = sqlQuery($sql, array($code) );
             if (!empty($crow['long_desc'])) {
               if ($code_text) $code_text .= '; ';
@@ -372,7 +372,7 @@ function lookup_code_descriptions($codes) {
         if ( !(empty($check_table)) ) {
           if ( !(empty($code)) ) {
             $sql = "SELECT `long_desc` FROM `icd9_dx_code` " .
-                   "WHERE `dx_code` = ? LIMIT 1";
+                   "WHERE `formatted_dx_code` = ? LIMIT 1";
             $crow = sqlQuery($sql, array($code) );
             if (!empty($crow['long_desc'])) {
               if ($code_text) $code_text .= '; ';
