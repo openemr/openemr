@@ -248,7 +248,7 @@ if ($_POST['form_action']=='Process') {
     <?php xl('Email Subject','e')?>:</td><td><INPUT TYPE="text" NAME="email_subject" value="From your clinic"></td>
   <td>&nbsp;</td><td>&nbsp;</td>
   </tr><tr><td colspan='3'>
-    <?php xl('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***','e')?></td>
+    <?php echo xlt('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***{{Do Not translate the ***NAME*** elements of this constant.}}')?></td>
    <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
    <tr><td colspan='4'>
     <TEXTAREA NAME="email_body" ROWS="8" COLS="40"></TEXTAREA></td>
