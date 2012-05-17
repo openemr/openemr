@@ -513,7 +513,7 @@ if ($taxline) {
             else {
              $all_string .= ",";
             }
-            $all_string .= $code_types[$set]['label'];
+            $all_string .= xlt($code_types[$set]['label']);
            }
            $all_string .= ")";
           }
