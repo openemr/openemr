@@ -611,7 +611,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			<tr>
 				<td class=leftborder><span class=bold><?php xl('S.S.','e'); ?> </span></td>
 				<td class=required>:</td>
-				<td><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?>"></td>
+				<td><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo trim($result3{"subscriber_ss"})?>"></td>
 			</tr>
 
 			<tr>
