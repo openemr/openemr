@@ -333,3 +333,7 @@ insert into list_options (list_id, option_id, title, seq, option_value, mapping,
 insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','pubpid'    ,'External ID'   ,'50','3','','');
 #EndIf
 
+#IfNotRow2D code_types ct_key DSMIV ct_mod 0
+UPDATE `code_types` SET `ct_mod`=0 WHERE `ct_key`='DSMIV' OR `ct_key`='ICD9' OR `ct_key`='ICD10' OR `ct_key`='SNOMED';
+#EndIf
+
