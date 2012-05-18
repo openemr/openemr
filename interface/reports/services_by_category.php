@@ -27,6 +27,7 @@ if (empty($_REQUEST['include_uncat']))
 <html>
 <head>
 <?php html_header_show(); ?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -53,8 +54,10 @@ if (empty($_REQUEST['include_uncat']))
 }
 </style>
 <title><?php xl('Services by Category','e'); ?></title>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
+<script type="text/javascript" src="../../library/overlib_mini.js"></script>
+<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
 </head>
@@ -125,8 +128,12 @@ if (empty($_REQUEST['include_uncat']))
 </table>
 </div> <!-- end of parameters -->
 
+<?php 
+    if ($_POST['form_refresh']) { 
+?>
+
 <div id="report_results">
-<?php if ($_POST['form_submit']) { ?>
+
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <thead style='display:table-header-group'>
