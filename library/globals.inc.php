@@ -628,7 +628,7 @@ $GLOBALS_METADATA = array(
         ),
         'couchdb_pass' => array(
             xl('CouchDB Password'),
-            'pwd',
+            'text',
             '',
             xl('Password to connect to CouchDB'),
         ),
