@@ -23,4 +23,4 @@ CREATE TABLE IF NOT EXISTS `form_soap2` (
   `abdomen`             varchar(255) NOT NULL DEFAULT '',
   `mentalstatus`        varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

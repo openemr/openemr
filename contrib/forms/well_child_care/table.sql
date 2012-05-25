@@ -121,4 +121,4 @@ CREATE TABLE IF NOT EXISTS `form_well_child_care` (
 `notes` VARCHAR (255) NULL,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

@@ -181,4 +181,4 @@ conclusions_cholesterol_teaching varchar(255),
 conclusions_advance_directive varchar(255),
 follow_up longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

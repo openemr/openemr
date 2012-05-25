@@ -22,4 +22,4 @@ CREATE TABLE IF NOT EXISTS form_body_composition (
  other                    text            NOT NULL DEFAULT '',
 
  PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

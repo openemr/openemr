@@ -22,4 +22,4 @@ CREATE TABLE IF NOT EXISTS `form_leg_length` (
   `UMB_right`           text DEFAULT NULL, 
   `notes`           text NOT NULL DEFAULT '', 
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

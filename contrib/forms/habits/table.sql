@@ -36,4 +36,4 @@ seat_belt ENUM ('Always','Usually','Seldom','Never') default NULL,
 ever_been_molested ENUM ('YES','NO') default NULL,
 ever_molested_other ENUM ('YES','NO') default NULL,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

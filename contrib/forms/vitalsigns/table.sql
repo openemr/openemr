@@ -31,4 +31,4 @@ body_mass_index longtext,
 figure_shape longtext,
 additional_notes longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

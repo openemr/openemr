@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS `form_nursing_notes` (
   `procedures`          varchar(255) NOT NULL DEFAULT '',
   `discharge`           varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

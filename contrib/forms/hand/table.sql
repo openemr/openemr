@@ -15,4 +15,4 @@ CREATE TABLE IF NOT EXISTS `form_hand` (
   `handedness`           text NOT NULL DEFAULT '',
   `notes`           text NOT NULL DEFAULT '', 
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

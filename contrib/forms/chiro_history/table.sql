@@ -44,4 +44,4 @@ family_history TEXT,
 regular_meals TEXT,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

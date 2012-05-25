@@ -107,4 +107,4 @@ followups_call varchar(3) not NULL default 'N/A',
 followups_call_to varchar(20) default NULL,
 followups_call_for varchar(20) default NULL, 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

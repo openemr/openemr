@@ -12,4 +12,4 @@ CREATE TABLE IF NOT EXISTS `form_snellen` (
   `right_2`           text NOT NULL DEFAULT '',
   `notes`           text NOT NULL DEFAULT '', 
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

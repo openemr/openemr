@@ -36,4 +36,4 @@ _subscriber_id_number TEXT,
 _group_number TEXT,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

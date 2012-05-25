@@ -35,4 +35,4 @@ CREATE TABLE IF NOT EXISTS form_football_injury_audit (
  fiside      int(11)      NOT NULL DEFAULT 0,
  firemoved   int(11)      NOT NULL DEFAULT 0,
  PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

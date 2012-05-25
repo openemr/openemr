@@ -67,4 +67,4 @@ prog_nutrition_e longtext,
 prog_sexual_p longtext,
 prog_substance_a longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

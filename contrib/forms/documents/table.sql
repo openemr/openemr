@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS `form_documents` (
 `document_description` tinytext,
 `document_source` varchar (255),
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

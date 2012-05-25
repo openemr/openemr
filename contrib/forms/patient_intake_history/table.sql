@@ -346,7 +346,7 @@ pih_date_reviewed_6 varchar(255),
 linked_ros_id bigint(20) NOT NULL,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 
 CREATE TABLE IF NOT EXISTS `form_patient_intake_history_ros` (
@@ -638,4 +638,4 @@ ros_notes_70 varchar(255),
 ros_other_allergy_reaction_ varchar(255),
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

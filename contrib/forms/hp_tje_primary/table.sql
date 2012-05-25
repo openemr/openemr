@@ -3,7 +3,7 @@ CREATE TABLE `form_hp_tje_checks` (
   `foreign_id` int(11) NOT NULL default '0',
   `name` varchar(100) NOT NULL default '',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 CREATE TABLE `form_hp_tje_history` (
   `id` int(11) NOT NULL auto_increment,
@@ -14,7 +14,7 @@ CREATE TABLE `form_hp_tje_history` (
   `effectiveness` varchar(255) default NULL,
   `date` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 CREATE TABLE `form_hp_tje_previous_accidents` (
   `id` int(11) NOT NULL auto_increment,
@@ -23,7 +23,7 @@ CREATE TABLE `form_hp_tje_previous_accidents` (
   `injuries` varchar(255) default NULL,
   `date` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 CREATE TABLE `form_hp_tje_primary` (
   `id` int(11) NOT NULL auto_increment,
@@ -44,4 +44,4 @@ CREATE TABLE `form_hp_tje_primary` (
   `pid` int(11) default NULL,
   `activity` tinyint(4) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

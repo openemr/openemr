@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS `form_phone_exam` (
 `activity` tinyint(4) default NULL,
 `notes` text default NULL,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

@@ -22,4 +22,4 @@ paresthesia longtext,
 symptoms_of_problems longtext,
 additional_notes longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

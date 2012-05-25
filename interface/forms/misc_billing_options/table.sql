@@ -25,4 +25,4 @@ CREATE TABLE IF NOT EXISTS `form_misc_billing_options` (
   comments                    varchar(255) default NULL,
   replacement_claim           tinyint(1)   default 0,
   PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

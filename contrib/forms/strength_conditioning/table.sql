@@ -15,4 +15,4 @@ CREATE TABLE IF NOT EXISTS form_strength_conditioning (
  datatype          tinyint      NOT NULL DEFAULT 0,
  value             varchar(255) DEFAULT NULL,
  PRIMARY KEY (id, rownbr, colnbr)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

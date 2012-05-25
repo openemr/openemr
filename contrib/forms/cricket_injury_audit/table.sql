@@ -12,4 +12,4 @@ CREATE TABLE IF NOT EXISTS form_cricket_injury_audit (
  cibowlside  int(11)      NOT NULL DEFAULT 0,
  cibowltype  int(11)      NOT NULL DEFAULT 0,
  PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

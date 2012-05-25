@@ -115,4 +115,4 @@ cushing_syndrom varchar(5),
 addison_syndrom varchar(5),
 additional_notes longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

@@ -47,4 +47,4 @@ minutes_counseled varchar(255),
 total_encounter_time varchar(255),
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

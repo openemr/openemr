@@ -9,4 +9,4 @@ activity tinyint(4) default NULL,
 dictation longtext,
 additional_notes longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

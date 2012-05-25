@@ -164,4 +164,4 @@ CREATE TABLE IF NOT EXISTS `form_rom` (
 `r4_7_lf_passive` text NOT NULL default '',
 `notes` text NOT NULL default '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

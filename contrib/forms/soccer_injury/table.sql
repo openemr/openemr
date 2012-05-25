@@ -56,4 +56,4 @@ CREATE TABLE IF NOT EXISTS form_soccer_injury (
  sinoreturn  tinyint(1)   NOT NULL DEFAULT 0,
 
  PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

@@ -98,4 +98,4 @@ _if_taken_to_the_hospital_did_you TEXT,
 _have_you_ever_been_involved_in_an_accident_before TEXT,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

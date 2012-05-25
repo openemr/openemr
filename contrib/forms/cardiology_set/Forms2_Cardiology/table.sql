@@ -81,4 +81,4 @@ _abdomen TEXT,
 _gi_gu TEXT,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

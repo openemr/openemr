@@ -44,4 +44,4 @@ recommendations TEXT,
 note3 TEXT,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

@@ -38,11 +38,11 @@ CREATE TABLE `form_well_child` (
   `activity` tinyint(4) default NULL,
   `date` datetime default NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `form_well_child_checks` (
   `id` int(11) NOT NULL auto_increment,
   `foreign_id` int(11) NOT NULL default '0',
   `name` varchar(100) NOT NULL default '',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

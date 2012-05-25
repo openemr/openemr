@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS form_hist_exam_plan (
  examination text         NOT NULL DEFAULT '',
  plan        text         NOT NULL DEFAULT '',
  PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

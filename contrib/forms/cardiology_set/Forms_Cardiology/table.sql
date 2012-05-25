@@ -132,4 +132,4 @@ hospital TEXT,
 reason TEXT,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

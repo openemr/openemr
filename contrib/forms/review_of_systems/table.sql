@@ -17,11 +17,11 @@ CREATE TABLE `form_review_of_systems` (
 `activity` tinyint(4) default NULL,
 `date` datetime default NULL,
 PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `form_review_of_systems_checks` (
 `id` int(11) NOT NULL auto_increment,
 `foreign_id` int(11) NOT NULL default '0',
 `name` varchar(100) NOT NULL default '',
 PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

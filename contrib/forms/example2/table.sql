@@ -26,4 +26,4 @@ CREATE TABLE IF NOT EXISTS `form_example` (
     /* end of custom form fields */
 
     PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

@@ -3,4 +3,4 @@ CREATE TABLE IF NOT EXISTS form_scanned_notes (
  activity          tinyint(1)   NOT NULL DEFAULT 1,  -- 0 if deleted
  notes             text         NOT NULL DEFAULT '',
  PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

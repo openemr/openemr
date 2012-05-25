@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS `form_complaint_history` (
   `activity`            tinyint(4)   NOT NULL DEFAULT 0,
   `complaint_history`          text NOT NULL DEFAULT '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

@@ -21,4 +21,4 @@ CREATE TABLE IF NOT EXISTS `form_vitalsM` (
 `head_circ`         FLOAT(5,2)      default 0,
 `oxygen_saturation` FLOAT(5,2)      default 0,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

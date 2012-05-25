@@ -20,4 +20,4 @@ accompanying_symptoms_headache longtext,
 accompanying_symptoms_other longtext,
 additional_notes longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

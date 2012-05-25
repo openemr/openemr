@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS `form_soap` (
 `assessment` text default NULL,
 `plan` text default NULL,
 PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

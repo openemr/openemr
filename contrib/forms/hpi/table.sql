@@ -16,4 +16,4 @@ CREATE TABLE IF NOT EXISTS `form_hpi` (
   `factors`             varchar(255) NOT NULL DEFAULT '',
   `signs`               varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

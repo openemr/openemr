@@ -393,4 +393,4 @@ CREATE TABLE IF NOT EXISTS `form_ros2` (
 `psychiatric_insomnia` varchar(3) NOT NULL default 'N/A',
 `psychiatric_insomnia_text` varchar(255) NOT NULL default '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

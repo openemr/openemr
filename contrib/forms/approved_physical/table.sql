@@ -131,4 +131,4 @@ CREATE TABLE IF NOT EXISTS `form_approved_physical` (
 `col_62` varchar(3) NOT NULL default '--',
 `col_62_textbox` varchar(255) NOT NULL default '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

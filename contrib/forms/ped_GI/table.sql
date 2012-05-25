@@ -36,4 +36,4 @@ CREATE TABLE IF NOT EXISTS `form_ped_GI` (
 `immunization_up_to_date` VARCHAR (255) default NULL,
 `notes` VARCHAR (255) default NULL,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

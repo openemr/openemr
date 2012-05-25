@@ -6,4 +6,4 @@ CREATE TABLE `form_prior_auth` (
   `prior_auth_number` varchar(35) default NULL,
   `comments` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

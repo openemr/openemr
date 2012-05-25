@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS `form_medical_orders` (
   `activity`            tinyint(4)   NOT NULL DEFAULT 0,
   `orders`              varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

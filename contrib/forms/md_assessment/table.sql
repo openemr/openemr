@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS `form_md_assessment` (
   `assessment`                varchar(255) NOT NULL DEFAULT '',
   `plan`              varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

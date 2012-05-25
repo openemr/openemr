@@ -54,4 +54,4 @@ _sh_no_change_since TEXT,
 examination TEXT,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

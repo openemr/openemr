@@ -36,4 +36,4 @@ CREATE TABLE `form_prosthesis` (
   `given_instructions` tinyint(1) default NULL,
   `patient_understands` tinyint(1) default NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

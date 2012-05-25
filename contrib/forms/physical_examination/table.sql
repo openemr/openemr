@@ -91,4 +91,4 @@ gynec_rectal_data varchar(255),
 tot_num_examined varchar(255),
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

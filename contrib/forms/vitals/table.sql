@@ -21,4 +21,4 @@ CREATE TABLE IF NOT EXISTS `form_vitals` (
 `waist_circ` VARCHAR (255) default NULL,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

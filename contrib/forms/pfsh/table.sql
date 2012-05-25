@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS `form_pfsh` (
   `family`              varchar(30000) NOT NULL DEFAULT '',
   `social`              varchar(30000) NOT NULL DEFAULT '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

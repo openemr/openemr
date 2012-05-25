@@ -16,4 +16,4 @@ CREATE TABLE IF NOT EXISTS form_clinical_notes (
  -- destination       int(11)      NOT NULL DEFAULT 0,  -- radio
 
  PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

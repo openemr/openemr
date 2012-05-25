@@ -22,4 +22,4 @@ last_vacc_hep_b longtext,
 last_vacc_varicella longtext,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

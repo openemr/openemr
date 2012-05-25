@@ -36,4 +36,4 @@ pl_problem_23	longtext,
 pl_problem_24	longtext,
 pl_problem_25	longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

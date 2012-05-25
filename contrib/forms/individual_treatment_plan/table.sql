@@ -37,4 +37,4 @@ medications_2 varchar(40) default NULL,
 referrals_1 varchar(40) default NULL,
 referrals_2 varchar(40) default NULL,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

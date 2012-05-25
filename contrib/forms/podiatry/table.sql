@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS form_podiatry (
  followup_location varchar(255) NOT NULL DEFAULT '',
 
  PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

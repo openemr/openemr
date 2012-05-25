@@ -17,4 +17,4 @@ record_7	longtext,
 record_8	longtext,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

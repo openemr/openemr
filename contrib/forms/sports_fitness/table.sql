@@ -29,4 +29,4 @@ CREATE TABLE IF NOT EXISTS form_sports_fitness (
  other                    text            NOT NULL DEFAULT '',
 
  PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

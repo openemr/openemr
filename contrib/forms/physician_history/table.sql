@@ -259,4 +259,4 @@ ros_hemato_other tinyint(1) DEFAULT 0,
 
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

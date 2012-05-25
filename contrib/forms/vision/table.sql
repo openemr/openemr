@@ -18,4 +18,4 @@ os_k2_axis longtext,
 os_testing_status longtext,
 additional_notes longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
