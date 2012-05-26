@@ -24,4 +24,4 @@ ankle_diagnosis4 varchar(255),
 ankle_plan longtext,
 ankle_additional_diagnisis longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

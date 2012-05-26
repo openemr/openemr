@@ -23,4 +23,4 @@ record_13	longtext,
 
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

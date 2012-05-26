@@ -142,5 +142,5 @@ CREATE TABLE `form_ros` (
 	`hiv` varchar(3) NOT NULL default 'N/A',
 	`hai_status` varchar(3) NOT NULL default 'N/A',
 	PRIMARY KEY (id)
-	) type=InnoDB;
+	) ENGINE=InnoDB;
 

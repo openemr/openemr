@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS `form_activity_impact` (
   `activity`            tinyint(4)   NOT NULL DEFAULT 0,
   `activity_impact`           text NOT NULL DEFAULT '',
   PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;

@@ -11,4 +11,4 @@ message longtext,
 doctor varchar(255),
 date_of_signature datetime default NULL,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

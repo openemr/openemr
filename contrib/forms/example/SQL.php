@@ -17,7 +17,7 @@ $create = "
 		KEY `id` (`id`),
 		`reason` longtext,
 		`cats` longtext
-	) TYPE=MyISAM
+	) ENGINE=MyISAM
 	";
 	
 echo "Connecting To SQL<br>";

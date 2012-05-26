@@ -90,7 +90,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 </xsl:if>
 </xsl:for-each>
 <xsl:text disable-output-escaping="yes"><![CDATA[PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 ]]></xsl:text>
 <xsl:if test="//list">
 <xsl:for-each select="//list">
@@ -142,7 +142,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     /* how to compare this item to items of the previous level */
     subordinaterelationship varchar(20) default NULL,
     PRIMARY KEY (id)
-) TYPE=InnoDB;
+) ENGINE=InnoDB;
 ]]></xsl:text>
 <xsl:for-each select="//signature">
 <!-- FIXME: how to add signatures only if they're not already there? -->

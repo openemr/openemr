@@ -89,4 +89,4 @@ diagnosis4_bronchitis_form varchar(255),
 bronchitis_additional_diagnosis longtext,
 bronchitis_treatment longtext,
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
