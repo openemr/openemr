@@ -590,7 +590,24 @@ class Claim {
   function x12gsisa05() {
     return $this->x12_partner['x12_isa05'];
   }
+//adding in functions for isa 01 - isa 04
 
+  function x12gsisa01() {
+    return $this->x12_partner['x12_isa01'];
+  }
+
+  function x12gsisa02() {
+    return $this->x12_partner['x12_isa02'];
+  }
+  
+   function x12gsisa03() {
+    return $this->x12_partner['x12_isa03'];
+  }
+   function x12gsisa04() {
+    return $this->x12_partner['x12_isa04'];
+  }
+      
+/////////
   function x12gsisa07() {
     return $this->x12_partner['x12_isa07'];
   }

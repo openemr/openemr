@@ -11,14 +11,18 @@ class X12Partner extends ORDataObject{
 	var $id;
 	var $name;
 	var	$id_number;
+	var $x12_isa01; //
+	var $x12_isa02; //
+	var $x12_isa03; //
+	var $x12_isa04; //
+	var $x12_isa05; // Sender Interchange ID Qualifier. ZZ = mutually defined, 01 = Duns, etc.
 	var $x12_sender_id;   // ISA06
+    var $x12_isa07; // Receiver Interchange ID Qualifier.
 	var $x12_receiver_id; // ISA08
-        var $x12_isa05; // Sender Interchange ID Qualifier. ZZ = mutually defined, 01 = Duns, etc.
-        var $x12_isa07; // Receiver Interchange ID Qualifier.
-        var $x12_isa14; // Acknowledgment Requested. 0 = No, 1 = Yes.
-        var $x12_isa15; // Usage Indicator. T = testing, P = production.
-        var $x12_gs02;  // Application Sender's Code. Default to ISA06.
-        var $x12_per06; // The submitter's EDI Access Number, if any.
+    var $x12_isa14; // Acknowledgment Requested. 0 = No, 1 = Yes.
+    var $x12_isa15; // Usage Indicator. T = testing, P = production.
+    var $x12_gs02;  // Application Sender's Code. Default to ISA06.
+    var $x12_per06; // The submitter's EDI Access Number, if any.
 	var $x12_version;
 	var $processing_format;
 	var $processing_format_array;
@@ -107,6 +111,38 @@ class X12Partner extends ORDataObject{
 			$this->x12_version = $string;
 	}
 
+	function get_x12_isa01() {
+		return $this->x12_isa01;
+	}
+	
+	function set_x12_isa01($string) {
+			$this->x12_isa01 = $string;
+	}
+	
+	function get_x12_isa02() {
+		return $this->x12_isa02;
+	}
+	
+	function set_x12_isa02($string) {
+			$this->x12_isa02 = $string;
+	}
+	
+	function get_x12_isa03() {
+		return $this->x12_isa03;
+	}
+	
+	function set_x12_isa03($string) {
+			$this->x12_isa03 = $string;
+	}
+	
+	function get_x12_isa04() {
+		return $this->x12_isa04;
+	}
+	
+	function set_x12_isa04($string) {
+			$this->x12_isa04 = $string;
+	}
+		
 	function get_x12_isa05() {
 		return $this->x12_isa05;
 	}
