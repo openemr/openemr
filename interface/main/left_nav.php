@@ -376,6 +376,7 @@ function genFindBlock() {
  
  $(document).ready(function (){
    getReminderCount();//
+   parent.loadedFrameCount += 1;
  }) 
  // end of tajemo work dated reminders counter
  

@@ -65,6 +65,16 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 
 <script language='JavaScript'>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+// This counts the number of frames that have reported themselves as loaded.
+// Currently only left_nav and Title do this, so the maximum will be 2.
+// This is used to determine when those frames are all loaded.
+var loadedFrameCount = 0;
+
+function allFramesLoaded() {
+ // Change this number if more frames participate in reporting.
+ return loadedFrameCount >= 2;
+}
 </script>
 
 </head>
