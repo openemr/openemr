@@ -1,5 +1,6 @@
 <?php
 // Copyright (C) 2012 Rod Roark <rod@sunsetsystems.com>
+// Sponsored by David Eschelbacher, MD
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +29,7 @@ $aColumns = explode(',', $_GET['sColumns']);
 $iDisplayStart  = isset($_GET['iDisplayStart' ]) ? 0 + $_GET['iDisplayStart' ] : -1;
 $iDisplayLength = isset($_GET['iDisplayLength']) ? 0 + $_GET['iDisplayLength'] : -1;
 $limit = '';
-if ($iDisplayStaart >= 0 && $iDisplayLength >= 0) {
+if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
   $limit = "LIMIT $iDisplayStart, $iDisplayLength";
 }
 

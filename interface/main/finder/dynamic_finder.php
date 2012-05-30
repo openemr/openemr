@@ -1,5 +1,6 @@
 <?php
 // Copyright (C) 2012 Rod Roark <rod@sunsetsystems.com>
+// Sponsored by David Eschelbacher, MD
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
