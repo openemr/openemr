@@ -228,7 +228,7 @@ if ($result = sqlFetchArray($statement)) {
 </div>
 <div style="clear: both;"> </div>
 <div class="version">
-<?php echo "v$openemr_version" ?> | <a  href="../../acknowledgments_copyright.html" target="main"><?php xl('Acknowledgments and Copyright Notice','e'); ?></a>
+<?php echo "v$openemr_version" ?> | <a  href="../../acknowledge_license_cert.html" target="main"><?php xl('Acknowledgments, Licensing and Certification','e'); ?></a>
 </div>
 </div>
 <div class="demo">
