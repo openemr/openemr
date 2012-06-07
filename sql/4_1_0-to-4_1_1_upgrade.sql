@@ -65,12 +65,12 @@ CREATE INDEX `pid` ON `lists` (`pid`);
 CREATE INDEX `pid` ON `form_vitals` (`pid`);
 #EndIf
 
-#IfNotIndex forms pid
-CREATE INDEX `pid` ON `forms` (`pid`);
+#IfNotIndex forms pid_encounter
+CREATE INDEX `pid_encounter` ON `forms` (`pid`, `encounter`);
 #EndIf
 
-#IfNotIndex form_encounter pid
-CREATE INDEX `pid` ON `form_encounter` (`pid`);
+#IfNotIndex form_encounter pid_encounter
+CREATE INDEX `pid_encounter` ON `form_encounter` (`pid`, `encounter`);
 #EndIf
 
 #IfNotIndex immunizations patient_id
@@ -95,6 +95,10 @@ CREATE INDEX `patient_id` ON `extended_log` (`patient_id`);
 
 #IfNotIndex prescriptions patient_id
 CREATE INDEX `patient_id` ON `prescriptions` (`patient_id`);
+#EndIf
+
+#IfNotIndex openemr_postcalendar_events pc_eventDate
+CREATE INDEX `pc_eventDate` ON `openemr_postcalendar_events` (`pc_eventDate`);
 #EndIf
 
 #IfMissingColumn version v_realpatch
