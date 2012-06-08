@@ -23,46 +23,58 @@ require_once('version.php');
 // Force logging off
 $GLOBALS["enable_auditlog"]=0;
 
-?>
+$EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version']));
+?>   
+
 
 <html>
 <head>
-<title>OpenEMR Database Patch</title>
+<title>OpenEMR <?php echo attr($EMRversion) ?> <?php echo xlt('Database Patch'); ?></title>
 <link rel='STYLESHEET' href='interface/themes/style_blue.css'>
 </head>
-<body>
-<center>
-<span class='title'>OpenEMR Database Patch</span>
-<br>
-</center>
-
-<?php
-upgradeFromSqlFile('patch.sql');
-flush();
-
-echo "<font color='green'>Updating global configuration defaults...</font><br />\n";
-require_once("library/globals.inc.php");
-foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-  foreach ($grparr as $fldid => $fldarr) {
-    list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-    if (substr($fldtype, 0, 2) !== 'm_') {
-      $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
-      if (empty($row['count'])) {
-        sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-          "VALUES ( '$fldid', '0', '$flddef' )");
+<body style="color:green;">
+<div style="box-shadow: 3px 3px 5px 6px #ccc; border-radius: 20px; padding: 10px 40px;background-color:#EFEFEF; width:500px; margin:40px auto"> 
+  
+  <p style="font-weight:bold; font-size:1.8em; text-align:center">OpenEMR <?php echo text($EMRversion),' ',xlt('Database Patch'),' ',text($v_realpatch) ?></p>      
+  <p style="font-weight:bold; text-align:center;"><?php echo xlt('Applying Patch to site'),' : ',text($_SESSION['site_id']) ?></p>
+   
+  
+  <?php
+  upgradeFromSqlFile('patch.sql');
+  flush();
+  
+  echo '<p style="font-weight:bold; text-align:left; color:green">',xlt('Updating global configuration defaults'),'...</p>';
+  require_once("library/globals.inc.php");
+  foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+    foreach ($grparr as $fldid => $fldarr) {
+      list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+      if (substr($fldtype, 0, 2) !== 'm_') {
+        $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+        if (empty($row['count'])) {
+          sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+            "VALUES ( '$fldid', '0', '$flddef' )");
+        }
       }
     }
   }
-}
-
-echo "<font color='green'>Updating version indicators...</font><br />\n";
-sqlStatement("UPDATE version SET v_realpatch = '$v_realpatch'");
-
-echo "<p><font color='green'>Database patch finished.</font></p>\n";
-echo "</body></html>\n";
-exit();
-
-?>
-
+                                
+  echo '<p style="font-weight:bold; text-align:left;">',xlt('Updating version indicators'),'...</p>'; 
+  sqlStatement("UPDATE version SET v_realpatch = '$v_realpatch'");
+   
+                  
+  echo '<p style="text-align:center; font-size:1.8em;">',xlt('Database Patch'),' ',text($v_realpatch),' ',xlt('finished'),'.</p>'; 
+  
+  echo '<p style="text-align:center; font-size:1.8em;">OpenEMR ',xlt('Version'),' = ',text($EMRversion.'('.$v_realpatch.')'),'.</p>';  
+   
+  echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="index.php?site=',attr($_SESSION['site_id']).'">',xlt('Log in'),'</a></p>';  
+  
+  if(isset($_SERVER['HTTP_REFERER'])) {
+      $split = preg_split('/\//',$_SERVER['HTTP_REFERER']);
+      if($split[count($split) - 1] == 'admin.php')
+        echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="admin.php">',xlt('Back to Admin Page'),'</a></p>';
+  }  
+  
+  ?>
+</div>
 </body>
 </html>
