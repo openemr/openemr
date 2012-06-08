@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008-2011 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -107,6 +107,17 @@ function upgradeFromSqlFile($filename) {
       }
       else {
         // If no such table then the column type is deemed not "missing".
+        $skipping = true;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfIndex\s+(\S+)\s+(\S+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+        // If no such index then skip.
+        $skipping = !tableHasIndex($matches[1], $matches[2]);
+      }
+      else {
+        // If no such table then skip.
         $skipping = true;
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";

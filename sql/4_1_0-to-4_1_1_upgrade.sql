@@ -11,7 +11,7 @@
 
 --  #IfMissingColumn
 --    arguments: table_name colname
---    behavior:  if the colname in the table_name table does not exist,  the block will be executed
+--    behavior:  if the table exists but the column does not,  the block will be executed
 
 --  #IfNotColumnType
 --    arguments: table_name colname value
@@ -44,13 +44,18 @@
 --    arguments: table_name colname value colname2 value2
 --    behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
 
+--  #IfIndex
+--    desc:      This function is most often used for dropping of indexes/keys.
+--    arguments: table_name colname
+--    behavior:  If the table and index exist the relevant statements are executed, otherwise not.
+
 --  #IfNotIndex
 --    desc:      This function will allow adding of indexes/keys.
 --    arguments: table_name colname
 --    behavior:  If the index does not exist, it will be created
 
 --  #EndIf
---    all blocks are terminated with and #EndIf statement.
+--    all blocks are terminated with a #EndIf statement.
 
 
 #IfNotIndex lists type
@@ -63,6 +68,14 @@ CREATE INDEX `pid` ON `lists` (`pid`);
 
 #IfNotIndex form_vitals pid
 CREATE INDEX `pid` ON `form_vitals` (`pid`);
+#EndIf
+
+#IfIndex forms pid
+DROP INDEX `pid` ON `forms`;
+#EndIf
+
+#IfIndex form_encounter pid
+DROP INDEX `pid` ON `form_encounter`;
 #EndIf
 
 #IfNotIndex forms pid_encounter
