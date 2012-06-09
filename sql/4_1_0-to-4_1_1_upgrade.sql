@@ -386,3 +386,19 @@ UPDATE `layout_options` SET `max_length`='0' WHERE `field_id`='seatbelt_use' AND
 ALTER TABLE `history_data` CHANGE `usertext11` `usertext11` TEXT NOT NULL;
 #EndIf
 
+#IfMissingColumn x12_partners x12_isa01
+ALTER TABLE x12_partners ADD COLUMN x12_isa01 VARCHAR( 2 ) NOT NULL DEFAULT '00' COMMENT 'User logon Required Indicator';
+#EndIf
+
+#IfMissingColumn x12_partners x12_isa02
+ALTER TABLE x12_partners ADD COLUMN x12_isa02 VARCHAR( 10 ) NOT NULL DEFAULT '          ' COMMENT 'User Logon';
+#EndIf
+
+#IfMissingColumn x12_partners x12_isa03
+ALTER TABLE x12_partners ADD COLUMN x12_isa03 VARCHAR( 2 ) NOT NULL DEFAULT '00' COMMENT 'User password required Indicator';
+#EndIf
+
+#IfMissingColumn x12_partners x12_isa04
+ALTER TABLE x12_partners ADD COLUMN x12_isa04 VARCHAR( 10 ) NOT NULL DEFAULT '          ' COMMENT 'User Password';
+#EndIf
+

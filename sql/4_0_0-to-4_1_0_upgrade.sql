@@ -1869,19 +1869,3 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) VALUES ('msp_remit_codes', 'W2', 'W2', 217, 0, 0, '', 'Payment reduced or denied based on workers'' compensation jurisdictional regulations or payment policies, use only if no other code is applicable. Note: If adjustment is at the Claim Level, the payer must send and the provider should refer to the 835 Insur');
 #EndIf
 
-#IfMissingColumn x12_partners isa01
-ALTER TABLE x12_partners ADD COLUMN VARCHAR( 2 ) NOT NULL DEFAULT '00' COMMENT 'User logon Required Indicator';
-#EndIf
-
-#IfMissingColumn x12_partners isa02
-ALTER TABLE x12_partners ADD COLUMN VARCHAR( 10 ) NOT NULL DEFAULT '          ' COMMENT 'User Logon';
-#EndIf
-
-#IfMissingColumn x12_partners isa03
-ALTER TABLE x12_partners ADD COLUMN VARCHAR( 2 ) NOT NULL DEFAULT '00' COMMENT 'User password required Indicator';
-#EndIf
-
-#IfMissingColumn x12_partners isa04
-ALTER TABLE x12_partners ADD COLUMN VARCHAR( 10 ) NOT NULL DEFAULT '          ' COMMENT 'User Password';
-#EndIf
-
