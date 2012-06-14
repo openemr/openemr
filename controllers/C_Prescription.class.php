@@ -191,9 +191,10 @@ class C_Prescription extends Controller {
       processAmcCall('e_prescribe_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
     }
 
-    if ($this->prescriptions[0]->get_active() > 0) {
-      return $this->send_action($this->prescriptions[0]->id);
-    }
+// TajEmo Work by CB 2012/05/29 02:58:29 PM to stop from going to send screen. Improves Work Flow 
+//     if ($this->prescriptions[0]->get_active() > 0) {
+//       return $this->send_action($this->prescriptions[0]->id);
+//     }
     $this->list_action($this->prescriptions[0]->get_patient_id());
     exit;
 	}

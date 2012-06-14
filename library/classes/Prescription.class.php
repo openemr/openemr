@@ -452,6 +452,11 @@ class Prescription extends ORDataObject {
     function set_start_date($date) {
         return $this->start_date = $date;
     }
+    
+    // TajEmo work by CB 2012/05/30 01:56:32 PM added encounter for auto ticking of checkboxes
+    function set_encounter($enc) {
+        return $this->encounter = $enc;
+    }
 
     function get_date_added() {
         return $this->date_added;

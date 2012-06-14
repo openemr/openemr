@@ -30,7 +30,8 @@ function changeLinkHref_All(id,addValue,value) {
     }
     else { //remove value from href
         document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
-		document.getElementById(id).target = '';
+		// TajEmo Work By CB 2012/06/14 02:17:16 PM remove the target change 
+    //document.getElementById(id).target = '';
     }
 }
 
@@ -93,6 +94,14 @@ function Checking(chk) {
 	}
 }
 
+$(document).ready(function(){
+  $(":checkbox:checked").each(function () { 
+      changeLinkHref('multiprint',this.checked, this.value);
+      changeLinkHref('multiprintcss',this.checked, this.value);
+      changeLinkHref('multiprintToFax',this.checked, this.value);
+  });
+})
+
 </script>
 
 {/literal}
@@ -116,7 +125,8 @@ function Checking(chk) {
                             <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='PDF'})</span></a>
                         </td>
                         <td>
-                            <a id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='HTML'})</span></a>
+                          <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
+                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='HTML'})</span></a>
                         </td>
                         <td style="border-style:none;">
                             <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='Fax'})</span></a>
@@ -145,8 +155,10 @@ function Checking(chk) {
 
 
 <table width="100%" class="showborder_head" cellspacing="0px" cellpadding="2px">
-    <tr>
-		<th width="8px">&nbsp;</th>
+    <tr> 
+       <!-- TajEmo Changes 2012/06/14 02:01:43 PM by CB added Heading for checkbox column -->   
+        <th width="8px">&nbsp;</th>
+		    <th width="8px">&nbsp;</th>
         <th width="180px">{xl t='Drug'}</th>
         <th>{xl t='Created'}<br />{xl t='Changed'}</th>
         <th>{xl t='Dosage'}</th>
@@ -155,15 +167,18 @@ function Checking(chk) {
         <th>{xl t='Provider'}</th>
     </tr>
 
-	{foreach from=$prescriptions item=prescription}
-  <tr id="{$prescription->id}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}" title="{xl t='Click to view/edit'}">
-	 <td align="center">
-      <input id="check_list" type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'}">
+	{foreach from=$prescriptions item=prescription} 
+  <!-- TajEmo Changes 2012/06/14 02:03:17 PM by CB added cursor:pointer for easier user understanding -->  
+  <tr style="cursor:pointer" id="{$prescription->id}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}" title="{xl t='Click to view/edit'}">
+	 <td align="center"> 
+      <input class="check_list" id="check_list" type="checkbox" value="{$prescription->id}" {if $prescription->encounter == $prescription->get_encounter() && $prescription->active > 0}checked="checked" {/if}onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'}">
     </td>
 	{if $prescription->erx_source==0}
     <td class="editscript"  id="{$prescription->id}">
         <a class='editscript css_button_small' id='{$prescription->id}' href="controller.php?prescription&edit&id={$prescription->id}" style="margin-top:-2px"><span>{xl t='Edit'}</span></a>
+      <!-- TajEmo Changes 2012/06/14 02:02:22 PM by CB commented out, to avoid duplicate display of drug name
         {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
+      --> 
     </td>
 	<td class="editscript"  id="{$prescription->id}">
 	{if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
