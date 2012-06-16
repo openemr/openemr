@@ -8,24 +8,33 @@
 ?>
 
 <head>
-    <script language="javascript" src="<?php js_src('jQuery.autocomplete.js') ?>"></script>
-    <script language="javascript" src="<?php js_src('typeahead.js') ?>"></script>
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
-    <link rel="stylesheet" href="<?php css_src('jQuery.autocomplete.css') ?>" type="text/css">
-
+    <script language="javascript" src="../../../library/dialog.js"></script>
     <script type="text/javascript">
-        var type_ahead = new type_ahead( {
-            url: "index.php?action=edit!codes",
-            inputId: "fld_value"
-        });
-        type_ahead.init();
+        // This invokes the find-code popup.
+        function sel_diagnosis() {
+            dlgopen('../../patient_file/encounter/find_code_popup.php', '_blank', 500, 400);
+        }
+        // This is for callback by the find-code popup.
+        // Aonly allows one entry.
+        function set_related(codetype, code, selector, codedesc) {
+           var f = document.forms[0];
+           var s = f.fld_value.value;
+           if (code) {
+               if (s.length > 0) s += ';';
+               s = codetype + ':' + code;
+           } else {
+               s = '';
+           }
+               f.fld_value.value = s;
+           }
     </script>
 </head>
 
 <!-- diagnosis -->
 <p class="row">
     <span class="left_col colhead req" data-fld="fld_diagnosis"><?php echo out( $criteria->getTitle() ); ?></span>
-    <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="field" value="<?php echo out( $criteria->getRequirements() ); ?>"></span>
+    <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="field" onclick="sel_diagnosis()" value="<?php echo out( $criteria->getRequirements() ); ?>"></span>
 </p>
 
 <br/>
