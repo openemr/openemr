@@ -55,7 +55,9 @@ while ($row = sqlFetchArray($result[0])) {
 	$e_DateOfBirth = $ccr->createElement('DateOfBirth');
 	$e_Person->appendChild($e_DateOfBirth);
 	
-	$e_ExactDateTime = $ccr->createElement('ExactDateTime',$row['DOB']);
+	$dob = date_create($row['DOB']);
+	
+	$e_ExactDateTime = $ccr->createElement('ExactDateTime',$dob->format('Y-m-d\TH:i:s\Z'));
 	$e_DateOfBirth->appendChild($e_ExactDateTime);
 	
 	$e_Gender = $ccr->createElement('Gender');
