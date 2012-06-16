@@ -46,7 +46,7 @@ function endFSCategory() {
 function genDiagJS($code_type, $code) {
   global $code_types;
   if ($code_types[$code_type]['diag']) {
-    echo "diags.push('" . attr($code) . "');\n";
+    echo "diags.push('" . attr($code_type) . "|" . attr($code) . "');\n";
   }
 }
 
