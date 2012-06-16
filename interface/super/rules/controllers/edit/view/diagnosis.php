@@ -16,18 +16,15 @@
             dlgopen('../../patient_file/encounter/find_code_popup.php', '_blank', 500, 400);
         }
         // This is for callback by the find-code popup.
-        // Aonly allows one entry.
+        // Only allows one entry.
         function set_related(codetype, code, selector, codedesc) {
-           var f = document.forms[0];
-           var s = f.fld_value.value;
-           if (code) {
-               if (s.length > 0) s += ';';
-               s = codetype + ':' + code;
-           } else {
-               s = '';
-           }
-               f.fld_value.value = s;
-           }
+            var f = document.forms[0];
+            var s = '';
+            if (code) {
+                s = codetype + ':' + code;
+            }
+            f.fld_value.value = s;
+        }
     </script>
 </head>
 
