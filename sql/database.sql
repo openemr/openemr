@@ -5019,6 +5019,7 @@ CREATE TABLE ar_activity (
   pid            int(11)       NOT NULL,
   encounter      int(11)       NOT NULL,
   sequence_no    int unsigned  NOT NULL AUTO_INCREMENT,
+  `code_type`    varchar(12)   NOT NULL DEFAULT '',
   code           varchar(9)    NOT NULL            COMMENT 'empty means claim level',
   modifier       varchar(5)    NOT NULL DEFAULT '',
   payer_type     int           NOT NULL            COMMENT '0=pt, 1=ins1, 2=ins2, etc',

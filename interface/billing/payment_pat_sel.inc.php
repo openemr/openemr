@@ -45,7 +45,7 @@ if (isset($_POST["mode"]))
 	 {
 	  $StringForQuery=" and last_level_closed >= 1 ";
 	 }
-	$ResultSearchNew = sqlStatement("SELECT billing.id,last_level_closed,billing.encounter,form_encounter.`date`,billing.code,billing.modifier,fee
+	$ResultSearchNew = sqlStatement("SELECT billing.id,last_level_closed,billing.encounter,form_encounter.`date`,billing.code_type,billing.code,billing.modifier,fee
 	 FROM billing ,form_encounter
 			 where billing.encounter=form_encounter.encounter and code_type!='ICD9' and  code_type!='COPAY' and billing.activity!=0 and
 			 form_encounter.pid ='$hidden_patient_code' and billing.pid ='$hidden_patient_code'  $StringForQuery ORDER BY form_encounter.`date`, 
@@ -128,7 +128,7 @@ if (isset($_POST["mode"]))
 				<td width="55" class="left top" ><?php echo htmlspecialchars( xl('Post For'), ENT_QUOTES) ?></td>
 				<td width="80" class="left top" ><?php echo htmlspecialchars( xl('Service Date'), ENT_QUOTES) ?></td>
 				<td width="65" class="left top" ><?php echo htmlspecialchars( xl('Encounter'), ENT_QUOTES) ?></td>
-				<td width="70" class="left top" ><?php echo htmlspecialchars( xl('CPT Code'), ENT_QUOTES) ?></td>
+				<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Service Code'), ENT_QUOTES) ?></td>
 				<td width="55" class="left top" ><?php echo htmlspecialchars( xl('Charge'), ENT_QUOTES) ?></td>
 				<td width="40" class="left top" ><?php echo htmlspecialchars( xl('Copay'), ENT_QUOTES) ?></td>
 				<td width="45" class="left top" ><?php echo htmlspecialchars( xl('Remdr'), ENT_QUOTES) ?></td>
@@ -170,6 +170,7 @@ if (isset($_POST["mode"]))
 
 					$ServiceDateArray=split(' ',$RowSearch['date']);
 					$ServiceDate=oeFormatShortDate($ServiceDateArray[0]);
+                                        $Codetype=$RowSearch['code_type'];
 					$Code=$RowSearch['code'];
 					$Modifier =$RowSearch['modifier'];
 					if($Modifier!='')
@@ -205,15 +206,15 @@ if (isset($_POST["mode"]))
 						
 						$Copay=$Copay+$PatientPay;
 					 }
-						//payer_type!=0
+						//payer_type!=0, supports both mapped and unmapped code_type in ar_activity
 						$resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
-						pid ='$hidden_patient_code' and  code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  !(payer_type=0 and 
+						pid ='$hidden_patient_code' and (code_type='$Codetype' or code_type='') and code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  !(payer_type=0 and 
 						account_code='PCP')");//new fees screen copay gives account_code='PCP'
 						$rowMoneyGot = sqlFetchArray($resMoneyGot);
 						$MoneyGot=$rowMoneyGot['MoneyGot'];
-
+                                                //supports both mapped and unmapped code_type in ar_activity
 						$resMoneyAdjusted = sqlStatement("SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where
-						pid ='$hidden_patient_code' and  code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter'");
+						pid ='$hidden_patient_code' and (code_type='$Codetype' or code_type='') and code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter'");
 						$rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
 						$MoneyAdjusted=$rowMoneyAdjusted['MoneyAdjusted'];
 
@@ -253,8 +254,8 @@ if (isset($_POST["mode"]))
 				<td class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars($ServiceDate); ?></td>
 				<td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenEncounter<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Encounter); ?>" 
 				type="hidden"/><?php echo htmlspecialchars($Encounter); ?></td>
-				<td class="<?php echo $StringClass; ?>" ><input name="HiddenCode<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Code); ?>"
-				 type="hidden"/><?php echo htmlspecialchars($Code.$ModifierString); ?><input name="HiddenModifier<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Modifier); ?>"
+				<td class="<?php echo $StringClass; ?>" ><input name="HiddenCodetype<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Codetype); ?>" type="hidden"/><input name="HiddenCode<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Code); ?>"
+				 type="hidden"/><?php echo htmlspecialchars($Codetype."-".$Code.$ModifierString); ?><input name="HiddenModifier<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Modifier); ?>"
 				  type="hidden"/></td>
 				<td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenChargeAmount<?php echo $CountIndex; ?>"
 				 id="HiddenChargeAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Fee); ?>" type="hidden"/><?php echo htmlspecialchars($Fee); ?></td>

@@ -56,6 +56,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 	  sqlStatement("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 		"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -86,6 +87,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 	  idSqlStatement("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 		"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -105,6 +107,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 	  idSqlStatement("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 		"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -124,6 +127,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 	  idSqlStatement("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 		"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -142,6 +146,7 @@ function DistributionInsert($CountRow,$created_time,$user_id)
 	  idSqlStatement("insert into ar_activity set "    .
 		"pid = '"       . trim(formData('hidden_patient_code' )) .
 		"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 		"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 		"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 		"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .

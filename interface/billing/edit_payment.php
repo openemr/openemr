@@ -61,9 +61,10 @@ if (isset($_POST["mode"]))
 	$Encounter=$DeletePaymentDistributionIdArray[2];
 	$Code=$DeletePaymentDistributionIdArray[3];
 	$Modifier=$DeletePaymentDistributionIdArray[4];
+        $Codetype=$DeletePaymentDistributionIdArray[5];
 	//delete and log that action
 	row_delete("ar_activity", "session_id ='$payment_id' and  pid ='$PId' AND " .
-	  "encounter='$Encounter' and  code='$Code' and modifier='$Modifier'");
+	  "encounter='$Encounter' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'");
 	$Message='Delete';
 	//------------------
     $_POST["mode"] = "searchdatabase";
@@ -153,6 +154,7 @@ if (isset($_POST["mode"]))
 				$resPayment = sqlStatement("SELECT  * from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and pay_amount>0");
@@ -167,6 +169,7 @@ if (isset($_POST["mode"]))
 				    "', reason_code = '"   . trim(formData("ReasonCode$CountRow"   )) .
 					"' where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and pay_amount>0");
@@ -176,6 +179,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow"   )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -195,6 +199,7 @@ if (isset($_POST["mode"]))
 		    sqlStatement("delete from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and pay_amount>0");
@@ -215,6 +220,7 @@ if (isset($_POST["mode"]))
 				$resPayment = sqlStatement("SELECT  * from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and adj_amount!=0");
@@ -229,6 +235,7 @@ if (isset($_POST["mode"]))
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
 					"' where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and adj_amount!=0");
@@ -238,6 +245,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -258,6 +266,7 @@ if (isset($_POST["mode"]))
 		    sqlStatement("delete from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and adj_amount!=0");
@@ -268,6 +277,7 @@ if (isset($_POST["mode"]))
 				$resPayment = sqlStatement("SELECT  * from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and memo like 'Deductable%'");
@@ -281,6 +291,7 @@ if (isset($_POST["mode"]))
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
 					"' where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and memo like 'Deductable%'");
@@ -290,6 +301,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -309,6 +321,7 @@ if (isset($_POST["mode"]))
 		    sqlStatement("delete from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and memo like 'Deductable%'");
@@ -319,6 +332,7 @@ if (isset($_POST["mode"]))
 				$resPayment = sqlStatement("SELECT  * from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and pay_amount < 0");
@@ -332,6 +346,7 @@ if (isset($_POST["mode"]))
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
 					"' where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and pay_amount < 0");
@@ -341,6 +356,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -359,6 +375,7 @@ if (isset($_POST["mode"]))
 		    sqlStatement("delete from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and pay_amount < 0");
@@ -369,6 +386,7 @@ if (isset($_POST["mode"]))
 				$resPayment = sqlStatement("SELECT  * from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and follow_up ='y'");
@@ -382,6 +400,7 @@ if (isset($_POST["mode"]))
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
 					"' where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and follow_up ='y'");
@@ -391,6 +410,7 @@ if (isset($_POST["mode"]))
 				  sqlStatement("insert into ar_activity set "    .
 					"pid = '"       . trim(formData("HiddenPId$CountRow" )) .
 					"', encounter = '"     . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "', code_type = '"      . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
 					"', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
 					"', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -410,6 +430,7 @@ if (isset($_POST["mode"]))
 		    sqlStatement("delete from ar_activity " .
 					" where  session_id ='$payment_id' and pid ='" . trim(formData("HiddenPId$CountRow"   ))  .
 					"' and  encounter  ='" . trim(formData("HiddenEncounter$CountRow"   ))  .
+                                        "' and  code_type  ='" . trim(formData("HiddenCodetype$CountRow"   ))  .
 					"' and  code  ='" . trim(formData("HiddenCode$CountRow"   ))  .
 					"' and  modifier  ='" . trim(formData("HiddenModifier$CountRow"   ))  .
 					"' and follow_up ='y'");
@@ -445,7 +466,7 @@ if (isset($_POST["mode"]))
 //Search Code
 //===============================================================================
 $payment_id=$payment_id*1 > 0 ? $payment_id : $_REQUEST['payment_id'];
-$ResultSearchSub = sqlStatement("SELECT  distinct encounter,code,modifier, pid from ar_activity where  session_id ='$payment_id' order by pid,encounter,code,modifier");
+$ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modifier, pid from ar_activity where  session_id ='$payment_id' order by pid,encounter,code,modifier");
 //==============================================================================
 $DateFormat=DateFormatRead();
 //==============================================================================
@@ -770,7 +791,7 @@ return false;
 			<td colspan="13" align="left" >
 
 				<?php //
-				$resCount = sqlStatement("SELECT distinct encounter,code,modifier from ar_activity where  session_id ='$payment_id' ");
+				$resCount = sqlStatement("SELECT distinct encounter,code_type,code,modifier from ar_activity where  session_id ='$payment_id' ");
 				$TotalRows=sqlNumRows($resCount);
 				$CountPatient=0;
 				$CountIndex=0;
@@ -787,6 +808,16 @@ return false;
 						$CountPatient++;
 						$PId=$RowSearchSub['pid'];
 						$EncounterMaster=$RowSearchSub['encounter'];
+                                                // Only use the code_type in the queries below if it is specified in the ar_activity table.
+                                                // If it is not specified in the ar_activity table, also note it is not requested from the
+                                                // billing table in below query, thus making it blank in all queries below in this script.
+                                                $CodetypeMaster=$RowSearchSub['code_type'];
+                                                $sql_select_part_codetype = "";
+                                                $sql_where_part_codetype = "";
+                                                if (!empty($CodetypeMaster)) {
+                                                  $sql_select_part_codetype = "billing.code_type,";
+                                                  $sql_where_part_codetype = "and billing.code_type ='$CodetypeMaster'";
+                                                }
 						$CodeMaster=$RowSearchSub['code'];
 						$ModifierMaster=$RowSearchSub['modifier'];
 					 	$res = sqlStatement("SELECT fname,lname,mname FROM patient_data	where pid ='$PId'");
@@ -795,11 +826,12 @@ return false;
 						$lname=$row['lname'];
 						$mname=$row['mname'];
 						$NameDB=$lname.' '.$fname.' '.$mname;
-						$ResultSearch = sqlStatement("SELECT billing.id,last_level_closed,billing.encounter,form_encounter.`date`,billing.code,billing.modifier,fee
+						$ResultSearch = sqlStatement("SELECT billing.id,last_level_closed,billing.encounter,form_encounter.`date`,$sql_select_part_codetype billing.code,billing.modifier,fee
 						 FROM billing ,form_encounter
 						 where billing.encounter=form_encounter.encounter and billing.pid=form_encounter.pid and 
 						 code_type!='ICD9' and  code_type!='COPAY' and billing.activity!=0 and 
 						 form_encounter.pid ='$PId' and billing.pid ='$PId' and billing.encounter ='$EncounterMaster'
+                                                  $sql_where_part_codetype
 						  and billing.code ='$CodeMaster'
 						   and billing.modifier ='$ModifierMaster'
 						 ORDER BY form_encounter.`date`,form_encounter.encounter,billing.code,billing.modifier");
@@ -814,9 +846,9 @@ return false;
 						    <td width="25" class="left top" >&nbsp;</td>
 						    <td width="144" class="left top" ><?php echo htmlspecialchars( xl('Patient Name'), ENT_QUOTES) ?></td>
 							<td width="55" class="left top" ><?php echo htmlspecialchars( xl('Post For'), ENT_QUOTES) ?></td>
-							<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Srv Date'), ENT_QUOTES) ?></td>
-							<td width="50" class="left top" ><?php echo htmlspecialchars( xl('Encnter'), ENT_QUOTES) ?></td>
-							<td width="65" class="left top" ><?php echo htmlspecialchars( xl('CPT Code'), ENT_QUOTES) ?></td>
+							<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Service Date'), ENT_QUOTES) ?></td>
+							<td width="50" class="left top" ><?php echo htmlspecialchars( xl('Encounter'), ENT_QUOTES) ?></td>
+							<td width="65" class="left top" ><?php echo htmlspecialchars( xl('Service Code'), ENT_QUOTES) ?></td>
 							<td width="50" class="left top" ><?php echo htmlspecialchars( xl('Charge'), ENT_QUOTES) ?></td>
 							<td width="40" class="left top" ><?php echo htmlspecialchars( xl('Copay'), ENT_QUOTES) ?></td>
 							<td width="40" class="left top" ><?php echo htmlspecialchars( xl('Remdr'), ENT_QUOTES) ?></td>
@@ -837,6 +869,7 @@ return false;
 								$CountIndexAbove++;
 								$ServiceDateArray=split(' ',$RowSearch['date']);
 								$ServiceDate=oeFormatShortDate($ServiceDateArray[0]);
+                                                                $Codetype=$RowSearch['code_type'];
 								$Code=$RowSearch['code'];
 								$Modifier =$RowSearch['modifier'];
 								if($Modifier!='')
@@ -847,7 +880,7 @@ return false;
 								$Encounter=$RowSearch['encounter'];
 								
 								$resPayer = sqlStatement("SELECT  payer_type from ar_activity where  session_id ='$payment_id' and
-								pid ='$PId' and  encounter  ='$Encounter' and  code='$Code' and modifier='$Modifier' ");
+								pid ='$PId' and  encounter  ='$Encounter' and code_type='$Codetype' and code='$Code' and modifier='$Modifier' ");
 								$rowPayer = sqlFetchArray($resPayer);
 								$Ins=$rowPayer['payer_type'];
 					
@@ -881,14 +914,14 @@ return false;
 									if($Ins==0)
 									 {//Fetch all values
 										$resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
-										pid ='$PId' and  code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  !(payer_type=0 and 
+										pid ='$PId' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  !(payer_type=0 and 
 										account_code='PCP')");
 										//new fees screen copay gives account_code='PCP'
 										$rowMoneyGot = sqlFetchArray($resMoneyGot);
 										$MoneyGot=$rowMoneyGot['MoneyGot'];
 	
 										$resMoneyAdjusted = sqlStatement("SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where
-										pid ='$PId' and  code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter'");
+										pid ='$PId' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter'");
 										$rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
 										$MoneyAdjusted=$rowMoneyAdjusted['MoneyAdjusted'];
 									 }
@@ -902,13 +935,13 @@ return false;
 										$Sequence=$rowSequence['sequence_no'];
 
 										$resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
-										pid ='$PId' and  code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  
+										pid ='$PId' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  
 										payer_type > 0 and payer_type <='$Ins' and sequence_no<='$Sequence'");
 										$rowMoneyGot = sqlFetchArray($resMoneyGot);
 										$MoneyGot=$rowMoneyGot['MoneyGot'];
 	
 										$resMoneyAdjusted = sqlStatement("SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where
-										pid ='$PId' and  code='$Code' and modifier='$Modifier'   and  encounter  ='$Encounter' and  
+										pid ='$PId' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'   and  encounter  ='$Encounter' and  
 										payer_type > 0 and payer_type <='$Ins' and sequence_no<='$Sequence'");
 										$rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
 										$MoneyAdjusted=$rowMoneyAdjusted['MoneyAdjusted'];
@@ -919,12 +952,12 @@ return false;
 									if($Ins==0)
 									 {//Got just before Patient
 										$resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
-										pid ='$PId' and  code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  payer_type !=0");
+										pid ='$PId' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  payer_type !=0");
 										$rowMoneyGot = sqlFetchArray($resMoneyGot);
 										$MoneyGot=$rowMoneyGot['MoneyGot'];
 	
 										$resMoneyAdjusted = sqlStatement("SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where
-										pid ='$PId' and  code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and payer_type !=0");
+										pid ='$PId' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and payer_type !=0");
 										$rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
 										$MoneyAdjusted=$rowMoneyAdjusted['MoneyAdjusted'];
 									 }
@@ -938,13 +971,13 @@ return false;
 										$Sequence=$rowSequence['sequence_no'];
 
 										$resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
-										pid ='$PId' and  code='$Code' and modifier='$Modifier'   and  encounter  ='$Encounter' 
+										pid ='$PId' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'   and  encounter  ='$Encounter' 
 										and payer_type > 0  and payer_type <='$Ins' and sequence_no<'$Sequence'");
 										$rowMoneyGot = sqlFetchArray($resMoneyGot);
 										$MoneyGot=$rowMoneyGot['MoneyGot'];
 	
 										$resMoneyAdjusted = sqlStatement("SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where
-										pid ='$PId' and  code='$Code' and modifier='$Modifier'   and  encounter  ='$Encounter' 
+										pid ='$PId' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'   and  encounter  ='$Encounter' 
 										and payer_type <='$Ins' and sequence_no<'$Sequence' ");
 										$rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
 										$MoneyAdjusted=$rowMoneyAdjusted['MoneyAdjusted'];
@@ -953,37 +986,37 @@ return false;
 									$RemainderJS=$Fee-$Copay-$MoneyGot-$MoneyAdjusted;
 
 									$resPayment = sqlStatement("SELECT  pay_amount from ar_activity where  session_id ='$payment_id' and
-									pid ='$PId' and  encounter  ='$Encounter' and  code='$Code' and modifier='$Modifier'  and pay_amount>0");
+									pid ='$PId' and  encounter  ='$Encounter' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'  and pay_amount>0");
 									$rowPayment = sqlFetchArray($resPayment);
 									$PaymentDB=$rowPayment['pay_amount']*1;
 									$PaymentDB=$PaymentDB == 0 ? '' : $PaymentDB;
 
 									$resPayment = sqlStatement("SELECT  pay_amount from ar_activity where  session_id ='$payment_id' and
-									pid ='$PId' and  encounter  ='$Encounter' and  code='$Code' and modifier='$Modifier'  and pay_amount<0");
+									pid ='$PId' and  encounter  ='$Encounter' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'  and pay_amount<0");
 									$rowPayment = sqlFetchArray($resPayment);
 									$TakebackDB=$rowPayment['pay_amount']*-1;
 									$TakebackDB=$TakebackDB == 0 ? '' : $TakebackDB;
 
 									$resPayment = sqlStatement("SELECT  adj_amount from ar_activity where  session_id ='$payment_id' and
-									pid ='$PId' and  encounter  ='$Encounter' and  code='$Code' and modifier='$Modifier'  and adj_amount!=0");
+									pid ='$PId' and  encounter  ='$Encounter' and code_type='$Codetype' and code='$Code' and modifier='$Modifier'  and adj_amount!=0");
 									$rowPayment = sqlFetchArray($resPayment);
 									$AdjAmountDB=$rowPayment['adj_amount']*1;
 									$AdjAmountDB=$AdjAmountDB == 0 ? '' : $AdjAmountDB;
 
 									$resPayment = sqlStatement("SELECT  memo from ar_activity where  session_id ='$payment_id' and
-									pid ='$PId' and  encounter  ='$Encounter' and  code='$Code' and modifier='$Modifier'  and memo like 'Deductable%'");
+									pid ='$PId' and  encounter  ='$Encounter' and code_type='$Codetype' and  code='$Code' and modifier='$Modifier'  and memo like 'Deductable%'");
 									$rowPayment = sqlFetchArray($resPayment);
 									$DeductibleDB=$rowPayment['memo'];
 									$DeductibleDB=str_replace('Deductable $','',$DeductibleDB);
 
 									$resPayment = sqlStatement("SELECT  follow_up,follow_up_note from ar_activity where  session_id ='$payment_id' and
-									pid ='$PId' and  encounter  ='$Encounter' and  code='$Code' and modifier='$Modifier'  and follow_up = 'y'");
+									pid ='$PId' and  encounter  ='$Encounter' and code_type='$Codetype' and  code='$Code' and modifier='$Modifier'  and follow_up = 'y'");
 									$rowPayment = sqlFetchArray($resPayment);
 									$FollowUpDB=$rowPayment['follow_up'];
 									$FollowUpReasonDB=$rowPayment['follow_up_note'];
 									
 									$resPayment = sqlStatement("SELECT reason_code from ar_activity where  session_id ='$payment_id' and
-									pid ='$PId' and  encounter  ='$Encounter' and  code='$Code' and modifier='$Modifier'");
+									pid ='$PId' and  encounter  ='$Encounter' and code_type='$Codetype' and  code='$Code' and modifier='$Modifier'");
 									$rowPayment = sqlFetchArray($resPayment);
 									$ReasonCodeDB=$rowPayment['reason_code'];
 
@@ -1029,12 +1062,12 @@ return false;
 								 $allowedtot=$allowedtot+$AllowedDB;
 						  ?>
 						  <tr class="text"  bgcolor='<?php echo $bgcolor; ?>' id="trCharges<?php echo $CountIndex; ?>">
-						    <td align="left" class="<?php echo $StringClass; ?>" ><a href="#" onClick="javascript:return DeletePaymentDistribution('<?php echo  htmlspecialchars($payment_id.'_'.$PId.'_'.$Encounter.'_'.$Code.'_'.$Modifier); ?>');" ><img src="../pic/Delete.gif" border="0"/></a></td>
+						    <td align="left" class="<?php echo $StringClass; ?>" ><a href="#" onClick="javascript:return DeletePaymentDistribution('<?php echo  htmlspecialchars($payment_id.'_'.$PId.'_'.$Encounter.'_'.$Code.'_'.$Modifier.'_'.$Codetype); ?>');" ><img src="../pic/Delete.gif" border="0"/></a></td>
 						    <td align="left" class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars($NameDB); ?><input name="HiddenPId<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($PId); ?>" type="hidden"/></td>
 							<td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenIns<?php echo $CountIndex; ?>" id="HiddenIns<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Ins); ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient",'','','ActionOnInsPat("'.$CountIndex.'")'); ?></td>
 							<td class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars($ServiceDate); ?></td>
 							<td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenEncounter<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Encounter); ?>" type="hidden"/><?php echo htmlspecialchars($Encounter); ?></td>
-							<td class="<?php echo $StringClass; ?>" ><input name="HiddenCode<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Code); ?>" type="hidden"/><?php echo htmlspecialchars($Code.$ModifierString); ?><input name="HiddenModifier<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Modifier); ?>" type="hidden"/></td>
+                                                        <td class="<?php echo $StringClass; ?>" ><input name="HiddenCodetype<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Codetype); ?>" type="hidden"/><input name="HiddenCode<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Code); ?>" type="hidden"/><?php echo htmlspecialchars($Codetype."-".$Code.$ModifierString); ?><input name="HiddenModifier<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Modifier); ?>" type="hidden"/></td>
 							<td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenChargeAmount<?php echo $CountIndex; ?>" id="HiddenChargeAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Fee); ?>" type="hidden"/><?php echo htmlspecialchars($Fee); ?></td>
 							<td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenCopayAmount<?php echo $CountIndex; ?>" id="HiddenCopayAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Copay); ?>" type="hidden"/><?php echo htmlspecialchars(number_format($Copay,2)); ?></td>
 							<td align="right"   id="RemainderTd<?php echo $CountIndex; ?>"  class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars(round($Remainder,2)); ?></td>

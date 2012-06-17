@@ -306,9 +306,11 @@ require_once("$srcdir/billing.inc");
       $codekey = $svc['code'];
       if ($svc['mod']) $codekey .= ':' . $svc['mod'];
       $prev = $codes[$codekey];
+      $codetype = ''; //will hold code type, if exists
 
             // This reports detail lines already on file for this service item.
             if ($prev) {
+                $codetype = $codes[$codekey]['code_type']; //store code type
                 writeOldDetail($prev, $patient_name, $invnumber, $service_date, $codekey, $bgcolor);
                 // Check for sanity in amount charged.
                 $prevchg = sprintf("%.2f", $prev['chg'] + $prev['adj']);
@@ -344,7 +346,7 @@ require_once("$srcdir/billing.inc");
                 if (!$error && !$debug) {
           if ($INTEGRATED_AR) {
             arPostCharge($pid, $encounter, 0, $svc['chg'], 1, $service_date,
-              $codekey, $description, $debug);
+              $codekey, $description, $debug,'',$codetype);
           } else {
             slPostCharge($arrow['id'], $svc['chg'], 1, $service_date, $codekey,
               $insurance_id, $description, $debug);
@@ -393,7 +395,7 @@ require_once("$srcdir/billing.inc");
                 if (!$error && !$debug) {
           if ($INTEGRATED_AR) {
             arPostPayment($pid, $encounter,$InsertionId[$out['check_number']], $svc['paid'],//$InsertionId[$out['check_number']] gives the session id
-              $codekey, substr($inslabel,3), $out['check_number'], $debug);
+              $codekey, substr($inslabel,3), $out['check_number'], $debug,'',$codetype);
           } else {
             slPostPayment($arrow['id'], $svc['paid'], $check_date,
               "$inslabel/" . $out['check_number'], $codekey, $insurance_id, $debug);
@@ -440,7 +442,7 @@ require_once("$srcdir/billing.inc");
                     if (!$error && !$debug) {
             if ($INTEGRATED_AR) {
               arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], 0, $codekey,//$InsertionId[$out['check_number']] gives the session id
-                substr($inslabel,3), $reason, $debug);
+                substr($inslabel,3), $reason, $debug, '', $codetype);
             } else {
               slPostAdjustment($arrow['id'], 0, $production_date,
                 $out['check_number'], $codekey, $insurance_id,
@@ -456,7 +458,7 @@ require_once("$srcdir/billing.inc");
             if ($INTEGRATED_AR) {
               arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], $adj['amount'],//$InsertionId[$out['check_number']] gives the session id
                 $codekey, substr($inslabel,3),
-                "Adjust code " . $adj['reason_code'], $debug);
+                "Adjust code " . $adj['reason_code'], $debug, '', $codetype);
             } else {
               slPostAdjustment($arrow['id'], $adj['amount'], $production_date,
                 $out['check_number'], $codekey, $insurance_id,

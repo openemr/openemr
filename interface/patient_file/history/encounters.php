@@ -609,7 +609,7 @@ while ($result4 = sqlFetchArray($res4)) {
                     //   !$code_types[$iter2['code_type']]['fee']) continue;
                     $title = htmlspecialchars(($iter2['code_text']), ENT_QUOTES);
                     $codekey = $iter2['code'];
-                    $codekeydisp = $codekey;
+                    $codekeydisp = $iter2['code_type']." - ".$iter2['code'];
                     if ($iter2['code_type'] == 'COPAY') {
                       $codekey = 'CO-PAY';
                       $codekeydisp = xl('CO-PAY');

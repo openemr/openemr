@@ -413,8 +413,9 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
   $bill = $_POST['bill'];
   $copay_update = FALSE;
   $update_session_id = '';
-  $cod0 = '';//takes the code of the first non-empty modifier from the fee sheet, against which the copay is posted
-  $mod0 = '';//takes the first non-empty modifier from the fee sheet, against which the copay is posted
+  $ct0 = '';//takes the code type of the first fee type code type entry from the fee sheet, against which the copay is posted
+  $cod0 = '';//takes the code of the first fee type code type entry from the fee sheet, against which the copay is posted
+  $mod0 = '';//takes the modifier of the first fee type code type entry from the fee sheet, against which the copay is posted
   for ($lino = 1; $bill["$lino"]['code_type']; ++$lino) {
     $iter = $bill["$lino"];
     $code_type = $iter['code_type'];
@@ -426,9 +427,10 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
 
     $id        = $iter['id'];
     $modifier  = trim($iter['mod']);
-    if(!$mod0 && $modifier != ''){
+    if( !($cod0) && ($code_types[$code_type]['fee'] == 1) ){
       $mod0 = $modifier;
       $cod0 = $code;
+      $ct0 = $code_type;
     }
     $units     = max(1, intval(trim($iter['units'])));
     $fee       = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
@@ -442,9 +444,9 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
         $session_id = idSqlStatement("INSERT INTO ar_session(payer_id,user_id,pay_total,payment_type,description,".
           "patient_id,payment_method,adjustment_code,post_to_date) VALUES('0',?,?,'patient','COPAY',?,'','patient_payment',now())",
           array($_SESSION['authId'],$fee,$pid));
-        SqlStatement("INSERT INTO ar_activity (pid,encounter,code,modifier,payer_type,post_time,post_user,session_id,".
-          "pay_amount,account_code) VALUES (?,?,?,?,0,now(),?,?,?,'PCP')",
-          array($pid,$encounter,$cod0,$mod0,$_SESSION['authId'],$session_id,$fee));
+        SqlStatement("INSERT INTO ar_activity (pid,encounter,code_type,code,modifier,payer_type,post_time,post_user,session_id,".
+          "pay_amount,account_code) VALUES (?,?,?,?,?,0,now(),?,?,?,'PCP')",
+          array($pid,$encounter,$ct0,$cod0,$mod0,$_SESSION['authId'],$session_id,$fee));
       }else{
         //editing copay saved to ar_session and ar_activity
         if($fee < 0){
@@ -456,12 +458,12 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
         if($fee != $res_amount['pay_amount']){
           sqlStatement("UPDATE ar_session SET user_id=?,pay_total=?,modified_time=now(),post_to_date=now() WHERE session_id=?",
             array($_SESSION['authId'],$fee,$session_id));
-          sqlStatement("UPDATE ar_activity SET code=?, modifier=?, post_user=?, post_time=now(),".
+          sqlStatement("UPDATE ar_activity SET code_type=?, code=?, modifier=?, post_user=?, post_time=now(),".
             "pay_amount=?, modified_time=now() WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
-            array($cod0,$mod0,$_SESSION['authId'],$fee,$pid,$encounter,$session_id));
+            array($ct0,$cod0,$mod0,$_SESSION['authId'],$fee,$pid,$encounter,$session_id));
         }
       }
-      if(!$mod0){
+      if(!$cod0){
         $copay_update = TRUE;
         $update_session_id = $session_id;
       }
@@ -507,9 +509,9 @@ if ($_POST['bn_save'] || $_POST['bn_save_close']) {
   //if modifier is not inserted during loop update the record using the first
   //non-empty modifier and code
   if($copay_update == TRUE && $update_session_id != '' && $mod0 != ''){
-    sqlStatement("UPDATE ar_activity SET code=?, modifier=?".
+    sqlStatement("UPDATE ar_activity SET code_type=?, code=?, modifier=?".
       " WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
-      array($cod0,$mod0,$pid,$encounter,$update_session_id));
+      array($ct0,$cod0,$mod0,$pid,$encounter,$update_session_id));
   }
 
   // Doing similarly to the above but for products.

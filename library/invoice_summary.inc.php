@@ -191,6 +191,10 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
       $codes[$code]['chg'] += $amount;
       $codes[$code]['bal'] += $amount;
     }
+
+    // Pass the code type label
+    $codes[$code]['code_type'] = $row['code_type'];
+
     // Add the details if they want 'em.
     if ($with_detail) {
       if (! $codes[$code]['dtl']) $codes[$code]['dtl'] = array();

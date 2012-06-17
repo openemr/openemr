@@ -247,7 +247,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
   
   // Post a payment, new style.
   //
-  function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug, $time='') {
+  function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug, $time='', $codetype='') {
     $codeonly = $code;
     $modifier = '';
     $tmp = strpos($code, ':');
@@ -257,11 +257,12 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
     }
     if (empty($time)) $time = date('Y-m-d H:i:s');
     $query = "INSERT INTO ar_activity ( " .
-      "pid, encounter, code, modifier, payer_type, post_time, post_user, " .
+      "pid, encounter, code_type, code, modifier, payer_type, post_time, post_user, " .
       "session_id, memo, pay_amount " .
       ") VALUES ( " .
       "'$patient_id', " .
       "'$encounter_id', " .
+      "'$codetype', " .
       "'$codeonly', " .
       "'$modifier', " .
       "'$payer_type', " .
@@ -279,7 +280,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
   // automated remittance processing can create a new service item.
   // Here we add it as an unauthorized item to the billing table.
   //
-  function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, $thisdate, $code, $description, $debug) {
+  function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, $thisdate, $code, $description, $debug, $codetype='') {
     /*****************************************************************
     // Select an existing billing item as a template.
     $row= sqlQuery("SELECT * FROM billing WHERE " .
@@ -294,6 +295,10 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
     }
     *****************************************************************/
 
+    if (empty($codetype)) {
+      // default to CPT4 if empty, which is consistent with previous functionality.
+      $codetype="CPT4";
+    }
     $codeonly = $code;
     $modifier = '';
     $tmp = strpos($code, ':');
@@ -303,7 +308,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
     }
 
     addBilling($encounter_id,
-      'CPT4',
+      $codetype,
       $codeonly,
       $description,
       $patient_id,
@@ -352,7 +357,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
 
   // Post an adjustment, new style.
   //
-  function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $debug, $time='') {
+  function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $debug, $time='', $codetype='') {
     $codeonly = $code;
     $modifier = '';
     $tmp = strpos($code, ':');
@@ -362,11 +367,12 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
     }
     if (empty($time)) $time = date('Y-m-d H:i:s');
     $query = "INSERT INTO ar_activity ( " .
-      "pid, encounter, code, modifier, payer_type, post_user, post_time, " .
+      "pid, encounter, code_type, code, modifier, payer_type, post_user, post_time, " .
       "session_id, memo, adj_amount " .
       ") VALUES ( " .
       "'$patient_id', " .
       "'$encounter_id', " .
+      "'$codetype', " .
       "'$codeonly', " .
       "'$modifier', " .
       "'$payer_type', " .

@@ -291,6 +291,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
         $thispay  = trim($cdata['pay']);
         $thisadj  = trim($cdata['adj']);
         $thisins  = trim($cdata['ins']);
+        $thiscodetype = trim($cdata['code_type']);
         $reason   = strip_escape_custom($cdata['reason']);
 
         // Get the adjustment reason type.  Possible values are:
@@ -324,7 +325,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
         if ($thispay) {
           if ($INTEGRATED_AR) {
             arPostPayment($patient_id, $encounter_id, $session_id,
-              $thispay, $code, $payer_type, '', $debug);
+              $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
           } else {
             slPostPayment($trans_id, $thispay, $thisdate, $thissrc, $code, $thisins, $debug);
           }
@@ -361,7 +362,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
           }
           if ($INTEGRATED_AR) {
             arPostAdjustment($patient_id, $encounter_id, $session_id,
-              $thisadj, $code, $payer_type, $reason, $debug);
+              $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
           } else {
             slPostAdjustment($trans_id, $thisadj, $thisdate, $thissrc, $code, $thisins, $reason, $debug);
           }
@@ -806,6 +807,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
   <td class="detail" align="right">
    <input type="hidden" name="form_line[<?php echo $code ?>][bal]" value="<?php bucks($cdata['bal']) ?>">
    <input type="hidden" name="form_line[<?php echo $code ?>][ins]" value="<?php echo $cdata['ins'] ?>">
+   <input type="hidden" name="form_line[<?php echo $code ?>][code_type]" value="<?php echo $cdata['code_type'] ?>">
    <?php printf("%.2f", $cdata['bal']) ?>&nbsp;
   </td>
   <td class="detail">
