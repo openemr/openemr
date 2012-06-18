@@ -348,7 +348,7 @@ $(document).ready(function() {
 			<?php } else { ?>
 			<a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
 			<?php } ?>
-			<font class=title><?php xl('Current Patient','e'); ?></font>
+			<font class=title><?php xl(	'Current Patient','e'); ?></font>
 			</a>
 			&nbsp;&nbsp;
 		</td>
