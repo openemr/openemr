@@ -37,6 +37,7 @@ $code_id = 0;
 $related_code = '';
 $active = 1;
 $reportable = 0;
+$financial_reporting = 0;
 
 if (isset($mode)) {
   $code_id    = empty($_POST['code_id']) ? '' : $_POST['code_id'] + 0;
@@ -48,7 +49,8 @@ if (isset($mode)) {
   $related_code = $_POST['related_code'];
   $cyp_factor = $_POST['cyp_factor'] + 0;
   $active     = empty($_POST['active']) ? 0 : 1;
-  $reportable = empty($_POST['reportable']) ? 0 : 1;
+  $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
+  $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
 
   $taxrates = "";
   if (!empty($_POST['taxrate'])) {
@@ -81,6 +83,7 @@ if (isset($mode)) {
         "cyp_factor = '"   . ffescape($cyp_factor)   . "', " .
         "taxrates = '"     . ffescape($taxrates)     . "', " .
         "active = "        . add_escape_custom($active) . ", " .
+        "financial_reporting = " . add_escape_custom($financial_reporting) . ", " .
         "reportable = "    . add_escape_custom($reportable);
       if ($code_id) {
         $query = "UPDATE codes SET $sql WHERE id = ?";
@@ -125,6 +128,7 @@ if (isset($mode)) {
       $taxrates     = $row['taxrates'];
       $active       = 0 + $row['active'];
       $reportable   = 0 + $row['reportable'];
+      $financial_reporting  = 0 + $row['financial_reporting'];
     }
   }
   else if ($mode == "modify") { // someone clicked [Modify]
@@ -146,6 +150,7 @@ if (isset($mode)) {
       $taxrates     = $row['taxrates'];
       $active       = $row['active'];
       $reportable   = $row['reportable'];
+      $financial_reporting  = $row['financial_reporting'];
     }
   }
 }
@@ -161,12 +166,23 @@ if ($filter) {
  $filter_key = convert_type_id_to_key($filter);
 }
 $search = $_REQUEST['search'];
+$search_reportable = $_REQUEST['search_reportable'];
+$search_financial_reporting = $_REQUEST['search_financial_reporting'];
+
+//Build the filter_elements array
+$filter_elements = array();
+if (!empty($search_reportable)) {
+ $filter_elements['reportable'] = $search_reportable;
+}
+if (!empty($search_financial_reporting)) {
+ $filter_elements['financial_reporting'] = $search_financial_reporting;
+}
 
 if ($filter) {
- $count = code_set_search($filter_key,$search,true,false);
+ $count = code_set_search($filter_key,$search,true,false,false,NULL,NULL,$filter_elements);
 }
 else {
- $count = code_set_search("--ALL--",$search,true,false);
+ $count = code_set_search("--ALL--",$search,true,false,false,NULL,NULL,$filter_elements);
 }
 if ($fstart >= $count) $fstart -= $pagesize;
 if ($fstart < 0) $fstart = 0;
@@ -413,8 +429,11 @@ foreach ($code_types as $key => $value) {
 generate_form_field(array('data_type'=>1,'field_id'=>'superbill','list_id'=>'superbill'), $superbill);
 ?>
    &nbsp;&nbsp;
-   <input type='checkbox' name='reportable' value='1'<?php if (!empty($reportable)) echo ' checked'; ?> />
-   <?php echo xlt('Reportable'); ?>
+   <input type='checkbox' title='<?php echo xlt("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) echo ' checked'; ?> />
+   <?php echo xlt('Diagnosis Reporting'); ?>
+   &nbsp;&nbsp;&nbsp;&nbsp;
+   <input type='checkbox' title='<?php echo xlt("Service Code Finance Reporting") ?>' name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) echo ' checked'; ?> />
+   <?php echo xlt('Service Reporting'); ?>
   </td>
  </tr>
 
@@ -494,7 +513,7 @@ if ($taxline) {
  </tr>
 
 </table>
-
+<br>
 <table border='0' cellpadding='5' cellspacing='0' width='96%'>
  <tr>
 
@@ -531,7 +550,12 @@ foreach ($code_types as $key => $value) {
    &nbsp;&nbsp;&nbsp;&nbsp;
 
    <input type="text" name="search" size="5" value="<?php echo attr($search) ?>">&nbsp;
-   <input type="submit" name="go" value='<?php echo xla('Search'); ?>'>
+   <input type="submit" name="go" value='<?php echo xla('Search'); ?>'>&nbsp;&nbsp;
+   <input type='checkbox' title='<?php echo xlt("Only Show Diagnosis Reporting Codes") ?>' name='search_reportable' value='1'<?php if (!empty($search_reportable)) echo ' checked'; ?> />
+   <?php echo xlt('Diagnosis Reporting Only'); ?>
+   &nbsp;&nbsp;&nbsp;&nbsp;
+   <input type='checkbox' title='<?php echo xlt("Only Show Service Code Finance Reporting Codes") ?>' name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) echo ' checked'; ?> />
+   <?php echo xlt('Service Reporting Only'); ?>
    <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'>
   </td>
 
@@ -559,7 +583,8 @@ foreach ($code_types as $key => $value) {
   <td><span class='bold'><?php echo xlt('Code'); ?></span></td>
   <td><span class='bold'><?php echo xlt('Mod'); ?></span></td>
   <td><span class='bold'><?php echo xlt('Act'); ?></span></td>
-  <td><span class='bold'><?php echo xlt('Rep'); ?></span></td>
+  <td><span class='bold'><?php echo xlt('Dx Rep'); ?></span></td>
+  <td><span class='bold'><?php echo xlt('Serv Rep'); ?></span></td>
   <td><span class='bold'><?php echo xlt('Type'); ?></span></td>
   <td><span class='bold'><?php echo xlt('Description'); ?></span></td>
 <?php if (related_codes_are_used()) { ?>
@@ -583,10 +608,10 @@ if (in_array($filter_key,$external_sets)) {
 }
 
 if ($filter) {
- $res = code_set_search($filter_key,$search,false,false,false,$fstart,($fend - $fstart));
+ $res = code_set_search($filter_key,$search,false,false,false,$fstart,($fend - $fstart),$filter_elements);
 }
 else {
- $res = code_set_search("--ALL--",$search,false,false,false,$fstart,($fend - $fstart));
+ $res = code_set_search("--ALL--",$search,false,false,false,$fstart,($fend - $fstart),$filter_elements);
 }
 
 for ($i = 0; $row = sqlFetchArray($res); $i++) $all[$i] = $row;
@@ -616,6 +641,7 @@ if (!empty($all)) {
       echo "  <td class='text'>" . ( ($iter["active"]) ? xlt('Yes') : xlt('No')) . "</td>\n";
     }
     echo "  <td class='text'>" . ($iter["reportable"] ? xlt('Yes') : xlt('No')) . "</td>\n";
+    echo "  <td class='text'>" . ($iter["financial_reporting"] ? xlt('Yes') : xlt('No')) . "</td>\n";
     echo "  <td class='text'>" . text($iter['code_type_name']) . "</td>\n";
     echo "  <td class='text'>" . text($iter['code_text']) . "</td>\n";
 

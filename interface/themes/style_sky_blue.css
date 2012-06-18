@@ -1056,3 +1056,13 @@ font-size:9pt;
 .cke_contents {
 height: 300px !important;
 }
+
+/* Form styles */
+.formtable {
+        font-size:13px;
+        line-height: 24px;
+    }
+.formtable tr td {
+        line-height: 24px;
+    }
+

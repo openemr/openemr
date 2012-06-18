@@ -402,3 +402,7 @@ ALTER TABLE x12_partners ADD COLUMN x12_isa03 VARCHAR( 2 ) NOT NULL DEFAULT '00'
 ALTER TABLE x12_partners ADD COLUMN x12_isa04 VARCHAR( 10 ) NOT NULL DEFAULT '          ' COMMENT 'User Password';
 #EndIf
 
+#IfMissingColumn codes financial_reporting
+ALTER TABLE `codes` ADD COLUMN `financial_reporting` TINYINT(1) DEFAULT 0 COMMENT '0 = negative, 1 = considered important code in financial reporting';
+#EndIf
+

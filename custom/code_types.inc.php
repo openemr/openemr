@@ -127,8 +127,9 @@ function convert_type_id_to_key($id) {
 // $active - if true, then will only return active entries (not pertinent for PROD or external code sets)
 // $return_only_one - if true, then will only return one perfect matching item
 // $start - Query start limit
-// $end - Query end limit
-function code_set_search($form_code_type,$search_term="",$count=false,$active=true,$return_only_one=false,$start=NULL,$number=NULL) {
+// $number - Query number returned
+// $filter_elements - Array that contains elements to filter
+function code_set_search($form_code_type,$search_term="",$count=false,$active=true,$return_only_one=false,$start=NULL,$number=NULL,$filter_elements=array()) {
   global $code_types;
 
   $limit_query = '';
@@ -137,6 +138,14 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
   }
   if ($return_only_one) {
      $limit_query = " LIMIT 1 ";
+  }
+
+  // build the filter_elements sql code
+  $query_filter_elements="";
+  if (!empty($filter_elements)) {
+   foreach ($filter_elements as $key => $element) {
+    $query_filter_elements .= " AND codes." . add_escape_custom($key) . "=" . "'" . add_escape_custom($element)  . "' ";
+   }
   }
 
   if ($form_code_type == 'PROD') { // Search for products/drugs
@@ -156,7 +165,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
     $active_query=" AND codes.active = 1 ";
    }
    $query = "SELECT `id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, " .
-            "`superbill`, `related_code`, `taxrates`, `cyp_factor`, `active`, `reportable`, " .
+            "`superbill`, `related_code`, `taxrates`, `cyp_factor`, `active`, `reportable`, `financial_reporting`, " .
             "code_types.ct_key as code_type_name " .
             "FROM `codes` " .
             "LEFT OUTER JOIN `code_types` " .
@@ -164,6 +173,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
             "WHERE (codes.code_text LIKE ? OR " .
             "codes.code LIKE ?) AND code_types.ct_external = '0' " .
             " $active_query " .
+            " $query_filter_elements " .
             "ORDER BY code_type,code+0,code $limit_query";
    $res = sqlStatement($query, array("%".$search_term."%", "%".$search_term."%") );
   }
@@ -175,7 +185,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
    }
    $sql_bind_array = array();
    $query = "SELECT `id`, `code_text`, `code_text_short`, `code`, `code_type`, `modifier`, `units`, `fee`, " .
-            "`superbill`, `related_code`, `taxrates`, `cyp_factor`, `active`, `reportable`, " .
+            "`superbill`, `related_code`, `taxrates`, `cyp_factor`, `active`, `reportable`, `financial_reporting`, " .
             "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
             "FROM `codes` ";
    if ($return_only_one) {
@@ -186,7 +196,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
     $query .= "WHERE (codes.code_text LIKE ? OR codes.code LIKE ?) ";
     array_push($sql_bind_array,"%".$search_term."%", "%".$search_term."%");
    }
-   $query .= "AND code_type = ? $active_query " .
+   $query .= "AND code_type = ? $active_query $query_filter_elements " .
              "ORDER BY code+0,code $limit_query";
    array_push($sql_bind_array,$code_types[$form_code_type]['id']);
    $res = sqlStatement($query,$sql_bind_array);
@@ -205,18 +215,18 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
     $sql_bind_array = array();
     $query = "SELECT icd10_dx_order_code.formatted_dx_code as code, icd10_dx_order_code.long_desc as code_text, " .
              "codes.id, codes.code_type, codes.modifier, codes.units, codes.fee, " .
-             "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, codes.active, codes.reportable, " .
+             "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, codes.active, codes.reportable, codes.financial_reporting, " .
              "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
              "FROM `icd10_dx_order_code` " .
              "LEFT OUTER JOIN `codes` " .
              "ON icd10_dx_order_code.formatted_dx_code = codes.code AND codes.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE icd10_dx_order_code.formatted_dx_code = ? AND icd10_dx_order_code.valid_for_coding = '1' $active_query ";
+     $query .= "WHERE icd10_dx_order_code.formatted_dx_code = ? AND icd10_dx_order_code.valid_for_coding = '1' $active_query $query_filter_elements ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE (icd10_dx_order_code.long_desc LIKE ? OR icd10_dx_order_code.formatted_dx_code LIKE ?) AND icd10_dx_order_code.valid_for_coding = '1' $active_query ";
+     $query .= "WHERE (icd10_dx_order_code.long_desc LIKE ? OR icd10_dx_order_code.formatted_dx_code LIKE ?) AND icd10_dx_order_code.valid_for_coding = '1' $active_query $query_filter_elements";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
     $query .= "ORDER BY `formatted_dx_code`+0, `formatted_dx_code` $limit_query";
@@ -236,18 +246,18 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
     $sql_bind_array = array();
     $query = "SELECT `ConceptId` as code, `FullySpecifiedName` as code_text, " .
              "codes.id, codes.code_type, codes.modifier, codes.units, codes.fee, " .
-             "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, codes.active, codes.reportable, " .
+             "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, codes.active, codes.reportable, codes.financial_reporting, " .
              "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
              "FROM `sct_concepts` " .
              "LEFT OUTER JOIN `codes` " .
              "ON sct_concepts.ConceptId = codes.code AND codes.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE (`ConceptId` = ? AND `FullySpecifiedName` LIKE '%(disorder)') $active_query ";
+     $query .= "WHERE (`ConceptId` = ? AND `FullySpecifiedName` LIKE '%(disorder)') $active_query $query_filter_elements ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE ((`FullySpecifiedName` LIKE ? OR `ConceptId` LIKE ?) AND `FullySpecifiedName` LIKE '%(disorder)') $active_query ";
+     $query .= "WHERE ((`FullySpecifiedName` LIKE ? OR `ConceptId` LIKE ?) AND `FullySpecifiedName` LIKE '%(disorder)') $active_query $query_filter_elements ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
     $query .= "AND `ConceptStatus` = 0 " .
@@ -271,18 +281,18 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
     $sql_bind_array = array();
     $query = "SELECT icd9_dx_code.formatted_dx_code as code, icd9_dx_code.long_desc as code_text, " .
              "codes.id, codes.code_type, codes.modifier, codes.units, codes.fee, " .
-             "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, codes.active, codes.reportable, " .
+             "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, codes.active, codes.reportable, codes.financial_reporting, " .
              "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
              "FROM `icd9_dx_code` " .
              "LEFT OUTER JOIN `codes` " .
              "ON icd9_dx_code.formatted_dx_code = codes.code AND codes.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE icd9_dx_code.formatted_dx_code = ? $active_query ";
+     $query .= "WHERE icd9_dx_code.formatted_dx_code = ? $active_query $query_filter_elements ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE (icd9_dx_code.long_desc LIKE ? OR icd9_dx_code.formatted_dx_code LIKE ?) $active_query ";
+     $query .= "WHERE (icd9_dx_code.long_desc LIKE ? OR icd9_dx_code.formatted_dx_code LIKE ?) $active_query $query_filter_elements ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
     $query .= "ORDER BY `formatted_dx_code`+0, `formatted_dx_code` $limit_query";

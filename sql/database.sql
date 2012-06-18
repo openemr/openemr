@@ -499,6 +499,7 @@ CREATE TABLE `codes` (
   `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
   `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active',
   `reportable` TINYINT(1) DEFAULT 0 COMMENT '0 = non-reportable, 1 = reportable',
+  `financial_reporting` TINYINT(1) DEFAULT 0 COMMENT '0 = negative, 1 = considered important code in financial reporting',
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
