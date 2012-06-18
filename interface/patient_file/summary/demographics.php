@@ -124,6 +124,7 @@ $vitals_is_registered = $tmp['count'];
 $result  = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 $result2 = getEmployerData($pid);
 $result3 = getInsuranceData($pid, "primary", "copay, provider, DATE_FORMAT(`date`,'%Y-%m-%d') as effdate");
+$result6 = getHistoryData($pid);
 $insco_name = "";
 if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
   $insco_name = getInsuranceProvider($result3['provider']);
@@ -539,9 +540,6 @@ if ($GLOBALS['patient_id_category_name']) {
 <table cellspacing='0' cellpadding='0' border='0'>
  <tr>
   <td class="small" colspan='4'>
-<a href="../history/history.php" onclick='top.restoreSession()'>
-<?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
-|
 <?php //note that we have temporarily removed report screen from the modal view ?>
 <a href="../report/patient_report.php" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
@@ -855,6 +853,34 @@ if ( $insurance_count > 0 ) {
 
 			</td>
 		</tr>
+		
+		<tr>
+     <td width='650px'>
+<?php // history expand collapse widget
+  $widgetTitle = xl("History");
+  $widgetLabel = "history";
+  $widgetButtonLabel = xl("Edit");
+  $widgetButtonLink = "../history/history_full.php";
+  $widgetButtonClass = "";
+  $linkMethod = "html";
+  $bodyClass = "";
+  $widgetAuth = true;
+  $fixedWidth = true;
+  expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+    $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+    $widgetAuth, $fixedWidth);
+?>
+		<div id="HIS">
+                <ul class="tabNav">
+                   <?php display_layout_tabs('HIS', $result6, $result2); ?>
+                </ul>
+                <div class="tabContainer">
+                   <?php display_layout_tabs_data('HIS', $result6, $result2); ?>
+                </div>
+         </div>
+        </div> <!-- required for expand_collapse_widget -->
+       </td>
+      </tr>
 
 		<tr>
 			<td width='650px'>
