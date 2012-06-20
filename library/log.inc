@@ -252,7 +252,7 @@ function sql_checksum_of_modified_row($statement)
      else {
         $sql = "select * from $table where id = $rid";
     }
-    $results = sqlQuery($sql,'true');    
+    $results = sqlQueryNoLog($sql);    
     $column_values = "";
    /* Concatenating the column values for the row inserted/updated */
     if (is_array($results)) {

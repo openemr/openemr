@@ -175,45 +175,46 @@ function sqlInsert($statement, $binds=array())
 //   feature to prevent sql-injection.
 // This function is specialized for simply returning
 //   the first row of a query as an associative array.
-// The $status_or_binds parameter can do following:
-//   FALSE or an array() - Run adodb Execute with binding,
-//     if applicable.
-//   TRUE - run mysql_query for a specific case in the audit engine
-//     (library/log.inc) to skip auditing and reporting if the query
-//     does not work.
-function sqlQuery($statement, $status_or_binds=FALSE)
+function sqlQuery($statement, $binds=NULL)
 {
-  if ((is_array($status_or_binds)) || ($status_or_binds === FALSE)) {
-    // run the adodb Execute function
-    //   Note the auditSQLEvent function is embedded in the
-    //     adodb Execute function.
-    if (is_array($status_or_binds)) {
-      $recordset = $GLOBALS['adodb']['db']->Execute( $statement, $status_or_binds );
-    }
-    else {
-      $recordset = $GLOBALS['adodb']['db']->Execute( $statement );
-    }
-    if ($recordset === FALSE) {
-      HelpfulDie("query failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
-    }
-    if ($recordset->EOF)
-     return FALSE;
-    $rez = $recordset->FetchRow();
-    if ($rez == FALSE)
-      return FALSE;
-    return $rez;
+  if (is_array($binds)) {
+    $recordset = $GLOBALS['adodb']['db']->Execute( $statement, $binds );
   }
   else {
-    // run mysql_query to bypass the audit engine if error
-    //   in query.
-    $resource = mysql_query($statement, $GLOBALS['dbh']);
-    auditSQLEvent($statement, TRUE, $status_or_binds);
-   //$rez = @mysql_fetch_array($query, MYSQL_ASSOC);
-    $rez = @mysql_fetch_array($resource, MYSQL_ASSOC); //Replace $query with $resource to calculate correct checksum
-    if ($rez == FALSE)
-      return FALSE;
-    return $rez;
+    $recordset = $GLOBALS['adodb']['db']->Execute( $statement );
   }
+  if ($recordset === FALSE) {
+    HelpfulDie("query failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
+  }
+  if ($recordset->EOF)
+   return FALSE;
+  $rez = $recordset->FetchRow();
+  if ($rez == FALSE)
+    return FALSE;
+  return $rez;
+}
+
+// Function that is the equivalent of the above
+//   sqlQuery() function, EXCEPT it skips the
+//   audit engine. This function should only be used
+//   in very special situations.
+function sqlQueryNoLog($statement, $binds=NULL)
+{
+  if (is_array($binds)) {
+    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement, $binds );
+  }
+  else {
+    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement );
+  }
+  if ($recordset === FALSE) {
+    HelpfulDie("query failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
+  }
+  if ($recordset->EOF)
+   return FALSE;
+  $rez = $recordset->FetchRow();
+  if ($rez == FALSE)
+    return FALSE;
+  return $rez;
 }
 
 // ViSolve: Create a seperate function for audit log calls.
