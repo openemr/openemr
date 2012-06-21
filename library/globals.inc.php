@@ -206,6 +206,14 @@ $GLOBALS_METADATA = array(
       xl('Enables the old Charges panel for entering billing codes and payments. Not recommended, use the Fee Sheet instead.')
     ),
 
+    // TajEmo Work BY CB 2012/06/21 10:42:31 AM added option to Hide Fees
+    'enable_fees_in_left_menu' => array(
+      xl('Enable Fees In Left Menu'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Enable Fees In Left Menu')
+    ),
+
     'online_support_link' => array(
       xl('Online Support Link'),
       'text',                           // data type
