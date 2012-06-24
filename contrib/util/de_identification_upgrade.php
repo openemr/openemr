@@ -29,13 +29,13 @@ require_once('../../interface/globals.php');
 require_once('../../library/sql.inc');
 require_once('../../library/sqlconf.php');
 
-function tableExists($tblname) {
+function tableExists_de($tblname) {
   $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
   if (empty($row)) return false;
   return true;
 }
 
-function upgradeFromSqlFile($filename) {
+function upgradeFromSqlFile_de($filename) {
   global $webserver_root;
 
   flush();
@@ -63,7 +63,7 @@ function upgradeFromSqlFile($filename) {
     if ($line == "") continue;
 
     if (preg_match('/^#IfNotTable\s+(\S+)/', $line, $matches)) {
-      $skipping = tableExists($matches[1]);
+      $skipping = tableExists_de($matches[1]);
       if ($skipping) echo "<font color='green'>"; echo xl('Skipping section'); echo " ".$line."</font><br />\n";
     }
     else if (preg_match('/^#EndIf/', $line)) {
@@ -124,7 +124,7 @@ closedir($dh);
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {
-  upgradeFromSqlFile("database_de_identification.sql");
+  upgradeFromSqlFile_de("database_de_identification.sql");
 
   // grant file privilege to user
   if ($sqlconf["host"] == "localhost")

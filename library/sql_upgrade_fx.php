@@ -1,62 +1,211 @@
 <?php
-// Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// Functions to allow safe database and global modifications
-// during upgrading and patches
-//
+/**
+* Upgrading and patching functions of database.
+*
+* Functions to allow safe database modifications
+* during upgrading and patches.
+*
+* Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+* 
+* @package   OpenEMR
+* @author    Rod Roark <rod@sunsetsystems.com>
+* @author    Brady Miller <brady@sparmy.com>
+* @link      http://www.open-emr.org
+*/
 
+/**
+* Check if a Sql table exists.
+*
+* @param  string  $tblname  Sql Table Name
+* @return boolean           returns true if the sql table exists
+*/
 function tableExists($tblname) {
   $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
   if (empty($row)) return false;
   return true;
 }
 
+/**
+* Check if a Sql column exists in a selected table.
+*
+* @param  string  $tblname  Sql Table Name
+* @param  string  $colname  Sql Column Name
+* @return boolean           returns true if the sql column exists
+*/
 function columnExists($tblname, $colname) {
   $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
   if (empty($row)) return false;
   return true;
 }
 
+/**
+* Check if a Sql column has a certain type.
+*
+* @param  string  $tblname  Sql Table Name
+* @param  string  $colname  Sql Column Name
+* @param  string  $coltype  Sql Column Type
+* @return boolean           returns true if the sql column is of the specified type
+*/
 function columnHasType($tblname, $colname, $coltype) {
   $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
   if (empty($row)) return true;
   return (strcasecmp($row['Type'], $coltype) == 0);
 }
 
+/**
+* Check if a Sql row exists. (with one value)
+*
+* @param  string  $tblname  Sql Table Name
+* @param  string  $colname  Sql Column Name
+* @param  string  $value    Sql value
+* @return boolean           returns true if the sql row does exist
+*/
 function tableHasRow($tblname, $colname, $value) {
   $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
     "$colname LIKE '$value'");
   return $row['count'] ? true : false;
 }
 
+/**
+* Check if a Sql row exists. (with two values)
+*
+* @param  string  $tblname   Sql Table Name
+* @param  string  $colname   Sql Column Name 1
+* @param  string  $value     Sql value 1
+* @param  string  $colname2  Sql Column Name 2
+* @param  string  $value2    Sql value 2
+* @return boolean            returns true if the sql row does exist
+*/
 function tableHasRow2D($tblname, $colname, $value, $colname2, $value2) {
   $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
     "$colname LIKE '$value' AND $colname2 LIKE '$value2'");
   return $row['count'] ? true : false;
 }
 
+/**
+* Check if a Sql row exists. (with three values)
+*
+* @param  string  $tblname   Sql Table Name
+* @param  string  $colname   Sql Column Name 1
+* @param  string  $value     Sql value 1
+* @param  string  $colname2  Sql Column Name 2
+* @param  string  $value2    Sql value 2
+* @param  string  $colname3  Sql Column Name 3
+* @param  string  $value3    Sql value 3
+* @return boolean            returns true if the sql row does exist
+*/
 function tableHasRow3D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3) {
   $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
     "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3'");
   return $row['count'] ? true : false;
 }
 
+/**
+* Check if a Sql row exists. (with four values)
+*
+* @param  string  $tblname   Sql Table Name
+* @param  string  $colname   Sql Column Name 1
+* @param  string  $value     Sql value 1
+* @param  string  $colname2  Sql Column Name 2
+* @param  string  $value2    Sql value 2
+* @param  string  $colname3  Sql Column Name 3
+* @param  string  $value3    Sql value 3
+* @param  string  $colname4  Sql Column Name 4
+* @param  string  $value4    Sql value 4
+* @return boolean            returns true if the sql row does exist
+*/
 function tableHasRow4D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3, $colname4, $value4) {
   $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
     "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3' AND $colname4 LIKE '$value4'");
   return $row['count'] ? true : false;
 }
 
+/**
+* Check if a Sql table has a certain index/key.
+*
+* @param  string  $tblname  Sql Table Name
+* @param  string  $colname  Sql Index/Key
+* @return boolean           returns true if the sql tables has the specified index/key
+*/
 function tableHasIndex($tblname, $colname) {
   $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
   return (empty($row)) ? false : true;
 }
 
+/**
+* Upgrade or patch the database with a selected upgrade/patch file.
+*
+* The following "functions" within the selected file will be processed:
+*
+* #IfNotTable
+*   argument: table_name
+*   behavior: if the table_name does not exist,  the block will be executed
+*
+* #IfTable
+*   argument: table_name
+*   behavior: if the table_name does exist, the block will be executed
+*
+* #IfMissingColumn
+*   arguments: table_name colname
+*   behavior:  if the table exists but the column does not,  the block will be executed
+*
+* #IfNotColumnType
+*   arguments: table_name colname value
+*   behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
+*
+* #IfNotRow
+*   arguments: table_name colname value
+*   behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
+*
+* #IfNotRow2D
+*   arguments: table_name colname value colname2 value2
+*   behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2, the block will be executed.
+*
+* #IfNotRow3D
+*   arguments: table_name colname value colname2 value2 colname3 value3
+*   behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.
+*
+* #IfNotRow4D
+*   arguments: table_name colname value colname2 value2 colname3 value3 colname4 value4
+*   behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2 AND colname3 = value3 AND colname4 = value4, the block will be executed.
+*
+* #IfNotRow2Dx2
+*   desc:      This is a very specialized function to allow adding items to the list_options table to avoid both redundant option_id and title in each element.
+*   arguments: table_name colname value colname2 value2 colname3 value3
+*   behavior:  The block will be executed if both statements below are true:
+*              1) The table table_name does not have a row where colname = value AND colname2 = value2.
+*              2) The table table_name does not have a row where colname = value AND colname3 = value3.
+*
+* #IfRow2D
+*   arguments: table_name colname value colname2 value2
+*   behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
+*
+* #IfIndex
+*   desc:      This function is most often used for dropping of indexes/keys.
+*   arguments: table_name colname
+*   behavior:  If the table and index exist the relevant statements are executed, otherwise not.
+*
+* #IfNotIndex
+*   desc:      This function will allow adding of indexes/keys.
+*   arguments: table_name colname
+*   behavior:  If the index does not exist, it will be created
+*
+* #EndIf
+*   all blocks are terminated with a #EndIf statement.
+*
+* @param  string  $filename  Sql upgrade/patch filename
+*/
 function upgradeFromSqlFile($filename) {
   global $webserver_root;
 
