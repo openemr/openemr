@@ -228,7 +228,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 					$iter["code"] . ']" type="checkbox" value="' . $iter[code] . '">' .
 					"</td><td><div><a target='$target' class='small' " .
           "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-					$iter{"code"} . "</b> " . ucwords(strtolower($iter{"code_text"})) .
+					$iter{"code"} . "</b> " . $iter{"code_text"} .
 					"</a></div></td></tr>\n";
 				$billing_html[$iter["code_type"]] .= $html;
 				$counter++;
