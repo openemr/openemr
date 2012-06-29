@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- 
+// Copyright (C) 2011 Medical Information Integration, LLC <tony@mi-squared.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 
+-->
+
+<form>
+  <table type="form">form_gyn_ros</table>
+  <RealName>Gyn Review of Systems</RealName>
+  <safename>gyn_ros</safename>
+  <style cells_per_row="5">layout</style>
+  <acl table="patients">med</acl>
+
+  <manual>
+
+<!-- General ROS, Cardio, Gastro, Urinary, CNS, Other, Complications -->
+
+    <section name="cardio" label="Cardio - Respiratory System">
+        <field name="cardio_reviewed" label="Reviewed" type="checkbox_list" list="yesno" hoverover="If CHECKED you must include a note" labelcols="1" cols="1"/>
+        <field name="cardio_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Described the results of the review" labelcols="1" cols="1"/>
+    </section>
+
+   <section name="gastro" label="Gastro - Intestinal System">
+        <field name="gastro_reviewed" label="Reviewed" type="checkbox_list" list="yesno" hoverover="If CHECKED you must include a note" labelcols="1" cols="1"/>
+        <field name="gastro_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe the results of the review" labelcols="1" cols="1"/>
+    </section>
+
+    <section name="urinary" label="Urinary System">
+        <field name="Urinary_reviewed" label="Reviewed" type="checkbox_list" list="yesno" hoverover="If CHECKED you must include a note" labelcols="1" cols="1"/>
+        <field name="Urinary_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe the results of the review" labelcols="1" cols="1"/>
+    </section>
+
+    <section name="cns" label="Central Nervous System">
+        <field name="cns_reviewed" label="Reviewed" type="checkbox_list" list="yesno" hoverover="If CHECKED you must include a note" labelcols="1" cols="1"/>
+        <field name="cns_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe the results of the review" labelcols="1" cols="1"/>
+    </section>
+
+    <section name="othersys" label="Other Systems">
+        <field name="other_reviewed" label="Reviewed" type="checkbox_list" list="yesno" hoverover="If CHECKED you must include a note" labelcols="1" cols="1"/>
+        <field name="other_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe system reviewed and the results of the review" labelcols="1" cols="1"/>
+    </section>
+
+    <section name="complications" label="Complications">
+        <field name="complications_reviewed" label="Reviewed" type="checkbox_list" list="yesno" hoverover="If CHECKED you must include a note" labelcols="1" cols="1"/>
+        <field name="complications_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe the complication" labelcols="1" cols="1"/>
+    </section>
+
+<!-- GYN Specific -->
+    <section name="menstrual" label="Menstrual History">
+        <field name="lmpdate" label="LMP Start Date" type="textfield" hoverover="When was the the first day of your last menstrual period?" labelcols="3" cols="2"/>
+        <field name="cycle_int" label="Cycle Interval" type="dropdown_list" list="menses_cycle" maxlength="30" hoverover="What is the Interval of your Flow?" labelcols="1" cols="1"/>
+        <field name="cycle_int_note" label="Note" type="textarea" rows="1" columns="100" hoverover="Enter any addtional interval information" labelcols="1" cols="2"/>
+        <field name="flowfhcount" label="Flow - FH count" type="textfield" maxlength="2" hoverover="How many tampons/pads per day" labelcols="1" cols="1"/>
+        <field name="flowhrs" label="Flow - Hrs between changes" type="textfield" maxlength="2" hoverover="How many between tampons/pads changes" labelcols="1" cols="2"/>
+        <field name="pmb" label="Post Menapausal Bleeding" type="checkbox_list" list="yesno" hoverover="" labelcols="1" cols="1"/>
+    </section>
+    <section name="infection" label="Vaginal Infection">
+        <field name="vag_discharge" label="Discharge" type="checkbox_list" list="yesno" hoverover="If CHECKED you must include a note" labelcols="1" cols="1"/>
+        <field name="vag_discharge_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe the color and amount" labelcols="1" cols="2"/>
+        <field name="vag_itching" label="Itching" type="checkbox_list" list="yesno" hoverover="" labelcols="1" cols="1"/>
+        <field name="vag_itching_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe" labelcols="1" cols="2"/>
+        <field name="vag_odor" label="Odor" type="checkbox_list" list="yesno" hoverover="" labelcols="1" cols="1"/>
+        <field name="vag_odor_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe" labelcols="1" cols="2"/>
+        <field name="vag_irratation" label="Irritation" type="checkbox_list" list="yesno" hoverover="" labelcols="1" cols="1"/>
+        <field name="vag_irratation_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe" labelcols="1" cols="2"/>
+        <field name="vag_spotting" label="Spotting" type="checkbox_list" list="yesno" hoverover="" labelcols="1" cols="1"/>
+        <field name="vag_spotting_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe" labelcols="1" cols="2"/>
+        <field name="priortreatment" label="Prior Treatment" type="checkbox_list" list="yesno" hoverover="Have you tried to treat the symptoms prior to this visit" labelcols="1" cols="1"/>
+        <field name="priortreatment_note" label="Note" type="textarea" rows="3" columns="160" hoverover="Describe" labelcols="1" cols="2"/>
+    </section>
+    <section name="pelvic pain" label="Pelvic Pain">
+        <field name="pain_menses" label="Menses Pain" type="dropdown_list" list="menses_pain" maxlength="25" hoverover="Pain with or between menses?" labelcols="1" cols="4"/>
+        <field name="pain_level" label="Pain Level" type="textfield" maxlength="2" hoverover="Level of pain 1-10" labelcols="1" cols="2"/>
+        <field name="pain_location" label="Pain Location" type="dropdown_list" list="menses_pain_location" maxlength="30" hoverover="Select Quadrant" labelcols="1" cols="1"/>
+        <field name="pain_lenth" label="Pain Length of Time" type="textfield" maxlength="30" hoverover="Enter Months, Years etc" labelcols="1" cols="2"/>
+        <field name="pain_drug_resp" label="Pain OTC/NSAIDS Response" type="textfield" maxlength="30" hoverover="Is the pain responsive to OTC drugs? Which?" labelcols="1" cols="3"/>
+        <field name="pain_intercourse" label="Pain with Intercourse" type="checkbox_list" list="yesno" hoverover="" labelcols="1" cols="2"/>
+        <field name="pain_intercourse_time" label="How Long" type="textarea" rows="1" columns="120" hoverover="How Long, etc?" labelcols="1" cols="2"/>
+    </section>
+  </manual>
+  <!-- yesno already exists -->
+  <list name="yesno" label="Yes/No" type="standard" id="yesno" import="no"/>
+
+  <!-- list need to be created in list_options table
+    menses_cycle ,1 ,Once a month ,1 ,0 ,0 ,  ,for form gyn_ros
+    menses_cycle ,2 ,Less than once a month ,2 ,0 ,0 ,  ,for form gyn_ros
+    menses_cycle ,3 ,1 to 3 months ,3 ,0 ,0 ,  ,for form gyn_ros
+    menses_cycle ,4 ,3 month or longer ,4 ,0 ,0 ,  ,for form gyn_ros
+
+    menses_pain ,between ,Between Menses ,2 ,0 ,0 ,  ,for form gyn_ros
+    menses_pain ,constant ,Constant ,3 ,0 ,0 ,  ,for form gyn_ros
+    menses_pain ,other ,Other ,4 ,0 ,0 ,  ,for form gyn_ros
+    menses_pain ,with ,With Menses ,1 ,0 ,0 ,  ,for form gyn_ros
+    
+    menses_pain_location ,lowleft ,Lower Left Quadrant ,2 ,0 ,0 ,  ,for form gyn_ros
+    menses_pain_location ,lowright ,Lower Right Quadrant ,1 ,0 ,0 ,  ,for form gyn_ros
+    menses_pain_location ,mid ,Middle Quadrant ,3 ,0 ,0 ,  ,for form gyn_ros
+    menses_pain_location ,rectal ,Rectal Area ,4 ,0 ,0 ,  ,
+  -->
+
+  <list name="menses_cycle" label="Cycle Interval" id="menses_cycle" type="standard" import="no" />
+  <list name="menses_pain" label="Menses Pain" id="menses_pain" type="standard" import="no"/>
+  <list name="menses_pain_location" label="Pain Location" id="menses_pain_location" type="standard" import="no" />
+      
+</form>
+
