@@ -1026,7 +1026,7 @@ while ($brow = sqlFetchArray($bres)) {
   }
 
   write_form_line($code_type, $brow['code'], $brow['id'], $thisdate,
-    ucfirst(strtolower($brow['code_text'])), $brow['fee'], $brow['units'],
+    $brow['code_text'], $brow['fee'], $brow['units'],
     $taxrates);
   if (!$inv_encounter) $inv_encounter = $brow['encounter'];
   $inv_payer = $brow['payer_id'];
