@@ -706,7 +706,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		  }
 		  else{
 		    $okN = 1;
-		    $prow = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
+		    $prow = sqlQuery("SELECT IFNULL(MAX(pid)+1,1) AS pid FROM patient_data");
 		  }
 		}
 		if($okE==1 || $okN == 2 || $okN == 1 || $okO == 1){
