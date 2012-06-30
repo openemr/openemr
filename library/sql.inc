@@ -35,9 +35,6 @@ class ADODB_mysql_log extends ADODB_mysql
         /**
         * ADODB Execute function wrapper to ensure proper auditing in OpenEMR.
         *
-        * Stashing the insert ID into lastidado so it doesn't get clobbered when
-        * we insert into the audit log.
-        *
         * @param  string  $sql         query
         * @param  array   $inputarr    binded variables array (optional)
         * @return boolean              returns false if error
@@ -45,6 +42,8 @@ class ADODB_mysql_log extends ADODB_mysql
     	function Execute($sql,$inputarr=false)
         {
             $retval= parent::Execute($sql,$inputarr);
+            // Stash the insert ID into lastidado so it doesn't get clobbered when
+            // we insert into the audit log.
             $GLOBALS['lastidado']=$this->Insert_ID();
             $outcome= ($retval === false) ? false : true;
             auditSQLEvent($sql,$outcome,$inputarr);
