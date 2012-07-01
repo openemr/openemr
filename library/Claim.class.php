@@ -145,10 +145,17 @@ class Claim {
     $this->encounter = sqlQuery($sql);
 
     // Sort by procedure timestamp in order to get some consistency.
-    $sql = "SELECT * FROM billing WHERE " .
-      "encounter = '{$this->encounter_id}' AND pid = '{$this->pid}' AND " .
-      "(code_type = 'CPT4' OR code_type = 'HCPCS' OR code_type = 'COPAY' OR code_type = 'ICD9') AND " .
-      "activity = '1' ORDER BY date, id";
+    $sql = "SELECT b.id, b.date, b.code_type, b.code, b.pid, b.provider_id, " .
+      "b.user, b.groupname, b.authorized, b.encounter, b.code_text, b.billed, " .
+      "b.activity, b.payer_id, b.bill_process, b.bill_date, b.process_date, " .
+      "b.process_file, b.modifier, b.units, b.fee, b.justify, b.target, b.x12_partner_id, " .
+      "b.ndc_info, b.notecodes, ct.ct_diag " .
+      "FROM billing as b INNER JOIN code_types as ct " .
+      "ON b.code_type = ct.ct_key " .
+      "WHERE ( ct.ct_fee = '1' OR ct.ct_diag = '1' ) AND " .
+      "ct.ct_active = '1' AND " .
+      "b.encounter = '{$this->encounter_id}' AND b.pid = '{$this->pid}' AND " .
+      "b.activity = '1' ORDER BY b.date, b.id";
     $res = sqlStatement($sql);
     while ($row = sqlFetchArray($res)) {
       if ($row['code_type'] == 'COPAY') {
@@ -156,7 +163,7 @@ class Claim {
         continue;
       }
       // Save all diagnosis codes.
-      if ($row['code_type'] == 'ICD9') {
+      if ($row['ct_diag'] == '1') {
         $this->diags[$row['code']] = $row['code'];
         continue;
       }
