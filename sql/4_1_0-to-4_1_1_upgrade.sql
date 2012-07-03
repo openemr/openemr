@@ -411,3 +411,63 @@ ALTER TABLE x12_partners ADD COLUMN x12_isa04 VARCHAR( 10 ) NOT NULL DEFAULT '  
 ALTER TABLE `codes` ADD COLUMN `financial_reporting` TINYINT(1) DEFAULT 0 COMMENT '0 = negative, 1 = considered important code in financial reporting';
 #EndIf
 
+#IfNotColumnType codes code_type smallint(6)
+ALTER TABLE `codes` CHANGE `code_type` `code_type` SMALLINT(6) default NULL;
+#EndIf
+
+#IfNotIndex codes code_type
+CREATE INDEX `code_type` ON `codes` (`code_type`);
+#EndIf
+
+#IfNotColumnType billing code_type varchar(15)
+ALTER TABLE `billing` CHANGE `code_type` `code_type` VARCHAR(15) default NULL;
+#EndIf
+
+#IfNotColumnType codes modifier varchar(12)
+ALTER TABLE `codes` CHANGE `modifier` `modifier` VARCHAR(12) NOT NULL default '';
+#EndIf
+
+#IfNotColumnType ar_activity modifier varchar(12)
+ALTER TABLE `ar_activity` CHANGE `modifier` `modifier` VARCHAR(12) NOT NULL default '';
+#EndIf
+
+#IfNotRow code_types ct_key CPTII
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (
+  `id` int(11) NOT NULL DEFAULT '0',
+  `seq` int(11) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM ;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES ( IF( ((SELECT MAX(`ct_id`) FROM `code_types`)>=100), ((SELECT MAX(`ct_id`) FROM `code_types`) + 1), 100 ) , IF( ((SELECT MAX(`ct_seq`) FROM `code_types`)>=100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100 )  );
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external ) VALUES ('CPTII' , (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 12, 'ICD9', 1, 0, 0, 0, 0, 'CPTII', 0);
+DROP TABLE `temp_table_one`;
+#EndIf
+
+#IfNotRow code_types ct_key ICD9-SG
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (
+  `id` int(11) NOT NULL DEFAULT '0',
+  `seq` int(11) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM ;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES ( IF( ((SELECT MAX(`ct_id`) FROM `code_types`)>=100), ((SELECT MAX(`ct_id`) FROM `code_types`) + 1), 100 ) , IF( ((SELECT MAX(`ct_seq`) FROM `code_types`)>=100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100 )  );
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external ) VALUES ('ICD9-SG' , (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 12, 'ICD9', 1, 0, 0, 0, 0, 'ICD9 Procedure/Service', 5);
+DROP TABLE `temp_table_one`;
+#EndIf
+
+#IfNotRow code_types ct_key ICD10-PCS
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (
+  `id` int(11) NOT NULL DEFAULT '0',
+  `seq` int(11) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM ;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES ( IF( ((SELECT MAX(`ct_id`) FROM `code_types`)>=100), ((SELECT MAX(`ct_id`) FROM `code_types`) + 1), 100 ) , IF( ((SELECT MAX(`ct_seq`) FROM `code_types`)>=100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100 )  );
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external ) VALUES ('ICD10-PCS' , (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 12, 'ICD10', 1, 0, 0, 0, 0, 'ICD10 Procedure/Service', 6);
+DROP TABLE `temp_table_one`;
+UPDATE `code_types` SET `ct_label`='ICD9 Diagnosis' WHERE `ct_key`='ICD9';
+UPDATE `code_types` SET `ct_label`='CPT4 Procedure/Service' WHERE `ct_key`='CPT4';
+UPDATE `code_types` SET `ct_label`='HCPCS Procedure/Service' WHERE `ct_key`='HCPCS';
+UPDATE `code_types` SET `ct_label`='CVX Immunization' WHERE `ct_key`='CVX';
+UPDATE `code_types` SET `ct_label`='DSMIV Diagnosis' WHERE `ct_key`='DSMIV';
+UPDATE `code_types` SET `ct_label`='ICD10 Diagnosis' WHERE `ct_key`='ICD10';
+UPDATE `code_types` SET `ct_label`='SNOMED Diagnosis' WHERE `ct_key`='SNOMED';
+#EndIf
+
