@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2011 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2012 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -645,10 +645,10 @@ function goHome() {
   if ($GLOBALS['athletic_team']) {
     // Generates a menu item for each active issue that this patient
     // has of each issue type.  Each one looks like this:
-    //   Onset-Date Issue-Title [List] [Add]
+    //   Onset-Date [Add] Issue-Title
     // where the first part is a link to open the issue dialog,
-    // [List] is a link that shows related encounters, and
-    // [Add] is a link that auto-creates and opens a new encounter.
+    // [Add] is a link that auto-creates and opens a new encounter, and
+    // Issue-Title is a link that shows related encounters.
     foreach ($ISSUE_TYPES as $key => $value) {
 ?>
   $('#icontainer_<?php echo $key ?>').empty();
@@ -669,13 +669,19 @@ function goHome() {
  } // end function reloadIssues
 
  // This is referenced in left_nav_issues_ajax.php and is called when [Add]
- // is clicked for an issue menu item to add encounter notes to a new or
- // existing encounter linked to that issue.  So far this only applies to
- // the Athletic Team version of the menu.
+ // is clicked for an issue menu item to add a new encounter for the issue.
+ // So far this only applies to the Athletic Team version of the menu.
  //
  function addEncNotes(issue) {
-  top.restoreSession();
-  $.getScript('../../library/ajax/left_nav_encounter_ajax.php?issue=' + issue);
+
+  // top.restoreSession();
+  // $.getScript('../../library/ajax/left_nav_encounter_ajax.php?createvisit=1&issue=' + issue);
+
+  // The above AJAX call was to create the encounter right away, but we later
+  // (2012-07-03) decided it's better to present the New Encounter form instead.
+  // Note the issue ID is passed so it will be pre-selected in that form.
+  loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=&issue=' + issue);
+
   return false;
  }
 

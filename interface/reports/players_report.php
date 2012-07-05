@@ -165,7 +165,7 @@ if (empty($_GET['embed'])) echo "  window.close();\n";
  // Process click on [Add Rehab Form] to add a new encounter and TP form.
  function newtpform(issue) {
   top.restoreSession();
-  $.getScript('../../library/ajax/left_nav_encounter_ajax.php?issue=' + issue + '&followup=createtpform');
+  $.getScript('../../library/ajax/left_nav_encounter_ajax.php?issue=' + issue + '&followup=createtpform&createvisit=1');
   return false;
  }
 

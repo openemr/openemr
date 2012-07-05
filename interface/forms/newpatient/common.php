@@ -330,19 +330,18 @@ while ($irow = sqlFetchArray($ires)) {
   $list_id = $irow['id'];
   $tcode = $irow['type'];
   if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
-
+  echo "    <option value='$list_id'";
   if ($viewmode) {
-    echo "    <option value='$list_id'";
     $perow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
       "pid = '$pid' AND encounter = '$encounter' AND list_id = '$list_id'");
     if ($perow['count']) echo " selected";
-    echo ">$tcode: " . $irow['begdate'] . " " .
-      htmlspecialchars(substr($irow['title'], 0, 40)) . "</option>\n";
   }
   else {
-    echo "    <option value='$list_id'>$tcode: ";
-    echo $irow['begdate'] . " " . htmlspecialchars(substr($irow['title'], 0, 40)) . "</option>\n";
+    // For new encounters the invoker may pass an issue ID.
+    if (!empty($_REQUEST['issue']) && $_REQUEST['issue'] == $list_id) echo " selected";
   }
+  echo ">$tcode: " . $irow['begdate'] . " " .
+    htmlspecialchars(substr($irow['title'], 0, 40)) . "</option>\n";
 }
 ?>
    </select>
