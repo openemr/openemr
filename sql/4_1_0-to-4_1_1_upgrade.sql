@@ -471,3 +471,9 @@ UPDATE `code_types` SET `ct_label`='ICD10 Diagnosis' WHERE `ct_key`='ICD10';
 UPDATE `code_types` SET `ct_label`='SNOMED Diagnosis' WHERE `ct_key`='SNOMED';
 #EndIf
 
+#IfMissingColumn code_types ct_claim
+ALTER TABLE `code_types` ADD COLUMN `ct_claim` tinyint(1) NOT NULL default 0 COMMENT '1 if this is used in claims';
+UPDATE `code_types` SET `ct_claim`='1' WHERE `ct_key`='ICD9' OR `ct_key`='CPT4' OR `ct_key`='HCPCS' OR `ct_key`='DSMIV' OR `ct_key`='ICD10' OR `ct_key`='SNOMED' OR `ct_key`='CPTII' OR `ct_key`='ICD9-SG' OR `ct_key`='ICD10-PCS';
+UPDATE `code_types` SET `ct_fee`='0', `ct_mod`='0', `ct_label`='CPTII Performance Measures' WHERE `ct_key`='CPTII';
+#EndIf
+

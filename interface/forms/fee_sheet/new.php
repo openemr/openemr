@@ -159,6 +159,8 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
       } else {
         echo "  <td class='billcell'>&nbsp;</td>\n";
       }
+    }
+    if (justifiers_are_used()) {
       echo "  <td class='billcell' align='center'$usbillstyle>" . text($justify) . "</td>\n";
     }
 
@@ -207,20 +209,21 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
           echo "<input type='hidden' name='bill[".attr($lino)."][units]' value='" . attr($units) . "'>";
         }
         echo "</td>\n";
-        if ($code_types[$codetype]['just'] || $justify) {
-          echo "  <td class='billcell' align='center'$usbillstyle ";
-          echo "title='" . xla("Select one or more diagnosis codes to justify the service") . "' >";
-          echo "<select name='bill[".attr($lino)."][justify]' onchange='setJustify(this)'>";
-          echo "<option value='" . attr($justify) . "'>" . text($justify) . "</option></select>";
-          echo "</td>\n";
-          $justinit .= "setJustify(f['bill[".attr($lino)."][justify]']);\n";
-        } else {
-          echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n";
-        }
       } else {
         echo "  <td class='billcell'>&nbsp;</td>\n";
         echo "  <td class='billcell'>&nbsp;</td>\n";
-        echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n"; // justify
+      }
+    }
+    if (justifiers_are_used()) {
+      if ($code_types[$codetype]['just'] || $justify) {
+        echo "  <td class='billcell' align='center'$usbillstyle ";
+        echo "title='" . xla("Select one or more diagnosis codes to justify the service") . "' >";
+        echo "<select name='bill[".attr($lino)."][justify]' onchange='setJustify(this)'>";
+        echo "<option value='" . attr($justify) . "'>" . text($justify) . "</option></select>";
+        echo "</td>\n";
+        $justinit .= "setJustify(f['bill[".attr($lino)."][justify]']);\n";
+      } else {
+        echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n";
       }
     }
 
@@ -313,6 +316,8 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
     if (fees_are_used()) {
       echo "  <td class='billcell' align='right'>" . text(oeFormatMoney($price)) . "</td>\n";
       echo "  <td class='billcell' align='center'>" . text($units) . "</td>\n";
+    }
+    if (justifiers_are_used()) {
       echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // justify
     }
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n";             // provider
@@ -333,6 +338,8 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
       echo "<input type='text' name='prod[".attr($lino)."][units]' " .
         "value='" . attr($units) . "' size='2' style='text-align:right'>";
       echo "</td>\n";
+    }
+    if (justifiers_are_used()) {
       echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n"; // justify
     }
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n"; // provider
@@ -923,6 +930,8 @@ echo " </tr>\n";
 <?php if (fees_are_used()) { ?>
   <td class='billcell' align='right'><b><?php echo xlt('Price');?></b>&nbsp;</td>
   <td class='billcell' align='center'><b><?php echo xlt('Units');?></b></td>
+<?php } ?>
+<?php if (justifiers_are_used()) { ?>
   <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Justify');?></b></td>
 <?php } ?>
   <td class='billcell' align='center'><b><?php echo xlt('Provider');?></b></td>

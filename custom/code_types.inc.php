@@ -7,6 +7,7 @@
  * because different countries or fields of practice use different methods for
  * coding diagnoses, procedures and supplies.  Fees will not be relevant where
  * medical care is socialized.  Attribues are:
+ *  active   - 1 if this code type is activated
  *  id       - the numeric identifier of this code type in the codes table
  *  fee      - 1 if fees are used, else 0
  *  mod      - the maximum length of a modifier, 0 if modifiers are not used
@@ -14,7 +15,6 @@
  *  rel      - 1 if other billing codes may be "related" to this code type
  *  nofs     - 1 if this code type should NOT appear in the Fee Sheet
  *  diag     - 1 if this code type is for diagnosis
- *  active   - 1 if this code type is activated
  *  label    - label used for code type
  *  external - 0 for storing codes in the code table
  *             1 for storing codes in external ICD10 Diagnosis tables
@@ -23,6 +23,7 @@
  *             4 for storing codes in external ICD9 Diagnosis tables
  *             5 for storing codes in external ICD9 Procedure/Service tables
  *             6 for storing codes in external ICD10 Procedure/Service tables
+ *  claim    - 1 if this code type is used in claims
  *
  * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  *
@@ -67,6 +68,7 @@ $default_search_type = '';
 $ctres = sqlStatement("SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key");
 while ($ctrow = sqlFetchArray($ctres)) {
   $code_types[$ctrow['ct_key']] = array(
+    'active' => $ctrow['ct_active'  ],
     'id'   => $ctrow['ct_id'  ],
     'fee'  => $ctrow['ct_fee' ],
     'mod'  => $ctrow['ct_mod' ],
@@ -76,7 +78,8 @@ while ($ctrow = sqlFetchArray($ctres)) {
     'diag' => $ctrow['ct_diag'],
     'mask' => $ctrow['ct_mask'],
     'label'=> ( (empty($ctrow['ct_label'])) ? $ctrow['ct_key'] : $ctrow['ct_label'] ),
-    'external'=> $ctrow['ct_external']
+    'external'=> $ctrow['ct_external'],
+    'claim' => $ctrow['ct_claim']
   );
   if ($default_search_type === '') $default_search_type = $ctrow['ct_key'];
 }
@@ -88,7 +91,7 @@ while ($ctrow = sqlFetchArray($ctres)) {
  */
 function fees_are_used() {
  global $code_types;
- foreach ($code_types as $value) { if ($value['fee']) return true; }
+ foreach ($code_types as $value) { if ($value['fee'] && $value['active']) return true; }
  return false;
 }
 
@@ -103,8 +106,19 @@ function modifiers_are_used($fee_sheet=false) {
  global $code_types;
  foreach ($code_types as $value) {
   if ($fee_sheet && !empty($value['nofs'])) continue;
-  if ($value['mod']) return true;
+  if ($value['mod'] && $value['active']) return true;
  }
+ return false;
+}
+
+/**
+ * Checks if justifiers are applicable to any of the code types.
+ *
+ * @return boolean
+ */
+function justifiers_are_used() {
+ global $code_types;
+ foreach ($code_types as $value) { if (!empty($value['just']) && $value['active']) return true; }
  return false;
 }
 
@@ -115,7 +129,7 @@ function modifiers_are_used($fee_sheet=false) {
  */
 function related_codes_are_used() {
  global $code_types;
- foreach ($code_types as $value) { if ($value['rel']) return true; }
+ foreach ($code_types as $value) { if ($value['rel'] && $value['active']) return true; }
  return false;
 }
 

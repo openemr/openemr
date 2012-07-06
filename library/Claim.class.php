@@ -152,8 +152,7 @@ class Claim {
       "b.ndc_info, b.notecodes, ct.ct_diag " .
       "FROM billing as b INNER JOIN code_types as ct " .
       "ON b.code_type = ct.ct_key " .
-      "WHERE ( ct.ct_fee = '1' OR ct.ct_diag = '1' ) AND " .
-      "ct.ct_active = '1' AND " .
+      "WHERE ct.ct_claim = '1' AND ct.ct_active = '1' AND " .
       "b.encounter = '{$this->encounter_id}' AND b.pid = '{$this->pid}' AND " .
       "b.activity = '1' ORDER BY b.date, b.id";
     $res = sqlStatement($sql);
