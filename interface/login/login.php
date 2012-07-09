@@ -198,9 +198,9 @@ if (count($result3) != 1) { ?>
 <input type="hidden" name="authNewPass">
 <?php if (isset($GLOBALS['use_adldap_auth']) && ($GLOBALS['use_adldap_auth']== true)): ?>
 <!-- ViCareplus : As per NIST standard, the SHA1 encryption algorithm is used -->
-<input type="submit" onClick="javascript:this.form.authPass.value=SHA1(this.form.clearPass.value);" value=<?php xl('Login','e');?>>
+<input type="submit" onClick="javascript:this.form.authPass.value=SHA1(this.form.clearPass.value);" value="<?php xl('Login','e');?>">
 <?php else: ?>
-<input type="submit" onClick="chk_hash_fn();" value=<?php xl('Login','e');?>>
+<input type="submit" onClick="chk_hash_fn();" value="<?php xl('Login','e');?>">
 <?php endif; ?>
 </td></tr>
 <tr><td colspan='2' class='text' style='color:red'>
