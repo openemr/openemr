@@ -301,10 +301,15 @@ function printPatientForms($pid, $cols) {
             if ($result{"form_name"} == "New Patient Encounter") {
                 // display billing info
                 echo "<br/>";
-                $bres = sqlStatement("SELECT date, code, code_text FROM billing WHERE " .
-                                        "pid = '$pid' AND encounter = '".$result['encounter']."' AND activity = 1 AND " .
-                                        "( code_type = 'CPT4' OR code_type = 'OPCS' OR code_type = 'OSICS10' ) " .
-                                        "ORDER BY date");
+                $bres = sqlStatement("SELECT b.date, b.code, b.code_text " .
+                  "FROM billing AS b, code_types AS ct WHERE " .
+                  "b.pid = ? AND " .
+                  "b.encounter = ? AND " .
+                  "b.activity = 1 AND " .
+                  "b.code_type = ct.ct_key AND " .
+                  "ct.ct_diag = 0 " .
+                  "ORDER BY b.date",
+                  array($pid, $result['encounter']));
                 while ($brow=sqlFetchArray($bres)) {
                     echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
                         $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";

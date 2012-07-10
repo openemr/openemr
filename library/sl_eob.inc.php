@@ -438,7 +438,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
   // Make this invoice re-billable, SQL-Ledger style.
   //
   function slSetupSecondary($invid, $debug) {
-    global $sl_err, $GLOBALS;
+    global $sl_err, $GLOBALS, $code_types;
 
     if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2)
       die("Internal error calling slSetupSecondary()");
@@ -591,7 +591,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
       foreach ($code_types as $key => $value) {
         if (preg_match("/$key/", $row['serialnumber'])) {
           $code_type = $key;
-          if ($value['fee']) {
+          if (!$value['diag']) {
             $code_text = xl("Procedure") . " $code";
           } else {
             $code_text = xl("Diagnosis") . " $code";
@@ -646,7 +646,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
         echo $query . "<br>\n";
       } else {
         $proc_ins_id = idSqlStatement($query);
-        if ($code_type != "CPT4" && $code_type != "HCPCS")
+        if ($code_types[$code_type]['diag'])
           $proc_ins_id = 0;
       }
     }

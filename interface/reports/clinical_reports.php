@@ -25,6 +25,7 @@ $fake_register_globals=false;
 	require_once("$srcdir/options.inc.php");
 	require_once("../drugs/drugs.inc.php");
 	require_once("$srcdir/formatting.inc.php");
+  require_once("../../custom/code_types.inc.php");
 
 	function add_date($givendate,$day=0,$mth=0,$yr=0) {
 		$cd = strtotime($givendate);
@@ -48,6 +49,21 @@ $fake_register_globals=false;
 	$form_diagnosis = trim($_POST["form_diagnosis"]);
 	$form_lab_results = trim($_POST["form_lab_results"]);
 	$form_service_codes = trim($_POST["form_service_codes"]);
+
+// Create comma-separated lists of active diagnosis and procedure code types.
+$ct_diag_list = '';
+$ct_proc_list = '';
+foreach ($code_types as $ct_key => $ct_arr) {
+  if (!$ct_arr['active']) continue;
+  if ($ct_arr['diag']) {
+    if ($ct_diag_list) $ct_diag_list .= ',';
+    $ct_diag_list .= urlencode($ct_key);
+  }
+  else {
+    if ($ct_proc_list) $ct_proc_list .= ',';
+    $ct_proc_list .= urlencode($ct_key);
+  }
+}
 ?>
 <html>
 <head>
@@ -102,13 +118,13 @@ function set_related(codetype, code, selector, codedesc) {
 //This invokes the find-code popup.
 function sel_diagnosis(e) {
  current_sel_name = e.name;
- dlgopen('../patient_file/encounter/find_code_popup.php?codetype=ICD9<?php if ($GLOBALS['ippf_specific']) echo '&?codetype=IPPF' ?>', '_blank', 500, 400);
+ dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo $ct_diag_list; ?>', '_blank', 500, 400);
 }
 
 //This invokes the find-code popup.
 function sel_procedure(e) {
  current_sel_name = e.name;
- dlgopen('../patient_file/encounter/find_code_popup.php?codetype=CPT4<?php if ($GLOBALS['ippf_specific']) echo '&?codetype=IPPF' ?>', '_blank', 500, 400);
+ dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo $ct_proc_list; ?>', '_blank', 500, 400);
 }
 </script>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>

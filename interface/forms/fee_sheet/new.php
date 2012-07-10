@@ -168,7 +168,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     echo "  <td class='billcell' align='center'>";
     genProviderSelect('', '-- '.xl("Default").' --', $provider_id, true);
     echo "</td>\n";
-    if ($codetype == 'HCPCS' || $codetype == 'CPT4') {
+    if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
       echo "  <td class='billcell' align='center'$usbillstyle>" .
         htmlspecialchars($notecodes, ENT_NOQUOTES) . "</td>\n";
     }
@@ -231,7 +231,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     echo "  <td class='billcell' align='center'>";
     genProviderSelect("bill[$lino][provid]", '-- '.xl("Default").' --', $provider_id);
     echo "</td>\n";
-    if ($codetype == 'HCPCS' || $codetype == 'CPT4') {
+    if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
       echo "  <td class='billcell' align='center'$usbillstyle><input type='text' name='bill[".attr($lino)."][notecodes]' " .
         "value='" . htmlspecialchars($notecodes, ENT_QUOTES) . "' maxlength='10' size='8' /></td>\n";
     }
