@@ -50,20 +50,6 @@ $fake_register_globals=false;
 	$form_lab_results = trim($_POST["form_lab_results"]);
 	$form_service_codes = trim($_POST["form_service_codes"]);
 
-// Create comma-separated lists of active diagnosis and procedure code types.
-$ct_diag_list = '';
-$ct_proc_list = '';
-foreach ($code_types as $ct_key => $ct_arr) {
-  if (!$ct_arr['active']) continue;
-  if ($ct_arr['diag']) {
-    if ($ct_diag_list) $ct_diag_list .= ',';
-    $ct_diag_list .= urlencode($ct_key);
-  }
-  else {
-    if ($ct_proc_list) $ct_proc_list .= ',';
-    $ct_proc_list .= urlencode($ct_key);
-  }
-}
 ?>
 <html>
 <head>
@@ -118,13 +104,13 @@ function set_related(codetype, code, selector, codedesc) {
 //This invokes the find-code popup.
 function sel_diagnosis(e) {
  current_sel_name = e.name;
- dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo $ct_diag_list; ?>', '_blank', 500, 400);
+ dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo collect_codetypes("diagnosis","csv"); ?>', '_blank', 500, 400);
 }
 
 //This invokes the find-code popup.
 function sel_procedure(e) {
  current_sel_name = e.name;
- dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo $ct_proc_list; ?>', '_blank', 500, 400);
+ dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo collect_codetypes("procedure","csv"); ?>', '_blank', 500, 400);
 }
 </script>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>

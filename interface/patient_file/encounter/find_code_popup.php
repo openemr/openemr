@@ -21,6 +21,11 @@ if (isset($codetype)) {
 }
 
 $form_code_type = $_POST['form_code_type'];
+
+// This variable is used to store the html element
+// of the target script where the selected code
+// will be stored in.
+$target_element = $_GET['target_element'];
 ?>
 <html>
 <head>
@@ -34,11 +39,23 @@ td { font-size:10pt; }
 
 <script language="JavaScript">
 
+ // Standard function
  function selcode(codetype, code, selector, codedesc) {
   if (opener.closed || ! opener.set_related)
    alert('<?php echo addslashes( xl('The destination form was closed; I cannot act on your selection.') ); ?>');
   else
    opener.set_related(codetype, code, selector, codedesc);
+  window.close();
+  return false;
+ }
+
+ // Standard function with additional parameter to select which
+ // element on the target page to place the selected code into.
+ function selcode_target(codetype, code, selector, codedesc, target_element) {
+  if (opener.closed || ! opener.set_related_target)
+   alert('<?php echo addslashes( xl('The destination form was closed; I cannot act on your selection.') ); ?>');
+  else
+   opener.set_related_target(codetype, code, selector, codedesc, target_element);
   window.close();
   return false;
  }
@@ -49,10 +66,19 @@ td { font-size:10pt; }
 
 <body class="body_top">
 
+<?php
+$string_target_element = "";
+if (!empty($target_element)) {
+$string_target_element = "?target_element=".attr($target_element)."&";
+}
+else {
+$string_target_element = "?";
+}
+?>
 <?php if (isset($allowed_codes)) { ?>
-  <form method='post' name='theform' action='find_code_popup.php?codetype=<?php echo attr($codetype) ?>'>
+  <form method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>codetype=<?php echo attr($codetype) ?>'>
 <?php } else { ?>
-  <form method='post' name='theform' action='find_code_popup.php'>
+  <form method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>'>
 <?php } ?>
 
 <center>
@@ -108,7 +134,11 @@ else {
    &nbsp;
    <input type='submit' name='bn_search' value='<?php echo xla('Search'); ?>' />
    &nbsp;&nbsp;&nbsp;
-   <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
+   <?php if (!empty($target_element)) { ?>
+     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', '<?php echo addslashes($target_element); ?>')" />
+   <? } else { ?>
+     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
+   <?php } ?>
    </b>
   </td>
  </tr>
@@ -147,8 +177,16 @@ else {
     while ($row = sqlFetchArray($res)) { // Display normal search
       $itercode = addslashes($row['code']);
       $itertext = addslashes(trim($row['code_text']));
-      $anchor = "<a href='' " .
-        "onclick='return selcode(\"" . addslashes($form_code_type) . "\", \"$itercode\", \"\", \"$itertext\")'>";
+      if (!empty($target_element)) {
+        // add a 5th parameter to function to select the target element on the form for placing the code.
+        $target_element = addslashes($target_element);
+        $anchor = "<a href='' " .
+          "onclick='return selcode_target(\"" . addslashes($form_code_type) . "\", \"$itercode\", \"\", \"$itertext\", \"$target_element\")'>";
+      }
+      else {
+        $anchor = "<a href='' " .
+          "onclick='return selcode(\"" . addslashes($form_code_type) . "\", \"$itercode\", \"\", \"$itertext\")'>";
+      }
       echo " <tr>";
       echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
       echo "  <td>$anchor" . text($itertext) . "</a></td>\n";

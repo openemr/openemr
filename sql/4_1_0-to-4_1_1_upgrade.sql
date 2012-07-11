@@ -662,3 +662,8 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ALTER TABLE `standardized_tables_track` ADD COLUMN `file_checksum` varchar(32);
 #EndIf
 
+#IfMissingColumn code_types ct_proc
+ALTER TABLE `code_types` ADD COLUMN `ct_proc` tinyint(1) NOT NULL default 0 COMMENT '1 if this is a procedure type';
+UPDATE `code_types` SET `ct_proc`='1' WHERE `ct_key`='CPT4' OR `ct_key`='HCPCS' OR `ct_key`='ICD9-SG' OR `ct_key`='ICD10-PCS';
+#EndIf
+

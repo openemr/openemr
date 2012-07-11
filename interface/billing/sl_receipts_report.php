@@ -18,6 +18,7 @@
   require_once("$srcdir/formatting.inc.php");
   require_once "$srcdir/options.inc.php";
   require_once "$srcdir/formdata.inc.php";
+  require_once("../../custom/code_types.inc.php");
 
   // This determines if a particular procedure code corresponds to receipts
   // for the "Clinic" column as opposed to receipts for the practitioner.  Each
@@ -50,8 +51,19 @@
   }
 
   $form_use_edate  = $_POST['form_use_edate'];
-  $form_cptcode    = trim($_POST['form_cptcode']);
-  $form_icdcode    = trim($_POST['form_icdcode']);
+
+  $form_proc_codefull = trim($_POST['form_proc_codefull']);
+  // Parse the code type and the code from <code_type>:<code>
+  $tmp_code_array = explode(':',$form_proc_codefull);
+  $form_proc_codetype = $tmp_code_array[0];
+  $form_proc_code = $tmp_code_array[1];
+
+  $form_dx_codefull  = trim($_POST['form_dx_codefull']);
+  // Parse the code type and the code from <code_type>:<code>
+  $tmp_code_array = explode(':',$form_dx_codefull);
+  $form_dx_codetype = $tmp_code_array[0];
+  $form_dx_code = $tmp_code_array[1];
+
   $form_procedures = empty($_POST['form_procedures']) ? 0 : 1;
   $form_from_date  = fixDate($_POST['form_from_date'], date('Y-m-01'));
   $form_to_date    = fixDate($_POST['form_to_date'], date('Y-m-d'));
@@ -84,6 +96,36 @@
     }
 }
 </style>
+
+<script type="text/javascript" src="../../library/dialog.js"></script>
+<script language="JavaScript">
+// This is for callback by the find-code popup.
+// Erases the current entry
+// The target element is set by the find-code popup
+//  (this allows use of this in multiple form elements on the same page)
+function set_related_target(codetype, code, selector, codedesc, target_element) {
+ var f = document.forms[0];
+ var s = f[target_element].value;
+ if (code) {
+  s = codetype + ':' + code;
+ } else {
+  s = '';
+ }
+ f[target_element].value = s;
+}
+
+// This invokes the find-code (procedure/service codes) popup.
+function sel_procedure() {
+ dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_proc_codefull&codetype=<?php echo attr(collect_codetypes("procedure","csv")) ?>', '_blank', 500, 400);
+}
+
+// This invokes the find-code (diagnosis codes) popup.
+function sel_diagnosis() {
+ dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_dx_codefull&codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
+}
+
+</script>
+
 <title><?xl('Cash Receipts by Provider','e')?></title>
 </head>
 
@@ -167,19 +209,19 @@
 		</tr>
 		<tr>
 			<td>
-				<?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('CPT', 'e') . ':'; ?>
+				<?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('Procedure/Service', 'e') . ':'; ?>
 			</td>
 			<td>
-			   <input type='text' name='form_cptcode' size='5' value='<?php echo $form_cptcode; ?>'
-				title='<?php xl('Optional procedure code','e'); ?>'
+			   <input type='text' name='form_proc_codefull' size='11' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
+				title='<?php xl('Optional procedure/service code','e'); ?>' 
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
 			</td>
 
 			<td>
-			   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('ICD', 'e') . ':'; ?>
+			   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('Diagnosis', 'e') . ':'; ?>
 			</td>
 			<td>
-			   <input type='text' name='form_icdcode' size='5' value='<?php echo $form_icdcode; ?>'
+			   <input type='text' name='form_dx_codefull' size='11' value='<?php echo $form_dx_codefull; ?>' onclick='sel_diagnosis()'
 				title='<?php xl('Enter a diagnosis code to exclude all invoices not containing it','e'); ?>'
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
 			</td>
@@ -238,12 +280,12 @@
    <?php xl('Invoice','e') ?>
   </th>
 <?php } ?>
-<?php if ($form_cptcode) { ?>
+<?php if ($form_proc_codefull) { ?>
   <th align='right'>
    <?php xl('InvAmt','e') ?>
   </th>
 <?php } ?>
-<?php if ($form_cptcode) { ?>
+<?php if ($form_proc_codefull) { ?>
   <th>
    <?php xl('Insurance','e') ?>
   </th>
@@ -275,7 +317,7 @@
 
       // Get copays.  These will be ignored if a CPT code was specified.
       //
-      if (!$form_cptcode) {
+      if (!$form_proc_code || !$form_proc_codetype) {
         /*************************************************************
         $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.modifier, " .
           "fe.date, fe.id AS trans_id, u.id AS docid " .
@@ -321,10 +363,10 @@
           //
           // If a diagnosis code was given then skip any invoices without
           // that diagnosis.
-          if ($form_icdcode) {
+          if ($form_dx_code && $form_dx_codetype) {
             $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
               "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-              "code_type = 'ICD9' AND code LIKE '$form_icdcode' AND " .
+              "code_type = '$form_dx_codetype' AND code LIKE '$form_dx_code' AND " .
               "activity = 1");
             if (empty($tmp['count'])) {
               $ids_to_skip[$trans_id] = 1;
@@ -343,7 +385,7 @@
           $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
           $arows[$key]['irnumber'] = $row['invoice_refno'];
         } // end while
-      } // end copays (not $form_cptcode)
+      } // end copays (not $form_proc_code)
 
       // Get ar_activity (having payments), form_encounter, forms, users, optional ar_session
       /***************************************************************
@@ -359,7 +401,7 @@
         "OR fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' " .
         "OR s.deposit_date >= '$form_from_date' AND s.deposit_date <= '$form_to_date' )";
       // If a procedure code was specified.
-      if ($form_cptcode) $query .= " AND a.code = '$form_cptcode'";
+      if ($form_proc_code) $query .= " AND a.code = '$form_proc_code'";
       // If a facility was specified.
       if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
       // If a doctor was specified.
@@ -379,7 +421,9 @@
         "OR fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' " .
         "OR s.deposit_date >= '$form_from_date' AND s.deposit_date <= '$form_to_date' )";
       // If a procedure code was specified.
-      if ($form_cptcode) $query .= " AND a.code = '$form_cptcode'";
+      // Support code type if it is in the ar_activity table. Note it is not always included, so
+      // also support a blank code type in ar_activity table.
+      if ($form_proc_codetype && $form_proc_code) $query .= " AND (a.code_type = '$form_proc_codetype' OR a.code_type = '') AND a.code = '$form_proc_code'";
       // If a facility was specified.
       if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
       // If a doctor was specified.
@@ -410,10 +454,10 @@
         //
         // If a diagnosis code was given then skip any invoices without
         // that diagnosis.
-        if ($form_icdcode) {
+        if ($form_dx_code && $form_dx_codetype) {
           $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
             "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-            "code_type = 'ICD9' AND code LIKE '$form_icdcode' AND " .
+            "code_type = '$form_dx_codetype' AND code LIKE '$form_dx_code' AND " .
             "activity = 1");
           if (empty($tmp['count'])) {
             $ids_to_skip[$trans_id] = 1;
@@ -436,13 +480,13 @@
     } // end $INTEGRATED_AR
 
     else {
-      if ($form_cptcode) {
+      if ($form_proc_code) {
         $query = "SELECT acc_trans.amount, acc_trans.transdate, " .
           "acc_trans.memo, acc_trans.project_id, acc_trans.trans_id, " .
           "ar.invnumber, ar.employee_id, invoice.sellprice, invoice.qty " .
           "FROM acc_trans, ar, invoice WHERE " .
           "acc_trans.chart_id = $chart_id_cash AND " .
-          "acc_trans.memo ILIKE '$form_cptcode' AND " .
+          "acc_trans.memo ILIKE '$form_proc_code' AND " .
           "ar.id = acc_trans.trans_id AND " .
           "invoice.trans_id = acc_trans.trans_id AND " .
           "invoice.serialnumber ILIKE acc_trans.memo AND " .
@@ -496,11 +540,11 @@
           $skipping = false;
           // If a diagnosis code was given then skip any invoices without
           // that diagnosis.
-          if ($form_icdcode) {
+          if ($form_dx_code) {
             if (!SLQueryValue("SELECT count(*) FROM invoice WHERE " .
               "invoice.trans_id = '" . $row['trans_id'] . "' AND " .
-              "( invoice.description ILIKE 'ICD9:$form_icdcode %' OR " .
-              "invoice.serialnumber ILIKE 'ICD9:$form_icdcode' )"))
+              "( invoice.description ILIKE 'ICD9:$form_dx_code %' OR " .
+              "invoice.serialnumber ILIKE 'ICD9:$form_dx_code' )"))
             {
               $skipping = true;
               continue;
@@ -561,7 +605,7 @@
 
       // Get insurance company name
       $insconame = '';
-      if ($form_cptcode && $row['project_id']) {
+      if ($form_proc_codefull  && $row['project_id']) {
         $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE " .
           "id = '" . $row['project_id'] . "'");
         $insconame = $tmp['name'];
@@ -581,7 +625,7 @@
 ?>
 
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
+  <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
    <?php echo xl('Totals for ') . $docname ?>
   </td>
   <td align="right">
@@ -621,13 +665,13 @@
   </td>
 <?php } ?>
 <?php
-        if ($form_cptcode) {
+        if ($form_proc_code && $form_proc_codetype) {
           echo "  <td class='detail' align='right'>";
           if ($INTEGRATED_AR) {
             list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
             $tmp = sqlQuery("SELECT SUM(fee) AS sum FROM billing WHERE " .
               "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-              "code = '$form_cptcode' AND activity = 1");
+              "code_type = '$form_proc_codetype' AND code = '$form_proc_code' AND activity = 1");
             bucks($tmp['sum']);
           }
           else {
@@ -636,7 +680,7 @@
           echo "  </td>\n";
         }
 ?>
-<?php if ($form_cptcode) { ?>
+<?php if ($form_proc_codefull) { ?>
   <td class="detail">
    <?php echo $insconame ?>
   </td>
@@ -665,7 +709,7 @@
 ?>
 
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
+  <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
    <?echo xl('Totals for ') . $docname ?>
   </td>
   <td align="right">
@@ -679,7 +723,7 @@
  </tr>
 
  <tr bgcolor="#ffdddd">
-  <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
+  <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
    <?php xl('Grand Totals','e') ?>
   </td>
   <td align="right">

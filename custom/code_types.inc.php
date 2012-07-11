@@ -2,29 +2,6 @@
 /**
  * Library to manage Code Types and code type lookups.
  *
- * The $code_types array is built from the code_types sql table and provides
- * abstraction of diagnosis/billing code types.  This is desirable
- * because different countries or fields of practice use different methods for
- * coding diagnoses, procedures and supplies.  Fees will not be relevant where
- * medical care is socialized.  Attribues are:
- *  active   - 1 if this code type is activated
- *  id       - the numeric identifier of this code type in the codes table
- *  fee      - 1 if fees are used, else 0
- *  mod      - the maximum length of a modifier, 0 if modifiers are not used
- *  just     - the code type used for justification, empty if none
- *  rel      - 1 if other billing codes may be "related" to this code type
- *  nofs     - 1 if this code type should NOT appear in the Fee Sheet
- *  diag     - 1 if this code type is for diagnosis
- *  label    - label used for code type
- *  external - 0 for storing codes in the code table
- *             1 for storing codes in external ICD10 Diagnosis tables
- *             2 for storing codes in external SNOMED (RF1) Diagnosis tables
- *             3 for storing codes in external SNOMED (RF2) Diagnosis tables
- *             4 for storing codes in external ICD9 Diagnosis tables
- *             5 for storing codes in external ICD9 Procedure/Service tables
- *             6 for storing codes in external ICD10 Procedure/Service tables
- *  claim    - 1 if this code type is used in claims
- *
  * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -44,23 +21,32 @@
  * @link    http://www.open-emr.org
  */
 
-/**
- * This array stores the external table options. See above for option listings.
- * @var array
- */
-$cd_external_options = array(
-  '0' => xl('No'),
-  '4' => xl('ICD9 Diagnosis'),
-  '5' => xl('ICD9 Procedure/Service'),
-  '1' => xl('ICD10 Diagnosis'),
-  '6' => xl('ICD10 Procedure/Service'),
-  '2' => xl('SNOMED (RF1) Diagnosis'),
-  '3' => xl('SNOMED (RF2) Diagnosis'),
-);
+require_once("$srcdir/csv_like_join.php");
 
 /**
- * This array is built from the code_types sql table and provides
- * abstraction of the diagnosis/billing code types.
+ * The $code_types array is built from the code_types sql table and provides
+ * abstraction of diagnosis/billing code types.  This is desirable
+ * because different countries or fields of practice use different methods for
+ * coding diagnoses, procedures and supplies.  Fees will not be relevant where
+ * medical care is socialized.  Attributes are:
+ *  active   - 1 if this code type is activated
+ *  id       - the numeric identifier of this code type in the codes table
+ *  fee      - 1 if fees are used, else 0
+ *  mod      - the maximum length of a modifier, 0 if modifiers are not used
+ *  just     - the code type used for justification, empty if none
+ *  rel      - 1 if other billing codes may be "related" to this code type
+ *  nofs     - 1 if this code type should NOT appear in the Fee Sheet
+ *  diag     - 1 if this code type is for diagnosis
+ *  label    - label used for code type
+ *  external - 0 for storing codes in the code table
+ *             1 for storing codes in external ICD10 Diagnosis tables
+ *             2 for storing codes in external SNOMED (RF1) Diagnosis tables
+ *             3 for storing codes in external SNOMED (RF2) Diagnosis tables
+ *             4 for storing codes in external ICD9 Diagnosis tables
+ *             5 for storing codes in external ICD9 Procedure/Service tables
+ *             6 for storing codes in external ICD10 Procedure/Service tables
+ *  claim    - 1 if this code type is used in claims
+ *  proc     - 1 if this code type is a procedure/service
  * @var array
  */
 $code_types = array();
@@ -79,10 +65,26 @@ while ($ctrow = sqlFetchArray($ctres)) {
     'mask' => $ctrow['ct_mask'],
     'label'=> ( (empty($ctrow['ct_label'])) ? $ctrow['ct_key'] : $ctrow['ct_label'] ),
     'external'=> $ctrow['ct_external'],
-    'claim' => $ctrow['ct_claim']
+    'claim' => $ctrow['ct_claim'],
+    'proc' => $ctrow['ct_proc'],
   );
   if ($default_search_type === '') $default_search_type = $ctrow['ct_key'];
 }
+
+/**
+ * This array stores the external table options. See above for $code_types array
+ * 'external' attribute  for explanation of the option listings.
+ * @var array
+ */
+$cd_external_options = array(
+  '0' => xl('No'),
+  '4' => xl('ICD9 Diagnosis'),
+  '5' => xl('ICD9 Procedure/Service'),
+  '1' => xl('ICD10 Diagnosis'),
+  '6' => xl('ICD10 Procedure/Service'),
+  '2' => xl('SNOMED (RF1) Diagnosis'),
+  '3' => xl('SNOMED (RF2) Diagnosis'),
+);
 
 /**
  * Checks is fee are applicable to any of the code types.
@@ -144,6 +146,52 @@ function convert_type_id_to_key($id) {
  foreach ($code_types as $key => $value) {
   if ($value['id'] == $id) return $key;
  } 
+}
+
+/**
+ * Return listing of pertinent and active code types.
+ *
+ * Function will return listing (ct_key) of pertinent
+ * active code types, such as diagnosis codes or procedure
+ * codes in a chosen format. Supported returned formats include
+ * as 1) an array and as 2) a comma-separated lists that has been
+ * process by urlencode() in order to place into URL  address safely.
+ *
+ * @param  string       $category       category of code types('diagnosis' or 'procedure')
+ * @param  string       $return_format  format or returned code types ('array' or 'csv')
+ * @return string/array
+ */
+function collect_codetypes($category,$return_format="array") {
+ global $code_types;
+
+ $return = array();
+
+ foreach ($code_types as $ct_key => $ct_arr) {
+  if (!$ct_arr['active']) continue;
+
+  if ($category == "diagnosis") {
+   if ($ct_arr['diag']) {
+    array_push($return,$ct_key);
+   }
+  }
+  else if ($category == "procedure") {
+   if ($ct_arr['proc']) {
+    array_push($return,$ct_key);
+   }
+  }
+  else {
+   //return nothing since no supported category was chosen
+  }
+ }
+
+ if ($return_format == "csv") {
+  //return it as a csv string
+  return csv_like_join($return);
+ }
+ else { //$return_format == "array"
+  //return the array
+  return $return;
+ }
 }
 
 /**

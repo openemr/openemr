@@ -35,18 +35,6 @@ if ($ISSUE_TYPES['ippf_gcac']) {
   require_once("$srcdir/ippf_issues.inc.php");
 }
 
-$diagnosis_types = array();
-foreach ($code_types as $code => $data) {
-	if ($data['diag']) {
-		array_push($diagnosis_types, $code);
-	}
-}
-if (count($diagnosis_types) < 1) {
-	$diagnosis_type = 'ICD9';
-} else {
-	$diagnosis_type = csv_like_join($diagnosis_types);
-}
-
 $issue = $_REQUEST['issue'];
 $thispid = 0 + (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
 $info_msg = "";
@@ -444,7 +432,7 @@ function set_related(codetype, code, selector, codedesc) {
 
 // This invokes the find-code popup.
 function sel_diagnosis() {
- dlgopen('../encounter/find_code_popup.php?codetype=<?php echo attr($diagnosis_type) ?>', '_blank', 500, 400);
+ dlgopen('../encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
 }
 
 // Check for errors when the form is submitted.

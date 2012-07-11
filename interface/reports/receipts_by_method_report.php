@@ -22,6 +22,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/formdata.inc.php";
+require_once("../../custom/code_types.inc.php");
 
 // This controls whether we show pt name, policy number and DOS.
 $showing_ppd = true;
@@ -173,10 +174,16 @@ $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
 $form_use_edate = $_POST['form_use_edate'];
 $form_facility  = $_POST['form_facility'];
 $form_report_by = $_POST['form_report_by'];
-$form_cptcode   = trim($_POST['form_cptcode']);
+$form_proc_codefull = trim($_POST['form_proc_codefull']);
+// Parse the code type and the code from <code_type>:<code>
+$tmp_code_array = explode(':',$form_proc_codefull);
+$form_proc_codetype = $tmp_code_array[0];
+$form_proc_code = $tmp_code_array[1];
+
 ?>
 <html>
 <head>
+
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
 <style type="text/css">
 /* specifically include & exclude from printing */
@@ -202,6 +209,28 @@ $form_cptcode   = trim($_POST['form_cptcode']);
     }
 }
 </style>
+
+<script type="text/javascript" src="../../library/dialog.js"></script>
+<script language="JavaScript">
+// This is for callback by the find-code popup.
+// Erases the current entry
+function set_related(codetype, code, selector, codedesc) {
+ var f = document.forms[0];
+ var s = f.form_proc_codefull.value;
+ if (code) {
+  s = codetype + ':' + code;
+ } else {
+  s = '';
+ }
+ f.form_proc_codefull.value = s;
+}
+
+// This invokes the find-code popup.
+function sel_procedure() {
+ dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("procedure","csv")) ?>', '_blank', 500, 400);
+}
+</script>
+
 <title><?xl('Receipts Summary','e')?></title>
 </head>
 
@@ -241,12 +270,13 @@ $form_cptcode   = trim($_POST['form_cptcode']);
 			</td>
 
 			<td>
-			   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('CPT') . ':'; ?>
+			   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('Procedure/Service') . ':'; ?>
 			</td>
 			<td>
-			   <input type='text' name='form_cptcode' size='5' value='<?php echo $form_cptcode; ?>'
-				title='<?php xl('Optional procedure code','e'); ?>'
+			   <input type='text' name='form_proc_codefull' size='12' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
+				title='<?php xl('Click to select optional procedure code','e'); ?>'
 				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?> />
+                                <br>
 			   &nbsp;<input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> /><?xl('Details','e')?>
 			</td>
 		</tr>
@@ -373,7 +403,7 @@ if ($_POST['form_refresh']) {
     // always be considered patient payments.  Ignored if selecting by
     // billing code.
     //
-    if (!$form_cptcode) {
+    if (!$form_proc_code || !$form_proc_codetype) {
       $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, " .
         "fe.date, fe.facility_id, fe.invoice_refno " .
         "FROM billing AS b " .
@@ -390,7 +420,7 @@ if ($_POST['form_refresh']) {
         thisLineItem($row['pid'], $row['encounter'], $row['code_text'],
           substr($row['date'], 0, 10), $rowmethod, 0 - $row['fee'], 0, 0, $row['invoice_refno']);
       }
-    } // end if not form_cptcode
+    } // end if not form_proc_code
 
     // Get all other payments and adjustments and their dates, corresponding
     // payers and check reference data, and the encounter dates separately.
@@ -414,7 +444,10 @@ if ($_POST['form_refresh']) {
         "a.post_time <= '$to_date 23:59:59' ) )";
     }
     // If a procedure code was specified.
-    if ($form_cptcode) $query .= " AND a.code LIKE '$form_cptcode%'";
+    if ($form_proc_code && $form_proc_codetype) {
+      // if a code_type is entered into the ar_activity table, then use it. If it is not entered in, then do not use it.
+      $query .= " AND ( a.code_type = '$form_proc_codetype' OR a.code_type = '' ) AND a.code LIKE '$form_proc_code%'";
+    }
     // If a facility was specified.
     if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
     //
@@ -469,8 +502,8 @@ if ($_POST['form_refresh']) {
       "( acc_trans.chart_id = $chart_id_income AND " .
       "acc_trans.source LIKE 'InvAdj %' ) ) AND " .
       "ar.id = acc_trans.trans_id AND ";
-    if ($form_cptcode) {
-      $query .= "acc_trans.memo ILIKE '$form_cptcode%' AND ";
+    if ($form_proc_code) {
+      $query .= "acc_trans.memo ILIKE '$form_proc_code%' AND ";
     }
     if ($form_use_edate) {
       $query .= "ar.transdate >= '$from_date' AND " .
