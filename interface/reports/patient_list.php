@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2012 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -13,12 +13,29 @@
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/formatting.inc.php");
 
+// Prepare a string for CSV export.
+function qescape($str) {
+  $str = str_replace('\\', '\\\\', $str);
+  return str_replace('"', '\\"', $str);
+}
+
  // $from_date = fixDate($_POST['form_from_date'], date('Y-01-01'));
  // $to_date   = fixDate($_POST['form_to_date'], date('Y-12-31'));
  $from_date = fixDate($_POST['form_from_date'], '');
  $to_date   = fixDate($_POST['form_to_date'], '');
  if (empty($to_date) && !empty($from_date)) $to_date = date('Y-12-31');
  if (empty($from_date) && !empty($to_date)) $from_date = date('Y-01-01');
+
+// In the case of CSV export only, a download will be forced.
+if ($_POST['form_csvexport']) {
+  header("Pragma: public");
+  header("Expires: 0");
+  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+  header("Content-Type: application/force-download");
+  header("Content-Disposition: attachment; filename=patient_list.csv");
+  header("Content-Description: File Transfer");
+}
+else {
 ?>
 <html>
 <head>
@@ -82,10 +99,11 @@
 <div id="report_parameters">
 
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+<input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
 
 <table>
  <tr>
-  <td width='410px'>
+  <td width='60%'>
 	<div style='float:left'>
 
 	<table class='text'>
@@ -126,7 +144,11 @@
 						<?php xl('Submit','e'); ?>
 					</span>
 					</a>
-
+					<a href='#' class='css_button' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Export to CSV','e'); ?>
+					</span>
+					</a>
 					<?php if ($_POST['form_refresh']) { ?>
 					<a href='#' class='css_button' onclick='window.print()'>
 						<span>
@@ -144,9 +166,25 @@
 </div> <!-- end of parameters -->
 
 <?php
- if ($_POST['form_refresh']) {
-?>
+} // end not form_csvexport
 
+if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+  if ($_POST['form_csvexport']) {
+    // CSV headers:
+    echo '"' . xl('Last Visit') . '",';
+    echo '"' . xl('First') . '",';
+    echo '"' . xl('Last') . '",';
+    echo '"' . xl('Middle') . '",';
+    echo '"' . xl('ID') . '",';
+    echo '"' . xl('Street') . '",';
+    echo '"' . xl('City') . '",';
+    echo '"' . xl('State') . '",';
+    echo '"' . xl('Zip') . '",';
+    echo '"' . xl('Home Phone') . '",';
+    echo '"' . xl('Work Phone') . '"' . "\n";
+  }
+  else {
+?>
 
 <div id="report_results">
 <table>
@@ -163,7 +201,7 @@
  </thead>
  <tbody>
 <?php
- {
+  } // end not export
   $totalpts = 0;
   $query = "SELECT " .
    "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
@@ -209,6 +247,21 @@
     if ($dayDiff < 0) --$ageInMonths;
     $age = intval($ageInMonths/12);
    }
+
+   if ($_POST['form_csvexport']) {
+    echo '"' . oeFormatShortDate(substr($row['edate'], 0, 10)) . '",';
+    echo '"' . qescape($row['lname']) . '",';
+    echo '"' . qescape($row['fname']) . '",';
+    echo '"' . qescape($row['mname']) . '",';
+    echo '"' . qescape($row['pubpid']) . '",';
+    echo '"' . qescape($row['street']) . '",';
+    echo '"' . qescape($row['city']) . '",';
+    echo '"' . qescape($row['state']) . '",';
+    echo '"' . qescape($row['postal_code']) . '",';
+    echo '"' . qescape($row['phone_home']) . '",';
+    echo '"' . qescape($row['phone_biz']) . '"' . "\n";
+   }
+   else {
 ?>
  <tr>
   <td>
@@ -240,8 +293,10 @@
   </td>
  </tr>
 <?php
+   } // end not export
    ++$totalpts;
-  }
+  } // end while
+  if (!$_POST['form_csvexport']) {
 ?>
 
  <tr class="report_totals">
@@ -252,17 +307,23 @@
   </td>
  </tr>
 
-<?php
- }
-?>
 </tbody>
 </table>
 </div> <!-- end of results -->
-<?php } else { ?>
+<?php
+  } // end not export
+} // end if refresh or export
+
+if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) {
+?>
 <div class='text'>
  	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
 </div>
-<?php } ?>
+<?php
+}
+
+if (!$_POST['form_csvexport']) {
+?>
 
 </form>
 </body>
@@ -277,3 +338,6 @@
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
 </script>
 </html>
+<?php
+} // end not export
+?>
