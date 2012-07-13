@@ -309,6 +309,11 @@ foreach ($ordres as $row) {
         'pm' => '',
       );
     }
+    else if ($dfrow['date'] != $date) {
+      // As of 2012-07-12 am/pm are not propagated.
+      $dfrow['am'] = '';
+      $dfrow['pm'] = '';
+    }
 
     $mapping = explode(':', $dfrow['lf_mapping']);
     $bgcolor = $mapping[0];
