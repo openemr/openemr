@@ -106,6 +106,21 @@ var dte=document.getElementById('form_date').value;
 var facility=document.forms[0].facility_id.value;
 ajax_bill_loc(pid,dte,facility);
 }
+
+// Handler for Cancel clicked when creating a new encounter.
+// Show demographics or encounters list depending on what frame we're in.
+function cancelClicked() {
+ if (window.name == 'RBot') {
+  parent.left_nav.setRadio(window.name, 'ens');
+  parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
+ }
+ else {
+  parent.left_nav.setRadio(window.name, 'dem');
+  parent.left_nav.loadFrame('dem1', window.name, 'patient_file/summary/demographics.php');
+ }
+ return false;
+}
+
 </script>
 </head>
 
@@ -147,7 +162,10 @@ ajax_bill_loc(pid,dte,facility);
         class="css_button link_submit" target='Main' onClick="top.restoreSession()">
       <span><?php xl('Cancel','e'); ?>]</span></a>
   <?php } // end not concurrent layout ?>
-  <?php } // end not autoloading ?>
+  <?php } else if ($GLOBALS['concurrent_layout']) { // not $viewmode ?>
+      <a href="" class="css_button link_submit" onClick="return cancelClicked()">
+      <span><?php xl('Cancel','e'); ?></span></a>
+  <?php } // end not $viewmode ?>
     </div>
  </div>
 
