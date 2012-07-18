@@ -12,7 +12,7 @@ item TEXT,
 content TEXT,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE IF NOT EXISTS `form_CAMOS_category` (
 id bigint(20) NOT NULL auto_increment,
@@ -26,7 +26,7 @@ activity tinyint(4) default NULL,
 category TEXT,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE IF NOT EXISTS `form_CAMOS_subcategory` (
 id bigint(20) NOT NULL auto_increment,
@@ -41,7 +41,7 @@ subcategory TEXT,
 category_id bigint(20) NOT NULL,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE IF NOT EXISTS `form_CAMOS_item` (
 id bigint(20) NOT NULL auto_increment,
@@ -57,4 +57,4 @@ content TEXT,
 subcategory_id bigint(20) NOT NULL,
 
 PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
