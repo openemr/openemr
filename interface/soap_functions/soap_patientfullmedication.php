@@ -139,7 +139,7 @@ for($i=0;$i<sizeof($medArray);$i++)
     }                
     }
     
-    $check=sqlStatement("select * from prescriptions where prescriptionguid=? and patient_id=? and prescriptionguid is not null",array($medArray[$i]['PrescriptionGuid'],$medArray[$i]['ExternalPatientID']));
+    $check=sqlStatement("select * from prescriptions where prescriptionguid=? and patient_id=? and prescriptionguid is not null",array($medArray[$i]['OriginalPrescriptionGuid'],$medArray[$i]['ExternalPatientID']));
     $prescription_id='';
     if(sqlNumRows($check)==0)
     {        
@@ -153,7 +153,7 @@ for($i=0;$i<sizeof($medArray);$i++)
         array($medArray[$i]['ExternalPatientID'], $provider['id'],$encounter, substr($medArray[$i]['PrescriptionDate'],0,10), $medArray[$i]['DrugName'],
         $medArray[$i]['DrugID'], $medArray[$i]['DrugInfo'], $rin['option_id'], $medArray[$i]['DosageNumberDescription'], number($medArray[$i]['Strength']), $runit['option_id'],
         $rroute['option_id'], $rint['option_id'], $medArray[$i]['Refills'], $medArray[$i]['PrescriptionNotes'], 
-        $_SESSION['authUserID'], $medArray[$i]['SiteID'], $medArray[$i]['PrescriptionGuid'], $medArray[$i]['rxcui']));
+        $_SESSION['authUserID'], $medArray[$i]['SiteID'], $medArray[$i]['OriginalPrescriptionGuid'], $medArray[$i]['rxcui']));
         $j++;
     }
     else
@@ -165,7 +165,7 @@ for($i=0;$i<sizeof($medArray);$i++)
         ",array($provider['id'],$medArray[$i]['DrugName'],$medArray[$i]['DrugID'],$medArray[$i]['DrugInfo'],$rin['option_id'],$medArray[$i]['DosageNumberDescription'],
         number($medArray[$i]['Strength']),$runit['option_id'],$rroute['option_id'],$rint['option_id'],$medArray[$i]['Refills'],
         $medArray[$i]['PrescriptionNotes'],$_SESSION['authUserID'],
-        $medArray[$i]['SiteID'],$medArray[$i]['rxcui'],$medArray[$i]['PrescriptionGuid'],$medArray[$i]['ExternalPatientID']));
+        $medArray[$i]['SiteID'],$medArray[$i]['rxcui'],$medArray[$i]['OriginalPrescriptionGuid'],$medArray[$i]['ExternalPatientID']));
     }
     $result=sqlFetchArray($check);
     if($result['id'])
