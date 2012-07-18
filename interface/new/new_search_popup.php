@@ -147,7 +147,6 @@ foreach ($_REQUEST as $key => $value) {
     array_push($sqlBindArray, $value);
   }
   $where .= " OR ".add_escape_custom($fldname)." LIKE ?";
-  array_push($sqlBindArray, $value);
   array_push($sqlBindArraySpecial, $value);
   echo "<input type='hidden' name='".htmlspecialchars( $key, ENT_QUOTES)."' value='".htmlspecialchars( $value, ENT_QUOTES)."' />\n";
   ++$numfields;
@@ -159,6 +158,7 @@ $sql = "SELECT *, ( $relevance ) AS relevance, " .
   "ORDER BY relevance DESC, lname, fname, mname " .
   "LIMIT ".add_escape_custom($fstart).", ".add_escape_custom($MAXSHOW)."";
 
+$sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
 $rez = sqlStatement($sql, $sqlBindArray);
 $result = array();
 while ($row = sqlFetchArray($rez)) $result[] = $row;
