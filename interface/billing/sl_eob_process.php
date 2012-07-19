@@ -501,12 +501,11 @@ require_once("$srcdir/billing.inc");
               writeMessageLine($bgcolor, 'infdetail',
                 'This claim is processed by Insurance '.$level_done.' and automatically forwarded to Insurance '.($level_done+1) .' for processing. ');
              }
-            else
-             {
-             "UPDATE form_encounter " .
+            else {
+              sqlStatement("UPDATE form_encounter " .
               "SET last_level_closed = $level_done WHERE " .
-              "pid = '$pid' AND encounter = '$encounter'";
-             }
+              "pid = '$pid' AND encounter = '$encounter'");
+            }
             // Check for secondary insurance.
             if ($primary && arGetPayerID($pid, $service_date, 2)) {
               arSetupSecondary($pid, $encounter, $debug,$out['crossover']);
