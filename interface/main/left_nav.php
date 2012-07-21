@@ -137,8 +137,9 @@
   'enc' => array(xl('Encounter') , 2, 'patient_file/encounter/encounter_top.php'),
   'erx' => array(xl('e-Rx') , 1, 'eRx.php'),
   'err' => array(xl('e-Rx Renewal') , 1, 'eRx.php?page=status'),
+  'pay' => array(xl('Payment') , 1, '../patient_file/front_payment.php')
  );
- $primary_docs['npa']=array(xl('Payments')   , 0, 'billing/new_payment.php');
+ $primary_docs['npa']=array(xl('Batch Payments')   , 0, 'billing/new_payment.php');
  if ($GLOBALS['use_charges_panel'] || $GLOBALS['concurrent_layout'] == 2) {
   $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
  }
@@ -244,14 +245,10 @@ function genPopupsList($style='') {
  if (file_exists("$webserver_root/custom/refer.php")) { ?>
  <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>
 <?php } ?>
-<?php // if (file_exists("$webserver_root/custom/fee_sheet_codes.php")) { ?>
  <option value='../patient_file/printed_fee_sheet.php?fill=1'><?php xl('Superbill','e'); ?></option>
-<?php // } ?>
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
- <option value='../patient_file/front_payment.php'><?php xl('Prepay','e'); ?></option>
- <option value='../patient_file/pos_checkout.php'><?php xl('Checkout','e'); ?></option>
-<?php } else { ?>
  <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+ <option value='../patient_file/pos_checkout.php'><?php xl('Checkout','e'); ?></option>
 <?php } ?>
 <?php if (is_dir($GLOBALS['OE_SITE_DIR'] . "/letter_templates")) { ?>
  <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
@@ -1176,9 +1173,10 @@ if (!empty($reg)) {
     <ul>
       <?php genMiscLink('RBot','cod','2',xl('Fee Sheet'),'patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
       <?php if ($GLOBALS['use_charges_panel']) genTreeLink('RBot','cod',xl('Charges')); ?>
-      <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?>
+      <?php genMiscLink('RBot','pay','1',xl('Payment'),'patient_file/front_payment.php'); ?>
+      <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?> 
       <?php if (! $GLOBALS['simplified_demographics']) genTreeLink('RTop','bil',xl('Billing')); ?>
-	  <?php genTreeLink('RTop','npa',xl('Payments'),false,2);?>
+	  <?php genTreeLink('RTop','npa',xl('Batch Payments'),false,2);?>
     </ul>
   </li>
   <?php } ?>
