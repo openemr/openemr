@@ -28,6 +28,7 @@ Automatic
 autosaved
 Back Pain
 Bank Draft
+Batch Payments
 Bilateral
 Bill/Collect
 Billing Code for Requested Service
@@ -51,6 +52,7 @@ Cancer Screening: Mammogram
 Cancer Screening: Pap Smear
 Cancer Screening: Prostate Cancer Screening
 Caucasian
+CDR
 Cell Phone Number
 Central/South American
 Change In Vision
@@ -80,6 +82,7 @@ Clinical Rules Target Intervals
 Code Types
 Colon Cancer Screening
 Complete
+Connectors
 Contact Email Address
 Contact Lenses
 Contraceptive Complication (specify)
@@ -90,12 +93,15 @@ Coumadin Management - INR Monitoring
 Counseling activities
 Counter-Referral
 Coupon
+CPT4 Procedure/Service
+CPTII Performance Measures
 Credit Card
 Crohns Disease
 CU.MM
 Cuban
 Current every day smoker
 Current some day smoker
+CVX Immunization
 Date contraceptive services initially provided
 Date Master Criteria
 Date of referral
@@ -127,6 +133,7 @@ Drug Forms
 Drug Intervals
 Drug Routes
 Drug Units
+DSMIV Diagnosis
 DT 1
 DT 2
 DT 3
@@ -184,6 +191,7 @@ External Referral
 External referral?
 Eye Irritation
 Eye Redness
+Facility Specific User Information
 Family Payment
 Farsi
 Female Symptoms
@@ -212,6 +220,7 @@ Guamanian
 Guardian's Name
 Hawaiian
 Hazardous activities
+HCPCS Procedure/Service
 Head Circ
 Health Care Operations
 Heart Disease
@@ -243,6 +252,10 @@ How did they hear about us
 Hypertension
 Hypertension: Blood Pressure Measurement
 Hypertension: Blood Pressure Measurement (CQM)
+ICD10 Diagnosis
+ICD10 Procedure/Service
+ICD9 Diagnosis
+ICD9 Procedure/Service
 Id
 Imaging Service
 Immunization Service
@@ -288,6 +301,7 @@ Less Than or Equal To
 Level of urgency
 License/ID
 Living Will
+Logging
 login
 logout
 Lunch
@@ -320,6 +334,7 @@ Mother's Name
 Mr.
 Mrs.
 Ms.
+MSP Remit Codes
 Multiracial
 Musc Ache
 Musc Aches
@@ -330,6 +345,7 @@ Musc Warm
 Name 1
 Name 2
 Name/Value
+Nation Notes Replace Buttons
 Native Hawaiian or Other Pacific Islander
 Negative
 Neuro Numbness
@@ -360,8 +376,11 @@ Past Due Interval (Patient Reminders)
 Pat
 Patient ID card
 Patient Information
+Patient List Columns
 Patient Note Types
+Payment
 Payment Adjustment Code
+Payment Gateways
 Payment Ins
 Payment Sort By
 Payment Status
@@ -381,6 +400,7 @@ Pneumococcal Vaccine
 Pneumonia Vaccination Status for Older Adults
 Pneumonia Vaccination Status for Older Adults (CQM)
 Podiatric
+Portal
 Portuguese
 Positive
 Pre Payment
@@ -409,6 +429,8 @@ Prostate Cancer Screening
 Provide clinical summaries for patients for each office visit.
 Provide patients with an electronic copy of their health information (including diagnostic test results, problem list, medication lists, medication allergies), upon request.
 Provide patients with timely electronic access to their health information (including lab results, problem list, medication lists, medication allergies) within four business days of the information being available to the EP.
+Provider ID
+Provider ID at Specified Facility
 Psych Diagnosis
 Psych Medication
 Puerto Rican
@@ -468,6 +490,7 @@ Skin Disease
 Skin Other
 Sleep patterns
 Smoker, current status unknown
+SNOMED Diagnosis
 Social Security Number
 Soon Due Interval (Clinical Reminders)
 Soon Due Interval (Patient Reminders)
