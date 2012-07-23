@@ -903,7 +903,7 @@ td { font-size:0.8em; }
  }
 
  function deleteEvent() {
-    if (confirm("Deleting this event cannot be undone. It cannot be recovered once it is gone.\nAre you sure you wish to delete this event?")) {
+    if (confirm("Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?")) {
         var f = document.getElementById('theform');
         var form_action = document.getElementById('form_action');
         form_action.value="delete";

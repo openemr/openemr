@@ -36,15 +36,18 @@ Abortions
 About the calendar
 Absences by Diagnosis
 Accept Assignment
+Accept Payment for
 Accept Payment for 
 Accepts Assignment
 Access Control
 Access Control List Administration
+Access not allowed
 Access Your Patient Portal
 Account Name
 Accounting
 Aches
 Acknowledgment Requested (ISA14)
+Acknowledgments, Licensing and Certification
 ACL
 ACL Administration
 ACL Administration Not Authorized
@@ -147,6 +150,7 @@ Adj
 Adj Amount
 Adjust
 Adjustment
+Adjustment Amt
 Adjustment Reasons
 Adjustment value for code 
 Adjustments
@@ -264,6 +268,8 @@ Amount for Past Balance
 Amount for This Visit
 Amount Paid
 Amount:
+Amt Billed
+An end date later than the start date is required for repeated events!
 An error occurred while dumping OpenEMR web directory tree
 An error occurred while dumping phpGACL web directory tree
 An error occurred while dumping SQL-Ledger web directory tree
@@ -317,6 +323,7 @@ Apply the changes to the Current event only, to this and all Future occurrences,
 apply to affected area
 apply to skin
 Applying
+Applying Patch to site
 Appointment
 Appointment Date
 Appointment Display Style
@@ -327,6 +334,7 @@ Appointment within
 Appointment/Event Color
 Appointments
 Appointments (write optional)
+Appointments (write,wsome optional)
 Appointments and Encounters
 Appointments Report
 Appointments-Encounters Report
@@ -345,6 +353,7 @@ Are fees charged for this type?
 Are patient note titles to be translated?
 Are the codes stored in external sql tables (0-No, 1-ICD10, 2-SNOMED(RF1), 3-SNOMED(RF2)) ?
 Are you prepared to complete a new GCAC issue for this visit?
+Are you sure to post for today?
 Are you sure you want to approve these events?
 Are you sure you want to completely remove this form?
 Are you sure you want to delete this disclosure?
@@ -397,6 +406,7 @@ August
 Auth
 Auth/notes
 Authorization group
+Authorization Status
 Authorizations
 Authorize
 Authorize - any encounters
@@ -437,7 +447,9 @@ Back six visits
 Back Surgery
 Back ten visits
 Back three visits
+Back to Admin Page
 Back To Patient
+Back to Users
 Back To View
 Back twelve visits
 Back two visits
@@ -450,12 +462,14 @@ Bahasa Indonesia
 Bal
 Balance
 balance
+Balance Amt
 Balance Due
 Bank Draft
 Base of fifth (5th) Metarsal
 Base of fifth (5th) Metarsal:
 Batch Communication Tool
 Batch Payment Entry
+Batch Payments
 Batch processing initiated; this may take a while.
 Batch Results
 BatchCom
@@ -465,6 +479,7 @@ Begin Date
 Beginning date of service yyyy-mm-dd
 Beginning hour of day for calendar events.
 Belching
+Bengali
 between
 Bilateral
 Bilateral:
@@ -487,6 +502,7 @@ Billing Note for
 Billing Note:
 Billing queue results:
 Billing Report
+Billing Status
 Billing Status = Unbilled
 billing to 
 Biopsy
@@ -633,6 +649,7 @@ Category name is empty
 Category/Title
 Caucasian
 Causes Receipts to Print Encounter/Primary Provider Info
+CDR
 Cell
 Cell Phone
 Cell Phone Number
@@ -656,6 +673,7 @@ Characteristics
 Characters Remaining
 Charge
 Charge adjustment
+Charge Coded
 Charges
 Chart
 Chart Activity
@@ -731,7 +749,10 @@ City/State
 Claim
 Claim 
 Claim test has completed running
+Claim Type
+Claim was generated to file
 Claim was generated to file 
+Claims
 Classification
 Clear
 Clear All
@@ -773,6 +794,7 @@ Click to receive (add) new lot
 Click to select
 Click To Select
 Click to select an industry-standard code for this procedure
+Click to select optional procedure code
 Click to select or change CVX code
 Click to select or change diagnoses
 Click to select or change service codes
@@ -827,6 +849,8 @@ cm
 CMS 1500 Margins
 CMS ID
 CN2-12 intact
+Co Pay
+Co Pay Paid
 CO-PAY
 Code
 code
@@ -836,6 +860,7 @@ Code or symbol to indicate currency
 Code Text
 code type
 Code Types
+Coded
 Codes
 Coding
 Coding - any encounters (write,wsome optional)
@@ -889,6 +914,7 @@ Confirm New Password
 Confirm Payment
 Congenital
 Conjuntiva, pupils
+Connectors
 Constant
 constant name
 Constant name is blank
@@ -923,6 +949,7 @@ Contraceptive services previously started
 Contraceptives Start
 Control ID
 Control No.
+COPAY
 Copay
 CoPay
 Copay not positive
@@ -935,10 +962,22 @@ Copyright Notice
 Coronary Artery Bypass
 Coronary Artery Bypass Graft (CABG)
 Corrected
+CouchDB
+CouchDB Connection Failed.
+CouchDB Database
+CouchDB database name
+CouchDB host
+CouchDB HostName
+CouchDB Log Enable
+CouchDB Password
+CouchDB Port
+CouchDB port
+CouchDB UserName
 Cough
 Cough:
 Could not read file
 Could not send email due to a server problem, 
+Could not send email due to a server problem. 
 Couldn't create backup dir:
 Couldn't remove dir:
 Couldn't remove old backup file:
@@ -959,6 +998,8 @@ Coupon
 CPT
 CPT Code
 CPT Codes
+CPT4 Procedure/Service
+CPTII Performance Measures
 CQM
 Crackles:
 cream
@@ -1019,6 +1060,7 @@ Custom input?
 Custom Table
 CVX Code
 CVX Code Mapping
+CVX Immunization
 Cycle
 CYP
 CYP Factor
@@ -1038,6 +1080,7 @@ Data Error
 Data Type
 Database
 Database is not installed.
+Database Patch
 Database Reporting
 Database upgrade finished.
 DataCols must be a number between 1 and 999
@@ -1062,13 +1105,16 @@ Date Immunization Information Statements Given
 Date is missing for code 
 Date Master Criteria
 Date of bank deposit yyyy-mm-dd
+Date of Billing
 Date of Birth
 Date of birth
 Date Of Birth
+Date of Entry
 Date of Injury
 Date of payment yyyy-mm-dd
 Date of referral
 Date of reply
+Date of Service
 Date Of Service
 Date of Service = Today
 Date of service mm/dd/yyyy
@@ -1132,6 +1178,7 @@ Default Provider
 Default Range
 Default Reason for Visit
 Default Setting
+Default state of New Window checkbox in the patient list.
 Default Template
 Default Units
 Default Value
@@ -1156,12 +1203,14 @@ Delete this document
 Delete this form
 Delete this note
 Deleted Successfully.
+Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?
 Dementia
 Demographics
 Demographics (write,addonly optional)
 Demographics filter criteria
 Demographics not authorized
 Demographics not authorized.
+Denied
 Denominator
 Dental
 Dental Issues
@@ -1204,6 +1253,8 @@ Diagnosis Date
 Diagnosis must be coded into a linked encounter
 Diagnosis Name
 Diagnosis Report
+Diagnosis Reporting
+Diagnosis Reporting Only
 Diagnosis Title
 Diagnosis:
 Diagnosis: 
@@ -1309,6 +1360,7 @@ Document ID
 Document moved to new category
 Document moved to patient id
 Document passed integrity check.
+Document Storage Method
 Document successfully renamed.
 Document/Imaging Store
 Documents
@@ -1351,6 +1403,7 @@ Drug Units
 Drugs
 Drugs and Products
 Dry Mouth
+DSMIV Diagnosis
 DT 1
 DT 2
 DT 3
@@ -1384,6 +1437,7 @@ Durable Power of Attorney
 duration
 Duration
 Dutch
+Dx Rep
 Dysphagia
 Dyspnea:
 Dysuria
@@ -1394,6 +1448,7 @@ Each recipient must set their own messages as completed.
 Early Recurrence (<2 Mo)
 Ears
 ECG
+eClaims
 Edema
 EDI-271 File Upload
 EDI-271 Response File Upload
@@ -1408,6 +1463,7 @@ Edit Disclosure
 Edit Facilities
 Edit Facility
 Edit Facility Information
+Edit Facility Specific User Information
 Edit File in
 Edit form
 Edit Global Settings
@@ -1443,11 +1499,14 @@ Email Auth
 Email from Batchcom
 Email Notification
 Email Notification Hours
+Email Notification Report
 Email send before
 Email Sender
 Email Sent
+Email sent to
 Email Subject
 Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***
+Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***{{Do Not translate the ***NAME*** elements of this constant.}}
 Email Transport Method
 Email was sent to following address
 Emergency Contact
@@ -1491,9 +1550,11 @@ Enable Clinical Quality Measure (CQM) Reporting
 Enable Clinical Reminder Popup
 Enable Clinical Reminder Widget
 Enable CQM Reporting
+Enable Fees In Left Menu
 Enable Hylafax Support
 Enable import status message for NewCrop erx
 Enable Lab Exchange
+Enable log for document uploads/downloads to CouchDB
 Enable logging of all SQL SELECT queries.
 Enable logging of backup related activities.
 Enable logging of miscellaneous activities.
@@ -1535,6 +1596,7 @@ encounter office visit
 encounter outpatient
 encounter outpatient w/PCP & obgyn
 Encounter Page Size
+Encounter Payment
 encounter pregnancy
 encounter preventive medicine - individual counseling
 encounter preventive medicine 40 and older
@@ -1587,6 +1649,7 @@ Enter Key
 Enter new State
 Enter the Re Identification code
 Enter your search criteria above
+entries
 Environmental
 EOB Data Entry
 EOB Posting - Electronic Remittances
@@ -1630,6 +1693,7 @@ Error: duplicated ID on line
 Error: duplicated name on line
 ERROR: Field
 ERROR: Missing ZipArchive PHP Module
+ERROR: No ICD import directory.
 Error: passwords don't match. Please check your typing.
 Error: passwords don\'t match. Please check your typing.
 Error: the file does not exist
@@ -1726,6 +1790,8 @@ Exposure to Foreign Countries
 Exposure To Foreign Countries
 Ext Time Collected
 External
+External Data Loads
+External Database Import Utility
 External Id
 External ID
 External identifier
@@ -1755,6 +1821,7 @@ Facility Fax
 Facility Name
 Facility NPI
 Facility Phone
+Facility Specific User Information
 Facility State
 Facility Street
 Facility Zip
@@ -1762,6 +1829,8 @@ Facility:
 FAIL
 Failed
 failed
+Failed to create temporary folder. CouchDB will not work.
+Failed.
 failure
 Family History
 Family History of Glaucoma
@@ -1812,6 +1881,7 @@ file in the Documentation directory to learn how to automate the process of crea
 file location
 File management
 File privilege granted to OpenEMR user.
+File retrieval from CouchDB failed
 File Room
 File to upload
 File with same name already exists at location:
@@ -1825,6 +1895,7 @@ Fill the Row.
 Filter
 Filter for Constants
 Filter for Definitions
+filtered from
 filters
 Filters
 Final
@@ -1835,6 +1906,7 @@ Financial Close Date (yyyy-mm-dd)
 Financial Reporting - anything
 Financial Reporting - my encounters
 Financial Review Date
+Financial Summary by Service Code
 Find
 Find Available
 Find Available Appointments
@@ -1844,6 +1916,7 @@ Findings
 Findings by specialist
 Fine
 Finish Payments
+finished
 First
 First day of the week
 First Name
@@ -1865,6 +1938,7 @@ Fluid and electrolyte problem
 FMS
 Folio Paper Size
 Follow manually
+Follow these instructions for installing or upgrading the following database
 Follow Up
 Follow Up Reason
 Following is a new custom constant:
@@ -1978,6 +2052,7 @@ Generate CMS 1500
 Generate CMS 1500 PDF
 Generate CMS 1500 TEXT
 Generate HCFA
+Generate Invoice
 Generate Letter
 Generate Letter regarding 
 Generate PQRI report (Method A)
@@ -2036,6 +2111,7 @@ Haematoma / bruising
 HAI Status
 Hand + fingers
 Hand Problems
+Hard Disk
 Hardship w/o
 has been linked to visit
 has expired
@@ -2048,6 +2124,7 @@ Hazardous Activities
 HCFA left margin in points
 HCFA Margins
 HCFA top margin in points
+HCPCS Procedure/Service
 he PostCalendar 
 Head
 Head Circ
@@ -2168,7 +2245,11 @@ I
 I am busy during this time.
 I do not have permission to read 
 ICD
+ICD10 Diagnosis
+ICD10 Procedure/Service
 ICD9
+ICD9 Diagnosis
+ICD9 Procedure/Service
 ID
 Id
 ID cannot be blank
@@ -2212,6 +2293,7 @@ Import certificate to the browser.
 Import Configuration
 Import Patient
 Import Patient Demographics
+Important Codes
 Imported from Accounting
 Improved
 in
@@ -2282,6 +2364,8 @@ Injury Type
 Injury/illness-related
 Input Fields
 INR
+Ins 1
+Ins 2 or Ins 3
 Ins adjust
 Ins bundling
 Ins Code
@@ -2296,14 +2380,18 @@ Insert old events into tables
 Insomnia
 Inspection
 Instability / subluxation
+INSTALL
 Install
 install DB
+Installed Release
 Instructed
 Instruction
 Instructions:
+Insufficient inventory for product ID
 Insulin Dependent Diabetes
 Insurance
 insurance
+Insurance Balance
 Insurance Comp
 Insurance Companies
 Insurance Company
@@ -2313,6 +2401,7 @@ Insurance information on file
 Insurance Numbers
 Insurance Payment
 Insurance Provider
+Insured
 Intake Conclusion
 Intake Date
 Intellectual Decline
@@ -2354,6 +2443,8 @@ Inventory List
 Inventory Transactions
 Invoice
 invoice
+Invoice Balance
+Invoice Balance cannot be posted. No Encounter is created.
 Invoice Date
 Invoice has no date!
 Invoice Number
@@ -2373,6 +2464,7 @@ IPV 4
 Irregular Heart Beat
 Irritability
 Irritation
+is a more recent version of the following database
 is a required field.
 is a root node and can not be deleted.
 is not valid (decimal fractions are OK).
@@ -2381,8 +2473,11 @@ Is text from form layouts to be translated?
 Is text from lists to be translated?
 Is The File Encrypted?
 Is this a diagnosis type?
+Is this a procedure/service type?
 Is this code type active?
+Is this code type used in claims?
 Is this type hidden in the fee sheet?
+Is this using external sql tables? If it is, then choose the format.
 is too long
 issue
 Issue
@@ -2399,6 +2494,7 @@ Issues Section
 Italian
 Item
 item
+items
 Items load failed
 IU/L
 IUD
@@ -2467,6 +2563,7 @@ Last Activity Date
 Last Bill Date:
 Last Calendar Year
 Last Encounter
+Last Level Billed
 Last Month
 Last Name
 Last name
@@ -2570,11 +2667,13 @@ Location where scans are stored.
 Location:
 Lock
 Log In
+Log in
 Log Out
 Logged in
 Logged in as
 Logged in as: 
 Logged out.
+Logging
 Login
 login
 Logout
@@ -2643,6 +2742,8 @@ Maximum Age
 Maximum characters
 Maximum idle time in seconds before logout. Default is 7200 (2 hours).
 Maximum reasonable inventory, 0 if not applicable
+Maximum Size
+Maximum Size (entering 0 will allow any size)
 May
 MC
 mcg
@@ -2752,6 +2853,7 @@ Mobile Phone
 Mod
 Modifier
 Modifiers
+Modify
 Modify Payments
 ModLength
 Mon
@@ -2782,6 +2884,7 @@ Mr.
 Mrs.
 Ms.
 MSP Code
+MSP Remit Codes
 Multi Language Tool
 Multiple areas
 Multiple Lots
@@ -2820,6 +2923,7 @@ NARES: Normal Right
 Nasal mucosa pink, septum midline
 Nation Notes
 Nation Notes Configure
+Nation Notes Replace Buttons
 Nationality
 NationNotes
 Native Hawaiian or Other Pacific Islander
@@ -2833,6 +2937,7 @@ Navigation menu consists of pairs of radio buttons
 Navigation menu is a tree view
 Navigation uses a sliding menu
 NDC
+NDC Data
 NDC Number
 Neck
 Neck Problems
@@ -2919,8 +3024,8 @@ Next year (hold for menu)
 Nickname
 Night Sweats
 Nl ext genitalia, vag mucosa, cervix
-NO
 No
+NO
 No access
 No active patient reminders.
 No adenopathy (2 areas required)
@@ -2928,14 +3033,17 @@ No adjustment reason type found for
 No adnexal tenderness/masses
 No Appointments
 No billing system is currently active
+No Bills Found to Include in OFX Export
 No Bills Found to Include in OFX Export<br>
 No code was specified!
 No Diagnosis
 No Documents Found
+No Encounter could be created
 No end date
 No entries found, use the form below to add an entry.
 No errors found
 No Events
+No files staged for installation
 No group was selected
 No hernia
 No injury/illness
@@ -2946,8 +3054,10 @@ No items were selected!
 No log file exist for the selected date
 No masses, tenderness
 No match Patient record found for the given Re Idenitification code
+No matches found. Try search again.
 No matches were found.
 No matches were found. Create the new patient now?
+No matching records found
 No new results found
 No notes
 No ogrganomegoly
@@ -2970,6 +3080,7 @@ No Reminders
 No Result Found, for the above search criteria.
 No Results
 No Results Found For Search
+No results found, please try again.
 No results, please tray again.
 No results, please try again.
 No Show
@@ -2989,6 +3100,7 @@ Non Reported Report
 Non specific injury
 Non-electronic
 Non-Insulin Dependent Diabetes
+Non-Insured
 Non-SRH Medical
 Non-SRH Non-Medical
 None
@@ -3033,6 +3145,7 @@ Not Available
 Not billed
 Not Checked
 Not checked out
+Not Coded
 Not Due
 Not Examined
 Not Examined:
@@ -3040,6 +3153,7 @@ Not Examined:
 not found
 not found!
 Not Hispanic or Latino
+Not installed
 Not seen since
 Not Sent Yet
 Not Specified.
@@ -3049,6 +3163,10 @@ Note it will take 5-10 minutes to fully process after you click Install
 Note it will take 5-10 minutes to fully process after you click Upgrade
 Note that Audit Logging needs to be enabled above
 Note Type
+Note: 12:00 noon is PM, not AM
+NOTE: Importing external data can take more than an hour depending on your hardware configuration. For example, one of the RxNorm data tables contain in excess of 6 million rows.
+NOTE: Only the Biannual International Snomed Release is currently supported
+NOTE: Only the full monthly RxNorm release is currently supported
 Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.
 NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category.
 NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
@@ -3059,6 +3177,7 @@ Notes not authorized
 Nothing Recorded
 Nothing to import for Allergy
 Nothing to import for Prescription
+Nothing to show
 Nothing was selected
 NOTICE:: PostCalendar Submission/Modification
 Notification
@@ -3086,6 +3205,7 @@ Number of hours in advance to send email notifications.
 Number of hours in advance to send Phone notification.
 Number of hours in advance to send SMS notifications.
 Number of past history columns
+Number of patients to display per page in the patient list.
 Numbness
 Numerator
 Numeric display order
@@ -3147,6 +3267,8 @@ Only Active
 only if billing location
 Only Inactive
 Only Mine
+Only Show Diagnosis Reporting Codes
+Only Show Service Code Finance Reporting Codes
 Only upload active prescriptions
 Onset of Illness:
 Onset of Ilness: 
@@ -3155,16 +3277,19 @@ Onset/hosp. date:
 Onsite Patient Portal Site Address
 Oops!
 Open
+Open in New Window
 Open Today`s Visit
 OpenEMR already has a Certificate Authority configured.
 OpenEMR Database Upgrade
 OpenEMR Database Upgrade for De-identification
+OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database.
 OpenEMR must be configured to use certificates before it can create client certificates.
 OpenEMR requires Javascript to perform user authentication.
 OpenEMR Users
 Openings
 Opthalmic
 Option
+Option to save method of document storage.
 Option to support inventory and sales of products
 Optional
 Optional category name for an ID Card image that can be viewed from the patient summary page.
@@ -3178,6 +3303,7 @@ Optional information about this event
 Optional lot number, use % as a wildcard
 Optional numeric patient ID
 Optional procedure code
+Optional procedure/service code
 Options
 Or
 OR
@@ -3241,6 +3367,7 @@ Outcome
 Outlook
 OVERDUE
 Overuse
+Overview
 Overweight
 Overwrite HIPAA choice
 Oxygen Saturation
@@ -3254,10 +3381,12 @@ Page
 Pages
 Paid
 Paid amount that you will allocate
+Paid Amt
 Paid Via
 Pain
 Palpitation
 Pap Smear
+Paper
 Paper Size
 Paralysis
 Parse HL7
@@ -3276,6 +3405,7 @@ Password for Phone Gateway. Automated VOIP service provided by Maviq. Please vis
 Password for SMS Gateway
 Password for SMS Gateway.
 Password security has recently been upgraded.
+Password to connect to CouchDB
 Password:
 Past due
 Past Due
@@ -3303,6 +3433,7 @@ Patient Address is missing
 Patient Allergies
 Patient allergies
 Patient Appointment
+Patient Balance
 Patient chart ID
 Patient Checkout
 Patient Checkout for 
@@ -3312,6 +3443,7 @@ Patient Communication sent
 Patient Comunication Sent
 Patient Country
 Patient Country is missing. Also you have not set default Patient Country in Global Settings
+Patient Coverage
 Patient Data
 Patient Date Of Birth is missing
 Patient Details
@@ -3332,6 +3464,7 @@ Patient History
 Patient History / Lifestyle
 Patient Home phone
 Patient ID
+Patient Id
 Patient ID card
 Patient ID Category Name
 Patient Immunization
@@ -3343,6 +3476,9 @@ Patient Issues
 Patient Last name
 Patient Last name is missing
 Patient List
+Patient List Columns
+Patient List New Window
+Patient List Page Size
 Patient Lookup Errors
 Patient Medical Problems
 Patient Medications
@@ -3398,12 +3534,14 @@ Paying Entity
 Payment
 payment
 Payment Adjustment Code
+Payment against
 Payment Amount
 Payment Amount must be Numeric
 Payment Category
 Payment Date
 payment entered on
 Payment From
+Payment Gateways
 Payment Ins
 Payment List
 Payment Method
@@ -3456,6 +3594,7 @@ Pharmacy Dispensary
 Pheumothorax
 Phone
 Phone call list
+Phone Call List report
 Phone Gateway Password
 Phone Gateway URL
 Phone Gateway Username
@@ -3480,6 +3619,10 @@ PID (Pelvic Inflammatory Disease)
 Pill Size
 Pills
 Place the database zip file in the following directory if want the option to install
+Place the downloaded ICD 10 database zip files into the following directory
+Place the downloaded ICD 9 database zip file into the following directory
+Place the downloaded RxNorm database zip file into the following directory
+Place the downloaded Snomed database zip file into the following directory
 Placeholder
 Placeholder (Maintains empty ACLs)
 Plain Text
@@ -3503,6 +3646,7 @@ Please Click download button to download the De Identified data
 Please Click download button to download the Re Identified data
 Please close this window.
 Please compare the new name
+Please create the following directory before proceeding
 Please do not accept this prescription unless it was received via facimile.
 Please do not accept this prescription unless it was received via facsimile.
 Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to  stop on the server and will consume uneccesary resources.
@@ -3522,6 +3666,7 @@ Please enter new search string
 Please enter the correct Re Identification code
 Please enter the password
 Please Fill the Check Number
+Please Fill the Check/Ref Number
 Please Fill the Date
 Please Fill the Payment Amount
 Please Fill the Payment Category
@@ -3537,9 +3682,11 @@ Please Note: constants are case sensitive and any string is allowed.
 Please only use alphabetic characters
 Please only use alphabetic characters with no spaces
 Please pay this amount
+Please place your install files in following directory
 Please refer to
 Please reset the password.
 Please restart the apache server before playing with de-identification
+Please Select
 Please select a language
 Please Select a Patient.
 Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
@@ -3552,6 +3699,7 @@ Please select any Search Option.
 Please select at least one prescription!
 Please select the desired pages to copy or forward:
 Please Select the Payment Method
+Please Select Type Of Payment.
 Please select X12 partner, required to create the 270 batch
 Please set
 Please set de_identification_config variable back to zero
@@ -3588,6 +3736,7 @@ Poor Hearing
 Pop ups need to be enabled to see these reports
 Populate the year view with events?
 Popups
+Portal
 Portal Activity
 Portuguese
 Portuguese (Brazilian)
@@ -3625,6 +3774,7 @@ Practice
 Practice Default Setting
 Practice Settings
 Practitioner
+Pre Pay
 Pre Payment
 Pre-Abortion Consultation
 Pre-Abortion Counseling
@@ -3728,6 +3878,7 @@ Procedure
 Procedure Body Sites
 Procedure Boolean Results
 Procedure Code
+Procedure Codes
 Procedure Lateralities
 Procedure Order
 Procedure Order for
@@ -3742,9 +3893,11 @@ Procedure Statistics Report
 Procedure Type
 Procedure Types
 Procedure Units
+Procedure/Service
 Procedures
 Process
 Process ERA File
+Process takes some time
 Processed
 Processed By
 Processed Date
@@ -3770,6 +3923,8 @@ Provide valid Email Address
 Provided Clinical Summary?
 Provided Education Resource(s)?
 Provider
+Provider ID
+Provider ID at Specified Facility
 Provider Matching Errors
 Provider Number
 Provider:
@@ -3965,6 +4120,7 @@ Relative ordering of this entity
 Relatives
 Relay Health credentials are missing from this user account.
 Relay Health ID
+Release Date
 Religion
 Relogin
 Remdr
@@ -4003,6 +4159,7 @@ Report - Clinical
 Report by
 Report Status
 Report Totals
+Report/ Form
 Reportable
 Reported
 Reported Date
@@ -4012,6 +4169,7 @@ Requested Service
 Require Strong Passwords
 Require Unique Passwords
 Required
+Required Co Pay
 Required Field Missing: Please choose the EDI-271 file to upload
 Required field missing: Please enter the First name
 Required field missing: Please enter the Last name
@@ -4049,6 +4207,10 @@ Retracted Right:
 Return
 Return above part with your payment
 Return to calendar
+Return to this page and you will be able to complete the ICD10 installation process by clicking on the ICD10 section header
+Return to this page and you will be able to complete the ICD9 installation process by clicking on the ICD9 section header
+Return to this page and you will be able to complete the RxNorm installation process by clicking on the RXNORM section header
+Return to this page and you will be able to complete the RxNorm installation process by clicking on the SNOMED section header
 Return Value
 Return Visit
 Returned to Play
@@ -4156,12 +4318,14 @@ SE Zip Code
 Search
 search
 search again
+Search all columns
 Search by:
 Search for
 Search for:
 Search in
 Search or Add Patient
 Search Payment
+Search Results
 Search Results:
 Search Selected
 Search string does not match with list in database
@@ -4259,14 +4423,18 @@ Separated
 September
 Seq
 Sequence
+Serv Rep
 Service
 Service Category
 Service Code
+Service Code Finance Reporting
 Service Codes
 Service Date
 Service Date:
 Service Location
 Service provided by specialist
+Service Reporting
+Service Reporting Only
 Services
 Services by Category
 Services provided
@@ -4302,6 +4470,7 @@ Shoulder
 Shoulder + clavicle
 Shoulder Problems
 Show
+Show Active
 Show All
 Show All Transactions
 Show as Busy
@@ -4313,6 +4482,7 @@ Show Details
 Show Graph
 Show hovering event text on mouseover?
 Show how many events on admin pages?
+Show Inactive
 Show Menu
 Show metric only
 Show Notes
@@ -4324,6 +4494,7 @@ Show search/submit links in block?
 Show the custom state form for the add list widget (will ask for title and abbreviation).
 Show Unbilled Only
 Show US only
+Showing
 Siblings
 Sickle Cell
 Sig
@@ -4383,7 +4554,10 @@ SMTP Server Hostname
 SMTP Server Port Number
 SMTP User for Authentication
 SNOMED
+SNOMED (RF1) Diagnosis
+SNOMED (RF2) Diagnosis
 SNOMED Database
+SNOMED Diagnosis
 Snoring
 SOAP
 Social Difficulties
@@ -4401,6 +4575,7 @@ Something went wrong. Please try again.
 Soon Due Interval (Clinical Reminders)
 Soon Due Interval (Patient Reminders)
 Sore Throat
+Sorry No Appointment is Fixed
 Sorry, there was a problem uploading your file
 Sort by
 Sort By
@@ -4471,6 +4646,7 @@ SS
 SSL Certificate Administration
 SSN
 Stability
+Staged Releases
 Standard
 Standard Code
 Standard Measures
@@ -4506,6 +4682,11 @@ Status
 Status quo
 STD/AIDS Couns
 Stength and Conditioning
+Steps to install the DSM IV database
+Steps to install the ICD 10 database
+Steps to install the ICD 9 database
+Steps to install the RxNorm database
+Steps to install the Snomed database
 Stiff Joints
 Stiffness
 Stock Months
@@ -4568,11 +4749,13 @@ Successfully added category
 successfully added to category,
 Successfully Deleted
 Successfully installed the database.
+Successfully installed the following database
 Successfully Modified
 Successfully Saved.Would you like to Allocate?
 Successfully Saved.Would you like to Distribute?
 successfully stored.
 Successfully upgraded the database.
+Successfully upgraded the following database
 successfully.
 Suicide
 Summary
@@ -4622,6 +4805,7 @@ Synchronized new definition (Language, Constant, Definition):
 Syncope
 Syndromic Surveillance
 Syndromic Surveillance - Non Reported Issues
+Syndromic Surveillance Report
 Synovitis, impingement, bursitis
 System
 T
@@ -4700,7 +4884,10 @@ The event(s) have been approved.
 The event(s) have been hidden.
 The exported data appears in the text area below.  You can copy and paste this into an email or to any other desired destination.
 The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.
+The file could not be saved to CouchDB.
 The file could not be succesfully renamed, this error is usually related to permissions problems on the storage system.
+The file could not be succesfully stored, this error is usually related to permissions problems on the storage system
+The first step is to open an account with the Unified Medical Language System web site
 The following calendar event has been added:
 The following calendar event has been modifed:
 The following categories will be removed from your category List
@@ -4712,20 +4899,27 @@ The following fields are required
 The following fields have to be filled to send request.
 The hostname of the ATNA audit repository machine.
 The initial window is the invoice search page.  At the top you may enter a source (e.g. check number), pay date and check amount.  The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim.  The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
+The installation directory needs to be created.
+The installed version and the staged files are the same.
+The installed version is a more recent version than the staged files.
 The label that appears to the user on the form
 The length should not exceed the following number of characters
 The new category will be a sub-category of 
 The new password can not be the same as the current password.
 The new password fields are not the same.
+The number of staged files is incorrect. Only place the files that you wish to install/upgrade to.
 The page will be redirected to Demographics. You can edit the country field and clickthrough to NewCrop again.
 The password must be at least eight characters, and should
 The patient record request has been recorded.
 The patient reminders have been sent
 The patient reminders have been updated
 The payments posted cannot go below this date.This ensures that after taking the final report nobody post for previous dates.
+The raw data feed release can be obtained from
 The remaining information below applies only if you are posting manually, or if you are doing manual corrections.
 The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.
 The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+The staged files release dates are not all from the same release.
+The staged files revisions are not all from the same release.
 The time granularity of the calendar and the smallest interval in minutes for an appointment slot.
 The translated label that will appear on the form in current language
 The translated Title that will appear in current language
@@ -4736,6 +4930,7 @@ The vendor-specific code identifying this procedure or result
 The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
 The zip file will contain the following items
 Theme
+Then the raw data feed release can be obtained from
 Therapeutic Injections
 There are
 There are currently no prescriptions
@@ -4758,6 +4953,7 @@ There is no match for invoice id
 There is no match for invoice id = 
 There is no parts entry for services ID 
 There was an error while processing your request.
+These are the 2012 links
 Thickened Right:
 Thigh
 Thigh + hamstring
@@ -4773,7 +4969,11 @@ Third
 This action CANNOT be undone.
 This action cannot be undone.
 This action will be logged
+This appointment slot is already used, use it anyway?
+This appointment slot is not available, please choose another.
 This Calendar Year
+This claim has been canceled.
+This claim has been closed.
 This claim has been denied.Reason:-
 This claim has been forwarded to next level.
 This code type does not accept relations.
@@ -4781,15 +4981,20 @@ This context contains categories, which will be deleted. Do you still want to co
 This determines how appointments display on the calendar.
 This determines which color schema used for appointment
 This Encounter
+This encounter has been billed. If you need to change it, it must be re-opened.
+This feature is not yet available
 This feature is very experimental and not fully tested. Use at your own risk!
 This invoice number has been changed to 
+this location
 This module is in test mode. The database will not be changed.
 This module promotes efficient entry of EOB data.
 This Month to Date
+This page allows you to review each of the supported external dataloads that you can install and upgrade. Each section below can be expanded by clicking on the section header to review the status of the particular database of interest.
 This page will inline include the login page, so that we do not have to click relogin every time.
 This patient has no activity.
 This patient ID is already in use!
 This product allows only one lot per warehouse.
+This report currently only works for ICD9 codes.
 This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?
 This user is not a member of any group
 This visit begins new contraceptive use
@@ -4820,6 +5025,7 @@ Time
 Time Display Format
 Time Increment for Add (minutes 1-60)
 Time selection
+Time slot is open, saving event
 Timed event
 Times array (N/A)
 Timestamp and Text
@@ -4901,10 +5107,12 @@ Total active reminders after update
 Total active reminders before update
 Total amount due
 Total Amount Paid
+Total Charge
 Total Charges
 Total Clients
 Total Cost
 Total Distribution for following check number is not full
+total entries
 Total failed reminders sent via email
 Total failed reminders sent via phone
 Total for
@@ -4930,6 +5138,7 @@ Total updated reminders
 Totals
 Totals for
 Totals for 
+to{{range}}
 Training Type
 Transact
 Transaction
@@ -4992,8 +5201,10 @@ Ulcers:
 Unable to create
 Unapplied
 Unassigned
+Unauthorized
 Unauthorized access to ePrescription
 Unauthorized access.
+Unbilled
 Unbilled Only
 under tongue
 Underweight
@@ -5026,6 +5237,7 @@ Unselect All
 Unselected
 Unspecified
 unstructured
+UNSUPPORTED database load file
 until
 Untimely filing
 Unused
@@ -5044,6 +5256,9 @@ Update Selected Items
 Update the following variables in file
 Update User Information
 Updating demographics is not authorized.
+Updating global configuration defaults
+Updating version indicators
+UPGRADE
 Upgrade
 Upgrade Database
 Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process
@@ -5112,17 +5327,22 @@ User Defined Text 6
 User Defined Text 7
 User Defined Text 8
 User First name
+User Logon (If 03 above, else leave spaces) (ISA02)
+User logon Required Indicator (ISA01~ use 00 or 03)
 User Manual
 User Memberships
 User Name
 User name or Host name cannot be empty
 User or Host name
+User Password (ISA04~ if 01 above, else leave spaces)
+User password required Indicator (ISA03~ use 00 or 01)
 User Settings
 User Specific Setting
 Username
 Username for Phone Gateway. Automated VOIP service provided by Maviq. Please visit http://signup.maviq.com for more information.
 Username for SMS Gateway
 Username for SMS Gateway.
+Username to connect to CouchDB
 Username:
 Users
 Users/Groups/Logs Administration
@@ -5161,6 +5381,7 @@ View Comprehensive Patient Report
 View document
 View encounter
 View events in a popup window?
+View Facility Specific User Information
 View Log
 View Page 1
 View Page 2
@@ -5232,11 +5453,13 @@ Wheezes:
 Wheezing
 Wheezing:
 Where may related scanned or paper documents be found?
+Whether Insured
 Whiplash
 White
 Who
 Who replied?
 Widowed
+Width
 Width in pixels of the left navigation frame.
 With selected:
 with the old name
@@ -5313,6 +5536,7 @@ You are not authorized to access this squad.
 You are not authorized to add/edit issues
 You are not authorized to schedule appointments.
 You are not authorized to see this encounter.
+You are posting against an old encounter?
 You can not access this function directly.
 You cannot access this page directly.
 You cannot add a blank value for a category!

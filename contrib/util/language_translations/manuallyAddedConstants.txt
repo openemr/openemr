@@ -191,7 +191,6 @@ External Referral
 External referral?
 Eye Irritation
 Eye Redness
-Facility Specific User Information
 Family Payment
 Farsi
 Female Symptoms
@@ -252,10 +251,6 @@ How did they hear about us
 Hypertension
 Hypertension: Blood Pressure Measurement
 Hypertension: Blood Pressure Measurement (CQM)
-ICD10 Diagnosis
-ICD10 Procedure/Service
-ICD9 Diagnosis
-ICD9 Procedure/Service
 Id
 Imaging Service
 Immunization Service
@@ -275,7 +270,6 @@ Influenza Immunization for Patients >= 50 Years Old (CQM)
 Influenza Vaccine
 Injection
 INR
-Insurance Payment
 Interpreter needed?
 Intervention
 Invoice Reference Number Pools
@@ -378,7 +372,6 @@ Patient ID card
 Patient Information
 Patient List Columns
 Patient Note Types
-Payment
 Payment Adjustment Code
 Payment Gateways
 Payment Ins
@@ -403,7 +396,6 @@ Podiatric
 Portal
 Portuguese
 Positive
-Pre Payment
 Preferred Language
 Preferred Pharmacy
 Preliminary
@@ -474,7 +466,6 @@ Samoan
 Sample
 Seatbelt use
 See Growth-Chart
-Self
 Send reminders to patients per patient preference for preventive/follow up care.
 Separated
 Service Category
