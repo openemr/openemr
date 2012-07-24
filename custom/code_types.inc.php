@@ -7,7 +7,8 @@
  * abstraction of diagnosis/billing code types.  This is desirable
  * because different countries or fields of practice use different methods for
  * coding diagnoses, procedures and supplies.  Fees will not be relevant where
- * medical care is socialized.  Attributes are:
+ * medical care is socialized.
+ * <pre>Attributes of the $code_types array are:
  *  active   - 1 if this code type is activated
  *  id       - the numeric identifier of this code type in the codes table
  *  claim    - 1 if this code type is used in claims
@@ -26,6 +27,7 @@
  *             4 for storing codes in external ICD9 Diagnosis tables
  *             5 for storing codes in external ICD9 Procedure/Service tables
  *             6 for storing codes in external ICD10 Procedure/Service tables
+ *  </pre>
  *
  * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  *
