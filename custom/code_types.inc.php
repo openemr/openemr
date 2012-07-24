@@ -1,6 +1,31 @@
 <?php
 /**
- * Library to manage Code Types and code type lookups.
+ * Library and data structure to manage Code Types and code type lookups.
+ *
+ * The data structure is the $code_types array.
+ * The $code_types array is built from the code_types sql table and provides
+ * abstraction of diagnosis/billing code types.  This is desirable
+ * because different countries or fields of practice use different methods for
+ * coding diagnoses, procedures and supplies.  Fees will not be relevant where
+ * medical care is socialized.  Attributes are:
+ *  active   - 1 if this code type is activated
+ *  id       - the numeric identifier of this code type in the codes table
+ *  claim    - 1 if this code type is used in claims
+ *  fee      - 1 if fees are used, else 0
+ *  mod      - the maximum length of a modifier, 0 if modifiers are not used
+ *  just     - the code type used for justification, empty if none
+ *  rel      - 1 if other billing codes may be "related" to this code type
+ *  nofs     - 1 if this code type should NOT appear in the Fee Sheet
+ *  diag     - 1 if this code type is for diagnosis
+ *  proc     - 1 if this code type is a procedure/service
+ *  label    - label used for code type
+ *  external - 0 for storing codes in the code table
+ *             1 for storing codes in external ICD10 Diagnosis tables
+ *             2 for storing codes in external SNOMED (RF1) Diagnosis tables
+ *             3 for storing codes in external SNOMED (RF2) Diagnosis tables
+ *             4 for storing codes in external ICD9 Diagnosis tables
+ *             5 for storing codes in external ICD9 Procedure/Service tables
+ *             6 for storing codes in external ICD10 Procedure/Service tables
  *
  * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  *
@@ -23,32 +48,6 @@
 
 require_once("$srcdir/csv_like_join.php");
 
-/**
- * The $code_types array is built from the code_types sql table and provides
- * abstraction of diagnosis/billing code types.  This is desirable
- * because different countries or fields of practice use different methods for
- * coding diagnoses, procedures and supplies.  Fees will not be relevant where
- * medical care is socialized.  Attributes are:
- *  active   - 1 if this code type is activated
- *  id       - the numeric identifier of this code type in the codes table
- *  fee      - 1 if fees are used, else 0
- *  mod      - the maximum length of a modifier, 0 if modifiers are not used
- *  just     - the code type used for justification, empty if none
- *  rel      - 1 if other billing codes may be "related" to this code type
- *  nofs     - 1 if this code type should NOT appear in the Fee Sheet
- *  diag     - 1 if this code type is for diagnosis
- *  label    - label used for code type
- *  external - 0 for storing codes in the code table
- *             1 for storing codes in external ICD10 Diagnosis tables
- *             2 for storing codes in external SNOMED (RF1) Diagnosis tables
- *             3 for storing codes in external SNOMED (RF2) Diagnosis tables
- *             4 for storing codes in external ICD9 Diagnosis tables
- *             5 for storing codes in external ICD9 Procedure/Service tables
- *             6 for storing codes in external ICD10 Procedure/Service tables
- *  claim    - 1 if this code type is used in claims
- *  proc     - 1 if this code type is a procedure/service
- * @var array
- */
 $code_types = array();
 $default_search_type = '';
 $ctres = sqlStatement("SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key");
