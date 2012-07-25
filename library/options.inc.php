@@ -204,7 +204,7 @@ function generate_form_field($frow, $currvalue) {
       "AND authorized = 1 " .
       "ORDER BY lname, fname");
     echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
-    echo "<option value=''>" . htmlspecialchars($empty_title, ENT_NOQUOTES) . "</option>";
+    echo "<option value=''>" . htmlspecialchars(xl($empty_title), ENT_NOQUOTES) . "</option>";
     while ($urow = sqlFetchArray($ures)) {
       $uname = htmlspecialchars( $urow['fname'] . ' ' . $urow['lname'], ENT_NOQUOTES);
       $optionId = htmlspecialchars( $urow['id'], ENT_QUOTES);
