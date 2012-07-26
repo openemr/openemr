@@ -497,8 +497,8 @@ function generate_receipt($patient_id, $encounter=0) {
       "a.pid = ? AND a.encounter = ? AND " .
       "a.pay_amount != 0 " .
       "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter) );
-    $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
     while ($inrow = sqlFetchArray($inres)) {
+      $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
       $charges -= sprintf('%01.2f', $inrow['pay_amount']);
       receiptPaymentLine($svcdate, $inrow['pay_amount'],
         $payer . ' ' . $inrow['reference']);
@@ -841,9 +841,7 @@ if (!empty($_GET['enc'])) {
   exit();
 }
 
-// Get the unbilled billing table items and product sales for
-// this patient.
-
+// Get the unbilled billing table items for this patient.
 $query = "SELECT id, date, code_type, code, modifier, code_text, " .
   "provider_id, payer_id, units, fee, encounter " .
   "FROM billing WHERE pid = ? AND activity = 1 AND " .
@@ -851,6 +849,7 @@ $query = "SELECT id, date, code_type, code, modifier, code_text, " .
   "ORDER BY encounter DESC, id ASC";
 $bres = sqlStatement($query, array($patient_id) );
 
+// Get the product sales for this patient.
 $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, " .
   "s.quantity, s.encounter, s.drug_id, d.name, r.provider_id " .
   "FROM drug_sales AS s " .
@@ -1012,7 +1011,7 @@ $inv_payer     = 0;
 $gcac_related_visit = false;
 $gcac_service_provided = false;
 
-// Process billing table items.  Note this includes co-pays.
+// Process billing table items.
 // Items that are not allowed to have a fee are skipped.
 //
 while ($brow = sqlFetchArray($bres)) {
@@ -1067,6 +1066,13 @@ while ($brow = sqlFetchArray($bres)) {
   }
 }
 
+// Process copays
+//
+$totalCopay = getPatientCopay($patient_id,$encounter);
+if ($totalCopay < 0) {
+  write_form_line("COPAY", "", "", "", "", $totalCopay, "", "");
+}
+
 // Process drug sales / products.
 //
 while ($drow = sqlFetchArray($dres)) {
@@ -1098,8 +1104,8 @@ foreach ($taxes as $key => $value) {
   }
 }
 
-// Note that we don't try to get anything from the ar_activity table.  Since
-// this is the checkout, nothing should be there yet for this invoice.
+// Besides copays, do not collect any other information from ar_activity,
+// since this is for appt checkout.
 
 if ($inv_encounter) {
   $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .

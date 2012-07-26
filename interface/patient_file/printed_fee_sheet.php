@@ -13,21 +13,10 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/billing.inc");
 require_once("$srcdir/classes/Address.class.php");
 require_once("$srcdir/classes/InsuranceCompany.class.php");
 require_once("$srcdir/formatting.inc.php");
-
-// Get the co-pay amount that is effective on the given date.
-// Or if no insurance on that date, return -1.
-//
-function getCopay($patient_id, $encdate) {
-    $tmp = sqlQuery("SELECT provider, copay FROM insurance_data " .
-            "WHERE pid = '$patient_id' AND type = 'primary' " .
-            "AND date <= '$encdate' ORDER BY date DESC LIMIT 1");
-    if ($tmp['provider'])
-        return sprintf('%01.2f', 0 + $tmp['copay']);
-    return -1;
-}
 
 function genColumn($ix) {
     global $html;

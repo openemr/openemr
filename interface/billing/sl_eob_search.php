@@ -664,17 +664,18 @@ if ($_POST['form_search'] || $_POST['form_print']) {
       }
     }
 
+    // Notes that as of release 4.1.1 the copays are stored
+    // in the ar_activity table marked with a PCP in the account_code column.
     $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
       "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
       "p.fname, p.mname, p.lname, p.pubpid, p.genericname2, p.genericval2, " .
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
       "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
-      "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
-      "b.pid = f.pid AND b.encounter = f.encounter AND " .
-      "b.activity = 1 AND b.code_type = 'COPAY' ) AS copays, " .
       "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
-      "a.pid = f.pid AND a.encounter = f.encounter ) AS payments, " .
+      "a.pid = f.pid AND a.encounter = f.encounter AND a.payer_type = 0 AND a.account_code = 'PCP')*-1 AS copays, " .
+      "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
+      "a.pid = f.pid AND a.encounter = f.encounter AND a.account_code != 'PCP') AS payments, " .
       "( SELECT SUM(a.adj_amount) FROM ar_activity AS a WHERE " .
       "a.pid = f.pid AND a.encounter = f.encounter ) AS adjustments " .
       "FROM form_encounter AS f " .

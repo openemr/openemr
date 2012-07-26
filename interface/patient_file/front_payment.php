@@ -12,6 +12,7 @@ $sanitize_all_escapes=true;
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/billing.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
@@ -44,28 +45,6 @@ function rawbucks($amount) {
     return $amount;
   }
   return '';
-}
-
-// Get the co-pay amount that is effective on the given date.
-// Or if no insurance on that date, return -1.
-//
-function getCopay($patient_id, $encdate) {
- $tmp = sqlQuery("SELECT provider, copay FROM insurance_data " .
-   "WHERE pid = '$patient_id' AND type = 'primary' " .
-   "AND date <= '$encdate' ORDER BY date DESC LIMIT 1");
- if ($tmp['provider']) return sprintf('%01.2f', 0 + $tmp['copay']);
- return 0;
-}
-
-// Get the total co-pay amount paid by the patient for an encounter
-function getPatientCopay($patient_id, $encounter) {
-	$resMoneyGot = sqlStatement("SELECT sum(pay_amount) as PatientPay FROM ar_activity where ".
-	  "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'",
-	  array($patient_id,$encounter));
-	 //new fees screen copay gives account_code='PCP'
-	$rowMoneyGot = sqlFetchArray($resMoneyGot);
-	$Copay=$rowMoneyGot['PatientPay'];
-	return $Copay*-1;
 }
 
 // Display a row of data for an encounter.
