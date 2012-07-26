@@ -111,7 +111,7 @@
     if (! $user) $user = $_SESSION['authUser'];
 
     if ($phpgacl_location) {
-      return $gacl_object->acl_return_value($section, $value, $section_aro_value, $user);
+      return $gacl_object->acl_check($section, $value, $section_aro_value, $user);
     }
 
     // If no phpgacl, then apply the old static rules whereby "authorized"
