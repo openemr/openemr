@@ -51,7 +51,7 @@ class Claim {
   var $billing_options;   // row from form_misc_billing_options table
   var $invoice;           // result from get_invoice_summary()
   var $payers;            // array of arrays, for all payers
-  var $copay;             // total of copays from the billing table
+  var $copay;             // total of copays from the ar_activity table
   
   function loadPayerInfo(&$billrow) {
     global $sl_err;
@@ -157,10 +157,6 @@ class Claim {
       "b.activity = '1' ORDER BY b.date, b.id";
     $res = sqlStatement($sql);
     while ($row = sqlFetchArray($res)) {
-      if ($row['code_type'] == 'COPAY') {
-        $this->copay -= $row['fee'];
-        continue;
-      }
       // Save all diagnosis codes.
       if ($row['ct_diag'] == '1') {
         $this->diags[$row['code']] = $row['code'];
@@ -514,7 +510,7 @@ class Claim {
   //
   function patientPaidAmount() {
     // For primary claims $this->invoice is not loaded, so get the co-pay
-    // from the billing table instead.
+    // from the ar_activity table instead.
     if (empty($this->invoice)) return $this->copay;
     //
     $amount = 0;
