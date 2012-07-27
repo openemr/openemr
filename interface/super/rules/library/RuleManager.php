@@ -577,7 +577,7 @@ class RuleManager {
             // update interval
             $intervalSql =
                 "UPDATE rule_target
-                    SET rule_target.value = ?, rule_target.interval = ?
+                    SET rule_target.value = ?, rule_target.interval = ?, rule_target.include_flag = '1', rule_target.required_flag = '1'
                   WHERE rule_target.method = ?
                     AND rule_target.id = ?";
 
@@ -589,8 +589,8 @@ class RuleManager {
             );
         } else {
             // insert
-            sqlStatement( "INSERT INTO rule_target ( rule_target.value, rule_target.interval, rule_target.method, rule_target.id ) "
-                                 . "VALUES ( ?, ?, ?, ? ) ", array(
+            sqlStatement( "INSERT INTO rule_target ( rule_target.value, rule_target.interval, rule_target.method, rule_target.id, rule_target.include_flag, rule_target.required_flag ) "
+                                 . "VALUES ( ?, ?, ?, ?, '1', '1' ) ", array(
                 $dbView->intervalType,
                 $dbView->interval,
                 'target_interval',

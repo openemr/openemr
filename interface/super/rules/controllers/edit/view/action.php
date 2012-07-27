@@ -76,9 +76,8 @@
         <span class="left_col colhead req" data-field="fld_custom_input"><?php echo out( xl( 'Custom input?' ) ); ?></span>
         <span class="end_col">
             <select data-grp-tgt="" type="dropdown" name="fld_custom_input" id="">
-                <option id="" value="">--<?php echo out( xl( 'Select' ) ); ?>--</option>
                 <option id="Yes" value="yes" <?php echo $action->customRulesInput ? "SELECTED" : "" ?>><?php echo out( xl( 'Yes' ) ); ?></option>
-                <option id="No" value="no" <?php echo !$action->completed ? "SELECTED" : "" ?>><?php echo out( xl( 'No' ) ); ?></option>
+                <option id="No" value="no" <?php echo !$action->customRulesInput ? "SELECTED" : "" ?>><?php echo out( xl( 'No' ) ); ?></option>
             </select>
         </span>
     </p>
