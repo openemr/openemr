@@ -4210,7 +4210,7 @@ Return to calendar
 Return to this page and you will be able to complete the ICD10 installation process by clicking on the ICD10 section header
 Return to this page and you will be able to complete the ICD9 installation process by clicking on the ICD9 section header
 Return to this page and you will be able to complete the RxNorm installation process by clicking on the RXNORM section header
-Return to this page and you will be able to complete the RxNorm installation process by clicking on the SNOMED section header
+Return to this page and you will be able to complete the Snomed installation process by clicking on the SNOMED section header
 Return Value
 Return Visit
 Returned to Play
