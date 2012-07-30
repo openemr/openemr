@@ -37,7 +37,7 @@ require_once("../../interface/globals.php");
 <li><?php echo xlt("Then the raw data feed release can be obtained from"); ?> <b><a href="http://www.nlm.nih.gov/research/umls/licensedcontent/snomedctfiles.html"><?php echo xlt("this location"); ?></a></b>
 <li><?php echo xlt("Place the downloaded Snomed database zip file into the following directory"); ?>: contrib/snomed 
 </li>
-<li><?php echo xlt("Return to this page and you will be able to complete the RxNorm installation process by clicking on the SNOMED section header"); ?>
+<li><?php echo xlt("Return to this page and you will be able to complete the Snomed installation process by clicking on the SNOMED section header"); ?>
 </li>
 </ol>
 <h5 class="error_msg"><?php echo xlt("NOTE: Only the Biannual International Snomed Release is currently supported"); ?></h5>
