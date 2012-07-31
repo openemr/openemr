@@ -1,20 +1,39 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Patient reminders functions.
+ *
+ * Functions for collection/displaying/sending patient reminders. This is 
+ * part of the CDR engine, which can be found at library/clinical_rules.php.
+ *
+ * Copyright (C) 2010-2012 Brady Miller <brady@sparmy.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
 
-// Functions are kept here that will support reminders.
-
+/**
+ * Include the main CDR engine library
+ */
 require_once(dirname(__FILE__) . "/clinical_rules.php");
 
-
-// Display the patient reminder widget.
-// Parameters:
-//   $patient_id - pid of selected patient
-//   $dateTarget - target date. If blank then will test with current date as target.
+/**
+ * Display the patient reminder widget.
+ *
+ * @param  integer  $patient_id  pid of selected patient
+ * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
+ */
 function patient_reminder_widget($patient_id,$dateTarget='') {
 
   // Set date to current if not set
@@ -54,21 +73,26 @@ function patient_reminder_widget($patient_id,$dateTarget='') {
   echo "</table>";
 }
 
-// Function to update reminders.
-// Parameters:
-//   $dateTarget - target date. If blank then will test with current date as target.
-//   $patient_id - pid of patient. If blank then will check all patients.
-// Return:
-//   Returns a array with following element:
-//     'total_active_actions'         - Number of active actions.
-//     'total_pre_active_reminders'   - Number of active reminders before processing.
-//     'total_pre_unsent_reminders'   - Number of unsent reminders before processing.
-//     'total_post_active_reminders'  - Number of active reminders after processing.
-//     'total_post_unsent_reminders'   - Number of unsent reminders after processing.
-//     'number_new_reminders'         - Number of new reminders
-//     'number_updated_reminders'     - Number of updated reminders (due_status change)
-//     'number_inactivated_reminders' - Number of inactivated reminders.
-//     'number_unchanged_reminders'   - Number of unchanged reminders.
+/**
+ * Function to update reminders.
+ *
+ * Function that updates reminders and returns an array with a specific data structure.
+ * <pre>The data structure of the return array includes the following elements
+ *  'total_active_actions'         - Number of active actions.
+ *  'total_pre_active_reminders'   - Number of active reminders before processing.
+ *  'total_pre_unsent_reminders'   - Number of unsent reminders before processing.
+ *  'total_post_active_reminders'  - Number of active reminders after processing.
+ *  'total_post_unsent_reminders'  - Number of unsent reminders after processing.
+ *  'number_new_reminders'         - Number of new reminders
+ *  'number_updated_reminders'     - Number of updated reminders (due_status change)
+ *  'number_inactivated_reminders' - Number of inactivated reminders.
+ *  'number_unchanged_reminders'   - Number of unchanged reminders.
+ * </pre>
+ *
+ * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
+ * @param  integer  $patient_id  pid of patient. If blank then will check all patients.
+ * @return array                 see above for data structure of returned array
+ */
 function update_reminders($dateTarget='', $patient_id='') {
 
   $logging = array();
@@ -180,15 +204,21 @@ function update_reminders($dateTarget='', $patient_id='') {
 
 }
 
-// Function to send reminders
-// Return:
-//   Returns a array with following element:
-//     'total_pre_unsent_reminders'  - Number of reminders before processing.
-//     'total_post_unsent_reminders' - Number of reminders after processing.
-//     'number_success_emails'       - Number of successfully sent email reminders.
-//     'number_failed_emails'        - Number of failed sent email reminders.
-//     'number_success_calls'        - Number of successfully call reminders.
-//     'number_failed_calls'         - Number of failed call reminders.
+/**
+ * Function to send reminders.
+ *
+ * Function that sends reminders and returns an array with a specific data structure.
+ * <pre>The data structure of the return array includes the following elements
+ *   'total_pre_unsent_reminders'  - Number of reminders before processing.
+ *   'total_post_unsent_reminders' - Number of reminders after processing.
+ *   'number_success_emails'       - Number of successfully sent email reminders.
+ *   'number_failed_emails'        - Number of failed sent email reminders.
+ *   'number_success_calls'        - Number of successfully call reminders.
+ *   'number_failed_calls'         - Number of failed call reminders.
+ * </pre>
+ *
+ * @return array                 see above for data structure of returned array
+ */
 function send_reminders() {
 
   $logging = array();
@@ -280,16 +310,15 @@ function send_reminders() {
   return $logging;
 }
 
-// Function to fetch reminders
-// Parameters:
-//   $patient_id - pid of patient. If blank then will check all patients.
-//   $type       - unsent (unsent) vs all active (BLANK) reminders
-//   $due_status - due status of reminders (soon_due,due,past_due). If blank,
-//                   then will return all.
-//   $select     - Select component of select statement. If blank, then
-//                   will return all columns.
-// Return:
-//   Returns a array of reminders
+/**
+ * Function to fetch reminders.
+ *
+ * @param  integer  $patient_id  pid of patient. If blank then will check all patients.
+ * @param  string   $type        Can choose unsent ('unsent') vs all active (BLANK) reminders
+ * @param  string   $due_status  due status of reminders (soon_due,due,past_due). If blank, then will return all.
+ * @param  string   $select      Select component of select statement. If blank, then will return all columns.
+ * @return array                 Returns an array of reminders.
+ */
 function fetch_reminders($patient_id='',$type='',$due_status='',$select='*') {
 
   $arraySqlBind = array();
