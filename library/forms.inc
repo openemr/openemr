@@ -124,6 +124,13 @@ function getEncounterDateByEncounter($encounter)
 	return sqlQuery($sql);
 }
 
+function getProviderIdOfEncounter($encounter)
+{
+        $sql = "select provider_id from form_encounter where encounter='$encounter' order by date";
+        $res = sqlQuery($sql);
+        return $res['provider_id'];
+}
+
 function getFormNameByFormdirAndFormid ($formdir,$form_id)
 {
         return sqlQuery("select form_name from forms where formdir='$formdir' and form_id='$form_id'");
