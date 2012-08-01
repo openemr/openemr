@@ -66,10 +66,8 @@ if ($_POST['form_save'] && $_GET['mode'] == "user") {
         if (in_array($fldid, $USER_SPECIFIC_GLOBALS)) {
           list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
           $label = "global:".$fldid;
-          if (isset($_POST["form_$i"])) {
-            $fldvalue = trim(strip_escape_custom($_POST["form_$i"]));
-            setUserSetting($label,$fldvalue,$_SESSION['authId'],FALSE);
-          }
+          $fldvalue = trim(strip_escape_custom($_POST["form_$i"]));
+          setUserSetting($label,$fldvalue,$_SESSION['authId'],FALSE);
           if ( $_POST["toggle_$i"] == "YES" ) {
             removeUserSetting($label);
           }
@@ -239,7 +237,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?",array($_SESSION['authId'],"global:".$fldid));
       $userSetting = $userSettingArray['setting_value'];
       $globalValue = $fldvalue;
-      if (!empty($userSetting) || $userSetting === "0" ) {
+      if (!empty($userSettingArray)) {
         $fldvalue = $userSetting;
         $settingDefault = "";
       }
