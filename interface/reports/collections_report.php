@@ -530,7 +530,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       "a.pid = f.pid AND a.encounter = f.encounter ) AS adjustments " .
       "FROM form_encounter AS f " .
       "JOIN patient_data AS p ON p.pid = f.pid " .
-      "LEFT OUTER JOIN users AS u ON u.id = p.providerID " .
+      "LEFT OUTER JOIN users AS u ON u.id = p.ref_providerID " .
       "WHERE $where " .
       "ORDER BY f.pid, f.encounter";
     $eres = sqlStatement($query);
@@ -869,7 +869,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         "pd.genericname2, pd.genericval2, pd.pid, pd.pubpid, pd.DOB, " .
         "CONCAT(u.lname, ', ', u.fname) AS referrer FROM " .
         "integration_mapping AS im, patient_data AS pd " .
-        "LEFT OUTER JOIN users AS u ON u.id = pd.providerID " .
+        "LEFT OUTER JOIN users AS u ON u.id = pd.ref_providerID " .
         "WHERE im.foreign_id = " . $row['custid'] . " AND " .
         "im.foreign_table = 'customer' AND " .
         "pd.id = im.local_id");
