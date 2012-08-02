@@ -21,7 +21,7 @@ class AMC_302m_Numerator implements AmcFilterIF
 
         // Check for any patient specific education instances.
         $item = sqlQuery("SELECT * FROM `amc_misc_data` as amc, `form_encounter` as enc " .
-                         "WHERE enc.pid = amc.pid = ? " .
+                         "WHERE enc.pid = amc.pid AND enc.pid = ? " .
                          "AND amc.map_category = 'form_encounter' " .
                          "AND enc.encounter = amc.map_id " .
                          "AND `amc_id` = 'patient_edu_amc' " .
