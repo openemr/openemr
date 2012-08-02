@@ -193,9 +193,10 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
  * @param  string       $plan          test for specific plan only
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array()) {
+function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary') {
 
   // If dateTarget is an array, then organize them.
   if (is_array($dateTarget)) {
@@ -217,7 +218,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     $ures = sqlStatement($query);
     // Second, run through each provider recursively
     while ($urow = sqlFetchArray($ures)) {
-      $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan,$organize_mode);
+      $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan,$organize_mode,$options,$pat_prov_rel);
       if (!empty($newResults)) {
         $provider_item['is_provider'] = TRUE;
         $provider_item['prov_lname'] = $urow['lname'];
@@ -247,7 +248,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         // Second, run through each provider recursively
         $provider_results = array();
         while ($urow = sqlFetchArray($ures)) {
-          $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan_item['id']);
+          $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel);
           if (!empty($newResults)) {
             $provider_item['is_provider'] = TRUE;
             $provider_item['prov_lname'] = $urow['lname'];
@@ -266,7 +267,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       }
       else {
         // (not collate_inner, so do not nest providers within each plan)
-        $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id']);
+        $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel);
         if (!empty($newResults)) {
           $plan_item['is_plan'] = TRUE;
           array_push($results,$plan_item);
@@ -288,17 +289,22 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     if (empty($provider)) {
       // Look at entire practice
       $rez = sqlStatement("SELECT `pid` FROM `patient_data`");
-      for($iter=0; $row=sqlFetchArray($rez); $iter++) {
-       $patientData[$iter]=$row;
-      } 
     }
     else {
-      // Look at one provider
-      $rez = sqlStatement("SELECT `pid` FROM `patient_data` " .
-        "WHERE providerID=?", array($provider) );
-      for($iter=0; $row=sqlFetchArray($rez); $iter++) {
-       $patientData[$iter]=$row;
+      // Look at an individual physician
+      if( $pat_prov_rel == 'encounter' ){
+        // Choose patients that are related to specific physician be any encounter
+        $rez = sqlStatement("SELECT DISTINCT pid FROM `form_encounter` ".
+                            " WHERE provider_id=?", array($provider));
       }
+      else {  //$pat_prov_rel == 'primary'
+        // Choose patients that are assigned to the specific physician (primary physician in patient demographics)
+        $rez = sqlStatement("SELECT `pid` FROM `patient_data` " .
+                            "WHERE providerID=?", array($provider) );
+      }
+    }
+    for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+     $patientData[$iter]=$row;
     }
   }
   // Go through each patient(s)
