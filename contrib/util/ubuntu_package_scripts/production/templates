@@ -132,16 +132,16 @@ Type: note
 Description: CONGRATULATIONS
  OpenEMR has been successfully installed.
  .
- You can now set up the OpenEMR development version
- by browsing to: http://localhost/openemr
+ You can now set up OpenEMR by browsing
+ to: http://localhost/openemr
 
 Template: openemr/success_install_config
 Type: note
 Description: CONGRATULATIONS
  OpenEMR has been successfully installed and configured.
  .
- You can now use the OpenEMR development version
- by browsing to: http://localhost/openemr
+ You can now use OpenEMR by browsing
+ to: http://localhost/openemr
  .
  (user is 'admin' and password is 'pass')
 
@@ -151,9 +151,9 @@ Description: CONGRATULATIONS
  OpenEMR has been successfully upgraded.
  .
  Recommend setting optional configuration settings in
- /var/www/openemr/sites/default/config.php  (We have
- renamed your old configuration files to *.OLD)
- (We recommend you delete the *.OLD files when done)
+ /var/www/openemr/sites/<sitename>/config.php  (We have
+ renamed your old configuration file to config.OLD)
+ (We recommend you delete the config.OLD file when done)
  .
  We have placed backup of your old OpenEMR in
  /tmp/openemr-tmp/ (We recommend you copy this

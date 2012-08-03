@@ -5,18 +5,18 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2011
+# Copyright 2012
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
 # Un-install script steps:
 #  1) Warn and confirm the user wants to remove the package (mandatory)
 #  2) Collect the MySQL root user password (mandatory)
-#  3) Remove OpenEMR etc directory
-#  4) Remove rest of OpenEMR web directory
-#  5) Remove tmp directory
-#  6) Remove openemr MySQL database
-#  7) Remove openemr MySQL user
+#  3) Remove openemr MySQL database(s)
+#  4) Remove openemr MySQL user(s)
+#  5) Remove OpenEMR etc directory
+#  6) Remove rest of OpenEMR web directory
+#  7) Remove tmp directory
 #  8) Remove OpenEMR apache configuration
 #
 #
@@ -45,7 +45,7 @@ case "$1" in
       TMPDIR=/tmp/openemr-tmp
       WEB=/var/www
       OPENEMR=$WEB/openemr
-      SITEDIR=$OPENEMR/sites/default
+      SITEDIR=$OPENEMR/sites
 
       #Standardized echo function to send to only log file
       #  requires one parameter (string)
@@ -141,11 +141,26 @@ case "$1" in
       PROCESS=$(collect_var process $CONFIG)
       PLAN=$(collect_var plan $CONFIG)
 
-      # Collect database information from sqlconf.php file
-      SQLLOCATION=$(collect_var \$host $SITEDIR/sqlconf.php)
-      SQLUSER=$(collect_var \$login $SITEDIR/sqlconf.php)
-      SQLPASSWORD=$(collect_var \$pass $SITEDIR/sqlconf.php)
-      SQLDATABASE=$(collect_var \$dbase $SITEDIR/sqlconf.php)
+      for dir in $(find $SITEDIR/* -maxdepth 0 -type d ); do
+         #collect sitename
+         SITENAME=$(basename "$dir")
+
+         # Collect database information from sqlconf.php file
+         SQLLOCATION=$(collect_var \$host $SITEDIR/$SITENAME/sqlconf.php)
+         SQLUSER=$(collect_var \$login $SITEDIR/$SITENAME/sqlconf.php)
+         SQLPASSWORD=$(collect_var \$pass $SITEDIR/$SITENAME/sqlconf.php)
+         SQLDATABASE=$(collect_var \$dbase $SITEDIR/$SITENAME/sqlconf.php)
+
+         #remove openemr mysql database (ensure the database exists)
+         if check_mysql "$MPASS" "$SQLDATABASE"; then
+            mysqladmin -f -u root -h "$SQLLOCATION" --password="$MPASS" drop "$SQLDATABASE" >> $LOG 2>&1
+            log_only "Removed OpenEMR MySQL database: $SQLDATABASE"
+         fi
+
+         #remove openemr mysql user
+         mysql -f -u root -h "$SQLLOCATION" --password="$MPASS" -e "DELETE FROM mysql.user WHERE User = '$SQLUSER';FLUSH PRIVILEGES;" >> $LOG 2>&1
+         log_only "Removed OpenEMR MySQL user: $SQLUSER"
+      done
 
       #remove etc directory
       rm -rf $CONFIGDIR
@@ -158,16 +173,6 @@ case "$1" in
       #remove tmp directory
       sudo rm -fr $TMPDIR
       log_only "Removed OpenEMR tmp directory"
-
-      #remove openemr mysql database (ensure the database exists)
-      if check_mysql "$MPASS" "$SQLDATABASE"; then
-         mysqladmin -f -u root -h "$SQLLOCATION" --password="$MPASS" drop "$SQLDATABASE" >> $LOG 2>&1
-         log_only "Removed OpenEMR MySQL database"
-      fi
-
-      #remove openemr mysql user
-      mysql -f -u root -h "$SQLLOCATION" --password="$MPASS" -e "DELETE FROM mysql.user WHERE User = '$SQLUSER';FLUSH PRIVILEGES;" >> $LOG 2>&1
-      log_only "Removed OpenEMR MySQL user"
 
       #removes the configuration section for OpenEMR in Apache config file
       sed -i '/#This is the start of the Apache configuration for OpenEMR./,/#This is the end of the Apache configuration for OpenEMR./d' /etc/apache2/httpd.conf
