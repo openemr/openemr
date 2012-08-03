@@ -1,3 +1,10 @@
+openemr (4.1.1-1) stable; urgency=low
+
+  * New upstream version
+  * Compatible with multisite module
+
+ -- Brady Miller <brady@sparmy.com>  Fri, 03 Aug 2012 13:18:52 -0700
+
 openemr (4.1.0-1) stable; urgency=low
 
   * New upstream version

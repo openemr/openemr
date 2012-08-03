@@ -5,7 +5,7 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2011
+# Copyright 2012
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
@@ -14,13 +14,14 @@
 #  2) New install or Upgrade
 #    -Install
 #      a) If OpenEMR web directory already exist, then attempt an upgrade.
-#    -Upgrade
+#    -Upgrade (also works for multisite module, so can be mutliple databases)
 #      a) Ensure OpenEMR web directory does exist
 #      b) Collect package version and ensure appropriate upgrade
 #      c) Collect webpath and sql settings from current version
-#      d) Verify the mysql user/database exist
-#      e) Backup the current version web folder and mysql database
-#      f) Clear the cache directories in current version    
+#      d) Verify the mysql user(s)/database(s) exist
+#      e) Backup the current version mysql database(s)
+#      f) Backup the current version web folder
+#      g) Clear the cache directories in current version    
 #  3) Create config file
 #
 #  Output log file:
@@ -46,7 +47,7 @@ CONFIG=$CONFIGDIR/openemr.conf
 TMPDIR=/tmp/openemr-tmp
 WEB=/var/www
 OPENEMR=$WEB/openemr
-SITEDIR=$OPENEMR/sites/default
+SITEDIR=$OPENEMR/sites
 #hardcoded mysql user and database for install (not pertinent for upgrading)
 # upgrading can use whatever is found in openemr/library/sqlconf.php
 INSTALL_USER=openemr
@@ -109,6 +110,71 @@ collect_var () {
    echo `grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi"`
 }
 
+#function to check database before preparing to upgrade
+# 1st param is the directory of database configuration script
+# no return, but will exit the upgrade if database check fails
+upgrade_check_database () {
+
+   #Collect the path of database configuration script
+   DATABASE_PATH="$1"
+
+   #Collect variables
+   SQL_LOCATION=$(collect_var \$host $DATABASE_PATH/sqlconf.php)
+   SQL_USER=$(collect_var \$login $DATABASE_PATH/sqlconf.php)
+   SQL_PASSWORD=$(collect_var \$pass $DATABASE_PATH/sqlconf.php)
+   SQL_DATABASE=$(collect_var \$dbase $DATABASE_PATH/sqlconf.php)
+
+   #ensure the mysql database and user exist
+   if check_mysql "$SQL_PASSWORD" "$SQL_DATABASE" "$SQL_LOCATION" "$SQL_USER"; then
+      log_only "For upgrade, confirmed that the mysql database ($SQL_DATABASE) and mysql user ($SQL_USER) exist"
+   else
+      prompt_input openemr/upgrade_not_database critical ret_result
+      unable_exit "MySQL '$SQL_DATABASE' database does not exist (or can't be accessed), unable to upgrade."
+   fi
+}
+
+#function to process database to prepare for upgrade
+# 1st param is the directory of database configuration script
+# 2nd param is the sitename
+# returns(via echo) pertinent configuration file information
+upgrade_prepare_database () {
+
+   #Collect the path of database configuration script
+   DATABASE_PATH="$1"
+
+   #Collect the site name
+   SITE_NAME="$2"
+
+   #Collect variables
+   SQL_LOCATION=$(collect_var \$host $DATABASE_PATH/sqlconf.php)
+   SQL_USER=$(collect_var \$login $DATABASE_PATH/sqlconf.php)
+   SQL_PASSWORD=$(collect_var \$pass $DATABASE_PATH/sqlconf.php)
+   SQL_DATABASE=$(collect_var \$dbase $DATABASE_PATH/sqlconf.php)
+   SQL_UTFFLAG=$(collect_var \$disable_utf8_flag $DATABASE_PATH/sqlconf.php)
+
+   #if SQLUTFFLAG variable is empty, then make it false
+   if [ "$SQL_UTFFLAG" == "" ]; then
+      SQL_UTFFLAG="false"
+   fi
+
+   #write variables to config file string
+   TEMP_SETTING=""
+   TEMP_SETTING=$TEMP_SETTING$SITE_NAME"_sqllocation=$SQL_LOCATION\n"
+   TEMP_SETTING=$TEMP_SETTING$SITE_NAME"_sqluser=$SQL_USER\n"
+   TEMP_SETTING=$TEMP_SETTING$SITE_NAME"_sqlpassword=$SQL_PASSWORD\n"
+   TEMP_SETTING=$TEMP_SETTING$SITE_NAME"_sqldatabase=$SQL_DATABASE\n"
+   TEMP_SETTING=$TEMP_SETTING$SITE_NAME"_sqlutfflag=$SQL_UTFFLAG\n"
+
+   #create the tmp sql directory
+   mkdir -p "$TMPDIR/openemr_mysql_${OLD_VERSION}_${SITE_NAME}"
+
+   #backup mysql database to tmp
+   mysqldump -u "$SQL_USER" -h "$SQL_LOCATION" --password="$SQL_PASSWORD" "$SQL_DATABASE" > "$TMPDIR/openemr_mysql_${OLD_VERSION}_${SITE_NAME}/openemr_mysql_${OLD_VERSION}_${SITE_NAME}.sql"
+
+   #return the settings (to be used for the config file passed to postinst
+   echo $TEMP_SETTING
+}
+
 #function to hold the upgrade code (allow more flexible upgrading)
 # 1st param is the previous version,
 # 2nd param is whether raw or package upgrade
@@ -145,65 +211,22 @@ upgrade_function () {
             OLD_VERSION="3.2.0-1"
          elif [ "$OLD_VERSION" == "4.0.0" ]; then
             OLD_VERSION="4.0.0-1"
+         elif [ "$OLD_VERSION" == "4.1.0" ]; then
+            OLD_VERSION="4.1.0-1"
          else
             prompt_input openemr/upgrade_not_supported critical ret_result
             unable_exit "Unable to upgrade from $OLD_VERSION version package with $UPGRADETYPE method, so can not upgrade the OpenEMR Package."
          fi
       fi
       #
-      # ONLY acceptable package and converted raw is 3.0.1-1 or 3.1.0-1 or 3.2.0-1 or 4.0.0-1
+      # ONLY acceptable package and converted raw is 3.0.1-1 or 3.1.0-1 or 3.2.0-1 or 4.0.0-1 or 4.1.0-1
       #
-      if [ "$OLD_VERSION" != "3.0.1-1" ] && [ "$OLD_VERSION" != "3.1.0-1" ] && [ "$OLD_VERSION" != "3.2.0-1" ]&& [ "$OLD_VERSION" != "4.0.0-1" ]; then
+      if [ "$OLD_VERSION" != "3.0.1-1" ] && [ "$OLD_VERSION" != "3.1.0-1" ] && [ "$OLD_VERSION" != "3.2.0-1" ]&& [ "$OLD_VERSION" != "4.0.0-1" ] && [ "$OLD_VERSION" != "4.1.0-1" ]; then
          prompt_input openemr/upgrade_not_supported critical ret_result
          unable_exit "Unable to upgrade from $OLD_VERSION version package with $UPGRADETYPE method, so can not upgrade the OpenEMR Package."
       fi
 
-      #collect openemr mysql data
-      #(will need to look in sites directory if 4.0 or later)
-      if [ "$OLD_VERSION" == "3.0.1-1" ] || [ "$OLD_VERSION" == "3.1.0-1" ] || [ "$OLD_VERSION" == "3.2.0-1" ]; then
-         SQLLOCATION=$(collect_var \$host $OPENEMR/library/sqlconf.php)
-         SQLUSER=$(collect_var \$login $OPENEMR/library/sqlconf.php)
-         SQLPASSWORD=$(collect_var \$pass $OPENEMR/library/sqlconf.php)
-         SQLDATABASE=$(collect_var \$dbase $OPENEMR/library/sqlconf.php)
-         SQLUTFFLAG=$(collect_var \$disable_utf8_flag $OPENEMR/library/sqlconf.php)
-      else
-         SQLLOCATION=$(collect_var \$host $SITEDIR/sqlconf.php)
-         SQLUSER=$(collect_var \$login $SITEDIR/sqlconf.php)
-         SQLPASSWORD=$(collect_var \$pass $SITEDIR/sqlconf.php)
-         SQLDATABASE=$(collect_var \$dbase $SITEDIR/sqlconf.php)
-         SQLUTFFLAG=$(collect_var \$disable_utf8_flag $SITEDIR/sqlconf.php)
-      fi
-      #if SQLUTFFLAG variable is empty, then make it false       
-      if [ "$SQLUTFFLAG" == "" ]; then
-         SQLUTFFLAG="false"
-      fi
-
-      #ensure the mysql database and user exist
-      if check_mysql "$SQLPASSWORD" "$SQLDATABASE" "$SQLLOCATION" "$SQLUSER"; then
-         log_only "For upgrade, confirmed that the mysql database and mysql user exist"
-      else
-         prompt_input openemr/upgrade_not_database critical ret_result
-         unable_exit "MySQL '$SQLDATABASE' database does not exist, unable to upgrade."
-      fi
-
-      #create the tmp directories
-      mkdir -p $TMPDIR/openemr_web_$OLD_VERSION
-      mkdir -p $TMPDIR/openemr_mysql_$OLD_VERSION
-
-      #backup web directory to tmp
-      cp -fr $OPENEMR/* $TMPDIR/openemr_web_$OLD_VERSION/
-
-      #backup mysql database to tmp
-      mysqldump -u "$SQLUSER" -h "$SQLLOCATION" --password="$SQLPASSWORD" "$SQLDATABASE" > $TMPDIR/openemr_mysql_$OLD_VERSION/openemr_mysql_$OLD_VERSION.sql
-
-      #clear the temporary openemr cache directories (no need to keep these during upgrade)
-      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled/*
-      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache/*
-      rm -fr $OPENEMR/gacl/admin/templates_c/*
-
-      log_only "Upgrading OpenEMR from $OLD_VERSION..."
-
-      #Create the config file string, which will pass info to postinst script
+      #Initiate the config file string, which will pass info to postinst script
       #to continue upgrade process.
       SETTING="#Optional settings\n\
 #(currently empty, plan to use in subsequent versions of OpenEMR)\n\
@@ -212,12 +235,49 @@ upgrade_function () {
 # (DO NOT EDIT below!!!)\n\
 process=pending\n\
 plan=upgrade\n\
-previous_version=$OLD_VERSION\n\
-sqllocation=$SQLLOCATION\n\
-sqluser=$SQLUSER\n\
-sqlpassword=$SQLPASSWORD\n\
-sqldatabase=$SQLDATABASE\n\
-sqlutfflag=$SQLUTFFLAG"
+previous_version=$OLD_VERSION\n"
+
+      #collect openemr mysql data
+      #(will need to look in sites directory if 4.0 or later)
+      #Also supports multisite module, which can have multiple separate databases
+      if [ "$OLD_VERSION" == "3.0.1-1" ] || [ "$OLD_VERSION" == "3.1.0-1" ] || [ "$OLD_VERSION" == "3.2.0-1" ]; then
+
+         #check database (will exit upgrade if check fails)
+         upgrade_check_database $OPENEMR/library
+
+         #Prepare uprade of database and collect settings that will placed in the config file string
+         DATABASE_CONFIG=$(upgrade_prepare_database $OPENEMR/library default)
+         SETTING=$SETTING$DATABASE_CONFIG
+
+      else
+         for dir in $(find $SITEDIR/* -maxdepth 0 -type d ); do
+            #collect sitename
+            SITENAME=$(basename "$dir")
+
+            #check database (will exit upgrade if check fails)
+            upgrade_check_database $SITEDIR/$SITENAME
+
+            #Prepare uprade of database and collect settings that will placed in the config file string
+            DATABASE_CONFIG=$(upgrade_prepare_database $SITEDIR/$SITENAME $SITENAME)
+            SETTING=$SETTING$DATABASE_CONFIG
+         done
+      fi
+
+      #create the tmp web directory
+      mkdir -p $TMPDIR/openemr_web_$OLD_VERSION
+
+      #backup web directory to tmp
+      cp -fr $OPENEMR/* $TMPDIR/openemr_web_$OLD_VERSION/
+
+      #clear the temporary openemr cache directories (no need to keep these during upgrade)
+      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled/*
+      rm -fr $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache/*
+      rm -fr $OPENEMR/gacl/admin/templates_c/*
+
+      log_only "Upgrading OpenEMR from $OLD_VERSION..."
+
+      #Create the config file, which will pass info to postinst script
+      #to continue upgrade process.
       mkdir -p $CONFIGDIR
       echo -e $SETTING > $CONFIG
 }
@@ -260,12 +320,8 @@ case "$1" in
          exit 0
       fi
 
-      #Begin the config file string
-      # this is so the postinst script can follow installation
-      #  variables:
-      #   process states whether installation/upgrade is pending or complete
-      #   plan states whether install or upgrade
-      #   pass temporarily holds the mysql
+      #Create the config file to pass to the postinst script 
+      # to signal that this is a new install
       SETTING="#Optional settings\n\
 #(currently empty, plan to use in subsequent versions of OpenEMR)\n\
 \n\
@@ -273,8 +329,6 @@ case "$1" in
 # (DO NOT EDIT below!!!)\n\
 process=pending\n\
 plan=install"
-
-      #ready to install package, so create the config directory and files
       mkdir -p $CONFIGDIR
       echo -e $SETTING > $CONFIG
 
