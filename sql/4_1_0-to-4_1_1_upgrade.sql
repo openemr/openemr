@@ -667,3 +667,7 @@ ALTER TABLE `code_types` ADD COLUMN `ct_proc` tinyint(1) NOT NULL default 0 COMM
 UPDATE `code_types` SET `ct_proc`='1' WHERE `ct_key`='CPT4' OR `ct_key`='HCPCS' OR `ct_key`='ICD9-SG' OR `ct_key`='ICD10-PCS';
 #EndIf
 
+#IfNotIndex forms form_id
+CREATE INDEX `form_id` ON `forms` (`form_id`);
+#EndIf
+
