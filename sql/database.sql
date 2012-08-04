@@ -1466,7 +1466,8 @@ CREATE TABLE `forms` (
   `deleted` tinyint(4) DEFAULT '0' NOT NULL COMMENT 'flag indicates form has been deleted',
   `formdir` longtext,
   PRIMARY KEY  (`id`),
-  KEY `pid_encounter` (`pid`, `encounter`)
+  KEY `pid_encounter` (`pid`, `encounter`),
+  KEY `form_id` (`form_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
