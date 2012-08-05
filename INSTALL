@@ -193,8 +193,8 @@ value that will work on your system.
 
 Step 6 gives instructions on configuring the Apache web server.  We suggest
 you print these instructions for future reference. Instructions are given to
-secure the "openemrwebroot/sites/default/documents",
-"openemrwebroot/sites/default/edi" and "openemrwebroot/sites/default/era"
+secure the "openemrwebroot/sites/*/documents",
+"openemrwebroot/sites/*/edi" and "openemrwebroot/sites/*/era"
 directories, which contain patient information. This can
 be done be either placing pertinent .htaccess files in these directories
 or by editing the apache configuration file.  The location of the apache
@@ -205,15 +205,15 @@ In windows, the XAMPP 1.7.0 package places the configuration file at
 xampp\apache\conf\httpd.conf.  To secure the /documents, /edi and /era
 directories you can paste following to the end of the apache configuration
 file (ensure you put full path to directories):
-<Directory "openemrwebroot/sites/default/documents">
+<Directory "openemrwebroot/sites/*/documents">
 order deny,allow
 Deny from all
 </Directory>
-<Directory "openemrwebroot/sites/default/edi">
+<Directory "openemrwebroot/sites/*/edi">
 order deny,allow
 Deny from all
 </Directory>
-<Directory "openemrwebroot/sites/default/era">
+<Directory "openemrwebroot/sites/*/era">
 order deny,allow
 Deny from all
 </Directory>
