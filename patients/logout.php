@@ -6,11 +6,16 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
+    //continue session
+        session_start();
+
+    //landing page definition -- where to go after logout
+        $landingpage = "index.php?site=".$_SESSION['site_id'];
+
     //log out by killing the session
-	session_start();
 	session_destroy();
 
     //redirect to pretty login/logout page
-	header('Location: index.php?logout');
+	header('Location: '.$landingpage.'&logout');
     // 
 ?>

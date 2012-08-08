@@ -12,13 +12,13 @@
     //
 
     //landing page definition -- where to go if something goes wrong
-	$landingpage = "index.php";
+	$landingpage = "index.php?site=".$_SESSION['site_id'];
     //
     
     //checking whether the request comes from index.php
         if (!isset($_SESSION['itsme'])) {
                 session_destroy();
-		header('Location: '.$landingpage.'?w');
+		header('Location: '.$landingpage.'&w');
 		exit;
 	}
     //
@@ -26,12 +26,12 @@
     //some validation
         if (!isset($_POST['uname']) || empty($_POST['uname'])) {
                 session_destroy();
-		header('Location: '.$landingpage.'?w&c');
+		header('Location: '.$landingpage.'&w&c');
 		exit;
 	}
         if (!isset($_POST['code']) || empty($_POST['code'])) {
                 session_destroy();
-                header('Location: '.$landingpage.'?w&c');
+                header('Location: '.$landingpage.'&w&c');
 		exit;
         }
     //
@@ -68,12 +68,12 @@
 		if ($auth = sqlQuery($sql, array($_POST['uname'],$_POST['code']) )) { // if query gets executed
 			if (empty($auth)) { // no results found
 				session_destroy();
-				header('Location: '.$landingpage.'?w');
+				header('Location: '.$landingpage.'&w');
 				exit;
 			}	
 		} else { // sql error
 			session_destroy();
-			header('Location: '.$landingpage.'?w');
+			header('Location: '.$landingpage.'&w');
 			exit;
 		}
 
@@ -84,21 +84,21 @@
 			if (empty($userData)) {
                                 // no records for this pid, so escape
 				session_destroy();
-                                header('Location: '.$landingpage.'?w');
+                                header('Location: '.$landingpage.'&w');
 				exit;
                         }
 
 			if ($userData['allow_patient_portal'] != "YES") {
 				// Patient has not authorized portal, so escape
 				session_destroy();
-                                header('Location: '.$landingpage.'?w');
+                                header('Location: '.$landingpage.'&w');
 				exit;
                         }
 
 			if ($auth['pid'] != $userData['pid']) {
 				// Not sure if this is even possible, but should escape if this happens
 				session_destroy();
-				header('Location: '.$landingpage.'?w');
+				header('Location: '.$landingpage.'&w');
 				exit;
 			}
 
@@ -130,14 +130,14 @@
 			}
 			else {
 				session_destroy();
-				header('Location: '.$landingpage.'?w');
+				header('Location: '.$landingpage.'&w');
 				exit;
 			}
 
 		}
 		else { //problem with query
 			session_destroy();
-			header('Location: '.$landingpage.'?w');
+			header('Location: '.$landingpage.'&w');
 			exit;
 		}		
     //

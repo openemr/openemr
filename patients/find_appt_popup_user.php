@@ -6,18 +6,21 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
+//continue session
+session_start();
+//
+
 //landing page definition -- where to go if something goes wrong
-$landingpage = "index.php";
+$landingpage = "index.php?site=".$_SESSION['site_id'];
 //
 
 // kick out if patient not authenticated
-session_start();
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite']) ) {
   $pid = $_SESSION['pid'];
 }
 else {
   session_destroy();
-  header('Location: '.$landingpage.'?w');
+  header('Location: '.$landingpage.'&w');
   exit;
 }
 //
