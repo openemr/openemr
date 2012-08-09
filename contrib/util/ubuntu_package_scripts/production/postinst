@@ -476,8 +476,6 @@ case "$1" in
          GLOB=$(collect_php "$GLOB_TEXT")
          POST_TEXT="post_max_size"
          POST=$(collect_php "$POST_TEXT")
-         MAGIC_TEXT="magic_quotes_gpc"
-         MAGIC=$(collect_php "$MAGIC_TEXT")
          UPLOAD_TEXT="file_uploads"
          UPLOAD=$(collect_php "$UPLOAD_TEXT")
          FILESIZE_TEXT="upload_max_filesize"
@@ -529,9 +527,6 @@ case "$1" in
             if [ "$POST" -lt "30" ]; then
                process_php "$POST_TEXT" "30M" $i
             fi
-            if [ "$MAGIC" != "On" ]; then
-               process_php "$MAGIC_TEXT" "On" $i
-            fi
             if [ "$UPLOAD" != "On" ]; then
                process_php "$UPLOAD_TEXT" "On" $i
             fi
@@ -561,7 +556,6 @@ case "$1" in
          log_only "log_errors = On"
          log_only "register_globals = Off"
          log_only "post_max_size = 30M"
-         log_only "magic_quotes_gpc = On"
          log_only "file_uploads = On"
          log_only "upload_max_filesize = 30M"
       fi
