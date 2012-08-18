@@ -293,9 +293,9 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     else {
       // Look at an individual physician
       if( $pat_prov_rel == 'encounter' ){
-        // Choose patients that are related to specific physician be any encounter
+        // Choose patients that are related to specific physician by an encounter
         $rez = sqlStatement("SELECT DISTINCT pid FROM `form_encounter` ".
-                            " WHERE provider_id=?", array($provider));
+                            " WHERE provider_id=? OR supervisor_id=?", array($provider,$provider));
       }
       else {  //$pat_prov_rel == 'primary'
         // Choose patients that are assigned to the specific physician (primary physician in patient demographics)
@@ -303,6 +303,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
                             "WHERE providerID=?", array($provider) );
       }
     }
+    // convert the sql query results into an array
     for($iter=0; $row=sqlFetchArray($rez); $iter++) {
      $patientData[$iter]=$row;
     }
