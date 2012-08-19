@@ -1018,7 +1018,7 @@ Age:
         <td width="90" align="center" valign="bottom" class="ficaption2" id="bordR">Date</td>
         <td align="center" valign="bottom" class="ficaption2">Hospital</td>
       </tr>
-<?	
+<?php
 $ii = 0;
 while ($ii<6){
 list ($op_reason, $op_date, $op_hospital)= explode('|~', $fdata["op_rec_".$ii] );
@@ -1045,7 +1045,7 @@ $ii++;
         <td align="left" class="ficaption2" id="bordR">Type</td>
         <td width="90" align="center" nowrap class="ficaption2">date</td>
       </tr>
-<?	
+<?php
 $ii = 0;
 while ($ii<6){
 $ij = $ii+6;

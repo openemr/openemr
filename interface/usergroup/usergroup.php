@@ -26,7 +26,7 @@ if (/*$userauthorized*/ true) {
 <?php } else if (acl_check('admin', 'forms')) { ?>
    src="../forms_admin/forms_admin.php"
 <?php } else if (acl_check('admin', 'practice')) { ?>
-   src="<?=$GLOBALS['webroot']?>/controller.php?practice_settings"
+   src="<?php echo $GLOBALS['webroot']?>/controller.php?practice_settings"
 <?php } else if (acl_check('admin', 'calendar')) { ?>
    src="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"
 <?php } else if ( (!$GLOBALS['disable_phpmyadmin_link']) && (acl_check('admin', 'database')) ) { ?>

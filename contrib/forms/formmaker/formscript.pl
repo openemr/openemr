@@ -121,12 +121,12 @@ formHeader("Form: FORM_NAME");
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 DATE_HEADER
 <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'>[do not save]</a>
-<form method=post action="<?echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="FORM_NAME" onsubmit="return top.restoreSession()">
+<form method=post action="<?php echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="FORM_NAME" onsubmit="return top.restoreSession()">
 <hr>
 <h1>FORM_NAME</h1>
 <hr>
@@ -146,10 +146,10 @@ include_once("$srcdir/api.inc");
 formHeader("Form: FORM_NAME");
 ?>
 <html><head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<form method=post action="<?php echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
 <h1> FORM_NAME </h1>
 <hr>
 DATABASEFIELDS
@@ -324,11 +324,11 @@ function chkdata_Radio(&$obj, $nam, $var) {
 
 ?>
 <html><head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 DATE_HEADER
-<form method=post action="<?echo $rootdir?>/forms/FORM_NAME/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form" onsubmit="return top.restoreSession()">
+<form method=post action="<?php echo $rootdir?>/forms/FORM_NAME/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form" onsubmit="return top.restoreSession()">
 <h1> FORM_NAME </h1>
 <hr>
 DATABASEFIELDS

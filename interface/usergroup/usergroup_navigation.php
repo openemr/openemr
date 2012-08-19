@@ -42,7 +42,7 @@ include_once("../../library/acl.inc");
 
 <?php if (acl_check('admin', 'practice')) { ?>
 <td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="<?=$GLOBALS['webroot']?>/controller.php?practice_settings"
+&nbsp;<a class=menu target=Main href="<?php echo $GLOBALS['webroot']?>/controller.php?practice_settings"
  onclick="top.restoreSession()"
  title="Practice Settings"><?php xl('Practice','e');?></a>&nbsp;
 </td>

@@ -125,7 +125,7 @@ include_once("$srcdir/calendar.inc");
 
     </tr>
 
-<?	
+<?php
 
 $rsi = 1;
 

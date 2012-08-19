@@ -94,7 +94,7 @@ window.onload = initialize;
       <td width="6%" class="ficaption2">HEPATITIS C<br>
         VIRUS TEST</td>
     </tr>
-<?	
+<?php
 $rsi = 1;
 while ($rsi <  13){
 print <<<EOL

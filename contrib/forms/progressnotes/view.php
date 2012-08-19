@@ -125,7 +125,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox2" TYPE=CHECKBOX NAME="prog_skin_abn" <?if ($obj{"prog_skin_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox2" TYPE=CHECKBOX NAME="prog_skin_abn" <?php if ($obj{"prog_skin_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -141,7 +141,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox8" TYPE=CHECKBOX NAME="prog_skin_ne" <?if ($obj{"prog_skin_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox8" TYPE=CHECKBOX NAME="prog_skin_ne" <?php if ($obj{"prog_skin_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -173,7 +173,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox7" TYPE=CHECKBOX NAME="prog_head_abn" <?if ($obj{"prog_head_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox7" TYPE=CHECKBOX NAME="prog_head_abn" <?php if ($obj{"prog_head_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -189,7 +189,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox9" TYPE=CHECKBOX NAME="prog_head_ne" <?if ($obj{"prog_head_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox9" TYPE=CHECKBOX NAME="prog_head_ne" <?php if ($obj{"prog_head_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -221,7 +221,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox10" TYPE=CHECKBOX NAME="prog_eyes_abn" <?if ($obj{"prog_eyes_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox10" TYPE=CHECKBOX NAME="prog_eyes_abn" <?php if ($obj{"prog_eyes_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -237,7 +237,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox11" TYPE=CHECKBOX NAME="prog_eyes_ne" <?if ($obj{"prog_eyes_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox11" TYPE=CHECKBOX NAME="prog_eyes_ne" <?php if ($obj{"prog_eyes_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -269,7 +269,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox12" TYPE=CHECKBOX NAME="prog_ears_abn" <?if ($obj{"prog_ears_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox12" TYPE=CHECKBOX NAME="prog_ears_abn" <?php if ($obj{"prog_ears_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -285,7 +285,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox13" TYPE=CHECKBOX NAME="prog_ears_ne" <?if ($obj{"prog_ears_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox13" TYPE=CHECKBOX NAME="prog_ears_ne" <?php if ($obj{"prog_ears_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -317,7 +317,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox14" TYPE=CHECKBOX NAME="prog_nose_abn" <?if ($obj{"prog_nose_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox14" TYPE=CHECKBOX NAME="prog_nose_abn" <?php if ($obj{"prog_nose_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -333,7 +333,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox16" TYPE=CHECKBOX NAME="prog_nose_ne" <?if ($obj{"prog_nose_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox16" TYPE=CHECKBOX NAME="prog_nose_ne" <?php if ($obj{"prog_nose_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -365,7 +365,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox17" TYPE=CHECKBOX NAME="prog_throat_abn" <?if ($obj{"prog_throat_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox17" TYPE=CHECKBOX NAME="prog_throat_abn" <?php if ($obj{"prog_throat_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -381,7 +381,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox15" TYPE=CHECKBOX NAME="prog_throat_ne" <?if ($obj{"prog_throat_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox15" TYPE=CHECKBOX NAME="prog_throat_ne" <?php if ($obj{"prog_throat_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -413,7 +413,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox19" TYPE=CHECKBOX NAME="prog_teeth_abn" <?if ($obj{"prog_teeth_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox19" TYPE=CHECKBOX NAME="prog_teeth_abn" <?php if ($obj{"prog_teeth_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -429,7 +429,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox20" TYPE=CHECKBOX NAME="prog_teeth_ne" <?if ($obj{"prog_teeth_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox20" TYPE=CHECKBOX NAME="prog_teeth_ne" <?php if ($obj{"prog_teeth_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -461,7 +461,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox18" TYPE=CHECKBOX NAME="prog_neck_abn" <?if ($obj{"prog_neck_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox18" TYPE=CHECKBOX NAME="prog_neck_abn" <?php if ($obj{"prog_neck_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -477,7 +477,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox21" TYPE=CHECKBOX NAME="prog_neck_ne" <?if ($obj{"prog_neck_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox21" TYPE=CHECKBOX NAME="prog_neck_ne" <?php if ($obj{"prog_neck_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -509,7 +509,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox22" TYPE=CHECKBOX NAME="prog_chest_abn" <?if ($obj{"prog_chest_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox22" TYPE=CHECKBOX NAME="prog_chest_abn" <?php if ($obj{"prog_chest_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -525,7 +525,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox23" TYPE=CHECKBOX NAME="prog_chest_ne" <?if ($obj{"prog_chest_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox23" TYPE=CHECKBOX NAME="prog_chest_ne" <?php if ($obj{"prog_chest_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -557,7 +557,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox24" TYPE=CHECKBOX NAME="prog_breast_abn" <?if ($obj{"prog_breast_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox24" TYPE=CHECKBOX NAME="prog_breast_abn" <?php if ($obj{"prog_breast_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -573,7 +573,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox25" TYPE=CHECKBOX NAME="prog_breast_ne" <?if ($obj{"prog_breast_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox25" TYPE=CHECKBOX NAME="prog_breast_ne" <?php if ($obj{"prog_breast_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -605,7 +605,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox26" TYPE=CHECKBOX NAME="prog_lungs_abn" <?if ($obj{"prog_lungs_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox26" TYPE=CHECKBOX NAME="prog_lungs_abn" <?php if ($obj{"prog_lungs_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -621,7 +621,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox27" TYPE=CHECKBOX NAME="prog_lungs_ne" <?if ($obj{"prog_lungs_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox27" TYPE=CHECKBOX NAME="prog_lungs_ne" <?php if ($obj{"prog_lungs_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -653,7 +653,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox28" TYPE=CHECKBOX NAME="prog_heart_abn" <?if ($obj{"prog_heart_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox28" TYPE=CHECKBOX NAME="prog_heart_abn" <?php if ($obj{"prog_heart_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -669,7 +669,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox29" TYPE=CHECKBOX NAME="prog_heart_ne" <?if ($obj{"prog_heart_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox29" TYPE=CHECKBOX NAME="prog_heart_ne" <?php if ($obj{"prog_heart_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -701,7 +701,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox30" TYPE=CHECKBOX NAME="prog_abdomen_abn" <?if ($obj{"prog_abdomen_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox30" TYPE=CHECKBOX NAME="prog_abdomen_abn" <?php if ($obj{"prog_abdomen_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -717,7 +717,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox31" TYPE=CHECKBOX NAME="prog_abdomen_ne" <?if ($obj{"prog_abdomen_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox31" TYPE=CHECKBOX NAME="prog_abdomen_ne" <?php if ($obj{"prog_abdomen_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -749,7 +749,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox32" TYPE=CHECKBOX NAME="prog_spine_abn" <?if ($obj{"prog_spine_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox32" TYPE=CHECKBOX NAME="prog_spine_abn" <?php if ($obj{"prog_spine_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -765,7 +765,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox33" TYPE=CHECKBOX NAME="prog_spine_ne" <?if ($obj{"prog_spine_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox33" TYPE=CHECKBOX NAME="prog_spine_ne" <?php if ($obj{"prog_spine_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -797,7 +797,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox34" TYPE=CHECKBOX NAME="prog_extremeities_abn" <?if ($obj{"prog_extremeities_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox34" TYPE=CHECKBOX NAME="prog_extremeities_abn" <?php if ($obj{"prog_extremeities_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -813,7 +813,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox35" TYPE=CHECKBOX NAME="prog_extremeities_ne" <?if ($obj{"prog_extremeities_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox35" TYPE=CHECKBOX NAME="prog_extremeities_ne" <?php if ($obj{"prog_extremeities_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -845,7 +845,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox36" TYPE=CHECKBOX NAME="prog_lowback_abn" <?if ($obj{"prog_lowback_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox36" TYPE=CHECKBOX NAME="prog_lowback_abn" <?php if ($obj{"prog_lowback_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -861,7 +861,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox37" TYPE=CHECKBOX NAME="prog_lowback_ne" <?if ($obj{"prog_lowback_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox37" TYPE=CHECKBOX NAME="prog_lowback_ne" <?php if ($obj{"prog_lowback_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -893,7 +893,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox38" TYPE=CHECKBOX NAME="prog_neuro_abn" <?if ($obj{"prog_neuro_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox38" TYPE=CHECKBOX NAME="prog_neuro_abn" <?php if ($obj{"prog_neuro_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -909,7 +909,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox39" TYPE=CHECKBOX NAME="prog_neuro_ne" <?if ($obj{"prog_neuro_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox39" TYPE=CHECKBOX NAME="prog_neuro_ne" <?php if ($obj{"prog_neuro_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -941,7 +941,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox40" TYPE=CHECKBOX NAME="prog_rectal_abn" <?if ($obj{"prog_rectal_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox40" TYPE=CHECKBOX NAME="prog_rectal_abn" <?php if ($obj{"prog_rectal_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -957,7 +957,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox41" TYPE=CHECKBOX NAME="prog_rectal_ne" <?if ($obj{"prog_rectal_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox41" TYPE=CHECKBOX NAME="prog_rectal_ne" <?php if ($obj{"prog_rectal_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -989,7 +989,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox42" TYPE=CHECKBOX NAME="prog_pelvic_abn" <?if ($obj{"prog_pelvic_abn"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox42" TYPE=CHECKBOX NAME="prog_pelvic_abn" <?php if ($obj{"prog_pelvic_abn"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
@@ -1005,7 +1005,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
                         <TR>
 
-                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox43" TYPE=CHECKBOX NAME="prog_pelvic_ne" <?if ($obj{"prog_pelvic_ne"} == "on") {echo "checked";};?>></TD>
+                            <TD ALIGN="CENTER"><INPUT ID="Forms Checkbox43" TYPE=CHECKBOX NAME="prog_pelvic_ne" <?php if ($obj{"prog_pelvic_ne"} == "on") {echo "checked";};?>></TD>
 
                         </TR>
 
