@@ -62,10 +62,10 @@ if( $tmpDate && $tmpDate != '0000-00-00 00:00:00' ) $m_strEventDate = $tmpDate;
 
 <html>
     <head>
-        <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+        <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
     </head>
 
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 
@@ -174,7 +174,7 @@ include_once("$srcdir/api.inc");
 ?>
 
 
-<form method=post action="<?echo $rootdir?>/forms/psychiatrisch_onderzoek/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
+<form method=post action="<?php echo $rootdir?>/forms/psychiatrisch_onderzoek/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
 <span class="title"><?php xl('Psychiatric Examination','e'); ?></span><Br><br>
 
 <table>
@@ -217,7 +217,7 @@ include_once("$srcdir/api.inc");
 <br><br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit"
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit"
  onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
 </form>
 

@@ -710,7 +710,7 @@ function sel_diagnosis() {
 
  <tr bgcolor="#ddddff">
   <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
-   <?echo xl('Totals for ') . $docname ?>
+   <?php echo xl('Totals for ') . $docname ?>
   </td>
   <td align="right">
    <?php bucks($doctotal1) ?>

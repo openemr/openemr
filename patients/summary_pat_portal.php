@@ -510,7 +510,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 </div> <!-- end main content div -->
 
-<input type="button" style="text-align: right;" value="<? echo xl('Log Out'); ?>" onclick="window.location = 'logout.php'">
+<input type="button" style="text-align: right;" value="<?php echo xl('Log Out'); ?>" onclick="window.location = 'logout.php'">
 
 </wrapper>
 

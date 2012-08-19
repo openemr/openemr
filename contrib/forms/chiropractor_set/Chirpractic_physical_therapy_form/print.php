@@ -4,10 +4,10 @@ include_once("$srcdir/api.inc");
 formHeader("Form: Chirpractic_physical_therapy_form");
 ?>
 <html><head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/Chirpractic_physical_therapy_form/save.php?mode=new" name="my_form" onSubmit="return top.restoreSession()">
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<form method=post action="<?php echo $rootdir;?>/forms/Chirpractic_physical_therapy_form/save.php?mode=new" name="my_form" onSubmit="return top.restoreSession()">
 <h1> Chiropractic physical therapy form</h1>
 <hr>
 <input type="submit" name="submit form" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a><br>

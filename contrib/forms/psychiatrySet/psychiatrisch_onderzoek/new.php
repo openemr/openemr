@@ -111,12 +111,12 @@ if( $tmpDate && $tmpDate != '0000-00-00 00:00:00' ) $m_strEventDate = $tmpDate;
 
 <html>
 <head>
-    <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+    <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
 
                                
 
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 
@@ -219,7 +219,7 @@ function autosave( )
 </script>
         
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-<form method=post action="<?echo $rootdir;?>/forms/psychiatrisch_onderzoek/save.php?mode=new&saveid=<?php echo $psychiatrisch_onderzoek_id; ?>" name="my_form">
+<form method=post action="<?php echo $rootdir;?>/forms/psychiatrisch_onderzoek/save.php?mode=new&saveid=<?php echo $psychiatrisch_onderzoek_id; ?>" name="my_form">
 <span class="title"><?php xl('Psychiatric Examination','e'); ?></span><br><br>
 
 <table>
@@ -268,7 +268,7 @@ function autosave( )
 <br><br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 </form>
 
 <script language='JavaScript'>

@@ -15,7 +15,7 @@ formHeader("Form: Initial New Patient Physical Exam");
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">
-<form method=post action="<?echo $rootdir;?>/forms/Initial_New_Patient_Physical_Exam/save.php?mode=new" name="my_form" onSubmit="return top.restoreSession()">
+<form method=post action="<?php echo $rootdir;?>/forms/Initial_New_Patient_Physical_Exam/save.php?mode=new" name="my_form" onSubmit="return top.restoreSession()">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" >
   <tr>
     <td align="center" colspan="5"><h3> <?php xl("015 Initial New Patient Physical Exam - ",'e') ?> </h3></td>

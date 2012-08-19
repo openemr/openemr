@@ -23,10 +23,10 @@
   
  ?> 
  <html><head> 
- <link rel=stylesheet href="<?echo $css_header;?>" type="text/css"> 
+ <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
  </head> 
- <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
- <form method=post action="<?echo $rootdir?>/forms/Forms3_Cardiology/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form" onSubmit="return top.restoreSession()"> 
+ <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+ <form method=post action="<?php echo $rootdir?>/forms/Forms3_Cardiology/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form" onSubmit="return top.restoreSession()">
  <h1> Forms3_Cardiology </h1> 
  <hr> 
  <input type="submit" name="submit form" value="submit form" />

@@ -4,16 +4,16 @@ include_once("../../globals.php");
 ?>
 <html><head>
 <?php html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <?php
 include_once("$srcdir/api.inc");
 
 $obj = formFetch("form_assessment_intake", $_GET["id"]);
 
 ?>
-<form method=post action="<?echo $rootdir?>/forms/assessment_intake/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
+<form method=post action="<?php echo $rootdir?>/forms/assessment_intake/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
 <span class="title"><center><b>Assessment and Intake</b></center></span><br><br>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
@@ -39,7 +39,7 @@ $result = SqlFetchArray($res); ?>
 <b>Purpose:</b>&nbsp; <input type=checkbox name='new_client_eval' <?php if ($obj{"new_client_eval"} == "on") {echo "checked";};?>  ><b>New client evaluation</b><img src="../../../images/space.gif" width="10" height="1">
 <input type=checkbox name='readmission' <?php if ($obj{"readmission"} == "on") {echo "checked";};?>  ><b>Readmission</b><img src="../../../images/space.gif" width="35" height="1">
 <input type=checkbox name='consultation' <?php if ($obj{"consultation"} == "on") {echo "checked";};?> ><b>Consultation</b><br><br> 
-<label><b>Copy sent to:</b>&nbsp;<input type="entry" name="copy_sent_to" value="<?echo stripslashes($obj{"copy_sent_to"});?>"></label><br><br>
+<label><b>Copy sent to:</b>&nbsp;<input type="entry" name="copy_sent_to" value="<?php echo stripslashes($obj{"copy_sent_to"});?>"></label><br><br>
 <b>Why is Assessment being requested (Goals and treatment expectations of the individual requesting services):</b><br>
 <textarea cols=100 rows=3 name="reason_why" ><?php echo stripslashes($obj{"reason_why"});?></textarea><br>
 <b>Behavior that led to Assessment:</b><br>
@@ -64,12 +64,12 @@ $result = SqlFetchArray($res); ?>
 <textarea cols=100 rows=3 wrap=virtual name="current_symptoms" ><?php echo stripslashes($obj{"current_symptoms"});?></textarea><br><br>
 <b>Personal resources and strengths (including the availability & use of family and peers):</b><br>
 <textarea cols=100 rows=3 wrap=virtual name="personal_strengths" ><?php echo stripslashes($obj{"personal_strengths"});?></textarea><br><br>
-<b>Spiritual:</b>&nbsp;<input type="entry" name="spiritual" value="<?echo stripslashes($obj{"spiritual"});?>">&nbsp;<img src="../../../images/space.gif" width="35" height="1">
-<b>Legal:</b>&nbsp;<input type="entry" name="legal" value="<?echo stripslashes($obj{"legal"});?>"><br><br>
+<b>Spiritual:</b>&nbsp;<input type="entry" name="spiritual" value="<?php echo stripslashes($obj{"spiritual"});?>">&nbsp;<img src="../../../images/space.gif" width="35" height="1">
+<b>Legal:</b>&nbsp;<input type="entry" name="legal" value="<?php echo stripslashes($obj{"legal"});?>"><br><br>
 <b>Prior Mental Health History/Treatment:</b><br>
 <textarea cols=100 rows=3 wrap=virtual name="prior_history" ><?php echo stripslashes($obj{"prior_history"});?></textarea><br><br>
-<b>Number of admissions:</b>&nbsp;<input type="entry" name="number_admitt" value="<?echo stripslashes($obj{"number_admitt"});?>">&nbsp;<img src="../../../images/space.gif" width="35" height="1">
-<b>Types of admissions:</b>&nbsp;<input type="entry" name="type_admitt" value="<?echo stripslashes($obj{"type_admitt"});?>"><br><br>
+<b>Number of admissions:</b>&nbsp;<input type="entry" name="number_admitt" value="<?php echo stripslashes($obj{"number_admitt"});?>">&nbsp;<img src="../../../images/space.gif" width="35" height="1">
+<b>Types of admissions:</b>&nbsp;<input type="entry" name="type_admitt" value="<?php echo stripslashes($obj{"type_admitt"});?>"><br><br>
 <b>Alcohol and substance use for the past 30 days:</b><br>
 <textarea cols=100 rows=3 wrap=virtual name="substance_use" ><?php echo stripslashes($obj{"substance_use"});?></textarea><br><br>
 <b>Substance abuse history (Include duration, patterns, and consequences of use):</b><br>
@@ -81,7 +81,7 @@ $result = SqlFetchArray($res); ?>
 <textarea cols=100 rows=3 wrap=virtual name="axis2" ><?php echo stripslashes($obj{"axis2"});?></textarea><br><br>
 <b>Axis III:</b><br>
 <textarea cols=100 rows=3 wrap=virtual name="axis3" ><?php echo stripslashes($obj{"axis3"});?></textarea><br><br>
-<b><u>Allergies/Adverse reactions to medications:</u></b>&nbsp;<input type="entry" name="allergies" value="<?echo stripslashes($obj{"allergies"});?>"><br><br>
+<b><u>Allergies/Adverse reactions to medications:</u></b>&nbsp;<input type="entry" name="allergies" value="<?php echo stripslashes($obj{"allergies"});?>"><br><br>
 <b>Axis IV Psychosocial and environmental problems in the last year:</b><br>
 <input type=checkbox name='ax4_prob_support_group' <?php if ($obj{"ax4_prob_support_group"} == "on") {echo "checked";};?>  >&nbsp;<b>Problems with primary support group</b>
 <img src="../../../images/space.gif" width="35" height="1">
@@ -101,9 +101,9 @@ $result = SqlFetchArray($res); ?>
 <textarea cols=100 rows=2 wrap=virtual name="ax4_other" ><?php echo stripslashes($obj{"ax4_other"});?></textarea><br><br>
 <b>Axis V Global Assessment of Functioning (GAF) Scale (100 down to 0):</b>
 <img src="../../../images/space.gif" width="5" height="1"><br>
-<b>Currently</b><input type="entry" name="ax5_current" value="<?echo stripslashes($obj{"ax5_current"});?>">
+<b>Currently</b><input type="entry" name="ax5_current" value="<?php echo stripslashes($obj{"ax5_current"});?>">
 <img src="../../../images/space.gif" width="5" height="1">
-<b>Past Year</b><input type="entry" name="ax5_past" value="<?echo stripslashes($obj{"ax5_current"});?>"><br><br>
+<b>Past Year</b><input type="entry" name="ax5_past" value="<?php echo stripslashes($obj{"ax5_current"});?>"><br><br>
 <b><u>Assessment of Currently Known Risk Factors:</u></b><br><br>
 <b>Suicide:</b><br><input type=checkbox name='risk_suicide_na' <?php if ($obj{"risk_suicide_na"} == "on") {echo "checked";};?>  >&nbsp;<b>Not Assessed</b>
 	<img src="../../../images/space.gif" width="5" height="1">
@@ -216,11 +216,11 @@ $result = SqlFetchArray($res); ?>
 
 <b>Date report sent to referral source:</b>
 	<img src="../../../images/space.gif" width="5" height="1">
-	<input type="text" name='refer_date' value="<?echo stripslashes($obj{"refer_date"});?>">
+	<input type="text" name='refer_date' value="<?php echo stripslashes($obj{"refer_date"});?>">
 	<img src="../../../images/space.gif" width="5" height="1">
 	<b>Parent/Guardian:</b>
 	<img src="../../../images/space.gif" width="5" height="1">
-    <input type="text" name='parent' value="<?echo stripslashes($obj{"parent"});?>">
+    <input type="text" name='parent' value="<?php echo stripslashes($obj{"parent"});?>">
 <br>
 
 <b>Level of supervision needed:</b>
@@ -258,7 +258,7 @@ $result = SqlFetchArray($res); ?>
 	<img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='legal_ad' <?php if ($obj{"legal_ad"} == "on") {echo "checked";};?>>&nbsp;<b>Referral to advocate</b>
 	<img src="../../../images/space.gif" width="5" height="1">
-    <input type="text" name='legal_adl' value="<?echo stripslashes($obj{"legal_adl"});?>">
+    <input type="text" name='legal_adl' value="<?php echo stripslashes($obj{"legal_adl"});?>">
 	<img src="../../../images/space.gif" width="5" height="1"><br>
     <input type=checkbox name='legal_o' <?php if ($obj{"legal_o"} == "on") {echo "checked";};?>>&nbsp;<b>Other:</b>
 	

@@ -4,16 +4,16 @@ include_once("../../globals.php");
 ?>
 <html><head>
 <?php html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <?php
 include_once("$srcdir/api.inc");
 
 $obj = formFetch("form_mh_therapy_progress", $_GET["id"]);
 
 ?>
-<form method=post action="<?echo $rootdir?>/forms/mh_therapy_progress/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
+<form method=post action="<?php echo $rootdir?>/forms/mh_therapy_progress/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
 <span class="title"><center><b>Therapy Progress Note</b></center></span><br><br>
 <center>
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>

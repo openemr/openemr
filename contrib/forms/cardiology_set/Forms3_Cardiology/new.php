@@ -5,11 +5,11 @@ formHeader("Form: Forms3_Cardiology");
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
-<form method=post action="<?echo $rootdir;?>/forms/Forms3_Cardiology/save.php?mode=new" name="Forms3_Cardiology" onSubmit="return top.restoreSession()">
+<form method=post action="<?php echo $rootdir;?>/forms/Forms3_Cardiology/save.php?mode=new" name="Forms3_Cardiology" onSubmit="return top.restoreSession()">
 <hr>
 <h1> <?php xl("Forms3_Cardiology",'e') ?> </h1>
 <hr>

@@ -15,17 +15,17 @@ formHeader("Lab Results");
 <html><head>
 <?php html_header_show();?>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 </head>
 
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
 
 <br>
 
-<form method='post' action="<?echo $rootdir;?>/forms/lab_results/save.php?mode=new" name='lab_results_form' enctype="multipart/form-data">
+<form method='post' action="<?php echo $rootdir;?>/forms/lab_results/save.php?mode=new" name='lab_results_form' enctype="multipart/form-data">
 
 <span class=title>Lab Results</span>
 

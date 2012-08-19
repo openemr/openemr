@@ -47,7 +47,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
   }
 </script>
 
-<title><?echo htmlspecialchars( xl('Find Patient Education Materials'), ENT_NOQUOTES); ?></title>
+<title><?php echo htmlspecialchars( xl('Find Patient Education Materials'), ENT_NOQUOTES); ?></title>
 </head>
 
 <body class="body_top">
