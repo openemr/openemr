@@ -58,10 +58,10 @@ require_once("$srcdir/formatting.inc.php");
   echo "<img src='$practice_logo' align='left'>\n";
  }
 ?>
-<h2><?=$facility['name']?></h2>
-<?=$facility['street']?><br>
-<?=$facility['city']?>, <?=$facility['state']?> <?=$facility['postal_code']?><br clear='all'>
-<?=$facility['phone']?><br>
+<h2><?php echo $facility['name']?></h2>
+<?php echo $facility['street']?><br>
+<?php echo $facility['city']?>, <?php echo $facility['state']?> <?php echo $facility['postal_code']?><br clear='all'>
+<?php echo $facility['phone']?><br>
 
 </p>
 

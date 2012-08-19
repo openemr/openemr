@@ -13,7 +13,7 @@ $obj = formFetch("form_hearingtest", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/hearingtest/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
 <span class="title">Hearing Test</span><Br><br>
-<input type=checkbox name="with_hearing_aid"  <?if ($obj{"with_hearing_aid"} == "on") {echo "checked";};?>><span class=text>With hearing Aid?</span><br>
+<input type=checkbox name="with_hearing_aid"  <?php if ($obj{"with_hearing_aid"} == "on") {echo "checked";};?>><span class=text>With hearing Aid?</span><br>
 <table>
 <tr>
 <td>

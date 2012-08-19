@@ -54,7 +54,7 @@ function selpopup(selobj) {
    <a href="javascript:top.restoreSession();parent.Title.location.href='<?php echo $rootdir;?>/patient_file/transaction/transaction_title.php';parent.Main.location.href='<?php echo $rootdir;?>/patient_file/transaction/patient_transaction.php'" target="Main" class="menu"><?php xl('Transaction','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="<?php echo $GLOBALS['web_root'];?>/controller.php?document&list&patient_id=<?=$pid?>"
+   <a href="<?php echo $GLOBALS['web_root'];?>/controller.php?document&list&patient_id=<?php echo $pid?>"
     target="Main" class="menu" onclick="top.restoreSession()"><?php xl('Documents','e'); ?></a>
   </td>
   <td align="center" valign="middle">

@@ -160,7 +160,7 @@ window.onload = initialize;
 
     </tr>
 
-<?	
+<?php
 
 $rsi = 1;
 

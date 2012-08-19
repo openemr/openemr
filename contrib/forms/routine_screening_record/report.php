@@ -138,7 +138,7 @@ UNDER AGE 25</td>
     <tr align="left" valign="bottom">
       <td colspan="11" class="fibody2" style="border-bottom: 2px solid black;">&nbsp;</td>
     </tr>
-<?	
+<?php
 $factors = array("cervical", "lipid", "mammo", "colorectal",
 "bone", "chlamyd", "gonor", "urinal", "glucose", "thyroid");
 $rsi = 1;
