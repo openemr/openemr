@@ -28,7 +28,7 @@ if ($old) {
 <head>
 <?php html_header_show();?>
 <title>Form: ACOG Immunization record</title>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../../acog.css" type="text/css">
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 <script language="JavaScript" type="text/JavaScript">
@@ -44,10 +44,10 @@ window.onload = initialize;
      $patient = sqlFetchArray($fres);
    }
 ?>
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 
 
-<form action="<?echo $rootdir;?>/forms/immunization_record/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
+<form action="<?php echo $rootdir;?>/forms/immunization_record/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
 <?php include("../../acog_menu.inc"); ?>
 <div class="srvChapter">Immunization record<sup><a href="#" onClick="toolTip('The Immunization Record lists immunization services recommended by ACOG for either routine use or in high-risk patients, as defined in the enclosed table of high-risk factors. space for listing problems and immunization services allows the same form to be used for years.<br><br>For immunizations based on risk refer to the Table of High-Risk Factors')" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0"></a></sup></div>
 <div style="border: solid 2px black; background-color:#FFFFFF;">

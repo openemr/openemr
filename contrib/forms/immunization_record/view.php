@@ -23,7 +23,7 @@ include_once("$srcdir/calendar.inc");
 
 <title>Form: ACOG Immunization record</title>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 <link rel=stylesheet href="../../acog.css" type="text/css">
 
@@ -63,13 +63,13 @@ window.onload = initialize;
 
 ?>
 
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 
 
 
 
 
-<form action="<?echo $rootdir;?>/forms/immunization_record/save.php?mode=update&id=<?php echo $id;?>" method="post" enctype="multipart/form-data" name="my_form">
+<form action="<?php echo $rootdir;?>/forms/immunization_record/save.php?mode=update&id=<?php echo $id;?>" method="post" enctype="multipart/form-data" name="my_form">
 
 <?php include("../../acog_menu.inc"); ?>
 

@@ -43,7 +43,7 @@
 <html>
 <head>
 <?php html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title>Create a Referral</title>
 </head>
 <body>

@@ -5,11 +5,11 @@ formHeader("Form: Chirpractic_physical_therapy_form");
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<form method=post action="<?echo $rootdir;?>/forms/Chirpractic_physical_therapy_form/save.php?mode=new" name="Chirpractic_physical_therapy_form" onSubmit="return top.restoreSession()">
+<form method=post action="<?php echo $rootdir;?>/forms/Chirpractic_physical_therapy_form/save.php?mode=new" name="Chirpractic_physical_therapy_form" onSubmit="return top.restoreSession()">
 <hr>
 <input type="submit" name="submit form2" value="submit form" /> <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
 <h1> <?php xl("Chiropractic physical therapy form",'e') ?> </h1>

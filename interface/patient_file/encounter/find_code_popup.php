@@ -136,7 +136,7 @@ else {
    &nbsp;&nbsp;&nbsp;
    <?php if (!empty($target_element)) { ?>
      <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', '<?php echo addslashes($target_element); ?>')" />
-   <? } else { ?>
+   <?php } else { ?>
      <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
    <?php } ?>
    </b>

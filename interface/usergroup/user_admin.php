@@ -336,16 +336,16 @@ function authorized_clicked() {
 </table>
 <br>
 <FORM NAME="user_form" METHOD="GET" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
-<input type=hidden name="pwd_history" value="<? echo $GLOBALS['password_history']; ?>" >
-<input type=hidden name="pwd_history1" value="<? echo $iter["pwd_history1"]; ?>" >
-<input type=hidden name="pwd_history2" value="<? echo $iter["pwd_history2"]; ?>" >
-<input type=hidden name="pwd" value="<? echo $iter["password"]; ?>" >
+<input type=hidden name="pwd_history" value="<?php echo $GLOBALS['password_history']; ?>" >
+<input type=hidden name="pwd_history1" value="<?php echo $iter["pwd_history1"]; ?>" >
+<input type=hidden name="pwd_history2" value="<?php echo $iter["pwd_history2"]; ?>" >
+<input type=hidden name="pwd" value="<?php echo $iter["password"]; ?>" >
 
-<input type=hidden name="pwd_expires" value="<? echo $GLOBALS['password_expiration_days']; ?>" >
-<input type=hidden name="pre_active" value="<? echo $iter["active"]; ?>" >
-<input type=hidden name="exp_date" value="<? echo $iter["pwd_expiration_date"]; ?>" >
-<input type=hidden name="get_admin_id" value="<? echo $GLOBALS['Emergency_Login_email']; ?>" >
-<input type=hidden name="admin_id" value="<? echo $GLOBALS['Emergency_Login_email_id']; ?>" >
+<input type=hidden name="pwd_expires" value="<?php echo $GLOBALS['password_expiration_days']; ?>" >
+<input type=hidden name="pre_active" value="<?php echo $iter["active"]; ?>" >
+<input type=hidden name="exp_date" value="<?php echo $iter["pwd_expiration_date"]; ?>" >
+<input type=hidden name="get_admin_id" value="<?php echo $GLOBALS['Emergency_Login_email']; ?>" >
+<input type=hidden name="admin_id" value="<?php echo $GLOBALS['Emergency_Login_email_id']; ?>" >
 <input type=hidden name="check_acl" value="">
 <?php 
 //Calculating the grace time 
@@ -356,8 +356,8 @@ if($password_exp != "0000-00-00")
     $grace_time1 = date("Y-m-d", strtotime($password_exp . "+".$GLOBALS['password_grace_time'] ."days"));
   }
 ?>
-<input type=hidden name="current_date" value="<? echo strtotime($current_date); ?>" >
-<input type=hidden name="grace_time" value="<? echo strtotime($grace_time1); ?>" >
+<input type=hidden name="current_date" value="<?php echo strtotime($current_date); ?>" >
+<input type=hidden name="grace_time" value="<?php echo strtotime($grace_time1); ?>" >
 <!--  Get the list ACL for the user -->
 <?php
 $acl_name=acl_get_group_titles($iter["username"]);
@@ -367,7 +367,7 @@ $bg_count=count($acl_name);
        $bg_name=$acl_name[$i];
       }
 ?>
-<input type=hidden name="user_type" value="<? echo $bg_name; ?>" >
+<input type=hidden name="user_type" value="<?php echo $bg_name; ?>" >
 
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
@@ -560,7 +560,7 @@ Display red alert if entered password matched one of last three passwords/Displa
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="privatemode" VALUE="user_admin">
 <INPUT TYPE="HIDDEN" NAME="newauthPass" VALUE="">
-<INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<? echo $GLOBALS['secure_password']; ?>">
+<INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo $GLOBALS['secure_password']; ?>">
 </FORM>
 <script language="JavaScript">
 $(document).ready(function(){

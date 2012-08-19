@@ -7,9 +7,9 @@ include_once("$srcdir/sql.inc");
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $login_body_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="javascript:document.login_form.authUser.focus();" >
+<body <?php echo $login_body_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="javascript:document.login_form.authUser.focus();" >
 
 <span class="text"></span>
 
@@ -31,7 +31,7 @@ if (count($result) == 1) {
 <table width=100% height="90%">
 <tr>
 <td valign=middle width=33%>
-<?echo $logocode;?>
+<?php echo $logocode;?>
 </td>
 <td align='center' valign='middle' width=34%>
 <table>

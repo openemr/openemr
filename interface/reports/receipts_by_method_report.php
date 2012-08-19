@@ -606,7 +606,7 @@ if ($_POST['form_refresh']) {
 ?>
  <tr bgcolor="#ddddff">
   <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
-   <?echo xl('Total for ') . $paymethod ?>
+   <?php echo xl('Total for ') . $paymethod ?>
   </td>
   <td align="right">
    <?php bucks($methodadjtotal) ?>

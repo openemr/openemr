@@ -10,7 +10,7 @@
 <html>
 <head>
 <?php html_header_show();?>
-<link rel="stylesheet" href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="batchcom.css" type="text/css">
 </head>
 <body class="body_top">

@@ -8,7 +8,7 @@ $textarea_rows = 22;
 $textarea_cols = 90;
 ?>
 <html><head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript">
 function checkall(){
   var f = document.my_form;

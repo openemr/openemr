@@ -5,10 +5,10 @@ formHeader("Form: individual_treatment_plan");
 ?>
 <html><head>
 <?php html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/individual_treatment_plan/save.php?mode=new" name="my_form">
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<form method=post action="<?php echo $rootdir;?>/forms/individual_treatment_plan/save.php?mode=new" name="my_form">
 <br>
 <span class="title"><center>Individual Treatment Plan</center></span><br><br>
 <center><a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>

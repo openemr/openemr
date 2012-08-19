@@ -28,7 +28,7 @@ if ($old) {
 <head>
 <?php html_header_show();?>
 <title>Form: High risk screening record</title>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../../acog.css" type="text/css">
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 <script language="JavaScript" type="text/JavaScript">
@@ -42,9 +42,9 @@ window.onload = initialize;
      $patient = sqlFetchArray($fres);
    }
 ?>
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 
-<form action="<?echo $rootdir;?>/forms/high_risk_screening_record/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
+<form action="<?php echo $rootdir;?>/forms/high_risk_screening_record/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
 <?php include("../../acog_menu.inc"); ?>
 <div class="srvChapter">High risk screening  record <a href="#" onMouseOver="toolTip('See Table of High-Risk Factors.')" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 <div style="border: solid 2px black; background-color:#FFFFFF;">

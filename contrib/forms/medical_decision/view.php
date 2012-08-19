@@ -25,7 +25,7 @@ include_once("$srcdir/calendar.inc");
 
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 <link rel=stylesheet href="../../acog.css" type="text/css">
 
@@ -39,7 +39,7 @@ window.onload = initialize;
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 
 
 
@@ -65,7 +65,7 @@ window.onload = initialize;
 
 ?>
 
-<form action="<?echo $rootdir;?>/forms/medical_decision/save.php?mode=update&id=<?php echo $id ?>" method="post" enctype="multipart/form-data" name="my_form">
+<form action="<?php echo $rootdir;?>/forms/medical_decision/save.php?mode=update&id=<?php echo $id ?>" method="post" enctype="multipart/form-data" name="my_form">
 
 <?php include("../../acog_menu.inc"); ?>
 

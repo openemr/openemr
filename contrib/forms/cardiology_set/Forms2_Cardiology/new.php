@@ -5,9 +5,9 @@ formHeader("Form: Forms2_Cardiology");
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
@@ -17,7 +17,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 <script language='JavaScript'> var mypcc = '1'; </script>
 
 <a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'> <?php xl("[do not save]",'e') ?> </a>
-<form method=post action="<?echo $rootdir;?>/forms/Forms2_Cardiology/save.php?mode=new" name="Forms2_Cardiology" onSubmit="return top.restoreSession()">
+<form method=post action="<?php echo $rootdir;?>/forms/Forms2_Cardiology/save.php?mode=new" name="Forms2_Cardiology" onSubmit="return top.restoreSession()">
 <hr>
 <h1> <?php xl("Forms2_Cardiology",'e') ?> </h1>
 <hr>

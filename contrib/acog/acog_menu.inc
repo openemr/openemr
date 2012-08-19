@@ -62,7 +62,7 @@ if ($result = getFormByEncounter($pid, $encounter, "id,date,form_id,form_name,fo
   <div style="padding: 2px; border: 2px solid black; border-left:none; border-right:1px solid black; margin-right: 17px; <?php echo $height_tag; ?>: 111px; background-color: white;">
     <h2 style="margin-bottom: 4px;"><img src="../../pic/menu/doc1.png" height="16" width="16" align="left">&nbsp;Form actions</h2>
     <div class="tabmenu"><img src="../../pic/menu/save.png" height="16" width="16" align="left">&nbsp;<a href="javascript:document.my_form.submit();">Save</a></div>
-    <div class="tabmenu"><img src="../../pic/menu/trash.png" height="16" width="16" align="left">&nbsp;<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>">Cancel</a></div>
+    <div class="tabmenu"><img src="../../pic/menu/trash.png" height="16" width="16" align="left">&nbsp;<a href="<?php echo "$rootdir/patient_file/encounter/patient_encounter.php";?>">Cancel</a></div>
     <?php if ($id != '') {?>
     <hr width="90%" align="left">
     <div class="tabmenu"><img src="../../pic/menu/print.png" height="16" width="16" align="left">&nbsp;<a href="<?php echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<?php echo $id; ?>&formname=<?php echo $formname; ?>" target="_blank">Printable form</a></div>
