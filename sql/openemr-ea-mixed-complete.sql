@@ -9,7 +9,7 @@ CREATE TABLE `customcpt` (
   `code` longtext,
   `code_type` longtext,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=8369 ;
+) ENGINE=MyISAM AUTO_INCREMENT=8369 ;
 
 #
 # Dumping data for table `customcpt`

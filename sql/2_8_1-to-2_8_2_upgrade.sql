@@ -309,7 +309,7 @@ CREATE TABLE drugs (
   route         int(11)      NOT NULL DEFAULT 0,
   substitute    int(11)      NOT NULL DEFAULT 0,
   PRIMARY KEY (drug_id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 CREATE TABLE drug_inventory (
   inventory_id    int(11)      NOT NULL auto_increment,
   drug_id         int(11)      NOT NULL,
@@ -319,7 +319,7 @@ CREATE TABLE drug_inventory (
   on_hand         int(11)      NOT NULL DEFAULT 0,
   last_notify     date         NOT NULL DEFAULT '0000-00-00',
   PRIMARY KEY (inventory_id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 CREATE TABLE drug_sales (
   sale_id         int(11)      NOT NULL auto_increment,
   drug_id         int(11)      NOT NULL,

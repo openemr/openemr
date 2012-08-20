@@ -16,7 +16,7 @@ CREATE TABLE `openemr_postcalendar_topics` (
   `pc_catdesc` text,
   PRIMARY KEY  (`pc_catid`),
   KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 UPDATE `openemr_module_vars` SET `pn_value` = '1' WHERE pn_name = 'pcDisplayTopics';
 
@@ -30,12 +30,12 @@ CREATE TABLE `categories` (
   PRIMARY KEY  (`id`),
   KEY `parent` (`parent`),
   KEY `lft` (`lft`,`rght`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `categories_seq` (
   `id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 INSERT INTO `categories_seq` VALUES (0);
 
@@ -49,12 +49,12 @@ CREATE TABLE `config` (
   PRIMARY KEY  (`id`),
   KEY `parent` (`parent`),
   KEY `lft` (`lft`,`rght`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `config_seq` (
   `id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 INSERT INTO `config_seq` VALUES (0);
 
@@ -73,7 +73,7 @@ CREATE TABLE `documents` (
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
   KEY `owner` (`owner`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `notes` (
   `id` int(11) NOT NULL default '0',
@@ -86,13 +86,13 @@ CREATE TABLE `notes` (
   KEY `foreign_id` (`owner`),
   KEY `foreign_id_2` (`foreign_id`),
   KEY `date` (`date`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `categories_to_documents` (
   `category_id` int(11) NOT NULL default '0',
   `document_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`category_id`,`document_id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `x12_partners` (
 `id` INT NOT NULL ,
@@ -114,7 +114,7 @@ CREATE TABLE `geo_zone_reference` (
   `zone_code` varchar(5) NOT NULL default '',
   `zone_name` varchar(32) NOT NULL default '',
   PRIMARY KEY  (`zone_id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 INSERT INTO `geo_zone_reference` VALUES (1, 223, 'AL', 'Alabama');
 INSERT INTO `geo_zone_reference` VALUES (2, 223, 'AK', 'Alaska');
@@ -206,7 +206,7 @@ CREATE TABLE `geo_country_reference` (
   `countries_iso_code_3` char(3) NOT NULL default '',
   PRIMARY KEY  (`countries_id`),
   KEY `IDX_COUNTRIES_NAME` (`countries_name`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 INSERT INTO `geo_country_reference` VALUES (1, 'Afghanistan', 'AF', 'AFG');
 INSERT INTO `geo_country_reference` VALUES (2, 'Albania', 'AL', 'ALB');
@@ -476,4 +476,4 @@ CREATE TABLE `integration_mapping` (
   `local_table` varchar(125) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `foreign_id` (`foreign_id`,`foreign_table`,`local_id`,`local_table`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
