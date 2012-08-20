@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS lists_football_injury (
   fiside      int(11)      NOT NULL DEFAULT 0,
   firemoved   int(11)      NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'apptstat';
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','apptstat','Event Statuses',1);

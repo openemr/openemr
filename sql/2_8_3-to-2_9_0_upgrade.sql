@@ -38,7 +38,7 @@ CREATE TABLE list_options (
   is_default     tinyint(1)    NOT NULL DEFAULT 0,
   option_value   float         NOT NULL DEFAULT 0,
   PRIMARY KEY (list_id, option_id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 INSERT INTO list_options VALUES ('yesno'  ,'NO' ,'NO' ,1,0,0);
 INSERT INTO list_options VALUES ('yesno'  ,'YES','YES',2,0,0);
 INSERT INTO list_options VALUES ('titles' ,'Mr.'   ,'Mr.'    ,1,0,0);
@@ -82,7 +82,7 @@ CREATE TABLE layout_options (
   edit_options   varchar(36)   NOT NULL DEFAULT '',
   description    varchar(255)  NOT NULL DEFAULT '',
   PRIMARY KEY (form_id, field_id, seq)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 INSERT INTO layout_options VALUES ('DEM','title'          ,'1Who','Name'          , 1, 1,1, 0, 0,'titles' ,1,1,'','' ,'Title');
 INSERT INTO layout_options VALUES ('DEM','fname'          ,'1Who',''              , 2, 2,2,10,63,''       ,0,0,'','C','First Name');
 INSERT INTO layout_options VALUES ('DEM','mname'          ,'1Who',''              , 3, 2,1, 2,63,''       ,0,0,'','C','Middle Name');
@@ -190,7 +190,7 @@ CREATE TABLE prices (
   pr_level       varchar(31)   NOT NULL DEFAULT '' COMMENT 'price level',
   pr_price       decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'price in local currency',
   PRIMARY KEY (pr_id, pr_selector, pr_level)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 INSERT INTO prices ( pr_id, pr_level, pr_price )
   SELECT codes.id, 'standard', codes.fee FROM codes
   WHERE codes.fee IS NOT NULL AND codes.fee > 0;
@@ -223,7 +223,7 @@ CREATE TABLE fee_sheet_options (
   fs_category varchar(63)  NOT NULL DEFAULT '' COMMENT 'Descriptive category name',
   fs_option   varchar(63)  NOT NULL DEFAULT '' COMMENT 'Descriptive option name',
   fs_codes    varchar(255) NOT NULL DEFAULT '' COMMENT 'multiple instances of type:id:selector;'
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 INSERT INTO fee_sheet_options VALUES ('1New Patient','1Brief'  ,'CPT4|99201|');
 INSERT INTO fee_sheet_options VALUES ('1New Patient','2Limited','CPT4|99202|');
 INSERT INTO fee_sheet_options VALUES ('1New Patient','3Detailed','CPT4|99203|');

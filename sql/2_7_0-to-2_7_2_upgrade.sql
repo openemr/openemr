@@ -14,7 +14,7 @@ CREATE TABLE `immunization` (
   `name` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`),
   KEY `immunization_name` (`name`)
-) TYPE=MyISAM AUTO_INCREMENT=36 ;
+) ENGINE=MyISAM AUTO_INCREMENT=36 ;
 
 INSERT INTO `immunization` VALUES (1, 'DTaP 1');
 INSERT INTO `immunization` VALUES (2, 'DTaP 2');
@@ -68,7 +68,7 @@ CREATE TABLE `immunizations` (
   `created_by` bigint(20) default NULL,
   `updated_by` bigint(20) default NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 
 replace into immunizations (patient_id,create_date,note,created_by,updated_by,administered_by_id)
