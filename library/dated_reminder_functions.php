@@ -362,7 +362,7 @@ function logRemindersArray(){
 // --------- loop through the results
         for($i=0; $drRow=sqlFetchArray($drSQL); $i++){  
 // --------- need to run patient query seperately to allow for messages not linked to a patient  
-          $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.id = ?",array($drRow['pid']));  
+          $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?",array($drRow['pid']));  
           $pRow = sqlFetchArray($pSQL);   
            
           $prSQL = sqlStatement("SELECT u.fname pfname, u.mname pmname, u.lname plname FROM `users` u WHERE u.id = ?",array($drRow['dr_processed_by']));  
