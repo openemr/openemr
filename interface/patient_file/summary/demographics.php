@@ -463,7 +463,7 @@ $(window).load(function() {
   exit();
  }
 
- if ($thisauth == 'write') {
+ if ($thisauth) {
   echo "<table><tr><td><span class='title'>" .
    htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) .
    "</span></td>";
