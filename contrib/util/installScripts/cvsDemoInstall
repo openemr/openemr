@@ -80,7 +80,7 @@ chown -R apache:apache $OPENEMR/gacl/admin/templates_c
 # Run installer class for the demo (note to avoid malicious use, script is activated by removing an exit command,
 #   and the active script is then removed after completion.
 sed -e 's@^exit;@ @' <$INST >$INSTTEMP
-php -f $INSTTEMP development_translations=yes >> $LOG
+php -f $INSTTEMP >> $LOG
 rm -f $INSTTEMP
 #
 # Run the sql_patch.php script. Note that in the main 'master' branch this will do nothing, however in the
