@@ -405,7 +405,7 @@ if ($_POST['form_action'] == "save") {
                         "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "' ,"  .
                         "pc_facility = '" . add_escape_custom((int)$_POST['facility']) ."' ,"  . // FF stuff
                         "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) ."' "  . 
-						"WHERE pc_aid = ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
+			"WHERE pc_aid = '" . add_escape_custom($provider) . "' AND pc_multiple = '" . add_escape_custom($row['pc_multiple'])  . "'");
                 } // foreach
             }
 
@@ -497,7 +497,7 @@ if ($_POST['form_action'] == "save") {
                     "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "' ,"  .
                     "pc_facility = '" . add_escape_custom((int)$_POST['facility']) ."' ,"  . // FF stuff
                     "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) ."' "  . 
-					"WHERE pc_eid = ?", array($eid) );
+		    "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
             }
         }
 
