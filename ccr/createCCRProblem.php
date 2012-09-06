@@ -66,7 +66,7 @@
 		$e_Description = $ccr->createElement('Description' );
 		$e_Problem->appendChild($e_Description);
 
-		$e_Text = $ccr->createElement('Text', $row['code_text']);
+		$e_Text = $ccr->createElement('Text', lookup_code_descriptions($row['diagnosis']));
 		$e_Description->appendChild($e_Text);
 
 		$e_Code = $ccr->createElement('Code');

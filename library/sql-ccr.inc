@@ -292,35 +292,41 @@ function getProcedureData() {
 
 function getProblemData() {
 
+  # Note we are hard-coding (only allowing) problems that have been coded to ICD9. Would
+  #  be easy to upgrade this to other codesets in future (ICD10,SNOMED) by using already
+  #  existant flags in the code_types table.
+  # Additionally, only using problems that have one diagnosis code set in diagnosis field.
+  #  Note OpenEMR allows multiple codes set per problem, but will limit to showing only
+  #  problems with one diagnostic code set in order to maintain previous behavior
+  #  (this will likely need to be dealt with at some point; ie. support multiple dx codes per problem).
+
 	global $pid,$set,$start,$end;
   if($set == "on"){
     $sql = " 
     SELECT fe.encounter, fe.reason, fe.provider_id, u.title, u.fname, u.lname, 
       fe.facility_id, f.street, f.city, f.state, ie.list_id, l.pid, l.title AS prob_title, l.diagnosis, 
-      l.outcome, l.groupname, l.begdate, l.enddate, l.type, l.comments , l.date, cd.code_text
+      l.outcome, l.groupname, l.begdate, l.enddate, l.type, l.comments , l.date
     FROM lists AS l 
     LEFT JOIN issue_encounter AS ie ON ie.list_id = l.id
     LEFT JOIN form_encounter AS fe ON fe.encounter = ie.encounter
     LEFT JOIN facility AS f ON fe.facility_id = f.id
     LEFT JOIN users AS u ON fe.provider_id = u.id
-    LEFT JOIN codes AS cd ON cd.code = SUBSTRING(l.diagnosis, LOCATE(':',l.diagnosis)+1)
-    LEFT JOIN code_types AS ct ON ct.ct_id = cd.code_type
-    WHERE l.type = 'medical_problem' AND l.pid=? AND ct.ct_key = SUBSTRING(l.diagnosis, 1, LOCATE(':',l.diagnosis)-1)
+    WHERE l.type = 'medical_problem' AND l.pid=? AND l.diagnosis LIKE 'ICD9:%'
+    AND l.diagnosis NOT LIKE '%;%'
     AND l.date BETWEEN ? AND ?";
     $result = sqlStatement($sql, array($pid,$start,$end) );
   }else{
     $sql = " 
     SELECT fe.encounter, fe.reason, fe.provider_id, u.title, u.fname, u.lname, 
       fe.facility_id, f.street, f.city, f.state, ie.list_id, l.pid, l.title AS prob_title, l.diagnosis, 
-      l.outcome, l.groupname, l.begdate, l.enddate, l.type, l.comments , l.date, cd.code_text
+      l.outcome, l.groupname, l.begdate, l.enddate, l.type, l.comments , l.date
     FROM lists AS l 
     LEFT JOIN issue_encounter AS ie ON ie.list_id = l.id
     LEFT JOIN form_encounter AS fe ON fe.encounter = ie.encounter
     LEFT JOIN facility AS f ON fe.facility_id = f.id
     LEFT JOIN users AS u ON fe.provider_id = u.id
-    LEFT JOIN codes AS cd ON cd.code = SUBSTRING(l.diagnosis, LOCATE(':',l.diagnosis)+1)
-    LEFT JOIN code_types AS ct ON ct.ct_id = cd.code_type
-    WHERE l.type = 'medical_problem' AND l.pid=? AND ct.ct_key = SUBSTRING(l.diagnosis, 1, LOCATE(':',l.diagnosis)-1)";
+    WHERE l.type = 'medical_problem' AND l.pid=? AND l.diagnosis LIKE 'ICD9:%'
+    AND l.diagnosis NOT LIKE '%;%'";
     $result = sqlStatement($sql, array($pid) );
   }
 	return $result;
