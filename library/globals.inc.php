@@ -213,7 +213,14 @@ $GLOBALS_METADATA = array(
       '1',                              // default = true
       xl('Enable Fees In Left Menu')
     ),
-
+    // EDI history  2012-09-13 
+    'enable_edihistory_in_left_menu' => array(
+      xl('Enable EDI History In Left Menu'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('EDI History (under Fees) for storing and interpreting EDI claim response files')
+    ),
+    //
     'online_support_link' => array(
       xl('Online Support Link'),
       'text',                           // data type
