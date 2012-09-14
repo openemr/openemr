@@ -42,10 +42,18 @@ class ADODB_mysql_log extends ADODB_mysql
     	function Execute($sql,$inputarr=false)
         {
             $retval= parent::Execute($sql,$inputarr);
+            if ($retval === false) {
+              $outcome = false;
+              // Stash the error into last_mysql_error so it doesn't get clobbered when
+              // we insert into the audit log.
+              $GLOBALS['last_mysql_error']=$this->ErrorMsg();
+            }
+            else {
+              $outcome = true;
+            }
             // Stash the insert ID into lastidado so it doesn't get clobbered when
             // we insert into the audit log.
             $GLOBALS['lastidado']=$this->Insert_ID();
-            $outcome= ($retval === false) ? false : true;
             auditSQLEvent($sql,$outcome,$inputarr);
             return $retval;
         }
@@ -139,7 +147,7 @@ $GLOBALS['dbh'] = $database->_connectionID;
 if (!$disable_utf8_flag) {
  $success_flag = $database->Execute("SET NAMES 'utf8'");
   if (!$success_flag) {
-   error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: ".$database->ErrorMsg(), 0);
+   error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: ".getSqlLastError(), 0);
   }
 }
 
@@ -155,7 +163,7 @@ if (!$GLOBALS['dbh']) {
   } else {
     echo "Check that you can ping the server '$host'.<p>";
   }//if local
-  HelpfulDie("Could not connect to server!", mysql_error($GLOBALS['dbh']));
+  HelpfulDie("Could not connect to server!", getSqlLastError("native_mysql"));
   exit;
 }//if no connection
 
@@ -184,7 +192,7 @@ function sqlStatement($statement, $binds=NULL )
     //    in the Execute command.
     $recordset = $GLOBALS['adodb']['db']->Execute( $statement, $binds );
     if ($recordset === FALSE) {
-      HelpfulDie("query failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
+      HelpfulDie("query failed: $statement", getSqlLastError());
     }
     return $recordset;
   }
@@ -193,7 +201,7 @@ function sqlStatement($statement, $binds=NULL )
     $resource = mysql_query($statement, $GLOBALS['dbh']);
     if ($resource === FALSE) {
       auditSQLEvent($statement, FALSE, $binds);
-      HelpfulDie("query failed: $statement", mysql_error($GLOBALS['dbh']));
+      HelpfulDie("query failed: $statement", getSqlLastError("native_mysql"));
     }
     auditSQLEvent($statement, TRUE, $binds);
     return $resource;
@@ -226,7 +234,7 @@ function sqlStatementNoLog($statement, $binds=NULL )
     // Use adodb ExecuteNoLog with binding and return a recordset.
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement, $binds );
     if ($recordset === FALSE) {
-      HelpfulDie("query failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
+      HelpfulDie("query failed: $statement", getSqlLastError());
     }
     return $recordset;
   }
@@ -234,7 +242,7 @@ function sqlStatementNoLog($statement, $binds=NULL )
     // Use mysql_query and return a resource.
     $resource = mysql_query($statement, $GLOBALS['dbh']);
     if ($resource === FALSE) {
-      HelpfulDie("query failed: $statement", mysql_error($GLOBALS['dbh']));
+      HelpfulDie("query failed: $statement", getSqlLastError("native_mysql"));
     }
     return $resource;
   }
@@ -312,7 +320,7 @@ function sqlInsert($statement, $binds=array())
   //   Execute function.
   $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
   if ($recordset === FALSE) {
-    HelpfulDie("insert failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
+    HelpfulDie("insert failed: $statement", getSqlLastError());
   }
   // Return the correct last id generated using function
   //   that is safe with the audit engine.
@@ -339,7 +347,7 @@ function sqlQuery($statement, $binds=NULL)
     $recordset = $GLOBALS['adodb']['db']->Execute( $statement );
   }
   if ($recordset === FALSE) {
-    HelpfulDie("query failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
+    HelpfulDie("query failed: $statement", getSqlLastError());
   }
   if ($recordset->EOF)
    return FALSE;
@@ -372,7 +380,7 @@ function sqlQueryNoLog($statement, $binds=NULL)
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement );
   }
   if ($recordset === FALSE) {
-    HelpfulDie("query failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
+    HelpfulDie("query failed: $statement", getSqlLastError());
   }
   if ($recordset->EOF)
    return FALSE;
@@ -448,7 +456,7 @@ function sqlInsertClean_audit($statement)
 
   $ret = $GLOBALS['adodb']['db']->ExecuteNoLog($statement);
   if ($ret === FALSE) {
-    HelpfulDie("insert failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
+    HelpfulDie("insert failed: $statement", getSqlLastError());
   }
 }
 
@@ -464,6 +472,27 @@ function getSqlLastID() {
   }
   else {
     return $GLOBALS['adodb']['db']->Insert_ID();
+  }
+}
+
+/**
+* Function that will safely return the last error,
+* and accounts for the audit engine.
+*
+* @param   string  $mode either adodb(default) or native_mysql
+* @return  string        last mysql error
+*/
+function getSqlLastError($mode="adodb") {
+  if (!empty($GLOBALS['last_mysql_error'])) {
+    return $GLOBALS['last_mysql_error'];
+  }
+  else {
+    if ($mode = "adodb") {
+      return $GLOBALS['adodb']['db']->ErrorMsg();
+    }
+    else { // $mode = "native_mysql"
+      return mysql_error($GLOBALS['dbh']);
+    }
   }
 }
 
@@ -558,12 +587,12 @@ function sqlQ($statement, $binds=NULL )
 {
   if (is_array($binds)) {
     $recordset = $GLOBALS['adodb']['db']->Execute( $statement, $binds ) or
-      HelpfulDie("query failed: $statement", $GLOBALS['adodb']['db']->ErrorMsg());
+      HelpfulDie("query failed: $statement", getSqlLastError());
     return $recordset;
   }
   else {
     $resource = mysql_query($statement, $GLOBALS['dbh']) or
-      HelpfulDie("query failed: $statement", mysql_error($GLOBALS['dbh']));
+      HelpfulDie("query failed: $statement", getSqlLastError("native_mysql"));
     return $resource;
   }
 }
@@ -631,7 +660,7 @@ function sqlClose()
 {
   //----------Close our mysql connection
   $closed = $GLOBALS['adodb']['db']->close or
-    HelpfulDie("could not disconnect from mysql server link", $GLOBALS['adodb']['db']->ErrorMsg());
+    HelpfulDie("could not disconnect from mysql server link", getSqlLastError());
   return $closed;
 }
 
