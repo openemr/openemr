@@ -6,15 +6,14 @@ include_once("$srcdir/options.inc.php");
 include_once("$srcdir/formdata.inc.php");
 
 // Check authorization.
-$thisauth = acl_check('patients', 'demo');
 if ($pid) {
-  if ($thisauth != 'write')
+  if ( !acl_check('patients','demo','','write') )
     die(xl('Updating demographics is not authorized.'));
   $tmp = getPatientData($pid, "squad");
   if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
     die(xl('You are not authorized to access this squad.'));
 } else {
-  if ($thisauth != 'write' && $thisauth != 'addonly')
+  if (!acl_check('patients','demo','',array('write','addonly') ))
     die(xl('Adding demographics is not authorized.'));
 }
 

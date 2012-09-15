@@ -92,7 +92,7 @@ function PrintForm() {
 <div id="title">
 <span class="title"><?php xl($form_name,'e'); ?></span>
 <?php
- if ($thisauth == 'write' || $thisauth == 'addonly')
+ if ($thisauth_write_addonly)
   { ?>
 <a href="<?php echo $returnurl; ?>" onclick="top.restoreSession()">
 <span class="back"><?php xl($tmore,'e'); ?></span>

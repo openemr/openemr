@@ -158,16 +158,15 @@
  $disallowed['bil'] = !(acl_check('acct', 'rep') || acl_check('acct', 'eob') ||
   acl_check('acct', 'bill'));
 
- $tmp = acl_check('patients', 'demo');
- $disallowed['new'] = !($tmp == 'write' || $tmp == 'addonly');
+ $disallowed['new'] = !(acl_check('patients','demo','',array('write','addonly') ));
 
  $disallowed['fax'] = !($GLOBALS['enable_hylafax'] || $GLOBALS['enable_scanner']);
 
  $disallowed['ros'] = !$GLOBALS['athletic_team'];
 
- $disallowed['iss'] = !((acl_check('encounters', 'notes') == 'write' ||
-  acl_check('encounters', 'notes_a') == 'write') &&
-  acl_check('patients', 'med') == 'write');
+ $disallowed['iss'] = !((acl_check('encounters','notes','','write') ||
+  acl_check('encounters','notes_a','','write') ) &&
+  acl_check('patients','med','','write') );
 
  $disallowed['imp'] = $disallowed['new'] ||
   !is_readable("$webserver_root/custom/import.php");

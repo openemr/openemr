@@ -142,30 +142,38 @@ $table_name = ']]></xsl:text>
 </xsl:if>
 </xsl:template>
 <xsl:template match="acl">
+<xsl:if test="@table='patients'">
 <xsl:text disable-output-escaping="yes"><![CDATA[/* Check the access control lists to ensure permissions to this page */
-$thisauth = acl_check(']]></xsl:text>
+if (!acl_check(']]></xsl:text>
 <xsl:value-of select="@table" />
 <xsl:text disable-output-escaping="yes"><![CDATA[', ']]></xsl:text>
 <xsl:value-of select="./text()" />
-<xsl:text disable-output-escaping="yes"><![CDATA[');]]></xsl:text>
-<xsl:if test="@table='patients'">
-<xsl:text disable-output-escaping="yes"><![CDATA[
-if (!$thisauth) {
- die($form_name.': Access Denied.');
+<xsl:text disable-output-escaping="yes"><![CDATA[')) {
+ die(text($form_name).': '.xlt("Access Denied"));
 }
+$thisauth_write_addonly=FALSE;
+if ( acl_check(']]></xsl:text>
+<xsl:value-of select="@table" />
+<xsl:text disable-output-escaping="yes"><![CDATA[',']]></xsl:text>
+<xsl:value-of select="./text()" />
+<xsl:text disable-output-escaping="yes"><![CDATA[','',array('write','addonly') )) {
+ $thisauth_write_addonly=TRUE;
+}
+]]></xsl:text>
+<xsl:text disable-output-escaping="yes"><![CDATA[
 /* perform a squad check for pages touching patients, if we're in 'athletic team' mode */
 if ($GLOBALS['athletic_team']!='false') {
   $tmp = getPatientData($pid, 'squad');
   if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-   $thisauth = 0;
+   die(text($form_name).': '.xlt("Access Denied"));
 }
 ]]></xsl:text>
-</xsl:if>
 <xsl:if test="$page='new' or $page='view'">
 <xsl:text disable-output-escaping="yes"><![CDATA[
-if ($thisauth != 'write' && $thisauth != 'addonly')
-  die($form_name.': Adding is not authorized.');
+if (!$thisauth_write_addonly)
+  die(text($form_name).': '.xlt("Adding is not authorized"));
 ]]></xsl:text>
+</xsl:if>
 </xsl:if>
 </xsl:template>
 <!-- default layout object -->

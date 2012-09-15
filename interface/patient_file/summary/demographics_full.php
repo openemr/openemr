@@ -24,14 +24,13 @@ require_once("$srcdir/erx_javascript.inc.php");
  $result2 = getEmployerData($pid);
 
  // Check authorization.
- $thisauth = acl_check('patients', 'demo');
  if ($pid) {
-  if ($thisauth != 'write')
+  if (!acl_check('patients', 'demo', '', 'write'))
    die(xl('Updating demographics is not authorized.'));
   if ($result['squad'] && ! acl_check('squads', $result['squad']))
    die(xl('You are not authorized to access this squad.'));
  } else {
-  if ($thisauth != 'write' && $thisauth != 'addonly')
+  if (!acl_check('patients', 'demo', '', array('write','addonly') ))
    die(xl('Adding demographics is not authorized.'));
  }
 

@@ -21,13 +21,14 @@ require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
  // Check authorization.
- $thisauth = acl_check('patients', 'med');
- if ($thisauth) {
+ if (acl_check('patients','med')) {
   $tmp = getPatientData($pid, "squad");
   if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-   $thisauth = 0;
+   die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES) );
  }
- if (!$thisauth) die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES) );
+ else {
+  die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES) );
+ }
 
  // Collect parameter(s)
  $category = empty($_REQUEST['category']) ? '' : $_REQUEST['category'];
@@ -54,7 +55,7 @@ function refreshIssue(issue, title) {
 }
 
 function dopclick(id,category) {
-    <?php if ($thisauth == 'write'): ?>
+    <?php if (acl_check('patients','med','','write')): ?>
     if (category == 0) category = '';
     dlgopen('add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category), '_blank', 550, 400);
     <?php else: ?>

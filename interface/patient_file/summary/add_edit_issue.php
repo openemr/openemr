@@ -45,9 +45,8 @@ $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 // A nonempty thistype is an issue type to be forced for a new issue.
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
-$thisauth = acl_check('patients', 'med');
-if ($issue && $thisauth != 'write') die(xlt("Edit is not authorized!"));
-if ($thisauth != 'write' && $thisauth != 'addonly') die(xlt("Add is not authorized!"));
+if ($issue && !acl_check('patients','med','','write') ) die(xlt("Edit is not authorized!"));
+if ( !acl_check('patients','med','',array('write','addonly') )) die(xlt("Add is not authorized!"));
 
 $tmp = getPatientData($thispid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))

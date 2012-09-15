@@ -22,8 +22,7 @@ $fake_register_globals=false;
 
  $info_msg = "";
 
- $thisauth = (acl_check('acct', 'bill') == 'write');
- if (! $thisauth) die(htmlspecialchars(xl('Not authorized'),ENT_NOQUOTES));
+ if (!acl_check('acct', 'bill','','write')) die(htmlspecialchars(xl('Not authorized'),ENT_NOQUOTES));
 ?>
 <html>
 <head>

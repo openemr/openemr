@@ -26,8 +26,7 @@ if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
     setpid($_GET['set_pid']);
 }
 // Check authorization.
-$thisauth = acl_check('patients', 'notes');
-if ($thisauth != 'write' && $thisauth != 'addonly')
+if (!acl_check('patients','notes','',array('write','addonly') ))
     die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES));
 $tmp = getPatientData($pid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))

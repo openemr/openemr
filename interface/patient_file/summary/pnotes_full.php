@@ -28,8 +28,7 @@ if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
 }
 
 // Check authorization.
-$thisauth = acl_check('patients', 'notes');
-if ($thisauth != 'write' && $thisauth != 'addonly')
+if (!acl_check('patients','notes','',array('write','addonly') ))
     die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES));
 $tmp = getPatientData($pid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
@@ -373,8 +372,7 @@ if ($result != "") {
 
     // display, or not, a button to delete the note
     // if the user is an admin or if they are the author of the note, they can delete it
-    $thisauth = acl_check('admin', 'super');
-    if (($iter['user'] == $_SESSION['authUser']) || ($thisauth == 'write')) {
+    if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin','super','','write'))) {
 	  echo " <a href='#' class='deletenote css_button_small' id='del" . htmlspecialchars( $row_note_id, ENT_QUOTES) .
 	    "' title='" . htmlspecialchars( xl('Delete this note'), ENT_QUOTES) . "'><span>" .
 	    htmlspecialchars( xl('Delete'), ENT_NOQUOTES) . "</span>\n";
@@ -517,8 +515,7 @@ if ($result_sent != "") {
 
     // display, or not, a button to delete the note
     // if the user is an admin or if they are the author of the note, they can delete it
-    $thisauth = acl_check('admin', 'super');
-    if (($iter['user'] == $_SESSION['authUser']) || ($thisauth == 'write')) {
+    if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin','super','','write'))) {
 	  echo " <a href='#' class='deletenote css_button_small' id='del" . htmlspecialchars( $row_note_id, ENT_QUOTES) .
 	    "' title='" . htmlspecialchars( xl('Delete this note'), ENT_QUOTES) . "'><span>" .
 	    htmlspecialchars( xl('Delete'), ENT_NOQUOTES) . "</span>\n";

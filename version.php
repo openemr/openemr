@@ -17,5 +17,13 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 81;
+$v_database = 82;
+
+// Access control version identifier, this is to be incremented whenever there
+// is a access control change in the course of development.  It is used
+// during installation to determine what the installed version of the access
+// controls is (subsequently the acl_upgrade.php script then is used to
+// upgrade and track this value)
+//
+$v_acl = 2;
 ?>

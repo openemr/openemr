@@ -27,7 +27,8 @@ also add it to the following three sites:
 3. acl_upgrade.php file
 
 
-Miscellaneous Information (the below information is only applicable
+Miscellaneous Information
+(the below information is only applicable
 to OpenEMR versions less than 2.9.0.3 or to users who choose to
 install an external version of phpGACL)
 

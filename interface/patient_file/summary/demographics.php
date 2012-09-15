@@ -456,13 +456,11 @@ $(window).load(function() {
   if ($result['squad'] && ! acl_check('squads', $result['squad']))
    $thisauth = 0;
  }
-
  if (!$thisauth) {
   echo "<p>(" . htmlspecialchars(xl('Demographics not authorized'),ENT_NOQUOTES) . ")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
-
  if ($thisauth) {
   echo "<table><tr><td><span class='title'>" .
    htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) .
@@ -634,7 +632,7 @@ $widgetButtonLink = "demographics_full.php";
 $widgetButtonClass = "";
 $linkMethod = "html";
 $bodyClass = "";
-$widgetAuth = ($thisauth == "write");
+$widgetAuth = acl_check('patients', 'demo', '', 'write');
 $fixedWidth = true;
 expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
@@ -676,7 +674,7 @@ if ( $insurance_count > 0 ) {
   $widgetButtonClass = "";
   $linkMethod = "html";
   $bodyClass = "";
-  $widgetAuth = ($thisauth == "write");
+  $widgetAuth = acl_check('patients', 'demo', '', 'write');
   $fixedWidth = true;
   expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,

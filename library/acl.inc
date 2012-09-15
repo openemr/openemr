@@ -96,23 +96,87 @@
     $section_aro_value = 'users';
   }
 
-  // acl_check should return 0 if access is denied.  Otherwise it may
-  // return anything that evaluates to true.  In addition if any of the
-  // following types of access are applicable, then the corresponding value
-  // must be returned if and only if such access is granted (ony one may
-  // be specified):
+  // acl_check should return FALSE if access is denied and will return TRUE
+  // if access is allowed. The following return_value(s) can be evaluated
+  // for by placing in the $return_value parameter; it can be placed
+  // as a single value or can send as an array of values (so $return_value
+  // can be a string or an array).
   //
+  // * view    - the user may view but not add or modify entries
   // * write   - the user may add or modify the ACO
   // * wsome   - the user has limited add/modify access to the ACO
   // * addonly - the user may view and add but not modify entries
   //
-  function acl_check($section, $value, $user = '') {
+  function acl_check($section, $value, $user = '', $return_value = '') {
     global $gacl_object, $phpgacl_location, $section_aro_value;
     if (! $user) $user = $_SESSION['authUser'];
 
     if ($phpgacl_location) {
-      return $gacl_object->acl_check($section, $value, $section_aro_value, $user);
+      // This will return all pertinent ACL's (including return_values and whether allow/deny)
+      // Walk through them to assess for access
+      $acl_results = $gacl_object->acl_query($section, $value, $section_aro_value, $user,NULL,NULL,NULL,NULL,NULL,TRUE);
+      if (empty($acl_results)) {
+        return FALSE; //deny access
+      }
+      $access=FALSE; //flag
+      $deny=FALSE; //flag
+      foreach ($acl_results as $acl_result) {
+        if (empty($acl_result['acl_id'])) return FALSE; //deny access, since this happens if no pertinent ACL's are returned
+        if (is_array($return_value)) {
+          foreach ($return_value as $single_return_value) {
+            if (empty($single_return_value)) {
+              // deal with case if not looking for specific return value
+              if ($acl_result['allow']) {
+                $access=TRUE;
+              }
+              else {
+                $deny=TRUE;
+              }
+            }
+            else { //!empty($single_return_value)
+              // deal with case if looking for specific return value
+              if ($acl_result['return_value'] == $single_return_value) {
+                if ($acl_result['allow']) {
+                  $access=TRUE;
+                }
+                else{
+                  $deny=TRUE;
+                }
+              }
+            }
+          }
+        }
+        else { // $return_value is not an array (either empty or with one value)
+          if (empty($return_value)) {
+            // deal with case if not looking for specific return value
+            if ($acl_result['allow']) {
+              $access=TRUE;
+            }
+            else {
+              $deny=TRUE;
+            }
+          }
+          else { //!empty($return_value)
+            // deal with case if looking for specific return value
+            if ($acl_result['return_value'] == $return_value) {
+              if ($acl_result['allow']) {
+                $access=TRUE;
+              }
+              else{
+                $deny=TRUE;
+              }
+            }
+          }
+        }
+      }
+
+      // Now decide whether user has access
+      // (Note a denial takes precedence)
+      if ($deny) return FALSE;
+      if ($access) return TRUE;
+      return FALSE;
     }
+
 
     // If no phpgacl, then apply the old static rules whereby "authorized"
     // users (providers) can do anything, and other users can do most things.

@@ -210,7 +210,7 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
  }
 
  // Declare return terms for language translations
- //  xl('write') xl('wsome') xl('addonly')
+ //  xl('write') xl('wsome') xl('addonly') xl('view')
 
  // Set permissions for administrators.
  //
@@ -237,9 +237,25 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
    'placeholder'=>array('filler')
   ),
   NULL, array($doc), NULL, NULL,
+  1, 1, 'view', 'Things that physicians can only read'
+ );
+     // xl('Things that physicians can only read')
+ $gacl->add_acl(
+  array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($doc), NULL, NULL,
   1, 1, 'addonly', 'Things that physicians can read and enter but not modify'
  );
      // xl('Things that physicians can read and enter but not modify')
+ $gacl->add_acl(
+  array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($doc), NULL, NULL,
+  1, 1, 'wsome', 'Things that physicians can read and partly modify'
+ );
+     // xl('Things that physicians can read and partly modify')
  $gacl->add_acl(
   array(
    'acct'=>array('disc', 'rep'),
@@ -257,6 +273,14 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
  //
  $gacl->add_acl(
   array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($clin), NULL, NULL,
+  1, 1, 'view', 'Things that clinicians can only read'
+ );
+     // xl('Things that clinicians can only read')
+ $gacl->add_acl(
+  array(
    'encounters'=>array('notes', 'relaxed'),
    'patients'=>array('demo', 'med', 'docs', 'notes'),
    'sensitivities'=>array('normal')
@@ -265,6 +289,15 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
   1, 1, 'addonly', 'Things that clinicians can read and enter but not modify'
  );
      // xl('Things that clinicians can read and enter but not modify')
+
+ $gacl->add_acl(
+  array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($clin), NULL, NULL,
+  1, 1, 'wsome', 'Things that clinicians can read and partly modify'
+ );
+     // xl('Things that clinicians can read and partly modify')
  $gacl->add_acl(
   array(
    'admin'=>array('drugs'),
@@ -283,9 +316,25 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
    'placeholder'=>array('filler')
   ),
   NULL, array($front), NULL, NULL,
+  1, 1, 'view', 'Things that front office can only read'
+ );
+     // xl('Things that front office can only read')
+ $gacl->add_acl(
+  array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($front), NULL, NULL,
   1, 1, 'addonly', 'Things that front office can read and enter but not modify'
  );
      // xl('Things that front office can read and enter but not modify')
+ $gacl->add_acl(
+  array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($front), NULL, NULL,
+  1, 1, 'wsome', 'Things that front office can read and partly modify'
+ );
+     // xl('Things that front office can read and partly modify')
  $gacl->add_acl(
   array(
    'patients'=>array('appt', 'demo', 'trans', 'notes')
@@ -302,9 +351,25 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
    'placeholder'=>array('filler')
   ),
   NULL, array($back), NULL, NULL,
+  1, 1, 'view', 'Things that back office can only read'
+ );
+     // xl('Things that back office can only read')
+ $gacl->add_acl(
+  array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($back), NULL, NULL,
   1, 1, 'addonly', 'Things that back office can read and enter but not modify'
  );
      // xl('Things that back office can read and enter but not modify')
+ $gacl->add_acl(
+  array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($back), NULL, NULL,
+  1, 1, 'wsome', 'Things that back office can read and partly modify'
+ );
+     // xl('Things that back office can read and partly modify')
  $gacl->add_acl(
   array(
    'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
@@ -316,6 +381,7 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
   1, 1, 'write', 'Things that back office can read and modify'
  );
      // xl('Things that back office can read and modify')
+
  // Set permissions for Emergency Login.
  //
  $gacl->add_acl(

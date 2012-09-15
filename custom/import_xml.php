@@ -47,8 +47,7 @@
  }
 
  // Check authorization.
- $thisauth = acl_check('patients', 'demo');
- if ($thisauth != 'write')
+ if (!acl_check('patients', 'demo','','write'))
   die("Updating demographics is not authorized.");
 
  if ($_POST['form_import']) {

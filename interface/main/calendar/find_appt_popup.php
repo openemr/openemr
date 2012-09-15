@@ -9,8 +9,8 @@
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
 
- $my_permission = acl_check('patients', 'appt');
- if ($my_permission != 'write' && $my_permission != 'wsome')
+ // check access controls
+ if (!acl_check('patients','appt','',array('write','wsome') ))
   die(xl('Access not allowed'));
 
  // If the caller is updating an existing event, then get its ID so
@@ -418,7 +418,7 @@ $(document).ready(function(){
 });
 
 <?php if (!$ckavail) { ?>
-<?php if ($my_permission == 'write') { ?>
+<?php if (acl_check('patients','appt','','write')) { ?>
  if (confirm('<?php echo addslashes(xl('This appointment slot is already used, use it anyway?')); ?>')) {
   opener.top.restoreSession();
   opener.document.forms[0].submit();

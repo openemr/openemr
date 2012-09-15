@@ -44,7 +44,7 @@ $fake_register_globals=false;
 
 <div id='pnotes'>
 
-<?php if ($thisauth == 'write' || $thisauth == 'addonly'): ?>
+<?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>" onclick="top.restoreSession()">
@@ -168,7 +168,7 @@ $(document).ready(function(){
 });
 
 var EditNote = function(note) {
-<?php if ($thisauth == 'write' || $thisauth == 'addonly'): ?>
+<?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
     top.restoreSession();
     <?php if (!$GLOBALS['concurrent_layout']): ?>
     top.Main.location.href = "pnotes_full.php?docid=<?php echo $docid; ?>&noteid=" + note.id + "&active=1";

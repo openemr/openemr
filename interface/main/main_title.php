@@ -73,10 +73,15 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 <tr>
 <td align="left">
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-	<table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;"><tr><td style="vertical-align:text-bottom;">
+	<table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;">
+
+<?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
+<tr><td style="vertical-align:text-bottom;">
 		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
-		<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES) ?></span></a>
+		<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES); ?></span></a>
 	</td></tr>
+<?php } //end of acl_check('patients','demo','',array('write','addonly') if ?>
+
 	<tr><td valign="baseline"><B>
 		<a class="text" style='vertical-align:text-bottom;' href="main_title.php" id='showMenuLink' onclick='javascript:showhideMenu();return false;'><?php xl('Hide Menu','e'); ?></a></B>
 	</td></tr></table>
