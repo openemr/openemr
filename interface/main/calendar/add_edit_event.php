@@ -33,7 +33,10 @@
  require_once("$srcdir/acl.inc");
 
  $my_permission = acl_check('patients', 'appt');
- if ($my_permission !== 'write' && $my_permission !== 'wsome')
+// Add these restrictions back using new acl return value parameter when
+//  that mechanism is added to codebase.
+// if ($my_permission !== 'write' && $my_permission !== 'wsome')
+ if (!$my_permission)
    die(xl('Access not allowed'));
 
  // Things that might be passed by our opener.
