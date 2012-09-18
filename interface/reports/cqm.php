@@ -21,6 +21,12 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/formdata.inc.php";
 require_once "$srcdir/clinical_rules.php";
 
+//To improve performance and not freeze the session when running this
+// report, turn off session writing. Note that php session variables
+// can not be modified after the line below. So, if need to do any php
+// session work in the future, then will need to remove this line.
+session_write_close();
+
 //Remove time limit, since script can take many minutes
 set_time_limit(0);
 
@@ -396,7 +402,9 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
     // For others, use the unmodified target date array and send an empty options array
     $array_date = $target_date;
   }
-  $dataSheet = test_rules_clinic($provider,$rule_filter,$array_date,"report",'',$plan_filter,$organize_method,$options,$pat_prov_rel);
+
+  // Collect results (note using the batch method to decrease memory overhead and improve performance)
+  $dataSheet = test_rules_clinic_batch_method($provider,$rule_filter,$array_date,"report",$plan_filter,$organize_method,$options,$pat_prov_rel);
 
   $firstProviderFlag = TRUE;
   $firstPlanFlag = TRUE;

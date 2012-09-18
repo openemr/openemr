@@ -170,6 +170,79 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
 }
 
 /**
+ * Process clinic rules via a batching method to improve performance and decrease memory overhead.
+ *
+ * Test the clinic rules of entire clinic and create a report or patient reminders (can also test
+ * on one patient or patients of one provider). The structure of the returned results is dependent on the
+ * $organize_mode and $mode parameters.
+ * <pre>The results are dependent on the $organize_mode parameter settings
+ *   'default' organize_mode:
+ *     Returns a two-dimensional array of results organized by rules (dependent on the following $mode settings):
+ *       'reminders-due' mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
+ *       'reminders-all' mode - returns an array of reminders (action array elements plus a 'pid' and 'due_status')
+ *       'report' mode        - returns an array of rows for the Clinical Quality Measures (CQM) report
+ *   'plans' organize_mode:
+ *     Returns similar to default, but organizes by the active plans
+ * </pre>
+ *
+ * @param  integer      $provider      id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans  inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
+ * @param  string       $type          rule filter (active_alert,passive_alert,cqm,amc,patient_reminder). If blank then will test all rules.
+ * @param  string/array $dateTarget    target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
+ * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
+ * @param  string       $plan          test for specific plan only
+ * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
+ * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
+ * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  integer      $batchSize     number of patients to batch (default is 100; plan to optimize this default setting in the future)
+ * @return array                       See above for organization structure of the results.
+ */
+function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mode='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$batchSize=100) {
+
+  // Collect total number of pertinent patients (to calculate batching parameters)
+  $totalNumPatients = buildPatientArray('',$provider,$pat_prov_rel,NULL,NULL,TRUE);
+
+  // Cycle through the batches and collect/combine results
+  if (($totalNumPatients%$batchSize) > 0) {
+    // not perfectly divisible
+    $totalNumberBatches = floor($totalNumPatients/$batchSize) + 1;
+  }
+  else {
+    // perfectly divisible
+    $totalNumberBatches = floor($totalNumPatients/$batchSize);
+  }
+  for ($i=0;$i<$totalNumberBatches;$i++) {
+    $dataSheet_batch = test_rules_clinic($provider,$type,$dateTarget,$mode,'',$plan,$organize_mode,$options,$pat_prov_rel,(($batchSize*$i)+1),$batchSize);
+    if ($i == 0) {
+      // For first cycle, simply copy it to dataSheet
+      $dataSheet = $dataSheet_batch;
+    }
+    else {
+      //debug
+      //error_log("CDR: ".print_r($dataSheet,TRUE),0);
+      //error_log("CDR: ".($batchSize*$i)." records",0);
+
+      // Integrate batch results into main dataSheet
+      foreach ($dataSheet_batch as $key => $row) {
+        if (!$row['is_sub']) {
+          //skip this stuff for the sub entries (and use previous main entry in percentage calculation)
+          $total_patients = $dataSheet[$key]['total_patients'] + $row['total_patients'];
+          $dataSheet[$key]['total_patients'] = $total_patients;
+          $excluded = $dataSheet[$key]['excluded'] + $row['excluded'];
+          $dataSheet[$key]['excluded'] = $excluded;
+          $pass_filter = $dataSheet[$key]['pass_filter'] + $row['pass_filter'];
+          $dataSheet[$key]['pass_filter'] = $pass_filter;
+        }
+        $pass_target = $dataSheet[$key]['pass_target'] + $row['pass_target'];
+        $dataSheet[$key]['pass_target'] = $pass_target;
+        $dataSheet[$key]['percentage'] = calculate_percentage($pass_filter,$excluded,$pass_target);
+      }
+    }
+  }
+
+  return $dataSheet;
+}
+
+/**
  * Process clinic rules.
  *
  * Test the clinic rules of entire clinic and create a report or patient reminders (can also test
@@ -194,9 +267,11 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
  * @param  string       $organize_mode Way to organize the results (default, plans). See above for organization structure of the results.
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
  * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  integer      $start         applicable patient to start at (when batching process)
+ * @param  integer      $batchSize     number of patients to batch (when batching process)
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary') {
+function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$start=NULL,$batchSize=NULL) {
 
   // If dateTarget is an array, then organize them.
   if (is_array($dateTarget)) {
@@ -215,10 +290,10 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   if (($provider == "collate_outer") || ($provider == "collate_inner" && $organize_mode != 'plans')) {
     // First, collect an array of all providers
     $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname"; 
-    $ures = sqlStatement($query);
+    $ures = sqlStatementCdrEngine($query);
     // Second, run through each provider recursively
     while ($urow = sqlFetchArray($ures)) {
-      $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan,$organize_mode,$options,$pat_prov_rel);
+      $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan,$organize_mode,$options,$pat_prov_rel,$start,$batchSize);
       if (!empty($newResults)) {
         $provider_item['is_provider'] = TRUE;
         $provider_item['prov_lname'] = $urow['lname'];
@@ -244,11 +319,11 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       if ($provider == "collate_inner") {
         // First, collect an array of all providers
         $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname";
-        $ures = sqlStatement($query);
+        $ures = sqlStatementCdrEngine($query);
         // Second, run through each provider recursively
         $provider_results = array();
         while ($urow = sqlFetchArray($ures)) {
-          $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel);
+          $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize);
           if (!empty($newResults)) {
             $provider_item['is_provider'] = TRUE;
             $provider_item['prov_lname'] = $urow['lname'];
@@ -267,7 +342,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       }
       else {
         // (not collate_inner, so do not nest providers within each plan)
-        $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel);
+        $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize);
         if (!empty($newResults)) {
           $plan_item['is_plan'] = TRUE;
           array_push($results,$plan_item);
@@ -279,35 +354,10 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     return $results;
   }
 
-  // Collect all patient ids
+  // Collect applicable patient pids
   $patientData = array();
-  if (!empty($patient_id)) {
-    // only look at the selected patient
-    $patientData[0]['pid'] = $patient_id;
-  }
-  else {
-    if (empty($provider)) {
-      // Look at entire practice
-      $rez = sqlStatement("SELECT `pid` FROM `patient_data`");
-    }
-    else {
-      // Look at an individual physician
-      if( $pat_prov_rel == 'encounter' ){
-        // Choose patients that are related to specific physician by an encounter
-        $rez = sqlStatement("SELECT DISTINCT pid FROM `form_encounter` ".
-                            " WHERE provider_id=? OR supervisor_id=?", array($provider,$provider));
-      }
-      else {  //$pat_prov_rel == 'primary'
-        // Choose patients that are assigned to the specific physician (primary physician in patient demographics)
-        $rez = sqlStatement("SELECT `pid` FROM `patient_data` " .
-                            "WHERE providerID=?", array($provider) );
-      }
-    }
-    // convert the sql query results into an array
-    for($iter=0; $row=sqlFetchArray($rez); $iter++) {
-     $patientData[$iter]=$row;
-    }
-  }
+  $patientData = buildPatientArray($patient_id,$provider,$pat_prov_rel,$start,$batchSize);
+
   // Go through each patient(s)
   //
   //  If in report mode, then tabulate for each rule:
@@ -591,6 +641,92 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
 }
 
 /**
+ * Process patient array that is to be tested.
+ *
+ * @param  integer       $provider      id of a selected provider. If blank, then will test entire clinic.
+ * @param  integer       $patient_id    pid of patient. If blank then will check all patients.
+ * @param  string        $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
+ * @param  integer       $start         applicable patient to start at (when batching process)
+ * @param  integer       $batchSize     number of patients to batch (when batching process)
+ * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
+ * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
+ */
+function buildPatientArray($patient_id='',$provider='',$pat_prov_rel='primary',$start=NULL,$batchSize=NULL,$onlyCount=FALSE) {
+
+  if (!empty($patient_id)) {
+    // only look at the selected patient
+    if ($onlyCount) {
+      $patientNumber = 1;
+    }
+    else {
+      $patientData[0]['pid'] = $patient_id;
+    }
+  }
+  else {
+    if (empty($provider)) {
+      // Look at entire practice
+      if ($start == NULL || $batchSize == NULL || $onlyCount) {
+        $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid`");
+        if ($onlyCount) {
+          $patientNumber = sqlNumRows($rez);
+        }
+      }
+      else {
+        // batching
+        $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid` LIMIT ?,?", array(($start-1),$batchSize));
+      }
+    }
+    else {
+      // Look at an individual physician
+      if( $pat_prov_rel == 'encounter' ){
+        // Choose patients that are related to specific physician by an encounter
+        if ($start == NULL || $batchSize == NULL || $onlyCount) {
+          $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` ".
+                              " WHERE `provider_id`=? OR `supervisor_id`=? ORDER BY `pid`", array($provider,$provider));
+          if ($onlyCount) {
+            $patientNumber = sqlNumRows($rez);
+          }
+        }
+        else {
+          //batching
+          $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` ".
+                              " WHERE `provider_id`=? OR `supervisor_id`=?  ORDER BY `pid` LIMIT ?,?", array($provider,$provider,($start-1),$batchSize));
+        }
+      }
+      else {  //$pat_prov_rel == 'primary'
+        // Choose patients that are assigned to the specific physician (primary physician in patient demographics)
+        if ($start == NULL || $batchSize == NULL || $onlyCount) {
+          $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` " .
+                              "WHERE `providerID`=? ORDER BY `pid`", array($provider) );
+          if ($onlyCount) {
+            $patientNumber = sqlNumRows($rez);
+          }
+        }
+        else {
+          $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` " .
+                              "WHERE `providerID`=? ORDER BY `pid` LIMIT ?,?", array($provider,($start-1),$batchSize) );
+        }
+      }
+    }
+    // convert the sql query results into an array if returning the array
+    if(!$onlyCount) {
+      for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+       $patientData[$iter]=$row;
+      }
+    }
+  }
+
+  if ($onlyCount) {
+    // return the number of applicable patients
+    return $patientNumber;
+  }
+  else {
+    // return array of patient pids
+    return $patientData;
+  }
+}
+
+/**
  * Test filter of a selected rule on a selected patient
  *
  * @param  integer        $patient_id  pid of selected patient.
@@ -694,7 +830,7 @@ function test_filter($patient_id,$rule,$dateTarget) {
  */
 function returnTargetGroups($rule) {
 
-  $sql = sqlStatement("SELECT DISTINCT `group_id` FROM `rule_target` " .
+  $sql = sqlStatementCdrEngine("SELECT DISTINCT `group_id` FROM `rule_target` " .
     "WHERE `id`=?", array($rule) );
 
   $groups = array();
@@ -750,11 +886,11 @@ function resolve_plans_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
   if ($configurableOnly) {
     // Collect all default, configurable (per patient) plans into an array
     //   (ie. ignore the cqm rules)
-    $sql = sqlStatement("SELECT * FROM `clinical_plans` WHERE `pid`=0 AND `cqm_flag` !=1 ORDER BY `id`");
+    $sql = sqlStatementCdrEngine("SELECT * FROM `clinical_plans` WHERE `pid`=0 AND `cqm_flag` !=1 ORDER BY `id`");
   }
   else {
     // Collect all default plans into an array
-    $sql = sqlStatement("SELECT * FROM `clinical_plans` WHERE `pid`=0 ORDER BY `id`");
+    $sql = sqlStatementCdrEngine("SELECT * FROM `clinical_plans` WHERE `pid`=0 ORDER BY `id`");
   }
   $returnArray= array();
   for($iter=0; $row=sqlFetchArray($sql); $iter++) {
@@ -766,7 +902,7 @@ function resolve_plans_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
 
   // Need to select rules (use custom if exist)
   foreach ($returnArray as $plan) {
-    $customPlan = sqlQuery("SELECT * FROM `clinical_plans` WHERE `id`=? AND `pid`=?", array($plan['id'],$patient_id) );
+    $customPlan = sqlQueryCdrEngine("SELECT * FROM `clinical_plans` WHERE `id`=? AND `pid`=?", array($plan['id'],$patient_id) );
 
     // Decide if use default vs custom plan (preference given to custom plan)
     if (!empty($customPlan)) {
@@ -824,7 +960,7 @@ function resolve_plans_sql($type='',$patient_id='0',$configurableOnly=FALSE) {
  */
 function collect_plan($plan,$patient_id='0') {
 
-  return sqlQuery("SELECT * FROM `clinical_plans` WHERE `id`=? AND `pid`=?", array($plan,$patient_id) );
+  return sqlQueryCdrEngine("SELECT * FROM `clinical_plans` WHERE `id`=? AND `pid`=?", array($plan,$patient_id) );
 
 }
 
@@ -856,17 +992,17 @@ function set_plan_activity_patient($plan,$type,$setting,$patient_id) {
 
   // Collect patient specific plan, if already exists.
   $query = "SELECT * FROM `clinical_plans` WHERE `id` = ? AND `pid` = ?";
-  $patient_plan = sqlQuery($query, array($plan,$patient_id) );
+  $patient_plan = sqlQueryCdrEngine($query, array($plan,$patient_id) );
 
   if (empty($patient_plan)) {
     // Create a new patient specific plan with flags all set to default
     $query = "INSERT into `clinical_plans` (`id`, `pid`) VALUES (?,?)";
-    sqlStatement($query, array($plan, $patient_id) );
+    sqlStatementCdrEngine($query, array($plan, $patient_id) );
   }
 
   // Update patient specific row
   $query = "UPDATE `clinical_plans` SET `" . add_escape_custom($type) . "_flag`= ? WHERE id = ? AND pid = ?";
-  sqlStatement($query, array($setting,$plan,$patient_id) );
+  sqlStatementCdrEngine($query, array($setting,$plan,$patient_id) );
 
 }
 
@@ -884,11 +1020,11 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$pla
   if ($configurableOnly) {
     // Collect all default, configurable (per patient) rules into an array
     //   (ie. ignore the cqm and amc rules)
-    $sql = sqlStatement("SELECT * FROM `clinical_rules` WHERE `pid`=0 AND `cqm_flag` !=1 AND `amc_flag` !=1 ORDER BY `id`");
+    $sql = sqlStatementCdrEngine("SELECT * FROM `clinical_rules` WHERE `pid`=0 AND `cqm_flag` !=1 AND `amc_flag` !=1 ORDER BY `id`");
   }
   else {
     // Collect all default rules into an array
-    $sql = sqlStatement("SELECT * FROM `clinical_rules` WHERE `pid`=0 ORDER BY `id`");
+    $sql = sqlStatementCdrEngine("SELECT * FROM `clinical_rules` WHERE `pid`=0 ORDER BY `id`");
   }
   $returnArray= array();
   for($iter=0; $row=sqlFetchArray($sql); $iter++) {
@@ -899,7 +1035,7 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$pla
   if (!empty($plan)) {
     $planReturnArray = array();
     foreach ($returnArray as $rule) {
-      $standardRule = sqlQuery("SELECT * FROM `clinical_plans_rules` " .
+      $standardRule = sqlQueryCdrEngine("SELECT * FROM `clinical_plans_rules` " .
                                "WHERE `plan_id`=? AND `rule_id`=?", array($plan,$rule['id']) );
       if (!empty($standardRule)) {
         array_push($planReturnArray,$rule);
@@ -913,7 +1049,7 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$pla
 
   // Need to select rules (use custom if exist)
   foreach ($returnArray as $rule) {
-    $customRule = sqlQuery("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule['id'],$patient_id) );
+    $customRule = sqlQueryCdrEngine("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule['id'],$patient_id) );
 
     // Decide if use default vs custom rule (preference given to custom rule)
     if (!empty($customRule)) {
@@ -967,7 +1103,7 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$pla
  */
 function collect_rule($rule,$patient_id='0') {
 
-  return sqlQuery("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule,$patient_id) );
+  return sqlQueryCdrEngine("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule,$patient_id) );
   
 }
 
@@ -999,17 +1135,17 @@ function set_rule_activity_patient($rule,$type,$setting,$patient_id) {
 
   // Collect patient specific rule, if already exists.
   $query = "SELECT * FROM `clinical_rules` WHERE `id` = ? AND `pid` = ?";
-  $patient_rule = sqlQuery($query, array($rule,$patient_id) );
+  $patient_rule = sqlQueryCdrEngine($query, array($rule,$patient_id) );
 
   if (empty($patient_rule)) {
     // Create a new patient specific rule with flags all set to default
     $query = "INSERT into `clinical_rules` (`id`, `pid`) VALUES (?,?)";
-    sqlStatement($query, array($rule, $patient_id) ); 
+    sqlStatementCdrEngine($query, array($rule, $patient_id) ); 
   }
 
   // Update patient specific row
   $query = "UPDATE `clinical_rules` SET `" . add_escape_custom($type) . "_flag`= ? WHERE id = ? AND pid = ?";
-  sqlStatement($query, array($setting,$rule,$patient_id) );
+  sqlStatementCdrEngine($query, array($setting,$rule,$patient_id) );
 
 }
 
@@ -1021,7 +1157,7 @@ function set_rule_activity_patient($rule,$type,$setting,$patient_id) {
  * @return array                      reminder features
  */
 function resolve_reminder_sql($rule,$reminder_method) {
-  $sql = sqlStatement("SELECT `method_detail`, `value` FROM `rule_reminder` " .
+  $sql = sqlStatementCdrEngine("SELECT `method_detail`, `value` FROM `rule_reminder` " .
     "WHERE `id`=? AND `method`=?", array($rule, $reminder_method) );
 
   $returnArray= array();
@@ -1040,7 +1176,7 @@ function resolve_reminder_sql($rule,$reminder_method) {
  * @return array                    filters
  */
 function resolve_filter_sql($rule,$filter_method,$include_flag=1) {
-  $sql = sqlStatement("SELECT `method_detail`, `value`, `required_flag` FROM `rule_filter` " .
+  $sql = sqlStatementCdrEngine("SELECT `method_detail`, `value`, `required_flag` FROM `rule_filter` " .
     "WHERE `id`=? AND `method`=? AND `include_flag`=?", array($rule, $filter_method, $include_flag) );
 
   $returnArray= array();
@@ -1062,11 +1198,11 @@ function resolve_filter_sql($rule,$filter_method,$include_flag=1) {
 function resolve_target_sql($rule,$group_id='',$target_method,$include_flag=1) {
 
   if ($group_id) {
-    $sql = sqlStatement("SELECT `value`, `required_flag`, `interval` FROM `rule_target` " .
+    $sql = sqlStatementCdrEngine("SELECT `value`, `required_flag`, `interval` FROM `rule_target` " .
       "WHERE `id`=? AND `group_id`=? AND `method`=? AND `include_flag`=?", array($rule, $group_id, $target_method, $include_flag) );
   }
   else {
-    $sql = sqlStatement("SELECT `value`, `required_flag`, `interval` FROM `rule_target` " .
+    $sql = sqlStatementCdrEngine("SELECT `value`, `required_flag`, `interval` FROM `rule_target` " .
       "WHERE `id`=? AND `method`=? AND `include_flag`=?", array($rule, $target_method, $include_flag) );
   }
 
@@ -1087,14 +1223,14 @@ function resolve_target_sql($rule,$group_id='',$target_method,$include_flag=1) {
 function resolve_action_sql($rule,$group_id='') {
 
   if ($group_id) {
-    $sql = sqlStatement("SELECT b.category, b.item, b.clin_rem_link, b.reminder_message, b.custom_flag " .
+    $sql = sqlStatementCdrEngine("SELECT b.category, b.item, b.clin_rem_link, b.reminder_message, b.custom_flag " .
       "FROM `rule_action` as a " .
       "JOIN `rule_action_item` as b " .
       "ON a.category = b.category AND a.item = b.item " .
       "WHERE a.id=? AND a.group_id=?", array($rule,$group_id) );
   }
   else {
-    $sql = sqlStatement("SELECT b.category, b.item, b.value, b.custom_flag " .
+    $sql = sqlStatementCdrEngine("SELECT b.category, b.item, b.value, b.custom_flag " .
       "FROM `rule_action` as a " .
       "JOIN `rule_action_item` as b " .
       "ON a.category = b.category AND a.item = b.item " .
@@ -1245,7 +1381,7 @@ function appointment_check($patient_id,$dateTarget='') {
 
   // Basically, if the appointment is within the current date to the target date,
   //  then return true. (will not send reminders on same day as appointment)
-  $sql = sqlStatement("SELECT openemr_postcalendar_events.pc_eid, " .
+  $sql = sqlStatementCdrEngine("SELECT openemr_postcalendar_events.pc_eid, " .
     "openemr_postcalendar_events.pc_title, " .
     "openemr_postcalendar_events.pc_eventDate, " .
     "openemr_postcalendar_events.pc_startTime, " .
@@ -1334,13 +1470,13 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
   // check for items
   if (empty($column)) {
     // simple search for any table entries
-    $sql = sqlStatement("SELECT * " .
+    $sql = sqlStatementCdrEngine("SELECT * " .
       "FROM `" . add_escape_custom($table)  . "` " .
       "WHERE `" . add_escape_custom($patient_id_label)  . "`=?", array($patient_id) );
   }
   else {
     // search for number of specific items
-    $sql = sqlStatement("SELECT `" . add_escape_custom($column) . "` " .
+    $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
       "FROM `" . add_escape_custom($table)  . "` " .
       "WHERE `" . add_escape_custom($column) ."`" . $compSql . "? " .
       "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
@@ -1423,7 +1559,7 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
                 "AND procedure_result.result " . $compSql . " ? " .
                 "AND " . add_escape_custom($patient_id_label) . " = ? " . $dateSql;
   array_push($sqlBindArray,$proc_title,$result_data,$patient_id);
-  $sql = sqlStatement($sql_query,$sqlBindArray);
+  $sql = sqlStatementCdrEngine($sql_query,$sqlBindArray);
  
   // See if number of returned items passes the comparison
   return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
@@ -1455,7 +1591,7 @@ function exist_custom_item($patient_id,$category,$item,$complete,$num_items_comp
   $dateSql = sql_interval_string($table,$intervalType,$intervalValue,$dateTarget);
 
   // search for number of specific items
-  $sql = sqlStatement("SELECT `result` " .
+  $sql = sqlStatementCdrEngine("SELECT `result` " .
     "FROM `" . add_escape_custom($table)  . "` " .
     "WHERE `category`=? " .
     "AND `item`=? " .
@@ -1525,7 +1661,7 @@ function exist_lists_item($patient_id,$type,$value,$dateTarget) {
 
     if ($code_type=='CUSTOM') {
       // Deal with custom code type first (title column in lists table)
-      $response = sqlQuery("SELECT * FROM `lists` " .
+      $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
         "WHERE `type`=? " .
         "AND `pid`=? " .
         "AND `title`=? " .
@@ -1535,7 +1671,7 @@ function exist_lists_item($patient_id,$type,$value,$dateTarget) {
     }
     else {
       // Deal with the set code types (diagnosis column in lists table)
-      $response = sqlQuery("SELECT * FROM `lists` " .
+      $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
         "WHERE `type`=? " .
         "AND `pid`=? " .
         "AND `diagnosis` LIKE ? " .
@@ -1547,7 +1683,7 @@ function exist_lists_item($patient_id,$type,$value,$dateTarget) {
   else { // count($value_array) == 1
     // Search the title column in lists table
     //   Yes, this is essentially the same as the code type listed as CUSTOM above. This provides flexibility and will ensure compatibility.
-    $response = sqlQuery("SELECT * FROM `lists` " .
+    $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
       "WHERE `type`=? " .
       "AND `pid`=? " .
       "AND `title`=? ".

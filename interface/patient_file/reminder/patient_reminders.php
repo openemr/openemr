@@ -20,6 +20,12 @@ require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/reminders.php");
 require_once("$srcdir/clinical_rules.php");
 
+//To improve performance and not freeze the session when running this
+// report, turn off session writing. Note that php session variables
+// can not be modified after the line below. So, if need to do any php
+// session work in the future, then will need to remove this line.
+session_write_close();
+
 //Remove time limit, since script can take many minutes
 set_time_limit(0);
 ?>
@@ -54,7 +60,14 @@ $sortorder = $_GET['sortorder'];
 $begin = $_GET['begin'];
 
 // Update the reminders and show debugging data
-$update_rem_log = update_reminders('', $patient_id);
+if (empty($patient_id)) {
+  //Update all patients
+  $update_rem_log = update_reminders_batch_method();
+}
+else {
+  //Only update one patient
+  $update_rem_log = update_reminders('', $patient_id);
+}
 
 if ($mode == "simple") {
   // Collect the rules for the per patient rules selection tab

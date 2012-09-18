@@ -15,6 +15,15 @@ require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once ($GLOBALS['srcdir'] . "/classes/postmaster.php");
 require_once ($GLOBALS['srcdir'] . "/maviq_phone_api.php");
 require_once($GLOBALS['srcdir'] . "/reminders.php");
+
+//To improve performance and not freeze the session when running this
+// report, turn off session writing. Note that php session variables
+// can not be modified after the line below. So, if need to do any php
+// session work in the future, then will need to remove this line.
+session_write_close();
+
+//Remove time limit, since script can take many minutes
+set_time_limit(0);
 ?>
 
 <html>
@@ -38,7 +47,7 @@ require_once($GLOBALS['srcdir'] . "/reminders.php");
  <tr>
   <td class='text' align='left' colspan="3"><br>
   
-    <?php $update_rem_log = update_reminders(); ?>
+    <?php $update_rem_log = update_reminders_batch_method(); ?>
 
     <span class="text"><?php echo htmlspecialchars(xl('The patient reminders have been updated'), ENT_NOQUOTES) . ":"?></span><br>
       <span class="text"><?php echo htmlspecialchars(xl('Total active actions'), ENT_NOQUOTES) . ": " . $update_rem_log['total_active_actions'];?></span><br>

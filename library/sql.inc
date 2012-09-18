@@ -241,6 +241,25 @@ function sqlStatementNoLog($statement, $binds=NULL )
 }
 
 /**
+* sqlStatement() function wrapper for CDR engine in OpenEMR.
+* Allows option to turn on/off auditing specifically for the
+* CDR engine.
+* 
+* @param  string  $statement  query
+* @param  array   $binds      binded variables array (optional)
+* @return recordset/resource
+*/
+function sqlStatementCdrEngine($statement, $binds=NULL )
+{
+  if ($GLOBALS['audit_events_cdr']) {
+    return sqlStatement($statement,$binds);
+  }
+  else {
+    return sqlStatementNoLog($statement,$binds);
+  }
+}
+
+/**
 * Returns a row (as an array) from a sql recordset or resource object.
 *
 * Function that will allow use of the adodb binding
@@ -396,6 +415,25 @@ function sqlQueryNoLogIgnoreError($statement, $binds=NULL)
   if ($rez == FALSE)
     return FALSE;
   return $rez;
+}
+
+/**
+* sqlQuery() function wrapper for CDR engine in OpenEMR.
+* Allows option to turn on/off auditing specifically for the
+* CDR engine.
+*
+* @param  string  $statement  query
+* @param  array   $binds      binded variables array (optional)
+* @return array
+*/
+function sqlQueryCdrEngine($statement, $binds=NULL )
+{
+  if ($GLOBALS['audit_events_cdr']) {
+    return sqlQuery($statement,$binds);
+  }
+  else {
+    return sqlQueryNoLog($statement,$binds);
+  }
 }
 
 /**

@@ -23,6 +23,15 @@ require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 require_once("../library/classes/PQRIXml.class.php");
 
+//To improve performance and not freeze the session when running this
+// report, turn off session writing. Note that php session variables
+// can not be modified after the line below. So, if need to do any php
+// session work in the future, then will need to remove this line.
+session_write_close();
+
+//Remove time limit, since script can take many minutes
+set_time_limit(0);
+
 function getLabelNumber($label) {
 	
 	if ( strlen($label) == 0) {
@@ -80,10 +89,12 @@ else {
 
 // Add the measure groups.
 if ( $nested == 'false' ) {
-	$dataSheet = test_rules_clinic('collate_outer','cqm',$target_date,'report','','','');
+        // Collect results (note using the batch method to decrease memory overhead and improve performance)
+	$dataSheet = test_rules_clinic_batch_method('collate_outer','cqm',$target_date,'report','','');
 }
 else {
-	$dataSheet = test_rules_clinic('collate_inner','cqm',$target_date,'report','','cqm','plans');
+        // Collect results (note using the batch method to decrease memory overhead and improve performance)
+	$dataSheet = test_rules_clinic_batch_method('collate_inner','cqm',$target_date,'report','cqm','plans');
 }
 
 $firstProviderFlag = TRUE;
