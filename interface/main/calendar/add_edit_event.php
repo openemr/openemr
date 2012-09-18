@@ -1392,7 +1392,11 @@ if ($repeatexdate != "") {
 <p>
 <input type='button' name='form_save' id='form_save' value='<?php echo xla('Save');?>' />
 &nbsp;
-<input type='button' id='find_available' value='<?php echo xla('Find Available');?>' />
+
+<?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
+  <input type='button' id='find_available' value='<?php echo xla('Find Available');?>' />
+<?php } ?>
+
 &nbsp;
 <input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) echo " disabled" ?> />
 &nbsp;
@@ -1511,7 +1515,8 @@ function deleteEvent() {
 }
 
 function SubmitForm() {
-  var f = document.forms[0];
+ var f = document.forms[0];
+ <?php if (!($GLOBALS['select_multi_providers'])) { // multi providers appt is not supported by check slot avail window, so skip ?>
   if (f.form_action.value != 'delete') {
     // Check slot availability.
     var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
@@ -1522,6 +1527,11 @@ function SubmitForm() {
     top.restoreSession();
     f.submit();
   }
+ <?php } else { ?>
+  top.restoreSession();
+  f.submit();
+ <?php } ?>
+
   return true;
 }
 
