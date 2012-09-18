@@ -1078,6 +1078,13 @@ $GLOBALS_METADATA = array(
       xl('Enable logging of all SQL SELECT queries.').' ('.xl('Note that Audit Logging needs to be enabled above').')'
     ),
 
+    'audit_events_cdr' => array(
+      xl('Audit CDR Engine Queries'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Enable logging of CDR Engine Queries.').' ('.xl('Note that Audit Logging needs to be enabled above').')'
+    ),
+
     'enable_atna_audit' => array(
       xl('Enable ATNA Auditing'),
       'bool',                           // data type
