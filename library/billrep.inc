@@ -1,6 +1,6 @@
 <?php
     require_once("{$GLOBALS['srcdir']}/sql.inc");
-    require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
+    require_once(dirname(__FILE__) . "/../interface/reports/report.inc.php");
     function GenerateTheQueryPart()
      {
         global $query_part,$query_part2,$billstring,$auth;
@@ -13,7 +13,7 @@
          {
             foreach($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value)
              {
-              $criteria_value=PrepareSearchItem($criteria_value);
+              $criteria_value=PrepareSearchItem($criteria_value); // this escapes for sql
               $SplitArray=array();
               //---------------------------------------------------------
               if(strpos($criteria_value,"billing.billed = '1'")!== false)
@@ -43,7 +43,7 @@
               elseif(strpos($criteria_value,"patient_data.fname")!== false)
                {
                 $SplitArray=split(' like ',$criteria_value);
-                $query_part .= " AND ($criteria_value or patient_data.lname like ".add_escape_custom($SplitArray[1]).")";
+                $query_part .= " AND ($criteria_value or patient_data.lname like ".$SplitArray[1].")";
                }
               //---------------------------------------------------------
               elseif(strpos($criteria_value,"billing.authorized")!== false)
