@@ -487,7 +487,7 @@ function getSqlLastError($mode="adodb") {
     return $GLOBALS['last_mysql_error'];
   }
   else {
-    if ($mode = "adodb") {
+    if ($mode == "adodb") {
       return $GLOBALS['adodb']['db']->ErrorMsg();
     }
     else { // $mode = "native_mysql"
