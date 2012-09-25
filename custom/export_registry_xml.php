@@ -32,6 +32,14 @@ session_write_close();
 //Remove time limit, since script can take many minutes
 set_time_limit(0);
 
+// Set the "nice" level of the process for these reports. When the "nice" level
+// is increased, these cpu intensive reports will have less affect on the performance
+// of other server activities, albeit it may negatively impact the performance
+// of this report (note this is only applicable for linux).
+if (!empty($GLOBALS['cdr_report_nice'])) {
+  proc_nice($GLOBALS['cdr_report_nice']);
+}
+
 function getLabelNumber($label) {
 	
 	if ( strlen($label) == 0) {

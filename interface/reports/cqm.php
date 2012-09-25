@@ -20,30 +20,52 @@ require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/formdata.inc.php";
 require_once "$srcdir/clinical_rules.php";
+require_once "$srcdir/report_database.inc";
 
-//To improve performance and not freeze the session when running this
-// report, turn off session writing. Note that php session variables
-// can not be modified after the line below. So, if need to do any php
-// session work in the future, then will need to remove this line.
-session_write_close();
+// This is only pertinent for users of php versions less than 5.2
+//  (ie. this wrapper is only loaded when php version is less than
+//   5.2; otherwise the native php json functions are used)
+require_once "$srcdir/jsonwrapper/jsonwrapper.php";
 
-//Remove time limit, since script can take many minutes
-set_time_limit(0);
+// See if showing an old report or creating a new report
+$report_id = (isset($_GET['report_id'])) ? trim($_GET['report_id']) : "";
 
-// Collect report type parameter (standard, amc, or cqm)
-$type_report = (isset($_GET['type'])) ? trim($_GET['type']) : "standard";
+// Collect the back variable, if pertinent
+$back_link = (isset($_GET['back'])) ? trim($_GET['back']) : "";
 
-// Collect form parameters (set defaults if empty)
-if ($type_report == "amc") {
-  $begin_date = (isset($_POST['form_begin_date'])) ? trim($_POST['form_begin_date']) : "";
-  $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
+// If showing an old report, then collect information
+if (!empty($report_id)) {
+  $report_view = collectReportDatabase($report_id);
+  $date_report = $report_view['date_report'];
+  $type_report = $report_view['type'];
+  $type_report = (($type_report == "amc") || ($type_report == "cqm")) ? $type_report : "standard";
+  $rule_filter = $report_view['type'];
+  if ($type_report == "amc") {
+    $begin_date = $report_view['date_begin'];
+    $labs_manual = $report_view['labs_manual'];
+  }
+  $target_date = $report_view['date_target'];
+  $plan_filter = $report_view['plan'];
+  $organize_method = $report_view['organize_mode'];
+  $provider  = $report_view['provider'];
+  $pat_prov_rel = $report_view['pat_prov_rel'];
+  $dataSheet = json_decode($report_view['data'],TRUE);
 }
-$target_date = (isset($_POST['form_target_date'])) ? trim($_POST['form_target_date']) : date('Y-m-d H:i:s');
-$rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : "";
-$plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
-$organize_method = (empty($plan_filter)) ? "default" : "plans";
-$provider  = trim($_POST['form_provider']);
-$pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['form_pat_prov_rel']);
+else {
+  // Collect report type parameter (standard, amc, or cqm)
+  $type_report = (isset($_GET['type'])) ? trim($_GET['type']) : "standard";
+  // Collect form parameters (set defaults if empty)
+  if ($type_report == "amc") {
+    $begin_date = (isset($_POST['form_begin_date'])) ? trim($_POST['form_begin_date']) : "";
+    $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
+  }
+  $target_date = (isset($_POST['form_target_date'])) ? trim($_POST['form_target_date']) : date('Y-m-d H:i:s');
+  $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : "";
+  $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
+  $organize_method = (empty($plan_filter)) ? "default" : "plans";
+  $provider  = trim($_POST['form_provider']);
+  $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['form_pat_prov_rel']);
+}
 ?>
 
 <html>
@@ -72,10 +94,69 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
- function refreshme() {
-    // location.reload();
-    top.restoreSession();
-    document.forms[0].submit();
+ function runReport() {
+   // Showing processing wheel
+   $("#processing").show();
+
+   // hide Submit buttons
+   $("#submit_button").hide();   
+   $("#xmla_button").hide();
+   $("#xmlb_button").hide();
+
+   // hide instructions
+   $("#instructions_text").hide();
+
+   // Collect an id string via an ajax request
+   top.restoreSession();
+   $.get("../../library/ajax/collect_new_report_id.php",
+     function(data){
+       // Set the report id in page form
+       $("#form_new_report_id").attr("value",data);
+
+       // Start collection status checks
+       collectStatus($("#form_new_report_id").val());
+
+       // Run the report
+       top.restoreSession();
+       $.post("../../library/ajax/execute_cdr_report.php",
+         {provider: $("#form_provider").val(),
+          type: $("#form_rule_filter").val(),
+          date_target: $("#form_target_date").val(),
+          date_begin: $("#form_begin_date").val(),
+          plan: $("#form_plan_filter").val(),
+          labs: $("#labs_manual_entry").val(),
+          pat_prov_rel: $("#form_pat_prov_rel").val(),
+          execute_report_id: $("#form_new_report_id").val()
+         });
+   });
+ }
+
+ function collectStatus(report_id) {
+   // Collect the status string via an ajax request and place in DOM at timed intervals
+   top.restoreSession();
+   // Do not send the skip_timeout_reset parameter, so don't close window before report is done.
+   $.post("../../library/ajax/status_report.php",
+     {status_report_id: report_id},
+     function(data){
+       if (data == "PENDING") {
+         // Place the pending string in the DOM
+         $('#status_span').replaceWith("<span id='status_span'><?php echo xlt("Preparing To Run Report"); ?></span>");
+       }
+       else if (data == "COMPLETE") {
+         // Go into the results page
+         top.restoreSession();
+         link_report = "cqm.php?report_id="+report_id;
+         window.open(link_report,'_self',false);
+         //$("#processing").hide();
+         //$('#status_span').replaceWith("<a id='view_button' href='cqm.php?report_id="+report_id+"' class='css_button' onclick='top.restoreSession()'><span><?php echo xlt('View Report'); ?></span></a>");
+       }
+       else {
+         // Place the string in the DOM
+         $('#status_span').replaceWith("<span id='status_span'>"+data+"</span>");
+       }
+   });
+   // run status check every 10 seconds
+   var repeater = setTimeout("collectStatus("+report_id+")", 10000);
  }
 
  function GenXml(sNested) {
@@ -83,7 +164,7 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
 	  var sLoc = '../../custom/export_registry_xml.php?&target_date=' + theform.form_target_date.value + '&nested=' + sNested;
 	  dlgopen(sLoc, '_blank', 600, 500);
 	  return false;
-}
+ }
 
 </script>
 
@@ -123,15 +204,23 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
 <span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> - 
 
 <?php if ($type_report == "standard") { ?>
-  <?php echo htmlspecialchars( xl('Standard Measures'), ENT_NOQUOTES); ?></span>
+  <?php echo htmlspecialchars( xl('Standard Measures'), ENT_NOQUOTES); ?>
 <?php } ?>
 <?php if ($type_report == "cqm") { ?>
-  <?php echo htmlspecialchars( xl('Clinical Quality Measures (CQM)'), ENT_NOQUOTES); ?></span>
+  <?php echo htmlspecialchars( xl('Clinical Quality Measures (CQM)'), ENT_NOQUOTES); ?>
 <?php } ?>
 <?php if ($type_report == "amc") { ?>
-  <?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC)'), ENT_NOQUOTES); ?></span>
+  <?php echo htmlspecialchars( xl('Automated Measure Calculations (AMC)'), ENT_NOQUOTES); ?>
 <?php } ?>
 
+<?php if (!empty($report_id)) { ?>
+  <?php echo " - " . xlt('Date of Report') . ": " . text($date_report);
+        //prepare to disable form elements
+        $dis_text = " disabled='disabled' ";
+  ?>
+<?php } ?>
+
+</span>
 
 <form method='post' name='theform' id='theform' action='cqm.php?type=<?php echo htmlspecialchars($type_report,ENT_QUOTES) ;?>' onsubmit='return top.restoreSession()'>
 
@@ -150,11 +239,13 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
                          <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo htmlspecialchars( $begin_date, ENT_QUOTES); ?>'
+                         <input <?php echo $dis_text; ?> type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo htmlspecialchars( $begin_date, ENT_QUOTES); ?>'
                             onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
-                         <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+                          <?php if (empty($report_id)) { ?>
+                           <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
                             id='img_begin_date' border='0' alt='[?]' style='cursor:pointer'
                             title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                          <?php } ?>
                       </td>
                    </tr>
 		<?php } ?>
@@ -168,19 +259,21 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
                            <?php } ?>
                         </td>
                         <td>
-                           <input type='text' name='form_target_date' id="form_target_date" size='20' value='<?php echo htmlspecialchars( $target_date, ENT_QUOTES); ?>'
+                           <input <?php echo $dis_text; ?> type='text' name='form_target_date' id="form_target_date" size='20' value='<?php echo htmlspecialchars( $target_date, ENT_QUOTES); ?>'
                                 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
-                           <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+                           <?php if (empty($report_id)) { ?>
+                             <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
                                 id='img_target_date' border='0' alt='[?]' style='cursor:pointer'
                                 title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
+                           <?php } ?>
                         </td>
                 </tr>
 
                 <?php if ($type_report == "cqm") { ?>
-                    <input type='hidden' name='form_rule_filter' value='cqm'>
+                    <input type='hidden' id='form_rule_filter' name='form_rule_filter' value='cqm'>
                 <?php } ?>
                 <?php if ($type_report == "amc") { ?>
-                    <input type='hidden' name='form_rule_filter' value='amc'>
+                    <input type='hidden' id='form_rule_filter' name='form_rule_filter' value='amc'>
                 <?php } ?>
                 <?php if ($type_report == "standard") { ?>
                     <tr>
@@ -188,7 +281,7 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
                             <?php echo htmlspecialchars( xl('Rule Set'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
-                            <select name='form_rule_filter'>
+                            <select <?php echo $dis_text; ?> id='form_rule_filter' name='form_rule_filter'>
                             <option value='passive_alert' <?php if ($rule_filter == "passive_alert") echo "selected"; ?>>
                             <?php echo htmlspecialchars( xl('Passive Alert Rules'), ENT_NOQUOTES); ?></option>
                             <option value='active_alert' <?php if ($rule_filter == "active_alert") echo "selected"; ?>>
@@ -201,14 +294,14 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
                 <?php } ?>
 
                 <?php if ($type_report == "amc") { ?>
-                    <input type='hidden' name='form_plan_filter' value=''>
+                    <input type='hidden' id='form_plan_filter' name='form_plan_filter' value=''>
                 <?php } else { ?>
                     <tr>
                         <td class='label'>
                            <?php echo htmlspecialchars( xl('Plan Set'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
-                                 <select name='form_plan_filter'>
+                                 <select <?php echo $dis_text; ?> id='form_plan_filter' name='form_plan_filter'>
                                  <option value=''>-- <?php echo htmlspecialchars( xl('Ignore'), ENT_NOQUOTES); ?> --</option>
                                  <?php if ($type_report == "cqm") { ?>
                                    <option value='cqm' <?php if ($plan_filter == "cqm") echo "selected"; ?>>
@@ -237,21 +330,21 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
 
 				 $ures = sqlStatement($query);
 
-				 echo "   <select name='form_provider'>\n";
+				 echo "   <select " . $dis_text . " id='form_provider' name='form_provider'>\n";
 				 echo "    <option value=''>-- " . htmlspecialchars( xl('All (Cumulative)'), ENT_NOQUOTES) . " --\n";
 
                                  echo "    <option value='collate_outer'";
-                                 if ($_POST['form_provider'] == 'collate_outer') echo " selected";
+                                 if ($provider == 'collate_outer') echo " selected";
                                  echo ">-- " . htmlspecialchars( xl('All (Collated Format A)'), ENT_NOQUOTES) . " --\n";
 
                                  echo "    <option value='collate_inner'";
-                                 if ($_POST['form_provider'] == 'collate_inner') echo " selected";
+                                 if ($provider == 'collate_inner') echo " selected";
                                  echo ">-- " . htmlspecialchars( xl('All (Collated Format B)'), ENT_NOQUOTES) . " --\n";
 
 				 while ($urow = sqlFetchArray($ures)) {
 				  $provid = $urow['id'];
 				  echo "    <option value='".htmlspecialchars( $provid, ENT_QUOTES)."'";
-				  if ($provid == $_POST['form_provider']) echo " selected";
+				  if ($provid == $provider) echo " selected";
 				  echo ">" . htmlspecialchars( $urow['lname'] . ", " . $urow['fname'], ENT_NOQUOTES) . "\n";
 				 }
 
@@ -270,7 +363,7 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
 
                                  // Build a drop-down list of of patient provider relationships.
                                  //
-                                 echo "   <select name='form_pat_prov_rel' title='" . xlt('Only applicable if a provider or collated list was chosen above. PRIMARY only selects patients that the provider is the primary provider. ENCOUNTER selects all patients that the provider has seen.') . "'>\n";
+                                 echo "   <select ". $dis_text ." id='form_pat_prov_rel' name='form_pat_prov_rel' title='" . xlt('Only applicable if a provider or collated list was chosen above. PRIMARY only selects patients that the provider is the primary provider. ENCOUNTER selects all patients that the provider has seen.') . "'>\n";
                                  echo "    <option value='primary'";
                                  if ($pat_prov_rel == 'primary') echo " selected";
                                  echo ">" . xlt('Primary') . "\n";
@@ -289,7 +382,7 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
                                (<?php echo htmlspecialchars( xl('Non-electronic'), ENT_NOQUOTES); ?>)
                         </td>
                         <td>
-                               <input type="text" name="labs_manual_entry" value="<?php echo htmlspecialchars($labs_manual,ENT_QUOTES); ?>">
+                               <input <?php echo $dis_text; ?> type="text" id="labs_manual_entry" name="labs_manual_entry" value="<?php echo htmlspecialchars($labs_manual,ENT_QUOTES); ?>">
                         </td>
                   </tr>
                 <?php } ?>
@@ -304,30 +397,38 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
 		<tr>
 			<td>
 				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#processing").show(); $("#theform").submit();'>
+                                    <?php if (empty($report_id)) { ?>
+					<a id='submit_button' href='#' class='css_button' onclick='runReport();'>
 					<span>
 						<?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
 					</span>
 					</a>
+                                        <span id='status_span'></span>
                                         <div id='processing' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
 					<?php if ($type_report == "cqm") { ?>
-						<a href='#' class='css_button' onclick='return GenXml("false")'>
+						<a id='xmla_button' href='#' class='css_button' onclick='return GenXml("false")'>
 							<span>
 								<?php echo htmlspecialchars( xl('Generate PQRI report (Method A)'), ENT_NOQUOTES); ?>
 							</span>
 						</a>
-                                        	<a href='#' class='css_button' onclick='return GenXml("true")'>
+                                        	<a id='xmlb_button' href='#' class='css_button' onclick='return GenXml("true")'>
                                                 	<span>
                                                         	<?php echo htmlspecialchars( xl('Generate PQRI report (Method E)'), ENT_NOQUOTES); ?>
                                                 	</span>
                                         	</a>
 					<?php } ?>
-                                        <?php if ($_POST['form_refresh']) { ?>
+                                    <?php } ?>
+                                        <?php if (!empty($report_id)) { ?>
 					<a href='#' class='css_button' onclick='window.print()'>
 						<span>
 							<?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?>
 						</span>
 					</a>
+                                            <?php if ($back_link == "list") { ?>
+                                               <a href='report_results.php' class='css_button' onclick='top.restoreSession()'><span><?php echo xlt("Return To Report Results"); ?></span></a> 
+                                            <?php } else { ?>
+                                               <a href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit();'><span><?php echo xlt("Start Another Report"); ?></span></a>
+                                            <?php } ?>
 					<?php } ?>
 				</div>
 			</td>
@@ -342,7 +443,7 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
 <br>
 
 <?php
- if ($_POST['form_refresh']) {
+ if (!empty($report_id)) {
 ?>
 
 
@@ -387,25 +488,6 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
  </thead>
  <tbody>  <!-- added for better print-ability -->
 <?php
-
-  // Process report and collect results
-  $options = array();
-  $array_date = array();
-  if ($type_report == "amc") {
-    // For AMC:
-    //   need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
-    //   need to send a manual data entry option (number of labs)
-    $array_date['dateBegin'] = $begin_date;
-    $array_date['dateTarget'] = $target_date;
-    $options = array('labs_manual'=>$labs_manual);
-  }
-  else {
-    // For others, use the unmodified target date array and send an empty options array
-    $array_date = $target_date;
-  }
-
-  // Collect results (note using the batch method to decrease memory overhead and improve performance)
-  $dataSheet = test_rules_clinic_batch_method($provider,$rule_filter,$array_date,"report",$plan_filter,$organize_method,$options,$pat_prov_rel);
 
   $firstProviderFlag = TRUE;
   $firstPlanFlag = TRUE;
@@ -497,12 +579,12 @@ $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim($_POST['
 </table>
 </div>  <!-- end of search results -->
 <?php } else { ?>
-<div class='text'>
- 	<?php echo htmlspecialchars( xl('Please input search criteria above, and click Submit to view results.'), ENT_NOQUOTES); ?>
+<div id="instructions_text" class='text'>
+ 	<?php echo htmlspecialchars( xl('Please input search criteria above, and click Submit to start report.'), ENT_NOQUOTES); ?>
 </div>
 <?php } ?>
 
-<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+<input type='hidden' name='form_new_report_id' id='form_new_report_id' value=''/>
 
 </form>
 

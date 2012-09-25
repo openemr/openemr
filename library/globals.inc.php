@@ -1015,6 +1015,32 @@ $GLOBALS_METADATA = array(
       '1',                               // default
       xl('Enable Reporting of Tracking Date For Automated Measure Calculations (AMC)')
     ),
+
+    'cdr_report_nice' => array(
+      xl('CDR Reports Processing Priority'),
+      array(
+        '' => xl('Default Priority'),
+        '5' => xl('Moderate Priority'),
+        '10' => xl('Moderate/Low Priority'),
+        '15' => xl('Low Priority'),
+        '20' => xl('Lowest Priority')
+      ),
+      '',                               // default
+      xl('Set processing priority for CDR engine based reports.')
+    ),
+
+    'pat_rem_clin_nice' => array(
+      xl('Patient Reminder Creation Processing Priority'),
+      array(
+        '' => xl('Default Priority'),
+        '5' => xl('Moderate Priority'),
+        '10' => xl('Moderate/Low Priority'),
+        '15' => xl('Low Priority'),
+        '20' => xl('Lowest Priority')
+      ),
+      '',                               // default
+      xl('Set processing priority for creation of Patient Reminders (in full clinic mode).')
+    ),
  
   ),
 
