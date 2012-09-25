@@ -2,6 +2,10 @@
 /**
  * Clinical Decision Rules(CDR) engine functions.
  *
+ * These functions should not ever attempt to write to
+ * session variables, because the session_write_close() function
+ * is typically called before utilizing these functions.
+ *
  * Copyright (C) 2010-2012 Brady Miller <brady@sparmy.com>
  * Copyright (C) 2011      Medical Information Integration, LLC
  * Copyright (C) 2011      Ensofttek, LLC
@@ -28,6 +32,12 @@ require_once(dirname(__FILE__) . "/patient.inc");
 require_once(dirname(__FILE__) . "/forms.inc");
 require_once(dirname(__FILE__) . "/formdata.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");
+require_once(dirname(__FILE__) . "/report_database.inc");
+
+// This is only pertinent for users of php versions less than 5.2
+//  (ie. this wrapper is only loaded when php version is less than
+//   5.2; otherwise the native php json functions are used)
+require_once(dirname(__FILE__) . "/jsonwrapper/jsonwrapper.php");
 
 /**
  * Display the clinical summary widget.
@@ -194,9 +204,15 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
  * @param  array        $options       can hold various option (for now, used to hold the manual number of labs for the AMC report)
  * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $batchSize     number of patients to batch (default is 100; plan to optimize this default setting in the future)
+ * @param  integer      $report_id     id of report in database (if already bookmarked)
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mode='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$batchSize=100) {
+function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mode='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$batchSize='',$report_id=NULL) {
+
+  // Default to a batchsize, if empty
+  if (empty($batchSize)) {
+    $batchSize=100;
+  }
 
   // Collect total number of pertinent patients (to calculate batching parameters)
   $totalNumPatients = buildPatientArray('',$provider,$pat_prov_rel,NULL,NULL,TRUE);
@@ -210,8 +226,40 @@ function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mo
     // perfectly divisible
     $totalNumberBatches = floor($totalNumPatients/$batchSize);
   }
+
+  // Fix things in the $options array(). This now stores the number of labs to be used in the denominator in the AMC report.
+  // The problem with this variable is that is is added in every batch. So need to fix it by dividing this number by the number
+  // of planned batches(note the fixed array will go into the test_rules_clinic function, however the original will be used
+  // in the report storing/tracking engine.
+  $options_modified=$options;
+  if (!empty($options_modified['labs_manual'])) {
+    $options_modified['labs_manual'] = $options_modified['labs_manual'] / $totalNumberBatches;
+  }
+
+  // Prepare the database to track/store results
+  $fields = array('provider'=>$provider,'mode'=>$mode,'plan'=>$plan,'organize_mode'=>$organize_mode,'pat_prov_rel'=>$pat_prov_rel);
+  if (is_array($dateTarget)) {
+    $fields = array_merge($fields,array(date_target=>$dateTarget['dateTarget']));
+    $fields = array_merge($fields,array(date_begin=>$dateTarget['dateBegin']));
+  }
+  else {
+    if (empty($dateTarget)) {
+      $fields = array_merge($fields,array(date_target=>date("Y-m-d H:i:s")));
+    }
+    else {
+      $fields = array_merge($fields,array(date_target=>$dateTarget));
+    }
+  }
+  if (!empty($options)) {
+    foreach ($options as $key => $value) {
+      $fields = array_merge($fields, array($key=>$value));
+    }
+  }
+  $report_id = beginReportDatabase($type,$fields,$report_id);
+  setTotalItemsReportDatabase($report_id,$totalNumPatients);
+
   for ($i=0;$i<$totalNumberBatches;$i++) {
-    $dataSheet_batch = test_rules_clinic($provider,$type,$dateTarget,$mode,'',$plan,$organize_mode,$options,$pat_prov_rel,(($batchSize*$i)+1),$batchSize);
+    $dataSheet_batch = test_rules_clinic($provider,$type,$dateTarget,$mode,'',$plan,$organize_mode,$options_modified,$pat_prov_rel,(($batchSize*$i)+1),$batchSize);
     if ($i == 0) {
       // For first cycle, simply copy it to dataSheet
       $dataSheet = $dataSheet_batch;
@@ -237,8 +285,12 @@ function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mo
         $dataSheet[$key]['percentage'] = calculate_percentage($pass_filter,$excluded,$pass_target);
       }
     }
+    //Update database to track results
+    updateReportDatabase($report_id,$total_patients);
   }
 
+  // Record results in database and send to screen, if applicable.
+  finishReportDatabase($report_id,json_encode($dataSheet));
   return $dataSheet;
 }
 

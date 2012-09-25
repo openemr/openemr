@@ -2,6 +2,10 @@
 /**
  * Patient reminders functions.
  *
+ * These functions should not ever attempt to write to
+ * session variables, because the session_write_close() function
+ * is typically called before utilizing these functions.
+ *
  * Functions for collection/displaying/sending patient reminders. This is 
  * part of the CDR engine, which can be found at library/clinical_rules.php.
  *
@@ -27,6 +31,11 @@
  * Include the main CDR engine library
  */
 require_once(dirname(__FILE__) . "/clinical_rules.php");
+
+// This is only pertinent for users of php versions less than 5.2
+//  (ie. this wrapper is only loaded when php version is less than
+//   5.2; otherwise the native php json functions are used)
+require_once(dirname(__FILE__) . "/jsonwrapper/jsonwrapper.php");
 
 /**
  * Display the patient reminder widget.
@@ -91,9 +100,16 @@ function patient_reminder_widget($patient_id,$dateTarget='') {
  *
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  * @param  integer  $batchSize   number of patients to batch (default is 25; plan to optimize this default setting in the future)
+ * @param  integer  $report_id   id of report in database (if already bookmarked)
+ * @param  boolean  $also_send   if TRUE, then will also call send_reminder when done
  * @return array                 see above for data structure of returned array
  */
-function update_reminders_batch_method($dateTarget='', $batchSize=25) {
+function update_reminders_batch_method($dateTarget='', $batchSize=25, $report_id=NULL, $also_send=FALSE) {
+
+  // Default to a batchsize, if empty
+  if (empty($batchSize)) {
+    $batchSize=25;
+  }
 
   // Collect total number of pertinent patients (to calculate batching parameters)
   $totalNumPatients = buildPatientArray('','','',NULL,NULL,TRUE);
@@ -105,7 +121,20 @@ function update_reminders_batch_method($dateTarget='', $batchSize=25) {
   else {
     $totalNumberBatches = floor($totalNumPatients/$batchSize);
   }
+
+  // Prepare the database to track/store results
+  if ($also_send) {
+    $report_id = beginReportDatabase("process_send_reminders",'',$report_id);
+  }
+  else {
+    $report_id = beginReportDatabase("process_reminders",'',$report_id);
+  }
+  setTotalItemsReportDatabase($report_id,$totalNumPatients);
+
+  $patient_counter=0;
   for ($i=0;$i<$totalNumberBatches;$i++) {
+    $patient_counter = $batchSize*($i+1);
+    if ($patient_counter > $totalNumPatients) $patient_counter = $totalNumPatients;
     $update_rem_log_batch = update_reminders($dateTarget,'',(($batchSize*$i)+1),$batchSize);
     if ($i == 0) {
       // For first cycle, simply copy it to update_rem_log
@@ -127,8 +156,24 @@ function update_reminders_batch_method($dateTarget='', $batchSize=25) {
       $update_rem_log['total_post_active_reminders'] = $update_rem_log['total_post_active_reminders'] + $update_rem_log_batch['total_post_active_reminders'];
       $update_rem_log['total_post_unsent_reminders'] = $update_rem_log['total_post_unsent_reminders'] + $update_rem_log_batch['total_post_unsent_reminders'];
     }
+    //Update database to track results
+    updateReportDatabase($report_id,$patient_counter);
   }
 
+  // Create an array for saving to database (allows combining with the send log)
+  $save_log = array();
+  $save_log[] = $update_rem_log;
+
+  // Send reminders, if this was selected
+  if ($also_send) {
+    $log_send = send_reminders();
+    $save_log[] = $log_send;
+  }
+
+  // Record combo results in database
+  finishReportDatabase($report_id,json_encode($save_log));
+
+  // Just return the process reminders array
   return $update_rem_log;
 }
 
@@ -274,6 +319,7 @@ function update_reminders($dateTarget='', $patient_id='', $start=NULL, $batchSiz
   return $logging;
 }
 
+
 /**
  * Function to send reminders.
  *
@@ -294,7 +340,7 @@ function send_reminders() {
   $logging = array();
 
   // Collect active reminders that have not yet been sent.
-  $active_unsent_reminders = fetch_reminders($patient_id, 'unsent');
+  $active_unsent_reminders = fetch_reminders('', 'unsent');
   $logging['total_pre_unsent_reminders'] = count($active_unsent_reminders);
 
   // Send the unsent reminders
@@ -375,7 +421,7 @@ function send_reminders() {
 
   // For logging purposes only:
   //  Collect active reminders that have not yet been sent.
-  $logging['total_post_unsent_reminders'] = count(fetch_reminders($patient_id, 'unsent'));
+  $logging['total_post_unsent_reminders'] = count(fetch_reminders('', 'unsent'));
 
   return $logging;
 }

@@ -1266,6 +1266,7 @@ if (!empty($reg)) {
       </li>
       <li><a class="collapsed_lv2"><span><?php xl('Clinic','e') ?></span></a>
         <ul>
+          <?php if ($GLOBALS['enable_cdr'] || $GLOBALS['enable_cqm']  || $GLOBALS['enable_amc']) genMiscLink('RTop','rep','0',xl('Report Results'),'reports/report_results.php'); ?>
           <?php if ($GLOBALS['enable_cdr']) genMiscLink('RTop','rep','0',xl('Standard Measures'),'reports/cqm.php?type=standard'); ?>
           <?php if ($GLOBALS['enable_cqm']) genMiscLink('RTop','rep','0',xl('Quality Measures (CQM)'),'reports/cqm.php?type=cqm'); ?>
           <?php if ($GLOBALS['enable_amc']) genMiscLink('RTop','rep','0',xl('Automated Measures (AMC)'),'reports/cqm.php?type=amc'); ?>

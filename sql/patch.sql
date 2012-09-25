@@ -48,3 +48,12 @@
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
 
+#IfNotTable report_results
+CREATE TABLE `report_results` (
+  `report_id` bigint(20) NOT NULL,
+  `field_id` varchar(31) NOT NULL default '',
+  `field_value` text,
+  PRIMARY KEY (`report_id`,`field_id`)
+) ENGINE=MyISAM;
+#EndIf
+
