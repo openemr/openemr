@@ -5332,11 +5332,30 @@ CREATE TABLE gprelations (
   KEY key2  (type2,id2)
 ) ENGINE=MyISAM COMMENT='general purpose relations';
 
+CREATE TABLE `procedure_providers` (
+  `ppid`         bigint(20)   NOT NULL auto_increment,
+  `name`         varchar(255) NOT NULL DEFAULT '',
+  `npi`          varchar(15)  NOT NULL DEFAULT '',
+  `send_app_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Sending application ID (MSH-3.1)',
+  `send_fac_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Sending facility ID (MSH-4.1)',
+  `recv_app_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Receiving application ID (MSH-5.1)',
+  `recv_fac_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Receiving facility ID (MSH-6.1)',
+  `DorP`         char(1)      NOT NULL DEFAULT 'D' COMMENT 'Debugging or Production (MSH-11)',
+  `protocol`     varchar(15)  NOT NULL DEFAULT 'DL',
+  `remote_host`  varchar(255) NOT NULL DEFAULT '',
+  `login`        varchar(255) NOT NULL DEFAULT '',
+  `password`     varchar(255) NOT NULL DEFAULT '',
+  `orders_path`  varchar(255) NOT NULL DEFAULT '',
+  `results_path` varchar(255) NOT NULL DEFAULT '',
+  `notes`        text         NOT NULL DEFAULT '',
+  PRIMARY KEY (`ppid`)
+) ENGINE=MyISAM;
+
 CREATE TABLE `procedure_type` (
   `procedure_type_id`   bigint(20)   NOT NULL AUTO_INCREMENT,
   `parent`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_type.procedure_type_id',
   `name`                varchar(63)  NOT NULL DEFAULT '' COMMENT 'name for this category, procedure or result type',
-  `lab_id`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id, 0 means default to parent',
+  `lab_id`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid, 0 means default to parent',
   `procedure_code`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
   `procedure_type`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'see list proc_type',
   `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttok',
@@ -5349,37 +5368,78 @@ CREATE TABLE `procedure_type` (
   `units`               varchar(31)  NOT NULL DEFAULT '' COMMENT 'default for procedure_result.units',
   `range`               varchar(255) NOT NULL DEFAULT '' COMMENT 'default for procedure_result.range',
   `seq`                 int(11)      NOT NULL default 0  COMMENT 'sequence number for ordering',
+  `activity`            tinyint(1)   NOT NULL default 1  COMMENT '1=active, 0=inactive',
+  `notes`               varchar(255) NOT NULL default '' COMMENT 'additional notes to enhance description',
   PRIMARY KEY (`procedure_type_id`),
   KEY parent (parent)
 ) ENGINE=MyISAM;
 
+CREATE TABLE `procedure_questions` (
+  `lab_id`              bigint(20)   NOT NULL DEFAULT 0   COMMENT 'references procedure_providers.ppid to identify the lab',
+  `procedure_code`      varchar(31)  NOT NULL DEFAULT ''  COMMENT 'references procedure_type.procedure_code to identify this order type',
+  `question_code`       varchar(31)  NOT NULL DEFAULT ''  COMMENT 'code identifying this question',
+  `seq`                 int(11)      NOT NULL default 0   COMMENT 'sequence number for ordering',
+  `question_text`       varchar(255) NOT NULL DEFAULT ''  COMMENT 'descriptive text for question_code',
+  `required`            tinyint(1)   NOT NULL DEFAULT 0   COMMENT '1 = required, 0 = not',
+  `maxsize`             int          NOT NULL DEFAULT 0   COMMENT 'maximum length if text input field',
+  `fldtype`             char(1)      NOT NULL DEFAULT 'T' COMMENT 'Text, Number, Select, Multiselect, Date, Gestational-age',
+  `options`             text         NOT NULL DEFAULT ''  COMMENT 'choices for fldtype S and T',
+  `tips`                varchar(255) NOT NULL DEFAULT ''  COMMENT 'Additional instructions for answering the question',
+  `activity`            tinyint(1)   NOT NULL DEFAULT 1   COMMENT '1 = active, 0 = inactive',
+  PRIMARY KEY (`lab_id`, `procedure_code`, `question_code`)
+) ENGINE=MyISAM;
+
 CREATE TABLE `procedure_order` (
   `procedure_order_id`     bigint(20)   NOT NULL AUTO_INCREMENT,
-  `procedure_type_id`      bigint(20)   NOT NULL            COMMENT 'references procedure_type.procedure_type_id',
-  `provider_id`            bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id',
+  `provider_id`            bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id, the ordering provider',
   `patient_id`             bigint(20)   NOT NULL            COMMENT 'references patient_data.pid',
   `encounter_id`           bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
   `date_collected`         datetime     DEFAULT NULL        COMMENT 'time specimen collected',
   `date_ordered`           date         DEFAULT NULL,
   `order_priority`         varchar(31)  NOT NULL DEFAULT '',
   `order_status`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
+  `diagnoses`              text         NOT NULL DEFAULT '' COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
   `patient_instructions`   text         NOT NULL DEFAULT '',
   `activity`               tinyint(1)   NOT NULL DEFAULT 1  COMMENT '0 if deleted',
   `control_id`             bigint(20)   NOT NULL            COMMENT 'This is the CONTROL ID that is sent back from lab',
+  `lab_id`                 bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
+  `specimen_type`          varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Type list',
+  `specimen_location`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Location list',
+  `specimen_volume`        varchar(30)  NOT NULL DEFAULT '' COMMENT 'from a text input field';
   PRIMARY KEY (`procedure_order_id`),
   KEY datepid (date_ordered, patient_id),
   KEY `patient_id` (`patient_id`)
 ) ENGINE=MyISAM;
 
+CREATE TABLE `procedure_order_code` (
+  `procedure_order_id`  bigint(20)  NOT NULL                COMMENT 'references procedure_order.procedure_order_id',
+  `procedure_order_seq` int(11)     NOT NULL AUTO_INCREMENT COMMENT 'supports multiple tests per order',
+  `procedure_code`      varchar(31) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
+  `procedure_name`      varchar(255) NOT NULL DEFAULT ''    COMMENT 'descriptive name of the procedure code',
+  `procedure_source`    char(1)     NOT NULL DEFAULT '1'    COMMENT '1=original order, 2=added after order sent',
+  PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
+) ENGINE=MyISAM;
+
+CREATE TABLE `procedure_answers` (
+  `procedure_order_id`  bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_order.procedure_order_id',
+  `procedure_order_seq` int(11)      NOT NULL DEFAULT 0  COMMENT 'references procedure_order_code.procedure_order_seq',
+  `question_code`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'references procedure_questions.question_code',
+  `answer_seq`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'supports multiple-choice questions',
+  `answer`              varchar(255) NOT NULL DEFAULT '' COMMENT 'answer data',
+  PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`, `question_code`, `answer_seq`)
+) ENGINE=MyISAM;
+
 CREATE TABLE `procedure_report` (
   `procedure_report_id` bigint(20)     NOT NULL AUTO_INCREMENT,
   `procedure_order_id`  bigint(20)     DEFAULT NULL   COMMENT 'references procedure_order.procedure_order_id',
+  `procedure_order_seq` int(11)        NOT NULL DEFAULT 1  COMMENT 'references procedure_order_code.procedure_order_seq',
   `date_collected`      datetime       DEFAULT NULL,
   `date_report`         date           DEFAULT NULL,
   `source`              bigint(20)     NOT NULL DEFAULT 0  COMMENT 'references users.id, who entered this data',
   `specimen_num`        varchar(63)    NOT NULL DEFAULT '',
   `report_status`       varchar(31)    NOT NULL DEFAULT '' COMMENT 'received,complete,error',
-  `review_status`       varchar(31)    NOT NULL DEFAULT 'received' COMMENT 'panding reivew status: received,reviewed',  
+  `review_status`       varchar(31)    NOT NULL DEFAULT 'received' COMMENT 'pending review status: received,reviewed',  
+  `report_notes`        text           NOT NULL DEFAULT '' COMMENT 'notes from the lab',
   PRIMARY KEY (`procedure_report_id`),
   KEY procedure_order_id (procedure_order_id)
 ) ENGINE=MyISAM; 
@@ -5387,7 +5447,9 @@ CREATE TABLE `procedure_report` (
 CREATE TABLE `procedure_result` (
   `procedure_result_id` bigint(20)   NOT NULL AUTO_INCREMENT,
   `procedure_report_id` bigint(20)   NOT NULL            COMMENT 'references procedure_report.procedure_report_id',
-  `procedure_type_id`   bigint(20)   NOT NULL            COMMENT 'references procedure_type.procedure_type_id',
+  `result_data_type`    char(1)      NOT NULL DEFAULT 'S' COMMENT 'N=Numeric, S=String, F=Formatted, E=External, L=Long text as first line of comments',
+  `result_code`         varchar(31)  NOT NULL DEFAULT '' COMMENT 'LOINC code, might match a procedure_type.procedure_code',
+  `result_text`         varchar(255) NOT NULL DEFAULT '' COMMENT 'Description of result_code',
   `date`                datetime     DEFAULT NULL        COMMENT 'lab-provided date specific to this result',
   `facility`            varchar(255) NOT NULL DEFAULT '' COMMENT 'lab-provided testing facility ID',
   `units`               varchar(31)  NOT NULL DEFAULT '',

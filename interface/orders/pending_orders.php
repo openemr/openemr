@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2013 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@ function thisLineItem($row) {
     echo '"' . addslashes($row['pubpid'        ]) . '",';
     echo '"' . addslashes(oeFormatShortDate($row['date_ordered'  ])) . '",';
     echo '"' . addslashes($row['organization'  ]) . '",';
-    echo '"' . addslashes($row['procedure_name']) . '",';
     echo '"' . addslashes($provname             ) . '",';
     echo '"' . addslashes($row['priority_name' ]) . '",';
     echo '"' . addslashes($row['status_name'   ]) . '"' . "\n";
@@ -39,7 +38,6 @@ function thisLineItem($row) {
   <td class="detail"><?php echo $row['pubpid'        ]; ?></td>
   <td class="detail"><?php echo oeFormatShortDate($row['date_ordered'  ]); ?></td>
   <td class="detail"><?php echo $row['organization'  ]; ?></td>
-  <td class="detail"><?php echo $row['procedure_name']; ?></td>
   <td class="detail"><?php echo $provname; ?></td>
   <td class="detail"><?php echo $row['priority_name' ]; ?></td>
   <td class="detail"><?php echo $row['status_name'   ]; ?></td>
@@ -125,7 +123,6 @@ else { // not export
   <td class="dehead"><?php xl('ID','e'       ) ?></td>
   <td class="dehead"><?php xl('Ordered','e'  ) ?></td>
   <td class="dehead"><?php xl('From','e'     ) ?></td>
-  <td class="dehead"><?php xl('Procedure','e') ?></td>
   <td class="dehead"><?php xl('Provider','e' ) ?></td>
   <td class="dehead"><?php xl('Priority','e' ) ?></td>
   <td class="dehead"><?php xl('Status','e'   ) ?></td>
@@ -142,9 +139,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   $query = "SELECT po.patient_id, po.date_ordered, " .
     "pd.pubpid, " .
     "CONCAT(pd.lname, ', ', pd.fname, ' ', pd.mname) AS patient_name, " .
-    "pt1.name AS procedure_name, " .
     "u1.lname AS provider_lname, u1.fname AS provider_fname, u1.mname AS provider_mname, " .
-    "u2.organization, " .
+    "pp.name AS organization, " .
     "lop.title AS priority_name, " .
     "los.title AS status_name, " .
     "pr.procedure_report_id, pr.date_report, pr.report_status " .
@@ -152,8 +148,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
     "JOIN patient_data AS pd ON pd.pid = po.patient_id " .
     "LEFT JOIN users AS u1 ON u1.id = po.provider_id " .
-    "LEFT JOIN procedure_type AS pt1 ON pt1.procedure_type_id = po.procedure_type_id " .
-    "LEFT JOIN users AS u2 ON u2.id = pt1.lab_id " .
+    "LEFT JOIN procedure_providers AS pp ON pp.ppid = po.lab_id " .
     "LEFT JOIN list_options AS lop ON lop.list_id = 'ord_priority' AND lop.option_id = po.order_priority " .
     "LEFT JOIN list_options AS los ON los.list_id = 'ord_status' AND los.option_id = po.order_status " .
     "LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id " .

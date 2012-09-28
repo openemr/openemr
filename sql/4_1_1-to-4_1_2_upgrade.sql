@@ -74,7 +74,6 @@ ALTER TABLE `version` ADD COLUMN `v_acl` int(11) NOT NULL DEFAULT 0;
 ALTER TABLE `documents_legal_detail` ADD COLUMN `dld_moved` tinyint(4) NOT NULL DEFAULT '0'; 
 #EndIf
 
-
 #IfMissingColumn documents_legal_detail dld_patient_comments
 ALTER TABLE `documents_legal_detail` ADD COLUMN `dld_patient_comments` text COMMENT 'Patient comments stored here';
 #EndIf
@@ -126,5 +125,148 @@ ALTER TABLE `billing` CHANGE `code` `code` varchar(20) default NULL;
 
 #IfNotColumnType ar_activity code varchar(20)
 ALTER TABLE `ar_activity` CHANGE `code` `code` varchar(20) NOT NULL COMMENT 'empty means claim level';
+#EndIf
+
+#IfNotTable procedure_questions
+CREATE TABLE `procedure_questions` (
+  `lab_id`              bigint(20)   NOT NULL DEFAULT 0   COMMENT 'references users.id to identify the lab',
+  `procedure_code`      varchar(31)  NOT NULL DEFAULT ''  COMMENT 'references procedure_type.procedure_code to identify this order type',
+  `question_code`       varchar(31)  NOT NULL DEFAULT ''  COMMENT 'code identifying this question',
+  `seq`                 int(11)      NOT NULL default 0   COMMENT 'sequence number for ordering',
+  `question_text`       varchar(255) NOT NULL DEFAULT ''  COMMENT 'descriptive text for question_code',
+  `required`            tinyint(1)   NOT NULL DEFAULT 0   COMMENT '1 = required, 0 = not',
+  `maxsize`             int          NOT NULL DEFAULT 0   COMMENT 'maximum length if text input field',
+  `fldtype`             char(1)      NOT NULL DEFAULT 'T' COMMENT 'Text, Number, Select, Multiselect, Date, Gestational-age',
+  `options`             text         NOT NULL DEFAULT ''  COMMENT 'choices for fldtype S and T',
+  `activity`            tinyint(1)   NOT NULL DEFAULT 1   COMMENT '1 = active, 0 = inactive',
+  PRIMARY KEY (`lab_id`, `procedure_code`, `question_code`)
+) ENGINE=MyISAM;
+#EndIf
+
+#IfMissingColumn procedure_type activity
+ALTER TABLE `procedure_type` ADD COLUMN `activity` tinyint(1) NOT NULL default 1;
+#EndIf
+
+#IfMissingColumn procedure_type notes
+ALTER TABLE `procedure_type` ADD COLUMN `notes` varchar(255) NOT NULL default '';
+#EndIf
+
+#IfNotTable procedure_answers
+CREATE TABLE `procedure_answers` (
+  `procedure_order_id`  bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_order.procedure_order_id',
+  `procedure_order_seq` int(11)      NOT NULL DEFAULT 1  COMMENT 'references procedure_order_code.seq',
+  `question_code`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'references procedure_questions.question_code',
+  `answer_seq`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'supports multiple-choice questions',
+  `answer`              varchar(255) NOT NULL DEFAULT '' COMMENT 'answer data',
+  PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`, `question_code`, `answer_seq`)
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotTable procedure_providers
+CREATE TABLE `procedure_providers` (
+  `ppid`         bigint(20)   NOT NULL auto_increment,
+  `name`         varchar(255) NOT NULL DEFAULT '',
+  `npi`          varchar(15)  NOT NULL DEFAULT '',
+  `protocol`     varchar(15)  NOT NULL DEFAULT 'DL',
+  `login`        varchar(255) NOT NULL DEFAULT '',
+  `password`     varchar(255) NOT NULL DEFAULT '',
+  `orders_path`  varchar(255) NOT NULL DEFAULT '',
+  `results_path` varchar(255) NOT NULL DEFAULT '',
+  `notes`        text         NOT NULL DEFAULT '',
+  PRIMARY KEY (`ppid`)
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotTable procedure_order_code
+CREATE TABLE `procedure_order_code` (
+  `procedure_order_id`  bigint(20)  NOT NULL,
+  `procedure_order_seq` int(11)     NOT NULL AUTO_INCREMENT COMMENT 'supports multiple tests per order',
+  `procedure_type_id`   bigint(20)  NOT NULL                COMMENT 'references procedure_type.procedure_type_id',
+  `procedure_code`      varchar(31) NOT NULL DEFAULT ''     COMMENT 'copy of procedure_type.procedure_code',
+  PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
+) ENGINE=MyISAM;
+INSERT INTO procedure_order_code
+  SELECT po.procedure_order_id, 1, po.procedure_type_id, pt.procedure_code
+  FROM procedure_order AS po
+  LEFT JOIN procedure_type AS pt ON pt.procedure_type_id = po.procedure_type_id;
+ALTER TABLE `procedure_order`
+  DROP COLUMN `procedure_type_id`;
+#EndIf
+
+#IfMissingColumn procedure_order lab_id
+ALTER TABLE `procedure_order`
+  ADD COLUMN `lab_id`            bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
+  ADD COLUMN `specimen_type`     varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Type list',
+  ADD COLUMN `specimen_location` varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Location list',
+  ADD COLUMN `specimen_volume`   varchar(30)  NOT NULL DEFAULT '' COMMENT 'from a text input field';
+UPDATE procedure_order AS po, procedure_order_code AS pc, procedure_type AS pt
+  SET po.lab_id = pt.lab_id WHERE
+  po.lab_id = 0 AND
+  pc.procedure_order_id = po.procedure_order_id AND
+  pt.procedure_type_id = pc.procedure_type_id AND
+  pt.lab_id != 0;
+#EndIf
+
+#IfMissingColumn procedure_report procedure_order_seq
+ALTER TABLE procedure_report
+  ADD COLUMN `procedure_order_seq` int(11) NOT NULL DEFAULT 1 COMMENT 'references procedure_order_code.procedure_order_seq';
+#EndIf
+
+#IfMissingColumn procedure_order diagnoses
+ALTER TABLE `procedure_order`
+  ADD COLUMN `diagnoses` text NOT NULL DEFAULT '' COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)';
+#EndIf
+
+#IfMissingColumn procedure_providers remote_host
+ALTER TABLE `procedure_providers`
+  ADD COLUMN `remote_host` varchar(255)  NOT NULL DEFAULT ''  COMMENT 'IP or hostname of remote server',
+  ADD COLUMN `send_app_id` varchar(255)  NOT NULL DEFAULT ''  COMMENT 'Sending application ID (MSH-3.1)',
+  ADD COLUMN `send_fac_id` varchar(255)  NOT NULL DEFAULT ''  COMMENT 'Sending facility ID (MSH-4.1)',
+  ADD COLUMN `recv_app_id` varchar(255)  NOT NULL DEFAULT ''  COMMENT 'Receiving application ID (MSH-5.1)',
+  ADD COLUMN `recv_fac_id` varchar(255)  NOT NULL DEFAULT ''  COMMENT 'Receiving facility ID (MSH-6.1)',
+  ADD COLUMN `DorP`        char(1)       NOT NULL DEFAULT 'D' COMMENT 'Debugging or Production (MSH-11)';
+#EndIf
+
+#IfMissingColumn procedure_order_code procedure_source
+ALTER TABLE `procedure_order_code`
+  ADD COLUMN `procedure_source` char(1) NOT NULL DEFAULT '1' COMMENT '1=original order, 2=added after order sent';
+#EndIf
+
+#IfMissingColumn procedure_result result_code
+ALTER TABLE `procedure_result`
+  ADD COLUMN `result_data_type` char(1) NOT NULL DEFAULT 'S' COMMENT
+  'N=Numeric, S=String, F=Formatted, E=External, L=Long text as first line of comments',
+  ADD COLUMN `result_code` varchar(31) NOT NULL DEFAULT '' COMMENT
+  'LOINC code, might match a procedure_type.procedure_code',
+  ADD COLUMN `result_text` varchar(255) NOT NULL DEFAULT '' COMMENT
+  'Description of result_code';
+# This severs the link between procedure_result and procedure_type:
+UPDATE procedure_result AS ps, procedure_type AS pt
+  SET ps.result_code = pt.procedure_code, ps.result_text = pt.description
+  WHERE pt.procedure_type_id = ps.procedure_type_id;
+ALTER TABLE `procedure_result` DROP COLUMN procedure_type_id;
+#EndIf
+
+#IfMissingColumn procedure_questions tips
+ALTER TABLE `procedure_questions`
+  ADD COLUMN `tips` varchar(255) NOT NULL DEFAULT '' COMMENT 'Additional instructions for answering the question';
+#EndIf
+
+#IfMissingColumn procedure_order_code procedure_name
+ALTER TABLE `procedure_order_code`
+  ADD COLUMN `procedure_name` varchar(255) NOT NULL DEFAULT '' COMMENT
+  'Descriptive name of procedure_code';
+# This severs the link between procedure_order_code and procedure_type:
+UPDATE procedure_order_code AS pc, procedure_order AS po, procedure_type AS pt
+  SET pc.procedure_name = pt.name
+  WHERE po.procedure_order_id = pc.procedure_order_id AND
+  pt.lab_id = po.lab_id AND
+  pt.procedure_code = pc.procedure_code;
+ALTER TABLE `procedure_order_code` DROP COLUMN procedure_type_id;
+#EndIf
+
+#IfMissingColumn procedure_report report_notes
+ALTER TABLE procedure_report
+  ADD COLUMN `report_notes` text NOT NULL DEFAULT '' COMMENT 'Notes from the lab';
 #EndIf
 

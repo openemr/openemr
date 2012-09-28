@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2013 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,11 +23,11 @@ $form_review = empty($_GET['review']) ? 0 : 1;
 $thisauth = acl_check('patients', 'med');
 if (!$thisauth) die(xl('Not authorized'));
 
-// Check authorization for panding review.
+// Check authorization for pending review.
 $reviewauth = acl_check('patients', 'sign');
 if ($form_review and !$reviewauth and !$thisauth) die(xl('Not authorized'));
 
-// Set pid for panding review.
+// Set pid for pending review.
 if ($_GET['set_pid'] && $form_review) {
   require_once("$srcdir/pid.inc");
   require_once("$srcdir/patient.inc");
@@ -44,6 +44,11 @@ if ($_GET['set_pid'] && $form_review) {
 
 if (!$form_batch && !$pid && !$form_review) die(xl('There is no current patient'));
 
+function oresRawData($name, $index) {
+  $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
+  return trim(strip_escape_custom($s));
+}
+
 function oresData($name, $index) {
   $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
   return formDataCore($s, true);
@@ -56,14 +61,12 @@ function QuotedOrNull($fld) {
 
 $current_report_id = 0;
 
-if ($_POST['form_submit']) {
- if($_POST['form_line']!='') { 
- foreach ($_POST['form_line'] as $lino => $line_value) {
-    list($order_id, $restyp_id, $report_id, $result_id) = explode(':', $line_value);
+if ($_POST['form_submit'] && !empty($_POST['form_line'])) { 
+  foreach ($_POST['form_line'] as $lino => $line_value) {
+    list($order_id, $order_seq, $report_id, $result_id) = explode(':', $line_value);
 
-    // Not using xl() here because these errors are for debugging only.
+    // Not using xl() here because this is for debugging only.
     if (empty($order_id)) die("Order ID is missing from line $lino.");
-    if (empty($restyp_id)) die("Result type ID is missing from line $lino.");
 
     // If report data exists for this line, save it.
     $date_report = oresData("form_date_report", $lino);
@@ -71,6 +74,7 @@ if ($_POST['form_submit']) {
     if (!empty($date_report)) {
       $sets =
         "procedure_order_id = '$order_id', " .
+        "procedure_order_seq = '$order_seq', " .
         "date_report = '$date_report', " .
         "date_collected = " . QuotedOrNull(oresData("form_date_collected", $lino)) . ", " .
         "specimen_num = '" . oresData("form_specimen_num", $lino) . "', " .
@@ -95,14 +99,24 @@ if ($_POST['form_submit']) {
 
     // If there's a report, save corresponding results.
     if ($current_report_id) {
+      // Comments and notes will be combined into one comments field.
+      $form_comments = oresRawData("form_comments", $lino);
+      $form_comments = str_replace("\n"  ,'~' , $form_comments);
+      $form_comments = str_replace("\r"  ,''  , $form_comments);
+      $form_notes = oresRawData("form_notes", $lino);
+      if ($form_notes !== '') {
+        $form_comments .= "\n" . $form_notes;
+      }
       $sets =
         "procedure_report_id = '$current_report_id', " .
-        "procedure_type_id = '$restyp_id', " .
+        "result_code = '" . oresData("form_result_code", $lino) . "', " .
+        "result_text = '" . oresData("form_result_text", $lino) . "', " .
         "abnormal = '" . oresData("form_result_abnormal", $lino) . "', " .
         "result = '" . oresData("form_result_result", $lino) . "', " .
         "`range` = '" . oresData("form_result_range", $lino) . "', " .
+        "units = '" . oresData("form_result_units", $lino) . "', " .
         "facility = '" . oresData("form_facility", $lino) . "', " .
-        "comments = '" . oresData("form_comments", $lino) . "', " .
+        "comments = '" . add_escape_custom($form_comments) . "', " .
         "result_status = '" . oresData("form_result_status", $lino) . "'";
       if ($result_id) { // result already exists
         sqlStatement("UPDATE procedure_result SET $sets "  .
@@ -112,9 +126,7 @@ if ($_POST['form_submit']) {
         $result_id = sqlInsert("INSERT INTO procedure_result SET $sets");
       }
     }
-
   } // end foreach
- }
 }
 ?>
 <html>
@@ -265,15 +277,6 @@ function validate(f) {
   }
   var abnstat = f['form_result_abnormal['+lino+']'].selectedIndex > 0;
   if (abnstat && !prDateRequired(rlino)) return false;
-  /*******************************************************************
-  var resstat = f['form_result_status['+lino+']'].selectedIndex > 0;
-  if (resstat != abnstat) {
-   alert('<?php xl('Result status or abnormality is missing','e') ?>');
-   if (f['form_result_abnormal['+lino+']'].focus)
-    f['form_result_abnormal['+lino+']'].focus();
-   return false;
-  }
-  *******************************************************************/
  }
  top.restoreSession();
  return true;
@@ -349,90 +352,72 @@ if ($form_batch) {
  <tr class='head'>
   <td colspan='2'><?php echo $form_batch ? xl('Patient') : xl('Order'); ?></td>
   <td colspan='4'><?php xl('Report','e'); ?></td>
-  <td colspan='6'><?php xl('Results and','e'); ?> <span class='reccolor''>
+  <td colspan='7'><?php xl('Results and','e'); ?> <span class='reccolor''>
    <?php  xl('Recommendations','e'); ?></span></td>
  </tr>
 
  <tr class='head'>
   <td><?php echo $form_batch ? xl('Name') : xl('Date'); ?></td>
-  <td><?php echo $form_batch ? xl('ID') : xl('Name'); ?></td>
+  <td><?php echo $form_batch ? xl('ID') : xl('Procedure Name'); ?></td>
   <td><?php xl('Reported','e'); ?></td>
   <td><?php xl('Ext Time Collected','e'); ?></td>
   <td><?php xl('Specimen','e'); ?></td>
   <td><?php xl('Status','e'); ?></td>
-  <td><?php xl('Group','e'); ?></td>
-  <td><?php xl('Name (click for more)','e'); ?></td>
+  <td><?php xl('Code','e'); ?></td>
+  <td><?php xl('Name','e'); ?></td>
   <td><?php xl('Abn','e'); ?></td>
   <td><?php xl('Value','e'); ?></td>
   <td><?php xl('Units', 'e'); ?></td>
   <td><?php xl('Range','e'); ?></td>
+  <td><?php xl('?','e'); ?></td>
  </tr>
 
 <?php 
 $selects =
-  "po.procedure_order_id, po.date_ordered, " .
-  "po.procedure_type_id AS order_type_id, pt1.name AS procedure_name, " .
-  "ptrc.name AS result_category_name, " .
-  "pt2.procedure_type AS result_type, " .
-  "pt2.procedure_type_id AS result_type_id, pt2.name AS result_name, " .
-  "pt2.units AS result_def_units, pt2.range AS result_def_range, " .
-  "pt2.description AS result_description, lo.title AS units_name, " .
-  "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, pr.report_status, pr.review_status, " .
-  "ps.procedure_result_id, ps.abnormal, ps.result, ps.range, ps.result_status, " .
-  "ps.facility, ps.comments, ps.units ";
+  "po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, " .
+  "pt1.procedure_type_id AS order_type_id, pc.procedure_name, " .
+  "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, " .
+  "pr.report_status, pr.review_status";
 
-// This join syntax means that results must all be at the same "level".
-// Either there is one result the same as the order, or all results are
-// direct children of the order, or all results are grandchildren of the
-// order.  No other arrangements are allowed.
-//
 $joins =
-  "LEFT JOIN procedure_type AS pt1 ON pt1.procedure_type_id = po.procedure_type_id " .
-  // ptrc is an optional result category just under the order type
-  "LEFT JOIN procedure_type AS ptrc ON ptrc.parent = po.procedure_type_id " .
-  "AND ptrc.procedure_type LIKE 'grp%' " .
-  // pt2 is a result or recommendation type the same as or just under the order type
-  "LEFT JOIN procedure_type AS pt2 ON " .
-  "( ( ptrc.procedure_type_id IS NULL AND ( pt2.parent = po.procedure_type_id " .
-  "OR pt2.procedure_type_id = po.procedure_type_id ) ) OR " .
-  "( ptrc.procedure_type_id IS NOT NULL AND pt2.parent = ptrc.procedure_type_id ) " .
-  ") AND ( pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%' ) " .
-  //
-  "LEFT JOIN list_options AS lo ON list_id = 'proc_unit' AND option_id = pt2.units " .
-  "LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id " .
-  "LEFT JOIN procedure_result AS ps ON ps.procedure_report_id = pr.procedure_report_id " .
-  "AND ps.procedure_type_id = pt2.procedure_type_id";
+  "JOIN procedure_order_code AS pc ON pc.procedure_order_id = po.procedure_order_id " .
+  "LEFT JOIN procedure_type AS pt1 ON pt1.lab_id = po.lab_id AND pt1.procedure_code = pc.procedure_code " .
+  "LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id AND " .
+  "pr.procedure_order_seq = pc.procedure_order_seq";
 
 $orderby =
-  "po.date_ordered, po.procedure_order_id, pr.procedure_report_id, " .
-  "ptrc.seq, ptrc.name, ptrc.procedure_type_id, " .
-  "pt2.seq, pt2.name, pt2.procedure_type_id";
+  "po.date_ordered, po.procedure_order_id, " .
+  "pc.procedure_order_seq, pr.procedure_report_id";
 
 // removed by jcw -- check/submit sequece too tedious.  This is a quick fix
 //$where = empty($_POST['form_all']) ?
 //  "( pr.report_status IS NULL OR pr.report_status = '' OR pr.report_status = 'prelim' )" :
 //  "1 = 1";
 
- $where = "1 = 1";
+$where = "1 = 1";
 
 if ($form_batch) {
-  $res = sqlStatement("SELECT po.patient_id, " .
+  $query = "SELECT po.patient_id, " .
   "pd.fname, pd.mname, pd.lname, pd.pubpid, $selects " .
   "FROM procedure_order AS po " .
   "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id $joins " .
-  "WHERE po.procedure_type_id = '$form_proc_type' AND " .
+  "WHERE pt.procedure_type_id = '$form_proc_type' AND " .
   "po.date_ordered >= '$form_from_date' AND po.date_ordered <= '$form_to_date' " .
   "AND $where " .
-  "ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, $orderby");
+  "ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, $orderby";
 }
 else {
-  $res = sqlStatement("SELECT $selects " .
-  "FROM procedure_order AS po $joins " .
+  $query = "SELECT $selects " .
+  "FROM procedure_order AS po " .
+  "$joins " .
   "WHERE po.patient_id = '$pid' AND $where " .
-  "ORDER BY $orderby");
+  "ORDER BY $orderby";
 }
 
+$res = sqlStatement($query);
+
 $lastpoid = -1;
+$lastpcid = -1;
 $lastprid = -1;
 $encount = 0;
 $lino = 0;
@@ -441,40 +426,15 @@ $lastrcn = '';
 $facilities = array();
 
 while ($row = sqlFetchArray($res)) {
-  $order_id  = empty($row['procedure_order_id' ]) ? 0 : ($row['procedure_order_id' ] + 0);
-  $restyp_id = empty($row['result_type_id'])      ? 0 : ($row['result_type_id'     ] + 0);
-  $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
-  $result_id = empty($row['procedure_result_id']) ? 0 : ($row['procedure_result_id'] + 0);
-
-  /*******************************************************************
-  $result_name = '';
-  if (!empty($row['result_category_name'])) $result_name = $row['result_category_name'] . ' / ';
-  if (!empty($row['result_name'])) $result_name .= $row['result_name'];
-  *******************************************************************/
-  $result_category_name = empty($row['result_category_name']) ? '--' : $row['result_category_name'];
-  $result_name      = empty($row['result_name'     ]) ? '' : $row['result_name'];
-
-  $date_report      = empty($row['date_report'     ]) ? '' : $row['date_report'];
-  $date_collected   = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
-  $specimen_num     = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
-  $report_status    = empty($row['report_status'   ]) ? '' : $row['report_status']; 
-  $result_abnormal  = empty($row['abnormal'        ]) ? '' : $row['abnormal'];
-  $result_result    = empty($row['result'          ]) ? '' : $row['result'];
-  $result_unit      = empty($row['units'           ]) ? '' : $row['units'];
-  $facility         = empty($row['facility'        ]) ? '' : $row['facility'];
-  $comments         = empty($row['comments'        ]) ? '' : $row['comments'];
-  $result_range     = empty($row['range'           ]) ? $row['result_def_range'] : $row['range'];
-  $result_status    = empty($row['result_status'   ]) ? '' : $row['result_status'];
-  $result_def_units = empty($row['result_def_units']) ? '' : $row['result_def_units'];
-  $units_name       = empty($row['units_name'      ]) ? xl('Units not defined') : $row['units_name'];
-
-  $review_status    = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
-
-  //echo $facility. "<br>";
-  if($facility <> "" && !in_array($facility, $facilities))
-  {
-      $facilities[] = $facility;
-  }
+  $order_type_id  = empty($row['order_type_id'      ]) ? 0 : ($row['order_type_id' ] + 0);
+  $order_id       = empty($row['procedure_order_id' ]) ? 0 : ($row['procedure_order_id' ] + 0);
+  $order_seq      = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
+  $report_id      = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
+  $date_report    = empty($row['date_report'     ]) ? '' : $row['date_report'];
+  $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
+  $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
+  $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status']; 
+  $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
 
   // skip report_status = receive to make sure do not show the report before it reviewed and sign off by Physicians
   if ($form_review) {
@@ -484,192 +444,264 @@ while ($row = sqlFetchArray($res)) {
     if ($review_status == "received") continue;
   }
 
-  if ($lastpoid != $order_id) {
-    ++$encount;
-    $lastrcn = '';
-  }
-  $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+  $selects = "pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units, " .
+    "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
+    "pt2.name AS name, pt2.description, pt2.seq AS seq, " .
+    "ps.procedure_result_id, ps.result_code AS result_code, ps.result_text, ps.abnormal, ps.result, " .
+    "ps.range, ps.result_status, ps.facility, ps.comments, ps.units, ps.comments";
 
-  echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+  // procedure_type_id for order:
+  $pt2cond = "pt2.parent = $order_type_id AND " .
+    "(pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%')";
 
-  // If this starts a new order, display its date and procedure name,
-  // otherwise empty space.
-  //
-  if ($lastpoid != $order_id) {
-    if ($form_batch) {
-      $tmp = $row['lname'];
-      if ($row['fname'] || $row['mname'])
-        $tmp .= ', ' . $row['fname'] . ' ' . $row['mname'];
-      echo "  <td>" . htmlentities($tmp) . "</td>\n";
-      echo "  <td>" . htmlentities($row['pubpid']) . "</td>\n";
+  // pr.procedure_report_id or 0 if none:
+  $pscond = "ps.procedure_report_id = $report_id";
+
+  $joincond = "ps.result_code = pt2.procedure_code";
+
+  // This union emulates a full outer join. The idea is to pick up all
+  // result types defined for this order type, as well as any actual
+  // results that do not have a matching result type.
+  $query = "(SELECT $selects FROM procedure_type AS pt2 " .
+    "LEFT JOIN procedure_result AS ps ON $pscond AND $joincond " .
+    "WHERE $pt2cond" .
+    ") UNION (" .
+    "SELECT $selects FROM procedure_result AS ps " .
+    "LEFT JOIN procedure_type AS pt2 ON $pt2cond AND $joincond " .
+    "WHERE $pscond) " .
+    "ORDER BY seq, name, procedure_type_id, result_code";
+
+  $rres = sqlStatement($query);
+  while ($rrow = sqlFetchArray($rres)) {
+    $restyp_code      = empty($rrow['procedure_code'  ]) ? '' : $rrow['procedure_code'];
+    $restyp_type      = empty($rrow['procedure_type'  ]) ? '' : $rrow['procedure_type'];
+    $restyp_name      = empty($rrow['name'            ]) ? '' : $rrow['name'];
+    $restyp_units     = empty($rrow['pt2_units'       ]) ? '' : $rrow['pt2_units'];
+    $restyp_range     = empty($rrow['pt2_range'       ]) ? '' : $rrow['pt2_range'];
+
+    $result_id        = empty($rrow['procedure_result_id']) ? 0 : ($rrow['procedure_result_id'] + 0);
+    $result_code      = empty($rrow['result_code'     ]) ? $restyp_code : $rrow['result_code'];
+    $result_text      = empty($rrow['result_text'     ]) ? $restyp_name : $rrow['result_text'];
+    $result_abnormal  = empty($rrow['abnormal'        ]) ? '' : $rrow['abnormal'];
+    $result_result    = empty($rrow['result'          ]) ? '' : $rrow['result'];
+    $result_units     = empty($rrow['units'           ]) ? $restyp_units : $rrow['units'];
+    $result_facility  = empty($rrow['facility'        ]) ? '' : $rrow['facility'];
+    $result_comments  = empty($rrow['comments'        ]) ? '' : $rrow['comments'];
+    $result_range     = empty($rrow['range'           ]) ? $restyp_range : $rrow['range'];
+    $result_status    = empty($rrow['result_status'   ]) ? '' : $rrow['result_status'];
+
+    // If there is more than one line of comments, everything after that is "notes".
+    $result_notes = '';
+    $i = strpos($result_comments, "\n");
+    if ($i !== FALSE) {
+      $result_notes = trim(substr($result_comments, $i + 1));
+      $result_comments = substr($result_comments, 0, $i);
+    }
+    $result_comments = trim($result_comments);
+
+    if($result_facility <> "" && !in_array($result_facility, $facilities)) {
+      $facilities[] = $result_facility;
+    }
+
+    if ($lastpoid != $order_id || $lastpcid != $order_seq) {
+      ++$encount;
+      $lastrcn = '';
+    }
+    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+
+    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+
+    // Generate first 2 columns.
+    if ($lastpoid != $order_id || $lastpcid != $order_seq) {
+      $lastprid = -1; // force report fields on first line of each procedure
+      if ($form_batch) {
+        if ($lastpoid != $order_id) {
+          $tmp = $row['lname'];
+          if ($row['fname'] || $row['mname'])
+            $tmp .= ', ' . $row['fname'] . ' ' . $row['mname'];
+          echo "  <td>" . htmlentities($tmp) . "</td>\n";
+          echo "  <td>" . htmlentities($row['pubpid']) . "</td>\n";
+        }
+        else {
+          echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
+        }
+      }
+      else {
+        if ($lastpoid != $order_id) {
+          echo "  <td>" . $row['date_ordered'] . "</td>\n";
+        }
+        else {
+          echo "  <td style='background-color:transparent'>&nbsp;</td>";
+        }
+        echo "  <td>" . htmlentities($row['procedure_name']) . "</td>\n";
+      }
     }
     else {
-      echo "  <td>" . $row['date_ordered'] . "</td>\n";
-      echo "  <td>" . htmlentities($row['procedure_name']) . "</td>\n";
+      echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
     }
-    $lastprid = -1; // force report fields on first line of each order
-  } else {
-    echo "  <td colspan='2' style='background-color:#94d6e7'>&nbsp;";
-  }
-  // Include a hidden form field containing all IDs for this line.
-  echo "<input type='hidden' name='form_line[$lino]' value='$order_id:$restyp_id:$report_id:$result_id' />";
-  echo "</td>\n";
 
-  // If this starts a new report or a new order, generate the report form
-  // fields.  In the case of a new order with no report yet, the fields will
-  // have their blank/default values, and form_line (above) will indicate a
-  // report ID of 0.
-  //
-  // TBD: Also generate default report fields and another set of results if
-  // the previous report is marked "Preliminary".
-  //
-  if ($report_id != $lastprid) {
-    echo "  <td nowrap>";
-    echo "<input type='text' size='8' name='form_date_report[$lino]'" .
-      " id='form_date_report[$lino]' class='celltextfw' value='$date_report' " .
-      " title='" . xl('Date of this report') . "'" .
-      " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'" .
-      " />";
-    echo "<span class='bold' id='q_date_report[$lino]' style='cursor:pointer' " .
-      "title='" . xl('Click here to choose a date') . "' />?</span>";
-    echo "</td>\n";
+    // If this starts a new report or a new order, generate the report form
+    // fields.  In the case of a new order with no report yet, the fields will
+    // have their blank/default values, and form_line (above) will indicate a
+    // report ID of 0.
+    //
+    // TBD: Also generate default report fields and another set of results if
+    // the previous report is marked "Preliminary".
+    //
+    if ($report_id != $lastprid) {
+      echo "  <td nowrap>";
+      echo "<input type='text' size='8' name='form_date_report[$lino]'" .
+        " id='form_date_report[$lino]' class='celltextfw' value='" . attr($date_report) . "' " .
+        " title='" . xl('Date of this report') . "'" .
+        " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'" .
+        " />";
+      echo "<span class='bold' id='q_date_report[$lino]' style='cursor:pointer' " .
+        "title='" . xl('Click here to choose a date') . "' />?</span>";
+      echo "</td>\n";
 
-    echo "  <td nowrap>";
-    echo "<input type='text' size='13' name='form_date_collected[$lino]'" .
-      " id='form_date_collected[$lino]'" .
-      " class='celltextfw' value='$date_collected' " .
-      " title='" . xl('Date and time of sample collection') . "'" .
-      " onkeyup='datekeyup(this,mypcc,true)' onblur='dateblur(this,mypcc,true)'" .
-      " />";
-    echo "<span class='bold' id='q_date_collected[$lino]' style='cursor:pointer' " .
-      "title='" . xl('Click here to choose a date and time') . "' />?</span>";
-    echo "</td>\n";
+      echo "  <td nowrap>";
+      echo "<input type='text' size='13' name='form_date_collected[$lino]'" .
+        " id='form_date_collected[$lino]'" .
+        " class='celltextfw' value='" . attr($date_collected) . "' " .
+        " title='" . xl('Date and time of sample collection') . "'" .
+        " onkeyup='datekeyup(this,mypcc,true)' onblur='dateblur(this,mypcc,true)'" .
+        " />";
+      echo "<span class='bold' id='q_date_collected[$lino]' style='cursor:pointer' " .
+        "title='" . xl('Click here to choose a date and time') . "' />?</span>";
+      echo "</td>\n";
 
-    echo "  <td>";
-    echo "<input type='text' size='8' name='form_specimen_num[$lino]'" .
-      " class='celltext' value='$specimen_num' " .
-      " title='" . xl('Specimen number/identifier') . "'" .
-      " />";
-    echo "</td>\n";
+      echo "  <td>";
+      echo "<input type='text' size='8' name='form_specimen_num[$lino]'" .
+        " class='celltext' value='" . attr($specimen_num) . "' " .
+        " title='" . xl('Specimen number/identifier') . "'" .
+        " />";
+      echo "</td>\n";
 
-    echo "  <td>";
-    echo generate_select_list("form_report_status[$lino]", 'proc_rep_status',
-      $report_status, xl('Report Status'), ' ', 'cellselect');
-    echo "</td>\n";
-  }
-  else {
-    echo "  <td colspan='4' style='background-color:#94d6e7'>&nbsp;</td>\n";
-  }
-
-  if ($result_category_name != $lastrcn) {
-    echo "  <td>";
-    echo htmlentities($result_category_name);
-    echo "</td>\n";
-    $lastrcn = $result_category_name;
-  }
-  else {
-    echo "  <td style='background-color:#94d6e7'>&nbsp;</td>\n";
-  }
-
-  echo "  <td title='" . addslashes($row['result_description']) . "'";
-  if ($row['result_type'] == 'rec') echo " class='reccolor'";
-  echo " style='cursor:pointer' onclick='extShow($lino, this)'>" .
-    htmlentities($result_name) . "</td>\n";
-
-  echo "  <td>";
-  echo generate_select_list("form_result_abnormal[$lino]", 'proc_res_abnormal',
-    $result_abnormal, xl('Indicates abnormality'), ' ', 'cellselect');
-  echo "</td>\n";
-
-  echo "  <td>";
-  if ($result_def_units == 'bool') {
-    // echo generate_select_list("form_result_result[$lino]", 'proc_res_bool',
-    //   $result_result, $units_name, ' ', 'cellselect');
-    echo "&nbsp;--";
-  }
-  else {
-    echo "<input type='text' size='4' name='form_result_result[$lino]'" .
-      " class='celltext' value='$result_result' " .
-      " title='" . addslashes($units_name) . "'" .
-      " />";
-  }
-  echo "</td>\n";
-
-  echo "<td>";
-  echo $result_unit;
-  echo "</td>";
-
-
-  echo "  <td>";
-  echo "<input type='text' size='8' name='form_result_range[$lino]'" .
-    " class='celltext' value='$result_range' " .
-    " title='" . xl('Reference range of results') . "'" .
-    " />";
-  echo "</td>\n";
-
-  echo " </tr>\n";
-
-  // Create a floating div for additional attributes of this result.
-  $extra_html .= "<div id='ext_$lino' " .
-    "style='position:absolute;width:500px;border:1px solid black;" .
-    "padding:2px;background-color:#cccccc;visibility:hidden;" .
-    "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
-    "<table width='100%'>\n" .
-    "<tr><td class='bold' align='center' colspan='2' style='padding:4pt 0 4pt 0'>" .
-    // xl('Additional Attributes') .
-    htmlspecialchars($result_name) .
-    "</td></tr>\n" .
-    "<tr><td class='bold' width='1%' nowrap>" . xl('Status') . ": </td>" .
-    "<td>" . generate_select_list("form_result_status[$lino]", 'proc_res_status',
-      $result_status, xl('Result Status'), '') . "</td></tr>\n" .
-    "<tr><td class='bold' nowrap>" . xl('Facility') . ": </td>" .
-    "<td><input type='text' size='15' name='form_facility[$lino]'" .
-    " value='$facility' " .
-    " title='" . xl('Supplier facility name') . "'" .
-    " style='width:100%' /></td></tr>\n" .
-    "<tr><td class='bold' nowrap>" . xl('Comments') . ": </td>" .
-    "<td><textarea rows='3' cols='15' name='form_comments[$lino]'" .
-    " title='" . xl('Comments for this result or recommendation') . "'" .
-    " style='width:100%' />" . htmlspecialchars($comments) .
-    "</textarea></td></tr>\n" .
-    "</table>\n" .
-    "<p><center><input type='button' value='" . xl('Close') . "' " .
-    "onclick='extShow($lino, false)' /></center></p>\n".
-    "</div>";
-
-  $lastpoid = $order_id;
-  $lastprid = $report_id;
-  ++$lino;
-
-}
-// display facility information
-$extra_html .= "<table>";
-$extra_html .= "<th>". xl('Performing Laboratory Facility') . "</th>";
-foreach($facilities as $facilityID)
-{
-    foreach(explode(":", $facilityID) as $lab_facility)
-    {
-
-        $facility_array = getFacilityInfo($lab_facility);
-        if($facility_array)
-        {
-            $extra_html .=
-                "<tr><td><hr></td></tr>" .
-                "<tr><td>". htmlspecialchars($facility_array['fname']) . " " . htmlspecialchars($facility_array['lname']) . ", " . htmlspecialchars($facility_array['title']). "</td></tr>" .
-                "<tr><td>". htmlspecialchars($facility_array['organization']) . "</td></tr>" .
-                "<tr><td>". htmlspecialchars($facility_array['street']) . " " .htmlspecialchars($facility_array['city']) . " " . htmlspecialchars($facility_array['state']) . "</td></tr>" .
-                "<tr><td>". htmlspecialchars(formatPhone($facility_array['phone'])) . "</td></tr>";
-        }
+      echo "  <td>";
+      echo generate_select_list("form_report_status[$lino]", 'proc_rep_status',
+        $report_status, xl('Report Status'), ' ', 'cellselect');
+      echo "</td>\n";
     }
+    else {
+      echo "  <td colspan='4' style='background-color:transparent'>&nbsp;</td>\n";
+    }
+
+    echo "  <td nowrap>";
+    echo "<input type='text' size='6' name='form_result_code[$lino]'" .
+      " class='celltext' value='" . attr($result_code) . "' />" .
+      "</td>\n";
+
+    echo "  <td>" .
+      "<input type='text' size='16' name='form_result_text[$lino]'" .
+      " class='celltext' value='" . attr($result_text) . "' />";
+      "</td>\n";
+
+    echo "  <td>";
+    echo generate_select_list("form_result_abnormal[$lino]", 'proc_res_abnormal',
+      $result_abnormal, xl('Indicates abnormality'), ' ', 'cellselect');
+    echo "</td>\n";
+
+    echo "  <td>";
+    if ($result_units == 'bool') {
+      echo "&nbsp;--";
+    }
+    else {
+      echo "<input type='text' size='7' name='form_result_result[$lino]'" .
+        " class='celltext' value='" . attr($result_result) . "' " .
+        " />";
+    }
+    echo "</td>\n";
+
+    echo "  <td>";
+    echo "<input type='text' size='4' name='form_result_units[$lino]'" .
+      " class='celltext' value='" . attr($result_units) . "' " .
+      " title='" . xl('Units applicable to the result value') . "'" .
+      " />";
+    echo "</td>\n";
+
+    echo "  <td>";
+    echo "<input type='text' size='8' name='form_result_range[$lino]'" .
+      " class='celltext' value='" . attr($result_range) . "' " .
+      " title='" . xl('Reference range of results') . "'" .
+      " />";
+    // Include a hidden form field containing all IDs for this line.
+    echo "<input type='hidden' name='form_line[$lino]' " .
+      "value='$order_id:$order_seq:$report_id:$result_id' />";
+    echo "</td>\n";
+
+    echo "  <td class='bold' style='cursor:pointer' " .
+      "onclick='extShow($lino, this)' align='center' " .
+      "title='" . xl('Click here to view/edit more details') . "'>";
+    echo "&nbsp;?&nbsp;";
+    echo "</td>\n";
+
+    echo " </tr>\n";
+
+    // Create a floating div for additional attributes of this result.
+    $extra_html .= "<div id='ext_$lino' " .
+      "style='position:absolute;width:750px;border:1px solid black;" .
+      "padding:2px;background-color:#cccccc;visibility:hidden;" .
+      "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
+      "<table width='100%'>\n" .
+      "<tr><td class='bold' align='center' colspan='2' style='padding:4pt 0 4pt 0'>" .
+      htmlspecialchars($result_text) .
+      "</td></tr>\n" .
+      "<tr><td class='bold' width='1%' nowrap>" . xlt('Status') . ": </td>" .
+      "<td>" . generate_select_list("form_result_status[$lino]", 'proc_res_status',
+        $result_status, xl('Result Status'), '') . "</td></tr>\n" .
+      "<tr><td class='bold' nowrap>" . xlt('Facility') . ": </td>" .
+      "<td><input type='text' size='15' name='form_facility[$lino]'" .
+      " value='$result_facility' " .
+      " title='" . xla('Supplier facility name') . "'" .
+      " style='width:100%' /></td></tr>\n" .
+      "<tr><td class='bold' nowrap>" . xlt('Comments') . ": </td>" .
+      "<td><textarea rows='3' cols='15' name='form_comments[$lino]'" .
+      " title='" . xla('Comments for this result or recommendation') . "'" .
+      " style='width:100%' />" . htmlspecialchars($result_comments) .
+      "</textarea></td></tr>\n" .
+      "<tr><td class='bold' nowrap>" . xlt('Notes') . ": </td>" .
+      "<td><textarea rows='4' cols='15' name='form_notes[$lino]'" .
+      " title='" . xla('Additional notes for this result or recommendation') . "'" .
+      " style='width:100%' />" . htmlspecialchars($result_notes) .
+      "</textarea></td></tr>\n" .
+      "</table>\n" .
+      "<p><center><input type='button' value='" . xla('Close') . "' " .
+      "onclick='extShow($lino, false)' /></center></p>\n".
+      "</div>";
+
+    $lastpoid = $order_id;
+    $lastpcid = $order_seq;
+    $lastprid = $report_id;
+    ++$lino;
+  }
 }
 
-$extra_html .= "</table>\n";
+if (!empty($facilities)) {
+  // display facility information
+  $extra_html .= "<table>";
+  $extra_html .= "<tr><th>". xl('Performing Laboratory Facility') . "</th></tr>";
+  foreach($facilities as $facilityID) {
+    foreach(explode(":", $facilityID) as $lab_facility) {
+      $facility_array = getFacilityInfo($lab_facility);
+      if($facility_array) {
+        $extra_html .=
+          "<tr><td><hr></td></tr>" .
+          "<tr><td>". htmlspecialchars($facility_array['fname']) . " " . htmlspecialchars($facility_array['lname']) . ", " . htmlspecialchars($facility_array['title']). "</td></tr>" .
+          "<tr><td>". htmlspecialchars($facility_array['organization']) . "</td></tr>" .
+          "<tr><td>". htmlspecialchars($facility_array['street']) . " " .htmlspecialchars($facility_array['city']) . " " . htmlspecialchars($facility_array['state']) . "</td></tr>" .
+          "<tr><td>". htmlspecialchars(formatPhone($facility_array['phone'])) . "</td></tr>";
+      }
+    }
+  }
+  $extra_html .= "</table>\n";
+}
 ?>
+
 </table>
 
 <?php
 if ($form_review) {
- // if user authorised for panding review.
+ // if user authorized for pending review.
  if ($reviewauth) {
  ?>
   <center><p>

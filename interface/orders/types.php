@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2012 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,6 +17,7 @@ require_once("$srcdir/formdata.inc.php");
 
 $popup = empty($_GET['popup']) ? 0 : 1;
 $order = formData('order', 'G') + 0;
+$labid = formData('labid', 'G') + 0;
 
 // If Save was clicked, set the result, close the window and exit.
 //
@@ -27,11 +28,24 @@ if ($popup && $_POST['form_save']) {
   $name = addslashes($ptrow['name']);
 ?>
 <script language="JavaScript">
-if (opener.closed || ! opener.set_proc_type)
+if (opener.closed || ! opener.set_proc_type) {
  alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
-else
+}
+else {
  opener.set_proc_type(<?php echo "$form_order, '$name'" ?>);
-window.close();
+<?php
+// This is to generate the "Questions at Order Entry" for the Procedure Order form.
+// GET parms needed for this are: formid, formseq.
+if (isset($_GET['formid'])) {
+  require_once("qoe.inc.php");
+  $qoe_init_javascript = '';
+  echo ' opener.set_proc_html("';
+  echo generate_qoe_html($form_order, intval($_GET['formid']), 0, intval($_GET['formseq']));
+  echo '", "' . $qoe_init_javascript .  '");' . "\n";
+}
+?>
+}
+window.close(); // comment out for debugging
 </script>
 <?php
   exit();
@@ -128,7 +142,7 @@ function nextOpen() {
    if (thisid > 0)
     toggle(thisid);
    else
-    $.getScript('types_ajax.php?id=' + thisid + '&order=<?php echo $order; ?>');
+    $.getScript('types_ajax.php?id=' + thisid + '&order=<?php echo $order; ?>' + '&labid=<?php echo $labid; ?>');
   }
   else {
    recolor();
@@ -160,7 +174,7 @@ function toggle(id) {
   td1.parent().after('<tr class="outertr"><td colspan="5" id="con' + id + '" style="padding:0">Loading...</td></tr>');
   td1.addClass('isExpanded');
   swapsign(td1, '+', '-');
-  $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>');
+  $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>' + '&labid=<?php echo $labid; ?>');
  }
 }
 
@@ -191,7 +205,7 @@ function refreshFamily(id, haskids) {
   }
  }
  if (haskids)
-  $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>');
+  $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>' + '&labid=<?php echo $labid; ?>');
  else
   recolor();
 }
@@ -225,7 +239,11 @@ function recolor() {
 
 <h3 style='margin-top:0'><?php xl('Types of Orders and Results','e') ?></h3>
 
-<form method='post' name='theform' action='types.php?popup=<?php echo $popup ?>&order=<?php echo $order ?>'>
+<form method='post' name='theform' action='types.php?popup=<?php echo $popup ?>&order=<?php
+echo $order;
+if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
+if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
+?>'>
 
 <table width='100%' cellspacing='0' cellpadding='0' border='0'>
  <tr class='head'>

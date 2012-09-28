@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2013 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -395,24 +395,27 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       "po.provider_id, pd.regdate, " .
       "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, " .
       "pd.contrastart, pd.referral_source$pd_fields, " .
-      "ps.abnormal, ps.procedure_type_id AS result_type, " .
-      "pto.name AS order_name, ptr.name AS result_name, ptr.related_code " .
+      "ps.abnormal, " .
+      // "pto.name AS order_name, ptr.name AS result_name, ptr.related_code " .
+      "pc.procedure_name AS order_name, ptr.name AS result_name, ptr.related_code " .
       "FROM procedure_order AS po " .
       "JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
       "JOIN patient_data AS pd ON pd.pid = po.patient_id $sexcond" .
+      "JOIN procedure_order_code AS pc ON pc.procedure_order_id = po.procedure_order_id " .
       "JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id " .
+      "AND pr.procedure_order_seq = pc.procedure_order_seq " .
       "AND pr.date_report IS NOT NULL " .
       "JOIN procedure_result AS ps ON ps.procedure_report_id = pr.procedure_report_id " .
       "AND ps.result_status = 'final' " .
-      "JOIN procedure_type AS pto ON pto.procedure_type_id = po.procedure_type_id " .
-      "JOIN procedure_type AS ptr ON ptr.procedure_type_id = ps.procedure_type_id " .
-      "AND ptr.procedure_type NOT LIKE 'rec' " .
+      // "JOIN procedure_type AS pto ON pto.procedure_type_id = pc.procedure_type_id " .
+      "JOIN procedure_type AS ptr ON ptr.lab_id = po.lab_id AND ptr.procedure_code = ps.result_code " .
+      "AND ptr.procedure_type LIKE 'res%' " .
       "WHERE po.date_ordered IS NOT NULL AND po.date_ordered >= '$from_date' " .
       "AND po.date_ordered <= '$to_date' ";
     if ($form_facility) {
       $query .= "AND fe.facility_id = '$form_facility' ";
     }
-    $query .= "ORDER BY fe.pid, fe.encounter, ps.procedure_type_id"; // needed?
+    $query .= "ORDER BY fe.pid, fe.encounter, ps.result_code"; // needed?
 
     $res = sqlStatement($query);
 
