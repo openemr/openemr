@@ -424,6 +424,6 @@ if ($acl_version < $upgrade_acl) {
 
 //All done
 set_acl_version($acl_version);
-echo "</BR><B>ALL DONE</B>";
+echo "DONE upgrading access controls";
 
 ?>

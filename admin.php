@@ -104,6 +104,7 @@ foreach ($siteslist as $sfname) {
       $openemr_version = $row['v_major'] . "." . $row['v_minor'] . "." .
         $row['v_patch'] . $row['v_tag'] . $database_patch_txt;
       $database_version = 0 + $row['v_database'];
+      $database_acl = 0 + $row['v_acl'];
       $database_patch = 0 + $row['v_realpatch'];
     }
 
@@ -112,6 +113,9 @@ foreach ($siteslist as $sfname) {
     echo "  <td>$openemr_version</td>\n";
     if ($v_database != $database_version) {
       echo "  <td><a href='sql_upgrade.php?site=$sfname'>Upgrade Database</a></td>\n";
+    }
+    else if ( ($v_acl > $database_acl) ) {
+      echo "  <td><a href='acl_upgrade.php?site=$sfname'>Upgrade Access Controls</a></td>\n";
     }
     else if ( ($v_realpatch != $database_patch) ) {
       echo "  <td><a href='sql_patch.php?site=$sfname'>Patch Database</a></td>\n";

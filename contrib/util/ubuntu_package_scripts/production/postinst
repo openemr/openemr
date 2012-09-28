@@ -186,12 +186,6 @@ case "$1" in
             php -f $OPENEMR/TEMPsql_upgrade.php >> $LOG 2>&1
             rm -f $OPENEMR/TEMPsql_upgrade.php
 
-            #upgrade the gacl controls
-            echo "<?php \$_GET['site'] = '$SITENAME'; ?>" > $OPENEMR/TEMPacl_upgrade.php
-            cat $OPENEMR/acl_upgrade.php >> $OPENEMR/TEMPacl_upgrade.php
-            php -f $OPENEMR/TEMPacl_upgrade.php >> $LOG 2>&1
-            rm -f $OPENEMR/TEMPacl_upgrade.php
-
             #copy the old config file into new with the OLD at end to allow manual configuration of old
             # optional settings.
             if [ -d "$TMPDIR/openemr_web_$OLD_VERSION/sites/$SITENAME" ]; then
