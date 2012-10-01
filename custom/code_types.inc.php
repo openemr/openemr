@@ -48,7 +48,7 @@
  * @link    http://www.open-emr.org
  */
 
-require_once("$srcdir/csv_like_join.php");
+require_once(dirname(__FILE__)."/../library/csv_like_join.php");
 
 $code_types = array();
 $default_search_type = '';
