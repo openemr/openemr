@@ -131,7 +131,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     die("Site ID '$tmp' contains invalid characters.");
   if (!isset($_SESSION['site_id']) || $_SESSION['site_id'] != $tmp) {
     $_SESSION['site_id'] = $tmp;
-    error_log("Session site ID has been set to '$tmp'"); // debugging
+    //error_log("Session site ID has been set to '$tmp'"); // debugging
   }
 }
 
