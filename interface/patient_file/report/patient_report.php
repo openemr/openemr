@@ -170,7 +170,9 @@ function show_date_fun(){
 </table>
 
 <br>
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />
+<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
+<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />
+<input type='hidden' name='pdf' value='0'>
 <br>
 
 <!-- old ccr button position -->
@@ -343,7 +345,8 @@ foreach($registry_form_name as $var) {
   </td>
  </tr>
 </table>
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />
+<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
+<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />
 
 <hr/>
 
@@ -371,7 +374,8 @@ while ($result && !$result->EOF) {
 </ul>
 </form>
 
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />
+<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
+<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />
 
 </div>  <!-- close patient_reports DIV -->
 </body>
@@ -380,7 +384,8 @@ while ($result && !$result->EOF) {
 
 // jQuery stuff to make the page a little easier to use
 $(document).ready(function(){
-    $(".genreport").click(function() { top.restoreSession(); $("#report_form").submit(); });
+    $(".genreport").click(function() { top.restoreSession(); document.report_form.pdf.value = 0; $("#report_form").submit(); });
+    $(".genpdfrep").click(function() { top.restoreSession(); document.report_form.pdf.value = 1; $("#report_form").submit(); });
     $("#genfullreport").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
     //$("#printform").click(function() { PrintForm(); });
     $(".issuecheckbox").click(function() { issueClick(this); });

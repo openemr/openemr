@@ -1,0 +1,1064 @@
+body {
+    margin: 0px 0px 0px 2px;
+    font-family: Arial; 
+    font-size: 1em;
+}
+
+a {
+  color: #0000cc;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #0000cc;
+}
+
+a:hover {
+  color: #ff5555;
+}
+
+.menu {
+    font-family: Arial;
+    font-style: italic;
+    font-size: 11pt;
+    color: #0000cc;
+    text-decoration: none;
+    text-align: left;
+}
+
+.menu_selected {
+    font-family: Arial;
+    font-style: italic;
+    font-size: 11pt;
+    color: #000000;
+    text-decoration: none;
+    text-align: left;
+}
+
+.logout {
+    font-family: Arial;
+    font-style: italic;
+    font-size: 11pt;
+    color: #000000;
+    text-decoration: none;
+    text-align: right;
+}
+
+.text {
+    font-family: Arial;
+    text-decoration: none;
+    color: #000000;
+    font-size: 10pt;
+}
+
+.required {
+    font-family: Arial;
+    text-decoration: none;
+    font-size: 10pt;
+    color: #880000;
+    font-weight: bold;
+}
+
+.bold {
+    font-family: Arial;
+    text-decoration: none;
+    font-size: 10pt;
+    color: #000000;
+    font-weight: bold;
+}
+
+.alert {
+    font-family: Arial;
+    font-size: 70%;
+    color: #FF0000;
+    text-decoration: none;
+}
+
+.small {
+    text-decoration: none;
+    color: #000000;
+    font-family: Arial;
+    font-size: 80%;
+}
+
+.link {
+    font-family: Arial;
+    text-decoration: none;
+    color: #0000cc;
+    font-size: 70%;
+}
+
+.more {
+    font-family: Arial;
+    text-decoration: none;
+    font-size: 70%;
+}
+
+.back {
+    font-family: Arial;
+    text-decoration: none;
+    font-size: 70%;
+}
+
+.link_selected {
+    font-family: Arial;
+    text-decoration: none;
+    color: #0000FF;
+    font-size: 70%;
+}
+
+.link_selected:visited {
+    font-family: Arial;
+    text-decoration: none;
+    color: #0000FF;
+    font-size: 70%;
+}
+
+.link_submit {
+    font-family: Arial;
+    text-decoration: none;
+    color: #000077;
+    font-size: 10pt;
+}
+
+.link_submit a:visited {
+  color: #000077;
+}
+
+.link_submit a:hover {
+  color: #ff5555;
+}
+
+.items {
+    font-family: Arial;
+    font-size: 6pt;
+}
+
+.title {
+    font-family: Arial;
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* see .titlebar below */
+.title_bar {
+    font-family: Arial;
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
+}
+
+.title_bar_top {
+    font-family: Arial;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
+}
+
+.body_top { background-color: #fefdcf; margin: 8px }    /* $top_bg_line */
+.bgcolor2 { background-color: #fefdcf; }    /* $GLOBALS['style']['BGCOLOR2'] */
+.body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
+.body_title { background-color: #fedf98; }  /* $title_bg_line */
+.body_nav { background-color: #fefdcf; }    /* $nav_bg_line */
+.body_filler { background-color: #f7f0d5; } /* $login_filler_line */
+.body_login { background: url('../pic/aquabg.gif') repeat; } /* $login_body_line */
+.table_bg { background-color: #ccc; }           /* $table_bg */
+.bgcolor1 { background-color: #ccc; }       /* $GLOBALS['style']['BGCOLOR1'] */
+.textcolor11 { background-color: #222; }    /* $GLOBALS['style']['TEXTCOLOR11'] */
+.highlightcolor { background-color: #ddd; } /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
+.bottom_line { background: url('../pic/aquabg.gif') repeat; }    /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
+.logobar { background-color: #24262c; height: 110px; }                 /* $GLOBALS['logoBarHeight'] */
+.navbar { height: 22px; }                   /* $GLOBALS['navBarHeight'] */
+.titlebar { height: 20px; }                 /* $GLOBALS['titleBarHeight'] */
+
+#addressbook_list td {
+font-family: Arial;
+padding-left: 4px;
+padding-right: 4px;
+}
+#addressbook_list a, #addressbook_list a:visited, #addressbook_list a:hover {
+color:#0000cc;
+}
+#addressbook_list tr.search {
+font-size:9pt;
+font-weight:bold;
+}
+#addressbook_list tr.head {
+font-size:10pt;
+background-color:#cccccc;
+font-weight:bold;
+}
+#addressbook_list tr.detail {
+font-size:10pt;
+}
+#addressbook_list .inputtext {
+font-family:monospace;
+font-size:9pt;
+font-weight:normal;
+border-style:solid;
+border-width:1px;
+border-color: #000000;
+background-color:transparent;
+}
+#addressbook_list .button {
+font-family:Arial;
+font-size:8pt;
+font-weight:bold;
+}
+
+/* styles taken out of templates/report/general_default.html */
+#reports_list td {
+font-size:8pt;
+font-family:Arial;
+}
+#reports_list a {
+font-size:8pt;
+font-family:Arial;
+}
+
+/* styles taken out of templates/documents/general_list.html */
+#documents_list td {
+font-size:8pt;
+font-family:Arial;
+}
+#documents_list a {
+font-size:8pt;
+font-family:Arial;
+}
+#documents_list .treeMenuDefault {
+font-style: italic;
+}
+#documents_list .treeMenuBold {
+font-style: italic;
+font-weight: bold;
+}
+#documents_list {
+    width: 29%;
+    height: 95%;
+    overflow: auto; 
+    float: left;
+    border-right: dashed 1px;
+}
+#documents_actions {
+    padding-top: 10px;
+    width: 70%;
+    height: 95%;
+    float: right;
+    overflow: auto;
+}
+#documents_actions iframe {
+    display: inline;
+    border:none; 
+    width:100%; 
+    height:600px;
+    overflow: auto;
+}
+#documents_actions form {
+    margin: 0px; padding: 0px;
+}
+#documents_actions table {
+    width: 100%;
+    height: 95%;
+}
+
+/*=============================================================
+ * This section relates to the custom layouts that can be made
+ * using the OEMR tool in the Admin section. For example, the
+ * Patient Demographics are a custom layout.
+ *============================================================*/
+#DEM .groupname {
+    font-weight: bold;
+    color: #080;
+    font-size: 0.8em;
+    padding-right: 5px;
+    vertical-align: top;
+}
+#DEM .label {
+    font-weight: bold;
+    font-size: 0.8em;
+    vertical-align: top;
+    text-align: right;
+}
+#DEM .data {
+    font-size: 0.8em;
+    vertical-align: top;
+    text-align: left;
+    padding-right: 6px;/*30px - ie 6 fix*/
+}
+
+/* Patient History */
+
+#HIS .groupname {
+    font-weight: bold;
+    color: #080;
+    font-size: 9pt;
+    padding-right: 1px;
+    vertical-align: top;
+    height: 2em;
+}
+#HIS .label {
+    font-weight: bold;
+    font-size: 9pt;
+    vertical-align: top;
+}
+#HIS .data {
+    font-size: 9pt;
+    vertical-align: top;
+    text-align: left;
+    padding-right: 10px;
+}
+
+
+/*=============================================================
+ * Patient Notes
+ * seen in the patient summary and notes screens
+ *============================================================*/
+#pnotes .billing {
+    background-color: #dfd;  
+}
+
+#pnotes .highlight {
+    background-color: #fff;
+}
+
+#pnotes table {
+    border-collapse:collapse;
+}
+
+#pnotes .noterow {
+    cursor: pointer; 
+}
+
+#pnotes .noterow td {
+    border-bottom:1px dashed black;
+    vertical-align: top;
+    padding: 5px;
+    margin: 5px;
+}
+
+
+/*=============================================================
+ * Patient Stats
+ * seen in the patient stats screens
+ *============================================================*/
+#patient_stats {
+    padding: 10px;
+}
+
+#patient_stats table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#patient_stats td {
+    padding: 3px;
+}
+#patient_stats .statrow {
+    cursor: pointer;
+}
+
+#patient_stats .head {
+    font-size:10pt;
+    background-color:#cccccc;
+    text-align:center;
+}
+
+#patient_stats .detail {
+    font-size:10pt;
+    vertical-align: top;
+}
+
+#patient_stats .btn {
+    background-color:transparent;
+}
+
+#patient_stats .bg1 {
+    background-color: #ddddff;
+}
+#patient_stats .bg2 {
+    background-color: #ffdddd;
+}
+
+#patient_stats .center {
+    text-align: center;
+}
+
+
+/*=============================================================
+ * Patient Stats Summary
+ * seen in the patient summary screen
+ *============================================================*/
+#patient_stats_summary table {
+    border-collapse: collapse;
+}
+#patient_stats_summary .noend_noreturn {
+    color: #ee0000;
+}
+#patient_stats_summary .noend {
+    color: #dd5500;
+}
+#patient_stats_summary .noreturn {
+    color: #0000ff;
+}
+#patient_stats_summary .title {
+    font-size: 1.1em;
+}
+#patient_stats_issues {
+    width: 100%;
+}
+#patient_stats_spreadsheets {
+    width: 100%;
+}
+#patient_stats_imm {
+    width: 100%;
+}
+#patient_stats_prescriptions {
+    width: 100%;
+}
+
+/*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+#patient_pastenc {
+    width:100%;
+}
+    
+#patient_pastenc .billing_note {
+    width: 25%;
+}
+#patient_pastenc .billing_note_text {
+    padding: 5px;
+    border: 2px outset black;
+    background-color: lightgrey;
+}
+#patient_pastenc .billing_note_text_highlight {
+    background-color:#f7f5d1;
+}
+#patient_pastenc table {
+    border-collapse: collapse;
+    width:100%;
+}
+#patient_pastenc tr {
+    cursor: pointer;
+}
+#patient_pastenc td {
+    border-top: 1px solid black;
+    vertical-align: top;
+}
+#patient_pastenc th {
+    text-align: left;
+}
+#patient_pastenc #tooltipdiv {
+    position:absolute;
+    width:500px;
+    border:1px solid black;
+    padding:2px;
+    background-color:#ffffaa;
+    visibility:hidden;
+    z-index:1000;
+    font-size:9pt;
+}
+#patient_pastenc .highlight {
+    background-color: #fff;
+}
+#patient_pastenc .tooltip {
+    position:absolute;
+    border:1px solid #333;
+    background:#f7f5d1;
+    padding:2px 5px;
+    color:#333;
+    display:none;
+}
+
+
+/*=============================================================
+ * Patient Reports
+ * seen in the patient reports screens
+ *============================================================*/
+#patient_reports {
+    width:100%;
+}
+#patient_reports .issues {
+    padding-right: 30px;
+}
+#patient_reports .issues table {
+    margin: 10px 0px 10px 0px;
+}
+#patient_reports .issues td {
+    padding: 2px;
+}
+#patient_reports .encounters td {
+    padding: 2px;
+}
+#patient_reports .encounter_forms {
+    margin:5px 15px 5px 15px;
+}
+#patient_reports td {
+    vertical-align: top;
+}
+#patient_reports ul {
+    list-style: none;
+}
+    
+
+/*=============================================================
+ * Report - Custom
+ * seen as the patient report (custom_report.php)
+ *============================================================*/
+
+#report_custom {
+    width:100%;
+}
+
+#report_custom hr {
+    border: 2px dotted black;
+}
+#report_custom .billing {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom h1 {
+    font-size: 120%;
+    margin:  0px 0px 5px 0px;
+    padding: 0px;
+}
+#report_custom .immunizations {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .notes {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .transactions {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .communications {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .documents {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .demographics {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .insurance {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .history {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .issue {
+    margin-left: 20px;
+}
+#report_custom .issue_type {
+    font-weight: bold;
+    padding: 5px 0px 5px 0px;
+}
+#report_custom .issue_diag {
+    margin: 0px 20px 0px 20px;
+}
+#report_custom .issue_title {
+}
+#report_custom .issue_comments {
+}
+#report_custom .encounter {
+    width: 100%;
+    border-top:2px dotted black;
+    padding: 10px 5px 10px 5px;
+    margin-top: 10px;
+}
+#report_custom .encounter h1 {
+    font-size: 140%;
+    margin: 0px;
+    padding: 0px;
+}
+#report_custom .encounter_form {
+    margin: 10px;
+    padding: 10px;
+    border-top: 1px solid gray;
+}
+
+#addressbook_list tr.evenrow {
+    background-color:#ddddff;
+}
+#addressbook_list tr.oddrow {
+    background-color:#ffffff;
+}
+
+
+/*
+ * CSS BUTTONS
+*/
+.css_button_small {
+    background: transparent url( '../../images/bg_button_a_small.gif' ) no-repeat scroll top right;
+    color: #444;
+    display: block;
+    float: left;
+    font: bold 9px Arial;
+    height: 19px;
+    margin-right: 3px;
+    padding-right: 10px; /* sliding doors padding */
+    text-decoration: none;
+}
+
+.css_button_small span {
+    background: transparent url( '../../images/bg_button_span_small.gif' ) no-repeat;
+    display: block;
+    line-height: 20px;
+    padding: 0px 0px 0px 10px;
+}
+
+.css_button {
+    background: transparent url( '../../images/bg_button_a.gif' ) no-repeat scroll top right;
+    color: #444;
+    display: block;
+    float: left;
+    font: bold 10px Arial;
+    height: 24px;
+    margin-right: 3px;
+    padding-right: 10px; /* sliding doors padding */
+    text-decoration: none;
+}
+
+.css_button span {
+    background: transparent url( '../../images/bg_button_span.gif' ) no-repeat;
+    display: block;
+    line-height: 14px;
+    padding: 5px 0 5px 10px;
+}
+.sellistclass {
+float:left;
+}
+
+.disabled_button {
+	color: grey;
+
+}
+
+a.disabled_button:hover {
+  color: grey;
+}
+
+/*
+ * TABS
+*/
+
+ul.tabNav { margin: 0; padding: 0; }
+ul.tabNav { float: left; list-style: none; width: 100%; }
+ul.tabNav li { float: left; margin: 0 1px 0 0; padding: 6px 0 0;
+	font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
+}
+ul.tabNav li.current { padding-top: 0;
+	font-weight: bold;
+	font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
+}
+ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
+ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }
+
+div.tabContainer { clear: both; float: left; width: 100%; }
+div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
+div.tabContainer div.current { display: block; }
+div.tab { 	min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:665px;}
+div.tab_long { 	min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
+div.tab p:last-child { margin-bottom: 0; }
+
+div.tab table td {
+	padding-right: 1px; padding-bottom: 0px
+}
+
+div.tab table td.label {
+	min-width:80px;
+}
+
+div.tab table td.data {
+	min-width:120px; /*170px*/
+}
+
+div.notab {
+    background: #FFFFFF none repeat scroll 0 0; margin-bottom: 10px; width:100%;
+}
+
+div.notab-right {
+    background: #FFFFFF none repeat scroll 0 0; margin-bottom: 10px; width:100%;
+}
+
+.section-header {
+	margin-bottom:5px; width:685px; border-bottom: 1px solid;
+}
+
+.section-header-dynamic {
+	margin-bottom:5px; border-bottom: 1px solid;
+}
+
+.summary_item {
+	 background:#FFFFFF; padding:8px;
+}
+
+/*
+* REPORTS
+*/
+
+#report_parameters {
+    background-color: #ececec;
+	margin-top:10px;
+}
+
+#report_parameters table {
+    border: solid 1px;
+	width: 100%;
+    border-collapse: collapse;
+}
+#report_parameters table td {
+    padding: 5px;
+}
+
+#report_parameters table table {
+    border: 0px;
+    border-collapse: collapse;
+	font-size: 0.8em;
+}
+
+#report_parameters table table td.label {
+	text-align: right;
+}
+
+#report_results table {
+   border-top: 1px solid black;
+   border-bottom: 1px solid black;
+   border-left: 1px solid black;
+   border-right: 1px solid black;
+   width: 100%;
+   border-collapse: collapse;
+   margin-top: 1px;
+}
+#report_results table thead {
+    padding: 5px;
+    display: table-header-group;
+    background-color: #ddd;
+	text-align:left;
+	font-weight: bold;
+	font-size: 0.7em;
+}
+#report_results table th {
+    border-bottom: 1px solid black;
+	padding: 5px;
+}
+#report_results table td {
+	padding: 5px;
+    border-bottom: 1px dashed;
+	font-size: 0.8em;
+}
+.report_totals td {
+    background-color: #77ff77;
+    font-weight: bold;
+}
+
+/**
+* List-table formatting
+**/
+.showborder {
+width:650px;
+}
+.showborder td {
+border-bottom:1px dashed #000000;
+text-align:left;
+font-size:9pt;
+}
+.showborder_head  th {
+border-bottom:1px solid #000000;
+text-align:left;
+font-size:9pt;
+}
+.shownoborder td {
+text-align:left;
+font-size:9pt;
+}
+.showborder_long {
+width:100%;
+}
+.showborder_long tr td{
+border-bottom:1px dashed #000000;
+text-align:left;
+font-size:9pt;
+}
+
+/**
+* Drug lookup
+**/
+.drug_lookup{
+	font-family: Arial;
+	font-size: 8pt;
+	border: 2px outset rgb(102, 102, 102);
+	background-color: #eae6ff;
+	padding: 5px;
+	position: absolute;
+	display: block;
+}
+
+/* Password alert styles */
+.pwdalert {
+    display: block;
+    width: 390pt;
+    margin-left: 100px;
+    padding: 10px 10px 10px 15px;
+    color: black;
+  }
+.alertmsg1 { 
+    border: 3px solid #fe7b7a;
+    background-color: #ffd6d6 ;
+  }
+.alertmsg2 { 
+    border: 3px solid #f56fff;
+    background-color: #fabfff;
+  }
+.alertmsg3 { 
+    border: 3px solid #9acc2e;
+    background-color: #eef7dd;
+  }
+/* Password alert styles */
+
+/* Style for red font */
+.redtext {
+    font-family: Arial;
+    text-decoration: none;
+    color: #FF0000;
+    font-size: 10pt;
+}
+/* Style for red font */
+
+.de_identification_status_message{
+	width: 50%;
+	border:1px solid #0000FF;
+}
+
+.de_identification_input_controls_box{
+	width: 100%;
+	border:1px solid #0000FF;
+}
+
+.de_id_upgrade_login{
+	width: 40%;
+	border:1px solid Black;
+        background-color:#ffffff;
+}
+
+#navigation-slide, #navigation-slide *{
+    padding-left:0px;
+    margin-left:0px;
+}
+
+#navigation-slide li{
+    list-style:none;
+}
+
+#navigation-slide a{
+    background: #FFFFFF;
+    border-top: 2px solid #EAE6FF;
+    color: #000;
+    display: block;
+    font-weight: bold;
+    padding: 5px 2px 5px 10px;
+    width: 150px;
+}
+
+#navigation-slide li a.collapsed{
+    background: #999; /* for non-css3 browsers */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#fe5301), to(#fefdcf)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #fe5301,  #fefdcf); /* for firefox 3.6+ */
+}
+
+#navigation-slide li a.expanded{
+    background: #999; /* for non-css3 browsers */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fe5301'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#fe5301)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #fefdcf,  #fe5301); /* for firefox 3.6+ */
+}
+
+#navigation-slide ul li a.collapsed_lv2{
+    background: #999; /* for non-css3 browsers */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffac84', endColorstr='#fefdcf'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#ffac84), to(#fefdcf)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #ffac84,  #fefdcf); /* for firefox 3.6+ */
+}
+
+#navigation-slide ul li a.expanded_lv2{
+    background: #999; /* for non-css3 browsers */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#ffac84'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#ffac84)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #fefdcf,  #ffac84); /* for firefox 3.6+ */
+}
+
+#sddm li
+{	margin: 0;
+	padding: 0;
+	list-style: none;
+        float:left;
+        border: 1px solid #FEFDCF;
+        background: #999; /* for non-css3 browsers */
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf'); /* for IE */
+        background: -webkit-gradient(linear, left top, left bottom, from(#fe5301), to(#fefdcf)); /* for webkit browsers */
+        background: -moz-linear-gradient(top,  #fe5301,  #fefdcf); /* for firefox 3.6+ */
+}
+
+#sddm li a
+{	display: block;
+	margin: 0 1px 0 0;
+	padding: 4px 10px;
+	color: #004080;
+	text-align:left;
+	text-decoration: none;
+	font-size: 0.8em;
+        font-weight:bold;
+}
+
+#sddm li a:hover
+{
+    background: #ffac84;
+}
+
+#sddm div
+{
+    position: absolute;
+    visibility: hidden;
+    display: none;
+    margin: 0;
+    padding: 0;
+    background: #C9F1B5;
+    border-left: 1px solid #000000;
+    border-right: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+}
+
+#sddm div a
+{
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 5px 10px;
+    width: 170px;
+    white-space:normal;
+    text-align: left;
+    text-decoration: none;
+    background: #fefdcf;
+    color: #2875DE;
+    font-size: 0.8em;
+    font-weight:normal;
+}
+
+#sddm div a:hover
+{
+    background: #ffac84;
+    color: #000000;
+}
+.text-area{
+  background-color:#FFFFFF;
+  border:1px solid black;
+  width:100%;
+  height:100px;
+  overflow:auto;
+  text-align:left;
+}
+.example_menu {
+            font-size: 70%;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            vertical-align: top;
+            width: 136px;
+}
+.expand_all,
+.collapse_all {
+	cursor: pointer;
+}
+.example_menu ul {
+	display: none;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+#menu1 li, #menu2 li, #menu3 li, #menu4 li, #menu5 li, .example_menu li {
+	background-image: none;
+	margin: 0;
+	padding: 0;
+	border-bottom:1px solid white;
+}
+.example_menu ul ul {
+	display: block;
+}
+.example_menu a {
+	color: #000;
+	cursor: pointer;
+	display: block;
+	font-weight: bold;
+	margin-left: 0;
+	padding: 2px 2px 2px 17px;
+	width: 160px;
+}
+.example_menu a.expanded {
+	background: #bbb url('collapse.gif') no-repeat 3px 50%;
+}
+.example_menu a.collapsed {
+	background: #bbb url('expand.gif') no-repeat 3px 50%;
+}
+.example_menu a:hover {
+	text-decoration: none;
+}
+.example_menu ul li span {
+	 background: #d9d1a4;
+	color: #000;
+	display: block;
+	font-weight: normal;
+	width:100%;
+}
+.example_menu ul a:Subjective {
+	font-weight: normal;
+}
+.example_menu ul a:hover {
+	background : #f5f5f5;
+	text-decoration: underline;
+}
+.example_menu li.active a {
+	background: #fff;
+}
+.example_menu li.active li a {
+	background: #e8e8e8;
+}
+#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 li.footer, .example_menu .footer {
+	background: transparent url('footer.jpg') no-repeat 0 0;
+	border-top: 2px solid #fff;
+	height: 9px;
+	line-height: 15px;
+	margin: 0 0 10px 0;
+	width: 131px;
+}
+.example_menu .footer span {
+	display: none;
+}
+.cke_contents {
+height: 300px !important;
+}
+
+/* Form styles */
+.formtable {
+        font-size:13px;
+        line-height: 24px;
+    }
+.formtable tr td {
+        line-height: 24px;
+    }
+
