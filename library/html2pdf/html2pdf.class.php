@@ -14,6 +14,7 @@ if (!defined('__CLASS_HTML2PDF__'))
 	define('__CLASS_HTML2PDF__', '3.31');
 
 	require_once(dirname(__FILE__).'/_mypdf/mypdf.class.php');	// classe mypdf
+	require_once(dirname(__FILE__).'/fpdi/fpdi.php');         // Added by Rod
 	require_once(dirname(__FILE__).'/parsingHTML.class.php');	// classe de parsing HTML
 	require_once(dirname(__FILE__).'/styleHTML.class.php');		// classe de gestion des styles
 
@@ -116,7 +117,7 @@ if (!defined('__CLASS_HTML2PDF__'))
 			HTML2PDF::textLOAD($this->langue);
 			
 			// création de l' objet PDF
-			$this->pdf = new MyPDF($sens, 'mm', $format);
+			$this->pdf = new FPDI($sens, 'mm', $format);
 
 			// initialisation des styles
 			$this->style = new styleHTML($this->pdf);
@@ -215,6 +216,7 @@ if (!defined('__CLASS_HTML2PDF__'))
 		
 		/**
 		* renseigner l'encoding à utiliser
+
 		*
 		* @param	string	nouvel encoding
 		* @return	string	ancien encoding
@@ -4699,6 +4701,7 @@ if (!defined('__CLASS_HTML2PDF__'))
 						$HTML2PDF_TABLEAU[$param['num']]['corr']
 							[$HTML2PDF_TABLEAU[$param['num']]['corr_y']+$j]
 							[$HTML2PDF_TABLEAU[$param['num']]['corr_x']+$i] = ($i+$j>0) ? '' : array($x,$y,$colspan,$rowspan);
+
 					}
 				}
 				$HTML2PDF_TABLEAU[$param['num']]['corr_x']+= $colspan;
@@ -5971,6 +5974,7 @@ if (!defined('__CLASS_HTML2PDF__'))
 			else
 			{
 				$this->setNewPage();
+
 				return null;
 			}
 		}
