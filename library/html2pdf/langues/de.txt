@@ -1,0 +1,21 @@
+err01	Das Tag <b>&lt;[[OTHER]]&gt;</b> existiert noch nicht.<br><br>Wenn Sie es hinzufügen möchten, sollen Sie die Methoden<b>o_[[OTHER]]</b> (zu öffnen) und <b>c_[[OTHER]]</b> (zu schließen) nach dem Modell den existierenden Tags.<br><br>Wenn Sie diese Methoden außerdem aufbauen, bitte teilen Sie sie duch eine E-Mail an meine Adresse : webmaster@html2pdf.fr, so daß sie künftig in die nächste Version von HTML2PDF erscheinen.
+err02	1000-Linien Satz => zu lang<br><b>Satz :</b> [[OTHER_0]]<br><b>Breite des Eingabefelds :</b> [[OTHER_1]]<br><b>Länge des Texts :</b> [[OTHER_2]]<br>
+err03	Falsches HTML Code, überzähliges geschloßene Tag : <b>&lt;[[OTHER]]&gt;</b>
+err04	Falsches HTML Code, die Tags sind nicht in richtiger Ordnung geschloßen.<br>Status : <pre>[[OTHER]]</pre>
+err05	Falsches HTML Code, alle Tags sollen geschloßen sein.<br>Status : <pre>[[OTHER]]</pre>
+err06	Ladung des Bilds unmöglich <b>[[OTHER]]</b>
+err07	Er Inhalt eines TD-Tag passt nicht nur auf einer Seite
+err08	<b>&lt;[[OTHER]]&gt;</b> tag not in a &lt;DRAW&gt; tag
+err09	The using of the <b>&lt;[[OTHER_0]]&gt;</b>> tag has changed, you can not use [[OTHER_1]] anymore. Read the WIKI
+txt01	Fehler n°
+txt02	Datei :
+txt03	Linie :
+pdf01	Datei aufgebaut am [[date_d]]/[[date_m]]/[[date_y]]
+pdf02	Datei aufgebaut um [[date_h]]:[[date_m]]
+pdf03	Datei aufgebaut am [[date_d]]/[[date_m]]/[[date_y]] um [[date_h]]:[[date_i]]
+pdf04	Seite [[current]]/[[nb]]
+pdf05	Die Formulare benötigen Sie den Adobe Reader 9
+vue01	Seite-Header
+vue02	Fußzeile
+vue03	Seite
+vue04	Visualisierung

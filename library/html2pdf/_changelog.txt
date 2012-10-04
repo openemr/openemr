@@ -1,0 +1,217 @@
+3.31 (2001-05-21)
+	problème de compatibilité avec FPDF corrigé
+	
+3.30 / 4.01 (2001-05-07)
+	correction sur la gestion des textes
+	correction sur le parseur HTML
+	correction sur la gestion de border-collapse
+	correction sur la gestion des TDs, H1->H6
+	ajout des balises fieldset et legend (cf exemple 4)
+	ajout de la langue CS
+	nombreuses améliorations
+	v4.01 uniquement : Utilisation de TCPDF 5.0.002
+	v4.01 uniquement : Utilisation des QR-code de TCPDF, il n'y a plus besoin d'une librairie externe
+	v4.01 uniquement : Utilisation des exceptions PHP pour les erreurs. Tous les exemples ont été mis à jour en consequence
+	(merci à Pavel Kochman pour ses sugestions et ses ajouts)
+	
+3.29 / 4.00 (2010-03-17)
+	modification des barcodes. ATTENTION : bar_w et bar_h n'existent plus !
+	correction sur la gestion de page_footer
+	correction sur la gestion des html entities
+	correction sur le positionnement des textes
+	correction sur le positionnement des tableaux
+	nombreuses corrections sur les positionnements, les couleurs, ...
+	amélioration de la partie SVG (balise G, ...)
+	amélioration sur createIndex
+	harmonisation des noms des méthodes
+	correction sur la gestion des textes
+	v4.00 uniquement : HTML2PDF est maintenant écrit en PHP5 et basé sur TCPDF (=> unicode, utf8, ...)
+	v4.00 uniquement : utilisation de TCPDF pour les formulaires et les barcodes
+	v4.00 uniquement : amélioration de la partie SVG (alpha)
+	
+3.28 (2010-01-18)
+	ajout de la gestion de la balise label
+	correction pour compatibilité PHP4
+	
+3.27 (2010-01-11)
+	correction sur page_header et page_footer
+	ajout de la possibilité de pouvoir mettre l'index automatique dans la page que l'on veut
+	correction sur la gestion du canal alpha pour les PNGs
+	correction sur la gestion des border-radius (cf exemple radius) conforme au CSS3
+	correction sur la gestion du background-color
+	correction sur la gestion de thead, tfoot, et tbody
+	ajout du dessin verctoriel (cf exemples draw, tigre, sapin)
+	ajout de la propriété label="none/label" pour la balise <barcode>
+	nombreux petits correctifs
+	
+3.26 (2009-11-16)
+	correction pour support des images générés en CGI
+	ajout de la gestion du canal alpha pour les PNGs (nécessite GD2)
+	ajout de la méthode setDefaultFont permettant de spécifier une fonte par défaut
+	ajout de la propriété format pour la balise <page> (cf exemple 4)
+	amélioration de la gestion des couleurs css RGB (cf exemple 2)
+	ajout de la gestion des couleurs css CMYK (cf exemple 2)
+	ajout de la propriété css overflow:hidden pour la balise <div> (cf exemple 2)
+	correction sur page_header et page_footer
+	ajout de la possibilité de pouvoir directement convertir le résultat d'une vraie page HTML
+	nombreux petits correctifs sur les styles
+	
+3.25 (2009-10-07)
+	correctif sur le calcul des tableaux dans le page_footer
+	correctif sur l'interprétation des espaces entre certaines balises
+	correction sur la gestion des balises H1, H2, H3, H4, H5, H6
+	correction sur la gestion de la balise table
+	support des balises xhtml du type <span />
+	ajout des balises COL (cf exemple 5), DEL, INS, et QRCODE (cf exemple 13)
+	ajout de la propriété css text-transform
+	ajout de la propriété css rotate (uniquement sur les DIV, cf exemple 8)
+	ne plus rendre obligatoire l'existence d'une image (nouvelle méthode setTestIsImage)
+	ajout d'un mode DEBUG - les anciennes fonction d'analyse des ressources ont été supprimées
+	ajout de la méthode setEncoding
+	ajout de la langue danoise DA (merci à Daniel K.)
+	
+3.24 (2009-08-05)
+	correction sur le calcul de la largeur des divs
+	modification pour compatibilité avec la localisation PHP
+	modification pour compatibilité avec PHP 5.3.0
+	
+3.23 (2009-07-30)
+	correction sur le calcul des DIVs
+	correction sur l'interpretation de certains styles CSS
+	correction de la fonction de creation d'index automatique CreateIndex
+	ATTENTION : la methode d'appel de CreateIndex a changé. Regardez l'exemple About !!!!
+	
+3.22a (2009-06-16)
+	redistribution de HTML2PDF sous la licence LGPL !!! (au lieu de GPL)
+	
+3.22 (2009-06-08)
+	correction sur le background-color
+	refonte totale de la gestion de text-align. les valeurs center et right marchent maintenant meme en cas de contenu riche
+	
+3.21 (2009-05-05)
+	ajout de la propriété css FLOAT pour la balise IMG
+	correction sur la gestion des TFOOT
+	correction sur le positionnement des images
+	
+3.20 (2009-04-06)
+	ajout de la gestion des margins pour la balise DIV
+	ajout de la gestion de la propriete css LINE-HEIGHT
+	correction sur l'interpretation de la valeur de certains styles CSS (background-image, background-position, ...)
+	correction sur la reconnaissance des balises thead et tfoot
+	correction sur la balise select
+	correction sur les fichiers de langue (merci à Sinan)
+	
+3.19 (2009-03-11)
+	optimisation du parseur HTML - merci à Jezelinside
+	ajout de la balise TFOOT
+	amélioration de la gestion des tableaux : les contenus des balises THEAD et TFOOT sont maintenant répétés sur chaque page.
+	ajout de la balise spécifique BOOKMARK afin de créer des "marques-page"
+	possibilité de rajouter un index automatique en fin de fichier
+	ajout de la langue turque TR (merci à Hidayet)
+	amélioration de la méthode Output. Elle est maintenant également utilisable comme celle de FPDF
+	
+3.18 (2009-02-22)
+	correction sur les sauts de page automatique pour les balises TABLE, UL, OL
+	correction sur l'interpretation des styles pour la balise HR
+	correction sur l'interpretation du style border-collapse pour la balise TABLE
+	prise en compte de margin:auto pour les tables et les divs
+	les commentaires dans les CSS sont acceptés
+	
+3.17 (2008-12-30)
+	ajout de la gestion des balises INPUT (text, radio, checkbox, button, hidden, ...), SELECT, OPTION, TEXTAREA (cf exemple 14)
+	ajout de la possibilité de mettre des scripts dans le pdf, via $html2pdf->pdf->IncludeJS(...); (cf exemples JS)
+	correction sur le saut de page automatique pour les images
+	correction sur les sauts de lignes automatiques pour certaines balises (UL, P, ...)
+	ajout de la langue NL (merci à Roland)
+	
+3.16 (2008-12-09)
+	ajout de la gestion de list-style: none (cf exemple 13)
+	correction dans la gestion des fontes ajoutées à fpdf (via la méthode AddFont)
+	nombreuses corrections sur le calcul des largeurs des éléments table, div, hr, td, th
+	ajout de l'exemple about.php
+	(pour info, les PDF générés à partir des exemples sont maintenant dans le répertoire /exemples/pdf/, et sont supprimables)
+	
+3.15 (2008-12-01)
+	correction sur l'identification des styles en cas de valeurs multiples dans la propriete class
+	prise en compte de border-radius pour la limite des backgrounds (color et image)
+	ajout des proprietes CSS border-top-*, border-right-*, border-bottom-*, border-left-*
+	ajout de la propriété CSS list-style-image (cf exemple 12)
+	pour la balise table, ajout de l'interprétation de align="center" et align="right" (cf exemple 1)
+	correction dans le positionnement des images
+	correction de quelques bugs
+	ajout d'une fonction d'analyse des ressources HTML2PDFgetTimerDebug (cf début du fichier html2pdf.class.php)
+	
+3.14 (2008-11-17)
+	ajout d'une langue (pt : Brazilian Portuguese language) et amelioration de la methode vueHTML (merci à Rodrigo)
+	correction du positionnement du contenu des DIVs. gestion des proprietes valign et align
+	ajout de la propriete CSS border-collapse (cf exemple 0)
+	ajout de la propriete CSS border-radius (cf exemple 1)
+	correction de quelques bugs
+	
+3.13 (2008-09-24)
+	reecriture de la balise hr, avec prise en compte des styles (cf exemple 0)
+	ajout de la propriete backcolor pour la balise page (cf exemple 9)
+	ajout des proprietes backleft et backright pour la balise page afin de pouvoir changer les marges des pages (cf exemple 8)
+	nombreuses corrections sur les balises et les styles
+	
+3.12 (2008-09-16)
+	ajout des balises ol, ul, li (cf exemple 12)
+	correction sur le calcul de la taille des td en cas de colspan et rowspan
+	ajout de la méthode setTestTdInOnePage afin de pouvoir desactiver le test sur la taille des TD (cf exemple 11)
+	correction de quelques bugs
+	
+3.11 (2008-08-29)
+	ajout des balises div, p, pre, s
+	gestion des styles CSS position (relative, absolute), left, top, right, bottom (cf exemple 10)
+	meilleur gestion des border : border-style, border-color, border-width (cf exemple 10)
+	possibilité d'indiquer les marges par défault, via le constructeur (cf exemple 2)
+	
+3.10a (2008-08-26)
+	correction pour compatibilité php4 / php5
+	
+3.10 (2008-08-25)
+	ajout des liens internes (cf exemple 7)
+	gestion complete des background : image, repeat, position, color (cf exemple 1)
+	gestion de underline, overline, linethrough (cf exemple 2)
+	correction de quelques bugs
+	
+3.09 :
+	mise à jour vers fpdf version 1.6, ajout de barcode, correction de l'affichage de certains caractères spéciaux
+	correction du calcul de la hauteur de ligne de la balise br
+	detection en cas de contenu trop grand dans un TD
+	amélioration de la balise page (ajout de l'attribue pageset, avec les valeurs new et old)
+	ajout de FPDF_PROTECTION, accesible via $pdf->pdf->SetProtection(...)
+	
+3.08 : version opérationnelle de page_header, ajout de page_footer, correction des borders des tableaux
+3.07 : correction de l'interpretation de cellspacing, amélioration de la balise page_header
+3.06 : première gestion de la balise page_header, correction des dimensions des tableaux
+3.05 : ajout de la propriété vertical-align, ajout de la gestion des fichiers de langue
+3.04 : correction du saut de page automatique pour les tableaux. Ajout de propriétés à la balise PAGE
+3.03 : correction de bugs au niveau de la gestion des images PHP par FPDF, meilleure gestion des erreurs
+3.02 : ajout de la gestion des noms des couleurs, correction de la gestion des images générées par php, correction de quelques bugs
+3.01 : correction de quelques bugs, ajout d'une protection pour les balises non existantes
+3.00 : refont totale du calcul des tableaux. Prise en compte des colspan et rowspan
+2.85 : ajout de la propriété cellspacing, nouvelle gestion des padding des tableaux (identique à l'html)
+2.80 : ajout des types de border dotted et dasheds
+2.75 : ajout des top, left, right, bottom pour padding et border
+2.70 :
+	correction de la balise HR, ajout de la propriété padding pour les table, th, td
+	correction des dimensions, les unités px, mm, in, pt sont enfin réellement reproduites, correction de font-size, border, ...
+	ajout d'une propriété à la balise page : footer
+	correction dans l'affichage et le calcul des tables
+2.55 : vérification de la validité du code (ouverture / fermeture) - ajout des unités mm, in, pt
+2.50 : correction de nobreak, des marges, ajout de nombreuses balises
+2.40 : refonte totale de l'identification des styles CSS. Les héritages marchent.
+2.39 : corrections diverses, ajout de certaines propriétés (bgcolor, ...)
+2.38 : meilleur identification des propriétés border et color
+2.37 : nombreuses corrections : balise A, couleur de fond, retour à la ligne, gestion des images dans un texte, ...
+2.36 : ajout des balises STRONG, EM
+2.35 : amélioration de la gestion des feuilles de style
+2.31 : correction de quelques bugs
+2.30 : première version opérationnel des feuilles de style
+2.25 : ajout de la balise LINK pour le type text/css
+2.20 : premier jet de la gestion des feuilles de style, ajout de la balise STYLE
+2.15 : n'interprète plus l'HTML en commentaire <!-- -->
+2.10 : ajout des balises H1 -> H6
+2.01 : correction de quelques bugs
+2.00 : première version diffusée

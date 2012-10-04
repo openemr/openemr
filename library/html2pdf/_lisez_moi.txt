@@ -1,0 +1,108 @@
+*******************************************************
+** Ce programme est distribué sous la licence LGPL,  **
+** reportez-vous au fichier _LGPL.txt ou à           **
+** http://www.gnu.org/licenses/lgpl.html             **
+** pour en savoir plus.                              **
+**                                                   **
+**  Copyright 2000-2010 par Laurent Minguet          **
+*******************************************************
+*******************************
+* HTML2PDF v3.31 - 21/05/2010 *
+*******************************
+
+Utilisation :
+------------
+ - necessite au minimum PHP 4.3.10
+ 
+ - regardez les exemples fournis pour voir le fonctionnement.
+
+ - les formulaires ne marchent QUE avec ADOBE READER 8 et ADOBE READER 9.0
+ 
+ - il est TRES IMPORTANT de fournir du HTML 4.01 valide au convertisseur,
+   mais seulement ce que contient le <body>
+
+ - pour les borders : il est conseillé qu'ils soient au format "solid 1mm #000000"
+
+ - pour les paddings : ils ne sont applicables qu'aux balises table, th, td, div, li
+
+ - Vous pouvez préciser l'encodage. Une fonte compatible doit être utilisée. Ceux acceptés sont : 
+    cp1250, cp1251, cp1252, cp1253, cp1254, cp1255, cp1257, cp1258, cp874,
+    ISO-8859-1, ISO-8859-2, ISO-8859-4, ISO-8859-5, ISO-8859-7, ISO-8859-9,
+    ISO-8859-11, ISO-8859-15, ISO-8859-16, KOI8-R, KOI8-U
+  Pour l'utiliser : $html2pdf->setEncoding('cp1250');
+
+ - Une fonte par défaut peut être précisée,au cas ou la fonte demandée n'existe pas ou si aucune fonte n'est indiquée :
+     $html2pdf->setDefaultFont('Arial');
+
+ - la possibilité de protégé vos PDF est présente, CF Exemple 7.
+
+ - Certains tests peuvent être activés (true) ou de désactivés(false) :
+     * méthode setTestIsImage      : tester que les images doivent existent bien
+     * méthode setTestTdInOnePage  : tester que le contenu des TDs rentre sur une seule page
+     * méthode setTestIsDeprecated : tester que les anciennes proprietes des balises spécifiques ne sont plus presentes
+        
+ - Un mode DEBUG permettant de connaitre les ressources utilisées lors de la construction du PDF est présente.
+   Il est activable en rajoutant la commande suivante juste après le constructeur (cf exemple 0):
+      $htmlpdf->setModeDebug();
+     
+ - Certaines balises spécifiques ont été introduites :
+     * <page></page>  (CF Exemple 7) :
+      permet de définir le format, l'orientation, les marges left, right, top et bottom, l'image
+      et la couleur de fond d'une page, sa taille et position, le footer.
+      Il est egalement possible de garder les header et footer des pages précédentes,
+      grace à l'attribue pageset="old" (CF Exemple 3 et 4)
+ 
+     * <page_header></page_header> (CF Exemple 3)
+     
+     * <page_footer></page_footer> (CF Exemple 3)
+     
+     * <nobreak></nobreak> :
+         permet de forcer l'affichage d'une partie sur une même page.
+         Si cette partie ne rentre pas dans le reste de la page, un saut de page est
+         effectué avant.
+ 
+    * <barcode></barcode>  (CF Exemples 0 et 9) :
+         permet d'inserer des barcodes dans les pdfs, CF Exemples 0 et 9
+         Les types de codebar possible sont : EAN13, UPCA, C39.
+         
+     * <qrcode></qrcode> (CF Exemple 13) :
+         permet d'inserer un codebar à 2 dimensions de type QRcode
+         voici un exemple d'utilisation :
+           <qrcode value="votre message ici" size="1mm" ec="M" style="color: black; background-color: white"></qrcode>
+         seul le parametre "value" est obligatoire
+         les différentes valeurs de type de correction sont L, M, Q, H
+         (QR Code is registered trademark of DENSO WAVE INCORPORATED | http://www.denso-wave.com/qrcode/)
+         ATTENTION : l'utilisation des QRCODE nécessite l'utilisation de PHP5
+
+     * <bookmark></bookmark>  (CF Exemples 7 et About) :
+         permet d'inserer des bookmark dans les pdfs, CF Exemple 7 et About.
+         Il est egalement possible de créer un index automatiquement en fin de
+         document, CF exemple About.
+
+     * propriété css "rotate" :
+         valeurs possibles : 0, 90, 180, 270
+         applicable uniquement sur les divs (cf exemple 8)
+                 
+change log :
+-----------
+ regardez le fichier _changelog.txt
+
+Aide et Support :
+----------------
+ pour toutes questions et rapport de bug, merci d'utiliser exclusivement le lien de support ci-dessous.
+ Je ne répondrais à aucune question en dehors, afin que tout le monde puisse profiter des réponses.
+
+Informations :
+-------------
+ Programmeur :	Spipu
+      email   : webmaster@html2pdf.fr
+      site    : http://html2pdf.fr/
+      wiki    : http://html2pdf.fr/fr/wiki
+      support : http://html2pdf.fr/fr/forum
+		
+Remerciement :
+-------------
+ * Olivier Plathey pour avoir conçu FPDF
+ * Nicola Asuni pour les modifications qu'il a accepté d'apporter à TCPDF
+ * yAronet pour l'hebergement du forum de support
+ * toutes les personnes qui m'ont aidé à développer cet librairie, et à traduire les différents textes

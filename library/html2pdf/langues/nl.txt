@@ -1,0 +1,21 @@
+err01	De tag <b>&lt;[[OTHER]]&gt;</b> bestaat nog niet.<br><br>Om deze toe te voegen, gebruik de methods <b>o_[[OTHER]]</b> (om te openen) en <b>c_[[OTHER]]</b> (om te sluiten) volgens het model van de bestaande tags.<br><br>Als u deze methods maakt, stuur deze dan a.u.b. via e-mail naar webmaster@html2pdf.fr voor opname in de volgende versie van HTML2PDF.
+err02	Zin van 1000 regels => te lang<br><b>Zin :</b> [[OTHER_0]]<br><b>Kaderbreedte :</b> [[OTHER_1]]<br><b>Tekstlengte :</b> [[OTHER_2]]<br>
+err03	Ongeldige HTML code, overvloedig afgesloten tag : <b>&lt;[[OTHER]]&gt;</b>
+err04	Ongeldige HTML code, de tags zijn niet correct afgesloten.<br>Status : <pre>[[OTHER]]</pre>
+err05	Ongeldige HTML code, alle tags dienen te zijn gesloten.<br>Status : <pre>[[OTHER]]</pre>
+err06	Kan afbeelding niet laden: <b>[[OTHER]]</b>
+err07	De inhoud van de cel (<TD>) past niet op een pagina
+err08	<b>&lt;[[OTHER]]&gt;</b> tag not in a &lt;DRAW&gt; tag
+err09	The using of the <b>&lt;[[OTHER_0]]&gt;</b>> tag has changed, you can not use [[OTHER_1]] anymore. Read the WIKI
+txt01	Fout nr
+txt02	Bestand :
+txt03	Regel :
+pdf01	Document gemaakt op [[date_d]]-[[date_m]]-[[date_y]]
+pdf02	Document gemaakt om [[date_h]]:[[date_i]]
+pdf03	Document gemaakt op [[date_d]]-[[date_m]]-[[date_y]] om [[date_h]]:[[date_i]]
+pdf04	Pagina [[current]] van [[nb]]
+pdf05	De formulieren vereisen het gebruik van Adobe Reader 9
+vue01	Paginakop
+vue02	Paginavoet
+vue03	Pagina
+vue04	Bekijken

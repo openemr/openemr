@@ -1,0 +1,21 @@
+err01	Il tag <b>&lt;[[OTHER]]&gt;</b> non esiste ancora.<br><br>Se si desidera aggiungere, è necessario creare metodi <b>o_[[OTHER]]</b> (di apertura) e <b>C_[[OTHER]]</b> (per la chiusura) secondo il modello esistente di tag.<br><br>Inoltre, se si creare questi metodi, non esitate a portare il mondo intero ha scritto su webmaster@html2pdf.fr in modo che alla fine nella prossima versione di HTML2PDF.
+err02	Citazione di 1000 linee => troppo lungo<br><b>frase :</b> [[OTHER_0]]<br><b>casella Larghezza :</b> [[OTHER_1]]<br><b>Lunghezza testo :</b> [[OTHER_2]]<br>
+err03	HTML non valido, un tag è chiusa troppo <b>&lt;[[OTHER]]&gt;</ b>
+err04	HTML non validi, i tag non sono chiusi nel corretto ordine.<br>Stato :<pre>[[OTHER]]</pre>
+err05	HTML non valido, tutte le tag deve essere chiuso.<br>Stato :<pre>[[OTHER]]</pre>
+err06	Impossibile caricare l'immagine <b>[[OTHER]]</b>
+err07	il contenuto di un tag TD non rientra in una sola pagina
+err08	<b>&lt;[[OTHER]]&gt;</b> tag not in a &lt;DRAW&gt; tag
+err09	The using of the <b>&lt;[[OTHER_0]]&gt;</b>> tag has changed, you can not use [[OTHER_1]] anymore. Read the WIKI
+txt01	ERRORE n°
+txt02	File :
+txt03	Linea :
+pdf01	Documento generato il [[date_d]]/[[date_m]]/[[date_y]]
+pdf02	Documento generato [[date_h]]:[[date_i]]
+pdf03	Documento generato il [[date_d]]/[[date_m]]/[[date_y]] nel [[date_h]]:[[date_i]]
+pdf04	Pagina [[current]]/[[nb]]
+pdf05	I moduli richiedono l'uso di Adobe Reader 9
+vue01	HEADER
+vue02	FOOTER
+vue03	PAGINA
+vue04	Visualization

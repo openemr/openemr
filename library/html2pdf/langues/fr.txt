@@ -1,0 +1,21 @@
+err01	La balise <b>&lt;[[OTHER]]&gt;</b> n'existe pas encore.<br><br>Si vous voulez la rajouter, vous devez créer les méthodes <b>o_[[OTHER]]</b> (pour l'ouverture) et <b>c_[[OTHER]]</b> (pour la fermeture) en suivant le modèle des balises existantes.<br><br>De plus, si vous créez ces méthodes, n'hésitez pas à en faire profiter tout le monde en m'écrivant sur webmaster@html2pdf.fr afin qu'elles se retrouvent dans la prochaine version d'HTML2PDF.
+err02	Phrase de 1000 lignes => trop long<br><b>Phrase :</b> [[OTHER_0]]<br><b>Largeur case :</b> [[OTHER_1]]<br><b>Longueur text :</b> [[OTHER_2]]<br>
+err03	Code HTML non valide, une balise est fermée en trop : <b>&lt;[[OTHER]]&gt;</b>
+err04	Code HTML non valide, les balises ne sont pas fermées dans le bon ordre.<br>Etat : <pre>[[OTHER]]</pre>
+err05	Code HTML non valide, toutes les balises doivent être fermées.<br>Etat : <pre>[[OTHER]]</pre>
+err06	Impossible de charger l'image <b>[[OTHER]]</b>
+err07	le contenu d'une balise TD ne rentre pas sur une seule page
+err08	Balise <b>&lt;[[OTHER]]&gt;</b> non contenu dans une balise &lt;DRAW&gt;
+err09	L'utilisation de la balise <b>&lt;[[OTHER_0]]&gt;</b> a changé, vous ne pouvez plus utiliser [[OTHER_1]]. Lisez le WIKI
+txt01	ERREUR n°
+txt02	Fichier :
+txt03	Ligne :
+pdf01	Document généré le [[date_d]]/[[date_m]]/[[date_y]]
+pdf02	Document généré à [[date_h]]:[[date_i]]
+pdf03	Document généré le [[date_d]]/[[date_m]]/[[date_y]] à [[date_h]]:[[date_i]]
+pdf04	Page [[current]]/[[nb]]
+pdf05	Les formulaires nécessitent  l'utilisation de Adobe Reader 9
+vue01	HEADER
+vue02	FOOTER
+vue03	PAGE
+vue04	Restitution
