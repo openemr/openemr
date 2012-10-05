@@ -167,6 +167,7 @@ while($result = sqlFetchArray($inclookupres)) {
 // For each form field from patient_report.php...
 //
 foreach ($ar as $key => $val) {
+    if ($key == 'pdf') continue;
 
     // These are the top checkboxes (demographics, allergies, etc.).
     //

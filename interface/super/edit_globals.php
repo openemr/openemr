@@ -348,7 +348,10 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
           // Only show files that contain style_ as options
           //  Skip style_blue.css since this is used for
           //  lone scripts such as setup.php
-          if (!preg_match("/^style_.*\.css$/", $tfname) || $tfname == 'style_blue.css') { continue; }
+          //  Also skip style_pdf.css which is for PDFs and not screen output
+          if (!preg_match("/^style_.*\.css$/", $tfname) ||
+            $tfname == 'style_blue.css' || $tfname == 'style_pdf.css')
+            continue;
           echo "<option value='$tfname'";
           if ($tfname == $fldvalue) echo " selected";
           echo ">";

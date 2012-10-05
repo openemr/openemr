@@ -1,9 +1,3 @@
-body {
-    margin: 0px 0px 0px 2px;
-    font-family: Arial; 
-    font-size: 1em;
-}
-
 a {
   color: #0000cc;
   text-decoration: none;
@@ -272,21 +266,24 @@ font-weight: bold;
 #DEM .groupname {
     font-weight: bold;
     color: #080;
-    font-size: 0.8em;
+    font-size: 9pt;
     padding-right: 5px;
     vertical-align: top;
+    width: 12%;
 }
 #DEM .label {
     font-weight: bold;
-    font-size: 0.8em;
+    font-size: 9pt;
     vertical-align: top;
     text-align: right;
+    width: 22%;
 }
 #DEM .data {
-    font-size: 0.8em;
+    font-size: 9pt;
     vertical-align: top;
     text-align: left;
     padding-right: 6px;/*30px - ie 6 fix*/
+    width: 22%;
 }
 
 /* Patient History */
@@ -298,17 +295,20 @@ font-weight: bold;
     padding-right: 1px;
     vertical-align: top;
     height: 2em;
+    width: 12%;
 }
 #HIS .label {
     font-weight: bold;
     font-size: 9pt;
     vertical-align: top;
+    width: 22%;
 }
 #HIS .data {
     font-size: 9pt;
     vertical-align: top;
     text-align: left;
     padding-right: 10px;
+    width: 22%;
 }
 
 
@@ -510,6 +510,10 @@ font-weight: bold;
  *============================================================*/
 
 #report_custom {
+    width:100%;
+}
+
+#report_custom table {
     width:100%;
 }
 
