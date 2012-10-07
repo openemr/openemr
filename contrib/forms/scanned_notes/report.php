@@ -34,7 +34,13 @@ function scanned_notes_report($pid, $useless_encounter, $cols, $id) {
     $imageurl  = "$web_root/sites/" . $_SESSION['site_id'] .
       "/documents/$pid/encounters/${thisenc}_$id$suffix.jpg";
     if (is_file($imagepath)) {
-      echo "   <img src='$imageurl' />\n";
+      echo "   <img src='$imageurl'";
+      // Flag images with excessive width for possible stylesheet action.
+      $asize = getimagesize($imagepath);
+      if ($asize[0] > 750) {
+        echo " class='bigimage'";
+      }
+      echo " />\n";
       echo " <br />\n";
     }
     else {

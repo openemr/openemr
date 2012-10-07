@@ -39,7 +39,9 @@ $printable = empty($_GET['printable']) ? false : true;
 if ($PDF_OUTPUT) $printable = true;
 unset($_GET['printable']);
 
-$N = 6;
+// Number of columns in tables for insurance and encounter forms.
+$N = $PDF_OUTPUT ? 4 : 6;
+
 $first_issue = 1;
 
 function getContent() {
