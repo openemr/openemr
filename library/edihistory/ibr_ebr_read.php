@@ -1033,17 +1033,17 @@ function ibr_ebr_html ($ar_data, $err_only=false) {
 		
 				if (array_key_exists("3e", $val)) {
 					// there may be more than one error reported
+                    $clm_html .= "<td>&nbsp;</td>".PHP_EOL."</tr>".PHP_EOL;
 					foreach ($val['3e'] as $er) {
+                        $clm_html .= "<tr class=\"{$bgc}\">".PHP_EOL;
 						$clm_html .= "<td>{$er['err_type']}&nbsp;{$er['err_code']}&nbsp;{$er['err_loop']}&nbsp;{$er['err_seg']}&nbsp;{$er['err_elem']}</td>
-				         </tr>
-						 <tr class=\"{$bgc}\" >
-						    <td  colspan=6>{$er['err_msg']}</td>
+						    <td  colspan=5>{$er['err_msg']}</td>
 						 </tr>".PHP_EOL;
 					} // end foreach ($val['3e'] as $er)
 				} elseif (array_key_exists("3a", $val)) { 
 					$clm_html .= "<td>payment</td>
 					  </tr>
-					  <tr>
+					  <tr class=\"{$bgc}\">
 					    <td colspan=6>{$val['3a']['msg']}</td>
 					  </tr>
 					  <tr class=\"{$bgc}\">
@@ -1057,7 +1057,7 @@ function ibr_ebr_html ($ar_data, $err_only=false) {
 		               </tr>".PHP_EOL;
 				} else {
 					// ibr files only report 3e
-					$clm_html .= "<td> &nbsp;</td>";
+					$clm_html .= "<td> &nbsp;</td>".PHP_EOL."</tr>".PHP_EOL;
 				}
 
 			} // end foreach(($ar_cd as $val)
