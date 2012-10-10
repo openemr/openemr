@@ -45,7 +45,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
     <link rel="stylesheet" href="<?php echo $web_root?>/library/dynarch_calendar.css" type="text/css" />
     
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/jquery-ui-1.8.21.custom.css" type="text/css" />
-    <link rel="stylesheet" href="<?php echo $web_root?>/library/css/jquery.dataTables.css" type="text/css" />
+    <!-- <link rel="stylesheet" href="<?php echo $web_root?>/library/css/jquery.dataTables.css" type="text/css" /> -->
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history.css" type="text/css" />
 
     <script type="text/javascript" src="<?php echo $web_root?>/library/dynarch_calendar.js"></script>
