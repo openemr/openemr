@@ -57,7 +57,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 <body>
 
 <!-- Begin tabs section -->
-<div id="tabs">
+<div id="tabs" style="visibility:hidden">
   <ul class="Clear">
    <li><a href="#newfiles" id="btn-newfiles"><?php echo xlt("New Files"); ?></a></li>
    <li><a href="#csvdatatables" id="btn-csvdatatables"><?php echo xlt("CSV Tables"); ?></a></li>
@@ -340,6 +340,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
     $(document).ready(function() {
         // activate tab interface
         $("#tabs").tabs();
+        $("#tabs").tabs().css('visibility','visible');
         $("#tabs").tabs({
             select: function() {	
                 //Reset all these text fields to their default
@@ -545,17 +546,21 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 			data: $('#formcsvtables').serialize(), 
 			dataType: "html",
 			success: [ 
-				function(data){ $("#tblshow").html($.trim(data)); },
-				function(){
+				function(data){ 
+                    var tbltl = "<div class='csvcptn'>" + $(data).filter('#dttl').html() + "</div>";
+					var mytbl = "<table id='csvTable' class='csvDisplay'>" + $(data).not('#dttl').html() + "</table>";
+					$("#tblshow").html($.trim(mytbl)); 
 					$('#csvTable').dataTable({
 						DisplayLength: 10,    
 						bJQueryUI: true, 
 						bScrollInfinite: true,
 						bScrollCollapse: true,
+                        iScrollLoadGap: 20,
 						sScrollY: '240px',
 						sScrollX: '90%',
 						sScrollXInner: '100%'
 					});
+                    $("#csvTable_filter").before(tbltl);
 				},
 				bindlinks('#tblshow', 'click', '.clmstatus', 'click', '#tbclmstat', '<?php echo xla("Claim Status"); ?>'),
 				bindlinks('#tblshow', 'click', '.btclm', 'click', '#tbbatchclm', '<?php echo xla("Batch Claim"); ?>'),
