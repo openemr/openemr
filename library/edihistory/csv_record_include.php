@@ -1484,9 +1484,9 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
 	if ($rwst < 1) { $rwst = 1; $rwct = $ln_ct; }
 	// 
 	if ($is_date) {
-		$csv_html .= "<h4>Table: $f_name &nbsp;&nbsp; Start Date: $datestart &nbsp; End Date: $dateend &nbsp;Rows: $rwct</h4>".PHP_EOL;
+		$csv_html .= "<div id='dttl'>Table: $f_name &nbsp;&nbsp; Start Date: $datestart &nbsp; End Date: $dateend &nbsp;Rows: $rwct</div>".PHP_EOL;
 	} else {
-		$csv_html .= "<h4>Table: $f_name &nbsp;&nbsp; Rows: $ln_ct &nbsp;&nbsp; Shown: $rwct</h4>".PHP_EOL;
+		$csv_html .= "<div id='dttl'>Table: $f_name &nbsp;&nbsp; Rows: $ln_ct &nbsp;&nbsp; Shown: $rwct</div>".PHP_EOL;
 	}
 	//
 	 $csv_html .= "<table id=\"csvTable\" class=\"csvDisplay\">".PHP_EOL;
