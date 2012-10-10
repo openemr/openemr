@@ -686,6 +686,24 @@ function ibr_disp_fileText() {
 	return $str_html;
 }
 
+/**
+ * tentative function to check whether an era file has been processed 
+ * 
+ * @todo figure out how to do the sql query and use the result
+ * @todo add a link to the csv era files table so user can click to activate
+ * @todo add a stanza in the edihistory_main.php get part
+ * 
+ * @return string
+ */
+function ibr_disp_is_era_processed() {
+    //
+    $ckno = filter_input(INPUT_GET, 'trace', FILTER_SANITIZE_STRING);
+    if ($ckno) {
+        $srchval = 'ePay - '.$ckno;
+        // $sql = sqlStatement(
+        $sql = "SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = '$srchval'";
+    }
+}
 	
 /**
  * jQuery adds a special HTTP header for ajax requests
