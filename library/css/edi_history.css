@@ -82,7 +82,7 @@ ol.logview li {
  */
 table.ibr_ebr {
 	font-size: medium;
-	background-color: #bce9f8;
+	background-color: #9dc1d2;
 	width: 800px;
 	border-collapse: collapse;
 	border: 1px solid #000;
@@ -90,7 +90,7 @@ table.ibr_ebr {
 }
 table.ibr_ebr th {
 	padding: 5px;
-	background-color: #7fb3cb;
+	background-color: #9dc1d2;
 }
 table.ibr_ebr td {
 	color: #000000;
@@ -102,10 +102,10 @@ table.ibr_ebr td.reject {
 	padding: 3px;
 }
 table.ibr_ebr tr.odd td {
-	background-color: #b5bcc0;
+	background-color: #c6d8db;
 }
 table.ibr_ebr tr.even td {
-	background-color: #a3c1e0;
+	background-color: #a3d6e0;
 }
 table.ibr_ebr tr.fodd td {
 	background-color: #a3d8e0;
@@ -204,7 +204,7 @@ table.f277 tr.feven td {
  */
 table.batch {
 	font-size: medium;
-	background-color: #bcdebb;
+	background-color: #9fd7ad;
 	width: 800px;
 	border-collapse: collapse;
 	border: 1px solid #000;
@@ -212,17 +212,17 @@ table.batch {
 }
 table.batch th {
 	padding: 5px;
-	background-color: #7fb3cb;
+	background-color: #9fd7ad;
 }
 table.batch td {
 	color: #000000;
 	padding: 3px;
 }
 table.batch tr.odd td {
-	background-color: #99b4a2;
+	background-color: #beddcd;
 }
 table.batch tr.even td {
-	background-color: #bcd6c1;
+	background-color: #d4ebd9;
 }
 
 
