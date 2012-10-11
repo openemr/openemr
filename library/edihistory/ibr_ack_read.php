@@ -151,12 +151,10 @@ function ibr_process_ack($filepath) {
 		$ack_fname = $path_parts['basename'];
 		$ack_ext = $path_parts['extension'];
 		$ack_mtime = date ("Ymd", filemtime($filepath));
-		$act_ftxt = str_replace ( ".ACK", ".ACT", $ack_fname);
+		$act_txt = str_replace ( ".ACK", ".ACT", $ack_fname);
 	} else {
 		// error, unable to read file
 		csv_edihist_log ("ibr_process_ack: Error, unable to read file $filepath");
-		//echo "ibr_process_ack: Error, unable to read file $file_path";
-		//edi_hist_record_log("Error, unable to read file $file_path");
 		return FALSE;
 	}
 	// read the file
@@ -165,23 +163,17 @@ function ibr_process_ack($filepath) {
 		while (($buffer = fgets($fh, 4096)) !== false) {
 			$ar_ack[] = trim($buffer);
 		}
-	} else	{
-		//	trigger_error("class.ibr_read.php :	failed to read $file_path"  );      
-		csv_edihist_log ( "ibr_ebr_filetoarray Error: failed to read " . $file_path  );
-		//edi_hist_record_log( "ibr_ebr_filetoarray Error: failed to read " . $file_path  );
+	} else	{     
+		csv_edihist_log ( "ibr_process_ack Error: failed to read " . $file_path  );
 	}
 	fclose($fh);
-	// 1|2009-03-15|12.06.05.726||2009031511593700|300300557
-	// 1E|Availity cannot process this file due to missing or invalid data. Please contact Availity customer service at
-	// 1.800.AVAILITY (282.4548) for assistance.
 	//
-	$ack_msg = array();
-	$ack_idx = 0;
+	$ar_ackfile = array();
 	$batch_file ="";
 	$ack_msg = "";
 	//
 	foreach($ar_ack as $strln) {
-		if (substr($strln, 0 ,2) == '1'.IBR_DELIMITER) {
+		if (substr($strln, 0, 2) == '1'.IBR_DELIMITER) {
 			$ln = explode(IBR_DELIMITER, $strln);
 			// use the given date for the file date, otherwise filemtime
 			$dtstr = str_replace('-', '', $ln[1]);
@@ -201,23 +193,18 @@ function ibr_process_ack($filepath) {
 			continue;
 		}
 	}
+    if ( isset($ack_ctlnum) && strlen($ack_ctlnum) ) {
+		$batch_file = csv_file_by_controlnum('batch', $ack_ctlnum);
+	}
 	//
-	//if ( isset($ack_ctlnum) && strlen($ack_ctlnum) ) {
-	//	// function from ibr_batch_read.php
-	//	$batch_file = ibr_batch_find_file_with_controlnum($ack_ctlnum);
-	//}
-	//"ack_time""ack_file""ack_act""ack_ctrl""ack_date""ack_ip""ack_msg""ack_batch"
-	//array('time', 'file_name', 'file_text', 'ta1ctrl', 'initver', 'clm_reject', 'clm_count', 'clm_indc', 'batch');//
-	//
-	// $csv_hd_ar['ack']['file'] = array('Date', 'FileName', 'isa13', 'ta1ctrl', 'code');
 	$ar_ackfile["ack_time"] = isset($ack_mtime) ? trim($ack_mtime) : ""; 		//"date"
 	$ar_ackfile["ack_file"] = isset($ack_fname) ? trim($ack_fname) : "";  	//"filename"
 	$ar_ackfile["ack_isa13"] = isset($ack_isa13) ? trim($ack_isa13) : "";   // file id?
 	$ar_ackfile["ack_ctrl"] = isset($ack_ctlnum) ? trim($ack_ctlnum) : "";	//"batch icn "
 	$ar_ackfile["ack_code"] = isset($ack_code) ? trim($ack_code) : "";	    //"error code ? 1E "
 	$ar_ackfile["ack_msg"] = isset($ack_msg) ? trim($ack_msg) : "";
-	//$ar_ackfile["ack_batch"] = ($batch_file) ? trim($batch_file) : "";		//"batch"
-	//$ar_ackfile["ack_act"] = isset($act_ftxt) ? trim($act_ftxt) : ""; 		//"text version"
+	$ar_ackfile["ack_batch"] = ($batch_file) ? trim($batch_file) : "batch not identified";		//"batch"
+    $ar_ackfile["ack_ftxt"] = ($ack_txt) ? $ack_txt : ""; 	              //"readable filename"
     //
 	return $ar_ackfile;
 }
@@ -265,21 +252,18 @@ function ibr_process_ta1($filepath) {
 			$ack_msg = ($ack_code) ? $seg[5].": ". ibr_ta1_code($seg[5]) : '';
 		}
 	}
-	
-	//if ( isset($ack_ctlnum) && strlen($ack_ctlnum) ) {
-	//	// function from ibr_batch_read.php
-	//	$batch_file = ibr_batch_find_file_with_controlnum($ack_ctlnum);
-	//}
-	//['ack']['file'] = array('Date', 'FileName', 'isa13', 'ta1ctrl', 'Code');
+    if ( isset($ack_ctlnum) && strlen($ack_ctlnum) ) {
+		$batch_file = csv_file_by_controlnum('batch', $ack_ctlnum);
+	}
+    //
 	$ar_ackfile["ack_time"] = isset($ack_mtime) ? $ack_mtime : ""; 		//"date"
 	$ar_ackfile["ack_file"] = isset($ack_fname) ?  $ack_fname : "";  	//"file"
 	$ar_ackfile["ack_isa13"] = isset($ack_isa13) ? $ack_isa13 : "";     // $ta1 isa13
 	$ar_ackfile["ack_ctrl"] = isset($ack_ctlnum) ? $ack_ctlnum : "";	//"batch_ctrl"
 	$ar_ackfile["ack_code"] = isset($ack_code) ? $ack_code : "";        // error code
-	$ar_ackfile["ack_msg"] = isset($ack_msg) ? $ack_msg : ""; 
-	//$ar_ackfile["ack_batch"] = ($batch_file) ? $batch_file : "";
-	//$ar_ackfile["ack_act"] = isset($ack_txt) ? $ack_txt : ""; 		//"f997_97t" 
-	//$ar_ackfile["ack_msg"] = isset($ack_msg) ? $ack_msg : ""; 		//"f997_97t" 
+	$ar_ackfile["ack_msg"] = isset($ack_msg) ? $ack_msg : "";
+    $ar_ackfile["ack_batch"] = ($batch_file) ? $batch_file : "batch not identified"; 
+    $ar_ackfile["ack_ftxt"] = ($ack_txt) ? $ack_txt : "";
 	//
 	return $ar_ackfile;
 }	
@@ -298,10 +282,10 @@ function ibr_ack_html($ar_data) {
 	$idf = 0;
 	//
 	// array('Date', 'FileName', 'isa13', 'ta1ctrl', 'code');
-	$str_html = "<table class=\"f997\" cols=6><caption>ACK/TA1 File Report</caption>
+	$str_html = "<table class=\"f997\" cols=5><caption>ACK/TA1 File Report</caption>
 	   <thead>
 	   <tr>
-		 <th>Date</th><th>File Name</th><th>Control</th><th>Batch</th><th>Code</th>
+		 <th>Date</th><th>File Name</th><th>Batch ICN</th><th>Batch</th><th>Code</th>
 	   </tr>
 	   </thead>
 	   <tbody>";
@@ -313,15 +297,17 @@ function ibr_ack_html($ar_data) {
 	    $str_html .= "
 	       <tr class=\"{$bgf}\">
 	        <td>{$ack['ack_time']}</td>
-			<td><a target='_blank' href='edi_history_main.php?fvkey={$ack['ack_file']}'>{$ack['ack_file']}</a>&nbsp;&nbsp; <a target='_blank' href='edi_history_main.php?fvkey={$ack['ack_file']}&readable=yes'>Text</a></td>
-			<td><a href='edi_history_main.php?fvkey={$ack['ack_ctrl']}' target='_blank'>{$ack['ack_ctrl']}</a></td>
+			<td><a target='_blank' href='edi_history_main.php?fvkey={$ack['ack_file']}'>{$ack['ack_file']}</a>&nbsp;&nbsp; <a target='_blank' href='edi_history_main.php?fvkey={$ack['ack_ftxt']}&readable=yes'>R</a></td>
+			<td><a href='edi_history_main.php?btctln={$ack['ack_ctrl']}' target='_blank'>{$ack['ack_ctrl']}</a></td>
+            <td><a href='edi_history_main.php?fvkey={$ack['ack_batch']}' target='_blank'>{$ack['ack_batch']}</a></td>
 			<td>{$ack['ack_code']}</td>
 		  </tr>
 		  <tr>
-		    <td span=6>{$ack['ack_msg']}</td>
+		    <td span=4>{$ack['ack_msg']}</td>
 		  </tr>";
 	    //
 	}
+    $str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
 	return $str_html;
 }
 
@@ -366,14 +352,13 @@ function ibr_ack_process_new($ack_files, $html_out = TRUE ) {
 	// write a line to csv file -- put in file_997.csv
 	if ( is_array($ar_d) && count($ar_d) ) {
 		foreach($ar_d as $arec) {
-			// do not put the message in csv record
-			$ar_csv[] = array_slice($arec, 0, count($arec)-1);
+			// do not put message, batch file, or text file in csv record
+			$ar_csv[] = array_slice($arec, 0, count($arec)-3);
 		}
 		$rslt = csv_write_record($ar_csv, "ack", "file");
 		csv_edihist_log("ibr_ack_process_new: $rslt characters written to files_997.csv");
 		if ($html_out) { 
 			$str_html .= ibr_ack_html($ar_d); 
-			$str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
 		} else {
 			$str_html .= "ACK files: processed $fcount ACK files <br />".PHP_EOL;
 		}
@@ -423,14 +408,13 @@ function ibr_ta1_process_new($ta1_files, $html_out = TRUE ) {
  	// write a line to csv file -- put in file_997.csv
 	if ( is_array($ar_d) && count($ar_d) ) {
 		foreach($ar_d as $arec) {
-			// do not put the message in csv record
-			$ar_csv[] = array_slice($arec, 0, count($arec)-1);
+			// do not put message, batch, or text file in csv record
+			$ar_csv[] = array_slice($arec, 0, count($arec)-3);
 		}
 		$rslt = csv_write_record($ar_csv, "ta1", "file");
 		csv_edihist_log("ibr_ta1_process_new: $rslt characters written to files_997.csv");
 		if ($html_out) { 
 			$str_html .= ibr_ack_html($ar_d); 
-			$str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
 		} else {
 			$str_html .= "TA1 files: processed $fcount TA1 files <br />".PHP_EOL;
 		}
