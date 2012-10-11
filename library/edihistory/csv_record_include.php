@@ -744,7 +744,7 @@ function csv_write_record($csv_data, $file_type, $csv_type) {
 	if (!is_array($csv_data)) { return FALSE;}
 	// use CSV_RECORD class to write ibr or ebr claims data to the csv file 
 	//  csv, batch, ibr, ebr, f997, or era
-	if (! strpos("|era|f997|ibr|ebr|dpr|f277|batch|ack", $file_type) ) {	
+	if (! strpos("|era|f997|ibr|ebr|dpr|f277|batch|ta1|ack", $file_type) ) {	
 		csv_edihist_log("csv_write_record error: incorrect file type $file_type");
 		return FALSE;
 	}
