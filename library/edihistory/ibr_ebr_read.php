@@ -501,11 +501,13 @@ function ibr_ebr_message($ebrfile, $clm01, $batchnm = '') {
 	$msgstr = '';
 	foreach($ebr_ar as $fld) {
 		// since true value can match '1'
-		if (strval($fld[0]) === '1' && $usebatch) {
-			$isbatch = ($ext == '.ibr') ? ($fld[15] == $batchnm) : ($fld[8] == $batchnm);
-			$btnm = ($ext == '.ibr') ? $fld[15] : $fld[8];
-			continue;
-		}
+		if (strval($fld[0]) === '1') {
+            $btnm = ($ext == '.ibr') ? $fld[15] : $fld[8];
+            if ($usebatch) {
+                $isbatch = ($ext == '.ibr') ? ($fld[15] == $batchnm) : ($fld[8] == $batchnm);
+            }
+            continue;
+        }
 		//
 		if ($fld[0] == '3') {
 			if ($usebatch & !$isbatch) { 
@@ -536,7 +538,7 @@ function ibr_ebr_message($ebrfile, $clm01, $batchnm = '') {
 				//3e│Error Initiator│R│Error Code – if available, otherwise NA│Error Message | Loop│Segment ID│Element # ││││Version |
 				// different for older 4010, one less field, so loop gives segment, segment gives element, element is blank 
 				$sts = ($ext == '.ebr') ? $fld[2] :  $sts;
-				$msgstr = "<p class='ibrmsg'>".PHP_EOL;
+				$msgstr .= "<p class='ibrmsg'>".PHP_EOL;
 				$msgstr .= "$nm &nbsp;$pe <br />".PHP_EOL;
 				$msgstr .= "$btnm <br />".PHP_EOL;
 				$msgstr .= "Status: $sts<br />".PHP_EOL;
@@ -546,7 +548,7 @@ function ibr_ebr_message($ebrfile, $clm01, $batchnm = '') {
 				$msgstr .= "</p>".PHP_EOL;
 			} elseif ($fld[0] == '3c') {
 				$sts = ($ext == '.ebr') ? $fld[2] :  $sts;
-				$msgstr = "<p class='ibrmsg'>".PHP_EOL;
+				$msgstr .= "<p class='ibrmsg'>".PHP_EOL;
 				$msgstr .= "$nm &nbsp;$pe <br />".PHP_EOL;
 				$msgstr .= "$btnm <br />".PHP_EOL;
 				$msgstr .= "Status: $sts<br />".PHP_EOL;
@@ -556,7 +558,7 @@ function ibr_ebr_message($ebrfile, $clm01, $batchnm = '') {
 				//3a│Bill Type│Allowed Amount│Non-Covered Amount │Deductible Amount │Co-Pay Amount │Co-insurance Amount │Withhold
 				//Amount │Estimated Payment Amount │Patient Liability│Message Code│Message Text││
 				//
-				$msgstr = "<p class='ibrmsg'>".PHP_EOL;
+				$msgstr .= "<p class='ibrmsg'>".PHP_EOL;
 				$msgstr .= "$nm &nbsp;$pe <br />".PHP_EOL;
 				$msgstr .= "$btnm <br />".PHP_EOL;
 				$msgstr .= "Type: {$fld[1]} <br />".PHP_EOL;
@@ -733,7 +735,7 @@ function ibr_ebr_values($file_path) {
 			}
 			//['err_seg']['err_msg']
 			$err_seg .= (strlen($ln[5]) && $ln[5] != 'NA') ? $ln[5].' | ' : '';
-			$err_seg.= (strlen($ln[6]) && $ln[6] != 'NA') ? $ln[6].' | ' : '';
+			$err_seg .= (strlen($ln[6]) && $ln[6] != 'NA') ? $ln[6].' | ' : '';
 			$err_seg .= (strlen($ln[7]) && $ln[7] != 'NA') ? $ln[7].' | ' : '';
 			//
 			$msg .= (strlen($ln[1]) && $ln[1] != 'NA') ? $ln[1].' ' : '';
@@ -952,25 +954,25 @@ function ibr_ebr_html ($ar_data, $err_only=false) {
 	$dtl = ($err_only) ? "Errors only" : "All included claims";
 	//
 	// the table heading for files
-	$f_hdg = "<table cols=6 class=\"ibr_ebr\">
-	   <caption>IBR-EBR Files Summary  {$dtl} </caption> 
+	$f_hdg = "<table cols=5 class=\"ibr_ebr\">
+	   <caption>IBR-EBR Files Summary {$dtl} </caption> 
 	   <thead>
 		   <tr>
 			 <th>IBR-EBR File</th><th>Date</th>
-			 <th>Batch</th><th>Claims</th><th>Rej</th><th>&nbsp;</th>
+			 <th>Batch</th><th>Claims</th><th>Rej</th>
 		   </tr>
 		</thead>
 		<tbody>".PHP_EOL;
 	//
 	// the details table heading
-	$clm_hdg = "<table cols=6 class=\"ibr_ebr\">
+	$clm_hdg = "<table cols=5 class=\"ibr_ebr\">
 	 <thead>
 		<tr>
 		  <th>Patient Name</th><th>Date</th><th>CtlNum</th>
-		  <th>Status</th><th>Payer Name</th><th>Type Code Loop Segment Field</th>
+		  <th>Status</th><th>Payer Name</th>
 		</tr>
 		<tr>
-		  <th colspan=6 align=left>Message</th>
+		  <th>Type|Code|Loop|Segment|Field</th><th colspan=4>Message</th>
 		</tr>
 	 </thead>
 	 <tbody>".PHP_EOL;
@@ -990,7 +992,7 @@ function ibr_ebr_html ($ar_data, $err_only=false) {
 			$str_html .= "ibr_ebr_html: empty array or wrong keys <br />" . PHP_EOL;
 			continue;
 		}
-		// if we had a claim detail, we need to append the files heading
+		// if we had a claim detail in last pass, we need to append the files heading
 		if ($hasclm) { $str_html .= $f_hdg; }
 		//
 		// if any individual claims detail is to be output this will be set true
@@ -1027,38 +1029,25 @@ function ibr_ebr_html ($ar_data, $err_only=false) {
 				   <td>{$val['svcdate']}</td>
 				   <td><a class=\"btclm\" target=\"_blank\" href=\"edi_history_main.php?fvbatch={$val['batch']}&btpid={$val['clm01']}\">{$val['clm01']}</a></td>
 				   <td><a class=\"clmstatus\" target=\"_blank\" href=\"edi_history_main.php?ebrfile={$val['f_name']}&ebrclm={$val['clm01']}\">{$val['status']}</a></td>
-				   <td title=\"{$val['payerid']}\">{$val['payer_name']}</td>";
-				   
-				   // do not finish the row here, test for 3e, 3a, or 3c
-		
+				   <td title=\"{$val['payerid']}\">{$val['payer']}</td>
+                </tr>";
 				if (array_key_exists("3e", $val)) {
 					// there may be more than one error reported
-                    $clm_html .= "<td>&nbsp;</td>".PHP_EOL."</tr>".PHP_EOL;
 					foreach ($val['3e'] as $er) {
                         $clm_html .= "<tr class=\"{$bgc}\">".PHP_EOL;
 						$clm_html .= "<td>{$er['err_type']}&nbsp;{$er['err_code']}&nbsp;{$er['err_loop']}&nbsp;{$er['err_seg']}&nbsp;{$er['err_elem']}</td>
-						    <td  colspan=5>{$er['err_msg']}</td>
+						    <td  colspan=4>{$er['err_msg']}</td>
 						 </tr>".PHP_EOL;
 					} // end foreach ($val['3e'] as $er)
 				} elseif (array_key_exists("3a", $val)) { 
-					$clm_html .= "<td>payment</td>
-					  </tr>
-					  <tr class=\"{$bgc}\">
-					    <td colspan=6>{$val['3a']['msg']}</td>
-					  </tr>
-					  <tr class=\"{$bgc}\">
-						<td colspan=6>{$val['3a']['msg_txt']}</td>
+					$clm_html .= "<tr class=\"{$bgc}\">
+					    <td>{$val['3a']['msg']}</td><td colspan=4>{$val['3a']['msg_txt']}</td>
 					  </tr>".PHP_EOL;
 				} elseif (array_key_exists("3c", $val)) { 
-					$clm_html .= "<td>{$val['3c']['err_seg']}</td>
-		               </tr>
-		               <tr class=\"{$bgc}\"> 
-		                 <td colspan=6>{$val['3c']['err_msg']}</td>
+					$clm_html .= "<tr class=\"{$bgc}\"> 
+		                 <td>{$val['3c']['err_seg']}</td><td colspan=4>{$val['3c']['err_msg']}</td>
 		               </tr>".PHP_EOL;
-				} else {
-					// ibr files only report 3e
-					$clm_html .= "<td> &nbsp;</td>".PHP_EOL."</tr>".PHP_EOL;
-				}
+				} 
 
 			} // end foreach(($ar_cd as $val)
 			//
@@ -1070,9 +1059,8 @@ function ibr_ebr_html ($ar_data, $err_only=false) {
 		} // end if ($ar_cd)
 	} // end foreach ($ar_data as $ardt)
 	//
-	// finish the table and add a <p> 
-	$str_html .= "</tbody></table>
-	  <p></p>";
+	// finish the table
+	$str_html .= "</tbody></table>".PHP_EOL;
 	//
 	return $str_html;
 }
@@ -1163,7 +1151,12 @@ function ibr_ebr_process_new_files($files_ar=NULL, $extension='ibr', $html_out=T
 	// verify and get complete path
 	foreach($f_new as $fbt) { 
 		$fp = csv_verify_file($fbt, $extension, false);
-		if ($fp) { $f_list[] = $fp; }
+		if ($fp) { 
+            $f_list[] = $fp; 
+        } else {
+            $html_str .= "verification failed for $fbt <br />".PHP_EOL;
+            csv_edihist_log("ibr_ebr_process_new_files: verification failed for $fbt");
+        }
 	}
 	$fibrcount = count($f_list);	
 	//		
