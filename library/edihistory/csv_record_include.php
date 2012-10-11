@@ -431,7 +431,7 @@ function csv_clear_tmpdir() {
  * The 'datecolumn' and 'fncolumn' entries are used in csv_to_html() to filter by date 
  * or place links to files.
  * 
- * @param string $type -- default = ALL or one of batch, ibr, ebr, dpr, f997, f277, era, ack, text
+ * @param string $type -- default = ALL or one of batch, ibr, ebr, dpr, f997, f277, era, ack, ta1, text
  * @return array
  */
 function csv_parameters($type="ALL") {
@@ -535,7 +535,6 @@ function csv_dirfile_list ($type) {
 		return FALSE;
 	}
 	$params = csv_parameters($type);
-	//$search_dir = dirname(__FILE__).$params['directory'].DIRECTORY_SEPARATOR;
     $search_dir = $params['directory'].DIRECTORY_SEPARATOR;
     $typedir = basename($params['directory']);
 	$ext_re = $params['regex'];
@@ -558,6 +557,7 @@ function csv_dirfile_list ($type) {
                             if (ext == '999' || ext == '997' || $ext == 'ack') { continue; }
                         } 
                     } else {
+                        //if ($file == '.' || $file == '..') { continue; }  // . and .. are not files
 						csv_edihist_log("csv_dirfile_list: $type wrong type $file");
 					}
 				}
