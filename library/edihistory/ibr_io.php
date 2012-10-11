@@ -250,7 +250,7 @@ function ibr_disp_claimst() {
 			return $str_html;
 		}
 		$str_html .= ibr_batch_get_st_block ($btname, $st02, $clmid);
-	} elseif (strlen($filename) == 9) {	
+	} elseif (strlen($filename) == 9 && !strpos($filename, '.')) {	
 		// assume we have a batch_icn
         $btname = csv_file_by_controlnum('batch', $filename);
 		if (!$btname) {
@@ -641,8 +641,8 @@ function ibr_disp_fileText() {
 	$str_html = '';
 	//isset($_POST['fileX12']) && isset($_FILES['fileUplx12'])
 	if ( count($_FILES) && isset($_FILES['fileUplx12']) ) {	
-		$str_html = ibr_html_heading('newfiles', $bn);
 		$fn = htmlentities($_FILES['fileUplx12']['name']);
+        $str_html = ibr_html_heading('newfiles', $fn);
 		$f_array = ibr_upload_files($str_html);
 		if ( is_array($f_array) && count($f_array) ) { 
 			$str_html .= csv_filetohtml($f_array); 
@@ -658,7 +658,7 @@ function ibr_disp_fileText() {
 			$str_html = ibr_html_heading('error');
 		} elseif ($ishr && $fn) {
 			$ftxt = ibr_ebr_ebt_name($fn);
-			$str_html = ibr_html_heading('textdisplay', $bn);
+			$str_html = ibr_html_heading('textdisplay', $ftxt);
 			$str_html .= csv_filetohtml($ftxt);
 		} else {
 			$bn = basename($fn);
@@ -670,7 +670,7 @@ function ibr_disp_fileText() {
 		if ($btisa13) {
 			//$btname = ibr_batch_find_file_with_controlnum($btisa13);
             $btname = csv_file_by_controlnum('batch', $btisa13);
-			$str_html = ibr_html_heading('textdisplay', $bn);
+			$str_html = ibr_html_heading('textdisplay', $btname);
 			if ($btname) {
 				$str_html .=   csv_filetohtml($btname);
 			} else {
@@ -696,13 +696,38 @@ function ibr_disp_fileText() {
  * @return string
  */
 function ibr_disp_is_era_processed() {
+    // 
+    // $stmt = sqlStatementNoLog($statement, $binds=NULL )
+    // or
+    // $stmt = sqlStatement($statement, $binds=NULL )
+    // or
+    // $stmt = sqlQuery($statement, $binds=NULL) 
+    // or 
+    // $stmt = sqlQueryNoLog($statement, $binds=NULL)
     //
-    $ckno = filter_input(INPUT_GET, 'trace', FILTER_SANITIZE_STRING);
+    require_once($GLOBALS['srcdir']."/sql.inc");
+    $str_html = '';
+    $ckno = filter_input(INPUT_GET, 'tracecheck', FILTER_SANITIZE_STRING);
     if ($ckno) {
         $srchval = 'ePay - '.$ckno;
-        // $sql = sqlStatement(
-        $sql = "SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = '$srchval'";
+        // reference like '%".$srchval."%'"
+        $stmt = "SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = '$srchval'";
+        $res = sqlStatement($stmt);
+        $row = sqlFetchArray($res);
+        if (is_array($row) && count($row)) {
+            $str_html .= "trace {$row['reference']} total \${$row['pay_total']}";
+            if ($row['global_amount'] === '0') {
+                $str_html .= " fully allocated";
+            } else {
+                $str_html .= " ({$row['global_amount']} not allocated)";
+            }
+        } else {
+            $str_html .= "trace $ckno not posted"; 
+        }
+    } else {
+        $str_html .= "trace not valid ID";
     }
+    return $str_html;
 }
 	
 /**
