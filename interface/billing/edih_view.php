@@ -497,6 +497,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
     function bindlinks(dElem, dEvt, cClass, cEvt, cElem, mytitle){ 
          $(dElem).on(dEvt, cClass, cEvt, function(e) {
             e.preventDefault();
+            $(cElem).css({'max-height': 372, 'overflow-y': 'auto'});
             $.get($(this).attr('href'), function(data){ $(cElem).html(data); })
             var statDialog = $(cElem).dialog({
                 autoOpen: false,
@@ -505,7 +506,7 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
                 buttons: [{ text: "Close", click: function() { $(this).dialog("close"); } }], 
                 modal: false,
                 title: mytitle, //$(this).attr('title'),
-                height: 400,
+                height: 'auto',     //400, maxHeight does not work until resize; css fix is possible
                 width: 'auto'
             });
             statDialog.dialog('open'); 
