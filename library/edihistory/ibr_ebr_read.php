@@ -663,7 +663,7 @@ function ibr_ebr_values($file_path) {
 	//		
 	foreach($ar_ebr as $ln) {
 		//
-		if (strval($ln[0]) == '1') {
+		if (strval($ln[0]) === '1') {
 			//['ibr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
 			$b++;
 			$c = -1;
@@ -860,7 +860,7 @@ function ibr_ibr_values($file_path) {
 	//		
 	foreach($ar_ibr as $ln) {
 		//
-		if (strval($ln[0]) == '1') {
+		if (strval($ln[0]) === '1') {
 			//['ibr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
 			$b++;
 			$c = -1;
@@ -942,8 +942,7 @@ function ibr_ibr_values($file_path) {
  */
 function ibr_ebr_html ($ar_data, $err_only=false) {
 	// create an html string for a table to display in a web page
-	//$ar_hd = $ar_data['head'];
-	//$ar_cd = $ar_data['claims'];
+	//
 	$idx = 0;
 	$idf = 0;
 	$has3 = false;
@@ -1005,11 +1004,8 @@ function ibr_ebr_html ($ar_data, $err_only=false) {
 			 <td><a target=\"_blank\" href=\"edi_history_main.php?fvkey={$ar_hd['f_name']}\">{$ar_hd['f_name']}</a> <a target=\"_blank\" href=\"edi_history_main.php?fvkey={$ar_hd['f_name']}&readable=yes\">Text</a></td>
 			 <td><a target=\"_blank\" href=\"edi_history_main.php?fvkey={$ar_hd['batch']}\">{$ar_hd['batch']}</a></td>
 			 <td>{$ar_hd['clm_ct']}</td>
-			 <td>{$ar_hd['clm_rej']}</td>
-			 <td>&nbsp;</td>" .PHP_EOL;
+			 <td>{$ar_hd['clm_rej']}</td>".PHP_EOL;
 		$str_html .= "</tr>" .PHP_EOL;
-		   //{$ar_hd['ft_name']}
-	
 		// now the individual claims details
 		//['pt_name'] ['svcdate']['clm01']['status']['batch']['filename']['payer'] ['providerid']['bht03']['payerid']
 		if ($ar_cd) {
@@ -1141,7 +1137,7 @@ function ibr_ebr_process_new_files($files_ar=NULL, $extension='ibr', $html_out=T
 	//
 	if ( count($f_new) == 0 ) {
 		if($html_out) { 
-			$html_str .= "<p>ibr_ebr_process_new: no new $extension files <br />";
+			$html_str .= "<p>IBR/EBR files: no new $extension files <br />";
 			return $html_str;
 		} else {
 			return false;
@@ -1161,12 +1157,12 @@ function ibr_ebr_process_new_files($files_ar=NULL, $extension='ibr', $html_out=T
 	$fibrcount = count($f_list);	
 	//		
 	// initialize variables		
-	$ar_htm = array();
 	$data_ar = array();
 	$wf = array();
 	$wc = array();
 	$chrf = 0;
 	$chrc = 0;
+    $idx = 0;
 	//
 	// sort ascending so latest files are last to be output
 	$is_sort = asort($f_list);  // returns true on success
@@ -1198,7 +1194,9 @@ function ibr_ebr_process_new_files($files_ar=NULL, $extension='ibr', $html_out=T
 					// array for csv
 					$wc[] = ibr_ebr_csv_claims($cl);
 				}
-				//$data_ar[] = $dm;
+				$data_ar[$idx]['file'] = $dm['file'];
+                $data_ar[$idx]['claims'] = $dm['claims'];
+                $idx++;
 			}
 		}
 	}
@@ -1207,8 +1205,7 @@ function ibr_ebr_process_new_files($files_ar=NULL, $extension='ibr', $html_out=T
 	$chrc += csv_write_record($wc, $extension, "claim");
 	//
 	if ($html_out) { 
-		//$html_str .= ibr_ebr_html ($data_ar, $err_only);
-        $html_str .= ibr_ebr_html ($data_vals, $err_only);
+		$html_str .= ibr_ebr_html ($data_ar, $err_only);
 	} else {
 		$html_str .= "IBR/EBR files: processed $fibrcount $extension files <br />".PHP_EOL;
 	}

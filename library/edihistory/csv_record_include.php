@@ -610,7 +610,8 @@ function csv_processed_files_list ($type) {
 		csv_edihist_log ("csv_list_processed_files: failed to access $csv_file" ); 
 		return false;
 	}	
-	//    
+	// consider array_shift($processed_files) to drop the header row (too slow)
+    // consider array_unique($processed_files) becasue files may be listed several times
 	return $processed_files;
 } // end function
 

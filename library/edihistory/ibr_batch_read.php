@@ -590,7 +590,7 @@ function ibr_batch_get_st_info ($st_num, $batchname='', $pidenctr='') {
 	//
 	if (!$stnum) {
 		// error - st number not supplied
-		csv_edihist_log("ibr_batch_find_claim_enctr: ST number not supplied");
+		csv_edihist_log("ibr_batch_get_st_info: ST number not supplied");
 		return FALSE;
 	} 
 	if (strlen($stnum) == 13) {
@@ -616,7 +616,7 @@ function ibr_batch_get_st_info ($st_num, $batchname='', $pidenctr='') {
 		$batch_name = basename($fp);
 	} else {
 		// unable to get the file, quit here
-		csv_edihist_log("ibr_batch_find_claim_enctr: could not read batch file");
+		csv_edihist_log("ibr_batch_get_st_info: could not read batch file");
 		return FALSE;
 	}
 
