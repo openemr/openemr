@@ -80,6 +80,7 @@ ol.logview li {
 /*
  * ibr-ebr file listings for process csv output
  */
+ 
 table.ibr_ebr {
 	font-size: medium;
 	background-color: #9dc1d2;
@@ -87,6 +88,14 @@ table.ibr_ebr {
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
+}
+table.ibr_ebr caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #9dc1d2;
+    border: 1px solid #000;
 }
 table.ibr_ebr th {
 	padding: 5px;
@@ -136,6 +145,14 @@ table.ibr_dpr {
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
+} 
+table.ibr_dpr caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #d1fad0;
+    border: 1px solid #000;
 }
 table.ibr_dpr th {
 	padding: 5px;
@@ -173,6 +190,14 @@ table.f277 {
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
+} 
+table.f277 caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #bcf8e7;
+    border: 1px solid #000;
 }
 table.f277 th {
 	padding: 5px;
@@ -209,6 +234,14 @@ table.batch {
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
+} 
+table.batch caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #9fd7ad;
+    border: 1px solid #000;
 }
 table.batch th {
 	padding: 5px;
@@ -238,16 +271,24 @@ table.f997 {
 	border: 1px solid #000;
 	empty-cells: show; 
 }
+table.f997 caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #d8a684;
+    border: 1px solid #000;
+}
 table.f997 th {
 	padding: 5px;
-	background-color: #7fb3Cb;
+	background-color: #e1cbbd;
 }
 table.f997 td {
 	color: #000000;
 	padding: 3px;
 }
 table.f997 tr.odd td {
-	background-color: #b4a499;
+	background-color: #c5bdb7;
 }
 table.f997 tr.even td {
 	background-color: #eeb995;
@@ -266,6 +307,14 @@ table.eracsv {
 	border-collapse: collapse;
 	border: 1px solid #000;
 	empty-cells: show; 
+}
+table.eracsv caption {
+    padding: 2px 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: medium;
+    background-color: #c5d7bf;
+    border: 1px solid #000;
 }
 table.eracsv th {
 	padding: 5px;
@@ -410,7 +459,7 @@ table.summaryRA caption {
     padding: 2px 10px;
     text-align: left;
     font-weight: bold;
-    font-size: 12px;
+    font-size: large;
     background-color: #C0E8E7;
     border: 2px solid #000;
 }
@@ -422,7 +471,7 @@ p.ibrmsg {
 	background-color: #d4ddde;
 	margin: 1.6em 8px;
 	text-align: left;
-	font-size: 12px;
+	font-size: medium;
 }
 
 /* 
@@ -432,7 +481,7 @@ p.ak999stat {
 	background-color: #eae1d0;
 	margin: 1.6em 8px;
 	text-align: left;
-	font-size: 12px;
+	font-size: medium;
 }
 	
 /*
