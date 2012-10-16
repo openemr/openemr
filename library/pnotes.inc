@@ -217,7 +217,6 @@ function getPatientNotifications($pid = '', $limit = '', $offset = 0, $search = 
         AND lo2.list_id = 'rule_action' 
     WHERE pid = ?
       AND active = 1
-      AND message_status != 'Done'
       AND date_created > DATE_SUB(NOW(), INTERVAL 1 MONTH)
       $search
     ORDER BY `date` desc
@@ -256,6 +255,7 @@ function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
     WHERE `user` = ?
       AND p.deleted != 1 
       AND p.pid = ?
+      AND p.message_status != 'Done'
       $search
     ORDER BY `date` desc
     $limit
