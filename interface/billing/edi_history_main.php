@@ -172,7 +172,11 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 	} elseif (isset($_GET['csvtbllist']) && $_GET['csvtbllist'] == 'yes') { 
 		// initial ajax request
 		$html_str = csv_table_select_list();
-		
+        
+	} elseif (isset($_GET['ckprocessed']) && $_GET['ckprocessed'] == 'yes') { 
+		// initial ajax request
+		$html_str = ibr_disp_is_era_processed();
+        
 	} elseif (isset($_GET['fvkey']) ) { 
 		// this will output to a new window (target=_blank)
 		$html_str .= ibr_disp_fileText();
@@ -211,6 +215,10 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
 	} elseif ( isset($_GET['ackfile']) ) {
 		$html_str = is_xhr() ? '' : ibr_html_heading('claimstatus');
 		$html_str .= ibr_disp_ta1_message();
+        
+    } elseif ( isset($_GET['batchicn']) ) {
+		$html_str = is_xhr() ? '' : ibr_html_heading('claimstatus');        
+        $html_str .= ibr_disp_997_for_batch();
 				
 	} elseif (array_key_exists('showlog', $_GET)) { 
 		$la = filter_input(INPUT_GET, 'showlog', FILTER_SANITIZE_STRING);

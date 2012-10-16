@@ -34,13 +34,13 @@
 <body>
 <h3>README Claim History Project</h3>
 <p>
-This file contains notes and hints for developing and using the files and scripts in this "EDI Claim History" project.
+This file contains notes and hints for developing and using the files and scripts in this &quot;EDI History&quot; project.
 </p>
 <p>
 The purpose of the project is to gain ready access to edi claim information,
 quickly identify submits, rejects, denials, payments, etc. and have the information
-in a "big picture" format as well as the information needed to spot problems.
-It is a "work-in-progress," unfinished, and will hopefully be improved upon. 
+in a &quot;big picture&quot; format as well as the information needed to spot problems.
+It is a work-in-progress, unfinished, and will hopefully be improved upon. 
 This phase is oriented to correctly parsing the x12 files, doing basic useful
 things with the data, and having acceptable html output.  The next phase is improved 
 integration with OpenEMR database information.
@@ -59,7 +59,7 @@ definitely oriented to Availity practices.  In particular, you may want to look 
 Availity EDI Preferences setup so you are getting the types of files these scripts can read.
 </p>
 <p>
-You should select "Include TA1" in the Availity preferences for .997 and .999 files 
+You should select <em>Include TA1</em> in the Availity preferences for .997 and .999 files 
 in order for the scripts to be able to match these response files with the corresponding 
 claims batch file you submitted.  Also, Availity provides x12 277CA files, the .277 type
 for unsolicited claim responses, i.e. Availity checks the claims and the payers also
@@ -71,7 +71,7 @@ in the function <em>csv_parameters()</em>.
 <p>
 One Availity setting that may be important is the grouping of ERA responses.  Mine are grouped by 
 checks from a particular payer, so my ERA files will have responses from only one payer, 
-with perhaps more than one "transaction" in each file.  Also, the &quot;multipayer&quot; options
+with perhaps more than one &quot;transaction&quot; in each file.  Also, the &quot;multipayer&quot; options
 help to reduce the number of Availity files one has to download.
 </p>
 
@@ -82,7 +82,7 @@ help to reduce the number of Availity files one has to download.
     access permissions of &quot;accounting.&quot;
 </p>
 <p>
-    Since the information in the EDI files is likely protected, Do not use these scripts on a public server!
+    Since the information in the EDI files is likely HIPAA protected, do not use these scripts on a public server!
 </p>
 
 <h3>File Locations:</h3>
@@ -123,6 +123,7 @@ Installed files:
 			<li>ibr_era_read.php</li>
 			<li>ibr_status_code_arrays.php </li>
 			<li>ibr_uploads.php</li>
+            <li>ibr_io.php</li>
             <li>ibr_271_read.php (not used as of this time)</li>
             <li>ibr_archive.php (not used as of this time)</li>
 			<li>edi_history_log.txt (created by scripts)</li>         
@@ -141,8 +142,6 @@ Installed files:
 			<li>jquery-ui-1.8.18.custom.min.js</li>
 			<li>jquery.dataTables.min.js</li>
 			<li>jquery-ui-1.8.18.custom.css</li>
-			<li>jquery.dataTables.css</li>
-			
 		</ul>
 		
 </ul>   
@@ -156,7 +155,7 @@ The <em>csv_setup()</em> function creates a file storage directory tree: </br>
 with subdirectories: ack  csv  dpr ebr  era  f277  f997  ibr  text
 </p>
 <p>
-and these csv files under: /var/www/htdocs/edihistory/edihist/sites/default/edi/history/csv</br>
+and these csv files under: /openemr/sites/[site]/edi/history/csv</br>
 &nbsp;&nbsp; claims_277.csv  claims_ebr.csv  claims_ibr.csv  files_277.csv  files_ebr.csv	files_ibr.csv</br>
 &nbsp;&nbsp; claims_997.csv  claims_era.csv  claims_dpr.csv  files_997.csv  files_era.csv</br>
 </p>
@@ -165,14 +164,14 @@ The path to these files set by <em>csv_edih_basedir()</em> based upon the OpenEM
 </p>
 <p>
 Note:  I suggest the following edit to the OpenEMR <em>billing_process.php</em> script:
+<br />
+&nbsp;  In the file openemr/interface/billing/billing_process.php
+&nbsp;  in &quot;function append_claim(&amp;$segs)&quot;  near line 82  (after the &quot;if (elems[0] == 'ST') { }&quot; block)
+</p>
 <pre><code>
-  In the file openemr/interface/billing/billing_process.php
-  in "function append_claim(&amp;$segs)"  at line 82  (after the "if (elems[0] == 'ST') { }" block)
-
     // add this mod 
     if ($elems[0] == 'BHT') {
-       // this edit gives each claim a unique BHT id number, which allows the batch and claim to be identified
-       //  in x12 277 files : isa-control-num and st-num are concatenated
+       // give each claim a unique BHT number, used in x12 277 files : isa-control-num and st-num are concatenated
        //  
        $bat_content .= str_replace("*0123*", sprintf("*%s%04d*", $bat_icn, $bat_stcount), $seg) . "~"; 
        continue;
@@ -184,18 +183,33 @@ Note:  I suggest the following edit to the OpenEMR <em>billing_process.php</em> 
 Once installed correctly, you begin usage by uploading your edi response files.
 </p>
 <p>
-The &quot;edih_view.php&quot; features a tab format and the "New Files" tab is where we begin.
-You can upload a zip archive or select one or more files.  The batch files are saved in the 
-<em>/openemr/sites/edi</em> directory by OpenEMR when they are created, so you should not need to upload 
-batch files.  Note the web server configuration will likely have a maximum for the number of 
-files and the size of the upload.
-</p>
-<p>
 On the first usage the setup function will be activated and the log file will be created.  
 It will write the directory paths and create the csv files.  If this fails, the script will 
-terminate and nothing more will happen.  The CSV Tables tab is useful after the edih_view.php 
-file is reloaded in your browser, since it checks the csv table files and adds them to the list
-of available tables if they have the minimum size.
+terminate and nothing more will happen.  Failure is probably caused by file permissions problems.
+</p>
+<p>
+The EDI History project features a tab format and the &quot;New Files&quot; tab is where we begin.
+You can select one or more files or upload a zip archive.  The batch files are saved in the 
+<em>/openemr/sites/[site]/edi</em> directory by OpenEMR when they are created, so you should not need to upload 
+batch files.  Note the web server configuration will likely have a maximum for the number of 
+files and the size of the upload.  The steps for uploading your response files are:
+<ol>
+    <li>Click on the &quot;EDI History&quot; entry under Fees in the left_nav menu and select the &quot;New Files&quot; tab</li>
+    <li>Click the <em>Browse</em> button and select files (response files you have downloaded)</li>
+    <li>Click the <em>Submit</em> button (the selected files are sorted and copied to their respective directories).</li>
+    <li>Repeat 2 and 3 as needed</li>
+    <li>Click the <em>Process</em> button (information from new files is extracted to the csv tables)</li>
+</ol>
+</p>
+<p>
+If you have batch files already stored in your <em>/sites/[site]/edi</em> directory, there may be a large amount of output
+listing the batch files.  You can uncheck &quot;HTML Output?&quot; to avoid this.  Also, if you wish to upload a 
+large quantity of existing files, you can put then in a zip archive (no subdirectories) and upload the zip file.
+</p>
+<p>
+In ordinary usage, the &quot;New Files&quot; tab is intended to handle uploads and give a summary of
+the information in your new response files.  You will see output for each type of file, giving some particulars and 
+listing claim information when problems are indicated.  Links allow more detailed views.
 </p>
 <p>
 Each file is checked when uploaded and files that do not meet the criteria will not be accepted. &nbsp; : ( &nbsp; 
@@ -204,20 +218,32 @@ worrying about whether it is already there.  Once a file is uploaded and stored,
 or modified in any way, though the files are read to extract information or the contents are formatted for viewing.  
 </p>
 <p>
-When you are done uploading files, click the "Process New" button and the scripts will read the new
-files and populate the csv tables.  You can see HTML output which is a summary of the information.
-Once the processing is done, you can look at csv tables for further information.
+The &quot;CSV Tables&quot; tab is useful after the EDI History page is reloaded in your browser, by clicking the left_nav entry, 
+since it checks the csv table files and adds them to the list of available tables if they have the minimum size. The
+&quot;CSV Tables&quot; tab allows you to locate particular claims or files with the sort and search features of the 
+<a target="_blank" href="http://datatables.net/">DataTables</a> javascript plugin.
 </p>
 <p>
-You upload and process your new edi files and, hopefully, the scripts will help you solve problems
-and have a better grasp of your billing and collection process.  Note however, no accounting functions
-are included in the scripts, so whatever accounting process you use remain necessary.
+The &quot;ERA Files&quot; tab is intended to allow you to see an RA style output of ERA files in your personal
+directory, as well as to see RA style output for a patient ID, encounter number, or trace (check) number from
+ERA files that have been uploaded.
 </p>
 <p>
-Other features are available in different tabs and should be self-explanatory.
-For example, if a claim is rejected, use the View Batch Claim text to see what was 
-sent for the actual claim.  Look at the csv tables to see a list of files or claims information.
-View an ERA file to see payment details, etc. 
+The &quot;X12 Text&quot; tab allows you to see the contents of a response file in your personal directory.  
+The &quot;Notes&quot; tab allows you to view the log file and have a plain text notes file.
+</p>
+<p>
+The EDI methods and files are cryptic and mysterious.  The formats are definitely not what I would call
+user-friendly.  The contents and meaning of the various files, loops, and segments may be better understood 
+with serious research.  There are so called &quot;Companion Documents&quot; published by some insurance companies 
+and possibly by your clearinghouse.  Search for &quot;X12 835 837 277 999 Companion Document&quot; and see if you find 
+anything useful.  Another good source is the CMS/Medicare side-by-side comparisons, put out to aid the transition from the 4010 
+to the 5010 standard, e.g. <a target="_blank" href="http://www.cms.gov/Medicare/Billing/ElectronicBillingEDITrans/downloads/ProfessionalClaim4010A1to5010.pdf">ProfessionalClaim4010A1to5010.pdf</a>.
+</p>
+<p>
+Hopefully, the EDI History project will help you solve billing problems and have a better grasp of your 
+billing and collection process.  Note however, no accounting functions are included in the scripts, so 
+whatever accounting process you use remain necessary.  These scripts are basically for information only.
 </p>
 <p> 
 There is the thought that there may eventually be so many response files that older 
@@ -228,10 +254,6 @@ zip file, but it is not well tested and there is no button to run it.
 Although there is a script for reading x12 271 files (eligibility), it is only a draft and does not
 do anything.  Since OpenEMR does not have the present ability to submit eligibility requests, I 
 have no 271 response files to decipher so as to finish the script. 
-</p>
-<p>
-Hopefully, the tedium of dealing with EDI responses will be significantly reduced and you will know, 
-with relative ease, which claims are accepted, rejected, or paid.
 </p>
 </body>
 

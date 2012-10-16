@@ -610,7 +610,8 @@ function csv_processed_files_list ($type) {
 		csv_edihist_log ("csv_list_processed_files: failed to access $csv_file" ); 
 		return false;
 	}	
-	//    
+	// consider array_shift($processed_files) to drop the header row (too slow)
+    // consider array_unique($processed_files) becasue files may be listed several times
 	return $processed_files;
 } // end function
 
@@ -1384,11 +1385,7 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
 	//	
 	$csv_html = "";
 	$is_date = FALSE;
-	// debug
-	//echo "csv_to_html: $file_type $csv_type $row_pct $datestart $dateend <br />" .PHP_EOL;
-	//<td><a class='btclm' target='_blank' href='edi_history_main.php?fvbatch={$val['batch']}&btpid={$val['pid']}'>{$val['pid']}</td>
-	// <td><a class='clmstatus' target='_blank' href='edi_history_main.php?rspfile={$val['file_277']}&pidenc={$val['pid']}&rspstnum={$val['st_277']}'>{$val['status']}</td>
-				  
+	//				  
 	if (! strpos("|era|f997|ibr|ebr|dpr|f277|batch|ack|ta1", $file_type) ) {	
 		csv_edihist_log("csv_to_html error: incorrect file type $file_type");
 		$csv_html .= "csv_to_html error: incorrect file type $file_type <br />".PHP_EOL;
@@ -1404,10 +1401,8 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
 	if ($file_type == "dpr") { $fncol = $params['fncolumn']; }
 	//
 	if ($csv_type == "claim") { 
-		//$fp = dirname(__FILE__).$params['claims_csv'];
         $fp = $params['claims_csv'];
 	} elseif ($csv_type == "file") {
-		//$fp = dirname(__FILE__).$params['files_csv'];
         $fp = $params['files_csv'];
 	} else {
 		csv_edihist_log("csv_to_html error: incorrect csv type $csv_type");
@@ -1422,20 +1417,6 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
         $is_date = TRUE;
 		$row_pct = 1;
     }
-    /* comment datepicker format dates
-	if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $datestart) && preg_match('/\d{2}\/\d{2}\/\d{4}/', $dateend) ) {
-		// we want a date range  -- need a better regex
-		// assume submit format /mm/dd/yyyy -- set in edih_view.php datepicker javascript
-		$d1 = explode( "/", $datestart);
-		$ds = $d1[2] . $d1[0] . $d1[1];
-		$d1 = explode( "/", $dateend);
-		$de = $d1[2] . $d1[0] . $d1[1];
-		$is_date = TRUE;
-		$row_pct = 1;
-		//
-	}
-     * end comment datepicker format dates 
-     */
 	//
 	$f_name	= basename($fp);
 	// open the file for read and read it into an array
@@ -1508,7 +1489,7 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
 						 $csv_html .= "<td><a href='edi_history_main.php?fvkey=$dta' target='_blank'>$dta</a></td>".PHP_EOL;
 					 } elseif ($idx == 2) {
 						 $fnm = $csv_d[$i][1];
-						 $csv_html .= "<td><a href='edi_history_main.php?erafn=$fnm&trace=$dta' target='_blank'>$dta</a></td>".PHP_EOL;
+						 $csv_html .= "<td><a href='edi_history_main.php?erafn=$fnm&trace=$dta' target='_blank'>$dta</a> &nbsp;&nbsp;<a class=\"clmstatus\" target='_blank' href='edi_history_main.php?tracecheck=$dta&ckprocessed=yes'>(a)</td>".PHP_EOL;
 					 } else {
 						 $csv_html .= "<td>$dta</td>".PHP_EOL;
 					 }
@@ -1564,12 +1545,27 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
 				 //
 				 $csv_html .= "</tr>".PHP_EOL;
 			 }
-		 } else {
-
+		 } elseif ($file_type == 'batch') {
+             //['batch']['file'] = array('Date', 'FileName', 'Ctn_837', 'claim_ct', 'x12_partner');
+             for ($i=$rwst; $i<$ln_ct; $i++) {
+				 $bgc = ($i % 2 == 1 ) ? 'odd' : 'even';
+                 $csv_html .= "<tr class='{$bgc}'>";
+				 foreach($csv_d[$i] as $idx=>$dta) {
+                     $fnm = $csv_d[$i][$fncol];
+                     if ($idx == $fncol) {
+						 $csv_html .= "<td><a href='edi_history_main.php?fvkey=$dta' target='_blank'>$dta</a></td>".PHP_EOL;
+                     } elseif ($idx == 2) {
+                         // batch control number
+                         $csv_html .= "<td>$dta &nbsp;&nbsp;<a class=\"clmstatus\" target=\"_blank\" href=\"edi_history_main.php?batchicn=$dta\">(r)</a></td>"; 
+                     } else {
+						 $csv_html .= "<td>$dta</td>".PHP_EOL;
+					 }
+				 }
+				 $csv_html .= "</tr>".PHP_EOL;
+             }
+         } else {
 			 // the generic case -- for 'file' type tables, the filename is in column 1, as set in the parameters array
 			 // see csv_parameters()
-			 // create header row here
-
 			 for ($i=$rwst; $i<$ln_ct; $i++) {
 				 $bgc = ($i % 2 == 1 ) ? 'odd' : 'even';
 				 $csv_html .= "<tr class='{$bgc}'>";
@@ -1587,7 +1583,6 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
 		 // a 'claim' type table  $csv_type == 'claim'  there is more variation
 		 if ($file_type == 'era') {
 			 // era csv_type is claim  col 2 is pid, 3 encounter, 8 is trace
-			 //['era']['claim'] = array('PtName', 'SvcDate', 'clm01', 'Status', 'trace', 'File_835', 'claimID', 'Pmt', 'PtResp', 'Payer');
 			 //['era']['claim'] = array('PtName', 'SvcDate', 'clm01', 'Status', 'trace', 'File_835', 'claimID', 'Pmt', 'PtResp', 'Payer');
 			 $csv_html .= '<thead>'.PHP_EOL.'<tr>'.PHP_EOL;
 			 $csv_html .= '<th>Name</th><th>SvcDate</th><th>CLM01</th><th>Status</th><th>Trace</th><th>File</th><th>Payer</th>'.PHP_EOL;

@@ -687,34 +687,63 @@ function ibr_disp_fileText() {
 }
 
 /**
- * tentative function to check whether an era file has been processed 
+ * check if the batch control number is found in the 997/999 files table
  * 
- * @todo figure out how to do the sql query and use the result
- * @todo add a link to the csv era files table so user can click to activate
- * @todo add a stanza in the edihistory_main.php get part
+ * @uses csv_search_record()
+ * @return string 
+ */
+function ibr_disp_997_for_batch() {
+    $str_html = '';
+    $batch_icn = filter_input(INPUT_GET, 'batchicn', FILTER_SANITIZE_STRING);
+    if ($batch_icn) {
+        $ctln = (strlen($batch_icn) >= 9) ? substr($batch_icn, 0, 9) : trim(strval($batch_icn)); 
+        $search = array('s_val'=>$ctln, 's_col'=>3, 'r_cols'=>'all');
+        $result = csv_search_record('f997', 'file', $search, "1");
+        //
+        // should be matching row(s) from files_997.csv
+        if (is_array($result) && count($result)) {
+            $str_html .= "<p>Acknowledgement information</p>".PHP_EOL;
+            foreach($result as $rslt) {
+                $ext = substr($rslt[1], -3); 
+                //
+                $str_html .= "Date: {$rslt[0]} <br />".PHP_EOL;
+                $str_html .= "File: <a target=\"blank\" href=edi_history_main.php?fvkey={$rslt[1]}>{$rslt[1]}</a> <br />".PHP_EOL;
+                $str_html .= "Batch ICN: {$rslt[3]} <br />";
+                // error count or code in position 4
+                if ($ext == '999' || $ext == '997') {
+                    $str_html .= "Rejects: {$rslt[4]} <br />".PHP_EOL;
+                    // don't have dialog from this dialog, so don't link
+                    //$str_html .= "Rejects: <a class=\"codeval\" target=\"_blank\" href=\"edi_history_main.php?fv997={$rslt[1]}&err997={$rslt[4]}\">{$rslt[4]}</a><br />".PHP_EOL;
+                } elseif ($ext == 'ta1' || $ext == 'ack') {
+                    $str_html .= "Code: {$rslt[4]} <br />".PHP_EOL;
+                    //$str_html .= "Code: <a class=\"codeval\" target=\"_blank\" href=\"edi_history_main.php?ackfile={$rslt[1]}&ackcode={$rslt[4]}\">{$rslt[4]}</a><br />".PHP_EOL;
+                }
+            }
+        } else {
+            $str_html .= "Did not find corresponding 997/999 file for $ctln<br />".PHP_EOL;
+        }       
+    } else {
+        $str_html .= "Invalid value for ICN number<br />".PHP_EOL;
+    }
+    return $str_html; 
+}
+
+/**
+ * function to check whether an era payment has been processed and applied
+ * 
+ * @uses sqlQuery()
  * 
  * @return string
  */
 function ibr_disp_is_era_processed() {
     // 
-    // $stmt = sqlStatementNoLog($statement, $binds=NULL )
-    // or
-    // $stmt = sqlStatement($statement, $binds=NULL )
-    // or
-    // $stmt = sqlQuery($statement, $binds=NULL) 
-    // or 
-    // $stmt = sqlQueryNoLog($statement, $binds=NULL)
-    //
-    require_once($GLOBALS['srcdir']."/sql.inc");
     $str_html = '';
     $ckno = filter_input(INPUT_GET, 'tracecheck', FILTER_SANITIZE_STRING);
     if ($ckno) {
         $srchval = 'ePay - '.$ckno;
         // reference like '%".$srchval."%'"
-        $stmt = "SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = '$srchval'";
-        $res = sqlStatement($stmt);
-        $row = sqlFetchArray($res);
-        if (is_array($row) && count($row)) {
+        $row = sqlQuery("SELECT reference, pay_total, global_amount FROM ar_session WHERE reference = ?", array($srchval) );
+        if (!empty($row)) {
             $str_html .= "trace {$row['reference']} total \${$row['pay_total']}";
             if ($row['global_amount'] === '0') {
                 $str_html .= " fully allocated";

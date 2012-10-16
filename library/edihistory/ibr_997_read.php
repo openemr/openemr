@@ -681,7 +681,7 @@ function ibr_997_file_data_html($ar_data, $err_only=TRUE) {
  * Html output for errors in 997/999 files
  * 
  * @uses csv_file_by_controlnum()
- * @uses ibr_batch_find_claim_enctr()
+ * @uses ibr_batch_get_st_info()
  * @uses ibr_997_code_text()
  * 
  * @param array $aksegments
