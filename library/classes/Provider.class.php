@@ -104,6 +104,7 @@ class Provider extends ORDataObject{
         function get_insurance_numbers() {
                 return $this->insurance_numbers;
         }
+
         function get_insurance_numbers_default() {
                 return $this->insurance_numbers[0];
         }
@@ -112,13 +113,14 @@ class Provider extends ORDataObject{
                 if (!empty($this->insurance_numbers)) {
                         return $this->insurance_numbers[0]->get_group_number();
                 }
+        }
+
         function get_npi() {
                 return $this->npi;
         }
         
         function get_state_license_number() {
                 return $this->state_license_number;
-        }
         }
 
 } // end of Provider
