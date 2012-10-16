@@ -43,7 +43,7 @@ if ($mode == 'new')
       "date = '$date', " .
       "onset_date = '$onset_date', " .
       "reason = '$reason', " .
-      "facility = '$facility', " .
+      "facility = '" . add_escape_custom($facility) . "', " .
       "pc_catid = '$pc_catid', " .
       "facility_id = '$facility_id', " .
       "billing_facility = '$billing_facility', " .
