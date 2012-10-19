@@ -74,9 +74,11 @@ function csv_zip_dir($parameters, $filename_ar, $archive_date) {
 		$fn_ar2[] = $filename_ar;
 	}
 	//
-	$zip_name = IBR_UPLOAD_DIR.DIRECTORY_SEPARATOR.$type."_$archive_date.zip";
-	$ftmpn = IBR_UPLOAD_DIR.DIRECTORY_SEPARATOR;
-	$fdir = dirname(__FILE__).$parameters['directory'].DIRECTORY_SEPARATOR; 
+    $zpath = csv_edih_basedir();
+    $ztemp = csv_edih_tmpdir();
+	$zip_name = $zpath.DIRECTORY_SEPARATOR."archive".DIRECTORY_SEPARATOR.$type."_$archive_date.zip";
+	$ftmpn = $ztemp.DIRECTORY_SEPARATOR;
+	$fdir = $parameters['directory'].DIRECTORY_SEPARATOR; 
 	$type = $parameters['type'];
 	//
 	$zip_obj = new ZipArchive();
@@ -142,25 +144,28 @@ function csv_zip_dir($parameters, $filename_ar, $archive_date) {
  * restores files from a zip archive or the tmp dir if the archive process needs to be aborted
  * 
  * @param string $csv_type     either 'file' or 'claim'
- * @param array $parameters    the paramaters array for the particular type
+ * @param array $parameters    the parameters array for the particular type
  * @param array $filename_ar   array of file names that may have been deleted
  */	
 function csv_restore_files($csv_type, $parameters, $filename_ar) {	
-	//
-	if (!is_dir($old_dir) ) { return FALSE; }
-	if (!is_array($filename_ar) || count($filename_ar) == 0) { return FALSE; }
+	//	
+	if (!is_array($filename_ar) || !count($filename_ar)) { return FALSE; }
 	//
 	$csv_p = ($csv_type == 'file') ? $parameters['files_csv'] : $parameters['claims_csv'];
-	$csv_dir = dirname(__FILE__).dirname($csv_p).DIRECTORY_SEPARATOR;
+	$csv_dir .= dirname($csv_p).DIRECTORY_SEPARATOR;
 	$csv_file = basename($csv_p);
 	//	
-	$fdir = dirname(__FILE__) . $parameters['directory'] . DIRECTORY_SEPARATOR;	
+	$fdir = $parameters['directory'] . DIRECTORY_SEPARATOR;
+    if (!is_dir($fdir) ) { 
+        csv_edihist_log("csv_restore_files: missing directory $fdir");
+        return FALSE; 
+    }	
 	//
 	$fileslost = array();
 	//
-	csv_edihist_log("csv_move_old_stuff: add file to archive failed for $fz");
 	// we are in a jam -- archive is messed up
-	$ntmpname = IBR_UPLOAD_DIR.DIRECTORY_SEPARATOR;
+    $ntmpname = csv_edih_tmpdir();
+	$ntmpname .= $ntmpname.DIRECTORY_SEPARATOR;
 	//
 	foreach($filename_ar as $fnz) {
 		foreach($fnz as $fz) {
@@ -171,16 +176,19 @@ function csv_restore_files($csv_type, $parameters, $filename_ar) {
 			} else {
 				$iscp = copy($ntmpname.$fz, $fdir.$fz);
 				if (!$iscp) {
-					csv_edihist_log("csv_move_old_stuff: $type archive unwind failed for $fz");
+					csv_edihist_log("csv_restore_files: $type archive restore failed for $fz");
 					$fileslost[] = $fz;
 				}
 			}
 		}
 	}
 	// put the csv file back
-	$ntmpcsv = IBR_UPLOAD_DIR.DIRECTORY_SEPARATOR.$csv_file;
+	$ntmpcsv = $ntmpname.DIRECTORY_SEPARATOR.$csv_file;
 	$iscp = copy($ntmpcsv, $csv_dir.$csv_file);
-	if (!$iscp) { $fileslost[] = $csv_file; }
+	if (!$iscp) { 
+        csv_edihist_log("csv_restore_files: archive restore may have lost $csv_file");
+        $fileslost[] = $csv_file; 
+    }
 	//
 	return $fileslost;
 }
@@ -192,13 +200,10 @@ function csv_restore_files($csv_type, $parameters, $filename_ar) {
  * 
  * @param string $csv_path   the tmp csv file path is expected
  * @param array $heading_ar  the column heading for the csv file
- * @param array $row_array   the data rows to be written
+ * @param array $row_array   the data rows to be written to the file
  * @return integer           count the characters written as returned by fputcsv()
  */ 
 function csv_rewrite_record($csv_path, $heading_ar, $row_array) {
-	// @param string $csv_path -- the tmp csv file path is expected
-	// @param array $heading_ar -- the column heading for the csv file
-	// @param array $row_array -- the data rows to be written
 	//
 	// count characters written -- returned by fputcsv
 	$ocwct = 0;
@@ -209,7 +214,7 @@ function csv_rewrite_record($csv_path, $heading_ar, $row_array) {
 		csv_edihist_log("csv_rewrite_record: failed to open $csv_path");
 	} else {
 		// it is a an empty file, so write the heading row
-		if (count($ar_h) ) { 
+		if (count($row_array) ) { 
 			$ocwct += fputcsv ( $fh3, $heading_ar ); 
 			// wrote heading, now add rows
 			foreach($row_array as $row) {
@@ -270,7 +275,6 @@ function csv_archive_array($csv_type, $csv_path, $date_col, $fn_column, $archive
 		csv_edihist_log("csv_archive_array: failed to open " . basename($csv_path));
 		return FALSE;
 	}		
-
 	return $arch_ar;	
 }
 
@@ -282,17 +286,23 @@ function csv_archive_array($csv_type, $csv_path, $date_col, $fn_column, $archive
  * @param string $archive_date    yyyy/mm/dd date prior to which is archived 
  * @return string                 descriptive message in html format
  */
-function csv__archive_old($archive_date) {
+function csv_archive_old($archive_date) {
 	// 
-	//
-	if (!is_dir(IBR_HISTORY_DIR.DIRECTORY_SEPARATOR.'archive') ) {
+	// paths
+    $edih_dir = csv_edih_basedir();
+    $archive_dir = $edih_dir.DIRECTORY_SEPARATOR.'archive';
+    $csv_dir = $edih_dir.DIRECTORY_SEPARATOR.'csv';
+    $tmp_dir = csv_edih_tmpdir();
+    $tmp_dir .= $tmp_dir.DIRECTORY_SEPARATOR;
+    //
+	if (!is_dir($edih_dir.DIRECTORY_SEPARATOR.'archive') ) {
 		// should have been created at setup
-		mkdir (IBR_HISTORY_DIR.DIRECTORY_SEPARATOR.'archive', 0755);
+		mkdir ($edih_dir.DIRECTORY_SEPARATOR.'archive', 0755);
 	}
 	//
 	$days = csv_days_prior($archive_date);	
-	if (!$days || $days < 60 ) {
-		$out_html = "Archive date $archive_date invalid or less than 60 days prior <br />" .PHP_EOL;
+	if (!$days || $days < 90 ) {
+		$out_html = "Archive date $archive_date invalid or less than 90 days prior <br />" .PHP_EOL;
 		return $out_html;
 	}
 	//
@@ -308,17 +318,13 @@ function csv__archive_old($archive_date) {
 	//
 	foreach($params as $k=>$p) {
 		$type = $p['type'];
-		$fdir = dirname(__FILE__) . $p['directory'] . DIRECTORY_SEPARATOR;
+		$fdir = $p['directory'] . DIRECTORY_SEPARATOR;
 		//
 		$fn_ar = array();
 		$arch_csv = array();
 		$curr_csvd = array();
 		//
 		$archive_ar = array();
-		//
-		$csv_dir = dirname(__FILE__).IBR_HISTORY_DIR.DIRECTORY_SEPARATOR;
-		$archive_dir = dirname(__FILE__).IBR_HISTORY_DIR.DIRECTORY_SEPARATOR.'archive';
-		$tmp_dir = IBR_UPLOAD_DIR.DIRECTORY_SEPARATOR;
 		//
 		// type dpr has only a claim csv type
 		$head_ar = ($type == 'dpr') ?  csv_files_header($type, 'claim') : csv_files_header($type, 'file');
@@ -327,21 +333,21 @@ function csv__archive_old($archive_date) {
 		$datecol = $p['datecolumn'];
 		//
 		// files csv temporary names
-		$file_csv = dirname(__FILE__).$p['files_csv'];
+		$file_csv = $p['files_csv'];
 		$file_csv_copy = $tmp_dir.basename($file_csv);
 		$tmp_fold_csv = $tmp_dir.$type.'_old_'.basename($file_csv);
 		$tmp_fnew_csv = $tmp_dir.$type.'_new_'.basename($file_csv);
 		$iscpf = copy ($file_csv, $file_csv_copy);		
 		//
 		// claims csv temporary names
-		$claim_csv = dirname(__FILE__).$p['claims_csv'];
+		$claim_csv = $p['claims_csv'];
 		$claim_csv_copy = $tmp_dir.basename($claim_csv);		
 		$tmp_cold_csv = $tmp_dir.$type.'_old_'.basename($claim_csv);
 		$tmp_cnew_csv = $tmp_dir.$type.'_new_'.basename($claim_csv);
 		$iscpc = copy ($claim_csv, $claim_csv_copy);
 		//
 		if (!$iscpf || !$iscpc) {
-			csv_edihist_log("csv_move_old_stuff: copy to tmp dir failed for csv file $type");
+			csv_edihist_log("csv_archive_old: copy to tmp dir failed for csv file $type");
 			$out_html = "Archive temporary files operation failed ... aborting <br />" .PHP_EOL;
 			return $out_html;
 		}
@@ -357,48 +363,65 @@ function csv__archive_old($archive_date) {
 		// do the archive for the files_type.csv  		
 		$archive_ar = csv_archive_array('file', $file_csv_copy, $datecol, $fncol, $dt);
 		if (!$archive_ar) {
-			csv_edihist_log("csv_move_old_stuff: creating archive information failed for " . basename($file_csv_copy));
+			csv_edihist_log("csv_archive_old: creating archive information failed for " . basename($file_csv_copy));
 			continue;
 		}
-		$och = csv_rewrite_record($tmp_old_csv, $headfile, $archive_ar['arch_csv']);
-		$nch = csv_rewrite_record($tmp_new_csv, $headfile, $archive_ar['curr_csv']);
-		$zarch = csv_zip_dir($params, $archive_ar['files'], $archive_date);			
+		$och = csv_rewrite_record($tmp_old_csv, $head_ar, $archive_ar['arch_csv']);
+		$nch = csv_rewrite_record($tmp_new_csv, $head_ar, $archive_ar['curr_csv']);
+		$zarch = csv_zip_dir($params, $archive_ar['files'], $archive_date);	
 		// now move the reconfigured files
 		// unlink the present csv file, since it is possible for a rename error if it exists
 		$islk1 = ($islk1) ? flock($fh1, LOCK_UN) : $islk1;
 		if ($islk1) { fclose($fh1); }
 		$isunl = unlink($file_csv);
-		$ismvz = rename($zarch, $archive_dir.DIRECTORY_SEPARATOR.basename($zarch) );
-		$ismvo = rename($tmp_fold_csv, $archive_dir.DIRECTORY_SEPARATOR.$dt.basename($tmp_fold_csv) );
-		$ismvn = rename($tmp_fnew_csv, $file_csv );
-		//		
-		if ($ismvz && $ismvo && $ismvn) {
-			// everything is working - clear out the files we put in tmp_dir
-			// the tmp dir should be empty, but there might have been something else created there
-			$isclr = csv_clear_tmpdir();
-			$out_html .= "Archived: type $type <br />" .PHP_EOL;
-			$out_html .= "&nbsp; archived " .count($archive_ar['files']) . " files	 <br />" .PHP_EOL;
-			$out_html .= "&nbsp; archived " .count($archive_ar['arch_csv']) . " rows from " .basename($file_csv) ." <br />" .PHP_EOL;
-			$out_html .= "&nbsp; there are now " .count($archive_ar['curr_csv']) . " rows in " .basename($file_csv) ." <br />" .PHP_EOL; 				
-		} else {
-			// in case or error, try to restore everything
-			$fl_ar = csv_restore_files('file', $p, $archive_ar['files']);
-			if (is_array($fl_ar) && count($fl_ar) > 0) {
-				foreach ($fl_ar as $f) {
-					csv_edihist_log("csv_move_old_stuff lost file: $f");
-				}
-			} elseif (is_array($fl_ar) && count($fl_ar) == 0) {
-				csv_edihist_log("csv_move_old_stuff archiving failed, and files restored");
-			} else {
-				csv_edihist_log("csv_move_old_stuff archive failed and files were lost");
-			}
-			// give a message and quit
-			$out_html .= "Archiving error: type $type archive errors ... aborting <br />" .PHP_EOL;
-			return $out_html;
-		}	
+        if ($zarch) {
+            // we got back the zip archive name from csv_zip_dir()
+            $ismvz = rename($zarch, $archive_dir.DIRECTORY_SEPARATOR.basename($zarch) );
+            $ismvo = rename($tmp_fold_csv, $archive_dir.DIRECTORY_SEPARATOR.$dt.basename($tmp_fold_csv) );
+            $ismvn = rename($tmp_fnew_csv, $file_csv );
+            //		
+            if ($ismvz && $ismvo && $ismvn) {
+                // everything is working - clear out the files we put in tmp_dir
+                // the tmp dir should be empty, but there might have been something else created there
+                $isclr = csv_clear_tmpdir();
+                $out_html .= "Archived: type $type <br />" .PHP_EOL;
+                $out_html .= "&nbsp; archived " .count($archive_ar['files']) . " files	 <br />" .PHP_EOL;
+                $out_html .= "&nbsp; archived " .count($archive_ar['arch_csv']) . " rows from " .basename($file_csv) ." <br />" .PHP_EOL;
+                $out_html .= "&nbsp; there are now " .count($archive_ar['curr_csv']) . " rows in " .basename($file_csv) ." <br />" .PHP_EOL; 				
+            } else {
+                // in case or error, try to restore everything
+                $fl_ar = csv_restore_files('file', $p, $archive_ar['files']);
+                if (is_array($fl_ar) && count($fl_ar) > 0) {
+                    foreach ($fl_ar as $f) {
+                        csv_edihist_log("csv_archive_old: lost file $f");
+                    }
+                } elseif (is_array($fl_ar) && count($fl_ar) == 0) {
+                    csv_edihist_log("csv_archive_old archiving failed, and files restored");
+                } else {
+                    csv_edihist_log("csv_archive_old archive failed and files were lost");
+                }
+                // give a message and quit
+                $out_html .= "Archiving error: type $type archive errors ... aborting <br />" .PHP_EOL;
+                return $out_html;
+            }    
+        } else {
+            // zip create error
+            csv_edihist_log("csv_archive_old: creating zip archive failed for " . basename($file_csv));
+            $fl_ar = csv_restore_files('file', $p, $archive_ar['files']);
+            if (is_array($fl_ar) && count($fl_ar) > 0) {
+                foreach ($fl_ar as $f) {
+                    csv_edihist_log("csv_archive_old: lost file $f");
+                }
+            }
+            $out_html .= "Archiving error: type $type archive errors ... aborting <br />" .PHP_EOL;
+            return $out_html;
+        }	
 		//	
 		// now we do the claims table
-		//
+		//$cldate = date_create($archive_date);
+        //date_sub($cldate, date_interval_create_from_date_string('1 month'));
+        //$cldt = date_format($cldate, 'Ymd');
+        //
 		// dpr type has only claim table, treated as a file table above
 		if ($type == 'dpr') { continue; }
 		//
@@ -406,7 +429,7 @@ function csv__archive_old($archive_date) {
 		//
 		$archive_ar = csv_archive_array('claim', $claim_csv_copy, $datecol, $fncol, $dt);
 		if (!$archive_ar) {
-			csv_edihist_log("csv_move_old_stuff: creating archive information failed for " . basename($file_csv_copy));
+			csv_edihist_log("csv_archive_old: creating archive information failed for " . basename($file_csv_copy));
 			continue;
 		}		
 		//
@@ -429,12 +452,12 @@ function csv__archive_old($archive_date) {
 			$fl_ar = csv_restore_files('claim', $p, $archive_ar['files']);
 			if (is_array($fl_ar) && count($fl_ar) > 0) {
 				foreach ($fl_ar as $f) {
-					csv_edihist_log("csv_move_old_stuff lost file: $f");
+					csv_edihist_log("csv_archive_old: lost file $f");
 				}
 			} elseif (is_array($fl_ar) && count($fl_ar) == 0) {
-				csv_edihist_log("csv_move_old_stuff archiving failed, and files restored");
+				csv_edihist_log("csv_archive_old: archiving failed, and files restored");
 			} else {
-				csv_edihist_log("csv_move_old_stuff archive failed and " . count($fl_ar) . " files were lost");
+				csv_edihist_log("csv_archive_old: archive failed and " . count($fl_ar) . " files were lost");
 			}
 			$out_html .= "Archiving error: type $type archive errors ... aborting <br />" .PHP_EOL;
 			return $out_html;
