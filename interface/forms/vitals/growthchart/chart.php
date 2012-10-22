@@ -19,10 +19,10 @@
 //  2-20yo_boys_BMI-2.png
 //  2-20yo_girls_BMI-1.png
 //  2-20yo_girls_BMI-2.png
-//  birth-36mos_boys_HC-1.png
-//  birth-36mos_boys_HC-2.png
-//  birth-36mos_girls_HC-1.png
-//  birth-36mos_girls_HC-2.png
+//  birth-24mos_boys_HC-1.png
+//  birth-24mos_boys_HC-2.png
+//  birth-24mos_girls_HC-1.png
+//  birth-24mos_girls_HC-2.png
 //  bluedot.gif
 //  redbox.gif
 //  reddot.gif
@@ -181,7 +181,7 @@ function unitsDist($dist) {
 
 
 $name_x = 650;
-$name_y = 60;
+$name_y = 50;
 $name_x1 = 1650;
 $name_y1 = 60;
 
@@ -190,55 +190,55 @@ $heightOffset = 0;
 $weightOffset = 0;
 
 if ($charttype == 'birth') {
-    // Use birth to 36 months chart 
+    // Use birth to 24 months chart 
 
-    $dot_x = 180;         //months starts here (pixel)
-    $delta_x = 17.36;     //pixels per month  - length
-    $dot_y1 = 825;        //height starts here - at 15 inches
-    $delta_y1 = 24.89;    //pixels per inch  - height
-    $dot_y2 = 1155;       //weight starts here - at 4 lbs
-    $delta_y2 = 22.09;    //pixels per pound - weight
+    $dot_x = 190;         //months starts here (pixel)
+    $delta_x = 26.13;     //pixels per month  - length
+    $dot_y1 = 768;        //height starts here - at 15 inches
+    $delta_y1 = 24.92;    //pixels per inch  - height
+    $dot_y2 = 1170;       //weight starts here - at 3 lbs
+    $delta_y2 = 22.16;    //pixels per pound - weight
 	
     $HC_dot_x = 1180;     //months starts here for Head circumference chart
-    $HC_delta_x = 17.39;  //pixels per month for Head circumference chart
+    $HC_delta_x = 26.04;  //pixels per month for Head circumference chart
     $HC_dot_y =  764;     //Head circumference starts here - at 11 inches
     $HC_delta_y = 60.00;  //calculated pixels per inch for head circumference
 
     if (preg_match('/^male/i', $patient_data['sex'])) { 
-        $chart = "birth-36mos_boys_HC.png";
+        $chart = "birth-24mos_boys_HC.png";
 
         // added by BM for CSS html output
-        $chartCss1 = "birth-36mos_boys_HC-1.png";
-        $chartCss2 = "birth-36mos_boys_HC-2.png"; 
+        $chartCss1 = "birth-24mos_boys_HC-1.png";
+        $chartCss2 = "birth-24mos_boys_HC-2.png"; 
     }
     elseif (preg_match('/^female/i', $patient_data['sex'])) { 
-        $chart = "birth-36mos_girls_HC.png";
+        $chart = "birth-24mos_girls_HC.png";
 
         // added by BM for CSS html output
-        $chartCss1 = "birth-36mos_girls_HC-1.png";
-        $chartCss2 = "birth-36mos_girls_HC-2.png"; 
+        $chartCss1 = "birth-24mos_girls_HC-1.png";
+        $chartCss2 = "birth-24mos_girls_HC-2.png"; 
     }
 
     $ageOffset = 0;
     $heightOffset = 15; // Substract 15 because the graph starts at 15 inches
-    $weightOffset = 4;  // graph starts at 4 lbs
+    $weightOffset = 3;  // graph starts at 0 lbs
     
     // pixel positions and offsets for data table
-    $datatable_x = 357;
+    $datatable_x = 370;
     $datatable_age_offset = 75;
     $datatable_weight_offset = 145;
     $datatable_height_offset = 220;
     $datatable_hc_offset = 300;
-    $datatable_y = 1021;
+    $datatable_y = 1052;
     $datatable_y_increment = 17;
     
     // pixel positions and offsets for head-circ data table
-    $datatable2_x = 1375;
+    $datatable2_x = 1360;
     $datatable2_age_offset = 75;
     $datatable2_weight_offset = 145;
     $datatable2_height_offset = 210;
     $datatable2_hc_offset = 290;
-    $datatable2_y = 1092;
+    $datatable2_y = 1098;
     $datatable2_y_increment = 18;
 }	
 elseif ($charttype == "2-20") {
@@ -658,8 +658,8 @@ foreach ($datapoints as $data) {
     
     $datestr = substr($date,0,4)."/".substr($date,4,2)."/".substr($date,6,2);
     
-    //birth to 36 mos chart has 9 rows to fill.
-    if ($count < 9 && $charttype == "birth") {
+    //birth to 24 mos chart has 8 rows to fill.
+    if ($count < 8 && $charttype == "birth") {
         imagestring($im, 2, $datatable_x, $datatable_y, $datestr, $color);
         imagestring($im, 2, ($datatable_x+$datatable_age_offset), $datatable_y, $ageinYMD, $color);
         imagestring($im, 2, ($datatable_x+$datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
