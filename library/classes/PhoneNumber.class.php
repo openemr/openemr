@@ -28,14 +28,14 @@ class PhoneNumber extends ORDataObject{
 	var $prefix;
 	var $number;
 	var $type_array = array("","Home", "Work", "Cell" , "Emergency" , "Fax");
-
 	/**
 	 * Constructor sets all Prescription attributes to their default value
 	 */
 	function PhoneNumber($id = "",$foreign_id = "")	{
 		$this->id = $id;
 		$this->foreign_id = $foreign_id;
-		$this->country_code = "+1";
+//$this->country_code = "+1";
+	$this->country_code = $GLOBALS['phone_country_code'];
 		$this->prefix = "";
 		$this->number = "";
 		$this->type = TYPE_HOME;
