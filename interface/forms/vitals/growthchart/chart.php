@@ -11,8 +11,8 @@
 // The png image and pdf require following files in current directory:
 //  2-20yo_boys_BMI.png
 //  2-20yo_girls_BMI.png
-//  birth-36mos_boys_HC.png
-//  birth-36mos_girls_HC.png
+//  birth-24mos_boys_HC.png
+//  birth-24mos_girls_HC.png
 //
 // The html (css for printing) require the following files in current directory
 //  2-20yo_boys_BMI-1.png
@@ -61,8 +61,8 @@ if (isset($datapoints) && $datapoints != "") {
     list($date, $height, $weight, $head_circ) = explode('-', $datapoints[0]);
     if ($date != "") { $charttype_date = $date; }
     $tmpAge = getPatientAgeInDays($patient_data['DOB'], $date);
-    // use the birth-36 chart if the age-on-date-of-vitals is 25months or younger 
-    if ($tmpAge < (365*2)+31 ) { $charttype = "birth"; }
+    // use the birth-24 chart if the age-on-date-of-vitals is 24months or younger 
+    if ($tmpAge < (365*2)) { $charttype = "birth"; }
 }
 
 //sort the datapoints
@@ -203,7 +203,12 @@ if ($charttype == 'birth') {
     $HC_delta_x = 26.04;  //pixels per month for Head circumference chart
     $HC_dot_y =  764;     //Head circumference starts here - at 11 inches
     $HC_delta_y = 60.00;  //calculated pixels per inch for head circumference
-
+	
+	$WT_y = 1127; //start here to draw wt and height graph at bottom of Head circumference chart
+	$WT_delta_y = 12.96;
+	$HT_x = 1187; //start here to draw wt and height graph at bottom of Head circumference chart 
+	$HT_delta_x = 24.32;
+	
     if (preg_match('/^male/i', $patient_data['sex'])) { 
         $chart = "birth-24mos_boys_HC.png";
 
@@ -221,7 +226,9 @@ if ($charttype == 'birth') {
 
     $ageOffset = 0;
     $heightOffset = 15; // Substract 15 because the graph starts at 15 inches
-    $weightOffset = 3;  // graph starts at 0 lbs
+    $weightOffset = 3;  // graph starts at 3 lbs
+	$WToffset = 0; //for wt and ht table at bottom half of HC graph
+	$HToffset = 18; // starting inch for wt and ht table at bottom half of HC graph
     
     // pixel positions and offsets for data table
     $datatable_x = 370;
@@ -489,7 +496,7 @@ if ($_GET['html'] == 1) {
         // for example, a data point for a 18 month old can be excluded
         // from that patient's 2-20 yr chart
         $daysold = getPatientAgeInDays($dob, $date);
-        if ($daysold > (365*3) && $charttype == "birth") { continue; }
+        if ($daysold > (365*2) && $charttype == "birth") { continue; }
         if ($daysold < (365*2) && $charttype == "2-20") { continue; }
 
         // calculate the x-axis (Age) value
@@ -511,7 +518,12 @@ if ($_GET['html'] == 1) {
             $HC_y = $HC_dot_y - $HC_delta_y * ($head_circ - 11);
             $point = convertpoint(Array($HC_x,$HC_y));
 	    echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='bluedot.gif' /></div>\n");
-        }
+            // Draw Wt and Ht graph at the bottom half
+			$WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
+			$HT = $HT_x + $HT_delta_x * ($height - $HToffset);
+			$point = convertpoint(Array($HT,$WT));
+		echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='reddot.gif' /></div>\n");
+		}
         else if ($charttype == "2-20") {
             // Draw BMI
             $bmi = $weight/$height/$height*703;
@@ -525,8 +537,8 @@ if ($_GET['html'] == 1) {
 
         $datestr = substr($date,0,4)."/".substr($date,4,2)."/".substr($date,6,2);
 
-        //birth to 36 mos chart has 9 rows to fill.
-        if ($count < 9 && $charttype == "birth") {
+        //birth to 24 mos chart has 8 rows to fill.
+        if ($count < 8 && $charttype == "birth") {
 	    $point = convertpoint(Array($datatable_x,$datatable_y));
 	    echo("<div id='" . $point[2]  . "' class='label' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $datestr . "</div>\n");
             $point = convertpoint(Array($datatable_x+$datatable_age_offset,$datatable_y));
@@ -625,7 +637,7 @@ foreach ($datapoints as $data) {
     // for example, a data point for a 18 month old can be excluded 
     // from that patient's 2-20 yr chart
     $daysold = getPatientAgeInDays($dob, $date);
-    if ($daysold > (365*3) && $charttype == "birth") { continue; }
+    if ($daysold > (365*2) && $charttype == "birth") { continue; }
     if ($daysold < (365*2) && $charttype == "2-20") { continue; }
 
     // calculate the x-axis (Age) value
@@ -645,6 +657,10 @@ foreach ($datapoints as $data) {
         $HC_x = $HC_dot_x + $HC_delta_x * $age; 
         $HC_y = $HC_dot_y - $HC_delta_y * ($head_circ - 11);
         imagefilledellipse($im, $HC_x, $HC_y, 10, 10, $color1);
+		// Draw Wt and Ht graph at the bottom half
+		$WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
+		$HT = $HT_x + $HT_delta_x * ($height - $HToffset);
+		imagefilledellipse($im, $HT, $WT, 10, 10, $color);
     }
     else if ($charttype == "2-20") {
         // Draw BMI
