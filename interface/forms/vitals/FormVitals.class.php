@@ -159,6 +159,21 @@ class FormVitals extends ORDataObject {
 			$this->weight = $w;
 		}
 	}
+        function display_weight($pounds)
+        {
+            if($pounds!=0)
+            {
+                if($GLOBALS['us_weight_format']==2)
+                {
+                    $pounds_int=floor($pounds);
+                    return $pounds_int." ".xl('lb') ." " .round(($pounds-$pounds_int)*16)." ".xl('oz');
+                }
+                else
+                {
+                    return $pounds;
+                }
+            }
+        }
 	function get_height() {
 		return $this->height;
 	}

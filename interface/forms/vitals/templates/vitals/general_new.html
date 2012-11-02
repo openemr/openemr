@@ -82,10 +82,10 @@ td,th {
 		{if $units_of_measurement == 2}<td class="unfocus graph" id="weight">{else}<td class="graph" id="weight">{/if}{xl t="Weight"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="lbs"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
-                <input type="text" size='5' name='weight' id='weight_input' value="{if $vitals->get_weight() != 0}{$vitals->get_weight()}{/if}" onChange="convLbtoKg('weight_input');"/>
+                <input type="text" size='5' name='weight' id='weight_input' value="{if $vitals->get_weight() != 0}{$vitals->get_weight()}{/if}" onChange="convLbtoKg('weight_input');" title='{xl t="Decimal pounds or pounds and ounces separated by #(e.g. 5#4)"}'/>
                 </td>		
 	{foreach item=result from=$results}
-		<td  class='historicalvalues'>{if $result.weight != 0}{$result.weight}{/if}</td>
+		<td  class='historicalvalues'>{$vitals->display_weight($result.weight)}</td>
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
@@ -313,7 +313,15 @@ function ShowGrowthchart(doPDF) {
 
 function convLbtoKg(name) {
     var lb = $("#"+name).val();
-
+    var hash_loc=lb.indexOf("#");
+    if(hash_loc>=0)
+    {
+        var pounds=lb.substr(0,hash_loc);
+        var ounces=lb.substr(hash_loc+1);
+        var num=parseInt(pounds)+parseInt(ounces)/16;
+        lb=num;
+        $("#"+name).val(lb);
+    }
     if (lb == "0") {
         $("#"+name+"_metric").val("0");
     }		

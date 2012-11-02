@@ -3,6 +3,22 @@ include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
 include_once ($GLOBALS['fileroot']."/library/patient.inc");
 
+
+function US_weight($pounds,$mode=1)
+{
+
+    if($mode==1)
+    {
+        return $pounds . " " . xl('lb') ;
+    }
+    else
+    {
+        $pounds_int=floor($pounds);
+        $ounces=round(($pounds-$pounds_int)*16);
+        return $pounds_int . " " . xl('lb') . " " . $ounces . " " . xl('oz');
+    }
+}
+
 function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
   $count = 0;
   $data = formFetch("form_vitals", $id);
@@ -57,19 +73,22 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
       }
       elseif ($key == "Weight") {
         $convValue = number_format($value*0.45359237,2);
+        $vitals.="<td><span class=bold>" . xl($key) . ": </span><span class=text>";
         // show appropriate units
+        $mode=$GLOBALS['us_weight_format'];
         if ($GLOBALS['units_of_measurement'] == 2) {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $convValue . " " . xl('kg') . " (" . $value . " " . xl('lb')  . ")</span></td>";
+          $vitals .=  $convValue . " " . xl('kg') . " (" . US_weight($value,$mode) . ")";
         }
         elseif ($GLOBALS['units_of_measurement'] == 3) {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('lb') . "</span></td>";
+          $vitals .=  US_weight($value,$mode) ;
         }
         elseif ($GLOBALS['units_of_measurement'] == 4) {
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $convValue . " " . xl('kg') . "</span></td>";
+          $vitals .= $convValue . " " . xl('kg') ;
         }
         else { // = 1 or not set
-          $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . " " . xl('lb') . " (" . $convValue . " " . xl('kg')  . ")</span></td>";
+          $vitals .= US_weight($value,$mode) . " (" . $convValue . " " . xl('kg')  . ")";
         }
+        $vitals.= "</span></td>";
       }
       elseif ($key == "Height" || $key == "Waist Circ"  || $key == "Head Circ") {
         $convValue = number_format($value*2.54,2);
