@@ -55,6 +55,7 @@ class C_Document extends Controller {
 		return $this->list_action($patient_id);
 	}
 	
+	//Upload multiple files on single click
 	function upload_action_process() {
 		$couchDB = false;
 		$harddisk = false;
@@ -72,8 +73,8 @@ class C_Document extends Controller {
 		$encrypted = $_POST['encrypted'];
 		$passphrase = $_POST['passphrase'];
 		if ( !$GLOBALS['hide_document_encryption'] && 
-		    $encrypted && $passphrase ) {
-		    $doDecryption = true;
+			$encrypted && $passphrase ) {
+			$doDecryption = true;
 		}
 			
 		if (is_numeric($_POST['category_id'])) {	
@@ -82,147 +83,154 @@ class C_Document extends Controller {
 		if (is_numeric($_POST['patient_id'])) {
 			$patient_id = $_POST['patient_id'];
 		}
-			
-		foreach ($_FILES as $file) {
-		  $fname = $file['name'];
-		  $err = "";
-		  if ($file['error'] > 0 || empty($file['name']) || $file['size'] == 0) {
-		  	$fname = $file['name'];
-		  	if (empty($fname)) {
-		  		$fname = htmlentities("<empty>");
-		  	}
-		  	$error = "Error number: " . $file['error'] . " occured while uploading file named: " . $fname . "\n";
-		  	if ($file['size'] == 0) {
-		  		$error .= "The system does not permit uploading files of with size 0.\n";
-		  	}
-		  	
-		  }
-		  else {
-		  	
-		  	if (!file_exists($this->file_path)) {
-		  		if (!mkdir($this->file_path,0700)) {
-		  			$error .= "The system was unable to create the directory for this upload, '" . $this->file_path . "'.\n";
-		  		}
-		  	}
-  		    if ( $_POST['destination'] != '' ) {
-  		        $fname = $_POST['destination'];
-  		    }
-		  	$fname = preg_replace("/[^a-zA-Z0-9_.]/","_",$fname);
-		  	if (file_exists($this->file_path.$fname)) {
-                                $error .= xl('File with same name already exists at location:','','',' ') . $this->file_path . "\n";
-		  		$fname = basename($this->_rename_file($this->file_path.$fname));
-		  		$file['name'] = $fname;
-                                $error .= xl('Current file name was changed to','','',' ') . $fname ."\n";
-		  	}
-		  	
-		  	if ( $doDecryption ) {
-				$tmpfile = fopen( $file['tmp_name'], "r" );
-				$filetext = fread( $tmpfile, $file['size'] );
-				$plaintext = $this->decrypt( $filetext, $passphrase );
-				fclose($tmpfile);
-				unlink( $file['tmp_name'] );
-				$tmpfile = fopen( $file['tmp_name'], "w+" );
-				fwrite( $tmpfile, $plaintext );
-				fclose( $tmpfile );
-				$file['size'] = filesize( $file['tmp_name'] );
-		  	}
-			$docid = '';
-			$resp = '';			
-		  	if($couchDB == true){
-				$couch = new CouchDB();
-				$docname = $_SESSION['authId'].$patient_id.$encounter.$fname.date("%Y-%m-%d H:i:s");
-				$docid = $couch->stringToId($docname);
-				$tmpfile = fopen( $file['tmp_name'], "rb" );
-				$filetext = fread( $tmpfile, $file['size'] );				
-				fclose( $tmpfile );
-				//--------Temporarily writing the file for calculating the hash--------//
-				//-----------Will be removed after calculating the hash value----------//
-				$temp_file = fopen($this->file_path.$fname,"w");
-				fwrite($temp_file,$filetext);
-				fclose($temp_file);
-				//---------------------------------------------------------------------//
+		
+		$sentUploadStatus = array();
+		if( count($_FILES['file']['name']) > 0){
+			$upl_inc = 0;
+			foreach($_FILES['file']['name'] as $key => $value){
+				$fname = $value;
+				$err = "";
+				if ($_FILES['file']['error'][$key] > 0 || empty($fname) || $_FILES['file']['size'][$key] == 0) {
+					$fname = $value;
+					if (empty($fname)) {
+						$fname = htmlentities("<empty>");
+					}
+					$error = "Error number: " . $_FILES['file']['error'][$key] . " occured while uploading file named: " . $fname . "\n";
+					if ($_FILES['file']['size'][$key] == 0) {
+						$error .= "The system does not permit uploading files of with size 0.\n";
+					}
+				}else{
 				
-				$json = json_encode(base64_encode($filetext));
-				$db = $GLOBALS['couchdb_dbase'];
-				$data = array($db,$docid,$patient_id,$encounter,$file['type'],$json);
-				$resp = $couch->check_saveDOC($data);
-				if(!$resp->id || !$resp->_rev){
-					$data = array($db,$docid,$patient_id,$encounter);
-					$resp = $couch->retrieve_doc($data);
-					$docid = $resp->_id;
-					$revid = $resp->_rev;
-				}
-				else{
-					$docid = $resp->id;
-					$revid = $resp->rev;
-				}
-				if(!$docid && !$revid){ //if couchdb save failed
-					$error .=  "<font color='red'><b>".xl("The file could not be saved to CouchDB.") . "</b></font>\n";
-					if($GLOBALS['couchdb_log']==1){
-						ob_start();
-						var_dump($resp);
-						$couchError=ob_get_clean();
-						$log_content = date('Y-m-d H:i:s')." ==> Uploading document: ".$fname."\r\n";
-						$log_content .= date('Y-m-d H:i:s')." ==> Failed to Store document content to CouchDB.\r\n";
-						$log_content .= date('Y-m-d H:i:s')." ==> Document ID: ".$docid."\r\n";
-						$log_content .= date('Y-m-d H:i:s')." ==> ".print_r($data,1)."\r\n";
-						$log_content .= $couchError;
-						$this->document_upload_download_log($patient_id,$log_content);//log error if any, for testing phase only
+					if (!file_exists($this->file_path)) {
+						if (!mkdir($this->file_path,0700)) {
+							$error .= "The system was unable to create the directory for this upload, '" . $this->file_path . "'.\n";
+						}
 					}
-				}				
-			}
-			if($harddisk == true){
-				$uploadSuccess = false;
-				if(move_uploaded_file($file['tmp_name'],$this->file_path.$fname)){
-					$uploadSuccess = true;
-				}
-				else{
-					$error .= xl("The file could not be succesfully stored, this error is usually related to permissions problems on the storage system")."\n";
+					
+					if ( $_POST['destination'] != '' ) {
+						$fname = $_POST['destination'];
 					}
-			}
-			$this->assign("upload_success", "true");
-			$d = new Document();
-			$d->storagemethod = $GLOBALS['document_storage_method'];
-			if($harddisk == true)
-				$d->url = "file://" .$this->file_path.$fname;
-			else
-				$d->url = $fname;
-			if($couchDB == true){
-				$d->couch_docid = $docid;
-				$d->couch_revid = $revid;
-			}
-			if ($file['type'] == 'text/xml') {
-				$d->mimetype = 'application/xml';
-			}
-			else {
-				$d->mimetype = $file['type'];
-			}                                 
-			$d->size = $file['size'];
-			$d->owner = $_SESSION['authUserID'];			
-			$sha1Hash = sha1_file( $this->file_path.$fname );
-			if($couchDB == true){
-				//Removing the temporary file which is used to create the hash
-				unlink($this->file_path.$fname);
-			}
-			$d->hash = $sha1Hash;
-			$d->type = $d->type_array['file_url'];
-			$d->set_foreign_id($patient_id);
-			if($harddisk == true || ($couchDB == true && $docid && $revid)){
-				$d->persist();
-				$d->populate();
-			}
-			$this->assign("file",$d);
+					$fname = preg_replace("/[^a-zA-Z0-9_.]/","_",$fname);
+					if (file_exists($this->file_path.$fname)) {
+						$error .= xl('File with same name already exists at location:','','',' ') . $this->file_path . "\n";
+						$fname = basename($this->_rename_file($this->file_path.$fname));
+						$_FILES['file']['name'][$key] = $fname;
+						$error .= xl('Current file name was changed to','','',' ') . $fname ."\n";
+					}
+					
+					if ( $doDecryption ) {
+						$tmpfile = fopen( $_FILES['file']['tmp_name'][$key] , "r" );
+						$filetext = fread( $tmpfile, $_FILES['file']['size'][$key]  );
+						$plaintext = $this->decrypt( $filetext, $passphrase );
+						unlink( $_FILES['file']['tmp_name'][$key] );
+						$tmpfile = fopen( $_FILES['file']['tmp_name'][$key], "w+" );
+						fwrite( $tmpfile, $plaintext );
+						fclose( $tmpfile );
+						$_FILES['file']['size'][$key] = filesize( $tmpfilepath.$tmpfilename );
+					}
+					
+					$docid = '';
+					$resp = '';			
+					if($couchDB == true){
+						$couch = new CouchDB();
+						$docname = $_SESSION['authId'].$patient_id.$encounter.$fname.date("%Y-%m-%d H:i:s");
+						$docid = $couch->stringToId($docname);
+						$tmpfile = fopen( $_FILES['file']['tmp_name'][$key], "rb" );
+						$filetext = fread( $tmpfile, $_FILES['file']['size'][$key] );				
+						fclose( $tmpfile );
+						//--------Temporarily writing the file for calculating the hash--------//
+						//-----------Will be removed after calculating the hash value----------//
+						$temp_file = fopen($this->file_path.$fname,"w");
+						fwrite($temp_file,$filetext);
+						fclose($temp_file);
+						//---------------------------------------------------------------------//
+						
+						$json = json_encode(base64_encode($filetext));
+						$db = $GLOBALS['couchdb_dbase'];
+						$data = array($db,$docid,$patient_id,$encounter,$_FILES['file']['type'][$key],$json);
+						$resp = $couch->check_saveDOC($data);
+						if(!$resp->id || !$resp->_rev){
+							$data = array($db,$docid,$patient_id,$encounter);
+							$resp = $couch->retrieve_doc($data);
+							$docid = $resp->_id;
+							$revid = $resp->_rev;
+						}
+						else{
+							$docid = $resp->id;
+							$revid = $resp->rev;
+						}
+						if(!$docid && !$revid){ //if couchdb save failed
+							$error .=  "<font color='red'><b>".xl("The file could not be saved to CouchDB.") . "</b></font>\n";
+							if($GLOBALS['couchdb_log']==1){
+								ob_start();
+								var_dump($resp);
+								$couchError=ob_get_clean();
+								$log_content = date('Y-m-d H:i:s')." ==> Uploading document: ".$fname."\r\n";
+								$log_content .= date('Y-m-d H:i:s')." ==> Failed to Store document content to CouchDB.\r\n";
+								$log_content .= date('Y-m-d H:i:s')." ==> Document ID: ".$docid."\r\n";
+								$log_content .= date('Y-m-d H:i:s')." ==> ".print_r($data,1)."\r\n";
+								$log_content .= $couchError;
+								$this->document_upload_download_log($patient_id,$log_content);//log error if any, for testing phase only
+							}
+						}				
+					}
+					
+					if($harddisk == true){
+						$uploadSuccess = false;
+						if(move_uploaded_file($_FILES['file']['tmp_name'][$key],$this->file_path.$fname)){
+							$uploadSuccess = true;
+						}
+						else{
+							$error .= xl("The file could not be succesfully stored, this error is usually related to permissions problems on the storage system")."\n";
+						}
+					}
 			
-			if (is_numeric($d->get_id()) && is_numeric($category_id)){
-				$sql = "REPLACE INTO categories_to_documents set category_id = '" . $category_id . "', document_id = '" . $d->get_id() . "'";
-				$d->_db->Execute($sql);
-			}
-			if($GLOBALS['couchdb_log']==1 && $log_content!=''){
-				$log_content .= "\r\n\r\n";
-				$this->document_upload_download_log($patient_id,$log_content);
+					$this->assign("upload_success", "true");
+					$d = new Document();
+					$d->storagemethod = $GLOBALS['document_storage_method'];
+					if($harddisk == true)
+						$d->url = "file://" .$this->file_path.$fname;
+					else
+						$d->url = $fname;
+					if($couchDB == true){
+						$d->couch_docid = $docid;
+						$d->couch_revid = $revid;
+					}
+					if ($_FILES['file']['type'][$key] == 'text/xml') {
+						$d->mimetype = 'application/xml';
+					}
+					else {
+						$d->mimetype = $_FILES['file']['type'][$key];
+					}                                 
+					$d->size = $_FILES['file']['size'][$key];
+					$d->owner = $_SESSION['authUserID'];			
+					$sha1Hash = sha1_file( $this->file_path.$fname );
+					if($couchDB == true){
+						//Removing the temporary file which is used to create the hash
+						unlink($this->file_path.$fname);
+					}
+					$d->hash = $sha1Hash;
+					$d->type = $d->type_array['file_url'];
+					$d->set_foreign_id($patient_id);
+					if($harddisk == true || ($couchDB == true && $docid && $revid)){
+						$d->persist();
+						$d->populate();
+					}
+					$sentUploadStatus[] = $d;
+					$this->assign("file",$sentUploadStatus);
+					
+					if (is_numeric($d->get_id()) && is_numeric($category_id)){
+						$sql = "REPLACE INTO categories_to_documents set category_id = '" . $category_id . "', document_id = '" . $d->get_id() . "'";
+						$d->_db->Execute($sql);
+					}
+					if($GLOBALS['couchdb_log']==1 && $log_content!=''){
+						$log_content .= "\r\n\r\n";
+						$this->document_upload_download_log($patient_id,$log_content);
+					}
+				}
 			}
 		}
-		}
+		
 		$this->assign("error", nl2br($error));
 		//$this->_state = false;
 		$_POST['process'] = "";
