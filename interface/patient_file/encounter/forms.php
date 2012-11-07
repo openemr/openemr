@@ -310,7 +310,17 @@ if (is_numeric($pid)) {
         }
 
         echo "<div class='form_header'>";
-        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>by " . htmlspecialchars( $providerNameRes ) . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
+
+        // Figure out the correct author (encounter authors are the '$providerNameRes', while other
+        // form authors are the '$user['fname'] . "  " . $user['lname']').
+        if ($formdir == 'newpatient') {
+          $form_author = $providerNameRes;
+        }
+        else {
+          $form_author = $user['fname'] . "  " . $user['lname'];
+        }
+        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>by " . htmlspecialchars( $form_author ) . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
+
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
