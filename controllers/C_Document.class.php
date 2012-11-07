@@ -122,11 +122,12 @@ class C_Document extends Controller {
 						$tmpfile = fopen( $_FILES['file']['tmp_name'][$key] , "r" );
 						$filetext = fread( $tmpfile, $_FILES['file']['size'][$key]  );
 						$plaintext = $this->decrypt( $filetext, $passphrase );
+                                                fclose($tmpfile);
 						unlink( $_FILES['file']['tmp_name'][$key] );
 						$tmpfile = fopen( $_FILES['file']['tmp_name'][$key], "w+" );
 						fwrite( $tmpfile, $plaintext );
 						fclose( $tmpfile );
-						$_FILES['file']['size'][$key] = filesize( $tmpfilepath.$tmpfilename );
+						$_FILES['file']['size'][$key] = filesize( $_FILES['file']['tmp_name'][$key] );
 					}
 					
 					$docid = '';
