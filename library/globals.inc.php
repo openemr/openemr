@@ -595,6 +595,13 @@ $GLOBALS_METADATA = array(
       '0',                              // default = false
       xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
     ),
+      
+    'num_past_appointments_to_show' => array(
+      xl('Past Appointment Display Widget'),
+      'num',                           // data type
+      '0',                             // default = false
+      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen.')
+    ),      
 
     'activate_ccr_ccd_report' => array(
       xl('Activate CCR/CCD Reporting'),
