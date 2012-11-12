@@ -676,7 +676,7 @@ foreach ($providers as $provider) {
                 // some sort of patient appointment
                 $divTitle .= "\r\n[".$catname.' '.htmlspecialchars($comment, ENT_QUOTES) ."] ".htmlspecialchars($fname,ENT_QUOTES)." ".htmlspecialchars($lname,ENT_QUOTES);
                 $content .= "<span class='appointment".$apptToggle."'>";
-                $content .= $dispstarth . ':' . $startm;
+                $content .= create_event_time_anchor($dispstarth . ':' . $startm);
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 $content .= htmlspecialchars($event['apptstatus']);
                 if ($patientid) {

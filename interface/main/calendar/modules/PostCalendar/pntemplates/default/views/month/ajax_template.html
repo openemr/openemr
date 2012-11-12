@@ -498,7 +498,7 @@ foreach ($providers as $provider) {
             else {
                 // some sort of patient appointment
                 $divTitle .= "\r\n[".$catname.' '.htmlspecialchars($comment, ENT_QUOTES) ."]".htmlspecialchars($fname,ENT_QUOTES)." ".htmlspecialchars($lname,ENT_QUOTES);
-                $content .= $displayTime;
+                $content .= create_event_time_anchor($displayTime);
                 if ($patientid) {
                     // include patient name and link to their details
                     $link_title = htmlspecialchars($fname,ENT_QUOTES)." ".htmlspecialchars($lname,ENT_QUOTES). " \n";

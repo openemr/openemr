@@ -16,7 +16,18 @@
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/textformat.js"></script>
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/jquery-1.6.4.min.js"></script>
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/calendarDirectSelect.js"></script>
-
+<script>function event_time_click(elem){EditEvent($(elem).parents("div.event_appointment").get(0))} </script>
+[-php-]
+/**
+ * @param string $displayString This is the text to be displayed(most likely representing the time of an event).  It is the responsibility of the caller to escape any entities as needed. This allows html tags to be used in the $displayString if desired.
+ * @return string html anchor element with javascript onclick event that edits an appointment
+ */
+function create_event_time_anchor($displayString)
+{
+    $title=htmlspecialchars(xl('Click to edit'));
+    return "<a class='event_time' onclick='event_time_click(this)' title='" .$title."'>".$displayString."</a>";
+}
+[-/php-]
 [-/if-]
 
 </head>
