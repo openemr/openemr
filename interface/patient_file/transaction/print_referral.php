@@ -5,6 +5,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
+//Some corrections made for empty referralsheet, Pimm 20121011
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -23,6 +24,7 @@ $template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 
 $TEMPLATE_LABELS = array(
   'label_clinic_id'             => htmlspecialchars( xl('Clinic ID')),
+'label_pt_clinic_id'             => htmlspecialchars( xl('Clinic specific pt ID')),
   'label_control_no'            => htmlspecialchars( xl('Control No.')),
   'label_date'                  => htmlspecialchars( xl('Date')),
   'label_webpage_title'         => htmlspecialchars( xl('Referral Form')),
@@ -31,6 +33,8 @@ $TEMPLATE_LABELS = array(
   'label_age'                   => htmlspecialchars( xl('Age')),
   'label_gender'                => htmlspecialchars( xl('Gender')),
   'label_address'               => htmlspecialchars( xl('Address')),
+'label_pt_street'               => htmlspecialchars( xl('Street')),
+'label_pt_city'               => htmlspecialchars( xl('City')),
   'label_postal'                => htmlspecialchars( xl('Postal')),
   'label_phone'                 => htmlspecialchars( xl('Phone')),
   'label_ref_reason'            => htmlspecialchars( xl('Reference Reason')),
@@ -38,9 +42,12 @@ $TEMPLATE_LABELS = array(
   'label_ref_class'             => htmlspecialchars( xl('Reference classification (risk level)')),
   'label_dr_name_sig'           => htmlspecialchars( xl('Doctor\'s name and signature')),
   'label_refer_to'              => htmlspecialchars( xl('Referred to')),
+'label_organization'              => htmlspecialchars( xl('Organization')),
   'label_clinic'                => htmlspecialchars( xl('Health centre/clinic')),
   'label_history_summary'       => htmlspecialchars( xl('Client medical history summary')),
   'label_bp'                    => htmlspecialchars( xl('Blood pressure')),
+	'label_bps'                    => htmlspecialchars( xl('Bps')),
+	'label_bpd'                    => htmlspecialchars( xl('Bpd')),
   'label_ht'                    => htmlspecialchars( xl('Height')),
   'label_wt'                    => htmlspecialchars( xl('Weight')),
   'label_ref_name_sig'          => htmlspecialchars( xl('Referer name and signature')),
@@ -53,7 +60,11 @@ $TEMPLATE_LABELS = array(
   'label_scripts_and_referrals' => htmlspecialchars( xl('Prescriptions and other referrals')),
   'label_subhead_clinic'        => htmlspecialchars( xl('Clinic Copy')),
   'label_subhead_patient'       => htmlspecialchars( xl('Client Copy')),
-  'label_subhead_referred'      => htmlspecialchars( xl('For Referred Organization/Practitioner'))
+
+
+  'label_subhead_referred'      => htmlspecialchars( xl('For Referred Organization/Practitioner')),
+
+'label_remarks'       => htmlspecialchars( xl('Remarks'))
 );
 
 if (!is_file($template_file)) die("$template_file does not exist!");

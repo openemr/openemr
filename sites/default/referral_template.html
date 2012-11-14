@@ -12,7 +12,7 @@ body, td {
  height: 668pt;
  padding: 0;
  border-style: solid;
- border-width: 1px;
+ border-width: 0px;
  border-color: #000000;
 }
 .paddingdiv {
@@ -78,7 +78,9 @@ body, td {
       <td style='width:60pt' nowrap>{fac_facility_npi}</td>
      </tr>
      <tr>
-      <td nowrap>{label_clinic_id}</td>
+      <td nowrap>{label_pt_clinic_id}</td>
+
+
       <td nowrap>{ref_pid}</td>
      </tr>
      <tr>
@@ -108,7 +110,7 @@ body, td {
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
    <td width='1%' nowrap>{label_address} &nbsp;</td>
-   <td class='under'>{pt_street}, {pt_city} {pt_state}&nbsp;</td>
+   <td class='under'>{pt_street} -   {pt_city} {pt_state}&nbsp;</td>
    <td width='1%' nowrap>&nbsp; {label_postal} &nbsp;</td>
    <td class='under'>{pt_postal_code}&nbsp;</td>
    <td width='1%' nowrap>&nbsp; {label_phone} &nbsp;</td>
@@ -138,19 +140,20 @@ body, td {
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
-  <tr>
+  <tr><br><br>
    <td width='1%' nowrap>{label_dr_name_sig} &nbsp;</td>
    <td class='under'>{ref_refer_from}&nbsp;</td>
   </tr>
  </table>
 
+
+
  <table cellspacing='0' cellpadding='0' class='linetable'>
-  <tr>
+  <tr><br>
    <td width='1%' nowrap>{label_refer_to} &nbsp;</td>
-   <td class='under'>{ref_refer_to} / {to_organization}&nbsp;</td>
+   <td class='under'> {ref_refer_to} - {to_organization}&nbsp;</td>
   </tr>
  </table>
-
  <hr style='border:0;height:6pt;color:#999999;background-color:#999999;margin:12pt 0 12pt 0;' />
 
  <table cellspacing='0' cellpadding='0' class='bigtable'>
@@ -166,7 +169,7 @@ body, td {
       <td style='width:60pt' nowrap>{fac_facility_npi}</td>
      </tr>
      <tr>
-      <td nowrap>{label_clinic_id}</td>
+      <td nowrap>{label_pt_clinic_id}</td>
       <td nowrap>{ref_pid}</td>
      </tr>
      <tr>
@@ -203,7 +206,7 @@ body, td {
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
    <td width='1%' nowrap>{label_address} &nbsp;</td>
-   <td class='under'>{to_street}, {to_city} {to_state}&nbsp;</td>
+   <td class='under'> {to_street} -  {to_city} {to_state}&nbsp;</td>
    <td width='1%' nowrap>&nbsp; {label_postal} &nbsp;</td>
    <td class='under'>{to_zip}&nbsp;</td>
    <td width='1%' nowrap>&nbsp; {label_phone} &nbsp;</td>
@@ -218,12 +221,12 @@ body, td {
   </tr>
  </table>
 
- <br />&nbsp;<br />{label_history_summary}:
+ <br />&nbsp;<br /><b>{label_history_summary}</b>:
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>{label_bp} &nbsp;</td>
-   <td class='under'>{v_bps}/{v_bpd}&nbsp;</td>
+   <td width='1%' nowrap>{label_bp}:  &nbsp;</td>
+   <td class='under'>&nbsp {v_bps} -&nbsp {v_bpd}&nbsp;</td>
    <td width='1%' nowrap>&nbsp; {label_ht} &nbsp;</td>
    <td class='under'>{v_height}&nbsp;</td>
    <td width='1%' nowrap>&nbsp; {label_wt} &nbsp;</td>
@@ -234,18 +237,23 @@ body, td {
  <p>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
-  <tr>
+  <tr><br><br>
    <td width='1%' nowrap>{label_ref_name_sig} &nbsp;</td>
    <td class='under'>{ref_refer_from}&nbsp;</td>
   </tr>
  </table>
 
+
+
+
  <table cellspacing='0' cellpadding='0' class='linetable'>
-  <tr>
+  <tr><br><br>
    <td width='1%' nowrap>{label_special_name_sig} &nbsp;</td>
    <td class='under'>{ref_refer_to}&nbsp;</td>
   </tr>
- </table>
+ </table><br>
+
+ <hr style='border:0;height:6pt;color:#999999;background-color:#999999;margin:12pt 0 12pt 0;' />
 
 </div></div>
 <br clear='all' /><!-- kludge to fix bizarre Firefox problem with page breaks -->
@@ -265,7 +273,7 @@ body, td {
       <td style='width:60pt' nowrap>{fac_facility_npi}</td>
      </tr>
      <tr>
-      <td nowrap>{label_clinic_id}</td>
+      <td nowrap>{label_pt_clinic_id}</td>
       <td nowrap>{ref_pid}</td>
      </tr>
      <tr>
@@ -342,11 +350,17 @@ body, td {
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
-  <tr>
+  <tr><br><br>
    <td width='1%' nowrap>{label_special_name_sig} &nbsp;</td>
    <td class='under'>{ref_refer_to}&nbsp;</td>
+  </tr></table><br><br>
+<table>
+<tr>   
+  <td width='1%' nowrap><b>{label_remarks}</b>&nbsp;</td>   
   </tr>
+
  </table>
+      
 
 </div></div>
 
