@@ -1046,7 +1046,7 @@ function ibr_era_claim_summary($filename, $clm01) {
 			<th>FeeTotal</th> <th>Payment</th> <th>Pt Resp</th> 
 		  </tr>
 		  <tr align=left> 
-			<th>SVC_Date</th> <th>Service</th> <th>Adjustments</th> 
+			<th>SVC_Date</th> <th>Service</th> <th>Allowed</th> 
 			<th>Fee</th> <th>Svc Pmt</th> <th>Pt Resp</th> 
 		  </tr>
 		  <tr align=left>
