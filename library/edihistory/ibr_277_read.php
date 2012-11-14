@@ -139,6 +139,8 @@ function ibr_277_csv_claim_data($ar_277_clm) {
 		return FALSE;
 	}
 	//
+    $codes277 = new status_code_arrays();
+    //
 	$csv_ar = array();
 	//
 	foreach($ar_277_clm['BHT'] as $bht) {
@@ -194,8 +196,21 @@ function ibr_277_csv_claim_data($ar_277_clm) {
 				$status = "DO Fail"; 
 			}
 			if ($stc['STC03'] == "15") { $status .= " Resubmit"; }
-
-			$message .= isset($stc['STC12']) ? trim($stc['STC12']) . " " : "";
+            //
+			// error message expected in STC12, but not always given
+			if (isset($stc['STC12'])) {
+				$message .= trim($stc['STC12']) . " ";
+			} elseif (strpos("|A1|A2|A5|", $stc['STC011']) === FALSE) { 
+				$message .= 'Reject: '; 
+				if (isset($stc['STC012'])) {
+					$cd = $codes277->get_STC_Status_Code( $stc['STC012'] );
+					$message .= $cd[0] . ' ' . $cd[1];
+				}
+				if (isset($stc['STC013'])) {
+					$cd = $codes277->get_STC_Entity_Code( $stc['STC013'] );
+					$message .= ' | ' . $cd[1];
+				}
+			}
 		}
 		// revised csv layout
 		//['f277']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_277', 'File_277', 'payer_name', 'claim_id', 'bht03_837');
@@ -274,8 +289,6 @@ function ibr_277_html ($ar_data, $err_only=FALSE) {
 		$bgf = ($idf % 2 == 1 ) ? 'fodd' : 'feven';
 		$idf++;
 		//
-		$ar_hd = $ardt['file'];
-		$ar_cd = $ardt['claim'];
 		// if any individual claims detail is to be output
 		// a claims table was inserted, so put the files heading in
 		if ($hasclm) { $str_html .= $f_hdg; }
@@ -333,7 +346,8 @@ function ibr_277_html ($ar_data, $err_only=FALSE) {
  * 
  * The x12 277 claim status response file contains many fields that are useful for 
  * different purposes, so there is a lot of surplus information depending on your 
- * reason for viewing the file.
+ * reason for viewing the file.  This function is really based on 277CA files,
+ * but it should mostly work with plain 277 files, (if there was a 276 generator)
  * 
  * <pre>
  * Return array has keys 'file' and 'claim'
@@ -351,8 +365,11 @@ function ibr_277_html ($ar_data, $err_only=FALSE) {
  *         ['NM103']['NM109']['TRN02']['DTP03050']['DTP03009']['PER01']['PER02']['PER03']['PER04']
  * 
  *  $arRSP[$isa_ct]['BHT']['bht_ct']['B']  (receiver -- practice or biller)
- *         ['STC011']['STC012']['STC013']['STC014']['STC02']['STC03']['STC04']['STC05']['STC06']
- *         ['STC07']['STC08'] ['STC09']['QTY01']['QTY02']['AMT01']['AMT02']
+ *         ['STC011']['STC012']['STC013']['STC014']
+ *         ['STC01']['STC02']['STC03']['STC04']['STC05']['STC06']['STC07']['STC08'] ['STC09']
+ *         ['STC101']['STC102']['STC103']['STC104']
+ *         ['STC111']['STC112']['STC113']['STC114']
+ *         ['QTY01']['QTY02']['AMT01']['AMT02']
  *            
  *  $arRSP[$isa_ct]['BHT']['bht_ct']['C'] (provider -- practice or individual)
  *         ['NM103']['NM104']['NM105']['NM107']['NM108']['NM109']['TRN01'] ['TRN02']
@@ -371,7 +388,8 @@ function ibr_277_html ($ar_data, $err_only=FALSE) {
  * 
  *  $arRSP[$isa_ct]['BHT']['bht_ct']['D']['SVC'][svccount]['key']
  *    	  ['SVC011']['SVC012']['SVC013']['SVC014']['SVC015']['SVC016']['SVC017']
- *  	  ['SVC02']['SVC03']['SVC04']['SVC05']['SVC06']['SVC07']     
+ *  	  ['SVC02']['SVC03']['SVC04']['SVC05']['SVC06']['SVC07']  
+ *  $arRSP[$isa_ct]['BHT']['bht_ct']['D']['SVC'][svccount]['STC'][stccount]['key']  
  *  	  ['STC011']['STC012']['STC013']['STC014']
  * 		  ['STC02']['STC03']['STC04']['STC05']['STC06']['STC07']['STC08']['STC09']
  * 		  ['STC101']['STC102']['STC103']['STC104']
@@ -431,13 +449,7 @@ function ibr_277_parse($ar_segments) {
 	$rej_ct = 0;
 	$amt_accpt = 0;
 	$amt_rej = 0;
-	// $clm_ct = 0;
-	$hl_id = "";
-	$hl_pyr = "0";
-	$hl_parent = "0";
 	$hl_code = "";
-	$stchlct = ""; // keep track of which HL is operating on the loop 2000D STC
-	//
 	$loopid = "0";
 	//
 	foreach($ar_277_segments as $segline) { 
@@ -450,13 +462,12 @@ function ibr_277_parse($ar_segments) {
 		$st_seg_ct = isset($st_seg_ct) ? $st_seg_ct+1 : 0;
 		//
 		if ($seg[0] == "ISA") {
-			// I have x12-277 files from Availity with multiple ISA--IEA segment blocks
+			// x12-277 files may have multiple ISA--IEA segment blocks
 			$ict++;
 			//
 			$isa13 = $seg[13];
 			$fmtime = '20'.strval($seg[9]);
 			//
-			//$ar277[$ict]['claim']['ISA13'] = $seg[13];
 			// reset the ST count and BHT count
 			$st_ct = 0;
 			$st_seg_ct = 0;
@@ -495,11 +506,9 @@ function ibr_277_parse($ar_segments) {
 		}
 		
 		if ($seg[0] == "GS") {
-			$fmtime = strval($seg[4]);
-			//$ar277[$ict]['claim']['GS04'] = $seg[4];   // File date
-			//$ar277[$ict]['claim']['GS06'] = $seg[6];   // Group Control Number
-			$gs04 = strval($seg[4]);
-			$gs06 = strval($seg[6]); 		
+			$fmtime = strval($seg[4]);   
+			$gs04 = strval($seg[4]);  // File date
+			$gs06 = strval($seg[6]);  // Group Control Number
 			//
 			continue;
 		}
@@ -522,10 +531,10 @@ function ibr_277_parse($ar_segments) {
 			$se01 = $seg[1];
 			$se02 = $seg[2];
 			if ($se01 != $st_seg_ct) {
-				echo "ibr_277_read: SE segment count mismatch $se01 $st_seg_ct <br />" . PHP_EOL;
+				csv_edihist_log ("ibr_277_read: SE segment count mismatch $se01 $st_seg_ct $fname<br />");
 			}
 			if ($se02 != $st02) {
-				echo "ibr_277_read: SE ST id mismatch $se02 $st02 <br />" . PHP_EOL;
+				csv_edihist_log ("ibr_277_read: SE ST id mismatch $se02 $st02  $fname<br />");
 			}
 			$ar277[$ict]['claim']['BHT'][$bct]['ENV']['SE01'] = $se01;
 			//
@@ -554,109 +563,100 @@ function ibr_277_parse($ar_segments) {
 			$ar277[$ict]['claim']['BHT'][$bct]['ENV']['GS04'] = $gs04;
 			$ar277[$ict]['claim']['BHT'][$bct]['ENV']['ST02'] = $st02;
 			//
+			$hlhaschild = '';
+			$hlchildof = '';
+			$hlischild = '';
+			$hlcount = '';
+			$hlparent = '';
+			//
+			$clm_ct++;    // treat each BHT as a claim detail 
+			//
+			$ky = '';
+			//
 			continue;
 		}
 		
 		if ($seg[0] == "HL") {
 			// loop 2000A, 2000B, 2000C, 2000D ??
 			// set the $ky variable acording to HL level
-			//
-			$hl01 = isset($seg[1]) ? $seg[1] : "";;  //  Hierarchical ID Number
-			$hl02 = isset($seg[2]) ? $seg[2] : "";;  //  Hierarchical Parent ID Number
-			// 20 Information source Payer loop 2000A
-			$hl03 = isset($seg[3]) ? $seg[3] : "";;  //    Hierarchical Level Code
-			$hl04 = isset($seg[4]) ? $seg[4] : "";  //  1  Hierarchical Child Code
-			
-			// HL*1**20*1~   HL*1 NM1*PR TRN*1 DTP*050 DTP*009 
-			if ($hl03 == "20") {  					 
+			// HL identified loops can repeat -- that case is not handled
+            //   the values for the last instance only will be recorded in the array
+            if ($seg[3] == "20") { 
+				// HL*1**20*1~   HL*1 NM1*PR TRN*1 DTP*050 DTP*009 					 
 				$loopid = "2000A";
 				$ky = 'A'; 
-			}
-			// HL*2*1*21*1~				
-			if ($hl03 == "21") { 
+			} elseif ($seg[3] == "21") { 
+				// HL*2*1*21*1~	NM1*41 TRN*2 STC QTY AMT
 				$loopid = "2000B";
 				$ky = 'B';
-			}
-			// HL*3*2*19*1~					
-			if ($hl03 == "19") { 
+			} elseif ($seg[3] == "19") { 
+				// HL*3*2*19*1~	  NM1*85 TRN*1 REF QTY AMT
 				$loopid = "2000C";
 				$ky = 'C';
-			}					
-			// varying levels in loop 2000D	
-			// HL*4*3*PT~    patient
-			// HL*4*3*22*1~	 subscriber	
-			// HL*5*4*23*0~  dependent				
-			if ($hl03 == "PT" || $hl03 == "22" || ($hl03 == "23" && $loopid != "2000D") ) { 
-				// expect 277CA, but for 277, there is possibility of loop 2000E	
-				if ($hl03 == "23" && $loopid == "2000D") {
-					$loopid = "2000E";
-					$ky = 'E';
-				}
+			} elseif ($seg[3] == "PT" || $seg[3] == "22") {
+				// HL*4*3*PT~    patient  NM1*QC TRN*2 STC REF REF DTP
+				// HL*4*3*22*1~	 subscriber	 NM1*IL TRN*2 STC REF REF DTP
 				$loopid = "2000D"; 
 				$ky = 'D';
-				//										    	
-				$lp2100D = FALSE; 										
-				$lp2200D = FALSE;
-				$lp2220D = FALSE;
 				//
-				$stc_ct = 0;	   // multiple STC segments are possible at the patient level
-				$stchlct = $hl01;  // keep track of which HL is operating on the loop 2000D STC
-				$svc_ct = 0; 	   // this is for the unlikely event that multiple 2220D loops appear	
+				$lp2100D = false; 										
+				$lp2200D = false;
+				$lp2220D = false;  // used to indicate SVC segment in D or E
+			} elseif ($seg[3] == "23") {
+				$loopid = "2000E"; 
+				$ky = 'E';
+				//
+				$lp2100E = false; 										
+				$lp2200E = false;
+				$lp2220E = false;
 			}
-			
-			// debug
-			// check for some things in HL segment
-			if (strpos("|20|21|19|PT|22|23", $hl03) == 0) {
-				echo "ibr_277: unexpected HL03 {$seg[3]} in $segline <br />" . PHP_EOL;
-			}
-			if ( strpos("|PT|22|23", $hl03) && $hl04 > 0 ) {
-				echo "ibr_277: child HL segment follows HL level $hl03 in $segline " . basename($fp) . PHP_EOL;
-			}
-			//
-			// true if the parent matches the preceeding HL ID
-			$same_prv = ($seg[2] == $hl_id);
-			// if HL02 is blank, then we are with a new provider
-			$hl_id = $seg[1];
-			$hl_parent = $seg[2];
-			$hl_code = $seg[3];
+			// a preliminary scheme for testing HL parent/child relationship
+			$hlhaschild = (isset($seg[4]) || $seg[4] != '0')? $seg[4] : '0';
+			$hlchildof = $seg[2];
+			$hlischild = (!$hlchildof) ? false : (($hlchildof == $hlparent) ? true : false);
+			$hlparent = ($hlischild) ? $seg[2] : $seg[1];
+			$hlcount = $seg[1];
+			//////////////// end parent/child identification
+            //
+            $hl_code = $seg[3];
+			// reset stc segment counter 
+			$stc_ct = -1;
 			//
 			continue;
-		}
+        }
+
 		// testing				
 		if ($loopid == "2000A" && $ky != 'A') { echo "HL loop mismatch, $hl_code $loopid $ky $segline $fname<br />" . PHP_EOL; }
 		if ($loopid == "2000B" && $ky != 'B') { echo "HL loop mismatch, $hl_code $loopid $ky $segline $fname<br />" . PHP_EOL; }
 		if ($loopid == "2000C" && $ky != 'C') { echo "HL loop mismatch, $hl_code $loopid $ky $segline $fname<br />" . PHP_EOL; }
 		if ($loopid == "2000D" && $ky != 'D') { echo "HL loop mismatch, $hl_code $loopid $ky $segline $fname<br />" . PHP_EOL; }
+        if ($loopid == "2000E" && $ky != 'E') { echo "HL loop mismatch, $hl_code $loopid $ky $segline $fname<br />" . PHP_EOL; }
 		//
-		//
-		// payer or clearinghouse level HL*1**20*1~ 
 		if ($seg[0] == "NM1") {
-			// PR payer name  AY clearinghouse 
-			// expect payer, but clearinghouse may respond here
-			$q = ($seg[1] == "PR") ? $seg[1] : "unexpected qualifier in NM1 2000A: {$seg[1]}";
+			// this segment may repeat (rare), but only last NM1 is stored in array
 			//
-			// if ($loopid == "2000A") { $loopid = "2100A" }
-			// if ($loopid == "2000B") { $loopid = "2100B" }
-			// if ($loopid == "2000C") { $loopid = "2100C" }
-			// if ($loopid == "2000D") { $loopid = "2100D" }
+			// if ($loopid == "2000A") { $loopid = "2100A" }  // NM1*PR payer NM1*AY clearinghouse  repeat=1
+			// if ($loopid == "2000B") { $loopid = "2100B" }  // NM1*41 submitter  NM1*AY clearinghouse  repeat=1
+			// if ($loopid == "2000C") { $loopid = "2100C" }  // NM1*1P provider repeat=1
+			// if ($loopid == "2000D") { $loopid = "2100D" }  // NM1*PT patient  NM1*IL subscriber/insured NM1*QC repeat=1
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM101'] = $seg[1];
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM102'] = $seg[2];
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM103'] = $seg[3]; 	// Last name or company name
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM104'] = $seg[4];   // first name or blank
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM105'] = $seg[5];   // middle name or blank
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM107'] = $seg[7];   // name suffix
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM108'] = $seg[8];   // "FI" or "XX"
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM109'] = $seg[9];   // tax id, NPI, payerID
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM108'] = $seg[8];   // PI|XV|XX|46|FI|SV|24|II|MI Identification Code Qualifier
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['NM109'] = $seg[9];   // taxID, NPI, payerID, memberID
 			//
 			continue;
 		}			
 		
 		if ($seg[0] == "TRN") {
-			// if ($loopid == "2100B") { $loopid = "2200B" }
+			// if ($loopid == "2100B") { $loopid = "2200B" }  // TRN02 is BHT03  ['B']['TRN02'] (277CA <> 837; 277 <> 276)
 			// if ($loopid == "2100C") { $loopid = "2200C" }
-			// if ($loopid == "2100D") { $loopid = "2200D" }
+			// if ($loopid == "2100D") { $loopid = "2200D" }  // TRN02 is pid-encounter  ['D']['TRN02']
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['TRN01'] = $seg[1];
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['TRN02'] = $seg[2];  // at HL 4, TRN02 is pid-encounter  ['D']['TRN02']
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['TRN02'] = $seg[2];  
 			//
 			continue;
 		}
@@ -683,128 +683,106 @@ function ibr_277_parse($ar_segments) {
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['PER01'] = $seg[1];	//R  IC  Contact Function Code R
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['PER02'] = $seg[2];	//S  Payer Contact Name
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['PER03'] = $seg[3];	//R  ED, EM, TE, FX Communication Number Qualifier
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['PER04'] = $seg[4]; 	//R  Communication Number 
-			//
-			continue;
-		} // "PER"
-		
-		if ($seg[0] == "QTY" && $loopid == "2000B") {	 
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['QTY01'] = $seg[1];  // QTY TOTAL ACCEPTED QUANTITY "90" 2200B  QTY TOTAL REJECTED QUANTITY "AA" 2200B
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['QTY02'] = $seg[2];  // count of accepted or rejected items
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['PER04'] = $seg[4]; //R  Communication Number 
 			//
 			continue;
 		}
+		
+        // take quantity and amount from 2000B loop since that probably sums to totals for claims in ISA envelope 
+		if ($seg[0] == "QTY" && $loopid == "2000B") {	 
+			$ar277[$ict]['claim']['BHT'][$bct]['B']['QTY01'] = $seg[1];  // QTY TOTAL ACCEPTED QUANTITY "90" 2200B  QTY TOTAL REJECTED QUANTITY "AA" 2200B
+			$ar277[$ict]['claim']['BHT'][$bct]['B']['QTY02'] = $seg[2];  // count of accepted or rejected items
+            // for 277CA -- QTY segment not in 277 segment list
+			if ($seg[1] == '90') {
+				$clm_ct += $seg[2];
+			} else {
+				$rej_ct += $seg[2];
+			}
+			continue;
+		}
+        
 		if ($seg[0] == "AMT" && $loopid == "2000B") {	 
 			$ar277[$ict]['claim']['BHT'][$bct]['B']['AMT01'] = $seg[1];  // AMT TOTAL ACCEPTED AMOUNT "YU" 2200B  AMT TOTAL REJECTED AMOUNT "YY"
 			$ar277[$ict]['claim']['BHT'][$bct]['B']['AMT02'] = $seg[2];  // quantity, i.e. dollars, accepted or rejected
+            // for 277CA -- AMT segment not in 277 segment list
+			if ($seg[1] == 'YU') {
+				$amt_accpt += $seg[2];
+			} else {
+				$amt_rej += $seg[2];
+			}
 			//
 			continue;
 		}	
-		
-		if ($seg[0] == "STC" && $loopid == "2000B") {	
-			//PROVIDER STATUS INFORMATION
-			//STC*A1:20*20120217*WQ*65~
+
+        if ($seg[0] == "STC" && !$lp2220D ) {
+			// increment stc count, it is reset to -1 at each HL segment (ky change)
+			$stc_ct++;
+			//
 			if ( strpos($seg[1], $sub_d) ) {
 				$sp = strpos($seg[1], $sub_d);
 				$stc01 = explode($sub_d, $seg[1]);   			// A1:20 is expected here
 				if ( is_array($stc01) ) {
-					$ar277[$ict]['claim']['BHT'][$bct]['B']['STC011'] = isset($stc01[0]) ? $stc01[0] : "";	//STC01-1	Health Care Claim Status Category Code	AN	01/30/12	R	D0, E
-					$ar277[$ict]['claim']['BHT'][$bct]['B']['STC012'] = isset($stc01[1]) ? $stc01[1] : ""; //STC01-2	Health Care Claim Status Code	AN	01/30/12	R
-					$ar277[$ict]['claim']['BHT'][$bct]['B']['STC013'] = isset($stc01[2]) ? $stc01[2] : ""; //STC01-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
-					$ar277[$ict]['claim']['BHT'][$bct]['B']['STC014'] = isset($stc01[3]) ? $stc01[3] : "";	//STC01-4	Code List Qualifier Code	ID	01/03/12	N/U	 
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC011'] = isset($stc01[0]) ? $stc01[0] : "";	//STC01-1	Health Care Claim Status Category Code	AN	01/30/12	R	D0, E
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC012'] = isset($stc01[1]) ? $stc01[1] : "";  //STC01-2	Health Care Claim Status Code	AN	01/30/12	R
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC013'] = isset($stc01[2]) ? $stc01[2] : "";  //STC01-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC014'] = isset($stc01[3]) ? $stc01[3] : "";	//STC01-4	Code List Qualifier Code	ID	01/03/12	N/U	 
 				} else {
-					$ar277[$ict]['claim']['BHT'][$bct]['prv_STC011'] = isset($seg[1]) ? $seg[1] : "";
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC01'] = isset($seg[1]) ? $seg[1] : "";
 				}
 			}
 			//
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['STC02'] = isset($seg[2]) ? $seg[2] : "";	 	//STC02	Status Information Effective Date	DT	08/08/12	R	 	 	CCYYMMDD
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['STC03'] = isset($seg[3]) ? $seg[3] : "";	 	//STC03	Action Code	ID	01/02/12	N/U
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['STC04'] = isset($seg[4]) ? $seg[4] : "";	 	//STC04	Monetary Amount	R 	01/18/12	N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC02'] = isset($seg[2]) ? $seg[2] : "";	 //STC02	Status Information Effective Date	DT	08/08/12	R	 	 	CCYYMMDD
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC03'] = isset($seg[3]) ? $seg[3] : "";	 //STC03	Action Code	ID	01/02/12	N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC04'] = isset($seg[4]) ? $seg[4] : "";	 //STC04	Monetary Amount	R 	01/18/12	N/U
 			// no segments beyond STC04 are expected in loop 2200B STC
 			if ( !isset($seg[5]) ) { continue; }
 			//
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['STC05'] = isset($seg[5]) ? $seg[5] : "";	 	//STC05	Monetary Amount	R 	01/18/12	N/U
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['STC06'] = isset($seg[6]) ? $seg[6] : "";	 	//STC06	Date	DT	08/08/12	N/U		 
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['STC07'] = isset($seg[7]) ? $seg[7] : "";	 	//STC07	Payment Method Code	ID	03/03/12	N/U
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['STC08'] = isset($seg[8]) ? $seg[8] : "";	 	//STC08	Date	DT	08/08/12	N/U	 
-			$ar277[$ict]['claim']['BHT'][$bct]['B']['STC09'] = isset($seg[9]) ? $seg[9] : "";	 	//STC09	Check Number	AN	01/16/12	N/U	
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC05'] = isset($seg[5]) ? $seg[5] : "";	 //STC05	Monetary Amount	R 	01/18/12	N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC06'] = isset($seg[6]) ? $seg[6] : "";	 //STC06	Date	DT	08/08/12	N/U		 
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC07'] = isset($seg[7]) ? $seg[7] : "";	 //STC07	Payment Method Code	ID	03/03/12	N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC08'] = isset($seg[8]) ? $seg[8] : "";	 //STC08	Date	DT	08/08/12	N/U	 
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC09'] = isset($seg[9]) ? $seg[9] : "";	 //STC09	Check Number	AN	01/16/12	N/U	
 			//
-			continue;
-		} // end if ($seg[0] == "STC") in loop 2200B
-
-		if ($seg[0] == "STC" && $loopid == "2000D") {	
-			// loop 2200D Subscriber / Patient
-			if ( strpos($seg[1], $sub_d) ) {
-				$sp = strpos($seg[1], $sub_d);
-				$stc01 = explode($sub_d, $seg[1]);           // 2200D STC01-1 Health Care Claim Status Category Code 
-				//
-				if ( is_array($stc01) ) {                           // "A2" Accept , "A3" "A7" Reject, or “R3” Warning 1/30
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC011'] = isset($stc01[0]) ? $stc01[0] : "";	//STC01-1	Health Care Claim Status Category Code	AN	01/30/12	R	D0, E
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC012'] = isset($stc01[1]) ? $stc01[1] : "";	//STC01-2	Health Care Claim Status Code	AN	01/30/12	R
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC013'] = isset($stc01[2]) ? $stc01[2] : "";	//STC01-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC014'] = isset($stc01[3]) ? $stc01[3] : "";	//STC01-4	Code List Qualifier Code	ID	01/03/12	N/U	 
-				} else {
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC011'] = isset($seg[1]) ? $seg[1] : "";
-				}
-			}
-			//
-			// interject some tallys here, for the files array 
-			if ($loopid == "2000D" && $stchlct == $hl01) {
-				$clm_ct++;
-				if (strpos("|A1|A2|A5|", $stc01[0]) === FALSE) { $rej_ct++; }
-				$amt_accpt += $seg[4]; 
-				if ($seg[3] == "U") { $amt_rej += $seg[4]; }
-				$stchlct = "yes";	
-				// 
-			}
-			//
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC02'] = isset($seg[2]) ? $seg[2] : "";	//STC02	Status Information Effective Date DT 08/08/12 R CCYYMMDD
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC03'] = isset($seg[3]) ? $seg[3] : "";	//STC03	Action Code ID 01/02/12 N/U   15 Correct and Resubmit Claim
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC04'] = isset($seg[4]) ? $seg[4] : "";	//STC04	Monetary Amount R 01/18/12 N/U
-			//
-			// cut this off if there are no more elements, often only 5
-			if ( !isset($seg[5]) ) { continue; }
-			//
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC05'] = isset($seg[5]) ? $seg[5] : "";	//STC05	Monetary Amount R 01/18/12 N/U
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC06'] = isset($seg[6]) ? $seg[6] : "";	//STC06	Date DT 08/08/12 N/U
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC07'] = isset($seg[7]) ? $seg[7] : "";	//STC07	Payment Method Code ID 03/03/12 N/U	 
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC08'] = isset($seg[8]) ? $seg[8] : "";	//STC08	Date DT 08/08/12 N/U
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC09'] = isset($seg[9]) ? $seg[9] : ""; 	//STC09	Check Number AN 01/16/12 N/U
-			//
+			if ( !isset($seg[10]) ) { continue; }
 			//STC10	HEALTH CARE CLAIM STATUS	 	 	S				
-			if ( isset($seg[10]) && strpos($seg[10], $sub_d) ) {	
-				$stc10 = explode($sub_d, $seg[10]);
-				if ( is_array($stc01) ) {
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC101'] = isset($stc10[0]) ? $stc10[0] : ""; 	//STC10-1	Health Care Claim Status Category Code	AN	01/30/12	R	 	 	D0, E
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC102'] = isset($stc10[1]) ? $stc10[1] : ""; 	//STC10-2	Health Care Claim Status Code	AN	01/30/12	R
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC103'] = isset($stc10[2]) ? $stc10[2] : ""; 	//STC10-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC104'] = isset($stc10[3]) ? $stc10[3] : ""; 	//STC10-4	Code List Qualifier Code	ID	01/03/12	N/U
+			if ( isset($seg[10]) ) {
+				if ( strpos($seg[10], $sub_d) ) {	
+					$stc10 = explode($sub_d, $seg[10]);
+					if ( is_array($stc01) ) {
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC101'] = isset($stc10[0]) ? $stc10[0] : ""; 	//STC10-1	Health Care Claim Status Category Code	AN	01/30/12	R	 	 	D0, E
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC102'] = isset($stc10[1]) ? $stc10[1] : ""; 	//STC10-2	Health Care Claim Status Code	AN	01/30/12	R
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC103'] = isset($stc10[2]) ? $stc10[2] : ""; 	//STC10-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC104'] = isset($stc10[3]) ? $stc10[3] : ""; 	//STC10-4	Code List Qualifier Code	ID	01/03/12	N/U
+					} else {
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC10'] = $seg[10];
+					}
 				} else {
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC101'] = isset($seg[10]) ? $seg[10] : "";
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC10'] = isset($seg[10]) ? $seg[10] : "";
 				}
 			} 
 			// 
-			//STC11	HEALTH CARE CLAIM STATUS	 	 	S				
-			if ( isset($seg[11]) && strpos($seg[11], $sub_d) ) {	
-				$stc11 = explode($sub_d, $seg[10]);
-				if ( is_array($stc11) ) {
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC111'] = isset($stc11[0]) ? $stc11[0] : ""; 	//STC11-1	Health Care Claim Status Category Code	AN	01/30/12	R	 	 	D0, E
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC112'] = isset($stc11[1]) ? $stc11[1] : ""; 	//STC11-2	Health Care Claim Status Code	AN	01/30/12	R
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC113'] = isset($stc11[2]) ? $stc11[2] : ""; 	//STC11-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC114'] = isset($stc11[3]) ? $stc11[3] : ""; 	//STC11-4	Code List Qualifier Code	ID	01/03/12	N/U
+			//STC11	HEALTH CARE CLAIM STATUS				
+			if ( isset($seg[11]) ) {
+				if ( strpos($seg[11], $sub_d) ) {	
+					$stc11 = explode($sub_d, $seg[10]);
+					if ( is_array($stc11) ) {
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC111'] = isset($stc11[0]) ? $stc11[0] : ""; 	//STC11-1	Health Care Claim Status Category Code	AN	01/30/12	R	 	 	D0, E
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC112'] = isset($stc11[1]) ? $stc11[1] : ""; 	//STC11-2	Health Care Claim Status Code	AN	01/30/12	R
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC113'] = isset($stc11[2]) ? $stc11[2] : ""; 	//STC11-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC114'] = isset($stc11[3]) ? $stc11[3] : ""; 	//STC11-4	Code List Qualifier Code	ID	01/03/12	N/U
+					} else {
+						// sub-element detected, but no array -- unexpected
+						$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC11'] = $seg[11];
+					}	
 				} else {
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC111'] = isset($seg[11]) ? $seg[11] : "";
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC11'] = $seg[11];
 				}
 			}
 			//STC12	Free-Form Message Text	AN	01/01/64 N/U	 	 	 
 			if ( isset($seg[12]) ) { $ar277[$ict]['claim']['BHT'][$bct][$ky]['STC'][$stc_ct]['STC12'] = $seg[12]; }
 			//
-			if( $loopid == "2000D" || $loopid == "2000E") { $stc_ct++; }
-			//$lp2220D = TRUE;
-			
-			//
-			continue;
-		} // end if ($seg[0] == "STC") in loop 2200C
+		}
+       
 
 		if ($seg[0] == "REF") {  
 			if ($ky == "C") {
@@ -845,7 +823,7 @@ function ibr_277_parse($ar_segments) {
 		if ($seg[0] == "SVC") { 
 			// loop 2220D
 			// set another loop id
-			$lp2200D = FALSE;
+			//$lp2200D = FALSE;
 			$lp2220D = TRUE;
 			// 
 			// SVC	SERVICE LINE INFORMATION	 	1	S	2220D	>1	 
@@ -861,7 +839,9 @@ function ibr_277_parse($ar_segments) {
 				$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['SVC015'] = isset($svc01[4]) ? $svc01[4] : "";  //SVC01-5	Procedure Modifier	AN	02/02/12	S
 				$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['SVC016'] = isset($svc01[5]) ? $svc01[5] : "";  //SVC01-6	Procedure Modifier	AN	02/02/12	S	
 				$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['SVC017'] = isset($svc01[6]) ? $svc01[6] : "";  //SVC01-7	Description	AN	01/01/80	N/U	 
-			}
+			} else {
+                $ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['SVC01'] = isset($seg[1]) ? $seg[1] : "";
+            }
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['SVC02'] = isset($seg[2]) ? $seg[2] : "";  //SVC02	Line Item Charge Amount S9(7)V99	R	01/18/12	R	
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['SVC03'] = isset($seg[2]) ? $seg[3] : "";  //SVC03	Line Item Payment Amount S9(7)V99	R	01/18/12	R	
 			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['SVC04'] = isset($seg[2]) ? $seg[4] : "";  //SVC04	Revenue Code	AN	01/01/48	S	
@@ -875,39 +855,43 @@ function ibr_277_parse($ar_segments) {
 		
 		if ($seg[0] == "STC" && $lp2220D ) {	
 			// loop 2220D
-			//SUBSCRIBER STATUS INFORMATION
+			// this is an STC segment following a SVC segment -- status for a particular service
 			//STC*A1:20*20120217*WQ*65~
+            if (!isset($ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'])) {
+                $ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'] = array();
+            }
+            $svcstc_ct = count($ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC']);
 			if ( strpos($seg[1], $sub_d) ) {
 				$sp = strpos($sub_d, $seg[1]);
-				$stc_svc_01 = explode($sub_d, $seg[1]);           // 2200D STC01-1 Health Care Claim Status Category Code 
+				$stcsvc01 = explode($sub_d, $seg[1]);           // 2200D STC01-1 Health Care Claim Status Category Code 
 				if ( is_array($stc01) ) {                           // "A2" Accept , "A3" Reject, or “R3” Warning 1/30
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC011'] = isset($stc01[0]) ? $stc01[0] : "";	//STC01-1	Health Care Claim Status Category Code	AN	01/30/12	R	D0, E
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC012'] = isset($stc01[1]) ? $stc01[1] : "";	//STC01-2	Health Care Claim Status Code	AN	01/30/12	R
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC013'] = isset($stc01[1]) ? $stc01[1] : "";	//STC01-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC014'] = isset($stc01[1]) ? $stc01[1] : "";	//STC01-4	Code List Qualifier Code	ID	01/03/12	N/U	 
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC011'] = isset($stc01[0]) ? $stcsvc01[0] : "";	//STC01-1	Health Care Claim Status Category Code	AN	01/30/12	R	D0, E
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC012'] = isset($stc01[1]) ? $stcsvc01[1] : "";	//STC01-2	Health Care Claim Status Code	AN	01/30/12	R
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC013'] = isset($stc01[1]) ? $stcsvc01[1] : "";	//STC01-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC014'] = isset($stc01[1]) ? $stcsvc01[1] : "";	//STC01-4	Code List Qualifier Code	ID	01/03/12	N/U	 
 				} else {
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC011'] = isset($seg[1]) ? $seg[1] : "";
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC011'] = isset($seg[1]) ? $seg[1] : "";
 				}
 			}
 
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC02'] = isset($seg[2]) ? $seg[2] : "";	//STC02	Status Information Effective Date DT 08/08/12 R CCYYMMDD
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC03'] = isset($seg[3]) ? $seg[3] : "";	//STC03	Action Code ID 01/02/12 N/U
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC04'] = isset($seg[4]) ? $seg[4] : "";	//STC04	Monetary Amount R 01/18/12 N/U
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC05'] = isset($seg[5]) ? $seg[5] : "";	//STC05	Monetary Amount R 01/18/12 N/U
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC06'] = isset($seg[6]) ? $seg[6] : "";	//STC06	Date DT 08/08/12 N/U
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC07'] = isset($seg[7]) ? $seg[7] : "";	//STC07	Payment Method Code ID 03/03/12 N/U	 
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC08'] = isset($seg[8]) ? $seg[8] : "";	//STC08	Date DT 08/08/12 N/U
-			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC09'] = isset($seg[9]) ? $seg[9] : ""; 	//STC09	Check Number AN 01/16/12 N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC02'] = isset($seg[2]) ? $seg[2] : "";	//STC02	Status Information Effective Date DT 08/08/12 R CCYYMMDD
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC03'] = isset($seg[3]) ? $seg[3] : "";	//STC03	Action Code ID 01/02/12 N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC04'] = isset($seg[4]) ? $seg[4] : "";	//STC04	Monetary Amount R 01/18/12 N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC05'] = isset($seg[5]) ? $seg[5] : "";	//STC05	Monetary Amount R 01/18/12 N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC06'] = isset($seg[6]) ? $seg[6] : "";	//STC06	Date DT 08/08/12 N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC07'] = isset($seg[7]) ? $seg[7] : "";	//STC07	Payment Method Code ID 03/03/12 N/U	 
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC08'] = isset($seg[8]) ? $seg[8] : "";	//STC08	Date DT 08/08/12 N/U
+			$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC09'] = isset($seg[9]) ? $seg[9] : ""; 	//STC09	Check Number AN 01/16/12 N/U
 			//STC10	HEALTH CARE CLAIM STATUS	 	 	S				
 			if ( isset($seg[10]) && strpos($seg[10], $sub_d) ) {	
 				$stc10 = explode($sub_d, $seg[10]);
 				if ( is_array($stc01) ) {
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC101'] = isset($stc10[0]) ? $stc10[0] : ""; 	//STC10-1	Health Care Claim Status Category Code	AN	01/30/12	R	 	 	D0, E
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC102'] = isset($stc10[1]) ? $stc10[1] : ""; 	//STC10-2	Health Care Claim Status Code	AN	01/30/12	R
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC103'] = isset($stc10[2]) ? $stc10[2] : ""; 	//STC10-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC104'] = isset($stc10[3]) ? $stc10[3] : ""; 	//STC10-4	Code List Qualifier Code	ID	01/03/12	N/U
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC101'] = isset($stc10[0]) ? $stc10[0] : ""; 	//STC10-1	Health Care Claim Status Category Code	AN	01/30/12	R	 	 	D0, E
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC102'] = isset($stc10[1]) ? $stc10[1] : ""; 	//STC10-2	Health Care Claim Status Code	AN	01/30/12	R
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC103'] = isset($stc10[2]) ? $stc10[2] : ""; 	//STC10-3	Entity Identifier Code	ID	02/03/12	S	 	 	1P
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC104'] = isset($stc10[3]) ? $stc10[3] : ""; 	//STC10-4	Code List Qualifier Code	ID	01/03/12	N/U
 				} else {
-					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC101'] = isset($seg[10]) ? $seg[10] : "";
+					$ar277[$ict]['claim']['BHT'][$bct][$ky]['SVC'][$svc_ct]['STC'][$svcstc_ct]['STC101'] = isset($seg[10]) ? $seg[10] : "";
 				}
 			}
 			//
@@ -933,17 +917,7 @@ function ibr_277_parse($ar_segments) {
 		} // end if ($seg[0] == "STC" && $lp2220D ) in loop 2200D			
 		//
 	} // end foreach ( )
-	// array('mtime', 'file_name',  'claim_ct', 'amt_accpt', 'reject_ct', 'amt_rej');
-	//$ar_col_hdr = array('mtime', 'directory', 'file_name',  'claim_ct', 'amt_accpt','reject', 'amt_rej');
-	
 	//
-	//$ar277['file'] = array('filetime' => $fmtime, 'filename' => $fname, 'claim_ct' => $clm_ct, 
-	//                        'amount' => $amt_accpt, 'reject_ct' => $rej_ct, 'reject_amt' => $amt_rej);
-	// new csv layout                       
-	//$csv_hd_ar['f277']['file'] =  array('date', 'file_name', 'isa13_277', 'claim_ct', 'claim_rct'); 
-	//$ar277[$ict]['file'] = array('filetime'=>$fmtime, 'filename'=>$fname, 'isa13_277'=>$isa13, 'claim_ct'=>$clm_ct, 'claim_rct' => $rej_ct);
-	//
-	//$ar277['claim'] = $arRSP;
 	return $ar277;
 }
 
@@ -1029,7 +1003,7 @@ function ibr_277_process_new($files_ar = NULL, $html_out = FALSE, $err_only = TR
 			//['f277']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_277', 'File_277', 'payer_name', 'claim_id', 'bht03_837');
 			$ar_csvclm = array();
 			foreach($ar_csvc as $clm) {
-				$ar_csvclm[] = array_slice($clm, 0, 8);
+				$ar_csvclm[] = array_slice($clm, 0, 9);
 			}			
 			$chr_f += csv_write_record($ar_csvf, "f277", "file");
 			$chr_c += csv_write_record($ar_csvclm, "f277", "claim");
@@ -1149,7 +1123,9 @@ function ibr_277_bht_array($segments, $delimiters) {
 			if ($seg[3] == '19') { $loopid = '2000C'; $ky = 'C'; }					
 			if ($seg[3] == '22') { $loopid = '2000D'; $ky = 'D'; }
 			if ($seg[3] == 'PT') { $loopid = '2000D'; $ky = 'D'; }	
-			if ($seg[3] == '23') { $loopid = '2000E'; $ky = 'E'; }	
+			if ($seg[3] == '23') { $loopid = '2000E'; $ky = 'E'; }
+            // SVC in 2000D or 2000E will set this to true, for related STC
+			$lp2220D = false;	
 		}
 		if ($seg[0] == 'NM1'){
 			if ( $loopid == '2000A') { $loopid = '2100A'; $level = 'Source'; }
@@ -1293,17 +1269,12 @@ function ibr_277_bht_array($segments, $delimiters) {
 		}
 		
 		if ($seg[0] == 'QTY') {
-			// $ky should be B
-			// debug
-			//echo "QTY Segment in $loopid $segstr" .PHP_EOL;
-			//
+			// 277CA type
 			if ($seg[1] == '90') { $bht277_ar[$ky]['qtyacc'] = $seg[2]; }
 			if ($seg[1] == 'AA') { $bht277_ar[$ky]['qtyrej'] = $seg[2]; }
 		}
 		if ($seg[0] == 'AMT') {	
-			// debug
-			//echo "AMT Segment in $loopid $segstr" .PHP_EOL;
-			//
+			// 277CA
 			if ($seg[1] == 'YU') { $bht277_ar[$ky]['amtacc'] = sprintf("%0.02f", $seg[2]); }
 			if ($seg[1] == 'YY') { $bht277_ar[$ky]['amtrej'] = sprintf("%0.02f", $seg[2]); }	
 		}
@@ -1388,6 +1359,12 @@ function ibr_277_bht_array($segments, $delimiters) {
 			if ( isset($seg[12]) ) {
 				$bht277_ar[$ky]['STC'][$idx]['stcmessage'] = $seg[12];
 			}
+            // if the STC segment is in reference to a SVC segment
+            //   expect SVC followed by STC
+			if ($lp2220D && count($bht277_ar[$ky]['SVC'])) {
+				$bht277_ar[$ky]['SVC'][$svc_ct]['STC'][] = $bht277_ar[$ky]['STC'][$idx];
+				unset($bht277_ar[$ky]['STC'][$idx]);
+			}
 		}
 		
 		if ($seg[0] == 'REF') {
@@ -1409,20 +1386,21 @@ function ibr_277_bht_array($segments, $delimiters) {
 		if ($seg[0] == 'SVC') {
 			// SVC segment only occurs in 2200D or 2200E
 			if ($ky == 'D' || $ky == 'E') {
-				$idx = count($bht277_ar[$ky]['SVC']);
+                $lp2220D = true;
+				$svc_ct = count($bht277_ar[$ky]['SVC']);
 				// loop identification
-				$bht277_ar[$ky]['SVC'][$idx]['loop'] = $loopid;
+				$bht277_ar[$ky]['SVC'][$svc_ct]['loop'] = $loopid;
 				// required elements
-				$bht277_ar[$ky]['SVC'][$idx]['svccode'] = $seg[1];
-				$bht277_ar[$ky]['SVC'][$idx]['svcfee'] = $seg[2];
-				$bht277_ar[$ky]['SVC'][$idx]['svcpmt'] = $seg[3];
+				$bht277_ar[$ky]['SVC'][$svc_ct]['svccode'] = $seg[1];
+				$bht277_ar[$ky]['SVC'][$svc_ct]['svcfee'] = $seg[2];
+				$bht277_ar[$ky]['SVC'][$svc_ct]['svcpmt'] = $seg[3];
 				// situational elements
-				if (isset($seg[4])) { $bht277_ar[$ky]['SVC'][$idx]['svcnub'] = $seg[4]; }
-				if (isset($seg[5])) { $bht277_ar[$ky]['SVC'][$idx]['svcqty'] = $seg[5]; }
-				if (isset($seg[5])) { $bht277_ar[$ky]['SVC'][$idx]['svcqty'] = $seg[5]; }
-				if (isset($seg[6])) { $bht277_ar[$ky]['SVC'][$idx]['svccompid'] = $seg[6]; }
+				if (isset($seg[4])) { $bht277_ar[$ky]['SVC'][$svc_ct]['svcnub'] = $seg[4]; }
+				if (isset($seg[5])) { $bht277_ar[$ky]['SVC'][$svc_ct]['svcqty'] = $seg[5]; }
+				if (isset($seg[5])) { $bht277_ar[$ky]['SVC'][$svc_ct]['svcqty'] = $seg[5]; }
+				if (isset($seg[6])) { $bht277_ar[$ky]['SVC'][$svc_ct]['svccompid'] = $seg[6]; }
 				// required, but test anyway
-				if (isset($seg[7])) { $bht277_ar[$ky]['SVC'][$idx]['svcqty'] = $seg[7]; } 
+				if (isset($seg[7])) { $bht277_ar[$ky]['SVC'][$svc_ct]['svcqty'] = $seg[7]; } 
 			}
 		}
 	}
@@ -1501,6 +1479,18 @@ function ibr_277_bhthtml($bhtarray) {
 		          <td>&nbsp;</td>
 		          <td colspan='4'>{$stc['stcamount']} {$stc['stcaction']} {$stc['stccat']} </td>
 		        </tr>".PHP_EOL;
+                if (isset($stc['stcamount2'])) {
+					$str_html .= "<tr class='levb'>
+					  <td>&nbsp;</td>
+					  <td colspan='4'>{$stc['stcamount2']} {$stc['stcaction2']} {$stc['stccat2']} </td>
+					</tr>".PHP_EOL;
+				}
+				if (isset($stc['stcamount3'])) {
+					$str_html .= "<tr class='levb'>
+					  <td>&nbsp;</td>
+					  <td colspan='4'>{$stc['stcamount3']} {$stc['stcaction3']} {$stc['stccat3']} </td>
+					</tr>".PHP_EOL;
+				}
 			}
 		}
 	}
@@ -1530,6 +1520,18 @@ function ibr_277_bhthtml($bhtarray) {
 		          <td>&nbsp;</td>
 		          <td colspan='4'>{$stc['stcamount']} {$stc['stcaction']} {$stc['stccat']} </td>
 		        </tr>".PHP_EOL;
+                if (isset($stc['stcamount2'])) {
+					$str_html .= "<tr class='levc'>
+					  <td>&nbsp;</td>
+					  <td colspan='4'>{$stc['stcamount2']} {$stc['stcaction2']} {$stc['stccat2']} </td>
+					</tr>".PHP_EOL;
+				}
+				if (isset($stc['stcamount3'])) {
+					$str_html .= "<tr class='levc'>
+					  <td>&nbsp;</td>
+					  <td colspan='4'>{$stc['stcamount3']} {$stc['stcaction3']} {$stc['stccat3']} </td>
+					</tr>".PHP_EOL;
+				}
 			}
 		}
 	}
@@ -1542,7 +1544,7 @@ function ibr_277_bhthtml($bhtarray) {
 		if ($bar['D']['qtyrej']) { $acp .= ' Rejected ' . $bar['D']['qtyrej'] . ': ' . $bar['D']['amtrej']; }
 		$str_html .= "<tr class='levd'>
 		    <td>{$bar['D']['level']}</td>
-		    <td colspan='4'>{$bar['D']['entity']} {$bar['D']['name']} {$bar['D']['id']}</td>
+		    <td colspan='4'>{$bar['D']['entity']} {$bar['D']['name']} &nbsp;{$bar['D']['id']}</td>
 		</tr>".PHP_EOL;
 		if ($bar['D']['dtsvc']) {
 			$str_html .= "<tr class='levd'>
@@ -1564,14 +1566,32 @@ function ibr_277_bhthtml($bhtarray) {
 
 		if (count($bar['D']['STC'])) {
 			foreach($bar['D']['STC'] as $stc) {
+                $stcstatus = isset($stc['stcstat']) ? $stc['stcstat'] : '';
+				$stcstatus .= isset($stc['stcentity']) ? ' (' . $stc['stcentity'] . ')' : '';
 				$str_html .= "<tr class='levd'>
 		          <td>&nbsp;</td>
 		          <td colspan='4'>{$stc['stcamount']} {$stc['stcaction']} {$stc['stccat']} </td>
+		        </tr>
+                <tr class='levd'>
+		          <td>&nbsp;</td>
+		          <td colspan='4'>&nbsp;&nbsp;$stcstatus</td>
 		        </tr>
 		        <tr class='levd'>
 		          <td>&nbsp;</td>
 		          <td colspan='4'>{$stc['stcmessage']}</td>
 		        </tr>".PHP_EOL;
+                if (isset($stc['stcamount2'])) {
+					$str_html .= "<tr class='levd'>
+					  <td>&nbsp;</td>
+					  <td colspan='4'>{$stc['stcamount2']} {$stc['stcaction2']} {$stc['stccat2']} </td>
+					</tr>".PHP_EOL;
+				}
+				if (isset($stc['stcamount3'])) {
+					$str_html .= "<tr class='levd'>
+					  <td>&nbsp;</td>
+					  <td colspan='4'>{$stc['stcamount3']} {$stc['stcaction3']} {$stc['stccat3']} </td>
+					</tr>".PHP_EOL;
+				}
 			}
 		}
 		
@@ -1581,19 +1601,39 @@ function ibr_277_bhthtml($bhtarray) {
 		          <td>&nbsp;</td>
 		          <td colspan='4'>{$svc['svccode']} {$svc['svcfee']} {$svc['svcpmt']} {$svc['svcqty']} </td>
 		        </tr>".PHP_EOL;
+                if (isset($svc['STC']) && count($svc['STC'])) {
+					foreach($svc['STC'] as $svcstc) {
+						$str_html .= "<tr class='levd'>
+						  <td>&nbsp;</td>
+						  <td colspan='4'>{$svcstc['stcamount']} {$stc['stcaction']} {$stc['stccat']} </td>
+						</tr>".PHP_EOL;
+						if (isset($stc['stccat2'])) {
+							$str_html .= "<tr class='levd'>
+							  <td>&nbsp;</td>
+							  <td colspan='4'>{$stc['stccat2']} {$stc['stcstat2']} {$stc['stcentity2']} </td>
+							</tr>".PHP_EOL;
+						}
+						if (isset($stc['stccat3'])) {
+							$str_html .= "<tr class='levd'>
+							  <td>&nbsp;</td>
+							  <td colspan='4'>{$stc['stccat3']} {$stc['stcstat3']} {$stc['stcentity3']} </td>
+							</tr>".PHP_EOL;
+						}
+					}
+				}
 			}
 		}		
 	}
 		
 	if (isset($bar['E'])) {	
-		// Subscriber level
+		// Dependent level
 		// do not expect amounts or quantities
 		$acp = ''; $ref = '';
 		if ($bar['E']['qtyacc']) { $acp .= ' Accepted ' . $bar['E']['qtyacc'] . ': ' . $bar['E']['amtacc']; }
 		if ($bar['E']['qtyrej']) { $rej .= ' Rejected ' . $bar['E']['qtyrej'] . ': ' . $bar['E']['amtrej']; }
 		$str_html .= "<tr class='leve'>
 		    <td>{$bar['E']['level']}</td>
-		    <td colspan='4'>{$bar['E']['entity']} {$bar['E']['name']} {$bar['E']['id']}</td>
+		    <td colspan='4'>{$bar['E']['entity']} {$bar['E']['name']} &nbsp;{$bar['E']['id']}</td>
 		</tr>".PHP_EOL;
 		if ($bar['E']['dtsvc']) {
 			$str_html .= "<tr class='leve'>
@@ -1615,14 +1655,32 @@ function ibr_277_bhthtml($bhtarray) {
 
 		if (count($bar['E']['STC'])) {
 			foreach($bar['E']['STC'] as $stc) {
+                $stcstatus = isset($stc['stcstat']) ? $stc['stcstat'] : '';
+				$stcstatus .= isset($stc['stcentity']) ? ' (' . $stc['stcentity'] . ')' : '';
 				$str_html .= "<tr class='leve'>
 		          <td>&nbsp;</td>
 		          <td colspan='4'>{$stc['stcamount']} {$stc['stcaction']} {$stc['stccat']} </td>
+		        </tr>
+                <tr class='leve'>
+		          <td>&nbsp;</td>
+		          <td colspan='4'>&nbsp;&nbsp;$stcstatus</td>
 		        </tr>
 		        <tr class='leve'>
 		          <td>&nbsp;</td>
 		          <td colspan='4'>{$stc['stcmessage']}</td>
 		        </tr>".PHP_EOL;
+                if (isset($stc['stcamount2'])) {
+					$str_html .= "<tr class='leve'>
+					  <td>&nbsp;</td>
+					  <td colspan='4'>{$stc['stcamount2']} {$stc['stcaction2']} {$stc['stccat2']} </td>
+					</tr>".PHP_EOL;
+				}
+				if (isset($stc['stcamount3'])) {
+					$str_html .= "<tr class='leve'>
+					  <td>&nbsp;</td>
+					  <td colspan='4'>{$stc['stcamount3']} {$stc['stcaction3']} {$stc['stccat3']} </td>
+					</tr>".PHP_EOL;
+				}
 			}
 		}
 		
@@ -1632,6 +1690,26 @@ function ibr_277_bhthtml($bhtarray) {
 		          <td>&nbsp;</td>
 		          <td colspan='4'>{$svc['svccode']} Fee: {$svc['svcfee']} Pmt: {$svc['svcpmt']} Qty: {$svc['svcqty']} </td>
 		        </tr>".PHP_EOL;
+                if (isset($svc['STC']) && count($svc['STC'])) {
+					foreach($svc['STC'] as $svcstc) {
+						$str_html .= "<tr class='leve'>
+						  <td>&nbsp;</td>
+						  <td colspan='4'>{$svcstc['stcamount']} {$stc['stcaction']} {$stc['stccat']} </td>
+						</tr>".PHP_EOL;
+						if (isset($stc['stccat2'])) {
+							$str_html .= "<tr class='leve'>
+							  <td>&nbsp;</td>
+							  <td colspan='4'>{$stc['stccat2']} {$stc['stcstat2']} {$stc['stcentity2']} </td>
+							</tr>".PHP_EOL;
+						}
+						if (isset($stc['stccat3'])) {
+							$str_html .= "<tr class='leve'>
+							  <td>&nbsp;</td>
+							  <td colspan='4'>{$stc['stccat3']} {$stc['stcstat3']} {$stc['stcentity3']} </td>
+							</tr>".PHP_EOL;
+						}
+					}
+				}
 			}
 		}		
 	}
@@ -1800,6 +1878,10 @@ function ibr_277_response_html($filename = '', $isa13 = '', $bht03 = '', $clm01 
 	if ($fn) {
 		//
 		$ar_277_seg = csv_x12_segments($fn, "f277", false);
+        if (!is_array($ar_277_seg)) {
+			$html_str .= "Error in file name or file parsing <br />".PHP_EOL;
+			return $html_str;
+		}
 	}
 	//
 	if ($bht03 || $clm01 || $st02) {

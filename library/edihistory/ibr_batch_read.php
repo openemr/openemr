@@ -233,7 +233,7 @@ function ibr_batch_st_html($st_block, $batchname='', $claimid='', $message='') {
 	$capstr = 'Batch Claim';
 	if ($batchname) { $capstr = $batchname; }
 	if ($claimid) { $capstr .= " Claim: $claimid"; }
-	$st_html = "<div class='filetext'>".PHP_EOL."<pre><code>".PHP_EOL;
+	$st_html = "<div class='filetext'>".PHP_EOL;            //."<pre><code>".PHP_EOL;
 	$st_html .= ($message) ? "<p>$message</p>".PHP_EOL : '';
 	$st_html .= "<table id='$claimid' cols=3 class='batchst'><caption>$capstr</caption>".PHP_EOL;
 	$st_html .= "<thead>".PHP_EOL."<tr>".PHP_EOL."<th>Loop</th><th>Num</th><th>Segment</th>".PHP_EOL."</tr>".PHP_EOL;
@@ -429,8 +429,7 @@ function ibr_batch_st_html($st_block, $batchname='', $claimid='', $message='') {
 	}
 	//
 	$st_html .= "</tbody></table>".PHP_EOL;
-	$st_html .= "</code></pre>
-	</div>";
+	$st_html .= "<p></p>".PHP_EOL."</div>".PHP_EOL;
 	//
 	return $st_html;
 }
@@ -542,7 +541,7 @@ function ibr_batch_get_st_block ($batch_file, $st_clm_num=NULL, $pid_enctr=NULL,
 		return FALSE;
 	}	
 	//
-	$seg_se = SEG_TERM_DELIM . "SE*";
+	$seg_se = SEG_TERM_DELIM.'SE'.SEG_ELEM_DELIM;
 	//
 	$se1 = strpos($bstr, $seg_se, $st_pos);
 	$se2 = strpos($bstr, SEG_TERM_DELIM, $se1+1 ) + 1;
@@ -553,7 +552,7 @@ function ibr_batch_get_st_block ($batch_file, $st_clm_num=NULL, $pid_enctr=NULL,
 		$out_str = $str_st;
 	} else {
 		$bnm = basename($bfullpath);
-		$clmid = ($st_num) ? $st_num : $pe;
+		$clmid = ($pe) ? $pe : $st_num;
 		$out_str = ibr_batch_st_html($str_st, $bnm, $clmid, $msg_str);
 	}
 	//
