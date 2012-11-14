@@ -498,6 +498,8 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
          $(dElem).on(dEvt, cClass, cEvt, function(e) {
             e.preventDefault();
             $(cElem).css({'max-height': 372, 'overflow-y': 'auto'});
+            $(this).parentsUntil('tr').parent().siblings().removeClass('outlinetr'); 
+            $(this).parentsUntil('tr').parent().addClass('outlinetr'); 
             $.get($(this).attr('href'), function(data){ $(cElem).html(data); })
             var statDialog = $(cElem).dialog({
                 autoOpen: false,
@@ -575,8 +577,8 @@ if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
 				encrecord.dialog('open')
 			]				
 		});
-    });		
-	                    
+    });	
+
 /* ************ 
  * end of javascript block
  */             
