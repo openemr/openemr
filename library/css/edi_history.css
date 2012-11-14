@@ -47,6 +47,13 @@
 }
 */
 
+@media print
+{
+  table.era835 thead { display:table-header-group }
+  table.era835 tfoot { display:table-footer-group }
+  table.era835 tbody.eraclp { page-break-inside:avoid; page-break-after:auto }
+}
+
 p.text {
 	width:80%;
 	text-align:left;
@@ -554,6 +561,12 @@ table.era835 caption {
  * files display, text files, monospace
  * 
  */
+div.filetext {  
+  font-family: sans-serif;
+  background-color: #FDF5DB;
+  width: auto;
+  clear:both;
+} 
 
 div.filetext pre,code,kbd,samp,tt {
   font-family: monospace,monospace;
@@ -569,7 +582,6 @@ div.filetext code {
   width: auto;
   float: left
 }
-
 
 div.filetext ol {
 	font-family: sans-serif;
@@ -600,15 +612,23 @@ div.filetext ol p {
   /*overflow: break-word; */
 }
 
+div.filetext table.batchst caption {
+    font-family: sans-serif;
+    padding: 4px;
+    text-align: left;
+    font-weight: bold;
+    font-size: large;
+}
+
 div.filetext table.batchst thead {
   font-family: monospace,monospace;
-  font-size: 1em;
+  font-size: medium;
   border-width: thin;
 }
 
 div.filetext table.batchst tbody {
   font-family: monospace,monospace;
-  font-size: 12px;
+  font-size: medium;
   border-width: thin;
   width: auto;
 }
@@ -651,6 +671,8 @@ div.csvcptn {
 }
 	
 /* Table csvDisplay */
+.outlinetr { outline: 1px solid #09450f }
+
 table.csvDisplay {
     width: 100%;
     clear: both;
