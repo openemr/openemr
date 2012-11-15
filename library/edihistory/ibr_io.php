@@ -72,7 +72,7 @@ function ibr_html_heading($option, $title='') {
 	//
 	//if (!is_string($title)) { $title=''; }
     $title = (is_string($title)) ? $title : '';
-    $srcdir = $GLOBALS['srcdir'];
+    //$srcdir = $GLOBALS['srcdir'];
     $webdir = $GLOBALS['webroot'];
     
 	$str_html = "<!DOCTYPE html>".PHP_EOL."<html>".PHP_EOL."<head>".PHP_EOL;
@@ -326,7 +326,7 @@ function ibr_disp_csvtable() {
 	//
 	$row_pct = ($rowp) ? $rowp/100 : 1;
 	if ($ds == NULL || $ds === FALSE ) { $ds = ''; }
-	if ($de == NULL) { $e = ($ds) ? date("Y/M/D", time()) : ''; } 
+	if ($de == NULL) { $de = ($ds) ? date("Y/M/D", time()) : ''; } 
 	if ($csvfile == NULL || $csvfile === FALSE ) { 
 		// here we have an error and must quit
 		$str_html= "<p>Error in CSV table name </p>".PHP_EOL; 
@@ -483,7 +483,8 @@ function ibr_disp_status_resp() {
 	$st = ''; $pe = '';
 	if (isset($_GET['pidenc']) && strlen($_GET['pidenc'])) {
 		$pe = filter_input(INPUT_GET, 'pidenc', FILTER_SANITIZE_STRING);
-	} elseif (isset($_GET['rspstnum']) && strpos($_GET['rspstnum'], '_')) {
+	} 
+    if (isset($_GET['rspstnum']) && strpos($_GET['rspstnum'], '_')) {
 		// the rspstnum is the 277 ISA13_ST02
 		$st = filter_input(INPUT_GET, 'rspstnum', FILTER_SANITIZE_STRING);
 	} 
