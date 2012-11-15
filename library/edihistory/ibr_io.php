@@ -235,46 +235,52 @@ function ibr_disp_claimst() {
 		$clmid = '';
 	}
 	//
-	if ( $clmid == NULL || $clmid === FALSE || !$clmid ) {
+	if ( !$clmid && !$st02 ) {
 		$str_html .= "Invalid claim ID <br />";
 		return $str_html;
 	}
-	//
-	if (strlen($filename) >= 13 && strlen($filename) <= 14) {
-		// assume we have a bht03 number batch_icn + stnum
-		$isa13 = substr($filename, 0, 9);
-		$st02 = substr($filename, -4);
-        $btname = csv_file_by_controlnum('batch', $isa13);
-		if (!$btname) {
-			$str_html .= "Failed to identify batch file <br />";
-			return $str_html;
-		}
-		$str_html .= ibr_batch_get_st_block ($btname, $st02, $clmid);
-	} elseif (strlen($filename) == 9 && !strpos($filename, '.')) {	
-		// assume we have a batch_icn
-        $btname = csv_file_by_controlnum('batch', $filename);
-		if (!$btname) {
-			$str_html .= "Failed to identify batch file <br />";
-			return $str_html;
-		}
-		$str_html .= ibr_batch_get_st_block ($btname, $st02, $clmid);
-	} elseif (!$filename || strlen($filename) <= 9) {
-		// search for file with the claim id
-		// (encounter, number, filename,)
-		$enc_ar = csv_file_with_pid_enctr($clmid, 'batch', 'ptctln');
-		if (is_array($enc_ar) && count($enc_ar) ) { 
-			foreach($enc_ar as $enc) { 			
-				$str_html .= ibr_batch_get_st_block ( $enc[2], $enc[1] );  
-			}
-		} elseif( is_string($enc_ar) && count($enc_ar) ) {
-			$str_html .= $enc_ar;
-		} else {
-			$str_html .= "Failed to find the batch file for $clmid <br />";
-		} 
-		
-	} else {
-		$str_html .= ibr_batch_get_st_block($filename, '', $clmid );  
-	}
+    // see if we have a usable filename
+    if (strpos($filename, 'batch')) {
+        // maybe we have the OpenEMR filename
+		$btname = trim($filename);
+     } elseif (strlen($filename) >= 9 && strlen($filename) < 14) {
+         // try bht03 number: batch_icn + stnum; not '0123'
+         $isa13 = substr($filename, 0, 9);
+         $st02 = (strlen($filename) == 13) ? substr($filename, -4) : '';
+         $btname = csv_file_by_controlnum('batch', $isa13);
+     } elseif (!$filename || strlen($filename) < 9) {
+         // nothing useful
+         $btname = '';
+     }
+     //
+     if ($btname) {
+         $stblk = ibr_batch_get_st_block ($btname, $st02, $clmid);
+         if ($stblk) {
+             $str_html .= $stblk;
+         } else {
+            $btname = '';
+         }
+     } 
+     if (!$btname) {
+         // search for file with the claim id
+         $enc_ar = csv_file_with_pid_enctr($clmid, 'batch', 'ptctln');
+         // (encounter, number, filename,)
+         if (is_array($enc_ar) && count($enc_ar) ) { 
+             if (count($enc_ar) > 1) {
+                 $str_html .= '<p>Found '. count($enc_ar) . ' instances</p>'.PHP_EOL;
+                 // hopefully, only _GET 277 related queries will lack the filename
+                 $str_html .= (isset($_POST['enctrbatch'])) ? '' : '<p>May not match to status response</p>'.PHP_EOL;
+             }
+             foreach($enc_ar as $enc) { 			
+				$str_html .= ibr_batch_get_st_block ( $enc[2], $enc[1] ); 
+             }
+		 } elseif( is_string($enc_ar) && count($enc_ar) ) {
+             $str_html .= $enc_ar;
+         } else {
+             $str_html .= "Failed to find the batch file for $clmid <br />";
+         } 
+     }
+
 	return $str_html;
 }
 

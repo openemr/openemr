@@ -278,7 +278,6 @@ function ibr_ack_html($ar_data) {
 	//
 	if (!count($ar_data) ) { return ""; }
 	//
-	$idx = 0;
 	$idf = 0;
 	//
 	// array('Date', 'FileName', 'isa13', 'ta1ctrl', 'code');

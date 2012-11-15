@@ -1717,7 +1717,7 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
 			 //
 			 //['f277']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_277', 'File_277', 'payer_name', 'claim_id', 'bht03_837');
 			 $csv_html .= '<thead>'.PHP_EOL.'<tr>'.PHP_EOL;
-			 $csv_html .= '<th>Name</th><th>SvcDate</th><th>CLM01</th><th>Status</th><th>File</th><th>ClaimID</th><th>Batch</th>'.PHP_EOL;
+			 $csv_html .= '<th>Name</th><th>SvcDate</th><th>CLM01</th><th>Status</th><th>File_277</th><th>ClaimID</th>'.PHP_EOL; //<th>Batch</th>
 			 $csv_html .= '</tr>'.PHP_EOL.'</thead>'.PHP_EOL.'<tbody>'.PHP_EOL;
 			 for ($i=$rwst; $i<$ln_ct; $i++) {
 				 $bgc = ($i % 2 == 1 ) ? 'odd' : 'even';
@@ -1726,7 +1726,7 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
 				 $dt = substr($csv_d[$i][1], 0, 4).'-'.substr($csv_d[$i][1], 4, 2).'-'.substr($csv_d[$i][1], 6, 2);
 				 $btpid = $csv_d[$i][2];
 				 $f277file = $csv_d[$i][5];
-				 $clmid = $csv_d[$i][7]; 
+                 $clmid = $csv_d[$i][7];
 				 $bt_bht03 = $csv_d[$i][8];
 				 //$msg277 = (strlen($csv_d[$i][9])) ? $csv_d[$i][9] : '';
 				 //Name
@@ -1742,7 +1742,7 @@ function csv_to_html($file_type, $csv_type, $row_pct = 1, $datestart='', $dateen
 				 //ClaimID
 				 $csv_html .= "<td>$clmid</td>".PHP_EOL;
 				 //Batch
-				 $csv_html .= "<td title='$bt_bht03'><a target='_blank' href='edi_history_main.php?btctln=$bt_bht03'>Batch</a></td>".PHP_EOL;
+				 //$csv_html .= "<td title='$bt_bht03'><a target='_blank' href='edi_history_main.php?btctln=$bt_bht03'>Batch</a></td>".PHP_EOL;
 				 //
 				 $csv_html .= "</tr>".PHP_EOL;
 			 }
