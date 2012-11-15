@@ -1756,11 +1756,6 @@ function ibr_277_bhtblock($segments, $delimiters, $clm01 = '', $bht03 = '', $st0
 	if (!$clm01 && !$bht03 && !$st02) {
 		csv_edihist_log ("ibr_277_bhtblock: no specifier arguments given");
 		return false;
-	} elseif (($bht03 == '0123' || strlen($bht03) != 13) && !$clm01 && !$st02) { 
-		// OpenEMR presently gives all BHT03 value of '0123' in batch files
-		//echo "ibr_277_bhtblock: bht03 useless $bht03 with no clm01 or st02".PHP_EOL;
-		csv_edihist_log ("bht03 useless $bht03 with no isa13 or st02");
-		return false;
 	} elseif (strpos($st02, '_')) {
 		$dpos = strpos($st02, '_');
 		$srchval = substr($st02, $dpos+1);
@@ -1776,11 +1771,15 @@ function ibr_277_bhtblock($segments, $delimiters, $clm01 = '', $bht03 = '', $st0
 	} elseif (strlen($clm01) && !strpos($clm01, '-')) {
 		$useenc = true;
 		$srchval = strval($clm01);
+	} else {
+		csv_edihist_log ("error: status response - unable to determine search string");
+		return false;
 	}
 	//
 	$isastr = 'ISA'.$elem_d;
 	$ststr = 'ST'.$elem_d;
 	$trnstr = 'TRN'.$elem_d.'2'.$elem_d;
+    $bhtstr = 'BHT'.$elem_d;
 	$sestr = 'SE'.$elem_d;
 	$idx = -1;
 	//
@@ -1808,15 +1807,26 @@ function ibr_277_bhtblock($segments, $delimiters, $clm01 = '', $bht03 = '', $st0
 			}
 			continue;
 		}
+        // use the BHT03 reference from the file
+        if (substr($segstr, 0, 4) ==  $bhtstr && $usebht ) {
+            $seg = explode($elem_d, $segstr);
+            if ($seg[3] === $srchval) {
+                $isfound = true; 
+                $slice_ar[0] = $stpos;
+            }
+        }
 		// 
-		if (substr($segstr, 0, 6) ==  $trnstr) {
-			$seg = explode($elem_d, $segstr); 
-			if ($seg[2] == $srchval) {
-				$isfound = true;
-				$slice_ar[0] = $stpos;
-			}
-						
+		if (substr($segstr, 0, 6) == $trnstr) {
+            if ($useclm) {
+                $seg = explode($elem_d, $segstr); 
+                if ($seg[2] == $srchval) {
+                    $isfound = true;
+                    $slice_ar[0] = $stpos;
+                }
+            }
+			
 			if ($useenc) {
+                $seg = explode($elem_d, $segstr); 
 				if (substr($seg[2], -strlen($srchval)) == $srchval) {
 					$isfound = true;
 					$slice_ar[0] = $stpos;
