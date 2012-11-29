@@ -135,7 +135,7 @@ else {
    <input type='submit' name='bn_search' value='<?php echo xla('Search'); ?>' />
    &nbsp;&nbsp;&nbsp;
    <?php if (!empty($target_element)) { ?>
-     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', '<?php echo addslashes($target_element); ?>')" />
+     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', '<?php echo attr(addslashes($target_element)); ?>')" />
    <?php } else { ?>
      <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
    <?php } ?>
@@ -162,11 +162,11 @@ else {
   $res = code_set_search($form_code_type,$search_term);
   if ($form_code_type == 'PROD') { // Special case that displays search for products/drugs
     while ($row = sqlFetchArray($res)) {
-      $drug_id = addslashes($row['drug_id']);
-      $selector = addslashes($row['selector']);
-      $desc = addslashes($row['name']);
+      $drug_id = $row['drug_id'];
+      $selector = $row['selector'];
+      $desc = $row['name'];
       $anchor = "<a href='' " .
-        "onclick='return selcode(\"PROD\", \"$drug_id\", \"$selector\", \"$desc\")'>";
+        "onclick='return selcode(\"PROD\", \"" . attr(addslashes($drug_id)) . "\", \"" . attr(addslashes($selector)) . "\", \"" . attr(addslashes($desc)) . "\")'>";
       echo " <tr>";
       echo "  <td>$anchor" . text($drug_id.":".$selector) . "</a></td>\n";
       echo "  <td>$anchor" . text($desc) . "</a></td>\n";
@@ -175,17 +175,16 @@ else {
   }
   else {
     while ($row = sqlFetchArray($res)) { // Display normal search
-      $itercode = addslashes($row['code']);
-      $itertext = addslashes(trim($row['code_text']));
+      $itercode = $row['code'];
+      $itertext = trim($row['code_text']);
       if (!empty($target_element)) {
         // add a 5th parameter to function to select the target element on the form for placing the code.
-        $target_element = addslashes($target_element);
         $anchor = "<a href='' " .
-          "onclick='return selcode_target(\"" . addslashes($form_code_type) . "\", \"$itercode\", \"\", \"$itertext\", \"$target_element\")'>";
+          "onclick='return selcode_target(\"" . attr(addslashes($form_code_type)) . "\", \"" . attr(addslashes($itercode)) . "\", \"\", \"" . attr(addslashes($itertext)) . "\", \"" . attr(addslashes($target_element)) . "\")'>";
       }
       else {
         $anchor = "<a href='' " .
-          "onclick='return selcode(\"" . addslashes($form_code_type) . "\", \"$itercode\", \"\", \"$itertext\")'>";
+          "onclick='return selcode(\"" . attr(addslashes($form_code_type)) . "\", \"" . attr(addslashes($itercode)) . "\", \"\", \"" . attr(addslashes($itertext)) . "\")'>";
       }
       echo " <tr>";
       echo "  <td>$anchor" . text($itercode) . "</a></td>\n";
