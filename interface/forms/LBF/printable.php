@@ -6,6 +6,12 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
@@ -14,15 +20,15 @@ require_once("$srcdir/patient.inc");
 $CPR = 4; // cells per row
 
 // The form name is passed to us as a GET parameter.
-$formname = formData('formname', 'G');
+$formname = isset($_GET['formname']) ? $_GET['formname'] : '';
 
 $tmp = sqlQuery("SELECT title FROM list_options WHERE " .
-  "list_id = 'lbfnames' AND option_id = '$formname' LIMIT 1");
+  "list_id = 'lbfnames' AND option_id = ? LIMIT 1", array($formname) );
 $formtitle = $tmp['title'];
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = '$formname' AND uor > 0 " .
-  "ORDER BY group_name, seq");
+  "WHERE form_id = ? AND uor > 0 " .
+  "ORDER BY group_name, seq", array($formname) );
 ?>
 <html>
 <head>
@@ -88,9 +94,9 @@ div.section {
 <?php echo genFacilityTitle($formtitle, -1); ?>
 
 <span class='subhead'>
- <?php xl('Patient','e') ?>: ________________________________________ &nbsp;
- <?php xl('Clinic','e') ?>: ____________________ &nbsp;
- <?php xl('Date','e') ?>: ____________________<br />&nbsp;<br />
+ <?php echo xlt('Patient') ?>: ________________________________________ &nbsp;
+ <?php echo xlt('Clinic') ?>: ____________________ &nbsp;
+ <?php echo xlt('Date') ?>: ____________________<br />&nbsp;<br />
 </span>
 
 <?php
@@ -143,7 +149,7 @@ while ($frow = sqlFetchArray($fres)) {
     if (strlen($last_group) > 0) echo "<br />\n";
     $group_name = substr($this_group, 1);
     $last_group = $this_group;
-    echo "<b>" . xl_layout_label($group_name) . "</b>\n";
+    echo "<b>" . text(xl_layout_label($group_name)) . "</b>\n";
       
     echo "<div class='section'>\n";
     echo " <table border='0' cellpadding='0'>\n";
@@ -160,7 +166,7 @@ while ($frow = sqlFetchArray($fres)) {
   // Handle starting of a new label cell.
   if ($titlecols > 0) {
     end_cell();
-    echo "<td colspan='$titlecols' width='10%'";
+    echo "<td colspan='" . attr($titlecols) . "' width='10%'";
     echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
     if ($cell_count == 2) echo " style='padding-left:10pt'";
     echo ">";
@@ -170,14 +176,14 @@ while ($frow = sqlFetchArray($fres)) {
 
   echo "<b>";
     
-  if ($frow['title']) echo (xl_layout_label($frow['title']) . ":"); else echo "&nbsp;";
+  if ($frow['title']) echo (text(xl_layout_label($frow['title'])) . ":"); else echo "&nbsp;";
 
   echo "</b>";
 
   // Handle starting of a new data cell.
   if ($datacols > 0) {
     end_cell();
-    echo "<td colspan='$datacols' width='40%'";
+    echo "<td colspan='" . attr($datacols) . "' width='40%'";
     if ($data_type < 21 || $data_type > 25) echo " class='under'";
     if ($cell_count > 0) echo " style='padding-left:5pt;'";
     echo ">";

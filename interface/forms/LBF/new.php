@@ -6,6 +6,12 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
@@ -67,12 +73,12 @@ function end_group() {
   }
 }
 
-$formname = formData('formname', 'G');
-$formid   = 0 + formData('id', 'G');
+$formname = isset($_GET['formname']) ? $_GET['formname'] : '';
+$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 
 // Get title and number of history columns for this form.
 $tmp = sqlQuery("SELECT title, option_value FROM list_options WHERE " .
-  "list_id = 'lbfnames' AND option_id = '$formname'");
+  "list_id = 'lbfnames' AND option_id = ?", array($formname) );
 $formtitle = $tmp['title'];
 $formhistory = 0 + $tmp['option_value'];
 
@@ -83,34 +89,37 @@ $newid = 0;
 if ($_POST['bn_save']) {
   $sets = "";
   $fres = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = '$formname' AND uor > 0 AND field_id != '' AND " .
+    "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
     "edit_options != 'H' " .
-    "ORDER BY group_name, seq");
+    "ORDER BY group_name, seq", array($formname) );
   while ($frow = sqlFetchArray($fres)) {
     $field_id  = $frow['field_id'];
     $value = get_layout_form_value($frow);
+    $sql_bind_array = array();
     if ($formid) { // existing form
       if ($value === '') {
         $query = "DELETE FROM lbf_data WHERE " .
-          "form_id = '$formid' AND field_id = '$field_id'";
+          "form_id = ? AND field_id = ?";
+        array_push($sql_bind_array,$formid,$field_id);
       }
       else {
-        $query = "REPLACE INTO lbf_data SET field_value = '$value', " .
-          "form_id = '$formid', field_id = '$field_id'";
+        $query = "REPLACE INTO lbf_data SET field_value = ?, " .
+          "form_id = ?, field_id = ?";
+        array_push($sql_bind_array,$value,$formid,$field_id);
       }
-      sqlStatement($query);
+      sqlStatement($query,$sql_bind_array);
     }
     else { // new form
       if ($value !== '') {
         if ($newid) {
           sqlStatement("INSERT INTO lbf_data " .
             "( form_id, field_id, field_value ) " .
-            " VALUES ( '$newid', '$field_id', '$value' )");
+            " VALUES (?,?,?)", array($newid, $field_id, $value) );
         }
         else {
           $newid = sqlInsert("INSERT INTO lbf_data " .
             "( field_id, field_value ) " .
-            " VALUES ( '$field_id', '$value' )");
+            " VALUES (?,?)", array($field_id, $value) );
         }
       }
       // Note that a completely empty form will not be created at all!
@@ -227,20 +236,20 @@ function sel_related() {
 </head>
 
 <body <?php echo $top_bg_line; ?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<?php echo $rootdir ?>/forms/LBF/new.php?formname=<?php echo $formname ?>&id=<?php echo $formid ?>"
+<form method="post" action="<?php echo $rootdir ?>/forms/LBF/new.php?formname=<?php echo attr($formname) ?>&id=<?php echo attr($formid) ?>"
  onsubmit="return top.restoreSession()">
 
 <?php
   if (empty($is_lbf)) {
     $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
       "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
-      "p.pid = '$pid' AND f.pid = '$pid' AND f.encounter = '$encounter' AND " .
+      "p.pid = ? AND f.pid = ? AND f.encounter = ? AND " .
       "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
-      "fe.id = f.form_id LIMIT 1");
+      "fe.id = f.form_id LIMIT 1", array($pid, $pid, $encounter) );
     echo "<p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>\n";
-    echo "$formtitle " . xl('for') . ' ';
-    echo $enrow['fname'] . ' ' . $enrow['mname'] . ' ' . $enrow['lname'];
-    echo ' ' . htmlspecialchars(xl('on')) . ' ' . substr($enrow['date'], 0, 10);
+    echo text($formtitle) . " " . xlt('for') . ' ';
+    echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
+    echo ' ' . xlt('on') . ' ' . text(substr($enrow['date'], 0, 10));
     echo "</p>\n";
   }
 ?>
@@ -252,8 +261,8 @@ function sel_related() {
   $shrow = getHistoryData($pid);
 
   $fres = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = '$formname' AND uor > 0 " .
-    "ORDER BY group_name, seq");
+    "WHERE form_id = ? AND uor > 0 " .
+    "ORDER BY group_name, seq", array($formname) );
   $last_group = '';
   $cell_count = 0;
   $item_count = 0;
@@ -289,7 +298,7 @@ function sel_related() {
     } else {
       if ($formid) {
         $pprow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
-          "form_id = '$formid' AND field_id = '$field_id'");
+          "form_id = ? AND field_id = ?", array($formid, $field_id) );
         if (!empty($pprow)) $currvalue = $pprow['field_value'];
       }
       else {
@@ -310,11 +319,11 @@ function sel_related() {
 
       // If group name is blank, no checkbox or div.
       if (strlen($this_group) > 1) {
-        echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
-          "onclick='return divclick(this,\"div_$group_seq\");'";
+        echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
+          "onclick='return divclick(this,\"div_" . attr(addslashes($group_seq)) . "\");'";
         if ($display_style == 'block') echo " checked";
-        echo " /><b>" . htmlspecialchars(xl_layout_label($group_name)) . "</b></span>\n";
-        echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
+        echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
+        echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
       }
       // echo " <table border='0' cellpadding='0' width='100%'>\n";
       echo " <table border='0' cellpadding='0' width='100%'>\n";
@@ -324,8 +333,8 @@ function sel_related() {
       $historical_ids = array();
       if ($formhistory > 0) {
         echo " <tr>";
-        echo "<td colspan='$CPR' align='right' class='bold'>";
-        if (empty($is_lbf)) echo htmlspecialchars(xl('Current'));
+        echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>";
+        if (empty($is_lbf)) echo xlt('Current');
         echo "</td>\n";
         $hres = sqlStatement("SELECT f.form_id, fe.date " .
           "FROM forms AS f, form_encounter AS fe WHERE " .
@@ -340,8 +349,8 @@ function sel_related() {
         // at some point we may wish to show also the data entry date/time.
         while ($hrow = sqlFetchArray($hres)) {
           $historical_ids[$hrow['form_id']] = '';
-          echo "<td colspan='$CPR' align='right' class='bold'>&nbsp;" .
-            oeFormatShortDate(substr($hrow['date'], 0, 10)) . "</td>\n";
+          echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>&nbsp;" .
+            text(oeFormatShortDate(substr($hrow['date'], 0, 10))) . "</td>\n";
         }
         echo " </tr>";
       }
@@ -363,17 +372,17 @@ function sel_related() {
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
       end_cell();
-      echo "<td valign='top' colspan='$titlecols' width='1%' nowrap";
+      echo "<td valign='top' colspan='" . attr($titlecols) . "' width='1%' nowrap";
       echo " class='";
       echo ($frow['uor'] == 2) ? "required" : "bold";
       if ($graphable) echo " graph";
       echo "'";
       if ($cell_count == 2) echo " style='padding-left:10pt'";
-      if ($graphable) echo " id='$field_id'";
+      if ($graphable) echo " id='" . attr($field_id) . "'";
       echo ">";
 
       foreach ($historical_ids as $key => $dummy) {
-        $historical_ids[$key] .= "<td valign='top' colspan='$titlecols' class='text' nowrap>";
+        $historical_ids[$key] .= "<td valign='top' colspan='" . attr($titlecols) . "' class='text' nowrap>";
       }
 
       $cell_count += $titlecols;
@@ -381,7 +390,7 @@ function sel_related() {
     ++$item_count;
 
     echo "<b>";
-    if ($frow['title']) echo htmlspecialchars(xl_layout_label($frow['title']) . ":"); else echo "&nbsp;";
+    if ($frow['title']) echo text(xl_layout_label($frow['title']) . ":"); else echo "&nbsp;";
     echo "</b>";
 
     // Note the labels are not repeated in the history columns.
@@ -389,12 +398,12 @@ function sel_related() {
     // Handle starting of a new data cell.
     if ($datacols > 0) {
       end_cell();
-      echo "<td valign='top' colspan='$datacols' class='text'";
+      echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
       if ($cell_count > 0) echo " style='padding-left:5pt'";
       echo ">";
 
       foreach ($historical_ids as $key => $dummy) {
-        $historical_ids[$key] .= "<td valign='top' align='right' colspan='$datacols' class='text'>";
+        $historical_ids[$key] .= "<td valign='top' align='right' colspan='" . attr($datacols) . "' class='text'>";
       }
 
       $cell_count += $datacols;
@@ -413,7 +422,7 @@ function sel_related() {
     // Append to historical data of other dates for this item.
     foreach ($historical_ids as $key => $dummy) {
       $hvrow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
-        "form_id = '$key' AND field_id = '$field_id'");
+        "form_id = ? AND field_id = ?", array($key, $field_id) );
       $value = empty($hvrow) ? '' : $hvrow['field_value'];
       $historical_ids[$key] .= generate_display_field($frow, $value);
     }
@@ -425,16 +434,16 @@ function sel_related() {
 
 <p style='text-align:center'>
 <?php if (empty($is_lbf)) { ?>
-<input type='submit' name='bn_save' value='<?php echo htmlspecialchars(xl('Save')) ?>' />
+<input type='submit' name='bn_save' value='<?php echo xla('Save') ?>' />
 &nbsp;
-<input type='button' value='<?php echo htmlspecialchars(xl('Cancel')) ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+<input type='button' value='<?php echo xla('Cancel') ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 &nbsp;
 <?php if ($form_is_graphable) { ?>
-<input type='button' value='<?php echo htmlspecialchars(xl('Show Graph')) ?>' onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo $formname; ?>'" />
+<input type='button' value='<?php echo xla('Show Graph') ?>' onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo attr($formname); ?>'" />
 &nbsp;
 <?php } ?>
 <?php } else { ?>
-<input type='button' value='<?php echo htmlspecialchars(xl('Back')) ?>' onclick='window.back();' />
+<input type='button' value='<?php echo xla('Back') ?>' onclick='window.back();' />
 <?php } ?>
 </p>
 

@@ -18,7 +18,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname) {
   echo "<table>\n";
 
   $arr = array();
-  $fres = sqlStatement("SELECT field_id, field_value FROM lbf_data WHERE form_id = '$id'");
+  $fres = sqlStatement("SELECT field_id, field_value FROM lbf_data WHERE form_id = ?", array($id) );
   while ($frow = sqlFetchArray($fres)) {
     $arr[$frow['field_id']] = $frow['field_value'];
   }
