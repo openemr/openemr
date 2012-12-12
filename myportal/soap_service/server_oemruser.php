@@ -195,7 +195,7 @@ class OEMRUser{
             case 'F5':
             //signing
             $query="select * from documents_legal_master LEFT OUTER JOIN documents_legal_categories ON dlm_category=dlc_id WHERE
-            dlm_subcategory <> ? and  dlm_filename<>''";
+            dlm_subcategory <> ? and  dlm_filename<>'' and dlm_upload_type = 0";
             return array($query,$data[1]);
             break;
             
@@ -221,7 +221,12 @@ class OEMRUser{
             $query = "SELECT option_id, title FROM list_options WHERE list_id = 'payment_gateways' ORDER BY seq";
             return array($query);
             break;
-            
+
+	    case 'F13':
+            $query = "SELECT pid ,fname,lname,mname,DOB FROM patient_data
+		    where  fname like ? or lname like ? or mname like ? or 
+		    CONCAT(lname,' ',fname,' ',mname) like ? or pid like ? ORDER BY lname";
+            return array($query,array($data[1]."%",$data[1]."%",$data[1]."%",$data[1]."%",$data[1]."%"));
         }
     }
 }

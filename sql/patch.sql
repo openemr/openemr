@@ -57,3 +57,15 @@ CREATE TABLE `report_results` (
 ) ENGINE=MyISAM;
 #EndIf
 
+#IfMissingColumn documents_legal_detail dld_moved
+ALTER TABLE `documents_legal_detail` ADD COLUMN `dld_moved` tinyint(4) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn documents_legal_detail dld_patient_comments
+ALTER TABLE `documents_legal_detail` ADD COLUMN `dld_patient_comments` text COMMENT 'Patient comments stored here';
+#EndIf
+
+#IfMissingColumn documents_legal_master dlm_upload_type
+ALTER TABLE `documents_legal_master` ADD COLUMN `dlm_upload_type` tinyint(4) DEFAULT '0' COMMENT '0-Provider Uploaded,1-Patient Uploaded';
+#EndIf
+

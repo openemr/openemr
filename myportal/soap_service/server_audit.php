@@ -113,7 +113,7 @@ class UserAudit extends UserMail{
   public function update_audited_data($var)
        {
 	      $data_credentials=$var[0];
-	$validtables = array("patient_data","employer_data","insurance_data","history_data","openemr_postcalendar_events","ar_session");
+	$validtables = array("patient_data","employer_data","insurance_data","history_data","openemr_postcalendar_events","ar_session","documents_legal_master","documents_legal_detail");
         if(UserService::valid($data_credentials)){
 	      $audit_master_id = $var['audit_master_id'];
 	      $res = sqlStatement("SELECT * FROM  audit_master  where id=? and  approval_status='1' and  type='3' ",array($audit_master_id));
@@ -121,7 +121,7 @@ class UserAudit extends UserMail{
 		   {
 		    return;
 		   }
-	      $res = sqlStatement("SELECT DISTINCT ad.table_name,am.id,am.pid FROM audit_master as am,audit_details as ad WHERE am.id=ad.audit_master_id and am.approval_status in ('1','4') and am.id=?",array($audit_master_id));
+	      $res = sqlStatement("SELECT DISTINCT ad.table_name,am.id,am.pid FROM audit_master as am,audit_details as ad WHERE am.id=ad.audit_master_id and am.approval_status in ('1','4') and am.id=? ORDER BY ad.id",array($audit_master_id));
 	      $tablecnt = sqlNumRows($res);
 	      while($row = sqlFetchArray($res)){
 	        $pid=$row['pid'];
@@ -160,6 +160,14 @@ class UserAudit extends UserMail{
 				  if($table=='ar_session'){
 					$newdata['ar_session'][$rowfield['field_name']]=$rowfield['field_value'];
 				  }
+				  
+				  if($table=='documents_legal_master'){
+					$newdata['documents_legal_master'][$rowfield['field_name']]=$rowfield['field_value'];
+				  }
+
+				  if($table=='documents_legal_detail'){
+					$newdata['documents_legal_detail'][$rowfield['field_name']]=$rowfield['field_value'];
+				  }				  
 
 			    }
 			    require_once("../../library/invoice_summary.inc.php");
@@ -242,7 +250,50 @@ class UserAudit extends UserMail{
 				    "'" . add_escape_custom($pid) . "', " .
 				    "'" . add_escape_custom($newdata['ar_session']['payment_method']) . "')"
 				  );
+			    }			    
+			    elseif($table=='documents_legal_master'){
+			      $master_doc_id = sqlInsert("INSERT INTO documents_legal_master ( " .
+				    "dlm_category,dlm_subcategory,dlm_document_name,dlm_filepath,dlm_facility,dlm_provider,dlm_sign_height,dlm_sign_width,dlm_filename,dlm_effective_date,dlm_version,content,dlm_savedsign,dlm_review,dlm_upload_type" .
+				    ") VALUES ( " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_category']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_subcategory']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_document_name']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_filepath']."/$pid") . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_facility']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_provider']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_sign_height']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_sign_width']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_filename']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_effective_date']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_version']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['content']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_savedsign']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_review']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_master']['dlm_upload_type']) . "')"
+				  );
 			    }
+			    elseif($table=='documents_legal_detail'){
+			      sqlInsert("INSERT INTO documents_legal_detail ( " .
+				    "dld_pid,dld_facility,dld_provider,dld_encounter,dld_master_docid,dld_signed,dld_signed_time,dld_filepath,dld_filename,dld_signing_person,dld_sign_level,dld_content,dld_file_for_pdf_generation,dld_denial_reason,dld_moved,dld_patient_comments" .
+				    ") VALUES ( " .
+				    "'" . add_escape_custom($pid) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_facility']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_provider']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_encounter']) . "', " .
+				    "'" . add_escape_custom($master_doc_id) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_signed']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_signed_time']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_filepath']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_filename']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_signing_person']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_sign_level']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_content']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_file_for_pdf_generation']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_denial_reason']) . "', " .
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_moved']) . "', " .	 
+				    "'" . add_escape_custom($newdata['documents_legal_detail']['dld_patient_comments']) . "')"
+				  );
+			    }			    
 			 }
 		     else{
 			    throw new SoapFault("Server", "Table Not Supported error message");
