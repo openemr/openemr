@@ -39,6 +39,7 @@ $ignoreAuth=true;
 ob_start();
 
 require_once("../../interface/globals.php");
+require_once(dirname(__FILE__)."/../../controllers/C_Document.class.php");
 $err = '';
 if(!extension_loaded("soap")){
   dl("php_soap.dll");
@@ -47,6 +48,219 @@ require_once("server_med_rec.php");
 require_once("factory_class.php");
 class UserService extends Userforms
 {
+
+/**  
+* To display the patient uploaded files/pdf patient wise
+*/
+  public function patientuploadedfiles($data){
+    if($this->valid($data[0])){
+      ob_start();
+      $query   = "
+        SELECT
+          am.id,
+          am.pid,
+          ad.field_value AS doc_name,
+          pd.fname,
+          pd.lname,
+          pd.mname,
+          ad2.field_value AS file_name,
+          ad3.field_value AS pat_comments
+        FROM
+          audit_details AS ad 
+          JOIN audit_master AS am 
+            ON am.id = ad.audit_master_id 
+          LEFT JOIN patient_data AS pd 
+            ON am.pid = pd.pid
+          JOIN audit_details AS ad2 
+            ON am.id = ad2.audit_master_id
+            AND ad2.field_name = 'dlm_filename'
+          JOIN audit_details AS ad3 
+            ON am.id = ad3.audit_master_id
+            AND ad3.field_name = 'dld_patient_comments'                                                
+        WHERE ad.field_name = 'dlm_document_name'   
+          AND approval_status = '1' 
+          AND am.type = '4'
+          ORDER BY am.pid ASC
+      ";        
+      if(!empty($data[1])){
+        $query .= " AND am.id = ?";
+        $res = sqlStatement($query,array($data[1]));
+      }else{
+        $res = sqlStatement($query);
+      }		  
+      if ($res) {
+        for($iter=0; $row=sqlFetchArray($res); $iter++) {
+          $all[$iter] = $row;
+        }
+      }
+      $v = ob_get_clean();
+      return $all;
+    }
+  }  
+    
+  public function createandstoretodirectory($data){
+    global $pid;
+    if($this->valid($data[0])){
+      $file_name=$data[1];
+      $data=$data[2];
+      $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/patientuploads/".$pid;
+      if(is_dir($savedpath));
+      else
+      {
+        mkdir($savedpath,0777,true);
+        chmod($savedpath, 0777);
+      }
+      $handler = fopen($savedpath."/".$file_name,"w");
+      fwrite($handler, base64_decode($data));
+      fclose($handler);
+      chmod($savedpath."/".$file_name,0777);
+    }
+    else{
+      throw new SoapFault("Server", "credentials failed");
+    }    
+  }
+  
+/**  
+* To move category,rename filename,input note and to move to new patient#
+*/
+  public function documents_update($data){
+    if($this->valid($data[0])){
+      $_POST['process'] = true;
+      $_POST['new_category_id'] = $data[1];
+      $_POST['new_patient_id']  = $data[4];
+      $file_path = '';
+      if($data[9] == 2)
+	$file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/unsigned/".$data[6];
+      elseif($data[9] == 1)
+	$file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/signed/".$data[6];
+      elseif($data[9] == 4)
+	$file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/patientuploads/".$data[5]."/".$data[6];        
+      $mime_types = array(
+	      "pdf"=>"application/pdf"
+	      ,"exe"=>"application/octet-stream"
+	      ,"zip"=>"application/zip"
+	      ,"docx"=>"application/msword"
+	      ,"doc"=>"application/msword"
+	      ,"xls"=>"application/vnd.ms-excel"
+	      ,"ppt"=>"application/vnd.ms-powerpoint"
+	      ,"gif"=>"image/gif"
+	      ,"png"=>"image/png"
+	      ,"jpeg"=>"image/jpg"
+	      ,"jpg"=>"image/jpg"
+	      ,"mp3"=>"audio/mpeg"
+	      ,"wav"=>"audio/x-wav"
+	      ,"mpeg"=>"video/mpeg"
+	      ,"mpg"=>"video/mpeg"
+	      ,"mpe"=>"video/mpeg"
+	      ,"mov"=>"video/quicktime"
+	      ,"avi"=>"video/x-msvideo"
+	      ,"3gp"=>"video/3gpp"
+	      ,"css"=>"text/css"
+	      ,"jsc"=>"application/javascript"
+	      ,"js"=>"application/javascript"
+	      ,"php"=>"text/html"
+	      ,"htm"=>"text/html"
+	      ,"html"=>"text/html"
+      );
+  
+      $extension = strtolower(end(explode('.',$file_path)));
+      $mime_types = $mime_types[$extension];
+      $_FILES['file']['name'][0]     = $data[6];
+      $_FILES['file']['type'][0]     = $mime_types;
+      $_FILES['file']['tmp_name'][0] = $file_path;
+      $_FILES['file']['error'][0]    = 0;
+      $_FILES['file']['size'][0]     = filesize($file_path);
+      $_POST['category_id']          = $_POST['new_category_id'];
+      $_POST['patient_id']           = $_POST['new_patient_id'];
+      $_GET['patient_id']            = $_POST['patient_id'];
+      $_POST['destination']          = $data[3];
+
+      $cdoc = new C_Document();      
+      $cdoc->upload_action_process();
+      if($GLOBALS['document_storage_method']==0){
+	if($data[3])
+	  copy($file_path,$cdoc->file_path.$data[3]);
+	else
+	  copy($file_path,$cdoc->file_path.$data[6]);
+      }
+      $foreign_id = sqlQuery("select id from documents where foreign_id = ? order by id desc limit 1",array($_POST['new_patient_id']));
+      unset($_POST);
+      $_POST['encrypted']  = '';
+      $_POST['passphrase'] = '';
+      $_POST['process']    = true;
+      $_POST['foreign_id'] = $foreign_id['id'];
+      $_POST['note']       = $data[7];
+      $cdoc->note_action_process($_GET['patient_id']);
+      $sql_patient_no = "UPDATE documents_legal_detail SET dld_moved = '1' WHERE dld_master_docid = ? AND dld_id = ?";
+      sqlQuery($sql_patient_no,array($data[2],$data[8]));
+      unset($_POST);      
+    }
+  }  
+ 
+/** 
+* To display the files/pdfforms patient wise
+*/
+  public function userslistportal($data){
+    if($this->valid($data[0])){
+      ob_start();
+      $query   = "SELECT
+                    dlm.dlm_upload_type,
+                    dld.dld_id,
+                    dld.dld_pid,
+                    dlm.dlm_document_name,
+                    dlm.dlm_document_id,
+                    dlm.dlm_filename,
+                    dld.dld_filename,
+                    dld.dld_signed,
+                    dlm.dlm_filename,
+                    dld.dld_master_docid,
+                    dld.dld_signed,
+                    dld.dld_patient_comments,
+                    dld.dld_moved,  
+                    pd.fname,
+                    pd.lname,
+                    pd.mname
+                  FROM
+                    documents_legal_master AS dlm 
+                    LEFT OUTER JOIN documents_legal_detail AS dld 
+                      ON dlm.dlm_document_id = dld_master_docid 
+                    JOIN patient_data AS pd 
+                      ON dld.dld_pid = pd.pid 
+                  WHERE dlm.dlm_effective_date <= NOW() 
+                    AND dlm.dlm_effective_date <> '0000-00-00 00:00:00' 
+                    AND dld.dld_id IS NOT NULL 
+                    AND dld.dld_signed IN (1,2,4) 
+                    AND dld.dld_moved = 0 
+                  ORDER BY dld.dld_pid ASC ";
+		  
+      $res = sqlStatement($query);
+      if ($res) {
+	for($iter=0; $row=sqlFetchArray($res); $iter++) {
+	    $all[$iter] = $row;
+	}
+      } 
+      $v = ob_get_clean();
+      return $all;
+    }
+  }
+
+/**  
+* To display the category list in Move To Category option
+*/
+  public function category_list($data){
+    if($this->valid($data[0])){
+      ob_start();
+	$query = "SELECT * FROM categories";
+	$res = sqlStatement($query);
+      if ($res) {
+	for($iter=0; $row=sqlFetchArray($res); $iter++) {
+	    $all[$iter] = $row;
+	}
+      }       
+      $v = ob_get_clean();
+      return $all;
+    }
+  }   
     
 //Converts a text to xml format.Format is as follows
   public function text_to_xml($data){
@@ -559,7 +773,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 
 
   public function getversion($data){
-         return '1.1';
+         return '1.2';
     }
     
     

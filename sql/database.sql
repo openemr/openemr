@@ -68,7 +68,7 @@ CREATE TABLE `audit_master` (
   `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_time` datetime NOT NULL,
   `ip_address` varchar(100) NOT NULL,
-  `type` tinyint(4) NOT NULL COMMENT '1-new patient,2-existing patient,3-change is only in the document,5-random key,10-Appointment',
+  `type` tinyint(4) NOT NULL COMMENT '1-new patient,2-existing patient,3-change is only in the document,4-Patient upload,5-random key,10-Appointment',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1;
 
@@ -639,7 +639,7 @@ CREATE TABLE `documents_legal_detail` (
   `dld_provider` int(10) unsigned DEFAULT NULL,
   `dld_encounter` int(10) unsigned DEFAULT NULL,
   `dld_master_docid` int(10) unsigned NOT NULL,
-  `dld_signed` smallint(5) unsigned NOT NULL COMMENT '0-Not Signed or Cannot Sign(Layout),1-Signed,2-Ready to sign,3-Denied(Pat Regi),10-Save(Layout)',
+  `dld_signed` smallint(5) unsigned NOT NULL COMMENT '0-Not Signed or Cannot Sign(Layout),1-Signed,2-Ready to sign,3-Denied(Pat Regi),4-Patient Upload,10-Save(Layout)',
   `dld_signed_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `dld_filepath` varchar(75) DEFAULT NULL,
   `dld_filename` varchar(45) NOT NULL,
@@ -648,6 +648,8 @@ CREATE TABLE `documents_legal_detail` (
   `dld_content` varchar(50) NOT NULL COMMENT 'Layout sign position',
   `dld_file_for_pdf_generation` blob NOT NULL COMMENT 'The filled details in the fdf file is stored here.Patient Registration Screen',
   `dld_denial_reason` longtext NOT NULL,
+  `dld_moved` tinyint(4) NOT NULL DEFAULT '0',
+  `dld_patient_comments` text COMMENT 'Patient comments stored here',
   PRIMARY KEY (`dld_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
@@ -674,6 +676,7 @@ CREATE TABLE `documents_legal_master` (
   `content` varchar(255) NOT NULL,
   `dlm_savedsign` varchar(255) DEFAULT NULL COMMENT '0-Yes 1-No',
   `dlm_review` varchar(255) DEFAULT NULL COMMENT '0-Yes 1-No',
+  `dlm_upload_type` tinyint(4) DEFAULT '0' COMMENT '0-Provider Uploaded,1-Patient Uploaded',
   PRIMARY KEY (`dlm_document_id`)
 ) ENGINE=MyISAM COMMENT='List of Master Docs to be signed' AUTO_INCREMENT=1 ;
 

@@ -213,7 +213,7 @@ class newpatient{
                         
             case 'G2':
             $query = "SELECT * FROM documents_legal_master AS dlm WHERE dlm_subcategory <> ? and dlm_effective_date <= now() AND
-            dlm_effective_date<>? AND dlm_document_id Not IN (SELECT distinct(dld_master_docid) FROM documents_legal_detail WHERE
+            dlm_effective_date<>? AND dlm_upload_type = '0' AND dlm_document_id Not IN (SELECT distinct(dld_master_docid) FROM documents_legal_detail WHERE
             dld_id IS NOT NULL AND dld_pid=?)";
             array_push($data[1],$pid);
             return array($query,$data[1]);
@@ -244,6 +244,14 @@ class newpatient{
             array_push($data[1],$pid);
             return array($query,$data[1]);
             break;
+
+            case 'G6':
+            $query = "SELECT * FROM documents_legal_master AS dlm LEFT OUTER JOIN documents_legal_detail as dld ON
+            dlm_document_id=dld_master_docid WHERE dlm_subcategory <> ? and dlm_effective_date <= now() AND dlm_effective_date<>?
+            AND dld_id IS NOT NULL AND (dld_signed = ? OR dlm_upload_type = '1') AND dld_pid=? ORDER BY dlm_effective_date DESC";
+            array_push($data[1],$pid);
+            return array($query,$data[1]);
+            break;	
                         
             case 'F1':
             //Patient details . 
