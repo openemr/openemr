@@ -456,14 +456,7 @@ foreach ($ar as $key => $val) {
                 echo "(" . oeFormatSDFT(strtotime($dateres["date"])) . ") ";
                 if ($res[1] == 'newpatient') {
                     // display the provider info
-                    $tmp = sqlQuery("SELECT u.title, u.fname, u.mname, u.lname " .
-                                    "FROM forms AS f, users AS u WHERE " .
-                                    "f.pid = '$pid' AND f.encounter = '$form_encounter' AND " .
-                                    "f.formdir = 'newpatient' AND u.username = f.user " .
-                                    " AND f.deleted=0 ". //--JRM--
-                                    "ORDER BY f.id LIMIT 1");
-                    echo ' '. xl('Provider') . ': ' . $tmp['title'] . ' ' .
-                        $tmp['fname'] . ' ' . $tmp['mname'] . ' ' . $tmp['lname'];
+                    echo ' '. xl('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
                 echo "<br>\n";
    
