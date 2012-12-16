@@ -34,6 +34,10 @@ function formFooter ()
 //   Otherwise, this function expects the $values to already be escaped(original and legacy behavior).
 function formSubmit ($tableName, $values, $id, $authorized = "0")
 {
+        // Bring in $sanitize_all_escapes variable, which will decide
+        // the variable escaping method.
+        global $sanitize_all_escapes;
+
 	$sql = "insert into $tableName set pid = {$_SESSION['pid']},groupname='".$_SESSION['authProvider']."',user='".$_SESSION['authUser']."',authorized=$authorized,activity=1, date = NOW(),";
 	foreach ($values as $key => $value)
 		if (strpos($key,"openemr_net_cpt") === 0) {
