@@ -1,4 +1,14 @@
 <?php
+// Note there is a mechanism to show whether a category is explicitly set to 
+// 'Nothing' via the getListTouch() and setListTouch() functions that store
+// applicable information in the lists_touch sql table.
+//
+// Do not create a category id with the token 'prescription_erx', since this
+// has been reserved by the NewCropRx Module (it requires use of the lists_touch
+// table to support Meaningful Use Reporting). (if you do this, then you would
+// break the calculations and support for setting the category to 'Nothing')
+//
+
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 if (!empty($GLOBALS['ippf_specific'])) {

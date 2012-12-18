@@ -35,6 +35,7 @@ require_once('../globals.php');
 require_once('../eRx_xml.php');
 require_once('../../library/xmltoarray_parser_htmlfix.php');
 require_once($GLOBALS['fileroot'] . "/library/amc.php");
+require_once("{$GLOBALS['srcdir']}/lists.inc");
 set_time_limit(0);
 
 function number($str)
@@ -155,6 +156,7 @@ for($i=0;$i<sizeof($medArray);$i++)
         $rroute['option_id'], $rint['option_id'], $medArray[$i]['Refills'], $medArray[$i]['PrescriptionNotes'], 
         $_SESSION['authUserID'], $medArray[$i]['SiteID'], $medArray[$i]['PrescriptionGuid'], $medArray[$i]['rxcui']));
         $j++;
+        setListTouch ($patientid,'prescription_erx');
     }
     else
     {
