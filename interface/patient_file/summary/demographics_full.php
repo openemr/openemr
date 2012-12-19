@@ -123,7 +123,10 @@ function auto_populate_employer_address<?php echo $i ?>(){
     f.form_i<?php echo $i?>subscriber_country.value=f.form_country_code.value;
   f.i<?php echo $i?>subscriber_phone.value=f.form_phone_home.value;
   f.i<?php echo $i?>subscriber_DOB.value=f.form_DOB.value;
-  f.i<?php echo $i?>subscriber_ss.value=f.form_ss.value;
+  if(typeof f.form_ss!="undefined")
+    {
+        f.i<?php echo $i?>subscriber_ss.value=f.form_ss.value;  
+    }
   f.form_i<?php echo $i?>subscriber_sex.value = f.form_sex.value;
   f.i<?php echo $i?>subscriber_employer.value=f.form_em_name.value;
   f.i<?php echo $i?>subscriber_employer_street.value=f.form_em_street.value;
@@ -270,24 +273,31 @@ function validate(f) {
    f[subpfx + 'fname'].value == f.form_fname.value &&
    f[subpfx + 'mname'].value == f.form_mname.value &&
    f[subpfx + 'lname'].value == f.form_lname.value;
-  var samess = f[subpfx + 'ss'].value == f.form_ss.value;
+  var ss_regexp=/[0-9][0-9][0-9]-?[0-9][0-9]-?[0-9][0-9][0-9][0-9]/;
+  var samess=true;
+  var ss_valid=false;
+  if(typeof f.form_ss!="undefined")
+      {
+        samess = f[subpfx + 'ss'].value == f.form_ss.value;
+        ss_valid=ss_regexp.test(f[subpfx + 'ss'].value) && ss_regexp.test(f.form_ss.value);  
+      }
   if (subrelat.options[subrelat.selectedIndex].value == "self") {
    if (!samename) {
-    if (!confirm("<?php xl('Subscriber relationship is self but name is different! Is this really OK?','e'); ?>"))
+    if (!confirm("<?php echo xls('Subscriber relationship is self but name is different! Is this really OK?'); ?>"))
      return false;
    }
-   if (!samess) {
-    alert("<?php xl('Subscriber relationship is self but SS number is different!','e'); ?>");
+   if (!samess && ss_valid) {
+    if(!confirm("<?php echo xls('Subscriber relationship is self but SS number is different!')." ". xls("Is this really OK?"); ?>"))
     return false;
    }
   } // end self
   else {
    if (samename) {
-    if (!confirm("<?php xl('Subscriber relationship is not self but name is the same! Is this really OK?','e'); ?>"))
+    if (!confirm("<?php echo xls('Subscriber relationship is not self but name is the same! Is this really OK?'); ?>"))
      return false;
    }
-   if (samess) {
-    alert("<?php xl('Subscriber relationship is not self but SS number is the same!','e'); ?>");
+   if (samess && ss_valid)  {
+    if(!confirm("<?php echo xls('Subscriber relationship is not self but SS number is the same!') ." ". xls("Is this really OK?"); ?>"))
     return false;
    }
   } // end not self
