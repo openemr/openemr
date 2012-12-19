@@ -85,6 +85,12 @@ function xla($key) {
 	return attr(hsc_private_xl_or_warn($key));
 }
 
+/*
+Translate via xl() and then escape via addslashes for use with javascript literals
+*/
+function xls($key){
+	return addslashes(hsc_private_xl_or_warn($key));
+}
 return; // Stop include / require from going any further (non-PHP)
 ?>
 This file is free software: you can redistribute it and/or modify
