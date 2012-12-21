@@ -59,7 +59,7 @@ if ($result != null){
 	foreach ($result as $iter)
 	{
 		$has_disclosure = 1;
-		$app_event=$iter{event};
+		$app_event=$iter{"event"};
 		$event=split("-",$app_event);
 		$description=nl2br(htmlspecialchars($iter{"description"},ENT_NOQUOTES));//for line breaks.
 		//listing the disclosures 
