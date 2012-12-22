@@ -76,10 +76,19 @@ if ($db == 'RXNORM') {
         exit;
     }
 } else if ( $db == 'SNOMED') {
-    if (!snomed_import()) {
-        echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
-        temp_dir_cleanup($db);
-        exit;
+    if ($version == "US Extension") {
+        if (!snomed_import(TRUE)) {
+            echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+            temp_dir_cleanup($db);
+            exit;
+         }
+    }
+    else { //$version is not "US Extension"
+        if (!snomed_import(FALSE)) {
+            echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+            temp_dir_cleanup($db);
+            exit;
+         }
     }
 }
 else { //$db == 'ICD'

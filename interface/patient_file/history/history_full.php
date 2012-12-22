@@ -92,7 +92,7 @@ function submit_history() {
 //function for selecting the smoking status in radio button based on the selection of drop down list.
 function radioChange(rbutton)
 {
-     if (rbutton == 1 || rbutton == 2)
+     if (rbutton == 1 || rbutton == 2 || rbutton == 15 || rbutton == 16)
      {
      document.getElementById('radio_tobacco[current]').checked = true;
      }

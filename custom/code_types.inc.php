@@ -27,6 +27,8 @@
  *             4 for storing codes in external ICD9 Diagnosis tables
  *             5 for storing codes in external ICD9 Procedure/Service tables
  *             6 for storing codes in external ICD10 Procedure/Service tables
+ *             7 for storing codes in external SNOMED Clinical Term tables
+ *  term     - 1 if this code type is used as a clinical term
  *  </pre>
  *
  * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
@@ -68,6 +70,7 @@ while ($ctrow = sqlFetchArray($ctres)) {
     'external'=> $ctrow['ct_external'],
     'claim' => $ctrow['ct_claim'],
     'proc' => $ctrow['ct_proc'],
+    'term' => $ctrow['ct_term']
   );
   if ($default_search_type === '') $default_search_type = $ctrow['ct_key'];
 }
@@ -85,6 +88,7 @@ $cd_external_options = array(
   '6' => xl('ICD10 Procedure/Service'),
   '2' => xl('SNOMED (RF1) Diagnosis'),
   '3' => xl('SNOMED (RF2) Diagnosis'),
+  '7' => xl('SNOMED Clinical Term')
 );
 
 /**
@@ -158,7 +162,7 @@ function convert_type_id_to_key($id) {
  * as 1) an array and as 2) a comma-separated lists that has been
  * process by urlencode() in order to place into URL  address safely.
  *
- * @param  string       $category       category of code types('diagnosis' or 'procedure')
+ * @param  string       $category       category of code types('diagnosis', 'procedure' or 'clinical_term')
  * @param  string       $return_format  format or returned code types ('array' or 'csv')
  * @return string/array
  */
@@ -177,6 +181,11 @@ function collect_codetypes($category,$return_format="array") {
   }
   else if ($category == "procedure") {
    if ($ct_arr['proc']) {
+    array_push($return,$ct_key);
+   }
+  }
+  else if ($category == "clinical_term") {
+   if ($ct_arr['term']) {
     array_push($return,$ct_key);
    }
   }
@@ -316,7 +325,16 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
     $res = sqlStatement($query,$sql_bind_array);
    }
   }
-  else if ($code_types[$form_code_type]['external'] == 2 ) { // Search from SNOMED (RF1) diagnosis codeset tables
+  else if ($code_types[$form_code_type]['external'] == 2 || $code_types[$form_code_type]['external'] == 7) {
+   // Search from SNOMED (RF1) diagnosis codeset tables OR Search from SNOMED (RF1) clinical terms codeset tables
+   if ($code_types[$form_code_type]['external'] == 2) {
+     // Search from SNOMED (RF1) diagnosis codeset tables
+     $diagnosis_sql_specific = " ref.FullySpecifiedName LIKE '%(disorder)' ";
+   }
+   else {
+     // Search from SNOMED (RF1) clinical terms codeset tables
+     $diagnosis_sql_specific = " 1=1 ";
+   }
    if ($active) {
     // Only filter for active codes
     // If there is no entry in codes sql table, then default to active
@@ -336,11 +354,11 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
              "ON ref.ConceptId = c.code AND c.code_type = ? ";
     array_push($sql_bind_array,$code_types[$form_code_type]['id']);
     if ($return_only_one) {
-     $query .= "WHERE (ref.ConceptId = ? AND ref.FullySpecifiedName LIKE '%(disorder)') $active_query $query_filter_elements ";
+     $query .= "WHERE (ref.ConceptId = ? AND $diagnosis_sql_specific) $active_query $query_filter_elements ";
      array_push($sql_bind_array,$search_term);
     }
     else {
-     $query .= "WHERE ((ref.FullySpecifiedName LIKE ? OR ref.ConceptId LIKE ?) AND ref.FullySpecifiedName LIKE '%(disorder)') $active_query $query_filter_elements ";
+     $query .= "WHERE ((ref.FullySpecifiedName LIKE ? OR ref.ConceptId LIKE ?) AND $diagnosis_sql_specific ) $active_query $query_filter_elements ";
      array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
     }
     $query .= "AND ref.ConceptStatus = 0 " .
@@ -511,7 +529,8 @@ function lookup_code_descriptions($codes) {
           }
         }
       }
-      else if ($code_types[$codetype]['external'] == 2) { // Collect from SNOMED (RF1) Diagnosis codeset tables
+      else if ($code_types[$codetype]['external'] == 2 || $code_types[$codetype]['external'] == 7) {
+        // Collect from SNOMED (RF1) Diagnosis codeset tables OR Search from SNOMED (RF1) clinical terms codeset tables 
         // Ensure the sct_concepts sql table exists
         $check_table = sqlQuery("SHOW TABLES LIKE 'sct_concepts'");
         if ( !(empty($check_table)) ) {

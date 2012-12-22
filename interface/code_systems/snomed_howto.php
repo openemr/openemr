@@ -41,5 +41,6 @@ require_once("../../interface/globals.php");
 </li>
 </ol>
 <h5 class="error_msg"><?php echo xlt("NOTE: Only the Biannual International Snomed Release is currently supported"); ?></h5>
+<h5 class="error_msg"><?php echo "(" . xlt("Additionally, the corresponding US Snomed Extension Package can be imported separately after installing the International Snomed Release") . ")"; ?></h5>
 </p>
 </div>

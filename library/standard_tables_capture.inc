@@ -144,7 +144,7 @@ function rxnorm_import($is_windows_flag) {
 }
 
 // Function to import SNOMED tables
-function snomed_import() {
+function snomed_import($us_extension=FALSE) {
 
     // set up array
     $table_array_for_snomed=array(
@@ -189,9 +189,12 @@ function snomed_import() {
     $dir=str_replace('\\','/',$dir);
 
     // executing the create statement for tables, these are defined in snomed_capture.inc file
-    foreach($table_array_for_snomed as $val){
-        if(trim($val)!=''){
-            sqlStatement($val);
+    // this is skipped if the US extension is being added
+    if (!$us_extension) {
+        foreach($table_array_for_snomed as $val){
+            if(trim($val)!=''){
+                sqlStatement($val);
+            }
         }
     }
 
