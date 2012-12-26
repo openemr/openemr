@@ -40,6 +40,7 @@ ob_start();
 
 require_once("../../interface/globals.php");
 require_once(dirname(__FILE__)."/../../controllers/C_Document.class.php");
+require_once(dirname(__FILE__)."/../../library/options.inc.php");
 $err = '';
 if(!extension_loaded("soap")){
   dl("php_soap.dll");
@@ -524,7 +525,14 @@ static  public function batch_despatch($var,$func,$data_credentials){
 		$x['ok']='ok';
 		return UserService::function_return_to_xml($x);
 	 }
-	
+	elseif($func=='generate_layout_validation')
+	 {
+		$form_id=$var['form_id'];
+		ob_start();
+		generate_layout_validation($form_id);
+		$x = ob_get_clean();
+		return $x;
+	 }
 	}
 	else{
 		throw new SoapFault("Server", "credentials failed");
@@ -773,7 +781,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 
 
   public function getversion($data){
-         return '1.2';
+         return '1.3';
     }
     
     

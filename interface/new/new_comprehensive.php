@@ -250,7 +250,8 @@ function trimlen(s) {
 }
 
 function validate(f) {
-<?php generate_layout_validation('DEM'); ?>
+  var errMsgs = new Array();
+  <?php generate_layout_validation('DEM'); ?>
   <?php if($GLOBALS['erx_enable']){ ?>
   alertMsg='';
   for(i=0;i<f.length;i++){
@@ -278,6 +279,17 @@ function validate(f) {
     return false;
   }
   <?php } ?>
+  var msg = "";
+  msg += "<?php echo htmlspecialchars(xl('The following fields are required'),ENT_QUOTES); ?>:\n\n";
+  for ( var i = 0; i < errMsgs.length; i++ ) {
+         msg += errMsgs[i] + "\n";
+  }
+  msg += "\n<?php echo htmlspecialchars(xl('Please fill them in before continuing.'),ENT_QUOTES); ?>";
+ 
+  if ( errMsgs.length > 0 ) {
+         alert(msg);
+         return false;
+  }
  return true;
 }
 

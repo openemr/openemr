@@ -374,7 +374,7 @@ $(document).ready(function(){
   $(".small_modal").fancybox( {
 	'overlayOpacity' : 0.0,
 	'showCloseButton' : true,
-	'frameHeight' : 180,
+	'frameHeight' : 200,
 	'frameWidth' : 380,
             'centerOnScroll' : false
   });
