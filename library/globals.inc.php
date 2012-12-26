@@ -1341,6 +1341,13 @@ $GLOBALS_METADATA = array(
       xl('Enable Offsite Patient Portal.')
     ),
 
+    'portal_offsite_providerid' => array(
+      xl('Offsite Patient Portal Provider ID'),
+      'text',                           // data type
+      '',
+      xl('Offsite Patient Portal Provider ID(Put Blank If not Registered).')
+    ),    
+
     'portal_offsite_username' => array(
       xl('Offsite Patient Portal Username'),
       'text',                           // data type
