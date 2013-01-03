@@ -33,6 +33,17 @@ $show_available_times = false;
 if ( $_POST['form_show_available'] ) {
 	$show_available_times = true;
 }
+
+$chk_with_out_provider = false;
+if ( $_POST['with_out_provider'] ) {
+	$chk_with_out_provider = true;
+}
+
+$chk_with_out_facility = false;
+if ( $_POST['with_out_facility'] ) {
+	$chk_with_out_facility = true;
+}
+
 //$to_date   = fixDate($_POST['form_to_date'], '');
 $provider  = $_POST['form_provider'];
 $facility  = $_POST['form_facility'];  //(CHEMED) facility filter
@@ -174,6 +185,18 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
 					border='0' alt='[?]' style='cursor: pointer'
 					title='<?php xl('Click here to choose a date','e'); ?>'></td>
 			</tr>
+			
+			<tr>
+				<td class='label'><?php xl('Status','e'); ?>:</td>
+				<td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
+				<td colspan="2">&nbsp;</td>
+			</tr>
+			
+			<tr>
+				<td colspan="2"><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php if($chk_with_out_provider) echo "checked";?>>&nbsp;<?php xl('Without Provider','e'); ?></td>
+				<td colspan="2"><input type="checkbox" name="with_out_facility" id="with_out_facility" <?php if($chk_with_out_facility) echo "checked";?>>&nbsp;<?php xl('Without Facility','e'); ?></td>
+			</tr>
+			
 		</table>
 
 		</div>
@@ -235,6 +258,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 		<th><a href="nojs.php" onclick="return dosort('type')"
 	<?php if ($form_orderby == "type") echo " style=\"color:#00cc00\"" ?>><?php  xl('Type','e'); ?></a>
 		</th>
+		
+		<th><a href="nojs.php" onclick="return dosort('status')"
+			<?php if ($form_orderby == "status") echo " style=\"color:#00cc00\"" ?>><?php  xl('Status','e'); ?></a>
+		</th>
 
 		<th><a href="nojs.php" onclick="return dosort('comment')"
 	<?php if ($form_orderby == "comment") echo " style=\"color:#00cc00\"" ?>><?php  xl('Comment','e'); ?></a>
@@ -244,9 +271,23 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	<tbody>
 		<!-- added for better print-ability -->
 	<?php
-
+	
 	$lastdocname = "";
-	$appointments = fetchAppointments( $from_date, $to_date, $patient, $provider, $facility );
+	//Appointment Status Checking
+	$form_apptstatus = $_POST['form_apptstatus'];
+	
+	//Without provider and facility data checking
+	$with_out_provider = null;
+	$with_out_facility = null;
+
+	if( isset($_POST['with_out_provider']) ){
+		$with_out_provider = $_POST['with_out_provider'];
+	}
+	
+	if( isset($_POST['with_out_facility']) ){
+		$with_out_facility = $_POST['with_out_facility'];
+	}
+	$appointments = fetchAppointments( $from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility );
 	
 	if ( $show_available_times ) {
 		$availableSlots = getAvailableSlots( $from_date, $to_date, $provider, $facility );
@@ -254,14 +295,16 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	}
 
 	$appointments = sortAppointments( $appointments, $form_orderby );
-        $pid_list = array();  // Initialize list of PIDs for Superbill option
-        
+    $pid_list = array();  // Initialize list of PIDs for Superbill option
+    $totalAppontments = count($appointments);   
+	
 	foreach ( $appointments as $appointment ) {
                 array_push($pid_list,$appointment['pid']);
 		$patient_id = $appointment['pid'];
 		$docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
                 
-                $errmsg  = "";
+        $errmsg  = "";
+		$pc_apptstatus = $appointment['pc_apptstatus'];
 
 		?>
 
@@ -280,11 +323,21 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
 		<td class="detail">&nbsp;<?php echo $appointment['pubpid'] ?></td>
 
-                <td class="detail">&nbsp;<?php echo $appointment['phone_home'] ?></td>
+        <td class="detail">&nbsp;<?php echo $appointment['phone_home'] ?></td>
 
-                <td class="detail">&nbsp;<?php echo $appointment['phone_cell'] ?></td>
+        <td class="detail">&nbsp;<?php echo $appointment['phone_cell'] ?></td>
 
-		<td class="detail">&nbsp;<?php echo xl_appt_category($appointment['pc_catname']) ?>
+		<td class="detail">&nbsp;<?php echo xl_appt_category($appointment['pc_catname']) ?></td>
+		
+		<td class="detail">&nbsp;
+			<?php
+				//Appointment Status
+				if($pc_apptstatus != ""){
+					$frow['data_type']=1;
+					$frow['list_id']='apptstat';
+					generate_print_field($frow, $pc_apptstatus);
+				}
+			?>
 		</td>
 
 		<td class="detail">&nbsp;<?php echo $appointment['pc_hometext'] ?></td>
@@ -297,6 +350,9 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	// assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
         $_SESSION['pidList'] = $pid_list;
 	?>
+	<tr>
+		<td colspan="10" align="left"><?php  xl('Total number of appointments','e'); ?>:&nbsp;<?php echo $totalAppontments;?></td>
+	</tr>
 	</tbody>
 </table>
 </div>

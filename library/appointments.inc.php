@@ -16,7 +16,8 @@ $COMPARE_FUNCTION_HASH = array(
 	'date' => 'compareAppointmentsByDate',
 	'time' => 'compareAppointmentsByTime',
 	'type' => 'compareAppointmentsByType',
-	'comment' => 'compareAppointmentsByComment'
+	'comment' => 'compareAppointmentsByComment',
+	'status' => 'compareAppointmentsByStatus'
 );
 
 $ORDERHASH = array(
@@ -26,7 +27,8 @@ $ORDERHASH = array(
   	'date' => array( 'date', 'time', 'type', 'patient' ),
   	'time' => array( 'time', 'date', 'patient' ),
   	'type' => array( 'type', 'date', 'time', 'patient' ),
-  	'comment' => array( 'comment', 'date', 'time', 'patient' )
+  	'comment' => array( 'comment', 'date', 'time', 'patient' ),
+	'status' => array( 'status', 'date', 'time', 'patient' )
 );
 
 function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null ) 
@@ -43,7 +45,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 	
 	$query = "SELECT " .
   	"e.pc_eventDate, e.pc_endDate, e.pc_startTime, e.pc_endTime, e.pc_duration, e.pc_recurrtype, e.pc_recurrspec, e.pc_recurrfreq, e.pc_catid, e.pc_eid, " .
-  	"e.pc_title, e.pc_hometext, " .
+  	"e.pc_title, e.pc_hometext, e.pc_apptstatus, " .
   	"p.fname, p.mname, p.lname, p.pid, p.pubpid, p.phone_home, p.phone_cell, " .
   	"u.fname AS ufname, u.mname AS umname, u.lname AS ulname, u.id AS uprovider_id, " .
   	"c.pc_catname, c.pc_catid " .
@@ -90,7 +92,7 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 	return $appointments;
 }
 
-function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null )
+function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null )
 {
 	$where = "";
 	if ( $provider_id ) $where .= " AND e.pc_aid = '$provider_id'";
@@ -108,6 +110,28 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	}
 	
 	$where .= $facility_filter;
+	
+	//Appointment Status Checking
+	$filter_appstatus = '';
+	if($pc_appstatus != ''){
+		$filter_appstatus = " AND e.pc_apptstatus = '".$pc_appstatus."'";
+	}
+	$where .= $filter_appstatus;
+	
+	//Without Provider checking
+	$filter_woprovider = '';
+	if($with_out_provider != ''){
+		$filter_woprovider = " AND e.pc_aid = ''";
+	}
+	$where .= $filter_woprovider;
+	
+	//Without Facility checking
+	$filter_wofacility = '';
+	if($with_out_facility != ''){
+		$filter_wofacility = " AND e.pc_facility = 0";
+	}
+	$where .= $filter_wofacility;
+	
 	$appointments = fetchEvents( $from_date, $to_date, $where );
 	return $appointments;
 }
@@ -368,6 +392,13 @@ function compareAppointmentsByComment( $appointment1, $appointment2 )
 	$comment1 = $appointment1['pc_hometext'];
 	$comment2 = $appointment2['pc_hometext'];
 	return compareBasic( $comment1, $comment2 );
+}
+
+function compareAppointmentsByStatus( $appointment1, $appointment2 )
+{
+	$status1 = $appointment1['pc_apptstatus'];
+	$status2 = $appointment2['pc_apptstatus'];
+	return compareBasic( $status1, $status2 );
 }
 
 ?>
