@@ -19,6 +19,9 @@
 * @author    Rod Roark <rod@sunsetsystems.com>
 */
 
+$sanitize_all_escapes = true;
+$fake_register_globals = false;
+
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formdata.inc.php");
@@ -92,8 +95,8 @@ $orow = sqlQuery("SELECT " .
 <head>
 <?php html_header_show(); ?>
 
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<title><?php  xl('Order Results','e'); ?></title>
+<link rel="stylesheet" href='<?php echo $css_header; ?>' type='text/css'>
+<title><?php echo xlt('Order Results'); ?></title>
 
 <style>
 
@@ -233,7 +236,7 @@ while ($row = sqlFetchArray($res)) {
     $sign_list .= $report_id;
   }
 
-  $report_noteid ='&nbsp;';
+  $report_noteid ='';
   if (!empty($row['report_notes'])) {
     $report_noteid = 1 + storeNote($row['report_notes']);
   }
@@ -266,7 +269,7 @@ while ($row = sqlFetchArray($res)) {
     $result_status    = empty($rrow['result_status'   ]) ? '' : $rrow['result_status'];
 
     $result_comments = trim($result_comments);
-    $result_noteid = '&nbsp;';
+    $result_noteid = '';
     if (!empty($result_comments)) {
       $result_noteid = 1 + storeNote($result_comments);
     }
@@ -280,7 +283,7 @@ while ($row = sqlFetchArray($res)) {
 
     if ($lastpcid != $order_seq) {
       $lastprid = -1; // force report fields on first line of each procedure
-      echo "  <td>" . htmlentities("$procedure_code: $procedure_name") . "</td>\n";
+      echo "  <td>" . text("$procedure_code: $procedure_name") . "</td>\n";
     }
     else {
       echo "  <td style='background-color:transparent'>&nbsp;</td>";
@@ -304,7 +307,7 @@ while ($row = sqlFetchArray($res)) {
       echo "</td>\n";
 
       echo "  <td align='center'>";
-      echo $report_noteid;
+      echo myCellText($report_noteid);
       echo "</td>\n";
     }
     else {
@@ -331,7 +334,7 @@ while ($row = sqlFetchArray($res)) {
       echo myCellText($result_units);
       echo "</td>\n";
       echo "  <td align='center'>";
-      echo $result_noteid;
+      echo myCellText($result_noteid);
       echo "</td>\n";
     }
     else {

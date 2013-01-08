@@ -175,13 +175,13 @@ if ($ppid) {
    <select name='form_DorP' title='<?php echo xla('MSH-11'); ?>'>
 <?php
 foreach(array(
-  'D' => 'Debugging',
-  'P' => 'Production',
+  'D' => xl('Debugging'),
+  'P' => xl('Production'),
   ) as $key => $value)
 {
   echo "    <option value='" . attr($key) . "'";
   if ($key == $row['DorP']) echo " selected";
-  echo ">" . xlt($value) . "</option>\n";
+  echo ">" . text($value) . "</option>\n";
 }
 ?>
    </select>
@@ -195,13 +195,13 @@ foreach(array(
 <?php
 foreach(array(
   // Add to this list as more protocols are supported.
-  'DL' => 'Download',
-  'SFTP' => 'SFTP',
+  'DL' => xl('Download'),
+  'SFTP' => xl('SFTP'),
   ) as $key => $value)
 {
   echo "    <option value='" . attr($key) . "'";
   if ($key == $row['protocol']) echo " selected";
-  echo ">" . xlt($value) . "</option>\n";
+  echo ">" . text($value) . "</option>\n";
 }
 ?>
    </select>

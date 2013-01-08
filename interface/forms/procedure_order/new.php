@@ -220,7 +220,7 @@ var gbl_formseq;
 function sel_proc_type(formseq) {
  var f = document.forms[0];
  // if (!f.form_lab_id.value) {
- //  alert('<?php echo addslashes(xl('Please select a procedure provider')); ?>');
+ //  alert('<?php echo xls('Please select a procedure provider'); ?>');
  //  return;
  // }
  gbl_formseq = formseq;
@@ -272,7 +272,7 @@ function addProcLine() {
  var row = table.insertRow(table.rows.length);
  var cell = row.insertCell(0);
  cell.vAlign = 'top';
- cell.innerHTML = "<b><?php echo addslashes(xl('Procedure')) ?> " + (i + 1) + ":</b>";
+ cell.innerHTML = "<b><?php echo xls('Procedure'); ?> " + (i + 1) + ":</b>";
  var cell = row.insertCell(1);
  cell.vAlign = 'top';
  cell.innerHTML =
@@ -479,10 +479,10 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
   <td width='1%' valign='top'><b><?php echo xl('Procedure') . ' ' . ($i + 1); ?>:</b></td>
   <td valign='top'>
    <input type='text' size='50' name='form_proc_type_desc[<?php echo $i; ?>]'
-    value='<?php echo addslashes($oprow['procedure_name']) ?>'
+    value='<?php echo attr($oprow['procedure_name']) ?>'
     onclick="sel_proc_type(<?php echo $i; ?>)"
     onfocus='this.blur()'
-    title='<?php xl('Click to select the desired procedure','e'); ?>'
+    title='<?php xla('Click to select the desired procedure','e'); ?>'
     style='width:100%;cursor:pointer;cursor:hand' readonly />
    <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo $ptid ?>' />
    <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->

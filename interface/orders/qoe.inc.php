@@ -118,7 +118,7 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0) {
         $s .= ">$i</option>";
       }
       $s .= "</select>";
-      $s .= " " . xl('weeks') . " &nbsp;";
+      $s .= " " . xlt('weeks') . " &nbsp;";
       $s .= "<select name='G2_$qfieldid'>";
       $s .= "<option value=''></option>";
       for ($i = 0; $i <= 6; ++$i) {
@@ -127,7 +127,7 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0) {
         $s .= ">$i</option>";
       }
       $s .= "</select>";
-      $s .= " " . xl('days');
+      $s .= " " . xlt('days');
     }
 
     // Possible alternative code instead of radio buttons and checkboxes.

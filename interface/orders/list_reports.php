@@ -19,6 +19,9 @@
 * @author    Rod Roark <rod@sunsetsystems.com>
 */
 
+$sanitize_all_escapes = true;
+$fake_register_globals = false;
+
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formdata.inc.php");
@@ -26,6 +29,13 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("./receive_hl7_results.inc.php");
 
+/**
+ * Get a list item title, translating if required.
+ *
+ * @param  string  $listid  List identifier.
+ * @param  string  $value   List item identifier.
+ * @return string  The item's title.
+ */
 function getListItem($listid, $value) {
   $lrow = sqlQuery("SELECT title FROM list_options " .
     "WHERE list_id = ? AND option_id = ?",
@@ -35,6 +45,12 @@ function getListItem($listid, $value) {
   return $tmp;
 }
 
+/**
+ * Adapt text to be suitable as the contents of a table cell.
+ *
+ * @param  string  $s  Input text.
+ * @return string  Output text.
+ */
 function myCellText($s) {
   if ($s === '') return '&nbsp;';
   return text($s);
@@ -42,14 +58,14 @@ function myCellText($s) {
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) die(xlt('Not authorized'));
 ?>
 <html>
 <head>
 <?php html_header_show();?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<title><?php  xl('Procedure Orders and Reports','e'); ?></title>
+<title><?php echo xlt('Procedure Orders and Reports'); ?></title>
 
 <style>
 
@@ -94,12 +110,11 @@ if ($errmsg) {
   echo "<font color='red'>" . text($errmsg) . "</font><br />\n";
 }
 
-$form_from_date = formData('form_from_date','P',true);
-$form_to_date   = formData('form_to_date','P',true);
-if (empty($form_to_date)) $form_to_date = $form_from_date;
+$form_from_date = empty($_POST['form_from_date']) ? '' : trim($_POST['form_from_date']);
+$form_to_date = empty($_POST['form_to_date']) ? '' : trim($_POST['form_to_date']);
+// if (empty($form_to_date)) $form_to_date = $form_from_date;
 
-$form_reviewed = 0 + formData('form_reviewed');
-if (!$form_reviewed) $form_reviewed = 3;
+$form_reviewed = empty($_POST['form_reviewed']) ? 3 : intval($_POST['form_reviewed']);
 
 $form_patient = !empty($_POST['form_patient']);
 ?>
@@ -107,32 +122,32 @@ $form_patient = !empty($_POST['form_patient']);
 <table>
  <tr>
   <td class='text'>
-   &nbsp;<?php xl('From','e'); ?>:
+   &nbsp;<?php echo xlt('From'); ?>:
    <input type='text' size='10' name='form_from_date' id='form_from_date'
-    value='<?php echo $form_from_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
+    value='<?php echo attr($form_from_date); ?>'
+    title='<?php echo xla('yyyy-mm-dd'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
+    title='<?php echo xla('Click here to choose a date'); ?>' />
 
-   &nbsp;<?php xl('To','e'); ?>:
+   &nbsp;<?php echo xlt('To'); ?>:
    <input type='text' size='10' name='form_to_date' id='form_to_date'
-    value='<?php echo $form_to_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
+    value='<?php echo attr($form_to_date); ?>'
+    title='<?php echo xla('yyyy-mm-dd'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
+    title='<?php echo xla('Click here to choose a date'); ?>' />
 
    &nbsp;
    <select name='form_reviewed'>
 <?php
-foreach (array('1' => xlt('All'), '2' => xlt('Reviewed'), '3' => xlt('Unreviewed'),
-  '4' => xlt('Unreceived')) as $key => $value) {
+foreach (array('1' => xl('All'), '2' => xl('Reviewed'), '3' => xl('Unreviewed'),
+  '4' => xl('Unreceived')) as $key => $value) {
   echo "<option value='$key'";
   if ($key == $form_reviewed) echo " selected";
-  echo ">$value</option>\n";
+  echo ">" . text($value) . "</option>\n";
 }
 ?>
    </select>
@@ -142,7 +157,7 @@ foreach (array('1' => xlt('All'), '2' => xlt('Reviewed'), '3' => xlt('Unreviewed
     <?php if ($form_patient) echo 'checked '; ?>/>Current Patient Only
 
    &nbsp;
-   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
+   <input type='submit' name='form_refresh' value=<?php echo xla('Refresh'); ?>>
   </td>
  </tr>
 </table>
@@ -183,15 +198,20 @@ $orderby =
   "pc.procedure_order_seq, pr.procedure_report_id";
 
 $where = "1 = 1";
+$sqlBindArray = array();
+
 if (!empty($form_from_date)) {
-  $where .= " AND po.date_ordered >= '$form_from_date'";
+  $where .= " AND po.date_ordered >= ?";
+  $sqlBindArray[] = $form_from_date;
 }
 if (!empty($form_to_date)) {
-  $where .= " AND po.date_ordered <= '$form_to_date'";
+  $where .= " AND po.date_ordered <= ?";
+  $sqlBindArray[] = $form_to_date;
 }
 
 if ($form_patient) {
-  $where .= " AND po.patient_id = '$pid'";
+  $where .= " AND po.patient_id = ?";
+  $sqlBindArray[] = $pid;
 }
 
 if ($form_reviewed == 2) {
@@ -212,7 +232,7 @@ $query = "SELECT po.patient_id, " .
   "WHERE $where " .
   "ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, $orderby";
 
-$res = sqlStatement($query);
+$res = sqlStatement($query, $sqlBindArray);
 
 $lastptid = -1;
 $lastpoid = -1;

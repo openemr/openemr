@@ -435,17 +435,17 @@ function send_hl7_order($ppid, $out) {
     // Connect to the server and write the file.
     $sftp = new Net_SFTP($remote_host);
     if (!$sftp->login($pprow['login'], $pprow['password'])) {
-      return xl('Login to remote host') . " '$remote_host' " . xl('failed');
+      return xl('Login to this remote host failed') . ": '$remote_host'";
     }
     if (!$sftp->put($filename, $out)) {
-      return xl('Creating file') . " '$filename' " . xl('on remote host failed');
+      return xl('Creating this file on remote host failed') . ": '$filename'";
     }
   }
 
   // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
 
   else {
-    return xl('Protocol') . " '$protocol' " . xl('not implemented');
+    return xl('This protocol is not implemented') . ": '$protocol'";
   }
 
   // Falling through to here indicates success.

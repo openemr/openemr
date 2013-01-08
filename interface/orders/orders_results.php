@@ -519,8 +519,8 @@ while ($row = sqlFetchArray($res)) {
           $tmp = $row['lname'];
           if ($row['fname'] || $row['mname'])
             $tmp .= ', ' . $row['fname'] . ' ' . $row['mname'];
-          echo "  <td>" . htmlentities($tmp) . "</td>\n";
-          echo "  <td>" . htmlentities($row['pubpid']) . "</td>\n";
+          echo "  <td>" . text($tmp) . "</td>\n";
+          echo "  <td>" . text($row['pubpid']) . "</td>\n";
         }
         else {
           echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
@@ -533,7 +533,7 @@ while ($row = sqlFetchArray($res)) {
         else {
           echo "  <td style='background-color:transparent'>&nbsp;</td>";
         }
-        echo "  <td>" . htmlentities($row['procedure_name']) . "</td>\n";
+        echo "  <td>" . text($row['procedure_name']) . "</td>\n";
       }
     }
     else {

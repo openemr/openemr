@@ -5405,7 +5405,7 @@ CREATE TABLE `procedure_order` (
   `lab_id`                 bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
   `specimen_type`          varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Type list',
   `specimen_location`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Location list',
-  `specimen_volume`        varchar(30)  NOT NULL DEFAULT '' COMMENT 'from a text input field';
+  `specimen_volume`        varchar(30)  NOT NULL DEFAULT '' COMMENT 'from a text input field',
   PRIMARY KEY (`procedure_order_id`),
   KEY datepid (date_ordered, patient_id),
   KEY `patient_id` (`patient_id`)

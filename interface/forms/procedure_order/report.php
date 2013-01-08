@@ -28,26 +28,26 @@ function procedure_order_report($pid, $encounter, $cols, $id) {
     echo "<table cellpadding='2' cellspacing='0'>\n";
     echo " <tr>\n";
     echo "  <td class='bold'>" . xlt('Order ID') . ": </td>\n";
-    echo "  <td class='text'>" . xlt($data['procedure_order_id']) . "</td>\n";
+    echo "  <td class='text'>" . text($data['procedure_order_id']) . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
     echo "  <td class='bold'>" . xlt('Order Date') . ": </td>\n";
-    echo "  <td class='text'>" . xlt(oeFormatShortDate($data['date_ordered'])) . "</td>\n";
+    echo "  <td class='text'>" . text(oeFormatShortDate($data['date_ordered'])) . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
     echo "  <td class='bold'>" . xlt('Ordered By') . ": </td>\n";
-    echo "  <td class='text'>" . xlt($data['ulname'] . ', ' . $data['ufname'] . ' ' . $data['umname']) . "</td>\n";
+    echo "  <td class='text'>" . text($data['ulname'] . ', ' . $data['ufname'] . ' ' . $data['umname']) . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
     echo "  <td class='bold'>" . xlt('Lab') . ": </td>\n";
-    echo "  <td class='text'>" . xlt($data['labname']) . "</td>\n";
+    echo "  <td class='text'>" . text($data['labname']) . "</td>\n";
     echo " </tr>\n";
     if (!empty($data['procedure_report_id'])) {
       echo " <tr>\n";
       echo "  <td>&nbsp;</td>\n";
       echo "  <td class='bold'><a href='#' onclick=\"" .
         "top.restoreSession();" .
-        "window.open('" . $GLOBALS['web_root'] . "/interface/orders/single_order_results.php?orderid=" . $id . "');" .
+        "window.open('" . $GLOBALS['web_root'] . "/interface/orders/single_order_results.php?orderid=" . text($id) . "');" .
         "return false;" .
         "\">[" . xlt('View Results') . "]</a></td>\n";
       echo " </tr>\n";

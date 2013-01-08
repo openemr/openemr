@@ -125,7 +125,7 @@ if ($form_step == 0) {
 
   echo " <tr>\n";
   echo "  <td nowrap>&nbsp;</td>\n";
-  echo "  <td><input type='submit' value='" . xlt('Submit') . "' /></td>\n";
+  echo "  <td><input type='submit' value='" . xla('Submit') . "' /></td>\n";
   echo " </tr>\n";
 }
 
