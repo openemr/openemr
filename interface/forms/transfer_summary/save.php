@@ -40,14 +40,14 @@ $sets = "pid = {$_SESSION["pid"]},
   groupname = '" . $_SESSION["authProvider"] . "',
   user = '" . $_SESSION["authUser"] . "',
   authorized = $userauthorized, activity=1, date = NOW(),
-  provider          = '" . add_escape_custom(formData("provider")) . "',
-  client_name          = '" . add_escape_custom(formData("client_name")) . "',
-  transfer_to          = '" . add_escape_custom(formData("transfer_to")) . "',
-  transfer_date          = '" . add_escape_custom(formData("transfer_date")) . "',
-  status_of_admission          = '" . add_escape_custom(formData("status_of_admission")) . "',
-  diagnosis          =  '" . add_escape_custom(formData("diagnosis")) . "',
-  intervention_provided          =  '" . add_escape_custom(formData("intervention_provided")) . "',
-  overall_status_of_discharge                    = '" . add_escape_custom(formData("overall_status_of_discharge")) ."'";
+  provider          = '" . add_escape_custom($_POST["provider"]) . "',
+  client_name          = '" . add_escape_custom($_POST["client_name"]) . "',
+  transfer_to          = '" . add_escape_custom($_POST["transfer_to"]) . "',
+  transfer_date          = '" . add_escape_custom($_POST["transfer_date"]) . "',
+  status_of_admission          = '" . add_escape_custom($_POST["status_of_admission"]) . "',
+  diagnosis          =  '" . add_escape_custom($_POST["diagnosis"]) . "',
+  intervention_provided          =  '" . add_escape_custom($_POST["intervention_provided"]) . "',
+  overall_status_of_discharge                    = '" . add_escape_custom($_POST["overall_status_of_discharge"]) ."'";
 
   
   if (empty($id)) {

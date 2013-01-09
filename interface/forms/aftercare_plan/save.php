@@ -28,8 +28,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
-require_once("$srcdir/htmlspecialchars.inc.php");
-require_once("$srcdir/formdata.inc.php");
+
 
 if (! $encounter) { // comes from globals.php
  die(xl("Internal error: we do not seem to be in an encounter!"));
@@ -40,17 +39,17 @@ $sets = "pid = {$_SESSION["pid"]},
   groupname = '" . $_SESSION["authProvider"] . "',
   user = '" . $_SESSION["authUser"] . "',
   authorized = $userauthorized, activity=1, date = NOW(),
-  provider          =  '" . add_escape_custom(formData("provider")) . "',
-  client_name          = '" . add_escape_custom(formData("client_name")) . "',
-  admit_date          = '" . add_escape_custom(formData("admit_date")) . "',
-  discharged          = '" . add_escape_custom(formData("discharged")) . "',
-  goal_a_acute_intoxication          =  '" . add_escape_custom(formData("goal_a_acute_intoxication")) . "',
-  goal_a_acute_intoxication_I          = '" . add_escape_custom(formData("goal_a_acute_intoxication_I")) . "',
-  goal_a_acute_intoxication_II          =  '" . add_escape_custom(formData("goal_a_acute_intoxication_II")) . "',
-  goal_b_emotional_behavioral_conditions          =  '" . add_escape_custom(formData("goal_b_emotional_behavioral_conditions")) . "',
-  goal_b_emotional_behavioral_conditions_I          = '" . add_escape_custom(formData("goal_b_emotional_behavioral_conditions_I")) . "',
-  goal_c_relapse_potential                           = '" . add_escape_custom(formData("goal_c_relapse_potential")) . "',
-  goal_c_relapse_potential_I                    =  '" . add_escape_custom(formData("goal_c_relapse_potential_I")) . "'";
+  provider          =  '" .add_escape_custom($_POST["provider"]) . "',
+  client_name          = '" .add_escape_custom($_POST["client_name"]) . "',
+  admit_date          = '" .add_escape_custom($_POST["admit_date"]) . "',
+  discharged          = '" .add_escape_custom($_POST["discharged"]) . "',
+  goal_a_acute_intoxication          =  '" . add_escape_custom($_POST["goal_a_acute_intoxication"]) . "',
+  goal_a_acute_intoxication_I          = '" . add_escape_custom($_POST["goal_a_acute_intoxication_I"]) . "',
+  goal_a_acute_intoxication_II          =  '" . add_escape_custom($_POST["goal_a_acute_intoxication_II"]) . "',
+  goal_b_emotional_behavioral_conditions          =  '" . add_escape_custom($_POST["goal_b_emotional_behavioral_conditions"]) . "',
+  goal_b_emotional_behavioral_conditions_I          = '" . add_escape_custom($_POST["goal_b_emotional_behavioral_conditions_I"]) . "',
+  goal_c_relapse_potential                           = '" . add_escape_custom($_POST["goal_c_relapse_potential"]) . "',
+  goal_c_relapse_potential_I                    =  '" . add_escape_custom($_POST["goal_c_relapse_potential_I"]) . "'";
 
   
   if (empty($id)) {

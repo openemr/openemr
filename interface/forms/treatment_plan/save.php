@@ -39,17 +39,17 @@ $sets = "pid = {$_SESSION["pid"]},
   groupname = '" . $_SESSION["authProvider"] . "',
   user = '" . $_SESSION["authUser"] . "',
   authorized = $userauthorized, activity=1, date = NOW(),
-  provider               = '" . add_escape_custom(formData("provider")) . "',
-  client_name            = '" . add_escape_custom(formData("client_name")) . "',
-  client_number          = '" . add_escape_custom(formData("client_number")) . "',
-  admit_date             =  '" . add_escape_custom(formData("admit_date")) . "',
-  presenting_issues          = '" . add_escape_custom(formData("presenting_issues")) . "',
-  patient_history            =  '" . add_escape_custom(formData("patient_history")) . "',
-  medications                = '" . add_escape_custom(formData("medications")) . "',
-  anyother_relevant_information          = '" . add_escape_custom(formData("anyother_relevant_information")) . "',
-  diagnosis                    = '" . add_escape_custom(formData("diagnosis")) . "',
-  treatment_received           = '" . add_escape_custom(formData("treatment_received")) . "',
-  recommendation_for_follow_up                    = '" . add_escape_custom(formData("recommendation_for_follow_up")) . "'";
+  provider               = '" . add_escape_custom($_POST["provider"]) . "',
+  client_name            = '" . add_escape_custom($_POST["client_name"]) . "',
+  client_number          = '" . add_escape_custom($_POST["client_number"]) . "',
+  admit_date             =  '" . add_escape_custom($_POST["admit_date"]) . "',
+  presenting_issues          = '" . add_escape_custom($_POST["presenting_issues"]) . "',
+  patient_history            =  '" . add_escape_custom($_POST["patient_history"]) . "',
+  medications                = '" . add_escape_custom($_POST["medications"]) . "',
+  anyother_relevant_information          = '" . add_escape_custom($_POST["anyother_relevant_information"]) . "',
+  diagnosis                    = '" . add_escape_custom($_POST["diagnosis"]) . "',
+  treatment_received           = '" . add_escape_custom($_POST["treatment_received"]) . "',
+  recommendation_for_follow_up                    = '" . add_escape_custom($_POST["recommendation_for_follow_up"]) . "'";
   
 
   
