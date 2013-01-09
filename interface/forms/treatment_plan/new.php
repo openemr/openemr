@@ -67,7 +67,7 @@ echo "<form method='post' name='my_form' " .
 			<label class="forms-data"> <?php if (is_numeric($pid)) {
     
     $result = getPatientData($pid, "fname,lname,squad");
-   echo htmlspecialchars(text($result['fname'])." ".text($result['lname']));}
+   echo text($result['fname'])." ".text($result['lname']);}
    $patient_name=($result['fname'])." ".($result['lname']);
    ?>
    </label>
@@ -78,7 +78,7 @@ echo "<form method='post' name='my_form' " .
 		<label class="forms-data"> <?php if (is_numeric($pid)) {
     
     $result = getPatientData($pid, "*");
-   echo htmlspecialchars( $result['DOB']);}
+   echo text($result['DOB']);}
    $dob=($result['DOB']);
    ?>
    </label>
@@ -94,11 +94,11 @@ echo "<form method='post' name='my_form' " .
 			<label class="forms-data" > <?php if (is_numeric($pid)) {
     
     $result = getPatientData($pid, "*");
-   echo htmlspecialchars(xl('','','','').$result['pid']);}
+   echo text($result['pid']);}
    $patient_id=$result['pid'];
    ?>
    </label>
-    <input type="hidden" name="client_number" value="<?php echo $patient_id;?>">
+    <input type="hidden" name="client_number" value="<?php echo attr($patient_id);?>">
 		</td>
 
 
@@ -121,10 +121,10 @@ echo "<form method='post' name='my_form' " .
 
     echo "<select name='provider' style='width:60%' />";
     while ($urow = sqlFetchArray($ures)) {
-      echo "    <option value='" . $urow['lname'] . "'";
+      echo "    <option value='" . attr($urow['lname']) . "'";
       if ($urow['lname'] == attr($obj{"provider"})) echo " selected";
-      echo ">" . $urow['lname'];
-      if ($urow['fname']) echo ", " . $urow['fname'];
+      echo ">" . text($urow['lname']);
+      if ($urow['fname']) echo ", " . text($urow['fname']);
       echo "</option>\n";
     }
     echo "</select>";

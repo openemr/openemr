@@ -63,7 +63,7 @@ echo "<form method='post' name='my_form' " .
 			<label class="forms-data"> <?php if (is_numeric($pid)) {
     
     $result = getPatientData($pid, "fname,lname,squad");
-   echo htmlspecialchars(xl('','','','').text($result['fname'])." ".text($result['lname']));}
+   echo text($result['fname'])." ".text($result['lname']);}
    $patient_name=($result['fname'])." ".($result['lname']);
    ?>
    </label>
@@ -74,7 +74,7 @@ echo "<form method='post' name='my_form' " .
 		<label class="forms-data"> <?php if (is_numeric($pid)) {
     
     $result = getPatientData($pid, "*");
-   echo htmlspecialchars(($result['DOB']));}
+   echo text($result['DOB']);}
    $dob=($result['DOB']);
    ?>
    </label>

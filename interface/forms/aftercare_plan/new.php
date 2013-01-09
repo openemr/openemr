@@ -98,7 +98,7 @@ echo "<form method='post' name='my_form' " .
 
 	
 	
-		<td align="left" class="forms"><?php echo xl('Discharged'); ?>:</td>
+		<td align="left" class="forms"><?php echo xlt('Discharged'); ?>:</td>
 		<td class="forms">
 			   <input type='text' size='10' name='discharged' id='discharge_date' <?php echo attr($disabled); ?>;
       value='<?php echo attr($obj{"discharged"}); ?>'

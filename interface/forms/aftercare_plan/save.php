@@ -61,7 +61,7 @@ else {
   sqlStatement("UPDATE form_aftercare_plan SET $sets WHERE id = '". add_escape_custom("$id"). "'");
 }
 
-$_SESSION["encounter"] = htmlspecialchars($encounter);
+$_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
