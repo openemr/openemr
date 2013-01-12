@@ -189,8 +189,7 @@ if (is_dir($mainPATH)) {
                 }
 	    }
 	    if ($supported_file === 1) {
-		?>
-                <div class="stg"><?php echo text(basename($file)); ?></div>
+		?><div class="stg"><?php echo text(basename($file)); ?></div>
 		<?php
 	    } else {
                 ?>
