@@ -64,7 +64,7 @@ td { font-size:10pt; }
 
 </head>
 
-<body class="body_top">
+<body class="body_top" OnLoad="document.theform.search_term.focus();">
 
 <?php
 $string_target_element = "";
