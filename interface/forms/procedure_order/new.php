@@ -225,8 +225,17 @@ function sel_proc_type(formseq) {
  // }
  gbl_formseq = formseq;
  var ptvarname = 'form_proc_type[' + formseq + ']';
+ /********************************************************************
  dlgopen('../../orders/types.php?popup=1' +
   '&labid=' + f.form_lab_id.value +
+  '&order=' + f[ptvarname].value +
+  '&formid=<?php echo $formid; ?>' +
+  '&formseq=' + formseq,
+  '_blank', 800, 500);
+ ********************************************************************/
+ // This replaces the above for an easier/faster order picker tool.
+ dlgopen('../../orders/find_order_popup.php' +
+  '?labid=' + f.form_lab_id.value +
   '&order=' + f[ptvarname].value +
   '&formid=<?php echo $formid; ?>' +
   '&formseq=' + formseq,
