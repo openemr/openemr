@@ -77,8 +77,13 @@ class OEMRUser{
             // Entries pending  for approval for  documents only (no demo change).            
             case 'U5':
             $pid = $this->getPid($data[1]);
-            $query = " select * from  audit_master  where pid=? and  approval_status='1' and  type='3' ";
-            return array($query,array($pid));
+						if($pid){
+								$query = " select * from  audit_master  where pid=? and  approval_status='1' and  type='3' ";
+								return array($query,array($pid));
+						}else{
+								$query = " select * from  audit_master where id=? and approval_status='1' and type='3'";
+								return array($query,array($data[1]));
+						}
             break;
             
             case 'P1':
@@ -120,10 +125,17 @@ class OEMRUser{
             
 			// Entries pending  for approval demo and documents.
             case 'P6':
-            $pid = $this->getPid($data[1]);
-            $query=" select * from audit_master as am,audit_details as ad WHERE am.id=ad.audit_master_id and am.pid=? and am.approval_status='1'  
-                            and  (am.type='1' or am.type='2' or am.type='3')  order by ad.id";
-            return array($query,array($pid));
+						$pid = $this->getPid($data[1]);
+						if($pid){
+								$query=" select * from audit_master as am,audit_details as ad WHERE am.id=ad.audit_master_id and am.pid=? and am.approval_status='1'  
+                and  (am.type='1' or am.type='2' or am.type='3')  order by ad.id";
+								return array($query,array($pid));
+						}else{
+								$query=" select * from audit_master as am,audit_details as ad WHERE am.id=ad.audit_master_id and am.id=? and am.approval_status='1'  
+                and  (am.type='1' or am.type='2' or am.type='3') order by ad.id";
+								return array($query,array($data[1]));
+						}
+            
             break;
             // Demo building from layout options.
             
@@ -153,8 +165,27 @@ class OEMRUser{
             
             case 'E1':
             //list of approvals
-            $query="select *,audit_master.id as audit_master_id from audit_master,patient_data where audit_master.pid=patient_data.pid and
-            audit_master.approval_status='1' order by audit_master.id";
+						$query = "SELECT CASE WHEN am.type = 3 AND am.pid = 0 THEN CONCAT('am-', am.id) ELSE am.id END AS audit_master_id, am.*, COALESCE(
+						pd.lname,(SELECT field_value FROM audit_details WHERE audit_master_id = am.id AND table_name = 'patient_data' AND field_name = 'lname'),
+						(SELECT ad2.field_value FROM audit_details ad JOIN audit_details ad1 ON ad1.table_name = 'patient_access_offsite' AND
+						ad1.field_name = 'portal_username' AND ad1.field_value = ad.field_value JOIN audit_details ad2 ON ad2.table_name = 'patient_data'
+						AND ad2.field_name = 'lname' AND ad2.audit_master_id = ad1.audit_master_id WHERE ad.audit_master_id = am.id AND
+						ad.table_name = 'patient_access_offsite' AND ad.field_name = 'portal_username')) AS lname,COALESCE(pd.fname,(SELECT field_value
+						FROM audit_details WHERE audit_master_id = am.id AND table_name = 'patient_data' AND field_name = 'fname'),(SELECT ad2.field_value
+						FROM audit_details ad JOIN audit_details ad1 ON ad1.table_name = 'patient_access_offsite' AND ad1.field_name = 'portal_username' AND
+						ad1.field_value = ad.field_value JOIN audit_details ad2 ON ad2.table_name = 'patient_data' AND ad2.field_name = 'fname' AND
+						ad2.audit_master_id = ad1.audit_master_id WHERE ad.audit_master_id = am.id AND ad.table_name = 'patient_access_offsite' AND
+						ad.field_name = 'portal_username')) AS fname,COALESCE(pd.mname,(SELECT field_value FROM audit_details WHERE audit_master_id = am.id 
+						AND table_name = 'patient_data' AND field_name = 'mname'),(SELECT ad2.field_value FROM audit_details ad JOIN audit_details ad1 ON
+						ad1.table_name = 'patient_access_offsite' AND ad1.field_name = 'portal_username' AND ad1.field_value = ad.field_value 
+						JOIN audit_details ad2 ON ad2.table_name = 'patient_data' AND ad2.field_name = 'mname' AND ad2.audit_master_id = ad1.audit_master_id 
+						WHERE ad.audit_master_id = am.id AND ad.table_name = 'patient_access_offsite' AND ad.field_name = 'portal_username')) AS mname,
+						COALESCE(pd.dob,(SELECT field_value FROM audit_details WHERE audit_master_id = am.id AND table_name = 'patient_data' AND
+						field_name = 'dob'),(SELECT ad2.field_value FROM audit_details ad JOIN audit_details ad1 ON ad1.table_name = 'patient_access_offsite' 
+						AND ad1.field_name = 'portal_username' AND ad1.field_value = ad.field_value JOIN audit_details ad2 ON ad2.table_name = 'patient_data' 
+						AND ad2.field_name = 'dob' AND ad2.audit_master_id = ad1.audit_master_id WHERE ad.audit_master_id = am.id AND
+						ad.table_name = 'patient_access_offsite' AND ad.field_name = 'portal_username')) AS DOB FROM audit_master am LEFT JOIN patient_data pd 
+						ON am.pid = pd.pid WHERE am.approval_status = '1' ORDER BY am.id";
             return array($query);
             break;
             
@@ -181,9 +212,15 @@ class OEMRUser{
             //list of approvals
             $query="select * from audit_master where audit_master.id=?";
             $row = sqlQuery($query,$data[1]);
-            return array("SELECT * FROM documents_legal_detail join documents_legal_master on dld_master_docid=dlm_document_id WHERE dld_pid=? and  dld_signed='0' 
-		and dlm_document_id=dld_master_docid and  dlm_subcategory  not in (SELECT dlc_id FROM `documents_legal_categories` 
-		where dlc_category_name='Layout Signed' and dlc_category_type=2)",array($row['pid']));
+            return array("SELECT ad3.field_value AS dld_filename, dlm.dlm_document_id, CONCAT('am-',ad.audit_master_id) AS dld_id, dlm.dlm_document_name 
+						FROM audit_details ad JOIN audit_details ad2 ON ad2.table_name = 'documents_legal_detail' AND ad2.field_name = 'dld_signed' 
+						AND ad2.field_value = '0' AND ad2.audit_master_id = ad.audit_master_id JOIN audit_details ad3 ON ad3.table_name = 'documents_legal_detail' 
+						AND ad3.field_name = 'dld_filename' AND ad3.audit_master_id = ad.audit_master_id JOIN documents_legal_master dlm ON dlm.dlm_document_id = ad.field_value 
+						WHERE ad.audit_master_id = ? AND ad.table_name = 'documents_legal_detail' AND dlm_subcategory NOT IN (SELECT dlc_id FROM `documents_legal_categories` 
+						WHERE dlc_category_name = 'Layout Signed' AND dlc_category_type = 2) UNION SELECT dld_filename, dlm.dlm_document_id, dld.dld_id, dlm.dlm_document_name 
+						FROM documents_legal_detail dld JOIN documents_legal_master dlm ON dld_master_docid = dlm_document_id WHERE dld_pid = ? AND dld_signed = '0' 
+						AND dlm_document_id = dld_master_docid AND dlm_subcategory NOT IN (SELECT dlc_id FROM `documents_legal_categories` WHERE dlc_category_name = 'Layout Signed' 
+						AND dlc_category_type = 2)",array($row['id'],$row['pid']));
             break;
             
             case 'F4':
@@ -202,8 +239,13 @@ class OEMRUser{
             case 'F8':
             //signing
             $pid = $this->getPid($data[1]);
-            $query="select * from audit_master  where pid=? and  approval_status='1'  and  (type='1' or type='2' or type='3')";
-            return array($query,array($pid));
+						if($pid){
+								$query = " select * from  audit_master  where pid=? and  approval_status='1' and  (type='1' or type='2' or type='3')";
+								return array($query,array($pid));
+						}else{
+								$query = " select * from  audit_master where id=? and approval_status='1' and (type='1' or type='2' or type='3')";
+								return array($query,array($data[1]));
+						}
             break;
         
             case 'F12':
