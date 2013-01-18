@@ -28,6 +28,7 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once("../../custom/code_types.inc.php");
+require_once("$srcdir/billing.inc");
 
  $errmsg  = "";
  $alertmsg = ''; // not used yet but maybe later
@@ -330,10 +331,7 @@ function postError($msg) {
     if ($code_types[$code_type]['just']) {
      if (! $brow['justify']) postError(xl('Needs Justify'));
     }
-    if ($code_type == 'COPAY') {
-     $copays -= $brow['fee'];
-     if ($brow['fee'] >= 0) postError(xl('Copay not positive'));
-    } else if ($code_types[$code_type]['fee']) {
+    if ($code_types[$code_type]['fee']) {
      $charges += $brow['fee'];
      if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) postError(xl('Missing Fee'));
     } else {
@@ -364,6 +362,8 @@ function postError($msg) {
     } // End IPPF stuff
 
    } // end while
+   
+   $copays -= getPatientCopay($patient_id,$encounter);
 
    // The following is removed, perhaps temporarily, because gcac reporting
    // no longer depends on gcac issues.  -- Rod 2009-08-11
