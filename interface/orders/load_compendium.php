@@ -357,6 +357,7 @@ if ($form_step == 1) {
             }
           }
         }
+
         else if ($form_action == 2) { // load questions
           // Mark the vendor's current questions inactive.
           sqlStatement("UPDATE procedure_questions SET activity = 0 WHERE lab_id = ?",
@@ -369,7 +370,9 @@ if ($form_step == 1) {
           //   1: Question Code
           //   2: Question
           //   3: Is Required (always "false")
-          //   4: Field Type ("Free Text", "Pre-Defined Text" or "Multiselect Pre-Defined Text")
+          //   4: Field Type ("Free Text", "Pre-Defined Text" or "Drop Down";
+          //      "Drop Down" was previously "Multiselect Pre-Defined Text" and
+          //      indicates that more than one choice is allowed)
           //   5: Response (just one; the row is duplicated for each possible value)
           //
           while (!feof($fhcsv)) {
@@ -385,11 +388,12 @@ if ($form_step == 1) {
               "lab_id = ? AND procedure_code = ? AND question_code = ?",
               array($lab_id, $pcode, $qcode));
 
-            // If this is the first option value and it's Multiselect, then
-            // prepend '+;' to indicate start of a multi-select list.
+            // If this is the first option value and its type is Drop Down, then
+            // prepend '+;' to indicate the start of a multi-select list.
             if (!empty($options) &&
                 (empty($qrow['options']) || empty($qrow['activity'])) &&
-                strpos($acsv[4], 'Multiselect') !== FALSE)
+                (strpos($acsv[4], 'Multiselect') !== FALSE) ||
+                 strpos($acsv[4], 'Drop') !== FALSE))
             {
               $options = '+;' . $options;
             }

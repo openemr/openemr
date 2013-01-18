@@ -97,7 +97,7 @@ function openResults(orderid) {
 </head>
 
 <body class="body_top">
-<form method='post' action='list_reports.php'
+<form method='post' action='list_reports.php' enctype='multipart/form-data'
  onsubmit='return validate(this)'>
 
 <?php
@@ -108,6 +108,22 @@ foreach ($messages as $message) {
 }
 if ($errmsg) {
   echo "<font color='red'>" . text($errmsg) . "</font><br />\n";
+}
+
+// Process uploaded file if there is one.
+if (!empty($_FILES['userfile']['name'])) { // if upload was attempted
+  if (is_uploaded_file($_FILES['userfile']['tmp_name'])) {
+    $hl7 = file_get_contents($_FILES['userfile']['tmp_name']);
+    $msg = receive_hl7_results($hl7);
+    $message = xl('Upload processed successfully');
+    if ($msg) {
+      $message = xl('Error processing upload') . ": " . $msg;
+    }
+    echo text($message) . "<br />\n";
+  }
+  else {
+    echo "<font color='red'>" . xlt('Upload failed!') . "</font><br />\n";
+  }
 }
 
 $form_from_date = empty($_POST['form_from_date']) ? '' : trim($_POST['form_from_date']);
@@ -123,7 +139,7 @@ $form_patient = !empty($_POST['form_patient']);
  <tr>
   <td class='text'>
    &nbsp;<?php echo xlt('From'); ?>:
-   <input type='text' size='10' name='form_from_date' id='form_from_date'
+   <input type='text' size='8' name='form_from_date' id='form_from_date'
     value='<?php echo attr($form_from_date); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
@@ -132,7 +148,7 @@ $form_patient = !empty($_POST['form_patient']);
     title='<?php echo xla('Click here to choose a date'); ?>' />
 
    &nbsp;<?php echo xlt('To'); ?>:
-   <input type='text' size='10' name='form_to_date' id='form_to_date'
+   <input type='text' size='8' name='form_to_date' id='form_to_date'
     value='<?php echo attr($form_to_date); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
@@ -157,7 +173,14 @@ foreach (array('1' => xl('All'), '2' => xl('Reviewed'), '3' => xl('Unreviewed'),
     <?php if ($form_patient) echo 'checked '; ?>/>Current Patient Only
 
    &nbsp;
-   <input type='submit' name='form_refresh' value=<?php echo xla('Refresh'); ?>>
+   <span title='<?php echo xla('You may optionally upload HL7 results from a file'); ?>'>
+   <?php echo xlt('Upload'); ?>:
+   <input type='hidden' name='MAX_FILE_SIZE' value='4000000' />
+   <input type='file' name='userfile' size='8' />
+   </span>
+
+   &nbsp;
+   <input type='submit' name='form_refresh' value=<?php echo xla('Submit'); ?>>
   </td>
  </tr>
 </table>

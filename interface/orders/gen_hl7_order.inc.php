@@ -442,6 +442,17 @@ function send_hl7_order($ppid, $out) {
     }
   }
 
+  else if ($protocol == 'DL') {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=order_$msgid.hl7");
+    header("Content-Description: File Transfer");
+    echo $out;
+    exit;
+  }
+
   // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
 
   else {

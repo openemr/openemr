@@ -92,7 +92,7 @@ function rhl7ReportStatus($s) {
  * @param  string  &$hl7     The input HL7 text.
  * @return string            Error text, or empty if no errors.
  */
-function receive_hl7_results(&$pprow, &$hl7) {
+function receive_hl7_results(&$hl7) {
   if (substr($hl7, 0, 3) != 'MSH') {
     return xl('Input does not begin with a MSH segment');
   }
@@ -348,7 +348,7 @@ function poll_hl7_results(&$messages) {
           continue;
         }
         // Parse and process its contents.
-        $msg = receive_hl7_results($pprow, $hl7);
+        $msg = receive_hl7_results($hl7);
         if ($msg) {
           $messages[] = xl('Error processing file') . " '$file':" . $msg;
           ++$badcount;
