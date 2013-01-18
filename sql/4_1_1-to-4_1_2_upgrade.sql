@@ -120,3 +120,11 @@ DROP TABLE `temp_table_one`;
 ALTER TABLE `codes` CHANGE `code` `code` varchar(25) NOT NULL default '';
 #EndIf
 
+#IfNotColumnType billing code varchar(20)
+ALTER TABLE `billing` CHANGE `code` `code` varchar(20) default NULL;
+#EndIf
+
+#IfNotColumnType ar_activity code varchar(20)
+ALTER TABLE `ar_activity` CHANGE `code` `code` varchar(20) NOT NULL COMMENT 'empty means claim level';
+#EndIf
+
