@@ -28,10 +28,11 @@
  */
 
 /**
- * Include the main CDR engine library and email class
+ * Include the main CDR engine library, email class and maviq class
  */
 require_once(dirname(__FILE__) . "/clinical_rules.php");
 require_once(dirname(__FILE__) . "/classes/postmaster.php");
+require_once(dirname(__FILE__) . "/maviq_phone_api.php");
 
 // This is only pertinent for users of php versions less than 5.2
 //  (ie. this wrapper is only loaded when php version is less than
