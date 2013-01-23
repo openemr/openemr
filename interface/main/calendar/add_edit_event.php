@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -203,6 +203,33 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
     }
     $endtime = "$tmph:$tmpm:00";
 
+    // Set up working variables related to repeated events.
+    $my_recurrtype = 0;
+    $my_repeat_freq = 0 + $_POST['form_repeat_freq'];
+    $my_repeat_type = 0 + $_POST['form_repeat_type'];
+    $my_repeat_on_num  = 1;
+    $my_repeat_on_day  = 0;
+    $my_repeat_on_freq = 0;
+    if (!empty($_POST['form_repeat'])) {
+      $my_recurrtype = 1;
+      if ($my_repeat_type > 4) {
+        $my_recurrtype = 2;
+        $time = strtotime($event_date);
+        $my_repeat_on_day = 0 + date('w', $time);
+        $my_repeat_on_freq = $my_repeat_freq;
+        if ($my_repeat_type == 5) {
+          $my_repeat_on_num = intval((date('j', $time) - 1) / 7) + 1;
+        }
+        else {
+          // Last occurence of this weekday on the month
+          $my_repeat_on_num = 5;
+        }
+        // Maybe not needed, but for consistency with postcalendar:
+        $my_repeat_freq = 0;
+        $my_repeat_type = 0;
+      }
+    }
+
     // Useless garbage that we must save.
     $locationspecs = array("event_location" => "",
                             "event_street1" => "",
@@ -214,11 +241,11 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
     $locationspec = serialize($locationspecs);
 
     // capture the recurring specifications
-    $recurrspec = array("event_repeat_freq" => $_POST['form_repeat_freq'],
-                        "event_repeat_freq_type" => $_POST['form_repeat_type'],
-                        "event_repeat_on_num" => "1",
-                        "event_repeat_on_day" => "0",
-                        "event_repeat_on_freq" => "0",
+    $recurrspec = array("event_repeat_freq" => "$my_repeat_freq",
+                        "event_repeat_freq_type" => "$my_repeat_type",
+                        "event_repeat_on_num" => "$my_repeat_on_num",
+                        "event_repeat_on_day" => "$my_repeat_on_day",
+                        "event_repeat_on_freq" => "$my_repeat_on_freq",
                         "exdate" => $_POST['form_repeat_exdate']
                     );
 
@@ -396,7 +423,7 @@ if ($_POST['form_action'] == "save") {
                         "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                         "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
                         "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
-                        "pc_recurrtype = '" . add_escape_custom(($_POST['form_repeat'] ? '1' : '0')) . "', " .
+                        "pc_recurrtype = '" . add_escape_custom($my_recurrtype) . "', " .
                         "pc_recurrspec = '" . add_escape_custom(serialize($recurrspec)) . "', " .
                         "pc_startTime = '" . add_escape_custom($starttime) . "', " .
                         "pc_endTime = '" . add_escape_custom($endtime) . "', " .
@@ -405,10 +432,9 @@ if ($_POST['form_action'] == "save") {
                         "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "' ,"  .
                         "pc_facility = '" . add_escape_custom((int)$_POST['facility']) ."' ,"  . // FF stuff
                         "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) ."' "  . 
-			"WHERE pc_aid = '" . add_escape_custom($provider) . "' AND pc_multiple = '" . add_escape_custom($row['pc_multiple'])  . "'");
+                        "WHERE pc_aid = '" . add_escape_custom($provider) . "' AND pc_multiple = '" . add_escape_custom($row['pc_multiple'])  . "'");
                 } // foreach
             }
-
 
         // ====================================
         // single provider
@@ -488,7 +514,7 @@ if ($_POST['form_action'] == "save") {
                     "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                     "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
                     "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
-                    "pc_recurrtype = '" . add_escape_custom(($_POST['form_repeat'] ? '1' : '0')) . "', " .
+                    "pc_recurrtype = '" . add_escape_custom($my_recurrtype) . "', " .
                     "pc_recurrspec = '" . add_escape_custom(serialize($recurrspec)) . "', " .
                     "pc_startTime = '" . add_escape_custom($starttime) . "', " .
                     "pc_endTime = '" . add_escape_custom($endtime) . "', " .
@@ -497,7 +523,7 @@ if ($_POST['form_action'] == "save") {
                     "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "' ,"  .
                     "pc_facility = '" . add_escape_custom((int)$_POST['facility']) ."' ,"  . // FF stuff
                     "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) ."' "  . 
-		    "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
+                    "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
             }
         }
 
@@ -683,6 +709,17 @@ if ($_POST['form_action'] == "save") {
   $repeattype = $rspecs['event_repeat_freq_type'];
   $repeatfreq = $rspecs['event_repeat_freq'];
   $repeatexdate = $rspecs['exdate']; // repeating date exceptions
+
+  // Adjustments for repeat type 2, a particular weekday of the month.
+  if ($repeats == 2) {
+    $repeatfreq = $rspecs['event_repeat_on_freq'];
+    if ($rspecs['event_repeat_on_num'] < 5) {
+      $repeattype = 5;
+    }
+    else {
+      $repeattype = 6;
+    }
+  }
 
   $hometext = $row['pc_hometext'];
   if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
@@ -911,6 +948,36 @@ td { font-size:0.8em; }
   document.getElementById('img_enddate').style.visibility = myvisibility;
  }
 
+ // Constants used by dateChanged() function.
+ var occurNames = new Array(
+  '<?php echo xls("1st"); ?>',
+  '<?php echo xls("2nd"); ?>',
+  '<?php echo xls("3rd"); ?>',
+  '<?php echo xls("4th"); ?>'
+ );
+
+ // Monitor start date changes to adjust repeat type options.
+ function dateChanged() {
+  var f = document.forms[0];
+  if (!f.form_date.value) return;
+  var d = new Date(f.form_date.value);
+  var downame = Calendar._DN[d.getUTCDay()];
+  var nthtext = '';
+  var occur = Math.floor((d.getUTCDate() - 1) / 7);
+  if (occur < 4) { // 5th is not allowed
+   nthtext = occurNames[occur] + ' ' + downame;
+  }
+  f.form_repeat_type.options[5].text = nthtext;
+  var lasttext = '';
+  var tmp = new Date(d.getUTCFullYear(), d.getUTCMonth() + 1, 0);
+  if (tmp.getUTCDate() - d.getUTCDate() < 7) {
+   // This is a last occurrence of the specified weekday in the month,
+   // so permit that as an option.
+   lasttext = '<?php echo xls("Last"); ?> ' + downame;
+  }
+  f.form_repeat_type.options[6].text = lasttext;
+ }
+
  // This is for callback by the find-available popup.
  function setappt(year,mon,mday,hours,minutes) {
   var f = document.forms[0];
@@ -1044,7 +1111,7 @@ $classpati='';
    <input type='text' size='10' name='form_date' id='form_date'
     value='<?php echo attr($date) ?>'
     title='<?php echo xla('yyyy-mm-dd event date or starting date'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' onchange='dateChanged()' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php echo xla('Click here to choose a date'); ?>'>
@@ -1297,9 +1364,10 @@ if  ($GLOBALS['select_multi_providers']) {
 
    <select name='form_repeat_type'>
 <?php
- // See common.api.php for these:
- foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'))
-  as $key => $value)
+ // See common.api.php for these. Options 5 and 6 will be dynamically filled in
+ // when the start date is set.
+ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'),
+  5 => '', 6 => '') as $key => $value)
  {
   echo "    <option value='" . attr($key) . "'";
   if ($key == $repeattype) echo " selected";
@@ -1445,6 +1513,9 @@ $(document).ready(function(){
     $("#future_events").click(function() { $("#recurr_affect").val("future"); EnableForm(); SubmitForm(); });
     $("#current_event").click(function() { $("#recurr_affect").val("current"); EnableForm(); SubmitForm(); });
     $("#recurr_cancel").click(function() { $("#recurr_affect").val(""); EnableForm(); HideRecurrPopup(); });
+
+    // Initialize repeat options.
+    dateChanged();
 });
 
 // Check for errors when the form is submitted.

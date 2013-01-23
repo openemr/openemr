@@ -1,10 +1,15 @@
 <?php
- // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2006, 2013 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
+
+// Note from Rod 2013-01-22:
+// This module needs to be refactored to share the same code that is in
+// interface/main/calendar/find_appt_popup.php.  It contains an old version
+// of that logic and does not support exception dates for repeating events.
 
 //continue session
 session_start();
@@ -138,17 +143,24 @@ $ignoreAuth = 1;
 
     preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
     $repeattype = $matches[1];
-//    echo "<br>".$row['pc_title'].", ".$row['pc_catid']."<br>repeattype = ".$repeattype."<br>";
 
     preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
     $repeatfreq = $matches[1];
-//    echo "repeatfreq = ".$repeatfreq."<br>";
+    if ($row['pc_recurrtype'] == 2) {
+     // Repeat type is 2 so frequency comes from event_repeat_on_freq.
+     preg_match('/"event_repeat_on_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
+     $repeatfreq = $matches[1];
+    }
     if (! $repeatfreq) $repeatfreq = 1;
 
+    preg_match('/"event_repeat_on_num";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
+    $my_repeat_on_num = $matches[1];
+
+    preg_match('/"event_repeat_on_day";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
+    $my_repeat_on_day = $matches[1];
+
     $endtime = strtotime($row['pc_endDate'] . " 00:00:00") + (24 * 60 * 60);
-//    echo "endtime= ".$endtime."<br>";
     if ($endtime > $slotetime) $endtime = $slotetime;
-//    echo "endtime= ".$endtime."<br>";
     
     $repeatix = 0;
     while ($thistime < $endtime) {
@@ -162,6 +174,30 @@ $ignoreAuth = 1;
      if (++$repeatix >= $repeatfreq) $repeatix = 0;
 
      $adate = getdate($thistime);
+
+     if ($row['pc_recurrtype'] == 2) {
+      // Need to skip to nth or last weekday of the next month.
+      $adate['mon'] += 1;
+      if ($adate['mon'] > 12) {
+       $adate['year'] += 1;
+       $adate['mon'] -= 12;
+      }
+      if ($my_repeat_on_num < 5) { // not last
+       $adate['mday'] = 1;
+       $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
+       if ($dow > $my_repeat_on_day) $dow -= 7;
+       $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
+      }
+      else { // last weekday of month
+       $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
+       $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
+       if ($dow < $my_repeat_on_day) $dow += 7;
+       $adate['mday'] += $my_repeat_on_day - $dow;
+      }
+     } // end recurrtype 2
+
+     else { // recurrtype 1
+
      if ($repeattype == 0)        { // daily
       $adate['mday'] += 1;
      } else if ($repeattype == 1) { // weekly
@@ -190,8 +226,10 @@ $ignoreAuth = 1;
      } else {
        die("Invalid repeat type '$repeattype'");
      }
+
+     } // end recurrtype 1
+
      $thistime = mktime(0, 0, 0, $adate['mon'], $adate['mday'], $adate['year']);
-//     echo 'thistime:'.$thistime.'<br>';
     }
    } else {
     doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
