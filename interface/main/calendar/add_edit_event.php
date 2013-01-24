@@ -967,7 +967,6 @@ td { font-size:0.8em; }
   if (occur < 4) { // 5th is not allowed
    nthtext = occurNames[occur] + ' ' + downame;
   }
-  f.form_repeat_type.options[5].text = nthtext;
   var lasttext = '';
   var tmp = new Date(d.getUTCFullYear(), d.getUTCMonth() + 1, 0);
   if (tmp.getUTCDate() - d.getUTCDate() < 7) {
@@ -975,7 +974,12 @@ td { font-size:0.8em; }
    // so permit that as an option.
    lasttext = '<?php echo xls("Last"); ?> ' + downame;
   }
-  f.form_repeat_type.options[6].text = lasttext;
+  var si = f.form_repeat_type.selectedIndex;
+  var opts = f.form_repeat_type.options;
+  opts.length = 5; // remove any nth and Last entries
+  if (nthtext ) opts[opts.length] = new Option(nthtext , '5');
+  if (lasttext) opts[opts.length] = new Option(lasttext, '6');
+  if (si < opts.length) f.form_repeat_type.selectedIndex = si;
  }
 
  // This is for callback by the find-available popup.
@@ -1367,7 +1371,7 @@ if  ($GLOBALS['select_multi_providers']) {
  // See common.api.php for these. Options 5 and 6 will be dynamically filled in
  // when the start date is set.
  foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'),
-  5 => '', 6 => '') as $key => $value)
+   5 => '?', 6 => '?') as $key => $value)
  {
   echo "    <option value='" . attr($key) . "'";
   if ($key == $repeattype) echo " selected";
@@ -1469,7 +1473,8 @@ if ($repeatexdate != "") {
 &nbsp;
 <input type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate');?>' />
 </p></td></tr></table>
-<?php if ($informant) echo "<p class='text'>" . xlt('Last update by') . " text($informant) " . xlt('on') . " " . text($row['pc_time']) . "</p>\n"; ?>
+<?php if ($informant) echo "<p class='text'>" . xlt('Last update by') . " " .
+  text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n"; ?>
 </center>
 </form>
 
