@@ -39,7 +39,7 @@
 		
 		<section name="misc" label="Miscellaneous">
 		    <field name="next_visit" label="Follow Up Needed" type="dropdown_list" size="20" list="yesno" hoverover="" maxlength="255" labelcols="1" cols="1"/>
-			<field name="app_done" Label="Appointment Done" type="dropdown_list" size="20" list="yesno" hoverover="" maxlength="255" labelcols="1" cols="1"/>
+			<field name="app_done" label="Appointment Done" type="dropdown_list" size="20" list="yesno" hoverover="" maxlength="255" labelcols="1" cols="1"/>
 			<field name="follow_date" label="Follow up date" type="date" labelcols="1" cols="1"/>
 		</section>
 		
@@ -65,9 +65,24 @@
 		<listitem id='2' label="Not In Demographics History Section" order='2'>Not In Demographics History Section</listitem>
 	</list>
 	
+	<list id="Respondent" name="Respondent" label="Respondent" type="standard" import="yes">
+	    <listitem id='1' label="Patient" order='1'>Patient</listitem>
+		<listitem id='2' label="Patient Party" order='1'>Patient Party</listitem>
+	</list>
+	
+	<list id="Relationship_list" name="Relationship_list" label="Relationship List" type="standard" import="yes">
+	    <listitem id='1' label="Self" order='1'>Self</listitem>
+		<listitem id='2' label="Father" order='2'>Father</listitem>
+		<listitem id='3' label="Mother" order='3'>Mother</listitem>
+		<listitem id='4' label="Brother" order='4'>Brother</listitem>
+		<listitem id='5' label="Sister" order='5'>Sister</listitem>
+		<listitem id='6' label="Cousin" order='6'>Cousin</listitem>
+		<listitem id='7' label="Relatives" order='7'>Relatives</listitem>
+		<listitem id='8' label="Uncle" order='8'>Uncle</listitem>
+		<listitem id='9' label="Aunt" order='9'>Aunt</listitem>
+	</list>
+		
 	<list name="yesno" label="Yes/No" type="standard" id="yesno" import="no"/>
-	<list name="Respondent" label="Respondent" type="standard" id="Respondent" import="no"/>
-	<list name="Relationship_list" label="Relationship List" type="standard" id="Relationship_list" import="no"/>
 </form>
 
 			
