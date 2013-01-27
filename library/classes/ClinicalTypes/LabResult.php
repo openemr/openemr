@@ -35,17 +35,25 @@ class LabResult extends ClinicalType
                 // search through vitals to find the most recent lab result in the date range
                 // if the result value is within range using Range->test(val), return true
                 $sql = "SELECT procedure_result.result, procedure_result.date " .
-                    "FROM `procedure_type`, " .
-                    "`procedure_order`, " .
-                    "`procedure_report`, " .
-                    "`procedure_result` " .
-                    "WHERE procedure_type.procedure_type_id = procedure_order.procedure_type_id " .
-                    "AND procedure_order.procedure_order_id = procedure_report.procedure_order_id " .
-                    "AND procedure_report.procedure_report_id = procedure_result.procedure_report_id " .
-                    "AND ( procedure_type.standard_code = ? OR procedure_type.procedure_code = ? ) " .
-                    "AND procedure_report.date_collected >= ?  " .
-                	"AND procedure_report.date_collected <= ?  " .
-                    "AND procedure_order.patient_id = ? ";
+                    "FROM " .
+                    "procedure_type, " .
+                    "procedure_order, " .
+                    "procedure_order_code, " .
+                    "procedure_report, " .
+                    "procedure_result " .
+                    "WHERE " .
+                    "procedure_type.lab_id = procedure_order.lab_id AND " .
+                    "procedure_type.procedure_type = 'ord' AND " .
+                    "procedure_type.procedure_code = procedure_order_code.procedure_code AND " .
+                    "( procedure_type.standard_code = ? OR procedure_type.procedure_code = ? ) AND " .
+                    "procedure_order_code.procedure_order_id = procedure_order.procedure_order_id AND " .
+                    "procedure_order_code.procedure_order_seq = procedure_report.procedure_order_seq AND " .
+                    "procedure_order.procedure_order_id = procedure_report.procedure_order_id AND " .
+                    "procedure_report.procedure_report_id = procedure_result.procedure_report_id AND " .
+                    "procedure_report.date_collected >= ? AND " .
+                    "procedure_report.date_collected <= ? AND " .
+                    "procedure_order.patient_id = ? ";
+
                 if ( $range->lowerBound != Range::NEG_INF ) {
                     $sql .= "AND procedure_result.result >= ? ";
                 } 

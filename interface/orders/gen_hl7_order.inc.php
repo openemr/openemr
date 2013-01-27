@@ -36,6 +36,7 @@
 
 require_once("$srcdir/classes/Address.class.php");
 require_once("$srcdir/classes/InsuranceCompany.class.php");
+require_once("$webserver_root/custom/code_types.inc.php");
 
 function hl7Text($s) {
   // See http://www.interfaceware.com/hl7_escape_protocol.html:
@@ -334,7 +335,7 @@ function gen_hl7_order($orderid, &$out) {
       $d0;
 
     // Diagnoses.  Currently hard-coded for ICD9 and we'll surely want to make
-    // this more flexible.
+    // this more flexible (probably when some lab needs another diagnosis type).
     $setid2 = 0;
     if (!empty($porow['diagnoses'])) {
       $relcodes = explode(';', $porow['diagnoses']);
@@ -342,13 +343,7 @@ function gen_hl7_order($orderid, &$out) {
         if ($codestring === '') continue;
         list($codetype, $code) = explode(':', $codestring);
         if ($codetype !== 'ICD9') continue;
-        $dcrow = sqlQuery("SELECT c.code_text FROM " .
-          "code_types AS ct, codes AS c WHERE " .
-          "ct.ct_key = ? AND c.code_type = ct.ct_id AND " .
-          "c.code = ? " .
-          "ORDER BY c.id LIMIT 1",
-          array($codetype, $code));
-        $desc = empty($dcrow['code_text']) ? '' : $dcrow['code_text'];
+        $desc = lookup_code_descriptions($codestring);
         $out .= "DG1" .
           $d1 . ++$setid2 .                         // Set ID
           $d1 .                                     // Diagnosis Coding Method

@@ -353,10 +353,10 @@ $sqlstmt = "select
 
 		$sqlstmt=$sqlstmt.",r.id as id, r.date_modified AS prescriptions_date_modified, r.dosage as dosage, r.route as route, r.interval as hinterval, r.refills as refills, r.drug as drug, 
 		r.form as hform, r.size as size, r.unit as hunit, d.name as name, d.ndc_number as ndc_number,r.quantity as quantity";
-	}	
+	}
+
 	if(strlen($form_lab_results) > 0) {
-		
-		$sqlstmt = $sqlstmt.",pr.date AS procedure_result_date,
+    $sqlstmt = $sqlstmt.",pr.date AS procedure_result_date,
                            pr.facility AS procedure_result_facility,
                                 pr.units AS procedure_result_units,
                                 pr.result AS procedure_result_result,
@@ -365,17 +365,19 @@ $sqlstmt = "select
                                 pr.comments AS procedure_result_comments,
                                 pr.document_id AS procedure_result_document_id";
 	}
+
 	if ( $type == 'Procedure') {
-               $sqlstmt = $sqlstmt.",po.date_ordered AS procedure_order_date_ordered,
+    $sqlstmt = $sqlstmt.",po.date_ordered AS procedure_order_date_ordered,
             pt.standard_code AS procedure_type_standard_code,
-            pt.name   as procedure_name,
+            pc.procedure_name as procedure_name,
             po.order_priority AS procedure_order_order_priority,
             po.order_status AS procedure_order_order_status,
-                        po.encounter_id AS procedure_order_encounter,
+            po.encounter_id AS procedure_order_encounter,
             po.patient_instructions AS procedure_order_patient_instructions,
             po.activity AS procedure_order_activity,
             po.control_id AS procedure_order_control_id ";
-       }
+  }
+
        if ( $type == 'Medical History') {
 		$sqlstmt = $sqlstmt.",hd.date AS history_data_date,
             hd.tobacco AS history_data_tobacco,
@@ -396,15 +398,18 @@ $sqlstmt = "select
 	if(strlen($form_diagnosis) > 0 ){	
 		$sqlstmt = $sqlstmt." left outer join lists as li on li.pid  = pd.pid ";
 	}
-	if ( $type == 'Procedure' ||( strlen($form_lab_results)!=0) ) {
-               $sqlstmt = $sqlstmt." left outer join procedure_order as po on po.patient_id = pd.pid
-            left outer join procedure_report as pp on pp.procedure_order_id   = po.procedure_order_id
-            left outer join procedure_type as pt on pt.procedure_type_id    = po.procedure_type_id ";
-        }
-       if (strlen($form_lab_results)!=0 ) {
-               $sqlstmt = $sqlstmt." left outer join procedure_result as pr on pr.procedure_report_id  = pp.procedure_report_id
-            and pr.procedure_type_id = po.procedure_type_id ";
-        }
+
+  if ( $type == 'Procedure' ||( strlen($form_lab_results)!=0) ) {
+    $sqlstmt = $sqlstmt." left outer join procedure_order as po on po.patient_id = pd.pid
+    left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
+    left outer join procedure_report as pp on pp.procedure_order_id   = po.procedure_order_id
+    left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id ";
+  }
+
+  if (strlen($form_lab_results)!=0 ) {
+    $sqlstmt = $sqlstmt." left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id ";
+  }
+
 	if(strlen($form_drug_name)!=0) {	
 	       $sqlstmt=$sqlstmt." left outer join prescriptions AS r on r.patient_id=pd.pid
                         LEFT OUTER JOIN drugs AS d ON d.drug_id = r.drug_id";

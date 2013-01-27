@@ -217,8 +217,13 @@ function getProcedureData() {
         ON prs.procedure_report_id = prp.procedure_report_id 
       LEFT JOIN procedure_order AS po 
         ON prp.procedure_order_id = po.procedure_order_id 
+      LEFT JOIN procedure_order_code AS poc
+        ON poc.procedure_order_id = po.procedure_order_id
+        AND poc.procedure_order_seq = prp.procedure_order_seq
       LEFT JOIN procedure_type AS pt 
-        ON prs.procedure_type_id = pt.procedure_type_id 
+        ON pt.lab_id = po.lab_id
+        AND pt.procedure_code = prs.result_code
+        AND pt.procedure_type = 'res'
       LEFT JOIN procedure_type AS ptt 
         ON pt.parent = ptt.procedure_type_id 
         AND ptt.procedure_type = 'ord' 
@@ -270,9 +275,14 @@ function getProcedureData() {
       LEFT JOIN procedure_report AS prp 
         ON prs.procedure_report_id = prp.procedure_report_id 
       LEFT JOIN procedure_order AS po 
-        ON prp.procedure_order_id = po.procedure_order_id 
+        ON prp.procedure_order_id = po.procedure_order_id
+      LEFT JOIN procedure_order_code AS poc
+        ON poc.procedure_order_id = po.procedure_order_id
+        AND poc.procedure_order_seq = prp.procedure_order_seq
       LEFT JOIN procedure_type AS pt 
-        ON prs.procedure_type_id = pt.procedure_type_id 
+        ON pt.lab_id = po.lab_id
+        AND pt.procedure_code = prs.result_code
+        AND pt.procedure_type = 'res'
       LEFT JOIN procedure_type AS ptt 
         ON pt.parent = ptt.procedure_type_id 
         AND ptt.procedure_type = 'ord' 
@@ -402,9 +412,14 @@ function getResultData() {
           ON prs.procedure_report_id = prp.procedure_report_id 
         LEFT JOIN procedure_order AS po 
           ON prp.procedure_order_id = po.procedure_order_id
+        LEFT JOIN procedure_order_code AS poc
+          ON poc.procedure_order_id = po.procedure_order_id
+          AND poc.procedure_order_seq = prp.procedure_order_seq
         LEFT JOIN procedure_type AS pt 
-          ON prs.procedure_type_id = pt.procedure_type_id
-          LEFT JOIN procedure_type AS ptt 
+          ON pt.lab_id = po.lab_id
+          AND pt.procedure_code = prs.result_code
+          AND pt.procedure_type = 'res'
+        LEFT JOIN procedure_type AS ptt 
           ON pt.parent = ptt.procedure_type_id
           AND ptt.procedure_type = 'ord'
         LEFT JOIN list_options AS lo
@@ -431,9 +446,14 @@ function getResultData() {
           ON prs.procedure_report_id = prp.procedure_report_id 
         LEFT JOIN procedure_order AS po 
           ON prp.procedure_order_id = po.procedure_order_id
+        LEFT JOIN procedure_order_code AS poc
+          ON poc.procedure_order_id = po.procedure_order_id
+          AND poc.procedure_order_seq = prp.procedure_order_seq
         LEFT JOIN procedure_type AS pt 
-          ON prs.procedure_type_id = pt.procedure_type_id
-          LEFT JOIN procedure_type AS ptt 
+          ON pt.lab_id = po.lab_id
+          AND pt.procedure_code = prs.result_code
+          AND pt.procedure_type = 'res'
+        LEFT JOIN procedure_type AS ptt 
           ON pt.parent = ptt.procedure_type_id
           AND ptt.procedure_type = 'ord'
         LEFT JOIN list_options AS lo
@@ -463,21 +483,20 @@ function getActorData() {
   
   $sql3 = "
   SELECT 
-    u.*
+    u.ppid AS id, u.name AS lname, '' AS fname, '' AS city, '' AS state, '' AS zip, '' AS phone
   FROM
-    procedure_type AS pt 
-    LEFT JOIN procedure_order AS po 
-      ON po.procedure_type_id = pt.procedure_type_id 
-    LEFT JOIN forms AS f 
+    procedure_order AS po 
+    LEFT JOIN forms AS f
       ON f.form_id = po.procedure_order_id 
+      AND f.formdir = 'procedure_order'
     LEFT JOIN list_options AS lo 
       ON lo.title = f.form_name
-    LEFT JOIN users AS u
-    ON pt.lab_id = u.id
+    LEFT JOIN procedure_providers AS u
+      ON po.lab_id = u.ppid
   WHERE f.pid = ? 
     AND lo.list_id = 'proc_type' 
     AND lo.option_id = 'ord'
-    GROUP BY u.id";
+    GROUP BY u.ppid";
 		
 	$result[2] = sqlStatement($sql3, array($pid) );
   

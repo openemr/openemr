@@ -1593,15 +1593,20 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
 
   // collect specific items (use both title and/or codes) that fulfill request
   $sqlBindArray=array();
-  $sql_query = "SELECT procedure_result.result " .
-               "FROM `procedure_type`, " .
-               "`procedure_order`, " .
-               "`procedure_report`, " .
-               "`procedure_result` " .
-               "WHERE procedure_type.procedure_type_id = procedure_order.procedure_type_id " .
-               "AND procedure_order.procedure_order_id = procedure_report.procedure_order_id " .
-               "AND procedure_report.procedure_report_id = procedure_result.procedure_report_id " .
-               "AND ";
+  $sql_query = "SELECT procedure_result.result FROM " .
+               "procedure_order_code, " .
+               "procedure_order, " .
+               "procedure_type, " .
+               "procedure_report, " .
+               "procedure_result " .
+               "WHERE " .
+               "procedure_order_code.procedure_code = procedure_type.procedure_code AND " .
+               "procedure_order.procedure_order_id = procedure_order_code.procedure_order_id AND " .
+               "procedure_order.lab_id procedure_type.lab_id AND " .
+               "procedure_report.procedure_order_id = procedure_order.procedure_order_id AND " .
+               "procedure_report.procedure_order_seq = procedure_order_code.procedure_order_seq AND " .
+               "procedure_result.procedure_report_id = procedure_report.procedure_report_id AND " .
+               "procedure_type.procedure_type = 'ord' AND ";
   foreach ($codes as $tem) {
     $sql_query .= "( ( (procedure_type.standard_code = ? AND procedure_type.standard_code != '') " .
                   "OR (procedure_type.procedure_code = ? AND procedure_type.procedure_code != '') ) OR ";
@@ -1611,6 +1616,7 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
                 "AND procedure_result.result " . $compSql . " ? " .
                 "AND " . add_escape_custom($patient_id_label) . " = ? " . $dateSql;
   array_push($sqlBindArray,$proc_title,$result_data,$patient_id);
+
   $sql = sqlStatementCdrEngine($sql_query,$sqlBindArray);
  
   // See if number of returned items passes the comparison
