@@ -159,7 +159,7 @@ else {
  </tr>
 <?php
   $search_term = $_REQUEST['search_term'];
-  $res = code_set_search($form_code_type,$search_term);
+  $res = sequential_code_set_search($form_code_type,$search_term);
   if ($form_code_type == 'PROD') { // Special case that displays search for products/drugs
     while ($row = sqlFetchArray($res)) {
       $drug_id = $row['drug_id'];

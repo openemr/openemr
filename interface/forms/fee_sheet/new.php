@@ -860,7 +860,7 @@ echo "  <td colspan='" . attr($FEE_SHEET_COLUMNS) . "' align='center' nowrap>\n"
 //
 $numrows = 0;
 if ($_POST['bn_search'] && $_POST['search_term']) {
-  $res = code_set_search($search_type,$_POST['search_term']);
+  $res = sequential_code_set_search($search_type,$_POST['search_term']);
   if (!empty($res)) {
     $numrows = sqlNumRows($res);
   }
