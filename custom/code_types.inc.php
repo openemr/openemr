@@ -28,7 +28,10 @@
  *             5 for storing codes in external ICD9 Procedure/Service tables
  *             6 for storing codes in external ICD10 Procedure/Service tables
  *             7 for storing codes in external SNOMED Clinical Term tables
- *  term     - 1 if this code type is used as a clinical term
+ *             8 for storing codes in external SNOMED (RF2) Clinical Term tables (for future)
+ *             9 for storing codes in external SNOMED (RF1) Procedure Term tables
+ *             10 for storing codes in external SNOMED (RF2) Procedure Term tables (for future)
+ * *  term     - 1 if this code type is used as a clinical term
  *  </pre>
  *
  * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
@@ -47,6 +50,7 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Brady Miller <brady@sparmy.com>
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @link    http://www.open-emr.org
  */
 
@@ -75,6 +79,74 @@ while ($ctrow = sqlFetchArray($ctres)) {
   if ($default_search_type === '') $default_search_type = $ctrow['ct_key'];
 }
 
+/** This array contains metadata describing the arrangement of the external data
+ *  tables for storing codes.
+ */
+$code_external_tables=array();
+define('EXT_COL_CODE','code');
+define('EXT_COL_DESCRIPTION','description');
+define('EXT_TABLE_NAME','table');
+define('EXT_FILTER_CLAUSES','filter_clause');
+define('EXT_VERSION_ORDER','filter_version_order');
+define('EXT_JOINS','joins');
+define('JOIN_TABLE','join');
+define('JOIN_FIELDS','fields');
+define('DISPLAY_DESCRIPTION',"display_description");
+
+/**
+ * This is a helper function for defining the metadata that describes the tables
+ * 
+ * @param type $results             A reference to the global array which stores all the metadata
+ * @param type $index               The external table ID.  This corresponds to the value in the code_types table in the ct_external column
+ * @param type $table_name          The name of the table which stores the code informattion (e.g. icd9_dx_code
+ * @param type $col_code            The name of the column which is the code
+ * @param type $col_description     The name of the column which is the description
+ * @param type $filter_clauses      An array of clauses to be included in the search "WHERE" clause that limits results
+ * @param type $version_order       How to choose between different revisions of codes
+ * @param type $joins               An array which describes additional tables to join as part of a code search.  
+ */
+function define_external_table(&$results, $index, $table_name,$col_code, $col_description,$filter_clauses=array(),$version_order="",$joins=array(),$display_desc="")
+{
+    $results[$index]=array(EXT_TABLE_NAME=>$table_name,
+                           EXT_COL_CODE=>$col_code,
+                           EXT_COL_DESCRIPTION=>$col_description,
+                           EXT_FILTER_CLAUSES=>$filter_clauses,
+                           EXT_JOINS=>$joins,
+                           EXT_VERSION_ORDER=>$version_order,
+                           DISPLAY_DESCRIPTION=>$display_desc
+                           );
+}
+// In order to treat all the code types the same for lookup_code_descriptions, we include metadata for the original codes table
+define_external_table($code_external_tables,0,'codes','code','code_text',array(),'id');
+
+// ICD9 External Definitions
+define_external_table($code_external_tables,4,'icd9_dx_code','formatted_dx_code','long_desc',array("active='1'"),'revision DESC');
+define_external_table($code_external_tables,5,'icd9_sg_code','formatted_sg_code','long_desc',array("active='1'"),'revision DESC');
+//**** End ICD9 External Definitions
+
+// SNOMED Definitions
+// For generic SNOMED-CT, there is no need to join with the descriptions table to get a specific description Type
+define_external_table($code_external_tables,7,'sct_concepts','ConceptId','FullySpecifiedName',array("ConceptStatus=0"),"");
+
+// For disorder, procedures, organism, etc... we join with the sct_descriptions table to get the preferred term instead of the fully specified term
+$SNOMED_joins=array(JOIN_TABLE=>"sct_descriptions",JOIN_FIELDS=>array("sct_descriptions.ConceptId=sct_concepts.ConceptId","DescriptionStatus=0","DescriptionType=1"));
+
+
+// Can redefine this based on language
+$disorder_phrase="disorder";
+define_external_table($code_external_tables,2,'sct_concepts','ConceptId','FullySpecifiedName',array("ConceptStatus=0","FullySpecifiedName like '%(".$disorder_phrase.")'"),"",array($SNOMED_joins),"sct_descriptions.Term");
+
+$procedure_phrase="procedure";
+define_external_table($code_external_tables,9,'sct_concepts','ConceptId','FullySpecifiedName',array("ConceptStatus=0","FullySpecifiedName like '%(".$procedure_phrase.")'"),"",array($SNOMED_joins),"sct_descriptions.Term");
+
+
+//**** End SNOMED Definitions
+
+// ICD 10 Definitions
+define_external_table($code_external_tables,1,'icd10_dx_order_code','formatted_dx_code','long_desc',array("active='1'","valid_for_coding = '1'"),'revision DESC');
+define_external_table($code_external_tables,6,'icd10_pcs_order_code','pcs_code','long_desc',array("active='1'","valid_for_coding = '1'"),'revision DESC');
+//**** End ICD 10 Definitions
+
 /**
  * This array stores the external table options. See above for $code_types array
  * 'external' attribute  for explanation of the option listings.
@@ -88,7 +160,8 @@ $cd_external_options = array(
   '6' => xl('ICD10 Procedure/Service'),
   '2' => xl('SNOMED (RF1) Diagnosis'),
   '3' => xl('SNOMED (RF2) Diagnosis'),
-  '7' => xl('SNOMED Clinical Term')
+  '7' => xl('SNOMED (RF1) Clinical Term'),
+  '9' => xl('SNOMED (RF1) Procedure')    
 );
 
 /**
@@ -219,19 +292,33 @@ function collect_codetypes($category,$return_format="array") {
  * @param  integer   $start           Query start limit
  * @param  integer   $number          Query number returned
  * @param  array     $filter_elements Array that contains elements to filter
+ * @param array      $limit           Number of results to return (NULL means return all); note this is ignored if set $start/number
+ * @param array      $mode            'default' mode searches code and description, 'code' mode only searches code, 'description' mode searches description (and separates words); note this is ignored if set $return_only_one to TRUE
  * @return recordset 
  */
-function code_set_search($form_code_type,$search_term="",$count=false,$active=true,$return_only_one=false,$start=NULL,$number=NULL,$filter_elements=array()) {
-  global $code_types;
+function code_set_search($form_code_type,$search_term="",$count=false,$active=true,$return_only_one=false,$start=NULL,$number=NULL,$filter_elements=array(),$limit=NULL,$mode='default') {
+  global $code_types,$code_external_tables;
 
-  $limit_query = '';
+  // Figure out the appropriate limit clause
   if ( !is_null($start) && !is_null($number) ) {
+    // For pagination of results
     $limit_query = " LIMIT $start, $number ";
   }
+  else if (!is_null($limit)) {
+    $limit_query = " LIMIT $limit ";
+  }
+  else {
+    // No pagination and no limit
+    $limit_query = '';
+  }
+  
   if ($return_only_one) {
+     // Only return one result (this is where only matching for exact code match)
+     // Note this overrides the above limit settings
      $limit_query = " LIMIT 1 ";
   }
-
+  // End determining limit clause
+  
   // build the filter_elements sql code
   $query_filter_elements="";
   if (!empty($filter_elements)) {
@@ -249,223 +336,153 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
             "ORDER BY d.name, dt.selector, dt.drug_id $limit_query";
    $res = sqlStatement($query, array("%".$search_term."%", "%".$search_term."%") );
   }
-  else if ($form_code_type == '--ALL--') { // Search all codes from the default codes table
-   // Note this will not search the external code sets
-   $active_query = '';
-   if ($active) {
-    // Only filter for active codes
-    $active_query=" AND c.active = 1 ";
-   }
-   $query = "SELECT c.id, c.code_text, c.code_text_short, c.code, c.code_type, c.modifier, c.units, c.fee, " .
-            "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, " .
-            "ct.ct_key as code_type_name " .
-            "FROM `codes` as c " .
-            "LEFT OUTER JOIN `code_types` as ct " .
-            "ON c.code_type = ct.ct_id " .
-            "WHERE (c.code_text LIKE ? OR " .
-            "c.code LIKE ?) AND ct.ct_external = '0' " .
-            " $active_query " .
-            " $query_filter_elements " .
-            "ORDER BY code_type,code+0,code $limit_query";
-   $res = sqlStatement($query, array("%".$search_term."%", "%".$search_term."%") );
-  }
-  else if ( !($code_types[$form_code_type]['external']) ) { // Search from default codes table
-   $active_query = '';
-   if ($active) {
-    // Only filter for active codes
-    $active_query=" AND c.active = 1 ";
-   }
-   $sql_bind_array = array();
-   $query = "SELECT c.id, c.code_text, c.code_text_short, c.code, c.code_type, c.modifier, c.units, c.fee, " .
-            "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, " .
-            "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
-            "FROM `codes` as c ";
-   if ($return_only_one) {
-    $query .= "WHERE c.code = ? ";
-    array_push($sql_bind_array,$search_term);
-   }
-   else {
-    $query .= "WHERE (c.code_text LIKE ? OR c.code LIKE ?) ";
-    array_push($sql_bind_array,"%".$search_term."%", "%".$search_term."%");
-   }
-   $query .= "AND c.code_type = ? $active_query $query_filter_elements " .
-             "ORDER BY c.code+0,c.code $limit_query";
-   array_push($sql_bind_array,$code_types[$form_code_type]['id']);
-   $res = sqlStatement($query,$sql_bind_array);
-  }
-  else if ($code_types[$form_code_type]['external'] == 1 ) { // Search from ICD10 diagnosis codeset tables
-   $active_query = '';
-   if ($active) {
-    // Only filter for active codes
-    // If there is no entry in codes sql table, then default to active
-    //  (this is reason for including NULL below)
-    $active_query=" AND (c.active = 1 || c.active IS NULL) ";
-   }
-   // Ensure the icd10_dx_order_code sql table exists
-   $check_table = sqlQuery("SHOW TABLES LIKE 'icd10_dx_order_code'");
-   if ( !(empty($check_table)) ) {
-    $sql_bind_array = array();
-    $query = "SELECT ref.formatted_dx_code as code, ref.long_desc as code_text, " .
-             "c.id, c.code_type, c.modifier, c.units, c.fee, " .
-             "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, " .
-             "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
-             "FROM `icd10_dx_order_code` as ref " .
-             "LEFT OUTER JOIN `codes` as c " .
-             "ON ref.formatted_dx_code = c.code AND c.code_type = ? ";
-    array_push($sql_bind_array,$code_types[$form_code_type]['id']);
-    if ($return_only_one) {
-     $query .= "WHERE ref.formatted_dx_code = ? AND ref.valid_for_coding = '1' AND ref.active = '1' $active_query $query_filter_elements ";
-     array_push($sql_bind_array,$search_term);
+  else { // Start a codes search
+      // We are looking up the external table id here.  An "unset" value gets treated as 0(zero) without this test.  This way we can differentiate between "unset" and explicitly zero.
+      $table_id=isset($code_types[$form_code_type]['external']) ? intval(($code_types[$form_code_type]['external'])) : -9999 ;  
+      if(($table_id>=0) || ($form_code_type == '--ALL--')) // Either we found a definition for the given code search or we are doing an "--ALL--" search, so start building the query
+      {
+        if ( $table_id==0  || ($form_code_type == '--ALL--') ) { // Search from default codes table.  --ALL-- only means all codes in the default tables
+          if($table_id==0){ $table_info[EXT_FILTER_CLAUSES]=array("code_type=".$code_types[$form_code_type]['id']); } // Add a filter for the code type
+          else {$table_info[EXT_FILTER_CLAUSES]=array();} // define empty filter array for "--ALL--"
+          $table_dot="c.";              // $table_dot is used to prevent awkward looking concatenations when referring to columns in 
+          $code_col="code";
+          $code_text_col="code_text";
+
+          $active_query = '';
+             if ($active) {
+              // Only filter for active codes
+          $active_query=" AND c.active = 1 ";
+          }
+          $sql_bind_array = array();
+          $query = "SELECT c.id, c.code_text, c.code_text_short, c.code, c.code_type, c.modifier, c.units, c.fee, " .
+                  "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, ";
+          if($table_id==0)
+          {
+              // If code type is specified, then include the "constant" as part of the query results for consistency
+              $query .= "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
+                        "FROM `codes` as c ";
+
+          }
+          else if($form_code_type=='--ALL--')
+          {
+             // For an "--ALL--" search we need to join with the code_types table to get the string representation of each returned code.
+             $query .=  "ct.ct_key as code_type_name " .
+                        " FROM `codes` as c " .
+                        " LEFT OUTER JOIN `code_types` as ct " .
+                        " ON c.code_type = ct.ct_id ";
+          }
+        }
+        else if ($code_types[$form_code_type]['external'] > 0 ) { // Search from an external table with defined metadata
+            $common_columns=",c.id, c.code_type, c.modifier, c.units, c.fee, " .
+                     "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, " .
+                     "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
+
+            $active_query = '';
+            if ($active) {
+                // Only filter for active codes.  Only the active column in the joined table
+                // is affected by this parameter.  Any filtering as a result of "active" status
+                // in the external table itself is always applied. I am implementing the behavior
+                // just as was done prior to the refactor
+                // - Kevin Yeh
+                // If there is no entry in codes sql table, then default to active
+                //  (this is reason for including NULL below)
+                $active_query=" AND (c.active = 1 || c.active IS NULL) ";
+            }
+      
+            $table_info=$code_external_tables[$table_id];
+            $table=$table_info[EXT_TABLE_NAME];
+            $table_dot=$table.".";
+            $code_col=$table_info[EXT_COL_CODE];
+            $code_text_col=$table_info[EXT_COL_DESCRIPTION];
+            if($table_info[DISPLAY_DESCRIPTION]!="")
+            {
+                $display_description=$table_info[DISPLAY_DESCRIPTION];
+            }
+            else
+            {
+                $display_description=$table_dot.$code_text_col;
+            }
+            // Ensure the external table exists
+            $check_table = sqlQuery("SHOW TABLES LIKE '".$table."'");
+            if ( (empty($check_table)) ) {HelpfulDie("Missing table in code set search:".$table);}
+            
+            $sql_bind_array = array();
+            $query = "SELECT ".$table_dot.$code_col . " as code, " . 
+                     $display_description . " as code_text " .        
+                     $common_columns .             
+             " FROM ".$table.
+             " LEFT OUTER JOIN `codes` as c " .
+             " ON ".$table_dot.$code_col." = c.code AND c.code_type = ? ";
+            array_push($sql_bind_array,$code_types[$form_code_type]['id']);
+
+            foreach($table_info[EXT_JOINS] as $join_info)
+            {
+              $join_table=$join_info[JOIN_TABLE];
+              $check_table = sqlQuery("SHOW TABLES LIKE '".$join_table."'");
+              if ( (empty($check_table)) ) {HelpfulDie("Missing join table in code set search:".$join_table);}
+              $query.=" INNER JOIN ". $join_table;
+              $query.=" ON ";
+              $not_first=false;
+              foreach($join_info[JOIN_FIELDS] as $field)
+              {
+                  if($not_first)
+                  {
+                      $query.=" AND ";
+                  }
+                  $query.=$field;
+                  $not_first=true;                
+              }
+            }
+      } // End of block for handling external_id>0
+      
+      // Setup the where clause based on MODE
+      $query.= " WHERE ";
+      if ($return_only_one) {
+          $query .= $table_dot.$code_col." = ? ";
+          array_push($sql_bind_array,$search_term);
+      }
+      else if($mode=="code") {
+          $query.= $table_dot.$code_col." like ? ";
+          array_push($sql_bind_array,$search_term."%");
+      }
+      else if($mode=="description"){
+          $description_keywords=preg_split("/ /",$search_term,-1,PREG_SPLIT_NO_EMPTY);
+          $not_first=false;
+          $query.="(";
+          foreach($description_keywords as $keyword)
+          {
+              if($not_first) { $query.= " AND "; }
+              $query.= $table_dot.$code_text_col." LIKE ? ";
+              array_push($sql_bind_array,"%".$keyword."%");          
+              $not_first=true;
+          }
+          $query.=")";
+        }
+      else { // $mode == "default"
+        $query .= "(".$table_dot.$code_text_col. " LIKE ? OR ".$table_dot.$code_col. " LIKE ?) ";
+        array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
+      }
+      // Done setting up the where clause by mode
+      
+        // Add the metadata related filter clauses
+        foreach($table_info[EXT_FILTER_CLAUSES] as $filter_clause)
+        {
+            $query .= " AND ".$table_dot.$filter_clause;
+        }
+        
+        $query .=$active_query . $query_filter_elements;
+
+        $query .= " ORDER BY ".$table_dot.$code_col."+0,".$table_dot.$code_col; 
+        $query .= $limit_query;
+        
+        $res = sqlStatement($query,$sql_bind_array);         
+      }   
+    else
+    {
+        HelpfulDie("Code type not active or not defined:".$join_info[JOIN_TABLE]);
     }
-    else {
-     $query .= "WHERE (ref.long_desc LIKE ? OR ref.formatted_dx_code LIKE ?) AND ref.valid_for_coding = '1' AND ref.active = '1' $active_query $query_filter_elements ";
-     array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
-    }
-    $query .= "ORDER BY ref.formatted_dx_code+0, ref.formatted_dx_code $limit_query";
-    $res = sqlStatement($query,$sql_bind_array);
-   }
-  }
-  else if ($code_types[$form_code_type]['external'] == 2 || $code_types[$form_code_type]['external'] == 7) {
-   // Search from SNOMED (RF1) diagnosis codeset tables OR Search from SNOMED (RF1) clinical terms codeset tables
-   if ($code_types[$form_code_type]['external'] == 2) {
-     // Search from SNOMED (RF1) diagnosis codeset tables
-     $diagnosis_sql_specific = " ref.FullySpecifiedName LIKE '%(disorder)' ";
-   }
-   else {
-     // Search from SNOMED (RF1) clinical terms codeset tables
-     $diagnosis_sql_specific = " 1=1 ";
-   }
-   if ($active) {
-    // Only filter for active codes
-    // If there is no entry in codes sql table, then default to active
-    //  (this is reason for including NULL below)
-    $active_query=" AND (c.active = 1 || c.active IS NULL) ";
-   }
-   // Ensure the sct_concepts sql table exists
-   $check_table = sqlQuery("SHOW TABLES LIKE 'sct_concepts'");
-   if ( !(empty($check_table)) ) {
-    $sql_bind_array = array();
-    $query = "SELECT ref.ConceptId as code, ref.FullySpecifiedName as code_text, " .
-             "c.id, c.code_type, c.modifier, c.units, c.fee, " .
-             "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, " .
-             "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
-             "FROM `sct_concepts` as ref " .
-             "LEFT OUTER JOIN `codes` as c " .
-             "ON ref.ConceptId = c.code AND c.code_type = ? ";
-    array_push($sql_bind_array,$code_types[$form_code_type]['id']);
-    if ($return_only_one) {
-     $query .= "WHERE (ref.ConceptId = ? AND $diagnosis_sql_specific) $active_query $query_filter_elements ";
-     array_push($sql_bind_array,$search_term);
-    }
-    else {
-     $query .= "WHERE ((ref.FullySpecifiedName LIKE ? OR ref.ConceptId LIKE ?) AND $diagnosis_sql_specific ) $active_query $query_filter_elements ";
-     array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
-    }
-    $query .= "AND ref.ConceptStatus = 0 " .
-              "ORDER BY ref.ConceptId $limit_query";
-    $res = sqlStatement($query,$sql_bind_array);
-   }
-  }
-  else if ($code_types[$form_code_type]['external'] == 3 ) { // Search from SNOMED (RF2) diagnosis codeset tables
-   //placeholder
-  }
-  else if ($code_types[$form_code_type]['external'] == 4 ) { // Search from ICD9 diagnosis codeset tables
-   if ($active) {
-    // Only filter for active codes
-    // If there is no entry in codes sql table, then default to active
-    //  (this is reason for including NULL below)
-    $active_query=" AND (c.active = 1 || c.active IS NULL) ";
-   }
-   // Ensure the icd9_dx_code sql table exists
-   $check_table = sqlQuery("SHOW TABLES LIKE 'icd9_dx_code'");
-   if ( !(empty($check_table)) ) {
-    $sql_bind_array = array();
-    $query = "SELECT ref.formatted_dx_code as code, ref.long_desc as code_text, " .
-             "c.id, c.code_type, c.modifier, c.units, c.fee, " .
-             "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, " .
-             "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
-             "FROM `icd9_dx_code` as ref " .
-             "LEFT OUTER JOIN `codes` as c " .
-             "ON ref.formatted_dx_code = c.code AND c.code_type = ? ";
-    array_push($sql_bind_array,$code_types[$form_code_type]['id']);
-    if ($return_only_one) {
-     $query .= "WHERE ref.formatted_dx_code = ? AND ref.active = '1' $active_query $query_filter_elements ";
-     array_push($sql_bind_array,$search_term);
-    }
-    else {
-     $query .= "WHERE (ref.long_desc LIKE ? OR ref.formatted_dx_code LIKE ?) AND ref.active = '1' $active_query $query_filter_elements ";
-     array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
-    }
-    $query .= "ORDER BY ref.formatted_dx_code+0, ref.formatted_dx_code $limit_query";
-    $res = sqlStatement($query,$sql_bind_array);
-   }
-  }
-  else if ($code_types[$form_code_type]['external'] == 5 ) { // Search from ICD9 Procedure/Service codeset tables
-   if ($active) {
-    // Only filter for active codes
-    // If there is no entry in codes sql table, then default to active
-    //  (this is reason for including NULL below)
-    $active_query=" AND (c.active = 1 || c.active IS NULL) ";
-   }
-   // Ensure the icd9_sg_code sql table exists
-   $check_table = sqlQuery("SHOW TABLES LIKE 'icd9_sg_code'");
-   if ( !(empty($check_table)) ) {
-    $sql_bind_array = array();
-    $query = "SELECT ref.formatted_sg_code as code, ref.long_desc as code_text, " .
-             "c.id, c.code_type, c.modifier, c.units, c.fee, " .
-             "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, " .
-             "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
-             "FROM `icd9_sg_code` as ref " .
-             "LEFT OUTER JOIN `codes` as c " .
-             "ON ref.formatted_sg_code = c.code AND c.code_type = ? ";
-    array_push($sql_bind_array,$code_types[$form_code_type]['id']);
-    if ($return_only_one) {
-     $query .= "WHERE ref.formatted_sg_code = ? AND ref.active = '1' $active_query ";
-     array_push($sql_bind_array,$search_term);
-    }
-    else {
-     $query .= "WHERE (ref.long_desc LIKE ? OR ref.formatted_sg_code LIKE ?) AND ref.active = '1' $active_query ";
-     array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
-    }
-    $query .= "ORDER BY ref.formatted_sg_code+0, ref.formatted_sg_code $limit_query";
-    $res = sqlStatement($query,$sql_bind_array);
-   }
-  }
-  else if ($code_types[$form_code_type]['external'] == 6 ) { // Search from ICD10 Procedure/Service codeset tables
-   $active_query = '';
-   if ($active) {
-    // Only filter for active codes
-    // If there is no entry in codes sql table, then default to active
-    //  (this is reason for including NULL below)
-    $active_query=" AND (c.active = 1 || c.active IS NULL) ";
-   }
-   // Ensure the icd10_dx_order_code sql table exists
-   $check_table = sqlQuery("SHOW TABLES LIKE 'icd10_pcs_order_code'");
-   if ( !(empty($check_table)) ) {
-    $sql_bind_array = array();
-    $query = "SELECT ref.pcs_code as code, ref.long_desc as code_text, " .
-             "c.id, c.code_type, c.modifier, c.units, c.fee, " .
-             "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, " .
-             "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
-             "FROM `icd10_pcs_order_code` as ref " .
-             "LEFT OUTER JOIN `codes` as c " .
-             "ON ref.pcs_code = c.code AND c.code_type = ? ";
-    array_push($sql_bind_array,$code_types[$form_code_type]['id']);
-    if ($return_only_one) {
-     $query .= "WHERE ref.pcs_code = ? AND ref.valid_for_coding = '1' AND ref.active = '1' $active_query ";
-     array_push($sql_bind_array,$search_term);
-    }
-    else {
-     $query .= "WHERE (ref.long_desc LIKE ? OR ref.pcs_code LIKE ?) AND ref.valid_for_coding = '1' AND ref.active = '1' $active_query ";
-     array_push($sql_bind_array,"%".$search_term."%","%".$search_term."%");
-    }
-    $query .= "ORDER BY ref.pcs_code+0, ref.pcs_code $limit_query";
-    $res = sqlStatement($query,$sql_bind_array);
-   }
-  }
-  else {
-   //using an external code that is not yet supported, so skip.
-  }
+  } // End specific code type search
+
   if (isset($res)) {
    if ($count) {
     // just return the count
@@ -488,112 +505,70 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
  * @return string         Is of the form "description;description; etc.".
  */
 function lookup_code_descriptions($codes) {
-  global $code_types;
+  global $code_types, $code_external_tables;
   $code_text = '';
   if (!empty($codes)) {
     $relcodes = explode(';', $codes);
     foreach ($relcodes as $codestring) {
       if ($codestring === '') continue;
       list($codetype, $code) = explode(':', $codestring);
-      if ( !($code_types[$codetype]['external']) ) { // Collect from default codes table
-        $wheretype = "";
+      $table_id=$code_types[$codetype]['external'];
+      if(isset($code_external_tables[$table_id]))
+      {
+        $table_info=$code_external_tables[$table_id];
+        $table_name=$table_info[EXT_TABLE_NAME];
+        $code_col=$table_info[EXT_COL_CODE];
+        $desc_col= $table_info[DISPLAY_DESCRIPTION]=="" ? $table_info[EXT_COL_DESCRIPTION] : $table_info[DISPLAY_DESCRIPTION];
         $sqlArray = array();
-        if (empty($code)) {
-          $code = $codetype;
-        } else {
-          $wheretype = "code_type = ? AND ";
-          array_push($sqlArray,$code_types[$codetype]['id']);
+        $sql = "SELECT ".$desc_col." as code_text FROM ".$table_name;
+        foreach($table_info[EXT_JOINS] as $join_info)
+        {
+          $join_table=$join_info[JOIN_TABLE];
+          $check_table = sqlQuery("SHOW TABLES LIKE '".$join_table."'");
+          if ( (empty($check_table)) ) {HelpfulDie("Missing join table in code set search:".$join_table);}
+          $sql.=" INNER JOIN ". $join_table;
+          $sql.=" ON ";
+          $not_first=false;
+          foreach($join_info[JOIN_FIELDS] as $field)
+          {
+              if($not_first)
+              {
+                  $sql.=" AND ";
+              }
+              $sql.=$field;
+              $not_first=true;                
+          }
         }
-        $sql = "SELECT code_text FROM codes WHERE " .
-          "$wheretype code = ? ORDER BY id LIMIT 1";
+                
+        $sql.=" WHERE ";
+
+        
+        // Start building up the WHERE clause
+
+        // When using the external codes table, we have to filter by the code_type.  (All the other tables only contain one type)  
+        if ($table_id==0) { $sql .= " code_type = '".add_escape_custom($code_types[$codetype]['id'])."' AND ";   }      
+
+        // Specify the code in the query.
+        $sql .= $table_name.".".$code_col."=? ";
         array_push($sqlArray,$code);
+       
+        // We need to include the filter clauses 
+        // For SNOMED and SNOMED-CT this ensures that we get the Preferred Term or the Fully Specified Term as appropriate
+        // It also prevents returning "inactive" results
+        foreach($table_info[EXT_FILTER_CLAUSES] as $filter_clause)
+        {
+            $sql.= " AND ".$filter_clause;
+        }
+        // END building the WHERE CLAUSE
+        
+        
+        if($table_info[EXT_VERSION_ORDER]){$sql .= " ORDER BY ".$table_info[EXT_VERSION_ORDER];}
+
+        $sql .= " LIMIT 1";
         $crow = sqlQuery($sql,$sqlArray);
-        if (!empty($crow['code_text'])) {
+        if (!empty($crow["code_text"])) {
           if ($code_text) $code_text .= '; ';
-          $code_text .= $crow['code_text'];
-        }
-      }
-      else if ($code_types[$codetype]['external'] == 1) { // Collect from ICD10 Diagnosis codeset tables
-        // Ensure the icd10_dx_order_code sql table exists
-        $check_table = sqlQuery("SHOW TABLES LIKE 'icd10_dx_order_code'");
-        if ( !(empty($check_table)) ) {
-          if ( !(empty($code)) ) {
-            // Will grab from previous inactive revisions if unable to find in current revision
-            $sql = "SELECT `long_desc` FROM `icd10_dx_order_code` " .
-                   "WHERE `formatted_dx_code` = ? ORDER BY `revision` DESC LIMIT 1";
-            $crow = sqlQuery($sql, array($code) );
-            if (!empty($crow['long_desc'])) {
-              if ($code_text) $code_text .= '; ';
-              $code_text .= $crow['long_desc'];
-            }
-          }
-        }
-      }
-      else if ($code_types[$codetype]['external'] == 2 || $code_types[$codetype]['external'] == 7) {
-        // Collect from SNOMED (RF1) Diagnosis codeset tables OR Search from SNOMED (RF1) clinical terms codeset tables 
-        // Ensure the sct_concepts sql table exists
-        $check_table = sqlQuery("SHOW TABLES LIKE 'sct_concepts'");
-        if ( !(empty($check_table)) ) {
-          if ( !(empty($code)) ) {
-            $sql = "SELECT `FullySpecifiedName` FROM `sct_concepts` " .
-                   "WHERE `ConceptId` = ? AND `ConceptStatus` = 0 LIMIT 1";
-            $crow = sqlQuery($sql, array($code) );
-            if (!empty($crow['FullySpecifiedName'])) {
-              if ($code_text) $code_text .= '; ';
-              $code_text .= $crow['FullySpecifiedName'];
-            }
-          }
-        }
-      }
-      else if ($code_types[$codetype]['external'] == 3) { // Collect from SNOMED (RF2) Diagnosis codeset tables
-        //placeholder
-      }
-      else if ($code_types[$codetype]['external'] == 4) { // Collect from ICD9 Diagnosis codeset tables
-        // Ensure the icd9_dx_code sql table exists
-        $check_table = sqlQuery("SHOW TABLES LIKE 'icd9_dx_code'");
-        if ( !(empty($check_table)) ) {
-          if ( !(empty($code)) ) {
-            // Will grab from previous inactive revisions if unable to find in current revision
-            $sql = "SELECT `long_desc` FROM `icd9_dx_code` " .
-                   "WHERE `formatted_dx_code` = ? ORDER BY `revision` DESC LIMIT 1";
-            $crow = sqlQuery($sql, array($code) );
-            if (!empty($crow['long_desc'])) {
-              if ($code_text) $code_text .= '; ';
-              $code_text .= $crow['long_desc'];
-            }
-          }
-        }
-      }
-      else if ($code_types[$codetype]['external'] == 5) { // Collect from ICD9 Procedure/Service codeset tables
-        // Ensure the icd9_dx_code sql table exists
-        $check_table = sqlQuery("SHOW TABLES LIKE 'icd9_sg_code'");
-        if ( !(empty($check_table)) ) {
-          if ( !(empty($code)) ) {
-            // Will grab from previous inactive revisions if unable to find in current revision
-            $sql = "SELECT `long_desc` FROM `icd9_sg_code` " .
-                   "WHERE `formatted_sg_code` = ? ORDER BY `revision` DESC LIMIT 1";
-            $crow = sqlQuery($sql, array($code) );
-            if (!empty($crow['long_desc'])) {
-              if ($code_text) $code_text .= '; ';
-              $code_text .= $crow['long_desc'];
-            }
-          }
-        }
-      }
-      else if ($code_types[$codetype]['external'] == 6) { // Collect from ICD10 PRocedure/Service codeset tables
-        // Ensure the icd10_dx_order_code sql table exists
-        $check_table = sqlQuery("SHOW TABLES LIKE 'icd10_pcs_order_code'");
-        if ( !(empty($check_table)) ) {
-          if ( !(empty($code)) ) {
-            // Will grab from previous inactive revisions if unable to find in current revision
-            $sql = "SELECT `long_desc` FROM `icd10_pcs_order_code` " .
-                   "WHERE `pcs_code` = ? ORDER BY `revision` DESC LIMIT 1";
-            $crow = sqlQuery($sql, array($code) );
-            if (!empty($crow['long_desc'])) {
-              if ($code_text) $code_text .= '; ';
-              $code_text .= $crow['long_desc'];
-            }
-          }
+          $code_text .= $crow["code_text"];
         }
       }
 
@@ -603,5 +578,54 @@ function lookup_code_descriptions($codes) {
     }
   }
   return $code_text;
+}
+
+/**
+* Sequential code set searching function (algorithm contributed by yehster)
+*
+* Function is basically a wrapper of the code_set_search() function to support
+* an optimized searching model. Model searches codes first; then if no hits, it
+* will then search the descriptions (which are separated by each word in the
+* code_set_search() function).
+*
+* @param string $form_code_type code set key (special keywords are PROD and --ALL--)
+* @param string $search_term search term
+* @param array $limit Number of results to return (NULL means return all)
+* @param boolean $count if true, then will only return the number of entries
+* @param boolean $active if true, then will only return active entries
+* @param integer $start Query start limit (for pagination)
+* @param integer $number Query number returned (for pagination)
+* @param array $filter_elements Array that contains elements to filter
+* @return recordset
+*/
+function sequential_code_set_search($form_code_type,$search_term,$limit=NULL,$count=false,$active=true,$start=NULL,$number=NULL,$filter_elements=array()) {
+
+  // Return the Search Results
+  // Search the code first
+  $res_code = code_set_search($form_code_type,$search_term,false,$active,false,$start,$number,$filter_elements,$limit,'code');
+  if(sqlNumRows($res_code)>0) {
+   if ($count) {
+    // just return the count
+    return sqlNumRows($res_code);
+   }
+   else {
+    // return the data
+    return $res_code;
+   }
+  }
+  else {
+   // no codes found, so search the descriptions;
+   $res_desc = code_set_search($form_code_type,$search_term,false,$active,false,$start,$number,$filter_elements,$limit,'description');
+   if(sqlNumRows($res_desc)>0) {
+    if ($count) {
+     // just return the count
+     return sqlNumRows($res_desc);
+    }
+    else {
+     // return the data
+     return $res_desc;
+    }
+   }
+  }
 }
 ?>
