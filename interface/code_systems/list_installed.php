@@ -44,8 +44,8 @@ if (!acl_check('admin', 'super')) {
 
 $db = isset($_GET['db']) ? $_GET['db'] : '0';
 
-// For now, only order by the revision_date. When have different formats of a code type (such as WHO vs CMS for ICD10 or different languages for SNOMED, then will incorporate this field)
-$rez = sqlStatement("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision_date`, `revision_version`, `name` FROM `standardized_tables_track` WHERE upper(`name`) = ? ORDER BY `revision_date` DESC", array($db) );
+// Ordering by the imported_date with tiebreaker being the revision_date
+$rez = sqlStatement("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision_date`, `revision_version`, `name` FROM `standardized_tables_track` WHERE upper(`name`) = ? ORDER BY `imported_date` DESC, `revision_date` DESC", array($db) );
 for($iter=0; $row=sqlFetchArray($rez); $iter++) {
     $sqlReturn[$iter]=$row;
 }

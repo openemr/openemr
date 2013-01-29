@@ -270,3 +270,14 @@ ALTER TABLE procedure_report
   ADD COLUMN `report_notes` text NOT NULL DEFAULT '' COMMENT 'Notes from the lab';
 #EndIf
 
+#IfNotRow code_types ct_key SNOMED-PR
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (
+  `id` int(11) NOT NULL DEFAULT '0',
+  `seq` int(11) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM ;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES ( IF( ((SELECT MAX(`ct_id`) FROM `code_types`)>=100), ((SELECT MAX(`ct_id`) FROM `code_types`) + 1), 100 ) , IF( ((SELECT MAX(`ct_seq`) FROM `code_types`)>=100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100 )  );
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term ) VALUES ('SNOMED-PR' , (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 0, 'SNOMED', 1, 0, 0, 0, 0, 'SNOMED Procedure', 9, 1, 1, 0);
+DROP TABLE `temp_table_one`;
+#EndIf
+
