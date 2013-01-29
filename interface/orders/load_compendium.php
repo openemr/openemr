@@ -392,7 +392,7 @@ if ($form_step == 1) {
             // prepend '+;' to indicate the start of a multi-select list.
             if (!empty($options) &&
                 (empty($qrow['options']) || empty($qrow['activity'])) &&
-                (strpos($acsv[4], 'Multiselect') !== FALSE) ||
+                (strpos($acsv[4], 'Multiselect') !== FALSE ||
                  strpos($acsv[4], 'Drop') !== FALSE))
             {
               $options = '+;' . $options;
