@@ -249,12 +249,16 @@ function submitform() {
 			document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.',e) ?>";
 		}
 	}
-	var sel = getSelected(document.forms[0].access_group_id.options);
-	for (var item in sel){       
-            if(sel[item].value == "Emergency Login"){
-                 document.forms[0].check_acl.value = 1; 
-            }
-          }
+
+  if (document.forms[0].access_group_id) {
+    var sel = getSelected(document.forms[0].access_group_id.options);
+    for (var item in sel) {
+      if (sel[item].value == "Emergency Login") {
+        document.forms[0].check_acl.value = 1;
+      }
+    }
+  }
+
 	  <?php if($GLOBALS['erx_enable']){ ?>
 	alertMsg='';
 	f=document.forms[0];
