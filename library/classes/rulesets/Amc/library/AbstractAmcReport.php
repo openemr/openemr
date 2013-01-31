@@ -157,10 +157,10 @@ abstract class AbstractAmcReport implements RsReportIF
                         "FROM `amc_misc_data`, `form_encounter` " .
                         "WHERE amc_misc_data.map_id = form_encounter.encounter " .
                         "AND amc_misc_data.map_category = 'form_encounter' " .
-                        "AND amc_misc_data.pid = form_encounter.pid = ? " .
+                        "AND amc_misc_data.pid = ? AND form_encounter.pid = ? " .
                         "AND amc_misc_data.amc_id = 'med_reconc_amc' " .
                         "AND form_encounter.date >= ? AND form_encounter.date <= ?";
-                array_push($sqlBindArray, $patient->id, $begin, $end);
+                array_push($sqlBindArray, $patient->id, $patient->id, $begin, $end);
                 break;
             case "transitions-out":
                 $sql = "SELECT * " .
