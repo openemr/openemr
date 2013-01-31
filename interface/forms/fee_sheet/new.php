@@ -903,7 +903,7 @@ echo " </tr>\n";
     if (!empty($value['nofs'])) continue;
     echo "   <option value='" . attr($key) . "'";
     if ($key == $default_search_type) echo " selected";
-    echo " />" . text($value['label']) . "</option>";
+    echo " />" . xlt($value['label']) . "</option>";
   }
 ?>
   </select>
