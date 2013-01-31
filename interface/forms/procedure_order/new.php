@@ -27,6 +27,7 @@ require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("../../orders/qoe.inc.php");
 require_once("../../orders/gen_hl7_order.inc.php");
+require_once("../../../custom/code_types.inc.php");
 
 // Defaults for new orders.
 $row = array(
@@ -319,7 +320,7 @@ function sel_related(varname) {
  // codetype is just to make things easier and avoid mistakes.
  // Might be nice to have a lab parameter for acceptable code types.
  // Also note the controlling script here runs from interface/patient_file/encounter/.
- dlgopen('find_code_popup.php?codetype=ICD9', '_blank', 500, 400);
+ dlgopen('find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
 }
 
 </script>
