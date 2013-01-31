@@ -897,14 +897,16 @@ echo " </tr>\n";
   </td>
   <td>
    <?php echo xlt('Search'); ?>&nbsp;
+  <select name='search_type'>
 <?php
   foreach ($code_types as $key => $value) {
     if (!empty($value['nofs'])) continue;
-    echo "   <input type='radio' name='search_type' value='" . attr($key) . "'";
-    if ($key == $default_search_type) echo " checked";
-    echo " />" . text($key) . "&nbsp;\n";
+    echo "   <option value='" . attr($key) . "'";
+    if ($key == $default_search_type) echo " selected";
+    echo " />" . text($value['label']) . "</option>";
   }
 ?>
+  </select>
    <?php echo xlt('for'); ?>&nbsp;
   </td>
   <td>
