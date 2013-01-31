@@ -66,4 +66,6 @@ $cfg['Servers'][$i]['verbose_check']   = TRUE;
 
 /* Other mods - BM 05-2009 */
 $cfg['ShowCreateDb'] = false;
+/* Other mods - BM 01-2012 */
+$cfg['ShowPhpInfo'] = TRUE;
 ?>
