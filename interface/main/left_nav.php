@@ -1298,7 +1298,7 @@ if (!empty($reg)) {
           <?php if ($GLOBALS['enable_amc_tracking']) genMiscLink('RTop','rep','0',xl('AMC Tracking'),'reports/amc_tracking.php'); ?>
         </ul>
       </li>
-      <li class="open"><a class="expanded_lv2"><span><?php xl('Visits','e') ?></span></a>
+      <li><a class="collapsed_lv2"><span><?php xl('Visits','e') ?></span></a>
         <ul>
           <?php if (!$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Appointments'),'reports/appointments_report.php'); ?>
           <?php  genMiscLink('RTop','rep','0',xl('Encounters'),'reports/encounters_report.php'); ?>
