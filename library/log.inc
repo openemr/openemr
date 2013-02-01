@@ -15,6 +15,7 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
 
     $ret = sqlInsertClean_audit($sql);
     if($patient_id=="NULL")$patient_id=0;
+
     send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
 }
 

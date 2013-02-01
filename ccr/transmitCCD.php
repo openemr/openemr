@@ -24,32 +24,6 @@
  * @link    http://www.open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
-
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
-
-// check if using the patient portal
-//(if so, then use the portal authorization)
-if (isset($_GET['portal_auth'])) {
-  $landingpage = "../patients/index.php";
-  session_start();
-  if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite']) ) {
-    $pid = $_SESSION['pid'];
-    $ignoreAuth=true;
-    global $ignoreAuth;
-  }
-  else {
-    session_destroy();
-    header('Location: '.$landingpage.'?w');
-    exit;
-  }
-}
-
-require_once(dirname(__FILE__) . "/../interface/globals.php");
 require_once(dirname(__FILE__) . "/../library/log.inc");
 
 /*

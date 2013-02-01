@@ -48,6 +48,7 @@ if (isset($_GET['portal_auth'])) {
 
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 require_once(dirname(__FILE__) . "/../library/sql-ccr.inc");
+require_once(dirname(__FILE__) . "/../library/classes/class.phpmailer.php");
 require_once(dirname(__FILE__) . "/uuid.php");
 require_once(dirname(__FILE__) . "/transmitCCD.php");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
@@ -259,6 +260,9 @@ function createCCR($action,$raw="no",$requested_by=""){
                                 if (file_exists($xmlName)) {
                                         unlink($xmlName);
                                 }
+				$e_styleSheet = $ccd->createProcessingInstruction('xml-stylesheet', 
+					'type="text/xsl" href="stylesheet/cda.xsl"');
+				$ccd->insertBefore($e_styleSheet,$ccd->firstChild);
                                 $ccd->save($xmlName);
                                 $zip->addFile($xmlName, basename($xmlName) );
                                 $zip->close();
@@ -364,7 +368,6 @@ if($_POST['ccrAction']) {
   /* If transmit requested, fail fast if the recipient address fails basic validation */
   if (substr($raw,0,4)=="send") {
     $send_to = trim(stripslashes(substr($raw,5)));
-    require($GLOBALS['fileroot'] . "/library/classes/class.phpmailer.php");
     if (!PHPMailer::ValidateAddress($send_to)) {
       echo(htmlspecialchars( xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
       return;
