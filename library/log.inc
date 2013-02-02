@@ -3,18 +3,20 @@
 require_once(dirname(__FILE__). "/sql.inc");
 require_once(dirname(__FILE__). "/formdata.inc.php");
 
-function newEvent($event, $user, $groupname, $success, $comments="") {
+function newEvent($event, $user, $groupname, $success, $comments="", $patient_id="NULL") {
     $adodb = $GLOBALS['adodb']['db'];
     $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
     /* More details added to the log */
-    $sql = "insert into log ( date, event, user, groupname, success, comments, crt_user) " .
+    $sql = "insert into log ( date, event, user, groupname, success, comments, crt_user, patient_id) " .
             "values ( NOW(), " . $adodb->qstr($event) . "," . $adodb->qstr($user) .
             "," . $adodb->qstr($groupname) . "," . $adodb->qstr($success) . "," .
             $adodb->qstr($comments) ."," .
-            $adodb->qstr($crt_user) .  ")";
+            $adodb->qstr($crt_user) ."," . $adodb->qstr($patient_id). ")";
 
     $ret = sqlInsertClean_audit($sql);
-    send_atna_audit_msg($user, $groupname, $event, 0, $success, $comments);
+    if($patient_id=="NULL")$patient_id=0;
+
+    send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
 }
 
 function getEventByDate($date, $user="", $cols="DISTINCT date, event, user, groupname, patient_id, success, comments, checksum")

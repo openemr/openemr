@@ -266,6 +266,51 @@ $(document).ready(function(){
                 $("#ccr_form").submit();
                 ccr_form.setAttribute("target", "");
         });
+        $(".viewCCD_download").click(
+        function() {
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'viewccd';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'pure';
+                $("#ccr_form").submit();
+        });
+<?php if ($GLOBALS['phimail_enable']==true) { ?>
+        $(".viewCCD_send_dialog").click(
+        function() {
+                $("#ccd_send_dialog").toggle();
+        });
+        $(".viewCCD_transmit").click(
+        function() {
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'viewccd';
+                var ccdRecipient = $("#ccd_send_to").val();
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'send '+ccdRecipient;
+                if(ccdRecipient=="") {
+                  $("#ccd_send_message").html("<?php
+       echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
+                  $("#ccd_send_result").show();
+                } else {
+                  $(".viewCCD_transmit").attr('disabled','disabled');
+                  $("#ccd_send_message").html("<?php
+       echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
+                  $("#ccd_send_result").show();
+                  var action=$("#ccr_form").attr('action');
+                  $.post(action, {ccrAction:'viewccd',raw:'send '+ccdRecipient,requested_by:'patient'},
+                     function(data) {
+                       if(data=="SUCCESS") {
+                         $("#ccd_send_message").html("<?php
+       echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
+                           ?> "+ccdRecipient);
+                         $("#ccd_send_to").val("");
+                       } else {
+                         $("#ccd_send_message").html(data);
+                       }
+             	       $(".viewCCD_transmit").removeAttr('disabled');
+                  });
+                }
+        });
+<?php } ?>
 
 });
 
@@ -368,7 +413,27 @@ $(document).ready(function(){
              <br/>
              <br/>
              <input type="button" class="viewCCD" value="<?php echo htmlspecialchars( xl('View/Print', ENT_QUOTES)); ?>" />
+             <input type="button" class="viewCCD_download" value="<?php echo htmlspecialchars( xl('Download', ENT_QUOTES)); ?>" />
              <!-- <input type="button" class="viewCCD_raw" value="<?php echo htmlspecialchars( xl('Raw Report', ENT_QUOTES)); ?>" /> -->
+<?php if ($GLOBALS['phimail_enable']==true) { ?>
+             <input type="button" class="viewCCD_send_dialog" value="<?php echo htmlspecialchars( xl('Transmit', ENT_QUOTES)); ?>" />
+             <br>
+             <div id="ccd_send_dialog" style="display:none" >
+              <br>
+              <table border="0" cellpadding="0" cellspacing="0" >
+               <tr>
+                <td>
+                 <span class='bold'><?php echo htmlspecialchars( xl('Enter Recipient\'s Direct Address'), ENT_NOQUOTES);?>: </span>
+                <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="">
+                <input type="button" class="viewCCD_transmit" value="<?php echo htmlspecialchars( xl('Send', ENT_QUOTES)); ?>" />
+                <div id="ccd_send_result" style="display:none" >
+                 <span class="text" id="ccd_send_message"></span>
+                </div>
+                </td>
+              </tr>
+              </table>
+             </div>
+<?php } ?>
             </form>
            </div>
           </div>
