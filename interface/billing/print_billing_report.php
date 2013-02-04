@@ -1,4 +1,5 @@
-<?php 
+<?php
+/* Copyright (C) 2012 Julia Longtin */
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
@@ -10,12 +11,10 @@ include_once("$srcdir/../interface/reports/report.inc.php");
 include_once("$srcdir/billrep.inc");
 include_once("$srcdir/forms.inc");
 include_once("$srcdir/billing.inc");
-include_once("$srcdir/pnotes.inc");
 include_once("$srcdir/report.inc");
 
 //how many columns to use when displaying information
 $COLS=6;
-
 
 //global variables:
 if (!isset($_GET["mode"])) {
@@ -52,25 +51,19 @@ if (!isset($_GET["mode"])) {
     $my_authorized = $_GET["authorized"];
 }
 
-
-
 ?>
 
 <html>
 <head>
 <?php html_header_show();?>
 
-
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 </head>
 <body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-
 <a href="javascript:window.close();" target=Main><font class=title><?php echo xlt('Billing Report')?></font></a>
 <br>
-
-
 
 <?php 
 if ($my_authorized == "on" ) {
@@ -89,10 +82,6 @@ if ($code_type == "all") {
 
 $list = getBillsListBetween($code_type);
 
-
-?>
-
-<?php
 if (!isset($_GET["mode"])) {
     if (!isset($_GET["from_date"])) {
         $from_date=date("Y-m-d");
@@ -126,9 +115,7 @@ if (!isset($_GET["mode"])) {
     $unbilled = $_GET["unbilled"];
     $my_authorized = $_GET["authorized"];
 }
-?>
 
-<?php 
 if ($my_authorized == "on" ) {
     $my_authorized = 1;
 } else {
@@ -145,15 +132,9 @@ if ($code_type == "all") {
 
 $list = getBillsListBetween($code_type);
 
-
-?>
-
-<?php 
-
 if (isset($_GET["mode"]) && $_GET["mode"] == "bill") {
     billCodesList($list);
 }
-
 
 $res_count = 0;
 $N = 1;
@@ -192,9 +173,6 @@ printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"second
 
 print "<font class=bold>" . xlt("Tertiary Insurance Data") . ":</font><br>";
 printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"tertiary"), $COLS);
-
-
-
         
         //==================================
         print "</td></tr><tr>\n";
@@ -211,9 +189,7 @@ printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"tertia
 }
 print "</tr></table>\n"; // small table
 
-
 }
-
 
 ?>
 </body>
