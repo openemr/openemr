@@ -17,7 +17,7 @@ function seq_search_test($type,$string)
     echo "</ol>";
 }
 
-/*
+
 seq_search_test("ICD9","hyperchol");
 seq_search_test("ICD9","401");
 
@@ -26,14 +26,13 @@ seq_search_test("ICD10","hypert");
 seq_search_test("ICD10","I1");
 
 seq_search_test("CPT4","99");
-*/
 
 seq_search_test("SNOMED","hypert");
-//seq_search_test("SNOMED","1201005");
+seq_search_test("SNOMED","1201005");
 
 
 seq_search_test("SNOMED-CT","hypert");
-//seq_search_test("SNOMED-CT","1201005");
+seq_search_test("SNOMED-CT","1201005");
 
 
 seq_search_test("SNOMED-PR","Incision Drai");

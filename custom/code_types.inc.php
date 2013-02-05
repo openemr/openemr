@@ -521,6 +521,8 @@ function lookup_code_descriptions($codes) {
         $desc_col= $table_info[DISPLAY_DESCRIPTION]=="" ? $table_info[EXT_COL_DESCRIPTION] : $table_info[DISPLAY_DESCRIPTION];
         $sqlArray = array();
         $sql = "SELECT ".$desc_col." as code_text FROM ".$table_name;
+        
+        // include the "JOINS" so that we get the preferred term instead of the FullySpecifiedName when appropriate.
         foreach($table_info[EXT_JOINS] as $join_info)
         {
           $join_table=$join_info[JOIN_TABLE];
