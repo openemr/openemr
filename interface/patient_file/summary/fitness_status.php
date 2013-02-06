@@ -8,7 +8,6 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
