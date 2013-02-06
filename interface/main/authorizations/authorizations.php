@@ -12,7 +12,6 @@ include_once("../../globals.php");
 include_once("$srcdir/log.inc");
 include_once("$srcdir/billing.inc");
 include_once("$srcdir/forms.inc");
-include_once("$srcdir/pnotes.inc");
 include_once("$srcdir/transactions.inc");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/patient.inc");

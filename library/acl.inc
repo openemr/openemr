@@ -1,4 +1,28 @@
 <?php
+/**
+ * library/acl.inc 
+ * 
+ * Functions wrapping php-GACL's functionality, to create a generic OpenEMR access control system.
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see 
+ * http://www.gnu.org/licenses/licenses.html#GPL .
+ *
+ * @package OpenEMR
+ * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
+ * @author  Brady Miller <brady@sparmy.com>
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://www.open-emr.org
+ */
+
 // php-GACL access controls are included in OpenEMR. The below
 // function will automatically create the path where gacl.class.php
 // can be found. Note that this path can be manually set below
@@ -8,7 +32,6 @@
 
   $phpgacl_location = dirname(__FILE__).'/../gacl';
 
-//
 // If using an external version of phpGACL, then uncomment the following
 // line and manually place the path below.  IN THIS CASE YOU MUST ALSO
 // COMMENT OUT ABOVE $phpgacl_location ASSIGNMENT ABOVE, OR BACKUPS WILL
@@ -96,17 +119,24 @@
     $section_aro_value = 'users';
   }
 
-  // acl_check should return FALSE if access is denied and will return TRUE
-  // if access is allowed. The following return_value(s) can be evaluated
-  // for by placing in the $return_value parameter; it can be placed
-  // as a single value or can send as an array of values (so $return_value
-  // can be a string or an array).
-  //
-  // * view    - the user may view but not add or modify entries
-  // * write   - the user may add or modify the ACO
-  // * wsome   - the user has limited add/modify access to the ACO
-  // * addonly - the user may view and add but not modify entries
-  //
+/**
+ * Check if a user has a given type or types of access to an access control object.
+ * 
+ * This function will check for access to the given ACO.
+ * view    - The user may view but not add or modify entries
+ * write   - The user may add or modify the ACO
+ * wsome   - The user has limited add/modify access to the ACO
+ * addonly - The user may view and add but not modify entries
+ *
+ * @param string       $section      Category of ACO
+ * @param string       $value        Subcategory of ACO
+ * @param string       $user         Optional user being checked for access.
+ * @param string|array $return_value Type or types of access being requested.
+ * @return bool|array  FALSE if access is denied, TRUE if allowed. An
+ *                     array() of bools is returned if $return_value is an
+ *		       array, representing results for each type of access
+ * 		       requested.
+ */
   function acl_check($section, $value, $user = '', $return_value = '') {
     global $gacl_object, $phpgacl_location, $section_aro_value;
     if (! $user) $user = $_SESSION['authUser'];
