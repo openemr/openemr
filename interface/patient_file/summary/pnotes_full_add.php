@@ -113,8 +113,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
  "ORDER BY lname, fname");
 
-$pres = sqlQuery("SELECT lname, fname " .
- "FROM patient_data WHERE pid = ?", array($pid) );
+$pres = getPatientData($pid, "lname, fname");
 $patientname = $pres['lname'] . ", " . $pres['fname'];
 
 //retrieve all notes
