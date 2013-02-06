@@ -249,9 +249,7 @@ function show_div(name){
 $billing_note = "";
 $colorbeg = "";
 $colorend = "";
-$sql = "select genericname2, genericval2 " .
-    "from patient_data where pid = ? limit 1";
-$resnote = sqlQuery($sql, array($pid) );
+$resnote = getPatientData($pid, "genericname2, genericval2");
 if($resnote && $resnote['genericname2'] == 'Billing') {
   $billing_note = $resnote['genericval2'];
   $colorbeg = "<span style='color:red'>";
