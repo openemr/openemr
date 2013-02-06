@@ -453,14 +453,11 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
       }
       else if($mode=="description"){
           $description_keywords=preg_split("/ /",$search_term,-1,PREG_SPLIT_NO_EMPTY);
-          $not_first=false;
-          $query.="(";
+          $query.="(1=1 ";
           foreach($description_keywords as $keyword)
           {
-              if($not_first) { $query.= " AND "; }
-              $query.= $table_dot.$code_text_col." LIKE ? ";
+              $query.= " AND ".$table_dot.$code_text_col." LIKE ? ";
               array_push($sql_bind_array,"%".$keyword."%");          
-              $not_first=true;
           }
           $query.=")";
         }

@@ -19,6 +19,8 @@ function search_test($type,$string,$mode='default')
 
 ?>
 <?php
+search_test("SNOMED-CT","","description");
+
 search_test("--ALL--","100");
 search_test("--ALL--","100","code");
 search_test("--ALL--","colon benign","description");
