@@ -126,18 +126,24 @@ define_external_table($code_external_tables,5,'icd9_sg_code','formatted_sg_code'
 
 // SNOMED Definitions
 // For generic SNOMED-CT, there is no need to join with the descriptions table to get a specific description Type
-define_external_table($code_external_tables,7,'sct_concepts','ConceptId','FullySpecifiedName',array("ConceptStatus=0"),"");
 
-// For disorder, procedures, organism, etc... we join with the sct_descriptions table to get the preferred term instead of the fully specified term
-$SNOMED_joins=array(JOIN_TABLE=>"sct_descriptions",JOIN_FIELDS=>array("sct_descriptions.ConceptId=sct_concepts.ConceptId","DescriptionStatus=0","DescriptionType=1"));
+// For generic concepts, use the fully specified description (DescriptionType=3) so we can tell the difference between them.
+define_external_table($code_external_tables,7,'sct_descriptions','ConceptId','Term',array("DescriptionStatus=0","DescriptionType=3"),"");
 
 
-// Can redefine this based on language
-$disorder_phrase="disorder";
-define_external_table($code_external_tables,2,'sct_concepts','ConceptId','FullySpecifiedName',array("ConceptStatus=0","FullySpecifiedName like '%(".$disorder_phrase.")'"),"",array($SNOMED_joins),"sct_descriptions.Term");
+// To determine codes, we need to evaluate data in both the sct_descriptions table, and the sct_concepts table.
+// the base join with sct_concepts is the same for all types of SNOMED definitions, so we define the common part here
+$SNOMED_joins=array(JOIN_TABLE=>"sct_concepts",JOIN_FIELDS=>array("sct_descriptions.ConceptId=sct_concepts.ConceptId"));
 
-$procedure_phrase="procedure";
-define_external_table($code_external_tables,9,'sct_concepts','ConceptId','FullySpecifiedName',array("ConceptStatus=0","FullySpecifiedName like '%(".$procedure_phrase.")'"),"",array($SNOMED_joins),"sct_descriptions.Term");
+// For disorders, use the preferred term (DescriptionType=1)
+define_external_table($code_external_tables,2,'sct_descriptions','ConceptId','Term',array("DescriptionStatus=0","DescriptionType=1"),"",array($SNOMED_joins));
+// Add the filter to choose only disorders. This filter happens as part of the join with the sct_concepts table
+array_push($code_external_tables[2][EXT_JOINS][0][JOIN_FIELDS],"FullySpecifiedName like '%(disorder)'");
+
+// SNOMED-PR definition
+define_external_table($code_external_tables,9,'sct_descriptions','ConceptId','Term',array("DescriptionStatus=0","DescriptionType=1"),"",array($SNOMED_joins));
+// Add the filter to choose only procedures. This filter happens as part of the join with the sct_concepts table
+array_push($code_external_tables[9][EXT_JOINS][0][JOIN_FIELDS],"FullySpecifiedName like '%(procedure)'");
 
 
 //**** End SNOMED Definitions
