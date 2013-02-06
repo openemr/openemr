@@ -35,6 +35,16 @@ $policy_types = array(
   '47' => xl('Other Liability Insurance is Primary'),
 );
 
+/**
+ * Get a patient's demographic data.
+ *
+ * @param int    $pid   The PID of the patient
+ * @param string $given an optional subsection of the patient's demographic
+ *                      data to retrieve.
+ * @return array The requested subsection of a patient's demographic data.
+ *               If no subsection was given, returns everything, with the
+ *               date of birth as the last field.
+ */
 function getPatientData($pid, $given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") {
     $sql = "select $given from patient_data where pid=? order by date DESC limit 0,1";
     return sqlQuery($sql, array($pid) );
