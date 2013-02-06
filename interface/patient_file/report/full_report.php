@@ -3,7 +3,6 @@ include_once("../../globals.php");
 
 include_once("$srcdir/forms.inc");
 include_once("$srcdir/billing.inc");
-include_once("$srcdir/pnotes.inc");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/report.inc");
 include_once("$srcdir/acl.inc");
