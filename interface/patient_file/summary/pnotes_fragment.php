@@ -50,8 +50,7 @@ $fake_register_globals=false;
     <table width='100%' border='0' cellspacing='1' cellpadding='1' style='border-collapse:collapse;' >
     <?php
     
-    $pres = sqlQuery("SELECT lname, fname " .
-     "FROM patient_data WHERE pid = ?", array($pid) );
+    $pres = getPatientData($pid,"lname, fname");
     $patientname = $pres['lname'] . ", " . $pres['fname'];
     //retrieve all active notes
     $result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to,message_status",
