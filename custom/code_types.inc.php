@@ -395,11 +395,15 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
                 $active_query=" AND (c.active = 1 || c.active IS NULL) ";
             }
       
+            // Get the basic metadata information
             $table_info=$code_external_tables[$table_id];
             $table=$table_info[EXT_TABLE_NAME];
             $table_dot=$table.".";
             $code_col=$table_info[EXT_COL_CODE];
             $code_text_col=$table_info[EXT_COL_DESCRIPTION];
+            
+            // If the description is supposed to come from "joined" table instead of the "main", 
+            // the metadata defines a DISPLAY_DESCRIPTION element, and we use that to build up the query
             if($table_info[DISPLAY_DESCRIPTION]!="")
             {
                 $display_description=$table_info[DISPLAY_DESCRIPTION];
@@ -586,7 +590,7 @@ function lookup_code_descriptions($codes) {
 }
 
 /**
-* Sequential code set searching function (algorithm contributed by yehster)
+* Sequential code set searching function
 *
 * Function is basically a wrapper of the code_set_search() function to support
 * an optimized searching model. Model searches codes first; then if no hits, it
@@ -606,7 +610,7 @@ function lookup_code_descriptions($codes) {
 function sequential_code_set_search($form_code_type,$search_term,$limit=NULL,$count=false,$active=true,$start=NULL,$number=NULL,$filter_elements=array()) {
 
   // Return the Search Results
-  // Search the code first
+  // Search by code first
   $res_code = code_set_search($form_code_type,$search_term,false,$active,false,$start,$number,$filter_elements,$limit,'code');
   if(sqlNumRows($res_code)>0) {
    if ($count) {
