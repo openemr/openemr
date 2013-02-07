@@ -1,4 +1,4 @@
-<?php             
+<?php
 /**
  * Used for displaying dated reminders. 
  *
