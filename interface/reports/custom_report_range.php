@@ -7,7 +7,6 @@
 require_once(dirname(__file__)."/../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
-require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/classes/Document.class.php");
