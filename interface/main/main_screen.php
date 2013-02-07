@@ -1,33 +1,40 @@
 <?php
- include_once("../globals.php");
- require_once("$srcdir/formdata.inc.php");
- $_SESSION["encounter"] = "";
+/** The outside frame that holds all of the OpenEMR User Interface.
+ */
 
- // Fetching the password expiration date
- $is_expired=false;
- if($GLOBALS['password_expiration_days'] != 0){
- $is_expired = false;
- $q=formData('authUser','P');
- $result = sqlStatement("select pwd_expiration_date from users where username = '".$q."'");
- $current_date = date("Y-m-d");
- $pwd_expires_date = $current_date;
- if($row = sqlFetchArray($result)) {
-  $pwd_expires_date = $row['pwd_expiration_date'];
- }
+/* Include our required headers */
+require_once('../globals.php');
+require_once("$srcdir/formdata.inc.php");
 
-// Displaying the password expiration message (starting from 7 days before the password gets expired)
- $pwd_alert_date = date("Y-m-d", strtotime($pwd_expires_date . "-7 days"));
+$_SESSION["encounter"] = '';
 
- if (strtotime($pwd_alert_date) != "" && strtotime($current_date) >= strtotime($pwd_alert_date) && 
-     (!isset($_SESSION['expiration_msg']) or $_SESSION['expiration_msg'] == 0)) {
+// Fetch the password expiration date
+$is_expired=false;
+if($GLOBALS['password_expiration_days'] != 0){
+  $is_expired=false;
+  $q=formData('authUser','P');
+  $result = sqlStatement("select pwd_expiration_date from users where username = '".$q."'");
+  $current_date = date('Y-m-d');
+  $pwd_expires_date = $current_date;
+  if($row = sqlFetchArray($result)) {
+    $pwd_expires_date = $row['pwd_expiration_date'];
+  }
 
-  $is_expired = true;
-  $_SESSION['expiration_msg'] = 1; // only show the expired message once
- }
+  // Display the password expiration message (starting from 7 days before the password gets expired)
+  $pwd_alert_date = date('Y-m-d', strtotime($pwd_expires_date . '-7 days'));
+
+  if (strtotime($pwd_alert_date) != '' &&
+      strtotime($current_date) >= strtotime($pwd_alert_date) &&
+      (!isset($_SESSION['expiration_msg'])
+      or $_SESSION['expiration_msg'] == 0)) {
+    $is_expired = true;
+    $_SESSION['expiration_msg'] = 1; // only show the expired message once
+  }
 }
 
 if ($is_expired) {
-  $frame1url = "pwd_expires_alert.php"; //php file which display's password expiration message.
+  //display the php file containing the password expiration message.
+  $frame1url = "pwd_expires_alert.php";
 }
 else if (!empty($_POST['patientID'])) {
   $patientID = 0 + $_POST['patientID'];
@@ -79,12 +86,16 @@ function allFramesLoaded() {
 
 </head>
 
-<?php if ($GLOBALS['concurrent_layout']) { // start new layout ?>
+<?php
 
-<?php if (empty($GLOBALS['gbl_tall_nav_area'])) { // not tall nav area ?>
+// Please keep in mind that border (mozilla) and framespacing (ie) are the
+// same thing. use both.
+// frameborder specifies a 3d look, not whether there are borders.
 
-<!-- border (mozilla) and framespacing (ie) are the same thing.      -->
-<!-- frameborder specifies a 3d look, not whether there are borders. -->
+if ($GLOBALS['concurrent_layout']) {
+  // start new layout
+  if (empty($GLOBALS['gbl_tall_nav_area'])) {
+    // not tall nav area ?>
 <frameset rows='<?php echo $GLOBALS['titleBarHeight'] + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
  <frameset cols='<?php echo $nav_area_width; ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4'>
