@@ -31,7 +31,7 @@
  *             8 for storing codes in external SNOMED (RF2) Clinical Term tables (for future)
  *             9 for storing codes in external SNOMED (RF1) Procedure Term tables
  *             10 for storing codes in external SNOMED (RF2) Procedure Term tables (for future)
- * *  term     - 1 if this code type is used as a clinical term
+ *  term     - 1 if this code type is used as a clinical term
  *  </pre>
  *
  * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
@@ -300,7 +300,7 @@ function collect_codetypes($category,$return_format="array") {
  * @param  array     $filter_elements Array that contains elements to filter
  * @param array      $limit           Number of results to return (NULL means return all); note this is ignored if set $start/number
  * @param array      $mode            'default' mode searches code and description, 'code' mode only searches code, 'description' mode searches description (and separates words); note this is ignored if set $return_only_one to TRUE
- * @return recordset 
+ * @return recordset/integer 
  */
 function code_set_search($form_code_type,$search_term="",$count=false,$active=true,$return_only_one=false,$start=NULL,$number=NULL,$filter_elements=array(),$limit=NULL,$mode='default') {
   global $code_types,$code_external_tables;
@@ -334,12 +334,17 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
   }
 
   if ($form_code_type == 'PROD') { // Search for products/drugs
-   $query = "SELECT dt.drug_id, dt.selector, d.name " .
-            "FROM drug_templates AS dt, drugs AS d WHERE " .
-            "( d.name LIKE ? OR " .
-            "dt.selector LIKE ? ) " .
-            "AND d.drug_id = dt.drug_id " .
-            "ORDER BY d.name, dt.selector, dt.drug_id $limit_query";
+   if ($count) {
+       $query = "SELECT count(dt.drug_id) as count ";
+   }
+   else {
+       $query = "SELECT dt.drug_id, dt.selector, d.name ";
+   }
+       $query .= "FROM drug_templates AS dt, drugs AS d WHERE " .
+                 "( d.name LIKE ? OR " .
+                 "dt.selector LIKE ? ) " .
+                 "AND d.drug_id = dt.drug_id " .
+                 "ORDER BY d.name, dt.selector, dt.drug_id $limit_query";
    $res = sqlStatement($query, array("%".$search_term."%", "%".$search_term."%") );
   }
   else { // Start a codes search
@@ -347,6 +352,11 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
       $table_id=isset($code_types[$form_code_type]['external']) ? intval(($code_types[$form_code_type]['external'])) : -9999 ;  
       if(($table_id>=0) || ($form_code_type == '--ALL--')) // Either we found a definition for the given code search or we are doing an "--ALL--" search, so start building the query
       {
+
+        // Place the common columns variable here since all check codes table
+        $common_columns=" c.id, c.code_type, c.modifier, c.units, c.fee, " .
+                        "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, ";
+
         if ( $table_id==0  || ($form_code_type == '--ALL--') ) { // Search from default codes table.  --ALL-- only means all codes in the default tables
           if($table_id==0){ $table_info[EXT_FILTER_CLAUSES]=array("code_type=".$code_types[$form_code_type]['id']); } // Add a filter for the code type
           else {$table_info[EXT_FILTER_CLAUSES]=array();} // define empty filter array for "--ALL--"
@@ -360,28 +370,37 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
           $active_query=" AND c.active = 1 ";
           }
           $sql_bind_array = array();
-          $query = "SELECT c.id, c.code_text, c.code_text_short, c.code, c.code_type, c.modifier, c.units, c.fee, " .
-                  "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, ";
+          $columns = " c.code_text, c.code_text_short, c.code, ".$common_columns;
           if($table_id==0)
           {
               // If code type is specified, then include the "constant" as part of the query results for consistency
-              $query .= "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
-                        "FROM `codes` as c ";
+              $columns .= " '" . add_escape_custom($form_code_type) . "' as code_type_name ";
+              if ($count) {
+                  $query = "SELECT count(c.code) as count ";
+              }
+              else {
+                  $query = "SELECT ".$columns;
+              }
+              $query .= " FROM `codes` as c ";
 
           }
           else if($form_code_type=='--ALL--')
           {
              // For an "--ALL--" search we need to join with the code_types table to get the string representation of each returned code.
-             $query .=  "ct.ct_key as code_type_name " .
-                        " FROM `codes` as c " .
+             $columns .= " ct.ct_key as code_type_name ";
+              if ($count) {
+                  $query = "SELECT count(c.code) as count ";
+              }
+              else {
+                  $query = "SELECT ".$columns;
+              }
+             $query .=  " FROM `codes` as c " .
                         " LEFT OUTER JOIN `code_types` as ct " .
                         " ON c.code_type = ct.ct_id ";
           }
         }
         else if ($code_types[$form_code_type]['external'] > 0 ) { // Search from an external table with defined metadata
-            $common_columns=",c.id, c.code_type, c.modifier, c.units, c.fee, " .
-                     "c.superbill, c.related_code, c.taxrates, c.cyp_factor, c.active, c.reportable, c.financial_reporting, " .
-                     "'" . add_escape_custom($form_code_type) . "' as code_type_name " .
+            $columns .= $common_columns . "'" . add_escape_custom($form_code_type) . "' as code_type_name ";
 
             $active_query = '';
             if ($active) {
@@ -417,12 +436,18 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
             if ( (empty($check_table)) ) {HelpfulDie("Missing table in code set search:".$table);}
             
             $sql_bind_array = array();
-            $query = "SELECT ".$table_dot.$code_col . " as code, " . 
-                     $display_description . " as code_text " .        
-                     $common_columns .             
-             " FROM ".$table.
-             " LEFT OUTER JOIN `codes` as c " .
-             " ON ".$table_dot.$code_col." = c.code AND c.code_type = ? ";
+            if ($count) {
+                // only collecting a count
+                $query = "SELECT count(".$table_dot.$code_col . ") as count ";
+            }
+            else {
+                $query = "SELECT ".$table_dot.$code_col . " as code, " . 
+                         $display_description . " as code_text, " .        
+                         $columns . " ";
+            }
+            $query .= " FROM ".$table.
+                      " LEFT OUTER JOIN `codes` as c " .
+                      " ON ".$table_dot.$code_col." = c.code AND c.code_type = ? ";
             array_push($sql_bind_array,$code_types[$form_code_type]['id']);
 
             foreach($table_info[EXT_JOINS] as $join_info)
@@ -493,7 +518,8 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
   if (isset($res)) {
    if ($count) {
     // just return the count
-    return sqlNumRows($res);
+    $ret = sqlFetchArray($res);
+    return $ret['count'];
    }
    else {
     // return the data
@@ -593,48 +619,34 @@ function lookup_code_descriptions($codes) {
 * Sequential code set searching function
 *
 * Function is basically a wrapper of the code_set_search() function to support
-* an optimized searching model. Model searches codes first; then if no hits, it
-* will then search the descriptions (which are separated by each word in the
-* code_set_search() function).
+* a optimized searching models. The default mode will:
+* Searches codes first; then if no hits, it will then search the descriptions
+* (which are separated by each word in the code_set_search() function).
 *
 * @param string $form_code_type code set key (special keywords are PROD and --ALL--)
 * @param string $search_term search term
 * @param array $limit Number of results to return (NULL means return all)
+* @param array $modes Holds the search modes to process along with the order of processing (default behavior is described in above function comment)
 * @param boolean $count if true, then will only return the number of entries
 * @param boolean $active if true, then will only return active entries
 * @param integer $start Query start limit (for pagination)
 * @param integer $number Query number returned (for pagination)
 * @param array $filter_elements Array that contains elements to filter
-* @return recordset
+* @return recordset/integer
 */
-function sequential_code_set_search($form_code_type,$search_term,$limit=NULL,$count=false,$active=true,$start=NULL,$number=NULL,$filter_elements=array()) {
-
-  // Return the Search Results
-  // Search by code first
-  $res_code = code_set_search($form_code_type,$search_term,false,$active,false,$start,$number,$filter_elements,$limit,'code');
-  if(sqlNumRows($res_code)>0) {
-   if ($count) {
-    // just return the count
-    return sqlNumRows($res_code);
-   }
-   else {
-    // return the data
-    return $res_code;
-   }
+function sequential_code_set_search($form_code_type,$search_term,$limit=NULL,$modes=NULL,$count=false,$active=true,$start=NULL,$number=NULL,$filter_elements=array()) {
+  // Set the default behavior that is described in above function comments
+  if (empty($modes)) {
+    $modes=array('code','description');
   }
-  else {
-   // no codes found, so search the descriptions;
-   $res_desc = code_set_search($form_code_type,$search_term,false,$active,false,$start,$number,$filter_elements,$limit,'description');
-   if(sqlNumRows($res_desc)>0) {
-    if ($count) {
-     // just return the count
-     return sqlNumRows($res_desc);
+
+  // Return the Search Results (loop through each mode in order)
+  foreach ($modes as $mode) {
+    $res = code_set_search($form_code_type,$search_term,$count,$active,false,$start,$number,$filter_elements,$limit,$mode);
+    if ( ($count && $res>0) || (!$count && sqlNumRows($res)>0) ) {
+      // returns the count number if count is true or returns the data if count is false
+      return $res;
     }
-    else {
-     // return the data
-     return $res_desc;
-    }
-   }
   }
 }
 ?>

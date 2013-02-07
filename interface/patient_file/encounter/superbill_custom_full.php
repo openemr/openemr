@@ -179,10 +179,10 @@ if (!empty($search_financial_reporting)) {
 }
 
 if ($filter) {
- $count = sequential_code_set_search($filter_key,$search,NULL,true,false,NULL,NULL,$filter_elements);
+ $count = sequential_code_set_search($filter_key,$search,NULL,NULL,true,false,NULL,NULL,$filter_elements);
 }
 else {
- $count = sequential_code_set_search("--ALL--",$search,NULL,true,false,NULL,NULL,$filter_elements);
+ $count = sequential_code_set_search("--ALL--",$search,NULL,NULL,true,false,NULL,NULL,$filter_elements);
 }
 if ($fstart >= $count) $fstart -= $pagesize;
 if ($fstart < 0) $fstart = 0;
@@ -608,10 +608,10 @@ if (in_array($filter_key,$external_sets)) {
 }
 
 if ($filter) {
- $res = sequential_code_set_search($filter_key,$search,NULL,false,false,$fstart,($fend - $fstart),$filter_elements);
+ $res = sequential_code_set_search($filter_key,$search,NULL,NULL,false,false,$fstart,($fend - $fstart),$filter_elements);
 }
 else {
- $res = sequential_code_set_search("--ALL--",$search,NULL,false,false,$fstart,($fend - $fstart),$filter_elements);
+ $res = sequential_code_set_search("--ALL--",$search,NULL,NULL,false,false,$fstart,($fend - $fstart),$filter_elements);
 }
 
 for ($i = 0; $row = sqlFetchArray($res); $i++) $all[$i] = $row;

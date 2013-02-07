@@ -6,13 +6,18 @@ require_once("library/htmlspecialchars.inc.php");
 require_once("library/translation.inc.php");
 require_once("custom/code_types.inc.php");
 
-function seq_search_test($type,$string)
+function seq_search_test($type,$string,$limit=20,$modes=NULL,$count=false)
 {
     echo "<ol>";
-    $res=sequential_code_set_search($type,$string,20);
-    foreach($res->GetArray() as $code)
-    {
-        echo "<li>". $code['code_type_name'].":".$code['code'].":".$code['code_text']."</li>";
+    $res=sequential_code_set_search($type,$string,$limit,$modes,$count);
+    if ($count) {
+        echo "<li>" . $res . "</li>";
+    }
+    else {
+        while ($code = sqlFetchArray($res))
+        {
+            echo "<li>". $code['code_type_name'].":".$code['code'].":".$code['code_text']."</li>";
+        }
     }
     echo "</ol>";
 }
@@ -20,7 +25,6 @@ function seq_search_test($type,$string)
 
 seq_search_test("ICD9","hyperchol");
 seq_search_test("ICD9","401");
-
 
 seq_search_test("ICD10","hypert");
 seq_search_test("ICD10","I1");
@@ -38,5 +42,13 @@ seq_search_test("SNOMED-CT","1201005");
 seq_search_test("SNOMED-PR","Incision Drai");
 
 
+seq_search_test("ICD9","401",NULL,array('code','description'),true);
+seq_search_test("ICD9","401",NULL,array('description','code'),true);
+seq_search_test("ICD9","401",NULL,array('code'),true);
+seq_search_test("ICD9","401",NULL,array('description'),true);
+seq_search_test("ICD9","chol",NULL,array('code','description'),true);
+seq_search_test("ICD9","chol",NULL,array('description','code'),true);
+seq_search_test("ICD9","chol",NULL,array('code'),true);
+seq_search_test("ICD9","chol",NULL,array('description'),true);
 
 ?>
