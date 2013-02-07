@@ -13,23 +13,26 @@
 $sanitize_all_escapes = true;
 $fake_register_globals = false;
 
-require_once("../globals.php");
-require_once("$srcdir/acl.inc");
+require_once('../globals.php');
+require_once($GLOBALS['srcdir'].'/acl.inc');
+require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
+/* for formData() */
+require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 
 if (!acl_check('admin', 'super')) die(htmlspecialchars(xl('Not authorized')));
 
 // Prepare array of names of editable files, relative to the site directory.
 $my_files = array(
-  "clickoptions.txt",
-  "config.php",
-  "faxcover.txt",
-  "faxtitle.eps",
-  "referral_template.html",
-  "statement.inc.php",
-  "letter_templates/custom_pdf.php",
+  'clickoptions.txt',
+  'config.php',
+  'faxcover.txt',
+  'faxtitle.eps',
+  'referral_template.html',
+  'statement.inc.php',
+  'letter_templates/custom_pdf.php',
 );
 // Append LBF plugin filenames to the array.
-$lres = sqlStatement("SELECT * FROM list_options " .
+$lres = sqlStatement('SELECT * FROM list_options ' .
   "WHERE list_id = 'lbfnames' ORDER BY seq, title");
 while ($lrow = sqlFetchArray($lres)) {
   $option_id = $lrow['option_id']; // should start with LBF
@@ -37,7 +40,7 @@ while ($lrow = sqlFetchArray($lres)) {
   $my_files[] = "LBF/$option_id.plugin.php";
 }
 
-$form_filename = $_REQUEST['form_filename'];
+$form_filename = formData('form_filename');
 // Sanity check to prevent evildoing.
 if (!in_array($form_filename, $my_files)) $form_filename = '';
 $filepath = "$OE_SITE_DIR/$form_filename";
@@ -80,7 +83,7 @@ if (!empty($_POST['bn_save'])) {
 <html>
 
 <head>
-<title><?php echo htmlspecialchars(xl('File management')); ?></title>
+<title><?php echo xlt('File management'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style type="text/css">
