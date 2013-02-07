@@ -1,12 +1,12 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ */
 
 require_once("{$GLOBALS['srcdir']}/sql.inc");
-
-// 06-2009, BM migrated the patient_note_types array to the list_options table
 
 function getPnoteById($id, $cols = "*")
 {
@@ -14,7 +14,6 @@ function getPnoteById($id, $cols = "*")
     " AND deleted != 1 ". // exclude ALL deleted notes
     "order by date DESC limit 0,1", array($id) );
 }
-
 
 // activity can be 0, 1, or 'all'
 function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sortby='',$sortorder='',$begin='',$listnumber='')
@@ -67,7 +66,6 @@ function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sor
   }
 }
 
-
 function getPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
   $limit = "all", $start = 0, $username = '', $docid = 0, $status = "")
 {
@@ -112,7 +110,7 @@ $sqlParameterArray = array();
   return $all;
 }
 
-// activity can only be 0, 1, or 'all
+// activity can only be 0, 1, or 'all'
 function getSentPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
   $limit = "all", $start = 0, $username = '', $docid = 0, $status = "")
 {
@@ -297,20 +295,34 @@ function getPnotesByPid ($pid, $activity = "1", $cols = "*", $limit=10, $start=0
   return $all;
 }
 
+/** Add a note to a patient's medical record.
+ *
+ * @param int $pid the ID of the patient whos medical record this note is going to be attached to.
+ * @param string $newtext the note contents.
+ * @param int $authorized
+ * @param int $activity
+ * @param string $title
+ * @param string $assigned_to
+ * @param string $datetime
+ * @param string $message_status
+ * @return int the ID of the added note.
+ */
 function addPnote($pid, $newtext, $authorized = '0', $activity = '1',
-  $title='Unassigned', $assigned_to = '', $datetime = '', $message_status = "New")
+  $title= 'Unassigned', $assigned_to = '', $datetime = '',
+  $message_status = 'New')
 {
   if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
 
   // make inactive if set as Done
-  if ($message_status == "Done") $activity = 0;
+  if ($message_status == 'Done') $activity = 0;
 
   $body = date('Y-m-d H:i') . ' (' . $_SESSION['authUser'];
   if ($assigned_to) $body .= " to $assigned_to";
   $body = $body . ') ' . $newtext;
 
-  return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
-    "authorized, activity, title, assigned_to, message_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  return sqlInsert('INSERT INTO pnotes (date, body, pid, user, groupname, ' .
+    'authorized, activity, title, assigned_to, message_status) VALUES ' .
+    '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     array($datetime, $body, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status) );
 }
 
