@@ -318,8 +318,8 @@ class gacl {
         *
 	* @param string The ACO section value
 	* @param string The ACO value
-	* @param string The ARO section value (optional)
-	* @param string The ARO value (optional)
+	* @param string The ARO section value
+	* @param string The ARO value
 	* @param string The AXO section value (optional)
 	* @param string The AXO value (optional)
 	* @param string The value of the ARO group (optional)
@@ -548,8 +548,13 @@ class gacl {
 			$this->put_cache($retarr, $cache_id);
 		}
 
-		if (!$return_all) {
-		$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] .' Result: '. $retarr['allow']);
+		if ($return_all)
+		{
+			$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: OMITTED due to return_all");
+		}
+		else
+		{
+			$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] .' Result: '. $retarr['allow']);
 		}
 		
 		return $retarr;
