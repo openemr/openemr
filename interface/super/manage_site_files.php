@@ -40,7 +40,7 @@ while ($lrow = sqlFetchArray($lres)) {
   $my_files[] = "LBF/$option_id.plugin.php";
 }
 
-$form_filename = formData('form_filename');
+$form_filename = strip_escape_custom($_REQUEST['form_filename']);
 // Sanity check to prevent evildoing.
 if (!in_array($form_filename, $my_files)) $form_filename = '';
 $filepath = "$OE_SITE_DIR/$form_filename";
