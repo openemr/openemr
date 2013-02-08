@@ -1,17 +1,24 @@
 <?php
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// These functions will be used to globally validate and prepare
-// data for sql database insertion.
-//
+/**
+ * Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * These functions should be used to globally validate and prepare
+ * data for sql database insertion.
+ *
+ */
 
-// Main function that will manage POST, GET, and 
-// REQUEST variables 
+/** Main function that will manage POST, GET, and REQUEST variables 
+ *
+ * @param string $name name of the variable requested.
+ * @param string $type 'P', 'G' for post or get data, otherwise uses request.
+ * @param bool $istrim whether to use trim() on the data.
+ * @return string variable requested, or empty string
+ */
 function formData($name, $type='P', $isTrim=false) {
   if ($type == 'P')
     $s = isset($_POST[$name]) ? $_POST[$name] : '';

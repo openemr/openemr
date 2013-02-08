@@ -234,18 +234,21 @@ class gacl {
 	}
 
 	/**
-	* Wraps the actual acl_query() function.
+	* 
+        * Check if the current user has a given type or types of access to an access control object.
 	*
-	* It is simply here to return TRUE/FALSE accordingly.
-	* @param string The ACO section value
-	* @param string The ACO value
-	* @param string The ARO section value
-	* @param string The ARO section
-	* @param string The AXO section value (optional)
-	* @param string The AXO section value (optional)
-	* @param integer The group id of the ARO ??Mike?? (optional)
-	* @param integer The group id of the AXO ??Mike?? (optional)
-	* @return boolean TRUE if the check succeeds, false if not.
+        * Implemented as a wrapper of acl_query().
+	* This function exists simply to return TRUE/FALSE accordingly.
+        *
+	* @param string $aco_section_value The ACO section value
+	* @param string $aco_value The ACO value
+	* @param string $aro_section_value The ARO section value
+	* @param string $aro_value The ARO value
+	* @param string $axo_section_value The AXO section value (optional)
+	* @param string $axo_value The AXO section value (optional)
+	* @param integer $root_aro_group The group id of the ARO (optional)
+	* @param integer $root_axo_group The group id of the AXO (optional)
+	* @return boolean true if the check succeeds, false if not.
 	*/
 	function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
 		$acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
@@ -312,12 +315,13 @@ class gacl {
 
 	/**
 	* The Main function that does the actual ACL lookup.
+        *
 	* @param string The ACO section value
 	* @param string The ACO value
 	* @param string The ARO section value
-	* @param string The ARO section
+	* @param string The ARO value
 	* @param string The AXO section value (optional)
-	* @param string The AXO section value (optional)
+	* @param string The AXO value (optional)
 	* @param string The value of the ARO group (optional)
 	* @param string The value of the AXO group (optional)
 	* @param boolean Debug the operation if true (optional)
@@ -508,19 +512,17 @@ class gacl {
 
                                 if ($return_all) {
                                         foreach ($row as $single_row) {
+						$allow = FALSE;
                                                 if ( isset($single_row[1]) AND $single_row[1] == 1 ) {
                                                         $allow = TRUE;
-                                                } else {
-                                                        $allow = FALSE;
                                                 }
                                                 $retarr[] = array('acl_id' => &$single_row[0], 'return_value' => &$single_row[2], 'allow' => $allow);
                                         }
                                 }
                                 else {
+					$allow = FALSE;
 				        if ( isset($row[1]) AND $row[1] == 1 ) {
 					        $allow = TRUE;
-				        } else {
-					        $allow = FALSE;
 				        }
 				        $retarr = array('acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow);
                                 }
@@ -546,7 +548,15 @@ class gacl {
 			$this->put_cache($retarr, $cache_id);
 		}
 
-		$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] .' Result: '. $retarr['allow']);
+		if ($return_all)
+		{
+			$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: OMITTED due to return_all");
+		}
+		else
+		{
+			$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] .' Result: '. $retarr['allow']);
+		}
+		
 		return $retarr;
 	}
 

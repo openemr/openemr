@@ -1,7 +1,10 @@
 <?php
-include_once("../globals.php");
-?>
+/**
+ * main_title.php - The main titlebar, at the top of the 'concurrent' layout.
+ */
 
+include_once('../globals.php');
+?>
 <html>
 <head>
 
@@ -14,6 +17,7 @@ include_once("../globals.php");
         display:block;
       }
 </style>
+
 <script type="text/javascript" language="javascript">
 function toencounter(rawdata) {
 //This is called in the on change event of the Encounter list.
@@ -64,7 +68,6 @@ function showhideMenu() {
 </script>
 </head>
 <body class="body_title">
-
 <?php
 $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
 ?>
