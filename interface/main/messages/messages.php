@@ -283,7 +283,8 @@ if ($noteid) {
 <!-- This is for displaying a new note. -->
 <input type="button" id="newnote" value="<?php echo htmlspecialchars( xl('Send message'), ENT_QUOTES); ?>">
 <input type="button" id="cancel" value="<?php echo htmlspecialchars( xl('Cancel'), ENT_QUOTES); ?>">
-<?php } ?>
+<?php }
+?>
 
 <br>
 </form></center></div>
@@ -470,7 +471,8 @@ else {
               htmlspecialchars( xl('Delete'), ENT_NOQUOTES) . "</a></td>
             <td align=right class=\"text\">$prevlink &nbsp; $end of $total &nbsp; $nextlink</td>
         </tr>
-    </table></td></tr></table><br>"; ?>
+    </table></td></tr></table><br>";
+?>
 <script language="javascript">
 // This is to confirm delete action.
 function confirmDeleteSelected() {
