@@ -1,18 +1,26 @@
 <?php
 /**
+ * This file contains functions for handling notes attached to patient files. 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  */
 
-require_once("{$GLOBALS['srcdir']}/sql.inc");
+require_once($GLOBALS['srcdir'].'/sql.inc');
 
+/**
+ * Retrieve a note, given its ID
+ *
+ * @param string $id the ID of the note to retrieve.
+ * @param string $cols A list of columns to retrieve. defaults to '*' for all.
+ */
 function getPnoteById($id, $cols = "*")
 {
   return sqlQuery("SELECT $cols FROM pnotes WHERE id=? " .
-    " AND deleted != 1 ". // exclude ALL deleted notes
-    "order by date DESC limit 0,1", array($id) );
+    ' AND deleted != 1 '. // exclude ALL deleted notes
+    'order by date DESC limit 0,1', array($id) );
 }
 
 // activity can be 0, 1, or 'all'
