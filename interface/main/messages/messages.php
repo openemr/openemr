@@ -1,19 +1,18 @@
 <?php
-// Copyright (C) 2010 OpenEMR Support LLC
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
+/**
+ * Copyright (C) 2010 OpenEMR Support LLC
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ */
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
-//
 
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
-//
 
-require_once("../../globals.php");
+require_once('../../globals.php');
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
@@ -237,14 +236,14 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
      <a class="patLink" onclick="goPid('<?php echo attr($result['pid']);?>')"><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</a>
    <?php } else { ?>
      <b class='<?php echo ($task=="addnew"?"required":"") ?>'><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</b>
-   <?php } ?>
  <?php
+  }
  if ($reply_to) {
   $prow = sqlQuery("SELECT lname, fname " .
    "FROM patient_data WHERE pid = ?", array($reply_to) );
   $patientname = $prow['lname'] . ", " . $prow['fname'];
  }
-   if ($patientname == "") {
+   if ($patientname == '') {
        $patientname = xl('Click to select');
    } ?>
    <input type='text' size='10' name='form_patient' style='width:150px;<?php echo ($task=="addnew"?"cursor:pointer;cursor:hand;":"") ?>' value='<?php echo htmlspecialchars($patientname, ENT_QUOTES); ?>' <?php echo ($task=="addnew"?"onclick='sel_patient()' readonly":"disabled") ?> title='<?php echo ($task=="addnew"?(htmlspecialchars( xl('Click to select patient'), ENT_QUOTES)):"") ?>'  />
