@@ -4,7 +4,6 @@
  * 
  * Copyright 2012 Kevin McCormick Longview, Texas
  * 
- * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -18,13 +17,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *  <http://opensource.org/licenses/gpl-license.php>
  * 
- * 
  * @author Kevin McCormick
  * @link: http://www.open-emr.org
  * @package OpenEMR
  * @subpackage ediHistory
  */
- 
+
 $sanitize_all_escapes=true; 
 $fake_register_globals=false; 
 require_once(dirname(__FILE__) . "/../globals.php");
