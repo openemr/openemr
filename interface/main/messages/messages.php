@@ -414,7 +414,7 @@ else {
     // Display the Messages table header.
     echo "
     <table width=100%><tr><td><table border=0 cellpadding=1 cellspacing=0 width=90%  style=\"border-left: 1px #000000 solid; border-right: 1px #000000 solid; border-top: 1px #000000 solid;\">
-    <form name=wikiList action=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$begin&$activity_string_html\" method=post>
+    <form name=MessageList action=\"messages.php?showall=$showall&sortby=$sortby&sortorder=$sortorder&begin=$begin&$activity_string_html\" method=post>
     <input type=hidden name=task value=delete>
         <tr height=\"24\" style=\"background:lightgrey\">
             <td align=\"center\" width=\"25\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><input type=checkbox id=\"checkAll\" onclick=\"selectAll()\"></td>
@@ -477,7 +477,7 @@ else {
 // This is to confirm delete action.
 function confirmDeleteSelected() {
     if(confirm("<?php echo htmlspecialchars( xl('Do you really want to delete the selection?'), ENT_QUOTES); ?>")) {
-        document.wikiList.submit();
+        document.MessageList.submit();
     }
 }
 // This is to allow selection of all items in Messages table for deletion.
