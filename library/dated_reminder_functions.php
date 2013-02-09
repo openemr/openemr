@@ -20,12 +20,11 @@
  * @link    http://www.open-emr.org
  */
 
- require_once("$srcdir/htmlspecialchars.inc.php");
-
-// ------------------------------------------------
-// @ RemindersArray function
-// @ returns array with reminders for specified user, defaults to current user if none specified
-// ------------------------------------------------   
+/**
+ * RemindersArray function
+ *
+ * @returns array reminders for specified user, defaults to current user if none specified
+ */
    function RemindersArray($days_to_show,$today,$alerts_to_show,$userID = false){
         if(!$userID) $userID = $_SESSION['authId'];    
         global $hasAlerts;
