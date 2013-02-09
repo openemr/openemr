@@ -67,22 +67,26 @@ function attr($text) {
 	return htmlspecialchars($text, ENT_QUOTES);
 }
 
-/*
-This function is a compatibility replacement for the out function removed from
-the CDR Admin framework.
-*/
+/**
+ * This function is a compatibility replacement for the out function removed 
+ *  from the CDR Admin framework.
+ *
+ * @param string $text The string to escape, possibly including (&), (<),
+ *                     (>), ('), and (").
+ * @return string The string, with (&), (<), (>), ("), and (') escaped.
+ */
 function out($text) {
 	return attr($text);
 }
 
-/*
-Don't call this function.  You don't see this function.  This function doesn't
-exist.
-
-TODO: Hide this function so it can be called from this file but not from PHP
-that includes / requires this file.  Either that, or write reasonable
-documentation and clean up the name.
-*/
+/**
+ * Don't call this function.  You don't see this function.  This function
+ * doesn't exist.
+ *
+ * TODO: Hide this function so it can be called from this file but not from
+ * PHP that includes / requires this file.  Either that, or write reasonable
+ * documentation and clean up the name.
+ */
 function hsc_private_xl_or_warn($key) {
 	if (function_exists('xl')) {
 		return xl($key);
@@ -96,16 +100,24 @@ function hsc_private_xl_or_warn($key) {
 	}
 }
 
-/*
-Translate via xl() and then escape via text().
-*/
+/**
+ * Translate via xl() and then escape via text().
+ *
+ * @param string $key The string to escape, possibly including "&", "<",
+ *                    or ">".
+ * @return string The string, with "&", "<", and ">" escaped.
+ */
 function xlt($key) {
 	return text(hsc_private_xl_or_warn($key));
 }
 
-/*
-Translate via xl() and then escape via attr().
-*/
+/**
+ * Translate via xl() and then escape via attr().
+ *
+ * @param string $key The string to escape, possibly including (&), (<),
+ *                    (>), ('), and (").
+ * @return string The string, with (&), (<), (>), ("), and (') escaped.
+ */
 function xla($key) {
 	return attr(hsc_private_xl_or_warn($key));
 }
