@@ -6,13 +6,13 @@ require_once("library/htmlspecialchars.inc.php");
 require_once("library/translation.inc.php");
 require_once("custom/code_types.inc.php");
 
-function search_test($type,$string,$mode='default')
+function search_test($type,$string,$mode='default',$return_only_one=false)
 {
     echo "<ol>";
-    $res=code_set_search($type,$string,false,true,false,0,10,array(),null,$mode);
-    foreach($res->GetArray() as $code)
+    $res=code_set_search($type,$string,false,true,$return_only_one,0,10,array(),null,$mode);
+    while ($code = sqlFetchArray($res))
     {
-        echo "<li>". $code['code_type_name'].":".$code['code'].":".$code['code_text']."</li>";
+        echo "<li>". $code['code_type_name'].":".$code['code'].":".$code['code_text'].":".$code['code_text_short']."</li>";
     }
     echo "</ol>";
 }
@@ -20,11 +20,6 @@ function search_test($type,$string,$mode='default')
 ?>
 <?php
 search_test("SNOMED-CT","","description");
-
-search_test("--ALL--","100");
-search_test("--ALL--","100","code");
-search_test("--ALL--","colon benign","description");
-
 
 search_test("CVX","1","code");
 search_test("CVX","Hep ped","description");
@@ -47,5 +42,10 @@ search_test("SNOMED","Hypertension","description");
 search_test("SNOMED-CT","Hypertension","description");
 search_test("SNOMED-PR","Incision Drai","description");
 
+search_test("SNOMED-PR","Incision and","default");
+
+search_test("ICD10","A01.01","default",true);
+search_test("ICD10","A01.01","code",true);
+search_test("ICD10","A01.01","description",true);
 
 ?>
