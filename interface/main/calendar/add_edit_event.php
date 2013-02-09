@@ -23,7 +23,7 @@
  $fake_register_globals=false;
  $sanitize_all_escapes=true;
 
- require_once("../../globals.php");
+require_once('../../globals.php');
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/forms.inc");
  require_once("$srcdir/calendar.inc");
@@ -36,8 +36,7 @@
  if (!acl_check('patients','appt','',array('write','wsome') ))
    die(xl('Access not allowed'));
 
- // Things that might be passed by our opener.
- //
+/* Things that might be passed by our opener. */
  $eid           = $_GET['eid'];         // only for existing events
  $date          = $_GET['date'];        // this and below only for new events
  $userid        = $_GET['userid'];
@@ -1018,7 +1017,6 @@ td { font-size:0.8em; }
                 '&eid=<?php echo 0 + $eid; ?>' +
                 extra,
                 '_blank', 500, 400);
-        //END (CHEMED) modifications
     }
 
 </script>
