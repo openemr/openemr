@@ -359,8 +359,9 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
 
         if ( $table_id==0  || ($form_code_type == '--ALL--') ) { // Search from default codes table.  --ALL-- only means all codes in the default tables
           if($table_id==0){ $table_info[EXT_FILTER_CLAUSES]=array("code_type=".$code_types[$form_code_type]['id']); } // Add a filter for the code type
-          else {$table_info[EXT_FILTER_CLAUSES]=array();} // define empty filter array for "--ALL--"
-          $table_dot="c.";              // $table_dot is used to prevent awkward looking concatenations when referring to columns in 
+          else {$table_info[EXT_FILTER_CLAUSES]=array("ct_external=0");} // define filter array for "--ALL--"
+          $table_dot="c.";              // $table_dot is used to prevent awkward looking concatenations when referring to columns in
+          $table_dot_all="ct.";         // special case used in the where filter clause for the --ALL-- searching
           $code_col="code";
           $code_text_col="code_text";
 
@@ -499,7 +500,14 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
         // Add the metadata related filter clauses
         foreach($table_info[EXT_FILTER_CLAUSES] as $filter_clause)
         {
-            $query .= " AND ".$table_dot.$filter_clause;
+            if ($form_code_type == '--ALL--') {
+              // special case in the ALL search
+              $query .= " AND ".$table_dot_all.$filter_clause;
+            }
+            else {
+              // normal case
+              $query .= " AND ".$table_dot.$filter_clause;
+            }
         }
         
         $query .=$active_query . $query_filter_elements;
