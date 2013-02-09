@@ -25,7 +25,7 @@
  *
  * @returns array reminders for specified user, defaults to current user if none specified
  */
-   function RemindersArray($days_to_show,$today,$alerts_to_show,$userID = false){
+function RemindersArray($days_to_show,$today,$alerts_to_show,$userID = false){
         if(!$userID) $userID = $_SESSION['authId'];    
         global $hasAlerts;
 // ----- define a blank reminders array
@@ -81,10 +81,15 @@
 
 
 
-// ------------------------------------------------
-// @ GetDueReminder function
-// @ returns int with number of due reminders for specified user, defaults to current user if none specified
-// ------------------------------------------------   
+/**
+ * This function is used to get a count of the number of reminders due for a specified
+ * user.
+ *
+ * @param $days_to_show
+ * @param $today
+ * @param defaults to current user if none specified
+ * @returns int with number of due reminders for specified user
+ */
    function GetDueReminderCount($days_to_show,$today,$userID = false){
         if(!$userID) $userID = $_SESSION['authId']; 
         
@@ -98,7 +103,7 @@
                             AND dr.`message_processed` = 0
                             AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL $days_to_show DAY)"
                             , array($userID)
-                            );                       
+                            );
         
           $drRow=sqlFetchArray($drSQL);  
           return $drRow['c'];
