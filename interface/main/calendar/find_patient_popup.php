@@ -1,16 +1,17 @@
 <?php
- // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/* Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ */
 
- /*
-  *
-  * This popup is called when adding/editing a calendar event
-  *
-  */
+/*
+ *
+ * This popup is called when adding/editing a calendar event
+ *
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -20,30 +21,30 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
 
- include_once("../../globals.php");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/formdata.inc.php");
+include_once('../../globals.php');
+include_once("$srcdir/patient.inc");
+include_once("$srcdir/formdata.inc.php");
 
- $info_msg = "";
+$info_msg = "";
 
  // If we are searching, search.
  //
- if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
+if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
   $searchby = $_REQUEST['searchby'];
   $searchparm = trim($_REQUEST['searchparm']);
 
   if ($searchby == "Last") {
-   $result = getPatientLnames("$searchparm","*");
+    $result = getPatientLnames("$searchparm","*");
   } elseif ($searchby == "Phone") {                  //(CHEMED) Search by phone number
-   $result = getPatientPhone("$searchparm","*");
+    $result = getPatientPhone("$searchparm","*");
   } elseif ($searchby == "ID") {
-   $result = getPatientId("$searchparm","*");
+    $result = getPatientId("$searchparm","*");
   } elseif ($searchby == "DOB") {
-   $result = getPatientDOB("$searchparm","*");
+    $result = getPatientDOB("$searchparm","*");
   } elseif ($searchby == "SSN") {
-   $result = getPatientSSN("$searchparm","*");
+    $result = getPatientSSN("$searchparm","*");
   }
- }
+}
 ?>
 
 <html>
