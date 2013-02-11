@@ -1,10 +1,21 @@
 <?php
- // Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ * Add or edit an event in the calendar.
+ *
+ * Can be displayed as a popup window, or as an iframe via
+ * fancybox.
+ *
+ * Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://www.open-emr.org
+ */
 
  // The event editor looks something like this:
 
