@@ -43,6 +43,7 @@ class Installer
     $this->ippf_sql = dirname(__FILE__) . "/../../sql/ippf_layout.sql";
     $this->icd9 = dirname(__FILE__) . "/../../sql/icd9.sql";
     $this->cvx = dirname(__FILE__) . "/../../sql/cvx_codes.sql";
+    $this->additional_users = dirname(__FILE__) . "/../../sql/official_additional_users.sql";
 
     // Record name of php-gacl installation files
     $this->gaclSetupScript1 = dirname(__FILE__) . "/../../gacl/setup.php";
@@ -158,34 +159,41 @@ class Installer
   public function load_dumpfiles() {
     $sql_results = ''; // information string which is returned
     foreach ($this->dumpfiles as $filename => $title) {
-        $sql_results .= "Creating $title tables...\n";
-        $fd = fopen($filename, 'r');
-        if ($fd == FALSE) {
-          $this->error_message = "ERROR.  Could not open dumpfile '$filename'.\n";
-          return FALSE;
-        }
-        $query = "";
-        $line = "";
-        while (!feof ($fd)){
-                $line = fgets($fd,1024);
-                $line = rtrim($line);
-                if (substr($line,0,2) == "--") // Kill comments
-                        continue;
-                if (substr($line,0,1) == "#") // Kill comments
-                        continue;
-                if ($line == "")
-                        continue;
-                $query = $query.$line;          // Check for full query
-                $chr = substr($query,strlen($query)-1,1);
-                if ($chr == ";") { // valid query, execute
-                        $query = rtrim($query,";");
-                        $this->execute_sql( $query );
-                        $query = "";
-                }
-        }
-        $sql_results .= "OK<br>\n";
-        fclose($fd);
+        $sql_results .= $this->load_file($filename,$title);
+        if ($sql_results == FALSE) return FALSE;
     }
+    return $sql_results;
+  }
+
+  public function load_file($filename,$title) {
+    $sql_results = ''; // information string which is returned
+    $sql_results .= "Creating $title tables...\n";
+    $fd = fopen($filename, 'r');
+    if ($fd == FALSE) {
+      $this->error_message = "ERROR.  Could not open dumpfile '$filename'.\n";
+      return FALSE;
+    }
+    $query = "";
+    $line = "";
+    while (!feof ($fd)){
+            $line = fgets($fd,1024);
+            $line = rtrim($line);
+            if (substr($line,0,2) == "--") // Kill comments
+                    continue;
+            if (substr($line,0,1) == "#") // Kill comments
+                    continue;
+            if ($line == "")
+                    continue;
+            $query = $query.$line;          // Check for full query
+            $chr = substr($query,strlen($query)-1,1);
+            if ($chr == ";") { // valid query, execute
+                    $query = rtrim($query,";");
+                    $this->execute_sql( $query );
+                    $query = "";
+            }
+    }
+    $sql_results .= "OK<br>\n";
+    fclose($fd);
     return $sql_results;
   }
 
@@ -211,6 +219,9 @@ class Installer
         "<p>".mysql_error()." (#".mysql_errno().")\n";
       return FALSE;
     }
+    // Add the official openemr users (services)
+    if ($this->load_file($this->additional_users,"Additional Official Users") == FALSE) return FALSE;
+
     return TRUE;
   }
 

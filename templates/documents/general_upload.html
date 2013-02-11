@@ -1,6 +1,14 @@
 <form method=post enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
 
+{if (!($patient_id > 0)) }
+  <div class="text" style="color:red;">
+    {xl t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."}
+    <br/>
+    <br/>
+  </div>
+{/if}
+
 <div class="text">
     {xl t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}
     <br/>

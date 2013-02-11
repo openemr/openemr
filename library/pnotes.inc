@@ -6,6 +6,8 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
+ *
+ * 2013-02-08 EMR Direct: changes to allow notes added by background-services with pid=0
  */
 
 /* for sqlQuery(), sqlStatement(), sqlNumRows(), sqlFetchArray(). */
@@ -63,13 +65,14 @@ function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sor
     $usrvar=$user;
   } 
 
-  // run the query
+  // run the query 
+  // 2013-02-08 EMR Direct: minor changes to query so notes with pid=0 don't disappear
   $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status,
-          IF(pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
-          IF(pnotes.user != pnotes.pid,users.lname,patient_data.lname) as users_lname,
+          IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
+          IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.lname,patient_data.lname) as users_lname,
           patient_data.fname as patient_data_fname, patient_data.lname as patient_data_lname
           FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username)
-          JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE $activity_query
+          LEFT JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE $activity_query
           pnotes.deleted != '1' AND pnotes.assigned_to LIKE ?";
   if (!empty($sortby) || !empty($sortorder)  || !empty($begin) || !empty($listnumber)) {
     $sql .= " order by ".add_escape_custom($sortby)." ".add_escape_custom($sortorder).
@@ -331,25 +334,27 @@ function getPnotesByPid ($pid, $activity = "1", $cols = "*", $limit=10, $start=0
  * @param string $assigned_to
  * @param string $datetime
  * @param string $message_status
+ * @param string $background_user if set then the pnote is created by a background-service rather than a user
  * @return int the ID of the added note.
  */
 function addPnote($pid, $newtext, $authorized = '0', $activity = '1',
   $title= 'Unassigned', $assigned_to = '', $datetime = '',
-  $message_status = 'New')
+  $message_status = 'New', $background_user="")
 {
   if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
 
   // make inactive if set as Done
   if ($message_status == 'Done') $activity = 0;
 
-  $body = date('Y-m-d H:i') . ' (' . $_SESSION['authUser'];
+  $user = ($background_user!="" ? $background_user : $_SESSION['authUser']);
+  $body = date('Y-m-d H:i') . ' (' . $user;
   if ($assigned_to) $body .= " to $assigned_to";
   $body = $body . ') ' . $newtext;
 
   return sqlInsert('INSERT INTO pnotes (date, body, pid, user, groupname, ' .
     'authorized, activity, title, assigned_to, message_status) VALUES ' .
     '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    array($datetime, $body, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status) );
+    array($datetime, $body, $pid, $user, $_SESSION['authProvider'], $authorized, $activity, $title, $assigned_to, $message_status) );
 }
 
 function addMailboxPnote($pid, $newtext, $authorized = '0', $activity = '1',
@@ -405,6 +410,28 @@ function updatePnoteMessageStatus($id, $message_status)
   else {
     sqlStatement("update pnotes set message_status = ?, activity = '1' where id = ?", array($message_status, $id) );
   }
+}
+
+/**
+ * Set the patient id in an existing message where pid=0
+ * @param $id the id of the existing note
+ * @param $patient_id the patient id to associate with the note
+ * @author EMR Direct <http://www.emrdirect.com/>
+ */
+function updatePnotePatient($id, $patient_id)
+{
+  $row = getPnoteById($id);
+  if (! $row) die("updatePnotePatient() did not find id '$id'");
+  $activity = $assigned_to ? '1' : '0';
+
+  $pid = $row['pid'];
+  if($pid != 0 || (int)$patient_id < 1) die("updatePnotePatient invalid operation");
+
+  $pid = (int) $patient_id;
+  $newtext = "\n" . date('Y-m-d H:i') . " (patient set by " . $_SESSION['authUser'] .")";
+  $body = $row['body'] . $newtext;
+
+  sqlStatement("UPDATE pnotes SET pid = ?, body = ? WHERE id = ?", array($pid, $body, $id) );
 }
 
 function authorizePnote($id, $authorized = "1")

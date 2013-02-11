@@ -47,6 +47,44 @@ function checkCreateCDB(){
   }
   return true;
 }
+
+/**
+ * Update background_services table for a specific service following globals save.
+ * @author EMR Direct
+ */
+function updateBackgroundService($name,$active,$interval) {
+   //order important here: next_run change dependent on _old_ value of execute_interval so it comes first
+   $sql = 'UPDATE background_services SET active=?, '
+	. 'next_run = next_run + INTERVAL (? - execute_interval) MINUTE, execute_interval=? WHERE name=?';
+   return sqlStatement($sql,array($active,$interval,$interval,$name));
+}
+
+/**
+ * Make any necessary changes to background_services table when globals are saved.
+ * To prevent an unexpected service call during startup or shutdown, follow these rules:
+ * 1. Any "startup" operations should occur _before_ the updateBackgroundService() call.
+ * 2. Any "shutdown" operations should occur _after_ the updateBackgroundService() call. If these operations
+ * would cause errors in a running service call, it would be best to make the shutdown function itself
+ * a background service that is activated here, does nothing if active=1 or running=1 for the
+ * parent service, then deactivates itself by setting active=0 when it is done shutting the parent service
+ * down. This will prevent nonresponsiveness to the user by waiting for a service to finish.
+ * 3. If any "previous" values for globals are required for startup/shutdown logic, they need to be
+ * copied to a temp variable before the while($globalsrow...) loop.
+ * @author EMR Direct
+ */
+function checkBackgroundServices(){
+  //load up any necessary globals
+  $bgservices = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
+  ('phimail_enable','phimail_interval')");
+    while($globalsrow = sqlFetchArray($bgservices)){
+      $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
+    }
+
+   //Set up phimail service
+   $phimail_active = $GLOBALS['phimail_enable'] ? '1' : '0';
+   $phimail_interval = max(0,(int)$GLOBALS['phimail_interval']);
+   updateBackgroundService('phimail',$phimail_active,$phimail_interval);
+}
 ?>
 
 <html>
@@ -132,6 +170,7 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
     }
   }
   checkCreateCDB();
+  checkBackgroundServices();
   echo "<script type='text/javascript'>";
   echo "parent.left_nav.location.reload();";
   echo "parent.Title.location.reload();";
