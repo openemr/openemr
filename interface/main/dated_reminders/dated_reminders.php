@@ -20,14 +20,14 @@
  * @link    http://www.open-emr.org
  */
  
- // removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
- // not neeeded as messages page handles this
- //       $fake_register_globals=false;
- //       $sanitize_all_escapes=true; 
-        require_once("../../globals.php");
-        require_once("$srcdir/htmlspecialchars.inc.php");  
-        require_once("$srcdir/dated_reminder_functions.php"); 
-             
+// removed as jquery is already called in messages page (if you need to use jQuery, uncomment it futher down)
+// not neeeded as messages page handles this
+//       $fake_register_globals=false;
+//       $sanitize_all_escapes=true;
+require_once('../../globals.php');
+require_once("$srcdir/htmlspecialchars.inc.php");
+require_once("$srcdir/dated_reminder_functions.php");
+
         $days_to_show = 5;
         $alerts_to_show = 5;
         $updateDelay = 60; // time is seconds 
@@ -91,14 +91,14 @@
       </style> 
       <script type="text/javascript">
          $(document).ready(function (){ 
-            <?php if(!$hasAlerts) echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();'; ?> 
+            <?php if(!$hasAlerts) echo '$(".hideDR").html("<span>'.xlt('Show Reminders').'</span>"); $(".drHide").hide();'; ?>
             $(".hideDR").click(function(){
-              if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){  
-                $(this).html("<span><?php echo xla('Show Reminders') ?></span>"); 
+              if($(this).html() == "<span><?php echo xlt('Hide Reminders') ?></span>"){  
+                $(this).html("<span><?php echo xlt('Show Reminders') ?></span>"); 
                 $(".drHide").slideUp("slow");
               }
               else{  
-                $(this).html("<span><?php echo xla('Hide Reminders') ?></span>");  
+                $(this).html("<span><?php echo xlt('Hide Reminders') ?></span>");  
                 $(".drHide").slideDown("slow");
               }
             }) 
@@ -119,10 +119,10 @@
            function updateme(id){ 
              refreshInterval = <?php echo $updateDelay ?>;
              if(id > 0){
-              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Processing") ?>...</p>'); 
+              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xlt("Processing") ?>...</p>'); 
              }
              if(id == 'new'){
-              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
+              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xlt("Processing") ?>...</p>');
              }    
              top.restoreSession();
              // Send the skip_timeout_reset parameter to not count this as a manual entry in the
@@ -134,7 +134,7 @@
                   alert("<?php echo addslashes(xl('Error Removing Message')) ?>");  
                 }else{  
                   if(id > 0){
-                    $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
+                    $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xlt("Refreshing Reminders") ?> ...</p>');
                   }
                   $(".drTD").html(data); 
                 }   

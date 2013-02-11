@@ -1,29 +1,42 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+ /**
+ * pnotes_full.php -- display patient notes.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ *
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
-//
 
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
-//
 
-require_once("../../globals.php");
-require_once("$srcdir/pnotes.inc");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
-require_once("$srcdir/log.inc");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/classes/Document.class.php");
-require_once("$srcdir/gprelations.inc.php");
-require_once("$srcdir/formatting.inc.php");
+/* Include required globals */
+require_once('../../globals.php');
+require_once($GLOBALS['srcdir'].'/pnotes.inc');
+require_once($GLOBALS['srcdir'].'/patient.inc');
+require_once($GLOBALS['srcdir'].'/acl.inc');
+require_once($GLOBALS['srcdir'].'/log.inc');
+require_once($GLOBALS['srcdir'].'/options.inc.php');
+require_once($GLOBALS['srcdir'].'/classes/Document.class.php');
+require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
+require_once($GLOBALS['srcdir'].'/formatting.inc.php');
 
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
-    require_once("$srcdir/pid.inc");
+    require_once($GLOBALS['srcdir'].'/pid.inc');
     setpid($_GET['set_pid']);
 }
 

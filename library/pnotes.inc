@@ -8,6 +8,7 @@
  * of the License, or (at your option) any later version.
  */
 
+/* for sqlQuery(), sqlStatement(), sqlNumRows(), sqlFetchArray(). */
 require_once($GLOBALS['srcdir'].'/sql.inc');
 
 /**
@@ -23,7 +24,24 @@ function getPnoteById($id, $cols = "*")
     'order by date DESC limit 0,1', array($id) );
 }
 
-// activity can be 0, 1, or 'all'
+/**
+ * Get the patient notes for the given user.
+ *
+ * This function is used to retrieve notes assigned to the given user, or
+ * optionally notes assigned to any user.
+ *
+ * @param string $activity 0 for deleted notes, 1 (the default) for active
+ *                         notes, or 'All' for all.
+ * @param string $show_all whether to display only the selected user's 
+ *                         messages, or all users' messages.
+ * @param string $user The user whom's notes you want to retrieve.
+ * @param bool $count Whether to return a count, or just return 0.
+ * @param string $sortby A field to sort results by.
+ * @param string $sortorder whether to sort ascending or descending.
+ * @param string $begin what row to start retrieving results from.
+ * @param string $listnumber number of rows to return.
+ * @return int The number of rows retrieved, or 0 if $count was true.
+ */
 function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sortby='',$sortorder='',$begin='',$listnumber='')
 {
 
