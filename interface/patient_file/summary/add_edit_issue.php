@@ -22,25 +22,25 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
 
-require_once("../../globals.php");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/../custom/code_types.inc.php");
-require_once("$srcdir/csv_like_join.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
-require_once("$srcdir/formdata.inc.php");
+require_once('../../globals.php');
+require_once($GLOBALS['srcdir'].'/lists.inc');
+require_once($GLOBALS['srcdir'].'/patient.inc');
+require_once($GLOBALS['srcdir'].'/acl.inc');
+require_once($GLOBALS['srcdir'].'/options.inc.php');
+require_once($GLOBALS['srcdir'].'/../custom/code_types.inc.php');
+require_once($GLOBALS['srcdir'].'/csv_like_join.php');
+require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
+require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 
 if ($ISSUE_TYPES['football_injury']) {
   // Most of the logic for the "football injury" issue type comes from this
   // included script.  We might eventually refine this approach to support
   // a plug-in architecture for custom issue types.
-  require_once("$srcdir/football_injury.inc.php");
+  require_once($GLOBALS['srcdir'].'/football_injury.inc.php');
 }
 if ($ISSUE_TYPES['ippf_gcac']) {
   // Similarly for IPPF issues.
-  require_once("$srcdir/ippf_issues.inc.php");
+  require_once($GLOBALS['srcdir'].'/ippf_issues.inc.php');
 }
 
 $issue = $_REQUEST['issue'];
