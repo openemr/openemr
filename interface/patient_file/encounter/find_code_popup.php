@@ -13,7 +13,7 @@ $sanitize_all_escapes=true;
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
-require_once('../../../custom/code_types.inc.php');
+require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
