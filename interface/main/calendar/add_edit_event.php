@@ -35,13 +35,13 @@
  $sanitize_all_escapes=true;
 
 require_once('../../globals.php');
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/forms.inc");
- require_once("$srcdir/calendar.inc");
- require_once("$srcdir/formdata.inc.php");
- require_once("$srcdir/options.inc.php");
- require_once("$srcdir/encounter_events.inc.php");
- require_once("$srcdir/acl.inc");
+require_once($GLOBALS['srcdir'].'/patient.inc');
+require_once($GLOBALS['srcdir'].'/forms.inc');
+require_once($GLOBALS['srcdir'].'/calendar.inc');
+require_once($GLOBALS['srcdir'].'/formdata.inc.php');
+require_once($GLOBALS['srcdir'].'/options.inc.php');
+require_once($GLOBALS['srcdir'].'/encounter_events.inc.php');
+require_once($GLOBALS['srcdir'].'/acl.inc');
 
  //Check access control
  if (!acl_check('patients','appt','',array('write','wsome') ))
