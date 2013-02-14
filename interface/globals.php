@@ -128,7 +128,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     if (!is_dir($GLOBALS['OE_SITES_BASE'] . "/$tmp")) $tmp = "default";
   }
   if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp))
-    die("Site ID '$tmp' contains invalid characters.");
+    die("Site ID '". htmlspecialchars($tmp,ENT_NOQUOTES) . "' contains invalid characters.");
   if (!isset($_SESSION['site_id']) || $_SESSION['site_id'] != $tmp) {
     $_SESSION['site_id'] = $tmp;
     //error_log("Session site ID has been set to '$tmp'"); // debugging
