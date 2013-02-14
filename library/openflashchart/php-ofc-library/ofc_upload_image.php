@@ -1,5 +1,9 @@
 <?php
 
+// EXIT THIS SCRIPT
+// Added by OpenEMR to fix security vulnerability.
+exit;
+
 //
 // In Open Flash Chart -> save_image debug mode, you
 // will see the 'echo' text in a new window.
