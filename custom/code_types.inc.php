@@ -168,7 +168,6 @@ $cd_external_options = array(
   '1' => xl('ICD10 Diagnosis'),
   '6' => xl('ICD10 Procedure/Service'),
   '2' => xl('SNOMED (RF1) Diagnosis'),
-  '3' => xl('SNOMED (RF2) Diagnosis'),
   '7' => xl('SNOMED (RF1) Clinical Term'),
   '9' => xl('SNOMED (RF1) Procedure')    
 );
