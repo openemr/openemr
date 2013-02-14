@@ -29,7 +29,7 @@ function cron_SendMail( $to, $subject, $vBody, $from )
 		// larry :: add cc/bcc - bot used ?
 		$cc = "";
 		$bcc = "";
-		$format = 0;
+		$format = "";  // mdsupport - replaces 0 which causes gmail formatting / display problems.
 	
 		//echo "function called";exit;
 		if( strlen( $format )==0 )	$format="text/html";
@@ -327,8 +327,9 @@ function cron_setmessage($prow,$db_email_msg)
 	//echo "DEBUG :1: name=".$NAME."\n";
 	
 	$PROVIDER = $db_email_msg['provider_name'];
-	$DATE = $prow['pc_eventDate'];
-	$STARTTIME = $prow['pc_startTime'];
+	$dtWrk = strtotime($prow['pc_eventDate'].' '.$prow['pc_startTime']);
+	$DATE = date('l F j, Y', $dtWrk);
+	$STARTTIME = date('g:i A', $dtWrk);
 	$ENDTIME = $prow['pc_endTime'];
 	$find_array = array("***NAME***","***PROVIDER***","***DATE***","***STARTTIME***","***ENDTIME***");
 	$replare_array = array($NAME,$PROVIDER,$DATE,$STARTTIME,$ENDTIME);
