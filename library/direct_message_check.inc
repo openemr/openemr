@@ -306,11 +306,9 @@ function phimail_logit($success,$text,$pid=0,$event="direct-message-check") {
  */
 function phimail_read_blob($fp,$len) {
 
-   $fpath=dirname(__FILE__) . "/../sites/default/documents/tmp_direct";
+   $fpath=$GLOBALS['temporary_files_dir'];
    if(!@file_exists($fpath)) {
-      if(!@mkdir($fpath,0700)) {
-         return FALSE;
-      }
+     return FALSE;
    }
    $name = uniqid("direct-");
    $fn = $fpath . "/" . $name . ".dat";

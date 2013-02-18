@@ -159,8 +159,10 @@ class Installer
   public function load_dumpfiles() {
     $sql_results = ''; // information string which is returned
     foreach ($this->dumpfiles as $filename => $title) {
-        $sql_results .= $this->load_file($filename,$title);
-        if ($sql_results == FALSE) return FALSE;
+        $sql_results_temp = '';
+        $sql_results_temp = $this->load_file($filename,$title);
+        if ($sql_results_temp == FALSE) return FALSE;
+        $sql_results .= $sql_results_temp;
     }
     return $sql_results;
   }

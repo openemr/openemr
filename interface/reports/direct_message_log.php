@@ -157,8 +157,10 @@ require_once("../globals.php");
 
       <?php if ($row['status'] == "Q") { ?>
           <td align='center'><?php echo xlt("Queued") ?></td>
+      <?php } else if ($row['status'] == "S") { ?>
+          <td align='center'><?php echo xlt("Sent, but delivery not yet confirmed.") ?></td>
       <?php } else if ($row['status'] == "D") { ?>
-          <td align='center'><?php echo xlt("Dispatched") ?></td>
+          <td align='center'><?php echo xlt("Delivery Confirmed") ?></td>
       <?php } else if ($row['status'] == "R") { ?>
           <td align='center'><?php echo xlt("Received") ?></td>
       <?php } else if ($row['status'] == "F") { ?>
