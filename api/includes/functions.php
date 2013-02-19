@@ -3,7 +3,7 @@
 /**
  * API functions.
  *
- * Api to allow add appointment in the database.
+ * Api functions.
  *
  * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
  *
@@ -31,24 +31,22 @@ function xmlsafestring($myString) {
 }
 
 function createToken($userId, $create = true, $device_token = '') {
-    global $db;
     $token = md5(uniqid(rand(), 1));
 
-    $query = "SELECT * FROM api_tokens WHERE user_id = '{$userId}'";
-    $token_result = $db->query($query);
+    $query = "SELECT * FROM api_tokens WHERE user_id = ?";
+    $token_result = sqlQuery($query, array($userId));
 
     if ($create || !$token_result) {
-        $strQuery = "INSERT INTO api_tokens VALUES('', " . $userId . " ,'" . $token . "','" . $device_token . "' ,'" . date('Y-m-d h:i:s') . "', '',0,0,0,0)";
-        $result = $db->query($strQuery);
+        $strQuery = "INSERT INTO api_tokens VALUES('', " . add_escape_custom($userId) . " ,'" . add_escape_custom($token) . "','" . add_escape_custom($device_token) . "' ,'" . date('Y-m-d h:i:s') . "', '',0,0,0,0)";
+        $result = sqlInsert($strQuery);
     } else {
-        
-        $strQuery = "UPDATE `api_tokens` SET `token` = '$token' ";
+
+        $strQuery = "UPDATE `api_tokens` SET `token` = '" . add_escape_custom($token) . "' ";
         if ($device_token) {
-            $strQuery .= ",`device_token` = '$device_token' ";
+            $strQuery .= ",`device_token` = '" . add_escape_custom($device_token) . "' ";
         }
-        $strQuery .= "WHERE `user_id` = $userId";
-//        echo $strQuery;
-        $result = $db->query($strQuery);
+        $strQuery .= "WHERE `user_id` = ?";
+        $result = sqlStatement($strQuery, array($userId));
     }
     if ($result) {
         return $token;
@@ -58,85 +56,56 @@ function createToken($userId, $create = true, $device_token = '') {
 }
 
 function validateToken($token) {
-    global $db;
     $query = "SELECT * FROM api_tokens WHERE token LIKE '{$token}' AND (expire_datetime = 0 OR expire_datetime >= NOW())";
-    $result = $db->query($query);
+    $result = sqlQuery($query);
     if ($result) {
-        return $db->last_result[0]->user_id;
+        return $result['user_id'];
     } else {
         return false;
     }
 }
 
 function getUsername($userId) {
-    global $db;
-    $strQuery = "SELECT username FROM `users` WHERE id=" . $userId;
-    $result = $db->get_row($strQuery);
+    $strQuery = "SELECT username FROM users WHERE id = ?";
+    $result = sqlQuery($strQuery, array($userId));
 
     if ($result) {
-        return $result->username;
+        return $result['username'];
     } else {
         return false;
     }
 }
-
-//function getPass($userId) {
-//    global $db;
-//    $strQuery = "SELECT `password_with_token` FROM medmasterusers WHERE id=" . $userId;
-//    $result = $db->get_row($strQuery);
-//
-//    if ($result) {
-//        return $result->password_with_token;
-//    } else {
-//        return false;
-//    }
-//}
 
 function getPatientsProvider($patient_id) {
-    global $db;
-    $strQuery = "SELECT `providerID` FROM patient_data WHERE pid=" . $patient_id;
-    $result = $db->get_row($strQuery);
+    $strQuery = "SELECT `providerID` FROM patient_data WHERE pid=?";
+    $result = sqlQuery($strQuery, array($patient_id));
 
     if ($result) {
-        return $result->providerID;
+        return $result['providerID'];
     } else {
         return false;
     }
 }
 
-//function getUserProviderId($userId) {
-//    global $db;
-//    $strQuery = "SELECT uid FROM medmasterusers WHERE id=" . $userId;
-//    $result = $db->get_row($strQuery);
-//
-//    if ($result) {
-//        return $result->uid;
-//    } else {
-//        return false;
-//    }
-//}
-
 function getDeviceToken($username) {
-    global $db;
     $strQuery = "SELECT t.device_token
-                        FROM `users` AS mu
-                        INNER JOIN `api_tokens` AS t ON mu.id = t.id
-                        WHERE `username` ='" . $username . "'";
-    $result = $db->get_row($strQuery);
+                        FROM `medmasterusers` AS mu
+                        INNER JOIN `api_tokens` AS t ON mu.id = t.user_id
+                        WHERE `username` = ?";
+    $result = sqlQuery($strQuery, array($username));
 
     if ($result) {
-        return $result->device_token;
+        return $result['device_token'];
     } else {
         return false;
     }
 }
 
 function getAllBadges($token) {
-    global $db;
     $strQuery = "SELECT t.`device_token` , t.`message_badge` , t.`appointment_badge` , t.`labreports_badge` , t.`prescription_badge`
                     FROM `api_tokens` AS t
-                    WHERE `token` ='" . $token . "'";
-    $result = $db->get_row($strQuery);
+                    WHERE `token` = ?";
+    $result = sqlQuery($strQuery, array($token));
 
     if ($result) {
         return $result;
@@ -146,24 +115,22 @@ function getAllBadges($token) {
 }
 
 function getDeviceTokenBadge($username, $update_badge_type = '') {
-    global $db;
     $strQuery = "SELECT t.device_token,t.token,t.`message_badge`,t.`appointment_badge`,t.`labreports_badge`,t.`prescription_badge`
                         FROM `users` AS mu
                         INNER JOIN `api_tokens` AS t ON mu.id = t.id
-                        WHERE `username` ='" . $username . "'";
-    $result = $db->get_row($strQuery);
+                        WHERE `username` = ?";
+    $result = sqlQuery($strQuery, array($username));
 
     if ($result) {
-        $badge = $result->message_badge + $result->appointment_badge + $result->labreports_badge + $result->prescription_badge + 1;
-        updateBadge($result->token, $update_badge_type);
-        return array('device_token' => $result->device_token, 'badge' => $badge);
+        $badge = $result['message_badge'] + $result['appointment_badge'] + $result['labreports_badge'] + $result['prescription_badge'] + 1;
+        updateBadge($result['token'], $update_badge_type);
+        return array('device_token' => $result['device_token'], 'badge' => $badge);
     } else {
         return false;
     }
 }
 
 function updateBadge($token, $update_badge_type) {
-    global $db;
     switch ($update_badge_type) {
         case 'message':
             $update = "message_badge = message_badge+1";
@@ -181,33 +148,24 @@ function updateBadge($token, $update_badge_type) {
             return false;
             break;
     }
-    $query = "UPDATE `api_tokens` SET {$update} WHERE token = '$token'";
-    $result = $db->query($query);
+    $query = "UPDATE `api_tokens` SET {$update} WHERE token = ?";
+    $result = sqlStatement($query, array($token));
     return $result;
 }
 
 function getProviderUsername($userId) {
-    global $db;
-    $strQuery = "SELECT username FROM users WHERE id=" . $userId;
-    $result = $db->get_row($strQuery);
+    $strQuery = "SELECT username FROM users WHERE id = ?";
+    $result = sqlQuery($strQuery, array($userId));
 
     if ($result) {
-        return $result->username;
+        return $result['username'];
     } else {
         return false;
     }
 }
 
 function getToken($userId, $emr = "openemr", $password = '', $device_token = '') {
-    global $db;
-//    $strQuery = "SELECT token FROM tokens WHERE user_id = " . $userId;
-//    $result = $db->get_row($strQuery);
-//    $query = "UPDATE `medmasterusers` SET `emr`='$emr' WHERE id = $userId";
-//    $result = $db->query($query);
-//    if (!empty($password)) {
-//        $query2 = "UPDATE `medmasterusers` SET `password_with_token`='{$password}' WHERE `id`= {$userId}";
-//        $db->query($query2);
-//    }
+
     $token = createToken($userId, false, $device_token);
     if ($token) {
         return $token;
@@ -216,29 +174,16 @@ function getToken($userId, $emr = "openemr", $password = '', $device_token = '')
     }
 }
 
-//function getEmr($userId) {
-//    global $db;
-//    $strQuery = "SELECT emr FROM `medmasterusers` WHERE id=" . $userId;
-//    $result = $db->get_row($strQuery);
-//
-//    if ($result) {
-//        return $result->emr;
-//    } else {
-//        return false;
-//    }
-//}
-
 function isJson($string) {
-// json_decode($string);
     return is_object(json_decode($string));
 }
 
 function getSecretkey($userId) {
-    global $db;
-    $strQuery = "SELECT secret_key FROM `users` WHERE id = " . $userId;
-    $result = $db->get_row($strQuery);
+
+    $strQuery = "SELECT secret_key FROM `users` WHERE id = ?";
+    $result = sqlQuery($strQuery, array($userId));
     if ($result) {
-        return $result->secret_key;
+        return $result['secret_key'];
     } else {
         return false;
     }
@@ -368,10 +313,10 @@ function createThumbnail($pathToImage, $thumb_name, $thumbWidth = 180, $pathToDe
 function getDrugTitle($code, $db) {
     $strQuery = "SELECT * 
                         FROM  `codes` 
-                        WHERE  `code` LIKE  '{$code}'";
-    $result = $db->get_row($strQuery);
+                        WHERE  `code` LIKE  ?";
+    $result = sqlQuery($strQuery, array($code));
     if ($result) {
-        return $result->code_text;
+        return $result['code_text'];
     } else {
         return false;
     }
@@ -631,9 +576,6 @@ function curlRequest($url, $body) {
 
     $method = "POST";
     $headerType = "JSON";
-//    $method = strtoupper($method);
-//    $headerType = strtoupper($headerType);
-//    $url = "api-test.greenwaymedical.com/Integration/RESTv1.0/PrimeSuiteAPIService/Patient/PatientHistoriesGet?api_key=aw6gb6nhejrjfdz7mx2276gt";
 
     $session = curl_init();
     curl_setopt($session, CURLOPT_URL, $url);
@@ -655,9 +597,6 @@ function curlRequest($url, $body) {
     if (preg_match("/^(https)/i", $url))
         curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
     $result = curl_exec($session);
-//$result = new SimpleXMLElement(utf8_encode($result));
-//    $status = curl_getinfo($session);
-//echo "Organization=". $result->response->businessEntity->mainName->organisationName;
     curl_close($session);
 
     return $result;
@@ -673,11 +612,9 @@ function notification($deviceToken, $badge = 1, $msg_count = 0, $apt_count = 0, 
             'ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT, $ctx);
 
     if (!$fp) {
-//        exit("Failed to connect: $err $errstr" . PHP_EOL);
 
         return false;
     }
-//    echo 'Connected to APNS' . PHP_EOL;
 // Create the payload body
     $body['aps'] = array(
         'alert' => $message,
@@ -698,29 +635,24 @@ function notification($deviceToken, $badge = 1, $msg_count = 0, $apt_count = 0, 
 
     if (!$result) {
         return false;
-//        echo 'Message not delivered' . PHP_EOL;
-//        exit;
     } else {
         return true;
-//        echo 'Message successfully delivered' . PHP_EOL;
-//        exit;
     }
 // Close the connection to the server
     fclose($fp);
 }
 
 function sendAllNotifications($device_token, $user, $provider_id, $message = 'Notification!', $date = '') {
-    global $db;
     $date = $date == '' ? date('Y-m-d') : $date;
     $assignee = $user;
     $sql = "SELECT count( 0 ) AS count
                                         FROM `pnotes`
                                         WHERE deleted != '1'
-                                        AND date >= '{$date} 00:00:00'
-                                        AND date <= '{$date} 24:00:00'
-                                        AND assigned_to LIKE '{$assignee}'";
+                                        AND date >= '" . add_escape_custom($date) . " 00:00:00'
+                                        AND date <= '" . add_escape_custom($date) . " 24:00:00'
+                                        AND assigned_to LIKE ?";
 
-    $result_notification = $db->get_row($sql);
+    $result_notification = sqlQuery($sql, array($assignee));
 
     $count_apt = 0;
     $appointments = fetchAppointments($date, $date, $patient_id = null, $provider_id, $facility_id = null);
@@ -730,11 +662,8 @@ function sendAllNotifications($device_token, $user, $provider_id, $message = 'No
         }
     }
     if ($result_notification || $appointments) {
-        $count_msg = $result_notification->count;
+        $count_msg = $result_notification['count'];
         $badge = $count_msg + $count_apt;
-//        echo $badge;exit;
-//        $message = str_replace("%apt%", $count_apt, $message);
-//        $message = str_replace("%msg%", $count_msg, $message);
 
         $res = notification($device_token, intval($badge), $count_msg, $count_apt, $message);
         return $res ? $badge : false;
