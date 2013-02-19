@@ -5,14 +5,17 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
+ *
+ * 2013/02/08 Minor tweaks by EMR Direct to allow integration with Direct messaging
  */
+
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
 
 //STOP FAKE REGISTER GLOBALS
 $fake_register_globals=false;
 
-require_once('../../globals.php');
+require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
@@ -141,16 +144,20 @@ switch($task) {
           }
         }
     } break;
+    case "savePatient":
     case "save" : {
         // Update alert.
         $noteid = $_POST['noteid'];
         $form_message_status = $_POST['form_message_status'];
-        updatePnoteMessageStatus($noteid,$form_message_status);
+        $reply_to = $_POST['reply_to'];
+        if ($task=="save")
+            updatePnoteMessageStatus($noteid,$form_message_status);
+        else
+            updatePnotePatient($noteid,$reply_to);
         $task = "edit";
         $note = $_POST['note'];
         $title = $_POST['form_note_type'];
         $assigned_to = $_POST['assigned_to'];
-        $reply_to = $_POST['reply_to'];
     }
     case "edit" : {
         if ($noteid == "") {
@@ -232,7 +239,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 </tr>
 <tr>
   <td class='text' align='center'>
-   <?php if ($task != "addnew") { ?>
+   <?php if ($task != "addnew" && $result['pid']!=0) { ?>
      <a class="patLink" onclick="goPid('<?php echo attr($result['pid']);?>')"><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</a>
    <?php } else { ?>
      <b class='<?php echo ($task=="addnew"?"required":"") ?>'><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</b>
@@ -246,7 +253,11 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
    if ($patientname == '') {
        $patientname = xl('Click to select');
    } ?>
-   <input type='text' size='10' name='form_patient' style='width:150px;<?php echo ($task=="addnew"?"cursor:pointer;cursor:hand;":"") ?>' value='<?php echo htmlspecialchars($patientname, ENT_QUOTES); ?>' <?php echo ($task=="addnew"?"onclick='sel_patient()' readonly":"disabled") ?> title='<?php echo ($task=="addnew"?(htmlspecialchars( xl('Click to select patient'), ENT_QUOTES)):"") ?>'  />
+   <input type='text' size='10' name='form_patient' style='width:150px;<?php 
+      echo ($task=="addnew"?"cursor:pointer;cursor:hand;":"") ?>' value='<?php 
+      echo htmlspecialchars($patientname, ENT_QUOTES); ?>' <?php 
+      echo (($task=="addnew" || $result['pid']==0) ? "onclick='sel_patient()' readonly":"disabled") ?> title='<?php 
+      echo ($task=="addnew"?(htmlspecialchars( xl('Click to select patient'), ENT_QUOTES)):"") ?>'  />
    <input type='hidden' name='reply_to' id='reply_to' value='<?php echo htmlspecialchars( $reply_to, ENT_QUOTES) ?>' />
    &nbsp; &nbsp;
    <b><?php echo htmlspecialchars( xl('Status'), ENT_NOQUOTES); ?>:</b>
@@ -302,7 +313,7 @@ $(document).ready(function(){
 
     var NewNote = function () {
         top.restoreSession();
-      if (document.forms[0].reply_to.value.length == 0) {
+      if (document.forms[0].reply_to.value.length == 0 || document.forms[0].reply_to.value == '0') {
        alert('<?php echo htmlspecialchars( xl('Please choose a patient'), ENT_QUOTES); ?>');
       }
       else if (document.forms[0].assigned_to.value.length == 0) {
@@ -338,6 +349,13 @@ $(document).ready(function(){
   var f = document.forms[0];
   f.form_patient.value = lname + ', ' + fname;
   f.reply_to.value = pid;
+<?php if ($noteid) { ?>
+  //used when direct messaging service inserts a pnote with indeterminate patient
+  //to allow the user to assign the message to a patient.
+  top.restoreSession();
+  $("#task").val("savePatient");
+  $("#new_note").submit();
+<?php } ?>
  }
 
  // This invokes the find-patient popup.
@@ -439,9 +457,13 @@ else {
                 $name .= ", " . $myrow['users_fname'];
             }
             $patient = $myrow['pid'];
-            $patient = $myrow['patient_data_lname'];
-            if ($myrow['patient_data_fname']) {
-                $patient .= ", " . $myrow['patient_data_fname'];
+            if ($patient>0) {
+                $patient = $myrow['patient_data_lname'];
+                if ($myrow['patient_data_fname']) {
+                    $patient .= ", " . $myrow['patient_data_fname'];
+                }
+            } else {
+                $patient = "* Patient must be set manually *";
             }
             $count++;
             echo "
