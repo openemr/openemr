@@ -42,6 +42,27 @@ CREATE TABLE `amc_misc_data` (
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `api_tokens`
+--
+
+DROP TABLE IF EXISTS `api_tokens`;
+CREATE TABLE `api_tokens` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) DEFAULT NULL,
+  `token` varchar(150) DEFAULT NULL,
+  `device_token` varchar(200) NOT NULL,
+  `create_datetime` datetime DEFAULT NULL,
+  `expire_datetime` datetime DEFAULT NULL,
+  `message_badge` int(5) NOT NULL,
+  `appointment_badge` int(5) NOT NULL,
+  `labreports_badge` int(5) NOT NULL,
+  `prescription_badge` int(5) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `array`
 -- 
@@ -5160,6 +5181,14 @@ CREATE TABLE `users` (
   `irnpool` varchar(31) NOT NULL DEFAULT '',
   `state_license_number` VARCHAR(25) DEFAULT NULL,
   `newcrop_user_role` VARCHAR(30) DEFAULT NULL,
+  `create_date` date NOT NULL,
+  `secret_key` varchar(100) DEFAULT NULL,
+  `ip_address` varchar(20) DEFAULT NULL,
+  `country_code` varchar(10) DEFAULT NULL,
+  `country_name` int(50) DEFAULT NULL,
+  `latidute` varchar(20) DEFAULT NULL,
+  `longitude` varchar(20) DEFAULT NULL,
+  `time_zone` varchar(10) DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
