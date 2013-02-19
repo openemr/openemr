@@ -56,7 +56,9 @@ class C_Document extends Controller {
 	}
 	
 	//Upload multiple files on single click
-	function upload_action_process() {
+	//2013-02-10 EMR Direct: added $non_HTTP_owner to allow storage of Direct Message attachments
+	//through this mechanism, and is set to the user_id for the background process adding the document
+	function upload_action_process($non_HTTP_owner=false) {
 		$couchDB = false;
 		$harddisk = false;
 		if($GLOBALS['document_storage_method']==0){
@@ -178,7 +180,8 @@ class C_Document extends Controller {
 					
 					if($harddisk == true){
 						$uploadSuccess = false;
-						if(move_uploaded_file($_FILES['file']['tmp_name'][$key],$this->file_path.$fname)){
+						$move_cmd = ($non_HTTP_owner ? "rename" : "move_uploaded_file");
+						if($move_cmd($_FILES['file']['tmp_name'][$key],$this->file_path.$fname)){
 							$uploadSuccess = true;
 						}
 						else{
@@ -204,7 +207,7 @@ class C_Document extends Controller {
 						$d->mimetype = $_FILES['file']['type'][$key];
 					}                                 
 					$d->size = $_FILES['file']['size'][$key];
-					$d->owner = $_SESSION['authUserID'];			
+					$d->owner = $non_HTTP_owner ? $non_HTTP_owner : $_SESSION['authUserID'];
 					$sha1Hash = sha1_file( $this->file_path.$fname );
 					if($couchDB == true){
 						//Removing the temporary file which is used to create the hash

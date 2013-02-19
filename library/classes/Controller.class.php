@@ -114,7 +114,8 @@ class Controller extends Smarty {
                foreach ($args as $arg) {
                        $arg = preg_replace("/[^A-Za-z0-9_]/","",$arg);
                        //this is a workaround because call user func does funny things with passing args if they have no assigned value
-                       if (empty($qarray[$arg])) {
+                       //2013-02-10 EMR Direct: workaround modified since "0" is also considered empty;
+                       if (empty($qarray[$arg]) && $qarray[$arg]!="0") {
                                //if argument is empty pass null as value and arg as assoc array key
                                $args_array[$arg] = null;
                        }
