@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -224,50 +224,60 @@ function popup_close() {
   else if ($payment) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
     list($patient_id, $timestamp, $ref_id) = explode(".", $payment);
+    // if (empty($ref_id)) $ref_id = -1;
     $timestamp = decorateString('....-..-.. ..:..:..', $timestamp);
     $payres = sqlStatement("SELECT * FROM payments WHERE " .
       "pid = '$patient_id' AND dtime = '$timestamp'");
     while ($payrow = sqlFetchArray($payres)) {
-      // Delete the payment.
-      row_delete("ar_activity",
-        "pid = '$patient_id' AND " .
-        "session_id = '$ref_id'");
-      row_delete("ar_session",
-        "patient_id = '$patient_id' AND " .
-        "session_id = '$ref_id'");
-      if ($payrow['amount2'] != 0) {
-        if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
-          $thissrc = '';
-          if ($payrow['method']) {
-            $thissrc .= $payrow['method'];
-            if ($payrow['source']) $thissrc .= ' ' . $payrow['source'];
+      if ($payrow['encounter']) {
+        $ref_id = -1;
+        // The session ID passed in is useless. Look for the most recent
+        // patient payment session with pay total matching pay amount and with
+        // no adjustments. The resulting session ID may be 0 (no session) which
+        // is why we start with -1.
+        $tpmt = $payrow['amount1'] + $payrow['amount2'];
+        $seres = sqlStatement("SELECT " .
+          "SUM(pay_amount) AS pay_amount, session_id " .
+          "FROM ar_activity WHERE " .
+          "pid = '$patient_id' AND " .
+          "encounter = '" . $payrow['encounter'] . "' AND " .
+          "payer_type = 0 AND " .
+          "adj_amount = 0.00 " .
+          "GROUP BY session_id ORDER BY session_id DESC");
+        while ($serow = sqlFetchArray($seres)) {
+          if (sprintf("%01.2f", $serow['adj_amount']) != 0.00) continue;
+          if (sprintf("%01.2f", $serow['pay_amount'] - $tpmt) == 0.00) {
+            $ref_id = $serow['session_id'];
+            break;
           }
-          $thissrc .= ' front office reversal';
-          $session_id = 0; // Is this OK?
-          arPostPayment($patient_id, $payrow['encounter'], $session_id,
-            0 - $payrow['amount2'], '', 0, $thissrc, 0);
         }
-        else {
-          // Look up the matching invoice and post an offsetting payment.
-          slInitialize();
-          $invnum = "$patient_id." . $payrow['encounter'];
-          $thissrc = 'Pt/';
-          if ($payrow['method']) {
-            $thissrc .= $payrow['method'];
-            if ($payrow['source']) $thissrc .= ' ' . $payrow['source'];
-          }
-          $thissrc .= ' front office reversal';
-          $trans_id = SLQueryValue("SELECT id FROM ar WHERE " .
-            "ar.invnumber = '$invnum' LIMIT 1");
-          if ($trans_id) {
-            slPostPayment($trans_id, 0 - $payrow['amount2'], date('Y-m-d'),
-              $thissrc, '', 0, 0);
-          } else {
-            $info_msg .= "Invoice '$invnum' not found; could not delete its " .
-              "payment of \$" . $payrow['amount2'] . ". ";
-          }
-          SLClose();
+        if ($ref_id == -1) {
+          die(xlt('Unable to match this payment in ar_activity') . ": $tpmt");
         }
+        // Delete the payment.
+        row_delete("ar_activity",
+          "pid = '$patient_id' AND " .
+          "encounter = '" . $payrow['encounter'] . "' AND " .
+          "payer_type = 0 AND " .
+          "pay_amount != 0.00 AND " .
+          "adj_amount = 0.00 AND " .
+          "session_id = '$ref_id'");
+        if ($ref_id) {
+          row_delete("ar_session",
+            "patient_id = '$patient_id' AND " .
+            "session_id = '$ref_id'");
+        }
+      }
+      else {
+        // Encounter is 0! Seems this happens for pre-payments.
+        $tpmt = sprintf("%01.2f", $payrow['amount1'] + $payrow['amount2']);
+        row_delete("ar_session",
+          "patient_id = '$patient_id' AND " .
+          "payer_id = 0 AND " .
+          "reference = '" . add_escape_custom($payrow['source']) . "' AND " .
+          "pay_total = '$tpmt' AND " .
+          "(SELECT COUNT(*) FROM ar_activity where ar_activity.session_id = ar_session.session_id) = 0 " .
+          "ORDER BY session_id DESC LIMIT 1");
       }
       row_delete("payments", "id = '" . $payrow['id'] . "'");
     }
@@ -325,13 +335,14 @@ function popup_close() {
   echo "<script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
   if ($encounterid) //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
-   {
+  {
     echo "window.opener.imdeleted($encounterid);\n";
-   }
+  }
   else
-   {
-    echo "parent.imdeleted();\n";
-   }
+  {
+    echo " if (opener && opener.imdeleted) opener.imdeleted(); else parent.imdeleted();\n";
+  }
+  echo " window.close();\n";
   echo "</script></body></html>\n";
   exit();
  }
