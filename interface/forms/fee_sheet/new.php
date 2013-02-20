@@ -897,16 +897,27 @@ echo " </tr>\n";
   </td>
   <td>
    <?php echo xlt('Search'); ?>&nbsp;
-  <select name='search_type'>
+  </td>
+  <td>
 <?php
+  $nofs_code_types = array();
   foreach ($code_types as $key => $value) {
     if (!empty($value['nofs'])) continue;
+    $nofs_code_types[$key] = $value;
+  }
+  $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
+?>
+  <select name='search_type' size='<?php echo attr($size_select) ?>'>
+<?php
+  foreach ($nofs_code_types as $key => $value) {
     echo "   <option value='" . attr($key) . "'";
     if ($key == $default_search_type) echo " selected";
     echo " />" . xlt($value['label']) . "</option>";
   }
 ?>
   </select>
+  </td>
+  <td>
    <?php echo xlt('for'); ?>&nbsp;
   </td>
   <td>
