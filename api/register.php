@@ -1,37 +1,42 @@
 <?php
-
+/**
+ * api/register.php Register user.
+ *
+ * API is allowed to register new user.
+ *
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
-ini_set('display_errors', '1');
 $xml_array = array();
 
-//$firstname = add_escape_custom($_POST['firstname']);
-//$lastname = add_escape_custom($_POST['lastname']);
-//$phone = add_escape_custom($_POST['phone']);
-//$email = add_escape_custom($_POST['email']);
-//$username = add_escape_custom($_POST['username']);
-//$password = add_escape_custom($_POST['password']);
-//$greetings = isset($_POST['greetings']) ? add_escape_custom($_POST['greetings']) : "";
-//$title = !empty($_POST['title']) ? add_escape_custom($_POST['title']) : 'Doctor';
-//$device_token = isset($_REQUEST['device_token']) ? $_REQUEST['device_token'] : '';
-//
-//$pin = !empty($_POST['pin']) ? add_escape_custom($_POST['pin']) : substr(uniqid(rand()), 0, 4);
-
-
-
-$firstname = add_escape_custom('Hassan');
-$lastname = add_escape_custom('Baiga');
-$phone = add_escape_custom('11224455');
-$email = add_escape_custom('hassan@gmail.com');
-$username = add_escape_custom('hassanBa');
-$password = add_escape_custom('hassanBa123');
-//$greetings = isset($_POST['greetings']) ? add_escape_custom($_POST['greetings']) : "";
-$title = !empty($_POST['title']) ? add_escape_custom($_POST['title']) : 'Doctor';
+$firstname = $_POST['firstname'];
+$lastname = $_POST['lastname'];
+$phone = $_POST['phone'];
+$email = $_POST['email'];
+$username = $_POST['username'];
+$password = $_POST['password'];
+$greetings = isset($_POST['greetings']) ? $_POST['greetings'] : "";
+$title = !empty($_POST['title']) ? $_POST['title'] : 'Doctor';
 $device_token = isset($_REQUEST['device_token']) ? $_REQUEST['device_token'] : '';
 
-$pin = !empty($_POST['pin']) ? add_escape_custom($_POST['pin']) : substr(uniqid(rand()), 0, 4);
-
+$pin = !empty($_POST['pin']) ? $_POST['pin'] : substr(uniqid(rand()), 0, 4);
 
 
 $createDate = date('Y-m-d');
@@ -44,9 +49,6 @@ sqlStatement("unlock tables");
 $secretKey = getUniqueSecretkey();
 
 
-
-//$strQuery = "SELECT * FROM medmasterusers WHERE username LIKE '{$username}'";
-//$result = sqlQuery($strQuery);
 
 $strQueryUsers = "SELECT * FROM users WHERE username LIKE '{$username}'";
 $resultUsers = sqlQuery($strQueryUsers);
@@ -67,37 +69,33 @@ if ($result || $resultUsers) {
     $pin1 = sha1($pin);
 
     $strQuery1 = "INSERT INTO `users`(`username`, `password`, `fname`, `lname`,  `phone`, `email`, `authorized`,`calendar`, `upin`, `create_date`, `secret_key`,  `title`, `ip_address`, `country_code`, `country_name`, `state`, `city`, `zip`, `latidute`, `longitude`, `time_zone`)
-                            VALUES ('{$username}','{$password1}','{$firstname}','{$lastname}','{$phone}','{$email}',1,1, '" . $pin1 . "', '" . $createDate . "','" . $secretKey . "','{$title}','{$responce_array->ipAddress}','{$responce_array->countryCode}','{$responce_array->countryName}','{$responce_array->regionName}','{$responce_array->cityName}','{$responce_array->zipCode}','{$responce_array->latitude}','{$responce_array->longitude}','{$responce_array->timeZone}')";
+                            VALUES ('".add_escape_custom($username)."','".add_escape_custom($password1)."','".add_escape_custom($firstname)."','".add_escape_custom($lastname)."','".add_escape_custom($phone)."','".add_escape_custom($email)."',1,1, '" . add_escape_custom($pin1) . "', '" . $createDate . "','" . $secretKey . "','".add_escape_custom($title)."','".add_escape_custom($responce_array->ipAddress)."','".add_escape_custom($responce_array->countryCode)."','".add_escape_custom($responce_array->countryName)."','".add_escape_custom($responce_array->regionName)."','".add_escape_custom($responce_array->cityName)."','".add_escape_custom($responce_array->zipCode)."','".add_escape_custom($responce_array->latitude)."','".add_escape_custom($responce_array->longitude)."','".add_escape_custom($responce_array->timeZone)."')";
+   
     $result1 = sqlInsert($strQuery1);
 
-    echo $result1;
 
     $last_user_id = $result1;
 
 
     $strQuery2 = "INSERT INTO `gacl_aro`(`id`, `section_value`, `value`, `order_value`, `name`) 
-                    VALUES ('{$gacl_aro_id}', 'users', '{$username}', '10','" . $firstname . " " . $lastname . "')";
+                    VALUES ('{$gacl_aro_id}', 'users', '".add_escape_custom($username)."', '10','" . add_escape_custom($firstname . " " . $lastname) . "')";
 
 
     $result2 = sqlInsert($strQuery2);
 
-    echo "<br />" . $result2;
 
     $strQuery3 = "INSERT INTO `groups`(`name`, `user`) 
-                        VALUES ('Default', '" . $username . "')";
+                        VALUES ('Default', '" . add_escape_custom($username) . "')";
     $result3 = sqlInsert($strQuery3);
-    echo "<br />" . $result3;
 
 
     $strQuery4 = "INSERT INTO `gacl_groups_aro_map`(`group_id`, `aro_id`) 
-                    VALUES('11', '" . $gacl_aro_id . "')";
+                    VALUES('11', '" . add_escape_custom($gacl_aro_id) . "')";
     $result4 = sqlInsert($strQuery4);
 
-    echo "<br />" . $result4;
 
     $token = createToken($last_user_id, true, $device_token);
 
-    echo "<br />" . $token;
     
     if ($result1 && $result2 && $result3 && $result4 && $token) {
         $mail = new PHPMailer();

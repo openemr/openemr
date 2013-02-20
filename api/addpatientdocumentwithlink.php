@@ -1,5 +1,26 @@
 <?php
-
+/**
+ * api/addpatientdocumentwithlink.php add new patient's document.
+ *
+ * Api add's patient document againt a particular category with file url.
+ * 
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require('classes.php');
@@ -64,12 +85,22 @@ if ($userId = validateToken($token)) {
 
                 $size = filesize($url);
 
-                $strQuery = "INSERT INTO `documents`( `id`, `type`, `size`, `date`, `url`, `mimetype`, `foreign_id`, `docdate`, `hash`, `list_id`) 
-             VALUES ({$id},'{$type}','{$size}','{$date}','{$url}','{$mimetype}',{$patient_id},'{$docdate}','{$hash}','{$list_id}')";
-
+             $strQuery = "INSERT INTO `documents`( `id`, `type`, `size`, `date`, `url`, `mimetype`, `foreign_id`, `docdate`, `hash`, `list_id`) 
+                        VALUES (
+                               '" . add_escape_custom($id) . "',
+                               '" . add_escape_custom($type) . "',
+                               '" . add_escape_custom($size) . "',
+                               '" . add_escape_custom($date) . "',
+                               '" . add_escape_custom($url) . "',
+                               '" . add_escape_custom($mimetype) . "',
+                               " . add_escape_custom($patient_id) . ",
+                               '" . add_escape_custom($docdate) . "',
+                               '" . add_escape_custom($hash) . "',
+                               '" . add_escape_custom($list_id) . "')";
+             
                 $result = sqlStatement($strQuery);
 
-                $strQuery1 = "INSERT INTO `categories_to_documents`(`category_id`, `document_id`) VALUES ({$cat_id},{$id})";
+                $strQuery1 = "INSERT INTO `categories_to_documents`(`category_id`, `document_id`) VALUES (" . add_escape_custom($cat_id)." , " . add_escape_custom($id).")";
 
 
 
@@ -86,7 +117,6 @@ if ($userId = validateToken($token)) {
 
 
                 if ($result && $result1) {
-//            newEvent($event = 'patient-record-add', $user, $groupname = 'Default', $success = '1', $comments = $strQuery);
                     $xml_array['status'] = "0";
                     $xml_array['reason'] = "Document added successfully";
                     if ($notification_res) {

@@ -1,16 +1,37 @@
 <?php
 
+/**
+ * api/report_visits.php Visits reports .
+ *
+ * API is allowed to get patient visit reports in html and pdf format.
+ *
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
-require_once ('includes/pdflibrary/config/lang/eng.php');
-require_once ('includes/pdflibrary/tcpdf.php');
+
 require_once 'classes.php';
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/billing.inc");
-require_once("$srcdir/patient.inc");
+
+require_once("$srcdir/pdflibrary/config/lang/eng.php");
+require_once("$srcdir/pdflibrary/tcpdf.php");
+
 require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
-require_once "$srcdir/formdata.inc.php";
 
 $xml_string = "";
 $xml_string = "<list>";
@@ -127,8 +148,8 @@ $facility = $_POST['facility'];
 $provider = $_POST['provider'];
 $from_date = $_POST['from_date'];
 $to_date = $_POST['to_date'];
-$details = $_POST['details'] ? true : false;
-$new_patients = $_POST['new_patients'] ? true : false;
+$details = $_POST['details'] == 'false' ? false : true;
+$new_patients = $_POST['new_patients'] == 'false' ? false : true;
 
 //$token = 'f12dab7305cd43b68db8551008f9f9a6';
 //$facility = '';
@@ -168,24 +189,25 @@ if ($userId = validateToken($token)) {
                 "WHERE f.encounter = fe.encounter AND f.formdir = 'newpatient' ";
 
         if ($to_date) {
-            $query .= "AND fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59' ";
+            $query .= "AND fe.date >= '" . add_escape_custom($from_date) . " 00:00:00' AND fe.date <= '" . add_escape_custom($to_date)." 23:59:59' ";
         } else {
-            $query .= "AND fe.date >= '$from_date 00:00:00' AND fe.date <= '$from_date 23:59:59' ";
+            $query .= "AND fe.date >= '".add_escape_custom($from_date)." 00:00:00' AND fe.date <= '" . add_escape_custom($from_date)." 23:59:59' ";
         }
         if ($provider) {
-            $query .= "AND fe.provider_id = '$provider' ";
+            $query .= "AND fe.provider_id = '" . add_escape_custom($provider)."' ";
         }
         if ($facility) {
-            $query .= "AND fe.facility_id = '$facility' ";
+            $query .= "AND fe.facility_id = '" . add_escape_custom($facility)."' ";
         }
         if ($new_patients) {
             $query .= "AND fe.date = (SELECT MIN(fe2.date) FROM form_encounter AS fe2 WHERE fe2.pid = fe.pid) ";
         }
 
-        $res = sqlStatement($query, array());
-        //$res = $db->get_results($query);
-//echo var_dump($res);echo $res;exit;
-        if ($res->_numOfRows > 0) {
+
+        $res = sqlStatement($query);
+        $numRows = sqlNumRows($res);
+        
+        if ($numRows > 0) {
             $lastdocname = "";
             $doc_encounters = 0;
             while ($row = sqlFetchArray($res)) {

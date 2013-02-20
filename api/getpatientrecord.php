@@ -1,14 +1,32 @@
 <?php
-
+/**
+ * api/getpatientrecord.php fetch patient record.
+ *
+ * Api fetch complete patient record.
+ * 
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once('classes.php');
 
-//$p_id = add_escape_custom($_REQUEST['patientID']);
-//$token = $_REQUEST['token'];
-
-$p_id = add_escape_custom(30);
-$token = 'e85e54d56c48027eddd7150b8ea2eab3';
+$p_id = $_REQUEST['patientID'];
+$token = $_REQUEST['token'];
 
 $xml_array = array();
 
@@ -27,10 +45,12 @@ if ($userId = validateToken($token)) {
         if ($patient) {
             $xml_array['Patient']['demographics'] = $patient;
 
-            $ethencity_query = "SELECT option_id, title FROM list_options WHERE list_id  = 'ethnicity' AND `option_id` = '" . $patient["ethnicity"] . "'";
-            $ethencity_result = $db->get_row($ethencity_query);
+            $ethencity_query = "SELECT option_id, title FROM list_options WHERE list_id  = 'ethnicity' AND `option_id` = ?";
+            $patientData = $patient["ethnicity"];
+            $ethencity_result = sqlQuery($ethencity_query, array($patientData));
+            
             if ($ethencity_result) {
-                $xml_array['Patient']['demographics']['ethnicityvalue'] = $ethencity_result->title;
+                $xml_array['Patient']['demographics']['ethnicityvalue'] = $ethencity_result['title'];
             } else {
                 $xml_array['Patient']['demographics']['ethnicityvalue'] = '';
             }
@@ -144,7 +164,7 @@ if ($userId = validateToken($token)) {
 				WHERE pid = ?
 				ORDER BY DATE DESC";
 
-            $dbresult8 = sqlStatement($strQuery8,array($p_id));
+            $dbresult8 = sqlStatement($strQuery8, array($p_id));
             if ($dbresult8) {
                 $counter8 = 0;
                 $xml_array['Patient']['vitalslist']['status'] = 0;
@@ -164,15 +184,15 @@ if ($userId = validateToken($token)) {
             $strQuery1 = "SELECT d.date,d.size,d.url,d.docdate,d.mimetype,c2d.category_id
                                 FROM `documents` AS d
                                 INNER JOIN `categories_to_documents` AS c2d ON d.id = c2d.document_id
-                                WHERE foreign_id = {$p_id}
+                                WHERE foreign_id = ?
                                 AND category_id = 13
                                 ORDER BY category_id, d.date DESC 
                                 LIMIT 1";
 
-            $result1 = $db->get_row($strQuery1);
-
+            $result1 = sqlQuery($strQuery1, array($p_id));
+           
             if ($result1) {
-                $xml_array['Patient']['demographics']['profile_image'] = getUrl($result1->url);
+                $xml_array['Patient']['demographics']['profile_image'] = getUrl($result1['url']);
             } else {
                 $xml_array['Patient']['demographics']['profile_image'] = '';
             }

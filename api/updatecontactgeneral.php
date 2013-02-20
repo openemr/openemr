@@ -1,5 +1,26 @@
 <?php
-
+/**
+ * api/updatecontactgeneral.php Update contact.
+ *
+ * API is allowed to update general contact details.
+ *  
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -42,9 +63,9 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('admin', 'users', $user);
 
-     $_SESSION['authUser'] = $user;
+    $_SESSION['authUser'] = $user;
     $_SESSION['authGroup'] = $site;
-    
+
     if ($acl_allow) {
 
 
@@ -54,38 +75,38 @@ if ($userId = validateToken($token)) {
         } else {
 
             $strQuery = 'UPDATE users SET ';
-            $strQuery .= ' info = "' . $info . '",';
-            $strQuery .= ' source = "' . $source . '",';
-            $strQuery .= ' title = "' . $title . '",';
-            $strQuery .= ' fname = "' . $firstname . '",';
-            $strQuery .= ' lname = "' . $lastname . '",';
-            $strQuery .= ' mname = "' . $middlename . '",';
-            $strQuery .= ' upin = "' . $upin . '",';
-            $strQuery .= ' see_auth = "' . $see_auth . '",';
-            $strQuery .= ' npi = "' . $npi . '",';
-            $strQuery .= ' taxonomy = "' . $taxonomy . '",';
-            $strQuery .= ' specialty = "' . $specialty . '",';
-            $strQuery .= ' organization = "' . $organization . '",';
-            $strQuery .= ' valedictory = "' . $valedictory . '",';
-            $strQuery .= ' assistant = "' . $assistant . '",';
-            $strQuery .= ' email = "' . $email . '",';
-            $strQuery .= ' url = "' . $url . '",';
-            $strQuery .= ' street = "' . $street . '",';
-            $strQuery .= ' streetb = "' . $streetb . '",';
-            $strQuery .= ' city = "' . $city . '",';
-            $strQuery .= ' state = "' . $state . '",';
-            $strQuery .= ' zip = "' . $zip . '",';
-            $strQuery .= ' phone = "' . $home_phone . '",';
-            $strQuery .= ' phonew1 = "' . $work_phone1 . '",';
-            $strQuery .= ' phonew2 = "' . $work_phone2 . '",';
-            $strQuery .= ' phonecell = "' . $mobile . '",';
-            $strQuery .= ' fax = "' . $fax . '",';
-            $strQuery .= ' notes = "' . $notes . '"';
-            $strQuery .= ' WHERE username = \'\' AND password = \'\' AND id = ' . $id;
+            $strQuery .= ' info = "' . add_escape_custom($info) . '",';
+            $strQuery .= ' source = "' . add_escape_custom($source) . '",';
+            $strQuery .= ' title = "' . add_escape_custom($title) . '",';
+            $strQuery .= ' fname = "' . add_escape_custom($firstname) . '",';
+            $strQuery .= ' lname = "' . add_escape_custom($lastname) . '",';
+            $strQuery .= ' mname = "' . add_escape_custom($middlename) . '",';
+            $strQuery .= ' upin = "' . add_escape_custom($upin) . '",';
+            $strQuery .= ' see_auth = "' . add_escape_custom($see_auth) . '",';
+            $strQuery .= ' npi = "' . add_escape_custom($npi) . '",';
+            $strQuery .= ' taxonomy = "' . add_escape_custom($taxonomy) . '",';
+            $strQuery .= ' specialty = "' . add_escape_custom($specialty) . '",';
+            $strQuery .= ' organization = "' . add_escape_custom($organization) . '",';
+            $strQuery .= ' valedictory = "' . add_escape_custom($valedictory) . '",';
+            $strQuery .= ' assistant = "' . add_escape_custom($assistant) . '",';
+            $strQuery .= ' email = "' . add_escape_custom($email) . '",';
+            $strQuery .= ' url = "' . add_escape_custom($url) . '",';
+            $strQuery .= ' street = "' . add_escape_custom($street) . '",';
+            $strQuery .= ' streetb = "' . add_escape_custom($streetb) . '",';
+            $strQuery .= ' city = "' . add_escape_custom($city) . '",';
+            $strQuery .= ' state = "' . add_escape_custom($state) . '",';
+            $strQuery .= ' zip = "' . add_escape_custom($zip) . '",';
+            $strQuery .= ' phone = "' . add_escape_custom($home_phone) . '",';
+            $strQuery .= ' phonew1 = "' . add_escape_custom($work_phone1) . '",';
+            $strQuery .= ' phonew2 = "' . add_escape_custom($work_phone2) . '",';
+            $strQuery .= ' phonecell = "' . add_escape_custom($mobile) . '",';
+            $strQuery .= ' fax = "' . add_escape_custom($fax) . '",';
+            $strQuery .= ' notes = "' . add_escape_custom($notes) . '"';
+            $strQuery .= ' WHERE username = \'\' AND password = \'\' AND id = ?';
 
 
 
-            $result = sqlStatement($strQuery);
+            $result = sqlStatement($strQuery, array($id));
 
 
             if ($image_data) {
@@ -114,12 +135,12 @@ if ($userId = validateToken($token)) {
 
                 $strQuery2 = "SELECT * FROM `list_options` 
                             WHERE `list_id` = 'ExternalResources' AND 
-                                   `option_id` = '{$image_title_old}'";
-                $result2 = $db->get_results($strQuery2);
+                                   `option_id` = ?";
 
+                $result2 = sqlQuery($strQuery2, array($image_title_old));
 
                 if ($result2) {
-                    $old_image_path = $result2[0]->notes;
+                    $old_image_path = $result2['notes'];
                     $old_image_name = basename($old_image_path);
 
                     if (file_exists($path . "/contactimages/" . $old_image_name)) {
@@ -127,22 +148,21 @@ if ($userId = validateToken($token)) {
                     }
 
 
-                    $strQuery1 = "UPDATE `list_options` SET `notes`='{$notes_url}',
-                                                        `option_id` = '{$image_title_new}',
-                                                        `title` = '{$image_title_new}'
+                    $strQuery1 = "UPDATE `list_options` SET `notes`='" . add_escape_custom($notes_url) . "',
+                                                        `option_id` = '" . add_escape_custom($image_title_new) . "',
+                                                        `title` = '" . add_escape_custom($image_title_new) . "'
                                                  WHERE `list_id` = 'ExternalResources' AND 
-                                                    `option_id` = '{$image_title_old}'";
-
+                                                    `option_id` = '" . add_escape_custom($image_title_old) . "'";
                 } else {
 
                     $strQuery1 = "INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) 
-                        VALUES ('ExternalResources','{$image_title_new}','{$image_title_new}','0','0','{$id}','','{$notes_url}')";
+                        VALUES ('ExternalResources','" . add_escape_custom($image_title_new)."','" . add_escape_custom($image_title_new)."','0','0','" . add_escape_custom($id)."','','" . add_escape_custom($notes_url)."')";
                 }
 
                 $result1 = sqlStatement($strQuery1);
             }
 
-            if ($result) {
+            if ($result !== FALSE) {
                 $xml_string .= "<status>0</status>";
                 $xml_string .= "<reason>The Contact has been updated</reason>";
             } else {

@@ -1,4 +1,26 @@
 <?php
+/**
+ * api/getsoap.php Get SOAP.
+ *
+ * API is allowed to get patient SOAP (Subjective, Objective, Assessment and Plan) 
+ * details.
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -12,37 +34,35 @@ $visit_id = !empty($_POST['visit_id']) ? $_POST['visit_id'] : -1;
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
+    
     $acl_allow = acl_check('encounters', 'auth_a', $user);
     if ($acl_allow) {
-
         $strQuery = "SELECT fsoap. id,fsoap. date, subjective, objective, assessment, plan, fsoap.user
 				FROM `forms` AS f
 				INNER JOIN `form_soap` AS fsoap ON f.form_id = fsoap.id
-				WHERE `encounter` = {$visit_id}
+				WHERE `encounter` = ?
 				AND `form_name` = 'SOAP'
                                 ORDER BY id DESC";
-        $result = $db->get_results($strQuery);
+        $result = sqlStatement($strQuery, array($visit_id));
 
-        if ($result) {
-            newEvent($event = 'soap-record-get', $user, $groupname = 'Default', $success = '1', $comments = $strQuery);
+        if ($result->_numOfRows > 0) {
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Soap Record has been fetched</reason>";
 
-            for ($i = 0; $i < count($result); $i++) {
+            while ($res = sqlFetchArray($result)) {
                 $xml_string .= "<soap>\n";
-
-                foreach ($result[$i] as $fieldName => $fieldValue) {
+      
+                foreach ($res as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
                 }
-
-                $user_query = "SELECT  `firstname` ,  `lastname` 
-                                                    FROM  `medmasterusers` 
-                                                    WHERE username LIKE  '{$result[$i]->user}'";
-                $user_result = $db->get_row($user_query);
-                $xml_string .= "<firstname>{$user_result->firstname}</firstname>\n";
-                $xml_string .= "<lastname>{$user_result->lastname}</lastname>\n";
-
+                $userName = $res['user'];
+                $user_query = "SELECT  `fname` ,  `lname` 
+                                                    FROM  `users` 
+                                                    WHERE username LIKE ? ";
+                $user_result = sqlQuery($user_query, array($userName));
+                $xml_string .= "<firstname>{$user_result['fname']}</firstname>\n";
+                $xml_string .= "<lastname>{$user_result['lname']}</lastname>\n";
                 $xml_string .= "</soap>\n";
             }
         } else {

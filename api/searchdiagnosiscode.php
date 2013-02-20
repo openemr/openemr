@@ -24,19 +24,14 @@
  */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
-//ini_set('display_errors', 'On');
 require_once 'classes.php';
 
 $xml_string = "";
 $xml_string = "<DiagnosisCodes>";
 
-//$token = $_POST['token'];
-//$search_term = $_POST['search_term'];
-//$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'icd9';
-
-$token = '722192de79af528200a232e958b64f49';
-$search_term = 'Paratyphoid';
-//$code_type =  'icd9';
+$token = $_POST['token'];
+$search_term = $_POST['search_term'];
+$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'icd9';
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);

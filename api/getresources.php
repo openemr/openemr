@@ -1,9 +1,30 @@
 <?php
-
+/**
+ * api/getresources.php Get resources.
+ *
+ * API is allowed to get resources.
+ *
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
-
+ini_set('display_errors', '1');
 $xml_string = "";
 $xml_string = "<resources>";
 
@@ -11,85 +32,120 @@ $token = $_POST['token'];
 $check_user = !empty($_POST['check_user']) ? $_POST['check_user'] : '';
 
 $list_id = 'ExternalResources';
+
 if ($userId = validateToken($token)) {
 
     $user = getUsername($userId);
     $acl_allow = acl_check('admin', 'super', $user);
     if ($acl_allow) {
+ 
 
-        $strQuery1 = "SELECT *
+        if (!empty($check_user)) {
+            $strQuery1 = "SELECT *
                                 FROM `list_options`
-                                WHERE `list_id` = '{$list_id}' AND 
-                                       `notes` NOT LIKE '%/sites/default/documents/userdata/%'";
-        if ($check_user) {
-            $strQuery1 .= "AND `option_value` = " . $userId;
-        }
-        $result1 = $db->get_results($strQuery1);
+                                WHERE `list_id` = ? AND `option_value` = ? AND  
+                                `notes` NOT LIKE '%/sites/default/documents/userdata/%'";
 
-        $strQuery2 = "SELECT *
+            $result1 = sqlStatement($strQuery1, array($list_id, $userId));
+        } else {
+            $strQuery1 = "SELECT *
                                 FROM `list_options`
-                                WHERE `list_id` = '{$list_id}' AND 
-                                       `notes` LIKE '%/sites/default/documents/userdata/images/%'";
-        if ($check_user) {
-            $strQuery2 .= "AND `option_value` = " . $userId;
-        }
-        $result2 = $db->get_results($strQuery2);
+                                WHERE `list_id` = ? AND  
+                                `notes` NOT LIKE '%/sites/default/documents/userdata/%'";
 
-        $strQuery3 = "SELECT *
+            $result1 = sqlStatement($strQuery1, array($list_id));
+        }
+
+        if (!empty($check_user)) {
+            $strQuery2 = "SELECT *
                                 FROM `list_options`
-                                WHERE `list_id` = '{$list_id}' AND 
-                                       `notes` LIKE '%/sites/default/documents/userdata/pdf/%'";
-        if ($check_user) {
-            $strQuery3 .= "AND `option_value` = " . $userId;
-        }
-        $result3 = $db->get_results($strQuery3);
+                                WHERE `list_id` = ? AND option_value = ? AND  
+                                `notes` LIKE '%/sites/default/documents/userdata/images/%'";
 
-        $strQuery4 = "SELECT *
+            $result2 = sqlStatement($strQuery2, array($list_id, $userId));
+        } else {
+            $strQuery2 = "SELECT *
                                 FROM `list_options`
-                                WHERE `list_id` = '{$list_id}' AND 
-                                       `notes` LIKE '%/sites/default/documents/userdata/videos/%'";
-        if ($check_user) {
-            $strQuery4 .= "AND `option_value` = " . $userId;
-        }
-        $result4 = $db->get_results($strQuery4);
+                                WHERE `list_id` = ? AND  
+                                `notes` LIKE '%/sites/default/documents/userdata/images/%'";
 
-        if ($result1 || $result2 || $result3 || $result4) {
+            $result2 = sqlStatement($strQuery2, array($list_id));
+        }
+
+        if (!empty($check_user)) {
+
+            $strQuery3 = "SELECT *
+                                FROM `list_options`
+                                WHERE `list_id` = ? AND `option_value` = ? AND  
+                                `notes` LIKE '%/sites/default/documents/userdata/pdf/%'";
+
+            $result3 = sqlStatement($strQuery3, array($list_id, $userId));
+        } else {
+            $strQuery3 = "SELECT *
+                                FROM `list_options`
+                                WHERE `list_id` = ? AND  
+                                `notes` LIKE '%/sites/default/documents/userdata/pdf/%'";
+
+            $result3 = sqlStatement($strQuery3, array($list_id));
+        }
+        
+
+        if (!empty($check_user)) {
+
+            $strQuery4 = "SELECT *
+                                FROM `list_options`
+                                WHERE `list_id` = ? AND `option_value` = ? AND  
+                                `notes` LIKE '%/sites/default/documents/userdata/videos/%'";
+
+            $result4 = sqlStatement($strQuery4, array($list_id, $userId));
+        } else {
+            
+            $strQuery4 = "SELECT *
+                                FROM `list_options`
+                                WHERE `list_id` = ? AND  
+                                `notes` LIKE '%/sites/default/documents/userdata/videos/%'";
+
+            $result4 = sqlStatement($strQuery4, array($list_id));
+        }
+        
+
+        if ($result1->_numOfRows > 0 || $result2->_numOfRows > 0 || $result3->_numOfRows > 0 || $result4->_numOfRows > 0) {
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Resources Record has been fetched</reason>";
-
-            for ($i = 0; $i < count($result1); $i++) {
+           
+            while ($res1 = sqlFetchArray($result1)) {
                 $xml_string .= "<resource>\n";
                 $xml_string .= "<type>link</type>\n";
-                foreach ($result1[$i] as $fieldName => $fieldValue) {
+                foreach ($res1 as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
                 }
                 $xml_string .= "</resource>\n";
             }
 
-            for ($i = 0; $i < count($result2); $i++) {
+            while ($res2 = sqlFetchArray($result2)) {
                 $xml_string .= "<resource>\n";
                 $xml_string .= "<type>image</type>\n";
-                foreach ($result2[$i] as $fieldName => $fieldValue) {
+                foreach ($res2 as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
                 }
                 $xml_string .= "</resource>\n";
             }
 
-            for ($i = 0; $i < count($result3); $i++) {
+            while ($res3 = sqlFetchArray($result3)) {
                 $xml_string .= "<resource>\n";
                 $xml_string .= "<type>pdf</type>\n";
-                foreach ($result3[$i] as $fieldName => $fieldValue) {
+                foreach ($res3 as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
                 }
                 $xml_string .= "</resource>\n";
             }
-            for ($i = 0; $i < count($result4); $i++) {
+            while ($res4 = sqlFetchArray($result4)) {
                 $xml_string .= "<resource>\n";
                 $xml_string .= "<type>video</type>\n";
-                foreach ($result4[$i] as $fieldName => $fieldValue) {
+                foreach ($res4 as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
                 }

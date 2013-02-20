@@ -76,6 +76,18 @@ function getUsername($userId) {
     }
 }
 
+//function getPass($userId) {
+//    global $db;
+//    $strQuery = "SELECT `password_with_token` FROM medmasterusers WHERE id=" . $userId;
+//    $result = $db->get_row($strQuery);
+//
+//    if ($result) {
+//        return $result->password_with_token;
+//    } else {
+//        return false;
+//    }
+//}
+
 function getPatientsProvider($patient_id) {
     $strQuery = "SELECT `providerID` FROM patient_data WHERE pid=?";
     $result = sqlQuery($strQuery, array($patient_id));
@@ -86,6 +98,18 @@ function getPatientsProvider($patient_id) {
         return false;
     }
 }
+
+//function getUserProviderId($userId) {
+//    global $db;
+//    $strQuery = "SELECT uid FROM medmasterusers WHERE id=" . $userId;
+//    $result = $db->get_row($strQuery);
+//
+//    if ($result) {
+//        return $result->uid;
+//    } else {
+//        return false;
+//    }
+//}
 
 function getDeviceToken($username) {
     $strQuery = "SELECT t.device_token
@@ -165,7 +189,14 @@ function getProviderUsername($userId) {
 }
 
 function getToken($userId, $emr = "openemr", $password = '', $device_token = '') {
-
+//    $strQuery = "SELECT token FROM tokens WHERE user_id = " . $userId;
+//    $result = $db->get_row($strQuery);
+//    $query = "UPDATE `medmasterusers` SET `emr`='$emr' WHERE id = $userId";
+//    $result = $db->query($query);
+//    if (!empty($password)) {
+//        $query2 = "UPDATE `medmasterusers` SET `password_with_token`='{$password}' WHERE `id`= {$userId}";
+//        $db->query($query2);
+//    }
     $token = createToken($userId, false, $device_token);
     if ($token) {
         return $token;
@@ -174,7 +205,20 @@ function getToken($userId, $emr = "openemr", $password = '', $device_token = '')
     }
 }
 
+//function getEmr($userId) {
+//    global $db;
+//    $strQuery = "SELECT emr FROM `medmasterusers` WHERE id=" . $userId;
+//    $result = $db->get_row($strQuery);
+//
+//    if ($result) {
+//        return $result->emr;
+//    } else {
+//        return false;
+//    }
+//}
+
 function isJson($string) {
+// json_decode($string);
     return is_object(json_decode($string));
 }
 
@@ -576,6 +620,9 @@ function curlRequest($url, $body) {
 
     $method = "POST";
     $headerType = "JSON";
+//    $method = strtoupper($method);
+//    $headerType = strtoupper($headerType);
+//    $url = "api-test.greenwaymedical.com/Integration/RESTv1.0/PrimeSuiteAPIService/Patient/PatientHistoriesGet?api_key=aw6gb6nhejrjfdz7mx2276gt";
 
     $session = curl_init();
     curl_setopt($session, CURLOPT_URL, $url);
@@ -597,6 +644,9 @@ function curlRequest($url, $body) {
     if (preg_match("/^(https)/i", $url))
         curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
     $result = curl_exec($session);
+//$result = new SimpleXMLElement(utf8_encode($result));
+//    $status = curl_getinfo($session);
+//echo "Organization=". $result->response->businessEntity->mainName->organisationName;
     curl_close($session);
 
     return $result;

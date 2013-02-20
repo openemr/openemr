@@ -1,5 +1,26 @@
 <?php
-
+/**
+ * api/addroschecks.php add patient's review of systems checks.
+ *
+ * Api add's patient review of systems checks against particular visit.
+ *
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -160,27 +181,27 @@ if ($userId = validateToken($token)) {
                     `foot_problems`, `insulin_dependent_diabetes`, `noninsulin_dependent_diabetes`, `hypothyroidism`, `hyperthyroidism`, 
                     `cushing_syndrom`, `addison_syndrom`, `additional_notes`
                     ) VALUES (
-                    $date, '{$pid}', '{$user}', '{$groupname}', '{$authorized}', '{$activity}', '{$fever}', '{$chills}', 
-                    '{$night_sweats}', '{$weight_loss}', '{$poor_appetite}', '{$insomnia}', '{$fatigued}', '{$depressed}', 
-                    '{$hyperactive}', '{$exposure_to_foreign_countries}', '{$cataracts}', '{$cataract_surgery}', '{$glaucoma}', 
-                    '{$double_vision}', '{$blurred_vision}', '{$poor_hearing}', '{$headaches}', '{$ringing_in_ears}', '{$bloody_nose}', 
-                    '{$sinusitis}', '{$sinus_surgery}', '{$dry_mouth}', '{$strep_throat}', '{$tonsillectomy}', '{$swollen_lymph_nodes}', 
-                    '{$throat_cancer}', '{$throat_cancer_surgery}', '{$heart_attack}', '{$irregular_heart_beat}', '{$chest_pains}', 
-                    '{$shortness_of_breath}', '{$high_blood_pressure}', '{$heart_failure}', '{$poor_circulation}', '{$vascular_surgery}', 
-                    '{$cardiac_catheterization}', '{$coronary_artery_bypass}', '{$heart_transplant}', '{$stress_test}', '{$emphysema}', 
-                    '{$chronic_bronchitis}', '{$interstitial_lung_disease}', '{$shortness_of_breath_2}', '{$lung_cancer}', 
-                    '{$lung_cancer_surgery}', '{$pheumothorax}', '{$stomach_pains}', '{$peptic_ulcer_disease}', '{$gastritis}', '{$endoscopy}', 
-                    '{$polyps}', '{$colonoscopy}', '{$colon_cancer}', '{$colon_cancer_surgery}', '{$ulcerative_colitis}', '{$crohns_disease}', 
-                    '{$appendectomy}', '{$divirticulitis}', '{$divirticulitis_surgery}', '{$gall_stones}', '{$cholecystectomy}', 
-                    '{$hepatitis}', '{$cirrhosis_of_the_liver}', '{$splenectomy}', '{$kidney_failure}', '{$kidney_stones}', 
-                    '{$kidney_cancer}', '{$kidney_infections}', '{$bladder_infections}', '{$bladder_cancer}', '{$prostate_problems}', 
-                    '{$prostate_cancer}', '{$kidney_transplant}', '{$sexually_transmitted_disease}', '{$burning_with_urination}', 
-                    '{$discharge_from_urethra}', '{$rashes}', '{$infections}', '{$ulcerations}', '{$pemphigus}', '{$herpes}', '{$osetoarthritis}', 
-                    '{$rheumotoid_arthritis}', '{$lupus}', '{$ankylosing_sondlilitis}', '{$swollen_joints}', '{$stiff_joints}', '{$broken_bones}', 
-                    '{$neck_problems}', '{$back_problems}', '{$back_surgery}', '{$scoliosis}', '{$herniated_disc}', '{$shoulder_problems}', 
-                    '{$elbow_problems}', '{$wrist_problems}', '{$hand_problems}', '{$hip_problems}', '{$knee_problems}', '{$ankle_problems}', 
-                    '{$foot_problems}', '{$insulin_dependent_diabetes}', '{$noninsulin_dependent_diabetes}', '{$hypothyroidism}', '{$hyperthyroidism}', 
-                    '{$cushing_syndrom}', '{$addison_syndrom}', '{$additional_notes}')
+                    $date, '" . add_escape_custom($pid) . "', '" . add_escape_custom($user) . "', '" . add_escape_custom($groupname) . "', '" . add_escape_custom($authorized) . "', '" . add_escape_custom($activity) . "', '" . add_escape_custom($fever) . "', '" . add_escape_custom($chills) . "', 
+                    '" . add_escape_custom($night_sweats) . "', '" . add_escape_custom($weight_loss) . "', '" . add_escape_custom($poor_appetite) . "', '" . add_escape_custom($insomnia) . "', '" . add_escape_custom($fatigued) . "', '" . add_escape_custom($depressed) . "', 
+                    '" . add_escape_custom($hyperactive) . "', '" . add_escape_custom($exposure_to_foreign_countries) . "', '" . add_escape_custom($cataracts) . "', '" . add_escape_custom($cataract_surgery) . "', '" . add_escape_custom($glaucoma) . "', 
+                    '" . add_escape_custom($double_vision) . "', '" . add_escape_custom($blurred_vision) . "', '" . add_escape_custom($poor_hearing) . "', '" . add_escape_custom($headaches) . "', '" . add_escape_custom($ringing_in_ears) . "', '" . add_escape_custom($bloody_nose) . "', 
+                    '" . add_escape_custom($sinusitis) . "', '" . add_escape_custom($sinus_surgery) . "', '" . add_escape_custom($dry_mouth) . "', '" . add_escape_custom($strep_throat) . "', '" . add_escape_custom($tonsillectomy) . "', '" . add_escape_custom($swollen_lymph_nodes) . "', 
+                    '" . add_escape_custom($throat_cancer) . "', '" . add_escape_custom($throat_cancer_surgery) . "', '" . add_escape_custom($heart_attack) . "', '" . add_escape_custom($irregular_heart_beat) . "', '" . add_escape_custom($chest_pains) . "', 
+                    '" . add_escape_custom($shortness_of_breath) . "', '" . add_escape_custom($high_blood_pressure) . "', '" . add_escape_custom($heart_failure) . "', '" . add_escape_custom($poor_circulation) . "', '" . add_escape_custom($vascular_surgery) . "', 
+                    '" . add_escape_custom($cardiac_catheterization) . "', '" . add_escape_custom($coronary_artery_bypass) . "', '" . add_escape_custom($heart_transplant) . "', '" . add_escape_custom($stress_test) . "', '" . add_escape_custom($emphysema) . "', 
+                    '" . add_escape_custom($chronic_bronchitis) . "', '" . add_escape_custom($interstitial_lung_disease) . "', '" . add_escape_custom($shortness_of_breath_2) . "', '" . add_escape_custom($lung_cancer) . "', 
+                    '" . add_escape_custom($lung_cancer_surgery) . "', '" . add_escape_custom($pheumothorax) . "', '" . add_escape_custom($stomach_pains) . "', '" . add_escape_custom($peptic_ulcer_disease) . "', '" . add_escape_custom($gastritis) . "', '" . add_escape_custom($endoscopy) . "', 
+                    '" . add_escape_custom($polyps) . "', '" . add_escape_custom($colonoscopy) . "', '" . add_escape_custom($colon_cancer) . "', '" . add_escape_custom($colon_cancer_surgery) . "', '" . add_escape_custom($ulcerative_colitis) . "', '" . add_escape_custom($crohns_disease) . "', 
+                    '" . add_escape_custom($appendectomy) . "', '" . add_escape_custom($divirticulitis) . "', '" . add_escape_custom($divirticulitis_surgery) . "', '" . add_escape_custom($gall_stones) . "', '" . add_escape_custom($cholecystectomy) . "', 
+                    '" . add_escape_custom($hepatitis) . "', '" . add_escape_custom($cirrhosis_of_the_liver) . "', '" . add_escape_custom($splenectomy) . "', '" . add_escape_custom($kidney_failure) . "', '" . add_escape_custom($kidney_stones) . "', 
+                    '" . add_escape_custom($kidney_cancer) . "', '" . add_escape_custom($kidney_infections) . "', '" . add_escape_custom($bladder_infections) . "', '" . add_escape_custom($bladder_cancer) . "', '" . add_escape_custom($prostate_problems) . "', 
+                    '" . add_escape_custom($prostate_cancer) . "', '" . add_escape_custom($kidney_transplant) . "', '" . add_escape_custom($sexually_transmitted_disease) . "', '" . add_escape_custom($burning_with_urination) . "', 
+                    '" . add_escape_custom($discharge_from_urethra) . "', '" . add_escape_custom($rashes) . "', '" . add_escape_custom($infections) . "', '" . add_escape_custom($ulcerations) . "', '" . add_escape_custom($pemphigus) . "', '" . add_escape_custom($herpes) . "', '" . add_escape_custom($osetoarthritis) . "', 
+                    '" . add_escape_custom($rheumotoid_arthritis) . "', '" . add_escape_custom($lupus) . "', '" . add_escape_custom($ankylosing_sondlilitis) . "', '" . add_escape_custom($swollen_joints) . "', '" . add_escape_custom($stiff_joints) . "', '" . add_escape_custom($broken_bones) . "', 
+                    '" . add_escape_custom($neck_problems) . "', '" . add_escape_custom($back_problems) . "', '" . add_escape_custom($back_surgery) . "', '" . add_escape_custom($scoliosis) . "', '" . add_escape_custom($herniated_disc) . "', '" . add_escape_custom($shoulder_problems) . "', 
+                    '" . add_escape_custom($elbow_problems) . "', '" . add_escape_custom($wrist_problems) . "', '" . add_escape_custom($hand_problems) . "', '" . add_escape_custom($hip_problems) . "', '" . add_escape_custom($knee_problems) . "', '" . add_escape_custom($ankle_problems) . "', 
+                    '" . add_escape_custom($foot_problems) . "', '" . add_escape_custom($insulin_dependent_diabetes) . "', '" . add_escape_custom($noninsulin_dependent_diabetes) . "', '" . add_escape_custom($hypothyroidism) . "', '" . add_escape_custom($hyperthyroidism) . "', 
+                    '" . add_escape_custom($cushing_syndrom) . "', '" . add_escape_custom($addison_syndrom) . "', '" . add_escape_custom($additional_notes) . "')
 ";
         $result = sqlInsert($strQuery);
         $last_inserted_id = $result;

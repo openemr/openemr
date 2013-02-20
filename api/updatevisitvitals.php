@@ -1,5 +1,26 @@
 <?php
-
+/**
+ * api/updatevisitvitals.php Update vitals against visit.
+ *
+ * API is allowed to update vitals for patient visit.
+ *
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 
@@ -38,31 +59,31 @@ if ($userId = validateToken($token)) {
     $_SESSION['pid'] = $patientId;
     if ($acl_allow) {
         $strQuery = "UPDATE `form_vitals` SET 
-                                        `date`='{$date}',
-                                        `pid`='{$patientId}',
-                                        `user`='{$user}',
-                                        `groupname`='{$groupname}',
-                                        `authorized`='{$authorized}',
-                                        `activity`='{$activity}',
-                                        `bps`='{$bps}',
-                                        `bpd`='{$bpd}',
-                                        `weight`='{$weight}',
-                                        `height`='{$height}',
-                                        `temperature`='{$temperature}',
-                                        `temp_method`='{$temp_method}',
-                                        `pulse`='{$pulse}',
-                                        `respiration`='{$respiration}',
-                                        `note`='{$note}',
-                                        `BMI`='{$BMI}',
-                                        `BMI_status`='{$BMI_status}',
-                                        `waist_circ`='{$waist_circ}',
-                                        `head_circ`='{$head_circ}',
-                                        `oxygen_saturation`='{$oxygen_saturation}' 
-        WHERE id = {$vital_id}";
+                                        `date`='" . add_escape_custom($date) . "',
+                                        `pid`='" . add_escape_custom($patientId) . "',
+                                        `user`='" . add_escape_custom($user) . "',
+                                        `groupname`='" . add_escape_custom($groupname) . "',
+                                        `authorized`='" . add_escape_custom($authorized) . "',
+                                        `activity`='" . add_escape_custom($activity) . "',
+                                        `bps`='" . add_escape_custom($bps) . "',
+                                        `bpd`='" . add_escape_custom($bpd) . "',
+                                        `weight`='" . add_escape_custom($weight) . "',
+                                        `height`='" . add_escape_custom($height) . "',
+                                        `temperature`='" . add_escape_custom($temperature) . "',
+                                        `temp_method`='" . add_escape_custom($temp_method) . "',
+                                        `pulse`='" . add_escape_custom($pulse) . "',
+                                        `respiration`='" . add_escape_custom($respiration) . "',
+                                        `note`='" . add_escape_custom($note) . "',
+                                        `BMI`='" . add_escape_custom($BMI) . "',
+                                        `BMI_status`='" . add_escape_custom($BMI_status) . "',
+                                        `waist_circ`='" . add_escape_custom($waist_circ) . "',
+                                        `head_circ`='" . add_escape_custom($head_circ) . "',
+                                        `oxygen_saturation`='" . add_escape_custom($oxygen_saturation) . "' 
+                                         WHERE id = ?";
 
-        $result = sqlStatement($strQuery);
+        $result = sqlStatement($strQuery, array($vital_id));
 
-        if ($result) {
+        if ($result !== FALSE) {
             $xml_array['status'] = 0;
             $xml_array['reason'] = 'Visit vital update successfully';
         } else {

@@ -1,5 +1,26 @@
 <?php
-
+/**
+ * api/addsoap.php add patient's Subjective Objective Assessment and Plan.
+ *
+ * Api add's patient SOAP against particular visit.
+ *
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -22,14 +43,14 @@ $activity = isset($_POST['activity']) ? $_POST['activity'] : 1;
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('encounters', 'auth_a', $user);
-      $_SESSION['authUser'] = $user;
-      $_SESSION['authGroup'] = $site;
-      $_SESSION['pid'] = $patientId;
-   
-      if ($acl_allow) {
+    $_SESSION['authUser'] = $user;
+    $_SESSION['authGroup'] = $site;
+    $_SESSION['pid'] = $patientId;
+
+    if ($acl_allow) {
         $strQuery = "INSERT INTO form_soap 
             (pid, user, date, groupname, authorized, activity, subjective, objective, assessment,  plan) 
-            VALUES (" . $patientId . ", '" . $user . "', '" . date('Y-m-d H:i:s') . "','" . $groupname . "', '" . $authorized . "','" . $activity . "',  '" . $subjective . "' , '" . $objective . "' , '" . $assessment . "', '" . $plan . "')";
+            VALUES (" . $patientId . ", '" . add_escape_custom($user) . "', '" . date('Y-m-d H:i:s') . "','" . add_escape_custom($groupname) . "', '" . add_escape_custom($authorized) . "','" . add_escape_custom($activity) . "',  '" . add_escape_custom($subjective) . "' , '" . add_escape_custom($objective) . "' , '" . add_escape_custom($assessment) . "', '" . add_escape_custom($plan) . "')";
 
         $result = sqlInsert($strQuery);
         $last_inserted_id = $result;

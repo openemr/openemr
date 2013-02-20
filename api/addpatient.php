@@ -1,5 +1,26 @@
 <?php
-
+/**
+ * api/addpatient.php add new Patient.
+ *
+ * Api add new patient
+ * 
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -82,7 +103,7 @@ if ($userId = validateToken($token)) {
 
     if ($acl_allow) {
 
-        $provider_id = getUserProviderId($userId);
+        $provider_id = $userId;
         $patientId = 1;
         $pid = 1;
         sqlStatement("lock tables patient_data read");
@@ -135,7 +156,7 @@ if ($userId = validateToken($token)) {
 
 
         $p_id = updatePatientData($patientId, $postData, $create = true);
-
+        
         if ($p_id) {
 
             $primary_insurace_data = getInsuranceData($p_id);
@@ -215,11 +236,11 @@ if ($userId = validateToken($token)) {
             $ext = 'png';
             $cat_title = 'Patient Profile Image';
 
-            $strQuery2 = "SELECT id from `categories` WHERE name LIKE '{$cat_title}'";
-            $result3 = $db->get_row($strQuery2);
+            $strQuery2 = "SELECT id from `categories` WHERE name LIKE '".add_escape_custom($cat_title)."'";
+            $result3 = sqlQuery($strQuery2);
 
             if ($result3) {
-                $cat_id = $result3->id;
+                $cat_id = $result3['id'];
             } else {
                 sqlStatement("lock tables categories read");
 
@@ -230,7 +251,7 @@ if ($userId = validateToken($token)) {
                 sqlStatement("unlock tables");
 
                 $cat_insert_query = "INSERT INTO `categories`(`id`, `name`, `value`, `parent`, `lft`, `rght`) 
-                VALUES ({$cat_id},'{$cat_title}','',1,0,0)";
+                VALUES (".add_escape_custom($cat_id).",'".add_escape_custom($cat_title)."','',1,0,0)";
 
                 sqlStatement($cat_insert_query);
             }
@@ -263,11 +284,22 @@ if ($userId = validateToken($token)) {
             $size = filesize($url);
 
             $strQuery = "INSERT INTO `documents`( `id`, `type`, `size`, `date`, `url`, `mimetype`, `foreign_id`, `docdate`, `hash`, `list_id`) 
-             VALUES ({$id},'{$type}','{$size}','{$date}','{$url}','{$mimetype}',{$patient_id},'{$docdate}','{$hash}','{$list_id}')";
+             VALUES (
+                        ".add_escape_custom($id).",
+                        '".add_escape_custom($type)."',
+                        '".add_escape_custom($size)."',
+                        '".add_escape_custom($date)."',
+                        '".add_escape_custom($url)."',
+                        '".add_escape_custom($mimetype)."',
+                        ".add_escape_custom($patient_id).",
+                        '".add_escape_custom($docdate)."',
+                        '".add_escape_custom($hash)."',
+                        '".add_escape_custom($list_id)."')";
 
             $result = sqlStatement($strQuery);
 
-            $strQuery1 = "INSERT INTO `categories_to_documents`(`category_id`, `document_id`) VALUES ({$cat_id},{$id})";
+            $strQuery1 = "INSERT INTO `categories_to_documents`(`category_id`, `document_id`) 
+                                VALUES ('".add_escape_custom($cat_id)."',".add_escape_custom($id).")";
 
             $result1 = sqlStatement($strQuery1);
         }

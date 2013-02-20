@@ -1,4 +1,27 @@
 <?php
+/**
+ * api/addcheckout.php Add patient checkout.
+ *
+ * API is allowed to add patient billed ammount, discount and payment 
+ * method(cash, check).
+ * 
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 
 header("Content-Type:text/xml");
 $ignoreAuth = true;
@@ -24,7 +47,7 @@ $amount_paid = $feeSum - $discountAmount;
 //Post by getfeesheet web serivece for view Only
 $itemFee = $_POST['itemFee'];
 $date = $_POST['date'];
-$units = $_POST['units'];
+$units = add_escape_custom($_POST['units']);
 
 $code_type = 'COPAY';
 $auth = "1";
@@ -47,19 +70,30 @@ if ($userId = validateToken($token)) {
 
         $strQuery1 = "UPDATE `billing` SET";
         $strQuery1 .= " activity  = 0";
-        $strQuery1 .= " WHERE encounter = " . $visit_id . " AND pid = " . $patientId;
+        $strQuery1 .= " WHERE encounter = " . add_escape_custom($visit_id) . " AND pid = " . add_escape_custom($patientId);
 
         $result1 = sqlStatement($strQuery1);
 
         $strQuery2 = 'UPDATE `billing` SET';
-        $strQuery2 .= ' fee  = "' . $feeSum . '",';
+        $strQuery2 .= ' fee  = "' . add_escape_custom($feeSum) . '",';
         $strQuery2 .= ' bill_date  = "' . date('Y-m-d H:i:s') . '",';
         $strQuery2 .= ' billed  = 1';
-        $strQuery2 .= ' WHERE id = ' . $billing_id;
+        $strQuery2 .= ' WHERE id = ' . add_escape_custom($billing_id);
 
         $result2 = sqlStatement($strQuery2);
 
-        $strQuery3 = "INSERT INTO ar_activity ( pid, encounter, code, modifier, payer_type, post_user, post_time, session_id, memo, adj_amount ) VALUES ( '" . $patientId . "', '" . $visit_id . "', '', '', '0', '" . $userId . "', '" . date('Y-m-d H:i:s') . "', '0', 'Discount', '" . $discountAmount . "' )";
+        $strQuery3 = "INSERT INTO ar_activity ( pid, encounter, code, modifier, payer_type, post_user, post_time, session_id, memo, adj_amount ) 
+                                            VALUES ( '" . add_escape_custom($patientId) . "',
+                                                    '" . add_escape_custom($visit_id) . "',
+                                                    '',
+                                                    '',
+                                                    '0',
+                                                    '" . $userId . "',
+                                                    '" . date('Y-m-d H:i:s') . "',\
+                                                    '0',
+                                                    'Discount',
+                                                    '" . add_escape_custom($discountAmount) . "'
+                                                        )";
 
         $result3 = sqlStatement($strQuery3);
 

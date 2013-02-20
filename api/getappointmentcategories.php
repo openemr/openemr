@@ -1,5 +1,26 @@
 <?php
-
+/**
+ * api/getappointmentcategories.php to retrieve appointment categories.
+ *
+ * API retrieve all appointment categories.
+ * 
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -21,20 +42,18 @@ if ($userId = validateToken($token)) {
     if ($acl_allow) {
         $strQuery = "SELECT pc_catid,pc_catname
                                 FROM `openemr_postcalendar_categories`
-                                WHERE pc_cattype = " . $catType;
-
-
-        $dbresult = $db->query($strQuery);
-
-        if ($dbresult) {
-            $xml_string .= "<status>0</status>\n";
+                                WHERE pc_cattype = ? ";
+        $result = sqlStatement($strQuery,array($catType));
+        
+        if ($result->_numOfRows > 0) {
+            $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Appointment categories records has been fetched</reason>\n";
             $counter = 0;
 
-            while ($row = $db->get_row($query = $strQuery, $output = ARRAY_A, $y = $counter)) {
+            while($res = sqlFetchArray($result)){
                 $xml_string .= "<Appointmentcategory>\n";
 
-                foreach ($row as $fieldname => $fieldvalue) {
+                foreach ($res as $fieldname => $fieldvalue) {
                     $rowvalue = xmlsafestring($fieldvalue);
                     $xml_string .= "<$fieldname>$rowvalue</$fieldname>\n";
                 }

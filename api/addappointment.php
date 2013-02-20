@@ -1,38 +1,48 @@
 <?php
+
+/**
+ * api/addappointment.php Schedule new appointment.
+ *
+ * Api allows to schedule new appointment for a patient.
+ * 
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
 $xml_array = array();
 
 $token = $_POST['token'];
-$pc_catid = add_escape_custom($_POST['pc_catid']);
-$patientId = add_escape_custom($_POST['patientId']);
-$pc_title = add_escape_custom($_POST['pc_title']);
-$appointmentDate = add_escape_custom($_POST['appointmentDate']);
+$pc_catid = $_POST['pc_catid'];
+$patientId = $_POST['patientId'];
+$pc_title = $_POST['pc_title'];
+$appointmentDate = $_POST['appointmentDate'];
 $appointmentTime = date("H:i:s", strtotime($_POST['appointmentTime']));
-$app_status = add_escape_custom($_POST['pc_apptstatus']);
-$admin_id = add_escape_custom($_POST['uprovider_id']);
-$facility = add_escape_custom($_POST['pc_facility']);
-$pc_billing_location = add_escape_custom($_POST['pc_billing_location']);
-$comments = add_escape_custom($_POST['pc_hometext']);
-$pc_duration = add_escape_custom($_POST['pc_duration']);
+$app_status = $_POST['pc_apptstatus'];
+$admin_id = $_POST['uprovider_id'];
+$facility = $_POST['pc_facility'];
+$pc_billing_location = $_POST['pc_billing_location'];
+$comments = $_POST['pc_hometext'];
+$pc_duration = $_POST['pc_duration'];
 
 
-//$token = 'e85e54d56c48027eddd7150b8ea2eab3';
-//$pc_catid = add_escape_custom(10);
-//$patientId = add_escape_custom('1');
-//$pc_title = add_escape_custom('Temprature 10');
-//$appointmentDate = add_escape_custom('2013-01-04');
-//$appointmentTime = add_escape_custom('09:00');
-//$location = add_escape_custom('Main Office');
-//$app_status = add_escape_custom('-');
-//$admin_id = add_escape_custom(1);
-//$facility = add_escape_custom(1);
-//$pc_billing_location = add_escape_custom(1);
-//$comments = add_escape_custom('Appointment by Haroon');
-//$examType = add_escape_custom('exam1');
-//
-//$endTime = date('H:i:s', strtotime($_POST['appointmentTime']) + $pc_duration);
+$endTime = date('H:i:s', strtotime($_POST['appointmentTime']) + $pc_duration);
 
 
 $recurrspecs = array("event_repeat_freq" => "",
@@ -71,8 +81,26 @@ if ($userId = validateToken($token)) {
 
     if ($acl_allow) {
 
-        $strQuery = "INSERT INTO openemr_postcalendar_events (pc_pid, pc_title, pc_hometext , pc_time, pc_eventDate, pc_startTime, pc_endTime, pc_apptstatus, pc_catid, pc_aid, pc_facility, pc_billing_location, pc_duration , pc_informant, pc_eventstatus, pc_sharing, pc_recurrspec, pc_location) 
-                            VALUES (" . $patientId . ",  '" . $pc_title . "' , '" . $comments . "' , '" . date('Y-m-d H:i:s') . "', '" . $appointmentDate . "', '" . $appointmentTime . "', '" . $endTime . "','" . $app_status . "','" . $pc_catid . "','" . $admin_id . "','" . $facility . "','" . $pc_billing_location . "','" . $pc_duration . "',1,1,1,'{$recurrspec}','{$locationspec}')";
+        $strQuery = "INSERT INTO openemr_postcalendar_events 
+                            (pc_pid, pc_title, pc_hometext , pc_time, pc_eventDate, pc_startTime, pc_endTime, pc_apptstatus, pc_catid, pc_aid, pc_facility, pc_billing_location, pc_duration , pc_informant, pc_eventstatus, pc_sharing, pc_recurrspec, pc_location) 
+                                VALUES (" . add_escape_custom($patientId) . ",
+                                        '" . add_escape_custom($pc_title) . "' ,
+                                        '" . add_escape_custom($comments) . "' ,
+                                        '" . date('Y-m-d H:i:s') . "',
+                                        '" . add_escape_custom($appointmentDate) . "',
+                                        '" . add_escape_custom($appointmentTime) . "',
+                                        '" . add_escape_custom($endTime) . "',
+                                        '" . add_escape_custom($app_status) . "',
+                                        '" . add_escape_custom($pc_catid) . "',
+                                        '" . add_escape_custom($admin_id) . "',
+                                        '" . add_escape_custom($facility) . "',
+                                        '" . add_escape_custom($pc_billing_location) . "',
+                                        '" . add_escape_custom($pc_duration) . "',
+                                        1,
+                                        1,
+                                        1,
+                                        '" . add_escape_custom($recurrspec) . "',
+                                        '" . add_escape_custom($locationspec) . "')";
         $result = sqlStatement($strQuery);
 
         $device_token_badge = getDeviceTokenBadge($provider_username, 'appointment');

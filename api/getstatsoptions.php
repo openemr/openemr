@@ -1,5 +1,26 @@
 <?php
-
+/**
+ * api/getstatsoptions.php Get stats options.
+ *
+ * API is allowed to get stats option(language, race and ethnicity).
+ *
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -15,30 +36,27 @@ if ($userId = validateToken($token)) {
     if ($acl_allow) {
 
         $strQuery = "SELECT option_id, title FROM list_options WHERE list_id  = 'language'";
-
-        $result = $db->get_results($strQuery);
-
+        $result = sqlStatement($strQuery);
+        $numRows = sqlNumRows($result);
+        
         $strQuery1 = "SELECT option_id, title FROM list_options WHERE list_id  = 'race'";
-
-        $result1 = $db->get_results($strQuery1);
-
+        $result1 = sqlStatement($strQuery1);
+        $numRows1 = sqlNumRows($result1);
+        
         $strQuery2 = "SELECT option_id, title FROM list_options WHERE list_id  = 'ethnicity'";
-
-        $result2 = $db->get_results($strQuery2);
-
-        if ($result || $result1 || $result2) {
-            newEvent($event = 'feesheet-options-get', $user, $groupname = 'Default', $success = '1', $comments = $strQuery);
-            newEvent($event = 'feesheet-options-get', $user, $groupname = 'Default', $success = '1', $comments = $strQuery1);
-            newEvent($event = 'feesheet-options-get', $user, $groupname = 'Default', $success = '1', $comments = $strQuery2);
-
+        $result2 = sqlStatement($strQuery2);
+        $numRows2 = sqlNumRows($result2);
+        
+        if ($numRows > 0 || $numRows1 > 0 || $numRows2 > 0) {
+            
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Options has been fetched</reason>";
 
             $xml_string .= "<language>\n";
             $xml_string .= "<unassigned>Unassigned</unassigned>\n";
-            for ($i = 0; $i < count($result); $i++) {
+            while ($res = sqlFetchArray($result)) {
 
-                foreach ($result[$i] as $fieldName => $fieldValue) {
+                foreach ($res as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     if ($fieldName == 'fs_category') {
                         
@@ -51,9 +69,9 @@ if ($userId = validateToken($token)) {
 
             $xml_string .= "<race>\n";
             $xml_string .= "<unassigned>Unassigned</unassigned>\n";
-            for ($i = 0; $i < count($result1); $i++) {
+            while ($res1 = sqlFetchArray($result1)) {
 
-                foreach ($result1[$i] as $fieldName => $fieldValue) {
+                foreach ($res1 as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
 
                     if ($fieldName == 'fs_category') {
@@ -67,9 +85,9 @@ if ($userId = validateToken($token)) {
 
             $xml_string .= "<ethnicity>\n";
             $xml_string .= "<unassigned>Unassigned</unassigned>\n";
-            for ($i = 0; $i < count($result2); $i++) {
+            while ($res2 = sqlFetchArray($result2)) {
 
-                foreach ($result2[$i] as $fieldName => $fieldValue) {
+                foreach ($res2 as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
 
                     if ($fieldName == 'fs_category') {

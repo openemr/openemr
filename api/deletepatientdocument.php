@@ -1,5 +1,27 @@
 <?php
-
+/**
+ * api/deletepatientdocument.php delete patient document.
+ *
+ * API is allowed to delete patient documents. documents can be
+ * labreports, id card pic etc.
+ * 
+ * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
+ *
+ * @package OpenEMR
+ * @author  Karl Englund <karl@mastermobileproducts.com>
+ * @link    http://www.open-emr.org
+ */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -12,26 +34,24 @@ $document_id = $_POST['documentId'];
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
+    
     $acl_allow = acl_check('admin', 'super', $user);
     if ($acl_allow) {
         $strQuery1 = "SELECT `url`
                     FROM `documents`
-                    WHERE `id` = " . $document_id;
-        $result1 = $db->get_results($strQuery1);
-
-        $file_path = $result1[0]->url;
+                    WHERE `id` = ? ";
+        $result1 = sqlQuery($strQuery1, array($document_id));
+        $file_path = $result1['url'];
+        
         unlink($file_path);
 
-        $strQuery = "DELETE FROM `documents` WHERE id =" . $document_id;
-        $result = $db->query($strQuery);
+        $strQuery = "DELETE FROM documents WHERE id = ? ";
+		$result = sqlStatement($strQuery, array($document_id));
 
-        $strQuery2 = "DELETE FROM `categories_to_documents` WHERE document_id =" . $document_id;
-        $result2 = $db->query($strQuery2);
+        $strQuery2 = "DELETE FROM categories_to_documents WHERE document_id = ?";
+		$result = sqlStatement($strQuery2, array($document_id));
 
         if ($result) {
-            newEvent($event = 'document-record-select', $user, $groupname = 'Default', $success = '1', $comments = $strQuery1);
-            newEvent($event = 'document-record-delete', $user, $groupname = 'Default', $success = '1', $comments = $strQuery);
-            newEvent($event = 'document-record-delete', $user, $groupname = 'Default', $success = '1', $comments = $strQuery2);
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Pateient document has been deleted</reason>";
         } else {
