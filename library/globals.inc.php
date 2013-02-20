@@ -1558,7 +1558,14 @@ $GLOBALS_METADATA = array(
       'num',                           // data type
       '5',
       xl('Interval between message checks (set to zero for manual checks only)')
-    )
+    ),
+	
+	'rest_api_server' => array(
+      xl('Allow use of REST API server?'),
+      'bool',                           // data type
+      '0',
+      xl('Allow use of REST API server?')
+    ),
 
   ),
   
