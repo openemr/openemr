@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/searchdiagnosiscode.php Search diagnosis code.
  *
@@ -23,14 +24,19 @@
  */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
+//ini_set('display_errors', 'On');
 require_once 'classes.php';
 
 $xml_string = "";
 $xml_string = "<DiagnosisCodes>";
 
-$token = $_POST['token'];
-$search_term = $_POST['search_term'];
-$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : '2';
+//$token = $_POST['token'];
+//$search_term = $_POST['search_term'];
+//$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'icd9';
+
+$token = '722192de79af528200a232e958b64f49';
+$search_term = 'Paratyphoid';
+//$code_type =  'icd9';
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
@@ -38,17 +44,31 @@ if ($userId = validateToken($token)) {
     if ($acl_allow) {
 
         if (!empty($search_term)) {
-
-            $strQuery = "SELECT code_text,code_text_short,code,code_type 
+            switch ($code_type) {
+                case 'rxnorm':
+                    $strQuery = "SELECT `RXAUI` AS `code` , `AUI` AS `code_text_short` , `STR` AS `code_text` , `CODE` AS `code_type`
+                                FROM `RXNATOMARCHIVE`
+                                WHERE `STR` LIKE ? LIMIT 1000";
+                    $result = sqlStatement($strQuery, array("%" . $search_term . "%"));
+                    break;
+                case 'snomed':
+                    $strQuery = "SELECT `ConceptId` AS `code` , `FullySpecifiedName` AS `code_text` , `SNOMEDID` AS `code_text_short` , `CTV3ID` AS `code_type`
+                                FROM `sct_concepts`
+                                WHERE `FullySpecifiedName` LIKE ? LIMIT 1000";
+                    $result = sqlStatement($strQuery, array("%" . $search_term . "%"));
+                    break;
+                case 'icd9':
+                    $strQuery = "SELECT code_text,code_text_short,code,code_type 
                                     FROM  `codes` 
-                                    WHERE `code_type` = ?  AND `code_text` LIKE ? ";
-            $result = sqlStatement($strQuery, array($code_type, "%" . $search_term . "%"));
+                                    WHERE `code_type` = 2  AND `code_text` LIKE ? LIMIT 1000";
+                    $result = sqlStatement($strQuery, array( "%" . $search_term . "%"));
+            }
         } else {
 
             $strQuery = "SELECT code_text,code_text_short,code,code_type 
                                     FROM  `codes` 
-                                    WHERE `code_type` = ? LIMIT 1000";
-            $result = sqlStatement($strQuery, array($code_type));
+                                    WHERE `code_type` = 2 LIMIT 1000";
+            $result = sqlStatement($strQuery);
         }
 
         if ($result->_numOfRows > 0) {

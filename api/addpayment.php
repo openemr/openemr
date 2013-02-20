@@ -1,26 +1,5 @@
 <?php
-/**
- * api/addpayment.php Add patient payment.
- *
- * API is allowed to add patient batch payment.
- * 
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -55,23 +34,7 @@ if ($userId = validateToken($token)) {
 
     if ($acl_allow) {
 
-        $strQuery = "INSERT INTO `ar_session`(`user_id`, `closed`, `reference`, `check_date`, `deposit_date`, `pay_total`, `created_time`, `modified_time`, `global_amount`, `payment_type`, `description`, `adjustment_code`, `post_to_date`, `patient_id`, `payment_method`) 
-                                            VALUES ('
-                                                    " . add_escape_custom($userId) . "',
-                                                    '" . add_escape_custom($closed) . "',
-                                                    '" . add_escape_custom($check_ref_number) . "',
-                                                    '" . add_escape_custom($check_date) . "',
-                                                    '" . add_escape_custom($deposit_date) . "',
-                                                    '" . add_escape_custom($pay_total) . "',
-                                                    '" . date('Y-m-d H:i:s') . "',
-                                                    '" . add_escape_custom($modified_time) . "',
-                                                    '" . add_escape_custom($global_amount) . "',
-                                                    '" . add_escape_custom($payment_type) . "',
-                                                    '" . add_escape_custom($description) . "',
-                                                    '" . add_escape_custom($payment_category) . "',
-                                                    '" . add_escape_custom($post_to_date) . "',
-                                                    '" . add_escape_custom($patient_id) . "',
-                                                    '" . add_escape_custom($payment_method) . "')";
+        $strQuery = "INSERT INTO `ar_session`(`user_id`, `closed`, `reference`, `check_date`, `deposit_date`, `pay_total`, `created_time`, `modified_time`, `global_amount`, `payment_type`, `description`, `adjustment_code`, `post_to_date`, `patient_id`, `payment_method`) VALUES ('" . $userId . "', '" . $closed . "', '" . $check_ref_number . "', '" . $check_date . "','" . $deposit_date . "', '" . $pay_total . "', '" . date('Y-m-d H:i:s') . "', '" . $modified_time . "', '" . $global_amount . "', '" . $payment_type . "', '" . $description . "', '" . $payment_category . "', '" . $post_to_date . "', '" . $patient_id . "', '" . $payment_method . "')";
 
         $result = sqlStatement($strQuery);
 

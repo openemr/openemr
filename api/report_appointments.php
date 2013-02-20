@@ -1,29 +1,8 @@
 <?php
-/**
- * api/report_appointments.php Appointments report.
- *
- * API is allowed to get patient appointments report.
- *
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
-header("Content-Type:text/xml");
-$ignoreAuth = true;
 
+//header("Content-Type:text/xml");
+$ignoreAuth = true;
+//ini_set('display_errors', '1');
 require_once ('includes/pdflibrary/config/lang/eng.php');
 require_once ('includes/pdflibrary/tcpdf.php');
 require_once 'classes.php';
@@ -39,6 +18,11 @@ $provider = $_POST['provider'];
 $show_available_times = $_POST['show_available_times'];
 $from_date = $_POST['from_date'];
 $to_date = $_POST['to_date'];
+
+
+//$token = 'f12dab7305cd43b68db8551008f9f9a6';
+//$from_date = '2012-01-01';
+//$to_date = '2012-11-07';
 
 
 if ($userId = validateToken($token)) {

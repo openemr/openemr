@@ -1,26 +1,5 @@
 <?php
-/**
- * api/report_visits.php Visits reports .
- *
- * API is allowed to get patient visit reports in html and pdf format.
- *
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once ('includes/pdflibrary/config/lang/eng.php');
@@ -203,9 +182,10 @@ if ($userId = validateToken($token)) {
             $query .= "AND fe.date = (SELECT MIN(fe2.date) FROM form_encounter AS fe2 WHERE fe2.pid = fe.pid) ";
         }
 
-        $res = sqlStatement($query);
-        $numRows = sqlNumRows($res);
-        if ($numRows > 0) {
+        $res = sqlStatement($query, array());
+        //$res = $db->get_results($query);
+//echo var_dump($res);echo $res;exit;
+        if ($res->_numOfRows > 0) {
             $lastdocname = "";
             $doc_encounters = 0;
             while ($row = sqlFetchArray($res)) {

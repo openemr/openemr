@@ -1,26 +1,5 @@
 <?php
-/**
- * api/login.php User login.
- *
- * API is allowed to login of with username and password.
- * 
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -29,6 +8,11 @@ $xml_array = array();
 
 $username = $_REQUEST['username'];
 $password = $_REQUEST['password'];
+
+$username = "haroonk";
+$password = "haroonk123";
+
+
 $emr = isset($_REQUEST['emr']) && !empty($_REQUEST['emr']) ? strtolower($_REQUEST['emr']) : "openemr";
 $getdashboardinfo = isset($_REQUEST['getdashboardinfo']) ? $_REQUEST['getdashboardinfo'] : true;
 $device_token = isset($_REQUEST['device_token']) ? $_REQUEST['device_token'] : '';
@@ -153,7 +137,6 @@ if ($result) {
     $ip = $_SERVER['REMOTE_ADDR'];
     newEvent($event = 'login', $username, $groupname = 'Default', $success = '1', 'success: ' . $ip);
 } else {
-    newEvent($event = 'login', $username, $groupname = 'Default', $success = '1', 'failure: ' . $ip . ". user password mismatch (" . sha1($password) . ")");
     $xml_array['status'] = -1;
     $xml_array['reason'] = 'Username/Password incorrect.';
 }

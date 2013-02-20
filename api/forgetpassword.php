@@ -1,35 +1,15 @@
 <?php
-/**
- * api/forgetpassword.php to Retrieve user password.
- *
- * API send an email to user which containing his username, password and pin.
- * 
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
-
+//ini_set('display_errors', '1');
 $xml_string = "";
 $xml_string = "<forgetpassword>";
 
-$email = add_escape_custom($_POST['email']);
+//$email = add_escape_custom($_POST['email']);
 
+$email = 'hkonnet@gmail.com';
 
 $strQuery = "SELECT id,username, password, fname, lname FROM users WHERE email= ?";
 $result = sqlQuery($strQuery,array($email));
@@ -46,6 +26,12 @@ if ($result) {
     $strQuery1 = "UPDATE `users` SET `password`='" . add_escape_custom($password1) . "', `upin`='" . add_escape_custom($pin1) . "' WHERE email = ?";
     
     $result1 = sqlStatement($strQuery1,array($email));
+//    echo "<pre>";
+//    var_dump($GLOBALS);
+//    echo "</pre>";
+//    $strQuery2 = "UPDATE `users` SET `password`='" . $password1 . "' WHERE email = '" . $email . "'";
+//    $result1 = $db->query($strQuery2);
+    
     
     if ($result1 !== FALSE) {
         
@@ -81,10 +67,11 @@ if ($result) {
         $mail->AltBody = "To view the message, please use an HTML compatible email viewer!"; // optional, comment out and test
         $mail->MsgHTML($body);
 
+//        echo $body;
         if (!$mail->Send()) {
             $xml_string .= "<error>" . $mail->ErrorInfo . "</error>";
         } else {
-            $xml_string .= "<reason>Email containing your username and password has been sent to your email address!</reason>";
+            $xml_string .= "<reason>Email containing you username and password has been sent to your email address!</reason>";
         }
     }
 } else {

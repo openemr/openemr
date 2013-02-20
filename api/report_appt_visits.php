@@ -1,26 +1,5 @@
 <?php
-/**
- * api/report_appt_visits.php Appointment and visit report.
- *
- * API is allowed to get patient appointment and visit report.
- *
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once ('includes/pdflibrary/config/lang/eng.php');
@@ -242,11 +221,11 @@ if ($userId = validateToken($token)) {
             $query .= "AND fe.facility_id = '$facility' ";
         }
         $query .= ") ORDER BY docname, pc_eventDate, pc_startTime";
-        $res = sqlStatement($query);
+        $res = sqlStatement($query, array());
 
 
-        $numRows = sqlNumRows($res);
-        if ($numRows > 0) {
+
+        if ($res->_numOfRows > 0) {
             $docrow = array('docname' => '', 'charges' => 0, 'copays' => 0, 'encounters' => 0);
 
             while ($row = sqlFetchArray($res)) {

@@ -1,26 +1,27 @@
 <?php
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
 
 $xml_string = "";
-$xml_string = "<soaps>";
+$xml_string = "<list>";
 
 
 $token = $_POST['token'];
-$visit_id = !empty($_POST['visit_id']) ? $_POST['visit_id'] : -1;
+$patientId = $_POST['patientId'];
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('encounters', 'auth_a', $user);
     if ($acl_allow) {
-
-        $strQuery = "SELECT fsoap. id,fsoap. date, subjective, objective, assessment, plan, fsoap.user
-				FROM `forms` AS f
+        $strQuery = "SELECT f.encounter as visit_id, fsoap. id,fsoap. date, subjective, objective, assessment, plan, fsoap.user
+				FROM forms AS f
 				INNER JOIN `form_soap` AS fsoap ON f.form_id = fsoap.id
-				WHERE `encounter` = {$visit_id}
+				WHERE fsoap.pid = {$patientId}
 				AND `form_name` = 'SOAP'
-                                ORDER BY id DESC";
+                                ORDER BY fsoap. date DESC";
+
         $result = $db->get_results($strQuery);
 
         if ($result) {
@@ -58,6 +59,6 @@ if ($userId = validateToken($token)) {
     $xml_string .= "<reason>Invalid Token</reason>";
 }
 
-$xml_string .= "</soaps>";
+$xml_string .= "</list>";
 echo $xml_string;
 ?>

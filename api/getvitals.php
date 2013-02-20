@@ -1,35 +1,19 @@
 <?php
-/**
- * api/vitals.php List of patient vitals.
- *
- * API is allowed to get patient vitals list with details.
- *
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once('classes.php');
 
+//ini_set('display_errors', '1');
+
 $xml_string = "";
 $xml_string .= "<PatientVitals>\n";
 
-$token = $_POST['token'];
-$visit_id = $_POST['visit_id'];
+//$token = $_POST['token'];
+//$visit_id = add_escape_custom($_POST['visit_id']);
+
+$token = 'e85e54d56c48027eddd7150b8ea2eab3';
+$visit_id = add_escape_custom(8);
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
@@ -56,14 +40,14 @@ if ($userId = validateToken($token)) {
                 }
                 
                 
-                $user_query = "SELECT  `fname` ,`lname` 
-                                                FROM  `users` 
+                $user_query = "SELECT  `firstname` ,  `lastname` 
+                                                FROM  `medmasterusers` 
                                                 WHERE username LIKE  ?";
                 
                 $user_result = sqlQuery($user_query,array($res['user']));
                 
-                $xml_string .= "<firstname>".$user_result['fname']."</firstname>\n";
-                $xml_string .= "<lastname>".$user_result['lname']."</lastname>\n";
+                $xml_string .= "<firstname>".$user_result['firstname']."</firstname>\n";
+                $xml_string .= "<lastname>".$user_result['lastname']."</lastname>\n";
                 $xml_string .= "</Vital>\n";
             }
         } else {

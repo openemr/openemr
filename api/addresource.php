@@ -1,26 +1,5 @@
 <?php
-/**
- * api/addresource.php add new user's resources.
- *
- * Api add's users resources such as images, url, videos, pdf.
- * 
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once('classes.php');
@@ -95,27 +74,19 @@ if ($userId = validateToken($token)) {
 
 
         $select_query = "SELECT *  FROM `list_options` 
-        WHERE `list_id` LIKE 'lists' AND `option_id` LIKE '" . add_escape_custom($list_id) . "' AND `title` LIKE '" . add_escape_custom($list_id) . "'";
+        WHERE `list_id` LIKE 'lists' AND `option_id` LIKE '{$list_id}' AND `title` LIKE '{$list_id}'";
 
-        $result_select = sqlQuery($select_query);
+        $result_select = $db->get_row($select_query);
         $result1 = true;
         if (!$result_select) {
             $insert_list = "INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) 
-                            VALUES ( 'lists','" . add_escape_custom($list_id) . "','" . add_escape_custom($list_id) . "', '0','1', '0')";
+                            VALUES ( 'lists','{$list_id}','{$list_id}', '0','1', '0')";
             $result1 = sqlStatement($insert_list);
         }
 
 
         $strQuery = "INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) 
-                        VALUES (
-                        '" . add_escape_custom($list_id) . "',
-                        '" . add_escape_custom($option_id) . "',
-                        '" . add_escape_custom($title) . "',
-                        '" . add_escape_custom($seq) . "',
-                        '" . add_escape_custom($is_default) . "',
-                        '" . add_escape_custom($userId) . "',
-                        '" . add_escape_custom($mapping) . "',
-                        '" . add_escape_custom($notes) . "')";
+                        VALUES ('{$list_id}','{$option_id}','{$title}','{$seq}','{$is_default}','{$userId}','{$mapping}','{$notes}')";
 
 
         $result = sqlStatement($strQuery);

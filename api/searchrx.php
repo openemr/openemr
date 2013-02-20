@@ -1,26 +1,5 @@
 <?php
-/**
- * api/searchrx.php Search Rx.
- *
- * API is allowed to search Rx.
- * 
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -41,14 +20,14 @@ if ($userId = validateToken($token)) {
     $acl_allow = acl_check('patients', 'med', $user);
 
     if ($acl_allow) {
-        $where = "r.date_modified >= '".add_escape_custom($form_from_date)."' AND " .
-                "r.date_modified <= '".add_escape_custom($form_to_date)."'";
+        $where = "r.date_modified >= '$form_from_date' AND " .
+                "r.date_modified <= '$form_to_date'";
         if ($form_patient_id)
-            $where .= " AND p.pid = '".add_escape_custom($form_patient_id)."'";
+            $where .= " AND p.pid = '$form_patient_id'";
         if ($form_drug_name)
-            $where .= " AND (d.name LIKE '".add_escape_custom($form_drug_name)."' OR r.drug LIKE '".add_escape_custom($form_drug_name)."')";
+            $where .= " AND (d.name LIKE '$form_drug_name' OR r.drug LIKE '$form_drug_name')";
         if ($form_lot_number)
-            $where .= " AND i.lot_number LIKE '".add_escape_custom($form_lot_number)."'";
+            $where .= " AND i.lot_number LIKE '$form_lot_number'";
 
         $query = "SELECT r.id, r.patient_id, " .
                 "r.date_modified, r.dosage, r.route, r.interval, r.refills, r.drug, " .

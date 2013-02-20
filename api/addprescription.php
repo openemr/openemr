@@ -1,26 +1,5 @@
 <?php
-/**
- * api/addprescription.php add new patient's prescription.
- *
- * Api add's patient prescriptions.
- * 
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require('classes.php');
@@ -53,24 +32,11 @@ if ($userId = validateToken($token)) {
         $provider_username = getProviderUsername($provider_id);
 
         $strQuery = "INSERT INTO prescriptions (patient_id, date_added, date_modified, provider_id, start_date, drug, dosage, quantity, refills, medication, note, active, encounter) 
-                                            VALUES (
-                                            " . add_escape_custom($patientId) . ",
-                                            '" . date('Y-m-d') . "',
-                                            '" . date('Y-m-d') . "',
-                                             " . add_escape_custom($provider_id) . ",
-                                            '" . add_escape_custom($startDate) . "',
-                                            '" . add_escape_custom($drug) . "',
-                                            '" . add_escape_custom($dosage) . "',
-                                            '" . add_escape_custom($quantity) . "',
-                                            '" . add_escape_custom($per_refill) . "',
-                                            " . add_escape_custom($medication) . ",
-                                            '" . add_escape_custom($note) . "',
-                                            1,
-                                            " . add_escape_custom($visit_id) . ")";
+                                            VALUES (" . $patientId . ", '" . date('Y-m-d') . "', '" . date('Y-m-d') . "', {$provider_id}, '" . $startDate . "', '" . $drug . "', '" . $dosage . "', '" . $quantity . "', '" . $per_refill . "', " . $medication . ", '" . $note . "', 1, {$visit_id})";
 
         if ($medication) {
             $list_query = "insert into lists(date,begdate,type,activity,pid,user,groupname,title) 
-                            values (now(),cast(now() as date),'medication',1," . add_escape_custom($patientId) . ",'" . add_escape_custom($user) . "','','" . add_escape_custom($drug) . "')";
+                            values (now(),cast(now() as date),'medication',1,{$patientId},'{$user}','','{$drug}')";
             $list_result = sqlStatement($list_query);
         }
         $result = sqlStatement($strQuery);

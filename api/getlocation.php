@@ -1,26 +1,5 @@
 <?php
-/**
- * api/getlocation.php retrieve all locations.
- *
- * API returns all locations.
- * 
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -35,18 +14,19 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
 
     $acl_allow = acl_check('admin', 'super', $user);
-    if ($acl_allow) {
-        $strQuery = "SELECT id, name FROM facility WHERE primary_business_entity= ?";
-        $result = sqlStatement($strQuery,array($facilityId));
 
-        if ($result->_numOfRows > 0) {
+    if ($acl_allow) {
+        $strQuery = "SELECT id, name FROM facility WHERE primary_business_entity=" . $facilityId;
+        $result = $db->get_results($strQuery);
+
+        if ($result) {
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Locations Records has been fetched</reason>";
 
-            while($res = sqlFetchArray($result)){
+            for ($i = 0; $i < count($result); $i++) {
                 $xml_string .= "<location>\n";
 
-                foreach ($res as $fieldName => $fieldValue) {
+                foreach ($result[$i] as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
                 }

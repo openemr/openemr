@@ -1,34 +1,14 @@
 <?php
-/**
- * api/getfeecheet.php retrieve feesheet.
- *
- * API fetch patient feesheet.
- * 
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
 
-function supervisorName($supervisor_id){
-    $strQuery = "SELECT fname, lname FROM users WHERE id =?";
-    $result = sqlQuery($strQuery,array($supervisor_id));
-    return $result['fname'] . " " . $result['lname'];
+function supervisorName($supervisor_id, $db) {
+
+    $strQuery = "SELECT fname, lname FROM users WHERE id =" . $supervisor_id;
+    $result = $db->get_results($strQuery);
+    return $result[0]->fname . " " . $result[0]->lname;
 }
 
 $xml_string = "";
@@ -39,8 +19,8 @@ $visit_id = $_POST['visit_id'];
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
-    
     $acl_allow = acl_check('acct', 'bill', $user);
+
     if ($acl_allow) {
         $strQuery = "SELECT b.id, b.authorized, b.fee, b.code_type, b.code, b.modifier, b.units, b.justify, b.provider_id, 
 				fe.supervisor_id, u.fname, u.lname, pd.pricelevel, c.code_text
@@ -48,18 +28,19 @@ if ($userId = validateToken($token)) {
 				LEFT JOIN users AS u ON u.id = b.provider_id
           		LEFT JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter
 				LEFT JOIN codes AS c ON c.code = b.code
-          		LEFT JOIN patient_data AS pd ON pd.pid = b.pid WHERE b.activity = 1 AND b.encounter = ?";
+          		LEFT JOIN patient_data AS pd ON pd.pid = b.pid WHERE b.activity = 1 AND b.encounter = " . $visit_id;
 
-        $result = sqlStatement($strQuery,array($visit_id));
-        
-        if ($result->_numOfRows > 0) {            
+        $result = $db->get_results($strQuery);
+
+        if ($result) {
+            newEvent($event = 'feesheet-record-get', $user, $groupname = 'Default', $success = '1', $comments = $strQuery);
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Feesheet records has been fetched.</reason>";
-            $count=0;
-            while($res = sqlFetchArray($result)){
+
+            for ($i = 0; $i < count($result); $i++) {
                 $xml_string .= "<item>\n";
 
-                foreach ($res as $fieldName => $fieldValue) {
+                foreach ($result[$i] as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     if ($fieldName == 'fname' || $fieldName == 'lname') {
                         
@@ -67,13 +48,12 @@ if ($userId = validateToken($token)) {
                         $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
                     }
                 }
-                $supervisor_id = $res['supervisor_id'];
-                $fname = $res['fname'];
-                $lname = $res['lname'];
+                $supervisor_id = $result[$i]->supervisor_id;
+                $fname = $result[$i]->fname;
+                $lname = $result[$i]->lname;
                 $xml_string .= "<provider>" . $fname . " " . $lname . "</provider>\n";
-                $xml_string .= "<supervisor>\n" . supervisorName($supervisor_id) . "</supervisor>\n";
+                $xml_string .= "<supervisor>\n" . supervisorName($supervisor_id, $db) . "</supervisor>\n";
                 $xml_string .= "</item>\n";
-                $count++;
             }
         } else {
             $xml_string .= "<status>0</status>";

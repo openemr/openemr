@@ -1,29 +1,9 @@
 <?php
-/**
- * api/getlistbyvisitid.php retrieve all list element by visit id.
- *
- * API returns all list items related to any particular visit id.
- * 
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
- *
- * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
- */
+
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once('classes.php');
+ini_set('display_errors', '1');
 require_once("$srcdir/lists.inc");
 
 $xml_string = "";
@@ -42,62 +22,37 @@ if ($userId = validateToken($token)) {
 
     $acl_allow = acl_check('encounters', 'auth_a', $username);
     if ($acl_allow) {
-        if ($visit_id) {
-            $strQuery = "select l.* from lists as l
+
+        $sql = "select l.* from lists as l
                         LEFT JOIN `issue_encounter` as i ON i.list_id = l.id
-                        where l.pid= ? AND i.encounter = ?  order by l.date DESC";
+                        where l.pid='$pid'";
+        if ($visit_id) {
+            $sql .= " AND i.encounter = {$visit_id}";
+        }
 
-            $result = sqlStatement($strQuery, array($pid, $visit_id));
+        $sql .= " order by l.date DESC";
 
-            if ($result->_numOfRows > 0) {
-                $xml_string .= "<status>0</status>\n";
-                $xml_string .= "<reason>The Patient Record has been fetched</reason>\n";
-                $count = 0;
-                while ($res = sqlFetchArray($result)) {
-                    $xml_string .= "<listitem>\n";
+        $list = $db->get_results($sql);
 
-                    foreach ($res as $fieldName => $fieldValue) {
-                        $rowValue = xmlsafestring($fieldValue);
-                        $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
-                    }
+        if ($list) {
+            $xml_string .= "<status>0</status>\n";
+            $xml_string .= "<reason>The Patient Record has been fetched</reason>\n";
 
-                    $diagnosis_title = getDrugTitle($list[$i]->diagnosis, $db);
-                    $xml_string .= "<diagnosistitle>{$diagnosis_title}</diagnosistitle>";
-                    $xml_string .= "</listitem>\n";
+            for ($i = 0; $i < count($list); $i++) {
+                $xml_string .= "<listitem>\n";
+
+                foreach ($list[$i] as $fieldName => $fieldValue) {
+                    $rowValue = xmlsafestring($fieldValue);
+                    $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
                 }
-            } else {
-                $xml_string .= "<status>-1</status>\n";
-                $xml_string .= "<reason>ERROR: Sorry, there was an error processing your data. Please re-submit the information again.</reason>\n";
+
+                $diagnosis_title = getDrugTitle($list[$i]->diagnosis, $db);
+                $xml_string .= "<diagnosistitle>{$diagnosis_title}</diagnosistitle>";
+                $xml_string .= "</listitem>\n";
             }
         } else {
-
-
-            $strQuery = "select l.* from lists as l
-                        LEFT JOIN `issue_encounter` as i ON i.list_id = l.id
-                        where l.pid=?  order by l.date DESC";
-
-            $result = sqlStatement($strQuery, array($pid));
-
-            if ($result->_numOfRows > 0) {
-                $xml_string .= "<status>0</status>\n";
-                $xml_string .= "<reason>The Patient Record has been fetched</reason>\n";
-                $count = 0;
-                while ($res = sqlFetchArray($result)) {
-                    $xml_string .= "<listitem>\n";
-
-                    foreach ($res as $fieldName => $fieldValue) {
-                        $rowValue = xmlsafestring($fieldValue);
-                        $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
-                    }
-
-                    $diagnosis_title = getDrugTitle($list[$i]->diagnosis, $db);
-                    $xml_string .= "<diagnosistitle>{$diagnosis_title}</diagnosistitle>";
-                    $xml_string .= "</listitem>\n";
-                }
-            } else {
-                $xml_string .= "<status>-1</status>\n";
-                $xml_string .= "<reason>ERROR: Sorry, there was an error processing your data. Please re-submit the information again.</reason>\n";
-            }
+            $xml_string .= "<status>-1</status>\n";
+            $xml_string .= "<reason>ERROR: Sorry, there was an error processing your data. Please re-submit the information again.</reason>\n";
         }
     } else {
         $xml_string .= "<status>-2</status>\n";
