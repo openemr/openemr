@@ -95,10 +95,23 @@ function delete_drug_sales($patient_id, $encounter_id=0) {
 //
 function form_delete($formdir, $formid) {
   $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
-  if (substr($formdir,0,3) == 'LBF')
+  if (substr($formdir,0,3) == 'LBF') {
     row_delete("lbf_data", "form_id = '$formid'");
-  else
+  }
+  else if ($formdir == 'procedure_order') {
+    $tres = sqlStatement("SELECT procedure_report_id FROM procedure_report " .
+      "WHERE procedure_order_id = ?", array($formid));
+    while ($trow = sqlFetchArray($tres)) {
+      $reportid = 0 + $trow['procedure_report_id'];
+      row_delete("procedure_result", "procedure_report_id = '$reportid'");
+    }
+    row_delete("procedure_report", "procedure_order_id = '$formid'");
+    row_delete("procedure_order_code", "procedure_order_id = '$formid'");
+    row_delete("procedure_order", "procedure_order_id = '$formid'");
+  }
+  else {
     row_delete("form_$formdir", "id = '$formid'");
+  }
 }
 
 // Delete a specified document including its associated relations and file.
