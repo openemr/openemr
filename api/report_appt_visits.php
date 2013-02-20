@@ -399,7 +399,7 @@ if ($userId = validateToken($token)) {
 
             endDoctor($docrow);
             $html .= "
-                    <table>
+                    </table>
                     </div>
                 </body>
             </html>";

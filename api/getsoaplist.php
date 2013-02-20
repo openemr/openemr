@@ -1,10 +1,9 @@
 <?php
-
 /**
- * api/getcontactgeneral.php retrieve user all contacts.
+ * api/getsoaplist.php Get SOAP list.
  *
- * API retrieve user all contacts.
- * 
+ * API is allowed to get list of patient SOAP (Subjective, Objective, Assessment and Plan) 
+ * details.
  * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -27,49 +26,42 @@ $ignoreAuth = true;
 require_once 'classes.php';
 
 $xml_string = "";
-$xml_string = "<contacts>";
+$xml_string = "<list>";
 
 $token = $_POST['token'];
+$patientId = $_POST['patientId'];
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
-    $acl_allow = acl_check('admin', 'users', $user);
-
+    $acl_allow = acl_check('encounters', 'auth_a', $user);
     if ($acl_allow) {
-
-        $strQuery = "SELECT id, username,
-                                password , authorized, info, source, u.title, fname, lname, mname, upin, see_auth, active, npi, taxonomy, specialty, organization, valedictory, assistant, email, url, street, streetb, city, state, zip, phone, phonew1, phonew2, phonecell, fax, u.notes
-                                FROM users AS u
-                                WHERE username = ''
-                                AND password = ''
-                                AND active = 1
-                                ";
-
-
-        $result = sqlStatement($strQuery);
-        $numRows = sqlNumRows($result);
-        if ($numRows > 0) {
+        $strQuery = "SELECT f.encounter as visit_id, fsoap. id,fsoap. date, subjective, objective, assessment, plan, fsoap.user
+				FROM forms AS f
+				INNER JOIN `form_soap` AS fsoap ON f.form_id = fsoap.id
+				WHERE fsoap.pid = ?
+				AND `form_name` = 'SOAP'
+                                ORDER BY fsoap. date DESC";
+    $result = sqlStatement($strQuery, array($patientId));
+if ($result->_numOfRows > 0) {
             $xml_string .= "<status>0</status>";
-            $xml_string .= "<reason>The Contact Record has been fetched</reason>";
+            $xml_string .= "<reason>The Soap Record has been fetched</reason>";
 
             while ($res = sqlFetchArray($result)) {
-                $xml_string .= "<contact>\n";
+                $xml_string .= "<soap>\n";
 
                 foreach ($res as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
                 }
-                
-                $img_query = "SELECT * FROM `list_options` WHERE `list_id` = 'ExternalResources' AND `option_value` = ?";
-                $image_data = sqlQuery($img_query,array($res['id']));
-                if($image_data){
-                    $xml_string .="<image_url>{$image_data['notes']}</image_url>";
-                    $xml_string .="<image_title>{$image_data['title']}</image_title>";
-                }else{
-                    $xml_string .="<image_url></image_url>";
-                    $xml_string .="<image_title></image_title>";
-                }
-                $xml_string .= "</contact>\n";
+                $userName = $res['user'];
+                $user_query = "SELECT  `fname` ,  `lname` 
+                                                    FROM  `users` 
+                                                    WHERE username LIKE ? ";
+                $user_result = sqlQuery($user_query, array($userName));
+                $xml_string .= "<firstname>{$user_result['fname']}</firstname>\n";
+                $xml_string .= "<lastname>{$user_result['lname']}</lastname>\n";
+
+                $xml_string .= "</soap>\n";
             }
         } else {
             $xml_string .= "<status>-1</status>";
@@ -84,6 +76,6 @@ if ($userId = validateToken($token)) {
     $xml_string .= "<reason>Invalid Token</reason>";
 }
 
-$xml_string .= "</contacts>";
+$xml_string .= "</list>";
 echo $xml_string;
 ?>

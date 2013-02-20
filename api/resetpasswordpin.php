@@ -4,7 +4,7 @@
  *
  * API is allowed to reset user password and send informations by email.
  *
- * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
+ * Copyright (coffee) 2012 Karl Englund <karl@mastermobileproducts.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-3.0.html>;.
  *
  * @package OpenEMR
- * @author  Karl Englund <karl@mastermobileproducts.com>
- * @link    http://www.open-emr.org
+ * 
  */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
@@ -41,10 +40,10 @@ if ($userId = validateToken($token)) {
         
         $query1 = "UPDATE `users` SET ";
 
-        $query2 = '';
+     
         if (!empty($password)) {
             $new_password = sha1($password);
-            $query1 .= "`password`='{$new_password}' ";
+            $query1 .= "`password`='".add_escape_custom($new_password)."' ";
 
         }
         if (!empty($pin)) {
@@ -52,18 +51,14 @@ if ($userId = validateToken($token)) {
             if (!empty($password)) {
                 $query1 .= ",";
             }
-            $query1 .= "`upin`='{$new_pin}' ";
+            $query1 .= "`upin`='".add_escape_custom($new_pin)."' ";
         }
-        $query1 .= "WHERE id = {$userId}";
+        $query1 .= "WHERE id = ".add_escape_custom($userId);
 
       
-        $result1 = $db->query($query1);
-        if ($query2) {
-            $result2 = $db->query($query2);
-        }else{
-            $result2 = 1;
-        }
-        if ($result1 && $result2) {
+        $result1 = sqlStatement($query1);
+        
+        if ($result1) {
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>Successfully reset Password/Pin</reason>";
         } else {

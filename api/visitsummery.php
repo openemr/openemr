@@ -28,8 +28,8 @@ $ignoreAuth = true;
 require_once('classes.php');
 
 
-require_once('includes/pdflibrary/config/lang/eng.php');
-require_once('includes/pdflibrary/tcpdf.php');
+require_once("$srcdir/pdflibrary/config/lang/eng.php");
+require_once("$srcdir/pdflibrary/tcpdf.php");
 
 
 $xml_string = "";

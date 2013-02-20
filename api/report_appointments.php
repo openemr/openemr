@@ -144,28 +144,11 @@ if ($userId = validateToken($token)) {
 
                 $xml_string .= "<appointment_html>" . base64_encode($complete_single_record) . "</appointment_html>";
 
-//            $pdf1 = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-//            $pdf1->SetCreator(PDF_CREATOR);
-//            $pdf1->SetAuthor("Haroon");
-//            $pdf1->SetTitle("My Report");
-//            $pdf1->SetSubject("My Report");
-////        $pdf->SetKeywords("TCPDF, PDF, example, test, guide");
-//            $pdf1->setPrintHeader(false);
-//            $pdf1->setPrintFooter(false);
-//            $pdf1->AliasNbPages();
-//            $pdf1->AddPage();
-//            $pdf1->writeHTML($complete_single_record, true, false, true, false, '');
-//            $pdf_base64 = $pdf1->Output("", "E");
-//            $temp = explode('filename=""', $pdf_base64);
-//            
-//            $xml_string .= "<appointment_pdf>" . $temp[1] . "</appointment_pdf>";
                 $xml_string .= "</appointment>\n";
-
-//            echo $single_record_header .$single_record. "<table></div></body></html>";
-            }
+      }
 
             $html .= "
-                    <table>
+                    </table>
                     </div>
                 </body>
             </html>";
@@ -173,15 +156,10 @@ if ($userId = validateToken($token)) {
 
             $pdf->writeHTML($html, true, false, true, false, '');
 
-// reset pointer to the last page
-//$pdf->lastPage();
-//header("Content-Type: application/pdf");
+
             $pdf_base64 = $pdf->Output("", "E");
-//        echo $pdf_base64;
             $temp = explode('filename=""', $pdf_base64);
-//        echo base64_decode($temp[1]);
-//        echo $html;
-//        exit;
+
             $xml_string .= "<html_report>" . base64_encode($html) . "</html_report>";
             $xml_string .= "<pdf_report>" . $temp[1] . "</pdf_report>";
         } else {
