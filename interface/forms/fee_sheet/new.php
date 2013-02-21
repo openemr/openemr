@@ -1262,6 +1262,6 @@ if (true) {
 <script language='JavaScript'>
 <?php echo $justinit; ?>
 </script>
-
 </body>
 </html>
+<?php require_once("review/initialize_review.php"); ?>
