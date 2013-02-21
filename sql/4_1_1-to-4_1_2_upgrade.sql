@@ -346,7 +346,7 @@ CREATE TABLE `api_tokens` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1;
 #EndIf
 
-#IfMissingColumn procedure_report report_notes
+#IfMissingColumn users create_date
 ALTER TABLE `users` 
   ADD `create_date` DATE NOT NULL ,
   ADD `secret_key` VARCHAR( 100 ) NULL ,
