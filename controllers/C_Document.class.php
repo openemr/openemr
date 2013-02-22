@@ -247,6 +247,7 @@ class C_Document extends Controller {
 			return;
 			
 		$n = new Note();
+                $n->set_owner($_SESSION['authUserID']);
 		parent::populate_object($n);
 		$n->persist();
 		
