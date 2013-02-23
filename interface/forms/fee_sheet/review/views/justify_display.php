@@ -51,8 +51,8 @@
             <thead>
                 <tr>
                     <th class='sort' data-bind="event: {click: sort_justify}" title="<?php echo xla('Click to sort') ?>">#</th>
-                    <th title="<?php echo xla('Justification Entries') ?>"><?php echo xla("J{{Justify Header}}");?></th>
-                    <th title="<?php echo xla('Problem')?>"><?php echo xla("P{{Justify Header}}");?></th>
+                    <th title="<?php echo xla('Justification Entries') ?>"><?php echo xlt("J{{Justify Header}}");?></th>
+                    <th title="<?php echo xla('Problem')?>"><?php echo xlt("P{{Justify Header}}");?></th>
                 </tr>
             </thead>
             <tbody data-bind="foreach: $data.diagnosis_options">
