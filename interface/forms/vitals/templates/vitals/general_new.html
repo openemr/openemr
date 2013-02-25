@@ -281,16 +281,60 @@ vitals[0] = formdate+'-{$vitals->get_height()}-{$vitals->get_weight()}-{$vitals-
 {foreach item=result from=$results}
 vitals[vitals.length] = '{$result.date|date_format:"%Y%m%d"}-{$result.height}-{$result.weight}-{$result.head_circ}';
 {/foreach}
+var patientAge='{$patient_age}';
+var patient_dob='{$patient_dob}';
 var webroot = '{$FORM_ACTION}';
 var pid = '{$vitals->get_pid()}';
 var cancellink = '{$DONT_SAVE_LINK}';
+var birth_xl='{xl t="Birth-24 months"}'
+var older_xl='{xl t="2-20 years"}';
 {literal}
+function addGCSelector()
+{
+    var options=new Array();
+    var birth={'display':birth_xl,'param':'birth'};
+    var age2={'display':older_xl,'param':'2-20'}
+    if((patientAge.indexOf('24 month')>=0) || (patientAge.indexOf('month')==-1))
+        {
+            var dob_data=patient_dob.split("-");
+            var dob_date=new Date(dob_data[0],parseInt(dob_data[1])-1,dob_data[2]);
+            options[0]=age2;
+            for(var idx=0;idx<vitals.length;idx++)
+                {
+                    var str_data_date=vitals[idx].split("-")[0];
+                    var data_date=new Date(str_data_date.substr(0,4),parseInt(str_data_date.substr(4,2))-1,str_data_date.substr(6,2));
+                    if(((data_date-dob_date)/86400000)<=2*365)
+                        {
+                            idx=vitals.length;
+                            options[1]=birth
+                        }
+                }
+        }
+        else
+        {
+            options[0]=birth;
+        }
+        var chart_buttons_cell=$("#pdfchart").parent("td");
+        var select=$("<select id='chart_type'></select>");
+        chart_buttons_cell.prepend(select);
+        for(idx=0;idx<options.length;idx++)
+            {
+                var option=$("<option value='"+options[idx].param+"'>"+options[idx].display+"</option>");
+                select.append(option);
+            }
+        select.find("option:first").attr("selected","true");
+        if(options.length<2)
+            {
+                select.css("display","none");
+            }
+}
 
 $(document).ready(function(){
     $("#growthchart").click(function() { ShowGrowthchart(); });
     $("#pdfchart").click(function() { ShowGrowthchart(1); });
     $("#htmlchart").click(function() { ShowGrowthchart(2); });
     $("#cancel").click(function() { location.href=cancellink; });
+    addGCSelector();
 });
 
 function ShowGrowthchart(doPDF) {
@@ -306,6 +350,7 @@ function ShowGrowthchart(doPDF) {
     newURL = webroot+'/interface/forms/vitals/growthchart/chart.php?pid='+pid+'&data='+datastring;
     if (doPDF == 1) newURL += "&pdf=1";
     if (doPDF == 2) newURL += "&html=1";
+    newURL+="&chart_type="+$("#chart_type").val();
     // do the new window stuff
     top.restoreSession();
     window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
