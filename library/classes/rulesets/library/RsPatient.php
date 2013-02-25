@@ -31,27 +31,6 @@ class RsPatient
     
     public function calculateAgeOnDate( $date )
     {
-        // Grab year, month, and day from dob and dateTarget
-        $dateDOB = explode( " ", $this->dob );
-        $dateTarget = explode( " ", $date );
-
-        $dateDOB = explode( "-", $dateDOB[0] );
-        $dateTarget = explode( "-", $dateTarget[0] );
-    
-        // Collect differences 
-        $iDiffYear  = $dateTarget[0] - $dateDOB[0]; 
-        $iDiffMonth = $dateTarget[1] - $dateDOB[1]; 
-        $iDiffDay   = $dateTarget[2] - $dateDOB[2]; 
-
-        // If birthday has not happen yet for this year, subtract 1. 
-        if ($iDiffMonth < 0 || ($iDiffMonth == 0 && $iDiffDay < 0)) 
-        { 
-            $iDiffYear--; 
-        } 
-
-        // Ensure diffYear is not less than 0
-        if ($iDiffYear < 0) $iDiffYear = 0;
-
-        return $iDiffYear;
+        return parseAgeInfo($this->dob,$date)['age'];
     }
 }
