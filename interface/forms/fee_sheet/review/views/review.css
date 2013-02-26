@@ -1,0 +1,115 @@
+/* 
+    Document   : review
+    Created on : Jan 4, 2013, 2:50:48 PM
+    Author     : Kevin Yeh <kevin.y@integralemr.com>
+    Description: Manage the style of the review and justify interface of the fee sheet.
+*/
+div.review
+{
+    position: absolute;
+    z-index:100;
+    background-color: #F0F0F0;
+}
+div.review > div
+{
+    border: 1px black solid;    
+    padding: 1px;
+}
+div.review table td
+{
+    text-align: left;
+}
+th.first_column
+{
+    text-align:left;
+}
+div.review table input.price
+{
+    width: 5em;
+    text-align: right;
+}
+
+div.review table input.units
+{
+    width: 3em;
+    text-align: right;
+}
+a.justify_label
+{
+    cursor: pointer;   
+}
+div.justify_template
+{
+    position:absolute;
+    z-index:100;
+    background-color: #F0F0F0;
+}
+div.justify_template > div
+{
+    border: 1px black solid;    
+}
+
+div.justify_template span.search_results
+{
+    position:absolute;
+    background-color: white;
+    border: 1px solid black;
+}
+div.justify_template span.search_results table
+{
+    cursor:pointer;
+}
+
+
+tr[encounter_issue] > td.info
+{
+    font-weight:bold;
+}
+
+tr.patient > td.info
+{
+    color:blue;
+}
+tr.common > td.info
+{
+    color:darkslategrey;
+}
+
+tr.search > td.info
+{
+    color:green;
+}
+
+td.priority
+{
+    text-align: center;
+    width: 1.1em;
+}
+th.sort
+{
+    cursor: pointer;
+}
+
+div.justify_template span.search_results tr:hover
+{
+    background-color:yellow;
+}
+
+.problem_warning
+{
+    font-weight:bold;
+    cursor: pointer;
+    background-color: yellow;
+    width:100%
+}
+
+.warning_details
+{
+    position:absolute;
+    background-color: white;
+    width:100%
+    
+}
+td>input.description{
+    width:100%;
+}

@@ -92,7 +92,7 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 	return $appointments;
 }
 
-function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null )
+function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null )
 {
 	$where = "";
 	if ( $provider_id ) $where .= " AND e.pc_aid = '$provider_id'";
@@ -117,7 +117,12 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 		$filter_appstatus = " AND e.pc_apptstatus = '".$pc_appstatus."'";
 	}
 	$where .= $filter_appstatus;
-	
+
+        if($pc_catid !=null)
+        {
+            $where .= " AND e.pc_catid=".intval($pc_catid); // using intval to escape this parameter
+        }
+        
 	//Without Provider checking
 	$filter_woprovider = '';
 	if($with_out_provider != ''){
@@ -437,4 +442,10 @@ function compareAppointmentsByStatus( $appointment1, $appointment2 )
 	return compareBasic( $status1, $status2 );
 }
 
+function fetchAppointmentCategories()
+{
+     $catSQL= " SELECT pc_catid as id, pc_catname as category " 
+            . " FROM openemr_postcalendar_categories WHERE pc_recurrtype=0 and pc_cattype=0 ORDER BY category";    
+     return sqlStatement($catSQL);
+}
 ?>

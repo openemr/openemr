@@ -52,8 +52,10 @@ class C_FormVitals extends Controller {
 
         // get the patient's current age
     	$patient_data = getPatientData($GLOBALS['pid']);
-        $patient_age = getPatientAge($patient_data['DOB']);
+        $patient_dob=$patient_data['DOB'];
+        $patient_age = getPatientAge($patient_dob);
     	$this->assign("patient_age", $patient_age);
+        $this->assign("patient_dob",$patient_dob);
 
     	$i = 1;
     	while($result && !$result->EOF)

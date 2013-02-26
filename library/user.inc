@@ -138,4 +138,10 @@ function removeUserSetting($label,$user=NULL) {
   }
 }
 
+
+function getUserIDInfo($id)
+{
+    $res= sqlStatement("SELECT fname,lname,username FROM users where id=?",array($id));
+    return sqlFetchArray($res);
+}
 ?>

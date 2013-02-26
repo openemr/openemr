@@ -161,9 +161,12 @@
                         {xl t='Note'} #{$note->get_id()}
                         {xl t='Date:'} {$note->get_date()}
                         {$note->get_note()}
+                        {if $note->get_owner()}
+                            &nbsp;-{user_info id=$note->get_owner()}
+                        {/if}
                         </div>
                         {/foreach}
-                        {/if}
+                    {/if}
                     </div>
                 </div>
             </div>

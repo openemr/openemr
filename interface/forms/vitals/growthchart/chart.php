@@ -65,91 +65,14 @@ if (isset($datapoints) && $datapoints != "") {
     if ($tmpAge < (365*2)) { $charttype = "birth"; }
 }
 
+if(isset($_GET['chart_type']))
+{
+    $charttype=$_GET['chart_type'];
+}
+
 //sort the datapoints
 rsort($datapoints);
 
-// determine the patient's age
-// return - a floating point age in months or years
-//        - a string in the formay '#y #m #d'
-function get_age($dob, $date=null) {
-    global $charttype;
-	
-    if ($date == null) {
-        $daynow = date("d");
-        $monthnow = date("m");
-        $yearnow = date("Y");
-    }
-    else {
-        $datenow=preg_replace("/-/", "", $date);
-        $yearnow=substr($datenow,0,4);
-        $monthnow=substr($datenow,4,2);
-        $daynow=substr($datenow,6,2);
-        $datenow=$yearnow.$monthnow.$daynow;
-    }
-
-    $dob=preg_replace("/-/", "", $dob);
-    $dobyear=substr($dob,0,4);
-    $dobmonth=substr($dob,4,2);
-    $dobday=substr($dob,6,2);
-    $dob=$dobyear.$dobmonth.$dobday;
-
-    //to compensate for 30, 31, 28, 29 days/month
-    $mo=$monthnow; //to avoid confusion with later calculation
-
-    if ($mo==05 or $mo==07 or $mo==10 or $mo==12) {  //determined by monthnow-1 
-        $nd=30; //nd = number of days in a month, if monthnow is 5, 7, 9, 12 then 
-    }  // look at April, June, September, November for calculation.  These months only have 30 days.
-    elseif ($mo==03) { // for march, look to the month of February for calculation, check for leap year
-        $check_leap_Y=$yearnow/4; // To check if this is a leap year. 
-        if (is_int($check_leap_Y)) {$nd=29;} //If it true then this is the leap year
-        else {$nd=28;} //otherwise, it is not a leap year.
-    }
-    else {$nd=31;} // other months have 31 days
-
-    $bdthisyear=$yearnow.$dobmonth.$dobday; //Date current year's birthday falls on
-    if ($datenow < $bdthisyear) // if patient hasn't had birthday yet this year
-    {
-        $age_year = $yearnow - $dobyear - 1;
-        if ($daynow < $dobday) {
-            $months_since_birthday=12 - $dobmonth + $monthnow - 1;
-            $days_since_dobday=$nd - $dobday + $daynow; //did not take into account for month with 31 days
-        }
-        else {
-            $months_since_birthday=12 - $dobmonth + $monthnow;
-            $days_since_dobday=$daynow - $dobday;
-        }
-    }
-    else // if patient has had birthday this calandar year
-    {
-        $age_year = $yearnow - $dobyear;
-        if ($daynow < $dobday) {
-            $months_since_birthday=$monthnow - $dobmonth -1;
-            $days_since_dobday=$nd - $dobday + $daynow;
-        }
-        else {
-            $months_since_birthday=$monthnow - $dobmonth;
-            $days_since_dobday=$daynow - $dobday;
-        }	
-    }
-    
-    $day_as_month_decimal = $days_since_dobday / 30;
-    $months_since_birthday_float = $months_since_birthday + $day_as_month_decimal;
-    $month_as_year_decimal = $months_since_birthday_float / 12;
-    $age_float = $age_year + $month_as_year_decimal;
-
-    if ($charttype == 'birth') {
-    //if (($age_year < 2) or ($age_year == 2 and $months_since_birthday < 12)) {
-        $age_in_months = $age_year * 12 + $months_since_birthday_float;
-        $age = round($age_in_months,2);  //round the months to xx.xx 2 floating points
-    }
-    else if ($charttype == '2-20') {
-        $age = round($age_float,2);
-    }
-
-    // round the years to 2 floating points
-    $ageinYMD = $age_year."y ".$months_since_birthday."m ".$days_since_dobday."d";
-    return compact('age','ageinYMD');
-}
 
 // convert to applicable weight units from the globals.php setting
 function unitsWt($wt) {
@@ -489,15 +412,19 @@ if ($_GET['html'] == 1) {
         if ($weight == 0 || $height == 0 ) { continue; }
 
         // get age of patient at this data-point
-        // to get data from function get_age including $age, $ageinYMD
-        extract(get_age($dob, $date));
-
+        // to get data from function getPatientAgeYMD including $age,$age_in_months, $ageinYMD
+        extract(getPatientAgeYMD($dob, $date));
+        if($charttype=='birth')
+        {
+            // for birth style chart, we use the age in months
+            $age=$age_in_months;
+        }
         // exclude data points that do not belong on this chart
         // for example, a data point for a 18 month old can be excluded
         // from that patient's 2-20 yr chart
         $daysold = getPatientAgeInDays($dob, $date);
-        if ($daysold > (365*2) && $charttype == "birth") { continue; }
-        if ($daysold < (365*2) && $charttype == "2-20") { continue; }
+        if ($daysold >= (365*2) && $charttype == "birth") { continue; }
+        if ($daysold <= (365*2) && $charttype == "2-20") { continue; }
 
         // calculate the x-axis (Age) value
         $x = $dot_x + $delta_x * ($age - $ageOffset);
@@ -630,9 +557,14 @@ foreach ($datapoints as $data) {
     if ($weight == 0 || $height == 0 ) { continue; }
     
     // get age of patient at this data-point
-    // to get data from function get_age including $age, $ageinYMD
-    extract(get_age($dob, $date)); 
-
+    // to get data from function getPatientAgeYMD including $age, $ageinYMD, $age_in_months
+    extract(getPatientAgeYMD($dob, $date)); 
+    if($charttype=='birth')
+    {
+        // for birth style chart, we use the age in months        
+        $age=$age_in_months;
+    }
+    
     // exclude data points that do not belong on this chart
     // for example, a data point for a 18 month old can be excluded 
     // from that patient's 2-20 yr chart
