@@ -191,10 +191,8 @@ if ($_POST['form_save']) {
         //
         $imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/$patient_id/encounters";
         $imagepath = "$imagedir/${encounter_id}_$formid.jpg";
-        echo $imagedir;
-		die;
         if (! is_dir($imagedir)) {
-		  $tmp0 = exec('mkdir -p "'.$imagedir.'"', $tmp1, $tmp2);
+          $tmp0 = exec('mkdir -p "' . $imagedir . '"', $tmp1, $tmp2);
           if ($tmp2) die("mkdir returned $tmp2: $tmp0");
           exec("touch '$imagedir/index.html'");
         }
@@ -338,10 +336,8 @@ $using_scanned_notes = $tmp['count'];
 // If the image cache does not yet exist for this fax, build it.
 // This will contain a .tif image as well as a .jpg image for each page.
 //
-echo $faxcache;
-
 if (! is_dir($faxcache)) {
-  $tmp0 = exec('mkdir -p "'.$faxcache.'"', $tmp1, $tmp2);
+  $tmp0 = exec('mkdir -p "' . $faxcache . '"', $tmp1, $tmp2);
   if ($tmp2) die("mkdir returned $tmp2: $tmp0");
   if (strtolower($ext) != '.tif') {
     // convert's default density for PDF-to-TIFF conversion is 72 dpi which is
