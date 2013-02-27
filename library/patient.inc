@@ -1240,8 +1240,10 @@ function getPatientAge($dobYMD, $nowYMD=null)
  *
  * @param  string  $dob     date of birth
  * @param  string  $target  date to calculate age on
- * @return float            years(decimal) from dob to target(date)
- */
+ * @return array containing
+ *      age - decimal age in years
+ *      age_in_months - decimal age in months
+ *      ageinYMD - formatted string #y #m #d */
 function parseAgeInfo($dob,$target)
 {
     // Prepare dob (expected in order Y M D, remove whatever delimiters might be there
