@@ -161,7 +161,7 @@ if (!$GLOBALS['dbh']) {
   if ($host == "localhost") {
     echo "Check that mysqld is running.<p>";
   } else {
-    echo "Check that you can ping the server '$host'.<p>";
+    echo "Check that you can ping the server '".text($host)."'.<p>";
   }//if local
   HelpfulDie("Could not connect to server!", getSqlLastError("native_mysql"));
   exit;
@@ -546,9 +546,9 @@ function sqlNumRows($r)
 */
 function HelpfulDie ($statement, $sqlerr='')
 {
-  echo "<p><p><font color='red'>ERROR:</font> $statement<p>";
+  echo "<p><p><font color='red'>ERROR:</font> ".text($statement)."<p>";
   if ($sqlerr) {
-    echo "Error: <font color='red'>$sqlerr</font><p>";
+    echo "Error: <font color='red'>".text($sqlerr)."</font><p>";
   }//if error
   exit;
 }
