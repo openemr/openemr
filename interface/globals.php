@@ -177,8 +177,11 @@ $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 //  open the openemr mysql connection.
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
-// Include convenience functions with shorter names than "htmlspecialchars"
-include_once (dirname(__FILE__) . "/../library/htmlspecialchars.inc.php");
+// Include convenience functions with shorter names than "htmlspecialchars" (for security)
+require_once (dirname(__FILE__) . "/../library/htmlspecialchars.inc.php");
+
+// Include sanitization/checking functions (for security)
+require_once (dirname(__FILE__) . "/../library/formdata.inc.php");
 
 // Include sanitization/checking function (for security)
 include_once (dirname(__FILE__) . "/../library/sanitize.inc.php");
