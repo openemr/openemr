@@ -87,19 +87,7 @@ function getPatientsProvider($patient_id) {
     }
 }
 
-function getDeviceToken($username) {
-    $strQuery = "SELECT t.device_token
-                        FROM `medmasterusers` AS mu
-                        INNER JOIN `api_tokens` AS t ON mu.id = t.user_id
-                        WHERE `username` = ?";
-    $result = sqlQuery($strQuery, array($username));
 
-    if ($result) {
-        return $result['device_token'];
-    } else {
-        return false;
-    }
-}
 
 function getAllBadges($token) {
     $strQuery = "SELECT t.`device_token` , t.`message_badge` , t.`appointment_badge` , t.`labreports_badge` , t.`prescription_badge`
@@ -117,7 +105,7 @@ function getAllBadges($token) {
 function getDeviceTokenBadge($username, $update_badge_type = '') {
     $strQuery = "SELECT t.device_token,t.token,t.`message_badge`,t.`appointment_badge`,t.`labreports_badge`,t.`prescription_badge`
                         FROM `users` AS mu
-                        INNER JOIN `api_tokens` AS t ON mu.id = t.id
+                        INNER JOIN `api_tokens` AS t ON mu.id = t.user_id
                         WHERE `username` = ?";
     $result = sqlQuery($strQuery, array($username));
 
@@ -605,6 +593,8 @@ function curlRequest($url, $body) {
 }
 
 function notification($deviceToken, $badge = 1, $msg_count = 0, $apt_count = 0, $message = 'Notification!', $passphrase = 'medmasterpro') {
+    if (!$GLOBALS['push_notification'])
+        return;
     $ctx = stream_context_create();
     stream_context_set_option($ctx, 'ssl', 'local_cert', 'includes/apns-dev.pem');
     stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
