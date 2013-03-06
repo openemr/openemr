@@ -1568,10 +1568,10 @@ $GLOBALS_METADATA = array(
     ),
 	
 	'rest_api_server' => array(
-      xl('Allow use of REST API server?'),
+      xl('Enable mobile device REST API server?'),
       'bool',                           // data type
       '0',
-      xl('Allow use of REST API server?')
+      xl('Enable mobile device REST API server?')
     ),
 
   ),
