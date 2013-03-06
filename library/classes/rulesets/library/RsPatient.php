@@ -31,6 +31,7 @@ class RsPatient
     
     public function calculateAgeOnDate( $date )
     {
-        return parseAgeInfo($this->dob,$date)['age'];
+        $ageInfo=parseAgeInfo($this->dob,$date);
+        return $ageInfo['age'];
     }
 }

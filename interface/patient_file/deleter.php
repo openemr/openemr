@@ -109,6 +109,9 @@ function form_delete($formdir, $formid) {
     row_delete("procedure_order_code", "procedure_order_id = '$formid'");
     row_delete("procedure_order", "procedure_order_id = '$formid'");
   }
+  else if ($formdir == 'physical_exam') {
+    row_delete("form_$formdir", "forms_id = '$formid'");
+  }
   else {
     row_delete("form_$formdir", "id = '$formid'");
   }

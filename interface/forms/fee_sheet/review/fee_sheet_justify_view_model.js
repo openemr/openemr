@@ -294,40 +294,43 @@ function setup_justify(model,current,patient,common)
     for(idx=0;idx<patient.length;idx++)
     {
         cur_entry=patient[idx];
-        new_justify=new justify_entry(cur_entry);
-        if(typeof model.added_keys[new_justify.key()]=='undefined')
-        {
-            model.added_keys[new_justify.key()]=new_justify;
-            if(new_justify.selected())
+        if((cur_entry.code!=null) || cur_entry.code_type!="")
+        {         
+            new_justify=new justify_entry(cur_entry);
+            if(typeof model.added_keys[new_justify.key()]=='undefined')
             {
-                new_justify.encounter_issue(true);
-            }
-            new_justify.selected(false);
-            lookup_justify(model.current_justify(),new_justify);
-            new_justify.source='patient';
-            new_justify.source_idx=idx;
-            new_justify.prob_id(cur_entry.db_id);
-            model.diagnosis_options.push(new_justify);        
-        }
-        else
-        {
-            var entry=model.added_keys[new_justify.key()];
-            if((entry.prob_id()!=null) &&(entry.prob_id()!=cur_entry.db_id))
-            {
+                model.added_keys[new_justify.key()]=new_justify;
+                if(new_justify.selected())
+                {
+                    new_justify.encounter_issue(true);
+                }
+                new_justify.selected(false);
+                lookup_justify(model.current_justify(),new_justify);
+                new_justify.source='patient';
+                new_justify.source_idx=idx;
                 new_justify.prob_id(cur_entry.db_id);
-                if(model.duplicates().length==0)
-                    {
-                        model.duplicates.push(entry);
-                    }
-                model.duplicates.push(new_justify);
+                model.diagnosis_options.push(new_justify);        
             }
             else
             {
-                entry.prob_id(cur_entry.db_id);
-                entry.description(cur_entry.description);
-                if(cur_entry.selected)
+                var entry=model.added_keys[new_justify.key()];
+                if((entry.prob_id()!=null) &&(entry.prob_id()!=cur_entry.db_id))
                 {
-                    entry.encounter_issue(true);
+                    new_justify.prob_id(cur_entry.db_id);
+                    if(model.duplicates().length==0)
+                        {
+                            model.duplicates.push(entry);
+                        }
+                    model.duplicates.push(new_justify);
+                }
+                else
+                {
+                    entry.prob_id(cur_entry.db_id);
+                    entry.description(cur_entry.description);
+                    if(cur_entry.selected)
+                    {
+                        entry.encounter_issue(true);
+                    }
                 }
             }
         }

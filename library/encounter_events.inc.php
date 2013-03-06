@@ -310,6 +310,7 @@ function InsertEvent($args,$from = 'general') {
   if ($args['form_repeat']) {
     $pc_recurrtype = $args['recurrspec']['event_repeat_on_freq'] ? '2' : '1';
   }
+  $form_pid = empty($args['form_pid']) ? '' : $args['form_pid'];
 
 	if($from == 'general'){
     return sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
@@ -318,7 +319,7 @@ function InsertEvent($args,$from = 'general') {
 			"pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
 			"pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location " .
 			") VALUES (?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?)",
-			array($args['form_category'],(isset($args['new_multiple_value']) ? $args['new_multiple_value'] : ''),$args['form_provider'],$args['form_pid'],
+			array($args['form_category'],(isset($args['new_multiple_value']) ? $args['new_multiple_value'] : ''),$args['form_provider'],$form_pid,
 			$args['form_title'],$args['form_comments'],$_SESSION['authUserID'],$args['event_date'],
 			fixDate($args['form_enddate']),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
 			$args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'],
@@ -331,7 +332,7 @@ function InsertEvent($args,$from = 'general') {
 			"pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
 			"pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location " .
 			") VALUES (?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-			array($args['form_category'],$args['new_multiple_value'],$args['form_provider'],$args['form_pid'],$args['form_title'],
+			array($args['form_category'],$args['new_multiple_value'],$args['form_provider'],$form_pid,$args['form_title'],
 				$args['event_date'],$args['form_enddate'],$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
 				$args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'], $args['locationspec'],
 				1,1,(int)$args['facility'],(int)$args['billing_facility']));

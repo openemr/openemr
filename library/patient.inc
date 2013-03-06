@@ -1254,8 +1254,10 @@ function getPatientAge($dobYMD, $nowYMD=null)
  *
  * @param  string  $dob     date of birth
  * @param  string  $target  date to calculate age on
- * @return float            years(decimal) from dob to target(date)
- */
+ * @return array containing
+ *      age - decimal age in years
+ *      age_in_months - decimal age in months
+ *      ageinYMD - formatted string #y #m #d */
 function parseAgeInfo($dob,$target)
 {
     // Prepare dob (expected in order Y M D, remove whatever delimiters might be there
@@ -1592,17 +1594,75 @@ function DBToDate ($date)
     return $date;
 }
 
-function get_patient_balance($pid) {
+/**
+ * Get up to 3 insurances (primary, secondary, tertiary) that are effective
+ * for the given patient on the given date.
+ *
+ * @param int     The PID of the patient.
+ * @param string  Date in yyyy-mm-dd format.
+ * @return array  Array of 0-3 insurance_data rows.
+ */
+function getEffectiveInsurances($patient_id, $encdate) {
+  $insarr = array();
+  foreach (array('primary','secondary','tertiary') as $instype) {
+    $tmp = sqlQuery("SELECT * FROM insurance_data " .
+      "WHERE pid = ? AND type = ? " .
+      "AND date <= ? ORDER BY date DESC LIMIT 1",
+      array($patient_id, $instype, $encdate));
+    if (empty($tmp['provider'])) break;
+    $insarr[] = $tmp;
+  }
+  return $insarr;
+}
+
+/**
+ * Get the patient's balance due. Normally this excludes amounts that are out
+ * to insurance.  If you want to include what insurance owes, set the second
+ * parameter to true.
+ *
+ * @param int     The PID of the patient.
+ * @param boolean Indicates if amounts owed by insurance are to be included.
+ * @return number The balance.
+ */
+function get_patient_balance($pid, $with_insurance=false) {
   if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
-    $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
-      "pid = ? AND activity = 1", array($pid) );
-    $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
-      "pid = ?", array($pid) );
-    $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
-      "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-      "pid = ?", array($pid) );
-    return sprintf('%01.2f', $brow['amount'] + $srow['amount']
-      - $drow['payments'] - $drow['adjustments']);
+    $balance = 0;
+    $feres = sqlStatement("SELECT date, encounter, last_level_billed, " .
+      "last_level_closed, stmt_count " .
+      "FROM form_encounter WHERE pid = ?", array($pid));
+    while ($ferow = sqlFetchArray($feres)) {
+      $encounter = $ferow['encounter'];
+      $dos = substr($ferow['date'], 0, 10);
+      $insarr = getEffectiveInsurances($pid, $dos);
+      $inscount = count($insarr);
+      if (!$with_insurance && $ferow['last_level_closed'] < $inscount && $ferow['stmt_count'] == 0) {
+        // It's out to insurance so only the co-pay might be due.
+        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+          "pid = ? AND encounter = ? AND " .
+          "code_type = 'copay' AND activity = 1",
+          array($pid, $encounter));
+        $drow = sqlQuery("SELECT SUM(pay_amount) AS payments " .
+          "FROM ar_activity WHERE " .
+          "pid = ? AND encounter = ? AND payer_type = 0",
+          array($pid, $encounter));
+        $ptbal = $insarr[0]['copay'] + $brow['amount'] - $drow['payments'];
+        if ($ptbal > 0) $balance += $ptbal;
+      }
+      else {
+        // Including insurance or not out to insurance, everything is due.
+        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+          "pid = ? AND encounter = ? AND " .
+          "activity = 1", array($pid, $encounter));
+        $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
+          "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
+          "pid = ? AND encounter = ?", array($pid, $encounter));
+        $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
+          "pid = ? AND encounter = ?", array($pid, $encounter));
+        $balance += $brow['amount'] + $srow['amount']
+          - $drow['payments'] - $drow['adjustments'];
+      }
+    }
+    return sprintf('%01.2f', $balance);
   }
   else if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
     // require_once($GLOBALS['fileroot'] . "/library/classes/WSWrapper.class.php");

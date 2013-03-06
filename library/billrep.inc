@@ -23,7 +23,7 @@
               elseif(strpos($criteria_value,"billing.billed = '0'")!== false)
                {
                 //3 is an error condition
-                $billstring .= ' AND '."(billing.billed = '0' or (billing.billed = '1' and billing.bill_process = '3'))";
+                $billstring .= ' AND '."(billing.billed is null or billing.billed = '0' or (billing.billed = '1' and billing.bill_process = '3'))";
                }
               elseif(strpos($criteria_value,"billing.billed = '7'")!== false)
                {

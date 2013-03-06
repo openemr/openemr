@@ -1065,4 +1065,6 @@ height: 300px !important;
 .formtable tr td {
         line-height: 24px;
     }
-
+.report_search_bar{
+	background-color:#EADDB4;
+}

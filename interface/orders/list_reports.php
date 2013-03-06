@@ -133,11 +133,13 @@ $form_to_date = empty($_POST['form_to_date']) ? '' : trim($_POST['form_to_date']
 $form_reviewed = empty($_POST['form_reviewed']) ? 3 : intval($_POST['form_reviewed']);
 
 $form_patient = !empty($_POST['form_patient']);
+
+$form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provider']);
 ?>
 
-<table>
+<table width='100%'>
  <tr>
-  <td class='text'>
+  <td class='text' align='center'>
    &nbsp;<?php echo xlt('From'); ?>:
    <input type='text' size='8' name='form_from_date' id='form_from_date'
     value='<?php echo attr($form_from_date); ?>'
@@ -169,6 +171,14 @@ foreach (array('1' => xl('All'), '2' => xl('Reviewed'), '3' => xl('Unreviewed'),
    </select>
 
    &nbsp;
+<?php
+ generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
+   'empty_title' => '-- All Providers --'), $form_provider);
+?>
+  </td>
+ </tr>
+ <tr>
+  <td class='text' align='center'>
    <input type='checkbox' name='form_patient' value='1'
     <?php if ($form_patient) echo 'checked '; ?>/>Current Patient Only
 
@@ -235,6 +245,11 @@ if (!empty($form_to_date)) {
 if ($form_patient) {
   $where .= " AND po.patient_id = ?";
   $sqlBindArray[] = $pid;
+}
+
+if ($form_provider) {
+  $where .= " AND po.provider_id = ?";
+  $sqlBindArray[] = $form_provider;
 }
 
 if ($form_reviewed == 2) {

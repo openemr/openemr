@@ -2106,7 +2106,8 @@ function convertCompSql($comp) {
  * @return float            years(decimal) from dob to target(date)
  */
 function convertDobtoAgeYearDecimal($dob,$target) { 
-    return parseAgeInfo($dob,$target)['age']; 
+    $ageInfo=parseAgeInfo($dob,$target);
+    return $ageInfo['age']; 
 }  
 
 /**
@@ -2117,7 +2118,8 @@ function convertDobtoAgeYearDecimal($dob,$target) {
  * @return float            months(decimal) from dob to target(date)
  */
 function convertDobtoAgeMonthDecimal($dob,$target) {
-    return parseAgeInfo($dob,$target)['age_in_months']; 
+    $ageInfo=parseAgeInfo($dob,$target);
+    return $ageInfo['age_in_months']; 
 }
 
 /**
