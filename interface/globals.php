@@ -7,7 +7,6 @@ if (!defined('IS_WINDOWS'))
 // Some important php.ini overrides. Defaults for these values are often
 // too small.  You might choose to adjust them further.
 //
-ini_set('memory_limit', '64M');
 ini_set('session.gc_maxlifetime', '14400');
 
 /* If the includer didn't specify, assume they want us to "fake" register_globals. */
