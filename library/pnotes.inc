@@ -47,9 +47,6 @@ function getPnoteById($id, $cols = "*")
 function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sortby='',$sortorder='',$begin='',$listnumber='')
 {
 
-  // Set the options for $sortby (for sql-injection hardening)
-  $sortbyoptions = array("users.lname","patient_data.lname","pnotes.title","pnotes.date","pnotes.message_status");
-
   // Set the activity part of query
   if ($activity=='1') {
     $activity_query = " pnotes.message_status != 'Done' AND pnotes.activity = 1 AND ";
@@ -78,7 +75,7 @@ function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sor
           LEFT JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE $activity_query
           pnotes.deleted != '1' AND pnotes.assigned_to LIKE ?";
   if (!empty($sortby) || !empty($sortorder)  || !empty($begin) || !empty($listnumber)) {
-    $sql .= " order by ".escape_identifier($sortby,TRUE,$sortbyoptions).
+    $sql .= " order by ".escape_sql_column_name($sortby,array('users','patient_data','pnotes'),TRUE).
             " ".escape_sort_order($sortorder).
             " limit ".escape_limit($begin).", ".escape_limit($listnumber);
   }

@@ -62,40 +62,120 @@ function escape_limit($s) {
  * @return  string     Escaped sort order keyword variable.
  */
 function escape_sort_order($s) {
-      $ok = array("asc","desc");
-      $key = array_search(strtolower($s),$ok);
-      return $ok[$key];
+      return escape_identifier(strtolower($s),array("asc","desc"));
+}
+
+/**
+ * Escape/sanitize a table sql column name for a sql query..
+ *
+ * This will escape/sanitize the sql column name for a sql query. It is done by whitelisting
+ * all of the current sql column names in the openemr database from a table(s). Note that if
+ * there is no match, then it will die() and a error message will be sent to the screen and
+ * the error log. This function should not be used for escaping tables outside the openemr
+ * database (should use escape_identifier() function below for that scenario)
+ *
+ * @param   string        $s       sql column name variable to be escaped/sanitized.
+ * @param   array         $tables  The table(s) that the sql columns is from (in an array).
+ * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
+ * @return  string                 Escaped table name variable.
+ */
+function escape_sql_column_name($s,$tables,$long=FALSE) {
+
+      // If the $tables is empty, then process them all
+      if (empty($tables)) {
+            $res = sqlStatementNoLog("SHOW TABLES");
+            $tables = array();
+            while ($row=sqlFetchArray($res)) {
+                $keys_return = array_keys($row);
+                $tables[]=$row[$keys_return[0]];
+            }
+      }
+
+      // First need to escape the $tables
+      $tables_escaped = array();
+      foreach ($tables as $table) {
+            $tables_escaped[] = escape_table_name($table);
+      }
+
+      // Collect all the possible sql columns from the tables
+      $columns_options = array(); 
+      foreach ($tables_escaped as $table_escaped) {
+            $res = sqlStatementNoLog("SHOW COLUMNS FROM ".$table_escaped);
+            while ($row=sqlFetchArray($res)) {
+                  if ($long) {
+                        $columns_options[]=$table_escaped.".".$row['Field'];
+                  }
+                  else {
+                        $columns_options[]=$row['Field'];
+                  }
+            }
+      }
+
+      // Now can escape(via whitelisting) the sql column name
+      return escape_identifier($s,$columns_options,TRUE);
+}
+
+/**
+ * Escape/sanitize a table name for a sql query..
+ *
+ * This will escape/sanitize the table name for a sql query. It is done by whitelisting
+ * all of the current tables in the openemr database. Note that if there is no match, then
+ * it will die() and a error message will be sent to the screen and the error log. This
+ * function should not be used for escaping tables outside the openemr database (should
+ * use escape_identifier() function below for that scenario)
+ *
+ * @param   string $s  sql table name variable to be escaped/sanitized.
+ * @return  string     Escaped table name variable.
+ */
+function escape_table_name($s) {
+      $res = sqlStatementNoLog("SHOW TABLES");
+      $tables_array = array();
+      while ($row=sqlFetchArray($res)) {
+            $keys_return = array_keys($row); 
+            $tables_array[]=$row[$keys_return[0]];
+      }
+
+      // Now can escape(via whitelisting) the sql table name
+      return escape_identifier($s,$tables_array,TRUE);
 }
 
 /**
  * Escape/sanitize a sql identifier variable to prepare for a sql query.
  *
- * This will escape/sanitize a sql identifier. There are two options provided by this funtion.
- * The first option is done by whitelisting ($whitelist_flag=true) and in this case
+ * This will escape/sanitize a sql identifier. There are two options provided by this
+ * function.
+ * The first option is done by whitelisting ($whitelist_items is used) and in this case
  * only certain identifiers (listed in the $whitelist_items array) can be used; if
- * there is no match, then it will default to the first item in the $whitelist_items array.
- * The second option is done by sanitizing ($whitelist_flag=false) and in this case
+ * there is no match, then it will either default to the first item in the $whitelist_items
+ * (if $die_if_no_match is FALSE) or it will die() and send an error message to the screen
+ * and log (if $die_if_no_match is TRUE).
+ * The second option is done by sanitizing ($whitelist_items is not used) and in this case
  * only US alphanumeric,'_' and '.' items are kept in the returned string. Note
  * the second option is still experimental as we figure out the ideal items to
  * filter out of the identifier. The first option is ideal if all the possible identifiers
  * are known, however we realize this may not always be the case.
  *
- * @param   string  $s                Sql identifier variable to be escaped/sanitized.
- * @param   boolean $whitelist_flag   True to use whitelisting method (See function description for details of whitelisting method).
- * @param   array   $whitelist_items  Items used in whitelisting method (See function description for details of whitelisting method).
- * @return  string                    Escaped/sanitized sql identifier variable.
+ * @param   string   $s                Sql identifier variable to be escaped/sanitized.
+ * @param   array    $whitelist_items  Items used in whitelisting method (See function description for details of whitelisting method).
+ * @param   boolean  $die_if_no_match  If there is no match in the whitelist, then die and echo an error to screen and log.
+ * @return  string                     Escaped/sanitized sql identifier variable.
  */
-function escape_identifier($s,$whitelist_flag=FALSE,$whitelist_items) {
-      if ($whitelist_flag) {
+function escape_identifier($s,$whitelist_items,$die_if_no_match=FALSE) {
+      if (is_array($whitelist_items)) {
             // Only return an item within the whitelist_items
-            //  (if no match, then it will return the first item in whitelist_items)
+            if ( $die_if_no_match && !(in_array($s,$whitelist_items)) ) {
+                  // There is no match in the whitelist and the $die_if_no_match flag is set
+                  // so die() and send error messages to screen and log
+                  error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: ".$s,0);
+                  die("<br><span style='color:red;font-weight:bold;'>".xlt("There was an OpenEMR SQL Escaping ERROR of the following string")." ".text($s)."</span><br>");
+            }
             $ok = $whitelist_items;
             $key = array_search($s,$ok);
             return $ok[$key];
       }
       else {
             // Return an item that has been "cleaned" up
-            // (this is currently experimental)
+            // (this is currently experimental and goal is to avoid using this)
             return preg_replace('/[^a-zA-Z0-9_.]/','',$s);
       }
 }

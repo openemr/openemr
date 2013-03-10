@@ -43,10 +43,10 @@ function note_report( $pid, $encounter, $cols, $id) {
             print("<tr>\n");  
             print("<tr>\n");
 	    if ($key == "Note Type") {
-                print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . xl($value) . "</span></td>";
+                print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . xlt($value) . "</span></td>";
 	    }
 	    else {
-	        print "<td><span class=bold>" . xl($key) . ": </span><span class=text>$value</span></td>";	
+	        print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";	
 	    }
             $count++;
             if ($count == $cols) {
