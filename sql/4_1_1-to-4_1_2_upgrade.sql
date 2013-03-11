@@ -340,3 +340,15 @@ UPDATE procedure_order_code AS pc, procedure_order AS po
 ALTER TABLE `procedure_order` DROP COLUMN diagnoses;
 #EndIf
 
+#IfMissingColumn lists modifydate
+ALTER TABLE `lists` ADD COLUMN `modifydate` timestamp NOT NULL default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn code_types ct_problem
+ALTER TABLE `code_types` ADD COLUMN `ct_problem` tinyint(1) NOT NULL DEFAULT '0' COMMENT '1 if this code type is used as a medical problem';
+UPDATE code_types SET ct_problem = 1 WHERE ct_key='ICD9';
+UPDATE code_types SET ct_problem = 1 WHERE ct_key='DSMIV';
+UPDATE code_types SET ct_problem = 1 WHERE ct_key='ICD10';
+UPDATE code_types SET ct_problem = 1 WHERE ct_key='SNOMED';
+#EndIf
+
