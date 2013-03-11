@@ -147,9 +147,18 @@ document.forms[0].submit();
 
 <form border='0' method='post' name='new_note' id="new_note" target="_parent" action='pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>'>
 
+<?php
+$title_docname = "";
+if ($docid) {
+  $title_docname = " " . xl("linked to document") . " ";
+  $d = new Document($docid);	
+  $title_docname .= $d->get_url_file();
+}
+?>
+
     <div>
         <div style='float:left; margin-right: 5px'>
-            <span class="title"><?php echo htmlspecialchars( xl('Patient Note'), ENT_NOQUOTES); ?></span>
+            <span class="title"><?php echo xlt('Patient Note') . $title_docname; ?></span>
         </div>
         <div>
             <?php if ($noteid) { ?>
@@ -164,14 +173,6 @@ document.forms[0].submit();
 
     <br/>
 
-<?php
-$title_docname = "";
-if ($docid) {
-  $title_docname = " " . xl("linked to document") . " ";
-  $d = new Document($docid);
-  $title_docname .= $d->get_url_file();
-}
-?>
 <input type='hidden' name='mode' id="mode" value="new">
 <input type='hidden' name='trigger' id="trigger" value="add">
 <input type='hidden' name='offset' id="offset" value="<?php echo $offset ?>">

@@ -111,15 +111,17 @@ if (isset($mode)) {
   }
   elseif ($mode == "new") {
     $note = $_POST['note'];
-      
     if ($noteid) {
       updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
-      $noteid = '';
     }
     else {
-      addPnote($pid, $note, $userauthorized, '1', $_POST['form_note_type'],
-        $_POST['assigned_to']);
+      $noteid = addPnote($pid, $note, $userauthorized, '1',
+        $_POST['form_note_type'], $_POST['assigned_to']);
     }
+    if ($docid) {
+      setGpRelation(1, $docid, 6, $noteid);
+    }
+    $noteid = '';
   }
   elseif ($mode == "delete") {
     if ($noteid) {
@@ -202,16 +204,24 @@ function show_div(name){
 
 <form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>&<?php echo attr($activity_string_html);?>'>
 
+<?php
+$title_docname = "";
+if ($docid) {
+  $title_docname = " " . xl("linked to document") . " ";
+  $d = new Document($docid);	
+  $title_docname .= $d->get_url_file();
+}
+?>
 
     <div>
-        <span class="title"><?php echo htmlspecialchars( xl('Patient Notes'), ENT_NOQUOTES); ?></span>
+        <span class="title"><?php echo xlt('Patient Notes') . $title_docname; ?></span>
     </div>
     <div style='float:left;margin-right:10px'>
         <?php echo htmlspecialchars( xl('for'), ENT_NOQUOTES);?>&nbsp;<span class="title">
 	<a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars( getPatientName($pid), ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
-        <a href="pnotes_full_add.php" class="css_button iframe"><span><?php echo htmlspecialchars( xl('Add'), ENT_NOQUOTES); ?></span></a>
+        <a href="pnotes_full_add.php?docid=<?php echo attr($docid); ?>" class="css_button iframe"><span><?php echo xlt('Add'); ?></span></a>
         <a href="demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars( xl('View Patient'), ENT_NOQUOTES);?></span>
         </a>
@@ -222,30 +232,22 @@ function show_div(name){
     <?php if ($active == "all") { ?>
       <span><?php echo xlt('Show All'); ?></span>
     <?php } else { ?>
-      <a href="pnotes_full.php" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
+      <a href="pnotes_full.php?docid=<?php echo attr($docid); ?>" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
     <?php } ?>
     |
     <?php if ($active == '1') { ?>
       <span><?php echo xlt('Show Active'); ?></span>
     <?php } else { ?>
-      <a href="pnotes_full.php?form_active=1" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
+      <a href="pnotes_full.php?form_active=1&docid=<?php echo attr($docid); ?>" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
     <?php } ?>
     |
     <?php if ($active == '0') { ?>
       <span><?php echo xlt('Show Inactive'); ?></span>
     <?php } else { ?>
-      <a href="pnotes_full.php?form_inactive=1" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
+      <a href="pnotes_full.php?form_inactive=1&docid=<?php echo attr($docid); ?>" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
     <?php } ?>
     </div>
 
-    <?php
-    $title_docname = "";
-    if ($docid) {
-      $title_docname = " " . htmlspecialchars( xl("linked to document"), ENT_NOQUOTES) . " ";
-      $d = new Document($docid);
-      $title_docname .= $d->get_url_file();
-    }
-    ?>
     <input type='hidden' name='mode' id="mode" value="new">
     <input type='hidden' name='offset' id="offset" value="<?php echo $offset; ?>">
     <input type='hidden' name='offset_sent' id="offset_sent" value="<?php echo $offset_sent; ?>">
@@ -319,7 +321,7 @@ if ($billing_note) {
   <td colspan='5' style="padding: 5px;" >
     <a href="#" class="change_activity" ><span><?php echo htmlspecialchars( xl('Update Active'), ENT_NOQUOTES); ?></span></a>
     |
-    <a href="pnotes_full.php?<?php echo attr($activity_string_html);?>" class="" id='Submit'><span><?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?></span></a>
+    <a href="pnotes_full.php?docid=<?php echo attr($docid); ?>&<?php echo attr($activity_string_html);?>" class="" id='Submit'><span><?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
@@ -462,7 +464,8 @@ if ($result_count == $N) {
 <?php if ($result_sent != ""): ?>
  <tr>
   <td colspan='5' style="padding: 5px;" >
-    <a href="pnotes_full.php?s=1&<?php echo attr($activity_string_html);?>" class="" id='Submit'><span><?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?></span></a>
+    <a href="pnotes_full.php?docid=<?php echo attr($docid); ?>&s=1&<?php echo attr($activity_string_html);?>"
+     class="" id='Submit'><span><?php echo xlt('Refresh'); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
