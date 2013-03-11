@@ -199,7 +199,7 @@ echo "
 <div id="pnotes"><center>
 <table border='0' cellspacing='8'>
  <tr>
-  <td class='text' align='center'>
+  <td class='text'>
    <b><?php echo htmlspecialchars( xl('Type'), ENT_NOQUOTES); ?>:</b>
    <?php
    if ($title == "") {
@@ -209,11 +209,41 @@ echo "
     generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP','order_by'=>'title'), $title);
    ?>
    &nbsp; &nbsp;
+   <?php if ($task != "addnew" && $result['pid'] != 0) { ?>
+     <a class="patLink" onclick="goPid('<?php echo attr($result['pid']);?>')"><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</a>
+   <?php } else { ?>
+     <b class='<?php echo ($task=="addnew"?"required":"") ?>'><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</b>
+ <?php
+  }
+ if ($reply_to) {
+  $prow = sqlQuery("SELECT lname, fname " .
+   "FROM patient_data WHERE pid = ?", array($reply_to) );
+  $patientname = $prow['lname'] . ", " . $prow['fname'];
+ }
+   if ($patientname == '') {
+       $patientname = xl('Click to select');
+   } ?>
+   <input type='text' size='10' name='form_patient' style='width:150px;<?php
+      echo ($task=="addnew"?"cursor:pointer;cursor:hand;":"") ?>' value='<?php
+      echo htmlspecialchars($patientname, ENT_QUOTES); ?>' <?php
+      echo (($task=="addnew" || $result['pid']==0) ? "onclick='sel_patient()' readonly":"disabled") ?> title='<?php
+      echo ($task=="addnew"?(htmlspecialchars( xl('Click to select patient'), ENT_QUOTES)):"") ?>'  />
+   <input type='hidden' name='reply_to' id='reply_to' value='<?php echo htmlspecialchars( $reply_to, ENT_QUOTES) ?>' />
+   &nbsp; &nbsp;
+   <b><?php echo htmlspecialchars( xl('Status'), ENT_NOQUOTES); ?>:</b>
+    <?php
+   if ($form_message_status == "") {
+       $form_message_status = 'New';
+   }
+    generate_form_field(array('data_type'=>1,'field_id'=>'message_status','list_id'=>'message_status','empty_title'=>'SKIP','order_by'=>'title'), $form_message_status); ?>
+  </td>
+</tr>
+<tr>
+  <td class='text'>
    <b><?php echo htmlspecialchars( xl('To'), ENT_QUOTES); ?>:</b>
-   <input type='textbox' name='assigned_to_text' id='assigned_to_text' size='50' readonly='readonly' value='<?php echo htmlspecialchars(xl("Select Users From The Dropdown List"), ENT_QUOTES)?>' >
+   <input type='textbox' name='assigned_to_text' id='assigned_to_text' size='40' readonly='readonly' value='<?php echo htmlspecialchars(xl("Select Users From The Dropdown List"), ENT_QUOTES)?>' >
    <input type='hidden' name='assigned_to' id='assigned_to' >
    <select name='users' id='users' onchange='addtolist(this);' >
-
 <?php
   echo "<option value='" . htmlspecialchars( '--', ENT_QUOTES) . "'";
   echo ">" . htmlspecialchars( xl('Select User'), ENT_NOQUOTES);
@@ -236,38 +266,34 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 ?>
    </select>
   </td>
-</tr>
-<tr>
-  <td class='text' align='center'>
-   <?php if ($task != "addnew" && $result['pid']!=0) { ?>
-     <a class="patLink" onclick="goPid('<?php echo attr($result['pid']);?>')"><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</a>
-   <?php } else { ?>
-     <b class='<?php echo ($task=="addnew"?"required":"") ?>'><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</b>
- <?php
-  }
- if ($reply_to) {
-  $prow = sqlQuery("SELECT lname, fname " .
-   "FROM patient_data WHERE pid = ?", array($reply_to) );
-  $patientname = $prow['lname'] . ", " . $prow['fname'];
- }
-   if ($patientname == '') {
-       $patientname = xl('Click to select');
-   } ?>
-   <input type='text' size='10' name='form_patient' style='width:150px;<?php 
-      echo ($task=="addnew"?"cursor:pointer;cursor:hand;":"") ?>' value='<?php 
-      echo htmlspecialchars($patientname, ENT_QUOTES); ?>' <?php 
-      echo (($task=="addnew" || $result['pid']==0) ? "onclick='sel_patient()' readonly":"disabled") ?> title='<?php 
-      echo ($task=="addnew"?(htmlspecialchars( xl('Click to select patient'), ENT_QUOTES)):"") ?>'  />
-   <input type='hidden' name='reply_to' id='reply_to' value='<?php echo htmlspecialchars( $reply_to, ENT_QUOTES) ?>' />
-   &nbsp; &nbsp;
-   <b><?php echo htmlspecialchars( xl('Status'), ENT_NOQUOTES); ?>:</b>
-    <?php
-   if ($form_message_status == "") {
-       $form_message_status = 'New';
-   }
-    generate_form_field(array('data_type'=>1,'field_id'=>'message_status','list_id'=>'message_status','empty_title'=>'SKIP','order_by'=>'title'), $form_message_status); ?>
-  </td>
  </tr>
+
+<?php
+if ($noteid) {
+  // Get the related document IDs if any.
+  $tmp = sqlStatement("SELECT id1 FROM gprelations WHERE " .
+    "type1 = ? AND type2 = ? AND id2 = ?",
+    array('1', '6', $noteid));
+  if (sqlNumRows($tmp)) {
+    echo " <tr>\n";
+    echo "  <td class='text'><b>";
+    echo xlt('Linked document') . ":</b>\n";
+    while ($gprow = sqlFetchArray($tmp)) {
+      $d = new Document($gprow['id1']);	
+      echo "   <a href='";
+      echo $GLOBALS['webroot'] . "/controller.php?document&retrieve";
+      echo "&patient_id="  . $d->get_foreign_id();
+      echo "&document_id=" . $d->get_id();
+      echo "&as_file=true' target='_blank' onclick='top.restoreSession()'>";
+      echo text($d->get_url_file());
+      echo "</a>\n";
+    }
+    echo "  </td>\n";
+    echo " </tr>\n";
+  }
+}
+?>
+
  <tr>
   <td>
 
