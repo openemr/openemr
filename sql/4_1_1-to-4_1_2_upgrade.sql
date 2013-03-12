@@ -329,3 +329,14 @@ CREATE TABLE IF NOT EXISTS `direct_message_log` (
   KEY `patient_id` (`patient_id`)
 ) ENGINE=MyISAM;
 #EndIf
+
+#IfMissingColumn procedure_order_code diagnoses
+ALTER TABLE `procedure_order_code`
+  ADD COLUMN `diagnoses` text NOT NULL DEFAULT '' COMMENT
+  'diagnoses and maybe other coding (e.g. ICD9:111.11)';
+UPDATE procedure_order_code AS pc, procedure_order AS po
+  SET pc.diagnoses = po.diagnoses
+  WHERE po.procedure_order_id = pc.procedure_order_id;
+ALTER TABLE `procedure_order` DROP COLUMN diagnoses;
+#EndIf
+

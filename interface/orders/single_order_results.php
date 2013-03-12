@@ -78,15 +78,17 @@ if (!empty($_POST['form_sign_list'])) {
 }
 
 $orow = sqlQuery("SELECT " .
-  "po.procedure_order_id, po.date_ordered, po.diagnoses, " .
+  "po.procedure_order_id, po.date_ordered, " .
   "po.order_status, po.specimen_type, " .
   "pd.pubpid, pd.lname, pd.fname, pd.mname, " .
+  "fe.date, " .
   "pp.name AS labname, " .
   "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
   "FROM procedure_order AS po " .
   "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id " .
   "LEFT JOIN procedure_providers AS pp ON pp.ppid = po.lab_id " .
   "LEFT JOIN users AS u ON u.id = po.provider_id " .
+  "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
   "WHERE po.procedure_order_id = ?",
   array($orderid));
 ?>
@@ -160,8 +162,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
  <tr bgcolor='#cccccc'>
   <td nowrap><?php echo xlt('Order Status'); ?></td>
   <td><?php echo myCellText($orow['order_status']); ?></td>
-  <td nowrap><?php echo xlt('Diagnoses'); ?></td>
-  <td><?php echo myCellText($orow['diagnoses']); ?></td>
+  <td nowrap><?php echo xlt('Encounter Date'); ?></td>
+  <td><?php echo myCellText(oeFormatShortDate(substr($orow['date'], 0, 10))); ?></td>
  </tr>
  <tr bgcolor='#cccccc'>
   <td nowrap><?php echo xlt('Lab'); ?></td>

@@ -12,7 +12,7 @@ include_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 function procedure_order_report($pid, $encounter, $cols, $id) {
   $data = sqlQuery("SELECT " .
-    "po.procedure_order_id, po.date_ordered, po.diagnoses, " .
+    "po.procedure_order_id, po.date_ordered, " .
     "po.order_status, po.specimen_type, " .
     "pp.name AS labname, pr.procedure_report_id, " .
     "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .

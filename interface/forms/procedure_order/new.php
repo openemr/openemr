@@ -75,7 +75,6 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
     "date_collected = " . QuotedOrNull(formData('form_date_collected')) . ", " .
     "order_priority = '" . formData('form_order_priority')              . "', " .
     "order_status = '" . formData('form_order_status')                  . "', " .
-    "diagnoses = '" . formData('form_diagnoses')                        . "', " .
     "patient_instructions = '" . formData('form_patient_instructions')  . "', " .
     "patient_id = '" . $pid                                             . "', " .
     "encounter_id = '" . $encounter                                     . "'";
@@ -112,9 +111,10 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
 
     $poseq = sqlInsert("INSERT INTO procedure_order_code SET ".
       "procedure_order_id = ?, " .
+      "diagnoses = ?, " .
       "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
       "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)",
-      array($formid, $ptid, $ptid));
+      array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), $ptid, $ptid));
 
     $qres = sqlStatement("SELECT " .
       "q.procedure_code, q.question_code, q.options, q.fldtype " .
@@ -292,6 +292,12 @@ function addProcLine() {
   " title='<?php echo xla('Click to select the desired procedure'); ?>'" +
   "  style='width:100%;cursor:pointer;cursor:hand' readonly />" +
   " <input type='hidden' name='form_proc_type[" + i + "]' value='-1' />" +
+  "<br /><b><?php echo xla('Diagnoses'); ?>: </b>" +
+  "<input type='text' size='50' name='form_proc_type_diag[" + i + "]'" +
+  " onclick='sel_related(this.name)'" +
+  " title='<?php echo xla('Click to add a diagnosis'); ?>'" +
+  " onfocus='this.blur()'" +
+  " style='cursor:pointer;cursor:hand' readonly />" +
   " <div style='width:95%;' id='qoetable[" + i + "]'></div>";
  sel_proc_type(i);
  return false;
@@ -424,17 +430,6 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
  </tr>
 
  <tr>
-  <td width='1%' valign='top' nowrap><b><?php xl('Diagnoses','e'); ?>:</b></td>
-  <td valign='top'>
-   <input type='text' size='50' name='form_diagnoses'
-    value='<?php echo $row['diagnoses'] ?>' onclick='sel_related(this.name)'
-    title='<?php echo xla('Click to add a diagnosis'); ?>'
-    onfocus='this.blur()'
-    style='width:100%;cursor:pointer;cursor:hand' readonly />
-  </td>
- </tr>
-
- <tr>
   <td width='1%' valign='top' nowrap><b><?php xl('Patient Instructions','e'); ?>:</b></td>
   <td valign='top'>
    <textarea rows='3' cols='40' name='form_patient_instructions' style='width:100%'
@@ -465,7 +460,7 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
   if ($formid) {
     $opres = sqlStatement("SELECT " .
       "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
-      "pt.procedure_type_id " .
+      "pc.diagnoses, pt.procedure_type_id " .
       "FROM procedure_order_code AS pc " .
       "LEFT JOIN procedure_type AS pt ON pt.lab_id = ? AND " .
       "pt.procedure_code = pc.procedure_code " .
@@ -495,6 +490,12 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
     title='<?php xla('Click to select the desired procedure','e'); ?>'
     style='width:100%;cursor:pointer;cursor:hand' readonly />
    <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo $ptid ?>' />
+   <br /><b><?php echo xlt('Diagnoses'); ?>:</b>
+   <input type='text' size='50' name='form_proc_type_diag[<?php echo $i; ?>]'
+    value='<?php echo attr($oprow['diagnoses']) ?>' onclick='sel_related(this.name)'
+    title='<?php echo xla('Click to add a diagnosis'); ?>'
+    onfocus='this.blur()'
+    style='cursor:pointer;cursor:hand' readonly />
    <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->
    <div style='width:95%;' id='qoetable[<?php echo $i; ?>]'>
 <?php
