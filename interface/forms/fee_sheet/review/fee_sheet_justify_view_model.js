@@ -52,6 +52,7 @@ function justify_entry(json_object)
     retval.encounter_issue=ko.observable(false);
     retval.edit_mode=ko.observable(false);
     retval.prob_id=ko.observable();
+    retval.allowed_to_create_problem_from_diagnosis=ko.observable();
     retval.create_problem=ko.observable(false);
     retval.jsonify=function()
     {
@@ -59,6 +60,7 @@ function justify_entry(json_object)
         json.code=this.code();
         json.code_type=this.code_type();
         json.description=this.description();
+        json.allowed_to_create_problem_from_diagnosis=this.allowed_to_create_problem_from_diagnosis();
         json.prob_id=this.prob_id();
         json.create_problem=this.create_problem();
         return json;
@@ -287,6 +289,7 @@ function setup_justify(model,current,patient,common)
             //new_justify.priority(idx+1);
             new_justify.source='current';
             new_justify.source_idx=idx;
+            new_justify.allowed_to_create_problem_from_diagnosis(cur_entry.allowed_to_create_problem_from_diagnosis);
             model.diagnosis_options.push(new_justify);
             
         }
@@ -309,6 +312,7 @@ function setup_justify(model,current,patient,common)
                 new_justify.source='patient';
                 new_justify.source_idx=idx;
                 new_justify.prob_id(cur_entry.db_id);
+                new_justify.allowed_to_create_problem_from_diagnosis(cur_entry.allowed_to_create_problem_from_diagnosis);
                 model.diagnosis_options.push(new_justify);        
             }
             else
@@ -317,6 +321,7 @@ function setup_justify(model,current,patient,common)
                 if((entry.prob_id()!=null) &&(entry.prob_id()!=cur_entry.db_id))
                 {
                     new_justify.prob_id(cur_entry.db_id);
+                    new_justify.allowed_to_create_problem_from_diagnosis(cur_entry.allowed_to_create_problem_from_diagnosis);
                     if(model.duplicates().length==0)
                         {
                             model.duplicates.push(entry);
@@ -326,6 +331,7 @@ function setup_justify(model,current,patient,common)
                 else
                 {
                     entry.prob_id(cur_entry.db_id);
+                    entry.allowed_to_create_problem_from_diagnosis(cur_entry.allowed_to_create_problem_from_diagnosis);
                     entry.description(cur_entry.description);
                     if(cur_entry.selected)
                     {
@@ -346,6 +352,7 @@ function setup_justify(model,current,patient,common)
             lookup_justify(model.current_justify(),new_justify);
             new_justify.source='common';
             new_justify.source_idx=idx;
+            new_justify.allowed_to_create_problem_from_diagnosis(cur_entry.allowed_to_create_problem_from_diagnosis);
             model.diagnosis_options.push(new_justify);        
         }
     }

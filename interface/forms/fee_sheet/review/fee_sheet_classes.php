@@ -24,6 +24,9 @@
  * This is an encapsulation of code, code_type and description representing
  * a code
  */
+
+require_once("$srcdir/../custom/code_types.inc.php");
+
 class code_info
 {
     function __construct($c,$ct,$desc,$selected=true)
@@ -32,12 +35,20 @@ class code_info
         $this->code_type=$ct;
         $this->description=$desc;
         $this->selected=$selected;
+        // check if the code type is active and allowed to create medical problems from diagnosis elements
+        $this->allowed_to_create_problem_from_diagnosis="FALSE";
+        if (check_code_set_filters($ct,array("active","problem"))) $this->allowed_to_create_problem_from_diagnosis="TRUE";
+        // check if the code type is active and allowed to create diagnosis elements from medical problems
+        $this->allowed_to_create_diagnosis_from_problem="FALSE";
+        if (check_code_set_filters($ct,array("active","diag"))) $this->allowed_to_create_diagnosis_from_problem="TRUE";
     }
     public $code;    
     public $code_type;
     public $description;
     public $selected;
     public $db_id;
+    public $allowed_to_create_problem_from_diagnosis;
+    public $allowed_to_create_diagnosis_from_problem;
     public $create_problem;
     
     public function getKey()

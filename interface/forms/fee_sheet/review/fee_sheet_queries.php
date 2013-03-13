@@ -49,7 +49,7 @@ function update_issues($pid,$encounter,$diags)
     $target_date=$res['date'];
     $lists_params=array();
     $encounter_params=array();
-    $sqlUpdateIssueDescription="UPDATE lists SET title=? WHERE id=? AND TITLE!=?";
+    $sqlUpdateIssueDescription="UPDATE lists SET title=?, modifydate=NOW() WHERE id=? AND TITLE!=?";
     
     $sqlFindProblem = "SELECT id, title FROM lists WHERE ";
     $sqlFindProblem.= " ( (`begdate` IS NULL) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) AND " ; array_push($lists_params,$target_date);
@@ -64,10 +64,13 @@ function update_issues($pid,$encounter,$diags)
     
     $sqlCreateIssueEncounter = " INSERT into issue_encounter(pid,list_id,encounter)values (?,?,?) ";
     
-    $sqlCreateProblem = " INSERT into lists(date,begdate,type,occurrence,classification,pid,diagnosis,title) values(?,?,'medical_problem',0,0,?,?,?)";
+    $sqlCreateProblem = " INSERT into lists(date,begdate,type,occurrence,classification,pid,diagnosis,title,modifydate) values(?,?,'medical_problem',0,0,?,?,?,NOW())";
     $idx_list_id=count($encounter_params)-1;
     foreach($diags as $diags)
     {
+        // ensure that a problem is allowed to be created from the diagnostic element
+        if ($diags->allowed_to_create_problem_from_diagnosis != "TRUE") continue;
+
         $diagnosis_key=$diags->code_type.":".$diags->code;
         $list_id=null;
         if($diags->db_id!=null)
@@ -252,6 +255,10 @@ function issue_diagnoses($pid,$encounter)
             $code=$diagnosis[1];
             $code_type=$diagnosis[0];
             $new_info=new code_info($code,$code_type,$title,$res['selected']!=0);
+
+            //ensure that a diagnostic element is allowed to be created from a problem element
+            if ($new_info->allowed_to_create_diagnosis_from_problem != "TRUE") continue;
+
             $new_info->db_id=$db_id;
             $retval[]=$new_info;
             

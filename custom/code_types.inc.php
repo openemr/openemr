@@ -238,6 +238,26 @@ function convert_type_id_to_key($id) {
 }
 
 /**
+ * Checks if a key string (ct_key) is selected for an element/filter(s)
+ *
+ * @param   string   $key
+ * @param   array    $filter (array of elements that can include 'active','fee','rel','nofs','diag','claim','proc','term','problem')
+ * @return  boolean
+ */
+function check_code_set_filters($key,$filters=array()) {
+ global $code_types;
+ 
+ if (empty($filters)) return false;
+
+ foreach ($filters as $filter) {
+  if ($code_types[$key][$filter] != 1) return false;
+ }
+
+ // Filter was passed
+ return true;
+}
+
+/**
  * Return listing of pertinent and active code types.
  *
  * Function will return listing (ct_key) of pertinent
