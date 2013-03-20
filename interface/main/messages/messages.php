@@ -7,6 +7,8 @@
  * of the License, or (at your option) any later version.
  *
  * 2013/02/08 Minor tweaks by EMR Direct to allow integration with Direct messaging
+ * 2013-03-27 by sunsetsystems: Fixed some weirdness with assigning a message recipient,
+ *   and allowing a message to be closed with a new note appended and no recipient.
  */
 
 //SANITIZE ALL ESCAPES
@@ -121,10 +123,9 @@ switch($task) {
         $note = $_POST['note'];
         $noteid = $_POST['noteid'];
         $form_note_type = $_POST['form_note_type'];
-        $assigned_to = $_POST['assigned_to'];
         $form_message_status = $_POST['form_message_status'];
         $reply_to = $_POST['reply_to'];
-        $assigned_to_list = explode(';',$assigned_to);
+        $assigned_to_list = explode(';', $_POST['assigned_to']);
         foreach($assigned_to_list as $assigned_to){
           if ($noteid && $assigned_to != '-patient-') {
             updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status);
@@ -132,6 +133,9 @@ switch($task) {
           }
           else {
             if($noteid && $assigned_to == '-patient-'){
+              // When $assigned_to == '-patient-' we don't update the current note, but
+              // instead create a new one with the current note's body prepended and
+              // attributed to the patient.  This seems to be all for the patient portal.
               $row = getPnoteById($noteid);
               if (! $row) die("getPnoteById() did not find id '".text($noteid)."'");
               $pres = sqlQuery("SELECT lname, fname " .
@@ -140,6 +144,8 @@ switch($task) {
               $note .= "\n\n$patientname on ".$row['date']." wrote:\n\n";
               $note .= $row['body'];
             }
+            // There's no note ID, and/or it's assigned to the patient.
+            // In these cases a new note is created.
             addPnote($reply_to, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
           }
         }
@@ -157,7 +163,7 @@ switch($task) {
         $task = "edit";
         $note = $_POST['note'];
         $title = $_POST['form_note_type'];
-        $assigned_to = $_POST['assigned_to'];
+        $reply_to = $_POST['reply_to'];
     }
     case "edit" : {
         if ($noteid == "") {
@@ -168,9 +174,6 @@ switch($task) {
         if ($result) {
             if ($title == ""){
                 $title = $result['title'];
-            }
-            if ($assigned_to == ""){
-                $assigned_to = $result['assigned_to'];
             }
             $body = $result['body'];
             if ($reply_to == ""){
@@ -241,7 +244,8 @@ echo "
 <tr>
   <td class='text'>
    <b><?php echo htmlspecialchars( xl('To'), ENT_QUOTES); ?>:</b>
-   <input type='textbox' name='assigned_to_text' id='assigned_to_text' size='40' readonly='readonly' value='<?php echo htmlspecialchars(xl("Select Users From The Dropdown List"), ENT_QUOTES)?>' >
+   <input type='textbox' name='assigned_to_text' id='assigned_to_text' size='40' readonly='readonly'
+    value='<?php echo htmlspecialchars(xl("Select Users From The Dropdown List"), ENT_QUOTES)?>' >
    <input type='hidden' name='assigned_to' id='assigned_to' >
    <select name='users' id='users' onchange='addtolist(this);' >
 <?php
@@ -254,13 +258,11 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  "ORDER BY lname, fname");
  while ($urow = sqlFetchArray($ures)) {
   echo "    <option value='" . htmlspecialchars( $urow['username'], ENT_QUOTES) . "'";
-  if ($urow['username'] == $assigned_to) echo " selected";
   echo ">" . htmlspecialchars( $urow['lname'], ENT_NOQUOTES);
   if ($urow['fname']) echo ", " . htmlspecialchars( $urow['fname'], ENT_NOQUOTES);
   echo "</option>\n";
  }
   echo "<option value='" . htmlspecialchars( '-patient-', ENT_QUOTES) . "'";
-  if ($assigned_to == '-patient-') echo " selected";
   echo ">" . htmlspecialchars( '-Patient-', ENT_NOQUOTES);
   echo "</option>\n";
 ?>
@@ -342,8 +344,10 @@ $(document).ready(function(){
       if (document.forms[0].reply_to.value.length == 0 || document.forms[0].reply_to.value == '0') {
        alert('<?php echo htmlspecialchars( xl('Please choose a patient'), ENT_QUOTES); ?>');
       }
-      else if (document.forms[0].assigned_to.value.length == 0) {
-       alert('<?php echo addslashes(xl('Recipient List Is Empty')); ?>');
+      else if (document.forms[0].assigned_to.value.length == 0 &&
+       document.getElementById("form_message_status").value != 'Done')
+      {
+       alert('<?php echo addslashes(xl('Recipient required unless status is Done')); ?>');
       }
       else
       {
