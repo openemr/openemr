@@ -107,7 +107,17 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
   <td width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
   <td width='45%'><?php echo myCellText($orow['pubpid']); ?></td>
   <td width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
-  <td width='45%'><?php echo myCellText($orow['procedure_order_id']); ?></td>
+
+  <td width='45%'>
+<?php
+  echo "   <a href='" . $GLOBALS['webroot'];
+  echo "/interface/orders/order_manifest.php?orderid=";
+  echo attr($orow['procedure_order_id']);
+  echo "' target='_blank' onclick='top.restoreSession()'>";
+  echo myCellText($orow['procedure_order_id']);
+  echo "</a>\n";
+?>
+  </td>
  </tr>
  <tr bgcolor='#cccccc'>
   <td nowrap><?php echo xlt('Patient Name'); ?></td>
