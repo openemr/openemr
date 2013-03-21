@@ -352,3 +352,11 @@ UPDATE code_types SET ct_problem = 1 WHERE ct_key='ICD10';
 UPDATE code_types SET ct_problem = 1 WHERE ct_key='SNOMED';
 #EndIf
 
+#IfMissingColumn procedure_order date_transmitted
+ALTER TABLE `procedure_order`
+  ADD COLUMN `date_transmitted` datetime DEFAULT NULL COMMENT
+  'time of order transmission, null if unsent';
+UPDATE procedure_order SET date_transmitted = date_ordered WHERE
+  date_transmitted IS NULL AND date_ordered IS NOT NULL;
+#EndIf
+

@@ -158,10 +158,11 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
     if (empty($alertmsg)) {
       $alertmsg = send_hl7_order($ppid, $hl7);
     }
+    if (empty($alertmsg)) {
+      sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE " .
+        "procedure_order_id = ?", array($formid));
+    }
   }
-
-  // TBD: Implement and set a transmit date in the order.
-  // Add code elsewhere to show a warning if a previously transmitted order is opened.
 
   formHeader("Redirecting....");
   if ($alertmsg) {
@@ -329,13 +330,31 @@ function sel_related(varname) {
  dlgopen('find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
 }
 
+var transmitting = false;
+
+// Issue a Cancel/OK warning if a previously transmitted order is being transmitted again.
+function validate(f) {
+<?php if (!empty($row['date_transmitted'])) { ?>
+ if (transmitting) {
+  if (!confirm('<?php echo xls('This order was already transmitted on') . ' ' .
+    addslashes($row['date_transmitted']) . '. ' .
+    xls('Are you sure you want to transmit it again?'); ?>')) {
+    return false;
+  }
+ }
+<?php } ?>
+ top.restoreSession();
+ return true;
+}
+
 </script>
 
 </head>
 
 <body class="body_top">
 
-<form method="post" action="<?php echo $rootdir ?>/forms/procedure_order/new.php?id=<?php echo $formid ?>" onsubmit="return top.restoreSession()">
+<form method="post" action="<?php echo $rootdir ?>/forms/procedure_order/new.php?id=<?php echo $formid ?>"
+ onsubmit="return validate(this)">
 
 <p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>
 <?php
@@ -517,9 +536,9 @@ if ($qoe_init_javascript)
 <p>
 <input type='button' value='<?php echo xla('Add Procedure'); ?>' onclick="addProcLine()" />
 &nbsp;
-<input type='submit' name='bn_save' value='<?php echo xla('Save'); ?>' />
+<input type='submit' name='bn_save' value='<?php echo xla('Save'); ?>' onclick='transmitting = false;' />
 &nbsp;
-<input type='submit' name='bn_xmit' value='<?php echo xla('Save and Transmit'); ?>' />
+<input type='submit' name='bn_xmit' value='<?php echo xla('Save and Transmit'); ?>' onclick='transmitting = true;' />
 &nbsp;
 <input type='button' value='<?php echo xla('Cancel'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 </p>
