@@ -265,6 +265,16 @@ $GLOBALS_METADATA = array(
       xl('Default state of New Window checkbox in the patient list.')
     ),
 
+    'gbl_vitals_options' => array(
+      xl('Vitals Form Options'),
+      array(
+        '0' => xl('Standard'),
+        '1' => xl('Omit circumferences'),
+      ),
+      '0',                              // default
+      xl('Special treatment for the Vitals form')
+    ),
+
   ),
 
   // Locale Tab

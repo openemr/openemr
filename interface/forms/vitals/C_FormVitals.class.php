@@ -18,8 +18,9 @@ class C_FormVitals extends Controller {
     	$this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
     	$this->assign("STYLE", $GLOBALS['style']);
 
-        // send the unit selection
-        $this->assign("units_of_measurement",$GLOBALS['units_of_measurement']);
+      // Options for units of measurement and things to omit.
+      $this->assign("units_of_measurement",$GLOBALS['units_of_measurement']);
+      $this->assign("gbl_vitals_options",$GLOBALS['gbl_vitals_options']);
     }
 
     function default_action_old() {
