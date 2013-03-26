@@ -25,10 +25,27 @@ if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
     require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
 }
+
+// form parameter docid can be passed to restrict the display to a document.
+$docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
+
+// form parameter orderid can be passed to restrict the display to a procedure order.
+$orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
+
+$patient_id = $pid;
+if ($docid) {
+  $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid)); 
+  $patient_id = intval($row['foreign_id']);
+}
+else if ($orderid) {
+  $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid)); 
+  $patient_id = intval($row['patient_id']);
+}
+
 // Check authorization.
 if (!acl_check('patients','notes','',array('write','addonly') ))
     die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES));
-$tmp = getPatientData($pid, "squad");
+$tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
     die(htmlspecialchars( xl('Not authorized for this squad.'), ENT_NOQUOTES));
 
@@ -57,9 +74,6 @@ else {
     $form_active = $form_inactive = '1';
 }
 
-// form parameter docid can be passed to restrict the display to a document.
-$docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
-
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
@@ -75,6 +89,9 @@ if (isset($mode)) {
         if ($docid) {
           setGpRelation(1, $docid, 6, $id, !empty($_POST["lnk$id"]));
         }
+        if ($orderid) {
+          setGpRelation(2, $orderid, 6, $id, !empty($_POST["lnk$id"]));
+        }
       }
     }
   }
@@ -85,9 +102,16 @@ if (isset($mode)) {
       $noteid = '';
     }
     else {
-      addPnote($pid, $note, $userauthorized, '1', $_POST['form_note_type'],
+      $noteid = addPnote($patient_id, $note, $userauthorized, '1', $_POST['form_note_type'],
         $_POST['assigned_to']);
     }
+    if ($docid) {
+      setGpRelation(1, $docid, 6, $noteid);
+    }
+    if ($orderid) {
+      setGpRelation(2, $orderid, 6, $noteid);
+    }
+    $noteid = '';
   }
   elseif ($mode == "delete") {
     if ($noteid) {
@@ -113,12 +137,12 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
  "ORDER BY lname, fname");
 
-$pres = getPatientData($pid, "lname, fname");
+$pres = getPatientData($patient_id, "lname, fname");
 $patientname = $pres['lname'] . ", " . $pres['fname'];
 
 //retrieve all notes
 $result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to',
-  $pid, $N, $offset);
+  $patient_id, $N, $offset);
 ?>
 
 <html>
@@ -145,16 +169,22 @@ document.forms[0].submit();
 
 <div id="pnotes"> <!-- large outer DIV -->
 
-<form border='0' method='post' name='new_note' id="new_note" target="_parent" action='pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>'>
-
 <?php
 $title_docname = "";
 if ($docid) {
-  $title_docname = " " . xl("linked to document") . " ";
+  $title_docname .= " " . xl("linked to document") . " ";
   $d = new Document($docid);	
   $title_docname .= $d->get_url_file();
 }
+if ($orderid) {
+  $title_docname .= " " . xl("linked to procedure order") . " $orderid";
+}
+
+$urlparms = "docid=$docid&orderid=$orderid";
 ?>
+
+<form border='0' method='post' name='new_note' id="new_note" target="_parent"
+ action='pnotes_full.php?<?php echo $urlparms; ?>'>
 
     <div>
         <div style='float:left; margin-right: 5px'>
@@ -224,7 +254,7 @@ if ($docid) {
 <?php
 if ($noteid) {
     $body = $prow['body'];
-    $body = preg_replace(array('/(\sto\s)-patient-(\))/','/(:\d{2}\s\()'.$pid.'(\sto\s)/'),'${1}'.$patientname.'${2}',$body);
+    $body = preg_replace(array('/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'), '${1}' . $patientname . '${2}', $body);
     $body = nl2br(htmlspecialchars( $body, ENT_NOQUOTES));
     echo "<div class='text'>".$body."</div>";
 }
@@ -246,7 +276,7 @@ if ($noteid) {
 <br>
 </form>
 <form border='0' method='post' name='update_activity' id='update_activity'
- action="pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>">
+ action="pnotes_full.php?<?php echo $urlparms; ?>">
 
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
@@ -263,7 +293,7 @@ if ($noteid) {
 <?php
 if ($offset > ($N-1)) {
   echo "   <a class='link' href='pnotes_full.php" .
-    "?docid=" . htmlspecialchars( $docid, ENT_QUOTES) .
+    "?$urlparms" .
     "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars( $form_doc_only, ENT_QUOTES) .
@@ -276,7 +306,7 @@ if ($offset > ($N-1)) {
 <?php
 if ($result_count == $N) {
   echo "   <a class='link' href='pnotes_full.php" .
-    "?docid=" . htmlspecialchars( $docid, ENT_QUOTES) .
+    "?$urlparms" .
     "&form_active=" . htmlspecialchars( $form_active, ENT_QUOTES) .
     "&form_inactive=" . htmlspecialchars( $form_inactive, ENT_QUOTES) .
     "&form_doc_only=" . htmlspecialchars( $form_doc_only, ENT_QUOTES) .
@@ -294,9 +324,9 @@ if ($result_count == $N) {
 
 <?php
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
-  $ndata = getPatientData($pid, "fname, lname, pubpid");
+  $ndata = getPatientData($patient_id, "fname, lname, pubpid");
 ?>
- parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars( $ndata['fname']." ".$ndata['lname'], ENT_QUOTES) . "',$pid,'" . htmlspecialchars( $ndata['pubpid'], ENT_QUOTES) . "',window.name"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars( $ndata['fname']." ".$ndata['lname'], ENT_QUOTES) . "',$patient_id,'" . htmlspecialchars( $ndata['pubpid'], ENT_QUOTES) . "',window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'pno');
 <?php
 }
@@ -310,7 +340,7 @@ if ($noteid /* && $title == 'New Document' */ ) {
     $docid = $matches[1];
     $docname = $matches[2];
 ?>
- window.open('../../../controller.php?document&retrieve&patient_id=<?php echo htmlspecialchars( $pid, ENT_QUOTES) ?>&document_id=<?php echo htmlspecialchars( $docid, ENT_QUOTES) ?>&<?php echo htmlspecialchars( $docname, ENT_QUOTES)?>&as_file=true',
+ window.open('../../../controller.php?document&retrieve&patient_id=<?php echo htmlspecialchars( $patient_id, ENT_QUOTES) ?>&document_id=<?php echo htmlspecialchars( $docid, ENT_QUOTES) ?>&<?php echo htmlspecialchars( $docname, ENT_QUOTES)?>&as_file=true',
   '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
 <?php
   }

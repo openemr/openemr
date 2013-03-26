@@ -20,6 +20,9 @@ require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/formdata.inc.php");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 
+// For those who care that this is the patient report.
+$GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
+
 $PDF_OUTPUT = empty($_POST['pdf']) ? false : true;
 
 if ($PDF_OUTPUT) {

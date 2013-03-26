@@ -89,7 +89,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function openResults(orderid) {
  top.restoreSession();
- window.open('single_order_results.php?orderid=' + orderid);
+ // window.open('single_order_results.php?orderid=' + orderid);
+ document.location.href = 'single_order_results.php?orderid=' + orderid;
 }
 
 </script>

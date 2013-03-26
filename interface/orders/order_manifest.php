@@ -27,6 +27,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/patient.inc");
 require_once("$srcdir/classes/InsuranceCompany.class.php");
 
 function getListItem($listid, $value) {

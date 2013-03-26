@@ -94,10 +94,29 @@ function generate_order_report($orderid, $input_form=false) {
 <?php if ($input_form) { ?>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
+<?php } // end if input form ?>
+
+<?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
 <script language="JavaScript">
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+// Called to show patient notes related to this order in the "other" frame.
+function showpnotes(orderid) {
+ // Look for the top or bottom frame that contains this document, return if none.
+ var w;
+ for (w = window; w.name != 'RTop' && w.name != 'RBot'; w = w.parent) {
+  if (w.parent == w) return false;
+ }
+ var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
+ w.parent.left_nav.forceDual();
+ w.parent.left_nav.setRadio(othername, 'pno');
+ w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + orderid);
+ return false;
+}
 </script>
-<form method='post' action='single_order_results.php?orderid=<?php echo attr($orderid); ?>'>
+<?php } // end if not patient report ?>
+
+<?php if ($input_form) { ?>
+<form method='post' action='single_order_results.php?orderid=<?php echo $orderid; ?>'>
 <?php } // end if input form ?>
 
 <div class='labres'>
@@ -348,7 +367,12 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 ?>
   </td>
   <td style='border-width:0px;' align='right' valign='top'>
+<?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
+   <input type='button' value='<?php echo xla('Related Patient Notes'); ?>' 
+    onclick='showpnotes(<?php echo $orderid; ?>)' />
+<?php } ?>
 <?php if ($input_form && $sign_list) { ?>
+   &nbsp;
    <input type='hidden' name='form_sign_list' value='<?php echo attr($sign_list); ?>' />
    <input type='submit' name='form_sign' value='<?php echo xla('Sign Results'); ?>'
     title='<?php echo xla('Mark these reports as reviewed'); ?>' />

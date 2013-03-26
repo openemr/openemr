@@ -293,6 +293,25 @@ if ($noteid) {
     echo "  </td>\n";
     echo " </tr>\n";
   }
+  // Get the related procedure order IDs if any.
+  $tmp = sqlStatement("SELECT id1 FROM gprelations WHERE " .
+    "type1 = ? AND type2 = ? AND id2 = ?",
+    array('2', '6', $noteid));
+  if (sqlNumRows($tmp)) {
+    echo " <tr>\n";
+    echo "  <td class='text'><b>";
+    echo xlt('Linked procedure order') . ":</b>\n";
+    while ($gprow = sqlFetchArray($tmp)) {
+      echo "   <a href='";
+      echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
+      echo $gprow['id1'];
+      echo "' target='_blank' onclick='top.restoreSession()'>";
+      echo $gprow['id1'];
+      echo "</a>\n";
+    }
+    echo "  </td>\n";
+    echo " </tr>\n";
+  }
 }
 ?>
 
