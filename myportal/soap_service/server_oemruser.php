@@ -76,13 +76,13 @@ class OEMRUser{
             
             // Entries pending  for approval for  documents only (no demo change).            
             case 'U5':
-            $pid = $this->getPid($data[1]);
+            $pid = $this->getPid($data[1][0]);
 						if($pid){
 								$query = " select * from  audit_master  where pid=? and  approval_status='1' and  type='3' ";
 								return array($query,array($pid));
 						}else{
 								$query = " select * from  audit_master where id=? and approval_status='1' and type='3'";
-								return array($query,array($data[1]));
+		return array($query,array($data[1][0]));
 						}
             break;
             
@@ -238,13 +238,13 @@ class OEMRUser{
             
             case 'F8':
             //signing
-            $pid = $this->getPid($data[1]);
+            $pid = $this->getPid($data[1][0]);
 						if($pid){
 								$query = " select * from  audit_master  where pid=? and  approval_status='1' and  (type='1' or type='2' or type='3')";
 								return array($query,array($pid));
 						}else{
 								$query = " select * from  audit_master where id=? and approval_status='1' and (type='1' or type='2' or type='3')";
-								return array($query,array($data[1]));
+		return array($query,array($data[1][0]));
 						}
             break;
         

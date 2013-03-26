@@ -232,6 +232,16 @@ class UserService extends Userforms
                     AND dld.dld_id IS NOT NULL 
                     AND dld.dld_signed IN (1,2,4) 
                     AND dld.dld_moved = 0 
+          AND dlm_subcategory NOT IN
+          (
+            SELECT
+              dlc_id
+            FROM
+              documents_legal_categories
+            WHERE
+              dlc_category_name = 'Layout Signed' 
+              AND dlc_category_type = 2
+          )
                   ORDER BY dld.dld_pid ASC ";
 		  
       $res = sqlStatement($query);
