@@ -7,6 +7,8 @@
  * of the License, or (at your option) any later version.
  *
  * 2013/02/08 Minor tweaks by EMR Direct to allow integration with Direct messaging
+ * 2013-03-27 by sunsetsystems: Fixed some weirdness with assigning a message recipient,
+ *   and allowing a message to be closed with a new note appended and no recipient.
  */
 
 //SANITIZE ALL ESCAPES
@@ -121,10 +123,9 @@ switch($task) {
         $note = $_POST['note'];
         $noteid = $_POST['noteid'];
         $form_note_type = $_POST['form_note_type'];
-        $assigned_to = $_POST['assigned_to'];
         $form_message_status = $_POST['form_message_status'];
         $reply_to = $_POST['reply_to'];
-        $assigned_to_list = explode(';',$assigned_to);
+        $assigned_to_list = explode(';', $_POST['assigned_to']);
         foreach($assigned_to_list as $assigned_to){
           if ($noteid && $assigned_to != '-patient-') {
             updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status);
@@ -132,6 +133,9 @@ switch($task) {
           }
           else {
             if($noteid && $assigned_to == '-patient-'){
+              // When $assigned_to == '-patient-' we don't update the current note, but
+              // instead create a new one with the current note's body prepended and
+              // attributed to the patient.  This seems to be all for the patient portal.
               $row = getPnoteById($noteid);
               if (! $row) die("getPnoteById() did not find id '".text($noteid)."'");
               $pres = sqlQuery("SELECT lname, fname " .
@@ -140,6 +144,8 @@ switch($task) {
               $note .= "\n\n$patientname on ".$row['date']." wrote:\n\n";
               $note .= $row['body'];
             }
+            // There's no note ID, and/or it's assigned to the patient.
+            // In these cases a new note is created.
             addPnote($reply_to, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
           }
         }
@@ -157,7 +163,7 @@ switch($task) {
         $task = "edit";
         $note = $_POST['note'];
         $title = $_POST['form_note_type'];
-        $assigned_to = $_POST['assigned_to'];
+        $reply_to = $_POST['reply_to'];
     }
     case "edit" : {
         if ($noteid == "") {
@@ -168,9 +174,6 @@ switch($task) {
         if ($result) {
             if ($title == ""){
                 $title = $result['title'];
-            }
-            if ($assigned_to == ""){
-                $assigned_to = $result['assigned_to'];
             }
             $body = $result['body'];
             if ($reply_to == ""){
@@ -199,7 +202,7 @@ echo "
 <div id="pnotes"><center>
 <table border='0' cellspacing='8'>
  <tr>
-  <td class='text' align='center'>
+  <td class='text'>
    <b><?php echo htmlspecialchars( xl('Type'), ENT_NOQUOTES); ?>:</b>
    <?php
    if ($title == "") {
@@ -209,37 +212,7 @@ echo "
     generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP','order_by'=>'title'), $title);
    ?>
    &nbsp; &nbsp;
-   <b><?php echo htmlspecialchars( xl('To'), ENT_QUOTES); ?>:</b>
-   <input type='textbox' name='assigned_to_text' id='assigned_to_text' size='50' readonly='readonly' value='<?php echo htmlspecialchars(xl("Select Users From The Dropdown List"), ENT_QUOTES)?>' >
-   <input type='hidden' name='assigned_to' id='assigned_to' >
-   <select name='users' id='users' onchange='addtolist(this);' >
-
-<?php
-  echo "<option value='" . htmlspecialchars( '--', ENT_QUOTES) . "'";
-  echo ">" . htmlspecialchars( xl('Select User'), ENT_NOQUOTES);
-  echo "</option>\n";
-$ures = sqlStatement("SELECT username, fname, lname FROM users " .
- "WHERE username != '' AND active = 1 AND " .
- "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
- "ORDER BY lname, fname");
- while ($urow = sqlFetchArray($ures)) {
-  echo "    <option value='" . htmlspecialchars( $urow['username'], ENT_QUOTES) . "'";
-  if ($urow['username'] == $assigned_to) echo " selected";
-  echo ">" . htmlspecialchars( $urow['lname'], ENT_NOQUOTES);
-  if ($urow['fname']) echo ", " . htmlspecialchars( $urow['fname'], ENT_NOQUOTES);
-  echo "</option>\n";
- }
-  echo "<option value='" . htmlspecialchars( '-patient-', ENT_QUOTES) . "'";
-  if ($assigned_to == '-patient-') echo " selected";
-  echo ">" . htmlspecialchars( '-Patient-', ENT_NOQUOTES);
-  echo "</option>\n";
-?>
-   </select>
-  </td>
-</tr>
-<tr>
-  <td class='text' align='center'>
-   <?php if ($task != "addnew" && $result['pid']!=0) { ?>
+   <?php if ($task != "addnew" && $result['pid'] != 0) { ?>
      <a class="patLink" onclick="goPid('<?php echo attr($result['pid']);?>')"><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</a>
    <?php } else { ?>
      <b class='<?php echo ($task=="addnew"?"required":"") ?>'><?php echo htmlspecialchars( xl('Patient'), ENT_NOQUOTES); ?>:</b>
@@ -253,10 +226,10 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
    if ($patientname == '') {
        $patientname = xl('Click to select');
    } ?>
-   <input type='text' size='10' name='form_patient' style='width:150px;<?php 
-      echo ($task=="addnew"?"cursor:pointer;cursor:hand;":"") ?>' value='<?php 
-      echo htmlspecialchars($patientname, ENT_QUOTES); ?>' <?php 
-      echo (($task=="addnew" || $result['pid']==0) ? "onclick='sel_patient()' readonly":"disabled") ?> title='<?php 
+   <input type='text' size='10' name='form_patient' style='width:150px;<?php
+      echo ($task=="addnew"?"cursor:pointer;cursor:hand;":"") ?>' value='<?php
+      echo htmlspecialchars($patientname, ENT_QUOTES); ?>' <?php
+      echo (($task=="addnew" || $result['pid']==0) ? "onclick='sel_patient()' readonly":"disabled") ?> title='<?php
       echo ($task=="addnew"?(htmlspecialchars( xl('Click to select patient'), ENT_QUOTES)):"") ?>'  />
    <input type='hidden' name='reply_to' id='reply_to' value='<?php echo htmlspecialchars( $reply_to, ENT_QUOTES) ?>' />
    &nbsp; &nbsp;
@@ -267,7 +240,81 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
    }
     generate_form_field(array('data_type'=>1,'field_id'=>'message_status','list_id'=>'message_status','empty_title'=>'SKIP','order_by'=>'title'), $form_message_status); ?>
   </td>
+</tr>
+<tr>
+  <td class='text'>
+   <b><?php echo htmlspecialchars( xl('To'), ENT_QUOTES); ?>:</b>
+   <input type='textbox' name='assigned_to_text' id='assigned_to_text' size='40' readonly='readonly'
+    value='<?php echo htmlspecialchars(xl("Select Users From The Dropdown List"), ENT_QUOTES)?>' >
+   <input type='hidden' name='assigned_to' id='assigned_to' >
+   <select name='users' id='users' onchange='addtolist(this);' >
+<?php
+  echo "<option value='" . htmlspecialchars( '--', ENT_QUOTES) . "'";
+  echo ">" . htmlspecialchars( xl('Select User'), ENT_NOQUOTES);
+  echo "</option>\n";
+$ures = sqlStatement("SELECT username, fname, lname FROM users " .
+ "WHERE username != '' AND active = 1 AND " .
+ "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+ "ORDER BY lname, fname");
+ while ($urow = sqlFetchArray($ures)) {
+  echo "    <option value='" . htmlspecialchars( $urow['username'], ENT_QUOTES) . "'";
+  echo ">" . htmlspecialchars( $urow['lname'], ENT_NOQUOTES);
+  if ($urow['fname']) echo ", " . htmlspecialchars( $urow['fname'], ENT_NOQUOTES);
+  echo "</option>\n";
+ }
+  echo "<option value='" . htmlspecialchars( '-patient-', ENT_QUOTES) . "'";
+  echo ">" . htmlspecialchars( '-Patient-', ENT_NOQUOTES);
+  echo "</option>\n";
+?>
+   </select>
+  </td>
  </tr>
+
+<?php
+if ($noteid) {
+  // Get the related document IDs if any.
+  $tmp = sqlStatement("SELECT id1 FROM gprelations WHERE " .
+    "type1 = ? AND type2 = ? AND id2 = ?",
+    array('1', '6', $noteid));
+  if (sqlNumRows($tmp)) {
+    echo " <tr>\n";
+    echo "  <td class='text'><b>";
+    echo xlt('Linked document') . ":</b>\n";
+    while ($gprow = sqlFetchArray($tmp)) {
+      $d = new Document($gprow['id1']);	
+      echo "   <a href='";
+      echo $GLOBALS['webroot'] . "/controller.php?document&retrieve";
+      echo "&patient_id="  . $d->get_foreign_id();
+      echo "&document_id=" . $d->get_id();
+      echo "&as_file=true' target='_blank' onclick='top.restoreSession()'>";
+      echo text($d->get_url_file());
+      echo "</a>\n";
+    }
+    echo "  </td>\n";
+    echo " </tr>\n";
+  }
+  // Get the related procedure order IDs if any.
+  $tmp = sqlStatement("SELECT id1 FROM gprelations WHERE " .
+    "type1 = ? AND type2 = ? AND id2 = ?",
+    array('2', '6', $noteid));
+  if (sqlNumRows($tmp)) {
+    echo " <tr>\n";
+    echo "  <td class='text'><b>";
+    echo xlt('Linked procedure order') . ":</b>\n";
+    while ($gprow = sqlFetchArray($tmp)) {
+      echo "   <a href='";
+      echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
+      echo $gprow['id1'];
+      echo "' target='_blank' onclick='top.restoreSession()'>";
+      echo $gprow['id1'];
+      echo "</a>\n";
+    }
+    echo "  </td>\n";
+    echo " </tr>\n";
+  }
+}
+?>
+
  <tr>
   <td>
 
@@ -316,8 +363,10 @@ $(document).ready(function(){
       if (document.forms[0].reply_to.value.length == 0 || document.forms[0].reply_to.value == '0') {
        alert('<?php echo htmlspecialchars( xl('Please choose a patient'), ENT_QUOTES); ?>');
       }
-      else if (document.forms[0].assigned_to.value.length == 0) {
-       alert('<?php echo addslashes(xl('Recipient List Is Empty')); ?>');
+      else if (document.forms[0].assigned_to.value.length == 0 &&
+       document.getElementById("form_message_status").value != 'Done')
+      {
+       alert('<?php echo addslashes(xl('Recipient required unless status is Done')); ?>');
       }
       else
       {

@@ -16,7 +16,21 @@ $fake_register_globals=false;
  require_once("$srcdir/classes/Document.class.php");
 
  // form parameter docid can be passed to restrict the display to a document.
- $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
+ $docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
+
+ // form parameter orderid can be passed to restrict the display to a procedure order.
+ $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);
+
+ $patient_id = $pid;
+ if ($docid) {
+  $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid)); 
+  $patient_id = intval($row['foreign_id']);
+ }
+ else if ($orderid) {
+  $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid)); 
+  $patient_id = intval($row['patient_id']);
+ }
+ $urlparms = "docid=$docid&orderid=$orderid";
 ?>
 <html>
 <head>
@@ -31,7 +45,7 @@ $fake_register_globals=false;
 <?php
  $thisauth = acl_check('patients', 'notes');
  if ($thisauth) {
-  $tmp = getPatientData($pid, "squad");
+  $tmp = getPatientData($patient_id, "squad");
   if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
    $thisauth = 0;
  }
@@ -47,17 +61,20 @@ $fake_register_globals=false;
 <?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>" onclick="top.restoreSession()">
+<a href="pnotes_full.php?<?php echo $urlparms; ?>" onclick="top.restoreSession()">
 <?php } else { ?>
-<a href="pnotes_full.php?docid=<?php echo htmlspecialchars( $docid, ENT_QUOTES); ?>" target="Main" onclick="top.restoreSession()">
+<a href="pnotes_full.php?<?php echo $urlparms; ?>" target="Main" onclick="top.restoreSession()">
 <?php } ?>
 
 <span class="title"><?php echo htmlspecialchars( xl('Notes'), ENT_NOQUOTES); ?>
 <?php
   if ($docid) {
-    echo " " . htmlspecialchars( xl("linked to document"), ENT_NOQUOTES) . " ";
+    echo " " . xlt("linked to document") . " ";
     $d = new Document($docid);	
     echo $d->get_url_file();
+  }
+  else if ($orderid) {
+    echo " " . xlt("linked to procedure order") . " $orderid";
   }
 ?>
 </span>
@@ -79,7 +96,7 @@ $colorbeg = "";
 $colorend = "";
 $sql = "select genericname2, genericval2 " .
     "from patient_data where pid = ? limit 1";
-$resnote = sqlQuery($sql, array($pid) );
+$resnote = sqlQuery($sql, array($patient_id) );
 if($resnote && $resnote['genericname2'] == 'Billing') {
   $billing_note = $resnote['genericval2'];
   $colorbeg = "<span style='color:red'>";
@@ -87,7 +104,7 @@ if($resnote && $resnote['genericname2'] == 'Billing') {
 }
 
 //Display what the patient owes
-$balance = get_patient_balance($pid);
+$balance = get_patient_balance($patient_id);
 if ($balance != "0") {
   $formatted = sprintf((xl('$').'%01.2f'), $balance);
   echo " <tr class='text billing'>\n";
@@ -107,7 +124,7 @@ if ($billing_note) {
 
 //retrieve all active notes
 $result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
-  $pid, "all", 0, '', $docid);
+  $patient_id, "all", 0, '', $docid, '', $orderid);
 
 if ($result != null) {
   $notes_count = 0;//number of notes so far displayed
@@ -119,9 +136,8 @@ if ($result != null) {
       echo "  <td colspan='3' align='center'>\n";
       echo "   <a ";
       if (!$GLOBALS['concurrent_layout']) echo "target='Main' ";
-      echo "href='pnotes_full.php?active=1&docid=" .
-	htmlspecialchars( $docid, ENT_QUOTES) . 
-	"' class='alert' onclick='top.restoreSession()'>";
+      echo "href='pnotes_full.php?active=1&$urlparms" .
+      "' class='alert' onclick='top.restoreSession()'>";
       echo htmlspecialchars( xl('Some notes were not displayed.','','',' '), ENT_NOQUOTES) .
         htmlspecialchars( xl('Click here to view all.'), ENT_NOQUOTES) . "</a>\n";
       echo "  </td>\n";
@@ -171,9 +187,9 @@ var EditNote = function(note) {
 <?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
     top.restoreSession();
     <?php if (!$GLOBALS['concurrent_layout']): ?>
-    top.Main.location.href = "pnotes_full.php?docid=<?php echo $docid; ?>&noteid=" + note.id + "&active=1";
+    top.Main.location.href = "pnotes_full.php?<?php echo $urlparms; ?>&noteid=" + note.id + "&active=1";
     <?php else: ?>
-    location.href = "pnotes_full.php?docid=<?php echo $docid; ?>&noteid=" + note.id + "&active=1";
+    location.href = "pnotes_full.php?<?php echo $urlparms; ?>&noteid=" + note.id + "&active=1";
     <?php endif; ?>
 <?php else: ?>
     // no-op

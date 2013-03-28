@@ -47,9 +47,6 @@ function getPnoteById($id, $cols = "*")
 function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sortby='',$sortorder='',$begin='',$listnumber='')
 {
 
-  // Set the options for $sortby (for sql-injection hardening)
-  $sortbyoptions = array("users.lname","patient_data.lname","pnotes.title","pnotes.date","pnotes.message_status");
-
   // Set the activity part of query
   if ($activity=='1') {
     $activity_query = " pnotes.message_status != 'Done' AND pnotes.activity = 1 AND ";
@@ -78,7 +75,7 @@ function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sor
           LEFT JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE $activity_query
           pnotes.deleted != '1' AND pnotes.assigned_to LIKE ?";
   if (!empty($sortby) || !empty($sortorder)  || !empty($begin) || !empty($listnumber)) {
-    $sql .= " order by ".escape_identifier($sortby,TRUE,$sortbyoptions).
+    $sql .= " order by ".escape_sql_column_name($sortby,array('users','patient_data','pnotes'),TRUE).
             " ".escape_sort_order($sortorder).
             " limit ".escape_limit($begin).", ".escape_limit($listnumber);
   }
@@ -100,7 +97,7 @@ function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sor
 }
 
 function getPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
-  $limit = "all", $start = 0, $username = '', $docid = 0, $status = "")
+  $limit = "all", $start = 0, $username = '', $docid = 0, $status = "", $orderid = 0)
 {
 $sqlParameterArray = array();
   if ($docid) {
@@ -108,6 +105,12 @@ $sqlParameterArray = array();
     "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
     "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid != p.user";
     array_push($sqlParameterArray, '%'.$date.'%', $docid);
+  }
+  else if ($orderid) {
+    $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
+    "WHERE p.date LIKE ? AND r.type1 = 2 AND " .
+    "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid != p.user";
+    array_push($sqlParameterArray, '%'.$date.'%', $orderid);
   }
   else {
     $sql = "SELECT $cols FROM pnotes AS p " .
@@ -145,7 +148,7 @@ $sqlParameterArray = array();
 
 // activity can only be 0, 1, or 'all'
 function getSentPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
-  $limit = "all", $start = 0, $username = '', $docid = 0, $status = "")
+  $limit = "all", $start = 0, $username = '', $docid = 0, $status = "", $orderid = 0)
 {
 $sqlParameterArray = array();
   if ($docid) {
@@ -153,6 +156,12 @@ $sqlParameterArray = array();
     "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
     "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid = p.user";
     array_push($sqlParameterArray, '%'.$date.'%', $docid);
+  }
+  else if ($orderid) {
+    $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
+    "WHERE p.date LIKE ? AND r.type1 = 2 AND " .
+    "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid = p.user";
+    array_push($sqlParameterArray, '%'.$date.'%', $orderid);
   }
   else {
     $sql = "SELECT $cols FROM pnotes AS p " .

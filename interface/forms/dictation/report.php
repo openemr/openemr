@@ -18,8 +18,8 @@ function dictation_report( $pid, $encounter, $cols, $id) {
         $value = "yes";
       }
       $key=ucwords(str_replace("_"," ",$key));
-      print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" .
-        nl2br($value) . "</span></td>";
+      print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" .
+        nl2br(text($value)) . "</span></td>";
       $count++;
       if ($count == $cols) {
         $count = 0;

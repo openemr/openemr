@@ -89,7 +89,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function openResults(orderid) {
  top.restoreSession();
- window.open('single_order_results.php?orderid=' + orderid);
+ // window.open('single_order_results.php?orderid=' + orderid);
+ document.location.href = 'single_order_results.php?orderid=' + orderid;
 }
 
 </script>
@@ -161,8 +162,13 @@ $form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provid
    &nbsp;
    <select name='form_reviewed'>
 <?php
-foreach (array('1' => xl('All'), '2' => xl('Reviewed'), '3' => xl('Unreviewed'),
-  '4' => xl('Unreceived')) as $key => $value) {
+foreach (array(
+  '1' => xl('All'),
+  '2' => xl('Reviewed'),
+  '3' => xl('Received, not reviewed'),
+  '4' => xl('Sent, not received'),
+  '5' => xl('Not sent'),
+  ) as $key => $value) {
   echo "<option value='$key'";
   if ($key == $form_reviewed) echo " selected";
   echo ">" . text($value) . "</option>\n";
@@ -259,7 +265,10 @@ else if ($form_reviewed == 3) {
   $where .= " AND pr.procedure_report_id IS NOT NULL AND pr.review_status != 'reviewed'";
 }
 else if ($form_reviewed == 4) {
-  $where .= " AND pr.procedure_report_id IS NULL";
+  $where .= " AND po.date_transmitted IS NOT NULL AND pr.procedure_report_id IS NULL";
+}
+else if ($form_reviewed == 5) {
+  $where .= " AND po.date_transmitted IS NULL AND pr.procedure_report_id IS NULL";
 }
 
 $query = "SELECT po.patient_id, " .

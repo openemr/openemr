@@ -16,11 +16,15 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. -->
 
 <?php
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: note");
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
-$provider_results = sqlQuery("select fname, lname from users where username='" . $_SESSION{"authUser"} . "'");
+$provider_results = sqlQuery("select fname, lname from users where username=?",array($_SESSION{"authUser"}));
 /* name of this form */
 $form_name = "note"; 
 ?>
@@ -51,19 +55,19 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 <?php echo date("F d, Y", time()); ?>
 
 <form method=post action="<?php echo $rootdir."/forms/".$form_name."/save.php?mode=new";?>" name="my_form" id="my_form">
-<span class="title"><?php xl('Work/School Note','e'); ?></span><br></br>
+<span class="title"><?php echo xlt('Work/School Note'); ?></span><br></br>
 
 <div style="margin: 10px;">
-<input type="button" class="save" value="    <?php xl('Save','e'); ?>    "> &nbsp; 
-<input type="button" class="dontsave" value="<?php xl('Don\'t Save','e'); ?>"> &nbsp; 
+<input type="button" class="save" value="    <?php echo xla('Save'); ?>    "> &nbsp; 
+<input type="button" class="dontsave" value="<?php echo xla('Don\'t Save'); ?>"> &nbsp; 
 </div>
 
 <select name="note_type">
-<option value="WORK NOTE"><?php xl('WORK NOTE','e'); ?></option>
-<option value="SCHOOL NOTE"><?php xl('SCHOOL NOTE','e'); ?></option>
+<option value="WORK NOTE"><?php echo xlt('WORK NOTE'); ?></option>
+<option value="SCHOOL NOTE"><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
 <br>
-<b><?php xl('MESSAGE:','e'); ?></b>
+<b><?php echo xlt('MESSAGE:'); ?></b>
 <br>
 <textarea name="message" id="message" rows="7" cols="47"></textarea>
 <br>
@@ -77,31 +81,31 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 -->
 	
 <br>
-<b><?php xl('Signature:','e'); ?></b>
+<b><?php echo xlt('Signature:'); ?></b>
 <br>
 
 <table>
 <tr><td>
-<?php xl('Doctor:','e'); ?>
-<input type="text" name="doctor" id="doctor" value="<?php echo $provider_results["fname"].' '.$provider_results["lname"]; ?>">
+<?php echo xlt('Doctor:'); ?>
+<input type="text" name="doctor" id="doctor" value="<?php echo attr($provider_results["fname"]).' '.attr($provider_results["lname"]); ?>">
 </td>
 
 <td>
-<span class="text"><?php xl('Date','e'); ?></span>
+<span class="text"><?php echo xlt('Date'); ?></span>
    <input type='text' size='10' name='date_of_signature' id='date_of_signature'
     value='<?php echo date('Y-m-d', time()); ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
+    title='<?php echo xla('yyyy-mm-dd'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_date_of_signature' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php echo xla('Click here to choose a date'); ?>'>
 </td>
 </tr>
 </table>
 
 <div style="margin: 10px;">
-<input type="button" class="save" value="    <?php xl('Save','e'); ?>    "> &nbsp; 
-<input type="button" class="dontsave" value="<?php xl('Don\'t Save','e'); ?>"> &nbsp; 
+<input type="button" class="save" value="    <?php echo xla('Save'); ?>    "> &nbsp; 
+<input type="button" class="dontsave" value="<?php echo xla('Don\'t Save'); ?>"> &nbsp; 
 </div>
 
 </form>

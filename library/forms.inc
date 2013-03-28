@@ -59,15 +59,20 @@ function addForm($encounter, $form_name, $form_id, $formdir, $pid,
 {
 	if (!$user) $user = $_SESSION['authUser'];
 	if (!$group) $group = $_SESSION['authProvider'];
+
+        $arraySqlBind = array();
 	$sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
 		"user, groupname, authorized, formdir) values (";
-	if($date == "NOW()")
+	if($date == "NOW()") {
 		$sql .= "$date";
-	else
-		$sql .= "'$date'";
-	$sql .= ", '$encounter', '$form_name', '$form_id', '$pid', '$user',          " .
-		"'$group', '$authorized', '$formdir')";
-	return sqlInsert( $sql );
+        }
+	else {
+		$sql .= "?";
+                array_push($arraySqlBind,$date);
+        }
+	$sql .= ", ?, ?, ?, ?, ?, ?, ?, ?)";
+        array_push($arraySqlBind,$encounter,$form_name,$form_id,$pid,$user,$group,$authorized,$formdir);
+	return sqlInsert($sql,$arraySqlBind);
 }
 
 function authorizeForm($id, $authorized = "1")

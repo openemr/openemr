@@ -61,9 +61,10 @@ if ($_POST['formaction']=='save' && $list_id) {
         $ct_claim = empty($iter['ct_claim']) ? 0 : 1;
         $ct_proc = empty($iter['ct_proc']) ? 0 : 1;
         $ct_term = empty($iter['ct_term']) ? 0 : 1;
+        $ct_problem = empty($iter['ct_problem']) ? 0 : 1;
         if (strlen($ct_key) > 0 && $ct_id > 0) {
           sqlInsert("INSERT INTO code_types ( " .
-            "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term " .
+            "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem " .
             ") VALUES ( "   .
             "'$ct_key' , " .
             "'$ct_id'  , " .
@@ -80,7 +81,8 @@ if ($_POST['formaction']=='save' && $list_id) {
             "'$ct_external', " .
             "'$ct_claim', " .
             "'$ct_proc', " .
-            "'$ct_term' " .
+            "'$ct_term', " .
+            "'$ct_problem' " .
             ")");
         }
       }
@@ -413,6 +415,8 @@ function writeCTLine($ct_array) {
     xl('Is this a diagnosis type?'));
   echo ctGenCBox($opt_line_no, $ct_array, 'ct_term',
     xl('Is this a Clinical Term code type?'));
+  echo ctGenCBox($opt_line_no, $ct_array, 'ct_problem',
+    xl('Is this a Medical Problem code type?'));
   // Show the external code types selector
   $value_ct_external = isset($ct_array['ct_external']) ? $ct_array['ct_external'] : '';
   echo "  <td title='" . xla('Is this using external sql tables? If it is, then choose the format.') . "' align='center' class='optcell'>";
@@ -693,6 +697,7 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Procedure'   ,'e'); ?></b></td>
   <td><b><?php xl('Diagnosis'   ,'e'); ?></b></td>
   <td><b><?php xl('Clinical Term','e'); ?></b></td>
+  <td><b><?php xl('Medical Problem'     ,'e'); ?></b></td>
   <td><b><?php xl('External'    ,'e'); ?></b></td>
 <?php } else { ?>
   <td title=<?php xl('Click to edit','e','\'','\''); ?>><b><?php  xl('ID','e'); ?></b></td>

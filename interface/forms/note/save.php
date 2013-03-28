@@ -16,6 +16,10 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. -->
 
 <?php
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");

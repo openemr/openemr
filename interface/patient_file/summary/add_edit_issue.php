@@ -147,7 +147,8 @@ if ($_POST['form_save']) {
     "outcome = '"     . add_escape_custom($_POST['form_outcome'])      . "', " .
     "destination = '" . add_escape_custom($_POST['form_destination'])   . "', " .
     "reaction ='"     . add_escape_custom($_POST['form_reaction'])     . "', " .
-    "erx_uploaded = '0' " .
+    "erx_uploaded = '0', " .
+    "modifydate = NOW() " .
     "WHERE id = '" . add_escape_custom($issue) . "'";
     sqlStatement($query);
     if ($text_type == "medication" && enddate != '') {
@@ -420,6 +421,7 @@ div.section {
 function set_related(codetype, code, selector, codedesc) {
  var f = document.forms[0];
  var s = f.form_diagnosis.value;
+ var title = f.form_title.value;
  if (code) {
   if (s.length > 0) s += ';';
   s += codetype + ':' + code;
@@ -427,11 +429,24 @@ function set_related(codetype, code, selector, codedesc) {
   s = '';
  }
  f.form_diagnosis.value = s;
+ if(title == '') f.form_title.value = codedesc;
 }
 
 // This invokes the find-code popup.
 function sel_diagnosis() {
- dlgopen('../encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
+  <?php
+  if($irow['type'] == 'medical_problem')
+  {
+  ?>
+ dlgopen('../encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem","csv")) ?>', '_blank', 500, 400);
+  <?php
+  }
+  else{
+  ?>
+  dlgopen('../encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
+  <?php
+  }
+  ?>
 }
 
 // Check for errors when the form is submitted.

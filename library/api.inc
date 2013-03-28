@@ -38,7 +38,7 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
         // the variable escaping method.
         global $sanitize_all_escapes;
 
-	$sql = "insert into $tableName set pid = {$_SESSION['pid']},groupname='".$_SESSION['authProvider']."',user='".$_SESSION['authUser']."',authorized=$authorized,activity=1, date = NOW(),";
+	$sql = "insert into " . escape_table_name($tableName) . " set pid = ?,groupname=?,user=?,authorized=?,activity=1, date = NOW(),";
 	foreach ($values as $key => $value)
 		if (strpos($key,"openemr_net_cpt") === 0) {
 			//code to auto add cpt code
@@ -61,7 +61,7 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
 		else {
                         if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
                                 // using new security method, so escape the key and values here
-                                $sql .= " " . add_escape_custom($key) . " = '" . add_escape_custom($value) . "',";
+                                $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
                         }
                         else {
                                 // original method (rely on code to escape values before using this function)
@@ -69,19 +69,30 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
                         }
 		}
 	$sql = substr($sql, 0, -1);
-	return sqlInsert($sql);
+	return sqlInsert($sql,array($_SESSION['pid'],$_SESSION['authProvider'],$_SESSION['authUser'],$authorized));
 }
 
 
 function formUpdate ($tableName, $values, $id, $authorized = "0")
 {
-	$sql = "update $tableName set pid = {$_SESSION['pid']},groupname='".$_SESSION['authProvider']."',user='".$_SESSION['authUser']."',authorized=$authorized,activity=1, date = NOW(),";
+        // Bring in $sanitize_all_escapes variable, which will decide
+        // the variable escaping method.
+        global $sanitize_all_escapes;
+
+	$sql = "update " . escape_table_name($tableName) . " set pid = ?,groupname=?,user=?,authorized=?,activity=1, date = NOW(),";
 	foreach ($values as $key => $value)
-		$sql .= " $key = '$value',";
+                if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
+                        // using new security method, so escape the key and values here
+                        $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
+                }
+                else {
+                        // original method (rely on code to escape values before using this function)
+		        $sql .= " $key = '$value',";
+                }
 	$sql = substr($sql, 0, -1);
-	$sql .= " where id=$id";
+	$sql .= " where id=?";
 	
-	return sqlInsert($sql);
+	return sqlInsert($sql,array($_SESSION['pid'],$_SESSION['authProvider'],$_SESSION['authUser'],$authorized,$id));
 }
 
 
@@ -96,7 +107,8 @@ function formJump ($address = "0")
 
 function formFetch ($tableName, $id, $cols="*", $activity="1")
 {
-	return sqlQuery ( "select $cols from `$tableName` where id='$id' and pid = '{$GLOBALS['pid']}' and activity like '$activity' order by date DESC LIMIT 0,1" ) ;
+        // Note that tableName is hard-coded, so no need to run through escape_table_name() function (at least not yet).
+	return sqlQuery ( "select $cols from `" . $tableName . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity) ) ;
 }
 
 function formGetIds ($tableName, $cols = "*", $limit='all', $start=0, $activity = "1")
