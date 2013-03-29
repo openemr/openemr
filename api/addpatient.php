@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/addpatient.php add new Patient.
  *
@@ -30,36 +31,36 @@ $xml_array = array();
 $token = $_POST['token'];
 
 $title = $_POST['title'];
-$language = $_POST['language']; //d
-$firstname = $_POST['firstname']; // d
-$lastname = $_POST['lastname']; //d
-$middlename = $_POST['middlename']; //d
-$dob = $_POST['dob']; //d
-$street = $_POST['street']; // streetAddressLine1, streetAddressLine2
-$postal_code = $_POST['postal_code']; // ZipCode d
-$city = $_POST['city']; //d
-$state = $_POST['state']; //d
+$language = $_POST['language']; 
+$firstname = $_POST['firstname']; 
+$lastname = $_POST['lastname']; 
+$middlename = $_POST['middlename']; 
+$dob = $_POST['dob']; 
+$street = $_POST['street']; 
+$postal_code = $_POST['postal_code']; 
+$city = $_POST['city']; 
+$state = $_POST['state']; 
 $country_code = $_POST['country_code'];
-$ss = $_POST['ss']; // if suffix d
+$ss = $_POST['ss']; 
 $occupation = $_POST['occupation'];
 
-$phone_home = $_POST['phone_home']; //d
-$phone_biz = $_POST['phone_biz']; //d
-$phone_contact = $_POST['phone_contact']; // d
-$phone_cell = $_POST['phone_cell']; //d
+$phone_home = $_POST['phone_home']; 
+$phone_biz = $_POST['phone_biz']; 
+$phone_contact = $_POST['phone_contact']; 
+$phone_cell = $_POST['phone_cell']; 
 
 $status = $_POST['status'];
 $drivers_lincense = $_POST['drivers_license'];
 
-$contact_relationship = $_POST['contact_relationship']; //d
+$contact_relationship = $_POST['contact_relationship']; 
 $mothersname = $_POST['mothersname'];
 $guardiansname = $_POST['guardiansname'];
 
-$sex = $_POST['sex']; //d
-$email = $_POST['email']; //d
-$race = $_POST['race']; //d
-$ethnicity = $_POST['ethnicity']; //d
-$usertext1 = $_POST['notes']; // note d
+$sex = $_POST['sex']; 
+$email = $_POST['email']; 
+$race = $_POST['race']; 
+$ethnicity = $_POST['ethnicity']; 
+$usertext1 = $_POST['notes']; 
 $nickname = $_POST['nickname'];
 
 $p_insurance_company = $_POST['p_provider'];
@@ -88,18 +89,10 @@ $image_data = isset($_POST['image_data']) ? $_POST['image_data'] : '';
 
 if ($userId = validateToken($token)) {
 
-    $user_data = getUserData($userId);
-
-    $user = $user_data['user'];
-    $emr = $user_data['emr'];
-    $username = $user_data['username'];
-    $password = $user_data['password'];
-
+    $user = getUsername($userId);
 
     $acl_allow = acl_check('patients', 'demo', $user);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
 
     if ($acl_allow) {
 
@@ -156,7 +149,7 @@ if ($userId = validateToken($token)) {
 
 
         $p_id = updatePatientData($patientId, $postData, $create = true);
-        
+
         if ($p_id) {
 
             $primary_insurace_data = getInsuranceData($p_id);
@@ -234,9 +227,9 @@ if ($userId = validateToken($token)) {
             $hash = '';
             $patient_id = $patientId;
             $ext = 'png';
-            $cat_title = 'Patient Profile Image';
-
-            $strQuery2 = "SELECT id from `categories` WHERE name LIKE '".add_escape_custom($cat_title)."'";
+            $cat_title = 'Patient Photograph';
+            
+            $strQuery2 = "SELECT id from `categories` WHERE name LIKE '" . add_escape_custom($cat_title) . "'";
             $result3 = sqlQuery($strQuery2);
 
             if ($result3) {
@@ -251,7 +244,7 @@ if ($userId = validateToken($token)) {
                 sqlStatement("unlock tables");
 
                 $cat_insert_query = "INSERT INTO `categories`(`id`, `name`, `value`, `parent`, `lft`, `rght`) 
-                VALUES (".add_escape_custom($cat_id).",'".add_escape_custom($cat_title)."','',1,0,0)";
+                VALUES (" . add_escape_custom($cat_id) . ",'" . add_escape_custom($cat_title) . "','',1,0,0)";
 
                 sqlStatement($cat_insert_query);
             }
@@ -285,21 +278,21 @@ if ($userId = validateToken($token)) {
 
             $strQuery = "INSERT INTO `documents`( `id`, `type`, `size`, `date`, `url`, `mimetype`, `foreign_id`, `docdate`, `hash`, `list_id`) 
              VALUES (
-                        ".add_escape_custom($id).",
-                        '".add_escape_custom($type)."',
-                        '".add_escape_custom($size)."',
-                        '".add_escape_custom($date)."',
-                        '".add_escape_custom($url)."',
-                        '".add_escape_custom($mimetype)."',
-                        ".add_escape_custom($patient_id).",
-                        '".add_escape_custom($docdate)."',
-                        '".add_escape_custom($hash)."',
-                        '".add_escape_custom($list_id)."')";
+                        " . add_escape_custom($id) . ",
+                        '" . add_escape_custom($type) . "',
+                        '" . add_escape_custom($size) . "',
+                        '" . add_escape_custom($date) . "',
+                        '" . add_escape_custom($url) . "',
+                        '" . add_escape_custom($mimetype) . "',
+                        " . add_escape_custom($patient_id) . ",
+                        '" . add_escape_custom($docdate) . "',
+                        '" . add_escape_custom($hash) . "',
+                        '" . add_escape_custom($list_id) . "')";
 
             $result = sqlStatement($strQuery);
 
             $strQuery1 = "INSERT INTO `categories_to_documents`(`category_id`, `document_id`) 
-                                VALUES ('".add_escape_custom($cat_id)."',".add_escape_custom($id).")";
+                                VALUES ('" . add_escape_custom($cat_id) . "'," . add_escape_custom($id) . ")";
 
             $result1 = sqlStatement($strQuery1);
         }
