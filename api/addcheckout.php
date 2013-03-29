@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/addcheckout.php Add patient checkout.
  *
@@ -22,7 +23,6 @@
  * @author  Karl Englund <karl@mastermobileproducts.com>
  * @link    http://www.open-emr.org
  */
-
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -30,74 +30,89 @@ require_once 'classes.php';
 $xml_string = "";
 $xml_string = "<checkout>";
 
-//Post by form:-
 $token = $_POST['token'];
 $patientId = $_POST['patientId'];
 $visit_id = $_POST['visit_id'];
 $payment_method = $_POST['payment_method'];
 $check_ref_number = $_POST['check_ref_number'];
-$discountAmount = $_POST['discountAmount'];
+$fee = $_POST['fee'];
+$discountAmount = !empty($_POST['discountAmount']) ? $_POST['discountAmount'] : 0;
 $billing_id = $_POST['billing_id'];
 
-//Post by getfeesheet web serivece for insertion
-$feeSum = $_POST['feeSum'];
-$fee = -$amount_paid;
-$amount_paid = $feeSum - $discountAmount;
-
-//Post by getfeesheet web serivece for view Only
-$itemFee = $_POST['itemFee'];
-$date = $_POST['date'];
-$units = add_escape_custom($_POST['units']);
-
-$code_type = 'COPAY';
-$auth = "1";
+$charges = $fee - $discountAmount;
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
 
-
-
-
     $acl_allow = acl_check('acct', 'bill', $user);
 
+    // $_SESSION['authUser'] is used in addBilling(). 
     $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
+
 
     if ($acl_allow) {
 
-        addBilling($visit_id, $code_type, $code, $code_text, $patientId, $auth, $provider = "0", $modifier = "0", $units, $fee, $ndc_info = '', $justify = '', $billed = "1", $notecodes = '');
+        if ($code_type == 'TAX') {
+            // In the SL case taxes show up on the invoice as line items.
+            // Otherwise we gotta save them somewhere, and in the billing
+            // table with a code type of TAX seems easiest.
+            // They will have to be stripped back out when building this
+            // script's input form.
 
-        $strQuery1 = "UPDATE `billing` SET";
-        $strQuery1 .= " activity  = 0";
-        $strQuery1 .= " WHERE encounter = " . add_escape_custom($visit_id) . " AND pid = " . add_escape_custom($patientId);
+            
+            addBilling($visit_id, 'TAX', 'TAX', 'Taxes', $patientId, 0, 0, '', '', $charges, '', '', 1);
+        } else {
+            // Because there is no insurance here, there is no need for a claims
+            // table entry and so we do not call updateClaim().  Note we should not
+            // eliminate billed and bill_date from the billing table!
+            $query = "UPDATE billing SET fee = ?, billed = 1, " .
+                    "bill_date = NOW() WHERE id = ?";
+            sqlQuery($query, array($charges, $billing_id));
+        }
+        if (!empty($discountAmount)) {
+            $time = date('Y-m-d H:i:s');
+            $memo = 'Discount';
+            $query = "INSERT INTO ar_activity ( " .
+                    "pid, encounter, code, modifier, payer_type, post_user, post_time, " .
+                    "session_id, memo, adj_amount " .
+                    ") VALUES ( " .
+                    "?, " .
+                    "?, " .
+                    "'', " .
+                    "'', " .
+                    "'0', " .
+                    "?, " .
+                    "?, " .
+                    "'0', " .
+                    "?, " .
+                    "? " .
+                    ")";
+            sqlStatement($query, array($patientId, $visit_id, $userId, $time, $memo, $amount));
+        }
 
-        $result1 = sqlStatement($strQuery1);
+        if (!empty($charges)) {
+            $amount = sprintf('%01.2f', trim($charges));
 
-        $strQuery2 = 'UPDATE `billing` SET';
-        $strQuery2 .= ' fee  = "' . add_escape_custom($feeSum) . '",';
-        $strQuery2 .= ' bill_date  = "' . date('Y-m-d H:i:s') . '",';
-        $strQuery2 .= ' billed  = 1';
-        $strQuery2 .= ' WHERE id = ' . add_escape_custom($billing_id);
+            $ResultSearchNew = sqlStatement("SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
+                    "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier", array($patientId, $visit_id));
+            if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
+                $Codetype = $RowSearch['code_type'];
+                $Code = $RowSearch['code'];
+                $Modifier = $RowSearch['modifier'];
+            } else {
+                $Codetype = '';
+                $Code = '';
+                $Modifier = '';
+            }
+            $session_id = idSqlStatement("INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
+                    " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
+                    " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())", array($user_id, $check_ref_number, $dosdate, $amount, $patientId, $paydesc));
+            $insrt_id = idSqlStatement("INSERT INTO ar_activity (pid,encounter,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
+                    " VALUES (?,?,?,?,?,0,?,?,?,?,'PCP')", array($patientId, $visit_id, $Codetype, $Code, $Modifier, $dosdate, $userId, $session_id, $amount));
+        }
 
-        $result2 = sqlStatement($strQuery2);
 
-        $strQuery3 = "INSERT INTO ar_activity ( pid, encounter, code, modifier, payer_type, post_user, post_time, session_id, memo, adj_amount ) 
-                                            VALUES ( '" . add_escape_custom($patientId) . "',
-                                                    '" . add_escape_custom($visit_id) . "',
-                                                    '',
-                                                    '',
-                                                    '0',
-                                                    '" . $userId . "',
-                                                    '" . date('Y-m-d H:i:s') . "',\
-                                                    '0',
-                                                    'Discount',
-                                                    '" . add_escape_custom($discountAmount) . "'
-                                                        )";
-
-        $result3 = sqlStatement($strQuery3);
-
-        if ($result1 && $result2 && $result3) {
+        if ($insrt_id) {
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Checkout has been added.</reason>";
         } else {
@@ -114,4 +129,5 @@ if ($userId = validateToken($token)) {
 }
 
 $xml_string .= "</checkout>";
-echo $xml_string;?>
+echo $xml_string;
+?>
