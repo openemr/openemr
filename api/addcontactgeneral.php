@@ -63,8 +63,6 @@ if ($userId = validateToken($token)) {
 
     $acl_allow = acl_check('admin', 'users', $user);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
 
     if ($acl_allow) {
 
