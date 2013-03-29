@@ -403,7 +403,7 @@ if ($form_batch) {
   "pd.fname, pd.mname, pd.lname, pd.pubpid, $selects " .
   "FROM procedure_order AS po " .
   "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id $joins " .
-  "WHERE pt.procedure_type_id = '$form_proc_type' AND " .
+  "WHERE pt1.procedure_type_id = '$form_proc_type' AND " .
   "po.date_ordered >= '$form_from_date' AND po.date_ordered <= '$form_to_date' " .
   "AND $where " .
   "ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, $orderby";
