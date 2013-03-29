@@ -26,6 +26,8 @@
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
+require_once("$srcdir/encounter_events.inc.php");
+
 $xml_array = array();
 
 $token = $_POST['token'];
@@ -64,44 +66,21 @@ $locationspecs = array("event_location" => "",
 $locationspec = serialize($locationspecs);
 
 if ($userId = validateToken($token)) {
-    $user_data = getUserData($userId);
 
-    $user = $user_data['user'];
-    $emr = $user_data['emr'];
-    $username = $user_data['username'];
-    $password = $user_data['password'];
-
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
+    $user = getUsername($userId);//$user_data['user'];
+    
 
     $provider_username = getProviderUsername($admin_id);
 
-    $acl_allow = acl_check('patients', 'appt', $username);
-
+    $acl_allow = acl_check('patients', 'appt', $user);
     if ($acl_allow) {
-
-        $strQuery = "INSERT INTO openemr_postcalendar_events 
-                            (pc_pid, pc_title, pc_hometext , pc_time, pc_eventDate, pc_startTime, pc_endTime, pc_apptstatus, pc_catid, pc_aid, pc_facility, pc_billing_location, pc_duration , pc_informant, pc_eventstatus, pc_sharing, pc_recurrspec, pc_location) 
-                                VALUES (" . add_escape_custom($patientId) . ",
-                                        '" . add_escape_custom($pc_title) . "' ,
-                                        '" . add_escape_custom($comments) . "' ,
-                                        '" . date('Y-m-d H:i:s') . "',
-                                        '" . add_escape_custom($appointmentDate) . "',
-                                        '" . add_escape_custom($appointmentTime) . "',
-                                        '" . add_escape_custom($endTime) . "',
-                                        '" . add_escape_custom($app_status) . "',
-                                        '" . add_escape_custom($pc_catid) . "',
-                                        '" . add_escape_custom($admin_id) . "',
-                                        '" . add_escape_custom($facility) . "',
-                                        '" . add_escape_custom($pc_billing_location) . "',
-                                        '" . add_escape_custom($pc_duration) . "',
-                                        1,
-                                        1,
-                                        1,
-                                        '" . add_escape_custom($recurrspec) . "',
-                                        '" . add_escape_custom($locationspec) . "')";
-        $result = sqlStatement($strQuery);
+        $args = array('form_category'=>$pc_catid,'form_provider'=>$admin_id,'form_pid'=>$patientId,
+                       'form_title'=>$pc_title,'form_comments'=>$comments,'event_date'=>$appointmentDate,
+                        'form_enddate'=>'','duration'=>$pc_duration,'recurrspec'=>$recurrspecs,
+                        'starttime'=>$appointmentTime,'endtime'=>$endTime,'form_allday'=>0,
+                        'form_apptstatus'=>$app_status,'form_prefcat'=>0,'locationspec'=>$locationspec,
+                        'facility'=>$facility,'billing_facility'=>$pc_billing_location);
+        $result = InsertEvent($args);
 
         $device_token_badge = getDeviceTokenBadge($provider_username, 'appointment');
         $badge = $device_token_badge ['badge'];
