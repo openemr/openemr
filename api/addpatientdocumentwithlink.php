@@ -42,9 +42,7 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'docs', $user);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['authUser'] = $patient_id;
+   
 
     if ($acl_allow) {
         if ($image_content) {
@@ -106,7 +104,9 @@ if ($userId = validateToken($token)) {
 
                 $result1 = sqlStatement($strQuery1);
 
-                if ($cat_id == 2) {
+                $lab_report_catid = getIdByDocumentCatName("Lab Report");
+                
+                if ($cat_id == $lab_report_catid) {
                     $device_token_badge = getDeviceTokenBadge($provider_username, 'labreport');
                     $badge = $device_token_badge ['badge'];
                     $deviceToken = $device_token_badge ['device_token'];
