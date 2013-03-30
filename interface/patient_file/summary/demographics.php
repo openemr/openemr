@@ -598,15 +598,15 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
  if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
  // Show current balance and billing note, if any.
   echo "<table border='0'><tr><td>" .
-  "<table ><tr><td><span class='bold'><font color='red' size='3pt'>" .
+  "<table ><tr><td><span class='bold'><font color='red'>" .
    xlt('Patient Balance Due') .
    " : " . text(oeFormatMoney($patientbalance)) .
    "</font></span></td></tr>".
-     "<tr><td><span class='bold'><font color='red' size='3pt'>" .
+     "<tr><td><span class='bold'><font color='red'>" .
    xlt('Insurance Balance Due') .
    " : " . text(oeFormatMoney($insurancebalance)) .
    "</font></span></td></tr>".
-   "<tr><td><span class='bold'><font color='red' size='3pt'>" .
+   "<tr><td><span class='bold'><font color='red'>" .
    xlt('Total Balance Due').
    " : " . text(oeFormatMoney($totalbalance)) .
    "</font></span></td></td></tr>";
