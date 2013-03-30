@@ -696,41 +696,8 @@ class C_Document extends Controller {
 				$messages .= xl('Document could not be moved to patient id','','',' \'') . $new_patient_id  . xl('because that id does not exist.','','\' ') . "\n";
 			}
 			else {
-			
-				$couch_docid = $d->get_couch_docid();
-				$couch_revid = $d->get_couch_revid();
-				//set the new patient in CouchDB
-				$couchsavefailed=false;
-				if($couch_docid && $couch_revid){
-				$couch = new CouchDB();
-				$db = $GLOBALS['couchdb_dbase'];
-				$data=array($db,$couch_docid);
-				$couchresp=$couch->retrieve_doc($data);
-				//CouchDB doesnot support updating a single value in a document.
-				//Have to retrieve the entire document,update the necessary value and save again
-				list($db,$docid,$revid,$patient_id,$encounter,$type,$json) = $data;
-				$data=array($db,$couch_docid,$couch_revid,$new_patient_id,$couchresp->encounter,$couchresp->mimetype,json_encode($couchresp->data));
-				$resp = $couch->update_doc($data);
-				//Sometimes the response from CouchDB is not available
-				//still it would have saved in the DB. Hence check one more time
-				if(!$resp->_id || !$resp->_rev){
-					$data = array($db,$couch_docid,$new_patient_id,$couchresp->encounter);
-					$resp = $couch->retrieve_doc($data);
-					
-					
-				}
-				if($resp->_rev ==$couch_revid){
-					$couchsavefailed=true;
-					}
-				else{
-				$d->set_couch_revid($resp->_rev);
-				}
-				}
-				
-				
-				//set the new patient in mysql
-				$d->set_foreign_id($new_patient_id);
-				$d->persist();
+        $couchsavefailed = !$d->change_patient($new_patient_id);
+
 				$this->_state = false;
 				if(!$couchsavefailed){
 				
