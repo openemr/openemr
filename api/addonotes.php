@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/addonotes.php add notes.
  *
@@ -21,7 +22,6 @@
  * @author  Karl Englund <karl@mastermobileproducts.com>
  * @link    http://www.open-emr.org
  */
-
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
@@ -36,11 +36,13 @@ $body = $_POST['body'];
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('admin', 'super', $user);
-    
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    
-    
+
+    // $_SESSION['authUser'] used in addOnote() function.
+    $provider = getAuthGroup($user);
+    if ($authGroup = sqlQuery("select * from groups where user='$user' and name='$provider'")) {
+        $_SESSION['authUser'] = $user;
+    }
+
     if ($acl_allow) {
         addOnote($body);
         $xml_string .= "<status>0</status>\n";
