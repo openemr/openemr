@@ -67,9 +67,8 @@ $locationspec = serialize($locationspecs);
 
 if ($userId = validateToken($token)) {
 
-    $user = getUsername($userId);//$user_data['user'];
+    $user = getUsername($userId);
     
-
     $provider_username = getProviderUsername($admin_id);
 
     $acl_allow = acl_check('patients', 'appt', $user);
