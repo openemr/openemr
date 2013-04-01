@@ -59,13 +59,11 @@ $image_data = $_POST['imageData'];
 $image_title = $_POST['imageTitle'];
 
 if ($userId = validateToken($token)) {
+    
     $user = getUsername($userId);
-
     $acl_allow = acl_check('admin', 'users', $user);
 
-
     if ($acl_allow) {
-
 
         if ($firstname == '' || $lastname == '' || $email == '') {
             $xml_string .= "<status>-1</status>";
