@@ -1584,7 +1584,7 @@ $GLOBALS_METADATA = array(
       xl('Enable mobile device REST API server?')
     ),
 	
-	'push_notification' => array(
+	'device_push_notification_service' => array(
   	  xl('Enable Apple Push Notification Service?'),
       'bool', // data type
       '0',
