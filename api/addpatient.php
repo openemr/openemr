@@ -90,12 +90,9 @@ $image_data = isset($_POST['image_data']) ? $_POST['image_data'] : '';
 if ($userId = validateToken($token)) {
 
     $user = getUsername($userId);
-
     $acl_allow = acl_check('patients', 'demo', $user);
 
-
     if ($acl_allow) {
-
         $provider_id = $userId;
         $patientId = 1;
         $pid = 1;
