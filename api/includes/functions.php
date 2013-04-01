@@ -37,7 +37,7 @@ function createToken($userId, $create = true, $device_token = '') {
     $token_result = sqlQuery($query, array($userId));
 
     if ($create || !$token_result) {
-        $strQuery = "INSERT INTO api_tokens VALUES('', " . add_escape_custom($userId) . " ,'" . add_escape_custom($token) . "','" . add_escape_custom($device_token) . "' ,'" . date('Y-m-d h:i:s') . "', '',0,0,0,0)";
+        $strQuery = "INSERT INTO api_tokens VALUES('', '" . add_escape_custom($userId) . "' ,'" . add_escape_custom($token) . "','" . add_escape_custom($device_token) . "' ,'" . date('Y-m-d h:i:s') . "', '',0,0,0,0)";
         $result = sqlInsert($strQuery);
     } else {
 
@@ -56,7 +56,7 @@ function createToken($userId, $create = true, $device_token = '') {
 }
 
 function validateToken($token) {
-    $query = "SELECT * FROM api_tokens WHERE token LIKE '{$token}' AND (expire_datetime = 0 OR expire_datetime >= NOW())";
+    $query = "SELECT * FROM api_tokens WHERE token LIKE '" . add_escape_custom($token) . "' AND (expire_datetime = 0 OR expire_datetime >= NOW())";
     $result = sqlQuery($query);
     if ($result) {
         return $result['user_id'];
@@ -87,8 +87,6 @@ function getPatientsProvider($patient_id) {
     }
 }
 
-
-
 function getAllBadges($token) {
     $strQuery = "SELECT t.`device_token` , t.`message_badge` , t.`appointment_badge` , t.`labreports_badge` , t.`prescription_badge`
                     FROM `api_tokens` AS t
@@ -105,7 +103,7 @@ function getAllBadges($token) {
 function getDeviceTokenBadge($username, $update_badge_type = '') {
     $strQuery = "SELECT t.device_token,t.token,t.`message_badge`,t.`appointment_badge`,t.`labreports_badge`,t.`prescription_badge`
                         FROM `users` AS mu
-                        INNER JOIN `api_tokens` AS t ON mu.id = t.user_id
+                        INNER JOIN `api_tokens` AS t ON mu.id = t.id
                         WHERE `username` = ?";
     $result = sqlQuery($strQuery, array($username));
 
@@ -230,17 +228,6 @@ function getFormatedDate($string, $time = false) {
         return false;
 }
 
-function getUserData($userId) {
-    $return_array = array();
-    $return_array['user'] = getUsername($userId);
-//    $return_array['emr'] = getEmr($userId);
-    $return_array['emr'] = '';
-    $return_array['username'] = getUsername($userId);
-//    $return_array['password'] = getPass($userId);
-    $return_array['password'] = '';
-    return $return_array;
-}
-
 function createThumbnail($pathToImage, $thumb_name, $thumbWidth = 180, $pathToDest = '/var/www/openemr/sites/default/documents/userdata/images/thumb/') {
     $result = 'Failed';
 //    var_dump(file_exists($pathToImage));
@@ -312,7 +299,7 @@ function getDrugTitle($code, $db) {
 }
 
 function createHtml($data, $heading = "", $flag = true) {
-    
+
     $html = "<html>
             <head>
                 
@@ -593,7 +580,7 @@ function curlRequest($url, $body) {
 }
 
 function notification($deviceToken, $badge = 1, $msg_count = 0, $apt_count = 0, $message = 'Notification!', $passphrase = 'medmasterpro') {
-    if (!$GLOBALS['push_notification'])
+    if (!$GLOBALS['device_push_notification_service'])
         return;
     $ctx = stream_context_create();
     stream_context_set_option($ctx, 'ssl', 'local_cert', 'includes/apns-dev.pem');
@@ -662,6 +649,23 @@ function sendAllNotifications($device_token, $user, $provider_id, $message = 'No
     } else {
         return false;
     }
+}
+
+function getIdByDocumentCatName($doc_cat) {
+    $query = "SELECT id
+                    FROM `categories`
+                    WHERE `name` LIKE ?";
+
+    $cat_detail = sqlQuery($query, array($doc_cat));
+
+    return $cat_detail ? $cat_detail['id'] : false;
+}
+
+function getAuthGroup($username) {
+    $res = sqlQuery("SELECT name
+                                FROM `groups`
+                                WHERE `user` LIKE '{$username}'");
+    return $res ? $res['name'] : false;
 }
 
 ?>
