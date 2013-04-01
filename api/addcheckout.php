@@ -46,10 +46,12 @@ if ($userId = validateToken($token)) {
 
     $acl_allow = acl_check('acct', 'bill', $user);
 
-    // $_SESSION['authUser'] is used in addBilling(). 
-    $_SESSION['authUser'] = $user;
-
-
+    // Session variable used in addBilling() function
+    $group = getAuthGroup($user);
+    if ($authGroup = sqlQuery("select * from groups where user='$user' and name='$group'")) {
+        $_SESSION['authUser'] = $user;
+    }
+    
     if ($acl_allow) {
 
         if ($code_type == 'TAX') {
@@ -59,7 +61,6 @@ if ($userId = validateToken($token)) {
             // They will have to be stripped back out when building this
             // script's input form.
 
-            
             addBilling($visit_id, 'TAX', 'TAX', 'Taxes', $patientId, 0, 0, '', '', $charges, '', '', 1);
         } else {
             // Because there is no insurance here, there is no need for a claims
