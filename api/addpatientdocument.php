@@ -43,10 +43,7 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'docs', $user);
 
-   
-
     if ($acl_allow) {
-
         $id = 1;
         $type = "file_url";
         $size = '';
