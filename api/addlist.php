@@ -42,7 +42,7 @@ $extrainfo = isset($_POST['extrainfo']) ? $_POST['extrainfo'] : '';
 $diagnosis = isset($_POST['diagnosis']) ? $_POST['diagnosis'] : '';
 $activity = isset($_POST['activity']) ? $_POST['activity'] : '1';
 $comments = isset($_POST['comments']) ? $_POST['comments'] : '';
-
+$modifydate = 'NOW()';
 $pid = $_POST['pid'];
 $user = '';
 $groupname = isset($_POST['groupname']) ? $_POST['groupname'] : 'Default';
@@ -63,18 +63,14 @@ $xml_string = "";
 $xml_string = "<list>";
 
 if ($userId = validateToken($token)) {
+    
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'med', $user);
-
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $pid;
-
 
     if ($acl_allow) {
         setListTouch($pid, $type);
 
-        $strQuery = "INSERT INTO `lists`(`date`, `type`, `title`, `begdate`, `enddate`, `returndate`, `occurrence`, `classification`, `referredby`, `extrainfo`, `diagnosis`, `activity`, `comments`, `pid`, `user`, `groupname`, `outcome`, `destination`, `reinjury_id`, `injury_part`, `injury_type`, `injury_grade`, `reaction`, `external_allergyid`, `erx_source`, `erx_uploaded`) 
+        $strQuery = "INSERT INTO `lists`(`date`, `type`, `title`, `begdate`, `enddate`, `returndate`, `occurrence`, `classification`, `referredby`, `extrainfo`, `diagnosis`, `activity`, `comments`, `pid`, `user`, `groupname`, `outcome`, `destination`, `reinjury_id`, `injury_part`, `injury_type`, `injury_grade`, `reaction`, `external_allergyid`, `erx_source`, `modifydate`, `erx_uploaded`) 
                                         VALUES (
                                                 '" . add_escape_custom($date) . "',
                                                 '" . add_escape_custom($type) . "',
@@ -101,6 +97,7 @@ if ($userId = validateToken($token)) {
                                                 '" . add_escape_custom($reaction) . "',
                                                 '" . add_escape_custom($external_allergyid) . "',
                                                 '" . add_escape_custom($erx_source) . "',
+                                                '" . $modifydate . "',
                                                 '" . add_escape_custom($erx_uploaded) . "')";
         $result = sqlInsert($strQuery);
 
