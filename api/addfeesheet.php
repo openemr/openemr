@@ -59,10 +59,12 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('acct', 'bill', $user);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
-
+    $provider = getAuthGroup($user);
+    if ($authGroup = sqlQuery("select * from groups where user='$user' and name='$provider'")) {
+        $_SESSION['authProvider'] = $provider;
+        $_SESSION['authId'] = $userId;
+    }
+    
     if ($acl_allow) {
 
         if ($code_type == 'COPAY') {
