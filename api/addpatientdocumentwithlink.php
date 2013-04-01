@@ -39,14 +39,12 @@ $mimetype = $_POST['mimeType'];
 $image_content = file_get_contents($link);
 
 if ($userId = validateToken($token)) {
+   
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'docs', $user);
 
-   
-
     if ($acl_allow) {
         if ($image_content) {
-
             $provider_id = getPatientsProvider($patient_id);
             $provider_username = getProviderUsername($provider_id);
 
