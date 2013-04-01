@@ -22,32 +22,32 @@
  * @link    http://www.open-emr.org
  */
 header("Content-Type:text/xml");
-require_once 'includes/class.database.php';
-require_once 'includes/functions.php';
-require_once 'includes/class.arraytoxml.php';
+require_once 'classes.php';
 
 $xml_array = array();
+
 $token = $_POST['token'];
 $patientId = $_POST['patientId'];
 $notes = $_POST['notes'];
-$title = $_POST['title'];
+$title = isset($_POST['title']) ? $_POST['title'] : 'Unassigned';
+$authorized = isset($_POST['authorized']) ? $_POST['title'] : '0';
+$activity = isset($_POST['activity']) ? $_POST['activity'] : '1';
+$assigned_to = isset($_POST['assigned_to']) ? $_POST['assigned_to'] : '';
+$datetime = isset($_POST['datetime']) ? $_POST['datetime'] : date('YYYY-MM-DD HH:MM:SS');
+$message_status = isset($_POST['message_status']) ? $_POST['message_status'] : 'New';
 
 if ($userId = validateToken($token)) {
+    
     $username = getUsername($userId);
     $acl_allow = acl_check('patients', 'notes', $username);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
-
     if ($acl_allow) {
-
-        $strQuery = "INSERT INTO pnotes (date, body, pid, user, title, assigned_to, deleted, message_status) 
-					 VALUES ('" . date('Y-m-d H:i:s') . "', '" . add_escape_custom($notes) . "', " . add_escape_custom($patientId) . ", '" . add_escape_custom($username) . "', '" . add_escape_custom($title) . "', '" . add_escape_custom($username) . "', 0, 'New')";
-        $result = sqlStatement($strQuery);
+    
+        $result = addPnote($patientId, $notes, $authorized, $activity, $title, $assigned_to, $datetime, $message_status, $username);
 
         if ($result) {
             $xml_array['status'] = 0;
+            $xml_array['result'] = $result;
             $xml_array['reason'] = 'The Patient notes has been added successfully';
         } else {
             $xml_array['status'] = -1;
