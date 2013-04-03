@@ -1,13 +1,22 @@
 <?php
- // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
- 
- // Improved slightly by tony@mi-squared.com 2011, added organization to view
- // and search
+/**
+ * The address book entry editor.
+ * Available from Administration->Addr Book in the concurrent layout.
+ *
+ * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * Improved slightly by tony@mi-squared.com 2011, added organization to view
+ * and search
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://open-emr.org
+ */
 
  //SANITIZE ALL ESCAPES
  $sanitize_all_escapes=true;
