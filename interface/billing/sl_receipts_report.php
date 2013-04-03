@@ -1,6 +1,6 @@
 <?php
 /**
- * sl_receipts_report
+ * Report - Cash receipts by Provider
  *
  * This module was written for one of my clients to report on cash
  * receipts by practitioner.  It is not as complete as it should be
@@ -19,14 +19,14 @@
  * @link    http://open-emr.org
  */
 
-  require_once("../globals.php");
-  require_once("$srcdir/patient.inc");
-  require_once("$srcdir/sql-ledger.inc");
-  require_once("$srcdir/acl.inc");
-  require_once("$srcdir/formatting.inc.php");
-  require_once "$srcdir/options.inc.php";
-  require_once "$srcdir/formdata.inc.php";
-  require_once("../../custom/code_types.inc.php");
+require_once('../globals.php');
+require_once($GLOBALS['srcdir'].'/patient.inc');
+require_once($GLOBALS['srcdir'].'/sql-ledger.inc');
+require_once($GLOBALS['srcdir'].'/acl.inc');
+require_once($GLOBALS['srcdir'].'/formatting.inc.php');
+require_once($GLOBALS['srcdir'].'/options.inc.php');
+require_once($GLOBALS['srcdir'].'/formdata.inc.php');
+require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 
   // This determines if a particular procedure code corresponds to receipts
   // for the "Clinic" column as opposed to receipts for the practitioner.  Each
