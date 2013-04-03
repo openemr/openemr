@@ -16,11 +16,11 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
 
-require_once("../../globals.php");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/acl.inc");
-require_once("../../../custom/code_types.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once('../../globals.php');
+require_once($GLOBALS['srcdir'].'/lists.inc');
+require_once($GLOBALS['srcdir'].'/acl.inc');
+require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
+require_once($GLOBALS['srcdir'].'/options.inc.php');
 
  // Check authorization.
  if (acl_check('patients','med')) {
@@ -45,8 +45,8 @@ require_once("$srcdir/options.inc.php");
 
 <title><?php echo htmlspecialchars( xl('Patient Issues'), ENT_NOQUOTES) ; ?></title>
 
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js"></script>
 
 <script language="JavaScript">
 
