@@ -1,15 +1,23 @@
 <?php
-  // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
-  //
-  // This program is free software; you can redistribute it and/or
-  // modify it under the terms of the GNU General Public License
-  // as published by the Free Software Foundation; either version 2
-  // of the License, or (at your option) any later version.
-
-  // This module was written for one of my clients to report on cash
-  // receipts by practitioner.  It is not as complete as it should be
-  // but I wanted to make the code available to the project because
-  // many other practices have this same need. - rod@sunsetsystems.com
+/**
+ * sl_receipts_report
+ *
+ * This module was written for one of my clients to report on cash
+ * receipts by practitioner.  It is not as complete as it should be
+ * but I wanted to make the code available to the project because
+ * many other practices have this same need. - rod@sunsetsystems.com
+ *
+ * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://open-emr.org
+ */
 
   require_once("../globals.php");
   require_once("$srcdir/patient.inc");
