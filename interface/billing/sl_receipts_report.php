@@ -34,7 +34,7 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
   // have to customize this function.  If you use the "fee sheet" encounter
   // form then the code below may work for you.
   //
-  include_once("../forms/fee_sheet/codes.php");
+  require_once('../forms/fee_sheet/codes.php');
   function is_clinic($code) {
     global $bcodes;
     $i = strpos($code, ':');
@@ -764,7 +764,7 @@ function sel_diagnosis() {
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
+<?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.1.3.2.js"></script>
 
