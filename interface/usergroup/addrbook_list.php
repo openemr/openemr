@@ -88,35 +88,6 @@ $res = sqlStatement($query,$sqlBindArray);
 
 <!-- style tag moved into proper CSS file -->
 
-<?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<?php } ?>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-
-<script language="JavaScript">
-
-<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-
-// Callback from popups to refresh this display.
-function refreshme() {
- // location.reload();
- document.forms[0].submit();
-}
-
-// Process click to pop up the add window.
-function doedclick_add(type) {
- top.restoreSession(); 
- dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 550);
-}
-
-// Process click to pop up the edit window.
-function doedclick_edit(userid) {
- top.restoreSession();
- dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 550);
-}
-
-</script>
-
 </head>
 
 <body class="body_top">
@@ -209,6 +180,51 @@ function doedclick_edit(userid) {
  }
 ?>
 </table>
+<div style="display: none;">
+  <a class="iframe addrbookedit_modal"></a>
+</div>
+
+<?php if ($popup) { ?>
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<?php } ?>
+<script type="text/javascript" src="../../library/dialog.js"></script>
+
+<script language="JavaScript">
+
+<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+// Callback from popups to refresh this display.
+function refreshme() {
+ // location.reload();
+ document.forms[0].submit();
+}
+
+// Process click to pop up the add window.
+function doedclick_add(type) {
+ top.restoreSession(); 
+ dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 550);
+}
+
+// Process click to pop up the edit window.
+function doedclick_edit(userid) {
+ top.restoreSession();
+ dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 550);
+}
+
+$(document).ready(function(){
+  // initialise fancy box
+  enable_modals();
+
+  // initialise a link
+  $(".addrbookedit_modal").fancybox( {
+    'overlayOpacity' : 0.0,
+    'showCloseButton' : true,
+    'frameHeight' : 550,
+    'frameWidth' : 700
+  });
+});
+
+</script>
 
 </body>
 </html>
