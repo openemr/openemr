@@ -75,6 +75,7 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
     "date_collected = " . QuotedOrNull(formData('form_date_collected')) . ", " .
     "order_priority = '" . formData('form_order_priority')              . "', " .
     "order_status = '" . formData('form_order_status')                  . "', " .
+    "clinical_hx = '" . formData('form_clinical_hx')                    . "', " .
     "patient_instructions = '" . formData('form_patient_instructions')  . "', " .
     "patient_id = '" . $pid                                             . "', " .
     "encounter_id = '" . $encounter                                     . "'";
@@ -445,6 +446,14 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_priority',
 generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
   'list_id'=>'ord_status'), $row['order_status']);
 ?>
+  </td>
+ </tr>
+
+ <tr>
+  <td width='1%' valign='top' nowrap><b><?php xl('Clinical History','e'); ?>:</b></td>
+  <td valign='top'>
+   <input type='text' maxlength='255' name='form_clinical_hx' style='width:100%'
+    class='inputtext' value='<?php echo attr($row['clinical_hx']); ?>' />
   </td>
  </tr>
 

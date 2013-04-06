@@ -416,7 +416,6 @@ ALTER TABLE `immunizations`
   ADD COLUMN `amount_administered` int(11) DEFAULT NULL;
 #EndIf
 
-
 #IfMissingColumn immunizations amount_administered_unit
 ALTER TABLE `immunizations`
   ADD COLUMN `amount_administered_unit` varchar(50) DEFAULT NULL;
@@ -474,3 +473,10 @@ CREATE TABLE `rsa_pairs` (
 #IfMissingColumn patient_access_onsite portal_salt
 ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_salt` VARCHAR(100) NULL;
 #Endif
+
+#IfMissingColumn procedure_order clinical_hx
+ALTER TABLE `procedure_order`
+  ADD COLUMN `clinical_hx` varchar(255) DEFAULT '' COMMENT
+  'clinical history text that may be relevant to the order';
+#EndIf
+
