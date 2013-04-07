@@ -103,9 +103,8 @@ function execute_background_service_calls() {
    */
   global $service_name;
 
-  $single_service = (isset($_GET['background_service']) ? $_GET['background_service'] : 
-	(isset($_POST['background_service']) ? $_POST['background_service'] : ''));
-  $force = ($_GET['background_force'] || $_POST['background_force']);
+  $single_service = isset($_REQUEST['background_service']) ? $_REQUEST['background_service'] : '';
+  $force = (isset($_REQUEST['background_force']) && $_REQUEST['background_force']);
 
   $sql = 'SELECT * FROM background_services WHERE ' . ($force ? '1' : 'execute_interval > 0');
   if ($single_service!="")
@@ -161,7 +160,7 @@ function background_shutdown() {
   }
 }
 
-register_shutdown_function(background_shutdown);
+register_shutdown_function('background_shutdown');
 execute_background_service_calls();
 unset($service_name);
 
