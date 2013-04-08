@@ -496,19 +496,19 @@ class gacl {
 			}
 
                         if ($return_all) {
-                                while ($arr =& $rs->fetchRow()) {
+                                while ($arr = $rs->fetchRow()) {
                                         $row[] = $arr;
                                 }
                         }
                         else {
-			        $row =& $rs->FetchRow();
+			        $row = $rs->FetchRow();
                         }
 
 
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
 			 */
-			if (is_array($row)) {
+			if (isset($row) && is_array($row)) {
 
                                 if ($return_all) {
                                         foreach ($row as $single_row) {
@@ -524,7 +524,7 @@ class gacl {
 				        if ( isset($row[1]) AND $row[1] == 1 ) {
 					        $allow = TRUE;
 				        }
-				        $retarr = array('acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow);
+				        $retarr = array('acl_id' => $row[0], 'return_value' => $row[2], 'allow' => $allow);
                                 }
 			} else {
                                 if ($return_all) {
