@@ -308,7 +308,7 @@ $config = 1; /////////////
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       foreach ($grparr as $fldid => $fldarr) {
         list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-        if (substr($fldtype, 0, 2) !== 'm_') {
+        if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
           $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
           $row = @mysql_fetch_array($res, MYSQL_ASSOC);
           if (empty($row['count'])) {
