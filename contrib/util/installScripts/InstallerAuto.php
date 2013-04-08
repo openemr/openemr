@@ -42,6 +42,8 @@
 //                         Advanced option of multi site module to allow cloning/mirroring of another local site.
 //     clone_database -> if set to anything, then will clone database from source_site_id ()
 //                         Advanced option of multi site module to allow cloning/mirroring of another local database.
+//     no_root_db_access -> if set to anything, will use pre-created and pre-configured login/pass/dbname and
+//                             will disable cloning / migration since that generally requires root access to the db
 //     development_translations -> If set to anything, will then download and use the development set (updated daily)
 //                                   of translations from the github repository.
 //
@@ -66,6 +68,9 @@
 //             php -f InstallerAuto.php login=openemr2 pass=openemr2 dbname=openemr2 site=default2 source_site_id=default clone_database=yes
 //          d. Can continue installing new instances as needed ...
 //             php -f InstallerAuto.php login=openemr3 pass=openemr3 dbname=openemr3 site=default3 source_site_id=default clone_database=yes
+//     6) Provide pre-created database and restricted privilege user access credentials - example from Planettel.com.sg Proxmox OpenVZ Template
+//        (otherwise use default configuration settings - do not use for cloning / migration)
+//          php -f /var/www/openemr/contrib/util/installScripts/InstallerAuto.php no_root_db_access=1 iuserpass=oemr123 login=oemrusr pass=${UPASSWD} > /dev/null 2>&1
 //
 
 // This exit is to avoid malicious use of this script.
@@ -75,22 +80,23 @@ require_once(dirname(__FILE__).'/../../../library/classes/Installer.class.php');
 
 // Set up default configuration settings
 $installSettings = array();
-$installSettings['iuser'] = 'admin';
-$installSettings['iuname'] = 'Administrator';
-$installSettings['iuserpass'] = 'pass';
-$installSettings['igroup'] = 'Default';
-$installSettings['server'] = 'localhost'; // mysql server
-$installSettings['loginhost'] = 'localhost'; // php/apache server
-$installSettings['port'] = '3306';
-$installSettings['root'] = 'root';
-$installSettings['rootpass'] = 'BLANK';
-$installSettings['login'] = 'openemr';
-$installSettings['pass'] = 'openemr';
-$installSettings['dbname'] = 'openemr';
-$installSettings['collate'] = 'utf8_general_ci';
-$installSettings['site'] = 'default';
-$installSettings['source_site_id'] = 'BLANK';
-$installSettings['clone_database'] = 'BLANK';
+$installSettings['iuser']                    = 'admin';
+$installSettings['iuname']                   = 'Administrator';
+$installSettings['iuserpass']                = 'pass';
+$installSettings['igroup']                   = 'Default';
+$installSettings['server']                   = 'localhost'; // mysql server
+$installSettings['loginhost']                = 'localhost'; // php/apache server
+$installSettings['port']                     = '3306';
+$installSettings['root']                     = 'root';
+$installSettings['rootpass']                 = 'BLANK';
+$installSettings['login']                    = 'openemr';
+$installSettings['pass']                     = 'openemr';
+$installSettings['dbname']                   = 'openemr';
+$installSettings['collate']                  = 'utf8_general_ci';
+$installSettings['site']                     = 'default';
+$installSettings['source_site_id']           = 'BLANK';
+$installSettings['clone_database']           = 'BLANK';
+$installSettings['no_root_db_access']        = 'BLANK';
 $installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
