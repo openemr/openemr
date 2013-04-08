@@ -59,7 +59,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
   foreach ($actions as $action) {
 
     // Deal with plan names first
-    if (isset($action['is_plan']) &&$action['is_plan'])  {
+    if (isset($action['is_plan']) && $action['is_plan'])  {
       echo "<br><b>";
       echo htmlspecialchars( xl("Plan"), ENT_NOQUOTES) . ": ";
       echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'),$action['id']);
