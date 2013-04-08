@@ -962,12 +962,12 @@ class C_Document extends Controller {
 			    $rnode = new HTML_TreeNode(array("id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => false));
 			    $this->_last_node = &$rnode;
  			  	$node = &$rnode;
- 			  	$current_node =&$rnode;
+ 			  	$current_node = &$rnode;
 			  }
 			  else {
 			  	//echo "p:" . $this->tree->get_node_name($id) . "<br>";
  			    $this->_last_node = &$node->addItem(new HTML_TreeNode(array("id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
- 			    $current_node =&$this->_last_node;
+ 			    $current_node = &$this->_last_node;
 			  }
  			  
  			  $this->_array_recurse($ar,$categories);

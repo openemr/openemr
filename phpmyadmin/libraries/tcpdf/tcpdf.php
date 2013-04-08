@@ -2711,7 +2711,7 @@ if(!class_exists('TCPDF')) {
 					$this->_out('endobj');
 					//Widths
 					$this->_newobj();
-					$cw=&$font['cw'];
+					$cw = &$font['cw'];
 					$s='[';
 					for($i=32;$i<=255;$i++) {
 						$s.=$cw[chr($i)].' ';
