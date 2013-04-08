@@ -61,8 +61,8 @@ else
 }
 
 // Collect active variable and applicable html code for links
-$form_active = $_REQUEST['form_active'];
-$form_inactive = $_REQUEST['form_inactive'];
+$form_active   = (isset($_REQUEST['form_active'])   ? $_REQUEST['form_active']   : FALSE);
+$form_inactive = (isset($_REQUEST['form_inactive']) ? $_REQUEST['form_inactive'] : FALSE);
 if ($form_active) {
   $active = '1';
   $activity_string_html = 'form_active=1';
