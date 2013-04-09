@@ -44,7 +44,7 @@ class Address extends ORDataObject{
 
 
 	}
-	function factory_address($foreign_id = "") {
+	static function factory_address($foreign_id = "") {
 		if (empty($foreign_id)) {
 			 $foreign_id= "like '%'";
 		}

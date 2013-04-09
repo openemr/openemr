@@ -69,7 +69,7 @@ function postcalendar_user_view()
                                           'jumpday',
                                           'jumpmonth',
                                           'jumpyear');
-    $Date =& postcalendar_getDate();
+    $Date =postcalendar_getDate();
     if(!isset($viewtype))   $viewtype = _SETTING_DEFAULT_VIEW;
     
     // added to allow the view & providers to remain as the user last saw it -- JRM

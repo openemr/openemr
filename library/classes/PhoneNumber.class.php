@@ -46,7 +46,7 @@ class PhoneNumber extends ORDataObject{
 
 	}
 
-	function factory_phone_numbers($foreign_id = "") {
+	static function factory_phone_numbers($foreign_id = "") {
 		if (empty($foreign_id)) {
 			 $foreign_id= "like '%'";
 		}

@@ -703,6 +703,7 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
     // ViSolve : Don't log sequences - to avoid the affect due to GenID calls
     if (strpos($comments, "sequences") !== FALSE) return;
 
+    $SSL_CLIENT_S_DN_CN=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : '';
     $sql = "insert into log (date, event, user, groupname, comments, patient_id, success, checksum,crt_user) " .
          "values ( NOW(), " . 
          $adodb->qstr($event) . ", " .
@@ -712,7 +713,7 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
          $adodb->qstr($pid) . "," .
          $adodb->qstr($success) . "," . 
          $adodb->qstr($checksum) . "," .
-         $adodb->qstr($_SERVER['SSL_CLIENT_S_DN_CN']) .")";
+         $adodb->qstr($SSL_CLIENT_S_DN_CN) .")";
 
     sqlInsertClean_audit($sql);
     send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);

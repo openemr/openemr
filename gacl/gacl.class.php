@@ -34,6 +34,7 @@
 /*
  * Path to ADODB.
  */
+
 if ( !defined('ADODB_DIR') ) {
 	define('ADODB_DIR', dirname(__FILE__).'/adodb');
 }
@@ -496,19 +497,19 @@ class gacl {
 			}
 
                         if ($return_all) {
-                                while ($arr =& $rs->fetchRow()) {
+                                while ($arr = $rs->FetchRow()) {
                                         $row[] = $arr;
                                 }
                         }
                         else {
-			        $row =& $rs->FetchRow();
+			        $row = $rs->FetchRow();
                         }
 
 
 			/*
 			 * Return ACL ID. This is the key to "hooking" extras like pricing assigned to ACLs etc... Very useful.
 			 */
-			if (is_array($row)) {
+			if (isset($row) && is_array($row)) {
 
                                 if ($return_all) {
                                         foreach ($row as $single_row) {
@@ -556,7 +557,7 @@ class gacl {
 		{
 			$this->debug_text("<b>acl_query():</b> ACO Section: $aco_section_value ACO Value: $aco_value ARO Section: $aro_section_value ARO Value $aro_value ACL ID: ". $retarr['acl_id'] .' Result: '. $retarr['allow']);
 		}
-		
+	
 		return $retarr;
 	}
 

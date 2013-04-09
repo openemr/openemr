@@ -196,7 +196,7 @@ function postcalendar_removeScriptTags($in)
     return preg_replace("/<script.*?>(.*?)<\/script>/","",$in);
 }
 
-function &postcalendar_getDate($format='%Y%m%d')
+function postcalendar_getDate($format='%Y%m%d')
 {
     list($Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate) =
         pnVarCleanFromInput('Date', 'jumpday', 'jumpmonth', 'jumpyear', 'jumpdate');
