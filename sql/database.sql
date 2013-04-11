@@ -1729,6 +1729,7 @@ INSERT INTO `geo_country_reference` VALUES (236, 'Yugoslavia', 'YU', 'YUG');
 INSERT INTO `geo_country_reference` VALUES (237, 'Zaire', 'ZR', 'ZAR');
 INSERT INTO `geo_country_reference` VALUES (238, 'Zambia', 'ZM', 'ZMB');
 INSERT INTO `geo_country_reference` VALUES (239, 'Zimbabwe', 'ZW', 'ZWE');
+INSERT INTO `geo_country_reference` VALUES (240, 'Curacao', 'CW', 'CUR');
 
 -- --------------------------------------------------------
 
