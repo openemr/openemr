@@ -360,3 +360,6 @@ UPDATE procedure_order SET date_transmitted = date_ordered WHERE
   date_transmitted IS NULL AND date_ordered IS NOT NULL;
 #EndIf
 
+#add indexes to form_encounter to speed up reports
+CREATE INDEX encounter on form_encounter (encounter);
+CREATE INDEX encounter_date on form_encounter (date); 
