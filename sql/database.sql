@@ -1193,7 +1193,9 @@ CREATE TABLE `form_encounter` (
   `referral_source` varchar(31) NOT NULL DEFAULT '',
   `billing_facility` INT(11) NOT NULL DEFAULT 0,
   PRIMARY KEY  (`id`),
-  KEY `pid_encounter` (`pid`, `encounter`)
+  KEY `pid_encounter` (`pid`, `encounter`),
+  KEY `encounter` (`encounter`),
+  KEY `encounter_date` (`date`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
