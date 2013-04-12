@@ -1519,19 +1519,25 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
   // get the appropriate sql comparison operator
   $compSql = convertCompSql($data_comp);
 
+  // custom issues per table can be placed here
+  $customSQL = '';
+  if ($table == 'immunizations') {
+    $customSQL = " AND `added_erroneously` = '0' ";
+  }
+
   // check for items
   if (empty($column)) {
     // simple search for any table entries
     $sql = sqlStatementCdrEngine("SELECT * " .
       "FROM `" . add_escape_custom($table)  . "` " .
-      "WHERE `" . add_escape_custom($patient_id_label)  . "`=?", array($patient_id) );
+      "WHERE `" . add_escape_custom($patient_id_label)  . "`=? " . $customSQL, array($patient_id) );
   }
   else {
     // search for number of specific items
     $sql = sqlStatementCdrEngine("SELECT `" . add_escape_custom($column) . "` " .
       "FROM `" . add_escape_custom($table)  . "` " .
       "WHERE `" . add_escape_custom($column) ."`" . $compSql . "? " .
-      "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
+      "AND `" . add_escape_custom($patient_id_label)  . "`=? " . $customSQL .
       $dateSql, array($data,$patient_id) );
   }
 
