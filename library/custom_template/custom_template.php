@@ -39,7 +39,7 @@ require_once("$srcdir/lists.inc");
 function listitemCode ($strDisp, $strInsert) {
 	if ($strInsert) {
 		echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('.
-			 "'" . htmlspecialchars($strInsert,ENT_QUOTES) . "'" .');">'. htmlspecialchars(xl($strDisp,ENT_QUOTES)) . '</a></span></li>';
+			 "'" . htmlspecialchars($strInsert,ENT_QUOTES) . "'" .');">'. htmlspecialchars($strDisp,ENT_QUOTES) . '</a></span></li>';
 	}
 }
 
@@ -184,12 +184,12 @@ $(document).ready(function(){
                                     <li><a class="collapsed"><?php echo htmlspecialchars(xl('Patient Details'),ENT_QUOTES);?></a>
                                         <ul>
                                         <?php
-                                        	listitemCode('First name', $row['fname']);
-                                        	listitemCode('Last name', $row['lname']);
-                                        	listitemCode('Phone', $row['phone_home']);
-                                        	listitemCode('SSN', $row['ss']);
-                                        	listitemCode('Date Of Birth', $row['DOB']);
-                                        	listitemCode('PCP', $row['pcp']);
+                                        	listitemCode(xl('First name'), $row['fname']);
+                                        	listitemCode(xl('Last name'), $row['lname']);
+                                        	listitemCode(xl('Phone'), $row['phone_home']);
+                                        	listitemCode(xl('SSN'), $row['ss']);
+                                        	listitemCode(xl('Date Of Birth'), $row['DOB']);
+                                        	listitemCode(xl('PCP'), $row['pcp']);
                                         ?>
                                         </ul>
                                     </li>
