@@ -66,6 +66,9 @@
 //             php -f InstallerAuto.php login=openemr2 pass=openemr2 dbname=openemr2 site=default2 source_site_id=default clone_database=yes
 //          d. Can continue installing new instances as needed ...
 //             php -f InstallerAuto.php login=openemr3 pass=openemr3 dbname=openemr3 site=default3 source_site_id=default clone_database=yes
+//     6) Provide pre-created database and privileged user access credentials - example from Planettel OpenVZ Template
+//        (otherwise use default configuration settings)
+//          php -f /var/www/openemr/contrib/util/installScripts/InstallerAuto.php iuserpass=oemr123 login=oemrusr pass=${UPASSWD} > /dev/null 2>&1
 //
 
 // This exit is to avoid malicious use of this script.
