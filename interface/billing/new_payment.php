@@ -44,21 +44,26 @@ require_once("$srcdir/payment.inc.php");
 //===============================================================================
 	$screen='new_payment';
 //===============================================================================
+// Initialisations
+$mode                    = isset($_POST['mode'])                   ? $_POST['mode']                   : '';
+$payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['payment_id']          : '';
+$request_payment_id              = $payment_id ;
+$hidden_patient_code     = isset($_REQUEST['hidden_patient_code']) ? $_REQUEST['hidden_patient_code'] : '';
+$default_search_patient  = isset($_POST['default_search_patient']) ? $_POST['default_search_patient'] : '';
+$hidden_type_code        = formData('hidden_type_code', true );
+//===============================================================================
 //ar_session addition code
 //===============================================================================
-if (isset($_POST["mode"]))
- {
-  if ($_POST["mode"] == "new_payment" || $_POST["mode"] == "distribute")
-   {
+
+if ($mode == "new_payment" || $mode == "distribute")
+{
 	if(trim(formData('type_name'   ))=='insurance')
 	 {
-		$QueryPart="payer_id = '"       . trim(formData('hidden_type_code' )) .
-		"', patient_id = '"   . 0 ;
+		$QueryPart="payer_id = '$hidden_type_code', patient_id = '0" ; // Closing Quote in idSqlStatement below
 	 }
 	elseif(trim(formData('type_name'   ))=='patient')
 	 {
-		$QueryPart="payer_id = '"       . 0 .
-		"', patient_id = '"   . trim(formData('hidden_type_code'   )) ;
+		$QueryPart="payer_id = '0', patient_id = '$hidden_type_code" ; // Closing Quote in idSqlStatement below
 	 }
       $user_id=$_SESSION['authUserID'];
 	  $closed=0;
@@ -85,17 +90,15 @@ if (isset($_POST["mode"]))
         "', post_to_date = '" . trim($post_to_date            )  .
         "', payment_method = '"   . trim(formData('payment_method'   )) .
         "'");
-   }
- }
+}
+ 
 //===============================================================================
 //ar_activity addition code
 //===============================================================================
-if (isset($_POST["mode"]))
- {
-  if ($_POST["mode"] == "PostPayments" || $_POST["mode"] == "FinishPayments")
-   {
-	$hidden_patient_code=$_REQUEST['hidden_patient_code'];
-	$payment_id=$_REQUEST['payment_id'];
+if ($mode == "PostPayments" || $mode == "FinishPayments")
+{
+//	$hidden_patient_code=$_REQUEST['hidden_patient_code'];
+//	$payment_id=$_REQUEST['payment_id'];
 	$user_id=$_SESSION['authUserID'];
 	$created_time = date('Y-m-d H:i:s');
 	for($CountRow=1;;$CountRow++)
@@ -109,17 +112,18 @@ if (isset($_POST["mode"]))
 	 }
 	if($_REQUEST['global_amount']=='yes')
 		sqlStatement("update ar_session set global_amount=".trim(formData("HidUnappliedAmount"   ))*1 ." where session_id ='$payment_id'");
-	if($_POST["mode"]=="FinishPayments")
+	if($mode=="FinishPayments")
 	 {
 	  header("Location: edit_payment.php?payment_id=$payment_id&ParentPage=new_payment");
 	  die();
 	 }
-    $_POST["mode"] = "search";
-   }
- }
+    $mode = "search";
+	$_POST['mode'] = $mode;
+}
+ 
 //==============================================================================
 //===============================================================================
-$payment_id=$payment_id*1 > 0 ? $payment_id : $_REQUEST['payment_id'];
+$payment_id=$payment_id*1 > 0 ? $payment_id : $request_payment_id;
 //===============================================================================
 $DateFormat=DateFormatRead();
 //==============================================================================
@@ -365,10 +369,12 @@ return false;
 		<td colspan="13" align="left" >
 				<!--Distribute section-->
 				<?php 
-				if($PaymentType=='patient' && $_POST["default_search_patient"] != "default_search_patient")
+				if($PaymentType=='patient' && $default_search_patient != "default_search_patient")
 				 {
-				  $_POST["default_search_patient"] = "default_search_patient";
-				  $_REQUEST['hidden_patient_code']=$TypeCode;
+				  $default_search_patient = "default_search_patient";
+				  $_POST['default_search_patient'] = $default_search_patient;
+				  $hidden_patient_code=$TypeCode;
+				  $_REQUEST['hidden_patient_code']=$hidden_patient_code;
 				  $_REQUEST['RadioPaid']='Show_Paid';
 				 }
 				require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
@@ -404,11 +410,11 @@ return false;
 	</td></tr></table>
 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo htmlspecialchars($hidden_patient_code);?>"/>
 <input type='hidden' name='mode' id='mode' value='' />
-<input type='hidden' name='default_search_patient' id='default_search_patient' value='<?php echo $_POST["default_search_patient"] ?>' />
+<input type='hidden' name='default_search_patient' id='default_search_patient' value='<?php echo $default_search_patient ?>' />
 <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
-<input type="hidden" name="after_value" id="after_value" value="<?php echo htmlspecialchars($_POST["mode"]);?>"/>
+<input type="hidden" name="after_value" id="after_value" value="<?php echo htmlspecialchars($mode);?>"/>
 <input type="hidden" name="payment_id" id="payment_id" value="<?php echo htmlspecialchars($payment_id);?>"/>
-<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo htmlspecialchars(formData('hidden_type_code'));?>"/>
+<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo htmlspecialchars($hidden_type_code);?>"/>
 <input type='hidden' name='global_amount' id='global_amount' value='' />
 </form>
 </body>
