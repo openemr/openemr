@@ -815,8 +815,9 @@ td { font-size:0.8em; }
  if($_GET['prov']==true){
   $cattype=1;
  }
- $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_recurrtype, pc_duration, pc_end_all_day " .
-  "FROM openemr_postcalendar_categories WHERE pc_cattype=? ORDER BY pc_catname", array($cattype) );
+ $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
+  "pc_recurrtype, pc_duration, pc_end_all_day " .
+  "FROM openemr_postcalendar_categories ORDER BY pc_catname");
  $catoptions = "";
  $prefcat_options = "    <option value='0'>-- " . xlt("None") . " --</option>\n";
  $thisduration = 0;
@@ -826,6 +827,18 @@ td { font-size:0.8em; }
  while ($crow = sqlFetchArray($cres)) {
   $duration = round($crow['pc_duration'] / 60);
   if ($crow['pc_end_all_day']) $duration = 1440;
+
+  // This section is to build the list of preferred categories:
+  if ($duration) {
+   $prefcat_options .= "    <option value='" . attr($crow['pc_catid']) . "'";
+   if ($eid) {
+    if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
+   }
+   $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+  }
+
+  if ($crow['pc_cattype'] != $cattype) continue;
+
   echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . "\n";
   // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
   $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
@@ -838,16 +851,6 @@ td { font-size:0.8em; }
    }
   }
   $catoptions .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
-
-  // This section is to build the list of preferred categories:
-  if ($duration) {
-   $prefcat_options .= "    <option value='" . attr($crow['pc_catid']) . "'";
-   if ($eid) {
-    if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
-   }
-   $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
-  }
-
  }
 ?>
 

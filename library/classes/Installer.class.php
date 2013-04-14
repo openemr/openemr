@@ -377,7 +377,7 @@ $config = 1; /////////////
         }
       }
       $this->disconnect();
-	  if (! $this->user_database_connection()) {
+      if (! $this->user_database_connection()) {
         // Re-connect to mysql via root user
         if (! $this->root_database_connection() ) {
           return False;
@@ -390,7 +390,7 @@ $config = 1; /////////////
         if ( ! $this->grant_privileges() ) {
           return False;
         }
-	  }
+      }
       $this->disconnect();
     }
     // Connect to mysql via created user
