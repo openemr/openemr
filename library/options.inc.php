@@ -116,7 +116,7 @@ function generate_form_field($frow, $currvalue) {
   $list_id_esc = htmlspecialchars( $list_id, ENT_QUOTES);
 
   // Added 5-09 by BM - Translate description if applicable  
-  $description = htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES);
+  $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
       
   // added 5-2009 by BM to allow modification of the 'empty' text title field.
   //  Can pass $frow['empty_title'] with this variable, otherwise
