@@ -107,7 +107,7 @@
             "ORDER BY form_encounter.encounter, form_encounter.pid, billing.code_type, billing.code ASC";
             //echo $sql;
         $res = sqlStatement($sql,array($code_type));
-
+        $all = False;
         for($iter=0; $row=sqlFetchArray($res); $iter++)
         {
             $all[$iter] = $row;
@@ -139,7 +139,7 @@
             "ORDER BY form_encounter.encounter, form_encounter.pid, billing.code_type, billing.code ASC";
             //echo $sql;
         $res = sqlStatement($sql,array($code_type));
-
+        $all = False;
         for($iter=0; $row=sqlFetchArray($res); $iter++)
         {
             $all[$iter] = $row;
