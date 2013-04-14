@@ -525,7 +525,7 @@ class gacl {
 				        if ( isset($row[1]) AND $row[1] == 1 ) {
 					        $allow = TRUE;
 				        }
-				        $retarr = array('acl_id' => $row[0], 'return_value' => $row[2], 'allow' => $allow);
+				        $retarr = array('acl_id' => &$row[0], 'return_value' => &$row[2], 'allow' => $allow);
                                 }
 			} else {
                                 if ($return_all) {
