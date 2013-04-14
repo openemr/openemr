@@ -357,7 +357,7 @@ $config = 1; /////////////
     if ( ! $this->password_is_valid() ) {
       return False;
     }
-    if ( (! $this->no_root_db_access) && (! $this->user_database_connection()) ) {
+    if (! $this->no_root_db_access) {
       // Connect to mysql via root user
       if (! $this->root_database_connection() ) {
         return False;
@@ -376,19 +376,26 @@ $config = 1; /////////////
           return False;
         }
       }
-      // Create the mysql database
-      if ( ! $this->create_database()) {
-        return False;
-      }
-      // Grant user privileges to the mysql database
-      if ( ! $this->grant_privileges() ) {
-        return False;
-      }
-      // Connect to mysql via created user
       $this->disconnect();
-      if ( ! $this->user_database_connection() ) {
-        return False;
-      }
+	  if (! $this->user_database_connection()) {
+        // Re-connect to mysql via root user
+        if (! $this->root_database_connection() ) {
+          return False;
+        }
+        // Create the mysql database
+        if ( ! $this->create_database()) {
+          return False;
+        }
+        // Grant user privileges to the mysql database
+        if ( ! $this->grant_privileges() ) {
+          return False;
+        }
+	  }
+      $this->disconnect();
+    }
+    // Connect to mysql via created user
+    if ( ! $this->user_database_connection() ) {
+      return False;
     }
     // Build the database
     if ( ! $this->load_dumpfiles() ) {
