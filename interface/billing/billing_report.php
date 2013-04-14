@@ -25,7 +25,7 @@ $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 
 $alertmsg = '';
 
-if (isset($_POST['mode']) {
+if (isset($_POST['mode'])) {
   if ($_POST['mode'] == 'export') {
     $sql = ReturnOFXSql();
     $db = get_db();
@@ -66,7 +66,7 @@ $from_date     = isset($_POST['from_date'])  ? $_POST['from_date']  : date('Y-m-
 $to_date       = isset($_POST['to_date'  ])  ? $_POST['to_date'  ]  : '';
 $code_type     = isset($_POST['code_type'])  ? $_POST['code_type']  : 'all';
 $unbilled      = isset($_POST['unbilled' ])  ? $_POST['unbilled' ]  : 'on';
-$my_authorized = isset($_POST["authorized"]) ? $_POST["authorized"] : '');
+$my_authorized = isset($_POST["authorized"]) ? $_POST["authorized"] : '';
 
 
 // This tells us if only encounters that appear to be missing a "25" modifier
