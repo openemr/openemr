@@ -357,39 +357,39 @@ $config = 1; /////////////
     if ( ! $this->password_is_valid() ) {
       return False;
     }
-	if ( (! $this->no_root_db_access) && (! $this->user_database_connection()) ) {
-		// Connect to mysql via root user
-		if (! $this->root_database_connection() ) {
-			return False;
-		}
-		// Create the dumpfile
-		//   (applicable if cloning from another database)
-		if (! empty($this->clone_database)) {
-			if ( ! $this->create_dumpfiles() ) {
-				return False;
-			}
-		}
-		// Create the site directory
-		//   (applicable if mirroring another local site)
-		if ( ! empty($this->source_site_id) ) {
-			if ( ! $this->create_site_directory() ) {
-				return False;
-			}
-		}
-		// Create the mysql database
-		if ( ! $this->create_database()) {
-			return False;
-		}
-		// Grant user privileges to the mysql database
-		if ( ! $this->grant_privileges() ) {
-			return False;
-		}
-		// Connect to mysql via created user
-		$this->disconnect();
-		if ( ! $this->user_database_connection() ) {
-			return False;
-		}
-	}
+    if ( (! $this->no_root_db_access) && (! $this->user_database_connection()) ) {
+      // Connect to mysql via root user
+      if (! $this->root_database_connection() ) {
+        return False;
+      }
+      // Create the dumpfile
+      //   (applicable if cloning from another database)
+      if (! empty($this->clone_database)) {
+        if ( ! $this->create_dumpfiles() ) {
+          return False;
+        }
+      }
+      // Create the site directory
+      //   (applicable if mirroring another local site)
+      if ( ! empty($this->source_site_id) ) {
+        if ( ! $this->create_site_directory() ) {
+          return False;
+        }
+      }
+      // Create the mysql database
+      if ( ! $this->create_database()) {
+        return False;
+      }
+      // Grant user privileges to the mysql database
+      if ( ! $this->grant_privileges() ) {
+        return False;
+      }
+      // Connect to mysql via created user
+      $this->disconnect();
+      if ( ! $this->user_database_connection() ) {
+        return False;
+      }
+    }
     // Build the database
     if ( ! $this->load_dumpfiles() ) {
       return False;
