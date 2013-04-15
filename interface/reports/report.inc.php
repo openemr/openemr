@@ -37,7 +37,7 @@ function stripslashes_deep($value)
 //Parses the search value part of the criteria and prepares for sql.
 function PrepareSearchItem($SearchItem)
  {
-  $SplitArray=split(' like ',$SearchItem);
+  $SplitArray=explode(' like ',$SearchItem);
   if(isset($SplitArray[1]))
    {
     $SplitArray[1] = substr($SplitArray[1], 0, -1); 
@@ -46,7 +46,7 @@ function PrepareSearchItem($SearchItem)
    }
   else
    {
-      $SplitArray=split(' = ',$SearchItem);
+      $SplitArray=explode(' = ',$SearchItem);
       if(isset($SplitArray[1]))
        {
         $SplitArray[1] = substr($SplitArray[1], 0, -1); 
