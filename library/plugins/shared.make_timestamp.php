@@ -18,7 +18,15 @@ function smarty_make_timestamp($string)
     if(empty($string)) {
         $string = "now";
     }
+    
+    //the following if block catches when $string  passed is already numeric
+    if(is_numeric($string)){
+        $time=$string;
+    }
+    else{
     $time = strtotime($string);
+    }
+    
     if (is_numeric($time) && $time != -1)
         return $time;
 
