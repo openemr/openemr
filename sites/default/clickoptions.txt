@@ -1,3 +1,7 @@
+# THIS PAGE IS DEPRECATED AND NO LONGER USED AS OF OPENEMR VERSION 4.1.2
+# (It is being kept indefinitely for upgrading purposes)
+# (This file should never be deleted)
+#
 # CLICKOPTIONS by Mark Leeds
 # This is a new addition to OpenEMR written in April of 2005.
 # The purpose is to minimize typing in places where a select box or drop down menu

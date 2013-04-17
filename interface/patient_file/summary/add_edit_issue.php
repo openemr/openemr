@@ -290,26 +290,13 @@ div.section {
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
 <?php
- // "Clickoptions" is a feature by Mark Leeds that provides for one-click
- // access to preselected lists of issues in each category.  Here we get
- // the issue titles from the user-customizable file and write JavaScript
- // statements that will build an array of arrays of Option objects.
- //
- $clickoptions = array();
- if (is_file($GLOBALS['OE_SITE_DIR'] . "/clickoptions.txt"))
-  $clickoptions = file($GLOBALS['OE_SITE_DIR'] . "/clickoptions.txt");
- $i = 0;
+ $i = 0;	
  foreach ($ISSUE_TYPES as $key => $value) {
   echo " aitypes[$i] = " . attr($value[3]) . ";\n";
   echo " aopts[$i] = new Array();\n";
-  foreach($clickoptions as $line) {
-   $line = trim($line);
-   if (substr($line, 0, 1) != "#") {
-    if (strpos($line, $key) !== false) {
-     $text = addslashes(substr($line, strpos($line, "::") + 2));
-     echo " aopts[$i][aopts[$i].length] = new Option('$text', '$text', false, false);\n";
-    }
-   }
+  $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ?",array($key."_issue_list"));
+  while($res = sqlFetchArray($qry)){
+    echo " aopts[$i][aopts[$i].length] = new Option('".attr($res['option_id'])."', '".attr(xl_list_label($res['title']))."', false, false);\n";
   }
   ++$i;
  }
