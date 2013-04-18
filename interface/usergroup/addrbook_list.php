@@ -1,13 +1,22 @@
 <?php
- // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
- 
- // Improved slightly by tony@mi-squared.com 2011, added organization to view
- // and search
+/**
+ * The address book entry editor.
+ * Available from Administration->Addr Book in the concurrent layout.
+ *
+ * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * Improved slightly by tony@mi-squared.com 2011, added organization to view
+ * and search
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://open-emr.org
+ */
 
  //SANITIZE ALL ESCAPES
  $sanitize_all_escapes=true;
@@ -78,35 +87,6 @@ $res = sqlStatement($query,$sqlBindArray);
 <title><?php echo xlt('Address Book'); ?></title>
 
 <!-- style tag moved into proper CSS file -->
-
-<?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<?php } ?>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-
-<script language="JavaScript">
-
-<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
-
-// Callback from popups to refresh this display.
-function refreshme() {
- // location.reload();
- document.forms[0].submit();
-}
-
-// Process click to pop up the add window.
-function doedclick_add(type) {
- top.restoreSession(); 
- dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 550);
-}
-
-// Process click to pop up the edit window.
-function doedclick_edit(userid) {
- top.restoreSession();
- dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 550);
-}
-
-</script>
 
 </head>
 
@@ -200,6 +180,51 @@ function doedclick_edit(userid) {
  }
 ?>
 </table>
+<div style="display: none;">
+  <a class="iframe addrbookedit_modal"></a>
+</div>
+
+<?php if ($popup) { ?>
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<?php } ?>
+<script type="text/javascript" src="../../library/dialog.js"></script>
+
+<script language="JavaScript">
+
+<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+// Callback from popups to refresh this display.
+function refreshme() {
+ // location.reload();
+ document.forms[0].submit();
+}
+
+// Process click to pop up the add window.
+function doedclick_add(type) {
+ top.restoreSession(); 
+ dlgopen('addrbook_edit.php?type=' + type, '_blank', 700, 550);
+}
+
+// Process click to pop up the edit window.
+function doedclick_edit(userid) {
+ top.restoreSession();
+ dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 550);
+}
+
+$(document).ready(function(){
+  // initialise fancy box
+  enable_modals();
+
+  // initialise a link
+  $(".addrbookedit_modal").fancybox( {
+    'overlayOpacity' : 0.0,
+    'showCloseButton' : true,
+    'frameHeight' : 550,
+    'frameWidth' : 700
+  });
+});
+
+</script>
 
 </body>
 </html>

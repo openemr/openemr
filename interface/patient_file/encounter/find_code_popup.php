@@ -1,18 +1,19 @@
 <?php
-// Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/* Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ */
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
-require_once("../../globals.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/csv_like_join.php");
-require_once("../../../custom/code_types.inc.php");
+require_once('../../globals.php');
+require_once($GLOBALS['srcdir'].'/patient.inc');
+require_once($GLOBALS['srcdir'].'/csv_like_join.php');
+require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];

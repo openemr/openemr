@@ -1,24 +1,32 @@
 <?php
-  // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
-  //
-  // This program is free software; you can redistribute it and/or
-  // modify it under the terms of the GNU General Public License
-  // as published by the Free Software Foundation; either version 2
-  // of the License, or (at your option) any later version.
+/**
+ * Report - Cash receipts by Provider
+ *
+ * This module was written for one of my clients to report on cash
+ * receipts by practitioner.  It is not as complete as it should be
+ * but I wanted to make the code available to the project because
+ * many other practices have this same need. - rod@sunsetsystems.com
+ *
+ * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://open-emr.org
+ */
 
-  // This module was written for one of my clients to report on cash
-  // receipts by practitioner.  It is not as complete as it should be
-  // but I wanted to make the code available to the project because
-  // many other practices have this same need. - rod@sunsetsystems.com
-
-  require_once("../globals.php");
-  require_once("$srcdir/patient.inc");
-  require_once("$srcdir/sql-ledger.inc");
-  require_once("$srcdir/acl.inc");
-  require_once("$srcdir/formatting.inc.php");
-  require_once "$srcdir/options.inc.php";
-  require_once "$srcdir/formdata.inc.php";
-  require_once("../../custom/code_types.inc.php");
+require_once('../globals.php');
+require_once($GLOBALS['srcdir'].'/patient.inc');
+require_once($GLOBALS['srcdir'].'/sql-ledger.inc');
+require_once($GLOBALS['srcdir'].'/acl.inc');
+require_once($GLOBALS['srcdir'].'/formatting.inc.php');
+require_once($GLOBALS['srcdir'].'/options.inc.php');
+require_once($GLOBALS['srcdir'].'/formdata.inc.php');
+require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 
   // This determines if a particular procedure code corresponds to receipts
   // for the "Clinic" column as opposed to receipts for the practitioner.  Each
@@ -26,7 +34,7 @@
   // have to customize this function.  If you use the "fee sheet" encounter
   // form then the code below may work for you.
   //
-  include_once("../forms/fee_sheet/codes.php");
+  require_once('../forms/fee_sheet/codes.php');
   function is_clinic($code) {
     global $bcodes;
     $i = strpos($code, ':');
@@ -97,7 +105,7 @@
 }
 </style>
 
-<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
 <script language="JavaScript">
 // This is for callback by the find-code popup.
 // Erases the current entry
@@ -754,11 +762,11 @@ function sel_diagnosis() {
 
 <!-- stuff for the popup calendar -->
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
+<?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.1.3.2.js"></script>
 
 <script language="Javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
