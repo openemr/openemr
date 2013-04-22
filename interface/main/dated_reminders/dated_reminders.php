@@ -91,14 +91,14 @@ require_once("$srcdir/dated_reminder_functions.php");
       </style> 
       <script type="text/javascript">
          $(document).ready(function (){ 
-            <?php if(!$hasAlerts) echo '$(".hideDR").html("<span>'.xlt('Show Reminders').'</span>"); $(".drHide").hide();'; ?>
+            <?php if(!$hasAlerts) echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();'; ?> 
             $(".hideDR").click(function(){
-              if($(this).html() == "<span><?php echo xlt('Hide Reminders') ?></span>"){  
-                $(this).html("<span><?php echo xlt('Show Reminders') ?></span>"); 
+              if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){  
+                $(this).html("<span><?php echo xla('Show Reminders') ?></span>"); 
                 $(".drHide").slideUp("slow");
               }
               else{  
-                $(this).html("<span><?php echo xlt('Hide Reminders') ?></span>");  
+                $(this).html("<span><?php echo xla('Hide Reminders') ?></span>");  
                 $(".drHide").slideDown("slow");
               }
             }) 
@@ -119,10 +119,10 @@ require_once("$srcdir/dated_reminder_functions.php");
            function updateme(id){ 
              refreshInterval = <?php echo $updateDelay ?>;
              if(id > 0){
-              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xlt("Processing") ?>...</p>'); 
+              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Processing") ?>...</p>'); 
              }
              if(id == 'new'){
-              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xlt("Processing") ?>...</p>');
+              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
              }    
              top.restoreSession();
              // Send the skip_timeout_reset parameter to not count this as a manual entry in the
@@ -134,7 +134,7 @@ require_once("$srcdir/dated_reminder_functions.php");
                   alert("<?php echo addslashes(xl('Error Removing Message')) ?>");  
                 }else{  
                   if(id > 0){
-                    $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xlt("Refreshing Reminders") ?> ...</p>');
+                    $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
                   }
                   $(".drTD").html(data); 
                 }   
