@@ -337,8 +337,11 @@ ALTER TABLE `procedure_order_code`
 UPDATE procedure_order_code AS pc, procedure_order AS po
   SET pc.diagnoses = po.diagnoses
   WHERE po.procedure_order_id = pc.procedure_order_id;
-ALTER TABLE `procedure_order` DROP COLUMN diagnoses;
 #EndIf
+
+# At this point this obsolete column will always exist, because it was created
+# and then moved to another table during this release cycle.
+ALTER TABLE `procedure_order` DROP COLUMN diagnoses;
 
 #IfMissingColumn lists modifydate
 ALTER TABLE `lists` ADD COLUMN `modifydate` timestamp NOT NULL default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
