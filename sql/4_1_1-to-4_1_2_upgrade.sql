@@ -54,6 +54,9 @@
 --    arguments: table_name colname
 --    behavior:  If the index does not exist, it will be created
 
+--  #IfNotMigrateClickOptions
+--    Custom function for the importing of the Clickoptions settings (if exist) from the codebase into the database
+
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
 
@@ -337,8 +340,11 @@ ALTER TABLE `procedure_order_code`
 UPDATE procedure_order_code AS pc, procedure_order AS po
   SET pc.diagnoses = po.diagnoses
   WHERE po.procedure_order_id = pc.procedure_order_id;
-ALTER TABLE `procedure_order` DROP COLUMN diagnoses;
 #EndIf
+
+# At this point this obsolete column will always exist, because it was created
+# and then moved to another table during this release cycle.
+ALTER TABLE `procedure_order` DROP COLUMN diagnoses;
 
 #IfMissingColumn lists modifydate
 ALTER TABLE `lists` ADD COLUMN `modifydate` timestamp NOT NULL default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
@@ -358,5 +364,41 @@ ALTER TABLE `procedure_order`
   'time of order transmission, null if unsent';
 UPDATE procedure_order SET date_transmitted = date_ordered WHERE
   date_transmitted IS NULL AND date_ordered IS NOT NULL;
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id issue_types
+INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES ('lists','issue_types','Issue Types');
+#EndIf
+
+#IfNotMigrateClickOptions
+#EndIf
+
+#IfNotTable issue_types
+CREATE TABLE `issue_types` (
+  `category` varchar(75) NOT NULL DEFAULT '',
+  `type` varchar(75) NOT NULL DEFAULT '',
+  `plural` varchar(75) NOT NULL DEFAULT '',
+  `singular` varchar(75) NOT NULL DEFAULT '',
+  `abbreviation` varchar(75) NOT NULL DEFAULT '',
+  `style` smallint(6) NOT NULL DEFAULT '0',
+  `force_show` smallint(6) NOT NULL DEFAULT '0',
+  `ordering` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`category`,`type`)
+) ENGINE=MyISAM;
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','default','medical_problem','Medical Problems','Problem','P','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','default','medication','Medications','Medication','M','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','default','allergy','Allergies','Allergy','A','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','default','surgery','Surgeries','Surgery','S','0','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('50','default','dental','Dental Issues','Dental','D','0','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','athletic_team','football_injury','Football Injuries','Injury','I','2','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','athletic_team','medical_problem','Medical Problems','Medical','P','0','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','athletic_team','allergy','Allergies','Allergy','A','1','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','athletic_team','general','General','General','G','1','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','ippf_specific','medical_problem','Medical Problems','Problem','P','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','ippf_specific','medication','Medications','Medication','M','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','ippf_specific','allergy','Allergies','Allergy','Y','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','ippf_specific','surgery','Surgeries','Surgery','S','0','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('50','ippf_specific','ippf_gcac','Abortions','Abortion','A','3','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('60','ippf_specific','contraceptive','Contraception','Contraception','C','4','0');
 #EndIf
 
