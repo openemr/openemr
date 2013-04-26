@@ -28,6 +28,7 @@ require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("./receive_hl7_results.inc.php");
+require_once("./gen_hl7_order.inc.php");
 
 /**
  * Get a list item title, translating if required.
@@ -59,6 +60,26 @@ function myCellText($s) {
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
 if (!$thisauth) die(xlt('Not authorized'));
+
+$errmsg = '';
+
+// Send selected unsent orders if requested. This does not support downloading
+// very well as it will only send the first of those.
+if ($_POST['form_xmit']) {
+  foreach ($_POST['form_cb'] as $formid) {
+    $row = sqlQuery("SELECT lab_id FROM procedure_order WHERE " .
+      "procedure_order_id = ?", array($formid));
+    $ppid = intval($row['lab_id']);
+    $hl7 = '';
+    $errmsg = gen_hl7_order($formid, $hl7);
+    if (empty($errmsg)) {
+      $errmsg = send_hl7_order($ppid, $hl7);
+    }
+    if ($errmsg) break;
+    sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE " .
+      "procedure_order_id = ?", array($formid));
+  }
+}
 ?>
 <html>
 <head>
@@ -102,6 +123,9 @@ function openResults(orderid) {
  onsubmit='return validate(this)'>
 
 <?php
+if ($errmsg) {
+  echo "<font color='red'>" . text($errmsg) . "</font><br />\n";
+}
 $messages = array();
 $errmsg = poll_hl7_results($messages);
 foreach ($messages as $message) {
@@ -224,8 +248,8 @@ foreach (array(
 
 <?php 
 $selects =
-  "po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, pc.procedure_code, " .
-  "pc.procedure_name, " .
+  "po.patient_id, po.procedure_order_id, po.date_ordered, po.date_transmitted, " .
+  "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
   "pr.procedure_report_id, pr.date_report, pr.report_status, pr.review_status";
 
 $joins =
@@ -271,7 +295,7 @@ else if ($form_reviewed == 5) {
   $where .= " AND po.date_transmitted IS NULL AND pr.procedure_report_id IS NULL";
 }
 
-$query = "SELECT po.patient_id, " .
+$query = "SELECT " .
   "pd.fname, pd.mname, pd.lname, pd.pubpid, $selects " .
   "FROM procedure_order AS po " .
   "LEFT JOIN procedure_order_code AS pc ON pc.procedure_order_id = po.procedure_order_id " .
@@ -287,18 +311,20 @@ $lastpcid = -1;
 $encount = 0;
 $lino = 0;
 $extra_html = '';
+$num_checkboxes = 0;
 
 while ($row = sqlFetchArray($res)) {
   $patient_id       = empty($row['patient_id'         ]) ? 0 : ($row['patient_id'         ] + 0);
   $order_id         = empty($row['procedure_order_id' ]) ? 0 : ($row['procedure_order_id' ] + 0);
   $order_seq        = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
-  $date_ordered     = empty($row['date_ordered']) ? '' : $row['date_ordered'];
-  $procedure_code   = empty($row['procedure_code']) ? '' : $row['procedure_code'];
-  $procedure_name   = empty($row['procedure_name']) ? '' : $row['procedure_name'];
+  $date_ordered     = empty($row['date_ordered'       ]) ? '' : $row['date_ordered'];
+  $date_transmitted = empty($row['date_transmitted'   ]) ? '' : $row['date_transmitted'];
+  $procedure_code   = empty($row['procedure_code'     ]) ? '' : $row['procedure_code'];
+  $procedure_name   = empty($row['procedure_name'     ]) ? '' : $row['procedure_name'];
   $report_id        = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
-  $date_report      = empty($row['date_report']) ? '' : $row['date_report'];
-  $report_status    = empty($row['report_status']) ? '' : $row['report_status']; 
-  $review_status    = empty($row['review_status']) ? '' : $row['review_status'];
+  $date_report      = empty($row['date_report'        ]) ? '' : $row['date_report'];
+  $report_status    = empty($row['report_status'      ]) ? '' : $row['report_status']; 
+  $review_status    = empty($row['review_status'      ]) ? '' : $row['review_status'];
 
   $ptname = $row['lname'];
   if ($row['fname'] || $row['mname'])
@@ -324,10 +350,30 @@ while ($row = sqlFetchArray($res)) {
   // Generate order columns.
   if ($lastpoid != $order_id) {
     $lastpcid = -1;
-    echo "  <td><a href='javascript:openResults($order_id)'>";    
+    echo "  <td>";
+    // Checkbox to support sending unsent orders, disabled if sent.
+    echo "<input type='checkbox' name='form_cb[$order_id]' value='$order_id' ";
+    if ($date_transmitted) {
+      echo "disabled";
+    } else {
+      echo "checked";
+      ++$num_checkboxes;
+    }
+    echo " />";
+    // Order date comes with a link to open results in the same frame.
+    echo "<a href='javascript:openResults($order_id)' ";
+    echo "title='" . xla('Click for results') . "'>";    
     echo text($date_ordered);
     echo "</a></td>\n";
-    echo "  <td>" . text($order_id) . "</td>\n";
+    echo "  <td>";
+    // Order ID comes with a link to open the manifest in a new window/tab.
+    echo "<a href='" . $GLOBALS['webroot'];
+    echo "/interface/orders/order_manifest.php?orderid=";
+    echo attr($order_id);
+    echo "' target='_blank' onclick='top.restoreSession()' ";
+    echo "title='" . xla('Click for order summary') . "'>";
+    echo text($order_id);
+    echo "</a></td>\n";
   }
   else {
     echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
@@ -345,17 +391,12 @@ while ($row = sqlFetchArray($res)) {
   // Generate report columns.
   if ($report_id) {
     echo "  <td>" . text($date_report) . "</td>\n";
-
-    // echo "  <td>" . text($report_status) . "</td>\n";
-    // echo "  <td>" . text($review_status) . "</td>\n";
-
     echo "  <td title='" . xla('Check mark indicates reviewed') . "'>";
     echo myCellText(getListItem('proc_rep_status', $report_status));
     if ($review_status == 'reviewed') {
       echo " &#x2713;"; // unicode check mark character
     }
     echo "</td>\n";
-
   }
   else {
     echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
@@ -371,6 +412,12 @@ while ($row = sqlFetchArray($res)) {
 ?>
 
 </table>
+
+<?php if ($num_checkboxes) { ?>
+<center><p>
+<input type='submit' name='form_xmit' value='<?php echo xla('Transmit Selected Orders'); ?>' />
+</p></center>
+<?php } ?>
 
 <script language='JavaScript'>
 

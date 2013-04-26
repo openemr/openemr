@@ -165,7 +165,7 @@ function gen_hl7_order($orderid, &$out) {
     "pd.pid = f.pid AND " .
     "u.id = po.provider_id",
     array($orderid));
-  if (empty($porow)) return "Procedure order or lab is missing for order ID '$orderid'";
+  if (empty($porow)) return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
 
   $pcres = sqlStatement("SELECT " .
     "pc.procedure_code, pc.procedure_name, pc.procedure_order_seq, pc.diagnoses " .
