@@ -161,8 +161,8 @@ function clickOptionsMigrate() {
       if (preg_match('/^#/', $line_of_text)) continue;
       if ($line_of_text == "") continue;
       $parts = explode('::', $line_of_text);
-      $parts[0] = str_replace("\r\n","",$parts[0]);
-      $parts[1] = str_replace("\r\n","",$parts[1]);
+      $parts[0] = trim($parts[0]);
+      $parts[1] = trim($parts[1]);
       if ($parts[0] != $prev) {
         $sql1 = "INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES (?,?,?)";
         SqlStatement($sql1, array('lists',$parts[0].'_issue_list',ucwords(str_replace("_"," ",$parts[0])).' Issue List') );
