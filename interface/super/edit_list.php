@@ -112,6 +112,7 @@ if ($_POST['formaction']=='save' && $list_id) {
       sqlStatement("DELETE FROM issue_types");
       for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
         $iter        = $opt["$lino"];
+        $it_active   = formTrim($iter['active']);
         $it_category = formTrim($iter['category']);
         $it_ordering = formTrim($iter['ordering']);
         $it_type     = formTrim($iter['type']);
@@ -123,8 +124,9 @@ if ($_POST['formaction']=='save' && $list_id) {
         
         if ( (strlen($it_category) > 0) && (strlen($it_type) > 0) ) {
           sqlInsert("INSERT INTO issue_types ( " .
-            "`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show` " .
+            "`active`,`category`,`ordering`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show` " .
             ") VALUES ( "   .
+            "'$it_active' , " .
             "'$it_category' , " .
             "'$it_ordering' , " .
             "'$it_type' , " .
@@ -402,12 +404,10 @@ function writeFSLine($category, $option, $codes) {
 
 
 /**
- * Helper function for writeITLine().
- * itGenCell() generates cells for data display (Issue Type list).
+ * Helper functions for writeITLine() and writeCTLine().
  */
-
-function itGenCell($opt_line_no, $it_array, $name, $size, $maxlength, $title='') {
-  $value = isset($it_array[$name]) ? $it_array[$name] : '';
+function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title='') {
+  $value = isset($data_array[$name]) ? $data_array[$name] : '';
   $s = "  <td align='center' class='optcell'";
   if ($title) $s .= " title='" . attr($title) . "'";
   $s .= ">";
@@ -418,24 +418,10 @@ function itGenCell($opt_line_no, $it_array, $name, $size, $maxlength, $title='')
   return $s;
 }
 
-// Helper functions for writeCTLine():
-
-function ctGenCell($opt_line_no, $ct_array, $name, $size, $maxlength, $title='') {
-  $value = isset($ct_array[$name]) ? $ct_array[$name] : '';
+function ctGenCbox($opt_line_no, $data_array, $name, $title='') {
+  $checked = empty($data_array[$name]) ? '' : 'checked ';
   $s = "  <td align='center' class='optcell'";
-  if ($title) $s .= " title='" . addslashes($title) . "'";
-  $s .= ">";
-  $s .= "<input type='text' name='opt[$opt_line_no][$name]' value='";
-  $s .= htmlspecialchars($value, ENT_QUOTES);
-  $s .= "' size='$size' maxlength='$maxlength' class='optin' />";
-  $s .= "</td>\n";
-  return $s;
-}
-
-function ctGenCbox($opt_line_no, $ct_array, $name, $title='') {
-  $checked = empty($ct_array[$name]) ? '' : 'checked ';
-  $s = "  <td align='center' class='optcell'";
-  if ($title) $s .= " title='" . addslashes($title) . "'";
+  if ($title) $s .= " title='" . attr($title) . "'";
   $s .= ">";
   $s .= "<input type='checkbox' name='opt[$opt_line_no][$name]' value='1' ";
   $s .= "$checked/>";
@@ -511,26 +497,27 @@ function writeITLine($it_array) {
   ++$opt_line_no;
   $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
   echo " <tr bgcolor='$bgcolor'>\n";
-  echo itGenCell($opt_line_no, $it_array, 'category' , 20, 20, xl('OpenEMR Application Category (Default vs Sports Teams vs IPPF)'));
-  echo itGenCell($opt_line_no, $it_array, 'ordering' , 10, 10, xl('Order'));
-  echo itGenCell($opt_line_no, $it_array, 'type' , 20, 75, xl('Issue Type'));
-  echo itGenCell($opt_line_no, $it_array, 'plural' , 20, 75, xl('Plural'));
+  echo ctGenCell($opt_line_no, $it_array, 'category' , 20, 20, xl('OpenEMR Application Category (Default vs Sports Teams vs IPPF)'));
+  echo ctGenCBox($opt_line_no, $it_array, 'active', xl('Is this active?'));
+  echo ctGenCell($opt_line_no, $it_array, 'ordering' , 10, 10, xl('Order'));
+  echo ctGenCell($opt_line_no, $it_array, 'type' , 20, 75, xl('Issue Type'));
+  echo ctGenCell($opt_line_no, $it_array, 'plural' , 20, 75, xl('Plural'));
   // if not english and translating lists then show the translation
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['plural']) . "</td>\n";
   }
-  echo itGenCell($opt_line_no, $it_array, 'singular' , 20,  75, xl('Singular'));
+  echo ctGenCell($opt_line_no, $it_array, 'singular' , 20,  75, xl('Singular'));
   // if not english and translating lists then show the translation
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['singular']) . "</td>\n";
   }
-  echo itGenCell($opt_line_no, $it_array, 'abbreviation' , 10,  10, xl('Abbreviation'));
+  echo ctGenCell($opt_line_no, $it_array, 'abbreviation' , 10,  10, xl('Abbreviation'));
   // if not english and translating lists then show the translation
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['abbreviation']) . "</td>\n";
   }
-  echo itGenCell($opt_line_no, $it_array, 'style', 6, 6, xl('0 - Normal; 1 - Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields.; 2 - Football Injury;'));
-  echo itGenCell($opt_line_no, $it_array, 'force_show', 10,  10, xl('0 - Do not show this category on the patient summary screen if there have been no issues entered in for this category;  1 - Show this category on the patient summary screen even if no issues have been entered for this category.'));
+  echo ctGenCell($opt_line_no, $it_array, 'style', 6, 6, xl('0 - Normal; 1 - Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields.; 2 - Football Injury;'));
+  echo ctGenCBox($opt_line_no, $it_array, 'force_show', xl('Show this category on the patient summary screen even if no issues have been entered for this category.'));
   echo " </tr>\n";
 }
 
@@ -809,6 +796,7 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('External'    ,'e'); ?></b></td>
 <?php } else if ($list_id == 'issue_types') { ?>
   <td><b><?php echo xlt('OpenEMR Application Category'); ?></b></td>
+  <td><b><?php echo xlt('Active'); ?></b></td>
   <td><b><?php echo xlt('Order'); ?></b></td>
   <td><b><?php echo xlt('Type'); ?></b></td>
   <td><b><?php echo xlt('Plural'); ?></b></td>

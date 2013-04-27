@@ -55,7 +55,7 @@ function collect_issue_type_category() {
 }
 
 // Build the $ISSUE_TYPES array (see script header for description)
-$res = sqlStatement("SELECT * FROM `issue_types` WHERE `category`=? ORDER BY `ordering` ASC", array( collect_issue_type_category() ));
+$res = sqlStatement("SELECT * FROM `issue_types` WHERE active=1 AND `category`=? ORDER BY `ordering` ASC", array( collect_issue_type_category() ));
 while($row = sqlFetchArray($res)){
   $ISSUE_TYPES[$row['type']] = array(xl($row['plural']),xl($row['singular']),xl($row['abbreviation']),$row['style'],$row['force_show']);
 }
