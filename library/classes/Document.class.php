@@ -301,6 +301,12 @@ class Document extends ORDataObject{
 	function get_url_path() {
 		return dirname(preg_replace("|^(.*)://|","",$this->url)) ."/";
 	}
+        function get_path_depth() {
+                return $this->path_depth;
+        }
+        function set_path_depth($path_depth) {
+                $this->path_depth = $path_depth;
+        }
 	function set_mimetype($mimetype) {
 		$this->mimetype = $mimetype;
 	}

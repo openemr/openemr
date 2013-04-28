@@ -34,7 +34,26 @@ class C_Document extends Controller {
 			$this->file_path = $GLOBALS['OE_SITE_DIR'].'/documents/temp/';
 		}
 		else{
-		$this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9]/","_",$_GET['patient_id']) . "/";
+                        if ( (!empty($_GET['higher_level_path'])) && (is_numeric($_GET['patient_id']) && $_GET['patient_id']>0) ) {
+                                // Allow higher level directory structure in documents directory and a patient is mapped
+		                $this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9\/]/","_",$_GET['higher_level_path']) . "/";
+                        }
+                        else if (!empty($_GET['higher_level_path'])) {
+                                // Allow higher level directory structure in documents directory and there is no patient mapping
+                                //  (Since a patient is not mapped, will create up to 10000 random directories and increment the path_depth by 1)
+                                $this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9\/]/","_",$_GET['higher_level_path']) . "/" . rand(1,10000)  . "/";
+                                $_POST['path_depth'] = $_POST['path_depth'] + 1;
+                        }
+                        else if ( !(is_numeric($_GET['patient_id'])) || !($_GET['patient_id']>0) ) {
+                                // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
+                                //  (Since a patient is not mapped, will create up to 10000 random directories and set the path_depth to 2)
+                                $this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9]/","_",$_GET['patient_id']) . "/" . rand(1,10000)  . "/";
+                                $_POST['path_depth'] = 2;
+                        }
+                        else {
+                                // This is the default action where the patient is is used as one level directory structure in documents directory
+                                $this->file_path = $this->_config['repository'] . preg_replace("/[^A-Za-z0-9]/","_",$_GET['patient_id']) . "/";
+                        }
 		}
 		$this->_args = array("patient_id" => $_GET['patient_id']);
 		
@@ -104,7 +123,7 @@ class C_Document extends Controller {
 				}else{
 				
 					if (!file_exists($this->file_path)) {
-						if (!mkdir($this->file_path,0700)) {
+						if (!mkdir($this->file_path,0700,true)) {
 							$error .= "The system was unable to create the directory for this upload, '" . $this->file_path . "'.\n";
 						}
 					}
@@ -192,10 +211,16 @@ class C_Document extends Controller {
 					$this->assign("upload_success", "true");
 					$d = new Document();
 					$d->storagemethod = $GLOBALS['document_storage_method'];
-					if($harddisk == true)
+					if($harddisk == true) {
 						$d->url = "file://" .$this->file_path.$fname;
-					else
+                                                if (is_numeric($_POST['path_depth'])) {
+                                                        // this is for when directory structure is more than one level
+                                                        $d->path_depth = $_POST['path_depth'];
+                                                }
+                                        }
+					else {
 						$d->url = $fname;
+                                        }
 					if($couchDB == true){
 						$d->couch_docid = $docid;
 						$d->couch_revid = $revid;
@@ -443,18 +468,27 @@ class C_Document extends Controller {
 		//change full path to current webroot.  this is for documents that may have
 		//been moved from a different filesystem and the full path in the database
 		//is not current.  this is also for documents that may of been moved to
-		//different patients
+		//different patients. Note that the path_depth is used to see how far down
+                //the path to go. For example, originally the path_depth was always 1, which
+                //only allowed things like documents/1/<file>, but now can have more structured
+                //directories. For example a path_depth of 2 can give documents/encounters/1/<file>
+                // etc.
 		// NOTE that $from_filename and basename($url) are the same thing
 		$from_all = explode("/",$url);
 	        $from_filename = array_pop($from_all);
-	        $from_patientid = array_pop($from_all);
+	        $from_pathname_array = array();
+                for ($i=0;$i<$d->get_path_depth();$i++) {
+                        $from_pathname_array[] = array_pop($from_all);
+                }
+                $from_pathname_array = array_reverse($from_pathname_array);
+                $from_pathname = implode("/",$from_pathname_array);
     if($couch_docid && $couch_revid){
 	//for couchDB no URL is available in the table, hence using the foreign_id which is patientID
 	$temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $d->get_foreign_id() . '_' . $from_filename;
 	
 	}
 	else{
-	$temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_patientid . '/' . $from_filename;
+	$temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
 	}
 	
 		if (file_exists($temp_url)) {
@@ -505,7 +539,7 @@ class C_Document extends Controller {
 				$url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $convertedFile;
 				}
 				else{
-				$url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_patientid . '/' . $convertedFile;
+				$url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
                 }
 				header("Pragma: public");
 			    header("Expires: 0");
@@ -776,12 +810,21 @@ class C_Document extends Controller {
                 //change full path to current webroot.  this is for documents that may have
                 //been moved from a different filesystem and the full path in the database
                 //is not current.  this is also for documents that may of been moved to
-                //different patients
+                //different patients. Note that the path_depth is used to see how far down
+                //the path to go. For example, originally the path_depth was always 1, which
+                //only allowed things like documents/1/<file>, but now can have more structured
+                //directories. For example a path_depth of 2 can give documents/encounters/1/<file>
+                // etc.
                 // NOTE that $from_filename and basename($url) are the same thing
                 $from_all = explode("/",$url);
                 $from_filename = array_pop($from_all);
-                $from_patientid = array_pop($from_all);
-                $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_patientid . '/' . $from_filename;
+                $from_pathname_array = array();
+                for ($i=0;$i<$d->get_path_depth();$i++) {
+                        $from_pathname_array[] = array_pop($from_all);
+                }
+                $from_pathname_array = array_reverse($from_pathname_array);
+                $from_pathname = implode("/",$from_pathname_array);
+                $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
                 if (file_exists($temp_url)) {
                         $url = $temp_url;
                 }

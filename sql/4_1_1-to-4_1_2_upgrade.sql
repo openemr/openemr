@@ -442,3 +442,7 @@ ALTER TABLE `immunizations`
   ADD COLUMN `added_erroneously` tinyint(1) NOT NULL DEFAULT '0';
 #EndIf
 
+#IfMissingColumn documents path_depth
+ALTER TABLE `documents` ADD COLUMN `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.';
+#Endif
+

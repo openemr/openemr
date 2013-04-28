@@ -758,17 +758,23 @@ foreach ($ar as $key => $val) {
                 if($couch_docid && $couch_revid){
                   $url_file = $d->get_couch_url($pid,$encounter);
                 }
-                // just grab the last two levels, which contain filename and patientid
+                // Collect filename and path
                 $from_all = explode("/",$url_file);
                 $from_filename = array_pop($from_all);
-                $from_patientid = array_pop($from_all);
+                $from_pathname_array = array();
+                for ($i=0;$i<$d->get_path_depth();$i++) {
+                  $from_pathname_array[] = array_pop($from_all);
+                }
+                $from_pathname_array = array_reverse($from_pathname_array);
+                $from_pathname = implode("/",$from_pathname_array);
+
                 if($couch_docid && $couch_revid) {
                   $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
                   $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
                 else {
                   $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
-                    '/documents/' . $from_patientid . '/' . $from_filename;
+                    '/documents/' . $from_pathname . '/' . $from_filename;
                   $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
 

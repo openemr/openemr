@@ -671,6 +671,7 @@ CREATE TABLE `documents` (
   `couch_docid` VARCHAR(100) DEFAULT NULL,
   `couch_revid` VARCHAR(100) DEFAULT NULL,
   `storagemethod` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->Harddisk,1->CouchDB',
+  `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.',
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
