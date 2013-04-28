@@ -97,8 +97,6 @@ if ($mode == "new_payment" || $mode == "distribute")
 //===============================================================================
 if ($mode == "PostPayments" || $mode == "FinishPayments")
 {
-//	$hidden_patient_code=$_REQUEST['hidden_patient_code'];
-//	$payment_id=$_REQUEST['payment_id'];
 	$user_id=$_SESSION['authUserID'];
 	$created_time = date('Y-m-d H:i:s');
 	for($CountRow=1;;$CountRow++)
