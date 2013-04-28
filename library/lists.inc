@@ -10,7 +10,7 @@
  *  0   - The plural title.
  *  1   - The singular title.
  *  2   - The abbreviated title (one letter abbreviation). 
- *  3   - Style (integer from 0 to 5). Normal behavior is 0; not sure what others do; will document this later.
+ *  3   - Style ('0 - Normal; 1 - Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields.; 2 - Football Injury; 3 and 4 are IPPF specific)
  *  4   - Force show this issue category in the patient summary screen even if empty (setting to 1 will force it to show and setting it to 0 will turn this off).
  *
  *
@@ -37,6 +37,20 @@
  * @author  Teny <teny@zhservices.com>
  * @link    http://www.open-emr.org
  */
+
+$ISSUE_TYPE_CATEGORIES = array(
+  'default' => xl('Default'),             // Normal OpenEMR use
+  'athletic_team' => xl('Athletic Team'), // For Sports Team use
+  'ippf_specific' => xl('IPPF')           // For IPPF use
+);
+
+$ISSUE_TYPE_STYLES = array(
+  0 => xl('Standard'),                    // Standard
+  1 => xl('Simplified'),                  // Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields.
+  2 => xl('Football Injury'),             // Football Injury
+  3 => xl('IPPF Abortion'),               // IPPF specific (abortions issues)
+  4 => xl('IPPF Contraception')           // IPPF specific (contraceptions issues)
+);
 
 /**
  * Will return the current issue type category that is being used.

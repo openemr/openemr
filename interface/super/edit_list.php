@@ -429,6 +429,20 @@ function ctGenCbox($opt_line_no, $data_array, $name, $title='') {
   return $s;
 }
 
+function ctSelector($opt_line_no, $data_array, $name, $option_array, $title='') {
+  $value = isset($data_array[$name]) ? $data_array[$name] : '';
+  $s = "  <td title='" . attr($title) . "' align='center' class='optcell'>";
+  $s .= "<select name='opt[$opt_line_no][$name]' class='optin'>";
+  foreach ( $option_array as $key => $desc) {
+    $s .= "<option value='" . attr($key) . "'";
+    if ($key == $value) $s .= " selected";
+    $s .= ">" . text($desc) . "</option>";
+  }
+  $s .= "</select>";
+  $s .= "</td>\n";
+  return $s;
+}
+
 // Write a form line as above but for the special case of Code Types.
 //
 function writeCTLine($ct_array) {
@@ -475,17 +489,8 @@ function writeCTLine($ct_array) {
     xl('Is this a Clinical Term code type?'));
   echo ctGenCBox($opt_line_no, $ct_array, 'ct_problem',
     xl('Is this a Medical Problem code type?'));
-  // Show the external code types selector
-  $value_ct_external = isset($ct_array['ct_external']) ? $ct_array['ct_external'] : '';
-  echo "  <td title='" . xla('Is this using external sql tables? If it is, then choose the format.') . "' align='center' class='optcell'>";
-  echo "<select name='opt[$opt_line_no][ct_external]' class='optin'>";
-  foreach ( $cd_external_options as $key => $desc) {
-    echo "<option value='" . attr($key) . "'";
-    if ($key == $value_ct_external) echo " selected";
-    echo ">" . text($desc) . "</option>";
-  }
-  echo "</select>";
-  echo "</td>\n";
+  echo ctSelector($opt_line_no, $ct_array, 'ct_external',
+    $cd_external_options, xl('Is this using external sql tables? If it is, then choose the format.'));
   echo " </tr>\n";
 }
 
@@ -493,11 +498,11 @@ function writeCTLine($ct_array) {
  * Special case of Issue Types
  */
 function writeITLine($it_array) {        
-  global $opt_line_no;
+  global $opt_line_no,$ISSUE_TYPE_CATEGORIES,$ISSUE_TYPE_STYLES;
   ++$opt_line_no;
   $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
   echo " <tr bgcolor='$bgcolor'>\n";
-  echo ctGenCell($opt_line_no, $it_array, 'category' , 20, 20, xl('OpenEMR Application Category (Default vs Sports Teams vs IPPF)'));
+  echo ctSelector($opt_line_no, $it_array, 'category', $ISSUE_TYPE_CATEGORIES, xl('OpenEMR Application Category'));
   echo ctGenCBox($opt_line_no, $it_array, 'active', xl('Is this active?'));
   echo ctGenCell($opt_line_no, $it_array, 'ordering' , 10, 10, xl('Order'));
   echo ctGenCell($opt_line_no, $it_array, 'type' , 20, 75, xl('Issue Type'));
@@ -516,7 +521,7 @@ function writeITLine($it_array) {
   if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
        echo "  <td align='center' class='translation'>" . xlt($it_array['abbreviation']) . "</td>\n";
   }
-  echo ctGenCell($opt_line_no, $it_array, 'style', 6, 6, xl('0 - Normal; 1 - Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields.; 2 - Football Injury;'));
+  echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
   echo ctGenCBox($opt_line_no, $it_array, 'force_show', xl('Show this category on the patient summary screen even if no issues have been entered for this category.'));
   echo " </tr>\n";
 }
