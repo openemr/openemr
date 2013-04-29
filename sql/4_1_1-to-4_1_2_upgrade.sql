@@ -402,3 +402,7 @@ INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbrev
 INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('60','ippf_specific','contraceptive','Contraception','Contraception','C','4','0');
 #EndIf
 
+#IfMissingColumn issue_types active
+ALTER TABLE `issue_types` ADD COLUMN `active` tinyint(1) NOT NULL DEFAULT '1';
+#EndIf
+

@@ -2360,6 +2360,7 @@ CREATE TABLE `issue_encounter` (
 
 DROP TABLE IF EXISTS `issue_types`;
 CREATE TABLE `issue_types` (
+    `active` tinyint(1) NOT NULL DEFAULT '1',
     `category` varchar(75) NOT NULL DEFAULT '',
     `type` varchar(75) NOT NULL DEFAULT '',
     `plural` varchar(75) NOT NULL DEFAULT '',
