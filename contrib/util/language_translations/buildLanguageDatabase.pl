@@ -1,14 +1,15 @@
 #!/usr/bin/perl
 #
+# Copyright (C) 2009-2013 Brady Miller <brady@sparmy.com>
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# author Brady Miller
-# email  brady@sparmy.com
-# date   04/03/09
-#
+# Author   Brady Miller <brady@sparmy.com>
+# Author   Ramin Moshiri <raminmoshiri@gmail.com> 
+# 
 # This is a perl script that will build the language translation sql
 # dumpfiles from the tab delimited language translation spreadsheet.
 # It will create two output dumpfiles:
@@ -549,7 +550,7 @@ CREATE TABLE `lang_definitions` (
   `def_id` int(11) NOT NULL auto_increment,
   `cons_id` int(11) NOT NULL default '0',
   `lang_id` int(11) NOT NULL default '0',
-  `definition` mediumtext CHARACTER SET utf8,
+  `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `cons_id` (`cons_id`) 
 ) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
