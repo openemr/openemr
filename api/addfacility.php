@@ -58,7 +58,6 @@ if ($userId = validateToken($token)) {
     $acl_allow = acl_check('admin', 'super', $user);
 
     if ($acl_allow) {
-        $user = getUsername($userId);
         $strQuery = "INSERT INTO facility (name, phone, fax, street, city, state, postal_code, country_code, federal_ein, service_location, billing_location, accepts_assignment, pos_code, x12_sender_id, attn, domain_identifier, facility_npi, tax_id_type, color, primary_business_entity) 
                                 VALUES ('" . add_escape_custom($name) . "',
                                         '" . add_escape_custom($phone) . "',
