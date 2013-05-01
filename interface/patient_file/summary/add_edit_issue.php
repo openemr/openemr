@@ -296,7 +296,7 @@ div.section {
   echo " aopts[$i] = new Array();\n";
   $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ?",array($key."_issue_list"));
   while($res = sqlFetchArray($qry)){
-    echo " aopts[$i][aopts[$i].length] = new Option('".attr($res['option_id'])."', '".attr(xl_list_label($res['title']))."', false, false);\n";
+    echo " aopts[$i][aopts[$i].length] = new Option('".attr(trim($res['option_id']))."', '".attr(xl_list_label(trim($res['title'])))."', false, false);\n";
   }
   ++$i;
  }
