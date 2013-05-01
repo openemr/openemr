@@ -56,7 +56,7 @@ class Medication extends ClinicalType
             $sqlQueryBind= array();
             $query = "SELECT * " .
         	"FROM immunizations " .
-                "WHERE patient_id = ? " .
+                "WHERE patient_id = ? AND added_erroneously = '0' " .
                 "AND administered_date >= ? " .
                 "AND administered_date <= ? ";
             $query.= "AND ( ";
