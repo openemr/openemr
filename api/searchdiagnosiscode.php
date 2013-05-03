@@ -26,12 +26,15 @@ header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
 
+require_once($srcdir . "/../custom/code_types.inc.php");
+
+
 $xml_string = "";
 $xml_string = "<DiagnosisCodes>";
 
 $token = $_POST['token'];
 $search_term = $_POST['search_term'];
-$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'icd9';
+$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'ICD9';
 
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
@@ -39,36 +42,56 @@ if ($userId = validateToken($token)) {
     if ($acl_allow) {
 
         if (!empty($search_term)) {
-            switch ($code_type) {
+            switch (strtolower($code_type)) {
                 case 'rxnorm':
                     $strQuery = "SELECT `RXAUI` AS `code` , `AUI` AS `code_text_short` , `STR` AS `code_text` , `CODE` AS `code_type`
                                 FROM `RXNATOMARCHIVE`
                                 WHERE `STR` LIKE ? LIMIT 1000";
                     $result = sqlStatement($strQuery, array("%" . $search_term . "%"));
+                    $numrows = $result->_numOfRows;
                     break;
                 case 'snomed':
                     $strQuery = "SELECT `ConceptId` AS `code` , `FullySpecifiedName` AS `code_text` , `SNOMEDID` AS `code_text_short` , `CTV3ID` AS `code_type`
-                                FROM `sct_concepts`
-                                WHERE `FullySpecifiedName` LIKE ? LIMIT 1000";
+                                    FROM `sct_concepts`
+                                    WHERE `FullySpecifiedName` LIKE ? LIMIT 1000";
                     $result = sqlStatement($strQuery, array("%" . $search_term . "%"));
+                    $numrows = $result->_numOfRows;
                     break;
                 case 'icd9':
-                    $strQuery = "SELECT code_text,code_text_short,code,code_type 
+                    if (function_exists('main_code_set_search')) {
+                        $result = main_code_set_search("ICD9", $search_term, 1000);
+                        $numrows = sqlNumRows($result);
+                    } elseif (function_exists('code_set_search')) {
+                        $result = code_set_search("ICD9", $search_term, $count = false, $active = true, $return_only_one = false, $start = 0, $number = 1000);
+                        $numrows = sqlNumRows($result);
+                    } else {
+                        $strQuery = "SELECT code_text,code_text_short,code,code_type 
                                     FROM  `codes` 
                                     WHERE `code_type` = 2  AND `code_text` LIKE ? LIMIT 1000";
-                    $result = sqlStatement($strQuery, array( "%" . $search_term . "%"));
+                        $result = sqlStatement($strQuery, array("%" . $search_term . "%"));
+                        $numrows = $result->_numOfRows;
+                    }
             }
         } else {
 
-            $strQuery = "SELECT code_text,code_text_short,code,code_type 
+            $search_term = "";
+            if (function_exists('main_code_set_search')) {
+                $result = main_code_set_search("ICD9", $search_term, 1000);
+                $numrows = sqlNumRows($result);
+            } elseif (function_exists('code_set_search')) {
+                $result = code_set_search("ICD9", $search_term, $count = false, $active = true, $return_only_one = false, $start = 0, $number = 1000);
+                $numrows = sqlNumRows($result);
+            } else {
+                $strQuery = "SELECT code_text,code_text_short,code,code_type 
                                     FROM  `codes` 
-                                    WHERE `code_type` = 2 LIMIT 1000";
-            $result = sqlStatement($strQuery);
+                                    WHERE `code_type` = 2  AND `code_text` LIKE ? LIMIT 1000";
+                $result = sqlStatement($strQuery, array("%" . $search_term . "%"));
+                $numrows = $result->_numOfRows;
+            }
         }
-
-        if ($result->_numOfRows > 0) {
+        if ($numrows > 0) {
             $xml_string .= "<status>0</status>";
-            $xml_string .= "<reason>Facilities Processed successfully</reason>";
+            $xml_string .= "<reason>Diagnosis Codes Processed successfully</reason>";
 
             while ($res = sqlFetchArray($result)) {
                 $xml_string .= "<DiagnosisCode>\n";
