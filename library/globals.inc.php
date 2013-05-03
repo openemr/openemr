@@ -454,7 +454,13 @@ $GLOBALS_METADATA = array(
             ),
             '0',
             xl('Format for age display')
-    )
+    ),
+    'age_display_limit' => array(
+      xl('Age in Years for Display Format Change'),
+      'num',
+      '3',
+      xl('If YMD is selected for age display, switch to just Years when patients older than this value in years')
+    ),      
   ),
 
   // Features Tab
