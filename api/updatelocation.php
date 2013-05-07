@@ -39,9 +39,6 @@ if ($userId = validateToken($token)) {
 
     $acl_allow = acl_check('admin', 'super', $user);
     
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    
     if ($acl_allow) {
         
         $strQuery = 'UPDATE facility SET ';

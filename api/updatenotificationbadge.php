@@ -38,8 +38,7 @@ $prescription_badge = $_POST['prescription_badge'];
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'demo', $user);
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
+
     if ($acl_allow) {
         $badges = getAllBadges($token);
 

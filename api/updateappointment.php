@@ -47,18 +47,9 @@ $app_status = $app_status == 'p' ? '+' : $app_status;
 $endTime = date('H:i:s', strtotime($_POST['appointmentTime']) + $pc_duration);
 
 if ($userId = validateToken($token)) {
-    $user_data = getUserData($userId);
-
-    $user = $user_data['user'];
-    $emr = $user_data['emr'];
-    $username = $user_data['username'];
-    $password = $user_data['password'];
-
-    
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
-    
+    $user = getUsername($userId);
+    $username = $user;
+  
     $provider_username = getProviderUsername($admin_id);
     $acl_allow = acl_check('patients', 'appt', $username);
 

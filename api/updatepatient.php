@@ -88,17 +88,9 @@ $o_insurance_id = $_POST['o_insurance_id'];
 $image_data = isset($_POST['image_data']) ? $_POST['image_data'] : '';
 
 if ($userId = validateToken($token)) {
-    $user_data = getUserData($userId);
-
-    $user = $user_data['user'];
-    $emr = $user_data['emr'];
-    $username = $user_data['username'];
-    $password = $user_data['password'];
+    $user = getUsername($userId);
+    
     $acl_allow = acl_check('patients', 'demo', $user);
-
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
 
     if ($acl_allow) {
 
@@ -208,8 +200,9 @@ if ($userId = validateToken($token)) {
             $hash = '';
             $patient_id = $patientId;
             $ext = 'png';
-            $cat_title = 'Patient Profile Image';
-
+//            $cat_title = 'Patient Profile Image';
+            $cat_title = 'Patient Photograph';
+            
             $strQuery2 = "SELECT id from `categories` WHERE name LIKE ?";
 
             $result3 = sqlQuery($strQuery2, array($cat_title));

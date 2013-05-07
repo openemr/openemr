@@ -64,7 +64,7 @@ if ($userId = validateToken($token)) {
 
         $total_soap = 0;
         $soap_data = array();
-;
+
         if ($result->_numOfRows > 0) {
 
             while ($res = sqlFetchArray($result)) {

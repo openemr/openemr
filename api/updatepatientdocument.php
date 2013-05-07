@@ -40,10 +40,6 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'docs', $user);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patient_id;
-
     if ($acl_allow) {
 
         $provider_id = getPatientsProvider($patient_id);

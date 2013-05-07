@@ -35,9 +35,6 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'docs', $user);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
     if ($acl_allow) {
 
         if ($image_data) {
@@ -51,7 +48,8 @@ if ($userId = validateToken($token)) {
             $hash = '';
             $patient_id = $patientId;
             $ext = 'png';
-            $cat_title = 'Patient Profile Image';
+//            $cat_title = 'Patient Profile Image';
+            $cat_title = 'Patient Photograph';
 
             $strQuery2 = "SELECT id from `categories` WHERE name LIKE '{$cat_title}'";
             $result3 = sqlQuery($strQuery2);

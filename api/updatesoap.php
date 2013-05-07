@@ -41,8 +41,7 @@ $plan = $_POST['plan'];
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('encounters', 'auth_a', $user);
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
+
     if ($acl_allow) {
         $strQuery = 'UPDATE form_soap SET ';
         $strQuery .= ' subjective = "' . add_escape_custom($subjective) . '",';

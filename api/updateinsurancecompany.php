@@ -46,9 +46,7 @@ $x12_receiver_id = $_POST['x12_receiver_id'];
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('admin', 'super', $user);
-    
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
+
     if ($acl_allow) {
         $insuranceCom = new InsuranceCompany($id);
 

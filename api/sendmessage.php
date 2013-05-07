@@ -22,7 +22,6 @@
  * @author  Karl Englund <karl@mastermobileproducts.com>
  * @link    http://www.open-emr.org
  */
-
 header("Content-Type:text/xml");
 
 $ignoreAuth = true;
@@ -71,86 +70,78 @@ if ($userId = validateToken($token)) {
 
     if ($acl_allow) {
 
-    $provider_id = $userId;
+        $provider_id = $userId;
 
 
 
-    $assigned_to_array = explode(',', $assigned_to);
-
-    $_SESSION['authUser'] = $user;
-
-    $_SESSION['authProvider'] = 'Default';
+        $assigned_to_array = explode(',', $assigned_to);
 
 
+        // Session variable used in addBilling() function
+   
+        $provider = getAuthGroup($user);
+        if ($authGroup = sqlQuery("select * from groups where user='$user' and name='$provider'")) {
+            $_SESSION['authProvider'] = $provider;
+            $_SESSION['authId'] = $userId;
+            $_SESSION['authUser'] = $user;
+        }
 
-    foreach ($assigned_to_array as $assignee) {
+        foreach ($assigned_to_array as $assignee) {
 
-        if ($message_status == 'Done' && !empty($message_id)) {
+            if ($message_status == 'Done' && !empty($message_id)) {
 
-            updatePnoteMessageStatus($message_id, $message_status);
+                updatePnoteMessageStatus($message_id, $message_status);
 
-            $result = 1;
+                $result = 1;
 
-            break;
+                break;
+            } else {
 
-        } else {
+                $result = addPnote($patientId, $newtext, $authorized, $activity, $title, $assignee, $datetime = '', $message_status);
 
-            $result = addPnote($patientId, $newtext, $authorized, $activity, $title, $assignee, $datetime = '', $message_status);
+                $device_token_badge = getDeviceTokenBadge($assignee, 'message');
 
-            $device_token_badge = getDeviceTokenBadge($assignee,'message');
+                $badge = $device_token_badge ['badge'];
 
-            $badge = $device_token_badge ['badge'];
+                $deviceToken = $device_token_badge ['device_token'];
 
-            $deviceToken = $device_token_badge ['device_token'];
+                if ($deviceToken) {
 
-            if ($deviceToken) {
-
-                $notification_res = notification($deviceToken, $badge, $msg_count = 0, $apt_count = 0, $message = 'New Message Notification!');
-
+                    $notification_res = notification($deviceToken, $badge, $msg_count = 0, $apt_count = 0, $message = 'New Message Notification!');
+                }
             }
-
         }
 
-    }
+        if ($result) {
 
-    if ($result) {
+            $xml_string .= "<status>0</status>";
 
-        $xml_string .= "<status>0</status>";
+            $xml_string .= "<reason>Message send successfully</reason>";
 
-        $xml_string .= "<reason>Message send successfully</reason>";
+            if ($notification_res) {
 
-        if ($notification_res) {
+                $xml_string .= "<notification>Notification({$notification_res}) Sent.</notification>";
+            } else {
 
-            $xml_string .= "<notification>Notification({$notification_res}) Sent.</notification>";
-
+                $xml_string .= "<notification>Notification Failed.</notification>";
+            }
         } else {
 
-            $xml_string .= "<notification>Notification Failed.</notification>";
+            $xml_string .= "<status>-1</status>";
 
+            $xml_string .= "<reason>Could not send message</reason>";
         }
-
-    } else {
-
-        $xml_string .= "<status>-1</status>";
-
-        $xml_string .= "<reason>Could not send message</reason>";
-
-    }
-
     } else {
 
         $xml_string .= "<status>-2</status>\n";
 
         $xml_string .= "<reason>You are not Authorized to perform this action</reason>\n";
-
     }
-
 } else {
 
     $xml_string .= "<status>-2</status>";
 
     $xml_string .= "<reason>Invalid Token</reason>";
-
 }
 
 
@@ -158,5 +149,4 @@ if ($userId = validateToken($token)) {
 $xml_string .= "</Message>";
 
 echo $xml_string;
-
 ?>

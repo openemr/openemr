@@ -45,9 +45,7 @@ $list = $_POST['list'];
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('encounters', 'auth_a', $user);
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
+
     if ($acl_allow) {
         $strQuery = "UPDATE form_encounter 
                     SET date = '" . date('Y-m-d H:i:s') . "', 

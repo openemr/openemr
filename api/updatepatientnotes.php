@@ -36,9 +36,6 @@ if ($userId = validateToken($token)) {
     $username = getUsername($userId);
     $acl_allow = acl_check('patients', 'notes', $username);
 
-    $_SESSION['authUser'] = $username;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
     if ($acl_allow) {
         $strQuery = "UPDATE pnotes SET date = '" . date('Y-m-d H:i:s') . "', body = '" . add_escape_custom($notes) . "', user = '" . add_escape_custom($username) . "', title = '" . add_escape_custom($title) . "', assigned_to = '" . add_escape_custom($username) . "' WHERE id = ?";
         $result = sqlStatement($strQuery, array($noteId));

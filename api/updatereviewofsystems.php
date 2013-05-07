@@ -173,9 +173,6 @@ $hai_status = $_POST['hai_status'];
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('encounters', 'auth_a', $user);
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
     if ($acl_allow) {
         $strQuery = 'UPDATE form_ros SET ';
         $strQuery .=' weight_change = "' . add_escape_custom($weight_change) . '",';
