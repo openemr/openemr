@@ -54,10 +54,6 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('encounters', 'auth_a', $user);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
-
     if ($acl_allow) {
         $strQuery = "INSERT INTO `form_vitals`(`date`, `pid`, `user`, `groupname`, `authorized`, `activity`, `bps`, `bpd`, `weight`, `height`, `temperature`, `temp_method`, `pulse`, `respiration`, `note`, `BMI`, `BMI_status`, `waist_circ`, `head_circ`, `oxygen_saturation`) 
                     VALUES ('".add_escape_custom($date)."','".add_escape_custom($patientId)."','".add_escape_custom($user)."','".add_escape_custom($groupname)."','".add_escape_custom($authorized)."','".add_escape_custom($activity)."','".add_escape_custom($bps)."','".add_escape_custom($bpd)."','".add_escape_custom($weight)."','".add_escape_custom($height)."','".add_escape_custom($temperature)."','".add_escape_custom($temp_method)."','".add_escape_custom($pulse)."','".add_escape_custom($respiration)."','".add_escape_custom($note)."','".add_escape_custom($BMI)."','".add_escape_custom($BMI_status)."','".add_escape_custom($waist_circ)."','".add_escape_custom($head_circ)."','".add_escape_custom($oxygen_saturation)."')";

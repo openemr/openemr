@@ -44,9 +44,7 @@ if ($userId = validateToken($token)) {
     $username = getUsername($userId);
     $acl_allow = acl_check('admin', 'users', $username);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-
+    
     if ($acl_allow) {
 
         $path = $sitesDir . "{$site}/documents/userdata";

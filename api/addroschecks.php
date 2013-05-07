@@ -153,10 +153,6 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('encounters', 'auth_a', $user);
 
-    $_SESSION['authUser'] = $user;
-    $_SESSION['authGroup'] = $site;
-    $_SESSION['pid'] = $patientId;
-
     if ($acl_allow) {
         $strQuery = "INSERT INTO `form_reviewofs`(
                     `date`, `pid`, `user`, `groupname`, `authorized`, `activity`, `fever`, `chills`, 
