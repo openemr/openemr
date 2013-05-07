@@ -171,7 +171,8 @@ function gen_hl7_order($orderid, &$out) {
     "pc.procedure_code, pc.procedure_name, pc.procedure_order_seq, pc.diagnoses " .
     "FROM procedure_order_code AS pc " .
     "WHERE " .
-    "pc.procedure_order_id = ? " .
+    "pc.procedure_order_id = ? AND " .
+    "pc.do_not_send = 0 " .
     "ORDER BY pc.procedure_order_seq",
     array($orderid));
 

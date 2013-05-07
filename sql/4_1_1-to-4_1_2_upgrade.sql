@@ -480,3 +480,8 @@ ALTER TABLE `procedure_order`
   'clinical history text that may be relevant to the order';
 #EndIf
 
+#IfMissingColumn procedure_order_code do_not_send
+ALTER TABLE `procedure_order_code`
+  ADD COLUMN `do_not_send` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 = normal, 1 = do not transmit to lab';
+#EndIf
+

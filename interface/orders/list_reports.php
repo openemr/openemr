@@ -249,7 +249,7 @@ foreach (array(
 <?php 
 $selects =
   "po.patient_id, po.procedure_order_id, po.date_ordered, po.date_transmitted, " .
-  "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
+  "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, pc.do_not_send, " .
   "pr.procedure_report_id, pr.date_report, pr.report_status, pr.review_status";
 
 $joins =
@@ -258,7 +258,7 @@ $joins =
 
 $orderby =
   "po.date_ordered, po.procedure_order_id, " .
-  "pc.procedure_order_seq, pr.procedure_report_id";
+  "pc.do_not_send, pc.procedure_order_seq, pr.procedure_report_id";
 
 $where = "1 = 1";
 $sqlBindArray = array();
@@ -326,6 +326,9 @@ while ($row = sqlFetchArray($res)) {
   $report_status    = empty($row['report_status'      ]) ? '' : $row['report_status']; 
   $review_status    = empty($row['review_status'      ]) ? '' : $row['review_status'];
 
+  // Sendable procedures sort first, so this also applies to the order on an order ID change.
+  $sendable = isset($row['procedure_order_seq']) && $row['do_not_send'] == 0;
+
   $ptname = $row['lname'];
   if ($row['fname'] || $row['mname'])
     $ptname .= ', ' . $row['fname'] . ' ' . $row['mname'];
@@ -353,7 +356,7 @@ while ($row = sqlFetchArray($res)) {
     echo "  <td>";
     // Checkbox to support sending unsent orders, disabled if sent.
     echo "<input type='checkbox' name='form_cb[$order_id]' value='$order_id' ";
-    if ($date_transmitted) {
+    if ($date_transmitted || !$sendable) {
       echo "disabled";
     } else {
       echo "checked";
@@ -381,8 +384,14 @@ while ($row = sqlFetchArray($res)) {
 
   // Generate procedure columns.
   if ($order_seq && $lastpcid != $order_seq) {
-    echo "  <td>" . text($procedure_code) . "</td>\n";
-    echo "  <td>" . text($procedure_name) . "</td>\n";
+    if ($sendable) {
+      echo "  <td>" . text($procedure_code) . "</td>\n";
+      echo "  <td>" . text($procedure_name) . "</td>\n";
+    }
+    else {
+      echo "  <td><strike>" . text($procedure_code) . "</strike></td>\n";
+      echo "  <td><strike>" . text($procedure_name) . "</strike></td>\n";
+    }
   }
   else {
     echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";

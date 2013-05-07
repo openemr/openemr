@@ -350,7 +350,7 @@ function poll_hl7_results(&$messages) {
         // Parse and process its contents.
         $msg = receive_hl7_results($hl7);
         if ($msg) {
-          $messages[] = xl('Error processing file') . " '$file':" . $msg;
+          $messages[] = xl('Error processing file') . " '$file': " . $msg;
           ++$badcount;
           continue;
         }

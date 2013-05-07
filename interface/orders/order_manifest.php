@@ -45,6 +45,26 @@ function myCellText($s) {
 }
 
 function generate_order_summary($orderid) {
+
+  // If requested, save checkbox selections as to which procedures are not sendable.
+  if ($_POST['bn_save']) {
+    sqlStatement("UPDATE procedure_order_code " .
+      "SET do_not_send = 0 WHERE " .
+      "procedure_order_id = ? AND " .
+      "do_not_send != 0",
+      array($orderid));
+    if (!empty($_POST['form_omit'])) {
+      foreach ($_POST['form_omit'] as $key) {
+        sqlStatement("UPDATE procedure_order_code " .
+          "SET do_not_send = 1 WHERE " .
+          "procedure_order_id = ? AND " .
+          "do_not_send = 0 AND " .
+          "procedure_order_seq = ?",
+          array($orderid, intval($key)));
+      }
+    }
+  }
+
   $orow = sqlQuery("SELECT " .
     "po.procedure_order_id, po.patient_id, po.date_ordered, po.order_status, " .
     "po.date_collected, po.specimen_type, po.specimen_location, po.lab_id, po.clinical_hx, " .
@@ -107,7 +127,17 @@ function generate_order_summary($orderid) {
  border-color: black;
 }
 
+/* specifically exclude from printing */
+@media print {
+ .unprintable {
+  visibility: hidden;
+  display: none;
+ }
+}
+
 </style>
+
+<form method='post' action='order_manifest.php?orderid=<?php echo $orderid; ?>'>
 
 <div class='ordsum'>
 
@@ -173,6 +203,7 @@ function generate_order_summary($orderid) {
 <table width='100%' cellpadding='2' cellspacing='0'>
 
  <tr class='head'>
+  <td><?php echo xlt('Omit'); ?></td>
   <td><?php echo xlt('Code'); ?></td>
   <td><?php echo xlt('Description'); ?></td>
   <td><?php echo xlt('Diagnoses'); ?></td>
@@ -181,9 +212,13 @@ function generate_order_summary($orderid) {
 
 <?php 
   $query = "SELECT " .
-    "procedure_order_seq, procedure_code, procedure_name, diagnoses " .
+    "procedure_order_seq, procedure_code, procedure_name, diagnoses, do_not_send " .
     "FROM procedure_order_code WHERE " .
-    "procedure_order_id =  ? ORDER BY procedure_order_seq";
+    "procedure_order_id =  ? ";
+  if (!empty($_POST['bn_show_sendable'])) {
+    $query .= "AND do_not_send = 0 ";
+  }
+  $query .= "ORDER BY procedure_order_seq";
   $res = sqlStatement($query, array($orderid));
 
   $encount = 0;
@@ -229,6 +264,9 @@ function generate_order_summary($orderid) {
     ++$encount;
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+    echo "  <td><input type='checkbox' name='form_omit[$order_seq]' value='1'";
+    if (!empty($row['do_not_send'])) echo " checked";
+    echo " /></td>\n";
     echo "  <td>" . text("$procedure_code") . "</td>\n";
     echo "  <td>" . text("$procedure_name") . "</td>\n";
     echo "  <td>" . text("$diagnoses"     ) . "</td>\n";
@@ -239,6 +277,18 @@ function generate_order_summary($orderid) {
 
 </table>
 </div>
+
+<center>
+<p class='unprintable'>
+<input type='submit' name='bn_save' value='<?php echo xla('Save omission selections'); ?>' />
+&nbsp;
+<input type='submit' name='bn_show_all' value='<?php echo xla('Show all procedures'); ?>' />
+&nbsp;
+<input type='submit' name='bn_show_sendable' value='<?php echo xla('Show only procedures not omitted'); ?>' />
+</p>
+</center>
+
+</form>
 
 <?php
 } // end function generate_order_summary
