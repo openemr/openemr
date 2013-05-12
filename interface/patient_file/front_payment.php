@@ -13,6 +13,7 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
+require_once("$srcdir/payment.inc.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
@@ -70,38 +71,6 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept,$encounter=
     " value='" .  '' . "' onchange='coloring();calctotal()'  autocomplete='off' " .
     "onkeyup='calctotal()'  style='width:50px'/></td>\n";
   echo " </tr>\n";
-}
-
-// Post a payment to the payments table.
-//
-function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amount2) {
-  global $timestamp;
-  $tmprow = sqlQuery("SELECT date FROM form_encounter WHERE " .
-    "encounter=? and pid=?",
-		array($encounter,$patient_id));
-	//the manipulation is done to insert the amount paid into payments table in correct order to show in front receipts report,
-	//if the payment is for today's encounter it will be shown in the report under today field and otherwise shown as previous
-  $tmprowArray=explode(' ',$tmprow['date']);
-  if(date('Y-m-d')==$tmprowArray[0])
-   {
-    if($amount1==0)
-	 {
-	  $amount1=$amount2;
-	  $amount2=0;
-	 }
-   }
-  else
-   {
-    if($amount2==0)
-	 {
-	  $amount2=$amount1;
-	  $amount1=0;
-	 }
-   }
-  $payid = sqlInsert("INSERT INTO payments ( " .
-    "pid, encounter, dtime, user, method, source, amount1, amount2 " .
-    ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)", array($patient_id,$encounter,$timestamp,$_SESSION['authUser'],$method,$source,$amount1,$amount2) );
-  return $payid;
 }
 
 // We use this to put dashes, colons, etc. back into a timestamp.
@@ -185,7 +154,7 @@ if ($_POST['form_save']) {
 			", payment_method = ?",
 			array(0,$form_pid,$_SESSION['authUserID'],0,$form_source,$_REQUEST['form_prepayment'],$NameNew,$form_method));
 	
-		 frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0);//insertion to 'payments' table.
+		 frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
 	 }
   
   if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment']!='pre_payment') {
@@ -232,7 +201,7 @@ if ($_POST['form_save']) {
 				   " VALUES (?,?,?,?,?,0,now(),?,?,?,'PCP')",
 					 array($form_pid,$enc,$Codetype,$Code,$Modifier,$_SESSION['authId'],$session_id,$amount));
 				   
-				 frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0);//insertion to 'payments' table.
+				 frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
 			 }
 			if($_REQUEST['radio_type_of_payment']=='invoice_balance' || $_REQUEST['radio_type_of_payment']=='cash')
 			 {				//Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
@@ -261,7 +230,7 @@ if ($_POST['form_save']) {
 
 	//--------------------------------------------------------------------------------------------------------------------
 
-        			frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount);//insertion to 'payments' table.
+        			frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount, $timestamp);//insertion to 'payments' table.
 
 	//--------------------------------------------------------------------------------------------------------------------
 
