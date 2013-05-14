@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/getallpatients.php retrieve all patients.
  *
@@ -32,12 +33,7 @@ $xml_string .= "<PatientList>\n";
 
 if ($userId = validateToken($token)) {
 
-    $user_data = getUserData($userId);
-
-    $user = $user_data['user'];
-    $emr = $user_data['emr'];
-    $username = $user_data['username'];
-    $password = $user_data['password'];
+    $username = getUsername($userId);
 
     $acl_allow = acl_check('patients', 'demo', $username);
     if ($acl_allow) {
@@ -49,6 +45,12 @@ if ($userId = validateToken($token)) {
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Patient list Record has been fetched</reason>";
             $counter = 0;
+
+            $cat_title = 'Patient Photograph';
+            $strQuery2 = "SELECT id from `categories` WHERE name LIKE '" . add_escape_custom($cat_title) . "'";
+            $result3 = sqlQuery($strQuery2);
+            $cat_id = $result3['id'];
+
             while ($res = sqlFetchArray($result)) {
                 $xml_string .= "<Patient>\n";
 
@@ -60,18 +62,18 @@ if ($userId = validateToken($token)) {
                     $xml_string .= "<$fieldname>$rowvalue</$fieldname>\n";
                 }
 
+
                 $strQuery1 = "SELECT d.date,d.size,d.url,d.docdate,d.mimetype,c2d.category_id
                                 FROM `documents` AS d
                                 INNER JOIN `categories_to_documents` AS c2d ON d.id = c2d.document_id
                                 WHERE foreign_id = ?
-                                AND category_id = 13
+                                AND category_id = ?
                                 ORDER BY category_id, d.date DESC 
                                 LIMIT 1";
 
-                $result1 = sqlQuery($strQuery1, array($p_id));
+                $result1 = sqlQuery($strQuery1, array($p_id, $cat_id));
 
                 if ($result1) {
-
                     $xml_string .= "<profileimage>" . getUrl($result1['url']) . "</profileimage>\n";
                 } else {
                     $xml_string .= "<profileimage></profileimage>\n";

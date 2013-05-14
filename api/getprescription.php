@@ -33,11 +33,8 @@ $patientId = $_POST['patientID'];
 $visit_id = isset($_POST['visit_id']) && !empty($_POST['visit_id']) ? $_POST['visit_id'] : '';
 
 if ($userId = validateToken($token)) {
-    $user_data = getUserData($userId);
-    $user = $user_data['user'];
-    $emr = $user_data['emr'];
-    $username = $user_data['username'];
-    $password = $user_data['password'];
+
+    $username = getUsername($userId);
 
     $acl_allow = acl_check('patients', 'med', $username);
     if ($acl_allow) {

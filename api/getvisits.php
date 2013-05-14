@@ -21,7 +21,9 @@
  * @author  Karl Englund <karl@mastermobileproducts.com>
  * @link    http://www.open-emr.org
  */
+
 header("Content-Type:text/xml");
+
 $ignoreAuth = true;
 require_once('classes.php');
 
@@ -32,11 +34,7 @@ $token = $_POST['token'];
 $patientId = $_POST['patientId'];
 
 if ($userId = validateToken($token)) {
-    $user_data = getUserData($userId);
-    $user = $user_data['user'];
-    $emr = $user_data['emr'];
-    $username = $user_data['username'];
-    $password = $user_data['password'];
+    $user = getUsername($userId);
 
     $acl_allow = acl_check('encounters', 'auth_a', $user);
     if ($acl_allow) {
@@ -46,15 +44,16 @@ if ($userId = validateToken($token)) {
                                 LEFT JOIN `facility` as fb ON fb.id = fe.billing_facility
                                 WHERE pid= ? ORDER BY id DESC";
 
-        $result = sqlStatement($strQuery,array($patientId));
+        $result = sqlStatement($strQuery, array($patientId));
 
         if ($result->_numOfRows > 0) {
             $xml_string .= "<status>0</status>";
             $xml_string .= "<reason>The Patient visit Record has been fetched</reason>";
 
             while ($res = sqlFetchArray($result)) {
+
                 $xml_string .= "<Visit>\n";
-               
+
                 foreach ($res as $fieldName => $fieldValue) {
                     $rowValue = xmlsafestring($fieldValue);
                     $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
@@ -65,13 +64,13 @@ if ($userId = validateToken($token)) {
                            INNER JOIN `lists` AS l ON ie.list_id = l.id
                            WHERE ie.encounter = ?";
 
-                $list_result = sqlStatement($sql_visits,array($res['encounter']));
+                $list_result = sqlStatement($sql_visits, array($res['encounter']));
 
                 $xml_string .= "<Issues>";
                 if ($list_result->_numOfRows > 0) {
-                    
+
                     while ($list_res = sqlFetchArray($list_result)) {
-                     
+
                         $xml_string .= "<Issue>\n";
                         foreach ($list_res as $fieldName => $fieldValue) {
                             $rowValue = xmlsafestring($fieldValue);
@@ -89,7 +88,7 @@ if ($userId = validateToken($token)) {
                                     AND f.form_name = 'SOAP'
                                     AND NOT EXISTS (select 1 from `forms` where `form_name` = f.`form_name` and `date` > f.`date` and encounter = ?)";
 
-                $list_result = sqlQuery($sql_soap,array($res['encounter'],$res['encounter']));
+                $list_result = sqlQuery($sql_soap, array($res['encounter'], $res['encounter']));
 
                 if ($list_result) {
                     foreach ($list_result as $fieldName => $fieldValue) {

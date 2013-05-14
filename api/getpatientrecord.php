@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/getpatientrecord.php fetch patient record.
  *
@@ -31,11 +32,8 @@ $token = $_REQUEST['token'];
 $xml_array = array();
 
 if ($userId = validateToken($token)) {
-    $user_data = getUserData($userId);
-    $user = $user_data['user'];
-    $emr = $user_data['emr'];
-    $username = $user_data['username'];
-    $password = $user_data['password'];
+
+    $username = getUsername($userId);
 
     $acl_allow = acl_check('patientportal', 'portal', $username);
     if ($acl_allow) {
@@ -48,7 +46,7 @@ if ($userId = validateToken($token)) {
             $ethencity_query = "SELECT option_id, title FROM list_options WHERE list_id  = 'ethnicity' AND `option_id` = ?";
             $patientData = $patient["ethnicity"];
             $ethencity_result = sqlQuery($ethencity_query, array($patientData));
-            
+
             if ($ethencity_result) {
                 $xml_array['Patient']['demographics']['ethnicityvalue'] = $ethencity_result['title'];
             } else {
@@ -180,17 +178,21 @@ if ($userId = validateToken($token)) {
                 $xml_array['Patient']['vitalslist']['reason'] = 'No Patient Vital Data found';
             }
 
+            $cat_title = 'Patient Photograph';
+            $strQueryCat = "SELECT id from `categories` WHERE name LIKE '" . add_escape_custom($cat_title) . "'";
+            $resultCat = sqlQuery($strQueryCat);
+            $cat_id = $resultCat['id'];
 
             $strQuery1 = "SELECT d.date,d.size,d.url,d.docdate,d.mimetype,c2d.category_id
                                 FROM `documents` AS d
                                 INNER JOIN `categories_to_documents` AS c2d ON d.id = c2d.document_id
                                 WHERE foreign_id = ?
-                                AND category_id = 13
+                                AND category_id = ?
                                 ORDER BY category_id, d.date DESC 
                                 LIMIT 1";
 
-            $result1 = sqlQuery($strQuery1, array($p_id));
-           
+            $result1 = sqlQuery($strQuery1, array($p_id, $cat_id));
+
             if ($result1) {
                 $xml_array['Patient']['demographics']['profile_image'] = getUrl($result1['url']);
             } else {

@@ -41,11 +41,7 @@ $xml_string .= "<Appointments>\n";
 
 
 if ($userId = validateToken($token)) {
-    $user_data = getUserData($userId);
-    $user = $user_data['user'];
-    $emr = $user_data['emr'];
-    $username = $user_data['username'];
-    $password = $user_data['password'];
+    $username = getUsername($userId);
 
     $acl_allow = acl_check('patients', 'appt', $username);
     if ($acl_allow) {
