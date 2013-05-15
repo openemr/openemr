@@ -25,6 +25,7 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
   $patient_data = getPatientData($GLOBALS['pid']);
   $patient_age = getPatientAge($patient_data['DOB']);
 
+  $vitals="";
   if ($data) {
     $vitals .= "<table><tr>";
 
