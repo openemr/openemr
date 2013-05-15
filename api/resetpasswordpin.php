@@ -51,7 +51,7 @@ if ($userId = validateToken($token)) {
             if (!empty($password)) {
                 $query1 .= ",";
             }
-            $query1 .= "`upin`='".add_escape_custom($new_pin)."' ";
+            $query1 .= "`app_pin`='".add_escape_custom($new_pin)."' ";
         }
         $query1 .= "WHERE id = ".add_escape_custom($userId);
 

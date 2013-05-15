@@ -39,7 +39,7 @@ if ($date == "") {
 
 $pin = sha1($cspin);
 
-$strQuery = "SELECT * FROM users WHERE username='" . $username . "' AND upin='" . $pin . "'";
+$strQuery = "SELECT * FROM users WHERE username='" . $username . "' AND app_pin='" . $pin . "'";
 $result = sqlQuery($strQuery);
 
 if ($result) {
