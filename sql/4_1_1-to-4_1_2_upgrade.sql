@@ -474,3 +474,7 @@ ALTER TABLE `immunizations`
 ALTER TABLE `documents` ADD COLUMN `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.';
 #Endif
 
+#IfMissingColumn users add_pin
+ALTER TABLE `users` ADD `app_pin` VARCHAR( 100 ) DEFAULT NULL;
+#EndIf
+

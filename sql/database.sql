@@ -5281,6 +5281,7 @@ CREATE TABLE `users` (
   `latidute` varchar(20) DEFAULT NULL,
   `longitude` varchar(20) DEFAULT NULL,
   `time_zone` varchar(10) DEFAULT NULL,
+  `app_pin` varchar(100) DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
