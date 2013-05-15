@@ -615,7 +615,7 @@ class Prescription extends ORDataObject {
         return $string;
     }
     
-    function prescriptions_factory($patient_id,
+    static function prescriptions_factory($patient_id,
                             $order_by = "active DESC, date_modified DESC, date_added DESC")
     {
         $prescriptions = array();

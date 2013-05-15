@@ -27,6 +27,7 @@ require_once(dirname(__FILE__) . "/log.inc");
 require_once(dirname(__FILE__) . "/sql.inc");
 require_once(dirname(__FILE__) . "/pnotes.inc");
 require_once(dirname(__FILE__) . "/../controllers/C_Document.class.php");
+require_once(dirname(__FILE__) . "/documents.php");
 
 /**
  * Connect to a phiMail Direct Messaging server and check for any incoming status
@@ -375,27 +376,17 @@ function phimail_service_userID($name='phimail-service') {
  */
 function phimail_store($name,$mime_type,$fn) {
 
-   //upload using existing controller framework
-   $_FILES['file']['name'][0]=$name;
-   $_FILES['file']['type'][0]=$mime_type;
-   $_FILES['file']['tmp_name'][0]=$fn;
-   $_FILES['file']['error'][0]=0;
-   $_FILES['file']['size'][0]=filesize($fn);
-   $_GET['patient_id']='direct'; //new documents get put into in [fileroot]/sites/[site]/documents/direct/
-   $_POST['destination']='';
-   $_POST['submit']='Upload';
-   $_POST['patient_id']='00'; //workaround because '0' becomes a Null and not a zero in documents.foreign_id
-   $_POST['category_id']='1'; //since we don't know what kind of document; these show up in root Documents folder
-   $_POST['process']='true';
+    // Collect phimail user id
+    $user = phimail_service_userID();
 
-   $user = phimail_service_userID();
-   
-   $cd = new C_Document();
-   $cd->upload_action_process($user); 
-   @unlink($fn);
-   $v = $cd->get_template_vars("file");
-   if (!isset($v) || !$v) return false;
-   return array ("doc_id" => $v[0]->id, "url" => $v[0]->url);
+    // Import the document
+    $return = addNewDocument($name,$mime_type,$fn,0,filesize($fn),$user,'direct');
+
+    // Remove the temporary file
+    @unlink($fn);
+
+    // Return the result
+    return $return;
 }
 
 /**

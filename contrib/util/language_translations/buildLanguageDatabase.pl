@@ -1,14 +1,15 @@
 #!/usr/bin/perl
 #
+# Copyright (C) 2009-2013 Brady Miller <brady@sparmy.com>
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# author Brady Miller
-# email  brady@sparmy.com
-# date   04/03/09
-#
+# Author   Brady Miller <brady@sparmy.com>
+# Author   Ramin Moshiri <raminmoshiri@gmail.com> 
+# 
 # This is a perl script that will build the language translation sql
 # dumpfiles from the tab delimited language translation spreadsheet.
 # It will create two output dumpfiles:
@@ -392,14 +393,16 @@ sub createLanguages() {
  my @numberRow = split($de,$page[$languageNumRow]);
  my @idRow = split($de,$page[$languageIdRow]);
  my @nameRow = split($de,$page[$languageNameRow]);
+ $tempReturn .= "INSERT INTO `lang_languages`   (`lang_id`, `lang_code`, `lang_description`) VALUES\n";
  for (my $i = $constantColumn; $i < @numberRow; $i++) {
-  $tempReturn .= "INSERT INTO `lang_languages` VALUES (".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."');\n";
+  $tempReturn .= "(".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."'),\n";
   $tempCounter = $numberRow[$i];
      
   # set up for statistics later
   push (@languages, $nameRow[$i]);
   $numberConstantsLanguages[$numberRow[$i]-1] = 0;
  }
+ $tempReturn  =~ s/,\n$/;\n/;
  $tempCounter += 1;
 
  # create header
@@ -450,13 +453,15 @@ sub createConstants() {
  # create table input
  my $tempReturn;
  my $tempCounter; 
+ $tempReturn .= "INSERT INTO `lang_constants`   (`cons_id`, `constant_name`) VALUES\n";
  for (my $i = $constantRow; $i < @page; $i++) {
   my @tempRow = split($de,$page[$i]);
   my $tempId = $tempRow[$constantIdColumn];
   my $tempConstant = $tempRow[$constantColumn];
-  $tempReturn .= "INSERT INTO `lang_constants` VALUES (".$tempId.", '".$tempConstant."');\n";
+  $tempReturn .= "(".$tempId.", '".$tempConstant."'),\n";
   $tempCounter = $tempId;
  }
+ $tempReturn  =~ s/,\n$/;\n/;
  $tempCounter += 1; 
 
  # create header
@@ -514,6 +519,7 @@ sub createDefinitions() {
  my $tempCounter; 
  my @numberRow = split($de,$page[$languageNumRow]);
  my $counter = 1;
+ $tempReturn .= "INSERT INTO `lang_definitions` (`def_id`, `cons_id`, `lang_id`, `definition`) VALUES\n";
  for (my $i = $constantColumn + 1; $i < @numberRow; $i++) {
   for (my $j = $constantRow; $j < @page; $j++) {
    my @tempRow = split($de,$page[$j]);
@@ -521,15 +527,16 @@ sub createDefinitions() {
    my $tempDefinition = $tempRow[$i];
    my $tempLangNumber = $numberRow[$i];
    if ($tempDefinition !~ /^\s*$/) {
-    $tempReturn .= "INSERT INTO `lang_definitions` VALUES (".$counter.", ".$tempId.", ".$tempLangNumber.", '".$tempDefinition."');\n";
+ $tempReturn .= "(".$counter.", ".$tempId.", ".$tempLangNumber.", '".$tempDefinition."'),\n";
     $tempCounter = $counter;
     $counter += 1;
-       
+     
     # set up for statistics
     $numberConstantsLanguages[($tempLangNumber - 1)] += 1;
    }
   }
  }
+ $tempReturn  =~ s/,\n$/;\n/;
  $tempCounter += 1;
 
  # create header

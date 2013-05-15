@@ -24,6 +24,43 @@
 //           Paul Simon K <paul@zhservices.com> 
 //
 // +------------------------------------------------------------------------------+
+
+// Post a payment to the payments table.
+//
+function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amount2, $timestamp, $auth="") {
+
+  if (empty($auth)) {
+    $auth=$_SESSION['authUser'];
+  }
+
+  $tmprow = sqlQuery("SELECT date FROM form_encounter WHERE " .
+    "encounter=? and pid=?",
+                array($encounter,$patient_id));
+        //the manipulation is done to insert the amount paid into payments table in correct order to show in front receipts report,
+        //if the payment is for today's encounter it will be shown in the report under today field and otherwise shown as previous
+  $tmprowArray=explode(' ',$tmprow['date']);
+  if(date('Y-m-d')==$tmprowArray[0])
+   {
+    if($amount1==0)
+         {
+          $amount1=$amount2;
+          $amount2=0;
+         }
+   }
+  else
+   {
+    if($amount2==0)
+         {
+          $amount2=$amount1;
+          $amount1=0;
+         }
+   }
+  $payid = sqlInsert("INSERT INTO payments ( " .
+    "pid, encounter, dtime, user, method, source, amount1, amount2 " .
+    ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)", array($patient_id,$encounter,$timestamp,$auth,$method,$source,$amount1,$amount2) );
+  return $payid;
+}
+
 //===============================================================================
 //This section handles the common functins of payment screens.
 //===============================================================================

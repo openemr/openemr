@@ -116,7 +116,7 @@ function generate_form_field($frow, $currvalue) {
   $list_id_esc = htmlspecialchars( $list_id, ENT_QUOTES);
 
   // Added 5-09 by BM - Translate description if applicable  
-  $description = htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES);
+  $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
       
   // added 5-2009 by BM to allow modification of the 'empty' text title field.
   //  Can pass $frow['empty_title'] with this variable, otherwise
@@ -1615,56 +1615,59 @@ function display_layout_rows($formtype, $result1, $result2='') {
       $last_group = $this_group;
     }
 
-    // Handle starting of a new row.
-    if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-      disp_end_row();
-      echo "<tr>";
-      if ($group_name) {
-        echo "<td class='groupname'>";
-        //echo "<td class='groupname' style='padding-right:5pt' valign='top'>";
-        //echo "<font color='#008800'>$group_name</font>";
+    // filter out all the empty field data from the patient report.
+    if (!empty($currvalue) && !($currvalue == '0000-00-00 00:00:00')) {
+	// Handle starting of a new row.
+	if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+	  disp_end_row();
+	  echo "<tr>";
+	  if ($group_name) {
+		echo "<td class='groupname'>";
+		//echo "<td class='groupname' style='padding-right:5pt' valign='top'>";
+		//echo "<font color='#008800'>$group_name</font>";
 	
-        // Added 5-09 by BM - Translate label if applicable
-        echo htmlspecialchars(xl_layout_label($group_name),ENT_NOQUOTES);
+		// Added 5-09 by BM - Translate label if applicable
+		echo htmlspecialchars(xl_layout_label($group_name),ENT_NOQUOTES);
 	  
-        $group_name = '';
-      } else {
-        //echo "<td class='' style='padding-right:5pt' valign='top'>";
-        echo "<td valign='top'>&nbsp;";
-      }
-      echo "</td>";
+		$group_name = '';
+	  } else {
+		//echo "<td class='' style='padding-right:5pt' valign='top'>";
+		echo "<td valign='top'>&nbsp;";
+	  }
+	  echo "</td>";
+	}
+
+	if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+
+	// Handle starting of a new label cell.
+	if ($titlecols > 0) {
+	  disp_end_cell();
+	  //echo "<td class='label' colspan='$titlecols' valign='top'";
+	  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
+	  echo "<td class='label' colspan='$titlecols_esc' ";
+	  //if ($cell_count == 2) echo " style='padding-left:10pt'";
+	  echo ">";
+	  $cell_count += $titlecols;
+	}
+	++$item_count;
+
+	// Added 5-09 by BM - Translate label if applicable
+	if ($frow['title']) echo htmlspecialchars(xl_layout_label($frow['title']).":",ENT_NOQUOTES); else echo "&nbsp;";
+
+	// Handle starting of a new data cell.
+	if ($datacols > 0) {
+	  disp_end_cell();
+	  //echo "<td class='text data' colspan='$datacols' valign='top'";
+	  $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);      
+	  echo "<td class='text data' colspan='$datacols_esc'";
+	  //if ($cell_count > 0) echo " style='padding-left:5pt'";
+	  echo ">";
+	  $cell_count += $datacols;
+	}
+
+	++$item_count;
+	echo generate_display_field($frow, $currvalue);
     }
-
-    if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
-
-    // Handle starting of a new label cell.
-    if ($titlecols > 0) {
-      disp_end_cell();
-      //echo "<td class='label' colspan='$titlecols' valign='top'";
-      $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
-      echo "<td class='label' colspan='$titlecols_esc' ";
-      //if ($cell_count == 2) echo " style='padding-left:10pt'";
-      echo ">";
-      $cell_count += $titlecols;
-    }
-    ++$item_count;
-
-    // Added 5-09 by BM - Translate label if applicable
-    if ($frow['title']) echo htmlspecialchars(xl_layout_label($frow['title']).":",ENT_NOQUOTES); else echo "&nbsp;";
-
-    // Handle starting of a new data cell.
-    if ($datacols > 0) {
-      disp_end_cell();
-      //echo "<td class='text data' colspan='$datacols' valign='top'";
-      $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);      
-      echo "<td class='text data' colspan='$datacols_esc'";
-      //if ($cell_count > 0) echo " style='padding-left:5pt'";
-      echo ">";
-      $cell_count += $datacols;
-    }
-
-    ++$item_count;
-    echo generate_display_field($frow, $currvalue);
   }
 
   disp_end_group();

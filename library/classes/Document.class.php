@@ -301,6 +301,12 @@ class Document extends ORDataObject{
 	function get_url_path() {
 		return dirname(preg_replace("|^(.*)://|","",$this->url)) ."/";
 	}
+        function get_path_depth() {
+                return $this->path_depth;
+        }
+        function set_path_depth($path_depth) {
+                $this->path_depth = $path_depth;
+        }
 	function set_mimetype($mimetype) {
 		$this->mimetype = $mimetype;
 	}
@@ -394,6 +400,48 @@ class Document extends ORDataObject{
             fclose($f_CDB);
 			return $temp_url;
         }
+
+  // Function added by Rod to change the patient associated with a document.
+  // This just moves some code that used to be in C_Document.class.php,
+  // changing it as little as possible since I'm not set up to test it.
+  //
+  function change_patient($new_patient_id) {
+    $couch_docid = $this->get_couch_docid();
+    $couch_revid = $this->get_couch_revid();
+
+    // Set the new patient in CouchDB.
+    if ($couch_docid && $couch_revid) {
+      $couch = new CouchDB();
+      $db = $GLOBALS['couchdb_dbase'];
+      $data = array($db, $couch_docid);
+      $couchresp = $couch->retrieve_doc($data);
+      // CouchDB doesnot support updating a single value in a document.
+      // Have to retrieve the entire document, update the necessary value and save again
+      list ($db, $docid, $revid, $patient_id, $encounter, $type, $json) = $data;
+      $data = array($db, $couch_docid, $couch_revid, $new_patient_id, $couchresp->encounter,
+        $couchresp->mimetype, json_encode($couchresp->data));
+      $resp = $couch->update_doc($data);
+      // Sometimes the response from CouchDB is not available, still it would
+      // have saved in the DB. Hence check one more time.
+      if(!$resp->_id || !$resp->_rev){
+	      $data = array($db, $couch_docid, $new_patient_id, $couchresp->encounter);
+	      $resp = $couch->retrieve_doc($data);
+      }
+      if($resp->_rev == $couch_revid) {
+        return false;
+	    }
+      else {
+        $this->set_couch_revid($resp->_rev);
+      }
+    }
+
+    // Set the new patient in mysql.
+    $this->set_foreign_id($new_patient_id);
+    $this->persist();
+
+    // Return true for success.
+    return true;
+  }
 
 } // end of Document
 

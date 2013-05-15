@@ -454,7 +454,13 @@ $GLOBALS_METADATA = array(
             ),
             '0',
             xl('Format for age display')
-    )
+    ),
+    'age_display_limit' => array(
+      xl('Age in Years for Display Format Change'),
+      'num',
+      '3',
+      xl('If YMD is selected for age display, switch to just Years when patients older than this value in years')
+    ),      
   ),
 
   // Features Tab
@@ -1429,70 +1435,70 @@ $GLOBALS_METADATA = array(
       xl('Enable Lab Exchange'),
       'bool',                           // data type
       '0',
-      xl('Enable the OpenEMR Support LLC Lab Exchange Service.')
+      xl('Enable the Medical Information Integration, LLC Lab Exchange Service.')
     ),
 
     'lab_exchange_siteid' => array(
       xl('Lab Exchange Site ID'),
       'text',                           // data type
       '3',
-      xl('Site ID for the OpenEMR Support LLC Lab Exchange Service.')
+      xl('Site ID for the Medical Information Integration, LLC Lab Exchange Service.')
     ),
 
     'lab_exchange_token' => array(
       xl('Lab Exchange Token ID'),
       'text',                           // data type
       '12345',
-      xl('Token ID for the OpenEMR Support LLC Lab Exchange Service.')
+      xl('Token ID for the Medical Information Integration, LLC Lab Exchange Service.')
     ),
 
     'lab_exchange_endpoint' => array(
       xl('Lab Exchange Site Address'),
       'text',                           // data type
-      'https://openemrsupport.com:29443/len/api',
-      xl('Https link for the OpenEMR Support LLC Lab Exchange Service.')
+      'https://len.mi-squared.com:29443/len/api',
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.')
     ),
     
     'erx_enable' => array(
       xl('Enable NewCrop eRx Service'),
       'bool',                           // data type
       '0',
-      xl('Enable ZMG, LLC eRx service')
+      xl('Enable NewCrop eRx Service')
     ),    
     
     'erx_path_production' => array(
       xl('NewCrop eRx Site Address'),
       'text',                           // data type
       'https://secure.newcropaccounts.com/InterfaceV7/RxEntry.aspx',
-      xl('Contact ZMG, LLC (zmghealth@gmail.com) for subscribing the eRx service')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
     
     'erx_path_soap_production' => array(
       xl('NewCrop eRx Web Service Address'),
       'text',                           // data type
       'https://secure.newcropaccounts.com/v7/WebServices/Update1.asmx?WSDL;https://secure.newcropaccounts.com/v7/WebServices/Patient.asmx?WSDL',
-      xl('Contact ZMG, LLC (zmghealth@gmail.com) for subscribing the eRx service')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
     
     'partner_name_production' => array(
       xl('NewCrop eRx Partner Name'),
       'text',                           // data type
       '',
-      xl('Contact ZMG, LLC (zmghealth@gmail.com) for subscribing the eRx service')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
     
     'erx_name_production' => array(
       xl('NewCrop eRx Name'),
       'text',                           // data type
       '',
-      xl('Contact ZMG, LLC (zmghealth@gmail.com) for subscribing the eRx service')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
     
     'erx_password_production' => array(
       xl('NewCrop eRx Password'),
       'pass',                           // data type
       '',
-      xl('Contact ZMG, LLC (zmghealth@gmail.com) for subscribing the eRx service')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
     
     'erx_upload_active' => array(

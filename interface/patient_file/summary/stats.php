@@ -285,6 +285,7 @@ else { ?>
          " left join code_types ct on ct.ct_key = 'CVX' ".
          " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".
          " where i1.patient_id = ? ".
+		 " and i1.added_erroneously = 0".
          " order by i1.administered_date desc";
 
   $result = sqlStatement($sql, array($pid) );

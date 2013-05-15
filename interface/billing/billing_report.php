@@ -25,69 +25,53 @@ $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 
 $alertmsg = '';
 
-if ($_POST['mode'] == 'export') {
-  $sql = ReturnOFXSql();
-  $db = get_db();
-  $results = $db->Execute($sql);
-  $billings = array();
-  if ($results->RecordCount() == 0) {
-    echo xlt("No Bills Found to Include in OFX Export")."<br>";
-  }
-  else {
-    while(!$results->EOF) {
-      $billings[] = $results->fields;
-      $results->MoveNext();
+if (isset($_POST['mode'])) {
+  if ($_POST['mode'] == 'export') {
+    $sql = ReturnOFXSql();
+    $db = get_db();
+    $results = $db->Execute($sql);
+    $billings = array();
+    if ($results->RecordCount() == 0) {
+      echo xlt("No Bills Found to Include in OFX Export")."<br>";
+    } else {
+      while(!$results->EOF) {
+        $billings[] = $results->fields;
+        $results->MoveNext();
+      }
+      $ofx = new OFX($billings);
+      header("Pragma: public");
+      header("Expires: 0");
+      header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+      header("Content-Disposition: attachment; filename=openemr_ofx.ofx");
+      header("Content-Type: text/xml");
+      echo $ofx->get_OFX();
+      exit;
     }
-    $ofx = new OFX($billings);
-    header("Pragma: public");
-    header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Content-Disposition: attachment; filename=openemr_ofx.ofx");
-    header("Content-Type: text/xml");
-    echo $ofx->get_OFX();
-    exit;
   }
 
-}
-
-// This is obsolete.
-if ($_POST['mode'] == 'process') {
-  if (exec("ps x | grep 'process_bills[.]php'")) {
-    $alertmsg = xl('Request ignored - claims processing is already running!');
-  }
-  else {
-    exec("cd $webserver_root/library/freeb;" .
-      "php -q process_bills.php bill > process_bills.log 2>&1 &");
-    $alertmsg = xl('Batch processing initiated; this may take a while.');
+  // This is obsolete.
+  if ($_POST['mode'] == 'process') {
+    if (exec("ps x | grep 'process_bills[.]php'")) {
+      $alertmsg = xl('Request ignored - claims processing is already running!');
+    } else {
+      exec("cd $webserver_root/library/freeb;" .
+        "php -q process_bills.php bill > process_bills.log 2>&1 &");
+      $alertmsg = xl('Batch processing initiated; this may take a while.');
+    }
   }
 }
 
 //global variables:
-if (!isset($_POST["mode"])) {
-  $from_date = isset($_POST['from_date']) ? $_POST['from_date'] : date('Y-m-d');
-  $to_date   = isset($_POST['to_date'  ]) ? $_POST['to_date'  ] : '';
-  $code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'all';
-  $unbilled  = isset($_POST['unbilled' ]) ? $_POST['unbilled' ] : 'on';
-  $my_authorized = $_POST["authorized"];
-} else {
-  $from_date     = $_POST["from_date"];
-  $to_date       = $_POST["to_date"];
-  $code_type     = $_POST["code_type"];
-  $unbilled      = $_POST["unbilled"];
-  $my_authorized = $_POST["authorized"];
-}
+$from_date     = isset($_POST['from_date'])  ? $_POST['from_date']  : date('Y-m-d');
+$to_date       = isset($_POST['to_date'  ])  ? $_POST['to_date'  ]  : '';
+$code_type     = isset($_POST['code_type'])  ? $_POST['code_type']  : 'all';
+$unbilled      = isset($_POST['unbilled' ])  ? $_POST['unbilled' ]  : 'on';
+$my_authorized = isset($_POST["authorized"]) ? $_POST["authorized"] : '';
+
 
 // This tells us if only encounters that appear to be missing a "25" modifier
 // are to be reported.
-$missing_mods_only = !empty($_POST['missing_mods_only']);
-
-/*
-$from_date = isset($_POST['from_date']) ? $_POST['from_date'] : date('Y-m-d');
-$to_date   = empty($_POST['to_date'  ]) ? $from_date : $_POST['to_date'];
-$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'all';
-$unbilled  = isset($_POST['unbilled' ]) ? $_POST['unbilled' ] : 'on';
-$my_authorized = $_POST["authorized"];
-*/
+$missing_mods_only = (isset($_POST['missing_mods_only']) && !empty($_POST['missing_mods_only']));
 
 $left_margin = isset($_POST["left_margin"]) ? $_POST["left_margin"] : 24;
 $top_margin  = isset($_POST["top_margin"] ) ? $_POST["top_margin" ] : 20;
@@ -101,7 +85,7 @@ $oauthorized = $my_authorized;
 
 <html>
 <head>
-<?php if (function_exists(html_header_show)) html_header_show(); ?>
+<?php if (function_exists('html_header_show')) html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <style>
 .subbtn { margin-top:3px; margin-bottom:3px; margin-left:2px; margin-right:2px }
@@ -631,6 +615,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 
 <?php
+$divnos=0;
 if ($ret = getBillsBetween("%"))
 {
 if(is_array($ret))
@@ -658,7 +643,6 @@ if(is_array($ret))
 
   $mmo_empty_mod = false;
   $mmo_num_charges = 0;
-  $divnos=0;
   
   foreach ($ret as $iter) {
 

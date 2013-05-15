@@ -70,19 +70,19 @@ function create_GS($row,$X12info,$segTer,$compEleSep) {
 	
 	$GS[1] = "HS";						// Functional ID Code [ HS = Eligibility, Coverage or Benefit Inquiry (270) ] 
 	
-	$GS[2] =  $X12info[2];				// Application Sender’s ID 
+	$GS[2] =  $X12info[2];				// Application Sender's ID 
 	
-	$GS[3] =  $X12info[3];				// Application Receiver’s ID 
+	$GS[3] =  $X12info[3];				// Application Receiver's ID 
 	
 	$GS[4] = date('Ymd');				// Date [CCYYMMDD] 
 	
-	$GS[5] = date('His');				// Time [HHMM] – Group Creation Time  
+	$GS[5] = date('His');				// Time [HHMM] Group Creation Time  
 	
 	$GS[6] = "000000002";				// Group Control Number 
 	
 	$GS[7] = "X";					// Responsible Agency Code Accredited Standards Committee X12 ] 
 	
-	$GS[8] = "004010X092A1";			// Version –Release / Industry[ Identifier Code Query 
+	$GS[8] = "004010X092A1";			// Version Release / Industry[ Identifier Code Query 
 
 	$GS['Created'] = implode('*', $GS);		// Data Element Separator 
 
@@ -197,7 +197,7 @@ function create_NM1($row,$nm1Cast,$X12info,$segTer,$compEleSep) {
 		$NM1[6] = "";						// Data Element not required.
 		$NM1[7] = "";						// Data Element not required.
 		$NM1[8] = "46";						// 46 - Electronic Transmitter Identification Number (ETIN) 
-		$NM1[9] = $X12info[3];				// Application Sender’s ID 
+		$NM1[9] = $X12info[3];				// Application Sender's ID 
 	}
 	else if($nm1Cast == '1P')
 	{
@@ -266,11 +266,11 @@ function create_TRN($row,$tracno,$refiden,$X12info,$segTer,$compEleSep) {
 
 	$TRN[0] = "TRN";						// Subscriber Trace Number Segment ID 
 
-	$TRN[1] = "1";							// Trace Type Code – Current Transaction Trace Numbers 
+	$TRN[1] = "1";							// Trace Type Code ï¿½ Current Transaction Trace Numbers 
 
 	$TRN[2] = $tracno;						// Trace Number 
 
-	$TRN[3] = "9000000000";						// Originating Company ID – must be 10 positions in length 
+	$TRN[3] = "9000000000";						// Originating Company ID ï¿½ must be 10 positions in length 
 
 	$TRN[4] = $refiden;						// Additional Entity Identifier (i.e. Subdivision) 
 
@@ -602,6 +602,7 @@ function show_eligibility_information($pid)
 		
 	$row = sqlFetchArray($result);
 
+        $showString="";
 	$showString .= 	"<br><div class='text'>" .
 			"<b>" .
 			htmlspecialchars( xl('Insurance Provider'), ENT_NOQUOTES) . ":</b> " .

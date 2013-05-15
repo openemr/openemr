@@ -115,7 +115,7 @@ function postcalendar_userapi_buildView($args)
 	//=================================================================
 	//  set the correct date
 	//=================================================================
-	$Date =& postcalendar_getDate();
+	$Date =postcalendar_getDate();
 
 	//=================================================================
 	//  get the current view
@@ -498,7 +498,7 @@ function postcalendar_userapi_buildView($args)
 		$tpl->assign_by_ref('MONTH_END_DATE',$month_view_end);
 		$tpl->assign_by_ref('TODAY_DATE',$today_date);
 		$tpl->assign_by_ref('DATE',$Date);
-		$tpl->assign_by_ref('SCHEDULE_BASE_URL', pnModURL(__POSTCALENDAR__,'user','submit'));
+		$tpl->assign('SCHEDULE_BASE_URL', pnModURL(__POSTCALENDAR__,'user','submit'));
 		$tpl->assign_by_ref('interval',$intervals);
         };
 
@@ -1239,7 +1239,7 @@ function &postcalendar_userapi_pcGetEvents($args)
     $s_keywords = $s_category = $s_topic = '';
     extract($args);
 	
-    $date =& postcalendar_getDate();
+    $date =postcalendar_getDate();
     $cy = substr($date,0,4);
     $cm = substr($date,4,2);
     $cd = substr($date,6,2);
@@ -1269,20 +1269,20 @@ function &postcalendar_userapi_pcGetEvents($args)
     
     if ($faFlag && !isset($events)) {
         $a = array('faFlag' => true,'start'=>$start_date,'end'=>$end_date,'s_keywords'=>$s_keywords,'s_category'=>$s_category,'s_topic'=>$s_topic,'viewtype'=>$viewtype, 'provider_id' => $provider_id, 'event_status' => $event_status);
-        $events =& pnModAPIFunc(__POSTCALENDAR__,'user','<strong></strong>pcQueryEventsFA',$a);
+        $events = pnModAPIFunc(__POSTCALENDAR__,'user','<strong></strong>pcQueryEventsFA',$a);
     }
     elseif ($collideFlag && !isset($events)) {
         $a = array('collideFlag' => true,'start'=>$start_date,'end'=>$end_date, 'provider_id' => $provider_id, 'collide_stime' => $stime, 'collide_etime' => $etime);
-        $events =& pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEventsFA',$a);
+        $events = pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEventsFA',$a);
     }
     elseif ($listappsFlag && !isset($events)) {
         $a = array('listappsFlag' => true,'start'=>$start_date,'end'=>$end_date, 'patient_id' => $patient_id, 's_keywords' => $s_keywords);
-        $events =& pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEvents',$a);
+        $events = pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEvents',$a);
     }
     else if(!isset($events)) {
         if(!isset($s_keywords)) $s_keywords = '';
         $a = array('start'=>$start_date,'end'=>$end_date,'s_keywords'=>$s_keywords,'s_category'=>$s_category,'s_topic'=>$s_topic,'viewtype'=>$viewtype, "sort" => "pc_startTime ASC, a.pc_duration ASC ",'providerID' => $providerID, 'provider_id' => $provider_id);
-        $events =& pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEvents',$a);
+        $events = pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEvents',$a);
     }
 
     //==============================================================
@@ -1309,7 +1309,7 @@ function &postcalendar_userapi_pcGetEvents($args)
 // fill days with events (recurring is the challenge)
 //===========================
 function calculateEvents($days,$events,$viewtype) {
-  $date =& postcalendar_getDate();
+  $date =postcalendar_getDate();
   $cy = substr($date,0,4);
   $cm = substr($date,4,2);
   $cd = substr($date,6,2);

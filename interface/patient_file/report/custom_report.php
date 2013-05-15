@@ -473,19 +473,19 @@ else { // not printable
   <table style="width:100%;">
     <tr>
       <td>
-        <input type="text" onkeyup="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element" style="width:180px;"/>
+        <input type="text" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element" style="width:180px;"/>
       </td>
       <td>
-         <a class="css_button" onclick="clear_last_visit();remove_mark_all();find_all();" ><span><?php echo xlt('Find'); ?></span></a>
+         <a class="css_button" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php echo xlt('Find'); ?></span></a>
       </td>
       <td>
-         <a class="css_button" onclick="next_prev('prev');" ><span><?php echo xlt('Prev'); ?></span></a>
+         <a class="css_button" onClick="next_prev('prev');" ><span><?php echo xlt('Prev'); ?></span></a>
       </td>
       <td>
-         <a class="css_button" onclick="next_prev('next');" ><span><?php echo xlt('Next'); ?></span></a>
+         <a class="css_button" onClick="next_prev('next');" ><span><?php echo xlt('Next'); ?></span></a>
       </td>
       <td>
-        <input type="checkbox" onclick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
+        <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
       </td>
       <td>
         <span><?php echo xlt('Match case'); ?></span>
@@ -665,7 +665,7 @@ foreach ($ar as $key => $val) {
                    " from immunizations i1 ".
                    " left join code_types ct on ct.ct_key = 'CVX' ".
                    " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".
-                   " where i1.patient_id = '$pid' ".
+                   " where i1.patient_id = '$pid' and i1.added_erroneously = 0 ".
                    " order by administered_date desc";
                 $result = sqlStatement($sql);
                 while ($row=sqlFetchArray($result)) {
@@ -758,17 +758,23 @@ foreach ($ar as $key => $val) {
                 if($couch_docid && $couch_revid){
                   $url_file = $d->get_couch_url($pid,$encounter);
                 }
-                // just grab the last two levels, which contain filename and patientid
+                // Collect filename and path
                 $from_all = explode("/",$url_file);
                 $from_filename = array_pop($from_all);
-                $from_patientid = array_pop($from_all);
+                $from_pathname_array = array();
+                for ($i=0;$i<$d->get_path_depth();$i++) {
+                  $from_pathname_array[] = array_pop($from_all);
+                }
+                $from_pathname_array = array_reverse($from_pathname_array);
+                $from_pathname = implode("/",$from_pathname_array);
+
                 if($couch_docid && $couch_revid) {
                   $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
                   $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
                 else {
                   $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
-                    '/documents/' . $from_patientid . '/' . $from_filename;
+                    '/documents/' . $from_pathname . '/' . $from_filename;
                   $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
 

@@ -149,7 +149,7 @@ function getImmunizationData() {
     FROM immunizations 
     LEFT JOIN codes ON immunizations.cvx_code = codes.code
     LEFT JOIN code_types ON codes.code_type = code_types.ct_id
-    WHERE immunizations.patient_id = ? AND code_types.ct_key = 'CVX'
+    WHERE immunizations.patient_id = ? AND code_types.ct_key = 'CVX' AND immunizations.added_erroneously = 0
     AND create_date BETWEEN ? AND ?" ;
     $result = sqlStatement($sql, array($pid,$start,$end) );
   }else{
@@ -164,7 +164,7 @@ function getImmunizationData() {
     FROM immunizations 
     LEFT JOIN codes ON immunizations.cvx_code = codes.code
     LEFT JOIN code_types ON codes.code_type = code_types.ct_id
-    WHERE immunizations.patient_id = ? AND code_types.ct_key = 'CVX'";
+    WHERE immunizations.patient_id = ? AND immunizations.added_erroneously = 0 AND code_types.ct_key = 'CVX'";
     $result = sqlStatement($sql, array($pid) );
   }
 	return $result;

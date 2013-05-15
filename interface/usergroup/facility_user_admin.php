@@ -1,28 +1,31 @@
 <?php
-// +-----------------------------------------------------------------------------+
-// Copyright (C) 2012 NP Clinics <info@npclinics.com.au>
-//
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-//
-// A copy of the GNU General Public License is included along with this program:
-// openemr/interface/login/GnuGPL.html
-// For more information write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
-// Author:   Scott Wakefield <scott@npclinics.com.au>
-//
-// +------------------------------------------------------------------------------+
+/**
+ * edit per-facility user information.
+ *
+ * Copyright (C) 2012 NP Clinics <info@npclinics.com.au>
+ *
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *
+ * A copy of the GNU General Public License is included along with this program:
+ * openemr/interface/login/GnuGPL.html
+ * For more information write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * @package OpenEMR
+ * @Author  Scott Wakefield <scott@npclinics.com.au>
+ * @link    http://open-emr.org
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -97,25 +100,6 @@ $(document).ready(function(){
 	 });
 
 });
-
-// This is for callback by the find-code popup.
-// Appends to or erases the current list of related codes.
-function set_related(codetype, code, selector, codedesc) {
- var frc = document.getElementById('form_related_code');
- var s = frc.value;
- if (code) {
-  if (s.length > 0) s += ';';
-  s += codetype + ':' + code;
- } else {
-  s = '';
- }
- frc.value = s;
-}
-
-// This invokes the find-code popup.
-function sel_related() {
- dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php', '_blank', 500, 400);
-}
 
 </script>
 

@@ -95,7 +95,7 @@ if ($GLOBALS['language_menu_login']) {
         $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
         if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
         {
-          $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
+          $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
 	  $res3=SqlStatement($sql);
         }
         else {

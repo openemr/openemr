@@ -124,7 +124,10 @@ function format_ethnicity($ethnicity) {
   }
   $query .= "i.patient_id=p.pid and ".
   $query_codes .
-  "i.cvx_code = c.code ";
+  "i.cvx_code = c.code and ";
+  
+  //do not show immunization added erroneously
+  $query .=  "i.added_erroneously = 0";
 
 //echo "<p> DEBUG query: $query </p>\n"; // debugging
   

@@ -120,8 +120,10 @@ function proc_type_changed() {
  if (ix < 0) ix = 0;
  var ptval = pt.options[ix].value;
  var ptpfx = ptval.substring(0, 3);
- if (ptpfx == 'ord') $('.ordonly').show(); else $('.ordonly').hide();
- if (ptpfx == 'res'|| ptpfx == 'rec') $('.resonly').show(); else $('.resonly').hide();
+ $('.ordonly').hide();
+ $('.resonly').hide();
+ if (ptpfx == 'ord') $('.ordonly').show();
+ if (ptpfx == 'res'|| ptpfx == 'rec') $('.resonly').show();
 }
 
 $(document).ready(function() {
@@ -260,8 +262,8 @@ echo generate_select_list('form_procedure_type', 'proc_type', $row['procedure_ty
   </td>
  </tr>
 
- <tr class='ordonly'>
-  <td nowrap><b><?php echo xlt('Procedure Code'); ?>:</b></td>
+ <tr class='ordonly resonly'>
+  <td nowrap><b><?php echo xlt('Identifying Code'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_procedure_code' maxlength='31'
     value='<?php echo htmlspecialchars($row['procedure_code'], ENT_QUOTES); ?>'

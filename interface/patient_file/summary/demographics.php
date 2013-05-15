@@ -22,6 +22,7 @@ $fake_register_globals=false;
  require_once("../history/history.inc.php");
  require_once("$srcdir/formatting.inc.php");
  require_once("$srcdir/edi.inc");
+ require_once("$srcdir/invoice_summary.inc.php");
  require_once("$srcdir/clinical_rules.php");
 
   if ($GLOBALS['concurrent_layout'] && isset($_GET['set_pid'])) {
@@ -589,33 +590,46 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 ?>
         <br>
 <?php
+		//PATIENT BALANCE,INS BALANCE naina@capminds.com
+		$patientbalance = get_patient_balance($pid, false);
+		//Debit the patient balance from insurance balance
+		$insurancebalance = get_patient_balance($pid, true) - $patientbalance;
+	   $totalbalance=$patientbalance + $insurancebalance;
  if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
  // Show current balance and billing note, if any.
-  echo "        <div style='margin-left: 10px; margin-right: 10px'>" .
-   "<span class='bold'><font color='#ee6600'>" .
-   htmlspecialchars(xl('Balance Due'),ENT_NOQUOTES) .
-   ": " . htmlspecialchars(oeFormatMoney(get_patient_balance($pid)),ENT_NOQUOTES) .
-   "</font></span><br>";
+  echo "<table border='0'><tr><td>" .
+  "<table ><tr><td><span class='bold'><font color='red'>" .
+   xlt('Patient Balance Due') .
+   " : " . text(oeFormatMoney($patientbalance)) .
+   "</font></span></td></tr>".
+     "<tr><td><span class='bold'><font color='red'>" .
+   xlt('Insurance Balance Due') .
+   " : " . text(oeFormatMoney($insurancebalance)) .
+   "</font></span></td></tr>".
+   "<tr><td><span class='bold'><font color='red'>" .
+   xlt('Total Balance Due').
+   " : " . text(oeFormatMoney($totalbalance)) .
+   "</font></span></td></td></tr>";
   if ($result['genericname2'] == 'Billing') {
-   echo "<span class='bold'><font color='red'>" .
-    htmlspecialchars(xl('Billing Note'),ENT_NOQUOTES) . ":" .
-    htmlspecialchars($result['genericval2'],ENT_NOQUOTES) .
-    "</font></span><br>";
+   echo "<tr><td><span class='bold'><font color='red'>" .
+    xlt('Billing Note') . ":" .
+    text($result['genericval2']) .
+    "</font></span></td></tr>";
   } 
   if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
-   echo "<span class='bold'>" .
-    htmlspecialchars(xl('Primary Insurance'),ENT_NOQUOTES) . ': ' . htmlspecialchars($insco_name,ENT_NOQUOTES) .
+   echo "<tr><td><span class='bold'>" .
+    xlt('Primary Insurance') . ': ' . text($insco_name) .
     "</span>&nbsp;&nbsp;&nbsp;";
    if ($result3['copay'] > 0) {
     echo "<span class='bold'>" .
-     htmlspecialchars(xl('Copay'),ENT_NOQUOTES) . ': ' .  htmlspecialchars($result3['copay'],ENT_NOQUOTES) .
+    xlt('Copay') . ': ' .  text($result3['copay']) .
      "</span>&nbsp;&nbsp;&nbsp;";
    }
    echo "<span class='bold'>" .
-    htmlspecialchars(xl('Effective Date'),ENT_NOQUOTES) . ': ' .  htmlspecialchars(oeFormatShortDate($result3['effdate'],ENT_NOQUOTES)) .
-    "</span>";
+    xlt('Effective Date') . ': ' .  text(oeFormatShortDate($result3['effdate'])) .
+    "</span></td></tr>";
   }
-  echo "</div><br>";
+  echo "</table></td></tr></td></tr></table><br>";
  }
 ?>
         </div> <!-- required for expand_collapse_widget -->

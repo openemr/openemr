@@ -1,10 +1,18 @@
 <?php
-// Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * add or edit a medical problem.
+ *
+ * Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://www.open-emr.org
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -14,25 +22,29 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 //
 
-require_once("../../globals.php");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/../custom/code_types.inc.php");
-require_once("$srcdir/csv_like_join.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
-require_once("$srcdir/formdata.inc.php");
+require_once('../../globals.php');
+require_once($GLOBALS['srcdir'].'/lists.inc');
+require_once($GLOBALS['srcdir'].'/patient.inc');
+require_once($GLOBALS['srcdir'].'/acl.inc');
+require_once($GLOBALS['srcdir'].'/options.inc.php');
+require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
+require_once($GLOBALS['srcdir'].'/csv_like_join.php');
+require_once($GLOBALS['srcdir'].'/htmlspecialchars.inc.php');
+require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 
-if ($ISSUE_TYPES['football_injury']) {
-  // Most of the logic for the "football injury" issue type comes from this
-  // included script.  We might eventually refine this approach to support
-  // a plug-in architecture for custom issue types.
-  require_once("$srcdir/football_injury.inc.php");
+if (isset($ISSUE_TYPES['football_injury'])) {
+  if ($ISSUE_TYPES['football_injury']) {
+    // Most of the logic for the "football injury" issue type comes from this
+    // included script.  We might eventually refine this approach to support
+    // a plug-in architecture for custom issue types.
+    require_once($GLOBALS['srcdir'].'/football_injury.inc.php');
+  }
 }
-if ($ISSUE_TYPES['ippf_gcac']) {
-  // Similarly for IPPF issues.
-  require_once("$srcdir/ippf_issues.inc.php");
+if (isset($ISSUE_TYPES['ippf_gcac'])) {
+  if ($ISSUE_TYPES['ippf_gcac']) {
+    // Similarly for IPPF issues.
+    require_once($GLOBALS['srcdir'].'/ippf_issues.inc.php');
+  }
 }
 
 $issue = $_REQUEST['issue'];
@@ -264,12 +276,12 @@ div.section {
 
 </style>
 
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
+<?php require_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
 
 <script language="JavaScript">
 
@@ -278,26 +290,13 @@ div.section {
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
 <?php
- // "Clickoptions" is a feature by Mark Leeds that provides for one-click
- // access to preselected lists of issues in each category.  Here we get
- // the issue titles from the user-customizable file and write JavaScript
- // statements that will build an array of arrays of Option objects.
- //
- $clickoptions = array();
- if (is_file($GLOBALS['OE_SITE_DIR'] . "/clickoptions.txt"))
-  $clickoptions = file($GLOBALS['OE_SITE_DIR'] . "/clickoptions.txt");
- $i = 0;
+ $i = 0;	
  foreach ($ISSUE_TYPES as $key => $value) {
   echo " aitypes[$i] = " . attr($value[3]) . ";\n";
   echo " aopts[$i] = new Array();\n";
-  foreach($clickoptions as $line) {
-   $line = trim($line);
-   if (substr($line, 0, 1) != "#") {
-    if (strpos($line, $key) !== false) {
-     $text = addslashes(substr($line, strpos($line, "::") + 2));
-     echo " aopts[$i][aopts[$i].length] = new Option('$text', '$text', false, false);\n";
-    }
-   }
+  $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ?",array($key."_issue_list"));
+  while($res = sqlFetchArray($qry)){
+    echo " aopts[$i][aopts[$i].length] = new Option('".attr(trim($res['option_id']))."', '".attr(xl_list_label(trim($res['title'])))."', false, false);\n";
   }
   ++$i;
  }

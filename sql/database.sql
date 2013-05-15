@@ -692,6 +692,7 @@ CREATE TABLE `documents` (
   `couch_docid` VARCHAR(100) DEFAULT NULL,
   `couch_revid` VARCHAR(100) DEFAULT NULL,
   `storagemethod` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->Harddisk,1->CouchDB',
+  `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.',
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
@@ -2243,7 +2244,7 @@ DROP TABLE IF EXISTS `immunizations`;
 CREATE TABLE `immunizations` (
   `id` bigint(20) NOT NULL auto_increment,
   `patient_id` int(11) default NULL,
-  `administered_date` date default NULL,
+  `administered_date` datetime default NULL,
   `immunization_id` int(11) default NULL,
   `cvx_code` int(11) default NULL,
   `manufacturer` varchar(100) default NULL,
@@ -2257,6 +2258,12 @@ CREATE TABLE `immunizations` (
   `update_date` timestamp NOT NULL,
   `created_by` bigint(20) default NULL,
   `updated_by` bigint(20) default NULL,
+  `amount_administered` int(11) DEFAULT NULL,			
+  `amount_administered_unit` varchar(50) DEFAULT NULL,			
+  `expiration_date` date DEFAULT NULL,			
+  `route` varchar(100) DEFAULT NULL,			
+  `administration_site` varchar(100) DEFAULT NULL,			
+  `added_erroneously` tinyint(1) NOT NULL DEFAULT '0',  
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
@@ -2372,6 +2379,46 @@ CREATE TABLE `issue_encounter` (
   `resolved` tinyint(1) NOT NULL,
   PRIMARY KEY  (`pid`,`list_id`,`encounter`)
 ) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `issue_types`
+--
+
+DROP TABLE IF EXISTS `issue_types`;
+CREATE TABLE `issue_types` (
+    `active` tinyint(1) NOT NULL DEFAULT '1',
+    `category` varchar(75) NOT NULL DEFAULT '',
+    `type` varchar(75) NOT NULL DEFAULT '',
+    `plural` varchar(75) NOT NULL DEFAULT '',
+    `singular` varchar(75) NOT NULL DEFAULT '',
+    `abbreviation` varchar(75) NOT NULL DEFAULT '',
+    `style` smallint(6) NOT NULL DEFAULT '0',
+    `force_show` smallint(6) NOT NULL DEFAULT '0',
+    `ordering` int(11) NOT NULL DEFAULT '0',
+    PRIMARY KEY (`category`,`type`)
+) ENGINE=MyISAM;
+
+--
+-- Dumping data for table `issue_types`
+--
+
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','default','medical_problem','Medical Problems','Problem','P','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','default','medication','Medications','Medication','M','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','default','allergy','Allergies','Allergy','A','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','default','surgery','Surgeries','Surgery','S','0','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('50','default','dental','Dental Issues','Dental','D','0','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','athletic_team','football_injury','Football Injuries','Injury','I','2','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','athletic_team','medical_problem','Medical Problems','Medical','P','0','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','athletic_team','allergy','Allergies','Allergy','A','1','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','athletic_team','general','General','General','G','1','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('10','ippf_specific','medical_problem','Medical Problems','Problem','P','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('30','ippf_specific','medication','Medications','Medication','M','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('20','ippf_specific','allergy','Allergies','Allergy','Y','0','1');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('40','ippf_specific','surgery','Surgeries','Surgery','S','0','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('50','ippf_specific','ippf_gcac','Abortions','Abortion','A','3','0');
+INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbreviation`,`style`,`force_show`) VALUES ('60','ippf_specific','contraceptive','Contraception','Contraception','C','4','0');
 
 -- --------------------------------------------------------
 
@@ -3597,6 +3644,50 @@ insert into list_options (list_id, option_id, title, seq, option_value, mapping,
 insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','ss'        ,'SSN'           ,'30','3','','');
 insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','DOB'       ,'Date of Birth' ,'40','3','','');
 insert into list_options (list_id, option_id, title, seq, option_value, mapping, notes) values('ptlistcols','pubpid'    ,'External ID'   ,'50','3','','');
+
+-- Medical Problem Issue List
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','medical_problem_issue_list','Medical Problem Issue List');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('medical_problem_issue_list', 'HTN', 'HTN', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('medical_problem_issue_list', 'asthma', 'asthma', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('medical_problem_issue_list', 'diabetes', 'diabetes', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('medical_problem_issue_list', 'hyperlipidemia', 'hyperlipidemia', 40);
+
+-- Medication Issue List
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','medication_issue_list','Medication Issue List');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('medication_issue_list', 'Norvasc', 'Norvasc', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('medication_issue_list', 'Lipitor', 'Lipitor', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('medication_issue_list', 'Metformin', 'Metformin', 30);
+
+-- Allergy Issue List
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','allergy_issue_list','Allergy Issue List');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergy_issue_list', 'penicillin', 'penicillin', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergy_issue_list', 'sulfa', 'sulfa', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergy_issue_list', 'iodine', 'iodine', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('allergy_issue_list', 'codeine', 'codeine', 40);
+
+-- Surgery Issue List
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','surgery_issue_list','Surgery Issue List');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('surgery_issue_list', 'tonsillectomy', 'tonsillectomy', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('surgery_issue_list', 'appendectomy', 'appendectomy', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('surgery_issue_list', 'cholecystectomy', 'cholecystectomy', 30);
+
+-- Dental Issue List
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','dental_issue_list','Dental Issue List');
+
+-- General Issue List
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','general_issue_list','General Issue List');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_list', 'Osteopathy', 'Osteopathy', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_list', 'Chiropractic', 'Chiropractic', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_list', 'Prevention Rehab', 'Prevention Rehab', 30);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_list', 'Podiatry', 'Podiatry', 40);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_list', 'Strength and Conditioning', 'Strength and Conditioning', 50);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_list', 'Nutritional', 'Nutritional', 60);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_list', 'Fitness Testing', 'Fitness Testing', 70);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_list', 'Pre Participation Assessment', 'Pre Participation Assessment', 80);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_list', 'Screening / Testing', 'Screening / Testing', 90);
+
+-- Issue Types List
+INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES ('lists','issue_types','Issue Types');
 
 -- --------------------------------------------------------
 
@@ -5702,3 +5793,4 @@ CREATE TABLE `product_warehouse` (
   PRIMARY KEY  (`pw_drug_id`,`pw_warehouse`)
 ) ENGINE=MyISAM;
 
+-- --------------------------------------------------------

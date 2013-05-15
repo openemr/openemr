@@ -1397,7 +1397,14 @@ function getPatientAgeDisplay($dobYMD, $asOfYMD=null)
     if($GLOBALS['age_display_format']=='1')
     {
         $ageYMD=getPatientAgeYMD($dobYMD,$asOfYMD);    
-        return $ageYMD['ageinYMD'];
+        if(isset($GLOBALS['age_display_limit']) && $ageYMD['age']<=$GLOBALS['age_display_limit'])
+        {
+            return $ageYMD['ageinYMD'];
+        }
+        else
+        {
+            return getPatientAge($dobYMD, $asOfYMD);                    
+        }
     }
     else
     {

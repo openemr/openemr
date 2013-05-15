@@ -10,22 +10,23 @@ class Installer
     // Installation variables
     // For a good explanation of these variables, see documentation in
     //   the contrib/util/installScripts/InstallerAuto.php file.
-    $this->iuser                = $cgi_variables['iuser'];
-    $this->iuserpass            = $cgi_variables['iuserpass'];
-    $this->iuname               = $cgi_variables['iuname'];
-    $this->igroup               = $cgi_variables['igroup'];
-    $this->server               = $cgi_variables['server']; // mysql server (usually localhost)
-    $this->loginhost            = $cgi_variables['loginhost']; // php/apache server (usually localhost)
-    $this->port                 = $cgi_variables['port'];
-    $this->root                 = $cgi_variables['root'];
-    $this->rootpass             = $cgi_variables['rootpass'];
-    $this->login                = $cgi_variables['login'];
-    $this->pass                 = $cgi_variables['pass'];
-    $this->dbname               = $cgi_variables['dbname'];
-    $this->collate              = $cgi_variables['collate'];
-    $this->site                 = $cgi_variables['site'];
-    $this->source_site_id       = $cgi_variables['source_site_id'];
-    $this->clone_database       = $cgi_variables['clone_database'];
+    $this->iuser                    = $cgi_variables['iuser'];
+    $this->iuserpass                = $cgi_variables['iuserpass'];
+    $this->iuname                   = $cgi_variables['iuname'];
+    $this->igroup                   = $cgi_variables['igroup'];
+    $this->server                   = $cgi_variables['server']; // mysql server (usually localhost)
+    $this->loginhost                = $cgi_variables['loginhost']; // php/apache server (usually localhost)
+    $this->port                     = $cgi_variables['port'];
+    $this->root                     = $cgi_variables['root'];
+    $this->rootpass                 = $cgi_variables['rootpass'];
+    $this->login                    = $cgi_variables['login'];
+    $this->pass                     = $cgi_variables['pass'];
+    $this->dbname                   = $cgi_variables['dbname'];
+    $this->collate                  = $cgi_variables['collate'];
+    $this->site                     = $cgi_variables['site'];
+    $this->source_site_id           = $cgi_variables['source_site_id'];
+    $this->clone_database           = $cgi_variables['clone_database'];
+    $this->no_root_db_access        = $cgi_variables['no_root_db_access']; // no root access to database. user/privileges pre-configured
     $this->development_translations = $cgi_variables['development_translations'];
 
     // Make this true for IPPF.
@@ -308,7 +309,7 @@ $config = 1; /////////////
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       foreach ($grparr as $fldid => $fldarr) {
         list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-        if (substr($fldtype, 0, 2) !== 'm_') {
+        if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
           $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
           $row = @mysql_fetch_array($res, MYSQL_ASSOC);
           if (empty($row['count'])) {
@@ -356,34 +357,43 @@ $config = 1; /////////////
     if ( ! $this->password_is_valid() ) {
       return False;
     }
-    // Connect to mysql via root user
-    if (! $this->root_database_connection() ) {
-      return False;
-    }
-    // Create the dumpfile
-    //   (applicable if cloning from another database)
-    if (! empty($this->clone_database)) {
-      if ( ! $this->create_dumpfiles() ) {
+    if (! $this->no_root_db_access) {
+      // Connect to mysql via root user
+      if (! $this->root_database_connection() ) {
         return False;
       }
-    }
-    // Create the site directory
-    //   (applicable if mirroring another local site)
-    if ( ! empty($this->source_site_id) ) {
-      if ( ! $this->create_site_directory() ) {
-        return False;
+      // Create the dumpfile
+      //   (applicable if cloning from another database)
+      if (! empty($this->clone_database)) {
+        if ( ! $this->create_dumpfiles() ) {
+          return False;
+        }
       }
-    }
-    // Create the mysql database
-    if ( ! $this->create_database()) {
-      return False;
-    }
-    // Grant user privileges to the mysql database
-    if ( ! $this->grant_privileges() ) {
-      return False;
+      // Create the site directory
+      //   (applicable if mirroring another local site)
+      if ( ! empty($this->source_site_id) ) {
+        if ( ! $this->create_site_directory() ) {
+          return False;
+        }
+      }
+      $this->disconnect();
+      if (! $this->user_database_connection()) {
+        // Re-connect to mysql via root user
+        if (! $this->root_database_connection() ) {
+          return False;
+        }
+        // Create the mysql database
+        if ( ! $this->create_database()) {
+          return False;
+        }
+        // Grant user privileges to the mysql database
+        if ( ! $this->grant_privileges() ) {
+          return False;
+        }
+      }
+      $this->disconnect();
     }
     // Connect to mysql via created user
-    $this->disconnect();
     if ( ! $this->user_database_connection() ) {
       return False;
     }

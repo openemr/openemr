@@ -11,6 +11,7 @@ $fake_register_globals=false;
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
 include_once("$srcdir/options.inc.php");
+include_once("$srcdir/immunization_helper.php");
 
 //collect facility data
 $res = sqlQuery("select concat(f.name,'\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code) as facility_address ".
@@ -27,51 +28,102 @@ $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name "
                 );
 
 //collect immunizations
-$sqlstmt = "select date_format(i1.administered_date,'%Y-%m-%d') as '" . xl('Date') . "\n" . xl('Administered') . "' ".
-            ",i1.immunization_id as '" . xl('Vaccine') . "' ".
-            ",c.code_text_short as cvx_text ".
-            ",i1.manufacturer as '" . xl('Manufacturer') . "' ".
-            ",i1.lot_number as '" . xl('Lot') . "\n" . xl('Number') . "' ".
-            ",concat(u.lname,', ',u.fname) as '" . xl('Administered By') . "' ".
-            ",date_format(i1.education_date,'%Y-%m-%d') as '" . xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date') . "' ".
-            ",i1.note as '" . xl('Comments') . "'".
-            " from immunizations i1 ".
-            " left join users u on i1.administered_by_id = u.id ".
-            " left join patient_data p on i1.patient_id = p.pid ".
-            " left join code_types ct on ct.ct_key = 'CVX' ".
-            " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".
-            " where p.pid = ? ";
-
-// sort the results, as they are on the user's screen
-$sqlstmt .= " order by ";
-if ($_GET['sortby'] == "vacc") { $sqlstmt .= " i1.immunization_id, i1.administered_date DESC"; }
-else { $sqlstmt .= " i1.administered_date desc"; }
-
-$res3 = sqlStatement($sqlstmt, array($pid) );
-
-while ($data[] = sqlFetchArray($res3)) {}
-
-for ($i=0;$i<count($data);$i++) {
-  // Figure out which name to use (ie. from cvx list or from the custom list)
-  if ($GLOBALS['use_custom_immun_list']) {
-   $data[$i][xl('Vaccine')] = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $data[$i][xl('Vaccine')]);
-  }
-  else {
-    if (!(empty($data[$i]['cvx_text']))) {
-      $data[$i][xl('Vaccine')] = htmlspecialchars( xl($data[$i]['cvx_text']), ENT_NOQUOTES);
-    }
-    else {
-      $data[$i][xl('Vaccine')] = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $data[$i][xl('Vaccine')]);
-    }
-  }
-  unset( $data[$i]['cvx_text'] );
-}
-
+$res3 = getImmunizationList($pid, $_GET['sortby'], false);
+$data_array = convertToDataArray($res3);
 
 $title = xl('Shot Record as of:','','',' ') . date('m/d/Y h:i:s a');
 
+if ($_GET['output'] == "html") { 
+	printHTML($res, $res2, $data_array);
+}
+else {
+	printPDF($res, $res2, $data_array);
+}
 
-if ($_GET['output'] == "html") { //print html css
+
+function convertToDataArray($data_array) {	
+	$current = 0;
+	while ($row = sqlFetchArray($data_array)) {
+		//admin date
+		$temp_date = new DateTime($row['administered_date']);
+		$data[$current][xl('Date') . "\n" . xl('Admin')] = $temp_date->format('Y-m-d H:i'); //->format('%Y-%m-%d %H:%i');
+
+		//Vaccine
+        // Figure out which name to use (ie. from cvx list or from the custom list)
+        if ($GLOBALS['use_custom_immun_list']) {
+    		$vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+        }
+        else {
+            if (!empty($row['code_text_short'])) {
+        	    $vaccine_display = htmlspecialchars( xl($row['code_text_short']), ENT_NOQUOTES);
+            }
+            else {
+                $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+            }
+        } 		
+		$data[$current][xl('Vaccine')] = $vaccine_display;
+		
+		//Amount
+                if ($row['amount_administered'] > 0) {
+		        $data[$current][xl('Amount') . "\n" . xl('Admin')] = $row['amount_administered'] . " " . 
+			        generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']);
+                }
+                else {
+                        $data[$current][xl('Amount') . "\n" . xl('Admin')] = "";
+                }
+		
+		//expiration date
+		$temp_date = new DateTime($row['expiration_date']);
+		$data[$current][xl('Expiration') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');
+		
+		//Manufacturer
+		$data[$current][xl('Manufacturer')] = $row['manufacturer'];
+		
+		//Lot Number
+		$data[$current][xl('Lot') . "\n" . xl('Number')] = $row['lot_number'];
+
+		//Admin By
+		$data[$current][xl('Admin') . "\n" . xl('By')] = $row['administered_by'];
+		
+		//education date
+		$temp_date = new DateTime($row['education_date']);
+		$data[$current][xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');		
+
+		//Route
+		$data[$current][xl('Route')] = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']); 
+		
+		//Admin Site
+		$data[$current][xl('Admin') . "\n" . xl('Site')] = generate_display_field(array('data_type'=>'1','list_id'=>'proc_body_site'), $row['administration_site']);
+		
+		//Comments
+		$data[$current][xl('Comments')] = $row['note'];
+		$current ++;
+	}
+	return $data;	
+}
+
+function printPDF($res, $res2, $data) {
+	require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+	
+	$pdf =& new Cezpdf("LETTER");
+	$pdf->ezSetMargins(72,30,50,30);
+	$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+	
+	$opts = array('justification' => "center");
+	$pdf->ezText($res['facility_address'] ,"",$opts);
+	
+	$pdf->ezText("\n" . $res2['patient_name'] . "\n" . xl('Date of Birth') . ": " . $res2['patient_DOB'] . "\n" . $res2['patient_address']);
+	$pdf->ezText("\n");
+	
+	$opts = array('maxWidth' => 550, 'fontSize' => 8);
+	
+	$pdf->ezTable($data, "", $title, $opts);
+	$pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________","",array('justification' => 'right'));
+	$pdf->ezStream();
+}
+
+function printHTML($res, $res2, $data) {
+//print html css
     
   //convert end of line characters to html (escape for html output first)
   $patterns = array ('/\n/');
@@ -82,7 +134,7 @@ if ($_GET['output'] == "html") { //print html css
   $res2['patient_address'] = preg_replace($patterns, $replace, $res2['patient_address']);
   
   //deal with bug (last array index is empty)
-  array_pop($data);
+  //array_pop($data);
     
   ?>  
 	
@@ -175,6 +227,7 @@ if ($_GET['output'] == "html") { //print html css
     //display header
     echo "<tr>\n";
     foreach ($data[0] as $key => $value) {
+
 	//convert end of line characters to space
 	$patterns = array ('/\n/');
 	$replace = array (' ');
@@ -204,7 +257,6 @@ if ($_GET['output'] == "html") { //print html css
 	    echo ($value == "") ? "&nbsp;" : htmlspecialchars($value, ENT_NOQUOTES);
 	  echo "</td>";
 	}
-	echo "<tr>\n";
       }
       else {
 	//done displaying shot data, so leave loop
@@ -235,31 +287,8 @@ if ($_GET['output'] == "html") { //print html css
   </script>
   </body>
   </html>
-	
   <?php
 }
 
-else { //print pdf
-require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-
-$pdf =& new Cezpdf("LETTER");
-$pdf->ezSetMargins(72,30,50,30);
-$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
-
-$opts = array('justification' => "center");
-$pdf->ezText($res['facility_address'] ,"",$opts);
-
-$pdf->ezText("\n" . $res2['patient_name'] . "\n" . xl('Date of Birth') . ": " . $res2['patient_DOB'] . "\n" . $res2['patient_address']);
-$pdf->ezText("\n");
-
-$opts = array('maxWidth' => 504, 'fontSize' => 8);
-
-$pdf->ezTable($data, "", $title, $opts);
-
-$pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________","",array('justification' => 'right'));
-
-$pdf->ezStream();
-
-} # end pdf print
 
 ?>
