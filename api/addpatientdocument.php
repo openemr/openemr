@@ -23,7 +23,10 @@
  */
 header("Content-Type:text/xml");
 $ignoreAuth = true;
+
 require_once('classes.php');
+require_once("$srcdir/documents.php");
+
 $xml_array = array();
 
 $token = $_POST['token'];
@@ -43,7 +46,10 @@ if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'docs', $user);
 
+   
+
     if ($acl_allow) {
+
         $id = 1;
         $type = "file_url";
         $size = '';
@@ -97,7 +103,7 @@ if ($userId = validateToken($token)) {
 
         $result1 = sqlStatement($strQuery1);
 
-        $lab_report_catid = getIdByDocumentCatName("Lab Report");
+        $lab_report_catid = document_category_to_id("Lab Report");
         
         if ($cat_id == $lab_report_catid) {
             $device_token_badge = getDeviceTokenBadge($provider_username, 'labreport');

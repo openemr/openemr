@@ -25,7 +25,7 @@
 header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
-
+require_once("$srcdir/documents.php");
 $xml_array = array();
 
 $token = $_POST['token'];
@@ -35,9 +35,9 @@ $language = $_POST['language'];
 $firstname = $_POST['firstname']; 
 $lastname = $_POST['lastname']; 
 $middlename = $_POST['middlename']; 
-$dob = $_POST['dob']; 
+$dob = $_POST['dob'];
 $street = $_POST['street']; 
-$postal_code = $_POST['postal_code']; 
+$postal_code = $_POST['postal_code'];
 $city = $_POST['city']; 
 $state = $_POST['state']; 
 $country_code = $_POST['country_code'];
@@ -46,21 +46,21 @@ $occupation = $_POST['occupation'];
 
 $phone_home = $_POST['phone_home']; 
 $phone_biz = $_POST['phone_biz']; 
-$phone_contact = $_POST['phone_contact']; 
-$phone_cell = $_POST['phone_cell']; 
+$phone_contact = $_POST['phone_contact'];
+$phone_cell = $_POST['phone_cell'];
 
 $status = $_POST['status'];
 $drivers_lincense = $_POST['drivers_license'];
 
-$contact_relationship = $_POST['contact_relationship']; 
+$contact_relationship = $_POST['contact_relationship'];
 $mothersname = $_POST['mothersname'];
 $guardiansname = $_POST['guardiansname'];
 
-$sex = $_POST['sex']; 
-$email = $_POST['email']; 
-$race = $_POST['race']; 
-$ethnicity = $_POST['ethnicity']; 
-$usertext1 = $_POST['notes']; 
+$sex = $_POST['sex'];
+$email = $_POST['email'];
+$race = $_POST['race'];
+$ethnicity = $_POST['ethnicity'];
+$usertext1 = $_POST['notes'];
 $nickname = $_POST['nickname'];
 
 $p_insurance_company = $_POST['p_provider'];
@@ -90,9 +90,12 @@ $image_data = isset($_POST['image_data']) ? $_POST['image_data'] : '';
 if ($userId = validateToken($token)) {
 
     $user = getUsername($userId);
+
     $acl_allow = acl_check('patients', 'demo', $user);
 
+
     if ($acl_allow) {
+
         $provider_id = $userId;
         $patientId = 1;
         $pid = 1;
@@ -226,25 +229,9 @@ if ($userId = validateToken($token)) {
             $ext = 'png';
             $cat_title = 'Patient Photograph';
             
-            $strQuery2 = "SELECT id from `categories` WHERE name LIKE '" . add_escape_custom($cat_title) . "'";
-            $result3 = sqlQuery($strQuery2);
+        
+            $cat_id = document_category_to_id($cat_title);
 
-            if ($result3) {
-                $cat_id = $result3['id'];
-            } else {
-                sqlStatement("lock tables categories read");
-
-                $result4 = sqlQuery("select max(id)+1 as id from categories");
-
-                $cat_id = $result4['id'];
-
-                sqlStatement("unlock tables");
-
-                $cat_insert_query = "INSERT INTO `categories`(`id`, `name`, `value`, `parent`, `lft`, `rght`) 
-                VALUES (" . add_escape_custom($cat_id) . ",'" . add_escape_custom($cat_title) . "','',1,0,0)";
-
-                sqlStatement($cat_insert_query);
-            }
             $image_path = $sitesDir . "{$site}/documents/{$patient_id}";
 
 
