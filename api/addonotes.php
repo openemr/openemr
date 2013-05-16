@@ -38,10 +38,10 @@ if ($userId = validateToken($token)) {
     $acl_allow = acl_check('admin', 'super', $user);
 
     // $_SESSION['authUser'] used in addOnote() function.
-    $provider = getAuthGroup($user);
-    if ($authGroup = sqlQuery("select * from groups where user='$user' and name='$provider'")) {
-        $_SESSION['authUser'] = $user;
-    }
+    
+    $_SESSION['authUser'] = $user;
+    $_SESSION['authProvider'] = getAuthGroup($user);
+    
 
     if ($acl_allow) {
         addOnote($body);

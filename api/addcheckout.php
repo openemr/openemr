@@ -47,10 +47,7 @@ if ($userId = validateToken($token)) {
     $acl_allow = acl_check('acct', 'bill', $user);
 
     // Session variable used in addBilling() function
-    $group = getAuthGroup($user);
-    if ($authGroup = sqlQuery("select * from groups where user='$user' and name='$group'")) {
-        $_SESSION['authUser'] = $user;
-    }
+    $_SESSION['authUser'] = $user;
     
     if ($acl_allow) {
 
