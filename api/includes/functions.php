@@ -664,7 +664,7 @@ function getIdByDocumentCatName($doc_cat) {
 function getAuthGroup($username) {
     $res = sqlQuery("SELECT name
                                 FROM `groups`
-                                WHERE `user` LIKE '{$username}'");
+                                WHERE `user` LIKE ?", array($username));
     return $res ? $res['name'] : false;
 }
 
