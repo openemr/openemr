@@ -1,4 +1,3 @@
-
 /*=============================================================
 *	
 * Login Page
@@ -83,7 +82,7 @@
 
 button, .button, .css_button, ul.button-bar li a {
 	/* 	(X-browser-) inline-block */
-	position: relative; /* Google Thinks So: http://vlst.nl/x/3u */
+	position: relative;
 	display: -moz-inline-stack;  /* Fx: TODO: also test -moz-inline-box?! */
 	display: inline-block; /* Proper */
 	*zoom: 1; /* IE 6-7 */
@@ -99,8 +98,8 @@ button, .button, .css_button, ul.button-bar li a {
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
-	vertical-align: middle; /* from: http://vlst.nl/x/3v */
-	*vertical-align: auto; /* from: http://vlst.nl/x/3v */
+	vertical-align: middle;
+	*vertical-align: auto;
 
 	/*	Text-Shadow */
 	text-shadow: 0 1px 1px rgba(0,0,0,.4); /* Outset */
@@ -188,9 +187,3 @@ button, input.button, ul.button-bar li a,  x:-moz-any-link { padding: .35em 1em;
         outline: 0;
         background: #fafafa;
 }    
-
-
-
-
-
-
