@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/addprescription.php add new patient's prescription.
  *
@@ -41,6 +42,15 @@ $medication = $_POST['medication'];
 $note = $_POST['note'];
 $provider_id = $_POST['provider_id'];
 
+$drug_form = $_POST['drug_form'];
+$drug_units = $_POST['drug_units'];
+$drug_route = $_POST['drug_route'];
+$drug_interval = $_POST['drug_interval'];
+$substitute = $_POST['substitute'];
+
+$size = $_POST['medicine_units'];
+$p_refill = $_POST['per_refill'];
+
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'med', $user);
@@ -48,7 +58,7 @@ if ($userId = validateToken($token)) {
     if ($acl_allow) {
         $provider_username = getProviderUsername($provider_id);
 
-        $strQuery = "INSERT INTO prescriptions (patient_id, date_added, date_modified, provider_id, start_date, drug, dosage, quantity, refills, medication, note, active, encounter) 
+        $strQuery = "INSERT INTO prescriptions (patient_id, date_added, date_modified, provider_id, start_date, drug, form ,dosage, quantity, unit, route, `interval`, substitute, refills, medication, note, active, encounter, size, per_refill) 
                                             VALUES (
                                             " . add_escape_custom($patientId) . ",
                                             '" . date('Y-m-d') . "',
@@ -56,18 +66,28 @@ if ($userId = validateToken($token)) {
                                              " . add_escape_custom($provider_id) . ",
                                             '" . add_escape_custom($startDate) . "',
                                             '" . add_escape_custom($drug) . "',
+                                            '" . add_escape_custom($drug_form) . "',
                                             '" . add_escape_custom($dosage) . "',
                                             '" . add_escape_custom($quantity) . "',
+                                            '" . add_escape_custom($drug_units) . "',
+                                            '" . add_escape_custom($drug_route) . "',
+                                            '" . add_escape_custom($drug_interval) . "',
+                                            '" . add_escape_custom($substitute) . "',
                                             '" . add_escape_custom($per_refill) . "',
                                             " . add_escape_custom($medication) . ",
                                             '" . add_escape_custom($note) . "',
                                             1,
-                                            " . add_escape_custom($visit_id) . ")";
+                                            " . add_escape_custom($visit_id) . ",
+                                            '" . add_escape_custom($size) . "',
+                                            '" . add_escape_custom($p_refill) . "'
+                                                )";
 
         if ($medication) {
             $list_query = "insert into lists(date,begdate,type,activity,pid,user,groupname,title) 
                             values (now(),cast(now() as date),'medication',1," . add_escape_custom($patientId) . ",'" . add_escape_custom($user) . "','','" . add_escape_custom($drug) . "')";
             $list_result = sqlStatement($list_query);
+        }else{
+            $list_result = true;
         }
         $result = sqlStatement($strQuery);
 

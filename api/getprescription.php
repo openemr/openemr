@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/getprescription.php Get prescription.
  *
@@ -39,7 +40,7 @@ if ($userId = validateToken($token)) {
     $acl_allow = acl_check('patients', 'med', $username);
     if ($acl_allow) {
         if ($visit_id) {
-            $strQuery = "SELECT p.*,u.id AS provider_id,u.fname AS provider_fname,u.lname AS provider_lname,u.mname AS provider_mname 
+            $strQuery = "SELECT p.*,u.id AS provider_id,u.fname AS provider_fname,u.lname AS provider_lname,u.mname AS provider_mname,form, size,  per_refill,unit, route, `interval`, substitute 
                             FROM prescriptions as p
                             LEFT JOIN `users` as u ON u.id = p.provider_id
                             WHERE patient_id = ? AND encounter =?";
@@ -54,6 +55,29 @@ if ($userId = validateToken($token)) {
                     foreach ($res as $fieldName => $fieldValue) {
                         $rowValue = xmlsafestring($fieldValue);
                         $data .= "<$fieldName>$rowValue</$fieldName>\n";
+
+
+                        if ($fieldName == 'form' && !empty($fieldValue)) {
+
+                            $strQueryForm = "SELECT option_id, title FROM list_options WHERE list_id  = 'drug_form' AND option_id = ?";
+                            $resultForm = sqlQuery($strQueryForm, array($fieldValue));
+                            $data .= "<form_title>" . xmlsafestring($resultForm['title']) . "</form_title>";
+                        } 
+                        if ($fieldName == 'unit' && !empty($fieldValue)) {
+                            $strQueryForm = "SELECT option_id, title FROM list_options WHERE list_id  = 'drug_units' AND option_id = ?";
+                            $resultForm = sqlQuery($strQueryForm, array($fieldValue));
+                            $data .= "<unit_title>" . xmlsafestring($resultForm['title']) . "</unit_title>";
+                        }
+                        if ($fieldName == 'route' && !empty($fieldValue)) {
+                            $strQueryForm = "SELECT option_id, title FROM list_options WHERE list_id  = 'drug_route' AND option_id = ?";
+                            $resultForm = sqlQuery($strQueryForm, array($fieldValue));
+                            $data .= "<route_title>" . xmlsafestring($resultForm['title']) . "</route_title>";
+                        }
+                        if ($fieldName == 'interval' && !empty($fieldValue)) {
+                            $strQueryForm = "SELECT option_id, title FROM list_options WHERE list_id  = 'drug_interval' AND option_id = ?";
+                            $resultForm = sqlQuery($strQueryForm, array($fieldValue));
+                            $data .= "<interval_title>" . xmlsafestring($resultForm['title']) . "</interval_title>";
+                        }
                     }
                     $data .= "</prescription>\n";
                 }

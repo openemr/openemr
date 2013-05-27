@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/updateprescription.php Update prescription.
  *
@@ -21,7 +22,7 @@
  * @author  Karl Englund <karl@mastermobileproducts.com>
  * @link    http://www.open-emr.org
  */
-header("Content-Type:text/xml");
+//header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once('classes.php');
 
@@ -44,6 +45,15 @@ $provider_id = $_POST['provider_id'];
 
 $patientId = $_POST['patientId'];
 
+$drug_form = $_POST['drug_form'];
+$drug_units = $_POST['drug_units'];
+$drug_route = $_POST['drug_route'];
+$drug_interval = $_POST['drug_interval'];
+$substitute = $_POST['substitute'];
+
+$size = $_POST['medicine_units'];
+$p_refill = $_POST['per_refill'];
+
 if ($userId = validateToken($token)) {
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'med', $user);
@@ -53,15 +63,23 @@ if ($userId = validateToken($token)) {
 
         $strQuery = "UPDATE `prescriptions` set
                                         provider_id = " . add_escape_custom($provider_id) . ", 
-                                        start_date = '" . add_escape_custom($startDate) . "', 
+                                        start_date = '" . add_escape_custom($startDate) . "',
+                                        form = '" . add_escape_custom($drug_form) . "',
                                         drug = '" . add_escape_custom($drug) . "', 
                                         dosage = '" . add_escape_custom($dosage) . "', 
+                                        unit = '" . add_escape_custom($drug_units) . "', 
+                                        route = '" . add_escape_custom($drug_route) . "', 
+                                        `interval` = '" . add_escape_custom($drug_interval) . "', 
+                                        substitute = '" . add_escape_custom($substitute) . "',
                                         quantity = '" . add_escape_custom($quantity) . "',  
                                         refills = '" . add_escape_custom($per_refill) . "', 
                                         medication = '" . add_escape_custom($medication) . "',
                                         date_modified = '" . date('Y-m-d') . "',
+                                        size = '" . add_escape_custom($size) . "', 
+                                        per_refill = '" . add_escape_custom($p_refill) . "',
                                         note = '" . add_escape_custom($note) . "'
                              WHERE id = ?";
+
         $result = sqlStatement($strQuery, array($id));
 
         $list_result = 1;
