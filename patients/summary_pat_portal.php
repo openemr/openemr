@@ -575,7 +575,10 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 </div> <!-- end main content div -->
 
-<input type="button" style="text-align: right;" value="<?php echo xl('Log Out'); ?>" onclick="window.location = 'logout.php'">
+<input type="button" style="text-align: right;" value="<?php echo xl('Log Out'); ?>" onclick="window.location = 'logout.php'"/>
+
+<input type="button" style="text-align: right;" value="<?php echo xl('Change Password'); ?>" onclick="window.location = '<?php echo $landingpage."&password_update=1";?>'"/>
+
 
 </wrapper>
 

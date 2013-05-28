@@ -5,7 +5,6 @@
 // of the License, or (at your option) any later version.
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/sha1.js");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/formdata.inc.php");
@@ -152,7 +151,7 @@ parent.$.fn.fancybox.close();
 	';
 }
 
-$res = sqlStatement("select * from users where id={$_GET["id"]}");
+$res = sqlStatement("select * from users where id=?",array($_GET["id"]));
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
                 $result[$iter] = $row;
 $iter = $result[0];
@@ -179,6 +178,9 @@ parent.$.fn.fancybox.close();
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/crypt/jsbn.js"></script>
+<script type="text/javascript" src="../../library/js/crypt/rsa.js"></script>
+
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 
 <script language="JavaScript">
@@ -218,26 +220,12 @@ function submitform() {
 		//Checking for the strong password if the 'secure password' feature is enabled
 		if(document.forms[0].secure_pwd.value == 1)
 		{
-			var pwdresult = passwordvalidate(document.forms[0].clearPass.value);
-			if(pwdresult == 0) {
-				flag=1;
-				alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
-				return false;
-			}
-		}
-		//Checking for password history if the 'password history' feature is enabled.
-		if(document.forms[0].pwd_history.value == 1){
-			// ViCareplus : As per NIST standard, the SHA1 encryption algorithm is used
-			var p  = SHA1(document.forms[0].clearPass.value);
-			var p1 = document.forms[0].pwd.value;
-			var p2 = document.forms[0].pwd_history1.value;
-			var p3 = document.forms[0].pwd_history2.value;
-			if((p == p1) || (p == p2) || (p == p3))
-			{
-				flag=1;
-				document.getElementById('error_message').innerHTML="<?php xl('Recent three passwords are not allowed.',e) ?>";
-				return false;
-			}
+                    var pwdresult = passwordvalidate(document.forms[0].clearPass.value);
+                    if(pwdresult == 0) {
+                            flag=1;
+                            alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
+                            return false;
+                    }
 		}
 
 	}//If pwd null ends here
@@ -246,7 +234,7 @@ function submitform() {
 		if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
 		{
 			flag=1;
-			document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.',e) ?>";
+			document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.','e') ?>";
 		}
 	}
 
@@ -299,10 +287,31 @@ function submitform() {
 	}
 	<?php } ?>
 	if(flag == 0){
-		// ViCareplus : As per NIST standard, SHA1 encryption algorithm is used
-		document.forms[0].newauthPass.value=SHA1(document.forms[0].clearPass.value);document.forms[0].clearPass.value='';
-		document.forms[0].submit();
-		parent.$.fn.fancybox.close(); 
+                if($("[name='adminPass']").val().length>0)
+                    {
+                        $.ajax({
+                            url: '<?php echo $webroot; ?>/library/ajax/rsa_request.php',
+                            async: false,
+                            success: function(public_key)
+                            {
+                                var key = RSA.getPublicKey(public_key);
+                                $("input[name='userPass']").val(RSA.encrypt($("input[name='adminPass']").val(), key));
+                                $("input[name='newauthPass']").val(RSA.encrypt($("input[name='clearPass']").val(), key));
+                                $("input[name='pk']").val(public_key);
+                                $('input[name="adminPass"]').val('');
+                                $('input[name="clearPass"]').val('');
+                                document.forms[0].submit();
+                                parent.$.fn.fancybox.close(); 
+                            }
+                    
+                        });
+                        
+                    }
+                    else
+                    {
+                        document.forms[0].submit();
+                        parent.$.fn.fancybox.close(); 
+                    }
 	}
 }
 //Getting the list of selected item in ACL
@@ -340,10 +349,6 @@ function authorized_clicked() {
 </table>
 <br>
 <FORM NAME="user_form" METHOD="GET" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
-<input type=hidden name="pwd_history" value="<?php echo $GLOBALS['password_history']; ?>" >
-<input type=hidden name="pwd_history1" value="<?php echo $iter["pwd_history1"]; ?>" >
-<input type=hidden name="pwd_history2" value="<?php echo $iter["pwd_history2"]; ?>" >
-<input type=hidden name="pwd" value="<?php echo $iter["password"]; ?>" >
 
 <input type=hidden name="pwd_expires" value="<?php echo $GLOBALS['password_expiration_days']; ?>" >
 <input type=hidden name="pre_active" value="<?php echo $iter["active"]; ?>" >
@@ -365,6 +370,7 @@ if($password_exp != "0000-00-00")
 <!--  Get the list ACL for the user -->
 <?php
 $acl_name=acl_get_group_titles($iter["username"]);
+$bg_name='';
 $bg_count=count($acl_name);
    for($i=0;$i<$bg_count;$i++){
       if($acl_name[$i] == "Emergency Login")
@@ -375,9 +381,18 @@ $bg_count=count($acl_name);
 
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
-<TD style="width:180px;"><span class=text><?php xl('Username','e'); ?>: </span></TD><TD style="width:270px;"><input type=entry name=username style="width:150px;" value="<?php echo $iter["username"]; ?>" disabled></td>
-<TD style="width:200px;"><span class=text><?php xl('Password','e'); ?>: </span></TD><TD class='text' style="width:280px;"><input type=entry name=clearPass style="width:150px;"  value=""><font class="mandatory">*</font></td>
+    <TD style="width:180px;"><span class=text><?php xl('Username','e'); ?>: </span></TD>
+    <TD style="width:270px;"><input type=entry name=username style="width:150px;" value="<?php echo $iter["username"]; ?>" disabled></td>
+    <TD style="width:200px;"><span class=text><?php xl('Your Password','e'); ?>: </span></TD>
+    <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  value="" autocomplete='off'><font class="mandatory">*</font></TD>
 </TR>
+<TR>
+    <TD style="width:180px;"><span class=text></span></TD>
+    <TD style="width:270px;"></td>
+    <TD style="width:200px;"><span class=text><?php xl('User\'s New Password','e'); ?>: </span></TD>
+    <TD class='text' style="width:280px;">    <input type=text name=clearPass style="width:150px;"  value=""><font class="mandatory">*</font></td>
+</TR>
+
 
 <TR height="30" style="valign:middle;">
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
@@ -548,7 +563,7 @@ echo generate_select_list('irnpool', 'irnpool', $iter['irnpool'],
   </tr>
   <tr height="20" valign="bottom">
   <td colspan="4" class="text">
-  <font class="mandatory">*</font> <?php xl('Leave blank to keep password unchanged.','e'); ?>
+  <font class="mandatory">*</font> <?php xl('You must enter your own password to change user passwords. Leave blank to keep password unchanged.','e'); ?>
 <!--
 Display red alert if entered password matched one of last three passwords/Display red alert if user password was expired and the user was inactivated previously
 -->
@@ -563,7 +578,10 @@ Display red alert if entered password matched one of last three passwords/Displa
 <INPUT TYPE="HIDDEN" NAME="id" VALUE="<?php echo $_GET["id"]; ?>">
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="privatemode" VALUE="user_admin">
+<INPUT TYPE="HIDDEN" NAME="userPass" VALUE="">
 <INPUT TYPE="HIDDEN" NAME="newauthPass" VALUE="">
+<INPUT TYPE="HIDDEN" NAME="pk" VALUE="">
+
 <INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo $GLOBALS['secure_password']; ?>">
 </FORM>
 <script language="JavaScript">

@@ -1,7 +1,6 @@
 <?php
 require_once("../globals.php");
 require_once("../../library/acl.inc");
-require_once("$srcdir/sha1.js");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/auth.inc");
 require_once("$srcdir/formdata.inc.php");
@@ -11,6 +10,8 @@ require_once ($GLOBALS['srcdir'] . "/classes/postmaster.php");
 $alertmsg = '';
 $bg_msg = '';
 $set_active_msg=0;
+$show_message=0;
+
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 $bg_count=count($access_group);
@@ -35,9 +36,9 @@ if(($_GET['access_group'][$i] == "Emergency Login") && ($_GET['active'] == 'on')
 }
 }
 /* To refresh and save variables in mail frame */
-if ($_GET["privatemode"]=="user_admin") {
+if (isset($_GET["privatemode"]) && $_GET["privatemode"] =="user_admin") {
     if ($_GET["mode"] == "update") {
-      if ($_GET["username"]) {
+      if (isset($_GET["username"])) {
         // $tqvar = addslashes(trim($_GET["username"]));
         $tqvar = trim(formData('username','G'));
         $user_data = mysql_fetch_array(sqlStatement("select * from users where id={$_GET["id"]}"));
@@ -129,25 +130,27 @@ if ($_GET["privatemode"]=="user_admin") {
           formData('irnpool','G') .
           "' WHERE id = '" . formData('id','G') . "'");
       }
-     //VicarePlus: Empty string of SHA1 is validated
-     if ($_GET["newauthPass"] && $_GET["newauthPass"] != "da39a3ee5e6b4b0d3255bfef95601890afd80709") { // account for empty
-	$tqvar = formData('newauthPass','G');
-// When the user password is updated and the password history option is enabled, update the password history in database. A new password expiration is also calculated
-	if($GLOBALS['password_history'] != 0 ){
-		$updatepwd = UpdatePasswordHistory($_GET["id"], $tqvar);
-	}else
-	{
-		sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
-		if($GLOBALS['password_expiration_days'] != 0){
-			$exp_days=$GLOBALS['password_expiration_days'];
-			$exp_date = date('Y-m-d', strtotime("+$exp_days days"));
-			sqlStatement("update users set pwd_expiration_date='$exp_date' where id=$userid");
-		}
-	}
-}
+
+     if ($_GET["newauthPass"] && $_GET["pk"]) { 
+        require_once("$srcdir/authentication/rsa.php");
+        require_once("$srcdir/authentication/password_change.php");
+        $pubKey=$_GET['pk'];
+        $rsa=new rsa_key_manager();
+        $rsa->load_from_db($pubKey);
+
+        $clearAdminPass=$rsa->decrypt($_GET['userPass']);
+        $clearUserPass=$rsa->decrypt($_GET['newauthPass']);
+        $password_err_msg="";
+        $success=update_password($_SESSION['authId'],$_GET['id'],$clearAdminPass,$clearUserPass,$password_err_msg);
+        if(!$success)
+        {
+            error_log($password_err_msg);    
+            $alertmsg.=$password_err_msg;
+        }
+     }
 
       // for relay health single sign-on
-      if ($_GET["ssi_relayhealth"]) {
+      if (isset($_GET["ssi_relayhealth"]) && $_GET["ssi_relayhealth"]) {
         $tqvar = formData('ssi_relayhealth','G');
         sqlStatement("update users set ssi_relayhealth = '$tqvar' where id = {$_GET["id"]}");
       }
@@ -211,35 +214,53 @@ if (isset($_POST["mode"])) {
     }
 
     if ($doit == true) {
-      //if password expiration option is enabled,  calculate the expiration date of the password
-      if($GLOBALS['password_expiration_days'] != 0){
-      $exp_days = $GLOBALS['password_expiration_days'];
-      $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
-      }
-      $prov_id = idSqlStatement("insert into users set " .
-        "username = '"         . trim(formData('rumple'       )) .
-        "', password = '"      . trim(formData('newauthPass'  )) .
-        "', fname = '"         . trim(formData('fname'        )) .
-        "', mname = '"         . trim(formData('mname'        )) .
-        "', lname = '"         . trim(formData('lname'        )) .
-        "', federaltaxid = '"  . trim(formData('federaltaxid' )) .
-	"', state_license_number = '"  . trim(formData('state_license_number' )) .
-	"', newcrop_user_role = '"  . trim(formData('erxrole' )) .
-        "', authorized = '"    . trim(formData('authorized'   )) .
-        "', info = '"          . trim(formData('info'         )) .
-        "', federaldrugid = '" . trim(formData('federaldrugid')) .
-        "', upin = '"          . trim(formData('upin'         )) .
-        "', npi  = '"          . trim(formData('npi'          )).
-        "', taxonomy = '"      . trim(formData('taxonomy'     )) .
-        "', facility_id = '"   . trim(formData('facility_id'  )) .
-        "', specialty = '"     . trim(formData('specialty'    )) .
-        "', see_auth = '"      . trim(formData('see_auth'     )) .
-        "', cal_ui = '"        . trim(formData('cal_ui'       )) .
-        "', default_warehouse = '" . trim(formData('default_warehouse')) .
-        "', irnpool = '"       . trim(formData('irnpool'      )) .
-        "', calendar = '"      . $calvar                         .
-        "', pwd_expiration_date = '" . trim("$exp_date") .
-        "'");
+    require_once("$srcdir/authentication/rsa.php");
+    require_once("$srcdir/authentication/password_change.php");
+    $pubKey=$_POST['pk'];
+    $rsa=new rsa_key_manager();
+    $rsa->load_from_db($pubKey);
+
+    //if password expiration option is enabled,  calculate the expiration date of the password
+    if($GLOBALS['password_expiration_days'] != 0){
+    $exp_days = $GLOBALS['password_expiration_days'];
+    $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
+    }
+    
+    $insertUserSQL=            
+            "insert into users set " .
+            "username = '"         . trim(formData('rumple'       )) .
+            "', password = '"      . 'NoLongerUsed'                  .
+            "', fname = '"         . trim(formData('fname'        )) .
+            "', mname = '"         . trim(formData('mname'        )) .
+            "', lname = '"         . trim(formData('lname'        )) .
+            "', federaltaxid = '"  . trim(formData('federaltaxid' )) .
+            "', state_license_number = '"  . trim(formData('state_license_number' )) .
+            "', newcrop_user_role = '"  . trim(formData('erxrole' )) .
+            "', authorized = '"    . trim(formData('authorized'   )) .
+            "', info = '"          . trim(formData('info'         )) .
+            "', federaldrugid = '" . trim(formData('federaldrugid')) .
+            "', upin = '"          . trim(formData('upin'         )) .
+            "', npi  = '"          . trim(formData('npi'          )).
+            "', taxonomy = '"      . trim(formData('taxonomy'     )) .
+            "', facility_id = '"   . trim(formData('facility_id'  )) .
+            "', specialty = '"     . trim(formData('specialty'    )) .
+            "', see_auth = '"      . trim(formData('see_auth'     )) .
+            "', cal_ui = '"        . trim(formData('cal_ui'       )) .
+            "', default_warehouse = '" . trim(formData('default_warehouse')) .
+            "', irnpool = '"       . trim(formData('irnpool'      )) .
+            "', calendar = '"      . $calvar                         .
+            "', pwd_expiration_date = '" . trim("$exp_date") .
+            "'";
+    
+    $clearAdminPass=$rsa->decrypt($_POST['userPass']);
+    $clearUserPass=$rsa->decrypt($_POST['newauthPass']);
+    $password_err_msg="";
+    $prov_id="";
+    $success=update_password($_SESSION['authId'],0,$clearAdminPass,$clearUserPass,$password_err_msg,true,$insertUserSQL,formData('rumple'),$prov_id);
+    error_log($password_err_msg);
+    $alertmsg .=$password_err_msg;
+    if($success)
+    {
       //set the facility name from the selected facility_id
       sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '" . trim(formData('facility_id')) . "' AND users.username = '" . trim(formData('rumple')) . "'");
 
@@ -253,6 +274,10 @@ if (isset($_POST["mode"])) {
       }
 
       $ws = new WSProvider($prov_id);
+        
+    }
+
+        
 
     } else {
       $alertmsg .= xl('User','','',' ') . trim(formData('rumple')) . xl('already exists.','',' ');
