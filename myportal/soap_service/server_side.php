@@ -51,6 +51,100 @@ class UserService extends Userforms
 {
 
 /**  
+* To display the result/report names from lists
+*/
+  public function get_display_field($data){
+    if($this->valid($data[0])){        
+        $ret = generate_display_field(array('data_type'=>$data['data_type'],'list_id'=>$data['list_id']),$data['value']);        
+        return $ret;
+    }
+  }
+
+/**  
+* To display the procedure order results
+*/
+  public function procedure_order($data){
+    if($this->valid($data[0])){
+      global $pid;            
+      $arr = array();
+      $i   = 0;
+      $proc_query = "SELECT 
+                       po.procedure_order_id, po.date_ordered, pc.procedure_order_seq,
+                       pt1.procedure_type_id AS order_type_id, pc.procedure_name,
+                       pr.procedure_report_id, pr.date_report, pr.date_collected,
+                       pr.specimen_num, pr.report_status, pr.review_status 
+                     FROM
+                       procedure_order AS po 
+                       JOIN procedure_order_code AS pc 
+                         ON pc.procedure_order_id = po.procedure_order_id 
+                       LEFT JOIN procedure_type AS pt1 
+                         ON pt1.lab_id = po.lab_id 
+                         AND pt1.procedure_code = pc.procedure_code 
+                       LEFT JOIN procedure_report AS pr 
+                         ON pr.procedure_order_id = po.procedure_order_id 
+                         AND pr.procedure_order_seq = pc.procedure_order_seq 
+                     WHERE po.patient_id = ?
+                       AND pr.review_status = 'reviewed' 
+                     ORDER BY po.date_ordered, po.procedure_order_id, pc.procedure_order_seq, pr.procedure_report_id";
+      $proc_result = sqlStatement($proc_query,array($pid));
+      while ($row  = sqlFetchArray($proc_result)) {
+
+        $procedure_report_id = empty($row['procedure_report_id']) ? '' : $row['procedure_report_id'];
+        $order_type_id       = empty($row['order_type_id']) ? '' : $row['order_type_id'];
+        
+        $proc_order_query    = "(SELECT 
+                                  pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units,
+                                  pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id,
+                                  pt2.name AS NAME, pt2.description, pt2.seq AS seq,
+                                  ps.procedure_result_id, ps.result_code AS result_code,
+                                  ps.result_text, ps.abnormal, ps.result,
+                                  ps.range, ps.result_status, ps.facility,
+                                  ps.comments, ps.units, ps.comments 
+                                FROM
+                                  procedure_type AS pt2 
+                                  LEFT JOIN procedure_result AS ps 
+                                    ON ps.procedure_report_id = ? 
+                                    AND ps.result_code = pt2.procedure_code 
+                                WHERE pt2.parent = ? 
+                                  AND ( pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%' )) 
+                                UNION
+                                (SELECT 
+                                  pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units,
+                                  pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id,
+                                  pt2.name AS NAME, pt2.description, pt2.seq AS seq,
+                                  ps.procedure_result_id, ps.result_code AS result_code,
+                                  ps.result_text, ps.abnormal, ps.result,
+                                  ps.range, ps.result_status, ps.facility,
+                                  ps.comments, ps.units, ps.comments 
+                                FROM
+                                  procedure_result AS ps 
+                                  LEFT JOIN procedure_type AS pt2 
+                                    ON pt2.parent = ? 
+                                    AND ( pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%' ) 
+                                    AND ps.result_code = pt2.procedure_code 
+                                WHERE ps.procedure_report_id = ?) 
+                                ORDER BY seq, NAME, procedure_type_id,result_code";
+        $proc_order_result = sqlStatement($proc_order_query,array($procedure_report_id,$order_type_id,$order_type_id,$procedure_report_id));
+        
+        while ($rrow = sqlFetchArray($proc_order_result)) {
+          $arr[$i]['procedure_report_id'] = empty($row['procedure_report_id']) ? '' : $row['procedure_report_id'] ;
+          $arr[$i]['date_ordered']        = empty($row['date_ordered']) ? '' : $row['date_ordered'];
+          $arr[$i]['procedure_name']      = empty($row['procedure_name']) ? '' : $row['procedure_name'];
+          $arr[$i]['result_text']         = empty($rrow['result_text']) ? '' : $rrow['result_text'];
+          $arr[$i]['abnormal']            = empty($rrow['abnormal']) ? '' : $rrow['abnormal'];
+          $arr[$i]['result']              = empty($rrow['result']) ? '' : $rrow['result'];
+          $arr[$i]['range']               = empty($rrow['range']) ? '' : $rrow['range'];
+          $arr[$i]['units']               = empty($rrow['units']) ? '' : $rrow['units'];
+          $arr[$i]['result_status']       = empty($rrow['result_status']) ? '' : $rrow['result_status'];
+          $arr[$i]['report_status']       = empty($row['report_status']) ? '' : $row['report_status'];
+          $i++;
+        }
+      }
+      return $arr;
+    }  
+  }  
+
+/**  
 * To display the patient uploaded files/pdf patient wise
 */
   public function patientuploadedfiles($data){
@@ -861,7 +955,7 @@ static  public function batch_despatch($var,$func,$data_credentials){
 
 
   public function getversion($data){
-         return '1.4';
+         return '1.45';
     }
     
     
