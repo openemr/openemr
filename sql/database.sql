@@ -4039,6 +4039,7 @@ CREATE TABLE `patient_access_onsite`(
   `portal_username` VARCHAR(100) ,
   `portal_pwd` VARCHAR(100) ,
   `portal_pwd_status` TINYINT DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
+  `portal_salt` VARCHAR(100) ,
   PRIMARY KEY (`id`)
 )ENGINE=MyISAM AUTO_INCREMENT=1;
 
@@ -5295,6 +5296,25 @@ CREATE TABLE `users` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_secure`
+--
+CREATE TABLE `users_secure` (
+  `id` bigint(20) NOT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  `password` varchar(255),
+  `salt` varchar(255),
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `password_history1` varchar(255),
+  `salt_history1` varchar(255),
+  `password_history2` varchar(255),
+  `salt_history2` varchar(255),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `USERNAME_ID` (`id`,`username`)
+) ENGINE=InnoDb;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user_settings`
 --
 
@@ -5794,4 +5814,15 @@ CREATE TABLE `product_warehouse` (
   PRIMARY KEY  (`pw_drug_id`,`pw_warehouse`)
 ) ENGINE=MyISAM;
 
+-- --------------------------------------------------------
+
+
+--
+-- Table structure for table `template_users`
+--
+CREATE TABLE `rsa_pairs` (
+  `public` text NOT NULL,
+  `private` text NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDb;
 -- --------------------------------------------------------

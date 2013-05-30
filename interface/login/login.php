@@ -6,42 +6,37 @@
 
 $ignoreAuth=true;
 include_once("../globals.php");
-include_once("$srcdir/sha1.js");
 include_once("$srcdir/sql.inc");
-include_once("$srcdir/md5.js");
+require_once("../../library/authentication/rsa.php");
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
+<?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../themes/login.css" type="text/css">
 
 <script language='JavaScript' src="../../library/js/jquery-1.4.3.min.js"></script>
+<script src="../../library/js/crypt/jsbn.js"></script>
+<script src="../../library/js/crypt/rsa.js"></script>
 <script language='JavaScript'>
 
-//VicarePlus :: Validation function for checking the hashing algorithm used for encrypting password
-function chk_hash_fn()
+function encrypt_form()
 {
-var str = document.forms[0].authUser.value;
-   $.ajax({
-  url: "validateUser.php?u="+str,
-  context: document.body,
-  success: function(data){
-        if(data == 0) //VicarePlus :: If the hashing algorithm is 'MD5'
-        {
-                document.forms[0].authPass.value=MD5(document.forms[0].clearPass.value);
-                document.forms[0].authNewPass.value=SHA1(document.forms[0].clearPass.value);
-        }
-        else  //VicarePlus :: If the hashing algorithm is 'SHA1'
-        {
-                document.forms[0].authPass.value=SHA1(document.forms[0].clearPass.value);
-        }
-                document.forms[0].clearPass.value='';
-                document.login_form.submit();
-                }
-        });
-}
 
+    var rsa_ajax='<?php echo $webroot;?>/library/ajax/rsa_request.php';
+    $.post(rsa_ajax,{},
+        function(data)
+        {
+            var key = RSA.getPublicKey(data);
+            var encryptedPass=RSA.encrypt(document.forms[0].clearPass.value, key);
+            document.forms[0].authPass.value=encryptedPass;
+
+            document.forms[0].clearPass.value='';
+            document.forms[0].pk.value=data;   
+            document.forms[0].submit();
+        }
+    );
+}
 function imsubmitted() {
 <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
  // Delete the session cookie by setting its expiration date in the past.
@@ -50,13 +45,12 @@ function imsubmitted() {
  olddate.setFullYear(olddate.getFullYear() - 1);
  document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=/; expires=' + olddate.toGMTString();
 <?php } ?>
- return false; //Currently the submit action is handled by the chk_hash_fn() function itself.
+    return false; //Currently the submit action is handled by the encrypt_form(). 
 }
 </script>
 
 </head>
 <body onload="javascript:document.login_form.authUser.focus();" >
-
 <span class="text"></span>
 <center>
 
@@ -74,7 +68,7 @@ if (count($result) == 1) {
 	echo "<input type='hidden' name='authProvider' value='$resvalue' />\n";
 }
 // collect default language id
-$res2 = sqlStatement("select * from lang_languages where lang_description = '".$GLOBALS['language_default']."'");
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?",array($GLOBALS['language_default']));
 for ($iter = 0;$row = sqlFetchArray($res2);$iter++)
           $result2[$iter] = $row;
 if (count($result2) == 1) {
@@ -196,13 +190,8 @@ if (count($result3) != 1) { ?>
 
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
-<input type="hidden" name="authNewPass">
-<?php if (isset($GLOBALS['use_adldap_auth']) && ($GLOBALS['use_adldap_auth']== true)): ?>
-<!-- ViCareplus : As per NIST standard, the SHA1 encryption algorithm is used -->
-<input class="button large" type="submit" onClick="javascript:this.form.authPass.value=SHA1(this.form.clearPass.value);" value="<?php xl('Login','e');?>">
-<?php else: ?>
-<input class="button large" type="submit" onClick="chk_hash_fn();" value="<?php xl('Login','e');?>">
-<?php endif; ?>
+<input type="hidden" name="pk">
+<input class="button large" type="submit" onClick="encrypt_form()" value="<?php xl('Login','e');?>">
 </td></tr>
 <tr><td colspan='2' class='text' style='color:red'>
 <?php

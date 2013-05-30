@@ -5,6 +5,7 @@
 // of the License, or (at your option) any later version.
 
 $COMMAND_LINE = php_sapi_name() == 'cli';
+require_once (dirname(__FILE__) . '/library/authentication/password_hashing.php');
 require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 
 //turn off PHP compatibility warnings
