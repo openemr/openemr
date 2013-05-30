@@ -478,3 +478,31 @@ ALTER TABLE `documents` ADD COLUMN `path_depth` TINYINT DEFAULT '1' COMMENT 'Dep
 ALTER TABLE `users` ADD `app_pin` VARCHAR( 100 ) DEFAULT NULL;
 #EndIf
 
+#IfNotTable users_secure
+CREATE TABLE `users_secure` (
+  `id` bigint(20) NOT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  `password` varchar(255),
+  `salt` varchar(255),
+  `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `password_history1` varchar(255),
+  `salt_history1` varchar(255),
+  `password_history2` varchar(255),
+  `salt_history2` varchar(255),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `USERNAME_ID` (`id`,`username`)
+) ENGINE=InnoDb; 
+#EndIf
+
+
+#IfNotTable rsa_pairs
+CREATE TABLE `rsa_pairs` (
+  `public` text NOT NULL,
+  `private` text NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDb;
+#EndIf
+
+#IfMissingColumn patient_access_onsite portal_salt
+ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_salt` VARCHAR(100) NULL;
+#Endif
