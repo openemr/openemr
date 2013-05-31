@@ -1,8 +1,26 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Authorization functions.
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady@sparmy.com>
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  ViCarePlus <visolve_emr@visolve.com>
+ * @author  cfapress
+ * @link    http://www.open-emr.org
+ */
 
 //----------THINGS WE ALWAYS DO
 
@@ -187,12 +205,12 @@ function getProviderList ($cols = '*', $limit= 'all', $start = '0')
 
 function addGroup ($groupname)
 {
-    return sqlInsert("insert into groups (name) values ('$groupname')");
+    return sqlInsert("insert into groups (name) values (?)", array($groupname));
 }
 
 function delGroup ($group_id)
 {
-    return sqlQuery("delete from groups where id = '$group_id' limit 0,1");
+    return sqlQuery("delete from groups where id = ? limit 0,1", array($group_id));
 }
 
 /***************************************************************
@@ -212,23 +230,23 @@ function validateGroupStatus ($user_to_be_checked, $group_user) {
         elseif ($_SESSION['authorizeduser'] == 1)
             return true;
 
-        $query = "SELECT groups.name FROM users,groups WHERE users.username =  \"" . mysql_real_escape_string($user_to_be_checked) . "\" " .
+        $query = "SELECT groups.name FROM users,groups WHERE users.username = ? " .
                  "AND users.username = groups.user group by groups.name";
-        $result = sqlStatement($query);
+        $result = sqlStatement($query, array($user_to_be_checked));
 
         $usertbcGroups = array();
 
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = sqlFetchArray($result)) {
             $usertbcGroups[] = $row[0];
         }
 
-        $query = "SELECT groups.name FROM users,groups WHERE users.username =  \"" . mysql_real_escape_string($group_user) . "\" " .
+        $query = "SELECT groups.name FROM users,groups WHERE users.username =  ? " .
                  "AND users.username = groups.user group by groups.name";
-        $result = sqlStatement($query);
+        $result = sqlStatement($query, array($group_user));
 
         $usergGroups = array();
 
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = sqlFetchArray($result)) {
             $usergGroups[] = $row[0];
         }
         foreach ($usertbcGroups as $group) {

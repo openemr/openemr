@@ -1,20 +1,35 @@
 <?php
-//-------------------------------------------------------------------
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//Author:- Author:- ViCarePlus Team, Visolve
-//Email ID:- vicareplus_engg@visolve.com
-//-------------------------------------------------------------------
-// Display a message indicating that the user's password has/will expire.
+/**
+ * Display a message indicating that the user's password has/will expire. 
+ *
+ * Copyright 2010 ViCarePlus Team, Visolve <vicareplus_engg@visolve.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  ViCarePlus Team, Visolve <vicareplus_engg@visolve.com>
+ * @link    http://www.open-emr.org
+ */
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+
 include_once("../globals.php");
 include_once("$srcdir/sql.inc");
 require_once("$srcdir/translation.inc.php");
 
 $pwd_expires = "";
 $q = $_SESSION["authUserID"];
-$result = sqlStatement("select username, pwd_expiration_date from users where id = '".$q."'");
+$result = sqlStatement("select username, pwd_expiration_date from users where id = ?", array($q));
 if($row = sqlFetchArray($result)) {
   $pwd_expires = $row['pwd_expiration_date'];
   $username = $row['username'];
@@ -57,14 +72,14 @@ else if ((strtotime($current_date) >= strtotime($pwd_alert)) && strtotime($pwd_a
 </head>
 <body class="body_bottom">
 
-<br/><br/><br/><span class="pwdalert <?php echo $case; ?>">
+<br/><br/><br/><span class="pwdalert <?php echo attr($case); ?>">
 <table align="center" >
 
   <tr valign="top">
     <td>&nbsp;</td>
-    <td rowspan="3"><?php xl("Welcome",e); echo " ".$username;?>,<br>
+    <td rowspan="3"><?php echo xlt("Welcome"); echo " ".text($username);?>,<br>
       <br>
-      <?php  echo $msg_alert;?>
+      <?php  echo text($msg_alert);?>
       <br>
     </td>
     <td>&nbsp;</td>
