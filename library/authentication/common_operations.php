@@ -78,4 +78,3 @@ function purgeCompatabilityPassword($username,$userid)
     privStatement($purgeSQL,array($username,$userid));
 }
 ?>
-
