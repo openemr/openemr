@@ -1,0 +1,217 @@
+This API is Copyright OEMR 501c3
+Licensed under GPL-V3
+Contributed by Master Mobil Products, LLC
+karl@medmastermobile.com
+dennis@medmastermobile.com
+
+
+OpenEMR API structure:
+1.API Input:
+With every API call we need user to send authentication token, Which will be verified with the token generated at the time of login.
+When user performs the login API call his credentials are matched with the stored information and a token for that user is generated and updated in “api_tokens” table.
+Other parameters required by a certain API call are supposed to be sent as POST parameters.
+
+2.API Output:
+Every API call response consists of data in XML format.
+In response data there will always be status tag that indicates if API call has been processed successfully or not.
+There will always be a message tag that will contain the description of the status code being returned in the status tag of the response.
+
+
+List of OpenEMR API Files
+1.addappointment.php
+  This API is used to schedule an appointment (Add an Appointment)
+2.addcontactgeneral.php
+  This API add contact for user with contact image.
+3.addfacility.php
+  This API used to add facilities.
+4.addinsurancecompany.php
+  This API add new Insurance Companies.
+5.addlist.php
+  This API add medication, Allergy, Medical problem, Dental, Surgery of a patient associated with/without visit.
+6.addlocation.php
+  This API Add a location for already added facility.
+7.addpatient.php
+  This API add new patient we can also save an image of patient when adding new patient. All insurance information (Primary, Secondary and Other Insurance) is also   saved in this API.
+8.addpatientdocument.php
+  We can add all types of document related to patient in this API.
+9.addpatientdocumentwithlink.php
+  This API is also used to add patient documents but here a document is added via link.
+10.addpatientimage.php
+  This API is used to save patient image on server.
+11.addprescription.php
+  This API is used to add prescription associated with patient.
+12.addresource.php
+  This API is used to add resources(Link, Image, Pdf, Video) for user.
+13.addresourcewithlink.php
+  This API is also used to save resources but with link provided by user.
+14.addreviewofsystems.php
+  This API is used to add ROS related to a patient visit.
+15.addroschecks.php
+  This service is used to add ROS checks to a patient visit.
+16.addsoap.php
+  This service is used to add SOAPs to a patient visit.
+17.addvisit.php
+  This API is used to add Visits for patient.
+18.addvisitvitals.php
+  This API add vitals against patient visit.
+19.deleteappointment
+  This API removes a scheduled appointment.
+20.deletecontactgeneral.php
+  This API removes contacts from users contact list.
+21.deletepatientdocument.php
+  This appointment removes patient documents.
+22.deleteprescription.php
+  This API removes patient existing prescriptions.
+23.deleteresource.php
+  This API removes patient resources.
+24.deletesoap.php
+  This API removes patient SOAP.
+25.deletevisit.php
+  This API removes patient visit.
+26.forgetpassword.php
+  This API rest user password, pin and send them through email.
+27.login.php
+  This API checks user credentials also returns dashboard information.
+28.loginwithpin.php
+  This API login user with his pin.
+29.register.php
+  This service is used for signup user for both iOS application and OPENEMR.
+30.report_appointments.php
+  This API generates all user (provider) appointments reports, html(sha1 converted) and there pdf file (sha1 converted).
+31.report_appt_visits.php
+  This API generates all appointments plus all visits for user(provider) report there html(sha1 converted) and there pdf file (sha1 converted).
+32.report_visits.php
+  This API generates all visits reports for user(provider), html(sha1 converted) and there pdf file (sha1 converted).
+33.resetpasswordpin.php
+  This API used to reset password /pin.
+34.searchappointments.new.php
+  This API is used to search appointments with different parameters.
+35.searchdiagnosiscode.php
+  This Service is used to find diagnosis code.
+36.searchdrug.php
+  This API used to search drugs.
+37.searchpatient.php
+  This service is used to search patient with his firstname and lastname.
+38.searchrx.php
+  This API used to search prescription and can applying different filters on it.
+39.sendmessage.php
+  This API is used to send message about patient to different user.
+40.updateappointment.php
+  This API updates information in existing scheduled appointments.
+41.updatecontactgeneral.php
+  This API updates information of user contacts it can also updates contact image.
+42.updatefacility.php
+  This API update facility information.
+43.updateinsurancecompany.php
+  With this API we update insurance company information.
+44.updatelist.php
+  This API updates user medication, Allergy, Medical problem, Dental, Surgery information.
+45.updatelocation.php
+  This API Updates location information for already added facility.
+46.updatenotificationbadge.php
+  This API updates count for push notification against token.
+47.updatepatient.php
+  This API updates patient information along with patient image.
+48.updatepatientdocument.php
+  This API updates patient documents.
+49.updatepatientnotes.php
+  This API updates notes for patient.
+50.updateprescription.php
+  This API update patient prescription data.
+51.updateprofileimage
+  This API used to update patient profile image.
+52.updatereviewofsystems.php
+  This API updates patient ROS information.
+53.updateroschecks.php
+  This API updates patient ROS checks information.
+54.updatesoap.php
+  This API updates patient SOAP information.
+55.updatevisit.php
+  This API updates patient visit information.
+56.updatevisitvitals.php
+  This API updates patient visit vital information.
+57.visitsummery.php
+  This API is used to get Summery(number of Soaps + latestSoap, number of ROS + latest ROS, number of ROS checks + latest ROS checks, number of vitals + latest vital)   of any visit.
+58.addfeesheet.php
+  This API is use for add fee sheet items and preparing bills of patient.
+59.deletefeesheet.php
+  This API is use to delete fee sheet item.
+60.addCheckout.php
+  This API is use for add patient checkout information for billing (billed amount, Discount, payment methods and payment information).
+61.addpayment.php
+  This API is use for add batch payments of patient.
+62.updatefeesheet.php
+  This API is use to update fee sheet items.
+63.getallpatients.php
+  This API is use to get list and details of All patients.
+64.getappointments.php
+  This API is use to get list of all scheduled appointments.
+65.getcontact.php
+  This API is use to specific contact information.
+66.getcontactgeneral.php
+  This API is use to get List and details of contacts.
+67.getdailyschedule.php
+  This API is use to get daily schedule.
+68.getfacility.php
+  This API is use get the Information of facility.
+69.getfeesheet.php
+  This API is use to retrieve the patient stored fee items.
+70.getfeesheetoptions.php
+  This API is use for get Patient information (New, Established) and feesheet Items for add fee sheet.
+71.getinsurancecompanies.php
+  This API is use for get details of available insurance companies.
+72.getinsurancecompany.php
+  This API is use for get details of specific insurance company.
+73.getlist.php
+  This API is use for get problem list like (allergies, surgeries, and dentals etc).
+74.getlistbyvisitid.php
+  This API is use for get problem list like (allergies, surgeries, and dentals etc) for specific visit.
+75.getlocations.php
+  This API is use for get list and details of locations for the facility.
+76.getlocation.php
+  This API is use for get details of the location.
+77.getmessages.php
+  This API is use to get list and details of messages.
+78.getonotes.php
+  This API is Copyright OEMR 501c3
+79.getpatientdocuments.php
+  This API is use to get list and details of documents for patient.
+80.getpatientrecord.php
+  This API is use to get details (demographics, medical problems, dentals, medication, allergies, surgeries, and vitals) of a patient.
+81.getprescription.php
+  This API is use to get prescription of a patient.
+82.getproviders.php
+  This API is use to get list and details of providers.
+83.getresources.php
+  This API is use to get list of resources for a user.
+84.getreviewofsystems.php
+  This API is use to get list and details of review of systems of a patient for a visit.
+85.getreviewofsystemsbyid.php
+  This API is use to get list and details of review of systems of a patient.
+86.getreviewofsystemssummary.php
+  This API is use to get summary of review of systems of a patient.
+87.getroschecks.php
+  This API is use to get list and details of ROS checks of a patient for a visit.
+88.getroschecksbyid.php
+  This API is use to get list and details of ROS checks of a patient.
+89.getroscheckssummary.php
+  This API is use to get summary of ROS checks of a patient.
+90.getsendmessages.php
+  This API is use to get list and details of send messages.
+91.getsoap.php
+  This API is use to get SOAP list of a patient for a visit.
+92.getsoaplist.php
+  This API is use to get list and details of SOAP of a patient.
+93.getstatsoptions.php
+  This API is use to get list and details of stats (language, race and ethnicity).
+95.getuserlist.php
+  This API is use to get list and details of system users.
+96.getvisits.php
+  This API is use to get list and details of visits of a patients.
+97.getvitals.php
+  This API is use to get vitals of patient for a visit.
+
+
+
+
+

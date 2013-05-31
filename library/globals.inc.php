@@ -1588,7 +1588,21 @@ $GLOBALS_METADATA = array(
       'num',                           // data type
       '5',
       xl('Interval between message checks (set to zero for manual checks only)')
-    )
+    ),
+	
+	'rest_api_server' => array(
+      xl('Enable mobile device REST API server?'),
+      'bool',                           // data type
+      '0',
+      xl('Enable mobile device REST API server?')
+    ),
+	
+	'device_push_notification_service' => array(
+  	  xl('Enable Apple Push Notification Service?'),
+      'bool', // data type
+      '0',
+      xl('Enable Apple Push Notification Service?')
+    ),
 
   ),
   

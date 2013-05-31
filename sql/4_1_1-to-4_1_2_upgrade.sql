@@ -333,6 +333,33 @@ CREATE TABLE IF NOT EXISTS `direct_message_log` (
 ) ENGINE=MyISAM;
 #EndIf
 
+#IfNotTable api_tokens
+CREATE TABLE `api_tokens` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) DEFAULT NULL,
+  `token` varchar(150) DEFAULT NULL,
+  `device_token` varchar(200) NOT NULL,
+  `create_datetime` datetime DEFAULT NULL,
+  `expire_datetime` datetime DEFAULT NULL,
+  `message_badge` int(5) NOT NULL,
+  `appointment_badge` int(5) NOT NULL,
+  `labreports_badge` int(5) NOT NULL,
+  `prescription_badge` int(5) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+#EndIf
+
+#IfMissingColumn users create_date
+ALTER TABLE `users` 
+  ADD `create_date` DATE NOT NULL ,
+  ADD `secret_key` VARCHAR( 100 ) NULL ,
+  ADD `ip_address` VARCHAR( 20 ) NULL ,
+  ADD `country_code` VARCHAR( 10 ) NULL ,
+  ADD `country_name` INT( 50 ) NULL ,
+  ADD `latidute` VARCHAR( 20 ) NULL ,
+  ADD `longitude` VARCHAR( 20 ) NULL ,
+  ADD `time_zone` VARCHAR( 10 ) NULL;
+
 #IfMissingColumn procedure_order_code diagnoses
 ALTER TABLE `procedure_order_code`
   ADD COLUMN `diagnoses` text NOT NULL DEFAULT '' COMMENT
@@ -364,6 +391,7 @@ ALTER TABLE `procedure_order`
   'time of order transmission, null if unsent';
 UPDATE procedure_order SET date_transmitted = date_ordered WHERE
   date_transmitted IS NULL AND date_ordered IS NOT NULL;
+
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id issue_types
@@ -446,6 +474,10 @@ ALTER TABLE `immunizations`
 ALTER TABLE `documents` ADD COLUMN `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.';
 #Endif
 
+#IfMissingColumn users add_pin
+ALTER TABLE `users` ADD `app_pin` VARCHAR( 100 ) DEFAULT NULL;
+#EndIf
+
 #IfNotTable users_secure
 CREATE TABLE `users_secure` (
   `id` bigint(20) NOT NULL,
@@ -474,3 +506,7 @@ CREATE TABLE `rsa_pairs` (
 #IfMissingColumn patient_access_onsite portal_salt
 ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_salt` VARCHAR(100) NULL;
 #Endif
+
+#IfMissingColumn users contact_image
+ALTER TABLE `users` ADD `contact_image` VARCHAR(100) NULL;
+#EndIf
