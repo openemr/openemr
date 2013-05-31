@@ -38,7 +38,7 @@ if ($userId = validateToken($token)) {
     if ($acl_allow) {
 
         $strQuery = "SELECT id, username,
-                                password , authorized, info, source, u.title, fname, lname, mname, upin, see_auth, active, npi, taxonomy, specialty, organization, valedictory, assistant, email, url, street, streetb, city, state, zip, phone, phonew1, phonew2, phonecell, fax, u.notes
+                                password , authorized, info, source, u.title, fname, lname, mname, upin, see_auth, active, npi, taxonomy, specialty, organization, valedictory, assistant, email, url, street, streetb, city, state, zip, phone, phonew1, phonew2, phonecell, fax, u.notes, contact_image
                                 FROM users AS u
                                 WHERE username = ''
                                 AND password = ''
@@ -56,18 +56,13 @@ if ($userId = validateToken($token)) {
                 $xml_string .= "<contact>\n";
 
                 foreach ($res as $fieldName => $fieldValue) {
-                    $rowValue = xmlsafestring($fieldValue);
-                    $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
-                }
-                
-                $img_query = "SELECT * FROM `list_options` WHERE `list_id` = 'ExternalResources' AND `option_value` = ?";
-                $image_data = sqlQuery($img_query,array($res['id']));
-                if($image_data){
-                    $xml_string .="<image_url>{$image_data['notes']}</image_url>";
-                    $xml_string .="<image_title>{$image_data['title']}</image_title>";
-                }else{
-                    $xml_string .="<image_url></image_url>";
-                    $xml_string .="<image_title></image_title>";
+                    if ($fieldName == 'contact_image' && !empty($fieldValue)) {
+                        $xml_string .="<image_url>{$sitesUrl}{$site}/documents/userdata/contactimages/{$fieldValue}</image_url>";
+                        $xml_string .="<image_title>{$image_data['title']}</image_title>";
+                    } else {
+                        $rowValue = xmlsafestring($fieldValue);
+                        $xml_string .= "<$fieldName>$rowValue</$fieldName>\n";
+                    }
                 }
                 $xml_string .= "</contact>\n";
             }

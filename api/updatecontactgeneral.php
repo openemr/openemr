@@ -1,4 +1,5 @@
 <?php
+
 /**
  * api/updatecontactgeneral.php Update contact.
  *
@@ -70,7 +71,43 @@ if ($userId = validateToken($token)) {
             $xml_string .= "<status>-1</status>";
             $xml_string .= "<reason>Some fields are empty</reason>";
         } else {
+            
+            if ($image_data) {
 
+                $imageURL = (@$_SERVER["HTTPS"] == "on") ? "https://" : "http://";
+                if ($_SERVER["SERVER_PORT"] != "80") {
+                    $imageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"];
+                } else {
+                    $imageURL .= $_SERVER["SERVER_NAME"];
+                }
+
+
+                $path = $sitesDir . "{$site}/documents/userdata";
+
+                if (!file_exists($path)) {
+                    mkdir($path);
+                    mkdir($path . "/contactimages");
+                } elseif (!file_exists($path . "/contactimages")) {
+                    mkdir($path . "/contactimages");
+                }
+
+                $image_name = date('YmdHis') . ".png";
+                
+                file_put_contents($path . "/contactimages/" . $image_name, base64_decode($image_data));
+
+                $notes_url = $sitesUrl . "{$site}/documents/userdata/contactimages/" . $image_name;
+
+                $strQuery2 = "SELECT * FROM `users` 
+                            WHERE id = ?";
+                $result2 = sqlQuery($strQuery2, array($id));
+                if (!empty($result2['contact_image'])) {
+                    $old_image_name = $result2['contact_image'];
+                    if (file_exists($path . "/contactimages/" . $old_image_name)) {
+                        unlink($path . "/contactimages/" . $old_image_name);
+                    }
+                }
+            } 
+            
             $strQuery = 'UPDATE users SET ';
             $strQuery .= ' info = "' . add_escape_custom($info) . '",';
             $strQuery .= ' source = "' . add_escape_custom($source) . '",';
@@ -98,66 +135,13 @@ if ($userId = validateToken($token)) {
             $strQuery .= ' phonew2 = "' . add_escape_custom($work_phone2) . '",';
             $strQuery .= ' phonecell = "' . add_escape_custom($mobile) . '",';
             $strQuery .= ' fax = "' . add_escape_custom($fax) . '",';
+            if (!empty($image_data)){
+            $strQuery .= ' contact_image = "' . add_escape_custom($image_name) . '",';
+            }
             $strQuery .= ' notes = "' . add_escape_custom($notes) . '"';
             $strQuery .= ' WHERE username = \'\' AND password = \'\' AND id = ?';
 
-
-
             $result = sqlStatement($strQuery, array($id));
-
-
-            if ($image_data) {
-
-                $imageURL = (@$_SERVER["HTTPS"] == "on") ? "https://" : "http://";
-                if ($_SERVER["SERVER_PORT"] != "80") {
-                    $imageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"];
-                } else {
-                    $imageURL .= $_SERVER["SERVER_NAME"];
-                }
-
-
-                $path = $sitesDir . "{$site}/documents/userdata";
-
-                if (!file_exists($path)) {
-                    mkdir($path);
-                    mkdir($path . "/contactimages");
-                } elseif (!file_exists($path . "/contactimages")) {
-                    mkdir($path . "/contactimages");
-                }
-
-                $image_name = date('Y-m-d_H-i-s') . ".png";
-                file_put_contents($path . "/contactimages/" . $image_name, base64_decode($image_data));
-
-                $notes_url = $sitesUrl . "{$site}/documents/userdata/contactimages/" . $image_name;
-
-                $strQuery2 = "SELECT * FROM `list_options` 
-                            WHERE `list_id` = 'ExternalResources' AND 
-                                   `option_id` = ?";
-
-                $result2 = sqlQuery($strQuery2, array($image_title_old));
-
-                if ($result2) {
-                    $old_image_path = $result2['notes'];
-                    $old_image_name = basename($old_image_path);
-
-                    if (file_exists($path . "/contactimages/" . $old_image_name)) {
-                        unlink($path . "/contactimages/" . $old_image_name);
-                    }
-
-
-                    $strQuery1 = "UPDATE `list_options` SET `notes`='" . add_escape_custom($notes_url) . "',
-                                                        `option_id` = '" . add_escape_custom($image_title_new) . "',
-                                                        `title` = '" . add_escape_custom($image_title_new) . "'
-                                                 WHERE `list_id` = 'ExternalResources' AND 
-                                                    `option_id` = '" . add_escape_custom($image_title_old) . "'";
-                } else {
-
-                    $strQuery1 = "INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) 
-                        VALUES ('ExternalResources','" . add_escape_custom($image_title_new)."','" . add_escape_custom($image_title_new)."','0','0','" . add_escape_custom($id)."','','" . add_escape_custom($notes_url)."')";
-                }
-
-                $result1 = sqlStatement($strQuery1);
-            }
 
             if ($result !== FALSE) {
                 $xml_string .= "<status>0</status>";

@@ -57,6 +57,7 @@ $fax = $_POST['fax'];
 $notes = $_POST['notes'];
 $image_data = $_POST['imageData'];
 $image_title = $_POST['imageTitle'];
+$image_name = '';
 
 if ($userId = validateToken($token)) {
     
@@ -64,13 +65,30 @@ if ($userId = validateToken($token)) {
     $acl_allow = acl_check('admin', 'users', $user);
 
     if ($acl_allow) {
-
+        
         if ($firstname == '' || $lastname == '' || $email == '') {
             $xml_string .= "<status>-1</status>";
             $xml_string .= "<reason>Some fields are empty</reason>";
         } else {
+            if ($image_data) {
 
-            $strQuery = "INSERT INTO users (username, password, authorized, info, source, title, fname, lname, mname,  upin, see_auth, active, npi, taxonomy, specialty, organization, valedictory, assistant, email, url, street, streetb, city, state, zip, phone, phonew1, phonew2, phonecell, fax, notes ) 
+               
+                $path = $sitesDir . "{$site}/documents/userdata";
+
+                if (!file_exists($path)) {
+                    mkdir($path);
+                    mkdir($path . "/contactimages");
+                } elseif (!file_exists($path . "/contactimages")) {
+                    mkdir($path . "/contactimages");
+                }
+
+                $image_name = date('YmdHis') . ".png";
+                file_put_contents($path . "/contactimages/" . $image_name, base64_decode($image_data));
+
+                $notes_url = $sitesUrl . "{$site}/documents/userdata/contactimages/" . $image_name;
+            }
+            
+            $strQuery = "INSERT INTO users (username, password, authorized, info, source, title, fname, lname, mname,  upin, see_auth, active, npi, taxonomy, specialty, organization, valedictory, assistant, email, url, street, streetb, city, state, zip, phone, phonew1, phonew2, phonecell, fax, notes, contact_image ) 
                             VALUES ('',
                                     '',
                                     0,
@@ -101,43 +119,10 @@ if ($userId = validateToken($token)) {
                                     '" . add_escape_custom($work_phone2) . "',
                                     '" . add_escape_custom($mobile) . "',
                                     '" . add_escape_custom($fax) . "',
-                                    '" . add_escape_custom($notes) . "'
+                                    '" . add_escape_custom($notes) . "',
+                                    '" . add_escape_custom($image_name) . "'
                                     )";
             $result = sqlInsert($strQuery);
-
-            $last_inserted_id = $result;
-
-            if ($image_data) {
-
-               
-                $path = $sitesDir . "{$site}/documents/userdata";
-
-                if (!file_exists($path)) {
-                    mkdir($path);
-                    mkdir($path . "/contactimages");
-                } elseif (!file_exists($path . "/contactimages")) {
-                    mkdir($path . "/contactimages");
-                }
-
-                $image_name = date('Y-m-d_H-i-s') . ".png";
-                file_put_contents($path . "/contactimages/" . $image_name, base64_decode($image_data));
-
-                $notes_url = $sitesUrl . "{$site}/documents/userdata/contactimages/" . $image_name;
-
-                $strQuery1 = "INSERT INTO `list_options`(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`) 
-                                VALUES ('ExternalResources',
-                                        '" . add_escape_custom($image_title) . "',
-                                        '" . add_escape_custom($image_title) . "',
-                                        '0',
-                                        '0',
-                                        '" . ($last_inserted_id) . "',
-                                        '',
-                                        '" . add_escape_custom($notes_url) . "')";
-
-
-                $result1 = sqlStatement($strQuery1);
-            }
-
 
             if ($result) {
 
