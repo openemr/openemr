@@ -457,7 +457,8 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
   </td>
  </tr>
 
- <tr>
+ <!-- Will enable this later, nothing uses it yet. -->
+ <tr style='display:none'>
   <td width='1%' valign='top' nowrap><b><?php xl('Patient Instructions','e'); ?>:</b></td>
   <td valign='top'>
    <textarea rows='3' cols='40' name='form_patient_instructions' style='width:100%'

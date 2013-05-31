@@ -381,37 +381,37 @@ if ($form_step == 1) {
 
             $pcode   = trim($acsv[0]);
             $qcode   = trim($acsv[1]);
+            $required = strtolower(substr($acsv[3], 0, 1)) == 't' ? 1 : 0;
             $options = trim($acsv[5]);
             if (empty($pcode) || empty($qcode)) continue;
+
+            // Figure out field type.
+            $fldtype = 'T';
+            if (strpos($acsv[4], 'Drop') !== FALSE) $fldtype = 'S';
+            else if (strpos($acsv[4], 'Multiselect') !== FALSE) $fldtype = 'S';
 
             $qrow = sqlQuery("SELECT * FROM procedure_questions WHERE " .
               "lab_id = ? AND procedure_code = ? AND question_code = ?",
               array($lab_id, $pcode, $qcode));
 
-            // If this is the first option value and its type is Drop Down, then
-            // prepend '+;' to indicate the start of a multi-select list.
-            if (!empty($options) &&
-                (empty($qrow['options']) || empty($qrow['activity'])) &&
-                (strpos($acsv[4], 'Multiselect') !== FALSE ||
-                 strpos($acsv[4], 'Drop') !== FALSE))
-            {
-              $options = '+;' . $options;
-            }
+            // If this is the first option value and it's a multi-select list,
+            // then prepend '+;' here to indicate that.  YPMG does not use those
+            // but keep this note here for future reference.
 
             if (empty($qrow['procedure_code'])) {
               sqlStatement("INSERT INTO procedure_questions SET " .
                 "lab_id = ?, procedure_code = ?, question_code = ?, question_text = ?, " .
-                "options = ?, activity = 1",
-                array($lab_id, $pcode, $qcode, trim($acsv[2]), $options));
+                "fldtype = ?, required = ?, options = ?, activity = 1",
+                array($lab_id, $pcode, $qcode, trim($acsv[2]), $fldtype, $required, $options));
             }
             else {
               if ($qrow['activity'] == '1' && $qrow['options'] !== '' && $options !== '') {
                 $options = $qrow['options'] . ';' . $options;
               }
               sqlStatement("UPDATE procedure_questions SET " .
-                "question_text = ?, options = ?, activity = 1 WHERE " .
+                "question_text = ?, fldtype = ?, required = ?, options = ?, activity = 1 WHERE " .
                 "lab_id = ? AND procedure_code = ? AND question_code = ?",
-                array(trim($acsv[2]), $options, $lab_id, $pcode, $qcode));
+                array(trim($acsv[2]), $fldtype, $required, $options, $lab_id, $pcode, $qcode));
             }
           } // end while
         } // end load questions
