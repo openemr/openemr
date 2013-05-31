@@ -506,3 +506,7 @@ CREATE TABLE `rsa_pairs` (
 #IfMissingColumn patient_access_onsite portal_salt
 ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_salt` VARCHAR(100) NULL;
 #Endif
+
+#IfMissingColumn users contact_image
+ALTER TABLE `users` ADD `contact_image` VARCHAR(100) NULL;
+#EndIf

@@ -5283,6 +5283,7 @@ CREATE TABLE `users` (
   `longitude` varchar(20) DEFAULT NULL,
   `time_zone` varchar(10) DEFAULT NULL,
   `app_pin` varchar(100) DEFAULT NULL,
+  `contact_image` varchar(100) DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
