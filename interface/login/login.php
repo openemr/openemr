@@ -19,6 +19,12 @@ require_once("../../library/authentication/rsa.php");
 <script src="../../library/js/crypt/jsbn.js"></script>
 <script src="../../library/js/crypt/rsa.js"></script>
 <script language='JavaScript'>
+function RSAProblem()
+{
+	window.alert("Server Configuration Problem!");
+};
+
+$(document).ajaxError(RSAProblem);
 
 function encrypt_form()
 {
@@ -29,6 +35,11 @@ function encrypt_form()
         {
             var key = RSA.getPublicKey(data);
             var encryptedPass=RSA.encrypt(document.forms[0].clearPass.value, key);
+            if(encryptedPass==false)
+            {
+                RSAProblem();
+                return;
+            }
             document.forms[0].authPass.value=encryptedPass;
 
             document.forms[0].clearPass.value='';

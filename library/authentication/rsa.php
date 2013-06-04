@@ -44,7 +44,16 @@ class rsa_key_manager
      */
     public function initialize()
     {
-        $pair=openssl_pkey_new();
+        if(!function_exists("openssl_pkey_new"))
+        {
+            error_log("Server Configuration Problem:Function openssl_pkey_new does not exist!");
+        }
+        $pair=openssl_pkey_new(); // Still call openssl_pkey_new even when it doesn't exist to generate exception.
+        if($pair==false)
+        {
+            error_log("Server Configuration Problem:Cannot Generate Key Pair!");
+            throw new Exception("Server Configuration Problem:Cannot Generate Key Pair!");
+        }
         $keyDetails=openssl_pkey_get_details($pair);
         $this->pubKey=$keyDetails['key'];
         openssl_pkey_export($pair, $this->privKey);

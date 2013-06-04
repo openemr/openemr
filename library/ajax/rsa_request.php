@@ -38,19 +38,26 @@
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @link    http://www.open-emr.org
  */
-    $ignoreAuth=true;  // A user needs to be able to get an RSA public key for transmission of password to the server before authentication.
-    
-    //SANITIZE ALL ESCAPES
-    $sanitize_all_escapes=true;
+    try
+    {
+        $ignoreAuth=true;  // A user needs to be able to get an RSA public key for transmission of password to the server before authentication.
 
-    //STOP FAKE REGISTER GLOBALS
-    $fake_register_globals=false;
-    
-    require_once("../../interface/globals.php");
-    require_once("../authentication/rsa.php");
-    
-    
-    $key_manager=new rsa_key_manager;
-    $key_manager->initialize();
-    echo $key_manager->get_pubKeyJS();
+        //SANITIZE ALL ESCAPES
+        $sanitize_all_escapes=true;
+
+        //STOP FAKE REGISTER GLOBALS
+        $fake_register_globals=false;
+
+        require_once("../../interface/globals.php");
+        require_once("../authentication/rsa.php");
+
+
+        $key_manager=new rsa_key_manager;
+        $key_manager->initialize();
+        echo $key_manager->get_pubKeyJS();
+    }
+    catch(Exception $e)
+    {
+        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+    }
 ?>
