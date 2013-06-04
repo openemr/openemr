@@ -51,7 +51,7 @@ class rsa_key_manager
         $pair=openssl_pkey_new(); // Still call openssl_pkey_new even when it doesn't exist to generate exception.
         if($pair==false)
         {
-            error_log("Server Configuration Problem:Cannot Generate Key Pair!");
+            error_log("Server Configuration Problem:Cannot Generate Key Pair!".openssl_error_string());
             throw new Exception("Server Configuration Problem:Cannot Generate Key Pair!");
         }
         $keyDetails=openssl_pkey_get_details($pair);
