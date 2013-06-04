@@ -62,7 +62,7 @@ class rsa_key_manager
     
     
     /**
-     * Retrieve and existing private key based on the public key value and delete it.
+     * Retrieve an existing private key based on the public key value and delete it.
      * This function also garbage collects any "stale/unused" pairs that are older than 5 minutes (300 seconds)
      * 
      * @param type $pub
