@@ -44,6 +44,21 @@ echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packag
 echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and xsl php package and perl-CGI package and git packages..." >> $LOG
 urpmi --auto php-gd php-mbstring php-zip php-xsl php-curl php-mcrypt perl-CGI patch git-core qgit >> $LOG
 
+#Patch the suhosin bug
+SUHOSINCONF=/etc/php.d/Z98_suhosin.ini
+echo "Disabling suhosin patch which is not compatible with OpenEMR"
+echo "Disabling suhosin patch which is not compatible with OpenEMR" >> $LOG
+echo "   In /etc/php.d/Z98_suhosin.ini file commenting out:"
+echo "   In /etc/php.d/Z98_suhosin.ini file commenting out:" >> $LOG
+echo "    extension = suhosin.so"
+echo "    extension = suhosin.so" >> $LOG
+echo "   Then will restart apache."
+echo "   Then will restart apache." >> $LOG
+echo ""
+sed -i 's/^extension = suhosin.so/; extension = suhosin.so/' $SUHOSINCONF
+service httpd start
+echo ""
+
 # COLLECT THE GIT REPO (if it doesn't exist)
 if ! [ -d $GITMAIN ]; then
  echo "Downloading the OpenEMR git repository"
@@ -96,21 +111,6 @@ rm -f $OPENEMR/TEMPsql_patch.php
 chmod 644 $OPENEMR/sites/default/sqlconf.php
 echo "Done configuring OpenEMR"
 echo "Done configuring OpenEMR" >> $LOG
-
-#Patch the suhosin bug
-SUHOSINCONF=/etc/php.d/Z98_suhosin.ini
-echo "Disabling suhosin patch which is not compatible with OpenEMR"
-echo "Disabling suhosin patch which is not compatible with OpenEMR" >> $LOG
-echo "   In /etc/php.d/Z98_suhosin.ini file commenting out:"
-echo "   In /etc/php.d/Z98_suhosin.ini file commenting out:" >> $LOG
-echo "    extension = suhosin.so"
-echo "    extension = suhosin.so" >> $LOG
-echo "   Then will restart apache."
-echo "   Then will restart apache." >> $LOG
-echo ""
-sed -i 's/^extension = suhosin.so/; extension = suhosin.so/' $SUHOSINCONF
-service httpd start
-echo ""
 
 #Replace manual with newest version and add the refresh script
 echo "Configuring appliance"
