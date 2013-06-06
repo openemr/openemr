@@ -1,9 +1,10 @@
 <?php
+
 /**
- * api/updatepatientnotes.php Update patient notes.
+ * api/deletepatientnotes.php delete patient notes.
  *
- * API is allowed to update patient notes. 
- *  
+ * Api delets's contacts for user.
+ * 
  * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -25,32 +26,35 @@ header("Content-Type:text/xml");
 $ignoreAuth = true;
 require_once 'classes.php';
 
-$xml_array = array();
+$xml_string = "";
+$xml_string = "<PatientNotes>";
 
 $token = $_POST['token'];
-$noteId = $_POST['noteId'];
-$notes = $_POST['notes'];
-$title = $_POST['title'];
-$assigned_to = $_POST['assigned_to'];
+$id = $_POST['noteId'];
+
 
 if ($userId = validateToken($token)) {
-    
-    $username = getUsername($userId);
-    $acl_allow = acl_check('patients', 'notes', $username);
+    $user = getUsername($userId);
 
+    $acl_allow = acl_check('patients', 'notes', $user);
     if ($acl_allow) {
-            $result = updatePnote($noteId, $notes, $title, $assigned_to);
-            $xml_array['status'] = 0;
-            $xml_array['reason'] = 'The Patient notes has been updated';
+        $result = deletePnote($id);
+        if ($result) {
+            $xml_string .= "<status>0</status>";
+            $xml_string .= "<reason>Patient Notes has been deleted</reason>";
+        } else {
+            $xml_string .= "<status>-1</status>";
+            $xml_string .= "<reason>ERROR: Sorry, there was an error processing your data. Please re-submit the information again.</reason>";
+        }
     } else {
         $xml_string .= "<status>-2</status>\n";
         $xml_string .= "<reason>You are not Authorized to perform this action</reason>\n";
     }
 } else {
-    $xml_array['status'] = -2;
-    $xml_array['reason'] = 'Invalid Token';
+    $xml_string .= "<status>-2</status>";
+    $xml_string .= "<reason>Invalid Token</reason>";
 }
-$xml = ArrayToXML::toXml($xml_array, 'PatientNotes');
-echo $xml;
-?>
 
+$xml_string .= "</PatientNotes>";
+echo $xml_string;
+?>

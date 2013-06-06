@@ -1,9 +1,9 @@
 <?php
 
 /**
- * api/addpatientnotes.php add patient's notes.
+ * api/getpatientnotes.php get patient's notes.
  *
- * Api add's patient notes.
+ * Api to get patient notes.
  * 
  * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
  *
@@ -29,14 +29,8 @@ require_once 'classes.php';
 $xml_array = array();
 
 $token = $_POST['token'];
-$patientId = $_POST['patientId'];
-$notes = $_POST['notes'];
-$title = isset($_POST['title']) ? $_POST['title'] : 'Unassigned';
-$authorized = isset($_POST['authorized']) ? $_POST['title'] : '0';
-$activity = isset($_POST['activity']) ? $_POST['activity'] : '1';
-$assigned_to = isset($_POST['assigned_to']) ? $_POST['assigned_to'] : '';
-$datetime = isset($_POST['datetime']) ? $_POST['datetime'] : '';
-$message_status = isset($_POST['message_status']) ? $_POST['message_status'] : 'New';
+$patient_id = $_POST['patientId'];
+$active = isset($_POST['active']) ? $_POST['active'] : 1;
 
 if ($userId = validateToken($token)) {
 
@@ -44,14 +38,23 @@ if ($userId = validateToken($token)) {
     $acl_allow = acl_check('patients', 'notes', $username);
 
     if ($acl_allow) {
-        $_SESSION['authProvider'] = getAuthGroup($username);
-        $_SESSION['authUser'] = $username;
-        $result = addPnote($patientId, $notes, $authorized, $activity, $title, $assigned_to, $datetime, $message_status, $username);
 
-        if ($result) {
+        $patient_data = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to,message_status', $patient_id);
+
+        if ($patient_data) {
+
             $xml_array['status'] = 0;
-            $xml_array['result'] = $result;
-            $xml_array['reason'] = 'The Patient notes has been added successfully';
+            $xml_array['reason'] = 'The Patient notes has been fetched successfully';
+            foreach ($patient_data as $key => $patientnote) {
+                $xml_array['patientnote' . $key]['id'] = $patientnote['id'];
+                $xml_array['patientnote' . $key]['date'] = $patientnote['date'];
+                $xml_array['patientnote' . $key]['body'] = $patientnote['body'];
+                $xml_array['patientnote' . $key]['user'] = $patientnote['user'];
+                $xml_array['patientnote' . $key]['activity'] = $patientnote['activity'];
+                $xml_array['patientnote' . $key]['title'] = $patientnote['title'];
+                $xml_array['patientnote' . $key]['assigned_to'] = $patientnote['assigned_to'];
+                $xml_array['patientnote' . $key]['message_status'] = $patientnote['message_status'];
+            }
         } else {
             $xml_array['status'] = -1;
             $xml_array['reason'] = 'ERROR: Sorry, there was an error processing your data. Please re-submit the information again.';

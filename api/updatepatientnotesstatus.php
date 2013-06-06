@@ -1,8 +1,9 @@
 <?php
+
 /**
- * api/updatepatientnotes.php Update patient notes.
+ * api/updatepatientnotes.php Update patient notes status.
  *
- * API is allowed to update patient notes. 
+ * API is allowed to update patient notes status. 
  *  
  * Copyright (C) 2012 Karl Englund <karl@mastermobileproducts.com>
  *
@@ -28,10 +29,8 @@ require_once 'classes.php';
 $xml_array = array();
 
 $token = $_POST['token'];
-$noteId = $_POST['noteId'];
-$notes = $_POST['notes'];
-$title = $_POST['title'];
-$assigned_to = $_POST['assigned_to'];
+$noteIds = $_POST['noteIds'];
+$active = $_POST['active'];
 
 if ($userId = validateToken($token)) {
     
@@ -39,9 +38,21 @@ if ($userId = validateToken($token)) {
     $acl_allow = acl_check('patients', 'notes', $username);
 
     if ($acl_allow) {
-            $result = updatePnote($noteId, $notes, $title, $assigned_to);
-            $xml_array['status'] = 0;
-            $xml_array['reason'] = 'The Patient notes has been updated';
+        $noteIds_array = explode(',', $noteIds);
+
+        foreach ($noteIds_array as $noteId) {
+            switch ($active) {
+                case 1:
+                    reappearPnote($noteId);
+                    break;
+                case 0:
+                    disappearPnote($noteId);
+                    break;
+            }
+        }
+
+        $xml_array['status'] = 0;
+        $xml_array['reason'] = 'The Patient notes has been updated';
     } else {
         $xml_string .= "<status>-2</status>\n";
         $xml_string .= "<reason>You are not Authorized to perform this action</reason>\n";
