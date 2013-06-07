@@ -577,6 +577,11 @@ foreach ($providers as $provider) {
             $eEndInterval = $eMinDiff / $interval;
             // times the interval height
             $eHeight = $eEndInterval * $timeslotHeightVal;
+            if($event['catid']==3)
+            {
+                // An "OUT" that is "zero duration" still needs height so we can click it.
+                $eHeight = $eEndInterval==0 ? $timeslotHeightVal : $eHeight ;
+            }
             $evtHeight = $eHeight.$timeslotHeightUnit;
 
             // determine the DIV width based on any overlapping events
@@ -673,11 +678,10 @@ foreach ($providers as $provider) {
           // the normal DIV so it doesn't overlap another event DIV and include the time
           if ($event['catid'] == 2) {
               $inTop = ($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
-              echo "<div class='".$evtClass." event' style='top:".$inTop.
+              echo "<div class='".$evtClass." event in_start' style='top:".$inTop.
                   "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                   "; $divWidth".
                   "; $divLeft".
-                  "; background:transparent".
                   "; border: none".
                   "' title='".$divTitle."'".
                   " id='".$eventdate."-".$eventid."-".$pccattype."'".
@@ -688,8 +692,10 @@ foreach ($providers as $provider) {
           }
   
           // output the DIV and content
+          // For "OUT" events, applying the background color in CSS.
+          $background_string= ($event['catid'] == 3) ? "" : "; background-color:".$event["catcolor"];
           echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
-              "; background-color:".$color.
+              $background_string.
               "; $divWidth".
               "; $divLeft".
               "' title='".$divTitle."'".
@@ -702,11 +708,10 @@ foreach ($providers as $provider) {
        elseif($_SESSION['pc_facility'] == $row['id']){
            if ($event['catid'] == 2) {
                $inTop = ($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
-               echo "<div class='".$evtClass." event' style='top:".$inTop.
+               echo "<div class='".$evtClass." event in_start' style='top:".$inTop.
                    "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                    "; $divWidth".
                    "; $divLeft".
-                   "; background:transparent".
                    "; border: none".
                    "' title='".$divTitle."'".
                    " id='".$eventdate."-".$eventid."-".$pccattype."'".
@@ -717,8 +722,10 @@ foreach ($providers as $provider) {
            }
    
            // output the DIV and content
-           echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
-               "; background-color:".$event["catcolor"].
+           // For "OUT" events, applying the background color in CSS.
+          $background_string= ($event['catid'] == 3) ? "" : "; background-color:".$event["catcolor"];
+          echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
+               $background_string.
                "; $divWidth".
                "; $divLeft".
                "' title='".$divTitle."'".
@@ -732,7 +739,7 @@ foreach ($providers as $provider) {
 
            if ($event['catid'] == 2) {
                $inTop = ($eStartPos - $timeslotHeightVal).$timeslotHeightUnit;
-               echo "<div class='".$evtClass." event' style='top:".$inTop.
+               echo "<div class='".$evtClass." event in_start' style='top:".$inTop.
                    "; height:".$timeslotHeightVal.$timeslotHeightUnit.
                    "; $divWidth".
                    "; $divLeft".
