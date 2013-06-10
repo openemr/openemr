@@ -1,8 +1,26 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * 
+ * Superbill Report
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 
 require_once(dirname(__file__)."/../globals.php");
 require_once("$srcdir/forms.inc");
@@ -134,10 +152,10 @@ else {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Reports','e'); ?> - <?php xl('Superbill','e'); ?></span>
+<span class='title'><?php echo xlt('Reports'); ?> - <?php echo xlt('Superbill'); ?></span>
 
 <div id="superbill_description" class='text'>
-<?php xl('Superbills, sometimes referred to as Encounter Forms or Routing Slips, are an essential part of most medical practices.','e'); ?>
+<?php echo xlt('Superbills, sometimes referred to as Encounter Forms or Routing Slips, are an essential part of most medical practices.'); ?>
 </div>
 
 <div id="report_parameters">
@@ -152,24 +170,24 @@ else {
 	<table class='text'>
 		<tr>
 			<td class='label'>
-			   <?php xl('Start Date','e'); ?>:
+			   <?php echo xlt('Start Date'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='start' id="form_from_date" size='10' value='<?php echo $startdate ?>'
+			   <input type='text' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
 				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
 				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php xl('Click here to choose a date','e'); ?>'>
+				title='<?php echo xla('Click here to choose a date'); ?>'>
 			</td>
 			<td class='label'>
-			   <?php xl('End Date','e'); ?>:
+			   <?php echo xlt('End Date'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='end' id="form_to_date" size='10' value='<?php echo $enddate ?>'
+			   <input type='text' name='end' id="form_to_date" size='10' value='<?php echo attr($enddate) ?>'
 				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
 				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-				title='<?php xl('Click here to choose a date','e'); ?>'>
+				title='<?php echo xla('Click here to choose a date'); ?>'>
 			</td>
 		</tr>
 	</table>
@@ -184,14 +202,14 @@ else {
 				<div style='margin-left:15px'>
 					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
 					<span>
-						<?php xl('Submit','e'); ?>
+						<?php echo xlt('Submit'); ?>
 					</span>
 					</a>
 
 					<?php if ($_POST['form_refresh']) { ?>
 					<a href='#' class='css_button' onclick='window.print()'>
 						<span>
-							<?php xl('Print','e'); ?>
+							<?php echo xlt('Print'); ?>
 						</span>
 					</a>
 					<?php } ?>
@@ -218,9 +236,9 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
         $facility = $results->fields;
 ?>
 <p>
-<h2><?php $facility['name']?></h2>
-<?php $facility['street']?><br>
-<?php $facility['city']?>, <?php $facility['state']?> <?php $facility['postal_code']?><br>
+<h2><?php text($facility['name'])?></h2>
+<?php text($facility['street'])?><br>
+<?php text($facility['city'])?>, <?php text($facility['state'])?> <?php text($facility['postal_code'])?><br>
 
 </p>
 <?php
@@ -228,8 +246,8 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
     $res = sqlStatement("select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
-                        "date between '$startdate' and '$enddate' " .
-                        "order by date DESC");
+                        "date between ? and ? " .
+                        "order by date DESC", array($startdate,$enddate) );
     while($result = sqlFetchArray($res)) {
         if ($result{"form_name"} == "New Patient Encounter") {
             $newpatient[] = $result{"form_id"}.":".$result{"encounter"};
@@ -258,30 +276,30 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
         */
 
         print "<div id='superbill_patientdata'>";
-        print "<h1>".xl('Patient Data').":</h1>";
+        print "<h1>".xlt('Patient Data').":</h1>";
         printRecDataOne($patient_data_array, getRecPatientData ($pids[$iCounter]), $N);
         print "</div>";
 
         print "<div id='superbill_insurancedata'>";
-        print "<h1>".xl('Insurance Data').":</h1>";
-        print "<h2>".xl('Primary').":</h2>";
+        print "<h1>".xlt('Insurance Data').":</h1>";
+        print "<h2>".xlt('Primary').":</h2>";
         printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"primary"), $N);
-        print "<h2>".xl('Secondary').":</h2>";
+        print "<h2>".xlt('Secondary').":</h2>";
         printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"secondary"), $N);
-        print "<h2>".xl('Tertiary').":</h2>";
+        print "<h2>".xlt('Tertiary').":</h2>";
         printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"tertiary"), $N);
         print "</div>";
 
         print "<div id='superbill_billingdata'>";
-        print "<h1>".xl('Billing Information').":</h1>";
+        print "<h1>".xlt('Billing Information').":</h1>";
         if (count($patient) > 0) {
             $billings = array();
             echo "<table width='100%'>";
             echo "<tr>";
-            echo "<td class='bold' width='10%'>".xl('Date')."</td>";
-            echo "<td class='bold' width='20%'>".xl('Provider')."</td>";
-            echo "<td class='bold' width='40%'>".xl('Code')."</td>";
-            echo "<td class='bold' width='10%'>".xl('Fee')."</td></tr>\n";
+            echo "<td class='bold' width='10%'>".xlt('Date')."</td>";
+            echo "<td class='bold' width='20%'>".xlt('Provider')."</td>";
+            echo "<td class='bold' width='40%'>".xlt('Code')."</td>";
+            echo "<td class='bold' width='10%'>".xlt('Fee')."</td></tr>\n";
             $total = 0.00;
             $copays = 0.00;
             //foreach ($patient as $be) {
@@ -296,9 +314,9 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
                     echo "<tr>\n";
                     echo "<td class='text' style='font-size: 0.8em'>" . oeFormatShortDate(date("Y-m-d",$bdate)) . "<BR>" . date("h:i a", $bdate) . "</td>";
-                    echo "<td class='text'>" . $b['provider_name'] . "</td>";
+                    echo "<td class='text'>" . text($b['provider_name']) . "</td>";
                     echo "<td class='text'>";
-                    echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . $b['code_text'] . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                    echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                     echo "</td>\n";
                     echo "<td class='text'>";
                     echo oeFormatMoney($b['fee']);
@@ -311,9 +329,9 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
                 }
             //}
             echo "<tr><td>&nbsp;</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xl('Sub-Total')."</td><td class='text'>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xl('Paid')."</td><td class='text'>" . oeFormatMoney(abs($copays)) . "</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xl('Total')."</td><td class='text'>" . oeFormatMoney($total) . "</td></tr>";
+            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Sub-Total')."</td><td class='text'>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
+            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Paid')."</td><td class='text'>" . oeFormatMoney(abs($copays)) . "</td></tr>";
+            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Total')."</td><td class='text'>" . oeFormatMoney($total) . "</td></tr>";
             echo "</table>";
             echo "<pre>";
             //print_r($billings);
@@ -322,7 +340,7 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
         echo "</div>";
 
         ++$iCounter;
-        print "<br/><br/>".xl('Physician Signature').":  _______________________________________________";
+        print "<br/><br/>".xlt('Physician Signature').":  _______________________________________________";
         print "<hr class='pagebreak' />";
     }
 }
