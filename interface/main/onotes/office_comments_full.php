@@ -1,25 +1,45 @@
 <?php
+/**
+ * Viewing and modification/creation of office notes.
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+
 include_once("../../globals.php");
 include_once("$srcdir/onotes.inc");
 
 //the number of records to display per screen
 $N = 10;
 
-if (!isset($offset)) { $offset=0; }
-
-if (!isset($active)) { $active="all"; }
+$offset = (isset($_REQUEST['offset'])) ? $_REQUEST['offset'] : 0;
+$active = (isset($_REQUEST['active'])) ? $_REQUEST['active'] : "all";
 
 //this code handles changing the state of activity tags when the user updates them through the interface
-if (isset($mode)) {
-    if ($mode == "update") {
+if (isset($_POST['mode'])) {
+    if ($_POST['mode'] == "update") {
         foreach ($_POST as $var => $val) {
             if ($val == "true" || $val == "false") {
                 $id = str_replace("act","",$var);
-                if ($val == "true") {reappearOnote ($id);}elseif($val=="false"){disappearOnote($id);};
-                //print "$id: $val > $act_state<br>\n";
+                if ($val == "true") {reappearOnote($id);}elseif($val=="false"){disappearOnote($id);};
             }
         }
-    } elseif ($mode == "new") {
+    } elseif ($_POST['mode'] == "new") {
         addOnote($_POST["note"]);
     }
 }
@@ -48,17 +68,17 @@ else { $backurl="../main_info.php"; }
 <a href="<?php echo $backurl; ?>" target="Main">
 <?php } ?>
 
-<span class="title"><?php xl('Office Notes','e'); ?></span>
-<span class="back"><?php echo $tback; ?></span></a>
+<span class="title"><?php echo xlt('Office Notes'); ?></span>
+<span class="back"><?php echo text($tback); ?></span></a>
 
 <br>
 <input type="hidden" name="mode" value="new">
-<input type="hidden" name="offset" value="<?php echo $offset; ?>">
-<input type="hidden" name="active" value="<?php echo $active; ?>">
+<input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
+<input type="hidden" name="active" value="<?php echo attr($active); ?>">
 
 <textarea name="note" rows="6" cols="40" wrap="virtual"></textarea>
 <br>
-<a href="javascript:document.new_note.submit();" class="link_submit">[<?php xl ('Add New Note','e'); ?>]</a>
+<a href="javascript:document.new_note.submit();" class="link_submit">[<?php echo xlt('Add New Note'); ?>]</a>
 </form>
 
 <br/>
@@ -72,16 +92,16 @@ elseif ($active==1) { $active_class="link_selected"; }
 elseif ($active==0) { $inactive_class="link_selected"; }
 ?>
 
-<span class="text"><?php xl('View:','e'); ?> </span> 
-<a href="office_comments_full.php?offset=0&active=all" class="<?php echo $all_class;?>">[<?php xl('All','e'); ?>]</a>
-<a href="office_comments_full.php?offset=0&active=1" class="<?php echo $active_class;?>">[<?php xl ('Only Active','e'); ?>]</a>
-<a href="office_comments_full.php?offset=0&active=0" class="<?php echo $inactive_class;?>">[<?php xl('Only Inactive','e'); ?>]</a>
+<span class="text"><?php echo xlt('View:'); ?> </span> 
+<a href="office_comments_full.php?offset=0&active=all" class="<?php echo attr($all_class);?>">[<?php echo xlt('All'); ?>]</a>
+<a href="office_comments_full.php?offset=0&active=1" class="<?php echo attr($active_class);?>">[<?php echo xlt('Only Active'); ?>]</a>
+<a href="office_comments_full.php?offset=0&active=0" class="<?php echo attr($inactive_class);?>">[<?php echo xlt('Only Inactive'); ?>]</a>
 
 <input type="hidden" name="mode" value="update">
-<input type="hidden" name="offset" value="<?php echo $offset;?>">
-<input type="hidden" name="active" value="<?php echo $active;?>">
+<input type="hidden" name="offset" value="<?php echo attr($offset);?>">
+<input type="hidden" name="active" value="<?php echo attr($active);?>">
 <br/>
-<a href="javascript:document.update_activity.submit();" class="link_submit">[<?php xl('Change Activity','e'); ?>]</a>
+<a href="javascript:document.update_activity.submit();" class="link_submit">[<?php echo xlt('Change Activity'); ?>]</a>
 
 <table border="0" class="existingnotes">
 <?php
@@ -102,11 +122,11 @@ foreach ($result as $iter) {
     if ($iter{"activity"}) { $checked = "checked"; }
     else { $checked = ""; }
 
-    print "<tr><td><input type=hidden value='' name='act".$iter{"id"}."' id='act".$iter{"id"}."'>";
-    print "<input name='box".$iter{"id"}."' id='box".$iter{"id"}."' onClick='javascript:document.update_activity.act".$iter{"id"}.".value=this.checked' type=checkbox $checked></td>";
-    print "<td><label for='box".$iter{"id"}."' class='bold'>".$date_string . "</label>";
-    print " <label for='box".$iter{"id"}."' class='bold'>(". $iter{"user"}.")</label></td>";
-    print "<td><label for='box".$iter{"id"}."' class='text'>" . stripslashes($iter{"body"}) . "&nbsp;</label></td></tr>\n";
+    print "<tr><td><input type=hidden value='' name='act".attr($iter{"id"})."' id='act".attr($iter{"id"})."'>";
+    print "<input name='box".attr($iter{"id"})."' id='box".attr($iter{"id"})."' onClick='javascript:document.update_activity.act".attr($iter{"id"}).".value=this.checked' type=checkbox $checked></td>";
+    print "<td><label for='box".attr($iter{"id"})."' class='bold'>".text($date_string) . "</label>";
+    print " <label for='box".attr($iter{"id"})."' class='bold'>(". text($iter{"user"}).")</label></td>";
+    print "<td><label for='box".attr($iter{"id"})."' class='text'>" . text($iter{"body"}) . "&nbsp;</label></td></tr>\n";
     
     
     $notes_count++;
@@ -119,7 +139,7 @@ print "<tr><td></td><td></td><td></td></tr>\n";
 ?>
 </table>
 
-<a href="javascript:document.update_activity.submit();" class="link_submit">[<?php xl ('Change Activity','e'); ?>]</a>
+<a href="javascript:document.update_activity.submit();" class="link_submit">[<?php echo xlt('Change Activity'); ?>]</a>
 </form>
 
 <hr>
@@ -127,13 +147,13 @@ print "<tr><td></td><td></td><td></td></tr>\n";
 <tr><td>
 <?php
 if ($offset>($N-1)) {
-echo "<a class='link' href=office_comments_full.php?active=".$active."&offset=".($offset-$N).">[".xl('Previous','e')."]</a>";
+echo "<a class='link' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset-$N).">[".xlt('Previous')."]</a>";
 }
 ?>
 </td><td align=right>
 <?php
 if ($result_count == $N) {
-echo "<a class='link' href=office_comments_full.php?active=".$active."&offset=".($offset+$N).">[".xl('Next')."]</a>";
+echo "<a class='link' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset+$N).">[".xlt('Next')."]</a>";
 }
 ?>
 </td></tr>
