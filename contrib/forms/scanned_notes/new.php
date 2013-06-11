@@ -1,27 +1,33 @@
 <?php
-//////////////////////////////////////////////////////////////////////
-// ------------------ DO NOT MODIFY VIEW.PHP !!! ---------------------
-// View.php is an exact duplicate of new.php.  If you wish to make
-// any changes, then change new.php and either (recommended) make
-// view.php a symbolic link to new.php, or copy new.php to view.php.
-//
-// And if you check in a change to either module, be sure to check
-// in the other (identical) module also.
-//
-// This nonsense will go away if we ever move to subversion.
-//////////////////////////////////////////////////////////////////////
+/**
+* Encounter form for entering clinical data as a scanned document.
+*
+* Copyright (C) 2006-2013 Rod Roark <rod@sunsetsystems.com>
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+*
+* @package   OpenEMR
+* @author    Rod Roark <rod@sunsetsystems.com>
+*/
 
-// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+// NOTE: HTML escaping still needs to be done for this script.
 
-include_once("../../globals.php");
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
-include_once("$srcdir/acl.inc");
+$sanitize_all_escapes  = true;
+$fake_register_globals = false;
+
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/acl.inc");
 
 $row = array();
 
@@ -39,21 +45,15 @@ if ($_POST['bn_save']) {
  // If updating an existing form...
  //
  if ($formid) {
-  $query = "UPDATE form_scanned_notes SET " .
-   "notes = '" . $_POST['form_notes'] . "' " .
-   "WHERE id = '$formid'";
-  sqlStatement($query);
+  $query = "UPDATE form_scanned_notes SET notes = ? WHERE id = ?";
+  sqlStatement($query, array($_POST['form_notes'], $formid));
  }
 
  // If adding a new form...
  //
  else {
-  $query = "INSERT INTO form_scanned_notes ( " .
-   "notes " .
-   ") VALUES ( " .
-   "'" . $_POST['form_notes'] . "' " .
-   ")";
-  $formid = sqlInsert($query);
+  $query = "INSERT INTO form_scanned_notes (notes) VALUES (?)";
+  $formid = sqlInsert($query, array($_POST['form_notes']));
   addForm($encounter, "Scanned Notes", $formid, "scanned_notes", $pid, $userauthorized);
  }
 
@@ -99,9 +99,11 @@ $imageurl = "$web_root/sites/" . $_SESSION['site_id'] .
 
 if ($formid) {
  $row = sqlQuery("SELECT * FROM form_scanned_notes WHERE " .
-  "id = '$formid' AND activity = '1'");
+  "id = ? AND activity = '1'",
+  array($formid));
  $formrow = sqlQuery("SELECT id FROM forms WHERE " .
-  "form_id = '$formid' AND formdir = 'scanned_notes'");
+  "form_id = ? AND formdir = 'scanned_notes'",
+  array($formid));
 }
 ?>
 <html>
