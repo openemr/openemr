@@ -21,8 +21,6 @@ $alertmsg = '';
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/crypt/jsbn.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/crypt/rsa.js"></script>
 
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 
@@ -102,22 +100,8 @@ function submitform() {
        }
        <?php } // End erx_enable only include block?>
 
-         // get a public key to encrypt the password info and send    
-         $.ajax({
-             url: '<?php echo $webroot; ?>/library/ajax/rsa_request.php',
-             async: false,
-             success: function(public_key)
-             {
-                 var key = RSA.getPublicKey(public_key);
-                 $("input[name='userPass']").val(RSA.encrypt($("input[name='adminPass']").val(), key));
-                 $("input[name='newauthPass']").val(RSA.encrypt($("input[name='stiltskin']").val(), key));
-                 $("input[name='pk']").val(public_key);
-                 $('input[name="adminPass"]').val('');
-                 $('input[name="stiltskin"]').val('');
-                 document.forms[0].submit();
-                 parent.$.fn.fancybox.close(); 
-             }
-             });
+        document.forms[0].submit();
+        parent.$.fn.fancybox.close(); 
 
     } else {
        if (document.forms[0].rumple.value.length<=0)
@@ -177,9 +161,6 @@ function authorized_clicked() {
 <input type='hidden' name='mode' value='new_user'>
 <input type='hidden' name='secure_pwd' value="<?php echo $GLOBALS['secure_password']; ?>">
 
-<INPUT TYPE="HIDDEN" NAME="userPass" VALUE="">
-<INPUT TYPE="HIDDEN" NAME="newauthPass" VALUE="">
-<INPUT TYPE="HIDDEN" NAME="pk" VALUE="">
 <span class="bold">&nbsp;</span>
 </td><td>
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">

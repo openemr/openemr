@@ -8,8 +8,6 @@ include_once("$srcdir/auth.inc");
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 <script src="<?php echo $webroot;?>/library/js/jquery-1.9.1.min.js" type="text/javascript"></script>
-<script src="<?php echo $webroot;?>/library/js/crypt/jsbn.js"></script>
-<script src="<?php echo $webroot;?>/library/js/crypt/rsa.js"></script>
 
 <script language='JavaScript'>
 //Validating password and display message if password field is empty - starts
@@ -20,29 +18,20 @@ function update_password()
     // Not Empty
     // Strong if required
     // Matches
-    $.post(webroot+"/library/ajax/rsa_request.php",
-            {},
-            function(public_key)
-            {
-                var key = RSA.getPublicKey(public_key);
-                var encryptedPass=RSA.encrypt($("input[name='curPass']").val(), key);
-                var encryptedNewPass=RSA.encrypt($("input[name='newPass']").val(),key)
-                var encryptedNewPass2=RSA.encrypt($("input[name='newPass2']").val(),key)
-                $("input[type='password']").val("");
-                $.post("user_info_ajax.php",
-                    {
-                        pk:         public_key,
-                        curPass:    encryptedPass,
-                        newPass:    encryptedNewPass,
-                        newPass2:   encryptedNewPass2
-                    },
-                    function(data)
-                    {
-                        $("#display_msg").html(data);
-                    }
-                    
-                );
-            });
+
+    $.post("user_info_ajax.php",
+        {
+            curPass:    $("input[name='curPass']").val(),
+            newPass:    $("input[name='newPass']").val(),
+            newPass2:   $("input[name='newPass2']").val(),
+        },
+        function(data)
+        {
+            $("input[type='password']").val("");
+            $("#display_msg").html(data);
+        }
+
+    );
     return false;
 }
 

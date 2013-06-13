@@ -34,18 +34,11 @@ require_once("$srcdir/authentication/login_operations.php");
 $incoming_site_id = '';
 
 
-if(isset($_POST['authPass']))
-{
-    require_once("authentication/rsa.php");
-    $cp=$_POST['authPass'];
-    $rsa=new rsa_key_manager();
-    $pubKey=$_POST['pk'];
-    $rsa->load_from_db($pubKey);
-    $clearPass=$rsa->decrypt($cp);
-}
+
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
-    isset($_POST['authPass']) && isset($_POST['authProvider']))
+    isset($_POST['clearPass']) && isset($_POST['authProvider']))
 {
+    $clearPass=$_POST['clearPass'];    
     // set the language
     if (!empty($_POST['languageChoice'])) {
         $_SESSION['language_choice'] = $_POST['languageChoice'];

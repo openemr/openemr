@@ -38,7 +38,8 @@ function validate_user_password($username,&$password,$provider)
     $valid=false;
     $getUserSecureSQL= " SELECT " . implode(",",array(COL_ID,COL_PWD,COL_SALT))
                        ." FROM ".TBL_USERS_SECURE
-                       ." WHERE ".COL_UNM."=?";
+                       ." WHERE BINARY ".COL_UNM."=?";
+                       // Use binary keyword to require case sensitive username match
     $userSecure=privQuery($getUserSecureSQL,array($username));
     if(is_array($userSecure))
     {
@@ -82,7 +83,7 @@ function validate_user_password($username,&$password,$provider)
     }
     $getUserSQL="select id, authorized, see_auth".
                         ", cal_ui, active ".
-                        " from users where username = ?";
+                        " from users where BINARY username = ?";
     $userInfo = privQuery($getUserSQL,array($username));
     
     if ($userInfo['active'] != 1) {

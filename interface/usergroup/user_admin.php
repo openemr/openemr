@@ -178,8 +178,6 @@ parent.$.fn.fancybox.close();
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
-<script type="text/javascript" src="../../library/js/crypt/jsbn.js"></script>
-<script type="text/javascript" src="../../library/js/crypt/rsa.js"></script>
 
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 
@@ -287,31 +285,8 @@ function submitform() {
 	}
 	<?php } ?>
 	if(flag == 0){
-                if($("[name='adminPass']").val().length>0)
-                    {
-                        $.ajax({
-                            url: '<?php echo $webroot; ?>/library/ajax/rsa_request.php',
-                            async: false,
-                            success: function(public_key)
-                            {
-                                var key = RSA.getPublicKey(public_key);
-                                $("input[name='userPass']").val(RSA.encrypt($("input[name='adminPass']").val(), key));
-                                $("input[name='newauthPass']").val(RSA.encrypt($("input[name='clearPass']").val(), key));
-                                $("input[name='pk']").val(public_key);
-                                $('input[name="adminPass"]').val('');
-                                $('input[name="clearPass"]').val('');
-                                document.forms[0].submit();
-                                parent.$.fn.fancybox.close(); 
-                            }
-                    
-                        });
-                        
-                    }
-                    else
-                    {
-                        document.forms[0].submit();
-                        parent.$.fn.fancybox.close(); 
-                    }
+                    document.forms[0].submit();
+                    parent.$.fn.fancybox.close(); 
 	}
 }
 //Getting the list of selected item in ACL
@@ -348,7 +323,7 @@ function authorized_clicked() {
 </td></tr>
 </table>
 <br>
-<FORM NAME="user_form" METHOD="GET" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
+<FORM NAME="user_form" METHOD="POST" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
 
 <input type=hidden name="pwd_expires" value="<?php echo $GLOBALS['password_expiration_days']; ?>" >
 <input type=hidden name="pre_active" value="<?php echo $iter["active"]; ?>" >
@@ -578,9 +553,6 @@ Display red alert if entered password matched one of last three passwords/Displa
 <INPUT TYPE="HIDDEN" NAME="id" VALUE="<?php echo $_GET["id"]; ?>">
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="privatemode" VALUE="user_admin">
-<INPUT TYPE="HIDDEN" NAME="userPass" VALUE="">
-<INPUT TYPE="HIDDEN" NAME="newauthPass" VALUE="">
-<INPUT TYPE="HIDDEN" NAME="pk" VALUE="">
 
 <INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo $GLOBALS['secure_password']; ?>">
 </FORM>

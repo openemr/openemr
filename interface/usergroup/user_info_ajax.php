@@ -35,15 +35,11 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 
 include_once("../globals.php");
-require_once("$srcdir/authentication/rsa.php");
 require_once("$srcdir/authentication/password_change.php");
 
-
-$rsa_manager = new rsa_key_manager();
-$rsa_manager->load_from_db($_REQUEST['pk']);
-$curPass=$rsa_manager->decrypt($_REQUEST['curPass']);
-$newPass=$rsa_manager->decrypt($_REQUEST['newPass']);
-$newPass2=$rsa_manager->decrypt($_REQUEST['newPass2']);
+$curPass=$_REQUEST['curPass'];
+$newPass=$_REQUEST['newPass'];
+$newPass2=$_REQUEST['newPass2'];
 
 if($newPass!=$newPass2)
 {

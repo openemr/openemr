@@ -138,13 +138,9 @@ function displayLogin($patient_id,$message,$emailFlag){
 }
 
 if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){
-    require_once("$srcdir/authentication/rsa.php");
     require_once("$srcdir/authentication/common_operations.php");    
-    $pubKey=$_REQUEST['pk'];
-    $rsa=new rsa_key_manager();
-    $rsa->load_from_db($pubKey);
 
-    $clear_pass=$rsa->decrypt($_REQUEST['rsa_pwd']);
+    $clear_pass=$_REQUEST['pwd'];
     
     $res = sqlStatement("SELECT * FROM patient_access_" . add_escape_custom($portalsite) . "site WHERE pid=?",array($pid));
     $query_parameters=array($_REQUEST['uname']);
@@ -189,27 +185,12 @@ if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.6.4.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/crypt/jsbn.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/crypt/rsa.js"></script>
 <script type="text/javascript">
-function encryptPass(){
+function transmit(){
     
                 // get a public key to encrypt the password info and send    
-                $.ajax({
-                    url: '<?php echo $webroot; ?>/library/ajax/rsa_request.php',
-                    async: false,
-                    success: function(public_key)
-                    {
-                        var key = RSA.getPublicKey(public_key);
-                        document.getElementById('form_save').value='SUBMIT';
-                        document.getElementById('rsa_pwd').value=RSA.encrypt(document.getElementById('pwd').value,key);
-                        document.getElementById('pwd').value='';
-                        document.getElementById('pk').value=public_key;
-    
-                        top.restoreSession();
-                        document.forms[0].submit();
-                    }
-                    });
+                document.getElementById('form_save').value='SUBMIT';
+                document.forms[0].submit();
 }
 </script>
 </head>
@@ -239,15 +220,13 @@ function encryptPass(){
             $pwd = generatePassword();
             ?>
             <td><input type="text" name="pwd" id="pwd" value="<?php echo htmlspecialchars($pwd,ENT_QUOTES);?>" size="10"/>
-                <input type="hidden" name="rsa_pwd" id="rsa_pwd"/>
-                <input type="hidden" name="pk" id="pk"/>
             </td>
             <td><a href="#" class="css_button" onclick="top.restoreSession(); javascript:document.location.reload()"><span><?php echo htmlspecialchars(xl('Change'),ENT_QUOTES);?></span></a></td>
         </tr>
         <tr class="text">
             <td><input type="hidden" name="form_save" id="form_save"></td>
             <td colspan="5" align="center">
-                <a href="#" class="css_button" onclick="return encryptPass()"><span><?php echo htmlspecialchars(xl('Save'),ENT_QUOTES);?></span></a>
+                <a href="#" class="css_button" onclick="return transmit()"><span><?php echo htmlspecialchars(xl('Save'),ENT_QUOTES);?></span></a>
                 <input type="hidden" name="form_cancel" id="form_cancel">
                 <a href="#" class="css_button" onclick="top.restoreSession(); parent.$.fn.fancybox.close();"><span><?php echo htmlspecialchars(xl('Cancel'),ENT_QUOTES);?></span></a>
             </td>
