@@ -461,15 +461,6 @@ CREATE TABLE `users_secure` (
 ) ENGINE=InnoDb; 
 #EndIf
 
-
-#IfNotTable rsa_pairs
-CREATE TABLE `rsa_pairs` (
-  `public` text NOT NULL,
-  `private` text NOT NULL,
-  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDb;
-#EndIf
-
 #IfMissingColumn patient_access_onsite portal_salt
 ALTER TABLE `patient_access_onsite` ADD COLUMN `portal_salt` VARCHAR(100) NULL;
 #Endif
