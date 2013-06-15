@@ -89,7 +89,7 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
         $hash_current = password_hash($currentPwd,$userInfo[COL_SALT]);
         if(($hash_current!=$userInfo[COL_PWD]))
         {
-            $errMsg=xl("Incorrect password");
+            $errMsg=xl("Incorrect password!");
             return false;            
         }
     }
