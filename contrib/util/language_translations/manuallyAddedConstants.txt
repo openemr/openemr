@@ -6,6 +6,7 @@ Adult Weight Screening and Follow-Up (CQM)
 Advance Directive
 Alcohol consumption
 ALEUT
+Allergy Issue List
 Allow Email
 Allow email messages?
 Allow Email?
@@ -24,11 +25,10 @@ Appointment Reminder Rule
 Appointment Statuses
 Arm
 Asian
-Automatic
+Authorize.net
 autosaved
 Back Pain
 Bank Draft
-Batch Payments
 Bilateral
 Bill/Collect
 Billing Code for Requested Service
@@ -81,7 +81,6 @@ Clinical Rules Reminder Methods
 Clinical Rules Target Intervals
 Code Types
 Colon Cancer Screening
-Complete
 Connectors
 Contact Email Address
 Contact Lenses
@@ -108,6 +107,7 @@ Date of referral
 Date of reply
 Date Of Signature
 Deaf
+Dental Issue List
 Diabetes Mellitus
 Diabetes: Blood Pressure Management (CQM)
 Diabetes: Eye Exam
@@ -208,6 +208,7 @@ Forwarded
 G/DL
 Gall Bladder Condition
 Gastro Pain
+General Issue List
 Generate and transmit permissible prescriptions electronically.
 Glaucoma Family History
 GM/DL
@@ -224,6 +225,7 @@ Head Circ
 Health Care Operations
 Heart Disease
 Heat Or Cold
+Heavy tobacco smoker
 Hemoglobin A1C
 Hepatitis A 1
 Hepatitis A 2
@@ -277,6 +279,7 @@ IPV 1
 IPV 2
 IPV 3
 IPV 4
+Issue Types
 IU/L
 Japanese
 Joint Pain
@@ -294,6 +297,7 @@ Less Than
 Less Than or Equal To
 Level of urgency
 License/ID
+Light tobacco smoker
 Living Will
 Logging
 login
@@ -305,6 +309,8 @@ Maintain an up-to-date problem list of current and active diagnoses.
 Married
 Maximum Age
 Measurement
+Medical Problem Issue List
+Medication Issue List
 Menstrual Flow
 Menstrual Frequency
 Message Status
@@ -454,7 +460,6 @@ Reserved to define when a provider may not have available appointments after.
 Reserved to define when an event did not occur as specified.
 Reserved todefine when a provider may haveavailable appointments after.
 Resolved
-Reviewed
 Rheumatoid Arthritis
 Right Ear
 Ringing In Ears
@@ -481,20 +486,22 @@ Skin Disease
 Skin Other
 Sleep patterns
 Smoker, current status unknown
+SNOMED Clinical Term
 SNOMED Diagnosis
+SNOMED Procedure
 Social Security Number
 Soon Due Interval (Clinical Reminders)
 Soon Due Interval (Patient Reminders)
 Specialist
 Specified
 Squad Membership
-Standard
 Start Date at This Clinic
 State/Locality
 Stats
 Status quo
 Street and Number
 Subscriber Relationship
+Surgery Issue List
 T.V.
 Tagalog
 Tax Rate
@@ -553,7 +560,6 @@ Varicella 1
 Varicella 2
 Varicose Veins
 VFC
-view
 Waist Circ
 Walk-In
 Warehouses
@@ -573,3 +579,5 @@ Yiddish
 Zulu
 % Canceled < 24h
 - None
+-- All --
+--Select Role--

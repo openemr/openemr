@@ -42,9 +42,8 @@ use strict;
 # constants that get modified during the pipeline and don't look
 # like originals in the end. If this number increases, a english constant
 # was likely modified in the spreadsheet, and can then use log output
-# to localize and fix the problem.  As of list of 3.0.1 constants
-# the known number of mismatched constants is 57 .
-my $mismatchesKnown = 95;
+# to localize and fix the problem.
+my $mismatchesKnown = 101;
 
 # Hold variables to calculate language database statistics
 my $totalConstants;
