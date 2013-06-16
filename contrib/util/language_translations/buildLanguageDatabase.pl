@@ -518,7 +518,6 @@ sub createDefinitions() {
  my $tempCounter; 
  my @numberRow = split($de,$page[$languageNumRow]);
  my $counter = 1;
- $tempReturn .= "INSERT INTO `lang_definitions` (`def_id`, `cons_id`, `lang_id`, `definition`) VALUES\n";
  for (my $i = $constantColumn + 1; $i < @numberRow; $i++) {
   for (my $j = $constantRow; $j < @page; $j++) {
    my @tempRow = split($de,$page[$j]);
@@ -526,7 +525,7 @@ sub createDefinitions() {
    my $tempDefinition = $tempRow[$i];
    my $tempLangNumber = $numberRow[$i];
    if ($tempDefinition !~ /^\s*$/) {
- $tempReturn .= "(".$counter.", ".$tempId.", ".$tempLangNumber.", '".$tempDefinition."'),\n";
+    $tempReturn .= "INSERT INTO `lang_definitions` VALUES (".$counter.", ".$tempId.", ".$tempLangNumber.", '".$tempDefinition."');\n";
     $tempCounter = $counter;
     $counter += 1;
      
@@ -535,7 +534,6 @@ sub createDefinitions() {
    }
   }
  }
- $tempReturn  =~ s/,\n$/;\n/;
  $tempCounter += 1;
 
  # create header
