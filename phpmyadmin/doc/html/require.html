@@ -1,0 +1,170 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Requirements &mdash; phpMyAdmin 4.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '4.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="top" title="phpMyAdmin 4.0.4 documentation" href="index.html" />
+    <link rel="next" title="Installation" href="setup.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="setup.html" title="Installation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">phpMyAdmin 4.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="requirements">
+<span id="require"></span><h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="web-server">
+<h2>Web server<a class="headerlink" href="#web-server" title="Permalink to this headline">¶</a></h2>
+<p>Since, phpMyAdmin&#8217;s interface is based entirely in your browser, you&#8217;ll need a
+web server (such as Apache, <a class="reference internal" href="glossary.html#term-iis"><em class="xref std std-term">IIS</em></a>) to install phpMyAdmin&#8217;s files into.</p>
+</div>
+<div class="section" id="php">
+<h2>PHP<a class="headerlink" href="#php" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>You need PHP 5.2.0 or newer, with <tt class="docutils literal"><span class="pre">session</span></tt> support, the Standard PHP Library
+(SPL) extension and JSON support.</li>
+<li>To support uploading of ZIP files, you need the PHP <tt class="docutils literal"><span class="pre">zip</span></tt> extension.</li>
+<li>For proper support of multibyte strings (eg. UTF-8, which is currently
+the default), you should install the <tt class="docutils literal"><span class="pre">mbstring</span></tt> and <tt class="docutils literal"><span class="pre">ctype</span></tt> extensions.</li>
+<li>You need GD2 support in PHP to display inline thumbnails of JPEGs
+(&#8220;image/jpeg: inline&#8221;) with their original aspect ratio.</li>
+<li>When using the cookie authentication (the default), the <a class="reference external" href="http://www.php.net/mcrypt">mcrypt</a> extension is strongly suggested for most
+users and is <strong>required</strong> for 64–bit machines. Not using mcrypt will
+cause phpMyAdmin to load pages significantly slower.</li>
+<li>To support upload progress bars, see <a class="reference internal" href="faq.html#faq2-9"><em>2.9 Seeing an upload progress bar</em></a>.</li>
+<li>To support XML and Open Document Spreadsheet importing, you need PHP
+5.2.17 or newer and the <a class="reference external" href="http://www.php.net/libxml">libxml</a>
+extension.</li>
+</ul>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="faq.html#faq1-31"><em>1.31 Does phpMyAdmin support PHP 5?</em></a>, <a class="reference internal" href="setup.html#authentication-modes"><em>Using authentication modes</em></a></p>
+</div>
+</div>
+<div class="section" id="database">
+<h2>Database<a class="headerlink" href="#database" title="Permalink to this headline">¶</a></h2>
+<p>phpMyAdmin support MySQL compatible databases.</p>
+<ul class="simple">
+<li>MySQL 5.0 or newer</li>
+<li>MariaDB 5.0 or newer</li>
+<li>Drizzle</li>
+</ul>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="faq.html#faq1-17"><em>1.17 Which MySQL versions does phpMyAdmin support?</em></a></p>
+</div>
+</div>
+<div class="section" id="web-browser">
+<h2>Web browser<a class="headerlink" href="#web-browser" title="Permalink to this headline">¶</a></h2>
+<p>To access phpMyAdmin you need a web browser with cookies and javascript
+enabled.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Requirements</a><ul>
+<li><a class="reference internal" href="#web-server">Web server</a></li>
+<li><a class="reference internal" href="#php">PHP</a></li>
+<li><a class="reference internal" href="#database">Database</a></li>
+<li><a class="reference internal" href="#web-browser">Web browser</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="setup.html"
+                        title="next chapter">Installation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/require.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="setup.html" title="Installation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >previous</a> |</li>
+        <li><a href="index.html">phpMyAdmin 4.0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; <a href="copyright.html">Copyright</a> 2012 - 2013, The phpMyAdmin devel team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
