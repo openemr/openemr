@@ -73,7 +73,7 @@ session_cache_limiter('private');
 // See bug #1538132. This would block normal behavior on a cluster
 //ini_set('session.save_handler', 'files');
 
-$session_name = 'phpMyAdmin';
+$session_name = 'OpenEMR';
 @session_name($session_name);
 
 if (! isset($_COOKIE[$session_name])) {
