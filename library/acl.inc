@@ -113,14 +113,20 @@
   //   portal     Patient Portal
   
   if (isset ($phpgacl_location)) {
-    include_once("$phpgacl_location/gacl.class.php");
+    $GLOBALS['phpgacl_location_global'] = $phpgacl_location;
+    require_once("$phpgacl_location/gacl.class.php");
     $gacl_object = new gacl();
     //DO NOT CHANGE BELOW VARIABLE
     $section_aro_value = 'users';
+    $GLOBALS['section_aro_value_global'] = $section_aro_value;
   }
 
 /**
  * Check if a user has a given type or types of access to an access control object.
+ *
+ * Globals that can use are:
+ *  $GLOBALS['phpgacl_location_global']
+ *  $GLOBALS['section_aro_value_global']
  * 
  * This function will check for access to the given ACO.
  * view    - The user may view but not add or modify entries
@@ -138,13 +144,13 @@
  * 		       requested.
  */
   function acl_check($section, $value, $user = '', $return_value = '') {
-    global $gacl_object, $phpgacl_location, $section_aro_value;
     if (! $user) $user = $_SESSION['authUser'];
 
-    if ($phpgacl_location) {
+    if ($GLOBALS['phpgacl_location_global']) {
       // This will return all pertinent ACL's (including return_values and whether allow/deny)
       // Walk through them to assess for access
-      $acl_results = $gacl_object->acl_query($section, $value, $section_aro_value, $user,NULL,NULL,NULL,NULL,NULL,TRUE);
+      $gacl_object = new gacl();
+      $acl_results = $gacl_object->acl_query($section, $value, $GLOBALS['section_aro_value_global'], $user,NULL,NULL,NULL,NULL,NULL,TRUE);
       if (empty($acl_results)) {
         return FALSE; //deny access
       }
