@@ -758,6 +758,7 @@ function clearactive() {
  }
 
 function loadCurrentPatientFromTitle() {
+    top.restoreSession();
     top.frames['RTop'].location='../patient_file/summary/demographics.php';
 }
 
@@ -803,6 +804,7 @@ function getEncounterTargetFrame( name ) {
  }
 
  function loadCurrentEncounterFromTitle() {
+      top.restoreSession();
       top.frames[ parent.left_nav.getEncounterTargetFrame('enc') ].location='../patient_file/encounter/encounter_top.php';
  }
 
