@@ -1,13 +1,27 @@
 <?php
-// Copyright (C) 2011 Tony McCormick <tony@mi-squared.com>
-//                    Brady Miller   <brady@sparmy.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Open websearch for patient education materials
+ *
+ * Copyright (C) 2011 Tony McCormick <tony@mi-squared.com>
+ * Copyright (C) 2011 Brady Miller   <brady@sparmy.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Tony McCormick <tony@mi-squared.com>
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
 
-// Open websearch for patient education materials
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -92,7 +106,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
 		<tr>
 			<td>
 				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#theform").submit();'>
+					<a href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit();'>
 					<span>
 						<?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
 					</span>

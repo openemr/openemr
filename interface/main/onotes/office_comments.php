@@ -34,7 +34,7 @@ $N = 10;
 <body class="body_top">
 
 <div id="officenotes_list">
-<a href="office_comments_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo 'target="Main"'; ?>>
+<a href="office_comments_full.php" onclick='top.restoreSession()' <?php if (!$GLOBALS['concurrent_layout']) echo 'target="Main"'; ?>>
 <font class="title"><?php echo xlt('Office Notes'); ?></font>
 <font class="more"><?php echo text($tmore);?></font></a>
 
@@ -51,7 +51,7 @@ $notes_count = 0;//number of notes so far displayed
 foreach ($result as $iter) {
     if ($notes_count >= $N) {
         //we have more active notes to print, but we've reached our display maximum (defined at top of this file)
-        print "<tr><td colspan=3 align=center><a target=Main href='office_comments_full.php?active=1' class='alert'>".xlt("Some office notes were not displayed. Click here to view all.")."</a></td></tr>\n";
+        print "<tr><td colspan=3 align=center><a target=Main href='office_comments_full.php?active=1' class='alert' onclick='top.restoreSession()'>".xlt("Some office notes were not displayed. Click here to view all.")."</a></td></tr>\n";
         break;
     }
     

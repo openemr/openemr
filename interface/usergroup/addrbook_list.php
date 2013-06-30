@@ -93,7 +93,7 @@ $res = sqlStatement($query,$sqlBindArray);
 <body class="body_top">
 
 <div id="addressbook_list">
-<form method='post' action='addrbook_list.php'>
+<form method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
 
 <table>
  <tr class='search'> <!-- bgcolor='#ddddff' -->

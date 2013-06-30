@@ -75,7 +75,7 @@ echo "<span class='title'>" . xlt('Chart Tracker') . "</span>\n";
 
 <center>
 &nbsp;<br />
-<form method='post' action='chart_tracker.php'>
+<form method='post' action='chart_tracker.php' onsubmit='return top.restoreSession()'>
 
 <?php
 // This is the place for status messages.

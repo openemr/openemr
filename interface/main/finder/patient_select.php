@@ -1,8 +1,22 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Patient selector screen.
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -100,6 +114,7 @@ function submitList(offset) {
  var i = parseInt(f.fstart.value) + offset;
  if (i < 0) i = 0;
  f.fstart.value = i;
+ top.restoreSession();
  f.submit();
 }
 
@@ -108,7 +123,7 @@ function submitList(offset) {
 </head>
 <body class="body_top">
 
-<form method='post' action='patient_select.php' name='theform'>
+<form method='post' action='patient_select.php' name='theform' onsubmit='return top.restoreSession()'>
 <input type='hidden' name='fstart'  value='<?php echo htmlspecialchars( $fstart, ENT_QUOTES); ?>' />
 
 <?php
@@ -208,7 +223,7 @@ else {
 <table border='0' cellpadding='5' cellspacing='0' width='100%'>
  <tr>
   <td class='text'>
-   <a href="./patient_select_help.php" target=_new>[<?php echo htmlspecialchars( xl('Help'), ENT_NOQUOTES); ?>]&nbsp</a>
+   <a href="./patient_select_help.php" target=_new onclick='top.restoreSession()'>[<?php echo htmlspecialchars( xl('Help'), ENT_NOQUOTES); ?>]&nbsp</a>
   </td>
   <td class='text' align='center'>
 <?php if ($message) echo "<font color='red'><b>".htmlspecialchars( $message, ENT_NOQUOTES)."</b></font>\n"; ?>

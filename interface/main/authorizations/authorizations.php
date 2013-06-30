@@ -1,4 +1,22 @@
 <?php
+/**
+ * Authorizations script.
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -73,7 +91,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <?php if ($imauthorized) { ?>
 <span class='title'>
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href='authorizations_full.php'>
+<a href='authorizations_full.php' onclick='top.restoreSession()'>
 <?php } else { ?>
 <a href='authorizations_full.php' target='Main'>
 <?php } ?>
@@ -181,7 +199,7 @@ if ($authorize) {
     if ($count >= $N) {
       print "<tr><td colspan='5' align='center'><a" .
         ($GLOBALS['concurrent_layout'] ? "" : " target='Main'") .
-        " href='authorizations_full.php?active=1' class='alert'>" .
+        " href='authorizations_full.php?active=1' class='alert' onclick='top.restoreSession()'>" .
         htmlspecialchars(xl('Some authorizations were not displayed. Click here to view all'),ENT_NOQUOTES) .
         "</a></td></tr>\n";
       break;
@@ -193,16 +211,16 @@ if ($authorize) {
       // as demographics.php takes care of loading the bottom frame.
 
         echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=" .
-	  htmlspecialchars($ppid,ENT_QUOTES) . "' target='RTop'>";
+	  htmlspecialchars($ppid,ENT_QUOTES) . "' target='RTop' onclick='top.restoreSession()'>";
 
     } else {
       echo "<a href='$rootdir/patient_file/patient_file.php?set_pid=" .
-	htmlspecialchars($ppid,ENT_QUOTES) . "' target='_top'>";
+	htmlspecialchars($ppid,ENT_QUOTES) . "' target='_top' onclick='top.restoreSession()'>";
     }
     echo "<span class='bold'>" . htmlspecialchars($name{"fname"},ENT_NOQUOTES) . " " .
       htmlspecialchars($name{"lname"},ENT_NOQUOTES) . "</span></a><br>" .
       "<a class=link_submit href='authorizations.php?mode=authorize" .
-      "&pid=" . htmlspecialchars($ppid,ENT_QUOTES) . "'>" .
+      "&pid=" . htmlspecialchars($ppid,ENT_QUOTES) . "' onclick='top.restoreSession()'>" .
       htmlspecialchars(xl('Authorize'),ENT_NOQUOTES) . "</a></td>\n";
 
     /****
