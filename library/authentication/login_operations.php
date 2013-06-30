@@ -100,7 +100,6 @@ function validate_user_password($username,&$password,$provider)
             $_SESSION['authUser'] = $username;
             $_SESSION['authGroup'] = $authGroup['name'];
             $_SESSION['authUserID'] = $userInfo['id'];
-            $_SESSION['authPass'] = $phash;
             $_SESSION['authProvider'] = $provider;
             $_SESSION['authId'] = $userInfo{'id'};
             $_SESSION['cal_ui'] = $userInfo['cal_ui'];

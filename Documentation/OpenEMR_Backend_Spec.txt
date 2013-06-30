@@ -11,7 +11,6 @@ we will ALWAYS look for $_GET['auth'], if it is login we will do so, if it is lo
 authNewSession(username, md5sum of password, provider)
 returns boolean, is pass checks out or not.  if true, also sets:
 	$_SESSION['authUser'] = current username logged in
-	$_SESSION['authPass'] = md5sum of logged in users password
 	$_SESSION['authProvider'] = the current provider
 	$_SESSION['authId'] = user Id number (record id)
 
