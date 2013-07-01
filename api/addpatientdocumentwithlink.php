@@ -40,17 +40,15 @@ $mimetype = $_POST['mimeType'];
 $image_content = file_get_contents($link);
 
 if ($userId = validateToken($token)) {
+    $provider_id = getPatientsProvider($patient_id);
+    $provider_username = getProviderUsername($provider_id);
+            
     $user = getUsername($userId);
     $acl_allow = acl_check('patients', 'docs', $user);
 
    
 
     if ($acl_allow) {
-        if ($image_content) {
-
-            $provider_id = getPatientsProvider($patient_id);
-            $provider_username = getProviderUsername($provider_id);
-
             $id = 1;
             $type = "file_url";
             $size = '';
@@ -63,47 +61,13 @@ if ($userId = validateToken($token)) {
                 mkdir($image_path);
             }
 
-            $image_date = date('Y-m-d_H-i-s');
+            $image_date = date('YmdHis');
+            $image_root_path = $image_path . "/" . $image_date . "." . $ext;
+            file_put_contents($image_root_path , $image_content);
+            
+            $res = addNewDocument($image_date. "." . $ext,'image/png',$image_root_path,0,filesize($image_root_path),$userId,$patient_id,$cat_id,$higher_level_path='',$path_depth='1');
 
-            $file_res = file_put_contents($image_path . "/" . $image_date . "." . $ext, $image_content);
-
-            if ($file_res) {
-                sqlStatement("lock tables documents read");
-
-                $result = sqlQuery("select max(id)+1 as did from documents");
-
-                sqlStatement("unlock tables");
-
-                if ($result['did'] > 1) {
-                    $id = $result['did'];
-                }
-
-                $hash = sha1_file($image_path . "/" . $image_date . "." . $ext);
-
-                $url = "file://" . $image_path . "/" . $image_date . "." . $ext;
-
-                $size = filesize($url);
-
-             $strQuery = "INSERT INTO `documents`( `id`, `type`, `size`, `date`, `url`, `mimetype`, `foreign_id`, `docdate`, `hash`, `list_id`) 
-                        VALUES (
-                               '" . add_escape_custom($id) . "',
-                               '" . add_escape_custom($type) . "',
-                               '" . add_escape_custom($size) . "',
-                               '" . add_escape_custom($date) . "',
-                               '" . add_escape_custom($url) . "',
-                               '" . add_escape_custom($mimetype) . "',
-                               " . add_escape_custom($patient_id) . ",
-                               '" . add_escape_custom($docdate) . "',
-                               '" . add_escape_custom($hash) . "',
-                               '" . add_escape_custom($list_id) . "')";
-             
-                $result = sqlStatement($strQuery);
-
-                $strQuery1 = "INSERT INTO `categories_to_documents`(`category_id`, `document_id`) VALUES (" . add_escape_custom($cat_id)." , " . add_escape_custom($id).")";
-
-
-
-                $result1 = sqlStatement($strQuery1);
+            
 
                 $lab_report_catid = document_category_to_id("Lab Report");
                 
@@ -117,7 +81,7 @@ if ($userId = validateToken($token)) {
                 }
 
 
-                if ($result && $result1) {
+                if ($res) {
                     $xml_array['status'] = "0";
                     $xml_array['reason'] = "Document added successfully";
                     if ($notification_res) {
@@ -127,16 +91,8 @@ if ($userId = validateToken($token)) {
                     }
                 } else {
                     $xml_array['status'] = "-1";
-                    $xml_array['reason'] = "Couldn't add Document";
+                    $xml_array['reason'] = "ERROR: Sorry, there was an error processing your data. Please re-submit the information again.";
                 }
-            } else {
-                $xml_array['status'] = "-1";
-                $xml_array['reason'] = "Fail to upload Document";
-            }
-        } else {
-            $xml_array['status'] = "-1";
-            $xml_array['reason'] = "Invalid Url (Resource not found)";
-        }
     } else {
         $xml_array['status'] = -2;
         $xml_array['reason'] = 'You are not Authorized to perform this action';

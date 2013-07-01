@@ -31,21 +31,21 @@ $xml_array = array();
 $token = $_POST['token'];
 
 $title = $_POST['title'];
-$language = $_POST['language']; 
-$firstname = $_POST['firstname']; 
-$lastname = $_POST['lastname']; 
-$middlename = $_POST['middlename']; 
+$language = $_POST['language'];
+$firstname = $_POST['firstname'];
+$lastname = $_POST['lastname'];
+$middlename = $_POST['middlename'];
 $dob = $_POST['dob'];
-$street = $_POST['street']; 
+$street = $_POST['street'];
 $postal_code = $_POST['postal_code'];
-$city = $_POST['city']; 
-$state = $_POST['state']; 
+$city = $_POST['city'];
+$state = $_POST['state'];
 $country_code = $_POST['country_code'];
-$ss = $_POST['ss']; 
+$ss = $_POST['ss'];
 $occupation = $_POST['occupation'];
 
-$phone_home = $_POST['phone_home']; 
-$phone_biz = $_POST['phone_biz']; 
+$phone_home = $_POST['phone_home'];
+$phone_biz = $_POST['phone_biz'];
 $phone_contact = $_POST['phone_contact'];
 $phone_cell = $_POST['phone_cell'];
 
@@ -223,13 +223,13 @@ if ($userId = validateToken($token)) {
             $size = '';
             $date = date('Y-m-d H:i:s');
             $url = '';
-            $mimetype = 'image/jpeg';
+            $mimetype = 'image/png';
             $hash = '';
             $patient_id = $patientId;
             $ext = 'png';
             $cat_title = 'Patient Photograph';
-            
-        
+
+
             $cat_id = document_category_to_id($cat_title);
 
             $image_path = $sitesDir . "{$site}/documents/{$patient_id}";
@@ -239,46 +239,13 @@ if ($userId = validateToken($token)) {
                 mkdir($image_path);
             }
 
-            $image_date = date('Y-m-d_H-i-s');
+            $image_date = date('YmdHis');
+            $image_root_path = $image_path . "/" . $image_date . "." . $ext;
+            
+            file_put_contents($image_root_path, base64_decode($image_data));
 
-            file_put_contents($image_path . "/" . $image_date . "." . $ext, base64_decode($image_data));
+            $res = addNewDocument($image_date . "." . $ext, $mimetype, $image_root_path, 0, filesize($image_root_path), $userId, $patient_id, $cat_id, $higher_level_path = '', $path_depth = '1');
 
-
-            sqlStatement("lock tables documents read");
-
-            $result = sqlQuery("select max(id)+1 as did from documents");
-
-            sqlStatement("unlock tables");
-
-            if ($result['did'] > 1) {
-                $id = $result['did'];
-            }
-
-            $hash = sha1_file($image_path . "/" . $image_date . "." . $ext);
-
-            $url = "file://" . $image_path . "/" . $image_date . "." . $ext;
-
-            $size = filesize($url);
-
-            $strQuery = "INSERT INTO `documents`( `id`, `type`, `size`, `date`, `url`, `mimetype`, `foreign_id`, `docdate`, `hash`, `list_id`) 
-             VALUES (
-                        " . add_escape_custom($id) . ",
-                        '" . add_escape_custom($type) . "',
-                        '" . add_escape_custom($size) . "',
-                        '" . add_escape_custom($date) . "',
-                        '" . add_escape_custom($url) . "',
-                        '" . add_escape_custom($mimetype) . "',
-                        " . add_escape_custom($patient_id) . ",
-                        '" . add_escape_custom($docdate) . "',
-                        '" . add_escape_custom($hash) . "',
-                        '" . add_escape_custom($list_id) . "')";
-
-            $result = sqlStatement($strQuery);
-
-            $strQuery1 = "INSERT INTO `categories_to_documents`(`category_id`, `document_id`) 
-                                VALUES ('" . add_escape_custom($cat_id) . "'," . add_escape_custom($id) . ")";
-
-            $result1 = sqlStatement($strQuery1);
         }
     } else {
         $xml_array['status'] = -2;
