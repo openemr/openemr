@@ -1,21 +1,21 @@
 <?php
- /**
- * pnotes_full.php -- display patient notes.
+/**
+ * Display, enter, modify and manage patient notes.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
+ * @package OpenEMR
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
  */
 
 //SANITIZE ALL ESCAPES
@@ -221,7 +221,7 @@ function show_div(name){
 
 <div id="pnotes"> <!-- large outer DIV -->
 
-<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo htmlspecialchars($docid, ENT_QUOTES); ?>&orderid=<?php echo htmlspecialchars($orderid, ENT_QUOTES); ?>&<?php echo attr($activity_string_html);?>'>
+<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo htmlspecialchars($docid, ENT_QUOTES); ?>&orderid=<?php echo htmlspecialchars($orderid, ENT_QUOTES); ?>&<?php echo attr($activity_string_html);?>' onsubmit='return top.restoreSession()'>
 
 <?php
 $title_docname = "";
@@ -245,7 +245,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
       <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars( getPatientName($patient_id), ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
-        <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="css_button iframe"><span><?php echo xlt('Add'); ?></span></a>
+        <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="css_button iframe" onclick='top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
         <a href="demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars( xl('View Patient'), ENT_NOQUOTES);?></span>
         </a>
@@ -332,7 +332,7 @@ if ($billing_note) {
 <div class='tabContainer' >
   <div id='inbox_div' <?php echo $inbox_style; ?> >
 <form border='0' method='post' name='update_activity' id='update_activity'
- action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo attr($activity_string_html);?>">
+ action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo attr($activity_string_html);?>" onsubmit='return top.restoreSession()'>
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
 <input type='hidden' name='mode' value="update">
@@ -345,7 +345,7 @@ if ($billing_note) {
   <td colspan='5' style="padding: 5px;" >
     <a href="#" class="change_activity" ><span><?php echo htmlspecialchars( xl('Update Active'), ENT_NOQUOTES); ?></span></a>
     |
-    <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo attr($activity_string_html);?>" class="" id='Submit'><span><?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?></span></a>
+    <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo attr($activity_string_html);?>" class="" id='Submit' onclick='top.restoreSession()'><span><?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
@@ -413,13 +413,13 @@ if ($result != "") {
 
 
 	echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars( $row_note_id, ENT_QUOTES).
-	  "' class='css_button_small iframe'><span>". htmlspecialchars( xl('Edit'), ENT_NOQUOTES) ."</span></a>\n";
+	  "' class='css_button_small iframe' onclick='top.restoreSession()'><span>". htmlspecialchars( xl('Edit'), ENT_NOQUOTES) ."</span></a>\n";
 
     // display, or not, a button to delete the note
     // if the user is an admin or if they are the author of the note, they can delete it
     if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin','super','','write'))) {
 	  echo " <a href='#' class='deletenote css_button_small' id='del" . htmlspecialchars( $row_note_id, ENT_QUOTES) .
-	    "' title='" . htmlspecialchars( xl('Delete this note'), ENT_QUOTES) . "'><span>" .
+	    "' title='" . htmlspecialchars( xl('Delete this note'), ENT_QUOTES) . "' onclick='top.restoreSession()'><span>" .
 	    htmlspecialchars( xl('Delete'), ENT_NOQUOTES) . "</span>\n";
     }
     echo "  </td>\n";
@@ -437,7 +437,7 @@ if ($result != "") {
     echo "  </td>\n";
 
     echo "  <td class='bold notecell' id='".htmlspecialchars( $row_note_id, ENT_QUOTES)."'>" .
-      "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars( $row_note_id, ENT_QUOTES)."' class='iframe'>\n";
+      "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars( $row_note_id, ENT_QUOTES)."' class='iframe' onclick='top.restoreSession()'>\n";
     // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
     echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
     echo "  </a></td>\n";
@@ -498,7 +498,7 @@ if ($result_count == $N) {
  <tr>
   <td colspan='5' style="padding: 5px;" >
     <a href="pnotes_full.php?<?php echo $urlparms; ?>&s=1&<?php echo attr($activity_string_html);?>"
-     class="" id='Submit'><span><?php echo xlt('Refresh'); ?></span></a>
+     class="" id='Submit' onclick='top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
@@ -566,13 +566,13 @@ if ($result_sent != "") {
 
 
 	echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars( $row_note_id, ENT_QUOTES).
-	  "' class='css_button_small iframe'><span>". htmlspecialchars( xl('Edit'), ENT_NOQUOTES) ."</span></a>\n";
+	  "' class='css_button_small iframe' onclick='top.restoreSession()'><span>". htmlspecialchars( xl('Edit'), ENT_NOQUOTES) ."</span></a>\n";
 
     // display, or not, a button to delete the note
     // if the user is an admin or if they are the author of the note, they can delete it
     if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin','super','','write'))) {
 	  echo " <a href='#' class='deletenote css_button_small' id='del" . htmlspecialchars( $row_note_id, ENT_QUOTES) .
-	    "' title='" . htmlspecialchars( xl('Delete this note'), ENT_QUOTES) . "'><span>" .
+	    "' title='" . htmlspecialchars( xl('Delete this note'), ENT_QUOTES) . "' onclick='top.restoreSession()'><span>" .
 	    htmlspecialchars( xl('Delete'), ENT_NOQUOTES) . "</span>\n";
     }
     echo "  </td>\n";
@@ -590,7 +590,7 @@ if ($result_sent != "") {
     echo "  </td>\n";
 
     echo "  <td class='bold notecell' id='".htmlspecialchars( $row_note_id, ENT_QUOTES)."'>" .
-      "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars( $row_note_id, ENT_QUOTES)."' class='iframe'>\n";
+      "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=".htmlspecialchars( $row_note_id, ENT_QUOTES)."' class='iframe' onclick='top.restoreSession()'>\n";
     // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
     echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
     echo "  </a></td>\n";
