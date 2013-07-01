@@ -451,6 +451,7 @@ else {
 ?>
     objID = eObj.id;
     var parts = objID.split("~");
+    <?php if (!$popup) echo "top.restoreSession();\n"; ?>
     <?php if ($popup) echo "opener."; echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
     <?php if ($popup) echo "window.close();\n"; ?>
     return true;
