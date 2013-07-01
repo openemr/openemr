@@ -110,6 +110,7 @@ $(document).ready(function() {
    openNewTopWindow(newpid);
   }
   else {
+   top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
    document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
 <?php } else { ?>
