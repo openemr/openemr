@@ -142,7 +142,7 @@ include_once("../../library/acl.inc");
 </td>
 
 <td align="center" nowrap>
-&nbsp;<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.1.1_Users_Guide" target="_blank" class="menu"> 
+&nbsp;<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.1.2_Users_Guide" target="_blank" class="menu"> 
 <?php xl('Manual','e'); ?></a>&nbsp;&nbsp;
 </td>
 
