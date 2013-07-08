@@ -119,7 +119,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		&nbsp;|&nbsp;
 		<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.1.1_Users_Guide" target="_blank" id="help_link" >
 			<?php xl('Manual','e'); ?></a>&nbsp;</td>
-		<td align="right" style="vertical-align:top;"><a href="../logout.php?auth=logout" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
+		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
 	</tr><tr>
 		<td colspan='2' valign="baseline" align='right'><B>

@@ -137,7 +137,7 @@ include_once("../../library/acl.inc");
 <?php } ?>
 
 <td align="center" nowrap>
-&nbsp;<a href="../logout.php?auth=logout" target="_top" class="menu" onclick="top.restoreSession()">
+&nbsp;<a href="../logout.php" target="_top" class="menu" onclick="top.restoreSession()">
 <?php xl('Logout','e'); ?></a>&nbsp;&nbsp;
 </td>
 
