@@ -129,7 +129,9 @@ function escape_sql_column_name($s,$tables,$long=FALSE) {
  * Another use of this function is to deal with casing issues that arise in tables that
  * contain upper case letter(s) (these tables can be huge issues when transferring databases
  * from Windows to Linux and vice versa); this function can avoid this issues if run the
- * table name through this function.
+ * table name through this function (To avoid confusion, there is a wrapper function
+ * entitled mitigateSqlTableUpperCase() that is used when just need to mitigate casing
+ * for table names that contain any uppercase letters).
  *
  * @param   string $s  sql table name variable to be escaped/sanitized.
  * @return  string     Escaped table name variable.
@@ -147,6 +149,18 @@ function escape_table_name($s) {
 }
 
 /**
+ * Process tables that contain any upper case letters; this is simple a wrapper function of
+ * escape_table_name() above when using it for the sole purpose of mitigating sql table names
+ * that contain upper case letters.
+ *
+ * @param   string $s  sql table name variable to be escaped/sanitized.
+ * @return  string     Escaped table name variable.
+ */
+function mitigateSqlTableUpperCase($s) {
+    return escape_table_name($s);
+}
+
+/**
  * Escape/sanitize a sql identifier variable to prepare for a sql query.
  *
  * This will escape/sanitize a sql identifier. There are two options provided by this
@@ -155,7 +169,9 @@ function escape_table_name($s) {
  * only certain identifiers (listed in the $whitelist_items array) can be used; if
  * there is no match, then it will either default to the first item in the $whitelist_items
  * (if $die_if_no_match is FALSE) or it will die() and send an error message to the screen
- * and log (if $die_if_no_match is TRUE).
+ * and log (if $die_if_no_match is TRUE). Note there is an option to allow case insensitive
+ * matching; if this option is chosen, it will first attempt a case sensitive match and if this
+ * fails, then attempt a case insensitive match.
  * The second option is done by sanitizing ($whitelist_items is not used) and in this case
  * only US alphanumeric,'_' and '.' items are kept in the returned string. Note
  * the second option is still experimental as we figure out the ideal items to

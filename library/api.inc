@@ -107,16 +107,16 @@ function formJump ($address = "0")
 
 function formFetch ($tableName, $id, $cols="*", $activity="1")
 {
-        // Note that tableName is hard-coded, so no need to run through escape_table_name() function (at least not yet).
-	return sqlQuery ( "select $cols from `" . $tableName . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity) ) ;
+        // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
+	return sqlQuery ( "select $cols from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", array($id,$GLOBALS['pid'],$activity) ) ;
 }
 
 function formGetIds ($tableName, $cols = "*", $limit='all', $start=0, $activity = "1")
 {
 	if($limit == "all")
         {
-
-                $sql = "select $cols from `$tableName` where pid like '$pid' ";
+                // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
+                $sql = "select $cols from `" . escape_table_name($tableName) . "` where pid like '$pid' ";
                 if ($activity != "all")
                         $sql .= "and activity like '$activity' ";
                 $sql .= "order by date DESC";
@@ -139,13 +139,15 @@ function formGetIds ($tableName, $cols = "*", $limit='all', $start=0, $activity 
 
 function formDisappear ($tableName, $id)
 {
-	if (sqlStatement("update `$tableName` set activity = '0' where id='$id' and pid='$pid'")) return true;
+        // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
+	if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '0' where id='$id' and pid='$pid'")) return true;
 	return false;
 }
 
 function formReappear ($tableName, $id)
 {
-        if (sqlStatement("update `$tableName` set activity = '1' where id='$id' and pid='$pid'")) return true;
+        // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
+        if (sqlStatement("update `" . escape_table_name($tableName) . "` set activity = '1' where id='$id' and pid='$pid'")) return true;
 	return false;
 }
 ?>

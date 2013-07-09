@@ -398,7 +398,7 @@ function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql forma
 			}
 		}
 		if (substr(strtolower($results1['form_name']),0,5) == 'camos') { // deal with camos
-			$query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from form_CAMOS where id = " .
+			$query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from ".mitigateSqlTableUpperCase("form_CAMOS")." where id = " .
 			    	$results1['form_id']);	
 	                if ($results2 = mysql_fetch_array($query2, MYSQL_ASSOC)) {
 				if ($results2['category'] == 'exam') {

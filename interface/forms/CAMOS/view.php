@@ -68,7 +68,7 @@ echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$retur
 $pid = $GLOBALS['pid'];
 $encounter = $GLOBALS['encounter'];
 
-$query = "select t1.id, t1.content from form_CAMOS as t1 join forms as t2 " .
+$query = "select t1.id, t1.content from ".mitigateSqlTableUpperCase("form_CAMOS")." as t1 join forms as t2 " .
   "on (t1.id = t2.form_id) where t2.form_name like 'CAMOS%' " .
   "and t2.encounter like $encounter and t2.pid = $pid";
 

@@ -84,7 +84,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
   $camos_content = array();
   foreach ($_POST as $key => $val) {
     if (substr($key,0,3) == 'ch_') {
-      $query = sqlStatement("select content from form_CAMOS where id =" . 
+      $query = sqlStatement("select content from ".mitigateSqlTableUpperCase("form_CAMOS")." where id =" . 
         substr($key,3));
       if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
   	if ($_POST['print_html']) { //do this change to formatting only for html output
@@ -472,14 +472,14 @@ function cycle_engine(cb,seed) {
 //check if an encounter is set
 if ($_SESSION['encounter'] == NULL) { 
   $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
-  "form_CAMOS as x join forms as y on (x.id = y.form_id) " . 
+  mitigateSqlTableUpperCase("form_CAMOS")." as x join forms as y on (x.id = y.form_id) " . 
   "where y.pid = " . $_SESSION['pid'] . 
   " and y.form_name like 'CAMOS%'" . 
   " and x.activity = 1"); 
 } 
 else { 
   $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
-  "form_CAMOS  as x join forms as y on (x.id = y.form_id) " . 
+  mitigateSqlTableUpperCase("form_CAMOS")."  as x join forms as y on (x.id = y.form_id) " . 
   "where y.encounter = " .  $_SESSION['encounter'] . 
   " and y.pid = " . $_SESSION['pid'] .  
   " and y.form_name like 'CAMOS%'" .
