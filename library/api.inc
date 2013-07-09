@@ -38,7 +38,7 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
         // the variable escaping method.
         global $sanitize_all_escapes;
 
-	$sql = "insert into " . escape_table_name($tableName) . " set pid = ?,groupname=?,user=?,authorized=?,activity=1, date = NOW(),";
+	$sql = "insert into " . escape_table_name($tableName) . " set pid ='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
 	foreach ($values as $key => $value)
 		if (strpos($key,"openemr_net_cpt") === 0) {
 			//code to auto add cpt code
@@ -69,7 +69,7 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
                         }
 		}
 	$sql = substr($sql, 0, -1);
-	return sqlInsert($sql,array($_SESSION['pid'],$_SESSION['authProvider'],$_SESSION['authUser'],$authorized));
+	return sqlInsert($sql);
 }
 
 
@@ -79,7 +79,7 @@ function formUpdate ($tableName, $values, $id, $authorized = "0")
         // the variable escaping method.
         global $sanitize_all_escapes;
 
-	$sql = "update " . escape_table_name($tableName) . " set pid = ?,groupname=?,user=?,authorized=?,activity=1, date = NOW(),";
+	$sql = "update " . escape_table_name($tableName) . " set pid ='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
 	foreach ($values as $key => $value)
                 if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
                         // using new security method, so escape the key and values here
@@ -90,9 +90,9 @@ function formUpdate ($tableName, $values, $id, $authorized = "0")
 		        $sql .= " $key = '$value',";
                 }
 	$sql = substr($sql, 0, -1);
-	$sql .= " where id=?";
+	$sql .= " where id='".add_escape_custom($id)."'";
 	
-	return sqlInsert($sql,array($_SESSION['pid'],$_SESSION['authProvider'],$_SESSION['authUser'],$authorized,$id));
+	return sqlInsert($sql);
 }
 
 
