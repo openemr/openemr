@@ -1,4 +1,23 @@
 <?php
+/**
+ *
+ * Patient history form.
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -86,6 +105,7 @@ function submitme() {
 }
 
 function submit_history() {
+    top.restoreSession();
     document.forms[0].submit();
 }
 
@@ -168,14 +188,14 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "ORDER BY group_name, seq");
 ?>
 
-<form action="history_save.php" name='history_form' method='post' onsubmit='return validate(this)'>
+<form action="history_save.php" name='history_form' method='post' onsubmit='return validate(this)' >
     <input type='hidden' name='mode' value='save'>
 
     <div>
         <span class="title"><?php echo htmlspecialchars(xl('Patient History / Lifestyle'),ENT_NOQUOTES); ?></span>
     </div>
     <div style='float:left;margin-right:10px'>
-  <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
+  <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick='top.restoreSession()'><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
         <a href="javascript:submit_history();" class='css_button'>
