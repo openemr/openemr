@@ -276,7 +276,8 @@ else {
     echo "<TR VALIGN='TOP' class='noclone'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
     echo "<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuser' VALUE='admin'></TD><TD><span class='text'>(This is the login name of user that will be created for you. Limit this to one word.)</span></TD></TR>
 <TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User Password:</span></TD><TD><INPUT SIZE='30' TYPE='PASSWORD' NAME='iuserpass' VALUE=''></TD><TD><span class='text'>(This is the password for the initial user account above.)</span></TD></TR>
-<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User's Name:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuname' VALUE='Administrator'></TD><TD><span class='text'>(This is the real name of the 'initial user'.)</span></TD></TR>
+<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User's First Name:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iufname' VALUE='Administrator'></TD><TD><span class='text'>(This is the First name of the 'initial user'.)</span></TD></TR>
+<TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial User's Last Name:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuname' VALUE='Administrator'></TD><TD><span class='text'>(This is the Last name of the 'initial user'.)</span></TD></TR>
 <TR VALIGN='TOP' class='noclone'><TD><span class='text'>Initial Group:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='igroup' VALUE='Default'></TD><TD><span class='text'>(This is the group that will be created for your users.  This should be the name of your practice.)</span></TD></TR>
 ";
     echo "<TR VALIGN='TOP'><TD>&nbsp;</TD></TR>";
@@ -477,6 +478,7 @@ else {
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$installer->iuser'>
 <INPUT TYPE='HIDDEN' NAME='iuserpass' VALUE='$installer->iuserpass'>
 <INPUT TYPE='HIDDEN' NAME='iuname' VALUE='$installer->iuname'>
+<INPUT TYPE='HIDDEN' NAME='iufname' VALUE='$installer->iufname'>
 <INPUT TYPE='HIDDEN' NAME='clone_database' VALUE='$installer->clone_database'>
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
