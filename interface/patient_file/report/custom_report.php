@@ -1,8 +1,23 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ *
+ * Patient custom report.
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
@@ -462,11 +477,11 @@ if ($printable) {
 else { // not printable
 ?>
 
-<a href="patient_report.php">
+<a href="patient_report.php" onclick='top.restoreSession()'>
  <span class='title'><?php xl('Patient Report','e'); ?></span>
  <span class='back'><?php echo $tback;?></span>
 </a><br><br>
-<a href="custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new'>
+<a href="custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
  [<?php xl('Printable Version','e'); ?>]
 </a><br>
 <div class="report_search_bar" style="width:100%;" id="search_options">
