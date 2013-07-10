@@ -1,21 +1,27 @@
 <?php
-/*******************************************************************************\
- * Copyright (C) Visolve (vicareplus_engg@visolve.com)                          *
- *                                                                              *
- * This program is free software; you can redistribute it and/or                *
- * modify it under the terms of the GNU General Public License                  *
- * as published by the Free Software Foundation; either version 2               *
- * of the License, or (at your option) any later version.                       *
- *                                                                              *
- * This program is distributed in the hope that it will be useful,              *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
- * GNU General Public License for more details.                                 *
- *                                                                              *
- * You should have received a copy of the GNU General Public License            *
- * along with this program; if not, write to the Free Software                  *
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
- ********************************************************************************/
+/**
+ *
+ * Patient disclosures main screen.
+ *
+ * Copyright (C) Visolve <vicareplus_engg@visolve.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Visolve <vicareplus_engg@visolve.com>
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
+
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -81,7 +87,7 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
 	class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Save'),ENT_NOQUOTES);?></span>
 </a></div>
 <div><a class="css_button large_button" id='cancel'
-	href='disclosure_full.php' target='_parent'> <span
+	href='disclosure_full.php' target='_parent' onclick='top.restoreSession()'> <span
 	class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'),ENT_NOQUOTES);?></span>
 </a></div>
 <br>

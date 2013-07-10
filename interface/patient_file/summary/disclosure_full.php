@@ -1,21 +1,26 @@
 <?php
-/*******************************************************************************\
- * Copyright (C) Visolve (vicareplus_engg@visolve.com)                          *
- *                                                                              *
- * This program is free software; you can redistribute it and/or                *
- * modify it under the terms of the GNU General Public License                  *
- * as published by the Free Software Foundation; either version 2               *
- * of the License, or (at your option) any later version.                       *
- *                                                                              *
- * This program is distributed in the hope that it will be useful,              *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of               *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                *
- * GNU General Public License for more details.                                 *
- *                                                                              *
- * You should have received a copy of the GNU General Public License            *
- * along with this program; if not, write to the Free Software                  *
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
- ********************************************************************************/
+/**
+ *
+ * Patient disclosures main screen.
+ *
+ * Copyright (C) Visolve <vicareplus_engg@visolve.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Visolve <vicareplus_engg@visolve.com>
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -76,7 +81,7 @@ deleteDisclosure($deletelid);
 	<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
 </div>
 <div>
-	<a href="record_disclosure.php" class="css_button iframe"><span><?php echo htmlspecialchars(xl('Record'),ENT_NOQUOTES); ?></span></a>
+	<a href="record_disclosure.php" class="css_button iframe" onclick="top.restoreSession()"><span><?php echo htmlspecialchars(xl('Record'),ENT_NOQUOTES); ?></span></a>
 </div>
 <div>
 	<a href="demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>
@@ -101,7 +106,7 @@ $noOfRecordsLeft=($totalRecords - $offset);
 if ($n>0){?>
 	<table border='0' class="text">
 		<tr>
-		<td colspan='5' style="padding: 5px;"><a href="disclosure_full.php" class="" id='Submit'><span><?php echo htmlspecialchars(xl('Refresh'),ENT_NOQUOTES); ?></span></a></td>
+		<td colspan='5' style="padding: 5px;"><a href="disclosure_full.php" class="" id='Submit' onclick="top.restoreSession()"><span><?php echo htmlspecialchars(xl('Refresh'),ENT_NOQUOTES); ?></span></a></td>
 		</tr>
 	</table>
 <div id='pnotes'>	
@@ -126,9 +131,9 @@ if ($n>0){?>
 		<tr  class="noterow" height='25'>		
 			<!--buttons for edit and delete.-->
 			<td valign='top'><a href='record_disclosure.php?editlid=<?php echo htmlspecialchars($iter{id},ENT_QUOTES); ?>'
-			class='css_button_small iframe'><span><?php echo htmlspecialchars(xl('Edit'),ENT_NOQUOTES);?></span></a>
+			class='css_button_small iframe' onclick='top.restoreSession()'><span><?php echo htmlspecialchars(xl('Edit'),ENT_NOQUOTES);?></span></a>
 			<a href='#' class='deletenote css_button_small'
-			id='<?php echo htmlspecialchars($iter{id},ENT_QUOTES); ?>'><span><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?></span></a></td>
+			id='<?php echo htmlspecialchars($iter{id},ENT_QUOTES); ?>' onclick='top.restoreSession()'><span><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?></span></a></td>
 			<td class="text" valign='top'><?php echo htmlspecialchars($iter{recipient},ENT_NOQUOTES);?>&nbsp;</td>
 			<td class='text' valign='top'><?php if($event[1]=='healthcareoperations'){ echo htmlspecialchars(xl('health care operations'),ENT_NOQUOTES); } else echo htmlspecialchars($event[1],ENT_NOQUOTES); ?>&nbsp;</td>
 			<td class='text'><?php echo htmlspecialchars($iter{date},ENT_NOQUOTES)." ".$description;?>&nbsp;</td>
