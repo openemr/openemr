@@ -55,8 +55,14 @@ function validate_user_password($username,&$password,$provider)
     {  
         if((!isset($GLOBALS['password_compatibility'])||$GLOBALS['password_compatibility']))           // use old password scheme if allowed.
         {
-            $getUserSQL="select id, password from users where username = ?";
-            $userInfo = privQuery($getUserSQL,array($username));            
+            $getUserSQL="select username,id, password from users where BINARY username = ?";
+            $userInfo = privQuery($getUserSQL,array($username));
+            if($userInfo===false)
+            {
+                return false;
+            }
+                
+            $username=$userInfo['username'];
             $dbPasswordLen=strlen($userInfo['password']);
             if($dbPasswordLen==32)
             {
