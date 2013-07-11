@@ -51,7 +51,7 @@ function getPrivDB()
         {
             require_once($secure_config);
             $GLOBALS[PRIV_DB]=NewADOConnection("mysql_log");
-            $GLOBALS[PRIV_DB]->PConnect($secure_host, $secure_login, $secure_pass, $secure_dbase);    
+            $GLOBALS[PRIV_DB]->PConnect($secure_host.":".$secure_port, $secure_login, $secure_pass, $secure_dbase);    
         }
         else
         {

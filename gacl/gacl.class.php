@@ -146,7 +146,7 @@ class gacl {
 
                 //collect openemr sql info from include at top of script - bm 05-2009
                 global $sqlconf, $disable_utf8_flag;
-                $this->_db_host = $sqlconf["host"];
+                $this->_db_host = $sqlconf["host"].":".$sqlconf["port"];
                 $this->_db_user = $sqlconf["login"];
                 $this->_db_password = $sqlconf["pass"];
                 $this->_db_name = $sqlconf["dbase"];

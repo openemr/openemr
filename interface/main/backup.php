@@ -175,6 +175,7 @@ if ($form_step == 1) {
     $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h" . escapeshellarg($sqlconf["host"]) .
+    " --port=".escapeshellarg($sqlconf["port"]) .
     " --routines".
     " --opt --quote-names -r $file_to_compress " .
     escapeshellarg($sqlconf["dbase"]);
@@ -184,6 +185,7 @@ if ($form_step == 1) {
     $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h" . escapeshellarg($sqlconf["host"]) .
+    " --port=".escapeshellarg($sqlconf["port"]) .
     " --opt --quote-names -r $file_to_compress " .
     escapeshellarg($sqlconf["dbase"]);
   } 
