@@ -134,7 +134,7 @@ function sel_diagnosis() {
 
 </script>
 
-<title><?xl('Cash Receipts by Provider','e')?></title>
+<title><?php xl('Cash Receipts by Provider','e')?></title>
 </head>
 
 <body class="body_top">
