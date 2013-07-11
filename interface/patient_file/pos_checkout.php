@@ -1,40 +1,56 @@
 <?php
-// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Checkout Module.
+ *
+ * This module supports a popup window to handle patient checkout
+ * as a point-of-sale transaction.  Support for in-house drug sales
+ * is included.
+ *
+ * <pre>
+ * Important notes about system design:
+ * (1) Drug sales may or may not be associated with an encounter;
+ *     they are if they are paid for concurrently with an encounter, or
+ *     if they are "product" (non-prescription) sales via the Fee Sheet.
+ * (2) Drug sales without an encounter will have 20YYMMDD, possibly
+ *     with a suffix, as the encounter-number portion of their invoice
+ *     number.
+ * (3) Payments are saved as AR only, don't mess with the billing table.
+ *     See library/classes/WSClaim.class.php for posting code.
+ * (4) On checkout, the billing and drug_sales table entries are marked
+ *     as billed and so become unavailable for further billing.
+ * (5) Receipt printing must be a separate operation from payment,
+ *     and repeatable.
+ *
+ * TBD:
+ * If this user has 'irnpool' set
+ *   on display of checkout form
+ *     show pending next invoice number
+ *   on applying checkout
+ *     save next invoice number to form_encounter
+ *     compute new next invoice number
+ *   on receipt display
+ *     show invoice number
+ * </pre>
+ *
+ * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady@sparmy.com>
+ * @link    http://www.open-emr.org
+ */
 
-// This module supports a popup window to handle patient checkout
-// as a point-of-sale transaction.  Support for in-house drug sales
-// is included.
-
-// Important notes about system design:
-//
-// (1) Drug sales may or may not be associated with an encounter;
-//     they are if they are paid for concurrently with an encounter, or
-//     if they are "product" (non-prescription) sales via the Fee Sheet.
-// (2) Drug sales without an encounter will have 20YYMMDD, possibly
-//     with a suffix, as the encounter-number portion of their invoice
-//     number.
-// (3) Payments are saved as AR only, don't mess with the billing table.
-//     See library/classes/WSClaim.class.php for posting code.
-// (4) On checkout, the billing and drug_sales table entries are marked
-//     as billed and so become unavailable for further billing.
-// (5) Receipt printing must be a separate operation from payment,
-//     and repeatable.
-
-
-// TBD:
-// If this user has 'irnpool' set
-//   on display of checkout form
-//     show pending next invoice number
-//   on applying checkout
-//     save next invoice number to form_encounter
-//     compute new next invoice number
-//   on receipt display
-//     show invoice number
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
@@ -545,9 +561,9 @@ function generate_receipt($patient_id, $encounter=0) {
 <?php } ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <?php if ($details) { ?>
-<a href='pos_checkout.php?details=0&ptid=<?php echo attr($patient_id); ?>&enc=<?php echo attr($encounter); ?>'><?php echo xlt('Hide Details'); ?></a>
+<a href='pos_checkout.php?details=0&ptid=<?php echo attr($patient_id); ?>&enc=<?php echo attr($encounter); ?>' onclick='top.restoreSession()'><?php echo xlt('Hide Details'); ?></a>
 <?php } else { ?>
-<a href='pos_checkout.php?details=1&ptid=<?php echo attr($patient_id); ?>&enc=<?php echo attr($encounter); ?>'><?php echo xlt('Show Details'); ?></a>
+<a href='pos_checkout.php?details=1&ptid=<?php echo attr($patient_id); ?>&enc=<?php echo attr($encounter); ?>' onclick='top.restoreSession()'><?php echo xlt('Show Details'); ?></a>
 <?php } ?>
 </p>
 </div>
