@@ -1608,7 +1608,7 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
                "WHERE " .
                "procedure_order_code.procedure_code = procedure_type.procedure_code AND " .
                "procedure_order.procedure_order_id = procedure_order_code.procedure_order_id AND " .
-               "procedure_order.lab_id procedure_type.lab_id AND " .
+               "procedure_order.lab_id = procedure_type.lab_id AND " .
                "procedure_report.procedure_order_id = procedure_order.procedure_order_id AND " .
                "procedure_report.procedure_order_seq = procedure_order_code.procedure_order_seq AND " .
                "procedure_result.procedure_report_id = procedure_report.procedure_report_id AND " .
