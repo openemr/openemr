@@ -86,6 +86,10 @@ if ($_POST['formaction']=='save' && $list_id) {
     else {
         // all other lists
         //
+        // collect the option toggle if using the 'immunizations' list
+        if ($list_id == 'immunizations') {
+          $ok_map_cvx_codes = isset($_POST['ok_map_cvx_codes']) ? $_POST['ok_map_cvx_codes'] : 0;
+        }
         // erase lists options and recreate them from the submitted form data
         sqlStatement("DELETE FROM list_options WHERE list_id = '$list_id'");
         for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
@@ -96,13 +100,31 @@ if ($_POST['formaction']=='save' && $list_id) {
 
               // Special processing for the immunizations list
               // Map the entered cvx codes into the immunizations table cvx_code
-              sqlStatement ("UPDATE `immunizations` " .
-                            "SET `cvx_code`='".$value."' " .
-                            "WHERE `immunization_id`='".$id."'");
+              // Ensure the following conditions are met to do this:
+              //   $list_id == 'immunizations'
+              //   $value is an integer and greater than 0
+              //   $id is set, not empty and not equal to 0
+              //    (note that all these filters are important. Not allowing $id
+              //     of zero here is extremely important; never remove this conditional
+              //     or you risk corrupting your current immunizations database entries)
+              //   $ok_map_cvx_codes is equal to 1
+              if ($list_id == 'immunizations' &&
+                  is_int($value) &&
+                  $value > 0 &&
+                  isset($id) &&
+                  !empty($id) &&
+                  $id != 0 &&
+                  $ok_map_cvx_codes == 1 ) {
+                    sqlStatement ("UPDATE `immunizations` " .
+                                  "SET `cvx_code`='".$value."' " .
+                                 "WHERE `immunization_id`='".$id."'");
+              }
 
               // Force List Based Form names to start with LBF.
               if ($list_id == 'lbfnames' && substr($id,0,3) != 'LBF')
                 $id = "LBF$id";
+
+              // Insert the list item
               sqlInsert("INSERT INTO list_options ( " .
                 "list_id, option_id, title, seq, is_default, option_value, mapping, notes " .
                 ") VALUES ( " .
@@ -729,6 +751,12 @@ if ($list_id) {
 ?>
 
 </table>
+
+<?php if ($list_id == 'immunizations') { ?>
+ <p> <?php echo xlt('Is it ok to map these CVX codes to already existent immunizations?') ?>
+  <input type='checkbox' name='ok_map_cvx_codes' id='ok_map_cvx_codes' value='1' />
+ </p>
+<?php } // end if($list_id == 'immunizations') ?>
 
 <p>
  <input type='button' name='form_save' id='form_save' value='<?php xl('Save','e'); ?>' />
