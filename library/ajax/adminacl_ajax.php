@@ -239,7 +239,7 @@ if ($_POST["control"] == "aco") {
 function username_listings_xml($err) {
  $message = "<?xml version=\"1.0\"?>\n" .
   "<response>\n";  
- $res = sqlStatement("select * from users where username != '' order by username");
+ $res = sqlStatement("select * from users where username != '' and active = 1 order by username");
  for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result4[$iter] = $row;
  foreach ($result4 as $iter) {
