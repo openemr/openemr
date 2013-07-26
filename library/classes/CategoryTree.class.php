@@ -26,7 +26,14 @@ class CategoryTree extends Tree {
 			. " AND c2d.document_id = d.id";
 
 		if (is_numeric($patient_id)) {
-			$sql .= " AND d.foreign_id = '" . $patient_id . "'";
+                        if ($patient_id == "00") {
+                              // Collect documents that are not assigned to a patient
+                              $sql .= " AND (d.foreign_id = 0 OR d.foreign_id IS NULL) ";
+                        }
+                        else {
+                              // Collect documents for a specific patient
+			      $sql .= " AND d.foreign_id = '" . $patient_id . "'";
+                        }
 		}
 		$sql .= " ORDER BY c.id ASC, d.docdate DESC, d.url ASC";
 
