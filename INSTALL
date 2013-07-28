@@ -151,7 +151,10 @@ use to login.  Limit this to one word only.
 The "Initial User Password" is the password of the user entered into the above
 "Initial User" field.
 
-The "Initial User's Name" is the value to be used as their last name.  This
+The "Initial User's First Name" is the value to be used as their first name.  This
+information may be changed in the user administration page.
+
+The "Initial User's Last Name" is the value to be used as their last name.  This
 information may be changed in the user administration page.
 
 The "Initial Group" is the first group, basically name of the practice, that
