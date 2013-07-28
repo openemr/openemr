@@ -1,3 +1,10 @@
+openemr (4.1.2-1) stable; urgency=low
+
+  * New upstream version
+  * Added support with the max_input_vars php setting
+
+ -- Brady Miller <brady@sparmy.com>  Sun, 04 Aug 2013 13:29:45 -0700
+
 openemr (4.1.1-1) stable; urgency=low
 
   * New upstream version

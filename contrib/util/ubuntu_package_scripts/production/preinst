@@ -5,7 +5,7 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2012
+# Copyright 2013
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
@@ -213,15 +213,17 @@ upgrade_function () {
             OLD_VERSION="4.0.0-1"
          elif [ "$OLD_VERSION" == "4.1.0" ]; then
             OLD_VERSION="4.1.0-1"
+         elif [ "$OLD_VERSION" == "4.1.1" ]; then
+            OLD_VERSION="4.1.1-1"
          else
             prompt_input openemr/upgrade_not_supported critical ret_result
             unable_exit "Unable to upgrade from $OLD_VERSION version package with $UPGRADETYPE method, so can not upgrade the OpenEMR Package."
          fi
       fi
       #
-      # ONLY acceptable package and converted raw is 3.0.1-1 or 3.1.0-1 or 3.2.0-1 or 4.0.0-1 or 4.1.0-1
+      # ONLY acceptable package and converted raw is 3.0.1-1 or 3.1.0-1 or 3.2.0-1 or 4.0.0-1 or 4.1.0-1 or 4.1.1-1
       #
-      if [ "$OLD_VERSION" != "3.0.1-1" ] && [ "$OLD_VERSION" != "3.1.0-1" ] && [ "$OLD_VERSION" != "3.2.0-1" ]&& [ "$OLD_VERSION" != "4.0.0-1" ] && [ "$OLD_VERSION" != "4.1.0-1" ]; then
+      if [ "$OLD_VERSION" != "3.0.1-1" ] && [ "$OLD_VERSION" != "3.1.0-1" ] && [ "$OLD_VERSION" != "3.2.0-1" ] && [ "$OLD_VERSION" != "4.0.0-1" ] && [ "$OLD_VERSION" != "4.1.0-1" ] && [ "$OLD_VERSION" != "4.1.1-1" ]; then
          prompt_input openemr/upgrade_not_supported critical ret_result
          unable_exit "Unable to upgrade from $OLD_VERSION version package with $UPGRADETYPE method, so can not upgrade the OpenEMR Package."
       fi
