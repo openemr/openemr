@@ -1,7 +1,7 @@
 Package: openemr
-Version: 4.1.1-1
+Version: 4.1.2-1
 Maintainer: Brady Miller <brady@sparmy.com>
-Installed-Size: 107000
+Installed-Size: 127000
 Priority: optional
 Section: web
 Architecture: all
