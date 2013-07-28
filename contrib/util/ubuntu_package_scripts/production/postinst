@@ -474,6 +474,8 @@ case "$1" in
          UPLOAD=$(collect_php "$UPLOAD_TEXT")
          FILESIZE_TEXT="upload_max_filesize"
          FILESIZE=$(collect_php "$FILESIZE_TEXT")
+         MAXINPUTVARS_TEXT="max_input_vars"
+         MAXINPUTVARS=$(collect_php "$MAXINPUTVARS_TEXT")
 
          # Second, backup the php.ini file before modifying
          cp $PHP $PHP.BAK
@@ -527,6 +529,9 @@ case "$1" in
             if [ "$FILESIZE" -lt "30" ]; then
                process_php "$FILESIZE_TEXT" "30M" $i
             fi
+            if [ "$MAXINPUTVARS" -lt "3000" ]; then
+               process_php "$MAXINPUTVARS_TEXT" "3000" $i
+            fi
             if [ "$FLAG_ON" -eq "0" ]; then
               log_only "Your PHP configuration is perfect for OpenEMR."
               break
@@ -552,6 +557,8 @@ case "$1" in
          log_only "post_max_size = 30M"
          log_only "file_uploads = On"
          log_only "upload_max_filesize = 30M"
+         log_only "max_input_vars = 3000"
+         log_only "(note max_input_vars setting only exists since php 5.3.9)"
       fi
 
       log_only "Done configuring PHP"
