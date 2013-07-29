@@ -672,6 +672,7 @@ CREATE TABLE `documents` (
   `couch_revid` VARCHAR(100) DEFAULT NULL,
   `storagemethod` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->Harddisk,1->CouchDB',
   `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.',
+  `imported` TINYINT DEFAULT 0 NULL COMMENT 'Parsing status for CCR/CCD/CCDA importing',
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
@@ -5785,5 +5786,24 @@ CREATE TABLE `product_warehouse` (
   `pw_max_level` float       DEFAULT 0,
   PRIMARY KEY  (`pw_drug_id`,`pw_warehouse`)
 ) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `misc_address_book`
+--
+
+CREATE TABLE `misc_address_book` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `fname` varchar(255) DEFAULT NULL,
+  `mname` varchar(255) DEFAULT NULL,
+  `lname` varchar(255) DEFAULT NULL,
+  `street` varchar(60) DEFAULT NULL,
+  `city` varchar(30) DEFAULT NULL,
+  `state` varchar(30) DEFAULT NULL,
+  `zip` varchar(20) DEFAULT NULL,
+  `phone` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------

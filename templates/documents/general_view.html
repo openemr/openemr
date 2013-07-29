@@ -5,6 +5,7 @@
 <script type="text/javascript" src="library/dynarch_calendar.js"></script>
 {php} include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); {/php}
 <script type="text/javascript" src="library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="library/js/jquery-1.9.1.min.js"></script>
 <script language="JavaScript">
  var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
 
@@ -39,6 +40,30 @@
 	{literal}}{/literal}
  {literal}}{/literal}
 
+ // Process click on Import link.
+ function import_ccr(docid) {literal}{
+  top.restoreSession();
+  $.ajax({
+    url: "library/ajax/ccr_import_ajax.php",
+    type: "POST",
+    dataType: "html",
+    data:
+    {
+      ccr_ajax : "yes",
+      document_id : docid,
+    },
+    success: function(data){
+      alert(data);
+      top.restoreSession();
+      document.location.reload();
+    },
+    error:function(){
+      alert("failure");
+    }
+  });
+ }{/literal}
+
+
 </script>
 
 </head>
@@ -49,6 +74,10 @@
             <a class="css_button" href="{$web_path}" onclick="top.restoreSession()"><span>{xl t='Download'}</span></a>
             <a class="css_button" href='' onclick='return showpnotes({$file->get_id()})'><span>{xl t='Show Notes'}</span></a>
             {$delete_string}
+            {if $file->get_ccr_type($file->get_id()) eq "CCR" and $file->get_mimetype($file->get_id()) eq "application/xml" and
+            $file->get_imported($file->get_id()) eq 0 }
+            <a class="css_button" href='javascript:' onclick='return import_ccr({$file->get_id()})'><span>{xl t='Import'}</span></a>
+            {/if}
         </td>
     </tr>
     <tr>

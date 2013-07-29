@@ -476,3 +476,23 @@ ALTER TABLE `procedure_order_code`
   ADD COLUMN `do_not_send` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 = normal, 1 = do not transmit to lab';
 #EndIf
 
+#IfNotTable misc_address_book
+CREATE TABLE `misc_address_book` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `fname` varchar(255) DEFAULT NULL,
+  `mname` varchar(255) DEFAULT NULL,
+  `lname` varchar(255) DEFAULT NULL,
+  `street` varchar(60) DEFAULT NULL,
+  `city` varchar(30) DEFAULT NULL,
+  `state` varchar(30) DEFAULT NULL,
+  `zip` varchar(20) DEFAULT NULL,
+  `phone` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn documents imported
+ALTER TABLE `documents` ADD COLUMN `imported` TINYINT DEFAULT 0 NULL COMMENT 'Parsing status for CCR/CCD/CCDA importing';
+#EndIf
+
+

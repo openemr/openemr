@@ -99,6 +99,12 @@ class Document extends ORDataObject{
 	*/
 	var $list_id;
 
+  /*
+	*	Whether the file is already imported
+	*	@var int
+	*/
+	var $imported;
+
 	/**
 	 * Constructor sets all Document attributes to their default value
 	 * @param int $id optional existing id of a specific document, if omitted a "blank" document is created 
@@ -347,6 +353,15 @@ class Document extends ORDataObject{
     $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?",array($doc_id));
     return $type['name'];
   }
+  function set_imported($imported) {
+		$this->imported = $imported;
+	}
+	function get_imported() {
+		return $this->imported;
+	}
+  function update_imported($doc_id) {
+		sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?",array($doc_id));
+	}
 	/*
 	*	Overridden function to stor current object state in the db.
 	*	current overide is to allow for a just in time foreign id, often this is needed 

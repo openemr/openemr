@@ -1192,6 +1192,12 @@ if (!empty($reg)) {
 ?>
         </ul>
       </li>
+      <li class="collapsed" ><a class="collapsed_lv2"><span><?php echo xlt('Import') ?></span></a>
+        <ul>
+          <?php genMiscLink('RTop','ccr','0',xlt('Upload'),'patient_file/ccr_import.php'); ?>
+          <?php genMiscLink('RTop','apr','0',xlt('Pending Approval'),'patient_file/ccr_pending_approval.php'); ?>
+        </ul>
+      </li>
 <?php } // end if gbl_nav_visit_forms ?>
 
     </ul>
