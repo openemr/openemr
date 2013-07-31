@@ -26,6 +26,7 @@
 
 require_once(dirname(__FILE__) . "/../library/log.inc");
 require_once(dirname(__FILE__) . "/../library/sql.inc");
+require_once(dirname(__FILE__) . "/../library/patient.inc");
 
 /*
  * Connect to a phiMail Direct Messaging server and transmit
@@ -37,8 +38,22 @@ require_once(dirname(__FILE__) . "/../library/sql.inc");
  * @return string result of operation
  */
 
-function transmitCCD($ccd,$recipient,$requested_by) {
+function transmitCCD($ccd,$recipient,$requested_by,$xml_type="CCD") {
    global $pid;
+
+   //get patient name in Last_First format (used for CCDA filename) and
+   //First Last for the message text.
+   $patientData = getPatientPID(array("pid"=>$pid));
+   if (empty($patientData[0]['lname'])) {
+      $att_filename = "";
+      $patientName2 = "";
+   } else {
+      //spaces are the argument delimiter for the phiMail API calls and must be removed
+      $att_filename = " " . 
+         str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname'] 
+         . "_" . $patientData[0]['fname']) . ".xml";
+      $patientName2 = $patientData[0]['fname'] . " " . $patientData[0]['lname'];
+   }
 
    $config_err = xl("Direct messaging is currently unavailable.")." EC:";
    if ($GLOBALS['phimail_enable']==false) return("$config_err 1");
@@ -73,9 +88,11 @@ function transmitCCD($ccd,$recipient,$requested_by) {
    $ret=fgets($fp,1024); //ignore extra server data
 
    if($requested_by=="patient")
-	$text_out = xl("Delivery of the attached clinical document was requested by the patient.");
+	$text_out = xl("Delivery of the attached clinical document was requested by the patient") . 
+            ($patientName2=="" ? "." : ", " . $patientName2 . ".");
    else
-	$text_out = xl("A clinical document is attached.");
+	$text_out = xl("A clinical document is attached") . 
+            ($patientName2=="" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
 
    $text_len=strlen($text_out);
    fwrite($fp,"TEXT $text_len\n");
@@ -98,7 +115,7 @@ function transmitCCD($ccd,$recipient,$requested_by) {
    $ccd_out=$ccd->saveXml();
    $ccd_len=strlen($ccd_out);
 
-   fwrite($fp,"CDA $ccd_len\n");
+   fwrite($fp,"ADD " . ($xml_type=="CCR" ? "CCR " : "CDA ") . $ccd_len . $att_filename . "\n");
    fflush($fp);
    $ret=fgets($fp,256);
    if($ret!="BEGIN\n") {
@@ -114,6 +131,7 @@ function transmitCCD($ccd,$recipient,$requested_by) {
        fclose($fp);
        return("$config_err 8");
    }
+
    fwrite($fp,"SEND\n");
    fflush($fp);
    $ret=fgets($fp,256);
@@ -152,7 +170,7 @@ function transmitCCD($ccd,$recipient,$requested_by) {
 	newEvent("transmit-ccd",$reqBy,$_SESSION['authProvider'],0,$ret,$pid);
 	return( xl("There was a problem sending the message."));
    }
-   newEvent("transmit-ccd",$reqBy,$_SESSION['authProvider'],1,$ret,$pid);
+   newEvent("transmit-".$xml_type,$reqBy,$_SESSION['authProvider'],1,$ret,$pid);
    $adodb=$GLOBALS['adodb']['db'];
    $sql="INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
 	"VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";

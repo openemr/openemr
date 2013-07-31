@@ -128,7 +128,7 @@ function createCCR($action,$raw="no",$requested_by=""){
 	   $e_ccr->appendChild($e_Actors);
 	   
 	   if ($action=="generate"){
-	   	gnrtCCR($ccr,$raw);
+	   	gnrtCCR($ccr,$raw,$requested_by);
 	   }
 	   
 	   if($action == "viewccd"){
@@ -136,7 +136,7 @@ function createCCR($action,$raw="no",$requested_by=""){
 	   }
 	}
 	
-	function gnrtCCR($ccr,$raw="no"){
+	function gnrtCCR($ccr,$raw="no",$requested_by=""){
 		global $pid;
 
 		$ccr->preserveWhiteSpace = false;
@@ -196,6 +196,13 @@ function createCCR($action,$raw="no",$requested_by=""){
 				displayError(xl("ERROR: Unable to Create Zip Archive."));
 				return;
 			}
+                } 
+
+                else if (substr($raw,0,4)=="send") {
+                   $recipient = trim(stripslashes(substr($raw,5)));
+                   $result=transmitCCD($ccr,$recipient,$requested_by,"CCR");
+                   echo htmlspecialchars($result,ENT_NOQUOTES);
+                   return;
                 }
 
 		else {

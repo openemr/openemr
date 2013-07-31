@@ -1588,6 +1588,20 @@ $GLOBALS_METADATA = array(
       'num',                           // data type
       '5',
       xl('Interval between message checks (set to zero for manual checks only)')
+    ),
+
+    'phimail_ccd_enable' => array(
+      xl('phiMail Allow CCD Send'),
+      'bool',                           // data type
+      '0',
+      xl('Enable phiMail Direct Messaging Service')
+    ),
+
+    'phimail_ccr_enable' => array(
+      xl('phiMail Allow CCR Send'),
+      'bool',                           // data type
+      '0',
+      xl('Enable phiMail Direct Messaging Service')
     )
 
   ),
