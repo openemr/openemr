@@ -109,6 +109,26 @@ function show_date_fun(){
 <!-- <input type="button" class="generateCCR_download_h" value="<?php echo xl('Download')." (Hybrid)"; ?>" /> -->
 <input type="button" class="generateCCR_download_p" value="<?php echo xl('Download'); ?>" />
 <!-- <input type="button" class="generateCCR_raw" value="<?php xl('Raw Report','e'); ?>" /> -->
+<?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
+<input type="button" class="viewCCR_send_dialog" value="<?php echo htmlspecialchars( xl('Transmit', ENT_QUOTES)); ?>" />
+             <br>
+             <div id="ccr_send_dialog" style="display:none" >
+              <br>
+              <table border="0" cellpadding="0" cellspacing="0" >
+               <tr>
+                <td>
+                 <span class='bold'><?php echo htmlspecialchars( xl('Enter Recipient\'s Direct Address'), ENT_NOQUOTES);?>: </span>
+                <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="">
+                <input type="hidden" name="ccr_sent_by" id="ccr_sent_by" value="user">
+                <input type="button" class="viewCCR_transmit" value="<?php echo htmlspecialchars( xl('Send', ENT_QUOTES)); ?>" />
+                <div id="ccr_send_result" style="display:none" >
+                 <span class="text" id="ccr_send_message"></span>
+                </div>
+                </td>
+              </tr>
+              </table>
+             </div>
+<?php } ?>
 <hr/>
 <span class='title'><?php xl('Continuity of Care Document (CCD)','e'); ?></span>&nbsp;&nbsp;
 <br/>
@@ -118,7 +138,7 @@ function show_date_fun(){
 <input type="button" class="viewCCD" value="<?php xl('View/Print','e'); ?>" />
 <input type="button" class="viewCCD_download" value="<?php echo htmlspecialchars( xl('Download', ENT_QUOTES)); ?>" />
 <!-- <input type="button" class="viewCCD_raw" value="<?php xl('Raw Report','e'); ?>" /> -->
-<?php if ($GLOBALS['phimail_enable']==true) { ?>
+<?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
 <input type="button" class="viewCCD_send_dialog" value="<?php echo htmlspecialchars( xl('Transmit', ENT_QUOTES)); ?>" />
              <br>
              <div id="ccd_send_dialog" style="display:none" >
@@ -496,7 +516,45 @@ $(document).ready(function(){
                 raw[0].value = 'pure';
                 $("#ccr_form").submit();
         });
-<?php if ($GLOBALS['phimail_enable']==true) { ?>
+<?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
+        $(".viewCCR_send_dialog").click(
+        function() {
+                $("#ccr_send_dialog").toggle();
+        });
+        $(".viewCCR_transmit").click(
+        function() {
+                $(".viewCCR_transmit").attr('disabled','disabled');
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'generate';
+                var ccrRecipient = $("#ccr_send_to").val();
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'send '+ccrRecipient;
+                if(ccrRecipient=="") {
+                  $("#ccr_send_message").html("<?php
+       echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
+                  $("#ccr_send_result").show();
+                } else {
+                  $(".viewCCR_transmit").attr('disabled','disabled');
+                  $("#ccr_send_message").html("<?php
+       echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
+                  $("#ccr_send_result").show();
+                  var action=$("#ccr_form").attr('action');
+                  $.post(action, {ccrAction:'generate',raw:'send '+ccrRecipient,requested_by:'user'},
+                     function(data) {
+                       if(data=="SUCCESS") {
+                         $("#ccr_send_message").html("<?php
+       echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
+                           ?> "+ccrRecipient);
+                         $("#ccr_send_to").val("");
+                       } else {
+                         $("#ccr_send_message").html(data);
+                       }
+                       $(".viewCCR_transmit").removeAttr('disabled');
+                  });
+                }
+        });
+<?php }
+      if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
         $(".viewCCD_send_dialog").click(
         function() {
                 $("#ccd_send_dialog").toggle();
