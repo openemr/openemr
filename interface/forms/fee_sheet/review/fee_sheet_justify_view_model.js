@@ -86,7 +86,8 @@ function choose_search_diag(data,event,parent)
         var new_justify=justify_entry({code: data.code, code_type:data.code_type, description:data.description, selected:true});
         new_justify.source='search';
         new_justify.source_idx=99999;
-        new_justify.create_problem(true);
+        new_justify.create_problem(data.allowed_to_create_problem_from_diagnosis);
+        new_justify.allowed_to_create_problem_from_diagnosis(data.allowed_to_create_problem_from_diagnosis);
         parent.diagnosis_options.push(new_justify);
         parent.added_keys[code_key]=new_justify;
         update_diagnosis_options(parent.diagnosis_options,new_justify);

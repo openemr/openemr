@@ -431,7 +431,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
             $common_columns=" codes.id, codes.code_type, codes.modifier, codes.units, codes.fee, " .
                             "codes.superbill, codes.related_code, codes.taxrates, codes.cyp_factor, " .
                             "codes.active, codes.reportable, codes.financial_reporting, ";
-            $columns .= $common_columns . "'" . add_escape_custom($form_code_type) . "' as code_type_name ";
+            $columns = $common_columns . "'" . add_escape_custom($form_code_type) . "' as code_type_name ";
 
             $active_query = '';
             if ($active) {
