@@ -370,7 +370,7 @@ function submit_form(val){
 				<table border="0" width="95%" >
 					<tr>
 						<?php
-							$query_existing_immunizations = sqlStatement("SELECT * FROM immunizations WHERE patient_id = ?",array($_REQUEST['pid']));
+							$query_existing_immunizations = sqlStatement("SELECT * FROM immunizations WHERE patient_id = ? AND added_erroneously = 0",array($_REQUEST['pid']));
 							$result = array();
 							while($res_existing_immunizations = sqlFetchArray($query_existing_immunizations)){
 								array_push($result,$res_existing_immunizations);
