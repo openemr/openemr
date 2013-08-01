@@ -271,10 +271,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     background-color: white;
     z-index:1;
 }
-.event_out {
-    background-color: lightgray;
-    z-index:1;
-}
+
 .event_appointment {
     background-color: white;
     z-index:2;
@@ -339,5 +336,5 @@ font-size:10px;
 
 .event_out{
     z-index: 3;
-    background-color:#99FFFF;
+    background-color:#ff7533;
 }
