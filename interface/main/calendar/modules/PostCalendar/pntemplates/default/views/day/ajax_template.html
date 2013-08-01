@@ -427,10 +427,12 @@ foreach ($providers as $provider) {
 
             $events_in_timeslot = array();
             foreach ($events as $e1) {
-                // ignore IN and OUT events
-                if (($e1['catid'] == 2) || ($e1['catid'] == 3)) { continue; }
-                // skip events without an ID (why they are in the loop, I have no idea)
+                // ignore IN event
+                if (($e1['catid'] == 2)) { continue; }
+				
+				// skip events without an ID (why they are in the loop, I have no idea)
                 if ($e1['eid'] == "") { continue; }
+
                 // skip events for other providers
                 if ($providerid != $e1['aid']) { continue; }
             
@@ -455,8 +457,14 @@ foreach ($providers as $provider) {
                    || (($e1End > $slotstartmins) && ($e1End <= $slotendmins)) // end-in
                    || (($e1Start < $slotstartmins) && ($e1End > $slotendmins))) // span
                 {
-                    array_push($events_in_timeslot, $e1['eid']);
+					array_push($events_in_timeslot, $e1['eid']);
+					if($e1['catid'] == 3)
+					{
+						array_pop($events_in_timeslot);
+						array_unshift($events_in_timeslot, $e1['eid']);
+					}
                 }
+
             }
             $leftpos = 0;
             $width = 100 / count($events_in_timeslot);
@@ -465,13 +473,23 @@ foreach ($providers as $provider) {
             foreach ($events_in_timeslot as $eid) {
                 // set the width if not already set or if the current width is smaller
                 // than was was previously set
-                if (! isset($eventPositions[$eid]->width)) { $eventPositions[$eid]->width = $width; }
-                else if ($eventPositions[$eid]->width > $width) { $eventPositions[$eid]->width = $width; }
+				if (!isset($eventPositions[$eid]->width))
+				{
+					$eventPositions[$eid]->width = $width;
+				} else if ($eventPositions[$eid]->width > $width) 
+				{
+					$eventPositions[$eid]->width = $width;
+				}
                
                 // set the left position if not already set or if the current left is
                 // greater than what was previously set
-                if (! isset($eventPositions[$eid]->leftpos)) { $eventPositions[$eid]->leftpos = $leftpos; }
-                else if ($eventPositions[$eid]->leftpos < $leftpos) { $eventPositions[$eid]->leftpos = $leftpos; }
+				if (!isset($eventPositions[$eid]->leftpos))
+				{
+					$eventPositions[$eid]->leftpos = $leftpos;
+				} else if ($eventPositions[$eid]->leftpos < $leftpos) 
+				{
+					$eventPositions[$eid]->leftpos = $leftpos;
+				}
 
                 // increment the leftpos by the width
                 $leftpos += $width;
