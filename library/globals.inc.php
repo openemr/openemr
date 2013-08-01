@@ -1594,14 +1594,14 @@ $GLOBALS_METADATA = array(
       xl('phiMail Allow CCD Send'),
       'bool',                           // data type
       '0',
-      xl('Enable phiMail Direct Messaging Service')
+      xl('phiMail Allow CCD Send')
     ),
 
     'phimail_ccr_enable' => array(
       xl('phiMail Allow CCR Send'),
       'bool',                           // data type
       '0',
-      xl('Enable phiMail Direct Messaging Service')
+      xl('phiMail Allow CCR Send')
     )
 
   ),
