@@ -661,7 +661,7 @@ $GLOBALS_METADATA = array(
     ),
 
   ),
-    
+
     //Documents Tab
     'Documents' => array(
         'document_storage_method' => array(
@@ -709,7 +709,29 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable log for document uploads/downloads to CouchDB'),
         ),
+
+    'patient_id_category_name' => array(
+      xl('Patient ID Category Name'),
+      'text',                           // data type
+      'Patient ID card',                // default
+      xl('Optional category name for an ID Card image that can be viewed from the patient summary page.')
     ),
+
+    'patient_photo_category_name' => array(
+      xl('Patient Photo Category Name'),
+      'text',                           // data type
+      'Patient Photograph',             // default
+      xl('Optional category name for photo images that can be viewed from the patient summary page.')
+    ),
+
+    'lab_results_category_name' => array(
+      xl('Lab Results Category Name'),
+      'text',                           // data type
+      'Lab Report',                     // default
+      xl('Document category name for storage of electronically received lab results.')
+    ),
+
+  ),
 
   // Calendar Tab
   //
@@ -1299,20 +1321,6 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       '',
       xl('To automatically open the specified form. Some sports teams use football_injury_audit here.')
-    ),
-
-    'patient_id_category_name' => array(
-      xl('Patient ID Category Name'),
-      'text',                           // data type
-      'Patient ID card',                // default
-      xl('Optional category name for an ID Card image that can be viewed from the patient summary page.')
-    ),
-
-    'patient_photo_category_name' => array(
-      xl('Patient Photo Category Name'),
-      'text',                  // data type
-      'Patient Photograph',    // default
-      xl('Optional category name for photo images that can be viewed from the patient summary page.')
     ),
 
     'MedicareReferrerIsRenderer' => array(

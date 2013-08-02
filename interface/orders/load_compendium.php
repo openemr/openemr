@@ -5,7 +5,7 @@
 * Supports loading of lab order codes and related order entry questions from CSV
 * format into the procedure_order and procedure_questions tables, respectively.
 *
-* Copyright (C) 2012 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2012-2013 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -32,9 +32,10 @@ require_once("$srcdir/acl.inc");
 
 // This array is an important reference for the supported labs and their NPI
 // numbers as known to this program.  The clinic must define at least one
-// address book entry for a lab that has a supported NPI number.
+// procedure provider entry for a lab that has a supported NPI number.
 //
 $lab_npi = array(
+  '1235138868' => 'Diagnostic Pathology Medical Group',
   '1235186800' => 'Pathgroup Labs LLC',
   '1598760985' => 'Yosemite Pathology Medical Group',
 );
@@ -218,8 +219,8 @@ if ($form_step == 1) {
         } // end load compendium
 
         else if ($form_action == 2) { // load questions
-          // Mark the vendor's current questions inactive.
-          sqlStatement("UPDATE procedure_questions SET activity = 0 WHERE lab_id = ?",
+          // Delete the vendor's current questions.
+          sqlStatement("DELETE FROM procedure_questions WHERE lab_id = ?",
             array($lab_id));
 
           // What should be uploaded is the "AOE Questions" spreadsheet provided by
@@ -316,9 +317,9 @@ if ($form_step == 1) {
         } // end load questions
       } // End Pathgroup
 
-      // Vendor = Yosemite Pathology Medical Group
+      // Vendor = YPMG or DPMG
       //
-      if ($form_vendor == '1598760985') {
+      if ($form_vendor == '1598760985' || $form_vendor == '1235138868') {
         if ($form_action == 1) { // load compendium
           // Mark all "ord" rows having the indicated parent as inactive.
           sqlStatement("UPDATE procedure_type SET activity = 0 WHERE " .
@@ -360,7 +361,7 @@ if ($form_step == 1) {
 
         else if ($form_action == 2) { // load questions
           // Mark the vendor's current questions inactive.
-          sqlStatement("UPDATE procedure_questions SET activity = 0 WHERE lab_id = ?",
+          sqlStatement("DELETE FROM procedure_questions WHERE lab_id = ?",
             array($lab_id));
 
           // What should be uploaded is the "AOE Questions" spreadsheet provided
@@ -375,6 +376,8 @@ if ($form_step == 1) {
           //      indicates that more than one choice is allowed)
           //   5: Response (just one; the row is duplicated for each possible value)
           //
+          $seq = 0;
+          $last_code = '';
           while (!feof($fhcsv)) {
             $acsv = fgetcsv($fhcsv, 4096);
             if (count($acsv) < 5 || ($acsv[3] !== "false" && $acsv[3] !== "true")) continue;
@@ -384,6 +387,12 @@ if ($form_step == 1) {
             $required = strtolower(substr($acsv[3], 0, 1)) == 't' ? 1 : 0;
             $options = trim($acsv[5]);
             if (empty($pcode) || empty($qcode)) continue;
+
+            if ($pcode != $last_code) {
+              $seq = 0;
+              $last_code = $pcode;
+            }
+            ++$seq;
 
             // Figure out field type.
             $fldtype = 'T';
@@ -401,8 +410,8 @@ if ($form_step == 1) {
             if (empty($qrow['procedure_code'])) {
               sqlStatement("INSERT INTO procedure_questions SET " .
                 "lab_id = ?, procedure_code = ?, question_code = ?, question_text = ?, " .
-                "fldtype = ?, required = ?, options = ?, activity = 1",
-                array($lab_id, $pcode, $qcode, trim($acsv[2]), $fldtype, $required, $options));
+                "fldtype = ?, required = ?, options = ?, seq = ?, activity = 1",
+                array($lab_id, $pcode, $qcode, trim($acsv[2]), $fldtype, $required, $options, $seq));
             }
             else {
               if ($qrow['activity'] == '1' && $qrow['options'] !== '' && $options !== '') {

@@ -209,7 +209,7 @@ function gen_hl7_order($orderid, &$out) {
       $d2 .
       $d2 . hl7Text($porow['city']) .
       $d2 . hl7Text($porow['state']) .
-      $d2 . hl7Zip($porow['zip']) .
+      $d2 . hl7Zip($porow['postal_code']) .
     $d1 .
     $d1 . hl7Phone($porow['phone_home']) .
     $d1 . hl7Phone($porow['phone_biz']) .
@@ -289,7 +289,7 @@ function gen_hl7_order($orderid, &$out) {
       $d2 .
       $d2 . hl7Text($porow['city']) .
       $d2 . hl7Text($porow['state']) .
-      $d2 . hl7Zip($porow['zip']) .
+      $d2 . hl7Zip($porow['postal_code']) .
     $d1 . hl7Phone($porow['phone_home']) .
     $d1 . hl7Phone($porow['phone_biz']) .
     $d1 . hl7Date($porow['DOB']) .   // DOB
@@ -420,7 +420,18 @@ function send_hl7_order($ppid, $out) {
   $msgid = $segmsh[9];
   if (empty($msgid)) return xl('Internal error: Cannot find MSH-10');
 
-  if ($protocol == 'SFTP') {
+  if ($protocol == 'DL' || $pprow['orders_path'] === '') {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=order_$msgid.hl7");
+    header("Content-Description: File Transfer");
+    echo $out;
+    exit;
+  }
+
+  else if ($protocol == 'SFTP') {
     ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$srcdir/phpseclib");
     require_once("$srcdir/phpseclib/Net/SFTP.php");
 
@@ -436,17 +447,6 @@ function send_hl7_order($ppid, $out) {
     if (!$sftp->put($filename, $out)) {
       return xl('Creating this file on remote host failed') . ": '$filename'";
     }
-  }
-
-  else if ($protocol == 'DL') {
-    header("Pragma: public");
-    header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Content-Type: application/force-download");
-    header("Content-Disposition: attachment; filename=order_$msgid.hl7");
-    header("Content-Description: File Transfer");
-    echo $out;
-    exit;
   }
 
   // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.

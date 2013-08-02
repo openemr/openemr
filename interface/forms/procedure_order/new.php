@@ -294,7 +294,7 @@ function addProcLine() {
   " title='<?php echo xla('Click to select the desired procedure'); ?>'" +
   "  style='width:100%;cursor:pointer;cursor:hand' readonly />" +
   " <input type='hidden' name='form_proc_type[" + i + "]' value='-1' />" +
-  "<br /><b><?php echo xla('Diagnoses'); ?>: </b>" +
+  "<br /><?php echo xla('Diagnosis Codes'); ?>: " +
   "<input type='text' size='50' name='form_proc_type_diag[" + i + "]'" +
   " onclick='sel_related(this.name)'" +
   " title='<?php echo xla('Click to add a diagnosis'); ?>'" +
@@ -519,7 +519,7 @@ generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
     title='<?php xla('Click to select the desired procedure','e'); ?>'
     style='width:100%;cursor:pointer;cursor:hand' readonly />
    <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo $ptid ?>' />
-   <br /><b><?php echo xlt('Diagnoses'); ?>:</b>
+   <br /><?php echo xlt('Diagnosis Codes'); ?>:
    <input type='text' size='50' name='form_proc_type_diag[<?php echo $i; ?>]'
     value='<?php echo attr($oprow['diagnoses']) ?>' onclick='sel_related(this.name)'
     title='<?php echo xla('Click to add a diagnosis'); ?>'

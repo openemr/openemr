@@ -75,8 +75,8 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0) {
 
     if ($fldtype == 'T') {
       // Text Field.
-      $s .= "<input type='text' name='$qfieldid'";
-      if ($maxsize) $s .= " maxlength='$maxsize'";
+      $s .= "<input type='text' name='$qfieldid' size='50'";
+      $s .= " maxlength='" . ($maxsize ? $maxsize : 255) . "'";
       if (!empty($answers)) $s .= " value='" . attr($answers[0]) . "'";
       $s .= " />";
       $s .= "&nbsp;" . text($qrow['tips']);
@@ -171,17 +171,31 @@ function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0) {
     }
 
     else {
-      // Radio buttons.
+      // Radio buttons or drop-list, depending on the number of choices.
       $a = explode(';', $qrow['options']);
-      $i = 0;
-      foreach ($a as $aval) {
-        list($desc, $code) = explode(':', $aval);
-        if (empty($code)) $code = $desc;
-        if ($i) $s .= "<br />";
-        $s .= "<input type='radio' name='$qfieldid' value='" . attr($code) . "'";
-        if (in_array($code, $answers)) $s .= " checked";
-        $s .= " />" . text($desc);
-        ++$i;
+      if (count($a) > 5) {
+        $s .= "<select name='$qfieldid'";
+        $s .= ">";
+        foreach ($a as $aval) {
+          list($desc, $code) = explode(':', $aval);
+          if (empty($code)) $code = $desc;
+          $s .= "<option value='" . attr($code) . "'";
+          if (in_array($code, $answers)) $s .= " selected";
+          $s .= ">" . text($desc) . "</option>";
+        }
+        $s .= "</select>";
+      }
+      else {
+        $i = 0;
+        foreach ($a as $aval) {
+          list($desc, $code) = explode(':', $aval);
+          if (empty($code)) $code = $desc;
+          if ($i) $s .= "<br />";
+          $s .= "<input type='radio' name='$qfieldid' value='" . attr($code) . "'";
+          if (in_array($code, $answers)) $s .= " checked";
+          $s .= " />" . text($desc);
+          ++$i;
+        }
       }
     }
 

@@ -23,10 +23,12 @@ $sanitize_all_escapes = true;
 $fake_register_globals = false;
 
 require_once("../globals.php");
+require_once("$srcdir/log.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/classes/Document.class.php");
 require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
 

@@ -23,6 +23,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/classes/Document.class.php");
 
 function getListItem($listid, $value) {
   $lrow = sqlQuery("SELECT title FROM list_options " .
@@ -34,6 +35,7 @@ function getListItem($listid, $value) {
 }
 
 function myCellText($s) {
+  $s = trim($s);
   if ($s === '') return '&nbsp;';
   return text($s);
 }
@@ -59,7 +61,7 @@ function generate_order_report($orderid, $input_form=false) {
 
   $orow = sqlQuery("SELECT " .
     "po.procedure_order_id, po.date_ordered, " .
-    "po.order_status, po.specimen_type, " .
+    "po.order_status, po.specimen_type, po.patient_id, " .
     "pd.pubpid, pd.lname, pd.fname, pd.mname, " .
     "fe.date, " .
     "pp.name AS labname, " .
@@ -71,6 +73,8 @@ function generate_order_report($orderid, $input_form=false) {
     "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
     "WHERE po.procedure_order_id = ?",
     array($orderid));
+
+  $patient_id = $orow['patient_id'];
 ?>
 
 <style>
@@ -128,15 +132,18 @@ function showpnotes(orderid) {
   <td width='5%' nowrap><?php echo xlt('Patient ID'); ?></td>
   <td width='45%'><?php echo myCellText($orow['pubpid']); ?></td>
   <td width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
-
   <td width='45%'>
 <?php
-  echo "   <a href='" . $GLOBALS['webroot'];
-  echo "/interface/orders/order_manifest.php?orderid=";
-  echo attr($orow['procedure_order_id']);
-  echo "' target='_blank' onclick='top.restoreSession()'>";
+  if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+    echo "   <a href='" . $GLOBALS['webroot'];
+    echo "/interface/orders/order_manifest.php?orderid=";
+    echo attr($orow['procedure_order_id']);
+    echo "' target='_blank' onclick='top.restoreSession()'>";
+  }
   echo myCellText($orow['procedure_order_id']);
-  echo "</a>\n";
+  if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+    echo "</a>\n";
+  }
 ?>
   </td>
  </tr>
@@ -237,8 +244,8 @@ function showpnotes(orderid) {
     }
 
     $query = "SELECT " .
-      "ps.result_code, ps.result_text, ps.abnormal, ps.result, " .
-      "ps.range, ps.result_status, ps.facility, ps.units, ps.comments " .
+      "ps.result_code, ps.result_text, ps.abnormal, ps.result, ps.range, " .
+      "ps.result_status, ps.facility, ps.units, ps.comments, ps.document_id " .
       "FROM procedure_result AS ps " .
       "WHERE ps.procedure_report_id = ? " .
       "ORDER BY ps.result_code, ps.procedure_result_id";
@@ -262,6 +269,7 @@ function showpnotes(orderid) {
       $result_comments  = empty($rrow['comments'        ]) ? '' : $rrow['comments'];
       $result_range     = empty($rrow['range'           ]) ? '' : $rrow['range'];
       $result_status    = empty($rrow['result_status'   ]) ? '' : $rrow['result_status'];
+      $result_document_id = empty($rrow['document_id'   ]) ? '' : $rrow['document_id'];
 
       $result_comments = trim($result_comments);
       $result_noteid = '';
@@ -309,7 +317,7 @@ function showpnotes(orderid) {
         echo "  <td colspan='4' style='background-color:transparent'>&nbsp;</td>\n";
       }
 
-      if ($result_code !== '') {
+      if ($result_code !== '' || $result_document_id) {
         echo "  <td>";
         echo myCellText($result_code);
         echo "</td>\n";
@@ -319,15 +327,32 @@ function showpnotes(orderid) {
         echo "  <td>";
         echo myCellText(getListItem('proc_res_abnormal', $result_abnormal));
         echo "</td>\n";
-        echo "  <td>";
-        echo myCellText($result_result);
-        echo "</td>\n";
-        echo "  <td>";
-        echo myCellText($result_range);
-        echo "</td>\n";
-        echo "  <td>";
-        echo myCellText($result_units);
-        echo "</td>\n";
+        //
+        if ($result_document_id) {
+          $d = new Document($result_document_id);
+          echo "  <td colspan='3'>";
+          if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+            echo "<a href='" . $GLOBALS['webroot'] . "/controller.php?document";
+            echo "&retrieve&patient_id=$patient_id&document_id=$result_document_id' ";
+            echo "onclick='top.restoreSession()'>";
+          }
+          echo $d->get_url_file();
+          if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+            echo "</a>";
+          }
+          echo "</td>\n";
+        }
+        else {
+          echo "  <td>";
+          echo myCellText($result_result);
+          echo "</td>\n";
+          echo "  <td>";
+          echo myCellText($result_range);
+          echo "</td>\n";
+          echo "  <td>";
+          echo myCellText($result_units);
+          echo "</td>\n";
+        }
         echo "  <td align='center'>";
         echo myCellText($result_noteid);
         echo "</td>\n";

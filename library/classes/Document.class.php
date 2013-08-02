@@ -458,18 +458,128 @@ class Document extends ORDataObject{
     return true;
   }
 
+  /**
+   * Create a new document and store its data.
+   * This is a mix of new code and code moved from C_Document.class.php.
+   *
+   * @param  string  $patient_id   Patient pid; if not known then this may be a simple directory name
+   * @param  integer $category_id  The desired document category ID
+   * @param  string  $filename     Desired filename, may be modified for uniqueness
+   * @param  string  $mimetype     MIME type
+   * @param  string  &$data        The actual data to store (not encoded)
+   * @param  string  $higher_level_path Optional subdirectory within the local document repository
+   * @param  string  $path_depth   Number of directory levels in $higher_level_path, if specified
+   * @param  integer $owner        Owner/user/service that is requesting this action
+   * @return string                Empty string if success, otherwise error message text
+   */
+  function createDocument($patient_id, $category_id, $filename, $mimetype, &$data,
+    $higher_level_path='', $path_depth=1, $owner=0) {
+    // The original code used the encounter ID but never set it to anything.
+    // That was probably a mistake, but we reference it here for documentation
+    // and leave it empty. Logically, documents are not tied to encounters.
+    $encounter_id = '';
+    $this->storagemethod = $GLOBALS['document_storage_method'];
+    $this->mimetype = $mimetype;
+    if ($this->storagemethod == 1) {
+      // Store it using CouchDB.
+      $couch = new CouchDB();
+      $docname = $_SESSION['authId'] . $filename . $patient_id . $encounter_id . date("%Y-%m-%d H:i:s");
+      $docid = $couch->stringToId($docname);
+      $json = json_encode(base64_encode($data));
+      $db = $GLOBALS['couchdb_dbase'];
+      $couchdata = array($db, $docid, $patient_id, $encounter_id, $mimetype, $json);
+      $resp = $couch->check_saveDOC($couchdata);
+      if(!$resp->id || !$resp->_rev) {
+        // Not sure what this is supposed to do.  The references to id, rev,
+        // _id and _rev seem pretty weird.
+        $couchdata = array($db, $docid, $patient_id, $encounter_id);
+        $resp = $couch->retrieve_doc($couchdata);
+        $docid = $resp->_id;
+        $revid = $resp->_rev;
+      }
+      else {
+        $docid = $resp->id;
+        $revid = $resp->rev;
+      }
+      if(!$docid && !$revid) {
+        return xl('CouchDB save failed');
+      }
+      $this->url = $filename;
+      $this->couch_docid = $docid;
+      $this->couch_revid = $revid;
+    }
+    else {
+      // Storing document files locally.
+      $repository = $GLOBALS['oer_config']['documents']['repository'];
+      $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);
+      if ((!empty($higher_level_path)) && (is_numeric($patient_id) && $patient_id > 0)) {
+        // Allow higher level directory structure in documents directory and a patient is mapped.
+        $filepath = $repository . $higher_level_path . "/";
+      }
+      else if (!empty($higher_level_path)) {
+        // Allow higher level directory structure in documents directory and there is no patient mapping
+        // (will create up to 10000 random directories and increment the path_depth by 1).
+        $filepath = $repository . $higher_level_path . '/' . rand(1,10000)  . '/';
+        ++$path_depth;
+      }
+      else if (!(is_numeric($patient_id)) || !($patient_id > 0)) {
+        // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
+        // (will create up to 10000 random directories and set the path_depth to 2).
+        $filepath = $repository . $patient_id . '/' . rand(1,10000)  . '/';
+        $path_depth = 2;
+        $patient_id = 0;
+      }
+      else {
+        // This is the default action where the patient is used as one level directory structure in documents directory.
+        $filepath = $repository . $patient_id . '/';
+        $path_depth = 1;
+      }
+      if (!file_exists($filepath)) {
+        if (!mkdir($filepath, 0700, true)) {
+          return xl('Unable to create patient document subdirectory');
+        }
+      }
+      // Filename modification to force valid characters and uniqueness.
+      $filename = preg_replace("/[^a-zA-Z0-9_.]/", "_", $filename);
+      $fnsuffix = 0;
+      $fn1 = $filename;
+      $fn2 = '';
+      $fn3 = '';
+      $dotpos = strrpos($filename, '.');
+      if ($dotpos !== FALSE) {
+        $fn1 = substr($filename, 0, $dotpos);
+        $fn2 = '.';
+        $fn3 = substr($filename, $dotpos + 1);
+      }
+      while (file_exists($filepath . $filename)) {
+        if (++$fnsuffix > 10000) return xl('Failed to compute a unique filename');
+        $filename = $fn1 . '_' . $fnsuffix . $fn2 . $fn3;
+      }
+      $this->url = "file://" . $filepath . $filename;
+      if (is_numeric($path_depth)) {
+        // this is for when directory structure is more than one level
+        $this->path_depth = $path_depth;
+      }
+      // Store the file into its proper directory.
+      if (file_put_contents($filepath . $filename, $data) === FALSE) {
+        return xl('Failed to create') . " $filepath$filename";
+      }
+    }
+    $this->size  = strlen($data);
+    $this->hash  = sha1($data);
+    $this->type  = $this->type_array['file_url'];
+    $this->owner = $owner ? $owner : $_SESSION['authUserID'];			
+    $this->set_foreign_id($patient_id);
+    $this->persist();
+    $this->populate();
+    if (is_numeric($this->get_id()) && is_numeric($category_id)){
+      $sql = "REPLACE INTO categories_to_documents set " .
+        "category_id = '$category_id', " .
+        "document_id = '" . $this->get_id() . "'";
+      $this->_db->Execute($sql);
+    }
+    return '';
+  }
+
 } // end of Document
-
-/*
-$d = new Document(3);
-$d->type = $d->type_array[1];
-$d->url = "file:///tmp/test.gif";
-$d->pages = 0;
-$d->owner = 60;
-$d->size = 8000;
-$d->foreign_id = 25;
-$d->persist();
-$d->populate();
-
-echo $d->toString(true);*/
 ?>

@@ -69,13 +69,17 @@ function generate_order_summary($orderid) {
     "po.procedure_order_id, po.patient_id, po.date_ordered, po.order_status, " .
     "po.date_collected, po.specimen_type, po.specimen_location, po.lab_id, po.clinical_hx, " .
     "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.DOB, pd.sex, " .
+    "pd.street, pd.city, pd.state, pd.postal_code, " .
     "fe.date, " .
     "pp.name AS labname, " .
-    "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
+    "u.lname AS ulname, u.fname AS ufname, u.mname AS umname, " .
+    "ru.lname AS ref_lname, ru.fname AS ref_fname, ru.mname AS ref_mname, " .
+    "ru.street AS ref_street, ru.city AS ref_city, ru.state AS ref_state, ru.zip AS ref_zip " .
     "FROM procedure_order AS po " .
     "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id " .
     "LEFT JOIN procedure_providers AS pp ON pp.ppid = po.lab_id " .
     "LEFT JOIN users AS u ON u.id = po.provider_id " .
+    "LEFT JOIN users AS ru ON ru.id = pd.ref_providerID " .
     "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
     "WHERE po.procedure_order_id = ?",
     array($orderid));
@@ -173,28 +177,34 @@ function generate_order_summary($orderid) {
   <td><?php echo myCellText($orow['specimen_type']); ?></td>
  </tr>
  <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Ins Name'); ?></td>
-  <td><?php echo myCellText($ins_name); ?></td>
+  <td nowrap><?php echo xlt('Address'); ?></td>
+  <td><?php echo myCellText($orow['street'] . ', ' . $orow['city'] . ', ' . $orow['state'] . ' ' . $orow['postal_code']); ?></td>
   <td nowrap><?php echo xlt('Collection Date'); ?></td>
   <td><?php echo myCellText(oeFormatShortDate($orow['date_collected'])); ?></td>
  </tr>
  <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Ins Address'); ?></td>
-  <td><?php echo myCellText("$ins_addr, $ins_city, $ins_state $ins_zip"); ?></td>
+  <td nowrap><?php echo xlt('Ins Name'); ?></td>
+  <td><?php echo myCellText($ins_name); ?></td>
   <td nowrap><?php echo xlt('Clinical History'); ?></td>
   <td><?php echo myCellText($orow['clinical_hx']); ?></td>
  </tr>
  <tr bgcolor='#cccccc'>
-  <td nowrap><?php echo xlt('Ins Policy'); ?></td>
-  <td><?php echo myCellText($ins_policy); ?></td>
+  <td nowrap><?php echo xlt('Ins Address'); ?></td>
+  <td><?php echo myCellText("$ins_addr, $ins_city, $ins_state $ins_zip"); ?></td>
   <td nowrap><?php echo xlt('Order Status'); ?></td>
   <td><?php echo myCellText(getListItem('ord_status', $orow['order_status'])); ?></td>
  </tr>
  <tr bgcolor='#cccccc'>
+  <td nowrap><?php echo xlt('Ins Policy'); ?></td>
+  <td><?php echo myCellText($ins_policy); ?></td>
+  <td nowrap><?php echo xlt('Referrer'); ?></td>
+  <td><?php echo myCellText($orow['ref_lname'] . ', ' . $orow['ref_fname'] . ' ' . $orow['ref_mname']); ?></td>
+ </tr>
+ <tr bgcolor='#cccccc'>
   <td nowrap><?php echo xlt('Ins Group'); ?></td>
   <td><?php echo myCellText($ins_group); ?></td>
-  <td>&nbsp;</td>
-  <td>&nbsp;</td>
+  <td nowrap><?php echo xlt('Referrer Address'); ?></td>
+  <td><?php echo myCellText($orow['ref_street'] . ', ' . $orow['ref_city'] . ', ' . $orow['ref_state'] . ' ' . $orow['ref_zip']); ?></td>
  </tr>
 </table>
 
@@ -267,9 +277,9 @@ function generate_order_summary($orderid) {
     echo "  <td><input type='checkbox' name='form_omit[$order_seq]' value='1'";
     if (!empty($row['do_not_send'])) echo " checked";
     echo " /></td>\n";
-    echo "  <td>" . text("$procedure_code") . "</td>\n";
-    echo "  <td>" . text("$procedure_name") . "</td>\n";
-    echo "  <td>" . text("$diagnoses"     ) . "</td>\n";
+    echo "  <td>" . myCellText("$procedure_code") . "</td>\n";
+    echo "  <td>" . myCellText("$procedure_name") . "</td>\n";
+    echo "  <td>" . myCellText("$diagnoses") . "</td>\n";
     echo "  <td>$notes</td>\n";
     echo " </tr>\n";
   }
