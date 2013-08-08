@@ -1,9 +1,6 @@
 <?php
 /**
- * library/sql_upgrade_fx.php Upgrading and patching functions of database.
- *
- * Functions to allow safe database modifications
- * during upgrading and patches.
+ * Administration Lists Module.
  *
  * Copyright (C) 2007-2011 Rod Roark <rod@sunsetsystems.com>
  *
