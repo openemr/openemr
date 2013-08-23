@@ -188,7 +188,7 @@ while ($erow = sqlFetchArray($res)) {
 	$j=$j+1;
 }
 $res1 = sqlStatement("select distinct event from  extended_log order by event ASC");
-$j=0;
+// $j=0; // This can't be right!  -- Rod 2013-08-23
 while ($row = sqlFetchArray($res1)) {
          if (!trim($row['event'])) continue;
          $new_event = explode('-', $row['event']);
