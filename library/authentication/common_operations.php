@@ -77,4 +77,31 @@ function purgeCompatabilityPassword($username,$userid)
                 ." AND ".COL_ID. "=?";
     privStatement($purgeSQL,array($username,$userid));
 }
+
+
+/**
+ * 
+ * @param type $username
+ * @param type $password
+ * @return boolean  returns true if the password for the given user is correct, false otherwise.
+ */
+function confirm_user_password($username,&$password)
+{
+    $getUserSecureSQL= " SELECT " . implode(",",array(COL_ID,COL_PWD,COL_SALT))
+                       ." FROM ".TBL_USERS_SECURE
+                       ." WHERE BINARY ".COL_UNM."=?";
+                       // Use binary keyword to require case sensitive username match
+    $userSecure=privQuery($getUserSecureSQL,array($username));
+    if(is_array($userSecure))
+    {
+        $phash=password_hash($password,$userSecure[COL_SALT]);
+        if($phash==$userSecure[COL_PWD])
+        {
+            
+            return true;
+        }
+    }
+    return false;
+}
 ?>
+
