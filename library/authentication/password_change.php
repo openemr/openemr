@@ -34,7 +34,7 @@ function test_password_strength($pwd,&$errMsg)
     $require_strong=$GLOBALS['secure_password'] !=0;
     if($require_strong)
     {
-        if(strlen($newPwd)<8)
+        if(strlen($pwd)<8)
         {
             $errMsg=xl("Password too short. Minimum 8 characters required.");
             return false;
@@ -43,7 +43,7 @@ function test_password_strength($pwd,&$errMsg)
         $reg_security=array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
         foreach($reg_security as $expr)
         {
-            if(preg_match($expr,$newPwd))
+            if(preg_match($expr,$pwd))
             {
                 $features++;
             }
