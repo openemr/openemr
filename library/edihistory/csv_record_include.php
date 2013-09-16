@@ -249,8 +249,11 @@ function csv_edih_basedir() {
 function csv_edih_tmpdir() {
     //define("IBR_UPLOAD_DIR", "/tmp/edihist"); 
     $systmp = sys_get_temp_dir();
-    $systmp = stripcslashes($systmp);
-    return $systmp."/edihist";
+    if (substr($systmp, -1) == DIRECTORY_SEPARATOR) {
+        return $systmp."edihist";
+    } else {
+        return $systmp.DIRECTORY_SEPARATOR."edihist";
+    }
 }
    
 
