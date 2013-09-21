@@ -64,7 +64,8 @@ function addNewDocument($name,$type,$tmp_name,$error,$size,$owner='',$patient_id
 
     // Add the Document and return the newly added document id
     $cd = new C_Document();
-    $cd->upload_action_process($owner);
+    $cd->manual_set_owner=$owner;
+    $cd->upload_action_process();
     $v = $cd->get_template_vars("file");
     if (!isset($v) || !$v) return false;
     return array ("doc_id" => $v[0]->id, "url" => $v[0]->url); 
