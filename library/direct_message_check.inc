@@ -28,6 +28,68 @@ require_once(dirname(__FILE__) . "/sql.inc");
 require_once(dirname(__FILE__) . "/pnotes.inc");
 require_once(dirname(__FILE__) . "/../controllers/C_Document.class.php");
 require_once(dirname(__FILE__) . "/documents.php");
+require_once(dirname(__FILE__) . "/gprelations.inc.php");
+require_once(dirname(__FILE__) . "/classes/class.phpmailer.php");
+
+/**
+ * Connect to a phiMail Direct Messaging server 
+ */
+
+function phimail_connect(&$phimail_error) {
+
+   if ($GLOBALS['phimail_enable'] == false) {
+      $phimail_error = 'C1';
+      return false; //for safety
+   }
+
+   $phimail_server = @parse_url($GLOBALS['phimail_server_address']);
+   $phimail_username = $GLOBALS['phimail_username'];
+   $phimail_password = $GLOBALS['phimail_password'];
+   $phimail_cafile = dirname(__FILE__) . '/../sites/' . $_SESSION['site_id']
+      . '/documents/phimail_server_pem/phimail_server.pem';
+   if (!file_exists($phimail_cafile)) $phimail_cafile='';
+   
+   $phimail_secure = true;
+   switch ($phimail_server['scheme']) {
+       case "tcp":
+       case "http": $server = "tcp://".$phimail_server['host'];
+               $phimail_secure = false;
+               break;
+       case "https": $server = "ssl://" . $phimail_server['host']
+               . ':' . $phimail_server['port'];
+               break;
+       case "ssl":
+       case "sslv3":
+       case "tls": $server = $GLOBALS['phimail_server_address'];
+               break;
+       default: $phimail_error = 'C2';
+               return false;
+   }
+   if ($phimail_secure) {
+      $context = stream_context_create();
+      if ($phimail_cafile != '' &&
+            (!stream_context_set_option($context, 'ssl', 'verify_peer', true) ||
+             !stream_context_set_option($context, 'ssl', 'cafile', $phimail_cafile))) {
+         $phimail_error = 'C3';
+         return false;
+      }
+      $socket_tries = 0;
+      $fp = false;
+      while ($socket_tries < 3 && !$fp) {
+         $socket_tries++;
+         $fp = @stream_socket_client($server, $err1, $err2, 10, 
+            STREAM_CLIENT_CONNECT, $context);
+      }
+      if (!$fp) {
+         if ($err1 == '111') $err2 = xl('Server may be offline');
+         if ($err2 == '') $err2 = xl('Connection error');
+         $phimail_error = "C4 $err1 ($err2)";
+      }
+   } else {
+      $fp = @fsockopen($server,$phimail_server['port']);
+   }
+   return $fp;
+}
 
 /**
  * Connect to a phiMail Direct Messaging server and check for any incoming status
@@ -35,26 +97,18 @@ require_once(dirname(__FILE__) . "/documents.php");
  */
 
 function phimail_check() {
-   if ($GLOBALS['phimail_enable']==false) return; //for safety
-
-   $phimail_server=@parse_url($GLOBALS['phimail_server_address']);
-   $phimail_username=$GLOBALS['phimail_username'];
-   $phimail_password=$GLOBALS['phimail_password'];
-   switch ($phimail_server['scheme']) {
-       case "http": $server="tcp://".$phimail_server['host'];
-               break;
-       case "https": $server="ssl://".$phimail_server['host'];
-               break;
-       default: return;
-   }
-   $fp=@fsockopen($server,$phimail_server['port']);
+   $fp = phimail_connect($err);
    if ($fp===false) {
-      phimail_logit(0,"could not connect to server");
+      phimail_logit(0,xl('could not connect to server').' '.$err);
       return;
    }
+   $phimail_username = $GLOBALS['phimail_username'];
+   $phimail_password = $GLOBALS['phimail_password'];
 
    $ret = phimail_write_expect_OK($fp,"AUTH $phimail_username $phimail_password\n");
    if($ret!==TRUE) return; //authentication error
+
+   if(!($notifyUsername = $GLOBALS['phimail_notify'])) $notifyUsername='admin'; //fallback
 
    while (1) {
       phimail_write($fp,"CHECK\n");
@@ -107,8 +161,18 @@ function phimail_check() {
 	     return;
 	  }
 
-	  if(!$success) {
-	     phimail_notify( xl('Direct Messaging Send Failure.'), $ret);
+	  if (!$success) {
+             //notify local user of failure
+             $sql = "SELECT username FROM users WHERE id = ?";
+             $res2 = sqlStatementNoLog($sql, array($msg['user_id']));
+             $fail_user = ($res2 === FALSE || ($user_row = sqlFetchArray($res2)) === FALSE) ?
+                xl('unknown (see log)') : $user_row['username'];
+             $fail_notice = xl('Sent by:') . ' ' . $fail_user . '(' . $msg['user_id'] . ') ' . xl('on') . ' ' . $msg['create_ts']
+                . "\n" . xl('Sent to:') . ' ' . $msg['recipient'] . "\n" . xl('Server message:') . ' ' . $ret;
+	     phimail_notify( xl('Direct Messaging Send Failure.'), $fail_notice);
+             $pnote_id = addPnote($msg['patient_id'], 
+                xl("FAILURE NOTICE: Direct Message Send Failed.") . "\n\n$fail_notice\n",
+                0, 1, "Unassigned", $notifyUsername, "", "New", "phimail-service");
           }
 
 	  //done with this status message
@@ -172,6 +236,7 @@ function phimail_check() {
 
 	  //main part gets stored as document if not plain text content
 	  //(if plain text it will be the body of the final pnote)
+          $all_doc_ids = array();
 	  $doc_id=0;
           $att_detail="";
 	  if ($mime_type_main != "text/plain") {
@@ -182,6 +247,7 @@ function phimail_check() {
 		return;
 	     }
 	     $idnum=$doc_id['doc_id']; 
+             $all_doc_ids[] = $idnum;
 	     $url=$doc_id['url']; 
 	     $url=substr($url,strrpos($url,"/")+1);
              $att_detail = "\n" . xl ("Document") . " $idnum (\"$url\"; $mime_type_main; " . 
@@ -221,6 +287,7 @@ function phimail_check() {
 	     }
 	     $attinfo[$attnum]['doc_id']=$att_doc_id;
 	     $idnum=$att_doc_id['doc_id']; 
+             $all_doc_ids[] = $idnum;
 	     $url=$att_doc_id['url']; 
 	     $url=substr($url,strrpos($url,"/")+1);
              $att_detail = $att_detail . "\n" . xl ("Document") . " $idnum (\"$url\"; $attmime; " . 
@@ -239,8 +306,6 @@ function phimail_check() {
 
 	 phimail_logit(1,$ret);
 
-	 if(!($notifyUsername = $GLOBALS['phimail_notify'])) $notifyUsername='admin'; //fallback
-	 
 	 //alert appointed user about new message
 	 switch($mime_type_main) {
 
@@ -258,6 +323,8 @@ function phimail_check() {
 	     break;
 
          }
+
+	 foreach ($all_doc_ids as $doc_id) setGpRelation(1, $doc_id, 6, $pnote_id);
 
 	 if ($ret2!==TRUE) { 
 	    phimail_close();
@@ -392,7 +459,7 @@ function phimail_store($name,$mime_type,$fn) {
 /**
  * Send an error notification or other alert to the notification address specified in globals.
  * (notification email function modified from interface/drugs/dispense_drug.php)
- * @return true if notificaiton successfully sent, false otherwise
+ * @return true if notification successfully sent, false otherwise
  */
 function phimail_notify($subj,$body) {
   $recipient = $GLOBALS['practice_return_email_path'];

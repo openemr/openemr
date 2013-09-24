@@ -27,6 +27,7 @@
 require_once(dirname(__FILE__) . "/../library/log.inc");
 require_once(dirname(__FILE__) . "/../library/sql.inc");
 require_once(dirname(__FILE__) . "/../library/patient.inc");
+require_once(dirname(__FILE__) . "/../library/direct_message_check.inc");
 
 /*
  * Connect to a phiMail Direct Messaging server and transmit
@@ -57,34 +58,18 @@ function transmitCCD($ccd,$recipient,$requested_by,$xml_type="CCD") {
 
    $config_err = xl("Direct messaging is currently unavailable.")." EC:";
    if ($GLOBALS['phimail_enable']==false) return("$config_err 1");
-   $phimail_server=@parse_url($GLOBALS['phimail_server_address']);
-   $phimail_username=$GLOBALS['phimail_username'];
-   $phimail_password=$GLOBALS['phimail_password'];
-   switch ($phimail_server['scheme']) {
-       case "http": $server="tcp://".$phimail_server['host'];
-	       break;
-       case "https": $server="ssl://".$phimail_server['host'];
-	       break;
-       default: return("$config_err 2");
-   }
-   $fp=@fsockopen($server,$phimail_server['port']);
-   if ($fp===false) return("$config_err 3");
-   @fwrite($fp,"AUTH $phimail_username $phimail_password\n");
-   fflush($fp);
-   $ret=fgets($fp,256);
-   if($ret!="OK\n") {
-       fwrite($fp,"BYE\n");
-       fclose($fp);
-       return("$config_err 4");
-   }
-   fwrite($fp,"TO $recipient\n");
-   fflush($fp);
-   $ret=fgets($fp,256);
-   if($ret!="OK\n") {
-       fwrite($fp,"BYE\n");
-       fclose($fp);
-       return( xl("Delivery is not currently permitted to the specified Direct Address.") );
-   }
+
+   $fp = phimail_connect($err);
+   if ($fp===false) return("$config_err $err");
+
+   $phimail_username = $GLOBALS['phimail_username'];
+   $phimail_password = $GLOBALS['phimail_password'];
+   $ret = phimail_write_expect_OK($fp,"AUTH $phimail_username $phimail_password\n");
+   if($ret!==TRUE) return("$config_err 4");
+
+   $ret = phimail_write_expect_OK($fp,"TO $recipient\n");
+   if($ret!==TRUE) return( xl("Delivery is not allowed to the specified Direct Address.") );
+   
    $ret=fgets($fp,1024); //ignore extra server data
 
    if($requested_by=="patient")
@@ -95,48 +80,30 @@ function transmitCCD($ccd,$recipient,$requested_by,$xml_type="CCD") {
             ($patientName2=="" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
 
    $text_len=strlen($text_out);
-   fwrite($fp,"TEXT $text_len\n");
-   fflush($fp);
+   phimail_write($fp,"TEXT $text_len\n");
    $ret=@fgets($fp,256);
    if($ret!="BEGIN\n") {
-       fwrite($fp,"BYE\n");
-       fclose($fp);
+       phimail_close($fp);
        return("$config_err 5");
    }
-   fwrite($fp,$text_out);
-   fflush($fp);
-   $ret=@fgets($fp,256);
-   if($ret!="OK\n") {
-       fwrite($fp,"BYE\n");
-       fclose($fp);
-       return("$config_err 6");
-   }
+   $ret=phimail_write_expect_OK($fp,$text_out);
+   if($ret!==TRUE) return("$config_err 6");
 
    $ccd_out=$ccd->saveXml();
    $ccd_len=strlen($ccd_out);
 
-   fwrite($fp,"ADD " . ($xml_type=="CCR" ? "CCR " : "CDA ") . $ccd_len . $att_filename . "\n");
-   fflush($fp);
+   phimail_write($fp,"ADD " . ($xml_type=="CCR" ? "CCR " : "CDA ") . $ccd_len . $att_filename . "\n");
    $ret=fgets($fp,256);
    if($ret!="BEGIN\n") {
-       fwrite($fp,"BYE\n");
-       fclose($fp);
+       phimail_close($fp);
        return("$config_err 7");
    }
-   fwrite($fp,$ccd_out);
-   fflush($fp);
-   $ret=fgets($fp,256);
-   if($ret!="OK\n") {
-       fwrite($fp,"BYE\n");
-       fclose($fp);
-       return("$config_err 8");
-   }
+   $ret=phimail_write_expect_OK($fp,$ccd_out);
+   if($ret!==TRUE) return("$config_err 8");
 
-   fwrite($fp,"SEND\n");
-   fflush($fp);
+   phimail_write($fp,"SEND\n");
    $ret=fgets($fp,256);
-   fwrite($fp,"BYE\n");
-   fclose($fp);
+   phimail_close($fp);
 
    if($requested_by=="patient")  {
 	$reqBy="portal-user";
