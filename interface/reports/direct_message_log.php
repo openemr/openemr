@@ -34,7 +34,11 @@ require_once("../globals.php");
 <html>
 
 <head>
-<?php html_header_show();?>
+<?php html_header_show();
+$logstart = (isset($_POST['logstart'])) ? $_POST['logstart'] : 0;
+if (isset($_POST['lognext']) && $_POST['lognext']) $logtop = $logstart + $_POST['lognext'];
+else $logtop = 0;
+?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
@@ -75,6 +79,7 @@ require_once("../globals.php");
 <span class='title'><?php echo xlt('Direct Message Log'); ?></span>
 
 <form method='post' name='theform' id='theform' action='direct_message_log.php' onsubmit='return top.restoreSession()'>
+<input type='hidden' name='lognext' id='lognext' value=''>
 
 <div id="report_parameters">
 <table>
@@ -87,6 +92,16 @@ require_once("../globals.php");
                <a id='refresh_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
                <span>
                <?php echo xlt('Refresh'); ?>
+               </span>
+               </a>
+               <a id='prev_button' href='#' class='css_button' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
+               <span>
+               <?php echo xlt('Older'); ?>
+               </span>
+               </a>
+               <a id='next_button' href='#' class='css_button' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
+               <span>
+               <?php echo xlt('Newer'); ?>
                </span>
                </a>
              </div>
@@ -137,8 +152,15 @@ require_once("../globals.php");
  <tbody>  <!-- added for better print-ability -->
 <?php
 
- $res = sqlStatement("SELECT * FROM `direct_message_log` ORDER BY `create_ts` DESC");
+if (!$logtop)
+ $res = sqlStatement("SELECT * FROM `direct_message_log` ORDER BY `id` DESC LIMIT 100");
+else
+ $res = sqlStatement("SELECT * FROM `direct_message_log` WHERE `id` BETWEEN ? AND ? ORDER BY `id` DESC",
+    array($logtop-99,$logtop));
+
+ $logstart = 0;
  while ($row = sqlFetchArray($res)) {
+   if (!$logstart) $logstart = $row['id'];
 ?>
  <tr>
       <td align='center'><?php echo text($row['id']); ?></td>
@@ -158,9 +180,9 @@ require_once("../globals.php");
       <?php if ($row['status'] == "Q") { ?>
           <td align='center'><?php echo xlt("Queued") ?></td>
       <?php } else if ($row['status'] == "S") { ?>
-          <td align='center'><?php echo xlt("Sent, but delivery not yet confirmed.") ?></td>
+          <td align='center'><?php echo xlt("Sent") ?></td>
       <?php } else if ($row['status'] == "D") { ?>
-          <td align='center'><?php echo xlt("Delivery Confirmed") ?></td>
+          <td align='center'><?php echo xlt("Sent - Confirmed") ?></td>
       <?php } else if ($row['status'] == "R") { ?>
           <td align='center'><?php echo xlt("Received") ?></td>
       <?php } else if ($row['status'] == "F") { ?>
@@ -179,6 +201,7 @@ require_once("../globals.php");
 </table>
 </div>  <!-- end of search results -->
 
+<input type='hidden' name='logstart' id='logstart' value='<?php echo text($logstart); ?>'>
 </form>
 
 </body>
