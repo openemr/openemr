@@ -63,19 +63,20 @@ if ($result || $resultUsers) {
     $url = "http://api.ipinfodb.com/v3/ip-city/?key=53e1dbadb9c701a660a8914aeacca2bd640b56758659f3b1940de385fa97ca94&ip={$ip}&format=json";
     $responce = file_get_contents($url);
     $responce_array = json_decode($responce);
-
-
-    $password1 = sha1($password);
+    
     $pin1 = sha1($pin);
-
+    $password1 = sha1($password);
     $strQuery1 = "INSERT INTO `users`(`username`, `password`, `fname`, `lname`,  `phone`, `email`, `authorized`,`calendar`, `app_pin`, `create_date`, `secret_key`,  `title`, `ip_address`, `country_code`, `country_name`, `state`, `city`, `zip`, `latidute`, `longitude`, `time_zone`)
                             VALUES ('".add_escape_custom($username)."','".add_escape_custom($password1)."','".add_escape_custom($firstname)."','".add_escape_custom($lastname)."','".add_escape_custom($phone)."','".add_escape_custom($email)."',1,1, '" . add_escape_custom($pin1) . "', '" . $createDate . "','" . $secretKey . "','".add_escape_custom($title)."','".add_escape_custom($responce_array->ipAddress)."','".add_escape_custom($responce_array->countryCode)."','".add_escape_custom($responce_array->countryName)."','".add_escape_custom($responce_array->regionName)."','".add_escape_custom($responce_array->cityName)."','".add_escape_custom($responce_array->zipCode)."','".add_escape_custom($responce_array->latitude)."','".add_escape_custom($responce_array->longitude)."','".add_escape_custom($responce_array->timeZone)."')";
    
     $result1 = sqlInsert($strQuery1);
-
-
     $last_user_id = $result1;
-
+    
+    if (getVersion()) {
+        require_once("$srcdir/authentication/common_operations.php");
+        initializePassword($username, $last_user_id, $password);
+        purgeCompatabilityPassword($username, $last_user_id);
+    } 
 
     $strQuery2 = "INSERT INTO `gacl_aro`(`id`, `section_value`, `value`, `order_value`, `name`) 
                     VALUES ('{$gacl_aro_id}', 'users', '".add_escape_custom($username)."', '10','" . add_escape_custom($firstname . " " . $lastname) . "')";
