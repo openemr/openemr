@@ -668,4 +668,17 @@ function getAuthGroup($username) {
     return $res ? $res['name'] : false;
 }
 
+function getVersion() {
+    $strQuery = "SELECT v_major, v_minor, v_patch 
+                 FROM `version`
+                ";
+    $result = sqlQuery($strQuery);
+    $currentVersion = $result['v_major'].".".$result['v_minor'].".".$result['v_patch'];
+    if ($currentVersion >= "4.1.2") {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 ?>
