@@ -38,10 +38,18 @@ if ($date == "") {
     $date = date('Y-m-d');
 }
 
-$strQuery = "SELECT * FROM users WHERE username='" . $username . "' AND password='" . sha1($password) . "'";
-$result = sqlQuery($strQuery);
+if (getVersion()) {
+    require_once("$srcdir/authentication/login_operations.php");
+    if (validate_user_password($username, $password, 'Default')) {
+        $strQuery = "SELECT * FROM users WHERE username='" . $username . "'";
+        $result = sqlQuery($strQuery);
+    }
+} else {
+    $strQuery = "SELECT * FROM users WHERE username='" . $username . "' AND password='" . sha1($password) . "'";
+    $result = sqlQuery($strQuery);
+}
 
-if ($result) {
+ if ($result) {
     $userId = $result['id'];
     $token = getToken($userId, $emr, $password, $device_token);
 
@@ -150,10 +158,10 @@ if ($result) {
             $xml_array["Messages"]['reason'] = 'Messages not found.';
         }
     }
-    $ip = $_SERVER['REMOTE_ADDR'];
-    newEvent($event = 'login', $username, $groupname = 'Default', $success = '1', 'success: ' . $ip);
+    //$ip = $_SERVER['REMOTE_ADDR'];
+    //newEvent($event = 'login', $username, $groupname = 'Default', $success = '1', 'success: ' . $ip);
 } else {
-    newEvent($event = 'login', $username, $groupname = 'Default', $success = '1', 'failure: ' . $ip . ". user password mismatch (" . sha1($password) . ")");
+    //newEvent($event = 'login', $username, $groupname = 'Default', $success = '1', 'failure: ' . $ip . ". user password mismatch (" . sha1($password) . ")");
     $xml_array['status'] = -1;
     $xml_array['reason'] = 'Username/Password incorrect.';
 }
