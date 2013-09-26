@@ -36,16 +36,26 @@ $result = sqlQuery($strQuery,array($email));
 
 if ($result) {
     $xml_string .= "<status>0</status>";
-
-    $password = rand_string(10);
-    $password1 = sha1($password);
     
+    $newPwd = rand_string(10);    
     $pin = substr(uniqid(rand()), 0, 4);
-	$pin1 = sha1($pin);
-
-    $strQuery1 = "UPDATE `users` SET `password`='" . add_escape_custom($password1) . "', `upin`='" . add_escape_custom($pin1) . "' WHERE email = ?";
-    
-    $result1 = sqlStatement($strQuery1,array($email));
+    $pin1 = sha1($pin);
+        
+    if (getVersion()) {
+        require_once("$srcdir/authentication/password_hashing.php");        
+        
+        $salt = password_salt();
+        $password = password_hash($newPwd,$salt);
+        $result1 = sqlStatement("UPDATE users_secure SET password='".$password."', salt='".$salt."' WHERE id = {$result["id"]}");
+        
+        $strQuery1 = "UPDATE `users` SET `app_pin`='" . add_escape_custom($pin1) . "' WHERE email = ?";
+        $result1 = sqlStatement($strQuery1,array($email));
+    } else {        
+        $password1 = sha1($newPwd);
+        
+        $strQuery1 = "UPDATE `users` SET `password`='" . add_escape_custom($password1) . "', `app_pin`='" . add_escape_custom($pin1) . "' WHERE email = ?";
+        $result1 = sqlStatement($strQuery1,array($email));
+    }
     
     if ($result1 !== FALSE) {
         
@@ -63,7 +73,7 @@ if ($result) {
 								<td>Username: " . $result['username'] . "</td>
 							</tr>
 							<tr>
-								<td>Password: " . $password . "</td>
+								<td>Password: " . $newPwd . "</td>
 							</tr>
 							<tr>
 								<td>Pin: " . $pin . "</td>
@@ -77,7 +87,7 @@ if ($result) {
         $mail->AddReplyTo("no-reply@mastermobileproducts.com", "MedMasterPro");
         $mail->SetFrom('no-reply@mastermobileproducts.com', 'MedMasterPro');
         $mail->AddAddress($email, $email);
-        $mail->Subject = "MedMaster Account Signup";
+        $mail->Subject = "Forgot Password Request at MedMaster";
         $mail->AltBody = "To view the message, please use an HTML compatible email viewer!"; // optional, comment out and test
         $mail->MsgHTML($body);
 
