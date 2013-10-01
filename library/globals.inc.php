@@ -1430,13 +1430,13 @@ $GLOBALS_METADATA = array(
     'portal_offsite_address' => array(
       xl('Offsite Patient Portal Site Address'),
       'text',                           // data type
-      'https://mydocsportal.com/provider.php',
+      'https://ssh.mydocsportal.com/provider.php',
       xl('Offsite Https link for the Patient Portal.')
     ),
     'portal_offsite_address_patient_link' => array(
       xl('Offsite Patient Portal Site Address (Patient Link)'),
       'text',                           // data type
-      'https://mydocsportal.com',
+      'https://ssh.mydocsportal.com',
       xl('Offsite Https link for the Patient Portal.(Patient Link)')
     ),
 

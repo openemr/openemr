@@ -955,7 +955,8 @@ static  public function batch_despatch($var,$func,$data_credentials){
 
 
   public function getversion($data){
-         return '1.45';
+      global $v_offsite_portal;
+      return $v_offsite_portal;
     }
     
     
