@@ -484,7 +484,7 @@ function writeFieldLine($linedata) {
     echo "  <td align='center' class='optcell' title='C = " . xl('Capitalize') .
       ", D = " . xl('Dup Check') . ", G = " . xl('Graphable') .
       ", N = " . xl('New Patient Form') . ", O = " . xl('Order Processor') .
-      ", V = " . xl('Vendor') . "'>";
+      ", T = " . xl('Description is default text') . ", V = " . xl('Vendor') . "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
          htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' maxlength='36' class='optin' />";
     echo "</td>\n";

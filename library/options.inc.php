@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2013 Rod Roark <rod@sunsetsystems.com>
 // Copyright © 2010 by Andrew Moore <amoore@cpan.org>
 // Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 //
@@ -26,6 +26,7 @@
 // N = Show in New Patient form
 // O = Procedure Order ("ord_*") types only (address book)
 // R = Distributor types only (address book)
+// T = Use description as default Text
 // U = Capitalize all letters (text fields)
 // V = Vendor types only (address book)
 // 1 = Write Once (not editable when not empty) (text fields)
@@ -117,7 +118,15 @@ function generate_form_field($frow, $currvalue) {
 
   // Added 5-09 by BM - Translate description if applicable  
   $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
-      
+
+  // Support edit option T which assigns the (possibly very long) description as
+  // the default value.
+  if (strpos($frow['edit_options'], 'T') !== FALSE) {
+    if (strlen($currescaped) == 0) $currescaped = $description;
+    // Description used in this way is not suitable as a title.
+    $description = '';
+  }
+
   // added 5-2009 by BM to allow modification of the 'empty' text title field.
   //  Can pass $frow['empty_title'] with this variable, otherwise
   //  will default to 'Unassigned'.
