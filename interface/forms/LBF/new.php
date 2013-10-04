@@ -86,7 +86,10 @@ function end_group() {
     end_row();
     echo " </table>\n";
     // No div for an empty group name.
-    if (strlen($last_group) > 1) echo "</div>\n";
+    if (strlen($last_group) > 1) {
+      echo "</div>\n"; // div after checkbox
+      echo "</div>\n"; // outer div, including checkbox
+    }
   }
 }
 
@@ -473,6 +476,7 @@ function validate(f) {
 
       // If group name is blank, no checkbox or div.
       if (strlen($this_group) > 1) {
+        echo "<div id='outerdiv_" . attr($group_seq) . "'>\n";
         echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
           "onclick='return divclick(this,\"div_" . attr(addslashes($group_seq)) . "\");'";
         if ($display_style == 'block') echo " checked";
