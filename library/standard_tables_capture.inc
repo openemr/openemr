@@ -292,11 +292,11 @@ function icd_import($type) {
 		'#FLD6#' => "ICD9_04", '#POS6#' => 29, '#LEN6#' => 5,
 		'#FLD7#' => "ICD9_05", '#POS7#' => 35, '#LEN7#' => 5,
 		'#FLD8#' => "ICD9_06", '#POS8#' => 41, '#LEN8#' => 5);
-        $incoming['2012_I10gem'] = array('#TABLENAME#' => "icd10_gem_dx_10_9",
+        $incoming['I10gem'] = array('#TABLENAME#' => "icd10_gem_dx_10_9",
 		'#FLD1#' => "dx_icd10_source", '#POS1#' => 1, '#LEN1#' => 7, 
 		'#FLD2#' => "dx_icd9_target", '#POS2#' => 9, '#LEN2#' => 5,
 		'#FLD3#' => "flags", '#POS3#' => 15, '#LEN3#' => 5);
-        $incoming['2012_I9gem'] = array('#TABLENAME#' => "icd10_gem_dx_9_10",
+        $incoming['I9gem'] = array('#TABLENAME#' => "icd10_gem_dx_9_10",
 		'#FLD1#' => "dx_icd9_source", '#POS1#' => 1, '#LEN1#' => 5, 
 		'#FLD2#' => "dx_icd10_target", '#POS2#' => 7, '#LEN2#' => 7,
 		'#FLD3#' => "flags", '#POS3#' => 15, '#LEN3#' => 5);
