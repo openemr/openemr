@@ -42,6 +42,11 @@ else {
     $startdate = $_POST['start'];
     $enddate = $_POST['end'];
 }
+//Patient related stuff
+if ($_POST["form_patient"])
+$form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+$form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
+if ($form_patient == '' ) $form_pid = '';
 ?>
 <html>
 
@@ -146,7 +151,21 @@ else {
 #superbill_logo {
 }
 </style>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script language="Javascript">
+// CapMinds :: invokes  find-patient popup.
+ function sel_patient() {
+  dlgopen('../main/calendar/find_patient_popup.php?pflag=0', '_blank', 500, 400);
+ }
 
+// CapMinds :: callback by the find-patient popup.
+ function setpatient(pid, lname, fname, dob) {
+  var f = document.theform;
+  f.form_patient.value = lname + ', ' + fname;
+  f.form_pid.value = pid;
+
+ }
+</script>
 </head>
 
 <body class="body_top">
@@ -159,11 +178,11 @@ else {
 
 <div id="report_parameters">
 
-<form method="post" id='theform' action="custom_report_range.php">
+<form method="post" name="theform" id='theform' action="custom_report_range.php">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <table>
  <tr>
-  <td width='450px'>
+  <td width='650px'>
 	<div style='float:left'>
 
 	<table class='text'>
@@ -188,6 +207,16 @@ else {
 				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
 				title='<?php echo xla('Click here to choose a date'); ?>'>
 			</td>
+
+			<td>
+			&nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
+			</td>
+			<td>
+			<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+			<input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
+			</td>
+			</tr>
+			<tr><td>
 		</tr>
 	</table>
 
@@ -242,15 +271,22 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 </p>
 <?php
     }
-
-    $res = sqlStatement("select * from forms where " .
+		$sqlBindArray = array();
+		$res_query = 	"select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
-                        "date between ? and ? " .
-                        "order by date DESC", array($startdate,$enddate) );
+                        "date between ? and ? " ;
+                array_push($sqlBindArray,$startdate,$enddate);
+		if($form_pid) {
+		$res_query.= " and pid=? ";	
+		array_push($sqlBindArray,$form_pid);
+		}
+        $res_query.=     " order by date DESC" ;
+		$res =sqlStatement($res_query,$sqlBindArray);
+	
     while($result = sqlFetchArray($res)) {
         if ($result{"form_name"} == "New Patient Encounter") {
             $newpatient[] = $result{"form_id"}.":".$result{"encounter"};
-            $pids[] = $result{"pid"};
+			$pids[] = $result{"pid"};	
         }
     }
     $N = 6;
@@ -322,14 +358,13 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
                     echo "</td>\n";
                     echo "</tr>\n";
                     $total += $b['fee'];
-                    if ($b['code_type'] == "COPAY") {
-                        $copays += $b['fee'];
-                    }
                 }
+            // Calculate the copay for the encounter
+            $copays = getPatientCopay($pids[$iCounter],$ta[1]);
             //}
             echo "<tr><td>&nbsp;</td></tr>";
             echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Sub-Total')."</td><td class='text'>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Paid')."</td><td class='text'>" . oeFormatMoney(abs($copays)) . "</td></tr>";
+            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Copay Paid')."</td><td class='text'>" . oeFormatMoney(abs($copays)) . "</td></tr>";
             echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Total')."</td><td class='text'>" . oeFormatMoney($total) . "</td></tr>";
             echo "</table>";
             echo "<pre>";
@@ -358,5 +393,6 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 <script language="Javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+
 </script>
 </html>
