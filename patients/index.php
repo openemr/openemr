@@ -18,6 +18,9 @@
     //STOP FAKE REGISTER GLOBALS
     $sanitize_all_escapes=true;
 
+    //For redirect if the site on session does not match
+    $landingpage = "index.php?site=".$_GET['site'];
+
     //includes
     require_once('../interface/globals.php');
 
