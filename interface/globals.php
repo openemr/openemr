@@ -103,6 +103,19 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
   }
   if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp))
     die("Site ID '". htmlspecialchars($tmp,ENT_NOQUOTES) . "' contains invalid characters.");
+  if (isset($_SESSION['site_id']) && ($_SESSION['site_id'] != $tmp)) {
+    // This is to prevent using session to penetrate other OpenEMR instances within same multisite module
+    session_unset(); // clear session, clean logout
+    if (isset($landingpage) && !empty($landingpage)) {
+      // OpenEMR Patient Portal use
+      header('Location: index.php?site='.$tmp);
+    }
+    else {
+      // Main OpenEMR use
+      header('Location: ../login/login_frame.php?site='.$tmp); // Assuming in the interface/main directory
+    }
+    exit;
+  }
   if (!isset($_SESSION['site_id']) || $_SESSION['site_id'] != $tmp) {
     $_SESSION['site_id'] = $tmp;
     //error_log("Session site ID has been set to '$tmp'"); // debugging
