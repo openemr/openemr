@@ -104,13 +104,20 @@ function generate_order_report($orderid, $input_form=false) {
 
 <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
 <script language="JavaScript">
+
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+
 // Called to show patient notes related to this order in the "other" frame.
+// This works even if we are in a separate window.
 function showpnotes(orderid) {
- // Look for the top or bottom frame that contains this document, return if none.
- var w;
- for (w = window; w.name != 'RTop' && w.name != 'RBot'; w = w.parent) {
-  if (w.parent == w) return false;
+ // Find the top or bottom frame that contains or opened this page; return if none.
+ var w = window.opener ? window.opener : window;
+ for (; w.name != 'RTop' && w.name != 'RBot'; w = w.parent) {
+  if (w.parent == w) {
+   // This message is not translated because a developer will need to find it.
+   alert('Internal error locating target frame in ' + (window.opener ? 'opener' : 'window'));
+   return false;
+  }
  }
  var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
  w.parent.left_nav.forceDual();
@@ -118,6 +125,7 @@ function showpnotes(orderid) {
  w.parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes_full.php?orderid=' + orderid);
  return false;
 }
+
 </script>
 <?php } // end if not patient report ?>
 

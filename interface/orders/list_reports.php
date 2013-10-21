@@ -112,8 +112,22 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function openResults(orderid) {
  top.restoreSession();
- // window.open('single_order_results.php?orderid=' + orderid);
- document.location.href = 'single_order_results.php?orderid=' + orderid;
+ // Open results in a new window. The options parameter serves to defeat Firefox's
+ // "open windows in a new tab", which is what we want because the doc may want to
+ // see the results concurrently with other stuff like related patient notes.
+ // Opening in the other frame is not good enough because if they then do related
+ // patients notes it will wipe out this script's list. We need 3 viewports.
+ window.open('single_order_results.php?orderid=' + orderid, '_blank', 'toolbar=0,location=0,menubar=0,scrollbars=yes');
+ //
+ // To open results in the same frame:
+ // document.location.href = 'single_order_results.php?orderid=' + orderid;
+ //
+ // To open results in the "other" frame:
+ // var w = window;
+ // var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
+ // w.parent.left_nav.forceDual();
+ // w.parent.left_nav.setRadio(othername, 'ore');
+ // w.parent.left_nav.loadFrame('ore1', othername, 'orders/single_order_results.php?orderid=' + orderid);
 }
 
 </script>
