@@ -218,8 +218,8 @@ class Installer
       return FALSE;
     }
     $password_hash = "NoLongerUsed";  // This is the value to insert into the password column in the "users" table. password details are now being stored in users_secure instead.
-    $salt=password_salt();     // Uses the functions defined in library/authentication/password_hashing.php
-    $hash=password_hash($this->iuserpass,$salt);
+    $salt=oemr_password_salt();     // Uses the functions defined in library/authentication/password_hashing.php
+    $hash=oemr_password_hash($this->iuserpass,$salt);
     if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','$password_hash',1,'$this->iuname','$this->iufname',3,1,3)") == FALSE) {
       $this->error_message = "ERROR. Unable to add initial user\n" .
         "<p>".mysql_error()." (#".mysql_errno().")\n";

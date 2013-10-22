@@ -148,9 +148,9 @@ if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){
     if($portalsite=='on')
     {
         // For onsite portal create a blowfish based hash and salt.
-        $new_salt = password_salt();
+        $new_salt = oemr_password_salt();
         $salt_clause = ",portal_salt=? ";
-        array_push($query_parameters,password_hash($clear_pass,$new_salt),$new_salt);
+        array_push($query_parameters,oemr_password_hash($clear_pass,$new_salt),$new_salt);
     }
     else
     {

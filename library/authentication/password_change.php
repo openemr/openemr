@@ -86,7 +86,7 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
             return false;
         }
         // If this user is changing his own password, then confirm that they have the current password correct
-        $hash_current = password_hash($currentPwd,$userInfo[COL_SALT]);
+        $hash_current = oemr_password_hash($currentPwd,$userInfo[COL_SALT]);
         if(($hash_current!=$userInfo[COL_PWD]))
         {
             $errMsg=xl("Incorrect password!");
@@ -100,7 +100,7 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
                   ." FROM ".TBL_USERS_SECURE
                   ." WHERE ".COL_ID."=?";
         $adminInfo=privQuery($adminSQL,array($activeUser));
-        $hash_admin = password_hash($currentPwd,$adminInfo[COL_SALT]);
+        $hash_admin = oemr_password_hash($currentPwd,$adminInfo[COL_SALT]);
         if($hash_admin!=$adminInfo[COL_PWD])
         {
             $errMsg=xl("Incorrect password!");
@@ -170,9 +170,9 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
         if($forbid_reuse)
         {
             // password reuse disallowed
-            $hash_current = password_hash($newPwd,$userInfo[COL_SALT]);
-            $hash_history1 = password_hash($newPwd,$userInfo[COL_SALT_H1]);
-            $hash_history2 = password_hash($newPwd,$userInfo[COL_SALT_H2]);
+            $hash_current = oemr_password_hash($newPwd,$userInfo[COL_SALT]);
+            $hash_history1 = oemr_password_hash($newPwd,$userInfo[COL_SALT_H1]);
+            $hash_history2 = oemr_password_hash($newPwd,$userInfo[COL_SALT_H2]);
             if(($hash_current==$userInfo[COL_PWD]) 
                 ||($hash_history1==$userInfo[COL_PWD_H1]) 
                 || ($hash_history2==$userInfo[COL_PWD_H2]))
@@ -183,8 +183,8 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
         }
         
         // Everything checks out at this point, so update the password record
-        $newSalt = password_salt();
-        $newHash = password_hash($newPwd,$newSalt);
+        $newSalt = oemr_password_salt();
+        $newHash = oemr_password_hash($newPwd,$newSalt);
         $updateParams=array();
         $updateSQL= "UPDATE ".TBL_USERS_SECURE;
         $updateSQL.=" SET ".COL_PWD."=?,".COL_SALT."=?"; array_push($updateParams,$newHash); array_push($updateParams,$newSalt);
