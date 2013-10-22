@@ -89,8 +89,8 @@
                     header('Location: '.$landingpage.'&w');
                     exit;                        
                 }
-                $new_salt=password_salt();
-                $new_hash=password_hash($plain_code,$new_salt);
+                $new_salt=oemr_password_salt();
+                $new_hash=oemr_password_hash($plain_code,$new_salt);
                 $sqlUpdatePwd= " UPDATE " . TBL_PAT_ACC_ON
                               ." SET " .COL_POR_PWD."=?, "
                               . COL_POR_SALT . "=? "
@@ -98,7 +98,7 @@
                 privStatement($sqlUpdatePwd,array($new_hash,$new_salt,$auth[COL_ID]));   
             }
             else {
-                if(password_hash($plain_code,$auth[COL_POR_SALT])!=$auth[COL_POR_PWD])
+                if(oemr_password_hash($plain_code,$auth[COL_POR_SALT])!=$auth[COL_POR_PWD])
                 {
                     session_destroy();
                     header('Location: '.$landingpage.'&w');
@@ -138,8 +138,8 @@
                 $code_new=$_POST['pass_new'];
                 $code_new_confirm=$_POST['pass_new_confirm'];
                 if(!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
-                $new_salt=password_salt();
-                $new_hash=password_hash($code_new,$new_salt);
+                $new_salt=oemr_password_salt();
+                $new_hash=oemr_password_hash($code_new,$new_salt);
 
                 // Update the password and continue (patient is authorized)
                 privStatement("UPDATE ".TBL_PAT_ACC_ON

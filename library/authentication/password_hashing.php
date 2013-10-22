@@ -46,7 +46,7 @@ define("SALT_PREFIX_SHA1",'$SHA1$');
  * 
  * @return type     The algorithm prefix + random data for salt.
  */
-function password_salt()
+function oemr_password_salt()
 {
     $Allowed_Chars ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./';
     $Chars_Len = 63;
@@ -90,7 +90,7 @@ function password_salt()
  * @param type $salt
  * @return type
  */
-function password_hash($plaintext,$salt)
+function oemr_password_hash($plaintext,$salt)
 {
     // if this is a SHA1 salt, the use prepended salt
     if(strpos($salt,SALT_PREFIX_SHA1)===0)

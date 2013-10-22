@@ -43,7 +43,7 @@ function validate_user_password($username,&$password,$provider)
     $userSecure=privQuery($getUserSecureSQL,array($username));
     if(is_array($userSecure))
     {
-        $phash=password_hash($password,$userSecure[COL_SALT]);
+        $phash=oemr_password_hash($password,$userSecure[COL_SALT]);
         if($phash!=$userSecure[COL_PWD])
         {
             

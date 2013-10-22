@@ -46,8 +46,8 @@ define("COL_SALT_H2","salt_history2");
 function initializePassword($username,$userid,&$password)
 {
 
-    $salt=password_salt();
-    $hash=password_hash($password,$salt);
+    $salt=oemr_password_salt();
+    $hash=oemr_password_hash($password,$salt);
     $passwordSQL= "INSERT INTO ".TBL_USERS_SECURE.
                   " (".implode(",",array(COL_ID,COL_UNM,COL_PWD,COL_SALT,COL_LU)).")".
                   " VALUES (?,?,?,?,NOW()) ";
