@@ -32,6 +32,7 @@ define("COL_SALT","salt");
 define("COL_LU","last_update");
 define("COL_PWD_H1","password_history1");
 define("COL_SALT_H1","salt_history1");
+define("COL_ACTIVE","active");
 
 define("COL_PWD_H2","password_history2");
 define("COL_SALT_H2","salt_history2");
@@ -59,6 +60,7 @@ function initializePassword($username,$userid,&$password)
                     $salt
     );
     privStatement($passwordSQL,$params); 
+    return $hash;
 }
 
 

@@ -78,7 +78,9 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
     $userInfo=privQuery($userSQL,array($targetUser));
     
     // Verify the active user's password
-    if($activeUser==$targetUser)
+    $changingOwnPassword = $activeUser==$targetUser;  
+    // True if this is the current user changing their own password
+    if($changingOwnPassword)
     {
         if($create)
         {
@@ -159,7 +161,8 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
             }
     }
     else
-    {
+    { // We are trying to update the password of an existing user
+        
         if($create)
         {
             $errMsg=xl("Trying to create user with existing username!");
@@ -195,6 +198,12 @@ function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,
             }
         $updateSQL.=" WHERE ".COL_ID."=?"; array_push($updateParams,$targetUser);
         privStatement($updateSQL,$updateParams);
+        
+        // If the user is changing their own password, we need to update the session
+        if($changingOwnPassword)
+        {
+            $_SESSION['authPass']=$newHash;
+        }
     }
    
     if($GLOBALS['password_expiration_days'] != 0){
