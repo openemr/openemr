@@ -117,8 +117,17 @@ if (!isset($_SESSION["last_update"])) {
 function authCheckSession ()
 {
     if (isset($_SESSION['authId'])) {
-        $authDB = sqlQuery("select username, password from users where id = ?",array($_SESSION['authId']));
-        if ($_SESSION['authUser'] == $authDB['username'] )
+        $authDB = privQuery("select ".implode(",",array(TBL_USERS.".".COL_ID,
+                                                        TBL_USERS.".".COL_UNM,
+                                                        TBL_USERS_SECURE.".".COL_PWD,
+                                                        TBL_USERS_SECURE.".".COL_ID)) 
+                . " FROM ". implode(",",array(TBL_USERS,TBL_USERS_SECURE)) 
+                . " WHERE ". TBL_USERS.".".COL_ID." = ? "
+                . " AND ". TBL_USERS.".".COL_UNM . "=" . TBL_USERS_SECURE.".".COL_UNM
+                . " AND ". TBL_USERS.".".COL_ACTIVE . "=1" 
+                ,array($_SESSION['authId']));
+        if ($_SESSION['authUser'] == $authDB['username'] 
+            && $_SESSION['authPass'] == $authDB['password'] )
         {
             return true;
         }

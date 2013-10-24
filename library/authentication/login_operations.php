@@ -76,7 +76,7 @@ function validate_user_password($username,&$password,$provider)
             }
             if($valid)
             {
-                initializePassword($username,$userInfo['id'],$password);
+                $phash=initializePassword($username,$userInfo['id'],$password);
                 purgeCompatabilityPassword($username,$userInfo['id']);
                 $_SESSION['relogin'] = 1;
             }
@@ -84,7 +84,7 @@ function validate_user_password($username,&$password,$provider)
             {
                 return false;
             }
-    }
+        }
         
     }
     $getUserSQL="select id, authorized, see_auth".
@@ -104,6 +104,7 @@ function validate_user_password($username,&$password,$provider)
         if ($authGroup = privQuery("select * from groups where user=? and name=?",array($username,$provider)))
         {
             $_SESSION['authUser'] = $username;
+            $_SESSION['authPass'] = $phash;
             $_SESSION['authGroup'] = $authGroup['name'];
             $_SESSION['authUserID'] = $userInfo['id'];
             $_SESSION['authProvider'] = $provider;
