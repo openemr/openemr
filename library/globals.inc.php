@@ -1495,6 +1495,20 @@ $GLOBALS_METADATA = array(
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
     
+    'erx_soap_ttl_allergies' => array(
+      xl('NewCrop eRx SOAP Request Time-To-Live for Allergies'),
+      'num',
+      '21600',
+      xl('Time-To-Live for Allergies SOAP Request in seconds')
+    ),
+    
+    'erx_soap_ttl_medications' => array(
+      xl('NewCrop eRx SOAP Request Time-To-Live for Medications'),
+      'num',
+      '21600',
+      xl('Time-To-Live for Medications SOAP Request in seconds')
+    ),
+    
     'partner_name_production' => array(
       xl('NewCrop eRx Partner Name'),
       'text',                           // data type
@@ -1513,6 +1527,13 @@ $GLOBALS_METADATA = array(
       xl('NewCrop eRx Password'),
       'pass',                           // data type
       '',
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+    ),
+    
+    'erx_account_id' => array(
+      xl('NewCrop eRx Account Id'),
+      'text',                           // data type
+      '1',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
     

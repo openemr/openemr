@@ -57,7 +57,6 @@
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
 
-
 #IfNotRow4D supported_external_dataloads load_type ICD9 load_source CMS load_release_date 2013-10-01 load_filename cmsv31-master-descriptions.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD9', 'CMS', '2013-10-01', 'cmsv31-master-descriptions.zip', 'fe0d7f9a5338f5ff187683b4737ad2b7');
 #EndIf
@@ -117,5 +116,14 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq
 
 #IfMissingColumn users email_direct
 ALTER TABLE `users` ADD COLUMN `email_direct` varchar(255) NOT NULL default '';
+#EndIf
+
+#IfNotTable erx_ttl_touch
+CREATE TABLE `erx_ttl_touch` (
+  `patient_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'Patient record Id', 
+  `process` ENUM('allergies','medications') NOT NULL COMMENT 'NewCrop eRx SOAP process',
+  `updated` DATETIME NOT NULL COMMENT 'Date and time of last process update for patient', 
+  PRIMARY KEY (`patient_id`, `process`) ) 
+ENGINE = InnoDB COMMENT = 'Store records last update per patient data process';
 #EndIf
 
