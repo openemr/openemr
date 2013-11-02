@@ -1,3 +1,10 @@
+openemr (4.1.2-2) stable; urgency=low
+
+  * New upstream patch (patch number 3)
+  * Fix to work with PHP 5.5
+
+ -- Brady Miller <brady@sparmy.com>  Sat, 02 Nov 2013 01:15:32 -0700
+
 openemr (4.1.2-1) stable; urgency=low
 
   * New upstream version
