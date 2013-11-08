@@ -317,7 +317,7 @@ function receive_hl7_results(&$hl7) {
         $tmp = explode($d2, $a[5]);
         $fileext = strtolower($tmp[0]);
         $filename = date("Ymd_His") . '.' . $fileext;
-        $data = rhl7DecodeData($tmp[3], &$tmp[4]);
+        $data = rhl7DecodeData($tmp[3], $tmp[4]);
         if ($data === FALSE) return xl('Invalid encapsulated data encoding type') . ': ' . $tmp[3];
         $d = new Document();
         $rc = $d->createDocument($porow['patient_id'], $results_category_id,
