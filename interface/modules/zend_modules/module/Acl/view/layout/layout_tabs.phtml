@@ -1,0 +1,60 @@
+<?php
+// +-----------------------------------------------------------------------------+
+//OpenEMR - Open Source Electronic Medical Record
+//    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU Affero General Public License as
+//    published by the Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Author:  Jacob T.Paul <jacob@zhservices.com>
+//					Shalini Balakrishnan  <shalini@zhservices.com>
+//          Basil PT <basil@zhservices.com>  
+//
+// +------------------------------------------------------------------------------+
+echo $this->doctype(); ?>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="<?php echo  $GLOBALS['css_header'];?>" type="text/css">
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+				<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
+			->prependStylesheet($this->basePath() . '/css/easyui.css')
+                        ->prependStylesheet($this->basePath() . '/css/icon.css')
+                        ->prependStylesheet($this->basePath() . '/css/demo.css')
+			->prependStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
+			->prependStylesheet($this->basePath() . '/css/style.css')
+			->prependStylesheet($this->basePath() . '/css/suggestion.css')
+			->prependStylesheet($this->basePath() . '/css/bubbletip-IE.css')
+			->prependStylesheet($this->basePath() . '/css/bubbletip.css')
+			->prependStylesheet($this->basePath() . '/css/bubbles.css')
+			->prependStylesheet($this->basePath() . '/css/zendlab.css')
+			->prependStylesheet($this->basePath() . '/css/emr.css')
+			->prependStylesheet($GLOBALS['css_header']) 
+	?>
+	
+        <!-- Scripts -->
+        <?php echo $this->headScript()
+			->prependFile($this->basePath() . '/js/lib/html5.js', 'text/javascript', array('conditional' => 'lt IE 9',))
+			->prependFile($this->basePath() . '/js/lib/bootstrap.min.js')
+			->prependFile($this->basePath() . '/js/lib/jquery.easyui.min.js')
+			->prependFile($this->basePath() . '/js/lib/jquery-1.8.0.min.js')
+	?>
+
+    </head>
+    <body class="body_top" style="margin: 0px !important;padding: 0px !important;">
+        <div class="container">
+            <?php echo $this->content; ?>           
+        </div> <!-- /container -->
+        <?php echo $this->inlineScript() ?>
+    </body>
+</html>

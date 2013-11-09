@@ -1,0 +1,181 @@
+table.imagetable {
+    font-family: bookman old style,verdana,arial,sans-serif;
+    font-size:13px;
+    /*color:#333333;*/
+    color:#000000;
+    border-spacing:1px;
+    /*border:1px solid silver;*/
+    width:100%;
+    
+}
+a , a:hover,a:visited{
+    color: #4E84C4 !important;
+}
+table.imagetable th {
+    /*background:#b5cfd2 url('images/cell-blue.jpg');*/
+    /*background:#ddddff;*/
+    padding: 3px;
+    border-bottom: 2px solid #DDDDDD;
+    color:dimGray;
+    border-bottom:1px dotted black;
+    margin-bottom:1px;
+    text-align:left;
+}
+
+table.imagetable td {    
+    background:#EFEFFF;
+    /*background-color:#FFFFFF;*/
+    padding: 3px;    
+    color:dimGray;
+    border-bottom:1px solid #DDDDDD;
+    margin-bottom:1px;
+}
+
+table.imagetable td a,table.imagetable td a:visited{    
+    color:maroon;
+}
+
+div.installer
+{
+	color:#000000;
+	background-color:#f0f0f0;
+	background-repeat:repeat-x;
+	margin:0px;
+	padding:8px;
+    width:98%;
+	float:left;
+	min-height:300px;
+	border-top:1px solid #DDD;
+}
+
+div.installer_code
+{
+	background-color:#ffffff;
+	width:80%;
+	float:left;
+	margin-right:10px;
+	font-size:110%;
+	font-family:"courier new";
+}
+
+div.installer_result
+{
+	background-color:#ffffff;
+	padding:4px;
+	border:1px solid #d4d4d4;
+	width:606px;
+}
+
+body
+{
+	font-size:14px;
+	color:#A9A59C !important;
+	background-color:#ffffff !important;
+	margin:0px;
+	background-repeat:repeat-x;
+	font-family: Arial, Helvetica, sans-serif !important;
+}
+
+
+
+h1 {font-size:120%;margin-top:0px;font-weight:bold}
+h2 {font-size:120%;margin-top:10px;margin-bottom:10px;font-weight:normal}
+h3 {font-size:110%;font-weight:normal}
+h4 {font-size:100%;}
+h5 {font-size:90%;}
+h6 {font-size:80%;}
+
+h1,h2,h3,h4,h5,h6
+{
+	background-color:transparent;
+	color: #4E84C4
+}
+
+div {width:100%;}
+
+table,th,td,input,textarea
+{
+    font-size:100%;
+}
+
+img
+{
+    border:0
+}
+.installerHead
+{
+    font-size:110%;
+    font-weight:normal;
+    text-align:center;
+}
+.center{
+	text-align:center;
+}
+
+.groupReg{
+    background:#DDDDDD !important;
+    color:green;
+    padding-left:10px !important;
+    text-align:left !important;
+}
+.groupRegUn{
+    background:#DDDDDD !important;
+    color:maroon;
+    padding-left:10px !important;
+    text-align:left !important;
+}
+.hide{
+	display:none;
+}
+.limitContainer{
+	width:600px;	
+}
+.err{
+	color:red;
+}
+/* changing the default theme*/
+ul.tabNav li.current a {
+    background: #4E84C4 !important;
+    padding: 8px;
+}
+ul.tabNav a {
+	background: #A7A7A7;
+	border: 1px solid dimGray !important;
+	border-bottom:0px !important;
+	border-width: 1px 1px 0;
+	color: #ffffff !important;
+	display: block;
+	padding: 4px 4px 5px 4px;
+	text-decoration: none;
+}
+.activate{
+	background: #4E84C4;
+	border: none;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	width: 57px;
+	padding: 3px 0 2px;
+	vertical-align: middle;
+	cursor: pointer;
+	margin: 0;
+	color: white;
+	font-size: 12px;
+	font-weight: normal;
+}
+.deactivate {
+	background: #B32317;
+    border: none;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    width: 57px;
+    padding: 3px 0 2px;
+    vertical-align: middle;
+    cursor: pointer;
+    margin: 0;
+    color: white;
+    font-size: 12px;
+    font-weight: normal;
+ 
+}

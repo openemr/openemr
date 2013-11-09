@@ -86,3 +86,80 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2012-10-01', 'ReimbursementMapping_pr_2013.zip', '4c3920fedbcd9f6af54a1dc9069a11ca');
 #EndIf
 
+#IfNotTable modules
+CREATE TABLE `modules` (
+  `mod_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `mod_name` VARCHAR(64) NOT NULL DEFAULT '0',
+  `mod_directory` VARCHAR(64) NOT NULL DEFAULT '',
+  `mod_parent` VARCHAR(64) NOT NULL DEFAULT '',
+  `mod_type` VARCHAR(64) NOT NULL DEFAULT '',
+  `mod_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
+  `mod_ui_name` VARCHAR(20) NOT NULL DEFAULT '''',
+  `mod_relative_link` VARCHAR(64) NOT NULL DEFAULT '',
+  `mod_ui_order` TINYINT(3) NOT NULL DEFAULT '0',
+  `mod_ui_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
+  `mod_description` VARCHAR(255) NOT NULL DEFAULT '',
+  `mod_nick_name` VARCHAR(25) NOT NULL DEFAULT '',
+  `mod_enc_menu` VARCHAR(10) NOT NULL DEFAULT 'no',
+  `permissions_item_table` CHAR(100) DEFAULT NULL,
+  `directory` VARCHAR(255) NOT NULL,
+  `date` DATETIME NOT NULL,
+  `sql_run` TINYINT(4) DEFAULT '0',
+  `type` TINYINT(4) DEFAULT '0',
+  PRIMARY KEY (`mod_id`,`mod_directory`)
+);
+#EndIf
+
+#IfNotRow modules mod_directory Acl
+insert into `modules` (`mod_id`, `mod_name`, `mod_directory`, `mod_parent`, `mod_type`, `mod_active`, `mod_ui_name`, `mod_relative_link`, `mod_ui_order`, `mod_ui_active`, `mod_description`, `mod_nick_name`, `mod_enc_menu`, `permissions_item_table`, `directory`, `date`, `sql_run`, `type`) values('1','Acl','Acl','','','1','Acl','public/acl/','0','0','','ACL','',NULL,'',NOW(),'1','1');
+#EndIf
+
+#IfNotTable module_acl_group_settings
+CREATE TABLE `module_acl_group_settings` (
+  `module_id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `allowed` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`module_id`,`group_id`,`section_id`)
+);
+#EndIf
+
+#IfNotTable module_acl_sections
+CREATE TABLE `module_acl_sections` (
+  `section_id` int(11) DEFAULT NULL,
+  `section_name` varchar(255) DEFAULT NULL,
+  `parent_section` int(11) DEFAULT NULL,
+  `section_identifier` varchar(50) DEFAULT NULL,
+  `module_id` int(11) DEFAULT NULL
+);
+#EndIf
+
+#IfNotTable module_acl_user_settings
+CREATE TABLE `module_acl_user_settings` (
+  `module_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `allowed` int(1) DEFAULT NULL,
+  PRIMARY KEY (`module_id`,`user_id`,`section_id`)
+);
+#EndIf
+
+#IfNotTable module_configuration
+CREATE TABLE `module_configuration` (
+  `module_config_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `module_id` int(10) unsigned NOT NULL,
+  `field_name` varchar(45) NOT NULL,
+  `field_value` varchar(255) NOT NULL,
+  PRIMARY KEY (`module_config_id`)
+);
+#EndIf
+
+#IfNotTable modules_hooks_settings
+CREATE TABLE `modules_hooks_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mod_id` int(11) DEFAULT NULL,
+  `enabled_hooks` varchar(255) DEFAULT NULL,
+  `attached_to` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+#EndIf

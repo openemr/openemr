@@ -1,0 +1,248 @@
+/*
+Name: Sliding encounteredit Panel with jQuery 1.3.2
+Author: Jeremie Tisseau
+Author URI: http://web-kreation.com/
+Date: March 26, 2009
+Version: 1.0
+
+	Copyright 2009 Jeremie Tisseau
+	"Sliding encounteredit Panel with jQuery 1.3.2" is distributed under the GNU General Public License version 3:
+	http://www.gnu.org/licenses/gpl-3.0.html
+*/
+
+/***** clearfix *****/
+.clear {clear: both;height: 0;line-height: 0;}
+.clearfix:after {content: ".";display: block;height: 0;clear: both;visibility: hidden;}
+.clearfix {display: inline-block;}
+/* Hides from IE-mac \*/
+* html .clearfix {height: 1%;}
+.clearfix {display: block;}
+/* End hide from IE-mac */
+.clearfix {height: 1%;}
+.clearfix {display: block;}
+
+/* Panel slidetab/button */
+.slidetab {
+  	/* background: url(../images/tab_b.png) repeat-x 0 0 !important; */
+	background: url(../images/tab_b.png) repeat-x 0 0  !important;
+	height: 42px;
+	position: relative;
+    top: 0;
+    z-index: 999;
+	width: 95.9% !important;
+}
+
+.slidetab ul.encounteredit {
+	display: block;
+	position: relative;
+  	float: right;
+  	clear: right;
+  	height: 42px;
+	width: auto;
+  	font-weight: bold;
+	line-height: 42px;
+	margin: 0;
+	right: 150px;
+  	color: white;
+  	font-size: 80%;
+	text-align: center;
+}
+
+.slidetab ul.encounteredit li.left {
+  	/* background: url(../images/tab_l.png) no-repeat left 0; */
+	background: url(../images/WidgetHandLeft.png) no-repeat left 0;
+  	height: 42px;
+	width: 30px;
+	padding: 0;
+	margin: 0;
+  	display: block;
+	float: left;
+}
+
+.slidetab ul.encounteredit li.right {
+  	/* background: url(../images/tab_r.png) no-repeat left 0; */
+	background: url(../images/WidgetHandRight.png) no-repeat left 0;
+  	height: 42px;
+	width: 30px;
+	padding: 0;
+	margin: 0;
+  	display: block;
+	float: left;
+}
+
+.slidetab ul.encounteredit li {
+ 	text-align: left;
+  	padding: 0 6px;
+	display: block;
+	float: left;
+	height: 42px;
+  	/* background: url(../images/tab_m.png) repeat-x 0 0; */
+	background: url(../images/WidgetHandMiddle.png) repeat-x 0 0;
+}
+
+.slidetab ul.encounteredit li a {
+	color: #15ADFF;
+}
+
+.slidetab ul.encounteredit li a:hover {
+	color: white;
+}
+
+.slidetab .sep {color:#414141}
+
+.slidetab a.open, .slidetab a.close {
+	height: 20px;
+	line-height: 20px !important;
+	padding-left: 30px !important;
+	cursor: pointer;
+	display: block;
+	width: 100px;
+	position: relative;
+	top: 11px;
+}
+
+/*.slidetab a.open {background: url(../images/bt_open.png) no-repeat left 0;}
+.slidetab a.close {background: url(../images/bt_close.png) no-repeat left 0;}
+.slidetab a:hover.open {background: url(../images/bt_open.png) no-repeat left -19px;}
+.slidetab a:hover.close {background: url(../images/bt_close.png) no-repeat left -19px;}
+*/
+/* sliding panel */
+#toppanel {
+    position: absolute;   /*Panel will overlap  content */
+    /*position: relative;*/   /*Panel will "push" the content down */
+    top: 0;
+    width: 99%;
+    z-index: 999;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#panel {
+	width: 95%;
+	/* height: 290px; */
+	color: #999999;
+	background: #b7d2ff;/*#272727;*/
+	overflow: hidden;
+	position: relative;
+	z-index: 3;
+	display: none;
+	/* border:5px solid #0068a4; */
+	border-top:5px solid #0068a4;
+	border-right:5px solid #0068a4;
+	border-left:5px solid #0068a4;
+}
+
+#panel h1 {
+	font-size: 1.6em;
+	padding: 5px 0 10px;
+	margin: 0;
+	color: white;
+}
+
+#panel h2{
+	font-size: 1.2em;
+	padding: 10px 0 5px;
+	margin: 0;
+	color: white;
+}
+
+#panel p {
+	margin: 5px 0;
+	padding: 0;
+}
+
+#panel a {
+	text-decoration: none;
+	color: #15ADFF;
+}
+
+#panel a:hover {
+	color: white;
+}
+
+#panel a-lost-pwd {
+	display: block;
+	float: left;
+}
+
+#panel .content {
+	width: 95%;
+	margin: 0 auto;
+	padding-top: 15px;
+	text-align: left;
+	font-size: 0.85em;
+}
+
+#panel .content .left {
+	width: 280px;
+	float: left;
+	padding: 0 15px;
+	border-left: 1px solid #333;
+}
+
+#panel .content .right {
+	border-right: 1px solid #333;
+}
+
+#panel .content form {
+	margin: 0 0 10px 0;
+}
+
+#panel .content label {
+	float: left;
+	padding-top: 8px;
+	clear: both;
+	width: 280px;
+	display: block;
+}
+
+#panel .content input.field {
+	border: 1px #1A1A1A solid;
+	background: #414141;
+	margin-right: 5px;
+	margin-top: 4px;
+	width: 200px;
+	color: white;
+	height: 16px;
+}
+
+#panel .content input:focus.field {
+	background: #545454;
+}
+
+/* BUTTONS */
+/* encounteredit  buttons */
+#panel .content input.bt_login,
+#panel .content input.bt_register {
+	display: block;
+	float: left;
+	clear: left;
+	height: 24px;
+	text-align: center;
+	cursor: pointer;
+	border: none;
+	font-weight: bold;
+	margin: 10px 0;
+}
+
+#panel .content input.bt_login {
+	width: 74px;
+	background: transparent url(../images/bt_login.png) no-repeat 0 0;
+}
+
+#panel .content input.bt_register {
+	width: 94px;
+	color: white;
+	background: transparent url(../images/bt_register.png) no-repeat 0 0;
+}
+
+#panel .lost-pwd {
+	display: block;
+	float:left;
+	clear: right;
+	padding: 15px 5px 0;
+	font-size: 0.95em;
+	text-decoration: underline;
+}
+

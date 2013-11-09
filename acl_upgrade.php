@@ -157,6 +157,8 @@ if ($acl_version < $upgrade_acl) {
   addObjectSectionAcl('nationnotes','Nation Notes');
   //Add 'Patient Portal' object section (added in 4.1.0)
   addObjectSectionAcl('patientportal', 'Patient Portal');
+  //Add 'Menus' object section (added in 4.1.0)
+  addObjectSectionAcl('menus', 'Menus');
 
   //Add new Objects
   echo "<BR/><B>Adding new objects</B><BR/>";
@@ -188,6 +190,8 @@ if ($acl_version < $upgrade_acl) {
   addObjectAcl('nationnotes', 'Nation Notes', 'nn_configure', 'Nation Notes Configure');
   //Add 'patientportal' object (added in 4.1.0)
   addObjectAcl('patientportal', 'Patient Portal', 'portal', 'Patient Portal');
+  //Add 'modules' object (added in 4.1.0)
+  addObjectAcl('menus', 'Menus', 'modle', 'Modules');
 
   //Update already existing Objects
   echo "<BR/><B>Upgrading objects</B><BR/>";
@@ -321,6 +325,10 @@ if ($acl_version < $upgrade_acl) {
   updateAcl($admin_write, 'Administrators','patientportal', 'Patient Portal', 'portal', 'Patient Portal','write');
   //Insert the 'patientportal' object from the 'patientportal' section into the Emergency Login group write ACL (added in 4.1.0)
   updateAcl($emergency_write, 'Emergency Login','patientportal', 'Patient Portal', 'portal', 'Patient Portal','write');
+  //Insert the 'Modules' object from the 'Menus' section into the Administrators group write ACL (added in 4.1.0)
+  updateAcl($admin_write, 'Administrators','menus', 'Menus', 'modle', 'Modules', 'write');
+  //Insert the 'Modules' object from the 'Menus' section into the Emergency Login group write ACL (added in 4.1.0)
+  updateAcl($emergency_write, 'Emergency Login','menus', 'Menus', 'modle', 'Modules', 'write');
 
   //DONE with upgrading to this version
   $acl_version = $upgrade_acl;

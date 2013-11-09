@@ -1,0 +1,275 @@
+<?php 
+// +-----------------------------------------------------------------------------+
+//OpenEMR - Open Source Electronic Medical Record
+//    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU Affero General Public License as
+//    published by the Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// 		Author:   Jacob T.Paul <jacob@zhservices.com>
+//							Vipin Kumar <vipink@zhservices.com>
+// +------------------------------------------------------------------------------+
+echo $this->headScript()->appendFile(
+		$this->basePath() . '/js/installer/action.js',
+		'text/javascript'
+);
+$listener	= $this->listenerObject;
+$title 		= $listener->z_xlt('Module Installer');
+$this->headTitle($title);
+$baseModuleDir 	= $GLOBALS['baseModuleDir'];
+$customDir 	= $GLOBALS['customDir'];
+$zendModDir 	= $GLOBALS['zendModDir'];
+
+$depObj 	= $this->dependencyObject;
+
+?>
+<h1><img src="<?php echo $this->basePath()?>/images/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title); ?></h1>
+
+<ul class="tabNav">
+		<li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');" >
+			<a href="javascript:void(0)" id="header_tab_.htmlspecialchars(Registered,ENT_QUOTES).">
+              <?php echo $listener->z_xlt('Registered');?>
+            </a>
+		</li>
+	  	<li class="divMenu"  onclick="$('.registered').hide();$('.unregistered').show();$('.divMenu').removeClass('current');$(this).addClass('current');">
+			<a href="javascript:void(0)" id="header_tab_.htmlspecialchars(UnReg,ENT_QUOTES).">
+              <?php echo $listener->z_xlt('Unregistered');?> <span id='ct'></span>
+            </a>
+		</li>
+</ul>
+<div class="installer" >
+	<div id='err' class='bold '></div>
+	<div class="installer_code notranslate registered">			
+		<form method=POST action ='./modules_admin.php'<?php echo $formtarget; ?>>
+		<?php //REGISTERED SECTION ?>
+			<div class="imagetable">
+				<div class="imagetable_code notranslate">
+					<table id="table-6" class="imagetable" align="center">
+						<thead>  
+							<tr>
+								<th colspan='10' class="groupReg">
+									<?php echo $listener->z_xlt('Registered Modules');?>
+								</th>
+							<tr>
+							<tr >
+								<th scope="col" ><?php echo $listener->z_xlt('Sl.No'); ?></th>
+								<th scope="col" ><?php echo $listener->z_xlt('Module'); ?> </th>
+								<th scope="col" ><?php echo $listener->z_xlt('Status'); ?> </th>
+								<th scope="col" ><?php echo $listener->z_xlt('Menu Text'); ?> </th>
+								<th scope="col" ><?php echo $listener->z_xlt('Nick Name'); ?> </th>
+								<th scope="col" ><?php echo $listener->z_xlt('Type'); ?> </th>	
+								<th scope="col" ><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>								
+								<th scope="col" ><?php echo $listener->z_xlt('Action'); ?> </th>
+								<th scope="col" ><?php echo $listener->z_xlt('Config'); ?> </th>
+							</tr>
+					  </thead>
+					<?php
+					/******** Module Creation ********/
+					 $count = 0;
+					 if(sizeof($InstallersAll) > 0)
+					    foreach ($InstallersAll as $moduleResult) {
+								if($moduleResult -> modName == 'Acl') continue;
+							$count++;							
+						?>
+					     	<tr  id="<?php echo $moduleResult -> modId;?>">
+								<td  ><?php echo $count;?>	</td>
+								<td  ><?php echo xl_form_title($moduleResult -> modName); ?></td>
+								<td  >
+									<?php					
+		 
+			  							if ($moduleResult -> sqlRun==0){?>
+			  								<?php echo $listener->z_xlt('Not Installed');?>
+			  							<?php 			  								
+			  							}else if ($moduleResult -> modActive == 1){?>
+			  								<?php echo $listener->z_xlt('Active');?>
+										<?php }
+										else{?>
+											<?php echo $listener->z_xlt('Inactive');?>
+										<?php //echo "<img src='images/inactive.gif' width='12' height='12' border='0'/> <a  href='./manage.php?id={$moduleResult -> modId}&method=disable'$formtarget>".xl('Inactive')."</a>";
+										}
+									?>		
+			  					</td>
+								<td >
+								  <?php echo xl_form_title($moduleResult -> modUiName); ?>
+								</td>
+								<td >
+								  <?php
+								  if ($moduleResult -> sqlRun==0){
+								  ?>
+								  <input type="text" name="mod_nick_name" id="mod_nick_name" value="">
+								  <?php
+								  }
+								  else{
+								  echo xl_form_title($moduleResult -> modnickname);
+								  }
+								  ?>
+								</td>
+								<td>
+									<?php echo xl_form_title(($moduleResult -> type == 1)? "Zend" : "Custom");?>
+								</td>
+								<td>
+									<?php
+									$depStr	= $depObj->getDependencyModules($moduleResult -> modId);
+								        echo ($depStr <> "") ? $listener->z_xlt($depStr) : "--";
+								?>
+								</td>
+								<td>
+								<?php					
+		 
+			  							if ($moduleResult -> sqlRun==0){?>
+			  								<a href="javascript:void(0)" class="link_submit install" onclick="manage('<?php echo $moduleResult -> modId?>','install');" title="<?php echo $listener->z_xlt('Click Here to Install This module');?>"><input type='button' class='activate' value="<?php echo $listener->z_xlt('Install');?>"/></a>
+			  							<?php 			  								
+			  							}else if ($moduleResult -> modActive == 1){?>
+			  								<a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $moduleResult -> modId?>','enable');" title="<?php echo $listener->z_xlt('Click Here to Disable This module');?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xlt('Disable');?>"/></a>
+										<?php }
+										elseif($moduleResult -> modName != 'Acl'){?>
+											<a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $moduleResult -> modId?>','disable');" title="<?php echo $listener->z_xlt('Click Here to Enable This module');?>"><input type='button' class='activate' value="<?php echo $listener->z_xlt('Enable');?>"/></a>
+										<?php //echo "<img src='images/inactive.gif' width='12' height='12' border='0'/> <a  href='./manage.php?id={$moduleResult -> modId}&method=disable'$formtarget>".xl('Inactive')."</a>";
+										}?>
+								</td>
+								<td>
+								<?php					
+		 
+			  							if ($moduleResult -> sqlRun==0){?>
+			  								--
+			  							<?php 			  								
+			  							}else if ($moduleResult -> modActive == 1){?>
+			  								<a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $moduleResult -> modId ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xlt('Click Here to Configure This module');?>"><img src="<?php echo $this->basePath()?>/images/config.png" border=0></a>
+										<?php }
+										else{?>
+											--
+										<?php //echo "<img src='images/inactive.gif' width='12' height='12' border='0'/> <a  href='./manage.php?id={$moduleResult -> modId}&method=disable'$formtarget>".xl('Inactive')."</a>";
+										}?>
+								</td>
+							</tr>
+							<tr style="display:none" class="config" id="ConfigRow_<?php echo $moduleResult -> modId;?>">
+								<td colspan="10" align="center">
+								</td>
+							</tr>
+					<?php							
+							}
+						 //end of if & while
+					?>
+					</table>
+				</div>
+			</div>
+			
+		</form>				
+	</div>
+	<div class="installer_code notranslate unregistered" style="display:none">			
+		<table class="imagetable" id="unregistered">
+			<tr>
+				<th colspan='4' class="groupRegUn">
+					<?php echo $listener->z_xlt('Unregistered Modules');?>
+				</th>
+			<tr>
+				<th scope="col" ><?php echo $listener->z_xlt('Sl.No');?></th>
+				<th scope="col" ><?php echo $listener->z_xlt('Module Name');?></th>
+				<th scope="col" ><?php echo $listener->z_xlt('Type');?></th>
+				<th scope="col" ><?php echo $listener->z_xlt('Action');?></th>
+			</tr>
+			<?php
+				$dpath = $GLOBALS['srcdir']."/../{$baseModuleDir}{$customDir}/";
+				$dp = opendir($dpath);
+				$inDir = array();
+				for ($i=0; false != ($fname = readdir($dp)); $i++){
+
+					if ($fname != "." && $fname != ".." && $fname != "Application" && is_dir($dpath.$fname))
+						$inDir[$i] = $fname;
+				}
+				if (sizeof($InstallersExisting) > 0){
+					foreach ( $InstallersExisting as $modules ){
+						 $key = "";
+						 $key = array_search($modules -> modDirectory, $inDir) ;  /* returns integer or FALSE */
+						 if($key != "")
+						 	unset($inDir[$key]);
+					}
+				}				
+				$slno=0;
+				foreach ( $inDir as $fname ){
+					$slno++;
+					?>
+					<tr>
+						<td><?php echo $slno;?> </td>
+						<td>
+	        			<?php
+	                		$form_title_file = @file($GLOBALS['srcdir']."/../{$baseModuleDir}{$customDir}/$fname/info.txt");
+				            if ($form_title_file)						
+	                        	$form_title = $form_title_file[0];
+	                        else
+	                            $form_title = $fname;
+	                		echo xl_form_title($form_title); 
+                		?>		
+                		</td>						
+						<td>
+							<?php echo $listener->z_xlt('Normal');?>
+						</td>	
+						<td >
+						 <a href="javascript:void(0)" onclick="register(1,'<?php echo xl_form_title($form_title);?>','<?php echo $fname?>','register','');"><input type='button' class='activate' value='Register'/></a>
+						</td>	
+					</tr>
+					<?php								
+					flush();
+				}//end of foreach
+				$dpath 	= $GLOBALS['srcdir']."/../{$baseModuleDir}{$zendModDir}/module";
+				$dp 	= opendir($dpath);				
+				$inDir = array();
+				for ($i=0; false != ($fname = readdir($dp)); $i++){
+					if ($fname != "." && $fname != ".." && ($fname != "Application" && $fname != "Installer") && is_dir($dpath."/".$fname))
+						$inDir[$i] = $fname;
+				}
+				if (sizeof($InstallersExisting) > 0){
+					foreach ( $InstallersExisting as $modules ){
+						 $key = "";
+						 $key = array_search($modules -> modDirectory, $inDir) ;  /* returns integer or FALSE */
+						 if($key != "")
+						 	unset($inDir[$key]);
+					}
+				}							
+				foreach ( $inDir as $fname ){
+					$slno++;
+					?>
+					<tr>
+						<td ><?php echo $slno;?> </td>
+						<td > 
+	        			<?php
+	                		$form_title_file = @file($GLOBALS['srcdir']."/../{$baseModuleDir}{$zendModDir}/$fname/info.txt");
+				            if ($form_title_file)						
+	                        	$form_title = $form_title_file[0];
+	                        else
+	                            $form_title = $fname;
+	                		echo xl_form_title($form_title); 
+                		?>		
+                		</td>
+                		<td >
+							<?php echo $listener->z_xlt('Zend Module');?>
+						</td>	
+						<td >
+							<a href="javascript:void(0)" onclick="register(1,'<?php echo xl_form_title($form_title);?>','<?php echo $fname?>','register','zend');"><input type='button' class='activate' value='Register'/></a>
+						</td>							
+					</tr>
+					<?php					
+					flush();
+				}//end of foreach
+			?>
+			
+		</table>
+	</div>
+</div>
+<?php 
+if($slno > 0){
+?>
+<script>
+	$('#ct').html('(<?php echo $slno ?>)');
+</script>
+<?php 
+}?>

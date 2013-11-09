@@ -569,8 +569,47 @@ if ($GLOBALS['patient_id_category_name']) {
 |
 <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
+
+<!-- DISPLAYING HOOKS STARTS HERE -->
+<?php
+	$module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh
+					LEFT OUTER JOIN modules_settings AS ms ON obj_name=enabled_hooks AND ms.mod_id=msh.mod_id
+					LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id 
+					WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='demographics' ORDER BY mod_id");
+	$DivId = 'mod_installer';
+	if (sqlNumRows($module_query)) {
+		$jid 	= 0;
+		$modid 	= '';
+		while ($modulerow = sqlFetchArray($module_query)) {
+			$DivId 		= 'mod_'.$modulerow['mod_id'];
+			$new_category 	= $modulerow['mod_ui_name'];
+			$modulePath 	= "";
+			$added      	= "";
+			if($modulerow['type'] == 0) {
+				$modulePath 	= $GLOBALS['customDir'];
+				$added		= "";
+			}
+			else{ 	
+				$added		= "index";
+				$modulePath 	= $GLOBALS['zendModDir'];
+			}
+			$relative_link 	= "../../modules/".$modulePath."/".$modulerow['path'];
+			$nickname 	= $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
+			$jid++;
+			$modid = $modulerow['mod_id'];			
+			?>
+			|
+			<a href="<?php echo $relative_link; ?>" onclick='top.restoreSession()'>
+			<?php echo htmlspecialchars(xl($nickname),ENT_NOQUOTES); ?></a>
+		<?php	
+		}
+	}
+	?>
+<!-- DISPLAYING HOOKS ENDS HERE -->
+
   </td>
  </tr>
+ 
 </table> <!-- end header -->
 
 <div style='margin-top:10px'> <!-- start main content div -->
