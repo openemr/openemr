@@ -1,0 +1,184 @@
+#
+# tawfek daghistani <tawfekov@gmail.com>, 2012.
+# Tawfek Daghistani <tawfekov@gmail.com>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ZendSkeletonApplication\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-07-05 22:17-0700\n"
+"PO-Revision-Date: 2012-07-07 13:58+0300\n"
+"Last-Translator: Tawfek Daghistani <tawfekov@gmail.com>\n"
+"Language-Team: Arabic <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: translate\n"
+"X-Poedit-Language: English\n"
+"X-Poedit-Country: UNITED STATES\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: ../view/layout/layout.phtml:6 ../view/layout/layout.phtml:33
+msgid "Skeleton Application"
+msgstr "Skeleton Application"
+
+#: ../view/layout/layout.phtml:36
+msgid "Home"
+msgstr "الصفحة الرئيسية"
+
+#: ../view/layout/layout.phtml:50
+msgid "All rights reserved."
+msgstr "جميع الحقوق محفوظة"
+
+#: ../view/application/index/index.phtml:2
+#, php-format
+msgid "Welcome to %sZend Framework 2%s"
+msgstr "أهلا بك في  %sZend Framework 2%s"
+
+#: ../view/application/index/index.phtml:3
+#, php-format
+msgid ""
+"Congratulations! You have successfully installed the %sZF2 Skeleton "
+"Application%s. You are currently running Zend Framework version %s. This "
+"skeleton can serve as a simple starting point for you to begin building your "
+"application on ZF2."
+msgstr ""
+"تهانينا! لقد قمت بتنصيب %sZF2 Skeleton Application%s . أنت الآن تستخدم مكتبة "
+"زيند الإصدار %s . هذا التطبيق يمكن أن يكون  لك نقطة بداية سهلة في بناء "
+"برامجك الخاصة على مكتبة زيند "
+
+#: ../view/application/index/index.phtml:4
+msgid "Fork Zend Framework 2 on GitHub"
+msgstr "اشتق مكتبة زيند على GitHub "
+
+#: ../view/application/index/index.phtml:10
+msgid "Follow Development"
+msgstr "تابع أخر التطورات"
+
+#: ../view/application/index/index.phtml:11
+#, php-format
+msgid ""
+"Zend Framework 2 is under active development. If you are interested in "
+"following the development of ZF2, there is a special ZF2 portal on the "
+"official Zend Framework website which provides links to the ZF2 %swiki%s, "
+"%sdev blog%s, %sissue tracker%s, and much more. This is a great resource for "
+"staying up to date with the latest developments!"
+msgstr ""
+"مكتبة زيند تخضع للتطوير المستمر , إذا كان لديك الرغبة في متابعة التطورات , "
+"بإمكانك تصفح الموقع الرسمي للمكتبة الذي يحتوي على روابط إلى  %swiki%s, %sdev "
+"blog%s, %sissue tracker%s, ,و المزيد . هذه مصادر رائعة لمتابعة أخر التطورات"
+
+#: ../view/application/index/index.phtml:12
+msgid "ZF2 Development Portal"
+msgstr "بوابة التطوير الخاصة ب زيند"
+
+#: ../view/application/index/index.phtml:16
+msgid "Discover Modules"
+msgstr "تعرف على الإضافات"
+
+#: ../view/application/index/index.phtml:17
+#, php-format
+msgid ""
+"The community is working on developing a community site to serve as a "
+"repository and gallery for ZF2 modules. The project is available %son GitHub"
+"%s. The site is currently live and currently contains a list of some of the "
+"modules already available for ZF2."
+msgstr ""
+"المجتمع البرمجي يعمل على تطوير موقع خاص به ليكون كمصدر و معرض لإضافات ZF2 . "
+"هذا المشروع موجود على %son GitHub%s . هذا الموقع يخضع للتطوير المستمر و "
+"يحتوي على قائمة من الإضافات الخاصة ب ZF2 "
+
+#: ../view/application/index/index.phtml:18
+msgid "Explore ZF2 Modules"
+msgstr "إكتشف إضافات ZF2 "
+
+#: ../view/application/index/index.phtml:22
+msgid "Help &amp; Support"
+msgstr "الدعم و المساعدة "
+
+#: ../view/application/index/index.phtml:23
+#, php-format
+msgid ""
+"If you need any help or support while developing with ZF2, you may reach us "
+"via IRC: %s#zftalk on Freenode%s. We'd love to hear any questions or "
+"feedback you may have regarding the beta releases. Alternatively, you may "
+"subscribe and post questions to the %smailing lists%s."
+msgstr ""
+"إذا كنت تريد الحصول على دعم فني أو مساعدة في تطوير ZF2 , بإمكانك التواصل عبر "
+"IRC: %s#zftalk on Freenode%s. نحن نريد أن نسمع منك المزيد من الأسئلة , "
+"الأراء و الملاحظات على النسخة التجربية من المكتبة , أو بإمكانك الإشتراك و "
+"التفاعل أو وضع الأسئلة في القائمة البريدية %smailing lists%s."
+
+#: ../view/application/index/index.phtml:24
+msgid "Ping us on IRC"
+msgstr "تواصل معنا في IRC"
+
+#: ../view/error/index.phtml:1
+msgid "An error occurred"
+msgstr "حصل خطأ ما "
+
+#: ../view/error/index.phtml:8
+msgid "Additional information"
+msgstr "مزيد من المعلومات"
+
+#: ../view/error/index.phtml:11 ../view/error/index.phtml:35
+msgid "File"
+msgstr "ملف"
+
+#: ../view/error/index.phtml:15 ../view/error/index.phtml:39
+msgid "Message"
+msgstr "الرسالة"
+
+#: ../view/error/index.phtml:19 ../view/error/index.phtml:43
+#: ../view/error/404.phtml:55
+msgid "Stack trace"
+msgstr "تفاصيل الخطأ"
+
+#: ../view/error/index.phtml:29
+msgid "Previous exceptions"
+msgstr "الأخطاء السابقة"
+
+#: ../view/error/index.phtml:58
+msgid "No Exception available"
+msgstr "لايوجد خطأ"
+
+#: ../view/error/404.phtml:1
+msgid "A 404 error occurred"
+msgstr "حصل خطأ 404 , الصفحة غير موجودة"
+
+#: ../view/error/404.phtml:10
+msgid "The requested controller was unable to dispatch the request."
+msgstr "المتحكم المطلوب غير قادر على إجابة الطلب"
+
+#: ../view/error/404.phtml:13
+msgid ""
+"The requested controller could not be mapped to an existing controller class."
+msgstr "لا يمكن ربط المتحكم المطلوب بأي من المتحكمات الموجودة حالياًَ"
+
+#: ../view/error/404.phtml:16
+msgid "The requested controller was not dispatchable."
+msgstr "المتحكم المطلوب غير قادر على الإجابة "
+
+#: ../view/error/404.phtml:19
+msgid "The requested URL could not be matched by routing."
+msgstr "الرابط المطلوب غير معرف لدى الموجه"
+
+#: ../view/error/404.phtml:22
+msgid "We cannot determine at this time why a 404 was generated."
+msgstr "لا يمكنني التحديد لماذا حصل الخطأ 404 في هذا الوقت "
+
+#: ../view/error/404.phtml:34
+msgid "Controller"
+msgstr "المتحكم "
+
+#: ../view/error/404.phtml:41
+#, php-format
+msgid "resolves to %s"
+msgstr "يوصل إلى %s"
+
+#: ../view/error/404.phtml:51
+msgid "Exception"
+msgstr "خطأ برمجي"

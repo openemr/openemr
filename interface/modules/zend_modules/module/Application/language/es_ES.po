@@ -1,0 +1,111 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ZendSkeletonApplication\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-07-06 19:07+0100\n"
+"PO-Revision-Date: 2012-07-06 19:09+0100\n"
+"Last-Translator: Adolfo Abegg <adolfoabegg@gmail.com>\n"
+"Language-Team: ZF Contributors <zf-devteam@zend.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+"X-Poedit-KeywordsList: translate\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Language: Spanish\n"
+"X-Poedit-Country: SPAIN\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+msgid "Skeleton Application"
+msgstr "Aplicación Esqueleto"
+
+msgid "Home"
+msgstr "Inicio"
+
+msgid "All rights reserved."
+msgstr "Todos los derechos reservados"
+
+msgid "Welcome to %sZend Framework 2%s"
+msgstr "Bienvenido al %sZend Framework 2%s"
+
+msgid "Congratulations! You have successfully installed the %sZF2 Skeleton Application%s. You are currently running Zend Framework version %s. This skeleton can serve as a simple starting point for you to begin building your application on ZF2."
+msgstr "¡Felicitaciones! Haz instalado correctamente el %sla aplicación esqueleto del ZF2%s. Estás corriendo la versión %s del Zend Framework. Este esqueleto te servirá como un punto de inicio sencillo para empezar a construir tu aplicación con el ZF2."
+
+msgid "Fork Zend Framework 2 on GitHub"
+msgstr "Hacer un Fork del Zend Framework 2 en GitHub"
+
+msgid "Follow Development"
+msgstr "Seguir el Desarrollo"
+
+msgid "Zend Framework 2 is under active development. If you are interested in following the development of ZF2, there is a special ZF2 portal on the official Zend Framework website which provides links to the ZF2 %swiki%s, %sdev blog%s, %sissue tracker%s, and much more. This is a great resource for staying up to date with the latest developments!"
+msgstr "El Zend Framework 2 está en pleno desarrollo. Si estás interesado en seguir el desarrollo del ZF2, existe un portal especial para el ZF2 en el sitio web oficial del Zend Framework el cual provee enlaces %sa la Wiki%s, %sal Blog de desarrollo%s, %sal issue tracker%s y mucho más. Este es un gran recurso para mantenerte al día con los últimos avances en el desarrollo!"
+
+msgid "ZF2 Development Portal"
+msgstr "Portal de Desarrollo del ZF2"
+
+msgid "Discover Modules"
+msgstr "Descubre Módulos"
+
+msgid "The community is working on developing a community site to serve as a repository and gallery for ZF2 modules. The project is available %son GitHub%s. The site is currently live and currently contains a list of some of the modules already available for ZF2."
+msgstr "La comunidad está trabajando en el desarrollo de una web comunitaria que servirá de repositorio y galería de los módulos del ZF2. El proyecto está disponible %sen GitHub%s. El sitio web está en línea y actualmente posee una lista de algunos módulos que ya están disponibles para el ZF2."
+
+msgid "Explore ZF2 Modules"
+msgstr "Explora los módulos del ZF2"
+
+msgid "Help &amp; Support"
+msgstr "Ayuda &amp; Soporte"
+
+msgid "If you need any help or support while developing with ZF2, you may reach us via IRC: %s#zftalk on Freenode%s. We'd love to hear any questions or feedback you may have regarding the beta releases. Alternatively, you may subscribe and post questions to the %smailing lists%s."
+msgstr "Si necesitas alguna ayuda o soporte mientras estás desarrollando con el ZF2, puedes encontrarnos via IRC: %s#zftalk en Freenode%s. Nos encantaría leer tus preguntas o cualquier feedback que puedas tener en relación a los lanzamientos de las versiones beta. También puedes subscribirte y enviar preguntas %sa la lista de correos%s"
+
+msgid "Ping us on IRC"
+msgstr "Escríbenos en el IRC"
+
+msgid "An error occurred"
+msgstr "Ha ocurrido un error"
+
+msgid "Additional information"
+msgstr "Información adicional"
+
+msgid "File"
+msgstr "Archivo"
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "Stack trace"
+msgstr "Seguimiento de la pila (stack trace)"
+
+msgid "Previous exceptions"
+msgstr "Excepciones anteriores"
+
+msgid "No Exception available"
+msgstr "No hay ninguna Excepción disponible."
+
+msgid "A 404 error occurred"
+msgstr "Ha ocurrido un error 404"
+
+msgid "The requested controller was unable to dispatch the request."
+msgstr "El controlador solicitado no pudo ejecutar la petición."
+
+msgid "The requested controller could not be mapped to an existing controller class."
+msgstr "El controlador solicitado no se pudo mapear con una clase de controlador existente."
+
+msgid "The requested controller was not dispatchable."
+msgstr "El controlador solicitado no es ejecutable."
+
+msgid "The requested URL could not be matched by routing."
+msgstr "El ruteador no ha encontrado la ruta para la URL solicitada."
+
+msgid "We cannot determine at this time why a 404 was generated."
+msgstr "No pudimos determinar por qué un error 404 ha sido generado."
+
+msgid "Controller"
+msgstr "Controller"
+
+msgid "resolves to %s"
+msgstr "se resuelve a %s"
+
+msgid "Exception"
+msgstr "Excepción"
+

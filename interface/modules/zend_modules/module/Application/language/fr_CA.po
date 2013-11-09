@@ -1,0 +1,153 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ZendSkeletonApplication\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-07-06 01:46-0500\n"
+"PO-Revision-Date: 2012-07-06 02:08-0500\n"
+"Last-Translator: EBB Dev <me@email.com>\n"
+"Language-Team: ZF Contibutors <zf-devteam@zend.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: translate\n"
+"X-Poedit-Language: French\n"
+"X-Poedit-Country: CANADA\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../view/error/404.phtml:1
+msgid "A 404 error occurred"
+msgstr "Une erreur 404 est survenue"
+
+#: ../view/error/404.phtml:10
+msgid "The requested controller was unable to dispatch the request."
+msgstr "Le contrôleur demandé n'a pas pu acheminer la requête."
+
+#: ../view/error/404.phtml:13
+msgid "The requested controller could not be mapped to an existing controller class."
+msgstr "Le contrôleur demandé ne correspond pas à une classe contrôleur existante."
+
+#: ../view/error/404.phtml:16
+msgid "The requested controller was not dispatchable."
+msgstr "Le contrôleur demandé ne peut être acheminé."
+
+#: ../view/error/404.phtml:19
+msgid "The requested URL could not be matched by routing."
+msgstr "L'URL demandée n'a pas pu trouver de route correspondante."
+
+#: ../view/error/404.phtml:22
+msgid "We cannot determine at this time why a 404 was generated."
+msgstr "Nous ne pouvons pas déterminer pour le moment pourquoi une 404 a été générée."
+
+#: ../view/error/404.phtml:34
+msgid "Controller"
+msgstr "Contrôleur"
+
+#: ../view/error/404.phtml:41
+#, php-format
+msgid "resolves to %s"
+msgstr "résout en %s"
+
+#: ../view/error/404.phtml:51
+msgid "Exception"
+msgstr "Exception"
+
+#: ../view/error/404.phtml:55
+#: ../view/error/index.phtml:19
+#: ../view/error/index.phtml:43
+msgid "Stack trace"
+msgstr "Pile d'exécution"
+
+#: ../view/error/index.phtml:1
+msgid "An error occurred"
+msgstr "Une erreur est survenue"
+
+#: ../view/error/index.phtml:8
+msgid "Additional information"
+msgstr "Informations complémentaires"
+
+#: ../view/error/index.phtml:11
+#: ../view/error/index.phtml:35
+msgid "File"
+msgstr "Fichier"
+
+#: ../view/error/index.phtml:15
+#: ../view/error/index.phtml:39
+msgid "Message"
+msgstr "Message"
+
+#: ../view/error/index.phtml:29
+msgid "Previous exceptions"
+msgstr "Exceptions précédentes"
+
+#: ../view/error/index.phtml:58
+msgid "No Exception available"
+msgstr "Aucune exception disponible"
+
+#: ../view/application/index/index.phtml:2
+#, php-format
+msgid "Welcome to %sZend Framework 2%s"
+msgstr "Bienvenue dans %sZend Framework 2%s"
+
+#: ../view/application/index/index.phtml:3
+#, php-format
+msgid "Congratulations! You have successfully installed the %sZF2 Skeleton Application%s. You are currently running Zend Framework version %s. This skeleton can serve as a simple starting point for you to begin building your application on ZF2."
+msgstr "Félicitations ! Vous avez installé %sZF2 Skeleton Application%s avec succès. Vous utilisez actuellement Zend Framework version %s. Cette structure peut vous servir comme point de départ simple pour démarrer la construction de votre application avec ZF2."
+
+#: ../view/application/index/index.phtml:4
+msgid "Fork Zend Framework 2 on GitHub"
+msgstr "Faites un Fork de Zend Framework 2 sur GitHub"
+
+#: ../view/application/index/index.phtml:10
+msgid "Follow Development"
+msgstr "Suivre le développement"
+
+#: ../view/application/index/index.phtml:11
+#, php-format
+msgid "Zend Framework 2 is under active development. If you are interested in following the development of ZF2, there is a special ZF2 portal on the official Zend Framework website which provides links to the ZF2 %swiki%s, %sdev blog%s, %sissue tracker%s, and much more. This is a great resource for staying up to date with the latest developments!"
+msgstr "Zend Framework 2 est en cours de développement. Si vous êtes intéressé pour suivre l'évolution de ZF2, il existe un portail dédié à ZF2 sur le site officiel Zend Framework qui propose des liens vers le %swiki%s ZF2, le %sblogue de dev%s, le %ssuivi des problèmes%s, et bien plus encore. Il s'agit d'une excellente ressource pour rester à jour sur les dernières évolutions !"
+
+#: ../view/application/index/index.phtml:12
+msgid "ZF2 Development Portal"
+msgstr "Portail sur le développement de ZF2"
+
+#: ../view/application/index/index.phtml:16
+msgid "Discover Modules"
+msgstr "Découvrez les modules"
+
+#: ../view/application/index/index.phtml:17
+#, php-format
+msgid "The community is working on developing a community site to serve as a repository and gallery for ZF2 modules. The project is available %son GitHub%s. The site is currently live and currently contains a list of some of the modules already available for ZF2."
+msgstr "La communauté travaille sur le développement d'un site communautaire avec l'objectif de servir de dépôt et de galerie  pour les modules ZF2. Le projet est disponible %ssur GitHub%s. Le site est déjà en ligne, et contient une liste non exhaustive des modules déjà disponibles pour ZF2."
+
+#: ../view/application/index/index.phtml:18
+msgid "Explore ZF2 Modules"
+msgstr "Explorer les modules ZF2"
+
+#: ../view/application/index/index.phtml:22
+msgid "Help &amp; Support"
+msgstr "Aide &amp; support"
+
+#: ../view/application/index/index.phtml:23
+#, php-format
+msgid "If you need any help or support while developing with ZF2, you may reach us via IRC: %s#zftalk on Freenode%s. We'd love to hear any questions or feedback you may have regarding the beta releases. Alternatively, you may subscribe and post questions to the %smailing lists%s."
+msgstr "Si vous avez besoin d'aide ou de soutient en développant avec ZF2, vous pouvez nous joindre sur IRC : %s#zftalk sur Freenode%s. Nous aimerions connaître vos questions ou les commentaires que vous pourriez avoir au sujet des versions beta. Sinon, vous pouvez vous abonner, et poser des questions sur la %sliste de diffusion%s."
+
+#: ../view/application/index/index.phtml:24
+msgid "Ping us on IRC"
+msgstr "Rejoignez-nous sur IRC"
+
+#: ../view/layout/layout.phtml:6
+#: ../view/layout/layout.phtml:33
+msgid "Skeleton Application"
+msgstr "Skeleton Application"
+
+#: ../view/layout/layout.phtml:36
+msgid "Home"
+msgstr "Accueil"
+
+#: ../view/layout/layout.phtml:50
+msgid "All rights reserved."
+msgstr "Tous droits réservés."
+

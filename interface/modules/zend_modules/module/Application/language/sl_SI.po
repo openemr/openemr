@@ -1,0 +1,153 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ZendSkeletonApplication\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-08-29 14:40-0000\n"
+"PO-Revision-Date: 2013-08-29 14:40-0000\n"
+"Last-Translator: Peter Kokot <peterkokot@gmail.com>\n"
+"Language-Team: ZF Contibutors <zf-devteam@zend.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: translate\n"
+"X-Poedit-Language: Slovenian\n"
+"X-Poedit-Country: SLOVENIA\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../view/layout/layout.phtml:6
+#: ../view/layout/layout.phtml:33
+msgid "Skeleton Application"
+msgstr "Ogrodna aplikacija"
+
+#: ../view/layout/layout.phtml:36
+msgid "Home"
+msgstr "Domov"
+
+#: ../view/layout/layout.phtml:50
+msgid "All rights reserved."
+msgstr "Vse pravice pridržane"
+
+#: ../view/application/index/index.phtml:2
+#, php-format
+msgid "Welcome to %sZend Framework 2%s"
+msgstr "Dobrodošli v %sZend Framework 2%s"
+
+#: ../view/application/index/index.phtml:3
+#, php-format
+msgid "Congratulations! You have successfully installed the %sZF2 Skeleton Application%s. You are currently running Zend Framework version %s. This skeleton can serve as a simple starting point for you to begin building your application on ZF2."
+msgstr "Čestitamo! Uspešno ste namestili %sZF2 ogrodno aplikacijo%s. Trenutno poganjate Zend Framework verzijo %s. Ta ogrodna aplikacija vam ponuja enostavno začetno točko za začetek gradnje aplikacije na ZF2."
+
+#: ../view/application/index/index.phtml:4
+msgid "Fork Zend Framework 2 on GitHub"
+msgstr "Fork Zend Framework 2 na GitHub-u"
+
+#: ../view/application/index/index.phtml:10
+msgid "Follow Development"
+msgstr "Sledite razvoju"
+
+#: ../view/application/index/index.phtml:11
+#, php-format
+msgid "Zend Framework 2 is under active development. If you are interested in following the development of ZF2, there is a special ZF2 portal on the official Zend Framework website which provides links to the ZF2 %swiki%s, %sdev blog%s, %sissue tracker%s, and much more. This is a great resource for staying up to date with the latest developments!"
+msgstr "Zend Framework 2 je v aktivnem razvoju. Če vas zanima sledenje razvoju ZF2, je na voljo poseben ZF2 portal na uradni Zend Framework spletni strani, ki ponuja povezave do ZF2 %swiki%s, %srazvojnih blogov%s, %ssledilnika težav%s in veliko več. To je odličen vir, da ostanete v stiku z novostmi z zadnjim razvojem!"
+
+#: ../view/application/index/index.phtml:12
+msgid "ZF2 Development Portal"
+msgstr "ZF2 razvojni portal"
+
+#: ../view/application/index/index.phtml:16
+msgid "Discover Modules"
+msgstr "Odkrijte module"
+
+#: ../view/application/index/index.phtml:17
+#, php-format
+msgid "The community is working on developing a community site to serve as a repository and gallery for ZF2 modules. The project is available %son GitHub%s. The site is currently live and currently contains a list of some of the modules already available for ZF2."
+msgstr "Skupnost dela na razvoju strani za skupnost, ki bo ponujala repozitorij in galerijo ZF2 modulov. Ta projekt je na voljo %sna GitHub-u%s. Stran je trenutno v produkciji in trenutno vsebuje seznam nekaterih modulov, ki so že na voljo za ZF2."
+
+#: ../view/application/index/index.phtml:18
+msgid "Explore ZF2 Modules"
+msgstr "Raziščite ZF2 module"
+
+#: ../view/application/index/index.phtml:22
+msgid "Help &amp; Support"
+msgstr "Pomoč &amp; podpora"
+
+#: ../view/application/index/index.phtml:23
+#, php-format
+msgid "If you need any help or support while developing with ZF2, you may reach us via IRC: %s#zftalk on Freenode%s. We'd love to hear any questions or feedback you may have regarding the beta releases. Alternatively, you may subscribe and post questions to the %smailing lists%s."
+msgstr "Če potrebujete pomoč ali podporo med razvojem z ZF2, nas lahko dobite preko IRC-a: %s#zftalk na Freenode%s. Radi slišimo kakršnakoli vprašanja ali odziv, ki ga imate v zvezi v beta izdajami. Alternativno se lahko prijavite ali pišete vprašanja na %sdopisne sezname%s."
+
+#: ../view/application/index/index.phtml:24
+msgid "Ping us on IRC"
+msgstr "Ping na IRC-u"
+
+#: ../view/error/index.phtml:1
+msgid "An error occurred"
+msgstr "Prišlo je do napake"
+
+#: ../view/error/index.phtml:8
+msgid "Additional information"
+msgstr "Dodatne informacije"
+
+#: ../view/error/index.phtml:11
+#: ../view/error/index.phtml:35
+msgid "File"
+msgstr "Datoteka"
+
+#: ../view/error/index.phtml:15
+#: ../view/error/index.phtml:39
+msgid "Message"
+msgstr "Sporočilo"
+
+#: ../view/error/index.phtml:19
+#: ../view/error/index.phtml:43
+#: ../view/error/404.phtml:55
+msgid "Stack trace"
+msgstr "Skladovna sled"
+
+#: ../view/error/index.phtml:29
+msgid "Previous exceptions"
+msgstr "Prejšnja izjema"
+
+#: ../view/error/index.phtml:58
+msgid "No Exception available"
+msgstr "Izjema ni na voljo"
+
+#: ../view/error/404.phtml:1
+msgid "A 404 error occurred"
+msgstr "Prišlo je do napake 404"
+
+#: ../view/error/404.phtml:10
+msgid "The requested controller was unable to dispatch the request."
+msgstr "Zahtevani krmilnik ni uspel poslati zahtevka."
+
+#: ../view/error/404.phtml:13
+msgid "The requested controller could not be mapped to an existing controller class."
+msgstr "Zahtevani krmilnik ni bil preslikan k obstoječemu razredu krmilnika."
+
+#: ../view/error/404.phtml:16
+msgid "The requested controller was not dispatchable."
+msgstr "Zahtevanega krmilnika ni bilo mogoče poslati"
+
+#: ../view/error/404.phtml:19
+msgid "The requested URL could not be matched by routing."
+msgstr "Zahtevani URL se ne ujema z usmerjanjem"
+
+#: ../view/error/404.phtml:22
+msgid "We cannot determine at this time why a 404 was generated."
+msgstr "Trenutno ne moremo ugotoviti zakaj je prišlo do napake 404."
+
+#: ../view/error/404.phtml:34
+msgid "Controller"
+msgstr "Krmilnik"
+
+#: ../view/error/404.phtml:41
+#, php-format
+msgid "resolves to %s"
+msgstr "se razreši v %s"
+
+#: ../view/error/404.phtml:51
+msgid "Exception"
+msgstr "Izjema"
+

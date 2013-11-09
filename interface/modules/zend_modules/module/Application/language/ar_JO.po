@@ -1,0 +1,153 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ZendSkeletonApplication\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-04-16 20:08-1900\n"
+"PO-Revision-Date: 2013-04-16 20:08-1900\n"
+"Last-Translator: Anas Al-Far <anas@al-far.com>\n"
+"Language-Team: ZF Contibutors <zf-devteam@zend.com>\n"
+"Language: Arabic\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 16bit\n"
+"X-Poedit-KeywordsList: translate\n"
+"X-Poedit-Language: Arabic\n"
+"X-Poedit-Country: JORDAN\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../view/layout/layout.phtml:6
+#: ../view/layout/layout.phtml:33
+msgid "Skeleton Application"
+msgstr "تطبيق هيكلي"
+
+#: ../view/layout/layout.phtml:36
+msgid "Home"
+msgstr "الرئيسية"
+
+#: ../view/layout/layout.phtml:50
+msgid "All rights reserved."
+msgstr "جميع الحقوق محفوظة لـ "
+
+#: ../view/application/index/index.phtml:2
+#, php-format
+msgid "Welcome to %sZend Framework 2%s"
+msgstr "أهلا بك في  %sZend Framework 2%s"
+
+#: ../view/application/index/index.phtml:3
+#, php-format
+msgid "Congratulations! You have successfully installed the %sZF2 Skeleton Application%s. You are currently running Zend Framework version %s. This skeleton can serve as a simple starting point for you to begin building your application on ZF2."
+msgstr "تهانينا! لقد قمت بتثبيت %s التطبيق الهيكلي لـ ZF2 %s بنجاح. أنت تقوم حاليا بتشغيل النسخة %s من Zend Framework. تستطيع أن تستعمل هذا التطبيق الهيكلي كنقطة إنطلاق سهلة لبناء التطبيق الخاص بك باستخدام ZF2.  "
+
+#: ../view/application/index/index.phtml:4
+msgid "Fork Zend Framework 2 on GitHub"
+msgstr "قم بتحميل فرع جديد من Zend Framewok 2 على منصة GitHub"
+
+#: ../view/application/index/index.phtml:10
+msgid "Follow Development"
+msgstr "تابع عملية التطوير"
+
+#: ../view/application/index/index.phtml:11
+#, php-format
+msgid "Zend Framework 2 is under active development. If you are interested in following the development of ZF2, there is a special ZF2 portal on the official Zend Framework website which provides links to the ZF2 %swiki%s, %sdev blog%s, %sissue tracker%s, and much more. This is a great resource for staying up to date with the latest developments!"
+msgstr "إن عملية تطوير منظومة Zend Framework 2 نشطة جدا. إذا كنت مهتما بمتابعة عملية التطوير لمنظومة ZF2، فهناك بوابة خاصة بـ ZF2 على الموقع الرسمي لـ Zend Framework والذي يحتوي على وصلات خاصة لـ %sويكيبيديا%s، %sمدونة المطورين%s، %sمتابعة المشاكل%s، وغيرها كثير. إنه مصدر مميز يبقيك على اطلاع بآخر مستجدات عملية التطوير."
+
+#: ../view/application/index/index.phtml:12
+msgid "ZF2 Development Portal"
+msgstr "بوابة تطوير ZF2"
+
+#: ../view/application/index/index.phtml:16
+msgid "Discover Modules"
+msgstr "إكتشف الوحدات البرمجية"
+
+#: ../view/application/index/index.phtml:17
+#, php-format
+msgid "The community is working on developing a community site to serve as a repository and gallery for ZF2 modules. The project is available %son GitHub%s. The site is currently live and currently contains a list of some of the modules already available for ZF2."
+msgstr "إن مجتمع المبرمجين المحترفين يعمل الآن على تطوير موقع خاص بهم ليخدم كمصدر لوحدات ZF2 البرمجية. المشروع متوفر على منصة %sGitHub%s. إن الموقع متوفر الآن ويحتوي على بعض الوحدات البرمجية الجاهزة للاستخدام في ZF2."
+
+#: ../view/application/index/index.phtmlمl:18
+msgid "Explore ZF2 Modules"
+msgstr "استعرض الوحدات البرمجية لـ ZF2"
+
+#: ../view/application/index/index.phtml:22
+msgid "Help &amp; Support"
+msgstr "المساعدة والدعم"
+
+#: ../view/application/index/index.phtml:23
+#, php-format
+msgid "If you need any help or support while developing with ZF2, you may reach us via IRC: %s#zftalk on Freenode%s. We'd love to hear any questions or feedback you may have regarding the beta releases. Alternatively, you may subscribe and post questions to the %smailing lists%s."
+msgstr "إذا كنت تحتاج إلى المساعدة أو الدعم أثناء استخدامك ZF2، يمكنك الاتصال بنا من خلال شبكة IRC: %s#zftalk على سيرفر Freenode%s.  سوف نكون سعيدين جدا بالاستماع إلى أي سؤال أو ملاحظة لديك حول النسخ التجريبية. ومن جهة أخرى، تستطيع أن تشترك وترسل أسئلتك إلى %sالقائمة البريدية%s. "
+
+#: ../view/application/index/index.phtml:24
+msgid "Ping us on IRC"
+msgstr "اتصل بنا على IRC"
+
+#: ../view/error/index.phtml:1
+msgid "An error occurred"
+msgstr "حدث خطأ أثناء تنفيذ العملية"
+
+#: ../view/error/index.phtml:8
+msgid "Additional information"
+msgstr "معلومات إضافية"
+
+#: ../view/error/index.phtml:11
+#: ../view/error/index.phtml:35
+msgid "File"
+msgstr "ملف"
+
+#: ../view/error/index.phtml:15
+#: ../view/error/index.phtml:39
+msgid "Message"
+msgstr "رسالة"
+
+#: ../view/error/index.phtml:19
+#: ../view/error/index.phtml:43
+#: ../view/error/404.phtml:55
+msgid "Stack trace"
+msgstr "تتبع الحدث"
+
+#: ../view/error/index.phtml:29
+msgid "Previous exceptions"
+msgstr "الاستثناءات السابقة"
+
+#: ../view/error/index.phtml:58
+msgid "No Exception available"
+msgstr "لم يحدث استثناءات"
+
+#: ../view/error/404.phtml:1
+msgid "A 404 error occurred"
+msgstr "حدث خطأ 404"
+
+#: ../view/error/404.phtml:10
+msgid "The requested controller was unable to dispatch the request."
+msgstr "لم تستطع وحدة التحكم معالجة الطلب"
+
+#: ../view/error/404.phtml:13
+msgid "The requested controller could not be mapped to an existing controller class."
+msgstr "لم يستطع ZF2 من مطابقة وحدة التحكم المطلوبة بالمصنفات الموجودة"
+
+#: ../view/error/404.phtml:16
+msgid "The requested controller was not dispatchable."
+msgstr "لم يتم مطابقة وحدة التحكم المطلوبة"
+
+#: ../view/error/404.phtml:19
+msgid "The requested URL could not be matched by routing."
+msgstr ""
+
+#: ../view/error/404.phtml:22
+msgid "We cannot determine at this time why a 404 was generated."
+msgstr ""
+
+#: ../view/error/404.phtml:34
+msgid "Controller"
+msgstr ""
+
+#: ../view/error/404.phtml:41
+#, php-format
+msgid "resolves to %s"
+msgstr ""
+
+#: ../view/error/404.phtml:51
+msgid "Exception"
+msgstr ""
+

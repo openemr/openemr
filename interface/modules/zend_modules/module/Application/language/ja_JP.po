@@ -1,0 +1,140 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ZendSkeletonApplication\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-07-05 19:30-0700\n"
+"PO-Revision-Date: 2012-07-15 08:20+0900\n"
+"Last-Translator: sasezaki <sasezaki@gmail.com>\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: translate\n"
+"X-Poedit-Language: Japanese\n"
+"X-Poedit-Country: Japan\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../view/application/index/index.phtml:2
+#, php-format
+msgid "Welcome to %sZend Framework 2%s"
+msgstr "%sZend Framework 2%s へようこそ"
+
+#: ../view/application/index/index.phtml:3
+#, php-format
+msgid "Congratulations! You have successfully installed the %sZF2 Skeleton Application%s. You are currently running Zend Framework version %s. This skeleton can serve as a simple starting point for you to begin building your application on ZF2."
+msgstr "おめでとうございます！ %sZF2 Skeleton Application%s のインストールに成功しました。 あなたは Zend Framework version %s を動作させています。このスケルトンはZF2上でのアプリケーション構築を始めるためにシンプルなスタートポイントを提供します。"
+
+#: ../view/application/index/index.phtml:4
+msgid "Fork Zend Framework 2 on GitHub"
+msgstr "GitHub で Zend Framework 2 をフォーク"
+
+#: ../view/application/index/index.phtml:10
+msgid "Follow Development"
+msgstr "開発を追う"
+
+#: ../view/application/index/index.phtml:11
+#, php-format
+msgid "Zend Framework 2 is under active development. If you are interested in following the development of ZF2, there is a special ZF2 portal on the official Zend Framework website which provides links to the ZF2 %swiki%s, %sdev blog%s, %sissue tracker%s, and much more. This is a great resource for staying up to date with the latest developments!"
+msgstr "Zend Framework 2 は鋭意開発中です。ZF2の開発進行にご関心がおありでしょうか、Zend Framework公式ウェブサイト上ではZF2特別ポータルがあり、 %swiki%s、 %sdev blog%s、 %sissue tracker%s、 などのZF2関連のものを提供しています。最新の開発状況に追随するためのすばらしいリソースです。"
+
+#: ../view/application/index/index.phtml:12
+msgid "ZF2 Development Portal"
+msgstr "ZF2 開発ポータル"
+
+#: ../view/application/index/index.phtml:16
+msgid "Discover Modules"
+msgstr "モジュールを見つける"
+
+#: ../view/application/index/index.phtml:17
+#, php-format
+msgid "The community is working on developing a community site to serve as a repository and gallery for ZF2 modules. The project is available %son GitHub%s. The site is currently live and currently contains a list of some of the modules already available for ZF2."
+msgstr "コミュニティーはZF2モジュールのためのリポジトリとギャラリーを提供するコミュニティーサイトを開発中です。プロジェクトは %s GitHub%s で利用可能です。サイトは現在運営されており、ZF2ですでに利用可能なモジュールのリストを持っています。"
+
+#: ../view/application/index/index.phtml:18
+msgid "Explore ZF2 Modules"
+msgstr "ZF2モジュールを探す"
+
+#: ../view/application/index/index.phtml:22
+msgid "Help &amp; Support"
+msgstr "ヘルプとサポート"
+
+#: ../view/application/index/index.phtml:23
+#, php-format
+msgid "If you need any help or support while developing with ZF2, you may reach us via IRC: %s#zftalk on Freenode%s. We'd love to hear any questions or feedback you may have regarding the beta releases. Alternatively, you may subscribe and post questions to the %smailing lists%s."
+msgstr "ZF2 で開発中に何らかのお手伝いやサポートが必要な場合、IRC を通じて私たちと連絡することができます。: %s#zftalk on Freenode%s ベータ版についてあなたが抱えるかもしれない質問やフィードバックを何でも聞きたいと望みます。あるいは、%smailing lists%s を購読したり質問をポストしたりできます。"
+
+#: ../view/application/index/index.phtml:24
+msgid "Ping us on IRC"
+msgstr "IRC で呼び出す"
+
+#: ../view/error/index.phtml:1
+msgid "An error occurred"
+msgstr "エラーが発生しました"
+
+#: ../view/error/index.phtml:8
+msgid "Additional information"
+msgstr "追加の情報"
+
+#: ../view/error/index.phtml:11
+#: ../view/error/index.phtml:35
+msgid "File"
+msgstr "ファイル"
+
+#: ../view/error/index.phtml:15
+#: ../view/error/index.phtml:39
+msgid "Message"
+msgstr "メッセージ"
+
+#: ../view/error/index.phtml:19
+#: ../view/error/index.phtml:43
+#: ../view/error/404.phtml:55
+msgid "Stack trace"
+msgstr "スタックトレース"
+
+#: ../view/error/index.phtml:29
+msgid "Previous exceptions"
+msgstr "前の例外"
+
+#: ../view/error/index.phtml:58
+msgid "No Exception available"
+msgstr "例外が利用できません"
+
+#: ../view/error/404.phtml:1
+msgid "A 404 error occurred"
+msgstr "404エラーが発生しました"
+
+#: ../view/error/404.phtml:10
+msgid "The requested controller was unable to dispatch the request."
+msgstr "要求されたコントローラはリクエストをディスパッチできませんでした。"
+
+#: ../view/error/404.phtml:13
+msgid "The requested controller could not be mapped to an existing controller class."
+msgstr "要求されたコントローラは存在するコントローラクラスにマッピングできませんでした。"
+
+#: ../view/error/404.phtml:16
+msgid "The requested controller was not dispatchable."
+msgstr "要求されたコントローラはディスパッチ不可能でした。"
+
+#: ../view/error/404.phtml:19
+msgid "The requested URL could not be matched by routing."
+msgstr "要求されたURLはルーティングにマッチしませんでした。"
+
+#: ../view/error/404.phtml:22
+msgid "We cannot determine at this time why a 404 was generated."
+msgstr "404が生成された理由について現時点で判断できません。"
+
+#: ../view/error/404.phtml:34
+msgid "Controller"
+msgstr "コントローラ"
+
+#: ../view/error/404.phtml:41
+#, php-format
+msgid "resolves to %s"
+msgstr "%s に解決"
+
+#: ../view/error/404.phtml:51
+msgid "Exception"
+msgstr "例外"
+

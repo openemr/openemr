@@ -1,0 +1,153 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ZendSkeletonApplication\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-07-05 22:17-0700\n"
+"PO-Revision-Date: 2012-07-06 13:19+0200\n"
+"Last-Translator: H.H.G. multistore <info@hhg-multistore.com>\n"
+"Language-Team: ZF Contibutors <zf-devteam@zend.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: translate\n"
+"X-Poedit-Language: Turkish\n"
+"X-Poedit-Country: TURKEY\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../view/layout/layout.phtml:6
+#: ../view/layout/layout.phtml:33
+msgid "Skeleton Application"
+msgstr ""
+
+#: ../view/layout/layout.phtml:36
+msgid "Home"
+msgstr "Anasayfa"
+
+#: ../view/layout/layout.phtml:50
+msgid "All rights reserved."
+msgstr "Tüm haklar saklıdır."
+
+#: ../view/application/index/index.phtml:2
+#, php-format
+msgid "Welcome to %sZend Framework 2%s"
+msgstr "%sZend Framework 2%s'a hoş geldiniz"
+
+#: ../view/application/index/index.phtml:3
+#, php-format
+msgid "Congratulations! You have successfully installed the %sZF2 Skeleton Application%s. You are currently running Zend Framework version %s. This skeleton can serve as a simple starting point for you to begin building your application on ZF2."
+msgstr "Tebrikler! %sZF2 Skeleton Application%s'u  başarıyla yüklediniz. Şu anda Zend Framework %s  sürüm ile çalışıyorsunuz. Bu iskelet ZF2 üzerinde uygulama oluşturmak için basit bir başlangıç ​​noktası olarak hizmet verebilir."
+
+#: ../view/application/index/index.phtml:4
+msgid "Fork Zend Framework 2 on GitHub"
+msgstr "Zend Framework 2'yi GitHub'da fork edin"
+
+#: ../view/application/index/index.phtml:10
+msgid "Follow Development"
+msgstr "Gelişimi izleyin"
+
+#: ../view/application/index/index.phtml:11
+#, php-format
+msgid "Zend Framework 2 is under active development. If you are interested in following the development of ZF2, there is a special ZF2 portal on the official Zend Framework website which provides links to the ZF2 %swiki%s, %sdev blog%s, %sissue tracker%s, and much more. This is a great resource for staying up to date with the latest developments!"
+msgstr "Zend Framework 2 aktif geliştirilmektedir. Eğer ZF2'nin gelişimi ile ilgileniyorsanız, ZF2 için resmi Zend Framework websitesinde özel portal mevcut, orada ZF2 %swiki%s'ye, %sDEV blog%s'a, %ssorun takibi%s'ne bağlantılarını ve çok daha fazlasını sunar. Bu son gelişmeler ile güncel kalmak için büyük bir kaynaktır!"
+
+#: ../view/application/index/index.phtml:12
+msgid "ZF2 Development Portal"
+msgstr "ZF2 Development Portal"
+
+#: ../view/application/index/index.phtml:16
+msgid "Discover Modules"
+msgstr "Modülleri keşfedin"
+
+#: ../view/application/index/index.phtml:17
+#, php-format
+msgid "The community is working on developing a community site to serve as a repository and gallery for ZF2 modules. The project is available %son GitHub%s. The site is currently live and currently contains a list of some of the modules already available for ZF2."
+msgstr "Topluluk ZF2 modülleri için bir depo ve galeri olarak hizmet edecek bir topluluk sitesi geliştirme üzerinde çalışıyor. Proje %sGitHub%s'da mevcut. Site şu anda canlı ve ZF2 için bazı mevcut  modüllerin listesini içerir."
+
+#: ../view/application/index/index.phtml:18
+msgid "Explore ZF2 Modules"
+msgstr "ZF2 Modüllerini keşfedin"
+
+#: ../view/application/index/index.phtml:22
+msgid "Help &amp; Support"
+msgstr "Yardım &amp; Destek"
+
+#: ../view/application/index/index.phtml:23
+#, php-format
+msgid "If you need any help or support while developing with ZF2, you may reach us via IRC: %s#zftalk on Freenode%s. We'd love to hear any questions or feedback you may have regarding the beta releases. Alternatively, you may subscribe and post questions to the %smailing lists%s."
+msgstr "ZF2 ile geliştirirken herhangi yardım veya desteğe ihtiyacınız varsa, bize IRC: %sFreenode #zftalk%s üzerinden ulaşabilirsiniz.  Beta sürümleri ile ilgili olabilecek herhangi bir sorunuzu ya da yorumlarınızı duymak isteriz. Alternatif olarak %smailing listelerine%s abone olup sorularınızı sorabilirsiniz."
+
+#: ../view/application/index/index.phtml:24
+msgid "Ping us on IRC"
+msgstr "IRC bizi pingleyin"
+
+#: ../view/error/index.phtml:1
+msgid "An error occurred"
+msgstr "An error occurred"
+
+#: ../view/error/index.phtml:8
+msgid "Additional information"
+msgstr "Ek bilgiler"
+
+#: ../view/error/index.phtml:11
+#: ../view/error/index.phtml:35
+msgid "File"
+msgstr "Klasör"
+
+#: ../view/error/index.phtml:15
+#: ../view/error/index.phtml:39
+msgid "Message"
+msgstr "Mesaj"
+
+#: ../view/error/index.phtml:19
+#: ../view/error/index.phtml:43
+#: ../view/error/404.phtml:55
+msgid "Stack trace"
+msgstr "Denetleyici"
+
+#: ../view/error/index.phtml:29
+msgid "Previous exceptions"
+msgstr "Önceki istisnalar"
+
+#: ../view/error/index.phtml:58
+msgid "No Exception available"
+msgstr "İstisna yok"
+
+#: ../view/error/404.phtml:1
+msgid "A 404 error occurred"
+msgstr "Bir 404 hatası oluştu"
+
+#: ../view/error/404.phtml:10
+msgid "The requested controller was unable to dispatch the request."
+msgstr "Talep edilen denetleyici işlemi işlemesi mümkün değildir."
+
+#: ../view/error/404.phtml:13
+msgid "The requested controller could not be mapped to an existing controller class."
+msgstr "Talep edilen denetleyiciye uygun denetleyici sınıfı tahsis edilemedi."
+
+#: ../view/error/404.phtml:16
+msgid "The requested controller was not dispatchable."
+msgstr "Talep edilen denetleyici çağrılabilir değildir."
+
+#: ../view/error/404.phtml:19
+msgid "The requested URL could not be matched by routing."
+msgstr "İstenen URL yönlendirmede tahsis edilemedi"
+
+#: ../view/error/404.phtml:22
+msgid "We cannot determine at this time why a 404 was generated."
+msgstr "Neden 404 hatasının oluştuğunu şu an belirleyemiyoruz."
+
+#: ../view/error/404.phtml:34
+msgid "Controller"
+msgstr "Denetleyici"
+
+#: ../view/error/404.phtml:41
+#, php-format
+msgid "resolves to %s"
+msgstr "Buraya çözümlenir: %s"
+
+#: ../view/error/404.phtml:51
+msgid "Exception"
+msgstr "İstisna"
+
