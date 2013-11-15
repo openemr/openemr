@@ -1,0 +1,78 @@
+/**
+* Custom CSS for ESign module
+*
+* Copyright (C) 2013 OEMR 501c3 www.oemr.org
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 3
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+*
+* @package OpenEMR
+* @author  Ken Chapple <ken@mi-squared.com>
+* @author  Medical Information Integration, LLC
+* @link    http://www.open-emr.org
+**/
+
+.esign-signature-log-container {
+	display: table;	
+}
+
+.esign-signature-log-table {
+	font-size: small;
+	width: 100%;
+	margin-top: 10px;
+	
+}
+
+.esign-log-row.header {
+	border-bottom: 1px dashed;
+	text-align: center;
+}
+
+.esign-log-row {
+	display: block;
+	float: left;
+	width: 100%;
+}
+
+.esign-log-row span {
+	display: block;
+	padding-left: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.esign-log-row span.esign-amendment {
+	padding-top: 4px;
+	font-style: italic;
+}
+.esign-log-row-container {
+	border-bottom: 1px dashed;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+.span3 {
+	width: 33%;
+}
+
+.span9 {
+	width: 100%; 
+}
+
+.esign-log-element {
+	display: inline;
+	float: left;
+}
+
+.esign-log-element span {
+	padding: 4px;
+}
+

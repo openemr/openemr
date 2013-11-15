@@ -1,4 +1,5 @@
 <?php
+use ESign\Api;
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -11,33 +12,75 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
+require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 ?>
 <html>
 
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox-2.1.5/source/jquery.fancybox.css" media="screen" />
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
-
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
-
-
-
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" src="../../../library/js/fancybox-2.1.5/source/jquery.fancybox.js"></script>
+<script src="<?php echo $GLOBALS['webroot'] ?>/library/ESign/js/jquery.esign.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
+<?php 
+$esignApi = new Api();
+?>
+<script type="text/javascript">
+$(document).ready( function() {
+	var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
+    $(".esign-button-form").esign( 
+    	formConfig,
+        { 	    
+            afterFormSuccess : function( response ) {
+                if ( response.locked ) {
+                	var editButtonId = "form-edit-button-"+response.formDir+"-"+response.formId;
+                    $("#"+editButtonId).replaceWith( response.editButtonHtml );
+                }
+                
+                var logId = "esign-signature-log-"+response.formDir+"-"+response.formId;
+                $.post( formConfig.logViewAction, response, function( html ) {
+                    $("#"+logId).replaceWith( html );  
+                });
+            }
+		}
+    );
 
-<script language="JavaScript">
+    var encounterConfig = <?php echo $esignApi->encounterConfigToJson(); ?>;
+    $(".esign-button-encounter").esign( 
+    	encounterConfig,
+        { 	    
+            afterFormSuccess : function( response ) {
+                // If the response indicates a locked encounter, replace all 
+                // form edit buttons with a "disabled" button, and "disable" left
+                // nav visit form links
+                if ( response.locked ) {
+                    // Lock the form edit buttons
+                	$(".form-edit-button").replaceWith( response.editButtonHtml );
+                	// Disable the new-form capabilities in left nav
+                	top.window.parent.left_nav.syncRadios();
+                    // Disable the new-form capabilities in top nav of the encounter
+                	$(".encounter-form-category-li").remove();
+                }
+                
+                var logId = "esign-signature-log-encounter-"+response.encounterId;
+                $.post( encounterConfig.logViewAction, response, function( html ) {
+                    $("#"+logId).replaceWith( html );
+                });
+            }
+		}
+    );
+});
 
  // Process click on Delete link.
  function deleteme() {
@@ -106,6 +149,18 @@ function divtoggle(spanid, divid) {
         float:left;
         margin-left:6px;
     }
+    
+    .encounter-summary-container {
+        float:left; 
+        width:100%;
+    }
+    
+    .encounter-summary-column {
+        width: 33.3%; 
+        float:left; 
+        display:inline;
+        margin-top:10px;
+    }
 </style>
 
 </head>
@@ -125,7 +180,9 @@ $providerIDres = getProviderIdOfEncounter($encounter);
 $providerNameRes = getProviderName($providerIDres);
 ?>
 
-<div style='float:left'>
+<div class='encounter-summary-container'>
+<div class='encounter-summary-column'>
+<div>
 <span class="title"><?php echo oeFormatShortDate($encounter_date) . " " . xl("Encounter"); ?> </span>
 <?php
 $auth_notes_a  = acl_check('encounters', 'notes_a');
@@ -148,102 +205,118 @@ if (is_numeric($pid)) {
 }
 ?>
 </div>
-
-<div>
-    <div style='float:left;margin-left:10px'>
-        <?php if (acl_check('admin', 'super')) { ?>
-            <a href='toggledivs(this.id,this.id);' class='css_button' onclick='return deleteme()'><span><?php echo xl('Delete') ?></span></a>
-        <?php } ?>
-        &nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php xl('Expand All','e'); ?></a>
-        &nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php xl('Collapse All','e'); ?></a>
-    </div>
-
-    <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-        <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
-            <div style='float:left;margin:5px 5px 5px 5px;'>
-                <table>
-                <tr>
-                <td>
-                <?php // Display the education resource checkbox (AMC prompting)
-                    $itemAMC = amcCollect("patient_edu_amc", $pid, 'form_encounter', $encounter);
-                ?>
-                <?php if (!(empty($itemAMC))) { ?>
-                    <input type="checkbox" id="prov_edu_res" checked>
-                <?php } else { ?>
-                    <input type="checkbox" id="prov_edu_res">
-                <?php } ?>
-                </td>
-                <td>
-                <span class="text"><?php echo xl('Provided Education Resource(s)?') ?></span>
-                </td>
-                </tr>
-                <tr>
-                <td>
-                <?php // Display the Provided Clinical Summary checkbox (AMC prompting)
-                    $itemAMC = amcCollect("provide_sum_pat_amc", $pid, 'form_encounter', $encounter);
-                ?>
-                <?php if (!(empty($itemAMC))) { ?>
-                    <input type="checkbox" id="provide_sum_pat_flag" checked>
-                <?php } else { ?>
-                    <input type="checkbox" id="provide_sum_pat_flag">
-                <?php } ?>
-                </td>
-                <td>
-                <span class="text"><?php echo xl('Provided Clinical Summary?') ?></span>
-                </td>
-                </tr>
-                <?php // Display the medication reconciliation checkboxes (AMC prompting)
-                    $itemAMC = amcCollect("med_reconc_amc", $pid, 'form_encounter', $encounter);
-                ?>
-                <?php if (!(empty($itemAMC))) { ?>
-                    <tr>
-                    <td>
-                    <input type="checkbox" id="trans_trand_care" checked>
-                    </td>
-                    <td>
-                    <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span>
-                    </td>
-                    </tr>
-                    </table>
-                    <table style="margin-left:2em;">
-                    <tr>
-                    <td>
-                    <?php if (!(empty($itemAMC['date_completed']))) { ?>
-                        <input type="checkbox" id="med_reconc_perf" checked>
-                    <?php } else { ?>
-                        <input type="checkbox" id="med_reconc_perf">
-                    <?php } ?>
-                    </td>
-                    <td>
-                    <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
-                    </td>
-                    </tr>
-                    </table>
-                <?php } else { ?>
-                    <tr>
-                    <td>
-                    <input type="checkbox" id="trans_trand_care">
-                    </td>
-                    <td>
-                    <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span>
-                    </td>
-                    </tr>
-                    </table>
-                    <table style="margin-left:2em;">
-                    <tr>
-                    <td>
-                    <input type="checkbox" id="med_reconc_perf" DISABLED>
-                    </td>
-                    <td>
-                    <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
-                    </td>
-                    </tr>
-                    </table>
-                <?php } ?>
-            </div>
-        </div>
-    <?php } ?>
+<div style='margin-top:8px;'>
+<?php 
+// ESign for entire encounter
+$esign = $esignApi->createEncounterESign( $encounter );
+if ( $esign->isButtonViewable() ) {
+    echo $esign->buttonHtml();
+}
+?>
+<?php if (acl_check('admin', 'super')) { ?>
+    <a href='toggledivs(this.id,this.id);' class='css_button' onclick='return deleteme()'><span><?php echo xl('Delete') ?></span></a>
+<?php } ?>
+&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php xl('Expand All','e'); ?></a>
+&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php xl('Collapse All','e'); ?></a>
 </div>
+</div>
+
+<div class='encounter-summary-column'>
+<?php if ( $esign->isLogViewable() ) { 
+    $esign->renderLog(); 
+} ?>
+</div>
+
+<div class='encounter-summary-column'>
+<?php if ($GLOBALS['enable_amc_prompting']) { ?>
+    <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
+        <div style='float:left;margin:5px 5px 5px 5px;'>
+            <table>
+            <tr>
+            <td>
+            <?php // Display the education resource checkbox (AMC prompting)
+                $itemAMC = amcCollect("patient_edu_amc", $pid, 'form_encounter', $encounter);
+            ?>
+            <?php if (!(empty($itemAMC))) { ?>
+                <input type="checkbox" id="prov_edu_res" checked>
+            <?php } else { ?>
+                <input type="checkbox" id="prov_edu_res">
+            <?php } ?>
+            </td>
+            <td>
+            <span class="text"><?php echo xl('Provided Education Resource(s)?') ?></span>
+            </td>
+            </tr>
+            <tr>
+            <td>
+            <?php // Display the Provided Clinical Summary checkbox (AMC prompting)
+                $itemAMC = amcCollect("provide_sum_pat_amc", $pid, 'form_encounter', $encounter);
+            ?>
+            <?php if (!(empty($itemAMC))) { ?>
+                <input type="checkbox" id="provide_sum_pat_flag" checked>
+            <?php } else { ?>
+                <input type="checkbox" id="provide_sum_pat_flag">
+            <?php } ?>
+            </td>
+            <td>
+            <span class="text"><?php echo xl('Provided Clinical Summary?') ?></span>
+            </td>
+            </tr>
+            <?php // Display the medication reconciliation checkboxes (AMC prompting)
+                $itemAMC = amcCollect("med_reconc_amc", $pid, 'form_encounter', $encounter);
+            ?>
+            <?php if (!(empty($itemAMC))) { ?>
+                <tr>
+                <td>
+                <input type="checkbox" id="trans_trand_care" checked>
+                </td>
+                <td>
+                <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span>
+                </td>
+                </tr>
+                </table>
+                <table style="margin-left:2em;">
+                <tr>
+                <td>
+                <?php if (!(empty($itemAMC['date_completed']))) { ?>
+                    <input type="checkbox" id="med_reconc_perf" checked>
+                <?php } else { ?>
+                    <input type="checkbox" id="med_reconc_perf">
+                <?php } ?>
+                </td>
+                <td>
+                <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
+                </td>
+                </tr>
+                </table>
+            <?php } else { ?>
+                <tr>
+                <td>
+                <input type="checkbox" id="trans_trand_care">
+                </td>
+                <td>
+                <span class="text"><?php echo xl('Transition/Transfer of Care?') ?></span>
+                </td>
+                </tr>
+                </table>
+                <table style="margin-left:2em;">
+                <tr>
+                <td>
+                <input type="checkbox" id="med_reconc_perf" DISABLED>
+                </td>
+                <td>
+                <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
+                </td>
+                </tr>
+                </table>
+            <?php } ?>
+        </div>
+    </div>
+<?php } ?>
+</div>
+
+</div>
+
 <br/>
 <br/>
 
@@ -283,15 +356,28 @@ if (is_numeric($pid)) {
 
         $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
 
+        // Create the ESign instance for this form
+        $esign = $esignApi->createFormESign( $iter['id'], $formdir, $encounter );
         echo "<tr>";
         echo "<td style='border-bottom:1px solid'>";
         // a link to edit the form
         echo "<div class='form_header_controls'>";
-        echo "<a target='".
-                ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
-                "' href='$rootdir/patient_file/encounter/view_form.php?" .
-                "formname=" . $formdir . "&id=" . $iter['form_id'] .
-                "' onclick='top.restoreSession()' class='css_button_small'><span>" . xl('Edit') . "</span></a>";
+        
+        // If the form is locked, it is no longer editable
+        if ( $esign->isLocked() ) {
+            echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."'><span>".xlt('Locked')."</span></a>";
+        } else {
+            echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
+                    ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
+                    "' href='$rootdir/patient_file/encounter/view_form.php?" .
+                    "formname=" . attr($formdir) . "&id=" . attr($iter['form_id']) .
+                    "' onclick='top.restoreSession()'>";
+            echo "<span>" . xlt('Edit') . "</span></a>";
+        }
+        
+        if ( $esign->isButtonViewable() ) {
+            echo $esign->buttonHtml();
+        }
 
         if (acl_check('admin', 'super') ) {
             if ( $formdir != 'newpatient') {
@@ -336,6 +422,10 @@ if (is_numeric($pid)) {
         else  {
           include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
           call_user_func($formdir . "_report", $pid, $encounter, 2, $iter['form_id']);
+        }
+        
+        if ( $esign->isLogViewable() ) {
+            $esign->renderLog();
         }
 
         echo "</div></td></tr>";

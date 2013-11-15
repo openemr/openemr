@@ -1,4 +1,5 @@
 <?php
+use ESign\Api;
 /**
  *
  * Patient custom report.
@@ -34,6 +35,7 @@ require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/formdata.inc.php");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
+require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
@@ -54,6 +56,8 @@ $auth_coding   = acl_check('encounters', 'coding');
 $auth_relaxed  = acl_check('encounters', 'relaxed');
 $auth_med      = acl_check('patients'  , 'med');
 $auth_demo     = acl_check('patients'  , 'demo');
+
+$esignApi = new Api();
 
 $printable = empty($_GET['printable']) ? false : true;
 if ($PDF_OUTPUT) $printable = true;
@@ -101,10 +105,12 @@ function postToGet($arin) {
 
 <?php if ($PDF_OUTPUT) { ?>
 <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
+<link rel="stylesheet" type="text/css" href="<?php echo $webserver_root; ?>/library/ESign/css/esign_report.css" />
 <?php } else {?>
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css" />
 <?php } ?>
 
 <?php // do not show stuff from report.php in forms that is encaspulated
@@ -921,6 +927,7 @@ foreach ($ar as $key => $val) {
                 $form_id = $res[2];
                 $formres = getFormNameByFormdirAndFormid($res[1],$form_id);
                 $dateres = getEncounterDateByEncounter($form_encounter);
+                $formId = getFormIdByFormdirAndFormid($res[1], $form_id);
 
                 if ($res[1] == 'newpatient') {
                     echo "<div class='text encounter'>\n";
@@ -947,7 +954,13 @@ foreach ($ar as $key => $val) {
                   call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
                 else
                   call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                
+                $esign = $esignApi->createFormESign( $formId, $res[1], $form_encounter );
+                if ( $esign->isLogViewable() ) {
+                    $esign->renderLog();
+                }
                 ?>
+                
                 </div>
                 <?php
 

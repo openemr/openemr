@@ -5,6 +5,9 @@
 // of the License, or (at your option) any later version.
 
 include_once("../../globals.php");
+require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+
+$esignApi = new Esign\Api();
 ?>
 <html>
 <head>
@@ -155,6 +158,18 @@ $reg = myGetRegistered();
 $old_category = '';
 
   $DivId=1;
+
+// To see if the encounter is locked. If it is, no new forms can be created
+$encounterLocked = false;
+if ( $esignApi->lockEncounters() &&
+isset($GLOBALS['encounter']) &&
+!empty($GLOBALS['encounter']) ) {
+
+  $esign = $esignApi->createEncounterESign( $GLOBALS['encounter'] );
+  if ( $esign->isLocked() ) {
+      $encounterLocked = true;
+  }
+}
   
 if (!empty($reg)) {
   $StringEcho= '<ul id="sddm">';
@@ -163,22 +178,24 @@ if (!empty($reg)) {
   }else{
     $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
   }
-  foreach ($reg as $entry) {
-    $new_category = trim($entry['category']);
-    $new_nickname = trim($entry['nickname']);
-    if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);}
-    if ($new_nickname != '') {$nickname = $new_nickname;}
-    else {$nickname = $entry['name'];}
-    if ($old_category != $new_category) {
-      $new_category_ = $new_category;
-      $new_category_ = str_replace(' ','_',$new_category_);
-      if ($old_category != '') {$StringEcho.= "</table></div></li>";}
-      $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
-      $old_category = $new_category;
-      $DivId++;
-    }
-    $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('" . $rootdir .'/patient_file/encounter/load_form.php?formname=' .urlencode($entry['directory']) .
-    "')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
+  if ( $encounterLocked === false ) {
+      foreach ($reg as $entry) {
+        $new_category = trim($entry['category']);
+        $new_nickname = trim($entry['nickname']);
+        if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);}
+        if ($new_nickname != '') {$nickname = $new_nickname;}
+        else {$nickname = $entry['name'];}
+        if ($old_category != $new_category) {
+          $new_category_ = $new_category;
+          $new_category_ = str_replace(' ','_',$new_category_);
+          if ($old_category != '') {$StringEcho.= "</table></div></li>";}
+          $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
+          $old_category = $new_category;
+          $DivId++;
+        }
+        $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('" . $rootdir .'/patient_file/encounter/load_form.php?formname=' .urlencode($entry['directory']) .
+        "')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
+      }
   }
   $StringEcho.= '</table></div></li>';
 }
@@ -197,19 +214,21 @@ if($StringEcho){
 //$StringEcho='';
 // This shows Layout Based Form names just like the above.
 //
-$lres = sqlStatement("SELECT * FROM list_options " .
-  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
-if (sqlNumRows($lres)) {
-  if(!$StringEcho){
-    $StringEcho= '<ul id="sddm">';
-  }
-  $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >".xl('Layout Based') ."</a><div id='lbf' ><table border='0'  cellspacing='0' cellpadding='0'>";
-  while ($lrow = sqlFetchArray($lres)) {
-  $option_id = $lrow['option_id']; // should start with LBF
-  $title = $lrow['title'];
-  $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" . $rootdir .'/patient_file/encounter/load_form.php?formname=' 
-				.urlencode($option_id) ."' >" . xl_form_title($title) . "</a></td></tr>";
-  }
+if ( $encounterLocked === false ) {
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+    if (sqlNumRows($lres)) {
+      if(!$StringEcho){
+        $StringEcho= '<ul id="sddm">';
+      }
+      $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >".xl('Layout Based') ."</a><div id='lbf' ><table border='0'  cellspacing='0' cellpadding='0'>";
+      while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id']; // should start with LBF
+      $title = $lrow['title'];
+      $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" . $rootdir .'/patient_file/encounter/load_form.php?formname=' 
+    				.urlencode($option_id) ."' >" . xl_form_title($title) . "</a></td></tr>";
+      }
+    }
 }
 if($StringEcho){
   $StringEcho.= "</table></div></li></ul>".$StringEcho2;

@@ -1,4 +1,5 @@
 <?php
+use ESign\Api;
 /* Copyright (C) 2006-2012 Rod Roark <rod@sunsetsystems.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -89,6 +90,7 @@
  require_once($GLOBALS['fileroot']."/custom/code_types.inc.php");
  require_once($GLOBALS['fileroot']."/library/patient.inc");
  require_once($GLOBALS['fileroot']."/library/lists.inc");
+ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
  // This array defines the list of primary documents that may be
  // chosen.  Each element value is an array of 3 values:
@@ -149,6 +151,7 @@
   $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
  }
 
+ $esignApi = new Api();
  // This section decides which navigation items will not appear.
 
  $disallowed = array();
@@ -388,6 +391,7 @@ function genFindBlock() {
  // Master values for current pid and encounter.
  var active_pid = 0;
  var active_encounter = 0;
+ var encounter_locked = false;
 
  // Current selections in the top and bottom frames.
  var topName = '';
@@ -428,6 +432,10 @@ function genFindBlock() {
   }
   if (active_encounter == 0 && usage > '1') {
    alert('<?php xl('You must first select or create an encounter.','e') ?>');
+   return false;
+  }
+  if (encounter_locked && usage > '1') {
+   alert('<?php echo xls('This encounter is locked. No new forms can be added.') ?>');
    return false;
   }
   var f = document.forms[0];
@@ -476,6 +484,10 @@ function genFindBlock() {
    alert('<?php xl('You must first select or create an encounter.','e') ?>');
    return false;
   }
+  if (encounter_locked  && (topusage > '1' || botusage > '1')) {
+   alert('<?php echo xls('This encounter is locked. No new forms can be added.') ?>');
+   return false;
+  }
   var f = document.forms[0];
   forceDual();
   top.restoreSession();
@@ -513,6 +525,7 @@ function genFindBlock() {
  // depending on whether there is an active patient or encounter.
  function syncRadios() {
   var f = document.forms[0];
+  encounter_locked = isEncounterLocked(active_encounter);
 <?php if (($GLOBALS['concurrent_layout'] == 2)||($GLOBALS['concurrent_layout'] == 3)) { ?>
   var nlinks = document.links.length;
   for (var i = 0; i < nlinks; ++i) {
@@ -523,6 +536,7 @@ function genFindBlock() {
     var da = false;
     if (active_pid == 0) da = true;
     if (active_encounter == 0 && usage > '1') da = true;
+    if (encounter_locked && usage > '1') da = true;
     <?php
     if ($GLOBALS['concurrent_layout'] == 2){
       $color = "'#0000ff'";
@@ -542,6 +556,7 @@ function genFindBlock() {
    var usage = rb1.value.substring(3);
    if (active_pid == 0 && usage > '0') da = true;
    if (active_encounter == 0 && usage > '1') da = true;
+   if (encounter_locked && usage > '1') da = true;
    // daemon_frame can also set special label colors, so don't mess with
    // them unless we have to.
    if (rb1.disabled != da) {
@@ -721,6 +736,7 @@ function clearactive() {
   setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
   active_pid = pid;
   active_encounter = 0;
+  encounter_locked = false;
   if (frname) reloadPatient(frname);
   syncRadios();
   $(parent.Title.document.getElementById('current_patient_block')).show();
@@ -781,7 +797,29 @@ function getEncounterTargetFrame( name ) {
     }
     return r;
 }
-
+function isEncounterLocked( encounterId ) {
+	<?php if ( $esignApi->lockEncounters() ) { ?>
+	// If encounter locking is enabled, make a syncronous call (async=false) to check the
+	// DB to see if the encounter is locked.
+	// Call restore session, just in case
+	top.restoreSession();
+    $.ajax({
+        type: 'POST',
+        url: '<?php echo $GLOBALS['webroot']?>/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked',
+        data: { encounterId : encounterId },
+        success: function( data ) {
+            encounter_locked = data;
+        },
+        dataType: 'json',
+        async:false
+	});	    
+	return encounter_locked;
+	<?php } else { ?>
+	// If encounter locking isn't enabled, just tell the left_nav that the encounter 
+    // isn't locked.
+	return false;
+	<?php } ?>
+ }
  // Call this to announce that the encounter has changed.  You must call this
  // if you change the session encounter, so that the navigation frame will
  // show the correct encounter and so that the other frame will be reloaded if
@@ -794,6 +832,7 @@ function getEncounterTargetFrame( name ) {
   var str = '<b>' + edate + '</b>';
   setDivContent('current_encounter', str);
   active_encounter = eid;
+  encounter_locked=isEncounterLocked(active_encounter);
   reloadEncounter(frname);
   syncRadios();
   var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
@@ -817,6 +856,7 @@ function getEncounterTargetFrame( name ) {
   var f = document.forms[0];
   active_pid = 0;
   active_encounter = 0;
+  encounter_locked = false;
   setDivContent('current_patient', '<b><?php xl('None','e'); ?></b>');
   $(parent.Title.document.getElementById('current_patient_block')).hide();
   top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
@@ -833,6 +873,7 @@ function getEncounterTargetFrame( name ) {
   if (active_encounter == 0) return;
   top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b>";
   active_encounter = 0;
+  encounter_locked = false;
   reloadEncounter('');
   syncRadios();
  }
@@ -1165,6 +1206,7 @@ if ($GLOBALS['athletic_team']) {
 <?php
 // Generate the items for visit forms, both traditional and LBF.
 //
+
 $lres = sqlStatement("SELECT * FROM list_options " .
   "WHERE list_id = 'lbfnames' ORDER BY seq, title");
 if (sqlNumRows($lres)) {

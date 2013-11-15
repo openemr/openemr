@@ -136,3 +136,21 @@ ADD COLUMN `box_14_date_qual` CHAR(3) NULL DEFAULT NULL;
 ALTER TABLE `form_misc_billing_options` 
 ADD COLUMN `box_15_date_qual` CHAR(3) NULL DEFAULT NULL;
 #EndIf
+
+#IfNotTable esign_signatures
+CREATE TABLE `esign_signatures` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tid` int(11) NOT NULL COMMENT 'Table row ID for signature',
+  `table` varchar(255) NOT NULL COMMENT 'table name for the signature',
+  `uid` int(11) NOT NULL COMMENT 'user id for the signing user',
+  `datetime` datetime NOT NULL COMMENT 'datetime of the signature action',
+  `is_lock` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'sig, lock or amendment',
+  `amendment` text COMMENT 'amendment text, if any',
+  `hash` varchar(255) NOT NULL COMMENT 'hash of signed data',
+  `signature_hash` varchar(255) NOT NULL COMMENT 'hash of signature itself',
+  PRIMARY KEY (`id`),
+  KEY `tid` (`tid`),
+  KEY `table` (`table`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+#EndIf
+
