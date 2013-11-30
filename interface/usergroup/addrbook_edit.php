@@ -138,6 +138,7 @@ td { font-size:10pt; }
     "npi = "          . invalue('form_npi')          . ", " .
     "taxonomy = "     . invalue('form_taxonomy')     . ", " .
     "email = "        . invalue('form_email')        . ", " .
+    "email_direct = " . invalue('form_email_direct') . ", " .
     "url = "          . invalue('form_url')          . ", " .
     "street = "       . invalue('form_street')       . ", " .
     "streetb = "      . invalue('form_streetb')      . ", " .
@@ -164,7 +165,7 @@ td { font-size:10pt; }
     "username, password, authorized, info, source, " .
     "title, fname, lname, mname,  " .
     "federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, taxonomy, " .
-    "specialty, organization, valedictory, assistant, billname, email, url, " .
+    "specialty, organization, valedictory, assistant, billname, email, email_direct, url, " .
     "street, streetb, city, state, zip, " .
     "street2, streetb2, city2, state2, zip2, " .
     "phone, phonew1, phonew2, phonecell, fax, notes, abook_type "            .
@@ -192,6 +193,7 @@ td { font-size:10pt; }
     invalue('form_assistant')     . ", " .
     "'', "                               . // billname
     invalue('form_email')         . ", " .
+    invalue('form_email_direct')  . ", " .
     invalue('form_url')           . ", " .
     invalue('form_street')        . ", " .
     invalue('form_streetb')       . ", " .
@@ -361,6 +363,15 @@ td { font-size:10pt; }
   <td>
    <input type='text' size='40' name='form_email' maxlength='250'
     value='<?php echo attr($row['email']); ?>'
+    style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php echo xlt('Trusted Email'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_email_direct' maxlength='250'
+    value='<?php echo attr($row['email_direct']); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>

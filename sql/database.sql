@@ -2519,6 +2519,7 @@ INSERT INTO `layout_options` VALUES ('DEM', 'phone_home', '2Contact', 'Home Phon
 INSERT INTO `layout_options` VALUES ('DEM', 'phone_biz', '2Contact', 'Work Phone', 11, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Work Phone Number', 0);
 INSERT INTO `layout_options` VALUES ('DEM', 'phone_cell', '2Contact', 'Mobile Phone', 12, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Cell Phone Number', 0);
 INSERT INTO `layout_options` VALUES ('DEM', 'email', '2Contact', 'Contact Email', 13, 2, 1, 30, 95, '', 1, 1, '', '', 'Contact Email Address', 0);
+INSERT INTO `layout_options` VALUES ('DEM', 'email_direct', '2Contact', 'Trusted Email', 14, 2, 1, 30, 95, '', 1, 1, '', '', 'Trusted Direct Email Address', 0);
 INSERT INTO `layout_options` VALUES ('DEM', 'providerID', '3Choices', 'Provider', 1, 11, 1, 0, 0, '', 1, 3, '', '', 'Provider', 0);
 INSERT INTO `layout_options` VALUES ('DEM', 'ref_providerID', '3Choices', 'Referring Provider', 2, 11, 1, 0, 0, '', 1, 3, '', '', 'Referring Provider', 0);
 INSERT INTO `layout_options` VALUES ('DEM', 'pharmacy_id', '3Choices', 'Pharmacy', 3, 12, 1, 0, 0, '', 1, 3, '', '', 'Preferred Pharmacy', 0);
@@ -4061,6 +4062,7 @@ CREATE TABLE `patient_data` (
   `providerID` int(11) default NULL,
   `ref_providerID` int(11) default NULL,
   `email` varchar(255) NOT NULL default '',
+  `email_direct` varchar(255) NOT NULL default '',
   `ethnoracial` varchar(255) NOT NULL default '',
   `race` varchar(255) NOT NULL default '',
   `ethnicity` varchar(255) NOT NULL default '',
@@ -5248,6 +5250,7 @@ CREATE TABLE `users` (
   `specialty` varchar(255) default NULL,
   `billname` varchar(255) default NULL,
   `email` varchar(255) default NULL,
+  `email_direct` varchar(255) NOT NULL default '',
   `url` varchar(255) default NULL,
   `assistant` varchar(255) default NULL,
   `organization` varchar(255) default NULL,

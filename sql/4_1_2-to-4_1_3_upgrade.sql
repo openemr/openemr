@@ -110,4 +110,12 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2013-10-01', '2014-Reimbursement-Mappings-PR.zip', 'f306a0e8c9edb34d28fd6ce8af82b646');
 #EndIf
 
+#IfMissingColumn patient_data email_direct
+ALTER TABLE `patient_data` ADD COLUMN `email_direct` varchar(255) NOT NULL default '';
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES('DEM', 'email_direct', '2Contact', 'Trusted Email', 14, 2, 1, 30, 95, '', 1, 1, '', '', 'Trusted (Direct) Email Address', 0);
+#EndIf
+
+#IfMissingColumn users email_direct
+ALTER TABLE `users` ADD COLUMN `email_direct` varchar(255) NOT NULL default '';
+#EndIf
 
