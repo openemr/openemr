@@ -3,7 +3,7 @@
 require_once(dirname(__FILE__). "/sql.inc");
 require_once(dirname(__FILE__). "/formdata.inc.php");
 
-function newEvent($event, $user, $groupname, $success, $comments="", $patient_id="NULL") {
+function newEvent($event, $user, $groupname, $success, $comments="", $patient_id=null) {
     $adodb = $GLOBALS['adodb']['db'];
     $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
     /* More details added to the log */
@@ -14,7 +14,7 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
             $adodb->qstr($crt_user) ."," . $adodb->qstr($patient_id). ")";
 
     $ret = sqlInsertClean_audit($sql);
-    if($patient_id=="NULL")$patient_id=0;
+    if(($patient_id=="NULL") || ($patient_id==null))$patient_id=0;
 
     send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
 }
