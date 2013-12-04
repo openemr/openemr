@@ -83,8 +83,10 @@ function privStatement($sql,$params=null)
       // These error messages are explictly NOT run through xl() because we still
       // need them if there is a database problem.
       echo "Failure during database access! Check server error log.";
-      
-      error_log("Executing as user:" .getPrivDB()->user." Statement failed:".$sql.":");
+      $backtrace=debug_backtrace();
+
+      error_log("Executing as user:" .getPrivDB()->user." Statement failed:".$sql.":". $GLOBALS['last_mysql_error']
+              ."==>".$backtrace[1]["file"]." at ".$backtrace[1]["line"].":".$backtrace[1]["function"]);
       exit;
     }
     return $recordset;
