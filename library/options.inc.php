@@ -1549,6 +1549,202 @@ function generate_display_field($frow, $currvalue) {
   return $s;
 }
 
+// Generate plain text versions of selected LBF field types.
+// Currently used by interface/patient_file/download_template.php.
+// More field types might need to be supported here in the future.
+//
+function generate_plaintext_field($frow, $currvalue) {
+  $data_type = $frow['data_type'];
+  $field_id  = isset($frow['field_id']) ? $frow['field_id'] : null;
+  $list_id   = $frow['list_id'];
+  $s = '';
+
+  // generic selection list or the generic selection list with add on the fly
+  // feature, or radio buttons
+  if ($data_type == 1 || $data_type == 26 || $data_type == 27 || $data_type == 33) {
+    $lrow = sqlQuery("SELECT title FROM list_options " .
+      "WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue) );
+      $s = xl_list_label($lrow['title']);
+    // For lists Race and Ethnicity if there is no matching value in the corresponding lists check ethrace list
+    if ($lrow == 0 && $data_type == 33) {
+      $list_id = 'ethrace';
+      $lrow_ethrace = sqlQuery("SELECT title FROM list_options " .
+        "WHERE list_id = ? AND option_id = ?", array($list_id, $currvalue));
+      $s = xl_list_label($lrow_ethrace['title']);
+    }
+  }
+
+  // simple or long text field
+  else if ($data_type == 2 || $data_type == 3 || $data_type == 15) {
+    $s = $currvalue;
+  }
+
+  // date
+  else if ($data_type == 4) {
+    $s = oeFormatShortDate($currvalue);
+  }
+
+  // provider
+  else if ($data_type == 10 || $data_type == 11) {
+    $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+      "WHERE id = ?", array($currvalue) );
+    $s = ucwords($urow['fname'] . " " . $urow['lname']);
+  }
+
+  // pharmacy list
+  else if ($data_type == 12) {
+    $pres = get_pharmacies();
+    while ($prow = sqlFetchArray($pres)) {
+      $key = $prow['id'];
+      if ($currvalue == $key) {
+        $s .= $prow['name'] . ' ' . $prow['area_code'] . '-' .
+          $prow['prefix'] . '-' . $prow['number'] . ' / ' .
+          $prow['line1'] . ' / ' . $prow['city'];
+      }
+    }
+  }
+
+  // address book
+  else if ($data_type == 14) {
+    $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+      "WHERE id = ?", array($currvalue));
+    $uname = $urow['lname'];
+    if ($urow['fname']) $uname .= ", " . $urow['fname'];
+    $s = $uname;
+  }
+
+  // a set of labeled checkboxes
+  else if ($data_type == 21) {
+    $avalue = explode('|', $currvalue);
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+    $count = 0;
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      if (in_array($option_id, $avalue)) {
+        if ($count++) $s .= "; ";
+        $s .= xl_list_label($lrow['title']);
+      }
+    }
+  }
+
+  // a set of labeled text input fields
+  else if ($data_type == 22) {
+    $tmp = explode('|', $currvalue);
+    $avalue = array();
+    foreach ($tmp as $value) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
+        $avalue[$matches[1]] = $matches[2];
+      }
+    }
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      if (empty($avalue[$option_id])) continue;
+      if ($s !== '') $s .= '; ';
+      $s .= xl_list_label($lrow['title']) . ': ';
+      $s .= $avalue[$option_id];
+    }
+  }
+
+  // A set of exam results; 3 radio buttons and a text field.
+  // This shows abnormal results only.
+  else if ($data_type == 23) {
+    $tmp = explode('|', $currvalue);
+    $avalue = array();
+    foreach ($tmp as $value) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
+        $avalue[$matches[1]] = $matches[2];
+      }
+    }
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      $restype = substr($avalue[$option_id], 0, 1);
+      $resnote = substr($avalue[$option_id], 2);
+      if (empty($restype) && empty($resnote)) continue;
+      if ($restype != '2') continue; // show abnormal results only
+      if ($s !== '') $s .= '; ';
+      $s .= xl_list_label($lrow['title']);
+      if (!empty($resnote)) $s .= ': ' . $resnote;
+    }
+  }
+
+  // the list of active allergies for the current patient
+  else if ($data_type == 24) {
+    $query = "SELECT title, comments FROM lists WHERE " .
+      "pid = ? AND type = 'allergy' AND enddate IS NULL " .
+      "ORDER BY begdate";
+    $lres = sqlStatement($query, array($GLOBALS['pid']));
+    $count = 0;
+    while ($lrow = sqlFetchArray($lres)) {
+      if ($count++) $s .= "; ";
+      $s .= $lrow['title'];
+      if ($lrow['comments']) $s .= ' (' . $lrow['comments'] . ')';
+    }
+  }
+
+  // a set of labeled checkboxes, each with a text field:
+  else if ($data_type == 25) {
+    $tmp = explode('|', $currvalue);
+    $avalue = array();
+    foreach ($tmp as $value) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
+        $avalue[$matches[1]] = $matches[2];
+      }
+    }
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = ? ORDER BY seq, title", array($list_id));
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      $restype = substr($avalue[$option_id], 0, 1);
+      $resnote = substr($avalue[$option_id], 2);
+      if (empty($restype) && empty($resnote)) continue;
+      if ($s !== '') $s .= '; ';
+      $s .= xl_list_label($lrow['title']);
+      $restype = $restype ? xl('Yes') : xl('No');  
+      $s .= $restype;
+      if ($resnote) $s .= ' ' . $resnote;
+    }
+  }
+
+  // special case for history of lifestyle status; 3 radio buttons and a date text field:
+  // VicarePlus :: A selection list for smoking status.
+  else if ($data_type == 28 || $data_type == 32) {
+    $tmp = explode('|', $currvalue);
+    $resnote = count($tmp) > 0 ? $tmp[0] : '';
+    $restype = count($tmp) > 1 ? $tmp[1] : '';
+    $resdate = count($tmp) > 2 ? $tmp[2] : '';
+    $reslist = count($tmp) > 3 ? $tmp[3] : '';
+    $res = "";
+    if ($restype == "current"       . $field_id) $res = xl('Current');
+    if ($restype == "quit"          . $field_id) $res = xl('Quit');
+    if ($restype == "never"         . $field_id) $res = xl('Never');
+    if ($restype == "not_applicable". $field_id) $res = xl('N/A');
+
+    if ($data_type == 28) {
+      if (!empty($resnote)) $s .= $resnote;
+    }
+    // Tobacco field has a listbox, text box, date field and 3 radio buttons.
+    else if ($data_type == 32) {
+      if (!empty($reslist)) $s .= generate_plaintext_field(array('data_type'=>'1','list_id'=>$list_id),$reslist);
+      if (!empty($resnote)) $s .= ' ' . $resnote;
+    }
+    if (!empty($res)) {
+      if ($s !== '') $s .= ' ';
+      $s .= xl('Status') . ' ' . $res;
+    }
+    if ($restype == "quit".$field_id) {
+      if ($s !== '') $s .= ' ';
+      $s .= $resdate;
+    }
+  }
+
+  return $s;
+}
+
 $CPR = 4; // cells per row of generic data
 $last_group = '';
 $cell_count = 0;
@@ -2252,6 +2448,15 @@ function billing_facility($name,$select){
 				 echo "<option value=".htmlspecialchars($facrow['id'],ENT_QUOTES)." $selected>".htmlspecialchars($facrow['name'], ENT_QUOTES)."</option>";
 				}
 			  echo "</select>";
+}
+
+// Generic function to get the translated title value for a particular list option.
+//
+function getListItemTitle($list, $option) {
+  $row = sqlQuery("SELECT title FROM list_options WHERE " .
+    "list_id = ? AND option_id = ?", array($list, $option));
+  if (empty($row['title'])) return $option;
+  return xl_list_label($row['title']);
 }
 
 ?>

@@ -44,6 +44,27 @@ class C_Document extends Controller {
 		$this->assign("category_name", $category_name);
 		$this->assign("hide_encryption", $GLOBALS['hide_document_encryption'] );
 		$this->assign("patient_id", $patient_id);
+
+    // Added by Rod to support document template download from general_upload.html.
+    // Cloned from similar stuff in manage_document_templates.php.
+    $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/doctemplates';
+    $templates_options = "<option value=''>-- " . xl('Select Template') . " --</option>";
+    $dh = opendir($templatedir);
+    if ($dh) {
+      $templateslist = array();
+      while (false !== ($sfname = readdir($dh))) {
+        if (substr($sfname, 0, 1) == '.') continue;
+        $templateslist[$sfname] = $sfname;
+      }
+      closedir($dh);
+      ksort($templateslist);
+      foreach ($templateslist as $sfname) {
+        $templates_options .= "<option value='" . htmlspecialchars($sfname, ENT_QUOTES) .
+          "'>" . htmlspecialchars($sfname) . "</option>";
+      }
+    }
+    $this->assign("TEMPLATES_LIST", $templates_options);
+
 		$activity = $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
 		$this->assign("activity", $activity);
 		return $this->list_action($patient_id);
@@ -131,6 +152,33 @@ class C_Document extends Controller {
                     $sentUploadStatus[] = $d;
                     $this->assign("file", $sentUploadStatus);
                 }
+
+                // Option to run a custom plugin for each file upload.
+                // This was initially created to delete the original source file in a custom setting.
+                $upload_plugin = $GLOBALS['OE_SITE_DIR'] . "/documentUpload.plugin.php";
+                if (file_exists($upload_plugin)) {
+                  include_once($upload_plugin);
+                }
+                $upload_plugin_pp = 'documentUploadPostProcess';
+                if (function_exists($upload_plugin_pp)) {
+                  $tmp = call_user_func($upload_plugin_pp, $value, &$d);
+                  if ($tmp) {
+                    $error = $tmp;
+                  }
+                }
+                // Following is just an example of code in such a plugin file.
+                /*****************************************************
+                function documentUploadPostProcess($filename, &$d) {
+                  $userid = $_SESSION['authUserID'];
+                  $row = sqlQuery("SELECT username FROM users WHERE id = ?", array($userid));
+                  $owner = strtolower($row['username']);
+                  $dn = '1_' . ucfirst($owner);
+                  $filepath = "/shared_network_directory/$dn/$filename";
+                  if (@unlink($filepath)) return '';
+                  return "Failed to delete '$filepath'.";
+                }
+                *****************************************************/
+
             }
         }
 

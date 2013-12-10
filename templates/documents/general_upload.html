@@ -28,6 +28,25 @@
     {/if}
     <p><input type="submit" value="{xl t='Upload'}" /></p>
 </div>
+
+<input type="hidden" name="patient_id" value="{$patient_id}" />
+<input type="hidden" name="category_id" value="{$category_id}" />
+<input type="hidden" name="process" value="{$PROCESS}" />
+</form>
+
+<!-- Section for document template download -->
+<form method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
+<input type='hidden' name='patient_id' value='{$patient_id}' />
+<p class='text bold'>
+ {xl t="Download document template for this patient and visit"}
+</p>
+<p class='text'>
+ <select name='form_filename'>{$TEMPLATES_LIST}</select> &nbsp;
+ <input type='submit' value='{xl t="Fetch"}' />
+</p>
+</form>
+<!-- End document template download section -->
+
 {if !empty($file)}
 	<div class="text bold">
 		<br/>
@@ -48,7 +67,3 @@
 	{/foreach}
 {/if}
 
-<input type="hidden" name="patient_id" value="{$patient_id}" />
-<input type="hidden" name="category_id" value="{$category_id}" />
-<input type="hidden" name="process" value="{$PROCESS}" />
-</form>
