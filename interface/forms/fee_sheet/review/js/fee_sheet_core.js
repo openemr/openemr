@@ -36,9 +36,31 @@ function refresh_codes()
 
 function update_display_table(data)
 {
+    var rc = true; // this will be our return value
+
+    // This creates a jquery object representing new DOM elements built from
+    // HTML returned by the AJAX call to new.php.
     var new_info=$(data);
+
+    // This finds the element "table[cellspacing='5']".
+    // That is, the table element whose cellspacing attribute has a value of 5.
+    // This happens to be the main table with all the line items in it.
+    // Would be much better to assign it an ID and find by that.
     var new_table=new_info.find(display_table_selector);
+
+    // Use this to replace the contents of this table in the current document.
     $(display_table_selector).replaceWith(new_table);  
+
+    // Copy in the latest form_checksum value.
+    var new_checksum = new_info.find('input[name="form_checksum"]').val();
+    $('input[name="form_checksum"]').val(new_checksum);
+
+    // Show alertmsg if there is one. In that case we'll return false to indicate an error.
+    var new_alertmsg = new_info.find('input[name="form_alertmsg"]').val();
+    if (new_alertmsg) {
+        alert(new_alertmsg);
+        rc = false;
+    }
 
     // need refresh the diagnosis list
     var diag_regex=new RegExp("diags.push(.*);\n","g");
@@ -55,6 +77,8 @@ function update_display_table(data)
     justifications.change();
     
     tag_justify_rows($(display_table_selector));
+
+    return rc;
 }
 
 // This function is used force an immediate save when choosing codes
@@ -72,11 +96,17 @@ function codeselect_and_save(selobj)
     $.post(fee_sheet_new,form_data,
         function(data)
         {
+            // "data" here is the complete newly generated fee sheet HTML.
             f.newcodes.value="";
             // Clear the selection
             $(selobj).find("option:selected").prop("selected",false);
-            update_display_table(data);
-            save_fee_form(refresh_codes);
+
+            // We do a refresh and then update because update does not recreate
+            // the latest fee sheet HTML for us.
+            if (update_display_table(data)) {
+                // Note the update is skipped if refresh returned an error.
+                save_fee_form(refresh_codes);
+            }
         }
     ); 
  }

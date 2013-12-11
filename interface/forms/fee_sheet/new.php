@@ -22,6 +22,9 @@ require_once("$srcdir/formdata.inc.php");
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
 
+// This may be an error message or warning that pops up when the form is loaded.
+$alertmsg = '';
+
 function alphaCodeType($id) {
   global $code_types;
   foreach ($code_types as $key => $value) {
@@ -378,6 +381,22 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
   echo "   </select>\n";
 }
 
+// Compute a current checksum of Fee Sheet data from the database.
+//
+function visitChecksum($pid, $encounter) {
+  $rowb = sqlQuery("SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
+    "id, code, modifier, units, fee, authorized, provider_id, ndc_info, justify, billed" .
+    "))) AS checksum FROM billing WHERE " .
+    "pid = ? AND encounter = ? AND activity = 1",
+    array($pid, $encounter));
+  $rowp = sqlQuery("SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
+    "sale_id, inventory_id, prescription_id, quantity, fee, sale_date, billed" .
+    "))) AS checksum FROM drug_sales WHERE " .
+    "pid = ? AND encounter = ?",
+    array($pid, $encounter));
+  return (intval($rowb['checksum']) ^ intval($rowp['checksum']));
+}
+
 // This is just for IPPF, to indicate if the visit includes contraceptive services.
 $contraception = 0;
 
@@ -408,10 +427,19 @@ $visit_row = sqlQuery("SELECT fe.date, opc.pc_catname " .
   "WHERE fe.pid = ? AND fe.encounter = ? LIMIT 1", array($pid,$encounter) );
 $visit_date = substr($visit_row['date'], 0, 10);
 
+$current_checksum = visitChecksum($pid, $encounter);
+// It's important to look for a checksum mismatch even if we're just refreshing
+// the display, otherwise the error goes undetected on a refresh-then-save.
+if (isset($_POST['form_checksum'])) {
+  if ($_POST['form_checksum'] != $current_checksum) {
+    $alertmsg = xl('Someone else has just changed this visit. Please cancel this page and try again.');
+  }
+}
+
 // If Save or Save-and-Close was clicked, save the new and modified billing
 // lines; then if no error, redirect to $returnurl.
 //
-if ($_POST['bn_save'] || $_POST['bn_save_close']) {
+if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
   $main_provid = 0 + $_POST['ProviderID'];
   $main_supid  = 0 + $_POST['SupervisorID'];
   if ($main_supid == $main_provid) $main_supid = 0;
@@ -1241,6 +1269,9 @@ if (true) {
 &nbsp;
 <?php } ?>
 
+<input type='hidden' name='form_checksum' value='<?php echo $current_checksum; ?>' />
+<input type='hidden' name='form_alertmsg' value='<?php echo attr($alertmsg); ?>' />
+
 <input type='button' value='<?php echo xla('Cancel');?>'
  onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 
@@ -1254,13 +1285,13 @@ if (true) {
 </center>
 
 </form>
-
-<?php
-// TBD: If $alertmsg, display it with a JavaScript alert().
-?>
-
 <script language='JavaScript'>
-<?php echo $justinit; ?>
+<?php
+echo $justinit;
+if ($alertmsg) {
+  echo "alert('" . addslashes($alertmsg) . "');\n";
+}
+?>
 </script>
 </body>
 </html>
