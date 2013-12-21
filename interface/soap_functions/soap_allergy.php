@@ -47,15 +47,14 @@ if((array_key_exists('refresh', $_REQUEST)
 ) {
 	$eRxSOAP->insertUpdateAllergies();
 
-	$message = xlt($eRxSOAP->updateUploadedErx()
-		? 'Allergy import successfully completed'
-		: 'Nothing to import for Allergy'
-	);
+	$message = $eRxSOAP->updateUploadedErx()
+		? xl('Allergy import successfully completed')
+		: xl('Nothing to import for Allergy');
 
 	$eRxSOAP->updatePatientImportStatus(eRxSOAP::FLAG_ALLERGY_IMPORT)
 		->updateTTL(eRxSOAP::ACTION_ALLERGIES);
 } else {
-	$message = xlt('Import deferred for time-to-live');
+	$message = xl('Import deferred for time-to-live');
 }
 
-echo $message;
+echo text($message);

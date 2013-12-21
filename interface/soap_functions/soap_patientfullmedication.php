@@ -48,15 +48,14 @@ if((array_key_exists('refresh', $_REQUEST)
 ) {
 	$insertedRows = $eRxSOAP->insertUpdateMedications();
 
-	$message = xlt($insertedRows
-		? 'Prescription History import successfully completed'
-		: 'Nothing to import for Prescription'
-	);
+	$message = $insertedRows
+		? xl('Prescription History import successfully completed')
+		: xl('Nothing to import for Prescription');
 
 	$eRxSOAP->updatePatientImportStatus(eRxSOAP::FLAG_PRESCRIPTION_IMPORT)
 		->updateTTL(eRxSOAP::ACTION_MEDICATIONS);
 } else {
-	$message = xlt('Import deferred for time-to-live');
+	$message = xl('Import deferred for time-to-live');
 }
 
-echo $message;
+echo text($message);
