@@ -38,6 +38,7 @@ class Claim {
   var $encounter_id;      // encounter id
   var $procs;             // array of procedure rows from billing table
   var $diags;             // array of icd9 codes from billing table
+  var $diagtype= "ICD9";  // diagnosis code_type.Assume ICD9 unless otherwise specified.
   var $x12_partner;       // row from x12_partners table
   var $encounter;         // row from form_encounter table
   var $facility;          // row from facility table
@@ -1123,21 +1124,58 @@ class Claim {
     return cleanDate($this->billing_options['date_initial_treatment']);
   }
 
-  // Returns an array of unique diagnoses.  Periods are stripped.
-  function diagArray() {
+  function box14qualifier()
+  {
+      // If no box qualifier specified use "431" indicating Onset
+      return empty($this->billing_options['box_14_date_qual']) ? '431' :
+              $this->billing_options['box_14_date_qual'];
+  }
+  
+  function box15qualifier()
+  {
+      // If no box qualifier specified use "454" indicating Initial Treatment
+      return empty($this->billing_options['box_15_date_qual']) ? '454' :
+              $this->billing_options['box_15_date_qual'];
+  }  
+  // Returns an array of unique diagnoses.  Periods are stripped by default  
+  // Option to keep periods is to support HCFA 1500 02/12 version
+  function diagArray($strip_periods=true) {
     $da = array();
     foreach ($this->procs as $row) {
       $atmp = explode(':', $row['justify']);
       foreach ($atmp as $tmp) {
         if (!empty($tmp)) {
           $code_data = explode('|',$tmp);
+          
+          // If there was a | in the code data, the the first part of the array is the type, and the second is the identifier
           if (!empty($code_data[1])) {
-            //Strip the prepended code type label
-            $diag = str_replace('.', '', $code_data[1]);
+            
+            // This is the simplest way to determine if the claim is using ICD9 or ICD10 codes
+            // a mix of code types is generally not allowed as there is only one specifier for all diagnoses on HCFA-1500 form
+            // and there would be ambiguity with E and V codes
+            $this->diagtype=$code_data[0];
+            
+            //code is in the second part of the $code_data array. 
+            if($strip_periods==true) 
+                { 
+                    $diag = str_replace('.', '', $code_data[1]);
+                    
+                }
+                else
+                {
+                    $diag=$code_data[1];
+                }
+            
           }
           else {
             //No prepended code type label
-            $diag = str_replace('.', '', $code_data[0]);
+            if($strip_periods) {
+                $diag = str_replace('.', '', $code_data[0]);
+            }
+            else
+            {
+                $diag=$code_data[1];
+            }
           }
           $da[$diag] = $diag;
         }
@@ -1148,7 +1186,7 @@ class Claim {
     // or not, to make sure they all get into the claim.  We do it this way
     // so that the more important diagnoses appear first.
     foreach ($this->diags as $diag) {
-      $diag = str_replace('.', '', $diag);
+      if($strip_periods) {$diag = str_replace('.', '', $diag);}
       $da[$diag] = $diag;
     }
     return $da;
