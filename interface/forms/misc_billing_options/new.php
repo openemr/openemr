@@ -2,6 +2,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/formdata.inc.php");
+require_once("date_qualifier_options.php");
+
 
 if (! $encounter) { // comes from globals.php
  die(xl("Internal error: we do not seem to be in an encounter!"));
@@ -11,6 +13,18 @@ $formid   = 0 + formData('id', 'G');
 $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
 
 formHeader("Form: misc_billing_options");
+function generateDateQualifierSelect($name,$options,$obj)
+{
+    echo     "<select name='".attr($name)."'>";
+    for($idx=0;$idx<count($options);$idx++)
+    {
+        echo "<option value='".attr($options[$idx][1])."'";
+        if($obj[$name]==$options[$idx][1]) echo " selected";
+        echo ">".text($options[$idx][0])."</option>";
+    }
+    echo     "</select>";
+
+}
 ?>
 <html><head>
 <?php html_header_show(); ?>
@@ -27,8 +41,16 @@ echo "<form method='post' name='my_form' " .
 <span class=text><?php xl('BOX 10 B. Auto Accident ','e'); ?>: </span><input type=checkbox name="auto_accident" value="1" <?php if ($obj['auto_accident'] == "1") echo "checked";?>>
 <span class=text><?php xl('State','e'); ?>: </span><input type=entry name="accident_state" size=1 value="<?php echo $obj{"accident_state"};?>" ><br><br>
 <span class=text><?php xl('BOX 10 C. Other Accident ','e'); ?>: </span><input type=checkbox name="other_accident" value="1" <?php if ($obj['other_accident'] == "1") echo "checked";?>><br><br>
-<span class=text><?php xl('BOX 15. Date of same or similar illness (yyyy-mm-dd):','e');?> </span><input type='entry' size='9' name="date_initial_treatment" value="<?php echo $obj{"date_initial_treatment"};?>" /><br><br>
-<span class=text><?php xl('BOX 16. Date unable to work from (yyyy-mm-dd):','e');?> </span><input type=entry size=9 name="off_work_from" value="<?php echo $obj{"off_work_from"};?>" >
+<span class="text" title="<?php echo xla("For HCFA 02/12 Onset date specified on the Encounter Form needs a qualifier");?>">
+    <?php echo xlt('BOX 14 Date Qualifier'); ?>: </span>
+    <?php generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?>
+    <br><br>
+<span class=text title="<?php echo xla('For HCFA 02/12 Box 15 is Other Date with a qualifier to specify what the date indicates');?>">
+          <?php xl('BOX 15. Date of same or similar illness/Other Date (yyyy-mm-dd):','e');?> </span><input type='entry' size='9' name="date_initial_treatment" value="<?php echo $obj{"date_initial_treatment"};?>" />
+
+<span class="text"><?php echo xlt('BOX 15 Other Date Qualifier'); ?>: </span>
+    <?php generateDateQualifierSelect("box_15_date_qual",$box_15_qualifier_options,$obj); ?>
+    <br><br><span class=text><?php xl('BOX 16. Date unable to work from (yyyy-mm-dd):','e');?> </span><input type=entry size=9 name="off_work_from" value="<?php echo $obj{"off_work_from"};?>" >
 <span class=text><?php xl('BOX 16. Date unable to work to (yyyy-mm-dd):','e');?> </span><input type=entry size=9 name="off_work_to" value="<?php echo $obj{"off_work_to"};?>" ><br><br>
 <span class=text><?php xl('BOX 18. Hospitalization date from (yyyy-mm-dd): ','e');?></span><input type=entry size=9 name="hospitalization_date_from" value="<?php echo $obj{"hospitalization_date_from"};?>" >
 <span class=text><?php xl('BOX 18. Hospitalization date to (yyyy-mm-dd): ','e');?></span><input type=entry size=9 name="hospitalization_date_to" value="<?php echo $obj{"hospitalization_date_to"};?>" ><br><br>

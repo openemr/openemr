@@ -7,13 +7,28 @@
 // of the License, or (at your option) any later version.
 
 require_once("Claim.class.php");
+require_once("gen_hfca_1500_02_12.inc.php");
 
 $hcfa_curr_line = 1;
 $hcfa_curr_col = 1;
 $hcfa_data = '';
 $hcfa_proc_index = 0;
 
-function put_hcfa($line, $col, $maxlen, $data) {
+
+/**
+ * take the data element and place it at the correct coordinates on the page
+ * 
+ * @global int $hcfa_curr_line
+ * @global type $hcfa_curr_col
+ * @global type $hcfa_data
+ * @param type $line
+ * @param type $col
+ * @param type $maxlen
+ * @param type $data
+ * @param type $strip   regular expression for what to strip from the data. period and has are the defaults
+ *                      02/12 version needs to include periods in the diagnoses hence the need to override
+ */
+function put_hcfa($line, $col, $maxlen, $data,$strip='/[.#]/') {
   global $hcfa_curr_line, $hcfa_curr_col, $hcfa_data;
   if ($line < $hcfa_curr_line)
     die("Data item at ($line, $col) precedes current line.");
@@ -28,7 +43,7 @@ function put_hcfa($line, $col, $maxlen, $data) {
     $hcfa_data .= " ";
     ++$hcfa_curr_col;
   }
-  $data = preg_replace('/[.#]/', '', strtoupper($data));
+  $data = preg_replace($strip, '', strtoupper($data));
   $len = min(strlen($data), $maxlen);
   $hcfa_data .= substr($data, 0, $len);
   $hcfa_curr_col += $len;
@@ -133,12 +148,15 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(14, 26,  2, $claim->patientState());
 
   // Box 8. Patient (Marital) Status
-  $tmp = $claim->patientStatus();
-  $tmpcol = 47;                        // Other
-  if      ($tmp === 'S') $tmpcol = 35; // Single
-  else if ($tmp === 'M') $tmpcol = 41; // Married
-  put_hcfa(14, $tmpcol, 1, 'X');
-
+  if(!hcfa_1500_version_02_12())  // Box 8 Reserved for NUCC Use in 02/12
+  {
+    $tmp = $claim->patientStatus();
+    $tmpcol = 47;                        // Other
+    if      ($tmp === 'S') $tmpcol = 35; // Single
+    else if ($tmp === 'M') $tmpcol = 41; // Married
+    put_hcfa(14, $tmpcol, 1, 'X');
+  }  
+    
   // Box 7 continued. Insured's City and State
   put_hcfa(14, 50, 20, $claim->insuredCity());
   put_hcfa(14, 74,  2, $claim->insuredState());
@@ -150,10 +168,13 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(16, 19,  7, substr($tmp,3));
 
   // Box 8 continued. Patient (Employment) Status
-  $tmp = $claim->patientOccupation();
-  if      ($tmp === 'STUDENT'   ) put_hcfa(16, 41, 1, 'X');
-  else if ($tmp === 'PT STUDENT') put_hcfa(16, 47, 1, 'X');
-  else if ($tmp !== 'UNEMPLOYED') put_hcfa(16, 35, 1, 'X');
+  if(!hcfa_1500_version_02_12())  // Box 8 Reserved for NUCC Use in 02/12
+  {
+    $tmp = $claim->patientOccupation();
+    if      ($tmp === 'STUDENT'   ) put_hcfa(16, 41, 1, 'X');
+    else if ($tmp === 'PT STUDENT') put_hcfa(16, 47, 1, 'X');
+    else if ($tmp !== 'UNEMPLOYED') put_hcfa(16, 35, 1, 'X');
+  }
 
   // Box 7 continued. Insured's Zip Code and Telephone
   put_hcfa(16, 50, 10, $claim->insuredZip());
@@ -220,19 +241,22 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   }
 
   // Box 9b. Other Insured's Birth Date and Sex
-  if ($new_medicare_logic) {
-    // TBD: Medigap stuff?
-  }
-  else {
-    if ($claim->payerCount() > 1) {
-      $tmp = $claim->insuredDOB(1);
-      put_hcfa(22, 2, 2, substr($tmp,4,2));
-      put_hcfa(22, 5, 2, substr($tmp,6,2));
-      put_hcfa(22, 8, 4, substr($tmp,0,4));
-      put_hcfa(22, $claim->insuredSex(1) == 'M' ? 18 : 24, 1, 'X');
+  if(!hcfa_1500_version_02_12())  // Box 9b Reserved for NUCC Use in 02/12  
+  {
+    if ($new_medicare_logic) {
+      // TBD: Medigap stuff?
+    }
+    else {
+      if ($claim->payerCount() > 1) {
+        $tmp = $claim->insuredDOB(1);
+        put_hcfa(22, 2, 2, substr($tmp,4,2));
+        put_hcfa(22, 5, 2, substr($tmp,6,2));
+        put_hcfa(22, 8, 4, substr($tmp,0,4));
+        put_hcfa(22, $claim->insuredSex(1) == 'M' ? 18 : 24, 1, 'X');
+      }
     }
   }
-
+    
   // Box 10b. Auto Accident
   put_hcfa(22, $claim->isRelatedAuto() ? 35 : 41, 1, 'X');
   if ($claim->isRelatedAuto())
@@ -248,15 +272,18 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(22, 50, 30, $tmp);
 
   // Box 9c. Other Insured's Employer/School Name
-  if ($new_medicare_logic) {
-    // TBD: Medigap stuff?
-  }
-  else {
-    if ($claim->payerCount() > 1) {
-      put_hcfa(24, 1, 28, $claim->groupName(1));
+  if(!hcfa_1500_version_02_12())  // Box 9c Reserved for NUCC Use in 02/12
+  {
+    if ($new_medicare_logic) {
+      // TBD: Medigap stuff?
+    }
+    else {
+      if ($claim->payerCount() > 1) {
+        put_hcfa(24, 1, 28, $claim->groupName(1));
+      }
     }
   }
-
+  
   // Box 10c. Other Accident
   put_hcfa(24, $claim->isRelatedOther() ? 35 : 41, 1, 'X');
 
@@ -300,12 +327,24 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(32, 2, 2, substr($tmp,4,2));
   put_hcfa(32, 5, 2, substr($tmp,6,2));
   put_hcfa(32, 8, 4, substr($tmp,0,4));
-
+  
+  if(hcfa_1500_version_02_12())
+  {
+    put_hcfa(32, 16, 3, $claim->box14qualifier());
+      
+  }
   // Box 15. First Date of Same or Similar Illness, if applicable
   $tmp = $claim->dateInitialTreatment();
-  put_hcfa(32,36, 2, substr($tmp,4,2));
-  put_hcfa(32,39, 2, substr($tmp,6,2));
-  put_hcfa(32,42, 4, substr($tmp,0,4));
+  if(hcfa_1500_version_02_12() && !empty($tmp))
+  {
+    put_hcfa(32, 31, 3, $claim->box15qualifier());    
+  }
+
+
+  put_hcfa(32,37, 2, substr($tmp,4,2));
+  put_hcfa(32,40, 2, substr($tmp,6,2));
+  put_hcfa(32,43, 4, substr($tmp,0,4));
+
 
   // Box 16. Dates Patient Unable to Work in Current Occupation
   if ($claim->isUnableToWork()) {
@@ -367,36 +406,42 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     put_hcfa(36, 63, 8, sprintf('%8s', $claim->outsideLabAmount()));
   }
 
-  // Box 21. Diagnoses
-  $tmp = $claim->diagArray();
-  $diags = array();
-  foreach ($tmp as $diag) $diags[] = $diag;
-  if (!empty($diags[0])) {
-    put_hcfa(38, 3, 3, substr($diags[0], 0, 3));
-    put_hcfa(38, 7, 2, substr($diags[0], 3));
+  if(hcfa_1500_version_02_12())
+  {
+      process_diagnoses_02_12($claim,$log);
   }
-  if (!empty($diags[2])) {
-    put_hcfa(38, 30, 3, substr($diags[2], 0, 3));
-    put_hcfa(38, 34, 2, substr($diags[2], 3));
+  else
+  {
+        // Box 21. Diagnoses
+        $tmp = $claim->diagArray();
+        $diags = array();
+        foreach ($tmp as $diag) $diags[] = $diag;
+        if (!empty($diags[0])) {
+          put_hcfa(38, 3, 3, substr($diags[0], 0, 3));
+          put_hcfa(38, 7, 2, substr($diags[0], 3));
+        }
+        if (!empty($diags[2])) {
+          put_hcfa(38, 30, 3, substr($diags[2], 0, 3));
+          put_hcfa(38, 34, 2, substr($diags[2], 3));
+        }
+
+        // Box 22. Medicaid Resubmission Code and Original Ref. No.
+        put_hcfa(38, 50, 10, $claim->medicaidResubmissionCode());
+        put_hcfa(38, 62, 10, $claim->medicaidOriginalReference());
+
+        // Box 21 continued. Diagnoses
+        if (!empty($diags[1])) {
+          put_hcfa(40, 3, 3, substr($diags[1], 0, 3));
+          put_hcfa(40, 7, 2, substr($diags[1], 3));
+        }
+        if (!empty($diags[3])) {
+          put_hcfa(40, 30, 3, substr($diags[3], 0, 3));
+          put_hcfa(40, 34, 2, substr($diags[3], 3));
+        }
+
+        // Box 23. Prior Authorization Number
+        put_hcfa(40, 50, 28, $claim->priorAuth());
   }
-
-  // Box 22. Medicaid Resubmission Code and Original Ref. No.
-  put_hcfa(38, 50, 10, $claim->medicaidResubmissionCode());
-  put_hcfa(38, 62, 10, $claim->medicaidOriginalReference());
-
-  // Box 21 continued. Diagnoses
-  if (!empty($diags[1])) {
-    put_hcfa(40, 3, 3, substr($diags[1], 0, 3));
-    put_hcfa(40, 7, 2, substr($diags[1], 3));
-  }
-  if (!empty($diags[3])) {
-    put_hcfa(40, 30, 3, substr($diags[3], 0, 3));
-    put_hcfa(40, 34, 2, substr($diags[3], 3));
-  }
-
-  // Box 23. Prior Authorization Number
-  put_hcfa(40, 50, 28, $claim->priorAuth());
-
   $proccount = $claim->procCount(); // number of procedures
 
   // Charges, adjustments and payments are accumulated by line item so that
@@ -494,7 +539,15 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
     // 24e. Diagnosis Pointer
     $tmp = '';
-    foreach ($claim->diagIndexArray($hcfa_proc_index) as $value) $tmp .= $value;
+    foreach ($claim->diagIndexArray($hcfa_proc_index) as $value)
+    {
+        if(hcfa_1500_version_02_12())// For 02/12 Version convert number to letter.
+        {
+            // ASCII A is 65, since diagIndexArray is ones based, this will make 1->A, 2->B...
+            $value=chr($value+64);
+        }
+        $tmp .= $value;
+    }
     put_hcfa($lino, 45, 4, $tmp);
 
     // 24f. Charges
@@ -540,9 +593,12 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   // 30. Balance Due
   // For secondary payers this reflects primary "contracted rate" adjustments,
   // so in general box 30 will not equal box 28 minus box 29.
-  put_hcfa(56, 71, 8, str_replace('.',' ',sprintf('%8.2f',
-    $clm_total_charges - $clm_amount_paid - $clm_amount_adjusted)));
-
+  if(!hcfa_1500_version_02_12())  // Box 30 Reserved for NUCC Use in 02/12
+  {
+      put_hcfa(56, 71, 8, str_replace('.',' ',sprintf('%8.2f',
+        $clm_total_charges - $clm_amount_paid - $clm_amount_adjusted)));
+  }
+  
   // 33. Billing Provider: Phone Number
   $tmp = $claim->billingContactPhone();
   put_hcfa(57, 66,  3, substr($tmp,0,3));
@@ -564,7 +620,15 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   // FreeB printed the rendering provider's name and the current date here,
   // but according to my instructions it must be a real signature and date,
   // or else "Signature on File" or "SOF".
-  put_hcfa(60, 1, 20, 'Signature on File');
+
+   if($GLOBALS['cms_1500_box_31_format']==0)
+   {
+      put_hcfa(60, 1, 20, 'Signature on File');   
+   }
+   else if($GLOBALS['cms_1500_box_31_format']==1)
+   {
+      put_hcfa(60, 1, 22, $claim->providerFirstName()." ".$claim->providerLastName());   
+   }
   //
   // $tmp = $claim->providerFirstName();
   // if ($claim->providerMiddleName()) $tmp .= ' ' . substr($claim->providerMiddleName(),0,1);
@@ -580,6 +644,21 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(60, 50, 27, $tmp . $claim->billingFacilityState() . ' ' .
     $claim->billingFacilityZip());
 
+  // 31. Signature of Physician or Supplier: Date
+   if($GLOBALS['cms_1500_box_31_date']>0)
+   {
+       if($GLOBALS['cms_1500_box_31_date']==1)
+       {
+            $date_of_service= $claim->serviceDate();
+            $MDY=substr($date_of_service,4,2)." ".substr($date_of_service,6,2)." ".substr($date_of_service,2,2);
+       }
+       else if($GLOBALS['cms_1500_box_31_date']==2)
+       {
+           $MDY=date("m/d/y");
+       }
+       put_hcfa(61,6,10,$MDY);
+   }
+  
   // 32a. Service Facility NPI
   put_hcfa(61, 24, 10, $claim->facilityNPI());
 

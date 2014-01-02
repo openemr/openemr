@@ -127,3 +127,12 @@ CREATE TABLE `erx_ttl_touch` (
 ENGINE = InnoDB COMMENT = 'Store records last update per patient data process';
 #EndIf
 
+#IfMissingColumn form_misc_billing_options box_14_date_qual
+ALTER TABLE `form_misc_billing_options` 
+ADD COLUMN `box_14_date_qual` CHAR(3) NULL DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn form_misc_billing_options box_15_date_qual
+ALTER TABLE `form_misc_billing_options` 
+ADD COLUMN `box_15_date_qual` CHAR(3) NULL DEFAULT NULL;
+#EndIf
