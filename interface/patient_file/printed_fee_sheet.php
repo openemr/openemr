@@ -146,7 +146,7 @@ if (empty($SBCODES)) {
     $pres = sqlStatement("SELECT option_id, title FROM list_options " .
             "WHERE list_id = 'superbill' ORDER BY seq");
     while ($prow = sqlFetchArray($pres)) {
-        $SBCODES[] = '*G|' . $prow['title'];
+        $SBCODES[] = '*G|' . xl_list_label($prow['title']);
         $res = sqlStatement("SELECT code_type, code, code_text FROM codes " .
                 "WHERE superbill = '" . $prow['option_id'] . "' AND active = 1 " .
                 "ORDER BY code_text");

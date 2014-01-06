@@ -185,7 +185,7 @@ function show_date_fun(){
   <td class='text'>
    <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked><?php xl('Demographics','e'); ?><br>
    <?php if (acl_check('patients', 'med')): ?>
-   <input type='checkbox' name='include_history' id='include_history' value="history"><?php xl(' History','e'); ?><br>
+   <input type='checkbox' name='include_history' id='include_history' value="history"><?php xl('History','e'); ?><br>
    <?php endif; ?>
    <!--
    <input type='checkbox' name='include_employer' id='include_employer' value="employer"><?php xl('Employer','e'); ?><br>

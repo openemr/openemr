@@ -61,7 +61,7 @@ function grabfocus(w) {
 function dlgopen(url, winname, width, height) {
  if (top.modaldialog && ! top.modaldialog.closed) {
   if (window.focus) top.modaldialog.focus();
-  if (top.modaldialog.confirm("OK to close this other popup window?")) {
+  if (top.modaldialog.confirm(top.oemr_dialog_close_msg)) {
    top.modaldialog.close();
    top.modaldialog = null;
   } else {

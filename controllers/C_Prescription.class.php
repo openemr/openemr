@@ -35,7 +35,7 @@ class C_Prescription extends Controller {
 		if ($GLOBALS['inhouse_pharmacy']) {
 			// Make an array of drug IDs and selectors for the template.
 			$drug_array_values = array(0);
-			$drug_array_output = array("-- or select from inventory --");
+			$drug_array_output = array("-- " . xl('or select from inventory') ." --");
 			$drug_attributes = '';
 
 			// $res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
