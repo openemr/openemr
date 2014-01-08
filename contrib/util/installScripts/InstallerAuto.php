@@ -45,7 +45,7 @@
 //     no_root_db_access -> if set to anything, will use pre-created and pre-configured login/pass/dbname and
 //                             will disable cloning / migration since that generally requires root access to the db
 //     development_translations -> If set to anything, will then download and use the development set (updated daily)
-//                                   of translations from the github repository.
+//                                   of translations (indirectly) from the github repository.
 //
 //     Examples of use:
 //     1) Install using default configuration settings

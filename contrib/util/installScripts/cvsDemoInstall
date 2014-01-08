@@ -13,6 +13,10 @@
 # Logs errors.
 #
 
+# OPTIONS
+#flag for the isntance to serve as the developer translation set server
+translationServe=true
+
 # PATH VARIABLES
 WEB=/var/www/html
 OPENEMR=$WEB/openemr
@@ -21,6 +25,8 @@ CVS=/home/openemr/cvs
 GITMAIN=/home/openemr/git
 GIT=$GITMAIN/openemr
 TMPDIR=/tmp/openemr-tmp
+TRANSSERVEDIR=$WEB/translations
+GITTRANS=$GITMAIN/translations_development_openemr
 
 # PATH OF INSTALL SCRIPT
 INST=$OPENEMR/contrib/util/installScripts/InstallerAuto.php
@@ -66,6 +72,12 @@ if ! [ -d $GITMAIN ]; then
  mkdir -p $GITMAIN
  cd $GITMAIN
  git clone git://github.com/openemr/openemr.git
+ if $translationServe ; then
+  # download the translations git repo and place the set sql file for serving
+  git clone git://github.com/openemr/translations_development_openemr.git
+  mkdir -p $TRANSSERVEDIR
+  cp $GITTRANS/languageTranslations_utf8.sql $TRANSSERVEDIR/
+ fi
 else
  echo "The OpenEMR git repository already exist"
  echo "The OpenEMR git repository already exist" >> $LOG
