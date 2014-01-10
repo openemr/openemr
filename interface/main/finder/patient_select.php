@@ -29,6 +29,7 @@ $fake_register_globals=false;
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/options.inc.php");
 
 $fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] : 0;
 $popup  = empty($_REQUEST['popup']) ? 0 : 1;
@@ -285,7 +286,7 @@ else {
   // Alternate patient search results style; this gets address plus other
   // fields that are mandatory, up to a limit of 5.
   $extracols = array();
-  $tres = sqlStatement("SELECT field_id, title FROM layout_options " .
+  $tres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND ( uor > 1 AND field_id != '' " .
     "OR uor > 0 AND field_id = 'street' ) AND " .
     "field_id NOT LIKE '_name' AND " .
@@ -296,7 +297,7 @@ else {
     "field_id NOT LIKE 'pubpid' " .
     "ORDER BY group_name, seq LIMIT 5");
   while ($trow = sqlFetchArray($tres)) {
-    $extracols[$trow['field_id']] = $trow['title'];
+    $extracols[$trow['field_id']] = $trow;
     echo "<th class='srMisc'>" . htmlspecialchars(xl($trow['title']), ENT_NOQUOTES) . "</th>\n";
   }
 }
@@ -413,8 +414,11 @@ if ($result) {
         }
 
         else { // alternate search results style
-          foreach ($extracols as $field_id => $title) {
-            echo "<td class='srMisc'>" . htmlspecialchars( $iter[$field_id], ENT_NOQUOTES) . "</td>\n";
+          foreach ($extracols as $field_id => $frow) {
+            echo "<td class='srMisc'>";
+            echo generate_display_field($frow, $iter[$field_id]);
+
+            echo"</td>\n";
           }
         }
     }
