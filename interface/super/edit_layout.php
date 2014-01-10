@@ -481,10 +481,20 @@ function writeFieldLine($linedata) {
          htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' title='C = " . xl('Capitalize') .
-      ", D = " . xl('Dup Check') . ", G = " . xl('Graphable') .
-      ", N = " . xl('New Patient Form') . ", O = " . xl('Order Processor') .
-      ", T = " . xl('Description is default text') . ", V = " . xl('Vendor') . "'>";
+    echo "  <td align='center' class='optcell' title='" .
+        "C = " . xla('Capitalize') .
+        ", D = " . xla('Dup Check') .
+        ", G = " . xla('Graphable') .
+        ", H = " . xla('Read-only from History') .
+        ", L = " . xla('Lab Order') .
+        ", N = " . xla('New Patient Form') .
+        ", O = " . xla('Order Processor') .
+        ", R = " . xla('Distributor') .
+        ", T = " . xla('Description is default text') .
+        ", U = " . xla('Capitalize all') .
+        ", V = " . xla('Vendor') .
+        ", 1 = " . xla('Write Once') . 
+            "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
          htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' maxlength='36' class='optin' />";
     echo "</td>\n";
