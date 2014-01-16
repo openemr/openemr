@@ -24,18 +24,18 @@
  * @link    http://www.open-emr.org
  */
 
-$box_14_qualifier_options=array([xl("Onset of Current Symptoms or Illness"),"431"],
-                                            [xl("Last Menstrual Period"),"484"]);
+$box_14_qualifier_options=array(array(xl("Onset of Current Symptoms or Illness"),"431"),
+                                            array(xl("Last Menstrual Period"),"484"));
 
-$box_15_qualifier_options=array([xl("Initial Treatment"),"454"],
-                                           [xl("Latest Visit or Consultation"),"304"],
-                                           [xl("Acute Manifestation of a Chronic Condition"),"453"],
-                                           [xl("Accident"),"439"], 
-                                           [xl("Last X-ray"),"455"], 
-                                           [xl("Prescription"),"471"], 
-                                           [xl("Report Start (Assumed Care Date)"),"090"], 
-                                           [xl("Report End (Relinquished Care Date)"),"091"], 
-                                           [xl("First Visit or Consultation"),"444"] 
+$box_15_qualifier_options=array(array(xl("Initial Treatment"),"454"),
+                                           array(xl("Latest Visit or Consultation"),"304"),
+                                           array(xl("Acute Manifestation of a Chronic Condition"),"453"),
+                                           array(xl("Accident"),"439"), 
+                                           array(xl("Last X-ray"),"455"), 
+                                           array(xl("Prescription"),"471"), 
+                                           array(xl("Report Start (Assumed Care Date)"),"090"), 
+                                           array(xl("Report End (Relinquished Care Date)"),"091"), 
+                                           array(xl("First Visit or Consultation"),"444")
                                             );
 $hcfa_date_quals=array("box_14_date_qual"=>$box_14_qualifier_options,"box_15_date_qual"=>$box_15_qualifier_options);
 function qual_id_to_description($qual_type,$value)
