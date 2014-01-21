@@ -526,7 +526,7 @@ if ($taxline) {
 <?php
 foreach ($code_types as $key => $value) {
   echo "<option value='" . attr($value['id']) . "'";
-  if (in_array($value['id'],$filter)) echo " selected";
+  if (isset($filter) && in_array($value['id'],$filter)) echo " selected";
   echo ">" . xlt($value['label']) . "</option>\n";
 }
 ?>
