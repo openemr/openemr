@@ -97,16 +97,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   }
 <?php } ?>
 
-<?php if (false /* $GLOBALS['ippf_specific'] */) { // ippf decided not to do this ?>
-  if (f['issues[]'].selectedIndex < 0) {
-   if (!confirm('There is no issue selected. If this visit relates to ' +
-    'contraception or abortion, click Cancel now and then select or ' +
-    'create the appropriate issue. Otherwise you can click OK.'))
-   {
-    return;
-   }
-  }
-<?php } ?>
   top.restoreSession();
   f.submit();
  }
@@ -396,13 +386,34 @@ while ($irow = sqlFetchArray($ires)) {
 Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_form_date"});
 Calendar.setup({inputField:"form_onset_date", ifFormat:"%Y-%m-%d", button:"img_form_onset_date"});
 <?php
-if (!$viewmode) {
-  $erow = sqlQuery("SELECT count(*) AS count " .
+if (!$viewmode) { ?>
+ function duplicateVisit(enc, datestr) {
+    if (!confirm('<?php echo xl("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
+            // User pressed the cancel button, so re-direct to today's encounter
+            top.restoreSession();
+            parent.left_nav.setEncounter(datestr, enc, window.name);
+            parent.left_nav.setRadio(window.name, 'enc');
+            parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
+            return;
+        }
+        // otherwise just continue normally
+    }    
+<?php
+
+  // Search for an encounter from today
+  $erow = sqlQuery("SELECT fe.encounter, fe.date " .
     "FROM form_encounter AS fe, forms AS f WHERE " .
-    "fe.pid = ? AND fe.date = ? AND " .
-    "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0", array($pid,date('Y-m-d 00:00:00')));
-  if ($erow['count'] > 0) {
-    echo "alert('" . xls('Warning: A visit was already created for this patient today!') . "');\n";
+    "fe.pid = ? " . 
+    " AND fe.date >= ? " . 
+    " AND fe.date <= ? " .
+    " AND " .
+    "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .
+    "ORDER BY fe.encounter DESC LIMIT 1",array($pid,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
+
+  if (!empty($erow['encounter'])) {
+    // If there is an encounter from today then present the duplicate visit dialog
+    echo "duplicateVisit('" . $erow['encounter'] . "', '" .
+      oeFormatShortDate(substr($erow['date'], 0, 10)) . "');\n";
   }
 }
 ?>
