@@ -20,6 +20,7 @@ namespace ESign;
  * @package OpenEMR
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Medical Information Integration, LLC
+ * @author  Brady Miller <brady@sparmy.com>
  * @link    http://www.open-emr.org
  **/
 
@@ -55,17 +56,28 @@ class ESign
         return $this->_button->isViewable();
     }
     
-    public function isLogViewable()
+    /**
+     * Check if the log is viewable
+     * @param  string  $mode  Currently supports "default" and "report"
+     * @return boolean
+     */
+    public function isLogViewable($mode="default")
     {
         $viewable = false;
-        // If we have signatures, always show the log, otherwise
-        // check the log object
         if ( count( $this->_signable->getSignatures() ) > 0 ) {
+            // If we have signatures, always show the log.
             $viewable = true;
         } else {
-            $viewable = $this->_log->isViewable();
+            // If in report mode then hide the log if $_GLOBALS['esign_report_hide_empty_sig'] is true and there are no signatures
+            if ( ($mode=="report") && ($GLOBALS['esign_report_hide_empty_sig']) ) {
+                $viewable = false;
+            }
+            else {
+                // defer if viewable to the log object
+                $viewable = $this->_log->isViewable();
+            }
         }
-        
+
         return $viewable;
     }
     

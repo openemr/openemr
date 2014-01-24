@@ -17,6 +17,7 @@ use ESign\Api;
  *
  * @package OpenEMR
  * @author  Brady Miller <brady@sparmy.com>
+ * @author  Ken Chapple <ken@mi-squared.com>
  * @link    http://www.open-emr.org
  */
 
@@ -956,7 +957,7 @@ foreach ($ar as $key => $val) {
                   call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
                 
                 $esign = $esignApi->createFormESign( $formId, $res[1], $form_encounter );
-                if ( $esign->isLogViewable() ) {
+                if ( $esign->isLogViewable("report") ) {
                     $esign->renderLog();
                 }
                 ?>

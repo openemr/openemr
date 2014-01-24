@@ -715,14 +715,14 @@ $GLOBALS_METADATA = array(
     'esign_individual' => array(
       xl('Allows E-Signing Individual Forms'),
       'bool',                           // data type
-      '0',                              // default = false
+      '1',                              // default = false
       xl('This will enable signing individual forms separately')
     ),
 
     'lock_esign_individual' => array(
       xl('Lock an e-signed form individually'),
       'bool',                           // data type
-      '0',                              // default = false
+      '1',                              // default = false
       xl('This will disable the Edit button on any form that is e-signed')
     ),
             
@@ -731,6 +731,13 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',                              // default = false
       xl('This will give the user the option to lock (separate locking and signing)')
+    ),
+
+    'esign_report_hide_empty_sig' => array(
+      xl('Hide Empty E-Sign Logs On Report'),
+      'bool',                           // data type
+      '1',                              // default = false
+      xl('This will hide empty e-sign logs on the patient report')
     ),
 
   ),
