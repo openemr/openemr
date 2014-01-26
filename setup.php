@@ -54,7 +54,7 @@ if (!$COMMAND_LINE && !empty($_REQUEST['site'])) {
 
 // Die if site ID is empty or has invalid characters.
 if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id))
-  die("Site ID '$site_id' contains invalid characters.");
+  die("Site ID '".htmlspecialchars($site_id,ENT_NOQUOTES)."' contains invalid characters.");
 
 //If having problems with file and directory permission
 // checking, then can be manually disabled here.

@@ -14,7 +14,7 @@ else
     $site_id = 'default';
 
 if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id))
-    die("Site ID '$site_id' contains invalid characters.");
+    die("Site ID '".htmlspecialchars($site_id,ENT_NOQUOTES)."' contains invalid characters.");
 
 require_once "sites/$site_id/sqlconf.php";
 
