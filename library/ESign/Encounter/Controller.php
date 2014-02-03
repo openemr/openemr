@@ -80,11 +80,16 @@ class Encounter_Controller extends Abstract_Controller
         $status = self::STATUS_FAILURE;
         $password = $this->getRequest()->getParam( 'password', '' );
         $encounterId = $this->getRequest()->getParam( 'encounterId', '' );
-        // Always lock, unless esign_lock_toggle option is enable in globals
-        $lock = true;
-        if ( $GLOBALS['esign_lock_toggle'] ) {
-            $lock = ( $this->getRequest()->getParam( 'lock', '' ) == 'on' ) ? true : false;
+        // Lock if 'Lock e-signed encounters and their forms' option is set, 
+        // unless esign_lock_toggle option is enable in globals, then check the request param
+        $lock = false;
+        if ( $GLOBALS['lock_esign_all'] ) {
+            $lock = true;
+            if ( $GLOBALS['esign_lock_toggle'] ) {
+                $lock = ( $this->getRequest()->getParam( 'lock', '' ) == 'on' ) ? true : false;
+            }
         }
+            
         $amendment = $this->getRequest()->getParam( 'amendment', '' );
         if ( confirm_user_password( $_SESSION['authUser'], $password ) ) {
             $signable = new Encounter_Signable( $encounterId );
