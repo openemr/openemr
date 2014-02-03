@@ -636,7 +636,7 @@ function writeFieldLine($linedata) {
       echo "  <td align='center' class='optcell' style='width:24%'>";
       echo "<input type='text' name='fld[$fld_line_no][desc]' value='" .
         htmlspecialchars($linedata['description'], ENT_QUOTES) .
-        "' size='30' maxlength='63' class='optin' style='width:100%' />";
+        "' size='30' class='optin' style='width:100%' />";
       echo "<input type='hidden' name='fld[$fld_line_no][default]' value='" .
         htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' />";
       echo "</td>\n";
