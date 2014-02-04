@@ -111,7 +111,7 @@ function generate_form_field($frow, $currvalue) {
 
   $data_type   = $frow['data_type'];
   $field_id    = $frow['field_id'];
-  $list_id     = $frow['list_id'];
+  $list_id     = isset($frow['list_id']) ? $frow['list_id'] : '';
   // escaped variables to use in html
   $field_id_esc= htmlspecialchars( $field_id, ENT_QUOTES);
   $list_id_esc = htmlspecialchars( $list_id, ENT_QUOTES);
