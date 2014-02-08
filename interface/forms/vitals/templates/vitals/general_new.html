@@ -18,6 +18,59 @@ var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
 if (typeof jQuery == 'undefined') {
   document.write("<script type='text/javascript' src='{/literal}{php}echo $GLOBALS['webroot'];{/php}{literal}/library/js/jquery.js'><\/script>")
 }
+
+function vitalsFormSubmitted() {
+	var invalid = "";
+	
+	var elementsToValidate = new Array();
+	
+	elementsToValidate[0] = new Array();
+	elementsToValidate[0][0] = 'weight_input';
+	elementsToValidate[0][1] = 'Weight (lbs)';
+	
+	elementsToValidate[1] = new Array();
+	elementsToValidate[1][0] = 'weight_input_metric';
+	elementsToValidate[1][1] = 'Weight (kg)';
+	
+	elementsToValidate[2] = new Array();
+	elementsToValidate[2][0] = 'height_input';
+	elementsToValidate[2][1] = 'Height/Length (in)';
+	
+	elementsToValidate[3] = new Array();
+	elementsToValidate[3][0] = 'height_input_metric';
+	elementsToValidate[3][1] = 'Height/Length (cm)';
+
+	elementsToValidate[4] = new Array();
+	elementsToValidate[4][0] = 'bps_input';
+	elementsToValidate[4][1] = 'BP Systolic';
+	
+	elementsToValidate[5] = new Array();
+	elementsToValidate[5][0] = 'bpd_input';
+	elementsToValidate[5][1] = 'BP Diastolic';
+	
+	for (var i = 0; i < elementsToValidate.length; i++) {
+		var current_elem_id = elementsToValidate[i][0];
+		var tag_name = elementsToValidate[i][1];
+		
+		document.getElementById(current_elem_id).classList.remove('error');
+		
+		if (isNaN(document.getElementById(current_elem_id).value)) {
+			invalid += tag_name + " has an invalid value: " + document.getElementById(current_elem_id).value + "\n";
+			document.getElementById(current_elem_id).className = document.getElementById(current_elem_id).className + " error";
+			document.getElementById(current_elem_id).focus();
+		}
+	}
+	
+	if (invalid.length > 0) {
+		invalid += "\nPlease correct the value(s) before proceeding!"
+		alert(invalid);	
+		
+		return false;
+	} else {
+
+		return top.restoreSession();
+	}
+}
 </script>
 <style type="text/css" title="mystyles" media="all">
 .title {
@@ -57,13 +110,17 @@ td,th {
 .readonly {
     display:none;
 }
+
+.error {
+  border:2px solid red;
+}
 </style>
 {/literal}
 
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <p><table><tr><td><span class="title">{xl t="Vitals"}</span></td><td>&nbsp;&nbsp;&nbsp;<a href="../summary/demographics.php" class="readonly css_button_small" onclick="top.restoreSession()"> <span>{xl t="View Patient"}</span></a></td></tr></table></p>
-<form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return top.restoreSession()">
+<form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return vitalsFormSubmitted()">
 <div id="chart"></div>
 <table>
 	<tr><th align="left">{xl t="Name"}</th><th align="left">{xl t="Unit"}</th>
@@ -99,7 +156,7 @@ td,th {
         {/foreach}</tr>
 	
 	{if $units_of_measurement == 4}<tr class="hide">{else}<tr>{/if}
-	        {if $units_of_measurement == 2}<td class="unfocus graph" id="height">{else}<td class="graph" id="height">{/if}{xl t="Height"}</td>
+	        {if $units_of_measurement == 2}<td class="unfocus graph" id="height">{else}<td class="graph" id="height">{/if}{xl t="Height/Length"}</td>
 		{if $units_of_measurement == 2}<td class="unfocus">{else}<td>{/if}{xl t="in"}</td>
 		{if $units_of_measurement == 2}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' name='height' id='height_input' value="{if $vitals->get_height() != 0}{$vitals->get_height()}{/if}" onChange="convIntoCm('height_input');"/>
@@ -109,7 +166,7 @@ td,th {
 	{/foreach}</tr>
 	
 	{if $units_of_measurement == 3}<tr class="hide">{else}<tr>{/if}
-                {if $units_of_measurement == 1}<td class="unfocus graph" id="height_metric">{else}<td class="graph" id="height_metric">{/if}{xl t="Height"}</td>
+                {if $units_of_measurement == 1}<td class="unfocus graph" id="height_metric">{else}<td class="graph" id="height_metric">{/if}{xl t="Height/Length"}</td>
 		{if $units_of_measurement == 1}<td class="unfocus">{else}<td>{/if}{xl t="cm"}</td>
                 {if $units_of_measurement == 1}<td class="valuesunfocus">{else}<td class='currentvalues'>{/if}
                 <input type="text" size='5' id='height_input_metric' value="{if $vitals->get_height() != 0}{math equation="number * constant" number=$vitals->get_height() constant=2.54 format="%.2f"}{/if}" onChange="convCmtoIn('height_input');"/>
