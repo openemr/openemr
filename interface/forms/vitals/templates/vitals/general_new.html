@@ -26,27 +26,27 @@ function vitalsFormSubmitted() {
 	
 	elementsToValidate[0] = new Array();
 	elementsToValidate[0][0] = 'weight_input';
-	elementsToValidate[0][1] = 'Weight (lbs)';
+	elementsToValidate[0][1] = '{/literal}{xl t="Weight"}{literal}' + ' (' + '{/literal}{xl t="lbs"}{literal}' + ')';
 	
 	elementsToValidate[1] = new Array();
 	elementsToValidate[1][0] = 'weight_input_metric';
-	elementsToValidate[1][1] = 'Weight (kg)';
+	elementsToValidate[1][1] = '{/literal}{xl t="Weight"}{literal}' + ' (' + '{/literal}{xl t="kg"}{literal}' + ')';
 	
 	elementsToValidate[2] = new Array();
 	elementsToValidate[2][0] = 'height_input';
-	elementsToValidate[2][1] = 'Height/Length (in)';
+	elementsToValidate[2][1] = '{/literal}{xl t="Height/Length"}{literal}' + ' (' + '{/literal}{xl t="in"}{literal}' + ')';
 	
 	elementsToValidate[3] = new Array();
 	elementsToValidate[3][0] = 'height_input_metric';
-	elementsToValidate[3][1] = 'Height/Length (cm)';
+	elementsToValidate[3][1] = '{/literal}{xl t="Height/Length"}{literal}' + ' (' + '{/literal}{xl t="cm"}{literal}' + ')';
 
 	elementsToValidate[4] = new Array();
 	elementsToValidate[4][0] = 'bps_input';
-	elementsToValidate[4][1] = 'BP Systolic';
+	elementsToValidate[4][1] = '{/literal}{xl t="BP Systolic"}{literal}';
 	
 	elementsToValidate[5] = new Array();
 	elementsToValidate[5][0] = 'bpd_input';
-	elementsToValidate[5][1] = 'BP Diastolic';
+	elementsToValidate[5][1] = '{/literal}{xl t="BP Diastolic"}{literal}';
 	
 	for (var i = 0; i < elementsToValidate.length; i++) {
 		var current_elem_id = elementsToValidate[i][0];
@@ -55,14 +55,14 @@ function vitalsFormSubmitted() {
 		document.getElementById(current_elem_id).classList.remove('error');
 		
 		if (isNaN(document.getElementById(current_elem_id).value)) {
-			invalid += tag_name + " has an invalid value: " + document.getElementById(current_elem_id).value + "\n";
+			invalid += "{/literal}{xl t="The following field has an invalid value"}{literal}" + ": " + tag_name + "\n";
 			document.getElementById(current_elem_id).className = document.getElementById(current_elem_id).className + " error";
 			document.getElementById(current_elem_id).focus();
 		}
 	}
 	
 	if (invalid.length > 0) {
-		invalid += "\nPlease correct the value(s) before proceeding!"
+		invalid += "\n" + "{/literal}{xl t="Please correct the value(s) before proceeding!"}{literal}";
 		alert(invalid);	
 		
 		return false;
