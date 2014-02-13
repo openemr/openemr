@@ -130,11 +130,11 @@ function form_delete($formdir, $formid) {
 // Delete a specified document including its associated relations and file.
 //
 function delete_document($document) {
-  $trow = sqlQuery("SELECT url FROM documents WHERE id = '$document'");
+  $trow = sqlQuery("SELECT url FROM documents WHERE id = ?", array($document));
   $url = $trow['url'];
-  row_delete("categories_to_documents", "document_id = '$document'");
-  row_delete("documents", "id = '$document'");
-  row_delete("gprelations", "type1 = 1 AND id1 = '$document'");
+  row_delete("categories_to_documents", "document_id = '" . add_escape_custom($document) . "'");
+  row_delete("documents", "id = '" . add_escape_custom($document) . "'");
+  row_delete("gprelations", "type1 = 1 AND id1 = '" . add_escape_custom($document) . "'");
   if (substr($url, 0, 7) == 'file://') {
     @unlink(substr($url, 7));
   }
@@ -374,7 +374,7 @@ function popup_close() {
  }
 ?>
 
-<form method='post' name="deletefrm" action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo $document ?>&payment=<?php echo $payment ?>&billing=<?php echo $billing ?>&transaction=<?php echo $transaction ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
+<form method='post' name="deletefrm" action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo attr($document) ?>&payment=<?php echo $payment ?>&billing=<?php echo $billing ?>&transaction=<?php echo $transaction ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
 
 <p class="text">&nbsp;<br><?php xl('Do you really want to delete','e'); ?>
 
@@ -388,7 +388,7 @@ function popup_close() {
  } else if ($issue) {
   echo xl('issue') . " $issue";
  } else if ($document) {
-  echo xl('document') . " $document";
+  echo xl('document') . " " . text($document);
  } else if ($payment) {
   echo xl('payment') . " $payment";
  } else if ($billing) {
