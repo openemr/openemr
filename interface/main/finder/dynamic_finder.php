@@ -104,7 +104,7 @@ $(document).ready(function() {
  });
 
  // OnClick handler for the rows
- $('#pt_table tbody tr').live('click', function () {
+ $('#pt_table tbody').delegate('tr', 'click', function () {
   var newpid = this.id.substring(4);
   if (document.myform.form_new_window.checked) {
    openNewTopWindow(newpid);
