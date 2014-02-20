@@ -335,8 +335,8 @@ class C_Document extends Controller {
 		// Added by Rod to support document issue update:
 		$issues_options = "<option value='0'>-- " . xl('Select Issue') . " --</option>";
 		$ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
-			"pid = $patient_id " . // AND enddate IS NULL " .
-			"ORDER BY type, begdate");
+			"pid = ? " . // AND enddate IS NULL " .
+			"ORDER BY type, begdate", array($patient_id) );
 		while ($irow = sqlFetchArray($ires)) {
 			$desc = $irow['type'];
 			if ($ISSUE_TYPES[$desc]) $desc = $ISSUE_TYPES[$desc][2];
