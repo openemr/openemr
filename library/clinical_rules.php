@@ -1053,7 +1053,7 @@ function set_plan_activity_patient($plan,$type,$setting,$patient_id) {
   }
 
   // Update patient specific row
-  $query = "UPDATE `clinical_plans` SET `" . add_escape_custom($type) . "_flag`= ? WHERE id = ? AND pid = ?";
+  $query = "UPDATE `clinical_plans` SET `" . escape_sql_column_name($type."_flag",array("clinical_plans")) . "`= ? WHERE id = ? AND pid = ?";
   sqlStatementCdrEngine($query, array($setting,$plan,$patient_id) );
 
 }
