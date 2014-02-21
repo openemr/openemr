@@ -31,7 +31,7 @@ $iDisplayStart  = isset($_GET['iDisplayStart' ]) ? 0 + $_GET['iDisplayStart' ] :
 $iDisplayLength = isset($_GET['iDisplayLength']) ? 0 + $_GET['iDisplayLength'] : -1;
 $limit = '';
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-  $limit = "LIMIT $iDisplayStart, $iDisplayLength";
+  $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
 }
 
 // Column sorting parameters.
@@ -41,7 +41,7 @@ if (isset($_GET['iSortCol_0'])) {
 	for ($i = 0; $i < intval($_GET['iSortingCols']); ++$i) {
     $iSortCol = intval($_GET["iSortCol_$i"]);
 		if ($_GET["bSortable_$iSortCol"] == "true" ) {
-      $sSortDir = add_escape_custom($_GET["sSortDir_$i"]); // ASC or DESC
+      $sSortDir = escape_sort_order($_GET["sSortDir_$i"]); // ASC or DESC
       // We are to sort on column # $iSortCol in direction $sSortDir.
       $orderby .= $orderby ? ', ' : 'ORDER BY ';
       //
@@ -49,7 +49,7 @@ if (isset($_GET['iSortCol_0'])) {
         $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
       }
       else {
-        $orderby .= "`" . add_escape_custom($aColumns[$iSortCol]) . "` $sSortDir";
+        $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol],array('patient_data')) . "` $sSortDir";
       }
 		}
 	}
@@ -69,7 +69,7 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
         "mname LIKE '$sSearch%' ";
     }
     else {
-      $where .= "`" . add_escape_custom($colname) . "` LIKE '$sSearch%' ";
+      $where .= "`" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%' ";
     }
   }
   if ($where) $where .= ")";
@@ -89,7 +89,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
         "mname LIKE '$sSearch%' )";
     }
     else {
-      $where .= " `" . add_escape_custom($colname) . "` LIKE '$sSearch%'";
+      $where .= " `" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%'";
     }
   }
 }
@@ -105,7 +105,7 @@ foreach ($aColumns as $colname) {
     $sellist .= "lname, fname, mname";
   }
   else {
-    $sellist .= "`" . add_escape_custom($colname) . "`";
+    $sellist .= "`" . escape_sql_column_name($colname,array('patient_data')) . "`";
   }
 }
 
