@@ -160,7 +160,7 @@ use ESign\Api;
   acl_check('admin', 'database') || acl_check('admin', 'forms') ||
   acl_check('admin', 'practice') || acl_check('admin', 'users') ||
   acl_check('admin', 'acl')      || acl_check('admin', 'super') ||
-  acl_check('admin', 'superbill'));
+  acl_check('admin', 'superbill') || acl_check('admin', 'drugs'));
 
  $disallowed['bil'] = !(acl_check('acct', 'rep') || acl_check('acct', 'eob') ||
   acl_check('acct', 'bill'));
