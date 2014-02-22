@@ -711,7 +711,7 @@ foreach ($providers as $provider) {
   
           // output the DIV and content
           // For "OUT" events, applying the background color in CSS.
-          $background_string= ($event['catid'] == 3) ? "" : "; background-color:".$event["catcolor"];
+          $background_string= ($event['catid'] == 3) ? "" : "; background-color:".$color;
           echo "<div class='".$evtClass." event' style='top:".$evtTop."; height:".$evtHeight.
               $background_string.
               "; $divWidth".
