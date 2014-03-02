@@ -328,8 +328,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(32, 5, 2, substr($tmp,6,2));
   put_hcfa(32, 8, 4, substr($tmp,0,4));
   
-  if(hcfa_1500_version_02_12())
+  if(hcfa_1500_version_02_12() && !empty($tmp))
   {
+    // Only include the Box 14 qualifier if there we are using version 02/12 and there is a Box 14 date.
     put_hcfa(32, 16, 3, $claim->box14qualifier());
       
   }
@@ -337,6 +338,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   $tmp = $claim->dateInitialTreatment();
   if(hcfa_1500_version_02_12() && !empty($tmp))
   {
+    // Only include the Box 15 qualifier if there we are using version 02/12 and there is a Box 15 date.
     put_hcfa(32, 31, 3, $claim->box15qualifier());    
   }
 
