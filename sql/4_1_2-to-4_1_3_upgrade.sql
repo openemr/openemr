@@ -154,3 +154,9 @@ CREATE TABLE `esign_signatures` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 #EndIf
 
+#IfMissingColumn layout_options list_backup_id
+ALTER TABLE `layout_options` ADD COLUMN `list_backup_id` VARCHAR(31) NOT NULL DEFAULT '';
+UPDATE `layout_options` SET `list_backup_id` = 'ethrace' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'ethnicity';
+UPDATE `layout_options` SET `list_backup_id` = 'ethrace' WHERE `layout_options`.`form_id` = 'DEM' AND `layout_options`.`field_id` = 'race';
+#EndIf
+
