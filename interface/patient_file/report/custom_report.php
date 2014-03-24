@@ -141,6 +141,11 @@ function postToGet($arin) {
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js"></script>
 <script type="text/javascript">var $j = jQuery.noConflict();</script>
 
+<?php // if the track_anything form exists, then include the styling
+if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
+ <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css">
+<?php  } ?>
+
 <script type="text/javascript">
 
   // Code for search & Highlight

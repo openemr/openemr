@@ -135,6 +135,8 @@ use ESign\Api;
   'doc' => array(xl('Documents') , 1, '../controller.php?document&list&patient_id={PID}'),
   'orp' => array(xl('Proc Pending Rev'), 1, 'orders/orders_results.php?review=1'),
   'orr' => array(xl('Proc Res')  , 1, 'orders/orders_results.php'),
+  'lda' => array(xl('Lab overview')  , 1, 'patient_file/summary/labdata.php'),
+  'tan' => array(xl('Configure Tracks')  , 0, 'forms/track_anything/create.php'),
   'prp' => array(xl('Pt Report') , 1, 'patient_file/report/patient_report.php'),
   'prq' => array(xl('Pt Rec Request') , 1, 'patient_file/transaction/record_request.php'),
   'pno' => array(xl('Pt Notes')  , 1, 'patient_file/summary/pnotes.php'),
@@ -1275,6 +1277,7 @@ if (!empty($reg)) {
       <?php genTreeLink('RTop','orc',xl('Load Compendium')); ?>
       <?php genTreeLink('RTop','orp',xl('Pending Review')); ?>
       <?php genTreeLink('RTop','orr',xl('Patient Results')); ?>
+      <?php genTreeLink('RTop','lda',xl('Lab Overview')); ?>
       <?php genTreeLink('RTop','orb',xl('Batch Results')); ?>
       <?php genTreeLink('RTop','ore',xl('Electronic Reports')); ?>
     </ul>
@@ -1460,6 +1463,8 @@ if (!empty($reg)) {
       <?php if (!$GLOBALS['disable_chart_tracker']) genTreeLink('RTop','cht',xl('Chart Tracker')); ?>
       <?php genTreeLink('RTop','ono',xl('Ofc Notes')); ?>
       <?php genMiscLink('RTop','adm','0',xl('BatchCom'),'batchcom/batchcom.php'); ?>
+      <?php $myrow = sqlQuery("SELECT state FROM registry WHERE directory = 'track_anything'");
+      if($myrow['state']=='1') { genTreeLink('RTop','tan',xl('Configure Tracks')); } ?>
       <?php genTreeLink('RTop','pwd',xl('Password')); ?>
       <?php genMiscLink('RTop','prf','0',xl('Preferences'),'super/edit_globals.php?mode=user'); ?>
       <?php if(acl_check('patients','docs')) genMiscLink('RTop','adm','0',xl('New Documents'),'../controller.php?document&list&patient_id=00'); ?>
