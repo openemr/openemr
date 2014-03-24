@@ -36,10 +36,10 @@ if (empty($is_lbf) && !$encounter) {
 function end_cell() {
   global $item_count, $cell_count, $historical_ids;
   if ($item_count > 0) {
-    echo "</td>";
+    echo "&nbsp;</td>";
 
     foreach ($historical_ids as $key => $dummy) {
-      $historical_ids[$key] .= "</td>";
+      $historical_ids[$key] .= "&nbsp;</td>";
     }
 
     $item_count = 0;
@@ -88,6 +88,11 @@ $formhistory = 0 + $tmp['option_value'];
 
 $newid = 0;
 
+if (empty($is_lbf)) {
+  $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
+  if (file_exists($fname)) include_once($fname);
+}
+
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
@@ -129,11 +134,12 @@ if ($_POST['bn_save']) {
       // Note that a completely empty form will not be created at all!
     }
   }
+  
 
   if (!$formid && $newid) {
     addForm($encounter, $formtitle, $newid, $formname, $pid, $userauthorized);
   }
-
+  
   if ($portalid) {
     // Delete the request from the portal.
     $result = cms_portal_call(array('action' => 'delpost', 'postid' => $portalid));
@@ -142,16 +148,16 @@ if ($_POST['bn_save']) {
     }
   }
 
+  // Support custom behavior at save time, such as going to another form.
+  if (function_exists($formname . '_save_exit')) {
+    if (call_user_func($formname . '_save_exit')) exit;
+  }
   formHeader("Redirecting....");
   formJump();
   formFooter();
   exit;
 }
 
-if (empty($is_lbf)) {
-  $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
-  if (file_exists($fname)) include_once($fname);
-}
 ?>
 <html>
 <head>
@@ -229,19 +235,33 @@ function set_related(codetype, code, selector, codedesc) {
  var frc = document.getElementById('form_related_code');
  var s = frc.value;
  if (code) {
+  if (codetype != 'PROD') {
+   if (s.indexOf(codetype + ':') == 0 || s.indexOf(';' + codetype + ':') > 0) {
+    return '<?php echo xl('A code of this type is already selected. Erase the field first if you need to replace it.') ?>';
+   }
+  }     
   if (s.length > 0) s += ';';
   s += codetype + ':' + code;
  } else {
   s = '';
  }
  frc.value = s;
+ return '';
 }
 
 // This invokes the find-code popup.
-function sel_related() {
- dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php', '_blank', 500, 400);
+function sel_related(elem, codetype) {
+ var url = '<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php';
+ if (codetype) url += '?codetype=' + codetype;
+ dlgopen(url, '_blank', 500, 400);
 }
 
+// Validation logic for form submission.
+function validate(f) {
+<?php generate_layout_validation($formname); ?>
+ top.restoreSession();
+ return true;
+}
 <?php if (function_exists($formname . '_javascript')) call_user_func($formname . '_javascript'); ?>
 
 </script>
@@ -252,7 +272,7 @@ function sel_related() {
 <?php
   echo "<form method='post' " .
        "action='$rootdir/forms/LBF/new.php?formname=$formname&id=$formid&portalid=$portalid' " .
-       "onsubmit='return top.restoreSession()'>\n";
+       "onsubmit='return validate(this)'>\n";
 
   $cmsportal_login = '';
   $portalres = FALSE;
@@ -266,7 +286,7 @@ function sel_related() {
     echo "<p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>\n";
     echo text($formtitle) . " " . xlt('for') . ' ';
     echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
-    echo ' ' . xlt('on') . ' ' . text(substr($enrow['date'], 0, 10));
+    echo ' ' . xlt('on') . ' ' . text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
     echo "</p>\n";
     $cmsportal_login = $enrow['cmsportal_login'];
   }
@@ -364,7 +384,7 @@ function sel_related() {
         echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
       }
       // echo " <table border='0' cellpadding='0' width='100%'>\n";
-      echo " <table border='0' cellpadding='0' width='100%'>\n";
+      echo " <table border='0' cellspacing='0' cellpadding='0'>\n";
       $display_style = 'none';
 
       // Initialize historical data array and write date headers.
@@ -372,8 +392,12 @@ function sel_related() {
       if ($formhistory > 0) {
         echo " <tr>";
         echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>";
-        if (empty($is_lbf)) echo xlt('Current');
-        echo "</td>\n";
+        if (empty($is_lbf)){
+            // Including actual date per IPPF request 2012-08-23.
+            echo oeFormatShortDate(substr($enrow['date'], 0, 10));
+            echo ' (' . htmlspecialchars(xl('Current')) . ')';
+        }
+        echo "&nbsp;</td>\n";        
         $hres = sqlStatement("SELECT f.form_id, fe.date " .
           "FROM forms AS f, form_encounter AS fe WHERE " .
           "f.pid = ? AND f.formdir = ? AND " .
@@ -386,9 +410,15 @@ function sel_related() {
         // We sort these sensibly, however only the encounter date is shown here;
         // at some point we may wish to show also the data entry date/time.
         while ($hrow = sqlFetchArray($hres)) {
+
+          echo "<td colspan='".attr($CPR)."' align='right' class='bold' style='";            
+          echo "border-top:1px solid black;";
+          echo "border-right:1px solid black;";
+          echo "border-bottom:1px solid black;";
+          if (empty($historical_ids)) { echo "border-left:1px solid black;"; }
+          echo "'>" .
+            oeFormatShortDate(substr($hrow['date'], 0, 10)) . "&nbsp;</td>\n";            
           $historical_ids[$hrow['form_id']] = '';
-          echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>&nbsp;" .
-            text(oeFormatShortDate(substr($hrow['date'], 0, 10))) . "</td>\n";
         }
         echo " </tr>";
       }
@@ -407,10 +437,13 @@ function sel_related() {
 
     if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
 
+    // First item is on the "left-border"
+    $leftborder = true;
+    
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
       end_cell();
-      echo "<td valign='top' colspan='" . attr($titlecols) . "' width='1%' nowrap";
+      echo "<td valign='top' colspan='" . attr($titlecols) . "' nowrap";
       echo " class='";
       echo ($frow['uor'] == 2) ? "required" : "bold";
       if ($graphable) echo " graph";
@@ -420,7 +453,13 @@ function sel_related() {
       echo ">";
 
       foreach ($historical_ids as $key => $dummy) {
-        $historical_ids[$key] .= "<td valign='top' colspan='" . attr($titlecols) . "' class='text' nowrap>";
+        $historical_ids[$key] .= "<td valign='top' colspan='" . attr($titlecols) . "' class='text' style='";
+        $historical_ids[$key] .= "border-bottom:1px solid black;";
+        if ($leftborder) $historical_ids[$key] .= "border-left:1px solid black;";
+        if (!$datacols ) $historical_ids[$key] .= "border-right:1px solid black;";
+        $historical_ids[$key] .= "' nowrap>";
+        $leftborder = false;        
+        
       }
 
       $cell_count += $titlecols;
@@ -441,8 +480,13 @@ function sel_related() {
       echo ">";
 
       foreach ($historical_ids as $key => $dummy) {
-        $historical_ids[$key] .= "<td valign='top' align='right' colspan='" . attr($datacols) . "' class='text'>";
-      }
+        $historical_ids[$key] .= "<td valign='top' align='right' colspan='" . attr($datacols) . "' class='text' style='";
+        $historical_ids[$key] .= "border-bottom:1px solid black;";
+        $historical_ids[$key] .= "border-right:1px solid black;";
+        if ($leftborder) $historical_ids[$key] .= "border-left:1px solid black;";
+        $historical_ids[$key] .= "'>";
+        $leftborder = false;
+        }
 
       $cell_count += $datacols;
     }
@@ -473,6 +517,12 @@ function sel_related() {
 <p style='text-align:center'>
 <?php if (empty($is_lbf)) { ?>
 <input type='submit' name='bn_save' value='<?php echo xla('Save') ?>' />
+<?php
+if (function_exists($formname . '_additional_buttons')) {
+  // Allow the plug-in to insert more action buttons here.
+  call_user_func($formname . '_additional_buttons');
+}
+?>
 &nbsp;
 <input type='button' value='<?php echo xla('Cancel') ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 &nbsp;
