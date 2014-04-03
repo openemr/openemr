@@ -72,9 +72,14 @@ function convertToDataArray($data_array) {
                         $data[$current][xl('Amount') . "\n" . xl('Admin')] = "";
                 }
 		
-		//expiration date
+		//expiration date fixed by checking for empty value, smw 040214
+		if (isset($row['expiration_date'])) {
 		$temp_date = new DateTime($row['expiration_date']);
 		$data[$current][xl('Expiration') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');
+		}
+		else{
+		$data[$current][xl('Expiration') . "\n" . xl('Date')] = '';//$temp_date->format('Y-m-d');
+		}
 		
 		//Manufacturer
 		$data[$current][xl('Manufacturer')] = $row['manufacturer'];
