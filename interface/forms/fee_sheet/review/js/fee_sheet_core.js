@@ -1,7 +1,7 @@
 /**
  * Core javascript functions for the fee sheet review features
  * 
- * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * Copyright (C) 2013-2014 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,15 +16,9 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Rod Roark <rod@sunsetsystems.com>
  * @link    http://www.open-emr.org
  */
-
-function save_fee_form(callback)
-{
-    top.restoreSession();
-    var form_data=$("form").serialize()+"&bn_save='Save'";
-    $.post(fee_sheet_new,form_data,callback);
-}
 
 function refresh_codes()
 {
@@ -81,35 +75,37 @@ function update_display_table(data)
     return rc;
 }
 
-// This function is used force an immediate save when choosing codes
+// This function is used to force an immediate save when choosing codes.
 function codeselect_and_save(selobj)
 {
- var i = selobj.selectedIndex;
- if (i > 0) {
-    top.restoreSession();
+  var i = selobj.selectedIndex;
+  if (i > 0) {
     var f = document.forms[0];
     f.newcodes.value = selobj.options[i].value;
-    top.restoreSession();
-
     // Submit the newly selected code.
+    top.restoreSession();
     var form_data=$("form").serialize();
     $.post(fee_sheet_new,form_data,
-        function(data)
-        {
-            // "data" here is the complete newly generated fee sheet HTML.
-            f.newcodes.value="";
-            // Clear the selection
-            $(selobj).find("option:selected").prop("selected",false);
-
-            // We do a refresh and then update because update does not recreate
-            // the latest fee sheet HTML for us.
-            if (update_display_table(data)) {
-                // Note the update is skipped if refresh returned an error.
-                save_fee_form(refresh_codes);
+      function(data) {
+        // "data" here is the complete newly generated fee sheet HTML.
+        f.newcodes.value = "";
+        // Clear the selection
+        $(selobj).find("option:selected").prop("selected",false);
+        // We do a refresh and then save because refresh does not save the new line item.
+        // Note the save is skipped if refresh returned an error.
+        if (update_display_table(data)) {
+          // Save the newly selected code. Parameter running_as_ajax tells new.php
+          // to regenerate the form, including its checksum, after saving.
+          var form_data = $("form").serialize() + "&bn_save=Save&running_as_ajax=1";
+          $.post(fee_sheet_new, form_data,
+            function(data) {
+              update_display_table(data);
             }
+          ); 
         }
+      }
     ); 
- }
+  }
 }
 
 function parse_row_justify(row)

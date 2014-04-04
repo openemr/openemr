@@ -642,10 +642,22 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
   // also posts to SL).  Currently taxes with insurance claims make no sense,
   // so for now we'll ignore tax computation in the insurance billing logic.
 
-  formHeader("Redirecting....");
-  formJump();
-  formFooter();
-  exit;
+  if ($_POST['running_as_ajax']) {
+    // In the case of running as an AJAX handler, we need to return this same
+    // form with an updated checksum to properly support the invoking logic.
+    // See review/js/fee_sheet_core.js for that logic.
+    $current_checksum = visitChecksum($pid, $encounter);
+    // Also remove form data for the newly entered lines so they are not
+    // duplicated from the database.
+    unset($_POST['bill']);
+    unset($_POST['prod']);
+  }
+  else {
+    formHeader("Redirecting....");
+    formJump();
+    formFooter();
+    exit;
+  }
 }
 
 $billresult = getBillingByEncounter($pid, $encounter, "*");
