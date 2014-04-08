@@ -17,6 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
+ * ICPC-2: Norwegian Centre for Informatics in Health and Social Care. 
+ * File in ZIP: http://www.kith.no/upload/1785/ICPC_2e_v430.zip 
+ *
  * @package OpenEMR
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author  Rohit Kumar <pandit.rohit@netsity.com>
@@ -60,8 +63,8 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 <script>
 
 // placemaker for when support DSMIV
-// var db_list = [ "DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED"];
-var db_list = [ "ICD9", "ICD10", "RXNORM", "SNOMED"];
+// var db_list = [ "DSMIV", "ICD9", "ICD10", "ICPC2","RXNORM", "SNOMED"];
+var db_list = [ "ICD9", "ICD10", "ICPC-2", "RXNORM", "SNOMED"];
 var accOpts = {
     header: "h3", 
     autoHeight: false,
@@ -269,8 +272,8 @@ div.tooltip p {
 // setup the divs for each supported external dataload
 //
 // placemaker for when support DSMIV
-//$db_list = array("DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED");
-$db_list = array("ICD9", "ICD10", "RXNORM", "SNOMED");
+//$db_list = array("DSMIV", "ICD9", "ICD10", "ICPC-2", "RXNORM", "SNOMED");
+$db_list = array("ICD9", "ICD10", "ICPC-2", "RXNORM", "SNOMED");
 foreach ($db_list as $db) {
     ?>
     <h3><a href="#"><?php echo attr($db); ?></a></h3>

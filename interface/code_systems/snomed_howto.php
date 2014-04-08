@@ -41,5 +41,8 @@ require_once("../../interface/globals.php");
 </li>
 </ol>
 <h5 class="error_msg"><?php echo xlt("NOTE: Only the Biannual International Snomed Release is currently supported"); ?></h5>
+<h5 class="error_msg"><?php echo xlt("The following International Snomed Release languages are supported"); ?>: <?php echo xlt("English"); ?>, <?php echo xlt("Spanish"); ?></h5>
+<h5 class="error_msg"><?php echo "(" . xlt("Additionally, the corresponding US Snomed Extension Package can be imported separately after installing the International (English version) Snomed Release") . ")"; ?></h5>
+<h5 class="error_msg"><?php echo xlt("WARNING: If you are using the 2012-10-31 Spanish version, then note you need to unzip it once before placing it in the contrib/snomed (this is because the released file was \"double-zipped\")."); ?></h5>
 </p>
 </div>

@@ -21,6 +21,7 @@
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author  Rohit Kumar <pandit.rohit@netsity.com>
  * @author  Brady Miller <brady@sparmy.com>
+ * @author Pimm Blankevoort <PimmBlankevoort@hotmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -76,10 +77,19 @@ if ($db == 'RXNORM') {
         exit;
     }
 } else if ( $db == 'SNOMED') {
-    if (!snomed_import()) {
-        echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
-        temp_dir_cleanup($db);
-        exit;
+    if ($version == "US Extension") {
+        if (!snomed_import(TRUE)) {
+            echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+            temp_dir_cleanup($db);
+            exit;
+         }
+    }
+    else { //$version is not "US Extension"
+        if (!snomed_import(FALSE)) {
+            echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+            temp_dir_cleanup($db);
+            exit;
+         }
     }
 }
 else { //$db == 'ICD'
@@ -89,6 +99,17 @@ else { //$db == 'ICD'
         exit;
     }
 }
+
+
+else { //$db == 'ICPC-2'
+    if (!icp_import($db)) {
+        echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+        temp_dir_cleanup($db);
+        exit;
+    }
+}
+
+
 
 // set the revision version in the database
 if (!update_tracker_table($db, $file_revision_date, $version, $file_checksum)) {
