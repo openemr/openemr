@@ -161,7 +161,7 @@ class C_Document extends Controller {
                 }
                 $upload_plugin_pp = 'documentUploadPostProcess';
                 if (function_exists($upload_plugin_pp)) {
-                  $tmp = call_user_func($upload_plugin_pp, $value, &$d);
+                  $tmp = call_user_func($upload_plugin_pp, $value, $d);
                   if ($tmp) {
                     $error = $tmp;
                   }
