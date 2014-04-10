@@ -191,7 +191,8 @@ $fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
 
 // Get mime type in a way that works with old and new PHP releases.
 $mimetype = 'application/octet-stream';
-if (substr($templatepath, -5) == '.dotx') {
+$ext = strtolower(array_pop(explode('.', $filename)));
+if ('dotx' == $ext) {
   // PHP does not seem to recognize this type.
   $mimetype = 'application/msword';
 }
@@ -200,8 +201,23 @@ else if (function_exists('finfo_open')) {
   $mimetype = finfo_file($finfo, $templatepath);
   finfo_close($finfo);
 }
-else {
+else if (function_exists('mime_content_type')) {
   $mimetype = mime_content_type($templatepath);
+}
+else {
+  if ('doc'  == $ext) $mimetype = 'application/msword'                             ; else
+  if ('dot'  == $ext) $mimetype = 'application/msword'                             ; else
+  if ('htm'  == $ext) $mimetype = 'text/html'                                      ; else
+  if ('html' == $ext) $mimetype = 'text/html'                                      ; else
+  if ('odt'  == $ext) $mimetype = 'application/vnd.oasis.opendocument.text'        ; else
+  if ('ods'  == $ext) $mimetype = 'application/vnd.oasis.opendocument.spreadsheet' ; else
+  if ('ott'  == $ext) $mimetype = 'application/vnd.oasis.opendocument.text'        ; else
+  if ('pdf'  == $ext) $mimetype = 'application/pdf'                                ; else
+  if ('ppt'  == $ext) $mimetype = 'application/vnd.ms-powerpoint'                  ; else
+  if ('ps'   == $ext) $mimetype = 'application/postscript'                         ; else
+  if ('rtf'  == $ext) $mimetype = 'application/rtf'                                ; else
+  if ('txt'  == $ext) $mimetype = 'text/plain'                                     ; else
+  if ('xls'  == $ext) $mimetype = 'application/vnd.ms-excel'                       ;
 }
 
 $zipin = new ZipArchive;
