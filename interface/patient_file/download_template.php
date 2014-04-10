@@ -67,27 +67,27 @@ function doSubs($s) {
         if ($tmp) $tmp .= ' ';
         $tmp .= $ptrow['lname'];
       }
-      $s = keyReplace(&$s, $tmp);
+      $s = keyReplace($s, $tmp);
     }
 
     else if (keySearch($s, '{PatientID}')) {
-      $s = keyReplace(&$s, $ptrow['pubpid']);
+      $s = keyReplace($s, $ptrow['pubpid']);
     }
 
     else if (keySearch($s, '{Address}')) {
-      $s = keyReplace(&$s, $ptrow['street']);
+      $s = keyReplace($s, $ptrow['street']);
     }
 
     else if (keySearch($s, '{City}')) {
-      $s = keyReplace(&$s, $ptrow['city']);
+      $s = keyReplace($s, $ptrow['city']);
     }
 
     else if (keySearch($s, '{State}')) {
-      $s = keyReplace(&$s, getListItemTitle('state', $ptrow['state']));
+      $s = keyReplace($s, getListItemTitle('state', $ptrow['state']));
     }
 
     else if (keySearch($s, '{Zip}')) {
-      $s = keyReplace(&$s, $ptrow['postal_code']);
+      $s = keyReplace($s, $ptrow['postal_code']);
     }
 
     else if (keySearch($s, '{PatientPhone}')) {
@@ -98,19 +98,19 @@ function doSubs($s) {
       if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp)) {
         $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
       }
-      $s = keyReplace(&$s, $ptphone);
+      $s = keyReplace($s, $ptphone);
     }
 
     else if (keySearch($s, '{PatientDOB}')) {
-      $s = keyReplace(&$s, oeFormatShortDate($ptrow['DOB']));
+      $s = keyReplace($s, oeFormatShortDate($ptrow['DOB']));
     }
 
     else if (keySearch($s, '{PatientSex}')) {
-      $s = keyReplace(&$s, getListItemTitle('sex', $ptrow['sex']));
+      $s = keyReplace($s, getListItemTitle('sex', $ptrow['sex']));
     }
 
     else if (keySearch($s, '{DOS}')) {
-      $s = keyReplace(&$s, oeFormatShortDate(substr($enrow['date'], 0, 10)));
+      $s = keyReplace($s, oeFormatShortDate(substr($enrow['date'], 0, 10)));
     }
 
     else if (keySearch($s, '{ChiefComplaint}')) {
@@ -124,7 +124,7 @@ function doSubs($s) {
           $cc = $tmp['pc_hometext'];
         }
       }
-      $s = keyReplace(&$s, $cc);
+      $s = keyReplace($s, $cc);
     }
 
     else if (keySearch($s, '{ReferringDOC}')) {
@@ -137,12 +137,12 @@ function doSubs($s) {
         if ($tmp) $tmp .= ' ';
         $tmp .= $ptrow['ur_lname'];
       }
-      $s = keyReplace(&$s, $tmp);
+      $s = keyReplace($s, $tmp);
     }
 
     else if (keySearch($s, '{Allergies}')) {
       $tmp = generate_plaintext_field(array('data_type'=>'24','list_id'=>''), '');
-      $s = keyReplace(&$s, $tmp);
+      $s = keyReplace($s, $tmp);
     }
 
     else if (keySearch($s, '{ProblemList}')) {
@@ -156,7 +156,7 @@ function doSubs($s) {
         if ($count++) $tmp .= "; ";
         $tmp .= $lrow['title'];
       }
-      $s = keyReplace(&$s, $tmp);
+      $s = keyReplace($s, $tmp);
     }
 
     else {
