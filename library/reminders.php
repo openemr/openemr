@@ -449,9 +449,10 @@ function fetch_reminders($patient_id='',$type='',$due_status='',$select='*') {
 
   if (!empty($patient_id)) {
     // check the specified pid(s)
-    $where = "`pid` IN (".add_escape_custom($patient_id).") AND ";
+    $where = "`pid` IN (?) AND ";
+    array_push($arraySqlBind,$patient_id);
   }
-
+    
   if (!empty($due_status)) {
     $where .= "`due_status`=? AND ";
     array_push($arraySqlBind,$due_status);
