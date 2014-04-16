@@ -517,6 +517,7 @@ function writeFieldLine($linedata) {
         ", U = " . xla('Capitalize all') .
         ", V = " . xla('Vendor') .
         ", 1 = " . xla('Write Once') . 
+        ", 2 = " . xla('Billing Code Descriptions') . 
             "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
          htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' maxlength='36' class='optin' />";
