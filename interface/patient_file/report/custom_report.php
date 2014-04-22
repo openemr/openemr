@@ -18,6 +18,7 @@ use ESign\Api;
  * @package OpenEMR
  * @author  Brady Miller <brady@sparmy.com>
  * @author  Ken Chapple <ken@mi-squared.com>
+ * @author  Tony McCormick <tony@mi-squared.com>
  * @link    http://www.open-emr.org
  */
 
@@ -45,7 +46,12 @@ $PDF_OUTPUT = empty($_POST['pdf']) ? false : true;
 
 if ($PDF_OUTPUT) {
   require_once("$srcdir/html2pdf/html2pdf.class.php");
-  $pdf = new HTML2PDF('P', 'Letter', 'en');
+  // $pdf = new HTML2PDF('P', 'Letter', 'en', array(5, 5, 5, 5) );  // add a little margin 5cm all around TODO: add to globals 
+  $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
+                       $GLOBALS['pdf_size'],
+                       $GLOBALS['pdf_language'],
+                       array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin'])
+          ); 
   ob_start();
 }
 
@@ -61,7 +67,7 @@ $auth_demo     = acl_check('patients'  , 'demo');
 $esignApi = new Api();
 
 $printable = empty($_GET['printable']) ? false : true;
-if ($PDF_OUTPUT) $printable = true;
+if ($PDF_OUTPUT) { $printable = true; }
 unset($_GET['printable']);
 
 // Number of columns in tables for insurance and encounter forms.
@@ -469,10 +475,17 @@ if ($printable) {
   if (!$results->EOF) {
     $facility = $results->fields;
   }
-  $practice_logo = "../../../custom/practice_logo.gif";
-  if (file_exists($practice_logo)) {
-    echo "<img src='$practice_logo' align='left'>\n";
-  }
+  // Setup Headers and Footers for html2PDF only Download
+  // in HTML view it's just one line at the top of page 1
+  echo '<page_header> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
+  echo '<page_footer>' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+
+  // Use logo if it exists as 'practice_logo.gif' in the site dir
+  // old code used the global custom dir which is no longer a valid
+   $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+   if (file_exists($practice_logo)) {
+        echo "<img src='$practice_logo' align='left'><br />\n";
+     } 
 ?>
 <h2><?php echo $facility['name'] ?></h2>
 <?php echo $facility['street'] ?><br>
@@ -1008,7 +1021,7 @@ if ($PDF_OUTPUT) {
   $content = getContent();
   // $pdf->setDefaultFont('Arial');
   $pdf->writeHTML($content, false);
-  $pdf->Output('report.pdf', 'D'); // D = Download, I = Inline
+  $pdf->Output('report.pdf', $GLOBALS['pdf_output']); // D = Download, I = Inline
 }
 else {
 ?>
