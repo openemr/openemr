@@ -5,7 +5,7 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2011
+# Copyright 2011-2014
 # authors: Brady Miller <brady@sparmy.com>
 #          Amalu Obinna <amaluobinna@aol.com>
 #
@@ -257,6 +257,10 @@ case "$1" in
 
          log_only "Done configuring OpenEMR"
       fi
+
+      # Activate the OpenEMR conf file for apache
+      log_only "Activate OpenEMR config file for Apache"
+      a2ensite git-openemr.conf
 
       log_only "Restarting Apache service..."
       invoke-rc.d apache2 restart >> $LOG 2>&1

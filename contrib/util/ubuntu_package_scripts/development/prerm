@@ -5,7 +5,7 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2011
+# Copyright 2011-2014
 # authors: Brady Miller <brady@sparmy.com>
 #          Amalu Obinna <amaluobinna@aol.com>
 #
@@ -154,6 +154,10 @@ case "$1" in
       #remove openemr mysql user
       mysql -f -u root -h "$SQLLOCATION" --password="$MPASS" -e "DELETE FROM mysql.user WHERE User = '$SQLUSER';FLUSH PRIVILEGES;" >> $LOG 2>&1
       log_only "Removed OpenEMR MySQL user"
+
+      #remove OpenEMR apache set up as active config
+      log_only "Turn off apache conf for OpenEMR"
+      a2dissite git-openemr.conf
 
       #stop db
       db_stop

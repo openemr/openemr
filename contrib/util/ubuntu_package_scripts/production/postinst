@@ -5,7 +5,7 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2012
+# Copyright 2011-2014
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
@@ -65,7 +65,6 @@ case "$1" in
       INSTTEMP=$OPENEMR/contrib/util/installScripts/InstallerAutoTemp.php
       #php and apache files
       PHP=/etc/php5/apache2/php.ini
-      APACHE=/etc/apache2/httpd.conf
       #web user and group
       WEB_GROUP=www-data
       WEB_USER=www-data
@@ -264,6 +263,12 @@ case "$1" in
          sed -i "/^[ 	]*.*sqldatabase[ 	=].*$/d" $CONFIG
          sed -i "/^[ 	]*.*sqlutfflag[ 	=].*$/d" $CONFIG
 
+         # Activate the OpenEMR conf file for apache and restart apache
+         log_only "Activate OpenEMR config file for Apache"
+         a2ensite openemr.conf
+         log_only "Restarting Apache service"
+         invoke-rc.d apache2 restart >> $LOG 2>&1
+
          #done upgrading
          prompt_input openemr/success_upgrade critical ret_result 
          log_only "OpenEMR upgrade is complete."
@@ -275,6 +280,9 @@ case "$1" in
          log_only "(We recommend you copy this somewhere protected since it"
          log_only "contains confidential patient information)"
 
+         #stop db
+         db_stop
+
          exit 0
 
       elif [ "$PLAN" == "install" ] ; then
@@ -283,6 +291,152 @@ case "$1" in
       else
          unable_exit "Error reading plan variable in configuration file."
       fi      
+
+      #This Section edits the php.ini file to accomodate the proper functioning of OpenEMR using php
+      log_only "Configuring PHP for OpenEMR"
+
+      #check to ensure the php configuration file exists
+      if [ -f $PHP ]; then
+         # First, collect php variables
+         collect_php () {
+            echo `grep -i "^[[:space:]]*$1[[:space:]=]" $PHP | cut -d \= -f 2 | cut -d \; -f 1 | sed 's/[ 	M]//gi'`
+         }
+         collect_php_commented_out () {
+            echo `grep -i "^;[[:space:]]*$1[[:space:]=]" $PHP | cut -d \= -f 2 | cut -d \; -f 1 | sed 's/[       M]//gi'`
+         }
+         TAG_TEXT="short_open_tag"
+         TAG=$(collect_php "$TAG_TEXT")
+         EXEC_TEXT="max_execution_time"
+         EXEC=$(collect_php "$EXEC_TEXT")
+         INPUT_TEXT="max_input_time"
+         INPUT=$(collect_php "$INPUT_TEXT")
+         MEM_TEXT="memory_limit"
+         MEM=$(collect_php "$MEM_TEXT")
+         DISP_TEXT="display_errors"
+         DISP=$(collect_php "$DISP_TEXT")
+         LOGG_TEXT="log_errors"
+         LOGG=$(collect_php "$LOGG_TEXT")
+         GLOB_TEXT="register_globals"
+         GLOB=$(collect_php "$GLOB_TEXT")
+         POST_TEXT="post_max_size"
+         POST=$(collect_php "$POST_TEXT")
+         UPLOAD_TEXT="file_uploads"
+         UPLOAD=$(collect_php "$UPLOAD_TEXT")
+         FILESIZE_TEXT="upload_max_filesize"
+         FILESIZE=$(collect_php "$FILESIZE_TEXT")
+         MAXINPUTVARS_TEXT="max_input_vars"
+         MAXINPUTVARS=$(collect_php "$MAXINPUTVARS_TEXT")
+         MAXINPUTVARS_IF_COMMENTED=$(collect_php_commented_out "$MAXINPUTVARS_TEXT")
+
+         # Second, backup the php.ini file before modifying
+         cp $PHP $PHP.BAK
+
+         # Third, edit the required entries
+         #  Do this in a for loop.
+         #   First iteration will discover the recommended changes
+         #   Second iteration will make the changes (if user request this)
+         FLAG_ON=0
+         process_php () {
+            if [ "$3" -eq "1" ]; then
+               # make rec to php.ini
+               if [ "$FLAG_ON" -eq "0" ]; then
+                  log_only "We changed the following setting(s) in your php configuration file at $PHP :"
+               fi      
+               FLAG_ON=1
+            else
+               # modify php.ini
+               sed -i "s/^[ 	]*$1[ 	=].*$/$1 = $2/" $PHP
+               log_only "Successfully set $1 = $2"  
+            fi
+         }
+         process_php_commented_out () {
+            if [ "$3" -eq "1" ]; then
+               # make rec to php.ini
+               if [ "$FLAG_ON" -eq "0" ]; then
+                  log_only "We changed the following setting(s) in your php configuration file at $PHP :"
+               fi
+               FLAG_ON=1
+            else
+               # modify php.ini
+               sed -i "s/^;[     ]*$1[   =].*$/$1 = $2/" $PHP
+               log_only "Successfully set $1 = $2"
+            fi
+         }
+         for i in `seq 1 2`; do
+            if [ ! -z "$TAG" ] && [ "$TAG" != "On" ]; then
+               process_php "$TAG_TEXT" "On" $i
+            fi
+            if [ ! -z "$EXEC" ] && [ "$EXEC" -lt "60" ]; then
+               process_php "$EXEC_TEXT" "60" $i
+            fi
+            if [ ! -z "$INPUT" ] && [ "$INPUT" -lt "90" ]; then
+               process_php "$INPUT_TEXT" "90" $i
+            fi
+            if [ ! -z "$MEM" ] && [ "$MEM" -lt "128" ]; then
+               process_php "$MEM_TEXT" "128M" $i
+            fi
+            if [ ! -z "$DISP" ] && [ "$DISP" != "Off" ]; then
+               process_php "$DISP_TEXT" "Off" $i
+            fi
+            if [ ! -z "$LOGG" ] && [ "$LOGG" != "On" ]; then
+               process_php "$LOGG_TEXT" "On" $i
+            fi
+            if [ ! -z "$GLOB" ] && [ "$GLOB" != "Off" ]; then
+               process_php "$GLOB_TEXT" "Off" $i
+            fi
+            if [ ! -z "$POST" ] && [ "$POST" -lt "30" ]; then
+               process_php "$POST_TEXT" "30M" $i
+            fi
+            if [ ! -z "$UPLOAD" ] && [ "$UPLOAD" != "On" ]; then
+               process_php "$UPLOAD_TEXT" "On" $i
+            fi
+            if [ ! -z "$FILESIZE" ] && [ "$FILESIZE" -lt "30" ]; then
+               process_php "$FILESIZE_TEXT" "30M" $i
+            fi
+            if [ ! -z "$MAXINPUTVARS" ] && [ "$MAXINPUTVARS" -lt "3000" ]; then
+               process_php "$MAXINPUTVARS_TEXT" "3000" $i
+            fi
+            if [ ! -z "$MAXINPUTVARS_IF_COMMENTED" ] && [ "$MAXINPUTVARS_IF_COMMENTED" -lt "3000" ]; then
+               process_php_commented_out "$MAXINPUTVARS_TEXT" "3000" $i
+            fi
+            if [ "$FLAG_ON" -eq "0" ]; then
+              log_only "Your PHP configuration is perfect for OpenEMR."
+              break
+            else
+              if [ "$i" -eq "1" ]; then
+                prompt_input openemr/php_configure high ret_result
+              fi
+            fi
+            if [ "$i" -eq "1" ]; then
+               log_only "(We have placed a backup of your php configuration at $PHP.BAK)"
+            fi
+         done
+      else
+         #can't find php config file, so just echo instructions
+         log_only "We recommend ensuring you have below settings in your php configuration file:"
+         log_only "short_open_tag = On"
+         log_only "max_execution_time = 60"
+         log_only "max_input_time = 90"
+         log_only "memory_limit = 128M"
+         log_only "display_errors = Off"
+         log_only "log_errors = On"
+         log_only "register_globals = Off"
+         log_only "post_max_size = 30M"
+         log_only "file_uploads = On"
+         log_only "upload_max_filesize = 30M"
+         log_only "max_input_vars = 3000"
+         log_only "(note max_input_vars setting only exists since php 5.3.9)"
+      fi
+
+      log_only "Done configuring PHP"
+
+      # Activate the OpenEMR conf file for apache
+      log_only "Activate OpenEMR config file for Apache"
+      a2ensite openemr.conf
+
+      # Restart apache
+      log_only "Restarting Apache service"
+      invoke-rc.d apache2 restart >> $LOG 2>&1
 
       #collect the mysql root password (if applicable)
       MPASS=""
@@ -391,180 +545,6 @@ case "$1" in
 
          log_only "Done configuring OpenEMR"
       fi
-
-      #This section configures Apache for OpenEMR
-      log_only "Configuring Apache for OpenEMR"
-
-      #Check to ensure the apache configuration files exists
-      if [ -f $APACHE ]; then
-
-         # First, backup the httpd.conf file before modifying
-         cp -f $APACHE $APACHE.BAK
-
-         # Second, append information to secure selected directories in OpenEMR
-         echo "#This is the start of the Apache configuration for OpenEMR." >> $APACHE
-         echo "#Below will secure directories with patient information." >> $APACHE
-         echo "<Directory \"$SITEDIR/*/documents\">" >> $APACHE
-         echo " order deny,allow" >> $APACHE
-         echo " Deny from all" >> $APACHE
-         echo "</Directory>" >> $APACHE
-         echo "<Directory \"$SITEDIR/*/edi\">" >> $APACHE
-         echo " order deny,allow" >> $APACHE
-         echo " Deny from all" >> $APACHE
-         echo "</Directory>" >> $APACHE
-         echo "<Directory \"$SITEDIR/*/era\">" >> $APACHE
-         echo " order deny,allow" >> $APACHE
-         echo " Deny from all" >> $APACHE
-         echo "</Directory>" >> $APACHE
-         echo "#This is the end of the Apache configuration for OpenEMR." >> $APACHE
-
-         #let user know the plan
-         prompt_input openemr/apache_configure high ret_result
-         log_only "Added entries to apache configuration to secure directories with patient information."
-         log_only "Placed backup of your original apache configuration file to $APACHE.BAK"
-
-      else
-         #can't find apache config file, so just echo instructions
-         log_only "We recommend placing below lines into your apache configuration file:"
-         log_only "#This is the start of the Apache configuration for OpenEMR."
-         log_only "#Below will secure directories with patient information."
-         log_only "<Directory \"$SITEDIR/*/documents\">"
-         log_only " order deny,allow"
-         log_only " Deny from all"
-         log_only "</Directory>"
-         log_only "<Directory \"$SITEDIR/*/edi\">"
-         log_only " order deny,allow"
-         log_only " Deny from all"
-         log_only "</Directory>"
-         log_only "<Directory \"$SITEDIR/*/era\">"
-         log_only " order deny,allow"
-         log_only " Deny from all"
-         log_only "</Directory>"
-         log_only "#This is the end of the Apache configuration for OpenEMR."
-      fi
-
-      log_only "Done configuring Apache"
-
-      #This Section edits the php.ini file to accomodate the proper functioning of OpenEMR using php
-      log_only "Configuring PHP for OpenEMR"
-
-      #check to ensure the php configuration file exists
-      if [ -f $PHP ]; then
-         # First, collect php variables
-         collect_php () {
-            echo `grep -i "^[[:space:]]*$1[[:space:]=]" $PHP | cut -d \= -f 2 | cut -d \; -f 1 | sed 's/[ 	M]//gi'`
-         }
-         TAG_TEXT="short_open_tag"
-         TAG=$(collect_php "$TAG_TEXT")
-         EXEC_TEXT="max_execution_time"
-         EXEC=$(collect_php "$EXEC_TEXT")
-         INPUT_TEXT="max_input_time"
-         INPUT=$(collect_php "$INPUT_TEXT")
-         MEM_TEXT="memory_limit"
-         MEM=$(collect_php "$MEM_TEXT")
-         DISP_TEXT="display_errors"
-         DISP=$(collect_php "$DISP_TEXT")
-         LOGG_TEXT="log_errors"
-         LOGG=$(collect_php "$LOGG_TEXT")
-         GLOB_TEXT="register_globals"
-         GLOB=$(collect_php "$GLOB_TEXT")
-         POST_TEXT="post_max_size"
-         POST=$(collect_php "$POST_TEXT")
-         UPLOAD_TEXT="file_uploads"
-         UPLOAD=$(collect_php "$UPLOAD_TEXT")
-         FILESIZE_TEXT="upload_max_filesize"
-         FILESIZE=$(collect_php "$FILESIZE_TEXT")
-         MAXINPUTVARS_TEXT="max_input_vars"
-         MAXINPUTVARS=$(collect_php "$MAXINPUTVARS_TEXT")
-
-         # Second, backup the php.ini file before modifying
-         cp $PHP $PHP.BAK
-
-         # Third, edit the required entries
-         #  Do this in a for loop.
-         #   First iteration will discover the recommended changes
-         #   Second iteration will make the changes (if user request this)
-         FLAG_ON=0
-         process_php () {
-            if [ "$3" -eq "1" ]; then
-               # make rec to php.ini
-               if [ "$FLAG_ON" -eq "0" ]; then
-                  log_only "We changed the following setting(s) in your php configuration file at $PHP :"
-               fi      
-               FLAG_ON=1
-            else
-               # modify php.ini
-               sed -i "s/^[ 	]*$1[ 	=].*$/$1 = $2/" $PHP
-               log_only "Successfully set $1 = $2"  
-            fi
-         }
-         for i in `seq 1 2`; do
-            if [ "$TAG" != "On" ]; then
-               process_php "$TAG_TEXT" "On" $i
-            fi
-            if [ "$EXEC" -lt "60" ]; then
-               process_php "$EXEC_TEXT" "60" $i
-            fi
-            if [ "$INPUT" -lt "90" ]; then
-               process_php "$INPUT_TEXT" "90" $i
-            fi
-            if [ "$MEM" -lt "128" ]; then
-               process_php "$MEM_TEXT" "128M" $i
-            fi
-            if [ "$DISP" != "Off" ]; then
-               process_php "$DISP_TEXT" "Off" $i
-            fi
-            if [ "$LOGG" != "On" ]; then
-               process_php "$LOGG_TEXT" "On" $i
-            fi
-            if [ "$GLOB" != "Off" ]; then
-               process_php "$GLOB_TEXT" "Off" $i
-            fi
-            if [ "$POST" -lt "30" ]; then
-               process_php "$POST_TEXT" "30M" $i
-            fi
-            if [ "$UPLOAD" != "On" ]; then
-               process_php "$UPLOAD_TEXT" "On" $i
-            fi
-            if [ "$FILESIZE" -lt "30" ]; then
-               process_php "$FILESIZE_TEXT" "30M" $i
-            fi
-            if [ "$MAXINPUTVARS" -lt "3000" ]; then
-               process_php "$MAXINPUTVARS_TEXT" "3000" $i
-            fi
-            if [ "$FLAG_ON" -eq "0" ]; then
-              log_only "Your PHP configuration is perfect for OpenEMR."
-              break
-            else
-              if [ "$i" -eq "1" ]; then
-                prompt_input openemr/php_configure high ret_result
-              fi
-            fi
-            if [ "$i" -eq "1" ]; then
-               log_only "(We have placed a backup of your php configuration at $PHP.BAK)"
-            fi
-         done
-      else
-         #can't find php config file, so just echo instructions
-         log_only "We recommend ensuring you have below settings in your php configuration file:"
-         log_only "short_open_tag = On"
-         log_only "max_execution_time = 60"
-         log_only "max_input_time = 90"
-         log_only "memory_limit = 128M"
-         log_only "display_errors = Off"
-         log_only "log_errors = On"
-         log_only "register_globals = Off"
-         log_only "post_max_size = 30M"
-         log_only "file_uploads = On"
-         log_only "upload_max_filesize = 30M"
-         log_only "max_input_vars = 3000"
-         log_only "(note max_input_vars setting only exists since php 5.3.9)"
-      fi
-
-      log_only "Done configuring PHP"
-
-      log_only "Restarting Apache service"
-      invoke-rc.d apache2 restart >> $LOG 2>&1
 
       if $configure_flag; then
          prompt_input openemr/success_install_config high ret_result
