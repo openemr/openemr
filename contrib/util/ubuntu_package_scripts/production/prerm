@@ -5,7 +5,7 @@
 #the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-# Copyright 2012
+# Copyright 2011-2014
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
@@ -171,12 +171,18 @@ case "$1" in
       log_only "Finished removing OpenEMR web directory"
 
       #remove tmp directory
-      sudo rm -fr $TMPDIR
+      rm -fr $TMPDIR
       log_only "Removed OpenEMR tmp directory"
 
-      #removes the configuration section for OpenEMR in Apache config file
-      sed -i '/#This is the start of the Apache configuration for OpenEMR./,/#This is the end of the Apache configuration for OpenEMR./d' /etc/apache2/httpd.conf
-      log_only "Removed OpenEMR Apache configuration"
+      #removes the configuration section for OpenEMR in Apache config file (deprecated, but keeping for older packages)
+      if [ -f /etc/apache2/httpd.conf ]; then
+          sed -i '/#This is the start of the Apache configuration for OpenEMR./,/#This is the end of the Apache configuration for OpenEMR./d' /etc/apache2/httpd.conf
+          log_only "Removed OpenEMR Apache configuration in /etc/apache2/httpd.conf"
+      fi
+
+      #remove OpenEMR apache set up as active config
+      log_only "Turn off apache conf for OpenEMR"
+      a2dissite openemr.conf
 
       #stop db
       db_stop

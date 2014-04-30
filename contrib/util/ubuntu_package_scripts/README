@@ -19,6 +19,7 @@ Directory structure of package.
 /DEBIAN/postrm
 /DEBIAN/config
 /DEBIAN/templates
+/etc/apache2/sites-available/openemr.conf
 
 
 DEVELOPMENT CVS PACKAGE
@@ -26,11 +27,11 @@ development directory - hold the development version package scripts
 Directory structure of package:
 --Note the maintenance scripts need broad execution privileges
 --Note when gzip something use --best switch
-/usr/share/applications/cvs-openemr.desktop
-/usr/share/doc/cvs-openemr/README.Debian
-/usr/share/doc/cvs-openemr/changelog.Debian.gz
-/usr/share/doc/cvs-openemr/copyright
-/usr/share/man/man8/cvs-openemr.8.gz
+/usr/share/applications/git-openemr.desktop
+/usr/share/doc/git-openemr/README.Debian
+/usr/share/doc/git-openemr/changelog.Debian.gz
+/usr/share/doc/git-openemr/copyright
+/usr/share/man/man8/git-openemr.8.gz
 /DEBIAN/control
 /DEBIAN/preinst
 /DEBIAN/postinst
@@ -38,3 +39,4 @@ Directory structure of package:
 /DEBIAN/postrm
 /DEBIAN/config
 /DEBIAN/templates
+/etc/apache2/sites-available/git-openemr.conf
