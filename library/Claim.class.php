@@ -1179,7 +1179,7 @@ class Claim {
             }
             else
             {
-                $diag=$code_data[1];
+                $diag=$code_data[0];
             }
           }
           $da[$diag] = $diag;
