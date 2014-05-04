@@ -47,11 +47,12 @@ ksort($versions);
 <br>
 </center>
 <?php
-if (!empty($_POST['form_submit'])) {
-  $form_old_version = $_POST['form_old_version'];
+$version_info = sqlQuery("SELECT * FROM version");
+$version_from  = $version_info['v_major'] . '.' . $version_info['v_minor'] . '.' . $version_info['v_patch'];
 
+if (!empty($_POST['form_submit'])) {
   foreach ($versions as $version => $filename) {
-    if (strcmp($version, $form_old_version) < 0) continue;
+    if (strcmp($version, $version_from) < 0) continue;
     upgradeFromSqlFile($filename);
   }
 
@@ -92,20 +93,12 @@ if (!empty($_POST['form_submit'])) {
 ?>
 <center>
 <form method='post' action='sql_upgrade.php'>
-<p>Please select the prior release you are converting from:
-<select name='form_old_version'>
+<p>Openemr prior release has being selected from the version table:
 <?php
-foreach ($versions as $version => $filename) {
-  echo " <option value='$version'";
-  // Defaulting to most recent version, which is now 4.1.2.
-  if ($version === '4.1.2') echo " selected";
-  echo ">$version</option>\n";
-}
+echo $version_from;
 ?>
-</select>
 </p>
-<p>If you are unsure or were using a development version between two
-releases, then choose the older of possible releases.</p>
+<p>Click to continuo upgrade.</p>
 <p><input type='submit' name='form_submit' value='Upgrade Database' /></p>
 </form>
 </center>
