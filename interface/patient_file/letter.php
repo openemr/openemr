@@ -143,6 +143,7 @@ if ($_POST['formaction']=="generate") {
       exit;
     }
     else { // $form_format = html
+        $cpstring = text($cpstring); //escape to prevent stored cross script attack
 	$cpstring = str_replace("\n", "<br>", $cpstring);
 	$cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
     ?>
