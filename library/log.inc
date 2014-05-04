@@ -764,7 +764,7 @@ function updateRecordedDisclosure($dates,$event,$recipient,$description,$disclos
  */
 function deleteDisclosure($deletelid)
 {
-        $sql="delete from extended_log where id='$deletelid'";
+        $sql="delete from extended_log where id='" . add_escape_custom($deletelid) . "'";
         $ret = sqlInsertClean_audit($sql);
 }
 ?>
