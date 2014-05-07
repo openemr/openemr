@@ -42,6 +42,7 @@ $datatypes = array(
   "13" => xl("Squads"),
   "14" => xl("Organizations"),
   "15" => xl("Billing codes"),
+  "16" => xl("Insurances"),
   "21" => xl("Checkbox list"),
   "22" => xl("Textbox list"),
   "23" => xl("Exam results"),

@@ -2,7 +2,7 @@
 /**
 * Script to display results for a given procedure order.
 *
-* Copyright (C) 2013 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -62,7 +62,7 @@ function generate_order_report($orderid, $input_form=false) {
   $orow = sqlQuery("SELECT " .
     "po.procedure_order_id, po.date_ordered, " .
     "po.order_status, po.specimen_type, po.patient_id, " .
-    "pd.pubpid, pd.lname, pd.fname, pd.mname, " .
+    "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.cmsportal_login, " .
     "fe.date, " .
     "pp.name AS labname, " .
     "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
@@ -411,6 +411,15 @@ function showpnotes(orderid) {
    <input type='hidden' name='form_sign_list' value='<?php echo attr($sign_list); ?>' />
    <input type='submit' name='form_sign' value='<?php echo xla('Sign Results'); ?>'
     title='<?php echo xla('Mark these reports as reviewed'); ?>' />
+<?php
+  // If this is a portal patient, sending them a copy is an option.
+  if ($GLOBALS['gbl_portal_cms_enable'] && $orow['cmsportal_login'] !== '') {
+    echo "&nbsp;";
+    echo "<input type='checkbox' name='form_send_to_portal' value='" .
+         attr($orow['cmsportal_login']) . "' checked />\n";
+    echo xlt('Send to portal');
+  }
+?>
 <?php } ?>
   </td>
  </tr>
