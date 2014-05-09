@@ -144,11 +144,11 @@ function update_issues($pid,$encounter,$diags)
 function create_diags($req_pid,$req_encounter,$diags)
 {
     $authorized=1;// Need to fix this. hard coded for now
-    $provid="";
+    $provid=0;
     $rowParams="(NOW(), ?, ?, ?, ?,". // date, encounter, code_type,code, code_text
             " ?, ?, ?, ?,". // pid, authorized, user, groupname
             "1, 0, ?," .    // activity, billed, provider_id
-            " '', '', '0.00', '', '', '')"; // modifier, units,fee,ndc_info,justify,notecodes
+            " '', NULL, '0.00', '', '', '')"; // modifier, units,fee,ndc_info,justify,notecodes
     $sqlCreateDiag = "insert into billing (date, encounter, code_type, code, code_text, " .
     "pid, authorized, user, groupname, activity, billed, provider_id, " .
     "modifier, units, fee, ndc_info, justify, notecodes) values ";
@@ -196,7 +196,7 @@ function create_diags($req_pid,$req_encounter,$diags)
 function create_procs($req_pid,$req_encounter,$procs)
 {
     $authorized=1;// Need to fix this. hard coded for now
-    $provid="";
+    $provid=0;
     $sql = "insert into billing (".
             "date,      encounter,  code_type,  code,".
             "code_text, pid,        authorized, user,".
