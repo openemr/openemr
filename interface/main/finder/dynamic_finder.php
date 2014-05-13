@@ -105,7 +105,16 @@ $(document).ready(function() {
 
  // OnClick handler for the rows
  $('#pt_table tbody tr').live('click', function () {
+  // ID of a row element is pid_{value}
   var newpid = this.id.substring(4);
+  // If the pid is invalid, then don't attempt to set 
+  // The row display for "No matching records found" has no valid ID, but is
+  // otherwise clickable. (Matches this CSS selector).  This prevents an invalid
+  // state for the PID to be set.
+  if (newpid.length===0)
+  {
+      return;
+  }
   if (document.myform.form_new_window.checked) {
    openNewTopWindow(newpid);
   }
