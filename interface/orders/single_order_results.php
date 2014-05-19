@@ -91,7 +91,15 @@ body {
 </head>
 <body>
 <?php
+if (empty($_POST['form_sign_list'])) {
   generate_order_report($orderid, true);
+}
+else {
+  echo "<script language='JavaScript'>\n";
+  echo " window.close();\n";
+  echo "</script>\n";
+}
 ?>
 </body>
 </html>
+

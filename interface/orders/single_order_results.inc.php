@@ -424,6 +424,10 @@ function showpnotes(orderid) {
   }
 ?>
 <?php } ?>
+<?php if ($input_form) { ?>
+   &nbsp;
+   <input type='button' value='<?php echo xla('Close'); ?>' onclick='window.close()' />
+<?php } ?>
   </td>
  </tr>
 </table>

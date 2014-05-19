@@ -5674,6 +5674,7 @@ CREATE TABLE `procedure_providers` (
   `recv_app_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Receiving application ID (MSH-5.1)',
   `recv_fac_id`  varchar(255) NOT NULL DEFAULT ''  COMMENT 'Receiving facility ID (MSH-6.1)',
   `DorP`         char(1)      NOT NULL DEFAULT 'D' COMMENT 'Debugging or Production (MSH-11)',
+  `direction`    char(1)      NOT NULL DEFAULT 'B' COMMENT 'Bidirectional or Results-only',
   `protocol`     varchar(15)  NOT NULL DEFAULT 'DL',
   `remote_host`  varchar(255) NOT NULL DEFAULT '',
   `login`        varchar(255) NOT NULL DEFAULT '',

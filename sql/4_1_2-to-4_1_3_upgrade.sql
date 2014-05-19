@@ -265,3 +265,8 @@ ALTER TABLE `procedure_order` CHANGE `control_id`
   `control_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'This is the CONTROL ID that is sent back from lab';
 #EndIf
 
+#IfMissingColumn procedure_providers direction
+ALTER TABLE `procedure_providers`
+ADD COLUMN `direction` char(1) NOT NULL DEFAULT 'B' COMMENT 'Bidirectional or Results-only';
+#EndIf
+

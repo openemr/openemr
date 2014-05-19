@@ -2,7 +2,7 @@
 /**
 * Maintenance for the list of procedure providers.
 *
-* Copyright (C) 2012 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2012-2014 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -78,6 +78,7 @@ if ($_POST['form_save']) {
     "recv_app_id = "  . invalue('form_recv_app_id')  . ", " .
     "recv_fac_id = "  . invalue('form_recv_fac_id')  . ", " .
     "DorP = "         . invalue('form_DorP')         . ", " .
+    "direction = "    . invalue('form_direction')    . ", " .
     "protocol = "     . invalue('form_protocol')     . ", " .
     "remote_host = "  . invalue('form_remote_host')  . ", " .
     "login = "        . invalue('form_login')        . ", " .
@@ -195,12 +196,27 @@ foreach(array(
 <?php
 foreach(array(
   // Add to this list as more protocols are supported.
-  'DL' => xl('Download'),
+  'DL'   => xl('Download'),
   'SFTP' => xl('SFTP'),
+  'FS'   => xl('Local Filesystem'),
   ) as $key => $value)
 {
   echo "    <option value='" . attr($key) . "'";
   if ($key == $row['protocol']) echo " selected";
+  echo ">" . text($value) . "</option>\n";
+}
+?>
+   </select>
+   &nbsp;
+   <select name='form_direction'>
+<?php
+foreach(array(
+  'B' => xl('Bidirectional'),
+  'R' => xl('Results Only'),
+  ) as $key => $value)
+{
+  echo "    <option value='" . attr($key) . "'";
+  if ($key == $row['direction']) echo " selected";
   echo ">" . text($value) . "</option>\n";
 }
 ?>
