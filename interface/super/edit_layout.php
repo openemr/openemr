@@ -1,10 +1,22 @@
 <?php
-// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Copyright (C) 2014 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://www.open-emr.org
+ */
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -59,6 +71,13 @@ $datatypes = array(
   "36" => xl("Multiple Select List")
 );
 
+$sources = array(
+  'F' => xl('Form'),
+  'D' => xl('Patient'),
+  'H' => xl('History'),
+  'E' => xl('Visit'),
+);
+
 function nextGroupOrder($order) {
   if ($order == '9') $order = 'A';
   else if ($order == 'Z') $order = 'a';
@@ -73,6 +92,9 @@ if (!$thisauth) die(xl('Not authorized'));
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
 
+// Tag style for stuff to hide if not an LBF layout.
+$lbfonly = substr($layout_id,0,3) == 'LBF' ? "" : "style='display:none;'";
+
 // Handle the Form actions
 
 if ($_POST['formaction'] == "save" && $layout_id) {
@@ -85,6 +107,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         $listval = $data_type == 34 ? formTrim($iter['contextName']) : formTrim($iter['list_id']);
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
+                "source = '"        . formTrim($iter['source'])    . "', " .
                 "title = '"         . formTrim($iter['title'])     . "', " .
                 "group_name = '"    . formTrim($iter['group'])     . "', " .
                 "seq = '"           . formTrim($iter['seq'])       . "', " .
@@ -111,11 +134,12 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
     $max_length = $data_type == 3 ? 3 : 255;
     $listval = $data_type == 34 ? formTrim($_POST['contextName']) : formTrim($_POST['newlistid']);
     sqlStatement("INSERT INTO layout_options (" .
-      " form_id, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
+      " form_id, source, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . formTrim($_POST['layout_id']      ) . "'" .
+      ",'" . formTrim($_POST['newsource']      ) . "'" .
       ",'" . formTrim($_POST['newid']          ) . "'" .
       ",'" . formTrim($_POST['newtitle']       ) . "'" .
       ",'" . formTrim($_POST['newfieldgroupid']) . "'" .
@@ -214,11 +238,12 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
     $listval = $data_type == 34 ? formTrim($_POST['gcontextName']) : formTrim($_POST['gnewlistid']);
     // add a new group to the layout, with the defined field
     sqlStatement("INSERT INTO layout_options (" .
-      " form_id, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
+      " form_id, source, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . formTrim($_POST['layout_id']      ) . "'" .
+      ",'" . formTrim($_POST['gnewsource']      ) . "'" .
       ",'" . formTrim($_POST['gnewid']          ) . "'" .
       ",'" . formTrim($_POST['gnewtitle']       ) . "'" .
       ",'" . formTrim($maxnum . $_POST['newgroupname']) . "'" .
@@ -343,7 +368,7 @@ $fld_line_no = 0;
 // Write one option line to the form.
 //
 function writeFieldLine($linedata) {
-    global $fld_line_no;
+    global $fld_line_no, $sources, $lbfonly;
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
   
@@ -363,10 +388,22 @@ function writeFieldLine($linedata) {
     echo "<input type='text' name='fld[$fld_line_no][seq]' id='fld[$fld_line_no][seq]' value='" .
          htmlspecialchars($linedata['seq'], ENT_QUOTES) . "' size='2' maxlength='3' class='optin' />";
     echo "</td>\n";
-  
+
+    echo "  <td align='center' class='optcell' $lbfonly>";
+    echo "<select name='fld[$fld_line_no][source]' class='optin noselect' $lbfonly>";
+    foreach ($sources as $key => $value) {
+        echo "<option value='$key'";
+        if ($key == $linedata['source']) echo " selected";
+        echo ">$value</option>\n";
+    }
+    echo "</select>";
+    echo "</td>\n";
+
     echo "  <td align='left' class='optcell'>";
     echo "<input type='text' name='fld[$fld_line_no][id]' value='" .
-         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin noselect' />";
+         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63'
+         class='optin noselect' />";
+         // class='optin noselect' onclick='FieldIDClicked(this)' />";
     /*
     echo "<input type='hidden' name='fld[$fld_line_no][id]' value='" .
          htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' />";
@@ -691,6 +728,7 @@ while ($row = sqlFetchArray($res)) {
 <thead>
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
+  <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
   <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
   <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
   <?php // if not english and showing layout label translations, then show translation header for title
@@ -758,6 +796,7 @@ while ($row = sqlFetchArray($res)) {
 <thead>
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
+  <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
   <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
   <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
   <th><?php xl('UOR','e'); ?></th>
@@ -775,7 +814,17 @@ while ($row = sqlFetchArray($res)) {
 <tbody>
 <tr class='center'>
 <td ><input type="textbox" name="gnewseq" id="gnewseq" value="" size="2" maxlength="3"> </td>
-<td ><input type="textbox" name="gnewid" id="gnewid" value="" size="10" maxlength="20"> </td>
+<td<?php echo " $lbfonly"; ?>>
+<select name='gnewsource' id='gnewsource'>
+<?php
+foreach ($sources as $key => $value) {
+  echo "<option value='$key'>" . text($value) . "</option>\n";
+}
+?>
+</select>
+</td>
+<td><input type="textbox" name="gnewid" id="gnewid" value="" size="10" maxlength="20"
+     onclick='FieldIDClicked(this)'> </td>
 <td><input type="textbox" name="gnewtitle" id="gnewtitle" value="" size="20" maxlength="63"> </td>
 <td>
 <select name="gnewuor" id="gnewuor">
@@ -830,6 +879,7 @@ foreach ($datatypes as $key=>$value) {
  <thead>
   <tr class='head'>
    <th><?php xl('Order','e'); ?></th>
+   <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
    <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
    <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
    <th><?php xl('UOR','e'); ?></th>
@@ -847,7 +897,17 @@ foreach ($datatypes as $key=>$value) {
  <tbody>
   <tr class='center'>
    <td ><input type="textbox" name="newseq" id="newseq" value="" size="2" maxlength="3"> </td>
-   <td ><input type="textbox" name="newid" id="newid" value="" size="10" maxlength="20"> </td>
+   <td<?php echo " $lbfonly"; ?>>
+    <select name='newsource' id='newsource'>
+<?php
+foreach ($sources as $key => $value) {
+  echo "    <option value='$key'>" . text($value) . "</option>\n";
+}
+?>
+    </select>
+   </td>
+   <td ><input type="textbox" name="newid" id="newid" value="" size="10" maxlength="20"
+         onclick='FieldIDClicked(this)'> </td>
    <td><input type="textbox" name="newtitle" id="newtitle" value="" size="20" maxlength="63"> </td>
    <td>
     <select name="newuor" id="newuor">
@@ -903,6 +963,25 @@ foreach ($datatypes as $key=>$value) {
 
 // used when selecting a list-name for a field
 var selectedfield;
+
+// Get the next logical sequence number for a field in the specified group.
+// Note it guesses and uses the existing increment value.
+function getNextSeq(group) {
+  var f = document.forms[0];
+  var seq = 0;
+  var delta = 10;
+  for (var i = 1; true; ++i) {
+    var gelem = f['fld[' + i + '][group]'];
+    if (!gelem) break;
+    if (gelem.value != group) continue;
+    var tmp = parseInt(f['fld[' + i + '][seq]'].value);
+    if (isNaN(tmp)) continue;
+    if (tmp <= seq) continue;
+    delta = tmp - seq;
+    seq = tmp;
+  }
+  return seq + delta;
+}
 
 // jQuery stuff to make the page a little easier to use
 
@@ -965,6 +1044,8 @@ $(document).ready(function(){
         $('#groupdetail').css('display', 'block');
         $(btnObj).parent().append($("#groupdetail"));
         $('#groupdetail > #newgroupname').focus();
+        // Assign a sensible default sequence number.
+        $('#gnewseq').val(10);
     };
 
     // save the new group to the form
@@ -1110,11 +1191,12 @@ $(document).ready(function(){
         var parts = btnid.split("~");
         var groupid = parts[1];
         $('#fielddetail > #newfieldgroupid').attr('value', groupid);
-    
         // show the field details DIV
         $('#fielddetail').css('visibility', 'visible');
         $('#fielddetail').css('display', 'block');
         $(btnObj).parent().append($("#fielddetail"));
+        // Assign a sensible default sequence number.
+        $('#newseq').val(getNextSeq(groupid));
     };
 
     var DeleteFields = function(btnObj) {
@@ -1235,8 +1317,61 @@ function NationNotesContext(lineitem,val){
     document.getElementById("fld["+lineitem+"][list_id]").value='';
   }
 }
-function SetList(listid) { $(selectedfield).val(listid); }
 
+function SetList(listid) {
+  $(selectedfield).val(listid);
+}
+
+//////////////////////////////////////////////////////////////////////
+// The following supports the field ID selection pop-up.
+//////////////////////////////////////////////////////////////////////
+
+var fieldselectfield;
+
+function elemFromPart(part) {
+  var ename = fieldselectfield.name;
+  // ename is like one of the following:
+  //   fld[$fld_line_no][id]
+  //   gnewid
+  //   newid
+  // and "part" is what we substitute for the "id" part.
+  var i = ename.lastIndexOf('id');
+  ename = ename.substr(0, i) + part + ename.substr(i+2);
+  return document.forms[0][ename];
+}
+
+function FieldIDClicked(elem) {
+<?php if (substr($layout_id,0,3) == 'LBF') { ?>
+  fieldselectfield = elem;
+  var srcval = elemFromPart('source').value;
+  // If the field ID is for the local form, allow direct entry.
+  if (srcval == 'F') return;
+  // Otherwise pop up the selection window.
+  window.open('./field_id_popup.php?source=' + srcval, 'fields',
+    'width=600,height=600,scrollbars=yes');
+<?php } ?>
+}
+
+function SetField(field_id, title, data_type, uor, fld_length, max_length,
+  list_id, titlecols, datacols, edit_options, description, fld_rows)
+{
+  fieldselectfield.value             = field_id;
+  elemFromPart('title'       ).value = title;
+  elemFromPart('datatype'    ).value = data_type;
+  elemFromPart('uor'         ).value = uor;
+  elemFromPart('lengthWidth' ).value = fld_length;
+  elemFromPart('maxSize'     ).value = max_length;
+  elemFromPart('listid'      ).value = list_id;
+  elemFromPart('titlecols'   ).value = titlecols;
+  elemFromPart('datacols'    ).value = datacols;
+  elemFromPart('edit_options').value = edit_options;
+  elemFromPart('desc'        ).value = description;
+  elemFromPart('lengthHeight').value = fld_rows;
+}
+
+//////////////////////////////////////////////////////////////////////
+// End code for field ID selection pop-up.
+//////////////////////////////////////////////////////////////////////
 
 /* this is called after the user chooses a new group from the popup window
  * it will submit the page so the selected fields can be moved into
@@ -1258,10 +1393,10 @@ function MoveFields(targetgroup) {
     $("#theform").submit();
 };
 
-
 // set the new-field values to a default state
 function ResetNewFieldValues () {
     $("#newseq").val("");
+    $("#newsource").val("");
     $("#newid").val("");
     $("#newtitle").val("");
     $("#newuor").val(1);

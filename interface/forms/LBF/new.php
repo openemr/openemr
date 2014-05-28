@@ -1,10 +1,22 @@
 <?php
-// Copyright (C) 2009-2014 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Copyright (C) 2009-2014 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://www.open-emr.org
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -76,6 +88,82 @@ function end_group() {
   }
 }
 
+// Get the current value for a layout based form field.
+// Depending on options this might come from lbf_data, patient_data,
+// shared_attributes or elsewhere.
+// Returns FALSE if the field ID is invalid (layout error).
+//
+function lbf_current_value($frow, $formid, $encounter) {
+  global $pid, $portalres;
+  $formname = $frow['form_id'];
+  $field_id = $frow['field_id'];
+  $source   = $frow['source'];
+  $currvalue = '';
+  $deffname = $formname . '_default_' . $field_id;
+  if ($source == 'D' || $source == 'H') {
+    // Get from patient_data, employer_data or history_data.
+    if ($source == 'H') {
+      $table = 'history_data';
+      $orderby = 'ORDER BY date DESC LIMIT 1';
+    }
+    else if (strpos($field_id, 'em_') === 0) {
+      $field_id = substr($field_id, 3);
+      $table = 'employer_data';
+      $orderby = 'ORDER BY date DESC LIMIT 1';
+    }
+    else {
+      $table = 'patient_data';
+      $orderby = '';
+    }
+    // It is an error if the field does not exist, but don't crash.
+    $tmp = sqlQuery("SHOW COLUMNS FROM $table WHERE Field = ?", array($field_id));
+    if (empty($tmp)) return FALSE;
+    $pdrow = sqlQuery("SELECT `$field_id` AS field_value FROM $table WHERE pid = ? $orderby", array($pid));
+    if (isset($pdrow)) $currvalue = $pdrow['field_value'];
+  }
+  else if ($source == 'E') {
+    if ($encounter) {
+      // Get value from shared_attributes of the current encounter.
+      $sarow = sqlQuery("SELECT field_value FROM shared_attributes WHERE " .
+        "pid = ? AND encounter = ? AND field_id = ?",
+        array($pid, $encounter, $field_id));
+      if (isset($sarow)) $currvalue = $sarow['field_value'];
+    }
+    else if ($formid) {
+      // Get from shared_attributes of the encounter that this form is linked to.
+      // Note the importance of having an index on forms.form_id.
+      $sarow = sqlQuery("SELECT sa.field_value " .
+        "FROM forms AS f, shared_attributes AS sa WHERE " .
+        "f.form_id = ? AND f.formdir = ? AND f.deleted = 0 AND " .
+        "sa.pid = f.pid AND sa.encounter = f.encounter AND sa.field_id = ?",
+        array($formname, $formid, $field_id));
+      if (!empty($sarow)) $currvalue = $sarow['field_value'];
+    }
+    else {
+      // New form and encounter not available, this should not happen.
+    }
+  }
+  else if ($formid) {
+    // This is a normal form field.
+    $ldrow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
+      "form_id = ? AND field_id = ?", array($formid, $field_id) );
+    if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
+  }
+  else {
+    // New form.  Get data from the CMS portal if applicable.
+    if ($portalres) {
+      $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
+    }
+    if ($currvalue === '') {
+      // Still no data, see if there is a custom default from a plugin.
+      // This logic does not apply to shared attributes because they do not
+      // have a "new form" concept.
+      if (function_exists($deffname)) $currvalue = call_user_func($deffname);
+    }
+  }
+  return $currvalue;
+}
+
 $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
 $formid   = isset($_GET['id']      ) ? intval($_GET['id']) : 0;
 $portalid = isset($_GET['portalid']) ? intval($_GET['portalid']) : 0;
@@ -103,7 +191,44 @@ if ($_POST['bn_save']) {
     "ORDER BY group_name, seq", array($formname) );
   while ($frow = sqlFetchArray($fres)) {
     $field_id  = $frow['field_id'];
+    // If no data, skip this field.
+    if (!isset($_POST["form_$field_id"])) continue;
     $value = get_layout_form_value($frow);
+    // If edit option P or Q, save to the appropriate different table and skip the rest.
+    $source = $frow['source'];
+    if ($source == 'D' || $source == 'H') {
+      // Save to patient_data, employer_data or history_data.
+      if ($source == 'H') {
+        $new = array($field_id => $value);
+        updateHistoryData($pid, $new);
+      }
+      else if (strpos($field_id, 'em_') === 0) {
+        $field_id = substr($field_id, 3);
+        $new = array($field_id => $value);
+        updateEmployerData($pid, $new);
+      }
+      else {
+        sqlStatement("UPDATE patient_data SET `$field_id` = ? WHERE pid = ?",
+          array($value, $pid));
+      }
+      continue;
+    }
+    else if ($source == 'E') {
+      // Save to shared_attributes.
+      if ($value === '') {
+        sqlStatement("DELETE FROM shared_attributes WHERE " .
+          "pid = ? AND encounter = ? AND field_id = ?",
+          array($pid, $encounter, $field_id));
+      }
+      else {
+        sqlStatement("REPLACE INTO shared_attributes SET " .
+          "pid = ?, encounter = ?, field_id = ?, last_update = NOW(), " .
+          "user_id = ?, field_value = ?",
+          array($pid, $encounter, $field_id, $_SESSION['authUserID'], $value));
+      }
+      continue;
+    }
+    // It's a normal form field, save to lbf_data.
     $sql_bind_array = array();
     if ($formid) { // existing form
       if ($value === '') {
@@ -134,7 +259,6 @@ if ($_POST['bn_save']) {
       // Note that a completely empty form will not be created at all!
     }
   }
-  
 
   if (!$formid && $newid) {
     addForm($encounter, $formtitle, $newid, $formname, $pid, $userauthorized);
@@ -361,31 +485,8 @@ function validate(f) {
       // This data comes from static history
       if (isset($shrow[$field_id])) $currvalue = $shrow[$field_id];
     } else {
-      if ($formid) {
-        $pprow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
-          "form_id = ? AND field_id = ?", array($formid, $field_id) );
-        if (!empty($pprow)) $currvalue = $pprow['field_value'];
-      }
-      else {
-        // This is a new form.
-        // Get data from the CMS portal if applicable.
-        /*************************************************************
-        if ($portalres && isset($portalres['fields'][$field_id])) {
-          $currvalue = $portalres['fields'][$field_id];
-          $currvalue = cms_field_to_lbf($currvalue, $data_type, $field_id);
-        }
-        *************************************************************/
-        if ($portalres) {
-          $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
-        }
-        if ($currvalue === '') {
-          // Still no data. See if there is a custom default from a plugin.
-          $fname = $formname . '_default_' . $field_id;
-          if (function_exists($fname)) {
-            $currvalue = call_user_func($fname);
-          }
-        }
-      }
+      $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
+      if ($currvalue === FALSE) continue; // column does not exist, should not happen
     }
 
     // Handle a data category (group) change.
@@ -430,7 +531,6 @@ function validate(f) {
         // We sort these sensibly, however only the encounter date is shown here;
         // at some point we may wish to show also the data entry date/time.
         while ($hrow = sqlFetchArray($hres)) {
-
           echo "<td colspan='".attr($CPR)."' align='right' class='bold' style='";            
           echo "border-top:1px solid black;";
           echo "border-right:1px solid black;";
@@ -479,7 +579,6 @@ function validate(f) {
         if (!$datacols ) $historical_ids[$key] .= "border-right:1px solid black;";
         $historical_ids[$key] .= "' nowrap>";
         $leftborder = false;        
-        
       }
 
       $cell_count += $titlecols;
@@ -523,9 +622,7 @@ function validate(f) {
 
     // Append to historical data of other dates for this item.
     foreach ($historical_ids as $key => $dummy) {
-      $hvrow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
-        "form_id = ? AND field_id = ?", array($key, $field_id) );
-      $value = empty($hvrow) ? '' : $hvrow['field_value'];
+      $value = lbf_current_value($frow, $key, 0);
       $historical_ids[$key] .= generate_display_field($frow, $value);
     }
 
