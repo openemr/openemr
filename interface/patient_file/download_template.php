@@ -13,7 +13,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
@@ -35,27 +35,73 @@ require_once($GLOBALS['srcdir'] . '/formatting.inc.php');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
-$keyLocation = false;
-$keyLength = 0;
+$nextLocation = 0;      // offset to resume scanning
+$keyLocation  = false;  // offset of a potential {string} to replace
+$keyLength    = 0;      // length of {string} to replace
+$groupLevel   = 0;      // 0 if not in a {GRP} section
+$groupCount   = 0;      // 0 if no items in the group yet
+$itemSeparator = '; ';  // separator between group items
 
+// Check if the current location has the specified {string}.
 function keySearch(&$s, $key) {
   global $keyLocation, $keyLength;
   $keyLength = strlen($key);
-  $keyLocation = strpos($s, $key);
-  return $keyLocation === false ? false : true;
+  if ($keyLength == 0) return false;
+  return $key == substr($s, $keyLocation, $keyLength);
 }
 
+// Replace the {string} at the current location with the specified data.
+// Also update the location to resume scanning accordingly.
 function keyReplace(&$s, $data) {
-  global $keyLocation, $keyLength;
+  global $keyLocation, $keyLength, $nextLocation;
+  $nextLocation = $keyLocation + strlen($data);
   return substr($s, 0, $keyLocation) . $data . substr($s, $keyLocation + $keyLength);
 }
 
-function doSubs($s) {
-  global $ptrow, $enrow;
+// Do some final processing of field data before it's put into the document.
+function dataFixup($data, $title='') {
+  global $groupLevel, $groupCount, $itemSeparator;
+  if ($data !== '') {
+    // Replace some characters that can mess up XML without assuming XML content type.
+    $data = str_replace('&', '[and]'    , $data);
+    $data = str_replace('<', '[less]'   , $data);
+    $data = str_replace('>', '[greater]', $data);
+    // If in a group, include labels and separators.
+    if ($groupLevel) {
+      if ($title !== '') $data = $title . ': ' . $data;
+      if ($groupCount) $data = $itemSeparator . $data;
+      ++$groupCount;
+    }
+  }
+  return $data;
+}
 
-  // $loopcount avoids infinite looping if we screw up.
-  //
-  for ($loopcount = 0; $loopcount < 500; ++$loopcount) {
+// Return a string naming all issues for the specified patient and issue type.
+function getIssues($type) {
+  // global $itemSeparator;
+  $tmp = '';
+  $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .
+    "pid = ? AND type = ? AND enddate IS NULL " .
+    "ORDER BY begdate", array($GLOBALS['pid'], $type));
+  while ($lrow = sqlFetchArray($lres)) {
+    if ($tmp) $tmp .= '; ';
+    $tmp .= $lrow['title'];
+    if ($lrow['comments']) $tmp .= ' (' . $lrow['comments'] . ')';
+  }
+  return $tmp;
+}
+
+// Top level function for scanning and replacement of a file's contents.
+function doSubs($s) {
+  global $ptrow, $enrow, $nextLocation, $keyLocation, $keyLength;
+  global $groupLevel, $groupCount, $itemSeparator, $pid, $encounter;
+
+  $nextLocation = 0;
+  $groupLevel   = 0;
+  $groupCount   = 0;
+
+  while (($keyLocation = strpos($s, '{', $nextLocation)) !== FALSE) {
+    $nextLocation = $keyLocation + 1;
 
     if (keySearch($s, '{PatientName}')) {
       $tmp = $ptrow['fname'];
@@ -67,27 +113,27 @@ function doSubs($s) {
         if ($tmp) $tmp .= ' ';
         $tmp .= $ptrow['lname'];
       }
-      $s = keyReplace($s, $tmp);
+      $s = keyReplace($s, dataFixup($tmp, xl('Name')));
     }
 
     else if (keySearch($s, '{PatientID}')) {
-      $s = keyReplace($s, $ptrow['pubpid']);
+      $s = keyReplace($s, dataFixup($ptrow['pubpid'], xl('Chart ID')));
     }
 
     else if (keySearch($s, '{Address}')) {
-      $s = keyReplace($s, $ptrow['street']);
+      $s = keyReplace($s, dataFixup($ptrow['street'], xl('Street')));
     }
 
     else if (keySearch($s, '{City}')) {
-      $s = keyReplace($s, $ptrow['city']);
+      $s = keyReplace($s, dataFixup($ptrow['city'], xl('City')));
     }
 
     else if (keySearch($s, '{State}')) {
-      $s = keyReplace($s, getListItemTitle('state', $ptrow['state']));
+      $s = keyReplace($s, dataFixup(getListItemTitle('state', $ptrow['state']), xl('State')));
     }
 
     else if (keySearch($s, '{Zip}')) {
-      $s = keyReplace($s, $ptrow['postal_code']);
+      $s = keyReplace($s, dataFixup($ptrow['postal_code'], xl('Postal Code')));
     }
 
     else if (keySearch($s, '{PatientPhone}')) {
@@ -98,19 +144,19 @@ function doSubs($s) {
       if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp)) {
         $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
       }
-      $s = keyReplace($s, $ptphone);
+      $s = keyReplace($s, dataFixup($ptphone, xl('Phone')));
     }
 
     else if (keySearch($s, '{PatientDOB}')) {
-      $s = keyReplace($s, oeFormatShortDate($ptrow['DOB']));
+      $s = keyReplace($s, dataFixup(oeFormatShortDate($ptrow['DOB']), xl('Birth Date')));
     }
 
     else if (keySearch($s, '{PatientSex}')) {
-      $s = keyReplace($s, getListItemTitle('sex', $ptrow['sex']));
+      $s = keyReplace($s, dataFixup(getListItemTitle('sex', $ptrow['sex']), xl('Sex')));
     }
 
     else if (keySearch($s, '{DOS}')) {
-      $s = keyReplace($s, oeFormatShortDate(substr($enrow['date'], 0, 10)));
+      $s = keyReplace($s, dataFixup(oeFormatShortDate(substr($enrow['date'], 0, 10)), xl('Service Date')));
     }
 
     else if (keySearch($s, '{ChiefComplaint}')) {
@@ -124,7 +170,7 @@ function doSubs($s) {
           $cc = $tmp['pc_hometext'];
         }
       }
-      $s = keyReplace($s, $cc);
+      $s = keyReplace($s, dataFixup($cc, xl('Chief Complaint')));
     }
 
     else if (keySearch($s, '{ReferringDOC}')) {
@@ -137,33 +183,75 @@ function doSubs($s) {
         if ($tmp) $tmp .= ' ';
         $tmp .= $ptrow['ur_lname'];
       }
-      $s = keyReplace($s, $tmp);
+      $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
     }
 
     else if (keySearch($s, '{Allergies}')) {
       $tmp = generate_plaintext_field(array('data_type'=>'24','list_id'=>''), '');
-      $s = keyReplace($s, $tmp);
+      $s = keyReplace($s, dataFixup($tmp, xl('Allergies')));
+    }
+
+    else if (keySearch($s, '{Medications}')) {
+      $s = keyReplace($s, dataFixup(getIssues('medication'), xl('Medications')));
     }
 
     else if (keySearch($s, '{ProblemList}')) {
-      $tmp = '';
-      $query = "SELECT title FROM lists WHERE " .
-        "pid = ? AND type = 'medical_problem' AND enddate IS NULL " .
-        "ORDER BY begdate";
-      $lres = sqlStatement($query, array($GLOBALS['pid']));
-      $count = 0;
-      while ($lrow = sqlFetchArray($lres)) {
-        if ($count++) $tmp .= "; ";
-        $tmp .= $lrow['title'];
+      $s = keyReplace($s, dataFixup(getIssues('medical_problem'), xl('Problem List')));
+    }
+
+    // This tag indicates the fields from here until {/GRP} are a group of fields
+    // separated by semicolons.  Fields with no data are omitted, and fields with
+    // data are prepended with their field label from the form layout.
+    else if (keySearch($s, '{GRP}')) {
+      ++$groupLevel;
+      $groupCount = 0;
+      $s = keyReplace($s, '');
+    }
+
+    else if (keySearch($s, '{/GRP}')) {
+      if ($groupLevel > 0) --$groupLevel;
+      $s = keyReplace($s, '');
+    }
+
+    // This is how we specify the separator between group items in a way that
+    // is independent of the document format. Whatever is between {ITEMSEP} and
+    // {/ITEMSEP} is the separator string.  Default is "; ".
+    else if (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) {
+      $itemSeparator = $matches[1];
+      $keyLength = strlen($matches[0]);
+      $s = keyReplace($s, '');
+    }
+
+    // This handles keys like {LBFxxx:fieldid} for layout-based encounter forms.
+    else if (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+      $formname = $matches[1];
+      $fieldid  = $matches[2];
+      $keyLength = 3 + strlen($formname) + strlen($fieldid);
+      $data = '';
+      $currvalue = '';
+      $title = '';
+      $frow = sqlQuery("SELECT * FROM layout_options " .
+        "WHERE form_id = ? AND field_id = ? LIMIT 1",
+        array($formname, $fieldid));
+      if (!empty($frow)) {
+        $ldrow = sqlQuery("SELECT ld.field_value " .
+          "FROM lbf_data AS ld, forms AS f WHERE " .
+          "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " .
+          "ld.form_id = f.form_id AND ld.field_id = ? " .
+          "ORDER BY f.form_id DESC LIMIT 1",
+          array($pid, $encounter, $formname, $fieldid));
+        if (!empty($ldrow)) {
+          $currvalue = $ldrow['field_value'];
+          $title = $frow['title'];
+        }
+        if ($currvalue !== '') {
+          $data = generate_plaintext_field($frow, $currvalue);
+        }
       }
-      $s = keyReplace($s, $tmp);
+      $s = keyReplace($s, dataFixup($data, $title));
     }
 
-    else {
-      break;
-    }
-
-  }
+  } // End if { character found.
 
   return $s;
 }
@@ -177,6 +265,8 @@ $ptrow = sqlQuery("SELECT pd.*, " .
   "LEFT JOIN users AS ur ON ur.id = pd.ref_providerID " .
   "WHERE pd.pid = ?", array($pid));
 $enrow = array();
+
+// Get some info for the currently selected encounter.
 if ($encounter) {
   $enrow = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND " .
     "encounter = ?", array($pid, $encounter));
