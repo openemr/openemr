@@ -1,6 +1,6 @@
 openemr (4.1.2-3) stable; urgency=low
 
-  * New upstream patch (patch number 6)
+  * New upstream patch (patch number 7)
   * Fixes to work with Ubuntu 12.10, 13.10 and 14.04
 
  -- Brady Miller <brady@sparmy.com>  Tue, 29 Apr 2014 19:12:02 -0700
