@@ -864,21 +864,36 @@ function PatientFreeformAllergy($doc,$r,$pid)
 	return $allergyId;
 }
 
-function PatientFreeformHealthplans($doc,$r,$pid)
-{
-    $res=sqlStatement("SELECT `name`,`type` FROM insurance_companies AS ic, insurance_data AS id
-    WHERE ic.id=id.provider AND id.pid=?",array($pid));
-    while($row=sqlFetchArray($res))    
-    {    
-        $b = $doc->createElement( "PatientFreeformHealthplans" );
-            $allergyName = $doc->createElement( "healthplanName" );
-                $allergyName->appendChild(
-                    $doc->createTextNode( stripSpecialCharacter(trimData($row['name'],35)) )
-                );
-            $b->appendChild( $allergyName );
-        $r->appendChild( $b );
-    }
-}
+function PatientFreeformHealthplans($doc, $r, $pid) {
+    $resource = sqlStatement('SELECT
+            `ins`.`name`
+        FROM (
+            SELECT
+                `id`.`type`,
+                `ic`.`name`
+            FROM `insurance_data` AS `id`
+                LEFT JOIN `insurance_companies` AS `ic` ON `ic`.`id` = `id`.`provider`
+            WHERE `id`.`pid` = ?
+                AND `id`.`subscriber_relationship` = \'self\'
+                AND `id`.`provider` > 0
+            ORDER BY `id`.`date` DESC
+        ) AS `ins`
+        GROUP BY `ins`.`type`;',
+        array($pid)
+    );
+
+    while($row = sqlFetchArray($resource)) {
+        $healthplanName = $doc->createElement('healthplanName');
+        $healthplanName->appendChild($doc->createTextNode(
+            stripSpecialCharacter(trimData($row['name'], 35))
+        ));
+
+        $patientFreeformHealthplans = $doc->createElement('PatientFreeformHealthplans');
+        $patientFreeformHealthplans->appendChild($healthplanName);
+
+        $r->appendChild($patientFreeformHealthplans);
+     }
+ }
 
 function PrescriptionRenewalResponse($doc,$r,$pid)
 {
