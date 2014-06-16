@@ -106,6 +106,11 @@ class Tree {
 	    //if parent is 0 then the node has no parents, the number of nodes in the id_name lookup always includes any nodes
 	    //that could be the parent of any future node in the record set, the order is deterministic because of the algorithm
 	    while($parent != 0 && $loop < count($this->_id_name)) {
+		  //if the root does not start at 1, you sometimes find your parent that is null
+		  //it should stop when you find your parent is null and it means you search to the top end of ancestors
+		  if (!isset($this->_id_name[$parent])) {
+		    break;
+		  }
 		  $ar_string = "[\"" . ($this->_id_name[$parent]['id']) . "\"]" . $ar_string;
 		  $loop++;
 		  $parent = $this->_id_name[$parent]['parent'];
