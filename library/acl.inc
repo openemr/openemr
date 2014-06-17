@@ -111,6 +111,8 @@
   //
   // Section "patientportal" (Patient Portal):
   //   portal     Patient Portal
+  // Section "menus" (Menus):
+  //   modle      Module
   
   if (isset ($phpgacl_location)) {
     $GLOBALS['phpgacl_location_global'] = $phpgacl_location;
@@ -733,4 +735,86 @@
    }
    return $arr2;
   }
+  /**
+  * Checks ACL
+  * 
+  * Same Functionality in the Zend Module
+  * for ACL Check in Zend
+  * Path openemr/interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable
+  * Function Name zAclCheck
+  * 
+  * @param String $user_id Auth user Id
+  * $param String $section_identifier ACL Section id
+  * @return boolean
+  */
+  function zh_acl_check($user_id,$section_identifier){
+    $sql_user_acl = " SELECT 
+                        COUNT(allowed) AS count 
+                      FROM
+                        module_acl_user_settings AS usr_settings 
+                        LEFT JOIN module_acl_sections AS acl_sections 
+                            ON usr_settings.section_id = acl_sections.`section_id` 
+                      WHERE 
+                          acl_sections.section_identifier = ? AND usr_settings.user_id = ? AND usr_settings.allowed = ?";
+    $sql_user_group = " SELECT 
+                          gagp.id AS group_id
+                        FROM
+                          gacl_aro AS garo 
+                          LEFT JOIN `gacl_groups_aro_map` AS gamp 
+                            ON garo.id = gamp.aro_id 
+                          LEFT JOIN `gacl_aro_groups` AS gagp
+                            ON gagp.id = gamp.group_id
+                          RIGHT JOIN `users_secure` usr 
+                            ON usr. username =  garo.value
+                        WHERE
+                          garo.section_value = ? AND usr. id = ?";    
+    $res_groups     = sqlStatement($sql_user_group,array('users',$user_id));
+    $groups = array();
+    while($row = sqlFetchArray($res_groups)){
+      array_push($groups,$row['group_id']);
+    }
+    $groups_str = implode(",",$groups);
+    $arr_temp = array();
+    $arr_count = count($groups);
+    for($i=0;$i<$arr_count;$i++){
+      $arr_temp[$i] = "?";
+    }
+
+    $sql_group_acl  = " SELECT 
+                        COUNT(allowed) AS count 
+                      FROM
+                        module_acl_group_settings AS group_settings 
+                        LEFT JOIN module_acl_sections AS  acl_sections
+                          ON group_settings.section_id = acl_sections.section_id
+                      WHERE
+                        acl_sections.`section_identifier` = ? AND group_settings.group_id IN (".implode('?,',$arr_temp).") AND group_settings.allowed = ?";
+                                    
+        $count_user_denied      = 0;
+        $count_user_allowed     = 0;
+        $count_group_denied     = 0;
+        $count_group_allowed    = 0;
+
+        $res_user_denied        = sqlQuery($sql_user_acl,array($section_identifier,$user_id,0));
+        $count_user_denied      = $res_user_denied['count'];
+        
+        $res_user_allowed       = sqlQuery($sql_user_acl,array($section_identifier,$user_id,1));
+        $count_user_allowed     = $res_user_allowed['count'];
+        
+        $res_group_denied       = sqlQuery($sql_group_acl,array($section_identifier,$groups_str,0));
+        $count_group_denied     = $res_group_denied['count'];
+        
+        $res_group_allowed      = sqlQuery($sql_group_acl,array($section_identifier,$groups_str,1));
+        $count_group_allowed    = $res_group_allowed['count'];
+
+        if($count_user_denied > 0)
+            return false;
+        elseif($count_user_allowed > 0)
+            return true;
+        elseif($count_group_denied > 0)
+            return false;
+        elseif($count_group_allowed > 0)
+            return true;
+        else
+            return false;
+    }
 ?>

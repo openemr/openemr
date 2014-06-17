@@ -392,6 +392,11 @@ $sl_dbuser      = 'sql-ledger'; // sql-ledger database login name
 $sl_dbpass      = 'secret';     // sql-ledger database login password
 //////////////////////////////////////////////////////////////////
 
+//module configurations
+$GLOBALS['baseModDir'] 	= "interface/modules/"; //default path of modules
+$GLOBALS['customModDir']= "custom_modules";	//non zend modules
+$GLOBALS['zendModDir']	= "zend_modules";	//zend modules
+
 // Don't change anything below this line. ////////////////////////////
 
 $encounter = empty($_SESSION['encounter']) ? 0 : $_SESSION['encounter'];

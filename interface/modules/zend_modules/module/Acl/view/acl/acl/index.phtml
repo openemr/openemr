@@ -1,0 +1,113 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    @author  Jacob T.Paul <jacob@zhservices.com>
+*    @author  Basil PT <basil@zhservices.com>
+*          
+* +------------------------------------------------------------------------------+
+*/
+
+$listener = $this->listenerObject;
+?>
+<script type="text/javascript">
+    var ajax_path = "<?php echo $GLOBALS['webroot']; ?>/interface/modules/zend_modules/public/acl/ajax";
+    $(document).ready(function(){
+        <?php if($this->component_id != ''){?>
+            selectThis("<?php echo $this->component_id; ?>");
+            selected_component = "<?php echo $this->component_id; ?>";
+            rebuild();
+	<?php } ?>
+    });
+</script>
+<div id="add_new_components" class="popup_items" >
+    <center>
+				<div class="head"><?php echo $listener->z_xlt('Add New Components'); ?></div>
+		</center>
+		
+		<table align="center">
+				<tr>
+						<td><?php echo $listener->z_xlt('Module'); ?></td>
+						<td>
+								<select id="add_component_mod_id" onchange="getSectionById(this.value);">
+										<option value=''></option>
+										<?php
+										foreach($this->active_modules as $mod_id => $mod_name) :
+										?>
+									<option value="<?php echo $this->escapeHtml($mod_id);?>"><?php echo $this->escapeHtml($mod_name);?></option>
+										<?php
+										endforeach
+										?>
+								</select>
+						</td>
+				</tr>
+				<tr>
+						<td><?php echo $listener->z_xlt('Parent'); ?></td>
+						<td><select id="add_component_section_id"></select></td>
+				</tr>
+				<tr>
+						<td><?php echo $listener->z_xlt('Section ID'); ?></td>
+						<td><input id="add_component_section_identifier" type="text"></td>
+				</tr>
+				<tr>
+						<td><?php echo $listener->z_xlt('Section Name'); ?></td>
+						<td><input id="add_component_section_name" type="text"></td>
+				</tr>
+				<tr>
+						<td colspan="2" style="text-align: right;"><a href="#" onclick="addSectionSave();" class="myButton" title="<?php echo $listener->z_xla('Add New Component'); ?>"><?php echo $listener->z_xlt('Add'); ?></a></td>
+				</tr>
+				<tr>
+						<td colspan="2" style="text-align: right;"><span id="add_component_section_message" style="color: #3AA845;"></span></td>
+				</tr>
+		</table>
+</div>
+
+<div style="display: none;"><div id="control_div"><a href="#" ><?php echo $listener->z_xlt('Collapse All'); ?></a>|<a href="#" id="expand_tree"><?php echo $listener->z_xlt('Expand All'); ?></a></div></div>
+
+<center>
+		<div class="scrollable default-skin" style="width: 750px;height: 600px;">
+				<table id="outer_table" align="center" >
+						<tr>
+								<td>
+										<span id="messages"></span>
+												<table style="width:100%;" cellspacing='5'>
+														<tr>
+																<td colspan="4" class="delete_droppable"></td>
+														</tr>
+														
+														<tr style="height: 30px;"> 
+																<td style="border: solid 1px #305A99" class="container head"><?php echo $listener->z_xlt('Components'); ?> &nbsp;<?php if(!$this->module_id) {?><a href="#" onclick="addNewItem('components');" class="myButton" title="<?php echo $listener->z_xla('Add New Component'); ?>"><?php echo $listener->z_xlt('Add'); ?></a><?php } ?></td>
+																<td style="border: solid 1px #305A99" class="container head"><?php echo $listener->z_xlt('Group') . '/' . $listener->z_xlt('Users'); ?></td>
+																<td style="border: solid 1px #2A6614;background-color:#E4F7CD;" class="container head"><?php echo $listener->z_xlt('Allowed'); ?></td>
+																<td style="border: solid 1px #B32317;background-color:#F9C7C7;" class="container head"><?php echo $listener->z_xlt('Denied'); ?></td>
+														</tr>
+														
+														<tr style="height: 50px;"> 
+																<td class="container_div" id="td_componets" style="background-color:#E0ECFF;border: solid 1px #305A99"><?php echo $this->sections; ?></td>
+																<td class="container_div" id="td_users" style="background-color:#E0ECFF;border: solid 1px #305A99;"><?php echo $this->user_group_main; ?></td>
+																<td style="border: solid 1px #2A6614;background-color:#E4F7CD;" class="container_div droppableAllowed" id="td_allowed_users"><?php echo $this->user_group_allowed; ?></td>
+																<td style="border: solid 1px #B32317;background-color:#F9C7C7;" class="container_div droppableDenied" id="td_denied_users"><?php echo $this->user_group_denied; ?></td>
+														</tr>
+														
+														<tr>
+																<td colspan="4" class="delete_droppable"></td>
+														</tr>
+												</table>
+								</td>
+						</tr>
+				</table>
+		</div>
+</center>

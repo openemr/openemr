@@ -132,7 +132,6 @@ function escape_sql_column_name($s,$tables,$long=FALSE) {
  * table name through this function (To avoid confusion, there is a wrapper function
  * entitled mitigateSqlTableUpperCase() that is used when just need to mitigate casing
  * for table names that contain any uppercase letters).
- *
  * @param   string $s  sql table name variable to be escaped/sanitized.
  * @return  string     Escaped table name variable.
  */
