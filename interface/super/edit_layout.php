@@ -375,7 +375,7 @@ function writeFieldLine($linedata) {
     //echo " <tr bgcolor='$bgcolor'>\n";
     echo " <tr id='fld[$fld_line_no]' class='".($fld_line_no % 2 ? 'even' : 'odd')."'>\n";
   
-    echo "  <td class='optcell' nowrap>";
+    echo "  <td class='optcell' style='width:4%' nowrap>";
     // tuck the group_name INPUT in here
     echo "<input type='hidden' name='fld[$fld_line_no][group]' value='" .
          htmlspecialchars($linedata['group_name'], ENT_QUOTES) . "' class='optin' />";
@@ -386,10 +386,11 @@ function writeFieldLine($linedata) {
             "title='".htmlspecialchars(xl('Select field', ENT_QUOTES))."'>";
 
     echo "<input type='text' name='fld[$fld_line_no][seq]' id='fld[$fld_line_no][seq]' value='" .
-         htmlspecialchars($linedata['seq'], ENT_QUOTES) . "' size='2' maxlength='3' class='optin' />";
+      htmlspecialchars($linedata['seq'], ENT_QUOTES) . "' size='2' maxlength='3' " .
+      "class='optin' style='width:36pt' />";
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell' $lbfonly>";
+    echo "  <td align='center' class='optcell' $lbfonly style='width:3%'>";
     echo "<select name='fld[$fld_line_no][source]' class='optin noselect' $lbfonly>";
     foreach ($sources as $key => $value) {
         echo "<option value='$key'";
@@ -399,10 +400,10 @@ function writeFieldLine($linedata) {
     echo "</select>";
     echo "</td>\n";
 
-    echo "  <td align='left' class='optcell'>";
+    echo "  <td align='left' class='optcell' style='width:10%'>";
     echo "<input type='text' name='fld[$fld_line_no][id]' value='" .
          htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63'
-         class='optin noselect' />";
+         class='optin noselect' style='width:100%' />";
          // class='optin noselect' onclick='FieldIDClicked(this)' />";
     /*
     echo "<input type='hidden' name='fld[$fld_line_no][id]' value='" .
@@ -411,17 +412,17 @@ function writeFieldLine($linedata) {
     */
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:12%'>";
     echo "<input type='text' id='fld[$fld_line_no][title]' name='fld[$fld_line_no][title]' value='" .
-         htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' />";
+         htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' style='width:100%' />";
     echo "</td>\n";
 
     // if not english and set to translate layout labels, then show the translation
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-        echo "<td align='center' class='translation'>" . htmlspecialchars(xl($linedata['title']), ENT_QUOTES) . "</td>\n";
+        echo "<td align='center' class='translation' style='width:10%'>" . htmlspecialchars(xl($linedata['title']), ENT_QUOTES) . "</td>\n";
     }
 	
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     echo "<select name='fld[$fld_line_no][uor]' class='optin'>";
     foreach (array(0 =>xl('Unused'), 1 =>xl('Optional'), 2 =>xl('Required')) as $key => $value) {
         echo "<option value='$key'";
@@ -431,7 +432,7 @@ function writeFieldLine($linedata) {
     echo "</select>";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:8%'>";
     echo "<select name='fld[$fld_line_no][data_type]' id='fld[$fld_line_no][data_type]' onchange=NationNotesContext('".$fld_line_no."',this.value)>";
     echo "<option value=''></option>";
     GLOBAL $datatypes;
@@ -444,7 +445,7 @@ function writeFieldLine($linedata) {
     echo "</select>";
     echo "  </td>";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     if ($linedata['data_type'] == 2 || $linedata['data_type'] == 3 ||
       $linedata['data_type'] == 21 || $linedata['data_type'] == 22 ||
       $linedata['data_type'] == 23 || $linedata['data_type'] == 25 ||
@@ -473,13 +474,14 @@ function writeFieldLine($linedata) {
     }
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     echo "<input type='text' name='fld[$fld_line_no][maxSize]' value='" .
       htmlspecialchars($linedata['max_length'], ENT_QUOTES) .
-      "' size='1' maxlength='10' class='optin' title='" . xla('Maximum Size (entering 0 will allow any size)') . "' />";
+      "' size='1' maxlength='10' class='optin' style='width:100%' " .
+      "title='" . xla('Maximum Size (entering 0 will allow any size)') . "' />";
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:8%'>";
     if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 21 ||
       $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
       $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
@@ -490,12 +492,12 @@ function writeFieldLine($linedata) {
       $type = "";
       $disp = "style='display:none'";
       if($linedata['data_type'] == 34){
-      $type = "style='display:none'";
-      $disp = "";
+        $type = "style='display:none'";
+        $disp = "";
       }
       echo "<input type='text' name='fld[$fld_line_no][list_id]'  id='fld[$fld_line_no][list_id]' value='" .
         htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".$type.
-        " size='6' maxlength='30' class='optin listid' style='cursor: pointer'".
+        " size='6' maxlength='30' class='optin listid' style='width:100%;cursor:pointer'".
         "title='". xl('Choose list') . "' />";
     
       echo "<select name='fld[$fld_line_no][contextName]' id='fld[$fld_line_no][contextName]' ".$disp.">";
@@ -515,14 +517,13 @@ function writeFieldLine($linedata) {
     echo "</td>\n";
 
     //Backup List Begin
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
         $linedata['data_type'] == 33 || $linedata['data_type'] == 36)
     {
-    
         echo "<input type='text' name='fld[$fld_line_no][list_backup_id]' value='" .
     	    htmlspecialchars($linedata['list_backup_id'], ENT_QUOTES) .
-    	    "' size='3' maxlength='10' class='optin listid' style='cursor: pointer' />";
+    	    "' size='3' maxlength='10' class='optin listid' style='cursor:pointer; width:100%' />";
     }
     else {
         echo "<input type='hidden' name='fld[$fld_line_no][list_backup_id]' value=''>";
@@ -530,18 +531,17 @@ function writeFieldLine($linedata) {
     echo "</td>\n";
     //Backup List End
     
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     echo "<input type='text' name='fld[$fld_line_no][titlecols]' value='" .
-         htmlspecialchars($linedata['titlecols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' />";
-
+         htmlspecialchars($linedata['titlecols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     echo "<input type='text' name='fld[$fld_line_no][datacols]' value='" .
-         htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' />";
+         htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' title='" .
+    echo "  <td align='center' class='optcell' style='width:5%' title='" .
         "C = " . xla('Capitalize') .
         ", D = " . xla('Dup Check') .
         ", G = " . xla('Graphable') .
@@ -557,7 +557,8 @@ function writeFieldLine($linedata) {
         ", 2 = " . xla('Billing Code Descriptions') . 
             "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
-         htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' maxlength='36' class='optin' />";
+      htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' " .
+      "maxlength='36' class='optin' style='width:100%' />";
     echo "</td>\n";
  
     /*****************************************************************
@@ -582,24 +583,24 @@ function writeFieldLine($linedata) {
     *****************************************************************/
 
     if ($linedata['data_type'] == 31) {
-      echo "  <td align='center' class='optcell'>";
-      echo "<textarea name='fld[$fld_line_no][desc]' rows='3' cols='35' class='optin'>" .
+      echo "  <td align='center' class='optcell' style='width:24%'>";
+      echo "<textarea name='fld[$fld_line_no][desc]' rows='3' cols='35' class='optin' style='width:100%'>" .
            $linedata['description'] . "</textarea>";
       echo "<input type='hidden' name='fld[$fld_line_no][default]' value='" .
          htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' />";
       echo "</td>\n";
     }
     else {
-      echo "  <td align='center' class='optcell'>";
+      echo "  <td align='center' class='optcell' style='width:24%'>";
       echo "<input type='text' name='fld[$fld_line_no][desc]' value='" .
         htmlspecialchars($linedata['description'], ENT_QUOTES) .
-        "' size='30' maxlength='63' class='optin' />";
+        "' size='30' maxlength='63' class='optin' style='width:100%' />";
       echo "<input type='hidden' name='fld[$fld_line_no][default]' value='" .
         htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' />";
       echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
       if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-        echo "<td align='center' class='translation'>" .
+        echo "<td align='center' class='translation' style='width:10%'>" .
         htmlspecialchars(xl($linedata['description']), ENT_QUOTES) . "</td>\n";
       }
     }
@@ -729,16 +730,16 @@ while ($row = sqlFetchArray($res)) {
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
   <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
-  <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
-  <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('ID','e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
   <?php // if not english and showing layout label translations, then show translation header for title
   if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'> (?)</span></th>";	
+   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";	
   } ?>		  
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
   <th><?php xl('Size','e'); ?></th>
-  <th><?php xl('Maximum Size','e'); ?></th>
+  <th><?php xl('Max Size','e'); ?></th>
   <th><?php xl('List','e'); ?></th>
   <th><?php xl('Backup List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
@@ -747,7 +748,7 @@ while ($row = sqlFetchArray($res)) {
   <th><?php xl('Description','e'); ?></th>
   <?php // if not english and showing layout label translations, then show translation header for description
   if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translation of description in current language')."'> (?)</span></th>";
+   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translation of description in current language')."'>&nbsp;(?)</span></th>";
   } ?>
  </tr>
 </thead>
@@ -797,12 +798,12 @@ while ($row = sqlFetchArray($res)) {
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
   <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
-  <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
-  <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('ID','e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
   <th><?php xl('Size','e'); ?></th>
-  <th><?php xl('Maximum Size','e'); ?></th>
+  <th><?php xl('Max Size','e'); ?></th>
   <th><?php xl('List','e'); ?></th>
   <th><?php xl('Backup List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
@@ -880,12 +881,12 @@ foreach ($datatypes as $key=>$value) {
   <tr class='head'>
    <th><?php xl('Order','e'); ?></th>
    <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
-   <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
-   <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
+   <th><?php xl('ID','e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
+   <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
    <th><?php xl('UOR','e'); ?></th>
    <th><?php xl('Data Type','e'); ?></th>
    <th><?php xl('Size','e'); ?></th>
-   <th><?php xl('Maximum Size','e'); ?></th>
+   <th><?php xl('Max Size','e'); ?></th>
    <th><?php xl('List','e'); ?></th>
    <th><?php xl('Backup List','e'); ?></th>
    <th><?php xl('Label Cols','e'); ?></th>
