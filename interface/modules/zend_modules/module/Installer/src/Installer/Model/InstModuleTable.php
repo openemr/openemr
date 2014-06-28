@@ -476,17 +476,6 @@ class InstModuleTable
   }
   
   /**
-   * Function to Delete ACL
-   */
-  public function DeleteAcl($post)
-  {
-    if($post['aclID'] && $post['user']){
-      $sql = "DELETE FROM gacl_aro_map WHERE acl_id=? AND value=?";
-      $this->applicationTable->zQuery($sql, array($post['aclID'], $post['user']));
-    }
-  }
-  
-  /**
    * Function to Delete Hooks
    */
   public function saveHooks($modId,$hookId,$hangerId)
