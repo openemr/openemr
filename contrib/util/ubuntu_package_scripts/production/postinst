@@ -235,7 +235,8 @@ case "$1" in
          chmod 600 $OPENEMR/ippf_upgrade.php
          chmod 600 $OPENEMR/gacl/setup.php
 
-         #set writable directories (that are not within sites directory)
+         #set writable files and directories (that are not within sites directory)
+         chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
          chown -R $WEB_GROUP.$WEB_USER $OPENEMR/library/freeb
          chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache 
          chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled 
@@ -504,6 +505,7 @@ case "$1" in
 
       # Set file and directory permissions (note use default site directory for new install)
       chmod 666 $SITEDIR/default/sqlconf.php
+      chown $WEB_GROUP.$WEB_USER $OPENEMR/interface/modules/zend_modules/config/application.config.php
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/documents
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/edi
       chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/era

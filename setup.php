@@ -73,10 +73,12 @@ $gaclWritableDirectory = dirname(__FILE__)."/gacl/admin/templates_c";
 $requiredDirectory1 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
 $requiredDirectory2 = dirname(__FILE__)."/interface/main/calendar/modules/PostCalendar/pntemplates/cache";
 
+$zendModuleConfigFile = dirname(__FILE__)."/interface/modules/zend_modules/config/application.config.php";
+
 //These are files and dir checked before install for
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
-  $writableFileList = array($installer->conffile);
+  $writableFileList = array($installer->conffile,$zendModuleConfigFile);
   $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 }
 else {
