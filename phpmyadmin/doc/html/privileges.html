@@ -1,0 +1,169 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>User management &mdash; phpMyAdmin 4.2.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '4.2.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="top" title="phpMyAdmin 4.2.5 documentation" href="index.html" />
+    <link rel="up" title="User Guide" href="user.html" />
+    <link rel="next" title="Other sources of information" href="other.html" />
+    <link rel="prev" title="Transformations" href="transformations.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="other.html" title="Other sources of information"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="transformations.html" title="Transformations"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">phpMyAdmin 4.2.5 documentation</a> &raquo;</li>
+          <li><a href="user.html" accesskey="U">User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="user-management">
+<h1>User management<a class="headerlink" href="#user-management" title="Permalink to this headline">¶</a></h1>
+<p>User management is the process of controlling which users are allowed to
+connect to the MySQL server and what permissions they have on each database.
+phpMyAdmin does not handle user management, rather it passes the username and
+password on to MySQL, which then determines whether a user is permitted to
+perform a particular action. Within phpMyAdmin, administrators have full
+control over creating users, viewing and editing privileges for existing users,
+and removing users.</p>
+<p>Within phpMyAdmin, user management is controlled via the <em class="guilabel">Users</em> link
+from the main page. Users can be created, edited, and removed.</p>
+<div class="section" id="creating-a-new-user">
+<h2>Creating a new user<a class="headerlink" href="#creating-a-new-user" title="Permalink to this headline">¶</a></h2>
+<p>To create a new user, click the <em class="guilabel">Add a new user</em> link near the bottom
+of the <em class="guilabel">Users</em> page (you must be a &#8220;superuser&#8221;, e.g., user &#8220;root&#8221;).
+Use the textboxes and drop-downs to configure the user to your particular
+needs. You can then select whether to create a database for that user and grant
+specific global privileges. Once you&#8217;ve created the user (by clicking Go), you
+can define that user&#8217;s permissions on a specific database (don&#8217;t grant global
+privileges in that case). In general, users do not need any global privileges
+(other than USAGE), only permissions for their specific database.</p>
+</div>
+<div class="section" id="editing-an-existing-user">
+<h2>Editing an existing user<a class="headerlink" href="#editing-an-existing-user" title="Permalink to this headline">¶</a></h2>
+<p>To edit an existing user, simply click the pencil icon to the right of that
+user in the <em class="guilabel">Users</em> page. You can then edit their global- and
+database-specific privileges, change their password, or even copy those
+privileges to a new user.</p>
+</div>
+<div class="section" id="deleting-a-user">
+<h2>Deleting a user<a class="headerlink" href="#deleting-a-user" title="Permalink to this headline">¶</a></h2>
+<p>From the <em class="guilabel">Users</em> page, check the checkbox for the user you wish to
+remove, select whether or not to also remove any databases of the same name (if
+they exist), and click Go.</p>
+</div>
+<div class="section" id="assigning-privileges-to-user-for-a-specific-database">
+<h2>Assigning privileges to user for a specific database<a class="headerlink" href="#assigning-privileges-to-user-for-a-specific-database" title="Permalink to this headline">¶</a></h2>
+<p>Users are assigned to databases by editing the user record (from the
+<em class="guilabel">Users</em> link on the home page) not from within the <em class="guilabel">Users</em>
+link under the table. If you are creating a user specifically for a given table
+you will have to create the user first (with no global privileges) and then go
+back and edit that user to add the table and privileges for the individual
+table.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">User management</a><ul>
+<li><a class="reference internal" href="#creating-a-new-user">Creating a new user</a></li>
+<li><a class="reference internal" href="#editing-an-existing-user">Editing an existing user</a></li>
+<li><a class="reference internal" href="#deleting-a-user">Deleting a user</a></li>
+<li><a class="reference internal" href="#assigning-privileges-to-user-for-a-specific-database">Assigning privileges to user for a specific database</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="transformations.html"
+                        title="previous chapter">Transformations</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="other.html"
+                        title="next chapter">Other sources of information</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/privileges.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="other.html" title="Other sources of information"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="transformations.html" title="Transformations"
+             >previous</a> |</li>
+        <li><a href="index.html">phpMyAdmin 4.2.5 documentation</a> &raquo;</li>
+          <li><a href="user.html" >User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; <a href="copyright.html">Copyright</a> 2012 - 2014, The phpMyAdmin devel team.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
