@@ -314,17 +314,28 @@ function generate_form_field($frow, $currvalue) {
     echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
     echo "<option value='0'></option>";
     $pres = get_pharmacies();
+    $got_selected = false;
     while ($prow = sqlFetchArray($pres)) {
       $key = $prow['id'];
       $optionValue = htmlspecialchars( $key, ENT_QUOTES);
       $optionLabel = htmlspecialchars( $prow['name'] . ' ' . $prow['area_code'] . '-' .
         $prow['prefix'] . '-' . $prow['number'] . ' / ' .
-	$prow['line1'] . ' / ' . $prow['city'], ENT_NOQUOTES);
+        $prow['line1'] . ' / ' . $prow['city'], ENT_NOQUOTES);
       echo "<option value='$optionValue'";
-      if ($currvalue == $key) echo " selected";
+      if ($currvalue == $key) {
+        echo " selected";
+        $got_selected = true;
+      }
       echo ">$optionLabel</option>";
     }
-    echo "</select>";
+    if (!$got_selected && strlen($currvalue) > 0) {
+      echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+      echo "</select>";
+      echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+    }
+    else {
+      echo "</select>";
+    }
   }
 
   // squads
