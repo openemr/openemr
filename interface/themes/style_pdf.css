@@ -592,9 +592,6 @@ font-weight: bold;
     padding: 10px;
     border-top: 1px solid gray;
 }
-#report_custom .encounter_form td {
-    width: 24%;
-}
 #report_custom img.bigimage {
     width: 540pt; /* 540pt = 7.5 inches */
 }
