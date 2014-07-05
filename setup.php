@@ -551,17 +551,22 @@ break;
 echo "<b>Step $state</b><br><br>\n";
 echo "Configuration of Apache web server...<br><br>\n";
 echo "The \"".preg_replace("/${site_id}/","*",realpath($docsDirectory))."\", \"".preg_replace("/${site_id}/","*",realpath($billingDirectory))."\" and \"".preg_replace("/${site_id}/","*",realpath($billingDirectory2))."\" directories contain patient information, and
-it is important to secure these directories. This can be done by placing pertinent .htaccess
-files in these directories or by pasting the below to end of your apache configuration file:<br>
-&nbsp;&nbsp;&lt;Directory ".preg_replace("/${site_id}/","*",realpath($docsDirectory))."&gt;<br>
+it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br>
+&nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."\"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br>
+&nbsp;&nbsp;&lt;/Directory&gt;<br>
+&nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."/sites\"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br>
+&nbsp;&nbsp;&lt;/Directory&gt;<br>
+&nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/","*",realpath($docsDirectory))."\"&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br>
-&nbsp;&nbsp;&lt;Directory ".preg_replace("/${site_id}/","*",realpath($billingDirectory))."&gt;<br>
+&nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/","*",realpath($billingDirectory))."\"&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br>
-&nbsp;&nbsp;&lt;Directory ".preg_replace("/${site_id}/","*",realpath($billingDirectory2))."&gt;<br>
+&nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/","*",realpath($billingDirectory2))."\"&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br><br>";

@@ -1,9 +1,10 @@
 git-openemr (1.0.0-3) stable; urgency=low
 
   * Fixes to work with Zend:
-  * Set permission for application.config.php file. 
+  * Set permission for application.config.php file.
+  * Configured apache to work with Zend.
 
- -- Brady Miller <brady@sparmy.com>  Sat, 28 Jun 2014 14:43:21 -0700
+ -- Brady Miller <brady@sparmy.com>  Mon, 07 Jul 2014 02:03:56 -0700
 
 git-openemr (1.0.0-2) stable; urgency=low
 

@@ -154,6 +154,16 @@ case "$1" in
          #go to openemr directory
          cd $OPENEMR
 
+         # NEED TO CONFIGURE APACHE BEFORE CONFIGURATION SINCE ZEND SUPPORT NEEDS PROPER CONFIGURATION
+         # Activate the OpenEMR conf file for apache
+         log_only "Activate OpenEMR config file for Apache"
+         a2ensite openemr.conf
+         # Ensure the apache rewrite module is turned on
+         a2enmod rewrite
+         # Restart the apache server
+         log_only "Restarting Apache service..."
+         invoke-rc.d apache2 restart >> $LOG 2>&1
+
          #To support the multisite module, go through each site
          for dir in $(find $SITEDIR/* -maxdepth 0 -type d ); do
             #collect sitename
@@ -263,12 +273,6 @@ case "$1" in
          sed -i "/^[ 	]*.*sqlpassword[ 	=].*$/d" $CONFIG
          sed -i "/^[ 	]*.*sqldatabase[ 	=].*$/d" $CONFIG
          sed -i "/^[ 	]*.*sqlutfflag[ 	=].*$/d" $CONFIG
-
-         # Activate the OpenEMR conf file for apache and restart apache
-         log_only "Activate OpenEMR config file for Apache"
-         a2ensite openemr.conf
-         log_only "Restarting Apache service"
-         invoke-rc.d apache2 restart >> $LOG 2>&1
 
          #done upgrading
          prompt_input openemr/success_upgrade critical ret_result 
@@ -431,12 +435,14 @@ case "$1" in
 
       log_only "Done configuring PHP"
 
+      # NEED TO CONFIGURE APACHE BEFORE CONFIGURATION SINCE ZEND SUPPORT NEEDS PROPER CONFIGURATION
       # Activate the OpenEMR conf file for apache
       log_only "Activate OpenEMR config file for Apache"
       a2ensite openemr.conf
-
-      # Restart apache
-      log_only "Restarting Apache service"
+      # Ensure the apache rewrite module is turned on
+      a2enmod rewrite
+      # Restart the apache server
+      log_only "Restarting Apache service..."
       invoke-rc.d apache2 restart >> $LOG 2>&1
 
       #collect the mysql root password (if applicable)

@@ -232,6 +232,16 @@ case "$1" in
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c
 
+      # NEED TO CONFIGURE APACHE BEFORE CONFIGURATION SINCE ZEND SUPPORT NEEDS PROPER CONFIGURATION
+      # Activate the OpenEMR conf file for apache
+      log_only "Activate OpenEMR config file for Apache"
+      a2ensite git-openemr.conf
+      # Ensure the apache rewrite module is turned on
+      a2enmod rewrite
+      # Restart the apache server
+      log_only "Restarting Apache service..."
+      invoke-rc.d apache2 restart >> $LOG 2>&1
+
       #CONFIGURE OPENEMR
       if $configure_flag; then
          # Create a random password for the openemr mysql user
@@ -258,13 +268,6 @@ case "$1" in
 
          log_only "Done configuring OpenEMR"
       fi
-
-      # Activate the OpenEMR conf file for apache
-      log_only "Activate OpenEMR config file for Apache"
-      a2ensite git-openemr.conf
-
-      log_only "Restarting Apache service..."
-      invoke-rc.d apache2 restart >> $LOG 2>&1
 
       #update config file, change process to complete and remove plan and pass
       sed -i "s/^[ 	]*process[ 	=].*$/process=complete/" $CONFIG
