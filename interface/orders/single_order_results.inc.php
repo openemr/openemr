@@ -60,7 +60,7 @@ function generate_order_report($orderid, $input_form=false) {
   if (!$thisauth) return xl('Not authorized');
 
   $orow = sqlQuery("SELECT " .
-    "po.procedure_order_id, po.date_ordered, " .
+    "po.procedure_order_id, po.date_ordered, po.control_id, " .
     "po.order_status, po.specimen_type, po.patient_id, " .
     "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.cmsportal_login, " .
     "fe.date, " .
@@ -151,6 +151,9 @@ function showpnotes(orderid) {
   echo myCellText($orow['procedure_order_id']);
   if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
     echo "</a>\n";
+  }
+  if ($orow['control_id']) {
+    echo myCellText(' ' . xl('Lab') . ': ' . $orow['control_id']);
   }
 ?>
   </td>

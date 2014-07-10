@@ -259,6 +259,13 @@ function receive_hl7_results(&$hl7) {
           // They did not return an encounter number to verify, so more checking
           // might be done here to make sure the patient seems to match.
         }
+        // Save the lab's control ID if there is one.
+        $tmp = explode($d2, $a[3]);
+        $control_id = $tmp[0];
+        if ($control_id && empty($porow['control_id'])) {
+          sqlStatement("UPDATE procedure_order SET control_id = ? WHERE " .
+            "procedure_order_id = ?", array($control_id, $in_orderid));
+        }
         $code_seq_array = array();
       }
       // Find the order line item (procedure code) that matches this result.
