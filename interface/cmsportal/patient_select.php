@@ -102,9 +102,17 @@ function openPatient(ptid) {
 
 <?php
 // print_r($result); // debugging
+$login_matches = 0;
+$login_pid = '';
 if ($postid) {
   $clarr = array();
   $clsql = "0";
+  // Portal Login
+  $cmsportal_login = trim($result['post']['user']);
+  if ($cmsportal_login !== '') {
+    $clsql .= " + ((cmsportal_login IS NOT NULL AND cmsportal_login = ?) * 100)";
+    $clarr[] = $cmsportal_login;
+  }
   // First name.
   $fname = trim($result['fields']['fname']);
   if ($fname !== '') {
@@ -182,7 +190,14 @@ if ($postid) {
 <?php
   while ($row = sqlFetchArray($res)) {
     if ($row['closeness'] == 0) continue;
-
+    if ($row['closeness'] >= 100) {
+      ++$login_matches;
+      $login_pid = $row['pid'];
+    }
+    else {
+      // We have a match on login name but this is not one, so ignore it.
+      if ($login_matches) continue;
+    }
     $phone = $row['phone_biz'];
     if (empty($phone)) $phone = $row['phone_home'];
     if (empty($phone)) $phone = $row['phone_cell'];
@@ -208,6 +223,14 @@ if ($postid) {
  </table>
 </div>
 <?php
+}
+if ($login_matches == 1) {
+  // There is exactly one match by portal login name, this must be it.
+  // There should not be more than one, but if there is then we will
+  // leave them onscreen and let the user choose.
+  echo "<script language='JavaScript'>\n";
+  echo "openPatient('" . addslashes($login_pid) . "');\n";
+  echo "</script>\n";
 }
 ?>
 
