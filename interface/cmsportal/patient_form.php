@@ -52,6 +52,10 @@ if ($_POST['bn_save']) {
   if (empty($ptid)) {
     $tmp = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
     $ptid = empty($tmp['pid']) ? 1 : intval($tmp['pid']);
+    if (empty($newdata['patient_data']['pubpid'])) {
+      // pubpid for new patient defaults to pid.
+      $newdata['patient_data']['pubpid'] = "$ptid";
+    }
     updatePatientData ($ptid, $newdata['patient_data' ], true);
     updateEmployerData($ptid, $newdata['employer_data'], true);
     newHistoryData($ptid);

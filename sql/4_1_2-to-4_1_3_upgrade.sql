@@ -260,6 +260,8 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq
   ('DEM', 'cmsportal_login', '3Choices', 'CMS Portal Login', 15, 2, 1, 30, 60, '', 1, 1, '', '', 'Login ID for the CMS Patient Portal', 0);
 #EndIf
 
+#IfNotColumnType procedure_order control_id varchar(255)
 ALTER TABLE `procedure_order` CHANGE `control_id`
   `control_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'This is the CONTROL ID that is sent back from lab';
+#EndIf
 
