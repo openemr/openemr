@@ -4,6 +4,7 @@ include_once("../../globals.php");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/forms.inc");
+include_once("$srcdir/patient.inc");
 
 // get various authorization levels
 $auth_notes_a  = acl_check('encounters', 'notes_a');
@@ -14,6 +15,11 @@ $auth_relaxed  = acl_check('encounters', 'relaxed');
 $auth_med      = acl_check('patients'  , 'med');
 $auth_demo     = acl_check('patients'  , 'demo');
 
+$cmsportal = false;
+if ($GLOBALS['gbl_portal_cms_enable']) {
+  $ptdata = getPatientData($pid, 'cmsportal_login');
+  $cmsportal = $ptdata['cmsportal_login'] !== '';
+}
 ?>
 <html>
 <head>
@@ -212,7 +218,10 @@ function show_date_fun(){
 
 <br>
 <input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />
+<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
+<?php if ($cmsportal) { ?>
+<input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
+<?php } ?>
 <input type='hidden' name='pdf' value='0'>
 <br>
 
@@ -387,7 +396,10 @@ foreach($registry_form_name as $var) {
  </tr>
 </table>
 <input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />
+<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
+<?php if ($cmsportal) { ?>
+<input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
+<?php } ?>
 
 <hr/>
 
@@ -416,7 +428,10 @@ while ($result && !$result->EOF) {
 </form>
 
 <input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />
+<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
+<?php if ($cmsportal) { ?>
+<input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
+<?php } ?>
 
 </div>  <!-- close patient_reports DIV -->
 </body>
@@ -427,6 +442,7 @@ while ($result && !$result->EOF) {
 $(document).ready(function(){
     $(".genreport").click(function() { top.restoreSession(); document.report_form.pdf.value = 0; $("#report_form").submit(); });
     $(".genpdfrep").click(function() { top.restoreSession(); document.report_form.pdf.value = 1; $("#report_form").submit(); });
+    $(".genportal").click(function() { top.restoreSession(); document.report_form.pdf.value = 2; $("#report_form").submit(); });
     $("#genfullreport").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
     //$("#printform").click(function() { PrintForm(); });
     $(".issuecheckbox").click(function() { issueClick(this); });

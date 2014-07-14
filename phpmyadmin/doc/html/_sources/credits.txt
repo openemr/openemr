@@ -23,6 +23,8 @@ Credits, in chronological order
 
   * current project maintainer
 
+  * maintains content on our website
+
 * Olivier Müller <om\_at\_omnis.ch>
 
   * started SourceForge phpMyAdmin project in March 2001
@@ -37,7 +39,7 @@ Credits, in chronological order
 
   * rewrote and optimized javascript, DHTML and DOM stuff
 
-  * rewrote the scripts so they fit the :term:`PEAR` coding standards and 
+  * rewrote the scripts so they fit the :term:`PEAR` coding standards and
     generate XHTML1.0 and CSS2 compliant codes
 
   * improved the language detection system
@@ -133,6 +135,8 @@ Credits, in chronological order
   * various features and fixes
 
   * Czech language file updates
+
+  * created current website for phpMyAdmin
 
 * Christophe Gesché from the "MySQL Form Generator for PHPMyAdmin"
   (http://sf.net/projects/phpmysqlformgen/)
@@ -323,24 +327,53 @@ Credits, in chronological order
   * New plugins and properties system
 
 * Thilina Buddika Abeyrathna (Google Summer of Code 2012)
-  
+
   * Refactoring
 
 * Atul Pratap Singh  (Google Summer of Code 2012)
-  
+
   * Refactoring
 
 * Chanaka Indrajith (Google Summer of Code 2012)
-  
+
   * Refactoring
 
 * Yasitha Pandithawatta (Google Summer of Code 2012)
-  
+
   * Automated testing
 
 * Jim Wigginton (phpseclib.sourceforge.net)
 
   * phpseclib
+
+* Bin Zu (Google Summer of Code 2013)
+
+  * Refactoring
+
+* Supun Nakandala (Google Summer of Code 2013)
+
+  * Refactoring
+
+* Mohamed Ashraf (Google Summer of Code 2013)
+
+  * AJAX error reporting
+
+* Adam Kang (Google Summer of Code 2013)
+
+  * Automated testing
+
+* Ayush Chaudhary (Google Summer of Code 2013)
+
+  * Automated testing
+
+* Kasun Chathuranga (Google Summer of Code 2013)
+
+  * Interface improvements
+
+* Hugues Peccatte
+
+  * Load/save query by example (database search bookmarks)
+
 
 And also to the following people who have contributed minor changes,
 enhancements, bugfixes or support for a new language since version
@@ -363,11 +396,11 @@ Translators
 
 Following people have contributed to translation of phpMyAdmin:
 
-* Arabic 
+* Arabic
 
   * Abdullah Al-Saedi <abdullah.10\_at\_windowslive.com>
 
-* Bulgarian 
+* Bulgarian
 
   * stoyanster <stoyanster\_at\_gmail.com>
 
@@ -375,16 +408,16 @@ Following people have contributed to translation of phpMyAdmin:
 
   * Xavier Navarro <xvnavarro\_at\_gmail.com>
 
-* Czech 
+* Czech
 
   * Michal Čihař <michal\_at\_cihar.com>
 
-* Danish 
+* Danish
 
   * opensource <opensource\_at\_jth.net>
   * Jørgen Thomsen <opensource\_at\_jth.net>
 
-* German 
+* German
 
   * mrbendig <mrbendig\_at\_mrbendig.com>
   * torsten.funck <torsten.funck\_at\_googlemail.com>
@@ -392,7 +425,7 @@ Following people have contributed to translation of phpMyAdmin:
   * typo3 <typo3\_at\_dirk-weise.de>
   * Jo Michael <me\_at\_mynetx.net>
 
-* Greek 
+* Greek
 
   * Panagiotis Papazoglou <papaz_p\_at\_yahoo.com>
 
@@ -404,28 +437,28 @@ Following people have contributed to translation of phpMyAdmin:
 
   * Matías Bellone <matiasbellone\_at\_gmail.com>
 
-* French 
+* French
 
   * Marc Delisle <marc\_at\_infomarc.info>
 
-* Hindi 
+* Hindi
 
   * u4663530 <u4663530\_at\_anu.edu.au>
   * rsedwardian <rsedwardian\_at\_gmail.com>
 
-* Hungarian 
+* Hungarian
 
   * gergo314 <gergo314\_at\_gmail.com>
 
-* Italian 
+* Italian
 
   * Rouslan Placella <rouslan\_at\_placella.com>
 
-* Japanese 
+* Japanese
 
   * Yuichiro <yuichiro\_at\_pop07.odn.ne.jp>
 
-* Lithuanian 
+* Lithuanian
 
   * Kęstutis <forkik\_at\_gmail.com>
 
@@ -433,12 +466,12 @@ Following people have contributed to translation of phpMyAdmin:
 
   * Sven-Erik Andersen <sven.erik.andersen\_at\_gmail.com>
 
-* Dutch 
+* Dutch
 
   * Dieter Adriaenssens <ruleant\_at\_users.sourceforge.net>
   * Herman van Rink <rink\_at\_initfour.nl>
 
-* Polish 
+* Polish
 
   * Stanisław Krukowski <stankruk\_at\_neostrada.pl>
   * Marcin Kozioł <lord_dark\_at\_wp.pl>
@@ -447,28 +480,28 @@ Following people have contributed to translation of phpMyAdmin:
 
   * JoaoTMDias <contacto\_at\_joaodias.me>
 
-* Portuguese (Brazil) 
+* Portuguese (Brazil)
 
   * wiltave <wiltave\_at\_gmail.com>
   * emerson4br <emerson4br\_at\_gmail.com>
 
-* Romanian 
+* Romanian
 
   * alexukf <alex.ukf\_at\_gmail.com>
 
-* Russian 
+* Russian
 
   * Victor Volkov <hanut\_at\_php-myadmin.ru>
 
-* Sinhala 
+* Sinhala
 
   * Madhura Jayaratne <madhura.cj\_at\_gmail.com>
 
-* Slovak 
+* Slovak
 
   * Martin Lacina <martin\_at\_whistler.sk>
 
-* Slovenian 
+* Slovenian
 
   * Domen <dbc334\_at\_gmail.com>
 
@@ -476,15 +509,15 @@ Following people have contributed to translation of phpMyAdmin:
 
   * stefan <stefan\_at\_inkopsforum.se>
 
-* Tamil 
+* Tamil
 
   * ysajeepan <ysajeepan\_at\_live.com>
 
-* Telugu 
+* Telugu
 
   * veeven <veeven\_at\_gmail.com>
 
-* Thai 
+* Thai
 
   * kanitchet <kanichet\_at\_hotmail.com>
 
@@ -492,16 +525,16 @@ Following people have contributed to translation of phpMyAdmin:
 
   * Burak Yavuz <hitowerdigit\_at\_hotmail.com>
 
-* Uighur 
+* Uighur
 
   * gheni <gheni\_at\_yahoo.cn>
 
-* Ukrainian 
+* Ukrainian
 
   * typim <duke3d\_at\_ukr.net>
   * oleg-ilnytskyi <ukraine.oleg\_at\_gmail.com>
 
-* Urdu 
+* Urdu
 
   * Mehbooob Khan <mehboobbugti\_at\_gmail.com>
 
@@ -518,35 +551,35 @@ Documentation translators
 
 Following people have contributed to translation of phpMyAdmin documentation:
 
-* Czech 
+* Czech
 
   * Michal Čihař <michal\_at\_cihar.com>
 
-* Greek 
+* Greek
 
   * Panagiotis Papazoglou <papaz_p\_at\_yahoo.com>
 
-* English (United Kingdom) 
+* English (United Kingdom)
 
   * Robert Readman <robert_readman\_at\_hotmail.com>
 
-* French 
+* French
 
   * Cédric Corazza <cedric.corazza\_at\_wanadoo.fr>
 
-* Japanese 
+* Japanese
 
   * Yuichiro Takahashi <yuichiro\_at\_pop07.odn.ne.jp>
 
-* Polish 
+* Polish
 
   * Stanisław Krukowski <stankruk\_at\_neostrada.pl>
 
-* Portuguese (Brazil) 
+* Portuguese (Brazil)
 
   * mjaning <mjaning\_at\_gmail.com>
 
-* Slovenian 
+* Slovenian
 
   * Domen <dbc334\_at\_gmail.com>
 

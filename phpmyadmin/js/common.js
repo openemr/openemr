@@ -1,1 +1,302 @@
-$(function(){$("#pma_open_querywindow").click(function(a){a.preventDefault();PMA_querywindow.focus()})});var PMA_commonParams=(function(){var a={};return{setAll:function(d){var c=false;for(var b in d){if(a[b]!==undefined&&a[b]!==d[b]){c=true}a[b]=d[b]}if(c){PMA_querywindow.refresh()}},get:function(b){return a[b]||""},set:function(b,c){if(a[b]!==undefined&&a[b]!==c){PMA_querywindow.refresh();PMA_reloadNavigation()}a[b]=c;return this},getUrlQuery:function(){return $.sprintf("?%s&server=%s&db=%s&table=%s",this.get("common_query"),encodeURIComponent(this.get("server")),encodeURIComponent(this.get("db")),encodeURIComponent(this.get("table")))}}})();var PMA_commonActions={setDb:function(a){if(a!=PMA_commonParams.get("db")){PMA_commonParams.set("db",a);PMA_querywindow.refresh()}},openDb:function(a){PMA_commonParams.set("db",a).set("table","");PMA_querywindow.refresh();this.refreshMain(PMA_commonParams.get("opendb_url"))},refreshMain:function(a,b){if(!a){a=$("#selflink a").attr("href");a=a.substring(0,a.indexOf("?"))}a+=PMA_commonParams.getUrlQuery();$("<a />",{href:a}).appendTo("body").click().remove();AJAX._callback=b}};var PMA_querywindow=(function(d,c){var b={};var a="";return{open:function(f,g){if(!f){f="querywindow.php"+PMA_commonParams.getUrlQuery()}if(g){f+="&sql_query="+encodeURIComponent(g)}if(!b.closed&&b.location){var e=b.location.href;if(e!=f&&e!=PMA_commonParams.get("pma_absolute_uri")+f){if(PMA_commonParams.get("safari_browser")){b.location.href=targeturl}else{b.location.replace(targeturl)}b.focus()}}else{b=c.open(f+"&init=1","","toolbar=0,location=0,directories=0,status=1,menubar=0,scrollbars=yes,resizable=yes,width="+PMA_commonParams.get("querywindow_width")+",height="+PMA_commonParams.get("querywindow_height"))}if(!b.opener){b.opener=c.window}if(c.focus){b.focus()}},focus:function(f){if(!b||b.closed||!b.location){a=f;this.open(false,f)}else{var e=b.document.getElementById("hiddenqueryform");if(e.querydisplay_tab!="sql"){e.querydisplay_tab.value="sql";e.sql_query.value=f;d(e).addClass("disableAjax");e.submit();b.focus()}else{b.focus()}}},refresh:function(f){if(!b.closed&&b.location){var e=d(b.document).find("#sqlqueryform");if(e.find("#checkbox_lock:checked").length==0){PMA_querywindow.open(f)}}},reload:function(f,g,i){if(!b.closed&&b.location){var e=d(b.document).find("#sqlqueryform");if(e.find("#checkbox_lock:checked").length==0){var h=d(b.document).find("#hiddenqueryform");h.find("input[name=db]").val(f);h.find("input[name=table]").val(g);if(i){h.find("input[name=sql_query]").val(i)}h.addClass("disableAjax").submit()}}}}})(jQuery,window);
+/* vim: set expandtab sw=4 ts=4 sts=4: */
+/**
+ * Functionality for communicating with the querywindow
+ */
+$(function () {
+    /**
+     * Event handler for click on the open query window link
+     * in the top menu of the navigation panel
+     */
+    $('#pma_open_querywindow').click(function (event) {
+        event.preventDefault();
+        PMA_querywindow.focus();
+    });
+
+    checkNumberOfFields();
+});
+
+/**
+ * Holds common parameters such as server, db, table, etc
+ *
+ * The content for this is normally loaded from Header.class.php or
+ * Response.class.php and executed by ajax.js
+ */
+var PMA_commonParams = (function () {
+    /**
+     * @var hash params An associative array of key value pairs
+     * @access private
+     */
+    var params = {};
+    // The returned object is the public part of the module
+    return {
+        /**
+         * Saves all the key value pair that
+         * are provided in the input array
+         *
+         * @param hash obj The input array
+         *
+         * @return void
+         */
+        setAll: function (obj) {
+            var reload = false;
+            var updateNavigation = false;
+            for (var i in obj) {
+                if (params[i] !== undefined && params[i] !== obj[i]) {
+                    reload = true;
+                }
+                if (i == 'db' || i == 'table') {
+                    updateNavigation = true;
+                }
+                params[i] = obj[i];
+            }
+            if (updateNavigation) {
+                PMA_showCurrentNavigation();
+            }
+            if (reload) {
+                PMA_querywindow.refresh();
+            }
+        },
+        /**
+         * Retrieves a value given its key
+         * Returns empty string for undefined values
+         *
+         * @param string name The key
+         *
+         * @return string
+         */
+        get: function (name) {
+            return params[name] || '';
+        },
+        /**
+         * Saves a single key value pair
+         *
+         * @param string name  The key
+         * @param string value The value
+         *
+         * @return self For chainability
+         */
+        set: function (name, value) {
+            var updateNavigation = false;
+            if (params[name] !== undefined && params[name] !== value) {
+                PMA_querywindow.refresh();
+            }
+            if (name == 'db' || name == 'table') {
+                updateNavigation = true;
+            }
+            params[name] = value;
+            if (updateNavigation) {
+                PMA_showCurrentNavigation();
+            }
+            return this;
+        },
+        /**
+         * Returns the url query string using the saved parameters
+         *
+         * @return string
+         */
+        getUrlQuery: function () {
+            return $.sprintf(
+                '?%s&server=%s&db=%s&table=%s',
+                this.get('common_query'),
+                encodeURIComponent(this.get('server')),
+                encodeURIComponent(this.get('db')),
+                encodeURIComponent(this.get('table'))
+            );
+        }
+    };
+})();
+
+/**
+ * Holds common parameters such as server, db, table, etc
+ *
+ * The content for this is normally loaded from Header.class.php or
+ * Response.class.php and executed by ajax.js
+ */
+var PMA_commonActions = {
+    /**
+     * Saves the database name when it's changed
+     * and reloads the query window, if necessary
+     *
+     * @param string new_db The name of the new database
+     *
+     * @return void
+     */
+    setDb: function (new_db) {
+        if (new_db != PMA_commonParams.get('db')) {
+            PMA_commonParams.setAll({'db': new_db, 'table': ''});
+        }
+    },
+    /**
+     * Opens a database in the main part of the page
+     *
+     * @param string new_db The name of the new database
+     *
+     * @return void
+     */
+    openDb: function (new_db) {
+        PMA_commonParams
+            .set('db', new_db)
+            .set('table', '');
+        PMA_querywindow.refresh();
+        this.refreshMain(
+            PMA_commonParams.get('opendb_url')
+        );
+    },
+    /**
+     * Refreshes the main frame
+     *
+     * @param mixed url Undefined to refresh to the same page
+     *                  String to go to a different page, e.g: 'index.php'
+     *
+     * @return void
+     */
+    refreshMain: function (url, callback) {
+        if (! url) {
+            url = $('#selflink a').attr('href');
+            url = url.substring(0, url.indexOf('?'));
+        }
+        url += PMA_commonParams.getUrlQuery();
+        $('<a />', {href: url})
+            .appendTo('body')
+            .click()
+            .remove();
+        AJAX._callback = callback;
+    }
+};
+
+/**
+ * Common functions used for communicating with the querywindow
+ */
+var PMA_querywindow = (function ($, window) {
+    /**
+     * @var Object querywindow Reference to the window
+     *                         object of the querywindow
+     * @access private
+     */
+    var querywindow = {};
+    /**
+     * @var string queryToLoad Stores the SQL query that is to be displayed
+     *                         in the querywindow when it is ready
+     * @access private
+     */
+    var queryToLoad = '';
+    // The returned object is the public part of the module
+    return {
+        /**
+         * Opens the query window
+         *
+         * @param mixed url Undefined to open the default page
+         *                  String to go to a different
+         *
+         * @return void
+         */
+        open: function (url, sql_query) {
+            if (! url) {
+                url = 'querywindow.php' + PMA_commonParams.getUrlQuery();
+            }
+            if (sql_query) {
+                url += '&sql_query=' + encodeURIComponent(sql_query);
+            }
+
+            if (! querywindow.closed && querywindow.location) {
+                var href = querywindow.location.href;
+                if (href != url &&
+                    href != PMA_commonParams.get('pma_absolute_uri') + url
+                ) {
+                    if (PMA_commonParams.get('safari_browser')) {
+                        querywindow.location.href = targeturl;
+                    } else {
+                        querywindow.location.replace(targeturl);
+                    }
+                    querywindow.focus();
+                }
+            } else {
+                querywindow = window.open(
+                    url + '&init=1',
+                    '',
+                    'toolbar=0,location=0,directories=0,status=1,' +
+                    'menubar=0,scrollbars=yes,resizable=yes,' +
+                    'width=' + PMA_commonParams.get('querywindow_width') + ',' +
+                    'height=' + PMA_commonParams.get('querywindow_height')
+                );
+            }
+            if (! querywindow.opener) {
+                querywindow.opener = window.window;
+            }
+            if (window.focus) {
+                querywindow.focus();
+            }
+        },
+        /**
+         * Opens, if necessary, focuses the query window
+         * and displays an SQL query.
+         *
+         * @param string sql_query The SQL query to display in
+         *                         the query window
+         *
+         * @return void
+         */
+        focus: function (sql_query) {
+            if (! querywindow || querywindow.closed || ! querywindow.location) {
+                // we need first to open the window and cannot pass the query with it
+                // as we dont know if the query exceeds max url length
+                queryToLoad = sql_query;
+                this.open(false, sql_query);
+            } else {
+                //var querywindow = querywindow;
+                var hiddenqueryform = querywindow
+                    .document
+                    .getElementById('hiddenqueryform');
+                if (hiddenqueryform.querydisplay_tab != 'sql') {
+                    hiddenqueryform.querydisplay_tab.value = "sql";
+                    hiddenqueryform.sql_query.value = sql_query;
+                    $(hiddenqueryform).addClass('disableAjax');
+                    hiddenqueryform.submit();
+                    querywindow.focus();
+                } else {
+                    querywindow.focus();
+                }
+            }
+        },
+        /**
+         * Refreshes the query window given a url
+         *
+         * @param string url Where to go to
+         *
+         * @return void
+         */
+        refresh: function (url) {
+            if (! querywindow.closed && querywindow.location) {
+                var $form = $(querywindow.document).find('#sqlqueryform');
+                if ($form.find('#checkbox_lock:checked').length === 0) {
+                    PMA_querywindow.open(url);
+                }
+            }
+        },
+        /**
+         * Reloads the query window given the details
+         * of a db, a table and an sql_query
+         *
+         * @param string db        The name of the database
+         * @param string table     The name of the table
+         * @param string sql_query The SQL query to be displayed
+         *
+         * @return void
+         */
+        reload: function (db, table, sql_query) {
+            if (! querywindow.closed && querywindow.location) {
+                var $form = $(querywindow.document).find('#sqlqueryform');
+                if ($form.find('#checkbox_lock:checked').length === 0) {
+                    var $hiddenform = $(querywindow.document)
+                        .find('#hiddenqueryform');
+                    $hiddenform.find('input[name=db]').val(db);
+                    $hiddenform.find('input[name=table]').val(table);
+                    if (sql_query) {
+                        $hiddenform.find('input[name=sql_query]').val(sql_query);
+                    }
+                    $hiddenform.addClass('disableAjax').submit();
+                }
+            }
+        }
+    };
+})(jQuery, window);

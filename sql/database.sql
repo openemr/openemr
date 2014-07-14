@@ -2553,6 +2553,7 @@ INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_reg_use', '3Choices', 'Al
 INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_info_share', '3Choices', 'Allow Immunization Info Sharing', 11, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0, '');
 INSERT INTO `layout_options` VALUES ('DEM', 'allow_health_info_ex', '3Choices', 'Allow Health Information Exchange', 12, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0, '');
 INSERT INTO `layout_options` VALUES ('DEM', 'allow_patient_portal', '3Choices', 'Allow Patient Portal', 13, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0, '');
+INSERT INTO `layout_options` VALUES ('DEM', 'cmsportal_login', '3Choices', 'CMS Portal Login', 15, 2, 1, 30, 60, '', 1, 1, '', '', 'CMS Portal Login ID', 0, '');
 INSERT INTO `layout_options` VALUES ('DEM', 'occupation', '4Employer', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation', 0, '');
 INSERT INTO `layout_options` VALUES ('DEM', 'em_name', '4Employer', 'Employer Name', 2, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name', 0, '');
 INSERT INTO `layout_options` VALUES ('DEM', 'em_street', '4Employer', 'Employer Address', 3, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number', 0, '');
@@ -3689,6 +3690,12 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_lis
 -- Issue Types List
 INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES ('lists','issue_types','Issue Types');
 
+-- Insurance Types List
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists','insurance_types','Insurance Types',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','primary'  ,'Primary'  ,10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','secondary','Secondary',20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','tertiary' ,'Tertiary' ,30);
+
 -- --------------------------------------------------------
 
 -- 
@@ -3766,6 +3773,111 @@ CREATE TABLE `log` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `modules`
+--
+CREATE TABLE `modules` (
+  `mod_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `mod_name` VARCHAR(64) NOT NULL DEFAULT '0',
+  `mod_directory` VARCHAR(64) NOT NULL DEFAULT '',
+  `mod_parent` VARCHAR(64) NOT NULL DEFAULT '',
+  `mod_type` VARCHAR(64) NOT NULL DEFAULT '',
+  `mod_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
+  `mod_ui_name` VARCHAR(20) NOT NULL DEFAULT '''',
+  `mod_relative_link` VARCHAR(64) NOT NULL DEFAULT '',
+  `mod_ui_order` TINYINT(3) NOT NULL DEFAULT '0',
+  `mod_ui_active` INT(1) UNSIGNED NOT NULL DEFAULT '0',
+  `mod_description` VARCHAR(255) NOT NULL DEFAULT '',
+  `mod_nick_name` VARCHAR(25) NOT NULL DEFAULT '',
+  `mod_enc_menu` VARCHAR(10) NOT NULL DEFAULT 'no',
+  `permissions_item_table` CHAR(100) DEFAULT NULL,
+  `directory` VARCHAR(255) NOT NULL,
+  `date` DATETIME NOT NULL,
+  `sql_run` TINYINT(4) DEFAULT '0',
+  `type` TINYINT(4) DEFAULT '0',
+  PRIMARY KEY (`mod_id`,`mod_directory`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `module_acl_group_settings`
+--
+CREATE TABLE `module_acl_group_settings` (
+  `module_id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `allowed` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`module_id`,`group_id`,`section_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `module_acl_sections`
+--
+CREATE TABLE `module_acl_sections` (
+  `section_id` int(11) DEFAULT NULL,
+  `section_name` varchar(255) DEFAULT NULL,
+  `parent_section` int(11) DEFAULT NULL,
+  `section_identifier` varchar(50) DEFAULT NULL,
+  `module_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `module_acl_user_settings`
+--
+CREATE TABLE `module_acl_user_settings` (
+  `module_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `allowed` int(1) DEFAULT NULL,
+  PRIMARY KEY (`module_id`,`user_id`,`section_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `module_configuration`
+--
+CREATE TABLE `module_configuration` (
+  `module_config_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `module_id` int(10) unsigned NOT NULL,
+  `field_name` varchar(45) NOT NULL,
+  `field_value` varchar(255) NOT NULL,
+  PRIMARY KEY (`module_config_id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `modules_hooks_settings`
+--
+CREATE TABLE `modules_hooks_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mod_id` int(11) DEFAULT NULL,
+  `enabled_hooks` varchar(255) DEFAULT NULL,
+  `attached_to` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `modules_settings`
+--
+CREATE TABLE `modules_settings` (
+  `mod_id` INT(11) DEFAULT NULL,
+  `fld_type` SMALLINT(6) DEFAULT NULL COMMENT '1=>ACL,2=>preferences,3=>hooks',
+  `obj_name` VARCHAR(255) DEFAULT NULL,
+  `menu_name` VARCHAR(255) DEFAULT NULL,
+  `path` VARCHAR(255) DEFAULT NULL
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -4136,6 +4248,7 @@ CREATE TABLE `patient_data` (
   `deceased_date` datetime default NULL,
   `deceased_reason` varchar(255) NOT NULL default '',
   `soap_import_status` TINYINT(4) DEFAULT NULL COMMENT '1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import',
+  `cmsportal_login` varchar(60) NOT NULL default '',
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
@@ -5620,7 +5733,7 @@ CREATE TABLE `procedure_order` (
   `order_status`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
   `patient_instructions`   text         NOT NULL DEFAULT '',
   `activity`               tinyint(1)   NOT NULL DEFAULT 1  COMMENT '0 if deleted',
-  `control_id`             bigint(20)   NOT NULL            COMMENT 'This is the CONTROL ID that is sent back from lab',
+  `control_id`             varchar(255) NOT NULL DEFAULT '' COMMENT 'This is the CONTROL ID that is sent back from lab',
   `lab_id`                 bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid',
   `specimen_type`          varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Type list',
   `specimen_location`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'from the Specimen_Location list',

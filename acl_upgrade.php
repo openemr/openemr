@@ -85,6 +85,9 @@
 *     ACL/Group  clin  view   "Clinicians"   (filler aco)
 *     ACL/Group  front view   "Front Office" (filler aco)
 *     ACL/Group  back  view   "Accounting"   (filler aco)
+*   4.1.3
+*     Section "menus" (Menus)
+*       ADD modle Module (Administrators, Emergency Login)
 * </pre>
 *
 * Copyright (C) 2012 Brady Miller <brady@sparmy.com>
@@ -362,7 +365,6 @@ if ($acl_version < $upgrade_acl) {
   $acl_version = $upgrade_acl;
 }
 
-/* This is a template for a new revision, when needed
 // Upgrade for acl_version 3
 $upgrade_acl = 3;
 if ($acl_version < $upgrade_acl) {
@@ -370,12 +372,20 @@ if ($acl_version < $upgrade_acl) {
 
   //Collect the ACL ID numbers.
   echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+  //Get Administrator ACL ID number
+  $admin_write = getAclIdNumber('Administrators', 'write');
+  //Get Emergency ACL ID number
+  $emergency_write = getAclIdNumber('Emergency Login', 'write');
 
   //Add new object Sections
   echo "<BR/><B>Adding new object sections</B><BR/>";
+  //Add 'Menus' object section (added in 4.1.3)
+  addObjectSectionAcl('menus', 'Menus');
 
   //Add new Objects
   echo "<BR/><B>Adding new objects</B><BR/>";
+  //Add 'modules' object (added in 4.1.3)
+  addObjectAcl('menus', 'Menus', 'modle', 'Modules');
 
   //Update already existing Objects
   echo "<BR/><B>Upgrading objects</B><BR/>";
@@ -386,11 +396,14 @@ if ($acl_version < $upgrade_acl) {
 
   //Update the ACLs
   echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+  //Insert the 'Modules' object from the 'Menus' section into the Administrators group write ACL (added in 4.1.3)
+  updateAcl($admin_write, 'Administrators','menus', 'Menus', 'modle', 'Modules', 'write');
+  //Insert the 'Modules' object from the 'Menus' section into the Emergency Login group write ACL (added in 4.1.3)
+  updateAcl($emergency_write, 'Emergency Login','menus', 'Menus', 'modle', 'Modules', 'write');
 
   //DONE with upgrading to this version
   $acl_version = $upgrade_acl;
 }
-*/
 
 /* This is a template for a new revision, when needed
 // Upgrade for acl_version 4

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>FAQ - Frequently Asked Questions &mdash; phpMyAdmin 4.0.4 documentation</title>
+    <title>FAQ - Frequently Asked Questions &mdash; phpMyAdmin 4.2.5 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '4.0.4',
+        VERSION:     '4.2.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="copyright" title="Copyright" href="copyright.html" />
-    <link rel="top" title="phpMyAdmin 4.0.4 documentation" href="index.html" />
+    <link rel="top" title="phpMyAdmin 4.2.5 documentation" href="index.html" />
     <link rel="next" title="Developers Information" href="developers.html" />
     <link rel="prev" title="Other sources of information" href="other.html" /> 
   </head>
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="other.html" title="Other sources of information"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">phpMyAdmin 4.0.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">phpMyAdmin 4.2.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -96,12 +96,12 @@ this time there is no better fix): remove or comment the <tt class="docutils lit
 declarations (2 lines) from the scripts <tt class="file docutils literal"><span class="pre">libraries/Header.class.php</span></tt>
 and <tt class="file docutils literal"><span class="pre">index.php</span></tt>.</p>
 </div>
-<div class="section" id="how-can-i-gzip-or-bzip-a-dump-or-a-csv-export-it-does-not-seem-to-work">
-<span id="faq1-7"></span><h3>1.7 How can I GZip or Bzip a dump or a CSV export? It does not seem to work.<a class="headerlink" href="#how-can-i-gzip-or-bzip-a-dump-or-a-csv-export-it-does-not-seem-to-work" title="Permalink to this headline">¶</a></h3>
-<p>These features are based on the <tt class="docutils literal"><span class="pre">gzencode()</span></tt> and <tt class="docutils literal"><span class="pre">bzcompress()</span></tt>
-PHP functions to be more independent of the platform (Unix/Windows,
-Safe Mode or not, and so on). So, you must have Zlib/Bzip2 support
-(<tt class="docutils literal"><span class="pre">--with-zlib</span></tt> and <tt class="docutils literal"><span class="pre">--with-bz2</span></tt>).</p>
+<div class="section" id="how-can-i-gzip-a-dump-or-a-csv-export-it-does-not-seem-to-work">
+<span id="faq1-7"></span><h3>1.7 How can I GZip a dump or a CSV export? It does not seem to work.<a class="headerlink" href="#how-can-i-gzip-a-dump-or-a-csv-export-it-does-not-seem-to-work" title="Permalink to this headline">¶</a></h3>
+<p>This feature is based on the <tt class="docutils literal"><span class="pre">gzencode()</span></tt>
+PHP function to be more independent of the platform (Unix/Windows,
+Safe Mode or not, and so on). So, you must have Zlib support
+(<tt class="docutils literal"><span class="pre">--with-zlib</span></tt>).</p>
 </div>
 <div class="section" id="i-cannot-insert-a-text-file-in-a-table-and-i-get-an-error-about-safe-mode-being-in-effect">
 <span id="faq1-8"></span><h3>1.8 I cannot insert a text file in a table, and I get an error about safe mode being in effect.<a class="headerlink" href="#i-cannot-insert-a-text-file-in-a-table-and-i-get-an-error-about-safe-mode-being-in-effect" title="Permalink to this headline">¶</a></h3>
@@ -212,8 +212,7 @@ your server - as mentioned in <a class="reference internal" href="#faq1-17"><em>
 generally caused by using MySQL version 4.1 or newer. MySQL changed
 the authentication hash and your PHP is trying to use the old method.
 The proper solution is to use the <a class="reference external" href="http://www.php.net/mysqli">mysqli extension</a> with the proper client library to match
-your MySQL installation. Your chosen extension is specified in
-<span class="target" id="index-3"></span><a class="reference internal" href="config.html#cfg_Servers_extension"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['extension']</span></tt></a>. More
+your MySQL installation. More
 information (and several workarounds) are located in the <a class="reference external" href="http://dev.mysql.com/doc/mysql/en/old-client.html">MySQL
 Documentation</a>.</p>
 </div>
@@ -225,15 +224,17 @@ Documentation</a>.</p>
 <p>The <a class="reference internal" href="glossary.html#term-tcpdf"><em class="xref std std-term">TCPDF</em></a> library we&#8217;re using for this feature requires some special
 files to use font faces. Please refers to the <a class="reference external" href="http://www.tcpdf.org/">TCPDF manual</a> to build these files.</p>
 </div>
-<div class="section" id="i-receive-the-error-cannot-load-mysql-extension-please-check-php-configuration">
-<span id="faqmysql"></span><h3>1.20 I receive the error &#8220;cannot load MySQL extension, please check PHP Configuration&#8221;.<a class="headerlink" href="#i-receive-the-error-cannot-load-mysql-extension-please-check-php-configuration" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="i-receive-an-error-about-missing-mysqli-and-mysql-extensions">
+<span id="faqmysql"></span><h3>1.20 I receive an error about missing mysqli and mysql extensions.<a class="headerlink" href="#i-receive-an-error-about-missing-mysqli-and-mysql-extensions" title="Permalink to this headline">¶</a></h3>
 <p>To connect to a MySQL server, PHP needs a set of MySQL functions
 called &#8220;MySQL extension&#8221;. This extension may be part of the PHP
 distribution (compiled-in), otherwise it needs to be loaded
-dynamically. Its name is probably <em>mysql.so</em> or <em>php_mysql.dll</em>.
+dynamically. Its name is probably <em>mysqli.so</em> or <em>php_mysqli.dll</em>.
 phpMyAdmin tried to load the extension but failed. Usually, the
 problem is solved by installing a software package called &#8220;PHP-MySQL&#8221;
 or something similar.</p>
+<p>There are currently two interfaces PHP provides as MySQL extensions - <tt class="docutils literal"><span class="pre">mysql</span></tt>
+and <tt class="docutils literal"><span class="pre">mysqli</span></tt>. The <tt class="docutils literal"><span class="pre">mysqli</span></tt> is tried first, because it&#8217;s the best one.</p>
 </div>
 <div class="section" id="i-am-running-the-cgi-version-of-php-under-unix-and-i-cannot-log-in-using-cookie-auth">
 <span id="faq1-21"></span><h3>1.21 I am running the CGI version of PHP under Unix, and I cannot log in using cookie auth.<a class="headerlink" href="#i-am-running-the-cgi-version-of-php-under-unix-and-i-cannot-log-in-using-cookie-auth" title="Permalink to this headline">¶</a></h3>
@@ -285,7 +286,7 @@ should work.</p>
 <span id="faq1-27"></span><h3>1.27 I get empty page when I want to view huge page (eg. db_structure.php with plenty of tables).<a class="headerlink" href="#i-get-empty-page-when-i-want-to-view-huge-page-eg-db-structure-php-with-plenty-of-tables" title="Permalink to this headline">¶</a></h3>
 <p>This was caused by a <a class="reference external" href="http://bugs.php.net/21079">PHP bug</a> that occur when
 GZIP output buffering is enabled. If you turn off it (by
-<span class="target" id="index-4"></span><a class="reference internal" href="config.html#cfg_OBGzip"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['OBGzip']</span></tt></a> in <tt class="file docutils literal"><span class="pre">config.inc.php</span></tt>), it should work.
+<span class="target" id="index-3"></span><a class="reference internal" href="config.html#cfg_OBGzip"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['OBGzip']</span></tt></a> in <tt class="file docutils literal"><span class="pre">config.inc.php</span></tt>), it should work.
 This bug will has been fixed in PHP 5.0.0.</p>
 </div>
 <div class="section" id="my-mysql-server-sometimes-refuses-queries-and-returns-the-message-errorcode-13-what-does-this-mean">
@@ -329,8 +330,8 @@ MMCache but upgrading MMCache to version 2.3.21 solves the problem.</p>
 <div class="section" id="does-phpmyadmin-support-php-5">
 <span id="faq1-31"></span><h3>1.31 Does phpMyAdmin support PHP 5?<a class="headerlink" href="#does-phpmyadmin-support-php-5" title="Permalink to this headline">¶</a></h3>
 <p>Yes.</p>
-<p>Since release 3.0 only PHP 5.2 and newer. For older PHP versions, use
-phpMyAdmin 2.11.x.</p>
+<p>Since release 4.1 phpMyAdmin supports only PHP 5.3 and newer. For PHP 5.2 you
+can use 4.0.x releases.</p>
 </div>
 <div class="section" id="can-i-use-http-authentication-with-iis">
 <span id="faq1-32"></span><h3>1.32 Can I use HTTP authentication with IIS?<a class="headerlink" href="#can-i-use-http-authentication-with-iis" title="Permalink to this headline">¶</a></h3>
@@ -348,7 +349,7 @@ and click the <tt class="docutils literal"><span class="pre">Set</span> <span cl
 </ol>
 <div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><span class="target" id="index-5"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2616.html"><strong>RFC 2616</strong></a></p>
+<p class="last"><span class="target" id="index-4"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2616.html"><strong>RFC 2616</strong></a></p>
 </div>
 </div>
 <div class="section" id="faq1-33">
@@ -356,8 +357,9 @@ and click the <tt class="docutils literal"><span class="pre">Set</span> <span cl
 </div>
 <div class="section" id="can-i-access-directly-to-database-or-table-pages">
 <span id="faq1-34"></span><h3>1.34 Can I access directly to database or table pages?<a class="headerlink" href="#can-i-access-directly-to-database-or-table-pages" title="Permalink to this headline">¶</a></h3>
-<p>Yes. Out of the box, you can use <a class="reference internal" href="glossary.html#term-url"><em class="xref std std-term">URL</em></a> like <a class="reference external" href="http://server/phpMyAdmin/index.php?server=X&amp;db=databas">http://server/phpMyAdmin/index.php?server=X&amp;db=databas</a>
-e&amp;table=table&amp;target=script. For <tt class="docutils literal"><span class="pre">server</span></tt> you use the server number
+<p>Yes. Out of the box, you can use <a class="reference internal" href="glossary.html#term-url"><em class="xref std std-term">URL</em></a> like
+<a class="reference external" href="http://server/phpMyAdmin/index.php?server=X&amp;db=database&amp;table=table&amp;target=script">http://server/phpMyAdmin/index.php?server=X&amp;db=database&amp;table=table&amp;target=script</a>.
+For <tt class="docutils literal"><span class="pre">server</span></tt> you use the server number
 which refers to the order of the server paragraph in
 <tt class="file docutils literal"><span class="pre">config.inc.php</span></tt>. Table and script parts are optional. If you want
 <a class="reference external" href="http://server/phpMyAdmin/database[/table][/script">http://server/phpMyAdmin/database[/table][/script</a>] <a class="reference internal" href="glossary.html#term-url"><em class="xref std std-term">URL</em></a>, you need to do some configuration. Following
@@ -436,7 +438,7 @@ needs to be disabled (the default)</li>
 include <a class="reference internal" href="glossary.html#term-sql"><em class="xref std std-term">SQL</em></a>, otherwise you get big
 slowdown</li>
 </ul>
-<p>You can also disable the warning using the <span class="target" id="index-6"></span><a class="reference internal" href="config.html#cfg_SuhosinDisableWarning"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['SuhosinDisableWarning']</span></tt></a>.</p>
+<p>You can also disable the warning using the <span class="target" id="index-5"></span><a class="reference internal" href="config.html#cfg_SuhosinDisableWarning"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['SuhosinDisableWarning']</span></tt></a>.</p>
 </div>
 <div class="section" id="when-i-try-to-connect-via-https-i-can-log-in-but-then-my-connection-is-redirected-back-to-http-what-can-cause-this-behavior">
 <span id="faq1-39"></span><h3>1.39 When I try to connect via https, I can log in, but then my connection is redirected back to http. What can cause this behavior?<a class="headerlink" href="#when-i-try-to-connect-via-https-i-can-log-in-but-then-my-connection-is-redirected-back-to-http-what-can-cause-this-behavior" title="Permalink to this headline">¶</a></h3>
@@ -548,7 +550,7 @@ example).</li>
 <li>Then, you need to tell PHP to use this socket. To do this in
 phpMyAdmin, you need to complete the socket information in the
 <tt class="file docutils literal"><span class="pre">config.inc.php</span></tt>. For example:
-<span class="target" id="index-7"></span><a class="reference internal" href="config.html#cfg_Servers_socket"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['socket']</span></tt></a>  Please also make sure that
+<span class="target" id="index-6"></span><a class="reference internal" href="config.html#cfg_Servers_socket"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['socket']</span></tt></a>  Please also make sure that
 the permissions of this file allow to be readable by your webserver (i.e.
 &#8216;0755&#8217;).</li>
 </ul>
@@ -557,7 +559,7 @@ documentation</a>.</p>
 </div>
 <div class="section" id="nothing-is-displayed-by-my-browser-when-i-try-to-run-phpmyadmin-what-can-i-do">
 <span id="faq2-4"></span><h3>2.4 Nothing is displayed by my browser when I try to run phpMyAdmin, what can I do?<a class="headerlink" href="#nothing-is-displayed-by-my-browser-when-i-try-to-run-phpmyadmin-what-can-i-do" title="Permalink to this headline">¶</a></h3>
-<p>Try to set the <span class="target" id="index-8"></span><a class="reference internal" href="config.html#cfg_OBGzip"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['OBGzip']</span></tt></a> directive to <tt class="docutils literal"><span class="pre">false</span></tt> in the phpMyAdmin configuration
+<p>Try to set the <span class="target" id="index-7"></span><a class="reference internal" href="config.html#cfg_OBGzip"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['OBGzip']</span></tt></a> directive to <tt class="docutils literal"><span class="pre">false</span></tt> in the phpMyAdmin configuration
 file. It helps sometime. Also have a look at your PHP version number:
 if it contains &#8220;b&#8221; or &#8220;alpha&#8221; it means you&#8217;re running a testing
 version of PHP. That&#8217;s not a so good idea, please upgrade to a plain
@@ -565,7 +567,7 @@ revision.</p>
 </div>
 <div class="section" id="each-time-i-want-to-insert-or-change-a-row-or-drop-a-database-or-a-table-an-error-404-page-not-found-is-displayed-or-with-http-or-cookie-authentication-i-m-asked-to-log-in-again-what-s-wrong">
 <span id="faq2-5"></span><h3>2.5 Each time I want to insert or change a row or drop a database or a table, an error 404 (page not found) is displayed or, with HTTP or cookie authentication, I&#8217;m asked to log in again. What&#8217;s wrong?<a class="headerlink" href="#each-time-i-want-to-insert-or-change-a-row-or-drop-a-database-or-a-table-an-error-404-page-not-found-is-displayed-or-with-http-or-cookie-authentication-i-m-asked-to-log-in-again-what-s-wrong" title="Permalink to this headline">¶</a></h3>
-<p>Check the value you set for the <span class="target" id="index-9"></span><a class="reference internal" href="config.html#cfg_PmaAbsoluteUri"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PmaAbsoluteUri']</span></tt></a> directive in the phpMyAdmin
+<p>Check the value you set for the <span class="target" id="index-8"></span><a class="reference internal" href="config.html#cfg_PmaAbsoluteUri"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PmaAbsoluteUri']</span></tt></a> directive in the phpMyAdmin
 configuration file.</p>
 </div>
 <div class="section" id="i-get-an-access-denied-for-user-root-localhost-using-password-yes-error-when-trying-to-access-a-mysql-server-on-a-host-which-is-port-forwarded-for-my-localhost">
@@ -581,18 +583,18 @@ doesn&#8217;t work in this configuration with port forwarding. If you enter
 </div>
 <div class="section" id="using-and-creating-themes">
 <span id="faqthemes"></span><h3>2.7 Using and creating themes<a class="headerlink" href="#using-and-creating-themes" title="Permalink to this headline">¶</a></h3>
-<p>Themes are configured with <span class="target" id="index-10"></span><a class="reference internal" href="config.html#cfg_ThemePath"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemePath']</span></tt></a>,
-<span class="target" id="index-11"></span><a class="reference internal" href="config.html#cfg_ThemeManager"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemeManager']</span></tt></a> and <span class="target" id="index-12"></span><a class="reference internal" href="config.html#cfg_ThemeDefault"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemeDefault']</span></tt></a>.
-Under <span class="target" id="index-13"></span><a class="reference internal" href="config.html#cfg_ThemePath"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemePath']</span></tt></a>, you should not delete the
+<p>Themes are configured with <span class="target" id="index-9"></span><a class="reference internal" href="config.html#cfg_ThemePath"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemePath']</span></tt></a>,
+<span class="target" id="index-10"></span><a class="reference internal" href="config.html#cfg_ThemeManager"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemeManager']</span></tt></a> and <span class="target" id="index-11"></span><a class="reference internal" href="config.html#cfg_ThemeDefault"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemeDefault']</span></tt></a>.
+Under <span class="target" id="index-12"></span><a class="reference internal" href="config.html#cfg_ThemePath"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemePath']</span></tt></a>, you should not delete the
 directory <tt class="docutils literal"><span class="pre">pmahomme</span></tt> or its underlying structure, because this is the
 system theme used by phpMyAdmin. <tt class="docutils literal"><span class="pre">pmahomme</span></tt> contains all images and
 styles, for backwards compatibility and for all themes that would not
-include images or css-files.  If <span class="target" id="index-14"></span><a class="reference internal" href="config.html#cfg_ThemeManager"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemeManager']</span></tt></a>
+include images or css-files.  If <span class="target" id="index-13"></span><a class="reference internal" href="config.html#cfg_ThemeManager"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemeManager']</span></tt></a>
 is enabled, you can select your favorite theme on the main page. Your selected
 theme will be stored in a cookie.</p>
 <p>To create a theme:</p>
 <ul class="simple">
-<li>make a new subdirectory (for example &#8220;your_theme_name&#8221;) under <span class="target" id="index-15"></span><a class="reference internal" href="config.html#cfg_ThemePath"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemePath']</span></tt></a> (by
+<li>make a new subdirectory (for example &#8220;your_theme_name&#8221;) under <span class="target" id="index-14"></span><a class="reference internal" href="config.html#cfg_ThemePath"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ThemePath']</span></tt></a> (by
 default <tt class="docutils literal"><span class="pre">themes</span></tt>)</li>
 <li>copy the files and directories from <tt class="docutils literal"><span class="pre">pmahomme</span></tt> to &#8220;your_theme_name&#8221;</li>
 <li>edit the css-files in &#8220;your_theme_name/css&#8221;</li>
@@ -618,7 +620,7 @@ default icons and buttons (from the system-theme <tt class="docutils literal"><s
 <span id="faqmissingparameters"></span><h3>2.8 I get &#8220;Missing parameters&#8221; errors, what can I do?<a class="headerlink" href="#i-get-missing-parameters-errors-what-can-i-do" title="Permalink to this headline">¶</a></h3>
 <p>Here are a few points to check:</p>
 <ul class="simple">
-<li>In <tt class="file docutils literal"><span class="pre">config.inc.php</span></tt>, try to leave the <span class="target" id="index-16"></span><a class="reference internal" href="config.html#cfg_PmaAbsoluteUri"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PmaAbsoluteUri']</span></tt></a> directive empty. See also
+<li>In <tt class="file docutils literal"><span class="pre">config.inc.php</span></tt>, try to leave the <span class="target" id="index-15"></span><a class="reference internal" href="config.html#cfg_PmaAbsoluteUri"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PmaAbsoluteUri']</span></tt></a> directive empty. See also
 <a class="reference internal" href="#faq4-7"><em>4.7 Authentication window is displayed more than once, why?</em></a>.</li>
 <li>Maybe you have a broken PHP installation or you need to upgrade your
 Zend Optimizer. See &lt;<a class="reference external" href="http://bugs.php.net/bug.php?id=31134">http://bugs.php.net/bug.php?id=31134</a>&gt;.</li>
@@ -649,7 +651,7 @@ starting from phpMyAdmin version 4.0.4, session-based upload progress has
 been temporarily deactivated due to its problematic behavior.</p>
 <div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><span class="target" id="index-17"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc1867.html"><strong>RFC 1867</strong></a></p>
+<p class="last"><span class="target" id="index-16"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc1867.html"><strong>RFC 1867</strong></a></p>
 </div>
 </div>
 </div>
@@ -666,7 +668,7 @@ again.</p>
 <span id="faq3-2"></span><h3>3.2 When dumping a large table in compressed mode, I get a memory limit error or a time limit error.<a class="headerlink" href="#when-dumping-a-large-table-in-compressed-mode-i-get-a-memory-limit-error-or-a-time-limit-error" title="Permalink to this headline">¶</a></h3>
 <p>Compressed dumps are built in memory and because of this are limited
 to php&#8217;s memory limit. For GZip/BZip2 exports this can be overcome
-since 2.5.4 using <span class="target" id="index-18"></span><a class="reference internal" href="config.html#cfg_CompressOnFly"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['CompressOnFly']</span></tt></a> (enabled by default).
+since 2.5.4 using <span class="target" id="index-17"></span><a class="reference internal" href="config.html#cfg_CompressOnFly"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['CompressOnFly']</span></tt></a> (enabled by default).
 Zip exports can not be handled this way, so if you need Zip files for larger
 dump, you have to use another way.</p>
 </div>
@@ -700,13 +702,12 @@ your table name. If you have to, think about using another
 TableSeparator or disabling that feature.</p>
 <div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><span class="target" id="index-19"></span><a class="reference internal" href="config.html#cfg_NavigationTreeTableSeparator"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['NavigationTreeTableSeparator']</span></tt></a></p>
+<p class="last"><span class="target" id="index-18"></span><a class="reference internal" href="config.html#cfg_NavigationTreeTableSeparator"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['NavigationTreeTableSeparator']</span></tt></a></p>
 </div>
 </div>
 <div class="section" id="what-is-currently-not-supported-in-phpmyadmin-about-innodb">
 <span id="faq3-6"></span><h3>3.6 What is currently not supported in phpMyAdmin about InnoDB?<a class="headerlink" href="#what-is-currently-not-supported-in-phpmyadmin-about-innodb" title="Permalink to this headline">¶</a></h3>
-<p>In Relation view, being able to choose a table in another database, or
-having more than one index column in the foreign key. In Query-by-
+<p>In Relation view, having more than one index column in the foreign key. In Query-by-
 example (Query), automatic generation of the query LEFT JOIN from the
 foreign table.</p>
 </div>
@@ -750,7 +751,7 @@ can use it for the Edit and Delete links.</p>
 <span id="faq3-11"></span><h3>3.11 The number of rows for InnoDB tables is not correct.<a class="headerlink" href="#the-number-of-rows-for-innodb-tables-is-not-correct" title="Permalink to this headline">¶</a></h3>
 <p>phpMyAdmin uses a quick method to get the row count, and this method only
 returns an approximate count in the case of InnoDB tables. See
-<span class="target" id="index-20"></span><a class="reference internal" href="config.html#cfg_MaxExactCount"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['MaxExactCount']</span></tt></a> for a way to modify those results, but
+<span class="target" id="index-19"></span><a class="reference internal" href="config.html#cfg_MaxExactCount"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['MaxExactCount']</span></tt></a> for a way to modify those results, but
 this could have a serious impact on performance.</p>
 </div>
 <div class="section" id="faq3-12">
@@ -791,6 +792,11 @@ the size of the largest item in any given column as the column size
 for the appropriate type. If you know you will be adding larger items
 to that column then you should manually adjust the column sizes
 accordingly. This is done for the sake of efficiency.</p>
+</div>
+<div class="section" id="after-upgrading-some-bookmarks-are-gone-or-their-content-cannot-be-shown">
+<span id="faq3-20"></span><h3>3.20 After upgrading, some bookmarks are gone or their content cannot be shown.<a class="headerlink" href="#after-upgrading-some-bookmarks-are-gone-or-their-content-cannot-be-shown" title="Permalink to this headline">¶</a></h3>
+<p>At some point, the character set used to store bookmark content has changed.
+It&#8217;s better to recreate your bookmark from the newer phpMyAdmin version.</p>
 </div>
 </div>
 <div class="section" id="isps-multi-user-installations">
@@ -833,7 +839,7 @@ normal operation of phpMyAdmin.</p>
 <span id="faq4-4"></span><h3>4.4 phpMyAdmin always gives &#8220;Access denied&#8221; when using HTTP authentication.<a class="headerlink" href="#phpmyadmin-always-gives-access-denied-when-using-http-authentication" title="Permalink to this headline">¶</a></h3>
 <p>This could happen for several reasons:</p>
 <ul class="simple">
-<li><span class="target" id="index-21"></span><a class="reference internal" href="config.html#cfg_Servers_controluser"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['controluser']</span></tt></a> and/or <span class="target" id="index-22"></span><a class="reference internal" href="config.html#cfg_Servers_controlpass"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['controlpass']</span></tt></a>  are wrong.</li>
+<li><span class="target" id="index-20"></span><a class="reference internal" href="config.html#cfg_Servers_controluser"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['controluser']</span></tt></a> and/or <span class="target" id="index-21"></span><a class="reference internal" href="config.html#cfg_Servers_controlpass"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['controlpass']</span></tt></a>  are wrong.</li>
 <li>The username/password you specify in the login dialog are invalid.</li>
 <li>You have already setup a security mechanism for the phpMyAdmin-
 directory, eg. a <a class="reference internal" href="glossary.html#term-htaccess"><em class="xref std std-term">.htaccess</em></a> file. This would interfere with phpMyAdmin&#8217;s
@@ -855,26 +861,26 @@ add a username between the <tt class="docutils literal"><span class="pre">'deny'
 strings. Using the username wildcard of <tt class="docutils literal"><span class="pre">'%'</span></tt> would be a major
 benefit here if your installation is suited to using it. Then you can
 just add those updated lines into the
-<span class="target" id="index-23"></span><a class="reference internal" href="config.html#cfg_Servers_AllowDeny_rules"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['AllowDeny']['rules']</span></tt></a> array.</p>
+<span class="target" id="index-22"></span><a class="reference internal" href="config.html#cfg_Servers_AllowDeny_rules"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['AllowDeny']['rules']</span></tt></a> array.</p>
 <p>If you want a pre-made sample, you can try this fragment. It stops the
 &#8216;root&#8217; user from logging in from any networks other than the private
 network <a class="reference internal" href="glossary.html#term-ip"><em class="xref std std-term">IP</em></a> blocks.</p>
-<div class="highlight-php"><div class="highlight"><pre><span class="x">//block root from logging in except from the private networks</span>
-<span class="x">$cfg[&#39;Servers&#39;][$i][&#39;AllowDeny&#39;][&#39;order&#39;] = &#39;deny,allow&#39;;</span>
-<span class="x">$cfg[&#39;Servers&#39;][$i][&#39;AllowDeny&#39;][&#39;rules&#39;] = array(</span>
-<span class="x">    &#39;deny root from all&#39;,</span>
-<span class="x">    &#39;allow root from localhost&#39;,</span>
-<span class="x">    &#39;allow root from 10.0.0.0/8&#39;,</span>
-<span class="x">    &#39;allow root from 192.168.0.0/16&#39;,</span>
-<span class="x">    &#39;allow root from 172.16.0.0/12&#39;,</span>
-<span class="x">);</span>
+<div class="highlight-php"><div class="highlight"><pre><span class="c1">//block root from logging in except from the private networks</span>
+<span class="nv">$cfg</span><span class="p">[</span><span class="s1">&#39;Servers&#39;</span><span class="p">][</span><span class="nv">$i</span><span class="p">][</span><span class="s1">&#39;AllowDeny&#39;</span><span class="p">][</span><span class="s1">&#39;order&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;deny,allow&#39;</span><span class="p">;</span>
+<span class="nv">$cfg</span><span class="p">[</span><span class="s1">&#39;Servers&#39;</span><span class="p">][</span><span class="nv">$i</span><span class="p">][</span><span class="s1">&#39;AllowDeny&#39;</span><span class="p">][</span><span class="s1">&#39;rules&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+    <span class="s1">&#39;deny root from all&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;allow root from localhost&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;allow root from 10.0.0.0/8&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;allow root from 192.168.0.0/16&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;allow root from 172.16.0.0/12&#39;</span><span class="p">,</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="authentication-window-is-displayed-more-than-once-why">
 <span id="faq4-7"></span><h3>4.7 Authentication window is displayed more than once, why?<a class="headerlink" href="#authentication-window-is-displayed-more-than-once-why" title="Permalink to this headline">¶</a></h3>
 <p>This happens if you are using a <a class="reference internal" href="glossary.html#term-url"><em class="xref std std-term">URL</em></a> to start phpMyAdmin which is
-different than the one set in your <span class="target" id="index-24"></span><a class="reference internal" href="config.html#cfg_PmaAbsoluteUri"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PmaAbsoluteUri']</span></tt></a>. For
+different than the one set in your <span class="target" id="index-23"></span><a class="reference internal" href="config.html#cfg_PmaAbsoluteUri"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PmaAbsoluteUri']</span></tt></a>. For
 example, a missing &#8220;www&#8221;, or entering with an <a class="reference internal" href="glossary.html#term-ip"><em class="xref std std-term">IP</em></a> address while a domain
 name is defined in the config file.</p>
 </div>
@@ -978,7 +984,7 @@ way.</p>
 <span id="faq5-16"></span><h3>5.16 With Internet Explorer, I get &#8220;Access is denied&#8221; Javascript errors. Or I cannot make phpMyAdmin work under Windows.<a class="headerlink" href="#with-internet-explorer-i-get-access-is-denied-javascript-errors-or-i-cannot-make-phpmyadmin-work-under-windows" title="Permalink to this headline">¶</a></h3>
 <p>Please check the following points:</p>
 <ul class="simple">
-<li>Maybe you have defined your <span class="target" id="index-25"></span><a class="reference internal" href="config.html#cfg_PmaAbsoluteUri"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PmaAbsoluteUri']</span></tt></a> setting in
+<li>Maybe you have defined your <span class="target" id="index-24"></span><a class="reference internal" href="config.html#cfg_PmaAbsoluteUri"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['PmaAbsoluteUri']</span></tt></a> setting in
 <tt class="file docutils literal"><span class="pre">config.inc.php</span></tt> to an <a class="reference internal" href="glossary.html#term-ip"><em class="xref std std-term">IP</em></a> address and you are starting phpMyAdmin
 with a <a class="reference internal" href="glossary.html#term-url"><em class="xref std std-term">URL</em></a> containing a domain name, or the reverse situation.</li>
 <li>Security settings in IE and/or Microsoft Security Center are too high,
@@ -1044,7 +1050,7 @@ data, or both. This will generate standard <a class="reference internal" href="g
 used to recreate your database/table.  You will need to choose &#8220;Save as file&#8221;,
 so that phpMyAdmin can transmit the resulting dump to your station.  Depending
 on your PHP configuration, you will see options to compress the dump. See also
-the <span class="target" id="index-26"></span><a class="reference internal" href="config.html#cfg_ExecTimeLimit"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ExecTimeLimit']</span></tt></a> configuration variable. For
+the <span class="target" id="index-25"></span><a class="reference internal" href="config.html#cfg_ExecTimeLimit"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ExecTimeLimit']</span></tt></a> configuration variable. For
 additional help on this subject, look for the word &#8220;dump&#8221; in this document.</p>
 </div>
 <div class="section" id="how-can-i-restore-upload-my-database-or-table-using-a-dump-how-can-i-run-a-sql-file">
@@ -1062,7 +1068,7 @@ look for the word &#8220;upload&#8221; in this document.</p>
 <div class="section" id="how-can-i-use-the-relation-table-in-query-by-example">
 <span id="faq6-6"></span><h3>6.6 How can I use the relation table in Query-by-example?<a class="headerlink" href="#how-can-i-use-the-relation-table-in-query-by-example" title="Permalink to this headline">¶</a></h3>
 <p>Here is an example with the tables persons, towns and countries, all
-located in the database mydb. If you don&#8217;t have a <tt class="docutils literal"><span class="pre">pma__relation</span></tt>
+located in the database &#8220;mydb&#8221;. If you don&#8217;t have a <tt class="docutils literal"><span class="pre">pma__relation</span></tt>
 table, create it as explained in the configuration section. Then
 create the example tables:</p>
 <div class="highlight-mysql"><div class="highlight"><pre><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nf">REL_countries</span> <span class="p">(</span>
@@ -1097,8 +1103,10 @@ create the example tables:</p>
 <p>To setup appropriate links and display information:</p>
 <ul class="simple">
 <li>on table &#8220;REL_persons&#8221; click Structure, then Relation view</li>
-<li>in Links, for &#8220;town_code&#8221; choose &#8220;REL_towns-&gt;code&#8221;</li>
-<li>in Links, for &#8220;country_code&#8221; choose &#8220;REL_countries-&gt;country_code&#8221;</li>
+<li>for &#8220;town_code&#8221;, choose from dropdowns, &#8220;mydb&#8221;, &#8220;REL_towns&#8221;, &#8220;code&#8221;
+for foreign database, table and column respectively</li>
+<li>for &#8220;country_code&#8221;, choose  from dropdowns, &#8220;mydb&#8221;, &#8220;REL_countries&#8221;,
+&#8220;country_code&#8221; for foreign database, table and column respectively</li>
 <li>on table &#8220;REL_towns&#8221; click Structure, then Relation view</li>
 <li>in &#8220;Choose column to display&#8221;, choose &#8220;description&#8221;</li>
 <li>repeat the two previous steps for table &#8220;REL_countries&#8221;</li>
@@ -1212,18 +1220,8 @@ the normal way to reference a database and table name. Worse, MySQL
 will usually let you create a database with a dot, but then you cannot
 work with it, nor delete it.</p>
 </div>
-<div class="section" id="how-do-i-set-up-the-sql-validator">
-<span id="faqsqlvalidator"></span><h3>6.14 How do I set up the SQL Validator?<a class="headerlink" href="#how-do-i-set-up-the-sql-validator" title="Permalink to this headline">¶</a></h3>
-<p>To use SQL Validator, you need PHP with <a class="reference internal" href="glossary.html#term-xml"><em class="xref std std-term">XML</em></a>, <a class="reference internal" href="glossary.html#term-pcre"><em class="xref std std-term">PCRE</em></a> and
-<a class="reference internal" href="glossary.html#term-pear"><em class="xref std std-term">PEAR</em></a> support. In addition you need a <a class="reference internal" href="glossary.html#term-soap"><em class="xref std std-term">SOAP</em></a> support, either as a
-PHP extension or as a PEAR SOAP module.</p>
-<p>To install <a class="reference internal" href="glossary.html#term-pear"><em class="xref std std-term">PEAR</em></a> <a class="reference internal" href="glossary.html#term-soap"><em class="xref std std-term">SOAP</em></a> module, run <strong class="command">pear install
-Net_Socket Net_URL HTTP_Request Mail_Mime Net_DIME SOAP</strong> to get the necessary
-<a class="reference internal" href="glossary.html#term-pear"><em class="xref std std-term">PEAR</em></a> modules for usage.</p>
-<p>If you use the Validator, you should be aware that any <a class="reference internal" href="glossary.html#term-sql"><em class="xref std std-term">SQL</em></a> statement
-you submit will be stored anonymously (database/table/column names, strings,
-numbers replaced with generic values). The Mimer <a class="reference internal" href="glossary.html#term-sql"><em class="xref std std-term">SQL</em></a> Validator itself,
-is © 2001 Upright Database Technology. We utilize it as free SOAP service.</p>
+<div class="section" id="faqsqlvalidator">
+<span id="id12"></span><h3>6.14 (withdrawn).<a class="headerlink" href="#faqsqlvalidator" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="i-want-to-add-a-blob-column-and-put-an-index-on-it-but-mysql-says-blob-column-used-in-key-specification-without-a-key-length">
 <span id="faq6-15"></span><h3>6.15 I want to add a BLOB column and put an index on it, but MySQL says &#8220;BLOB column &#8216;...&#8217; used in key specification without a key length&#8221;.<a class="headerlink" href="#i-want-to-add-a-blob-column-and-put-an-index-on-it-but-mysql-says-blob-column-used-in-key-specification-without-a-key-length" title="Permalink to this headline">¶</a></h3>
@@ -1333,7 +1331,7 @@ second list containing the display column and the key. The reason for
 this is to be able to type the first letter of either the key or the
 display column. For 100 values or more, a distinct window will appear,
 to browse foreign key values and choose one. To change the default
-limit of 100, see <span class="target" id="index-27"></span><a class="reference internal" href="config.html#cfg_ForeignKeyMaxLimit"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ForeignKeyMaxLimit']</span></tt></a>.</p>
+limit of 100, see <span class="target" id="index-26"></span><a class="reference internal" href="config.html#cfg_ForeignKeyMaxLimit"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['ForeignKeyMaxLimit']</span></tt></a>.</p>
 </div>
 <div class="section" id="bookmarks-can-i-execute-a-default-bookmark-automatically-when-entering-browse-mode-for-a-table">
 <span id="faq6-22"></span><h3>6.22 Bookmarks: Can I execute a default bookmark automatically when entering Browse mode for a table?<a class="headerlink" href="#bookmarks-can-i-execute-a-default-bookmark-automatically-when-entering-browse-mode-for-a-table" title="Permalink to this headline">¶</a></h3>
@@ -1354,7 +1352,7 @@ which works out of the box.</p>
 native ones is done whenever you enter Structure page for this table.</p>
 </div>
 <div class="section" id="faq6-25">
-<span id="id12"></span><h3>6.25 (withdrawn).<a class="headerlink" href="#faq6-25" title="Permalink to this headline">¶</a></h3>
+<span id="id13"></span><h3>6.25 (withdrawn).<a class="headerlink" href="#faq6-25" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="how-can-i-select-a-range-of-rows">
 <span id="faq6-26"></span><h3>6.26 How can I select a range of rows?<a class="headerlink" href="#how-can-i-select-a-range-of-rows" title="Permalink to this headline">¶</a></h3>
@@ -1375,7 +1373,7 @@ name), but the following variables can be used:</p>
 <dt><tt class="docutils literal"><span class="pre">&#64;SERVER&#64;</span></tt></dt>
 <dd>MySQL server name</dd>
 <dt><tt class="docutils literal"><span class="pre">&#64;VERBOSE&#64;</span></tt></dt>
-<dd>Verbose MySQL server name as defined in <span class="target" id="index-28"></span><a class="reference internal" href="config.html#cfg_Servers_verbose"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['verbose']</span></tt></a></dd>
+<dd>Verbose MySQL server name as defined in <span class="target" id="index-27"></span><a class="reference internal" href="config.html#cfg_Servers_verbose"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['Servers'][$i]['verbose']</span></tt></a></dd>
 <dt><tt class="docutils literal"><span class="pre">&#64;VSERVER&#64;</span></tt></dt>
 <dd>Verbose MySQL server name if set, otherwise normal</dd>
 <dt><tt class="docutils literal"><span class="pre">&#64;DATABASE&#64;</span></tt></dt>
@@ -1416,7 +1414,7 @@ in a special format for chart script to understand it. Currently
 supported formats can be found in the <a class="reference external" href="http://wiki.phpmyadmin.net/pma/Charts#Data_formats_for_query_results_chart">wiki</a>.</p>
 </div>
 <div class="section" id="import-how-can-i-import-esri-shapefiles">
-<span id="faq6-30"></span><h3>6.30 Import: How can I import ESRI Shapefiles<a class="headerlink" href="#import-how-can-i-import-esri-shapefiles" title="Permalink to this headline">¶</a></h3>
+<span id="faq6-30"></span><h3>6.30 Import: How can I import ESRI Shapefiles?<a class="headerlink" href="#import-how-can-i-import-esri-shapefiles" title="Permalink to this headline">¶</a></h3>
 <p>An ESRI Shapefile is actually a set of several files, where .shp file
 contains geometry data and .dbf file contains data related to those
 geometry data. To read data from .dbf file you need to have PHP
@@ -1424,10 +1422,10 @@ compiled with the dBase extension (&#8211;enable-dbase). Otherwise only
 geometry data will be imported.</p>
 <p>To upload these set of files you can use either of the following
 methods:</p>
-<p>Configure upload directory with <span class="target" id="index-29"></span><a class="reference internal" href="config.html#cfg_UploadDir"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['UploadDir']</span></tt></a>, upload both .shp and .dbf files with
+<p>Configure upload directory with <span class="target" id="index-28"></span><a class="reference internal" href="config.html#cfg_UploadDir"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['UploadDir']</span></tt></a>, upload both .shp and .dbf files with
 the same filename and chose the .shp file from the import page.</p>
 <p>Create a Zip archive with .shp and .dbf files and import it. For this
-to work, you need to set <span class="target" id="index-30"></span><a class="reference internal" href="config.html#cfg_TempDir"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['TempDir']</span></tt></a> to a place where the web server user can
+to work, you need to set <span class="target" id="index-29"></span><a class="reference internal" href="config.html#cfg_TempDir"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['TempDir']</span></tt></a> to a place where the web server user can
 write (for example <tt class="docutils literal"><span class="pre">'./tmp'</span></tt>).</p>
 <p>To create the temporary directory on a UNIX-based system, you can do:</p>
 <div class="highlight-sh"><div class="highlight"><pre><span class="nb">cd </span>phpMyAdmin
@@ -1482,6 +1480,27 @@ column name. To copy a column name, double-click on the empty area
 next to the column name, when the tooltip tells you to do so. This
 will show you an input box with the column name. You may right-click
 the column name within this input box to copy it to your clipboard.</p>
+</div>
+<div class="section" id="how-can-i-use-the-favorite-tables-feature">
+<span id="faq6-34"></span><h3>6.34 How can I use the Favorite Tables feature?<a class="headerlink" href="#how-can-i-use-the-favorite-tables-feature" title="Permalink to this headline">¶</a></h3>
+<p>Favorite Tables feature is very much similar to Recent Tables feature.
+It allows you to add a shortcut for the frequently used tables of any
+database in the navigation panel . You can easily navigate to any table
+in the list by simply choosing it from the list. These tables are stored
+in your browser&#8217;s local storage if you have not configured your
+<cite>phpMyAdmin Configuration Storage</cite>. Otherwise these entries are stored in
+<cite>phpMyAdmin Configuration Storage</cite>.</p>
+<p>IMPORTANT: In absence of <cite>phpMyAdmin Configuration Storage</cite>, your Favorite
+tables may be different in different browsers based on your different
+selections in them.</p>
+<p>To add a table to Favorite list simply click on the <cite>Gray</cite> star in front
+of a table name in the list of tables of a Database and wait until it
+turns to <cite>Yellow</cite>.
+To remove a table from list, simply click on the <cite>Yellow</cite> star and
+wait until it turns <cite>Gray</cite> again.</p>
+<p>Using <span class="target" id="index-30"></span><tt class="xref config config-option docutils literal"><span class="pre">$cfg['NumFavoriteTables']</span></tt> in your <tt class="file docutils literal"><span class="pre">config.inc.php</span></tt>
+file, you can define the  maximum number of favorite tables shown in the
+navigation panel. Its default value is <cite>10</cite>.</p>
 </div>
 </div>
 <div class="section" id="phpmyadmin-project">
@@ -1542,10 +1561,10 @@ attempts.</p>
 <div class="section" id="synchronization">
 <span id="faqsynchronization"></span><h2>Synchronization<a class="headerlink" href="#synchronization" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="faq9-1">
-<span id="id13"></span><h3>9.1 (withdrawn).<a class="headerlink" href="#faq9-1" title="Permalink to this headline">¶</a></h3>
+<span id="id14"></span><h3>9.1 (withdrawn).<a class="headerlink" href="#faq9-1" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="faq9-2">
-<span id="id14"></span><h3>9.2 (withdrawn).<a class="headerlink" href="#faq9-2" title="Permalink to this headline">¶</a></h3>
+<span id="id15"></span><h3>9.2 (withdrawn).<a class="headerlink" href="#faq9-2" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 </div>
@@ -1566,7 +1585,7 @@ attempts.</p>
 <li><a class="reference internal" href="#using-phpmyadmin-on-iis-i-m-displayed-the-error-message-the-specified-cgi-application-misbehaved-by-not-returning-a-complete-set-of-http-headers">1.4 Using phpMyAdmin on IIS, I&#8217;m displayed the error message: &#8220;The specified CGI application misbehaved by not returning a complete set of HTTP headers ...&#8221;.</a></li>
 <li><a class="reference internal" href="#using-phpmyadmin-on-iis-i-m-facing-crashes-and-or-many-error-messages-with-the-http">1.5 Using phpMyAdmin on IIS, I&#8217;m facing crashes and/or many error messages with the HTTP.</a></li>
 <li><a class="reference internal" href="#i-can-t-use-phpmyadmin-on-pws-nothing-is-displayed">1.6 I can&#8217;t use phpMyAdmin on PWS: nothing is displayed!</a></li>
-<li><a class="reference internal" href="#how-can-i-gzip-or-bzip-a-dump-or-a-csv-export-it-does-not-seem-to-work">1.7 How can I GZip or Bzip a dump or a CSV export? It does not seem to work.</a></li>
+<li><a class="reference internal" href="#how-can-i-gzip-a-dump-or-a-csv-export-it-does-not-seem-to-work">1.7 How can I GZip a dump or a CSV export? It does not seem to work.</a></li>
 <li><a class="reference internal" href="#i-cannot-insert-a-text-file-in-a-table-and-i-get-an-error-about-safe-mode-being-in-effect">1.8 I cannot insert a text file in a table, and I get an error about safe mode being in effect.</a></li>
 <li><a class="reference internal" href="#faq1-9">1.9 (withdrawn).</a></li>
 <li><a class="reference internal" href="#i-m-having-troubles-when-uploading-files-with-phpmyadmin-running-on-a-secure-server-my-browser-is-internet-explorer-and-i-m-using-the-apache-server">1.10 I&#8217;m having troubles when uploading files with phpMyAdmin running on a secure server. My browser is Internet Explorer and I&#8217;m using the Apache server.</a></li>
@@ -1580,7 +1599,7 @@ attempts.</p>
 <li><a class="reference internal" href="#a-i-cannot-connect-to-the-mysql-server-it-always-returns-the-error-message-client-does-not-support-authentication-protocol-requested-by-server-consider-upgrading-mysql-client">1.17a I cannot connect to the MySQL server. It always returns the error message, &#8220;Client does not support authentication protocol requested by server; consider upgrading MySQL client&#8221;</a></li>
 <li><a class="reference internal" href="#faq1-18">1.18 (withdrawn).</a></li>
 <li><a class="reference internal" href="#i-can-t-run-the-display-relations-feature-because-the-script-seems-not-to-know-the-font-face-i-m-using">1.19 I can&#8217;t run the &#8220;display relations&#8221; feature because the script seems not to know the font face I&#8217;m using!</a></li>
-<li><a class="reference internal" href="#i-receive-the-error-cannot-load-mysql-extension-please-check-php-configuration">1.20 I receive the error &#8220;cannot load MySQL extension, please check PHP Configuration&#8221;.</a></li>
+<li><a class="reference internal" href="#i-receive-an-error-about-missing-mysqli-and-mysql-extensions">1.20 I receive an error about missing mysqli and mysql extensions.</a></li>
 <li><a class="reference internal" href="#i-am-running-the-cgi-version-of-php-under-unix-and-i-cannot-log-in-using-cookie-auth">1.21 I am running the CGI version of PHP under Unix, and I cannot log in using cookie auth.</a></li>
 <li><a class="reference internal" href="#i-don-t-see-the-location-of-text-file-field-so-i-cannot-upload">1.22 I don&#8217;t see the &#8220;Location of text file&#8221; field, so I cannot upload.</a></li>
 <li><a class="reference internal" href="#i-m-running-mysql-on-a-win32-machine-each-time-i-create-a-new-table-the-table-and-column-names-are-changed-to-lowercase">1.23 I&#8217;m running MySQL on a Win32 machine. Each time I create a new table the table and column names are changed to lowercase!</a></li>
@@ -1638,6 +1657,7 @@ attempts.</p>
 <li><a class="reference internal" href="#faq3-17">3.17 (withdrawn).</a></li>
 <li><a class="reference internal" href="#when-i-import-a-csv-file-that-contains-multiple-tables-they-are-lumped-together-into-a-single-table">3.18 When I import a CSV file that contains multiple tables, they are lumped together into a single table.</a></li>
 <li><a class="reference internal" href="#when-i-import-a-file-and-have-phpmyadmin-determine-the-appropriate-data-structure-it-only-uses-int-decimal-and-varchar-types">3.19 When I import a file and have phpMyAdmin determine the appropriate data structure it only uses int, decimal, and varchar types.</a></li>
+<li><a class="reference internal" href="#after-upgrading-some-bookmarks-are-gone-or-their-content-cannot-be-shown">3.20 After upgrading, some bookmarks are gone or their content cannot be shown.</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#isps-multi-user-installations">ISPs, multi-user installations</a><ul>
@@ -1687,7 +1707,7 @@ attempts.</p>
 <li><a class="reference internal" href="#what-is-the-curious-symbol-o-in-the-statistics-pages">6.11 What is the curious symbol ø in the statistics pages?</a></li>
 <li><a class="reference internal" href="#i-want-to-understand-some-export-options">6.12 I want to understand some Export options.</a></li>
 <li><a class="reference internal" href="#i-would-like-to-create-a-database-with-a-dot-in-its-name">6.13 I would like to create a database with a dot in its name.</a></li>
-<li><a class="reference internal" href="#how-do-i-set-up-the-sql-validator">6.14 How do I set up the SQL Validator?</a></li>
+<li><a class="reference internal" href="#faqsqlvalidator">6.14 (withdrawn).</a></li>
 <li><a class="reference internal" href="#i-want-to-add-a-blob-column-and-put-an-index-on-it-but-mysql-says-blob-column-used-in-key-specification-without-a-key-length">6.15 I want to add a BLOB column and put an index on it, but MySQL says &#8220;BLOB column &#8216;...&#8217; used in key specification without a key length&#8221;.</a></li>
 <li><a class="reference internal" href="#how-can-i-simply-move-in-page-with-plenty-editing-fields">6.16 How can I simply move in page with plenty editing fields?</a></li>
 <li><a class="reference internal" href="#transformations-i-can-t-enter-my-own-mimetype-wtf-is-this-feature-then-useful-for">6.17 Transformations: I can&#8217;t enter my own mimetype! WTF is this feature then useful for?</a></li>
@@ -1703,10 +1723,11 @@ attempts.</p>
 <li><a class="reference internal" href="#what-format-strings-can-i-use">6.27 What format strings can I use?</a></li>
 <li><a class="reference internal" href="#how-can-i-easily-edit-relational-schema-for-export">6.28 How can I easily edit relational schema for export?</a></li>
 <li><a class="reference internal" href="#why-can-t-i-get-a-chart-from-my-query-result-table">6.29 Why can&#8217;t I get a chart from my query result table?</a></li>
-<li><a class="reference internal" href="#import-how-can-i-import-esri-shapefiles">6.30 Import: How can I import ESRI Shapefiles</a></li>
+<li><a class="reference internal" href="#import-how-can-i-import-esri-shapefiles">6.30 Import: How can I import ESRI Shapefiles?</a></li>
 <li><a class="reference internal" href="#how-do-i-create-a-relation-in-designer">6.31 How do I create a relation in designer?</a></li>
 <li><a class="reference internal" href="#how-can-i-use-the-zoom-search-feature">6.32 How can I use the zoom search feature?</a></li>
 <li><a class="reference internal" href="#when-browsing-a-table-how-can-i-copy-a-column-name">6.33 When browsing a table, how can I copy a column name?</a></li>
+<li><a class="reference internal" href="#how-can-i-use-the-favorite-tables-feature">6.34 How can I use the Favorite Tables feature?</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#phpmyadmin-project">phpMyAdmin project</a><ul>
@@ -1769,11 +1790,11 @@ attempts.</p>
         <li class="right" >
           <a href="other.html" title="Other sources of information"
              >previous</a> |</li>
-        <li><a href="index.html">phpMyAdmin 4.0.4 documentation</a> &raquo;</li> 
+        <li><a href="index.html">phpMyAdmin 4.2.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; <a href="copyright.html">Copyright</a> 2012 - 2013, The phpMyAdmin devel team.
+        &copy; <a href="copyright.html">Copyright</a> 2012 - 2014, The phpMyAdmin devel team.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

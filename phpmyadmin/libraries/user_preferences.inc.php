@@ -43,11 +43,11 @@ echo '</ul><div class="clearfloat"></div>';
 
 // show "configuration saved" message and reload navigation panel if needed
 if (!empty($_GET['saved'])) {
-    PMA_Message::rawSuccess(__('Configuration has been saved'))->display();
+    PMA_Message::rawSuccess(__('Configuration has been saved.'))->display();
 }
 
 /* debug code
-$arr = ConfigFile::getInstance()->getConfigArray();
+$arr = $cf->getConfigArray();
 $arr2 = array();
 foreach ($arr as $k => $v) {
     $arr2[] = "<b>$k</b> " . var_export($v, true);

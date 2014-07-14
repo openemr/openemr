@@ -24,8 +24,8 @@ Currently phpMyAdmin can:
 * execute, edit and bookmark any :term:`SQL`-statement, even batch-queries
 * load text files into tables
 * create [#f1]_ and read dumps of tables
-* export [#f1]_ data to various formats: :term:`CSV`, :term:`XML`, :term:`PDF`, 
-  :term:`ISO`/:term:`IEC` 26300 - :term:`OpenDocument` Text and Spreadsheet, Microsoft 
+* export [#f1]_ data to various formats: :term:`CSV`, :term:`XML`, :term:`PDF`,
+  :term:`ISO`/:term:`IEC` 26300 - :term:`OpenDocument` Text and Spreadsheet, Microsoft
   Word 2000, and LATEX formats
 * import data and :term:`MySQL` structures from :term:`OpenDocument` spreadsheets, as
   well as :term:`XML`, :term:`CSV`, and :term:`SQL` files
@@ -62,7 +62,7 @@ be valid MySQL users.
 
 .. [#f1]
 
-    phpMyAdmin can compress (:term:`Zip`, :term:`GZip` :term:`RFC 1952` or
-    :term:`Bzip2` formats) dumps and :term:`CSV` exports if you use PHP with
-    :term:`Zlib` support (``--with-zlib``) and/or :term:`Bzip2` support
-    (``--with-bz2``).  Proper support may also need changes in :file:`php.ini`.
+    phpMyAdmin can compress (:term:`Zip`, :term:`GZip` or :term:`RFC 1952`
+    formats) dumps and :term:`CSV` exports if you use PHP with
+    :term:`Zlib` support (``--with-zlib``).
+    Proper support may also need changes in :file:`php.ini`.

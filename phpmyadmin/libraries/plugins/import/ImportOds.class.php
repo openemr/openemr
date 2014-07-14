@@ -15,7 +15,8 @@ if (! defined('PHPMYADMIN')) {
 /**
  * We need way to disable external XML entities processing.
  */
-if (!function_exists('libxml_disable_entity_loader')) {
+if (! function_exists('libxml_disable_entity_loader')) {
+    $GLOBALS['skip_import'] = true;
     return;
 }
 
@@ -136,7 +137,7 @@ class ImportOds extends ImportPlugin
             $data = PMA_importGetNextChunk();
             if ($data === false) {
                 /* subtract data we didn't handle yet and stop processing */
-                $offset -= strlen($buffer);
+                $GLOBALS['offset'] -= strlen($buffer);
                 break;
             } elseif ($data === true) {
                 /* Handle rest of buffer */
@@ -167,21 +168,21 @@ class ImportOds extends ImportPlugin
 
         if ($xml === false) {
             $sheets = array();
-            $message = PMA_Message::error(
+            $GLOBALS['message'] = PMA_Message::error(
                 __(
                     'The XML file specified was either malformed or incomplete.'
                     . ' Please correct the issue and try again.'
                 )
             );
-            $error = true;
+            $GLOBALS['error'] = true;
         } else {
             $root = $xml->children('office', true)->{'body'}->{'spreadsheet'};
             if (empty($root)) {
                 $sheets = array();
-                $message = PMA_Message::error(
-                    __('Could not parse OpenDocument Spreasheet!')
+                $GLOBALS['message'] = PMA_Message::error(
+                    __('Could not parse OpenDocument Spreadsheet!')
                 );
-                $error = true;
+                $GLOBALS['error'] = true;
             } else {
                 $sheets = $root->children('table', true);
             }
@@ -191,7 +192,6 @@ class ImportOds extends ImportPlugin
 
         $max_cols = 0;
 
-        $row_count = 0;
         $col_count = 0;
         $col_names = array();
 
@@ -206,104 +206,89 @@ class ImportOds extends ImportPlugin
             /* Iterate over rows */
             foreach ($sheet as $row) {
                 $type = $row->getName();
-                if (! strcmp('table-row', $type)) {
-                    /* Iterate over columns */
-                    foreach ($row as $cell) {
-                        $text = $cell->children('text', true);
-                        $cell_attrs = $cell->attributes('office', true);
+                if (strcmp('table-row', $type)) {
+                    continue;
+                }
+                /* Iterate over columns */
+                foreach ($row as $cell) {
+                    $text = $cell->children('text', true);
+                    $cell_attrs = $cell->attributes('office', true);
 
-                        if (count($text) != 0) {
-                            $attr = $cell->attributes('table', true);
-                            $num_repeat = (int) $attr['number-columns-repeated'];
-                            $num_iterations = $num_repeat ? $num_repeat : 1;
+                    if (count($text) != 0) {
+                        $attr = $cell->attributes('table', true);
+                        $num_repeat = (int) $attr['number-columns-repeated'];
+                        $num_iterations = $num_repeat ? $num_repeat : 1;
 
-                            for ($k = 0; $k < $num_iterations; $k++) {
-                                if ($_REQUEST['ods_recognize_percentages']
-                                    && ! strcmp(
-                                        'percentage',
-                                        $cell_attrs['value-type']
-                                    )
-                                ) {
-                                    $value = (double)$cell_attrs['value'];
-                                } elseif ($_REQUEST['ods_recognize_currency']
-                                    && !strcmp('currency', $cell_attrs['value-type'])
-                                ) {
-                                    $value = (double)$cell_attrs['value'];
-                                } else {
-                                    /* We need to concatenate all paragraphs */
-                                    $values = array();
-                                    foreach ($text as $paragraph) {
-                                        $values[] = (string)$paragraph;
-                                    }
-                                    $value = implode("\n", $values);
-                                }
-                                if (! $col_names_in_first_row) {
-                                    $tempRow[] = $value;
-                                } else {
-                                    $col_names[] = $value;
-                                }
+                        for ($k = 0; $k < $num_iterations; $k++) {
+                            $value = $this->getValue($cell_attrs, $text);
+                            if (! $col_names_in_first_row) {
+                                $tempRow[] = $value;
+                            } else {
+                                $col_names[] = $value;
+                            }
 
+                            ++$col_count;
+                        }
+                        continue;
+                    }
+
+                    /* Number of blank columns repeated */
+                    if ($col_count >= count($row->children('table', true)) - 1) {
+                        continue;
+                    }
+
+                    $attr = $cell->attributes('table', true);
+                    $num_null = (int)$attr['number-columns-repeated'];
+
+                    if ($num_null) {
+                        if (! $col_names_in_first_row) {
+                            for ($i = 0; $i < $num_null; ++$i) {
+                                $tempRow[] = 'NULL';
                                 ++$col_count;
                             }
                         } else {
-                            /* Number of blank columns repeated */
-                            if ($col_count < count($row->children('table', true)) - 1
-                            ) {
-                                $attr = $cell->attributes('table', true);
-                                $num_null = (int)$attr['number-columns-repeated'];
-
-                                if ($num_null) {
-                                    if (! $col_names_in_first_row) {
-                                        for ($i = 0; $i < $num_null; ++$i) {
-                                            $tempRow[] = 'NULL';
-                                            ++$col_count;
-                                        }
-                                    } else {
-                                        for ($i = 0; $i < $num_null; ++$i) {
-                                            $col_names[] = PMA_getColumnAlphaName(
-                                                $col_count + 1
-                                            );
-                                            ++$col_count;
-                                        }
-                                    }
-                                } else {
-                                    if (! $col_names_in_first_row) {
-                                        $tempRow[] = 'NULL';
-                                    } else {
-                                        $col_names[] = PMA_getColumnAlphaName(
-                                            $col_count + 1
-                                        );
-                                    }
-
-                                    ++$col_count;
-                                }
+                            for ($i = 0; $i < $num_null; ++$i) {
+                                $col_names[] = PMA_getColumnAlphaName(
+                                    $col_count + 1
+                                );
+                                ++$col_count;
                             }
                         }
-                    }
-
-                    /* Find the widest row */
-                    if ($col_count > $max_cols) {
-                        $max_cols = $col_count;
-                    }
-
-                    /* Don't include a row that is full of NULL values */
-                    if (! $col_names_in_first_row) {
-                        if ($_REQUEST['ods_empty_rows']) {
-                            foreach ($tempRow as $cell) {
-                                if (strcmp('NULL', $cell)) {
-                                    $tempRows[] = $tempRow;
-                                    break;
-                                }
-                            }
+                    } else {
+                        if (! $col_names_in_first_row) {
+                            $tempRow[] = 'NULL';
                         } else {
-                            $tempRows[] = $tempRow;
+                            $col_names[] = PMA_getColumnAlphaName(
+                                $col_count + 1
+                            );
                         }
-                    }
 
-                    $col_count = 0;
-                    $col_names_in_first_row = false;
-                    $tempRow = array();
+                        ++$col_count;
+                    }
+                } //Endforeach
+
+                /* Find the widest row */
+                if ($col_count > $max_cols) {
+                    $max_cols = $col_count;
                 }
+
+                /* Don't include a row that is full of NULL values */
+                if (! $col_names_in_first_row) {
+                    if ($_REQUEST['ods_empty_rows']) {
+                        foreach ($tempRow as $cell) {
+                            if (strcmp('NULL', $cell)) {
+                                $tempRows[] = $tempRow;
+                                break;
+                            }
+                        }
+                    } else {
+                        $tempRows[] = $tempRow;
+                    }
+                }
+
+                $col_count = 0;
+                $col_names_in_first_row = false;
+                $tempRow = array();
             }
 
             /* Skip over empty sheets */
@@ -356,13 +341,15 @@ class ImportOds extends ImportPlugin
         $num_tbls = count($tables);
         for ($i = 0; $i < $num_tbls; ++$i) {
             for ($j = 0; $j < count($rows); ++$j) {
-                if (! strcmp($tables[$i][TBL_NAME], $rows[$j][TBL_NAME])) {
-                    if (! isset($tables[$i][COL_NAMES])) {
-                        $tables[$i][] = $rows[$j][COL_NAMES];
-                    }
-
-                    $tables[$i][ROWS] = $rows[$j][ROWS];
+                if (strcmp($tables[$i][TBL_NAME], $rows[$j][TBL_NAME])) {
+                    continue;
                 }
+
+                if (! isset($tables[$i][COL_NAMES])) {
+                    $tables[$i][] = $rows[$j][COL_NAMES];
+                }
+
+                $tables[$i][ROWS] = $rows[$j][ROWS];
             }
         }
 
@@ -411,5 +398,39 @@ class ImportOds extends ImportPlugin
 
         /* Commit any possible data in buffers */
         PMA_importRunQuery();
+    }
+
+    /**
+     * Get value
+     *
+     * @param array $cell_attrs Cell attributes
+     * @param array $text       Texts
+     *
+     * @return float|string
+     */
+    protected function getValue($cell_attrs, $text)
+    {
+        if ($_REQUEST['ods_recognize_percentages']
+            && !strcmp(
+                'percentage',
+                $cell_attrs['value-type']
+            )
+        ) {
+            $value = (double)$cell_attrs['value'];
+            return $value;
+        } elseif ($_REQUEST['ods_recognize_currency']
+            && !strcmp('currency', $cell_attrs['value-type'])
+        ) {
+            $value = (double)$cell_attrs['value'];
+            return $value;
+        } else {
+            /* We need to concatenate all paragraphs */
+            $values = array();
+            foreach ($text as $paragraph) {
+                $values[] = (string)$paragraph;
+            }
+            $value = implode("\n", $values);
+            return $value;
+        }
     }
 }

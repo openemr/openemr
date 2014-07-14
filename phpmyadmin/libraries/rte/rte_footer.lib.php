@@ -26,19 +26,19 @@ function PMA_RTE_getFooterLinks($docu, $priv, $name)
     $retval  = "";
     $retval .= "<!-- ADD " . $name . " FORM START -->\n";
     $retval .= "<fieldset class='left'>\n";
-    $retval .= "    <legend>" . _pgettext('Create new procedure', 'New') . "</legend>\n";
+    $retval .= "<legend>" . _pgettext('Create new procedure', 'New') . "</legend>\n";
     $retval .= "        <div class='wrap'>\n";
     if (PMA_Util::currentUserHasPrivilege($priv, $db)) {
         $retval .= "            <a {$ajax_class['add']} ";
         $retval .= "href='db_" . strtolower($name) . "s.php";
-        $retval .= "?$url_query&amp;add_item=1'>";
+        $retval .= "?$url_query&amp;add_item=1' onclick='$.datepicker.initialized = false;'>";
         $retval .= PMA_Util::getIcon($icon);
         $retval .= PMA_RTE_getWord('add') . "</a>\n";
     } else {
         $retval .= "            " . PMA_Util::getIcon($icon);
         $retval .= PMA_RTE_getWord('no_create') . "\n";
     }
-    $retval .= "            " . PMA_Util::showMySQLDocu('SQL-Syntax', $docu) . "\n";
+    $retval .= "            " . PMA_Util::showMySQLDocu($docu) . "\n";
     $retval .= "        </div>\n";
     $retval .= "</fieldset>\n";
     $retval .= "<!-- ADD " . $name . " FORM END -->\n\n";
@@ -80,7 +80,7 @@ function PMA_EVN_getFooterLinks()
      * a form for toggling the state of the event scheduler
      */
     // Init options for the event scheduler toggle functionality
-    $es_state = PMA_DBI_fetch_value(
+    $es_state = $GLOBALS['dbi']->fetchValue(
         "SHOW GLOBAL VARIABLES LIKE 'event_scheduler'",
         0,
         1

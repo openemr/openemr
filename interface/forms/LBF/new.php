@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009-2011 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2014 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,9 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/formatting.inc.php");
+if ($GLOBALS['gbl_portal_cms_enable']) {
+  require_once("$include_root/cmsportal/portal.inc.php");
+}
 
 $CPR = 4; // cells per row
 
@@ -74,7 +77,8 @@ function end_group() {
 }
 
 $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
+$formid   = isset($_GET['id']      ) ? intval($_GET['id']) : 0;
+$portalid = isset($_GET['portalid']) ? intval($_GET['portalid']) : 0;
 
 // Get title and number of history columns for this form.
 $tmp = sqlQuery("SELECT title, option_value FROM list_options WHERE " .
@@ -128,6 +132,14 @@ if ($_POST['bn_save']) {
 
   if (!$formid && $newid) {
     addForm($encounter, $formtitle, $newid, $formname, $pid, $userauthorized);
+  }
+
+  if ($portalid) {
+    // Delete the request from the portal.
+    $result = cms_portal_call(array('action' => 'delpost', 'postid' => $portalid));
+    if ($result['errmsg']) {
+      die(text($result['errmsg']));
+    }
   }
 
   formHeader("Redirecting....");
@@ -236,21 +248,34 @@ function sel_related() {
 </head>
 
 <body <?php echo $top_bg_line; ?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<?php echo $rootdir ?>/forms/LBF/new.php?formname=<?php echo attr($formname) ?>&id=<?php echo attr($formid) ?>"
- onsubmit="return top.restoreSession()">
 
 <?php
+  echo "<form method='post' " .
+       "action='$rootdir/forms/LBF/new.php?formname=$formname&id=$formid&portalid=$portalid' " .
+       "onsubmit='return top.restoreSession()'>\n";
+
+  $cmsportal_login = '';
+  $portalres = FALSE;
   if (empty($is_lbf)) {
-    $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
+    $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, p.cmsportal_login, " .
+      "fe.date FROM " .
       "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
-      "p.pid = ? AND f.pid = ? AND f.encounter = ? AND " .
+      "p.pid = ? AND f.pid = p.pid AND f.encounter = ? AND " .
       "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
-      "fe.id = f.form_id LIMIT 1", array($pid, $pid, $encounter) );
+      "fe.id = f.form_id LIMIT 1", array($pid, $encounter));
     echo "<p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>\n";
     echo text($formtitle) . " " . xlt('for') . ' ';
     echo text($enrow['fname']) . ' ' . text($enrow['mname']) . ' ' . text($enrow['lname']);
     echo ' ' . xlt('on') . ' ' . text(substr($enrow['date'], 0, 10));
     echo "</p>\n";
+    $cmsportal_login = $enrow['cmsportal_login'];
+  }
+  // If loading data from portal, get the data.
+  if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
+    $portalres = cms_portal_call(array('action' => 'getpost', 'postid' => $portalid));
+    if ($portalres['errmsg']) {
+      die(text($portalres['errmsg']));
+    }
   }
 ?>
 
@@ -302,10 +327,23 @@ function sel_related() {
         if (!empty($pprow)) $currvalue = $pprow['field_value'];
       }
       else {
-        // New form, see if there is a custom default from a plugin.
-        $fname = $formname . '_default_' . $field_id;
-        if (function_exists($fname)) {
-          $currvalue = call_user_func($fname);
+        // This is a new form.
+        // Get data from the CMS portal if applicable.
+        /*************************************************************
+        if ($portalres && isset($portalres['fields'][$field_id])) {
+          $currvalue = $portalres['fields'][$field_id];
+          $currvalue = cms_field_to_lbf($currvalue, $data_type, $field_id);
+        }
+        *************************************************************/
+        if ($portalres) {
+          $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
+        }
+        if ($currvalue === '') {
+          // Still no data. See if there is a custom default from a plugin.
+          $fname = $formname . '_default_' . $field_id;
+          if (function_exists($fname)) {
+            $currvalue = call_user_func($fname);
+          }
         }
       }
     }
@@ -458,7 +496,24 @@ function sel_related() {
 if (function_exists($formname . '_javascript_onload')) {
   call_user_func($formname . '_javascript_onload');
 }
+
 // TBD: If $alertmsg, display it with a JavaScript alert().
+
+// New form and this patient has a portal login and we have not loaded portal data.
+// Check if there is portal data pending for this patient and form type.
+if (!$formid && $GLOBALS['gbl_portal_cms_enable'] && $cmsportal_login && !$portalid) {
+  $portalres = cms_portal_call(array('action' => 'checkptform', 'form' => $formname, 'patient' => $cmsportal_login));
+  if ($portalres['errmsg']) {
+    die(text($portalres['errmsg'])); // TBD: Change to alertmsg
+  }
+  $portalid = $portalres['postid'];
+  if ($portalid) {
+    echo "if (confirm('" . xls('The portal has data for this patient and form. Load it now?') . "')) {\n";
+    echo " top.restoreSession();\n";
+    echo " document.location.href = 'load_form.php?formname=$formname&portalid=$portalid';\n";
+    echo "}\n";
+  }
+}
 ?>
 </script>
 

@@ -38,11 +38,14 @@ require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/formdata.inc.php");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+if ($GLOBALS['gbl_portal_cms_enable']) {
+  require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
+}
 
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 
-$PDF_OUTPUT = empty($_POST['pdf']) ? false : true;
+$PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
 if ($PDF_OUTPUT) {
   require_once("$srcdir/html2pdf/html2pdf.class.php");
@@ -1021,7 +1024,29 @@ if ($PDF_OUTPUT) {
   $content = getContent();
   // $pdf->setDefaultFont('Arial');
   $pdf->writeHTML($content, false);
-  $pdf->Output('report.pdf', $GLOBALS['pdf_output']); // D = Download, I = Inline
+  if ($PDF_OUTPUT == 1) {
+    $pdf->Output('report.pdf', $GLOBALS['pdf_output']); // D = Download, I = Inline
+  }
+  else {
+    // This is the case of writing the PDF as a message to the CMS portal.
+    $ptdata = getPatientData($pid, 'cmsportal_login');
+    $contents = $pdf->Output('', true);
+    echo "<html><head>\n";
+    echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
+    echo "</head><body class='body_top'>\n";
+    $result = cms_portal_call(array(
+      'action'   => 'putmessage',
+      'user'     => $ptdata['cmsportal_login'],
+      'title'    => xl('Your Clinical Report'),
+      'message'  => xl('Please see the attached PDF.'),
+      'filename' => 'report.pdf',
+      'mimetype' => 'application/pdf',
+      'contents' => base64_encode($contents),
+    ));
+    if ($result['errmsg']) die(text($result['errmsg']));
+    echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
+    echo "</body></html>\n";
+  }
 }
 else {
 ?>

@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab sw=4 ts=4 sts=4: */
 /**
- * Styles for jqplot 
+ * Styles for jqplot
  * for the pmahomme theme
  *
  * @package    PhpMyAdmin-theme
@@ -80,12 +80,12 @@ if (! defined('PMA_MINIMUM_COMMON') && ! defined('TESTSUITE')) {
 }
 
 .jqplot-yaxis-tick.jqplot-breakTick {
-	<?php echo $right; ?>: -20px;
-	margin-<?php echo $right; ?>: 0px;
-	padding:1px 5px 1px;
-/*	background-color: white;*/
-	z-index: 2;
-	font-size: 1.5em;
+    <?php echo $right; ?>: -20px;
+    margin-<?php echo $right; ?>: 0px;
+    padding:1px 5px 1px;
+/*  background-color: white;*/
+    z-index: 2;
+    font-size: 1.5em;
 }
 
 .jqplot-y2axis-tick, .jqplot-y3axis-tick, .jqplot-y4axis-tick, .jqplot-y5axis-tick, .jqplot-y6axis-tick, .jqplot-y7axis-tick, .jqplot-y8axis-tick, .jqplot-y9axis-tick {
@@ -236,7 +236,7 @@ table.jqplot-cursor-tooltip {
     font-size: 0.75em;
     z-index: 2;
 }
-      
+
 td.jqplot-cursor-legend-swatch {
     vertical-align: middle;
     text-align: center;
@@ -272,6 +272,6 @@ div.jqplot-bubble-label.jqplot-bubble-label-highlight {
 }
 
 div.jqplot-noData-container {
-	text-align: center;
-	background-color: rgba(96%, 96%, 96%, 0.3);
+    text-align: center;
+    background-color: rgba(96%, 96%, 96%, 0.3);
 }

@@ -2,7 +2,7 @@
 /**
 * Script to display results for a given procedure order.
 *
-* Copyright (C) 2013 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -45,6 +45,35 @@ if (!empty($_POST['form_sign_list'])) {
     "review_status = 'reviewed' WHERE " .
     "procedure_report_id = ?", array($id));
   }
+}
+
+// This mess generates a PDF report and sends it to the patient.
+if (!empty($_POST['form_send_to_portal'])) {
+  // Borrowing the general strategy here from custom_report.php.
+  // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
+  require_once("$srcdir/html2pdf/html2pdf.class.php");
+  require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
+  $pdf = new HTML2PDF('P', 'Letter', 'en');
+  ob_start();
+  echo "<link rel='stylesheet' type='text/css' href='$webserver_root/interface/themes/style_pdf.css'>\n";
+  echo "<link rel='stylesheet' type='text/css' href='$webserver_root/library/ESign/css/esign_report.css'>\n";
+  $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
+  generate_order_report($orderid, false);
+  $GLOBALS['PATIENT_REPORT_ACTIVE'] = false;
+  // echo ob_get_clean(); exit(); // debugging
+  $pdf->writeHTML(ob_get_clean(), false);
+  $contents = $pdf->Output('', true);
+  // Send message with PDF as attachment.
+  $result = cms_portal_call(array(
+    'action'   => 'putmessage',
+    'user'     => $_POST['form_send_to_portal'],
+    'title'    => xl('Your Lab Results'),
+    'message'  => xl('Please see the attached PDF.'),
+    'filename' => 'results.pdf',
+    'mimetype' => 'application/pdf',
+    'contents' => base64_encode($contents),
+  ));
+  if ($result['errmsg']) die(text($result['errmsg']));
 }
 ?>
 <html>

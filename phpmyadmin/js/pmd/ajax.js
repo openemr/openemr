@@ -1,1 +1,60 @@
-function makeRequest(b,c){var a=PMA_ajaxShowMessage();$.post(b,c,function(d){PMA_ajaxRemoveMessage(a);PrintXML(d)});return true}function PrintXML(c){var j=$(c).find("root");if(j.length==0){var h=window.open("","Report","width=400, height=250, resizable=1, scrollbars=1, status=1");var d=h.document;d.write(c);d.close()}else{if(j.attr("act")=="save_pos"){PMA_ajaxShowMessage(j.attr("return"))}else{if(j.attr("act")=="relation_upd"){PMA_ajaxShowMessage(j.attr("return"));if(j.attr("b")=="1"){contr.splice(j.attr("K"),1);Re_load()}}else{if(j.attr("act")=="relation_new"){PMA_ajaxShowMessage(j.attr("return"));if(j.attr("b")=="1"){var e=contr.length;var g=j.attr("DB1")+"."+j.attr("T1");var b=j.attr("F1");var f=j.attr("DB2")+"."+j.attr("T2");var a=j.attr("F2");contr[e]=[];contr[e][""]=[];contr[e][""][f]=[];contr[e][""][f][a]=[];contr[e][""][f][a][0]=g;contr[e][""][f][a][1]=b;Re_load()}}}}}};
+/* vim: set expandtab sw=4 ts=4 sts=4: */
+/**
+ *
+ * @package PhpMyAdmin-Designer
+ */
+
+/**
+ *
+ */
+function PrintXML(data)
+{
+    var $root = $(data).find('root');
+    if ($root.length === 0) {
+        // error
+        var myWin = window.open('', 'Report', 'width=400, height=250, resizable=1, scrollbars=1, status=1');
+        var tmp = myWin.document;
+        tmp.write(data);
+        tmp.close();
+    } else {
+        // success
+        if ($root.attr('act') == 'save_pos') {
+            PMA_ajaxShowMessage($root.attr('return'));
+        } else if ($root.attr('act') == 'relation_upd') {
+            PMA_ajaxShowMessage($root.attr('return'));
+            if ($root.attr('b') == '1') {
+                contr.splice($root.attr('K'), 1);
+                Re_load();
+            }
+        } else if ($root.attr('act') == 'relation_new') {
+            PMA_ajaxShowMessage($root.attr('return'));
+            if ($root.attr('b') == '1') {
+                var i  = contr.length;
+                var t1 = $root.attr('DB1') + '.' + $root.attr('T1');
+                var f1 = $root.attr('F1');
+                var t2 = $root.attr('DB2') + '.' + $root.attr('T2');
+                var f2 = $root.attr('F2');
+                contr[i] = [];
+                contr[i][''] = [];
+                contr[i][''][t2] = [];
+                contr[i][''][t2][f2] = [];
+                contr[i][''][t2][f2][0] = t1;
+                contr[i][''][t2][f2][1] = f1;
+                Re_load();
+            }
+        }
+    }
+}
+
+/**
+ *
+ */
+function makeRequest(url, parameters)
+{
+    var $msg = PMA_ajaxShowMessage();
+    $.post(url, parameters, function (data) {
+        PMA_ajaxRemoveMessage($msg);
+        PrintXML(data);
+    });
+    return true;
+}

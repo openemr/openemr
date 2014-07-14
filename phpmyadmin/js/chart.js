@@ -1,1 +1,655 @@
-var ChartType={LINE:"line",SPLINE:"spline",AREA:"area",BAR:"bar",COLUMN:"column",PIE:"pie",TIMELINE:"timeline"};var ChartFactory=function(){};ChartFactory.prototype={createChart:function(b,a){throw new Error("createChart must be implemented by a subclass")}};var Chart=function(a){this.elementId=a};Chart.prototype={draw:function(b,a){throw new Error("draw must be implemented by a subclass")},redraw:function(a){throw new Error("redraw must be implemented by a subclass")},destroy:function(){throw new Error("destroy must be implemented by a subclass")}};var BaseChart=function(a){Chart.call(this,a)};BaseChart.prototype=new Chart();BaseChart.prototype.constructor=BaseChart;BaseChart.prototype.validateColumns=function(c){var b=c.getColumns();if(b.length<2){throw new Error("Minimum of two columns are required for this chart")}for(var a=1;a<b.length;a++){if(b[a].type!=ColumnType.NUMBER){throw new Error("Column "+(a+1)+" should be of type 'Number'")}}return true};var PieChart=function(a){BaseChart.call(this,a)};PieChart.prototype=new BaseChart();PieChart.prototype.constructor=PieChart;PieChart.prototype.validateColumns=function(b){var a=b.getColumns();if(a.length>2){throw new Error("Pie charts can draw only one series")}return BaseChart.prototype.validateColumns.call(this,b)};var TimelineChart=function(a){BaseChart.call(this,a)};TimelineChart.prototype=new BaseChart();TimelineChart.prototype.constructor=TimelineChart;TimelineChart.prototype.validateColumns=function(c){var a=BaseChart.prototype.validateColumns.call(this,c);if(a){var b=c.getColumns();if(b[0].type!=ColumnType.DATE){throw new Error("First column of timeline chart need to be a date column")}}return a};var DataTable=function(){var a=[];var b;this.addColumn=function(e,d){a.push({type:e,name:d})};this.getColumns=function(){return a};this.setData=function(d){b=d;c()};this.getData=function(){return b};var c=function(){if(a.length==0){throw new Error("Set columns first")}var g,f;for(var e=0;e<b.length;e++){g=b[e];if(g.length>a.length){g.splice(a.length-1,g.length-a.length)}else{if(g.length<a.length){for(var d=g.length;d<a.length;d++){g.push(null)}}}}}};var ColumnType={STRING:"string",NUMBER:"number",BOOLEAN:"boolean",DATE:"date"};var JQPlotChartFactory=function(){};JQPlotChartFactory.prototype=new ChartFactory();JQPlotChartFactory.prototype.createChart=function(c,a){var b;switch(c){case ChartType.LINE:b=new JQPlotLineChart(a);break;case ChartType.SPLINE:b=new JQPlotSplineChart(a);break;case ChartType.TIMELINE:b=new JQPlotTimelineChart(a);break;case ChartType.AREA:b=new JQPlotAreaChart(a);break;case ChartType.BAR:b=new JQPlotBarChart(a);break;case ChartType.COLUMN:b=new JQPlotColumnChart(a);break;case ChartType.PIE:b=new JQPlotPieChart(a);break}return b};var JQPlotChart=function(a){Chart.call(this,a);this.plot;this.validator};JQPlotChart.prototype=new Chart();JQPlotChart.prototype.constructor=JQPlotChart;JQPlotChart.prototype.draw=function(b,a){if(this.validator.validateColumns(b)){this.plot=$.jqplot(this.elementId,this.prepareData(b),this.populateOptions(b,a))}};JQPlotChart.prototype.destroy=function(){if(this.plot!=null){this.plot.destroy()}};JQPlotChart.prototype.redraw=function(a){if(this.plot!=null){this.plot.replot(a)}};JQPlotChart.prototype.populateOptions=function(b,a){throw new Error("populateOptions must be implemented by a subclass")};JQPlotChart.prototype.prepareData=function(a){throw new Error("prepareData must be implemented by a subclass")};var JQPlotLineChart=function(a){JQPlotChart.call(this,a);this.validator=BaseChart.prototype};JQPlotLineChart.prototype=new JQPlotChart();JQPlotLineChart.prototype.constructor=JQPlotLineChart;JQPlotLineChart.prototype.populateOptions=function(f,b){var d=f.getColumns();var a={axes:{xaxis:{label:d[0].name,renderer:$.jqplot.CategoryAxisRenderer,ticks:[]},yaxis:{label:(d.length==2?d[1].name:"Values"),labelRenderer:$.jqplot.CanvasAxisLabelRenderer}},series:[]};$.extend(true,a,b);if(a.series.length==0){for(var c=1;c<d.length;c++){a.series.push({label:d[c].name.toString()})}}if(a.axes.xaxis.ticks.length==0){var e=f.getData();for(var c=0;c<e.length;c++){a.axes.xaxis.ticks.push(e[c][0].toString())}}return a};JQPlotLineChart.prototype.prepareData=function(d){var c=d.getData(),f;var g=[],e;for(var b=0;b<c.length;b++){f=c[b];for(var a=1;a<f.length;a++){e=g[a-1];if(e==null){e=[];g[a-1]=e}e.push(f[a])}}return g};var JQPlotSplineChart=function(a){JQPlotLineChart.call(this,a)};JQPlotSplineChart.prototype=new JQPlotLineChart();JQPlotSplineChart.prototype.constructor=JQPlotSplineChart;JQPlotSplineChart.prototype.populateOptions=function(d,b){var a={};var c=JQPlotLineChart.prototype.populateOptions.call(this,d,b);var e={seriesDefaults:{rendererOptions:{smooth:true}}};$.extend(true,a,c,e);return a};var JQPlotTimelineChart=function(a){JQPlotLineChart.call(this,a);this.validator=TimelineChart.prototype};JQPlotTimelineChart.prototype=new JQPlotLineChart();JQPlotTimelineChart.prototype.constructor=JQPlotAreaChart;JQPlotTimelineChart.prototype.populateOptions=function(d,b){var a={axes:{xaxis:{tickOptions:{formatString:"%b %#d, %y"}}}};var c=JQPlotLineChart.prototype.populateOptions.call(this,d,b);var e={axes:{xaxis:{renderer:$.jqplot.DateAxisRenderer}}};$.extend(true,a,c,e);return a};JQPlotTimelineChart.prototype.prepareData=function(e){var c=e.getData(),h,g;var k=[],f;for(var b=0;b<c.length;b++){h=c[b];g=h[0];for(var a=1;a<h.length;a++){f=k[a-1];if(f==null){f=[];k[a-1]=f}if(g!=null){f.push([g.getTime(),h[a]])}}}return k};var JQPlotAreaChart=function(a){JQPlotLineChart.call(this,a)};JQPlotAreaChart.prototype=new JQPlotLineChart();JQPlotAreaChart.prototype.constructor=JQPlotAreaChart;JQPlotAreaChart.prototype.populateOptions=function(d,b){var a={seriesDefaults:{fillToZero:true}};var c=JQPlotLineChart.prototype.populateOptions.call(this,d,b);var e={seriesDefaults:{fill:true}};$.extend(true,a,c,e);return a};var JQPlotColumnChart=function(a){JQPlotLineChart.call(this,a)};JQPlotColumnChart.prototype=new JQPlotLineChart();JQPlotColumnChart.prototype.constructor=JQPlotColumnChart;JQPlotColumnChart.prototype.populateOptions=function(d,b){var a={seriesDefaults:{fillToZero:true}};var c=JQPlotLineChart.prototype.populateOptions.call(this,d,b);var e={seriesDefaults:{renderer:$.jqplot.BarRenderer}};$.extend(true,a,c,e);return a};var JQPlotBarChart=function(a){JQPlotLineChart.call(this,a)};JQPlotBarChart.prototype=new JQPlotLineChart();JQPlotBarChart.prototype.constructor=JQPlotBarChart;JQPlotBarChart.prototype.populateOptions=function(f,b){var d=f.getColumns();var a={axes:{yaxis:{label:d[0].name,labelRenderer:$.jqplot.CanvasAxisLabelRenderer,renderer:$.jqplot.CategoryAxisRenderer,ticks:[]},xaxis:{label:(d.length==2?d[1].name:"Values"),labelRenderer:$.jqplot.CanvasAxisLabelRenderer}},series:[],seriesDefaults:{fillToZero:true}};var g={seriesDefaults:{renderer:$.jqplot.BarRenderer,rendererOptions:{barDirection:"horizontal"}}};$.extend(true,a,b,g);if(a.axes.yaxis.ticks.length==0){var e=f.getData();for(var c=0;c<e.length;c++){a.axes.yaxis.ticks.push(e[c][0].toString())}}if(a.series.length==0){for(var c=1;c<d.length;c++){a.series.push({label:d[c].name.toString()})}}return a};var JQPlotPieChart=function(a){JQPlotChart.call(this,a);this.validator=PieChart.prototype};JQPlotPieChart.prototype=new JQPlotChart();JQPlotPieChart.prototype.constructor=JQPlotPieChart;JQPlotPieChart.prototype.populateOptions=function(c,b){var a={};var d={seriesDefaults:{renderer:$.jqplot.PieRenderer}};$.extend(true,a,b,d);return a};JQPlotPieChart.prototype.prepareData=function(c){var b=c.getData(),d;var e=[];for(var a=0;a<b.length;a++){d=b[a];e.push([d[0],d[1]])}return[e]};
+/**
+ * Chart type enumerations
+ */
+var ChartType = {
+    LINE : 'line',
+    SPLINE : 'spline',
+    AREA : 'area',
+    BAR : 'bar',
+    COLUMN : 'column',
+    PIE : 'pie',
+    TIMELINE: 'timeline',
+    SCATTER: 'scatter'
+};
+
+/**
+ * Abstract chart factory which defines the contract for chart factories
+ */
+var ChartFactory = function () {
+};
+ChartFactory.prototype = {
+    createChart : function (type, options) {
+        throw new Error("createChart must be implemented by a subclass");
+    }
+};
+
+/**
+ * Abstract chart which defines the contract for charts
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var Chart = function (elementId) {
+    this.elementId = elementId;
+};
+Chart.prototype = {
+    draw : function (data, options) {
+        throw new Error("draw must be implemented by a subclass");
+    },
+    redraw : function (options) {
+        throw new Error("redraw must be implemented by a subclass");
+    },
+    destroy : function () {
+        throw new Error("destroy must be implemented by a subclass");
+    }
+};
+
+/**
+ * Abstract representation of charts that operates on DataTable where,<br />
+ * <ul>
+ * <li>First column provides index to the data.</li>
+ * <li>Each subsequent columns are of type
+ * <code>ColumnType.NUMBER<code> and represents a data series.</li>
+ * </ul>
+ * Line chart, area chart, bar chart, column chart are typical examples.
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var BaseChart = function (elementId) {
+    Chart.call(this, elementId);
+};
+BaseChart.prototype = new Chart();
+BaseChart.prototype.constructor = BaseChart;
+BaseChart.prototype.validateColumns = function (dataTable) {
+    var columns = dataTable.getColumns();
+    if (columns.length < 2) {
+        throw new Error("Minimum of two columns are required for this chart");
+    }
+    for (var i = 1; i < columns.length; i++) {
+        if (columns[i].type != ColumnType.NUMBER) {
+            throw new Error("Column " + (i + 1) + " should be of type 'Number'");
+        }
+    }
+    return true;
+};
+
+/**
+ * Abstract pie chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var PieChart = function (elementId) {
+    BaseChart.call(this, elementId);
+};
+PieChart.prototype = new BaseChart();
+PieChart.prototype.constructor = PieChart;
+PieChart.prototype.validateColumns = function (dataTable) {
+    var columns = dataTable.getColumns();
+    if (columns.length > 2) {
+        throw new Error("Pie charts can draw only one series");
+    }
+    return BaseChart.prototype.validateColumns.call(this, dataTable);
+};
+
+/**
+ * Abstract timeline chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var TimelineChart = function (elementId) {
+    BaseChart.call(this, elementId);
+};
+TimelineChart.prototype = new BaseChart();
+TimelineChart.prototype.constructor = TimelineChart;
+TimelineChart.prototype.validateColumns = function (dataTable) {
+    var result = BaseChart.prototype.validateColumns.call(this, dataTable);
+    if (result) {
+        var columns = dataTable.getColumns();
+        if (columns[0].type != ColumnType.DATE) {
+            throw new Error("First column of timeline chart need to be a date column");
+        }
+    }
+    return result;
+};
+
+/**
+ * Abstract scatter chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var ScatterChart = function(elementId) {
+    BaseChart.call(this, elementId);
+};
+ScatterChart.prototype = new BaseChart();
+ScatterChart.prototype.constructor = ScatterChart;
+ScatterChart.prototype.validateColumns = function (dataTable) {
+    var result = BaseChart.prototype.validateColumns.call(this, dataTable);
+    if (result) {
+        var columns = dataTable.getColumns();
+        if (columns[0].type != ColumnType.NUMBER) {
+            throw new Error("First column of scatter chart need to be a numeric column");
+        }
+    }
+    return result;
+};
+
+/**
+ * The data table contains column information and data for the chart.
+ */
+var DataTable = function () {
+    var columns = [];
+    var data = null;
+
+    this.addColumn = function (type, name) {
+        columns.push({
+            'type' : type,
+            'name' : name
+        });
+    };
+
+    this.getColumns = function () {
+        return columns;
+    };
+
+    this.setData = function (rows) {
+        data = rows;
+        fillMissingValues();
+    };
+
+    this.getData = function () {
+        return data;
+    };
+
+    var fillMissingValues = function () {
+        if (columns.length === 0) {
+            throw new Error("Set columns first");
+        }
+        var row;
+        for (var i = 0; i < data.length; i++) {
+            row = data[i];
+            if (row.length > columns.length) {
+                row.splice(columns.length - 1, row.length - columns.length);
+            } else if (row.length < columns.length) {
+                for (var j = row.length; j < columns.length; j++) {
+                    row.push(null);
+                }
+            }
+        }
+    };
+};
+
+/**
+ * Column type enumeration
+ */
+var ColumnType = {
+    STRING : 'string',
+    NUMBER : 'number',
+    BOOLEAN : 'boolean',
+    DATE : 'date'
+};
+
+/*******************************************************************************
+ * JQPlot specific code
+ ******************************************************************************/
+
+/**
+ * Chart factory that returns JQPlotCharts
+ */
+var JQPlotChartFactory = function () {
+};
+JQPlotChartFactory.prototype = new ChartFactory();
+JQPlotChartFactory.prototype.createChart = function (type, elementId) {
+    var chart = null;
+    switch (type) {
+    case ChartType.LINE:
+        chart = new JQPlotLineChart(elementId);
+        break;
+    case ChartType.SPLINE:
+        chart = new JQPlotSplineChart(elementId);
+        break;
+    case ChartType.TIMELINE:
+        chart = new JQPlotTimelineChart(elementId);
+        break;
+    case ChartType.AREA:
+        chart = new JQPlotAreaChart(elementId);
+        break;
+    case ChartType.BAR:
+        chart = new JQPlotBarChart(elementId);
+        break;
+    case ChartType.COLUMN:
+        chart = new JQPlotColumnChart(elementId);
+        break;
+    case ChartType.PIE:
+        chart = new JQPlotPieChart(elementId);
+        break;
+    case ChartType.SCATTER:
+        chart = new JQPlotScatterChart(elementId);
+        break;
+    }
+
+    return chart;
+};
+
+/**
+ * Abstract JQplot chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var JQPlotChart = function (elementId) {
+    Chart.call(this, elementId);
+    this.plot = null;
+    this.validator;
+};
+JQPlotChart.prototype = new Chart();
+JQPlotChart.prototype.constructor = JQPlotChart;
+JQPlotChart.prototype.draw = function (data, options) {
+    if (this.validator.validateColumns(data)) {
+        this.plot = $.jqplot(this.elementId, this.prepareData(data), this
+                .populateOptions(data, options));
+    }
+};
+JQPlotChart.prototype.destroy = function () {
+    if (this.plot !== null) {
+        this.plot.destroy();
+    }
+};
+JQPlotChart.prototype.redraw = function (options) {
+    if (this.plot !== null) {
+        this.plot.replot(options);
+    }
+};
+JQPlotChart.prototype.populateOptions = function (dataTable, options) {
+    throw new Error("populateOptions must be implemented by a subclass");
+};
+JQPlotChart.prototype.prepareData = function (dataTable) {
+    throw new Error("prepareData must be implemented by a subclass");
+};
+
+/**
+ * JQPlot line chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var JQPlotLineChart = function (elementId) {
+    JQPlotChart.call(this, elementId);
+    this.validator = BaseChart.prototype;
+};
+JQPlotLineChart.prototype = new JQPlotChart();
+JQPlotLineChart.prototype.constructor = JQPlotLineChart;
+
+JQPlotLineChart.prototype.populateOptions = function (dataTable, options) {
+    var columns = dataTable.getColumns();
+    var optional = {
+        axes : {
+            xaxis : {
+                label : columns[0].name,
+                renderer : $.jqplot.CategoryAxisRenderer,
+                ticks : []
+            },
+            yaxis : {
+                label : (columns.length == 2 ? columns[1].name : 'Values'),
+                labelRenderer : $.jqplot.CanvasAxisLabelRenderer
+            }
+        },
+        highlighter: {
+            show: true,
+            tooltipAxes: 'y',
+            formatString:'%d'
+        },
+        series : []
+    };
+    $.extend(true, optional, options);
+
+    if (optional.series.length === 0) {
+        for (var i = 1; i < columns.length; i++) {
+            optional.series.push({
+                label : columns[i].name.toString()
+            });
+        }
+    }
+    if (optional.axes.xaxis.ticks.length === 0) {
+        var data = dataTable.getData();
+        for (var i = 0; i < data.length; i++) {
+            optional.axes.xaxis.ticks.push(data[i][0].toString());
+        }
+    }
+    return optional;
+};
+
+JQPlotLineChart.prototype.prepareData = function (dataTable) {
+    var data = dataTable.getData(), row;
+    var retData = [], retRow;
+    for (var i = 0; i < data.length; i++) {
+        row = data[i];
+        for (var j = 1; j < row.length; j++) {
+            retRow = retData[j - 1];
+            if (retRow === undefined) {
+                retRow = [];
+                retData[j - 1] = retRow;
+            }
+            retRow.push(row[j]);
+        }
+    }
+    return retData;
+};
+
+/**
+ * JQPlot spline chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var JQPlotSplineChart = function (elementId) {
+    JQPlotLineChart.call(this, elementId);
+};
+JQPlotSplineChart.prototype = new JQPlotLineChart();
+JQPlotSplineChart.prototype.constructor = JQPlotSplineChart;
+
+JQPlotSplineChart.prototype.populateOptions = function (dataTable, options) {
+    var optional = {};
+    var opt = JQPlotLineChart.prototype.populateOptions.call(this, dataTable,
+            options);
+    var compulsory = {
+        seriesDefaults : {
+            rendererOptions : {
+                smooth : true
+            }
+        }
+    };
+    $.extend(true, optional, opt, compulsory);
+    return optional;
+};
+
+/**
+ * JQPlot scatter chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var JQPlotScatterChart = function (elementId) {
+    JQPlotChart.call(this, elementId);
+    this.validator = ScatterChart.prototype;
+};
+JQPlotScatterChart.prototype = new JQPlotChart();
+JQPlotScatterChart.prototype.constructor = JQPlotScatterChart;
+
+JQPlotScatterChart.prototype.populateOptions = function (dataTable, options) {
+    var columns = dataTable.getColumns();
+    var optional = {
+        axes : {
+            xaxis : {
+                label : columns[0].name
+            },
+            yaxis : {
+                label : (columns.length == 2 ? columns[1].name : 'Values'),
+                labelRenderer : $.jqplot.CanvasAxisLabelRenderer
+            }
+        },
+        highlighter: {
+            show: true,
+            tooltipAxes: 'xy',
+            formatString:'%d, %d'
+        },
+        series : []
+    };
+    for (var i = 1; i < columns.length; i++) {
+        optional.series.push({
+            label : columns[i].name.toString()
+        });
+    }
+
+    var compulsory = {
+        seriesDefaults : {
+            showLine: false,
+            markerOptions: {
+                size: 7,
+                style: "x"
+            }
+        }
+    };
+
+    $.extend(true, optional, options, compulsory);
+    return optional;
+};
+
+JQPlotScatterChart.prototype.prepareData = function (dataTable) {
+    var data = dataTable.getData(), row;
+    var retData = [], retRow;
+    for (var i = 0; i < data.length; i++) {
+        row = data[i];
+        if (row[0]) {
+            for (var j = 1; j < row.length; j++) {
+                retRow = retData[j - 1];
+                if (retRow === undefined) {
+                    retRow = [];
+                    retData[j - 1] = retRow;
+                }
+                retRow.push([row[0], row[j]]);
+            }
+        }
+    }
+    return retData;
+};
+
+/**
+ * JQPlot timeline chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var JQPlotTimelineChart = function (elementId) {
+    JQPlotLineChart.call(this, elementId);
+    this.validator = TimelineChart.prototype;
+};
+JQPlotTimelineChart.prototype = new JQPlotLineChart();
+JQPlotTimelineChart.prototype.constructor = JQPlotTimelineChart;
+
+JQPlotTimelineChart.prototype.populateOptions = function (dataTable, options) {
+    var optional = {
+        axes : {
+            xaxis : {
+                tickOptions : {
+                    formatString: '%b %#d, %y'
+                }
+            }
+        }
+    };
+    var opt = JQPlotLineChart.prototype.populateOptions.call(this, dataTable, options);
+    var compulsory = {
+        axes : {
+            xaxis : {
+                renderer : $.jqplot.DateAxisRenderer
+            }
+        }
+    };
+    $.extend(true, optional, opt, compulsory);
+    return optional;
+};
+
+JQPlotTimelineChart.prototype.prepareData = function (dataTable) {
+    var data = dataTable.getData(), row, d;
+    var retData = [], retRow;
+    for (var i = 0; i < data.length; i++) {
+        row = data[i];
+        d = row[0];
+        for (var j = 1; j < row.length; j++) {
+            retRow = retData[j - 1];
+            if (retRow === undefined) {
+                retRow = [];
+                retData[j - 1] = retRow;
+            }
+            if (d !== null) {
+                retRow.push([d.getTime(), row[j]]);
+            }
+        }
+    }
+    return retData;
+};
+
+/**
+ * JQPlot area chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var JQPlotAreaChart = function (elementId) {
+    JQPlotLineChart.call(this, elementId);
+};
+JQPlotAreaChart.prototype = new JQPlotLineChart();
+JQPlotAreaChart.prototype.constructor = JQPlotAreaChart;
+
+JQPlotAreaChart.prototype.populateOptions = function (dataTable, options) {
+    var optional = {
+        seriesDefaults : {
+            fillToZero : true
+        }
+    };
+    var opt = JQPlotLineChart.prototype.populateOptions.call(this, dataTable,
+            options);
+    var compulsory = {
+        seriesDefaults : {
+            fill : true
+        }
+    };
+    $.extend(true, optional, opt, compulsory);
+    return optional;
+};
+
+/**
+ * JQPlot column chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var JQPlotColumnChart = function (elementId) {
+    JQPlotLineChart.call(this, elementId);
+};
+JQPlotColumnChart.prototype = new JQPlotLineChart();
+JQPlotColumnChart.prototype.constructor = JQPlotColumnChart;
+
+JQPlotColumnChart.prototype.populateOptions = function (dataTable, options) {
+    var optional = {
+        seriesDefaults : {
+            fillToZero : true
+        }
+    };
+    var opt = JQPlotLineChart.prototype.populateOptions.call(this, dataTable,
+            options);
+    var compulsory = {
+        seriesDefaults : {
+            renderer : $.jqplot.BarRenderer
+        }
+    };
+    $.extend(true, optional, opt, compulsory);
+    return optional;
+};
+
+/**
+ * JQPlot bar chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var JQPlotBarChart = function (elementId) {
+    JQPlotLineChart.call(this, elementId);
+};
+JQPlotBarChart.prototype = new JQPlotLineChart();
+JQPlotBarChart.prototype.constructor = JQPlotBarChart;
+
+JQPlotBarChart.prototype.populateOptions = function (dataTable, options) {
+    var columns = dataTable.getColumns();
+    var optional = {
+        axes : {
+            yaxis : {
+                label : columns[0].name,
+                labelRenderer : $.jqplot.CanvasAxisLabelRenderer,
+                renderer : $.jqplot.CategoryAxisRenderer,
+                ticks : []
+            },
+            xaxis : {
+                label : (columns.length == 2 ? columns[1].name : 'Values'),
+                labelRenderer : $.jqplot.CanvasAxisLabelRenderer
+            }
+        },
+        highlighter: {
+            show: true,
+            tooltipAxes: 'x',
+            formatString:'%d'
+        },
+        series : [],
+        seriesDefaults : {
+            fillToZero : true
+        }
+    };
+    var compulsory = {
+        seriesDefaults : {
+            renderer : $.jqplot.BarRenderer,
+            rendererOptions : {
+                barDirection : 'horizontal'
+            }
+        }
+    };
+    $.extend(true, optional, options, compulsory);
+
+    if (optional.axes.yaxis.ticks.length === 0) {
+        var data = dataTable.getData();
+        for (var i = 0; i < data.length; i++) {
+            optional.axes.yaxis.ticks.push(data[i][0].toString());
+        }
+    }
+    if (optional.series.length === 0) {
+        for (var i = 1; i < columns.length; i++) {
+            optional.series.push({
+                label : columns[i].name.toString()
+            });
+        }
+    }
+    return optional;
+};
+
+/**
+ * JQPlot pie chart
+ *
+ * @param elementId
+ *            id of the div element the chart is drawn in
+ */
+var JQPlotPieChart = function (elementId) {
+    JQPlotChart.call(this, elementId);
+    this.validator = PieChart.prototype;
+};
+JQPlotPieChart.prototype = new JQPlotChart();
+JQPlotPieChart.prototype.constructor = JQPlotPieChart;
+
+JQPlotPieChart.prototype.populateOptions = function (dataTable, options) {
+    var optional = {
+        highlighter: {
+            show: true,
+            tooltipAxes: 'xy',
+            formatString:'%s, %d',
+            useAxesFormatters: false
+        }
+    };
+    var compulsory = {
+        seriesDefaults : {
+            renderer : $.jqplot.PieRenderer
+        }
+    };
+    $.extend(true, optional, options, compulsory);
+    return optional;
+};
+
+JQPlotPieChart.prototype.prepareData = function (dataTable) {
+    var data = dataTable.getData(), row;
+    var retData = [];
+    for (var i = 0; i < data.length; i++) {
+        row = data[i];
+        retData.push([ row[0], row[1] ]);
+    }
+    return [ retData ];
+};

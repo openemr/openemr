@@ -32,6 +32,7 @@ $cfg['Servers'][$i]['password'] = $sqlconf['pass'];
 $cfg['Servers'][$i]['only_db'] = $sqlconf['dbase'];
 
 /* Other mods for OpenEMR */
+$cfg['AllowThirdPartyFraming'] = TRUE;
 $cfg['ShowCreateDb'] = false;
 $cfg['ShowPhpInfo'] = TRUE;
 ?>

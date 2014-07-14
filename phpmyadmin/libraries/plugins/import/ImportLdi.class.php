@@ -46,14 +46,16 @@ class ImportLdi extends AbstractImportCsv
         if ($GLOBALS['cfg']['Import']['ldi_local_option'] == 'auto') {
             $GLOBALS['cfg']['Import']['ldi_local_option'] = false;
 
-            $result = PMA_DBI_try_query('SHOW VARIABLES LIKE \'local\\_infile\';');
-            if ($result != false && PMA_DBI_num_rows($result) > 0) {
-                $tmp = PMA_DBI_fetch_row($result);
+            $result = $GLOBALS['dbi']->tryQuery(
+                'SHOW VARIABLES LIKE \'local\\_infile\';'
+            );
+            if ($result != false && $GLOBALS['dbi']->numRows($result) > 0) {
+                $tmp = $GLOBALS['dbi']->fetchRow($result);
                 if ($tmp[1] == 'ON') {
                     $GLOBALS['cfg']['Import']['ldi_local_option'] = true;
                 }
             }
-            PMA_DBI_free_result($result);
+            $GLOBALS['dbi']->freeResult($result);
             unset($result);
         }
 
@@ -97,19 +99,19 @@ class ImportLdi extends AbstractImportCsv
      */
     public function doImport()
     {
-        global $finished, $error, $import_file, $compression, $charset_conversion, $table;
-        global $ldi_local_option, $ldi_replace, $ldi_ignore, $ldi_terminated, $ldi_enclosed,
-            $ldi_escaped, $ldi_new_line, $skip_queries, $ldi_columns;
+        global $finished, $import_file, $compression, $charset_conversion, $table;
+        global $ldi_local_option, $ldi_replace, $ldi_ignore, $ldi_terminated,
+            $ldi_enclosed, $ldi_escaped, $ldi_new_line, $skip_queries, $ldi_columns;
 
         if ($import_file == 'none'
             || $compression != 'none'
             || $charset_conversion
         ) {
             // We handle only some kind of data!
-            $message = PMA_Message::error(
+            $GLOBALS['message'] = PMA_Message::error(
                 __('This plugin does not support compressed imports!')
             );
-            $error = true;
+            $GLOBALS['error'] = true;
             return;
         }
 

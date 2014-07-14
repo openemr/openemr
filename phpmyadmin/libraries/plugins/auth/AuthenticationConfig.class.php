@@ -47,6 +47,10 @@ class AuthenticationConfig extends AuthenticationPlugin
      */
     public function authSetUser()
     {
+        // try to workaround PHP 5 session garbage collection which
+        // looks at the session file's last modified time
+        $_SESSION['last_access_time'] = time();
+
         return true;
     }
 
@@ -68,7 +72,7 @@ class AuthenticationConfig extends AuthenticationPlugin
      */
     public function authFails()
     {
-        $conn_error = PMA_DBI_getError();
+        $conn_error = $GLOBALS['dbi']->getError();
         if (! $conn_error) {
             $conn_error = __('Cannot connect: invalid settings.');
         }
@@ -78,7 +82,7 @@ class AuthenticationConfig extends AuthenticationPlugin
         $response->getFooter()->setMinimal();
         $header = $response->getHeader();
         $header->setBodyId('loginform');
-        $header->setTitle(__('Access denied'));
+        $header->setTitle(__('Access denied!'));
         $header->disableMenu();
         echo '<br /><br />
     <center>
@@ -93,7 +97,7 @@ class AuthenticationConfig extends AuthenticationPlugin
         if (isset($GLOBALS['allowDeny_forbidden'])
             && $GLOBALS['allowDeny_forbidden']
         ) {
-            trigger_error(__('Access denied'), E_USER_NOTICE);
+            trigger_error(__('Access denied!'), E_USER_NOTICE);
         } else {
             // Check whether user has configured something
             if ($GLOBALS['PMA_Config']->source_mtime == 0) {
@@ -136,9 +140,9 @@ class AuthenticationConfig extends AuthenticationPlugin
         </tr>
         <tr>
             <td>' . "\n";
-        echo '<a href="' 
+        echo '<a href="'
             . $GLOBALS['cfg']['DefaultTabServer']
-            . PMA_generate_common_url(array()) . '" class="button disableAjax">'
+            . PMA_URL_getCommon(array()) . '" class="button disableAjax">'
             . __('Retry to connect')
             . '</a>' . "\n";
         echo '</td>
@@ -153,7 +157,9 @@ class AuthenticationConfig extends AuthenticationPlugin
             echo '</tr>' . "\n";
         }
         echo '</table>' . "\n";
-        exit;
+        if (!defined('TESTSUITE')) {
+            exit;
+        }
         return true;
     }
 

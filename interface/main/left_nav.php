@@ -1,4 +1,4 @@
-<?php
+<?php
 use ESign\Api;
 /* Copyright (C) 2006-2012 Rod Roark <rod@sunsetsystems.com>
  *
@@ -117,6 +117,7 @@ use ESign\Api;
   'orc' => array(xl('Proc Load') , 0, 'orders/load_compendium.php'),
   'orb' => array(xl('Proc Bat')  , 0, 'orders/orders_results.php?batch=1'),
   'ore' => array(xl('E-Reports') , 0, 'orders/list_reports.php'),
+  'ppo' => array(xl('CMS Portal'), 0, 'cmsportal/list_requests.php'),
   'cht' => array(xl('Chart Trk') , 0, '../custom/chart_tracker.php'),
   'imp' => array(xl('Import')    , 0, '../custom/import.php'),
   'bil' => array(xl('Billing')   , 0, 'billing/billing_report.php'),
@@ -212,6 +213,22 @@ use ESign\Api;
      echo "forceSpec(false,true);";
    }
    echo "return loadFrame2('$id','$frame','" .
+        $url . "')\">" . $title . "</a></li>";
+  }
+ }
+ function genMiscLink2($frame, $name, $level, $title, $url, $mono=false,$mouseovertext="") {
+  global $disallowed;
+  if (empty($disallowed[$name])) {
+	 
+   $id = $name . $level;
+   echo "<li><a href='' id='$id' title='$mouseovertext' onclick=\"";
+   if ($mono) {
+    if ($frame == 'RTop')
+     echo "forceSpec(true,false);";
+    else
+     echo "forceSpec(false,true);";
+   }
+   echo "return loadFrame3('$id','$frame','" .
         $url . "')\">" . $title . "</a></li>";
   }
  }
@@ -440,6 +457,22 @@ function genFindBlock() {
    alert('<?php echo xls('This encounter is locked. No new forms can be added.') ?>');
    return false;
   }
+  var f = document.forms[0];
+  top.restoreSession();
+  var i = url.indexOf('{PID}');
+  if (i >= 0) url = url.substring(0,i) + active_pid + url.substring(i+5);
+  if(f.sel_frame)
+   {
+	  var fi = f.sel_frame.selectedIndex;
+	  if (fi == 1) frame = 'RTop'; else if (fi == 2) frame = 'RBot';
+   }
+  if (!f.cb_bot.checked) frame = 'RTop'; else if (!f.cb_top.checked) frame = 'RBot';
+  top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
+  if (frame == 'RTop') topName = fname; else botName = fname;
+  return false;
+ }
+ 
+ function loadFrame3(fname, frame, url) {
   var f = document.forms[0];
   top.restoreSession();
   var i = url.indexOf('{PID}');
@@ -965,6 +998,7 @@ $(document).ready(function(){
     $("#navigation-slide > li  > a#msg0").prepend('<img src="../../images/messages.png" class="nav-menu-img" />');
     $("#navigation-slide > li  > a#patimg").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
     $("#navigation-slide > li  > a#app0").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#ppo0").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
     $("#navigation-slide > li  > a#repimg").prepend('<img src="../../images/reports.png" class="nav-menu-img" />');
     $("#navigation-slide > li  > a#feeimg").prepend('<img src="../../images/fee.png" class="nav-menu-img" />');
     $("#navigation-slide > li  > a#adm0").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
@@ -972,6 +1006,7 @@ $(document).ready(function(){
     $("#navigation-slide > li  > a#admimg").prepend('<img src="../../images/admin.png" class="nav-menu-img" />');
     $("#navigation-slide > li  > a#misimg").prepend('<img src="../../images/misc.png" class="nav-menu-img" />');
     $("#navigation-slide > li  > a#proimg").prepend('<img src="../../images/procedures.png" class="nav-menu-img" />');
+		$("#navigation-slide > li  > a#modimg").prepend('<img src="../../images/module.png" class="nav-menu-img" />');
     $("#navigation-slide > li").each(function(index) {
       if($(" > ul > li", this).size() == 0){
         $(" > a", this).addClass("collapsed");
@@ -1136,6 +1171,38 @@ if ($GLOBALS['athletic_team']) {
     </ul>
   </li> 
   <?php } ?>
+	<?php  if (acl_check('menus', 'modle')) {?>
+   <li><a class="collapsed" id="modimg" ><span><?php echo xlt('Modules') ?></span></a>
+    <ul>
+	<?php genMiscLink('RTop','adm','0',xl('Manage Modules'),'modules/zend_modules/public/Installer'); ?>
+	 <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
+      
+	<?php 	
+		$module_query = sqlStatement("select mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
+		if (sqlNumRows($module_query)) {
+		  while ($modulerow = sqlFetchArray($module_query)) {
+				$acl_section = strtolower($modulerow['mod_directory']);
+				$disallowed[$acl_section] = zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1";
+				$modulePath = "";
+				$added 		= "";
+		  		if($modulerow['type'] == 0) {
+		  			$modulePath = $GLOBALS['customModDir'];
+		  			$added		= "";
+		  		}
+		  		else{ 	
+					$added		= "index";
+		  			$modulePath = $GLOBALS['zendModDir'];
+		  		}
+		  			
+		 		$relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
+                                $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
+			?>
+		      <?php genMiscLink2('RTop',$acl_section,'0',xlt($mod_nick_name),$relative_link);
+			   }
+		} ?>
+    </ul>
+  </li>
+  <?php }?>
   <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0',xl('Inventory'),'drugs/drug_inventory.php'); ?>
   <li><a class="collapsed" id="admimg" ><span><?php xl('Administration','e') ?></span></a>
     <ul>
@@ -1183,6 +1250,13 @@ if ($GLOBALS['athletic_team']) {
   <?php genTreeLink('RBot','msg',xl('Messages')); ?> 
   <?php if ($GLOBALS['lab_exchange_enable']) genTreeLink('RTop', 'lab', xl('Check Lab Results'));?>
   <?php if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address'] && acl_check('patientportal','portal'))  genTreeLink('RTop','app',xl('Portal Activity')); ?>
+  <?php
+    if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal','portal')) {
+      // genTreeLink('RTop','ppo',xl('WordPress Portal'));
+      genPopLink(xl('CMS Portal'),'../cmsportal/list_requests.php','ppo0');
+    }
+  ?>
+
   <li class="open"><a class="expanded" id="patimg" ><span><?php xl('Patient/Client','e') ?></span></a>
     <ul>
       <?php genMiscLink('RTop','fin','0',xl('Patients'),'main/finder/dynamic_finder.php'); ?>
@@ -1261,6 +1335,38 @@ if (!empty($reg)) {
     </ul>
   </li>
   <?php } ?>
+	<?php  if (acl_check('menus', 'modle')) {?>
+   <li><a class="collapsed" id="modimg" ><span><?php echo xlt('Modules') ?></span></a>
+    <ul>
+	<?php genMiscLink('RTop','adm','0',xl('Manage Modules'),'modules/zend_modules/public/Installer'); ?>
+	 <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
+      
+	<?php 	
+		$module_query = sqlStatement("select mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
+		if (sqlNumRows($module_query)) {
+		  while ($modulerow = sqlFetchArray($module_query)) {
+				$acl_section = strtolower($modulerow['mod_directory']);
+				$disallowed[$acl_section] = zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1";
+				$modulePath = "";
+				$added 		= "";
+		  		if($modulerow['type'] == 0) {
+		  			$modulePath = $GLOBALS['customModDir'];
+		  			$added		= "";
+		  		}
+		  		else{ 	
+					$added		= "index";
+		  			$modulePath = $GLOBALS['zendModDir'];
+		  		}
+		  			
+		 		$relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
+                                $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
+			?>
+		      <?php genMiscLink2('RTop',$acl_section,'0',xlt($mod_nick_name),$relative_link);?>
+			  <?php }
+		} ?>
+    </ul>
+  </li>
+  <?php }?>
   <?php // if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0',xl('Inventory'),'drugs/drug_inventory.php'); ?>
 <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) { ?>
   <li><a class="collapsed" id="invimg" ><span><?php xl('Inventory','e') ?></span></a>
@@ -1341,6 +1447,42 @@ if (!empty($reg)) {
   <?php } ?>
   <li><a class="collapsed" id="repimg" ><span><?php xl('Reports','e') ?></span></a>
     <ul>
+				<?php 	
+				$module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
+                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id 
+                                    WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
+				if (sqlNumRows($module_query)) {
+					$jid = 0;
+					$modid = '';
+					while ($modulerow = sqlFetchArray($module_query)) {
+						$modulePath = "";
+						$added 		= "";
+							if($modulerow['type'] == 0) {
+								$modulePath = $GLOBALS['customModDir'];
+								$added		= "";
+							}
+							else{ 	
+								$added		= "index";
+								$modulePath = $GLOBALS['zendModDir'];
+							}
+								
+						$relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$modulerow['path'];
+						$mod_nick_name = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'NoName';
+						
+						if($jid==0 || ($modid!=$modulerow['mod_id'])){
+							if($modid!='')
+							echo "</ul>";
+						?>
+						<li><a class="collapsed_lv2"><span><?php echo xlt($modulerow['mod_ui_name']); ?></span></a>
+							<ul>
+						<?php
+						}
+						$jid++;
+						$modid = $modulerow['mod_id'];
+						genMiscLink('RTop','adm','0',xlt($mod_nick_name),$relative_link);
+					}
+        echo "</ul>";
+      } ?>
       <li><a class="collapsed_lv2"><span><?php xl('Clients','e') ?></span></a>
         <ul>
 	  <?php genMiscLink('RTop','rep','0',xl('List'),'reports/patient_list.php'); ?>

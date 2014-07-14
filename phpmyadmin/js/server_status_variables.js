@@ -1,1 +1,110 @@
-AJAX.registerTeardown("server_status_variables.js",function(){$("#filterAlert").unbind("change");$("#filterText").unbind("keyup");$("#filterCategory").unbind("change");$("#dontFormat").unbind("change")});AJAX.registerOnload("server_status_variables.js",function(){PMA_tooltip($("table.sortable>thead>tr:first").find("th"),"th",PMA_messages.strSortHint);initTableSorter("statustabs_allvars");var d=null;var c=$("#filterAlert").prop("checked");var b=$("#filterCategory").find(":selected").val();var a=false;var f="";$("#filterAlert").change(function(){c=this.checked;e()});$("#filterCategory").change(function(){b=$(this).val();e()});$("#dontFormat").change(function(){$("#serverstatusvariables").hide();$("#serverstatusvariables td.value span.original").toggle(this.checked);$("#serverstatusvariables td.value span.formatted").toggle(!this.checked);$("#serverstatusvariables").show()}).trigger("change");$("#filterText").keyup(function(h){var g=$(this).val().replace(/_/g," ");if(g.length==0){d=null}else{d=new RegExp("(^| )"+g,"i")}f=g;e()}).trigger("keyup");function e(){var g=0;var h=f;if(b.length>0){h=b}if(h.length>1){$("#linkSuggestions span").each(function(){if($(this).attr("class").indexOf("status_"+h)!=-1){g++;$(this).css("display","")}else{$(this).css("display","none")}})}if(g>0){$("#linkSuggestions").css("display","")}else{$("#linkSuggestions").css("display","none")}a=false;$("#serverstatusvariables th.name").each(function(){if((d==null||d.exec($(this).text()))&&(!c||$(this).next().find("span.attention").length>0)&&(b.length==0||$(this).parent().hasClass("s_"+b))){a=!a;$(this).parent().css("display","");if(a){$(this).parent().addClass("odd");$(this).parent().removeClass("even")}else{$(this).parent().addClass("even");$(this).parent().removeClass("odd")}}else{$(this).parent().css("display","none")}})}});
+/* vim: set expandtab sw=4 ts=4 sts=4: */
+/**
+ *
+ *
+ * @package PhpMyAdmin
+ */
+
+/**
+ * Unbind all event handlers before tearing down a page
+ */
+AJAX.registerTeardown('server_status_variables.js', function () {
+    $('#filterAlert').unbind('change');
+    $('#filterText').unbind('keyup');
+    $('#filterCategory').unbind('change');
+    $('#dontFormat').unbind('change');
+});
+
+AJAX.registerOnload('server_status_variables.js', function () {
+    /*** Table sort tooltip ***/
+    PMA_tooltip(
+        $('table.sortable>thead>tr:first').find('th'),
+        'th',
+        PMA_messages.strSortHint
+    );
+    initTableSorter('statustabs_allvars');
+
+    // Filters for status variables
+    var textFilter = null;
+    var alertFilter = $('#filterAlert').prop('checked');
+    var categoryFilter = $('#filterCategory').find(':selected').val();
+    var odd_row = false;
+    var text = ''; // Holds filter text
+
+    /* 3 Filtering functions */
+    $('#filterAlert').change(function () {
+        alertFilter = this.checked;
+        filterVariables();
+    });
+
+    $('#filterCategory').change(function () {
+        categoryFilter = $(this).val();
+        filterVariables();
+    });
+
+    $('#dontFormat').change(function () {
+        // Hiding the table while changing values speeds up the process a lot
+        $('#serverstatusvariables').hide();
+        $('#serverstatusvariables td.value span.original').toggle(this.checked);
+        $('#serverstatusvariables td.value span.formatted').toggle(! this.checked);
+        $('#serverstatusvariables').show();
+    }).trigger('change');
+
+    $('#filterText').keyup(function (e) {
+        var word = $(this).val().replace(/_/g, ' ');
+        if (word.length === 0) {
+            textFilter = null;
+        } else {
+            textFilter = new RegExp("(^| )" + word, 'i');
+        }
+        text = word;
+        filterVariables();
+    }).trigger('keyup');
+
+    /* Filters the status variables by name/category/alert in the variables tab */
+    function filterVariables() {
+        var useful_links = 0;
+        var section = text;
+
+        if (categoryFilter.length > 0) {
+            section = categoryFilter;
+        }
+
+        if (section.length > 1) {
+            $('#linkSuggestions span').each(function () {
+                if ($(this).attr('class').indexOf('status_' + section) != -1) {
+                    useful_links++;
+                    $(this).css('display', '');
+                } else {
+                    $(this).css('display', 'none');
+                }
+            });
+        }
+
+        if (useful_links > 0) {
+            $('#linkSuggestions').css('display', '');
+        } else {
+            $('#linkSuggestions').css('display', 'none');
+        }
+
+        odd_row = false;
+        $('#serverstatusvariables th.name').each(function () {
+            if ((textFilter === null || textFilter.exec($(this).text())) &&
+                (! alertFilter || $(this).next().find('span.attention').length > 0) &&
+                (categoryFilter.length === 0 || $(this).parent().hasClass('s_' + categoryFilter))
+            ) {
+                odd_row = ! odd_row;
+                $(this).parent().css('display', '');
+                if (odd_row) {
+                    $(this).parent().addClass('odd');
+                    $(this).parent().removeClass('even');
+                } else {
+                    $(this).parent().addClass('even');
+                    $(this).parent().removeClass('odd');
+                }
+            } else {
+                $(this).parent().css('display', 'none');
+            }
+        });
+    }
+});

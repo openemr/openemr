@@ -1,0 +1,78 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    @author  Jacob T.Paul <jacob@zhservices.com>
+*    @author  Basil PT <basil@zhservices.com>  
+*
+* +------------------------------------------------------------------------------+
+*/
+
+?>
+<script type="text/javascript">
+    ajax_path = "<?php echo $GLOBALS['webroot'];?>/interface/modules/zend_modules/public/acl/ajax";
+    module_id = "<?php echo $this->module_id; ?>";
+</script>
+<?php
+$USER_GROUPS 	= $this->user_groups;
+$MODULE_DATA	= $this->module_data;
+$count				= 1;
+$ACL_DATA			= $this->acl_data;
+$listener			= $this->listenerObject;
+?>
+
+<div style="text-align: left;margin-top: 5px;color: #466837;">&nbsp;<span id="messages_div"></span></div>
+<center>
+		<div class="scrollable default-skin" style="width: 800px;height: 600px;">
+				<table id="table_acl" align="center">
+						<tr class="tr_head">
+								<td><?php echo $listener->z_xlt('Components'); ?></td>
+								<?php foreach($USER_GROUPS as $KEY => $VAL) : ?>
+								<td class="align_center"><?php echo $listener->z_xlt($VAL);?></td>
+								<?php endforeach ?>
+						</tr>
+						<tr class="tr_module">
+								<td><?php echo $listener->z_xlt($MODULE_DATA['module_name']['name']); ?></td>
+								<?php foreach($USER_GROUPS as $KEY => $VAL) : ?>
+								<?php
+							$selected = "";
+							if(in_array($KEY,$ACL_DATA[$MODULE_DATA['module_name']['id']])) $selected = "checked";
+								?>
+								<td class="align_center"><input <?php echo $selected; ?> class="module_check" type="checkbox" name="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" id="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" ></td>
+								<?php endforeach ?>
+						</tr>
+	
+						<?php foreach($MODULE_DATA['module_components'] as $KEY => $VAL) : ?>
+								<?php
+							$count++;
+							if($count % 2 == 0) $class ="tr_section_1";
+							else $class ="tr_section_2";
+								?>
+								<tr class="<?php echo $class; ?>">
+								<td><?php echo $listener->z_xlt($VAL); ?></td>
+							<?php foreach($USER_GROUPS as $KEY_GROUP => $VAL_GROUP) : ?>
+									<?php
+								$selected = "";
+								if(in_array($KEY_GROUP,$ACL_DATA[$KEY])) $selected = "checked";
+									?>
+									<td class="align_center"><input <?php echo $selected; ?> class="component_check group_<?php echo $this->escapeHtml($KEY_GROUP); ?>" type="checkbox" name="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" id="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" ></td>
+							<?php endforeach ?>
+								</tr>
+						<?php endforeach ?>
+						
+				</table>
+		</div>
+</center>

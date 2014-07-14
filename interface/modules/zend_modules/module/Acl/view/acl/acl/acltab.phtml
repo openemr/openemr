@@ -1,0 +1,33 @@
+<?php
+/* +-----------------------------------------------------------------------------+
+*    OpenEMR - Open Source Electronic Medical Record
+*    Copyright (C) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU Affero General Public License as
+*    published by the Free Software Foundation, either version 3 of the
+*    License, or (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU Affero General Public License for more details.
+*
+*    You should have received a copy of the GNU Affero General Public License
+*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*    @author  Jacob T.Paul <jacob@zhservices.com>
+*    @author  Basil PT <basil@zhservices.com>  
+*
+* +------------------------------------------------------------------------------+
+*/ 
+?>
+<div id="tabs-acl-tabs">
+<div class="easyui-tabs" id="tab" style="width:930px;height:auto;">
+    <div title="General" id="tab_acl" iconCls="icon-acl">
+          <iframe id="general_acl" src="<?php echo $GLOBALS['webroot']; ?>/interface/modules/zend_modules/public/acl/acl?module_id=<?php echo $this->escapeHtml($this->mod_id); ?>" style="width:100%;height: 700px;overflow: hidden;" frameborder="0"></iframe>
+    </div>
+    <div title="Advanced ACL" id="tab_acl2" iconCls="icon-acladvanced">
+          <iframe id="advanced_acl" src="<?php echo $GLOBALS['webroot']; ?>/interface/modules/zend_modules/public/acl/index?module_id=<?php echo $this->escapeHtml($this->mod_id); ?>" style="width:100%;height: 700px;overflow: hidden;" frameborder="0"></iframe>
+    </div>
+</div>
+</div>

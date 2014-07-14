@@ -34,6 +34,8 @@
 require_once("formdata.inc.php");
 require_once("formatting.inc.php");
 require_once("user.inc");
+require_once("patient.inc");
+require_once("lists.inc");
 
 $date_init = "";
 
@@ -169,7 +171,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 // $currvalue is the current value, if any, of the associated item.
 //
 function generate_form_field($frow, $currvalue) {
-  global $rootdir, $date_init;
+  global $rootdir, $date_init, $ISSUE_TYPES;
 
   $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
 
@@ -280,15 +282,26 @@ function generate_form_field($frow, $currvalue) {
       "AND authorized = 1 " .
       "ORDER BY lname, fname");
     echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
-    echo "<option value=''>" . htmlspecialchars(xl($empty_title), ENT_NOQUOTES) . "</option>";
+    echo "<option value=''>" . xlt($empty_title) . "</option>";
+    $got_selected = false;
     while ($urow = sqlFetchArray($ures)) {
-      $uname = htmlspecialchars( $urow['fname'] . ' ' . $urow['lname'], ENT_NOQUOTES);
-      $optionId = htmlspecialchars( $urow['id'], ENT_QUOTES);
+      $uname = text($urow['fname'] . ' ' . $urow['lname']);
+      $optionId = attr($urow['id']);
       echo "<option value='$optionId'";
-      if ($urow['id'] == $currvalue) echo " selected";
+      if ($urow['id'] == $currvalue) {
+        echo " selected";
+        $got_selected = true;
+      }
       echo ">$uname</option>";
     }
-    echo "</select>";
+    if (!$got_selected && strlen($currvalue) > 0) {
+      echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+      echo "</select>";
+      echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+    }
+    else {
+      echo "</select>";
+    }
   }
 
   // provider list, including address book entries with an NPI number
@@ -298,15 +311,26 @@ function generate_form_field($frow, $currvalue) {
       "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
       "ORDER BY lname, fname");
     echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
-    echo "<option value=''>" . htmlspecialchars( xl('Unassigned'), ENT_NOQUOTES) . "</option>";
+    echo "<option value=''>" . xlt('Unassigned') . "</option>";
+    $got_selected = false;
     while ($urow = sqlFetchArray($ures)) {
-      $uname = htmlspecialchars( $urow['fname'] . ' ' . $urow['lname'], ENT_NOQUOTES);
-      $optionId = htmlspecialchars( $urow['id'], ENT_QUOTES);
+      $uname = text($urow['fname'] . ' ' . $urow['lname']);
+      $optionId = attr($urow['id']);
       echo "<option value='$optionId'";
-      if ($urow['id'] == $currvalue) echo " selected";
+      if ($urow['id'] == $currvalue) {
+        echo " selected";
+        $got_selected = true;
+      }
       echo ">$uname</option>";
     }
-    echo "</select>";
+    if (!$got_selected && strlen($currvalue) > 0) {
+      echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+      echo "</select>";
+      echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+    }
+    else {
+      echo "</select>";
+    }
   }
 
   // pharmacy list
@@ -314,17 +338,28 @@ function generate_form_field($frow, $currvalue) {
     echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
     echo "<option value='0'></option>";
     $pres = get_pharmacies();
+    $got_selected = false;
     while ($prow = sqlFetchArray($pres)) {
       $key = $prow['id'];
       $optionValue = htmlspecialchars( $key, ENT_QUOTES);
       $optionLabel = htmlspecialchars( $prow['name'] . ' ' . $prow['area_code'] . '-' .
         $prow['prefix'] . '-' . $prow['number'] . ' / ' .
-	$prow['line1'] . ' / ' . $prow['city'], ENT_NOQUOTES);
+        $prow['line1'] . ' / ' . $prow['city'], ENT_NOQUOTES);
       echo "<option value='$optionValue'";
-      if ($currvalue == $key) echo " selected";
+      if ($currvalue == $key) {
+        echo " selected";
+        $got_selected = true;
+      }
       echo ">$optionLabel</option>";
     }
-    echo "</select>";
+    if (!$got_selected && strlen($currvalue) > 0) {
+      echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+      echo "</select>";
+      echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+    }
+    else {
+      echo "</select>";
+    }
   }
 
   // squads
@@ -408,6 +443,57 @@ function generate_form_field($frow, $currvalue) {
       " value='$currescaped'" .
       " onclick='sel_related(this)' readonly" .
       " />";
+  }
+
+  // insurance company list
+  else if ($data_type == 16) {
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
+    echo "<option value='0'></option>";
+    $insprovs = getInsuranceProviders();
+    $got_selected = false;
+    foreach ($insprovs as $key => $ipname) {
+      $optionValue = htmlspecialchars($key, ENT_QUOTES);
+      $optionLabel = htmlspecialchars($ipname, ENT_NOQUOTES);
+      echo "<option value='$optionValue'";
+      if ($currvalue == $key) {
+        echo " selected";
+        $got_selected = true;
+      }
+      echo ">$optionLabel</option>";
+    }
+    if (!$got_selected && strlen($currvalue) > 0) {
+      echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+      echo "</select>";
+      echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+    }
+    else {
+      echo "</select>";
+    }
+  }
+
+  // issue types
+  else if ($data_type == 17) {
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
+    echo "<option value='0'></option>";
+    $got_selected = false;
+    foreach ($ISSUE_TYPES as $key => $value) {
+      $optionValue = htmlspecialchars($key, ENT_QUOTES);
+      $optionLabel = htmlspecialchars($value[1], ENT_NOQUOTES);
+      echo "<option value='$optionValue'";
+      if ($currvalue == $key) {
+        echo " selected";
+        $got_selected = true;
+      }
+      echo ">$optionLabel</option>";
+    }
+    if (!$got_selected && strlen($currvalue) > 0) {
+      echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
+      echo "</select>";
+      echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+    }
+    else {
+      echo "</select>";
+    }
   }
 
   // a set of labeled checkboxes
@@ -803,7 +889,7 @@ function generate_form_field($frow, $currvalue) {
 }
 
 function generate_print_field($frow, $currvalue) {
-  global $rootdir, $date_init;
+  global $rootdir, $date_init, $ISSUE_TYPES;
 
   $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
 
@@ -1003,6 +1089,39 @@ function generate_print_field($frow, $currvalue) {
     *****************************************************************/
     if ($tmp === '') { $tmp = '&nbsp;'; }
     else { $tmp = htmlspecialchars( $tmp, ENT_QUOTES); }
+    echo $tmp;
+  }
+
+  // insurance company list
+  else if ($data_type == 16) {
+    $tmp = '';
+    if ($currvalue) {
+      $insprovs = getInsuranceProviders();
+      foreach ($insprovs as $key => $ipname) {
+        if ($currvalue == $key) {
+          $tmp = $ipname;
+        }
+      }
+      if (empty($tmp)) $tmp = "($currvalue)";
+    }
+    if ($tmp === '') $tmp = '&nbsp;';
+    else $tmp = htmlspecialchars($tmp, ENT_QUOTES);
+    echo $tmp;
+  }
+
+  // issue types
+  else if ($data_type == 17) {
+    $tmp = '';
+    if ($currvalue) {
+      foreach ($ISSUE_TYPES as $key => $value) {
+        if ($currvalue == $key) {
+          $tmp = $value[1];
+        }
+      }
+      if (empty($tmp)) $tmp = "($currvalue)";
+    }
+    if ($tmp === '') $tmp = '&nbsp;';
+    else $tmp = htmlspecialchars($tmp, ENT_QUOTES);
     echo $tmp;
   }
 
@@ -1335,6 +1454,8 @@ function generate_print_field($frow, $currvalue) {
 }
 
 function generate_display_field($frow, $currvalue) {
+  global $ISSUE_TYPES;
+
   $data_type  = $frow['data_type'];
   $field_id   = isset($frow['field_id'])  ? $frow['field_id'] : null;
   $list_id    = $frow['list_id'];
@@ -1417,6 +1538,25 @@ function generate_display_field($frow, $currvalue) {
   // billing code
   else if ($data_type == 15) {
     $s = htmlspecialchars($currvalue,ENT_NOQUOTES);
+  }
+
+  // insurance company list
+  else if ($data_type == 16) {
+    $insprovs = getInsuranceProviders();
+    foreach ($insprovs as $key => $ipname) {
+      if ($currvalue == $key) {
+        $s .= htmlspecialchars($ipname, ENT_NOQUOTES);
+      }
+    }
+  }
+
+  // issue types
+  else if ($data_type == 17) {
+    foreach ($ISSUE_TYPES as $key => $value) {
+      if ($currvalue == $key) {
+        $s .= htmlspecialchars($value[1], ENT_NOQUOTES);
+      }
+    }
   }
 
   // a set of labeled checkboxes
@@ -1645,6 +1785,8 @@ function generate_display_field($frow, $currvalue) {
 // More field types might need to be supported here in the future.
 //
 function generate_plaintext_field($frow, $currvalue) {
+  global $ISSUE_TYPES;
+
   $data_type = $frow['data_type'];
   $field_id  = isset($frow['field_id']) ? $frow['field_id'] : null;
   $list_id   = $frow['list_id'];
@@ -1704,6 +1846,25 @@ function generate_plaintext_field($frow, $currvalue) {
     $uname = $urow['lname'];
     if ($urow['fname']) $uname .= ", " . $urow['fname'];
     $s = $uname;
+  }
+
+  // insurance company list
+  else if ($data_type == 16) {
+    $insprovs = getInsuranceProviders();
+    foreach ($insprovs as $key => $ipname) {
+      if ($currvalue == $key) {
+        $s .= $ipname;
+      }
+    }
+  }
+
+  // insurance company list
+  else if ($data_type == 17) {
+    foreach ($ISSUE_TYPES as $key => $value) {
+      if ($currvalue == $key) {
+        $s .= $value[1];
+      }
+    }
   }
 
   // a set of labeled checkboxes
@@ -2248,37 +2409,37 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 // From the currently posted HTML form, this gets the value of the
 // field corresponding to the provided layout_options table row.
 //
-function get_layout_form_value($frow) {
+function get_layout_form_value($frow, $prefix='form_') {
   // Bring in $sanitize_all_escapes variable, which will decide
   //  the variable escaping method.
   global $sanitize_all_escapes;
 
-  $maxlength = $frow['max_length'];
+  $maxlength = empty($frow['max_length']) ? 0 : intval($frow['max_length']);
   $data_type = $frow['data_type'];
   $field_id  = $frow['field_id'];
   $value  = '';
-  if (isset($_POST["form_$field_id"])) {
+  if (isset($_POST["$prefix$field_id"])) {
     if ($data_type == 21) {
-      // $_POST["form_$field_id"] is an array of checkboxes and its keys
+      // $_POST["$prefix$field_id"] is an array of checkboxes and its keys
       // must be concatenated into a |-separated string.
-      foreach ($_POST["form_$field_id"] as $key => $val) {
+      foreach ($_POST["$prefix$field_id"] as $key => $val) {
         if (strlen($value)) $value .= '|';
         $value .= $key;
       }
     }
     else if ($data_type == 22) {
-      // $_POST["form_$field_id"] is an array of text fields to be imploded
+      // $_POST["$prefix$field_id"] is an array of text fields to be imploded
       // into "key:value|key:value|...".
-      foreach ($_POST["form_$field_id"] as $key => $val) {
+      foreach ($_POST["$prefix$field_id"] as $key => $val) {
         $val = str_replace('|', ' ', $val);
         if (strlen($value)) $value .= '|';
         $value .= "$key:$val";
       }
     }
     else if ($data_type == 23) {
-      // $_POST["form_$field_id"] is an array of text fields with companion
+      // $_POST["$prefix$field_id"] is an array of text fields with companion
       // radio buttons to be imploded into "key:n:notes|key:n:notes|...".
-      foreach ($_POST["form_$field_id"] as $key => $val) {
+      foreach ($_POST["$prefix$field_id"] as $key => $val) {
         $restype = $_POST["radio_{$field_id}"][$key];
         if (empty($restype)) $restype = '0';
         $val = str_replace('|', ' ', $val);
@@ -2287,9 +2448,9 @@ function get_layout_form_value($frow) {
       }
     }
     else if ($data_type == 25) {
-      // $_POST["form_$field_id"] is an array of text fields with companion
+      // $_POST["$prefix$field_id"] is an array of text fields with companion
       // checkboxes to be imploded into "key:n:notes|key:n:notes|...".
-      foreach ($_POST["form_$field_id"] as $key => $val) {
+      foreach ($_POST["$prefix$field_id"] as $key => $val) {
         $restype = empty($_POST["check_{$field_id}"][$key]) ? '0' : '1';
         $val = str_replace('|', ' ', $val);
         if (strlen($value)) $value .= '|';
@@ -2297,17 +2458,17 @@ function get_layout_form_value($frow) {
       }
     }
     else if ($data_type == 28 || $data_type == 32) {
-      // $_POST["form_$field_id"] is an date text fields with companion
+      // $_POST["$prefix$field_id"] is an date text fields with companion
       // radio buttons to be imploded into "notes|type|date".
       $restype = $_POST["radio_{$field_id}"];
       if (empty($restype)) $restype = '0';
       $resdate = str_replace('|', ' ', $_POST["date_$field_id"]);
-      $resnote = str_replace('|', ' ', $_POST["form_$field_id"]);
+      $resnote = str_replace('|', ' ', $_POST["$prefix$field_id"]);
       if ($data_type == 32)
       {
       //VicarePlus :: Smoking status data is imploded into "note|type|date|list".
-      $reslist = str_replace('|', ' ', $_POST["form_$field_id"]);
-      $res_text_note = str_replace('|', ' ', $_POST["form_text_$field_id"]);
+      $reslist = str_replace('|', ' ', $_POST["$prefix$field_id"]);
+      $res_text_note = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
       $value = "$res_text_note|$restype|$resdate|$reslist";
       }
       else
@@ -2326,7 +2487,7 @@ function get_layout_form_value($frow) {
 	  }
     }
     else {
-      $value = $_POST["form_$field_id"];
+      $value = $_POST["$prefix$field_id"];
     }
   }
 
