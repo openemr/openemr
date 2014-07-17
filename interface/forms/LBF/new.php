@@ -90,7 +90,7 @@ function end_group() {
 
 // Get the current value for a layout based form field.
 // Depending on options this might come from lbf_data, patient_data,
-// shared_attributes or elsewhere.
+// form_encounter, shared_attributes or elsewhere.
 // Returns FALSE if the field ID is invalid (layout error).
 //
 function lbf_current_value($frow, $formid, $encounter) {
@@ -138,6 +138,27 @@ function lbf_current_value($frow, $formid, $encounter) {
         "sa.pid = f.pid AND sa.encounter = f.encounter AND sa.field_id = ?",
         array($formname, $formid, $field_id));
       if (!empty($sarow)) $currvalue = $sarow['field_value'];
+    }
+    else {
+      // New form and encounter not available, this should not happen.
+    }
+  }
+  else if ($source == 'V') {
+    if ($encounter) {
+      // Get value from the current encounter's form_encounter.
+      $ferow = sqlQuery("SELECT * FROM form_encounter WHERE " .
+        "pid = ? AND encounter = ?",
+        array($pid, $encounter));
+      if (isset($ferow[$field_id])) $currvalue = $ferow[$field_id];
+    }
+    else if ($formid) {
+      // Get value from the form_encounter that this form is linked to.
+      $ferow = sqlQuery("SELECT fe.* " .
+        "FROM forms AS f, form_encounter AS re WHERE " .
+        "f.form_id = ? AND f.formdir = ? AND f.deleted = 0 AND " .
+        "fe.pid = f.pid AND fe.encounter = f.encounter",
+        array($formname, $formid));
+      if (isset($ferow[$field_id])) $currvalue = $ferow[$field_id];
     }
     else {
       // New form and encounter not available, this should not happen.
@@ -226,6 +247,13 @@ if ($_POST['bn_save']) {
           "user_id = ?, field_value = ?",
           array($pid, $encounter, $field_id, $_SESSION['authUserID'], $value));
       }
+      continue;
+    }
+    else if ($source == 'V') {
+      // Save to form_encounter.
+      sqlStatement("UPDATE form_encounter SET `$field_id` = ? WHERE " .
+        "pid = ? AND encounter = ?",
+        array($value, $pid, $encounter));
       continue;
     }
     // It's a normal form field, save to lbf_data.
