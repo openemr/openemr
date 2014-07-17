@@ -22,7 +22,100 @@
 
 include_once("../globals.php");
 
+$form_encounter_layout = array(
+  array('field_id'     => 'date',
+        'title'        => xl('Visit Date'),
+        'uor'          => '1',
+        'data_type'    => '4',               // Text-date
+        'list_id'      => '',
+        'edit_options' => '',
+       ),
+  array('field_id'     => 'facility_id',
+        'title'        => xl('Service Facility'),
+        'uor'          => '1',
+        'data_type'    => '35',              // Facilities
+        'list_id'      => '',
+        'edit_options' => '',
+       ),
+  array('field_id'     => 'pc_catid',
+        'title'        => xl('Visit Category'),
+        'uor'          => '1',
+        'data_type'    => '18',              // Visit Category
+        'list_id'      => '',
+        'edit_options' => '',
+       ),
+  array('field_id'     => 'reason',
+        'title'        => xl('Reason for Visit'),
+        'uor'          => '1',
+        'data_type'    => '2',               // Text
+        'list_id'      => '',
+        'edit_options' => '',
+       ),
+  array('field_id'     => 'onset_date',
+        'title'        => xl('Date of Onset'),
+        'uor'          => '1',
+        'data_type'    => '4',               // Text-date
+        'list_id'      => '',
+        'edit_options' => '',
+       ),
+  array('field_id'     => 'referral_source',
+        'title'        => xl('Referral Source'),
+        'uor'          => '1',
+        'data_type'    => '1',               // List
+        'list_id'      => 'refsource',
+        'edit_options' => '',
+       ),
+  array('field_id'     => 'shift',
+        'title'        => xl('Shift'),
+        'uor'          => '1',
+        'data_type'    => '1',               // List
+        'list_id'      => 'shift',
+        'edit_options' => '',
+       ),
+  array('field_id'     => 'billing_facility',
+        'title'        => xl('Billing Facility'),
+        'uor'          => '1',
+        'data_type'    => '35',              // Facilities
+        'list_id'      => '',
+        'edit_options' => '',
+       ),
+  array('field_id'     => 'voucher_number',
+        'title'        => xl('Voucher Number'),
+        'uor'          => '1',
+        'data_type'    => '2',               // Text
+        'list_id'      => '',
+        'edit_options' => '',
+       ),
+);
+
 $source = empty($_REQUEST['source']) ? 'D' : $_REQUEST['source'];
+
+function gsr_fixup(&$row, $fldid, $default='') {
+  if (isset($row[$fldid])) {
+    return addslashes($row[$fldid]);
+  }
+  return $default;
+}
+
+function gen_sel_row($row) {
+  echo " <tr class='oneresult' onclick='selectField(";
+  echo '"' . gsr_fixup($row, 'field_id'      ) . '",';
+  echo '"' . gsr_fixup($row, 'title'         ) . '",';
+  echo '"' . gsr_fixup($row, 'data_type'     ) . '",';
+  echo '"' . gsr_fixup($row, 'uor'           ) . '",';
+  echo '"' . gsr_fixup($row, 'fld_length', 20) . '",';
+  echo '"' . gsr_fixup($row, 'max_length',  0) . '",';
+  echo '"' . gsr_fixup($row, 'list_id'       ) . '",';
+  echo '"' . gsr_fixup($row, 'titlecols' ,  1) . '",';
+  echo '"' . gsr_fixup($row, 'datacols'  ,  3) . '",';
+  echo '"' . gsr_fixup($row, 'edit_options'  ) . '",';
+  echo '"' . gsr_fixup($row, 'description'   ) . '",';
+  echo '"' . gsr_fixup($row, 'fld_rows'  ,  0) . '"';
+  echo ")'>";
+  echo "<td>" . text($row['field_id']) . "</td>";
+  echo "<td>" . text($row['title'   ]) . "</td>";
+  echo "</tr>\n";
+}
 ?>
 <html>
 <head>
@@ -100,44 +193,35 @@ li {
 if ($source == 'F') echo xlt('Fields in This Form' ); else
 if ($source == 'D') echo xlt('Demographics Fields' ); else
 if ($source == 'H') echo xlt('History Fields'      ); else
-if ($source == 'E') echo xlt('Visit Attributes'    );
+if ($source == 'E') echo xlt('Visit Attributes'    ); else
+if ($source == 'V') echo xlt('Visit Form Attributes');
 ?>
 </h1>
 
 <?php
-if ($source == 'D' || $source == 'H') {
-  $res = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = ? AND uor > 0 ORDER BY field_id",
-    array($source == 'D' ? 'DEM' : 'HIS'));
+echo "<table>\n";
+if ($source == 'V') {
+  foreach ($form_encounter_layout as $lrow) {
+    gen_sel_row($lrow);
+  }
 }
 else {
-  $res = sqlStatement("SELECT * FROM layout_options WHERE " .
-    "form_id LIKE ? AND uor > 0 AND source = ? ORDER BY field_id, form_id",
-    array('LBF%', 'E'));
-}
-
-echo "<table>\n";
-$last_field_id = '';
-while ($row = sqlFetchArray($res)) {
-  if ($row['field_id'] === $last_field_id) continue;
-  $last_field_id = $row['field_id'];
-  echo " <tr class='oneresult' onclick='selectField(";
-  echo '"' . addslashes($row['field_id'    ]) . '",';
-  echo '"' . addslashes($row['title'       ]) . '",';
-  echo '"' . addslashes($row['data_type'   ]) . '",';
-  echo '"' . addslashes($row['uor'         ]) . '",';
-  echo '"' . addslashes($row['fld_length'  ]) . '",';
-  echo '"' . addslashes($row['max_length'  ]) . '",';
-  echo '"' . addslashes($row['list_id'     ]) . '",';
-  echo '"' . addslashes($row['titlecols'   ]) . '",';
-  echo '"' . addslashes($row['datacols'    ]) . '",';
-  echo '"' . addslashes($row['edit_options']) . '",';
-  echo '"' . addslashes($row['description' ]) . '",';
-  echo '"' . addslashes($row['fld_rows'    ]) . '"';
-  echo ")'>";
-  echo "<td>" . text($row['field_id']) . "</td>";
-  echo "<td>" . text($row['title'   ]) . "</td>";
-  echo "</tr>\n";
+  if ($source == 'D' || $source == 'H') {
+    $res = sqlStatement("SELECT * FROM layout_options " .
+      "WHERE form_id = ? AND uor > 0 ORDER BY field_id",
+      array($source == 'D' ? 'DEM' : 'HIS'));
+  }
+  else {
+    $res = sqlStatement("SELECT * FROM layout_options WHERE " .
+      "form_id LIKE ? AND uor > 0 AND source = ? ORDER BY field_id, form_id",
+      array('LBF%', 'E'));
+  }
+  $last_field_id = '';
+  while ($row = sqlFetchArray($res)) {
+    if ($row['field_id'] === $last_field_id) continue;
+    $last_field_id = $row['field_id'];
+    gen_sel_row($row);
+  }
 }
 echo "</table>\n";
 ?>

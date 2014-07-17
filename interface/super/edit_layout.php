@@ -55,6 +55,7 @@ $datatypes = array(
   "14" => xl("Organizations"),
   "15" => xl("Billing codes"),
   "16" => xl("Insurances"),
+  "18" => xl("Visit Categories"),
   "21" => xl("Checkbox list"),
   "22" => xl("Textbox list"),
   "23" => xl("Exam results"),
@@ -76,6 +77,7 @@ $sources = array(
   'D' => xl('Patient'),
   'H' => xl('History'),
   'E' => xl('Visit'),
+  'V' => xl('VisForm'),
 );
 
 function nextGroupOrder($order) {
