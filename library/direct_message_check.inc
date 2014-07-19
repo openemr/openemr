@@ -106,7 +106,10 @@ function phimail_check() {
    $phimail_password = $GLOBALS['phimail_password'];
 
    $ret = phimail_write_expect_OK($fp,"AUTH $phimail_username $phimail_password\n");
-   if($ret!==TRUE) return; //authentication error
+   if($ret!==TRUE) {
+      phimail_logit(0, "authentication error " . $ret);
+      return;
+   }
 
    if(!($notifyUsername = $GLOBALS['phimail_notify'])) $notifyUsername='admin'; //fallback
 
@@ -333,6 +336,7 @@ function phimail_check() {
 
       }
       else { //unrecognized or FAIL response
+          phimail_logit(0, "problem checking messages " . $ret);
           phimail_close($fp);
           return;
       } 
