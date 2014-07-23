@@ -336,7 +336,7 @@ function pnInit()
     // e_all for development
     // error_reporting(E_ALL);
     // without warnings and notices for release
-    error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
+    error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 
     // Hack for some weird PHP systems that should have the
     // LC_* constants defined, but don't
