@@ -1,6 +1,6 @@
 <?php
 /* $Id$ */
-// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2014 Rod Roark <rod@sunsetsystems.com>
 // Adapted for cross-platform operation by Bill Cernansky (www.mi-squared.com)
 //
 // This program is free software; you can redistribute it and/or
@@ -121,7 +121,7 @@ if ($form_step == 104) {
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data'>
 
-<table style='width:50em'>
+<table<?php if ($form_step != 101) echo " style='width:50em'"; ?>>
  <tr>
   <td>
 
@@ -317,18 +317,16 @@ if ($form_step == 7) {   // create the final compressed tar containing all files
   $auto_continue = true;
 }
 
-
 if ($form_step == 101) {
-  echo xl('Select the configuration items to export') . ":";
-  echo "<br />&nbsp;<br />\n";
+  echo "<p><b>&nbsp;" . xl('Select the configuration items to export') . ":</b></p>";
+
+  echo "<table cellspacing='10' cellpadding='0'>\n<tr>\n<td valign='top'>\n";
+
+  echo "<b>" . xlt('Tables') . "</b><br />\n";
   echo "<input type='checkbox' name='form_cb_services' value='1' />\n";
   echo " " . xl('Services') . "<br />\n";
   echo "<input type='checkbox' name='form_cb_products' value='1' />\n";
   echo " " . xl('Products') . "<br />\n";
-  echo "<input type='checkbox' name='form_cb_lists' value='1' />\n";
-  echo " " . xl('Lists') . "<br />\n";
-  echo "<input type='checkbox' name='form_cb_layouts' value='1' />\n";
-  echo " " . xl('Layouts') . "<br />\n";
   echo "<input type='checkbox' name='form_cb_prices' value='1' />\n";
   echo " " . xl('Prices') . "<br />\n";
   echo "<input type='checkbox' name='form_cb_categories' value='1' />\n";
@@ -338,6 +336,31 @@ if ($form_step == 101) {
   echo "<input type='checkbox' name='form_cb_lang' value='1' />\n";
   echo " " . xl('Translations') . "<br />\n";
 
+  // Multi-select for lists.
+  echo "</td><td valign='top'>\n";
+  echo "<b>" . xlt('Lists') . "</b><br />\n";
+  echo "<select multiple name='form_sel_lists[]' size='15'>";
+  $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+    "list_id = 'lists' ORDER BY title, seq");
+  while ($lrow = sqlFetchArray($lres)) {
+    echo "<option value='" . attr($lrow['option_id']) . "'";
+    echo ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
+  }
+  echo "</select>\n";
+
+  // Multi-select for layouts.
+  echo "</td><td valign='top'>\n";
+  echo "<b>" . xlt('Layouts') . "</b><br />\n";
+  echo "<select multiple name='form_sel_layouts[]' size='15'>";
+  $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+    "list_id = 'lbfnames' ORDER BY title, seq");
+  while ($lrow = sqlFetchArray($lres)) {
+    echo "<option value='" . attr($lrow['option_id']) . "'";
+    echo ">" . text(xl_layout_label($lrow['title'])) . "</option>\n";
+  }
+  echo "</select>\n";
+
+  echo "</td>\n</tr>\n</table>\n";
   echo "&nbsp;<br /><input type='submit' value='" . xl('Continue') . "' />\n";
 }
 
@@ -345,26 +368,58 @@ if ($form_step == 102) {
   $tables = '';
   if ($_POST['form_cb_services'  ]) $tables .= ' codes';
   if ($_POST['form_cb_products'  ]) $tables .= ' drugs drug_templates';
-  if ($_POST['form_cb_lists'     ]) $tables .= ' list_options';
-  if ($_POST['form_cb_layouts'   ]) $tables .= ' layout_options';
   if ($_POST['form_cb_prices'    ]) $tables .= ' prices';
   if ($_POST['form_cb_categories']) $tables .= ' categories categories_seq';
   if ($_POST['form_cb_feesheet'  ]) $tables .= ' fee_sheet_options';
   if ($_POST['form_cb_lang'      ]) $tables .= ' lang_languages lang_constants lang_definitions';
-  if ($tables) {
+  if ($tables || is_array($_POST['form_sel_lists']) || is_array($_POST['form_sel_layouts'])) {
     $form_status .= xl('Creating export file') . "...<br />";
     echo nl2br($form_status);
-    if (file_exists($EXPORT_FILE))
+    if (file_exists($EXPORT_FILE)) {
       if (! unlink($EXPORT_FILE)) die(xl("Couldn't remove old export file: ") . $EXPORT_FILE);
-
+    }
+    $cmd = "echo 'SET character_set_client = utf8;' > $EXPORT_FILE;";
     // The substitutions below use perl because sed's not usually on windows systems.
     $perl = $PERL_PATH . DIRECTORY_SEPARATOR . 'perl';
-    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+    if ($tables) {
+      $cmd .= "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+        " -p" . escapeshellarg($sqlconf["pass"]) .
+        " --opt --quote-names " .
+        escapeshellarg($sqlconf["dbase"]) . " $tables" .
+        " | $perl -pe 's/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;'" .
+        " >> $EXPORT_FILE;";
+    }
+    $dumppfx = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
       " -p" . escapeshellarg($sqlconf["pass"]) .
-      " --opt --quote-names " .
-      escapeshellarg($sqlconf["dbase"]) . " $tables" .
-      " | $perl -pe 's/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;'" .
-      " > $EXPORT_FILE;";
+      " --skip-opt --quote-names --complete-insert --no-create-info";
+    // Individual lists.
+    if (is_array($_POST['form_sel_lists'])) {
+      foreach ($_POST['form_sel_lists'] as $listid) {
+        $cmd .= "echo \"DELETE FROM list_options WHERE list_id = '$listid';\" >> $EXPORT_FILE;";
+        $cmd .= "echo \"DELETE FROM list_options WHERE list_id = 'lists' AND option_id = '$listid';\" >> $EXPORT_FILE;";
+        $cmd .= $dumppfx .
+          " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid'\" " .
+          escapeshellarg($sqlconf["dbase"]) . " list_options" .
+          " >> $EXPORT_FILE;";
+      }
+    }
+    // Individual layouts.
+    if (is_array($_POST['form_sel_layouts'])) {
+      foreach ($_POST['form_sel_layouts'] as $layoutid) {
+        $cmd .= "echo \"DELETE FROM layout_options WHERE form_id = '$layoutid';\" >> $EXPORT_FILE;";
+        if (strpos($layoutid, 'LBF') === 0) {
+          $cmd .= "echo \"DELETE FROM list_options WHERE list_id = 'lbfnames' AND option_id = '$layoutid';\" >> $EXPORT_FILE;";
+          $cmd .= $dumppfx .
+            " --where=\"list_id = 'lbfnames' AND option_id = '$layoutid'\" " .
+            escapeshellarg($sqlconf["dbase"]) . " list_options" .
+            " >> $EXPORT_FILE;";
+        }
+        $cmd .= $dumppfx .
+          " --where=\"form_id = '$layoutid'\" " .
+          escapeshellarg($sqlconf["dbase"]) . " layout_options" .
+          " >> $EXPORT_FILE;";
+      }
+    }
   }
   else {
     echo xl('No items were selected!');
