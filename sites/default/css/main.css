@@ -16,7 +16,7 @@ body, td {
     padding: 10pt;
 }
 .bigtable{
-    padding: 0px
+    padding: 0px;
     border-spacing: 0;
     border-collapse: collapse;
 }
@@ -25,6 +25,9 @@ body, td {
 }
 .linetable {
     margin: 11pt 0 0 0;
+    padding: 0px;
+    border-spacing: 0;
+    border-collapse: collapse;
 }
 .mainhead {
     font-weight: bold;
