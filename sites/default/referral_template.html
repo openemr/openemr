@@ -1,78 +1,23 @@
-<html>
+<!DOCTYPE html>
 <head>
-
-<style>
-body, td {
- font-family: sans-serif;
- font-weight: normal;
- font-size: 9pt;
-}
-.borderdiv {
- width: 524pt;
- height: 668pt;
- padding: 0;
- border-style: solid;
- border-width: 1px;
- border-color: #000000;
-}
-.paddingdiv {
- padding: 10pt;
-}
-.bigtable, .linetable {
- width: 504pt;
-}
-.linetable {
- margin: 11pt 0 0 0;
-}
-.mainhead {
- font-weight: bold;
- font-size: 14pt;
- text-align: left;
-}
-.subhead {
- font-weight: bold;
- font-size: 8pt;
-}
-.under {
- border-style: solid;
- border-width: 0 0 1px 0;
- border-color: #999999;
-}
-
-.ftitletable {
- width: 100%;
- margin: 0 0 0 0;
-}
-.ftitlecell1 {
- vertical-align: top;
- text-align: left;
- font-size: 14pt;
- font-weight: bold;
-}
-.ftitlecell2 {
- vertical-align: top;
- text-align: right;
- font-size: 9pt;
- padding-right: 10pt;
-}
-</style>
-
-<title>{label_webpage_title}</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>{label_webpage_title}</title>
+  <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 
-<body bgcolor='#ffffff'>
+<body>
 
 <!-- The double div resolves a difference between Firefox and IE in treatment of padding. -->
 <div class='borderdiv'><div class='paddingdiv'>
 
- <table cellspacing='0' cellpadding='0' class='bigtable'>
+ <table class="bigtable">
   <tr>
-   <td class='mainhead' valign='top'>
+   <td class='mainhead' style="vertical-align:top">
     {header1}
     <span class='subhead'>{label_subhead_clinic}</span>
    </td>
-   <td align='right' width='10%' valign='top' nowrap>
-    <table border='1' cellpadding='2' cellspacing='0'>
+   <td class="tdLabelContainer">
+    <table style="padding:2px;border-spacing:0;border-collapse:collapse;border:1px solid gray">
      <tr>
       <td nowrap>{label_clinic_id}</td>
       <td style='width:60pt' nowrap>{fac_facility_npi}</td>
@@ -151,16 +96,16 @@ body, td {
   </tr>
  </table>
 
- <hr style='border:0;height:6pt;color:#999999;background-color:#999999;margin:12pt 0 12pt 0;' />
+ <hr />
 
- <table cellspacing='0' cellpadding='0' class='bigtable'>
+ <table class="bigtable">
   <tr>
    <td class='mainhead' valign='top'>
     {header1}
     <span class='subhead'>{label_subhead_patient}</span>
    </td>
    <td align='right' width='10%' nowrap>
-    <table border='1' cellpadding='2' cellspacing='0'>
+    <table border='1' style="padding:2px;border-spacing:0;border-collapse:collapse;">
      <tr>
       <td nowrap>{label_clinic_id}</td>
       <td style='width:60pt' nowrap>{fac_facility_npi}</td>
@@ -252,14 +197,14 @@ body, td {
 <p style='page-break-after: always' />
 <div class='borderdiv'><div class='paddingdiv'>
 
- <table cellspacing='0' cellpadding='0' class='bigtable'>
+ <table class="bigtable">
   <tr>
    <td class='mainhead' valign='top'>
     {header2}
     <span class='subhead'>{label_subhead_referred}</span>
    </td>
    <td align='right' width='10%' nowrap>
-    <table border='1' cellpadding='2' cellspacing='0'>
+    <table border='1' style="padding:2px;border-spacing:0;border-collapse:collapse;">
      <tr>
       <td nowrap>{label_clinic_id}</td>
       <td style='width:60pt' nowrap>{fac_facility_npi}</td>
@@ -351,8 +296,8 @@ body, td {
 </div></div>
 
 <!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
-<script language='JavaScript'>
-window.print();
+<script type="text/javascript">
+  window.print();
 </script>
 
 </body>
