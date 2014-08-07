@@ -807,6 +807,22 @@ echo "<P>";
 </body>
 
 <script language='JavaScript'>
+
+	/* This function 'disables' the double tap to zoom functionality of iOS on the calendar. 
+	This is required for the implementation of double clicking on calendar events on iOS to work.*/
+	var elm = document.body; 
+	var thelatesttap;
+	var catcher = function(evt) {
+		var now = new Date().getTime();
+	    var timesince = now - thelatesttap;
+	    if((timesince < 500) && (timesince > 0)){
+			evt.preventDefault();
+			}
+		thelatesttap = new Date().getTime();
+	}
+	elm.addEventListener('touchstart', catcher, true);
+
+
     var tsHeight='[-php-] echo $timeslotHeightVal.$timeslotHeightUnit; [-/php-]';
     var tsHeightNum=[-php-] echo $timeslotHeightVal; [-/php-];
 
@@ -822,7 +838,7 @@ echo "<P>";
         $(".tdDatePicker").mouseover(function() { $(this).toggleClass("tdDatePickerHighlight"); });
         $(".tdDatePicker").mouseout(function() { $(this).toggleClass("tdDatePickerHighlight"); });
         $("#printview").click(function() { PrintView(this); });
-        $(".event").dblclick(function() { EditEvent(this); });
+        $(".event").click(function() { doubleclick(this); });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {
@@ -830,6 +846,20 @@ echo "<P>";
             dpCal=$("#datePicker>table"); 
             mp = $("#monthPicker"); mp.width(dpCal.width()); mp.toggle();});
     });
+
+	/* Used to determine double clicks, so they are recognized on touch devices (such as iPads) and desktops */
+	var mylatesttap;
+	function doubleclick(eObj) {
+	   var now = new Date().getTime();
+	   var timesince = now - mylatesttap;
+	   if((timesince < 1000) && (timesince > 0)){
+		// It was a double click 
+		EditEvent(eObj);
+	   }
+		// otherwise it took longer than 600ms for second click, so too much time to be a double click
+	   mylatesttap = new Date().getTime();
+
+	}
 
     /* edit an existing event */
     var EditEvent = function(eObj) {
