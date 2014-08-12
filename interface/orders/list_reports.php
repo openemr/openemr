@@ -149,6 +149,9 @@ function openPtMatch(args) {
 <form method='post' action='list_reports.php' enctype='multipart/form-data'
  onsubmit='return validate(this)'>
 
+<!-- This might be set by the results window: -->
+<input type='hidden' name='form_external_refresh' value='' />
+
 <?php
 if ($errmsg) {
   echo "<font color='red'>" . text($errmsg) . "</font><br />\n";
@@ -156,18 +159,21 @@ if ($errmsg) {
 
 $info = array();
 
-// Get patient matching selections from this form if there are any.
-if (is_array($_POST['select'])) {
-  foreach ($_POST['select'] as $selkey => $selval) {
-    // Note that $selval is an array of the values to match on.
-    $info[$selkey] = array('select' => $selval);
+// We skip match/delete processing if this is just a refresh, because that
+// might be a nasty surprise.
+if (empty($_POST['form_external_refresh'])) {
+  // Get patient matching selections from this form if there are any.
+  if (is_array($_POST['select'])) {
+    foreach ($_POST['select'] as $selkey => $selval) {
+      // Note that $selval is an array of the values to match on.
+      $info[$selkey] = array('select' => $selval);
+    }
   }
-}
-
-// Get file delete requests from this form if there are any.
-if (is_array($_POST['delete'])) {
-  foreach ($_POST['delete'] as $delkey => $dummy) {
-    $info[$delkey] = array('delete' => true);
+  // Get file delete requests from this form if there are any.
+  if (is_array($_POST['delete'])) {
+    foreach ($_POST['delete'] as $delkey => $dummy) {
+      $info[$delkey] = array('delete' => true);
+    }
   }
 }
 
