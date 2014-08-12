@@ -638,7 +638,7 @@ $GLOBALS_METADATA = array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type
       '0',                             // default = false
-      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen.')
+      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen (a negative number will show the past appointments in descending order)')
     ),      
 
     'activate_ccr_ccd_report' => array(
@@ -695,6 +695,7 @@ $GLOBALS_METADATA = array(
       xl('This specifies whether to include date in Box 31.')
     ),
 
+	
   ),
     // E-Sign Tab
     //
