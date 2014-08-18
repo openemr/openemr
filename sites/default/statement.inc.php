@@ -11,6 +11,8 @@
 //
 // Updated by Medical Information Integration, LLC to support download
 //  and multi OS use - tony@mi-squared..com 12-2009
+// Date changes made possible on advise of Terry Hill 2014-0814
+// Some other advises and instructions made by Pimm Blankevoort 18-08-2014
 
 //////////////////////////////////////////////////////////////////////
 // This is a template for printing patient statements and collection
@@ -23,6 +25,7 @@
 // The location/name of a temporary file to hold printable statements.
 //
 
+
 $STMT_TEMP_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_statements.txt";
 $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/openemr_statements.pdf";
 
@@ -31,7 +34,7 @@ $STMT_PRINT_CMD = $GLOBALS['print_command'];
 // This function builds a printable statement or collection letter from
 // an associative array having the following keys:
 //
-//  today   = statement date yyyy-mm-dd
+//  today   = statement date yyyy-mm-dd can be changed if instruction in this file are followed
 //  pid     = patient ID
 //  patient = patient name
 //  amount  = total amount due
@@ -100,6 +103,8 @@ $STMT_PRINT_CMD = $GLOBALS['print_command'];
 //  Billing Department
 //  [Your billing dept phone]
 
+  
+
 function create_statement($stmt) {
  if (! $stmt['pid']) return ""; // get out if no data
 
@@ -111,10 +116,24 @@ function create_statement($stmt) {
     " left join users u on f.id=u.facility_id " .
     " left join  billing b on b.provider_id=u.id and b.pid = '".$stmt['pid']."' " .
     " where  service_location=1");
+
+
+// Change this line to make it today and dos into dd-mm-yyyy (8,2 5,2 2,2) or mm-dd-yyyy (5,2 8,2 2,2)  
+$tmpdate=substr($stmt['today'] ,8,2) . "-" . substr($stmt['today'] ,5,2) . "-" . substr($stmt['today'] ,2,2);
+$tmpdos=substr($dos ,5,2) . "-" . substr($dos ,8,2) . "-" . substr($dos ,2,2);
+
+// change this line it is about line about 169 $out = sprintf("%-30s %-23s %-s\n",$clinic_name,$stmt['patient'],$tmpdate);
+// add this line $tmpdos=substr($dos ,5,2) . "-" . substr($dos,8,2) . "-" . substr($dos ,2,2) mm-dd-yyyy;
+// change this line it is about line about 235 $out .= sprintf("%-10s %-45s%8s\n", $tmpdos, $desc, $amount);
+// and change this line about 257 $out .= sprintf("%-s: %-25s %-s: %-14s %-s:%8s\n",$label_ptname,$stmt['patient'],
+// also line about 257 $label_today,$tmpdate,$label_due,$stmt['amount']);
+// Terry Hill
+
+
+
   $row = sqlFetchArray($atres);
  
  // Facility (service location)
- 
  $clinic_name = "{$row['name']}";
  $clinic_addr = "{$row['street']}";
  $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
@@ -138,8 +157,8 @@ function create_statement($stmt) {
  
  $label_addressee = xl('ADDRESSEE');
  $label_remitto = xl('REMIT TO');
- $label_chartnum = xl('Chart Number');
- $label_insinfo = xl('Insurance information on file');
+ $label_chartnum = xl('Chart number');
+ $label_insinfo = xl('Insurance on file');
  $label_totaldue = xl('Total amount due');
  $label_payby = xl('If paying by');
  $label_cards = xl('VISA/MC/AMEX/Dis');  
@@ -160,34 +179,46 @@ function create_statement($stmt) {
  // Note that "\n" is a line feed (new line) character.
  // reformatted to handle i8n by tony
 
-$out  = sprintf("%-30s %-23s %-s\n",$clinic_name,$stmt['patient'],$stmt['today']);
+// Add this line about 138
+// $tmpdate=substr($stmt['today'] ,8,2) . "-" . substr($stmt['today'] ,5,2) . "-" . substr($stmt['today'] ,2,2);
+
+$out = sprintf("%-30s %-23s %-s\n",$clinic_name,$stmt['patient'],$tmpdate);
+
+// $out  = sprintf("%-30s %-s %s\n",$clinic_name,$stmt['patient'],$stmt['today']);
+
+
 $out .= sprintf("%-30s %s: %-s\n",$clinic_addr,$label_chartnum,$stmt['pid']);
-$out .= sprintf("%-30s %-s\n",$clinic_csz,$label_insinfo);
-$out .= sprintf("%-30s %s: %-s\n",null,$label_totaldue,null);
+$out .= sprintf("%-30s %-s %-s\n",$clinic_csz,$label_insinfo,null);
+$out .= sprintf("%-30s %s: %-s\n",null,$label_totaldue,null]);
 $out .= "\n\n";
-$out .= sprintf("%-30s %-s\n",$label_addressee,$label_remitto);
-$out .= sprintf("%-32s %s\n",$stmt['to'][0],$remit_name);
-$out .= sprintf("%-32s %s\n",$stmt['to'][1],$remit_addr);
-$out .= sprintf("%-32s %s\n",$stmt['to'][2],$remit_csz);
+$out .= sprintf("  %-28s %-s\n",$label_addressee,$label_remitto);
+$out .= sprintf("  %-28s %s\n",$stmt['to'][0],$remit_name);
+$out .= sprintf("  %-28s %s\n",$stmt['to'][1],$remit_addr);
+$out .= sprintf("  %-28s %s\n",$stmt['to'][2],$remit_csz);
 
 if($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
  	$out .= sprintf("   %-32s\n",$stmt['to'][3]);
 $out .= sprintf("_________________________________________________________________\n");
 $out .= "\n";
+
+// Take this out of there is no Credit card activity to the next End credit Card activity
+
 $out .= sprintf("%-32s\n",$label_payby.' '.$label_cards);
 $out .= "\n";
 $out .= sprintf("%s_____________________  %s______ %s___________________\n",
-                $label_cardnum,$label_expiry,$label_sign);
+               $label_cardnum,$label_expiry,$label_sign);
 $out .= sprintf("%-20s %s\n",null,$label_retpay);
 $out .= sprintf("-----------------------------------------------------------------\n");
 $out .= "\n";
 $out .= sprintf("_______________________ %s _______________________\n",$label_pgbrk);
 $out .= "\n";
 $out .= sprintf("%-11s %-46s %s\n",$label_visit,$label_desc,$label_amt);
+
+// End no use of Credit Card activity
+
 $out .= "\n";
  
  // This must be set to the number of lines generated above.
- //
  $count = 21;
 
  // This generates the detail lines.  Again, note that the values must
@@ -200,6 +231,10 @@ $out .= "\n";
    $description = xl('Office Visit');
 
   $dos = $line['dos'];
+
+// Makes the date mm-dd-yyyy: $tmpdos=substr($dos ,5,2) . "-" . substr($dos,8,2) . "-" . substr($dos ,2,2);
+  $tmpdos=substr($dos ,2,2) . "-" . substr($dos ,5,2) . "-" . substr($dos ,8,2);
+
   ksort($line['detail']);
 
   foreach ($line['detail'] as $dkey => $ddata) {
@@ -209,6 +244,7 @@ $out .= "\n";
    }
    $amount = '';
 
+ 
    if ($ddata['pmt']) {
     $amount = sprintf("%.2f", 0 - $ddata['pmt']);
     $desc = xl('Paid') .' '. $ddate .': '. $ddata['src'].' '. $ddata['insurance_company'];
@@ -227,14 +263,14 @@ $out .= "\n";
     $desc = $description;
    }
 
-   $out .= sprintf("%-10s  %-45s%8s\n", $dos, $desc, $amount);
+   // Original: $out .= sprintf("%-10s  %-45s%8s\n", $dos, $desc, $amount);
+   $out .= sprintf("%-10s  %-45s%8s\n", $tmpdos, $desc, $amount);
    $dos = '';
    ++$count;
   }
  }
 
- // This generates blank lines until we are at line 42.
- //
+ // This generates blank lines until we are at line 42. If credit-card activity is taken out (about ten lines) 42 can set to 55.
  while ($count++ < 42) $out .= "\n";
 
  // Fixed text labels
@@ -246,18 +282,18 @@ $out .= "\n";
  $label_prompt = xl('We appreciate prompt payment of balances due');
  $label_dept = xl('Billing Department');
  
- // This is the bottom portion of the page.
- 
- $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],
-                 $label_today,$stmt['today'],$label_due,$stmt['amount']);
+// This is the bottom portion of the page.
+
+ $out .= sprintf("%-s: %-25s %-s: %-14s %-s:%8s\n",$label_ptname,$stmt['patient'],$label_today,$tmpdate,$label_due,$stmt['amount']);
  $out .= sprintf("__________________________________________________________________\n");
  $out .= "\n";
- $out .= sprintf("%-s\n",$label_call);
  $out .= sprintf("%-s\n",$label_prompt);
+ $out .= sprintf("%-s\n",$label_call);
  $out .= "\n";
  $out .= sprintf("%-s\n",$billing_contact);
- $out .= sprintf("  %-s\n",$label_dept);
- $out .= sprintf("  %-s\n",$billing_phone);
+ $out .= sprintf("%-s:",$label_dept,$billing_phone);
+ $out .= sprintf("%-s",$billing_phone);
+
  $out .= "\014"; // this is a form feed
  
  return $out;
