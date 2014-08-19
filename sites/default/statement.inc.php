@@ -11,7 +11,7 @@
 //
 // Updated by Medical Information Integration, LLC to support download
 //  and multi OS use - tony@mi-squared..com 12-2009
-// Date changes made possible on advise of Terry Hill 2014-0814
+// Date changes made possible on advise of Terry Hill 2014-08-14
 // Some other advises and instructions made by Pimm Blankevoort 18-08-2014
 
 //////////////////////////////////////////////////////////////////////
