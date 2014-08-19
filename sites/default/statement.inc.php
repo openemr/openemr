@@ -122,11 +122,11 @@ function create_statement($stmt) {
 $tmpdate=substr($stmt['today'] ,8,2) . "-" . substr($stmt['today'] ,5,2) . "-" . substr($stmt['today'] ,2,2);
 $tmpdos=substr($dos ,5,2) . "-" . substr($dos ,8,2) . "-" . substr($dos ,2,2);
 
-// change this line it is about line about 169 $out = sprintf("%-30s %-23s %-s\n",$clinic_name,$stmt['patient'],$tmpdate);
+// change this line somewhere about line 169 $out = sprintf("%-30s %-23s %-s\n",$clinic_name,$stmt['patient'],$tmpdate);
 // add this line $tmpdos=substr($dos ,5,2) . "-" . substr($dos,8,2) . "-" . substr($dos ,2,2) mm-dd-yyyy;
-// change this line it is about line about 235 $out .= sprintf("%-10s %-45s%8s\n", $tmpdos, $desc, $amount);
-// and change this line about 257 $out .= sprintf("%-s: %-25s %-s: %-14s %-s:%8s\n",$label_ptname,$stmt['patient'],
-// also line about 257 $label_today,$tmpdate,$label_due,$stmt['amount']);
+// change this line somewhere about line 235 $out .= sprintf("%-10s %-45s%8s\n", $tmpdos, $desc, $amount);
+// and change this line somewhere about line 257 $out .= sprintf("%-s: %-25s %-s: %-14s %-s:%8s\n",
+$label_ptname,$stmt['patient'],$label_today,$tmpdate,$label_due,$stmt['amount']);
 // Terry Hill
 
 
