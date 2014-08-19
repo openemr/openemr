@@ -170,6 +170,7 @@ $label_ptname,$stmt['patient'],$label_today,$tmpdate,$label_due,$stmt['amount'])
  $label_visit = xl('Visit Date');
  $label_desc = xl('Description');
  $label_amt = xl('Amount');
+ // $label_bankrel = Xl('Bank relation')
 
  // This is the text for the top part of the page, up to but not
  // including the detail lines.  Some examples of variable fields are:
@@ -291,8 +292,9 @@ $out .= "\n";
  $out .= sprintf("%-s\n",$label_call);
  $out .= "\n";
  $out .= sprintf("%-s\n",$billing_contact);
- $out .= sprintf("%-s:",$label_dept,$billing_phone);
- $out .= sprintf("%-s",$billing_phone);
+ $out .= sprintf("%-s: %-s\n",$label_dept,$billing_phone);
+ // $out .= sprint("%-s: %-s",$label_bankrel,null);
+
 
  $out .= "\014"; // this is a form feed
  
