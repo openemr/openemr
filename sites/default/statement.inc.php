@@ -248,8 +248,7 @@ $out .= "\n";
  
  // This is the bottom portion of the page.
  
- $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],
-                 $label_today,$stmt['today'],$label_due,$stmt['amount']);
+ $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],$label_today,$stmt['today'],$label_due,$stmt['amount']);
  $out .= sprintf("__________________________________________________________________\n");
  $out .= "\n";
  $out .= sprintf("%-s\n",$label_call);
