@@ -1,7 +1,7 @@
 <?php
 
 // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
-//
+// .
 // Windows compatibility mods 2009 Bill Cernansky [mi-squared.com]
 //
 // This program is free software; you can redistribute it and/or
