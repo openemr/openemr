@@ -10,7 +10,7 @@
 // of the License, or (at your option) any later version.
 //
 // Updated by Medical Information Integration, LLC to support download
-//  and multi OS use - tony@mi-squared..com 12-2009
+//  and multi OS use - tony@mi-squared.com 12-2009
 // Date changes made possible on advise of Terry Hill 2014-08-14
 // Some other advises and instructions made by Pimm Blankevoort 18-08-2014
 
@@ -189,7 +189,7 @@ $out = sprintf("%-30s %-23s %-s\n",$clinic_name,$stmt['patient'],$tmpdate);
 
 $out .= sprintf("%-30s %s: %-s\n",$clinic_addr,$label_chartnum,$stmt['pid']);
 $out .= sprintf("%-30s %-s %-s\n",$clinic_csz,$label_insinfo,null);
-$out .= sprintf("%-30s %s: %-s\n",null,$label_totaldue,null]);
+$out .= sprintf("%-30s %s: %-s\n",null,$label_totaldue,null);
 $out .= "\n\n";
 $out .= sprintf("  %-28s %-s\n",$label_addressee,$label_remitto);
 $out .= sprintf("  %-28s %s\n",$stmt['to'][0],$remit_name);
