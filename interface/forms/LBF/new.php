@@ -48,10 +48,12 @@ if (empty($is_lbf) && !$encounter) {
 function end_cell() {
   global $item_count, $cell_count, $historical_ids;
   if ($item_count > 0) {
-    echo "&nbsp;</td>";
+    // echo "&nbsp;</td>";
+    echo "</td>";
 
     foreach ($historical_ids as $key => $dummy) {
-      $historical_ids[$key] .= "&nbsp;</td>";
+      // $historical_ids[$key] .= "&nbsp;</td>";
+      $historical_ids[$key] .= "</td>";
     }
 
     $item_count = 0;
@@ -345,6 +347,7 @@ div.section {
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script language="JavaScript">
 $(document).ready(function() {
