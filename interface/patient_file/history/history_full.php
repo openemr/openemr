@@ -65,6 +65,7 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
+<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script LANGUAGE="JavaScript">
  //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')

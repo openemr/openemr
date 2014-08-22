@@ -544,7 +544,9 @@ function writeFieldLine($linedata) {
     echo "</td>\n";
   
     echo "  <td align='center' class='optcell' style='width:5%' title='" .
-        "C = " . xla('Capitalize') .
+          "A = " . xla('Age') .
+        ", B = " . xla('Gestational Age') .
+        ", C = " . xla('Capitalize') .
         ", D = " . xla('Dup Check') .
         ", G = " . xla('Graphable') .
         ", H = " . xla('Read-only from History') .
@@ -555,6 +557,7 @@ function writeFieldLine($linedata) {
         ", T = " . xla('Description is default text') .
         ", U = " . xla('Capitalize all') .
         ", V = " . xla('Vendor') .
+        ", 0 = " . xla('Read Only') .
         ", 1 = " . xla('Write Once') . 
         ", 2 = " . xla('Billing Code Descriptions') . 
             "'>";
