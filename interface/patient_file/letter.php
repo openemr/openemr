@@ -29,8 +29,8 @@ $FIELD_TAG = array(
     'FROM_POSTAL'      => xl('FROM_POSTAL'),
     'FROM_VALEDICTORY' => xl('FROM_VALEDICTORY'),
     'FROM_PHONE'   => xl('FROM_PHONE'),
- 'FROM_PHONECELL'   => xl('FROM_PHONECELL'),
- 'FROM_EMAIL'   => xl('FROM_EMAIL'),
+    'FROM_PHONECELL'   => xl('FROM_PHONECELL'),
+    'FROM_EMAIL'   => xl('FROM_EMAIL'),
     'TO_TITLE'         => xl('TO_TITLE'),
     'TO_FNAME'         => xl('TO_FNAME'),
     'TO_LNAME'         => xl('TO_LNAME'),
@@ -40,8 +40,8 @@ $FIELD_TAG = array(
     'TO_STATE'         => xl('TO_STATE'),
     'TO_POSTAL'        => xl('TO_POSTAL'),
     'TO_VALEDICTORY'   => xl('TO_VALEDICTORY'),
- 'TO_PHONE'           => xl('TO_PHONE'),
- 'TO_PHONECELL'           => xl('TO_PHONECELL'),
+    'TO_PHONE'           => xl('TO_PHONE'),
+    'TO_PHONECELL'           => xl('TO_PHONECELL'),
     'TO_FAX'           => xl('TO_FAX'),
     'TO_ORGANIZATION'  => xl('TO_ORGANIZATION'),
     'PT_FNAME'         => xl('PT_FNAME'),
@@ -53,8 +53,8 @@ $FIELD_TAG = array(
     'PT_POSTAL'        => xl('PT_POSTAL'),
     'PT_PHONE_HOME'        => xl('PT_PHONE_HOME'),
     'PT_PHONE_CELL'        => xl('PT_PHONE_CELL'),
-'PT_SSN'           => xl('PT_SSN'),
-'PT_EMAIL'           => xl('PT_EMAIL'),
+    'PT_SSN'           => xl('PT_SSN'),
+    'PT_EMAIL'           => xl('PT_EMAIL'),
     'PT_DOB'           => xl('PT_DOB')
     
 );
@@ -112,8 +112,8 @@ if ($_POST['formaction']=="generate") {
     $cpstring = str_replace('{'.$FIELD_TAG['FROM_POSTAL'].'}'     , $frow['zip'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['FROM_VALEDICTORY'].'}', $frow['valedictory'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['FROM_PHONECELL'].'}'  , $frow['phonecell'], $cpstring);
- $cpstring = str_replace('{'.$FIELD_TAG['FROM_PHONE'].'}'  , $frow['phone'], $cpstring);
- $cpstring = str_replace('{'.$FIELD_TAG['FROM_EMAIL'].'}'  , $frow['email'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_PHONE'].'}'      , $frow['phone'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['FROM_EMAIL'].'}'      , $frow['email'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['TO_TITLE'].'}'        , $to_title, $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['TO_FNAME'].'}'        , $trow['fname'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['TO_LNAME'].'}'        , $trow['lname'], $cpstring);
@@ -124,8 +124,8 @@ if ($_POST['formaction']=="generate") {
     $cpstring = str_replace('{'.$FIELD_TAG['TO_POSTAL'].'}'       , $trow['zip'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['TO_VALEDICTORY'].'}'  , $trow['valedictory'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['TO_FAX'].'}'          , $trow['fax'], $cpstring);
-  $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONE'].'}'          , $trow['phone'], $cpstring);
-  $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONECELL'].'}'          , $trow['phonecell'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONE'].'}'        , $trow['phone'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['TO_PHONECELL'].'}'    , $trow['phonecell'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['TO_ORGANIZATION'].'}' , $trow['organization'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_FNAME'].'}'        , $patdata['fname'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_LNAME'].'}'        , $patdata['lname'], $cpstring);
@@ -134,10 +134,10 @@ if ($_POST['formaction']=="generate") {
     $cpstring = str_replace('{'.$FIELD_TAG['PT_CITY'].'}'         , $patdata['city'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_STATE'].'}'        , $patdata['state'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_POSTAL'].'}'       , $patdata['postal_code'], $cpstring);
-   $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_HOME'].'}'        , $patdata['phone_home'], $cpstring);
-   $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_CELL'].'}'        , $patdata['phone_cell'], $cpstring);
-   $cpstring = str_replace('{'.$FIELD_TAG['PT_SSN'].'}'        , $patdata['ss'], $cpstring);
-   $cpstring = str_replace('{'.$FIELD_TAG['PT_EMAIL'].'}'        , $patdata['email'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_HOME'].'}'   , $patdata['phone_home'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_PHONE_CELL'].'}'   , $patdata['phone_cell'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_SSN'].'}'          , $patdata['ss'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_EMAIL'].'}'        , $patdata['email'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}'          , $patdata['DOB'], $cpstring);
     
     if ($form_format == "pdf") {
@@ -541,8 +541,8 @@ closedir($dh);
     <option value="<?php echo '{'.$FIELD_TAG['FROM_POSTAL'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Postal Code','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['FROM_VALEDICTORY'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Valedictory','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['FROM_PHONECELL'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Cell Phone','e'); ?></option>
- <option value="<?php echo '{'.$FIELD_TAG['FROM_PHONE'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Phone','e'); ?></option>
- <option value="<?php echo '{'.$FIELD_TAG['FROM_EMAIL'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('email','e'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_PHONE'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('Phone','e'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['FROM_EMAIL'].'}'; ?>"><?php xl('FROM','e'); ?> - <?php xl('email','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['TO_TITLE'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Title','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['TO_FNAME'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('First name','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['TO_MNAME'].'}'; ?>"><?php xl('TO','e'); ?> - <?php xl('Middle name','e'); ?></option>
@@ -563,9 +563,9 @@ closedir($dh);
     <option value="<?php echo '{'.$FIELD_TAG['PT_CITY'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('City','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['PT_STATE'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('State','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['PT_POSTAL'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Postal Code','e'); ?></option>
- <option value="<?php echo '{'.$FIELD_TAG['PT_PHONE_HOME'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Phone Home','e'); ?></option>
- <option value="<?php echo '{'.$FIELD_TAG['PT_PHONE_CELL'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Phone Cell','e'); ?></option>
- <option value="<?php echo '{'.$FIELD_TAG['PT_SSN'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('SSN','e'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_PHONE_HOME'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Phone Home','e'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_PHONE_CELL'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Phone Cell','e'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_SSN'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('SSN','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['PT_DOB'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Date of birth','e'); ?></option>
     </select>
     </div>
