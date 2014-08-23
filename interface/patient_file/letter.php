@@ -257,10 +257,8 @@ else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != ""
 }
 
 // This is the case where we display the form for data entry.
-
-// Get the users list.
-$ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
-  "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+// Get only authorized USERS with "AND authorized = 1" included if left out ALL can bechoosen form$ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
+  "WHERE active = 1 AND authorized = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
   "ORDER BY lname, fname");
 $i = 0;
 $optfrom = '';
