@@ -157,7 +157,7 @@ CREATE TABLE `billing` (
   `process_date` datetime default NULL,
   `process_file` varchar(255) default NULL,
   `modifier` varchar(12) default NULL,
-  `units` tinyint(3) default NULL,
+  `units` int(11) default NULL,
   `fee` decimal(12,2) default NULL,
   `justify` varchar(255) default NULL,
   `target` varchar(30) default NULL,
@@ -519,7 +519,7 @@ CREATE TABLE `codes` (
   `code` varchar(25) NOT NULL default '',
   `code_type` smallint(6) default NULL,
   `modifier` varchar(12) NOT NULL default '',
-  `units` tinyint(3) default NULL,
+  `units` int(11) default NULL,
   `fee` decimal(12,2) default NULL,
   `superbill` varchar(31) NOT NULL default '',
   `related_code` varchar(255) NOT NULL default '',
@@ -5989,4 +5989,3 @@ CREATE TABLE `esign_signatures` (
   KEY `tid` (`tid`),
   KEY `table` (`table`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
-

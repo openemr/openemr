@@ -270,3 +270,10 @@ ALTER TABLE `procedure_providers`
 ADD COLUMN `direction` char(1) NOT NULL DEFAULT 'B' COMMENT 'Bidirectional or Results-only';
 #EndIf
 
+#IfNotColumnType billing units int(11)
+  ALTER TABLE `billing` CHANGE `units` `units` int(11) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType codes units int(11)
+  ALTER TABLE `codes`   CHANGE `units` `units` int(11) DEFAULT NULL;
+#EndIf
