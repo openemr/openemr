@@ -47,10 +47,10 @@ function getEvents($params)
     $cols = "DISTINCT date, event, user, groupname, patient_id, success, comments,checksum,crt_user, id ";
     if (isset($params['cols']) && $params['cols'] != "") $cols = $params['cols'];
 
-    $date1 = date("Y-m-d", time());
+    $date1 = date("Y-m-d H:i:s", time());
     if (isset($params['sdate']) && $params['sdate'] != "") $date1= $params['sdate'];
     
-    $date2 = date("Y-m-d", time());
+    $date2 = date("Y-m-d H:i:s", time());
     if (isset($params['edate']) && $params['edate'] != "") $date2= $params['edate'];
     
     $user = "";
@@ -77,7 +77,7 @@ function getEvents($params)
     if ($sortby == "success") $sortby = "";   //VicarePlus :: since there is no success field in extended_log
     if ($sortby == "checksum") $sortby = "";  //VicarePlus :: since there is no checksum field in extended_log
     $columns = "DISTINCT date, event, user, recipient,patient_id,description";
-    $sql = "SELECT $columns FROM extended_log WHERE date >= '$date1 00:00:00' AND date <= '$date2 23:59:59'";
+    $sql = "SELECT $columns FROM extended_log WHERE date >= '$date1' AND date <= '$date2'";
     if ($user != "") $sql .= " AND user LIKE '$user'";
     if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
     if ($levent != "") $sql .= " AND event LIKE '$levent%'";
@@ -87,7 +87,7 @@ function getEvents($params)
     else
     {
     // do the query
-    $sql = "SELECT $cols FROM log WHERE date >= '$date1 00:00:00' AND date <= '$date2 23:59:59'";
+    $sql = "SELECT $cols FROM log WHERE date >= '$date1' AND date <= '$date2'";
     if ($user != "") $sql .= " AND user LIKE '$user'";
     if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
     if ($levent != "") $sql .= " AND event LIKE '$levent%'";
