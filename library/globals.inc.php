@@ -694,6 +694,13 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('This specifies whether to include date in Box 31.')
     ),
+	  
+	'amendments' => array (
+		xl('Amendments'),
+		'bool',                           // data type
+		'1',                              // default = true
+		xl('Enable amendments feature')
+	),
 
   ),
     // E-Sign Tab
@@ -1304,6 +1311,14 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       '',                               // default
       xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
+    ),
+	
+	//July 1, 2014: Ensoftek: Flag to enable/disable audit log encryption
+	'enable_auditlog_encryption' => array(
+      xl('Enable Audit Log Encryption'),
+      'bool',                           // data type
+      '1',                              // default
+      xl('Enable Audit Log Encryption')
     ),
 
   ),

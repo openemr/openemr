@@ -76,8 +76,15 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
     }
     else if ($action['clin_rem_link']) {
       // Start link for reminders that use the custom rules input screen
-      echo "<a href='../../../" . $action['reminder_message'] .
+	  $pieces_url = parse_url($action['clin_rem_link']);
+	  $url_prefix = $pieces_url['scheme'];
+	  if($url_prefix == 'https' || $url_prefix == 'http'){
+		echo "<a href='" . $action['clin_rem_link'] .
         "' class='iframe  medium_modal' onclick='top.restoreSession()'>";
+	  }else{
+		echo "<a href='../../../" . $action['clin_rem_link'] .
+        "' class='iframe  medium_modal' onclick='top.restoreSession()'>";
+	  }
     }
     else {
       // continue, since no link will be created

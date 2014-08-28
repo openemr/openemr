@@ -64,7 +64,6 @@ if ($_POST['form_csvexport']) {
   echo '"' . xl('ID') . '",';
   echo '"' . xl('Ordered') . '",';
   echo '"' . xl('From') . '",';
-  echo '"' . xl('Procedure') . '",';
   echo '"' . xl('Provider') . '",';
   echo '"' . xl('Priority') . '",';
   echo '"' . xl('Status') . '"' . "\n";

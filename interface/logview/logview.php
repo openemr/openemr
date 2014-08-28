@@ -306,7 +306,20 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
     //translate comments
     $patterns = array ('/^success/','/^failure/','/ encounter/');
 	$replace = array ( xl('success'), xl('failure'), xl('encounter','',' '));
-	$trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
+	
+	$log_id = $iter['id'];
+	$commentEncrStatus = "No";
+	$logEncryptData = logCommentEncryptData($log_id);
+	if(count($logEncryptData) > 0){
+		$commentEncrStatus = $logEncryptData['encrypt'];
+	}
+	
+	//July 1, 2014: Ensoftek: Decrypt comment data if encrypted
+	if($commentEncrStatus == "Yes"){
+		$trans_comments = preg_replace($patterns, $replace, aes256Decrypt($iter["comments"]));
+	}else{
+		$trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
+	}
 	
 ?>
  <TR class="oneresult">

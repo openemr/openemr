@@ -175,6 +175,9 @@ if ($_POST['form_download']) {
 // If we are saving main globals.
 //
 if ($_POST['form_save'] && $_GET['mode'] != "user") {
+  // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
+  // Check the current status of Audit Logging
+  $auditLogStatusFieldOld = $GLOBALS['enable_auditlog'];
 
   $i = 0;
   foreach ($GLOBALS_METADATA as $grpname => $grparr) {
@@ -217,6 +220,15 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
   }
   checkCreateCDB();
   checkBackgroundServices();
+
+  // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
+  // If Audit Logging status has changed, log it.
+  $auditLogStatusNew = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'enable_auditlog'");
+  $auditLogStatusFieldNew = $auditLogStatusNew['gl_value'];
+  if ( $auditLogStatusFieldOld != $auditLogStatusFieldNew )
+  {
+	 auditSQLAuditTamper($auditLogStatusFieldNew);
+  }
   echo "<script type='text/javascript'>";
   echo "parent.left_nav.location.reload();";
   echo "parent.Title.location.reload();";

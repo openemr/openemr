@@ -32,7 +32,6 @@ require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
-
 $CPR = 4; // cells per row
 
 // Check authorization.
@@ -68,7 +67,17 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 
 <script LANGUAGE="JavaScript">
-
+ //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
+ var code_options_js = Array();
+ 
+ <?php
+ $smoke_codes = getSmokeCodes();
+  
+ foreach ($smoke_codes as $val => $code) {
+            echo "code_options_js"."['" . attr($val) . "']='" . attr($code) . "';\n";
+      }
+ ?>
+     
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function divclick(cb, divid) {
@@ -112,7 +121,7 @@ function submit_history() {
 //function for selecting the smoking status in radio button based on the selection of drop down list.
 function radioChange(rbutton)
 {
-     if (rbutton == 1 || rbutton == 2 || rbutton == 15 || rbutton == 16)
+    if (rbutton == 1 || rbutton == 2 || rbutton == 15 || rbutton == 16)
      {
      document.getElementById('radio_tobacco[current]').checked = true;
      }
@@ -135,6 +144,15 @@ function radioChange(rbutton)
      if(radList[i].checked) radList[i].checked = false;
      }
      }
+     //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
+     if(rbutton!=""){
+         if(code_options_js[rbutton]!="")
+            $("#smoke_code").html(" ( "+code_options_js[rbutton]+" )");
+         else
+             $("#smoke_code").html(""); 
+     }
+     else
+        $("#smoke_code").html(""); 
 }
 
 //function for selecting the smoking status in drop down list based on the selection in radio button.
@@ -156,12 +174,42 @@ function smoking_statusClicked(cb)
      {
      document.getElementById('form_tobacco').selectedIndex = 6;
      }
+	 radioChange(document.getElementById('form_tobacco').value);	 
 }
+
+// The ID of the input element to receive a found code.
+var current_sel_name = '';
+
+// This is for callback by the find-code popup.
+// Appends to or erases the current list of related codes.
+function set_related(codetype, code, selector, codedesc) {
+ var frc = document.forms[0][current_sel_name];
+ var s = frc.value;
+ if (code) {
+  if (s.length > 0) s += ';';
+  s += codetype + ':' + code;
+ } else {
+  s = '';
+ }
+ frc.value = s;
+}
+
+// This invokes the find-code popup.
+function sel_related(e) {
+ current_sel_name = e.name;
+ dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) echo '?codetype=REF' ?>', '_blank', 500, 400);
+}
+
 </script>
 
 <script type="text/javascript">
 /// todo, move this to a common library
 $(document).ready(function(){
+    if($("#form_tobacco").val()!=""){
+        if(code_options_js[$("#form_tobacco").val()]!=""){
+            $("#smoke_code").html(" ( "+code_options_js[$("#form_tobacco").val()]+" )");
+        }
+    }
     tabbify();
 });
 </script>

@@ -42,6 +42,44 @@ CREATE TABLE `amc_misc_data` (
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `amendments`
+--
+
+DROP TABLE IF EXISTS `amendments`;
+CREATE TABLE IF NOT EXISTS `amendments` (
+  `amendment_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
+  `amendment_date` date	NOT NULL COMMENT 'Amendement request date',
+  `amendment_by` varchar(50) NOT NULL COMMENT 'Amendment requested from',
+  `amendment_status` varchar(50) NULL COMMENT 'Amendment status accepted/rejected/null',
+  `pid` int(11) NOT NULL COMMENT 'Patient ID from patient_data',
+  `amendment_desc` text NOT NULL COMMENT 'Amendment Details',
+  `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
+  `modified_by`	int(11) NULL COMMENT 'references users.id for session owner',
+  `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
+  `modified_time` timestamp NULL COMMENT 'modified time',
+  PRIMARY KEY amendments_id(`amendment_id`),
+  KEY amendment_pid(`pid`)
+) ENGINE = MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `amendments_history`
+--
+
+DROP TABLE IF EXISTS `amendments_history`;
+CREATE TABLE IF NOT EXISTS `amendments_history` (
+  `amendment_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
+  `amendment_note` text NOT NULL COMMENT 'Amendment requested from',
+  `amendment_status` VARCHAR(50) NULL COMMENT 'Amendment Request Status',
+  `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
+  `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
+KEY amendment_history_id(`amendment_id`)
+) ENGINE = MyISAM;
+	
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `array`
 -- 
@@ -1963,10 +2001,15 @@ CREATE TABLE `history_data` (
   `last_psa` varchar(255) default NULL,
   `last_exam_results` varchar(255) default NULL,
   `history_mother` longtext,
+  `dc_mother` text default NULL,
   `history_father` longtext,
+  `dc_father`  text default NULL,
   `history_siblings` longtext,
+  `dc_siblings` text default NULL,
   `history_offspring` longtext,
+  `dc_offspring` text default NULL,
   `history_spouse` longtext,
+  `dc_spouse` text default NULL,
   `relatives_cancer` longtext,
   `relatives_tuberculosis` longtext,
   `relatives_diabetes` longtext,
@@ -2621,11 +2664,16 @@ INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'2Counter-Referral',
 
 INSERT INTO layout_options VALUES ('HIS','usertext11','1General','Risk Factors',1,21,1,0,0,'riskfactors',1,1,'','' ,'Risk Factors', 0, '');
 INSERT INTO layout_options VALUES ('HIS','exams'     ,'1General','Exams/Tests' ,2,23,1,0,0,'exams'      ,1,1,'','' ,'Exam and test results', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_father'   ,'2Family History','Father'   ,1, 2,1,20,0,'',1,1,'','' ,'', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_mother'   ,'2Family History','Mother'   ,2, 2,1,20,0,'',1,1,'','' ,'', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_siblings' ,'2Family History','Siblings' ,3, 2,1,20,0,'',1,1,'','' ,'', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_spouse'   ,'2Family History','Spouse'   ,4, 2,1,20,0,'',1,1,'','' ,'', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_offspring','2Family History','Offspring',5, 2,1,20,0,'',1,3,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_father'   ,'2Family History','Father'   		,1, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_father'		,'2Family History','Diagnosis Code'	,2, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_mother'   ,'2Family History','Mother'   		,3, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_mother'		,'2Family History','Diagnosis Code'	,4, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_siblings' ,'2Family History','Siblings' 		,5, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_siblings'		,'2Family History','Diagnosis Code'	,6, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_spouse'   ,'2Family History','Spouse'   		,7, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_spouse'		,'2Family History','Diagnosis Code'	,8, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_offspring','2Family History','Offspring'		,9, 2,1,20,0,'',1,3,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_offspring'		,'2Family History','Diagnosis Code'	,10, 15, 1, 0, 255, '', 1, 3, '', '', '', 0, '');
 INSERT INTO layout_options VALUES ('HIS','relatives_cancer'             ,'3Relatives','Cancer'             ,1, 2,1,20,0,'',1,1,'','' ,'', 0, '');
 INSERT INTO layout_options VALUES ('HIS','relatives_tuberculosis'       ,'3Relatives','Tuberculosis'       ,2, 2,1,20,0,'',1,1,'','' ,'', 0, '');
 INSERT INTO layout_options VALUES ('HIS','relatives_diabetes'           ,'3Relatives','Diabetes'           ,3, 2,1,20,0,'',1,1,'','' ,'', 0, '');
@@ -2652,7 +2700,8 @@ INSERT INTO layout_options VALUES ('HIS','additional_history','5Other','Addition
 INSERT INTO layout_options VALUES ('HIS','userarea11'        ,'5Other','User Defined Area 11',6,3,0,30,0,'',1,3,'','','User Defined', 3, '');
 INSERT INTO layout_options VALUES ('HIS','userarea12'        ,'5Other','User Defined Area 12',7,3,0,30,0,'',1,3,'','','User Defined', 3, '');
 
-INSERT INTO `layout_options` VALUES ('FACUSR', 'provider_id', '1General', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility', 0, '');
+
+INSERT INTO layout_options VALUES ('FACUSR', 'provider_id', '1General', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility', 0, '');
 
 -- --------------------------------------------------------
 
@@ -3864,6 +3913,15 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('ins
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','secondary','Secondary',20);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','tertiary' ,'Tertiary' ,30);
 
+-- Amendment Statuses
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists' ,'amendment_status','Amendment Status');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_status' ,'1','Approved', 1);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_status' ,'2','Rejected', 2);
+	
+-- Amendment request from
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists' ,'amendment_from','Amendment From');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_from' ,'1','Patient', 1);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_from' ,'2','Insurance', 2);
 -- --------------------------------------------------------
 
 -- 
@@ -6174,3 +6232,16 @@ CREATE TABLE `esign_signatures` (
   KEY `tid` (`tid`),
   KEY `table` (`table`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+-- 
+-- Table structure for table `log_comment_encrypt`
+-- 
+
+DROP TABLE IF EXISTS `log_comment_encrypt`;
+CREATE TABLE IF NOT EXISTS `log_comment_encrypt` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `log_id` int(11) NOT NULL,
+  `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
+  `checksum` longtext NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;

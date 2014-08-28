@@ -811,24 +811,24 @@ function generate_form_field($frow, $currvalue) {
     $onchange = 'radioChange(this.options[this.selectedIndex].value)';//VicarePlus :: The javascript function for selection list.
     echo generate_select_list("form_$field_id", $list_id, $reslist,
       $description, $showEmpty ? $empty_title : '', '', $onchange)."</td>";
-    echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;&nbsp;</td>";
+    echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;&nbsp;</td>";
     }
     // current
-    echo "<td><input type='radio'" .
+    echo "<td class='text' ><input type='radio'" .
       " name='radio_{$field_id_esc}'" .
       " id='radio_{$field_id_esc}[current]'" .
       " value='current".$field_id_esc."'";
     if ($restype == "current".$field_id) echo " checked";
       echo " if($data_type == 32) { onClick='smoking_statusClicked(this)' } />".htmlspecialchars( xl('Current'), ENT_NOQUOTES)."&nbsp;</td>";
     // quit
-    echo "<td><input type='radio'" .
+    echo "<td class='text'><input type='radio'" .
       " name='radio_{$field_id_esc}'" .
       " id='radio_{$field_id_esc}[quit]'" .
       " value='quit".$field_id_esc."'";
     if ($restype == "quit".$field_id) echo " checked";
     echo " if($data_type == 32) { onClick='smoking_statusClicked(this)' } />".htmlspecialchars( xl('Quit'), ENT_NOQUOTES)."&nbsp;</td>";
     // quit date
-    echo "<td><input type='text' size='6' name='date_$field_id_esc' id='date_$field_id_esc'" .
+    echo "<td class='text'><input type='text' size='6' name='date_$field_id_esc' id='date_$field_id_esc'" .
       " value='$resdate'" .
       " title='$description'" .
       " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />" .
@@ -837,19 +837,21 @@ function generate_form_field($frow, $currvalue) {
       " title='" . htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES) . "' />&nbsp;</td>";
     $date_init .= " Calendar.setup({inputField:'date_$field_id', ifFormat:'%Y-%m-%d', button:'img_$field_id'});\n";
     // never
-    echo "<td><input type='radio'" .
+    echo "<td class='text'><input type='radio'" .
       " name='radio_{$field_id_esc}'" .
       " id='radio_{$field_id_esc}[never]'" .
       " value='never".$field_id_esc."'";
     if ($restype == "never".$field_id) echo " checked";
     echo " if($data_type == 32) { onClick='smoking_statusClicked(this)' } />".htmlspecialchars( xl('Never'), ENT_NOQUOTES)."&nbsp;</td>";
 	// Not Applicable
-    echo "<td><input type='radio'" .
+    echo "<td class='text'><input type='radio'" .
       " name='radio_{$field_id}'" .
       " id='radio_{$field_id}[not_applicable]'" .
       " value='not_applicable".$field_id."'";
     if ($restype == "not_applicable".$field_id) echo " checked";
     echo " if($data_type == 32) { onClick='smoking_statusClicked(this)' } />".htmlspecialchars( xl('N/A'), ENT_QUOTES)."&nbsp;</td>";
+    //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
+    echo "<td class='text' ><div id='smoke_code'></div></td>";
     echo "</tr>";
     echo "</table>";
   }
@@ -1721,8 +1723,14 @@ function generate_display_field($frow, $currvalue) {
     }
      //VicarePlus :: Tobacco field has a listbox, text box, date field and 3 radio buttons.
      else if ($data_type == 32)
-    {
-       if (!empty($reslist)) $s .= "<td class='text' valign='top'>" . generate_display_field(array('data_type'=>'1','list_id'=>$list_id),$reslist) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+    {//changes on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
+       $smoke_codes = getSmokeCodes(); 
+       if (!empty($reslist)) {
+           if($smoke_codes[$reslist]!="")
+               $code_desc = "( ".$smoke_codes[$reslist]." )";
+           
+           $s .= "<td class='text' valign='top'>" . generate_display_field(array('data_type'=>'1','list_id'=>$list_id),$reslist) . "&nbsp;".text($code_desc)."&nbsp;&nbsp;&nbsp;&nbsp;</td>";}
+       
        if (!empty($resnote)) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote,ENT_NOQUOTES) . "&nbsp;&nbsp;</td>";
     }
 
@@ -2752,5 +2760,16 @@ function getListItemTitle($list, $option) {
     "list_id = ? AND option_id = ?", array($list, $option));
   if (empty($row['title'])) return $option;
   return xl_list_label($row['title']);
+}
+//Added on 5-jun-2k14 (regarding get the smoking code descriptions)
+function getSmokeCodes()
+{
+     $smoking_codes_arr = array();
+     $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status'");
+     while($codes_row = sqlFetchArray($smoking_codes))
+      {
+          $smoking_codes_arr[$codes_row['option_id']] = $codes_row['codes'];
+      }
+     return $smoking_codes_arr;
 }
 ?>
