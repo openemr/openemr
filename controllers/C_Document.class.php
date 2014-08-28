@@ -198,8 +198,24 @@ class C_Document extends Controller {
 		$n = new Note();
                 $n->set_owner($_SESSION['authUserID']);
 		parent::populate_object($n);
-		$n->persist();
-		
+		if ($_POST['identifier'] == "no"){
+			$n->persist();
+		}elseif ($_POST['identifier'] == "yes"){
+			
+			$d = new Document($_POST['foreign_id']);
+			$att =  $d->get_url();
+			$att_mtype =  $d->get_mimetype();
+			$att_mtypearr  = explode('/',$att_mtype);
+			$body_notes = attr($_POST['note']);
+			$att = trim(str_replace("file://","",$att));
+			$att_parts = pathinfo($att);
+			if($att_parts['extension'] == ""){
+				$att = $att.".".$att_mtypearr[1];
+			}
+			$pdetails = getPatientData($patient_id);
+			$pname = $pdetails['fname']." ".$pdetails['lname'];
+			$this->document_send($_POST['provide_email'],$body_notes,$att,$pname);		
+		}
 		$this->_state = false;
 		$_POST['process'] = "";
 		return $this->view_action($patient_id,$n->get_foreign_id());		
@@ -1025,7 +1041,35 @@ class C_Document extends Controller {
 		fwrite($LOG,$content);
 		fclose($LOG);
 	}
-
+	
+	function document_send($email,$body,$attfile,$pname) {
+		if (empty($email)) {
+			$this->assign("process_result","Email could not be sent, the address supplied: '$email' was empty or invalid.");
+			return;
+		}
+		 
+		require_once($GLOBALS['fileroot'] . "/library/classes/postmaster.php"  );
+		  $desc = "Please check the attached patient document.\n Content:".attr($body);
+		  $mail = new MyMailer(); 
+		  $from_name = $GLOBALS["practice_return_email_path"];
+		  $from =  $GLOBALS["practice_return_email_path"];
+		  $mail->AddReplyTo($from,$from_name);
+		  $mail->SetFrom($from,$from );
+		  $to = $email ; $to_name =$email;
+		  $mail->AddAddress($to, $to_name);
+		  $subject = "Patient documents";
+		  $mail->Subject = $subject;
+		  $mail->Body = $desc;
+		  $mail->AddAttachment($attfile);
+		  if ($mail->Send()) {
+			 $retstatus = "email_sent";
+		  } else {
+			$email_status = $mail->ErrorInfo;
+			//echo "EMAIL ERROR: ".$email_status;
+			$retstatus =  "email_fail";
+		  } 
+	}
+	
 //place to hold optional code
 //$first_node = array_keys($t->tree);
 		//$first_node = $first_node[0];
