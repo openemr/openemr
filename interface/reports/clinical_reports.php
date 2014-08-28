@@ -29,7 +29,7 @@ $fake_register_globals=false;
 
 	function add_date($givendate,$day=0,$mth=0,$yr=0) {
 		$cd = strtotime($givendate);
-		$newdate = date('Y-m-d', mktime(date('h',$cd),
+		$newdate = date('Y-m-d H:i:s', mktime(date('h',$cd),
 		date('i',$cd), date('s',$cd), date('m',$cd)+$mth,
 		date('d',$cd)+$day, date('Y',$cd)+$yr));
 		return $newdate;
@@ -37,8 +37,8 @@ $fake_register_globals=false;
 
 	$type = $_POST["type"];
 	$facility = isset($_POST['facility']) ? $_POST['facility'] : '';
-	$sql_date_from = fixDate($_POST['date_from'], date('Y-01-01'));
-	$sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d')));
+	$sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
+	$sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d H:i:s')));
 	$patient_id = trim($_POST["patient_id"]);
 	$age_from = $_POST["age_from"];
 	$age_to = $_POST["age_to"];
@@ -228,13 +228,13 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 						<td class='label' width="100"><?php echo htmlspecialchars(xl('Facility'),ENT_NOQUOTES); ?>: </td>
 						<td width="250"> <?php dropdown_facility($facility,'facility',false); ?> </td>
 						<td class='label' width="100"><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>: </td>
-						<td><input type='text' name='date_from' id="date_from" size='10' value='<?php echo htmlspecialchars($sql_date_from,ENT_QUOTES); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'> <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo htmlspecialchars(xl('Click here to choose a date'),ENT_QUOTES); ?>'></td>
+						<td><input type='text' name='date_from' id="date_from" size='18' value='<?php echo htmlspecialchars($sql_date_from,ENT_QUOTES); ?>' onkeyup='datekeyup(this,mypcc,true)' onblur='dateblur(this,mypcc,true)' title='yyyy-mm-dd H:m:s'> <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo htmlspecialchars(xl('Click here to choose date time from'),ENT_QUOTES); ?>'></td>
 					</tr>
 					<tr>
 						<td class='label'><?php echo htmlspecialchars(xl('Patient ID'),ENT_NOQUOTES); ?>:</td>
 						<td><input name='patient_id' class="numeric_only" type='text' id="patient_id" title='<?php echo htmlspecialchars(xl('Optional numeric patient ID'),ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($patient_id,ENT_QUOTES); ?>' size='10' maxlength='20' /></td>
 						<td class='label'><?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>: </td>
-						<td><input type='text' name='date_to' id="date_to" size='10' value='<?php echo htmlspecialchars($sql_date_to,ENT_QUOTES); ?>' onKeyUp='datekeyup(this,mypcc)' onBlur='dateblur(this,mypcc)' title='yyyy-mm-dd'>	<img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo htmlspecialchars(xl('Click here to choose a date'),ENT_QUOTES); ?>'></td>
+						<td><input type='text' name='date_to' id="date_to" size='18' value='<?php echo htmlspecialchars($sql_date_to,ENT_QUOTES); ?>' onKeyUp='datekeyup(this,mypcc,true)' onBlur='dateblur(this,mypcc,true)' title='yyyy-mm-dd H:m:s'>	<img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo htmlspecialchars(xl('Click here to choose date time to'),ENT_QUOTES); ?>'></td>
 					</tr>
 					<tr>
 						<td class='label'><?php echo htmlspecialchars(xl('Age Range'),ENT_NOQUOTES); ?>:</td>
@@ -871,7 +871,7 @@ else
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="Javascript">
-	Calendar.setup({inputField:"date_from", ifFormat:"%Y-%m-%d", button:"img_from_date"});
- 	Calendar.setup({inputField:"date_to", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+	Calendar.setup({inputField:"date_from", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_from_date", showsTime:true});
+ 	Calendar.setup({inputField:"date_to", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_to_date", showsTime:true});
 </script>
 </html>
