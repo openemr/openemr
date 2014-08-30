@@ -290,7 +290,7 @@ $form_reviewed = empty($_POST['form_reviewed']) ? 3 : intval($_POST['form_review
 
 $form_patient = !empty($_POST['form_patient']);
 
-$form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provider']);
+$form_provider = empty($_POST['form_provider']) ? '' : intval($_POST['form_provider']);
 ?>
 
 <table width='100%'>

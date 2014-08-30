@@ -88,6 +88,12 @@ body {
  font-size: 1em;
 }
 </style>
+
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<script language="JavaScript">
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+</script>
+
 </head>
 <body>
 <?php

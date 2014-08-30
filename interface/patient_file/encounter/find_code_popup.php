@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+/* Copyright (C) 2008-2014 Rod Roark <rod@sunsetsystems.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,11 +17,23 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
-if (isset($codetype)) {
+if (!empty($codetype)) {
 	$allowed_codes = split_csv_line($codetype);
 }
 
 $form_code_type = $_POST['form_code_type'];
+
+// Determine which code type will be selected by default.
+$default = '';
+if (!empty($form_code_type)) {
+  $default = $form_code_type;
+}
+else if (!empty($allowed_codes) && count($allowed_codes) == 1) {
+  $default = $allowed_codes[0];
+}
+else if (!empty($_REQUEST['default'])) {
+  $default = $_REQUEST['default'];
+}
 
 // This variable is used to store the html element
 // of the target script where the selected code
@@ -43,7 +55,7 @@ td { font-size:10pt; }
  // Standard function
  function selcode(codetype, code, selector, codedesc) {
   if (opener.closed || ! opener.set_related)
-   alert('<?php echo addslashes( xl('The destination form was closed; I cannot act on your selection.') ); ?>');
+   alert('<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>');
   else
    opener.set_related(codetype, code, selector, codedesc);
   window.close();
@@ -54,7 +66,7 @@ td { font-size:10pt; }
  // element on the target page to place the selected code into.
  function selcode_target(codetype, code, selector, codedesc, target_element) {
   if (opener.closed || ! opener.set_related_target)
-   alert('<?php echo addslashes( xl('The destination form was closed; I cannot act on your selection.') ); ?>');
+   alert('<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>');
   else
    opener.set_related_target(codetype, code, selector, codedesc, target_element);
   window.close();
@@ -70,14 +82,14 @@ td { font-size:10pt; }
 <?php
 $string_target_element = "";
 if (!empty($target_element)) {
-$string_target_element = "?target_element=".attr($target_element)."&";
+$string_target_element = "?target_element=" . urlencode($target_element) . "&";
 }
 else {
 $string_target_element = "?";
 }
 ?>
-<?php if (isset($allowed_codes)) { ?>
-  <form method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>codetype=<?php echo attr($codetype) ?>'>
+<?php if (!empty($allowed_codes)) { ?>
+  <form method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>codetype=<?php echo urlencode($codetype) ?>'>
 <?php } else { ?>
   <form method='post' name='theform' action='find_code_popup.php<?php echo $string_target_element ?>'>
 <?php } ?>
@@ -96,7 +108,7 @@ $string_target_element = "?";
    <b>
 
 <?php
-if (isset($allowed_codes)) {
+if (!empty($allowed_codes)) {
 	if (count($allowed_codes) === 1) {
   echo "<input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly>\n";
 	} else {
@@ -104,9 +116,9 @@ if (isset($allowed_codes)) {
    <select name='form_code_type'>
 <?php
 		foreach ($allowed_codes as $code) {
-			$selected_attr = ($form_code_type == $code) ? " selected='selected'" : '';
+			$selected_attr = ($default == $code) ? " selected='selected'" : '';
 ?>
-   	<option value='<?php echo attr($code) ?>'<?php echo $selected_attr?>><?php echo xlt($code_types[$code]['label']) ?></option>
+   	<option value='<?php echo attr($code) ?>'<?php echo $selected_attr ?>><?php echo xlt($code_types[$code]['label']) ?></option>
 <?php
 		}
 ?>
@@ -115,15 +127,16 @@ if (isset($allowed_codes)) {
 	}
 }
 else {
+  // No allowed types were specified, so show all.
   echo "   <select name='form_code_type'";
   echo ">\n";
   foreach ($code_types as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($codetype == $key || $form_code_type == $key) echo " selected";
+    if ($default == $key) echo " selected";
     echo ">" . xlt($value['label']) . "</option>\n";
   }
   echo "    <option value='PROD'";
-  if ($codetype == 'PROD' || $form_code_type == 'PROD') echo " selected";
+  if ($default == 'PROD') echo " selected";
   echo ">" . xlt("Product") . "</option>\n";
   echo "   </select>&nbsp;&nbsp;\n";
 }

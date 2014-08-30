@@ -2735,3 +2735,17 @@ UPDATE `list_options` SET `seq` = 1840 WHERE `option_id` = 'zulu' AND `list_id` 
 UPDATE `list_options` SET `seq` = 1840 WHERE `title` = 'Zulu' AND `list_id` = 'language';
 #EndIf
 
+#IfMissingColumn code_types ct_drug
+ALTER TABLE `code_types` ADD COLUMN ct_drug tinyint(1) NOT NULL default 0 COMMENT '1 if this is a medication';
+#EndIf
+
+#IfNotRow code_types ct_key RXCUI
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (`id` int(11) NOT NULL DEFAULT '0',`seq` int(11) NOT NULL DEFAULT '0') ENGINE=MyISAM;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES (
+  IF(((SELECT MAX(`ct_id` ) FROM `code_types`) >= 100), ((SELECT MAX(`ct_id` ) FROM `code_types`) + 1), 100),
+  IF(((SELECT MAX(`ct_seq`) FROM `code_types`) >= 100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100));
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_drug ) VALUES
+  ('RXCUI', (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 0, '', 0, 0, 1, 0, 0, 'RXCUI Medication', 1);
+DROP TABLE `temp_table_one`;
+#EndIf
