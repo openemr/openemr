@@ -13,6 +13,10 @@ class Controller_browse extends BaseController {
     function _action_list() {
         $this->set_view( "list.php" );
     }
+    
+    function _action_plans_config() {
+    	$this->set_view( "plans_config.php" );
+    }
 
     function _action_getrows() {
         $rows = array();
