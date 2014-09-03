@@ -26,19 +26,27 @@ $fake_register_globals=false;
 	require_once("../drugs/drugs.inc.php");
 	require_once("$srcdir/formatting.inc.php");
   require_once("../../custom/code_types.inc.php");
-
+	$comarr = array('allow_sms'=>'Allow SMS','allow_voice'=>'Allow Voice Message','allow_mail'=>'Allow Mail Message','allow_email'=>'Allow Email');
 	function add_date($givendate,$day=0,$mth=0,$yr=0) {
 		$cd = strtotime($givendate);
 		$newdate = date('Y-m-d H:i:s', mktime(date('h',$cd),
 		date('i',$cd), date('s',$cd), date('m',$cd)+$mth,
 		date('d',$cd)+$day, date('Y',$cd)+$yr));
 		return $newdate;
-        }
-
+        }	
 	$type = $_POST["type"];
 	$facility = isset($_POST['facility']) ? $_POST['facility'] : '';
-	$sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
-	$sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d H:i:s')));
+	if($_POST['date_from'] != "")
+		$sql_date_from = $_POST['date_from'];
+	else
+		$sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
+	
+	if($_POST['date_to'] != "")
+		$sql_date_to = $_POST['date_to'];
+	else
+		$sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d H:i:s')));
+		
+	
 	$patient_id = trim($_POST["patient_id"]);
 	$age_from = $_POST["age_from"];
 	$age_to = $_POST["age_to"];
@@ -276,11 +284,10 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 						<td class='label'><?php echo htmlspecialchars(xl('Communication'),ENT_NOQUOTES); ?>:</td>
                         <td>
 							<select name="communication" id="communication" title="<?php echo htmlspecialchars(xl('Select Communication Preferences'),ENT_NOQUOTES); ?>">
-								<option> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
-								<option value="allow_sms" <?php if($communication == "allow_sms"){ echo "selected";}?>><?php echo htmlspecialchars(xl('Allow SMS'),ENT_NOQUOTES); ?></option>
-								<option value="allow_voice" <?php if($communication == "allow_voice"){ echo "selected";}?>><?php echo htmlspecialchars(xl('Allow Voice Message'),ENT_NOQUOTES); ?></option>
-								<option value="allow_mail" <?php if($communication == "allow_mail"){ echo "selected";}?>><?php echo htmlspecialchars(xl('Allow Mail Message'),ENT_NOQUOTES); ?></option>
-								<option value="allow_email" <?php if($communication == "allow_email"){ echo "selected";}?>><?php echo htmlspecialchars(xl('Allow Email'),ENT_NOQUOTES); ?></option>
+								<option value=""> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
+								<?php foreach($comarr as $comkey => $comvalue){ ?>
+								<option value="<?php echo $comkey; ?>" <?php if($communication == $comkey){ echo "selected";}?>><?php echo text($comvalue); ?></option>
+								<?php } ?>
 							</select>
 						</td>
 					</tr>
@@ -572,7 +579,8 @@ $sqlstmt = "select
   }
   else {
 	$sqlstmt=$sqlstmt." ".$whr_stmt." ".$odrstmt;
-  }	
+  }
+
 $result = sqlStatement($sqlstmt,$sqlBindArray);
 
 $row_id = 1.1;//given to each row to identify and toggle
@@ -597,13 +605,16 @@ if(sqlNumRows($result) > 0)
 			</td></tr>
 			<table width="100%" align="center" id = "<?php echo $row_id; $row_id++;?>" class="border1" style="display:none; font-size:13px;" cellpadding=5>
 				<tr bgcolor="#C3FDB8" align="left"> 
-				<td><b><?php echo htmlspecialchars(xl('Patient Name'),ENT_NOQUOTES); ?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('PID'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Age'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES);?></b></td> 
-				<td colspan=5><b><?php echo htmlspecialchars(xl('Provider'),ENT_NOQUOTES);?></b></td>
+				<td width="15%"><b><?php echo htmlspecialchars(xl('Patient Name'),ENT_NOQUOTES); ?></b></td>
+				<td width="5%"><b><?php echo htmlspecialchars(xl('PID'),ENT_NOQUOTES);?></b></td>
+				<td width="5%"><b><?php echo htmlspecialchars(xl('Age'),ENT_NOQUOTES);?></b></td>
+				<td width="10%"><b><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?></b></td>
+				<td width="15%"><b><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES);?></b></td>
+				<td width="15%"><b><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES);?></b></td> 
+				<td width="15%" <?php if(strlen($communication) == 0){ ?> colspan=5 <?php } ?>><b><?php echo htmlspecialchars(xl('Provider'),ENT_NOQUOTES);?></b></td>
+				<?php if(strlen($communication) > 0){ ?>
+				<td colspan=4><b><?php echo xlt('Communication');?></b></td>
+				<?php } ?>
 				</tr>
 				<tr bgcolor="#FFFFFF">
 				<td><?php echo htmlspecialchars($row['patient_name'],ENT_NOQUOTES); ?>&nbsp;</td>
@@ -612,7 +623,10 @@ if(sqlNumRows($result) > 0)
                                 <td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $row['patient_sex']),ENT_NOQUOTES); ?>&nbsp;</td>
 				<td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'race'), $row['patient_race']),ENT_NOQUOTES); ?>&nbsp;</td>
                                <td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'ethnicity'), $row['patient_ethinic']),ENT_NOQUOTES); ?>&nbsp;</td>
-                               <td colspan=5> <?php echo htmlspecialchars($row['users_provider'],ENT_NOQUOTES); ?>&nbsp;</td>
+                               <td <?php if(strlen($communication) == 0){ ?> colspan=5 <?php } ?>> <?php echo htmlspecialchars($row['users_provider'],ENT_NOQUOTES); ?>&nbsp;</td>
+							    <?php if(strlen($communication) > 0){ ?>
+							   <td colspan=4><?php echo $comarr["$communication"]; ?></td>
+							   <?php } ?>
 				</tr>
 <!-- Diagnosis Report Start-->
 				<?php 
