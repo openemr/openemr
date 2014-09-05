@@ -325,6 +325,8 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    <?php echo htmlspecialchars(xl('NDC Number'),ENT_NOQUOTES); ?>&nbsp;
                                                    <input type='checkbox' name='lab_results'<?php if ($_POST['lab_results'] == true) echo ' checked'; ?>>
                                                   <?php echo htmlspecialchars(xl('Lab Results'),ENT_NOQUOTES); ?>&nbsp;
+                                                  <input type='checkbox' name='communication_check'<?php if ($_POST['communication_check'] == true) echo ' checked'; ?>>
+                                                  <?php echo xlt('Communication'); ?>
                                                </td>
                                         </tr>
 				<!-- Sort by ends -->
@@ -362,19 +364,20 @@ $sqlstmt = "select
                 DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 AS patient_age,
                 pd.sex AS patient_sex,
                 pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
-                concat(u.fname, ' ', u.lname)  AS users_provider";
-	if(strlen($form_diagnosis) > 0)	{
+                concat(u.fname, ' ', u.lname)  AS users_provider,
+                concat_ws(', ',IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO'), IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO'), IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO')) as communications";
+	if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true)	{
 		$sqlstmt=$sqlstmt.",li.date AS lists_date,
                    li.diagnosis AS lists_diagnosis,
                         li.title AS lists_title";
 	}
-	if(strlen($form_drug_name) > 0)	{
+	if(strlen($form_drug_name) > 0 || $_POST['form_drug'] == true)	{
 
 		$sqlstmt=$sqlstmt.",r.id as id, r.date_modified AS prescriptions_date_modified, r.dosage as dosage, r.route as route, r.interval as hinterval, r.refills as refills, r.drug as drug, 
 		r.form as hform, r.size as size, r.unit as hunit, d.name as name, d.ndc_number as ndc_number,r.quantity as quantity";
 	}
 
-	if(strlen($form_lab_results) > 0) {
+	if(strlen($form_lab_results) > 0 || $_POST['lab_results'] == true) {
     $sqlstmt = $sqlstmt.",pr.date AS procedure_result_date,
                            pr.facility AS procedure_result_facility,
                                 pr.units AS procedure_result_units,
@@ -417,18 +420,18 @@ $sqlstmt = "select
 	$sqlstmt=$sqlstmt." from patient_data as pd left outer join users as u on u.id = pd.providerid
             left outer join facility as f on f.id = u.facility_id";
 	
-	if(strlen($form_diagnosis) > 0 ){	
+	if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true){	
 		$sqlstmt = $sqlstmt." left outer join lists as li on li.pid  = pd.pid ";
 	}
 
-  if ( $type == 'Procedure' ||( strlen($form_lab_results)!=0) ) {
+  if ( $type == 'Procedure' ||( strlen($form_lab_results)!=0) || $_POST['lab_results'] == true) {
     $sqlstmt = $sqlstmt." left outer join procedure_order as po on po.patient_id = pd.pid
     left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
     left outer join procedure_report as pp on pp.procedure_order_id   = po.procedure_order_id
     left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id ";
   }
 
-	if (strlen($form_lab_results)!=0 ) {
+	if (strlen($form_lab_results)!=0 || $_POST['lab_results'] == true) {
 		$sqlstmt = $sqlstmt." left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id ";
 	}
 	//Immunization added in clinical report
@@ -436,7 +439,7 @@ $sqlstmt = "select
 		$sqlstmt = $sqlstmt." LEFT OUTER JOIN immunizations as imm ON imm.patient_id = pd.pid
 						  LEFT OUTER JOIN codes as immc ON imm.cvx_code = immc.id ";
 	}
-	if(strlen($form_drug_name)!=0) {	
+	if(strlen($form_drug_name)!=0 || $_POST['form_drug'] == true) {	
 	       $sqlstmt=$sqlstmt." left outer join prescriptions AS r on r.patient_id=pd.pid
                         LEFT OUTER JOIN drugs AS d ON d.drug_id = r.drug_id";
 	}
@@ -453,15 +456,15 @@ $sqlstmt = "select
       }
 //where
       $whr_stmt="where 1=1";
-      if(strlen($form_diagnosis) > 0 ) {
+      if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true) {
 	    $whr_stmt=$whr_stmt." AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(li.date) <= ?";
 	    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
 	}
-	if(strlen($form_lab_results)!=0 ) {
+	if(strlen($form_lab_results)!=0 || $_POST['lab_results'] == true) {
               $whr_stmt=$whr_stmt." AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(pr.date) <= ?";
               array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
  	}
-        if(strlen($form_drug_name)!=0) {
+        if(strlen($form_drug_name)!=0 || $_POST['form_drug'] == true) {
 	      $whr_stmt=$whr_stmt." AND r.date_modified >= ? AND r.date_modified < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(r.date_modified) <= ?";
               array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
 	}
@@ -477,15 +480,17 @@ $sqlstmt = "select
              $whr_stmt=$whr_stmt." AND b.date >= ? AND b.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(b.date) <= ?";
              array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
 	}
-        if(strlen($form_lab_results) != 0) {
+        if(strlen($form_lab_results) != 0 || $_POST['lab_results'] == true) {
             $whr_stmt= $whr_stmt." AND (pr.result LIKE ?) ";
+            if(empty($form_lab_results)) $form_lab_results ="%";
             array_push($sqlBindArray, $form_lab_results);
         }          
-	if(strlen($form_drug_name) > 0) {
+	if(strlen($form_drug_name) > 0 || $_POST['form_drug'] == true) {
             $whr_stmt .= " AND (
                         d.name LIKE ?
                         OR r.drug LIKE ?
                         ) ";
+			if(empty($form_drug_name)) $form_drug_name ="%";			
             array_push($sqlBindArray, $form_drug_name, $form_drug_name);
          }
        if($type == 'Service Codes') {
@@ -524,16 +529,20 @@ $sqlstmt = "select
         $whr_stmt = $whr_stmt."   and f.id = ? ";
         array_push($sqlBindArray, $facility);
   }
-  if(strlen($form_diagnosis) > 0) {
+  if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true) {
         $whr_stmt = $whr_stmt." AND (li.diagnosis LIKE ? or li.diagnosis LIKE ? or li.diagnosis LIKE ? or li.diagnosis = ?) ";
         array_push($sqlBindArray, $form_diagnosis.";%", '%;'.$form_diagnosis.';%', '%;'.$form_diagnosis, $form_diagnosis);
   }
   //communication preferences added in clinical report
-  if(strlen($communication) > 0){
+  if(strlen($communication) > 0 || $_POST['communication_check'] == true){
+  	
 	if($communication == "allow_sms")  $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
 	else if($communication == "allow_voice")  $whr_stmt .= " AND pd.hipaa_voice = 'YES' ";
 	else if($communication == "allow_mail")  $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
 	else if($communication == "allow_email")  $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
+	else if($communication == "" && $_POST['communication_check'] == true){
+		$whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
+	}
   }
   
   //Immunization where condition for full text or short text
@@ -594,7 +603,9 @@ if(sqlNumRows($result) > 0)
 ?>
 <br>
 	<div id = "report_results">
-	<?php while ($row = sqlFetchArray($result)) { ?>
+		
+	<?php $pidarr = array();
+			while ($row = sqlFetchArray($result)) { ?>
 	<table width=90% align="center" cellpadding="5" cellspacing="0" style="font-family:tahoma;color:black;" border="0">
 		<tr bgcolor = "#CCCCCC" style="font-size:15px;">
 			<td><b><?php echo htmlspecialchars(xl('Summary of'),ENT_NOQUOTES); echo " "; ?> <?php echo htmlspecialchars($row['patient_name'],ENT_NOQUOTES); ?></b></td>
@@ -611,8 +622,8 @@ if(sqlNumRows($result) > 0)
 				<td width="10%"><b><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?></b></td>
 				<td width="15%"><b><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES);?></b></td>
 				<td width="15%"><b><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES);?></b></td> 
-				<td width="15%" <?php if(strlen($communication) == 0){ ?> colspan=5 <?php } ?>><b><?php echo htmlspecialchars(xl('Provider'),ENT_NOQUOTES);?></b></td>
-				<?php if(strlen($communication) > 0){ ?>
+				<td width="15%" <?php if(strlen($communication) == 0 || $_POST['communication_check'] == true){ ?> colspan=5 <?php } ?>><b><?php echo htmlspecialchars(xl('Provider'),ENT_NOQUOTES);?></b></td>
+				<?php if(strlen($communication) > 0 || ($_POST['communication_check'] == true)){ ?>
 				<td colspan=4><b><?php echo xlt('Communication');?></b></td>
 				<?php } ?>
 				</tr>
@@ -623,14 +634,17 @@ if(sqlNumRows($result) > 0)
                                 <td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $row['patient_sex']),ENT_NOQUOTES); ?>&nbsp;</td>
 				<td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'race'), $row['patient_race']),ENT_NOQUOTES); ?>&nbsp;</td>
                                <td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'ethnicity'), $row['patient_ethinic']),ENT_NOQUOTES); ?>&nbsp;</td>
-                               <td <?php if(strlen($communication) == 0){ ?> colspan=5 <?php } ?>> <?php echo htmlspecialchars($row['users_provider'],ENT_NOQUOTES); ?>&nbsp;</td>
-							    <?php if(strlen($communication) > 0){ ?>
-							   <td colspan=4><?php echo text($comarr["$communication"]); ?></td>
-							   <?php } ?>
+                               <td <?php if(strlen($communication) == 0 || ($_POST['communication_check'] == true)){ ?> colspan=5 <?php } ?>> <?php echo htmlspecialchars($row['users_provider'],ENT_NOQUOTES); ?>&nbsp;</td>
+							   
+							    <?php if(strlen($communication) > 0 || $_POST['communication_check'] == true){ ?>
+							    		<td colspan=4><?php 
+							    		$repcom = str_replace(", NO","",$row['communications']);
+										echo trim(str_replace("NO,","",$repcom)); ?></td>
+							   	<?php }  ?>
 				</tr>
 <!-- Diagnosis Report Start-->
 				<?php 
-				if(strlen($form_diagnosis) > 0)
+				if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true)
 			        {
 				?>
 	                	<tr bgcolor="#C3FDB8" align= "left">
@@ -639,19 +653,19 @@ if(sqlNumRows($result) > 0)
 				<tr bgcolor="#C3FDB8" align= "left">
 				<td><b><?php echo htmlspecialchars(xl('Diagnosis Date'),ENT_NOQUOTES);?></b></td>
 				<td><b><?php echo htmlspecialchars(xl('Diagnosis'),ENT_NOQUOTES);?></b></td>
-				<td colspan=9><b><?php echo htmlspecialchars(xl('Diagnosis Name'),ENT_NOQUOTES);?></b></td>
+				<td colspan=10><b><?php echo htmlspecialchars(xl('Diagnosis Name'),ENT_NOQUOTES);?></b></td>
 				</tr>
                         	<tr bgcolor="#FFFFFF">
 				<td><?php echo htmlspecialchars($row['lists_date'],ENT_NOQUOTES); ?>&nbsp;</td> 
 				<td><?php echo htmlspecialchars($row['lists_diagnosis'],ENT_NOQUOTES); ?>&nbsp;</td>
-                                <td colspan=9><?php echo htmlspecialchars($row['lists_title'],ENT_NOQUOTES); ?>&nbsp;</td>
+                                <td colspan=10><?php echo htmlspecialchars($row['lists_title'],ENT_NOQUOTES); ?>&nbsp;</td>
 				</tr>
 	<?php } ?>
 <!-- Diagnosis Report End-->
 
 <!-- Prescription Report Start-->
 			       <?php
-			 	if(strlen($form_drug_name) > 0)
+			 	if(strlen($form_drug_name) > 0 || $_POST['form_drug'] == true)
        			 	{
 				?>
                         	<tr bgcolor="#C3FDB8" align= "left">
@@ -667,7 +681,7 @@ if(sqlNumRows($result) > 0)
 				<td><b><?php echo htmlspecialchars(xl('Unit'),ENT_NOQUOTES);?></b></td>
 				<td><b><?php echo htmlspecialchars(xl('ReFill'),ENT_NOQUOTES);?></b></td>
 				<td><b><?php echo htmlspecialchars(xl('Quantity'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('NDC'),ENT_NOQUOTES);?></b></td>
+				<td colspan="2"><b><?php echo htmlspecialchars(xl('NDC'),ENT_NOQUOTES);?></b></td>
 				</tr>
                         	<tr bgcolor="#FFFFFF" align="">
 				<?php 
@@ -686,14 +700,14 @@ if(sqlNumRows($result) > 0)
 				<td><?php echo htmlspecialchars($rx_units,ENT_NOQUOTES); ?></td>
 				<td><?php echo htmlspecialchars($row['refills'],ENT_NOQUOTES); ?></td>	
 				<td><?php echo htmlspecialchars($row['quantity'],ENT_NOQUOTES); ?></td>
-				<td><?php echo htmlspecialchars($row['ndc_number'],ENT_NOQUOTES); ?></td>
+				<td colspan="2"><?php echo htmlspecialchars($row['ndc_number'],ENT_NOQUOTES); ?></td>
 	                    	</tr>
 				<?php } ?>
 <!-- Prescription Report End-->
 
 <!-- Lab Results Report Start-->
 				<?php 
-				if(strlen($form_lab_results) > 0)
+				if(strlen($form_lab_results) > 0 || $_POST['lab_results'] == true)
         			{
 				?>
                         	<tr bgcolor="#C3FDB8" align= "left">
@@ -706,7 +720,7 @@ if(sqlNumRows($result) > 0)
 				<td><b><?php echo htmlspecialchars(xl('Range'),ENT_NOQUOTES);?></b></td>
 				<td><b><?php echo htmlspecialchars(xl('Abnormal'),ENT_NOQUOTES);?></b></td>
 				<td><b><?php echo htmlspecialchars(xl('Comments'),ENT_NOQUOTES);?></b></td>
-				<td colspan=4><b><?php echo htmlspecialchars(xl('Document ID'),ENT_NOQUOTES);?></b></td>
+				<td colspan=5><b><?php echo htmlspecialchars(xl('Document ID'),ENT_NOQUOTES);?></b></td>
 				</tr>
                         	<tr bgcolor="#FFFFFF">
 				<td> <?php echo htmlspecialchars(oeFormatShortDate($row['procedure_result_date']),ENT_NOQUOTES); ?>&nbsp;</td>
@@ -716,7 +730,7 @@ if(sqlNumRows($result) > 0)
                                  <td> <?php echo htmlspecialchars($row['procedure_result_range'],ENT_NOQUOTES); ?>&nbsp;</td>
                                  <td> <?php echo htmlspecialchars($row['procedure_result_abnormal'],ENT_NOQUOTES); ?>&nbsp;</td>
                                  <td> <?php echo htmlspecialchars($row['procedure_result_comments'],ENT_NOQUOTES); ?>&nbsp;</td>
-                                 <td colspan=4> <?php echo htmlspecialchars($row['procedure_result_document_id'],ENT_NOQUOTES); ?>&nbsp;</td>
+                                 <td colspan=5> <?php echo htmlspecialchars($row['procedure_result_document_id'],ENT_NOQUOTES); ?>&nbsp;</td>
                         </tr>
 				<?php } ?>
 <!-- Lab Results End-->
