@@ -421,7 +421,7 @@ $sqlstmt = "select
             left outer join facility as f on f.id = u.facility_id";
 	
 	if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true){	
-		$sqlstmt = $sqlstmt." left outer join lists as li on li.pid  = pd.pid ";
+		$sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem' OR li.type='allergy')) ";
 	}
 
   if ( $type == 'Procedure' ||( strlen($form_lab_results)!=0) || $_POST['lab_results'] == true) {
@@ -531,7 +531,7 @@ $sqlstmt = "select
   }
   if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true) {
         $whr_stmt = $whr_stmt." AND (li.diagnosis LIKE ? or li.diagnosis LIKE ? or li.diagnosis LIKE ? or li.diagnosis = ?) ";
-        array_push($sqlBindArray, $form_diagnosis.";%", '%;'.$form_diagnosis.';%', '%;'.$form_diagnosis, $form_diagnosis);
+        array_push($sqlBindArray, $form_diagnosis."%", '%'.$form_diagnosis.'%', '%'.$form_diagnosis, $form_diagnosis);
   }
   //communication preferences added in clinical report
   if(strlen($communication) > 0 || $_POST['communication_check'] == true){
@@ -560,21 +560,25 @@ $sqlstmt = "select
   if ($_POST['form_pt_age'] == true) {
         $odrstmt=$odrstmt.",patient_age";
   }
-  if (($_POST['form_diagnosis_code'] == true) && (strlen($form_diagnosis) > 0)){
+  if (($_POST['form_diagnosis_code'] == true) || (strlen($form_diagnosis) > 0)){
         $odrstmt=$odrstmt.",lists_diagnosis";
   }
-  if (($_POST['form_diagnosis_tit'] == true) && (strlen($form_diagnosis) > 0)){
+  if (($_POST['form_diagnosis_tit'] == true) || (strlen($form_diagnosis) > 0)){
          $odrstmt=$odrstmt.",lists_title";
   }
-  if (($_POST['form_drug'] == true)&& (strlen($form_drug_name) > 0)){
+  if (($_POST['form_drug'] == true) || (strlen($form_drug_name) > 0)){
         $odrstmt=$odrstmt.",r.drug";
   } 
   if (($_POST['ndc_no'] == true) && (strlen($form_drug_name) > 0)) {
          $odrstmt=$odrstmt.",d.ndc_number";
   } 
-  if (($_POST['lab_results'] == true) && (strlen($form_lab_results) > 0)) {
+  if (($_POST['lab_results'] == true) || (strlen($form_lab_results) > 0)) {
          $odrstmt=$odrstmt.",procedure_result_result";
   }
+  if (strlen($communication) > 0 || $_POST['communication_check'] == true) {
+	$odrstmt=$odrstmt.",communications";
+  }
+  
 
   if($odrstmt == '') {
 	$odrstmt = " ORDER BY patient_id";
@@ -639,7 +643,11 @@ if(sqlNumRows($result) > 0)
 							    <?php if(strlen($communication) > 0 || $_POST['communication_check'] == true){ ?>
 							    		<td colspan=4><?php 
 							    		$repcom = str_replace(", NO","",$row['communications']);
-										echo text(trim(str_replace("NO,","",$repcom))); ?></td>
+										$repcom = trim(str_replace("NO,","",$repcom));
+										 $repcomarr = explode(",",$repcom);
+										 sort($repcomarr);
+										 echo implode(", ",$repcomarr);
+										?></td>
 							   	<?php }  ?>
 				</tr>
 <!-- Diagnosis Report Start-->
