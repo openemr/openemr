@@ -210,12 +210,14 @@ if ($_POST['bn_save']) {
   $sets = "";
   $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
-    "edit_options != 'H' " .
+    "edit_options != 'H' AND edit_options NOT LIKE '%0%' " .
     "ORDER BY group_name, seq", array($formname) );
   while ($frow = sqlFetchArray($fres)) {
     $field_id  = $frow['field_id'];
-    // If no data, skip this field.
-    if (!isset($_POST["form_$field_id"])) continue;
+    $data_type = $frow['data_type'];
+    // If the field was not in the web form, skip it.
+    // Except if it's checkboxes, if unchecked they are not returned.
+    if ($data_type != 21 && !isset($_POST["form_$field_id"])) continue;
     $value = get_layout_form_value($frow);
     // If edit option P or Q, save to the appropriate different table and skip the rest.
     $source = $frow['source'];
@@ -237,18 +239,12 @@ if ($_POST['bn_save']) {
       continue;
     }
     else if ($source == 'E') {
-      // Save to shared_attributes.
-      if ($value === '') {
-        sqlStatement("DELETE FROM shared_attributes WHERE " .
-          "pid = ? AND encounter = ? AND field_id = ?",
-          array($pid, $encounter, $field_id));
-      }
-      else {
-        sqlStatement("REPLACE INTO shared_attributes SET " .
-          "pid = ?, encounter = ?, field_id = ?, last_update = NOW(), " .
-          "user_id = ?, field_value = ?",
-          array($pid, $encounter, $field_id, $_SESSION['authUserID'], $value));
-      }
+      // Save to shared_attributes. Can't delete entries for empty fields because with the P option
+      // it's important to know when a current empty value overrides a previous value.
+      sqlStatement("REPLACE INTO shared_attributes SET " .
+        "pid = ?, encounter = ?, field_id = ?, last_update = NOW(), " .
+        "user_id = ?, field_value = ?",
+        array($pid, $encounter, $field_id, $_SESSION['authUserID'], $value));
       continue;
     }
     else if ($source == 'V') {
@@ -506,6 +502,7 @@ function validate(f) {
     $field_id   = $frow['field_id'];
     $list_id    = $frow['list_id'];
     $edit_options = $frow['edit_options'];
+    $source       = $frow['source'];
 
     $graphable  = strpos($edit_options, 'G') !== FALSE;
     if ($graphable) $form_is_graphable = true;
@@ -518,6 +515,34 @@ function validate(f) {
     } else {
       $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
       if ($currvalue === FALSE) continue; // column does not exist, should not happen
+      // Handle "P" edit option to default to the previous value of a form field.
+      if (!$is_lbf && empty($currvalue) && strpos($edit_options, 'P') !== FALSE) {
+        if ($source == 'F' && !$formid) {
+          // Form attribute for new form, get value from most recent form instance.
+          // Form attributes of existing forms are expected to have existing values.
+          $tmp = sqlQuery("SELECT encounter, form_id FROM forms WHERE " .
+            "pid = ? AND formdir = ? AND deleted = 0 " .
+            "ORDER BY date DESC LIMIT 1",
+            array($pid, $formname));
+          if (!empty($tmp['encounter'])) {
+            $currvalue = lbf_current_value($frow, $tmp['form_id'], $tmp['encounter']);
+          }
+        }
+        else if ($source == 'E') {
+          // Visit attribute, get most recent value as of this visit.
+          // Even if the form already exists for this visit it may have a readonly value that only
+          // exists in a previous visit and was created from a different form.
+          $tmp = sqlQuery("SELECT sa.field_value FROM form_encounter AS e1 " .
+            "JOIN form_encounter AS e2 ON " .
+            "e2.pid = e1.pid AND (e2.date < e1.date OR (e2.date = e1.date AND e2.encounter <= e1.encounter)) " .
+            "JOIN shared_attributes AS sa ON " .
+            "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ?" .
+            "WHERE e1.pid = ? AND e1.encounter = ? " .
+            "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
+            array($field_id, $pid, $encounter));
+          if (isset($tmp['field_value'])) $currvalue = $tmp['field_value'];
+        }
+      } // End "P" option logic.
     }
 
     // Handle a data category (group) change.

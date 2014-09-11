@@ -549,10 +549,10 @@ function writeFieldLine($linedata) {
         ", C = " . xla('Capitalize') .
         ", D = " . xla('Dup Check') .
         ", G = " . xla('Graphable') .
-        ", H = " . xla('Read-only from History') .
         ", L = " . xla('Lab Order') .
         ", N = " . xla('New Patient Form') .
         ", O = " . xla('Order Processor') .
+        ", P = " . xla('Default to previous value') .
         ", R = " . xla('Distributor') .
         ", T = " . xla('Description is default text') .
         ", U = " . xla('Capitalize all') .
@@ -560,7 +560,7 @@ function writeFieldLine($linedata) {
         ", 0 = " . xla('Read Only') .
         ", 1 = " . xla('Write Once') . 
         ", 2 = " . xla('Billing Code Descriptions') . 
-            "'>";
+        "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
       htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' " .
       "maxlength='36' class='optin' style='width:100%' />";
