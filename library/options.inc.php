@@ -23,10 +23,11 @@
 // C = Capitalize first letter of each word (text fields)
 // D = Check for duplicates in New Patient form
 // G = Graphable (for numeric fields in forms supporting historical data)
-// H = Read-only field copied from static history
+// H = Read-only field copied from static history (this is obsolete)
 // L = Lab Order ("ord_lab") types only (address book)
 // N = Show in New Patient form
 // O = Procedure Order ("ord_*") types only (address book)
+// P = Default to previous value when current value is not yet set
 // R = Distributor types only (address book)
 // T = Use description as default Text
 // U = Capitalize all letters (text fields)
