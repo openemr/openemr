@@ -38,6 +38,7 @@ require_once("$srcdir/htmlspecialchars.inc.php");
 require_once("$srcdir/formdata.inc.php");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
   require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
 }
@@ -778,8 +779,8 @@ foreach ($ar as $key => $val) {
                 if (!is_numeric($document_id)) continue;
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
-				$couch_docid = $d->get_couch_docid();
-				$couch_revid = $d->get_couch_revid();
+                $couch_docid = $d->get_couch_docid();
+                $couch_revid = $d->get_couch_revid();
                 $extension = substr($fname, strrpos($fname,"."));
                 echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
                 $notes = Note::notes_factory($d->get_id());
@@ -881,12 +882,30 @@ foreach ($ar as $key => $val) {
               }
             }
           }
-
                 } // end if-else
             } // end Documents loop
             echo "</div>";
+        }
 
-        } else if (strpos($key, "issue_") === 0) {
+        // Procedures is an array of checkboxes whose values are procedure order IDs.
+        //
+        else if ($key == "procedures") {
+          if ($auth_med) {
+            echo "<hr />";
+            echo "<div class='text documents'>";
+            foreach($val as $valkey => $poid) {
+              echo "<h1>" . xlt('Procedure Order') . ":</h1>";
+              echo "<br />\n";
+              // Need to move the inline styles from this function to the stylesheet, but until
+              // then we do it just for PDFs to avoid breaking anything.
+              generate_order_report($poid, false, !$PDF_OUTPUT);
+              echo "<br />\n";
+            }
+            echo "</div>";
+          }
+        }
+
+        else if (strpos($key, "issue_") === 0) {
             // display patient Issues
 
             if ($first_issue) {

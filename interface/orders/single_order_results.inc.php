@@ -52,7 +52,7 @@ function storeNote($s) {
   return $key;
 }
 
-function generate_order_report($orderid, $input_form=false) {
+function generate_order_report($orderid, $input_form=false, $genstyles=true) {
   global $aNotes;
 
   // Check authorization.
@@ -78,25 +78,23 @@ function generate_order_report($orderid, $input_form=false) {
   $language = $orow['language'];
 ?>
 
+<?php if ($genstyles) { ?>
 <style>
-
 .labres tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 .labres tr.detail { font-size:10pt; }
 .labres a, .labres a:visited, .labres a:hover { color:#0000cc; }
-
 .labres table {
  border-style: solid;
  border-width: 1px 0px 0px 1px;
  border-color: black;
 }
-
 .labres td, .labres th {
  border-style: solid;
  border-width: 0px 1px 1px 0px;
  border-color: black;
 }
-
 </style>
+<?php } ?>
 
 <?php if ($input_form) { ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>

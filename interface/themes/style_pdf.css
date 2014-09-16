@@ -1069,3 +1069,17 @@ height: 300px !important;
         line-height: 24px;
     }
 
+/* For PDF output of lab results. Need very small font size. */
+.labres tr.head   { font-size:7pt; background-color:#cccccc; text-align:center; }
+.labres tr.detail { font-size:7pt; }
+.labres a, .labres a:visited, .labres a:hover { color:#0000cc; }
+.labres table {
+ border-style: solid;
+ border-width: 1px 0px 0px 1px;
+ border-color: black;
+}
+.labres td, .labres th {
+ border-style: solid;
+ border-width: 0px 1px 1px 0px;
+ border-color: black;
+}
