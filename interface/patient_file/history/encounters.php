@@ -77,6 +77,43 @@ $billing_view = ($tmp['authorized'] || $GLOBALS['athletic_team']) ? 0 : 1;
 if (isset($_GET['billing']))
   $billing_view = empty($_GET['billing']) ? 0 : 1;
 
+//Get Document List by Encounter ID
+function getDocListByEncID($encounter,$raw_encounter_date,$pid){
+	global $ISSUE_TYPES, $auth_med; 
+
+	$documents = getDocumentsByEncounter($pid,$encounter);
+	if ( count($documents) > 0 ) {
+		foreach ( $documents as $documentrow) {
+			if ($auth_med) {
+				$irow = sqlQuery("SELECT type, title, begdate FROM lists WHERE id = ? LIMIT 1", array($documentrow['list_id']) );
+				if ($irow) {
+				  $tcode = $irow['type'];
+				  if ($ISSUE_TYPES[$tcode])
+					  $tcode = $ISSUE_TYPES[$tcode][2];
+				  echo text("$tcode: " . $irow['title']);
+				}
+			}
+			else {
+				echo "(" . text('No access') . ")";
+			}
+
+			// Get the notes for this document and display as title for the link.					
+			$queryString = "SELECT date,note FROM notes WHERE foreign_id = ? ORDER BY date";
+			$noteResultSet = sqlStatement($queryString,array($documentrow['id']));
+			$note = '';
+			while ( $row = sqlFetchArray($noteResultSet)) {
+				$note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . attr($row['note']) . "\n";
+			}
+			$docTitle = ( $note ) ? $note : attr("View document");
+
+			$docHref = $GLOBALS['webroot']."/controller.php?document&view&patient_id=".$pid."&doc_id=".$documentrow['id'];
+			echo "<div class='text docrow' id='" . attr($documentrow['id'])."' title='". $docTitle . "'>\n";
+			echo "<a href=$docHref>". text('Document') . ": " . basename($documentrow['url']) . ' (' . xl_document_category($documentrow['name']) . ')' . "</a>";
+			echo "</div>";
+		}
+	}
+}
+ 
 // This is called to generate a line of output for a patient document.
 //
 function showDocument(&$drow) {
@@ -463,6 +500,10 @@ while ($result4 = sqlFetchArray($res4)) {
             // Show billing note that you can click on to edit.
             $feid = $result4['id'] ? htmlspecialchars( $result4['id'], ENT_QUOTES) : 0; // form_encounter id
             echo "<td valign='top'>";
+			
+			//Display the documents tagged to this encounter
+			getDocListByEncID($result4['encounter'],$raw_encounter_date,$pid);	
+			
             echo "<div id='note_$feid'>";
             //echo "<div onclick='editNote($feid)' title='Click to edit' class='text billing_note_text'>";
             echo "<div id='$feid' title='". htmlspecialchars( xl('Click to edit'), ENT_QUOTES) . "' class='text billing_note_text'>";
@@ -500,6 +541,10 @@ while ($result4 = sqlFetchArray($res4)) {
 
             // show encounter reason/title
             echo "<td>".$reason_string;
+			
+			//Display the documents tagged to this encounter
+			getDocListByEncID($result4['encounter'],$raw_encounter_date,$pid);	
+			
             echo "<div style='padding-left:10px;'>";
 
             // Now show a line for each encounter form, if the user is authorized to

@@ -13,6 +13,7 @@ require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+require_once("$srcdir/../controllers/C_Document.class.php");
 ?>
 <html>
 
@@ -119,14 +120,20 @@ function expandcollapse(atr){
 		for(i=1;i<15;i++){
 			var mydivid="divid_"+i;var myspanid="spanid_"+i;
 				var ele = document.getElementById(mydivid);	var text = document.getElementById(myspanid);
-				ele.style.display = "block";text.innerHTML = "<?php xl('Collapse','e'); ?>";
+				if (typeof(ele) != 'undefined' && ele != null)
+					ele.style.display = "block";
+				if (typeof(text) != 'undefined' && text != null)
+					text.innerHTML = "<?php xl('Collapse','e'); ?>";
 		}
   	}
 	else {
 		for(i=1;i<15;i++){
 			var mydivid="divid_"+i;var myspanid="spanid_"+i;
 				var ele = document.getElementById(mydivid);	var text = document.getElementById(myspanid);
-				ele.style.display = "none";	text.innerHTML = "<?php xl('Expand','e'); ?>";
+				if (typeof(ele) != 'undefined' && ele != null)
+					ele.style.display = "none";	
+				if (typeof(text) != 'undefined' && text != null)
+					text.innerHTML = "<?php xl('Expand','e'); ?>";
 		}
 	}
 
@@ -328,7 +335,35 @@ if ( $esign->isButtonViewable() ) {
 
 </div>
 
-<br/>
+<!-- Get the documents tagged to this encounter and display the links and notes as the tooltip -->
+<?php 
+	$docs_list = getDocumentsByEncounter($pid,$_SESSION['encounter']);
+	if(count($docs_list) > 0 ) {
+?>
+<div class='enc_docs'>
+<span class="bold"><?php echo text("Document(s)"); ?>:</span>
+<?php
+	$doc = new C_Document();
+	foreach ($docs_list as $doc_iter) {
+		$doc_url = $doc->_tpl_vars[CURRENT_ACTION]. "&view&patient_id=".$pid."&document_id=" . $doc_iter[id] . "&";
+		// Get notes for this document.
+		$queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
+			FROM notes WHERE foreign_id = ? GROUP BY foreign_id";
+		$noteData = sqlQuery($queryString,array($doc_iter[id]));
+		$note = '';
+		if ( $noteData ) {
+			$notes = array();
+			$notes = explode("|",$noteData['docNotes']);
+			$dates = explode("|", $noteData['docDates']);
+			for ( $i = 0 ; $i < count($notes) ; $i++ )
+				$note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";	
+		}
+?>
+	<br>
+	<a title="<?php echo text($note);?>" href="<?php echo $doc_url;?>" style="font-size:small;"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . basename($doc_iter[url]);?></a>
+<?php } ?>
+</div>
+<?php } ?>
 <br/>
 
 <?php

@@ -40,6 +40,35 @@
 	{literal}}{/literal}
  {literal}}{/literal}
 
+// For tagging it encounter
+function tagUpdate() {literal}{{/literal}
+	var f = document.forms['document_tag'];
+	if (f.encounter_check.checked) {literal}{{/literal}
+		if(f.visit_category_id.value==0) {literal}{{/literal}
+			alert(" {xl t='Please select visit category'}" );
+			return false;
+		{literal}}{/literal}
+	{literal}}{/literal} else if (f.encounter_id.value == 0 ) {literal}{{/literal}
+		alert(" {xl t='Please select encounter'}");
+		return false;	
+	{literal}}{/literal}
+	//top.restoreSession();
+	document.forms['document_tag'].submit();
+{literal}}{/literal}
+
+// For new or existing encounter
+function set_checkbox() {literal}{{/literal}
+	var f = document.forms['document_tag'];
+	if (f.encounter_check.checked) {literal}{{/literal}
+		f.encounter_id.disabled = true;
+		f.visit_category_id.disabled = false;
+	{literal}}{/literal} else {literal}{{/literal}
+		f.encounter_id.disabled = false;
+		f.visit_category_id.disabled = true;
+		f.visit_category_id.value = 0;
+	{literal}}{/literal}
+{literal}}{/literal}
+
  // Process click on Import link.
  function import_ccr(docid) {literal}{
   top.restoreSession();
@@ -166,6 +195,30 @@
                 </div>
                 </form>
             </div>
+
+			<br/>
+			
+			<div class="text">
+			   <form method="post" name="document_tag" id="document_tag" action="{$TAG_ACTION}" onsubmit="return top.restoreSession()">
+
+				<div >
+				   <div style="float:left">
+					   <b>{xl t='Tag to Encounter'}</b>&nbsp;
+				   </div>
+
+				   <div style="float:none">
+					   <a href="javascript:;" onclick="tagUpdate();">(<span>{xl t='submit'})</span></a>
+				   </div>
+			   </div>
+
+				 <div>
+					<select id="encounter_id"  name="encounter_id"  >{$ENC_LIST}</select>&nbsp;
+					<input type="checkbox" name="encounter_check" id="encounter_check"  onclick='set_checkbox(this)'/> <label for="encounter_check"><b>Create Encounter</b></label>&nbsp;&nbsp;
+					   {xl t='Visit Category'} : &nbsp;<select id="visit_category_id"  name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp; 
+
+			   </div>
+			   </form>
+		   </div>
 
             <br/>
 

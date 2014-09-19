@@ -10,6 +10,8 @@ require_once(dirname(__FILE__) . "/../library/classes/CategoryTree.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/TreeMenu.php");
 require_once(dirname(__FILE__) . "/../library/classes/Note.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/CouchDB.class.php");
+require_once(dirname(__FILE__) . "/../library/forms.inc");
+require_once(dirname(__FILE__) . "/../library/formatting.inc.php");
 
 class C_Document extends Controller {
 
@@ -256,7 +258,30 @@ class C_Document extends Controller {
 			$issues_options .= "<option value='" . $irow['id'] . "'$sel>$desc</option>";
 		}
 		$this->assign("ISSUES_LIST", $issues_options);
-
+		
+		// For tagging to encounter
+		// Populate the dropdown with patient's encounter list
+		$this->assign("TAG_ACTION",$this->_link("tag") . "document_id=" . $d->get_id() . "&process=true");
+		$encOptions = "<option value='0'>-- " . xlt('Select Encounter') . " --</option>";
+		$result_docs = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
+			"LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date desc",array($patient_id));
+		if ( sqlNumRows($result_docs) > 0)
+		while($row_result_docs = sqlFetchArray($result_docs)) {
+		 	$sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : ''; 
+			$encOptions .= "<option value='" . $row_result_docs['encounter'] . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . $row_result_docs['pc_catname']."</option>";
+		}
+		$this->assign("ENC_LIST", $encOptions);
+		
+		//Populate the dropdown with category list
+		$visit_category_list = "<option value='0'>-- " . xlt('Select One') . " --</option>";
+		$cres = sqlStatement("SELECT pc_catid, pc_catname FROM openemr_postcalendar_categories ORDER BY pc_catname");
+		while ($crow = sqlFetchArray($cres)) {
+			$catid = $crow['pc_catid'];
+			if ($catid < 9 && $catid != 5) continue; // Applying same logic as in new encounter page.
+			$visit_category_list .="<option value='$catid'>" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+		}
+		$this->assign("VISIT_CATEGORY_LIST", $visit_category_list);
+		 
 		$this->assign("notes",$notes);
 		
 		$this->_last_node = null;
@@ -1001,12 +1026,79 @@ class C_Document extends Controller {
 		fclose($LOG);
 	}
 
-}
 //place to hold optional code
 //$first_node = array_keys($t->tree);
 		//$first_node = $first_node[0];
 		//$node1 = new HTML_TreeNode(array('text' => $t->get_node_name($first_node), 'link' => "test.php", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => true), array('onclick' => "alert('foo'); return false", 'onexpand' => "alert('Expanded')"));
 		
 		//$this->_last_node = &$node1;
+	
+// Function to tag a document to an encounter.
+function tag_action_process($patient_id="", $document_id) {
+	if ($_POST['process'] != "true") {
+		die("process is '" . $_POST['process'] . "', expected 'true'");
+		return;
+	}
+	
+	// Create Encounter and Tag it.
+	$event_date = date('Y-m-d H:i:s');
+	$encounter_id = $_POST['encounter_id'];
+	$encounter_check = $_POST['encounter_check'];
+	$visit_category_id = $_POST['visit_category_id'];
 
+	if (is_numeric($document_id)) {
+		$messages = '';
+		$d = new Document( $document_id );
+		$file_name = $d->get_url_file();
+		if (!is_numeric($encounter_id)) {
+			$encounter_id = 0;
+		}
+		
+		$encounter_check = ( $encounter_check == 'on') ? 1 : 0;
+		if ($encounter_check) {
+			$provider_id = $_SESSION['authUserID'] ;
+			
+			// Get the logged in user's facility
+			$facilityRow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = '" . $provider_id . "'");
+			$username = $facilityRow['username'];
+			$facility = $facilityRow['facility'];
+			$facility_id = $facilityRow['facility_id'];
+			// Get the primary Business Entity facility to set as billing facility, if null take user's facility as billing facility
+			$billingFacility = sqlQuery("SELECT id FROM facility WHERE primary_business_entity = 1");
+			$billingFacilityID = ( $billingFacility['id'] ) ? $billingFacility['id'] : $facility_id;
+			
+			$conn = $GLOBALS['adodb']['db'];
+			$encounter = $conn->GenID("sequences");
+			$query = "INSERT INTO form_encounter SET
+						date = ?,
+						reason = ?,
+						facility = ?,
+						sensitivity = 'normal', 
+						pc_catid = ?,
+						facility_id = ?,
+						billing_facility = ?,
+						provider_id = ?,
+						pid = ?,
+						encounter = ?";
+			$bindArray = array($event_date,$file_name,$facility,$_POST['visit_category_id'],(int)$facility_id,(int)$billingFacilityID,(int)$provider_id,$patient_id,$encounter);
+			$formID = sqlInsert($query,$bindArray);
+			addForm($encounter, "New Patient Encounter",$formID,"newpatient", $patient_id, "1", date("Y-m-d H:i:s"), $username );	            
+			$d->set_encounter_id($encounter);
+			
+		} else {
+			$d->set_encounter_id($encounter_id);
+		}
+		$d->set_encounter_check($encounter_check);
+		$d->persist();
+
+		$messages .= xl('Document tagged to Encounter successfully') . "<br>";
+	}
+
+	$this->_state = false;
+	$this->assign("messages", $messages);
+	
+	return $this->view_action($patient_id, $document_id);
+}
+
+}
 ?>

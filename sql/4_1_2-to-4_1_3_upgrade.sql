@@ -2932,3 +2932,11 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 	) ENGINE=InnoDB;
 #EndIf
 
+#IfMissingColumn documents encounter_id
+  ALTER TABLE `documents` ADD `encounter_id` bigint(20) NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn documents encounter_check
+	ALTER TABLE `documents` ADD `encounter_check` TINYINT(1) NULL DEFAULT 0;
+#EndIf
+

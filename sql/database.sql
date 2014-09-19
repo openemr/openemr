@@ -718,6 +718,8 @@ CREATE TABLE `documents` (
   `storagemethod` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->Harddisk,1->CouchDB',
   `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.',
   `imported` TINYINT DEFAULT 0 NULL COMMENT 'Parsing status for CCR/CCD/CCDA importing',
+  `encounter_id` bigint(20) NULL DEFAULT '0' COMMENT 'Encounter id if tagged',
+  `encounter_check`	TINYINT(1) NULL DEFAULT 0 COMMENT 'If encounter is created while tagging',
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
