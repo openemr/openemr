@@ -10,5 +10,11 @@
 
 // Database parameters are now site-specific.
 // $GLOBALS['OE_SITE_DIR'] is set in interface/globals.php.
+if (empty($GLOBALS['OE_SITE_DIR'])) {
+  // This happens if called via user invocation of gacl/setup.php.
+  $GLOBALS['OE_SITES_BASE'] = dirname(__FILE__) . "/../sites";
+  $tmp = empty($_GET['site']) ? 'default' : $_GET['site'];
+  $GLOBALS['OE_SITE_DIR'] = $GLOBALS['OE_SITES_BASE'] . '/' . $tmp;
+}
 require_once $GLOBALS['OE_SITE_DIR'] . "/sqlconf.php";
 ?>
