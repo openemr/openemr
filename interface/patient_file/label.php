@@ -39,8 +39,6 @@ $patdata = sqlQuery("SELECT " .
   "FROM patient_data AS p " .
   "WHERE p.pid = ? LIMIT 1", array($pid));
 
-  
-  
 // re-order the dates
 //
   
@@ -67,11 +65,13 @@ $last = 14;
 
 $pdf->AddPage();
 
+// Added spaces to the sprintf for Fire Fox it was having a problem with alignment 
+$text = sprintf("  %s %s\n  %s\n  %s\n  %s", $patdata['fname'], $patdata['lname'], $dob, $today, $patdata['pid']);
+
 // For loop for printing the labels 
 // 
 
 for($i=1;$i<=$last;$i++) {
-	$text = sprintf("%s %s\n%s\n%s\n%s", $patdata['fname'], $patdata['lname'], $dob, $today, $patdata['pid']);
 	$pdf->Add_Label($text);
 }
 

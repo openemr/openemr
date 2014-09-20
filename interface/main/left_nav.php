@@ -282,6 +282,12 @@ function genPopupsList($style='') {
 <?php if ($GLOBALS['chart_label_type'] != '0') { ?>
 <option value='../patient_file/label.php'><?php xl('Chart Label','e'); ?></option>
 <?php } ?>
+<?php if ($GLOBALS['barcode_label_type'] != '0') { ?>
+<option value='../patient_file/barcode_label.php'><?php xl('Barcode Label','e'); ?></option>
+<?php } ?>
+<?php if ($GLOBALS['addr_label_type']) { ?>
+<option value='../patient_file/addr_label.php'><?php xl('Address Label','e'); ?></option>
+<?php } ?>
 </select>
 <?php
 }
