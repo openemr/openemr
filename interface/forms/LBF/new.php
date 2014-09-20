@@ -481,7 +481,7 @@ function sel_related() {
 &nbsp;
 <?php } ?>
 <?php } else { ?>
-<input type='button' value='<?php echo xla('Back') ?>' onclick='window.back();' />
+<input type='button' value='<?php echo xla('Back') ?>' onclick='window.history.back();' />
 <?php } ?>
 </p>
 
