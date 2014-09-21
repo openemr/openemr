@@ -2185,14 +2185,14 @@ $GLOBALS_METADATA = array(
             '11' => 'msi',
             '12' => 'datamatrix'
 	    ),
-        '0',                              // default = None
+        '1',                              // default = None
         xl('Barcode type for printing barcode labels from popups in left nav screen.')
     ),
 	
     'addr_label_type' => array(
         xl('Print Patient Address Label'),
         'bool',                           // data type
-        '0',                              // default = false
+        '1',                              // default = false
         xl('Select to print patient address labels from popups in left nav screen.')
     ),
 	
