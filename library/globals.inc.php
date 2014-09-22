@@ -2185,7 +2185,7 @@ $GLOBALS_METADATA = array(
             '11' => 'msi',
             '12' => 'datamatrix'
 	    ),
-        '1',                              // default = None
+        '9',                              // default = None
         xl('Barcode type for printing barcode labels from popups in left nav screen.')
     ),
 	
