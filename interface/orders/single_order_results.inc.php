@@ -62,7 +62,7 @@ function generate_order_report($orderid, $input_form=false) {
   $orow = sqlQuery("SELECT " .
     "po.procedure_order_id, po.date_ordered, po.control_id, " .
     "po.order_status, po.specimen_type, po.patient_id, " .
-    "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.cmsportal_login, " .
+    "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.cmsportal_login, pd.language, " .
     "fe.date, " .
     "pp.name AS labname, " .
     "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
@@ -75,6 +75,7 @@ function generate_order_report($orderid, $input_form=false) {
     array($orderid));
 
   $patient_id = $orow['patient_id'];
+  $language = $orow['language'];
 ?>
 
 <style>
@@ -98,11 +99,12 @@ function generate_order_report($orderid, $input_form=false) {
 </style>
 
 <?php if ($input_form) { ?>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
 <?php } // end if input form ?>
 
 <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
 <script language="JavaScript">
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -126,7 +128,17 @@ function showpnotes(orderid) {
  return false;
 }
 
+// Process click on LOINC code for patient education popup.
+function educlick(codetype, codevalue) {
+  dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/education.php' +
+    '?type=' + encodeURIComponent(codetype) +
+    '&code=' + encodeURIComponent(codevalue) +
+    '&language=<?php echo urlencode($language); ?>',
+    '_blank', 1024, 750);
+}
+
 </script>
+
 <?php } // end if not patient report ?>
 
 <?php if ($input_form) { ?>
@@ -210,7 +222,7 @@ function showpnotes(orderid) {
 
 <?php 
   $query = "SELECT " .
-    "po.date_ordered, pc.procedure_order_seq, pc.procedure_code, " .
+    "po.lab_id, po.date_ordered, pc.procedure_order_seq, pc.procedure_code, " .
     "pc.procedure_name, " .
     "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, " .
     "pr.report_status, pr.review_status, pr.report_notes " .
@@ -233,7 +245,8 @@ function showpnotes(orderid) {
   $sign_list = '';
 
   while ($row = sqlFetchArray($res)) {
-    $order_type_id  = empty($row['order_type_id'      ]) ? 0 : ($row['order_type_id' ] + 0);
+    $lab_id         = empty($row['lab_id'             ]) ? 0 : ($row['lab_id'             ] + 0);
+    $order_type_id  = empty($row['order_type_id'      ]) ? 0 : ($row['order_type_id'      ] + 0);
     $order_seq      = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
     $report_id      = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
     $procedure_code = empty($row['procedure_code'  ]) ? '' : $row['procedure_code'];
@@ -297,7 +310,19 @@ function showpnotes(orderid) {
 
       if ($lastpcid != $order_seq) {
         $lastprid = -1; // force report fields on first line of each procedure
-        echo "  <td>" . text("$procedure_code: $procedure_name") . "</td>\n";
+        $tmp = text("$procedure_code: $procedure_name");
+        // Get the LOINC code if one exists in the compendium for this order type.
+        if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+          $trow = sqlQuery("SELECT standard_code FROM procedure_type WHERE " .
+            "lab_id = ? AND procedure_code = ? AND procedure_type = 'ord' " .
+            "ORDER BY procedure_type_id LIMIT 1",
+            array($lab_id, $procedure_code));
+          if (!empty($trow['standard_code'])) {
+            $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($trow['standard_code']) .
+              "\")'>$tmp</a>";
+          }
+        }
+        echo "  <td>$tmp</td>\n";
       }
       else {
         echo "  <td style='background-color:transparent'>&nbsp;</td>";
@@ -329,9 +354,12 @@ function showpnotes(orderid) {
       }
 
       if ($result_code !== '' || $result_document_id) {
-        echo "  <td>";
-        echo myCellText($result_code);
-        echo "</td>\n";
+        $tmp = myCellText($result_code);
+        if (empty($GLOBALS['PATIENT_REPORT_ACTIVE']) && !empty($result_code)) {
+          $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($result_code) .
+            "\")'>$tmp</a>";
+        }
+        echo "  <td>$tmp</td>\n";
         echo "  <td>";
         echo myCellText($result_text);
         echo "</td>\n";
@@ -423,6 +451,10 @@ function showpnotes(orderid) {
     echo xlt('Send to portal');
   }
 ?>
+<?php } ?>
+<?php if ($input_form) { ?>
+   &nbsp;
+   <input type='button' value='<?php echo xla('Close'); ?>' onclick='window.close()' />
 <?php } ?>
   </td>
  </tr>

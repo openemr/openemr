@@ -2,7 +2,7 @@
 /**
  * Administration Lists Module.
  *
- * Copyright (C) 2007-2011 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2007-2014 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -79,9 +79,10 @@ if ($_POST['formaction']=='save' && $list_id) {
         $ct_proc = empty($iter['ct_proc']) ? 0 : 1;
         $ct_term = empty($iter['ct_term']) ? 0 : 1;
         $ct_problem = empty($iter['ct_problem']) ? 0 : 1;
+        $ct_drug = empty($iter['ct_drug']) ? 0 : 1;
         if (strlen($ct_key) > 0 && $ct_id > 0) {
           sqlInsert("INSERT INTO code_types ( " .
-            "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem " .
+            "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem, ct_drug " .
             ") VALUES ( "   .
             "'$ct_key' , " .
             "'$ct_id'  , " .
@@ -99,7 +100,8 @@ if ($_POST['formaction']=='save' && $list_id) {
             "'$ct_claim', " .
             "'$ct_proc', " .
             "'$ct_term', " .
-            "'$ct_problem' " .
+            "'$ct_problem', " .
+            "'$ct_drug' " .
             ")");
         }
       }
@@ -508,6 +510,8 @@ function writeCTLine($ct_array) {
     xl('Is this a Clinical Term code type?'));
   echo ctGenCBox($opt_line_no, $ct_array, 'ct_problem',
     xl('Is this a Medical Problem code type?'));
+  echo ctGenCBox($opt_line_no, $ct_array, 'ct_drug',
+    xl('Is this a Medication type?'));
   echo ctSelector($opt_line_no, $ct_array, 'ct_external',
     $cd_external_options, xl('Is this using external sql tables? If it is, then choose the format.'));
   echo " </tr>\n";
@@ -816,7 +820,8 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Procedure'   ,'e'); ?></b></td>
   <td><b><?php xl('Diagnosis'   ,'e'); ?></b></td>
   <td><b><?php xl('Clinical Term','e'); ?></b></td>
-  <td><b><?php xl('Medical Problem'     ,'e'); ?></b></td>
+  <td><b><?php xl('Medical Problem','e'); ?></b></td>
+  <td><b><?php xl('Drug'        ,'e'); ?></b></td>
   <td><b><?php xl('External'    ,'e'); ?></b></td>
 <?php } else if ($list_id == 'issue_types') { ?>
   <td><b><?php echo xlt('OpenEMR Application Category'); ?></b></td>
@@ -864,7 +869,13 @@ while ($row = sqlFetchArray($res)) {
 <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>
-  <td><b><?php xl('Notes','e'); ?></b></td>
+  <td><b><?php 
+		  if ($list_id == 'language') {
+		  	xl('ISO 639-2 Code','e');
+		  } else {
+		  	xl('Notes','e');
+		  } 
+  ?></b></td>
   <td><b><?php xl('Code(s)','e'); ?></b></td>
 <?php } // end not fee sheet ?>
  </tr>

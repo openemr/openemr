@@ -449,6 +449,20 @@ function send_hl7_order($ppid, $out) {
     }
   }
 
+  else if ($protocol == 'FS') {
+    // Compute the target path/file name.
+    $filename = $msgid . '.txt';
+    if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;
+    $fh = fopen("$filename", 'w');
+    if ($fh) {
+      fwrite($fh, $out);
+      fclose($fh);
+    }
+    else {
+      return xl('Cannot create file') . ' "' . "$filename" . '"';
+    }
+  }
+
   // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
 
   else {

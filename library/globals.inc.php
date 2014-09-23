@@ -39,6 +39,7 @@
 //   Hindi                          // xl('Hindi')
 //   Hungarian                      // xl('Hungarian')
 //   Italian                        // xl('Italian')
+//   Japanese                       // xl('Japanese')
 //   Lithuanian                     // xl('Lithuanian')
 //   Norwegian                      // xl('Norwegian')
 //   Persian                        // xl('Persian')
@@ -637,7 +638,7 @@ $GLOBALS_METADATA = array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type
       '0',                             // default = false
-      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen.')
+      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen (a negative number will show the past appointments in descending order)')
     ),      
 
     'activate_ccr_ccd_report' => array(
@@ -2154,8 +2155,47 @@ $GLOBALS_METADATA = array(
        'D', //defaut
        xl("Choose Download or Display Inline"),
     ),
-      
+   	
+    'chart_label_type' => array(
+        xl('Patient Label Type'),
+        array(
+            '0' => xl('None'),
+            '1' => '5160',
+            '2' => '5161',
+            '3' => '5162'
+        ),
+        '1', // default	
+        xl('Avery Label type for printing patient labels from popups in left nav screen'),
+    ),   
+
+    'barcode_label_type' => array(
+        xl('Barcode Label Type'),
+       array(
+            '0'  => xl('None'),
+            '1'  => 'std25',
+            '2'  => 'int25',
+            '3'  => 'ean8',
+            '4'  => 'ean13',
+            '5'  => 'upc',
+            '6'  => 'code11',
+            '7'  => 'code39',
+            '8'  => 'code93',
+            '9'  => 'code128',
+            '10' => 'codabar',
+            '11' => 'msi',
+            '12' => 'datamatrix'
+	    ),
+        '9',                              // default = None
+        xl('Barcode type for printing barcode labels from popups in left nav screen.')
+    ),
+	
+    'addr_label_type' => array(
+        xl('Print Patient Address Label'),
+        'bool',                           // data type
+        '1',                              // default = false
+        xl('Select to print patient address labels from popups in left nav screen.')
+    ),
+	
    ),
 );
 ?>
-

@@ -2,7 +2,7 @@
 /**
 * List procedure orders and reports, and fetch new reports and their results.
 *
-* Copyright (C) 2013 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -25,6 +25,7 @@ $fake_register_globals = false;
 require_once("../globals.php");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/patient.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formatting.inc.php");
@@ -130,6 +131,16 @@ function openResults(orderid) {
  // w.parent.left_nav.loadFrame('ore1', othername, 'orders/single_order_results.php?orderid=' + orderid);
 }
 
+// Invokes the patient matching dialog.
+// args is a string of URL arguments, see the calling logic for that.
+// The dialog script will directly insert the selected pid value, or 0,
+// into the value of the form field named "[select][$key1][$key2]".
+//
+function openPtMatch(args) {
+ top.restoreSession();
+ window.open('patient_match_dialog.php?' + args, '_blank', 'toolbar=0,location=0,menubar=0,scrollbars=yes');
+}
+
 </script>
 
 </head>
@@ -138,19 +149,122 @@ function openResults(orderid) {
 <form method='post' action='list_reports.php' enctype='multipart/form-data'
  onsubmit='return validate(this)'>
 
+<!-- This might be set by the results window: -->
+<input type='hidden' name='form_external_refresh' value='' />
+
 <?php
 if ($errmsg) {
   echo "<font color='red'>" . text($errmsg) . "</font><br />\n";
 }
-$messages = array();
-$errmsg = poll_hl7_results($messages);
-foreach ($messages as $message) {
-  echo text($message) . "<br />\n";
+
+$info = array();
+
+// We skip match/delete processing if this is just a refresh, because that
+// might be a nasty surprise.
+if (empty($_POST['form_external_refresh'])) {
+  // Get patient matching selections from this form if there are any.
+  if (is_array($_POST['select'])) {
+    foreach ($_POST['select'] as $selkey => $selval) {
+      // Note that $selval is an array of the values to match on.
+      $info[$selkey] = array('select' => $selval);
+    }
+  }
+  // Get file delete requests from this form if there are any.
+  if (is_array($_POST['delete'])) {
+    foreach ($_POST['delete'] as $delkey => $dummy) {
+      $info[$delkey] = array('delete' => true);
+    }
+  }
 }
+
+// Attempt to post any incoming results.
+$errmsg = poll_hl7_results($info);
+
+// Display a row for each required patient matching decision or message.
+$s = '';
+$matchreqs = false;
+foreach ($info as $infokey => $infoval) {
+  $count = 0;
+  if (is_array($infoval['match'])) {
+    foreach ($infoval['match'] as $matchkey => $matchval) {
+      $matchreqs = true;
+      $s .= " <tr class='detail' bgcolor='#ccccff'>\n";
+      if (!$count++) {
+        $s .= "  <td align='center'><input type='checkbox' name='delete[" .
+          attr($infokey) . "]' value='1' /></td>\n";
+        $s .= "  <td>" . text($infokey) . "</td>\n";
+      }
+      else {
+        $s .= "  <td>&nbsp;</td>\n";
+        $s .= "  <td>&nbsp;</td>\n";
+      }
+      $s .= "  <td><a href='javascript:openPtMatch(\"" .
+        "key1="   . urlencode($infokey ) .
+        "&key2="  . urlencode($matchkey) .
+        "&ss="    . urlencode($matchval['ss'   ]) .
+        "&fname=" . urlencode($matchval['fname']) .
+        "&lname=" . urlencode($matchval['lname']) .
+        "&DOB="   . urlencode($matchval['DOB'  ]) .
+        "\")'>";
+      $s .= xlt('Click to match patient') . ' "' . text($matchval['lname']) .
+        ', ' . text($matchval['fname']) . '"';
+      $s .= "</a>";
+      $s .= "</td>\n";
+      $s .= "  <td style='width:1%'><input type='text' name='select[" .
+        attr($infokey) . "][" . attr($matchkey) . "]' size='3' value='' " .
+        "style='background-color:transparent' readonly /></td>\n";
+      $s .= " </tr>\n";
+    }
+  }
+  if (is_array($infoval['mssgs'])) {
+    foreach ($infoval['mssgs'] as $message) {
+      $s .= " <tr class='detail' bgcolor='#ccccff'>\n";
+      if (!$count++) {
+        $s .= "  <td><input type='checkbox' name='delete[" . attr($infokey) . "]' value='1' /></td>\n";
+        $s .= "  <td>" . text($infokey) . "</td>\n";
+      }
+      else {
+        $s .= "  <td>&nbsp;</td>\n";
+        $s .= "  <td>&nbsp;</td>\n";
+      }
+      $s .= "  <td colspan='2' style='color:red'>". text($message) . "</td>\n";
+      $s .= " </tr>\n";
+    }
+  }
+}
+if ($s) {
+  echo "<p class='bold' style='color:#008800'>";
+  echo xlt('Incoming results requiring attention:');
+  echo "</p>\n";
+  echo "<table width='100%'>\n";
+  echo " <tr class='head'>\n";
+  echo "  <td>" . xlt('Delete'  ) . "</th>\n";
+  echo "  <td>" . xlt('Lab/File') . "</th>\n";
+  echo "  <td>" . xlt('Message' ) . "</th>\n";
+  echo "  <td>" . xlt('Match'   ) . "</th>\n";
+  echo " </tr>\n";
+  echo $s;
+  echo "</table>\n";
+  echo "<p class='bold' style='color:#008800'>";
+  if ($matchreqs) {
+    echo xlt('Click where indicated above to match the patient.') . ' ';
+    echo xlt('After that the Match column will show the selected patient ID, or 0 to create.') . ' ';
+    echo xlt('If you do not select a match the patient will be created.') . ' ';
+  }
+  echo xlt('Checkboxes above indicate if you want to reject and delete the HL7 file.') . ' ';
+  echo xlt('When done, click Submit (below) to apply your choices.');
+  echo "</p>\n";
+}
+
+// If there was a fatal error display that.
 if ($errmsg) {
   echo "<font color='red'>" . text($errmsg) . "</font><br />\n";
 }
 
+// Upload support removed because it is awkward to handle and of dubious
+// value.  Note we can now get results from the local filesystem.
+//
+/*********************************************************************
 // Process uploaded file if there is one.
 if (!empty($_FILES['userfile']['name'])) { // if upload was attempted
   if (is_uploaded_file($_FILES['userfile']['tmp_name'])) {
@@ -166,6 +280,7 @@ if (!empty($_FILES['userfile']['name'])) { // if upload was attempted
     echo "<font color='red'>" . xlt('Upload failed!') . "</font><br />\n";
   }
 }
+*********************************************************************/
 
 $form_from_date = empty($_POST['form_from_date']) ? '' : trim($_POST['form_from_date']);
 $form_to_date = empty($_POST['form_to_date']) ? '' : trim($_POST['form_to_date']);
@@ -175,14 +290,14 @@ $form_reviewed = empty($_POST['form_reviewed']) ? 3 : intval($_POST['form_review
 
 $form_patient = !empty($_POST['form_patient']);
 
-$form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provider']);
+$form_provider = empty($_POST['form_provider']) ? '' : intval($_POST['form_provider']);
 ?>
 
 <table width='100%'>
  <tr>
   <td class='text' align='center'>
    &nbsp;<?php echo xlt('From'); ?>:
-   <input type='text' size='8' name='form_from_date' id='form_from_date'
+   <input type='text' size='6' name='form_from_date' id='form_from_date'
     value='<?php echo attr($form_from_date); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
@@ -191,7 +306,7 @@ $form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provid
     title='<?php echo xla('Click here to choose a date'); ?>' />
 
    &nbsp;<?php echo xlt('To'); ?>:
-   <input type='text' size='8' name='form_to_date' id='form_to_date'
+   <input type='text' size='6' name='form_to_date' id='form_to_date'
     value='<?php echo attr($form_to_date); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
@@ -200,12 +315,16 @@ $form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provid
     title='<?php echo xla('Click here to choose a date'); ?>' />
 
    &nbsp;
+   <input type='checkbox' name='form_patient' value='1'
+    <?php if ($form_patient) echo 'checked '; ?>/><?php echo xlt('Current Pt Only'); ?>
+
+   &nbsp;
    <select name='form_reviewed'>
 <?php
 foreach (array(
   '1' => xl('All'),
   '2' => xl('Reviewed'),
-  '3' => xl('Received, not reviewed'),
+  '3' => xl('Received, unreviewed'),
   '4' => xl('Sent, not received'),
   '5' => xl('Not sent'),
   ) as $key => $value) {
@@ -221,19 +340,6 @@ foreach (array(
  generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
    'empty_title' => '-- All Providers --'), $form_provider);
 ?>
-  </td>
- </tr>
- <tr>
-  <td class='text' align='center'>
-   <input type='checkbox' name='form_patient' value='1'
-    <?php if ($form_patient) echo 'checked '; ?>/>Current Patient Only
-
-   &nbsp;
-   <span title='<?php echo xla('You may optionally upload HL7 results from a file'); ?>'>
-   <?php echo xlt('Upload'); ?>:
-   <input type='hidden' name='MAX_FILE_SIZE' value='4000000' />
-   <input type='file' name='userfile' size='8' />
-   </span>
 
    &nbsp;
    <input type='submit' name='form_refresh' value=<?php echo xla('Submit'); ?>>
