@@ -2782,3 +2782,62 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2014-10-01', 'Reimbursement_Mapping_pr_2015.zip', '493c022db17a70fcdcbb41bf0ad61a47');
 #EndIf
 
+#IfMissingColumn clinical_rules amc_2011_flag
+ALTER TABLE `clinical_rules` ADD COLUMN `amc_2011_flag` tinyint(1) COMMENT '2011 Automated Measure Calculation flag for (unable to customize per patient)';
+UPDATE `clinical_rules` SET `amc_2011_flag` = 1 WHERE `amc_flag` = 1;
+#EndIf
+
+#IfMissingColumn clinical_rules amc_2014_flag
+ALTER TABLE `clinical_rules` ADD COLUMN `amc_2014_flag` tinyint(1) COMMENT '2014 Automated Measure Calculation flag for (unable to customize per patient)';
+#EndIf
+
+#IfMissingColumn clinical_rules amc_code_2014
+ALTER TABLE `clinical_rules` ADD COLUMN `amc_code_2014` varchar(30) NOT NULL default '' COMMENT 'Automated Measure Calculation 2014 indentifier (MU rule)';
+#EndIf
+
+#IfMissingColumn clinical_rules cqm_2011_flag
+ALTER TABLE `clinical_rules` ADD COLUMN `cqm_2011_flag` tinyint(1) COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)';
+UPDATE `clinical_rules` SET `cqm_2011_flag` = 1 WHERE `cqm_flag` = 1;
+#EndIf
+
+#IfMissingColumn clinical_rules cqm_2014_flag
+ALTER TABLE `clinical_rules` ADD COLUMN `cqm_2014_flag` tinyint(1) COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)';
+#EndIf
+
+#IfMissingColumn clinical_plans cqm_2011_flag
+ALTER TABLE `clinical_plans` ADD COLUMN `cqm_2011_flag` tinyint(1) COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)';
+UPDATE `clinical_plans` SET `cqm_2011_flag` = 1 WHERE `cqm_flag` = 1;
+#EndIf
+
+#IfMissingColumn clinical_plans cqm_2014_flag
+ALTER TABLE `clinical_plans` ADD COLUMN `cqm_2014_flag` tinyint(1) COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)';
+#EndIf
+
+#IfNotRow2D clinical_rules id problem_list_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–4' WHERE `id` = 'problem_list_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id med_list_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 ,`amc_code_2014` = '170.314(g)(1)/(2)–5' WHERE `id` = 'med_list_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id med_allergy_list_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–6' WHERE `id` = 'med_allergy_list_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id record_dem_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–9' WHERE `id` = 'record_dem_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id record_smoke_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–11' WHERE `id` = 'record_smoke_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id lab_result_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–12' WHERE `id` = 'lab_result_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id med_reconc_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–17' WHERE `id` = 'med_reconc_amc';
+#EndIf
+
