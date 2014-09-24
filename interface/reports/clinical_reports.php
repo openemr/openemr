@@ -312,11 +312,11 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    <input type='checkbox' name='form_pt_age'<?php if ($_POST['form_pt_age'] == true) echo ' checked'; ?>>
                                                    <?php echo htmlspecialchars(xl('Age'),ENT_NOQUOTES); ?>&nbsp;
 
-                                                   <input type='checkbox' name='form_diagnosis_code'<?php if ($_POST['form_diagnosis_code'] == true) echo ' checked'; ?>>
-                                                   <?php echo htmlspecialchars(xl('Diagnosis Code'),ENT_NOQUOTES); ?>&nbsp;
+                                                   <input type='checkbox' name='form_diagnosis_allergy'<?php if ($_POST['form_diagnosis_allergy'] == true) echo ' checked'; ?>>
+                                                   <?php echo htmlspecialchars(xl('Allergies'),ENT_NOQUOTES); ?>&nbsp;
 
-                                                   <input type='checkbox' name='form_diagnosis_tit'<?php if ($_POST['form_diagnosis_tit'] == true) echo ' checked'; ?>>
-                                                   <?php echo htmlspecialchars(xl('Diagnosis Title'),ENT_NOQUOTES); ?>&nbsp;
+                                                   <input type='checkbox' name='form_diagnosis_medprb'<?php if ($_POST['form_diagnosis_medprb'] == true) echo ' checked'; ?>>
+                                                   <?php echo htmlspecialchars(xl('Medical Problems'),ENT_NOQUOTES); ?>&nbsp;
 
                                                    <input type='checkbox' name='form_drug'<?php if ($_POST['form_drug'] == true) echo ' checked'; ?>>
 						  <?php echo htmlspecialchars(xl('Drug'),ENT_NOQUOTES); ?>&nbsp;
@@ -365,8 +365,8 @@ $sqlstmt = "select
                 pd.sex AS patient_sex,
                 pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
                 concat(u.fname, ' ', u.lname)  AS users_provider,
-                concat_ws(', ',IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO'), IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO'), IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO')) as communications";
-	if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true)	{
+                REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
+	if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true)	{
 		$sqlstmt=$sqlstmt.",li.date AS lists_date,
                    li.diagnosis AS lists_diagnosis,
                         li.title AS lists_title";
@@ -420,10 +420,13 @@ $sqlstmt = "select
 	$sqlstmt=$sqlstmt." from patient_data as pd left outer join users as u on u.id = pd.providerid
             left outer join facility as f on f.id = u.facility_id";
 	
-	if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true){	
+	if(strlen($form_diagnosis) > 0 || ($_POST['form_diagnosis_allergy'] == true && $_POST['form_diagnosis_medprb'] == true)){	
 		$sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem' OR li.type='allergy')) ";
+	}elseif($_POST['form_diagnosis_allergy'] == true){
+		$sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
+	}elseif($_POST['form_diagnosis_medprb'] == true){
+		$sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem')) ";
 	}
-
   if ( $type == 'Procedure' ||( strlen($form_lab_results)!=0) || $_POST['lab_results'] == true) {
     $sqlstmt = $sqlstmt." left outer join procedure_order as po on po.patient_id = pd.pid
     left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
@@ -456,7 +459,7 @@ $sqlstmt = "select
       }
 //where
       $whr_stmt="where 1=1";
-      if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true) {
+      if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true) {
 	    $whr_stmt=$whr_stmt." AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(li.date) <= ?";
 	    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
 	}
@@ -529,7 +532,7 @@ $sqlstmt = "select
         $whr_stmt = $whr_stmt."   and f.id = ? ";
         array_push($sqlBindArray, $facility);
   }
-  if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true) {
+  if(strlen($form_diagnosis) > 0) {
         $whr_stmt = $whr_stmt." AND (li.diagnosis LIKE ? or li.diagnosis LIKE ? or li.diagnosis LIKE ? or li.diagnosis = ?) ";
         array_push($sqlBindArray, $form_diagnosis."%", '%'.$form_diagnosis.'%', '%'.$form_diagnosis, $form_diagnosis);
   }
@@ -560,11 +563,10 @@ $sqlstmt = "select
   if ($_POST['form_pt_age'] == true) {
         $odrstmt=$odrstmt.",patient_age";
   }
-  if (($_POST['form_diagnosis_code'] == true) || (strlen($form_diagnosis) > 0)){
-        $odrstmt=$odrstmt.",lists_diagnosis";
-  }
-  if (($_POST['form_diagnosis_tit'] == true) || (strlen($form_diagnosis) > 0)){
-         $odrstmt=$odrstmt.",lists_title";
+  if((strlen($form_diagnosis) > 0)){
+		$odrstmt=$odrstmt.",lists_diagnosis";
+  }elseif (($_POST['form_diagnosis_allergy'] == true) || ($_POST['form_diagnosis_medprb'] == true)){
+        $odrstmt=$odrstmt.",lists_title";
   }
   if (($_POST['form_drug'] == true) || (strlen($form_drug_name) > 0)){
         $odrstmt=$odrstmt.",r.drug";
@@ -576,7 +578,7 @@ $sqlstmt = "select
          $odrstmt=$odrstmt.",procedure_result_result";
   }
   if (strlen($communication) > 0 || $_POST['communication_check'] == true) {
-	$odrstmt=$odrstmt.",communications";
+	$odrstmt=$odrstmt.",ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
   }
   
 
@@ -641,18 +643,12 @@ if(sqlNumRows($result) > 0)
                                <td <?php if(strlen($communication) == 0 || ($_POST['communication_check'] == true)){ ?> colspan=5 <?php } ?>> <?php echo htmlspecialchars($row['users_provider'],ENT_NOQUOTES); ?>&nbsp;</td>
 							   
 							    <?php if(strlen($communication) > 0 || $_POST['communication_check'] == true){ ?>
-							    		<td colspan=4><?php 
-							    		$repcom = str_replace(", NO","",$row['communications']);
-										$repcom = trim(str_replace("NO,","",$repcom));
-										 $repcomarr = explode(",",$repcom);
-										 sort($repcomarr);
-										 echo text(implode(", ",$repcomarr));
-										?></td>
+							    		<td colspan=4><?php echo $row['communications']; ?></td>
 							   	<?php }  ?>
 				</tr>
 <!-- Diagnosis Report Start-->
 				<?php 
-				if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_code'] == true || $_POST['form_diagnosis_tit'] == true)
+				if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true)
 			        {
 				?>
 	                	<tr bgcolor="#C3FDB8" align= "left">
