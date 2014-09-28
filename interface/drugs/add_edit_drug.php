@@ -55,7 +55,7 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
     ), $period);
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='form_tmpl[$tmpl_line_no][quantity]' value='" . attr($quantity) . "' size='3' maxlength='7'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][quantity]' value='" . attr($quantity) . "' size='3' maxlength='31'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
   echo "<input type='text' name='form_tmpl[$tmpl_line_no][refills]' value='" . attr($refills) . "' size='3' maxlength='5'>";
