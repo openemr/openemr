@@ -2789,3 +2789,10 @@ ALTER TABLE `drugs` CHANGE `size` `size` VARCHAR( 10 ) CHARACTER SET utf8 COLLAT
 #IfTable prescriptions
 ALTER TABLE `prescriptions` CHANGE `size` `size` VARCHAR( 10 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;
 #EndIf
+<<<<<<< HEAD
+=======
+
+#IfTable drug_templates
+ALTER TABLE `drug_templates` CHANGE `quantity` `quantity` VARCHAR( 31 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;
+#EndIf
+>>>>>>> ef91b4c1757c278b2d1c62b97fc4bcdff62116e7

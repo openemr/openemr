@@ -818,7 +818,7 @@ CREATE TABLE `drug_templates` (
   `selector` varchar(255) NOT NULL default '',
   `dosage` varchar(10) default NULL,
   `period` int(11) NOT NULL default '0',
-  `quantity` int(11) NOT NULL default '0',
+  `quantity` varchar(31) default NULL,
   `refills` int(11) NOT NULL default '0',
   `taxrates` varchar(255) default NULL,
   PRIMARY KEY  (`drug_id`,`selector`)
