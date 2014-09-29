@@ -57,8 +57,8 @@ class C_Prescription extends Controller {
 				$drug_attributes .=    "['"  .
 					$row['name']       . "',"  . //  0
 					$row['form']       . ",'"  . //  1
-					$row['dosage']     . "',"  . //  2
-					$row['size']       . ","   . //  3
+					$row['dosage']     . "','" . //  2
+					$row['size']       . "',"  . //  3
 					$row['unit']       . ","   . //  4
 					$row['route']      . ","   . //  5
 					$row['period']     . ","   . //  6
