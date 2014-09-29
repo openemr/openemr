@@ -2782,6 +2782,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2014-10-01', 'Reimbursement_Mapping_pr_2015.zip', '493c022db17a70fcdcbb41bf0ad61a47');
 #EndIf
 
+<<<<<<< 0efa985f3051a392c164c81624a4cf0abcab30bd:sql/4_1_2-to-4_2_0_upgrade.sql
 #IfMissingColumn clinical_rules amc_2011_flag
 ALTER TABLE `clinical_rules` ADD COLUMN `amc_2011_flag` tinyint(1) COMMENT '2011 Automated Measure Calculation flag for (unable to customize per patient)';
 UPDATE `clinical_rules` SET `amc_2011_flag` = 1 WHERE `amc_flag` = 1;

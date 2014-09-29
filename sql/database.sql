@@ -1043,7 +1043,7 @@ CREATE TABLE `drugs` (
   `last_notify` date NOT NULL default '0000-00-00',
   `reactions` text,
   `form` int(3) NOT NULL default '0',
-  `size` float unsigned NOT NULL default '0',
+  `size` varchar(10) NOT NULL default '',
   `unit` int(11) NOT NULL default '0',
   `route` int(11) NOT NULL default '0',
   `substitute` int(11) NOT NULL default '0',
