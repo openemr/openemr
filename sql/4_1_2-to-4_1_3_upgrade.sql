@@ -2782,3 +2782,10 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2014-10-01', 'Reimbursement_Mapping_pr_2015.zip', '493c022db17a70fcdcbb41bf0ad61a47');
 #EndIf
 
+#IfTable drugs
+ALTER TABLE `drugs` CHANGE `size` `size` VARCHAR( 10 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;
+#EndIf
+
+#IfTable prescriptions
+ALTER TABLE `prescriptions` CHANGE `size` `size` VARCHAR( 10 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;
+#EndIf
