@@ -293,7 +293,14 @@ function educlick(codetype, codevalue) {
       $result_status    = empty($rrow['result_status'   ]) ? '' : $rrow['result_status'];
       $result_document_id = empty($rrow['document_id'   ]) ? '' : $rrow['document_id'];
 
+      if ($i = strpos($result_comments, "\n")) { // "=" is not a mistake!
+        // If the first line of comments is not empty, then it is actually a long textual
+        // result value with lines delimited by "~" characters.
+        $result_comments = str_replace("~", "\n", substr($result_comments, 0, $i)) .
+          substr($result_comments, $i);
+      }
       $result_comments = trim($result_comments);
+
       $result_noteid = '';
       if (!empty($result_comments)) {
         $result_noteid = 1 + storeNote($result_comments);
