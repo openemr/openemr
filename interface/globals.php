@@ -61,7 +61,7 @@ if (IS_WINDOWS) {
  $webserver_root = str_replace("\\","/",$webserver_root); 
 }
 // Collect the apache server document root (and convert to windows slashes, if needed)
-$server_document_root = $_SERVER['DOCUMENT_ROOT'];
+$server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);
 if (IS_WINDOWS) {
  //convert windows path separators
  $server_document_root = str_replace("\\","/",$server_document_root);
