@@ -53,7 +53,7 @@ if ( isset($_POST['mode'] )) {
 			$pid,
 			$_POST['desc'],
 			$currentUser,
-			$create_time
+			$created_time
 		);
 
 		$amendment_id = sqlInsert($query,$sqlBindArray);
@@ -74,7 +74,7 @@ if ( isset($_POST['mode'] )) {
 			$_POST['form_amendment_status'],
 			$_POST['desc'],
 			$currentUser,
-			$create_time,
+			$created_time,
 			$_POST['amendment_id']
 		);
 		sqlStatement($query,$sqlBindArray);
@@ -106,7 +106,7 @@ if ( $amendment_id ) {
 	$amendment_date = $resultSet['amendment_date'];
 	$amendment_status = $resultSet['amendment_status'];
 	$amendment_by = $resultSet['amendment_by'];
-	$amendment_desc = strip_escape_custom($resultSet['amendment_desc']);
+	$amendment_desc = $resultSet['amendment_desc'];
 	
 	$query = "SELECT * FROM amendments_history ah INNER JOIN users u ON ah.created_by = u.id WHERE amendment_id = ? ";
 	$resultSet = sqlStatement($query,array($amendment_id));
@@ -220,7 +220,7 @@ function formValidation() {
 		<tr>
 			<td><span class=text ><?php echo xlt('Request Description'); ?></span></td>
 			<td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" name="desc" rows="4" cols="30"><?php 
-			if($amendment_id) { echo $amendment_desc; }else{ echo ""; } ?></textarea></td>
+			if($amendment_id) { echo text($amendment_desc); }else{ echo ""; } ?></textarea></td>
 		</tr>
 		
 		<tr>
@@ -240,7 +240,7 @@ function formValidation() {
 	<?php if ( $amendment_id ) { ?>
 	<hr>
 	
-	<span class="title"><?php echo xls("History") ; ?></span>
+	<span class="title"><?php echo xlt("History") ; ?></span>
     
 	<table border="1" cellpadding=3 cellspacing=0 class="historytbl">
 
@@ -257,9 +257,9 @@ function formValidation() {
 		while ( $row = sqlFetchArray($resultSet) ) {
 			$created_date = date('Y-m-d', strtotime($row['created_time']));
 			echo "<tr>";
-			$userName = text($row['lname']) . ", " . text($row['fname']);
+			$userName = $row['lname'] . ", " . $row['fname'];
 			echo "<td align=left class=text>" . oeFormatShortDate($created_date) . "</td>";
-			echo "<td align=left class=text>" . $userName . "</td>";
+			echo "<td align=left class=text>" . text($userName) . "</td>";
 			echo "<td align=left class=text>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type'=>'1','list_id'=>'amendment_status'), $row['amendment_status']) : '') . "</td>";
 			echo "<td align=left class=text>" . text($row['amendment_note']) . "</td>";
 			echo "<tr>";

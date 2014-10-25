@@ -2001,15 +2001,15 @@ CREATE TABLE `history_data` (
   `last_psa` varchar(255) default NULL,
   `last_exam_results` varchar(255) default NULL,
   `history_mother` longtext,
-  `dc_mother` text default NULL,
+  `dc_mother` text,
   `history_father` longtext,
-  `dc_father`  text default NULL,
+  `dc_father`  text,
   `history_siblings` longtext,
-  `dc_siblings` text default NULL,
+  `dc_siblings` text,
   `history_offspring` longtext,
-  `dc_offspring` text default NULL,
+  `dc_offspring` text,
   `history_spouse` longtext,
-  `dc_spouse` text default NULL,
+  `dc_spouse` text,
   `relatives_cancer` longtext,
   `relatives_tuberculosis` longtext,
   `relatives_diabetes` longtext,
@@ -2672,8 +2672,8 @@ INSERT INTO layout_options VALUES ('HIS','history_siblings' ,'2Family History','
 INSERT INTO layout_options VALUES ('HIS','dc_siblings'		,'2Family History','Diagnosis Code'	,6, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
 INSERT INTO layout_options VALUES ('HIS','history_spouse'   ,'2Family History','Spouse'   		,7, 2,1,20,0,'',1,1,'','' ,'', 0, '');
 INSERT INTO layout_options VALUES ('HIS','dc_spouse'		,'2Family History','Diagnosis Code'	,8, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_offspring','2Family History','Offspring'		,9, 2,1,20,0,'',1,3,'','' ,'', 0, '');
-INSERT INTO layout_options VALUES ('HIS','dc_offspring'		,'2Family History','Diagnosis Code'	,10, 15, 1, 0, 255, '', 1, 3, '', '', '', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_offspring','2Family History','Offspring'		,9, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_offspring'		,'2Family History','Diagnosis Code'	,10, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
 INSERT INTO layout_options VALUES ('HIS','relatives_cancer'             ,'3Relatives','Cancer'             ,1, 2,1,20,0,'',1,1,'','' ,'', 0, '');
 INSERT INTO layout_options VALUES ('HIS','relatives_tuberculosis'       ,'3Relatives','Tuberculosis'       ,2, 2,1,20,0,'',1,1,'','' ,'', 0, '');
 INSERT INTO layout_options VALUES ('HIS','relatives_diabetes'           ,'3Relatives','Diabetes'           ,3, 2,1,20,0,'',1,1,'','' ,'', 0, '');
@@ -2701,7 +2701,7 @@ INSERT INTO layout_options VALUES ('HIS','userarea11'        ,'5Other','User Def
 INSERT INTO layout_options VALUES ('HIS','userarea12'        ,'5Other','User Defined Area 12',7,3,0,30,0,'',1,3,'','','User Defined', 3, '');
 
 
-INSERT INTO layout_options VALUES ('FACUSR', 'provider_id', '1General', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility', 0, '');
+INSERT INTO `layout_options` VALUES ('FACUSR', 'provider_id', '1General', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility', 0, '');
 
 -- --------------------------------------------------------
 
@@ -3915,13 +3915,13 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('ins
 
 -- Amendment Statuses
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists' ,'amendment_status','Amendment Status');
-INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_status' ,'1','Approved', 1);
-INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_status' ,'2','Rejected', 2);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_status' ,'approved','Approved', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_status' ,'rejected','Rejected', 20);
 	
 -- Amendment request from
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists' ,'amendment_from','Amendment From');
-INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_from' ,'1','Patient', 1);
-INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_from' ,'2','Insurance', 2);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_from' ,'patient','Patient', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_from' ,'insurance','Insurance', 20);
 -- --------------------------------------------------------
 
 -- 

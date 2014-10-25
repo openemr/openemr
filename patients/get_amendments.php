@@ -46,10 +46,10 @@ if ( sqlNumRows($res) > 0 ) { ?>
   				$even=true;
 			}
 			echo "<tr class='".$class."'>";
-			echo "<td>".$row['amendment_date']."</td>";
+			echo "<td>".text($row['amendment_date'])."</td>";
 			echo "<td>".text($row['AmendmentBy'])."</td>";
-			echo "<td>".attr($row['amendment_desc'])."</td>";
-			echo "<td>".attr($row['AmendmentStatus'])."</td>";
+			echo "<td>".text($row['amendment_desc'])."</td>";
+			echo "<td>".text($row['AmendmentStatus'])."</td>";
 			echo "</tr>";
   		}
 		echo "</table>";

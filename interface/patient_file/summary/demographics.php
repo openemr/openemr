@@ -1019,7 +1019,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   
   while ($row=sqlFetchArray($result)){
     echo "&nbsp;&nbsp;";
-    echo "<a class= '" . $widgetButtonClass . "' href='" . $widgetButtonLink . "&id=" . attr($row['amendment_id']) . "' onclick='top.restoreSession()'>" . $row['amendment_date'];
+    echo "<a class= '" . $widgetButtonClass . "' href='" . $widgetButtonLink . "&id=" . attr($row['amendment_id']) . "' onclick='top.restoreSession()'>" . text($row['amendment_date']);
 	echo "&nbsp; " . text($row['amendment_desc']);
 
     echo "</a><br>\n";

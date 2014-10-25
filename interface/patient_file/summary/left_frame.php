@@ -19,10 +19,14 @@
  * @author  Hema Bandaru <hemab@drcloudemr.com>
  * @link    http://www.open-emr.org
  */
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+
 include_once("../../globals.php");
 
-$feature = add_escape_custom($_GET["feature"]);
-$featureData['amendment']['title'] = xls("Amendments");
+$feature = $_GET["feature"];
+$featureData['amendment']['title'] = xl("Amendments");
 $featureData['amendment']['addLink'] = "add_edit_amendments.php";
 $featureData['amendment']['listLink'] = "list_amendments.php";
 
@@ -34,12 +38,12 @@ $featureData['amendment']['listLink'] = "list_amendments.php";
 </head>
 <body class="body_top">
 
-<span class="title"><?php echo $featureData[$feature]['title']; ?></span>
+<span class="title"><?php echo text($featureData[$feature]['title']); ?></span>
 <table>
 <tr height="20px">
 <td>
 
-<a href="<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/<?php echo attr($featureData[$feature]['listLink']); ?>?id=<?php echo $pid; ?>" target='rightFrame' class="css_button" onclick="top.restoreSession()">
+<a href="<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/<?php echo attr($featureData[$feature]['listLink']); ?>?id=<?php echo attr($pid); ?>" target='rightFrame' class="css_button" onclick="top.restoreSession()">
 <span><?php echo xlt('List');?></span></a>
 <?php if ( acl_check('patients', 'trans') ) { ?>
 	<a href="<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/<?php echo attr($featureData[$feature]['addLink']); ?>" target='rightFrame' class="css_button" onclick="top.restoreSession()">

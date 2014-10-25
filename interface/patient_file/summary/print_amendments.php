@@ -32,7 +32,7 @@ include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
 include_once("$srcdir/options.inc.php");
 
-$amendments = add_escape_custom($_REQUEST["ids"]);
+$amendments = $_REQUEST["ids"];
 $amendments = rtrim($amendments,",");
 $amendmentsList = explode(",",$amendments);
 
@@ -109,7 +109,7 @@ function printAmendment($amendmentID,$lastAmendment) {
 </head>
 
 <body class="body_top">
-	<span class='title'><?php echo xlt("Amendments for ") . text($patientName); ?></span>
+	<span class='title'><?php echo xlt("Amendments for") . " " . text($patientName); ?></span>
 	<p></p>
 
 	<?php

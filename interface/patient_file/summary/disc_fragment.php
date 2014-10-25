@@ -52,9 +52,9 @@ function getDisclosureByDate($pid,$limit)
 <br>
 <table width='100%'>
 <tr style='border-bottom:2px solid #000;' class='text'>
-	<td valign='top' class='text'><b><?php  echo xls('Type'); ?></b></td>
-	<td valign='top' class='text'><b><?php  echo xls('Provider'); ?></b></td>
-	<td valign='top' class='text'><b><?php  echo xls('Summary'); ?></b></td>
+	<td valign='top' class='text'><b><?php  echo xlt('Type'); ?></b></td>
+	<td valign='top' class='text'><b><?php  echo xlt('Provider'); ?></b></td>
+	<td valign='top' class='text'><b><?php  echo xlt('Summary'); ?></b></td>
 </tr>
 <?php
 //display all the disclosures for the day, as well as others from previous dates, up to a certain number, $N
@@ -70,11 +70,11 @@ if ($result != null){
 		$has_disclosure = 1;
 		$app_event=$iter{"event"};
 		$event=split("-",$app_event);
-		$description=nl2br(text($iter{"description"});//for line breaks.
+		$description=nl2br(text($iter{"description"}));//for line breaks.
 		//listing the disclosures 
 		echo "<tr style='border-bottom:1px dashed' class='text'>";
 			echo "<td valign='top' class='text'>";
-			if($event[1]=='healthcareoperations'){ echo "<b>";echo xl('health care operations');echo "</b>"; } else echo "<b>".text($event[1])."</b>";
+			if($event[1]=='healthcareoperations'){ echo "<b>";echo xlt('health care operations');echo "</b>"; } else echo "<b>".text($event[1])."</b>";
 			echo "</td>";
 			echo "<td>".text($iter['user_fullname'])."</td>";
 			echo "<td  valign='top'class='text'>";

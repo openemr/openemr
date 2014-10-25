@@ -113,7 +113,7 @@ if ($_GET["end_date"])
 $end_date = $_GET['end_date'];
 
 if ($_GET["form_patient"])
-$form_patient = add_escape_custom($_GET['form_patient']);
+$form_patient = $_GET['form_patient'];
 
 /*
  * Start date should not be greater than end date - Date Validation
@@ -129,8 +129,8 @@ if ($start_date && $end_date)
 
 ?>
 <?php
-$form_user = add_escape_custom($_REQUEST['form_user']);
-$form_pid = add_escape_custom($_REQUEST['form_pid']);
+$form_user = $_REQUEST['form_user'];
+$form_pid = $_REQUEST['form_pid'];
 if ($form_patient == '' ) $form_pid = '';
 
 $get_sdate=$start_date ? $start_date : date("Y-m-d H:i:s");
@@ -141,7 +141,7 @@ $get_edate=$end_date ? $end_date : date("Y-m-d H:i:s");
 <FORM METHOD="GET" name="theform" id="theform" onSubmit='top.restoreSession()'>
 <?php
 
-$sortby = add_escape_custom($_GET['sortby']);
+$sortby = $_GET['sortby'];
 ?>
 <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>">
 <input type=hidden name=csum value="">
@@ -163,7 +163,7 @@ $sortby = add_escape_custom($_GET['sortby']);
 &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
 </td>
 <td>
-<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xlt('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xlt('Click to select patient'); ?>' />
+<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xlt('Click to select patient'); ?>' />
 <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
 </td>
 </tr>
@@ -173,7 +173,7 @@ $sortby = add_escape_custom($_GET['sortby']);
 </td><td>
 <?php
 
-$check_sum = add_escape_custom($_GET['check_sum']);
+$check_sum = $_GET['check_sum'];
 ?>
 <input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') echo "checked";  ?>"></input>
 </td>
@@ -191,7 +191,7 @@ $check_sum = add_escape_custom($_GET['check_sum']);
 <span class="text" id="display_tamper" style="display:none;"><?php echo xlt('Following rows in the audit log have been tampered'); ?></span>
 <table>
  <tr>
-  <th id="sortby_date" class="text" title="<?php echo xlt('Sort by Tamper date/time'); ?>"><?php echo xlt('Tamper Date'); ?></th>
+  <th id="sortby_date" class="text" title="<?php echo xla('Sort by Tamper date/time'); ?>"><?php echo xlt('Tamper Date'); ?></th>
   <th id="sortby_user" class="text" title="<?php echo xla('Sort by User'); ?>"><?php echo xlt('User'); ?></th>
   <th id="sortby_pid" class="text" title="<?php echo xla('Sort by PatientID'); ?>"><?php echo xlt('PatientID'); ?></th>
   <th id="sortby_comments" class="text" title="<?php echo  xla('Sort by Comments'); ?>"><?php echo xlt('Comments'); ?></th>
@@ -202,8 +202,8 @@ $check_sum = add_escape_custom($_GET['check_sum']);
  </tr>
 <?php
 
-$eventname = add_escape_custom($_GET['eventname']);
-$type_event = add_escape_custom($_GET['type_event']);
+$eventname = $_GET['eventname'];
+$type_event = $_GET['type_event'];
 ?>
 <input type=hidden name=event value=<?php echo attr($eventname)."-".attr($type_event) ?>>
 <?php

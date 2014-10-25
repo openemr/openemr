@@ -2842,19 +2842,19 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 #EndIf
 
 #IfMissingColumn history_data dc_father
-	ALTER TABLE `history_data` ADD `dc_father` text NOT NULL DEFAULT '';
+	ALTER TABLE `history_data` ADD `dc_father` text;
 #EndIf
 #IfMissingColumn history_data dc_mother
-	ALTER TABLE `history_data` ADD `dc_mother` text NOT NULL DEFAULT '';
+	ALTER TABLE `history_data` ADD `dc_mother` text;
 #EndIf
 #IfMissingColumn history_data dc_siblings
-	ALTER TABLE `history_data` ADD `dc_siblings` text NOT NULL DEFAULT '';
+	ALTER TABLE `history_data` ADD `dc_siblings` text;
 #EndIf
 #IfMissingColumn history_data dc_spouse
-	ALTER TABLE `history_data` ADD `dc_spouse` text NOT NULL DEFAULT '';
+	ALTER TABLE `history_data` ADD `dc_spouse` text;
 #EndIf
 #IfMissingColumn history_data dc_offspring
-	ALTER TABLE `history_data` ADD `dc_offspring` text NOT NULL DEFAULT '';
+	ALTER TABLE `history_data` ADD `dc_offspring` text;
 #EndIf
 #IfNotRow2D layout_options form_id HIS field_id dc_father
 	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_father', '2Family History', 'Diagnosis Code', 2, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
@@ -2870,15 +2870,15 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 #EndIf
 #IfNotRow2D layout_options form_id HIS field_id dc_spouse
 	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_spouse', '2Family History', 'Diagnosis Code', 8, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
-        UPDATE `layout_options` SET `seq` = '9' AND `datacols` = '1' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'history_offspring';
+        UPDATE `layout_options` SET `seq` = '9', `datacols` = '1' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'history_offspring';
 #EndIf
 #IfNotRow2D layout_options form_id HIS field_id dc_offspring
-	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_offspring', '2Family History', 'Diagnosis Code', 10, 15, 1, 0, 255, '', 1, 3, '', '', '', 0, '');
+	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_offspring', '2Family History', 'Diagnosis Code', 10, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id amendment_status
-	INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) 
-	VALUES ('lists' ,'amendment_status','Amendment Status', 102, 0);
+	INSERT INTO `list_options` ( `list_id`, `option_id`, `title` ) 
+	VALUES ('lists' ,'amendment_status','Amendment Status');
 
 	INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES
 	('amendment_status' ,'approved','Approved', 10, 0),
@@ -2886,8 +2886,8 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id amendment_from	
-	INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) 
-	VALUES ('lists' ,'amendment_from','Amendment From', 102, 0);
+	INSERT INTO `list_options` ( `list_id`, `option_id`, `title` ) 
+	VALUES ('lists' ,'amendment_from','Amendment From');
 
 	INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES
 	('amendment_from' ,'patient','Patient', 10, 0),
@@ -2915,7 +2915,7 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 	CREATE TABLE `amendments_history` (
 		`amendment_id`	int(11)			NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
 		`amendment_note` text			NOT NULL	COMMENT 'Amendment requested from',
-		`amendment_status` VARCHAR(50)  NULL 		COMMENT 'Amendment Request Status'
+		`amendment_status` VARCHAR(50)  NULL 		COMMENT 'Amendment Request Status',
 		`created_by`	int(11)			NOT NULL	COMMENT 'references users.id for session owner',
 		`created_time`	timestamp		NOT NULL DEFAULT '0000-00-00 00:00:00'	COMMENT 'created time',
 		KEY amendment_history_id(`amendment_id`)
@@ -2930,14 +2930,5 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 	  `checksum` longtext NOT NULL,
 	  PRIMARY KEY (`id`)
 	) ENGINE=InnoDB;
-#EndIf
-
-#IfNotRow clinical_rules id family_health_history
-	INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, 
-	`amc_code`, `patient_reminder_flag` ) VALUES ('family_health_history', 0, 0, 0, 0, '', '', 1, '170.314(a)', 0);
-#EndIf
-
-#IfNotRow2D list_options list_id clinical_rules option_id family_health_history
-	INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'family_health_history', 'Family Health History', 3000, 0);
 #EndIf
 

@@ -75,17 +75,17 @@ deleteDisclosure($deletelid);
 </head>
 <body class="body_top">
 <div>
-	<span class="title"><?php echo xls('Disclosures'); ?></span>
+	<span class="title"><?php echo xlt('Disclosures'); ?></span>
 </div>
-<div style='float: left; margin-right: 10px'><?php echo xls('for'); ?>&nbsp;
+<div style='float: left; margin-right: 10px'><?php echo xlt('for'); ?>&nbsp;
 	<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php $pname = getPatientName($pid); echo text($pname); ?></a></span>
 </div>
 <div>
-	<a href="record_disclosure.php" class="css_button iframe" onclick="top.restoreSession()"><span><?php echo xls('Record'); ?></span></a>
+	<a href="record_disclosure.php" class="css_button iframe" onclick="top.restoreSession()"><span><?php echo xlt('Record'); ?></span></a>
 </div>
 <div>
 	<a href="demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>
-	class="css_button" onclick="top.restoreSession()"> <span><?php echo xls('View Patient') ?></span></a>
+	class="css_button" onclick="top.restoreSession()"> <span><?php echo xlt('View Patient') ?></span></a>
 </div>
 <br>
 <br>
@@ -112,17 +112,17 @@ $noOfRecordsLeft=($totalRecords - $offset);
 if ($n>0){?>
 	<table border='0' class="text">
 		<tr>
-		<td colspan='5' style="padding: 5px;"><a href="disclosure_full.php" class="" id='Submit' onclick="top.restoreSession()"><span><?php echo xls('Refresh'); ?></span></a></td>
+		<td colspan='5' style="padding: 5px;"><a href="disclosure_full.php" class="" id='Submit' onclick="top.restoreSession()"><span><?php echo xlt('Refresh'); ?></span></a></td>
 		</tr>
 	</table>
 <div id='pnotes'>	
 	<table border='0' cellpadding="1" width='80%'>
 		<tr class="showborder_head" align='left' height="22">
 			<th style='width: 120px';>&nbsp;</th>
-			<th style="border-style: 1px solid #000" width="140px"><?php echo xls('Recipient Name'); ?></th>
-			<th style="border-style: 1px solid #000" width="140px"><?php echo xls('Disclosure Type'); ?></th>
-			<th style="border-style: 1px solid #000"><?php echo xls('Description'); ?></th>
-			<th style="border-style: 1px solid #000"><?php echo xls('Provider'); ?></th>
+			<th style="border-style: 1px solid #000" width="140px"><?php echo xlt('Recipient Name'); ?></th>
+			<th style="border-style: 1px solid #000" width="140px"><?php echo xlt('Disclosure Type'); ?></th>
+			<th style="border-style: 1px solid #000"><?php echo xlt('Description'); ?></th>
+			<th style="border-style: 1px solid #000"><?php echo xlt('Provider'); ?></th>
 		</tr>
 	<?php
 	$result2 = array();
@@ -138,11 +138,11 @@ if ($n>0){?>
 		<tr  class="noterow" height='25'>		
 			<!--buttons for edit and delete.-->
 			<td valign='top'><a href='record_disclosure.php?editlid=<?php echo text($iter{id}); ?>'
-			class='css_button_small iframe' onclick='top.restoreSession()'><span><?php echo xls('Edit');?></span></a>
+			class='css_button_small iframe' onclick='top.restoreSession()'><span><?php echo xlt('Edit');?></span></a>
 			<a href='#' class='deletenote css_button_small'
-			id='<?php echo text($iter{id}); ?>' onclick='top.restoreSession()'><span><?php echo xls('Delete');?></span></a></td>
+			id='<?php echo text($iter{id}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
 			<td class="text" valign='top'><?php echo text($iter{recipient});?>&nbsp;</td>
-			<td class='text' valign='top'><?php if($event[1]=='healthcareoperations'){ echo xls('health care operations'); } else echo text($event[1]); ?>&nbsp;</td>
+			<td class='text' valign='top'><?php if($event[1]=='healthcareoperations'){ echo xlt('health care operations'); } else echo text($event[1]); ?>&nbsp;</td>
 			<td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
 			<td class='text'><?php echo text($iter{user_fullname});?></td>
 		</tr>
@@ -153,7 +153,7 @@ else
 {?>
 	<br>
 	<!-- Display None, if there is no disclosure -->
-	<span class='text' colspan='3'><?php echo xls('None');?></span>
+	<span class='text' colspan='3'><?php echo xlt('None');?></span>
 	<?php
 }
 ?>
@@ -165,7 +165,7 @@ else
 if ($offset > ($N-1) && $n!=0) {
   echo "   <a class='link' href='disclosure_full.php?active=" . $active .
     "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
-    xls('Previous') . "]</a>\n";
+    xlt('Previous') . "]</a>\n";
 }
 ?>
   
@@ -174,7 +174,7 @@ if ($offset > ($N-1) && $n!=0) {
 if ($n >= $N && $noOfRecordsLeft!=$N) {
   echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . $active. 
     "&offset=" . ($offset+$N)  ."&leftrecords=".$noOfRecordsLeft."' onclick='top.restoreSession()'>[" .
-    xls('Next') . "]</a>\n";
+    xlt('Next') . "]</a>\n";
 }
 ?>
   </td>

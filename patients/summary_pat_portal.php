@@ -600,7 +600,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 <?php
 $widgetTitle = xl("Amendments");
 $widgetLabel = "amendments";
-$widgetButtonLabel = xl("");
+$widgetButtonLabel = xl(""));
 $widgetButtonClass = "hidden";
 $linkMethod = "html";
 $bodyClass = "notab";
