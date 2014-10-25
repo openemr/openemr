@@ -1317,7 +1317,7 @@ $GLOBALS_METADATA = array(
 	'enable_auditlog_encryption' => array(
       xl('Enable Audit Log Encryption'),
       'bool',                           // data type
-      '1',                              // default
+      '0',                              // default
       xl('Enable Audit Log Encryption')
     ),
 

@@ -175,6 +175,13 @@ if ($_POST['form_download']) {
 // If we are saving main globals.
 //
 if ($_POST['form_save'] && $_GET['mode'] != "user") {
+  $force_off_enable_auditlog_encryption = true;
+  // Need to force enable_auditlog_encryption off if the php mycrypt module
+  // is not installed.
+  if (extension_loaded('mcrypt')) {
+    $force_off_enable_auditlog_encryption = false;
+  }
+
   // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
   // Check the current status of Audit Logging
   $auditLogStatusFieldOld = $GLOBALS['enable_auditlog'];
@@ -207,12 +214,17 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
         else {
           $fldvalue = "";
         }
-        if($fldtype=='pwd')
-          $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold;
-		  if(fldvalue){
-		  sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-          "VALUES ( '$fldid', '0', '$fldvalue' )");
-		  }
+        if($fldtype=='pwd') $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold;
+        if(fldvalue){
+          // Need to force enable_auditlog_encryption off if the php mycrypt module
+          // is not installed.
+          if ( $force_off_enable_auditlog_encryption && ($fldid  == "enable_auditlog_encryption") ) {
+            error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mycrypt module is not installed",0);
+            $fldvalue=0;
+          }
+          sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+            "VALUES ( '$fldid', '0', '$fldvalue' )");
+        }
       }
 
       ++$i;
