@@ -639,7 +639,7 @@ if(sqlNumRows($result) > 0)
 							    <?php if(strlen($communication) > 0 || $_POST['communication_check'] == true){ ?>
 							    		<td colspan=4><?php 
 							    		$repcom = str_replace(", NO","",$row['communications']);
-										echo trim(str_replace("NO,","",$repcom)); ?></td>
+										echo text(trim(str_replace("NO,","",$repcom))); ?></td>
 							   	<?php }  ?>
 				</tr>
 <!-- Diagnosis Report Start-->
