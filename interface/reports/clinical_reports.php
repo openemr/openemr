@@ -26,7 +26,7 @@ $fake_register_globals=false;
 	require_once("../drugs/drugs.inc.php");
 	require_once("$srcdir/formatting.inc.php");
   require_once("../../custom/code_types.inc.php");
-	$comarr = array('allow_sms'=>'Allow SMS','allow_voice'=>'Allow Voice Message','allow_mail'=>'Allow Mail Message','allow_email'=>'Allow Email');
+	$comarr = array('allow_sms'=>xl('Allow SMS'),'allow_voice'=>xl('Allow Voice Message'),'allow_mail'=>xl('Allow Mail Message'),'allow_email'=>xl('Allow Email'));
 	function add_date($givendate,$day=0,$mth=0,$yr=0) {
 		$cd = strtotime($givendate);
 		$newdate = date('Y-m-d H:i:s', mktime(date('h',$cd),
@@ -286,7 +286,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 							<select name="communication" id="communication" title="<?php echo htmlspecialchars(xl('Select Communication Preferences'),ENT_NOQUOTES); ?>">
 								<option value=""> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
 								<?php foreach($comarr as $comkey => $comvalue){ ?>
-								<option value="<?php echo $comkey; ?>" <?php if($communication == $comkey){ echo "selected";}?>><?php echo text($comvalue); ?></option>
+								<option value="<?php echo attr($comkey); ?>" <?php if($communication == $comkey){ echo "selected";}?>><?php echo text($comvalue); ?></option>
 								<?php } ?>
 							</select>
 						</td>
@@ -625,7 +625,7 @@ if(sqlNumRows($result) > 0)
                                <td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'ethnicity'), $row['patient_ethinic']),ENT_NOQUOTES); ?>&nbsp;</td>
                                <td <?php if(strlen($communication) == 0){ ?> colspan=5 <?php } ?>> <?php echo htmlspecialchars($row['users_provider'],ENT_NOQUOTES); ?>&nbsp;</td>
 							    <?php if(strlen($communication) > 0){ ?>
-							   <td colspan=4><?php echo $comarr["$communication"]; ?></td>
+							   <td colspan=4><?php echo text($comarr["$communication"]); ?></td>
 							   <?php } ?>
 				</tr>
 <!-- Diagnosis Report Start-->
