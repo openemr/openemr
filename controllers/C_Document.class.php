@@ -268,7 +268,7 @@ class C_Document extends Controller {
 		if ( sqlNumRows($result_docs) > 0)
 		while($row_result_docs = sqlFetchArray($result_docs)) {
 		 	$sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : ''; 
-			$encOptions .= "<option value='" . $row_result_docs['encounter'] . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . $row_result_docs['pc_catname']."</option>";
+			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text($row_result_docs['pc_catname'])."</option>";
 		}
 		$this->assign("ENC_LIST", $encOptions);
 		
@@ -278,7 +278,7 @@ class C_Document extends Controller {
 		while ($crow = sqlFetchArray($cres)) {
 			$catid = $crow['pc_catid'];
 			if ($catid < 9 && $catid != 5) continue; // Applying same logic as in new encounter page.
-			$visit_category_list .="<option value='$catid'>" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+			$visit_category_list .="<option value='".attr($catid)."'>" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
 		}
 		$this->assign("VISIT_CATEGORY_LIST", $visit_category_list);
 		 
@@ -1036,7 +1036,7 @@ class C_Document extends Controller {
 // Function to tag a document to an encounter.
 function tag_action_process($patient_id="", $document_id) {
 	if ($_POST['process'] != "true") {
-		die("process is '" . $_POST['process'] . "', expected 'true'");
+		die("process is '" . text($_POST['process']) . "', expected 'true'");
 		return;
 	}
 	
@@ -1059,7 +1059,7 @@ function tag_action_process($patient_id="", $document_id) {
 			$provider_id = $_SESSION['authUserID'] ;
 			
 			// Get the logged in user's facility
-			$facilityRow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = '" . $provider_id . "'");
+			$facilityRow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array("$provider_id"));
 			$username = $facilityRow['username'];
 			$facility = $facilityRow['facility'];
 			$facility_id = $facilityRow['facility_id'];
@@ -1091,7 +1091,7 @@ function tag_action_process($patient_id="", $document_id) {
 		$d->set_encounter_check($encounter_check);
 		$d->persist();
 
-		$messages .= xl('Document tagged to Encounter successfully') . "<br>";
+		$messages .= xlt('Document tagged to Encounter successfully') . "<br>";
 	}
 
 	$this->_state = false;

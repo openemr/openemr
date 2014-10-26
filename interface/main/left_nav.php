@@ -1259,7 +1259,6 @@ if ($GLOBALS['athletic_team']) {
   <?php if (!$GLOBALS['disable_calendar'] && !$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
   <?php genTreeLink('RBot','msg',xl('Messages')); ?> 
   <?php if ($GLOBALS['lab_exchange_enable']) genTreeLink('RTop', 'lab', xl('Check Lab Results'));?>
-  <?php genTreeLink('RTop', 'dld', xl('Documents'));?>
   <?php if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address'] && acl_check('patientportal','portal'))  genTreeLink('RTop','app',xl('Portal Activity')); ?>
   <?php
     if ($GLOBALS['gbl_portal_cms_enable'] && acl_check('patientportal','portal')) {
@@ -1397,6 +1396,7 @@ if (!empty($reg)) {
       <?php genTreeLink('RTop','lda',xl('Lab Overview')); ?>
       <?php genTreeLink('RTop','orb',xl('Batch Results')); ?>
       <?php genTreeLink('RTop','ore',xl('Electronic Reports')); ?>
+      <?php genTreeLink('RTop','dld',xl('Lab Documents'));?>
     </ul>
   </li>
   <?php

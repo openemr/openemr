@@ -341,11 +341,11 @@ if ( $esign->isButtonViewable() ) {
 	if(count($docs_list) > 0 ) {
 ?>
 <div class='enc_docs'>
-<span class="bold"><?php echo text("Document(s)"); ?>:</span>
+<span class="bold"><?php echo xlt("Document(s)"); ?>:</span>
 <?php
 	$doc = new C_Document();
 	foreach ($docs_list as $doc_iter) {
-		$doc_url = $doc->_tpl_vars[CURRENT_ACTION]. "&view&patient_id=".$pid."&document_id=" . $doc_iter[id] . "&";
+		$doc_url = $doc->_tpl_vars[CURRENT_ACTION]. "&view&patient_id=".attr($pid)."&document_id=" . attr($doc_iter[id]) . "&";
 		// Get notes for this document.
 		$queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
 			FROM notes WHERE foreign_id = ? GROUP BY foreign_id";
@@ -360,7 +360,7 @@ if ( $esign->isButtonViewable() ) {
 		}
 ?>
 	<br>
-	<a title="<?php echo text($note);?>" href="<?php echo $doc_url;?>" style="font-size:small;"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . basename($doc_iter[url]);?></a>
+	<a title="<?php echo attr($note);?>" href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . text(basename($doc_iter[url]));?></a>
 <?php } ?>
 </div>
 <?php } ?>

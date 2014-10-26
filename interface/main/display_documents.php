@@ -31,8 +31,6 @@ require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/payment_jav.inc.php");
 
-//ini_set("display_errors","on");
-
 $DateFormat = DateFormatRead();
 $curdate = date_create(date("Y-m-d"));
 date_sub($curdate, date_interval_create_from_date_string("7 days"));
@@ -160,25 +158,25 @@ $display_collapse_msg = "display:inline;";
     <div id='docfilterdiv'<?php echo $display_div; ?>>
 	<table style="margin-left:10px; " width='40%'>
 		<tr>
-			<td scope="row" class='label'><?php echo text('From'); ?>:</td>
+			<td scope="row" class='label'><?php echo xlt('From'); ?>:</td>
 			<td><input type='text' name='form_from_doc_date' id="form_from_doc_date"
-				size='10' value='<?php echo $form_from_doc_date ?>' readonly="readonly" title='<?php echo $title_tooltip ?>'> 
-				<img alt="Date Selector" src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_doc_date'
-				border='0' alt='[?]' style='cursor: pointer' title='<?php echo text('Click here to choose a date'); ?>'></td>
+				size='10' value='<?php echo attr($form_from_doc_date) ?>' readonly="readonly" title='<?php echo attr($title_tooltip) ?>'> 
+				<img alt="<?php echo xla("Date Selector"); ?>" src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_doc_date'
+				border='0' alt='[?]' style='cursor: pointer' title='<?php echo xla('Click here to choose a date'); ?>'></td>
 			<script>
 					Calendar.setup({inputField:"form_from_doc_date", ifFormat:global_date_format, button:"img_from_doc_date"});
 			</script>
-			<td class='label'><?php echo text('To'); ?>:</td>
+			<td class='label'><?php echo xlt('To'); ?>:</td>
 			<td><input type='text' name='form_to_doc_date' id="form_to_doc_date"
-				size='10' value='<?php echo $form_to_doc_date ?>' readonly="readonly" title='<?php echo $title_tooltip ?>'> 
-				<img alt="Date Selector" src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_doc_date'
-				border='0' alt='[?]' style='cursor: pointer' title='<?php echo text('Click here to choose a date'); ?>'></td> 
+				size='10' value='<?php echo attr($form_to_doc_date) ?>' readonly="readonly" title='<?php echo attr($title_tooltip) ?>'> 
+				<img alt="<?php xla("Date Selector"); ?>" src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_doc_date'
+				border='0' alt='[?]' style='cursor: pointer' title='<?php echo xla('Click here to choose a date'); ?>'></td> 
 			<script>
 				Calendar.setup({inputField:"form_to_doc_date", ifFormat:global_date_format, button:"img_to_doc_date"});
 			</script>
 			<td>
 				<span style='float: left;' id="docrefresh">
-					<a href='#' class='css_button'  onclick='return validateDate("form_from_doc_date","form_to_doc_date")'> <span><?php echo text('Refresh'); ?> </span></a> 
+					<a href='#' class='css_button'  onclick='return validateDate("form_from_doc_date","form_to_doc_date")'> <span><?php echo xlt('Refresh'); ?> </span></a> 
 				</span>
 			</td>
 		</tr>
@@ -190,13 +188,16 @@ $display_collapse_msg = "display:inline;";
 	<?php        
 	$current_user = $_SESSION["authId"];
 	$date_filter = '';
+        $query_array = array();
 	if ($form_from_doc_date) {
 		$form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
-		$date_filter = " DATE(d.date) >= '$form_from_doc_date' ";
+		$date_filter = " DATE(d.date) >= ? ";
+                array_push($query_array,$form_from_doc_date);
 	}
 	if ($form_to_doc_date) {
 		$form_to_doc_date = DateToYYYYMMDD($form_to_doc_date);
-		$date_filter .= " AND DATE(d.date) <= '$form_to_doc_date'";
+		$date_filter .= " AND DATE(d.date) <= ? ";
+                array_push($query_array,$form_to_doc_date);
 	}
 	// Get the category ID for lab reports.
 	$query = "SELECT rght FROM categories WHERE name = ?";
@@ -206,24 +207,25 @@ $display_collapse_msg = "display:inline;";
 	$query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes, 
 		GROUP_CONCAT(n.date ORDER BY n.date DESC SEPARATOR '|') AS docDates FROM documents d 
 		INNER JOIN patient_data pd ON d.foreign_id = pd.pid 
-		INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = " . $catID . " 
+		INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = ? 
 		LEFT JOIN notes n ON d.id = n.foreign_id 
 		WHERE " . $date_filter . " GROUP BY d.id ORDER BY date DESC";
-	$resultSet = sqlStatement($query);
+        array_unshift($query_array,$catID);
+	$resultSet = sqlStatement($query,$query_array);
 	?>
 	
 	<table border="1" cellpadding=3 cellspacing=0>
 	<tr class='text bold'>
-		<th align="left" width="10%"><?php echo text('Date'); ?></th>
-		<th align="left" class="linkcell" width="20%" ><?php echo text('Name'); ?></th>
+		<th align="left" width="10%"><?php echo xlt('Date'); ?></th>
+		<th align="left" class="linkcell" width="20%" ><?php echo xlt('Name'); ?></th>
 		<th align="left" width="20%"><?php echo xlt('Patient'); ?></th>
-		<th align="left" width="30%"><?php echo text('Note'); ?></th>
-		<th width="10%"><?php echo text('Encounter#'); ?></th>
+		<th align="left" width="30%"><?php echo xlt('Note'); ?></th>
+		<th width="10%"><?php echo xlt('Encounter ID'); ?></th>
 	</tr>
 	<?php
 	if (sqlNumRows($resultSet)) { 
 		while ( $row = sqlFetchArray($resultSet) ) { 
-			$url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . $row["foreign_id"] . "&document_id=" . $row["id"] . '&as_file=false';
+			$url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr($row["foreign_id"]) . "&document_id=" . attr($row["id"]) . '&as_file=false';
 			// Get the notes for this document.
 			$notes = array();
 			$note = '';
@@ -232,16 +234,16 @@ $display_collapse_msg = "display:inline;";
 				$dates = explode("|", $row['docDates']);
 			}
 			for ( $i = 0 ; $i < count($notes) ; $i++ )
-				$note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "<br />";
+				$note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . text($notes[$i]) . "<br />";
 			?>
 			<tr class="text">
 				<td><?php echo oeFormatShortDate(date('Y-m-d', strtotime($row['date']))); ?> </td>
 				<td class="linkcell">
-					<a id="<?php echo $row['id']; ?>" title='<?php echo $url; ?>'><?php echo basename($row['url']); ?></a>
+					<a id="<?php echo attr($row['id']); ?>" title='<?php echo $url; ?>' onclick='top.restoreSession()'><?php echo text(basename($row['url'])); ?></a>
 				</td>
-				<td><?php echo attr($row['pname']); ?> </td>
+				<td><?php echo text($row['pname']); ?> </td>
 				<td><?php echo $note; ?> &nbsp;</td>
-				<td align="center"><?php echo ( $row['encounter_id'] ) ? $row['encounter_id'] : ''; ?> </td>
+				<td align="center"><?php echo ( $row['encounter_id'] ) ? text($row['encounter_id']) : ''; ?> </td>
 			</tr>
 		<?php } ?>
 	<?php } ?>

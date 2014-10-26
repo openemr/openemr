@@ -2933,10 +2933,10 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 #EndIf
 
 #IfMissingColumn documents encounter_id
-  ALTER TABLE `documents` ADD `encounter_id` bigint(20) NULL DEFAULT '0';
+  ALTER TABLE `documents` ADD `encounter_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'Encounter id if tagged';
 #EndIf
 
 #IfMissingColumn documents encounter_check
-	ALTER TABLE `documents` ADD `encounter_check` TINYINT(1) NULL DEFAULT 0;
+	ALTER TABLE `documents` ADD `encounter_check` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'If encounter is created while tagging';
 #EndIf
 

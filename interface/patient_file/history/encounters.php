@@ -94,7 +94,7 @@ function getDocListByEncID($encounter,$raw_encounter_date,$pid){
 				}
 			}
 			else {
-				echo "(" . text('No access') . ")";
+				echo "(" . xlt('No access') . ")";
 			}
 
 			// Get the notes for this document and display as title for the link.					
@@ -104,11 +104,11 @@ function getDocListByEncID($encounter,$raw_encounter_date,$pid){
 			while ( $row = sqlFetchArray($noteResultSet)) {
 				$note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . attr($row['note']) . "\n";
 			}
-			$docTitle = ( $note ) ? $note : attr("View document");
+			$docTitle = ( $note ) ? $note : xla("View document");
 
-			$docHref = $GLOBALS['webroot']."/controller.php?document&view&patient_id=".$pid."&doc_id=".$documentrow['id'];
+			$docHref = $GLOBALS['webroot']."/controller.php?document&view&patient_id=".attr($pid)."&doc_id=".attr($documentrow['id']);
 			echo "<div class='text docrow' id='" . attr($documentrow['id'])."' title='". $docTitle . "'>\n";
-			echo "<a href=$docHref>". text('Document') . ": " . basename($documentrow['url']) . ' (' . xl_document_category($documentrow['name']) . ')' . "</a>";
+			echo "<a href='$docHref' onclick='top.restoreSession()' >". xlt('Document') . ": " . text(basename($documentrow['url'])) . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
 			echo "</div>";
 		}
 	}
@@ -500,10 +500,6 @@ while ($result4 = sqlFetchArray($res4)) {
             // Show billing note that you can click on to edit.
             $feid = $result4['id'] ? htmlspecialchars( $result4['id'], ENT_QUOTES) : 0; // form_encounter id
             echo "<td valign='top'>";
-			
-			//Display the documents tagged to this encounter
-			getDocListByEncID($result4['encounter'],$raw_encounter_date,$pid);	
-			
             echo "<div id='note_$feid'>";
             //echo "<div onclick='editNote($feid)' title='Click to edit' class='text billing_note_text'>";
             echo "<div id='$feid' title='". htmlspecialchars( xl('Click to edit'), ENT_QUOTES) . "' class='text billing_note_text'>";
