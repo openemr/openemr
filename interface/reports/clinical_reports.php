@@ -643,7 +643,7 @@ if(sqlNumRows($result) > 0)
                                <td <?php if(strlen($communication) == 0 || ($_POST['communication_check'] == true)){ ?> colspan=5 <?php } ?>> <?php echo htmlspecialchars($row['users_provider'],ENT_NOQUOTES); ?>&nbsp;</td>
 							   
 							    <?php if(strlen($communication) > 0 || $_POST['communication_check'] == true){ ?>
-							    		<td colspan=4><?php echo $row['communications']; ?></td>
+							    		<td colspan=4><?php echo text($row['communications']); ?></td>
 							   	<?php }  ?>
 				</tr>
 <!-- Diagnosis Report Start-->
