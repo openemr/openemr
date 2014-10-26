@@ -646,7 +646,7 @@ if(sqlNumRows($result) > 0)
 										$repcom = trim(str_replace("NO,","",$repcom));
 										 $repcomarr = explode(",",$repcom);
 										 sort($repcomarr);
-										 echo implode(", ",$repcomarr);
+										 echo text(implode(", ",$repcomarr));
 										?></td>
 							   	<?php }  ?>
 				</tr>
