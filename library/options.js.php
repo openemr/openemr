@@ -55,4 +55,72 @@ function updateAgeString(fieldid, asof, format) {
   document.getElementById('span_' + fieldid).innerHTML = age;
 }
 
+// Function to show or hide form fields (and their labels) depending on "skip conditions"
+// defined in the layout.
+//
+var cskerror = false; // to avoid repeating error messages
+function checkSkipConditions() {
+  var myerror = cskerror;
+  var prevandor = '';
+  var prevcond = false;
+  for (var i = 0; i < skipArray.length; ++i) {
+    var target   = skipArray[i].target;
+    var id       = skipArray[i].id;
+    var itemid   = skipArray[i].itemid;
+    var operator = skipArray[i].operator;
+    var value    = skipArray[i].value;
+
+    var tofind = id;
+    if (itemid) tofind += '[' + itemid + ']';
+    // Some different source IDs are possible depending on the data type.
+    var srcelem = document.getElementById('check_' + tofind);
+    if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
+    if (srcelem == null) srcelem = document.getElementById('form_' + tofind);
+    if (srcelem == null) {
+      if (!cskerror) alert('Cannot find a skip source field for "' + tofind + '"');
+      myerror = true;
+      continue;
+    }
+
+    var condition = false;
+    if (operator == 'eq') condition = srcelem.value == value; else
+    if (operator == 'ne') condition = srcelem.value != value; else
+    if (operator == 'se') condition = srcelem.checked       ; else
+    if (operator == 'ns') condition = !srcelem.checked;
+
+    // Logic to accumulate multiple conditions for the same target.
+    // alert('target = ' + target + ' prevandor = ' + prevandor + ' prevcond = ' + prevcond); // debugging
+    if (prevandor == 'and') condition = condition && prevcond; else
+    if (prevandor == 'or' ) condition = condition || prevcond;
+    prevandor = skipArray[i].andor;
+    prevcond = condition;
+    var j = i + 1;
+    if (j < skipArray.length && skipArray[j].target == target) continue;
+
+    // At this point condition indicates if the target should be hidden.
+
+    var trgelem1 = document.getElementById('label_id_' + target);
+    var trgelem2 = document.getElementById('value_id_' + target);
+    if (trgelem1 == null && trgelem2 == null) {
+      if (!cskerror) alert('Cannot find a skip target field for "' + target + '"');
+      myerror = true;
+      continue;
+    }
+    // If the item occupies a whole row then undisplay its row, otherwise hide its cells.
+    var colspan = 0;
+    if (trgelem1) colspan += trgelem1.colSpan;
+    if (trgelem2) colspan += trgelem2.colSpan;
+    if (colspan < 4) {
+      if (trgelem1) trgelem1.style.visibility = condition ? 'hidden' : 'visible';
+      if (trgelem2) trgelem2.style.visibility = condition ? 'hidden' : 'visible';
+    }
+    else {
+      if (trgelem1) trgelem1.parentNode.style.display = condition ? 'none' : '';
+      else          trgelem2.parentNode.style.display = condition ? 'none' : '';
+    }
+  }
+  // If any errors, all show in the first pass and none in subsequent passes.
+  cskerror = cskerror || myerror;
+}
+
 </script>

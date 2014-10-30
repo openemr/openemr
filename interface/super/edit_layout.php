@@ -107,6 +107,21 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         $field_id = formTrim($iter['id']);
         $data_type = formTrim($iter['data_type']);
         $listval = $data_type == 34 ? formTrim($iter['contextName']) : formTrim($iter['list_id']);
+
+        // Skip conditions for the line are stored as a serialized array.
+        $condarr = array();
+        for ($cix = 0; !empty($iter['condition_id'][$cix]); ++$cix) {
+          $andor = empty($iter['condition_andor'][$cix]) ? '' : $iter['condition_andor'][$cix];
+          $condarr[$cix] = array(
+            'id'       => strip_escape_custom($iter['condition_id'      ][$cix]),
+            'itemid'   => strip_escape_custom($iter['condition_itemid'  ][$cix]),
+            'operator' => strip_escape_custom($iter['condition_operator'][$cix]),
+            'value'    => strip_escape_custom($iter['condition_value'   ][$cix]),
+            'andor'    => strip_escape_custom($andor),
+          );
+        }
+        $conditions = empty($condarr) ? '' : serialize($condarr);
+
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
                 "source = '"        . formTrim($iter['source'])    . "', " .
@@ -124,7 +139,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "list_backup_id= '"        . formTrim($iter['list_backup_id'])   . "', " .
                 "edit_options = '"  . formTrim($iter['edit_options']) . "', " .
                 "default_value = '" . formTrim($iter['default'])   . "', " .
-                "description = '"   . formTrim($iter['desc'])      . "' " .
+                "description = '"   . formTrim($iter['desc'])      . "', " .
+                "conditions = '"    . add_escape_custom($conditions) . "' " .
                 "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
         }
     }
@@ -367,10 +383,31 @@ if ($layout_id) {
 // global counter for field numbers
 $fld_line_no = 0;
 
+$extra_html = '';
+
+// This is called to generate a select option list for fields within this form.
+// Used for selecting a field for testing in a skip condition.
+//
+function genFieldOptionList($current='') {
+  global $layout_id;
+  $option_list = "<option value=''>-- " . xlt('Please Select') . " --</option>";
+  if ($layout_id) {
+    $query = "SELECT field_id FROM layout_options WHERE form_id = ? ORDER BY group_name, seq";
+    $res = sqlStatement($query, array($layout_id));
+    while ($row = sqlFetchArray($res)) {
+      $field_id = $row['field_id'];
+      $option_list .= "<option value='" . attr($field_id) . "'";
+      if ($field_id == $current) $option_list .= " selected";
+      $option_list .= ">" . text($field_id) . "</option>";
+    }
+  }
+  return $option_list;
+}
+
 // Write one option line to the form.
 //
 function writeFieldLine($linedata) {
-    global $fld_line_no, $sources, $lbfonly;
+    global $fld_line_no, $sources, $lbfonly, $extra_html;
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
   
@@ -610,7 +647,100 @@ function writeFieldLine($linedata) {
       }
     }
 
+    // The "?" to click on for yet more field attributes.
+    echo "  <td class='bold' id='querytd_$fld_line_no' style='cursor:pointer;";
+    if (!empty($linedata['conditions'])) echo "background-color:#77ff77;";
+    echo "' onclick='extShow($fld_line_no, this)' align='center' ";
+    echo "title='" . xla('Click here to view/edit more details') . "'>";
+    echo "&nbsp;?&nbsp;";
+    echo "</td>\n";
+
     echo " </tr>\n";
+
+    // Create a floating div for the additional attributes of this field.
+    $conditions = empty($linedata['conditions']) ?
+      array(0 => array('id' => '', 'itemid' => '', 'operator' => '', 'value' => '')) :
+      unserialize($linedata['conditions']);
+    //
+    $extra_html .= "<div id='ext_$fld_line_no' " .
+      "style='position:absolute;width:750px;border:1px solid black;" .
+      "padding:2px;background-color:#cccccc;visibility:hidden;" .
+      "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
+      "<table width='100%'>\n" .
+      " <tr>\n" .
+      "  <th colspan='3' align='left' class='bold'>\"" . text($linedata['field_id']) . "\" " .
+      xlt('will be hidden if') . ":</th>\n" .
+      "  <th colspan='2' align='right' class='text'><input type='button' " .
+      "value='" . xla('Close') . "' onclick='extShow($fld_line_no, false)' />&nbsp;</th>\n" .
+      " </tr>\n" .
+      " <tr>\n" .
+      "  <th align='left' class='bold'>" . xlt('Field ID') . "</th>\n" .
+      "  <th align='left' class='bold'>" . xlt('List item ID') . "</th>\n" .
+      "  <th align='left' class='bold'>" . xlt('Operator') . "</th>\n" .
+      "  <th align='left' class='bold'>" . xlt('Value if comparing') . "</th>\n" .
+      "  <th align='left' class='bold'>&nbsp;</th>\n" .
+      " </tr>\n";
+    // There may be multiple condition lines for each field.
+    foreach ($conditions as $i => $condition) {
+      $extra_html .=
+        " <tr>\n" .
+        "  <td align='left'>\n" .
+        "   <select name='fld[$fld_line_no][condition_id][$i]' onchange='cidChanged($fld_line_no, $i)'>" .
+        genFieldOptionList($condition['id']) . " </select>\n" .
+        "  </td>\n" .
+        "  <td align='left'>\n" .
+        // List item choices are populated on the client side but will need the current value,
+        // so we insert a temporary option here to hold that value.
+        "   <select name='fld[$fld_line_no][condition_itemid][$i]'><option value='" .
+        attr($condition['itemid']) . "'>...</option></select>\n" .
+        "  </td>\n" .
+        "  <td align='left'>\n" .
+        "   <select name='fld[$fld_line_no][condition_operator][$i]'>\n";
+      foreach (array(
+        'eq' => xl('Equals'         ),
+        'ne' => xl('Does not equal' ),
+        'se' => xl('Is selected'    ),
+        'ns' => xl('Is not selected'),
+      ) as $key => $value) {
+        $extra_html .= "    <option value='$key'";
+        if ($key == $condition['operator']) $extra_html .= " selected";
+        $extra_html .= ">" . text($value) . "</option>\n";
+      }
+      $extra_html .=
+        "   </select>\n" .
+        "  </td>\n" .
+        "  <td align='left' title='" . xla('Only for comparisons') . "'>\n" .
+        "   <input type='text' name='fld[$fld_line_no][condition_value][$i]' value='" .
+        attr($condition['value']) . "' size='15' maxlength='63' />\n" .
+        "  </td>\n";
+      if (count($conditions) == $i + 1) {
+        $extra_html .=
+          "  <td align='right' title='" . xla('Add a condition') . "'>\n" .
+          "   <input type='button' value='+' onclick='extAddCondition($fld_line_no,this)' />\n" .
+          "  </td>\n";
+      }
+      else {
+        $extra_html .=
+          "  <td align='right'>\n" .
+          "   <select name='fld[$fld_line_no][condition_andor][$i]'>\n";
+        foreach (array(
+          'and' => xl('And'),
+          'or'  => xl('Or' ),
+        ) as $key => $value) {
+          $extra_html .= "    <option value='$key'";
+          if ($key == $condition['andor']) $extra_html .= " selected";
+          $extra_html .= ">" . text($value) . "</option>\n";
+        }
+        $extra_html .=
+          "   </select>\n" .
+          "  </td>\n";
+      }
+      $extra_html .=
+        " </tr>\n";
+    }
+    $extra_html .=
+      "</table>\n" .
+      "</div>\n";
 }
 ?>
 <html>
@@ -662,6 +792,153 @@ a, a:visited, a:hover { color:#0000cc; }
     color: black;
 }
 </style>
+
+<script language="JavaScript">
+
+// Helper functions for positioning the floating divs.
+function extGetX(elem) {
+ var x = 0;
+ while(elem != null) {
+  x += elem.offsetLeft;
+  elem = elem.offsetParent;
+ }
+ return x;
+}
+function extGetY(elem) {
+ var y = 0;
+ while(elem != null) {
+  y += elem.offsetTop;
+  elem = elem.offsetParent;
+ }
+ return y;
+}
+
+// Show or hide the "extras" div for a row.
+var extdiv = null;
+function extShow(lino, show) {
+ var thisdiv = document.getElementById("ext_" + lino);
+ if (extdiv) {
+  extdiv.style.visibility = 'hidden';
+  extdiv.style.left = '-1000px';
+  extdiv.style.top = '0px';
+ }
+ if (show && thisdiv != extdiv) {
+  extdiv = thisdiv;
+  var dw = window.innerWidth ? window.innerWidth - 20 : document.body.clientWidth;
+  x = dw - extdiv.offsetWidth;
+  if (x < 0) x = 0;
+  var y = extGetY(show) + show.offsetHeight;
+  extdiv.style.left = x;
+  extdiv.style.top  = y;
+  extdiv.style.visibility = 'visible';
+ }
+ else {
+  extdiv = null;
+ }
+}
+
+// Add an extra condition line for the given row.
+function extAddCondition(lino, btnelem) {
+  var f = document.forms[0];
+  var i = 0;
+
+  // Get index of next condition line.
+  while (f['fld[' + lino + '][condition_id][' + i + ']']) ++i;
+  if (i == 0) alert('f["fld[' + lino + '][condition_id][' + i + ']"] <?php echo xls('not found') ?>');
+
+  // Get containing <td>, <tr> and <table> nodes of the "+" button.
+  var tdplus = btnelem.parentNode;
+  var trelem = tdplus.parentNode;
+  var telem  = trelem.parentNode;
+
+  // Replace contents of the tdplus cell.
+  tdplus.innerHTML =
+    "<select name='fld[" + lino + "][condition_andor][" + i + "]'>" +
+    "<option value='and'><?php echo xls('And') ?></option>" +
+    "<option value='or' ><?php echo xls('Or' ) ?></option>" +
+    "</select>";
+
+  // Add the new row.
+  var newtrelem = telem.insertRow(i+2);
+  newtrelem.innerHTML =
+    "<td align='left'>" +
+    "<select name='fld[" + lino + "][condition_id][" + i + "]' onchange='cidChanged(" + lino + "," + i + ")'>" +
+    "<?php echo addslashes(genFieldOptionList()) ?>" +
+    "</select>" +
+    "</td>" +
+    "<td align='left'>" +
+    "<select name='fld[" + lino + "][condition_itemid][" + i + "]' style='display:none' />" +
+    "</td>" +
+    "<td align='left'>" +
+    "<select name='fld[" + lino + "][condition_operator][" + i + "]'>" +
+    "<option value='eq'><?php echo xls('Equals'         ) ?></option>" +
+    "<option value='ne'><?php echo xls('Does not equal' ) ?></option>" +
+    "<option value='se'><?php echo xls('Is selected'    ) ?></option>" +
+    "<option value='ns'><?php echo xls('Is not selected') ?></option>" +
+    "</select>" +
+    "</td>" +
+    "<td align='left'>" +
+    "<input type='text' name='fld[" + lino + "][condition_value][" + i + "]' value='' size='15' maxlength='63' />" +
+    "</td>" +
+    "<td align='right'>" +
+    "<input type='button' value='+' onclick='extAddCondition(" + lino + ",this)' />" +
+    "</td>";
+}
+
+// This is called when a field ID is chosen for testing within a skip condition.
+// It checks to see if a corresponding list item must also be chosen for the test, and
+// if so then inserts the dropdown for selecting an item from the appropriate list.
+function setListItemOptions(lino, seq, init) {
+  var f = document.forms[0];
+  var target = 'fld[' + lino + '][condition_itemid][' + seq + ']';
+  // field_id is the ID of the field that the condition will test.
+  var field_id = f['fld[' + lino + '][condition_id][' + seq + ']'].value;
+  if (!field_id) {
+    f[target].options.length = 0;
+    f[target].style.display = 'none';
+    return;
+  }
+  // Find the occurrence of that field in the layout.
+  var i = 1;
+  while (true) {
+    var idname = 'fld[' + i + '][id]';
+    if (!f[idname]) {
+      alert('<?php echo xls('Condition field not found') ?>: ' + field_id);
+      return;
+    }
+    if (f[idname].value == field_id) break;
+    ++i;
+  }
+  // If this is startup initialization then preserve the current value.
+  var current = init ? f[target].value : '';
+  f[target].options.length = 0;
+  // Get the corresponding data type and list ID.
+  var data_type = f['fld[' + i + '][data_type]'].value;
+  var list_id   = f['fld[' + i + '][list_id]'].value;
+  // WARNING: If new data types are defined the following test may need enhancing.
+  // We're getting out if the type does not generate multiple fields with different names.
+  if (data_type != '21' && data_type != '22' && data_type != '23' && data_type != '25') {
+    f[target].style.display = 'none';
+    return;
+  }
+  // OK, list item IDs do apply so go get 'em.
+  // This happens asynchronously so the generated code needs to stand alone.
+  f[target].style.display = '';
+  $.getScript('layout_listitems_ajax.php' +
+    '?listid='  + encodeURIComponent(list_id) +
+    '&target='  + encodeURIComponent(target)  +
+    '&current=' + encodeURIComponent(current));
+}
+
+// This is called whenever a condition's field ID selection is changed.
+function cidChanged(lino, seq) {
+  var thisid = document.forms[0]['fld[' + lino + '][condition_id][0]'].value;
+  var thistd = document.getElementById("querytd_" + lino);
+  thistd.style.backgroundColor = thisid ? '#77ff77' : '';
+  setListItemOptions(lino, seq, false);
+}
+
+</script>
 
 </head>
 
@@ -755,6 +1032,7 @@ while ($row = sqlFetchArray($res)) {
   if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
    echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translation of description in current language')."'>&nbsp;(?)</span></th>";
   } ?>
+  <th><?php echo xlt('?'); ?></th>
  </tr>
 </thead>
 <tbody>
@@ -770,6 +1048,8 @@ while ($row = sqlFetchArray($res)) {
 ?>
 </tbody>
 </table></div>
+
+<?php echo $extra_html; ?>
 
 <?php if ($layout_id) { ?>
 <span style="font-size:90%">
@@ -1309,6 +1589,14 @@ $(document).ready(function(){
       }
     };
 
+    // Initialize the list item selectors in skip conditions.
+    var f = document.forms[0];
+    for (var lino = 1; f['fld[' + lino + '][id]']; ++lino) {
+      for (var seq = 0; f['fld[' + lino + '][condition_itemid][' + seq + ']']; ++seq) {
+        setListItemOptions(lino, seq, true);
+      }
+    }
+
 });
 
 function NationNotesContext(lineitem,val){
@@ -1436,6 +1724,7 @@ function IsNumeric(value, min, max) {
 
 // tell if num is an Integer
 function IsN(num) { return !/\D/.test(num); }
+
 </script>
 
 </html>

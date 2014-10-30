@@ -2555,7 +2555,8 @@ CREATE TABLE `layout_options` (
   `description` text,
   `fld_rows` int(11) NOT NULL default '0',
   `list_backup_id` varchar(31) NOT NULL default '',
-  `source` char(1) NOT NULL default 'F' COMMENT 'F=Form, D=Demographics, H=History, E=Encounter'
+  `source` char(1) NOT NULL default 'F' COMMENT 'F=Form, D=Demographics, H=History, E=Encounter',
+  `conditions` text NOT NULL DEFAULT '' COMMENT 'serialized array of skip conditions',
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=MyISAM;
 

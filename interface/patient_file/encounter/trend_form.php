@@ -98,7 +98,12 @@ $(document).ready(function(){
   $('.readonly').show();
 
   // Place click callback for graphing
-  $(".graph").click(function(e){ show_graph('<?php echo $is_lbf ? $formname : 'form_vitals'; ?>', this.id, $(this).text()) });
+<?php if ($is_lbf) { ?>
+  // For LBF the <td> has an id of label_id_$fieldid
+  $(".graph").click(function(e){ show_graph('<?php echo $formname; ?>', this.id.substring(9), $(this).text()) });
+<?php } else { ?>
+  $(".graph").click(function(e){ show_graph('form_vitals', this.id, $(this).text()) });
+<?php } ?>
 
   // Show hovering effects for the .graph links
   $(".graph").hover(

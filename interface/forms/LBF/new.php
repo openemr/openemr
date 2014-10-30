@@ -354,6 +354,9 @@ $(document).ready(function() {
   if(window.tabbify){
     tabbify();
   }
+  if (window.checkSkipConditions) {
+    checkSkipConditions();
+  }
   // special size for
   $(".iframe_medium").fancybox({
     'overlayOpacity' : 0.0,
@@ -494,6 +497,8 @@ function validate(f) {
   // True if any data items in this form can be graphed.
   $form_is_graphable = false;
 
+  $condition_str = '';
+
   while ($frow = sqlFetchArray($fres)) {
     $this_group = $frow['group_name'];
     $titlecols  = $frow['titlecols'];
@@ -506,6 +511,21 @@ function validate(f) {
 
     $graphable  = strpos($edit_options, 'G') !== FALSE;
     if ($graphable) $form_is_graphable = true;
+
+    // Accumulate skip conditions into a JavaScript string literal.
+    $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
+    foreach ($conditions as $condition) {
+      if (empty($condition['id'])) continue;
+      $andor = empty($condition['andor']) ? '' : $condition['andor'];
+      if ($condition_str) $condition_str .= ",\n";
+      $condition_str .= "{" .
+        "target:'"   . addslashes($field_id)              . "', " .
+        "id:'"       . addslashes($condition['id'])       . "', " .
+        "itemid:'"   . addslashes($condition['itemid'])   . "', " .
+        "operator:'" . addslashes($condition['operator']) . "', " .
+        "value:'"    . addslashes($condition['value'])    . "', " .
+        "andor:'"    . addslashes($andor)                 . "'}";
+    }
 
     $currvalue  = '';
 
@@ -587,13 +607,8 @@ function validate(f) {
         // We sort these sensibly, however only the encounter date is shown here;
         // at some point we may wish to show also the data entry date/time.
         while ($hrow = sqlFetchArray($hres)) {
-          echo "<td colspan='".attr($CPR)."' align='right' class='bold' style='";            
-          echo "border-top:1px solid black;";
-          echo "border-right:1px solid black;";
-          echo "border-bottom:1px solid black;";
-          if (empty($historical_ids)) { echo "border-left:1px solid black;"; }
-          echo "'>" .
-            oeFormatShortDate(substr($hrow['date'], 0, 10)) . "&nbsp;</td>\n";            
+          echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>&nbsp;" .
+            text(oeFormatShortDate(substr($hrow['date'], 0, 10))) . "</td>\n";
           $historical_ids[$hrow['form_id']] = '';
         }
         echo " </tr>";
@@ -625,16 +640,12 @@ function validate(f) {
       if ($graphable) echo " graph";
       echo "'";
       if ($cell_count == 2) echo " style='padding-left:10pt'";
-      if ($graphable) echo " id='" . attr($field_id) . "'";
+      // This ID is used by skip conditions and also show_graph().
+      echo " id='label_id_" . attr($field_id) . "'";
       echo ">";
 
       foreach ($historical_ids as $key => $dummy) {
-        $historical_ids[$key] .= "<td valign='top' colspan='" . attr($titlecols) . "' class='text' style='";
-        $historical_ids[$key] .= "border-bottom:1px solid black;";
-        if ($leftborder) $historical_ids[$key] .= "border-left:1px solid black;";
-        if (!$datacols ) $historical_ids[$key] .= "border-right:1px solid black;";
-        $historical_ids[$key] .= "' nowrap>";
-        $leftborder = false;        
+        $historical_ids[$key] .= "<td valign='top' colspan='" . attr($titlecols) . "' class='text' nowrap>";
       }
 
       $cell_count += $titlecols;
@@ -651,17 +662,14 @@ function validate(f) {
     if ($datacols > 0) {
       end_cell();
       echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
+      // This ID is used by skip conditions.
+      echo " id='value_id_" . attr($field_id) . "'";
       if ($cell_count > 0) echo " style='padding-left:5pt'";
       echo ">";
 
       foreach ($historical_ids as $key => $dummy) {
-        $historical_ids[$key] .= "<td valign='top' align='right' colspan='" . attr($datacols) . "' class='text' style='";
-        $historical_ids[$key] .= "border-bottom:1px solid black;";
-        $historical_ids[$key] .= "border-right:1px solid black;";
-        if ($leftborder) $historical_ids[$key] .= "border-left:1px solid black;";
-        $historical_ids[$key] .= "'>";
-        $leftborder = false;
-        }
+        $historical_ids[$key] .= "<td valign='top' align='right' colspan='" . attr($datacols) . "' class='text'>";
+      }
 
       $cell_count += $datacols;
     }
@@ -714,6 +722,12 @@ if (function_exists($formname . '_additional_buttons')) {
 <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
 
 <script language="JavaScript">
+
+// Array of skip conditions for the checkSkipConditions() function.
+var skipArray = [
+<?php echo $condition_str; ?>
+];
+
 <?php echo $date_init; ?>
 <?php
 if (function_exists($formname . '_javascript_onload')) {
