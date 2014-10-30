@@ -2967,3 +2967,8 @@ CREATE TABLE `shared_attributes` (
 ALTER TABLE `layout_options` ADD COLUMN `source` char(1) NOT NULL default 'F'
   COMMENT 'F=Form, D=Demographics, H=History, E=Encounter';
 #EndIf
+
+#IfMissingColumn layout_options conditions
+ALTER TABLE `layout_options` ADD COLUMN
+  `conditions` text NOT NULL DEFAULT '' COMMENT 'serialized array of skip conditions';
+#EndIf
