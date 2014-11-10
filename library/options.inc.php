@@ -1483,7 +1483,7 @@ function generate_display_field($frow, $currvalue) {
 
   // simple text field
   else if ($data_type == 2) {
-    $s = htmlspecialchars($currvalue,ENT_NOQUOTES);
+     $s = nl2br(htmlspecialchars($currvalue,ENT_NOQUOTES));
   }
 
   // long or multi-line text field
@@ -1573,7 +1573,7 @@ function generate_display_field($frow, $currvalue) {
         if ($count++) $s .= "<br />";
 	  
 	// Added 5-09 by BM - Translate label if applicable
-        $s .= htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
+        $s .= nl2br(htmlspecialchars(xl_list_label($lrow['title'])),ENT_NOQUOTES);
 	    
       }
     }

@@ -513,7 +513,7 @@ font-weight: bold;
     width:100%;
 }
 #report_custom table {
-    width:100%;
+    width:80%;
 }
 #report_custom hr {
     border: 2px dotted black;
@@ -589,7 +589,7 @@ font-weight: bold;
 }
 #report_custom .encounter_form {
     margin: 10px;
-    padding: 10px;
+    padding: 0px;
     border-top: 1px solid gray;
 }
 #report_custom img.bigimage {
