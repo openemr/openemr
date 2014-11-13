@@ -579,6 +579,14 @@ else {
   </th>
 
   <th>
+   <?php if ($type_report == "amc") { ?>
+    <?php echo htmlspecialchars( xl('Failed'), ENT_NOQUOTES); ?></a>
+   <?php } else { ?>
+    <?php echo htmlspecialchars( xl('Failed Patients'), ENT_NOQUOTES); ?></a>
+   <?php } ?>
+  </th>
+
+  <th>
    <?php echo htmlspecialchars( xl('Performance Percentage'), ENT_NOQUOTES); ?></a>
   </th>
 
@@ -599,6 +607,14 @@ else {
    if (isset($row['is_main']) || isset($row['is_sub'])) {
      echo "<td class='detail'>";
      if (isset($row['is_main'])) {
+
+       // is_sub is a special case of is_main whereas total patients, denominator, and excluded patients are taken
+       // from is_main prior to it. So, need to store denominator patients from is_main for subsequent is_sub
+       // to calculate the number of patients that failed.
+       // Note that exlusion in the standard rules is not the same as in the cqm/amd and should not be in calculation
+       // as is in the cqm/amc rules.
+       $main_pass_filter = $row['pass_filter'];
+
        echo "<b>".generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id'])."</b>";
 
        $tempCqmAmcString = "";
@@ -644,11 +660,53 @@ else {
      }
      echo "</td>";
      echo "<td align='center'>" . $row['total_patients'] . "</td>";
-     echo "<td align='center'>" . $row['pass_filter'] . "</td>";
-     if ($type_report != "amc") {
-       echo "<td align='center'>" . $row['excluded'] . "</td>";
+
+     if ( isset($row['itemized_test_id']) && ($row['pass_filter'] > 0) ) {
+       echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $row['pass_filter'] . "</a></td>";
      }
-     echo "<td align='center'>" . $row['pass_target'] . "</td>";
+     else {
+       echo "<td align='center'>" . $row['pass_filter'] . "</td>";
+     }
+
+     if ($type_report != "amc") {
+       // Note that amc will likely support in excluded items in the future for MU2
+       if ( ($type_report != "standard") && isset($row['itemized_test_id']) && ($row['excluded'] > 0) ) {
+         // Note standard reporting exluded is different than cqm/amc and will not support itemization
+         echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $row['excluded'] . "</a></td>";
+       }
+       else {
+         echo "<td align='center'>" . $row['excluded'] . "</td>";
+       }
+     }
+
+     if ( isset($row['itemized_test_id']) && ($row['pass_target'] > 0) ) {
+       echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $row['pass_target'] . "</a></td>";
+     }
+     else {
+       echo "<td align='center'>" . $row['pass_target'] . "</td>";
+     }
+
+     $failed_items = 0;
+     if (isset($row['is_main'])) {
+       if ($type_report == "standard") {
+         // Excluded is not part of denominator in standard rules so do not use in calculation
+         $failed_items = $row['pass_filter'] - $row['pass_target'];
+       }
+       else {
+         $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
+       }
+     }
+     else { // isset($row['is_sub'])
+       // Excluded is not part of denominator in standard rules so do not use in calculation
+       $failed_items = $main_pass_filter - $row['pass_target'];
+     }
+     if ( isset($row['itemized_test_id']) && ($failed_items > 0) ) {
+       echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $failed_items . "</a></td>";
+     }
+     else {
+       echo "<td align='center'>" . $failed_items . "</td>";
+     }
+
      echo "<td align='center'>" . $row['percentage'] . "</td>";
    }
    else if (isset($row['is_provider'])) {
