@@ -31,6 +31,7 @@
 //   English (Indian)               // xl('English (Indian)')
 //   English (Standard)             // xl('English (Standard)')
 //   Estonian                       // xl('Estonian')
+//   Finnish                        // xl('Finnish')
 //   French                         // xl('French (Standard)')
 //   French                         // xl('French (Canadian)')
 //   German                         // xl('German')
