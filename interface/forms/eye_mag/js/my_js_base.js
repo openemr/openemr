@@ -108,6 +108,7 @@ function submit_form() {
            url 		: url, // the url where we want to POST
            data 	: formData, // our data object
            success : function(result){
+           // alert("Tell Me should show this" + result);
            $("#tellme").html(result);
            }
            });
@@ -460,6 +461,8 @@ $(document).ready(function() {
                                                        }); 
                   //we have to write this to work for every PRIORS select div
                   //select only shows up in the PRIORS select actions.
+                  // no there are selects in Contact lens section
+                  //on hold...
                   
         /*          $("selector").on('change',function(event){
                                    alert ("selector changed");
@@ -593,7 +596,9 @@ $(document).ready(function() {
                   $('#PRIOR_EXT').change(function() {
                                          //         alert( "Stop looking here.  PRIOR_EXT.change" );
                                          // $PRIORS_EXT_left_text = 1;
-                                                  });  //we are requesting an old record: EXT values to be placed in the PRIORS_EXT div.
+                                                  });
+                  
+                  //we are requesting an old record: EXT values to be placed in the PRIORS_EXT div.
               /*    $("[id$='_left_text']").click(function(e) {
                                             var $target = $(e.target);
                                             if ($target.hasClass("PRIORS")) {

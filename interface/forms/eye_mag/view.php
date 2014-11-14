@@ -781,8 +781,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             </tr>
                                             <tr>
                                                 <td colspan="5" style="vertical-align:text-top;">
-                                                    <input type="checkbox" id="dil_risk" name="dil_risks" value="">
-                                                    <label for="dil_risk" class="input-helper input-helper--checkbox"><?php xl('Dilation risks reviewed','e'); ?></label>
+                                                    <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" <?php if ($dil_risks =='1') echo "checked"; ?>>
+                                                    <label for="DIL_RISKS" class="input-helper input-helper--checkbox"><?php xl('Dilation risks reviewed','e'); ?></label>
                                                 </td>
                                                 <td colspan="1" style="text-align:left;">
                                                     <input type="checkbox" name="wetType" id="Balanced" value="Balanced">
@@ -997,7 +997,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                 <td><input type=text id="CTLODVA_copy_brd" name="CTLODVA_copy_brd" value="<?=$CTLODVA?>"></td>
                                                 </tr>
                                              <tr><td><b><?php xl('OS','e'); ?>:</b></td>
-                                                <td><input type=text id="SCSVA_copy_brd" name="SCOSVA_copy_brd" value="<?=$SCOSVA?>"></td>
+                                                <td><input type=text id="SCOSVA_copy" name="SCOSVA_copy" value="<?=$SCOSVA?>"></td>
                                                 <td><input type=text id="WOSVA_copy_brd" name="WOSVA_copy_brd" value="<?=$WOSVA?>"></td>
                                                 <td><input type=text id="AROSVA_copy_brd" name="AROSVA_copy_brd" value="<?=$AROSVA?>"></td>
                                                 <td><input type=text id="MROSVA_copy_brd" name="MROSVA_copy_brd" value="<?=$MROSVA?>"></td>
@@ -1010,29 +1010,29 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                 <td></td>
                                                 <td><?php xl('scNnear','e'); ?></td>
                                                 <td><?php xl('ccNear','e'); ?></td>
+                                                <td><?php xl('ARNear','e'); ?></td>
                                                 <td><?php xl('MRNear','e'); ?></td>
                                                 <td><?php xl('PAM','e'); ?></td>
                                                 <td><?php xl('Glare','e'); ?></td>
                                                 <td><?php xl('Contrast','e'); ?></td>
-                                                <td><?php xl('other','e'); ?></td>
                                             </tr>
                                              <tr><td><b><?php xl('OD','e'); ?>:</b></td>
                                                 <td><input type=text id="SCNEARODVA" name="SCNEARODVA" value="<?=$SCNEARODVA?>"></td>
                                                 <td><input type=text id="WNEARODVA_copy_brd" name="WNEARODVA_copy_brd" value="<?=$WNEARODVA?>"></td>
+                                                <td><input type=text id="ARNEARODVA_copy_brd" name="ARNEARODVA_copy_brd" value="<?=$ARNEARODVA?>"></td>
                                                 <td><input type=text id="MRNEARODVA_copy_brd" name="MRNEARODVA_copy_brd" value="<?=$MRNEARODVA?>"></td>
                                                 <td><input type=text id="PAMODVA_copy_brd" name="PAMODVA_copy_brd" value="<?=$PAMODVA?>"></td>
                                                 <td><input type=text id="GLAREODVA_copy_brd" name="GLAREODVA_copy_brd" value="<?=$GLAREODVA?>"></td>
                                                 <td><input type=text id="CONTRASTODVA_copy_brd" name="CONTRASTODVA_copy_brd" value="<?=$CONTRASTODVA?>"></td>
-                                                <td><input type=text id="OTHERODVA_copy_brd" name="OTHERODVA_copy_brd" value="<?=$OTHERODVA?>"></td>
                                             </tr>
                                             <tr><td><b><?php xl('OS','e'); ?>:</b></td>
                                                 <td><input type=text id="SCNEAROSVA" name="SCNEAROSVA" value="<?=$SCNEAROSVA?>"></td>
                                                 <td><input type=text id="WNEAROSVA_copy_brd" name="WNEAROSVA_copy_brd" value="<?=$WNEAROSVA?>"></td>
+                                                <td><input type=text id="ARNEAROSVA_copy" name="ARNEAROSVA_copy" value="<?=$ARNEAROSVA?>"></td>
                                                 <td><input type=text id="MRNEAROSVA_copy" name="MRNEAROSVA_copy" value="<?=$MRNEAROSVA?>"></td>
                                                 <td><input type=text id="PAMOSVA_copy_brd" name="PAMOSVA_copy_brd" value="<?=$PAMOSVA?>"></td>
                                                 <td><input type=text id="GLAREOSVA_copy_brd" name="GLAREOSVA_copy_brd" value="<?=$GLAREOSVA?>"></td>
                                                 <td><input type=text id="CONTRASTOSVA" name="CONTRASTOSVA" value="<?=$CONTRASTOSVA?>"></td>
-                                                <td><input type=text id="OTHEROSVA" name="OTHEROSVA" value="<?=$OTHEROSVA?>"></td>
                                             </tr>
                                         </table>
                                     </div>
@@ -1043,8 +1043,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                 </div>   
                 <!-- end of the refraction box -->
 
-                <!-- my reporting div for development only -->
-                <div id="tellme"></div><br />
+                <!-- my reporting div for development only remove the "X" to see output from save.php-->
+                <div id="tellmeX" name="tellmeX"></div><br />
                 <!-- end reporting div -->
 
                 <!-- Start of the exam selection row -->
