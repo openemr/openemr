@@ -1,0 +1,1178 @@
+.pure-form input[type="text"],
+.pure-form input[type="password"], 
+.pure-form input[type="email"], 
+.pure-form input[type="url"], 
+.pure-form input[type="date"], 
+.pure-form input[type="month"], 
+.pure-form input[type="time"], 
+.pure-form input[type="datetime"], 
+.pure-form input[type="datetime-local"], 
+.pure-form input[type="week"], 
+.pure-form input[type="number"], 
+.pure-form input[type="search"], 
+.pure-form input[type="tel"], 
+.pure-form input[type="color"], 
+.pure-form select, .pure-form textarea {
+    padding: 0.2em 0.2em;
+    display: inline-block;
+    border: 1px solid #CCC;
+    box-shadow: 0px 1px 3px #DDD inset;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.pure-form label {
+    margin: 0.1em;
+}
+.pure-form input[type="text"], .pure-form input[type="password"], .pure-form input[type="email"], .pure-form input[type="url"], .pure-form input[type="date"], .pure-form input[type="month"], .pure-form input[type="time"], .pure-form input[type="datetime"], .pure-form input[type="datetime-local"], .pure-form input[type="week"], .pure-form input[type="number"], .pure-form input[type="search"], .pure-form input[type="tel"], .pure-form input[type="color"], .pure-form select, .pure-form textarea {
+    padding: 0.2em 0.2em !important;
+}
+.eye_mag {
+    z-index:5;
+}
+#sddm li{
+    z-index:31;
+}
+    a:link {
+    color: red;
+}
+
+/* visited link */
+a:visited {
+    color: #000000;
+}
+
+/* mouse over link */
+a:hover {
+    color: black;
+    text-decoration: underline;
+}
+
+/* selected link */
+a:active {
+    color: red;
+}
+
+.more_visions_1:hover {
+    text-decoration: underline;
+    cursor:pointer;
+}
+.more_visions_2:hover {
+    text-decoration: underline;
+    cursor:pointer;
+}
+#CC {
+    width: 3in; 
+    height: 0.2in; 
+    font-family: FontAwesome,Arial,sans-serif; 
+    font-size: 9pt;
+}
+
+.text_clinical {
+    text-decoration: none;
+    font-color: #000000;
+    font-family:FontAwesome,Arial,sans-serif;
+    font-size: 1em;
+     
+}
+
+.text_clinical a b {
+    text-decoration: none;
+    font-color: #000000;
+    font-family: FontAwesome, Arial,sans-serif;
+    font-size: 1em;
+}
+
+text_clinical a:hover 
+{ 
+    text-decoration: underline }
+}
+text_clinical th {
+    text-decoration: underline;
+    font-size: 1.1em;
+}
+.checkbox {
+    height:15px;
+    width:15px;
+}
+
+textarea.ACT { 
+    border: none; 
+    height:38px;
+    width:38px;
+    outline: none;
+    top:50%;
+    font-size: 0.7em;
+}
+.input-helper {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+.input-helper:before {
+    content: '';
+    display: block;
+    position: relative;
+    padding-left:10px;
+}
+
+.input-helper--radio {
+    padding-left: 18px;
+}
+.input-helper--radio:before {
+    top: 3px;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid #222;
+}
+label {
+    font-size:0.9em;
+}
+
+.input-helper--checkbox {
+   
+}
+.input-helper--checkbox.boxed:before {
+   
+    left: 0px;
+    width: 18px;
+    height: 18px;
+    border: 0px solid grey;
+}
+
+input[type="radio"].hidden {
+    display: none;
+}
+
+input[type="checkbox"].hidden {
+    display: none;
+}
+input[type="checkbox"].hidden:checked + label:before {
+    background: #222;
+}
+
+input[type=text] {
+    width: 45px;
+    height: 20px;
+    padding: 0.2em 0.4em;
+    display: inline-block;
+    text-align:center;
+}
+
+
+/* REFRACTION PANEL */
+.refraction_panel {
+    display:none;
+    width:95%;
+    height:auto;
+}
+
+.refraction2 {
+    float: left;
+    border: 1.00pt solid #000000; 
+    padding: 0.1in; 
+    background: #ffffff;
+    box-shadow: 10px 10px 50px #888888;
+    border-radius: 8px;
+    margin-right: 4px; 
+    border:1pt solid; 
+    font-size:0.6em;
+    webkit-box-flex: 0;
+    -moz-box-flex: 0;
+    box-flex: 0;
+    input[type="text"] {
+        width:20px;
+        padding: 0.2em 0.4em;
+        display: inline-block;
+    }
+}
+.refraction {
+    display:inline-block;
+    min-height:1.8in;
+    height:190px;
+    border: 1.00pt solid #000000; 
+    padding: 0.2in; 
+    box-shadow: 10px 10px 5px #888888;
+    border-radius: 8px;
+    margin: 5 auto;
+    margin-right: 4px; 
+    width:4.0in;
+    font-size: 1.1em;
+    font-family: FontAwesome;
+}
+.refraction td {
+    text-align:center;
+    font-size:0.7em;
+    width:0.35in;
+    vertical-align: text-middle;
+    text-decoration: none;
+    padding: 3px;
+}
+.refraction th {
+    height:0.17in;
+    font-size: 0.8em;
+    text-align: left;
+    padding: 5 0 2 0;
+    color: black; 
+}
+.refraction ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.refraction li {
+    float: left;
+}
+
+input[type=text].refraction {
+    padding: 0.2em 0.4em;
+    display: inline-block;
+    text-align: right;
+    width:150px;
+}
+.refraction  b{
+    text-decoration:bold;
+}
+
+.Guidance {
+    border:1pt solid;
+    background: #C3A0D0;
+    background-color: #C3A0D0;
+}
+.up {
+    vertical-align: top;
+    vertical-align: text-top;
+}
+
+
+.title {
+    font-size:1.2em;
+    font-weight:600;
+    
+}
+
+.underline{
+    text-decoration: underline;
+}
+
+/*Drop downs stuff */
+
+.dropdowns {
+position:relative;
+background-color: red;
+
+}
+
+.section {
+    position:relative;
+    
+    padding: 0in;
+    display: flex;
+    margin: 0 auto;
+        
+    display: -webkit-box;
+    display: -moz-box;
+    display: box;
+
+    -webkit-box-align: start;
+    -moz-box-align: start;
+    box-align: start;
+
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    box-pack: center;
+}
+
+.LayerVision2 {
+float:left; 
+margin-right: 4px; 
+border: 1.00pt solid #000000; 
+background: #C0C0C0;
+
+}
+
+.refraction td.right {
+    text-align: right;
+    text-decoration: none;
+    width:0.7in;
+    vertical-align: text-top;
+}
+.WSPACER {
+    height: 0.3in;
+}
+.WProgShow {
+    display:none;
+}
+
+.vitals {
+    float:left; 
+    box-shadow: 10px 10px 5px #888888;
+    border-radius: 8px;
+    margin-right: 4px; 
+    position:relative; 
+    margin-right: 4px; 
+    padding: 0.02in; 
+    border: 1.00pt solid #000000; 
+    background: #ffffff;
+    font-family:  FontAwesome,Serif, Arial;
+    font-size: 0.8em;
+    height: 1.05in;
+}
+#divId {
+  display: block;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background: url(http://www.oculoplasticsllc.com/b/openemr/interface/forms/eye_mag/images/Amsler_2.jpg) no-repeat;
+  width: 180px; /* Width of new image */
+  height: 236px; /* Height of new image */
+  padding-left: 180px; /* Equal to width of new image */
+
+}
+/* All in one selector */
+.banner {
+  display: block;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  background: url(http://notrealdomain2.com/newbanner.png) no-repeat;
+  width: 180px; /* Width of new image */
+  height: 236px; /* Height of new image */
+  padding-left: 180px; /* Equal to width of new image */
+}
+#AmslerOD {
+    value:1;
+}
+.borderShadow {
+    position:relative; 
+    box-shadow: 5px 5px 9px #888888;
+    border-radius: 8 8 8 8;
+    margin-right: 4px; 
+    position:relative; 
+    margin-right: 4px; 
+    padding: 0.07in; 
+    border: 1.00pt solid #000000; 
+    background: #ffffff;
+    font-family:  FontAwesome,Serif, Arial;
+    font-size: 0.8em;
+}
+.borderShadow2 {
+    box-shadow: 1px 1px 1px #888888;
+ 
+}
+.vitals tr td input{
+    padding: 0.2em 0.4em;
+    display: inline-block;
+    vertical-align:top;
+}
+
+.customers {
+    font-family: FontAwesome;
+    border-collapse: collapse;
+    padding: 8px;
+}
+
+
+th {
+    font-size: 1.0em;
+    text-align: center;
+    padding: 0 0 10 0;
+    background-color: #ffffff;
+    color: black;
+    vertical-align: bottom;
+
+}
+
+td.customers  {
+    color: #000000;
+    background-color: #FFFFFF;
+    font-size: 0.7em;
+    text-align:center;
+    vertical-align: top;
+    line-spacing: 0px;
+    text-indent: 0px;
+}
+input[type=text].customers {
+    font-size: 0.8em;
+    width: 15px;
+    vertical-align: top;
+    line-spacing: 0px;
+    text-indent: 0px;
+}
+input[type=checkbox]:checked.customers ~ div {
+   background: red;
+}
+/* This CSS is used ONLY by the form defined in this same folder 
+ * customize it as you see fit for your specific form
+ */ 
+/
+body
+{
+    display:inline-block;
+    margin-left:auto;
+    margin-right:auto;
+    padding-left:5px; //Or whatever value you would like
+    padding-right:5px; //Same ^
+    text-align:center;
+    background-color: #ffffff;
+    z-index:10;
+}
+
+#form_container {
+    border: 1px solid red;
+    background-color: #FFFFFF; 
+    padding: 0px;
+    margin: 0 auto;
+    position:relative;
+    width:100%;
+
+}
+
+/* Refraction Panel Defaults */
+
+.nodisplay {
+    display:none;
+    /* gets visible when Trofocal selected*/    
+}
+
+.clear_both {
+    clear:both;
+}
+
+.float_left{
+    float:left;
+    padding-left:5px;
+}
+.WMid {
+    
+
+}
+.SideBarTabClass {
+    top:0.01in;
+    left:0in;
+    height:0..5in;
+    width:2.2in;
+    background:white;
+    box-shadow: 1px 1px 1px #888888;
+    border-radius: 8px;
+    writing-mode: tb-rl;
+}
+.exam_section_left {
+    top:0px; 
+    float:left; 
+    min-height:335px;
+    width: 453px; 
+    margin: 5 auto ;
+    font-size:1.0em;
+}
+.exam_section_left b {
+    font-size:1.1em;
+}
+.size100 {
+    display:inline-block;
+}
+.size50 {
+    display:inline-block;
+
+}
+.exam_section_right {
+    top:0px;
+    float:left; 
+    min-height:335px;
+    width: 453px; 
+    text-align:center;
+    margin:5 auto 0 5 ;
+}
+textarea.EXTTEXT {
+    /*narrow_textarea*/
+    width:1in;
+    max-width: 1in;
+    max-height: 0.5in;
+    height: 0.4in;
+    font-size: 1.0em;
+}
+textarea.ANTSEGTEXT {
+    height:24px;
+    width: 2.0in;
+    max-height: 10em;
+    height: 40px;
+}
+.left {
+    text-align:left;
+}
+.right {
+    text-align: right;
+}
+textarea {
+    Xresize: none;
+}
+.canvas {
+    
+   /* background:#29c7c4;*/
+  background-image: url('../../forms/eye_mag/images/beige013.jpg');
+    background-size: 100px;
+    background-repeat: repeat;
+}
+.AntSegSpan {
+    /* OU OD OS
+    If selected the background changes
+
+    */
+    position:relative;
+    padding-right:0.1in;
+    box-shadow: 1px 1px 1px #888888;
+    border-radius: 8px;
+    margin-right: 4px; 
+    position:relative; 
+    margin-right: 0.1in; 
+    padding: 0.1in; 
+    border: 1.00pt solid #000000; 
+    background: #C0C0C0;
+    font-color:#000000;
+    height:0.05in;
+    font-family:  FontAwesome,Serif, Arial;
+    font-size: 8pt;
+
+}
+.ANTSEGTEXT {
+    width: 2in;
+    height: 16px;
+}
+.button-success {
+            background: rgb(240, 240, 0); /* this is a green */
+            box-shadow: 2px 2px 2px #888888;
+            border-radius: 45px;
+        }
+.button_over {
+    background-color: red;
+}
+
+.buttonRefraction_selected {
+    border: #000000;
+    background-color: yellow !important;
+}
+
+.tools { margin-bottom: 0px; }
+.tools input[type="button"] {
+    border: 1px solid black; 
+    height: 15px; 
+    width:10px; 
+    line-height: 15px; 
+    padding: 0 5px; 
+    vertical-align: middle; 
+    text-align: center; 
+    text-decoration: none; 
+    display: inline-block; 
+    color: black; 
+    font-weight: bold;
+}
+.tools  {
+border: 1px solid black;
+height: 30px;
+width: 30px;
+line-height: 30px;
+padding: 0 10px;
+vertical-align: middle;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+color: black;
+font-weight: bold;
+}
+.transparent {
+  z-index: 10;
+}
+
+/*
+ 
+h1 {
+    
+    font-size: 120%;
+    font-weight: bold;
+}
+
+#form_container {
+    border: 1px solid black;
+    background-color: #ffffcc;
+    width: 750px;
+    padding: 10px;
+    margin: 10px 0px 10px 0px;
+}
+
+#general {
+    padding: 10px;
+}
+
+#history {
+    padding: 10px;
+    border-top: 1px solid black;
+}
+
+#bottom {
+    padding: 10px;
+    border-top: 1px solid black;
+}
+
+.formtext {
+    font-family: courier;
+    font-size: 90%;
+}
+
+.link {
+    font-size: 80%;
+}
+
+.link_submit {
+    font-size: 120%;
+}
+
+.title {
+    font-size: 150%;
+    font-weight: bold;
+}
+
+.bold { 
+    font-size: 110%;
+    font-weight: bold;
+}
+
+#print_form_container {
+    border: 1px solid black;
+    background-color: #ffffcc;
+    padding: 10px;
+    margin: 10px 0px 10px 0px;
+}
+
+#print_general {
+    padding: 10px;
+}
+
+#print_history {
+    padding: 10px;
+    border-top: 1px solid black;
+}
+
+#print_bottom {
+    padding: 10px;
+    border-top: 1px solid black;
+}
+*/
+#tabs {
+    float:middle;
+    width:100%;
+    font-size:0.55em;
+    border-bottom:1px solid #2763A5;
+    line-height:normal;
+    }
+
+#tabs ul {
+    margin:0;
+    padding:4px 2px 0 5px;
+    list-style:none;
+    float:right;
+    }
+
+#tabs li {
+    display:inline;
+    margin:0;
+    padding:0;
+    }
+
+#tabs li  {
+    
+   /* background:url("../../forms/eye_mag/images/tabright.gif") no-repeat right top;
+    padding:5px 15px 4px 6px;*/
+    color:#000;
+    }
+
+/* End IE5-Mac hack */
+#tabs li:hover {
+    color:#000;
+    text-decoration:underline;
+    }
+
+
+
+/* CSS for QP_buttons */
+.eye_button {
+    -moz-box-shadow:inset 0px 1px 0px 0px #97c4fe;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #97c4fe;
+    box-shadow:inset 0px 1px 0px 0px #97c4fe;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #9eedf0), color-stop(1, #1e62d0) );
+    background:-moz-linear-gradient( center top, #9eedf0 5%, #1e62d0 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='##9eedf0', endColorstr='#1e62d0');
+    background-color:#3d94f6;
+    -webkit-border-top-left-radius:3px;
+    -moz-border-radius-topleft:3px;
+    border-top-left-radius:3px;
+    -webkit-border-top-right-radius:3px;
+    -moz-border-radius-topright:3px;
+    border-top-right-radius:3px;
+    -webkit-border-bottom-right-radius:3px;
+    -moz-border-radius-bottomright:3px;
+    border-bottom-right-radius:3px;
+    -webkit-border-bottom-left-radius:5px;
+    -moz-border-radius-bottomleft:5px;
+    border-bottom-left-radius:5px;
+    text-indent:0;
+    border:1px solid #337fed;
+    display:inline-block;
+    color:#FFDF00;
+    font-family:FontAwesome,Serif;
+    font-size:11px;
+    font-weight:400;
+    height:12px;
+    line-height:12px;
+    text-decoration:none;
+    text-align:center;
+    text-shadow:1px 1px 0px #1570cd;
+    padding:0.03in;
+    min-width:25px;
+max-height: 18px;
+margin: 2 auto 2 auto;
+border: white;
+color: white;
+border-radius: 7px 7px 7px 7px;
+color: white;
+height: 14px;
+}
+.eye_button:hover {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6) );
+    background:-moz-linear-gradient( center top, #1e62d0 5%, #3d94f6 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
+    background-color:#1e62d0;
+    color:white;
+}.eye_button:active {
+    position:relative;
+    top:1px;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6) );
+    background:-moz-linear-gradient( center top, #1e62d0 5%, #3d94f6 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
+    background-color:#1e62d0;
+    color:white;
+}
+.eye_button_selected {
+  /*  border: #000000;
+  !important;
+
+color: yellow !important;
+      border: 0pt solid black !important;
+/*    margin:0 !important;
+*/*/
+   -moz-box-shadow:inset 0px 1px 0px 0px #97c4fe;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #97c4fe;
+    box-shadow:inset 0px 1px 0px 0px #97c4fe;
+    -webkit-border-top-left-radius:3px;
+    -moz-border-radius-topleft:3px;
+    border-top-left-radius:3px;
+    -webkit-border-top-right-radius:3px;
+    -moz-border-radius-topright:3px;
+    border-top-right-radius:3px;
+    -webkit-border-bottom-right-radius:3px;
+    -moz-border-radius-bottomright:3px;
+    border-bottom-right-radius:3px;
+    -webkit-border-bottom-left-radius:5px;
+    -moz-border-radius-bottomleft:5px;
+    border-bottom-left-radius:5px;
+    text-indent:0;
+    border:1px solid #337fed;
+    display:inline-block;
+    color:#FFDF00;
+    font-family:FontAwesome,Serif;
+    font-size:11px;
+    font-weight:400;
+    height:12px;
+    line-height:12px;
+    text-decoration:none;
+    text-align:center;
+    text-shadow:1px 1px 0px #1570cd;
+    padding-left:0.03in;
+padding-right: 0.03in;
+padding-top: 0.03in;
+padding-bottom: 0.03in;
+min-width:25px;
+max-height: 18px;
+margin: 2 auto 2 auto;
+border: white;
+color: white;
+border-radius: 7px 7px 7px 7px;
+color: white;
+height: 14px;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, navy), color-stop(1, #3d94f6) );
+    background:-moz-linear-gradient( center top, navy 5%, #3d94f6 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='navy', endColorstr='#3d94f6');
+    
+}
+.button_selected {
+
+}
+/* This button was generated using CSSButtonGenerator.com */
+
+
+ .divTable
+    {
+        position:relative;
+        float:left;
+    /*background-image: url('../../forms/eye_mag/images/cross.png');
+     */ height:100%;
+        width:100%;
+        border:0pt solid  red;
+        border-spacing:0px;
+        cursor:sw-resize
+        ;
+        padding:10 0 0 5;
+        
+        /*cellspacing:poor IE support for  this*/
+       /* border-collapse:separate;*/
+    }
+
+    .divRow
+    {
+       display:table-row;
+       display: table;
+       border-collapse:collapse;
+       width:0.8in;
+       height:0.75%;
+    }
+    .divMiddleRow
+    {
+       display:table-row;
+       font-weight: 900;
+       border-collapse:collapse;
+    
+    }
+    .divMidCell {
+        float:left;/*fix for  buggy browsers*/
+        /* display:table-column; */
+        text-align:center;
+        border-top:3px solid;
+        border-collapse:collapse;
+    
+    }
+
+    .divCell
+    {
+        float:left;/*fix for  buggy browsers*/
+        display:table-column;
+        width:5.1px;
+        height:5.1px;
+        text-align:center;
+        font-weight: 900;
+        padding:0px;
+        border-collapse:collapse;
+        color:#000000;   
+    }
+
+    .top_right {
+        vertical-align:top;
+        position:absolute;
+        text-align:right; 
+        top:0.05in;
+        font-size:1.4em;
+        right:0.1in;
+    }
+    .red {
+        text-decoration: underline;
+    }
+    
+    textarea.EXTTEXT {
+        width:1.0in;
+        max-width: 1.0in;
+        max-height: 0.42in;
+        height: 0.42in;
+    }
+    .wide_textarea {
+        position:absolute;
+        width:93%;
+        top:0.4in;
+        left:0.1in;
+        font-weight:bold;
+        text-align:center;
+        margin:auto;
+    }
+    .wide_textarea textarea{
+        width:1.8in;
+        max-width: 1.8in;
+        max-height: 0.44in;
+        height: 0.44in;
+        font-size:0.9em;
+    }
+    .narrow_textarea th {
+        font-size:0.9em;
+    }
+    .narrow_textarea {
+    position:absolute;
+    top:0.4in;
+    left:0.1in;
+    width:2.6in;
+    font-weight:bold;
+    font-size:0.8em;
+    }
+     .narrow_textarea textarea {
+        width:1.0in;
+        max-width: 1.0in;
+        max-height: 0.44in;
+        height: 0.44in;
+        font-size:0.8em;
+     }
+.closeButton2 {
+        display:inline-block;
+        position:absolute;
+        top:3px;
+        right:24px;
+    }
+    .closeButton {
+        display:inline-block;
+        float:left;
+        /*background:url('http://cdn-sg1.pgimgs.com/images/pg/close-button.png') no-repeat center center;*/
+        position:absolute;
+        top:3px;
+        right:4px;
+        /*border:1.5px solid #000;
+        border-radius: 50%;
+        width: 13px;
+        height:13px; 
+        background-color: 33CCFF;
+        color: #000000;
+        font-size: 0.6em;*/
+        /* width and height can be anything, as long as they're equal */
+    }
+    .closeButton:hover {
+        color:grey;
+        cursor:pointer;
+        border:0px solid grey;
+        text-decoration: none;
+    }
+/* testing out the tabs header stuff for ACT */
+    #header ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    #header li {
+        float: left;
+        background: url(../../forms/eye_mag/images/tabright.gif) top right no-repeat;
+        margin: 0;
+    }
+    
+    #header a {
+        display: block;
+        background: url(../../forms/eye_mag/images/tableft.gif) top left no-repeat;
+        color: #ffc;
+        text-decoration: none;
+        padding: 0.6em 1em 0.25em;
+    }
+    
+    #header a:hover {
+        color: white;
+    }
+    
+    #header #selected {
+        font-weight: bold;
+        background-image: url(images/tabrightactive.gif);
+    }
+    
+    #header #selected a {
+        background-image: url(images/tableftactive.gif);
+        color: white;
+    }
+    
+    #content {
+        clear: both;
+        color: white;
+        background: #c60;
+        padding: 1em;
+    }
+    
+    p {
+        margin: 0 0 1em 0;
+    }
+    
+    h1 {
+        color: #c60;
+        font: small-caps italic bold 1.2em FontAwesome, arial, helvetica, sans-seif;
+        letter-spacing: 3em;
+        padding: 0 0 1em 0;
+        margin: 0;
+    }
+    
+    
+/* done testing ACT header tabs */
+/* ACT_TEXT test */
+.ACT_TEXT {
+    font-weight: bold;
+    font-size:0.9em;
+}
+
+.ACT_selected {
+    -webkit-border-top-left-radius:7px;
+    -moz-border-radius-topleft:7px;
+    border-top-left-radius:7px;
+    -webkit-border-top-right-radius:7px;
+    -moz-border-radius-topright:7px;
+    border-top-right-radius:7px;
+    -webkit-border-bottom-right-radius:0px;
+    -moz-border-radius-bottomright:0px;
+    border-bottom-right-radius:0px;
+    -webkit-border-bottom-left-radius:0px;
+    -moz-border-radius-bottomleft:0px;
+    border-bottom-left-radius:0px;
+    background-color: white;
+    color: black;
+    font-size:1.4em;
+    margin: 5 0 0 0;
+    border-top:1pt solid black;
+    border-left:1pt solid black;
+    border-right:1pt solid black;
+    border-bottom: none;
+    height:25px;
+   box-shadow: 1px -1px 1px 0px #888888;
+
+}
+.ACT_deselected {
+    -webkit-border-top-left-radius:7px;
+    -moz-border-radius-topleft:7px;
+    border-top-left-radius:7px;
+    -webkit-border-top-right-radius:7px;
+    -moz-border-radius-topright:7px;
+    border-top-right-radius:7px;
+    -webkit-border-bottom-right-radius:0px;
+    -moz-border-radius-bottomright:0px;
+    border-bottom-right-radius:0px;
+    -webkit-border-bottom-left-radius:0px;
+    -moz-border-radius-bottomleft:0px;
+    border-bottom-left-radius:0px;
+    background-color: #2d6775;
+    color: white;
+    font-size:1.4em;
+    margin: 5;
+    border-bottom: 1pt solid black;
+    height:25px;
+    
+}
+.ACT_box {
+    position:relative;
+    border-bottom:1pt solid black;
+    border-left:1pt solid black;
+    border-right:1pt solid black;
+    border-top: none;
+    box-shadow: 1px 5px 5px 0px #888888;
+    padding:10px;
+    z-index:10;
+}
+b.ACT_box{
+    font-size: 0.7em;
+}
+
+/* do some full screen playing around */
+.fullscreen {
+  position: absolute;
+  top:0; 
+  right:0; 
+  bottom:0; 
+  left:0;
+  margin:0;
+  box-sizing:border-box;
+  width:100%;
+  height:100%;
+  background-color: white;
+  object-fit:contain;
+  font-size: 2.0em;
+  z-index:100;
+}
+input[type=text].fullscreen {
+    font-size: 0.8em;
+    width: 150px;
+    height:150px;
+    vertical-align: top;
+    line-spacing: 0px;
+    text-indent: 0px;
+}
+
+.top_left {
+    position:absolute; left:0.05in; width: 0.9in;top:0.05in;border:none;
+    background-color: white;
+    color: black;
+    font-family: FontAwesome,serif,Arial;
+    font-size: 1em;
+    height: 1.2em;
+padding-bottom: 2px;
+padding-left: 0px;
+padding-right: 0px;
+padding-top: 0px;
+text-align:left;
+vertical-align:bottom;
+
+}
+
+.QP_block_outer {
+    float:left;
+    background-color:white;
+  /*  height:2.5in; */
+    width:1.915in; 
+    padding:0.1in;
+    text-align:left;
+    font-size: 1.0em;
+    margin:4 auto;
+}
+
+.QP_block {
+    float:left;
+    background-color:white;
+ /*   height:2.4in; */
+    width:1.915in;
+    padding:0.1in;
+    text-align:left;
+    font-size: 1.0em;
+    margin:4 auto;
+}
+.QP {
+    cursor:pointer;
+    font-size:1.1em;
+}
+
+.rotate-left {
+/* Safari */
+-webkit-transform: rotate(-90deg);
+/* Firefox */
+-moz-transform: rotate(-90deg);
+/* IE */
+-ms-transform: rotate(-90deg);
+/* Opera */
+-o-transform: rotate(-90deg);
+/* Internet Explorer */
+filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+
+.rotate-right {
+/* Safari */
+-webkit-transform: rotate(+90deg);
+/* Firefox */
+-moz-transform: rotate(+90deg);
+/* IE */
+-ms-transform: rotate(+90deg);
+/* Opera */
+-o-transform: rotate(+90deg);
+/* Internet Explorer */
+filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+
+.little_image {
+    height:20px;
+    width:20px;
+}
+
+.PRIORS_color {
+    background-color: Linen;
+    
+}
+
+.PRIORS textarea, input {
+    background-color: #CCCCFF;
+    color: black;
+}
+.PRIORS a {
+    text-decoration: none;
+}
