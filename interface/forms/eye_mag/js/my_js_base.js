@@ -197,6 +197,7 @@ function show_QPDRAW() {
     $("#ANTSEG_1").addClass("clear_both");
     $("#RETINA_1").addClass("clear_both");
     $("#NEURO_1").addClass("clear_both");
+    hide_PRIORS();
 }
 
 function printElem(options){
