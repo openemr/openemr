@@ -296,7 +296,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
 
                         <!-- START OF THE PRESSURE BOX -->
                         <div id="LayerTension" class="vitals" style="width: 1.5in; height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;">
-                            <span class="closeButton fa  fa-line-chart" id="Close_W" name="Close_W"></span>
+                            <span title="This will display a graph of IOPs over time in a pop-up window" class="closeButton fa  fa-line-chart" id="IOP_Graph" name="IOP_Graph"></span>
                             <div id="Lyr4.0" style="position:absolute; left:0.05in; width: 1.4in; top:0.0in; padding: 0in; " dir="LTR">
                                 <span class="top_left">
                                     <b id="tension_tab"><?php xl('Tension','e'); ?>:</b> 
@@ -739,7 +739,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                     <input type="radio" name="wetType" id="Flash" value="Flash" />
                                                     <label for="Flash" class="input-helper input-helper--checkbox"><?php xl('Flash','e'); ?></label>
                                                 </td>
-                                                <td colspan="2" rowspan="4" style="text-align:left;width:75px;font-size:0.6em;"><b style="text-align:center;width:70px;text-decoration:underline;"><?php xl('Dilated with'); ?>:</b><br />
+                                                <td colspan="2" rowspan="4" style="text-align:left;width:75px;font-size:0.6em;"><b style="text-align:center;width:70px;text-decoration:underline;"><?php xl('Dilated with','e'); ?>:</b><br />
                                                     <input type="checkbox" id="CycloMydril" name="CycloMydril" value="cyclopentolate hydrochloride 0.2% and phenylephrine hydochloride 1%" checked="checked">
                                                     <label for="CycloMydril" class="input-helper input-helper--checkbox">CycloMydril</label>
                                                     <br />
