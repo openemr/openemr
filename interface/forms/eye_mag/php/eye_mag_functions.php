@@ -91,7 +91,7 @@ $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_ey
 //var_dump($priors[10]);
 //	echo	$priors[$i]["date"];
     $output_return .='
-    <i class="fa fa-paste fa-lg"></i>&nbsp;
+    <span title="This is a feature request - it will copy this data to the current visit fields..."><i class="fa fa-paste fa-lg"></i></span>&nbsp;
  &nbsp;        <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$i]["date"].'").trigger("change");\' 
                 id="PRIORS_earliest" name="PRIORS_earliest" class="fa fa-fast-backward fa-sm PRIORS">
                 &nbsp;

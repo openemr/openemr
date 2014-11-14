@@ -2465,9 +2465,11 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <!-- end Neuro -->
                 </div>
                 <!-- end of the exam section -->
-
+<?
+        /*
                 <!-- start IMP/PLAN -->    
-                <div id="LayerClinical" class="section borderShadow" style="width:275px; " style="vertical-align:text-top;position:relative;">
+                <!--                
+                <div id="LayerClinical" class="section borderShadow" style="border:1pt solid black;vertical-align:text-top;position:relative;float:middle;">
                     <!-- this needs work to integrate it to auto populate with CPT/ICD codes based on form inputs above -->
                     <div id="LyrExamPanel" class="section" >
                         <div id="LayerClinical" class="section" style="height:1.3in;width:175px; " style="vertical-align:text-top;position:relative;">
@@ -2478,7 +2480,10 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                        </div>
                     </div>
                 </div>
+                -->
                 <!-- END IMP/PLAN -->  
+        */
+                ?>
             </div>
         </div>
         <!-- end container for the main body of the form -->
