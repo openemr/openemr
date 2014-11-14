@@ -1211,7 +1211,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             <div id="QPExt" name="QPExt" style="text-align:left;max-height: 2.5in;">
                                         <input type="hidden" id="EXT_prefix" name="EXT_prefix" value="<?=$EXT_prefix?>">
                                         <div style="position:relative;top:0.0in;left:0.00in;">
-                                            <span class="eye_button button_selected" id="EXT_prefix_off" name="EXT_prefix_off"  onclick="$('#EXT_prefix').val('').trigger('change');;"><?php xl('Off','e'); ?></span>
+                                            <span class="eye_button eye_button_selected" id="EXT_prefix_off" name="EXT_prefix_off"  onclick="$('#EXT_prefix').val('').trigger('change');;"><?php xl('Off','e'); ?></span>
                                             <span class="eye_button" id="EXT_defaults" name="EXT_defaults"><?php xl('Defaults','e'); ?></span>  
                                             <span class="eye_button" id="EXT_prefix_no" name="EXT_prefix_no" onclick="$('#EXT_prefix').val('no').trigger('change');"> <?php xl('no','e'); ?> </span>  
                                             <span class="eye_button" id="EXT_prefix_trace" name="EXT_prefix_trace"  onclick="$('#EXT_prefix').val('trace').trigger('change');"> <?php xl('tr','e'); ?> </span>  
@@ -1388,7 +1388,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             <div id="QPAntSeg" class="" style="text-align:left;height: 2.5in;">
                                 <input type="hidden" id="ANTSEG_prefix" name="ANTSEG_prefix" value="">
                                 <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
-                                    <span  class="eye_button button_selected" id="ANTSEG_prefix_off" name="ANTSEG_prefix_off"  onclick="$('#ANTSEG_prefix').val('').trigger('change');">Off</span> 
+                                    <span  class="eye_button eye_button_selected" id="ANTSEG_prefix_off" name="ANTSEG_prefix_off"  onclick="$('#ANTSEG_prefix').val('').trigger('change');">Off</span> 
                                     <span  class="eye_button" id="ANTSEG_defaults" name="ANTSEG_defaults"><?php xl('Defaults','e'); ?></span>  
                                     <span  class="eye_button" id="ANTSEG_prefix_no" name="ANTSEG_prefix_no" onclick="$('#ANTSEG_prefix').val('no').trigger('change');"> <?php xl('no','e'); ?> </span>  
                                     <span  class="eye_button" id="ANTSEG_prefix_trace" name="ANTSEG_prefix_trace"  onclick="$('#ANTSEG_prefix').val('trace').trigger('change');"> tr </span>  
@@ -1635,7 +1635,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             <div id="QPRetina" class="" style="text-align:left;height: 2.5in;">
                                 <input type="hidden" id="RETINA_prefix" name="RETINA_prefix" value="" />
                                 <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
-                                     <span  class="eye_button  button_selected" id="RETINA_prefix_off" name="RETINA_prefix_off"  onclick="$('#RETINA_prefix').val('').trigger('change');"><?php xl('Off','e'); ?></span> 
+                                     <span  class="eye_button  eye_button_selected" id="RETINA_prefix_off" name="RETINA_prefix_off"  onclick="$('#RETINA_prefix').val('').trigger('change');"><?php xl('Off','e'); ?></span> 
                                      <span  class="eye_button" id="RETINA_defaults" name="RETINA_defaults"><?php xl('Defaults','e'); ?></span>  
                                      <span  class="eye_button" id="RETINA_prefix_no" name="RETINA_prefix_no" onclick="$('#RETINA_prefix').val('no').trigger('change');"> <?php xl('no','e'); ?> </span>  
                                      <span  class="eye_button" id="RETINA_prefix_trace" name="RETINA_prefix_trace"  onclick="$('#RETINA_prefix').val('trace').trigger('change');"> <?php xl('tr','e'); ?> </span>  
@@ -2406,7 +2406,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             <div id="QPNeuro" style="text-align:left;height: 2.5in;">
                                 <input type="hidden" id="NEURO_prefix" name="NEURO_prefix" value="">
                                 <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
-                                 <span class="eye_button button_selected" id="NEURO_prefix_off" name="NEURO_prefix_off"  onclick="$('#NEURO_prefix').val('').trigger('change');"><?php xl('Off','e'); ?></span>
+                                 <span class="eye_button eye_button_selected" id="NEURO_prefix_off" name="NEURO_prefix_off"  onclick="$('#NEURO_prefix').val('').trigger('change');"><?php xl('Off','e'); ?></span>
                                  <span class="eye_button" id="NEURO_defaults" name="NEURO_defaults"><?php xl('Defaults','e'); ?></span> 
                                  <span class="eye_button" id="NEURO_prefix_no" name="NEURO_prefix_no" onclick="$('#NEURO_prefix').val('no').trigger('change');"> <?php xl('no','e'); ?> </span> 
                                  <span class="eye_button" id="NEURO_prefix_trace" name="NEURO_prefix_trace"  onclick="$('#NEURO_prefix').val('trace').trigger('change');"> <?php xl('tr','e'); ?> </span> 
