@@ -1526,7 +1526,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             <td></td>
                                             <td> <?php xl('OD','e'); ?></td><td> <?php xl('OS','e'); ?></td></tr>
                                             <td>
-                                                <?php xl('CMT','e'); ?>:</td>
+                                                <span id="CMT name="CMT" title="Central Macular Thickness"><?php xl('CMT','e'); ?>:</span></td>
                                             <td>
                                                 <input name="ODCMT" size="4" id="ODCMT" value="<?=$ODCMT?>">
                                             </td>
@@ -1614,7 +1614,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                     <a style="background: #CCC" data-size="15" href="#SketchRetina">15</a>  
                                 </div>
                                 <!--
-                                     <a href="#SketchRetina" data-download="png" style="float: right; width: 100px;">Download</a>
+                                     <a href="#SketchRetina" data-download="png" style="float: right; width: 100px;"><?php xl('Download','e'); ?></a>
                                     </div>
                                      <span id="RETINAOD" value="2" class="AntSegSpan"><?php xl('OD','e'); ?></span>
                                     <span id="RETINAOU" value="1" class="AntSegSpan button_selected"><?php xl('OU','e'); ?></span>
@@ -1669,7 +1669,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                         $number_rows++; 
                                         $string = $Select_data['selection'] ;
                                         $string = (strlen($string) > 12) ? substr($string,0,12).'...' : $string;   ?>
-                                    <span >
+                                    <span>
                                         <a class="underline QP" onclick="fill_QP_field('RETINA','OD','<?=$Select_data['LOCATION_text']?>','<?=$Select_data['selection']?>',1);"><?php xl('OD','e'); ?></a>&nbsp;|&nbsp;
                                         <a class="underline QP" onclick="fill_QP_field('RETINA','OS','<?=$Select_data['LOCATION_text']?>','<?=$Select_data['selection']?>',1);"><?php xl('OS','e'); ?></a>&nbsp;|&nbsp;
                                         <a class="underline QP" onclick="fill_QP_field('RETINA','OD','<?=$Select_data['LOCATION_text']?>','<?=$Select_data['selection']?>',2);fill_QP_field('RETINA','OS','<?=$Select_data['LOCATION_text']?>','<?=$Select_data['selection']?>',1);"><?php xl('OU','e'); ?></a>
@@ -1716,7 +1716,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                 <td><!-- //Normals may be 11/11 or 15/15.  Need to make a preference here for the user.
                                                     //or just take the normal they use and incorporate that ongoing?
                                                 -->
-                                                   <span title="Insert normals - 11/11" class="fa fa-share-square-o fa-flip-horizontal" id="NEURO_COLOR" name="NEURO_COLOR"></span>
+                                                   <span title="<?php xl('Insert normals','e'); ?> - 11/11" class="fa fa-share-square-o fa-flip-horizontal" id="NEURO_COLOR" name="NEURO_COLOR"></span>
                                                 &nbsp;</td>
                                             </tr>
                                             <tr>
@@ -1735,7 +1735,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             </tr>
                                             <tr>
                                                 <td class="right" style="white-space: nowrap;">
-                                                    <span title="Variation in white (muscle) light brightness discrimination between the eyes (eg. OD=$1.00, OS=$0.75)"><?php xl('Coins','e'); ?>:</span>
+                                                    <span title="<?php xl('Variation in white (muscle) light brightness discrimination between the eyes (eg. OD=$1.00, OS=$0.75)','e'); ?>"><?php xl('Coins','e'); ?>:</span>
                                                 </td>
                                                 <td>
                                                     <input type="text" size="6" name="ODCOINS" id="ODCOINS" value="<?=$ODCOINS?>"/> 
@@ -1744,7 +1744,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                     <input type="text" size="6" name="OSCOINS" id="OSCOINS" value="<?=$OSCOINS?>"/>
                                                 </td>
                                                 <td>
-                                                   <span title="Insert normals - 100/100" class="fa fa-share-square-o fa-flip-horizontal" id="NEURO_COINS" name="NEURO_COINS"></span>
+                                                   <span title="<?php xl('Insert normals - 100/100'); ?>" class="fa fa-share-square-o fa-flip-horizontal" id="NEURO_COINS" name="NEURO_COINS"></span>
                                                 &nbsp;</td>
                                             </tr>
                                            
@@ -1907,7 +1907,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                                                 <textarea id="ACT3CCNEAR"  name="ACT3CCNEAR" class="ACT"><?=$ACT3CCNEAR?></textarea></td>
                                                                                 <td style="text-align:center;"><?php xl('L','e'); ?></td>
                                                                             </tr>
-                                                                            <tr>    <td><i class="fa fa-reply rotate-left"></i></td> 
+                                                                            <tr>    
+                                                                                <td><i class="fa fa-reply rotate-left"></i></td> 
                                                                                 <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                                                 <textarea id="ACT4CCNEAR" name="ACT4CCNEAR" class="ACT"><?=$ACT4CCNEAR?></textarea></td>
                                                                                 <td style="border:1pt solid black;text-align:center;">
@@ -2470,9 +2471,9 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <!-- this needs work to integrate it to auto populate with CPT/ICD codes based on form inputs above -->
                     <div id="LyrExamPanel" class="section" >
                         <div id="LayerClinical" class="section" style="height:1.3in;width:175px; " style="vertical-align:text-top;position:relative;">
-                           Impression:
+                           <?php xl('Impression','e'); ?>:
                            <textarea rows=4 style="height:1in;width:90%"><?=$IMP?></textarea>
-                           Plan/Recommendation:
+                           <?php xl('Plan','e'); ?>/<?php xl('Recommendation','e'); ?>:
                            <textarea rows=4 style="width:90%"><?=$PLAN?></textarea>
                        </div>
                     </div>
