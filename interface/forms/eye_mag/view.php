@@ -489,7 +489,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                     <tr>    
                                         <th style="width:0.1in;"> 
                                         </th>
-                                        <th style="width:0.7in;padding: 0;"><?php xl('size','e'); ?> (mm)
+                                        <th style="width:0.7in;padding: 0;"><?php xl('size','e'); ?> (<?php xl('mm','e'); ?>)
                                         </th>
                                         <th style="width:0.2in;padding: 0;"><?php xl('react','e'); ?> 
                                         </th>
@@ -534,7 +534,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                 <table cellpadding="2" cellpadding="0" style="font-size: 0.9em;"> 
                                     <tr>    
                                         <th></th>
-                                        <th style="width:0.7in;padding: 0;"><?php xl('size','e'); ?> (<?php xl('mm','e'); ?>
+                                        <th style="width:0.7in;padding: 0;"><?php xl('size','e'); ?> (<?php xl('mm','e'); ?>)
                                         </th>
                                     </tr>
                                     <tr>    
