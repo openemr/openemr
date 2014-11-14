@@ -70,9 +70,10 @@ if ($erow['count'] > 0) {
         $sql .= "'$encounter_date'";
         $sql .= ", '$encounter',  '$form_name', '$newid', '$pid', '$user',          " .
         "'$group', '$authorized', '$form_folder')";
+//echo $sql;
         sqlInsert( $sql );
      }
-} 
+ 
 require_once("view.php");
 exit;
 
