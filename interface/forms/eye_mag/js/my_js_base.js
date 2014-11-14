@@ -1198,18 +1198,20 @@ $(document).ready(function() {
                   });
                   /* Now it is time to figure out how to blow-up each section for a tablet for example to fill the screen and look good */
                   $("[name^='MAX_']").click(function() {
-                                            var section = this.id.match(/MAX_(.*)/)[1];
-
-                                        //let's add a class to make this frame fullscreen
-                                        $("#"+ section + "_left").toggleClass('fullscreen');
-                                        
-                                        //to show the prior visits on screen using the selector script scroller
-                                        //click this and toggle class nodisplay for id=PRIORS_NEURO_1 and NEURO_left
-                                        //  $("#PRIORS_NEURO_1").toggleClass('nodisplay');
-                                        //  $("#NEURO_left").toggleClass('nodisplay');
-                                        //we have to get the data to put here!
-                                        
-                                        });
+                                            
+                                            alert("This button will allow the user to enter a fullscreen mode useful for tablet operations.  It needs to be written yet but essentially it will present the data in a format specific to the device's screen size...");
+                                            
+                                            //let's add a class to make this frame fullscreen
+                                            //var section = this.id.match(/MAX_(.*)/)[1];
+                                            //$("#"+ section + "_left").toggleClass('fullscreen');
+                                            
+                                            //to show the prior visits on screen using the selector script scroller
+                                            //click this and toggle class nodisplay for id=PRIORS_NEURO_1 and NEURO_left
+                                            //  $("#PRIORS_NEURO_1").toggleClass('nodisplay');
+                                            //  $("#NEURO_left").toggleClass('nodisplay');
+                                            //we have to get the data to put here!
+                                            
+                                            });
                   $("#NEURO_COLOR").click(function() {
                                           $("#ODCOLOR").val("11/11");
                                           $("#OSCOLOR").val("11/11");
