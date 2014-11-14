@@ -1,5 +1,26 @@
 <?php
-
+/** 
+* forms/eye_mag/php/eye_mag_functions.php 
+* 
+* Functions for retrieving PRIOR visit data
+* 
+* Copyright (C) 2010-14 Raymond Magauran <magauran@MedFetch.com> 
+* 
+* LICENSE: This program is free software; you can redistribute it and/or 
+* modify it under the terms of the GNU General Public License 
+* as published by the Free Software Foundation; either version 3 
+* of the License, or (at your option) any later version. 
+* This program is distributed in the hope that it will be useful, 
+* but WITHOUT ANY WARRANTY; without even the implied warranty of 
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+* GNU General Public License for more details. 
+* You should have received a copy of the GNU General Public License 
+* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
+* 
+* @package OpenEMR 
+* @author Ray Magauran <magauran@MedFetch.com> 
+* @link http://www.open-emr.org 
+*/
 
 function priors_select($zone,$visit_date,$pid) {
 	global $form_folder;
@@ -36,13 +57,13 @@ function priors_select($zone,$visit_date,$pid) {
 					form_encounter.encounter=forms.encounter and 
 					forms.form_name = 'eye_mag' and 
 					forms.deleted ='0' ORDER BY form_encounter.date DESC";
-$query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
+    $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
                     where 
                     form_encounter.encounter ='$encounter' and 
                     form_encounter.encounter = forms.encounter and 
                     form_eye_mag.id=forms.form_id and
                     forms.pid ='".$pid."' ";
-$query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
+    $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
                     where 
                     form_encounter.encounter = forms.encounter and 
                     form_eye_mag.id=forms.form_id and
@@ -86,13 +107,13 @@ $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_ey
     }
     if ($current < $i)  { $earlier = ($current + 1);} else { $earlier = $i; }
     if ($current > '0') { $later   = ($current - 1);} else { $later   = "0"; }
-//echo $current ." = ". $i;
+    //echo $current ." = ". $i;
     $i--;
-//var_dump($priors[10]);
-//	echo	$priors[$i]["date"];
+    //var_dump($priors[10]);
+    //	echo	$priors[$i]["date"];
     $output_return .='
     <span title="This is a feature request - it will copy this data to the current visit fields..."><i class="fa fa-paste fa-lg"></i></span>&nbsp;
- &nbsp;        <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$i]["date"].'").trigger("change");\' 
+    &nbsp;        <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$i]["date"].'").trigger("change");\' 
                 id="PRIORS_earliest" name="PRIORS_earliest" class="fa fa-fast-backward fa-sm PRIORS">
                 &nbsp;
         </span>
@@ -118,35 +139,35 @@ $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_ey
 
 function display_section ($zone,$visit_date,$pid) {
 	global $form_folder;
-//echo "ZONE is ".$zone;
+    //echo "ZONE is ".$zone;
 	$query  = "SELECT * FROM dbSelectFindings where PEZONE='PREFS' AND id='".$_SESSION['authUserID']."' ORDER BY ZONE_ORDER,ordering";
-$result = sqlStatement($query);
-while ($prefs= mysql_fetch_array($result))   {    @extract($prefs);    $$LOCATION = $VALUE; 
-//echo $LOCATION ." = ". $$LOCATION."<br />";
-}
+    $result = sqlStatement($query);
+    while ($prefs= mysql_fetch_array($result))   {    @extract($prefs);    $$LOCATION = $VALUE; 
+    //echo $LOCATION ." = ". $$LOCATION."<br />";
+    }
 	$query = "SELECT * FROM form_eye_mag where pid = '".$pid."' ORDER BY id desc";
-            $result = sqlStatement($query);
+    $result = sqlStatement($query);
        // echo $query."<br />".$visit_date."<br />";exit;
 
-            $prior = array();
-            //global $prior;
-            $i=0;
-            $current ='';
-                      while ($priors= mysql_fetch_array($result))   {
-                          // $date = date_create($prior['date']);
-                          //$exam_date = date_format($date, 'd-m-Y');
-                          $prior[$i] = $priors;
-                         //echo $prior[$i]['date'] ." == ". $visit_number."<br />";
-                          if ($prior[$i]['date'] == $visit_date) {
-                          //  echo "i= ".$i."<br />".$prior[$i]['date'] ." == ". $visit_number."<br />";
-                            $current = $i;
-                            @extract($prior[$i]);
-                          }
-                        //  echo "i= ".$i;
-                          //echo "<option value='".$prior['id']."'>".$exam_date."</option>";
-                          $i++;
-                      }
-                    
+    $prior = array();
+    //global $prior;
+    $i=0;
+    $current ='';
+      while ($priors= mysql_fetch_array($result))   {
+          // $date = date_create($prior['date']);
+          //$exam_date = date_format($date, 'd-m-Y');
+          $prior[$i] = $priors;
+         //echo $prior[$i]['date'] ." == ". $visit_number."<br />";
+          if ($prior[$i]['date'] == $visit_date) {
+          //  echo "i= ".$i."<br />".$prior[$i]['date'] ." == ". $visit_number."<br />";
+            $current = $i;
+            @extract($prior[$i]);
+          }
+            //  echo "i= ".$i;
+          //echo "<option value='".$prior['id']."'>".$exam_date."</option>";
+          $i++;
+      }
+                
 	if ($zone == "EXT") {
 		$output =  priors_select($zone,$visit_date,$pid);
 
@@ -1139,11 +1160,7 @@ while ($prefs= mysql_fetch_array($result))   {    @extract($prefs);    $$LOCATIO
         return;
     } elseif ($zone =="ALL") {
     	echo priors_select($zone,$visit_date,$pid);
-    	
-    
-
-return;
-
+    	return;
 	}
 }
 return "hello return";

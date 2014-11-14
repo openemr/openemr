@@ -100,14 +100,20 @@ if ($_GET["mode"] == "new") {
         }
         $fields = array();
         if (mysql_num_rows($result) > 0) {
+          //checkboxes need to entered manually as they are only submitted when they are checked
+          //if checked they are overridden below with the "on" value...
+          $fields['DIL_RISKS'] = 'off';
           while ($row = mysql_fetch_assoc($result)) {
             if ($_POST[$row['Field']] >'') {
               $fields[$row[Field]] = $_POST[$row['Field']];
+              echo $row[Field] ." = ".$_POST[$row['Field']]."<br />";
             }
           }
         }
+
+        
         $success = formUpdate($table_name, $fields, $id, $userauthorized);
-        echo $success;
+        echo "formUpdate returned a code of " .$success."<br />";
         return;
         exit;
 } elseif ($_GET["mode"] == "retrieve") {

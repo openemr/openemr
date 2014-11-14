@@ -781,7 +781,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             </tr>
                                             <tr>
                                                 <td colspan="5" style="vertical-align:text-top;">
-                                                    <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" <?php if ($dil_risks =='1') echo "checked"; ?>>
+                                                    <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php if ($DIL_RISKS =='on') echo "checked"; ?>>
                                                     <label for="DIL_RISKS" class="input-helper input-helper--checkbox"><?php xl('Dilation risks reviewed','e'); ?></label>
                                                 </td>
                                                 <td colspan="1" style="text-align:left;">

@@ -1,55 +1,27 @@
-    //AJAX FUNCTIONS
-    //Function to create an XMLHttp Object.
-function getxmlhttp() {
-        //Create a boolean variable to check for a valid microsoft active X instance.
-    var xmlhttp = false;
-    
-        //Check if we are using internet explorer.
-    try {
-            //If the javascript version is greater than 5.
-        xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
-    } catch (e) {
-            //If not, then use the older active x object.
-        try {
-                //If we are using internet explorer.
-            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-        } catch (E) {
-                //Else we must be using a non-internet explorer browser.
-            xmlhttp = false;
-        }
-    }
-    
-        //If we are using a non-internet explorer browser, create a javascript instance of the object.
-    if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
-        xmlhttp = new XMLHttpRequest();
-    }
-    
-    return xmlhttp;
-}
+/**
+ * forms/eye_mag/js/my_base_js.js
+ *
+ * JS Functions for eye_mag form(s)
+ *
+ * Copyright (C) 2010-14 Raymond Magauran <magauran@MedFetch.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Ray Magauran <magauran@MedFetch.com>
+ * @link http://www.open-emr.org
+ */
 
-    //Function to process an XMLHttpRequest.
-function processajax (serverPage, obj, getOrPost, str) {
-        //Get an XMLHttpRequest object for use.
-    xmlhttp = getxmlhttp();
-    if (getOrPost == "get"){
-        xmlhttp.open("GET", serverPage);
-        xmlhttp.onreadystatechange = function() {
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                obj.innerHTML = xmlhttp.responseText;
-            }
-        }
-        xmlhttp.send(null);
-    } else {
-        xmlhttp.open("POST", serverPage, true);
-        xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded; charset=UTF-8");
-        xmlhttp.onreadystatechange = function() {
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                obj.innerHTML = xmlhttp.responseText;
-            } 
-        }
-        xmlhttp.send(str);
-    }
-}
+
 function fill_QP_field(PEZONE, ODOSOU, LOCATION_text, selection,mult) {
         //if the background of the field we are writing to has a default value, erase it, otherwise add to it.
     
