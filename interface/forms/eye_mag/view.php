@@ -148,9 +148,23 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
     <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=new" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
         <!-- start container for the main body of the form -->
         <div class="body_top" id="form_container" name="form_container">
-
+                <input type="hidden" name="id" id="id" value="<?=$id?>">
+                <input type="hidden" name="encounter" id="encounter" value="<?=$encounter?>">
+                <input type="hidden" name="PREFS_VA" id="PREFS_VA" value="<?=$VA?>">
+                <input type="hidden" name="PREFS_W" id="PREFS_W" value="<?=$W?>">
+                <input type="hidden" name="PREFS_MR" id="PREFS_MR" value="<?=$MR?>">
+                <input type="hidden" name="PREFS_CR" id="PREFS_CR" value="<?=$CR?>">
+                <input type="hidden" name="PREFS_CTL" id="PREFS_CTL" value="<?=$CTL?>">
+                <input type="hidden" name="PREFS_ADDITIONAL" id="PREFS_ADDITIONAL" value="<?=$ADDITIONAL?>">
+                <input type="hidden" name="PREFS_CLINICAL" id="PREFS_CLINICAL" value="<?=$CLINICAL?>">
+                <input type="hidden" name="PREFS_EXAM" id="PREFS_EXAM" value="<?=$EXAM?>">
+                <input type="hidden" name="PREFS_CYL" id="PREFS_CYL" value="<?=$CYLINDER?>">
+                <input type="hidden" name="PREFS_EXT_VIEW"  id="PREFS_EXT_VIEW" value="<?=$EXT_VIEW?>">
+                <input type="hidden" name="PREFS_ANTSEG_VIEW"  id="PREFS_ANTSEG_VIEW" value="<?=$ANTSEG_VIEW?>">
+                <input type="hidden" name="PREFS_RETINA_VIEW"  id="PREFS_RETINA_VIEW" value="<?=$RETINA_VIEW?>">
+                <input type="hidden" name="PREFS_NEURO_VIEW"  id="PREFS_NEURO_VIEW" value="<?=$NEURO_VIEW?>">
             <!-- start of general box -->
-            <div id="general" style="position:relative; border: 1pt solid #c0c0c0; padding: 0.04in;">
+            <div id="general" style="position:relative; padding: 0.04in;">
                 <div ID="Lyr1" STYLE="position: relative; width: auto;border: 1.00pt solid #c0c0c0; padding: 0.04in; text-align:center;">
                     <? 
 
@@ -172,22 +186,43 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                 </div>
             </div>          
             <!-- //end of the general BOX -->
-            <div id="accordion" style="heightStyle: content;position:relative;">
-                <?
-                /*
-                <!-- OK this is the CC/HPI/PMFSH area that can be developed in this format or the other modules drawn in to complete the intake?  -->
-                <div>
-                    <div id="Lyr2" class="borderShadow" style="position: relative;width:33%;" >
+            <a id="construction" name="construction" style="font-size:0.6em;">Toggle construction zones</a>
+            <div id="accordion" class="text_clinical" style="position:absolute;">
+               <div class="CONSTRUCTION_ZONE nodisplay" name="CONSTRUCTION_1" id="CONSTRUCTION_1">
+                    <!-- OK this is the CC/HPI/PMFSH area that can be developed in this format or the other modules drawn in to complete the intake?  -->
+                    <div id="Lyr2" class="borderShadow" style="position: relative;width:400px;float:left;" >
                         <b><?php xl('Chief Complaint','e'); ?>: </b>
                         <input name="CC" id="CC" size="54" value="<?=$CC?>" tabindex="4" type="text">
                         <br>
                         <br><b><?php xl('History of Present Illness','e'); ?> </b><font size="1">(<?php xl('please include mechanism of injury','e'); ?>):</font><br />
                         <textarea style="left: 0.45in; width: 80%; height: 0.79in; overflow:visible; " name="HPI" rows="3" cols="113" id="HPI" tabindex="5"><?=$HPI?></textarea>
                         <br />
+                        QUALITY     TIMING  DURATION    CONTEXT     SEVERITY    MODIFY  ASSOCIATED  LOCATION
                     </div>
-                    <div id="Lyr2.1" style="position: relative;width: 80%;">
+                
+                    
+                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PMH:<br />
+                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
+                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PSurgHx:<br />
+                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
+                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">FH:<br />
+                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
+                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">Meds:<br />
+                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
+                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">SocHx:<br />
+                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
+                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">Allergies:<br />
+                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
+                    <div class="borderShadow" style="clear:both;height:1in;width:90%;border:1pt solid black;">ROS:<br />
+                        <textarea name="PMH" id="PMH"></textarea></div>
+                    <div id="Lyr2.2" style="clear:both;border:1pt solid black;">
+                    </div>
+               </div>
+                <div class="CONSTRUCTION_ZONE nodisplay" name="CONSTRUCTION_2" id="CONSTRUCTION_2" style="position:relative;border:1pt black solid;">
+                    <br />
+               
                         <span class="text_clinical">
-                            <div class="input-row" style="float:left;">
+                            
                                 <b><?php xl('Mood/Affect','e'); ?>:</b>
                                 <label for="alert" class="input-helper input-helper--checkbox"><?php xl('Alert','e'); ?></label>
                                 <input id="alert" name="alert" type="checkbox"  <? if ($alert ==="1") { echo "checked='checked'"; } ?>">
@@ -200,29 +235,11 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                 } 
                                 ?>
                                 >
-                            </div>       
-                        </span>
-                    </div>
-                    <br />
+                             
+                        </span><br />
                 </div>
-                */ 
-                ?>
-
-                <input type="hidden" name="id" id="id" value="<?=$id?>">
-                <input type="hidden" name="encounter" id="encounter" value="<?=$encounter?>">
-                <input type="hidden" name="PREFS_VA" id="PREFS_VA" value="<?=$VA?>">
-                <input type="hidden" name="PREFS_W" id="PREFS_W" value="<?=$W?>">
-                <input type="hidden" name="PREFS_MR" id="PREFS_MR" value="<?=$MR?>">
-                <input type="hidden" name="PREFS_CR" id="PREFS_CR" value="<?=$CR?>">
-                <input type="hidden" name="PREFS_CTL" id="PREFS_CTL" value="<?=$CTL?>">
-                <input type="hidden" name="PREFS_ADDITIONAL" id="PREFS_ADDITIONAL" value="<?=$ADDITIONAL?>">
-                <input type="hidden" name="PREFS_CLINICAL" id="PREFS_CLINICAL" value="<?=$CLINICAL?>">
-                <input type="hidden" name="PREFS_EXAM" id="PREFS_EXAM" value="<?=$EXAM?>">
-                <input type="hidden" name="PREFS_CYL" id="PREFS_CYL" value="<?=$CYLINDER?>">
-                <input type="hidden" name="PREFS_EXT_VIEW"  id="PREFS_EXT_VIEW" value="<?=$EXT_VIEW?>">
-                <input type="hidden" name="PREFS_ANTSEG_VIEW"  id="PREFS_ANTSEG_VIEW" value="<?=$ANTSEG_VIEW?>">
-                <input type="hidden" name="PREFS_RETINA_VIEW"  id="PREFS_RETINA_VIEW" value="<?=$RETINA_VIEW?>">
-                <input type="hidden" name="PREFS_NEURO_VIEW"  id="PREFS_NEURO_VIEW" value="<?=$NEURO_VIEW?>">
+                    <br />
+                
                 <!-- start of the clinical BOX -->
                 <div>    
                     <div id="LayerClinical" class="section" style="min-height:1.3in;width:100%;vertical-align:text-top;position:relative;text-align:left;">
@@ -2464,27 +2481,27 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                         </div>   
                     </div>
                     <!-- end Neuro -->
+                    <!-- start IMP/PLAN -->    
+                    <br />              
+                    <div id="LayerClinical" class="section borderShadow" style="border:1pt solid black;vertical-align:text-top;position:relative;float:middle;">
+                        <!-- this needs work to integrate it to auto populate with CPT/ICD codes based on form inputs above -->
+                        <div id="LyrExamPanel" class="section" >
+                            <div id="LayerClinical" class="section" style="height:1.3in;width:175px; " style="vertical-align:text-top;position:relative;">
+                               <?php xl('Impression','e'); ?>:
+                               <textarea rows=4 style="height:1in;width:90%"><?=$IMP?></textarea>
+                               <?php xl('Plan','e'); ?>/<?php xl('Recommendation','e'); ?>:
+                               <textarea rows=4 style="width:90%"><?=$PLAN?></textarea>
+                           </div>
+                        </div>
+                    </div>
+                    
+                    <!-- END IMP/PLAN -->  
                 </div>
                 <!-- end of the exam section -->
-<?
-        /*
-                <!-- start IMP/PLAN -->    
-                <!--                
-                <div id="LayerClinical" class="section borderShadow" style="border:1pt solid black;vertical-align:text-top;position:relative;float:middle;">
-                    <!-- this needs work to integrate it to auto populate with CPT/ICD codes based on form inputs above -->
-                    <div id="LyrExamPanel" class="section" >
-                        <div id="LayerClinical" class="section" style="height:1.3in;width:175px; " style="vertical-align:text-top;position:relative;">
-                           <?php xl('Impression','e'); ?>:
-                           <textarea rows=4 style="height:1in;width:90%"><?=$IMP?></textarea>
-                           <?php xl('Plan','e'); ?>/<?php xl('Recommendation','e'); ?>:
-                           <textarea rows=4 style="width:90%"><?=$PLAN?></textarea>
-                       </div>
-                    </div>
-                </div>
-                -->
-                <!-- END IMP/PLAN -->  
-        */
-                ?>
+
+        
+                
+        
             </div>
         </div>
         <!-- end container for the main body of the form -->

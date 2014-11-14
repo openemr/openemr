@@ -1176,3 +1176,8 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 .PRIORS a {
     text-decoration: none;
 }
+.CONSTRUCTION_ZONE {
+    background-color:yellow;
+    
+    width=100%;
+}

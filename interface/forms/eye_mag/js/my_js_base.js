@@ -184,7 +184,13 @@ function printElem(options){
     $("#signature_W").toggleClass('nodisplay');
     $("#simplePrint").toggleClass('nodisplay');
 }
-
+function toggle_visibility(id) {
+    var e = document.getElementById(id);
+    if(e.style.display == 'block')
+        e.style.display = 'none';
+    else
+        e.style.display = 'block';
+}
 $(document).ready(function() {
                   // jQuery methods go here...
                  $("input,select,textarea,text").css("background-color","#FFF8DC");
@@ -1207,8 +1213,14 @@ $(document).ready(function() {
                                           $("#OSREDDESAT").val("100");
                                           submit_form("eye_mag");
                                           });
+          
                   
-                  $(".fancybox2").fancybox({
+                  $("#construction").click(function() {
+                                           //   alert("OVER HERE");
+                                           $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
+                                           });
+                  
+         /*          $(".fancybox2").fancybox({
                                           helpers : {
                                           overlay : {
                                           css : {
@@ -1229,7 +1241,7 @@ $(document).ready(function() {
                                           $(document).fullScreen(false);
                                           }
                                           });
-                  
+          */
                   $(document).bind("fullscreenerror", function() {
                                    alert("Browser rejected fullscreen change");
                                    });
