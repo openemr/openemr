@@ -686,11 +686,11 @@ $(document).ready(function() {
                   $("#Amsler-Normal").change(function() {
                                              if ($(this).is(':checked')) {
                                              
-                                             var number1 = document.getElementById("AmslerOD").src.match(/\d/)[0];
-                                             document.getElementById("AmslerOD").src = document.getElementById("AmslerOD").src.replace(/\d/,"0");
+                                             var number1 = document.getElementById("AmslerOD").src.match(/(Amsler_\d)/)[1];
+                                             document.getElementById("AmslerOD").src = document.getElementById("AmslerOD").src.replace(number1,"Amsler_0");
                                              
-                                             var number2 = document.getElementById("AmslerOS").src.match(/\d/)[0];
-                                             document.getElementById("AmslerOS").src = document.getElementById("AmslerOS").src.replace(number2,"0");
+                                             var number2 = document.getElementById("AmslerOS").src.match(/(Amsler_\d)/)[1];
+                                             document.getElementById("AmslerOS").src = document.getElementById("AmslerOS").src.replace(number2,"Amsler_0");
                                              $("#AMSLEROD").val("0");
                                              $("#AMSLEROS").val("0");
                                              $("#AmslerODvalue").text("0");
