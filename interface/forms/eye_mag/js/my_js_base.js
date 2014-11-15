@@ -1,5 +1,5 @@
 /**
- * forms/eye_mag/js/my_base_js.js
+ * forms/eye_mag/js/my_js_base.js
  *
  * JS Functions for eye_mag form(s)
  *
@@ -123,7 +123,7 @@ function update_PREFS() {
     /*                     .done(function(data) {
      
      // log data to the console so we can see
-     console.log(data); 
+     console.log(data);
      
      // here we will handle errors and validation messages
      });
@@ -133,11 +133,11 @@ function update_PREFS() {
      $.post(url,$( "form" ).serialize(),function(data,status){
      $("#HPI").val(data);
      });
-     */                  
+     */
     /*       can we ajax this result back to the server or just do it when we store this for future charts.
      Send it with submit and tore the prefs in dbSelectFindings
      //SET THE VALUE OF THE FIELD FOR THE DB PREFS
-     */                                                                                                            
+     */
 }
 function hide_PRIORS() {
     $("#PRIORS_EXT_left_text").addClass("nodisplay");
@@ -193,76 +193,76 @@ function toggle_visibility(id) {
 }
 $(document).ready(function() {
                   // jQuery methods go here...
-                 $("input,select,textarea,text").css("background-color","#FFF8DC");
+                  $("input,select,textarea,text").css("background-color","#FFF8DC");
                   $("#IOPTIME").css("background-color","#FFFFFF");
                   $("#refraction_width").css("width","8.5in");
                   //$("#LayerClinical").css("width","8.5in");
                   
                   $(window).resize(function() {
                                    //alert(window.innerWidth);
-                                      
+                                   
                                    //   $("#refraction_width").css("width","4.5in");
                                    //$("#LayerClinical").css("width","3.5in");
                                    if (window.innerWidth >'900') {
-                                      $("#refraction_width").css("width","8.5in");
-                                      $("#LayerVision2").css("padding","4px");
-                                   } 
+                                   $("#refraction_width").css("width","8.5in");
+                                   $("#LayerVision2").css("padding","4px");
+                                   }
                                    if (window.innerWidth >'1200') {
                                    $("#refraction_width").css("width","12.8in");
                                    $("#LayerVision2").css("padding","4px");
-                                   } 
+                                   }
                                    if (window.innerWidth >'1900') {
                                    $("#refraction_width").css("width","16.8in");
                                    $("#LayerVision2").css("padding","4px");
-                                   } 
-                                      
-                                      });
+                                   }
+                                   
+                                   });
                   $(window).resize();
-               /*   $("#PrintButton").live("click", function () {
-                                         var pat = $("#pat_name").html();
-                                         $("#wearing_title").html(pat);
-                                         $("#signature_W").toggleClass('nodisplay');
-                                         
-                                         var divContents = $("#wearing").html();
-                                         var printWindow = window.open('', '', 'height=600,width=400');
-                                         printWindow.document.write("<html><head><title>Rx Glasses</title>");
-                                         printWindow.document.write("<link href='../../forms/eye_mag/style.css' rel='stylesheet' type='text/css' />");
-                                         printWindow.document.write('</head><body >');
-                                         printWindow.document.write(divContents);
-                                         printWindow.document.close();
-                                         printWindow.print();
-                                         $("#wearing_title").html("Current Rx");
-                                         $("#signature_W").toggleClass('nodisplay');
-
-                                         });
-                  */
+                  /*   $("#PrintButton").live("click", function () {
+                   var pat = $("#pat_name").html();
+                   $("#wearing_title").html(pat);
+                   $("#signature_W").toggleClass('nodisplay');
+                   
+                   var divContents = $("#wearing").html();
+                   var printWindow = window.open('', '', 'height=600,width=400');
+                   printWindow.document.write("<html><head><title>Rx Glasses</title>");
+                   printWindow.document.write("<link href='../../forms/eye_mag/style.css' rel='stylesheet' type='text/css' />");
+                   printWindow.document.write('</head><body >');
+                   printWindow.document.write(divContents);
+                   printWindow.document.close();
+                   printWindow.print();
+                   $("#wearing_title").html("Current Rx");
+                   $("#signature_W").toggleClass('nodisplay');
+                   
+                   });
+                   */
                   //set the motility values
                   var hash_tag = '<i class="fa fa-minus">';
                   var index;
                   $("#MOTILITY_RS").value = parseInt($("#MOTILITY_RS").val());
-                  if ($("#MOTILITY_RS").val() > '0') { 
-                   $("#MOTILITYNORMAL").removeAttr('checked');
+                  if ($("#MOTILITY_RS").val() > '0') {
+                  $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RS").val()); ++index) {
                   $("#MOTILITY_RS_"+index).html(hash_tag);
                   }
                   }
                   $("#MOTILITY_RI").value = parseInt($("#MOTILITY_RI").val());
-                  if ($("#MOTILITY_RI").val() > '0') { 
-                   $("#MOTILITYNORMAL").removeAttr('checked');
+                  if ($("#MOTILITY_RI").val() > '0') {
+                  $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RI").val()); ++index) {
                   $("#MOTILITY_RI_"+index).html(hash_tag);
                   }
                   }
                   $("#MOTILITY_LS").value = parseInt($("#MOTILITY_LS").val());
-                  if ($("#MOTILITY_LS").val() > '0') { 
-                   $("#MOTILITYNORMAL").removeAttr('checked');
+                  if ($("#MOTILITY_LS").val() > '0') {
+                  $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LS").val()); ++index) {
                   $("#MOTILITY_LS_"+index).html(hash_tag);
                   }
                   }
                   $("#MOTILITY_LI").value = parseInt($("#MOTILITY_LI").val());
-                  if ($("#MOTILITY_LI").val() > '0') { 
-                   $("#MOTILITYNORMAL").removeAttr('checked');
+                  if ($("#MOTILITY_LI").val() > '0') {
+                  $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LI").val()); ++index) {
                   $("#MOTILITY_LI_"+index).html(hash_tag);
                   }
@@ -271,66 +271,66 @@ $(document).ready(function() {
                   var hash_tag = '<i class="fa fa-minus rotate-left">';
                   
                   $("#MOTILITY_LR").value = parseInt($("#MOTILITY_LR").val());
-                  if ($("#MOTILITY_LR").val() > '0') { 
-                   $("#MOTILITYNORMAL").removeAttr('checked');
+                  if ($("#MOTILITY_LR").val() > '0') {
+                  $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LR").val()); ++index) {
                   $("#MOTILITY_LR_"+index).html(hash_tag);
                   }
                   }
                   $("#MOTILITY_LL").value = parseInt($("#MOTILITY_LL").val());
-                  if ($("#MOTILITY_LL").val() > '0') { 
-                   $("#MOTILITYNORMAL").removeAttr('checked');
+                  if ($("#MOTILITY_LL").val() > '0') {
+                  $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_LL").val()); ++index) {
                   $("#MOTILITY_LL_"+index).html(hash_tag);
                   }
                   }
                   $("#MOTILITY_RR").value = parseInt($("#MOTILITY_RR").val());
-                  if ($("#MOTILITY_RR").val() > '0') { 
-                   $("#MOTILITYNORMAL").removeAttr('checked');
+                  if ($("#MOTILITY_RR").val() > '0') {
+                  $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RR").val()); ++index) {
                   $("#MOTILITY_RR_"+index).html(hash_tag);
                   }
                   }
                   $("#MOTILITY_RL").value = parseInt($("#MOTILITY_RL").val());
-                  if ($("#MOTILITY_RL").val() > '0') { 
-                   $("#MOTILITYNORMAL").removeAttr('checked');
+                  if ($("#MOTILITY_RL").val() > '0') {
+                  $("#MOTILITYNORMAL").removeAttr('checked');
                   for (index =1; index <= ($("#MOTILITY_RL").val()); ++index) {
                   $("#MOTILITY_RL_"+index).html(hash_tag);
                   }
                   }
                   
-                                    $("input[name$='PRISM']").blur(function() {
+                  $("input[name$='PRISM']").blur(function() {
                                                  //make it all caps
                                                  var str = $(this).val();
                                                  str = str.toUpperCase();
                                                  $(this).val(str);
                                                  });
                   $("input[name$='SPH']").blur(function() {
-                                          var mid = $(this).val();
-                                          if (!mid.match(/\./)) {
-                                          var front = mid.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
-                                          var back  = mid.match(/(\d{0,2})(\d{2})/)[2];
-                                          mid = front + "." + back;
-                                          }
-                                          if (!mid.match(/^(\+|\-){1}/)) {
-                                          mid = "+" + mid;
-                                          } 
-                                          $(this).val(mid);
-                                          });
+                                               var mid = $(this).val();
+                                               if (!mid.match(/\./)) {
+                                               var front = mid.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
+                                               var back  = mid.match(/(\d{0,2})(\d{2})/)[2];
+                                               mid = front + "." + back;
+                                               }
+                                               if (!mid.match(/^(\+|\-){1}/)) {
+                                               mid = "+" + mid;
+                                               }
+                                               $(this).val(mid);
+                                               });
                   $("input[name$='ADD']").blur(function() {
-                                          var add = $(this).val();
-                                          if (!add.match(/\./)) {
-                                              var front = add.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
-                                              var back  = add.match(/(\d{0,2})(\d{2})/)[2];
-                                              add = front + "." + back;
-                                          }
-                                          if (!add.match(/^(\+|\-){1}/)) {
-                                            add = "+" + add;
-                                          }
-                                          $(this).val(add);
-                                          submit_form();
-                                          });
-                                          
+                                               var add = $(this).val();
+                                               if (!add.match(/\./)) {
+                                               var front = add.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
+                                               var back  = add.match(/(\d{0,2})(\d{2})/)[2];
+                                               add = front + "." + back;
+                                               }
+                                               if (!add.match(/^(\+|\-){1}/)) {
+                                               add = "+" + add;
+                                               }
+                                               $(this).val(add);
+                                               submit_form();
+                                               });
+                  
                   $("[name$='CYL']").blur(function() {
                                           
                                           var mid = $(this).val();
@@ -349,23 +349,23 @@ $(document).ready(function() {
                                           }
                                           
                                           if (!mid.match(/^(\+|\-){1}/)) {
-                                              //no +/- sign in the field  
-                                              //ok so there is a preference set
+                                          //no +/- sign in the field
+                                          //ok so there is a preference set
                                           //if it doesn't start with + or - then give it the preference value
                                           var plusminus = $('#PREFS_CYL').val() + mid;
                                           $(this).val(plusminus);  //set this cyl value to plusminus
                                           } else if (mid.match(/^(\+|\-){1}/)) {
-                                              midmatch = mid.match(/^(\+|\-){1}/)[0];
-                                              $(this).val(mid);
-                                              $('#PREFS_CYL').val(midmatch);
-                                              update_PREFS();
-                                          //so they used a value + or - in the field. 
+                                          midmatch = mid.match(/^(\+|\-){1}/)[0];
+                                          $(this).val(mid);
+                                          $('#PREFS_CYL').val(midmatch);
+                                          update_PREFS();
+                                          //so they used a value + or - in the field.
                                           //The only reason to work on this is to change to cylinder preference
-                                              if ($('#PREFS_CYL').val() != mid.match(/^(\+|\-){1}/)[0]){
+                                          if ($('#PREFS_CYL').val() != mid.match(/^(\+|\-){1}/)[0]){
                                           //and that is what they are doing here
-                                                pref = mid.match(/^(\+|\-){1}/)[0];
-                                                $('#PREFS_CYL').val(pref);
-                                            }
+                                          pref = mid.match(/^(\+|\-){1}/)[0];
+                                          $('#PREFS_CYL').val(pref);
+                                          }
                                           }
                                           submit_form($(this));
                                           //        alert("Done");
@@ -376,10 +376,10 @@ $(document).ready(function() {
                                      if (!mid.match(/\./)) {
                                      var front = mid.match(/(\d{0,2})(\d{2})/)[1];
                                      var back = mid.match(/(\d{0,2})(\d{2})/)[2];
-                                         mid = front + "." + back;
-                                         }
+                                     mid = front + "." + back;
+                                     }
                                      if (!mid.match(/^(\+)/)) {
-                                        mid = "+" + mid;
+                                     mid = "+" + mid;
                                      }
                                      $('#WODADD1').val(mid);
                                      $('#WOSADD1').val(mid);
@@ -393,7 +393,7 @@ $(document).ready(function() {
                                      near = front + "." + back;
                                      }
                                      if (!near.match(/^(\+)/)) {
-                                      near= "+" + near;
+                                     near= "+" + near;
                                      }
                                      $('#WODADD2').val(near);
                                      $('#WOSADD2').val(near);
@@ -403,11 +403,11 @@ $(document).ready(function() {
                   $("#simplePrint").click(function() {
                                           printElem({
                                                     pageTitle: 'Spectacle_Rx.html',
-                                                    printBodyOptions: 
-                                                    { 
+                                                    printBodyOptions:
+                                                    {
                                                     styleToAdd:'padding:10px;background-color:white;margin:10px;color:#000000 !important;'
-                                                    //,classNameToAdd : 'refraction' 
-                                                    }, 
+                                                    //,classNameToAdd : 'refraction'
+                                                    },
                                                     leaveOpen: true,
                                                     printMode: 'popup',
                                                     overrideElementCSS: true,
@@ -425,87 +425,87 @@ $(document).ready(function() {
                                        });
                   $("#externalCSS").click(function() {
                                           printElem({ overrideElementCSS: ['../../forms/eye_mag/style.css'] });
-                                          });                                    
+                                          });
                   $("input,textarea,text").focus(function(){
-                                                        $(this).css("background-color","#ffff99");
-                                                        });  
+                                                 $(this).css("background-color","#ffff99");
+                                                 });
                   
                   $("input,textarea,text,checkbox").change(function(){
-                                                       //    .autoSubmit
-                                                         //submit_form($(this));
-                                                       $(this).css("background-color","#F0F8FF");
-                                                       submit_form($(this));
-
-                                                       }); 
+                                                           //    .autoSubmit
+                                                           //submit_form($(this));
+                                                           $(this).css("background-color","#F0F8FF");
+                                                           submit_form($(this));
+                                                           
+                                                           });
                   //we have to write this to work for every PRIORS select div
                   //select only shows up in the PRIORS select actions.
                   // no there are selects in Contact lens section
                   //on hold...
                   
-        /*          $("selector").on('change',function(event){
-                                   alert ("selector changed");
-                                 //  alert($('#id').val() + " " + this.name);
-                                 var new_section = this.name.match(/PRIOR_(.*)/);
-                                 var newValue = this.value;//eg PRIOR_EXT
-                                 //alert(new_section[1]);
-                                 //$("#EXT_QP_block1").toggleClass('nodisplay');
-                                 //$("#EXT_QP_block2").toggleClass('nodisplay');
-                                 $("#PRIORS_"+ new_section[1] +"_left_text").toggleClass('nodisplay');
-                                 $("#" + new_section[1] + "_right").toggleClass('nodisplay');
-                                 //now go get the prior page via ajax
-                                 var url = "/openemr/interface/forms/eye_mag/save.php?mode=retrieve&id=" + $('#id').val();
-                                 // alert(newValue);
-                                 var formData = {
-                                 'PRIORS_query'          : "1",
-                                 'zone'                  : new_section[1],
-                                 'visit_number'          : $('#PRIOR_EXT').val(),
-                                 'visit_date'            : newValue
-                                 
-                                 };
-                                 // alert(formData[0]);
-                                 
-
-                                 // process the form
-                                 $.ajax({
-                                        type 		: 'POST', // define the type of HTTP verb we want to use (POST for our form)
-                                        url          : url, // the url where we want to POST
-                                        data 		: formData, // our data object
-                                        //      dataType 	: 'json', // what type of data do we expect back from the server
-                                        //encode     : true,
-                                        
-                                        success      : function(result) {
-                                        
-                                        $("#PRIORS_" + new_section[1] + "_left_text").html(result);
-                                        }
-                                        });
-                                 //alert(result);
-                                 
-                                 
-                                 });
-                  */
+                  /*          $("selector").on('change',function(event){
+                   alert ("selector changed");
+                   //  alert($('#id').val() + " " + this.name);
+                   var new_section = this.name.match(/PRIOR_(.*)/);
+                   var newValue = this.value;//eg PRIOR_EXT
+                   //alert(new_section[1]);
+                   //$("#EXT_QP_block1").toggleClass('nodisplay');
+                   //$("#EXT_QP_block2").toggleClass('nodisplay');
+                   $("#PRIORS_"+ new_section[1] +"_left_text").toggleClass('nodisplay');
+                   $("#" + new_section[1] + "_right").toggleClass('nodisplay');
+                   //now go get the prior page via ajax
+                   var url = "../../forms/eye_mag/save.php?mode=retrieve&id=" + $('#id').val();
+                   // alert(newValue);
+                   var formData = {
+                   'PRIORS_query'          : "1",
+                   'zone'                  : new_section[1],
+                   'visit_number'          : $('#PRIOR_EXT').val(),
+                   'visit_date'            : newValue
+                   
+                   };
+                   // alert(formData[0]);
+                   
+                   
+                   // process the form
+                   $.ajax({
+                   type 		: 'POST', // define the type of HTTP verb we want to use (POST for our form)
+                   url          : url, // the url where we want to POST
+                   data 		: formData, // our data object
+                   //      dataType 	: 'json', // what type of data do we expect back from the server
+                   //encode     : true,
+                   
+                   success      : function(result) {
+                   
+                   $("#PRIORS_" + new_section[1] + "_left_text").html(result);
+                   }
+                   });
+                   //alert(result);
+                   
+                   
+                   });
+                   */
                   $("body").on("click","[name$='_text_view']" , function() {
                                //    alert (" Hello _text_view");
-                                                  var header = this.id.match(/(.*)_text_view$/)[1];
+                               var header = this.id.match(/(.*)_text_view$/)[1];
                                // alert("over here" +header);
-                                                  //PRIORS_EXT_left_text
-                                                  //alert($("#PREFS_"+header+"_VIEW").val());
-                                                  //PRIORS_EXT_left
-                                                  $("#"+header+"_text_list").toggleClass('wide_textarea');
-                                                  $("#"+header+"_text_list").toggleClass('narrow_textarea');
-                                                  $(this).toggleClass('fa-plus-square-o');
-                                                  $(this).toggleClass('fa-minus-square-o');
-                                                  //  alert(header);
-                                                  // $("#PRIORS_EXT_left").toggleClass('nodisplay');
-                                                  if (header != /PRIOR/) {
-                                                  
-                                                  var imagine = $("#PREFS_"+header+"_VIEW").val();
-                                                  imagine ^= true;
-                                                  $("#PREFS_"+header+"_VIEW").val(imagine);
-                                                  //  alert(imagine);
-                                                  update_PREFS();
-                                                  }
-                                                  });
-
+                               //PRIORS_EXT_left_text
+                               //alert($("#PREFS_"+header+"_VIEW").val());
+                               //PRIORS_EXT_left
+                               $("#"+header+"_text_list").toggleClass('wide_textarea');
+                               $("#"+header+"_text_list").toggleClass('narrow_textarea');
+                               $(this).toggleClass('fa-plus-square-o');
+                               $(this).toggleClass('fa-minus-square-o');
+                               //  alert(header);
+                               // $("#PRIORS_EXT_left").toggleClass('nodisplay');
+                               if (header != /PRIOR/) {
+                               
+                               var imagine = $("#PREFS_"+header+"_VIEW").val();
+                               imagine ^= true;
+                               $("#PREFS_"+header+"_VIEW").val(imagine);
+                               //  alert(imagine);
+                               update_PREFS();
+                               }
+                               });
+                  
                   $("body").on("change", "select", function(e){
                                // alert("Hello body change select");
                                var new_section = this.name.match(/PRIOR_(.*)/);
@@ -517,13 +517,13 @@ $(document).ready(function() {
                                //alert(new_section[1]);
                                
                                if (new_section[1] =="ALL") {
-                                    getSection("ALL");
-                                    getSection("EXT");
-                                    getSection("ANTSEG");
-                                    getSection("RETINA");
-                                    getSection("NEURO");
+                               getSection("ALL");
+                               getSection("EXT");
+                               getSection("ANTSEG");
+                               getSection("RETINA");
+                               getSection("NEURO");
                                } else {
-                                    getSection(new_section[1]);
+                               getSection(new_section[1]);
                                }
                                
                                function getSection(section) {
@@ -557,7 +557,7 @@ $(document).ready(function() {
                                // alert(result);
                                
                                }
-
+                               
                                //   alert("Goddbye!");
                                });
                   $("body").on("click","[id^='Close_PRIORS_']", function(e) {
@@ -574,29 +574,29 @@ $(document).ready(function() {
                   $('#PRIOR_EXT').change(function() {
                                          //         alert( "Stop looking here.  PRIOR_EXT.change" );
                                          // $PRIORS_EXT_left_text = 1;
-                                                  });
+                                         });
                   
                   //we are requesting an old record: EXT values to be placed in the PRIORS_EXT div.
-              /*    $("[id$='_left_text']").click(function(e) {
-                                            var $target = $(e.target);
-                                            if ($target.hasClass("PRIORS")) {
-                                            // do something
-                                                var showme = $(this).val();
-                                                var zone = $(this).id.match(/PRIOR_(.*)$/)[1];
-                                                alert("hi " + showme + " the zone: " + zone);
-                                                //hide the current exam, replace it with old, change the background color, top_right the date stamp
-                                                //    $("#EXT_1").toggleClass('nodisplay');
-                                            }
-                                            });
-                  $("[id$='_left_text']").on('click','span.PRIORS', function() {
-                                             alert(this.id);
-                                            var showme = this.value;
-                                            var zone = this.id.match(/PRIOR_(.*)$/)[1];
-                                            alert("hi " + showme + " the zone: " + zone);
-                                            //hide the current exam, replace it with old, change the background color, top_right the date stamp
-                                             //  $("#EXT_1").toggleClass('nodisplay');
-                                            });
-               */
+                  /*    $("[id$='_left_text']").click(function(e) {
+                   var $target = $(e.target);
+                   if ($target.hasClass("PRIORS")) {
+                   // do something
+                   var showme = $(this).val();
+                   var zone = $(this).id.match(/PRIOR_(.*)$/)[1];
+                   alert("hi " + showme + " the zone: " + zone);
+                   //hide the current exam, replace it with old, change the background color, top_right the date stamp
+                   //    $("#EXT_1").toggleClass('nodisplay');
+                   }
+                   });
+                   $("[id$='_left_text']").on('click','span.PRIORS', function() {
+                   alert(this.id);
+                   var showme = this.value;
+                   var zone = this.id.match(/PRIOR_(.*)$/)[1];
+                   alert("hi " + showme + " the zone: " + zone);
+                   //hide the current exam, replace it with old, change the background color, top_right the date stamp
+                   //  $("#EXT_1").toggleClass('nodisplay');
+                   });
+                   */
                   $("#pupils").mouseover(function() {
                                          $("#pupils").toggleClass("red");
                                          });
@@ -633,19 +633,19 @@ $(document).ready(function() {
                   $("#WNEAROSAXIS").hide();
                   $("#WNEAROSCYL").hide();
                   $("#WNEAROSPRISM").hide();
-                  $("[name=RX]").val(["1"]);  
+                  $("[name=RX]").val(["1"]);
                   
                   $("#SingleVision_span").click(function(){
                                                 $(".WNEAR").hide();
                                                 $(".WSPACER").show();
-                                                $("[name=RX]").val(["0"]);  
+                                                $("[name=RX]").val(["0"]);
                                                 });
                   $("#Bifocal_span").click(function(){
                                            $(".WSPACER").hide();
                                            $(".WNEAR").show();
                                            $(".WMid").addClass('nodisplay');
                                            $(".WHIDECYL").removeClass('nodisplay');
-                                           $("[name=RX]").val(["1"]);   
+                                           $("[name=RX]").val(["1"]);
                                            $("#WNEARODAXIS").hide();
                                            $("#WNEARODCYL").hide();
                                            $("#WNEARODPRISM").hide();
@@ -660,7 +660,7 @@ $(document).ready(function() {
                                             $(".WNEAR").show();
                                             $(".WMid").removeClass('nodisplay');
                                             $(".WHIDECYL").addClass('nodisplay');
-                                            $("[name=RX]").val(["2"]);   
+                                            $("[name=RX]").val(["2"]);
                                             $("#WNEARODAXIS").hide();
                                             $("#WNEARODCYL").hide();
                                             $("#WNEARODPRISM").hide();
@@ -673,7 +673,7 @@ $(document).ready(function() {
                                                $(".WNEAR").show();
                                                $(".WMid").addClass('nodisplay');
                                                $(".WHIDECYL").removeClass('nodisplay');
-                                               $("[name=RX]").val(["3"]);   
+                                               $("[name=RX]").val(["3"]);
                                                $("#WNEARODAXIS").hide();
                                                $("#WNEARODCYL").hide();
                                                $("#WNEARODPRISM").hide();
@@ -705,32 +705,32 @@ $(document).ready(function() {
                                                 
                                                 });
                   $("[name^='EXAM']").mouseout(function(){
-                            $(this).toggleClass("borderShadow2");	
-                            });
-
+                                               $(this).toggleClass("borderShadow2");
+                                               });
+                  
                   $("#LayerVision, #LayerTension, #LayerMotility, #LayerAmsler, #LayerFields, #LayerPupils,#dim_pupils_panel").mouseover(function(){
-                                                                                                            $(this).toggleClass("borderShadow2");
-                                                                                                            });
+                                                                                                                                         $(this).toggleClass("borderShadow2");
+                                                                                                                                         });
                   $("#LayerVision, #LayerTension, #LayerMotility, #LayerAmsler, #LayerFields, #LayerPupils,#dim_pupils_panel").mouseout(function(){
-                                                                                                            $(this).toggleClass("borderShadow2");	
-                                                                                                            });
+                                                                                                                                        $(this).toggleClass("borderShadow2");
+                                                                                                                                        });
                   $("#LayerVision_W,#LayerVision_MR,#LayerVision_CR,#LayerVision_CTL,#LayerVision_ADDITIONAL,#LayerVision_ADDITIONAL_VISION").mouseover(function(){
-                                                                                                            $(this).toggleClass("borderShadow2");
-                                                                                                            });
+                                                                                                                                                        $(this).toggleClass("borderShadow2");
+                                                                                                                                                        });
                   $("#LayerVision_W,#LayerVision_MR,#LayerVision_CR,#LayerVision_CTL,#LayerVision_ADDITIONAL,#LayerVision_ADDITIONAL_VISION").mouseout(function(){
-                                                                                                            $(this).toggleClass("borderShadow2");	
-                                                                                                            });
-
+                                                                                                                                                       $(this).toggleClass("borderShadow2");
+                                                                                                                                                       });
+                  
                   $("#AmslerOD, #AmslerOS").click(function() {
                                                   //alert("1");
-                                                  //console.dir(this);
-                                                  //console.log("Hello this");
-                                                  var number1 = this.src.match(/\d/)[0];
+                                                  console.dir(this);
+                                                  console.log("Hello this");
+                                                  var number1 = this.src.match(/Amsler_(\d)/)[1];
                                                   var number2 = +number1 +1;
-                                                  this.src = this.src.replace(number1,number2);
-                                                  this.src = this.src.replace('6','0');
+                                                  this.src = this.src.replace('Amsler_'+number1,'Amsler_'+number2);
+                                                  this.src = this.src.replace('Amsler_6','Amsler_0');
                                                   $("#Amsler-Normal").removeAttr('checked');
-                                                  var number3 = this.src.match(/\d/)[0];
+                                                  var number3 = this.src.match(/Amsler_(\d)/)[1];
                                                   this.html =  number3;
                                                   if (number3 =="6") {
                                                   number3 = "0";
@@ -745,33 +745,26 @@ $(document).ready(function() {
                                                   $("#AmslerOSvalue").text(number3);
                                                   }
                                                   var title = "#"+$(this).attr("id")+"_tag";
-                                                  
+                                                  //alert(title);
                                                   });
-                  $("#AmslerOD, #AmslerOS").dblclick(function() {
-                                                     //console.dir(this);
-                                                     //console.log("Hello this");
-                                                     var number1 = this.src.match(/\d/)[0];
-                                                     var number2 = +number1 -1;
-                                                     this.src = this.src.replace(number1,number2);
-                                                     this.src = this.src.replace('-1','6');
-                                                     });
+                  
                   $("#AmslerOD, #AmslerOS").mouseout(function() {
                                                      submit_form("eye_mag");
                                                      });
                   $("[name^='ODVF'],[name^='OSVF']").click(function() {
                                                            // alert($(this).prop('checked'));
-                                            if ($(this).is(':checked') == true) {
+                                                           if ($(this).is(':checked') == true) {
                                                            $("#FieldsNormal").prop('checked', false);
                                                            $(this).val('1');
                                                            
-                                            }else{
+                                                           }else{
                                                            $(this).val('0');
                                                            $(this).prop('checked', false);
-                                            }
-                                            submit_form("eye_mag");
-
-                                            });
-                 
+                                                           }
+                                                           submit_form("eye_mag");
+                                                           
+                                                           });
+                  
                   $("#FieldsNormal").click(function() {
                                            //alert("We checked the Normal box");
                                            
@@ -793,13 +786,13 @@ $(document).ready(function() {
                                            }
                                            });
                   
-                  //Part of QP 
+                  //Part of QP
                   $("[id^='EXT_prefix']").change(function() {
-                                                   var newValue =$('#EXT_prefix').val();
-                                                   newValue = newValue.replace('+', '');
-                                                   if (newValue =="off") {$(this).val('');}
-                                                   $("[name^='EXT_prefix_']").removeClass('eye_button_selected');
-                                                   $("#EXT_prefix_"+ newValue).addClass("eye_button_selected");
+                                                 var newValue =$('#EXT_prefix').val();
+                                                 newValue = newValue.replace('+', '');
+                                                 if (newValue =="off") {$(this).val('');}
+                                                 $("[name^='EXT_prefix_']").removeClass('eye_button_selected');
+                                                 $("#EXT_prefix_"+ newValue).addClass("eye_button_selected");
                                                  });
                   
                   $("#ANTSEG_prefix").change(function() {
@@ -807,19 +800,19 @@ $(document).ready(function() {
                                              if ($(this).value =="off") {$(this).val('');}
                                              $("[name^='ANTSEG_prefix_']").removeClass('eye_button_selected');
                                              $("#ANTSEG_prefix_"+ newValue).addClass("eye_button_selected");
-                                             });     
+                                             });
                   $("#RETINA_prefix").change(function() {
-                                                      var newValue = $("#RETINA_prefix").val().replace('+', '');
-                                                      if ($(this).value =="off") {$(this).val('');}
-                                                      $("[name^='RETINA_prefix_']").removeClass('eye_button_selected');
-                                                      $("#RETINA_prefix_"+ newValue).addClass("eye_button_selected");
-                                                      });
+                                             var newValue = $("#RETINA_prefix").val().replace('+', '');
+                                             if ($(this).value =="off") {$(this).val('');}
+                                             $("[name^='RETINA_prefix_']").removeClass('eye_button_selected');
+                                             $("#RETINA_prefix_"+ newValue).addClass("eye_button_selected");
+                                             });
                   $("#NEURO_prefix").change(function() {
-                                                     var newValue = $("#NEURO_prefix").val().replace('+', '');
-                                                     if ($(this).value =="off") {$(this).val('');}
-                                                     $("[name^='NEURO_prefix_']").removeClass('eye_button_selected');
-                                                     $("#NEURO_prefix_"+ newValue).addClass("eye_button_selected");
-                                                     });
+                                            var newValue = $("#NEURO_prefix").val().replace('+', '');
+                                            if ($(this).value =="off") {$(this).val('');}
+                                            $("[name^='NEURO_prefix_']").removeClass('eye_button_selected');
+                                            $("#NEURO_prefix_"+ newValue).addClass("eye_button_selected");
+                                            });
                   $("AntSegSpan,#AntSegOD,#AntSegOU,#AntSegOS,#EXTOD,#EXTOU,#EXTOS,#RETINAOD,#RETINAOU,#RETINAOS").mouseover(function() {
                                                                                                                              $(this).toggleClass('button_over');
                                                                                                                              
@@ -839,52 +832,52 @@ $(document).ready(function() {
                                                                                                                          $(tabOS).removeClass('button_selected');
                                                                                                                          $(this).toggleClass('button_selected');
                                                                                                                          });
-                  $("#LayerVision_W_lightswitch, #LayerVision_CR_lightswitch,#LayerVision_MR_lightswitch,#LayerVision_ADDITIONAL_lightswitch,#LayerVision_CTL_lightswitch").mouseover(function() {  
+                  $("#LayerVision_W_lightswitch, #LayerVision_CR_lightswitch,#LayerVision_MR_lightswitch,#LayerVision_ADDITIONAL_lightswitch,#LayerVision_CTL_lightswitch").mouseover(function() {
                                                                                                                                                                                       $(this).addClass('buttonRefraction_selected');
                                                                                                                                                                                       });
-                  $("#LayerVision_W_lightswitch, #LayerVision_CR_lightswitch,#LayerVision_MR_lightswitch,#LayerVision_ADDITIONAL_lightswitch,#LayerVision_CTL_lightswitch").mouseout(function() {  
-                                                                                                                                                                                     var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];                                                                                                                                                                                   
+                  $("#LayerVision_W_lightswitch, #LayerVision_CR_lightswitch,#LayerVision_MR_lightswitch,#LayerVision_ADDITIONAL_lightswitch,#LayerVision_CTL_lightswitch").mouseout(function() {
+                                                                                                                                                                                     var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
                                                                                                                                                                                      var elem = document.getElementById("PREFS_"+section2);
                                                                                                                                                                                      
                                                                                                                                                                                      if (elem.value != "1") {                                                                $(this).removeClass('buttonRefraction_selected');
-                                                                                                                                                                                     } else { 
+                                                                                                                                                                                     } else {
                                                                                                                                                                                      $(this).addClass('buttonRefraction_selected');
                                                                                                                                                                                      }                                                                });
                   
                   $("#LayerVision_W_lightswitch, #LayerVision_CR_lightswitch,#LayerVision_MR_lightswitch,#LayerVision_ADDITIONAL_lightswitch,#LayerVision_CTL_lightswitch").click(function() {
-                                                              var section = "#"+this.id.match(/(.*)_lightswitch$/)[1];
-                                                              var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];                                                                                                                                                                                   
-                                                              var elem = document.getElementById("PREFS_"+section2);
-                                                              
-                                                              if ($("#PREFS_VA").val() !='1') {
-                                                                  $("#PREFS_VA").val('1');   
-                                                                  $("#LayerVision2").show();
-                                                                  elem.value="1";  
-                                                                  $(section).removeClass('nodisplay');
-                                                                  if (section2 =="ADDITIONAL") {
-                                                                      $("#LayerVision_ADDITIONAL_VISION").removeClass('nodisplay');
-                                                                  }
-                                                                  $(this).addClass("buttonRefraction_selected");                                                                               
-                                                              } else { 
-                                                                  if (elem.value == "0") {
-                                                                      elem.value='1';   
-                                                                      if (section2 =="ADDITIONAL") {
-                                                                          $("#LayerVision_ADDITIONAL_VISION").removeClass('nodisplay');                                                                   
-                                                                      }
-                                                                      $(section).removeClass('nodisplay');
-                                                                      $(this).addClass("buttonRefraction_selected"); 
-                                                                  } else {
-                                                                      elem.value='0';
-                                                                      $(section).addClass('nodisplay');
-                                                                      if (section2 =="ADDITIONAL") {
-                                                                          $("#LayerVision_ADDITIONAL_VISION").addClass('nodisplay');                                                                   
-                                                                      }
-                                                                      $(this).removeClass("buttonRefraction_selected");                                                             
-                                                                  }
-                                                              }
-                                                              update_PREFS();                                                                                                                                                       });
+                                                                                                                                                                                  var section = "#"+this.id.match(/(.*)_lightswitch$/)[1];
+                                                                                                                                                                                  var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
+                                                                                                                                                                                  var elem = document.getElementById("PREFS_"+section2);
+                                                                                                                                                                                  
+                                                                                                                                                                                  if ($("#PREFS_VA").val() !='1') {
+                                                                                                                                                                                  $("#PREFS_VA").val('1');
+                                                                                                                                                                                  $("#LayerVision2").show();
+                                                                                                                                                                                  elem.value="1";
+                                                                                                                                                                                  $(section).removeClass('nodisplay');
+                                                                                                                                                                                  if (section2 =="ADDITIONAL") {
+                                                                                                                                                                                  $("#LayerVision_ADDITIONAL_VISION").removeClass('nodisplay');
+                                                                                                                                                                                  }
+                                                                                                                                                                                  $(this).addClass("buttonRefraction_selected");
+                                                                                                                                                                                  } else {
+                                                                                                                                                                                  if (elem.value == "0") {
+                                                                                                                                                                                  elem.value='1';
+                                                                                                                                                                                  if (section2 =="ADDITIONAL") {
+                                                                                                                                                                                  $("#LayerVision_ADDITIONAL_VISION").removeClass('nodisplay');
+                                                                                                                                                                                  }
+                                                                                                                                                                                  $(section).removeClass('nodisplay');
+                                                                                                                                                                                  $(this).addClass("buttonRefraction_selected");
+                                                                                                                                                                                  } else {
+                                                                                                                                                                                  elem.value='0';
+                                                                                                                                                                                  $(section).addClass('nodisplay');
+                                                                                                                                                                                  if (section2 =="ADDITIONAL") {
+                                                                                                                                                                                  $("#LayerVision_ADDITIONAL_VISION").addClass('nodisplay');
+                                                                                                                                                                                  }
+                                                                                                                                                                                  $(this).removeClass("buttonRefraction_selected");
+                                                                                                                                                                                  }
+                                                                                                                                                                                  }
+                                                                                                                                                                                  update_PREFS();                                                                                                                                                       });
                   //useful to make two VA fields stay in sync
-         
+                  
                   $("input[name$='VA']").blur(function() {
                                               var hereValue = $(this).val();
                                               var newValue = $(this).attr('name').replace('VA', 'VA_copy');
@@ -897,20 +890,20 @@ $(document).ready(function() {
                                                  $("#" + newValue).val(hereValue);
                                                  $("#" + newValue + "_copy_brd").val(hereValue);
                                                  submit_form("eye_mag");
-                                       });
-                  $("input[name$='_copy_brd']").change(function() {
-                                                 var hereValue = $(this).val();
-                                                 var newValue = $(this).attr('name').replace('VA_copy_brd', 'VA');
-                                                 $("#" + newValue).val(hereValue);
-                                                 $("#" + newValue + "_copy").val(hereValue);
-                                                     submit_form("eye_mag");
                                                  });
-                 
+                  $("input[name$='_copy_brd']").change(function() {
+                                                       var hereValue = $(this).val();
+                                                       var newValue = $(this).attr('name').replace('VA_copy_brd', 'VA');
+                                                       $("#" + newValue).val(hereValue);
+                                                       $("#" + newValue + "_copy").val(hereValue);
+                                                       submit_form("eye_mag");
+                                                       });
+                  
                   $("[name^='more_']").click(function() {
-                                                  $("#Visions_A").toggleClass('nodisplay');
-                                                  $("#Visions_B").toggleClass('nodisplay');
+                                             $("#Visions_A").toggleClass('nodisplay');
+                                             $("#Visions_B").toggleClass('nodisplay');
                                              });
-
+                  
                   $("#ANTSEG_defaults").click(function() {
                                               $('#ODCONJ').val('quiet').css("background-color","beige");
                                               $('#OSCONJ').val('quiet').css("background-color","beige");
@@ -921,7 +914,7 @@ $(document).ready(function() {
                                               $('#ODLENS').val('clear').css("background-color","beige");
                                               $('#OSLENS').val('clear').css("background-color","beige");
                                               $('#ODIRIS').val('round').css("background-color","beige");
-                                              $('#OSIRIS').val('round').css("background-color","beige");                  
+                                              $('#OSIRIS').val('round').css("background-color","beige");
                                               });
                   $("#EXAM_defaults").click(function() {
                                             $('#RUL').val('normal lids and lashes').css("background-color","beige");
@@ -971,7 +964,7 @@ $(document).ready(function() {
                                             $('#ODMACULA').val('flat').css("background-color","beige");
                                             $('#OSMACULA').val('flat').css("background-color","beige");
                                             $('#ODVESSELS').val('2:3').css("background-color","beige");
-                                            $('#OSVESSELS').val('2:3').css("background-color","beige"); 
+                                            $('#OSVESSELS').val('2:3').css("background-color","beige");
                                             $('#ODPERIPH').val('flat without tears, holes or RD').css("background-color","beige");
                                             $('#OSPERIPH').val('flat without tears, holes or RD').css("background-color","beige");
                                             submit_form("eye_mag");
@@ -979,7 +972,7 @@ $(document).ready(function() {
                                             });
                   
                   $("#MOTILITYNORMAL").click(function() {
-                                              $("#MOTILITY_RS").val('0');
+                                             $("#MOTILITY_RS").val('0');
                                              $("#MOTILITY_RI").val('0');
                                              $("#MOTILITY_RR").val('0');
                                              $("#MOTILITY_RL").val('0');
@@ -997,7 +990,7 @@ $(document).ready(function() {
                                              $("#MOTILITY_LR_"+index).html('');
                                              $("#MOTILITY_LL_"+index).html('');
                                              
-                                                                                         }       
+                                             }
                                              
                                              });
                   
@@ -1008,11 +1001,11 @@ $(document).ready(function() {
                                                  var valued = isNaN($("#"+zone[1]).val());
                                                  
                                                  if (valued != true && $("#"+zone[1]).val() <'4') {
-                                                    valued=$("#"+zone[1]).val();
-                                                    valued++;
+                                                 valued=$("#"+zone[1]).val();
+                                                 valued++;
                                                  } else {
-                                                    valued = '0'; 
-                                                    $("#"+zone[1]).val('0');
+                                                 valued = '0';
+                                                 $("#"+zone[1]).val('0');
                                                  }
                                                  
                                                  $("#"+zone[1]).val(valued);
@@ -1022,31 +1015,31 @@ $(document).ready(function() {
                                                  var SupInf = section2.search(/S|I/);
                                                  var RorLside   = section2.search(/R|L/);
                                                  var index   = '0';
-                                                
-                                                 if (RorLside =='0') { 
-                                                    var hash_tag = '<i class="fa fa-minus rotate-left">';
-                                                 } else { 
-                                                    var hash_tag = '<i class="fa fa-minus">';
+                                                 
+                                                 if (RorLside =='0') {
+                                                 var hash_tag = '<i class="fa fa-minus rotate-left">';
+                                                 } else {
+                                                 var hash_tag = '<i class="fa fa-minus">';
                                                  }
                                                  for (index = '0'; index < 5; ++index) {
-                                                    $("#"+zone[1]+"_"+index).html('');
-                                                 }         
+                                                 $("#"+zone[1]+"_"+index).html('');
+                                                 }
                                                  if (valued > '0') {
-                                                    for (index =1; index < (valued+1); ++index) {
-                                                        $("#"+zone[1]+"_"+index).html(hash_tag);
-                                                    }
+                                                 for (index =1; index < (valued+1); ++index) {
+                                                 $("#"+zone[1]+"_"+index).html(hash_tag);
+                                                 }
                                                  }
                                                  submit_form();
                                                  });
                   
-                  $("[name^='Close_']").click(function()  {                                                         
+                  $("[name^='Close_']").click(function()  {
                                               var section = this.id.match(/Close_(.*)$/)[1];
-                                                //  var elem = document.getElementById("PREFS_"+section);
+                                              //  var elem = document.getElementById("PREFS_"+section);
                                               if (section =="ACTMAIN") {
-                                                //$("#"+section).toggleClass('nodisplay');
-                                                $("#ACTTRIGGER").trigger( "click" );
-                                              } else {                 
-                                                $("#LayerVision_"+section+"_lightswitch").click();
+                                              //$("#"+section).toggleClass('nodisplay');
+                                              $("#ACTTRIGGER").trigger( "click" );
+                                              } else {
+                                              $("#LayerVision_"+section+"_lightswitch").click();
                                               }
                                               });
                   
@@ -1061,7 +1054,7 @@ $(document).ready(function() {
                                         
                                         //   alert("here "+$("#PREFS_CLINICAL").val());
                                         if ($("#PREFS_CLINICAL").value !='0') {
-                                        show_QPDRAW(); 
+                                        show_QPDRAW();
                                         $("#PREFS_CLINICAL").val('0');
                                         update_PREFS();
                                         }
@@ -1075,14 +1068,14 @@ $(document).ready(function() {
                                         $("#QPAntSeg").hide();
                                         $("#QPRetina").hide();
                                         $("#EXAM_QP").removeClass('button_selected');
-                                        //.css("border","#000000").css("color", "yellow");  
+                                        //.css("border","#000000").css("color", "yellow");
                                         $("#EXAM_DRAW").addClass('button_selected');
                                         //.removeClass('button_selected');
                                         $("#EXAM_CLINICAL").removeClass('button_selected');
                                         /*.removeClass('button_selected');
-                                        $("#EXAM_DRAW").css("border","#000000").css("color", "yellow");  
-                                        $("#EXAM_QP").removeClass('button_selected');
-                                        $("#EXAM_CLINICAL").removeClass('button_selected');*/
+                                         $("#EXAM_DRAW").css("border","#000000").css("color", "yellow");
+                                         $("#EXAM_QP").removeClass('button_selected');
+                                         $("#EXAM_CLINICAL").removeClass('button_selected');*/
                                         update_PREFS();
                                         }
                                         
@@ -1090,19 +1083,19 @@ $(document).ready(function() {
                                         });
                   $("#EXAM_QP").click(function() {
                                       //      alert($("#PREFS_CLINICAL").value);
-                                      if ($("#PREFS_CLINICAL").value !='0') { 
+                                      if ($("#PREFS_CLINICAL").value !='0') {
                                       // when ==0 the draw or QP panel is shown, 1 just the text fields
                                       show_QPDRAW();
                                       hide_PRIORS();
                                       $("#PREFS_CLINICAL").val('0');
                                       update_PREFS();
                                       }
-
+                                      
                                       //      alert("Hello EXAM_QP 1");
                                       if ($("#PREFS_EXAM").value != 'QP') {
                                       $("#PREFS_EXAM").val('QP');
                                       $("#EXAM_QP").addClass('button_selected');
-                                      //.css("border","#000000").css("color", "yellow");  
+                                      //.css("border","#000000").css("color", "yellow");
                                       $("#EXAM_DRAW").removeClass('button_selected');
                                       //.removeClass('button_selected');
                                       $("#EXAM_CLINICAL").removeClass('button_selected');
@@ -1115,7 +1108,7 @@ $(document).ready(function() {
                                       $("#QPAntSeg").show();
                                       $("#QPRetina").show();
                                       }
-                                                                            });
+                                      });
                   
                   $("#EXAM_CLINICAL").click(function() {
                                             //     alert("hi");
@@ -1123,14 +1116,14 @@ $(document).ready(function() {
                                             
                                             if ($("#PREFS_CLINICAL").val() !='1') { //we want to show TEXT
                                             $("#PREFS_CLINICAL").val('1');
-                                            $("#PREFS_EXAM").val('TEXT');                                   
+                                            $("#PREFS_EXAM").val('TEXT');
                                             hide_QPDRAW();
                                             hide_PRIORS();
-                                            update_PREFS(); 
+                                            update_PREFS();
                                             }
                                             $("#EXAM_DRAW").removeClass('button_selected');
                                             $("#EXAM_QP").removeClass('button_selected');
-                                            //css("border","white").css("color", "white");  
+                                            //css("border","white").css("color", "white");
                                             //$("#EXAM_QP").removeClass('button_selected');
                                             //$("#EXAM_CLINICAL").css("border","#000000").css("color", "yellow");
                                             $("#EXAM_CLINICAL").addClass('button_selected');
@@ -1153,25 +1146,25 @@ $(document).ready(function() {
                   $("#ANTSEG_prefix_"+$("#ANTSEG_prefix").val()).addClass('button_selected');
                   } else {
                   $("#ANTSEG_prefix").val('off').trigger('change');
-                  }  
+                  }
                   
                   $("[name^='ACT_tab_']").click(function()  {
-                                            var section = this.id.match(/ACT_tab_(.*)/)[1];
-                                                    //var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];                                                                                                                                                                                   
-                                                    //var elem = document.getElementById("PREFS_"+section2);
-                                                    //    alert(section);
-                                            $("[name^='ACT_']").addClass('nodisplay');
-                                                   $("[name^='ACT_tab_']").removeClass('nodisplay').removeClass('ACT_selected').addClass('ACT_deselected');
-                                                    $("#ACT_tab_" + section).addClass('ACT_selected').removeClass('ACT_deselected');
-                                                    $("#ACT_" + section).removeClass('nodisplay');
-                                            });
+                                                var section = this.id.match(/ACT_tab_(.*)/)[1];
+                                                //var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
+                                                //var elem = document.getElementById("PREFS_"+section2);
+                                                //    alert(section);
+                                                $("[name^='ACT_']").addClass('nodisplay');
+                                                $("[name^='ACT_tab_']").removeClass('nodisplay').removeClass('ACT_selected').addClass('ACT_deselected');
+                                                $("#ACT_tab_" + section).addClass('ACT_selected').removeClass('ACT_deselected');
+                                                $("#ACT_" + section).removeClass('nodisplay');
+                                                });
                   $("#ACTTRIGGER").mouseover(function() {
                                              $("#ACTTRIGGER").toggleClass("red");
                                              
                                              });
                   $("#ACTTRIGGER").mouseout(function() {
-                                             $("#ACTTRIGGER").toggleClass("red");
-                                             });
+                                            $("#ACTTRIGGER").toggleClass("red");
+                                            });
                   $("#ACTTRIGGER").click(function() {
                                          $("#ACTMAIN").toggleClass('nodisplay'); //.toggleClass('fullscreen');
                                          $("#NPCNPA").toggleClass('nodisplay');
@@ -1179,7 +1172,7 @@ $(document).ready(function() {
                                          $("#ACTTRIGGER").toggleClass('underline');
                                          $("#Close_ACTMAIN").toggleClass('fa-random').toggleClass('fa-eye');
                                          
-                  });
+                                         });
                   /* Now it is time to figure out how to blow-up each section for a tablet for example to fill the screen and look good */
                   $("[name^='MAX_']").click(function() {
                                             
@@ -1209,52 +1202,52 @@ $(document).ready(function() {
                                           });
                   
                   $("#NEURO_REDDESAT").click(function() {
-                                          $("#ODREDDESAT").val("100");
-                                          $("#OSREDDESAT").val("100");
-                                          submit_form("eye_mag");
-                                          });
-          
+                                             $("#ODREDDESAT").val("100");
+                                             $("#OSREDDESAT").val("100");
+                                             submit_form("eye_mag");
+                                             });
+                  
                   
                   $("#construction").click(function() {
                                            //   alert("OVER HERE");
                                            $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
                                            });
                   
-         /*          $(".fancybox2").fancybox({
-                                          helpers : {
-                                          overlay : {
-                                          css : {
-                                          'background' : 'rgba(58, 42, 45, 0.95)'
-                                          }
-                                          }
-                                          }
-                                          });
-                  $(".fancybox").fancybox({
-                                          openEffect: 'none',
-                                          closeEffect: 'none',
-                                          afterShow: function() {
-                                          $('<div class="expander"></div>').appendTo(this.inner).click(function() {
-                                                                                                       $(document).toggleFullScreen();
-                                                                                                       });
-                                          },
-                                          afterClose: function() {
-                                          $(document).fullScreen(false);
-                                          }
-                                          });
-          */
+                  /*          $(".fancybox2").fancybox({
+                   helpers : {
+                   overlay : {
+                   css : {
+                   'background' : 'rgba(58, 42, 45, 0.95)'
+                   }
+                   }
+                   }
+                   });
+                   $(".fancybox").fancybox({
+                   openEffect: 'none',
+                   closeEffect: 'none',
+                   afterShow: function() {
+                   $('<div class="expander"></div>').appendTo(this.inner).click(function() {
+                   $(document).toggleFullScreen();
+                   });
+                   },
+                   afterClose: function() {
+                   $(document).fullScreen(false);
+                   }
+                   });
+                   */
                   $(document).bind("fullscreenerror", function() {
                                    alert("Browser rejected fullscreen change");
                                    });
                   window.addEventListener("beforeunload", function (e) {
                                           submit_form(e);
 /*                                          var confirmationMessage = "\o/";
-                                          
-                                          (e || window.event).returnValue = confirmationMessage; //Gecko + IE
-                                          return confirmationMessage;                            //Webkit, Safari, Chrome
-  */
+ 
+ (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+ return confirmationMessage;                            //Webkit, Safari, Chrome
+ */
                                           });
-                
-});
+                  
+                  });
 
 
 
