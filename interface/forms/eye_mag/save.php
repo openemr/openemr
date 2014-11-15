@@ -23,54 +23,96 @@ if ($encounter == "" && !$_GET["id"]) {
     exit;
 }
 if ($PREFS_VA) {
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_VA."' where id = '".$_SESSION['authId']."' and LOCATION='VA'";
-       // echo $query;
-        sqlQuery($query);
+   
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','VA','Vision','".$_SESSION['authId']."','RS','51','".$PREFS_VA."','1') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_VA."'";
+  //echo $query;
+  sqlQuery($query);
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','W','Current Rx','".$_SESSION['authId']."','W','52','".$PREFS_W."','2') 
+              on DUPLICATE KEY UPDATE VALUE='".$PREFS_W."'";
+   // echo $query;
+  sqlQuery($query);
 
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_MR."' where id = '".$_SESSION['authId']."' and LOCATION='MR'";
-       //echo $query;
-        sqlQuery($query); 
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','MR','Manifest Refraction','".$_SESSION['authId']."','MR','53','".$PREFS_MR."','3') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_MR."'";
+  //echo $query;
+  sqlQuery($query);
 
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_W."' where id = '".$_SESSION['authId']."' and LOCATION='W'";
-       //echo $query;
-        sqlQuery($query);
-        
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_CR."' where id = '".$_SESSION['authId']."' and LOCATION='CR'";
-        sqlQuery($query);
-        
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_CTL."' where id = '".$_SESSION['authId']."' and LOCATION='CTL'";
-        sqlQuery($query);
-        
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_ADDITIONAL."' where id = '".$_SESSION['authId']."' and LOCATION='ADDITIONAL'";
-        //echo $query;
-        sqlQuery($query);
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','CR','Cycloplegic Refraction','".$_SESSION['authId']."','CR','54','".$PREFS_CR."','4') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_CR."'";
+  //echo $query;
+  sqlQuery($query);
 
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_CLINICAL."' where id = '".$_SESSION['authId']."' and LOCATION='CLINICAL'";
-        //echo $query;
-        sqlQuery($query);
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','CTL','Contact Lens','".$_SESSION['authId']."','CTL','55','".$PREFS_CTL."','5') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_CTL."'";
+  //echo $query;
+  sqlQuery($query);
 
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_EXAM."' where id = '".$_SESSION['authId']."' and LOCATION='EXAM'";
-       // echo $query;
-        sqlQuery($query);
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','ADDITIONAL','Additional Data Points','".$_SESSION['authId']."','ADDITIONAL','56','".$PREFS_ADDITIONAL."','6') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_ADDITIONAL."'";
+  //echo $query;
+  sqlQuery($query);
+      
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','CLINICAL','CLINICAL','".$_SESSION['authId']."','CLINICAL','57','".$PREFS_CLINICAL."','7') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_ACLINICAL."'";
+  //echo $query;
+  sqlQuery($query);
 
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_CYL."' where id = '".$_SESSION['authId']."' and LOCATION='CYL'";
-       // echo $query;
-        sqlQuery($query);
+    $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','EXAM','EXAM','".$_SESSION['authId']."','EXAM','58','".$PREFS_EXAM."','8') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_EXAM."'";
+  //echo $query;
+  sqlQuery($query);
 
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_EXT_VIEW."' where id = '".$_SESSION['authId']."' and LOCATION='EXT_VIEW'";
-       //echo $query;
-        sqlQuery($query);
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_ANTSEG_VIEW."' where id = '".$_SESSION['authId']."' and LOCATION='ANTSEG_VIEW'";
-       // echo $query;
-        sqlQuery($query);
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_RETINA_VIEW."' where id = '".$_SESSION['authId']."' and LOCATION='RETINA_VIEW'";
-       // echo $query;
-        sqlQuery($query);
-        $query = "UPDATE dbSelectFindings set VALUE = '".$PREFS_NEURO_VIEW."' where id = '".$_SESSION['authId']."' and LOCATION='NEURO_VIEW'";
-       // echo $query;
-        sqlQuery($query);
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','CYLINDER','CYL','".$_SESSION['authId']."','CYL','59','".$PREFS_CYL."','9') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_CYL."'";
+  //echo $query;
+  sqlQuery($query);
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','EXT_VIEW','External View','".$_SESSION['authId']."','EXT_VIEW','60','".$PREFS_EXT_VIEW."','10') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_EXT_VIEW."'";
+  //echo $query;
+  sqlQuery($query);
 
-  }
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','ANTSEG_VIEW','Anterior Segment View','".$_SESSION['authId']."','ANTSEG_VIEW','61','".$PREFS_ANTSEG_VIEW."','11') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_ANTSEG_VIEW."'";
+  //echo $query;
+  sqlQuery($query);
+
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','RETINA_VIEW','Retina View','".$_SESSION['authId']."','RETINA_VIEW','62','".$PREFS_RETINA_VIEW."','12') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_RETINA_VIEW."'";
+  //echo $query;
+  sqlQuery($query);
+  $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','NEURO_VIEW','Neuro View','".$_SESSION['authId']."','NEURO_VIEW','63','".$PREFS_NEURO_VIEW."','13') 
+            on DUPLICATE KEY UPDATE VALUE='".$PREFS_NEURO_VIEW."'";
+  //echo $query;
+  sqlQuery($query);
+        return;
+}
 
 if ($encounter == "") $encounter = date("Ymd");
 
