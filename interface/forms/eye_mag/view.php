@@ -179,41 +179,41 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     */
                      ?>
                     
-                    <span class="title" id="pat_name" style="text-align:center;padding-right:0.2in;"><?php echo $fname." ".$lname." (".$pid.")"; ?>
+                    <span class="title" id="pat_name" style="text-align:center;padding-right:0.2in;">
+                        <?php echo $fname." ".$lname." (".$pid.")"; ?>
                     </span>
 
                     <span style="text-align:right;"><b><?php xl('EXAM DATE','e'); ?>:</b> &nbsp;<? echo $visit_date; ?>&nbsp;</span>
                 </div>
             </div>          
             <!-- //end of the general BOX -->
-            <a id="construction" name="construction" style="font-size:0.6em;">Toggle construction zones</a>
+            <a id="construction" name="construction" style="font-size:0.6em;display:none;">Toggle construction zones</a>
             <div id="accordion" class="text_clinical" style="position:absolute;">
                <div class="CONSTRUCTION_ZONE nodisplay" name="CONSTRUCTION_1" id="CONSTRUCTION_1">
                     <!-- OK this is the CC/HPI/PMFSH area that can be developed in this format or the other modules drawn in to complete the intake?  -->
-                    <div id="Lyr2" class="borderShadow" style="position: relative;width:400px;float:left;" >
+                    <div id="Lyr2" class="refraction borderShadow" style="position: relative;width:300px;float:left;" >
                         <b><?php xl('Chief Complaint','e'); ?>: </b>
                         <input name="CC" id="CC" size="54" value="<?=$CC?>" tabindex="4" type="text">
-                        <br>
+                        
                         <br><b><?php xl('History of Present Illness','e'); ?> </b><font size="1">(<?php xl('please include mechanism of injury','e'); ?>):</font><br />
-                        <textarea style="left: 0.45in; width: 80%; height: 0.79in; overflow:visible; " name="HPI" rows="3" cols="113" id="HPI" tabindex="5"><?=$HPI?></textarea>
-                        <br />
+                        <textarea style="left: 0.45in; width: 80%;  overflow:visible; " name="HPI" rows="3" cols="113" id="HPI" tabindex="5"><?=$HPI?></textarea>
                         QUALITY     TIMING  DURATION    CONTEXT     SEVERITY    MODIFY  ASSOCIATED  LOCATION
                     </div>
                 
                     
-                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PMH:<br />
+                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PMH:<br />
                         <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PSurgHx:<br />
+                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PSurgHx:<br />
                         <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">FH:<br />
+                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">FH:<br />
                         <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">Meds:<br />
+                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">Meds:<br />
                         <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">SocHx:<br />
+                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">SocHx:<br />
                         <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">Allergies:<br />
+                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">Allergies:<br />
                         <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="borderShadow" style="clear:both;height:1in;width:90%;border:1pt solid black;">ROS:<br />
+                    <div class="refraction borderShadow" style="clear:both;height:1in;width:90%;border:1pt solid black;">ROS:<br />
                         <textarea name="PMH" id="PMH"></textarea></div>
                     <div id="Lyr2.2" style="clear:both;border:1pt solid black;">
                     </div>
@@ -352,7 +352,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
 
                         <!-- start of the Amsler box -->
                         <div id="LayerAmsler" class="vitals" style="width: 1.5in; height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;">
-                            <div  id="Lyr5.0" style="position:absolute;  left:0.05in; width: 1.4in; top:0in; padding: 0in;">
+                            <div id="Lyr5.0" style="position:absolute;  left:0.05in; width: 1.4in; top:0in; padding: 0in;">
                                 <span class="top_left">
                                     <b><?php xl('Amsler','e'); ?>:</b>
                                 </span>
@@ -439,7 +439,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                     }
                                     if (!$bad)  $VFFTCF = "checked";
                                 ?>
-                             <div style="position:relative;text-align:right; top:0.03in;font-size:0.8em;right:0.1in;">
+                            <div style="position:relative;text-align:right; top:0.03in;font-size:0.8em;right:0.1in;">
                                         <label for="FieldsNormal" class="input-helper input-helper--checkbox"><?php xl('FTCF','e'); ?></label>
                                         <input id="FieldsNormal" type="checkbox" value="1" <?=$VFFTCF?>>
                             </div>   
