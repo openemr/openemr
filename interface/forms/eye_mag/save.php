@@ -111,7 +111,7 @@ if ($PREFS_VA) {
             on DUPLICATE KEY UPDATE VALUE='".$PREFS_NEURO_VIEW."'";
   //echo $query;
   sqlQuery($query);
-        return;
+  
 }
 
 if ($encounter == "") $encounter = date("Ymd");
