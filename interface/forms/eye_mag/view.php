@@ -2488,13 +2488,14 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                         <div id="LyrExamPanel" class="section" >
                             <div id="LayerClinical" class="section" style="height:1.3in;width:175px; " style="vertical-align:text-top;position:relative;">
                                <?php xl('Impression','e'); ?>:
-                               <textarea rows=4 style="height:1in;width:90%"><?=$IMP?></textarea>
+                               <textarea rows=4 id="IMP" name="IMP" style="height:1in;width:90%;"><?=$IMP?></textarea>
                                <?php xl('Plan','e'); ?>/<?php xl('Recommendation','e'); ?>:
-                               <textarea rows=4 style="width:90%"><?=$PLAN?></textarea>
+                               <textarea rows=4 id="PLAN" name="PLAN" style="width:90%;"><?=$PLAN?></textarea>
                            </div>
+                           
                         </div>
                     </div>
-                    
+                    <br /><br />
                     <!-- END IMP/PLAN -->  
                 </div>
                 <!-- end of the exam section -->
