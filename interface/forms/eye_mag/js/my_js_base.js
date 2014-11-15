@@ -73,7 +73,7 @@ function dopopup(url) {
     window.open(url, '_blank', 'width=530,height=390,resizable=1,scrollbars=1');
 }
 function submit_form() {
-    var url = "/openemr/interface/forms/eye_mag/save.php?mode=update&id=" + $("#id").val();
+    var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#id").val();
     var formData = $("form#eye_mag").serialize();
     $.ajax({
            type 	: 'POST', // define the type of HTTP verb we want to use (POST for our form)
@@ -89,7 +89,7 @@ function submit_form() {
 function update_PREFS() {
         // get the form data
         // there are many ways to get this data using jQuery (you can use the class or id also)
-    var url = "/openemr/interface/forms/eye_mag/save.php";
+    var url = "../../forms/eye_mag/save.php";
     var formData = {
         'AJAX_PREFS'            : "1",
         'PREFS_VA'              : $('#PREFS_VA').val(),
@@ -411,7 +411,7 @@ $(document).ready(function() {
                                                     leaveOpen: true,
                                                     printMode: 'popup',
                                                     overrideElementCSS: true,
-                                                    overrideElementCSS: ['/openemr/interface/forms/eye_mag/style.css']
+                                                    overrideElementCSS: ['../../forms/eye_mag/style.css']
                                                     });
                                           });
                   $("#ChangeTitle").click(function() {
@@ -424,7 +424,7 @@ $(document).ready(function() {
                                        printElem({ overrideElementCSS: true });
                                        });
                   $("#externalCSS").click(function() {
-                                          printElem({ overrideElementCSS: ['/openemr/interface/forms/eye_mag/style.css'] });
+                                          printElem({ overrideElementCSS: ['../../forms/eye_mag/style.css'] });
                                           });                                    
                   $("input,textarea,text").focus(function(){
                                                         $(this).css("background-color","#ffff99");
@@ -513,7 +513,7 @@ $(document).ready(function() {
                                $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
                                $("#" + new_section[1] + "_right").addClass('nodisplay');
                                //now go get the prior page via ajax
-                               var url = "/openemr/interface/forms/eye_mag/save.php?mode=retrieve&id=" + $('#id').val();
+                               var url = "../../forms/eye_mag/save.php?mode=retrieve&id=" + $('#id').val();
                                //alert(new_section[1]);
                                
                                if (new_section[1] =="ALL") {
