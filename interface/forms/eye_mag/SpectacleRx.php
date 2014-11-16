@@ -61,6 +61,8 @@ $data =  sqlQuery($query);
         $OSAXIS = $AROSAXIS;
         $OSPRISM = $AROSPRISM;
         $COMMENTS = $ARCOMMENTS; 
+        $ODADD1 = $ARODADD;
+        $OSADD1 = $AROSADD;
 }else if ($target =="MR") {
         $ODSPH = $MRODSPH;
         $ODAXIS = $MRODAXIS;
@@ -71,6 +73,9 @@ $data =  sqlQuery($query);
         $OSAXIS = $MROSAXIS;
         $OSPRISM = $MROSPRISM;
         $COMMENTS = $MRCOMMENTS; 
+        $ODADD1 = $MRODADD;
+        $OSADD1 = $MROSADD;
+        
 }else if ($target =="CR") {
         $ODSPH = $CRODSPH;
         $ODAXIS = $CRODAXIS;
@@ -81,16 +86,6 @@ $data =  sqlQuery($query);
         $OSAXIS = $CROSAXIS;
         $OSPRISM = $CROSPRISM;
         $COMMENTS = $CRCOMMENTS; 
-}else if ($target =="CR") {
-        $ODSPH = $CTLODSPH;
-        $ODAXIS = $CTLODAXIS;
-        $ODCYL = $CTLODCYL;
-        $ODPRISM = $CTLODPRISM;
-        $OSSPH = $CTLOSSPH;
-        $OSCYL = $CTLOSCYL;
-        $OSAXIS = $CTLOSAXIS;
-        $OSPRISM = $CTLOSPRISM;
-        $COMMENTS = $CTLCOMMENTS; 
 }
 }
 $form_name = "eye_mag";
