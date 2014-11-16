@@ -113,12 +113,12 @@ function priors_select($zone,$visit_date,$pid) {
     //	echo	$priors[$i]["date"];
     $output_return .='
     <span title="This is a feature request - it will copy this data to the current visit fields..."><i class="fa fa-paste fa-lg"></i></span>&nbsp;
-    &nbsp;        <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$i]["date"].'").trigger("change");\' 
-                id="PRIORS_earliest" name="PRIORS_earliest" class="fa fa-fast-backward fa-sm PRIORS">
+    &nbsp;        <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$i]['date'].'").trigger("change");\' 
+                id="PRIORS_'.$zone.'_earliest" name="PRIORS_'.$zone.'_earliest" class="fa fa-fast-backward fa-sm PRIORS">
                 &nbsp;
         </span>
         <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$earlier]["date"].'").trigger("change");\' 
-                id="PRIORS_minus_one" name="PRIORS_minus_one" class="fa fa-step-backward fa-sm PRIORS">
+                id="PRIORS_'.$zone.'_minus_one" name="PRIORS_'.$zone.'_minus_one" class="fa fa-step-backward fa-sm PRIORS">
         </span>
         
         <select name="PRIOR_'.$zone.'" id="PRIOR_'.$zone.'" style="padding:0;" class="PRIORS">
@@ -126,10 +126,10 @@ function priors_select($zone,$visit_date,$pid) {
         </select>
                               
         <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$later]["date"].'").trigger("change");\'  
-                id="PRIORS_plus_one" name="PRIORS_plus_one" class="fa  fa-step-forward PRIORS"> 
+                id="PRIORS_'.$zone.'_plus_one" name="PRIORS_'.$zone.'_plus_one" class="fa  fa-step-forward PRIORS"> 
         </span>&nbsp;
         <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[0]["date"].'").trigger("change");\'  
-                id="PRIORS_latest" name="PRIORS_latest" class="fa  fa-fast-forward PRIORS"> &nbsp;
+                id="PRIORS_'.$zone.'_latest" name="PRIORS_'.$zone.'_latest" class="fa  fa-fast-forward PRIORS"> &nbsp;
         </span>
         
     </span>';

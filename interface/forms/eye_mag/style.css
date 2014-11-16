@@ -190,7 +190,7 @@ input[type=text] {
 .refraction {
     display:inline-block;
     min-height:1.8in;
-    height:190px;
+    
     border: 1.00pt solid #000000; 
     padding: 0.2in; 
     box-shadow: 10px 10px 5px #888888;
@@ -570,7 +570,7 @@ textarea {
 .tools  {
 border: 1px solid black;
 height: 30px;
-width: 30px;
+width: 40px;
 line-height: 30px;
 padding: 0 10px;
 vertical-align: middle;

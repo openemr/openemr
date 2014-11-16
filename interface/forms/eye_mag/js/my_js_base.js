@@ -191,6 +191,8 @@ function toggle_visibility(id) {
     else
         e.style.display = 'block';
 }
+
+
 $(document).ready(function() {
                   // jQuery methods go here...
                   $("input,select,textarea,text").css("background-color","#FFF8DC");
@@ -506,60 +508,59 @@ $(document).ready(function() {
                                }
                                });
                   
+                  //there are selects in the contact lens area, and maybe new areas to come so will this work longterm?
                   $("body").on("change", "select", function(e){
                                // alert("Hello body change select");
-                               var new_section = this.name.match(/PRIOR_(.*)/);
-                               var newValue = this.value;//eg PRIOR_EXT
-                               $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
-                               $("#" + new_section[1] + "_right").addClass('nodisplay');
-                               //now go get the prior page via ajax
-                               var url = "../../forms/eye_mag/save.php?mode=retrieve&id=" + $('#id').val();
-                               //alert(new_section[1]);
+                                if (this.name.match(/PRIOR_(.*)/)) {
+                                  var new_section = this.name.match(/PRIOR_(.*)/);
+                               // alert("new_section = "+new_section);
+                                   var newValue = this.value; //eg PRIOR_EXT
+                               //alert("newValue = "+newValue);
                                
-                               if (new_section[1] =="ALL") {
-                               getSection("ALL");
-                               getSection("EXT");
-                               getSection("ANTSEG");
-                               getSection("RETINA");
-                               getSection("NEURO");
-                               } else {
-                               getSection(new_section[1]);
-                               }
-                               
-                               function getSection(section) {
-                               // alert("here you go "+section);
-                               $("#PRIORS_"+ section +"_left_text").removeClass('nodisplay');
-                               $("#" + section + "_right").addClass('nodisplay');
-                               
-                               var formData = {
-                               'PRIORS_query'          : "1",
-                               'zone'                  : section,
-                               'visit_number'          : $('#PRIOR_EXT').val(),
-                               'visit_date'            : newValue
-                               
-                               };
-                               //alert(formData[0]);
-                               
-                               
-                               // process the form
-                               $.ajax({
-                                      type 		: 'POST', // define the type of HTTP verb we want to use (POST for our form)
-                                      url          : url, // the url where we want to POST
-                                      data 		: formData, // our data object
-                                      //      dataType 	: 'json', // what type of data do we expect back from the server
-                                      //encode     : true,
-                                      
-                                      success      : function(result) {
-                                      
-                                      $("#PRIORS_" + section + "_left_text").html(result);
-                                      }
-                                      });
-                               // alert(result);
-                               
-                               }
-                               
+                                   function getSection(section) {
+                               //    alert("here you go "+section);
+                                       $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
+                                       $("#" + new_section[1] + "_right").addClass('nodisplay');
+                                       //now go get the prior page via ajax
+                                       var url = "../../forms/eye_mag/save.php?mode=retrieve&id=" + $('#id').val();
+                               //alert(new_section[1] = " - " +url);
+                                       $("#PRIORS_"+ section +"_left_text").removeClass('nodisplay');
+                                       $("#" + section + "_right").addClass('nodisplay');
+                                       
+                                       var formData = {
+                                       'PRIORS_query'          : "1",
+                                       'zone'                  : section,
+                                       'visit_number'          : $('#PRIOR_EXT').val(),
+                                       'visit_date'            : newValue
+                                       
+                                    }
+                                       // process the form
+                                       $.ajax({
+                                              type 		: 'POST', // define the type of HTTP verb we want to use (POST for our form)
+                                              url          : url, // the url where we want to POST
+                                              data 		: formData, // our data object
+                                              //      dataType 	: 'json', // what type of data do we expect back from the server
+                                              //encode     : true,
+                                              
+                                              success      : function(result) {
+                                              
+                                              $("#PRIORS_" + section + "_left_text").html(result);
+                                              }
+                                              });
+                                    }
+                                   if (new_section[1] =="ALL") {
+                                   getSection("ALL");
+                                   getSection("EXT");
+                                   getSection("ANTSEG");
+                                   getSection("RETINA");
+                                   getSection("NEURO");
+                                   } else {
+                                   getSection(new_section[1]);
+                                   }
+
+                                } //this is not a PRIORS SELECT element, but perhaps Contact lens related...
                                //   alert("Goddbye!");
-                               });
+                            });
                   $("body").on("click","[id^='Close_PRIORS_']", function(e) {
                                // alert(this.val());
                                var new_section = this.id.match(/Close_PRIORS_(.*)$/)[1];

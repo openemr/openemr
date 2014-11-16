@@ -22,6 +22,8 @@ if ($encounter == "" && !$_GET["id"]) {
     return "Sorry Charlie...";
     exit;
 }
+//var_dump($_GET);
+//exit;
 if ($PREFS_VA) {
    
   $query = "INSERT INTO dbSelectFindings (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
