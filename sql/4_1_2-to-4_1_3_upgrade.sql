@@ -2940,3 +2940,14 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 	ALTER TABLE `documents` ADD `encounter_check` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'If encounter is created while tagging';
 #EndIf
 
+#IfNotTable report_itemized
+CREATE TABLE `report_itemized` (
+  `report_id` bigint(20) NOT NULL,
+  `itemized_test_id` smallint(6) NOT NULL,
+  `numerator_label` varchar(25) NOT NULL DEFAULT '' COMMENT 'Only used in special cases',
+  `pass` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 is fail, 1 is pass, 2 is excluded',
+  `pid` bigint(20) NOT NULL,
+  KEY (`report_id`,`itemized_test_id`,`numerator_label`,`pass`)
+) ENGINE=MyISAM;
+#EndIf
+

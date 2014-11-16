@@ -1209,6 +1209,27 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('Set processing priority for creation of Patient Reminders (in full clinic mode).')
     ),
+
+    'report_itemizing_standard' => array(
+      xl('Enable Standard Report Itemization'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Itemization of Standard Clinical Rules Reports')
+    ),
+
+    'report_itemizing_cqm' => array(
+      xl('Enable CQM Report Itemization'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Itemization of CQM Reports')
+    ),
+
+    'report_itemizing_amc' => array(
+      xl('Enable AMC Report Itemization'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Itemization of AMC Reports')
+    ),
  
   ),
 

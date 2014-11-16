@@ -30,10 +30,13 @@ require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/report_database.inc");
 
 $fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] : 0;
 $popup  = empty($_REQUEST['popup']) ? 0 : 1;
 $message = isset($_GET['message']) ? $_GET['message'] : "";
+$from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
+
 ?>
 
 <html>
@@ -72,6 +75,7 @@ form {
 }
 
 .srName { width: 12%; }
+.srGender { width: 5%; }
 .srPhone { width: 11%; }
 .srSS { width: 11%; }
 .srDOB { width: 8%; }
@@ -192,6 +196,34 @@ if ($popup) {
   while ($row = sqlFetchArray($rez)) $result[] = $row;
   _set_patient_inc_count($sqllimit, count($result), $where, $sqlBindArray);
 }
+else if ($from_page == "cdr_report") {
+  // Collect setting from cdr report
+  echo "<input type='hidden' name='from_page' value='$from_page' />\n";
+  $report_id = isset($_REQUEST['report_id']) ? $_REQUEST['report_id'] : 0;
+  echo "<input type='hidden' name='report_id' value='".$report_id."' />\n";
+  $itemized_test_id = isset($_REQUEST['itemized_test_id']) ? $_REQUEST['itemized_test_id'] : 0;
+  echo "<input type='hidden' name='itemized_test_id' value='".$itemized_test_id."' />\n";
+  $numerator_label = isset($_REQUEST['numerator_label']) ? $_REQUEST['numerator_label'] : '';
+  echo "<input type='hidden' name='numerator_label' value='".$numerator_label."' />\n";
+  $pass_id = isset($_REQUEST['pass_id']) ? $_REQUEST['pass_id'] : "all";
+  echo "<input type='hidden' name='pass_id' value='".$pass_id."' />\n";
+  $print_patients = isset($_REQUEST['print_patients'])? $_REQUEST['print_patients'] : 0;
+  echo "<input type='hidden' name='print_patients' value='".$print_patients."' />\n";
+
+  // Collect patient listing from cdr report
+  if ($print_patients) {
+    // collect entire listing for printing
+    $result = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass_id,$numerator_label);
+    $GLOBALS['PATIENT_INC_COUNT'] = count($result);
+    $MAXSHOW = $GLOBALS['PATIENT_INC_COUNT'];
+  }
+  else {
+    // collect the total listing count
+    $GLOBALS['PATIENT_INC_COUNT'] = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass_id,$numerator_label,true);
+    // then just collect applicable list for pagination
+    $result = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass_id,$numerator_label,false,$sqllimit,$fstart);
+  }
+}
 else {
   $patient = $_REQUEST['patient'];
   $findBy  = $_REQUEST['findBy'];
@@ -224,10 +256,17 @@ else {
 <table border='0' cellpadding='5' cellspacing='0' width='100%'>
  <tr>
   <td class='text'>
+  <?php if ($from_page == "cdr_report") { ?>
+   <a href='../../reports/cqm.php?report_id=<?php echo attr($report_id) ?>' class='css_button' onclick='top.restoreSession()'><span><?php echo xlt("Return To Report Results"); ?></span></a>
+  <?php } else { ?>
    <a href="./patient_select_help.php" target=_new onclick='top.restoreSession()'>[<?php echo htmlspecialchars( xl('Help'), ENT_NOQUOTES); ?>]&nbsp</a>
+  <?php } ?>
   </td>
   <td class='text' align='center'>
 <?php if ($message) echo "<font color='red'><b>".htmlspecialchars( $message, ENT_NOQUOTES)."</b></font>\n"; ?>
+  </td>
+  <td>
+    <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=".attr($pass_id)."&report_id=".attr($report_id)."&itemized_test_id=".attr($itemized_test_id)."&numerator_label=".urlencode(attr($row['numerator_label']))."&print_patients=1' class='css_button' onclick='top.restoreSession()'><span>".xlt("Print Entire Listing")."</span></a>"; ?>
   </td>
   <td class='text' align='right'>
 <?php
@@ -253,12 +292,35 @@ if ($fend > $count) $fend = $count;
 <?php } ?>
   </td>
  </tr>
+ <tr>
+   <?php if ($from_page == "cdr_report") {
+     echo "<td colspan='6' class='text'>";
+     echo "<b>";
+     if ($pass_id == "fail") {
+       echo xlt("Failed Patients");
+     }
+     else if ($pass_id == "pass") {
+       echo xlt("Passed Patients");
+     }
+     else if ($pass_id == "exclude") {
+       echo xlt("Excluded Patients");
+     }
+     else { // $pass_id == "all"
+       echo xlt("All Patients");
+     }
+     echo "</b>";
+     echo " - ";
+     echo collectItemizedRuleDisplayTitle($report_id,$itemized_test_id,$numerator_label);
+     echo "</td>";
+   } ?>
+ </tr>
 </table>
 
 <div id="searchResultsHeader">
 <table>
 <tr>
 <th class="srName"><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES);?></th>
+<th class="srGender"><?php echo htmlspecialchars( xl('Sex'), ENT_NOQUOTES);?></th>
 <th class="srPhone"><?php echo htmlspecialchars( xl('Phone'), ENT_NOQUOTES);?></th>
 <th class="srSS"><?php echo htmlspecialchars( xl('SS'), ENT_NOQUOTES);?></th>
 <th class="srDOB"><?php echo htmlspecialchars( xl('DOB'), ENT_NOQUOTES);?></th>
@@ -316,6 +378,7 @@ if ($result) {
     foreach ($result as $iter) {
         echo "<tr class='oneresult' id='".htmlspecialchars( $iter['pid'], ENT_QUOTES)."'>";
         echo  "<td class='srName'>" . htmlspecialchars($iter['lname'] . ", " . $iter['fname']) . "</td>\n";
+        echo  "<td class='srGender'>" . text(getListItemTitle("sex",$iter['sex'])) . "</td>\n";
         //other phone number display setup for tooltip
         $phone_biz = '';
         if ($iter{"phone_biz"} != "") {
@@ -437,6 +500,9 @@ $(document).ready(function(){
     $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
     // $(".event").dblclick(function() { EditEvent(this); });
+    <?php if($print_patients) { ?>
+      window.print();
+    <?php } ?>
 });
 
 var SelectPatient = function (eObj) {

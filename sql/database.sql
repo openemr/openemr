@@ -4843,6 +4843,22 @@ INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `report_itemized`
+-- (goal is optimize insert performance, so only one key)
+
+DROP TABLE IF EXISTS `report_itemized`;
+CREATE TABLE `report_itemized` (
+  `report_id` bigint(20) NOT NULL,
+  `itemized_test_id` smallint(6) NOT NULL,
+  `numerator_label` varchar(25) NOT NULL DEFAULT '' COMMENT 'Only used in special cases',
+  `pass` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 is fail, 1 is pass, 2 is excluded',
+  `pid` bigint(20) NOT NULL,
+  KEY (`report_id`,`itemized_test_id`,`numerator_label`,`pass`)
+) ENGINE=MyISAM;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `report_results`
 --
 
