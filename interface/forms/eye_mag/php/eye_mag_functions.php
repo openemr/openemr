@@ -105,19 +105,20 @@ function priors_select($zone,$visit_date,$pid) {
             $output .= "<option value='".$priors[$i]['date']."' ".$selected.">".$selected.$priors[$i]['exam_date']."</option>";
         }
     }
-    if ($current < $i)  { $earlier = ($current + 1);} else { $earlier = $i; }
-    if ($current > '0') { $later   = ($current - 1);} else { $later   = "0"; }
-    //echo $current ." = ". $i;
     $i--;
+    if ($current < $i)  { $earlier = $current + 1;} else { $earlier = $current; }
+    if ($current > '0') { $later   = ($current) - 1;} else { $later   = "0"; }
+    //echo $current ." = ". $i;
+    
     //var_dump($priors[10]);
     //	echo	$priors[$i]["date"];
-    $output_return .='
+    $output_return .= '
     <span title="This is a feature request - it will copy this data to the current visit fields..."><i class="fa fa-paste fa-lg"></i></span>&nbsp;
     &nbsp;        <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$i]['date'].'").trigger("change");\' 
                 id="PRIORS_'.$zone.'_earliest" name="PRIORS_'.$zone.'_earliest" class="fa fa-fast-backward fa-sm PRIORS">
                 &nbsp;
         </span>
-        <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$earlier]["date"].'").trigger("change");\' 
+        <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$earlier]['date'].'").trigger("change");\' 
                 id="PRIORS_'.$zone.'_minus_one" name="PRIORS_'.$zone.'_minus_one" class="fa fa-step-backward fa-sm PRIORS">
         </span>
         

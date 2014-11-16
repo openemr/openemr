@@ -518,7 +518,7 @@ $(document).ready(function() {
                                //alert("newValue = "+newValue);
                                
                                    function getSection(section) {
-                               //    alert("here you go "+section);
+                                        //    alert("here you go "+section);
                                        $("#PRIORS_"+ new_section[1] +"_left_text").removeClass('nodisplay');
                                        $("#" + new_section[1] + "_right").addClass('nodisplay');
                                        //now go get the prior page via ajax
