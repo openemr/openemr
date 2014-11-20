@@ -41,6 +41,7 @@
 //   Hungarian                      // xl('Hungarian')
 //   Italian                        // xl('Italian')
 //   Japanese                       // xl('Japanese')
+//   Korean                         // xl('Korean')
 //   Lithuanian                     // xl('Lithuanian')
 //   Norwegian                      // xl('Norwegian')
 //   Persian                        // xl('Persian')
