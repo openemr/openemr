@@ -19,6 +19,8 @@
 * @author    Rod Roark <rod@sunsetsystems.com>
 */
 
+require_once("$srcdir/forms.inc");
+
 $rhl7_return = array();
 $rhl7_segnum = 0;
 
@@ -808,4 +810,3 @@ function poll_hl7_results(&$info) {
   return '';
 }
 // PHP end tag omitted intentionally.
-
