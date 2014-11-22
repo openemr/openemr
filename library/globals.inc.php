@@ -31,6 +31,7 @@
 //   English (Indian)               // xl('English (Indian)')
 //   English (Standard)             // xl('English (Standard)')
 //   Estonian                       // xl('Estonian')
+//   Finnish                        // xl('Finnish')
 //   French                         // xl('French (Standard)')
 //   French                         // xl('French (Canadian)')
 //   German                         // xl('German')
@@ -40,6 +41,7 @@
 //   Hungarian                      // xl('Hungarian')
 //   Italian                        // xl('Italian')
 //   Japanese                       // xl('Japanese')
+//   Korean                         // xl('Korean')
 //   Lithuanian                     // xl('Lithuanian')
 //   Norwegian                      // xl('Norwegian')
 //   Persian                        // xl('Persian')
@@ -665,8 +667,8 @@ $GLOBALS_METADATA = array(
       'cms_1500' => array(
       xl('CMS 1500 Paper Form Format'),
       array(
-        '0' => xl('08/05'),
-        '1' => xl('02/12'),
+        '0' => xl('08/05{{CMS 1500 format date revision setting in globals}}'),
+        '1' => xl('02/12{{CMS 1500 format date revision setting in globals}}'),
       ),
       '0',                              // default
       xl('This specifies which revision of the form the billing module should generate')
@@ -694,6 +696,13 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('This specifies whether to include date in Box 31.')
     ),
+	  
+	'amendments' => array (
+		xl('Amendments'),
+		'bool',                           // data type
+		'1',                              // default = true
+		xl('Enable amendments feature')
+	),
 
   ),
     // E-Sign Tab
@@ -1201,6 +1210,27 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('Set processing priority for creation of Patient Reminders (in full clinic mode).')
     ),
+
+    'report_itemizing_standard' => array(
+      xl('Enable Standard Report Itemization'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Itemization of Standard Clinical Rules Reports')
+    ),
+
+    'report_itemizing_cqm' => array(
+      xl('Enable CQM Report Itemization'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Itemization of CQM Reports')
+    ),
+
+    'report_itemizing_amc' => array(
+      xl('Enable AMC Report Itemization'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Itemization of AMC Reports')
+    ),
  
   ),
 
@@ -1304,6 +1334,14 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       '',                               // default
       xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
+    ),
+	
+	//July 1, 2014: Ensoftek: Flag to enable/disable audit log encryption
+	'enable_auditlog_encryption' => array(
+      xl('Enable Audit Log Encryption'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Enable Audit Log Encryption')
     ),
 
   ),

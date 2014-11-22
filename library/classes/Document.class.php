@@ -98,6 +98,10 @@ class Document extends ORDataObject{
 	* @var int
 	*/
 	var $list_id;
+	
+	// For tagging with the encounter
+	var $encounter_id;
+	var $encounter_check;
 
   /*
 	*	Whether the file is already imported
@@ -128,6 +132,8 @@ class Document extends ORDataObject{
 		$this->docdate = date("Y-m-d");
 		$this->hash = "";
 		$this->list_id = 0;
+		$this->encounter_id = 0;
+		$this->encounter_check = "";
 		
 		if ($id != "") {
 			$this->populate();
@@ -227,7 +233,9 @@ class Document extends ORDataObject{
 		. "revision: " . $this->revision . "\n"
 		. "docdate: " . $this->docdate . "\n"
 		. "hash: " . $this->hash . "\n"
-		. "list_id: " . $this->list_id . "\n";
+		. "list_id: " . $this->list_id . "\n"
+		. "encounter_id: " . $this->encounter_id . "\n"
+		. "encounter_check: " . $this->encounter_check . "\n";
 
 		if ($html) {
 			return nl2br($string);
@@ -349,6 +357,19 @@ class Document extends ORDataObject{
 	function get_list_id() {
 		return $this->list_id;
 	}
+	function set_encounter_id($encounter_id) {
+		$this->encounter_id = $encounter_id;
+	}
+	function get_encounter_id() {
+		return $this->encounter_id;
+	}
+	function set_encounter_check($encounter_check) {
+		$this->encounter_check = $encounter_check;
+	}
+	function get_encounter_check() {
+		return $this->encounter_check;
+	}
+	
 	function get_ccr_type($doc_id){
     $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?",array($doc_id));
     return $type['name'];

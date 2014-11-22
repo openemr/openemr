@@ -994,8 +994,39 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 </div>
      </td>
     </tr>		
+<?php if ($GLOBALS['amendments']) { ?>
+  <tr>
+       <td width='650px'>
+       	<?php // Amendments widget
+       	$widgetTitle = xlt('Amendments');
+    $widgetLabel = "amendments";
+    $widgetButtonLabel = xlt("Edit");
+	$widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/main_frameset.php?feature=amendment";
+	$widgetButtonClass = "iframe rx_modal";
+    $linkMethod = "html";
+    $bodyClass = "summary_item small";
+    $widgetAuth = true;
+    $fixedWidth = false;
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+       	$sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
+  $result = sqlStatement($sql, array($pid) );
 
+  if (sqlNumRows($result) == 0) {
+    echo " <table><tr>\n";
+    echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('None') . "</td>\n";
+    echo " </tr></table>\n";
+  }
+  
+  while ($row=sqlFetchArray($result)){
+    echo "&nbsp;&nbsp;";
+    echo "<a class= '" . $widgetButtonClass . "' href='" . $widgetButtonLink . "&id=" . attr($row['amendment_id']) . "' onclick='top.restoreSession()'>" . text($row['amendment_date']);
+	echo "&nbsp; " . text($row['amendment_desc']);
 
+    echo "</a><br>\n";
+  } ?>
+  </td>
+    </tr>
+<?php } ?>    		
  <?php // labdata ?>
     <tr>
      <td width='650px'>

@@ -58,6 +58,16 @@ abstract class AbstractAmcReport implements RsReportIF
 
     public function execute()
     {
+
+        // If itemization is turned on, then iterate the rule id iterator
+        //
+        // Note that when AMC rules suports different patient populations and
+        // numerator caclulation, then it will need to change placement of 
+        // this and mimick the CQM rules mechanism
+        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+            $GLOBALS['report_itemized_test_id_iterator']++;
+        }
+
         $numerator = $this->createNumerator();
         if ( !$numerator instanceof AmcFilterIF ) {
             throw new Exception( "Numerator must be an instance of AmcFilterIF" );
@@ -119,9 +129,24 @@ abstract class AbstractAmcReport implements RsReportIF
             if ($object_to_count == "patients") {
                 // Counting patients
                 if ( !$numerator->test( $patient, $tempBeginMeasurement, $this->_endMeasurement ) ) {
+
+
+                    // If itemization is turned on, then record the "failed" item
+                    if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                        insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id);
+                    }
+
                     continue;
                 }
-                $numeratorObjects++;
+                else {
+                    $numeratorObjects++;
+
+                    // If itemization is turned on, then record the "passed" item
+                    if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                        insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id);
+                    }
+
+                }
             }
             else {
                 // Counting objects other than patients
@@ -130,6 +155,20 @@ abstract class AbstractAmcReport implements RsReportIF
                     $patient->object=$object;
                     if ( $numerator->test( $patient, $tempBeginMeasurement, $this->_endMeasurement ) ) {
                         $numeratorObjects++;
+
+                        // If itemization is turned on, then record the "passed" item
+                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                            insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id);
+                        }
+
+                    }
+                    else {
+
+                        // If itemization is turned on, then record the "failed" item
+                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                            insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id);
+                        }
+
                     }
                 }
             }

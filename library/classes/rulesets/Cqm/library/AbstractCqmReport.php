@@ -70,6 +70,12 @@ abstract class AbstractCqmReport implements RsReportIF
 
         foreach ( $populationCriterias as $populationCriteria )
         {
+
+            // If itemization is turned on, then iterate the rule id iterator
+            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                $GLOBALS['report_itemized_test_id_iterator']++;
+            }
+
             if ( $populationCriteria instanceof CqmPopulationCrtiteriaFactory )
             {
                 $initialPatientPopulationFilter = $populationCriteria->createInitialPatientPopulation();
@@ -115,8 +121,14 @@ abstract class AbstractCqmReport implements RsReportIF
                     if ( $exclusion->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) )
                     {
                         $exclusionsPatientPopulation++;
+
+                        // If itemization is turned on, then record the "excluded" item
+                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                            insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 2, $patient->id);
+                        }
+
                     }
-                       
+                     
                     foreach ( $numerators as $numerator ) {
                         $this->testNumerator( $patient, $numerator, $numeratorPatientPopulations );
                     }
@@ -150,7 +162,21 @@ abstract class AbstractCqmReport implements RsReportIF
         if ( $numerator instanceof CqmFilterIF  ) 
         {
             if ( $numerator->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) ) {
+
                 $numeratorPatientPopulations[$numerator->getTitle()]++;
+
+                // If itemization is turned on, then record the "passed" item
+                if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                   insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id, $numerator->getTitle()); 
+                }
+ 
+            }
+            else {
+                // If itemization is turned on, then record the "failed" item
+                if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                   insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id, $numerator->getTitle());   
+                }
+
             }
         } 
         else 

@@ -4,7 +4,7 @@
  *
  * Supports generic tracking, storing and viewing of reports by utilizing a vertical
  * table entitled report_results. This allows flexible placement of tokens for report
- * setting etc.
+ * setting etc. Also supports itemization of results (per patient tracking).
  * <pre>Tokens that are reserved include:
  *   'bookmark'          - Allows bookmarking of a new report id (used to allow tracking
  *                         progress via ajax calls). If exist, value is always set to '1'.
@@ -257,6 +257,147 @@ function getStatusReportDatabase($report_id) {
   else {
     $final_array['progress_items'] = ($final_array['progress_items']) ? $final_array['progress_items'] : 0;
     return $final_array['progress_items'] . " / " . $final_array['total_items'] . " " . xl("Patients");
+  }
+}
+
+/**
+ * Insert itemization item into database.
+ *
+ * @param   integer  $report_id         Report id
+ * @param   integer  $itemized_test_id  Itemized test id
+ * @param   integer  $pass              0 is fail, 1 is pass, 2 is exclude
+ * @param   integer  $patient_id        Patient pid
+ * @param   integer  $$numerator_label  Numerator label (if applicable)
+ */
+function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label='') {
+  $sqlParameters = array($report_id,$itemized_test_id,$numerator_label,$pass,$patient_id);
+  sqlStatementCdrEngine("INSERT INTO `report_itemized` (`report_id`,`itemized_test_id`,`numerator_label`,`pass`,`pid`) VALUES (?,?,?,?,?)", $sqlParameters);  
+}
+
+/**
+ * Collect a rules display title for itemized report.
+ *
+ * @param   integer  $report_id         Report id
+ * @param   integer  $itemized_test_id  Itemized test id
+ * @param   integer  $numerator_label   Numerator label (if applicable)
+ * @return  string/boolean              Rule title for itemization display (false if nothing found)
+ */
+function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label='') {
+  $dispTitle = "";
+  $report_view = collectReportDatabase($report_id);
+  $type_report = $report_view['type'];
+  $dataSheet = json_decode($report_view['data'],TRUE);
+  foreach ($dataSheet as $row) {
+    if (isset($row['is_main']) || isset($row['is_sub'])) {
+      if (isset($row['is_main'])) {
+        // Store this
+        $dispTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id']);
+      }
+      if ( ($row['itemized_test_id'] == $itemized_test_id) && ($row['numerator_label'] == $numerator_label) ) {
+        // We have a hit, build on the $dispTitle created above
+        if (isset($row['is_main'])) {
+          $tempCqmAmcString = "";
+          if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
+            if (!empty($row['cqm_pqri_code'])) {
+              $tempCqmAmcString .= " " . xlt('PQRI') . ":" . text($row['cqm_pqri_code']) . " ";
+            }
+            if (!empty($row['cqm_nqf_code'])) {
+              $tempCqmAmcString .= " " . xlt('NQF') . ":" . text($row['cqm_nqf_code']) . " ";
+            }
+          }
+          if ($type_report == "amc") {
+            if (!empty($row['amc_code'])) {
+              $tempCqmAmcString .= " " . xlt('AMC-2011') . ":" . text($row['amc_code']) . " ";
+            }
+            if (!empty($row['amc_code_2014'])) {
+              $tempCqmAmcString .= " " . xlt('AMC-2014') . ":" . text($row['amc_code_2014']) . " ";
+            }
+          }
+          if ($type_report == "amc_2011") {
+            if (!empty($row['amc_code'])) {
+              $tempCqmAmcString .= " " . xlt('AMC-2011') . ":" . text($row['amc_code']) . " ";
+            }
+          }
+          if ($type_report == "amc_2014") {
+            if (!empty($row['amc_code_2014'])) {
+              $tempCqmAmcString .= " " . xlt('AMC-2014') . ":" . text($row['amc_code_2014']) . " ";
+            }
+          }
+          if (!empty($tempCqmAmcString)) {
+            $dispTitle .=  "(".$tempCqmAmcString.")";
+          }
+          if ( !(empty($row['concatenated_label'])) ) {
+            $dispTitle .= ", " . xlt($row['concatenated_label']) . " ";
+          }
+        } 
+        else { // isset($row['is_sub']
+          $dispTitle .= " - " .  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$row['action_category']);
+          $dispTitle .= ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$row['action_item']);
+        }
+        return $dispTitle;  
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Collect patient listing from CDR reports itemization.
+ *
+ * @param   integer  $report_id         Report id
+ * @param   integer  $itemized_test_id  Itemized test id
+ * @param   string   $pass              options are 'fail', 'pass', 'exclude', and 'all'
+ * @param   integer  $numerator_label   Numerator label (if applicable)
+ * @param   integer  $sqllimit          Sql query pagination info
+ * @param   integer  $fstart            Sql query pagination info
+ * @return  array/integer               Array list or a count
+ */
+function collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass='all',$numerator_label='',$count=false,$sqllimit='all',$fstart=0) {
+
+  if ($count) {
+    $given = " COUNT(DISTINCT `patient_data`.`pid`) AS total_listings ";
+  }
+  else {
+    $given = " DISTINCT `patient_data`.*, DATE_FORMAT(`patient_data`.`DOB`,'%m/%d/%Y') as DOB_TS ";
+  }
+  $orderby = " `patient_data`.`lname` ASC, `patient_data`.`fname` ASC ";
+
+  // set $pass_sql
+  switch ($pass) {
+    case "fail":
+      $pass_sql=0;
+      break;
+    case "pass":
+      $pass_sql=1;
+      break;
+    case "exclude":
+      $pass_sql=2;
+  }
+
+  $sqlParameters = array($report_id,$itemized_test_id,$numerator_label);
+
+  if ($pass == "all") {
+    $sql_where = " WHERE `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? ";
+  }
+  else {
+    $sql_where = " WHERE `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? AND `report_itemized`.`pass` = ? ";
+    array_push($sqlParameters,$pass_sql);
+  }
+
+  $sql_query = "SELECT " . $given . " FROM `patient_data` JOIN `report_itemized` ON `patient_data`.`pid` = `report_itemized`.`pid` " . $sql_where. " ORDER BY " . $orderby;
+  if ($sqllimit != "all") $sql_query .= " limit " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+
+  if ($count) {
+    $rez = sqlQueryCdrEngine($sql_query,$sqlParameters);
+    return $rez['total_listings'];
+  }
+  else {
+    $rez = sqlStatementCdrEngine($sql_query,$sqlParameters);
+    // create array of listing for return
+    for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+      $returnval[$iter]=$row;
+    }
+    return $returnval;
   }
 }
 ?>

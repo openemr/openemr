@@ -2782,3 +2782,172 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2014-10-01', 'Reimbursement_Mapping_pr_2015.zip', '493c022db17a70fcdcbb41bf0ad61a47');
 #EndIf
 
+#IfMissingColumn clinical_rules amc_2011_flag
+ALTER TABLE `clinical_rules` ADD COLUMN `amc_2011_flag` tinyint(1) COMMENT '2011 Automated Measure Calculation flag for (unable to customize per patient)';
+UPDATE `clinical_rules` SET `amc_2011_flag` = 1 WHERE `amc_flag` = 1;
+#EndIf
+
+#IfMissingColumn clinical_rules amc_2014_flag
+ALTER TABLE `clinical_rules` ADD COLUMN `amc_2014_flag` tinyint(1) COMMENT '2014 Automated Measure Calculation flag for (unable to customize per patient)';
+#EndIf
+
+#IfMissingColumn clinical_rules amc_code_2014
+ALTER TABLE `clinical_rules` ADD COLUMN `amc_code_2014` varchar(30) NOT NULL default '' COMMENT 'Automated Measure Calculation 2014 indentifier (MU rule)';
+#EndIf
+
+#IfMissingColumn clinical_rules cqm_2011_flag
+ALTER TABLE `clinical_rules` ADD COLUMN `cqm_2011_flag` tinyint(1) COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)';
+UPDATE `clinical_rules` SET `cqm_2011_flag` = 1 WHERE `cqm_flag` = 1;
+#EndIf
+
+#IfMissingColumn clinical_rules cqm_2014_flag
+ALTER TABLE `clinical_rules` ADD COLUMN `cqm_2014_flag` tinyint(1) COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)';
+#EndIf
+
+#IfMissingColumn clinical_plans cqm_2011_flag
+ALTER TABLE `clinical_plans` ADD COLUMN `cqm_2011_flag` tinyint(1) COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)';
+UPDATE `clinical_plans` SET `cqm_2011_flag` = 1 WHERE `cqm_flag` = 1;
+#EndIf
+
+#IfMissingColumn clinical_plans cqm_2014_flag
+ALTER TABLE `clinical_plans` ADD COLUMN `cqm_2014_flag` tinyint(1) COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)';
+#EndIf
+
+#IfNotRow2D clinical_rules id problem_list_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–4' WHERE `id` = 'problem_list_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id med_list_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 ,`amc_code_2014` = '170.314(g)(1)/(2)–5' WHERE `id` = 'med_list_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id med_allergy_list_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–6' WHERE `id` = 'med_allergy_list_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id record_dem_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–9' WHERE `id` = 'record_dem_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id record_smoke_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–11' WHERE `id` = 'record_smoke_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id lab_result_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–12' WHERE `id` = 'lab_result_amc';
+#EndIf
+
+#IfNotRow2D clinical_rules id med_reconc_amc amc_2014_flag 1
+UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(1)/(2)–17' WHERE `id` = 'med_reconc_amc';
+#EndIf
+
+#IfMissingColumn history_data dc_father
+	ALTER TABLE `history_data` ADD `dc_father` text;
+#EndIf
+#IfMissingColumn history_data dc_mother
+	ALTER TABLE `history_data` ADD `dc_mother` text;
+#EndIf
+#IfMissingColumn history_data dc_siblings
+	ALTER TABLE `history_data` ADD `dc_siblings` text;
+#EndIf
+#IfMissingColumn history_data dc_spouse
+	ALTER TABLE `history_data` ADD `dc_spouse` text;
+#EndIf
+#IfMissingColumn history_data dc_offspring
+	ALTER TABLE `history_data` ADD `dc_offspring` text;
+#EndIf
+#IfNotRow2D layout_options form_id HIS field_id dc_father
+	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_father', '2Family History', 'Diagnosis Code', 2, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+        UPDATE `layout_options` SET `seq` = '3' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'history_mother';
+#EndIf
+#IfNotRow2D layout_options form_id HIS field_id dc_mother
+	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_mother', '2Family History', 'Diagnosis Code', 4, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+        UPDATE `layout_options` SET `seq` = '5' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'history_siblings';
+#EndIf
+#IfNotRow2D layout_options form_id HIS field_id dc_siblings
+	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_siblings', '2Family History', 'Diagnosis Code', 6, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+        UPDATE `layout_options` SET `seq` = '7' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'history_spouse';
+#EndIf
+#IfNotRow2D layout_options form_id HIS field_id dc_spouse
+	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_spouse', '2Family History', 'Diagnosis Code', 8, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+        UPDATE `layout_options` SET `seq` = '9', `datacols` = '1' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'history_offspring';
+#EndIf
+#IfNotRow2D layout_options form_id HIS field_id dc_offspring
+	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_offspring', '2Family History', 'Diagnosis Code', 10, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id amendment_status
+	INSERT INTO `list_options` ( `list_id`, `option_id`, `title` ) 
+	VALUES ('lists' ,'amendment_status','Amendment Status');
+
+	INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES
+	('amendment_status' ,'approved','Approved', 10, 0),
+	('amendment_status' ,'rejected','Rejected', 20, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id amendment_from	
+	INSERT INTO `list_options` ( `list_id`, `option_id`, `title` ) 
+	VALUES ('lists' ,'amendment_from','Amendment From');
+
+	INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES
+	('amendment_from' ,'patient','Patient', 10, 0),
+	('amendment_from' ,'insurance','Insurance', 20, 0);
+#EndIf
+
+#IfNotTable amendments
+	CREATE TABLE `amendments` (
+		`amendment_id`	int(11)			NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
+		`amendment_date` date			NOT NULL	COMMENT 'Amendement request date',
+		`amendment_by`	varchar(50)		NOT NULL	COMMENT 'Amendment requested from',
+		`amendment_status` varchar(50)	NULL		COMMENT 'Amendment status accepted/rejected/null',
+		`pid`			int(11)			NOT NULL	COMMENT 'Patient ID from patient_data',
+		`amendment_desc` text			NOT NULL	COMMENT 'Amendment Details',
+		`created_by`	int(11)			NOT NULL	COMMENT 'references users.id for session owner',
+		`modified_by`	int(11)			NULL		COMMENT 'references users.id for session owner',
+		`created_time`	timestamp		NOT NULL DEFAULT '0000-00-00 00:00:00'	COMMENT 'created time',
+		`modified_time`	timestamp		NULL		COMMENT 'modified time',
+		PRIMARY KEY amendments_id(`amendment_id`),
+		KEY amendment_pid(`pid`)
+	) ENGINE = MyISAM;
+#EndIf
+
+#IfNotTable amendments_history
+	CREATE TABLE `amendments_history` (
+		`amendment_id`	int(11)			NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
+		`amendment_note` text			NOT NULL	COMMENT 'Amendment requested from',
+		`amendment_status` VARCHAR(50)  NULL 		COMMENT 'Amendment Request Status',
+		`created_by`	int(11)			NOT NULL	COMMENT 'references users.id for session owner',
+		`created_time`	timestamp		NOT NULL DEFAULT '0000-00-00 00:00:00'	COMMENT 'created time',
+		KEY amendment_history_id(`amendment_id`)
+	) ENGINE = MyISAM;
+#EndIf
+
+#IfNotTable log_comment_encrypt
+	CREATE TABLE `log_comment_encrypt` (
+	  `id` int(11) NOT NULL AUTO_INCREMENT,
+	  `log_id` int(11) NOT NULL,
+	  `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
+	  `checksum` longtext NOT NULL,
+	  PRIMARY KEY (`id`)
+	) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn documents encounter_id
+  ALTER TABLE `documents` ADD `encounter_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'Encounter id if tagged';
+#EndIf
+
+#IfMissingColumn documents encounter_check
+	ALTER TABLE `documents` ADD `encounter_check` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'If encounter is created while tagging';
+#EndIf
+
+#IfNotTable report_itemized
+CREATE TABLE `report_itemized` (
+  `report_id` bigint(20) NOT NULL,
+  `itemized_test_id` smallint(6) NOT NULL,
+  `numerator_label` varchar(25) NOT NULL DEFAULT '' COMMENT 'Only used in special cases',
+  `pass` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 is fail, 1 is pass, 2 is excluded',
+  `pid` bigint(20) NOT NULL,
+  KEY (`report_id`,`itemized_test_id`,`numerator_label`,`pass`)
+) ENGINE=MyISAM;
+#EndIf
+

@@ -164,6 +164,19 @@ $(document).ready(function(){
                   }
           });
       });
+	  $("#amendments_ps_expand").load("get_amendments.php", { 'embeddedScreen' : true }, function() {
+          // (note need to place javascript code here also to get the dynamic link to work)
+          $(".medium_modal").fancybox( {
+                  'overlayOpacity' : 0.0,
+                  'showCloseButton' : true,
+                  'frameHeight' : 500,
+                  'frameWidth' : 800,
+                  'centerOnScroll' : false,
+                  'callbackOnClose' : function()  {
+                  refreshme();
+                  }
+          });
+      });
       
       refreshAppointments();
 
@@ -579,6 +592,32 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       </div>
      </td>
     </tr>
+	
+<!-- Amendments -->
+<?php if ( $GLOBALS['amendments'] ) { ?>
+	<tr>
+	<td width='650px'>
+<?php
+$widgetTitle = xl("Amendments");
+$widgetLabel = "amendments";
+$widgetButtonLabel = xl(""));
+$widgetButtonClass = "hidden";
+$linkMethod = "html";
+$bodyClass = "notab";
+$widgetAuth = false;
+$fixedWidth = true;
+expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+  $widgetAuth, $fixedWidth);
+?>
+                    
+<br/>
+	<div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
+	</td>
+	</tr>		
+
+<?php } ?>
+
 	<tr>
 		<td>
 			

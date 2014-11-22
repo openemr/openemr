@@ -42,6 +42,44 @@ CREATE TABLE `amc_misc_data` (
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `amendments`
+--
+
+DROP TABLE IF EXISTS `amendments`;
+CREATE TABLE IF NOT EXISTS `amendments` (
+  `amendment_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
+  `amendment_date` date	NOT NULL COMMENT 'Amendement request date',
+  `amendment_by` varchar(50) NOT NULL COMMENT 'Amendment requested from',
+  `amendment_status` varchar(50) NULL COMMENT 'Amendment status accepted/rejected/null',
+  `pid` int(11) NOT NULL COMMENT 'Patient ID from patient_data',
+  `amendment_desc` text NOT NULL COMMENT 'Amendment Details',
+  `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
+  `modified_by`	int(11) NULL COMMENT 'references users.id for session owner',
+  `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
+  `modified_time` timestamp NULL COMMENT 'modified time',
+  PRIMARY KEY amendments_id(`amendment_id`),
+  KEY amendment_pid(`pid`)
+) ENGINE = MyISAM;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `amendments_history`
+--
+
+DROP TABLE IF EXISTS `amendments_history`;
+CREATE TABLE IF NOT EXISTS `amendments_history` (
+  `amendment_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Amendment ID',
+  `amendment_note` text NOT NULL COMMENT 'Amendment requested from',
+  `amendment_status` VARCHAR(50) NULL COMMENT 'Amendment Request Status',
+  `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
+  `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
+KEY amendment_history_id(`amendment_id`)
+) ENGINE = MyISAM;
+	
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `array`
 -- 
@@ -270,6 +308,8 @@ CREATE TABLE `clinical_plans` (
   `pid` bigint(20) NOT NULL DEFAULT '0' COMMENT '0 is default for all patients, while > 0 is id from patient_data table',
   `normal_flag` tinyint(1) COMMENT 'Normal Activation Flag',
   `cqm_flag` tinyint(1) COMMENT 'Clinical Quality Measure flag (unable to customize per patient)',
+  `cqm_2011_flag` tinyint(1) COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)',
+  `cqm_2014_flag` tinyint(1) COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)',
   `cqm_measure_group` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure Group Identifier',
   PRIMARY KEY  (`id`,`pid`)
 ) ENGINE=MyISAM ;
@@ -278,19 +318,19 @@ CREATE TABLE `clinical_plans` (
 -- Clinical Quality Measure (CMQ) plans
 --
 -- Measure Group A: Diabetes Mellitus
-INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('dm_plan_cqm', 0, 0, 1, 'A');
+INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('dm_plan_cqm', 0, 0, 1, 1, 'A');
 -- Measure Group C: Chronic Kidney Disease (CKD)
-INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('ckd_plan_cqm', 0, 0, 1, 'C');
+INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('ckd_plan_cqm', 0, 0, 1, 1, 'C');
 -- Measure Group D: Preventative Care
-INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('prevent_plan_cqm', 0, 0, 1, 'D');
+INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('prevent_plan_cqm', 0, 0, 1, 1, 'D');
 -- Measure Group E: Perioperative Care
-INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('periop_plan_cqm', 0, 0, 1, 'E');
+INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('periop_plan_cqm', 0, 0, 1, 1, 'E');
 -- Measure Group F: Rheumatoid Arthritis
-INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('rheum_arth_plan_cqm', 0, 0, 1, 'F');
+INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('rheum_arth_plan_cqm', 0, 0, 1, 1, 'F');
 -- Measure Group G: Back Pain
-INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('back_pain_plan_cqm', 0, 0, 1, 'G');
+INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('back_pain_plan_cqm', 0, 0, 1, 1, 'G');
 -- Measure Group H: Coronary Artery Bypass Graft (CABG)
-INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group` ) VALUES ('cabg_plan_cqm', 0, 0, 1, 'H');
+INSERT INTO `clinical_plans` ( `id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_measure_group` ) VALUES ('cabg_plan_cqm', 0, 0, 1, 1, 'H');
 --
 -- Standard clinical plans
 --
@@ -381,10 +421,15 @@ CREATE TABLE `clinical_rules` (
   `active_alert_flag` tinyint(1) COMMENT 'Active Alert Widget Module flag - note not yet utilized',
   `passive_alert_flag` tinyint(1) COMMENT 'Passive Alert Widget Module flag',
   `cqm_flag` tinyint(1) COMMENT 'Clinical Quality Measure flag (unable to customize per patient)',
+  `cqm_2011_flag` tinyint(1) COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)',
+  `cqm_2014_flag` tinyint(1) COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)',
   `cqm_nqf_code` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure NQF identifier',
   `cqm_pqri_code` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure PQRI identifier',
   `amc_flag` tinyint(1) COMMENT 'Automated Measure Calculation flag (unable to customize per patient)',
+  `amc_2011_flag` tinyint(1) COMMENT '2011 Automated Measure Calculation flag for (unable to customize per patient)',
+  `amc_2014_flag` tinyint(1) COMMENT '2014 Automated Measure Calculation flag for (unable to customize per patient)',
   `amc_code` varchar(10) NOT NULL default '' COMMENT 'Automated Measure Calculation indentifier (MU rule)',
+  `amc_code_2014` varchar(30) NOT NULL default '' COMMENT 'Automated Measure Calculation 2014 indentifier (MU rule)',
   `patient_reminder_flag` tinyint(1) COMMENT 'Clinical Reminder Module flag',
   PRIMARY KEY  (`id`,`pid`)
 ) ENGINE=MyISAM ;
@@ -392,80 +437,80 @@ CREATE TABLE `clinical_rules` (
 --
 -- Automated Measure Calculation (AMC) rules
 --
--- MU 170.302(c) Maintain an up-to-date problem list of current and active diagnoses
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('problem_list_amc', 0, 0, 0, 0, '', '', 1, '170.302(c)', 0);
+-- MU 170.302(c) Maintain an up-to-date problem list of current and active diagnoses (2014-MU-AMC:170.314(g)(1)/(2)–4)
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag` ) VALUES ('problem_list_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(c)', 1, '170.314(g)(1)/(2)–4', 0);
 -- MU 170.302(d) Maintain active medication list
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('med_list_amc', 0, 0, 0, 0, '', '', 1, '170.302(d)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag` ) VALUES ('med_list_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(d)', 1, '170.314(g)(1)/(2)–5', 0);
 -- MU 170.302(e) Maintain active medication allergy list
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('med_allergy_list_amc', 0, 0, 0, 0, '', '', 1, '170.302(e)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag` ) VALUES ('med_allergy_list_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(e)', 1, '170.314(g)(1)/(2)–6', 0);
 -- MU 170.302(f) Record and chart changes in vital signs
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('record_vitals_amc', 0, 0, 0, 0, '', '', 1, '170.302(f)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('record_vitals_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(f)', 0);
 -- MU 170.302(g) Record smoking status for patients 13 years old or older
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('record_smoke_amc', 0, 0, 0, 0, '', '', 1, '170.302(g)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag` ) VALUES ('record_smoke_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(g)', 1, '170.314(g)(1)/(2)–11', 0);
 -- MU 170.302(h) Incorporate clinical lab-test results into certified EHR technology as
 --               structured data
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('lab_result_amc', 0, 0, 0, 0, '', '', 1, '170.302(h)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag` ) VALUES ('lab_result_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(h)', 1, '170.314(g)(1)/(2)–12', 0);
 -- MU 170.302(j) The EP, eligible hospital or CAH who receives a patient from another
 --               setting of care or provider of care or believes an encounter is relevant
 --               should perform medication reconciliation
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('med_reconc_amc', 0, 0, 0, 0, '', '', 1, '170.302(j)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag` ) VALUES ('med_reconc_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(j)', 1, '170.314(g)(1)/(2)–17', 0);
 -- MU 170.302(m) Use certified EHR technology to identify patient-specific education resources
 --              and provide those resources to the patient if appropriate
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('patient_edu_amc', 0, 0, 0, 0, '', '', 1, '170.302(m)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('patient_edu_amc', 0, 0, 0, 0, '', '', 1, 1, '170.302(m)', 0);
 -- MU 170.304(a) Use CPOE for medication orders directly entered by any licensed healthcare
 --              professional who can enter orders into the medical record per state, local
 --              and professional guidelines
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('cpoe_med_amc', 0, 0, 0, 0, '', '', 1, '170.304(a)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('cpoe_med_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(a)', 0);
 -- MU 170.304(b) Generate and transmit permissible prescriptions electronically (eRx)
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('e_prescribe_amc', 0, 0, 0, 0, '', '', 1, '170.304(b)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('e_prescribe_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(b)', 0);
 -- MU 170.304(c) Record demographics
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('record_dem_amc', 0, 0, 0, 0, '', '', 1, '170.304(c)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `amc_2014_flag`, `amc_code_2014`, `patient_reminder_flag` ) VALUES ('record_dem_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(c)', 1, '170.314(g)(1)/(2)–9', 0);
 -- MU 170.304(d) Send reminders to patients per patient preference for preventive/follow up care
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('send_reminder_amc', 0, 0, 0, 0, '', '', 1, '170.304(d)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('send_reminder_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(d)', 0);
 -- MU 170.304(f) Provide patients with an electronic copy of their health information
 --               (including diagnostic test results, problem list, medication lists,
 --               medication allergies), upon request
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('provide_rec_pat_amc', 0, 0, 0, 0, '', '', 1, '170.304(f)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('provide_rec_pat_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(f)', 0);
 -- MU 170.304(g) Provide patients with timely electronic access to their health information
 --              (including lab results, problem list, medication lists, medication allergies)
 --              within four business days of the information being available to the EP
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('timely_access_amc', 0, 0, 0, 0, '', '', 1, '170.304(g)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('timely_access_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(g)', 0);
 -- MU 170.304(h) Provide clinical summaries for patients for each office visit
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('provide_sum_pat_amc', 0, 0, 0, 0, '', '', 1, '170.304(h)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('provide_sum_pat_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(h)', 0);
 -- MU 170.304(i) The EP, eligible hospital or CAH who transitions their patient to
 --               another setting of care or provider of care or refers their patient to
 --               another provider of care should provide summary of care record for
 --               each transition of care or referral
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('send_sum_amc', 0, 0, 0, 0, '', '', 1, '170.304(i)', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('send_sum_amc', 0, 0, 0, 0, '', '', 1, 1, '170.304(i)', 0);
 --
 -- Clinical Quality Measure (CQM) rules
 --
 -- NQF 0013 Hypertension: Blood Pressure Measurement
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_htn_bp_measure_cqm', 0, 0, 0, 1, '0013', '', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_htn_bp_measure_cqm', 0, 0, 0, 1, 1, '0013', '', 0, '', 0);
 -- NQF 0028a Tobacco Use Assessment
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_use_assess_cqm', 0, 0, 0, 1, '0028a', '', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_use_assess_cqm', 0, 0, 0, 1, 1, '0028a', '', 0, '', 0);
 -- NQF 0028b Tobacco Cessation Intervention
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_cess_inter_cqm', 0, 0, 0, 1, '0028b', '', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_tob_cess_inter_cqm', 0, 0, 0, 1, 1, '0028b', '', 0, '', 0);
 -- NQF 0421 (PQRI 128) Adult Weight Screening and Follow-Up
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_adult_wt_screen_fu_cqm', 0, 0, 0, 1, '0421', '128', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_adult_wt_screen_fu_cqm', 0, 0, 0, 1, 1, '0421', '128', 0, '', 0);
 -- NQF 0024 Weight Assessment and Counseling for Children and Adolescents
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_wt_assess_couns_child_cqm', 0, 0, 0, 1, '0024', '', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_wt_assess_couns_child_cqm', 0, 0, 0, 1, 1, '0024', '', 0, '', 0);
 -- NQF 0041 (PQRI 110) Influenza Immunization for Patients >= 50 Years Old
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_influenza_ge_50_cqm', 0, 0, 0, 1, '0041', '110', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_influenza_ge_50_cqm', 0, 0, 0, 1, 1, '0041', '110', 0, '', 0);
 -- NQF 0038 Childhood immunization Status
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_child_immun_stat_cqm', 0, 0, 0, 1, '0038', '', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_child_immun_stat_cqm', 0, 0, 0, 1, 1, '0038', '', 0, '', 0);
 -- NQF 0043 (PQRI 111) Pneumonia Vaccination Status for Older Adults
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_pneumovacc_ge_65_cqm', 0, 0, 0, 1, '0043', '111', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_pneumovacc_ge_65_cqm', 0, 0, 0, 1, 1, '0043', '111', 0, '', 0);
 -- NQF 0055 (PQRI 117) Diabetes: Eye Exam
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_eye_cqm', 0, 0, 0, 1, '0055', '117', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_eye_cqm', 0, 0, 0, 1, 1, '0055', '117', 0, '', 0);
 -- NQF 0056 (PQRI 163) Diabetes: Foot Exam
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_foot_cqm', 0, 0, 0, 1, '0056', '163', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_foot_cqm', 0, 0, 0, 1, 1, '0056', '163', 0, '', 0);
 -- NQF 0059 (PQRI 1) Diabetes: HbA1c Poor Control
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_a1c_cqm', 0, 0, 0, 1, '0059', '1', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_a1c_cqm', 0, 0, 0, 1, 1, '0059', '1', 0, '', 0);
 -- NQF 0061 (PQRI 3) Diabetes: Blood Pressure Management
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_bp_control_cqm', 0, 0, 0, 1, '0061', '3', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_bp_control_cqm', 0, 0, 0, 1, 1, '0061', '3', 0, '', 0);
 -- NQF 0064 (PQRI 2) Diabetes: LDL Management & Control
-INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_ldl_cqm', 0, 0, 0, 1, '0064', '2', 0, '', 0);
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_dm_ldl_cqm', 0, 0, 0, 1, 1, '0064', '2', 0, '', 0);
 --
 -- Standard clinical rules
 --
@@ -673,6 +718,8 @@ CREATE TABLE `documents` (
   `storagemethod` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->Harddisk,1->CouchDB',
   `path_depth` TINYINT DEFAULT '1' COMMENT 'Depth of path to use in url to find document. Not applicable for CouchDB.',
   `imported` TINYINT DEFAULT 0 NULL COMMENT 'Parsing status for CCR/CCD/CCDA importing',
+  `encounter_id` bigint(20) NOT NULL DEFAULT '0' COMMENT 'Encounter id if tagged',
+  `encounter_check`	TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'If encounter is created while tagging',
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
@@ -1956,10 +2003,15 @@ CREATE TABLE `history_data` (
   `last_psa` varchar(255) default NULL,
   `last_exam_results` varchar(255) default NULL,
   `history_mother` longtext,
+  `dc_mother` text,
   `history_father` longtext,
+  `dc_father`  text,
   `history_siblings` longtext,
+  `dc_siblings` text,
   `history_offspring` longtext,
+  `dc_offspring` text,
   `history_spouse` longtext,
+  `dc_spouse` text,
   `relatives_cancer` longtext,
   `relatives_tuberculosis` longtext,
   `relatives_diabetes` longtext,
@@ -2614,11 +2666,16 @@ INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'2Counter-Referral',
 
 INSERT INTO layout_options VALUES ('HIS','usertext11','1General','Risk Factors',1,21,1,0,0,'riskfactors',1,1,'','' ,'Risk Factors', 0, '');
 INSERT INTO layout_options VALUES ('HIS','exams'     ,'1General','Exams/Tests' ,2,23,1,0,0,'exams'      ,1,1,'','' ,'Exam and test results', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_father'   ,'2Family History','Father'   ,1, 2,1,20,0,'',1,1,'','' ,'', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_mother'   ,'2Family History','Mother'   ,2, 2,1,20,0,'',1,1,'','' ,'', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_siblings' ,'2Family History','Siblings' ,3, 2,1,20,0,'',1,1,'','' ,'', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_spouse'   ,'2Family History','Spouse'   ,4, 2,1,20,0,'',1,1,'','' ,'', 0, '');
-INSERT INTO layout_options VALUES ('HIS','history_offspring','2Family History','Offspring',5, 2,1,20,0,'',1,3,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_father'   ,'2Family History','Father'   		,1, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_father'		,'2Family History','Diagnosis Code'	,2, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_mother'   ,'2Family History','Mother'   		,3, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_mother'		,'2Family History','Diagnosis Code'	,4, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_siblings' ,'2Family History','Siblings' 		,5, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_siblings'		,'2Family History','Diagnosis Code'	,6, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_spouse'   ,'2Family History','Spouse'   		,7, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_spouse'		,'2Family History','Diagnosis Code'	,8, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
+INSERT INTO layout_options VALUES ('HIS','history_offspring','2Family History','Offspring'		,9, 2,1,20,0,'',1,1,'','' ,'', 0, '');
+INSERT INTO layout_options VALUES ('HIS','dc_offspring'		,'2Family History','Diagnosis Code'	,10, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
 INSERT INTO layout_options VALUES ('HIS','relatives_cancer'             ,'3Relatives','Cancer'             ,1, 2,1,20,0,'',1,1,'','' ,'', 0, '');
 INSERT INTO layout_options VALUES ('HIS','relatives_tuberculosis'       ,'3Relatives','Tuberculosis'       ,2, 2,1,20,0,'',1,1,'','' ,'', 0, '');
 INSERT INTO layout_options VALUES ('HIS','relatives_diabetes'           ,'3Relatives','Diabetes'           ,3, 2,1,20,0,'',1,1,'','' ,'', 0, '');
@@ -2644,6 +2701,7 @@ INSERT INTO layout_options VALUES ('HIS','value_2'           ,'5Other',''       
 INSERT INTO layout_options VALUES ('HIS','additional_history','5Other','Additional History',5, 3,1,30,  0,'',1,3,'' ,'' ,'Additional history notes', 3, '');
 INSERT INTO layout_options VALUES ('HIS','userarea11'        ,'5Other','User Defined Area 11',6,3,0,30,0,'',1,3,'','','User Defined', 3, '');
 INSERT INTO layout_options VALUES ('HIS','userarea12'        ,'5Other','User Defined Area 12',7,3,0,30,0,'',1,3,'','','User Defined', 3, '');
+
 
 INSERT INTO `layout_options` VALUES ('FACUSR', 'provider_id', '1General', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility', 0, '');
 
@@ -3857,6 +3915,15 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('ins
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','secondary','Secondary',20);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','tertiary' ,'Tertiary' ,30);
 
+-- Amendment Statuses
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists' ,'amendment_status','Amendment Status');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_status' ,'approved','Approved', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_status' ,'rejected','Rejected', 20);
+	
+-- Amendment request from
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists' ,'amendment_from','Amendment From');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_from' ,'patient','Patient', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('amendment_from' ,'insurance','Insurance', 20);
 -- --------------------------------------------------------
 
 -- 
@@ -4772,6 +4839,22 @@ INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03
 INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '');
 INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '');
 INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `report_itemized`
+-- (goal is optimize insert performance, so only one key)
+
+DROP TABLE IF EXISTS `report_itemized`;
+CREATE TABLE `report_itemized` (
+  `report_id` bigint(20) NOT NULL,
+  `itemized_test_id` smallint(6) NOT NULL,
+  `numerator_label` varchar(25) NOT NULL DEFAULT '' COMMENT 'Only used in special cases',
+  `pass` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 is fail, 1 is pass, 2 is excluded',
+  `pid` bigint(20) NOT NULL,
+  KEY (`report_id`,`itemized_test_id`,`numerator_label`,`pass`)
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -6167,3 +6250,16 @@ CREATE TABLE `esign_signatures` (
   KEY `tid` (`tid`),
   KEY `table` (`table`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
+
+-- 
+-- Table structure for table `log_comment_encrypt`
+-- 
+
+DROP TABLE IF EXISTS `log_comment_encrypt`;
+CREATE TABLE IF NOT EXISTS `log_comment_encrypt` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `log_id` int(11) NOT NULL,
+  `encrypt` enum('Yes','No') NOT NULL DEFAULT 'No',
+  `checksum` longtext NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;

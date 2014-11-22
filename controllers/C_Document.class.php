@@ -10,6 +10,9 @@ require_once(dirname(__FILE__) . "/../library/classes/CategoryTree.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/TreeMenu.php");
 require_once(dirname(__FILE__) . "/../library/classes/Note.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/CouchDB.class.php");
+require_once(dirname(__FILE__) . "/../library/forms.inc");
+require_once(dirname(__FILE__) . "/../library/formatting.inc.php");
+require_once(dirname(__FILE__) . "/../library/classes/postmaster.php"  );
 
 class C_Document extends Controller {
 
@@ -189,15 +192,71 @@ class C_Document extends Controller {
     }
 	
 	function note_action_process($patient_id) {
-		
+		// this function is a dual function that will set up a note associated with a document or send a document via email.
+
 		if ($_POST['process'] != "true")
 			return;
 			
 		$n = new Note();
                 $n->set_owner($_SESSION['authUserID']);
 		parent::populate_object($n);
-		$n->persist();
-		
+		if ($_POST['identifier'] == "no"){
+                        // associate a note with a document
+			$n->persist();
+		}elseif ($_POST['identifier'] == "yes"){
+                        // send the document via email
+                        $d = new Document($_POST['foreign_id']);
+                        $url =  $d->get_url();
+                        $storagemethod = $d->get_storagemethod();
+                        $couch_docid = $d->get_couch_docid();
+                        $couch_revid = $d->get_couch_revid();
+                        if($couch_docid && $couch_revid){
+	                        $couch = new CouchDB();
+	                        $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
+	                        $resp = $couch->retrieve_doc($data);
+                                $content = $resp->data;
+	                        if($content=='' && $GLOBALS['couchdb_log']==1){				
+		                        $log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
+		                        $log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
+		                        $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Document Id: ".$couch_docid."\r\n";
+		                        $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Revision Id: ".$couch_revid."\r\n";
+		                        $log_content .= date('Y-m-d H:i:s')." ==> Failed to fetch document content from CouchDB.\r\n";
+		                        //$log_content .= date('Y-m-d H:i:s')." ==> Will try to download file from HardDisk if exists.\r\n\r\n";
+		                        $this->document_upload_download_log($d->get_foreign_id(),$log_content);
+		                        die(xlt("File retrieval from CouchDB failed"));
+                                }
+                                // place it in a temporary file and will remove the file below after emailed
+                                $temp_couchdb_url = $GLOBALS['OE_SITE_DIR'].'/documents/temp/couch_'.date("YmdHis").$d->get_url_file();
+                                $fh = fopen($temp_couchdb_url,"w");
+                                fwrite($fh,base64_decode($content));
+                                fclose($fh);
+                                $temp_url = $temp_couchdb_url; // doing this ensure hard drive file never deleted in case something weird happens
+                        } else {
+                                $url = preg_replace("|^(.*)://|","",$url);
+                                // Collect filename and path
+                                $from_all = explode("/",$url);
+                                $from_filename = array_pop($from_all);
+                                $from_pathname_array = array();
+                                for ($i=0;$i<$d->get_path_depth();$i++) {
+                                      $from_pathname_array[] = array_pop($from_all);
+                                }
+                                $from_pathname_array = array_reverse($from_pathname_array);
+                                $from_pathname = implode("/",$from_pathname_array);
+                                $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+                        }
+                        if (!file_exists($temp_url)) {
+                              echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.','','',' ') . $temp_url;
+                        }
+                        $url = $temp_url;
+			$body_notes = attr($_POST['note']);
+			$pdetails = getPatientData($patient_id);
+			$pname = $pdetails['fname']." ".$pdetails['lname'];
+			$this->document_send($_POST['provide_email'],$body_notes,$url,$pname);
+                        if ($couch_docid && $couch_revid) {
+                              // remove the temporary couchdb file
+                              unlink($temp_couchdb_url);
+                        }
+		}
 		$this->_state = false;
 		$_POST['process'] = "";
 		return $this->view_action($patient_id,$n->get_foreign_id());		
@@ -256,7 +315,30 @@ class C_Document extends Controller {
 			$issues_options .= "<option value='" . $irow['id'] . "'$sel>$desc</option>";
 		}
 		$this->assign("ISSUES_LIST", $issues_options);
-
+		
+		// For tagging to encounter
+		// Populate the dropdown with patient's encounter list
+		$this->assign("TAG_ACTION",$this->_link("tag") . "document_id=" . $d->get_id() . "&process=true");
+		$encOptions = "<option value='0'>-- " . xlt('Select Encounter') . " --</option>";
+		$result_docs = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
+			"LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date desc",array($patient_id));
+		if ( sqlNumRows($result_docs) > 0)
+		while($row_result_docs = sqlFetchArray($result_docs)) {
+		 	$sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : ''; 
+			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text($row_result_docs['pc_catname'])."</option>";
+		}
+		$this->assign("ENC_LIST", $encOptions);
+		
+		//Populate the dropdown with category list
+		$visit_category_list = "<option value='0'>-- " . xlt('Select One') . " --</option>";
+		$cres = sqlStatement("SELECT pc_catid, pc_catname FROM openemr_postcalendar_categories ORDER BY pc_catname");
+		while ($crow = sqlFetchArray($cres)) {
+			$catid = $crow['pc_catid'];
+			if ($catid < 9 && $catid != 5) continue; // Applying same logic as in new encounter page.
+			$visit_category_list .="<option value='".attr($catid)."'>" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+		}
+		$this->assign("VISIT_CATEGORY_LIST", $visit_category_list);
+		 
 		$this->assign("notes",$notes);
 		
 		$this->_last_node = null;
@@ -1000,13 +1082,107 @@ class C_Document extends Controller {
 		fwrite($LOG,$content);
 		fclose($LOG);
 	}
-
-}
+	
+	function document_send($email,$body,$attfile,$pname) {
+		if (empty($email)) {
+			$this->assign("process_result","Email could not be sent, the address supplied: '$email' was empty or invalid.");
+			return;
+		}
+		 
+		  $desc = "Please check the attached patient document.\n Content:".attr($body);
+		  $mail = new MyMailer(); 
+		  $from_name = $GLOBALS["practice_return_email_path"];
+		  $from =  $GLOBALS["practice_return_email_path"];
+		  $mail->AddReplyTo($from,$from_name);
+		  $mail->SetFrom($from,$from );
+		  $to = $email ; $to_name =$email;
+		  $mail->AddAddress($to, $to_name);
+		  $subject = "Patient documents";
+		  $mail->Subject = $subject;
+		  $mail->Body = $desc;
+		  $mail->AddAttachment($attfile);
+		  if ($mail->Send()) {
+			 $retstatus = "email_sent";
+		  } else {
+			$email_status = $mail->ErrorInfo;
+			//echo "EMAIL ERROR: ".$email_status;
+			$retstatus =  "email_fail";
+		  } 
+	}
+	
 //place to hold optional code
 //$first_node = array_keys($t->tree);
 		//$first_node = $first_node[0];
 		//$node1 = new HTML_TreeNode(array('text' => $t->get_node_name($first_node), 'link' => "test.php", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => true), array('onclick' => "alert('foo'); return false", 'onexpand' => "alert('Expanded')"));
 		
 		//$this->_last_node = &$node1;
+	
+// Function to tag a document to an encounter.
+function tag_action_process($patient_id="", $document_id) {
+	if ($_POST['process'] != "true") {
+		die("process is '" . text($_POST['process']) . "', expected 'true'");
+		return;
+	}
+	
+	// Create Encounter and Tag it.
+	$event_date = date('Y-m-d H:i:s');
+	$encounter_id = $_POST['encounter_id'];
+	$encounter_check = $_POST['encounter_check'];
+	$visit_category_id = $_POST['visit_category_id'];
 
+	if (is_numeric($document_id)) {
+		$messages = '';
+		$d = new Document( $document_id );
+		$file_name = $d->get_url_file();
+		if (!is_numeric($encounter_id)) {
+			$encounter_id = 0;
+		}
+		
+		$encounter_check = ( $encounter_check == 'on') ? 1 : 0;
+		if ($encounter_check) {
+			$provider_id = $_SESSION['authUserID'] ;
+			
+			// Get the logged in user's facility
+			$facilityRow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array("$provider_id"));
+			$username = $facilityRow['username'];
+			$facility = $facilityRow['facility'];
+			$facility_id = $facilityRow['facility_id'];
+			// Get the primary Business Entity facility to set as billing facility, if null take user's facility as billing facility
+			$billingFacility = sqlQuery("SELECT id FROM facility WHERE primary_business_entity = 1");
+			$billingFacilityID = ( $billingFacility['id'] ) ? $billingFacility['id'] : $facility_id;
+			
+			$conn = $GLOBALS['adodb']['db'];
+			$encounter = $conn->GenID("sequences");
+			$query = "INSERT INTO form_encounter SET
+						date = ?,
+						reason = ?,
+						facility = ?,
+						sensitivity = 'normal', 
+						pc_catid = ?,
+						facility_id = ?,
+						billing_facility = ?,
+						provider_id = ?,
+						pid = ?,
+						encounter = ?";
+			$bindArray = array($event_date,$file_name,$facility,$_POST['visit_category_id'],(int)$facility_id,(int)$billingFacilityID,(int)$provider_id,$patient_id,$encounter);
+			$formID = sqlInsert($query,$bindArray);
+			addForm($encounter, "New Patient Encounter",$formID,"newpatient", $patient_id, "1", date("Y-m-d H:i:s"), $username );	            
+			$d->set_encounter_id($encounter);
+			
+		} else {
+			$d->set_encounter_id($encounter_id);
+		}
+		$d->set_encounter_check($encounter_check);
+		$d->persist();
+
+		$messages .= xlt('Document tagged to Encounter successfully') . "<br>";
+	}
+
+	$this->_state = false;
+	$this->assign("messages", $messages);
+	
+	return $this->view_action($patient_id, $document_id);
+}
+
+}
 ?>
