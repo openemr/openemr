@@ -667,8 +667,8 @@ $GLOBALS_METADATA = array(
       'cms_1500' => array(
       xl('CMS 1500 Paper Form Format'),
       array(
-        '0' => xl('08/05'),
-        '1' => xl('02/12'),
+        '0' => xl('08/05{{CMS 1500 format date revision setting in globals}}'),
+        '1' => xl('02/12{{CMS 1500 format date revision setting in globals}}'),
       ),
       '0',                              // default
       xl('This specifies which revision of the form the billing module should generate')
