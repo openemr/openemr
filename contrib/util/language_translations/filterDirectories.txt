@@ -1,3 +1,4 @@
 openemr/Documentation
 openemr/contrib/forms
 openemr/.git
+openemr/contrib/icd10
