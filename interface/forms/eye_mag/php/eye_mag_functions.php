@@ -1,76 +1,53 @@
 <?php
 /** 
-* forms/eye_mag/php/eye_mag_functions.php 
-* 
-* Functions for retrieving PRIOR visit data
-* 
-* Copyright (C) 2010-14 Raymond Magauran <magauran@MedFetch.com> 
-* 
-* LICENSE: This program is free software; you can redistribute it and/or 
-* modify it under the terms of the GNU General Public License 
-* as published by the Free Software Foundation; either version 3 
-* of the License, or (at your option) any later version. 
-* This program is distributed in the hope that it will be useful, 
-* but WITHOUT ANY WARRANTY; without even the implied warranty of 
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-* GNU General Public License for more details. 
-* You should have received a copy of the GNU General Public License 
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
-* 
-* @package OpenEMR 
-* @author Ray Magauran <magauran@MedFetch.com> 
-* @link http://www.open-emr.org 
-*/
+ * forms/eye_mag/php/eye_mag_functions.php 
+ * 
+ * Function which extend the eye_mag form
+ *   
+ * 
+ * Copyright (C) 2010-14 Raymond Magauran <magauran@MedFetch.com> 
+ * 
+ * LICENSE: This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License 
+ * as published by the Free Software Foundation; either version 3 
+ * of the License, or (at your option) any later version. 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU General Public License for more details. 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
+ * 
+ * @package OpenEMR 
+ * @category forms
+ * @subpackage eye_mag 
+ * @version 0.8 (will be 1.0 when acceptted in code base) 
+ * @filesource openemr/interface/forms/eye_maga/php/eye_mag_functions.php
+ * @author Ray Magauran <magauran@MedFetch.com> 
+ * @link http://www.open-emr.org 
+ */
 
+
+/**
+ *  This function returns HTML old record selector widget when needed (3 input values)
+ * 
+ * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO, DRAW_PRIORS_$zone 
+ * @param string $visit_date Future functionality to limit result set. UTC DATE Formatted 
+ * @param string $pid value = patient id
+ * @return string returns the HTML old record selector widget for the desired zone 
+ */ 
 function priors_select($zone,$visit_date,$pid) {
 	global $form_folder;
-    //this will create a widget for pulling out the old record data based on section in the record
-   //echo $zone;
-   //$zone = "EXT";
-	$output_return ="<span style='font-size:0.8em;padding:0px;margin:0 0 5 0;vertical-align:text-top;padding-left:10px;z-index:10;' 
+  	$output_return ="<span style='font-size:0.8em;padding:0px;margin:0 0 5 0;vertical-align:text-top;padding-left:10px;z-index:10;' 
         				   id='".$zone."_prefix_oldies' name='".$zone."_prefix_oldies'  class='display ' >";
     $selected='';
     $current='';
-    //echo "priors is ".$priors;
     if (!$priors) {
-
-       // $query = "select * from form_eye_mag where pid='".$pid."' ORDER BY date DESC";
-        //echo $query;
-        /*
-        and not hidden? Need to exclude them
-        //and we should limit the query to reduce the need to transport EACH $priors in $priors[]
-        //becomes:
-                $query = "select * from form_eye_mag JOIN forms on form_eye_mag.encounter=forms.id where form_eye_mag.pid='".$pid."' and forms.deleted !='1'";
-                echo $query;
-                problem is the way the form is being stored is incorrect when a new form is made.  
-                Need to fix the part in save.php to save a new form correctly.
-                To do that you need to define the variables openEMR needs to know about to link them, hide them, unhide them.
-                I added a new field to the eye_mag DB "encounter", to store the encounter number associated with this visit.
-                That should make it work over there...  Maybe I should move this over there? hum.  OK, compromise and copy and paste it...
-                The NEWFORM creation routine or functions or whatever is located in the form.inc or api.inc file in the library.
-         */
-         $query = "select form_eye_mag.* from form_encounter
-					join forms on form_encounter.pid=forms.pid 
-					join form_eye_mag on forms.form_id=form_eye_mag.id 
-					where 
-					form_encounter.pid = '$pid' and 
-					form_encounter.encounter=forms.encounter and 
-					forms.form_name = 'eye_mag' and 
-					forms.deleted ='0' ORDER BY form_encounter.date DESC";
-    $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
-                    where 
-                    form_encounter.encounter ='$encounter' and 
-                    form_encounter.encounter = forms.encounter and 
-                    form_eye_mag.id=forms.form_id and
-                    forms.pid ='".$pid."' ";
-    $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
+        $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
                     where 
                     form_encounter.encounter = forms.encounter and 
                     form_eye_mag.id=forms.form_id and
                     forms.pid ='".$pid."' ORDER BY encounter_date DESC";
-
-   		//echo $query;
-         //       $query = "select *,form_encounter.date as encounter_date from form_encounter where pid='$pid' order by date desc";
         $result = sqlStatement($query);
         $counter = sqlNumRows($result);
         global $priors;
@@ -78,13 +55,12 @@ function priors_select($zone,$visit_date,$pid) {
         $priors = array();
         if ($counter < 2) return;
         $i="0";
-        while ($prior= mysql_fetch_array($result))   {   
+        while ($prior= sqlFetchArray($result))   {   
            	$visit_date_local = date_create($prior['encounter_date']);
            	$exam_date = date_format($visit_date_local, 'm/d/Y'); 
             // there may be an openEMR global user preference for date formatting
            	$priors[$i] = $prior;
            	$priors[$i]['exam_date'] = $exam_date;
-   			//    echo $visit_date ." + ".$prior['date']." i = ".$i."<br />";
             if ($visit_date ==$prior['date']) {
                 $selected = 'selected="selected"';
                 $current = $i;
@@ -92,12 +68,9 @@ function priors_select($zone,$visit_date,$pid) {
            $output .= "<option value='".$prior['date']."' ".$selected.">".$priors[$i]['exam_date']."</option>";
            $selected ='';
            $i++;
-       //   echo "there were ".$i." i s so far.<br />";
     	}
     } else {
         for ($i=0; $i< count($priors); $i++) {
-        	// echo $visit_date ." + ".$prior['date']." i = ".$i."<br />";
-         
             if ($visit_date ==$priors[$i]['date']) {
                 $selected = 'selected="selected"';
                 $current = $i;
@@ -108,10 +81,7 @@ function priors_select($zone,$visit_date,$pid) {
     $i--;
     if ($current < $i)  { $earlier = $current + 1;} else { $earlier = $current; }
     if ($current > '0') { $later   = ($current) - 1;} else { $later   = "0"; }
-    //echo $current ." = ". $i;
-    
-    //var_dump($priors[10]);
-    //	echo	$priors[$i]["date"];
+
     $output_return .= '
     <span title="This is a feature request - it will copy this data to the current visit fields..."><i class="fa fa-paste fa-lg"></i></span>&nbsp;
     &nbsp;        <span onclick=\'$("#PRIOR_'.$zone.'").val("'.$priors[$i]['date'].'").trigger("change");\' 
@@ -138,50 +108,48 @@ function priors_select($zone,$visit_date,$pid) {
      return $output_return;   
 }
 
+/**
+ *  This function returns ZONE specific HTML for a prior record (3 input values)
+ * 
+ *  This is where the magic of displaying the old record happens.
+ *  Each section is a duplicate of the base html except the values are changed,
+ *    the background and background-color are different, and the input fields are disabled.
+ *
+ * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO, DRAW_PRIORS_$zone 
+ * @param string $visit_date Future functionality to limit result set. UTC DATE Formatted 
+ * @param string $pid value = patient id
+ * @return true : when called directly outputs the ZONE specific HTML for a prior record + widget for the desired zone 
+ */ 
 function display_section ($zone,$visit_date,$pid) {
 	global $form_folder;
-    //echo "ZONE is ".$zone;
-	$query  = "SELECT * FROM dbSelectFindings where PEZONE='PREFS' AND id='".$_SESSION['authUserID']."' ORDER BY ZONE_ORDER,ordering";
+	$query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id='".$_SESSION['authUserID']."' ORDER BY ZONE_ORDER,ordering";
     $result = sqlStatement($query);
     while ($prefs= mysql_fetch_array($result))   {    @extract($prefs);    $$LOCATION = $VALUE; 
-    //echo $LOCATION ." = ". $$LOCATION."<br />";
     }
 	$query = "SELECT * FROM form_eye_mag where pid = '".$pid."' ORDER BY id desc";
     $result = sqlStatement($query);
-       // echo $query."<br />".$visit_date."<br />";exit;
 
     $prior = array();
-    //global $prior;
     $i=0;
     $current ='';
       while ($priors= mysql_fetch_array($result))   {
-          // $date = date_create($prior['date']);
-          //$exam_date = date_format($date, 'd-m-Y');
           $prior[$i] = $priors;
-         //echo $prior[$i]['date'] ." == ". $visit_number."<br />";
           if ($prior[$i]['date'] == $visit_date) {
-          //  echo "i= ".$i."<br />".$prior[$i]['date'] ." == ". $visit_number."<br />";
             $current = $i;
             @extract($prior[$i]);
           }
-            //  echo "i= ".$i;
-          //echo "<option value='".$prior['id']."'>".$exam_date."</option>";
           $i++;
       }
                 
 	if ($zone == "EXT") {
 		$output =  priors_select($zone,$visit_date,$pid);
-
 		?> 
 		
 		<input type="hidden" id="PRIORS_<?=$zone?>_prefix" name="PRIORS_<?=$zone?>_prefix" value="">
         <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?=$zone?>" name="Close_PRIORS_<?=$zone?>"></span> 
                 <div style="position:absolute;top:0.083in;right:0.241in;">
-                                       
                      <?php
-                    
                      echo $output;
-                     //   var_dump($prior[$current]);
                       ?>
                 </div>
                 <b> Prior Exam: </b><br />
@@ -269,11 +237,8 @@ function display_section ($zone,$visit_date,$pid) {
 		<input type="hidden" id="PRIORS_<?=$zone?>_prefix" name="PRIORS_<?=$zone?>_prefix" value="">
         <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?=$zone?>" name="Close_PRIORS_<?=$zone?>"></span> 
         <div style="position:absolute;top:0.083in;right:0.241in;">
-                               
              <?php
-            
              echo $output;
-             //   var_dump($prior[$current]);
               ?>
         </div>
 
@@ -344,12 +309,9 @@ function display_section ($zone,$visit_date,$pid) {
 		
 		<input type="hidden" id="PRIORS_<?=$zone?>_prefix" name="PRIORS_<?=$zone?>_prefix" value="">
         <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?=$zone?>" name="Close_PRIORS_<?=$zone?>"></span> 
-        <div style="position:absolute;top:0.083in;right:0.241in;">
-                               
+        <div style="position:absolute;top:0.083in;right:0.241in;">                              
              <?php
-            
              echo $output;
-             //   var_dump($prior[$current]);
               ?>
         </div>
            <b>Prior Exam:</b><br />
@@ -478,9 +440,7 @@ function display_section ($zone,$visit_date,$pid) {
                                                 </tr>
                                         </table>
                                     </div>
-                                </div>
-                            
-                            
+                                </div>                           
                             </div>
                             <br />
                             <br />
@@ -492,17 +452,13 @@ function display_section ($zone,$visit_date,$pid) {
                             return;
 	} elseif ($zone=="NEURO") {
 		$output =  priors_select($zone,$visit_date,$pid);
-
 		?> 
 		
 		<input type="hidden" id="PRIORS_<?=$zone?>_prefix" name="PRIORS_<?=$zone?>_prefix" value="">
         <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?=$zone?>" name="Close_PRIORS_<?=$zone?>"></span> 
         <div style="position:absolute;top:0.083in;right:0.241in;">
-                               
              <?php
-            
              echo $output;
-             //   var_dump($prior[$current]);
               ?>
         </div>
 
@@ -764,8 +720,6 @@ function display_section ($zone,$visit_date,$pid) {
                                 <br />
                             </td>
                         </tr>
-
-
                         <tr><td colspan="3"><br /><u>Convergence Amplitudes</u><br /><span style="font-size:0.8em;font-weight:400;">(Breakdown/Recovery in PD)</span></td></tr>
                         <tr><td ></td><td >Distance</td><td>Near</td></tr>
                         <tr>
@@ -1150,10 +1104,7 @@ function display_section ($zone,$visit_date,$pid) {
                 </div> 
             </div>
         </div>
-        
         <br />
-
-
         <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.7em;text-align:left;padding-left:25px;"> 
             <b>Comments:</b><br />
             <textarea id="PRIOR_NEURO_COMMENTS" name="PRIOR_NEURO_COMMENTS" style="width:4.0in;height:3.0em;"><?=$NEURO_COMMENTS?></textarea>
@@ -1164,5 +1115,33 @@ function display_section ($zone,$visit_date,$pid) {
     	return;
 	}
 }
-return "hello return";
+
+function display_draw_section ($zone,$encounter,$pid) {
+    ?>
+    <div id="Draw_<?php echo attrib($zone); ?>" name="Draw_<?php echo attrib($zone); ?>" style="text-align:center;height: 2.5in;">
+        <div class="tools" style="text-align:center;left:0.02in;width:90%;">
+            <a href="#Sketch_<?php echo attr($zone); ?>" data-color="#f00" > &nbsp;&nbsp;</a>
+            <a style="width: 5px; background: yellow;" data-color="#ff0" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
+            <a style="width: 5px; background: red;" data-color="red" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
+            <a style="width: 5px; background: aqua;" data-color="#0ff" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
+            <a style="width: 5px; background: blue;" data-color="#00f" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
+            <a style="width: 5px; background: fuchsia;" data-color="#f0f" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
+            <a style="width: 5px; background: black;" data-color="#000" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
+            <a style="width: 5px; background: white;" data-color="#fff" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
+            <a style="background: #CCC" data-size="1" href="#Sketch_<?php echo attr($zone); ?>">1</a>
+            <a style="background: #CCC" data-size="3" href="#Sketch_<?php echo attr($zone); ?>">3</a>
+            <a style="background: #CCC" data-size="5" href="#Sketch_<?php echo attr($zone); ?>">5</a>
+            <a style="background: #CCC" data-size="10" href="#Sketch_<?php echo attr($zone); ?>">10</a>
+            <a style="background: #CCC" data-size="15" href="#Sketch_<?php echo attr($zone); ?>">15</a>  
+        </div>
+        <canvas id="Sketch_<?php echo attr($zone); ?>" class="borderShadow2" style="background: url(../../forms/<?php echo $form_folder; ?>/images/antseg_OU.png)  no-repeat center center;background-size: 100% 100%;height:1.5in;width:4.5in;padding:0in;margin: 0.1in;"></canvas>
+        <script type="text/javascript">
+            $(function() {
+                $('#Sketch_<?php echo attr($zone); ?>').sketch({defaultSize:"1"});
+            });
+        </script>
+        <br />
+    </div>
+}
+return ;
 ?>

@@ -189,7 +189,7 @@ input[type=text] {
 }
 .refraction {
     display:inline-block;
-    min-height:1.8in;
+    min-height:2.0in;
     
     border: 1.00pt solid #000000; 
     padding: 0.2in; 
@@ -553,7 +553,6 @@ textarea {
     background-color: yellow !important;
 }
 
-.tools { margin-bottom: 0px; }
 .tools input[type="button"] {
     border: 1px solid black; 
     height: 15px; 
@@ -568,17 +567,17 @@ textarea {
     font-weight: bold;
 }
 .tools  {
-border: 1px solid black;
+border: 0pt solid black;
 height: 30px;
-width: 40px;
+width: 50px;
 line-height: 30px;
-padding: 0 10px;
+padding: 10px;
 vertical-align: middle;
 text-align: center;
 text-decoration: none;
-display: inline-block;
 color: black;
 font-weight: bold;
+margin-bottom: auto;
 }
 .transparent {
   z-index: 10;
