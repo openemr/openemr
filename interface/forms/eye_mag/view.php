@@ -40,9 +40,13 @@
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
+error_reporting(E_ALL & ~E_NOTICE);
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
+include_once("$srcdir/sql.inc");
+require_once("$srcdir/formatting.inc.php");
+
 
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
@@ -70,13 +74,16 @@ $query = "SELECT * FROM users where id = '".$_SESSION['authUserID']."'";
 $prov_data =  sqlQuery($query);
 $providerID = $prov_data['fname']." ".$prov_data['lname'];
 
+
 $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
                     where 
-                    form_encounter.encounter ='$encounter' and 
+                    form_encounter.encounter =? and 
                     form_encounter.encounter = forms.encounter and 
                     form_eye_mag.id=forms.form_id and
-                    forms.pid ='".$pid."' ";        
-$objQuery =sqlQuery($query);
+                    forms.pid =form_eye_mag.pid and 
+                    form_eye_mag.pid=? ";        
+                   
+$objQuery =sqlQuery($query,array($encounter,$pid));
 @extract($objQuery);
 
 $dated = new DateTime($encounter_date);
@@ -98,8 +105,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
 
 <!-- Add HTML5 Draw program (for now not working) library -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/sketch.min.js"></script>
-
+<XXscript type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/sketch.min.js"></XXscript>
+<script type="text/javascript" src="http://intridea.github.io/sketch.js/lib/sketch.js"></script>
 <!-- Add eye_mag js library -->
 <script type="text/javascript" src="../../forms/<?php echo $form_folder; ?>/js/my_js_base.js"></script>
 
@@ -139,25 +146,28 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
     <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
         <!-- start container for the main body of the form -->
         <div class="body_top" id="form_container" name="form_container">
-                <input type="hidden" name="id" id="id" value="<?php echo attr($id); ?>">
-                <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
-                <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
-                <input type="hidden" name="visit_date" id="visit_date" value="<?php echo $encounter_date; ?>">
-                <input type="hidden" name="PREFS_VA" id="PREFS_VA" value="<?php echo attr($VA); ?>">
-                <input type="hidden" name="PREFS_W" id="PREFS_W" value="<?php echo attr($W); ?>">
-                <input type="hidden" name="PREFS_MR" id="PREFS_MR" value="<?php echo attr($MR); ?>">
-                <input type="hidden" name="PREFS_CR" id="PREFS_CR" value="<?php echo attr($CR); ?>">
-                <input type="hidden" name="PREFS_CTL" id="PREFS_CTL" value="<?php echo attr($CTL); ?>">
-                <input type="hidden" name="PREFS_ADDITIONAL" id="PREFS_ADDITIONAL" value="<?php echo attr($ADDITIONAL); ?>">
-                <input type="hidden" name="PREFS_CLINICAL" id="PREFS_CLINICAL" value="<?php echo attr($CLINICAL); ?>">
-                <input type="hidden" name="PREFS_EXAM" id="PREFS_EXAM" value="<?php echo attr($EXAM); ?>">
-                <input type="hidden" name="PREFS_CYL" id="PREFS_CYL" value="<?php echo attr($CYLINDER); ?>">
-                <input type="hidden" name="PREFS_EXT_VIEW"  id="PREFS_EXT_VIEW" value="<?php echo attr($EXT_VIEW); ?>">
-                <input type="hidden" name="PREFS_ANTSEG_VIEW"  id="PREFS_ANTSEG_VIEW" value="<?php echo attr($ANTSEG_VIEW); ?>">
-                <input type="hidden" name="PREFS_RETINA_VIEW"  id="PREFS_RETINA_VIEW" value="<?php echo attr($RETINA_VIEW); ?>">
-                <input type="hidden" name="PREFS_NEURO_VIEW"  id="PREFS_NEURO_VIEW" value="<?php echo attr($NEURO_VIEW); ?>">
+            <input type="hidden" name="id" id="id" value="<?php echo attr($id); ?>">
+            <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
+            <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
+            <input type="hidden" name="visit_date" id="visit_date" value="<?php echo $encounter_date; ?>">
+            <input type="hidden" name="PREFS_VA" id="PREFS_VA" value="<?php echo attr($VA); ?>">
+            <input type="hidden" name="PREFS_W" id="PREFS_W" value="<?php echo attr($W); ?>">
+            <input type="hidden" name="PREFS_MR" id="PREFS_MR" value="<?php echo attr($MR); ?>">
+            <input type="hidden" name="PREFS_CR" id="PREFS_CR" value="<?php echo attr($CR); ?>">
+            <input type="hidden" name="PREFS_CTL" id="PREFS_CTL" value="<?php echo attr($CTL); ?>">
+            <input type="hidden" name="PREFS_ADDITIONAL" id="PREFS_ADDITIONAL" value="<?php echo attr($ADDITIONAL); ?>">
+            <input type="hidden" name="PREFS_CLINICAL" id="PREFS_CLINICAL" value="<?php echo attr($CLINICAL); ?>">
+            <input type="hidden" name="PREFS_EXAM" id="PREFS_EXAM" value="<?php echo attr($EXAM); ?>">
+            <input type="hidden" name="PREFS_CYL" id="PREFS_CYL" value="<?php echo attr($CYLINDER); ?>">
+            <input type="hidden" name="PREFS_EXT_VIEW"  id="PREFS_EXT_VIEW" value="<?php echo attr($EXT_VIEW); ?>">
+            <input type="hidden" name="PREFS_ANTSEG_VIEW"  id="PREFS_ANTSEG_VIEW" value="<?php echo attr($ANTSEG_VIEW); ?>">
+            <input type="hidden" name="PREFS_RETINA_VIEW"  id="PREFS_RETINA_VIEW" value="<?php echo attr($RETINA_VIEW); ?>">
+            <input type="hidden" name="PREFS_NEURO_VIEW"  id="PREFS_NEURO_VIEW" value="<?php echo attr($NEURO_VIEW); ?>">
+            <input type="hidden" name="ACT_VIEW"  id="ACT_VIEW" value="<?php echo attr($ACT_VIEW); ?>">
+            <input type="hidden" name="COPY_SECTION"  id="COPY_SECTION" value="">
             <!-- start of general box -->
-            <div id="general" style="position:relative; padding: 0.04in;">
+            <?php 
+            /*       <div id="general" style="position:relative; padding: 0.04in;">
                 <div ID="Lyr1" STYLE="position: relative; width: auto;border: 1.00pt solid #c0c0c0; padding: 0.04in; text-align:center;">
                     <?php 
 
@@ -171,18 +181,20 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             </span> 
                     */
                      ?>
+
                     
                     <span class="title" id="pat_name" style="text-align:center;padding-right:0.2in;">
-                        <?php echo $fname." ".$lname." (".$pid.")"; ?>
+                        <?php echo $fname." ".$lname." (".$pid.") -- ".$id; ?>
                     </span>
 
                     <span style="text-align:right;"><b><?php echo xlt('EXAM DATE'); ?>:</b> &nbsp;<?php echo $visit_date; ?>&nbsp;</span>
                 </div>
             </div>          
+           
             <!-- //end of the general BOX -->
             <a id="construction" name="construction" style="font-size:0.6em;display:none;">Toggle construction zones</a>
             <div id="accordion" class="text_clinical" style="position:absolute;">
-               <div class="CONSTRUCTION_ZONE nodisplay" name="CONSTRUCTION_1" id="CONSTRUCTION_1">
+                <div class="CONSTRUCTION_ZONE nodisplay" name="CONSTRUCTION_1" id="CONSTRUCTION_1">
                     <!-- OK this is the CC/HPI/PMFSH area that can be developed in this format or the other modules drawn in to complete the intake?  -->
                     <div id="Lyr2" class="refraction borderShadow" style="position: relative;width:300px;float:left;" >
                         <b><?php echo xlt('Chief Complaint'); ?>: </b>
@@ -210,7 +222,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                         <textarea name="PMH" id="PMH"></textarea></div>
                     <div id="Lyr2.2" style="clear:both;border:1pt solid black;">
                     </div>
-               </div>
+                </div>
                 <div class="CONSTRUCTION_ZONE nodisplay" name="CONSTRUCTION_2" id="CONSTRUCTION_2" style="position:relative;border:1pt black solid;">
                     <br />
                
@@ -231,7 +243,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                              
                         </span><br />
                 </div>
-                    <br />
+                <br />
                 
                 <!-- start of the clinical BOX -->
                 <div>    
@@ -1054,41 +1066,42 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
 
                 <!-- my reporting div for development only remove the "X" to see output from save.php-->
                 <div id="tellme" name="tellme"></div><br />
+
                 <!-- end reporting div -->
 
                 <!-- Start of the exam selection row -->
-                <div class="section" style="text-align:center;width:100%">
-                    <span id="EXAM_settings" name="EXAM_settings" class="btn btn-default btn-sm bordershadow" href="#"><i class="fa fa-cog"></i>&nbsp;<?php echo xlt('Settings'); ?></span>
-                    <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="btn btn-default btn-sm bordershadow"><i class="fa fa-newspaper-o"></i>&nbsp;<?php echo xlt('Defaults'); ?></span> 
-                    <span id="EXAM_CLINICAL" name="EXAM_CLINICAL" value="TEXT" class="pbtn btn-default btn-sm bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
-                    <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="btn btn-default btn-sm bordershadow"><i class="fa fa-paint-brush fa-sm"> </i>&nbsp;<?php echo xlt('Draw'); ?></span>
-                     
-                        
-                       
-                    <span id="EXAM_QP" name="EXAM_QP" value="QP" class="btn btn-default btn-sm bordershadow">
+                <div class="section" style="text-align:center;vertical-align:top;height:40px;width:100%;">
+                    <span id="EXAM_settings" name="EXAM_settings" class="bordershadow" href="#"><i class="fa fa-cog"></i>&nbsp;<?php echo xlt('Settings'); ?></span>
+                    <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="bordershadow"><i class="fa fa-newspaper-o"></i>&nbsp;<?php echo xlt('Defaults'); ?></span> 
+                    <span id="EXAM_CLINICAL" name="EXAM_CLINICAL" value="TEXT" class="bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
+                    <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="bordershadow"><i class="fa fa-paint-brush fa-sm"> </i>&nbsp;<?php echo xlt('Draw'); ?></span>
+                    <span id="EXAM_QP" name="EXAM_QP" value="QP" class="bordershadow">
                         <i class="fa fa-shopping-cart fa-sm"> </i>&nbsp;<?php echo xlt('Quick Picks'); ?>
                     </span>
                     <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text" 
-                          class="PRIORS btn btn-default btn-sm borderShadow nodisplay" style="vertical-align:bottom;">
-                            <i class="fa fa-spinner"></i>
-                    </span>
-                    <span id="ALL_right" name="ALL_right" value="pullForward" class="PRIORS btn btn-default btn-sm borderShadow " style="vertical-align:baseline;">
-                        <?php $output = priors_select("ALL",$date,$pid);
-                        if ($output !='') {  echo $output."&nbsp;"; }
-                            ?>
-                    </span>  
+                          class="borderShadow" style="vertical-align:bottom;">
+                        <?php $output = priors_select("ALL",$id,$id,$pid);
+                        if ($output !='') {  echo $output; } else { echo "First visit: No Old Records"; }
+                        ?>
+                    </span> 
                     <br /><br />
                 </div>
                 <!-- end of the exam selection row -->
 
-                <!-- Start of the exam section -->
-                <div style="margin: 0 auto;width:100%;text-align: center;font-size:1.0em;">   
+                <!-- Start of the exam sections -->
+                <div style="margin: 0 auto;width:10000px;text-align: center;font-size:1.0em;" class="" id="EXAM_sections_loading" 
+                    name="EXAM_sections_loading">
+                     <i class="fa fa-spinner"></i>
+                </div> 
+                <div style="margin: 0 auto;width:100%;text-align: center;font-size:1.0em;" class="nodisplay" id="EXAM_sections" 
+                    name="EXAM_sections">   
                     <!-- start External Exam -->
                     <?php ($CLINICAL=='100') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
                     <?php ($CLINICAL=='50') ? ($display_Visibility = "display") : ($display_Visibility = "nodisplay"); ?>
                     <div id="EXT_1" name="EXT_1" class="<?php echo attr($display_Add); ?>">
                         <div id="EXT_left" class="exam_section_left borderShadow" >
-                            <div id="EXT_left_text" style="height: 2.5in;text-align:left;">
+                            <?php display_draw_section ("VISION",$encounter,$pid); ?>
+                            <div id="EXT_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
                                 <b><?php echo xlt('External Exam'); ?>:</b><br />
                                 <div style="position:relative;float:right;top:0.2in;">
                                     <table style="text-align:center;font-weight:600;font-size:0.7em;">
@@ -1110,9 +1123,9 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             <td><input type="text" size="1" name="RVFISSURE" id="RVFISSURE" value="<?php echo attr($RVFISSURE); ?>"></td>
                                             <td><input type="text" size="1" name="LVFISSURE" id="LVFISSURE" value="<?php echo attr($LVFISSURE); ?>"></td>
                                         </tr>
-                                        <tr><th colspan="3"><u style="padding-top:0.15in;"><br /><?php echo xlt('Hertel Exophthalmometry'); ?></u></th></tr>
-                                        <tr style="text-align:center;">
-                                            <td>
+                                        <tr><td colspan=3 style="padding-top:0.15in;background-color:none;text-decoration:underline;"><br /><?php echo xlt('Hertel Exophthalmometry'); ?></td></tr>
+                        <tr style="text-align:center;">
+                            <td>
                                                 <input type="text" size="1" id="ODHERTEL" name="ODHERTEL" value="<?php echo attr($ODHERTEL); ?>">
                                                 <span style="width:40px;-moz-text-decoration-line: line-through;text-align:center;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
                                             </td>
@@ -1168,14 +1181,13 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                 </div>       
                             </div>  
                         </div>
-                        <div id="PRIORS_EXT_left_text" style="height: 2.5in;text-align:left;" 
-                                 name="PRIORS_EXT_left_text" 
-                                 class="text_clinical PRIORS_color PRIORS exam_section_left exam_section_right borderShadow nodisplay">                                            
-                                <i class="fa fa-spinner"></i>
-                        </div>
-                        <div id="EXT_right" name="EXT_right" class="exam_section_right borderShadow text_clinical canvas <?php echo attr($display_Visibility); ?>">
-                            <?php display_draw_section ("EXT",$encounter,$pid); ?>
-                            <div id="QPExt" name="QPExt" class="QP_class" style="text-align:left;max-height: 2.5in;">
+                        
+                        <div id="EXT_right" name="EXT_right" class="exam_section_right borderShadow text_clinical <?php echo attr($display_Visibility); ?>">
+                            <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+                            <div id="PRIORS_EXT_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_EXT_left_text" class="PRIORS_class PRIORS"> 
+                            <i class="fa fa-spinner"></i>
+                            </div>
+                            <div id="QP_EXT" name="QP_EXT" class="QP_class" style="text-align:left;max-height: 2.5in;">
                                         <input type="hidden" id="EXT_prefix" name="EXT_prefix" value="<?php echo attr($EXT_prefix); ?>">
                                         <div style="position:relative;top:0.0in;left:0.00in;">
                                             <span class="eye_button eye_button_selected" id="EXT_prefix_off" name="EXT_prefix_off"  onclick="$('#EXT_prefix').val('').trigger('change');;"><?php echo xlt('Off'); ?></span>
@@ -1187,7 +1199,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             <span class="eye_button" id="EXT_prefix_3" name="EXT_prefix_3"  onclick="$('#EXT_prefix').val('+3').trigger('change');"> <?php echo xlt('+3'); ?> </span>  
   
 
-                                            <?php echo priors_select("EXT",$date,$pid); ?>
+                                            <?php echo priors_select("EXT",$id,$id,$pid); ?>
                         
                                         </div>
                                          <div style="float:left;width:40px;text-align:left;">
@@ -1242,7 +1254,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <div id="ANTSEG_1" class="<?php echo attr($display_Add); ?> clear_both"> 
                         <div id="ANTSEG_left" class="exam_section_left borderShadow">
                             <span class="closeButton fa fa-plus-square-o" id="MAX_ANTSEG" name="MAX_ANTSEG"></span>
-                            <div id="ANTSEG_left_text" style="height: 2.5in;text-align:left;">
+                            <?php display_draw_section ("EXT",$encounter,$pid); ?>
+                            <div class="TEXT_class" id="ANTSEG_left_text" style="height: 2.5in;text-align:left;">
                                 <b><?php echo xlt('Anterior Segment'); ?>:</b><br />
                                 <div class="text_clinical" style="position:relative;float:right;top:0.2in;">
                                     <table style="text-align:center;font-size:0.8em;font-weight:bold;"> 
@@ -1302,14 +1315,13 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                 </div>   
                             </div>  
                         </div>
-                        <div id="PRIORS_ANTSEG_left_text" style="height: 2.5in;text-align:left;" 
-                                 name="PRIORS_ANTSEG_left_text" 
-                                 class="text_clinical PRIORS_color PRIORS exam_section_left exam_section_right borderShadow nodisplay">                                     
+                        
+                        <div id="ANTSEG_right" class="exam_section_right borderShadow text_clinical  <?php echo attr($display_Visibility); ?>">
+                            <div id="PRIORS_ANTSEG_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_ANTSEG_left_text" class="PRIORS_class PRIORS">                                     
                                             <i class="fa fa-spinner"></i>
-                        </div>
-                        <div id="ANTSEG_right" class="exam_section_right borderShadow text_clinical canvas <?php echo attr($display_Visibility); ?>">
+                            </div>
                             <?php display_draw_section ("ANTSEG",$encounter,$pid); ?>
-                            <div id="QPAntSeg" class="QP_class"  style="text-align:left;height: 2.5in;">
+                            <div id="QP_ANTSEG" name="QP_ANTSEG" class="QP_class"  style="text-align:left;height: 2.5in;">
                                 <input type="hidden" id="ANTSEG_prefix" name="ANTSEG_prefix" value="">
                                 <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
                                     <span  class="eye_button eye_button_selected" id="ANTSEG_prefix_off" name="ANTSEG_prefix_off"  onclick="$('#ANTSEG_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?> </span> 
@@ -1319,7 +1331,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                     <span  class="eye_button" id="ANTSEG_prefix_1" name="ANTSEG_prefix_1"  onclick="$('#ANTSEG_prefix').val('+1').trigger('change');"> <?php echo xlt('+1'); ?> </span>  
                                     <span  class="eye_button" id="ANTSEG_prefix_2" name="ANTSEG_prefix_2"  onclick="$('#ANTSEG_prefix').val('+2').trigger('change');"> <?php echo xlt('+2'); ?> </span>  
                                     <span  class="eye_button" id="ANTSEG_prefix_3" name="ANTSEG_prefix_3"  onclick="$('#ANTSEG_prefix').val('+3').trigger('change');"> <?php echo xlt('+3'); ?> </span>  
-                                    <?php echo priors_select("ANTSEG",$date,$pid); ?>
+                                    <?php echo priors_select("ANTSEG",$id,$id,$pid); ?>
                                 </div>
                                 <div style="float:left;width:40px;text-align:left;">
                                     <span  class="eye_button" id="ANTSEG_prefix_1mm" name="ANTSEG_prefix_1mm"  onclick="$('#ANTSEG_prefix').val('1mm').trigger('change');"> <?php echo xlt('1mm'); ?> </span>  <br />
@@ -1367,8 +1379,9 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <!-- start Retina --> 
                     <div id="RETINA_1" class="<?php echo attr($display_Add); ?> clear_both" > 
                         <div id="RETINA_left" class="exam_section_left borderShadow">
-                            <span class="closeButton fa fa-plus-square-o" id="MAX_RETINA" name="MAX_RETINA"></span>
-                            <div id="RETINA_left_text" style="height: 2.5in;text-align:left;"> 
+                            <?php display_draw_section ("RETINA",$encounter,$pid); ?>
+                            <div class="TEXT_class" id="RETINA_left_text" style="height: 2.5in;text-align:left;"> 
+                                <span class="closeButton fa fa-plus-square-o" id="MAX_RETINA" name="MAX_RETINA"></span>
                                 <b><?php echo xlt('Retina'); ?>:</b><br />
                                 <div style="position:relative;float:right;top:0.2in;">
                                     <table style="float:right;text-align:right;font-size:0.8em;font-weight:bold;padding:10px 0px 5px 10px;">
@@ -1497,21 +1510,20 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                         </table>
                                     </div>
                                 </div>
+                                <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.7em;text-align:left;padding-left:25px;"> 
+                                    <b><?php echo xlt('Comments'); ?>:</b><br />
+                                    <textarea id="RETINA_COMMENTS" name="RETINA_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($RETINA_COMMENTS); ?></textarea>
+                                </div>  
                             </div>
-                            <br />
-                            <br />
-                            <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.7em;text-align:left;padding-left:25px;"> 
-                                <b><?php echo xlt('Comments'); ?>:</b><br />
-                                <textarea id="RETINA_COMMENTS" name="RETINA_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($RETINA_COMMENTS); ?></textarea>
-                            </div>  
                         </div>
-                        <div id="PRIORS_RETINA_left_text" style="height: 2.5in;text-align:left;" 
-                             name="PRIORS_RETINA_left_text" 
-                             class="text_clinical PRIORS_color PRIORS exam_section_left exam_section_right borderShadow nodisplay"><i class="fa fa-spinner"></i>
-                        </div>
-                        <div id="RETINA_right"class="exam_section_right borderShadow text_clinical canvas <?php echo attr($display_Visibility); ?>">
-                            <?php display_draw_section ("RETINA",$encounter,$pid); ?>
-                            <div id="QPRetina" name="QPRetina" class="QP_class" style="text-align:left;height: 2.5in;">
+                        
+                        <div id="RETINA_right"class="exam_section_right borderShadow text_clinical  <?php echo attr($display_Visibility); ?>">
+                            <div id="PRIORS_RETINA_left_text" style="height: 2.5in;text-align:left;" 
+                                 name="PRIORS_RETINA_left_text" 
+                                 class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
+                            </div>
+                            <?php display_draw_section ("IMPPLAN",$encounter,$pid); ?>
+                            <div id="QP_RETINA" name="QP_RETINA" class="QP_class" style="text-align:left;height: 2.5in;">
                                 <input type="hidden" id="RETINA_prefix" name="RETINA_prefix" value="" />
                                 <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
                                      <span  class="eye_button  eye_button_selected" id="RETINA_prefix_off" name="RETINA_prefix_off"  onclick="$('#RETINA_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?></span> 
@@ -1521,7 +1533,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                      <span  class="eye_button" id="RETINA_prefix_1" name="RETINA_prefix_1"  onclick="$('#RETINA_prefix').val('+1').trigger('change');"> <?php echo xlt('+1'); ?> </span>  
                                      <span  class="eye_button" id="RETINA_prefix_2" name="RETINA_prefix_2"  onclick="$('#RETINA_prefix').val('+2').trigger('change');"> <?php echo xlt('+2'); ?> </span>  
                                      <span  class="eye_button" id="RETINA_prefix_3" name="RETINA_prefix_3"  onclick="$('#RETINA_prefix').val('+3').trigger('change');"> <?php echo xlt('+3'); ?> </span>  
-                                     <?php echo priors_select("RETINA",$date,$pid); ?>
+                                     <?php echo priors_select("RETINA",$id,$id,$pid); ?>
                                 </div>
                                 <div style="float:left;width:40px;text-align:left;">
 
@@ -1576,7 +1588,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <div id="NEURO_1" class="<?php echo attr($display_Add); ?> clear_both"> 
                         <div id="NEURO_left" class="exam_section_left borderShadow">
                             <span class="closeButton fa fa-plus-square-o" id="MAX_NEURO" name="MAX_NEURO"></span>
-                            <div id="NEURO_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
+                            <div class="TEXT_class" id="NEURO_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
                                 <b><?php echo xlt('Neuro'); ?>:</b><br />
                                 <div style="float:left;font-size:0.9em;">
                                     <div id="NEURO_text_list" class="borderShadow" style="border:1pt solid black;float:left;width:165px;text-align:center;margin:2 auto;font-weight:bold;">
@@ -1673,7 +1685,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                                                 <td style="text-align:center;"><?php echo xlt('L'); ?></td> 
                                                                             </tr>
                                                                             <tr>    
-                                                                                <td><i class="fa fa-reply rotate-left"></i></td> 
+                                                                                <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td> 
                                                                                 <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                                                 <textarea id="ACT4SCDIST" name="ACT4SCDIST" class="ACT"><?php echo text($ACT4SCDIST); ?></textarea></td>
                                                                                 <td style="border:1pt solid black;text-align:center;">
@@ -1711,7 +1723,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                                                 <textarea id="ACT3CCDIST"  name="ACT3CCDIST" class="ACT"><?php echo text($ACT3CCDIST); ?></textarea></td>
                                                                                 <td style="text-align:center;"><?php echo xlt('L'); ?></td> 
                                                                             </tr>
-                                                                            <tr>    <td><i class="fa fa-reply rotate-left"></i></td> 
+                                                                            <tr>    
+                                                                                <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td> 
                                                                                 <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                                                 <textarea id="ACT4CCDIST" name="ACT4CCDIST" class="ACT"><?php echo text($ACT4CCDIST); ?></textarea></td>
                                                                                 <td style="border:1pt solid black;text-align:center;">
@@ -1749,7 +1762,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                                                 <textarea id="ACT3SCNEAR"  name="ACT3SCNEAR" class="ACT"><?php echo text($ACT3SCNEAR); ?></textarea></td>
                                                                                 <td style="text-align:center;"><?php echo xlt('L'); ?></td> 
                                                                             </tr>
-                                                                            <tr>    <td><i class="fa fa-reply rotate-left"></i></td> 
+                                                                            <tr>    
+                                                                                <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td> 
                                                                                 <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                                                 <textarea id="ACT4SCNEAR" name="ACT4SCNEAR" class="ACT"><?php echo text($ACT4SCNEAR); ?></textarea></td>
                                                                                 <td style="border:1pt solid black;text-align:center;">
@@ -1788,7 +1802,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                                                 <td style="text-align:center;"><?php echo xlt('L'); ?></td>
                                                                             </tr>
                                                                             <tr>    
-                                                                                <td><i class="fa fa-reply rotate-left"></i></td> 
+                                                                                <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td> 
                                                                                 <td style="border:1pt solid black;border-left:0pt;text-align:right;">
                                                                                 <textarea id="ACT4CCNEAR" name="ACT4CCNEAR" class="ACT"><?php echo text($ACT4CCNEAR); ?></textarea></td>
                                                                                 <td style="border:1pt solid black;text-align:center;">
@@ -1824,8 +1838,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                 <tr style=""><td style="width:50%;"></td><td><?php echo xlt('OD'); ?></td><td><?php echo xlt('OS'); ?></td></tr>
                                                 <tr>
                                                     <td class="right"><span title="Near Point of Accomodation"><?php echo xlt('NPA'); ?>:</span></td>
-                                                    <td><input type="text" id="ODNPA" style="width:80%;" name="ODNPA" value="<?php echo attr($ODNPA); ?>"></td>
-                                                    <td><input type="text" id="OSNPA" style="width:80%;" name="OSNPA" value="<?php echo attr($OSNPA); ?>"></td>
+                                                    <td><input type="text" id="ODNPA" style="width:70%;" name="ODNPA" value="<?php echo attr($ODNPA); ?>"></td>
+                                                    <td><input type="text" id="OSNPA" style="width:70%;" name="OSNPA" value="<?php echo attr($OSNPA); ?>"></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="right"><span title="Near Point of Convergence"><?php echo xlt('NPC'); ?>:</span></td>
@@ -2234,31 +2248,31 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                         </div> 
                                     </div>
                                 </div>
-                            </div>
-                            <br />
-                            <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.7em;text-align:left;padding-left:25px;"> 
-                                <b><?php echo xlt('Comments'); ?>:</b><br />
-                                <textarea id="NEURO_COMMENTS" name="NEURO_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($NEURO_COMMENTS); ?></textarea>
+                                <br />
+                                <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.7em;text-align:left;padding-left:25px;"> 
+                                    <b><?php echo xlt('Comments'); ?>:</b><br />
+                                    <textarea id="NEURO_COMMENTS" name="NEURO_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($NEURO_COMMENTS); ?></textarea>
+                                </div>
                             </div>     
                         </div>
-                        <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;" 
-                             name="PRIORS_NEURO_left_text" 
-                             class="text_clinical PRIORS_color PRIORS exam_section_left exam_section_right borderShadow nodisplay">
-                            <i class="fa fa-spinner"></i>
-                        </div>
-                        <div id="NEURO_right" class="exam_section_right borderShadow  text_clinical canvas <?php echo attr($display_Visibility); ?>">
-                            <?php display_draw_section ("NEURO",$encounter,$pid); ?>
-                            <div id="QPNeuro" class="QP_class" style="text-align:left;height: 2.5in;">
+                        
+                        <div id="NEURO_right" class="exam_section_right borderShadow text_clinical <?php echo attr($display_Visibility); ?>">
+                            <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 1.1em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS">
+                                    <i class="fa fa-spinner"></i>
+                            </div>
+                            <div id="QP_NEURO" name="QP_NEURO" class="QP_class" style="text-align:left;height: 2.5in;">
                                 <input type="hidden" id="NEURO_prefix" name="NEURO_prefix" value="">
                                 <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
-                                 <span class="eye_button eye_button_selected" id="NEURO_prefix_off" name="NEURO_prefix_off"  onclick="$('#NEURO_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?></span>
-                                 <span class="eye_button" id="NEURO_defaults" name="NEURO_defaults"><?php echo xlt('Defaults'); ?></span> 
-                                 <span class="eye_button" id="NEURO_prefix_no" name="NEURO_prefix_no" onclick="$('#NEURO_prefix').val('no').trigger('change');"> <?php echo xlt('no'); ?> </span> 
-                                 <span class="eye_button" id="NEURO_prefix_trace" name="NEURO_prefix_trace"  onclick="$('#NEURO_prefix').val('trace').trigger('change');"> <?php echo xlt('tr'); ?> </span> 
-                                 <span class="eye_button" id="NEURO_prefix_1" name="NEURO_prefix_1"  onclick="$('#NEURO_prefix').val('+1').trigger('change');"> <?php echo xlt('+1'); ?> </span> 
-                                 <span class="eye_button" id="NEURO_prefix_2" name="NEURO_prefix_2"  onclick="$('#NEURO_prefix').val('+2').trigger('change');"> <?php echo xlt('+2'); ?> </span> 
-                                 <span class="eye_button" id="NEURO_prefix_3" name="NEURO_prefix_3"  onclick="$('#NEURO_prefix').val('+3').trigger('change');"> <?php echo xlt('+3'); ?> </span> 
-                                <?php echo priors_select("NEURO",$date,$pid); ?>
+                                    <span class="eye_button eye_button_selected" id="NEURO_prefix_off" name="NEURO_prefix_off"  onclick="$('#NEURO_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?></span>
+                                    <span class="eye_button" id="NEURO_defaults" name="NEURO_defaults"><?php echo xlt('Defaults'); ?></span> 
+                                    <span class="eye_button" id="NEURO_prefix_no" name="NEURO_prefix_no" onclick="$('#NEURO_prefix').val('no').trigger('change');"> <?php echo xlt('no'); ?> </span> 
+                                    <span class="eye_button" id="NEURO_prefix_trace" name="NEURO_prefix_trace"  onclick="$('#NEURO_prefix').val('trace').trigger('change');"> <?php echo xlt('tr'); ?> </span> 
+                                    <span class="eye_button" id="NEURO_prefix_1" names="NEURO_prefix_1"  onclick="$('#NEURO_prefix').val('+1').trigger('change');"> <?php echo xlt('+1'); ?> </span> 
+                                    <span class="eye_button" id="NEURO_prefix_2" name="NEURO_prefix_2"  onclick="$('#NEURO_prefix').val('+2').trigger('change');"> <?php echo xlt('+2'); ?> </span> 
+                                    <span class="eye_button" id="NEURO_prefix_3" name="NEURO_prefix_3"  onclick="$('#NEURO_prefix').val('+3').trigger('change');"> <?php echo xlt('+3'); ?> </span> 
+                                    <div style="position:absolute;top:0.0in;right:0.241in;">
+                                        <?php echo priors_select("NEURO",$id,$id,$pid); ?>
+                                    </div>
                                 </div>
                                 <div style="float:left;width:40px;text-align:left;">
 
@@ -2278,10 +2292,10 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                 </div>         
                                 <div id="NEURO_QP_block" name="NEURO_QP_block" class="QP_block borderShadow text_clinical" >
                                 <?php
-                                            $query = "SELECT * FROM form_eye_mag_prefs where PEZONE = 'NEURO' and (id=? or id=3 ) ORDER BY ZONE_ORDER,ordering";
-                                            $result = sqlStatement($query,array($_SESSION['authUserID']));
-                                            $number_rows=0;
-                                            while ($Select_data= sqlFetchArray($result))     {
+                                    $query = "SELECT * FROM form_eye_mag_prefs where PEZONE = 'NEURO' and (id=? or id=3 ) ORDER BY ZONE_ORDER,ordering";
+                                    $result = sqlStatement($query,array($_SESSION['authUserID']));
+                                    $number_rows=0;
+                                    while ($Select_data= sqlFetchArray($result))     {
 
                                         $number_rows++; 
                                         $string = $Select_data['selection'] ;
@@ -2329,10 +2343,6 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <!-- END IMP/PLAN -->  
                 </div>
                 <!-- end of the exam section -->
-
-        
-                
-        
             </div>
         </div>
         <!-- end container for the main body of the form -->
@@ -2342,7 +2352,9 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
 // Printing this and making a report from this are two separate ways to repesent the data and deserve their own forms...
 //so leave this out for now
         <input type="button" value="Print" id="PrintButton" />
---><canvas id="simple_sketch" width="1200" height="600"></canvas>
+-->
+
+<canvas id="simple_sketch" width="1200" height="600"></canvas>
     <script type="text/javascript">
         $(function() {
         $('#simple_sketch').sketch({defaultSize:"1"});

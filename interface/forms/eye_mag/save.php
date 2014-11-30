@@ -42,6 +42,9 @@ $sanitize_all_escapes=true;
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
+include_once("php/eye_mag_functions.php");
+include_once("$srcdir/sql.inc");
+require_once("$srcdir/formatting.inc.php");
 
 /*
 ini_set('display_errors',1);
@@ -56,8 +59,11 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 @extract($_SESSION);
 @extract($_REQUEST);
 
-//echo "<pre>hello";
-//var_dump($_REQUEST);
+/*
+echo "<pre>hello";
+var_dump($_REQUEST);
+exit;
+*/
 $id = $_GET['id'];
 
 if ($encounter == "" && !$id) {
@@ -155,32 +161,32 @@ if ($AJAX_PREFS) {
  * Create, update or retrieve a form and its values  
  */
 //if ($mode) {
-  if ($encounter == "") $encounter = date("Ymd");
-  if ($_GET["mode"] == "new") {
-    $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
-    addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
-  } elseif ($_GET["mode"] == "update") {           
-          $query = "SHOW COLUMNS from form_eye_mag";
-          $result = sqlStatement($query);
-          if (!$result) {
-              return 'Could not run query: ' . mysql_error();
-              exit;
-          }
-          $fields = array();
-          if (sqlNumRows($result) > 0) {
-            //checkboxes need to be entered manually as they are only submitted when they are checked
-            //if checked they are overridden below with the "on" value...
-            $fields['DIL_RISKS'] = 'off';
-            //there are more to come...
-            while ($row = sqlFetchArray($result)) {
-              if ($_POST[$row['Field']] >'') {
-                $fields[$row[Field]] = $_POST[$row['Field']];
-              }
+if ($encounter == "") $encounter = date("Ymd");
+if ($_GET["mode"] == "new") {
+  $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
+  addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
+} elseif ($_GET["mode"] == "update") {           
+        $query = "SHOW COLUMNS from form_eye_mag";
+        $result = sqlStatement($query);
+        if (!$result) {
+            return 'Could not run query: ' . mysql_error();
+            exit;
+        }
+        $fields = array();
+        if (sqlNumRows($result) > 0) {
+          //checkboxes need to be entered manually as they are only submitted when they are checked
+          //if checked they are overridden below with the "on" value...
+          $fields['DIL_RISKS'] = 'off';
+          //there are more to come...
+          while ($row = sqlFetchArray($result)) {
+            if ($_POST[$row['Field']] >'') {
+              $fields[$row[Field]] = $_POST[$row['Field']];
             }
           }
-          $success = formUpdate($table_name, $fields, $id, $userauthorized);
-          return;
-  } elseif ($_GET["mode"] == "retrieve") {
+        }
+        $success = formUpdate($table_name, $fields, $id, $userauthorized);
+        return;
+} elseif ($_GET["mode"] == "retrieve") {
     $query = "SELECT * FROM patient_data where pid=?";
     $pat_data =  sqlQuery($query,array($pid));
     @extract($pat_data);
@@ -190,23 +196,25 @@ if ($AJAX_PREFS) {
     $providerID = $prov_data['fname']." ".$prov_data['lname'];
       //the date in form_eye_mag is the date the form was created 
       //and may not equal the date of the encounter so we must make a special request to get the old data:
-    $query = "select * from form_eye_mag left 
+    $query = "select form_eye_mag.id as id_to_show from form_eye_mag left 
               join forms on form_eye_mag.id=forms.form_id and form_eye_mag.pid=forms.pid 
               where 
               forms.form_name = ? and 
-              forms.date = ? and 
+              forms.id = ? and 
               forms.deleted !='1'  
               ORDER BY forms.date DESC";
-    $visit_data =  sqlQuery($query,array($form_folder,$visit_number));
+    $query = "select form_eye_mag.id as id_to_show from form_eye_mag where id=?";
+    //$visit_data =  sqlQuery($query,array($form_folder,$id_to_show));
+    $visit_data =  sqlQuery($query,array($id_to_show));
     @extract($visit_data);
       //HERE WE DECIDE WHAT WE WANT TO SHOW = A SEGMENT, A ZONE OR EVEN A VALUE...  
       //ALL VARIABLES ARE ALREADY EXTRACTED AND READY FOR USE.
     if ($PRIORS_query) {
       include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
-      display_section($zone,$visit_date,$pid);
+       display_section($zone,$orig_id,$id_to_show,$pid);
       return; 
     }
-  }
+}
 //}
 
 /**  
@@ -255,6 +263,11 @@ if ($canvas) {
   // To be done yet.
 }
 
+if ($copy) {
+//  echo $zone,$id,$form_id,$pid;
+//  exit;
+  copy_forward($zone,$copy_from,$copy_to,$pid);
+}
 function debug($local_var) {
     echo "<pre><BR>We are in the debug function.<BR>";
     echo "Passed variable = ". $local_var . " <BR>";

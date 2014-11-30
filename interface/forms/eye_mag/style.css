@@ -332,15 +332,6 @@ background: #C0C0C0;
 
 }
 /* All in one selector */
-.banner {
-  display: block;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  background: url(http://notrealdomain2.com/newbanner.png) no-repeat;
-  width: 180px; /* Width of new image */
-  height: 236px; /* Height of new image */
-  padding-left: 180px; /* Equal to width of new image */
-}
 #AmslerOD {
     value:1;
 }
@@ -511,8 +502,9 @@ textarea {
     
    /* background:#29c7c4;*/
   background-image: url('../../forms/eye_mag/images/beige013.jpg');
-    background-size: 100px;
+    background-size: 10% 10%;
     background-repeat: repeat;
+    height:2.5in;
 }
 .AntSegSpan {
     /* OU OD OS
@@ -1164,7 +1156,7 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 }
 
 .PRIORS_color {
-    background-color: Linen;
+    background-color: #CCF;
     
 }
 
