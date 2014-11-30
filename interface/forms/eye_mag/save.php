@@ -165,7 +165,11 @@ if ($encounter == "") $encounter = date("Ymd");
 if ($_GET["mode"] == "new") {
   $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
   addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
-} elseif ($_GET["mode"] == "update") {           
+} elseif ($_GET["mode"] == "update") {     
+      //the form is submitted to be updated.
+      //any field that exists in the database can be updated
+      //need to exclude the important ones...
+      //id  date  pid   user  groupname   authorized  activity      
         $query = "SHOW COLUMNS from form_eye_mag";
         $result = sqlStatement($query);
         if (!$result) {
@@ -179,8 +183,17 @@ if ($_GET["mode"] == "new") {
           $fields['DIL_RISKS'] = 'off';
           //there are more to come...
           while ($row = sqlFetchArray($result)) {
-            if ($_POST[$row['Field']] >'') {
+            if ($row['Field'] == 'id' or 
+               $row['Field'] == 'date' or 
+               $row['Field'] == 'pid' or 
+               $row['Field'] == 'user' or 
+               $row['Field'] == 'groupname' or 
+               $row['Field'] == 'authorized' or 
+               $row['Field'] == 'activity') continue;
+            if (isset($_POST[$row['Field']])) {
               $fields[$row[Field]] = $_POST[$row['Field']];
+           //   $test = $row['Field'] . " = ". $_POST[$row['Field']];
+           //  echo "<script> alert('".$test."');</script>";
             }
           }
         }

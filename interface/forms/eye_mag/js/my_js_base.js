@@ -68,8 +68,8 @@ function submit_form() {
            url 		: url,      // the url where we want to POST
            data 	: formData, // our data object
            success  : function(result)  {
-                                            $("#tellme").html(result);
-                                        }
+           $("#tellme").html(result);
+           }
            });
 }
 
@@ -165,7 +165,7 @@ function show_PRIORS() {
     $("#ANTSEG_right").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
     $("#NEURO_right").addClass('canvas');
-     $(".PRIORS_class").show();
+    $(".PRIORS_class").show();
 }
 
 function show_QP() {
@@ -204,11 +204,11 @@ function hide_PRIORS() {
     $(".PRIORS_class").hide();
     $("#EXT_right").removeClass("PRIORS_color");
     
-  /*  $("#PRIORS_EXT_left_text").addClass("nodisplay");
-    $("#PRIORS_ANTSEG_left_text").addClass("nodisplay");
-    $("#PRIORS_RETINA_left_text").addClass("nodisplay");
-    $("#PRIORS_NEURO_left_text").addClass("nodisplay");
-   */
+    /*  $("#PRIORS_EXT_left_text").addClass("nodisplay");
+     $("#PRIORS_ANTSEG_left_text").addClass("nodisplay");
+     $("#PRIORS_RETINA_left_text").addClass("nodisplay");
+     $("#PRIORS_NEURO_left_text").addClass("nodisplay");
+     */
 }
 
 function printElem(options){
@@ -252,7 +252,7 @@ $(document).ready(function() {
                                    });
                   $(window).resize();
                   //  $("#PRIOR_ALL").val("128").trigger("change");
-                  var hash_tag = '<i class="fa fa-minus">';
+                  var hash_tag = '<i class="fa fa-minus"></i>';
                   var index;
                   $("#MOTILITY_RS").value = parseInt($("#MOTILITY_RS").val());
                   if ($("#MOTILITY_RS").val() > '0') {
@@ -283,7 +283,7 @@ $(document).ready(function() {
                   }
                   }
                   
-                  var hash_tag = '<i class="fa fa-minus rotate-left">';
+                  var hash_tag = '<i class="fa fa-minus rotate-left"></i>';
                   $("#MOTILITY_LR").value = parseInt($("#MOTILITY_LR").val());
                   if ($("#MOTILITY_LR").val() > '0') {
                   $("#MOTILITYNORMAL").removeAttr('checked');
@@ -355,8 +355,8 @@ $(document).ready(function() {
                                           }
                                           $(this).val(mid);
                                           if (!$('#PREFS_CYL').val()) {
-                                            $('#PREFS_CYL').val('+');
-                                            update_PREFS();
+                                          $('#PREFS_CYL').val('+');
+                                          update_PREFS();
                                           }
                                           
                                           if (!mid.match(/^(\+|\-){1}/)) {
@@ -451,10 +451,10 @@ $(document).ready(function() {
                                $(this).toggleClass('fa-plus-square-o');
                                $(this).toggleClass('fa-minus-square-o');
                                if (header != /PRIOR/) {
-                                var imagine = $("#PREFS_"+header+"_VIEW").val();
-                                imagine ^= true;
-                                $("#PREFS_"+header+"_VIEW").val(imagine);
-                                update_PREFS();
+                               var imagine = $("#PREFS_"+header+"_VIEW").val();
+                               imagine ^= true;
+                               $("#PREFS_"+header+"_VIEW").val(imagine);
+                               update_PREFS();
                                }
                                });
                   
@@ -469,39 +469,39 @@ $(document).ready(function() {
                                //now go get the prior page via ajax
                                var url = "../../forms/eye_mag/save.php?mode=retrieve";
                                if (new_section[1] =="ALL") {
-                                show_PRIORS();
-                                getSection("ALL");
-                                getSection("EXT");
-                                getSection("ANTSEG");
-                                getSection("RETINA");
-                                getSection("NEURO");
+                               show_PRIORS();
+                               getSection("ALL");
+                               getSection("EXT");
+                               getSection("ANTSEG");
+                               getSection("RETINA");
+                               getSection("NEURO");
                                } else {
-                                getSection(new_section[1]);
+                               getSection(new_section[1]);
                                }
                                
                                function getSection(section) {
                                //  $("#PRIORS_"+ section +"_left_text").removeClass('nodisplay');
                                //    $("#" + section + "_right").addClass('nodisplay');
-                                   var formData = {
-                                   'PRIORS_query'          : "1",
-                                   'zone'                  : section,
-                                   'id_to_show'            : newValue,
-                                   'pid'                   : $('#pid').val(),
-                                   'orig_id'               : $('#id').val()
+                               var formData = {
+                               'PRIORS_query'          : "1",
+                               'zone'                  : section,
+                               'id_to_show'            : newValue,
+                               'pid'                   : $('#pid').val(),
+                               'orig_id'               : $('#id').val()
                                }
-                                   $.ajax({
-                                          type 		: 'POST',
-                                          url       : url,
-                                          data 		: formData,
-                                          success   : function(result) {
-                                          $("#PRIORS_" + section + "_left_text").html(result);
-                                          }
-                                    });
+                               $.ajax({
+                                      type 		: 'POST',
+                                      url       : url,
+                                      data 		: formData,
+                                      success   : function(result) {
+                                      $("#PRIORS_" + section + "_left_text").html(result);
+                                      }
+                                      });
                                }
-                              });
+                               });
                   $("body").on("click","[id^='Close_PRIORS_']", function() {
                                var new_section = this.id.match(/Close_PRIORS_(.*)$/)[1];
-                               alert(new_section);
+                               //   alert(new_section);
                                $("#PRIORS_"+ new_section +"_left_text").hide();
                                $("#QP_" + new_section).show();
                                });
@@ -694,11 +694,11 @@ $(document).ready(function() {
                                                                                                                                         $(this).toggleClass("borderShadow2");
                                                                                                                                         });
                   $("[id^=LayerVision_]").mouseover(function(){
-                                                      $(this).toggleClass("borderShadow2");
-                                                      });
+                                                    $(this).toggleClass("borderShadow2");
+                                                    });
                   $("[id^=LayerVision_]").mouseout(function(){
-                                                     $(this).toggleClass("borderShadow2");
-                                                     });
+                                                   $(this).toggleClass("borderShadow2");
+                                                   });
                   $("#LayerVision_W_lightswitch, #LayerVision_CR_lightswitch,#LayerVision_MR_lightswitch,#LayerVision_ADDITIONAL_lightswitch,#LayerVision_CTL_lightswitch").mouseover(function() {
                                                                                                                                                                                       $(this).addClass('buttonRefraction_selected');
                                                                                                                                                                                       });
@@ -918,45 +918,45 @@ $(document).ready(function() {
                                             });
                   $("#EXAM_DRAW").click(function() {
                                         if ($("#PREFS_CLINICAL").value !='0') {
-                                            show_right();
-                                            $("#PREFS_CLINICAL").val('0');
-                                            update_PREFS();
+                                        show_right();
+                                        $("#PREFS_CLINICAL").val('0');
+                                        update_PREFS();
                                         }
                                         if ($("#PREFS_EXAM").value != 'DRAW') {
-                                            $("#PREFS_EXAM").val('DRAW');
-                                            show_DRAW();
-                                            $("#EXAM_QP").removeClass('button_selected');
-                                            $("#EXAM_DRAW").addClass('button_selected');
-                                            $("#EXAM_CLINICAL").removeClass('button_selected');
-                                            update_PREFS();
+                                        $("#PREFS_EXAM").val('DRAW');
+                                        show_DRAW();
+                                        $("#EXAM_QP").removeClass('button_selected');
+                                        $("#EXAM_DRAW").addClass('button_selected');
+                                        $("#EXAM_CLINICAL").removeClass('button_selected');
+                                        update_PREFS();
                                         }
                                         });
                   $("#EXAM_QP").click(function() {
                                       if ($("#PREFS_CLINICAL").value !='0') {
-                                        $("#PREFS_CLINICAL").val('0');
-                                        update_PREFS();
+                                      $("#PREFS_CLINICAL").val('0');
+                                      update_PREFS();
                                       }
                                       if ($("#PREFS_EXAM").value != 'QP') {
-                                        show_QP();
-                                        $("#PREFS_EXAM").val('QP');
-                                        $("#EXAM_QP").addClass('button_selected');
-                                        $("#EXAM_DRAW").removeClass('button_selected');
-                                        $("#EXAM_CLINICAL").removeClass('button_selected');
-                                        update_PREFS();
+                                      show_QP();
+                                      $("#PREFS_EXAM").val('QP');
+                                      $("#EXAM_QP").addClass('button_selected');
+                                      $("#EXAM_DRAW").removeClass('button_selected');
+                                      $("#EXAM_CLINICAL").removeClass('button_selected');
+                                      update_PREFS();
                                       }
                                       });
                   
                   $("#EXAM_CLINICAL").click(function() {
                                             if ($("#PREFS_CLINICAL").val() !='1') {
-                                                //we want to show text_only which are found on left half
-                                                $("#PREFS_CLINICAL").val('1');
-                                                $("#PREFS_EXAM").val('TEXT');
-                                                show_TEXT();
+                                            //we want to show text_only which are found on left half
+                                            $("#PREFS_CLINICAL").val('1');
+                                            $("#PREFS_EXAM").val('TEXT');
+                                            show_TEXT();
                                             // also hide QP, DRAWs, and PRIORS
-                                                hide_PRIORS();
-                                                hide_DRAW();
-                                                hide_QP();
-                                                update_PREFS();
+                                            hide_PRIORS();
+                                            hide_DRAW();
+                                            hide_QP();
+                                            update_PREFS();
                                             }
                                             $("#EXAM_DRAW").removeClass('button_selected');
                                             $("#EXAM_QP").removeClass('button_selected');
@@ -999,7 +999,7 @@ $(document).ready(function() {
                                          $("#ACTTRIGGER").toggleClass('underline');
                                          $("#ACT_VIEW").val('1');
                                          });
-
+                  
                   
 /* Now it is time to figure out how to blow-up each section for a tablet for example to fill the screen and look good */
                   $("[name^='MAX_']").click(function() {
@@ -1036,61 +1036,79 @@ $(document).ready(function() {
                                              submit_form("eye_mag");
                                              });
                   $("[id^='Sketch_']").mouseout(function() {
-                                               var zone = this.id.match(/Sketch_(.*)/)[1];
-                                               var dataURL = this.toDataURL();
-                                               $.ajax({
-                                                   type: "POST",
-                                                   url: "../../forms/eye_mag/save.php?canvas="+zone+"&id="+$("#id").val(),
-                                                      data: {
+                                                var zone = this.id.match(/Sketch_(.*)/)[1];
+                                                var dataURL = this.toDataURL();
+                                                $.ajax({
+                                                       type: "POST",
+                                                       url: "../../forms/eye_mag/save.php?canvas="+zone+"&id="+$("#id").val(),
+                                                       data: {
                                                        imgBase64     : dataURL,
                                                        'zone'        : zone,
                                                        'visit_date'  : $("#visit_date").val(),
                                                        'encounter'   : $("#encounter").val()
-                                                      },
-                                                   success      : function(result) {
-                                                   
-                                                   $("#tellme").html(result);
-                                                      }
-                                                      }).done(function(o) {
-                                                           //          console.log(result);
-                                                 });
+                                                       },
+                                                       success      : function(result) {
+                                                       
+                                                       $("#tellme").html(result);
+                                                       }
+                                                       }).done(function(o) {
+                                                               //          console.log(result);
+                                                               });
                                                 });
                   
                   
-          
+                  
                   
                   $("#COPY_SECTION").change(function() {
-                                        //  alert($("#COPY_SECTION").val());
-                                        var start = $("#COPY_SECTION").val();
-                                        var value = start.match(/(\w*)-(\w*)/);
-                                        var zone = value[1];
-                                        var copy_from = value[2];
-                                        var data = {
+                                            //  alert($("#COPY_SECTION").val());
+                                            var start = $("#COPY_SECTION").val();
+                                            var value = start.match(/(\w*)-(\w*)/);
+                                            var zone = value[1];
+                                            var copy_from = value[2];
+                                            var data = {
                                             "action"      : "copy",
                                             'copy'        : zone,
                                             'zone'        : zone,
                                             'copy_to'     : $("#id").val(),
                                             'copy_from'   : copy_from,
                                             'pid'         : $("#pid").val()
-                                        };
-                                        data = $("#"+zone+"_left_text").serialize() + "&" + $.param(data);
-                                        $.ajax({
-                                               type 	: 'POST',
-                                               dataType : 'json',
-                                               url      :  "../../forms/eye_mag/save.php?copy="+zone,
-                                               data 	: data,
-                                               success  : function(result) {
-                                                var it = Iterator(result);
-                                                for (var pair in it) {
-                                                    if ($("#"+pair[0]).val() != pair[1]) {
-                                                        $("#"+pair[0]).val(pair[1]).css("background-color","#CCF");
-                                                    }
-                                                }
-                                               submit_form("eye_mag");
-                                               //alert("Form submitted successfully.\nReturned json: " + result["json"]);
+                                            };
+                                            data = $("#"+zone+"_left_text").serialize() + "&" + $.param(data);
+                                            $.ajax({
+                                                   type 	: 'POST',
+                                                   dataType : 'json',
+                                                   url      :  "../../forms/eye_mag/save.php?copy="+zone,
+                                                   data 	: data,
+                                                   success  : function(result) {
+                                                   var it = Iterator(result);
+                                                   for (var pair in it) { //copy forward all returned variables
+                                                        if ($("#"+pair[0]).val() != pair[1]) {
+                                                            $("#"+pair[0]).val(pair[1]).css("background-color","#CCF");
+                                                        }
+                                                        if ( pair[0].match(/MOTILITY_/)) { //copy forward ductions and versions visually
+                                                            //make each blank, and rebuild them
+                                                   //$("[name='"+pair[0]+"']").val('0');
+                                                            $("[name='"+pair[0]+"_1']").html('');
+                                                            $("[name='"+pair[0]+"_2']").html('');
+                                                            $("[name='"+pair[0]+"_3']").html('');
+                                                            $("[name='"+pair[0]+"_4']").html('');
+                                                            if (pair[0].match(/(_RS|_LS|_RI|_LI)/)) {  //show a horizontal (minus) tag
+                                                                hash_tag = '<i class="fa fa-minus"></i>';
+                                                   } else { //show vertical tag
+                                                                hash_tag = '<i class="fa fa-minus rotate-left"></i>';
+                                                            }
+                                                            for (index =1; index <= pair[1]; ++index) {
+                                                                $("#"+pair[0]+"_"+index).html(hash_tag);
+                                                            }
+                                                        }
+                                                   }
+                                                   
+                                                   submit_form("eye_mag");
+                                                   
+                                                   //alert("Form submitted successfully.\nReturned json: " + result["json"]);
                                                    //$("#"+zone+"_left_text").html(result);
-                                                }
-                                            });
+                                                   }
+                                                   });
                                             
                                             
                                             });
@@ -1101,7 +1119,7 @@ $(document).ready(function() {
                   window.addEventListener("beforeunload", function () {
                                           submit_form();
                                           });
-                   $("#EXAM_sections_loading").addClass('nodisplay');
+                  $("#EXAM_sections_loading").addClass('nodisplay');
                   $("#EXAM_sections").removeClass('nodisplay');
                   
                   });

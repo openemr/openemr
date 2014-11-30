@@ -342,7 +342,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                     </tr>
                 </table>
         </div>  <br />
-        <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.7em;text-align:left;padding-left:25px;"> <b><?php echo xlt('Comments'); ?>:</b><br />
+        <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.9em;text-align:left;padding-left:25px;"> <b><?php echo xlt('Comments'); ?>:</b><br />
             <textarea id="PRIOR_ANTSEG_COMMENTS" name="PRIOR_ANTSEG_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($ANTSEG_COMMENTS); ?></textarea>
         </div>   
        
@@ -433,7 +433,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                         </tr>
                                     </table>
                                     <br />
-                                    <table style="width:50%;text-align:right;font-size:0.8em;font-weight:bold;padding:10px;">
+                                    <table style="width:50%;text-align:right;font-size:1.0em;font-weight:bold;padding:10px;">
                                         <tr style="text-align:center;">
                                             <td></td>
                                             <td> <?php echo xlt('OD'); ?> </td><td> <?php echo xlt('OS'); ?> </td></tr>
@@ -498,39 +498,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
     } elseif ($zone=="NEURO") {
         $output =  priors_select($zone,$orig_id,$id_to_show,$pid);
         ?> 
-        <script type="text/javascript">
-            $("#PRIOR_ACTTRIGGER").mouseover(function() {
-                                                   $("#PRIOR_ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
-                                                   });
-            $("#PRIOR_ACTTRIGGER").mouseout(function() {
-                                                  $("#PRIOR_ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
-                                                  });
-            $("#PRIOR_ACTTRIGGER").click(function() {
-                                               $("#PRIOR_ACTMAIN").toggleClass('nodisplay'); //.toggleClass('fullscreen');
-                                               $("#PRIOR_NPCNPA").toggleClass('nodisplay');
-                                               $("#PRIOR_ACTNORMAL_CHECK").toggleClass('nodisplay');
-                                               $("#PRIOR_ACTTRIGGER").toggleClass('underline');
-                                               $("#PRIOR_Close_ACTMAIN").toggleClass('fa-random').toggleClass('fa-eye');
-                                               });
-            $("[name^='PRIOR_ACT_tab_']").click(function()  {
-                                                var section = this.id.match(/ACT_tab_(.*)/)[1];
-                                                $("[name^='PRIOR_ACT_']").addClass('nodisplay');
-                                                $("[name^='PRIOR_ACT_tab_']").removeClass('nodisplay').removeClass('ACT_selected').addClass('ACT_deselected');
-                                                $("#PRIOR_ACT_tab_" + section).addClass('ACT_selected').removeClass('ACT_deselected');
-                                                $("#PRIOR_ACT_" + section).removeClass('nodisplay');
-                                                $("#PRIOR_ACT_VIEW").val(section);
-                                                });
-
-            $("[name^='PRIOR_Close_']").click(function()  {
-                                              var section = this.id.match(/PRIOR_Close_(.*)$/)[1];
-                                              if (section =="ACTMAIN") {
-                                              $("#PRIOR_ACTTRIGGER").trigger( "click" );
-                                              } else {
-                                              $("#LayerVision_"+section+"_lightswitch").click();
-                                              }
-                                              });
-
-        </script>
+        
         <input type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
         <div style="position:absolute;top:0.083in;right:0.241in;">
@@ -808,13 +776,76 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                 <?php echo xlt('Vertical Fusional'); ?>:
                             </td>
                             <td colspan="2">
-                                <input type="text" style="width:85%;" name="PRIOR_VERTFUSAMPS" id="PRIOR_VERTFUSAMPS" value="<?php echo attr($VERTFUSAMPS); ?>">
+                                <input type="text" style="width:90%;" name="PRIOR_VERTFUSAMPS" id="PRIOR_VERTFUSAMPS" value="<?php echo attr($VERTFUSAMPS); ?>">
                                 <br />
                             </td>
                         </tr>
                     </table>
                 </div>
             </div>
+            <?
+                $hash_tag = '<i class="fa fa-minus"></i>';
+               
+                if ($MOTILITY_RS > '0') {
+                    $PRIOR_MOTILITYNORMAL='';
+                    for ($index =1; $index <= $MOTILITY_RS; ++$index) {
+                        $here = "PRIOR_MOTILITY_RS_".$index;
+                        $$here= $hash_tag;
+                    }
+                }
+                if ($MOTILITY_RI > '0') {
+                    $PRIOR_MOTILITYNORMAL='';
+                    for ($index =1; $index <= $MOTILITY_RI; ++$index) {
+                        $here ="PRIOR_MOTILITY_RI_".$index;
+                        $$here = $hash_tag;
+                    }
+                }
+                if ($MOTILITY_LS > '0') {
+                    $PRIOR_MOTILITYNORMAL='';
+                    for ($index =1; $index <= $MOTILITY_LS; ++$index) {
+                        $here ="PRIOR_MOTILITY_LS_".$index;
+                        $$here = $hash_tag;
+                    }
+                }
+                if ($MOTILITY_LI > '0') {
+                    $PRIOR_MOTILITYNORMAL='';
+                    for ($index =1; $index <= $MOTILITY_LI; ++$index) {
+                       $here ="PRIOR_MOTILITY_LI_".$index;
+                        $$here = $hash_tag;
+                    }
+                }
+                
+
+                $hash_tag = '<i class="fa fa-minus rotate-left"></i>';
+                if ($MOTILITY_LR > '0') {
+                    $PRIOR_MOTILITYNORMAL='';
+                    for ($index =1; $index <= $MOTILITY_LR; ++$index) {
+                       $here ="PRIOR_MOTILITY_LR_".$index;
+                        $$here = $hash_tag;
+                    }
+                }
+                if ($MOTILITY_LL > '0') {
+                    $PRIOR_MOTILITYNORMAL='';
+                    for ($index =1; $index <= $MOTILITY_LL; ++$index) {
+                        $here ="PRIOR_MOTILITY_LL_".$index;
+                        $$here = $hash_tag;
+                    }
+                }
+                if ($MOTILITY_RR > '0') {
+                    $PRIOR_MOTILITYNORMAL='';
+                    for ($index =1; $index <= $MOTILITY_RR; ++$index) {
+                        $here ="PRIOR_MOTILITY_RR_".$index;
+                        $$here = $hash_tag;
+                    }
+                }
+                if ($MOTILITY_RL > '0') {
+                    $PRIOR_MOTILITYNORMAL='';
+                    for ($index =1; $index <= $MOTILITY_RL; ++$index) {
+                        $here ="PRIOR_MOTILITY_RL_".$index;
+                        $$here = $hash_tag;
+                    }
+                }
+                ?>
             <div id="PRIOR_NEURO_MOTILITY" class="text_clinical borderShadow" style="float:left;font-size:1.0em;margin:3 auto;font-weight:bold;height:135px;width:165px;">
                 <div>
                     <table style="width:100%;margin:0 0 15 0;">
@@ -822,7 +853,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                             <td style="width:40%;font-size:0.9em;margin:0 auto;font-weight:bold;"><?php echo xlt('Motility'); ?>:</td>
                             <td style="font-size:0.9em;vertical-align:top;text-align:right;top:0.0in;right:0.1in;height:0px;">
                                 <label for="PRIOR_MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
-                                <input id="PRIOR_MOTILITYNORMAL" name="PRIOR_MOTILITYNORMAL" type="checkbox" value="1" checked>
+                                <input id="PRIOR_MOTILITYNORMAL" name="PRIOR_MOTILITYNORMAL" type="checkbox" value="1" <?php if ($PRIOR_MOTILITYNORMAL >'') echo "checked"; ?>>
                             </td>
                         </tr>
                     </table>
@@ -849,7 +880,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_3" id="PRIOR_MOTILITY_RS_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_1" id="PRIOR_MOTILITY_RS_4_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_4" id="PRIOR_MOTILITY_RS_4" value="<?php echo attr($MOTILITY_RS); ?>">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_4" id="PRIOR_MOTILITY_RS_4"><?php echo $PRIOR_MOTILITY_RS_4; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_2" id="PRIOR_MOTILITY_RS_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_4" id="PRIOR_MOTILITY_RS_4_4">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -864,7 +895,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_3_1" id="PRIOR_MOTILITY_RS_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_3" id="PRIOR_MOTILITY_RS_3">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_3" id="PRIOR_MOTILITY_RS_3"><?php echo $PRIOR_MOTILITY_RS_3; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_3_2" id="PRIOR_MOTILITY_RS_3_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -879,7 +910,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_2_1" id="PRIOR_MOTILITY_RS_2_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_2" id="PRIOR_MOTILITY_RS_2">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_2" id="PRIOR_MOTILITY_RS_2"><?php echo $PRIOR_MOTILITY_RS_2; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_2_2" id="PRIOR_MOTILITY_RS_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -894,7 +925,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_1_1" id="PRIOR_MOTILITY_RS_1_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_1" id="PRIOR_MOTILITY_RS_1">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_1" id="PRIOR_MOTILITY_RS_1"><?php echo $PRIOR_MOTILITY_RS_1; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_1_2" id="PRIOR_MOTILITY_RS_1_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -919,17 +950,17 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                     </div>
                     <div class="divMiddleRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_4" id="PRIOR_MOTILITY_RR_4" value="<?php echo attr($MOTILITY_RR); ?>">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_3" id="PRIOR_MOTILITY_RR_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_2" id="PRIOR_MOTILITY_RR_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_1" id="PRIOR_MOTILITY_RR_1">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_4" id="PRIOR_MOTILITY_RR_4"><?php echo $PRIOR_MOTILITY_RR_4; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_3" id="PRIOR_MOTILITY_RR_3"><?php echo $PRIOR_MOTILITY_RR_3; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_2" id="PRIOR_MOTILITY_RR_2"><?php echo $PRIOR_MOTILITY_RR_2; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_1" id="PRIOR_MOTILITY_RR_1"><?php echo $PRIOR_MOTILITY_RR_1; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RR_0" id="PRIOR_MOTILITY_RR_0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_R0" id="PRIOR_MOTILITY_R0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RL_0" id="PRIOR_MOTILITY_RL_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_1" id="PRIOR_MOTILITY_RL_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_2" id="PRIOR_MOTILITY_RL_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_3" id="PRIOR_MOTILITY_RL_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_4" id="PRIOR_MOTILITY_RL_4" value="<?php echo attr($MOTILITY_RL); ?>">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_1" id="PRIOR_MOTILITY_RL_1"><?php echo $PRIOR_MOTILITY_RL_1; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_2" id="PRIOR_MOTILITY_RL_2"><?php echo $PRIOR_MOTILITY_RL_2; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_3" id="PRIOR_MOTILITY_RL_3"><?php echo $PRIOR_MOTILITY_RL_3; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_4" id="PRIOR_MOTILITY_RL_4"><?php echo $PRIOR_MOTILITY_RL_4; ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
@@ -954,7 +985,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_1_1" id="PRIOR_MOTILITY_RI_1_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_1" name="PRIOR_MOTILITY_RI_1">&nbsp;</div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_1" name="PRIOR_MOTILITY_RI_1"><?php echo $PRIOR_MOTILITY_RI_1; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_1_2" id="PRIOR_MOTILITY_RI_1_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -969,7 +1000,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_2_1" id="PRIOR_MOTILITY_RI_2_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_2" name="PRIOR_MOTILITY_RI_2">&nbsp;</div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_2" name="PRIOR_MOTILITY_RI_2"><?php echo $PRIOR_MOTILITY_RI_2; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_2_2" id="PRIOR_MOTILITY_RI_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -984,7 +1015,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_5" id="PRIOR_MOTILITY_RI_3_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_3" id="PRIOR_MOTILITY_RI_3_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_1" id="PRIOR_MOTILITY_RI_3_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_3" name="PRIOR_MOTILITY_RI_3">&nbsp;</div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_3" name="PRIOR_MOTILITY_RI_3"><?php echo $PRIOR_MOTILITY_RI_3; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_2" id="PRIOR_MOTILITY_RI_3_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_4" id="PRIOR_MOTILITY_RI_3_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_6" id="PRIOR_MOTILITY_RI_3_6">&nbsp;</div>
@@ -999,7 +1030,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_5" id="PRIOR_MOTILITY_RI_4_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_3" id="PRIOR_MOTILITY_RI_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_1" id="PRIOR_MOTILITY_RI_4_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_4" name="PRIOR_MOTILITY_RI_4" value="<?php echo attr($MOTILITY_RI); ?>">&nbsp;</div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_4" name="PRIOR_MOTILITY_RI_4"><?php echo $PRIOR_MOTILITY_RI_4; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_2" id="PRIOR_MOTILITY_RI_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_4" id="PRIOR_MOTILITY_RI_4_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_6" id="PRIOR_MOTILITY_RI_4_6">&nbsp;</div>
@@ -1021,7 +1052,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_3" id="PRIOR_MOTILITY_LS_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_1" id="PRIOR_MOTILITY_LS_4_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_4" id="PRIOR_MOTILITY_LS_4" value="<?php echo attr($MOTILITY_LS); ?>">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_4" id="PRIOR_MOTILITY_LS_4"><?php echo $PRIOR_MOTILITY_LS_4; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_2" id="PRIOR_MOTILITY_LS_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_4" id="PRIOR_MOTILITY_LS_4_4">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1036,7 +1067,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_3_1" id="PRIOR_MOTILITY_LS_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_3" id="PRIOR_MOTILITY_LS_3">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_3" id="PRIOR_MOTILITY_LS_3"><?php echo $PRIOR_MOTILITY_LS_3; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_3_2" id="PRIOR_MOTILITY_LS_3_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1051,7 +1082,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_2_1" id="PRIOR_MOTILITY_LS_2_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_2" id="PRIOR_MOTILITY_LS_2">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_2" id="PRIOR_MOTILITY_LS_2"><?php echo $PRIOR_MOTILITY_LS_2; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_2_2" id="PRIOR_MOTILITY_LS_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1066,7 +1097,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_1_1" id="PRIOR_MOTILITY_LS_1_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_1" id="PRIOR_MOTILITY_LS_1">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_1" id="PRIOR_MOTILITY_LS_1"><?php echo $PRIOR_MOTILITY_LS_1; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_1_2" id="PRIOR_MOTILITY_LS_1_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1091,17 +1122,17 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                     </div>
                     <div class="divMiddleRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_4" id="PRIOR_MOTILITY_LR_4" value="<?php echo attr($MOTILITY_LR); ?>">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_3" id="PRIOR_MOTILITY_LR_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_2" id="PRIOR_MOTILITY_LR_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_1" id="PRIOR_MOTILITY_LR_1">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_4" id="PRIOR_MOTILITY_LR_4"><?php echo $PRIOR_MOTILITY_LR_4; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_3" id="PRIOR_MOTILITY_LR_3"><?php echo $PRIOR_MOTILITY_LR_3; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_2" id="PRIOR_MOTILITY_LR_2"><?php echo $PRIOR_MOTILITY_LR_2; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_1" id="PRIOR_MOTILITY_LR_1"><?php echo $PRIOR_MOTILITY_LR_1; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LR_0" id="PRIOR_MOTILITY_LR_0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_L0" id="PRIOR_MOTILITY_L0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LL_0" id="PRIOR_MOTILITY_LL_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_1" id="PRIOR_MOTILITY_LL_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_2" id="PRIOR_MOTILITY_LL_2">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_3" id="PRIOR_MOTILITY_LL_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_4" id="PRIOR_MOTILITY_LL_4" value="<?php echo attr($MOTILITY_LL); ?>">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_1" id="PRIOR_MOTILITY_LL_1"><?php echo $PRIOR_MOTILITY_LL_1; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_2" id="PRIOR_MOTILITY_LL_2"><?php echo $PRIOR_MOTILITY_LL_2; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_3" id="PRIOR_MOTILITY_LL_3"><?php echo $PRIOR_MOTILITY_LL_3; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_4" id="PRIOR_MOTILITY_LL_4"><?php echo $PRIOR_MOTILITY_LL_4; ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
@@ -1126,7 +1157,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell" name="PRIOR_MOTILITY_RO_I_2" id="PRIOR_MOTILITY_RO_I_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_1" name="PRIOR_MOTILITY_LI_1">&nbsp;</div>
+                        <div class="divCell" id="PRIOR_MOTILITY_LI_1" name="PRIOR_MOTILITY_LI_1"><?php echo $PRIOR_MOTILITY_LI_1; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LO_I_2" id="PRIOR_MOTILITY_LO_I_2">&nbsp;</div>
@@ -1141,7 +1172,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_2_1" id="PRIOR_MOTILITY_LI_2_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_2" name="PRIOR_MOTILITY_LI_2">&nbsp;</div>
+                        <div class="divCell" id="PRIOR_MOTILITY_LI_2" name="PRIOR_MOTILITY_LI_2"><?php echo $PRIOR_MOTILITY_LI_2; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_2_2" id="PRIOR_MOTILITY_LI_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1156,7 +1187,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_5" id="PRIOR_MOTILITY_LI_3_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_3" id="PRIOR_MOTILITY_LI_3_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_1" id="PRIOR_MOTILITY_LI_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3"   id="PRIOR_MOTILITY_LI_3">&nbsp;</div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LI_3"   id="PRIOR_MOTILITY_LI_3"><?php echo $PRIOR_MOTILITY_LI_3; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_2" id="PRIOR_MOTILITY_LI_3_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_4" id="PRIOR_MOTILITY_LI_3_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_6" id="PRIOR_MOTILITY_LI_3_6">&nbsp;</div>
@@ -1172,7 +1203,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_5" id="PRIOR_MOTILITY_LI_4_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_3" id="PRIOR_MOTILITY_LI_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_1" id="PRIOR_MOTILITY_LI_4_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_4" name="PRIOR_MOTILITY_LI_4"  value="<?php echo attr($MOTILITY_LI); ?>">&nbsp;</div>
+                        <div class="divCell" id="PRIOR_MOTILITY_LI_4" name="PRIOR_MOTILITY_LI_4"><?php echo $PRIOR_MOTILITY_LI_4; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_2" id="PRIOR_MOTILITY_LI_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_4" id="PRIOR_MOTILITY_LI_4_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_6" id="PRIOR_MOTILITY_LI_4_6">&nbsp;</div>
@@ -1189,7 +1220,40 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
         <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.9em;text-align:left;padding-left:25px;"> 
             <b><?php echo xlt('Comments'); ?>:</b><br />
             <textarea id="PRIOR_NEURO_COMMENTS" name="PRIOR_NEURO_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($NEURO_COMMENTS); ?></textarea>
-        </div>  <?php 
+        </div>
+        <script type="text/javascript">
+            $("#PRIOR_ACTTRIGGER").mouseover(function() {
+                                                   $("#PRIOR_ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
+                                                   });
+            $("#PRIOR_ACTTRIGGER").mouseout(function() {
+                                                  $("#PRIOR_ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
+                                                  });
+            $("#PRIOR_ACTTRIGGER").click(function() {
+                                               $("#PRIOR_ACTMAIN").toggleClass('nodisplay'); //.toggleClass('fullscreen');
+                                               $("#PRIOR_NPCNPA").toggleClass('nodisplay');
+                                               $("#PRIOR_ACTNORMAL_CHECK").toggleClass('nodisplay');
+                                               $("#PRIOR_ACTTRIGGER").toggleClass('underline');
+                                               $("#PRIOR_Close_ACTMAIN").toggleClass('fa-random').toggleClass('fa-eye');
+                                               });
+            $("[name^='PRIOR_ACT_tab_']").click(function()  {
+                                                var section = this.id.match(/ACT_tab_(.*)/)[1];
+                                                $("[name^='PRIOR_ACT_']").addClass('nodisplay');
+                                                $("[name^='PRIOR_ACT_tab_']").removeClass('nodisplay').removeClass('ACT_selected').addClass('ACT_deselected');
+                                                $("#PRIOR_ACT_tab_" + section).addClass('ACT_selected').removeClass('ACT_deselected');
+                                                $("#PRIOR_ACT_" + section).removeClass('nodisplay');
+                                                $("#PRIOR_ACT_VIEW").val(section);
+                                                });
+
+            $("[name^='PRIOR_Close_']").click(function()  {
+                                              var section = this.id.match(/PRIOR_Close_(.*)$/)[1];
+                                              if (section =="ACTMAIN") {
+                                              $("#PRIOR_ACTTRIGGER").trigger( "click" );
+                                              } else {
+                                              $("#LayerVision_"+section+"_lightswitch").click();
+                                              }
+                                              });
+        </script>
+          <?php 
         return;
     } elseif ($zone =="ALL") {
         echo priors_select($zone,$orig_id,$id_to_show,$pid);
