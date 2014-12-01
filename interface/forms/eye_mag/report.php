@@ -3,10 +3,160 @@ include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
 
 
-if ($_REQUEST['target']) {
+if (!$_REQUEST['target']) {
     //we are printing something.
       $table_name = "form_eye_mag";
+/***************************************/
 
+/** 
+ * forms/eye_mag/view.php 
+ * 
+ * Central view for the eye_mag form.  Here is where all new data is entered
+ * New forms are created via new.php and then this script is displayed.
+ * Edit requsts come here too...
+ * 
+ * Copyright (C) 2010-14 Raymond Magauran <magauran@MedFetch.com> 
+ * 
+ * LICENSE: This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License 
+ * as published by the Free Software Foundation; either version 3 
+ * of the License, or (at your option) any later version. 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU General Public License for more details. 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
+ * 
+ * @package OpenEMR 
+ * @author Ray Magauran <magauran@MedFetch.com> 
+ * @link http://www.open-emr.org 
+ *   
+ *   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  The HTML5 Sketch plugin stuff:
+ *    Copyright (C) 2011 by Michael Bleigh and Intridea, Inc.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+ *  and associated documentation files (the "Software"), to deal in the Software without restriction, 
+ *  including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,  
+ *  and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,  
+ *  subject to the following conditions:
+ *   
+ *  The above copyright notice and this permission notice shall be included in all copies or substantial  
+ *  portions of the Software.
+ *   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
+
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+error_reporting(E_ALL & ~E_NOTICE);
+
+include_once("../../globals.php");
+include_once("$srcdir/api.inc");
+include_once("$srcdir/sql.inc");
+require_once("$srcdir/formatting.inc.php");
+
+
+$form_name = "eye_mag";
+$form_folder = "eye_mag";
+
+include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
+
+@extract($_REQUEST); 
+@extract($_SESSION);
+
+// Get users preferences, for this user 
+// (and if not the default where a fresh install begins from, or someone else's) 
+$query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
+$result = sqlStatement($query,array($_SESSION['authUserID']));
+while ($prefs= sqlFetchArray($result))   {    
+    @extract($prefs);    
+    $$LOCATION = $VALUE; 
+}
+
+// get pat_data and user_data
+$query = "SELECT * FROM patient_data where pid='$pid'";
+$pat_data =  sqlQuery($query);
+@extract($pat_data);
+
+$query = "SELECT * FROM users where id = '".$_SESSION['authUserID']."'";
+$prov_data =  sqlQuery($query);
+$providerID = $prov_data['fname']." ".$prov_data['lname'];
+
+
+$query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
+                    where 
+                    form_encounter.encounter =? and 
+                    form_encounter.encounter = forms.encounter and 
+                    form_eye_mag.id=forms.form_id and
+                    forms.pid =form_eye_mag.pid and 
+                    form_eye_mag.pid=? ";        
+                   
+$objQuery =sqlQuery($query,array($encounter,$pid));
+@extract($objQuery);
+
+$dated = new DateTime($encounter_date);
+$visit_date = $dated->format('m/d/Y'); 
+/*
+Is there a global setting for displaying dates?
+If this form only uses visit_date for display purposes then use the global preference instead.
+*/
+formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
+
+?>
+<html><head>
+    <?php 
+   // html_header_show();  //why use this at all?
+    ?>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<?php 
+/*
+I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  NOT SURE IF IT IS NEEDED HERE SO PUT IT ASIDE FOR NOW
+<script type="text/javascript" src="https://raw.githubusercontent.com/erikzaadi/jQueryPlugins/master/jQuery.printElement/jquery.printElement.min.js"></script>
+*/
+?>
+<!-- Add Font stuff for the look and feel.  -->
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
+
+</head>
+
+<body>
+
+            <?php 
+            $side="OU";
+            $zone = array("VISION","NEURO","EXT","ANTSEG","RETINA","IMPPLAN");
+            for ($i = 0; $i < count($zone); ++$i) {
+                $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
+                if (file_exists($file_location)) {
+                    $filetoshow = $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/eye_mag/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png?".rand();
+                } else {
+                    $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
+                }
+                echo "<img src='".$filetoshow."' width=300 heght=200>&nbsp;";
+            }
+            exit;
+        ?>
+    <?php display_draw_section ("VISION",$encounter,$pid); ?>
+    <br />
+    <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+    <br />
+    <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+    <br />
+    <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+</body>
+</html>
+
+<?
+
+exit;
+
+
+
+
+/***************************************/
     $count = 0;
     $data = formFetch($table_name, $id);
    
