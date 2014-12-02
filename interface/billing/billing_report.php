@@ -73,8 +73,9 @@ $my_authorized = isset($_POST["authorized"]) ? $_POST["authorized"] : '';
 // are to be reported.
 $missing_mods_only = (isset($_POST['missing_mods_only']) && !empty($_POST['missing_mods_only']));
 
-$left_margin = isset($_POST["left_margin"]) ? $_POST["left_margin"] : 24;
-$top_margin  = isset($_POST["top_margin"] ) ? $_POST["top_margin" ] : 20;
+
+$left_margin = isset($GLOBALS['cms_1500_left_margin']) ? $GLOBALS['cms_1500_left_margin'] : 24;
+$top_margin  = isset($GLOBALS['cms_1500_top_margin'] ) ? $GLOBALS['cms_1500_top_margin'] : 20;
 
 $ofrom_date  = $from_date;
 $oto_date    = $to_date;
@@ -525,11 +526,11 @@ if(!isset($_REQUEST['mode']))//default case
 &nbsp;<?php echo xlt('Left'); ?>:
 <input type='text' size='2' name='left_margin'
  value='<?php echo attr($left_margin); ?>'
- title='<?php echo xla('HCFA left margin in points'); ?>' />
+ title='<?php echo xla('HCFA left margin in points. To change these values permanently, they must be changed in Administration -> Globals'); ?>' />
 &nbsp;<?php echo xlt('Top'); ?>:
 <input type='text' size='2' name='top_margin'
  value='<?php echo attr($top_margin); ?>'
- title='<?php echo xla('HCFA top margin in points'); ?>' />
+ title='<?php echo xla('HCFA top margin in points. To change these values permanently, they must be changed in Administration -> Globals'); ?>' />
 </span>
 <?php } ?>
 

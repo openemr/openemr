@@ -692,7 +692,20 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('This specifies whether to include date in Box 31.')
     ),
-
+      
+    'cms_1500_left_margin' => array(
+      xl('CMS 1500: Left Margin'),
+      'text',                           // data type
+      '14',                               // default
+      xl('Specifies Left Margin, default = 14.')
+    ),
+      
+    'cms_1500_top_margin' => array(
+      xl('CMS 1500: Top Margin'),
+      'text',                           // data type
+      '28',                               // default
+      xl('Specifies Top Margin, default = 28.')
+    ), 
   ),
     
     //Documents Tab
