@@ -43,7 +43,7 @@ use strict;
 # like originals in the end. If this number increases, a english constant
 # was likely modified in the spreadsheet, and can then use log output
 # to localize and fix the problem.
-my $mismatchesKnown = 101;
+my $mismatchesKnown = 57;
 
 # Hold variables to calculate language database statistics
 my $totalConstants;
