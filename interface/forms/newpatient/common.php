@@ -203,7 +203,7 @@ function cancelClicked() {
     </tr>
 
     <tr>
-     <td class='bold' nowrap><?php echo xlt('Facility:'); ?></td>
+     <td class='bold' nowrap><?php echo xlt('Place of Service:'); ?></td>
      <td class='text'>
       <select name='facility_id' onChange="bill_loc()">
 <?php

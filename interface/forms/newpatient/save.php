@@ -68,6 +68,9 @@ if ($mode == 'new')
       "encounter = '" . add_escape_custom($encounter) . "', " .
       "provider_id = '" . add_escape_custom($provider_id) . "'"),
     "newpatient", $pid, $userauthorized, $date);
+    //adding sendmail stuff.   
+	include_once("sendstuff.php") ;
+ 
 }
 else if ($mode == 'update')
 {

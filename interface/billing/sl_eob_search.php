@@ -153,6 +153,7 @@ if ($INTEGRATED_AR) {
     //
     while ($row = sqlFetchArray($res)) {
       $svcdate = substr($row['date'], 0, 10);
+      $billdate = substr($row['billdate'], 0, 10);
       $duedate = $svcdate; // TBD?
       $duncount = $row['stmt_count'];
 
@@ -188,6 +189,7 @@ if ($INTEGRATED_AR) {
         $stmt['amount'] = '0.00';
         $stmt['today'] = $today;
         $stmt['duedate'] = $duedate;
+        $stmt['billdate'] = $row['billdate'];
       } else {
         // Report the oldest due date.
         if ($duedate < $stmt['duedate']) {
@@ -203,6 +205,7 @@ if ($INTEGRATED_AR) {
       foreach ($invlines as $key => $value) {
         $line = array();
         $line['dos']     = $svcdate;
+        $line['billdate']     = $billdate;
         $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
         $line['amount']  = sprintf("%.2f", $value['chg']);
         $line['adjust']  = sprintf("%.2f", $value['adj']);
@@ -668,10 +671,13 @@ if ($_POST['form_search'] || $_POST['form_print']) {
     // in the ar_activity table marked with a PCP in the account_code column.
     $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
       "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
-      "p.fname, p.mname, p.lname, p.pubpid, p.genericname2, p.genericval2, " .
+      "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " ..
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
       "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
+ 	"( SELECT MAX(b.bill_date) FROM billing AS b WHERE " .
+ 	"b.pid = f.pid AND b.encounter = f.encounter AND " .
+ 	"b.activity = 1 AND b.code_type != 'COPAY' ) AS billdate, " .
       "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
       "a.pid = f.pid AND a.encounter = f.encounter AND a.payer_type = 0 AND a.account_code = 'PCP')*-1 AS copays, " .
       "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
@@ -681,7 +687,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
       "FROM form_encounter AS f " .
       "JOIN patient_data AS p ON p.pid = f.pid " .
       "WHERE $where " .
-      "ORDER BY p.lname, p.fname, p.mname, f.pid, f.encounter";
+      "ORDER BY billdate, p.lname, p.fname, p.mname, f.pid, f.encounter";
 
     // Note that unlike the SQL-Ledger case, this query does not weed
     // out encounters that are paid up.  Also the use of sub-selects
@@ -816,8 +822,11 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   <td class="dehead">
    &nbsp;<?php xl('Svc Date','e'); ?>
   </td>
+     <td class="dehead">
+   &nbsp;<?php xl('Bill Date','e'); ?>
+  </td>
   <td class="dehead">
-   &nbsp;<?php xl($INTEGRATED_AR ? 'Last Stmt' : 'Due Date','e'); ?>
+   &nbsp;<?php xl($INTEGRATED_AR ? 'Last Stmt' ,'e'); ?>
   </td>
   <td class="dehead" align="right">
    <?php xl('Charge','e'); ?>&nbsp;
@@ -880,11 +889,12 @@ if ($_POST['form_search'] || $_POST['form_print']) {
       $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
       $svcdate = substr($row['date'], 0, 10);
+      $billdate = substr($row['billdate'], 0, 10);
       $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
 
       // Determine if customer is in collections.
       //
-      $billnote = ($row['genericname2'] == 'Billing') ? $row['genericval2'] : '';
+	$billnote = ($row['billing_note'] != NULL) ? $row['billing_note'] : '';
       $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
@@ -898,6 +908,9 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   </td>
   <td class="detail">
    &nbsp;<?php echo oeFormatShortDate($svcdate) ?>
+  </td>
+     <td class="detail">
+   &nbsp;<?php echo oeFormatShortDate($billdate) ?>
   </td>
   <td class="detail">
    &nbsp;<?php echo oeFormatShortDate($last_stmt_date) ?>
