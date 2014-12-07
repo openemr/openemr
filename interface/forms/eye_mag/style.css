@@ -23,6 +23,9 @@
 .pure-form label {
     margin: 0.1em;
 }
+.pure-form [disabled] {
+    color: #000000 !important;
+}
 .pure-form input[type="text"], .pure-form input[type="password"], .pure-form input[type="email"], .pure-form input[type="url"], .pure-form input[type="date"], .pure-form input[type="month"], .pure-form input[type="time"], .pure-form input[type="datetime"], .pure-form input[type="datetime-local"], .pure-form input[type="week"], .pure-form input[type="number"], .pure-form input[type="search"], .pure-form input[type="tel"], .pure-form input[type="color"], .pure-form select, .pure-form textarea {
     padding: 0.2em 0.2em !important;
 }
@@ -915,11 +918,12 @@ height: 14px;
     }
     .closeButton {
         display:inline-block;
-        float:left;
+        float:right;
         /*background:url('http://cdn-sg1.pgimgs.com/images/pg/close-button.png') no-repeat center center;*/
         position:absolute;
         top:3px;
         right:4px;
+        padding-left: 10px;
         /*border:1.5px solid #000;
         border-radius: 50%;
         width: 13px;

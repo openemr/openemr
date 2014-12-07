@@ -40,7 +40,7 @@
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
-error_reporting(E_ALL & ~E_NOTICE);
+//error_reporting(E_ALL & ~E_NOTICE);
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
@@ -56,9 +56,9 @@ include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 @extract($_REQUEST); 
 @extract($_SESSION);
 
-// Get users preferences, for this user 
-// (and if not the default where a fresh install begins from, or someone else's) 
-$query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
+// Get users preferences, for this user ,
+// If a fresh install or new user, get the default user preferences
+$query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=? or id=2048)ORDER BY id,ZONE_ORDER,ordering";
 $result = sqlStatement($query,array($_SESSION['authUserID']));
 while ($prefs= sqlFetchArray($result))   {    
     @extract($prefs);    
@@ -81,6 +81,7 @@ $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_ey
                     form_encounter.encounter = forms.encounter and 
                     form_eye_mag.id=forms.form_id and
                     forms.pid =form_eye_mag.pid and 
+                    forms.deleted != '1' and 
                     form_eye_mag.pid=? ";        
                    
 $objQuery =sqlQuery($query,array($encounter,$pid));
@@ -89,16 +90,198 @@ $objQuery =sqlQuery($query,array($encounter,$pid));
 $dated = new DateTime($encounter_date);
 $visit_date = $dated->format('m/d/Y'); 
 /*
-Is there a global setting for displaying dates?
-If this form only uses visit_date for display purposes then use the global preference instead.
-*/
+There a global setting for displaying dates... Incorporate it here.
 formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
-
+*/
 ?>
 <html><head>
     <?php 
    // html_header_show();  //why use this at all?
     ?>
+    <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript">
+// ** I18N
+// Calendar EN language
+// Author: Mihai Bazon, <mihai_bazon@yahoo.com>
+// Encoding: any
+// Distributed under the same terms as the calendar itself.
+
+// For translators: please use UTF-8 if possible.  We strongly believe that
+// Unicode is the answer to a real internationalized world.  Also please
+// include your contact information in the header, as can be seen above.
+
+// full day names
+Calendar._DN = new Array
+("Sunday",
+ "Monday",
+ "Tuesday",
+ "Wednesday",
+ "Thursday",
+ "Friday",
+ "Saturday",
+ "Sunday");
+
+// Please note that the following array of short day names (and the same goes
+// for short month names, _SMN) isn't absolutely necessary.  We give it here
+// for exemplification on how one can customize the short day names, but if
+// they are simply the first N letters of the full name you can simply say:
+//
+//   Calendar._SDN_len = N; // short day name length
+//   Calendar._SMN_len = N; // short month name length
+//
+// If N = 3 then this is not needed either since we assume a value of 3 if not
+// present, to be compatible with translation files that were written before
+// this feature.
+
+// short day names
+Calendar._SDN = new Array
+("Sun",
+ "Mon",
+ "Tue",
+ "Wed",
+ "Thu",
+ "Fri",
+ "Sat",
+ "Sun");
+
+// First day of the week. "0" means display Sunday first, "1" means display
+// Monday first, etc.
+Calendar._FD = 0;
+
+// full month names
+Calendar._MN = new Array
+("January",
+ "February",
+ "March",
+ "April",
+ "May",
+ "June",
+ "July",
+ "August",
+ "September",
+ "October",
+ "November",
+ "December");
+
+// short month names
+Calendar._SMN = new Array
+("Jan",
+ "Feb",
+ "Mar",
+ "Apr",
+ "May",
+ "Jun",
+ "Jul",
+ "Aug",
+ "Sep",
+ "Oct",
+ "Nov",
+ "Dec");
+
+// tooltips
+Calendar._TT = {};
+Calendar._TT["INFO"] = "About the calendar";
+
+Calendar._TT["ABOUT"] =
+"DHTML Date/Time Selector\n" +
+"(c) dynarch.com 2002-2005 / Author: Mihai Bazon\n" + // don't translate this this ;-)
+"For latest version visit: http://www.dynarch.com/projects/calendar/\n" +
+"Distributed under GNU LGPL.  See http://gnu.org/licenses/lgpl.html for details." +
+"\n\n" +
+"Date selection:\n" +
+"- Use the \xab, \xbb buttons to select year\n" +
+"- Use the " + String.fromCharCode(0x2039) + ", " + String.fromCharCode(0x203a) + " buttons to select month\n" +
+"- Hold mouse button on any of the above buttons for faster selection.";
+Calendar._TT["ABOUT_TIME"] = "\n\n" +
+"Time selection"+":\n" +
+"- "+"Click on any of the time parts to increase it"+"\n" +
+"- "+"or Shift-click to decrease it"+"\n" +
+"- "+"or click and drag for faster selection.";
+
+Calendar._TT["PREV_YEAR"] = "Prev. year (hold for menu)";
+Calendar._TT["PREV_MONTH"] = "Prev. month (hold for menu)";
+Calendar._TT["GO_TODAY"] = "Go Today";
+Calendar._TT["NEXT_MONTH"] = "Next month (hold for menu)";
+Calendar._TT["NEXT_YEAR"] = "Next year (hold for menu)";
+Calendar._TT["SEL_DATE"] = "Select date";
+Calendar._TT["DRAG_TO_MOVE"] = "Drag to move";
+Calendar._TT["PART_TODAY"] = " ("+"today"+")";
+
+// the following is to inform that "%s" is to be the first day of week
+// %s will be replaced with the day name.
+Calendar._TT["DAY_FIRST"] = "Display %s first";
+
+// This may be locale-dependent.  It specifies the week-end days, as an array
+// of comma-separated numbers.  The numbers are from 0 to 6: 0 means Sunday, 1
+// means Monday, etc.
+Calendar._TT["WEEKEND"] = "0,6";
+
+Calendar._TT["CLOSE"] = "Close";
+Calendar._TT["TODAY"] = "Today";
+Calendar._TT["TIME_PART"] = "(Shift-)Click or drag to change value";
+
+// date formats
+Calendar._TT["DEF_DATE_FORMAT"] = "%Y-%m-%d";
+Calendar._TT["TT_DATE_FORMAT"] = "%a, %b %e";
+
+Calendar._TT["WK"] = "wk";
+Calendar._TT["TIME"] = "Time"+":";
+</script><script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="../../../library/js/common.js"></script>
+<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript" language="JavaScript">
+
+ var mypcc = '1';
+
+ function oldEvt(eventid) {
+  dlgopen('../../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 350);
+ }
+
+ function advdirconfigure() {
+   dlgopen('advancedirectives.php', '_blank', 500, 450);
+  }
+
+ function refreshme() {
+  top.restoreSession();
+  location.reload();
+ }
+
+ // Process click on Delete link.
+ function deleteme() {
+  dlgopen('../deleter.php?patient=1', '_blank', 500, 450);
+  return false;
+ }
+
+ // Called by the deleteme.php window on a successful delete.
+ function imdeleted() {
+  parent.left_nav.clearPatient();
+ }
+
+ function validate() {
+  var f = document.forms[0];
+  return true;
+ }
+
+ function newEvt() {
+  dlgopen('../../main/calendar/add_edit_event.php?patientid=1', '_blank', 550, 350);
+  return false;
+ }
+
+function sendimage(pid, what) {
+ // alert('Not yet implemented.'); return false;
+ dlgopen('../upload_dialog.php?patientid=' + pid + '&file=' + what,
+  '_blank', 500, 400);
+ return false;
+}
+
+</script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 <!-- Add jQuery library -->
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
@@ -119,8 +302,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
 <!-- Add Font stuff for the look and feel.  -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
+<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
 
 <?php /*
 //not using this yet but it will be when incorporating the HPI/PMH formdata from other modules here
@@ -163,7 +346,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
             <input type="hidden" name="PREFS_ANTSEG_VIEW"  id="PREFS_ANTSEG_VIEW" value="<?php echo attr($ANTSEG_VIEW); ?>">
             <input type="hidden" name="PREFS_RETINA_VIEW"  id="PREFS_RETINA_VIEW" value="<?php echo attr($RETINA_VIEW); ?>">
             <input type="hidden" name="PREFS_NEURO_VIEW"  id="PREFS_NEURO_VIEW" value="<?php echo attr($NEURO_VIEW); ?>">
-            <input type="hidden" name="ACT_VIEW"  id="ACT_VIEW" value="<?php echo attr($ACT_VIEW); ?>">
+            <input type="hidden" name="PREFS_ACT_VIEW"  id="PREFS_ACT_VIEW" value="<?php echo attr($ACT_VIEW); ?>">
+            <input type="hidden" name="PREFS_ACT_SHOW"  id="PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW); ?>">
             <input type="hidden" name="COPY_SECTION"  id="COPY_SECTION" value="">
             <!-- start of general box -->
             <?php 
@@ -179,22 +363,27 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                 <input type="button" class="save" value="<?php echo xlt('Save NEW'); ?>"> &nbsp; 
                                 <input type="button" class="dontsave" value="<?php echo xlt('Don\'t Save'); ?>">
                             </span> 
-                    */
-                     ?>
+                    
 
                     
                     <span class="title" id="pat_name" style="text-align:center;padding-right:0.2in;">
                         <?php echo $fname." ".$lname." (".$pid.") -- ".$id; ?>
                     </span>
-
-                    <span style="text-align:right;"><b><?php echo xlt('EXAM DATE'); ?>:</b> &nbsp;<?php echo $visit_date; ?>&nbsp;</span>
-                </div>
-            </div>          
+                    </div>
+                    */
+                     ?>
+            
+                  
            
             <!-- //end of the general BOX -->
-            <a id="construction" name="construction" style="font-size:0.6em;display:none;">Toggle construction zones</a>
-            <div id="accordion" class="text_clinical" style="position:absolute;">
-                <div class="CONSTRUCTION_ZONE nodisplay" name="CONSTRUCTION_1" id="CONSTRUCTION_1">
+            <!-- Required for the popup date selectors -->
+            <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
+
+
+            <!--
+            <a id="construction" name="construction" style="font-size:0.6em;">Toggle construction zones</a>
+            --><div id="accordion" class="text_clinical" style="position:absolute;">
+                <div class="CONSTRUCTION_ZONE " name="CONSTRUCTION_1" id="CONSTRUCTION_1">
                     <!-- OK this is the CC/HPI/PMFSH area that can be developed in this format or the other modules drawn in to complete the intake?  -->
                     <div id="Lyr2" class="refraction borderShadow" style="position: relative;width:300px;float:left;" >
                         <b><?php echo xlt('Chief Complaint'); ?>: </b>
@@ -205,7 +394,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                         QUALITY     TIMING  DURATION    CONTEXT     SEVERITY    MODIFY  ASSOCIATED  LOCATION
                     </div>
                 
-                    
+                    <a class="css_button_small" href="javascript:;" onclick="dlgopen('/openemr/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"><span>Edit</span></a>
+                    <a class="css_button_small iframe rx_modal" href="/openemr/interface/patient_file/summary/rx_frameset.php" onclick="top.restoreSession()"><span>Edit Rx</span></a>
                     <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PMH:<br />
                         <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
                     <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PSurgHx:<br />
@@ -223,9 +413,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <div id="Lyr2.2" style="clear:both;border:1pt solid black;">
                     </div>
                 </div>
-                <div class="CONSTRUCTION_ZONE nodisplay" name="CONSTRUCTION_2" id="CONSTRUCTION_2" style="position:relative;border:1pt black solid;">
+                <div class="CONSTRUCTION_ZONE" name="CONSTRUCTION_2" id="CONSTRUCTION_2" style="position:relative;border:1pt black solid;">
                     <br />
-               
                         <span class="text_clinical">
                             
                                 <b><?php echo xlt('Mood/Affect'); ?>:</b>
@@ -281,14 +470,14 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             </div>
                             <div id="Visions_A" name="Visions_A" class="" style="position: absolute; top: 0.35in; text-align:right;right:0.1in; height: 0.72in;  padding: 0in;" >
                                 <b>OD </b>
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="6" size="6" id="SCODVA" name="SCODVA" value="<?php echo attr($SCODVA); ?>">
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="6" size="6"  id="WODVA_copy" name="WODVA_copy" value="<?php echo attr($WODVA); ?>">
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="6" size="6"  id="PHODVA_copy" name="PHODVA_copy" value="<?php echo attr($PHODVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="40" size="6" id="SCODVA" name="SCODVA" value="<?php echo attr($SCODVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="42" size="6"  id="WODVA_copy" name="WODVA_copy" value="<?php echo attr($WODVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="44" size="6"  id="PHODVA_copy" name="PHODVA_copy" value="<?php echo attr($PHODVA); ?>">
                                 <br />                            
                                 <b>OS </b>
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="7" size="6"  id="SCOSVA" name="SCOSVA" value="<?php echo attr($SCOSVA); ?>">
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="7" size="6" id="WOSVA_copy" name="WOSVA_copy" value="<?php echo attr($WOSVA); ?>">
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="7" size="6" id="PHOSVA_copy" name="PHOSVA_copy" value="<?php echo attr($PHOSVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="41" size="6"  id="SCOSVA" name="SCOSVA" value="<?php echo attr($SCOSVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="43" size="6" id="WOSVA_copy" name="WOSVA_copy" value="<?php echo attr($WOSVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="45" size="6" id="PHOSVA_copy" name="PHOSVA_copy" value="<?php echo attr($PHOSVA); ?>">
                                 <br />
                                 <span id="more_visions_1" name="more_visions_1" style="position: absolute;top:0.44in;left:-0.37in;font-size: 0.9em;pading-right:4px;"><b><?php echo xlt('Acuity'); ?></b> </span>
                                 <span style="position: absolute;top:0.44in;left:0.24in;font-size: 0.8em;"><b><?php echo xlt('SC'); ?></b></span>
@@ -297,14 +486,14 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             </div>
                             <div id="Visions_B" name="Visions_B" class="nodisplay" style="position: absolute; top: 0.35in; text-align:right;right:0.1in; height: 0.72in;  padding: 0in;" >
                                 <b><?php echo xlt('OD'); ?> </b>
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="6" size="6" id="ARODVA_copy" name="ARODVA_copy" value="<?php echo attr($ARODVA); ?>">
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="6" size="6" id="MRODVA_copy" name="MRODVA_copy" value="<?php echo attr($MRODVA); ?>">
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="6" size="6" id="CRODVA_copy" name="CRODVA_copy" value="<?php echo attr($CRODVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="46" size="6" id="ARODVA_copy" name="ARODVA_copy" value="<?php echo attr($ARODVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="48" size="6" id="MRODVA_copy" name="MRODVA_copy" value="<?php echo attr($MRODVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="50" size="6" id="CRODVA_copy" name="CRODVA_copy" value="<?php echo attr($CRODVA); ?>">
                                 <br />                            
                                 <b><?php echo xlt('OS'); ?> </b>
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="7" size="6" id="AROSVA_copy" name="AROSVA_copy" value="<?php echo attr($AROSVA); ?>">
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="7" size="6" id="MROSVA_copy" name="MROSVA_copy" value="<?php echo attr($MROSVA); ?>">
-                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="7" size="6" id="CROSVA_copy" name="CROSVA_copy" value="<?php echo attr($CROSVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="47" size="6" id="AROSVA_copy" name="AROSVA_copy" value="<?php echo attr($AROSVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="49" size="6" id="MROSVA_copy" name="MROSVA_copy" value="<?php echo attr($MROSVA); ?>">
+                                <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="51" size="6" id="CROSVA_copy" name="CROSVA_copy" value="<?php echo attr($CROSVA); ?>">
                                 <br />
                                 <span id="more_visions_2" name="more_visions_2" style="position: absolute;top:0.44in;left:-0.37in;font-size: 0.9em;pading-right:4px;"><b><?php echo xlt('Acuity'); ?></b> </span>
                                 <span style="position: absolute;top:0.44in;left:0.24in;font-size: 0.8em;"><b><?php echo xlt('AR'); ?></b></span>
@@ -326,7 +515,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             $IOPTIME =  date('g:i a'); 
                                         }
                                         ?>
-                                        <input type="text" name="IOPTIME" id="IOPTIME" style="background-color:#ffffff;font-size:0.7em;border:none;" value="<?php echo attr($IOPTIME); ?>">
+                                        <input type="text" name="IOPTIME" id="IOPTIME" tabindex="-1" style="background-color:#ffffff;font-size:0.7em;border:none;" value="<?php echo attr($IOPTIME); ?>">
 
                                     </div>    
                                 </span>
@@ -337,14 +526,14 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             </div>
                             <div id="Lyr4.2" style="position: absolute; top: 0.35in; text-align:right;right:0.1in; height: 0.72in;  padding: 0in; border: 1pt black;">
                                 <b><?php echo xlt('OD'); ?></b>
-                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="6" size="6" name="ODIOPAP" value="<?php echo attr($ODIOPAP); ?>">
-                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="6" size="6" name="ODIOPTPN" value="<?php echo attr($ODIOPTPN); ?>">
-                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="6" size="6" name="ODIOPFTN" value="<?php echo attr($ODIOPTPN); ?>">
+                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="52" size="6" name="ODIOPAP" value="<?php echo attr($ODIOPAP); ?>">
+                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="54" size="6" name="ODIOPTPN" value="<?php echo attr($ODIOPTPN); ?>">
+                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="56" size="6" name="ODIOPFTN" value="<?php echo attr($ODIOPTPN); ?>">
                                 <br />
                                 <b><?php echo xlt('OS'); ?> </b>
-                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="7" size="6" name="OSIOPAP" value="<?php echo attr($OSIOPAP); ?>">
-                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="7" size="6" name="OSIOPTPN" value="<?php echo attr($OSIOPTPN); ?>">
-                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="7" size="6" name="OSIOPFTN" value="<?php echo attr($OSIOPFTN); ?>">
+                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="53" size="6" name="OSIOPAP" value="<?php echo attr($OSIOPAP); ?>">
+                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="55" size="6" name="OSIOPTPN" value="<?php echo attr($OSIOPTPN); ?>">
+                                <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="57" size="6" name="OSIOPFTN" value="<?php echo attr($OSIOPFTN); ?>">
                                 <br /><br />
                                 <span style="position: absolute;top:0.44in;left:0.22in;font-size: 0.8em;"><b><?php echo xlt('AP'); ?></b></span>
                                 <span style="position: absolute;top:0.44in;left:0.47in;font-size: 0.8em;"><b><?php echo xlt('TP'); ?></b></span>
@@ -590,10 +779,19 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                         <table id="refraction_width" name="refraction_width" style="text-align:center;margin: 0 0;">
                             <tr>
                                 <td style="text-align:center;">
+                                    <?php ($IOP_X ==1) ? ($display_IOP = "display") : ($display_IOP = "nodisplay"); ?>
+                                    <div id="LayerVision_IOP" class="refraction borderShadow <?php echo $display_IOP; ?>">
+                                        <span class="closeButton fa fa-close" id="Close_W" name="Close_W"></span>
+                                        <a class="closeButton2 fa fa-print" onclick="top.restoreSession();  return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=W&id=<?php echo attr($pid); ?>"></a>
+                                         <table id="iopgraph" name "iopgraph" >
+
+                                         </table>
+                                    </div>
                                     <?php ($W ==1) ? ($display_W = "display") : ($display_W = "nodisplay"); ?>
                                     <div id="LayerVision_W" class="refraction borderShadow <?php echo $display_W; ?>">
-                                        <span class="closeButton fa fa-close" id="Close_W" name="Close_W"></span>
-                                        <a class="closeButton2 fa fa-print" onclick="top.restoreSession(); window.print(); return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=W&id=<?php echo attr($pid); ?>"></a>
+                                    <span class="closeButton fa fa-close" id="Close_W" name="Close_W"></span>
+                                    <a class="closeButton2 fa fa-print" onclick="top.restoreSession();  return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=W&id=<?php echo attr($pid); ?>"></a>
+                                    
                                         <table id="wearing" >
                                             <tr>
                                                 <th colspan="9" id="wearing_title"><?php echo xlt('Current Glasses'); ?>
@@ -675,7 +873,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                     <?php ($MR==1) ? ($display_AR = "display") : ($display_AR = "nodisplay");?>
                                     <div id="LayerVision_MR" class="refraction borderShadow <?php echo $display_AR; ?>">
                                         <span class="closeButton fa  fa-close" id="Close_MR" name="Close_MR"></span>
-                                        <a class="closeButton2 fa fa-print" onclick="top.restoreSession(); window.print(); return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=AR&id=<?php echo attr($pid); ?>"></a>
+                                        <a class="closeButton2 fa fa-print" onclick="top.restoreSession();  return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=AR&id=<?php echo attr($pid); ?>"></a>
                                         <table id="autorefraction">
                                             <th colspan=9>Autorefraction Refraction</th>
                                             <tr>
@@ -709,7 +907,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                 <td><input type=text id="AROSPRISM" name="AROSPRISM" value="<?php echo attr($AROSPRISM); ?>"></td>
                                             </tr>
                                             <th colspan="7">Manifest (Dry) Refraction</th>
-                                            <th colspan="2" style="text-align:right;"><a class="fa fa-print" style="margin:0 7;" onclick="top.restoreSession(); window.print(); return false;" href="../../forms/<?php echo attr($form_folder); ?>/SpectacleRx.php?target=MR&id=<?php echo attr($pid); ?>"></a></th>
+                                            <th colspan="2" style="text-align:right;"><a class="fa fa-print" style="margin:0 7;" onclick="top.restoreSession();  return false;" href="../../forms/<?php echo attr($form_folder); ?>/SpectacleRx.php?target=MR&id=<?php echo attr($pid); ?>"></a></th>
                                             <tr>
                                                 <td></td>
                                                 <td><?php echo xlt('Sph'); ?></td>
@@ -746,7 +944,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                     <?php ($CR==1)  ? ($display_Cyclo = "display") : ($display_Cyclo = "nodisplay"); ?>
                                     <div id="LayerVision_CR" class="refraction borderShadow <?php echo $display_Cyclo; ?>">
                                         <span class="closeButton fa  fa-close" id="Close_CR" name="Close_CR"></span>
-                                        <a class="closeButton2 fa fa-print" onclick="top.restoreSession(); window.print(); return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=CR&id=<?php echo attr($pid); ?>"></a>
+                                        <a class="closeButton2 fa fa-print" onclick="top.restoreSession();  return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=CR&id=<?php echo attr($pid); ?>"></a>
                                         <table id="cycloplegia">
                                             <th colspan=9><?php echo xlt('Cycloplegic (Wet) Refraction'); ?></th>
                                             <tr>
@@ -825,7 +1023,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                     <?php ($CTL==1) ? ($display_CTL = "display") : ($display_CTL = "nodisplay"); ?>
                                     <div id="LayerVision_CTL" class="refraction borderShadow <?php echo $display_CTL; ?>">
                                         <span class="closeButton fa  fa-close" id="Close_CTL" name="Close_CTL"></span>
-                                        <a class="closeButton2 fa fa-print" onclick="top.restoreSession(); window.print(); return false;" href="../../forms/<?php echo attr($form_folder); ?>/SpectacleRx.php?target=CTL&id=<?php echo attr($pid)?>"></a>
+                                        <a class="closeButton2 fa fa-print" onclick="top.restoreSession(); return false;" href="../../forms/<?php echo attr($form_folder); ?>/SpectacleRx.php?target=CTL&id=<?php echo attr($pid)?>"></a>
                                         <table id="CTL" style="width:100%;">
                                             <th colspan="9"><?php echo xlt('Contact Lens Refraction'); ?></th>
                                             <tr>
@@ -1009,22 +1207,22 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                 
                                             </tr>
                                             <tr><td><b><?php echo xlt('OD'); ?>:</b></td>
-                                                <td><input type=text id="SCODVA_copy_brd" name="SCODVA_copy_brd" value="<?php echo attr($SCODVA); ?>"></td>
-                                                <td><input type=text id="WODVA_copy_brd" name="WODVA_copy_brd" value="<?php echo attr($WODVA); ?>"></td>
-                                                <td><input type=text id="ARODVA_copy_brd" name="ARODVA_copy_brd" value="<?php echo attr($ARODVA); ?>"></td>
-                                                <td><input type=text id="MRODVA_copy_brd" name="MRODVA_copy_brd" value="<?php echo attr($MRODVA); ?>"></td>
-                                                <td><input type=text id="CRODVA_copy_brd" name="CRODVA_copy_brd" value="<?php echo attr($CRODVA); ?>"></td>
-                                                <td><input type=text id="PHODVA_copy_brd" name="PHODVA_copy_brd" value="<?php echo attr($PHODVA); ?>"></td>
-                                                <td><input type=text id="CTLODVA_copy_brd" name="CTLODVA_copy_brd" value="<?php echo attr($CTLODVA); ?>"></td>
+                                                <td><input type=text id="SCODVA_copy_brd" name="SCODVA_copy_brd" value="<?php echo attr($SCODVA); ?>" tabindex="1"></td>
+                                                <td><input type=text id="WODVA_copy_brd" name="WODVA_copy_brd" value="<?php echo attr($WODVA); ?>" tabindex="102"></td>
+                                                <td><input type=text id="ARODVA_copy_brd" name="ARODVA_copy_brd" value="<?php echo attr($ARODVA); ?>" tabindex="104"></td>
+                                                <td><input type=text id="MRODVA_copy_brd" name="MRODVA_copy_brd" value="<?php echo attr($MRODVA); ?>" tabindex="106"></td>
+                                                <td><input type=text id="CRODVA_copy_brd" name="CRODVA_copy_brd" value="<?php echo attr($CRODVA); ?>" tabindex="108"></td>
+                                                <td><input type=text id="PHODVA_copy_brd" name="PHODVA_copy_brd" value="<?php echo attr($PHODVA); ?>" tabindex="110"></td>
+                                                <td><input type=text id="CTLODVA_copy_brd" name="CTLODVA_copy_brd" value="<?php echo attr($CTLODVA); ?>" tabindex="100"></td>
                                                 </tr>
                                              <tr><td><b><?php echo xlt('OS'); ?>:</b></td>
-                                                <td><input type=text id="SCOSVA_copy" name="SCOSVA_copy" value="<?php echo attr($SCOSVA); ?>"></td>
-                                                <td><input type=text id="WOSVA_copy_brd" name="WOSVA_copy_brd" value="<?php echo attr($WOSVA); ?>"></td>
-                                                <td><input type=text id="AROSVA_copy_brd" name="AROSVA_copy_brd" value="<?php echo attr($AROSVA); ?>"></td>
-                                                <td><input type=text id="MROSVA_copy_brd" name="MROSVA_copy_brd" value="<?php echo attr($MROSVA); ?>"></td>
-                                                <td><input type=text id="CROSVA_copy_brd" name="CROSVA_copy_brd" value="<?php echo attr($CROSVA); ?>"></td>
-                                                <td><input type=text id="PHOSVA_copy_brd" name="PHOSVA_copy_brd" value="<?php echo attr($PHOSVA); ?>"></td>
-                                                <td><input type=text id="CTLOSVA_copy_brd" name="CTLOSVA_copy_brd" value="<?php echo attr($CTLOSVA); ?>"></td>
+                                                <td><input type=text id="SCOSVA_copy" name="SCOSVA_copy" value="<?php echo attr($SCOSVA); ?>" tabindex="100"></td>
+                                                <td><input type=text id="WOSVA_copy_brd" name="WOSVA_copy_brd" value="<?php echo attr($WOSVA); ?>" tabindex="101"></td>
+                                                <td><input type=text id="AROSVA_copy_brd" name="AROSVA_copy_brd" value="<?php echo attr($AROSVA); ?>" tabindex="103"></td>
+                                                <td><input type=text id="MROSVA_copy_brd" name="MROSVA_copy_brd" value="<?php echo attr($MROSVA); ?>" tabindex="105"></td>
+                                                <td><input type=text id="CROSVA_copy_brd" name="CROSVA_copy_brd" value="<?php echo attr($CROSVA); ?>" tabindex="107"></td>
+                                                <td><input type=text id="PHOSVA_copy_brd" name="PHOSVA_copy_brd" value="<?php echo attr($PHOSVA); ?>" tabindex="109"></td>
+                                                <td><input type=text id="CTLOSVA_copy_brd" name="CTLOSVA_copy_brd" value="<?php echo attr($CTLOSVA); ?>" tabindex="111"></td>
                                             </tr>
                                             <tr><td>&nbsp;</td></tr>
                                             <tr>
@@ -1102,6 +1300,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                         <div id="EXT_left" class="exam_section_left borderShadow" >
                             <?php display_draw_section ("VISION",$encounter,$pid); ?>
                             <div id="EXT_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
+                                
                                 <b><?php echo xlt('External Exam'); ?>:</b><br />
                                 <div style="position:relative;float:right;top:0.2in;">
                                     <table style="text-align:center;font-weight:600;font-size:0.7em;">
@@ -1253,9 +1452,10 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <!-- start Anterior Segment -->
                     <div id="ANTSEG_1" class="<?php echo attr($display_Add); ?> clear_both"> 
                         <div id="ANTSEG_left" class="exam_section_left borderShadow">
-                            <span class="closeButton fa fa-plus-square-o" id="MAX_ANTSEG" name="MAX_ANTSEG"></span>
                             <?php display_draw_section ("EXT",$encounter,$pid); ?>
                             <div class="TEXT_class" id="ANTSEG_left_text" style="height: 2.5in;text-align:left;">
+                                <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_ANTSEG" name="BUTTON_DRAW_ANTSEG"></span>
+                            
                                 <b><?php echo xlt('Anterior Segment'); ?>:</b><br />
                                 <div class="text_clinical" style="position:relative;float:right;top:0.2in;">
                                     <table style="text-align:center;font-size:0.8em;font-weight:bold;"> 
@@ -1380,8 +1580,11 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <div id="RETINA_1" class="<?php echo attr($display_Add); ?> clear_both" > 
                         <div id="RETINA_left" class="exam_section_left borderShadow">
                             <?php display_draw_section ("RETINA",$encounter,$pid); ?>
-                            <div class="TEXT_class" id="RETINA_left_text" style="height: 2.5in;text-align:left;"> 
-                                <span class="closeButton fa fa-plus-square-o" id="MAX_RETINA" name="MAX_RETINA"></span>
+                            <div class="TEXT_class" id="RETINA_left_text" name="RETINA_left_text" style="height: 2.5in;text-align:left;"> 
+                              <!-- 
+                              <span class="closeButton fa fa-plus-square-o" id="MAX_RETINA" name="MAX_RETINA"></span>
+                              -->
+                              <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_RETINA" name="BUTTON_DRAW_RETINA"></span>
                                 <b><?php echo xlt('Retina'); ?>:</b><br />
                                 <div style="position:relative;float:right;top:0.2in;">
                                     <table style="float:right;text-align:right;font-size:0.8em;font-weight:bold;padding:10px 0px 5px 10px;">
@@ -1424,7 +1627,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                 <img src="../../forms/<?php echo $form_folder; ?>/images/upload_multi.png" class="little_image">
                                             </td>
                                             <td>
-                                                <img src="../../forms/<?php echo $form_folder; ?>/images/jpg.png" class="little_image">
+                                                <img src="../../forms/<?php echo $form_folder; ?>/images/jpg.png" onclick="openImage()" class="little_image">
                                             </td>
                                         </tr>
                                         <tr>
@@ -1587,11 +1790,13 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <!-- start Neuro -->
                     <div id="NEURO_1" class="<?php echo attr($display_Add); ?> clear_both"> 
                         <div id="NEURO_left" class="exam_section_left borderShadow">
-                            <span class="closeButton fa fa-plus-square-o" id="MAX_NEURO" name="MAX_NEURO"></span>
-                            <div class="TEXT_class" id="NEURO_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
+                            <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_NEURO" name="BUTTON_DRAW_NEURO"></span>
+                              <div class="TEXT_class" id="NEURO_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
                                 <b><?php echo xlt('Neuro'); ?>:</b><br />
                                 <div style="float:left;font-size:0.9em;">
-                                    <div id="NEURO_text_list" class="borderShadow" style="border:1pt solid black;float:left;width:165px;text-align:center;margin:2 auto;font-weight:bold;">
+                                    <div id="NEURO_text_list" class="borderShadow" 
+                                            style="border:1pt solid black;float:left;width:165px;text-align:center;
+                                            margin:2 auto;font-weight:bold;">
                                         <table style="font-size:1.1em;font-weight:600;">
                                             <tr>
                                                 <td></td><td style="text-align:center;"><?php echo xlt('OD'); ?></td><td style="text-align:center;"><?php echo xlt('OS'); ?></td></tr>
@@ -1639,14 +1844,11 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                    <span title="<?php echo xlt('Insert normals - 100/100'); ?>" class="fa fa-share-square-o fa-flip-horizontal" id="NEURO_COINS" name="NEURO_COINS"></span>
                                                 &nbsp;</td>
                                             </tr>
-                                           
                                         </table>
                                     </div>
-                                   
                                     <div class="borderShadow" style="position:relative;float:right;text-align:center;width:230px;">
-                                        <span class="closeButton fa-stack fa-lg">
-                                          <i class="fa fa-th fa-fw" id="Close_ACTMAIN" style="right:0.2em;" name="Close_ACTMAIN"></i>
-                                        </span>
+                                        
+                                          <i class="fa fa-th fa-fw closeButton " id="Close_ACTMAIN" style="right:0.2em;" name="Close_ACTMAIN"></i>
                                         <table style="position:relative;float:left;font-size:1.2em;width:210px;font-weight:600;"> 
                                             <tr style="text-align:left;height:26px;vertical-align:middle;width:180px;">
                                                 <td >
@@ -1660,10 +1862,10 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             </tr>
                                             <tr>
                                                 <td colspan="2" style="text-align:center;"> 
-                                                    <div id="ACTMAIN" name="ACTMAIN" class="nodisplay ACT_TEXT" style="position:relative;z-index:1;margin 10 auto;">
+                                                    <div id="ACTMAIN" name="ACTMAIN" class="nodisplay ACT_TEXT" style="position:relative;z-index:1;margin 10 auto 5;">
                                                        <br /> 
 
-                                                       <table cellpadding="0" style="position:relative;text-align:center;font-size:0.9em;margin: 7 5 19 5;border-collapse: separate;">
+                                                       <table cellpadding="0" style="position:relative;text-align:center;font-size:0.9em;margin: 7 5 10 5;border-collapse: separate;">
                                                             <tr>
                                                                 <td id="ACT_tab_SCDIST" name="ACT_tab_SCDIST" class="ACT_selected"> <?php echo xlt('scDist'); ?> </td>
                                                                 <td id="ACT_tab_CCDIST" name="ACT_tab_CCDIST" class="ACT_deselected"> <?php echo xlt('ccDist'); ?> </td>
@@ -1854,7 +2056,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                         <input type="text" style="width:85%;" name="STEREOPSIS" id="STEREOPSIS" value="<?php echo attr($STEREOPSIS); ?>">
                                                     </td>
                                                 </tr>
-                                                <tr><td colspan="3"><br /><u><?php echo xlt('Amplitudes'); ?></u><br />
+                                                <tr><td colspan="3"><br /><br /><u><?php echo xlt('Amplitudes'); ?></u><br />
                                                     </td></tr>
                                                 <tr><td ></td><td ><?php echo xlt('Distance'); ?></td><td><?php echo xlt('Near'); ?></td></tr>
                                                 <tr>
@@ -1885,7 +2087,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                     <td style="width:40%;font-size:0.9em;margin:0 auto;font-weight:bold;"><?php echo xlt('Motility'); ?>:</td>
                                                     <td style="font-size:0.9em;vertical-align:top;text-align:right;top:0.0in;right:0.1in;height:0px;">
                                                         <label for="MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
-                                                        <input id="MOTILITYNORMAL" name="MOTILITYNORMAL" type="checkbox" value="1" checked>
+                                                        <input id="MOTILITYNORMAL" name="MOTILITYNORMAL" type="checkbox" <?php if ($MOTILITYNORMAL =='1') echo "echecked"; ?>>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -2255,7 +2457,6 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                 </div>
                             </div>     
                         </div>
-                        
                         <div id="NEURO_right" class="exam_section_right borderShadow text_clinical <?php echo attr($display_Visibility); ?>">
                             <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 1.1em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS">
                                     <i class="fa fa-spinner"></i>
@@ -2344,6 +2545,9 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                 </div>
                 <!-- end of the exam section -->
             </div>
+          <!--
+            <a style="bottom:10px;" onclick="top.restoreSession(); window.print(); return false;">Print PDF</a>
+          -->       
         </div>
         <!-- end container for the main body of the form -->
     </form>

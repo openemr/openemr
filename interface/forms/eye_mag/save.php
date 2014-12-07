@@ -155,6 +155,19 @@ if ($AJAX_PREFS) {
             ('PREFS','NEURO_VIEW','Neuro View',?,'NEURO_VIEW','63',?,'13') 
             on DUPLICATE KEY UPDATE VALUE=?";
   sqlQuery($query,array($_SESSION['authId'],$PREFS_NEURO_VIEW,$PREFS_NEURO_VIEW)); 
+
+  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','ACT_VIEW','ACT View',?,'ACT_VIEW','64',?,'14') 
+            on DUPLICATE KEY UPDATE VALUE=?";
+  sqlQuery($query,array($_SESSION['authId'],$PREFS_ACT_VIEW,$PREFS_ACT_VIEW)); 
+
+  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+            VALUES 
+            ('PREFS','ACT_SHOW','ACT Show',?,'ACT_SHOW','65',?,'15') 
+            on DUPLICATE KEY UPDATE VALUE=?";
+  sqlQuery($query,array($_SESSION['authId'],$PREFS_ACT_SHOW,$PREFS_ACT_SHOW)); 
+ 
 }
 
 /**  
@@ -180,7 +193,9 @@ if ($_GET["mode"] == "new") {
         if (sqlNumRows($result) > 0) {
           //checkboxes need to be entered manually as they are only submitted when they are checked
           //if checked they are overridden below with the "on" value...
-          $fields['DIL_RISKS'] = 'off';
+          $fields['DIL_RISKS'] = '0';
+          $fields['ACT'] = '0';
+          $fields['MOTILITYNORMAL'] = '0';
           //there are more to come...
           while ($row = sqlFetchArray($result)) {
             if ($row['Field'] == 'id' or 
@@ -192,8 +207,10 @@ if ($_GET["mode"] == "new") {
                $row['Field'] == 'activity') continue;
             if (isset($_POST[$row['Field']])) {
               $fields[$row[Field]] = $_POST[$row['Field']];
-           //   $test = $row['Field'] . " = ". $_POST[$row['Field']];
-           //  echo "<script> alert('".$test."');</script>";
+            if ($row['Field'] == "MOTILITYNORMAL") {
+              $test = $row['Field'] . " = ". $_POST[$row['Field']];
+            echo "<script> alert('".$test."');</script>";
+          }
             }
           }
         }

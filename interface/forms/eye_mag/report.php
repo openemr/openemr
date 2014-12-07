@@ -98,8 +98,8 @@ $objQuery =sqlQuery($query,array($encounter,$pid));
 $dated = new DateTime($encounter_date);
 $visit_date = $dated->format('m/d/Y'); 
 /*
-Is there a global setting for displaying dates?
-If this form only uses visit_date for display purposes then use the global preference instead.
+There is a global setting for displaying dates...
+If this form only uses visit_date for display purposes then use the global preference above instead.
 */
 formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 
@@ -109,12 +109,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
    // html_header_show();  //why use this at all?
     ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
-<?php 
-/*
-I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  NOT SURE IF IT IS NEEDED HERE SO PUT IT ASIDE FOR NOW
-<script type="text/javascript" src="https://raw.githubusercontent.com/erikzaadi/jQueryPlugins/master/jQuery.printElement/jquery.printElement.min.js"></script>
-*/
-?>
+
 <!-- Add Font stuff for the look and feel.  -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
@@ -131,22 +126,29 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
             for ($i = 0; $i < count($zone); ++$i) {
                 $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
                 if (file_exists($file_location)) {
-                    $filetoshow = $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/eye_mag/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png?".rand();
+                    $filetoshow = $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png?".rand();
                 } else {
                     $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
                 }
-                echo "<img src='".$filetoshow."' width=300 heght=200>&nbsp;";
+                echo "<span class='bordershadow' style='position:relative;float:left;width:45%''><img src='".$filetoshow."' width=300 heght=200></span>";
             }
             exit;
         ?>
+        <div class="bordershadow">
     <?php display_draw_section ("VISION",$encounter,$pid); ?>
+</div>
+<div class="bordershadow">
     <br />
     <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+</div>
+<div class="bordershadow">
     <br />
     <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+</div>
+<div class="bordershadow">
     <br />
     <?php display_draw_section ("NEURO",$encounter,$pid); ?>
-</body>
+</div></body>
 </html>
 
 <?

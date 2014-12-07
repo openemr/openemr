@@ -53,8 +53,9 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
                                 vertical-align:text-top;
                                 z-index:10;
                                 display: nowrap;' 
-                           id='".attr($zone)."_prefix_oldies' name='".attr($zone)."_prefix_oldies'  
-                           class='display ' >";
+                                id='".attr($zone)."_prefix_oldies' 
+                                name='".attr($zone)."_prefix_oldies'  
+                                class='display ' >";
     $selected='';
     $current='';
     if (!$priors) {
@@ -113,7 +114,11 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
     }
     if ($id_to_show != $orig_id) {
         $output_return .= '
-                <span title="Copy '.attr($zone).' values from '.attr($priors[$current]['exam_date']).' to current visit"
+                <span title="   '.xla("Copy $zone values from ".$priors[$current]['exam_date']." to current visit.").'
+    '.xla("If you add the Default values first, they will NOT be overwritten, ").'
+    '.xla("but everything else WILL be overwritten.").'
+    '.xla("Newly updated fields are shown in purple.").'"
+
                     id="COPY_'.attr($zone).'"
                     name="COPY_'.attr($zone).'"
                     value="'.attr($id_to_show).'" onclick=\'$("#COPY_SECTION").val("'.attr($zone).'-'.attr($id_to_show).'").trigger("change");\'>
@@ -190,7 +195,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
         $output = priors_select($zone,$orig_id,$id_to_show,$pid);
         ?> 
         
-        <input type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
+        <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
                 <div style="position:absolute;top:0.083in;right:0.241in;">
                      <?php
@@ -204,31 +209,31 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         </tr>
                         <tr>
                             <td class="right"><?php echo xlt('Lev Fn'); ?></td>
-                            <td><input  type="text" size="1" name="PRIOR_RLF" id="PRIOR_RLF" value="<?php echo attr($RLF); ?>"></td>
-                            <td><input  type="text" size="1" name="PRIOR_LLF" id="PRIOR_LLF" value="<?php echo attr($LLF); ?>"></td>
+                            <td><input disabled  type="text" size="1" name="PRIOR_RLF" id="PRIOR_RLF" value="<?php echo attr($RLF); ?>"></td>
+                            <td><input disabled  type="text" size="1" name="PRIOR_LLF" id="PRIOR_LLF" value="<?php echo attr($LLF); ?>"></td>
                         </tr>
                         <tr>
                             <td class="right"><?php echo xlt('MRD'); ?></td>
-                            <td><input type="text" size="1" name="PRIOR_RMRD" id="PRIOR_RMRD" value="<?php echo attr($RMRD); ?>"></td>
-                            <td><input type="text" size="1" name="PRIOR_LMRD" id="PRIOR_LMRD" value="<?php echo attr($LMRD); ?>"></td>
+                            <td><input disabled type="text" size="1" name="PRIOR_RMRD" id="PRIOR_RMRD" value="<?php echo attr($RMRD); ?>"></td>
+                            <td><input disabled type="text" size="1" name="PRIOR_LMRD" id="PRIOR_LMRD" value="<?php echo attr($LMRD); ?>"></td>
                         </tr>
                         <tr>
                             <td class="right"><?php echo xlt('Vert Fissure'); ?></td>
-                            <td><input type="text" size="1" name="PRIOR_RVFISSURE" id="PRIOR_RVFISSURE" value="<?php echo attr($RVFISSURE); ?>"></td>
-                            <td><input type="text" size="1" name="PRIOR_LVFISSURE" id="PRIOR_LVFISSURE" value="<?php echo attr($LVFISSURE); ?>"></td>
+                            <td><input disabled type="text" size="1" name="PRIOR_RVFISSURE" id="PRIOR_RVFISSURE" value="<?php echo attr($RVFISSURE); ?>"></td>
+                            <td><input disabled type="text" size="1" name="PRIOR_LVFISSURE" id="PRIOR_LVFISSURE" value="<?php echo attr($LVFISSURE); ?>"></td>
                         </tr>
                         <tr><td colspan=3 style="padding-top:0.15in;background-color:none;text-decoration:underline;"><br /><?php echo xlt('Hertel Exophthalmometry'); ?></td></tr>
                         <tr style="text-align:center;">
                             <td>
-                                <input type=text size=1 id="PRIOR_ODHERTEL" name="PRIOR_ODHERTEL" value="<?php echo attr($ODHERTEL); ?>">
+                                <input disabled type=text size=1 id="PRIOR_ODHERTEL" name="PRIOR_ODHERTEL" value="<?php echo attr($ODHERTEL); ?>">
                                 <span style="width:40px;-moz-text-decoration-line: line-through;text-align:center;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
                             </td>
                             <td>
-                                <input type=text size=3  id="PRIOR_HERTELBASE" name="PRIOR_HERTELBASE" value="<?php echo attr($HERTELBASE); ?>">
+                                <input disabled type=text size=3  id="PRIOR_HERTELBASE" name="PRIOR_HERTELBASE" value="<?php echo attr($HERTELBASE); ?>">
                                 <span style="width:400px;-moz-text-decoration-line: line-through;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
                             </td>
                             <td>
-                                <input type=text size=1  id="PRIOR_OSHERTEL" name="PRIOR_OSHERTEL" value="<?php echo attr($OSHERTEL); ?>">
+                                <input disabled type=text size=1  id="PRIOR_OSHERTEL" name="PRIOR_OSHERTEL" value="<?php echo attr($OSHERTEL); ?>">
                             </td>
                         </tr>
                     </table>
@@ -243,34 +248,34 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <th><?php echo xlt('Right'); ?></th><td style="width:100px;"></td><th><?php echo xlt('Left'); ?> </th>
                     </tr>
                     <tr>
-                        <td><textarea name="PRIOR_RBROW" id="PRIOR_RBROW" class="right "><?php echo text($RBROW); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_RBROW" id="PRIOR_RBROW" class="right "><?php echo text($RBROW); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Brow'); ?></td>
-                        <td><textarea name="PRIOR_LBROW" id="PRIOR_LBROW" class=""><?php echo text($LBROW); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_LBROW" id="PRIOR_LBROW" class=""><?php echo text($LBROW); ?></textarea></td>
                     </tr> 
                     <tr>
-                        <td><textarea name="PRIOR_RUL" id="PRIOR_RUL" class="right"><?php echo text($RUL); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_RUL" id="PRIOR_RUL" class="right"><?php echo text($RUL); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Upper Lids'); ?></td>
-                        <td><textarea name="PRIOR_LUL" id="PRIOR_LUL" class=""><?php echo text($LUL); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_LUL" id="PRIOR_LUL" class=""><?php echo text($LUL); ?></textarea></td>
                     </tr> 
                     <tr>
-                        <td><textarea name="PRIOR_RLL" id="PRIOR_RLL" class="right"><?php echo text($RLL); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_RLL" id="PRIOR_RLL" class="right"><?php echo text($RLL); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Lower Lids'); ?></td>
-                        <td><textarea name="PRIOR_LLL" id="PRIOR_LLL" class=""><?php echo text($LLL); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_LLL" id="PRIOR_LLL" class=""><?php echo text($LLL); ?></textarea></td>
                     </tr>
                     <tr>
-                        <td><textarea name="PRIOR_RMCT" id="PRIOR_RMCT" class="right"><?php echo text($RMCT); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_RMCT" id="PRIOR_RMCT" class="right"><?php echo text($RMCT); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Medial Canthi'); ?></td>
-                        <td><textarea name="PRIOR_LMCT" id="PRIOR_LMCT" class=""><?php echo text($LMCT); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_LMCT" id="PRIOR_LMCT" class=""><?php echo text($LMCT); ?></textarea></td>
                     </tr>
                      <tr>
-                        <td><textarea name="PRIOR_RMAX" id="PRIOR_RMAX" class="right"><?php echo text($RADNEXA); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_RMAX" id="PRIOR_RMAX" class="right"><?php echo text($RADNEXA); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Adnexa'); ?></td>
-                        <td><textarea name="PRIOR_LMAX" id="PRIOR_LMAX" class=""><?php echo text($LADNEXA); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_LMAX" id="PRIOR_LMAX" class=""><?php echo text($LADNEXA); ?></textarea></td>
                     </tr>
                 </table>
             </div>  <br />
             <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.9em;text-align:left;padding-left:25px;"> <b><?php echo xlt('Comments'); ?>:</b><br />
-                  <textarea id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS" style="width:4.0in;height:3em;"><?php echo text($EXT_COMMENTS); ?></textarea>
+                  <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS" style="width:4.0in;height:3em;"><?php echo text($EXT_COMMENTS); ?></textarea>
             </div>  
 
             <?
@@ -280,7 +285,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
 
         ?> 
         
-        <input type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
+        <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
         <div style="position:absolute;top:0.083in;right:0.241in;">
              <?php
@@ -296,13 +301,13 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                 </tr>
                 <tr>
                     <td><?php echo xlt('Gonioscopy'); ?></td>
-                    <td><input  type="text" class="" name="PRIOR_ODGONIO" id="PRIOR_ODGONIO" value="<?php echo attr($ODGONIO); ?>"></td>
-                    <td><input  type="text" size="2" name="PRIOR_OSGONIO" id="PRIOR_OSGONIO" value="<?php echo attr($OSGONIO); ?>"></td>
+                    <td><input disabled  type="text" class="" name="PRIOR_ODGONIO" id="PRIOR_ODGONIO" value="<?php echo attr($ODGONIO); ?>"></td>
+                    <td><input disabled  type="text" size="2" name="PRIOR_OSGONIO" id="PRIOR_OSGONIO" value="<?php echo attr($OSGONIO); ?>"></td>
                 </tr>
                 <tr>
                     <td><?php echo xlt('Pachymetry'); ?></td>
-                    <td><input type="text" size="1" name="PRIOR_ODKTHICKNESS" id="PRIOR_ODKTHICKNESS" value="<?php echo attr($ODKTHICKNESS); ?>"></td>
-                    <td><input type="text" size="1" name="PRIOR_OSKTHICKNESS" id="PRIOR_OSKTHICKNESS" value="<?php echo attr($OSKTHICKNESS); ?>"></td>
+                    <td><input disabled type="text" size="1" name="PRIOR_ODKTHICKNESS" id="PRIOR_ODKTHICKNESS" value="<?php echo attr($ODKTHICKNESS); ?>"></td>
+                    <td><input disabled type="text" size="1" name="PRIOR_OSKTHICKNESS" id="PRIOR_OSKTHICKNESS" value="<?php echo attr($OSKTHICKNESS); ?>"></td>
                 </tr>
             </table>
         </div>
@@ -316,34 +321,34 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <th><?php echo xlt('OD'); ?></th><td style="width:100px;"></td><th><?php echo xlt('OS'); ?></th></td>
                     </tr>
                     <tr>
-                        <td><textarea name="PRIOR_ODCONJ" id="PRIOR_ODCONJ" class="right"><?php echo text($ODCONJ); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_ODCONJ" id="PRIOR_ODCONJ" class="right"><?php echo text($ODCONJ); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Conj'); ?> / <?php echo xlt('Sclera'); ?></td>
-                        <td><textarea name="PRIOR_OSCONJ" id="PRIOR_OSCONJ" class=""><?php echo text($OSCONJ); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_OSCONJ" id="PRIOR_OSCONJ" class=""><?php echo text($OSCONJ); ?></textarea></td>
                     </tr> 
                     <tr>
-                        <td><textarea name="PRIOR_ODCORNEA" id="PRIOR_ODCORNEA" class="right"><?php echo text($ODCORNEA); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_ODCORNEA" id="PRIOR_ODCORNEA" class="right"><?php echo text($ODCORNEA); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Cornea'); ?></td>
-                        <td><textarea name="PRIOR_OSCORNEA" id="PRIOR_OSCORNEA" class=""><?php echo text($OSCORNEA); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_OSCORNEA" id="PRIOR_OSCORNEA" class=""><?php echo text($OSCORNEA); ?></textarea></td>
                     </tr> 
                     <tr>
-                        <td><textarea name="PRIOR_ODAC" id="PRIOR_ODAC" class="right"><?php echo text($ODAC); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_ODAC" id="PRIOR_ODAC" class="right"><?php echo text($ODAC); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;"><?php echo xlt('A/C'); ?></td>
-                        <td><textarea name="PRIOR_OSAC" id="PRIOR_OSAC" class=""><?php echo text($OSAC); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_OSAC" id="PRIOR_OSAC" class=""><?php echo text($OSAC); ?></textarea></td>
                     </tr>
                     <tr>
-                        <td><textarea name="PRIOR_ODLENS" id="PRIOR_ODLENS" class=" right"><?php echo text($ODLENS); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_ODLENS" id="PRIOR_ODLENS" class=" right"><?php echo text($ODLENS); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;font-size:0.9em;" class="dropShadow"><?php echo xlt('Lens'); ?></td>
-                        <td><textarea name="PRIOR_OSLENS" id="PRIOR_OSLENS" class=""><?php echo text($OSLENS); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_OSLENS" id="PRIOR_OSLENS" class=""><?php echo text($OSLENS); ?></textarea></td>
                     </tr>
                     <tr>
-                        <td><textarea name="PRIOR_ODIRIS" id="PRIOR_ODIRIS" class="right"><?php echo text($ODIRIS); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_ODIRIS" id="PRIOR_ODIRIS" class="right"><?php echo text($ODIRIS); ?></textarea></td>
                         <td style="text-align:center;"><?php echo xlt('Iris'); ?></td>
-                        <td><textarea name="PRIOR_OSIRIS" id="PRIOR_OSIRIS" class=""><?php echo text($OSIRIS); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_OSIRIS" id="PRIOR_OSIRIS" class=""><?php echo text($OSIRIS); ?></textarea></td>
                     </tr>
                 </table>
         </div>  <br />
         <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.9em;text-align:left;padding-left:25px;"> <b><?php echo xlt('Comments'); ?>:</b><br />
-            <textarea id="PRIOR_ANTSEG_COMMENTS" name="PRIOR_ANTSEG_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($ANTSEG_COMMENTS); ?></textarea>
+            <textarea disabled id="PRIOR_ANTSEG_COMMENTS" name="PRIOR_ANTSEG_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($ANTSEG_COMMENTS); ?></textarea>
         </div>   
        
         <?
@@ -352,7 +357,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
         $output =  priors_select($zone,$orig_id,$id_to_show,$pid);
         ?> 
         
-        <input type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
+        <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
         <div style="position:absolute;top:0.083in;right:0.241in;">                              
              <?php
@@ -440,10 +445,10 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                             <td>
                                                 <?php echo xlt('CMT'); ?>:</td>
                                             <td>
-                                                <input name="PRIOR_ODCMT" size="4" id="PRIOR_ODCMT" value="<?php echo attr($ODCMT); ?>">
+                                                <input disabled name="PRIOR_ODCMT" size="4" id="PRIOR_ODCMT" value="<?php echo attr($ODCMT); ?>">
                                             </td>
                                             <td>
-                                                <input name="PRIOR_OSCMT" size="4" id="PRIOR_OSCMT" value="<?php echo attr($OSCMT); ?>">
+                                                <input disabled name="PRIOR_OSCMT" size="4" id="PRIOR_OSCMT" value="<?php echo attr($OSCMT); ?>">
                                             </td>
                                         </tr>
                                     </table>
@@ -459,29 +464,29 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                                     <th><?php echo xlt('OD'); ?></th><td style="width:100px;"></td><th><?php echo xlt('OS'); ?></th></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><textarea name="ODDISC" id="ODDISC" class="right"><?php echo text($ODDISC); ?></textarea></td>
+                                                    <td><textarea disabled name="ODDISC" id="ODDISC" class="right"><?php echo text($ODDISC); ?></textarea></td>
                                                     <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Disc'); ?></td>
-                                                    <td><textarea name="OSDISC" id="OSDISC" class=""><?php echo text($OSDISC); ?></textarea></td>
+                                                    <td><textarea disabled name="OSDISC" id="OSDISC" class=""><?php echo text($OSDISC); ?></textarea></td>
                                                 </tr> 
                                                 <tr>
-                                                    <td><textarea name="ODCUP" id="ODCUP" class="right"><?php echo text($ODCUP); ?></textarea></td>
+                                                    <td><textarea disabled name="ODCUP" id="ODCUP" class="right"><?php echo text($ODCUP); ?></textarea></td>
                                                     <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Cup'); ?></td>
-                                                    <td><textarea name="OSCUP" id="OSCUP" class=""><?php echo text($OSCUP); ?></textarea></td>
+                                                    <td><textarea disabled name="OSCUP" id="OSCUP" class=""><?php echo text($OSCUP); ?></textarea></td>
                                                 </tr> 
                                                 <tr>
-                                                    <td><textarea name="ODMACULA" id="ODMACULA" class="right"><?php echo text($ODMACULA); ?></textarea></td>
+                                                    <td><textarea disabled name="ODMACULA" id="ODMACULA" class="right"><?php echo text($ODMACULA); ?></textarea></td>
                                                     <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Macula'); ?></td>
-                                                    <td><textarea name="OSMACULA" id="OSMACULA" class=""><?php echo text($OSMACULA); ?></textarea></td>
+                                                    <td><textarea disabled name="OSMACULA" id="OSMACULA" class=""><?php echo text($OSMACULA); ?></textarea></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><textarea name="ODVESSELS" id="ODVESSELS" class="right"><?php echo text($ODVESSELS); ?></textarea></td>
+                                                    <td><textarea disabled name="ODVESSELS" id="ODVESSELS" class="right"><?php echo text($ODVESSELS); ?></textarea></td>
                                                     <td style="text-align:center;font-size:0.9em;" class=""><?php echo xlt('Vessels'); ?></td>
-                                                    <td><textarea name="OSVESSELS" id="OSVESSELS" class=""><?php echo text($OSVESSELS); ?></textarea></td>
+                                                    <td><textarea disabled name="OSVESSELS" id="OSVESSELS" class=""><?php echo text($OSVESSELS); ?></textarea></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><textarea name="ODPERIPH" id="ODPERIPH" class="right"><?php echo text($ODPERIPH); ?></textarea></td>
+                                                    <td><textarea disabled name="ODPERIPH" id="ODPERIPH" class="right"><?php echo text($ODPERIPH); ?></textarea></td>
                                                     <td style="text-align:center;font-size:0.9em;" class=""><?php echo xlt('Periph'); ?></td>
-                                                    <td><textarea name="OSPERIPH" id="OSPERIPH" class=""><?php echo text($OSPERIPH); ?></textarea></td>
+                                                    <td><textarea disabled name="OSPERIPH" id="OSPERIPH" class=""><?php echo text($OSPERIPH); ?></textarea></td>
                                                 </tr>
                                         </table>
                                     </div>
@@ -491,7 +496,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                             <br />
                             <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.7em;text-align:left;padding-left:25px;"> 
                                 <b><?php echo xlt('Comments'); ?>:</b><br />
-                                <textarea id="RETINA_COMMENTS" name="RETINA_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($RETINA_COMMENTS); ?></textarea>
+                                <textarea disabled id="RETINA_COMMENTS" name="RETINA_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($RETINA_COMMENTS); ?></textarea>
                             </div> 
                             <?php 
                             return;
@@ -499,7 +504,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
         $output =  priors_select($zone,$orig_id,$id_to_show,$pid);
         ?> 
         
-        <input type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
+        <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
         <div style="position:absolute;top:0.083in;right:0.241in;">
              <?php
@@ -517,10 +522,10 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                             <?php echo xlt('Color'); ?>: 
                         </td>
                         <td>
-                            <input type="text" id="PRIOR_ODCOLOR" name="PRIOR_ODCOLOR" value="<?php if ($ODCOLOR) { echo  attr($ODCOLOR); } else { echo "   /   "; } ?>"/>
+                            <input disabled type="text" id="PRIOR_ODCOLOR" name="PRIOR_ODCOLOR" value="<?php if ($ODCOLOR) { echo  attr($ODCOLOR); } else { echo "   /   "; } ?>"/>
                         </td>
                         <td>
-                            <input type="text" id="PRIOR_OSCOLOR" name="PRIOR_OSCOLOR" value="<?php if ($OSCOLOR) { echo  attr($OSCOLOR); } else { echo "   /   "; } ?>"/>
+                            <input disabled type="text" id="PRIOR_OSCOLOR" name="PRIOR_OSCOLOR" value="<?php if ($OSCOLOR) { echo  attr($OSCOLOR); } else { echo "   /   "; } ?>"/>
                         </td>
                     </tr>
                     <tr>
@@ -528,10 +533,10 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                             <span title="<?php echo xla('Variation in red color discrimination between the eyes (eg. OD=100, OS=75)'); ?>"><?php echo xlt('Red Desat'); ?>:</span>
                         </td>
                         <td>
-                            <input type="text" size="6" name="PRIOR_ODREDDESAT" id="PRIOR_ODREDDESAT" value="<?php echo attr($ODREDDESAT); ?>"/> 
+                            <input disabled type="text" size="6" name="PRIOR_ODREDDESAT" id="PRIOR_ODREDDESAT" value="<?php echo attr($ODREDDESAT); ?>"/> 
                         </td>
                         <td>
-                            <input type="text" size="6" name="PRIOR_OSREDDESAT" id="PRIOR_OSREDDESAT" value="<?php echo attr($OSREDDESAT); ?>"/>
+                            <input disabled type="text" size="6" name="PRIOR_OSREDDESAT" id="PRIOR_OSREDDESAT" value="<?php echo attr($OSREDDESAT); ?>"/>
                         </td>
                     </tr>
                     <tr>
@@ -539,10 +544,10 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                             <span title="<?php echo xla('Variation in white (muscle) light brightness discrimination between the eyes (eg. OD=$1.00, OS=$0.75)'); ?>"><?php echo xlt('Coins'); ?>:</span>
                         </td>
                         <td>
-                            <input type="text" size="6" name="PRIOR_ODCOINS" id="PRIOR_ODCOINS" value="<?php echo attr($ODCOINS); ?>"/> 
+                            <input disabled type="text" size="6" name="PRIOR_ODCOINS" id="PRIOR_ODCOINS" value="<?php echo attr($ODCOINS); ?>"/> 
                         </td>
                         <td>
-                            <input type="text" size="6" name="PRIOR_OSCOINS" id="PRIOR_OSCOINS" value="<?php echo attr($OSCOINS); ?>"/>
+                            <input disabled type="text" size="6" name="PRIOR_OSCOINS" id="PRIOR_OSCOINS" value="<?php echo attr($OSCOINS); ?>"/>
                         </td>
                     </tr>                  
                 </table>
@@ -552,12 +557,12 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                 <table style="position:relative;float:left;font-size:1.2em;width:210px;font-weight:600;"> 
                     <tr style="text-align:left;height:26px;vertical-align:middle;width:180px;">
                         <td >
-                            <dspan id="PRIOR_ACTTRIGGER" name="PRIOR_ACTTRIGGER" style="text-decoration:underline;"><?php echo ('Alternate Cover Test'); ?>:</span>
+                            <span id="PRIOR_ACTTRIGGER" name="PRIOR_ACTTRIGGER" style="text-decoration:underline;"><?php echo ('Alternate Cover Test'); ?>:</span>
                         </td>
                         <td>
                             <span id="PRIOR_ACTNORMAL_CHECK" name="PRIOR_ACTNORMAL_CHECK">
                             <label for="PRIOR_ACT" class="input-helper input-helper--checkbox"><?php echo xlt('Ortho'); ?></label>
-                            <input type="checkbox" name="PRIOR_ACT" id="PRIOR_ACT" checked="<?php if ($ACT =='1') echo "checked"; ?>"></span>
+                            <input disabled type="checkbox" name="PRIOR_ACT" id="PRIOR_ACT" checked="<?php if ($ACT =='1') echo "checked"; ?>"></span>
                         </td>
                     </tr>
                     <tr>
@@ -580,34 +585,34 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                                     <tr> 
                                                         <td style="text-align:center;"><?php echo xlt('R'); ?></td>   
                                                         <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
-                                                        <textarea id="PRIOR_ACT1SCDIST" name="PRIOR_ACT1SCDIST" class="ACT"><?php echo text($ACT1SCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT1SCDIST" name="PRIOR_ACT1SCDIST" class="ACT"><?php echo text($ACT1SCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-top:0pt;text-align:center;">
-                                                        <textarea id="PRIOR_ACT2SCDIST"  name="PRIOR_ACT2SCDIST"class="ACT"><?php echo text($ACT2SCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT2SCDIST"  name="PRIOR_ACT2SCDIST"class="ACT"><?php echo text($ACT2SCDIST); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
-                                                        <textarea id="PRIOR_ACT3SCDIST"  name="PRIOR_ACT3SCDIST" class="ACT"><?php echo text($ACT3SCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT3SCDIST"  name="PRIOR_ACT3SCDIST" class="ACT"><?php echo text($ACT3SCDIST); ?></textarea></td>
                                                         <td style="text-align:center;"><?php echo xlt('L'); ?></td> 
                                                     </tr>
                                                     <tr>    
                                                         <td style="text-align:right;"><i class="fa fa-reply rotate-left right"></i></td> 
                                                         <td style="border:1pt solid black;border-left:0pt;text-align:right;">
-                                                        <textarea id="PRIOR_ACT4SCDIST" name="PRIOR_ACT4SCDIST" class="ACT"><?php echo text($ACT4SCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT4SCDIST" name="PRIOR_ACT4SCDIST" class="ACT"><?php echo text($ACT4SCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;text-align:center;">
-                                                        <textarea id="PRIOR_ACTPRIMSCDIST" name="PRIOR_ACTPRIMSCDIST" class="ACT"><?php echo text($ACTPRIMSCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACTPRIMSCDIST" name="PRIOR_ACTPRIMSCDIST" class="ACT"><?php echo text($ACTPRIMSCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-right:0pt;text-align:left;">
-                                                        <textarea id="PRIOR_ACT6SCDIST" name="PRIOR_ACT6SCDIST" class="ACT"><?php echo text($ACT6SCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT6SCDIST" name="PRIOR_ACT6SCDIST" class="ACT"><?php echo text($ACT6SCDIST); ?></textarea></td>
                                                         <td><i class="fa fa-share rotate-right"></i></td> 
                                                     </tr> 
                                                     <tr> 
                                                         <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
-                                                            <textarea id="PRIOR_ACTRTILTSCDIST" name="PRIOR_ACTRTILTSCDIST" class="ACT"><?php echo text($ACTRTILTSCDIST); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACTRTILTSCDIST" name="PRIOR_ACTRTILTSCDIST" class="ACT"><?php echo text($ACTRTILTSCDIST); ?></textarea></td>
                                                         <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:right;">
-                                                            <textarea id="PRIOR_ACT7SCDIST" name="PRIOR_ACT7SCDIST" class="ACT"><?php echo text($ACT7SCDIST); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT7SCDIST" name="PRIOR_ACT7SCDIST" class="ACT"><?php echo text($ACT7SCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-bottom:0pt;text-align:center;">
-                                                            <textarea id="PRIOR_ACT8SCDIST" name="PRIOR_ACT8SCDIST" class="ACT"><?php echo text($ACT8SCDIST); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT8SCDIST" name="PRIOR_ACT8SCDIST" class="ACT"><?php echo text($ACT8SCDIST); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:left;">
-                                                            <textarea id="PRIOR_ACT9SCDIST" name="PRIOR_ACT9SCDIST" class="ACT"><?php echo text($ACT9SCDIST); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT9SCDIST" name="PRIOR_ACT9SCDIST" class="ACT"><?php echo text($ACT9SCDIST); ?></textarea></td>
                                                         <td style="border:0; border-top:2pt solid black;border-left:2pt solid black;text-align:left;vertical-align:middle;">
-                                                            <textarea id="PRIOR_ACTLTILTSCDIST" name="PRIOR_ACTLTILTSCDIST" class="ACT"><?php echo text($ACTLTILTSCDIST); ?></textarea>
+                                                            <textarea disabled id="PRIOR_ACTLTILTSCDIST" name="PRIOR_ACTLTILTSCDIST" class="ACT"><?php echo text($ACTLTILTSCDIST); ?></textarea>
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -619,34 +624,34 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                                    <tr> 
                                                         <td style="text-align:center;"><?php echo xlt('R'); ?></td>   
                                                         <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
-                                                        <textarea id="PRIOR_ACT1CCDIST" name="PRIOR_ACT1CCDIST" class="ACT"><?php echo text($ACT1CCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT1CCDIST" name="PRIOR_ACT1CCDIST" class="ACT"><?php echo text($ACT1CCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-top:0pt;text-align:center;">
-                                                        <textarea id="PRIOR_ACT2CCDIST"  name="PRIOR_ACT2CCDIST"class="ACT"><?php echo text($ACT2CCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT2CCDIST"  name="PRIOR_ACT2CCDIST"class="ACT"><?php echo text($ACT2CCDIST); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
-                                                        <textarea id="PRIOR_ACT3CCDIST"  name="PRIOR_ACT3CCDIST" class="ACT"><?php echo text($ACT3CCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT3CCDIST"  name="PRIOR_ACT3CCDIST" class="ACT"><?php echo text($ACT3CCDIST); ?></textarea></td>
                                                         <td style="text-align:center;"><?php echo xlt('L'); ?></td> 
                                                     </tr>
                                                     <tr>    
                                                         <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td> 
                                                         <td style="border:1pt solid black;border-left:0pt;text-align:right;">
-                                                        <textarea id="PRIOR_ACT4CCDIST" name="PRIOR_ACT4CCDIST" class="ACT"><?php echo text($ACT4CCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT4CCDIST" name="PRIOR_ACT4CCDIST" class="ACT"><?php echo text($ACT4CCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;text-align:center;">
-                                                        <textarea id="PRIOR_ACTPRIMCCDIST" name="PRIOR_ACTPRIMCCDIST" class="ACT"><?php echo text($ACTPRIMCCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACTPRIMCCDIST" name="PRIOR_ACTPRIMCCDIST" class="ACT"><?php echo text($ACTPRIMCCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-right:0pt;text-align:left;">
-                                                        <textarea id="PRIOR_ACT6CCDIST" name="PRIOR_ACT6CCDIST" class="ACT"><?php echo text($ACT6CCDIST); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT6CCDIST" name="PRIOR_ACT6CCDIST" class="ACT"><?php echo text($ACT6CCDIST); ?></textarea></td>
                                                         <td><i class="fa fa-share rotate-right"></i></td> 
                                                     </tr> 
                                                     <tr> 
                                                         <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
-                                                            <textarea id="PRIOR_ACTRTILTCCDIST" name="PRIOR_ACTRTILTCCDIST" class="ACT"><?php echo text($ACTRTILTCCDIST); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACTRTILTCCDIST" name="PRIOR_ACTRTILTCCDIST" class="ACT"><?php echo text($ACTRTILTCCDIST); ?></textarea></td>
                                                         <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:right;">
-                                                            <textarea id="PRIOR_ACT7CCDIST" name="PRIOR_ACT7CCDIST" class="ACT"><?php echo text($ACT7CCDIST); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT7CCDIST" name="PRIOR_ACT7CCDIST" class="ACT"><?php echo text($ACT7CCDIST); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-bottom:0pt;text-align:center;">
-                                                            <textarea id="PRIOR_ACT8CCDIST" name="PRIOR_ACT8CCDIST" class="ACT"><?php echo text($ACT8CCDIST); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT8CCDIST" name="PRIOR_ACT8CCDIST" class="ACT"><?php echo text($ACT8CCDIST); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:left;">
-                                                            <textarea id="PRIOR_ACT9CCDIST" name="PRIOR_ACT9CCDIST" class="ACT"><?php echo text($ACT9CCDIST); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT9CCDIST" name="PRIOR_ACT9CCDIST" class="ACT"><?php echo text($ACT9CCDIST); ?></textarea></td>
                                                         <td style="border:0; border-top:2pt solid black;border-left:2pt solid black;text-align:left;vertical-align:middle;">
-                                                            <textarea id="PRIOR_ACTLTILTCCDIST" name="PRIOR_ACTLTILTCCDIST" class="ACT"><?php echo text($ACTLTILTCCDIST); ?></textarea>
+                                                            <textarea disabled id="PRIOR_ACTLTILTCCDIST" name="PRIOR_ACTLTILTCCDIST" class="ACT"><?php echo text($ACTLTILTCCDIST); ?></textarea>
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -658,34 +663,34 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                                     <tr> 
                                                         <td style="text-align:center;"><?php echo xlt('R'); ?></td>    
                                                         <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
-                                                        <textarea id="PRIOR_ACT1SCNEAR" name="PRIOR_ACT1SCNEAR" class="ACT"><?php echo text($ACT1SCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT1SCNEAR" name="PRIOR_ACT1SCNEAR" class="ACT"><?php echo text($ACT1SCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-top:0pt;text-align:center;">
-                                                        <textarea id="PRIOR_ACT2SCNEAR"  name="PRIOR_ACT2SCNEAR"class="ACT"><?php echo text($ACT2SCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT2SCNEAR"  name="PRIOR_ACT2SCNEAR"class="ACT"><?php echo text($ACT2SCNEAR); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
-                                                        <textarea id="PRIOR_ACT3SCNEAR"  name="PRIOR_ACT3SCNEAR" class="ACT"><?php echo text($ACT3SCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT3SCNEAR"  name="PRIOR_ACT3SCNEAR" class="ACT"><?php echo text($ACT3SCNEAR); ?></textarea></td>
                                                         <td style="text-align:center;"><?php echo xlt('L'); ?></td> 
                                                     </tr>
                                                     <tr>    
                                                         <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td> 
                                                         <td style="border:1pt solid black;border-left:0pt;text-align:right;">
-                                                        <textarea id="PRIOR_ACT4SCNEAR" name="PRIOR_ACT4SCNEAR" class="ACT"><?php echo text($ACT4SCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT4SCNEAR" name="PRIOR_ACT4SCNEAR" class="ACT"><?php echo text($ACT4SCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;text-align:center;">
-                                                        <textarea id="PRIOR_ACTPRIMSCNEAR" name="PRIOR_ACTPRIMSCNEAR" class="ACT"><?php echo text($ACTPRIMSCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACTPRIMSCNEAR" name="PRIOR_ACTPRIMSCNEAR" class="ACT"><?php echo text($ACTPRIMSCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-right:0pt;text-align:left;">
-                                                        <textarea id="PRIOR_ACT6SCNEAR" name="PRIOR_ACT6SCNEAR" class="ACT"><?php echo text($ACT6SCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT6SCNEAR" name="PRIOR_ACT6SCNEAR" class="ACT"><?php echo text($ACT6SCNEAR); ?></textarea></td>
                                                         <td><i class="fa fa-share rotate-right"></i></td> 
                                                     </tr> 
                                                     <tr> 
                                                         <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
-                                                            <textarea id="PRIOR_ACTRTILTSCNEAR" name="PRIOR_ACTRTILTSCNEAR" class="ACT"><?php echo text($ACTRTILTSCNEAR); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACTRTILTSCNEAR" name="PRIOR_ACTRTILTSCNEAR" class="ACT"><?php echo text($ACTRTILTSCNEAR); ?></textarea></td>
                                                         <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:right;">
-                                                            <textarea id="PRIOR_ACT7SCNEAR" name="PRIOR_ACT7SCNEAR" class="ACT"><?php echo text($ACT7SCNEAR); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT7SCNEAR" name="PRIOR_ACT7SCNEAR" class="ACT"><?php echo text($ACT7SCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-bottom:0pt;text-align:center;">
-                                                            <textarea id="PRIOR_ACT8SCNEAR" name="PRIOR_ACT8SCNEAR" class="ACT"><?php echo text($ACT8SCNEAR); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT8SCNEAR" name="PRIOR_ACT8SCNEAR" class="ACT"><?php echo text($ACT8SCNEAR); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:left;">
-                                                            <textarea id="PRIOR_ACT9SCNEAR" name="PRIOR_ACT9SCNEAR" class="ACT"><?php echo text($ACT9SCNEAR); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT9SCNEAR" name="PRIOR_ACT9SCNEAR" class="ACT"><?php echo text($ACT9SCNEAR); ?></textarea></td>
                                                         <td style="border:0; border-top:2pt solid black;border-left:2pt solid black;text-align:left;vertical-align:middle;">
-                                                            <textarea id="PRIOR_ACTLTILTSCNEAR" name="PRIOR_ACTLTILTSCNEAR" class="ACT"><?php echo text($ACTLTILTSCNEAR); ?></textarea>
+                                                            <textarea disabled id="PRIOR_ACTLTILTSCNEAR" name="PRIOR_ACTLTILTSCNEAR" class="ACT"><?php echo text($ACTLTILTSCNEAR); ?></textarea>
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -697,33 +702,33 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                                     <tr> 
                                                         <td style="text-align:center;"><?php echo xlt('R'); ?></td>    
                                                         <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
-                                                        <textarea id="PRIOR_ACT1CCNEAR" name="PRIOR_ACT1CCNEAR" class="ACT"><?php echo text($ACT1CCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT1CCNEAR" name="PRIOR_ACT1CCNEAR" class="ACT"><?php echo text($ACT1CCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-top:0pt;text-align:center;">
-                                                        <textarea id="PRIOR_ACT2CCNEAR"  name="PRIOR_ACT2CCNEAR"class="ACT"><?php echo text($ACT2CCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT2CCNEAR"  name="PRIOR_ACT2CCNEAR"class="ACT"><?php echo text($ACT2CCNEAR); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
-                                                        <textarea id="PRIOR_ACT3CCNEAR"  name="PRIOR_ACT3CCNEAR" class="ACT"><?php echo text($ACT3CCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT3CCNEAR"  name="PRIOR_ACT3CCNEAR" class="ACT"><?php echo text($ACT3CCNEAR); ?></textarea></td>
                                                         <td style="text-align:center;"><?php echo xlt('L'); ?></td>
                                                     </tr>
                                                     <tr>    
                                                         <td style="text-align:right;"><i class="fa fa-reply rotate-left"></i></td> 
                                                         <td style="border:1pt solid black;border-left:0pt;text-align:right;">
-                                                        <textarea id="PRIOR_ACT4CCNEAR" name="PRIOR_ACT4CCNEAR" class="ACT"><?php echo text($ACT4CCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACT4CCNEAR" name="PRIOR_ACT4CCNEAR" class="ACT"><?php echo text($ACT4CCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;text-align:center;">
-                                                        <textarea id="PRIOR_ACTPRIMCCNEAR" name="PRIOR_ACTPRIMCCNEAR" class="ACT"><?php echo text($ACTPRIMCCNEAR); ?></textarea></td>
+                                                        <textarea disabled id="PRIOR_ACTPRIMCCNEAR" name="PRIOR_ACTPRIMCCNEAR" class="ACT"><?php echo text($ACTPRIMCCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-right:0pt;text-align:left;">
-                                                        <textarea id="PRIOR_ACT6CCNEAR" name="PRIOR_ACT6CCNEAR" class="ACT"><?php echo text($ACT6CCNEAR); ?></textarea></td><td><i class="fa fa-share rotate-right"></i></td> 
+                                                        <textarea disabled id="PRIOR_ACT6CCNEAR" name="PRIOR_ACT6CCNEAR" class="ACT"><?php echo text($ACT6CCNEAR); ?></textarea></td><td><i class="fa fa-share rotate-right"></i></td> 
                                                     </tr> 
                                                     <tr> 
                                                         <td style="border:0; border-top:2pt solid black;border-right:2pt solid black;text-align:right;">
-                                                            <textarea id="PRIOR_ACTRTILTCCNEAR" name="PRIOR_ACTRTILTCCNEAR" class="ACT"><?php echo text($ACTRTILTCCNEAR); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACTRTILTCCNEAR" name="PRIOR_ACTRTILTCCNEAR" class="ACT"><?php echo text($ACTRTILTCCNEAR); ?></textarea></td>
                                                         <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:right;">
-                                                            <textarea id="PRIOR_ACT7CCNEAR" name="PRIOR_ACT7CCNEAR" class="ACT"><?php echo text($ACT7CCNEAR); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT7CCNEAR" name="PRIOR_ACT7CCNEAR" class="ACT"><?php echo text($ACT7CCNEAR); ?></textarea></td>
                                                         <td style="border:1pt solid black;border-bottom:0pt;text-align:center;">
-                                                            <textarea id="PRIOR_ACT8CCNEAR" name="PRIOR_ACT8CCNEAR" class="ACT"><?php echo text($ACT8CCNEAR); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT8CCNEAR" name="PRIOR_ACT8CCNEAR" class="ACT"><?php echo text($ACT8CCNEAR); ?></textarea></td>
                                                         <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:left;">
-                                                            <textarea id="PRIOR_ACT9CCNEAR" name="PRIOR_ACT9CCNEAR" class="ACT"><?php echo text($ACT9CCNEAR); ?></textarea></td>
+                                                            <textarea disabled id="PRIOR_ACT9CCNEAR" name="PRIOR_ACT9CCNEAR" class="ACT"><?php echo text($ACT9CCNEAR); ?></textarea></td>
                                                         <td style="border:0; border-top:2pt solid black;border-left:2pt solid black;text-align:left;vertical-align:middle;">
-                                                            <textarea id="PRIOR_ACTLTILTCCNEAR" name="PRIOR_ACTLTILTCCNEAR" class="ACT"><?php echo text($ACTLTILTCCNEAR); ?></textarea>
+                                                            <textarea disabled id="PRIOR_ACTLTILTCCNEAR" name="PRIOR_ACTLTILTCCNEAR" class="ACT"><?php echo text($ACTLTILTCCNEAR); ?></textarea>
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -741,12 +746,12 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <tr style=""><td style="width:50%;"></td><td><?php echo xlt('OD'); ?></td><td><?php echo xlt('OS'); ?></td></tr>
                         <tr>
                             <td class="right"><span title="<?php echo xla('Near Point of Accomodation'); ?>"><?php echo xlt('NPA'); ?>:</span></td>
-                            <td><input type="text" id="PRIOR_ODNPA" style="width:70%;" name="PRIOR_ODNPA" value="<?php echo attr($ODNPA); ?>"></td>
-                            <td><input type="text" id="PRIOR_OSNPA" style="width:70%;" name="PRIOR_OSNPA" value="<?php echo attr($OSNPA); ?>"></td>
+                            <td><input disabled type="text" id="PRIOR_ODNPA" style="width:70%;" name="PRIOR_ODNPA" value="<?php echo attr($ODNPA); ?>"></td>
+                            <td><input disabled type="text" id="PRIOR_OSNPA" style="width:70%;" name="PRIOR_OSNPA" value="<?php echo attr($OSNPA); ?>"></td>
                         </tr>
                         <tr>
                             <td class="right"><span title="<?php echo xla('Near Point of Convergence'); ?>"><?php echo xlt('NPC'); ?>:</span></td>
-                            <td colspan="2" ><input type="text" style="width:85%;" id="PRIOR_NPC" name="PRIOR_NPC" value="<?php echo attr($NPC); ?>">
+                            <td colspan="2" ><input disabled type="text" style="width:85%;" id="PRIOR_NPC" name="PRIOR_NPC" value="<?php echo attr($NPC); ?>">
                             </td>
                         </tr>
                          <tr>
@@ -754,7 +759,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                 <?php echo xlt('Stereopsis'); ?>:
                             </td>
                             <td colspan="2">
-                                <input type="text" style="width:85%;" name="PRIOR_STEREOPSIS" id="PRIOR_STEREOPSIS" value="<?php echo attr($STEREOPSIS); ?>">
+                                <input disabled type="text" style="width:85%;" name="PRIOR_STEREOPSIS" id="PRIOR_STEREOPSIS" value="<?php echo attr($STEREOPSIS); ?>">
                             </td>
                         </tr>
                         <tr>
@@ -764,19 +769,19 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <tr><td ></td><td ><?php echo xlt('Distance'); ?></td><td><?php echo xlt('Near'); ?></td></tr>
                         <tr>
                             <td style="text-align:right;"><?php echo xlt('Divergence'); ?></td>
-                            <td><input type="text" id="PRIOR_CASCDIST" name="PRIOR_CASCDIST" value="<?php echo attr($CASCDIST); ?>"></td>
-                            <td><input type="text" id="PRIOR_CASCNEAR" name="PRIOR_CASCNEAR" value="<?php echo attr($CASCNEAR); ?>"></td></tr>
+                            <td><input disabled type="text" id="PRIOR_CASCDIST" name="PRIOR_CASCDIST" value="<?php echo attr($CASCDIST); ?>"></td>
+                            <td><input disabled type="text" id="PRIOR_CASCNEAR" name="PRIOR_CASCNEAR" value="<?php echo attr($CASCNEAR); ?>"></td></tr>
                         <tr>
                             <td style="text-align:right;"><?php echo xlt('Convergence'); ?></td>
-                            <td><input type="text" id="PRIOR_CACCDIST" name="PRIOR_CACCDIST" value="<?php echo attr($CACCDIST); ?>"></td>
-                            <td><input type="text" id="PRIOR_CACCNEAR" name="PRIOR_CACCNEAR" value="<?php echo attr($CACCNEAR); ?>"></td></tr>
+                            <td><input disabled type="text" id="PRIOR_CACCDIST" name="PRIOR_CACCDIST" value="<?php echo attr($CACCDIST); ?>"></td>
+                            <td><input disabled type="text" id="PRIOR_CACCNEAR" name="PRIOR_CACCNEAR" value="<?php echo attr($CACCNEAR); ?>"></td></tr>
                         </tr>
                          <tr>
                             <td class="right">
                                 <?php echo xlt('Vertical Fusional'); ?>:
                             </td>
                             <td colspan="2">
-                                <input type="text" style="width:90%;" name="PRIOR_VERTFUSAMPS" id="PRIOR_VERTFUSAMPS" value="<?php echo attr($VERTFUSAMPS); ?>">
+                                <input disabled type="text" style="width:90%;" name="PRIOR_VERTFUSAMPS" id="PRIOR_VERTFUSAMPS" value="<?php echo attr($VERTFUSAMPS); ?>">
                                 <br />
                             </td>
                         </tr>
@@ -853,19 +858,19 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                             <td style="width:40%;font-size:0.9em;margin:0 auto;font-weight:bold;"><?php echo xlt('Motility'); ?>:</td>
                             <td style="font-size:0.9em;vertical-align:top;text-align:right;top:0.0in;right:0.1in;height:0px;">
                                 <label for="PRIOR_MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
-                                <input id="PRIOR_MOTILITYNORMAL" name="PRIOR_MOTILITYNORMAL" type="checkbox" value="1" <?php if ($PRIOR_MOTILITYNORMAL >'') echo "checked"; ?>>
+                                <input disabled id="PRIOR_MOTILITYNORMAL" name="PRIOR_MOTILITYNORMAL" type="checkbox" value="1" <?php if ($MOTILITYNORMAL >'0') echo "checked"; ?> disabled>
                             </td>
                         </tr>
                     </table>
                 </div>
-                <input type="hidden" name="PRIOR_MOTILITY_RS"  id="PRIOR_MOTILITY_RS" value="<?php echo attr($MOTILITY_RS); ?>">
-                <input type="hidden" name="PRIOR_MOTILITY_RI"  id="PRIOR_MOTILITY_RI" value="<?php echo attr($MOTILITY_RI); ?>">
-                <input type="hidden" name="PRIOR_MOTILITY_RR"  id="PRIOR_MOTILITY_RR" value="<?php echo attr($MOTILITY_RR); ?>">
-                <input type="hidden" name="PRIOR_MOTILITY_RL"  id="PRIOR_MOTILITY_RL" value="<?php echo attr($MOTILITY_RL); ?>">
-                <input type="hidden" name="PRIOR_MOTILITY_LS"  id="PRIOR_MOTILITY_LS" value="<?php echo attr($MOTILITY_LS); ?>">
-                <input type="hidden" name="PRIOR_MOTILITY_LI"  id="PRIOR_MOTILITY_LI" value="<?php echo attr($MOTILITY_LI); ?>">
-                <input type="hidden" name="PRIOR_MOTILITY_LR"  id="PRIOR_MOTILITY_LR" value="<?php echo attr($MOTILITY_LR); ?>">
-                <input type="hidden" name="PRIOR_MOTILITY_LL"  id="PRIOR_MOTILITY_LL" value="<?php echo attr($MOTILITY_LL); ?>">
+                <input disabled type="hidden" name="PRIOR_MOTILITY_RS"  id="PRIOR_MOTILITY_RS" value="<?php echo attr($MOTILITY_RS); ?>">
+                <input disabled type="hidden" name="PRIOR_MOTILITY_RI"  id="PRIOR_MOTILITY_RI" value="<?php echo attr($MOTILITY_RI); ?>">
+                <input disabled type="hidden" name="PRIOR_MOTILITY_RR"  id="PRIOR_MOTILITY_RR" value="<?php echo attr($MOTILITY_RR); ?>">
+                <input disabled type="hidden" name="PRIOR_MOTILITY_RL"  id="PRIOR_MOTILITY_RL" value="<?php echo attr($MOTILITY_RL); ?>">
+                <input disabled type="hidden" name="PRIOR_MOTILITY_LS"  id="PRIOR_MOTILITY_LS" value="<?php echo attr($MOTILITY_LS); ?>">
+                <input disabled type="hidden" name="PRIOR_MOTILITY_LI"  id="PRIOR_MOTILITY_LI" value="<?php echo attr($MOTILITY_LI); ?>">
+                <input disabled type="hidden" name="PRIOR_MOTILITY_LR"  id="PRIOR_MOTILITY_LR" value="<?php echo attr($MOTILITY_LR); ?>">
+                <input disabled type="hidden" name="PRIOR_MOTILITY_LL"  id="PRIOR_MOTILITY_LL" value="<?php echo attr($MOTILITY_LL); ?>">
                 
                 <div style="float:left;left:0.4in;text-decoration:underline;"><?php echo xlt('OD'); ?></div>
                 <div style="float:right;right:0.4in;text-decoration:underline;"><?php echo xlt('OS'); ?></div><br />
@@ -1219,8 +1224,10 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
         <br />
         <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.9em;text-align:left;padding-left:25px;"> 
             <b><?php echo xlt('Comments'); ?>:</b><br />
-            <textarea id="PRIOR_NEURO_COMMENTS" name="PRIOR_NEURO_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($NEURO_COMMENTS); ?></textarea>
+            <textarea disabled id="PRIOR_NEURO_COMMENTS" name="PRIOR_NEURO_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($NEURO_COMMENTS); ?></textarea>
         </div>
+        <input type="hidden" name="PRIOR_PREFS_ACT_SHOW"  id="PRIOR_PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW); ?>">
+            
         <script type="text/javascript">
             $("#PRIOR_ACTTRIGGER").mouseover(function() {
                                                    $("#PRIOR_ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
@@ -1236,22 +1243,30 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                                $("#PRIOR_Close_ACTMAIN").toggleClass('fa-random').toggleClass('fa-eye');
                                                });
             $("[name^='PRIOR_ACT_tab_']").click(function()  {
-                                                var section = this.id.match(/ACT_tab_(.*)/)[1];
+                                                var section = this.id.match(/PRIOR_ACT_tab_(.*)/)[1];
                                                 $("[name^='PRIOR_ACT_']").addClass('nodisplay');
                                                 $("[name^='PRIOR_ACT_tab_']").removeClass('nodisplay').removeClass('ACT_selected').addClass('ACT_deselected');
                                                 $("#PRIOR_ACT_tab_" + section).addClass('ACT_selected').removeClass('ACT_deselected');
                                                 $("#PRIOR_ACT_" + section).removeClass('nodisplay');
-                                                $("#PRIOR_ACT_VIEW").val(section);
+                                                $("#PRIOR_PREFS_ACT_SHOW").val(section);
                                                 });
 
             $("[name^='PRIOR_Close_']").click(function()  {
                                               var section = this.id.match(/PRIOR_Close_(.*)$/)[1];
                                               if (section =="ACTMAIN") {
-                                              $("#PRIOR_ACTTRIGGER").trigger( "click" );
+                                                $("#PRIOR_ACTTRIGGER").trigger( "click" );
                                               } else {
-                                              $("#LayerVision_"+section+"_lightswitch").click();
+                                                $("#LayerVision_"+section+"_lightswitch").click();
                                               }
                                               });
+            if ($("#PREFS_ACT_VIEW").val() == '1') {
+                $("#PRIOR_ACTMAIN").toggleClass('nodisplay'); //.toggleClass('fullscreen');
+                $("#PRIOR_NPCNPA").toggleClass('nodisplay');
+                $("#PRIOR_ACTNORMAL_CHECK").toggleClass('nodisplay');
+                $("#PRIOR_ACTTRIGGER").toggleClass('underline');
+                var show = $("#PREFS_ACT_SHOW").val();
+                $("#PRIOR_ACT_tab_"+show).trigger('click');
+            }
         </script>
           <?php 
         return;
@@ -1284,6 +1299,9 @@ function display_draw_section ($zone,$encounter,$pid,$side ='OU') {
     global $form_folder;
     ?>
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
+        <span class="closeButton fa fa-file-text-o" id="BUTTON_TEXT_RETINA" name="BUTTON_TEXT_RETINA"></span>
+                              
+                              <span class="CONSTRUCTION_ZONE" name="CONSTRUCTION_3" id="CONSTRUCTION_3" style="font-size:0.8em;">Import Text</span>
         <div class="tools" style="text-align:center;left:0.02in;width:90%;">
             <a href="#Sketch_<?php echo attr($zone); ?>" data-color="#f00" > &nbsp;&nbsp;</a>
             <a style="width: 5px; background: yellow;" data-color="#ff0" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
@@ -1510,6 +1528,168 @@ function copy_forward($zone,$copy_from,$copy_to,$pid) {
         $result["json"] = json_encode($result);
         echo json_encode($result); 
     } elseif ($zone =="ALL") {
+        $result['RUL']="$RUL";
+        $result['LUL']="$LUL";
+        $result['RLL']="$RLL";
+        $result['LLL']="$LLL";
+        $result['RBROW']="$RBROW";
+        $result['LBROW']="$LBROW";
+        $result['RMCT']="$RMCT";
+        $result['LMCT']="$LMCT";
+        $result['RADNEXA']="$RADNEXA";
+        $result['LADNEXA']="$LADNEXA";
+        $result['RMRD']="$RMRD";
+        $result['LMRD']="$LMRD";
+        $result['RLF']="$RLF";
+        $result['LLF']="$LLF";
+        $result['RVFISSURE']="$RVFISSURE";
+        $result['LVFISSURE']="$LVFISSURE";
+        $result['ODHERTEL']="$ODHERTEL";
+        $result['OSHERTEL']="$OSHERTEL";
+        $result['HERTELBASE']="$HERTELBASE";
+        $result['ODPIC']="$ODPIC";
+        $result['OSPIC']="$OSPIC";
+        $result['EXT_COMMENTS']="$EXT_COMMENTS";
+        
+        $result['OSCONJ']="$OSCONJ";
+        $result['ODCONJ']="$ODCONJ";
+        $result['ODCORNEA']="$ODCORNEA";
+        $result['OSCORNEA']="$OSCORNEA";
+        $result['ODAC']="$ODAC";
+        $result['OSAC']="$OSAC";
+        $result['ODLENS']="$ODLENS";
+        $result['OSLENS']="$OSLENS";
+        $result['ODIRIS']="$ODIRIS";
+        $result['OSIRIS']="$OSIRIS";
+        $result['ODKTHICKNESS']="$ODKTHICKNESS";
+        $result['OSKTHICKNESS']="$OSKTHICKNESS";
+        $result['ODGONIO']="$ODGONIO";
+        $result['OSGONIO']="$OSGONIO";
+        $result['ANTSEG_COMMENTS']="$ANTSEG_COMMENTS";
+        
+        $result['ODDISC']="$ODDISC";
+        $result['OSDISC']="$OSDISC";
+        $result['ODCUP']="$ODCUP";
+        $result['OSCUP']="$OSCUP";
+        $result['ODMACULA']="$ODMACULA";
+        $result['OSMACULA']="$OSMACULA";
+        $result['ODVESSELS']="$ODVESSELS";
+        $result['OSVESSELS']="$OSVESSELS";
+        $result['ODPERIPH']="$ODPERIPH";
+        $result['OSPERIPH']="$OSPERIPH";
+        $result['ODDRAWING']="$ODDRAWING";
+        $result['OSDRAWING']="$OSDRAWING";
+        $result['ODCMT']="$ODCMT";
+        $result['OSCMT']="$OSCMT";
+        $result['RETINA_COMMENTS']="$RETINA_COMMENTS";
+
+        $result['ACT']="$ACT";
+        $result['ACTPRIMCCDIST']="$ACTPRIMCCDIST";
+        $result['ACT1CCDIST']="$ACT1CCDIST";
+        $result['ACT2CCDIST']="$ACT2CCDIST";
+        $result['ACT3CCDIST']="$ACT3CCDIST";
+        $result['ACT4CCDIST']="$ACT4CCDIST";
+        $result['ACT6CCDIST']="$ACT6CCDIST";
+        $result['ACT7CCDIST']="$ACT7CCDIST";
+        $result['ACT8CCDIST']="$ACT8CCDIST";
+        $result['ACT9CCDIST']="$ACT9CCDIST";
+        $result['ACTRTILTCCDIST']="$ACTRTILTCCDIST";
+        $result['ACTLTILTCCDIST']="$ACTLTILTCCDIST";
+        $result['ACT1SCDIST']="$ACT1SCDIST";
+        $result['ACT2SCDIST']="$ACT2SCDIST";
+        $result['ACT3SCDIST']="$ACT3SCDIST";
+        $result['ACT4SCDIST']="$ACT4SCDIST";
+        $result['ACTPRIMSCDIST']="$ACTPRIMSCDIST";
+        $result['ACT6SCDIST']="$ACT6SCDIST";
+        $result['ACT7SCDIST']="$ACT7SCDIST";
+        $result['ACT8SCDIST']="$ACT8SCDIST";
+        $result['ACT9SCDIST']="$ACT9SCDIST";
+        $result['ACTRTILTSCDIST']="$ACTRTILTSCDIST";
+        $result['ACTLTILTSCDIST']="$ACTLTILTSCDIST";
+        $result['ACT1SCNEAR']="$ACT1SCNEAR";
+        $result['ACT2SCNEAR']="$ACT2SCNEAR";
+        $result['ACT3SCNEAR']="$ACT3SCNEAR";
+        $result['ACT4SCNEAR']="$ACT4SCNEAR";
+        $result['ACTPRIMCCNEAR']="$ACTPRIMCCNEAR";
+        $result['ACT6CCNEAR']="$ACT6CCNEAR";
+        $result['ACT7CCNEAR']="$ACT7CCNEAR";
+        $result['ACT8CCNEAR']="$ACT8CCNEAR";
+        $result['ACT9CCNEAR']="$ACT9CCNEAR";
+        $result['ACTRTILTCCNEAR']="$ACTRTILTCCNEAR";
+        $result['ACTLTILTCCNEAR']="$ACTLTILTCCNEAR";
+        $result['ACTPRIMSCNEAR']="$ACTPRIMSCNEAR";
+        $result['ACT6SCNEAR']="$ACT6SCNEAR";
+        $result['ACT7SCNEAR']="$ACT7SCNEAR";
+        $result['ACT8SCNEAR']="$ACT8SCNEAR";
+        $result['ACT9SCNEAR']="$ACT9SCNEAR";
+        $result['ACTRTILTSCNEAR']="$ACTRTILTSCNEAR";
+        $result['ACTLTILTSCNEAR']="$ACTLTILTSCNEAR";
+        $result['ACT1CCNEAR']="$ACT1CCNEAR";
+        $result['ACT2CCNEAR']="$ACT2CCNEAR";
+        $result['ACT3CCNEAR']="$ACT3CCNEAR";
+        $result['ACT4CCNEAR']="$ACT4CCNEAR";
+        $result['ODVF1']="$ODVF1";
+        $result['ODVF2']="$ODVF2";
+        $result['ODVF3']="$ODVF3";
+        $result['ODVF4']="$ODVF4";
+        $result['OSVF1']="$OSVF1";
+        $result['OSVF2']="$OSVF2";
+        $result['OSVF3']="$OSVF3";
+        $result['OSVF4']="$OSVF4";
+        $result['MOTILITY_RS']="$MOTILITY_RS";
+        $result['MOTILITY_RI']="$MOTILITY_RI";
+        $result['MOTILITY_RR']="$MOTILITY_RR";
+        $result['MOTILITY_RL']="$MOTILITY_RL";
+        $result['MOTILITY_LS']="$MOTILITY_LS";
+        $result['MOTILITY_LI']="$MOTILITY_LI";
+        $result['MOTILITY_LR']="$MOTILITY_LR";
+        $result['MOTILITY_LL']="$MOTILITY_LL";
+        $result['NEURO_COMMENTS']="$NEURO_COMMENTS";
+        $result['STEREOPSIS']="$STEREOPSIS";
+        $result['ODNPA']="$ODNPA";
+        $result['OSNPA']="$OSNPA";
+        $result['VERTFUSAMPS']="$VERTFUSAMPS";
+        $result['DIVERGENCEAMPS']="$DIVERGENCEAMPS";
+        $result['NPC']="$NPC";
+        $result['CASCDIST']="$CASCDIST";
+        $result['CASCNEAR']="$CASCNEAR";
+        $result['CACCDIST']="$CACCDIST";
+        $result['CACCNEAR']="$CACCNEAR";
+        $result['ODCOLOR']="$ODCOLOR";
+        $result['OSCOLOR']="$OSCOLOR";
+        $result['ODCOINS']="$ODCOINS";
+        $result['OSCOINS']="$OSCOINS";
+        $result['ODREDDESAT']="$ODREDDESAT";
+        $result['OSREDDESAT']="$OSREDDESAT";
+
+
+        $result['ODPUPILSIZE1']="$ODPUPILSIZE1";
+        $result['ODPUPILSIZE2']="$ODPUPILSIZE2";
+        $result['ODPUPILREACTIVITY']="$ODPUPILREACTIVITY";
+        $result['ODAPD']="$ODAPD";
+        $result['OSPUPILSIZE1']="$OSPUPILSIZE1";
+        $result['OSPUPILSIZE2']="$OSPUPILSIZE2";
+        $result['OSPUPILREACTIVITY']="$OSPUPILREACTIVITY";
+        $result['OSAPD']="$OSAPD";
+        $result['DIMODPUPILSIZE1']="$DIMODPUPILSIZE1";
+        $result['DIMODPUPILSIZE2']="$DIMODPUPILSIZE2";
+        $result['DIMODPUPILREACTIVITY']="$DIMODPUPILREACTIVITY";
+        $result['DIMOSPUPILSIZE1']="$DIMOSPUPILSIZE1";
+        $result['DIMOSPUPILSIZE2']="$DIMOSPUPILSIZE2";
+        $result['DIMOSPUPILREACTIVITY']="$DIMOSPUPILREACTIVITY";
+        $result['PUPIL_COMMENTS']="$PUPIL_COMMENTS";
+        $result['ODVFCONFRONTATION1']="$ODVFCONFRONTATION1";
+        $result['ODVFCONFRONTATION2']="$ODVFCONFRONTATION2";
+        $result['ODVFCONFRONTATION3']="$ODVFCONFRONTATION3";
+        $result['ODVFCONFRONTATION4']="$ODVFCONFRONTATION4";
+        $result['ODVFCONFRONTATION5']="$ODVFCONFRONTATION5";
+        $result['OSVFCONFRONTATION1']="$OSVFCONFRONTATION1";
+        $result['OSVFCONFRONTATION2']="$OSVFCONFRONTATION2";
+        $result['OSVFCONFRONTATION3']="$OSVFCONFRONTATION3";
+        $result['OSVFCONFRONTATION4']="$OSVFCONFRONTATION4";
+        $result['OSVFCONFRONTATION5']="$OSVFCONFRONTATION5";
+        $result["json"] = json_encode($result);
+        echo json_encode($result); 
 
     }
 }
