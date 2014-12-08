@@ -1245,8 +1245,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             <td><input type="text" size="1" name="LVFISSURE" id="LVFISSURE" value="<?php echo attr($LVFISSURE); ?>"></td>
                                         </tr>
                                         <tr><td colspan=3 style="padding-top:0.15in;background-color:none;text-decoration:underline;"><br /><?php echo xlt('Hertel Exophthalmometry'); ?></td></tr>
-                        <tr style="text-align:center;">
-                            <td>
+                                        <tr style="text-align:center;">
+                                            <td>
                                                 <input type="text" size="1" id="ODHERTEL" name="ODHERTEL" value="<?php echo attr($ODHERTEL); ?>">
                                                 <span style="width:40px;-moz-text-decoration-line: line-through;text-align:center;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
                                             </td>
@@ -1257,6 +1257,27 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             <td>
                                                 <input type=text size=1  id="OSHERTEL" name="OSHERTEL" value="<?php echo attr($OSHERTEL); ?>">
                                             </td>
+                                        </tr>
+                                        <tr><td>&nbsp;</td></tr>
+                                        <tr>
+                                            <td class="right"><?php echo xlt('Carotid Bruit'); ?></td>
+                                            <td><input  type="text"  name="RCAROTID" id="RCAROTID" value="<?php echo attr($RCAROTID); ?>"></td>
+                                            <td><input  type="text"  name="LCAROTID" id="LCAROTID" value="<?php echo attr($LCAROTID); ?>"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="right"><?php echo xlt('Temporal Art.'); ?></td>
+                                            <td><input type="text" size="1" name="RTEMPART" id="RTEMPART" value="<?php echo attr($RTEMPART); ?>"></td>
+                                            <td><input type="text" size="1" name="LTEMPART" id="LTEMPART" value="<?php echo attr($LTEMPART); ?>"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="right"><?php echo xlt('CN V'); ?></td>
+                                            <td><input type="text" size="1" name="RCNV" id="RCNV" value="<?php echo attr($RCNV); ?>"></td>
+                                            <td><input type="text" size="1" name="LCNV" id="LCNV" value="<?php echo attr($LCNV); ?>"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="right"><?php echo xlt('CN VII'); ?></td>
+                                            <td><input type="text" size="1" name="RCNVII" id="RCNVII" value="<?php echo attr($RCNVII); ?>"></td>
+                                            <td><input type="text" size="1" name="LCNVII" id="LCNVII" value="<?php echo attr($LCNVII); ?>"></td>
                                         </tr>
                                     </table>
                                     
