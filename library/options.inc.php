@@ -41,6 +41,7 @@ require_once("formatting.inc.php");
 require_once("user.inc");
 require_once("patient.inc");
 require_once("lists.inc");
+require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 
 $date_init = "";
 
@@ -505,23 +506,17 @@ function generate_form_field($frow, $currvalue) {
         $relcodes = explode(';', $currvalue);
         foreach ($relcodes as $codestring) {
           if ($codestring === '') continue;
-          list($codetype, $code) = explode(':', $codestring);
-          $query = "SELECT c.code_text FROM codes AS c, code_types AS ct WHERE " .
-            "ct.ct_key = '$codetype' AND " .
-            "c.code_type = ct.ct_id AND " .
-            "c.code = '$code' AND c.active = 1 " .
-            "ORDER BY c.id LIMIT 1";
-          $nrow = sqlQuery($query);
+          $code_text = lookup_code_descriptions($codestring);
           if ($currdescstring !== '') $currdescstring .= '; ';
-          if (!empty($nrow['code_text'])) {
-            $currdescstring .= $nrow['code_text'];
+          if (!empty($code_text)) {
+            $currdescstring .= $code_text;
           }
           else {
             $currdescstring .= $codestring;
           }
         }
       }
-      $currdescstring = htmlspecialchars($currdescstring, ENT_QUOTES);
+      $currdescstring = attr($currdescstring);
       //
       echo "<input type='text'" .
         " name='form_$field_id_esc'" .
@@ -2982,4 +2977,96 @@ function getSmokeCodes()
       }
      return $smoking_codes_arr;
 }
+
+// Get the current value for a layout based form field.
+// Depending on options this might come from lbf_data, patient_data,
+// form_encounter, shared_attributes or elsewhere.
+// Returns FALSE if the field ID is invalid (layout error).
+//
+function lbf_current_value($frow, $formid, $encounter) {
+  global $pid;
+  $formname = $frow['form_id'];
+  $field_id = $frow['field_id'];
+  $source   = $frow['source'];
+  $currvalue = '';
+  $deffname = $formname . '_default_' . $field_id;
+  if ($source == 'D' || $source == 'H') {
+    // Get from patient_data, employer_data or history_data.
+    if ($source == 'H') {
+      $table = 'history_data';
+      $orderby = 'ORDER BY date DESC LIMIT 1';
+    }
+    else if (strpos($field_id, 'em_') === 0) {
+      $field_id = substr($field_id, 3);
+      $table = 'employer_data';
+      $orderby = 'ORDER BY date DESC LIMIT 1';
+    }
+    else {
+      $table = 'patient_data';
+      $orderby = '';
+    }
+    // It is an error if the field does not exist, but don't crash.
+    $tmp = sqlQuery("SHOW COLUMNS FROM $table WHERE Field = ?", array($field_id));
+    if (empty($tmp)) return FALSE;
+    $pdrow = sqlQuery("SELECT `$field_id` AS field_value FROM $table WHERE pid = ? $orderby", array($pid));
+    if (isset($pdrow)) $currvalue = $pdrow['field_value'];
+  }
+  else if ($source == 'E') {
+    if ($encounter) {
+      // Get value from shared_attributes of the current encounter.
+      $sarow = sqlQuery("SELECT field_value FROM shared_attributes WHERE " .
+        "pid = ? AND encounter = ? AND field_id = ?",
+        array($pid, $encounter, $field_id));
+      if (isset($sarow)) $currvalue = $sarow['field_value'];
+    }
+    else if ($formid) {
+      // Get from shared_attributes of the encounter that this form is linked to.
+      // Note the importance of having an index on forms.form_id.
+      $sarow = sqlQuery("SELECT sa.field_value " .
+        "FROM forms AS f, shared_attributes AS sa WHERE " .
+        "f.form_id = ? AND f.formdir = ? AND f.deleted = 0 AND " .
+        "sa.pid = f.pid AND sa.encounter = f.encounter AND sa.field_id = ?",
+        array($formid, $formname, $field_id));
+      if (!empty($sarow)) $currvalue = $sarow['field_value'];
+    }
+    else {
+      // New form and encounter not available, this should not happen.
+    }
+  }
+  else if ($source == 'V') {
+    if ($encounter) {
+      // Get value from the current encounter's form_encounter.
+      $ferow = sqlQuery("SELECT * FROM form_encounter WHERE " .
+        "pid = ? AND encounter = ?",
+        array($pid, $encounter));
+      if (isset($ferow[$field_id])) $currvalue = $ferow[$field_id];
+    }
+    else if ($formid) {
+      // Get value from the form_encounter that this form is linked to.
+      $ferow = sqlQuery("SELECT fe.* " .
+        "FROM forms AS f, form_encounter AS fe WHERE " .
+        "f.form_id = ? AND f.formdir = ? AND f.deleted = 0 AND " .
+        "fe.pid = f.pid AND fe.encounter = f.encounter",
+        array($formid, $formname));
+      if (isset($ferow[$field_id])) $currvalue = $ferow[$field_id];
+    }
+    else {
+      // New form and encounter not available, this should not happen.
+    }
+  }
+  else if ($formid) {
+    // This is a normal form field.
+    $ldrow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
+      "form_id = ? AND field_id = ?", array($formid, $field_id) );
+    if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
+  }
+  else {
+    // New form, see if there is a custom default from a plugin.
+    // This logic does not apply to shared attributes because they do not
+    // have a "new form" concept.
+    if (function_exists($deffname)) $currvalue = call_user_func($deffname);
+  }
+  return $currvalue;
+}
+
 ?>

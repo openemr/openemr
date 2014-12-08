@@ -77,7 +77,7 @@ function checkSkipConditions() {
     if (srcelem == null) srcelem = document.getElementById('radio_' + tofind);
     if (srcelem == null) srcelem = document.getElementById('form_' + tofind);
     if (srcelem == null) {
-      if (!cskerror) alert('Cannot find a skip source field for "' + tofind + '"');
+      if (!cskerror) alert('<?php echo xls('Cannot find a skip source field for'); ?> "' + tofind + '"');
       myerror = true;
       continue;
     }
@@ -102,7 +102,7 @@ function checkSkipConditions() {
     var trgelem1 = document.getElementById('label_id_' + target);
     var trgelem2 = document.getElementById('value_id_' + target);
     if (trgelem1 == null && trgelem2 == null) {
-      if (!cskerror) alert('Cannot find a skip target field for "' + target + '"');
+      if (!cskerror) alert('<?php echo xls('Cannot find a skip target field for'); ?> "' + target + '"');
       myerror = true;
       continue;
     }

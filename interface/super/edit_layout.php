@@ -432,9 +432,9 @@ function writeFieldLine($linedata) {
     echo "  <td align='center' class='optcell' $lbfonly style='width:3%'>";
     echo "<select name='fld[$fld_line_no][source]' class='optin noselect' $lbfonly>";
     foreach ($sources as $key => $value) {
-        echo "<option value='$key'";
+        echo "<option value='" . attr($key) . "'";
         if ($key == $linedata['source']) echo " selected";
-        echo ">$value</option>\n";
+        echo ">" . text($value) . "</option>\n";
     }
     echo "</select>";
     echo "</td>\n";
@@ -1104,7 +1104,7 @@ while ($row = sqlFetchArray($res)) {
 <select name='gnewsource' id='gnewsource'>
 <?php
 foreach ($sources as $key => $value) {
-  echo "<option value='$key'>" . text($value) . "</option>\n";
+  echo "<option value='" . attr($key) . "'>" . text($value) . "</option>\n";
 }
 ?>
 </select>
@@ -1187,7 +1187,7 @@ foreach ($datatypes as $key=>$value) {
     <select name='newsource' id='newsource'>
 <?php
 foreach ($sources as $key => $value) {
-  echo "    <option value='$key'>" . text($value) . "</option>\n";
+  echo "    <option value='" . attr($key) . "'>" . text($value) . "</option>\n";
 }
 ?>
     </select>

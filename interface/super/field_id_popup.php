@@ -20,6 +20,9 @@
  * @link    http://www.open-emr.org
  */
 
+$sanitize_all_escapes  = true;
+$fake_register_globals = false;
+
 include_once("../globals.php");
 
 $form_encounter_layout = array(
@@ -119,8 +122,8 @@ function gen_sel_row($row) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<title><?php xl('List layout items','e'); ?></title>
+<?php html_header_show(); ?>
+<title><?php echo xlt('List layout items'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
@@ -131,7 +134,7 @@ function selectField(field_id, title, data_type, uor, fld_length, max_length,
   list_id, titlecols, datacols, edit_options, description, fld_rows)
 {
   if (opener.closed || ! opener.SetField) {
-    alert('The destination form was closed; I cannot act on your selection.');
+    alert('<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>');
   }
   else {
     opener.SetField(field_id, title, data_type, uor, fld_length, max_length,

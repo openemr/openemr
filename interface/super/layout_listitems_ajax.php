@@ -27,9 +27,9 @@ $sanitize_all_escapes  = true;
 require_once("../globals.php");
 require_once("$srcdir/formdata.inc.php");
 
-$listid  = formData('listid' ,'G');
-$target  = formData('target' ,'G');
-$current = formData('current','G');
+$listid  = $_GET['listid'];
+$target  = $_GET['target'];
+$current = $_GET['current'];
 
 $res = sqlStatement("SELECT option_id FROM list_options WHERE list_id = ? " .
   "ORDER BY seq, option_id", array($listid));
