@@ -825,8 +825,8 @@ $(document).ready(function() {
                                            $('#RBROW').val('no brow ptosis').css("background-color","beige");
                                            $('#LBROW').val('no brow ptosis').css("background-color","beige");
                                            $('#RMCT').val('no masses').css("background-color","beige");
-                                           $('#RMAX').val('normal lacrimal gland and orbit').css("background-color","beige");
-                                           $('#LMAX').val('normal lacrimal gland and orbit').css("background-color","beige");
+                                           $('#RADNEXA').val('normal lacrimal gland and orbit').css("background-color","beige");
+                                           $('#LADNEXA').val('normal lacrimal gland and orbit').css("background-color","beige");
                                            $('#LMCT').val('no masses').css("background-color","beige");
                                            $('#RMRD').val('+3').css("background-color","beige");
                                            $('#LMRD').val('+3').css("background-color","beige");
@@ -892,8 +892,8 @@ $(document).ready(function() {
                                             $('#LBROW').val('no brow ptosis').css("background-color","beige");
                                             $('#RMCT').val('no masses').css("background-color","beige");
                                             $('#LMCT').val('no masses').css("background-color","beige");
-                                            $('#RMAX').val('normal lacrimal gland and orbit').css("background-color","beige");
-                                            $('#LMAX').val('normal lacrimal gland and orbit').css("background-color","beige");
+                                            $('#RADNEXA').val('normal lacrimal gland and orbit').css("background-color","beige");
+                                            $('#LADNEXA').val('normal lacrimal gland and orbit').css("background-color","beige");
                                             $('#RMRD').val('+3').css("background-color","beige");
                                             $('#LMRD').val('+3').css("background-color","beige");
                                             $('#RLF').val('17').css("background-color","beige");
@@ -1192,38 +1192,29 @@ $(document).ready(function() {
                                                    url      :  "../../forms/eye_mag/save.php?copy="+zone,
                                                    data 	: data,
                                                    success  : function(result) {
-                                                   var it = Iterator(result);
-                                                   for (var pair in it) { //copy forward all returned variables
-                                                        if ($("#"+pair[0]).val() != pair[1]) {
-                                                            $("#"+pair[0]).val(pair[1]).css("background-color","#CCF");
-                                                        }
-                                                        if ( pair[0].match(/MOTILITY_/)) { //copy forward ductions and versions visually
+                                                    $.map(result, function(valhere, keyhere) {
+                                                        if ($("#"+keyhere).val() != valhere) {  $("#"+keyhere).val(valhere).css("background-color","#CCF");}
+                                                        if (keyhere.match(/MOTILITY_/)) { //copy forward ductions and versions visually
                                                             //make each blank, and rebuild them
-                                                   //$("[name='"+pair[0]+"']").val('0');
-                                                            $("[name='"+pair[0]+"_1']").html('');
-                                                            $("[name='"+pair[0]+"_2']").html('');
-                                                            $("[name='"+pair[0]+"_3']").html('');
-                                                            $("[name='"+pair[0]+"_4']").html('');
-                                                            if (pair[0].match(/(_RS|_LS|_RI|_LI)/)) {  //show a horizontal (minus) tag
+                                                            $("[name='"+keyhere+"_1']").html('');
+                                                            $("[name='"+keyhere+"_2']").html('');
+                                                            $("[name='"+keyhere+"_3']").html('');
+                                                            $("[name='"+keyhere+"_4']").html('');
+                                                            if (keyhere.match(/(_RS|_LS|_RI|_LI)/)) {  //show a horizontal (minus) tag
                                                                 hash_tag = '<i class="fa fa-minus"></i>';
-                                                   } else { //show vertical tag
+                                                            } else { //show vertical tag
                                                                 hash_tag = '<i class="fa fa-minus rotate-left"></i>';
                                                             }
-                                                            for (index =1; index <= pair[1]; ++index) {
-                                                                $("#"+pair[0]+"_"+index).html(hash_tag);
+                                                            for (index =1; index <= valhere; ++index) {
+                                                                $("#"+keyhere+"_"+index).html(hash_tag);
                                                             }
-                                                        }
-                                                   }
-                                                   
-                                                   submit_form("eye_mag");
-                                                   
-                                                   //alert("Form submitted successfully.\nReturned json: " + result["json"]);
-                                                   //$("#"+zone+"_left_text").html(result);
-                                                   }
-                                                   });
+                                                         }
+                                                          });
+                                                   }});
+                                               submit_form("eye_mag");
+                                                });
                                             
-                                            
-                                            });
+                  
                  $("[id^='BUTTON_DRAWX_']").click(function() {
                                                    var zone =this.id.match(/BUTTON_DRAW_(.*)$/)[1];
                                                  show_DRAW();

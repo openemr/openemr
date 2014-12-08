@@ -279,9 +279,9 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                         <td><textarea disabled name="PRIOR_LMCT" id="PRIOR_LMCT" class=""><?php echo text($LMCT); ?></textarea></td>
                     </tr>
                      <tr>
-                        <td><textarea disabled name="PRIOR_RMAX" id="PRIOR_RMAX" class="right"><?php echo text($RADNEXA); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_RADNEXA" id="PRIOR_RADNEXA" class="right"><?php echo text($RADNEXA); ?></textarea></td>
                         <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Adnexa'); ?></td>
-                        <td><textarea disabled name="PRIOR_LMAX" id="PRIOR_LMAX" class=""><?php echo text($LADNEXA); ?></textarea></td>
+                        <td><textarea disabled name="PRIOR_LADNEXA" id="PRIOR_LADNEXA" class=""><?php echo text($LADNEXA); ?></textarea></td>
                     </tr>
                 </table>
             </div>  <br />

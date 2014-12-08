@@ -1291,9 +1291,9 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             <td><textarea name="LMCT" id="LMCT" class=""><?php echo text($LMCT); ?></textarea></td>
                                         </tr>
                                          <tr>
-                                            <td><textarea name="RMAX" id="RMAX" class="right"><?php echo text($Adnexa); ?></textarea></td>
+                                            <td><textarea name="RADNEXA" id="RADNEXA" class="right"><?php echo text($Adnexa); ?></textarea></td>
                                             <td style="text-align:center;font-size:0.9em;"><?php echo xlt('Adnexa'); ?></td>
-                                            <td><textarea name="LMAX" id="LMAX" class=""><?php echo text($Adnexa); ?></textarea></td>
+                                            <td><textarea name="LADNEXA" id="LADNEXA" class=""><?php echo text($Adnexa); ?></textarea></td>
                                         </tr>
                                     </table>
                                 </div>  <br />
