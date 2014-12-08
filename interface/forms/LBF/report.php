@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009, 2014 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,13 +15,27 @@ include_once($GLOBALS["srcdir"] . "/api.inc");
 
 function lbf_report($pid, $encounter, $cols, $id, $formname) {
   require_once($GLOBALS["srcdir"] . "/options.inc.php");
-  echo "<table>\n";
-  
   $arr = array();
-  $fres = sqlStatement("SELECT field_id, field_value FROM lbf_data WHERE form_id = ?", array($id) );
+  $shrow = getHistoryData($pid);
+  $fres = sqlStatement("SELECT * FROM layout_options " .
+    "WHERE form_id = ? AND uor > 0 " .
+    "ORDER BY group_name, seq", array($formname));
   while ($frow = sqlFetchArray($fres)) {
-	 $arr[$frow['field_id']] = wordwrap($frow['field_value'], 30, "\n", true);
+    $field_id  = $frow['field_id'];
+    $currvalue = '';
+    if ($frow['edit_options'] == 'H') {
+      if (isset($shrow[$field_id])) $currvalue = $shrow[$field_id];
+    } else {
+      $currvalue = lbf_current_value($frow, $id, $encounter);
+      if ($currvalue === FALSE) continue; // should not happen
+    }
+    // For brevity, skip fields without a value.
+    if ($currvalue === '') continue;
+    $arr[$field_id] = $currvalue;
+    // A previous change effectively did this instead, not sure if desirable? -- Rod
+    // $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
   }
+  echo "<table>\n";
   display_layout_rows($formname, $arr);
   echo "</table>\n";
  }

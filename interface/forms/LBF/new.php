@@ -90,103 +90,6 @@ function end_group() {
   }
 }
 
-// Get the current value for a layout based form field.
-// Depending on options this might come from lbf_data, patient_data,
-// form_encounter, shared_attributes or elsewhere.
-// Returns FALSE if the field ID is invalid (layout error).
-//
-function lbf_current_value($frow, $formid, $encounter) {
-  global $pid, $portalres;
-  $formname = $frow['form_id'];
-  $field_id = $frow['field_id'];
-  $source   = $frow['source'];
-  $currvalue = '';
-  $deffname = $formname . '_default_' . $field_id;
-  if ($source == 'D' || $source == 'H') {
-    // Get from patient_data, employer_data or history_data.
-    if ($source == 'H') {
-      $table = 'history_data';
-      $orderby = 'ORDER BY date DESC LIMIT 1';
-    }
-    else if (strpos($field_id, 'em_') === 0) {
-      $field_id = substr($field_id, 3);
-      $table = 'employer_data';
-      $orderby = 'ORDER BY date DESC LIMIT 1';
-    }
-    else {
-      $table = 'patient_data';
-      $orderby = '';
-    }
-    // It is an error if the field does not exist, but don't crash.
-    $tmp = sqlQuery("SHOW COLUMNS FROM $table WHERE Field = ?", array($field_id));
-    if (empty($tmp)) return FALSE;
-    $pdrow = sqlQuery("SELECT `$field_id` AS field_value FROM $table WHERE pid = ? $orderby", array($pid));
-    if (isset($pdrow)) $currvalue = $pdrow['field_value'];
-  }
-  else if ($source == 'E') {
-    if ($encounter) {
-      // Get value from shared_attributes of the current encounter.
-      $sarow = sqlQuery("SELECT field_value FROM shared_attributes WHERE " .
-        "pid = ? AND encounter = ? AND field_id = ?",
-        array($pid, $encounter, $field_id));
-      if (isset($sarow)) $currvalue = $sarow['field_value'];
-    }
-    else if ($formid) {
-      // Get from shared_attributes of the encounter that this form is linked to.
-      // Note the importance of having an index on forms.form_id.
-      $sarow = sqlQuery("SELECT sa.field_value " .
-        "FROM forms AS f, shared_attributes AS sa WHERE " .
-        "f.form_id = ? AND f.formdir = ? AND f.deleted = 0 AND " .
-        "sa.pid = f.pid AND sa.encounter = f.encounter AND sa.field_id = ?",
-        array($formname, $formid, $field_id));
-      if (!empty($sarow)) $currvalue = $sarow['field_value'];
-    }
-    else {
-      // New form and encounter not available, this should not happen.
-    }
-  }
-  else if ($source == 'V') {
-    if ($encounter) {
-      // Get value from the current encounter's form_encounter.
-      $ferow = sqlQuery("SELECT * FROM form_encounter WHERE " .
-        "pid = ? AND encounter = ?",
-        array($pid, $encounter));
-      if (isset($ferow[$field_id])) $currvalue = $ferow[$field_id];
-    }
-    else if ($formid) {
-      // Get value from the form_encounter that this form is linked to.
-      $ferow = sqlQuery("SELECT fe.* " .
-        "FROM forms AS f, form_encounter AS re WHERE " .
-        "f.form_id = ? AND f.formdir = ? AND f.deleted = 0 AND " .
-        "fe.pid = f.pid AND fe.encounter = f.encounter",
-        array($formname, $formid));
-      if (isset($ferow[$field_id])) $currvalue = $ferow[$field_id];
-    }
-    else {
-      // New form and encounter not available, this should not happen.
-    }
-  }
-  else if ($formid) {
-    // This is a normal form field.
-    $ldrow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
-      "form_id = ? AND field_id = ?", array($formid, $field_id) );
-    if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
-  }
-  else {
-    // New form.  Get data from the CMS portal if applicable.
-    if ($portalres) {
-      $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
-    }
-    if ($currvalue === '') {
-      // Still no data, see if there is a custom default from a plugin.
-      // This logic does not apply to shared attributes because they do not
-      // have a "new form" concept.
-      if (function_exists($deffname)) $currvalue = call_user_func($deffname);
-    }
-  }
-  return $currvalue;
-}
-
 $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
 $formid   = isset($_GET['id']      ) ? intval($_GET['id']) : 0;
 $portalid = isset($_GET['portalid']) ? intval($_GET['portalid']) : 0;
@@ -197,8 +100,6 @@ $tmp = sqlQuery("SELECT title, option_value FROM list_options WHERE " .
 $formtitle = $tmp['title'];
 $formhistory = 0 + $tmp['option_value'];
 
-$newid = 0;
-
 if (empty($is_lbf)) {
   $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
   if (file_exists($fname)) include_once($fname);
@@ -207,6 +108,16 @@ if (empty($is_lbf)) {
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
+  $newid = 0;
+  if (!$formid) {
+    // Creating a new form. Get the new form_id by inserting and deleting a dummy row.
+    // This is necessary to create the form instance even if it has no native data.
+    $newid = sqlInsert("INSERT INTO lbf_data " .
+      "( field_id, field_value ) VALUES ( '', '' )");
+    sqlStatement("DELETE FROM lbf_data WHERE form_id = ? AND " .
+      "field_id = ''", array($newid));
+    addForm($encounter, $formtitle, $newid, $formname, $pid, $userauthorized);
+  }
   $sets = "";
   $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
@@ -233,7 +144,8 @@ if ($_POST['bn_save']) {
         updateEmployerData($pid, $new);
       }
       else {
-        sqlStatement("UPDATE patient_data SET `$field_id` = ? WHERE pid = ?",
+        $esc_field_id = escape_sql_column_name($field_id, array('patient_data'));
+        sqlStatement("UPDATE patient_data SET `$esc_field_id` = ? WHERE pid = ?",
           array($value, $pid));
       }
       continue;
@@ -249,47 +161,34 @@ if ($_POST['bn_save']) {
     }
     else if ($source == 'V') {
       // Save to form_encounter.
-      sqlStatement("UPDATE form_encounter SET `$field_id` = ? WHERE " .
+      $esc_field_id = escape_sql_column_name($field_id, array('form_encounter'));
+      sqlStatement("UPDATE form_encounter SET `$esc_field_id` = ? WHERE " .
         "pid = ? AND encounter = ?",
         array($value, $pid, $encounter));
       continue;
     }
     // It's a normal form field, save to lbf_data.
-    $sql_bind_array = array();
     if ($formid) { // existing form
       if ($value === '') {
         $query = "DELETE FROM lbf_data WHERE " .
           "form_id = ? AND field_id = ?";
-        array_push($sql_bind_array,$formid,$field_id);
+        sqlStatement($query, array($formid, $field_id));
       }
       else {
         $query = "REPLACE INTO lbf_data SET field_value = ?, " .
           "form_id = ?, field_id = ?";
-        array_push($sql_bind_array,$value,$formid,$field_id);
+        sqlStatement($query,array($value, $formid, $field_id));
       }
-      sqlStatement($query,$sql_bind_array);
     }
     else { // new form
       if ($value !== '') {
-        if ($newid) {
-          sqlStatement("INSERT INTO lbf_data " .
-            "( form_id, field_id, field_value ) " .
-            " VALUES (?,?,?)", array($newid, $field_id, $value) );
-        }
-        else {
-          $newid = sqlInsert("INSERT INTO lbf_data " .
-            "( field_id, field_value ) " .
-            " VALUES (?,?)", array($field_id, $value) );
-        }
+        sqlStatement("INSERT INTO lbf_data " .
+          "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
+          array($newid, $field_id, $value));
       }
-      // Note that a completely empty form will not be created at all!
     }
   }
 
-  if (!$formid && $newid) {
-    addForm($encounter, $formtitle, $newid, $formname, $pid, $userauthorized);
-  }
-  
   if ($portalid) {
     // Delete the request from the portal.
     $result = cms_portal_call(array('action' => 'delpost', 'postid' => $portalid));
