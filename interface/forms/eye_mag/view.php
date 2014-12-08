@@ -55,7 +55,7 @@ include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
 @extract($_REQUEST); 
 @extract($_SESSION);
-
+$form_id = $id;
 // Get users preferences, for this user ,
 // If a fresh install or new user, get the default user preferences
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=? or id=2048)ORDER BY id,ZONE_ORDER,ordering";
@@ -75,12 +75,11 @@ $prov_data =  sqlQuery($query);
 $providerID = $prov_data['fname']." ".$prov_data['lname'];
 
 
-$query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
+$query="select form_encounter.date as encounter_date, form_eye_mag.* from form_eye_mag ,forms,form_encounter 
                     where 
                     form_encounter.encounter =? and 
                     form_encounter.encounter = forms.encounter and 
                     form_eye_mag.id=forms.form_id and
-                    forms.pid =form_eye_mag.pid and 
                     forms.deleted != '1' and 
                     form_eye_mag.pid=? ";        
                    
@@ -231,7 +230,8 @@ Calendar._TT["TT_DATE_FORMAT"] = "%a, %b %e";
 
 Calendar._TT["WK"] = "wk";
 Calendar._TT["TIME"] = "Time"+":";
-</script><script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+</script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
@@ -329,7 +329,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
     <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
         <!-- start container for the main body of the form -->
         <div class="body_top" id="form_container" name="form_container">
-            <input type="hidden" name="id" id="id" value="<?php echo attr($id); ?>">
+            <input type="hidden" name="form_id" id="form_id" value="<?php echo attr($form_id); ?>">
             <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
             <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
             <input type="hidden" name="visit_date" id="visit_date" value="<?php echo $encounter_date; ?>">
@@ -349,91 +349,13 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
             <input type="hidden" name="PREFS_ACT_VIEW"  id="PREFS_ACT_VIEW" value="<?php echo attr($ACT_VIEW); ?>">
             <input type="hidden" name="PREFS_ACT_SHOW"  id="PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW); ?>">
             <input type="hidden" name="COPY_SECTION"  id="COPY_SECTION" value="">
-            <!-- start of general box -->
-            <?php 
-            /*       <div id="general" style="position:relative; padding: 0.04in;">
-                <div ID="Lyr1" STYLE="position: relative; width: auto;border: 1.00pt solid #c0c0c0; padding: 0.04in; text-align:center;">
-                    <?php 
+            <div id="accordion" class="text_clinical" style="position:absolute;">
+              <!-- //end of the general BOX -->
 
-                     /* 
-                     There is no need for a Save Button as it is always saved via ajax and of leaving the form...  
-                     Or is there a good reason to include it?
-                            <span class="title" style="text-align:left;padding-right:0.5in;">
-                                <!-- Save/Cancel buttons -->
-                                <input type="button" class="save" value="<?php echo xlt('Save NEW'); ?>"> &nbsp; 
-                                <input type="button" class="dontsave" value="<?php echo xlt('Don\'t Save'); ?>">
-                            </span> 
-                    
+              <!-- Required for the popup date selectors -->
+              <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-                    
-                    <span class="title" id="pat_name" style="text-align:center;padding-right:0.2in;">
-                        <?php echo $fname." ".$lname." (".$pid.") -- ".$id; ?>
-                    </span>
-                    </div>
-                    */
-                     ?>
-            
-                  
-           
-            <!-- //end of the general BOX -->
-            <!-- Required for the popup date selectors -->
-            <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-
-
-            <!--
-            <a id="construction" name="construction" style="font-size:0.6em;">Toggle construction zones</a>
-            --><div id="accordion" class="text_clinical" style="position:absolute;">
-                <div class="CONSTRUCTION_ZONE " name="CONSTRUCTION_1" id="CONSTRUCTION_1">
-                    <!-- OK this is the CC/HPI/PMFSH area that can be developed in this format or the other modules drawn in to complete the intake?  -->
-                    <div id="Lyr2" class="refraction borderShadow" style="position: relative;width:300px;float:left;" >
-                        <b><?php echo xlt('Chief Complaint'); ?>: </b>
-                        <input name="CC" id="CC" size="54" value="<?php echo attr($CC); ?>" tabindex="4" type="text">
-                        
-                        <br><b><?php echo xlt('History of Present Illness'); ?> </b><font size="1">(<?php echo xlt('please include mechanism of injury'); ?>):</font><br />
-                        <textarea style="left: 0.45in; width: 80%;  overflow:visible; " name="HPI" rows="3" cols="113" id="HPI" tabindex="5"><?php echo text($HP); ?></textarea>
-                        QUALITY     TIMING  DURATION    CONTEXT     SEVERITY    MODIFY  ASSOCIATED  LOCATION
-                    </div>
-                
-                    <a class="css_button_small" href="javascript:;" onclick="dlgopen('/openemr/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"><span>Edit</span></a>
-                    <a class="css_button_small iframe rx_modal" href="/openemr/interface/patient_file/summary/rx_frameset.php" onclick="top.restoreSession()"><span>Edit Rx</span></a>
-                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PMH:<br />
-                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">PSurgHx:<br />
-                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">FH:<br />
-                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">Meds:<br />
-                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">SocHx:<br />
-                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="refraction borderShadow" style="height:1in;width:20%;border:1pt solid black;float:left;">Allergies:<br />
-                        <textarea rows=4 style="height:0.7in;width:90%;border:1pt solid black;" name="PMH" id="PMH"></textarea></div>
-                    <div class="refraction borderShadow" style="clear:both;height:1in;width:90%;border:1pt solid black;">ROS:<br />
-                        <textarea name="PMH" id="PMH"></textarea></div>
-                    <div id="Lyr2.2" style="clear:both;border:1pt solid black;">
-                    </div>
-                </div>
-                <div class="CONSTRUCTION_ZONE" name="CONSTRUCTION_2" id="CONSTRUCTION_2" style="position:relative;border:1pt black solid;">
-                    <br />
-                        <span class="text_clinical">
-                            
-                                <b><?php echo xlt('Mood/Affect'); ?>:</b>
-                                <label for="alert" class="input-helper input-helper--checkbox"><?php echo xlt('Alert'); ?></label>
-                                <input id="alert" name="alert" type="checkbox"  <?php if ($alert ==="1") { echo "checked='checked'"; } ?>">
-                                <label for="oriented" class="input-helper input-helper--checkbox"><?php echo xlt('Oriented'); ?></label>
-                                <input id="oriented" name="oriented" type="checkbox" value="<?php echo attr($oriented); ?>" <?php if ($oriented ==="1") { echo "checked='checked'"; } ?>">
-                                <label for="confused" class="input-helper input-helper--checkbox"><?php echo xlt('Confused'); ?></label>
-                                <input id="confused" name="confused" type="checkbox" value="off" <?php 
-                                if ($confused =="1") { 
-                                    echo "checked='checked'"; 
-                                } 
-                                ?>
-                                >
-                             
-                        </span><br />
-                </div>
                 <br />
-                
                 <!-- start of the clinical BOX -->
                 <div>    
                     <div id="LayerClinical" class="section" style="min-height:1.3in;width:100%;vertical-align:text-top;position:relative;text-align:left;">
@@ -1277,11 +1199,11 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                         <i class="fa fa-shopping-cart fa-sm"> </i>&nbsp;<?php echo xlt('Quick Picks'); ?>
                     </span>
                     <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text" 
-                          class="borderShadow" style="vertical-align:bottom;">
+                          class="borderShadow" sdtyle="padding-right:10px;">
                         <?php $output = priors_select("ALL",$id,$id,$pid);
                         if ($output !='') {  echo $output; } else { echo "First visit: No Old Records"; }
                         ?>
-                    </span> 
+                    &nbsp;</span> 
                     <br /><br />
                 </div>
                 <!-- end of the exam selection row -->
@@ -1300,7 +1222,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                         <div id="EXT_left" class="exam_section_left borderShadow" >
                             <?php display_draw_section ("VISION",$encounter,$pid); ?>
                             <div id="EXT_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
-                                
+                                <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_ANTSEG" name="BUTTON_DRAW_ANTSEG"></span>
                                 <b><?php echo xlt('External Exam'); ?>:</b><br />
                                 <div style="position:relative;float:right;top:0.2in;">
                                     <table style="text-align:center;font-weight:600;font-size:0.7em;">
@@ -1384,7 +1306,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                         <div id="EXT_right" name="EXT_right" class="exam_section_right borderShadow text_clinical <?php echo attr($display_Visibility); ?>">
                             <?php display_draw_section ("NEURO",$encounter,$pid); ?>
                             <div id="PRIORS_EXT_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_EXT_left_text" class="PRIORS_class PRIORS"> 
-                            <i class="fa fa-spinner"></i>
+                            <i classX="fa fa-spinner"></i>
                             </div>
                             <div id="QP_EXT" name="QP_EXT" class="QP_class" style="text-align:left;max-height: 2.5in;">
                                         <input type="hidden" id="EXT_prefix" name="EXT_prefix" value="<?php echo attr($EXT_prefix); ?>">
@@ -1524,7 +1446,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             <div id="QP_ANTSEG" name="QP_ANTSEG" class="QP_class"  style="text-align:left;height: 2.5in;">
                                 <input type="hidden" id="ANTSEG_prefix" name="ANTSEG_prefix" value="">
                                 <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
-                                    <span  class="eye_button eye_button_selected" id="ANTSEG_prefix_off" name="ANTSEG_prefix_off"  onclick="$('#ANTSEG_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?> </span> 
+                                    <span  class="eye_button eye_button_selected" id="ANTSEG_prefix_off" name="ANTSEG_prefix_off"  onclick="$('#ANTSEG_prefix').val('off').trigger('change');"><?php echo xlt('Off'); ?> </span> 
                                     <span  class="eye_button" id="ANTSEG_defaults" name="ANTSEG_defaults"><?php echo xlt('Defaults'); ?></span>  
                                     <span  class="eye_button" id="ANTSEG_prefix_no" name="ANTSEG_prefix_no" onclick="$('#ANTSEG_prefix').val('no').trigger('change');"> <?php echo xlt('no'); ?> </span>  
                                     <span  class="eye_button" id="ANTSEG_prefix_trace" name="ANTSEG_prefix_trace"  onclick="$('#ANTSEG_prefix').val('trace').trigger('change');"> <?php echo xlt('tr'); ?> </span>  
@@ -2080,11 +2002,11 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             </table>
                                         </div>
                                     </div>
-                                    <div id="NEURO_MOTILITY" class="text_clinical borderShadow" style="float:left;font-size:1.0em;margin:3 auto;font-weight:bold;height:120px;width:165px;">
+                                    <div id="NEURO_MOTILITY" class="text_clinical borderShadow" style="float:left;font-size:0.9em;margin:3 auto;font-weight:bold;height:120px;width:165px;">
                                         <div>
-                                            <table style="width:100%;margin:0 0 10 0;">
+                                            <table style="width:100%;margin:0 0 1 0;">
                                                 <tr>
-                                                    <td style="width:40%;font-size:0.9em;margin:0 auto;font-weight:bold;"><?php echo xlt('Motility'); ?>:</td>
+                                                    <td style="width:40%;font-size:1.0em;margin:0 auto;font-weight:bold;"><?php echo xlt('Motility'); ?>:</td>
                                                     <td style="font-size:0.9em;vertical-align:top;text-align:right;top:0.0in;right:0.1in;height:0px;">
                                                         <label for="MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
                                                         <input id="MOTILITYNORMAL" name="MOTILITYNORMAL" type="checkbox" <?php if ($MOTILITYNORMAL =='1') echo "echecked"; ?>>
@@ -2103,7 +2025,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                         
                                         <div style="float:left;left:0.4in;text-decoration:underline;"><?php echo xlt('OD'); ?></div>
                                         <div style="float:right;right:0.4in;text-decoration:underline;"><?php echo xlt('OS'); ?></div><br />
-                                        <div class="divTable" style="left:-0.1in;background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 90%;height:0.7in;width:0.7in;padding:1px;margin:6 1 0 0;">
+                                        <div class="divTable" style="background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 90%;height:0.7in;width:0.7in;padding:1px;margin:6 1 1 2;">
                                             <div class="divRow">
                                                 <div class="divCell">&nbsp;</div>
                                             </div>
@@ -2275,7 +2197,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                             <div class="divRow"><div class="divCell">&nbsp;</div>
                                             </div>
                                         </div> 
-                                        <div class="divTable" style="left:-0.1in;background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 90%;height:0.7in;width:0.7in;padding:1px;margin:6 1 0 0;">
+                                        <div class="divTable" style="float:right;background: url(../../forms/<?php echo $form_folder; ?>/images/eom.bmp) no-repeat center center;background-size: 90% 90%;height:0.7in;width:0.7in;padding:1px;margin:6 2 0 0;">
                                             <div class="divRow">
                                                 <div class="divCell">&nbsp;</div>
                                             </div>
@@ -2458,7 +2380,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                             </div>     
                         </div>
                         <div id="NEURO_right" class="exam_section_right borderShadow text_clinical <?php echo attr($display_Visibility); ?>">
-                            <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 1.1em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS">
+                            <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS">
                                     <i class="fa fa-spinner"></i>
                             </div>
                             <div id="QP_NEURO" name="QP_NEURO" class="QP_class" style="text-align:left;height: 2.5in;">
@@ -2528,7 +2450,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                     <br />   
                     <div id="IMPPLAN" class="<?php echo attr($display_Add); ?> clear_both"> 
                         <div id="IMPPLAN_left" class="exam_section_left borderShadow">
-                            <span class="closeButton fa fa-plus-square-o" id="MAX_IMPPLAN" name="MAX_IMPPLAN"></span>
+                            <!-- <span class="closeButton fa fa-plus-square-o" id="MAX_IMPPLAN" name="MAX_IMPPLAN"></span> -->
                             <div id="IMPPLAN_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
              
                         <!-- this needs work to integrate it to auto populate with CPT/ICD codes based on form inputs above -->

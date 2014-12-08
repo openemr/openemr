@@ -414,7 +414,7 @@ body
 }
 
 #form_container {
-    border: 1px solid red;
+    border: 0px solid red;
     background-color: #FFFFFF; 
     padding: 0px;
     margin: 0 auto;
@@ -477,6 +477,7 @@ body
     width: 453px; 
     text-align:center;
     margin:5 auto 0 5 ;
+    font-size:1.0em;
 }
 textarea.EXTTEXT {
     /*narrow_textarea*/
@@ -1109,7 +1110,7 @@ vertical-align:bottom;
     width:1.915in; 
     padding:0.1in;
     text-align:left;
-    font-size: 1.0em;
+    font-size: 0.8em;
     margin:4 auto;
 }
 
@@ -1120,7 +1121,7 @@ vertical-align:bottom;
     width:1.915in;
     padding:0.1in;
     text-align:left;
-    font-size: 1.0em;
+    font-size: 0.8em;
     margin:4 auto;
 }
 .QP {

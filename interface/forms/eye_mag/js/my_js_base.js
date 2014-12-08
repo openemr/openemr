@@ -38,6 +38,7 @@ function fill_QP_field(PEZONE, ODOSOU, LOCATION_text, selection,mult) {
     var prefix = document.getElementById(PEZONE+'_prefix').value;
     var Fvalue = document.getElementById(FIELDID).value;
     if (prefix > '' && prefix !='off') {prefix = prefix + " ";}
+    if (prefix =='off') { prefix=''; }
     if (($("#" +FIELDID).css("background-color")=="rgb(245, 245, 220)") || (Fvalue ==''))  {
         $("#" +FIELDID).val(prefix+selection);
         $("#" +FIELDID).css("background-color","#C0C0C0");
@@ -92,7 +93,9 @@ function update_PREFS() {
         'PREFS_EXT_VIEW'        : $('#PREFS_EXT_VIEW').val(),
         'PREFS_ANTSEG_VIEW'     : $('#PREFS_ANTSEG_VIEW').val(),
         'PREFS_RETINA_VIEW'     : $('#PREFS_RETINA_VIEW').val(),
-        'PREFS_NEURO_VIEW'      : $('#PREFS_NEURO_VIEW').val()
+        'PREFS_NEURO_VIEW'      : $('#PREFS_NEURO_VIEW').val(),
+        'PREFS_ACT_VIEW'        : $('#PREFS_ACT_VIEW').val(),
+        'PREFS_ACT_SHOW'        : $('#PREFS_ACT_SHOW').val()
     };
     $.ajax({
            type 		: 'POST',
@@ -228,8 +231,45 @@ function toggle_visibility(id) {
     else
         e.style.display = 'block';
 }
-
+    // plot the current graph
+    //------------------------------------------------------
+function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount){
+    top.restoreSession();
+    return $.ajax({ url: '/openemr/library/openflashchart/graph_track_anything.php',
+                  type: 'POST',
+                  data: {
+                    dates:  thedates,   //$the_date_array
+                    values: thevalues,  //$the_value_array
+                    items:  theitems,   //$the_item_names
+                    track:  thetrack,   //$titleGraph
+                    thecheckboxes: checkedBoxes //$the_checked_cols
+                  },
+                  dataType: "json",
+                  success: function(returnData){
+                  // ofc will look after a variable named "ofc"
+                  // inside of the flashvar
+                  // However, we need to set both
+                  // data and flashvars.ofc
+                  data=returnData;
+                  flashvars.ofc = returnData;
+                  // call ofc with proper falshchart
+                  swfobject.embedSWF('/openemr/library/openflashchart/open-flash-chart.swf',
+                                     "graph"+trackCount, "650", "200", "9.0.0","",flashvars);
+                  },
+                  error: function (XMLHttpRequest, textStatus, errorThrown) {
+                  alert(XMLHttpRequest.responseText);
+                  //alert("XMLHttpRequest="+XMLHttpRequest.responseText+"\ntextStatus="+textStatus+"\nerrorThrown="+errorThrown);
+                  }
+                  
+                  }); // end ajax query	
+}
+function openImage() {
+        //var f = document.forms[0];
+        //var tmp = (keyid && f.form_key[1].checked) ? ('?enclink=' + keyid) : '';
+    dlgopen('/openemr/controller.php?document&retrieve&patient_id=3&document_id=10&as_file=false', '_blank', 600, 475);
+}
 $(document).ready(function() {
+                  $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
                   $("input,select,textarea,text").css("background-color","#FFF8DC");
                   $("#IOPTIME").css("background-color","#FFFFFF");
                   $("#refraction_width").css("width","8.5in");
@@ -487,7 +527,7 @@ $(document).ready(function() {
                                'zone'                  : section,
                                'id_to_show'            : newValue,
                                'pid'                   : $('#pid').val(),
-                               'orig_id'               : $('#id').val()
+                               'orig_id'               : $('#form_id').val()
                                }
                                $.ajax({
                                       type 		: 'POST',
@@ -777,6 +817,23 @@ $(document).ready(function() {
                                              $("#Visions_A").toggleClass('nodisplay');
                                              $("#Visions_B").toggleClass('nodisplay');
                                              });
+                  $("#EXT_defaults").click(function() {
+                                           $('#RUL').val('normal lids and lashes').css("background-color","beige");
+                                           $('#LUL').val('normal lids and lashes').css("background-color","beige");
+                                           $('#RLL').val('good tone').css("background-color","beige");
+                                           $('#LLL').val('good tone').css("background-color","beige");
+                                           $('#RBROW').val('no brow ptosis').css("background-color","beige");
+                                           $('#LBROW').val('no brow ptosis').css("background-color","beige");
+                                           $('#RMCT').val('no masses').css("background-color","beige");
+                                           $('#RMAX').val('normal lacrimal gland and orbit').css("background-color","beige");
+                                           $('#LMAX').val('normal lacrimal gland and orbit').css("background-color","beige");
+                                           $('#LMCT').val('no masses').css("background-color","beige");
+                                           $('#RMRD').val('+3').css("background-color","beige");
+                                           $('#LMRD').val('+3').css("background-color","beige");
+                                           $('#RLF').val('17').css("background-color","beige");
+                                           $('#LLF').val('17').css("background-color","beige");
+                                           submit_form("eye_mag");
+                                           });
                   
                   $("#ANTSEG_defaults").click(function() {
                                               $('#ODCONJ').val('quiet').css("background-color","beige");
@@ -789,7 +846,43 @@ $(document).ready(function() {
                                               $('#OSLENS').val('clear').css("background-color","beige");
                                               $('#ODIRIS').val('round').css("background-color","beige");
                                               $('#OSIRIS').val('round').css("background-color","beige");
+                                              submit_form("eye_mag");
                                               });
+                  $("#RETINA_defaults").click(function() {
+                                              $('#ODDISC').val('pink').css("background-color","beige");
+                                              $('#OSDISC').val('pink').css("background-color","beige");
+                                              $('#ODCUP').val('0.3').css("background-color","beige");
+                                              $('#OSCUP').val('0.3').css("background-color","beige");
+                                              $('#ODMACULA').val('flat').css("background-color","beige");
+                                              $('#OSMACULA').val('flat').css("background-color","beige");
+                                              $('#ODVESSELS').val('2:3').css("background-color","beige");
+                                              $('#OSVESSELS').val('2:3').css("background-color","beige");
+                                              $('#ODPERIPH').val('flat, no tears, holes or RD').css("background-color","beige");
+                                              $('#OSPERIPH').val('flat, no tears, holes or RD').css("background-color","beige");
+                                              submit_form("eye_mag");
+                                              });
+                  $("#NEURO_defaults").click(function() {
+                                             $('#ODPUPILSIZE1').val('3.0').css("background-color","beige");
+                                             $('#ODPUPILSIZE2').val('2.0').css("background-color","beige");
+                                             $('#ODPUPILREACTIVITY').val('+2').css("background-color","beige");
+                                             $('#ODAPD').val('0').css("background-color","beige");
+                                             $('#OSPUPILSIZE1').val('3.0').css("background-color","beige");
+                                             $('#OSPUPILSIZE2').val('2.0').css("background-color","beige");
+                                             $('#OSPUPILREACTIVITY').val('+2').css("background-color","beige");
+                                             $('#OSAPD').val('0').css("background-color","beige");
+                                             $('#ODVFCONFRONTATION1').val('0').css("background-color","beige");
+                                             $('#ODVFCONFRONTATION2').val('0').css("background-color","beige");
+                                             $('#ODVFCONFRONTATION3').val('0').css("background-color","beige");
+                                             $('#ODVFCONFRONTATION4').val('0').css("background-color","beige");
+                                             $('#ODVFCONFRONTATION5').val('0').css("background-color","beige");
+                                             $('#OSVFCONFRONTATION1').val('0').css("background-color","beige");
+                                             $('#OSVFCONFRONTATION2').val('0').css("background-color","beige");
+                                             $('#OSVFCONFRONTATION3').val('0').css("background-color","beige");
+                                             $('#OSVFCONFRONTATION4').val('0').css("background-color","beige");
+                                             $('#OSVFCONFRONTATION5').val('0').css("background-color","beige");
+                                             submit_form("eye_mag");
+                                             });
+                  
                   $("#EXAM_defaults").click(function() {
                                             $('#RUL').val('normal lids and lashes').css("background-color","beige");
                                             $('#LUL').val('normal lids and lashes').css("background-color","beige");
@@ -799,6 +892,8 @@ $(document).ready(function() {
                                             $('#LBROW').val('no brow ptosis').css("background-color","beige");
                                             $('#RMCT').val('no masses').css("background-color","beige");
                                             $('#LMCT').val('no masses').css("background-color","beige");
+                                            $('#RMAX').val('normal lacrimal gland and orbit').css("background-color","beige");
+                                            $('#LMAX').val('normal lacrimal gland and orbit').css("background-color","beige");
                                             $('#RMRD').val('+3').css("background-color","beige");
                                             $('#LMRD').val('+3').css("background-color","beige");
                                             $('#RLF').val('17').css("background-color","beige");
@@ -839,8 +934,8 @@ $(document).ready(function() {
                                             $('#OSMACULA').val('flat').css("background-color","beige");
                                             $('#ODVESSELS').val('2:3').css("background-color","beige");
                                             $('#OSVESSELS').val('2:3').css("background-color","beige");
-                                            $('#ODPERIPH').val('flat without tears, holes or RD').css("background-color","beige");
-                                            $('#OSPERIPH').val('flat without tears, holes or RD').css("background-color","beige");
+                                            $('#ODPERIPH').val('flat, no tears, holes or RD').css("background-color","beige");
+                                            $('#OSPERIPH').val('flat, no tears, holes or RD').css("background-color","beige");
                                             submit_form("eye_mag");
                                             });
                   
@@ -916,7 +1011,7 @@ $(document).ready(function() {
                                             //reset all motility measurements to zero if checked
                                             //if not, then leave alone...
                                             });
-                  $("#EXAM_DRAW").click(function() {
+                  $("#EXAM_DRAW,[id^='BUTTON_DRAW_']").click(function() {
                                         if ($("#PREFS_CLINICAL").value !='0') {
                                         show_right();
                                         $("#PREFS_CLINICAL").val('0');
@@ -946,7 +1041,7 @@ $(document).ready(function() {
                                       }
                                       });
                   
-                  $("#EXAM_CLINICAL").click(function() {
+                  $("#EXAM_CLINICAL,[id^='BUTTON_TEXT_']").click(function() {
                                             if ($("#PREFS_CLINICAL").val() !='1') {
                                             //we want to show text_only which are found on left half
                                             $("#PREFS_CLINICAL").val('1');
@@ -983,7 +1078,8 @@ $(document).ready(function() {
                                                 $("[name^='ACT_tab_']").removeClass('nodisplay').removeClass('ACT_selected').addClass('ACT_deselected');
                                                 $("#ACT_tab_" + section).addClass('ACT_selected').removeClass('ACT_deselected');
                                                 $("#ACT_" + section).removeClass('nodisplay');
-                                                $("#ACT_VIEW").val(section);
+                                                $("#PREFS_ACT_SHOW").val(section);
+                                                update_PREFS();
                                                 });
                   $("#ACTTRIGGER").mouseover(function() {
                                              $("#ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
@@ -992,12 +1088,28 @@ $(document).ready(function() {
                   $("#ACTTRIGGER").mouseout(function() {
                                             $("#ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
                                             });
+                  if ($("#PREFS_ACT_VIEW").val() == '1') {
+                    $("#ACTMAIN").toggleClass('nodisplay'); //.toggleClass('fullscreen');
+                    $("#NPCNPA").toggleClass('nodisplay');
+                    $("#ACTNORMAL_CHECK").toggleClass('nodisplay');
+                    $("#ACTTRIGGER").toggleClass('underline');
+                  var show = $("#PREFS_ACT_SHOW").val();
+                  //alert($("#PREFS_ACT_SHOW").val());
+                  $("#ACT_tab_"+show).trigger('click');
+                  }
                   $("#ACTTRIGGER").click(function() {
                                          $("#ACTMAIN").toggleClass('nodisplay'); //.toggleClass('fullscreen');
                                          $("#NPCNPA").toggleClass('nodisplay');
                                          $("#ACTNORMAL_CHECK").toggleClass('nodisplay');
                                          $("#ACTTRIGGER").toggleClass('underline');
-                                         $("#ACT_VIEW").val('1');
+                                         if ($("#PREFS_ACT_VIEW").val()=='1') {
+                                            $("#PREFS_ACT_VIEW").val('0');
+                                         } else {
+                                            $("#PREFS_ACT_VIEW").val('1');
+                                         }
+                                         var show = $("#PREFS_ACT_SHOW").val();
+                                         $("#ACT_tab_"+show).trigger('click');
+                                         update_PREFS();
                                          });
                   
                   
@@ -1112,13 +1224,17 @@ $(document).ready(function() {
                                             
                                             
                                             });
+                 $("[id^='BUTTON_DRAWX_']").click(function() {
+                                                   var zone =this.id.match(/BUTTON_DRAW_(.*)$/)[1];
+                                                 show_DRAW();
+                                                });
                   
                   $("#construction").click(function() {
                                            $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
                                            });
-                  window.addEventListener("beforeunload", function () {
-                                          submit_form();
-                                          });
+                window.addEventListener("beforeunload", function () {
+                                        submit_form();
+                                        });
                   $("#EXAM_sections_loading").addClass('nodisplay');
                   $("#EXAM_sections").removeClass('nodisplay');
                   

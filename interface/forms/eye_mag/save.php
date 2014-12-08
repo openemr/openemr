@@ -59,25 +59,24 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 @extract($_SESSION);
 @extract($_REQUEST);
 
-/*
-echo "<pre>hello";
-var_dump($_REQUEST);
-exit;
-*/
+//echo "<pre>hello";
+//var_dump($_REQUEST);
+//exit;
+
 $id = $_GET['id'];
 
 if ($encounter == "" && !$id) {
     return "Sorry Charlie...";
     exit;
 }
-//exit;
+
 /**  
  * Save/update the preferences  
  * could probably make these values into an array and loop through it to look prettier but this works...
  * and maybe it helps people understand what and why we are doing what we are doing?
  * Leave it to the professionals...
  */
-if ($AJAX_PREFS) {  
+if ($AJAX_PREFS)                        { 
   $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
             VALUES 
             ('PREFS','VA','Vision',?,'RS','51',?,'1') 
@@ -167,18 +166,16 @@ if ($AJAX_PREFS) {
             ('PREFS','ACT_SHOW','ACT Show',?,'ACT_SHOW','65',?,'15') 
             on DUPLICATE KEY UPDATE VALUE=?";
   sqlQuery($query,array($_SESSION['authId'],$PREFS_ACT_SHOW,$PREFS_ACT_SHOW)); 
- 
 }
 
 /**  
  * Create, update or retrieve a form and its values  
  */
-//if ($mode) {
 if ($encounter == "") $encounter = date("Ymd");
-if ($_GET["mode"] == "new") {
+if ($_GET["mode"] == "new")             { 
   $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
   addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
-} elseif ($_GET["mode"] == "update") {     
+} elseif ($_GET["mode"] == "update")    { 
       //the form is submitted to be updated.
       //any field that exists in the database can be updated
       //need to exclude the important ones...
@@ -190,6 +187,8 @@ if ($_GET["mode"] == "new") {
             exit;
         }
         $fields = array();
+        //echo "<pre>";var_dump($_POST);
+        //exit;
         if (sqlNumRows($result) > 0) {
           //checkboxes need to be entered manually as they are only submitted when they are checked
           //if checked they are overridden below with the "on" value...
@@ -207,16 +206,17 @@ if ($_GET["mode"] == "new") {
                $row['Field'] == 'activity') continue;
             if (isset($_POST[$row['Field']])) {
               $fields[$row[Field]] = $_POST[$row['Field']];
-            if ($row['Field'] == "MOTILITYNORMAL") {
-              $test = $row['Field'] . " = ". $_POST[$row['Field']];
-            echo "<script> alert('".$test."');</script>";
-          }
+           //  echo $row[Field] . " = ".$_POST[$row['Field']]."<br />";
+           // if ($row['Field'] == "MOTILITYNORMAL") {
+           //   $test = $row['Field'] . " = ". $_POST[$row['Field']];
+           // echo "<script> alert('".$test."');</script>";
+           //   }
             }
           }
         }
-        $success = formUpdate($table_name, $fields, $id, $userauthorized);
+        $success = formUpdate($table_name, $fields, $form_id, $userauthorized);
         return;
-} elseif ($_GET["mode"] == "retrieve") {
+} elseif ($_GET["mode"] == "retrieve")  { 
     $query = "SELECT * FROM patient_data where pid=?";
     $pat_data =  sqlQuery($query,array($pid));
     @extract($pat_data);
@@ -226,26 +226,29 @@ if ($_GET["mode"] == "new") {
     $providerID = $prov_data['fname']." ".$prov_data['lname'];
       //the date in form_eye_mag is the date the form was created 
       //and may not equal the date of the encounter so we must make a special request to get the old data:
-    $query = "select form_eye_mag.id as id_to_show from form_eye_mag left 
+   /* $query = "select form_eye_mag.id as id_to_show from form_eye_mag left 
               join forms on form_eye_mag.id=forms.form_id and form_eye_mag.pid=forms.pid 
               where 
               forms.form_name = ? and 
               forms.id = ? and 
               forms.deleted !='1'  
               ORDER BY forms.date DESC";
-    $query = "select form_eye_mag.id as id_to_show from form_eye_mag where id=?";
+              */
     //$visit_data =  sqlQuery($query,array($form_folder,$id_to_show));
-    $visit_data =  sqlQuery($query,array($id_to_show));
-    @extract($visit_data);
+   // $query = "select form_eye_mag.id as id_to_show from form_eye_mag where id=?";
+   // $visit_data =  sqlQuery($query,array($id_to_show));
+   // @extract($visit_data);
       //HERE WE DECIDE WHAT WE WANT TO SHOW = A SEGMENT, A ZONE OR EVEN A VALUE...  
-      //ALL VARIABLES ARE ALREADY EXTRACTED AND READY FOR USE.
+      //ALL VARIABLES GET EXTRACTED AND ARE READY FOR USE.
+    
     if ($PRIORS_query) {
+      //$id_to_show = $id;
       include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
-       display_section($zone,$orig_id,$id_to_show,$pid);
+      display_section($zone,$orig_id,$id_to_show,$pid);
       return; 
     }
 }
-//}
+
 
 /**  
  * Save the canvas drawings  

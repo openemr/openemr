@@ -50,7 +50,6 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
                                 font-size:0.72em;
                                 padding:1 0 0 10;
                                 margin:0 0 5 0;
-                                vertical-align:text-top;
                                 z-index:10;
                                 display: nowrap;' 
                                 id='".attr($zone)."_prefix_oldies' 
@@ -59,13 +58,24 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
     $selected='';
     $current='';
     if (!$priors) {
+        $query="select form_encounter.date as encounter_date, form_eye_mag.* 
+                    from form_eye_mag,forms,form_encounter 
+                    where 
+                    form_encounter.encounter =? and 
+                    form_encounter.encounter = forms.encounter and 
+                    form_eye_mag.id=forms.form_id and
+                    forms.deleted != '1' and 
+                    form_eye_mag.pid=? ";        
+                   
+        //$objQuery =sqlQuery($query,array($encounter,$pid));
         $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id, form_eye_mag.* 
-                    from form_eye_mag ,forms,form_encounter 
+                    from form_eye_mag,forms,form_encounter 
                     where 
                     form_encounter.encounter = forms.encounter and 
                     form_eye_mag.id=forms.form_id and
-                    forms.pid =? and form_eye_mag.pid=? ORDER BY encounter_date DESC";
-        $result = sqlStatement($query,array($pid,$pid));
+                    forms.deleted != '1' and 
+                    forms.pid =form_eye_mag.pid and form_eye_mag.pid=? ORDER BY encounter_date DESC";
+        $result = sqlStatement($query,array($pid));
         $counter = sqlNumRows($result);
         global $priors;
         global $current;
@@ -76,6 +86,7 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
             $visit_date_local = date_create($prior['encounter_date']);
             $exam_date = date_format($visit_date_local, 'm/d/Y'); 
             // there may be an openEMR global user preference for date formatting
+            //there is - use when ready...
             $priors[$i] = $prior;
             $selected ='';
             $priors[$i]['exam_date'] = $exam_date;
@@ -93,7 +104,7 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
                 $selected = 'selected=selected';
                 $current = $i;
             }
-            $output .= "<option value='".attr($priors[$i]['id'])."' ".attr($selected).">".$form_id ." - ".$orig_id." - ".xlt($priors[$i]['exam_date'])."</option>";
+            $output .= "<option value='".attr($priors[$i]['id'])."' ".attr($selected).">".xlt($priors[$i]['exam_date'])."</option>";
         }
     }
     $i--;
@@ -204,7 +215,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                 </div>
                 <b> <?php echo xlt('Prior Exam'); ?>: </b><br />
                 <div style="position:relative;float:right;top:0.2in;">
-                    <table style="text-align:center;font-weight:bold;font-size:0.9em;">
+                    <table style="text-align:center;font-weight:bold;font-size:0.7em;">
                         <tr><td></td><td><?php echo xlt('OD'); ?></td><td><?php echo xlt('OS'); ?></td>
                         </tr>
                         <tr>
@@ -274,7 +285,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                     </tr>
                 </table>
             </div>  <br />
-            <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.9em;text-align:left;padding-left:25px;"> <b><?php echo xlt('Comments'); ?>:</b><br />
+            <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.7em;text-align:left;padding-left:25px;"> <b><?php echo xlt('Comments'); ?>:</b><br />
                   <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS" style="width:4.0in;height:3em;"><?php echo text($EXT_COMMENTS); ?></textarea>
             </div>  
 
@@ -295,7 +306,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
 
         <b> <?php echo xlt('Prior Exam'); ?>:</b><br />
         <div class="text_clinical" style="position:relative;float:right;top:0.2in;">
-            <table style="text-align:center;font-size:1.0em;font-weight:bold;"> 
+            <table style="text-align:center;font-size:0.8em;font-weight:bold;"> 
                 <tr >
                     <td></td><td><?php echo xlt('OD'); ?></td><td><?php echo xlt('OS'); ?></td>
                 </tr>
@@ -347,7 +358,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                     </tr>
                 </table>
         </div>  <br />
-        <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.9em;text-align:left;padding-left:25px;"> <b><?php echo xlt('Comments'); ?>:</b><br />
+        <div style="position: absolute;bottom:0.05in;clear:both;font-size:0.7em;text-align:left;padding-left:25px;"> <b><?php echo xlt('Comments'); ?>:</b><br />
             <textarea disabled id="PRIOR_ANTSEG_COMMENTS" name="PRIOR_ANTSEG_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($ANTSEG_COMMENTS); ?></textarea>
         </div>   
        
@@ -366,7 +377,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
         </div>
            <b><?php echo xlt('Prior Exam'); ?>:</b><br />
                                 <div style="position:relative;float:right;top:0.2in;">
-                                    <table style="float:right;text-align:right;font-size:1.0em;font-weight:bold;padding:10px 0px 5px 10px;">
+                                    <table style="float:right;text-align:right;font-size:0.8em;font-weight:bold;padding:10px 0px 5px 10px;">
                                         <tr>
                                             <td>
                                                 <?php echo xlt('OCT Report'); ?>:
@@ -438,7 +449,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                         </tr>
                                     </table>
                                     <br />
-                                    <table style="width:50%;text-align:right;font-size:1.0em;font-weight:bold;padding:10px;">
+                                    <table style="width:50%;text-align:right;font-size:0.8em;font-weight:bold;padding:10px;">
                                         <tr style="text-align:center;">
                                             <td></td>
                                             <td> <?php echo xlt('OD'); ?> </td><td> <?php echo xlt('OS'); ?> </td></tr>
@@ -568,8 +579,6 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                     <tr>
                         <td colspan="2" style="text-align:center;"> 
                             <div id="PRIOR_ACTMAIN" name="PRIOR_ACTMAIN" class=" ACT_TEXT nodisplay" style="position:relative;z-index:1;margin 10 auto;">
-                               <br /> 
-
                                <table cellpadding="0" style="position:relative;text-align:center;font-size:0.9em;margin: 7 5 19 5;border-collapse: separate;">
                                     <tr>
                                         <td id="PRIOR_ACT_tab_SCDIST" name="PRIOR_ACT_tab_SCDIST" class="ACT_selected"> <?php echo xlt('scDist'); ?> </td>
@@ -736,7 +745,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                             </div>
                                         </td>
                                     </tr>
-                                </table>
+                               </table>
                             </div>
                         </td>
                     </tr>
@@ -1301,7 +1310,8 @@ function display_draw_section ($zone,$encounter,$pid,$side ='OU') {
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
         <span class="closeButton fa fa-file-text-o" id="BUTTON_TEXT_RETINA" name="BUTTON_TEXT_RETINA"></span>
                               
-                              <span class="CONSTRUCTION_ZONE" name="CONSTRUCTION_3" id="CONSTRUCTION_3" style="font-size:0.8em;">Import Text</span>
+                              
+                              <span class="CONSTRUCTION_ZONE" name="CONSTRUCTION_3" id="CONSTRUCTION_3" style="font-size:0.8em;display:hidden;">Import Text</span>
         <div class="tools" style="text-align:center;left:0.02in;width:90%;">
             <a href="#Sketch_<?php echo attr($zone); ?>" data-color="#f00" > &nbsp;&nbsp;</a>
             <a style="width: 5px; background: yellow;" data-color="#ff0" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
