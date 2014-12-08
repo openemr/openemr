@@ -247,6 +247,27 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                                 <input disabled type=text size=1  id="PRIOR_OSHERTEL" name="PRIOR_OSHERTEL" value="<?php echo attr($OSHERTEL); ?>">
                             </td>
                         </tr>
+                        <tr><td>&nbsp;</td></tr>
+                        <tr>
+                            <td class="right"><?php echo xlt('Carotid Bruit'); ?></td>
+                            <td><input  disabled type="text"  name="PRIOR_RCAROTID" id="PRIOR_RCAROTID" value="<?php echo attr($RCAROTID); ?>"></td>
+                            <td><input  disabled type="text"  name="PRIOR_LCAROTID" id="PRIOR_LCAROTID" value="<?php echo attr($LCAROTID); ?>"></td>
+                        </tr>
+                        <tr>
+                            <td class="right"><?php echo xlt('Temporal Art.'); ?></td>
+                            <td><input  disabled type="text" size="1" name="PRIOR_RTEMPART" id="PRIOR_RTEMPART" value="<?php echo attr($RTEMPART); ?>"></td>
+                            <td><input  disabled type="text" size="1" name="PRIOR_LTEMPART" id="PRIOR_LTEMPART" value="<?php echo attr($LTEMPART); ?>"></td>
+                        </tr>
+                        <tr>
+                            <td class="right"><?php echo xlt('CN V'); ?></td>
+                            <td><input  disabled type="text" size="1" name="PRIOR_RCNV" id="PRIOR_RCNV" value="<?php echo attr($RCNV); ?>"></td>
+                            <td><input  disabled type="text" size="1" name="PRIOR_LCNV" id="PRIOR_LCNV" value="<?php echo attr($LCNV); ?>"></td>
+                        </tr>
+                        <tr>
+                            <td class="right"><?php echo xlt('CN VII'); ?></td>
+                            <td><input disabled type="text" size="1" name="PRIOR_RCNVII" id="PRIOR_RCNVII" value="<?php echo attr($RCNVII); ?>"></td>
+                            <td><input disabled type="text" size="1" name="PRIOR_LCNVII" id="PRIOR_LCNVII" value="<?php echo attr($LCNVII); ?>"></td>
+                        </tr>
                     </table>
                 </div>
 

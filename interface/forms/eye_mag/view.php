@@ -290,8 +290,6 @@ function sendimage(pid, what) {
 <!-- Add HTML5 Draw program (for now not working) library -->
 <XXscript type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/sketch.min.js"></XXscript>
 <script type="text/javascript" src="http://intridea.github.io/sketch.js/lib/sketch.js"></script>
-<!-- Add eye_mag js library -->
-<script type="text/javascript" src="../../forms/<?php echo $form_folder; ?>/js/my_js_base.js"></script>
 
 <?php 
 /*
@@ -2507,6 +2505,9 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
         $('#simple_sketch').sketch({defaultSize:"1"});
     });
     </script>
+    <!-- Add eye_mag js library -->
+<script type="text/javascript" src="../../forms/<?php echo $form_folder; ?>/js/my_js_base.js"></script>
+
 </body>
 <!--  
 //saw this in other forms...  Perhaps this belongs in the my_base_js.js file...  
