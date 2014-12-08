@@ -888,7 +888,7 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                     <label for="Tropicamide" class="input-helper input-helper--checkbox"><?php echo xlt('Tropic 2.5%'); ?></label>
                                                     </br>
                                                     <input type="checkbox" id="Neo25" name="Neo25" value="Neosynephrine 2.5%"/>
-                                                    <label for="Neo25" class="input-helper input-helper--checkbox"><?php echo xlt('Neo 2.5%<'); ?>/label>
+                                                    <label for="Neo25" class="input-helper input-helper--checkbox"><?php echo xlt('Neo 2.5%'); ?></label>
                                                     <br />
                                                     <input type="checkbox" id="Cyclogyl" name="Cyclogyl" value="Cyclopentolate 1%" />
                                                     <label for="Cyclogyl" class="input-helper input-helper--checkbox"><?php echo xlt('Cyclo 1%'); ?></label>
@@ -971,8 +971,8 @@ I USED THIS CODE SOMEWHERE BUT I FORGET WHERE, PERHAPS IN THE SPECTACLERX.PHP.  
                                                                 <td>
                                                                     <select id="CTLSUPPLIEROD" name="CTLMANUFACTUREROD">
                                                                         <option></option>
-                                                                        <option value="ABB">ABB'); ?></option>
-                                                                        <option value="JNJ">JNJ'); ?></option>
+                                                                        <option value="ABB"><?php echo xlt('ABB'); ?></option>
+                                                                        <option value="JNJ"><?php echo xlt('JNJ'); ?></option>
                                                                     </select>
                                                                 </td>
                                                                 <td>
