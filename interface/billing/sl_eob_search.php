@@ -671,7 +671,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
     // in the ar_activity table marked with a PCP in the account_code column.
     $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
       "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
-      "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " ..
+      "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
       "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
@@ -1009,7 +1009,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
         "im.foreign_id = " . $row['custid'] . " AND " .
         "im.foreign_table = 'customer' AND " .
         "pd.id = im.local_id");
-      $row['billnote'] = ($pdrow['billing_note'] : '';
+      $row['billnote'] = ($pdrow['billing_note'] ;
       $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
