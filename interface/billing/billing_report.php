@@ -413,10 +413,10 @@ $ThisPageSearchCriteriaDataTypeMaster="datetime,datetime,datetime,radio,text_lik
 else
 {
 
-$ThisPageSearchCriteriaDisplayMaster= array( xl("Date of Service"),xl("Date of Entry"),xl("Date of Billing"),xl("Claim Type"),xl("Patient Name"),xl("Patient Id"),xl("Insurance Company"),xl("Encounter"),xl("Whether Insured"),xl("Charge Coded"),xl("Billing Status"),xl("Authorization Status"),xl("Last Level Billed"),xl("X12 Partner") );
+$ThisPageSearchCriteriaDisplayMaster= array( xl("Date of Service"),xl("Date of Entry"),xl("Date of Billing"),xl("Claim Type"),xl("Patient Name"),xl("Patient Id"),xl("Insurance Company (Billed Only!)"),xl("Encounter"),xl("Whether Insured"),xl("Charge Coded"),xl("Billing Status"),xl("Authorization Status"),xl("Last Level Billed"),xl("X12 Partner (Billed Only!)"),xl("Code"),xl("Modifier") );
 $ThisPageSearchCriteriaKeyMaster="form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname,".
                                  "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed,".
-                                 "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id";
+                                 "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id,billing.code,billing.modifier";
 $ThisPageSearchCriteriaDataTypeMaster="datetime,datetime,datetime,radio,text_like,".
                                       "text,include,text,radio,radio,radio,".
                                       "radio_like,radio,query_drop_down";
@@ -774,7 +774,7 @@ if(is_array($ret))
         }
       }
 
-      $name = getPatientData($iter['enc_pid'], "fname, mname, lname, pubpid, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+      $name = getPatientData($iter['enc_pid'], "fname, mname, lname, billing_note, pubpid, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 
       # Check if patient has primary insurance and a subscriber exists for it.
       # If not we will highlight their name in red.
@@ -795,7 +795,7 @@ if(is_array($ret))
 
       $ptname = $name['fname'] . " " . $name['lname'];
       $raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
-            
+      $billing_note = $name['billing_note'];    
             //  Add Encounter Date to display with "To Encounter" button 2/17/09  JCH
       $lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>". text($ptname) .
         "</font></span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" .
@@ -847,7 +847,7 @@ if(is_array($ret))
                  "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">[" . xlt('To Dems') . "]</a>";
         $divnos=$divnos+1;
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a  onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos' href=\"JavaScript:void(0);".
-        "\">(<span id=spanid_$divnos class=\"indicator\">" . htmlspecialchars( xl('Expand'), ENT_QUOTES) . "</span>)</a>";
+        "\">(<span id=spanid_$divnos class=\"indicator\">" . htmlspecialchars( xl('Expand'), ENT_QUOTES) .'</span>)</a> <span style="margin-left: 20px; font-weight bold; color: red">'.text($billing_note).'</span>';
 
       if ($iter['id']) {
 
@@ -1065,8 +1065,8 @@ if(is_array($ret))
     if ($iter['id']) $rhtml .= text(oeFormatSDFT(strtotime($iter{"date"})));
     $rhtml .= "</span></td>\n";
     if ($iter['id'] && $iter['authorized'] != 1) {
-      $rhtml .= "<td><span class=alert>".xlt("Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.")."</span></td>\n";
-    }
+       $rhtml .= "<td><span class=alert>".xlt("Note: This code is unauthorized.")."</span></td>\n";
+         }
     else {
       $rhtml .= "<td></td>\n";
     }
@@ -1111,8 +1111,8 @@ if(is_array($ret))
           $rhtml2 .= text(oeFormatSDFT(strtotime($date)));
           $rhtml2 .= "</span></td>\n";
           if ($iter['id'] && $iter['authorized'] != 1) {
-            $rhtml2 .= "<td><span class=alert>".xlt("Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.")."</span></td>\n";
-          }else{
+		  $rhtml2 .= "<td><span class=alert>".xlt("Note: This copay was entered against unauthorized billing.  Please review status..")."</span></td>\n";
+	           }else{
             $rhtml2 .= "<td></td>\n";
           }
           if(!$iter['id'] && $rowcnt == 1){
