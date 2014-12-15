@@ -4295,6 +4295,7 @@ PID
 PID (Pelvic Inflammatory Disease)
 Pill Size
 Pills
+Place of Service
 Place the database zip file in the following directory if want the option to install
 Place the downloaded ICD 10 database zip files into the following directory
 Place the downloaded ICD 9 database zip file into the following directory
