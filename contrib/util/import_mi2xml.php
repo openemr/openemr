@@ -190,6 +190,7 @@ function create_patient( &$medics, &$errors ) {
       '',                           // genericval1
       '',                           // genericname2
       '',                           // genericval2
+      '',       					//billing_note
       '',                           // phone_cell
       form2db($medics->hippa_notice), // hipaa_mail
       form2db($medics->hippa_notice), // hipaa_voice

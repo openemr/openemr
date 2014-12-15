@@ -101,6 +101,7 @@ if ($_POST['form_create']) {
     "", // genericval1
     "", // genericname2
     "", // genericval2
+    "", //billing_note
     "", // phone_cell
     "", // hipaa_mail
     "", // hipaa_voice

@@ -114,7 +114,7 @@
   "p.status, p.contact_relationship, p.referrer, p.referrerID, p.email, " .
   "p.language, p.ethnoracial, p.interpretter, p.migrantseasonal, p.family_size, " .
   "p.monthly_income, p.homeless, p.financial_review, p.hipaa_mail, p.hipaa_voice, " .
-  "p.genericname1, p.genericval1, p.genericname2, p.genericval2, " .
+  "p.genericname1, p.genericval1, p.genericname2, p.genericval2, p.billing_note, " .
   "i1.policy_number AS policy1, i1.group_number AS group1, i1.provider as provider1, " .
   "i1.subscriber_fname AS fname1, i1.subscriber_mname AS mname1, i1.subscriber_lname AS lname1, " .
   "i1.subscriber_street AS sstreet1, i1.subscriber_city AS scity1, i1.subscriber_state AS sstate1, " .
@@ -212,6 +212,7 @@
  Add("genericval1"         , $row['genericval1']);
  Add("genericname2"        , $row['genericname2']);
  Add("genericval2"         , $row['genericval2']);
+ Add("billing_note"		, $row['billing_note']);
  Add("hipaa_mail"          , $row['hipaa_mail']);
  Add("hipaa_voice"         , $row['hipaa_voice']);
 

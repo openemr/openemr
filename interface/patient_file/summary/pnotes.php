@@ -112,11 +112,11 @@ $N = 15;
 $billing_note = "";
 $colorbeg = "";
 $colorend = "";
-$sql = "select genericname2, genericval2 " .
+$sql = "select billing_note " .
     "from patient_data where pid = ? limit 1";
 $resnote = sqlQuery($sql, array($patient_id) );
-if($resnote && $resnote['genericname2'] == 'Billing') {
-  $billing_note = $resnote['genericval2'];
+if($resnote && $resnote['billing_note'] != NULL) {
+  $billing_note = $resnote['billing_note'];
   $colorbeg = "<span style='color:red'>";
   $colorend = "</span>";
 }
