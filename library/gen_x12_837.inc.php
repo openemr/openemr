@@ -100,8 +100,12 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
    if (trim($claim->x12gsreceiverid()) == '470819582') { // if ECLAIMS EDI
     $out  .=  "*" . $claim->clearingHouseETIN();
    } else {
+	   // For Florida Blue Medicaid
+   	   if ($claim->payerID()=='00590') {  
+		   $out  .=  "*HC279";
+	   }else{
     $out  .=  "*" . $claim->billingFacilityETIN();
-   }
+   }}
     $out .= "~\n";
 
   ++$edicount;
