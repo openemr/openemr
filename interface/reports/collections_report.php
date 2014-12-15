@@ -865,7 +865,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
 
       $pdrow = sqlQuery("SELECT pd.fname, pd.lname, pd.mname, pd.ss, " .
-        "pd.genericname2, pd.genericval2, pd.pid, pd.pubpid, pd.DOB, " .
+        "pd.billing_note, pd.pid, pd.pubpid, pd.DOB, " .
         "CONCAT(u.lname, ', ', u.fname) AS referrer FROM " .
         "integration_mapping AS im, patient_data AS pd " .
         "LEFT OUTER JOIN users AS u ON u.id = pd.ref_providerID " .
@@ -876,7 +876,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $row['ss'] = $pdrow['ss'];
       $row['DOB'] = $pdrow['DOB'];
       $row['pubpid'] = $pdrow['pubpid'];
-      $row['billnote'] = ($pdrow['genericname2'] == 'Billing') ? $pdrow['genericval2'] : '';
+      $row['billnote'] = ($pdrow['billing_note'];
       $row['referrer'] = $pdrow['referrer'];
 
       $ptname = $pdrow['lname'] . ", " . $pdrow['fname'];

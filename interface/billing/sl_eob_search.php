@@ -1004,12 +1004,12 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
       // Get billing note to determine if customer is in collections.
       //
-      $pdrow = sqlQuery("SELECT pd.genericname2, pd.genericval2 FROM " .
+      $pdrow = sqlQuery("SELECT  pd.billing_note FROM " .
         "integration_mapping AS im, patient_data AS pd WHERE " .
         "im.foreign_id = " . $row['custid'] . " AND " .
         "im.foreign_table = 'customer' AND " .
         "pd.id = im.local_id");
-      $row['billnote'] = ($pdrow['genericname2'] == 'Billing') ? $pdrow['genericval2'] : '';
+      $row['billnote'] = ($pdrow['billing_note'] : '';
       $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
