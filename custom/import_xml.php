@@ -159,6 +159,7 @@
    $apatient['genericval1'],
    $apatient['genericname2'],
    $apatient['genericval2'],
+   $apatient['billing_note'],
    $apatient['phone_cell'],
    $apatient['hipaa_mail'],
    $apatient['hipaa_voice'],

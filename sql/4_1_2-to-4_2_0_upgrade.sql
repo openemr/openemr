@@ -2972,3 +2972,9 @@ ALTER TABLE `layout_options` ADD COLUMN `source` char(1) NOT NULL default 'F'
 ALTER TABLE `layout_options` ADD COLUMN
   `conditions` text NOT NULL DEFAULT '' COMMENT 'serialized array of skip conditions';
 #EndIf
+
+#IfMissingColumn patient_data billing_note
+ALTER TABLE `patient_data`
+ADD COLUMN   `billing_note` varchar(255) NOT NULL default '';
+UPDATE `patient_data` SET `billing_note` = `genericval2`;
+#EndIf
