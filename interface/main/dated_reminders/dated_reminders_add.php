@@ -295,8 +295,8 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
              <td  style="width:60%;">     
               <select style="width:100%" id="sendTo" name="sendTo[]" multiple="multiple">
                 <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
-                <?php //     
-                    $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
+                <?php      
+                     $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND `username` != ? AND `cal_ui`>1 and `id`>1 ORDER BY lname',array(intval($_SESSION['authId'])));
                     for($i=2; $uRow=sqlFetchArray($uSQL); $i++){  
                       echo '<option value="',attr($uRow['id']),'">',text($uRow['fname'].' '.$uRow['mname'].' '.$uRow['lname']),'</option>';  
                     }
