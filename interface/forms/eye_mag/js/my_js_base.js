@@ -61,9 +61,10 @@ function dopopup(url) {
     window.open(url, '_blank', 'width=530,height=390,resizable=1,scrollbars=1');
 }
 
-function submit_form() {
+function submit_form(e) {
     var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#id").val();
     var formData = $("form#eye_mag").serialize();
+    
     $.ajax({
            type 	: 'POST',   // define the type of HTTP verb we want to use (POST for our form)
            url 		: url,      // the url where we want to POST
@@ -139,6 +140,7 @@ function show_DRAW() {
     hide_QP();
     hide_TEXT();
     hide_PRIORS();
+    $("#LayerTechnical_sections").hide();
     $("#NEURO_1").hide();
     $("#EXT_left").addClass('canvas');
     $("#EXT_right").addClass('canvas');
@@ -184,6 +186,7 @@ function show_QP() {
 }
 function hide_DRAW() {
     $(".Draw_class").hide();
+    $("#LayerTechnical_sections").show();
     $("#NEURO_1").show();
     $("#IMPPLAN").show();
     $("#EXT_left").removeClass('canvas');
@@ -1224,10 +1227,12 @@ $(document).ready(function() {
                                            $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
                                            });
                 window.addEventListener("beforeunload", function () {
-                                        submit_form();
-                                        });
-                  $("#EXAM_sections_loading").addClass('nodisplay');
-                  $("#EXAM_sections").removeClass('nodisplay');
+                                        $("#final").val('1');
+                                        submit_form("final");
+                                         alert("the url of the top is" + top.location.href + "\nand not the url of this one is " + window.location.href );
+                                       });
+                  $("[name$='_loading']").addClass('nodisplay');
+                  $("[name$='_sections']").removeClass('nodisplay');
                   
                   });
 

@@ -63,7 +63,8 @@ a:active {
     text-decoration: underline;
     cursor:pointer;
 }
-#CC {
+
+#XCC {
     width: 3in; 
     height: 0.2in; 
     font-family: FontAwesome,Arial,sans-serif; 
@@ -133,7 +134,18 @@ label {
     font-size:0.9em;
 }
 
-.input-helper--checkbox {
+.HPI_text {
+    height:1.5em;
+    width:95%;
+}
+.HPI_text i {
+    font-size:0.7em;
+    font-weight:600;
+}
+textarea.full{
+    height:20px;
+}
+.input-helper--checkbox {67
    
 }
 .input-helper--checkbox.boxed:before {

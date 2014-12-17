@@ -46,6 +46,7 @@ include_once("php/eye_mag_functions.php");
 include_once("$srcdir/sql.inc");
 require_once("$srcdir/formatting.inc.php");
 
+//we need privileges to be restricted here?
 /*
 ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
@@ -176,46 +177,66 @@ if ($_GET["mode"] == "new")             {
   $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
   addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update")    { 
-      //the form is submitted to be updated.
-      //any field that exists in the database can be updated
-      //need to exclude the important ones...
-      //id  date  pid   user  groupname   authorized  activity      
-        $query = "SHOW COLUMNS from form_eye_mag";
-        $result = sqlStatement($query);
-        if (!$result) {
-            return 'Could not run query: ' . mysql_error();
-            exit;
-        }
-        $fields = array();
-        //echo "<pre>";var_dump($_POST);
-        //exit;
-        if (sqlNumRows($result) > 0) {
-          //checkboxes need to be entered manually as they are only submitted when they are checked
-          //if checked they are overridden below with the "on" value...
-          $fields['DIL_RISKS'] = '0';
-          $fields['ACT'] = '0';
-          $fields['MOTILITYNORMAL'] = '0';
-          //there are more to come...
-          while ($row = sqlFetchArray($result)) {
-            if ($row['Field'] == 'id' or 
-               $row['Field'] == 'date' or 
-               $row['Field'] == 'pid' or 
-               $row['Field'] == 'user' or 
-               $row['Field'] == 'groupname' or 
-               $row['Field'] == 'authorized' or 
-               $row['Field'] == 'activity') continue;
-            if (isset($_POST[$row['Field']])) {
-              $fields[$row[Field]] = $_POST[$row['Field']];
-           //  echo $row[Field] . " = ".$_POST[$row['Field']]."<br />";
-           // if ($row['Field'] == "MOTILITYNORMAL") {
-           //   $test = $row['Field'] . " = ". $_POST[$row['Field']];
-           // echo "<script> alert('".$test."');</script>";
-           //   }
-            }
-          }
-        }
-        $success = formUpdate($table_name, $fields, $form_id, $userauthorized);
-        return;
+  //the form is submitted to be updated.
+  // Submission are ongoing and then the final unload of page changes the 
+  // DOM variable $("#final") to == 1.  As one draws on the HTML5 canvas, each step is saved incrementally allowing
+  // the user to go back through their history should they make a drawing error or simply want to reverse a
+  // step.  On finalization, we need to cleanup the drawing history images and leave just the final one.
+  // For example, OU_EXTERNAL_DRAW_0.png through OU_EXTERNAL_DRAW_100.png exist since the user did 101 drawing
+  // events!  Now we only want OU_".$zone."_DRAW.png".  Clean up the directories:
+  if ($_REQUEST['final'] =='1') {
+    $storage = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter;
+    $zones = array("EXT","ANTSEG","RETINA","NEURO","VISION","IMPLAN");
+    foreach ($zones as &$zone) {
+      echo "unlinking ".$GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/OU_".$zone."_DRAW_*.png<br /";
+      unlink("OU_".$zone."_DRAW_*.png");
+    }
+    echo "<pre>hello";
+    var_dump($_REQUEST);
+  //  exit;
+   // exit;
+  }
+  
+  //any field that exists in the database can be updated
+  //need to exclude the important ones...
+  //id  date  pid   user  groupname   authorized  activity      
+  $query = "SHOW COLUMNS from form_eye_mag";
+  $result = sqlStatement($query);
+  if (!$result) {
+    return 'Could not run query: ' . mysql_error();
+    exit;
+  }
+  $fields = array();
+  if (sqlNumRows($result) > 0) {
+  //checkboxes need to be entered manually as they are only submitted when they are checked
+  //if checked they are overridden below with the "on" value...
+  $fields['DIL_RISKS'] = '0';
+  $fields['ACT'] = '0';
+  $fields['MOTILITYNORMAL'] = '0';
+  //there are more to come...
+  //echo "<pre>";
+  //echo "form_id = ".$form_id;
+  while ($row = sqlFetchArray($result)) {
+    if ($row['Field'] == 'id' or 
+       $row['Field'] == 'date' or 
+       $row['Field'] == 'pid' or 
+       $row['Field'] == 'user' or 
+       $row['Field'] == 'groupname' or 
+       $row['Field'] == 'authorized' or 
+       $row['Field'] == 'activity') continue;
+    if (isset($_POST[$row['Field']])) {
+      $fields[$row[Field]] = $_POST[$row['Field']];
+   //  echo $row[Field] . " = ".$_POST[$row['Field']]."<br />";
+   // if ($row['Field'] == "MOTILITYNORMAL") {
+   //   $test = $row['Field'] . " = ". $_POST[$row['Field']];
+   // echo "<script> alert('".$test."');</script>";
+   //   }
+    }
+  }
+  }
+
+  $success = formUpdate($table_name, $fields, $form_id, $userauthorized);
+  return;
 } elseif ($_GET["mode"] == "retrieve")  { 
     $query = "SELECT * FROM patient_data where pid=?";
     $pat_data =  sqlQuery($query,array($pid));
@@ -271,12 +292,27 @@ if ($canvas) {
   } elseif (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter)) {
               mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter, 0777, true);
   }
+  /**
+   *    Three png files (OU,OD,OS) per LOCATION (EXT,ANTSEG,RETINA,NEURO) 
+   *    BASE, found in forms/$form_folder/images eg. OU_EXT_BASE.png
+   *          BASE is the blank image to start from and can be customized. Currently 432x150px
+   *    VIEW, found in /sites/$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter
+   *    TEMP, intermediate png merge file of new drawings with BASE or previous VIEW
+   */
+  $storage = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter;
+  if (file_exists($storage."/OU_".$zone."_VIEW.png")) { //add new drawings to previous for this encounter
+    $file_base = $storage."/OU_".$zone."_VIEW.png";
+  } else  { //start from the base image
+    $file_base = $GLOBALS['webserver_root']."/interface/forms/".$form_folder."/images/OU_".$zone."_BASE.png";
+  }
+ 
   $storage = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter;
   $data =$_POST["imgBase64"];
   $data=substr($data, strpos($data, ",")+1);
   $data=base64_decode($data);
   $file_draw = $storage."/OU_".$zone."_DRAW.png";
   file_put_contents($file_draw, $data);
+
   /**
    *    Three png files (OU,OD,OS) per LOCATION (EXT,ANTSEG,RETINA,NEURO) 
    *    BASE, found in forms/$form_folder/images eg. OU_EXT_BASE.png
@@ -294,6 +330,21 @@ if ($canvas) {
   rename( $file_temp , $storage."/OU_".$zone."_VIEW.png" );
   // Store pointer to this in DB table form_eye_mag_draw
   // To be done yet.
+  /** HISTORY FEATURE: Images.  
+    * Store this latest drawing separately, incrementally, in the directory so user can go backwards - 
+    * canvas stores everything in real time! We need to be able to correct a slip-up
+    */
+  $file_history = $storage."/OU_".$zone."_DRAW_1";
+  $file_store= $file_history.".png";
+  $additional = '1';
+  //limit it to 10 for now...
+  while (file_exists($file_history.".png")) {
+    //echo $file_history;
+        $file_history = $storage."/OU_".$zone."_DRAW_". $additional++;
+        $file_store= $file_history.".png";
+  }
+  copy($storage."/OU_".$zone."_VIEW.png",$file_store);
+
 }
 
 if ($copy) {

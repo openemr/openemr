@@ -9,13 +9,14 @@ if (!$_REQUEST['target']) {
 /***************************************/
 
 /** 
- * forms/eye_mag/view.php 
+ * forms/eye_mag/report.php 
  * 
- * Central view for the eye_mag form.  Here is where all new data is entered
- * New forms are created via new.php and then this script is displayed.
- * Edit requsts come here too...
+ * Central report form for the eye_mag form.  Here is where all new data for display
+ * is created.  New reports are created via new.php and then this script is displayed.
+ * Edit are performed in view.php.  Nothing is editable here, but it is scrollable 
+ * across time...
  * 
- * Copyright (C) 2010-14 Raymond Magauran <magauran@MedFetch.com> 
+ * Copyright (C) 2014 Raymond Magauran <magauran@MedFetch.com> 
  * 
  * LICENSE: This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License 
@@ -75,16 +76,22 @@ while ($prefs= sqlFetchArray($result))   {
 }
 
 // get pat_data and user_data
-$query = "SELECT * FROM patient_data where pid='$pid'";
-$pat_data =  sqlQuery($query);
+$query = "SELECT * FROM patient_data where pid=?";
+$pat_data =  sqlQuery($query,array($pid));
 @extract($pat_data);
 
-$query = "SELECT * FROM users where id = '".$_SESSION['authUserID']."'";
-$prov_data =  sqlQuery($query);
+$query = "SELECT * FROM users where id = ?";
+$prov_data =  sqlQuery($query,array($_SESSION['authUserID']));
 $providerID = $prov_data['fname']." ".$prov_data['lname'];
 
-
-$query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter 
+/** openEMR note:  eye_mag Index is id, 
+  * linked to encounter in form_encounter 
+  * whose encounter is linked to id in forms.
+  * Would VIEW be a better way to access this data?
+  * If it matters we can create the VIEW right here in eye_mag
+  */ 
+$query="select form_encounter.date as encounter_date,form_eye_mag.* 
+                    from form_eye_mag ,forms,form_encounter 
                     where 
                     form_encounter.encounter =? and 
                     form_encounter.encounter = forms.encounter and 
@@ -105,9 +112,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 
 ?>
 <html><head>
-    <?php 
-   // html_header_show();  //why use this at all?
-    ?>
+
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 
 <!-- Add Font stuff for the look and feel.  -->
@@ -120,35 +125,60 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 
 <body>
 
-            <?php 
-            $side="OU";
-            $zone = array("VISION","NEURO","EXT","ANTSEG","RETINA","IMPPLAN");
-            for ($i = 0; $i < count($zone); ++$i) {
-                $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
-                if (file_exists($file_location)) {
-                    $filetoshow = $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png?".rand();
-                } else {
-                    $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
-                }
-                echo "<span class='bordershadow' style='position:relative;float:left;width:45%''><img src='".$filetoshow."' width=300 heght=200></span>";
+    <?php 
+        /**  Time to decide what to display.
+          *  Suggestions for this time:
+          *  1. Dictation style report with printed data
+          *  2. If drawing is all they want
+          *  3. Legal document.
+          *  4. Word processor to edit.  Stored as unique document.
+          *  5. Create a new, additional report.
+          */
+        //if ()
+        $side="OU";
+        $zone = array("HPI","PMH","VISION","NEURO","EXT","ANTSEG","RETINA","IMPPLAN");
+        for ($i = 0; $i < count($zone); ++$i) {
+            $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
+            if (file_exists($file_location)) {
+                $filetoshow = $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png?".rand();
+            } else {
+                $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
             }
-            exit;
-        ?>
+            ?>
+            <div class='bordershadow' style='position:relative;float:left;width:310px;height:205px;'>
+                <img src='<?php echo $filetoshow; ?>' width=300 heght=200>
+                
+            </div>
+
+            <?php
+        }
+        exit;
+    ?>
         <div class="bordershadow">
-    <?php display_draw_section ("VISION",$encounter,$pid); ?>
-</div>
-<div class="bordershadow">
-    <br />
-    <?php display_draw_section ("NEURO",$encounter,$pid); ?>
-</div>
-<div class="bordershadow">
-    <br />
-    <?php display_draw_section ("NEURO",$encounter,$pid); ?>
-</div>
-<div class="bordershadow">
-    <br />
-    <?php display_draw_section ("NEURO",$encounter,$pid); ?>
-</div></body>
+            <?php display_draw_section ("VISION",$encounter,$pid); ?>
+        </div>
+        <div class="bordershadow">
+            <br />
+            <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+        </div>
+        <div class="bordershadow">
+            <br />
+            <?php display_draw_section ("EXT",$encounter,$pid); ?>
+        </div>
+        <div class="bordershadow">
+            <br />
+            <?php display_draw_section ("ANTSEG",$encounter,$pid); ?>
+        </div>
+        <div class="bordershadow">
+            <br />
+            <?php display_draw_section ("RETINA",$encounter,$pid); ?>
+        </div>
+        <div class="bordershadow">
+            <br />
+            <?php display_draw_section ("IMPPLAN",$encounter,$pid); ?>
+        </div>
+        
+</body>
 </html>
 
 <?

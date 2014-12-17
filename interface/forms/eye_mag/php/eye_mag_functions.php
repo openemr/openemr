@@ -188,7 +188,7 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
  * @param string $pid value = patient id
  * @return true : when called directly outputs the ZONE specific HTML for a prior record + widget for the desired zone 
  */ 
-function display_section ($zone,$orig_id,$id_to_show,$pid) {
+function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
     global $form_folder;
     global $id;
     $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
@@ -197,13 +197,13 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
         @extract($prefs);    
         $$LOCATION = $VALUE; 
     }
-    $query = "SELECT * FROM form_".$form_folder." where pid =".$pid." and id = ".$id_to_show;
-    $result = sqlQuery($query);
+    $query = "SELECT * FROM form_".$form_folder." where pid =? and id = ?";
+    $result = sqlQuery($query, array($pid,$id_to_show));
     @extract($result); 
    
 
     if ($zone == "EXT") {
-        $output = priors_select($zone,$orig_id,$id_to_show,$pid);
+        if ($report =='0') $output = priors_select($zone,$orig_id,$id_to_show,$pid);
         ?> 
         
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
@@ -213,7 +213,10 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                      echo $output;
                       ?>
                 </div>
-                <b> <?php echo xlt('Prior Exam'); ?>: </b><br />
+                <b> 
+                    <?php 
+                        if ($report =='0') { echo xlt('Prior Exam'); } else { echo xlt($zone);}
+                     ?>: </b><br />
                 <div style="position:relative;float:right;top:0.2in;">
                     <table style="text-align:center;font-weight:bold;font-size:0.7em;">
                         <tr><td></td><td><?php echo xlt('OD'); ?></td><td><?php echo xlt('OS'); ?></td>
@@ -313,10 +316,8 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
             <?
             return;
     } elseif ($zone =="ANTSEG") {
-        $output =  priors_select($zone,$orig_id,$id_to_show,$pid);
-
+        if ($report =='0') $output = priors_select($zone,$orig_id,$id_to_show,$pid);
         ?> 
-        
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
         <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span> 
         <div style="position:absolute;top:0.083in;right:0.241in;">
@@ -332,18 +333,32 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                     <td></td><td><?php echo xlt('OD'); ?></td><td><?php echo xlt('OS'); ?></td>
                 </tr>
                 <tr>
-                    <td><?php echo xlt('Gonioscopy'); ?></td>
-                    <td><input disabled  type="text" class="" name="PRIOR_ODGONIO" id="PRIOR_ODGONIO" value="<?php echo attr($ODGONIO); ?>"></td>
-                    <td><input disabled  type="text" size="2" name="PRIOR_OSGONIO" id="PRIOR_OSGONIO" value="<?php echo attr($OSGONIO); ?>"></td>
+                    <td class="right" ><?php echo xlt('Gonioscopy'); ?></td>
+                    <td><input disabled  type="text" name="PRIOR_ODGONIO" id="PRIOR_ODGONIO" value="<?php echo attr($ODGONIO); ?>"></td>
+                    <td><input disabled  type="text" name="PRIOR_OSGONIO" id="PRIOR_OSGONIO" value="<?php echo attr($OSGONIO); ?>"></td>
                 </tr>
                 <tr>
-                    <td><?php echo xlt('Pachymetry'); ?></td>
+                    <td class="right" ><?php echo xlt('Pachymetry'); ?></td>
                     <td><input disabled type="text" size="1" name="PRIOR_ODKTHICKNESS" id="PRIOR_ODKTHICKNESS" value="<?php echo attr($ODKTHICKNESS); ?>"></td>
                     <td><input disabled type="text" size="1" name="PRIOR_OSKTHICKNESS" id="PRIOR_OSKTHICKNESS" value="<?php echo attr($OSKTHICKNESS); ?>"></td>
                 </tr>
+                <tr>
+                    <td class="right" title="<?php echo xla('Schirmers I (w/o anesthesia)'); ?>"><?php echo xlt('Schirmer I'); ?></td>
+                    <td><input disabled type="text" size="1" name="PRIOR_ODSCHIRMER1" id="PRIOR_ODSCHIRMER1" value="<?php echo attr($ODSCHIRMER1); ?>"></td>
+                    <td><input disabled type="text" size="1" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER1" value="<?php echo attr($OSSCHIRMER1); ?>"></td>
+                </tr>
+                 <tr>
+                    <td class="right" title="<?php echo xla('Schirmers II (w/ anesthesia)'); ?>"><?php echo xlt('Schirmer II'); ?></td>
+                    <td><input disabled type="text" size="1" name="PRIOR_ODSCHIRMER2" id="PRIOR_ODSCHIRMER2" value="<?php echo attr($ODSCHIRMER2); ?>"></td>
+                    <td><input disabled type="text" size="1" name="PRIOR_OSSCHRIMER2" id="PRIOR_OSSCHIRMER2" value="<?php echo attr($OSSCHIRMER2); ?>"></td>
+                </tr>
+                <tr>
+                    <td class="right" title="<?php echo xla('Tear Break Up Time'); ?>"><?php echo xlt('TBUT'); ?></td>
+                    <td><input disabled type="text" size="1" name="PRIOR_ODTBUT" id="PRIOR_ODTBUT" value="<?php echo attr($ODTBUT); ?>"></td>
+                    <td><input disabled type="text" size="1" name="PRIOR_OSTBUT" id="PRIOR_OSTBUT" value="<?php echo attr($OSTBUT); ?>"></td>
+                </tr>
             </table>
         </div>
-
         <?php ($ANTSEG_VIEW !='1') ? ($display_ANTSEG_view = "wide_textarea") : ($display_ANTSEG_view= "narrow_textarea");?>
         <?php ($display_ANTSEG_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
         <div id="PRIOR_ANTSEG_text_list"  name="PRIOR_ANTSEG_text_list" class="borderShadow PRIORS <?php echo attr($display_ANTSEG_view); ?>" >
@@ -386,7 +401,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
         <?
         return;
     } elseif ($zone=="RETINA") {
-        $output =  priors_select($zone,$orig_id,$id_to_show,$pid);
+        if ($report =='0') $output = priors_select($zone,$orig_id,$id_to_show,$pid);
         ?> 
         
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
@@ -533,7 +548,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
                             <?php 
                             return;
     } elseif ($zone=="NEURO") {
-        $output =  priors_select($zone,$orig_id,$id_to_show,$pid);
+        if ($report =='0') $output = priors_select($zone,$orig_id,$id_to_show,$pid);
         ?> 
         
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
@@ -1303,6 +1318,15 @@ function display_section ($zone,$orig_id,$id_to_show,$pid) {
     } elseif ($zone =="ALL") {
         echo priors_select($zone,$orig_id,$id_to_show,$pid);
         return;
+    } elseif ($zone =="VISION") {
+        echo "COMING SOON:  We should consider showing QP HPI or PRIOR HPI when requested o/w integrate with 
+        openEMR to display/update PMFSH + ROS.  ROS will most likely be a 'Normal' else open to another div below.
+        N.B. Maybe this can segway into a function to display subtypes of refraction too?
+
+        Gotta make that fat thing to the left over there look better too
+<br />
+        &lt;---------";
+        return;
     }
 }
 
@@ -1337,8 +1361,8 @@ function display_draw_section ($zone,$encounter,$pid,$side ='OU') {
             <a href="#Sketch_<?php echo attr($zone); ?>" data-color="#f00" > &nbsp;&nbsp;</a>
             <a style="width: 5px; background: yellow;" data-color="#ff0" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
             <a style="width: 5px; background: red;" data-color="red" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
-            <a style="width: 5px; background: aqua;" data-color="#0ff" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
-            <a style="width: 5px; background: blue;" data-color="#00f" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
+            <a style="width: 5px; background: #FF5C5C;" data-color="#FF5C5C" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
+            <a style="width: 5px; background: brown;" data-color="#AC8359" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
             <a style="width: 5px; background: fuchsia;" data-color="#f0f" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
             <a style="width: 5px; background: black;" data-color="#000" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
             <a style="width: 5px; background: white;" data-color="#fff" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
