@@ -703,6 +703,23 @@ $GLOBALS_METADATA = array(
 		'1',                              // default = true
 		xl('Enable amendments feature')
 	),
+	
+    'use_custom_daysheet' => array(
+      xl('Use Custom End of Day Report'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('This will allow the use of the custom End of Day report.')
+    ),
+     
+    'daysheet_provider_totals' => array(
+      xl('End of Day by Provider or allow Totals Only'),
+      array(
+        '0' => xl('Provider'),
+        '1' => xl('Totals Only'),
+		),
+      '1',                              // default
+      xl('This specifies the Printing of the Custom End of Day Report grouped Provider or allow the Printing of Totals Only')
+    ),
 
   ),
     // E-Sign Tab
