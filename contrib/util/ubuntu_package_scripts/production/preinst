@@ -194,7 +194,7 @@ upgrade_function () {
 
       #ensure version is appropriate for upgrade (if not, then exit!!)
       #
-      # ONLY acceptable for raw is 3.0.0 or 3.0.0.1 or 3.1.0 (need to convert these)
+      # ONLY acceptable for raw is 3.0.0 or 3.0.0.1 or 3.1.0 or ...  (need to convert these)
       #
       if [ "$UPGRADETYPE" == "raw" ]; then
          if [ "$OLD_VERSION" == "3.0.0" ]; then
