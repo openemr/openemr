@@ -5,7 +5,7 @@
 // upgrade file is the starting point for the next upgrade.
 $v_major = '4';
 $v_minor = '2';
-$v_patch = '0';
+$v_patch = '1';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 
 // A real patch identifier. This is incremented when we release a patch for a
