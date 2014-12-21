@@ -79,8 +79,10 @@ The setup script will step you through the configuration of the OpenEMR.
 The first screen of the setup script will ensure that the webserver user
 (in linux, often is "apache", "www-data", or "nobody") has write privileges on
 certain files and directories. The files include
-openemr/sites/default/sqlconf.php. In linux, these can be set by "chmod a+w filename"
-command to grant global write permissions to the file, The directories include
+openemr/sites/default/sqlconf.php and
+openemr/interface/modules/zend_modules/config/application.config.php.
+In linux, these can be set by "chmod a+w filename"
+command to grant global write permissions to the file. The directories include
 openemr/gacl/admin/templates_c, openemr/sites/default/edi,
 openemr/sites/default/era, openemr/sites/default/documents, openemr/library/freeb,
 openemr/custom/letter_templates, 
@@ -205,9 +207,15 @@ configuration file is dependent on the operating system.  In linux, you can
 type 'httpd -V' on the commandline; the location to the configuration file
 will be the HTTPD_ROOT variable plus the SERVER_CONFIG_FILE variable.
 In windows, the XAMPP 1.7.0 package places the configuration file at
-xampp\apache\conf\httpd.conf.  To secure the /documents, /edi and /era
-directories you can paste following to the end of the apache configuration
-file (ensure you put full path to directories):
+xampp\apache\conf\httpd.conf. To configure Zend and to secure the /documents,
+/edi and /era directories you can paste following to the end of the apache
+configuration file (ensure you put full path to directories):
+<Directory "openemrwebroot">
+AllowOverride FileInfo
+</Directory>
+<Directory "openemrwebroot/sites">
+AllowOverride None
+</Directory>
 <Directory "openemrwebroot/sites/*/documents">
 order deny,allow
 Deny from all
@@ -302,7 +310,4 @@ To upgrade the database, run the sql_upgrade.php script from your web
 browser (for example http://openemr.location/sql_upgrade.php).  It will
 prompt you to select the old release number, and will display the SQL
 commands issued as the upgrade occurs.
-
-To upgrade phpGACL, run the acl_upgrade.php script from your web browser
-(e.g. http://openemr.location/acl_upgrade.php).
 
