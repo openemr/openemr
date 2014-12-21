@@ -1,10 +1,11 @@
 <?php
 
-include_once("../../globals.php");
-include_once("$srcdir/lists.inc");
-include_once("$srcdir/acl.inc");
-include_once("$srcdir/forms.inc");
-include_once("$srcdir/patient.inc");
+require_once("../../globals.php");
+require_once("$srcdir/lists.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/formatting.inc.php");
 
 // get various authorization levels
 $auth_notes_a  = acl_check('encounters', 'notes_a');
@@ -401,8 +402,49 @@ foreach($registry_form_name as $var) {
 <input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
 <?php } ?>
 
+<!-- Procedure Orders -->
 <hr/>
+<table border="0" cellpadding="0" cellspacing="0" >
+ <tr>
+  <td class='bold'><?php echo xlt('Procedures'); ?>&nbsp;&nbsp;</td>
+  <td class='text'><?php echo xlt('Order Date'); ?>&nbsp;&nbsp;</td>
+  <td class='text'><?php echo xlt('Encounter Date'); ?>&nbsp;&nbsp;</td>
+  <td class='text'><?php echo xlt('Order Descriptions'); ?></td>
+ </tr>
+<?php
+$res = sqlStatement("SELECT po.procedure_order_id, po.date_ordered, fe.date " .
+  "FROM procedure_order AS po " .
+  "LEFT JOIN forms AS f ON f.pid = po.patient_id AND f.formdir = 'procedure_order' AND " .
+  "f.form_id = po.procedure_order_id AND f.deleted = 0 " .
+  "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
+  "WHERE po.patient_id = ? " .
+  "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
+  array($pid));
+while($row = sqlFetchArray($res)) {
+  $poid = $row['procedure_order_id'];
+  echo " <tr>\n";
+  echo "  <td align='center' class='text'>" .
+       "<input type='checkbox' name='procedures[]' value='$poid' />&nbsp;&nbsp;</td>\n";
+  echo "  <td class='text'>" . oeFormatShortDate($row['date_ordered']) . "&nbsp;&nbsp;</td>\n";
+  echo "  <td class='text'>" . oeFormatShortDate($row['date']) . "&nbsp;&nbsp;</td>\n";
+  echo "  <td class='text'>";
+  $opres = sqlStatement("SELECT procedure_code, procedure_name FROM procedure_order_code " .
+    "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
+    array($poid));
+  while($oprow = sqlFetchArray($opres)) {
+    $tmp = $oprow['procedure_name'];
+    if (empty($tmp)) $tmp = $oprow['procedure_code'];
+    echo text($tmp) . "<br />";
+  }
+  echo "</td>\n";
+  echo " </tr>\n";
+}
+?>
+</table>
+<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
+<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />
 
+<hr/>
 <span class="bold"><?php xl('Documents','e'); ?></span>:<br>
 <ul>
 <?php

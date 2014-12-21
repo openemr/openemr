@@ -12,6 +12,7 @@ require_once(dirname(__FILE__) . "/../library/classes/Note.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/CouchDB.class.php");
 require_once(dirname(__FILE__) . "/../library/forms.inc");
 require_once(dirname(__FILE__) . "/../library/formatting.inc.php");
+require_once(dirname(__FILE__) . "/../library/classes/postmaster.php"  );
 
 class C_Document extends Controller {
 
@@ -191,15 +192,71 @@ class C_Document extends Controller {
     }
 	
 	function note_action_process($patient_id) {
-		
+		// this function is a dual function that will set up a note associated with a document or send a document via email.
+
 		if ($_POST['process'] != "true")
 			return;
 			
 		$n = new Note();
                 $n->set_owner($_SESSION['authUserID']);
 		parent::populate_object($n);
-		$n->persist();
-		
+		if ($_POST['identifier'] == "no"){
+                        // associate a note with a document
+			$n->persist();
+		}elseif ($_POST['identifier'] == "yes"){
+                        // send the document via email
+                        $d = new Document($_POST['foreign_id']);
+                        $url =  $d->get_url();
+                        $storagemethod = $d->get_storagemethod();
+                        $couch_docid = $d->get_couch_docid();
+                        $couch_revid = $d->get_couch_revid();
+                        if($couch_docid && $couch_revid){
+	                        $couch = new CouchDB();
+	                        $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
+	                        $resp = $couch->retrieve_doc($data);
+                                $content = $resp->data;
+	                        if($content=='' && $GLOBALS['couchdb_log']==1){				
+		                        $log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
+		                        $log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
+		                        $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Document Id: ".$couch_docid."\r\n";
+		                        $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Revision Id: ".$couch_revid."\r\n";
+		                        $log_content .= date('Y-m-d H:i:s')." ==> Failed to fetch document content from CouchDB.\r\n";
+		                        //$log_content .= date('Y-m-d H:i:s')." ==> Will try to download file from HardDisk if exists.\r\n\r\n";
+		                        $this->document_upload_download_log($d->get_foreign_id(),$log_content);
+		                        die(xlt("File retrieval from CouchDB failed"));
+                                }
+                                // place it in a temporary file and will remove the file below after emailed
+                                $temp_couchdb_url = $GLOBALS['OE_SITE_DIR'].'/documents/temp/couch_'.date("YmdHis").$d->get_url_file();
+                                $fh = fopen($temp_couchdb_url,"w");
+                                fwrite($fh,base64_decode($content));
+                                fclose($fh);
+                                $temp_url = $temp_couchdb_url; // doing this ensure hard drive file never deleted in case something weird happens
+                        } else {
+                                $url = preg_replace("|^(.*)://|","",$url);
+                                // Collect filename and path
+                                $from_all = explode("/",$url);
+                                $from_filename = array_pop($from_all);
+                                $from_pathname_array = array();
+                                for ($i=0;$i<$d->get_path_depth();$i++) {
+                                      $from_pathname_array[] = array_pop($from_all);
+                                }
+                                $from_pathname_array = array_reverse($from_pathname_array);
+                                $from_pathname = implode("/",$from_pathname_array);
+                                $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+                        }
+                        if (!file_exists($temp_url)) {
+                              echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.','','',' ') . $temp_url;
+                        }
+                        $url = $temp_url;
+			$body_notes = attr($_POST['note']);
+			$pdetails = getPatientData($patient_id);
+			$pname = $pdetails['fname']." ".$pdetails['lname'];
+			$this->document_send($_POST['provide_email'],$body_notes,$url,$pname);
+                        if ($couch_docid && $couch_revid) {
+                              // remove the temporary couchdb file
+                              unlink($temp_couchdb_url);
+                        }
+		}
 		$this->_state = false;
 		$_POST['process'] = "";
 		return $this->view_action($patient_id,$n->get_foreign_id());		
@@ -1025,7 +1082,34 @@ class C_Document extends Controller {
 		fwrite($LOG,$content);
 		fclose($LOG);
 	}
-
+	
+	function document_send($email,$body,$attfile,$pname) {
+		if (empty($email)) {
+			$this->assign("process_result","Email could not be sent, the address supplied: '$email' was empty or invalid.");
+			return;
+		}
+		 
+		  $desc = "Please check the attached patient document.\n Content:".attr($body);
+		  $mail = new MyMailer(); 
+		  $from_name = $GLOBALS["practice_return_email_path"];
+		  $from =  $GLOBALS["practice_return_email_path"];
+		  $mail->AddReplyTo($from,$from_name);
+		  $mail->SetFrom($from,$from );
+		  $to = $email ; $to_name =$email;
+		  $mail->AddAddress($to, $to_name);
+		  $subject = "Patient documents";
+		  $mail->Subject = $subject;
+		  $mail->Body = $desc;
+		  $mail->AddAttachment($attfile);
+		  if ($mail->Send()) {
+			 $retstatus = "email_sent";
+		  } else {
+			$email_status = $mail->ErrorInfo;
+			//echo "EMAIL ERROR: ".$email_status;
+			$retstatus =  "email_fail";
+		  } 
+	}
+	
 //place to hold optional code
 //$first_node = array_keys($t->tree);
 		//$first_node = $first_node[0];

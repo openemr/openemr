@@ -229,7 +229,19 @@ function set_checkbox() {literal}{{/literal}
                         <b>{xl t='Notes'}</b>&nbsp;
                     </div>
                     <div style="float:none">
-                        <a href="javascript:;" onclick="document.forms['notes'].submit();">(<span>{xl t='add'}</span>)</a>
+                        <a href="javascript:;" onclick="document.notes.identifier.value='no';document.forms['notes'].submit();">(<span>{xl t='add'}</span>)</a>
+                    	&nbsp;&nbsp;&nbsp;<b>{xl t='Email'}</b>&nbsp;
+                    	<input type="text" size="25" name="provide_email" id="provide_email" />
+                    	<input type="hidden" name="identifier" id="identifier" />
+                        <a href="javascript:;" onclick="javascript:document.notes.identifier.value='yes';document.forms['notes'].submit();">
+                        	(<span>{xl t='Send'}</span>)
+                        </a>
+                    </div>
+                    <div>
+                        
+                    </div>
+                    <div style="float:none">
+                    	
                     </div>
                 <div>
                     <textarea cols="53" rows="8" wrap="virtual" name="note" style="width:100%"></textarea><br>

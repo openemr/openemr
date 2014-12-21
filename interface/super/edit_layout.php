@@ -1,10 +1,22 @@
 <?php
-// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Copyright (C) 2014 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @link    http://www.open-emr.org
+ */
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -43,6 +55,7 @@ $datatypes = array(
   "14" => xl("Organizations"),
   "15" => xl("Billing codes"),
   "16" => xl("Insurances"),
+  "18" => xl("Visit Categories"),
   "21" => xl("Checkbox list"),
   "22" => xl("Textbox list"),
   "23" => xl("Exam results"),
@@ -59,6 +72,14 @@ $datatypes = array(
   "36" => xl("Multiple Select List")
 );
 
+$sources = array(
+  'F' => xl('Form'),
+  'D' => xl('Patient'),
+  'H' => xl('History'),
+  'E' => xl('Visit'),
+  'V' => xl('VisForm'),
+);
+
 function nextGroupOrder($order) {
   if ($order == '9') $order = 'A';
   else if ($order == 'Z') $order = 'a';
@@ -73,6 +94,9 @@ if (!$thisauth) die(xl('Not authorized'));
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
 
+// Tag style for stuff to hide if not an LBF layout.
+$lbfonly = substr($layout_id,0,3) == 'LBF' ? "" : "style='display:none;'";
+
 // Handle the Form actions
 
 if ($_POST['formaction'] == "save" && $layout_id) {
@@ -83,8 +107,24 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         $field_id = formTrim($iter['id']);
         $data_type = formTrim($iter['data_type']);
         $listval = $data_type == 34 ? formTrim($iter['contextName']) : formTrim($iter['list_id']);
+
+        // Skip conditions for the line are stored as a serialized array.
+        $condarr = array();
+        for ($cix = 0; !empty($iter['condition_id'][$cix]); ++$cix) {
+          $andor = empty($iter['condition_andor'][$cix]) ? '' : $iter['condition_andor'][$cix];
+          $condarr[$cix] = array(
+            'id'       => strip_escape_custom($iter['condition_id'      ][$cix]),
+            'itemid'   => strip_escape_custom($iter['condition_itemid'  ][$cix]),
+            'operator' => strip_escape_custom($iter['condition_operator'][$cix]),
+            'value'    => strip_escape_custom($iter['condition_value'   ][$cix]),
+            'andor'    => strip_escape_custom($andor),
+          );
+        }
+        $conditions = empty($condarr) ? '' : serialize($condarr);
+
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
+                "source = '"        . formTrim($iter['source'])    . "', " .
                 "title = '"         . formTrim($iter['title'])     . "', " .
                 "group_name = '"    . formTrim($iter['group'])     . "', " .
                 "seq = '"           . formTrim($iter['seq'])       . "', " .
@@ -99,7 +139,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "list_backup_id= '"        . formTrim($iter['list_backup_id'])   . "', " .
                 "edit_options = '"  . formTrim($iter['edit_options']) . "', " .
                 "default_value = '" . formTrim($iter['default'])   . "', " .
-                "description = '"   . formTrim($iter['desc'])      . "' " .
+                "description = '"   . formTrim($iter['desc'])      . "', " .
+                "conditions = '"    . add_escape_custom($conditions) . "' " .
                 "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
         }
     }
@@ -111,11 +152,12 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
     $max_length = $data_type == 3 ? 3 : 255;
     $listval = $data_type == 34 ? formTrim($_POST['contextName']) : formTrim($_POST['newlistid']);
     sqlStatement("INSERT INTO layout_options (" .
-      " form_id, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
+      " form_id, source, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . formTrim($_POST['layout_id']      ) . "'" .
+      ",'" . formTrim($_POST['newsource']      ) . "'" .
       ",'" . formTrim($_POST['newid']          ) . "'" .
       ",'" . formTrim($_POST['newtitle']       ) . "'" .
       ",'" . formTrim($_POST['newfieldgroupid']) . "'" .
@@ -214,11 +256,12 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
     $listval = $data_type == 34 ? formTrim($_POST['gcontextName']) : formTrim($_POST['gnewlistid']);
     // add a new group to the layout, with the defined field
     sqlStatement("INSERT INTO layout_options (" .
-      " form_id, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
+      " form_id, source, field_id, title, group_name, seq, uor, fld_length, fld_rows" .
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
       "'"  . formTrim($_POST['layout_id']      ) . "'" .
+      ",'" . formTrim($_POST['gnewsource']      ) . "'" .
       ",'" . formTrim($_POST['gnewid']          ) . "'" .
       ",'" . formTrim($_POST['gnewtitle']       ) . "'" .
       ",'" . formTrim($maxnum . $_POST['newgroupname']) . "'" .
@@ -340,17 +383,38 @@ if ($layout_id) {
 // global counter for field numbers
 $fld_line_no = 0;
 
+$extra_html = '';
+
+// This is called to generate a select option list for fields within this form.
+// Used for selecting a field for testing in a skip condition.
+//
+function genFieldOptionList($current='') {
+  global $layout_id;
+  $option_list = "<option value=''>-- " . xlt('Please Select') . " --</option>";
+  if ($layout_id) {
+    $query = "SELECT field_id FROM layout_options WHERE form_id = ? ORDER BY group_name, seq";
+    $res = sqlStatement($query, array($layout_id));
+    while ($row = sqlFetchArray($res)) {
+      $field_id = $row['field_id'];
+      $option_list .= "<option value='" . attr($field_id) . "'";
+      if ($field_id == $current) $option_list .= " selected";
+      $option_list .= ">" . text($field_id) . "</option>";
+    }
+  }
+  return $option_list;
+}
+
 // Write one option line to the form.
 //
 function writeFieldLine($linedata) {
-    global $fld_line_no;
+    global $fld_line_no, $sources, $lbfonly, $extra_html;
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
   
     //echo " <tr bgcolor='$bgcolor'>\n";
     echo " <tr id='fld[$fld_line_no]' class='".($fld_line_no % 2 ? 'even' : 'odd')."'>\n";
   
-    echo "  <td class='optcell' nowrap>";
+    echo "  <td class='optcell' style='width:4%' nowrap>";
     // tuck the group_name INPUT in here
     echo "<input type='hidden' name='fld[$fld_line_no][group]' value='" .
          htmlspecialchars($linedata['group_name'], ENT_QUOTES) . "' class='optin' />";
@@ -361,12 +425,25 @@ function writeFieldLine($linedata) {
             "title='".htmlspecialchars(xl('Select field', ENT_QUOTES))."'>";
 
     echo "<input type='text' name='fld[$fld_line_no][seq]' id='fld[$fld_line_no][seq]' value='" .
-         htmlspecialchars($linedata['seq'], ENT_QUOTES) . "' size='2' maxlength='3' class='optin' />";
+      htmlspecialchars($linedata['seq'], ENT_QUOTES) . "' size='2' maxlength='3' " .
+      "class='optin' style='width:36pt' />";
     echo "</td>\n";
-  
-    echo "  <td align='left' class='optcell'>";
+
+    echo "  <td align='center' class='optcell' $lbfonly style='width:3%'>";
+    echo "<select name='fld[$fld_line_no][source]' class='optin noselect' $lbfonly>";
+    foreach ($sources as $key => $value) {
+        echo "<option value='" . attr($key) . "'";
+        if ($key == $linedata['source']) echo " selected";
+        echo ">" . text($value) . "</option>\n";
+    }
+    echo "</select>";
+    echo "</td>\n";
+
+    echo "  <td align='left' class='optcell' style='width:10%'>";
     echo "<input type='text' name='fld[$fld_line_no][id]' value='" .
-         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin noselect' />";
+         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63'
+         class='optin noselect' style='width:100%' />";
+         // class='optin noselect' onclick='FieldIDClicked(this)' />";
     /*
     echo "<input type='hidden' name='fld[$fld_line_no][id]' value='" .
          htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' />";
@@ -374,17 +451,17 @@ function writeFieldLine($linedata) {
     */
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:12%'>";
     echo "<input type='text' id='fld[$fld_line_no][title]' name='fld[$fld_line_no][title]' value='" .
-         htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' />";
+         htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' style='width:100%' />";
     echo "</td>\n";
 
     // if not english and set to translate layout labels, then show the translation
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-        echo "<td align='center' class='translation'>" . htmlspecialchars(xl($linedata['title']), ENT_QUOTES) . "</td>\n";
+        echo "<td align='center' class='translation' style='width:10%'>" . htmlspecialchars(xl($linedata['title']), ENT_QUOTES) . "</td>\n";
     }
 	
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     echo "<select name='fld[$fld_line_no][uor]' class='optin'>";
     foreach (array(0 =>xl('Unused'), 1 =>xl('Optional'), 2 =>xl('Required')) as $key => $value) {
         echo "<option value='$key'";
@@ -394,7 +471,7 @@ function writeFieldLine($linedata) {
     echo "</select>";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:8%'>";
     echo "<select name='fld[$fld_line_no][data_type]' id='fld[$fld_line_no][data_type]' onchange=NationNotesContext('".$fld_line_no."',this.value)>";
     echo "<option value=''></option>";
     GLOBAL $datatypes;
@@ -407,7 +484,7 @@ function writeFieldLine($linedata) {
     echo "</select>";
     echo "  </td>";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     if ($linedata['data_type'] == 2 || $linedata['data_type'] == 3 ||
       $linedata['data_type'] == 21 || $linedata['data_type'] == 22 ||
       $linedata['data_type'] == 23 || $linedata['data_type'] == 25 ||
@@ -436,13 +513,14 @@ function writeFieldLine($linedata) {
     }
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     echo "<input type='text' name='fld[$fld_line_no][maxSize]' value='" .
       htmlspecialchars($linedata['max_length'], ENT_QUOTES) .
-      "' size='1' maxlength='10' class='optin' title='" . xla('Maximum Size (entering 0 will allow any size)') . "' />";
+      "' size='1' maxlength='10' class='optin' style='width:100%' " .
+      "title='" . xla('Maximum Size (entering 0 will allow any size)') . "' />";
     echo "</td>\n";
 
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:8%'>";
     if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 21 ||
       $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
       $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
@@ -453,12 +531,12 @@ function writeFieldLine($linedata) {
       $type = "";
       $disp = "style='display:none'";
       if($linedata['data_type'] == 34){
-      $type = "style='display:none'";
-      $disp = "";
+        $type = "style='display:none'";
+        $disp = "";
       }
       echo "<input type='text' name='fld[$fld_line_no][list_id]'  id='fld[$fld_line_no][list_id]' value='" .
         htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".$type.
-        " size='6' maxlength='30' class='optin listid' style='cursor: pointer'".
+        " size='6' maxlength='30' class='optin listid' style='width:100%;cursor:pointer'".
         "title='". xl('Choose list') . "' />";
     
       echo "<select name='fld[$fld_line_no][contextName]' id='fld[$fld_line_no][contextName]' ".$disp.">";
@@ -478,14 +556,13 @@ function writeFieldLine($linedata) {
     echo "</td>\n";
 
     //Backup List Begin
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
         $linedata['data_type'] == 33 || $linedata['data_type'] == 36)
     {
-    
         echo "<input type='text' name='fld[$fld_line_no][list_backup_id]' value='" .
     	    htmlspecialchars($linedata['list_backup_id'], ENT_QUOTES) .
-    	    "' size='3' maxlength='10' class='optin listid' style='cursor: pointer' />";
+    	    "' size='3' maxlength='10' class='optin listid' style='cursor:pointer; width:100%' />";
     }
     else {
         echo "<input type='hidden' name='fld[$fld_line_no][list_backup_id]' value=''>";
@@ -493,33 +570,37 @@ function writeFieldLine($linedata) {
     echo "</td>\n";
     //Backup List End
     
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     echo "<input type='text' name='fld[$fld_line_no][titlecols]' value='" .
-         htmlspecialchars($linedata['titlecols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' />";
-
+         htmlspecialchars($linedata['titlecols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' style='width:4%'>";
     echo "<input type='text' name='fld[$fld_line_no][datacols]' value='" .
-         htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' />";
+         htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' style='width:100%' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' title='" .
-        "C = " . xla('Capitalize') .
+    echo "  <td align='center' class='optcell' style='width:5%' title='" .
+          "A = " . xla('Age') .
+        ", B = " . xla('Gestational Age') .
+        ", C = " . xla('Capitalize') .
         ", D = " . xla('Dup Check') .
         ", G = " . xla('Graphable') .
-        ", H = " . xla('Read-only from History') .
         ", L = " . xla('Lab Order') .
         ", N = " . xla('New Patient Form') .
         ", O = " . xla('Order Processor') .
+        ", P = " . xla('Default to previous value') .
         ", R = " . xla('Distributor') .
         ", T = " . xla('Description is default text') .
         ", U = " . xla('Capitalize all') .
         ", V = " . xla('Vendor') .
+        ", 0 = " . xla('Read Only') .
         ", 1 = " . xla('Write Once') . 
-            "'>";
+        ", 2 = " . xla('Billing Code Descriptions') . 
+        "'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
-         htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' maxlength='36' class='optin' />";
+      htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' " .
+      "maxlength='36' class='optin' style='width:100%' />";
     echo "</td>\n";
  
     /*****************************************************************
@@ -544,29 +625,122 @@ function writeFieldLine($linedata) {
     *****************************************************************/
 
     if ($linedata['data_type'] == 31) {
-      echo "  <td align='center' class='optcell'>";
-      echo "<textarea name='fld[$fld_line_no][desc]' rows='3' cols='35' class='optin'>" .
+      echo "  <td align='center' class='optcell' style='width:24%'>";
+      echo "<textarea name='fld[$fld_line_no][desc]' rows='3' cols='35' class='optin' style='width:100%'>" .
            $linedata['description'] . "</textarea>";
       echo "<input type='hidden' name='fld[$fld_line_no][default]' value='" .
          htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' />";
       echo "</td>\n";
     }
     else {
-      echo "  <td align='center' class='optcell'>";
+      echo "  <td align='center' class='optcell' style='width:24%'>";
       echo "<input type='text' name='fld[$fld_line_no][desc]' value='" .
         htmlspecialchars($linedata['description'], ENT_QUOTES) .
-        "' size='30' maxlength='63' class='optin' />";
+        "' size='30' maxlength='63' class='optin' style='width:100%' />";
       echo "<input type='hidden' name='fld[$fld_line_no][default]' value='" .
         htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' />";
       echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
       if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-        echo "<td align='center' class='translation'>" .
+        echo "<td align='center' class='translation' style='width:10%'>" .
         htmlspecialchars(xl($linedata['description']), ENT_QUOTES) . "</td>\n";
       }
     }
 
+    // The "?" to click on for yet more field attributes.
+    echo "  <td class='bold' id='querytd_$fld_line_no' style='cursor:pointer;";
+    if (!empty($linedata['conditions'])) echo "background-color:#77ff77;";
+    echo "' onclick='extShow($fld_line_no, this)' align='center' ";
+    echo "title='" . xla('Click here to view/edit more details') . "'>";
+    echo "&nbsp;?&nbsp;";
+    echo "</td>\n";
+
     echo " </tr>\n";
+
+    // Create a floating div for the additional attributes of this field.
+    $conditions = empty($linedata['conditions']) ?
+      array(0 => array('id' => '', 'itemid' => '', 'operator' => '', 'value' => '')) :
+      unserialize($linedata['conditions']);
+    //
+    $extra_html .= "<div id='ext_$fld_line_no' " .
+      "style='position:absolute;width:750px;border:1px solid black;" .
+      "padding:2px;background-color:#cccccc;visibility:hidden;" .
+      "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
+      "<table width='100%'>\n" .
+      " <tr>\n" .
+      "  <th colspan='3' align='left' class='bold'>\"" . text($linedata['field_id']) . "\" " .
+      xlt('will be hidden if') . ":</th>\n" .
+      "  <th colspan='2' align='right' class='text'><input type='button' " .
+      "value='" . xla('Close') . "' onclick='extShow($fld_line_no, false)' />&nbsp;</th>\n" .
+      " </tr>\n" .
+      " <tr>\n" .
+      "  <th align='left' class='bold'>" . xlt('Field ID') . "</th>\n" .
+      "  <th align='left' class='bold'>" . xlt('List item ID') . "</th>\n" .
+      "  <th align='left' class='bold'>" . xlt('Operator') . "</th>\n" .
+      "  <th align='left' class='bold'>" . xlt('Value if comparing') . "</th>\n" .
+      "  <th align='left' class='bold'>&nbsp;</th>\n" .
+      " </tr>\n";
+    // There may be multiple condition lines for each field.
+    foreach ($conditions as $i => $condition) {
+      $extra_html .=
+        " <tr>\n" .
+        "  <td align='left'>\n" .
+        "   <select name='fld[$fld_line_no][condition_id][$i]' onchange='cidChanged($fld_line_no, $i)'>" .
+        genFieldOptionList($condition['id']) . " </select>\n" .
+        "  </td>\n" .
+        "  <td align='left'>\n" .
+        // List item choices are populated on the client side but will need the current value,
+        // so we insert a temporary option here to hold that value.
+        "   <select name='fld[$fld_line_no][condition_itemid][$i]'><option value='" .
+        attr($condition['itemid']) . "'>...</option></select>\n" .
+        "  </td>\n" .
+        "  <td align='left'>\n" .
+        "   <select name='fld[$fld_line_no][condition_operator][$i]'>\n";
+      foreach (array(
+        'eq' => xl('Equals'         ),
+        'ne' => xl('Does not equal' ),
+        'se' => xl('Is selected'    ),
+        'ns' => xl('Is not selected'),
+      ) as $key => $value) {
+        $extra_html .= "    <option value='$key'";
+        if ($key == $condition['operator']) $extra_html .= " selected";
+        $extra_html .= ">" . text($value) . "</option>\n";
+      }
+      $extra_html .=
+        "   </select>\n" .
+        "  </td>\n" .
+        "  <td align='left' title='" . xla('Only for comparisons') . "'>\n" .
+        "   <input type='text' name='fld[$fld_line_no][condition_value][$i]' value='" .
+        attr($condition['value']) . "' size='15' maxlength='63' />\n" .
+        "  </td>\n";
+      if (count($conditions) == $i + 1) {
+        $extra_html .=
+          "  <td align='right' title='" . xla('Add a condition') . "'>\n" .
+          "   <input type='button' value='+' onclick='extAddCondition($fld_line_no,this)' />\n" .
+          "  </td>\n";
+      }
+      else {
+        $extra_html .=
+          "  <td align='right'>\n" .
+          "   <select name='fld[$fld_line_no][condition_andor][$i]'>\n";
+        foreach (array(
+          'and' => xl('And'),
+          'or'  => xl('Or' ),
+        ) as $key => $value) {
+          $extra_html .= "    <option value='$key'";
+          if ($key == $condition['andor']) $extra_html .= " selected";
+          $extra_html .= ">" . text($value) . "</option>\n";
+        }
+        $extra_html .=
+          "   </select>\n" .
+          "  </td>\n";
+      }
+      $extra_html .=
+        " </tr>\n";
+    }
+    $extra_html .=
+      "</table>\n" .
+      "</div>\n";
 }
 ?>
 <html>
@@ -618,6 +792,153 @@ a, a:visited, a:hover { color:#0000cc; }
     color: black;
 }
 </style>
+
+<script language="JavaScript">
+
+// Helper functions for positioning the floating divs.
+function extGetX(elem) {
+ var x = 0;
+ while(elem != null) {
+  x += elem.offsetLeft;
+  elem = elem.offsetParent;
+ }
+ return x;
+}
+function extGetY(elem) {
+ var y = 0;
+ while(elem != null) {
+  y += elem.offsetTop;
+  elem = elem.offsetParent;
+ }
+ return y;
+}
+
+// Show or hide the "extras" div for a row.
+var extdiv = null;
+function extShow(lino, show) {
+ var thisdiv = document.getElementById("ext_" + lino);
+ if (extdiv) {
+  extdiv.style.visibility = 'hidden';
+  extdiv.style.left = '-1000px';
+  extdiv.style.top = '0px';
+ }
+ if (show && thisdiv != extdiv) {
+  extdiv = thisdiv;
+  var dw = window.innerWidth ? window.innerWidth - 20 : document.body.clientWidth;
+  x = dw - extdiv.offsetWidth;
+  if (x < 0) x = 0;
+  var y = extGetY(show) + show.offsetHeight;
+  extdiv.style.left = x;
+  extdiv.style.top  = y;
+  extdiv.style.visibility = 'visible';
+ }
+ else {
+  extdiv = null;
+ }
+}
+
+// Add an extra condition line for the given row.
+function extAddCondition(lino, btnelem) {
+  var f = document.forms[0];
+  var i = 0;
+
+  // Get index of next condition line.
+  while (f['fld[' + lino + '][condition_id][' + i + ']']) ++i;
+  if (i == 0) alert('f["fld[' + lino + '][condition_id][' + i + ']"] <?php echo xls('not found') ?>');
+
+  // Get containing <td>, <tr> and <table> nodes of the "+" button.
+  var tdplus = btnelem.parentNode;
+  var trelem = tdplus.parentNode;
+  var telem  = trelem.parentNode;
+
+  // Replace contents of the tdplus cell.
+  tdplus.innerHTML =
+    "<select name='fld[" + lino + "][condition_andor][" + i + "]'>" +
+    "<option value='and'><?php echo xls('And') ?></option>" +
+    "<option value='or' ><?php echo xls('Or' ) ?></option>" +
+    "</select>";
+
+  // Add the new row.
+  var newtrelem = telem.insertRow(i+2);
+  newtrelem.innerHTML =
+    "<td align='left'>" +
+    "<select name='fld[" + lino + "][condition_id][" + i + "]' onchange='cidChanged(" + lino + "," + i + ")'>" +
+    "<?php echo addslashes(genFieldOptionList()) ?>" +
+    "</select>" +
+    "</td>" +
+    "<td align='left'>" +
+    "<select name='fld[" + lino + "][condition_itemid][" + i + "]' style='display:none' />" +
+    "</td>" +
+    "<td align='left'>" +
+    "<select name='fld[" + lino + "][condition_operator][" + i + "]'>" +
+    "<option value='eq'><?php echo xls('Equals'         ) ?></option>" +
+    "<option value='ne'><?php echo xls('Does not equal' ) ?></option>" +
+    "<option value='se'><?php echo xls('Is selected'    ) ?></option>" +
+    "<option value='ns'><?php echo xls('Is not selected') ?></option>" +
+    "</select>" +
+    "</td>" +
+    "<td align='left'>" +
+    "<input type='text' name='fld[" + lino + "][condition_value][" + i + "]' value='' size='15' maxlength='63' />" +
+    "</td>" +
+    "<td align='right'>" +
+    "<input type='button' value='+' onclick='extAddCondition(" + lino + ",this)' />" +
+    "</td>";
+}
+
+// This is called when a field ID is chosen for testing within a skip condition.
+// It checks to see if a corresponding list item must also be chosen for the test, and
+// if so then inserts the dropdown for selecting an item from the appropriate list.
+function setListItemOptions(lino, seq, init) {
+  var f = document.forms[0];
+  var target = 'fld[' + lino + '][condition_itemid][' + seq + ']';
+  // field_id is the ID of the field that the condition will test.
+  var field_id = f['fld[' + lino + '][condition_id][' + seq + ']'].value;
+  if (!field_id) {
+    f[target].options.length = 0;
+    f[target].style.display = 'none';
+    return;
+  }
+  // Find the occurrence of that field in the layout.
+  var i = 1;
+  while (true) {
+    var idname = 'fld[' + i + '][id]';
+    if (!f[idname]) {
+      alert('<?php echo xls('Condition field not found') ?>: ' + field_id);
+      return;
+    }
+    if (f[idname].value == field_id) break;
+    ++i;
+  }
+  // If this is startup initialization then preserve the current value.
+  var current = init ? f[target].value : '';
+  f[target].options.length = 0;
+  // Get the corresponding data type and list ID.
+  var data_type = f['fld[' + i + '][data_type]'].value;
+  var list_id   = f['fld[' + i + '][list_id]'].value;
+  // WARNING: If new data types are defined the following test may need enhancing.
+  // We're getting out if the type does not generate multiple fields with different names.
+  if (data_type != '21' && data_type != '22' && data_type != '23' && data_type != '25') {
+    f[target].style.display = 'none';
+    return;
+  }
+  // OK, list item IDs do apply so go get 'em.
+  // This happens asynchronously so the generated code needs to stand alone.
+  f[target].style.display = '';
+  $.getScript('layout_listitems_ajax.php' +
+    '?listid='  + encodeURIComponent(list_id) +
+    '&target='  + encodeURIComponent(target)  +
+    '&current=' + encodeURIComponent(current));
+}
+
+// This is called whenever a condition's field ID selection is changed.
+function cidChanged(lino, seq) {
+  var thisid = document.forms[0]['fld[' + lino + '][condition_id][0]'].value;
+  var thistd = document.getElementById("querytd_" + lino);
+  thistd.style.backgroundColor = thisid ? '#77ff77' : '';
+  setListItemOptions(lino, seq, false);
+}
+
+</script>
 
 </head>
 
@@ -690,16 +1011,17 @@ while ($row = sqlFetchArray($res)) {
 <thead>
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
-  <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
-  <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
+  <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
+  <th><?php xl('ID','e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
   <?php // if not english and showing layout label translations, then show translation header for title
   if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'> (?)</span></th>";	
+   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";	
   } ?>		  
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
   <th><?php xl('Size','e'); ?></th>
-  <th><?php xl('Maximum Size','e'); ?></th>
+  <th><?php xl('Max Size','e'); ?></th>
   <th><?php xl('List','e'); ?></th>
   <th><?php xl('Backup List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
@@ -708,8 +1030,9 @@ while ($row = sqlFetchArray($res)) {
   <th><?php xl('Description','e'); ?></th>
   <?php // if not english and showing layout label translations, then show translation header for description
   if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translation of description in current language')."'> (?)</span></th>";
+   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translation of description in current language')."'>&nbsp;(?)</span></th>";
   } ?>
+  <th><?php echo xlt('?'); ?></th>
  </tr>
 </thead>
 <tbody>
@@ -725,6 +1048,8 @@ while ($row = sqlFetchArray($res)) {
 ?>
 </tbody>
 </table></div>
+
+<?php echo $extra_html; ?>
 
 <?php if ($layout_id) { ?>
 <span style="font-size:90%">
@@ -757,12 +1082,13 @@ while ($row = sqlFetchArray($res)) {
 <thead>
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
-  <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
-  <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
+  <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
+  <th><?php xl('ID','e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
   <th><?php xl('Size','e'); ?></th>
-  <th><?php xl('Maximum Size','e'); ?></th>
+  <th><?php xl('Max Size','e'); ?></th>
   <th><?php xl('List','e'); ?></th>
   <th><?php xl('Backup List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
@@ -774,7 +1100,17 @@ while ($row = sqlFetchArray($res)) {
 <tbody>
 <tr class='center'>
 <td ><input type="textbox" name="gnewseq" id="gnewseq" value="" size="2" maxlength="3"> </td>
-<td ><input type="textbox" name="gnewid" id="gnewid" value="" size="10" maxlength="20"> </td>
+<td<?php echo " $lbfonly"; ?>>
+<select name='gnewsource' id='gnewsource'>
+<?php
+foreach ($sources as $key => $value) {
+  echo "<option value='" . attr($key) . "'>" . text($value) . "</option>\n";
+}
+?>
+</select>
+</td>
+<td><input type="textbox" name="gnewid" id="gnewid" value="" size="10" maxlength="20"
+     onclick='FieldIDClicked(this)'> </td>
 <td><input type="textbox" name="gnewtitle" id="gnewtitle" value="" size="20" maxlength="63"> </td>
 <td>
 <select name="gnewuor" id="gnewuor">
@@ -829,12 +1165,13 @@ foreach ($datatypes as $key=>$value) {
  <thead>
   <tr class='head'>
    <th><?php xl('Order','e'); ?></th>
-   <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
-   <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
+   <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
+   <th><?php xl('ID','e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
+   <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
    <th><?php xl('UOR','e'); ?></th>
    <th><?php xl('Data Type','e'); ?></th>
    <th><?php xl('Size','e'); ?></th>
-   <th><?php xl('Maximum Size','e'); ?></th>
+   <th><?php xl('Max Size','e'); ?></th>
    <th><?php xl('List','e'); ?></th>
    <th><?php xl('Backup List','e'); ?></th>
    <th><?php xl('Label Cols','e'); ?></th>
@@ -846,7 +1183,17 @@ foreach ($datatypes as $key=>$value) {
  <tbody>
   <tr class='center'>
    <td ><input type="textbox" name="newseq" id="newseq" value="" size="2" maxlength="3"> </td>
-   <td ><input type="textbox" name="newid" id="newid" value="" size="10" maxlength="20"> </td>
+   <td<?php echo " $lbfonly"; ?>>
+    <select name='newsource' id='newsource'>
+<?php
+foreach ($sources as $key => $value) {
+  echo "    <option value='" . attr($key) . "'>" . text($value) . "</option>\n";
+}
+?>
+    </select>
+   </td>
+   <td ><input type="textbox" name="newid" id="newid" value="" size="10" maxlength="20"
+         onclick='FieldIDClicked(this)'> </td>
    <td><input type="textbox" name="newtitle" id="newtitle" value="" size="20" maxlength="63"> </td>
    <td>
     <select name="newuor" id="newuor">
@@ -902,6 +1249,25 @@ foreach ($datatypes as $key=>$value) {
 
 // used when selecting a list-name for a field
 var selectedfield;
+
+// Get the next logical sequence number for a field in the specified group.
+// Note it guesses and uses the existing increment value.
+function getNextSeq(group) {
+  var f = document.forms[0];
+  var seq = 0;
+  var delta = 10;
+  for (var i = 1; true; ++i) {
+    var gelem = f['fld[' + i + '][group]'];
+    if (!gelem) break;
+    if (gelem.value != group) continue;
+    var tmp = parseInt(f['fld[' + i + '][seq]'].value);
+    if (isNaN(tmp)) continue;
+    if (tmp <= seq) continue;
+    delta = tmp - seq;
+    seq = tmp;
+  }
+  return seq + delta;
+}
 
 // jQuery stuff to make the page a little easier to use
 
@@ -964,6 +1330,8 @@ $(document).ready(function(){
         $('#groupdetail').css('display', 'block');
         $(btnObj).parent().append($("#groupdetail"));
         $('#groupdetail > #newgroupname').focus();
+        // Assign a sensible default sequence number.
+        $('#gnewseq').val(10);
     };
 
     // save the new group to the form
@@ -1109,11 +1477,12 @@ $(document).ready(function(){
         var parts = btnid.split("~");
         var groupid = parts[1];
         $('#fielddetail > #newfieldgroupid').attr('value', groupid);
-    
         // show the field details DIV
         $('#fielddetail').css('visibility', 'visible');
         $('#fielddetail').css('display', 'block');
         $(btnObj).parent().append($("#fielddetail"));
+        // Assign a sensible default sequence number.
+        $('#newseq').val(getNextSeq(groupid));
     };
 
     var DeleteFields = function(btnObj) {
@@ -1220,6 +1589,14 @@ $(document).ready(function(){
       }
     };
 
+    // Initialize the list item selectors in skip conditions.
+    var f = document.forms[0];
+    for (var lino = 1; f['fld[' + lino + '][id]']; ++lino) {
+      for (var seq = 0; f['fld[' + lino + '][condition_itemid][' + seq + ']']; ++seq) {
+        setListItemOptions(lino, seq, true);
+      }
+    }
+
 });
 
 function NationNotesContext(lineitem,val){
@@ -1234,8 +1611,61 @@ function NationNotesContext(lineitem,val){
     document.getElementById("fld["+lineitem+"][list_id]").value='';
   }
 }
-function SetList(listid) { $(selectedfield).val(listid); }
 
+function SetList(listid) {
+  $(selectedfield).val(listid);
+}
+
+//////////////////////////////////////////////////////////////////////
+// The following supports the field ID selection pop-up.
+//////////////////////////////////////////////////////////////////////
+
+var fieldselectfield;
+
+function elemFromPart(part) {
+  var ename = fieldselectfield.name;
+  // ename is like one of the following:
+  //   fld[$fld_line_no][id]
+  //   gnewid
+  //   newid
+  // and "part" is what we substitute for the "id" part.
+  var i = ename.lastIndexOf('id');
+  ename = ename.substr(0, i) + part + ename.substr(i+2);
+  return document.forms[0][ename];
+}
+
+function FieldIDClicked(elem) {
+<?php if (substr($layout_id,0,3) == 'LBF') { ?>
+  fieldselectfield = elem;
+  var srcval = elemFromPart('source').value;
+  // If the field ID is for the local form, allow direct entry.
+  if (srcval == 'F') return;
+  // Otherwise pop up the selection window.
+  window.open('./field_id_popup.php?source=' + srcval, 'fields',
+    'width=600,height=600,scrollbars=yes');
+<?php } ?>
+}
+
+function SetField(field_id, title, data_type, uor, fld_length, max_length,
+  list_id, titlecols, datacols, edit_options, description, fld_rows)
+{
+  fieldselectfield.value             = field_id;
+  elemFromPart('title'       ).value = title;
+  elemFromPart('datatype'    ).value = data_type;
+  elemFromPart('uor'         ).value = uor;
+  elemFromPart('lengthWidth' ).value = fld_length;
+  elemFromPart('maxSize'     ).value = max_length;
+  elemFromPart('listid'      ).value = list_id;
+  elemFromPart('titlecols'   ).value = titlecols;
+  elemFromPart('datacols'    ).value = datacols;
+  elemFromPart('edit_options').value = edit_options;
+  elemFromPart('desc'        ).value = description;
+  elemFromPart('lengthHeight').value = fld_rows;
+}
+
+//////////////////////////////////////////////////////////////////////
+// End code for field ID selection pop-up.
+//////////////////////////////////////////////////////////////////////
 
 /* this is called after the user chooses a new group from the popup window
  * it will submit the page so the selected fields can be moved into
@@ -1257,10 +1687,10 @@ function MoveFields(targetgroup) {
     $("#theform").submit();
 };
 
-
 // set the new-field values to a default state
 function ResetNewFieldValues () {
     $("#newseq").val("");
+    $("#newsource").val("");
     $("#newid").val("");
     $("#newtitle").val("");
     $("#newuor").val(1);
@@ -1294,6 +1724,7 @@ function IsNumeric(value, min, max) {
 
 // tell if num is an Integer
 function IsN(num) { return !/\D/.test(num); }
+
 </script>
 
 </html>

@@ -63,7 +63,7 @@ if (!empty($_POST['execute_report_id'])) {
   $options = array();
   $array_date = array();
 
-  if ($_POST['type'] == "amc") {
+  if ( ($rule_filter == "amc") || ($rule_filter == "amc_2011") || ($rule_filter == "amc_2014") ) {
     // For AMC:
     //   need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
     //   need to send a manual data entry option (number of labs)

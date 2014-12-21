@@ -2951,3 +2951,24 @@ CREATE TABLE `report_itemized` (
 ) ENGINE=MyISAM;
 #EndIf
 
+#IfNotTable shared_attributes
+CREATE TABLE `shared_attributes` (
+  `pid`          bigint(20)   NOT NULL,
+  `encounter`    bigint(20)   NOT NULL COMMENT '0 if patient attribute, else encounter attribute',
+  `field_id`     varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
+  `last_update`  datetime     NOT NULL COMMENT 'time of last update',
+  `user_id`      bigint(20)   NOT NULL COMMENT 'user who last updated',
+  `field_value`  TEXT         NOT NULL,
+  PRIMARY KEY (`pid`, `encounter`, `field_id`)
+);
+#EndIf
+
+#IfMissingColumn layout_options source
+ALTER TABLE `layout_options` ADD COLUMN `source` char(1) NOT NULL default 'F'
+  COMMENT 'F=Form, D=Demographics, H=History, E=Encounter';
+#EndIf
+
+#IfMissingColumn layout_options conditions
+ALTER TABLE `layout_options` ADD COLUMN
+  `conditions` text NOT NULL DEFAULT '' COMMENT 'serialized array of skip conditions';
+#EndIf
