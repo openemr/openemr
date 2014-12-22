@@ -29,7 +29,7 @@ class eRxStore {
 	 * @return string        Value sanitized of all non numerical characters
 	 */
 	static public function sanitizeNumber($value) {
-		return preg_replace('/[^0-9.]/', '', $value);
+		return preg_replace('/[^-0-9.]/', '', $value);
 	}
 
 	/**
@@ -224,29 +224,29 @@ class eRxStore {
 	 * @return integer                   Id of newly created prescription
 	 */
 	public function insertPrescriptions($prescriptionData, $encounter, $providerId, $authUserId, $formOptionId, $routeOptionId, $unitsOptionId, $intervalOptionId) {
-		return sqlInsert('INSERT INTO prescriptions
+		return sqlInsert('INSERT INTO `prescriptions`
 				(
-					`DATETIME`,
-					erx_source,
-					encounter,
-					date_added,
-					`USER`,
-					provider_id,
-					form,
-					unit,
-					route,
-					`INTERVAL`,
-					drug,
-					drug_id,
-					drug_info_erx,
-					dosage,
-					size,
-					refills,
-					note,
-					site,
-					rxnorm_drugcode,
-					prescriptionguid,
-					patient_id
+					`datetime`,
+					`erx_source`,
+					`encounter`,
+					`date_added`,
+					`user`,
+					`provider_id`,
+					`form`,
+					`unit`,
+					`route`,
+					`interval`,
+					`drug`,
+					`drug_id`,
+					`drug_info_erx`,
+					`dosage`,
+					`size`,
+					`refills`,
+					`note`,
+					`site`,
+					`rxnorm_drugcode`,
+					`prescriptionguid`,
+					`patient_id`
 				)
 			VALUES
 				(
@@ -290,24 +290,24 @@ class eRxStore {
 	 */
 	public function updatePrescriptions($prescriptionData, $providerId, $authUserId, $formOptionId, $routeOptionId, $unitsOptionId, $intervalOptionId) {
 		sqlQuery('UPDATE prescriptions SET
-				`DATETIME` = NOW(),
-				erx_source = \'1\',
-				active = \'1\',
-				`USER` = ?,
-				provider_id = ?,
-				form = ?,
-				unit = ?,
-				route = ?,
-				`INTERVAL` = ?,
-				drug = ?,
-				drug_id = ?,
-				drug_info_erx = ?,
-				dosage = ?,
-				size = ?,
-				refills = ?,
-				note = ?,
-				site = ?,
-				rxnorm_drugcode = ?
+				`datetime` = NOW(),
+				`erx_source` = \'1\',
+				`active` = \'1\',
+				`user` = ?,
+				`provider_id` = ?,
+				`form` = ?,
+				`unit` = ?,
+				`route` = ?,
+				`interval` = ?,
+				`drug` = ?,
+				`drug_id` = ?,
+				`drug_info_erx` = ?,
+				`dosage` = ?,
+				`size` = ?,
+				`refills` = ?,
+				`note` = ?,
+				`site` = ?,
+				`rxnorm_drugcode` = ?
 			WHERE prescriptionguid = ?
 				AND patient_id = ?;',
 			array(
@@ -316,7 +316,7 @@ class eRxStore {
 				$formOptionId,
 				$unitsOptionId,
 				$routeOptionId,
-				$intervalOptionI,
+				$intervalOptionId,
 				$prescriptionData['DrugName'],
 				$prescriptionData['DrugID'],
 				$prescriptionData['DrugInfo'],
