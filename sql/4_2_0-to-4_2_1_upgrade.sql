@@ -64,3 +64,7 @@
 #IfNotIndex form_encounter encounter_date
     CREATE INDEX encounter_date on form_encounter (`date`);
 #EndIf
+
+#IfNotColumnType prescriptions size varchar(16)
+ALTER TABLE `prescriptions` CHANGE `size` `size` varchar(16) DEFAULT NULL;
+#EndIf

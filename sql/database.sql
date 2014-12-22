@@ -4770,7 +4770,7 @@ CREATE TABLE `prescriptions` (
   `form` int(3) default NULL,
   `dosage` varchar(100) default NULL,
   `quantity` varchar(31) default NULL,
-  `size` float unsigned default NULL,
+  `size` varchar(16) DEFAULT NULL,
   `unit` int(11) default NULL,
   `route` int(11) default NULL,
   `interval` int(11) default NULL,

@@ -639,29 +639,41 @@ class eRxSOAP {
 
 		if(is_array($medArray)) {
 			foreach($medArray as $med) {
-				if($med['DosageForm'])
+				if($med['DosageForm']) {
 					$optionIdDosageForm = $this->insertMissingListOptions(
 						'drug_form',
 						$med['DosageForm']
 					);
+				} else {
+					$optionIdDosageForm = null;
+				}
 
-				if($med['Route'])
+				if($med['Route']) {
 					$optionIdRoute = $this->insertMissingListOptions(
 						'drug_route',
 						$med['Route']
 					);
+				} else {
+					$optionIdRoute = null;
+				}
 
-				if($med['StrengthUOM'])
+				if($med['StrengthUOM']) {
 					$optionIdStrengthUOM = $this->insertMissingListOptions(
 						'drug_units',
 						$med['StrengthUOM']
 					);
+				} else {
+					$optionIdStrengthUOM = null;
+				}
 
-				if($med['DosageFrequencyDescription'])
+				if($med['DosageFrequencyDescription']) {
 					$optionIdFrequencyDescription = $this->insertMissingListOptions(
 						'drug_interval',
 						$med['DosageFrequencyDescription']
 					);
+				} else {
+					$optionIdFrequencyDescription = null;
+				}
 
 				$providerId = $store->selectUserIdByUserName($med['ExternalPhysicianID']);
 
