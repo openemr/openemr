@@ -154,7 +154,7 @@ if ($INTEGRATED_AR) {
     $where = substr($where, 4);
 
     $res = sqlStatement("SELECT " .
-      "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, " .
+      "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note, " .
       "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code " .
       "FROM form_encounter AS f, patient_data AS p " .
       "WHERE ( $where ) AND " .
@@ -195,12 +195,17 @@ if ($INTEGRATED_AR) {
         fwrite($fhprint, create_statement($stmt));
         $stmt['cid'] = $row['pid'];
         $stmt['pid'] = $row['pid'];
+		$stmt['dun_count'] = $row['stmt_count'];
+		$stmt['bill_note'] = $row['billing_note'];
+		$stmt['bill_level'] = $row['last_level_billed'];
+		$stmt['level_closed'] = $row['last_level_closed'];
         $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
         $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
         if ($row['street']) $stmt['to'][] = $row['street'];
         $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
         $stmt['lines'] = array();
         $stmt['amount'] = '0.00';
+		$stmt['ins_paid'] = 0;
         $stmt['today'] = $today;
         $stmt['duedate'] = $duedate;
       } else {
@@ -218,7 +223,13 @@ if ($INTEGRATED_AR) {
       foreach ($invlines as $key => $value) {
         $line = array();
         $line['dos']     = $svcdate;
+        if ($GLOBALS['use_custom_statement']) {
+	      $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text']; 
+		}
+        else 
+		{ 
         $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
+	    } 
         $line['amount']  = sprintf("%.2f", $value['chg']);
         $line['adjust']  = sprintf("%.2f", $value['adj']);
         $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
@@ -226,6 +237,7 @@ if ($INTEGRATED_AR) {
         $line['detail']  = $value['dtl'];
         $stmt['lines'][] = $line;
         $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
+		$stmt['ins_paid']  = $stmt['ins_paid'] + $value['ins'];
       }
 
       // Record that this statement was run.
