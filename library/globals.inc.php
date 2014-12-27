@@ -706,9 +706,14 @@ $GLOBALS_METADATA = array(
 	
     'use_custom_daysheet' => array(
       xl('Use Custom End of Day Report'),
-      'bool',                           // data type
-      '1',                              // default = true
-      xl('This will allow the use of the custom End of Day report.')
+      array(
+        '0' => xl('None'),
+        '1' => xl('Print End of Day Report 1'),
+        '2' => xl('Print End of Day Report 2'),
+        '3' => xl('Print End of Day Report 3'),
+      ),                       // data type
+      '1',                     // default = Print End of Day Report 1
+      xl('This will allow the use of the custom End of Day report and indicate which report to use.')
     ),
      
     'daysheet_provider_totals' => array(

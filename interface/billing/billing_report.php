@@ -29,7 +29,7 @@ $daysheet = false;
 $daysheet_total = false;
 $provider_run = false;
 
-if ($GLOBALS['use_custom_daysheet'] == 1) { 
+if ($GLOBALS['use_custom_daysheet'] != 0) { 
   $daysheet = true;
   if ($GLOBALS['daysheet_provider_totals'] == 1) {
    $daysheet_total = true;
@@ -217,7 +217,15 @@ function SubmitTheScreenPrint()
    return false;
   top.restoreSession();
   document.the_form.target='new';
+<?php if ($GLOBALS['use_custom_daysheet'] == 1) { ?>
   document.the_form.action='print_daysheet_report.php';
+<?php } ?>
+<?php if ($GLOBALS['use_custom_daysheet'] == 2) { ?>
+  document.the_form.action='print_daysheet_report_num1.php';
+<?php } ?>
+<?php if ($GLOBALS['use_custom_daysheet'] == 3) { ?>
+  document.the_form.action='print_daysheet_report_num2.php';
+<?php } ?>
   document.the_form.submit();
   return true;
  }
