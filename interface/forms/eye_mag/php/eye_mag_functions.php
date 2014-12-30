@@ -126,9 +126,7 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
     if ($id_to_show != $orig_id) {
         $output_return .= '
                 <span title="   '.xla("Copy $zone values from ".$priors[$current]['exam_date']." to current visit.").'
-    '.xla("If you add the Default values first, they will NOT be overwritten, ").'
-    '.xla("but everything else WILL be overwritten.").'
-    '.xla("Newly updated fields are shown in purple.").'"
+    '.xla("Updated fields are purple.").'"
 
                     id="COPY_'.attr($zone).'"
                     name="COPY_'.attr($zone).'"
@@ -236,22 +234,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                             <td><input disabled type="text" size="1" name="PRIOR_RVFISSURE" id="PRIOR_RVFISSURE" value="<?php echo attr($RVFISSURE); ?>"></td>
                             <td><input disabled type="text" size="1" name="PRIOR_LVFISSURE" id="PRIOR_LVFISSURE" value="<?php echo attr($LVFISSURE); ?>"></td>
                         </tr>
-                        <tr><td colspan=3 style="padding-top:0.15in;background-color:none;text-decoration:underline;"><br /><?php echo xlt('Hertel Exophthalmometry'); ?></td></tr>
-                        <tr style="text-align:center;">
-                            <td>
-                                <input disabled type=text size=1 id="PRIOR_ODHERTEL" name="PRIOR_ODHERTEL" value="<?php echo attr($ODHERTEL); ?>">
-                                <span style="width:40px;-moz-text-decoration-line: line-through;text-align:center;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
-                            </td>
-                            <td>
-                                <input disabled type=text size=3  id="PRIOR_HERTELBASE" name="PRIOR_HERTELBASE" value="<?php echo attr($HERTELBASE); ?>">
-                                <span style="width:400px;-moz-text-decoration-line: line-through;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
-                            </td>
-                            <td>
-                                <input disabled type=text size=1  id="PRIOR_OSHERTEL" name="PRIOR_OSHERTEL" value="<?php echo attr($OSHERTEL); ?>">
-                            </td>
-                        </tr>
-                        <tr><td>&nbsp;</td></tr>
-                        <tr>
+                          <tr>
                             <td class="right"><?php echo xlt('Carotid Bruit'); ?></td>
                             <td><input  disabled type="text"  name="PRIOR_RCAROTID" id="PRIOR_RCAROTID" value="<?php echo attr($RCAROTID); ?>"></td>
                             <td><input  disabled type="text"  name="PRIOR_LCAROTID" id="PRIOR_LCAROTID" value="<?php echo attr($LCAROTID); ?>"></td>
@@ -271,6 +254,21 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                             <td><input disabled type="text" size="1" name="PRIOR_RCNVII" id="PRIOR_RCNVII" value="<?php echo attr($RCNVII); ?>"></td>
                             <td><input disabled type="text" size="1" name="PRIOR_LCNVII" id="PRIOR_LCNVII" value="<?php echo attr($LCNVII); ?>"></td>
                         </tr>
+                        <tr><td colspan=3 style="padding-top:0.15in;background-color:none;text-decoration:underline;"><br /><?php echo xlt('Hertel Exophthalmometry'); ?></td></tr>
+                        <tr style="text-align:center;">
+                            <td>
+                                <input disabled type=text size=1 id="PRIOR_ODHERTEL" name="PRIOR_ODHERTEL" value="<?php echo attr($ODHERTEL); ?>">
+                                <span style="width:40px;-moz-text-decoration-line: line-through;text-align:center;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
+                            </td>
+                            <td>
+                                <input disabled type=text size=3  id="PRIOR_HERTELBASE" name="PRIOR_HERTELBASE" value="<?php echo attr($HERTELBASE); ?>">
+                                <span style="width:400px;-moz-text-decoration-line: line-through;"> &nbsp;&nbsp;&nbsp;&nbsp; </span>
+                            </td>
+                            <td>
+                                <input disabled type=text size=1  id="PRIOR_OSHERTEL" name="PRIOR_OSHERTEL" value="<?php echo attr($OSHERTEL); ?>">
+                            </td>
+                        </tr>
+                        <tr><td>&nbsp;</td></tr>
                     </table>
                 </div>
 
@@ -488,7 +486,9 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                                     <table style="width:50%;text-align:right;font-size:0.8em;font-weight:bold;padding:10px;">
                                         <tr style="text-align:center;">
                                             <td></td>
-                                            <td> <?php echo xlt('OD'); ?> </td><td> <?php echo xlt('OS'); ?> </td></tr>
+                                            <td> <?php echo xlt('OD'); ?> </td><td> <?php echo xlt('OS'); ?> </td>
+                                        </tr>
+                                        <tr>
                                             <td>
                                                 <?php echo xlt('CMT'); ?>:</td>
                                             <td>
@@ -1353,10 +1353,8 @@ function display_draw_section ($zone,$encounter,$pid,$side ='OU') {
     global $form_folder;
     ?>
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
-        <span class="closeButton fa fa-file-text-o" id="BUTTON_TEXT_RETINA" name="BUTTON_TEXT_RETINA"></span>
-                              
-                              
-                              <span class="CONSTRUCTION_ZONE" name="CONSTRUCTION_3" id="CONSTRUCTION_3" style="font-size:0.8em;display:hidden;">Import Text</span>
+        <span class="closeButton fa fa-file-text-o" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
+
         <div class="tools" style="text-align:center;left:0.02in;width:90%;">
             <a href="#Sketch_<?php echo attr($zone); ?>" data-color="#f00" > &nbsp;&nbsp;</a>
             <a style="width: 5px; background: yellow;" data-color="#ff0" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
@@ -1748,5 +1746,135 @@ function copy_forward($zone,$copy_from,$copy_to,$pid) {
 
     }
 }
+
+/**
+*  This function builds an array of documents for this patient ($pid).
+*  We first list all the categories this practice has created by name and by category_id  
+*  
+*  Each document info from documents table is added to these as arrays
+*  
+*/
+
+function document_engine($pid) {
+    $sql1 =  sqlStatement("Select * from categories");
+    while ($row1 = sqlFetchArray($sql1)) {
+        $categories[] = $row1;
+        $my_name[$row1['id']] = $row1['name'];
+        $children_names[$row1['parent']][]=$row1['name'];
+        $parent_name[$row1['name']] = $my_name[$row1['parent']];
+        if ($row1['value'] >'') {
+            //if there is a value, tells us what segment of exam ($zone) this belongs in...
+            $zones[$row1['value']][] = $row1;
+        } else {
+            if ($row1['name'] != "Categories") {
+                $zones['OTHER'][] = $row1;
+            }
+        }
+    }
+
+$query = "Select *
+                from 
+                categories, documents,categories_to_documents
+                where documents.foreign_id=? and documents.id=categories_to_documents.document_id and
+                categories_to_documents.category_id=categories.id ORDER BY categories.name";
+         //       echo $query;
+    $sql2 =  sqlStatement($query,array($pid));
+    while ($row2 = sqlFetchArray($sql2)) {
+        $documents[]= $row2;
+        $docs_in_cat_id[$row2['category_id']][] = $row2;
+        if ($row2['value'] > '') {
+            $docs_in_zone[$row2['value']][] = $row2;
+        } else {
+                $docs_in_zone['OTHER'][]=$row2;
+        }
+        $docs_in_name[$row2['name']][] = $row2;
+    }
+    $documents['categories']=$categories;
+    $documents['my_name']=$my_name;
+    $documents['children_names']=$children_names;
+    $documents['parent_name'] = $parent_name;
+    $documents['zones'] = $zones;
+    $documents['docs_in_zone'] = $docs_in_zone;
+    $documents['docs_in_cat_id'] = $docs_in_cat_id;
+    $documents['docs_in_name'] = $docs_in_name;
+    
+    return array($documents);
+}
+
+/**
+ *  This function returns hooks/links for imaging.php upload, reports and image DB 
+ *      based on the category/zone (category_value)
+ *
+ *  @param string $pid value = patient id
+ *  @param string $encounter is the encounter_id 
+ *  @param string $category_value options EXT,ANTSEG,POSTSEG,NEURO
+ *  @return array($imaging,$episode)
+ */ 
+function display($pid,$encounter,$category_value) {
+    global $form_folder;
+    global $id;
+    global $documents;
+        /**
+        *  I wish to open a popup here perhaps fancy-box to upload a file here
+        *  We will need to know what the id of the section is in the categories table
+        *  Until written, the will lead to the PAGE to do this action.  The pop-up will be much 
+        *  preferred.  Perhaps a "show the other type" button will store a preference?
+        *  Maybe this is something for the yet-to-be used Settings button?  Maybe a small div appears
+        *  below this with the Seclect File and Upload buttons?  Nothing needs to pop up.
+        *  Simply replace buttons w/ ajax swirl until the completed response is displayed.
+        *  The second button is to view the files held within.  How they are displayed gets 
+        *  us into the DICOM image viewer features, some of which have been developed elsewhere
+        *  on sourceforge I believe.  For now it is not unreasonable to be able to flip through
+        *  all the images in this subtype like the treemenu or Apple does.
+        */
+
+        /*
+        * 1. get the id for the categories under imaging:
+        *  We created them on form installation so they will be site 
+        *  specific - any previous categories added affects the id, 
+        *  and they can name them soemthing else in the DB, so we can't use name
+        *  what if they created a sub category for imaging and put images there?
+        *  This will not get those yet?  Do we need them? Not now, just get this working.
+        */
+        /**
+        *   Each section will need a designator as to the section it belongs in.
+        *   The categories table does not have that but it has an used value field.
+        *   This is where we link it to the image database.  We add this link value  
+        *   on install but end user can change or add others as the devices evolve.
+        *   New names new categories.  OCT would not have been a category 5 years ago.
+        *   Who knows what is next?  Gene-lab construction?  Sure will.  
+        *   So the name is user assigned as is the location.  
+        *   Thus we need to build out the Documents section by adding another layer 
+        *   to the treemenu backbone.  
+        */
+        if (!$documents) {
+            list($documents) = document_engine($pid);
+        }
+       
+    for ($j=0; $j < count($documents['zones'][$category_value]); $j++) {
+        $episode .= "<tr>
+        <td class='right'><b>".$documents['zones'][$category_value][$j]['name']."</b>:&nbsp;</td>
+        <td>
+            <img src='../../forms/".$form_folder."/images/upload_file.png' class='little_image'>
+        </td>
+        <td>
+            <img src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
+        </td>
+        <td>";
+        // theorectically above leads to a document management engine.  Gotta build that...
+        // we only need to know if there is one as this link will open the image management engine/display
+       if (count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) > '0') {
+            $episode .= '<a 
+                    HREF="../../forms/'.$form_folder.'/css/AnythingSlider/simple.php?display=i&category_id='.$documents['zones'][$category_value][$j]['id'].'&encounter='.$encounter.'&category_name='.urlencode(xla($category_value)).'"
+                    onclick="return dopopup(\'../../forms/'.$form_folder.'/css/AnythingSlider/simple.php?display=i&category_id='.$documents['zones'][$category_value][$j]['id'].'&encounter='.$encounter.'&category_name='.urlencode(xla($category_value)).'\')">
+                    <img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
+        }
+        $episode .= '</td></tr>';
+        $i++;
+    }
+   
+    return array($documents,$episode);
+}
+
 return ;
 ?>

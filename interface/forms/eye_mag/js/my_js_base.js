@@ -58,11 +58,11 @@ function clear_vars() {
 
 function dopopup(url) {
     top.restoreSession();
-    window.open(url, '_blank', 'width=530,height=390,resizable=1,scrollbars=1');
+    window.open(url, '_blank', 'directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0');
 }
 
 function submit_form(e) {
-    var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#id").val();
+    var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
     var formData = $("form#eye_mag").serialize();
     
     $.ajax({
@@ -73,6 +73,7 @@ function submit_form(e) {
            $("#tellme").html(result);
            }
            });
+        //    refreshme();
 }
 
 /**
@@ -109,31 +110,31 @@ function update_PREFS() {
 }
 
 function show_right() {
-    $("#EXT_1").removeClass("size50").addClass("size100");
-    $("#ANTSEG_1").removeClass("size50").addClass("size100");
-    $("#NEURO_1").removeClass("size50").addClass("size100");
-    $("#RETINA_1").removeClass("size50").addClass("size100");
+    $("#EXT_sections").removeClass("size50").addClass("size100");
+    $("#ANTSEG_sections").removeClass("size50").addClass("size100");
+    $("#NEURO_sections").removeClass("size50").addClass("size100");
+    $("#RETINA_sections").removeClass("size50").addClass("size100");
     $("#EXT_right").removeClass("nodisplay");
     $("#ANTSEG_right").removeClass("nodisplay");
     $("#NEURO_right").removeClass("nodisplay");
     $("#RETINA_right").removeClass("nodisplay");
-    $("#ANTSEG_1").addClass("clear_both");
-    $("#RETINA_1").addClass("clear_both");
-    $("#NEURO_1").addClass("clear_both");
+    $("#ANTSEG_sections").addClass("clear_both");
+    $("#RETINA_sections").addClass("clear_both");
+    $("#NEURO_sections").addClass("clear_both");
     hide_PRIORS();
 }
 function hide_right() {
-    $("#EXT_1").removeClass("size100").addClass("size50");
-    $("#ANTSEG_1").removeClass("size100").addClass("size50");
-    $("#NEURO_1").removeClass("size100").addClass("size50");
-    $("#RETINA_1").removeClass("size100").addClass("size50");
+    $("#EXT_sections").removeClass("size100").addClass("size50");
+    $("#ANTSEG_sections").removeClass("size100").addClass("size50");
+    $("#NEURO_sections").removeClass("size100").addClass("size50");
+    $("#RETINA_sections").removeClass("size100").addClass("size50");
     $("#EXT_right").addClass("nodisplay");
     $("#ANTSEG_right").addClass("nodisplay");
     $("#NEURO_right").addClass("nodisplay");
     $("#RETINA_right").addClass("nodisplay");
-    $("#ANTSEG_1").removeClass("clear_both");
-    $("#RETINA_1").removeClass("clear_both");
-    $("#NEURO_1").removeClass("clear_both");
+    $("#ANTSEG_sections").removeClass("clear_both");
+    $("#RETINA_sections").removeClass("clear_both");
+    $("#NEURO_sections").removeClass("clear_both");
 }
 
 function show_DRAW() {
@@ -141,7 +142,9 @@ function show_DRAW() {
     hide_TEXT();
     hide_PRIORS();
     $("#LayerTechnical_sections").hide();
-    $("#NEURO_1").hide();
+    $("#REFRACTION_sections").hide();
+    $("#VISION_sections").hide();
+    $("#NEURO_sections").hide();
     $("#EXT_left").addClass('canvas');
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_left").addClass('canvas');
@@ -156,11 +159,11 @@ function show_TEXT() {
     hide_QP();
     hide_DRAW();
     hide_PRIORS();
-    $("#NEURO_1").show();
+    $("#NEURO_sections").show();
     $(".TEXT_class").show();
 }
 function show_PRIORS() {
-    $("#NEURO_1").show();
+    $("#NEURO_sections").show();
     hide_QP();
     hide_DRAW();
     $("#EXT_right").addClass("PRIORS_color");
@@ -187,7 +190,9 @@ function show_QP() {
 function hide_DRAW() {
     $(".Draw_class").hide();
     $("#LayerTechnical_sections").show();
-    $("#NEURO_1").show();
+    $("#REFRACTION_sections").show();
+    $("#VISION_sections").show();
+    $("#NEURO_sections").show();
     $("#IMPPLAN").show();
     $("#EXT_left").removeClass('canvas');
     $("#EXT_right").removeClass('canvas');
@@ -270,6 +275,12 @@ function openImage() {
         //var f = document.forms[0];
         //var tmp = (keyid && f.form_key[1].checked) ? ('?enclink=' + keyid) : '';
     dlgopen('/openemr/controller.php?document&retrieve&patient_id=3&document_id=10&as_file=false', '_blank', 600, 475);
+}
+
+function show_Section(section) {
+        //hide everything, show the section.  For fullscreen perhaps Tablet view per section
+    $('#form_container').hide();
+    $('#'+section).appendTo('body');
 }
 $(document).ready(function() {
                   $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
@@ -389,12 +400,38 @@ $(document).ready(function() {
                                                submit_form();
                                                });
                   
+                  $("[name$='AXIS']").blur(function() {
+                                           //hmmn.  Make this a 3 digit leading zeros number.
+                                           // we are no translating text to numbers, just numbers to
+                                           // a 3 digit format with leading zeroes as needed.
+                                           // assume there are nly letters presented and the end use KNOWS
+                                           // more than 3 digits is a mistake...
+                                           var axis = $(this).val();
+                                           // if (!axis.match(/\d/)) return;
+                                           if (!axis.match(/\d\d\d/)) {
+                                            if (!axis.match(/\d\d/)) {
+                                                if (!axis.match(/\d/)) {
+                                                    axis = '0';
+                                                }
+                                                axis = '0' + axis;
+                                            }
+                                           axis = '0' + axis;
+                                           
+                                           }
+                                           });
+
+                  
                   $("[name$='CYL']").blur(function() {
                                           var mid = $(this).val();
                                           if (!mid.match(/\./)) {
-                                          var front = mid.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
-                                          var back  = mid.match(/(\d{0,2})(\d{2})/)[2];
-                                          mid = front + "." + back;
+                                            var front = mid.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
+                                            var back  = mid.match(/(\d{0,2})(\d{2})/)[2];
+                                            mid = front + "." + back;
+                                          }
+                                          //if mid is -2.5 make it -2.50
+                                          if (mid.match(/\.\d$/)) {
+                                           mid = mid + '0';
+                                          // mid = this.val() + '0';
                                           }
                                           $(this).val(mid);
                                           if (!$('#PREFS_CYL').val()) {
@@ -1126,8 +1163,8 @@ $(document).ready(function() {
                                             //$("#"+ section + "_left").toggleClass('fullscreen');
                                             
                                             //to show the prior visits on screen using the selector script scroller
-                                            //click this and toggle class nodisplay for id=PRIORS_NEURO_1 and NEURO_left
-                                            //  $("#PRIORS_NEURO_1").toggleClass('nodisplay');
+                                            //click this and toggle class nodisplay for id=PRIORS_NEURO_sections and NEURO_left
+                                            //  $("#PRIORS_NEURO_sections").toggleClass('nodisplay');
                                             //  $("#NEURO_left").toggleClass('nodisplay');
                                             //we have to get the data to put here!
                                             
@@ -1213,12 +1250,14 @@ $(document).ready(function() {
                                                             }
                                                          }
                                                           });
-                                                   }});
-                                               submit_form("eye_mag");
-                                                });
-                                            
+                                                   }
+                                                   }).done(function (){
+                                                           submit_form("eye_mag");
+                                                           });
+                                            });
                   
-                 $("[id^='BUTTON_DRAWX_']").click(function() {
+                  
+                 $("[id^='BUTTON_DRAW_']").click(function() {
                                                    var zone =this.id.match(/BUTTON_DRAW_(.*)$/)[1];
                                                  show_DRAW();
                                                 });
@@ -1228,8 +1267,10 @@ $(document).ready(function() {
                                            });
                 window.addEventListener("beforeunload", function () {
                                         $("#final").val('1');
-                                        submit_form("final");
-                                         alert("the url of the top is" + top.location.href + "\nand not the url of this one is " + window.location.href );
+                                        //submit_form("final");
+                                        refreshme();
+                                        //parent.frames['RBot'].location.reload();
+                                        // alert("the url of the top is" + top.location.href + "\nand not the url of this one is " + window.location.href );
                                        });
                   $("[name$='_loading']").addClass('nodisplay');
                   $("[name$='_sections']").removeClass('nodisplay');

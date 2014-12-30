@@ -39,6 +39,9 @@
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
 
+//echo "<pre>hello";
+//var_dump($_REQUEST);
+//exit;
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
@@ -60,9 +63,9 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 @extract($_SESSION);
 @extract($_REQUEST);
 
-//echo "<pre>hello";
-//var_dump($_REQUEST);
-//exit;
+
+
+
 
 $id = $_GET['id'];
 
@@ -77,97 +80,97 @@ if ($encounter == "" && !$id) {
  * and maybe it helps people understand what and why we are doing what we are doing?
  * Leave it to the professionals...
  */
-if ($AJAX_PREFS)                        { 
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','VA','Vision',?,'RS','51',?,'1') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_VA,$PREFS_VA));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+//echo "<pre>";
+//print_r($_REQUEST);
+if ($AJAX_PREFS) { 
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+                VALUES 
+                ('PREFS','VA','Vision',?,'RS','51',?,'1') 
+                on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_VA,$PREFS_VA));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+                VALUES 
+                ('PREFS','W','Current Rx',?,'W','52',?,'2') 
+                on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_W,$PREFS_W));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
               VALUES 
-              ('PREFS','W','Current Rx',?,'W','52',?,'2') 
+              ('PREFS','MR','Manifest Refraction',?,'MR','53',?,'3') 
               on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_W,$PREFS_W));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','MR','Manifest Refraction',?,'MR','53',?,'3') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_MR,$PREFS_MR));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','CR','Cycloplegic Refraction',?,'CR','54',?,'4') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_CR,$PREFS_CR));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','CTL','Contact Lens',?,'CTL','55',?,'5') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_CTL,$PREFS_CTL));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','ADDITIONAL','Additional Data Points',?,'ADDITIONAL','56',?,'6') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_ADDITIONAL,$PREFS_ADDITIONAL));
-      
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','CLINICAL','CLINICAL',?,'CLINICAL','57',?,'7') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_CLINICAL,$PREFS_CLINICAL));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','EXAM','EXAM',?,'EXAM','58',?,'8') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_EXAM,$PREFS_EXAM));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','CYLINDER','CYL',?,'CYL','59',?,'9') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_CYL,$PREFS_CYL));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','EXT_VIEW','External View',?,'EXT_VIEW','60',?,'10') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_EXT_VIEW,$PREFS_EXT_VIEW));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','ANTSEG_VIEW','Anterior Segment View',?,'ANTSEG_VIEW','61',?,'11') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_ANTSEG_VIEW,$PREFS_ANTSEG_VIEW));
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','RETINA_VIEW','Retina View',?,'RETINA_VIEW','62',?,'12') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_RETINA_VIEW,$PREFS_RETINA_VIEW));
-  
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','NEURO_VIEW','Neuro View',?,'NEURO_VIEW','63',?,'13') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_NEURO_VIEW,$PREFS_NEURO_VIEW)); 
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','ACT_VIEW','ACT View',?,'ACT_VIEW','64',?,'14') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_ACT_VIEW,$PREFS_ACT_VIEW)); 
-
-  $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
-            VALUES 
-            ('PREFS','ACT_SHOW','ACT Show',?,'ACT_SHOW','65',?,'15') 
-            on DUPLICATE KEY UPDATE VALUE=?";
-  sqlQuery($query,array($_SESSION['authId'],$PREFS_ACT_SHOW,$PREFS_ACT_SHOW)); 
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_MR,$PREFS_MR));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','CR','Cycloplegic Refraction',?,'CR','54',?,'4') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_CR,$PREFS_CR));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','CTL','Contact Lens',?,'CTL','55',?,'5') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_CTL,$PREFS_CTL));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','ADDITIONAL','Additional Data Points',?,'ADDITIONAL','56',?,'6') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_ADDITIONAL,$PREFS_ADDITIONAL));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','CLINICAL','CLINICAL',?,'CLINICAL','57',?,'7') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_CLINICAL,$PREFS_CLINICAL));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','EXAM','EXAM',?,'EXAM','58',?,'8') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_EXAM,$PREFS_EXAM));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','CYLINDER','CYL',?,'CYL','59',?,'9') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_CYL,$PREFS_CYL));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','HPI_VIEW','HPI View',?,'HPI_VIEW','60',?,'10') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_HPI_VIEW,$PREFS_HPI_VIEW));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','EXT_VIEW','External View',?,'EXT_VIEW','60',?,'10') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_EXT_VIEW,$PREFS_EXT_VIEW));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','ANTSEG_VIEW','Anterior Segment View',?,'ANTSEG_VIEW','61',?,'11') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_ANTSEG_VIEW,$PREFS_ANTSEG_VIEW));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','RETINA_VIEW','Retina View',?,'RETINA_VIEW','62',?,'12') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_RETINA_VIEW,$PREFS_RETINA_VIEW));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','NEURO_VIEW','Neuro View',?,'NEURO_VIEW','63',?,'13') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_NEURO_VIEW,$PREFS_NEURO_VIEW));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','ACT_VIEW','ACT View',?,'ACT_VIEW','64',?,'14') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_ACT_VIEW,$PREFS_ACT_VIEW));
+    $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
+              VALUES 
+              ('PREFS','ACT_SHOW','ACT Show',?,'ACT_SHOW','65',?,'15') 
+              on DUPLICATE KEY UPDATE VALUE=?";
+    sqlQuery($query,array($_SESSION['authId'],$PREFS_ACT_SHOW,$PREFS_ACT_SHOW)); 
 }
+/**
+  *  ADD ANY NEW PREFERENCES HERE
+  */
+
+
+/** <!-- End Preferences --> **/
+
 
 /**  
  * Create, update or retrieve a form and its values  
@@ -185,14 +188,12 @@ if ($_GET["mode"] == "new")             {
   // For example, OU_EXTERNAL_DRAW_0.png through OU_EXTERNAL_DRAW_100.png exist since the user did 101 drawing
   // events!  Now we only want OU_".$zone."_DRAW.png".  Clean up the directories:
   if ($_REQUEST['final'] =='1') {
-    $storage = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter;
+    $storage = $GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter;
     $zones = array("EXT","ANTSEG","RETINA","NEURO","VISION","IMPLAN");
     foreach ($zones as &$zone) {
-      echo "unlinking ".$GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/OU_".$zone."_DRAW_*.png<br /";
-      unlink("OU_".$zone."_DRAW_*.png");
+      echo "unlinking ".$GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/OU_".$zone."_DRAW_*.png<br /";
+      unlink($GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/OU_".$zone."_DRAW_*.png");
     }
-    echo "<pre>hello";
-    var_dump($_REQUEST);
   //  exit;
    // exit;
   }
@@ -234,9 +235,9 @@ if ($_GET["mode"] == "new")             {
     }
   }
   }
-
+//    echo "form_id =".$form_id;
   $success = formUpdate($table_name, $fields, $form_id, $userauthorized);
-  return;
+  return $success;
 } elseif ($_GET["mode"] == "retrieve")  { 
     $query = "SELECT * FROM patient_data where pid=?";
     $pat_data =  sqlQuery($query,array($pid));
