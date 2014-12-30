@@ -579,7 +579,3 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
     ('PREFS', 'ANTSEG_VIEW', 'Anterior Segment View', 1, 'ANTSEG_VIEW', 61, '0', 11),
     ('PREFS', 'RETINA_VIEW', 'Retina View', 1, 'RETINA_VIEW', 62, '', 12),
     ('PREFS', 'NEURO_VIEW', 'Neuro View', 1, 'NEURO_VIEW', 63, '', 13);
-
-
-
-
