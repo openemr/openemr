@@ -351,9 +351,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                           <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="44" size="6"  id="PHODVA_copy" name="PHODVA_copy" value="<?php echo attr($PHODVA); ?>">
                           <br />                            
                           <b>OS </b>
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.18in; font-family: 'Times New Roman'" tabindex="41" size="8"  id="SCOSVA" name="SCOSVA" value="<?php echo attr($SCOSVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.18in; font-family: 'Times New Roman'" tabindex="43" size="8" id="WOSVA_copy" name="WOSVA_copy" value="<?php echo attr($WOSVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.18in; font-family: 'Times New Roman'" tabindex="45" size="8" id="PHOSVA_copy" name="PHOSVA_copy" value="<?php echo attr($PHOSVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="41" size="8"  id="SCOSVA" name="SCOSVA" value="<?php echo attr($SCOSVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="43" size="8" id="WOSVA_copy" name="WOSVA_copy" value="<?php echo attr($WOSVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="45" size="8" id="PHOSVA_copy" name="PHOSVA_copy" value="<?php echo attr($PHOSVA); ?>">
                           <br />
                           <span id="more_visions_1" name="more_visions_1" style="position: absolute;top:0.44in;left:-0.37in;font-size: 0.9em;pading-right:4px;"><b><?php echo xlt('Acuity'); ?></b> </span>
                           <span style="position: absolute;top:0.41in;left:0.33in;font-size: 0.8em;"><b><?php echo xlt('SC'); ?></b></span>
@@ -362,19 +362,19 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </div>
                       <div id="Visions_B" name="Visions_B" class="nodisplay" style="position: absolute; top: 0.35in; text-align:right;right:0.1in; height: 0.72in;  padding: 0in;" >
                           <b><?php echo xlt('OD'); ?> </b>
-                          <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="46" size="6" id="ARODVA_copy" name="ARODVA_copy" value="<?php echo attr($ARODVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="48" size="6" id="MRODVA_copy" name="MRODVA_copy" value="<?php echo attr($MRODVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.19in; font-family: 'Times New Roman';" tabindex="50" size="6" id="CRODVA_copy" name="CRODVA_copy" value="<?php echo attr($CRODVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="46" size="6" id="ARODVA_copy" name="ARODVA_copy" value="<?php echo attr($ARODVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="48" size="6" id="MRODVA_copy" name="MRODVA_copy" value="<?php echo attr($MRODVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="50" size="6" id="CRODVA_copy" name="CRODVA_copy" value="<?php echo attr($CRODVA); ?>">
                           <br />                            
                           <b><?php echo xlt('OS'); ?> </b>
-                          <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="47" size="6" id="AROSVA_copy" name="AROSVA_copy" value="<?php echo attr($AROSVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="49" size="6" id="MROSVA_copy" name="MROSVA_copy" value="<?php echo attr($MROSVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.3in; height: 0.18in; font-family: 'Times New Roman'" tabindex="51" size="6" id="CROSVA_copy" name="CROSVA_copy" value="<?php echo attr($CROSVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="47" size="6" id="AROSVA_copy" name="AROSVA_copy" value="<?php echo attr($AROSVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="49" size="6" id="MROSVA_copy" name="MROSVA_copy" value="<?php echo attr($MROSVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="51" size="6" id="CROSVA_copy" name="CROSVA_copy" value="<?php echo attr($CROSVA); ?>">
                           <br />
                           <span id="more_visions_2" name="more_visions_2" style="position: absolute;top:0.44in;left:-0.37in;font-size: 0.9em;pading-right:4px;"><b><?php echo xlt('Acuity'); ?></b> </span>
-                          <span style="position: absolute;top:0.44in;left:0.24in;font-size: 0.8em;"><b><?php echo xlt('AR'); ?></b></span>
-                          <span style="position: absolute;top:0.44in;left:0.59in;font-size: 0.8em;"><b><?php echo xlt('MR'); ?></b></span>
-                          <span style="position: absolute;top:0.44in;left:0.91in;font-size: 0.8em;"><b><?php echo xlt('CR'); ?></b></span>
+                          <span style="position: absolute;top:0.41in;left:0.33in;font-size: 0.8em;"><b><?php echo xlt('AR'); ?></b></span>
+                          <span style="position: absolute;top:0.41in;left:0.68in;font-size: 0.8em;"><b><?php echo xlt('MR'); ?></b></span>
+                          <span style="position: absolute;top:0.41in;left:1.00in;font-size: 0.8em;"><b><?php echo xlt('CR'); ?></b></span>
                       </div>       
                   </div>
                   <!-- end of the VISION BOX -->
