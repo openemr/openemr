@@ -63,10 +63,6 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 @extract($_SESSION);
 @extract($_REQUEST);
 
-
-
-
-
 $id = $_GET['id'];
 
 if ($encounter == "" && !$id) {
@@ -80,8 +76,6 @@ if ($encounter == "" && !$id) {
  * and maybe it helps people understand what and why we are doing what we are doing?
  * Leave it to the professionals...
  */
-//echo "<pre>";
-//print_r($_REQUEST);
 if ($AJAX_PREFS) { 
     $query = "INSERT INTO form_eye_mag_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,VALUE,ordering) 
                 VALUES 
@@ -165,12 +159,11 @@ if ($AJAX_PREFS) {
     sqlQuery($query,array($_SESSION['authId'],$PREFS_ACT_SHOW,$PREFS_ACT_SHOW)); 
 }
 /**
-  *  ADD ANY NEW PREFERENCES HERE
+  * ADD ANY NEW PREFERENCES HERE, and as a hidden field in the body.  I prefer this vs Session items but that would
+  * also work here.  No good reason.
   */
 
-
 /** <!-- End Preferences --> **/
-
 
 /**  
  * Create, update or retrieve a form and its values  
@@ -180,13 +173,13 @@ if ($_GET["mode"] == "new")             {
   $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
   addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update")    { 
-  //the form is submitted to be updated.
+  // The form is submitted to be updated.
   // Submission are ongoing and then the final unload of page changes the 
   // DOM variable $("#final") to == 1.  As one draws on the HTML5 canvas, each step is saved incrementally allowing
   // the user to go back through their history should they make a drawing error or simply want to reverse a
   // step.  On finalization, we need to cleanup the drawing history images and leave just the final one.
   // For example, OU_EXTERNAL_DRAW_0.png through OU_EXTERNAL_DRAW_100.png exist since the user did 101 drawing
-  // events!  Now we only want OU_".$zone."_DRAW.png".  Clean up the directories:
+  // events in the EXTernal zone!  Now we only want OU_".$zone."_DRAW.png".  Clean up the directories:
   if ($_REQUEST['final'] =='1') {
     $storage = $GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter;
     $zones = array("EXT","ANTSEG","RETINA","NEURO","VISION","IMPLAN");
@@ -194,13 +187,13 @@ if ($_GET["mode"] == "new")             {
       echo "unlinking ".$GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/OU_".$zone."_DRAW_*.png<br /";
       unlink($GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/OU_".$zone."_DRAW_*.png");
     }
-  //  exit;
-   // exit;
+    // but alas this is not deleting the files.  And the "go back" feature is not written yet on the drawings
   }
   
-  //any field that exists in the database can be updated
-  //need to exclude the important ones...
-  //id  date  pid   user  groupname   authorized  activity      
+  // Any field that exists in the database can be updated
+  // so we need to exclude the important ones...
+  // id  date  pid   user  groupname   authorized  activity  .  Any other just add them below.
+  // Doing it this way means you can add new fields and the update feature still works.    
   $query = "SHOW COLUMNS from form_eye_mag";
   $result = sqlStatement($query);
   if (!$result) {
@@ -209,35 +202,33 @@ if ($_GET["mode"] == "new")             {
   }
   $fields = array();
   if (sqlNumRows($result) > 0) {
-  //checkboxes need to be entered manually as they are only submitted when they are checked
-  //if checked they are overridden below with the "on" value...
-  $fields['DIL_RISKS'] = '0';
-  $fields['ACT'] = '0';
-  $fields['MOTILITYNORMAL'] = '0';
-  //there are more to come...
-  //echo "<pre>";
-  //echo "form_id = ".$form_id;
-  while ($row = sqlFetchArray($result)) {
-    if ($row['Field'] == 'id' or 
-       $row['Field'] == 'date' or 
-       $row['Field'] == 'pid' or 
-       $row['Field'] == 'user' or 
-       $row['Field'] == 'groupname' or 
-       $row['Field'] == 'authorized' or 
-       $row['Field'] == 'activity') continue;
-    if (isset($_POST[$row['Field']])) {
-      $fields[$row[Field]] = $_POST[$row['Field']];
-   //  echo $row[Field] . " = ".$_POST[$row['Field']]."<br />";
-   // if ($row['Field'] == "MOTILITYNORMAL") {
-   //   $test = $row['Field'] . " = ". $_POST[$row['Field']];
-   // echo "<script> alert('".$test."');</script>";
-   //   }
+    while ($row = sqlFetchArray($result)) {
+      if ($row['Field'] == 'id' or 
+         $row['Field'] == 'date' or 
+         $row['Field'] == 'pid' or 
+         $row['Field'] == 'user' or 
+         $row['Field'] == 'groupname' or 
+         $row['Field'] == 'authorized' or 
+         $row['Field'] == 'activity') continue;
+      if (isset($_POST[$row['Field']])) $fields[$row['Field']] = $_POST[$row['Field']];
     }
+    //checkboxes need to be entered manually as they are only submitted when they are checked
+    //if checked they are overridden below with the "on" value...
+    if ($_POST['MOTILITYNORMAL'] == "on") $fields['MOTILITYNORMAL'] = '1';
+    //if (!$_POST['ACT']) $fields['ACT'] = '0';
+    if (!$_POST['DIL_RISKS']) $fields['DIL_RISKS'] = '0';
+    
+    echo $fields['DIL_RISKS']. " is DIL_RISKS<pre>";
+    //var_dump($_POST);
+    // There are more to come...
+    // They pass the value="on" even if value is explicitly set to = "1" 
+    // Also on checked are submitted, unchecked they are not.
+    // That is why they are identified here.
+    // The field in the eye_mag table is a tinyint(1), so we accept 0 or 1 as an option for now...
+  // debug($fields);
+    $success = formUpdate($table_name, $fields, $form_id, $userauthorized);
+    return $success;
   }
-  }
-//    echo "form_id =".$form_id;
-  $success = formUpdate($table_name, $fields, $form_id, $userauthorized);
-  return $success;
 } elseif ($_GET["mode"] == "retrieve")  { 
     $query = "SELECT * FROM patient_data where pid=?";
     $pat_data =  sqlQuery($query,array($pid));
@@ -333,7 +324,8 @@ if ($canvas) {
   // To be done yet.
   /** HISTORY FEATURE: Images.  
     * Store this latest drawing separately, incrementally, in the directory so user can go backwards - 
-    * canvas stores everything in real time! We need to be able to correct a slip-up
+    * canvas stores everything in real time! We need to be able to correct a slip-up by reversing through
+    * old images just like the PRIORS feature for the text fields but using today's most recent drawings...
     */
   $file_history = $storage."/OU_".$zone."_DRAW_1";
   $file_store= $file_history.".png";
