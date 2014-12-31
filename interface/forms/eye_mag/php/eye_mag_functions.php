@@ -189,7 +189,11 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
 function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
     global $form_folder;
     global $id;
-    $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
+    global $ISSUE_TYPES;
+    global $ISSUE_TYPE_STYLES;
+    $query  = "SELECT * FROM form_eye_mag_prefs 
+                where PEZONE='PREFS' AND id=? 
+                ORDER BY ZONE_ORDER,ordering";
     $result = sqlStatement($query,array($_SESSION['authUserID']));
     while ($prefs= sqlFetchArray($result))   {    
         @extract($prefs);    
@@ -1319,13 +1323,141 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
         echo priors_select($zone,$orig_id,$id_to_show,$pid);
         return;
     } elseif ($zone =="VISION") {
-        echo "COMING SOON:  We should consider showing QP HPI or PRIOR HPI when requested o/w integrate with 
-        openEMR to display/update PMFSH + ROS.  ROS will most likely be a 'Normal' else open to another div below.
-        N.B. Maybe this can segway into a function to display subtypes of refraction too?
 
-        Gotta make that fat thing to the left over there look better too
-<br />
-        &lt;---------";
+       require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
+        require_once($GLOBALS['srcdir'].'/options.inc.php');
+         // Check authorization.
+        if (acl_check('patients','med')) {
+          $tmp = getPatientData($pid);
+      }
+         // Collect parameter(s)
+         $category = empty($_REQUEST['category']) ? '' : $_REQUEST['category'];
+    ?>
+        <div id='patient_stats' class="EXT_text borderShadow">
+
+<table>
+
+<?php
+$encount = 0;
+$lasttype = "";
+$first = 1; // flag for first section
+
+foreach ($ISSUE_TYPES as $focustype => $focustitles) {
+
+  if ($category) {
+    // Only show this category
+//    if ($focustype != $category) continue;
+  }
+
+
+  // Show header
+  $disptype = $focustitles[1];
+  if(($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable'])
+  echo "<i class='fa fa-more' onclick='top.restoreSession();dopopup(\'../../eRx.php?page=medentry\')'></i>\n";
+  else
+  echo "<tr><th style='text-align:left;text-decoration:underline;background-color:#C0C0C0;line-height:1px;'><i class='fa fa-folder-open-o' href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" . htmlspecialchars($focustype,ENT_QUOTES)  . "\")'></i>";
+  echo "  <span class='left'>" . htmlspecialchars($disptype,ENT_NOQUOTES) . "</span>\n</th></tr>";
+  //echo " <table style='margin-bottom:1em;text-align:center'>";
+
+  // collect issues
+  $condition = '';
+  if($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication')
+   $condition .= "and erx_uploaded != '1' ";
+  $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition" .
+   "ORDER BY begdate", array($pid,$focustype) );
+
+  // if no issues (will place a 'None' text vs. toggle algorithm here)
+  if (sqlNumRows($pres) < 1) {
+    if ( getListTouch($pid,$focustype) ) {
+      // Data entry has happened to this type, so can display an explicit None.
+      echo "<tr><td class='text'><b>" . htmlspecialchars( xl("None"), ENT_NOQUOTES) . "</b></td></tr>";
+    }
+    else {
+      // Data entry has not happened to this type, so can show the none selection option.
+      echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" . htmlspecialchars($focustype,ENT_QUOTES) . "' value='none' /><b>" . htmlspecialchars( xl("None"), ENT_NOQUOTES) . "</b></td></tr>";
+    }
+  }
+
+  // display issues
+  while ($row = sqlFetchArray($pres)) {
+
+    $rowid = $row['id'];
+
+    $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
+
+    $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
+      "list_id = ?", array($rowid) );
+
+    // encount is used to toggle the color of the table-row output below
+    ++$encount;
+    $bgclass = (($encount & 1) ? "bg1" : "bg2");
+
+    // look up the diag codes
+    $codetext = "";
+    if ($row['diagnosis'] != "") {
+        $diags = explode(";", $row['diagnosis']);
+        foreach ($diags as $diag) {
+            $codedesc = lookup_code_descriptions($diag);
+            $codetext .= htmlspecialchars($diag,ENT_NOQUOTES) . " (" . htmlspecialchars($codedesc,ENT_NOQUOTES) . ")<br>";
+        }
+    }
+
+    // calculate the status
+    if ($row['outcome'] == "1" && $row['enddate'] != NULL) {
+      // Resolved
+      $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
+    }
+    else if($row['enddate'] == NULL) {
+   //   $statusCompute = htmlspecialchars( xl("Active") ,ENT_NOQUOTES);
+    }
+    else {
+   //   $statusCompute = htmlspecialchars( xl("Inactive") ,ENT_NOQUOTES);
+    }
+    $click_class='statrow';
+    if($row['erx_source']==1 && $focustype=='allergy')
+    $click_class='';
+    elseif($row['erx_uploaded']==1 && $focustype=='medication')
+    $click_class='';
+    // output the TD row of info
+    if ($row['enddate'] == NULL) {
+  //    echo " <tr class='$bgclass detail $click_class' style='color:red;font-weight:bold' id='$rowid'>\n";
+    }
+    else {
+   //   echo " <tr class='$bgclass detail $click_class' id='$rowid'>\n";
+    }
+    echo "  <td style='text-align:left'>" . htmlspecialchars($disptitle,ENT_NOQUOTES) . "</td>\n";
+  //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+  //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+    // both codetext and statusCompute have already been escaped above with htmlspecialchars)
+ //   echo "  <td>" . $codetext . "</td>\n";
+ //   echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
+ //   echo "  <td class='nowrap'>";
+ //   echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
+ //   echo "</td>\n";
+    if ($focustype == "allergy") {
+      echo "  <td>" . htmlspecialchars($row['reaction'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+    }
+    if ($GLOBALS['athletic_team']) {
+   //     echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
+    }
+    else {
+     //   echo "  <td>" . htmlspecialchars($row['referredby'],ENT_NOQUOTES) . "</td>\n";
+    }
+    //echo "  <td>" . htmlspecialchars($row['comments'],ENT_NOQUOTES) . "</td>\n";
+    //echo "  <td id='e_$rowid' class='noclick center' title='" . htmlspecialchars( xl('View related encounters'), ENT_QUOTES) . "'>";
+    //echo "  <input type='button' value='" . htmlspecialchars($ierow['count'],ENT_QUOTES) . "' class='editenc' id='" . htmlspecialchars($rowid,ENT_QUOTES) . "' />";
+    //echo "  </td>";
+    echo " </tr>\n";
+  }
+}
+echo "</table>";
+?>
+
+</table>
+
+</Xform>
+</div> <!-- end patient_stats -->
+<?php
         return;
     }
 }
@@ -1772,7 +1904,7 @@ function document_engine($pid) {
         }
     }
 
-$query = "Select *
+    $query = "Select *
                 from 
                 categories, documents,categories_to_documents
                 where documents.foreign_id=? and documents.id=categories_to_documents.document_id and
@@ -1802,12 +1934,15 @@ $query = "Select *
 }
 
 /**
- *  This function returns hooks/links for imaging.php upload, reports and image DB 
- *      based on the category/zone (category_value)
+ *  This function returns hooks/links for the Document Library, 
+ *      Reports (to do), upload(to do)and image DB(done)
+ *      based on the category/zone
  *
  *  @param string $pid value = patient id
  *  @param string $encounter is the encounter_id 
- *  @param string $category_value options EXT,ANTSEG,POSTSEG,NEURO
+ *  @param string $category_value options EXT,ANTSEG,POSTSEG,NEURO,OTHER
+ *                These values are taken from the "value" field in the category table
+ *                They allow us to regroup the categories how we like them.
  *  @return array($imaging,$episode)
  */ 
 function display($pid,$encounter,$category_value) {
@@ -1825,7 +1960,7 @@ function display($pid,$encounter,$category_value) {
         *  The second button is to view the files held within.  How they are displayed gets 
         *  us into the DICOM image viewer features, some of which have been developed elsewhere
         *  on sourceforge I believe.  For now it is not unreasonable to be able to flip through
-        *  all the images in this subtype like the treemenu or Apple does.
+        *  all the images in this subtype like the treemenu or Apple does.  Use Anything Slider.
         */
 
         /*
@@ -1838,13 +1973,13 @@ function display($pid,$encounter,$category_value) {
         */
         /**
         *   Each section will need a designator as to the section it belongs in.
-        *   The categories table does not have that but it has an used value field.
+        *   The categories table does not have that but it has an unused value field.
         *   This is where we link it to the image database.  We add this link value  
         *   on install but end user can change or add others as the devices evolve.
         *   New names new categories.  OCT would not have been a category 5 years ago.
         *   Who knows what is next?  Gene-lab construction?  Sure will.  
         *   So the name is user assigned as is the location.  
-        *   Thus we need to build out the Documents section by adding another layer 
+        *   Thus we need to build out the Documents section by adding another layer "zones"
         *   to the treemenu backbone.  
         */
         if (!$documents) {
@@ -1864,8 +1999,7 @@ function display($pid,$encounter,$category_value) {
         // theorectically above leads to a document management engine.  Gotta build that...
         // we only need to know if there is one as this link will open the image management engine/display
        if (count($documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']]) > '0') {
-            $episode .= '<a 
-                    HREF="../../forms/'.$form_folder.'/css/AnythingSlider/simple.php?display=i&category_id='.$documents['zones'][$category_value][$j]['id'].'&encounter='.$encounter.'&category_name='.urlencode(xla($category_value)).'"
+            $episode .= '<a href="../../forms/'.$form_folder.'/css/AnythingSlider/simple.php?display=i&category_id='.$documents['zones'][$category_value][$j]['id'].'&encounter='.$encounter.'&category_name='.urlencode(xla($category_value)).'"
                     onclick="return dopopup(\'../../forms/'.$form_folder.'/css/AnythingSlider/simple.php?display=i&category_id='.$documents['zones'][$category_value][$j]['id'].'&encounter='.$encounter.'&category_name='.urlencode(xla($category_value)).'\')">
                     <img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image" /></a>';
         }

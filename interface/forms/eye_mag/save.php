@@ -214,11 +214,11 @@ if ($_GET["mode"] == "new")             {
     }
     //checkboxes need to be entered manually as they are only submitted when they are checked
     //if checked they are overridden below with the "on" value...
-    if ($_POST['MOTILITYNORMAL'] == "on") $fields['MOTILITYNORMAL'] = '1';
+    if (!$_POST['MOTILITYNORMAL'] == "on") $fields['MOTILITYNORMAL'] = '0';
     //if (!$_POST['ACT']) $fields['ACT'] = '0';
     if (!$_POST['DIL_RISKS']) $fields['DIL_RISKS'] = '0';
     
-    echo $fields['DIL_RISKS']. " is DIL_RISKS<pre>";
+    echo $fields['MOTILITYNORMAL']. " is MOTILITYNORMAL<pre>";
     //var_dump($_POST);
     // There are more to come...
     // They pass the value="on" even if value is explicitly set to = "1" 
