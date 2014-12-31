@@ -97,19 +97,15 @@ if (!$form_id) { echo "No encounter..."; exit;}
 There a global setting for displaying dates... Incorporate it here.
 formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 */
-//echo "<pre>";
-//var_dump($CYCLOMYDRIL);
 
 ?>
 <html>
   <head>
     <?php 
-    // html_header_show();  //why use this at all?
+     html_header_show();  //why use this at all?
     ?>
     
-    <script type="text/javascript" src="../../../restoreSession.php"></script>
-    
-    <script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js"></script>
+        <script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js"></script>
     <script type="text/javascript" src="../../../library/js/common.js"></script>
     <script type="text/javascript" language="JavaScript">
 
@@ -691,11 +687,14 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><?php echo xlt('Acuity'); ?></td>
                                         <td rowspan="7" class="right" style="width:150px;padding:10 0 10 0;">
                                             <b style="font-weight:600;text-decoration:underline;">Rx Type</b><br />
-                                            <span style="padding:10 auto;" id="SingleVision_span">Single <input type=radio value="0" id="RX1" name="RX" class="input-helper--radio input-helper--radio" check="checked" /></span><br /><br />
-                                            <span style="padding:10 auto;" id="Bifocal_span">Bifocal <input type=radio value="1" id="RX1" name="RX" class="input-helper--radio input-helper--radio" /></span><br /><br />
-                                            <span style="padding:10 auto;" id="Trifocal_span" name="Trifocal_span">Trifocal <input type=radio value="2" id="RX1" name="RX" class="input-helper--radio input-helper--radio" /></span><br /><br />
-                                            <span style="padding:10 auto;" id="Progressive_span">Prog. <input type=radio value="3" id="RX1" name="RX" class="input-helper--radio input-helper--radio" /></span><br />
-
+                                            <label for="Single" class="input-helper input-helper--checkbox"><?php echo xlt('Single'); ?></label>
+                                            <input type="radio" value="0" id="Single" name="RX1" <?php if ($RX1 == '0') echo 'checked="checked"'; ?> /></span><br /><br />
+                                            <label for="Bifocal" class="input-helper input-helper--checkbox"><?php echo xlt('Bifocal'); ?></label>
+                                            <input type="radio" value="1" id="Bifocal" name="RX1" <?php if ($RX1 == '1') echo 'checked="checked"'; ?> /></span><br /><br />
+                                            <label for="Trifocal" class="input-helper input-helper--checkbox"><?php echo xlt('Trifocal'); ?></label>
+                                            <input type="radio" value="2" id="Trifocal" name="RX1" <?php if ($RX1 == '2') echo 'checked="checked"'; ?> /></span><br /><br />
+                                            <label for="Progressive" class="input-helper input-helper--checkbox"><?php echo xlt('Prog.'); ?></label>
+                                            <input type="radio" value="3" id="Progressive" name="RX1" <?php if ($RX1 == '3') echo 'checked="checked"'; ?> /></span><br />
                                         </td>
                                     </tr>
                                     <tr>
@@ -838,7 +837,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><?php echo xlt('Acuity'); ?></td>
 
                                         <td colspan="1" style="text-align:left;width:60px;">
-                                            <input type="radio" name="wetType" id="Flash" value="Flash" />
+                                            <input type="radio" name="WETTYPE" id="Flash" value="Flash" <?php if ($WETTYPE == "Flash") echo "checked='checked'"; ?>/>
                                             <label for="Flash" class="input-helper input-helper--checkbox"><?php echo xlt('Flash'); ?></label>
                                         </td>
                                         <td colspan="2" rowspan="4" style="text-align:left;width:75px;font-size:0.6em;"><b style="text-align:center;width:70px;text-decoration:underline;"><?php echo xlt('Dilated with'); ?>:</b><br />
@@ -866,7 +865,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><input type=text id="CRODAXIS" name="CRODAXIS" value="<?php echo attr($CRODAXIS); ?>"></td>
                                         <td><input type=text id="CRODVA" name="CRODVA"  value="<?php echo attr($CRODVA); ?>"></td>
                                         <td colspan="1" style="text-align:left;">
-                                            <input type="radio" name="WETTYPE" id="Auto" value="Auto">
+                                            <input type="radio" name="WETTYPE" id="Auto" value="Auto" <?php if ($WETTYPE == "Auto") echo "checked='checked'"; ?>>
                                             <label for="Auto" class="input-helper input-helper--checkbox"><?php echo xlt('Auto'); ?></label>
                                         </td>
                                     </tr>
@@ -877,7 +876,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><input type=text id="CROSAXIS" name="CROSAXIS" value="<?php echo attr($CROSAXIS); ?>"></td>
                                         <td><input type=text id="CROSVA" name="CROSVA" value="<?php echo attr($CROSVA); ?>"></td>
                                         <td colspan="1" style="text-align:left;">
-                                            <input type="radio" name="WETTYPE" id="Manual" value="Manual">
+                                            <input type="radio" name="WETTYPE" id="Manual" value="Manual" <?php if ($WETTYPE == "Manual") echo "checked='checked'"; ?>>
                                             <label for="Manual" class="input-helper input-helper--checkbox"><?php echo xlt('Manual'); ?></label>
                                         </td>
                                     </tr>
@@ -1016,30 +1015,30 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                     <tr><td></td>
                                         <td><?php echo xlt('PH'); ?></td>
                                         <td><?php echo xlt('PAM'); ?></td>
+                                        <td><?php echo xlt('LI'); ?></td>
                                         <td><?php echo xlt('BAT'); ?></td>
                                         <td><?php echo xlt('K1'); ?></td>
                                         <td><?php echo xlt('K2'); ?></td>
                                         <td><?php echo xlt('Axis'); ?></td>
-                                        <td><?php echo xlt('pend'); ?></td>
-                                    </tr>
+                                      </tr>
                                     <tr><td><b><?php echo xlt('OD'); ?>:</b></td>
                                         <td><input type=text id="PHODVA" name="PHODVA" value="<?php echo attr($PHODVA); ?>"></td>
                                         <td><input type=text id="PAMODVA" name="PAMODVA" value="<?php echo attr($PAMODVA); ?>"></td>
+                                        <td><input type=text id="LIODVA" name="LIODVA"  title="test" value="<?php echo attr($LIODVA); ?>"></td>
                                         <td><input type=text id="GLAREODVA" name="GLAREODVA" value="<?php echo attr($GLAREODVA); ?>"></td>
                                         <td><input type=text id="ODK1" name="ODK1" value="<?php echo attr($ODK1); ?>"></td>
                                         <td><input type=text id="ODK2" name="ODK2" value="<?php echo attr($ODK2); ?>"></td>
                                         <td><input type=text id="ODK2AXIS" name="ODK2AXIS" value="<?php echo attr($ODK2AXIS); ?>"></td>
-                                        <td><input type=text id="pend" name="pend" value="<?php echo attr($pend); ?>"></td>
                                     </tr>
                                     <tr>
                                         <td><b><?php echo xlt('OS'); ?>:</b></td>
                                         <td><input type=text id="PHOSVA" name="PHOSVA" value="<?php echo attr($PHOSVA); ?>"></td>
                                         <td><input type=text id="PAMOSVA" name="PAMOSVA" value="<?php echo attr($PAMOSVA); ?>"></td>
+                                        <td><input type=text id="LIOSVA" name="LIOSVA" value="<?php echo attr($LIOSVA); ?>"></td>
                                         <td><input type=text id="GLAREOSVA" name="GLAREOSVA" value="<?php echo attr($GLAREOSVA); ?>"></td>
                                         <td><input type=text id="OSK1" name="OSK1" value="<?php echo attr($OSK1); ?>"></td>
                                         <td><input type=text id="OSK2" name="OSK2" value="<?php echo attr($OSK2); ?>"></td>
                                         <td><input type=text id="OSK2AXIS" name="OSK2AXIS" value="<?php echo attr($OSK2AXIS); ?>"></td>
-                                        <td><input type=text id="pend" name="pend" value="<?php echo attr($pend); ?>"></td>
                                     </tr>
                                     <tr><td>&nbsp;</td></tr>
                                     <tr>
@@ -1049,8 +1048,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><?php echo xlt('PD'); ?></td>
                                         <td><?php echo xlt('LT'); ?></td>
                                         <td><?php echo xlt('W2W'); ?></td>
-                                        <td><?php echo xlt('pend'); ?></td>
-                                        <td><?php echo xlt('pend'); ?></td>
+                                        <td><?php echo xlt('ECL'); ?></td>
+                                        <!-- <td><?php echo xlt('pend'); ?></td> -->
                                     </tr>
                                     <tr><td><b><?php echo xlt('OD'); ?>:</b></td>
                                         <td><input type=text id="ODAXIALLENGTH" name="ODAXIALLENGTH"  value="<?php echo attr($ODAXIALLENGTH); ?>"></td>
@@ -1058,8 +1057,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><input type=text id="ODPDMeasured" name="ODPDMeasured"  value="<?php echo attr($ODPDMeasured); ?>"></td>
                                         <td><input type=text id="ODLT" name="ODLT"  value="<?php echo attr($ODLT); ?>"></td>
                                         <td><input type=text id="ODW2W" name="ODW2W"  value="<?php echo attr($ODW2W); ?>"></td>
-                                        <td><input type=text id="pend" name="pend"  value="<?php echo attr($pend); ?>"></td>
-                                        <td><input type=text id="pend" name="pend"  value="<?php echo attr($pend); ?>"></td>
+                                        <td><input type=text id="ODECL" name="ODECL"  value="<?php echo attr($ODECL); ?>"></td>
+                                        <!-- <td><input type=text id="pend" name="pend"  value="<?php echo attr($pend); ?>"></td> -->
                                     </tr>
                                     <tr>
                                         <td><b><?php echo xlt('OS'); ?>:</b></td>
@@ -1068,8 +1067,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><input type=text id="OSPDMeasured" name="OSPDMeasured" value="<?php echo attr($OSPDMeasured); ?>"></td>
                                             <td><input type=text id="OSLT" name="OSLT" value="<?php echo attr($OSLT); ?>"></td>
                                             <td><input type=text id="OSW2W" name="OSW2W" value="<?php echo attr($OSW2W); ?>"></td>
-                                            <td><input type=text id="pend" name="pend" value="<?php echo attr($pend); ?>"></td>
-                                            <td><input type=text id="pend" name="pend" value="<?php echo attr($pend); ?>"></td>
+                                            <td><input type=text id="OSECL" name="OSECL" value="<?php echo attr($OSECL); ?>"></td>
+                                            <!--  <td><input type=text id="pend" name="pend" value="<?php echo attr($pend); ?>"></td> -->
                                         </tr>
                                     </table>
                             </div>  
@@ -1745,7 +1744,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                           <td>
                                               <span id="ACTNORMAL_CHECK" name="ACTNORMAL_CHECK">
                                               <label for="ACT" class="input-helper input-helper--checkbox"><?php echo xlt('Ortho'); ?></label>
-                                              <input type="checkbox" name="ACT" id="ACT" checked="<?php if ($ACT =='1') echo "checked"; ?>"></span>
+                                              <input type="checkbox" name="ACT" id="ACT" <?php if ($ACT =='on') echo "checked='checked'"; ?> /></span>
                                           </td>
                                       </tr>
                                       <tr>
@@ -2446,13 +2445,15 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     -->
 
     <canvas id="simple_sketch" width="1200" height="600"></canvas>
-        <script type="text/javascript">
+    <script type="text/javascript">
             $(function() {
             $('#simple_sketch').sketch({defaultSize:"1"});
         });
-        </script>
+    </script>
         <!-- Add eye_mag js library -->
     <script type="text/javascript" src="../../forms/<?php echo $form_folder; ?>/js/my_js_base.js"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/restoreSession.php"></script>
+    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
 
   </body>   
 </html>

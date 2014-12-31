@@ -212,20 +212,21 @@ if ($_GET["mode"] == "new")             {
          $row['Field'] == 'activity') continue;
       if (isset($_POST[$row['Field']])) $fields[$row['Field']] = $_POST[$row['Field']];
     }
-    //checkboxes need to be entered manually as they are only submitted when they are checked
-    //if checked they are overridden below with the "on" value...
-    if (!$_POST['MOTILITYNORMAL'] == "on") $fields['MOTILITYNORMAL'] = '0';
-    //if (!$_POST['ACT']) $fields['ACT'] = '0';
+    /** checkboxes need to be entered manually as they are only submitted when they are checked
+      * if NOT checked they are NOT overridden in the DB, so DB won't change
+      *  unless we include them into the $fields array as "0"...
+      */
+    if (!$_POST['MOTILITYNORMAL']) $fields['MOTILITYNORMAL'] = '0';
+    if (!$_POST['ACT']) $fields['ACT'] = '0';
     if (!$_POST['DIL_RISKS']) $fields['DIL_RISKS'] = '0';
-    
-    echo $fields['MOTILITYNORMAL']. " is MOTILITYNORMAL<pre>";
-    //var_dump($_POST);
-    // There are more to come...
-    // They pass the value="on" even if value is explicitly set to = "1" 
-    // Also on checked are submitted, unchecked they are not.
-    // That is why they are identified here.
-    // The field in the eye_mag table is a tinyint(1), so we accept 0 or 1 as an option for now...
-  // debug($fields);
+    if (!$_POST['ATROPINE']) $fields['ATROPINE'] = '0';
+    if (!$_POST['CYCLOGYL']) $fields['CYCLOGYL'] = '0';
+    if (!$_POST['CYCLOMYDRIL']) $fields['CYCLOMYDRIL'] = '0';
+    if (!$_POST['NEO25']) $fields['NEO25'] = '0';
+    if (!$_POST['TROPICAMIDE']) $fields['TROPICAMIDE'] = '0';
+    if (!$_POST['BALANCED']) $fields['BALANCED'] = '0';
+    if (!$_POST['RX1']) $fields['RX1'] = '0';
+
     $success = formUpdate($table_name, $fields, $form_id, $userauthorized);
     return $success;
   }
