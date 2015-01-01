@@ -276,30 +276,30 @@ if ($canvas) {
    * which for the "default" practice is going to be here:
    * /openemr/sites/default/documents/eye_mag/$pid/$encounter  
    */
-  if (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder)) {
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder, 0777, true);
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid, 0777, true);
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter, 0777, true);
-  } elseif (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid)) {
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid, 0777, true);
-  } elseif (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter)) {
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter, 0777, true);
+  if (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid)) {
+              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid, 0755, true);
+              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder, 0755, true);
+              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter, 0755, true);
+  } elseif (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder)) {
+              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder, 0755, true);
+              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter, 0755, true);
+  } elseif (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter)) {
+              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter, 0755, true);
   }
+
   /**
    *    Three png files (OU,OD,OS) per LOCATION (EXT,ANTSEG,RETINA,NEURO) 
    *    BASE, found in forms/$form_folder/images eg. OU_EXT_BASE.png
    *          BASE is the blank image to start from and can be customized. Currently 432x150px
-   *    VIEW, found in /sites/$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter
+   *    VIEW, found in /sites/$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter
    *    TEMP, intermediate png merge file of new drawings with BASE or previous VIEW
    */
-  $storage = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter;
+  $storage = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter;
   if (file_exists($storage."/OU_".$zone."_VIEW.png")) { //add new drawings to previous for this encounter
     $file_base = $storage."/OU_".$zone."_VIEW.png";
-  } else  { //start from the base image
+  } else  { //start from the base image found in eye_mag directory /images
     $file_base = $GLOBALS['webserver_root']."/interface/forms/".$form_folder."/images/OU_".$zone."_BASE.png";
   }
- 
-  $storage = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter;
   $data =$_POST["imgBase64"];
   $data=substr($data, strpos($data, ",")+1);
   $data=base64_decode($data);

@@ -67,7 +67,6 @@ while ($prefs= sqlFetchArray($result))   {
     @extract($prefs);    
     $$LOCATION = $VALUE; 
 }
-
 // get pat_data and user_data
 $query = "SELECT * FROM patient_data where pid='$pid'";
 $pat_data =  sqlQuery($query);
@@ -199,8 +198,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <div id="HPI_build" name="HPI_build" class="nodisplay" style="position:absolute;width:450px;z-index:1000;margin: 0 auto;left:49%;text-align: center;font-size:1.0em;overflow:auto;">
                     <div id="HPI_text_list" name="HPI_text_list" class="borderShadow  <?php echo attr($display_HPI_view); ?>  ">
                      <span class="top_right fa fa-close" onclick="toggle_visibility('HPI_build');" ></span>
-                     <h1>HPI Engine</h1> 
-                     <table border="0" cellpadding="2" class="up" Xstyle="vetical-align:top;font-size:1.1em;padding:10px;border-bottom:1pt solid black;">
+                     <h1>HPI Engine&nbsp;</h1> &nbsp;
+                     <table border="0" cellpadding="2" class="up" style="vetical-align:text-bottom;font-size:1.1em;padding:10px;">
                         <tr>
                           <td class="title"><?php echo xlt('Timing'); ?>:</td>
                           <td><i><?php echo xlt('When and how often?'); ?></i>
@@ -249,10 +248,13 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                           <td><i><?php echo xlt('How long does it last?'); ?></i><textarea name="DURATION1" id="DURATION1" class="HPI_text"><?php echo text($DURATION1); ?></textarea>
                        <br />&nbsp;</td>
                         </tr>
-                      </table><br />
-                      <small>A detailed HPI may be completed by using 
-                      either four or more HPI elements OR the status of three chronic or inactive problems.</small>
+                      </table>
+                      <h1></h1> &nbsp;<br />
+                      <span style="font-size:0.9em;">A detailed HPI may be completed by using either <br />
+                          four or more HPI elements OR the status of three chronic or inactive problems.</span>
+                      <br />&nbsp;
                     </div>
+
                   </div>  
             <?php ($CLINICAL=='100') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
             <div id="HPI_1" name="HPI_1" class="<?php echo attr($display_Add); ?>">
@@ -841,19 +843,19 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                             <label for="Flash" class="input-helper input-helper--checkbox"><?php echo xlt('Flash'); ?></label>
                                         </td>
                                         <td colspan="2" rowspan="4" style="text-align:left;width:75px;font-size:0.6em;"><b style="text-align:center;width:70px;text-decoration:underline;"><?php echo xlt('Dilated with'); ?>:</b><br />
-                                            <input type="checkbox" id="CycloMydril" name="CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL != '0') echo "checked='checked'"; ?> />
+                                            <input type="checkbox" id="CycloMydril" name="CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL == 'Cyclomydril') echo "checked='checked'"; ?> />
                                             <label for="CycloMydril" class="input-helper input-helper--checkbox"><?php echo xlt('CycloMydril'); ?></label>
                                             <br />
-                                            <input type="checkbox" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE != '0') echo "checked='checked'"; ?> />
+                                            <input type="checkbox" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') echo "checked='checked'"; ?> />
                                             <label for="Tropicamide" class="input-helper input-helper--checkbox"><?php echo xlt('Tropic 2.5%'); ?></label>
                                             </br>
-                                            <input type="checkbox" id="Neo25" name="NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 !='0') echo "checked='checked'"; ?> />
+                                            <input type="checkbox" id="Neo25" name="NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 =='Neosynephrine 2.5%') echo "checked='checked'"; ?> />
                                             <label for="Neo25" class="input-helper input-helper--checkbox"><?php echo xlt('Neo 2.5%'); ?></label>
                                             <br />
-                                            <input type="checkbox" id="Cyclogyl" name="CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL != '0') echo "checked='checked'"; ?> />
+                                            <input type="checkbox" id="Cyclogyl" name="CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL == 'Cyclopentolate 1%') echo "checked='checked'"; ?> />
                                             <label for="Cyclogyl" class="input-helper input-helper--checkbox"><?php echo xlt('Cyclo 1%'); ?></label>
                                             </br>
-                                            <input type="checkbox" id="Atropine" name="ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE != '0') echo "checked='checked'"; ?> />
+                                            <input type="checkbox" id="Atropine" name="ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE == 'Atropine 1%') echo "checked='checked'"; ?> />
                                             <label for="Atropine" class="input-helper input-helper--checkbox"><?php echo xlt('Atropine 1%'); ?></label>
                                             </br>
                                         </td>

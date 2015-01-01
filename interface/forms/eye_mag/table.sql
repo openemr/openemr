@@ -423,6 +423,8 @@ CREATE TABLE IF NOT EXISTS `form_eye_mag` (
     `ODCMT` varchar(255) DEFAULT NULL,
     `OSCMT` varchar(255) DEFAULT NULL,
     `RETINA_COMMENTS` mediumtext,
+    `IMP` mediumtext,
+    `PLAN` mediumtext,
     `LetterID` varchar(30) DEFAULT NULL,
     `LetterTo` char(50) DEFAULT NULL,
     `LetterCc1` char(50) DEFAULT NULL,
