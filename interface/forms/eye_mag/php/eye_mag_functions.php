@@ -1545,9 +1545,19 @@ function display_draw_section ($zone,$encounter,$pid,$side ='OU') {
             <a style="background: #CCC" data-size="15" href="#Sketch_<?php echo attr($zone); ?>"><?php echo xlt('15'); ?></a>  
         </div>
         <?php 
-            $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png";
-            if (file_exists($file_location)) {
-                $filetoshow = $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/eye_mag/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png?".rand();
+        //apache2 vhost config defaults to deny all access to documents directory directly.
+        //thus we need to move from this directory, elsewhere?
+        //No, ext access to all is not hippa compliant
+        // we need a better way to serve the document
+        //perhaps just like all the other documents from documents.php?
+        //find the document_id by the filename
+
+            $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter."/".$side."_".$zone."_VIEW.png";
+            $sql = "SELECT * from documents where url='file://".$file_location."'";
+            $doc = sqlQuery($sql);
+            if (file_exists($file_location) && ($doc['id'] > '0')) {
+
+                $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=$pid&document_id=$doc[id]&as_file=false";
             } else {
                 $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone."_BASE.png?".rand();
             }

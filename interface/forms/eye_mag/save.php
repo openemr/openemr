@@ -270,21 +270,24 @@ if ($_GET["mode"] == "new")             {
 
 if ($canvas) {
   /**
-   * Make the directory for this encounter to store the image
+   * Make the directory for this encounter to store the images
    * we are storing the images after the mouse leaves the canvas here:
    * $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/eye_mag/".$pid."/".$encounter
    * which for the "default" practice is going to be here:
-   * /openemr/sites/default/documents/eye_mag/$pid/$encounter  
+   * /openemr/sites/default/documents/$pid/eye_mag/$encounter  
+   * Each file also needs to be filed as a Document to retrieve through controller to keep HIPAA happy
+   * Documents directory and subdirs are NOT publicly accessible directly (w/o acl checking)
    */
-  if (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid)) {
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid, 0755, true);
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder, 0755, true);
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter, 0755, true);
-  } elseif (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder)) {
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder, 0755, true);
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter, 0755, true);
-  } elseif (!is_dir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter)) {
-              mkdir($GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter, 0755, true);
+  $location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid;
+  if (!is_dir($location)) {
+              mkdir($location, 0755, true);
+              mkdir($location."/".$form_folder, 0755, true);
+              mkdir($location."/".$form_folder."/".$encounter, 0755, true);
+  } elseif (!is_dir($location."/".$form_folder)) {
+              mkdir($location."/".$form_folder, 0755, true);
+              mkdir($location."/".$form_folder."/".$encounter, 0755, true);
+  } elseif (!is_dir($location."/".$form_folder."/".$encounter)) {
+              mkdir($location."/".$form_folder."/".$encounter, 0755, true);
   }
 
   /**
@@ -321,12 +324,39 @@ if ($canvas) {
   $file_temp = $storage."/OU_".$zone."_TEMP.png"; //merge needs to store to a separate file first, then rename to new VIEW
   merge( $file_draw, $file_base, $file_temp);
   rename( $file_temp , $storage."/OU_".$zone."_VIEW.png" );
-  // Store pointer to this in DB table form_eye_mag_draw
-  // To be done yet.
+  // Store pointer to this in DB table documents
+  /** To be done now.
+    *  We have a file in the right place
+    *  We need to tell the documents engine about this file, add it to the documents and doc_to_cat tables.
+    *  
+    */
+  $file_here = $storage."/OU_".$zone."_VIEW.png";
+
+  $doc = sqlQuery("Select * from documents where url='file://".$storage."/OU_".$zone."_VIEW.png'");
+  if ($doc['id'] < '1') {
+    $doc = sqlQuery("select MAX(id)+1 as id from documents");
+    $sql = "REPLACE INTO documents set 
+              id='".$doc['id']."',
+              type='file_url',size='".filesize($file_here)."',
+              date=NOW(),
+              mimetype='image/png',
+              owner='".$_SESSION['authUserID']."',
+              foreign_id='".$pid."',
+              docdate=NOW(),
+              path_depth='3',
+              url='file://".$file_here."'";
+              echo $sql;
+    $doc_id = sqlQuery($sql);  
+
+    $category = sqlQuery("select id from categories where name='Drawings'");       
+    $sql = "REPLACE INTO categories_to_documents set category_id = '" . $category['id'] . "', document_id = '" . $doc['id'] . "'";
+    sqlQuery($sql);  
+  }
   /** HISTORY FEATURE: Images.  
     * Store this latest drawing separately, incrementally, in the directory so user can go backwards - 
     * canvas stores everything in real time! We need to be able to correct a slip-up by reversing through
     * old images just like the PRIORS feature for the text fields but using today's most recent drawings...
+    * This may have to be done client side due to network lag issues
     */
   $file_history = $storage."/OU_".$zone."_DRAW_1";
   $file_store= $file_history.".png";

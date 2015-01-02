@@ -40,7 +40,7 @@
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
-error_reporting(E_ALL & ~E_NOTICE);
+//error_reporting(E_ALL & ~E_NOTICE);
 include_once("../../globals.php");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/lists.inc");
@@ -56,7 +56,6 @@ include_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 @extract($_REQUEST); 
 @extract($_SESSION);
 $form_id = $id;
-
 // Get user preferences, for this user ,
 // If a fresh install or new user, get the default user preferences
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=? or id=2048)ORDER BY id,ZONE_ORDER,ordering";
@@ -258,25 +257,25 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <div id="HPI_1" name="HPI_1" class="<?php echo attr($display_Add); ?>">
               <div id="HPI_left" name="HPI_left" class="exam_section_left borderShadow canvas" >
                 <?php display_draw_section ("HPI",$encounter,$pid); ?>
-                <div id="HPI_left_text" style="min-height: 2.5in;text-align:left;" class="TEXT_class">
+                <div id="HPI_left_text" nam="HPI_left_text"  class="TEXT_class">
                   <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
                   
-                  <table border="0" width="100%" cellspacing="0" cellpadding="0" class="HPI_text">
+                  <table border="0" width="100%" cellspacing="0" cellpadding="0" style="min-height: 2.5in;text-align:left;font-size:0.8em;">
                     <tr>
-                      <td class="right">
+                      <td class="right up" style="vertical-align:top;padding-right:10px;">
                         <b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('CC'); ?>:
                         </span>  </b>
                       </td>    
                       <td><textarea name="CC1" id="CC1" class="HPI_text"><?php echo text($CC1); ?></textarea></td>
                     </tr> 
                     <tr>
-                      <td class="right" style="vertical-align:text-top;">
+                      <td class="right" style="vertical-align:top;padding-right:10px;">
                         <span title="<?php echo xla('History of Present Illness:  A detailed HPI may be completed by using 
                     either four or more HPI elements OR the status of three chronic or inactive problems.'); ?>" style="height:1in;font-weight:600;vertical-align:text-top;"><?php echo xlt('HPI'); ?>:
                         </span>
                       </td>    
-                      <td><textarea name="HPI1" id="HPI1" class="HPI_text" style="min-height:1in;max-height:2in;"><?php echo text($HPI1); ?></textarea>
-                       <i onclick="toggle_visibility('HPI_build');" class="fa fa-exchange"></i>
+                      <td><textarea name="HPI1" id="HPI1" class="HPI_text" style="min-height:2in;max-height:2.3in;width:4.2in;"><?php echo text($HPI1); ?></textarea>
+                       <br /><i onclick="toggle_visibility('HPI_build');" class="fa fa-exchange"></i>
                      
                       </td>
                     </tr> 

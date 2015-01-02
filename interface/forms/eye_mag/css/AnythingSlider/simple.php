@@ -279,14 +279,27 @@
 			<!-- Links to other demo pages & docs -->
 			<div id="nav" style="position:absolute;top:0.0in;text-align:left;">
 				<?php 
-				//use this to build off for the image server
+				//use this to build off for the document server
 				//for each section in imaging, make a link here
 				//<a href="expand.html">OCT</a>
 				//<a href="../../forms/'.$form_folder.'/css/AnythingSlider/simple.php?display=i&category_id='.$cat_row[id].'&id='.$form_id.'&encounter='.$encounter.'&category_name='.urlencode(xla($category_value)).'" onclick="top.restoreSession;">
 		        //        <img src="../../forms/'.$form_folder.'/images/jpg.png" class="little_image">
 		        //echo "count Imaging = ".count($imaging)."<br />";
+		        
+		        	/* For now the Drawings are under "other"
+		    	if ($category_name == "DRAW") {$class='play'; } else { $class = "git"; }
+		    	echo '<a title="Encounter Drawings"  
+							class="'.$class.' borderShadow"  style="'.$style.'"
+							href="simple.php?display=i&encounter='.$encounter.'&category_name=DRAW">
+							DRAW</a>
+							';
+
+				*/
+			
 		      	$i='0';
 		      	foreach ($documents['zones'] as $zone) {
+		      		if ($zone[0]['value'] == "DRAW") continue; //for now DRAW is under OTHER...
+			      	
 			      	$class = "git";
 			      	if ($category_id == $zone[0]['id']) { $appends = "<i class='fa fa-arrow-down'></i>"; }
 			      	if (count($documents['docs_in_zone'][$zone[0][value]]) >'0') {
@@ -311,13 +324,14 @@
 		      		}
 				}
 				echo $response['EXT'].$response['ANTSEG'].$response['POSTSEG'].$response['NEURO'];
+		    	/*
 		    	if ($category_name == "DRAW") {$class='play'; } else { $class = "git"; }
 		    	echo '<a title="Encounter Drawings"  
 							class="'.$class.' borderShadow"  style="'.$style.'"
 							href="simple.php?display=i&encounter='.$encounter.'&category_name=DRAW">
 							DRAW</a>
 							';
-			
+				*/
 				if ($category_name == "OTHER") {$class='play'; } else { $class = "git"; }
 			    echo '<a title="Other Documents"  
 								class="'.$class.' borderShadow"  style="'.$style.'"

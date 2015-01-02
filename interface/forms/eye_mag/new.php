@@ -74,6 +74,7 @@ if ($erow['form_id'] > '0') {
          *                                              -> Radiology
          *                                              -> VF
          *                                  -> Communication
+         *                                  -> Encounters 
          */
         $exists = sqlQuery("SELECT count(*) from categories where name ='Imaging' and parent = '3'");
         if (!$exists) {
@@ -83,8 +84,8 @@ if ($erow['form_id'] > '0') {
               * for form_eye_mag if not present.
               */
             $sql = "INSERT INTO categories 
-                            select (select MAX(id) from categories) + 1, 'Imaging', '', 3, rght, rght + 1 
-                            from categories where name = 'Categories'";
+                            select (select MAX(id) from categories) + 1, 'Imaging', '', 3, rght, rght + 1 from categories 
+                            where name = 'Categories'";
             sqlQuery($sql);  
             $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
             sqlQuery($sql);    
@@ -92,30 +93,24 @@ if ($erow['form_id'] > '0') {
             sqlQuery($sql);  
 
             $sql = "INSERT INTO categories 
-                        select (select MAX(id) from categories) + 1, 'Communication', '', 3, rght, rght + 1 
-                        from categories where name = 'Categories'";
+                        select (select MAX(id) from categories) + 1, 'Communication', '', 3, rght, rght + 1 from categories 
+                        where name = 'Categories'";
             sqlQuery($sql);  
             $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
             sqlQuery($sql);    
             $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record'";
             sqlQuery($sql);    
             
-            $CLINICAL_zone = array("EXT","ANTSEG","POSTSEG","NEURO");
-            for ($a = 0; $b < count($CLINICAL_zone); ++$a) {
-                $sql = "INSERT INTO categories 
-                    select (select MAX(id) from categories) + 1, '".$zones[$i]."', '".$category_value."', (select id from categories where name='Imaging' and parent=3), rght, rght + 1 
-                    from categories where name = 'Imaging' and parent='3'";
-                    sqlQuery($sql);       
-
-                    $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
-                    sqlQuery($sql);    
-                    $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record'";
-                    sqlQuery($sql);    
-                    $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging'";
-
-            }
-
-            $zone = array('FA/ICG','OCT','Optic Disc','AntSeg Photos','External Photos','Fundus','Radiology','VF');
+            $sql = "INSERT INTO categories 
+                        select (select MAX(id) from categories) + 1, 'Encounters', '', 3, rght, rght + 1 from categories 
+                        where name = 'Categories'";
+            sqlQuery($sql);  
+            $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
+            sqlQuery($sql);    
+            $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record'";
+            sqlQuery($sql);    
+            
+            $zone['name'] = array('FA/ICG','OCT','Optic Disc','AntSeg Photos','External Photos','Fundus','Radiology','VF','Drawings');
             $zones[0]['CLINICAL_zone'] = "POSTSEG";
             $zones[1]['CLINICAL_zone'] = "POSTSEG";
             $zones[2]['CLINICAL_zone'] = "POSTSEG";
@@ -124,31 +119,40 @@ if ($erow['form_id'] > '0') {
             $zones[5]['CLINICAL_zone'] = "POSTSEG";
             $zones[6]['CLINICAL_zone'] = "NEURO";
             $zones[7]['CLINICAL_zone'] = "NEURO";
+            $zones[8]['CLINICAL_zone'] = "DRAW";
             
-            for ($i = 0; $i < count($zones); ++$i) {
-                $test = '';
-                $test = sqlQuery("SELECT count(*) from categories where name ='".$zones[$i]."'");
-                if ($test =='') {
-                    if ($zones[$i] = '') 
-                    $category_value = $zones[$i]['CLINICAL_zone'];
-                    $sql = "INSERT INTO categories 
-                    select (select MAX(id) from categories) + 1, '".$zone[$i]."', '".$category_value."', (select id from categories where name='Imaging' and parent=3), rght, rght + 1 
-                    from categories where name = 'Imaging' and parent='3'";
-                    sqlQuery($sql);       
+            for ($i = 0; $i < count($zones); $i++) {
+                $category_value = $zones[$i]['CLINICAL_zone'];
+                $sql = "INSERT INTO categories 
+                            select (select MAX(id) from categories) + 1, 
+                            '".$zone['name'][$i]."', 
+                            '".$category_value."', 
+                            (select id from categories where name='Imaging' and parent=3), 
+                            rght, 
+                            rght + 1 
+                        from categories 
+                        where name = 'Imaging' and parent='3'";
+                sqlQuery($sql);       
 
-                    $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
-                    sqlQuery($sql);    
-                    $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record'";
-                    sqlQuery($sql);    
-                    $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging'";
-                }
-
-                $sql = "UPDATE categories_seq SET id = (select MAX(id) from categories)";
-                sqlQuery($sql);     
+                $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
+                sqlQuery($sql);    
+                $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record'";
+                sqlQuery($sql);    
+                $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging'";
             }
+
+            $sql = "UPDATE categories_seq SET id = (select MAX(id) from categories)";
+            sqlQuery($sql);     
+        
             $sql = "INSERT INTO `issue_types` (`active`, `category`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show`, `ordering`) 
                                         VALUES ('1','default','eye','Past Ocular History','POH','O','0','0','4')";
             sqlQuery($sql);     
+            //get rid of the dental
+            //could really rewrite the whole ISSUES variable by altering this table
+            //openEMR pulls these values in from /openemr/library/lists.inc out of issue_types table
+            //just do dental for now
+            $sql = "UPDATE `issue_types` set ABBREVIATION='D',category='Dental' where singular = 'Dental'";
+            sqlQuery($sql);
             // if we want to add Ophthalmic surgeries, this would be a spot...                      
         } 
     }
@@ -163,7 +167,7 @@ if ($erow['form_id'] > '0') {
     $erow['form_id'] = $newid;
  }
     formHeader("Redirecting....");
-    formJump('./view_form.php?formname=eye_mag&id='.$erow['form_id'].'&pid='.$pid);
+    formJump('./view_form.php?formname='.$form_name.'&id='.$erow['form_id'].'&pid='.$pid);
     formFooter();
     exit;
 ?>
