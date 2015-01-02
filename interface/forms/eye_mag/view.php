@@ -255,7 +255,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   </div>  
             <?php ($CLINICAL=='100') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
             <div id="HPI_1" name="HPI_1" class="<?php echo attr($display_Add); ?>">
-              <div id="HPI_left" name="HPI_left" class="exam_section_left borderShadow canvas" >
+              <div id="HPI_left" name="HPI_left" class="exam_section_left borderShadow" >
                 <?php display_draw_section ("HPI",$encounter,$pid); ?>
                 <div id="HPI_left_text" nam="HPI_left_text"  class="TEXT_class">
                   <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
@@ -284,7 +284,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <?php ($display_HPI_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
                 </div>
               </div>
-              <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow canvas">
+              <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow">
                 <?php display_draw_section ("PMH",$encounter,$pid); ?>
                 <div id="PMSFH_sections" name="PMSFH_sections">
                   <?php display_section("PMSFH",$id,$id,$pid); ?>
@@ -1104,7 +1104,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                     <tr><td>&nbsp;</td></tr>
                                     <tr>
                                         <td></td>
-                                        <td><?php echo xlt('scNnear'); ?></td>
+                                        <td><?php echo xlt('scNear'); ?></td>
                                         <td><?php echo xlt('ccNear'); ?></td>
                                         <td><?php echo xlt('ARNear'); ?></td>
                                         <td><?php echo xlt('MRNear'); ?></td>

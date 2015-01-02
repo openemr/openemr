@@ -137,7 +137,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
         //if ()
         $side="OU";
         $zone = array("HPI","PMH","VISION","NEURO","EXT","ANTSEG","RETINA","IMPPLAN");
-        for ($i = 0; $i < count($zone); ++$i) {
+        //for ($i = 0; $i < count($zone); ++$i) {
+        //show only 2 for now
+        for ($i = 0; $i < '2'; ++$i) {
             $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
             if (file_exists($file_location)) {
                 $filetoshow = $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png?".rand();

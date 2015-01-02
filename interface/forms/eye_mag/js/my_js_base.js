@@ -58,7 +58,7 @@ function clear_vars() {
 
 function dopopup(url) {
     top.restoreSession();
-    window.open(url, '_blank', 'directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0');
+    window.open(url, '_blank', 'width=fullscreen,height=fullscreen,resizable=1,scrollbars=1,directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0');
 }
 
 function submit_form(e) {
@@ -110,31 +110,31 @@ function update_PREFS() {
 }
 
 function show_right() {
-    $("#EXT_sections").removeClass("size50").addClass("size100");
-    $("#ANTSEG_sections").removeClass("size50").addClass("size100");
-    $("#NEURO_sections").removeClass("size50").addClass("size100");
-    $("#RETINA_sections").removeClass("size50").addClass("size100");
+    $("#EXT_1").removeClass("size50").addClass("size100");
+    $("#ANTSEG_1").removeClass("size50").addClass("size100");
+    $("#NEURO_1").removeClass("size50").addClass("size100");
+    $("#RETINA_1").removeClass("size50").addClass("size100");
     $("#EXT_right").removeClass("nodisplay");
     $("#ANTSEG_right").removeClass("nodisplay");
     $("#NEURO_right").removeClass("nodisplay");
     $("#RETINA_right").removeClass("nodisplay");
-    $("#ANTSEG_sections").addClass("clear_both");
-    $("#RETINA_sections").addClass("clear_both");
-    $("#NEURO_sections").addClass("clear_both");
+    $("#ANTSEG_1").addClass("clear_both");
+    $("#RETINA_1").addClass("clear_both");
+    $("#NEURO_1").addClass("clear_both");
     hide_PRIORS();
 }
 function hide_right() {
-    $("#EXT_sections").removeClass("size100").addClass("size50");
-    $("#ANTSEG_sections").removeClass("size100").addClass("size50");
-    $("#NEURO_sections").removeClass("size100").addClass("size50");
-    $("#RETINA_sections").removeClass("size100").addClass("size50");
+    $("#EXT_1").removeClass("size100").addClass("size50");
+    $("#ANTSEG_1").removeClass("size100").addClass("size50");
+    $("#NEURO_1").removeClass("size100").addClass("size50");
+    $("#RETINA_1").removeClass("size100").addClass("size50");
     $("#EXT_right").addClass("nodisplay");
     $("#ANTSEG_right").addClass("nodisplay");
     $("#NEURO_right").addClass("nodisplay");
     $("#RETINA_right").addClass("nodisplay");
-    $("#ANTSEG_sections").removeClass("clear_both");
-    $("#RETINA_sections").removeClass("clear_both");
-    $("#NEURO_sections").removeClass("clear_both");
+    $("#ANTSEG_1").removeClass("clear_both");
+    $("#RETINA_1").removeClass("clear_both");
+    $("#NEURO_1").removeClass("clear_both");
 }
 
 function show_DRAW() {
@@ -143,8 +143,8 @@ function show_DRAW() {
     hide_PRIORS();
     $("#LayerTechnical_sections").hide();
     $("#REFRACTION_sections").hide();
-    $("#VISION_sections").hide();
-    $("#NEURO_sections").hide();
+    $("#PMSFH_sections").hide();
+    $("#NEURO_1").hide();
     $("#EXT_left").addClass('canvas');
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_left").addClass('canvas');
@@ -159,7 +159,7 @@ function show_TEXT() {
     hide_QP();
     hide_DRAW();
     hide_PRIORS();
-    $("#NEURO_sections").show();
+    $("#NEURO_1").show();
     $(".TEXT_class").show();
 }
 function show_PRIORS() {
@@ -191,8 +191,8 @@ function hide_DRAW() {
     $(".Draw_class").hide();
     $("#LayerTechnical_sections").show();
     $("#REFRACTION_sections").show();
-    $("#VISION_sections").show();
-    $("#NEURO_sections").show();
+    $("#PMSFH_sections").show();
+    $("#NEURO_1").show();
     $("#IMPPLAN").show();
     $("#EXT_left").removeClass('canvas');
     $("#EXT_right").removeClass('canvas');
@@ -402,22 +402,27 @@ $(document).ready(function() {
                   
                   $("[name$='AXIS']").blur(function() {
                                            //hmmn.  Make this a 3 digit leading zeros number.
-                                           // we are no translating text to numbers, just numbers to
+                                           // we are not translating text to numbers, just numbers to
                                            // a 3 digit format with leading zeroes as needed.
-                                           // assume there are nly letters presented and the end use KNOWS
+                                           // assume the end user KNOWS there are only numbers presented and
                                            // more than 3 digits is a mistake...
                                            var axis = $(this).val();
-                                           // if (!axis.match(/\d/)) return;
-                                           if (!axis.match(/\d\d\d/)) {
-                                            if (!axis.match(/\d\d/)) {
-                                                if (!axis.match(/\d/)) {
-                                                    axis = '0';
+                                           // if (!axis.match(/\d/)) return; How do we say this?
+                                           var front = this.id.match(/(.*)AXIS$/)[1];
+                                           var cyl = $("#"+front+"CYL").val();
+                                           if (cyl > '') {
+                                            if (!axis.match(/\d\d\d/)) {
+                                                if (!axis.match(/\d\d/)) {
+                                                    if (!axis.match(/\d/)) {
+                                                        axis = '0';
+                                                    }
+                                                    axis = '0' + axis;
                                                 }
                                                 axis = '0' + axis;
                                             }
-                                           axis = '0' + axis;
-                                           
                                            }
+                                           $(this).val(axis);
+                                           submit_form('eye_mag');
                                            });
 
                   
@@ -613,13 +618,13 @@ $(document).ready(function() {
                   $("#WNEAROSAXIS").hide();
                   $("#WNEAROSCYL").hide();
                   $("#WNEAROSPRISM").hide();
-                  $("[name=RX]").val(["1"]);
-                  $("#SingleVision_span").click(function(){
+                  
+                  $("#Single").click(function(){
                                                 $(".WNEAR").hide();
                                                 $(".WSPACER").show();
-                                                $("[name=RX]").val(["0"]);
+                                           //$("[id=Single]").prop('checked','checked');
                                                 });
-                  $("#Bifocal_span").click(function(){
+                  $("#Bifocal").click(function(){
                                            $(".WSPACER").hide();
                                            $(".WNEAR").show();
                                            $(".WMid").addClass('nodisplay');
@@ -632,7 +637,7 @@ $(document).ready(function() {
                                            $("#WNEAROSCYL").hide();
                                            $("#WNEAROSPRISM").hide();
                                            });
-                  $("#Trifocal_span").click(function(){
+                  $("#Trifocal").click(function(){
                                             $(".WSPACER").hide();
                                             $(".WNEAR").show();
                                             $(".WMid").removeClass('nodisplay');
@@ -645,7 +650,7 @@ $(document).ready(function() {
                                             $("#WNEAROSCYL").hide();
                                             $("#WNEAROSPRISM").hide();
                                             });
-                  $("#Progressive_span").click(function(){
+                  $("#Progressive").click(function(){
                                                $(".WSPACER").hide();
                                                $(".WNEAR").show();
                                                $(".WMid").addClass('nodisplay');
@@ -998,6 +1003,7 @@ $(document).ready(function() {
                                              $("#MOTILITY_LR_"+index).html('');
                                              $("#MOTILITY_LL_"+index).html('');
                                              }
+                                             submit_form('eye_mag');
                                              });
                   
                   $("[name^='MOTILITY_']").click(function()  {
