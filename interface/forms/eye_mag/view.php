@@ -49,8 +49,6 @@ include_once("$srcdir/sql.inc");
 require_once("$srcdir/formatting.inc.php");
 //require_once("$srcdir/restoreSession.php");
 
-
-
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
 
@@ -283,18 +281,14 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </td>
                     </tr> 
                   </table>
-                 
-                   
-                  
-
                   <?php ($HPI_VIEW !=2) ? ($display_HPI_view = "wide_textarea") : ($display_HPI_view= "narrow_textarea");?>                                 
                   <?php ($display_HPI_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
                 </div>
               </div>
               <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow canvas">
                 <?php display_draw_section ("PMH",$encounter,$pid); ?>
-                <div id="VISION_sections" nam="VISION_sections">
-                  <?php display_section("VISION",$id,$id,$pid); ?>
+                <div id="PMSFH_sections" name="PMSFH_sections">
+                  <?php display_section("PMSFH",$id,$id,$pid); ?>
                 </div>
               </div>
             </div>

@@ -1322,142 +1322,184 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
     } elseif ($zone =="ALL") {
         echo priors_select($zone,$orig_id,$id_to_show,$pid);
         return;
-    } elseif ($zone =="VISION") {
-
-       require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
+    } elseif ($zone =="PMSFH") {
+        require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
         require_once($GLOBALS['srcdir'].'/options.inc.php');
          // Check authorization.
         if (acl_check('patients','med')) {
-          $tmp = getPatientData($pid);
-      }
-         // Collect parameter(s)
-         $category = empty($_REQUEST['category']) ? '' : $_REQUEST['category'];
-    ?>
-        <div id='patient_stats' class="EXT_text borderShadow">
-
-<table>
-
-<?php
-$encount = 0;
-$lasttype = "";
-$first = 1; // flag for first section
-
-foreach ($ISSUE_TYPES as $focustype => $focustitles) {
-
-  if ($category) {
-    // Only show this category
-//    if ($focustype != $category) continue;
-  }
-
-
-  // Show header
-  $disptype = $focustitles[1];
-  if(($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable'])
-  echo "<i class='fa fa-more' onclick='top.restoreSession();dopopup(\'../../eRx.php?page=medentry\')'></i>\n";
-  else
-  echo "<tr><th style='text-align:left;text-decoration:underline;background-color:#C0C0C0;line-height:1px;'><i class='fa fa-folder-open-o' href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" . htmlspecialchars($focustype,ENT_QUOTES)  . "\")'></i>";
-  echo "  <span class='left'>" . htmlspecialchars($disptype,ENT_NOQUOTES) . "</span>\n</th></tr>";
-  //echo " <table style='margin-bottom:1em;text-align:center'>";
-
-  // collect issues
-  $condition = '';
-  if($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication')
-   $condition .= "and erx_uploaded != '1' ";
-  $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition" .
-   "ORDER BY begdate", array($pid,$focustype) );
-
-  // if no issues (will place a 'None' text vs. toggle algorithm here)
-  if (sqlNumRows($pres) < 1) {
-    if ( getListTouch($pid,$focustype) ) {
-      // Data entry has happened to this type, so can display an explicit None.
-      echo "<tr><td class='text'><b>" . htmlspecialchars( xl("None"), ENT_NOQUOTES) . "</b></td></tr>";
-    }
-    else {
-      // Data entry has not happened to this type, so can show the none selection option.
-      echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" . htmlspecialchars($focustype,ENT_QUOTES) . "' value='none' /><b>" . htmlspecialchars( xl("None"), ENT_NOQUOTES) . "</b></td></tr>";
-    }
-  }
-
-  // display issues
-  while ($row = sqlFetchArray($pres)) {
-
-    $rowid = $row['id'];
-
-    $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
-
-    $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
-      "list_id = ?", array($rowid) );
-
-    // encount is used to toggle the color of the table-row output below
-    ++$encount;
-    $bgclass = (($encount & 1) ? "bg1" : "bg2");
-
-    // look up the diag codes
-    $codetext = "";
-    if ($row['diagnosis'] != "") {
-        $diags = explode(";", $row['diagnosis']);
-        foreach ($diags as $diag) {
-            $codedesc = lookup_code_descriptions($diag);
-            $codetext .= htmlspecialchars($diag,ENT_NOQUOTES) . " (" . htmlspecialchars($codedesc,ENT_NOQUOTES) . ")<br>";
+            $tmp = getPatientData($pid);
         }
-    }
+         // Collect parameter(s)
+        $category = empty($_REQUEST['category']) ? '' : $_REQUEST['category'];
+   
+        //we want to display PMSFH in this little box...
+        //let's start to see what it will look like.
+        //let's try a 2 column approach 1st
+        //why not use the Quick Picks 2 column approach?
+        
+        //ok
+        /*
+        <div id="stats_div" name="stats_div">
+            tesy
+        </div>
+        */
+        ?>
+        <div id="PMFSH_block_1" name="PMFSH_block_1" class="QP_block borderShadow text_clinical" >
+            <?php
+            $encount = 0;
+            $lasttype = "";
+            $first = 1; // flag for first section
+            //echo "<pre>";
+            //var_dump($ISSUE_TYPES);
+            /*
+            <script type="text/javascript" language="JavaScript">
+    $("#stats_div").load("../../../interface/patient_file/summary/stats.php");
+    
+    </script>
+        </div>
+    */
+    ?><script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+    <?php
+            foreach ($ISSUE_TYPES as $focustype => $focustitles) {
+                $counter++; 
+                if ($category) {
+                    //    Only show this category
+                   if ($focustype != $category) continue;
+                }
 
-    // calculate the status
-    if ($row['outcome'] == "1" && $row['enddate'] != NULL) {
-      // Resolved
-      $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
-    }
-    else if($row['enddate'] == NULL) {
-   //   $statusCompute = htmlspecialchars( xl("Active") ,ENT_NOQUOTES);
-    }
-    else {
-   //   $statusCompute = htmlspecialchars( xl("Inactive") ,ENT_NOQUOTES);
-    }
-    $click_class='statrow';
-    if($row['erx_source']==1 && $focustype=='allergy')
-    $click_class='';
-    elseif($row['erx_uploaded']==1 && $focustype=='medication')
-    $click_class='';
-    // output the TD row of info
-    if ($row['enddate'] == NULL) {
-  //    echo " <tr class='$bgclass detail $click_class' style='color:red;font-weight:bold' id='$rowid'>\n";
-    }
-    else {
-   //   echo " <tr class='$bgclass detail $click_class' id='$rowid'>\n";
-    }
-    echo "  <td style='text-align:left'>" . htmlspecialchars($disptitle,ENT_NOQUOTES) . "</td>\n";
-  //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
-  //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
-    // both codetext and statusCompute have already been escaped above with htmlspecialchars)
- //   echo "  <td>" . $codetext . "</td>\n";
- //   echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
- //   echo "  <td class='nowrap'>";
- //   echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
- //   echo "</td>\n";
-    if ($focustype == "allergy") {
-      echo "  <td>" . htmlspecialchars($row['reaction'],ENT_NOQUOTES) . "&nbsp;</td>\n";
-    }
-    if ($GLOBALS['athletic_team']) {
-   //     echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
-    }
-    else {
-     //   echo "  <td>" . htmlspecialchars($row['referredby'],ENT_NOQUOTES) . "</td>\n";
-    }
-    //echo "  <td>" . htmlspecialchars($row['comments'],ENT_NOQUOTES) . "</td>\n";
-    //echo "  <td id='e_$rowid' class='noclick center' title='" . htmlspecialchars( xl('View related encounters'), ENT_QUOTES) . "'>";
-    //echo "  <input type='button' value='" . htmlspecialchars($ierow['count'],ENT_QUOTES) . "' class='editenc' id='" . htmlspecialchars($rowid,ENT_QUOTES) . "' />";
-    //echo "  </td>";
-    echo " </tr>\n";
-  }
-}
-echo "</table>";
-?>
+                $counter++; //at 19 lines we need to make a new row.
+                $column_length = '18';
+                if ($counter > $column_length and !$second_row) {
+                        // start a new column
+                    $second_row='1';
+                                      ?>
+                        </div>
+                        
+                        <div style="margin-left:10px;" id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" >
+                           
+                    <tr>
+                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>
+                                     <?php
+                }
+                $disptype = $focustitles[0];
+                echo '<span class="left" style="font-weight:800;">'.$disptype."</span><br />";
+                $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
+                    "ORDER BY begdate", array($pid,$focustype) );
+                echo "
+                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
+                    <tr>
+                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>";
 
-</table>
+                // if no issues (will place a 'None' text vs. toggle algorithm here)
+                if (sqlNumRows($pres) < 1) {
+                    echo  xla("None") ."<br /><br /><br /><br />";
+                    echo " </td></tr></table>";
+                    $counter = $counter+4; 
+                    continue;
+                }
 
-</Xform>
-</div> <!-- end patient_stats -->
-<?php
+                $section_count='4';
+
+              //  if ($section_count <2)
+                while ($row = sqlFetchArray($pres)) {
+                    $counter++;
+                    $section_count--;
+                    if ($counter > $column_length) {
+                        // start a new column
+                                      ?>
+                        <br /></td></tr></table></div>
+                        <br />
+                        <div id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" >
+                           <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
+                    <tr>
+                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>
+                                     <?php
+                    }
+                    $rowid = $row['id'];
+                    $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
+
+                    $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
+                      "list_id = ?", array($rowid) );
+
+                    // encount is used to toggle the color of the table-row output below
+                    ++$encount;
+                    $bgclass = (($encount & 1) ? "bg1" : "bg2");
+
+                    // look up the diag codes
+                    $codetext = "";
+                    if ($row['diagnosis'] != "") {
+                        $diags = explode(";", $row['diagnosis']);
+                        foreach ($diags as $diag) {
+                            $codedesc = lookup_code_descriptions($diag);
+                            $codetext .= xlt($diag) . " (" . xlt($codedesc) . ")<br>";
+                        }
+                    }
+
+                    // calculate the status
+                    if ($row['outcome'] == "1" && $row['enddate'] != NULL) {
+                      // Resolved
+                      $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
+                    }
+                    else if($row['enddate'] == NULL) {
+                   //   $statusCompute = htmlspecialchars( xl("Active") ,ENT_NOQUOTES);
+                    }
+                    else {
+                   //   $statusCompute = htmlspecialchars( xl("Inactive") ,ENT_NOQUOTES);
+                    }
+                    $click_class='statrow';
+                    if($row['erx_source']==1 && $focustype=='allergy')
+                    $click_class='';
+                    elseif($row['erx_uploaded']==1 && $focustype=='medication')
+                    $click_class='';
+                    // output the TD row of info
+                    if ($row['enddate'] == NULL) {
+                    //    echo " <tr class='$bgclass detail $click_class' style='color:red;font-weight:bold' id='$rowid'>\n";
+                    }
+                    else {
+                   //   echo " <tr class='$bgclass detail $click_class' id='$rowid'>\n";
+                    }
+                    echo xlt($disptitle) . "\n<br />";
+                      //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+                      //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+                        // both codetext and statusCompute have already been escaped above with htmlspecialchars)
+                     //   echo "  <td>" . $codetext . "</td>\n";
+                     //   echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
+                     //   echo "  <td class='nowrap'>";
+                     //   echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
+                     //   echo "</td>\n";
+                    if ($focustype == "allergy") {
+                      echo "  <td>" . htmlspecialchars($row['reaction'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+                    }
+                    if ($GLOBALS['athletic_team']) {
+                   //     echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
+                    }
+                    else {
+                     //   echo "  <td>" . htmlspecialchars($row['referredby'],ENT_NOQUOTES) . "</td>\n";
+                    }
+                    //echo "  <td>" . htmlspecialchars($row['comments'],ENT_NOQUOTES) . "</td>\n";
+                    //echo "  <td id='e_$rowid' class='noclick center' title='" . htmlspecialchars( xl('View related encounters'), ENT_QUOTES) . "'>";
+                    //echo "  <input type='button' value='" . htmlspecialchars($ierow['count'],ENT_QUOTES) . "' class='editenc' id='" . htmlspecialchars($rowid,ENT_QUOTES) . "' />";
+                    //echo "  </td>";
+                    
+                }
+                echo " <br /></td></tr></table>\n";
+                $counter++; 
+
+            }
+            echo '<span class="left" style="font-weight:800;">ROS</span><br />';
+            echo "
+                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
+                    <tr>
+                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>";
+
+            // if no issues (will place a 'None' text vs. toggle algorithm here)
+            if (sqlNumRows($pres) < 1) {
+                echo  xla("None") ."<br /><br /><br /><br />";
+                echo " </td></tr></table>";
+            }
+            ?>
+        </div> <!-- end patient_stats -->
+        <?php
         return;
     }
 }
