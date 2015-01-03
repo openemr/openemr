@@ -52,122 +52,20 @@ $erow = sqlQuery($query,array($pid,$encounter_date));
     
 if ($erow['form_id'] > '0') {
     formHeader("Redirecting....");
-    formJump('./view_form.php?formname=eye_mag&id='.$erow['form_id'].'&pid='.$pid);
+    formJump('./view_form.php?formname='.$form_name.'&id='.$erow['form_id'].'&pid='.$pid);
     formFooter();
     exit;
 }  else {
-    // Is this the first time Eye_Mag has been run???
-    // Check the DB for ANY records.  If none exist, we have some setup work to do...
-    $erow2 = sqlQuery("SELECT count(*) AS count FROM form_eye_mag");
-   
-    if ($erow2['count'] == 0) {
-        /**
-         *  This is what we want:
-         *   Documents(1) -> Medical Record(3) -->
-         *                                  -> Imaging  ->
-         *                                              -> FA/ICG
-         *                                              -> OCT
-         *                                              -> Optic Disc
-         *                                              -> Photos - AntSeg
-         *                                              -> Photos - External
-         *                                              -> Photos - Retina
-         *                                              -> Radiology
-         *                                              -> VF
-         *                                  -> Communication
-         *                                  -> Encounters 
-         */
-        $exists = sqlQuery("SELECT count(*) from categories where name ='Imaging' and parent = '3'");
-        if (!$exists) {
-            /**
-              * Imaging is not here, make them all...
-              * This creates the imaging and Communication categories in Administration -> Practice -> Documents 
-              * for form_eye_mag if not present.
-              */
-            $sql = "INSERT INTO categories 
-                            select (select MAX(id) from categories) + 1, 'Imaging', '', 3, rght, rght + 1 from categories 
-                            where name = 'Categories'";
-            sqlQuery($sql);  
-            $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
-            sqlQuery($sql);    
-            $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record'";
-            sqlQuery($sql);  
-
-            $sql = "INSERT INTO categories 
-                        select (select MAX(id) from categories) + 1, 'Communication', '', 3, rght, rght + 1 from categories 
-                        where name = 'Categories'";
-            sqlQuery($sql);  
-            $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
-            sqlQuery($sql);    
-            $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record'";
-            sqlQuery($sql);    
-            
-            $sql = "INSERT INTO categories 
-                        select (select MAX(id) from categories) + 1, 'Encounters', '', 3, rght, rght + 1 from categories 
-                        where name = 'Categories'";
-            sqlQuery($sql);  
-            $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
-            sqlQuery($sql);    
-            $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record'";
-            sqlQuery($sql);    
-            
-            $zone['name'] = array('FA/ICG','OCT','Optic Disc','AntSeg Photos','External Photos','Fundus','Radiology','VF','Drawings');
-            $zones[0]['CLINICAL_zone'] = "POSTSEG";
-            $zones[1]['CLINICAL_zone'] = "POSTSEG";
-            $zones[2]['CLINICAL_zone'] = "POSTSEG";
-            $zones[3]['CLINICAL_zone'] = "ANTSEG";
-            $zones[4]['CLINICAL_zone'] = "EXT";
-            $zones[5]['CLINICAL_zone'] = "POSTSEG";
-            $zones[6]['CLINICAL_zone'] = "NEURO";
-            $zones[7]['CLINICAL_zone'] = "NEURO";
-            $zones[8]['CLINICAL_zone'] = "DRAW";
-            
-            for ($i = 0; $i < count($zones); $i++) {
-                $category_value = $zones[$i]['CLINICAL_zone'];
-                $sql = "INSERT INTO categories 
-                            select (select MAX(id) from categories) + 1, 
-                            '".$zone['name'][$i]."', 
-                            '".$category_value."', 
-                            (select id from categories where name='Imaging' and parent=3), 
-                            rght, 
-                            rght + 1 
-                        from categories 
-                        where name = 'Imaging' and parent='3'";
-                sqlQuery($sql);       
-
-                $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Categories'";
-                sqlQuery($sql);    
-                $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record'";
-                sqlQuery($sql);    
-                $sql = "UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging'";
-            }
-
-            $sql = "UPDATE categories_seq SET id = (select MAX(id) from categories)";
-            sqlQuery($sql);     
-        
-            $sql = "INSERT INTO `issue_types` (`active`, `category`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show`, `ordering`) 
-                                        VALUES ('1','default','eye','Past Ocular History','POH','O','0','0','4')";
-            sqlQuery($sql);     
-            //get rid of the dental
-            //could really rewrite the whole ISSUES variable by altering this table
-            //openEMR pulls these values in from /openemr/library/lists.inc out of issue_types table
-            //just do dental for now
-            $sql = "UPDATE `issue_types` set ABBREVIATION='D',category='Dental' where singular = 'Dental'";
-            sqlQuery($sql);
-            // if we want to add Ophthalmic surgeries, this would be a spot...                      
-        } 
-    }
     $id = $erow2['count']++;
-    $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
-   
+    $newid = formSubmit($table_name, $_POST, $id, $userauthorized); 
     $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
             "user, groupname, authorized, formdir) values (";
     $sql .= "'$encounter_date'";
     $sql .= ", '$encounter','$form_name','$newid', '$pid', '$user', '$group', '$authorized', '$form_folder')";
     $answer = sqlInsert( $sql );
-    $erow['form_id'] = $newid;
  }
     formHeader("Redirecting....");
-    formJump('./view_form.php?formname='.$form_name.'&id='.$erow['form_id'].'&pid='.$pid);
+    formJump('./view_form.php?formname='.$form_name.'&id='.$newid.'&pid='.$pid);
     formFooter();
     exit;
 ?>
