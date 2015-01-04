@@ -1366,6 +1366,16 @@ $GLOBALS_METADATA = array(
       xl('Enable Audit Log Encryption')
     ),
 
+    'billing_log_option' => array(
+      xl('Billing Log Option'),
+      array(
+        '1' => xl('Billing Log Amend'),
+        '2' => xl('Billing Log Overwrite')
+      ),
+      '1',                               // default
+      xl('Billing log setting to amend or overwrite the log file.')
+    ),
+
   ),
 
   // Miscellaneous Tab
