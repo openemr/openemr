@@ -1,3 +1,65 @@
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Imaging', '', 3, rght, rght + 1 from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Communication', '', 3, rght, rght + 1 from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+INSERT INTO categories select (select MAX(id) from categories) + 1, 'Encounters', '', 3, rght, rght + 1 from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'External Photos','EXT',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'AntSeg Photos','ANTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'US/Biometry','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'Drawings','DRAW',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'VF','NEURO',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'Radiology','NEURO',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'FA/ICG','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'OCT','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'Optic Disk','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+
+INSERT INTO categories select (select MAX(id) from categories) + 1,'Fundus','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+INSERT INTO `issue_types` (`active`, `category`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show`, `ordering`) VALUES ('1','default','eye','Past Ocular History','POH','O','0','0','4');
+UPDATE `issue_types` set ABBREVIATION='D',category='Dental' where singular = 'Dental';
 CREATE TABLE IF NOT EXISTS `form_eye_mag_dispense` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `date` datetime DEFAULT NULL,
@@ -591,65 +653,3 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 ('PREFS', 'RETINA_VIEW', 'Retina View', 1, 'RETINA_VIEW', 62, '', 12),
 ('PREFS', 'NEURO_VIEW', 'Neuro View', 1, 'NEURO_VIEW', 63, '', 13);
 
-INSERT INTO categories select (select MAX(id) from categories) + 1, 'Imaging', '', 3, rght, rght + 1 from categories where name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-INSERT INTO categories select (select MAX(id) from categories) + 1, 'Communication', '', 3, rght, rght + 1 from categories where name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-INSERT INTO categories select (select MAX(id) from categories) + 1, 'Encounters', '', 3, rght, rght + 1 from categories where name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'External Photos','EXT',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'AntSeg Photos','ANTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'US/Biometry','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'Drawings','DRAW',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'VF','NEURO',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'Radiology','NEURO',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'FA/ICG','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'OCT','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'Optic Disk','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-
-INSERT INTO categories select (select MAX(id) from categories) + 1,'Fundus','POSTSEG',(select id from categories where name='Imaging' and parent=3),rght, rght + 1 from categories where name = 'Imaging' and parent='3';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Medical Record';
-UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
-UPDATE categories_seq SET id = (select MAX(id) from categories);
-INSERT INTO `issue_types` (`active`, `category`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show`, `ordering`) VALUES ('1','default','eye','Past Ocular History','POH','O','0','0','4');
-UPDATE `issue_types` set ABBREVIATION='D',category='Dental' where singular = 'Dental';
