@@ -135,8 +135,8 @@ label {
 }
 
 .HPI_text {
-    height:4.8em;
-    min-width:95%;
+    height:4.0em;
+    min-width:90%;
     max-width: 95%;
 }
 .HPI_text i {
@@ -205,10 +205,11 @@ input[type=text] {
 }
 .refraction {
     display:inline-block;
-    min-height:2.0in;
+    min-height:2.2in;
     
     border: 1.00pt solid #000000; 
     padding: 0.2in; 
+    box-sizing: content-box !important;
     box-shadow: 10px 10px 5px #888888;
     border-radius: 8px;
     margin: 5 auto;
@@ -354,6 +355,15 @@ background: #C0C0C0;
 #AmslerOD {
     value:1;
 }
+
+.HPI {
+    width:85%;
+    padding:40px;
+    text-align:center;
+}
+.TEXT_class {
+    text-align:center;
+}
 .borderShadow {
     position:relative; 
     box-shadow: 5px 5px 9px #888888;
@@ -361,11 +371,12 @@ background: #C0C0C0;
     margin-right: 4px; 
     position:relative; 
     margin-right: 4px; 
-    padding: 0.07in; 
     border: 1.00pt solid #000000; 
+    border-radius: 8px;
     background: #ffffff;
     font-family:  FontAwesome,Serif, Arial;
     font-size: 0.8em;
+    padding:6px;
 }
 .borderShadow2 {
     box-shadow: 1px 1px 1px #888888;
@@ -374,7 +385,6 @@ background: #C0C0C0;
 .vitals tr td input{
     padding: 0.2em 0.4em;
     display: inline-block;
-    vertical-align:top;
 }
 
 .customers {
@@ -474,6 +484,7 @@ body
     width: 453px; 
     margin: 5 auto ;
     font-size:1.0em;
+    padding:10px;
 }
 .exam_section_left b {
     font-size:1.1em;
@@ -491,7 +502,7 @@ body
     min-height:335px;
     width: 453px; 
     text-align:center;
-    margin:5 auto 0 5 ;
+    margin:5 auto;
     font-size:1.0em;
 }
 textarea.EXTTEXT {
@@ -894,12 +905,13 @@ height: 14px;
     }
     .wide_textarea {
         position:absolute;
-        width:93%;
+        width:96%;
         top:0.4in;
         left:0.1in;
         font-weight:bold;
         text-align:center;
         margin:auto;
+        padding: 5px;
     }
     .wide_textarea textarea{
         width:1.8in;
@@ -908,8 +920,18 @@ height: 14px;
         height: 0.44in;
         font-size:0.9em;
     }
+    .wide_textarea th {
+        text-align:center;
+    }
+    
+    .Clinical_header {
+        
+        width:100%;
+
+    }
     .narrow_textarea th {
         font-size:0.9em;
+        text-align:center;
     }
     .narrow_textarea {
         position:absolute;
@@ -918,6 +940,7 @@ height: 14px;
         width:2.6in;
         font-weight:bold;
         font-size:0.8em;
+        padding: 5px;
     }
     .narrow_textarea textarea {
         width:1.0in;
@@ -929,7 +952,7 @@ height: 14px;
     .closeButton2 {
         display:inline-block;
         position:absolute;
-        top:3px;
+        top:8px;
         right:24px;
     }
     .closeButton {
@@ -937,8 +960,8 @@ height: 14px;
         float:right;
         /*background:url('http://cdn-sg1.pgimgs.com/images/pg/close-button.png') no-repeat center center;*/
         position:absolute;
-        top:3px;
-        right:4px;
+        top:8px;
+        right:8px;
         padding-left: 10px;
         /*border:1.5px solid #000;
         border-radius: 50%;

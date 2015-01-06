@@ -58,21 +58,12 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
     $selected='';
     $current='';
     if (!$priors) {
-        $query="select form_encounter.date as encounter_date, form_eye_mag.* 
-                    from form_eye_mag,forms,form_encounter 
-                    where 
-                    form_encounter.encounter =? and 
-                    form_encounter.encounter = forms.encounter and 
-                    form_eye_mag.id=forms.form_id and
-                    forms.deleted != '1' and 
-                    form_eye_mag.pid=? ";        
-                   
-        //$objQuery =sqlQuery($query,array($encounter,$pid));
         $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id, form_eye_mag.* 
                     from form_eye_mag,forms,form_encounter 
                     where 
                     form_encounter.encounter = forms.encounter and 
                     form_eye_mag.id=forms.form_id and
+                    forms.form_name ='".$form_folder."' and 
                     forms.deleted != '1' and 
                     forms.pid =form_eye_mag.pid and form_eye_mag.pid=? ORDER BY encounter_date DESC";
         $result = sqlStatement($query,array($pid));
@@ -1353,13 +1344,14 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
             //var_dump($ISSUE_TYPES);
             /*
             <script type="text/javascript" language="JavaScript">
-    $("#stats_div").load("../../../interface/patient_file/summary/stats.php");
+            $("#stats_div").load("../../../interface/patient_file/summary/stats.php");
     
-    </script>
-        </div>
-    */
-    ?><script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
-    <?php
+            </script>
+                </div>
+            */
+            ?><script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+            <?php
+                    
             foreach ($ISSUE_TYPES as $focustype => $focustitles) {
                 $counter++; 
                 if ($category) {
@@ -1373,13 +1365,10 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                         // start a new column
                     $second_row='1';
                                       ?>
-                        </div>
-                        
-                        <div style="margin-left:10px;" id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" >
-                           
-                    <tr>
-                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>
-                                     <?php
+            </div>
+                
+            <div style="margin-left:10px;" id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" >
+                             <?php
                 }
                 $disptype = $focustitles[0];
                 echo '<span class="left" style="font-weight:800;">'.$disptype."</span><br />";
@@ -1499,7 +1488,128 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
             }
             ?>
         </div> <!-- end patient_stats -->
+
+<?php 
+/*
+        <!-- Trial of left menu -->
+
+            <script type="text/javascript">
+
+                //Nested Side Bar Menu (Mar 20th, 09)
+                //By Dynamic Drive: http://www.dynamicdrive.com/style/
+
+                var menuids=["sidebarmenu1"] //Enter id(s) of each Side Bar Menu's main UL, separated by commas
+
+                function initsidebarmenu(){
+                for (var x=0; x<menuids.length; x++){
+                  var ultags=document.getElementById(menuids[x]).getElementsByTagName("ul")
+                    for (var t=0; t<ultags.length; t++){
+                    ultags[t].parentNode.getElementsByTagName("a")[0].className+=" subfolderstyle"
+                  if (ultags[t].parentNode.parentNode.id==menuids[x]) //if this is a first level submenu
+                   ultags[t].style.left=ultags[t].parentNode.offsetWidth+"px" //dynamically position first level submenus to be width of main menu item
+                  else //else if this is a sub level submenu (ul)
+                    ultags[t].style.left=ultags[t-1].getElementsByTagName("a")[0].offsetWidth+"px" //position menu to the right of menu item that activated it
+                    ultags[t].parentNode.onmouseover=function(){
+                    this.getElementsByTagName("ul")[0].style.display="block"
+                    }
+                    ultags[t].parentNode.onmouseout=function(){
+                    this.getElementsByTagName("ul")[0].style.display="none"
+                    }
+                    }
+                  for (var t=ultags.length-1; t>-1; t--){ //loop through all sub menus again, and use "display:none" to hide menus (to prevent possible page scrollbars
+                  ultags[t].style.visibility="visible"
+                  ultags[t].style.display="none"
+                  }
+                  }
+                }
+
+                if (window.addEventListener)
+                window.addEventListener("load", initsidebarmenu, false)
+                else if (window.attachEvent)
+                window.attachEvent("onload", initsidebarmenu)
+
+            </script>
+
+            <div class="sidebarmenu">
+                <ul id="sidebarmenu1">
+            <?php
+     
+                    
+            foreach ($ISSUE_TYPES as $focustype => $focustitles) {
+                $counter++; 
+                if ($category) {
+                    //    Only show this category
+                   if ($focustype != $category) continue;
+                }
+
+                
+                $disptype = $focustitles[0];
+                echo '<li><span class="left" style="font-weight:800;">'.$disptype."</span><br />";
+                $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
+                    "ORDER BY begdate", array($pid,$focustype) );
+                echo "
+                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
+                    <tr>
+                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>";
+
+                // if no issues (will place a 'None' text vs. toggle algorithm here)
+                if (sqlNumRows($pres) < 1) {
+                    echo  xla("None") ."<br /><br /><br /><br />";
+                    echo " </td></tr></table></li>";
+                    $counter = $counter+4; 
+                    continue;
+                }
+
+                $section_count='4';
+
+              //  if ($section_count <2)
+                while ($row = sqlFetchArray($pres)) {
+                    $rowid = $row['id'];
+                    $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
+
+                    $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
+                      "list_id = ?", array($rowid) );
+
+                   echo xlt($disptitle) . "\n<br />";
+                      //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+                      //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+                        // both codetext and statusCompute have already been escaped above with htmlspecialchars)
+                     //   echo "  <td>" . $codetext . "</td>\n";
+                     //   echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
+                     //   echo "  <td class='nowrap'>";
+                     //   echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
+                     //   echo "</td>\n";
+                    if ($focustype == "allergy") {
+                      echo "  <td>" . htmlspecialchars($row['reaction'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+                    }
+                    
+                    
+                }
+                echo " <br /></td></tr></table></li>\n";
+                $counter++; 
+
+            }
+
+            echo '<li><span class="left" style="font-weight:800;">ROS</span><br />';
+            echo "
+                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
+                    <tr>
+                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>";
+
+            // if no issues (will place a 'None' text vs. toggle algorithm here)
+ //           if (sqlNumRows($presROS) < 1) {
+                echo  xla("None") ."<br /><br /><br /><br />";
+                echo " </td></tr></table><li>";
+   //         }
+
+                
+            ?>
+
+</ul>
+</div>
+<!-- END TRIAL LEFT MENU -->
         <?php
+        */
         return;
     }
 }
@@ -2042,7 +2152,9 @@ function display($pid,$encounter,$category_value) {
         $episode .= "<tr>
         <td class='right'><b>".$documents['zones'][$category_value][$j]['name']."</b>:&nbsp;</td>
         <td>
+            <a href='../../../controller.php?document&upload&patient_id=".$pid."&parent_id=".$documents['zones'][$category_value][$j]['id']."&'>
             <img src='../../forms/".$form_folder."/images/upload_file.png' class='little_image'>
+            </a>
         </td>
         <td>
             <img src='../../forms/".$form_folder."/images/upload_multi.png' class='little_image'>
@@ -2061,6 +2173,153 @@ function display($pid,$encounter,$category_value) {
    
     return array($documents,$episode);
 }
+
+function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
+    ?>
+
+    <div id="wrapper">
+        <!-- Navigation -->
+                <!-- Navigation -->
+   
+    <nav class="navbar navbar-default navbar-static-top navbar-fixed-top" role="navigation" style="margin-bottom: 0">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">OpenEMR</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse bg-danger" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+
+            <li class="active"><a href="#">File <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">Edit</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">View <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li> <a href="#">Text</a><i class="fa fa-paint-brush"></i></li>
+                <li><a href="#">Draw</a></li>
+                <li><a href="#">Quick Picks</a></li>
+                <li class="divider"></li>
+                <li><a href="#">More</a></li>
+                <li class="divider"></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" role="button" id="menu1" data-toggle="dropdown">Patients <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo $GLOBALS['webroot'] ?>">Patients</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">New/Search</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Summary</a></li>
+                  <li role="presentation" class="divider"></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Create Visit</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Curent</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Visit History</a></li>
+                  <li role="presentation" class="divider"></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Record Request</a></li>
+                  <li role="presentation" class="divider"></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Upload Item</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Pending Approval</a></li>
+                </ul>
+                </li>
+                <li class="dropdown">
+                
+                <a class="dropdown-toggle" role="button" id="menu1" data-toggle="dropdown">Clinical<span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Eye Exam</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Documents</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Imaging</a></li>
+                    <li role="presentation" class="divider"></li>
+                    </ul>
+                </li>
+
+              <li class="dropdown">
+                
+                <a class="dropdown-toggle" role="button" id="menu1" data-toggle="dropdown">Window <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Calendar</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Messages</a></li>
+                  <li role="presentation" class="dropdown-header">Patient/client/li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Patients</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">New/Search</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Summary</a></li>
+                  <li role="presentation" class="divider"></li>
+                  <li role="presentation" class="dropdown-header">Dropdown header 2</li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">About Us</a></li>
+                </ul>
+              </li>
+                    <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Library <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#">Upload</a></li>
+                <li><a href="../../forms/eye_mag/css/AnythingSlider/simple.php?display=fullscreen&encounter=<?php echo xla($encounter); ?>">Documents</a></li>
+                <li><a href="#">Images</a></li>
+                <li class="divider"></li>
+                <li><a href="#">More</a></li>
+                <li class="divider"></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+                <li><a href="#">Link</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+       
+
+            
+            <!-- /.navbar-top-links -->
+            
+    </nav>
+
+        <div id="page-wrapper" style="margin: 0px 0px 0px 0px;">
+
+            <div class="container">
+
+                <!-- Page Heading -->
+                <div class="row">
+                    <div class="col-lg-12" >
+                        <br />
+                 <br />
+                 <br />
+                 
+                
+                
+                
+    <?php
+}
+function menu_overhaul_bottom($pid,$encounter) {
+ ?>
+                
+            </div>
+            <!-- /.container -->
+
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+ <?php
+
+ }
 
 return ;
 ?>

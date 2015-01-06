@@ -81,7 +81,7 @@ $query="select form_encounter.date as encounter_date, form_eye_mag.* from form_e
                     form_eye_mag.id=forms.form_id and
                     forms.deleted != '1' and 
                     form_eye_mag.pid=? ";        
-                   
+                  
 $encounter_data =sqlQuery($query,array($encounter,$pid));
 @extract($encounter_data);
 
@@ -100,57 +100,19 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     <?php 
      html_header_show();  //why use this at all?
     ?>
-    
-        <script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js"></script>
-    <script type="text/javascript" src="../../../library/js/common.js"></script>
-    <script type="text/javascript" language="JavaScript">
 
-     var mypcc = '1';
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
-     function oldEvt(eventid) {
-      dlgopen('../../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 350);
-     }
-
-     function advdirconfigure() {
-       dlgopen('advancedirectives.php', '_blank', 500, 450);
-      }
-
-     function refreshme() {
-      top.restoreSession();
-      location.reload();
-     }
-
-     // Process click on Delete link.
-     function deleteme() {
-      dlgopen('../deleter.php?patient=1', '_blank', 500, 450);
-      return false;
-     }
-
-     // Called by the deleteme.php window on a successful delete.
-     function imdeleted() {
-      parent.left_nav.clearPatient();
-     }
-
-     function validate() {
-      var f = document.forms[0];
-      return true;
-     }
-
-     function newEvt() {
-      dlgopen('../../main/calendar/add_edit_event.php?patientid=1', '_blank', 550, 350);
-      return false;
-     }
-      function sendimage(pid, what) {
-     // alert('Not yet implemented.'); return false;
-     dlgopen('../upload_dialog.php?patientid=' + pid + '&file=' + what,
-      '_blank', 500, 400);
-     return false;
-      }
-    </script>
-     <!-- Add jQuery library -->
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
-   
-    <!-- Add HTML5 Draw program (for now not working) library -->
+<!-- Latest compiled JavaScript -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+           
+    <!-- Add HTML5 Draw program library -->
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/sketch.js"></script>
     
     <!-- Add Font stuff for the look and feel.  -->
@@ -158,8 +120,22 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
     <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
+     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
   </head>
   <body>
+    <?php
+    if ($display=="fullscreen") { 
+      // trial fullscreen will lead to tablet versions and bootstrap menu 
+      // this function is in php/eye_mag_functions.php
+      $output = menu_overhaul_top($pid,$encounter);
+    }
+    ?>
     <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
 
       <!-- start container for the main body of the form -->
@@ -187,7 +163,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
         <input type="hidden" name="COPY_SECTION"  id="COPY_SECTION" value="">
         <input type="hidden" name="final"  id="final" value="0">
       
-        <div id="accordion" name="accordion" class="text_clinical" style="position:absolute;">
+        <div id="accordion" name="accordion" class="text_clinical" style="position:relative;">
           
           <div style="margin: 0 auto;width:100%;text-align: center;font-size:1.0em;overflow:auto;" class="nodisplay" id="HPI_sections" 
             name="HPI_sections">   
@@ -254,27 +230,27 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 
                   </div>  
             <?php ($CLINICAL=='100') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
-            <div id="HPI_1" name="HPI_1" class="<?php echo attr($display_Add); ?>">
-              <div id="HPI_left" name="HPI_left" class="exam_section_left borderShadow" >
+            <div id="HPI_1" name="HPI_1" class="HPI" extra="<?php echo attr($display_Add); ?>">
+              <div id="HPI_left" name="HPI_left" class="HPI borderShadow" >
                 <?php display_draw_section ("HPI",$encounter,$pid); ?>
-                <div id="HPI_left_text" nam="HPI_left_text"  class="TEXT_class">
+                <div id="HPI_left_text" name="HPI_left_text"  class="TEXT_class">
                   <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
                   
-                  <table border="0" width="100%" cellspacing="0" cellpadding="0" style="min-height: 2.5in;text-align:left;font-size:0.8em;">
+                  <table border="0" width="100%" cellspacing="0" cellpadding="0" style="min-height: 2.0in;text-align:left;font-size:1.1em;">
                     <tr>
-                      <td class="right up" style="vertical-align:top;padding-right:10px;">
-                        <b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('CC'); ?>:
+                      <td class="" style="vertical-align:top;padding:10px;" colspan="2">
+                        <b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('Chief Complaint'); ?>:
                         </span>  </b>
-                      </td>    
-                      <td><textarea name="CC1" id="CC1" class="HPI_text"><?php echo text($CC1); ?></textarea></td>
+                     <br />
+                      <textarea name="CC1" id="CC1" class="HPI_text"><?php echo text($CC1); ?></textarea></td>
                     </tr> 
                     <tr>
-                      <td class="right" style="vertical-align:top;padding-right:10px;">
+                      <td class="" style="vertical-align:top;padding:10px;">
                         <span title="<?php echo xla('History of Present Illness:  A detailed HPI may be completed by using 
                     either four or more HPI elements OR the status of three chronic or inactive problems.'); ?>" style="height:1in;font-weight:600;vertical-align:text-top;"><?php echo xlt('HPI'); ?>:
                         </span>
-                      </td>    
-                      <td><textarea name="HPI1" id="HPI1" class="HPI_text" style="min-height:2in;max-height:2.3in;width:4.2in;"><?php echo text($HPI1); ?></textarea>
+                      <br />
+                      <textarea name="HPI1" id="HPI1" class="HPI_text" style="min-height:2in;max-height:2.3in;width:4.2in;"><?php echo text($HPI1); ?></textarea>
                        <br /><i onclick="toggle_visibility('HPI_build');" class="fa fa-exchange"></i>
                      
                       </td>
@@ -284,7 +260,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <?php ($display_HPI_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
                 </div>
               </div>
-              <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow">
+              <div id="HPI_right" name="HPI_right" class="nodisplay exam_section_right borderShadow">
                 <?php display_draw_section ("PMH",$encounter,$pid); ?>
                 <div id="PMSFH_sections" name="PMSFH_sections">
                   <?php display_section("PMSFH",$id,$id,$pid); ?>
@@ -298,16 +274,16 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <i onclick="dopopup('<?php echo $_SERVER['REQUEST_URI']. '&display=fullscreen'; ?>')" class="fa fa-plus-square-o top_right"></i>
                      <?php 
           }  else { ?>
-            <i class="fa fa-close top_right" OnClick="window.close()"></i>
+            <i-class="fa fa-close top_right" OnClick="window.close()"/i>
             <?php 
           } ?>
             <br />
           <!-- start of the clinical BOX -->
-          <div style="margin: 0 auto;width:10000px;text-align: center;font-size:1.0em;" class="" id="LayerTechnical_sections_loading" 
+          <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;" class="" id="LayerTechnical_sections_loading" 
                 name="LayerTechnical_sections_loading">
                  <i class="fa fa-spinner"></i>
           </div> 
-          <div id="LayerTechnical_sections" class="section" class="nodisplay" style="min-height:1.3in;width:100%;vertical-align:text-top;position:relative;text-align:left;">
+          <div id="LayerTechnical_sections" name="LayerTechnical_sections" class="section" class="nodisplay" style="width:100%;vertical-align:text-top;position:relative;text-align:left;">
 
                   <!-- start of the VISION BOX -->                  
                   <div id="LayerVision" class="vitals" style="width: 2.0in; min-height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;">
@@ -449,10 +425,10 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 
                               <tr>
                                   <td colspan=3>
-                                      <img src="../../forms/<?php echo $form_folder; ?>/images/Amsler_<?php echo attr($AMSLEROD); ?>.jpg" id="AmslerOD" style="padding:0.05in;height:0.5in;width:0.5in;" /></td>
+                                      <img src="../../forms/<?php echo $form_folder; ?>/images/Amsler_<?php echo attr($AMSLEROD); ?>.jpg" id="AmslerOD" style="margin:0.05in;height:0.45in;width:0.5in;" /></td>
                                   <td></td>
                                   <td colspan=3>
-                                      <img src="../../forms/<?php echo $form_folder; ?>/images/Amsler_<?php echo attr($AMSLEROS); ?>.jpg" id="AmslerOS" style="padding:0.05in;height:0.5in;width:0.5in;" /></td>
+                                      <img src="../../forms/<?php echo $form_folder; ?>/images/Amsler_<?php echo attr($AMSLEROS); ?>.jpg" id="AmslerOS" style="margin:0.05in;height:0.45in;width:0.5in;" /></td>
                                   </tr>
                                   <tr>
                                        <td colspan=3 style="text-align:center;">
@@ -507,13 +483,13 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                   <label for="FieldsNormal" class="input-helper input-helper--checkbox"><?php echo xlt('FTCF'); ?></label>
                                   <input id="FieldsNormal" type="checkbox" value="1" <?php echo attr($VFFTCF); ?>>
                       </div>   
-                      <div id="Lyr5.1" style="position: relative; top: 0.08in; left: 0.0in; border: none; padding: 0.05in; background: white">
-                          <table cellpadding='1' cellspacing="1" style="font-size: 0.8em;text-align:center;padding:0px;margin:auto;"> 
+                      <div id="Lyr5.1" style="position: relative; top: 0.08in; left: 0.0in; border: none; background: white">
+                          <table cellpadding='1' cellspacing="1" style="font-size: 0.8em;margin:auto;"> 
                               <tr>    
-                                  <td style="width:0.4in;" colspan="2"><b><?php echo xlt('OD'); ?></b><br /></td>
+                                  <td style="width:0.6in;" colspan="2"><b><?php echo xlt('OD'); ?></b><br /></td>
 
                                   <td style="width:0.05in;"> </td>
-                                  <td style="width:0.4in;" colspan="2"><b><?php echo xlt('OS'); ?></b></td>
+                                  <td style="width:0.6in;" colspan="2"><b><?php echo xlt('OS'); ?></b></td>
                               </tr> 
                               <tr>    
                                   <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
@@ -565,42 +541,46 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                   <label for="Pupil_normal" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
                                   <input id="Pupil_normal" type="checkbox" value="1" checked="checked">
                       </div>
-                      <div id="Lyr7.0" style="position: absolute; top: 0.3in; left: 0.1in; border: none;padding: auto;">
-                          <table cellpadding=2 cellspacing=0 style="font-size: 0.9em;"> 
+                      <div id="Lyr7.0" style="position: absolute; top: 0.3in; left: 0.15in; border: none;">
+                          <table cellpadding=2 cellspacing=1 style="font-size: 0.9em;;"> 
                               <tr>    
-                                  <th style="width:0.1in;"> 
+                                  <th style="width:0.2in;"> &nbsp;
                                   </th>
-                                  <th style="width:0.7in;padding: 0;"><?php echo xlt('size'); ?> (<?php echo xlt('mm'); ?>)
+                                  <th style="width:0.7in;padding: 0.1;"><?php echo xlt('size'); ?> (<?php echo xlt('mm'); ?>)
                                   </th>
-                                  <th style="width:0.2in;padding: 0;"><?php echo xlt('react'); ?> 
+                                  <th style="width:0.2in;padding: 0.1;"><?php echo xlt('react'); ?> 
                                   </th>
-                                  <th style="width:0.2in;padding: 0;"><?php echo xlt('APD'); ?>
+                                  <th style="width:0.2in;padding: 0.1;"><?php echo xlt('APD'); ?>
                                   </th>
                               </tr>
                               <tr>    
                                   <td><b><?php echo xlt('OD'); ?></b>
                                   </td>
                                   <td style="border-right:1pt solid black;border-bottom:1pt solid black;">
-                                      <input type="text" size=1 id ="ODPUPILSIZE1" name="ODPUPILSIZE1" style="width:0.25in;height:0.2in;" value="<?php echo attr($ODPUPILSIZE1); ?>"><font>&#8594;</font><input type="text" id ="ODPUPILSIZE2" size="1" name="ODPUPILSIZE2" style="width:0.25in;height:0.2in;" value="<?php echo attr($ODPUPILSIZE2); ?>">
+                                      <input type="text" id ="ODPUPILSIZE1" name="ODPUPILSIZE1" style="width:0.25in;height:0.2in;" value="<?php echo attr($ODPUPILSIZE1); ?>">
+                                      <font>&#8594;</font>
+                                      <input type="text" id ="ODPUPILSIZE2" size="1" name="ODPUPILSIZE2" style="width:0.25in;height:0.2in;" value="<?php echo attr($ODPUPILSIZE2); ?>">
                                   </td>
                                   <td style="border-left:1pt solid black;border-right:1pt solid black;border-bottom:1pt solid black;">
-                                      <input type="text" style="width:0.3in;height:0.2in;" name='ODPUPILREACTIVITY' id='ODPUPILREACTIVITY' value='<?php echo attr($ODPUPILREACTIVITY); ?>'>
+                                      <input type="text" style="margin: 0 2 0 2;width:0.3in;height:0.2in;" name='ODPUPILREACTIVITY' id='ODPUPILREACTIVITY' value='<?php echo attr($ODPUPILREACTIVITY); ?>'>
                                   </td>
                                   <td style="border-bottom:1pt solid black;">
-                                      <input type="text" style="width:0.20in;height:0.2in;" name="ODAPD" id='ODAPD' value='<?php echo attr($ODAPD); ?>'>
+                                      <input type="text" style="margin: 0 2 0 2;width:0.20in;height:0.2in;" name="ODAPD" id='ODAPD' value='<?php echo attr($ODAPD); ?>'>
                                   </td>
                               </tr>
                               <tr>    
                                   <td><b><?php echo xlt('OS'); ?></b>
                                   </td>
                                   <td style="border-right:1pt solid black;border-top:1pt solid black;">
-                                      <input type="text" size=1 name='OSPUPILSIZE1' id='OSPUPILSIZE1' style="width:0.25in;height:0.2in;" value="<?php echo attr($OSPUPILSIZE1); ?>"><font>&#8594;</font><input type="text" size="1" name="OSPUPILSIZE2" id="OSPUPILSIZE2" style="width:0.25in;height:0.2in;" value="<?php echo attr($OSPUPILSIZE2); ?>">
+                                      <input type="text" size=1 name='OSPUPILSIZE1' id='OSPUPILSIZE1' style="width:0.25in;height:0.2in;" value="<?php echo attr($OSPUPILSIZE1); ?>">
+                                      <font>&#8594;</font>
+                                      <input type="text" size="1" name="OSPUPILSIZE2" id="OSPUPILSIZE2" style="width:0.25in;height:0.2in;" value="<?php echo attr($OSPUPILSIZE2); ?>">
                                   </td>
                                   <td style="border-left:1pt solid black;border-right:1pt solid black;border-top:1pt solid black;">
-                                      <input type=text style="width:0.3in;height:0.2in;" name='OSPUPILREACTIVITY' id='OSPUPILREACTIVITY' value="<?php echo attr($OSPUPILREACTIVITY); ?>">
+                                      <input type=text style="margin: 0 2 0 2;width:0.3in;height:0.2in;" name='OSPUPILREACTIVITY' id='OSPUPILREACTIVITY' value="<?php echo attr($OSPUPILREACTIVITY); ?>">
                                   </td>
                                   <td style="border-top:1pt solid black;">
-                                      <input type="text" style="width:0.20in;height:0.2in;" name="OSAPD" id="OSAPD" value='<?php echo attr($OSAPD); ?>'>
+                                      <input type="text" style="margin: 0 2 0 2;width:0.20in;height:0.2in;" name="OSAPD" id="OSAPD" value='<?php echo attr($OSAPD); ?>'>
                                   </td>
                               </tr>
                           </table>
@@ -622,14 +602,18 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                   <td><b><?php echo xlt('OD'); ?></b>
                                   </td>
                                   <td style="border-bottom:1pt solid black;">
-                                      <input type="text" size=1 id ="DIMODPUPILSIZE1" name="DIMODPUPILSIZE1" style="width:0.25in;height:0.2in;" value='<?php echo attr($DIMODPUPILSIZE1); ?>'><font style="font-size:1.0em;">&#8594;</font><input type="text" id ="DIMODPUPILSIZE2" size=1 name="DIMODPUPILSIZE2" style="width:0.25in;height:0.2in;" value='<?php echo attr($DIMODPUPILSIZE2); ?>'>
+                                      <input type="text" size=1 id ="DIMODPUPILSIZE1" name="DIMODPUPILSIZE1" style="width:0.25in;height:0.2in;" value='<?php echo attr($DIMODPUPILSIZE1); ?>'>
+                                      <font style="font-size:1.0em;">&#8594;</font>
+                                      <input type="text" id ="DIMODPUPILSIZE2" size=1 name="DIMODPUPILSIZE2" style="width:0.25in;height:0.2in;" value='<?php echo attr($DIMODPUPILSIZE2); ?>'>
                                   </td>
                               </tr>
                               <tr>    
                                   <td ><b><?php echo xlt('OS'); ?></b>
                                   </td>
                                   <td style="border-top:1pt solid black;">
-                                      <input type="text" size=1 name="DIMOSPUPILSIZE1" id="DIMOSPUPILSIZE1" style="width:0.25in;height:0.2in;" value="<?php echo attr($DIMOSPUPILSIZE1); ?>"><font style="font-size:1.0em;">&#8594;</font><input type='text' size=1 name='DIMOSPUPILSIZE2' id='DIMOSPUPILSIZE2' style="width:0.25in;height:0.2in;" value='<?php echo attr($DIMOSPUPILSIZE2); ?>'>
+                                      <input type="text" size=1 name="DIMOSPUPILSIZE1" id="DIMOSPUPILSIZE1" style="width:0.25in;height:0.2in;" value="<?php echo attr($DIMOSPUPILSIZE1); ?>">
+                                      <font style="font-size:1.0em;">&#8594;</font>
+                                      <input type='text' size=1 name='DIMOSPUPILSIZE2' id='DIMOSPUPILSIZE2' style="width:0.25in;height:0.2in;" value='<?php echo attr($DIMOSPUPILSIZE2); ?>'>
                                   </td>
                               </tr>
                           </table>
@@ -644,19 +628,19 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
           <!-- end of the CLINICAL BOX -->
 
           <!-- start of the refraction box -->
-          <div style="margin: 0 auto;width:10000px;text-align: center;font-size:1.0em;" class="" id="EXAM_sections_loading" 
+          <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;" class="" id="EXAM_sections_loading" 
             name="REFRACTION_sections_loading">
              <i class="fa fa-spinner"></i>
           </div> 
           <div id="REFRACTION_sections" name="REFRACTION_sections" class="nodisplay" style="position:relative;text-align:center;">
             <div id="LayerVision2" style="text-align:center;" class="section" >
-                <table id="refraction_width" name="refraction_width" style="text-align:center;margin: 0 0;">
+                <table id="refraction_width" name="refraction_width" style="text-align:center;margin: 0 0;max-width: 900px;">
                     <tr>
                         <td style="text-align:center;">
                             <?php ($IOP_X ==1) ? ($display_IOP = "display") : ($display_IOP = "nodisplay"); ?>
                             <div id="LayerVision_IOP" class="refraction borderShadow <?php echo $display_IOP; ?>">
                                 <span class="closeButton fa fa-close" id="Close_W" name="Close_W"></span>
-                                <a class="closeButton2 fa fa-print" onclick="top.restoreSession();  return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=W&id=<?php echo attr($pid); ?>"></a>
+                                <a class="closeButton2 fa fa-print" onclickX="top.restoreSession();  return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=W&id=<?php echo attr($pid); ?>"></a>
                                  <table id="iopgraph" name "iopgraph" >
 
                                  </table>
@@ -680,7 +664,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><?php echo xlt('Axis'); ?></td>
                                         <td><?php echo xlt('Prism'); ?></td>
                                         <td><?php echo xlt('Acuity'); ?></td>
-                                        <td rowspan="7" class="right" style="width:150px;padding:10 0 10 0;">
+                                        <td rowspan="7" class="right" style="padding:10 0 10 0;">
                                             <b style="font-weight:600;text-decoration:underline;">Rx Type</b><br />
                                             <label for="Single" class="input-helper input-helper--checkbox"><?php echo xlt('Single'); ?></label>
                                             <input type="radio" value="0" id="Single" name="RX1" <?php if ($RX1 == '0') echo 'checked="checked"'; ?> /></span><br /><br />
@@ -693,7 +677,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td rowspan="2">Distance</td>    
+                                        <td rowspan="2">Dist</td>    
                                         <td><b><?php echo xlt('OD'); ?>:</b></td>
                                         <td><input type=text id="WODSPH" name="WODSPH"  value="<?php echo attr($WODSPH); ?>"></td>
                                         <td><input type=text id="WODCYL" name="WODCYL"  value="<?php echo attr($WODCYL); ?>"></td>
@@ -728,10 +712,11 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><input type=text id="WNEAROSPRISM" name="WNEAROSPRISM" value="<?php echo attr($WNEAROSPRISM); ?>"></td>
                                         <td><input type=text id="WNEAROSVA" name="WNEAROSVA" value="<?php echo attr($WNEAROSVA); ?>"></td>
                                     </tr>
-                                    <tr style="">
-                                        <td colspan="2" class="up" style="text-align:right;vertical-align:top;top:0px;"><b><?php echo xlt('Comments'); ?>:</b>
+                                    <tr>
+                                        <td colspan="2" style="text-align:right;vertical-align:top;top:0px;"><b><?php echo xlt('Comments'); ?>:</b>
                                         </td>
-                                        <td colspan="4" class="up" style="text-align:left;vertical-align:middle;top:0px;">
+                                        <td colspan="4" class="up" style="text-align:left;vertical-align:middle;top:0px;"></td></tr>
+                                    <tr><td colspan="8">
                                             <textarea style="width:100%;height:3.0em;" id="WCOMMENTS" name="WCOMMENTS"><?php echo text($WCOMMENTS); ?></textarea>     
                                         </td>
                                         <td colspan="2"> 
@@ -900,12 +885,12 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                             <?php ($CTL==1) ? ($display_CTL = "display") : ($display_CTL = "nodisplay"); ?>
                             <div id="LayerVision_CTL" class="refraction borderShadow <?php echo $display_CTL; ?>">
                                 <span class="closeButton fa  fa-close" id="Close_CTL" name="Close_CTL"></span>
-                                <a class="closeButton2 fa fa-print" onclick="top.restoreSession(); return false;" href="../../forms/<?php echo attr($form_folder); ?>/SpectacleRx.php?target=CTL&id=<?php echo attr($pid)?>"></a>
+                                <a class="closeButton2 fa fa-print" onclick="onclick="return dopopup('../../forms/<?php echo attr($form_folder); ?>/SpectacleRx.php?target=CTL&id=<?php echo attr($pid)?>')"></a>
                                 <table id="CTL" style="width:100%;">
                                     <th colspan="9"><?php echo xlt('Contact Lens Refraction'); ?></th>
                                     <tr>
                                         <td style="text-align:center;">
-                                            <div style="box-shadow: 1px 1px 2px #888888;border-radius: 8px; margin: 5 auto; position:inline-block; padding: 0.02in; border: 1.00pt solid #000000; ">
+                                            <div style="box-shadow: 1px 1px 2px #888888;border-radius: 8px; margin: 5 auto; position:inline-block; Xpadding: 0.02in; border: 1.00pt solid #000000; ">
                                                 <table>
                                                     <tr>
                                                         <td></td>
@@ -1145,7 +1130,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
           <!-- end reporting div -->
 
           <!-- Start of the exam selection row -->
-          <div class="section" style="text-align:center;vertical-align:top;height:40px;width:100%;">
+          <div class="section" style="text-align:center;vertical-align:top;width:100%;margin:5px;">
             <!--  <span id="EXAM_settings" name="EXAM_settings" class="bordershadow" href="#"><i class="fa fa-cog"></i>&nbsp;<?php echo xlt('Settings'); ?></span> -->
               <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="bordershadow"><i class="fa fa-newspaper-o"></i>&nbsp;<?php echo xlt('Defaults'); ?></span> 
               <span id="EXAM_CLINICAL" name="EXAM_CLINICAL" value="TEXT" class="bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
@@ -1164,7 +1149,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
           <!-- end of the exam selection row -->
 
           <!-- Start of the exam sections -->
-          <div style="margin: 0 auto;width:10000px;text-align: center;font-size:1.0em;" class="" id="EXAM_sections_loading" 
+          <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;" class="" id="EXAM_sections_loading" 
               name="EXAM_sections_loading">
                <i class="fa fa-spinner"></i>
           </div> 
@@ -1180,13 +1165,13 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                           <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_ANTSEG" name="BUTTON_DRAW_ANTSEG"></span>
                           <b><?php echo xlt('External Exam'); ?>:</b><br />
                           <div style="position:relative;float:right;top:0.2in;">
-                            <table style="text-align:center;font-weight:600;font-size:0.7em;">
+                            <table style="text-align:center;font-weight:600;font-size:0.8em;">
                                <?php 
                                   list($imaging,$episode) = display($pid,$encounter, "EXT"); 
                                   echo $episode;
                                 ?>
                             </table>
-                              <table style="text-align:center;font-weight:600;font-size:0.7em;">
+                              <table style="text-align:center;font-weight:600;font-size:0.8em;">
                                   <tr>
                                       <td></td><td><?php echo xlt('R'); ?></td><td><?php echo xlt('L'); ?></td>
                                   </tr>
@@ -1221,7 +1206,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                       <td><input type="text" size="1" name="LCNV" id="LCNV" value="<?php echo attr($LCNV); ?>"></td>
                                   </tr>
                                   <tr>
-                                      <td class="right" title="<?php echo xla('Cranial Nerve 7: Facial Nerve'); ?>""><?php echo xlt('CN VII'); ?></td>
+                                      <td class="right" title="<?php echo xla('Cranial Nerve 7: Facial Nerve'); ?>"><?php echo xlt('CN VII'); ?></td>
                                       <td><input type="text" size="1" name="RCNVII" id="RCNVII" value="<?php echo attr($RCNVII); ?>"></td>
                                       <td><input type="text" size="1" name="LCNVII" id="LCNVII" value="<?php echo attr($LCNVII); ?>"></td>
                                   </tr>
@@ -1367,34 +1352,45 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                   echo $episode;
                               ?>
                             </table>
-                              <table style="text-align:center;font-size:0.8em;font-weight:bold;"> 
+                              <table style="text-align:center;font-size:0.7em;font-weight:600;width:160px;"> 
                                   <tr >
                                       <td></td><td><?php echo xlt('R'); ?></td><td><?php echo xlt('L'); ?></td>
                                   </tr>
                                   <tr>
-                                      <td class="right" title="<?php echo xla(''); ?>"><?php echo xlt('Gonioscopy'); ?></td>
+                                      <td class="right" title="<?php echo xla('Gonioscopy'); ?>">EEEEE<?php echo xlt('Gonio'); ?> </td>
                                       <td><input  type="text" class="" name="ODGONIO" id="ODGONIO" value="<?php echo attr($ODGONIO); ?>"></td>
                                       <td><input  type="text" size="2" name="OSGONIO" id="OSGONIO" value="<?php echo attr($OSGONIO); ?>"></td>
                                   </tr>
                                   <tr>
-                                      <td class="right" title="<?php echo xla('Central Corneal Thickness'); ?>"><?php echo xlt('Pachymetry'); ?></td>
+                                      <td class="right" title="<?php echo xla('Pachymetry: Central Corneal Thickness'); ?>"><?php echo xlt('Pachy'); ?> </td>
                                       <td><input type="text" size="1" name="ODKTHICKNESS" id="ODKTHICKNESS" value="<?php echo attr($ODKTHICKNESS); ?>"></td>
                                       <td><input type="text" size="1" name="OSKTHICKNESS" id="OSKTHICKNESS" value="<?php echo attr($OSKTHICKNESS); ?>"></td>
                                   </tr>
                                   <tr>
-                                      <td class="right" title="<?php echo xla('Schirmers I (w/o anesthesia)'); ?>"><?php echo xlt('Schirmer I'); ?></td>
+                                      <td class="right" title="<?php echo xla('Schirmers I (w/o anesthesia)'); ?>"><?php echo xlt('Schirmers I'); ?> </td>
                                       <td><input type="text" size="1" name="ODSCHIRMER1" id="ODSCHIRMER1" value="<?php echo attr($ODSCHIRMER1); ?>"></td>
                                       <td><input type="text" size="1" name="OSSCHRIMER1" id="OSSCHIRMER1" value="<?php echo attr($OSSCHIRMER1); ?>"></td>
                                   </tr>
                                    <tr>
-                                      <td class="right" title="<?php echo xla('Schirmers II (w/ anesthesia)'); ?>"><?php echo xlt('Schirmer II'); ?></td>
+                                      <td class="right" title="<?php echo xla('Schirmers II (w/ anesthesia)'); ?>"><?php echo xlt('Schirners II'); ?> </td>
                                       <td><input type="text" size="1" name="ODSCHIRMER2" id="ODSCHIRMER2" value="<?php echo attr($ODSCHIRMER2); ?>"></td>
                                       <td><input type="text" size="1" name="OSSCHRIMER2" id="OSSCHIRMER2" value="<?php echo attr($OSSCHIRMER2); ?>"></td>
                                   </tr>
                                   <tr>
-                                      <td class="right" title="<?php echo xla('Tear Break Up Time'); ?>"><?php echo xlt('TBUT'); ?></td>
+                                      <td class="right" title="<?php echo xla('Tear Break Up Time'); ?>"><?php echo xlt('TBUT'); ?> </td>
                                       <td><input type="text" size="1" name="ODTBUT" id="ODTBUT" value="<?php echo attr($ODTBUT); ?>"></td>
                                       <td><input type="text" size="1" name="OSTBUT" id="OSTBUT" value="<?php echo attr($OSTBUT); ?>"></td>
+                                  </tr>
+                                  <tr style="text-align:center;">
+                                      <td style="width:59px;text-align:right;">
+                                      &nbsp;&nbsp;
+                                      </td>
+                                      <td style="width:45px;">
+                                        &nbsp;
+                                      </td>
+                                      <td style="width:45px;">
+                                        &nbsp;
+                                      </td>
                                   </tr>
                               </table>
                           </div>
@@ -1524,7 +1520,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         $href="/eye_mag/imaging.php?display=".$get;
                                   */
                                         ?>
-                          <div style="position:relative;float:right;top:0.2in;">
+                          <div style="position:relative;float:right;top:0.2in;border:0pt solid black;">
                               <table style="float:right;text-align:right;font-size:0.8em;font-weight:bold;">
                                 <?php 
                                   list($imaging,$episode) = display($pid,$encounter, "POSTSEG"); 
@@ -1532,7 +1528,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                 ?>
                               </table>
                               <br />
-                              <table style="width:50%;text-align:right;font-size:0.8em;font-weight:bold;padding:10px;margin: 5px 0px;">
+                              <table style="width:50%;text-align:right;font-size:0.8em;font-weight:bold;Xpadding:10px;margin: 5px 0px;">
                                   <tr style="text-align:center;text-decoration:underline;">
                                       <td></td>
                                       <td> <br /><?php echo xlt('OD'); ?></td><td> <br /><?php echo xlt('OS'); ?></td>
@@ -1550,7 +1546,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                   </tr>
                               </table>
                               <br />
-                              <table style="float:right;text-align:right;font-size:0.8em;font-weight:bold;padding:0px 0px 5px 10px;">
+                              <table style="float:right;text-align:right;font-size:0.8em;font-weight:bold;Xpadding:0px 0px 5px 10px;">
                                 <?php 
                                   list($imaging,$episode) = display($pid,$encounter, "NEURO"); 
                                   echo $episode;
@@ -1674,11 +1670,11 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <div id="NEURO_left" class="exam_section_left borderShadow">
                       <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_NEURO" name="BUTTON_DRAW_NEURO"></span>
                       <div class="TEXT_class" id="NEURO_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
-                          <b><?php echo xlt('Neuro'); ?>:</b><br />
-                          <div style="float:left;font-size:0.9em;">
+                          <b><?php echo xlt('Neuro'); ?>:</b>
+                          <div style="float:left;font-size:0.9em;margin-top:8px;">
                               <div id="NEURO_text_list" class="borderShadow" 
-                                      style="border:1pt solid black;float:left;width:165px;text-align:center;
-                                      margin:2 auto;font-weight:bold;">
+                                      style="border:1pt solid black;float:left;width:175px;padding:10px;text-align:center;
+                                      margin:2 2;font-weight:bold;">
                                   <table style="font-size:1.1em;font-weight:600;">
                                       <tr>
                                           <td></td><td style="text-align:center;"><?php echo xlt('OD'); ?></td><td style="text-align:center;"><?php echo xlt('OS'); ?></td></tr>
@@ -1728,13 +1724,13 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                       </tr>
                                   </table>
                               </div>
-                              <div class="borderShadow" style="position:relative;float:right;text-align:center;width:230px;">
+                              <div class="borderShadow" style="position:relative;float:right;text-align:center;width:235px;height:240px;">
                                   
-                                    <i class="fa fa-th fa-fw closeButton " id="Close_ACTMAIN" style="right:0.2em;" name="Close_ACTMAIN"></i>
+                                    <i class="fa fa-th fa-fw closeButton " id="Close_ACTMAIN" style="right:0.15in;" name="Close_ACTMAIN"></i>
                                   <table style="position:relative;float:left;font-size:1.2em;width:210px;font-weight:600;"> 
                                       <tr style="text-align:left;height:26px;vertical-align:middle;width:180px;">
                                           <td >
-                                              <span id="ACTTRIGGER" name="ACTTRIGGER" style="text-decoration:underline;"><?php echo xlt('Alternate Cover Test'); ?>:</span>
+                                              <span id="ACTTRIGGER" name="ACTTRIGGER" style="text-decoration:underline;padding-left:2px;"><?php echo xlt('Alternate Cover Test'); ?>:</span>
                                           </td>
                                           <td>
                                               <span id="ACTNORMAL_CHECK" name="ACTNORMAL_CHECK">
@@ -1744,10 +1740,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                       </tr>
                                       <tr>
                                           <td colspan="2" style="text-align:center;"> 
-                                              <div id="ACTMAIN" name="ACTMAIN" class="nodisplay ACT_TEXT" style="position:relative;z-index:1;margin 10 auto 5;">
-                                                 <br /> 
-
-                                                 <table cellpadding="0" style="position:relative;text-align:center;font-size:0.9em;margin: 7 5 10 5;border-collapse: separate;">
+                                              <div id="ACTMAIN" name="ACTMAIN" class="nodisplay ACT_TEXT" style="position:relative;z-index:1;margin auto;">
+                                                <table cellpadding="0" style="position:relative;text-align:center;font-size:0.9em;margin: 7 5 10 5;border-collapse: separate;">
                                                       <tr>
                                                           <td id="ACT_tab_SCDIST" name="ACT_tab_SCDIST" class="ACT_selected"> <?php echo xlt('scDist'); ?> </td>
                                                           <td id="ACT_tab_CCDIST" name="ACT_tab_CCDIST" class="ACT_deselected"> <?php echo xlt('ccDist'); ?> </td>
@@ -1962,7 +1956,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                       </table>
                                   </div>
                               </div>
-                              <div id="NEURO_MOTILITY" class="text_clinical borderShadow" style="float:left;font-size:0.9em;margin:3 auto;font-weight:bold;height:115px;width:165px;">
+                              <div id="NEURO_MOTILITY" class="text_clinical borderShadow" 
+                                  style="float:left;font-size:0.9em;margin:2 2;padding:10px;font-weight:bold;height:135px;width:175px;">
                                   <div>
                                       <table style="width:100%;margin:0 0 1 0;">
                                           <tr>
@@ -2432,7 +2427,14 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
       </div>
         <!-- end container for the main body of the form -->
     </form>
-
+<?php
+    if ($display=="fullscreen") { 
+      // trial fullscreen will lead to tablet versions and bootstrap menu overhaul
+      // this function is in php/eye_mag_functions.php
+      $output = menu_overhaul_bottom($pid,$encounter);
+     // echo $output;
+    }
+    ?>
     <!-- 
     // Printing this and making a report from this are two separate ways to repesent the data and deserve their own forms...
     //so leave this out for now

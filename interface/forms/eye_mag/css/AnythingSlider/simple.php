@@ -68,10 +68,7 @@
 	<link rel="shortcut icon" href="demos/images/favicon.ico" type="image/x-icon">
 	<link rel="apple-touch-icon" href="demos/images/apple-touch-icon.png">
 
-	<!-- jQuery (required) -->
-	<script type="text/javascript" src="../../../library/js/jquery-1.6.4.min.js"></script>
-   	<script>window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')</script>
-
+	
 	<!-- Demo stuff -->
 	<link rel="stylesheet" href="demos/css/page.css">
 
@@ -79,17 +76,24 @@
 	<link rel="stylesheet" href="css/anythingslider.css">
 	<script src="js/jquery.anythingslider.js"></script>
 
-	<!-- AnythingSlider optional extensions -->
-	<!-- <script src="js/jquery.anythingslider.fx.js"></script> -->
-	<!-- <script src="js/jquery.anythingslider.video.js"></script> -->
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
-	<!-- Define slider dimensions here -->
-	 <!-- jQuery -->
- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<!-- Latest compiled JavaScript -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
 
- <!-- Anything Slider optional plugins -->
+	<!-- AnythingSlider optional extensions
+	<script src="js/jquery.anythingslider.fx.js"></script> 
+	 <script src="js/jquery.anythingslider.video.js"></script>
+
+ <!-- Anything Slider optional plugins ->
  <script src="js/jquery.easing.1.2.js"></script>
-
+ -->
  <!-- Anything Slider -->
  <link href="css/anythingslider.css" rel="stylesheet">
  <script src="js/jquery.anythingslider.min.js"></script>
@@ -234,10 +238,19 @@
 	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
 	<link rel="stylesheet" href="../../../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
  	<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
+ <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 
 </head>
 
 <body id="simple">
+	<?php
+    if ($display=="fullscreen") { 
+      // trial fullscreen will lead to tablet versions and bootstrap menu overhaul
+      // this function is in php/eye_mag_functions.php
+      $output = menu_overhaul_top($pid,$encounter);
+     // echo $output;
+    }
+    ?>
 	<!-- Start Patient Identifiers -->
 	<div class="ACT_TEXT borderShadow" style="margin:0px 0px 5px 0px;padding:10px;">		
 		<table cellspacing="2" style="margin:0px 0px 5px 0px;padding:10px;" >
@@ -271,8 +284,7 @@
 		</table>
 	
 		<div style="position:absolute;margin:0 5px 10px 0; top:0.0in;text-align:right;width:75%;right:0.5in;">
-			<h1>Document Library</h1>
-		
+			
 
 			<!-- End Patient Identifiers -->
 
@@ -417,7 +429,14 @@ if ($category_id) {
 	</ul>
 
 	<!-- END AnythingSlider -->
-
+<?php
+    if ($display=="fullscreen") { 
+      // trial fullscreen will lead to tablet versions and bootstrap menu overhaul
+      // this function is in php/eye_mag_functions.php
+      $output = menu_overhaul_bottom($pid,$encounter);
+     // echo $output;
+    }
+    ?>
 </body>
 
 </html>
