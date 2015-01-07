@@ -1377,7 +1377,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                 echo "
                 <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
                     <tr>
-                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>";
+                        <td style='min-height:1.2in;min-width:1.5in;padding-left:5px;'>";
 
                 // if no issues (will place a 'None' text vs. toggle algorithm here)
                 if (sqlNumRows($pres) < 1) {
@@ -1399,9 +1399,9 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                         <br /></td></tr></table></div>
                         <br />
                         <div id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" >
-                           <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
+                           <table style='margin-bottom:20px;border:2pt solid black;max-height:1.5in;max-width:1.5in;background-color:lightgrey;font-size:0.9em;'>
                     <tr>
-                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>
+                        <td style='min-height:1.2in;min-width:1.5in;padding-left:5px;'>
                                      <?php
                     }
                     $rowid = $row['id'];
@@ -1479,7 +1479,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
             echo "
                 <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
                     <tr>
-                        <td style='min-height:1.2in;min-width:1.75in;padding-left:5px;'>";
+                        <td style='min-height:1.2in;min-width:1.5in;padding-left:5px;'>";
 
             // if no issues (will place a 'None' text vs. toggle algorithm here)
             if (sqlNumRows($pres) < 1) {
@@ -2175,51 +2175,54 @@ function display($pid,$encounter,$category_value) {
 }
 
 function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
+    global $form_folder;
     ?>
 
     <div id="wrapper">
         <!-- Navigation -->
                 <!-- Navigation -->
    
-    <nav class="navbar navbar-default navbar-static-top navbar-fixed-top" role="navigation" style="margin-bottom: 0">
+    <nav class="navbar-fixed-top navbar-custom" role="navigation" style="margin-bottom: 0">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">OpenEMR</a>
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <img src="/openemr/sites/default/images/login_logo.gif" class="little_image left">
+                                        
+            <a class="navbar-brand right" href="/openemr" style="font-size:0.8em;font-weight:600;">OpenEMR</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse bg-danger" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav">
+        <div class="navbar-custom " id="bs-example-navbar-collapse-1">
+        <ul class="navbar-nav">
 
-            <li class="active"><a href="#">File <span class="sr-only">(current)</span></a></li>
+            <li><a href="#">File <span class="sr-only">(current)</span></a></li>
             <li><a href="#">Edit</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">View <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">View <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li> <a href="#">Text</a><i class="fa fa-paint-brush"></i></li>
-                <li><a href="#">Draw</a></li>
-                <li><a href="#">Quick Picks</a></li>
+                <li id="BUTTON_TEXT_menu" class="active"> <a href="#">Text <i class="fa fa-align-right fa-clipboard-notes"></i></a></li>
+                <li><a href="#" id="BUTTON_DRAW_menu">Draw</a></li>
+                <li><a href="#"  onclick='show_QP();'>Quick Picks</a></li>
                 <li class="divider"></li>
                 <li><a href="#">More</a></li>
                 <li class="divider"></li>
                 <li><a href="#">One more separated link</a></li>
               </ul>
-            </li>
+            </li> 
             <li class="dropdown">
                 <a class="dropdown-toggle" role="button" id="menu1" data-toggle="dropdown">Patients <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo $GLOBALS['webroot'] ?>">Patients</a></li>
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">New/Search</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo $GLOBALS['webroot'] ?>"><i class="fa fa-exchange"></i> Patients </a></li>
+                  <li ><a tabindex="-1" href="#"><span class="glyphicon glyphicon-search"></span> New/Search</a> </li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Summary</a></li>
                   <li role="presentation" class="divider"></li>
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Create Visit</a></li>
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Curent</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Create Visit</a><span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span></li>
+                  <li class="active"><a role="menuitem" id="BUTTON_DRAW_menu" tabindex="-1" href="#">Curent</a></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Visit History</a></li>
                   <li role="presentation" class="divider"></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Record Request</a></li>
@@ -2243,7 +2246,7 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                 
                 <a class="dropdown-toggle" role="button" id="menu1" data-toggle="dropdown">Window <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Calendar</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#"><i class="fa fa-calendar text-error"> </i>  Calendar</a></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Messages</a></li>
                   <li role="presentation" class="dropdown-header">Patient/client/li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Patients</a></li>
@@ -2306,6 +2309,11 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                 
     <?php
 }
+
+function menu_overhaul_left($pid,$encounter) {
+
+}
+
 function menu_overhaul_bottom($pid,$encounter) {
  ?>
                 

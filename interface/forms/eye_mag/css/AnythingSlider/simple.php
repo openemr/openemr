@@ -80,7 +80,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 <!-- Latest compiled JavaScript -->
-<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>  
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -91,12 +92,12 @@
 	<script src="js/jquery.anythingslider.fx.js"></script> 
 	 <script src="js/jquery.anythingslider.video.js"></script>
 
- <!-- Anything Slider optional plugins ->
+<!-- Anything Slider optional plugins ->
  <script src="js/jquery.easing.1.2.js"></script>
  -->
- <!-- Anything Slider -->
- <link href="css/anythingslider.css" rel="stylesheet">
- <script src="js/jquery.anythingslider.min.js"></script>
+<!-- Anything Slider -->
+<link href="css/anythingslider.css" rel="stylesheet">
+<script src="js/jquery.anythingslider.min.js"></script>
 
 <link rel="stylesheet" href="css/theme-metallic.css">
 	<link rel="stylesheet" href="css/theme-minimalist-round.css">

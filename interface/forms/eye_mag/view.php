@@ -118,14 +118,15 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     <!-- Add Font stuff for the look and feel.  -->
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
-    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
-    <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
      <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+   <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
+    <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
+    
 
   </head>
   <body>
@@ -230,44 +231,39 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 
                   </div>  
             <?php ($CLINICAL=='100') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
-            <div id="HPI_1" name="HPI_1" class="HPI" extra="<?php echo attr($display_Add); ?>">
-              <div id="HPI_left" name="HPI_left" class="HPI borderShadow" >
-                <?php display_draw_section ("HPI",$encounter,$pid); ?>
-                <div id="HPI_left_text" name="HPI_left_text"  class="TEXT_class">
-                  <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
-                  
-                  <table border="0" width="100%" cellspacing="0" cellpadding="0" style="min-height: 2.0in;text-align:left;font-size:1.1em;">
-                    <tr>
-                      <td class="" style="vertical-align:top;padding:10px;" colspan="2">
-                        <b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('Chief Complaint'); ?>:
-                        </span>  </b>
-                     <br />
-                      <textarea name="CC1" id="CC1" class="HPI_text"><?php echo text($CC1); ?></textarea></td>
-                    </tr> 
-                    <tr>
-                      <td class="" style="vertical-align:top;padding:10px;">
-                        <span title="<?php echo xla('History of Present Illness:  A detailed HPI may be completed by using 
-                    either four or more HPI elements OR the status of three chronic or inactive problems.'); ?>" style="height:1in;font-weight:600;vertical-align:text-top;"><?php echo xlt('HPI'); ?>:
-                        </span>
+            <div id="HPI_1" name="HPI_1" class="<?php echo attr($display_Add); ?>">
+              <?php display_draw_section ("HPI",$encounter,$pid); ?>
+              <div id="HPI_left_text" name="HPI_left_text"  class="exam_section_left borderShadow">
+                <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
+                <table border="0" width="100%" cellspacing="0" cellpadding="0" style="min-height: 2.0in;text-align:left;font-size:1.1em;">
+                  <tr>
+                    <td class="" style="vertical-align:top;padding:10px;" colspan="2">
+                      <b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('Chief Complaint'); ?>:
+                      </span>  </b>
                       <br />
-                      <textarea name="HPI1" id="HPI1" class="HPI_text" style="min-height:2in;max-height:2.3in;width:4.2in;"><?php echo text($HPI1); ?></textarea>
-                       <br /><i onclick="toggle_visibility('HPI_build');" class="fa fa-exchange"></i>
-                     
-                      </td>
-                    </tr> 
-                  </table>
-                  <?php ($HPI_VIEW !=2) ? ($display_HPI_view = "wide_textarea") : ($display_HPI_view= "narrow_textarea");?>                                 
-                  <?php ($display_HPI_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
-                </div>
+                      <textarea name="CC1" id="CC1" class="HPI_text"><?php echo text($CC1); ?></textarea>
+                    </td>
+                  </tr> 
+                  <tr>
+                    <td class="" style="vertical-align:top;padding:10px;">
+                      <span title="<?php echo xla('History of Present Illness:  A detailed HPI may be completed by using either four or more HPI elements OR the status of three chronic or inactive problems.'); ?>" style="height:1in;font-weight:600;vertical-align:text-top;"><?php echo xlt('HPI'); ?>:
+                      </span>
+                      <br />
+                      <textarea name="HPI1" id="HPI1" class="HPI_text" style="min-height:1.5in;max-height:2.0in;width:4.2in;"><?php echo text($HPI1); ?></textarea>
+                      <br /><i onclick="toggle_visibility('HPI_build');" class="fa fa-exchange"></i>
+                    </td>
+                  </tr> 
+                </table>
+                <?php ($HPI_VIEW !=2) ? ($display_HPI_view = "wide_textarea") : ($display_HPI_view= "narrow_textarea");?>                                 
+                <?php ($display_HPI_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
               </div>
-              <div id="HPI_right" name="HPI_right" class="nodisplay exam_section_right borderShadow">
+              <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow">
                 <?php display_draw_section ("PMH",$encounter,$pid); ?>
                 <div id="PMSFH_sections" name="PMSFH_sections">
                   <?php display_section("PMSFH",$id,$id,$pid); ?>
                 </div>
               </div>
             </div>
-          </div>
           <!-- if this is in a frame, allow us to go fullscreen.  Need to hide this if fullscreen though -->  
           <?php 
           if ($display != "fullscreen") {   ?>        
@@ -885,7 +881,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                             <?php ($CTL==1) ? ($display_CTL = "display") : ($display_CTL = "nodisplay"); ?>
                             <div id="LayerVision_CTL" class="refraction borderShadow <?php echo $display_CTL; ?>">
                                 <span class="closeButton fa  fa-close" id="Close_CTL" name="Close_CTL"></span>
-                                <a class="closeButton2 fa fa-print" onclick="onclick="return dopopup('../../forms/<?php echo attr($form_folder); ?>/SpectacleRx.php?target=CTL&id=<?php echo attr($pid)?>')"></a>
+                                <a class="closeButton2 fa fa-print" onclick="return dopopup('../../forms/<?php echo attr($form_folder); ?>/SpectacleRx.php?target=CTL&id=<?php echo attr($pid)?>')"></a>
                                 <table id="CTL" style="width:100%;">
                                     <th colspan="9"><?php echo xlt('Contact Lens Refraction'); ?></th>
                                     <tr>
@@ -1196,7 +1192,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                       <td><input  type="text"  name="LCAROTID" id="LCAROTID" value="<?php echo attr($LCAROTID); ?>"></td>
                                   </tr>
                                   <tr>
-                                      <td class="right" title="<?php echo xla('Temporal Arteries'); ?>""><?php echo xlt('Temp. Art.'); ?></td>
+                                      <td class="right" title="<?php echo xla('Temporal Arteries'); ?>"><?php echo xlt('Temp. Art.'); ?></td>
                                       <td><input type="text" size="1" name="RTEMPART" id="RTEMPART" value="<?php echo attr($RTEMPART); ?>"></td>
                                       <td><input type="text" size="1" name="LTEMPART" id="LTEMPART" value="<?php echo attr($LTEMPART); ?>"></td>
                                   </tr>

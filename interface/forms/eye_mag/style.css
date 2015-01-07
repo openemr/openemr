@@ -1220,3 +1220,61 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     
     width=100%;
 }
+
+.navbar-custom {
+    background-color:#1D62F0;
+    color:black;
+    height:20px;
+
+}
+.navbar-custom, .navbar-nav > li > li:focus {
+    color: #FFF;
+    background-color: #3E76C2;
+    border-radius:8;
+    height:20px;
+    top:-0.02in;
+}
+  
+.navbar-custom ,.navbar-nav > li > a {
+    color:black; /* just changes the base font color */
+    padding:0 10 1 10;
+    margin:0;
+    height:20px; 
+}
+     
+.navbar-custom, .navbar-nav > li > a:hover, .nav > li > a:focus {
+    text-decoration: none;
+    background-color: #1C5ECF; 
+    color:#fff;
+    
+    /*padding-top:5px;*/
+   
+    /*#33aa33; <--- this is kelly green */
+}
+.navbar-custom, .navbar-nav,.nav > .active > a, .navbar-nav > .active > a:hover, .navbar-nav > .active > a:focus {
+    color: white;
+    background-color:#C9DBF2; /* Mac Menu bar background color */
+    height:20px;
+   
+}
+.dropdown-menu {
+    background-color:#C9DBF2; /* Mac Menu bar background color */
+    }
+     .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+color: #fff; /*#262626;*/
+text-decoration: none;
+background-color: #1C5ECF; /*#3E76C2;*/
+
+ }
+.navbar-brand {
+    color:red;
+    height:20px;
+    padding:0 5 0 10;
+}
+.navbar-toggle {
+    background-color:yellow;
+    height:20px;
+}
+.icon-bar {
+    background-color:purple;
+}
