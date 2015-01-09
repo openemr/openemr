@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,6 +18,10 @@ require_once("../../drugs/drugs.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/log.inc");
+
+// For logging checksums set this to true.
+define('CHECKSUM_LOGGING', true);
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
@@ -383,7 +387,7 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
 
 // Compute a current checksum of Fee Sheet data from the database.
 //
-function visitChecksum($pid, $encounter) {
+function visitChecksum($pid, $encounter, $saved=false) {
   $rowb = sqlQuery("SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
     "id, code, modifier, units, fee, authorized, provider_id, ndc_info, justify, billed" .
     "))) AS checksum FROM billing WHERE " .
@@ -394,7 +398,15 @@ function visitChecksum($pid, $encounter) {
     "))) AS checksum FROM drug_sales WHERE " .
     "pid = ? AND encounter = ?",
     array($pid, $encounter));
-  return (intval($rowb['checksum']) ^ intval($rowp['checksum']));
+  $ret = intval($rowb['checksum']) ^ intval($rowp['checksum']);
+  if (CHECKSUM_LOGGING) {
+    $comment = "Checksum = '$ret'";
+    $comment .= ", AJAX = " . (empty($_POST['running_as_ajax']) ? "false" : "true");
+    $comment .= ", Save = " . (empty($_POST['bn_save']) ? "false" : "true");
+    $comment .= ", Saved = " . ($saved ? "true" : "false");
+    newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $pid);
+  }
+  return $ret;
 }
 
 // This is just for IPPF, to indicate if the visit includes contraceptive services.
@@ -433,6 +445,10 @@ $current_checksum = visitChecksum($pid, $encounter);
 if (isset($_POST['form_checksum'])) {
   if ($_POST['form_checksum'] != $current_checksum) {
     $alertmsg = xl('Someone else has just changed this visit. Please cancel this page and try again.');
+    if (CHECKSUM_LOGGING) {
+      $comment = "CHECKSUM ERROR, expecting '{$_POST['form_checksum']}'";
+      newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $pid);
+    }
   }
 }
 
@@ -646,7 +662,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
     // In the case of running as an AJAX handler, we need to return this same
     // form with an updated checksum to properly support the invoking logic.
     // See review/js/fee_sheet_core.js for that logic.
-    $current_checksum = visitChecksum($pid, $encounter);
+    $current_checksum = visitChecksum($pid, $encounter, true);
     // Also remove form data for the newly entered lines so they are not
     // duplicated from the database.
     unset($_POST['bill']);
