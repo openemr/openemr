@@ -397,10 +397,7 @@ background: #C0C0C0;
 th {
     font-size: 1.0em;
     text-align: center;
-    padding: 0 0 10 0;
     color: black;
-    vertical-align: bottom;
-
 }
 
 td.customers  {
@@ -1220,26 +1217,24 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     
     width=100%;
 }
-
+.Draw_class {
+    padding:2px;
+}
 .navbar-custom {
     background-color:#1D62F0;
     color:black;
-    height:20px;
-
 }
 .navbar-custom, .navbar-nav > li > li:focus {
     color: #FFF;
     background-color: #3E76C2;
-    border-radius:8;
-    height:20px;
-    top:-0.02in;
+    border-radius:0;
+    top:-0.0in;
 }
   
 .navbar-custom ,.navbar-nav > li > a {
     color:black; /* just changes the base font color */
-    padding:0 10 1 10;
+    padding:0 10 0 10;
     margin:0;
-    height:20px; 
 }
      
 .navbar-custom, .navbar-nav > li > a:hover, .nav > li > a:focus {
@@ -1253,27 +1248,39 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 }
 .navbar-custom, .navbar-nav,.nav > .active > a, .navbar-nav > .active > a:hover, .navbar-nav > .active > a:focus {
     color: white;
-    background-color:#C9DBF2; /* Mac Menu bar background color */
-    height:20px;
-   
+    background-color:#C9DBF2; /* Mac Menu title bar background color */
 }
 .dropdown-menu {
-    background-color:#C9DBF2; /* Mac Menu bar background color */
-    }
-     .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
-color: #fff; /*#262626;*/
-text-decoration: none;
-background-color: #1C5ECF; /*#3E76C2;*/
-
- }
+    background-color:#dee9f7; /* Mac Menu dropdown bar background color */
+}
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+    color: #fff; /*#262626;*/
+    text-decoration: none;
+    background-color: #1C5ECF; /*#3E76C2;*/
+}
 .navbar-brand {
     color:red;
-    height:20px;
-    padding:0 5 0 10;
+    height:24px;
+    padding:2 5 0 10;
+}
+.navbar-nav > li > a {
+    padding: 10 10 5 10;
+}
+.navbar-nav > li > .dropdown-menu {
+    margin-top: 3px;
+}
+.dropdown-menuX {
+    margin-top: 5px;
+    }
+.dropdown-menu .divider {
+    height: 1px;
+    margin: 9px 0px;
+    overflow: hidden;
+    background-color: #C0C0C0; /*gba(131, 135, 146, 0.61);*/
 }
 .navbar-toggle {
     background-color:yellow;
-    height:20px;
+    height:24px;
 }
 .icon-bar {
     background-color:purple;

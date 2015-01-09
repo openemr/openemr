@@ -73,6 +73,7 @@ function submit_form(e) {
            $("#tellme").html(result);
            }
            });
+        //location.reload();
         //    refreshme();
 }
 
@@ -110,28 +111,40 @@ function update_PREFS() {
 }
 
 function show_right() {
+    $("#HPI_1").removeClass("size50").addClass("size100");
+    $("#PMH_1").removeClass("size50").addClass("size100");
     $("#EXT_1").removeClass("size50").addClass("size100");
     $("#ANTSEG_1").removeClass("size50").addClass("size100");
     $("#NEURO_1").removeClass("size50").addClass("size100");
     $("#RETINA_1").removeClass("size50").addClass("size100");
-    $("#EXT_right").removeClass("nodisplay");
-    $("#ANTSEG_right").removeClass("nodisplay");
-    $("#NEURO_right").removeClass("nodisplay");
-    $("#RETINA_right").removeClass("nodisplay");
+    $("#IMPPLAN_1").removeClass("size50").addClass("size100");
+    $("#HPI_right").show();
+    $("#PMH_right").show();
+    $("#EXT_right").show();
+    $("#ANTSEG_right").show();
+    $("#NEURO_right").show();
+    $("#RETINA_right").show();
+    $("#PMH_1").addClass("clear_both");
     $("#ANTSEG_1").addClass("clear_both");
     $("#RETINA_1").addClass("clear_both");
     $("#NEURO_1").addClass("clear_both");
     hide_PRIORS();
 }
 function hide_right() {
+    $("#HPI_1").removeClass("size100").addClass("size50");
+    $("#PMH_1").removeClass("size100").addClass("size50");
     $("#EXT_1").removeClass("size100").addClass("size50");
     $("#ANTSEG_1").removeClass("size100").addClass("size50");
     $("#NEURO_1").removeClass("size100").addClass("size50");
     $("#RETINA_1").removeClass("size100").addClass("size50");
-    $("#EXT_right").addClass("nodisplay");
-    $("#ANTSEG_right").addClass("nodisplay");
-    $("#NEURO_right").addClass("nodisplay");
-    $("#RETINA_right").addClass("nodisplay");
+    $("#IMPPLAN_1").removeClass("size100").addClass("size50");
+    $("#HPI_right").hide();
+    $("#PMH_right").hide();
+    $("#EXT_right").hide();
+    $("#ANTSEG_right").hide();
+    $("#NEURO_right").hide();
+    $("#RETINA_right").hide();
+    $("#PMH_1").removeClass("clear_both");
     $("#ANTSEG_1").removeClass("clear_both");
     $("#RETINA_1").removeClass("clear_both");
     $("#NEURO_1").removeClass("clear_both");
@@ -143,8 +156,10 @@ function show_DRAW() {
     hide_PRIORS();
     $("#LayerTechnical_sections").hide();
     $("#REFRACTION_sections").hide();
-    $("#PMSFH_sections").hide();
     $("#NEURO_1").hide();
+    $("#HPI_left").addClass('canvas');
+    $("#HPI_right").addClass('canvas').show();
+    $("#PMH_1").hide();
     $("#EXT_left").addClass('canvas');
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_left").addClass('canvas');
@@ -159,6 +174,7 @@ function show_TEXT() {
     hide_QP();
     hide_DRAW();
     hide_PRIORS();
+    $("#PMH_1").show();
     $("#NEURO_1").show();
     $(".TEXT_class").show();
 }
@@ -181,19 +197,33 @@ function show_QP() {
     hide_PRIORS();
     show_TEXT();
     show_right();
+    $("#HPI_right").addClass('canvas');
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_right").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
     $("#NEURO_right").addClass('canvas');
     $(".QP_class").show();
+    menu_select("DRAW");
 }
+
+function menu_select(zone) {
+    $("[name^='menu_']").classremove('active');
+    $("#menu_"+zone).addClass('active');
+}
+
 function hide_DRAW() {
     $(".Draw_class").hide();
+    hide_right();
     $("#LayerTechnical_sections").show();
     $("#REFRACTION_sections").show();
-    $("#PMSFH_sections").show();
+        // $("#HPI_sections").show();
+    $("#PMH_sections").show();
+        //$("#PMH_right").show();
+    $("#HPI_right").hide();
     $("#NEURO_1").show();
     $("#IMPPLAN").show();
+    $("#HPI_left").removeClass('canvas');
+    $("#HPI_right").removeClass('canvas');
     $("#EXT_left").removeClass('canvas');
     $("#EXT_right").removeClass('canvas');
     $("#RETINA_left").removeClass('canvas');
@@ -203,11 +233,8 @@ function hide_DRAW() {
 }
 function hide_QP() {
     $(".QP_class").hide();
-    $("#EXT_right").removeClass('canvas');
-    $("#ANTSEG_right").removeClass('canvas');
-    $("#RETINA_right").removeClass('canvas');
-    $("#NEURO_right").removeClass('canvas');
-}
+    $("[name$='_right']").removeClass('canvas');
+    }
 function hide_TEXT() {
     $(".TEXT_class").hide();
 }
@@ -215,10 +242,10 @@ function hide_PRIORS() {
     $(".PRIORS_class").hide();
     $("#EXT_right").removeClass("PRIORS_color");
     
-    /*  $("#PRIORS_EXT_left_text").addClass("nodisplay");
-     $("#PRIORS_ANTSEG_left_text").addClass("nodisplay");
-     $("#PRIORS_RETINA_left_text").addClass("nodisplay");
-     $("#PRIORS_NEURO_left_text").addClass("nodisplay");
+    /*  $("#PRIORS_EXT_left_text").hide();
+     $("#PRIORS_ANTSEG_left_text").hide();
+     $("#PRIORS_RETINA_left_text").hide();
+     $("#PRIORS_NEURO_left_text").hide();
      */
 }
 
@@ -271,6 +298,7 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
                   
                   }); // end ajax query	
 }
+
 function openImage() {
         //var f = document.forms[0];
         //var tmp = (keyid && f.form_key[1].checked) ? ('?enclink=' + keyid) : '';
@@ -283,15 +311,17 @@ function show_Section(section) {
     $('#'+section).appendTo('body');
 }
 $(document).ready(function() {
-                  $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
+                  $("[id^='CONSTRUCTION_']").addClass('nodisplay');
                   $("input,select,textarea,text").css("background-color","#FFF8DC");
                   $("#IOPTIME").css("background-color","#FFFFFF");
                   $("#refraction_width").css("width","8.5in");
                   $(".Draw_class").hide();
+                  $(".PRIORS_class").hide();
                   hide_DRAW();
+                  hide_right();
                   $(window).resize(function() {
                                    if (window.innerWidth >'900') {
-                                   $("#refraction_width").css("width","8.5in");
+                                   $("#refraction_width").css("width","8.9in");
                                    $("#LayerVision2").css("padding","4px");
                                    }
                                    if (window.innerWidth >'1200') {
@@ -299,8 +329,8 @@ $(document).ready(function() {
                                    $("#LayerVision2").css("padding","4px");
                                    }
                                    if (window.innerWidth >'1900') {
-                                   $("#refraction_width").css("width","16.8in");
-                                   $("#LayerVision2").css("padding","4px");
+                                   //$("#refraction_width").css("width","16.8in");
+                                   //$("#LayerVision2").css("padding","4px");
                                    }
                                    
                                    });
@@ -523,7 +553,10 @@ $(document).ready(function() {
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });
-                  
+                  $("[name^='menu_']").click(function() {
+                                             $("[name^='menu_']").removeClass('active');
+                                             $(this).addClass('active');
+                                             });
                   $("input,textarea,text,checkbox").change(function(){
                                                            $(this).css("background-color","#F0F8FF");
                                                            submit_form($(this));
@@ -1092,11 +1125,11 @@ $(document).ready(function() {
                                             //we want to show text_only which are found on left half
                                             $("#PREFS_CLINICAL").val('1');
                                             $("#PREFS_EXAM").val('TEXT');
-                                            show_TEXT();
                                             // also hide QP, DRAWs, and PRIORS
                                             hide_PRIORS();
                                             hide_DRAW();
                                             hide_QP();
+                                            show_TEXT();
                                             update_PREFS();
                                             }
                                             $("#EXAM_DRAW").removeClass('button_selected');
@@ -1272,14 +1305,15 @@ $(document).ready(function() {
                                            $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
                                            });
                 window.addEventListener("beforeunload", function () {
-                                        $("#final").val('1');
+                                          $("#final").val('1');
                                         //submit_form("final");
-                                        refreshme();
+                                        //location.reload();
+                                        //refreshme();
                                         //parent.frames['RBot'].location.reload();
                                         // alert("the url of the top is" + top.location.href + "\nand not the url of this one is " + window.location.href );
                                        });
-                  $("[name$='_loading']").addClass('nodisplay');
-                  $("[name$='_sections']").removeClass('nodisplay');
+                  $("[name$='_loading']").hide();
+                  $("[name$='_sections']").show();
                   
                   });
 

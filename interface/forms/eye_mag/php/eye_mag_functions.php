@@ -1639,7 +1639,7 @@ function display_draw_section ($zone,$encounter,$pid,$side ='OU') {
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
         <span class="closeButton fa fa-file-text-o" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
 
-        <div class="tools" style="text-align:center;left:0.02in;width:90%;">
+        <div class="tools" style="text-align:center;width:95%;">
             <a href="#Sketch_<?php echo attr($zone); ?>" data-color="#f00" > &nbsp;&nbsp;</a>
             <a style="width: 5px; background: yellow;" data-color="#ff0" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
             <a style="width: 5px; background: red;" data-color="red" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
@@ -1655,12 +1655,13 @@ function display_draw_section ($zone,$encounter,$pid,$side ='OU') {
             <a style="background: #CCC" data-size="15" href="#Sketch_<?php echo attr($zone); ?>"><?php echo xlt('15'); ?></a>  
         </div>
         <?php 
-        //apache2 vhost config defaults to deny all access to documents directory directly.
-        //thus we need to move from this directory, elsewhere?
-        //No, ext access to all is not hippa compliant
-        // we need a better way to serve the document
-        //perhaps just like all the other documents from documents.php?
-        //find the document_id by the filename
+        /** apache2 vhost config defaults to deny all access to documents directory directly.
+          * Thus we need to move from this directory, elsewhere?
+          * No, ext access to all is not hippa compliant.
+          * We need a better way to serve the document.
+          * perhaps just like all the other documents from documents.php?
+          * Find the document_id by the filename...
+          */
 
             $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter."/".$side."_".$zone."_VIEW.png";
             $sql = "SELECT * from documents where url='file://".$file_location."'";
@@ -1672,7 +1673,7 @@ function display_draw_section ($zone,$encounter,$pid,$side ='OU') {
                 $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone."_BASE.png?".rand();
             }
         ?>
-        <canvas id="Sketch_<?php echo attr($zone); ?>" class="borderShadow2" style="background: url(<?php echo attr($filetoshow); ?>)  no-repeat center center;background-size: 100% 100%;padding:0in;margin: 0.1in;"></canvas>
+        <canvas id="Sketch_<?php echo attr($zone); ?>" class="borderShadow2" style="background: url(<?php echo attr($filetoshow); ?>)  no-repeat center center;background-size: 100% 100%;"></canvas>
         <script type="text/javascript">
             $(function() {
                 $('canvas').attr('height', '250px'); 
@@ -2191,9 +2192,7 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <img src="/openemr/sites/default/images/login_logo.gif" class="little_image left">
-                                        
-            <a class="navbar-brand right" href="/openemr" style="font-size:0.8em;font-weight:600;">OpenEMR</a>
+            <a class="navbar-brand right" href="/openemr" style="font-size:0.8em;font-weight:600;">OpenEMR <img src="/openemr/sites/default/images/login_logo.gif" class="little_image left"></a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -2205,24 +2204,29 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">View <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li id="BUTTON_TEXT_menu" class="active"> <a href="#">Text <i class="fa fa-align-right fa-clipboard-notes"></i></a></li>
-                <li><a href="#" id="BUTTON_DRAW_menu">Draw</a></li>
-                <li><a href="#"  onclick='show_QP();'>Quick Picks</a></li>
+                <li id="menu_TEXT" name="menu_TEXT" class="active"> <a href="#"> Text </a></li>
+                <li id="menu_DRAW" name="menu_DRAW"> <a href="#" id="BUTTON_DRAW_menu">Draw</a></li>
+                <li id="menu_QP" name="menu_QP" ><a href="#"  onclick='show_QP();'>  Quick Picks</a></li>
                 <li class="divider"></li>
-                <li><a href="#">More</a></li>
+                <li id="menu_HPI" name="menu_HPI" ><a href="#HPI_1">HPI</a></li>
+                <li id="menu_PMH" name="menu_PMH" ><a href="#PMH_1">PMH</a></li>
+                <li id="menu_EXT" name="menu_EXT" ><a href="#EXT_1">External</a></li>
+                <li id="menu_ANTSEG" name="menu_ANTSEG" ><a href="#ANTSEG_1">Anterior Segment</a></li>
+                <li id="menu_POSTSEG" name="menu_POSTSEG" ><a href="#POSTSEG_1">Posterior Segment</a></li>
+                <li id="menu_NEURO" name="menu_NEURO" ><a href="#NEURO_1">Neuro</a></li>
                 <li class="divider"></li>
-                <li><a href="#">One more separated link</a></li>
+                <li id="menu_PRIORS" name="menu_PRIORS" > <a href="#">Show Priors</a></li>
               </ul>
             </li> 
             <li class="dropdown">
                 <a class="dropdown-toggle" role="button" id="menu1" data-toggle="dropdown">Patients <span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo $GLOBALS['webroot'] ?>"><i class="fa fa-exchange"></i> Patients </a></li>
-                  <li ><a tabindex="-1" href="#"><span class="glyphicon glyphicon-search"></span> New/Search</a> </li>
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Summary</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo $GLOBALS['webroot'] ?>"> Patients </a></li>
+                  <li ><a tabindex="-1" href="#">New/Search</a> </li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">  Summary</a></li>
                   <li role="presentation" class="divider"></li>
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Create Visit</a><span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span></li>
-                  <li class="active"><a role="menuitem" id="BUTTON_DRAW_menu" tabindex="-1" href="#">Curent</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Create Visit</a></span></li>
+                  <li class="active"><a role="menuitem" id="BUTTON_DRAW_menu" tabindex="-1" href="#">  Curent</a></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Visit History</a></li>
                   <li role="presentation" class="divider"></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Record Request</a></li>
@@ -2248,12 +2252,11 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                 <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#"><i class="fa fa-calendar text-error"> </i>  Calendar</a></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Messages</a></li>
-                  <li role="presentation" class="dropdown-header">Patient/client/li>
+                  <li role="presentation" class="dropdown-header">Patient/client</li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Patients</a></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">New/Search</a></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Summary</a></li>
                   <li role="presentation" class="divider"></li>
-                  <li role="presentation" class="dropdown-header">Dropdown header 2</li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">About Us</a></li>
                 </ul>
               </li>
@@ -2270,7 +2273,7 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
               </ul>
             </li>
         </ul>
-
+<!--
         <ul class="nav navbar-nav navbar-right">
                 <li><a href="#">Link</a></li>
                 <li class="dropdown">
@@ -2284,6 +2287,7 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                   </ul>
                 </li>
               </ul>
+          -->
             </div><!-- /.navbar-collapse -->
         </div><!-- /.container-fluid -->
        

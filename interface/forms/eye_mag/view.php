@@ -123,8 +123,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-   <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
     <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
     
 
@@ -138,7 +138,6 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     }
     ?>
     <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
-
       <!-- start container for the main body of the form -->
       <div class="body_top" id="form_container" name="form_container">
         <input type="hidden" name="form_id" id="form_id" value="<?php echo attr($form_id); ?>">
@@ -163,118 +162,176 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
         <input type="hidden" name="PREFS_ACT_SHOW"  id="PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW); ?>">
         <input type="hidden" name="COPY_SECTION"  id="COPY_SECTION" value="">
         <input type="hidden" name="final"  id="final" value="0">
-      
+        <!-- start      accordion div -->
         <div id="accordion" name="accordion" class="text_clinical" style="position:relative;">
-          
-          <div style="margin: 0 auto;width:100%;text-align: center;font-size:1.0em;overflow:auto;" class="nodisplay" id="HPI_sections" 
-            name="HPI_sections">   
-            <!-- start CC_HPI_PMH -->
-            <div id="HPI_build" name="HPI_build" class="nodisplay" style="position:absolute;width:450px;z-index:1000;margin: 0 auto;left:49%;text-align: center;font-size:1.0em;overflow:auto;">
-                    <div id="HPI_text_list" name="HPI_text_list" class="borderShadow  <?php echo attr($display_HPI_view); ?>  ">
-                     <span class="top_right fa fa-close" onclick="toggle_visibility('HPI_build');" ></span>
-                     <h1>HPI Engine&nbsp;</h1> &nbsp;
-                     <table border="0" cellpadding="2" class="up" style="vetical-align:text-bottom;font-size:1.1em;padding:10px;">
-                        <tr>
-                          <td class="title"><?php echo xlt('Timing'); ?>:</td>
-                          <td><i><?php echo xlt('When and how often?'); ?></i>
-                            <textarea name="TIMING1" id="TIMING1" class="HPI_text"><?php echo text($TIMING1); ?></textarea>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="title"><?php echo xlt('Context'); ?>:</td>
-                          <td><i><?php echo xlt('Does it occur in certain situations?'); ?></i>
-                            <textarea name="CONTEXT1" id="CONTEXT1" class="HPI_text"><?php echo text($CONTEXT1); ?></textarea>
-                              <br />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="title"><?php echo xlt('Severity'); ?>:</td>
-                          <td><i><?php echo xlt('How bad is it? 0-10, mild, moderate, severe?'); ?></i>
-                            <textarea name="SEVERITY1" id="SEVERITY1" class="HPI_text"><?php echo text($SEVERITY1); ?></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                          <td  class="title"><?php echo xlt('Modifying'); ?>:</td>
-                          <td><i ><?php echo xlt('Does anything makes it better? Worse?'); ?></i><textarea name="MODIFY1" id="MODIFY1" class="HPI_text"><?php echo text($MODIFY1); ?></textarea>
-                              </td>
-                        </tr>
-                        <tr>
-                          <td class="title"><?php echo xlt('Associated'); ?>:</td>
-                          <td><i><?php echo xlt('Anything else happen at the same time?'); ?></i>
-                            <textarea name="ASSOCIATED1" id="ASSOCIATED1" class="HPI_text"><?php echo text($ASSOCIATED1); ?></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                          <td class="title"><?php echo xlt('Location'); ?>:</td>
-                          <td><i><?php echo xlt('Where on your body does it occur?'); ?></i>
-                            <textarea name="LOCATION1" id="LOCATION1" class="HPI_text"><?php echo text($LOCATION1); ?></textarea>                        
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="title"><?php echo xlt('Quality'); ?>:</td>
-                          <td><i><?php echo xlt('eg. aching, burning, radiating pain'); ?></i>
-                            <textarea name="QUALITY1" id="QUALITY1" class="HPI_text"><?php echo text($QUALITY1); ?></textarea>
-                                
-                        </td>
-                        </tr> 
-                        <tr>
-                          <td class="title"><?php echo xlt('Duration'); ?>:</td>
-                          <td><i><?php echo xlt('How long does it last?'); ?></i><textarea name="DURATION1" id="DURATION1" class="HPI_text"><?php echo text($DURATION1); ?></textarea>
-                       <br />&nbsp;</td>
-                        </tr>
-                      </table>
-                      <h1></h1> &nbsp;<br />
-                      <span style="font-size:0.9em;">A detailed HPI may be completed by using either <br />
-                          four or more HPI elements OR the status of three chronic or inactive problems.</span>
-                      <br />&nbsp;
-                    </div>
-
-                  </div>  
-            <?php ($CLINICAL=='100') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
+          <!-- start    HPI Zone -->
+            <!-- start    HPI spinner -->
+          <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;overflow:auto;" class="" id="HPI_sections_loading" 
+              name="HPI_sections_loading">
+               <i class="fa fa-spinner"></i>
+          </div> 
+            <!-- end      HPI spinner -->
+            <?php ($CLINICAL =='1') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
+            <?php ($CLINICAL =='0') ? ($display_Visibility = "display") : ($display_Visibility = "nodisplay"); ?>
+            <!-- start    HPI row -->
+          <div id="HPIPMH_sections" name="HPIPMH_sections" style="margin: 0 auto;width:100%;text-align: center;font-size:1.0em;" class="nodisplay" >   
+            <!-- start    CC_HPI-->
             <div id="HPI_1" name="HPI_1" class="<?php echo attr($display_Add); ?>">
-              <?php display_draw_section ("HPI",$encounter,$pid); ?>
-              <div id="HPI_left_text" name="HPI_left_text"  class="exam_section_left borderShadow">
-                <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
-                <table border="0" width="100%" cellspacing="0" cellpadding="0" style="min-height: 2.0in;text-align:left;font-size:1.1em;">
-                  <tr>
-                    <td class="" style="vertical-align:top;padding:10px;" colspan="2">
-                      <b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('Chief Complaint'); ?>:
-                      </span>  </b>
-                      <br />
-                      <textarea name="CC1" id="CC1" class="HPI_text"><?php echo text($CC1); ?></textarea>
-                    </td>
-                  </tr> 
-                  <tr>
-                    <td class="" style="vertical-align:top;padding:10px;">
-                      <span title="<?php echo xla('History of Present Illness:  A detailed HPI may be completed by using either four or more HPI elements OR the status of three chronic or inactive problems.'); ?>" style="height:1in;font-weight:600;vertical-align:text-top;"><?php echo xlt('HPI'); ?>:
-                      </span>
-                      <br />
-                      <textarea name="HPI1" id="HPI1" class="HPI_text" style="min-height:1.5in;max-height:2.0in;width:4.2in;"><?php echo text($HPI1); ?></textarea>
-                      <br /><i onclick="toggle_visibility('HPI_build');" class="fa fa-exchange"></i>
-                    </td>
-                  </tr> 
-                </table>
-                <?php ($HPI_VIEW !=2) ? ($display_HPI_view = "wide_textarea") : ($display_HPI_view= "narrow_textarea");?>                                 
-                <?php ($display_HPI_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
-              </div>
-              <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow">
-                <?php display_draw_section ("PMH",$encounter,$pid); ?>
-                <div id="PMSFH_sections" name="PMSFH_sections">
-                  <?php display_section("PMSFH",$id,$id,$pid); ?>
+              <!-- start  HPI Left -->
+              <div id="HPI_left" name="HPI_left" class="exam_section_left borderShadow">
+                <?php display_draw_section ("HPI",$encounter,$pid); ?>
+                <div id="HPI_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
+                  <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
+                  <b><?php echo xlt('HPI'); ?>:</b><br />
+                  <table border="0" width="100%" cellspacing="0" cellpadding="0" style="min-height: 2.0in;text-align:left;font-size:1.1em;">
+                    <tr>
+                      <td class="" style="vertical-align:top;padding:10px;" colspan="2">
+                        <b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('Chief Complaint'); ?>:
+                        </span>  </b>
+                        <br />
+                        <textarea name="CC1" id="CC1" class="HPI_text"><?php echo text($CC1); ?></textarea>
+                      </td>
+                    </tr> 
+                    <tr>
+                      <td class="" style="vertical-align:top;padding:10px;">
+                        <span title="<?php echo xla('History of Present Illness:  A detailed HPI may be completed by using either four or more HPI elements OR the status of three chronic or inactive problems.'); ?>" style="height:1in;font-weight:600;vertical-align:text-top;"><?php echo xlt('HPI'); ?>:
+                        </span>
+                        <br />
+                        <textarea name="HPI1" id="HPI1" class="HPI_text" style="min-height:1.5in;max-height:2.0in;width:4.2in;"><?php echo text($HPI1); ?></textarea>
+                        <br />
+                      </td>
+                    </tr> 
+                  </table>
+                  <?php ($HPI_VIEW !=2) ? ($display_HPI_view = "wide_textarea") : ($display_HPI_view= "narrow_textarea");?>                                 
+                  <?php ($display_HPI_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
                 </div>
               </div>
+              <!-- end    HPI Left -->
+              <!-- start  HPI Right -->
+              <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow text_clinical">
+                <?php display_draw_section ("PMH",$encounter,$pid); ?>
+                <div id="PRIORS_HPI_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_HPI_left_text" class="PRIORS_class PRIORS"> 
+                  <i class="fa fa-spinner"></i>
+                </div>
+                  <!-- start    QP_HPI_Build -->
+                <div id="QP_HPI" name="QP_HPI" class="QP_class" style="text-align:left;max-height: 2.5in;overflow:auto;">
+                  <div id="HPI_text_list" name="HPI_text_list" class="<?php echo attr($display_HPI_view); ?> ">
+                    <h1>HPI Engine&nbsp;</h1> &nbsp;
+                    <table border="0" cellpadding="2" class="up" style="vetical-align:text-bottom;font-size:1.1em;padding:10px;">
+                      <tr>
+                        <td class="title"><?php echo xlt('Timing'); ?>:</td>
+                        <td><i><?php echo xlt('When and how often?'); ?></i>
+                          <textarea name="TIMING1" id="TIMING1" class="HPI_text"><?php echo text($TIMING1); ?></textarea>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="title"><?php echo xlt('Context'); ?>:</td>
+                        <td><i><?php echo xlt('Does it occur in certain situations?'); ?></i>
+                          <textarea name="CONTEXT1" id="CONTEXT1" class="HPI_text"><?php echo text($CONTEXT1); ?></textarea>
+                            <br />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="title"><?php echo xlt('Severity'); ?>:</td>
+                        <td><i><?php echo xlt('How bad is it? 0-10, mild, moderate, severe?'); ?></i>
+                          <textarea name="SEVERITY1" id="SEVERITY1" class="HPI_text"><?php echo text($SEVERITY1); ?></textarea>
+                          </td>
+                      </tr>
+                      <tr>
+                        <td  class="title"><?php echo xlt('Modifying'); ?>:</td>
+                        <td><i ><?php echo xlt('Does anything makes it better? Worse?'); ?></i><textarea name="MODIFY1" id="MODIFY1" class="HPI_text"><?php echo text($MODIFY1); ?></textarea>
+                            </td>
+                      </tr>
+                      <tr>
+                        <td class="title"><?php echo xlt('Associated'); ?>:</td>
+                        <td><i><?php echo xlt('Anything else happen at the same time?'); ?></i>
+                          <textarea name="ASSOCIATED1" id="ASSOCIATED1" class="HPI_text"><?php echo text($ASSOCIATED1); ?></textarea>
+                          </td>
+                      </tr>
+                      <tr>
+                        <td class="title"><?php echo xlt('Location'); ?>:</td>
+                        <td><i><?php echo xlt('Where on your body does it occur?'); ?></i>
+                          <textarea name="LOCATION1" id="LOCATION1" class="HPI_text"><?php echo text($LOCATION1); ?></textarea>                        
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="title"><?php echo xlt('Quality'); ?>:</td>
+                        <td><i><?php echo xlt('eg. aching, burning, radiating pain'); ?></i>
+                          <textarea name="QUALITY1" id="QUALITY1" class="HPI_text"><?php echo text($QUALITY1); ?></textarea>
+                              
+                      </td>
+                      </tr> 
+                      <tr>
+                        <td class="title"><?php echo xlt('Duration'); ?>:</td>
+                        <td><i><?php echo xlt('How long does it last?'); ?></i><textarea name="DURATION1" id="DURATION1" class="HPI_text"><?php echo text($DURATION1); ?></textarea>
+                     <br />&nbsp;</td>
+                      </tr>
+                    </table>
+                    <h1></h1> &nbsp;<br />
+                    <span style="font-size:0.9em;">A detailed HPI may be completed by using either <br />
+                        four or more HPI elements OR the status of three chronic or inactive problems.</span>
+                    <br />&nbsp;
+                  </div>
+                </div>  
+                  <!-- end      QP_HPI -->
+              </div>
+              <!-- end HPI Right -->
             </div>
-          <!-- if this is in a frame, allow us to go fullscreen.  Need to hide this if fullscreen though -->  
+          
+            <!-- end      HPI -->
+
+
+            <!-- start    PMH row -->
+            <!-- start    PMH_1 -->
+            <div id="PMH_1" name="PMH_1" class="<?php echo attr($display_Add); ?> clear_both">
+              <!-- start  HPI Left -->
+              <div id="PMH_left" name="PMH_left" class="exam_section_left borderShadow">
+                <div id="PMH_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
+                  <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_PMH" name="BUTTON_DRAW_PMH"></span>
+                  <b><?php echo xlt('PMH'); ?>:</b><br />
+                  
+                  <?php ($PMH_VIEW !=2) ? ($display_PMH_view = "wide_textarea") : ($display_PMH_view= "narrow_textarea");?>                                 
+                  <?php ($display_PMH_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
+                  <div id="PMSFH_sections" name="PMSFH_sections">
+                  <?php display_section("PMSFH",$id,$id,$pid); ?>
+                </div>
+                </div>
+              </div>
+              <!-- end    PMH Left -->
+              <!-- start  PMH Right -->
+              <div id="PMH_right" name="PMH_right" class="exam_section_right borderShadow">
+                <div id="PMH_left_text" name="PMH_left_text" style="height: 2.5in;text-align:left;" >
+                  Here we will incorporate the OpenEMR functionality to add Problems and issues.  PMH /POH /FH/ Allergies /etc
+                </div>
+                <div id="QP_PMH" name="QP_PMH" class="QP_class" style="text-align:left;max-height: 2.5in;overflow:auto;">
+                  <div id="PMH_text_list" name="PMH_text_list" class="borderShadow  <?php echo attr($display_PMH_view); ?> ">
+                    
+                    <h1>PMH Engine&nbsp;</h1> &nbsp;
+                    <h1></h1> &nbsp;<br />
+                    <span style="font-size:0.9em;">XXX Here we will incorporate the OpenEMR functionality to add Problems and issues.  PMH /POH /FH/ Allergies /etc</span>
+                    <br />&nbsp;
+                  </div>
+                </div>  
+                
+              </div>
+              <!-- end PMH Right -->
+            </div>
+          </div>
+            <!-- end      HPI -->
+
+            <!-- if this is in a frame, allow us to go fullscreen.  Need to hide this if fullscreen though -->  
           <?php 
           if ($display != "fullscreen") {   ?>        
                   <i onclick="dopopup('<?php echo $_SERVER['REQUEST_URI']. '&display=fullscreen'; ?>')" class="fa fa-plus-square-o top_right"></i>
                      <?php 
           }  else { ?>
-            <i-class="fa fa-close top_right" OnClick="window.close()"/i>
+           <!--<i class="fa fa-close top_right" OnClick="window.close()"></i>-->
             <?php 
-          } ?>
-            <br />
-          <!-- start of the clinical BOX -->
+          } 
+          ?>
+          <br />
+ 
+            <!-- start of the clinical BOX -->
           <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;" class="" id="LayerTechnical_sections_loading" 
                 name="LayerTechnical_sections_loading">
                  <i class="fa fa-spinner"></i>
@@ -621,9 +678,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   </div> 
                   <!-- end of slide down pupils_panel --> 
           </div>
-          <!-- end of the CLINICAL BOX -->
+            <!-- end of the CLINICAL BOX -->
 
-          <!-- start of the refraction box -->
+            <!-- start of the refraction box -->
           <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;" class="" id="EXAM_sections_loading" 
             name="REFRACTION_sections_loading">
              <i class="fa fa-spinner"></i>
@@ -1118,29 +1175,28 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                 </table>
             </div>
           </div>   
-          <!-- end of the refraction box -->
+            <!-- end of the refraction box -->
 
-          <!-- my reporting div for development only remove the "X" to see output from save.php-->
+            <!-- my reporting div for development only remove the "X" to see output from save.php-->
           <div id="tellmeX" name="tellmeX"></div>
+            <!-- end reporting div -->
 
-          <!-- end reporting div -->
-
-          <!-- Start of the exam selection row -->
+          <!-- Start of the exam selection/middle menu row -->
           <div class="section" style="text-align:center;vertical-align:top;width:100%;margin:5px;">
             <!--  <span id="EXAM_settings" name="EXAM_settings" class="bordershadow" href="#"><i class="fa fa-cog"></i>&nbsp;<?php echo xlt('Settings'); ?></span> -->
-              <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="bordershadow"><i class="fa fa-newspaper-o"></i>&nbsp;<?php echo xlt('Defaults'); ?></span> 
-              <span id="EXAM_CLINICAL" name="EXAM_CLINICAL" value="TEXT" class="bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
-              <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="bordershadow"><i class="fa fa-paint-brush fa-sm"> </i>&nbsp;<?php echo xlt('Draw'); ?></span>
-              <span id="EXAM_QP" name="EXAM_QP" value="QP" class="bordershadow">
-                  <i class="fa fa-shopping-cart fa-sm"> </i>&nbsp;<?php echo xlt('Quick Picks'); ?>
-              </span>
-              <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text" 
-                    class="borderShadow" sdtyle="padding-right:10px;">
-                  <?php $output = priors_select("ALL",$id,$id,$pid);
-                  if ($output !='') {  echo $output; } else { echo "First visit: No Old Records"; }
-                  ?>
-              &nbsp;</span> 
-              <br />
+            <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="bordershadow"><i class="fa fa-newspaper-o"></i>&nbsp;<?php echo xlt('Defaults'); ?></span> 
+            <span id="EXAM_CLINICAL" name="EXAM_CLINICAL" value="TEXT" class="bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
+            <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="bordershadow"><i class="fa fa-paint-brush fa-sm"> </i>&nbsp;<?php echo xlt('Draw'); ?></span>
+            <span id="EXAM_QP" name="EXAM_QP" value="QP" class="bordershadow">
+                <i class="fa fa-shopping-cart fa-sm"> </i>&nbsp;<?php echo xlt('Quick Picks'); ?>
+            </span>
+            <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text" 
+                  class="borderShadow" sdtyle="padding-right:10px;">
+                <?php $output = priors_select("ALL",$id,$id,$pid);
+                if ($output !='') {  echo $output; } else { echo "First visit: No Old Records"; }
+                ?>
+            &nbsp;</span> 
+            <br />
           </div>
           <!-- end of the exam selection row -->
 
@@ -1149,12 +1205,11 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               name="EXAM_sections_loading">
                <i class="fa fa-spinner"></i>
           </div> 
-          <div style="margin: 0 auto;width:100%;text-align: center;font-size:1.0em;" class="nodisplay" id="EXAM_sections" 
-              name="EXAM_sections">   
+          
+          <div style="margin: 0 auto;width:100%;text-align: center;font-size:1.0em;" class="nodisplay" id="EXAM_sections" name="EXAM_sections">   
               <!-- start External Exam -->
-              <?php ($CLINICAL=='100') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
-              <?php ($CLINICAL=='50') ? ($display_Visibility = "display") : ($display_Visibility = "nodisplay"); ?>
-              <div id="EXT_1" name="EXT_1" class="<?php echo attr($display_Add); ?>">
+              <div id="EXT_1" name="EXT_1" class="clear_both">
+
                   <div id="EXT_left" class="exam_section_left borderShadow" >
                       <?php display_draw_section ("VISION",$encounter,$pid); ?>
                       <div id="EXT_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
@@ -1266,7 +1321,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </div>  
                   </div>
                   
-                  <div id="EXT_right" name="EXT_right" class="exam_section_right borderShadow text_clinical <?php echo attr($display_Visibility); ?>">
+                  <div id="EXT_right" name="EXT_right" class="exam_section_right borderShadow text_clinical">
                       <?php display_draw_section ("NEURO",$encounter,$pid); ?>
                       <div id="PRIORS_EXT_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_EXT_left_text" class="PRIORS_class PRIORS"> 
                         <i classX="fa fa-spinner"></i>
@@ -1335,7 +1390,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- end External Exam -->
 
               <!-- start Anterior Segment -->
-              <div id="ANTSEG_1" class="<?php echo attr($display_Add); ?> clear_both"> 
+              <div id="ANTSEG_1" class="clear_both"> 
                   <div id="ANTSEG_left" nam="ANTSEG_left" class="exam_section_left borderShadow">
                       <?php display_draw_section ("EXT",$encounter,$pid); ?>
                       <div class="TEXT_class" id="ANTSEG_left_text" style="height: 2.5in;text-align:left;">
@@ -1353,7 +1408,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                       <td></td><td><?php echo xlt('R'); ?></td><td><?php echo xlt('L'); ?></td>
                                   </tr>
                                   <tr>
-                                      <td class="right" title="<?php echo xla('Gonioscopy'); ?>">EEEEE<?php echo xlt('Gonio'); ?> </td>
+                                      <td class="right" title="<?php echo xla('Gonioscopy'); ?>"><?php echo xlt('Gonio'); ?> </td>
                                       <td><input  type="text" class="" name="ODGONIO" id="ODGONIO" value="<?php echo attr($ODGONIO); ?>"></td>
                                       <td><input  type="text" size="2" name="OSGONIO" id="OSGONIO" value="<?php echo attr($OSGONIO); ?>"></td>
                                   </tr>
@@ -1432,7 +1487,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </div>  
                   </div>
                   
-                  <div id="ANTSEG_right" class="exam_section_right borderShadow text_clinical  <?php echo attr($display_Visibility); ?>">
+                  <div id="ANTSEG_right" class="exam_section_right borderShadow text_clinical ">
                       <div id="PRIORS_ANTSEG_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_ANTSEG_left_text" class="PRIORS_class PRIORS">                                     
                                       <i class="fa fa-spinner"></i>
                       </div>
@@ -1493,7 +1548,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- end Ant Seg -->
                      
               <!-- start Retina --> 
-              <div id="RETINA_1" class="<?php echo attr($display_Add); ?> clear_both" > 
+              <div id="RETINA_1" class="clear_both" > 
                   <div id="RETINA_left" class="exam_section_left borderShadow">
                       <?php display_draw_section ("RETINA",$encounter,$pid); ?>
                       <div class="TEXT_class" id="RETINA_left_text" name="RETINA_left_text" style="height: 2.5in;text-align:left;"> 
@@ -1594,7 +1649,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </div>
                   </div>
                   
-                  <div id="RETINA_right"class="exam_section_right borderShadow text_clinical  <?php echo attr($display_Visibility); ?>">
+                  <div id="RETINA_right" class="exam_section_right borderShadow text_clinical">
                       <div id="PRIORS_RETINA_left_text" style="height: 2.5in;text-align:left;" 
                            name="PRIORS_RETINA_left_text" 
                            class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
@@ -1662,15 +1717,13 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- end Retina -->
 
               <!-- start Neuro -->
-              <div id="NEURO_1" class="<?php echo attr($display_Add); ?> clear_both"> 
+              <div id="NEURO_1" class="clear_both"> 
                   <div id="NEURO_left" class="exam_section_left borderShadow">
                       <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_NEURO" name="BUTTON_DRAW_NEURO"></span>
-                      <div class="TEXT_class" id="NEURO_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
+                      <div class="TEXT_class" id="NEURO_left_text" name="NEURO_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
                           <b><?php echo xlt('Neuro'); ?>:</b>
                           <div style="float:left;font-size:0.9em;margin-top:8px;">
-                              <div id="NEURO_text_list" class="borderShadow" 
-                                      style="border:1pt solid black;float:left;width:175px;padding:10px;text-align:center;
-                                      margin:2 2;font-weight:bold;">
+                              <div id="NEURO_text_list" class="borderShadow" style="border:1pt solid black;float:left;width:175px;padding:10px;text-align:center;margin:2 2;font-weight:bold;">
                                   <table style="font-size:1.1em;font-weight:600;">
                                       <tr>
                                           <td></td><td style="text-align:center;"><?php echo xlt('OD'); ?></td><td style="text-align:center;"><?php echo xlt('OS'); ?></td></tr>
@@ -1720,9 +1773,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                       </tr>
                                   </table>
                               </div>
-                              <div class="borderShadow" style="position:relative;float:right;text-align:center;width:235px;height:240px;">
-                                  
-                                    <i class="fa fa-th fa-fw closeButton " id="Close_ACTMAIN" style="right:0.15in;" name="Close_ACTMAIN"></i>
+                              <div class="borderShadow" style="position:relative;float:right;text-align:center;width:235px;height:240px;">                               
+                                  <i class="fa fa-th fa-fw closeButton " id="Close_ACTMAIN" style="right:0.15in;" name="Close_ACTMAIN"></i>
                                   <table style="position:relative;float:left;font-size:1.2em;width:210px;font-weight:600;"> 
                                       <tr style="text-align:left;height:26px;vertical-align:middle;width:180px;">
                                           <td >
@@ -2330,79 +2382,79 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                           </div>
                       </div>     
                   </div>
-                  <div id="NEURO_right" class="exam_section_right borderShadow text_clinical <?php echo attr($display_Visibility); ?>">
-                      <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS">
-                              <i class="fa fa-spinner"></i>
+                  <div id="NEURO_right" class="exam_section_right borderShadow text_clinical">
+                    <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
+                    </div>
+                    <div id="QP_NEURO" name="QP_NEURO" class="QP_class" style="text-align:left;height: 2.5in;">
+                      <input type="hidden" id="NEURO_prefix" name="NEURO_prefix" value="">
+                      <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
+                          <span class="eye_button eye_button_selected" id="NEURO_prefix_off" name="NEURO_prefix_off"  onclick="$('#NEURO_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?></span>
+                          <span class="eye_button" id="NEURO_defaults" name="NEURO_defaults"><?php echo xlt('Defaults'); ?></span> 
+                          <span class="eye_button" id="NEURO_prefix_no" name="NEURO_prefix_no" onclick="$('#NEURO_prefix').val('no').trigger('change');"> <?php echo xlt('no'); ?> </span> 
+                          <span class="eye_button" id="NEURO_prefix_trace" name="NEURO_prefix_trace"  onclick="$('#NEURO_prefix').val('trace').trigger('change');"> <?php echo xlt('tr'); ?> </span> 
+                          <span class="eye_button" id="NEURO_prefix_1" names="NEURO_prefix_1"  onclick="$('#NEURO_prefix').val('+1').trigger('change');"> <?php echo xlt('+1'); ?> </span> 
+                          <span class="eye_button" id="NEURO_prefix_2" name="NEURO_prefix_2"  onclick="$('#NEURO_prefix').val('+2').trigger('change');"> <?php echo xlt('+2'); ?> </span> 
+                          <span class="eye_button" id="NEURO_prefix_3" name="NEURO_prefix_3"  onclick="$('#NEURO_prefix').val('+3').trigger('change');"> <?php echo xlt('+3'); ?> </span> 
+                          <div style="position:absolute;top:0.0in;right:0.241in;">
+                              <?php echo priors_select("NEURO",$id,$id,$pid); ?>
+                          </div>
                       </div>
-                      <div id="QP_NEURO" name="QP_NEURO" class="QP_class" style="text-align:left;height: 2.5in;">
-                        <input type="hidden" id="NEURO_prefix" name="NEURO_prefix" value="">
-                        <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
-                            <span class="eye_button eye_button_selected" id="NEURO_prefix_off" name="NEURO_prefix_off"  onclick="$('#NEURO_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?></span>
-                            <span class="eye_button" id="NEURO_defaults" name="NEURO_defaults"><?php echo xlt('Defaults'); ?></span> 
-                            <span class="eye_button" id="NEURO_prefix_no" name="NEURO_prefix_no" onclick="$('#NEURO_prefix').val('no').trigger('change');"> <?php echo xlt('no'); ?> </span> 
-                            <span class="eye_button" id="NEURO_prefix_trace" name="NEURO_prefix_trace"  onclick="$('#NEURO_prefix').val('trace').trigger('change');"> <?php echo xlt('tr'); ?> </span> 
-                            <span class="eye_button" id="NEURO_prefix_1" names="NEURO_prefix_1"  onclick="$('#NEURO_prefix').val('+1').trigger('change');"> <?php echo xlt('+1'); ?> </span> 
-                            <span class="eye_button" id="NEURO_prefix_2" name="NEURO_prefix_2"  onclick="$('#NEURO_prefix').val('+2').trigger('change');"> <?php echo xlt('+2'); ?> </span> 
-                            <span class="eye_button" id="NEURO_prefix_3" name="NEURO_prefix_3"  onclick="$('#NEURO_prefix').val('+3').trigger('change');"> <?php echo xlt('+3'); ?> </span> 
-                            <div style="position:absolute;top:0.0in;right:0.241in;">
-                                <?php echo priors_select("NEURO",$id,$id,$pid); ?>
-                            </div>
-                        </div>
-                        <div style="float:left;width:40px;text-align:left;">
+                      <div style="float:left;width:40px;text-align:left;">
 
-                        <span class="eye_button" id="NEURO_prefix_1mm" name="NEURO_prefix_1mm"  onclick="$('#NEURO_prefix').val('1mm').trigger('change');"> <?php echo xlt('1mm'); ?> </span> <br />
-                        <span class="eye_button" id="NEURO_prefix_2mm" name="NEURO_prefix_2mm"  onclick="$('#NEURO_prefix').val('2mm').trigger('change');"> <?php echo xlt('2mm'); ?> </span> <br />
-                        <span class="eye_button" id="NEURO_prefix_3mm" name="NEURO_prefix_3mm"  onclick="$('#NEURO_prefix').val('3mm').trigger('change');"> <?php echo xlt('3mm'); ?> </span> <br />
-                        <span class="eye_button" id="NEURO_prefix_4mm" name="NEURO_prefix_4mm"  onclick="$('#NEURO_prefix').val('4mm').trigger('change');"> <?php echo xlt('4mm'); ?> </span> <br />
-                        <span class="eye_button" id="NEURO_prefix_5mm" name="NEURO_prefix_5mm"  onclick="$('#NEURO_prefix').val('5mm').trigger('change');"> <?php echo xlt('5mm'); ?> </span> <br />
-                        <span class="eye_button" id="NEURO_prefix_medial" name="NEURO_prefix_medial"  onclick="$('#NEURO_prefix').val('medial').trigger('change');"><?php echo xlt('med'); ?></span>  
-                        <span class="eye_button" id="NEURO_prefix_lateral" name="NEURO_prefix_lateral"  onclick="$('#NEURO_prefix').val('lateral').trigger('change');"><?php echo xlt('lat'); ?></span> 
-                        <span class="eye_button" id="NEURO_prefix_superior" name="NEURO_prefix_superior"  onclick="$('#NEURO_prefix').val('superior').trigger('change');"><?php echo xlt('sup'); ?></span> 
-                        <span class="eye_button" id="NEURO_prefix_inferior" name="NEURO_prefix_inferior"  onclick="$('#NEURO_prefix').val('inferior').trigger('change');"><?php echo xlt('inf'); ?></span>
-                        <span class="eye_button" id="NEURO_prefix_anterior" name="NEURO_prefix_anterior"  onclick="$('#NEURO_prefix').val('anterior').trigger('change');"><?php echo xlt('ant'); ?></span>  
-                        <span class="eye_button" id="NEURO_prefix_mid" name="NEURO_prefix_mid"  onclick="$('#NEURO_prefix').val('mid').trigger('change');"><?php echo xlt('mid'); ?></span> 
-                        <span class="eye_button" id="NEURO_prefix_posterior" name="NEURO_prefix_posterior"  onclick="$('#NEURO_prefix').val('posterior').trigger('change');"><?php echo xlt('post'); ?></span> 
-                        <span class="eye_button" id="NEURO_prefix_deep" name="NEURO_prefix_deep"  onclick="$('#NEURO_prefix').val('deep').trigger('change');"><?php echo xlt('deep'); ?></span>
-                        </div>         
-                        <div id="NEURO_QP_block" name="NEURO_QP_block" class="QP_block borderShadow text_clinical" >
-                            <?php
-                              $query = "SELECT * FROM form_eye_mag_prefs where PEZONE = 'NEURO' and (id=? or id=3 ) ORDER BY ZONE_ORDER,ordering";
-                              $result = sqlStatement($query,array($_SESSION['authUserID']));
-                              $number_rows=0;
-                              while ($Select_data= sqlFetchArray($result))     {
+                      <span class="eye_button" id="NEURO_prefix_1mm" name="NEURO_prefix_1mm"  onclick="$('#NEURO_prefix').val('1mm').trigger('change');"> <?php echo xlt('1mm'); ?> </span> <br />
+                      <span class="eye_button" id="NEURO_prefix_2mm" name="NEURO_prefix_2mm"  onclick="$('#NEURO_prefix').val('2mm').trigger('change');"> <?php echo xlt('2mm'); ?> </span> <br />
+                      <span class="eye_button" id="NEURO_prefix_3mm" name="NEURO_prefix_3mm"  onclick="$('#NEURO_prefix').val('3mm').trigger('change');"> <?php echo xlt('3mm'); ?> </span> <br />
+                      <span class="eye_button" id="NEURO_prefix_4mm" name="NEURO_prefix_4mm"  onclick="$('#NEURO_prefix').val('4mm').trigger('change');"> <?php echo xlt('4mm'); ?> </span> <br />
+                      <span class="eye_button" id="NEURO_prefix_5mm" name="NEURO_prefix_5mm"  onclick="$('#NEURO_prefix').val('5mm').trigger('change');"> <?php echo xlt('5mm'); ?> </span> <br />
+                      <span class="eye_button" id="NEURO_prefix_medial" name="NEURO_prefix_medial"  onclick="$('#NEURO_prefix').val('medial').trigger('change');"><?php echo xlt('med'); ?></span>  
+                      <span class="eye_button" id="NEURO_prefix_lateral" name="NEURO_prefix_lateral"  onclick="$('#NEURO_prefix').val('lateral').trigger('change');"><?php echo xlt('lat'); ?></span> 
+                      <span class="eye_button" id="NEURO_prefix_superior" name="NEURO_prefix_superior"  onclick="$('#NEURO_prefix').val('superior').trigger('change');"><?php echo xlt('sup'); ?></span> 
+                      <span class="eye_button" id="NEURO_prefix_inferior" name="NEURO_prefix_inferior"  onclick="$('#NEURO_prefix').val('inferior').trigger('change');"><?php echo xlt('inf'); ?></span>
+                      <span class="eye_button" id="NEURO_prefix_anterior" name="NEURO_prefix_anterior"  onclick="$('#NEURO_prefix').val('anterior').trigger('change');"><?php echo xlt('ant'); ?></span>  
+                      <span class="eye_button" id="NEURO_prefix_mid" name="NEURO_prefix_mid"  onclick="$('#NEURO_prefix').val('mid').trigger('change');"><?php echo xlt('mid'); ?></span> 
+                      <span class="eye_button" id="NEURO_prefix_posterior" name="NEURO_prefix_posterior"  onclick="$('#NEURO_prefix').val('posterior').trigger('change');"><?php echo xlt('post'); ?></span> 
+                      <span class="eye_button" id="NEURO_prefix_deep" name="NEURO_prefix_deep"  onclick="$('#NEURO_prefix').val('deep').trigger('change');"><?php echo xlt('deep'); ?></span>
+                      </div>         
+                      <div id="NEURO_QP_block" name="NEURO_QP_block" class="QP_block borderShadow text_clinical" >
+                          <?php
+                            $query = "SELECT * FROM form_eye_mag_prefs where PEZONE = 'NEURO' and (id=? or id=3 ) ORDER BY ZONE_ORDER,ordering";
+                            $result = sqlStatement($query,array($_SESSION['authUserID']));
+                            $number_rows=0;
+                            while ($Select_data= sqlFetchArray($result))     {
 
-                                  $number_rows++; 
-                                  $string = $Select_data['selection'] ;
-                                  $string = (strlen($string) > 12) ? substr($string,0,12).'...' : $string;   ?>
-                                  <span >
-                                      <a class="underline QP" onclick="fill_QP_field('RETINA','OD','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>',1);"><?php echo xlt('OD'); ?></a>&nbsp;|&nbsp;
-                                      <a class="underline QP" onclick="fill_QP_field('RETINA','OS','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>',1);"><?php echo xlt('OS'); ?></a>&nbsp;|&nbsp;
-                                      <a class="underline QP" onclick="fill_QP_field('RETINA','OD','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>',2);fill_QP_field('RETINA','OS','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>',1);"><?php echo xlt('OU'); ?></a>
-                                      &nbsp;|&nbsp;
-                                  </span>
-                                  &nbsp;    <?php echo text($string); ?>
+                                $number_rows++; 
+                                $string = $Select_data['selection'] ;
+                                $string = (strlen($string) > 12) ? substr($string,0,12).'...' : $string;   ?>
+                                <span >
+                                    <a class="underline QP" onclick="fill_QP_field('RETINA','OD','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>',1);"><?php echo xlt('OD'); ?></a>&nbsp;|&nbsp;
+                                    <a class="underline QP" onclick="fill_QP_field('RETINA','OS','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>',1);"><?php echo xlt('OS'); ?></a>&nbsp;|&nbsp;
+                                    <a class="underline QP" onclick="fill_QP_field('RETINA','OD','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>',2);fill_QP_field('RETINA','OS','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>',1);"><?php echo xlt('OU'); ?></a>
+                                    &nbsp;|&nbsp;
+                                </span>
+                                &nbsp;    <?php echo text($string); ?>
 
-                                  <br />
-                                  <?
-                                  if ($number_rows==15) {
-                                      ?>
-                                      </div>
-                                      <div id="NEURO_QP_block2" name="NEURO_QP_block2" class="QP_block_outer  borderShadow text_clinical" ><?
-                                       }
-                                   if ($number_rows== 30) break;
-                              } ?>     
-                               <br /><br />
-                        </div>    
-                      </div>
-                    </div>   
-                  </div>
+                                <br />
+                                <?
+                                if ($number_rows==15) {
+                                    ?>
+                                    </div>
+                                    <div id="NEURO_QP_block2" name="NEURO_QP_block2" class="QP_block_outer  borderShadow text_clinical" ><?
+                                     }
+                                 if ($number_rows== 30) break;
+                            } ?>     
+                             <br /><br />
+                      </div>    
+                    </div>
+                  </div>   
+              </div>
               <!-- end Neuro -->
+
               <!-- start IMP/PLAN -->    
-              <br />   
-              <div id="IMPPLAN" class="<?php echo attr($display_Add); ?> clear_both"> 
-                <div id="IMPPLAN_left" class="exam_section_left borderShadow">
-                      <!-- <span class="closeButton fa fa-plus-square-o" id="MAX_IMPPLAN" name="MAX_IMPPLAN"></span> -->
-                  <div id="IMPPLAN_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
+              
+              <div id="IMPPLAN_1" class="clear_both size50"> 
+                <div id="IMPPLAN_left" name="IMPPLAN_left" class="exam_section_left borderShadow">
+                  <!-- <span class="closeButton fa fa-plus-square-o" id="MAX_IMPPLAN" name="MAX_IMPPLAN"></span> -->
+                  <div id="IMPPLAN_left_text" name="IMPPLAN_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
                     <!-- this needs work to integrate it to auto populate with CPT/ICD codes based on form inputs above -->
                      <?php echo xlt('Impression'); ?>:
                      <textarea rows=5 id="IMP" name="IMP" style="height:1.3in;width:90%;"><?php echo text($IMP); ?></textarea>
@@ -2410,8 +2462,14 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                      <textarea rows=5 id="PLAN" name="PLAN" style="height:1.3in;width:90%;"><?php echo text($PLAN); ?></textarea>
                   </div>
                 </div>
+                <div id="IMPPLAN_right" class="exam_section_right borderShadow text_clinical">
+                  <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
+                  </div>
+                  <div id="QP_NEURO" name="QP_NEURO" class="QP_class" style="text-align:left;height: 2.5in;">
+                  </div>
+                </div>   
               </div>
-              <br /><br />
+              
               <!-- END IMP/PLAN -->  
           </div>
           <!-- end of the exam section -->
@@ -2420,8 +2478,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <a style="bottom:10px;" onclick="top.restoreSession(); window.print(); return false;">Print PDF</a>
             -->       
         </div>
+        <!-- end        accordion div -->
       </div>
-        <!-- end container for the main body of the form -->
+      <!-- end container for the main body of the form -->
     </form>
 <?php
     if ($display=="fullscreen") { 
