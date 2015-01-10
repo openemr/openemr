@@ -2177,8 +2177,8 @@ function display($pid,$encounter,$category_value) {
 
 function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
     global $form_folder;
+    
     ?>
-
     <div id="wrapper">
         <!-- Navigation -->
                 <!-- Navigation -->
@@ -2198,11 +2198,33 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="navbar-custom " id="bs-example-navbar-collapse-1">
         <ul class="navbar-nav">
-
-            <li><a href="#">File <span class="sr-only">(current)</span></a></li>
-            <li><a href="#">Edit</a></li>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">View <span class="caret"></span></a>
+                <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true">File </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li id="menu_TEXT" name="menu_TEXT" class="active"> <a  id="BUTTON_TEXT_menu" href="#"> Save </a></li>
+                    <li id="menu_DRAW" name="menu_DRAW"> <a href="#" id="BUTTON_DRAW_menu">Print</a></li>
+                    <li id="menu_QP" name="menu_QP" ><a href="#"  onclick='show_QP();'> Close Window</a></li>
+                    <li class="divider"></li>
+                    <li id="menu_HPI" name="menu_HPI" ><a href="#" onclick='show_Section("HPI_1");' >Return to OpenEMR</a></li>
+                    <li id="menu_PMH" name="menu_PMH" ><a href="#PMH_1">Quit</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_edit" role="button" aria-expanded="true">Edit </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li id="menu_TEXT" name="menu_TEXT" class="active"> <a  id="BUTTON_TEXT_menu" href="#"> Undo </a></li>
+                    <li id="menu_DRAW" name="menu_DRAW"> <a href="#" id="BUTTON_DRAW_menu">Copy</a></li>
+                    <li id="menu_QP" name="menu_QP" ><a href="#"  onclick='show_QP();'> Cut</a></li>
+                    <li class="divider"></li>
+                    <li id="menu_HPI" name="menu_HPI" ><a href="#" onclick='show_Section("HPI_1");' >Paste</a></li>
+                    <li id="menu_PMH" name="menu_PMH" ><a href="#PMH_1">Delete</a></li>
+                    <li id="menu_EXT" name="menu_EXT" ><a href="#EXT_1">Find</a></li>
+                    <li class="divider"></li>
+                    <li id="menu_PRIORS" name="menu_PRIORS" > <a href="#">Show Priors</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_view" role="button" aria-expanded="true">View </a>
               <ul class="dropdown-menu" role="menu">
                 <li id="menu_TEXT" name="menu_TEXT" class="active"> <a  id="BUTTON_TEXT_menu" href="#"> Text </a></li>
                 <li id="menu_DRAW" name="menu_DRAW"> <a href="#" id="BUTTON_DRAW_menu">Draw</a></li>
@@ -2219,7 +2241,7 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
               </ul>
             </li> 
             <li class="dropdown">
-                <a class="dropdown-toggle" role="button" id="menu1" data-toggle="dropdown">Patients <span class="caret"></span></a>
+                <a class="dropdown-toggle" role="button" id="menu_dropdown_patients" data-toggle="dropdown">Patients</a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo $GLOBALS['webroot'] ?>"> Patients </a></li>
                   <li ><a tabindex="-1" href="#">New/Search</a> </li>
@@ -2234,21 +2256,20 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Upload Item</a></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Pending Approval</a></li>
                 </ul>
-                </li>
-                <li class="dropdown">
-                
-                <a class="dropdown-toggle" role="button" id="menu1" data-toggle="dropdown">Clinical<span class="caret"></span></a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Eye Exam</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Documents</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Imaging</a></li>
-                    <li role="presentation" class="divider"></li>
-                    </ul>
-                </li>
+            </li>
+            <li class="dropdown">
+            <a class="dropdown-toggle" role="button" id="menu_dropdown_clinical" data-toggle="dropdown">Clinical</a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Eye Exam</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Documents</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Imaging</a></li>
+                <li role="presentation" class="divider"></li>
+                </ul>
+            </li>
 
-              <li class="dropdown">
+            <li class="dropdown">
                 
-                <a class="dropdown-toggle" role="button" id="menu1" data-toggle="dropdown">Window <span class="caret"></span></a>
+                <a class="dropdown-toggle" role="button" id="menu_dropdown_window" data-toggle="dropdown">Window</a>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#"><i class="fa fa-calendar text-error"> </i>  Calendar</a></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Messages</a></li>
@@ -2259,9 +2280,9 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                   <li role="presentation" class="divider"></li>
                   <li role="presentation"><a role="menuitem" tabindex="-1" href="#">About Us</a></li>
                 </ul>
-              </li>
-                    <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Library <span class="caret"></span></a>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_library" role="button" aria-expanded="false">Library</a>
               <ul class="dropdown-menu" role="menu">
                 <li><a href="#">Upload</a></li>
                 <li><a href="../../forms/eye_mag/css/AnythingSlider/simple.php?display=fullscreen&encounter=<?php echo xla($encounter); ?>">Documents</a></li>
@@ -2311,7 +2332,8 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                 
                 
                 
-    <?php
+    <?php 
+    return $input_echo;
 }
 
 function menu_overhaul_left($pid,$encounter) {

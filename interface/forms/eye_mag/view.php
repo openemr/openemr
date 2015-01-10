@@ -134,12 +134,13 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     if ($display=="fullscreen") { 
       // trial fullscreen will lead to tablet versions and bootstrap menu 
       // this function is in php/eye_mag_functions.php
-      $output = menu_overhaul_top($pid,$encounter);
+      $input_echo = menu_overhaul_top($pid,$encounter);
     }
     ?>
     <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
       <!-- start container for the main body of the form -->
       <div class="body_top text-center" id="form_container" name="form_container">
+        <input type="hidden" name="menustate" id="menustate" value="start">
         <input type="hidden" name="form_id" id="form_id" value="<?php echo attr($form_id); ?>">
         <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
         <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
@@ -182,8 +183,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                 <?php display_draw_section ("HPI",$encounter,$pid); ?>
                 <div id="HPI_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
                   <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
-                  <b><?php echo xlt('HPI'); ?>:</b> <i class="fa fa-minus"></i><br />
-                  <table border="0" width="100%" cellspacing="0" cellpadding="0" style="min-height: 2.0in;text-align:left;font-size:1.1em;">
+                  <b><?php echo xlt('HPI'); ?>:</b> <i class="fa fa-help"></i><br />
+                  <table border="0" width="100%" cellspacing="0" cellpadding="0" 
+                         style="font-size:0.8em;min-height: 2.0in;text-align:left;">
                     <tr>
                       <td class="" style="vertical-align:top;padding:10px;" colspan="2">
                         <b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('Chief Complaint'); ?>:
@@ -216,53 +218,53 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <!-- start    QP_HPI_Build -->
                 <div id="QP_HPI" name="QP_HPI" class="QP_class" style="text-align:left;overflow:auto;">
                   <div id="HPI_text_list" name="HPI_text_list" class="HPI_text">
-                    <table class="" style="vetical-align:text-top;font-size:1.0em;magin:5px 0px;">
+                    <table class="HPI2_text">
                       <tr>
                         <td class="title"><?php echo xlt('Timing'); ?>:</td>
                         <td><i><?php echo xlt('When and how often?'); ?></i>
-                          <textarea name="TIMING1" id="TIMING1" class="HPI_text"><?php echo text($TIMING1); ?></textarea>
+                          <textarea name="TIMING1" id="TIMING1"><?php echo text($TIMING1); ?></textarea>
                         </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Context'); ?>:</td>
                         <td><i><?php echo xlt('Does it occur in certain situations?'); ?></i>
-                          <textarea name="CONTEXT1" id="CONTEXT1" class="HPI_text"><?php echo text($CONTEXT1); ?></textarea>
+                          <textarea name="CONTEXT1" id="CONTEXT1"><?php echo text($CONTEXT1); ?></textarea>
                             <br />
                         </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Severity'); ?>:</td>
                         <td><i><?php echo xlt('How bad is it? 0-10, mild, moderate, severe?'); ?></i>
-                          <textarea name="SEVERITY1" id="SEVERITY1" class="HPI_text"><?php echo text($SEVERITY1); ?></textarea>
+                          <textarea name="SEVERITY1" id="SEVERITY1"><?php echo text($SEVERITY1); ?></textarea>
                           </td>
                       </tr>
                       <tr>
                         <td  class="title"><?php echo xlt('Modifying'); ?>:</td>
-                        <td><i ><?php echo xlt('Does anything makes it better? Worse?'); ?></i><textarea name="MODIFY1" id="MODIFY1" class="HPI_text"><?php echo text($MODIFY1); ?></textarea>
+                        <td><i ><?php echo xlt('Does anything makes it better? Worse?'); ?></i><textarea name="MODIFY1" id="MODIFY1"><?php echo text($MODIFY1); ?></textarea>
                             </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Associated'); ?>:</td>
                         <td><i><?php echo xlt('Anything else happen at the same time?'); ?></i>
-                          <textarea name="ASSOCIATED1" id="ASSOCIATED1" class="HPI_text"><?php echo text($ASSOCIATED1); ?></textarea>
+                          <textarea name="ASSOCIATED1" id="ASSOCIATED1"><?php echo text($ASSOCIATED1); ?></textarea>
                           </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Location'); ?>:</td>
                         <td><i><?php echo xlt('Where on your body does it occur?'); ?></i>
-                          <textarea name="LOCATION1" id="LOCATION1" class="HPI_text"><?php echo text($LOCATION1); ?></textarea>                        
+                          <textarea name="LOCATION1" id="LOCATION1"><?php echo text($LOCATION1); ?></textarea>                        
                         </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Quality'); ?>:</td>
                         <td><i><?php echo xlt('eg. aching, burning, radiating pain'); ?></i>
-                          <textarea name="QUALITY1" id="QUALITY1" class="HPI_text"><?php echo text($QUALITY1); ?></textarea>
+                          <textarea name="QUALITY1" id="QUALITY1"><?php echo text($QUALITY1); ?></textarea>
                               
                       </td>
                       </tr> 
                       <tr>
                         <td class="title"><?php echo xlt('Duration'); ?>:</td>
-                        <td><i><?php echo xlt('How long does it last?'); ?></i><textarea name="DURATION1" id="DURATION1" class="HPI_text">
+                        <td><i><?php echo xlt('How long does it last?'); ?></i><textarea name="DURATION1" id="DURATION1">
                           <?php echo text($DURATION1); ?></textarea>
                     </td>
                       </tr>

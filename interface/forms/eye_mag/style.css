@@ -135,10 +135,20 @@ label {
 }
 
 textarea.HPI_text{
-    height:1.5em;
-    min-width:90%;
+    height:3.0em;
+    min-width:95%;
     max-width: 95%;
     max-height:2in;
+    overflow:auto;
+}
+.HPI2_text {
+    vertical-align:text-top;
+    font-size:0.8em;
+}
+.HPI2_text textarea{
+    height:2.0em;
+    width:95%;
+    max-width:95%;
     overflow:auto;
 }
 .HPI_text i {
@@ -1234,13 +1244,13 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
   
 .navbar-custom ,.navbar-nav > li > a {
     color:black; /* just changes the base font color */
-    padding:0 10 0 10;
+    padding:1 10 0 10;
     margin:0;
 }
      
 .navbar-custom, .navbar-nav > li > a:hover, .nav > li > a:focus {
     text-decoration: none;
-    background-color: #1C5ECF; 
+    background-color: #1C5ECF; /* this is the "hover" blue *?
     color:#fff;
     
     /*padding-top:5px;*/
@@ -1265,14 +1275,12 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     padding:2 5 0 10;
 }
 .navbar-nav > li > a {
-    padding: 10 10 5 10;
+    padding: 10 10 4 10;
 }
 .navbar-nav > li > .dropdown-menu {
     margin-top: 3px;
 }
-.dropdown-menuX {
-    margin-top: 5px;
-    }
+
 .dropdown-menu .divider {
     height: 1px;
     margin: 9px 0px;
@@ -1282,6 +1290,9 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 .navbar-toggle {
     background-color:yellow;
     height:24px;
+}
+a:hover, a:focus {
+    text-decoration:none;
 }
 .icon-bar {
     background-color:purple;
