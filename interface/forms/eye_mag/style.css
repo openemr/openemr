@@ -134,13 +134,15 @@ label {
     font-size:0.9em;
 }
 
-.HPI_text {
-    height:4.0em;
+textarea.HPI_text{
+    height:1.5em;
     min-width:90%;
     max-width: 95%;
+    max-height:2in;
+    overflow:auto;
 }
 .HPI_text i {
-    font-size:0.7em;
+    font-size:0.8em;
     font-weight:600;
 }
 textarea.full{
@@ -269,7 +271,6 @@ input[type=text].refraction {
     font-size:1.0em;
     font-weight:600;
     text-align:right;
-    text-decoration:underline;
     padding-right:5px;
     
 }
@@ -291,7 +292,7 @@ background-color: red;
     
     padding: 0in;
     display: flex;
-    margin: 0 auto;
+    margin: 0 auto 10;
         
     display: -webkit-box;
     display: -moz-box;

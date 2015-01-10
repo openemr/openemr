@@ -134,18 +134,27 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
           *  4. Word processor to edit.  Stored as unique document.
           *  5. Create a new, additional report.
           */
-        //if ()
+        //  see save.php
         $side="OU";
         $zone = array("HPI","PMH","VISION","NEURO","EXT","ANTSEG","RETINA","IMPPLAN");
-        //for ($i = 0; $i < count($zone); ++$i) {
-        //show only 2 for now
+        //  for ($i = 0; $i < count($zone); ++$i) {
+        //  show only 2 for now
         for ($i = 0; $i < '2'; ++$i) {
-            $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
+            $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
+            $sql = "SELECT * from documents where url='file://".$file_location."'";
+            $doc = sqlQuery($sql);
+            if (file_exists($file_location) && ($doc['id'] > '0')) {
+                $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=$pid&document_id=$doc[id]&as_file=false";
+            } else {
+                $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
+            }
+            
+            /*$file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
             if (file_exists($file_location)) {
                 $filetoshow = $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png?".rand();
             } else {
                 $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
-            }
+            }*/
             ?>
             <div class='bordershadow' style='position:relative;float:left;width:310px;height:205px;'>
                 <img src='<?php echo $filetoshow; ?>' width=300 heght=200>

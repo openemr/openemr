@@ -139,7 +139,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     ?>
     <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
       <!-- start container for the main body of the form -->
-      <div class="body_top" id="form_container" name="form_container">
+      <div class="body_top text-center" id="form_container" name="form_container">
         <input type="hidden" name="form_id" id="form_id" value="<?php echo attr($form_id); ?>">
         <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
         <input type="hidden" name="encounter" id="encounter" value="<?php echo attr($encounter); ?>">
@@ -182,7 +182,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                 <?php display_draw_section ("HPI",$encounter,$pid); ?>
                 <div id="HPI_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
                   <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
-                  <b><?php echo xlt('HPI'); ?>:</b><br />
+                  <b><?php echo xlt('HPI'); ?>:</b> <i class="fa fa-minus"></i><br />
                   <table border="0" width="100%" cellspacing="0" cellpadding="0" style="min-height: 2.0in;text-align:left;font-size:1.1em;">
                     <tr>
                       <td class="" style="vertical-align:top;padding:10px;" colspan="2">
@@ -214,10 +214,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <i class="fa fa-spinner"></i>
                 </div>
                   <!-- start    QP_HPI_Build -->
-                <div id="QP_HPI" name="QP_HPI" class="QP_class" style="text-align:left;max-height: 2.5in;overflow:auto;">
-                  <div id="HPI_text_list" name="HPI_text_list" class="<?php echo attr($display_HPI_view); ?> ">
-                    <h1>HPI Engine&nbsp;</h1> &nbsp;
-                    <table border="0" cellpadding="2" class="up" style="vetical-align:text-bottom;font-size:1.1em;padding:10px;">
+                <div id="QP_HPI" name="QP_HPI" class="QP_class" style="text-align:left;overflow:auto;">
+                  <div id="HPI_text_list" name="HPI_text_list" class="HPI_text">
+                    <table class="" style="vetical-align:text-top;font-size:1.0em;magin:5px 0px;">
                       <tr>
                         <td class="title"><?php echo xlt('Timing'); ?>:</td>
                         <td><i><?php echo xlt('When and how often?'); ?></i>
@@ -263,14 +262,15 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </tr> 
                       <tr>
                         <td class="title"><?php echo xlt('Duration'); ?>:</td>
-                        <td><i><?php echo xlt('How long does it last?'); ?></i><textarea name="DURATION1" id="DURATION1" class="HPI_text"><?php echo text($DURATION1); ?></textarea>
-                     <br />&nbsp;</td>
+                        <td><i><?php echo xlt('How long does it last?'); ?></i><textarea name="DURATION1" id="DURATION1" class="HPI_text">
+                          <?php echo text($DURATION1); ?></textarea>
+                    </td>
                       </tr>
                     </table>
-                    <h1></h1> &nbsp;<br />
-                    <span style="font-size:0.9em;">A detailed HPI may be completed by using either <br />
+                  <center>
+                    <span style="font-size:0.8em;text-align:center;width:100%;">A detailed HPI may be completed by using either <br />
                         four or more HPI elements OR the status of three chronic or inactive problems.</span>
-                    <br />&nbsp;
+                      </center>
                   </div>
                 </div>  
                   <!-- end      QP_HPI -->
@@ -301,14 +301,12 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- start  PMH Right -->
               <div id="PMH_right" name="PMH_right" class="exam_section_right borderShadow">
                 <div id="PMH_left_text" name="PMH_left_text" style="height: 2.5in;text-align:left;" >
-                  Here we will incorporate the OpenEMR functionality to add Problems and issues.  PMH /POH /FH/ Allergies /etc
+                  
                 </div>
                 <div id="QP_PMH" name="QP_PMH" class="QP_class" style="text-align:left;max-height: 2.5in;overflow:auto;">
                   <div id="PMH_text_list" name="PMH_text_list" class="borderShadow  <?php echo attr($display_PMH_view); ?> ">
-                    
-                    <h1>PMH Engine&nbsp;</h1> &nbsp;
                     <h1></h1> &nbsp;<br />
-                    <span style="font-size:0.9em;">XXX Here we will incorporate the OpenEMR functionality to add Problems and issues.  PMH /POH /FH/ Allergies /etc</span>
+                    <span style="font-size:0.9em;">Here we will incorporate the OpenEMR functionality to add QP Problems and issues.  PMH /POH /FH/ Allergies /etc</span>
                     <br />&nbsp;
                   </div>
                 </div>  
@@ -765,7 +763,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><input type=text id="WNEAROSPRISM" name="WNEAROSPRISM" value="<?php echo attr($WNEAROSPRISM); ?>"></td>
                                         <td><input type=text id="WNEAROSVA" name="WNEAROSVA" value="<?php echo attr($WNEAROSVA); ?>"></td>
                                     </tr>
-                                    <tr>
+                                    <tr style="top:3.5in;color:red;">
                                         <td colspan="2" style="text-align:right;vertical-align:top;top:0px;"><b><?php echo xlt('Comments'); ?>:</b>
                                         </td>
                                         <td colspan="4" class="up" style="text-align:left;vertical-align:middle;top:0px;"></td></tr>
@@ -1182,7 +1180,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- end reporting div -->
 
           <!-- Start of the exam selection/middle menu row -->
-          <div class="section" style="text-align:center;vertical-align:top;width:100%;margin:5px;">
+          <div class="section" style="text-align:center;vertical-align:top;width:100%;margin:10;">
             <!--  <span id="EXAM_settings" name="EXAM_settings" class="bordershadow" href="#"><i class="fa fa-cog"></i>&nbsp;<?php echo xlt('Settings'); ?></span> -->
             <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="bordershadow"><i class="fa fa-newspaper-o"></i>&nbsp;<?php echo xlt('Defaults'); ?></span> 
             <span id="EXAM_CLINICAL" name="EXAM_CLINICAL" value="TEXT" class="bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
@@ -1197,7 +1195,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                 ?>
             &nbsp;</span> 
             <br />
-          </div>
+          </div><br />
           <!-- end of the exam selection row -->
 
           <!-- Start of the exam sections -->
@@ -2496,7 +2494,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <input type="button" value="Print" id="PrintButton" />
     -->
 
-    <canvas id="simple_sketch" width="1200" height="600"></canvas>
+    <canvas id="simple_sketch" width="1200" height="600" class="nodisplay"></canvas>
     <script type="text/javascript">
             $(function() {
             $('#simple_sketch').sketch({defaultSize:"1"});

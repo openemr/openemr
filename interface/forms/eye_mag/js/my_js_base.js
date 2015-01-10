@@ -154,6 +154,7 @@ function show_DRAW() {
     hide_QP();
     hide_TEXT();
     hide_PRIORS();
+    $('#accordion').show();
     $("#LayerTechnical_sections").hide();
     $("#REFRACTION_sections").hide();
     $("#NEURO_1").hide();
@@ -166,7 +167,7 @@ function show_DRAW() {
     $("#ANTSEG_right").addClass('canvas');
     $("#RETINA_left").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
-    $("#IMPPLAN").hide();
+    $("#IMPPLAN_1").hide();
     $(".Draw_class").show();
 }
 function show_TEXT() {
@@ -185,6 +186,9 @@ function show_PRIORS() {
     $("#EXT_right").addClass("PRIORS_color");
     show_TEXT();
     show_right();
+    $("#HPI_right").addClass('canvas');
+    $("#PMH_right").addClass('canvas');
+    $("#IMPPLAN_right").addClass('canvas');
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_right").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
@@ -198,19 +202,22 @@ function show_QP() {
     show_TEXT();
     show_right();
     $("#HPI_right").addClass('canvas');
+    $("#PMH_right").addClass('canvas');
+    $("#IMPPLAN_right").addClass('canvas');
+    $("#HPI_right").addClass('canvas');
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_right").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
     $("#NEURO_right").addClass('canvas');
     $(".QP_class").show();
-    menu_select("DRAW");
+    menu_select("View","DRAW");
 }
 
-function menu_select(zone) {
-    $("[name^='menu_']").classremove('active');
-    $("#menu_"+zone).addClass('active');
+function menu_select(zone,checked) {
+    $("[name^='menu_']").classremove('');
+    $("#menu_"+zone).addClass('');
+    $("#menu_"+zone+"_"+checked).addClass('');
 }
-
 function hide_DRAW() {
     $(".Draw_class").hide();
     hide_right();
@@ -220,6 +227,7 @@ function hide_DRAW() {
     $("#PMH_sections").show();
         //$("#PMH_right").show();
     $("#HPI_right").hide();
+    $("#IMPPLAN_1").show();
     $("#NEURO_1").show();
     $("#IMPPLAN").show();
     $("#HPI_left").removeClass('canvas');
@@ -307,9 +315,11 @@ function openImage() {
 
 function show_Section(section) {
         //hide everything, show the section.  For fullscreen perhaps Tablet view per section
-    $('#form_container').hide();
-    $('#'+section).appendTo('body');
+    show_right();
+    $('#accordion').hide();
+    $('#'+section).style.display= "block"; //appendTo('body');
 }
+
 $(document).ready(function() {
                   $("[id^='CONSTRUCTION_']").addClass('nodisplay');
                   $("input,select,textarea,text").css("background-color","#FFF8DC");
@@ -556,6 +566,7 @@ $(document).ready(function() {
                   $("[name^='menu_']").click(function() {
                                              $("[name^='menu_']").removeClass('active');
                                              $(this).addClass('active');
+                                             menu_select('TEXT');
                                              });
                   $("input,textarea,text,checkbox").change(function(){
                                                            $(this).css("background-color","#F0F8FF");
@@ -1296,24 +1307,25 @@ $(document).ready(function() {
                                             });
                   
                   
-                 $("[id^='BUTTON_DRAW_']").click(function() {
-                                                   var zone =this.id.match(/BUTTON_DRAW_(.*)$/)[1];
-                                                 show_DRAW();
-                                                });
+                  $("[id^='BUTTON_DRAW_']").click(function() {
+                                                  var zone =this.id.match(/BUTTON_DRAW_(.*)$/)[1];
+                                                  show_DRAW();
+                                                  });
                   
                   $("#construction").click(function() {
                                            $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');
                                            });
-                window.addEventListener("beforeunload", function () {
+                  window.addEventListener("beforeunload", function () {
                                           $("#final").val('1');
-                                        //submit_form("final");
-                                        //location.reload();
-                                        //refreshme();
-                                        //parent.frames['RBot'].location.reload();
-                                        // alert("the url of the top is" + top.location.href + "\nand not the url of this one is " + window.location.href );
-                                       });
+                                          //submit_form("final");
+                                          //location.reload();
+                                          //refreshme();
+                                          //parent.frames['RBot'].location.reload();
+                                          // alert("the url of the top is" + top.location.href + "\nand not the url of this one is " + window.location.href );
+                                          });
                   $("[name$='_loading']").hide();
                   $("[name$='_sections']").show();
+                  
                   
                   });
 

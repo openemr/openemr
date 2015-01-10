@@ -166,7 +166,7 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
 }
 
 /**
- *  This function returns ZONE specific HTML for a prior record (3 input values)
+ *  This function returns ZONE specific HTML for a PRIOR record (3 input values)
  * 
  *  This is where the magic of displaying the old record happens.
  *  Each section is a duplicate of the base html except the values are changed,
@@ -2204,11 +2204,11 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">View <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li id="menu_TEXT" name="menu_TEXT" class="active"> <a href="#"> Text </a></li>
+                <li id="menu_TEXT" name="menu_TEXT" class="active"> <a  id="BUTTON_TEXT_menu" href="#"> Text </a></li>
                 <li id="menu_DRAW" name="menu_DRAW"> <a href="#" id="BUTTON_DRAW_menu">Draw</a></li>
                 <li id="menu_QP" name="menu_QP" ><a href="#"  onclick='show_QP();'>  Quick Picks</a></li>
                 <li class="divider"></li>
-                <li id="menu_HPI" name="menu_HPI" ><a href="#HPI_1">HPI</a></li>
+                <li id="menu_HPI" name="menu_HPI" ><a href="#" onclick='show_Section("HPI_1");' >HPI</a></li>
                 <li id="menu_PMH" name="menu_PMH" ><a href="#PMH_1">PMH</a></li>
                 <li id="menu_EXT" name="menu_EXT" ><a href="#EXT_1">External</a></li>
                 <li id="menu_ANTSEG" name="menu_ANTSEG" ><a href="#ANTSEG_1">Anterior Segment</a></li>
@@ -2303,7 +2303,7 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
 
                 <!-- Page Heading -->
                 <div class="row">
-                    <div class="col-lg-12" >
+                    <div class="col-lg-12" id="tablet_div" name="tablet_div" >
                         <br />
                  <br />
                  <br />
