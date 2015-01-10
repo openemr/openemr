@@ -152,15 +152,13 @@ textarea.HPI_text{
     overflow:auto;
 }
 .HPI_text i {
-    font-size:0.8em;
+    font-size:0.9em;
     font-weight:600;
 }
 textarea.full{
     height:20px;
 }
-.input-helper--checkbox {67
-   
-}
+
 .input-helper--checkbox.boxed:before {
    
     left: 0px;

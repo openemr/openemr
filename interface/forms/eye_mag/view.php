@@ -765,7 +765,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         <td><input type=text id="WNEAROSPRISM" name="WNEAROSPRISM" value="<?php echo attr($WNEAROSPRISM); ?>"></td>
                                         <td><input type=text id="WNEAROSVA" name="WNEAROSVA" value="<?php echo attr($WNEAROSVA); ?>"></td>
                                     </tr>
-                                    <tr style="top:3.5in;color:red;">
+                                    <tr style="top:3.5in;">
                                         <td colspan="2" style="text-align:right;vertical-align:top;top:0px;"><b><?php echo xlt('Comments'); ?>:</b>
                                         </td>
                                         <td colspan="4" class="up" style="text-align:left;vertical-align:middle;top:0px;"></td></tr>

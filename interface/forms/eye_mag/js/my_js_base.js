@@ -64,7 +64,7 @@ function dopopup(url) {
 function submit_form(e) {
     var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
     var formData = $("form#eye_mag").serialize();
-    
+    $("#menustate").val('0');
     $.ajax({
            type 	: 'POST',   // define the type of HTTP verb we want to use (POST for our form)
            url 		: url,      // the url where we want to POST
@@ -75,6 +75,8 @@ function submit_form(e) {
            });
         //location.reload();
         //    refreshme();
+    
+    
 }
 
 /**
@@ -214,9 +216,9 @@ function show_QP() {
 }
 
 function menu_select(zone,checked) {
-    $("[name^='menu_']").classremove('');
-    $("#menu_"+zone).addClass('');
-    $("#menu_"+zone+"_"+checked).addClass('');
+        //   $("[name^='menu_']").removeClass('');
+        // $("#menu_"+zone).addClass('');
+        //$("#menu_"+zone+"_"+checked).addClass('');
 }
 function hide_DRAW() {
     $(".Draw_class").hide();
@@ -407,7 +409,6 @@ $(document).ready(function() {
                   }
                   }
                   
-                  
                   $("input[name$='PRISM']").blur(function() {
                                                  //make it all caps
                                                  var str = $(this).val();
@@ -563,10 +564,43 @@ $(document).ready(function() {
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });
+                  $("[class='dropdown-toggle']").hover(function(){
+                                                       $("[class='dropdown-toggle']").parent().removeClass('open');
+                                                       var menuitem = this.id.match(/(.*)/)[1];
+                                                       //if the menu is active through a prior click, show it
+                                                       // Have to override Bootstrap then
+                                                       if ($("#menustate").val() !="1") { //menu not active -> ignore
+                                                            $("#"+menuitem).css("background-color", "#C9DBF2");
+                                                            $("#"+menuitem).css("color","#000"); /*#262626;*/
+                                                       } else { //menu is active -> respond
+                                                            $("#"+menuitem).css("background-color", "#1C5ECF");
+                                                            $("#"+menuitem).css("color","#fff"); /*#262626;*/
+                                                            $("#"+menuitem).css("text-decoration","none");
+                                                            $("#"+menuitem).parent().addClass('open');
+                                                       }
+                                                       },function() {
+                                                       var menuitem = this.id.match(/(.*)/)[1];
+                                                       $("#"+menuitem).css("color","#000"); /*#262626;*/
+                                                       $("#"+menuitem).css("background-color", "#C9DBF2");
+                                                       
+                                                       }
+                                                       );
+                  $("[class='dropdown-toggle']").click(function() {
+                                                       $("#menustate").val('1');
+                                                       var menuitem = this.id.match(/(.*)/)[1];
+                                                       $("#"+menuitem).css("background-color", "#1C5ECF");
+                                                       $("#"+menuitem).css("color","#fff"); /*#262626;*/
+                                                       $("#"+menuitem).css("text-decoration","none");
+                                                       // alert($("#menustate").val());
+                                                       });
+                  
+
                   $("[name^='menu_']").click(function() {
                                              $("[name^='menu_']").removeClass('active');
+                                             var menuitem = this.id.match(/menu_(.*)/)[1];
                                              $(this).addClass('active');
-                                             menu_select('TEXT');
+                                             $("#menustate").val('1');
+                                             menu_select(menuitem);
                                              });
                   $("input,textarea,text,checkbox").change(function(){
                                                            $(this).css("background-color","#F0F8FF");
@@ -664,7 +698,16 @@ $(document).ready(function() {
                   $("#WNEAROSPRISM").hide();
                   
                   $("#Single").click(function(){
-                                                $(".WNEAR").hide();
+                                     $("#WNEARODAXIS").hide();
+                                     $("#WNEARODCYL").hide();
+                                     $("#WNEARODPRISM").hide();
+                                     $("#WODADD2").hide();
+                                     $("#WOSADD2").hide();
+                                     $("#WNEAROSAXIS").hide();
+                                     $("#WNEAROSCYL").hide();
+                                     $("#WNEAROSPRISM").hide();
+                                     
+                                     // $(".WNEAR").hide();
                                                 $(".WSPACER").show();
                                            //$("[id=Single]").prop('checked','checked');
                                                 });
@@ -680,6 +723,9 @@ $(document).ready(function() {
                                            $("#WNEAROSAXIS").hide();
                                            $("#WNEAROSCYL").hide();
                                            $("#WNEAROSPRISM").hide();
+                                      $("#WODADD2").show();
+                                      $("#WOSADD2").show();
+                                      
                                            });
                   $("#Trifocal").click(function(){
                                             $(".WSPACER").hide();
@@ -693,6 +739,9 @@ $(document).ready(function() {
                                             $("#WNEAROSAXIS").hide();
                                             $("#WNEAROSCYL").hide();
                                             $("#WNEAROSPRISM").hide();
+                                       $("#WODADD2").show();
+                                       $("#WOSADD2").show();
+
                                             });
                   $("#Progressive").click(function(){
                                                $(".WSPACER").hide();
@@ -706,6 +755,9 @@ $(document).ready(function() {
                                                $("#WNEAROSAXIS").hide();
                                                $("#WNEAROSCYL").hide();
                                                $("#WNEAROSPRISM").hide();
+                                          $("#WODADD2").show();
+                                          $("#WOSADD2").show();
+
                                                });
                   $("#Amsler-Normal").change(function() {
                                              if ($(this).is(':checked')) {
