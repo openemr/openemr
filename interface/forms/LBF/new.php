@@ -131,7 +131,15 @@ if ($_POST['bn_save']) {
     $data_type = $frow['data_type'];
     // If the field was not in the web form, skip it.
     // Except if it's checkboxes, if unchecked they are not returned.
-    if ($data_type != 21 && !isset($_POST["form_$field_id"])) continue;
+    //
+    // if ($data_type != 21 && !isset($_POST["form_$field_id"])) continue;
+    //
+    // The above statement commented out 2015-01-12 because a LBF plugin might conditionally
+    // disable a field that is not applicable, and we need the ability to clear out the old
+    // garbage in there so it does not show up in the "report" view of the data.  So we will
+    // trust that it's OK to clear any field that is defined in the layout but not returned
+    // by the form.
+    //
     $value = get_layout_form_value($frow);
     // If edit option P or Q, save to the appropriate different table and skip the rest.
     $source = $frow['source'];
