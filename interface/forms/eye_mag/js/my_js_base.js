@@ -60,6 +60,10 @@ function dopopup(url) {
     top.restoreSession();
     window.open(url, '_blank', 'width=fullscreen,height=fullscreen,resizable=1,scrollbars=1,directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0');
 }
+function goto_url(url) {
+    top.restoreSession();
+    window.open(url);
+}
 
 function submit_form(e) {
     var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
@@ -156,22 +160,33 @@ function show_DRAW() {
     hide_QP();
     hide_TEXT();
     hide_PRIORS();
-    $('#accordion').show();
+    hide_left();
+    show_right();
     $("#LayerTechnical_sections").hide();
     $("#REFRACTION_sections").hide();
-    $("#NEURO_1").hide();
-    $("#HPI_left").addClass('canvas');
-    $("#HPI_right").addClass('canvas').show();
-    $("#PMH_1").hide();
-    $("#EXT_left").addClass('canvas');
+    $("#HPI_right").addClass('canvas');
+    $("#PMH_right").addClass('canvas');
     $("#EXT_right").addClass('canvas');
-    $("#ANTSEG_left").addClass('canvas');
     $("#ANTSEG_right").addClass('canvas');
-    $("#RETINA_left").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
-    $("#IMPPLAN_1").hide();
+    $("#NEURO_right").addClass('canvas');
+    $("#IMPPLAN_right").addClass('canvas');
     $(".Draw_class").show();
 }
+
+function show_DRAW_section(zone) {
+        //hide_QP();
+        //hide_TEXT();
+        //hide_PRIORS();
+    
+    $("#"+zone+"_1").show();
+    $("#"+zone+"_left").show();
+    $("#"+zone+"_right").show();
+    
+    $("#DRAW_"+zone).addClass('canvas').show();
+    
+}
+
 function show_TEXT() {
     hide_right(); //this hides the right half
     hide_QP();
@@ -198,26 +213,56 @@ function show_PRIORS() {
     $(".PRIORS_class").show();
 }
 
+function hide_left() {
+    $("[name$='_1']").removeClass("size100").addClass("size50");
+    $("#HPI_left").hide();
+    $("#PMH_left").hide();
+    $("#EXT_left").hide();
+    $("#ANTSEG_left").hide();
+    $("#RETINA_left").hide();
+    $("#NEURO_left").hide();
+    $("#IMPPLAN_left").hide();
+    $("[name$='_left']").hide();
+}
+function show_left() {
+    $("[name$='_1']").removeClass("size100").addClass("size50");
+    $("#HPI_left").show();
+    $("#PMH_left").show();
+    $("#EXT_left").show();
+    $("#ANTSEG_left").show();
+    $("#RETINA_left").show();
+    $("#NEURO_left").show();
+    $("#IMPPLAN_left").show();
+    $("[name$='_left']").show();
+}
+
 function show_QP() {
     hide_DRAW();
     hide_PRIORS();
     show_TEXT();
     show_right();
+    show_left();
     $("#HPI_right").addClass('canvas');
     $("#PMH_right").addClass('canvas');
-    $("#IMPPLAN_right").addClass('canvas');
-    $("#HPI_right").addClass('canvas');
     $("#EXT_right").addClass('canvas');
     $("#ANTSEG_right").addClass('canvas');
     $("#RETINA_right").addClass('canvas');
     $("#NEURO_right").addClass('canvas');
+    $("#IMPPLAN_right").addClass('canvas');
     $(".QP_class").show();
-    menu_select("View","DRAW");
+        //  menu_select("View","DRAW");
 }
 
-function menu_select(zone,checked) {
-        //   $("[name^='menu_']").removeClass('');
-        // $("#menu_"+zone).addClass('');
+    //<i class="closeButton_2 fa fa-database" id="BUTTON_QP_PMH" name="BUTTON_QP_PMH"></i>
+function show_QP_section(zone) {
+    show_left();
+    $("#"+zone+"_right").addClass('canvas').show();
+    $("#QP_"+zone).show();
+}
+
+function menu_select(zone,che) {
+        //$("[name^='menu_']").removeClass('active');
+        // $("#menu_"+zone).addClass('active');
         //$("#menu_"+zone+"_"+checked).addClass('');
 }
 function hide_DRAW() {
@@ -229,16 +274,9 @@ function hide_DRAW() {
     $("#PMH_sections").show();
         //$("#PMH_right").show();
     $("#HPI_right").hide();
-    $("#IMPPLAN_1").show();
-    $("#NEURO_1").show();
-    $("#IMPPLAN").show();
-    $("#HPI_left").removeClass('canvas');
     $("#HPI_right").removeClass('canvas');
-    $("#EXT_left").removeClass('canvas');
     $("#EXT_right").removeClass('canvas');
-    $("#RETINA_left").removeClass('canvas');
     $("#RETINA_right").removeClass('canvas');
-    $("#ANTSEG_left").removeClass('canvas');
     $("#ANTSEG_right").removeClass('canvas');
 }
 function hide_QP() {
@@ -276,6 +314,74 @@ function toggle_visibility(id) {
     else
         e.style.display = 'block';
 }
+shortcut.add("Meta+T",function() {
+             show_TEXT();
+             });
+shortcut.add("Control+T",function() {
+             show_TEXT();
+             });
+shortcut.add("Meta+P",function() {
+             show_QP();
+             });
+shortcut.add("Meta+D",function() {
+             show_DRAW;
+             });
+shortcut.add("Control+P",function() {
+             show_QP();
+             });
+shortcut.add("Control+D",function() {
+             show_DRAW;
+             });
+shortcut.add("Meta+S",function() {
+             submit_form('eye_mag');
+             });
+shortcut.add("Meta+Z", function() {
+             alert("This will move you back a step...");
+             //undo;
+             });
+shortcut.add("Meta+Shift+Z", function() {
+             alert("This will move you forward a step...");
+             //redo;
+             });
+shortcut.add("Control+S",function() {
+             submit_form('eye_mag');
+             });
+shortcut.add("Control+Z", function() {
+             alert("This will move you back a step...");
+             //undo;
+             });
+shortcut.add("Control+Shift+Z", function() {
+             alert("This will move you forward a step...");
+             //redo;
+             });
+shortcut.add("Alt+1", function() {
+             // markCalled("alt1");
+             });
+shortcut.add("Shift+1", function() {
+             //markCalled("shift1");
+             });
+shortcut.add("Ctrl+Alt+1", function() {
+             //markCalled("ctrlalt1");
+             });
+shortcut.add("Ctrl+Shift+1", function() {
+             //markCalled("ctrlshift1");
+             });
+shortcut.add("Shift+Alt+1", function() {
+             //markCalled("shiftalt1");
+             });
+shortcut.add("Ctrl+2", function() {
+             //markCalled("ctrl2");
+             });
+shortcut.add("3", function() {
+             //markCalled("just3");
+             },{"disable_in_input":true});
+shortcut.add("Ctrl+a", function() {
+             //markCalled("ctrla");
+             },{"propagate":true});
+shortcut.add("",function() {
+             //markCalled("just4");
+             },{"keycode":52});
+
     // plot the current graph
     //------------------------------------------------------
 function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount){
@@ -318,8 +424,9 @@ function openImage() {
 function show_Section(section) {
         //hide everything, show the section.  For fullscreen perhaps Tablet view per section
     show_right();
-    $('#accordion').hide();
-    $('#'+section).style.display= "block"; //appendTo('body');
+        //$('#accordion').hide();
+    $("div[name='_sections']").style.display= "none"; //
+    $('#'+section+'_sections').style.display= "block"; //.show().appendTo('form_container');
 }
 
 $(document).ready(function() {
@@ -333,11 +440,11 @@ $(document).ready(function() {
                   hide_right();
                   $(window).resize(function() {
                                    if (window.innerWidth >'900') {
-                                   $("#refraction_width").css("width","8.9in");
+                                   $("#refraction_width").css("width","900px");
                                    $("#LayerVision2").css("padding","4px");
                                    }
                                    if (window.innerWidth >'1200') {
-                                   $("#refraction_width").css("width","12.8in");
+                                   $("#refraction_width").css("width","1200px");
                                    $("#LayerVision2").css("padding","4px");
                                    }
                                    if (window.innerWidth >'1900') {
@@ -585,6 +692,7 @@ $(document).ready(function() {
                                                        
                                                        }
                                                        );
+                  
                   $("[class='dropdown-toggle']").click(function() {
                                                        $("#menustate").val('1');
                                                        var menuitem = this.id.match(/(.*)/)[1];
@@ -1153,7 +1261,7 @@ $(document).ready(function() {
                                             //reset all motility measurements to zero if checked
                                             //if not, then leave alone...
                                             });
-                  $("#EXAM_DRAW,[id^='BUTTON_DRAW_']").click(function() {
+                  $("#EXAM_DRAW").click(function() {
                                         if ($("#PREFS_CLINICAL").value !='0') {
                                         show_right();
                                         $("#PREFS_CLINICAL").val('0');
@@ -1361,7 +1469,21 @@ $(document).ready(function() {
                   
                   $("[id^='BUTTON_DRAW_']").click(function() {
                                                   var zone =this.id.match(/BUTTON_DRAW_(.*)$/)[1];
-                                                  show_DRAW();
+                                                  hide_PRIORS();
+                                                  if (zone =="ALL") {
+                                                  //show_DRAW();
+                                                  } else {
+                                                  $("#"+zone+"_1").show();
+                                                  $("#"+zone+"_right").addClass('canvas').show();
+                                                  $("#QP_"+zone).hide();
+                                                  $("#Draw_"+zone).show();
+
+                                                  }
+                                                  });
+                  $("[id^='BUTTON_QP_']").click(function() {
+                                                var zone =this.id.match(/BUTTON_QP_(.*)$/)[1];
+                                                $("#Draw_"+zone).hide();
+                                                show_QP_section(zone);
                                                   });
                   
                   $("#construction").click(function() {
@@ -1377,7 +1499,19 @@ $(document).ready(function() {
                                           });
                   $("[name$='_loading']").hide();
                   $("[name$='_sections']").show();
+                  $('#sidebar').affix({
+                                      offset: {
+                                      top: 245
+                                      }
+                                      });
                   
+                  var $body   = $(document.body);
+                  var navHeight = $('.navbar').outerHeight(true) + 10;
+                  
+                  $body.scrollspy({
+                                  target: '#leftCol',
+                                  offset: navHeight
+                                  });
                   
                   });
 

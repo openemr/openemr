@@ -160,7 +160,6 @@ textarea.full{
 }
 
 .input-helper--checkbox.boxed:before {
-   
     left: 0px;
     width: 18px;
     height: 18px;
@@ -755,14 +754,14 @@ h1 {
     text-align:center;
     text-shadow:1px 1px 0px #1570cd;
     padding:0.03in;
-    min-width:25px;
+    min-width:30px;
 max-height: 18px;
 margin: 2 auto 2 auto;
 border: white;
 color: white;
 border-radius: 7px 7px 7px 7px;
 color: white;
-height: 14px;
+height: 18px;
 }
 .eye_button:hover {
     background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6) );
@@ -780,13 +779,6 @@ height: 14px;
     color:white;
 }
 .eye_button_selected {
-  /*  border: #000000;
-  !important;
-
-color: yellow !important;
-      border: 0pt solid black !important;
-/*    margin:0 !important;
-*/*/
    -moz-box-shadow:inset 0px 1px 0px 0px #97c4fe;
     -webkit-box-shadow:inset 0px 1px 0px 0px #97c4fe;
     box-shadow:inset 0px 1px 0px 0px #97c4fe;
@@ -809,23 +801,17 @@ color: yellow !important;
     font-family:FontAwesome,Serif;
     font-size:11px;
     font-weight:400;
-    height:12px;
     line-height:12px;
     text-decoration:none;
     text-align:center;
     text-shadow:1px 1px 0px #1570cd;
-    padding-left:0.03in;
-padding-right: 0.03in;
-padding-top: 0.03in;
-padding-bottom: 0.03in;
-min-width:25px;
-max-height: 18px;
-margin: 2 auto 2 auto;
-border: white;
-color: white;
-border-radius: 7px 7px 7px 7px;
-color: white;
-height: 14px;
+    padding:0.03in;
+    min-width:35px;
+    max-height: 18px;
+    margin: 2 auto 2 auto;
+    border: white;
+    border-radius: 7px 7px 7px 7px;
+    color: white;
     background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, navy), color-stop(1, #3d94f6) );
     background:-moz-linear-gradient( center top, navy 5%, #3d94f6 100% );
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='navy', endColorstr='#3d94f6');
@@ -979,6 +965,20 @@ height: 14px;
         /* width and height can be anything, as long as they're equal */
     }
     .closeButton:hover {
+        color:grey;
+        cursor:pointer;
+        border:0px solid grey;
+        text-decoration: none;
+    }
+    .closeButton_2 {
+        display:inline-block;
+        float:right;
+        position:absolute;
+        top:8px;
+        right:30px;
+        padding-left: 10px;
+      }
+    .closeButton_2:hover {
         color:grey;
         cursor:pointer;
         border:0px solid grey;
@@ -1246,7 +1246,7 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     margin:0;
 }
      
-.navbar-custom, .navbar-nav > li > a:hover, .nav > li > a:focus {
+.navbar-nav > li > a:hover, .nav > li > a:focus {
     text-decoration: none;
     background-color: #1C5ECF; /* this is the "hover" blue *?
     color:#fff;
@@ -1272,11 +1272,11 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     height:24px;
     padding:2 5 0 10;
 }
-.navbar-nav > li > a {
+.Xnavbar-nav > li > a {
     padding: 10 10 4 10;
 }
 .navbar-nav > li > .dropdown-menu {
-    margin-top: 3px;
+    margin-top: 2px;
 }
 
 .dropdown-menu .divider {
@@ -1285,13 +1285,16 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     overflow: hidden;
     background-color: #C0C0C0; /*gba(131, 135, 146, 0.61);*/
 }
-.navbar-toggle {
+.navbar-toggle {  
+    /* this is the responsive view shown when the screen is very narrow
     background-color:yellow;
     height:24px;
+    */
 }
 a:hover, a:focus {
     text-decoration:none;
 }
 .icon-bar {
-    background-color:purple;
+    background-color:#C0C0C0; /* this turns the small screen menu "button" 's lines this color */
+    
 }

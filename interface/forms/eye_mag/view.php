@@ -64,6 +64,12 @@ while ($prefs= sqlFetchArray($result))   {
     @extract($prefs);    
     $$LOCATION = $VALUE; 
 }
+
+if ($url) {
+ // echo $GLOBALS['fileroot']."/".$url;exit;
+  redirector($url);
+  exit;
+}
 // get pat_data and user_data
 $query = "SELECT * FROM patient_data where pid='$pid'";
 $pat_data =  sqlQuery($query);
@@ -72,9 +78,10 @@ $pat_data =  sqlQuery($query);
 $query = "SELECT * FROM users where id = '".$_SESSION['authUserID']."'";
 $prov_data =  sqlQuery($query);
 $providerID = $prov_data['fname']." ".$prov_data['lname'];
+                  
 
 
-$query="select form_encounter.date as encounter_date, form_eye_mag.* from form_eye_mag ,forms,form_encounter 
+$query="select form_encounter.date as encounter_date,form_encounter.*, form_eye_mag.* from form_eye_mag ,forms,form_encounter 
                     where 
                     form_encounter.encounter =? and 
                     form_encounter.encounter = forms.encounter and 
@@ -88,14 +95,13 @@ $encounter_data =sqlQuery($query,array($encounter,$pid));
 $dated = new DateTime($encounter_date);
 $visit_date = $dated->format('m/d/Y'); 
 
-if (!$form_id) { echo "No encounter..."; exit;}
+if (!$form_id or !$encounter) { echo $encounter.$form_id."No encounter..."; exit;}
 /*
 There a global setting for displaying dates... Incorporate it here.
 formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 */
 
-?>
-<html>
+?><html>
   <head>
     <?php 
      html_header_show();  //why use this at all?
@@ -126,7 +132,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
     <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
   </head>
   <body>
@@ -137,6 +143,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
       $input_echo = menu_overhaul_top($pid,$encounter);
     }
     ?>
+    <div id="stats_div" name="stats_div"></div>
     <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
       <!-- start container for the main body of the form -->
       <div class="body_top text-center" id="form_container" name="form_container">
@@ -175,14 +182,15 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <?php ($CLINICAL =='1') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
             <?php ($CLINICAL =='0') ? ($display_Visibility = "display") : ($display_Visibility = "nodisplay"); ?>
             <!-- start    HPI row -->
-          <div id="HPIPMH_sections" name="HPIPMH_sections" style="margin: 0 auto;width:100%;text-align: center;font-size:1.0em;" class="nodisplay" >   
+          <div id="HPIPMH_sections" name="HPIPMH_sections" style="margin: 10 auto;width:100%;text-align: center;font-size:1.0em;" class="nodisplay" >   
             <!-- start    CC_HPI-->
             <div id="HPI_1" name="HPI_1" class="<?php echo attr($display_Add); ?>">
               <!-- start  HPI Left -->
               <div id="HPI_left" name="HPI_left" class="exam_section_left borderShadow">
-                <?php display_draw_section ("HPI",$encounter,$pid); ?>
                 <div id="HPI_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
                   <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_HPI" name="BUTTON_DRAW_HPI"></span>
+                  <i class="closeButton_2 fa fa-database" id="BUTTON_QP_HPI" name="BUTTON_QP_HPI"></i>
+                  
                   <b><?php echo xlt('HPI'); ?>:</b> <i class="fa fa-help"></i><br />
                   <table border="0" width="100%" cellspacing="0" cellpadding="0" 
                          style="font-size:0.8em;min-height: 2.0in;text-align:left;">
@@ -191,7 +199,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                         <b><span title="<?php echo xla('In the patient\'s words'); ?>"><?php echo xlt('Chief Complaint'); ?>:
                         </span>  </b>
                         <br />
-                        <textarea name="CC1" id="CC1" class="HPI_text"><?php echo text($CC1); ?></textarea>
+                        <textarea name="CC1" id="CC1" class="HPI_text" tabindex="10"><?php echo text($CC1); ?></textarea>
                       </td>
                     </tr> 
                     <tr>
@@ -199,7 +207,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                         <span title="<?php echo xla('History of Present Illness:  A detailed HPI may be completed by using either four or more HPI elements OR the status of three chronic or inactive problems.'); ?>" style="height:1in;font-weight:600;vertical-align:text-top;"><?php echo xlt('HPI'); ?>:
                         </span>
                         <br />
-                        <textarea name="HPI1" id="HPI1" class="HPI_text" style="min-height:1.5in;max-height:2.0in;width:4.2in;"><?php echo text($HPI1); ?></textarea>
+                        <textarea name="HPI1" id="HPI1" class="HPI_text" tabindex="21" style="min-height:1.5in;max-height:2.0in;width:4.2in;"><?php echo text($HPI1); ?></textarea>
                         <br />
                       </td>
                     </tr> 
@@ -211,7 +219,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- end    HPI Left -->
               <!-- start  HPI Right -->
               <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow text_clinical">
-                <?php display_draw_section ("PMH",$encounter,$pid); ?>
+                  <?php display_draw_section ("HPI",$encounter,$pid); ?>
                 <div id="PRIORS_HPI_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_HPI_left_text" class="PRIORS_class PRIORS"> 
                   <i class="fa fa-spinner"></i>
                 </div>
@@ -222,49 +230,50 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       <tr>
                         <td class="title"><?php echo xlt('Timing'); ?>:</td>
                         <td><i><?php echo xlt('When and how often?'); ?></i>
-                          <textarea name="TIMING1" id="TIMING1"><?php echo text($TIMING1); ?></textarea>
+                          <textarea name="TIMING1" id="TIMING1" tabindex="30"><?php echo text($TIMING1); ?></textarea>
                         </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Context'); ?>:</td>
                         <td><i><?php echo xlt('Does it occur in certain situations?'); ?></i>
-                          <textarea name="CONTEXT1" id="CONTEXT1"><?php echo text($CONTEXT1); ?></textarea>
+                          <textarea name="CONTEXT1" id="CONTEXT1" tabindex="31"><?php echo text($CONTEXT1); ?></textarea>
                             <br />
                         </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Severity'); ?>:</td>
                         <td><i><?php echo xlt('How bad is it? 0-10, mild, moderate, severe?'); ?></i>
-                          <textarea name="SEVERITY1" id="SEVERITY1"><?php echo text($SEVERITY1); ?></textarea>
+                          <textarea name="SEVERITY1" id="SEVERITY1" tabindex="32"><?php echo text($SEVERITY1); ?></textarea>
                           </td>
                       </tr>
                       <tr>
                         <td  class="title"><?php echo xlt('Modifying'); ?>:</td>
-                        <td><i ><?php echo xlt('Does anything makes it better? Worse?'); ?></i><textarea name="MODIFY1" id="MODIFY1"><?php echo text($MODIFY1); ?></textarea>
+                        <td><i ><?php echo xlt('Does anything makes it better? Worse?'); ?></i>
+                          <textarea name="MODIFY1" id="MODIFY1" tabindex="33"><?php echo text($MODIFY1); ?></textarea>
                             </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Associated'); ?>:</td>
                         <td><i><?php echo xlt('Anything else happen at the same time?'); ?></i>
-                          <textarea name="ASSOCIATED1" id="ASSOCIATED1"><?php echo text($ASSOCIATED1); ?></textarea>
+                          <textarea name="ASSOCIATED1" id="ASSOCIATED1" tabindex="34"><?php echo text($ASSOCIATED1); ?></textarea>
                           </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Location'); ?>:</td>
                         <td><i><?php echo xlt('Where on your body does it occur?'); ?></i>
-                          <textarea name="LOCATION1" id="LOCATION1"><?php echo text($LOCATION1); ?></textarea>                        
+                          <textarea name="LOCATION1" id="LOCATION1" tabindex="35"><?php echo text($LOCATION1); ?></textarea>                        
                         </td>
                       </tr>
                       <tr>
                         <td class="title"><?php echo xlt('Quality'); ?>:</td>
                         <td><i><?php echo xlt('eg. aching, burning, radiating pain'); ?></i>
-                          <textarea name="QUALITY1" id="QUALITY1"><?php echo text($QUALITY1); ?></textarea>
+                          <textarea name="QUALITY1" id="QUALITY1" tabindex="36"><?php echo text($QUALITY1); ?></textarea>
                               
                       </td>
                       </tr> 
                       <tr>
                         <td class="title"><?php echo xlt('Duration'); ?>:</td>
-                        <td><i><?php echo xlt('How long does it last?'); ?></i><textarea name="DURATION1" id="DURATION1">
+                        <td><i><?php echo xlt('How long does it last?'); ?></i><textarea name="DURATION1" id="DURATION1" tabindex="37">
                           <?php echo text($DURATION1); ?></textarea>
                     </td>
                       </tr>
@@ -290,26 +299,32 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <div id="PMH_left" name="PMH_left" class="exam_section_left borderShadow">
                 <div id="PMH_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
                   <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_PMH" name="BUTTON_DRAW_PMH"></span>
+                  <i class="closeButton_2 fa fa-database" id="BUTTON_QP_PMH" name="BUTTON_QP_PMH"></i>
                   <b><?php echo xlt('PMH'); ?>:</b><br />
                   
                   <?php ($PMH_VIEW !=2) ? ($display_PMH_view = "wide_textarea") : ($display_PMH_view= "narrow_textarea");?>                                 
                   <?php ($display_PMH_view == "wide_textarea") ? ($marker ="fa-minus-square-o") : ($marker ="fa-plus-square-o");?>
                   <div id="PMSFH_sections" name="PMSFH_sections">
-                  <?php display_section("PMSFH",$id,$id,$pid); ?>
-                </div>
+                    <?php display_section("PMSFH",$id,$id,$pid); ?>
+                 </div>
                 </div>
               </div>
               <!-- end    PMH Left -->
               <!-- start  PMH Right -->
               <div id="PMH_right" name="PMH_right" class="exam_section_right borderShadow">
-                <div id="PMH_left_text" name="PMH_left_text" style="height: 2.5in;text-align:left;" >
-                  
-                </div>
+                  <?php display_draw_section ("PMH",$encounter,$pid); ?>
                 <div id="QP_PMH" name="QP_PMH" class="QP_class" style="text-align:left;max-height: 2.5in;overflow:auto;">
                   <div id="PMH_text_list" name="PMH_text_list" class="borderShadow  <?php echo attr($display_PMH_view); ?> ">
                     <h1></h1> &nbsp;<br />
-                    <span style="font-size:0.9em;">Here we will incorporate the OpenEMR functionality to add QP Problems and issues.  PMH /POH /FH/ Allergies /etc</span>
+                    <span style="font-size:0.9em;">Here we will incorporate the OpenEMR functionality to add QP Problems and issues. <br />
+                    Currently you must add these the traditional way.<br />
+                    Once added the boxes on the left will be auto-populated.<br />
+                    You can view them but not alter them through this form at present.<br />
+                     PMH /POH /FH/ Allergies /etc
+                    </span>
                     <br />&nbsp;
+                    <h1></h1> &nbsp;<br />
+                    
                   </div>
                 </div>  
                 
@@ -322,7 +337,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- if this is in a frame, allow us to go fullscreen.  Need to hide this if fullscreen though -->  
           <?php 
           if ($display != "fullscreen") {   ?>        
-                  <i onclick="dopopup('<?php echo $_SERVER['REQUEST_URI']. '&display=fullscreen'; ?>')" class="fa fa-plus-square-o top_right"></i>
+                  <i onclick="dopopup('<?php echo $_SERVER['REQUEST_URI']. '&display=fullscreen&encounter='.$encounter; ?>')" class="fa fa-plus-square-o top_right"></i>
                      <?php 
           }  else { ?>
            <!--<i class="fa fa-close top_right" OnClick="window.close()"></i>-->
@@ -336,7 +351,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                 name="LayerTechnical_sections_loading">
                  <i class="fa fa-spinner"></i>
           </div> 
-          <div id="LayerTechnical_sections" name="LayerTechnical_sections" class="section" class="nodisplay" style="width:100%;vertical-align:text-top;position:relative;text-align:left;">
+          <div id="LayerTechnical_sections" name="LayerTechnical_sections" class="section" style="vertical-align:text-top;position:relative;text-align:left;display:none;">
 
                   <!-- start of the VISION BOX -->                  
                   <div id="LayerVision" class="vitals" style="width: 2.0in; min-height: 1.05in;padding: 0.02in; border: 1.00pt solid #000000;">
@@ -370,9 +385,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </div>
                       <div id="Visions_A" name="Visions_A" class="" style="position: absolute; top: 0.35in; text-align:right;right:0.1in; height: 0.72in;  padding: 0in;" >
                           <b>OD </b>
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="40" size="6" id="SCODVA" name="SCODVA" value="<?php echo attr($SCODVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="42" size="6"  id="WODVA_copy" name="WODVA_copy" value="<?php echo attr($WODVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="44" size="6"  id="PHODVA_copy" name="PHODVA_copy" value="<?php echo attr($PHODVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="40" Xsize="6" id="SCODVA" name="SCODVA" value="<?php echo attr($SCODVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="42" Xsize="6"  id="WODVA_copy" name="WODVA_copy" value="<?php echo attr($WODVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="44" Xsize="6"  id="PHODVA_copy" name="PHODVA_copy" value="<?php echo attr($PHODVA); ?>">
                           <br />                            
                           <b>OS </b>
                           <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="41" size="8"  id="SCOSVA" name="SCOSVA" value="<?php echo attr($SCOSVA); ?>">
@@ -386,14 +401,14 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </div>
                       <div id="Visions_B" name="Visions_B" class="nodisplay" style="position: absolute; top: 0.35in; text-align:right;right:0.1in; height: 0.72in;  padding: 0in;" >
                           <b><?php echo xlt('OD'); ?> </b>
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="46" size="6" id="ARODVA_copy" name="ARODVA_copy" value="<?php echo attr($ARODVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="48" size="6" id="MRODVA_copy" name="MRODVA_copy" value="<?php echo attr($MRODVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="50" size="6" id="CRODVA_copy" name="CRODVA_copy" value="<?php echo attr($CRODVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="46" Xsize="6" id="ARODVA_copy" name="ARODVA_copy" value="<?php echo attr($ARODVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="48" Xsize="6" id="MRODVA_copy" name="MRODVA_copy" value="<?php echo attr($MRODVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman';" tabindex="50" Xsize="6" id="CRODVA_copy" name="CRODVA_copy" value="<?php echo attr($CRODVA); ?>">
                           <br />                            
                           <b><?php echo xlt('OS'); ?> </b>
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="47" size="6" id="AROSVA_copy" name="AROSVA_copy" value="<?php echo attr($AROSVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="49" size="6" id="MROSVA_copy" name="MROSVA_copy" value="<?php echo attr($MROSVA); ?>">
-                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="51" size="6" id="CROSVA_copy" name="CROSVA_copy" value="<?php echo attr($CROSVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="47" Xsize="6" id="AROSVA_copy" name="AROSVA_copy" value="<?php echo attr($AROSVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="49" Xsize="6" id="MROSVA_copy" name="MROSVA_copy" value="<?php echo attr($MROSVA); ?>">
+                          <input type="TEXT" style="left: 0.5in; width: 0.35in; height: 0.19in; font-family: 'Times New Roman'" tabindex="51" Xsize="6" id="CROSVA_copy" name="CROSVA_copy" value="<?php echo attr($CROSVA); ?>">
                           <br />
                           <span id="more_visions_2" name="more_visions_2" style="position: absolute;top:0.44in;left:-0.37in;font-size: 0.9em;pading-right:4px;"><b><?php echo xlt('Acuity'); ?></b> </span>
                           <span style="position: absolute;top:0.41in;left:0.33in;font-size: 0.8em;"><b><?php echo xlt('AR'); ?></b></span>
@@ -426,14 +441,14 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </div>
                       <div id="Lyr4.2" style="position: absolute; top: 0.35in; text-align:right;right:0.1in; height: 0.72in;  padding: 0in; border: 1pt black;">
                           <b><?php echo xlt('OD'); ?></b>
-                          <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="52" size="6" name="ODIOPAP" value="<?php echo attr($ODIOPAP); ?>">
-                          <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="54" size="6" name="ODIOPTPN" value="<?php echo attr($ODIOPTPN); ?>">
-                          <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="56" size="6" name="ODIOPFTN" value="<?php echo attr($ODIOPTPN); ?>">
+                          <input type="text" style="left: 0.5in; width: 0.23in; height: 0.18in; font-family: 'Times New Roman';" tabindex="52" Xsize="6" name="ODIOPAP" value="<?php echo attr($ODIOPAP); ?>">
+                          <input type="text" style="left: 0.5in; width: 0.23in; height: 0.18in; font-family: 'Times New Roman';" tabindex="54" Xsize="6" name="ODIOPTPN" value="<?php echo attr($ODIOPTPN); ?>">
+                          <input type="text" style="left: 0.5in; width: 0.23in; height: 0.18in; font-family: 'Times New Roman';" tabindex="56" Xsize="6" name="ODIOPFTN" value="<?php echo attr($ODIOPTPN); ?>">
                           <br />
                           <b><?php echo xlt('OS'); ?> </b>
-                          <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="53" size="6" name="OSIOPAP" value="<?php echo attr($OSIOPAP); ?>">
-                          <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="55" size="6" name="OSIOPTPN" value="<?php echo attr($OSIOPTPN); ?>">
-                          <input type="text" style="left: 0.5in; width: 0.2in; height: 0.18in; font-family: 'Times New Roman';" tabindex="57" size="6" name="OSIOPFTN" value="<?php echo attr($OSIOPFTN); ?>">
+                          <input type="text" style="left: 0.5in; width: 0.23in; height: 0.18in; font-family: 'Times New Roman';" tabindex="53" Xsize="6" name="OSIOPAP" value="<?php echo attr($OSIOPAP); ?>">
+                          <input type="text" style="left: 0.5in; width: 0.23in; height: 0.18in; font-family: 'Times New Roman';" tabindex="55" Xsize="6" name="OSIOPTPN" value="<?php echo attr($OSIOPTPN); ?>">
+                          <input type="text" style="left: 0.5in; width: 0.23in; height: 0.18in; font-family: 'Times New Roman';" tabindex="57" Xsize="6" name="OSIOPFTN" value="<?php echo attr($OSIOPFTN); ?>">
                           <br /><br />
                           <span style="position: absolute;top:0.44in;left:0.22in;font-size: 0.8em;"><b><?php echo xlt('AP'); ?></b></span>
                           <span style="position: absolute;top:0.44in;left:0.47in;font-size: 0.8em;"><b><?php echo xlt('TP'); ?></b></span>
@@ -685,7 +700,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             name="REFRACTION_sections_loading">
              <i class="fa fa-spinner"></i>
           </div> 
-          <div id="REFRACTION_sections" name="REFRACTION_sections" class="nodisplay" style="position:relative;text-align:center;">
+          <div id="REFRACTION_sections" name="REFRACTION_sections" style="position:relative;text-align:center;display:none">
             <div id="LayerVision2" style="text-align:center;" class="section" >
                 <table id="refraction_width" name="refraction_width" style="text-align:center;margin: 0 0;max-width: 900px;">
                     <tr>
@@ -1122,7 +1137,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                         
                                     </tr>
                                     <tr><td><b><?php echo xlt('OD'); ?>:</b></td>
-                                        <td><input type=text id="SCODVA_copy_brd" name="SCODVA_copy_brd" value="<?php echo attr($SCODVA); ?>" tabindex="1"></td>
+                                        <td><input type=text id="SCODVA_copy_brd" name="SCODVA_copy_brd" value="<?php echo attr($SCODVA); ?>" tabindex="99"></td>
                                         <td><input type=text id="WODVA_copy_brd" name="WODVA_copy_brd" value="<?php echo attr($WODVA); ?>" tabindex="102"></td>
                                         <td><input type=text id="ARODVA_copy_brd" name="ARODVA_copy_brd" value="<?php echo attr($ARODVA); ?>" tabindex="104"></td>
                                         <td><input type=text id="MRODVA_copy_brd" name="MRODVA_copy_brd" value="<?php echo attr($MRODVA); ?>" tabindex="106"></td>
@@ -1186,9 +1201,10 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!--  <span id="EXAM_settings" name="EXAM_settings" class="bordershadow" href="#"><i class="fa fa-cog"></i>&nbsp;<?php echo xlt('Settings'); ?></span> -->
             <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="bordershadow"><i class="fa fa-newspaper-o"></i>&nbsp;<?php echo xlt('Defaults'); ?></span> 
             <span id="EXAM_CLINICAL" name="EXAM_CLINICAL" value="TEXT" class="bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
-            <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="bordershadow"><i class="fa fa-paint-brush fa-sm"> </i>&nbsp;<?php echo xlt('Draw'); ?></span>
+            <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="bordershadow">
+              <i class="fa fa-paint-brush fa-sm"> </i>&nbsp;<?php echo xlt('Draw'); ?></span>
             <span id="EXAM_QP" name="EXAM_QP" value="QP" class="bordershadow">
-                <i class="fa fa-shopping-cart fa-sm"> </i>&nbsp;<?php echo xlt('Quick Picks'); ?>
+              <i class="fa fa-database fa-sm"> </i>&nbsp;<?php echo xlt('DB Picks'); ?>
             </span>
             <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text" 
                   class="borderShadow" sdtyle="padding-right:10px;">
@@ -1203,17 +1219,17 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
           <!-- Start of the exam sections -->
           <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;" class="" id="EXAM_sections_loading" 
               name="EXAM_sections_loading">
+              <hr></hr>
                <i class="fa fa-spinner"></i>
           </div> 
           
-          <div style="margin: 0 auto;width:100%;text-align: center;font-size:1.0em;" class="nodisplay" id="EXAM_sections" name="EXAM_sections">   
+          <div style="margin: 0 auto;text-align: center;font-size:1.0em;display:none" id="EXAM_sections" name="EXAM_sections">   
               <!-- start External Exam -->
               <div id="EXT_1" name="EXT_1" class="clear_both">
-
                   <div id="EXT_left" class="exam_section_left borderShadow" >
-                      <?php display_draw_section ("VISION",$encounter,$pid); ?>
                       <div id="EXT_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
-                          <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_ANTSEG" name="BUTTON_DRAW_ANTSEG"></span>
+                          <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_EXT" name="BUTTON_DRAW_EXT"></span>
+                          <i class="closeButton_2 fa fa-database" id="BUTTON_QP_EXT" name="BUTTON_QP_EXT"></i>
                           <b><?php echo xlt('External Exam'); ?>:</b><br />
                           <div style="position:relative;float:right;top:0.2in;">
                             <table style="text-align:center;font-weight:600;font-size:0.8em;">
@@ -1322,7 +1338,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   </div>
                   
                   <div id="EXT_right" name="EXT_right" class="exam_section_right borderShadow text_clinical">
-                      <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+                      <?php display_draw_section ("EXT",$encounter,$pid); ?>
                       <div id="PRIORS_EXT_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_EXT_left_text" class="PRIORS_class PRIORS"> 
                         <i classX="fa fa-spinner"></i>
                       </div>
@@ -1392,9 +1408,10 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- start Anterior Segment -->
               <div id="ANTSEG_1" class="clear_both"> 
                   <div id="ANTSEG_left" nam="ANTSEG_left" class="exam_section_left borderShadow">
-                      <?php display_draw_section ("EXT",$encounter,$pid); ?>
                       <div class="TEXT_class" id="ANTSEG_left_text" style="height: 2.5in;text-align:left;">
                           <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_ANTSEG" name="BUTTON_DRAW_ANTSEG"></span>
+                          <i class="closeButton_2 fa fa-database" id="BUTTON_QP_ANTSEG" name="BUTTON_QP_ANTSEG"></i>
+                  
                           <b><?php echo xlt('Anterior Segment'); ?>:</b><br />
                           <div class="text_clinical" style="position:relative;float:right;top:0.2in;">
                             <table style="text-align:center;font-weight:600;font-size:0.7em;">
@@ -1550,12 +1567,13 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- start Retina --> 
               <div id="RETINA_1" class="clear_both" > 
                   <div id="RETINA_left" class="exam_section_left borderShadow">
-                      <?php display_draw_section ("RETINA",$encounter,$pid); ?>
                       <div class="TEXT_class" id="RETINA_left_text" name="RETINA_left_text" style="height: 2.5in;text-align:left;"> 
                         <!-- 
                         <span class="closeButton fa fa-plus-square-o" id="MAX_RETINA" name="MAX_RETINA"></span>
                         -->
                         <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_RETINA" name="BUTTON_DRAW_RETINA"></span>
+                        <i class="closeButton_2 fa fa-database" id="BUTTON_QP_RETINA" name="BUTTON_QP_RETINA"></i>
+                  
                           <b><?php echo xlt('Retina'); ?>:</b><br />
                                 <?
                                   /*
@@ -1579,7 +1597,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                 ?>
                               </table>
                               <br />
-                              <table style="width:50%;text-align:right;font-size:0.8em;font-weight:bold;Xpadding:10px;margin: 5px 0px;">
+                              <table style="width:50%;text-align:right;font-size:0.8em;font-weight:bold;padding:10px;margin: 5px 0px;">
                                   <tr style="text-align:center;text-decoration:underline;">
                                       <td></td>
                                       <td> <br /><?php echo xlt('OD'); ?></td><td> <br /><?php echo xlt('OS'); ?></td>
@@ -1654,7 +1672,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                            name="PRIORS_RETINA_left_text" 
                            class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
                       </div>
-                      <?php display_draw_section ("IMPPLAN",$encounter,$pid); ?>
+                      <?php display_draw_section ("RETINA",$encounter,$pid); ?>
                       <div id="QP_RETINA" name="QP_RETINA" class="QP_class" style="text-align:left;height: 2.5in;">
                           <input type="hidden" id="RETINA_prefix" name="RETINA_prefix" value="" />
                           <div style="position:relative;top:0.0in;left:0.00in;margin: auto;">
@@ -1720,6 +1738,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <div id="NEURO_1" class="clear_both"> 
                   <div id="NEURO_left" class="exam_section_left borderShadow">
                       <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_NEURO" name="BUTTON_DRAW_NEURO"></span>
+                      <i class="closeButton_2 fa fa-database" id="BUTTON_QP_NEURO" name="BUTTON_QP_NEURO"></i>
                       <div class="TEXT_class" id="NEURO_left_text" name="NEURO_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
                           <b><?php echo xlt('Neuro'); ?>:</b>
                           <div style="float:left;font-size:0.9em;margin-top:8px;">
@@ -1748,10 +1767,10 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                               <span title="Variation in red color discrimination between the eyes (eg. OD=100, OS=75)"><?php echo xlt('Red Desat'); ?>:</span>
                                           </td>
                                           <td>
-                                              <input type="text" size="6" name="ODREDDESAT" id="ODREDDESAT" value="<?php echo attr($ODREDDESAT); ?>"/> 
+                                              <input type="text" Xsize="6" name="ODREDDESAT" id="ODREDDESAT" value="<?php echo attr($ODREDDESAT); ?>"/> 
                                           </td>
                                           <td>
-                                              <input type="text" size="6" name="OSREDDESAT" id="OSREDDESAT" value="<?php echo attr($OSREDDESAT); ?>"/>
+                                              <input type="text" Xsize="6" name="OSREDDESAT" id="OSREDDESAT" value="<?php echo attr($OSREDDESAT); ?>"/>
                                           </td>
                                           <td>
                                              <span title="Insert normals - 100/100" class="fa fa-share-square-o fa-flip-horizontal" id="NEURO_REDDESAT" name="NEURO_REDDESAT"></span>
@@ -1762,10 +1781,10 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                                               <span title="<?php echo xlt('Variation in white (muscle) light brightness discrimination between the eyes (eg. OD=$1.00, OS=$0.75)'); ?>"><?php echo xlt('Coins'); ?>:</span>
                                           </td>
                                           <td>
-                                              <input type="text" size="6" name="ODCOINS" id="ODCOINS" value="<?php echo attr($ODCOINS); ?>"/> 
+                                              <input type="text" Xsize="6" name="ODCOINS" id="ODCOINS" value="<?php echo attr($ODCOINS); ?>"/> 
                                           </td>
                                           <td>
-                                              <input type="text" size="6" name="OSCOINS" id="OSCOINS" value="<?php echo attr($OSCOINS); ?>"/>
+                                              <input type="text" Xsize="6" name="OSCOINS" id="OSCOINS" value="<?php echo attr($OSCOINS); ?>"/>
                                           </td>
                                           <td>
                                              <span title="<?php echo xlt('Insert normals - 100/100'); ?>" class="fa fa-share-square-o fa-flip-horizontal" id="NEURO_COINS" name="NEURO_COINS"></span>
@@ -2383,6 +2402,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                       </div>     
                   </div>
                   <div id="NEURO_right" class="exam_section_right borderShadow text_clinical">
+                    <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+                      
                     <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
                     </div>
                     <div id="QP_NEURO" name="QP_NEURO" class="QP_class" style="text-align:left;height: 2.5in;">
@@ -2456,13 +2477,15 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <!-- <span class="closeButton fa fa-plus-square-o" id="MAX_IMPPLAN" name="MAX_IMPPLAN"></span> -->
                   <div id="IMPPLAN_left_text" name="IMPPLAN_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">
                     <!-- this needs work to integrate it to auto populate with CPT/ICD codes based on form inputs above -->
-                     <?php echo xlt('Impression'); ?>:
+                     <b><?php echo xlt('Impression'); ?>:</b>
                      <textarea rows=5 id="IMP" name="IMP" style="height:1.3in;width:90%;"><?php echo text($IMP); ?></textarea>
-                     <?php echo xlt('Plan'); ?>/<?php echo xlt('Recommendation'); ?>:
+                     <b><?php echo xlt('Plan'); ?>/<?php echo xlt('Recommendation'); ?>:</b>
                      <textarea rows=5 id="PLAN" name="PLAN" style="height:1.3in;width:90%;"><?php echo text($PLAN); ?></textarea>
                   </div>
                 </div>
                 <div id="IMPPLAN_right" class="exam_section_right borderShadow text_clinical">
+                  <?php display_draw_section ("IMPPLAN",$encounter,$pid); ?>
+                      
                   <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
                   </div>
                   <div id="QP_NEURO" name="QP_NEURO" class="QP_class" style="text-align:left;height: 2.5in;">
@@ -2503,6 +2526,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
         });
     </script>
         <!-- Add eye_mag js library -->
+    <script type="text/javascript" src="../../forms/<?php echo $form_folder; ?>/js/shortcut.js"></script>
     <script type="text/javascript" src="../../forms/<?php echo $form_folder; ?>/js/my_js_base.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/restoreSession.php"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>

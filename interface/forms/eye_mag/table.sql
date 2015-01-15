@@ -60,6 +60,7 @@ UPDATE categories SET rght = rght + 2 WHERE name = 'Imaging';
 UPDATE categories_seq SET id = (select MAX(id) from categories);
 INSERT INTO `issue_types` (`active`, `category`, `type`, `plural`, `singular`, `abbreviation`, `style`, `force_show`, `ordering`) VALUES ('1','default','eye','Past Ocular History','POH','O','0','0','4');
 UPDATE `issue_types` set ABBREVIATION='D',category='Dental' where singular = 'Dental';
+
 CREATE TABLE IF NOT EXISTS `form_eye_mag_dispense` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
 `date` datetime DEFAULT NULL,
