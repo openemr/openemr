@@ -113,7 +113,7 @@ function parse_era($filename, $cb) {
             if ($out['loopid']) return 'Unexpected BPR segment';
             $out['check_amount'] = trim($seg[2]);
             $out['check_date'] = trim($seg[16]); // yyyymmdd
-            // TBD: BPR04 is a payment method code.
+            $out['payment_method'] = trim($seg[4]); // BPR04 is a payment method code.
         }
         else if ($segid == 'TRN') {
             if ($out['loopid']) return 'Unexpected TRN segment';
@@ -375,7 +375,7 @@ function parse_era($filename, $cb) {
             $i = count($out['svc']) - 1;
             for ($k = 2; $k < 20; $k += 3) {
                 if (!$seg[$k]) break;
-        if ($seg[1] == 'CO' && $seg[$k+1] < 0) {
+               if (($seg[1] == 'CO') && ($seg[$k+1] < 0) && ($seg[$k] != '144')) { // Adjustment code 144 is Incentive adjustment which is negative.
           $out['warnings'] .= "Negative Contractual Obligation adjustment " .
             "seems wrong. Inverting, but should be checked!\n";
           $seg[$k+1] = 0 - $seg[$k+1];
@@ -488,8 +488,8 @@ function parse_era_for_check($filename) {
             //if ($out['loopid']) return 'Unexpected BPR segment';
             $out['check_amount'.$check_count] = trim($seg[2]);
             $out['check_date'.$check_count] = trim($seg[16]); // yyyymmdd
-            // TBD: BPR04 is a payment method code.
-        
+            $out['payment_method'.$check_count] = trim($seg[4]); // BPR04 is a payment method code.
+       
         }
         else if ($segid == 'N1' && $seg[1] == 'PE') {
             //if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';
