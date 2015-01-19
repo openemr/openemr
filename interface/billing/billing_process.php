@@ -119,7 +119,12 @@ function process_form($ar) {
   global $bill_info, $webserver_root, $bat_filename, $pdf;
 
   if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file'])) {
-    $hlog = fopen($GLOBALS['OE_SITE_DIR']. "/edi/process_bills.log", 'a');
+    if ($GLOBALS['billing_log_option'] == 1) {
+      $hlog = fopen($GLOBALS['OE_SITE_DIR']. "/edi/process_bills.log", 'a');
+    }
+    else { // ($GLOBALS['billing_log_option'] == 2)
+      $hlog = fopen($GLOBALS['OE_SITE_DIR']. "/edi/process_bills.log", 'w');
+    }
   }
 
   if (isset($ar['bn_external'])) {

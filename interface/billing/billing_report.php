@@ -4,6 +4,7 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
+ * Added hooks for UB04 and End of day reporting Terry Hill 2014 terry@lillysystems.com
  */
 
 $fake_register_globals=false;
@@ -22,6 +23,23 @@ require_once("$srcdir/options.inc.php");
 require_once("adjustment_reason_codes.php");
 
 $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
+//echo $GLOBALS['daysheet_provider_totals'];
+
+$daysheet = false;
+$daysheet_total = false;
+$provider_run = false;
+
+if ($GLOBALS['use_custom_daysheet'] != 0) { 
+  $daysheet = true;
+  if ($GLOBALS['daysheet_provider_totals'] == 1) {
+   $daysheet_total = true;
+   $provider_run =  false;
+  }
+  if ($GLOBALS['daysheet_provider_totals'] == 0) {
+   $daysheet_total = false;
+   $provider_run =  true;
+  }
+}
 
 $alertmsg = '';
 
@@ -190,6 +208,24 @@ function SubmitTheScreenPrint()
   top.restoreSession();
   document.the_form.target='new';
   document.the_form.action='print_billing_report.php';
+  document.the_form.submit();
+  return true;
+ }
+  function SubmitTheEndDayPrint()
+ {//Action on View End of Day Report link
+  if(!ProcessBeforeSubmitting())
+   return false;
+  top.restoreSession();
+  document.the_form.target='new';
+<?php if ($GLOBALS['use_custom_daysheet'] == 1) { ?>
+  document.the_form.action='print_daysheet_report_num1.php';
+<?php } ?>
+<?php if ($GLOBALS['use_custom_daysheet'] == 2) { ?>
+  document.the_form.action='print_daysheet_report_num2.php';
+<?php } ?>
+<?php if ($GLOBALS['use_custom_daysheet'] == 3) { ?>
+  document.the_form.action='print_daysheet_report_num3.php';
+<?php } ?>
   document.the_form.submit();
   return true;
  }
@@ -365,6 +401,18 @@ $ThisPageSearchCriteriaQueryDropDownMasterDefault=array();
 $ThisPageSearchCriteriaQueryDropDownMasterDefaultKey=array();
 $ThisPageSearchCriteriaIncludeMaster=array();
 
+if ($daysheet) {
+$ThisPageSearchCriteriaDisplayMaster= array( xl("Date of Service"),xl("Date of Entry"),xl("Date of Billing"),xl("Claim Type"),xl("Patient Name"),xl("Patient Id"),xl("Insurance Company"),xl("Encounter"),xl("Whether Insured"),xl("Charge Coded"),xl("Billing Status"),xl("Authorization Status"),xl("Last Level Billed"),xl("X12 Partner"),xl("User") );
+$ThisPageSearchCriteriaKeyMaster="form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname,".
+                                 "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed,".
+                                 "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id,billing.user";
+$ThisPageSearchCriteriaDataTypeMaster="datetime,datetime,datetime,radio,text_like,".
+                                      "text,include,text,radio,radio,radio,".
+                                      "radio_like,radio,query_drop_down,text";
+}
+else
+{
+
 $ThisPageSearchCriteriaDisplayMaster= array( xl("Date of Service"),xl("Date of Entry"),xl("Date of Billing"),xl("Claim Type"),xl("Patient Name"),xl("Patient Id"),xl("Insurance Company"),xl("Encounter"),xl("Whether Insured"),xl("Charge Coded"),xl("Billing Status"),xl("Authorization Status"),xl("Last Level Billed"),xl("X12 Partner") );
 $ThisPageSearchCriteriaKeyMaster="form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname,".
                                  "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed,".
@@ -372,6 +420,10 @@ $ThisPageSearchCriteriaKeyMaster="form_encounter.date,billing.date,claims.proces
 $ThisPageSearchCriteriaDataTypeMaster="datetime,datetime,datetime,radio,text_like,".
                                       "text,include,text,radio,radio,radio,".
                                       "radio_like,radio,query_drop_down";
+
+
+
+}
 //The below section is needed if there is any 'radio' or 'radio_like' type in the $ThisPageSearchCriteriaDataTypeMaster
 //$ThisPageSearchCriteriaDisplayRadioMaster,$ThisPageSearchCriteriaRadioKeyMaster ==>For each radio data type this pair comes.
 //The key value 'all' indicates that no action need to be taken based on this.For that the key must be 'all'.Display value can be any thing.
@@ -428,15 +480,33 @@ if(!isset($_REQUEST['mode']))//default case
       <table width="100%" border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td width="15%">&nbsp;</td>
-            <td width="85%"><span class='text'><a onClick="javascript:return SubmitTheScreen();" href="#" class=link_submit>[<?php echo htmlspecialchars(xl('Update List'), ENT_QUOTES) ?>]</a>
+            <td width="85%"><span class='text'><a onClick="javascript:return SubmitTheScreen();" href="#" class=link_submit>[<?php echo xlt('Update List') ?>]</a>
    or
-   <a onClick="javascript:return SubmitTheScreenExportOFX();" href="#"  class='link_submit'><?php echo htmlspecialchars(xl('[Export OFX]'), ENT_QUOTES) ?></a></span>               </td>
+   <a onClick="javascript:return SubmitTheScreenExportOFX();" href="#"  class='link_submit'><?php echo '[' . xlt('Export OFX') .']' ?></a></span>               </td>
           </tr>
           <tr>
             <td>&nbsp;</td>
             <td><a onClick="javascript:return SubmitTheScreenPrint();" href="#" 
-    class='link_submit'  ><?php echo htmlspecialchars(xl('[View Printable Report]'), ENT_QUOTES) ?></a></td>
+    class='link_submit'  ><?php echo '['. xlt('View Printable Report').']' ?></a></td>
           </tr>
+		  
+	 <?php if ($daysheet) { ?> 
+		  <tr>
+            <td>&nbsp;</td>
+            <td><a onClick="javascript:return SubmitTheEndDayPrint();" href="#" 
+    class='link_submit'  ><?php echo '['.xlt('End Of Day Report').']' ?></a>
+	<?php if ($daysheet_total) { ?> 
+	<span class=text><?php echo xlt('Totals'); ?> </span>
+	<input type=checkbox  name="end_of_day_totals_only" value="1" <?php if ($obj['end_of_day_totals_only'] === '1') echo "checked";?>>
+	<?php } ?>
+	<?php if ($provider_run) { ?> 
+	<span class=text><?php echo xlt('Provider'); ?> </span>
+	<input type=checkbox  name="end_of_day_provider_only" value="1" <?php if ($obj['end_of_day_provider_only'] === '1') echo "checked";?>>
+	<?php } ?>
+	</td>
+          </tr>
+		<?php } ?>
+		  
           <tr>
             <td>&nbsp;</td>
             <td>
@@ -444,13 +514,13 @@ if(!isset($_REQUEST['mode']))//default case
               $acct_config = $GLOBALS['oer_config']['ws_accounting'];
               if($acct_config['enabled']) {
                 if($acct_config['enabled'] !== 2) {
-                  print '<span class=text><a href="javascript:void window.open(\'' . $acct_config['url_path'] . '\')">' . htmlspecialchars(xl("[SQL-Ledger]"), ENT_QUOTES) . '</a> &nbsp; </span>';
+                  print '<span class=text><a href="javascript:void window.open(\'' . $acct_config['url_path'] . '\')">' . '['. xlt("SQL-Ledger") .']' . '</a> &nbsp; </span>';
                 }
                 if (acl_check('acct', 'rep')) {
-                  print '<span class=text><a href="javascript:void window.open(\'sl_receipts_report.php\')" onclick="top.restoreSession()">' . htmlspecialchars(xl('[Reports]'), ENT_QUOTES) . '</a> &nbsp; </span>';
+                  print '<span class=text><a href="javascript:void window.open(\'sl_receipts_report.php\')" onclick="top.restoreSession()">' . '['. xlt('Reports') .']'. '</a> &nbsp; </span>';
                 }
                 if (acl_check('acct', 'eob')) {
-                  print '<span class=text><a href="javascript:void window.open(\'sl_eob_search.php\')" onclick="top.restoreSession()">' . htmlspecialchars(xl('[EOBs]'), ENT_QUOTES) . '</a></span>';
+                  print '<span class=text><a href="javascript:void window.open(\'sl_eob_search.php\')" onclick="top.restoreSession()">' . '['.xlt('EOBs') .']' . '</a></span>';
                 }
               }
             ?>
@@ -462,17 +532,17 @@ if(!isset($_REQUEST['mode']))//default case
             <?php if (! file_exists($EXPORT_INC)) { ?>
                <!--
                <a href="javascript:top.restoreSession();document.the_form.mode.value='process';document.the_form.submit()" class="link_submit"
-                title="Process all queued bills to create electronic data (and print if requested)"><?php echo htmlspecialchars(xl('[Start Batch Processing]'), ENT_QUOTES) ?></a>
+                title="Process all queued bills to create electronic data (and print if requested)"><?php echo '['. xlt('Start Batch Processing') .']' ?></a>
                &nbsp;
                -->
                <a href='customize_log.php' onclick='top.restoreSession()' target='_blank' class='link_submit'
-                title='<?php htmlspecialchars(xl('See messages from the last set of generated claims'), ENT_QUOTES); ?>'><?php echo htmlspecialchars(xl('[View Log]'), ENT_QUOTES) ?></a>
+                title='<?php xla('See messages from the last set of generated claims'); ?>'><?php echo '['. xlt('View Log') .']'?></a>
             <?php } ?>
             </td>
           </tr>
           <tr>
             <td>&nbsp;</td>
-            <td><a href="javascript:select_all()" class="link_submit"><?php  echo htmlspecialchars(xl('[Select All]','e'), ENT_QUOTES) ?></a></td>
+            <td><a href="javascript:select_all()" class="link_submit"><?php  echo '['. xlt('Select All') .']'?></a></td>
           </tr>
       </table>
 

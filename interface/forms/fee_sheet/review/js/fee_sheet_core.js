@@ -84,7 +84,7 @@ function codeselect_and_save(selobj)
     f.newcodes.value = selobj.options[i].value;
     // Submit the newly selected code.
     top.restoreSession();
-    var form_data=$("form").serialize();
+    var form_data=$("form").serialize() + "&running_as_ajax=1";
     $.post(fee_sheet_new,form_data,
       function(data) {
         // "data" here is the complete newly generated fee sheet HTML.

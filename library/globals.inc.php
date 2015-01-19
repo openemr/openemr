@@ -703,6 +703,28 @@ $GLOBALS_METADATA = array(
 		'1',                              // default = true
 		xl('Enable amendments feature')
 	),
+	
+    'use_custom_daysheet' => array(
+      xl('Use Custom End of Day Report'),
+      array(
+        '0' => xl('None'),
+        '1' => xl('Print End of Day Report 1'),
+        '2' => xl('Print End of Day Report 2'),
+        '3' => xl('Print End of Day Report 3'),
+      ),                       // data type
+      '1',                     // default = Print End of Day Report 1
+      xl('This will allow the use of the custom End of Day report and indicate which report to use.')
+    ),
+     
+    'daysheet_provider_totals' => array(
+      xl('End of Day by Provider or allow Totals Only'),
+      array(
+        '0' => xl('Provider'),
+        '1' => xl('Totals Only'),
+		),
+      '1',                              // default
+      xl('This specifies the Printing of the Custom End of Day Report grouped Provider or allow the Printing of Totals Only')
+    ),
 
   ),
     // E-Sign Tab
@@ -1342,6 +1364,16 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',                              // default
       xl('Enable Audit Log Encryption')
+    ),
+
+    'billing_log_option' => array(
+      xl('Billing Log Option'),
+      array(
+        '1' => xl('Billing Log Append'),
+        '2' => xl('Billing Log Overwrite')
+      ),
+      '1',                               // default
+      xl('Billing log setting to append or overwrite the log file.')
     ),
 
   ),

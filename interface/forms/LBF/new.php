@@ -86,7 +86,10 @@ function end_group() {
     end_row();
     echo " </table>\n";
     // No div for an empty group name.
-    if (strlen($last_group) > 1) echo "</div>\n";
+    if (strlen($last_group) > 1) {
+      echo "</div>\n"; // div after checkbox
+      echo "</div>\n"; // outer div, including checkbox
+    }
   }
 }
 
@@ -128,7 +131,15 @@ if ($_POST['bn_save']) {
     $data_type = $frow['data_type'];
     // If the field was not in the web form, skip it.
     // Except if it's checkboxes, if unchecked they are not returned.
-    if ($data_type != 21 && !isset($_POST["form_$field_id"])) continue;
+    //
+    // if ($data_type != 21 && !isset($_POST["form_$field_id"])) continue;
+    //
+    // The above statement commented out 2015-01-12 because a LBF plugin might conditionally
+    // disable a field that is not applicable, and we need the ability to clear out the old
+    // garbage in there so it does not show up in the "report" view of the data.  So we will
+    // trust that it's OK to clear any field that is defined in the layout but not returned
+    // by the form.
+    //
     $value = get_layout_form_value($frow);
     // If edit option P or Q, save to the appropriate different table and skip the rest.
     $source = $frow['source'];
@@ -473,6 +484,7 @@ function validate(f) {
 
       // If group name is blank, no checkbox or div.
       if (strlen($this_group) > 1) {
+        echo "<div id='outerdiv_" . attr($group_seq) . "'>\n";
         echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
           "onclick='return divclick(this,\"div_" . attr(addslashes($group_seq)) . "\");'";
         if ($display_style == 'block') echo " checked";
