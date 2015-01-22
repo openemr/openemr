@@ -48,6 +48,9 @@ $issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
 
  //maximum number of encounter entries to display on this page:
  // $N = 12;
+ 
+ //Get the default encounter from Globals
+ $default_encounter = $GLOBALS['default_encounter_view']; //'0'=clinical, '1' = billing
 
  // Get relevant ACL info.
  $auth_notes_a  = acl_check('encounters', 'notes_a');
@@ -75,7 +78,8 @@ $tmp = sqlQuery("select authorized from users " .
   "where id = ?", array($_SESSION['authUserID']) );
 $billing_view = ($tmp['authorized'] || $GLOBALS['athletic_team']) ? 0 : 1;
 if (isset($_GET['billing']))
-  $billing_view = empty($_GET['billing']) ? 0 : 1;
+    {$billing_view = empty($_GET['billing']) ? 0 : 1;
+    }else $billing_view = ($default_encounter == 0) ? 0 : 1;
 
 //Get Document List by Encounter ID
 function getDocListByEncID($encounter,$raw_encounter_date,$pid){
