@@ -117,7 +117,7 @@ else {
       <td>
 	      <?php
          generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-           'empty_title' => '-- All --'), $form_provider);
+           'empty_title' => '-- All --'), $_POST['form_provider']);
 	      ?>
       </td>
 			<td class='label'>
