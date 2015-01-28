@@ -1724,12 +1724,4 @@ function is_patient_deceased($pid,$date='') {
   }
 }
 
-function displayRaceValues($dbrace,$sep=','){
-	$racearr = explode("|",$dbrace);
-	$race_str = "";
-	foreach($racearr as $race){
-		$race_str .= htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'race'), $race),ENT_NOQUOTES).$sep;
-	}
-	return rtrim($race_str,$sep);
-}
 ?>
