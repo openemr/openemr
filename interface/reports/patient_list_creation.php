@@ -1,11 +1,23 @@
 <?php
-	// Copyright (c) 2014 Ensoftek, Inc
-	//
-	// This program is protected by copyright laws; you may not redistribute it and/or
-	// modify it in part or whole for any purpose without prior express written permission 
-	// from EnSoftek, Inc.
-	//
-	// This report lists all the demographics allergies,problems,drugs and lab results
+/**
+ * This report lists all the demographics allergies,problems,drugs and lab results
+ *
+ * Copyright (C) 2014 Ensoftek, Inc
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ */
 
 	//SANITIZE ALL ESCAPES
 	$sanitize_all_escapes=true;
@@ -22,8 +34,8 @@
 	require_once("$srcdir/payment_jav.inc.php");
 	
 	$DateFormat=DateFormatRead();
-	$search_options = array("Demographics"=>"Demographics","Problems"=>"Problems","Medications"=>"Medications","Allergies"=>"Allergies","Lab results"=>"Lab Results","Communication"=>"Communication");
-	$comarr = array("allow_sms"=> "Allow SMS" ,"allow_voice"=> "Allow Voice Message","allow_mail"=> "Allow Mail Message","allow_email"=>"Allow Email");
+	$search_options = array("Demographics"=>xl("Demographics"),"Problems"=>xl("Problems"),"Medications"=>xl("Medications"),"Allergies"=>xl("Allergies"),"Lab results"=>xl("Lab Results"),"Communication"=>xl("Communication"));
+	$comarr = array("allow_sms"=>xl("Allow SMS"),"allow_voice"=>xl("Allow Voice Message"),"allow_mail"=>xl("Allow Mail Message"),"allow_email"=>xl("Allow Email"));
 	$_POST['form_details'] = true;
 	function add_date($givendate,$day=0,$mth=0,$yr=0) {
 		$cd = strtotime($givendate);
@@ -55,13 +67,16 @@
 	$form_service_codes = trim($_POST["form_service_codes"]);
 	$form_immunization = trim($_POST["form_immunization"]);
 	$communication = trim($_POST["communication"]);
+        
+        //LIKELY REMOVE THIS AFTER FIGURE OUT WHAT IT IS
         $log_print_path = $GLOBALS['webroot']."/library/";
+
 ?>
 <html>
 	<head>
 		<?php html_header_show();?>
 		<title>
-			<?php echo htmlspecialchars(xl('Patient List Creation'),ENT_NOQUOTES); ?>
+			<?php echo xlt('Patient List Creation'); ?>
 		</title>
 		<script type="text/javascript" src="../../library/overlib_mini.js"></script>
 		<script type="text/javascript" src="../../library/dialog.js"></script>
@@ -75,7 +90,7 @@
 			ToDate = d.date_to.value;
 			if ( (FromDate.length > 0) && (ToDate.length > 0) ) {
 				if ( FromDate > ToDate ){
-					alert("<?php xl('To date must be later than From date!','e'); ?>");
+					alert("<?php echo xls('To date must be later than From date!'); ?>");
 					return false;
 				}
 			}	
@@ -145,7 +160,8 @@
 				}
 				else
 				{
-					$("#form_refresh").attr("value","true"); 
+					$("#form_refresh").attr("value","true");
+                                        top.restoreSession(); 
 					$("#theform").submit();
 				}
 			}
@@ -185,7 +201,7 @@
 		<!-- Required for the popup date selectors -->
 		<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 		<span class='title'>
-		<?php echo htmlspecialchars(xl('Report - Patient List Creation'),ENT_NOQUOTES);?>
+		<?php echo xlt('Report - Patient List Creation');?>
 		</span>
 		<!-- Search can be done using age range, gender, and ethnicity filters.
 		Search options include diagnosis, procedure, prescription, medical history, and lab results.
@@ -193,14 +209,14 @@
 
 		<div id="report_parameters_daterange"> 
 			<p>
-			<?php echo "<span style='margin-left:5px;'><b>Date Range:</b>&nbsp;".htmlspecialchars(date($sql_date_from, strtotime($sql_date_from)),ENT_NOQUOTES) .
-			  " &nbsp; to &nbsp; ". htmlspecialchars(date($sql_date_to, strtotime($sql_date_to)),ENT_NOQUOTES)."</span>"; ?>
-			<span style="margin-left:5px; " ><b>Option:</b>&nbsp;<?php echo $_POST['srch_option']; 
+			<?php echo "<span style='margin-left:5px;'><b>".xlt('Date Range').":</b>&nbsp;".text(date($sql_date_from, strtotime($sql_date_from))) .
+			  " &nbsp; to &nbsp; ". text(date($sql_date_to, strtotime($sql_date_to)))."</span>"; ?>
+			<span style="margin-left:5px; " ><b><?php echo xlt('Option'); ?>:</b>&nbsp;<?php echo text($_POST['srch_option']); 
 			if($_POST['srch_option'] == "Communication" && $_POST['communication'] != ""){
 				if(isset($comarr[$_POST['communication']]))
-				echo "(".$comarr[$_POST['communication']].")";
+				echo "(".text($comarr[$_POST['communication']]).")";
 				else
-				echo "(All)";
+				echo "(".xlt('All').")";
 			}  ?></span>	
 			</p>
 		</div>
@@ -213,14 +229,14 @@
 						<table class='text'>
 							<tr>
 								<td class='label' ><?php echo xlt('From'); ?>: </td>
-								<td><input type='text' name='date_from' id="date_from" size='18' value='<?php echo htmlspecialchars($sql_date_from,ENT_QUOTES); ?>' readonly="readonly" title='<?php echo  $title_tooltip ?>'> <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo htmlspecialchars(xl('Click here to choose a date'),ENT_QUOTES); ?>'></td>
-								<td class='label'><?php echo xlt('To'); ?>: </td>
-								<td><input type='text' name='date_to' id="date_to" size='18' value='<?php echo htmlspecialchars($sql_date_to,ENT_QUOTES); ?>' readonly="readonly" title='<?php echo  $title_tooltip ?>'>	<img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo htmlspecialchars(xl('Click here to choose a date'),ENT_QUOTES); ?>'></td>
+								<td><input type='text' name='date_from' id="date_from" size='18' value='<?php echo attr($sql_date_from); ?>' readonly="readonly" title='<?php echo attr($title_tooltip) ?>'> <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo xla('Click here to choose a date'); ?>'></td>
+								<td class='label'><?php echo xlt('To{{range}}'); ?>: </td>
+								<td><input type='text' name='date_to' id="date_to" size='18' value='<?php echo attr($sql_date_to); ?>' readonly="readonly" title='<?php echo  attr($title_tooltip) ?>'>	<img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='<?php echo xla('Click here to choose a date'); ?>'></td>
 								<td class='label'><?php echo xlt('Option'); ?>: </td>
 								<td class='label'>
 									<select name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
 										<?php foreach($search_options as $skey => $svalue){ ?>
-										<option <?php if($_POST['srch_option'] == $skey) echo 'selected'; ?> value="<?php echo $skey; ?>"><?php echo $svalue; ?></option>
+										<option <?php if($_POST['srch_option'] == $skey) echo 'selected'; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
 										<?php } ?>									
 									</select>
 									<?php ?>
@@ -240,13 +256,13 @@
 								
 							</tr>
 							<tr>
-								<td class='label'><?php echo htmlspecialchars(xl('Patient ID'),ENT_NOQUOTES); ?>:</td>
-								<td><input name='patient_id' class="numeric_only" type='text' id="patient_id" title='<?php echo htmlspecialchars(xl('Optional numeric patient ID'),ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($patient_id,ENT_QUOTES); ?>' size='10' maxlength='20' /></td>
-								<td class='label'><?php echo htmlspecialchars(xl('Age Range'),ENT_NOQUOTES); ?>:</td>
-								<td><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?> 
-								<input name='age_from' class="numeric_only" type='text' id="age_from" value="<?php echo htmlspecialchars($age_from,ENT_QUOTES); ?>" size='3' maxlength='3' /> <?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?> 
-								<input name='age_to' class="numeric_only" type='text' id="age_to" value="<?php echo htmlspecialchars($age_to,ENT_QUOTES); ?>" size='3' maxlength='3' /></td>
-								<td class='label'><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?>:</td>
+								<td class='label'><?php echo xlt('Patient ID'); ?>:</td>
+								<td><input name='patient_id' class="numeric_only" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID'); ?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
+								<td class='label'><?php echo xlt('Age Range'); ?>:</td>
+								<td><?php echo xlt('From'); ?> 
+								<input name='age_from' class="numeric_only" type='text' id="age_from" value="<?php echo attr($age_from); ?>" size='3' maxlength='3' /> <?php echo xlt('To{{range}}'); ?> 
+								<input name='age_to' class="numeric_only" type='text' id="age_to" value="<?php echo attr($age_to); ?>" size='3' maxlength='3' /></td>
+								<td class='label'><?php echo xlt('Gender'); ?>:</td>
 								<td colspan="2"><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
 							</tr>
 							
@@ -256,11 +272,11 @@
 						<td height="100%" valign='middle' width="175"><table style='border-left:1px solid; width:100%; height:100%'>
 							<tr>
 								<td width="130px"><div style='margin-left:15px'> <a href='#' class='css_button' onclick='submitForm();'> <span>
-											<?php echo htmlspecialchars(xl('Submit'),ENT_NOQUOTES); ?>
+											<?php echo xlt('Submit'); ?>
 											</span> </a>
 											<?php if ($_POST['form_refresh']) { ?>
 											<a href='#' class='css_button' onclick="printme('<?php echo $log_print_path; ?>',document.title)"> <span>
-											<?php echo htmlspecialchars(xl('Print'),ENT_NOQUOTES); ?>
+											<?php echo xlt('Print'); ?>
 											</span> </a>
 											<?php } ?>
 									</div>
@@ -422,13 +438,13 @@
 					$sortorder = "asc";
 				}
 				for($i = 0; $i < count($sort); $i++) {
-					  $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sort[$i]','asc');\" ><img src=\"../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>";
+					  $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sort[$i]','asc');\" ><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Up')."\"></a>";
 				}
 				for($i = 0; $i < count($sort); $i++) {
 					if($sortby == $sort[$i]) {
 						switch($sortorder) {
 							case "asc"      : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','desc');\" ><img src=\"../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>"; break;
-							case "desc"     : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','asc');\" onclick=\"top.restoreSession()\"><img src=\"../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Down'), ENT_QUOTES)."\"></a>"; break;
+							case "desc"     : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','asc');\" onclick=\"top.restoreSession()\"><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Down')."\"></a>"; break;
 						} break;
 					}
 				}
@@ -452,9 +468,9 @@
 			}
 			if(!empty($_REQUEST['sortby']) && !empty($_REQUEST['sortorder'])){
 				if($_REQUEST['sortby'] =="communications"){
-					$odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) ".$_REQUEST['sortorder'].", communications ".$_REQUEST['sortorder'];
+					$odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) ".escape_sort_order($_REQUEST['sortorder']).", communications ".escape_sort_order($_REQUEST['sortorder']);
 				}else{
-					$odrstmt = "ORDER BY ".$_REQUEST['sortby']." ".$_REQUEST['sortorder'];
+					$odrstmt = "ORDER BY ".escape_identifier($_REQUEST['sortby'],$sort,TRUE)." ".escape_sort_order($_REQUEST['sortorder']);
 				}
 			}
 			
@@ -522,12 +538,12 @@
 			
 				<br>
 				
-				<input type="hidden" name="sortby" id="sortby" value="<?php echo $sortby; ?>" />
-				<input type="hidden" name="sortorder" id="sortorder" value="<?php echo $sortorder; ?>" /> 
+				<input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
+				<input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr($sortorder); ?>" /> 
 				<div id = "report_results">
 					<table>
 						<tr>
-							<td class="text"><strong><?php xl('Total Number of Patients','e')?>:</strong>&nbsp;<span id="total_patients"><?php echo count(array_unique($patArr));?></span></td>
+							<td class="text"><strong><?php echo xlt('Total Number of Patients')?>:</strong>&nbsp;<span id="total_patients"><?php echo attr(count(array_unique($patArr)));?></span></td>
 						</tr>
 					</table>
 					
@@ -546,13 +562,13 @@
 						</tr>
 					<?php foreach($patFinalDataArr as $patKey => $patDetailVal){ ?>
 								<tr bgcolor = "#CCCCCC" style="font-size:15px;">
-									<td ><?php echo $patDetailVal['lists_date']; ?></td>
+									<td ><?php echo text($patDetailVal['lists_date']); ?></td>
 									<td ><?php echo text($patDetailVal['lists_diagnosis']); ?></td>
 									<td ><?php echo text($patDetailVal['lists_title']); ?></td>									
 									<td ><?php echo text($patDetailVal['patient_name']); ?></td>
-									<td ><?php echo $patDetailVal['patient_id']; ?></td>
-									<td ><?php echo $patDetailVal['patient_age'];?></td>
-									<td ><?php echo $patDetailVal['patient_sex'];?></td> 
+									<td ><?php echo text($patDetailVal['patient_id']); ?></td>
+									<td ><?php echo text($patDetailVal['patient_age']);?></td>
+									<td ><?php echo text($patDetailVal['patient_sex']);?></td> 
 									<td colspan=4><?php echo text($patDetailVal['users_provider']);?></td>	
 								</tr>	
 					<?php	}
@@ -571,9 +587,9 @@
 						<?php
 							foreach($patFinalDataArr as $patKey => $labResInsideArr){?>
 								<tr bgcolor = "#CCCCCC" >
-									<td> <?php echo $labResInsideArr['procedure_result_date'];?>&nbsp;</td>
+									<td> <?php echo text($labResInsideArr['procedure_result_date']);?>&nbsp;</td>
 									<td> <?php echo text($labResInsideArr['procedure_result_facility'],ENT_NOQUOTES); ?>&nbsp;</td>
-									<td> <?php echo text(generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$labResInsideArr['procedure_result_units'])); ?>&nbsp;</td>
+									<td> <?php echo generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$labResInsideArr['procedure_result_units']); ?>&nbsp;</td>
 									<td> <?php echo text($labResInsideArr['procedure_result_result']); ?>&nbsp;</td>
 									<td> <?php echo text($labResInsideArr['procedure_result_range']); ?>&nbsp;</td>
 									<td> <?php echo text($labResInsideArr['procedure_result_abnormal']); ?>&nbsp;</td>
@@ -595,13 +611,13 @@
 						</tr>
 					<?php foreach($patFinalDataArr as $patKey => $patDetailVal){ ?>
 								<tr bgcolor = "#CCCCCC" >
-									<td ><?php if($patDetailVal['patient_date'] != ''){ echo $patDetailVal['patient_date'];  }else{ echo ""; }; ?></td>
+									<td ><?php if($patDetailVal['patient_date'] != ''){ echo text($patDetailVal['patient_date']);  }else{ echo ""; }; ?></td>
 									<td ><?php echo text($patDetailVal['patient_name']); ?></td>
-									<td ><?php echo $patDetailVal['patient_id']; ?></td>
-									<td ><?php echo $patDetailVal['patient_age'];?></td>
-									<td ><?php echo $patDetailVal['patient_sex'];?></td> 
+									<td ><?php echo text($patDetailVal['patient_id']); ?></td>
+									<td ><?php echo text($patDetailVal['patient_age']);?></td>
+									<td ><?php echo text($patDetailVal['patient_sex']);?></td> 
 									<td ><?php echo text($patDetailVal['users_provider']);?></td>
-									<td ><?php echo $patDetailVal['communications'];?></td>
+									<td ><?php echo text($patDetailVal['communications']);?></td>
 							   </tr>
 						<?php
 							}							
@@ -617,12 +633,12 @@
 						</tr>
 							<?php foreach($patFinalDataArr as $patKey => $patDetailVal){ ?>
 								<tr bgcolor = "#CCCCCC" style="font-size:15px;">
-									<td ><?php if($patDetailVal['patient_date'] != ''){ echo $patDetailVal['patient_date'];  }else{ echo ""; };?></td>	
+									<td ><?php if($patDetailVal['patient_date'] != ''){ echo text($patDetailVal['patient_date']);  }else{ echo ""; };?></td>	
 									<td ><?php echo text($patDetailVal['patient_name']); ?></td>
-									<td ><?php echo $patDetailVal['patient_id']; ?></td>
-									<td ><?php echo $patDetailVal['patient_age'];?></td>
-									<td ><?php echo $patDetailVal['patient_sex'];?></td>
-									<td ><?php echo displayRaceValues($patDetailVal['patient_race']); ?></td>
+									<td ><?php echo text($patDetailVal['patient_id']); ?></td>
+									<td ><?php echo text($patDetailVal['patient_age']);?></td>
+									<td ><?php echo text($patDetailVal['patient_sex']);?></td>
+									<td ><?php echo generate_display_field(array('data_type'=>'36','list_id'=>'race'), $patDetailVal['patient_race']); ?></td>
 									<td colspan=5><?php echo text($patDetailVal['users_provider']);?></td>	
 								</tr>	
 						<?php	}	
@@ -634,7 +650,7 @@
 				}else{//End if $result?>
 					<table>
 						<tr>
-							<td class="text">&nbsp;&nbsp;<?php xl('No records found.','e')?></td>
+							<td class="text">&nbsp;&nbsp;<?php echo xlt('No records found.')?></td>
 						</tr>
 					</table>
 				<?php
@@ -644,7 +660,7 @@
 				
 			<?php
 			}else{//End if form_refresh
-				?><div class='text'> <?php echo htmlspecialchars(xl('Please input search criteria above, and click Submit to view results.'),ENT_NOQUOTES); ?> </div><?php
+				?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
 			}
 			?>
 		</form>
