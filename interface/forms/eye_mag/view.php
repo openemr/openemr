@@ -1193,14 +1193,14 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- end of the refraction box -->
 
             <!-- my reporting div for development only remove the "X" to see output from save.php-->
-          <div id="tellmeX" name="tellmeX"></div>
+          <div id="tellme" name="tellme"></div>
             <!-- end reporting div -->
 
           <!-- Start of the exam selection/middle menu row -->
-          <div class="section" style="text-align:center;vertical-align:top;width:100%;margin:10;">
+          <div class="section" style="text-align:center;vertical-align:top;width:100%;margin:10;" name="mid_menu" id="mid_menu">
             <!--  <span id="EXAM_settings" name="EXAM_settings" class="bordershadow" href="#"><i class="fa fa-cog"></i>&nbsp;<?php echo xlt('Settings'); ?></span> -->
             <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="bordershadow"><i class="fa fa-newspaper-o"></i>&nbsp;<?php echo xlt('Defaults'); ?></span> 
-            <span id="EXAM_CLINICAL" name="EXAM_CLINICAL" value="TEXT" class="bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
+            <span id="EXAM_TEXT" name="EXAM_TEXT" value="TEXT" class="bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
             <span id="EXAM_DRAW" name="EXAM_DRAW" value="DRAW" class="bordershadow">
               <i class="fa fa-paint-brush fa-sm"> </i>&nbsp;<?php echo xlt('Draw'); ?></span>
             <span id="EXAM_QP" name="EXAM_QP" value="QP" class="bordershadow">
@@ -2493,7 +2493,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                 </div>   
               </div>
               
-              <!-- END IMP/PLAN -->  
+                          
+              <span class="Button" action="finalize" id="action" name="action" value="finalize" onclick="finalize();">FINALIZE</span>               <!-- END IMP/PLAN -->  
           </div>
           <!-- end of the exam section -->
           </div>

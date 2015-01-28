@@ -62,7 +62,6 @@ $form_folder = "eye_mag";
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 @extract($_SESSION);
 @extract($_REQUEST);
-
 $id = $_GET['id'];
 
 if ($encounter == "" && !$id) {
@@ -169,6 +168,7 @@ if ($AJAX_PREFS) {
  * Create, update or retrieve a form and its values  
  */
 if ($encounter == "") $encounter = date("Ymd");
+
 if ($_GET["mode"] == "new")             { 
   $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
   addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
@@ -179,17 +179,14 @@ if ($_GET["mode"] == "new")             {
   // the user to go back through their history should they make a drawing error or simply want to reverse a
   // step.  On finalization, we need to cleanup the drawing history images and leave just the final one.
   // For example, OU_EXTERNAL_DRAW_0.png through OU_EXTERNAL_DRAW_100.png exist since the user did 101 drawing
-  // events in the EXTernal zone!  Now we only want OU_".$zone."_DRAW.png".  Clean up the directories:
-  if ($_REQUEST['final'] =='1') {
-    $storage = $GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter;
-    $zones = array("EXT","ANTSEG","RETINA","NEURO","VISION","IMPLAN");
-    foreach ($zones as &$zone) {
-      echo "unlinking ".$GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/OU_".$zone."_DRAW_*.png<br /";
-      unlink($GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/OU_".$zone."_DRAW_*.png");
-    }
-    // but alas this is not deleting the files.  And the "go back" feature is not written yet on the drawings
-  }
-  
+  // events in the EXTernal zone!  Now we only want OU_".$zone."_DRAW.png".  Clean up the directories and remove the 
+  //  document from the DB.
+
+  finalize($pid,$encounter);
+    //need to update the eye_mag form in DB to LOCKED, when and by whom, and esign it according to openEMR specs...
+    //need help here.
+   
+ // var_dump($_REQUEST['action']);
   // Any field that exists in the database can be updated
   // so we need to exclude the important ones...
   // id  date  pid   user  groupname   authorized  activity  .  Any other just add them below.
@@ -261,7 +258,7 @@ if ($_GET["mode"] == "new")             {
       display_section($zone,$orig_id,$id_to_show,$pid);
       return; 
     }
-}
+} 
 
 
 /**  
@@ -278,29 +275,37 @@ if ($canvas) {
    * Each file also needs to be filed as a Document to retrieve through controller to keep HIPAA happy
    * Documents directory and subdirs are NOT publicly accessible directly (w/o acl checking)
    */
+  //sites/default/documents
   $location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid;
-  if (!is_dir($location)) {
-              mkdir($location, 0755, true);
-              mkdir($location."/".$form_folder, 0755, true);
-              mkdir($location."/".$form_folder."/".$encounter, 0755, true);
-  } elseif (!is_dir($location."/".$form_folder)) {
-              mkdir($location."/".$form_folder, 0755, true);
-              mkdir($location."/".$form_folder."/".$encounter, 0755, true);
-  } elseif (!is_dir($location."/".$form_folder."/".$encounter)) {
-              mkdir($location."/".$form_folder."/".$encounter, 0755, true);
+ 
+  if (!is_dir($location."/".$form_folder."/".$encounter)) {
+    if (!is_dir($location)) {
+                mkdir($location, 0755, true);
+                mkdir($location."/".$form_folder, 0755, true);
+                mkdir($location."/".$form_folder."/".$encounter, 0755, true);
+    } elseif (!is_dir($location."/".$form_folder)) {
+                mkdir($location."/".$form_folder, 0755, true);
+                mkdir($location."/".$form_folder."/".$encounter, 0755, true);
+    } elseif (!is_dir($location."/".$form_folder."/".$encounter)) {
+                mkdir($location."/".$form_folder."/".$encounter, 0755, true);
+    } 
   }
-
   /**
-   *    Three png files (OU,OD,OS) per LOCATION (EXT,ANTSEG,RETINA,NEURO) 
    *    BASE, found in forms/$form_folder/images eg. OU_EXT_BASE.png
    *          BASE is the blank image to start from and can be customized. Currently 432x150px
    *    VIEW, found in /sites/$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter
    *    TEMP, intermediate png merge file of new drawings with BASE or previous VIEW
+   *    side, (potential variable $side)  To add OD and OS with pre-existing OU.  Will next increase 
+   *          to three png files (OU,OD,OS) per LOCATION (EXT,ANTSEG,RETINA,NEURO) 
+   *          Since we only have one drawing so far.  Can extend this to a 3D interpretation when 
+   *          integrating radiology or OCT or 3D Ultrasound
+   *          to pick out images at a specific angle/slice.  For now just use OU.
    */
+  $side = "OU";
   $storage = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter;
-  if (file_exists($storage."/OU_".$zone."_VIEW.png")) { //add new drawings to previous for this encounter
+  if (file_exists($storage."/OU_".$zone."_VIEW.png")) {   //  add new drawings to previous for this encounter
     $file_base = $storage."/OU_".$zone."_VIEW.png";
-  } else  { //start from the base image found in eye_mag directory /images
+  } else  {                                               // start from the base image found in eye_mag directory/images
     $file_base = $GLOBALS['webserver_root']."/interface/forms/".$form_folder."/images/OU_".$zone."_BASE.png";
   }
   $data =$_POST["imgBase64"];
@@ -330,6 +335,7 @@ if ($canvas) {
     *  We need to tell the documents engine about this file, add it to the documents and doc_to_cat tables.
     *  
     */
+
   $file_here = $storage."/OU_".$zone."_VIEW.png";
 
   $doc = sqlQuery("Select * from documents where url='file://".$storage."/OU_".$zone."_VIEW.png'");
@@ -352,12 +358,15 @@ if ($canvas) {
     $sql = "REPLACE INTO categories_to_documents set category_id = '" . $category['id'] . "', document_id = '" . $doc['id'] . "'";
     sqlQuery($sql);  
   }
-  /** HISTORY FEATURE: Images.  
+   /** HISTORY FEATURE: Images.  
     * Store this latest drawing separately, incrementally, in the directory so user can go backwards - 
     * canvas stores everything in real time! We need to be able to correct a slip-up by reversing through
     * old images just like the PRIORS feature for the text fields but using today's most recent drawings...
     * This may have to be done client side due to network lag issues
     */
+   finalize($pid,$encounter);
+   
+
   $file_history = $storage."/OU_".$zone."_DRAW_1";
   $file_store= $file_history.".png";
   $additional = '1';
@@ -368,6 +377,27 @@ if ($canvas) {
         $file_store= $file_history.".png";
   }
   copy($storage."/OU_".$zone."_VIEW.png",$file_store);
+  $doc = sqlQuery("select MAX(id)+1 as id from documents");
+  $sql = "REPLACE INTO documents set 
+              id='".$doc['id']."',
+              type='file_url',size='".filesize($file_store)."',
+              date=NOW(),
+              mimetype='image/png',
+              owner='".$_SESSION['authUserID']."',
+              foreign_id='".$pid."',
+              docdate=NOW(),
+              path_depth='3',
+              url='file://".$file_store."'";
+          //    echo $sql;
+    $doc_id = sqlQuery($sql);  
+
+    $category = sqlQuery("select id from categories where name='Drawings'");       
+    $sql = "REPLACE INTO categories_to_documents set category_id = '" . $category['id'] . "', document_id = '" . $doc['id'] . "'";
+    sqlQuery($sql);  
+    $file_history = $storage."/OU_".$zone."_DRAW_". $additional--;
+    $last_id= $file_history.".png";
+
+  echo $last_id;
 
 }
 

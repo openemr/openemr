@@ -65,7 +65,7 @@ function goto_url(url) {
     window.open(url);
 }
 
-function submit_form(e) {
+function submit_form() {
     var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
     var formData = $("form#eye_mag").serialize();
     $("#menustate").val('0');
@@ -75,6 +75,7 @@ function submit_form(e) {
            data 	: formData, // our data object
            success  : function(result)  {
            $("#tellme").html(result);
+           // alert(result);
            }
            });
         //location.reload();
@@ -105,6 +106,28 @@ function update_PREFS() {
         'PREFS_NEURO_VIEW'      : $('#PREFS_NEURO_VIEW').val(),
         'PREFS_ACT_VIEW'        : $('#PREFS_ACT_VIEW').val(),
         'PREFS_ACT_SHOW'        : $('#PREFS_ACT_SHOW').val()
+    };
+    $.ajax({
+           type 		: 'POST',
+           url          : url,
+           data 		: formData,
+           success      : function(result) {
+           $("#tellme").html(result);
+           }
+           });
+}
+
+/**
+ *  Function to finalize chart - delete temp images from drawing, esign??
+ */
+function finalize() {
+    var url = "../../forms/eye_mag/save.php?mode=update&id=" + $("#form_id").val();
+    var formData = {
+        'action'           : "finalize",
+        'final'            : "1",
+        'id'               : $('#id').val(),
+        'encounter'        : $('#encounter').val(),
+        'pid'              : $('#pid').val()
     };
     $.ajax({
            type 		: 'POST',
@@ -188,12 +211,15 @@ function show_DRAW_section(zone) {
 }
 
 function show_TEXT() {
-    hide_right(); //this hides the right half
+    show_left();
     hide_QP();
     hide_DRAW();
+    hide_right(); //this hides the right half
+    
     hide_PRIORS();
     $("#PMH_1").show();
     $("#NEURO_1").show();
+    $("#NIMPPLAN_1").show();
     $(".TEXT_class").show();
 }
 function show_PRIORS() {
@@ -222,7 +248,7 @@ function hide_left() {
     $("#RETINA_left").hide();
     $("#NEURO_left").hide();
     $("#IMPPLAN_left").hide();
-    $("[name$='_left']").hide();
+    $("[name $='_left']").hide();
 }
 function show_left() {
     $("[name$='_1']").removeClass("size100").addClass("size50");
@@ -262,7 +288,7 @@ function show_QP_section(zone) {
 
 function menu_select(zone,che) {
         //$("[name^='menu_']").removeClass('active');
-        // $("#menu_"+zone).addClass('active');
+    $("#menu_"+zone).addClass('active');
         //$("#menu_"+zone+"_"+checked).addClass('');
 }
 function hide_DRAW() {
@@ -282,7 +308,7 @@ function hide_DRAW() {
 function hide_QP() {
     $(".QP_class").hide();
     $("[name$='_right']").removeClass('canvas');
-    }
+}
 function hide_TEXT() {
     $(".TEXT_class").hide();
 }
@@ -290,11 +316,11 @@ function hide_PRIORS() {
     $(".PRIORS_class").hide();
     $("#EXT_right").removeClass("PRIORS_color");
     
-    /*  $("#PRIORS_EXT_left_text").hide();
+    $("#PRIORS_EXT_left_text").hide();
      $("#PRIORS_ANTSEG_left_text").hide();
      $("#PRIORS_RETINA_left_text").hide();
      $("#PRIORS_NEURO_left_text").hide();
-     */
+    
 }
 
 function printElem(options){
@@ -389,11 +415,11 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
     return $.ajax({ url: '/openemr/library/openflashchart/graph_track_anything.php',
                   type: 'POST',
                   data: {
-                    dates:  thedates,   //$the_date_array
-                    values: thevalues,  //$the_value_array
-                    items:  theitems,   //$the_item_names
-                    track:  thetrack,   //$titleGraph
-                    thecheckboxes: checkedBoxes //$the_checked_cols
+                  dates:  thedates,   //$the_date_array
+                  values: thevalues,  //$the_value_array
+                  items:  theitems,   //$the_item_names
+                  track:  thetrack,   //$titleGraph
+                  thecheckboxes: checkedBoxes //$the_checked_cols
                   },
                   dataType: "json",
                   success: function(returnData){
@@ -412,7 +438,7 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
                   //alert("XMLHttpRequest="+XMLHttpRequest.responseText+"\ntextStatus="+textStatus+"\nerrorThrown="+errorThrown);
                   }
                   
-                  }); // end ajax query	
+                  }); // end ajax query
 }
 
 function openImage() {
@@ -559,31 +585,31 @@ $(document).ready(function() {
                                            var front = this.id.match(/(.*)AXIS$/)[1];
                                            var cyl = $("#"+front+"CYL").val();
                                            if (cyl > '') {
-                                            if (!axis.match(/\d\d\d/)) {
-                                                if (!axis.match(/\d\d/)) {
-                                                    if (!axis.match(/\d/)) {
-                                                        axis = '0';
-                                                    }
-                                                    axis = '0' + axis;
-                                                }
-                                                axis = '0' + axis;
-                                            }
+                                           if (!axis.match(/\d\d\d/)) {
+                                           if (!axis.match(/\d\d/)) {
+                                           if (!axis.match(/\d/)) {
+                                           axis = '0';
+                                           }
+                                           axis = '0' + axis;
+                                           }
+                                           axis = '0' + axis;
+                                           }
                                            }
                                            $(this).val(axis);
                                            submit_form('eye_mag');
                                            });
-
+                  
                   
                   $("[name$='CYL']").blur(function() {
                                           var mid = $(this).val();
                                           if (!mid.match(/\./)) {
-                                            var front = mid.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
-                                            var back  = mid.match(/(\d{0,2})(\d{2})/)[2];
-                                            mid = front + "." + back;
+                                          var front = mid.match(/([\+\-]?\d{0,2})(\d{2})/)[1];
+                                          var back  = mid.match(/(\d{0,2})(\d{2})/)[2];
+                                          mid = front + "." + back;
                                           }
                                           //if mid is -2.5 make it -2.50
                                           if (mid.match(/\.\d$/)) {
-                                           mid = mid + '0';
+                                          mid = mid + '0';
                                           // mid = this.val() + '0';
                                           }
                                           $(this).val(mid);
@@ -677,13 +703,13 @@ $(document).ready(function() {
                                                        //if the menu is active through a prior click, show it
                                                        // Have to override Bootstrap then
                                                        if ($("#menustate").val() !="1") { //menu not active -> ignore
-                                                            $("#"+menuitem).css("background-color", "#C9DBF2");
-                                                            $("#"+menuitem).css("color","#000"); /*#262626;*/
+                                                       $("#"+menuitem).css("background-color", "#C9DBF2");
+                                                       $("#"+menuitem).css("color","#000"); /*#262626;*/
                                                        } else { //menu is active -> respond
-                                                            $("#"+menuitem).css("background-color", "#1C5ECF");
-                                                            $("#"+menuitem).css("color","#fff"); /*#262626;*/
-                                                            $("#"+menuitem).css("text-decoration","none");
-                                                            $("#"+menuitem).parent().addClass('open');
+                                                       $("#"+menuitem).css("background-color", "#1C5ECF");
+                                                       $("#"+menuitem).css("color","#fff"); /*#262626;*/
+                                                       $("#"+menuitem).css("text-decoration","none");
+                                                       $("#"+menuitem).parent().addClass('open');
                                                        }
                                                        },function() {
                                                        var menuitem = this.id.match(/(.*)/)[1];
@@ -702,7 +728,7 @@ $(document).ready(function() {
                                                        // alert($("#menustate").val());
                                                        });
                   
-
+                  
                   $("[name^='menu_']").click(function() {
                                              $("[name^='menu_']").removeClass('active');
                                              var menuitem = this.id.match(/menu_(.*)/)[1];
@@ -816,57 +842,57 @@ $(document).ready(function() {
                                      $("#WNEAROSPRISM").hide();
                                      
                                      // $(".WNEAR").hide();
-                                                $(".WSPACER").show();
-                                           //$("[id=Single]").prop('checked','checked');
-                                                });
+                                     $(".WSPACER").show();
+                                     //$("[id=Single]").prop('checked','checked');
+                                     });
                   $("#Bifocal").click(function(){
-                                           $(".WSPACER").hide();
-                                           $(".WNEAR").show();
-                                           $(".WMid").addClass('nodisplay');
-                                           $(".WHIDECYL").removeClass('nodisplay');
-                                           $("[name=RX]").val(["1"]);
-                                           $("#WNEARODAXIS").hide();
-                                           $("#WNEARODCYL").hide();
-                                           $("#WNEARODPRISM").hide();
-                                           $("#WNEAROSAXIS").hide();
-                                           $("#WNEAROSCYL").hide();
-                                           $("#WNEAROSPRISM").hide();
+                                      $(".WSPACER").hide();
+                                      $(".WNEAR").show();
+                                      $(".WMid").addClass('nodisplay');
+                                      $(".WHIDECYL").removeClass('nodisplay');
+                                      $("[name=RX]").val(["1"]);
+                                      $("#WNEARODAXIS").hide();
+                                      $("#WNEARODCYL").hide();
+                                      $("#WNEARODPRISM").hide();
+                                      $("#WNEAROSAXIS").hide();
+                                      $("#WNEAROSCYL").hide();
+                                      $("#WNEAROSPRISM").hide();
                                       $("#WODADD2").show();
                                       $("#WOSADD2").show();
                                       
-                                           });
+                                      });
                   $("#Trifocal").click(function(){
-                                            $(".WSPACER").hide();
-                                            $(".WNEAR").show();
-                                            $(".WMid").removeClass('nodisplay');
-                                            $(".WHIDECYL").addClass('nodisplay');
-                                            $("[name=RX]").val(["2"]);
-                                            $("#WNEARODAXIS").hide();
-                                            $("#WNEARODCYL").hide();
-                                            $("#WNEARODPRISM").hide();
-                                            $("#WNEAROSAXIS").hide();
-                                            $("#WNEAROSCYL").hide();
-                                            $("#WNEAROSPRISM").hide();
+                                       $(".WSPACER").hide();
+                                       $(".WNEAR").show();
+                                       $(".WMid").removeClass('nodisplay');
+                                       $(".WHIDECYL").addClass('nodisplay');
+                                       $("[name=RX]").val(["2"]);
+                                       $("#WNEARODAXIS").hide();
+                                       $("#WNEARODCYL").hide();
+                                       $("#WNEARODPRISM").hide();
+                                       $("#WNEAROSAXIS").hide();
+                                       $("#WNEAROSCYL").hide();
+                                       $("#WNEAROSPRISM").hide();
                                        $("#WODADD2").show();
                                        $("#WOSADD2").show();
-
-                                            });
+                                       
+                                       });
                   $("#Progressive").click(function(){
-                                               $(".WSPACER").hide();
-                                               $(".WNEAR").show();
-                                               $(".WMid").addClass('nodisplay');
-                                               $(".WHIDECYL").removeClass('nodisplay');
-                                               $("[name=RX]").val(["3"]);
-                                               $("#WNEARODAXIS").hide();
-                                               $("#WNEARODCYL").hide();
-                                               $("#WNEARODPRISM").hide();
-                                               $("#WNEAROSAXIS").hide();
-                                               $("#WNEAROSCYL").hide();
-                                               $("#WNEAROSPRISM").hide();
+                                          $(".WSPACER").hide();
+                                          $(".WNEAR").show();
+                                          $(".WMid").addClass('nodisplay');
+                                          $(".WHIDECYL").removeClass('nodisplay');
+                                          $("[name=RX]").val(["3"]);
+                                          $("#WNEARODAXIS").hide();
+                                          $("#WNEARODCYL").hide();
+                                          $("#WNEARODPRISM").hide();
+                                          $("#WNEAROSAXIS").hide();
+                                          $("#WNEAROSCYL").hide();
+                                          $("#WNEAROSPRISM").hide();
                                           $("#WODADD2").show();
                                           $("#WOSADD2").show();
-
-                                               });
+                                          
+                                          });
                   $("#Amsler-Normal").change(function() {
                                              if ($(this).is(':checked')) {
                                              var number1 = document.getElementById("AmslerOD").src.match(/(Amsler_\d)/)[1];
@@ -1261,21 +1287,21 @@ $(document).ready(function() {
                                             //reset all motility measurements to zero if checked
                                             //if not, then leave alone...
                                             });
-                  $("#EXAM_DRAW").click(function() {
-                                        if ($("#PREFS_CLINICAL").value !='0') {
-                                        show_right();
-                                        $("#PREFS_CLINICAL").val('0');
-                                        update_PREFS();
-                                        }
-                                        if ($("#PREFS_EXAM").value != 'DRAW') {
-                                        $("#PREFS_EXAM").val('DRAW');
-                                        show_DRAW();
-                                        $("#EXAM_QP").removeClass('button_selected');
-                                        $("#EXAM_DRAW").addClass('button_selected');
-                                        $("#EXAM_CLINICAL").removeClass('button_selected');
-                                        update_PREFS();
-                                        }
-                                        });
+                  $("#EXAM_DRAW, #BUTTON_DRAW_menu").click(function() {
+                                                           if ($("#PREFS_CLINICAL").value !='0') {
+                                                           show_right();
+                                                           $("#PREFS_CLINICAL").val('0');
+                                                           update_PREFS();
+                                                           }
+                                                           if ($("#PREFS_EXAM").value != 'DRAW') {
+                                                           $("#PREFS_EXAM").val('DRAW');
+                                                           show_DRAW();
+                                                           $("#EXAM_QP").removeClass('button_selected');
+                                                           $("#EXAM_DRAW").addClass('button_selected');
+                                                           $("#EXAM_TEXT").removeClass('button_selected');
+                                                           update_PREFS();
+                                                           }
+                                                           });
                   $("#EXAM_QP").click(function() {
                                       if ($("#PREFS_CLINICAL").value !='0') {
                                       $("#PREFS_CLINICAL").val('0');
@@ -1286,35 +1312,63 @@ $(document).ready(function() {
                                       $("#PREFS_EXAM").val('QP');
                                       $("#EXAM_QP").addClass('button_selected');
                                       $("#EXAM_DRAW").removeClass('button_selected');
-                                      $("#EXAM_CLINICAL").removeClass('button_selected');
+                                      $("#EXAM_TEXT").removeClass('button_selected');
                                       update_PREFS();
                                       }
                                       });
                   
-                  $("#EXAM_CLINICAL,[id^='BUTTON_TEXT_']").click(function() {
-                                            if ($("#PREFS_CLINICAL").val() !='1') {
-                                            //we want to show text_only which are found on left half
-                                            $("#PREFS_CLINICAL").val('1');
-                                            $("#PREFS_EXAM").val('TEXT');
-                                            // also hide QP, DRAWs, and PRIORS
-                                            hide_PRIORS();
-                                            hide_DRAW();
-                                            hide_QP();
-                                            show_TEXT();
-                                            update_PREFS();
-                                            }
-                                            $("#EXAM_DRAW").removeClass('button_selected');
-                                            $("#EXAM_QP").removeClass('button_selected');
-                                            $("#EXAM_CLINICAL").addClass('button_selected');
-                                            });
-                  $("#EXAM_CLINICAL").addClass('button_selected');
+                  $("#EXAM_TEXT").click(function() {
+                                        if ($("#PREFS_CLINICAL").val() !='1') {
+                                        //we want to show text_only which are found on left half
+                                        $("#PREFS_CLINICAL").val('1');
+                                        $("#PREFS_EXAM").val('TEXT');
+                                        // also hide QP, DRAWs, and PRIORS
+                                        hide_PRIORS();
+                                        hide_DRAW();
+                                        hide_QP();
+                                        show_TEXT();
+                                        update_PREFS();
+                                        }
+                                        $("#EXAM_DRAW").removeClass('button_selected');
+                                        $("#EXAM_QP").removeClass('button_selected');
+                                        $("#EXAM_TEXT").addClass('button_selected');
+                                        });
+                  $("[id^='BUTTON_TEXT_']").click(function() {
+                                                  var zone = this.id.match(/BUTTON_TEXT_(.*)/)[1];
+                                                  if (zone != "menu") {
+                                                  $("#"+zone+"_right").hide();
+                                                  }
+                                                  });
+                  $("[id^='BUTTON_BACK_']").click(function() {
+                                                  var zone = this.id.match(/BUTTON_BACK_(.*)/)[1];
+                                                  if (zone != "menu") {
+                                                  var css = $("#"+zone+"_counter").val();
+                                                  //show this in the background
+                                                  $("#Sketch_"+zone).css("background","url('"+css+"')");
+                                                  //replace this with prior image
+                                                  //var counter =$("#"+zone+"_counter").val();
+                                                  //counter--;
+                                                  //$("#"+zone+"_counter").val(counter);
+                                                  //change the image shown in the back ground?
+                                                  //Sketch_<?php echo attr($zone); ?> style background
+                                                  //replace background: url(<?php echo attr($filetoshow); ?>)
+                                                  //with OU_zone_counter.jpg
+                                                  //in order to retrieve this through the controller
+                                                  // it must be a registered document...
+                                                  // which means when finalized, these references must be deleted also.
+                                                  
+                                                  //$("#Sketch_"+zone).css("background",")
+                                                  //$("#"+zone+"_right").hide();
+                                                  }
+                                                  });
+                  $("#EXAM_TEXT").addClass('button_selected');
                   if ($("#PREFS_CLINICAL").val() !='1') {
                   var actionQ = "#EXAM_"+$("#PREFS_EXAM").val();
                   // alert(actionQ);
                   $(actionQ).trigger('click');
                   //$("#EXAM_QP").val("1").trigger('click');
                   } else {
-                  $("#EXAM_CLINICAL").addClass('button_selected');
+                  $("#EXAM_TEXT").addClass('button_selected');
                   }
                   if ($("#ANTSEG_prefix").val() > '') {
                   $("#ANTSEG_prefix_"+$("#ANTSEG_prefix").val()).addClass('button_selected');
@@ -1339,10 +1393,10 @@ $(document).ready(function() {
                                             $("#ACTTRIGGER").toggleClass('buttonRefraction_selected').toggleClass('underline');
                                             });
                   if ($("#PREFS_ACT_VIEW").val() == '1') {
-                    $("#ACTMAIN").toggleClass('nodisplay'); //.toggleClass('fullscreen');
-                    $("#NPCNPA").toggleClass('nodisplay');
-                    $("#ACTNORMAL_CHECK").toggleClass('nodisplay');
-                    $("#ACTTRIGGER").toggleClass('underline');
+                  $("#ACTMAIN").toggleClass('nodisplay'); //.toggleClass('fullscreen');
+                  $("#NPCNPA").toggleClass('nodisplay');
+                  $("#ACTNORMAL_CHECK").toggleClass('nodisplay');
+                  $("#ACTTRIGGER").toggleClass('underline');
                   var show = $("#PREFS_ACT_SHOW").val();
                   //alert($("#PREFS_ACT_SHOW").val());
                   $("#ACT_tab_"+show).trigger('click');
@@ -1353,9 +1407,9 @@ $(document).ready(function() {
                                          $("#ACTNORMAL_CHECK").toggleClass('nodisplay');
                                          $("#ACTTRIGGER").toggleClass('underline');
                                          if ($("#PREFS_ACT_VIEW").val()=='1') {
-                                            $("#PREFS_ACT_VIEW").val('0');
+                                         $("#PREFS_ACT_VIEW").val('0');
                                          } else {
-                                            $("#PREFS_ACT_VIEW").val('1');
+                                         $("#PREFS_ACT_VIEW").val('1');
                                          }
                                          var show = $("#PREFS_ACT_SHOW").val();
                                          $("#ACT_tab_"+show).trigger('click');
@@ -1402,7 +1456,7 @@ $(document).ready(function() {
                                                 var dataURL = this.toDataURL();
                                                 $.ajax({
                                                        type: "POST",
-                                                       url: "../../forms/eye_mag/save.php?canvas="+zone+"&id="+$("#id").val(),
+                                                       url: "../../forms/eye_mag/save.php?canvas="+zone+"&id="+$("#form_id").val(),
                                                        data: {
                                                        imgBase64     : dataURL,
                                                        'zone'        : zone,
@@ -1410,7 +1464,11 @@ $(document).ready(function() {
                                                        'encounter'   : $("#encounter").val()
                                                        },
                                                        success      : function(result) {
-                                                       
+                                                       //alert(result);
+                                                       // var zone_counter = result--;
+                                                       //change value for back button
+                                                       // $("#"+zone+"_counter").val(zone_counter);
+                                                       //alert($(this).val());
                                                        $("#tellme").html(result);
                                                        }
                                                        }).done(function(o) {
@@ -1442,24 +1500,24 @@ $(document).ready(function() {
                                                    url      :  "../../forms/eye_mag/save.php?copy="+zone,
                                                    data 	: data,
                                                    success  : function(result) {
-                                                    $.map(result, function(valhere, keyhere) {
-                                                        if ($("#"+keyhere).val() != valhere) {  $("#"+keyhere).val(valhere).css("background-color","#CCF");}
-                                                        if (keyhere.match(/MOTILITY_/)) { //copy forward ductions and versions visually
-                                                            //make each blank, and rebuild them
-                                                            $("[name='"+keyhere+"_1']").html('');
-                                                            $("[name='"+keyhere+"_2']").html('');
-                                                            $("[name='"+keyhere+"_3']").html('');
-                                                            $("[name='"+keyhere+"_4']").html('');
-                                                            if (keyhere.match(/(_RS|_LS|_RI|_LI)/)) {  //show a horizontal (minus) tag
-                                                                hash_tag = '<i class="fa fa-minus"></i>';
-                                                            } else { //show vertical tag
-                                                                hash_tag = '<i class="fa fa-minus rotate-left"></i>';
-                                                            }
-                                                            for (index =1; index <= valhere; ++index) {
-                                                                $("#"+keyhere+"_"+index).html(hash_tag);
-                                                            }
+                                                   $.map(result, function(valhere, keyhere) {
+                                                         if ($("#"+keyhere).val() != valhere) {  $("#"+keyhere).val(valhere).css("background-color","#CCF");}
+                                                         if (keyhere.match(/MOTILITY_/)) { //copy forward ductions and versions visually
+                                                         //make each blank, and rebuild them
+                                                         $("[name='"+keyhere+"_1']").html('');
+                                                         $("[name='"+keyhere+"_2']").html('');
+                                                         $("[name='"+keyhere+"_3']").html('');
+                                                         $("[name='"+keyhere+"_4']").html('');
+                                                         if (keyhere.match(/(_RS|_LS|_RI|_LI)/)) {  //show a horizontal (minus) tag
+                                                         hash_tag = '<i class="fa fa-minus"></i>';
+                                                         } else { //show vertical tag
+                                                         hash_tag = '<i class="fa fa-minus rotate-left"></i>';
                                                          }
-                                                          });
+                                                         for (index =1; index <= valhere; ++index) {
+                                                         $("#"+keyhere+"_"+index).html(hash_tag);
+                                                         }
+                                                         }
+                                                         });
                                                    }
                                                    }).done(function (){
                                                            submit_form("eye_mag");
@@ -1476,15 +1534,18 @@ $(document).ready(function() {
                                                   $("#"+zone+"_1").show();
                                                   $("#"+zone+"_right").addClass('canvas').show();
                                                   $("#QP_"+zone).hide();
+                                                  $("#PRIORS_"+zone).hide();
                                                   $("#Draw_"+zone).show();
-
+                                                  
                                                   }
                                                   });
                   $("[id^='BUTTON_QP_']").click(function() {
                                                 var zone =this.id.match(/BUTTON_QP_(.*)$/)[1];
+                                                //hide_DRAW();
+                                                $("#PRIORS_"+zone+"_left_text").hide();
                                                 $("#Draw_"+zone).hide();
                                                 show_QP_section(zone);
-                                                  });
+                                                });
                   
                   $("#construction").click(function() {
                                            $("[id^='CONSTRUCTION_']").toggleClass('nodisplay');

@@ -76,8 +76,8 @@ function priors_select($zone,$orig_id,$id_to_show,$pid) {
         while ($prior= sqlFetchArray($result))   {   
             $visit_date_local = date_create($prior['encounter_date']);
             $exam_date = date_format($visit_date_local, 'm/d/Y'); 
-            // there may be an openEMR global user preference for date formatting
-            //there is - use when ready...
+            //  there may be an openEMR global user preference for date formatting
+            //  there is - use when ready...
             $priors[$i] = $prior;
             $selected ='';
             $priors[$i]['exam_date'] = $exam_date;
@@ -1638,7 +1638,8 @@ function display_draw_section ($zone,$encounter,$pid,$side ='OU') {
     ?>
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
         <span class="closeButton fa fa-file-text-o" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
-
+        <span class="closeButton_2 fa fa-fast-backward fa-sm" id="BUTTON_BACK_<?php echo attr($zone); ?>" name="BUTTON_BACK_<?php echo attr($zone); ?>"></span>
+        <input type="hidden" id="<?php echo attr($zone); ?>_counter" name="<?php echo attr($zone); ?>_counter"  value="">
         <div class="tools" style="text-align:center;width:95%;">
             <a href="#Sketch_<?php echo attr($zone); ?>" data-color="#f00" > &nbsp;&nbsp;</a>
             <a style="width: 5px; background: yellow;" data-color="#ff0" href="#Sketch_<?php echo attr($zone); ?>"> &nbsp;&nbsp;</a>
@@ -2279,9 +2280,9 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_view" role="button" aria-expanded="true">View </a>
                     <ul class="dropdown-menu" Xrole="menu">
-                        <li id="menu_TEXT" name="menu_TEXT" class="active"> <a  id="BUTTON_TEXT_menu" href="#"> Text <i class="right fa fa-text"></i></a></li>
-                        <li id="menu_DRAW" name="menu_DRAW"> <a href="#" id="BUTTON_DRAW_menu">Draw</a></li>
-                        <li id="menu_QP" name="menu_QP" ><a href="#"  onclick='show_QP();'>  Quick Picks</a></li>
+                        <li id="menu_TEXT" name="menu_TEXT" class="active"> <a  id="BUTTON_TEXT_menu" href="#mid_menu"> Text <i class="right fa fa-text"></i></a></li>
+                        <li id="menu_DRAW" name="menu_DRAW"> <a href="#mid_menu" id="BUTTON_DRAW_menu" nam="BUTTON_DRAW_menu">Draw</a></li>
+                        <li id="menu_QP" name="menu_QP" ><a href="#mid_menu"  onclick='show_QP();'>  Quick Picks</a></li>
                         <li class="divider"></li>
                         <li id="menu_HPI" name="menu_HPI" ><a href="#" onclick='show_Section("HPI_1");' >HPI</a></li>
                         <li id="menu_PMH" name="menu_PMH" ><a href="#PMH_1">PMH</a></li>
@@ -2477,5 +2478,58 @@ function undo() {
       *  for each section/zone.  
       */ 
 }
+function row_deleter($table, $where) {
+  $tres = sqlStatement("SELECT * FROM $table WHERE $where");
+  $count = 0;
+  echo "hey there";
+  while ($trow = sqlFetchArray($tres)) {
+   $logstring = "";
+   foreach ($trow as $key => $value) {
+    if (! $value || $value == '0000-00-00 00:00:00') continue;
+    if ($logstring) $logstring .= " ";
+    $logstring .= $key . "='" . addslashes($value) . "'";
+   }
+   newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+   ++$count;
+  }
+  if ($count) {
+   $query = "DELETE FROM $table WHERE $where";
+   echo $query . "<br>\n";
+   sqlStatement($query);
+  }
+ }
+function  finalize() {
+    global $form_folder;
+    global $pid;
+    global $encounter;
+    echo $_REQUEST['action'] ." - ".$_REQUEST['final']."<br />";
+    if (($_REQUEST['action'] =='finalize') or ($_REQUEST['final'] == '1')) {
+        $storage = $GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter;
+        $zones = array("HPI","PMH","EXT","ANTSEG","RETINA","NEURO","VISION","IMPPLAN");
+        foreach ($zones as &$zone) {
+            //delete all the prior drawings for this encounter leaving the final one.
+            $file_delete = $GLOBALS['OE_SITES_BASE']."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter."/OU_".$zone."_DRAW";
+            array_map('unlink', glob($file_delete."*")); 
+
+            $query = "SELECT * FROM documents WHERE url like 'file://".$file_delete."%'";
+            $item = "'file://".$file_delete."%'";
+            $trow = sqlStatement($query);
+            while ($pics= sqlFetchArray($trow))   {   
+                $output1 = row_deleter("categories_to_documents", "document_id = '" . $pics['id'] . "'");
+                $output2 = row_deleter("documents", "id = '" . $pics['id'] . "'");
+echo "<pre>".$output1."<br />2. ".$output2."<br /></pre>";
+            }
+        }
+    }
+   /* formHeader("Redirecting....");
+    //formJump('/');
+    
+    formJump('./view_form.php?formname='.$form_name.'&id='.$encounter.'&pid='.$pid);
+    formFooter();
+    exit;
+    */
+    return;
+}
+
 return ;
 ?>
