@@ -67,10 +67,6 @@
 	$form_service_codes = trim($_POST["form_service_codes"]);
 	$form_immunization = trim($_POST["form_immunization"]);
 	$communication = trim($_POST["communication"]);
-        
-        //LIKELY REMOVE THIS AFTER FIGURE OUT WHAT IT IS
-        $log_print_path = $GLOBALS['webroot']."/library/";
-
 ?>
 <html>
 	<head>
@@ -274,11 +270,6 @@
 								<td width="130px"><div style='margin-left:15px'> <a href='#' class='css_button' onclick='submitForm();'> <span>
 											<?php echo xlt('Submit'); ?>
 											</span> </a>
-											<?php if ($_POST['form_refresh']) { ?>
-											<a href='#' class='css_button' onclick="printme('<?php echo $log_print_path; ?>',document.title)"> <span>
-											<?php echo xlt('Print'); ?>
-											</span> </a>
-											<?php } ?>
 									</div>
 								</td>
 								<td>
