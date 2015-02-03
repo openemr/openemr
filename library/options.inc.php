@@ -353,7 +353,7 @@ function generate_form_field($frow, $currvalue) {
       }
       echo ">$uname</option>";
     }
-    if (!$got_selected && strlen($currvalue) > 0) {
+    if (!$got_selected && $currvalue) {
       echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
       echo "</select>";
       echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
@@ -383,7 +383,7 @@ function generate_form_field($frow, $currvalue) {
       }
       echo ">$uname</option>";
     }
-    if (!$got_selected && strlen($currvalue) > 0) {
+    if (!$got_selected && $currvalue) {
       echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
       echo "</select>";
       echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
@@ -413,7 +413,7 @@ function generate_form_field($frow, $currvalue) {
       }
       echo ">$optionLabel</option>";
     }
-    if (!$got_selected && strlen($currvalue) > 0) {
+    if (!$got_selected && $currvalue) {
       echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
       echo "</select>";
       echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
@@ -567,7 +567,7 @@ function generate_form_field($frow, $currvalue) {
       }
       echo ">$optionLabel</option>";
     }
-    if (!$got_selected && strlen($currvalue) > 0) {
+    if (!$got_selected && $currvalue) {
       echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
       echo "</select>";
       echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
@@ -620,7 +620,7 @@ function generate_form_field($frow, $currvalue) {
       }
       echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>";
     }
-    if (!$got_selected && strlen($currvalue) > 0) {
+    if (!$got_selected && $currvalue) {
       echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
       echo "</select>";
       echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
