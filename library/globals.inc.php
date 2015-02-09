@@ -128,6 +128,16 @@ $GLOBALS_METADATA = array(
       '3',                              // default = tree menu
       xl('Type of screen layout')
     ),
+      
+    'default_encounter_view' => array(
+      xl('Default Encounter View'),               // descriptive name
+      array(
+        '0' => xl('Clinical View'),
+        '1' => xl('Billing View'),
+      ),
+      '0',                              // default = tree menu
+      xl('Choose your default encounter view')
+    ),
 
     'css_header' => array(
       xl('Theme'),
