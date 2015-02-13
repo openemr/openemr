@@ -141,6 +141,11 @@ function openPtMatch(args) {
  window.open('patient_match_dialog.php?' + args, '_blank', 'toolbar=0,location=0,menubar=0,scrollbars=yes');
 }
 
+function openPatient(pid) {
+ top.restoreSession();
+ document.location.href = "../patient_file/summary/demographics.php?set_pid=" + pid;
+}
+
 </script>
 
 </head>
@@ -465,7 +470,9 @@ while ($row = sqlFetchArray($res)) {
   // Generate patient columns.
   if ($lastptid != $patient_id) {
     $lastpoid = -1;
-    echo "  <td>" . text($ptname) . "</td>\n";
+    echo "  <td onclick='openPatient($patient_id)' style='cursor:pointer;color:blue'>";
+    echo text($ptname);
+    echo "</td>\n";
     echo "  <td>" . text($row['pubpid']) . "</td>\n";
   }
   else {
