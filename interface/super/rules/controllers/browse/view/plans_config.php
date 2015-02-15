@@ -4,8 +4,8 @@
  *
  * UI to select or add new plans in plans configuration
  *  
- * Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) Brady Miller, Jan Jajalla, Roberto Vasquez 2014
+ * Copyright (C) 2014 Jan Jajalla <Jajalla23@gmail.com>
+ * Copyright (C) 2014 Roberto Vasquez <robertogagliotta@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author Brady Miller <brady@sparmy.com>
  * @author Jan Jajalla <Jajalla23@gmail.com>
  * @author Roberto Vaquez <robertogagliotta@gmail.com>
  * @link http://www.open-emr.org
@@ -36,7 +35,15 @@
 <script language="javascript" src="<?php js_src('/cdr-multiselect/plugins/localisation/jquery.localisation-min.js') ?>"></script>
 <script language="javascript" src="<?php js_src('/cdr-multiselect/plugins/scrollTo/jquery.scrollTo-min.js') ?>"></script>
 <script language="javascript" src="<?php js_src('/cdr-multiselect/ui.multiselect.js') ?>"></script>
-<script language="javascript" src="<?php js_src('/cdr-multiselect/locale/ui-multiselect-cdr.js') ?>"></script>
+<script type="text/javascript">
+// Below variables are to be used in the javascript for the cdr-multiselect(from cdr-multiselect/locale/ui-multiselect-cdr.js) 
+$.extend($.ui.multiselect.locale, {
+	addAll:'<?php echo out(xl('Add all rules to plan')); ?>',
+	removeAll:'<?php echo out(xl('Remove all rules from plan')); ?>',
+	itemsCount:'<?php echo out(xl('rules already in plan')); ?>'
+});
+</script>
+
 <script language="javascript" src="<?php js_src('list.js') ?>"></script>
 <script language="javascript" src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
 
