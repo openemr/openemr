@@ -5,7 +5,8 @@
  * Functions to allow safe database modifications
  * during changes to rules-plan mapping in Admin UI.
  *
- * Copyright (C) Brady Miller, Jan Jajalla, Roberto Vasquez 2014
+ * Copyright (C) 2014 Jan Jajalla <Jajalla23@gmail.com>
+ * Copyright (C) 2014 Roberto Vasquez <robertogagliotta@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,7 +20,6 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author  Brady Miller <brady@sparmy.com>
  * @author  Jan Jajalla <jajalla23@gmail.com>
  * @author  Roberto Vasquez <roberto.gagliotta@gmail.com>
  * @link    http://www.open-emr.org
