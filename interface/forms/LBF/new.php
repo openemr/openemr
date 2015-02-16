@@ -492,7 +492,7 @@ function validate(f) {
         echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
       }
       // echo " <table border='0' cellpadding='0' width='100%'>\n";
-      echo " <table border='0' cellspacing='0' cellpadding='0'>\n";
+      echo " <table border='0' cellspacing='0' cellpadding='0' width='100%'>\n";
       $display_style = 'none';
 
       // Initialize historical data array and write date headers.

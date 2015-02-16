@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -852,6 +852,13 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       'Lab Report',                     // default
       xl('Document category name for storage of electronically received lab results.')
+    ),
+
+    'gbl_mdm_category_name' => array(
+      xl('MDM Document Category Name'),
+      'text',                           // data type
+      'Lab Report',                     // default
+      xl('Document category name for storage of electronically received MDM documents.')
     ),
 
   ),

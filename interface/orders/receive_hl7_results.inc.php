@@ -2,7 +2,7 @@
 /**
 * Functions to support parsing and saving hl7 results.
 *
-* Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2013-2015 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -20,16 +20,19 @@
 */
 
 require_once("$srcdir/forms.inc");
+require_once("$srcdir/classes/Document.class.php");
 
 $rhl7_return = array();
-$rhl7_segnum = 0;
 
 function rhl7LogMsg($msg, $fatal=true) {
-  // global $rhl7_return, $rhl7_segnum;
-  $rhl7_return['mssgs'][] = $msg;
+  global $rhl7_return;
   if ($fatal) {
+    $rhl7_return['mssgs'][] = '*' . $msg;
     $rhl7_return['fatal'] = true;
     newEvent("lab-results-error", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $msg);
+  }
+  else {
+    $rhl7_return['mssgs'][] = '>' . $msg;
   }
   return $rhl7_return;
 }
@@ -59,6 +62,31 @@ function rhl7FlushResult(&$ares) {
 
 function rhl7FlushReport(&$arep) {
   return rhl7InsertRow($arep, 'procedure_report');
+}
+
+// Write the MDM document if appropriate.
+//
+function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider) {
+  global $dryrun;
+  if ($patient_id && !$dryrun) {
+    if (!empty($mdm_docname)) $mdm_docname .= '_';
+    $mdm_docname .= preg_replace('/[^0-9]/', '', $mdm_datetime);
+    $filename = $mdm_docname . '.txt';
+    $d = new Document();
+    $rc = $d->createDocument($patient_id, $mdm_category_id, $filename, 'text/plain', $mdm_text);
+    if (!$rc) {
+      rhl7LogMsg(xl('Document created') . ": $filename", false);
+      if ($provider) {
+        $d->postPatientNote($provider, $mdm_category_id, xl('Electronic document received'));
+        rhl7LogMsg(xl('Notification sent to') . ": $provider", false);
+      }
+      else {
+        rhl7LogMsg(xl('No provider was matched'), false);
+      }
+    }
+    return $rc;
+  }
+  return '';
 }
 
 function rhl7Text($s) {
@@ -151,27 +179,36 @@ function rhl7DecodeData($enctype, &$src) {
  *   0  No patient is close to a match.
  *  -1  It's not clear if there is a match.
  */
-function match_patient($in_ss, $in_fname, $in_lname, $in_dob) {
+function match_patient($ptarr) {
+  $in_ss = str_replace('-', '', $ptarr['ss']);
+  $in_fname = $ptarr['fname'];
+  $in_lname = $ptarr['lname'];
+  $in_dob = $ptarr['DOB'];
   $patient_id = 0;
-  $tmp = sqlQuery("SELECT pid FROM patient_data WHERE " .
+  $res = sqlStatement("SELECT pid FROM patient_data WHERE " .
     "((ss IS NULL OR ss = '' OR '' = ?) AND " .
     "fname IS NOT NULL AND fname != '' AND fname = ? AND " .
     "lname IS NOT NULL AND lname != '' AND lname = ? AND " .
     "DOB IS NOT NULL AND DOB = ?) OR " .
-    "(ss IS NOT NULL AND ss != '' AND ss = ? AND (" .
+    "(ss IS NOT NULL AND ss != '' AND REPLACE(ss, '-', '') = ? AND (" .
     "fname IS NOT NULL AND fname != '' AND fname = ? OR " .
     "lname IS NOT NULL AND lname != '' AND lname = ? OR " .
     "DOB IS NOT NULL AND DOB = ?)) " .
-    "ORDER BY ss DESC, pid DESC LIMIT 1",
+    "ORDER BY ss DESC, pid DESC LIMIT 2",
     array($in_ss, $in_fname, $in_lname, $in_dob, $in_ss, $in_fname, $in_lname, $in_dob));
-  if (!empty($tmp['pid'])) {
-    // Got a match.
+  if (sqlNumRows($res) > 1) {
+    // Multiple matches, so ambiguous.
+    $patient_id = -1;
+  }
+  else if (sqlNumRows($res) == 1) {
+    // Got exactly one match, so use it.
+    $tmp = sqlFetchArray($res);
     $patient_id = intval($tmp['pid']);
   }
   else {
     // No match good enough, figure out if there's enough ambiguity to ask the user.
     $tmp = sqlQuery("SELECT pid FROM patient_data WHERE " .
-      "(ss IS NOT NULL AND ss != '' AND ss = ?) OR " .
+      "(ss IS NOT NULL AND ss != '' AND REPLACE(ss, '-', '') = ?) OR " .
       "(fname IS NOT NULL AND fname != '' AND fname = ? AND " .
       "lname IS NOT NULL AND lname != '' AND lname = ?) OR " .
       "(DOB IS NOT NULL AND DOB = ?) " .
@@ -182,6 +219,42 @@ function match_patient($in_ss, $in_fname, $in_lname, $in_dob) {
     }
   }
   return $patient_id;
+}
+
+/**
+ * Look for a local provider matching the given XCN field from some segment.
+ *
+ * @param  array  $arr  array(NPI, lastname, firstname) identifying a provider.
+ * @return mixed        Array(id, username), or FALSE if no match.
+ */
+function match_provider($arr) {
+  if (empty($arr)) return false;
+  $op_lname = $op_fname = '';
+  $op_npi = preg_replace('/[^0-9]/', '', $arr[0]);
+  if (!empty($arr[1])) $op_lname = $arr[1];
+  if (!empty($arr[2])) $op_fname = $arr[2];
+  if ($op_npi || ($op_fname && $op_lname)) {
+    if ($op_npi) {
+      if ($op_fname && $op_lname) {
+        $where = "((npi IS NOT NULL AND npi = ?) OR ((npi IS NULL OR npi = ?) AND lname = ? AND fname = ?))";
+        $qarr = array($op_npi, '', $op_lname, $op_fname);
+      }
+      else {
+        $where = "npi IS NOT NULL AND npi = ?";
+        $qarr = array($op_npi);
+      }
+    }
+    else {
+      $where = "lname = ? AND fname = ?";
+      $qarr = array($op_lname, $op_fname);
+    }
+    $oprow = sqlQuery("SELECT id, username FROM users WHERE " .
+      "username IS NOT NULL AND username != '' AND $where " .
+      "ORDER BY active DESC, authorized DESC, username, id LIMIT 1",
+      $qarr);
+    if (!empty($oprow)) return $oprow;
+  }
+  return false;
 }
 
 /**
@@ -201,16 +274,23 @@ function create_skeleton_patient($patient_data) {
 /**
  * Parse and save.
  *
- * @param  string  &$hl7      The input HL7 text.
+ * @param  string  &$hl7      The input HL7 text
+ * @param  string  &$matchreq Array of shared patient matching requests
+ * @param  int     $lab_id    Lab ID
  * @param  char    $direction B=Bidirectional, R=Results-only
- * @param  book    $dryrun    True = do not update anything, just report errors
- * @return array              Array of errors and match requests, if any.
+ * @param  bool    $dryrun    True = do not update anything, just report errors
+ * @param  array   $matchresp Array of responses to match requests; key is relative segment number,
+ *                            value is an existing pid or 0 to specify creating a patient
+ * @return array              Array of errors and match requests, if any
  */
-function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $matchresp=NULL) {
+function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryrun=false, $matchresp=NULL) {
+  global $rhl7_return;
+
   // This will hold returned error messages and related variables.
   $rhl7_return = array();
   $rhl7_return['mssgs'] = array();
-  $rhl7_return['match'] = array();
+  $rhl7_return['needmatch'] = false; // indicates if this file is pending a match request
+
   $rhl7_segnum = 0;
 
   if (substr($hl7, 0, 3) != 'MSH') {
@@ -232,9 +312,9 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
   $in_report_status = '';
   $in_encounter = 0;
   $patient_id = 0; // for results-only patient matching logic
-
   $porow = false;
   $pcrow = false;
+  $oprow = false;
   $procedure_report_id = 0;
   $arep = array(); // holding area for OBR and its NTE data
   $ares = array(); // holding area for OBX and its NTE data
@@ -245,13 +325,21 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
   // different places is encountered.
   $context = '';
 
+  // This will be "ORU" or "MDM".
+  $msgtype = '';
+
+  // Stuff collected for MDM documents.
+  $mdm_datetime = '';
+  $mdm_docname = '';
+  $mdm_text = '';
+
   // Delimiters
   $d0 = "\r";
   $d1 = substr($hl7, 3, 1); // typically |
   $d2 = substr($hl7, 4, 1); // typically ^
   $d3 = substr($hl7, 5, 1); // typically ~
 
-  // We'll need the document category ID for any embedded documents.
+  // We'll need the document category IDs for any embedded documents.
   $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?",
     array($GLOBALS['lab_results_category_name']));
   if (empty($catrow['id'])) {
@@ -260,6 +348,10 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
   }
   else {
     $results_category_id = $catrow['id'];
+    $mdm_category_id = $results_category_id;
+    $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?",
+      array($GLOBALS['gbl_mdm_category_name']));
+    if (!empty($catrow['id'])) $mdm_category_id = $catrow['id'];
   }
 
   $segs = explode($d0, $hl7);
@@ -273,22 +365,53 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
     $a = explode($d1, $seg);
 
     if ($a[0] == 'MSH') {
+      // The following 2 cases happen only for multiple MSH segments in the same file.
+      // But that probably shouldn't happen anyway?
+      if ('ORU' == $msgtype && !$dryrun) {
+        rhl7FlushResult($ares);
+        rhl7FlushReport($arep);
+        $ares = array();
+        $arep = array();
+      }
+      if ('MDM' == $msgtype && !$dryrun) {
+        $rc = rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id,
+          $oprow ? $oprow['username'] : 0);
+        if ($rc) return rhl7LogMsg($rc);
+        $patient_id = 0;
+      }
       $context = $a[0];
-      if ($a[8] != 'ORU^R01') {
-        return rhl7LogMsg(xl('MSH.8 message type is not valid') . ": '" . $a[8] . "'", true);
+      if ($a[8] == 'ORU^R01') {
+        $msgtype = 'ORU';
+      }
+      else if ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
+        $msgtype = 'MDM';
+        $mdm_datetime = '';
+        $mdm_docname = '';
+        $mdm_text = '';
+      }
+      else {
+        return rhl7LogMsg(xl('MSH.8 message type is not supported') . ": '" . $a[8] . "'", true);
       }
       $in_message_id = $a[9];
     }
 
     else if ($a[0] == 'PID') {
       $context = $a[0];
-      if (!$dryrun) rhl7FlushResult($ares);
+      if ('ORU' == $msgtype && !$dryrun) {
+        // Note these calls do nothing if the passed array is empty.
+        rhl7FlushResult($ares);
+        rhl7FlushReport($arep);
+      }
+      if ('MDM' == $msgtype && !$dryrun) {
+        $rc = rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id,
+          $oprow ? $oprow['username'] : 0);
+        if ($rc) return rhl7LogMsg($rc);
+      }
       $ares = array();
-      // Next line will do something only if there was a report with no results.
-      if (!$dryrun) rhl7FlushReport($arep);
       $arep = array();
       $porow = false;
       $pcrow = false;
+      $oprow = false;
       $in_orderid = 0;
       $in_ssn = preg_replace('/[^0-9]/', '', $a[4]);
       $in_dob = rhl7Date($a[7]);
@@ -296,42 +419,60 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
       $in_lname = rhl7Text($tmp[0]);
       $in_fname = rhl7Text($tmp[1]);
       $patient_id = 0;
-      if ($direction == 'R') {
-        $patient_id = match_patient($in_ss, $in_fname, $in_lname, $in_dob);
+      // Patient matching is needed for a results-only interface or MDM message type.
+      if ('R' == $direction || 'MDM' == $msgtype) {
+        $ptarr = array('ss' => strtoupper($in_ss), 'fname' => strtoupper($in_fname),
+          'lname' => strtoupper($in_lname), 'DOB' => strtoupper($in_dob));
+        $patient_id = match_patient($ptarr);
         if ($patient_id == -1) {
-          // Indeterminate, check if the user has specified the patient.
-          if (isset($matchresp[$rhl7_segnum]) /* && $matchresp[$rhl7_segnum] !== '' */) {
+          // Result is indeterminate.
+          // Make a stringified form of $ptarr to use as a key.
+          $ptstring = serialize($ptarr);
+          // Check if the user has specified the patient.
+          if (isset($matchresp[$ptstring])) {
             // This will be an existing pid, or 0 to specify creating a patient.
-            $patient_id = intval($matchresp[$rhl7_segnum]);
+            $patient_id = intval($matchresp[$ptstring]);
           }
           else {
-            // Nope, ask the user to do so.
-            $rhl7_return['match'][$rhl7_segnum] = array('ss' => $in_ss,
-              'fname' => $in_fname, 'lname' => $in_lname, 'DOB' => $in_dob);
+            if ($dryrun) {
+              // Nope, ask the user to match.
+              $matchreq[$ptstring] = true;
+              $rhl7_return['needmatch'] = true;
+            }
+            else {
+              // Should not happen, but it would be bad to abort now.  Create the patient.
+              $patient_id = 0;
+              rhl7LogMsg(xl('Unexpected non-match, creating new patient for segment') .
+                ' ' . $rhl7_segnum, false);
+            }
           }
         }
         if ($patient_id == 0 && !$dryrun) {
           // We must create the patient.
-          $patient_id = create_skeleton_patient(array(
-            'fname' => $in_fname,
-            'lname' => $in_lname,
-            'DOB'   => $in_dob,
-            'ss'    => $in_ssn,
-          ));
+          $patient_id = create_skeleton_patient($ptarr);
         }
         if ($patient_id == -1) $patient_id = 0;
-      } // end results-only logic
+      } // end results-only/MDM logic
     }
 
-    else if ($a[0] == 'PV1') {
-      // Save placer encounter number if present.
-      if ($direction != 'R' && !empty($a[19])) {
-        $tmp = explode($d2, $a[19]);
-        $in_encounter = intval($tmp[0]);
+    else if ('PV1' == $a[0]) {
+      if ('ORU' == $msgtype) {
+        // Save placer encounter number if present.
+        if ($direction != 'R' && !empty($a[19])) {
+          $tmp = explode($d2, $a[19]);
+          $in_encounter = intval($tmp[0]);
+        }
+      }
+      else if ('MDM' == $msgtype) {
+        // For documents we want the ordering provider.
+        // Try Referring Provider first.
+        $oprow = match_provider(explode($d2, $a[8]));
+        // If no match, try Other Provider.
+        if (empty($oprow)) $oprow = match_provider(explode($d2, $a[52]));
       }
     }
 
-    else if ($a[0] == 'ORC') {
+    else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
       $context = $a[0];
       if (!$dryrun) rhl7FlushResult($ares);
       $ares = array();
@@ -343,11 +484,17 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
       if ($direction != 'R' && $a[2]) $in_orderid = intval($a[2]);
     }
 
-    else if ($a[0] == 'NTE' && $context == 'ORC') {
+    else if ('TXA' == $a[0] && 'MDM' == $msgtype) {
+      $context = $a[0];
+      $mdm_datetime = rhl7DateTime($a[4]);
+      $mdm_docname = rhl7Text($a[12]);
+    }
+
+    else if ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
       // Is this ever used?
     }
 
-    else if ($a[0] == 'OBR') {
+    else if ('OBR' == $a[0] && 'ORU' == $msgtype) {
       $context = $a[0];
       if (!$dryrun) rhl7FlushResult($ares);
       $ares = array();
@@ -406,30 +553,7 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
           }
           if (!$provider_id) {
             // Attempt ordering provider matching by name or NPI.
-            $op_lname = $op_fname = '';
-            $tmp = explode($d2, $a[16]);
-            $op_npi = preg_replace('/[^0-9]/', '', $tmp[0]);
-            if (!empty($tmp[1])) $op_lname = $tmp[1];
-            if (!empty($tmp[2])) $op_fname = $tmp[2];
-            if ($op_npi || ($op_fname && $op_lname)) {
-              if ($op_npi) {
-                if ($op_fname && $op_lname) {
-                  $where = "(npi IS NOT NULL AND npi = ?) OR ((npi IS NULL OR npi = ?) AND lname = ? AND fname = ?)";
-                  $qarr = array($op_npi, '', $op_lname, $op_fname);
-                }
-                else {
-                  $where = "npi IS NOT NULL AND npi = ?";
-                  $qarr = array($op_npi);
-                }
-              }
-              else {
-                $where = "lname = ? AND fname = ?";
-                $qarr = array($op_lname, $op_fname);
-              }
-            }
-            $oprow = sqlQuery("SELECT id FROM users WHERE $where " .
-              "ORDER BY active DESC, authorized DESC, username DESC, id LIMIT 1",
-              $qarr);
+            $oprow = match_provider(explode($d2, $a[16]));
             if (!empty($oprow)) $provider_id = intval($oprow['id']);
           }
           if (!$dryrun) {
@@ -532,7 +656,7 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
       $arep['report_notes'] .= rhl7Text($a[3]) . "\n";
     }
 
-    else if ($a[0] == 'OBX') {
+    else if ('OBX' == $a[0] && 'ORU' == $msgtype) {
       $context = $a[0];
       if (!$dryrun) rhl7FlushResult($ares);
       $ares = array();
@@ -582,7 +706,18 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
       $ares['result_status'] = rhl7ReportStatus($a[11]);
     }
 
-    else if ($a[0] == 'ZEF') {
+    else if ('OBX' == $a[0] && 'MDM' == $msgtype) {
+      $context = $a[0];
+      if ($a[2] == 'TX') {
+        if ($mdm_text !== '') $mdm_text .= "\r\n";
+        $mdm_text .= rhl7Text($a[5]);
+      }
+      else {
+        return rhl7LogMsg(xl('Unsupported MDM OBX result type') . ': ' . $a[2]);
+      }
+    }
+
+    else if ('ZEF' == $a[0] && 'ORU' == $msgtype) {
       // ZEF segment is treated like an OBX with an embedded Base64-encoded PDF.
       $context = 'OBX';
       if (!$dryrun) rhl7FlushResult($ares);
@@ -609,7 +744,7 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
       $ares['date'] = $arep['date_report'];
     }
 
-    else if ($a[0] == 'NTE' && $context == 'OBX') {
+    else if ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
       $ares['comments'] .= rhl7Text($a[3]) . $commentdelim;
     }
 
@@ -620,9 +755,18 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
     }
   }
 
-  if (!$dryrun) rhl7FlushResult($ares);
-  // Next line will do something only if there was a report with no results.
-  if (!$dryrun) rhl7FlushReport($arep);
+  if ('ORU' == $msgtype && !$dryrun) {
+    rhl7FlushResult($ares);
+    // Next line does something only for a report with no results.
+    rhl7FlushReport($arep);
+  }
+
+  if ('MDM' == $msgtype && !$dryrun) {
+    $rc = rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id,
+      $oprow ? $oprow['username'] : 0);
+    if ($rc) return rhl7LogMsg($rc);
+  }
+
   return $rhl7_return;
 }
 
@@ -632,13 +776,12 @@ function receive_hl7_results(&$hl7, $lab_id=0, $direction='B', $dryrun=false, $m
  * @param  array   &$info  Conveys information to and from the caller:
  * FROM THE CALLER:
  * $info["$ppid/$filename"]['delete'] = a non-empty value if file deletion is requested.
- * $info["$ppid/$filename"]['select'] = array of patient matching responses where key is segment
- *   number and value is selected pid for this patient, or 0 to create the patient.
+ * $info['select'] = array of patient matching responses where key is serialized patient
+ *   attributes and value is selected pid for this patient, or 0 to create the patient.
  * TO THE CALLER:
  * $info["$ppid/$filename"]['mssgs'] = array of messages from this function.
- * $info["$ppid/$filename"]['match'] = array of patient matching requests where key is
- *   (PID) segment number and value is an associative array of patient attributes from the hl7 file:
- *   ss, fname, lname, DOB.
+ * $info['match'] = array of patient matching requests where key is serialized patient
+ *   attributes (ss, fname, lname, DOB) and value is TRUE (irrelevant).
  *
  * @return string  Error text, or empty if no errors.
  */
@@ -650,6 +793,9 @@ function poll_hl7_results(&$info) {
 
   $filecount = 0;
   $badcount = 0;
+
+  if (!isset($info['match' ])) $info['match' ] = array(); // match requests
+  if (!isset($info['select'])) $info['select'] = array(); // match request responses
 
   $ppres = sqlStatement("SELECT * FROM procedure_providers ORDER BY name");
 
@@ -704,18 +850,18 @@ function poll_hl7_results(&$info) {
           continue;
         }
         // Do a dry run of its contents and check for errors and match requests.
-        $tmp = receive_hl7_results($hl7, $ppid, $pprow['direction'], true, $info["$ppid/$file"]['select']);
+        $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
         $info["$ppid/$file"]['mssgs'] = $tmp['mssgs'];
-        $info["$ppid/$file"]['match'] = $tmp['match'];
-        if (!empty($tmp['fatal']) || !empty($tmp['match'])) {
+        // $info["$ppid/$file"]['match'] = $tmp['match'];
+        if (!empty($tmp['fatal']) || !empty($tmp['needmatch'])) {
           // There are errors or matching requests so skip this file.
           continue;
         }
         // Now the money shot - not a dry run.
-        $tmp = receive_hl7_results($hl7, $ppid, $pprow['direction'], false, $info["$ppid/$file"]['select']);
+        $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
         $info["$ppid/$file"]['mssgs'] = $tmp['mssgs'];
-        $info["$ppid/$file"]['match'] = $tmp['match'];
-        if (empty($tmp['fatal']) && empty($tmp['match'])) {
+        // $info["$ppid/$file"]['match'] = $tmp['match'];
+        if (empty($tmp['fatal']) && empty($tmp['needmatch'])) {
           // It worked, archive and delete the file.
           $fh = fopen("$prpath/$file", 'w');
           if ($fh) {
@@ -773,18 +919,18 @@ function poll_hl7_results(&$info) {
           continue;
         }
         // Do a dry run of its contents and check for errors and match requests.
-        $tmp = receive_hl7_results($hl7, $ppid, $pprow['direction'], true, $info["$ppid/$file"]['select']);
+        $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
         $info["$ppid/$file"]['mssgs'] = $tmp['mssgs'];
-        $info["$ppid/$file"]['match'] = $tmp['match'];
-        if (!empty($tmp['fatal']) || !empty($tmp['match'])) {
+        // $info["$ppid/$file"]['match'] = $tmp['match'];
+        if (!empty($tmp['fatal']) || !empty($tmp['needmatch'])) {
           // There are errors or matching requests so skip this file.
           continue;
         }
         // Now the money shot - not a dry run.
-        $tmp = receive_hl7_results($hl7, $ppid, $pprow['direction'], false, $info["$ppid/$file"]['select']);
+        $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
         $info["$ppid/$file"]['mssgs'] = $tmp['mssgs'];
-        $info["$ppid/$file"]['match'] = $tmp['match'];
-        if (empty($tmp['fatal']) && empty($tmp['match'])) {
+        // $info["$ppid/$file"]['match'] = $tmp['match'];
+        if (empty($tmp['fatal']) && empty($tmp['needmatch'])) {
           // It worked, archive and delete the file.
           $fh = fopen("$prpath/$file", 'w');
           if ($fh) {

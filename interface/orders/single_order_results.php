@@ -31,6 +31,8 @@ if (!$thisauth) die(xl('Not authorized'));
 
 $orderid = intval($_GET['orderid']);
 
+$finals_only = empty($_POST['form_showall']);
+
 if (!empty($_POST['form_sign_list'])) {
   if (!acl_check('patients', 'sign')) {
     die(xl('Not authorized to sign results'));
@@ -58,7 +60,7 @@ if (!empty($_POST['form_send_to_portal'])) {
   echo "<link rel='stylesheet' type='text/css' href='$webserver_root/interface/themes/style_pdf.css'>\n";
   echo "<link rel='stylesheet' type='text/css' href='$webserver_root/library/ESign/css/esign_report.css'>\n";
   $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
-  generate_order_report($orderid, false);
+  generate_order_report($orderid, false, true, $finals_only);
   $GLOBALS['PATIENT_REPORT_ACTIVE'] = false;
   // echo ob_get_clean(); exit(); // debugging
   $pdf->writeHTML(ob_get_clean(), false);
@@ -98,7 +100,7 @@ body {
 <body>
 <?php
 if (empty($_POST['form_sign_list'])) {
-  generate_order_report($orderid, true);
+  generate_order_report($orderid, true, true, $finals_only);
 }
 else {
 ?>

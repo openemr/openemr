@@ -2,7 +2,7 @@
 /**
 * List procedure orders and reports, and fetch new reports and their results.
 *
-* Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2013-2015 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -132,13 +132,13 @@ function openResults(orderid) {
 }
 
 // Invokes the patient matching dialog.
-// args is a string of URL arguments, see the calling logic for that.
+// args is a PHP-serialized array of patient attributes.
 // The dialog script will directly insert the selected pid value, or 0,
-// into the value of the form field named "[select][$key1][$key2]".
+// into the value of the form field named "[select][$key]".
 //
 function openPtMatch(args) {
  top.restoreSession();
- window.open('patient_match_dialog.php?' + args, '_blank', 'toolbar=0,location=0,menubar=0,scrollbars=yes');
+ window.open('patient_match_dialog.php?key=' + encodeURIComponent(args), '_blank', 'toolbar=0,location=0,menubar=0,scrollbars=yes');
 }
 
 function openPatient(pid) {
@@ -151,8 +151,7 @@ function openPatient(pid) {
 </head>
 
 <body class="body_top">
-<form method='post' action='list_reports.php' enctype='multipart/form-data'
- onsubmit='return validate(this)'>
+<form method='post' action='list_reports.php' enctype='multipart/form-data'>
 
 <!-- This might be set by the results window: -->
 <input type='hidden' name='form_external_refresh' value='' />
@@ -162,7 +161,7 @@ if ($errmsg) {
   echo "<font color='red'>" . text($errmsg) . "</font><br />\n";
 }
 
-$info = array();
+$info = array('select' => array());
 
 // We skip match/delete processing if this is just a refresh, because that
 // might be a nasty surprise.
@@ -170,8 +169,7 @@ if (empty($_POST['form_external_refresh'])) {
   // Get patient matching selections from this form if there are any.
   if (is_array($_POST['select'])) {
     foreach ($_POST['select'] as $selkey => $selval) {
-      // Note that $selval is an array of the values to match on.
-      $info[$selkey] = array('select' => $selval);
+      $info['select'][$selkey] = $selval;
     }
   }
   // Get file delete requests from this form if there are any.
@@ -185,62 +183,70 @@ if (empty($_POST['form_external_refresh'])) {
 // Attempt to post any incoming results.
 $errmsg = poll_hl7_results($info);
 
+// echo "<!--\n";  // debugging
+// print_r($info); // debugging
+// echo "-->\n";   // debugging
+
 // Display a row for each required patient matching decision or message.
 $s = '';
 $matchreqs = false;
-foreach ($info as $infokey => $infoval) {
-  $count = 0;
-  if (is_array($infoval['match'])) {
-    foreach ($infoval['match'] as $matchkey => $matchval) {
-      $matchreqs = true;
-      $s .= " <tr class='detail' bgcolor='#ccccff'>\n";
-      if (!$count++) {
-        $s .= "  <td align='center'><input type='checkbox' name='delete[" .
-          attr($infokey) . "]' value='1' /></td>\n";
-        $s .= "  <td>" . text($infokey) . "</td>\n";
-      }
-      else {
-        $s .= "  <td>&nbsp;</td>\n";
-        $s .= "  <td>&nbsp;</td>\n";
-      }
-      $s .= "  <td><a href='javascript:openPtMatch(\"" .
-        "key1="   . urlencode($infokey ) .
-        "&key2="  . urlencode($matchkey) .
-        "&ss="    . urlencode($matchval['ss'   ]) .
-        "&fname=" . urlencode($matchval['fname']) .
-        "&lname=" . urlencode($matchval['lname']) .
-        "&DOB="   . urlencode($matchval['DOB'  ]) .
-        "\")'>";
-      $s .= xlt('Click to match patient') . ' "' . text($matchval['lname']) .
-        ', ' . text($matchval['fname']) . '"';
-      $s .= "</a>";
-      $s .= "</td>\n";
-      $s .= "  <td style='width:1%'><input type='text' name='select[" .
-        attr($infokey) . "][" . attr($matchkey) . "]' size='3' value='' " .
-        "style='background-color:transparent' readonly /></td>\n";
-      $s .= " </tr>\n";
-    }
+$errors = false;
+
+// Generate HTML to request patient matching.
+if (is_array($info['match'])) {
+  foreach ($info['match'] as $matchkey => $matchval) {
+    $matchreqs = true;
+    $s .= " <tr class='detail' bgcolor='#ccccff'>\n";
+    $s .= "  <td>&nbsp;</td>\n";
+    $s .= "  <td>&nbsp;</td>\n";
+    $s .= "  <td><a href='javascript:openPtMatch(\"" . addslashes($matchkey) . "\")'>";
+    $tmp = unserialize($matchkey);
+    $s .= xlt('Click to match patient') . ' "' . text($tmp['lname']) .
+      ', ' . text($tmp['fname']) . '"';
+    $s .= "</a>";
+    $s .= "</td>\n";
+    $s .= "  <td style='width:1%'><input type='text' name='select[" .
+      attr($matchkey) . "]' size='3' value='' " .
+      "style='background-color:transparent' readonly /></td>\n";
+    $s .= " </tr>\n";
   }
+}
+
+foreach ($info as $infokey => $infoval) {
+  if ($infokey == 'match' || $infokey = 'select') continue;
+  $count = 0;
   if (is_array($infoval['mssgs'])) {
     foreach ($infoval['mssgs'] as $message) {
       $s .= " <tr class='detail' bgcolor='#ccccff'>\n";
-      if (!$count++) {
-        $s .= "  <td><input type='checkbox' name='delete[" . attr($infokey) . "]' value='1' /></td>\n";
-        $s .= "  <td>" . text($infokey) . "</td>\n";
+      if (substr($message, 0, 1) == '*') {
+        $errors = true;
+        // Error message starts with '*'
+        if (!$count++) {
+          $s .= "  <td><input type='checkbox' name='delete[" . attr($infokey) . "]' value='1' /></td>\n";
+          $s .= "  <td>" . text($infokey) . "</td>\n";
+        }
+        else {
+          $s .= "  <td>&nbsp;</td>\n";
+          $s .= "  <td>&nbsp;</td>\n";
+        }
+        $s .= "  <td colspan='2' style='color:red'>". text(substr($message, 1)) . "</td>\n";
       }
       else {
+        // Informational message starts with '>'
         $s .= "  <td>&nbsp;</td>\n";
-        $s .= "  <td>&nbsp;</td>\n";
+        $s .= "  <td>" . text($infokey) . "</td>\n";
+        $s .= "  <td colspan='2' style='color:green'>". text(substr($message, 1)) . "</td>\n";
       }
-      $s .= "  <td colspan='2' style='color:red'>". text($message) . "</td>\n";
       $s .= " </tr>\n";
     }
   }
 }
 if ($s) {
-  echo "<p class='bold' style='color:#008800'>";
-  echo xlt('Incoming results requiring attention:');
-  echo "</p>\n";
+  if ($matchreqs || $errors) {
+    echo "<p class='bold' style='color:#008800'>";
+    echo xlt('Incoming results requiring attention:');
+    echo "</p>\n";
+  }
   echo "<table width='100%'>\n";
   echo " <tr class='head'>\n";
   echo "  <td>" . xlt('Delete'  ) . "</th>\n";
@@ -250,15 +256,17 @@ if ($s) {
   echo " </tr>\n";
   echo $s;
   echo "</table>\n";
-  echo "<p class='bold' style='color:#008800'>";
-  if ($matchreqs) {
-    echo xlt('Click where indicated above to match the patient.') . ' ';
-    echo xlt('After that the Match column will show the selected patient ID, or 0 to create.') . ' ';
-    echo xlt('If you do not select a match the patient will be created.') . ' ';
+  if ($matchreqs || $errors) {
+    echo "<p class='bold' style='color:#008800'>";
+    if ($matchreqs) {
+      echo xlt('Click where indicated above to match the patient.') . ' ';
+      echo xlt('After that the Match column will show the selected patient ID, or 0 to create.') . ' ';
+      echo xlt('If you do not select a match the patient will be created.') . ' ';
+    }
+    echo xlt('Checkboxes above indicate if you want to reject and delete the HL7 file.') . ' ';
+    echo xlt('When done, click Submit (below) to apply your choices.');
+    echo "</p>\n";
   }
-  echo xlt('Checkboxes above indicate if you want to reject and delete the HL7 file.') . ' ';
-  echo xlt('When done, click Submit (below) to apply your choices.');
-  echo "</p>\n";
 }
 
 // If there was a fatal error display that.
