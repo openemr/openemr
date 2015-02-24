@@ -1451,7 +1451,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                      //   echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
                      //   echo "  <td class='nowrap'>";
                      //   echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
-                     //   echo "</td>\n";
+                     ////   echo "</td>\n";
                     if ($focustype == "allergy" && $row['reaction'] > '') {
                         echo " (" . htmlspecialchars($row['reaction'],ENT_NOQUOTES).") " ;
                     }
