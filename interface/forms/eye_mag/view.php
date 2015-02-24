@@ -40,7 +40,6 @@
 
 $fake_register_globals=false;
 $sanitize_all_escapes=true;
-//error_reporting(E_ALL & ~E_NOTICE);
 include_once("../../globals.php");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/lists.inc");
