@@ -323,11 +323,14 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                 <div id="QP_PMH" name="QP_PMH" class="QP_class" style="text-align:left;max-height: 2.5in;overflow:auto;">
                   <div id="PMH_text_list" name="PMH_text_list" class="borderShadow  <?php echo attr($display_PMH_view); ?> ">
                     <h1></h1> &nbsp;<br />
-                    <span style="font-size:0.9em;">Here we will incorporate the OpenEMR functionality to add QP Problems and issues. <br />
-                    Currently you must add these the traditional way.<br />
-                    Once added the boxes on the left will be auto-populated.<br />
-                    You can view them but not alter them through this form at present.<br />
-                     PMH /POH /FH/ Allergies /etc
+                    <span style="font-size:1.1em;text-align:left;"><ul>Deliverables:
+                      <li>Add, delete or alter an issue </li>
+                      <li>Inserting the popu-ups via ajax</li>
+                      <li>Incorporating the OpenEMR functionality to add QP Problems and issues</li>
+                      <li>Complete ROS section. </li>
+                    </ul>
+                    
+                    
                     </span>
                     <br />&nbsp;
                     <h1></h1> &nbsp;<br />

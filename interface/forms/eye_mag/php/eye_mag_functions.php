@@ -1492,6 +1492,9 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     }
 
             ?>
+                </td>
+            </tr>
+        </table>
         </div> <!-- end patient_stats -->
         <?php 
         return;
