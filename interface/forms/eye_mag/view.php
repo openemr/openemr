@@ -117,8 +117,16 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-           
-    <!-- Add HTML5 Draw program library -->
+  <script language="JavaScript">         
+  function dopclick(id) {
+    <?php if ($thisauth != 'write'): ?>
+    dlgopen('../../patient_file/summary/add_edit_issue.php?issue=0&thistype=' + id, '_blank', 550, 400);
+    <?php else: ?>
+    alert("<?php xl('You are not authorized to add/edit issues','e'); ?>");
+    <?php endif; ?>
+  }
+  </script>
+<!-- Add HTML5 Draw program library -->
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/sketch.js"></script>
     
     <!-- Add Font stuff for the look and feel.  -->
@@ -324,6 +332,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                     </span>
                     <br />&nbsp;
                     <h1></h1> &nbsp;<br />
+                    <a href="javascript:;" class="css_button_small" onclick="dopclick(0,<?php echo xla($dispzone); ?>)"><span>Add</span></a>
                     
                   </div>
                 </div>  
@@ -1193,7 +1202,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- end of the refraction box -->
 
             <!-- my reporting div for development only remove the "X" to see output from save.php-->
-          <div id="tellme" name="tellme"></div>
+          <div id="tellmeX" name="tellmeX"></div>
             <!-- end reporting div -->
 
           <!-- Start of the exam selection/middle menu row -->
@@ -2493,7 +2502,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                 </div>   
               </div>
               
-                          
+                        <br />  
               <span class="Button" action="finalize" id="action" name="action" value="finalize" onclick="finalize();">FINALIZE</span>               <!-- END IMP/PLAN -->  
           </div>
           <!-- end of the exam section -->

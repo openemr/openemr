@@ -1340,8 +1340,6 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
             $encount = 0;
             $lasttype = "";
             $first = 1; // flag for first section
-            //echo "<pre>";
-            //var_dump($ISSUE_TYPES);
             /*
             <script type="text/javascript" language="JavaScript">
             $("#stats_div").load("../../../interface/patient_file/summary/stats.php");
@@ -1351,59 +1349,62 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
             */
             ?><script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
             <?php
-                    
+                    $counter="0";
             foreach ($ISSUE_TYPES as $focustype => $focustitles) {
-                $counter++; 
+                
                 if ($category) {
                     //    Only show this category
-                   if ($focustype != $category) continue;
+                 //  if ($focustype != $category) continue;
                 }
-
-                $counter++; //at 19 lines we need to make a new row.
-                $column_length = '18';
-                if ($counter > $column_length and !$second_row) {
-                        // start a new column
-                    $second_row='1';
-                                      ?>
-                    </div>
-                        
-                    <div style="margin-left:10px;" id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" >
-                             <?php
-                }
+                $column_length = '15';
                 $disptype = $focustitles[0];
-                echo '<span class="left" style="font-weight:800;">'.$disptype."</span><br />";
+                $dispzone_name= $ISSUE_TYPES[$counter];
+                //str_replace(' ', '_', strtolower($focustitles[0]));
+                $dispzone_numb=$focustitles[2];
+                
+                $counter++; //at 19 lines we need to make a new row.
                 $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
                     "ORDER BY begdate", array($pid,$focustype) );
+                $counter_previous = $counter;
+                $counter = $counter + sqlNumRows($pres);
+               
+               if ($counter > $column_length and !$second_row) {
+                    // start a new column
+                    $second_row='1';
+                    for ($j=$counter; $j > $counter_previous; $j--) {
+                        echo "<br />";
+                    }
+                    ?>
+                    </div>
+                    <div style="margin-left:10px;" id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" >
+                    <?php
+                }
+                   ?>
+                 <a href="javascript:;" class="eye_button" onclick="dopclick('<?php echo xla($focustype)."'"; ?>)"><span style="color:white;">Add</span></a>
+                    <?                  
+               
+                
+
+                echo '<span class="left" style="font-weight:800;">'.$disptype."</span><br />";
                 echo "
-                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
+                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.5in;background-color:lightgrey;font-size:0.9em;'>
                     <tr>
-                        <td style='min-height:1.2in;min-width:1.5in;padding-left:5px;'>";
+                        <td style='min-height:1.2in;min-width:1.3in;padding-left:5px;'>
+                        ";
 
                 // if no issues (will place a 'None' text vs. toggle algorithm here)
                 if (sqlNumRows($pres) < 1) {
-                    echo  xla("None") ."<br /><br /><br /><br />";
-                    echo " </td></tr></table>";
+                    echo  "".xla("None") ."<br /><br /><br /><br />";
+                    echo "</td></tr></table>";
                     $counter = $counter+4; 
                     continue;
                 }
 
                 $section_count='4';
 
-                //  if ($section_count <2)
                 while ($row = sqlFetchArray($pres)) {
-                    $counter++;
                     $section_count--;
-                    if ($counter > $column_length) {
-                        // start a new column
-                                      ?>
-                        <br /></td></tr></table></div>
-                        <br />
-                        <div id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" >
-                           <table style='margin-bottom:20px;border:2pt solid black;max-height:1.5in;max-width:1.5in;background-color:lightgrey;font-size:0.9em;'>
-                    <tr>
-                        <td style='min-height:1.2in;min-width:1.5in;padding-left:5px;'>
-                                     <?php
-                    }
+                    
                     $rowid = $row['id'];
                     $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
 
@@ -1427,7 +1428,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     // calculate the status
                     if ($row['outcome'] == "1" && $row['enddate'] != NULL) {
                       // Resolved
-                      $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
+                    //  $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
                     }
                     else if($row['enddate'] == NULL) {
                    //   $statusCompute = htmlspecialchars( xl("Active") ,ENT_NOQUOTES);
@@ -1437,17 +1438,12 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     }
                     $click_class='statrow';
                     if($row['erx_source']==1 && $focustype=='allergy')
-                    $click_class='';
+                    $click_class='statrow'; //changed from '' on 2/23/15
                     elseif($row['erx_uploaded']==1 && $focustype=='medication')
                     $click_class='';
                     // output the TD row of info
-                    if ($row['enddate'] == NULL) {
-                    //    echo " <tr class='$bgclass detail $click_class' style='color:red;font-weight:bold' id='$rowid'>\n";
-                    }
-                    else {
-                   //   echo " <tr class='$bgclass detail $click_class' id='$rowid'>\n";
-                    }
-                    echo xlt($disptitle) . "\n<br />";
+                   
+                    echo "".xlt($disptitle);
                       //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                       //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                         // both codetext and statusCompute have already been escaped above with htmlspecialchars)
@@ -1456,9 +1452,10 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                      //   echo "  <td class='nowrap'>";
                      //   echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
                      //   echo "</td>\n";
-                    if ($focustype == "allergy") {
-                      echo "  <td>" . htmlspecialchars($row['reaction'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+                    if ($focustype == "allergy" && $row['reaction'] > '') {
+                        echo " (" . htmlspecialchars($row['reaction'],ENT_NOQUOTES).") " ;
                     }
+                       echo "\n<br />";
                     if ($GLOBALS['athletic_team']) {
                    //     echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
                     }
@@ -1471,21 +1468,29 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     //echo "  </td>";
                     
                 }
-                echo " <br /></td></tr></table>\n";
+
+                echo " </td></tr></table>\n";
                 $counter++; 
 
             }
             echo '<span class="left" style="font-weight:800;">ROS</span><br />';
             echo "
-                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.9in;background-color:lightgrey;font-size:0.9em;'>
+                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.1in;background-color:lightgrey;font-size:0.9em;'>
                     <tr>
-                        <td style='min-height:1.2in;min-width:1.5in;padding-left:5px;'>";
+                        <td style='min-height:1.2in;min-width:1.3in;padding-left:5px;'>";
 
                 // if no issues (will place a 'None' text vs. toggle algorithm here)
                 if (sqlNumRows($pres) < 1) {
                     echo  xla("None") ."<br /><br /><br /><br />";
                     echo " </td></tr></table>";
-                }
+                    $counter= $counter-3;
+                } //else { print out a ROS.  Give ?expand option to see full list in a pop-up?}
+            
+
+            for ($j=$counter; $j > $counter_previous; $j--) {
+                        echo "<br />";
+                    }
+
             ?>
         </div> <!-- end patient_stats -->
         <?php 
@@ -2517,7 +2522,7 @@ function  finalize() {
             while ($pics= sqlFetchArray($trow))   {   
                 $output1 = row_deleter("categories_to_documents", "document_id = '" . $pics['id'] . "'");
                 $output2 = row_deleter("documents", "id = '" . $pics['id'] . "'");
-echo "<pre>".$output1."<br />2. ".$output2."<br /></pre>";
+                echo "<pre>".$output1."<br />2. ".$output2."<br /></pre>";
             }
         }
     }
@@ -2530,6 +2535,7 @@ echo "<pre>".$output1."<br />2. ".$output2."<br /></pre>";
     */
     return;
 }
+
 
 return ;
 ?>
