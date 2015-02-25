@@ -1387,7 +1387,8 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
 
                 echo '<span class="left" style="font-weight:800;">'.$disptype."</span><br />";
                 echo "
-                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.5in;background-color:lightgrey;font-size:0.9em;'>
+                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.5in;
+                background-color: rgb(255, 248, 220); font-size:0.9em;'>
                     <tr>
                         <td style='min-height:1.2in;min-width:1.3in;padding-left:5px;'>
                         ";
@@ -1475,7 +1476,9 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
             }
             echo '<span class="left" style="font-weight:800;">ROS</span><br />';
             echo "
-                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.1in;background-color:lightgrey;font-size:0.9em;'>
+                <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.1in;
+                background-color: rgb(255, 248, 220);
+                font-size:0.9em;'>
                     <tr>
                         <td style='min-height:1.2in;min-width:1.3in;padding-left:5px;'>";
 
@@ -2288,70 +2291,70 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_view" role="button" aria-expanded="true">View </a>
                     <ul class="dropdown-menu" Xrole="menu">
-                        <li id="menu_TEXT" name="menu_TEXT" class="active"> <a  id="BUTTON_TEXT_menu" href="#mid_menu"> Text <i class="right fa fa-text"></i></a></li>
+                        <li id="menu_TEXT" name="menu_TEXT" class="active"> <a  id="BUTTON_TEXT_menu" href="#" onclick="show_TEXT();">Text <i class="right fa fa-text"></i></a></li>
                         <li id="menu_DRAW" name="menu_DRAW"> <a href="#mid_menu" id="BUTTON_DRAW_menu" nam="BUTTON_DRAW_menu">Draw</a></li>
-                        <li id="menu_QP" name="menu_QP" ><a href="#mid_menu"  onclick='show_QP();'>  Quick Picks</a></li>
+                        <li id="menu_QP" name="menu_QP" ><a href="#mid_menu"  onclick='show_QP();'> Quick Picks</a></li>
                         <li class="divider"></li>
-                        <li id="menu_HPI" name="menu_HPI" ><a href="#" onclick='show_Section("HPI_1");' >HPI</a></li>
-                        <li id="menu_PMH" name="menu_PMH" ><a href="#PMH_1">PMH</a></li>
-                        <li id="menu_EXT" name="menu_EXT" ><a href="#EXT_1">External</a></li>
-                        <li id="menu_ANTSEG" name="menu_ANTSEG" ><a href="#ANTSEG_1">Anterior Segment</a></li>
-                        <li id="menu_POSTSEG" name="menu_POSTSEG" ><a href="#POSTSEG_1">Posterior Segment</a></li>
-                        <li id="menu_NEURO" name="menu_NEURO" ><a href="#NEURO_1">Neuro</a></li>
+                        <li id="menu_HPI" name="menu_HPI" ><a href="#HPI_anchor" onclick='show_Section("HPI_1");' >HPI</a></li>
+                        <li id="menu_PMH" name="menu_PMH" ><a href="#PMH_anchor">PMH</a></li>
+                        <li id="menu_EXT" name="menu_EXT" ><a href="#EXT_anchor">External</a></li>
+                        <li id="menu_ANTSEG" name="menu_ANTSEG" ><a href="#ANTSEG_anchor">Anterior Segment</a></li>
+                        <li id="menu_POSTSEG" name="menu_POSTSEG" ><a href="#RETINA_anchor">Posterior Segment</a></li>
+                        <li id="menu_NEURO" name="menu_NEURO" ><a href="#NEURO_anchor">Neuro</a></li>
                         <li class="divider"></li>
-                        <li id="menu_PRIORS" name="menu_PRIORS" > <a href="#">Show Priors</a></li>
+                        <li id="menu_PRIORS" name="menu_PRIORS" > <a href="#SELECTION_ROW_anchor" onclick='$("#PRIOR_ALL").val("").trigger("change");'>Show Priors</a></li>
                     </ul>
                 </li> 
                 <li class="dropdown">
-                    <a class="dropdown-toggle" role="button" id="menu_dropdown_patients" data-toggle="dropdown">Patients</a>
+                    <a class="dropdown-toggle"  class="disabled" role="button" id="menu_dropdown_patients" data-toggle="dropdown">Patients</a>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                      <li role="presentation"><a role="menuitem" tabindex="-1" onclick="goto_url('<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/view.php?url=<?php echo urlencode("/interface/main/finder/dynamic_finder.php"); ?>');"> Patients </a></li>
-                      <li ><a tabindex="-1" href="#">New/Search</a> </li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">  Summary</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem"  class="disabled" tabindex="-1" onclick="goto_url('<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/view.php?url=<?php echo urlencode("/interface/main/finder/dynamic_finder.php"); ?>');"> Patients </a></li>
+                      <li  class="disabled"><a tabindex="-1" href="#">New/Search</a> </li>
+                      <li role="presentation" class="disabled"><a role="menuitem"  class="disabled" tabindex="-1" href="#">  Summary</a></li>
                       <li role="presentation" class="divider"></li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Create Visit</a></span></li>
+                      <li role="presentation" class="disabled"><a role="menuitem"  class="disabled" tabindex="-1" href="#">Create Visit</a></span></li>
                       <li class="active"><a role="menuitem" id="BUTTON_DRAW_menu" tabindex="-1" href="#">  Current</a></li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Visit History</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem"  class="disabled" tabindex="-1" href="#">Visit History</a></li>
                       <li role="presentation" class="divider"></li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Record Request</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem"  class="disabled" tabindex="-1" href="#">Record Request</a></li>
                       <li role="presentation" class="divider"></li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Upload Item</a></li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Pending Approval</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem"  class="disabled" tabindex="-1" href="#">Upload Item</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem"  class="disabled" tabindex="-1" href="#">Pending Approval</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" role="button" id="menu_dropdown_clinical" data-toggle="dropdown">Clinical</a>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Eye Exam</a></li>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Documents</a></li>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Imaging</a></li>
+                        <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">Eye Exam</a></li>
+                        <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">Documents</a></li>
+                        <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">Imaging</a></li>
                         <li role="presentation" class="divider"></li>
-                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#IOP_CHART">IOP Chart</a></li>
+                        <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#IOP_CHART">IOP Chart</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" role="button" id="menu_dropdown_window" data-toggle="dropdown">Window</a>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#"><i class="fa fa-calendar text-error"> </i>  Calendar</a></li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Messages</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#"><i class="fa fa-calendar text-error"> </i>  Calendar</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">Messages</a></li>
                       <li role="presentation" class="dropdown-header">Patient/client</li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Patients</a></li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">New/Search</a></li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Summary</a></li>
-                      <li role="presentation" class="divider"></li>
-                      <li role="presentation"><a role="menuitem" tabindex="-1" href="#">About Us</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">Patients</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">New/Search</a></li>
+                      <li role="presentation" class="disabled"><a role="menuitem" tabindex="-1" href="#">Summary</a></li>
+                      <li role="presentation" class="disabled divider"></li>
+                      <li role="presentation" class="disabled"><a role="menuitem" class="disabled" tabindex="-1" href="#">About Us</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_library" role="button" aria-expanded="false">Library</a>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Upload</a></li>
-                        <li><a href="../../forms/eye_mag/css/AnythingSlider/simple.php?display=fullscreen&encounter=<?php echo xla($encounter); ?>">Documents</a></li>
-                        <li><a href="#">Images</a></li>
+                        <li  class="disabled"><a href="#" >Upload</a></li>
+                        <li class="disabled"><a href="../../forms/eye_mag/css/AnythingSlider/simple.php?display=fullscreen&encounter=<?php echo xla($encounter); ?>">Documents</a></li>
+                        <li class="disabled"><a href="#">Images</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">More</a></li>
+                        <li class="disabled"><a href="#">More</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">One more separated link</a></li>
+                        <li class="disabled"><a href="#">One more separated link</a></li>
                     </ul>
                 </li>
             </ul>
@@ -2362,13 +2365,6 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam") {
             </ul> 
 
         </div><!-- /.navbar-collapse -->
-        <!-- </div>/.container-fluid -->
-       
-
-          
-            <!-- /.navbar-top-links -->
-  
-          
     </nav>
 
     <div id="page-wrapper" style="margin: 30px 0px 0px 0px;">
@@ -2404,7 +2400,7 @@ function menu_overhaul_left($pid,$encounter) {
                         onclick="top.restoreSession();" class="image_modal" style=""> 
                         <img src="/openemr/controller.php?document&amp;retrieve&amp;patient_id=1&amp;document_id=80" alt="Patient Photograph:rgm.bmp" width="80">
                     </a>
-                    <div style="position:relative;float:left;margin:auto 5px;width:140px;top:0px;right:0px;">
+                    <div style="position:relative;float:left;margin:auto 5px;width:140px;top:0px;right:0px;padding-bottom:20px;">
                         <table style="position:relative;float:left;margin:10px 5px;width:140px;top:0px;right:0px;font-size:12px;border-spacing: 5px;">
                         
                             <tr>
@@ -2437,7 +2433,7 @@ function menu_overhaul_left($pid,$encounter) {
                     </div>
                 </div>
             
-            
+            <br />
           
             <div class="col-sm-12">
 

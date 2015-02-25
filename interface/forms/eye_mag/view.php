@@ -191,7 +191,10 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- start    HPI row -->
           <div id="HPIPMH_sections" name="HPIPMH_sections" style="margin: 10 auto;width:100%;text-align: center;font-size:1.0em;" class="nodisplay" >   
             <!-- start    CC_HPI-->
+            
+
             <div id="HPI_1" name="HPI_1" class="<?php echo attr($display_Add); ?>">
+              <span class="anchor" id="HPI_anchor"></span>
               <!-- start  HPI Left -->
               <div id="HPI_left" name="HPI_left" class="exam_section_left borderShadow">
                 <div id="HPI_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
@@ -301,7 +304,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 
             <!-- start    PMH row -->
             <!-- start    PMH_1 -->
-            <div id="PMH_1" name="PMH_1" class="<?php echo attr($display_Add); ?> clear_both">
+           
+            <div id="PMH_1" name="PMH_1" class="<?php echo attr($display_Add); ?> clear_both jquery_anchor">
+            <span class="anchor" id="PMH_anchor"></span>
               <!-- start  HPI Left -->
               <div id="PMH_left" name="PMH_left" class="exam_section_left borderShadow">
                 <div id="PMH_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
@@ -1209,6 +1214,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 
           <!-- Start of the exam selection/middle menu row -->
           <div class="section" style="text-align:center;vertical-align:top;width:100%;margin:10;" name="mid_menu" id="mid_menu">
+            <span class="anchor" id="SELECTION_ROW_anchor"></span>
+
+              
             <!--  <span id="EXAM_settings" name="EXAM_settings" class="bordershadow" href="#"><i class="fa fa-cog"></i>&nbsp;<?php echo xlt('Settings'); ?></span> -->
             <span id="EXAM_defaults" name="EXAM_defaults" value="Defaults" class="bordershadow"><i class="fa fa-newspaper-o"></i>&nbsp;<?php echo xlt('Defaults'); ?></span> 
             <span id="EXAM_TEXT" name="EXAM_TEXT" value="TEXT" class="bordershadow"><i class="fa fa-hospital-o"></i>&nbsp;<?php echo xlt('Text'); ?></span>
@@ -1237,6 +1245,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
           <div style="margin: 0 auto;text-align: center;font-size:1.0em;display:none" id="EXAM_sections" name="EXAM_sections">   
               <!-- start External Exam -->
               <div id="EXT_1" name="EXT_1" class="clear_both">
+                <span class="anchor" id="EXT_anchor"></span>
+
                   <div id="EXT_left" class="exam_section_left borderShadow" >
                       <div id="EXT_left_text" style="height: 2.5in;text-align:left;" class="TEXT_class">
                           <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_EXT" name="BUTTON_DRAW_EXT"></span>
@@ -1417,7 +1427,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- end External Exam -->
 
               <!-- start Anterior Segment -->
-              <div id="ANTSEG_1" class="clear_both"> 
+              <div id="ANTSEG_1" class="clear_both">
+              <span class="anchor" id="ANTSEG_anchor"></span>
+               
                   <div id="ANTSEG_left" nam="ANTSEG_left" class="exam_section_left borderShadow">
                       <div class="TEXT_class" id="ANTSEG_left_text" style="height: 2.5in;text-align:left;">
                           <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_ANTSEG" name="BUTTON_DRAW_ANTSEG"></span>
@@ -1576,7 +1588,10 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- end Ant Seg -->
                      
               <!-- start Retina --> 
-              <div id="RETINA_1" class="clear_both" > 
+              
+              <div id="RETINA_1" class="clear_both" >
+                <span class="anchor" id="RETINA_anchor"></span>
+ 
                   <div id="RETINA_left" class="exam_section_left borderShadow">
                       <div class="TEXT_class" id="RETINA_left_text" name="RETINA_left_text" style="height: 2.5in;text-align:left;"> 
                         <!-- 
@@ -1746,7 +1761,11 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- end Retina -->
 
               <!-- start Neuro -->
-              <div id="NEURO_1" class="clear_both"> 
+             
+
+              <div id="NEURO_1" class="clear_both">
+               <span class="anchor" id="NEURO_anchor"></span>
+
                   <div id="NEURO_left" class="exam_section_left borderShadow">
                       <span class="closeButton fa fa-paint-brush" id="BUTTON_DRAW_NEURO" name="BUTTON_DRAW_NEURO"></span>
                       <i class="closeButton_2 fa fa-database" id="BUTTON_QP_NEURO" name="BUTTON_QP_NEURO"></i>
@@ -2482,8 +2501,9 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- end Neuro -->
 
               <!-- start IMP/PLAN -->    
-              
               <div id="IMPPLAN_1" class="clear_both size50"> 
+                <span class="anchor" id="IMPPLAN_anchor"></span>
+
                 <div id="IMPPLAN_left" name="IMPPLAN_left" class="exam_section_left borderShadow">
                   <!-- <span class="closeButton fa fa-plus-square-o" id="MAX_IMPPLAN" name="MAX_IMPPLAN"></span> -->
                   <div id="IMPPLAN_left_text" name="IMPPLAN_left_text" style="margin:auto 5;min-height: 2.5in;text-align:left;">

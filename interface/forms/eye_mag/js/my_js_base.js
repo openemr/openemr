@@ -398,16 +398,16 @@ shortcut.add("Shift+Alt+1", function() {
 shortcut.add("Ctrl+2", function() {
              //markCalled("ctrl2");
              });
-shortcut.add("3", function() {
+    /*shortcut.add("3", function() {
              //markCalled("just3");
-             },{"disable_in_input":true});
+             //             },{"disable_in_input":true});
 shortcut.add("Ctrl+a", function() {
              //markCalled("ctrla");
              },{"propagate":true});
 shortcut.add("",function() {
              //markCalled("just4");
              },{"keycode":52});
-
+*/
     // plot the current graph
     //------------------------------------------------------
 function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount){
@@ -1575,6 +1575,7 @@ $(document).ready(function() {
                                   });
                   
                   });
+
 
 
 

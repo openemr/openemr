@@ -1248,7 +1248,7 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
      
 .navbar-nav > li > a:hover, .nav > li > a:focus {
     text-decoration: none;
-    background-color: #1C5ECF; /* this is the "hover" blue *?
+    background-color: #1C5ECF; /* this is the "hover" blue */
     color:#fff;
     
     /*padding-top:5px;*/
@@ -1297,4 +1297,13 @@ a:hover, a:focus {
 .icon-bar {
     background-color:#C0C0C0; /* this turns the small screen menu "button" 's lines this color */
     
+}
+.anchor {
+    /* This creates anchors for the menu system that are offset for the fixed header.
+     * The fields/anchors are added as blank elements (sorry) in view.php
+     */
+  display: block;
+  height: 20px; /*same height as header*/
+  margin-top: -20px; /*same height as header*/
+  visibility: hidden;
 }
