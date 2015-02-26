@@ -1,0 +1,1060 @@
+// Includes
+@import "compass"
+@import "compass/css3/box-shadow"
+@import "variables"
+@import "calendar"
+@import "tables"
+@import url("/library/font-awesome/latest/font-awesome.css")
+
+body
+  margin: 0
+  font-family: $default-font-family
+  font-size: $default-font-size
+  background-color: $off-white !important
+
+a, a:visited
+  color: $link-default-color
+  text-decoration: none
+  &:hover
+    color: $link-hover-color
+
+.menu
+  font-style: italic
+  font-size: 11pt
+  text-decoration: none
+  text-align: left
+
+.menu_selected
+  color: $dark-grey
+
+.logout
+  color: $dark-grey
+  text-decoration: none
+  text-align: right
+
+.text
+  text-decoration: none
+  font-size: 10pt
+
+.required
+  text-decoration: none
+  font-size: 10pt
+  color: #880000
+  font-weight: bold
+
+.bold
+  font-weight: bold
+
+.alert
+  color: $red
+
+.small
+  font-size: 80%
+
+.link
+  color: $link-default-color
+  font-size: 70%
+
+.more
+  font-size: 70%
+
+.back
+  font-size: 70%
+
+.link_selected, .link_selected:visite
+  color: $link-default-color
+  font-size: 70%
+
+.link_submit
+  a:visited
+    color: $link-default-color
+    font-size: 10pt
+  a:hover
+    color: $link-hover-color
+
+.items
+  font-size: 6pt
+
+.title
+  font-size: 12pt
+  font-weight: bold
+  text-decoration: none
+
+/* see .titlebar below */
+.title_bar
+  font-size: 12pt
+  font-weight: bold
+  text-decoration: none
+  color: $dark-grey
+
+
+.title_bar_top
+  font-size: 13px
+  font-weight: bold
+  text-decoration: none
+  color: $white
+
+/*
+ * Here we have taken variables from globals.php and turned them into CSS classes
+ * these should be used in place of the GLOBAL variables -- JRM March 2008 */
+
+// $top_bg_line
+.body_top
+  background-color: $white
+  margin: 8px
+.bgcolor2
+  background-color: $white
+  padding: 5px
+
+.body_bottom
+  background: url('../pic/aquabg.gif') repeat
+  margin: 8px
+
+// Top bar iframe
+.body_title
+  background-color: $black !important
+  color: $white
+
+  a, a:visited
+    color: $link-header-color
+
+// Left side nav bar
+.body_nav
+  background-color: rgba(255,255,255,1)
+  //background: @include filter-gradient(#ffffff, #f3f3f3, vertical)
+  //background: @include background-image(linear-gradient(top, rgba(255,255,255,1) 0%, rgba(243,243,243,1) 100%))
+
+
+// $login_filler_line
+.body_filler
+  background-color: #f7f0d5
+// $login_body_line
+.body_login
+  background: url('../pic/aquabg.gif') repeat
+// $table_bg
+.table_bg
+  background-color: #ccc
+// $GLOBALS['style']['BGCOLOR1']
+.bgcolor1
+  background-color: #ccc
+// $GLOBALS['style']['TEXTCOLOR11']
+.textcolor11
+  background-color: #222
+// $GLOBALS['style']['HIGHLIGHTCOLOR']
+.highlightcolor
+  background-color: #ddd
+// $GLOBALS['style']['BOTTOM_BG_LINE']
+.bottom_line
+  background: url('../pic/aquabg.gif') repeat
+// $GLOBALS['logoBarHeight']
+.logobar
+  background-color: #24262c
+  height: 110px
+// $GLOBALS['navBarHeight']
+.navbar
+  height: 22px
+// $GLOBALS['titleBarHeight']
+.titlebar
+  height: 20px
+
+#topToolbarRight
+  background: $white !important
+  padding: 10px
+
+#dateNAV
+  text-transform: uppercase
+  font-size: 0.85em
+  color: $link-default-color
+
+// style taken out of the addressbook code and put here instead
+#addressbook_list 
+  td 
+    font-family: Arial, Helvetica, sans-serif
+    padding-left: 4px
+    padding-right: 4px
+
+  a
+    &:visited, &:hover
+      color: $link-default-color
+    
+  tr
+    .search 
+      font-size: 9pt
+      font-weight: bold
+
+    .head 
+      font-size: 10pt
+      background-color: #cccccc
+      font-weight: bold
+
+    .detail 
+      font-size: 10pt
+
+  .inputtext 
+    font-family: monospace
+    font-size: 9pt
+    font-weight: normal
+    border: 1px solid $black
+    background-color: transparent
+
+  .button 
+    font-family: sans-serif
+    font-size: 8pt
+    font-weight: bold
+
+// styles taken out of templates/report/general_default.html
+#reports_list
+  td
+    font-size: 8pt
+    font-family: helvetica, sans-serif
+
+  a
+    font-size: 8pt
+    font-family: helvetica
+
+// styles taken out of templates/documents/general_list.html
+#documents_list
+  td
+    font-size: 8pt
+    font-family: helvetica, sans-serif
+
+  a
+    font-size: 8pt
+    font-family: helvetica, sans-serif
+
+  .treeMenuDefault
+    font-style:  italic
+
+  .treeMenuBold
+    font-style:  italic
+    font-weight:  bold
+
+  width: 29%
+  height: 95%
+  overflow: auto
+  float: left
+  border-right: dashed 1px
+
+#documents_actions 
+  padding-top: 10px
+  width: 70%
+  height: 95%
+  float: right
+  overflow: auto
+
+  iframe
+    display: inline
+    border: none
+    width: 100%
+    height: 600px
+    overflow: auto
+
+  form
+    margin: 0
+    padding: 0
+
+  table
+    width: 100%
+    height: 95%
+
+
+
+/*
+ * This section relates to the custom layouts that can be made
+ * using the OEMR tool in the Admin section. For example, the
+ * Patient Demographics are a custom layout */
+#DEM
+  .groupname, .label, .data
+    font-size: 0.8em
+    vertical-align: top
+  .groupname
+    font-weight: bold
+    color: #080
+    padding-right: 5px
+
+  .label
+    font-weight: bold
+    text-align: right
+
+  .data
+    text-align: left
+    padding-right: 6px
+
+
+/* Patient History */
+
+#HIS
+  .groupname
+    font-weight: bold
+    color: #080
+    font-size: 9pt
+    padding-right: 1px
+    vertical-align: top
+    height: 2em
+
+  .label
+    font-weight: bold
+    font-size: 9pt
+    vertical-align: top
+
+  .data
+    font-size: 9pt
+    vertical-align: top
+    text-align: left
+    padding-right: 10px
+/* Patient Notes seen in the patient summary and notes screens */
+#pnotes
+  .billing
+    background-color: #dfd
+
+  .highlight
+    background-color: #fff
+
+  table
+    border-collapse: collapse
+
+  .noterow
+    cursor: pointer
+
+  .noterow td
+    border-bottom: 1px dashed black
+    vertical-align: top
+    padding: 5px
+    margin: 5px
+
+/* Patient Stats seen in the patient stats screens */
+#patient_stats 
+  padding: 10px
+  table 
+    width: 100%
+    border-collapse: collapse
+  
+  td 
+    padding: 3px
+  
+  .statrow 
+    cursor: pointer
+  
+  .head 
+    font-size: 10pt
+    background-color: #cccccc
+    text-align: center
+  
+  .detail 
+    font-size: 10pt
+    vertical-align: top
+
+  .btn 
+    background-color: transparent
+  
+  .bg1 
+    background-color: #ddddff
+  
+  .bg2 
+    background-color: #ffdddd
+  
+  .center 
+    text-align: center
+
+/* Patient Stats Summary seen in the patient summary screen */
+#patient_stats_summary
+  table
+    border-collapse: collapse
+
+    .noend_noreturn
+      color: #ee0000
+
+    .noend
+      color: #dd5500
+
+    .noreturn
+      color: #0000ff
+
+    .title
+      font-size: 1.1em
+
+#patient_stats_issues 
+  width: 100%
+
+#patient_stats_spreadsheets 
+  width: 100%
+
+#patient_stats_imm 
+  width: 100%
+
+#patient_stats_prescriptions 
+  width: 100%
+
+/* Patient Past Encounters and Documents seen in the patient encounter screen */
+#patient_pastenc 
+  width: 100%
+
+  .billing_note 
+    width: 25%
+  
+  .billing_note_text 
+    padding: 5px
+    border: 2px outset black
+    background-color: lightgrey
+  
+  .billing_note_text_highlight 
+    background-color: #f7f5d1
+  
+  table 
+    border-collapse: collapse
+    width: 100%
+  
+  tr 
+    cursor: pointer
+  
+  td 
+    border-top: 1px solid black
+    vertical-align: top
+  
+  th 
+    text-align: left
+  
+  #tooltipdiv 
+    position: absolute
+    width: 500px
+    border: 1px solid black
+    padding: 2px
+    background-color: #ffffaa
+    visibility: hidden
+    z-index: 1000
+    font-size: 9pt
+  
+  .highlight 
+    background-color: #fff
+  
+  .tooltip 
+    position: absolute
+    border: 1px solid #333
+    background: #f7f5d1
+    padding: 2px 5px
+    color: #333
+    display: none
+
+/*=============================================================
+ * Patient Reports
+ * seen in the patient reports screens
+ *============================================================*/
+#patient_reports 
+  width: 100%
+
+  .issues 
+    padding-right: 30px  
+  .issues table 
+    margin: 10px 0 10px 0
+  
+  .issues td 
+    padding: 2px
+  
+  .encounters td 
+    padding: 2px
+  
+  .encounter_forms 
+    margin: 5px 15px 5px 15px
+  
+  td 
+    vertical-align: top
+  
+  ul 
+    list-style: none
+
+/*=============================================================
+ * Report - Custom
+ * seen as the patient report (custom_report.php)
+ *============================================================ */
+#report_custom 
+  width: 100%
+
+  hr 
+    border: 2px dotted black
+  
+  .billing 
+    margin: 5px
+    padding: 5px
+  
+  h1 
+    font-size: 120%
+    margin:  0 0 5px 0
+    padding: 0
+  
+  .immunizations 
+    margin: 5px
+    padding: 5px
+  
+  .notes 
+    margin: 5px
+    padding: 5px
+  
+  .transactions 
+    margin: 5px
+    padding: 5px
+  
+  .communications 
+    margin: 5px
+    padding: 5px
+  
+  .documents 
+    margin: 5px
+    padding: 5px
+  
+  .demographics 
+    margin: 5px
+    padding: 5px
+  
+  .insurance 
+    margin: 5px
+    padding: 5px
+  
+  .history 
+    margin: 5px
+    padding: 5px
+  
+  .issue 
+    margin-left: 20px  
+  .issue_type 
+    font-weight: bold
+    padding: 5px 0 5px 0
+  
+  .issue_diag 
+    margin: 0 20px 0 20px
+  
+  .issue_title 
+  
+  .issue_comments 
+  
+  .encounter 
+    width: 100%
+    border-top: 2px dotted black
+    padding: 10px 5px 10px 5px
+    margin-top: 10px
+
+  .encounter h1 
+    font-size: 140%
+    margin: 0
+    padding: 0
+  
+  .encounter_form 
+    margin: 10px
+    padding: 10px
+    border-top: 1px solid gray
+
+#addressbook_list
+  tr
+    .evenrow
+      background-color: #ddddff
+
+    .oddrow
+      background-color: #ffffff
+
+
+/* CSS BUTTONS */
+@mixin standard_button()
+  background-color: $button-bg-color
+  color: $white !important
+  display: block
+  float: left
+  margin-right: 3px
+  text-decoration: none
+  text-transform: uppercase
+
+  /* sliding doors padding */
+  padding-right: 10px
+
+  span
+    display: block
+
+  &:hover
+    background: darken($button-bg-color, 10%)
+    color: $white
+
+.css_button_small
+  @include standard_button
+  font-size: 9px
+  font-weight: bold
+  height: 19px
+
+  span
+    line-height: 19px
+    padding: 0 0 0 10px
+
+.css_button
+  @include standard_button
+  font-size: 10px
+  height: 24px
+
+  span
+    line-height: 14px
+    padding: 5px 0 5px 10px
+
+.sellistclass
+  float: left
+
+.disabled_button 
+  color: grey
+
+a.disabled_button:hover 
+  color: grey
+
+/* TABS */
+ul.tabNav
+  //background-color: rgba(230,230,230,1)
+  //@include background(linear-gradient(top, rgba(230,230,230,1) 0%, rgba(225,225,225,1) 100%))
+  background: $blue
+  margin: 0
+  padding: 0
+  float: left
+  list-style: none
+  width: 100%
+
+  li
+    float: left
+    margin: 0 1px 0 0
+    padding: 6px 0 0
+    font-size: 0.8em
+    vertical-align: bottom
+    text-align: left
+    font-weight: bold
+    color: $dark-grey
+
+    &.current
+      @include background(linear-gradient(top, rgba(255,255,255,1) 0%, rgba(252,244,255,1) 100%))
+      border-top: 1px solid #c9c9c9
+      border-right: 1px solid #c9c9c9
+      border-left: 1px solid #c9c9c9
+      color: $white
+      padding-top: 0
+      font-size: 0.8em
+      vertical-align: bottom
+      text-align: left
+
+      a
+        color: $blue
+        background: none
+        padding: 8px
+
+        &:hover
+          color: $black
+
+  a
+    display: block
+    color: $white
+    padding: 4px 4px 5px 4px
+    text-decoration: none
+
+div.tabContainer
+  clear: both
+  float: left
+  width: 100%
+  //background-color: red
+  @include background(linear-gradient(top, rgba(248,248,248,1) 0%, rgba(245,245,243,1) 100%))
+
+  div.tab
+    color: #000
+    display: none
+    padding: 10px
+
+  div.current
+    display: block
+
+div.tab
+  min-height: 180px
+  background: none
+  margin-bottom: 10px
+  width: 665px
+
+div.tab_long
+  min-height: 180px
+  background: none
+  margin-bottom: 10px
+  width: 100%
+
+div.tab
+  p:last-child
+    margin-bottom: 0
+
+  table
+    td
+      padding-right: 1px
+      padding-bottom: 0
+
+      .label
+        min-width: 80px
+
+      .data
+        min-width: 120px
+
+div.notab 
+  background: #FFFFFF none repeat scroll 0 0
+  margin-bottom: 10px
+  width: 100%
+
+div.notab-right 
+  background: #FFFFFF none repeat scroll 0 0
+  margin-bottom: 10px
+  width: 100%
+
+@mixin section_header()
+  margin-bottom: 5px
+  border-bottom: 1px solid $dark-grey
+
+.section-header
+  @include section_header
+  width: 685px
+
+.section-header-dynamic 
+  @include section_header
+
+.summary_item 
+  background: #FFFFFF
+  padding: 8px
+
+/* REPORTS */
+#report_parameters 
+  background-color: #ececec
+  margin-top: 10px
+
+  table
+    border: none
+    width: 100%
+    border-collapse: collapse
+
+    table
+      td
+        padding: 5px
+
+      table
+        border: 0
+        border-collapse: collapse
+        font-size: 0.8em
+
+        td.label
+          text-align: right
+
+#report_results 
+  table
+    border: 1px solid $black
+    width: 100%
+    border-collapse: collapse
+    margin-top: 1px
+
+    thead
+      padding: 5px
+      display: table-header-group
+      background-color: #ddd
+      text-align: left
+      font-weight: bold
+      font-size: 0.7em
+
+    th
+      border-bottom: 1px solid black
+      padding: 5px
+
+    td
+      padding: 5px
+      border-bottom: 1px dashed
+      font-size: 0.8em
+
+.report_totals
+  td
+    background-color: #77ff77
+    font-weight: bold
+
+/* List-table formatting */
+.showborder 
+  width: 650px
+
+.showborder td 
+  border-bottom: 1px dashed #000000
+  text-align: left
+  font-size: 9pt
+
+.showborder_head  th 
+  border-bottom: 1px solid #000000
+  text-align: left
+  font-size: 9pt
+
+.shownoborder td 
+  text-align: left
+  font-size: 9pt
+
+.showborder_long 
+  width: 100%
+
+.showborder_long tr td
+  border-bottom: 1px dashed #000000
+  text-align: left
+  font-size: 9pt
+
+
+/* Drug lookup */
+.drug_lookup
+  font-family: helvetica, sans-serif
+  font-size: 8pt
+  border: 2px outset rgb(102, 102, 102)
+  background-color: #eae6ff
+  padding: 5px
+  position: absolute
+  display: block
+
+
+/* Password alert styles */
+.pwdalert 
+  display: block
+  width: 390pt
+  margin-left: 100px
+  padding: 10px 10px 10px 15px
+  color: black
+
+.alertmsg1 
+  border: 3px solid #fe7b7a
+  background-color: #ffd6d6 
+
+.alertmsg2 
+  border: 3px solid #f56fff
+  background-color: #fabfff
+
+.alertmsg3 
+  border: 3px solid #9acc2e
+  background-color: #eef7dd
+
+/* Password alert styles */
+
+/* Style for red font */
+.redtext
+  text-decoration: none
+  color: $red
+  font-size: 10pt
+
+/* Style for red font */
+
+.de_identification_status_message
+  width: 50%
+  border: 1px solid #0000FF
+
+
+.de_identification_input_controls_box
+  width: 100%
+  border: 1px solid #0000FF
+
+
+.de_id_upgrade_login
+  width: 40%
+  border: 1px solid Black
+  background-color: #ffffff
+
+
+#navigation-slide, #navigation-slide *
+  padding-left: 0
+  margin-left: 0
+
+#navigation-slide
+  li
+    list-style: none
+
+    a.expanded
+      background: $link-nav-expanded-color
+
+    a.collapsed_lv2
+      background: #999 /* for non-css3 browsers */
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffac84', endColorstr='#fefdcf') /* for IE */
+      background: -webkit-gradient(linear, left top, left bottom, from(#ffac84), to(#fefdcf)) /* for webkit browsers */
+      background: -moz-linear-gradient(top,  #ffac84,  #fefdcf) /* for firefox 3.6+ */
+
+    a.expanded_lv2
+      background: #999 /* for non-css3 browsers */
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#ffac84') /* for IE */
+      background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#ffac84)) /* for webkit browsers */
+      background: -moz-linear-gradient(top,  #fefdcf,  #ffac84) /* for firefox 3.6+ */
+
+  a
+    color: $link-nav-color
+    display: block
+    padding: 5px 2px 5px 10px
+    width: 150px
+    text-transform: uppercase
+
+    &:hover
+      background: $link-nav-hover-color
+
+  ul
+    padding-left: 30px !important
+
+  .fa
+    color: $blue
+
+  .collapsed_lv2:before
+    font-family: FontAwesome
+    @extend: .fa-fw
+    content: "\f078"
+
+  .expanded_lv2:before
+    font-family: FontAwesome
+    @extend: .fa-fw
+    content: "\f077"
+
+  .collapsed_lv2, .expanded_lv2
+    background: none !important
+
+  .expanded_lv2
+    ul
+      padding-left: 10px !important
+
+#sddm
+  li
+    margin: 0
+    padding: 0
+    list-style: none
+    float: left
+
+    a
+      display: block
+      text-transform: uppercase
+      margin: 0 1px 0 0
+      padding: 4px 10px
+      color: $black
+      text-align: left
+      text-decoration: none
+      font-size: 0.8em
+
+  div
+    position: absolute
+    text-transform: none
+    visibility: hidden
+    display: none
+    margin: 0
+    padding: 0
+    background-color: $white
+    border-left: 3px solid $blue
+    @include box-shadow(0px 2px 5px #dedede)
+    //@include box-shadow(#000 2px 2px 10px)
+
+    table
+      td
+        border-top: none !important
+
+    a
+      position: relative
+      display: block
+      margin: 0
+      padding: 5px 10px
+      width: 170px
+      white-space: normal
+      text-align: left
+      color: #2875DE
+      font-weight: normal
+
+      &:hover
+        background: $light-grey
+
+//#sddm li a:hover
+
+.text-area
+  background-color: #FFFFFF
+  border: 1px solid black
+  width: 100%
+  height: 100%
+  overflow: auto
+  text-align: left
+
+.example_menu 
+  font-size: 70%
+  list-style: none
+  margin: 0
+  padding: 0
+  vertical-align: top
+  width: 136px
+
+.expand_all,
+.collapse_all 
+  cursor: pointer
+
+.example_menu ul 
+  display: none
+  list-style: none
+  margin: 0
+  padding: 0
+
+#menu1 li, #menu2 li, #menu3 li, #menu4 li, #menu5 li, .example_menu li 
+  background-image: none
+  margin: 0
+  padding: 0
+  border-bottom: 1px solid white
+
+.example_menu 
+  ul 
+    ul 
+      display: block
+  
+  a 
+    color: $black
+    cursor: pointer
+    display: block
+    font-weight: bold
+    margin-left: 0
+    padding: 2px 2px 2px 17px
+    width: 160px
+
+    &:hover
+      text-decoration: none
+  
+    .expanded 
+      background: #bbb url('collapse.gif') no-repeat 3px 50%
+    
+    .collapsed 
+      background: #bbb url('expand.gif') no-repeat 3px 50%
+  
+    ul
+      li
+        span 
+          background: #d9d1a4
+          color: #000
+          display: block
+          font-weight: normal
+          width: 100%
+
+  ul
+    a:hover
+      background : #f5f5f5
+      text-decoration: underline
+    
+  li.active
+    a
+      background: #fff
+      
+    li 
+      a 
+        background: #e8e8e8
+
+#menu1 li.footer,
+#menu2 li.footer,
+#menu3 li.footer,
+#menu4 li.footer,
+#menu5 li.footer,
+.example_menu .footer 
+  background: transparent url('footer.jpg') no-repeat 0 0
+  border-top: 2px solid #fff
+  height: 9px
+  line-height: 15px
+  margin: 0 0 10px 0
+  width: 131px
+
+  span
+    display: none
+
+.cke_contents
+  height: 300px !important
+
+/* Form styles */
+.formtable 
+  font-size: 13px
+  line-height: 24px
+
+  tr td
+    line-height: 24px
+
+.report_search_bar
+  background-color: #EADDB4

@@ -13,7 +13,7 @@ $esignApi = new Esign\Api();
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-
+<link rel="stylesheet" href="/library/font-awesome/latest/font-awesome.css" type="text/css">
 <script language="JavaScript">
 
 function openNewForm(sel) {
@@ -189,7 +189,7 @@ if (!empty($reg)) {
           $new_category_ = $new_category;
           $new_category_ = str_replace(' ','_',$new_category_);
           if ($old_category != '') {$StringEcho.= "</table></div></li>";}
-          $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
+          $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" ><i class=\"fa fa-angle-down fa-lg\"></i> $new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
           $old_category = $new_category;
           $DivId++;
         }

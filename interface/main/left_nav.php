@@ -387,6 +387,7 @@ function genFindBlock() {
 </style>
 
 <link rel="stylesheet" href="../../library/js/jquery.treeview-1.4.1/jquery.treeview.css" />
+<link rel="stylesheet" href="../../library/font-awesome/latest/font-awesome.css" />
 <script src="../../library/js/jquery-1.6.4.min.js" type="text/javascript"></script>
 <script src="../../library/js/jquery.treeview-1.4.1/jquery.treeview.js" type="text/javascript"></script>
 
@@ -1005,19 +1006,19 @@ $(document).ready(function(){
       $("#navigation-slide > li > a.expanded").next("ul").find("li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
       $(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
     });
-    $("#navigation-slide > li  > a#cal0").prepend('<img src="../../images/calendar.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#msg0").prepend('<img src="../../images/messages.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#patimg").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#app0").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#ppo0").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#repimg").prepend('<img src="../../images/reports.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#feeimg").prepend('<img src="../../images/fee.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#adm0").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#invimg").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#admimg").prepend('<img src="../../images/admin.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#misimg").prepend('<img src="../../images/misc.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#proimg").prepend('<img src="../../images/procedures.png" class="nav-menu-img" />');
-		$("#navigation-slide > li  > a#modimg").prepend('<img src="../../images/module.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#cal0").prepend('<i class="fa fa-fw fa-2x fa-calendar-o"></i>&nbsp;');
+    $("#navigation-slide > li  > a#msg0").prepend('<i class="fa fa-fw fa-2x fa-envelope"></i>&nbsp;');
+    $("#navigation-slide > li  > a#patimg").prepend('<i class="fa fa-fw fa-2x fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#app0").prepend('<i class="fa fa-fw fa-2x fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-2x fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#repimg").prepend('<i class="fa fa-fw fa-2x fa-pie-chart"></i>&nbsp;');
+    $("#navigation-slide > li  > a#feeimg").prepend('<i class="fa fa-fw fa-2x fa-dollar"></i>&nbsp;');
+    $("#navigation-slide > li  > a#adm0").prepend('<i class="fa fa-fw fa-2x fa-th-list"></i>&nbsp;');
+    $("#navigation-slide > li  > a#invimg").prepend('<i class="fa fa-fw fa-2x fa-th-list"></i>&nbsp;');
+    $("#navigation-slide > li  > a#admimg").prepend('<i class="fa fa-fw fa-2x fa-cog"></i>&nbsp;');
+    $("#navigation-slide > li  > a#misimg").prepend('<i class="fa fa-fw fa-2x fa-archive"></i>&nbsp;');
+    $("#navigation-slide > li  > a#proimg").prepend('<i class="fa fa-fw fa-2x fa-stethoscope"></i>&nbsp;');
+		$("#navigation-slide > li  > a#modimg").prepend('<i class="fa fa-fw fa-2x fa-puzzle-piece"></i>&nbsp;');
     $("#navigation-slide > li").each(function(index) {
       if($(" > ul > li", this).size() == 0){
         $(" > a", this).addClass("collapsed");

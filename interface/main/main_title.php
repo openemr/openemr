@@ -9,6 +9,7 @@ include_once('../globals.php');
 <head>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="/library/font-awesome/latest/font-awesome.css" type="text/css">
 <style type="text/css">
       .hidden {
         display:none;
@@ -115,12 +116,13 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <td align="right">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
-		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
-		&nbsp;|&nbsp;
-		<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.0_Users_Guide" target="_blank" id="help_link" >
-			<?php xl('Manual','e'); ?></a>&nbsp;</td>
-		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
-			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
+		<td align="right" class="text" style="vertical-align:text-bottom;">
+      <a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><i class="fa fa-home"></i></a>
+      &nbsp;|&nbsp;
+		<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.0_Users_Guide" target="_blank" id="help_link" ><i class="fa fa-book"></i></a>
+      &nbsp;|&nbsp;
+    <a href="../logout.php" target="_top" id="logout_link" onclick="top.restoreSession()" ><i class="fa fa-sign-out"></i></a>
+    </td>
 	</tr><tr>
 		<td colspan='2' valign="baseline" align='right'><B>
 			<span class="text title_bar_top" title="<?php echo htmlspecialchars( xl('Authorization group') .': '.$_SESSION['authGroup'], ENT_QUOTES); ?>"><?php echo htmlspecialchars($res{"fname"}.' '.$res{"lname"},ENT_NOQUOTES); ?></span></span></td>

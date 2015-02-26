@@ -1,0 +1,1150 @@
+div.tiny {
+  width: 1px;
+  height: 1px;
+  font-size: 1px; }
+
+.currentview {
+  border: 2px solid blue;
+  cursor: default; }
+
+#printview, #dayview, #weekview, #monthview {
+  cursor: hand; }
+
+#functions {
+  width: 13.5%;
+  margin-right: 0;
+  min-width: 105px;
+  float: left;
+  padding: 0 5px 0 5px; }
+
+#topToolbarRight {
+  background: none;
+  float: right;
+  width: 100%;
+  border-bottom: 1px solid black;
+  border-top: 1px solid black; }
+
+#dateNAV {
+  float: left;
+  font-size: 14pt; }
+
+#dateDisplay {
+  float: left;
+  padding-left: 10px; }
+
+#viewPicker {
+  float: right;
+  margin-right: 10px; }
+
+#bigCalHeader {
+  width: 70%;
+  float: right;
+  text-align: center;
+  font-size: 14pt; }
+
+#providerPicker, #pc_facility, #pc_username {
+  width: 100%; }
+
+#facilityColor {
+  width: 100%;
+  float: left; }
+  #facilityColor table {
+    width: 100%;
+    border-collapse: collapse; }
+
+#bottom {
+  float: left;
+  position: relative;
+  width: 100%; }
+
+#bigCal {
+  overflow: hidden;
+  background-color: #FFF3D1;
+  border-left: 1px solid black; }
+
+#bigCal table {
+  border-collapse: collapse;
+  border: none;
+  vertical-align: middle;
+  width: 100%; }
+  #bigCal table td {
+    padding: 1px;
+    margin: 0; }
+
+#bottomLeft {
+  width: 15%;
+  min-width: 140px;
+  float: left;
+  clear: left; }
+
+/* these are for the small datepicker DIV */
+#datePicker {
+  width: 100%; }
+  #datePicker table {
+    width: 96%;
+    border-collapse: collapse;
+    margin-left: 3px; }
+    #datePicker table td {
+      width: 19.5px;
+      font-size: 0.7em;
+      text-align: center;
+      /* font-size: 9pt  */ }
+  #datePicker .tdMonthName-small {
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    background-color: #FFF2E8;
+    cursor: pointer; }
+  #datePicker .tdDOW-small {
+    font-size: 10px;
+    vertical-align: top;
+    text-align: center;
+    border: none;
+    padding: 2px 3px 2px 3px;
+    background-color: #FFF2E8; }
+  #datePicker .tdDatePicker {
+    cursor: pointer; }
+  #datePicker .tdWeekend-small {
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+    background-color: #ffffff;
+    color: #999999; }
+  #datePicker .tdOtherMonthDay-small {
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+    background-color: #ffffff;
+    color: #999999; }
+  #datePicker .tdMonthDay-small {
+    font-size: 10px;
+    vertical-align: top;
+    border: none;
+    padding: 2px 3px 2px 3px;
+    background-color: #ffffff; }
+  #datePicker .currentWeek {
+    background-color: #DBD5FF; }
+  #datePicker .currentDate {
+    background-color: #A79BE7;
+    color: #E8FAFF; }
+  #datePicker .tdDatePickerHighlight {
+    background-color: #A79BE7;
+    color: #E8FAFF; }
+
+#times {
+  width: 2em;
+  background-color: #F9F9F9;
+  padding: 0; }
+  #times table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #fff !important; }
+    #times table td {
+      margin: 0;
+      padding: 0;
+      font-size: 0.8em; }
+
+.timeslot {
+  /* height value is tied to two PHP variables in the ajax_*.html files
+   * if you change this value then be sure to change the matching value 
+   * in those files */
+  height: 20px;
+  margin: 0;
+  padding: 0; }
+
+.schedule {
+  background-color: #fff;
+  vertical-align: top;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #999999; }
+
+/* for the header row with provider names */
+.providerheader {
+  text-align: center;
+  background-color: #EDEAFF;
+  width: 100%;
+  overflow: hidden;
+  border-bottom: 1px solid lightgrey;
+  white-space: nowrap; }
+
+/* for the DIV inside each TD, this DIV contains any events for a single day */
+.calendar_day {
+  position: relative;
+  height: 100%;
+  width: 100%; }
+
+/* classes specific to the WEEK view */
+.week_dateheader {
+  border-left: 1px solid #999;
+  border-right: 1px solid #999;
+  font-size: 0.7em;
+  font-weight: bold; }
+
+.week_currday {
+  background-color: #DBD5FF; }
+
+/* classes specific to the MONTH view */
+.month_daylink {
+  width: 95%;
+  font-size: 0.8em;
+  text-align: right;
+  background-color: #FFF;
+  padding: 1px 2px 1px 2px; }
+
+.month_dateheader {
+  font-size: 0.7em;
+  width: 13%; }
+
+.month_event {
+  font-size: 0.8em;
+  width: 100%; }
+
+/* types of events */
+.event {
+  position: absolute;
+  font-size: 0.8em;
+  width: 100%; }
+
+.event img {
+  vertical-align: middle; }
+
+.event_in {
+  background-color: white;
+  z-index: 1; }
+
+.event_appointment {
+  background-color: white;
+  z-index: 2;
+  overflow: hidden; }
+
+.event_noshow {
+  background-color: pink;
+  z-index: 2;
+  overflow: hidden; }
+
+.event_reserved {
+  background-color: pink;
+  z-index: 2;
+  overflow: hidden; }
+
+.event_highlight {
+  font-weight: bold;
+  margin: -3px;
+  background-color: black; }
+
+.event_time {
+  cursor: pointer; }
+
+.event_time:hover {
+  color: red; }
+
+.view1 {
+  font-size: 10px; }
+
+.view2 {
+  background: none !important;
+  font-size: 10px; }
+
+.in_start {
+  background: transparent;
+  z-index: 2; }
+
+.event_out.event_highlight, .in_start.event_highlight {
+  font-weight: bold;
+  margin: 0;
+  background-color: yellow;
+  opacity: 1;
+  z-index: 2;
+  cursor: pointer; }
+
+.event_out {
+  z-index: 3;
+  background-color: #ff7533; }
+
+#pt_table tr td, #pt_table tr th {
+  padding: 10px !important;
+  border-top: 1px solid #ddd; }
+
+tr.odd {
+  background-color: #fff !important; }
+
+tr.even {
+  background-color: #F9F9F9 !important; }
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 1em; }
+
+a, a:visited {
+  color: #0078C1;
+  text-decoration: none; }
+  a:hover, a:visited:hover {
+    color: #001928; }
+
+.menu {
+  font-style: italic;
+  font-size: 11pt;
+  text-decoration: none;
+  text-align: left; }
+
+.menu_selected {
+  color: #ddd; }
+
+.logout {
+  color: #ddd;
+  text-decoration: none;
+  text-align: right; }
+
+.text {
+  text-decoration: none;
+  font-size: 10pt; }
+
+.required {
+  text-decoration: none;
+  font-size: 10pt;
+  color: #880000;
+  font-weight: bold; }
+
+.bold {
+  font-weight: bold; }
+
+.alert {
+  color: #A94442; }
+
+.small {
+  font-size: 80%; }
+
+.link {
+  color: #0078C1;
+  font-size: 70%; }
+
+.more {
+  font-size: 70%; }
+
+.back {
+  font-size: 70%; }
+
+.link_selected, .link_selected:visite {
+  color: #0078C1;
+  font-size: 70%; }
+
+.link_submit a:visited {
+  color: #0078C1;
+  font-size: 10pt; }
+.link_submit a:hover {
+  color: #001928; }
+
+.items {
+  font-size: 6pt; }
+
+.title {
+  font-size: 12pt;
+  font-weight: bold;
+  text-decoration: none; }
+
+/* see .titlebar below */
+.title_bar {
+  font-size: 12pt;
+  font-weight: bold;
+  text-decoration: none;
+  color: #ddd; }
+
+.title_bar_top {
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #fff; }
+
+/* Here we have taken variables from globals.php and turned them into CSS classes
+ * these should be used in place of the GLOBAL variables -- JRM March 2008 */
+.body_top {
+  background-color: #fff;
+  margin: 8px; }
+
+.bgcolor2 {
+  background-color: #fefdcf; }
+
+.body_bottom {
+  background: url("../pic/aquabg.gif") repeat;
+  margin: 8px; }
+
+.body_title {
+  background-color: #444;
+  color: #fff; }
+  .body_title a, .body_title a:visited {
+    color: #ffffff; }
+
+.body_nav {
+  background-color: white; }
+
+.body_filler {
+  background-color: #f7f0d5; }
+
+.body_login {
+  background: url("../pic/aquabg.gif") repeat; }
+
+.table_bg {
+  background-color: #ccc; }
+
+.bgcolor1 {
+  background-color: #ccc; }
+
+.textcolor11 {
+  background-color: #222; }
+
+.highlightcolor {
+  background-color: #ddd; }
+
+.bottom_line {
+  background: url("../pic/aquabg.gif") repeat; }
+
+.logobar {
+  background-color: #24262c;
+  height: 110px; }
+
+.navbar {
+  height: 22px; }
+
+.titlebar {
+  height: 20px; }
+
+#topToolbarRight {
+  background: #fff !important;
+  padding: 10px; }
+
+#dateNAV {
+  text-transform: uppercase;
+  font-size: 0.85em;
+  color: #0078C1; }
+
+#addressbook_list td {
+  font-family: Arial, Helvetica, sans-serif;
+  padding-left: 4px;
+  padding-right: 4px; }
+#addressbook_list a:visited, #addressbook_list a:hover {
+  color: #0078C1; }
+#addressbook_list tr .search {
+  font-size: 9pt;
+  font-weight: bold; }
+#addressbook_list tr .head {
+  font-size: 10pt;
+  background-color: #cccccc;
+  font-weight: bold; }
+#addressbook_list tr .detail {
+  font-size: 10pt; }
+#addressbook_list .inputtext {
+  font-family: monospace;
+  font-size: 9pt;
+  font-weight: normal;
+  border: 1px solid #444;
+  background-color: transparent; }
+#addressbook_list .button {
+  font-family: sans-serif;
+  font-size: 8pt;
+  font-weight: bold; }
+
+#reports_list td {
+  font-size: 8pt;
+  font-family: helvetica, sans-serif; }
+#reports_list a {
+  font-size: 8pt;
+  font-family: helvetica; }
+
+#documents_list {
+  width: 29%;
+  height: 95%;
+  overflow: auto;
+  float: left;
+  border-right: dashed 1px; }
+  #documents_list td {
+    font-size: 8pt;
+    font-family: helvetica, sans-serif; }
+  #documents_list a {
+    font-size: 8pt;
+    font-family: helvetica, sans-serif; }
+  #documents_list .treeMenuDefault {
+    font-style: italic; }
+  #documents_list .treeMenuBold {
+    font-style: italic;
+    font-weight: bold; }
+
+#documents_actions {
+  padding-top: 10px;
+  width: 70%;
+  height: 95%;
+  float: right;
+  overflow: auto; }
+  #documents_actions iframe {
+    display: inline;
+    border: none;
+    width: 100%;
+    height: 600px;
+    overflow: auto; }
+  #documents_actions form {
+    margin: 0;
+    padding: 0; }
+  #documents_actions table {
+    width: 100%;
+    height: 95%; }
+
+/* This section relates to the custom layouts that can be made
+ * using the OEMR tool in the Admin section. For example, the
+ * Patient Demographics are a custom layout */
+#DEM .groupname, #DEM .label, #DEM .data {
+  font-size: 0.8em;
+  vertical-align: top; }
+#DEM .groupname {
+  font-weight: bold;
+  color: #080;
+  padding-right: 5px; }
+#DEM .label {
+  font-weight: bold;
+  text-align: right; }
+#DEM .data {
+  text-align: left;
+  padding-right: 6px; }
+
+/* Patient History */
+#HIS .groupname {
+  font-weight: bold;
+  color: #080;
+  font-size: 9pt;
+  padding-right: 1px;
+  vertical-align: top;
+  height: 2em; }
+#HIS .label {
+  font-weight: bold;
+  font-size: 9pt;
+  vertical-align: top; }
+#HIS .data {
+  font-size: 9pt;
+  vertical-align: top;
+  text-align: left;
+  padding-right: 10px; }
+
+/* Patient Notes seen in the patient summary and notes screens */
+#pnotes .billing {
+  background-color: #dfd; }
+#pnotes .highlight {
+  background-color: #fff; }
+#pnotes table {
+  border-collapse: collapse; }
+#pnotes .noterow {
+  cursor: pointer; }
+#pnotes .noterow td {
+  border-bottom: 1px dashed black;
+  vertical-align: top;
+  padding: 5px;
+  margin: 5px; }
+
+/* Patient Stats seen in the patient stats screens */
+#patient_stats {
+  padding: 10px; }
+  #patient_stats table {
+    width: 100%;
+    border-collapse: collapse; }
+  #patient_stats td {
+    padding: 3px; }
+  #patient_stats .statrow {
+    cursor: pointer; }
+  #patient_stats .head {
+    font-size: 10pt;
+    background-color: #cccccc;
+    text-align: center; }
+  #patient_stats .detail {
+    font-size: 10pt;
+    vertical-align: top; }
+  #patient_stats .btn {
+    background-color: transparent; }
+  #patient_stats .bg1 {
+    background-color: #ddddff; }
+  #patient_stats .bg2 {
+    background-color: #ffdddd; }
+  #patient_stats .center {
+    text-align: center; }
+
+/* Patient Stats Summary seen in the patient summary screen */
+#patient_stats_summary table {
+  border-collapse: collapse; }
+  #patient_stats_summary table .noend_noreturn {
+    color: #ee0000; }
+  #patient_stats_summary table .noend {
+    color: #dd5500; }
+  #patient_stats_summary table .noreturn {
+    color: #0000ff; }
+  #patient_stats_summary table .title {
+    font-size: 1.1em; }
+
+#patient_stats_issues {
+  width: 100%; }
+
+#patient_stats_spreadsheets {
+  width: 100%; }
+
+#patient_stats_imm {
+  width: 100%; }
+
+#patient_stats_prescriptions {
+  width: 100%; }
+
+/* Patient Past Encounters and Documents seen in the patient encounter screen */
+#patient_pastenc {
+  width: 100%; }
+  #patient_pastenc .billing_note {
+    width: 25%; }
+  #patient_pastenc .billing_note_text {
+    padding: 5px;
+    border: 2px outset black;
+    background-color: lightgrey; }
+  #patient_pastenc .billing_note_text_highlight {
+    background-color: #f7f5d1; }
+  #patient_pastenc table {
+    border-collapse: collapse;
+    width: 100%; }
+  #patient_pastenc tr {
+    cursor: pointer; }
+  #patient_pastenc td {
+    border-top: 1px solid black;
+    vertical-align: top; }
+  #patient_pastenc th {
+    text-align: left; }
+  #patient_pastenc #tooltipdiv {
+    position: absolute;
+    width: 500px;
+    border: 1px solid black;
+    padding: 2px;
+    background-color: #ffffaa;
+    visibility: hidden;
+    z-index: 1000;
+    font-size: 9pt; }
+  #patient_pastenc .highlight {
+    background-color: #fff; }
+  #patient_pastenc .tooltip {
+    position: absolute;
+    border: 1px solid #333;
+    background: #f7f5d1;
+    padding: 2px 5px;
+    color: #333;
+    display: none; }
+
+/*=============================================================
+ * Patient Reports
+ * seen in the patient reports screens
+ *============================================================ */
+#patient_reports {
+  width: 100%; }
+  #patient_reports .issues {
+    padding-right: 30px; }
+  #patient_reports .issues table {
+    margin: 10px 0 10px 0; }
+  #patient_reports .issues td {
+    padding: 2px; }
+  #patient_reports .encounters td {
+    padding: 2px; }
+  #patient_reports .encounter_forms {
+    margin: 5px 15px 5px 15px; }
+  #patient_reports td {
+    vertical-align: top; }
+  #patient_reports ul {
+    list-style: none; }
+
+/*=============================================================
+ * Report - Custom
+ * seen as the patient report (custom_report.php)
+ *============================================================ */
+#report_custom {
+  width: 100%; }
+  #report_custom hr {
+    border: 2px dotted black; }
+  #report_custom .billing {
+    margin: 5px;
+    padding: 5px; }
+  #report_custom h1 {
+    font-size: 120%;
+    margin: 0 0 5px 0;
+    padding: 0; }
+  #report_custom .immunizations {
+    margin: 5px;
+    padding: 5px; }
+  #report_custom .notes {
+    margin: 5px;
+    padding: 5px; }
+  #report_custom .transactions {
+    margin: 5px;
+    padding: 5px; }
+  #report_custom .communications {
+    margin: 5px;
+    padding: 5px; }
+  #report_custom .documents {
+    margin: 5px;
+    padding: 5px; }
+  #report_custom .demographics {
+    margin: 5px;
+    padding: 5px; }
+  #report_custom .insurance {
+    margin: 5px;
+    padding: 5px; }
+  #report_custom .history {
+    margin: 5px;
+    padding: 5px; }
+  #report_custom .issue {
+    margin-left: 20px; }
+  #report_custom .issue_type {
+    font-weight: bold;
+    padding: 5px 0 5px 0; }
+  #report_custom .issue_diag {
+    margin: 0 20px 0 20px; }
+  #report_custom .encounter {
+    width: 100%;
+    border-top: 2px dotted black;
+    padding: 10px 5px 10px 5px;
+    margin-top: 10px; }
+  #report_custom .encounter h1 {
+    font-size: 140%;
+    margin: 0;
+    padding: 0; }
+  #report_custom .encounter_form {
+    margin: 10px;
+    padding: 10px;
+    border-top: 1px solid gray; }
+
+#addressbook_list tr .evenrow {
+  background-color: #ddddff; }
+#addressbook_list tr .oddrow {
+  background-color: #ffffff; }
+
+/* CSS BUTTONS */
+.css_button_small {
+  background-color: #0078C1;
+  color: #fff !important;
+  display: block;
+  float: left;
+  margin-right: 3px;
+  text-decoration: none;
+  text-transform: uppercase;
+  /* sliding doors padding */
+  padding-right: 10px;
+  font-size: 9px;
+  height: 19px; }
+  .css_button_small span {
+    display: block; }
+  .css_button_small:hover {
+    background: #00588e;
+    color: #fff; }
+  .css_button_small span {
+    line-height: 19px;
+    padding: 0 0 0 10px; }
+
+.css_button {
+  background-color: #0078C1;
+  color: #fff !important;
+  display: block;
+  float: left;
+  margin-right: 3px;
+  text-decoration: none;
+  text-transform: uppercase;
+  /* sliding doors padding */
+  padding-right: 10px;
+  font-size: 10px;
+  height: 24px; }
+  .css_button span {
+    display: block; }
+  .css_button:hover {
+    background: #00588e;
+    color: #fff; }
+  .css_button span {
+    line-height: 14px;
+    padding: 5px 0 5px 10px; }
+
+.sellistclass {
+  float: left; }
+
+.disabled_button {
+  color: grey; }
+
+a.disabled_button:hover {
+  color: grey; }
+
+/* TABS */
+ul.tabNav {
+  background: red;
+  margin: 0;
+  padding: 0;
+  float: left;
+  list-style: none;
+  width: 100%; }
+  ul.tabNav li {
+    float: left;
+    margin: 0 1px 0 0;
+    padding: 6px 0 0;
+    font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left; }
+    ul.tabNav li .current {
+      padding-top: 0;
+      font-weight: bold;
+      font-size: 0.8em;
+      vertical-align: bottom;
+      text-align: left; }
+      ul.tabNav li .current a {
+        background: #FFFFFF;
+        padding: 8px; }
+  ul.tabNav a {
+    background: #A7A7A7;
+    border: 1px solid #ffffff;
+    color: #333;
+    display: block;
+    padding: 4px 4px 5px 4px;
+    text-decoration: none; }
+
+div.tabContainer {
+  clear: both;
+  float: left;
+  width: 100%; }
+  div.tabContainer div.tab {
+    border: 1px solid #ffffff;
+    color: #000;
+    display: none;
+    padding: 10px; }
+  div.tabContainer div.current {
+    display: block; }
+
+div.tab {
+  min-height: 180px;
+  background: #ffffff none repeat scroll 0 0;
+  margin-bottom: 10px;
+  width: 665px; }
+
+div.tab_long {
+  min-height: 180px;
+  background: #ffffff none repeat scroll 0 0;
+  margin-bottom: 10px;
+  width: 100%; }
+
+div.tab p:last-child {
+  margin-bottom: 0; }
+div.tab table td {
+  padding-right: 1px;
+  padding-bottom: 0; }
+  div.tab table td .label {
+    min-width: 80px; }
+  div.tab table td .data {
+    min-width: 120px; }
+
+div.notab {
+  background: #FFFFFF none repeat scroll 0 0;
+  margin-bottom: 10px;
+  width: 100%; }
+
+div.notab-right {
+  background: #FFFFFF none repeat scroll 0 0;
+  margin-bottom: 10px;
+  width: 100%; }
+
+.section-header {
+  margin-bottom: 5px;
+  border-bottom: 1px solid #ddd;
+  width: 685px; }
+
+.section-header-dynamic {
+  margin-bottom: 5px;
+  border-bottom: 1px solid #ddd; }
+
+.summary_item {
+  background: #FFFFFF;
+  padding: 8px; }
+
+/* REPORTS */
+#report_parameters {
+  background-color: #ececec;
+  margin-top: 10px; }
+  #report_parameters table {
+    border: none;
+    width: 100%;
+    border-collapse: collapse; }
+    #report_parameters table table td {
+      padding: 5px; }
+    #report_parameters table table table {
+      border: 0;
+      border-collapse: collapse;
+      font-size: 0.8em; }
+      #report_parameters table table table td.label {
+        text-align: right; }
+
+#report_results table {
+  border: 1px solid #444;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1px; }
+  #report_results table thead {
+    padding: 5px;
+    display: table-header-group;
+    background-color: #ddd;
+    text-align: left;
+    font-weight: bold;
+    font-size: 0.7em; }
+  #report_results table th {
+    border-bottom: 1px solid black;
+    padding: 5px; }
+  #report_results table td {
+    padding: 5px;
+    border-bottom: 1px dashed;
+    font-size: 0.8em; }
+
+.report_totals td {
+  background-color: #77ff77;
+  font-weight: bold; }
+
+/* List-table formatting */
+.showborder {
+  width: 650px; }
+
+.showborder td {
+  border-bottom: 1px dashed #000000;
+  text-align: left;
+  font-size: 9pt; }
+
+.showborder_head th {
+  border-bottom: 1px solid #000000;
+  text-align: left;
+  font-size: 9pt; }
+
+.shownoborder td {
+  text-align: left;
+  font-size: 9pt; }
+
+.showborder_long {
+  width: 100%; }
+
+.showborder_long tr td {
+  border-bottom: 1px dashed #000000;
+  text-align: left;
+  font-size: 9pt; }
+
+/* Drug lookup */
+.drug_lookup {
+  font-family: helvetica, sans-serif;
+  font-size: 8pt;
+  border: 2px outset #666666;
+  background-color: #eae6ff;
+  padding: 5px;
+  position: absolute;
+  display: block; }
+
+/* Password alert styles */
+.pwdalert {
+  display: block;
+  width: 390pt;
+  margin-left: 100px;
+  padding: 10px 10px 10px 15px;
+  color: black; }
+
+.alertmsg1 {
+  border: 3px solid #fe7b7a;
+  background-color: #ffd6d6; }
+
+.alertmsg2 {
+  border: 3px solid #f56fff;
+  background-color: #fabfff; }
+
+.alertmsg3 {
+  border: 3px solid #9acc2e;
+  background-color: #eef7dd; }
+
+/* Password alert styles */
+/* Style for red font */
+.redtext {
+  text-decoration: none;
+  color: #A94442;
+  font-size: 10pt; }
+
+/* Style for red font */
+.de_identification_status_message {
+  width: 50%;
+  border: 1px solid #0000FF; }
+
+.de_identification_input_controls_box {
+  width: 100%;
+  border: 1px solid #0000FF; }
+
+.de_id_upgrade_login {
+  width: 40%;
+  border: 1px solid Black;
+  background-color: #ffffff; }
+
+#navigation-slide, #navigation-slide * {
+  padding-left: 0;
+  margin-left: 0; }
+
+#navigation-slide li {
+  list-style: none; }
+  #navigation-slide li a.expanded {
+    background: #cbe6f7; }
+  #navigation-slide li a.collapsed_lv2 {
+    background: #999;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffac84', endColorstr='#fefdcf');
+    background: -webkit-gradient(linear, left top, left bottom, from(#ffac84), to(#fefdcf));
+    background: -moz-linear-gradient(top, #ffac84, #fefdcf); }
+  #navigation-slide li a.expanded_lv2 {
+    background: #999;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#ffac84');
+    background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#ffac84));
+    background: -moz-linear-gradient(top, #fefdcf, #ffac84); }
+#navigation-slide a {
+  color: #706760;
+  display: block;
+  padding: 5px 2px 5px 10px;
+  width: 150px;
+  text-transform: uppercase; }
+  #navigation-slide a:hover {
+    background: #e7eaef; }
+
+#sddm li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  float: left;
+  border: 1px solid #FEFDCF; }
+  #sddm li a {
+    display: block;
+    margin: 0 1px 0 0;
+    padding: 4px 10px;
+    color: #004080;
+    text-align: left;
+    text-decoration: none;
+    font-size: 0.8em;
+    font-weight: bold; }
+
+#sddm li a:hover {
+  background: #ffac84; }
+
+#sddm div {
+  position: absolute;
+  visibility: hidden;
+  display: none;
+  margin: 0;
+  padding: 0;
+  background: #C9F1B5;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000; }
+  #sddm div a {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 5px 10px;
+    width: 170px;
+    white-space: normal;
+    text-align: left;
+    text-decoration: none;
+    background: #fefdcf;
+    color: #2875DE;
+    font-size: 0.8em;
+    font-weight: normal; }
+
+#sddm div a:hover {
+  background: #ffac84;
+  color: #000000; }
+
+.text-area {
+  background-color: #FFFFFF;
+  border: 1px solid black;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  text-align: left; }
+
+.example_menu {
+  font-size: 70%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  width: 136px; }
+
+.expand_all,
+.collapse_all {
+  cursor: pointer; }
+
+.example_menu ul {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0; }
+
+#menu1 li, #menu2 li, #menu3 li, #menu4 li, #menu5 li, .example_menu li {
+  background-image: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid white; }
+
+.example_menu ul ul {
+  display: block; }
+.example_menu a {
+  color: #444;
+  cursor: pointer;
+  display: block;
+  font-weight: bold;
+  margin-left: 0;
+  padding: 2px 2px 2px 17px;
+  width: 160px; }
+  .example_menu a:hover {
+    text-decoration: none; }
+  .example_menu a .expanded {
+    background: #bbb url("collapse.gif") no-repeat 3px 50%; }
+  .example_menu a .collapsed {
+    background: #bbb url("expand.gif") no-repeat 3px 50%; }
+  .example_menu a ul li span {
+    background: #d9d1a4;
+    color: #000;
+    display: block;
+    font-weight: normal;
+    width: 100%; }
+.example_menu ul a:hover {
+  background: #f5f5f5;
+  text-decoration: underline; }
+.example_menu li.active a {
+  background: #fff; }
+.example_menu li.active li a {
+  background: #e8e8e8; }
+
+#menu1 li.footer,
+#menu2 li.footer,
+#menu3 li.footer,
+#menu4 li.footer,
+#menu5 li.footer,
+.example_menu .footer {
+  background: transparent url("footer.jpg") no-repeat 0 0;
+  border-top: 2px solid #fff;
+  height: 9px;
+  line-height: 15px;
+  margin: 0 0 10px 0;
+  width: 131px; }
+  #menu1 li.footer span,
+  #menu2 li.footer span,
+  #menu3 li.footer span,
+  #menu4 li.footer span,
+  #menu5 li.footer span,
+  .example_menu .footer span {
+    display: none; }
+
+.cke_contents {
+  height: 300px !important; }
+
+/* Form styles */
+.formtable {
+  font-size: 13px;
+  line-height: 24px; }
+  .formtable tr td {
+    line-height: 24px; }
+
+.report_search_bar {
+  background-color: #EADDB4; }
+
+/*# sourceMappingURL=style_light.css.map */

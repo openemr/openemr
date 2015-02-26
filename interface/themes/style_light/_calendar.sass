@@ -1,0 +1,286 @@
+@import "variables"
+
+div.tiny
+  width: 1px
+  height: 1px
+  font-size: 1px
+
+.currentview
+  border: 2px solid blue
+  cursor: default
+
+#printview, #dayview, #weekview, #monthview
+  cursor: hand
+
+#functions
+  width: 13.5% /* can't make this 25% for some reason */
+  margin-right: 0 /* added because of the width issue above */
+  min-width: 105px
+  float: left
+  padding: 0 5px 0 5px
+
+#topToolbarRight
+  background: none
+  float: right
+  width: 100%
+  border-bottom: 1px solid black
+  border-top: 1px solid black
+
+#dateNAV
+  float: left
+  font-size: 14pt
+
+#dateDisplay
+  float: left
+  padding-left: 10px
+
+#viewPicker
+  float: right
+  margin-right: 10px
+
+#bigCalHeader
+  width: 70%
+  float: right
+  text-align: center
+  font-size: 14pt
+
+#providerPicker, #pc_facility, #pc_username
+  width: 100%
+
+#facilityColor
+  width: 100%
+  float: left
+
+  table
+    width: 100%
+    border-collapse: collapse
+
+#bottom
+  float: left
+  position: relative
+  width: 100%
+
+#bigCal
+  overflow: hidden
+  background-color: #FFF3D1
+  border-left: 1px solid black
+
+#bigCal
+  table
+    border-collapse: collapse
+    border: none
+    vertical-align: middle
+    width: 100%
+
+    td
+      padding: 1px
+      margin: 0
+
+#bottomLeft
+  width: 15%
+  min-width: 140px
+  float: left
+  clear: left
+
+/* these are for the small datepicker DIV */
+#datePicker
+  width: 100%
+
+  table
+    width: 96%
+    border-collapse: collapse
+    margin-left: 3px
+
+    td
+      width: 19.5px
+
+      font-size: 0.7em
+      text-align: center
+      /* font-size: 9pt  */
+
+  .tdMonthName-small
+    text-align: center
+    font-size: 12px
+    font-style: normal
+    background-color: #FFF2E8
+    cursor: pointer
+
+  .tdDOW-small
+    font-size: 10px
+    vertical-align: top
+    text-align: center
+    border: none
+    padding: 2px 3px 2px 3px
+    background-color: #FFF2E8
+
+  .tdDatePicker
+    cursor: pointer
+
+  .tdWeekend-small
+    font-size: 10px
+    vertical-align: top
+    border: none
+    padding: 2px 3px 2px 3px
+    background-color: #ffffff
+    color: #999999
+
+  .tdOtherMonthDay-small
+    font-size: 10px
+    vertical-align: top
+    border: none
+    padding: 2px 3px 2px 3px
+    background-color: #ffffff
+    color: #999999
+
+  .tdMonthDay-small
+    font-size: 10px
+    vertical-align: top
+    border: none
+    padding: 2px 3px 2px 3px
+    background-color: #ffffff
+
+  .currentWeek
+    background-color: #DBD5FF
+
+  .currentDate
+    background-color: #A79BE7
+    color: #E8FAFF
+
+  .tdDatePickerHighlight
+    background-color: #A79BE7
+    color: #E8FAFF
+
+#times
+  width: 2em
+  background-color: $light-grey
+  padding: 0
+
+  table
+    border-collapse: collapse
+    width: 100%
+    margin: 0
+    padding: 0
+    background-color: $white !important
+
+    td
+      margin: 0
+      padding: 0
+      font-size: 0.8em
+
+.timeslot
+  /* height value is tied to two PHP variables in the ajax_*.html files 
+   * if you change this value then be sure to change the matching value 
+   * in those files */
+  height: 20px
+  margin: 0
+  padding: 0
+
+.schedule
+  background-color: $white
+  vertical-align: top
+  padding: 0
+  margin: 0
+  border: 1px solid #999999
+
+/* for the header row with provider names */
+.providerheader
+  text-align: center
+  background-color: #EDEAFF
+  width: 100%
+  overflow: hidden
+  border-bottom: 1px solid lightgrey
+  white-space: nowrap
+
+/* for the DIV inside each TD, this DIV contains any events for a single day */
+.calendar_day
+  position: relative
+  height: 100%
+  width: 100%
+
+/* classes specific to the WEEK view */
+.week_dateheader
+  border-left: 1px solid #999
+  border-right: 1px solid #999
+  font-size: 0.7em
+  font-weight: bold
+
+.week_currday
+  background-color: #DBD5FF
+
+/* classes specific to the MONTH view */
+.month_daylink
+  width: 95%
+  font-size: 0.8em
+  text-align: right
+  background-color: #FFF
+  padding: 1px 2px 1px 2px
+
+.month_dateheader
+  font-size: 0.7em
+  width: 13%
+
+.month_event
+  font-size: 0.8em
+  width: 100%
+
+/* types of events */
+.event
+  position: absolute
+  font-size: 0.8em
+  width: 100%
+
+.event img
+  vertical-align: middle
+
+.event_in
+  background-color: white
+  z-index: 1
+
+.event_appointment
+  background-color: white
+  z-index: 2
+  overflow: hidden
+
+.event_noshow
+  background-color: pink
+  z-index: 2
+  overflow: hidden
+
+.event_reserved
+  background-color: pink
+  z-index: 2
+  overflow: hidden
+
+.event_highlight
+  font-weight: bold
+  margin: -3px
+  background-color: black
+
+.event_time
+  cursor: pointer
+
+.event_time:hover
+  color: red
+
+.view1
+  font-size: 10px
+
+.view2
+  background: none !important
+  font-size: 10px
+
+.in_start
+  background: transparent
+  z-index: 2
+
+.event_out.event_highlight, .in_start.event_highlight
+  font-weight: bold
+  margin: 0
+  background-color: yellow
+  opacity: 1
+  z-index: 2
+  cursor: pointer
+
+.event_out
+  z-index: 3
+  background-color: #ff7533
