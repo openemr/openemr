@@ -53,6 +53,7 @@ require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
   // echo $query . "<br>\n";
    sqlStatement($query);
 //close this pop-up?
+//update the issues without a full page reload?
    echo "
   <html><body><script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
