@@ -324,8 +324,8 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- end    PMH Left -->
               <!-- start  PMH Right -->
               <div id="PMH_right" name="PMH_right" class="exam_section_right borderShadow">
-                  <?php display_draw_section ("PMH",$encounter,$pid); ?>
-                <div id="QP_PMH" name="QP_PMH" class="QP_class" style="text-align:left;max-height: 2.5in;overflow:auto;">
+                  <?php display_draw_section("PMH",$encounter,$pid); ?>
+                <div id="QP_PMH" name="QP_PMH" class="QP_class" style="text-align:left;max-height: 4.5in;overflow:auto;font-size:0.7em;">
                   <div id="PMH_text_list" name="PMH_text_list" class="borderShadow  <?php echo attr($display_PMH_view); ?> ">
                     <h1></h1> &nbsp;<br />
                     <span style="font-size:1.1em;text-align:left;"><ul>Deliverables:
@@ -1209,7 +1209,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- end of the refraction box -->
 
             <!-- my reporting div for development only remove the "X" to see output from save.php-->
-          <div id="tellmeX" name="tellmeX"></div>
+          <div id="tellme" name="tellme"></div>
             <!-- end reporting div -->
 
           <!-- Start of the exam selection/middle menu row -->

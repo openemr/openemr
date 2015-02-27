@@ -1359,7 +1359,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                 $column_length = '15';
                 $disptype = $focustitles[0];
                 $dispzone_name= $ISSUE_TYPES[$counter];
-                //str_replace(' ', '_', strtolower($focustitles[0]));
+                $dispzone_name = str_replace(' ', '_', strtolower($focustitles[1]));
                 $dispzone_numb=$focustitles[2];
                 
                 $counter++; //at 19 lines we need to make a new row.
@@ -1380,7 +1380,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     <?php
                 }
                    ?>
-                 <a href="javascript:;" class="eye_button" onclick="dopclick('<?php echo xla($focustype)."'"; ?>)"><span style="color:white;">Add</span></a>
+                 <a href="javascript:;" class="eye_button" onclick="alter_issue('0','<?php echo $disptype; ?>'); ?>);"><span style="color:white;">Add</span></a>
                     <?                  
                
                 
@@ -1405,7 +1405,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
 
                 while ($row = sqlFetchArray($pres)) {
                     $section_count--;
-                    
+                    //var_dump($row);
                     $rowid = $row['id'];
                     $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
 
@@ -1444,7 +1444,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     $click_class='';
                     // output the TD row of info
                    
-                    echo "".xlt($disptitle);
+                    echo "<a name='BUTTON_QP_PMH_".$rowid."' href='#PMH_anchor' id='BUTTON_QP_PMH_".$rowid."' onclick=\"alter_issue('".$rowid."','".$row[type]."');\">".xlt($disptitle)."</a>";
                       //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                       //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                         // both codetext and statusCompute have already been escaped above with htmlspecialchars)
@@ -1580,7 +1580,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                         else {
                        //   echo " <tr class='$bgclass detail $click_class' id='$rowid'>\n";
                         }
-                        echo "<li>".xlt($disptitle) . "</li>";  // this prints the actual entry into the box
+                        echo "<a href='#' onclick='alter_issue(".",issue_type);'>".xlt($disptitle) . "</li>";  // this prints the actual entry into the box
                           //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                           //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                             // both codetext and statusCompute have already been escaped above with htmlspecialchars)
