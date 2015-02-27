@@ -1209,7 +1209,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- end of the refraction box -->
 
             <!-- my reporting div for development only remove the "X" to see output from save.php-->
-          <div id="tellme" name="tellme"></div>
+          <div id="tellmeX" name="tellmeX"></div>
             <!-- end reporting div -->
 
           <!-- Start of the exam selection/middle menu row -->
