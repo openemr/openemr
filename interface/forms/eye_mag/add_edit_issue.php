@@ -2,6 +2,7 @@
 <?php
 /**
  * add or edit a medical problem.
+ *  taken from /interface/patient_file/summary and adapted... 
  *
  * Copyright (C) 2005-2011 Rod Roark <rod@sunsetsystems.com>
  *
@@ -252,7 +253,9 @@ if (!empty($irow['type'])) {
 <?php html_header_show();?>
 <title><?php echo $issue ? xlt('Edit') : xlt('Add New'); ?><?php echo " ".xlt('Issue'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-
+<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
+    <link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 
 td, input, select, textarea {
@@ -329,8 +332,10 @@ div.section {
   var revdisp = (aitypes[index] == 1) ? '' : 'none';
   var injdisp = (aitypes[index] == 2) ? '' : 'none';
   var nordisp = (aitypes[index] == 0) ? '' : 'none';
+  var surgdisp = (aitypes[index] != 4) ? 'none' : 'none';
   // reaction row should be displayed only for medication allergy.
   var alldisp =  (index == <?php echo issueTypeIndex('allergy'); ?>) ? '' : 'none';
+ 
   document.getElementById('row_enddate'       ).style.display = comdisp;
   // Note that by default all the issues will not show the active row
   //  (which is desired functionality, since then use the end date
@@ -341,7 +346,8 @@ div.section {
   document.getElementById('row_classification').style.display = injdisp;
   document.getElementById('row_reinjury_id'   ).style.display = injdisp;
   document.getElementById('row_reaction'      ).style.display = alldisp;
-  document.getElementById('row_referredby'    ).style.display = (f.form_referredby.value) ? '' : comdisp;
+  document.getElementById('Xrow_referredby'   ).style.display = surgdisp;
+  //always hide referred by? was: = (f.form_referredby.value) ? '' : comdisp;
   document.getElementById('row_comments'      ).style.display = (f.form_comments.value  ) ? '' : revdisp;
 <?php if ($GLOBALS['athletic_team']) { ?>
   document.getElementById('row_returndate' ).style.display = comdisp;
@@ -383,7 +389,7 @@ div.section {
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?issue=<?php echo attr($issue) ?>', '_blank', 500, 450);
+  dlgopen('../../patient_file/deleter.php?issue=<?php echo attr($issue) ?>', '_blank', 500, 450);
   return false;
  }
 
@@ -444,12 +450,12 @@ function sel_diagnosis() {
   if($irow['type'] == 'medical_problem')
   {
   ?>
- dlgopen('../encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem","csv")) ?>', '_blank', 500, 400);
+ dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem","csv")) ?>', '_blank', 500, 400);
   <?php
   }
   else{
   ?>
-  dlgopen('../encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
+  dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
   <?php
   }
   ?>
@@ -490,255 +496,207 @@ function divclick(cb, divid) {
 <form method='post' name='theform'
  action='add_edit_issue.php?issue=<?php echo attr($issue); ?>&thispid=<?php echo attr($thispid); ?>&thisenc=<?php echo attr($thisenc); ?>'
  onsubmit='return validate()'>
+<div style="text-align:center;">
+    <table class="borderShadow" border='0' width='98%'>
 
-<table class="borderShadow" border='0' width='100%'>
+     <tr>
+      <td valign='top' width='1%' nowrap><b><?php echo xlt('Type'); ?>:</b></td>
+      <td>
+    <?php
+     $index = 0;
+     foreach ($ISSUE_TYPES as $value) {
+      if ($issue || $thistype) {
+        if ($index == $type_index) {
+          echo text($value[1]);
+          echo "<input type='hidden' name='form_type' value='".attr($index)."'>\n";
+        }
+      } else {
+        echo "   <input type='radio' name='form_type' value='".attr($index)."' onclick='newtype($index)'";
+        if ($index == $type_index) echo " checked";
+        echo " />" . text($value[1]) . "&nbsp;\n";
+      }
+      ++$index;
+     }
+    ?>
+      </td>
+     </tr>
 
- <tr>
-  <td valign='top' width='1%' nowrap><b><?php echo xlt('Type'); ?>:</b></td>
-  <td>
-<?php
- $index = 0;
- foreach ($ISSUE_TYPES as $value) {
-  if ($issue || $thistype) {
-    if ($index == $type_index) {
-      echo text($value[1]);
-      echo "<input type='hidden' name='form_type' value='".attr($index)."'>\n";
-    }
-  } else {
-    echo "   <input type='radio' name='form_type' value='".attr($index)."' onclick='newtype($index)'";
-    if ($index == $type_index) echo " checked";
-    echo " />" . text($value[1]) . "&nbsp;\n";
-  }
-  ++$index;
- }
-?>
-  </td>
- </tr>
+     <tr id='row_titles'>
+      <td valign='top' nowrap>&nbsp;</td>
+      <td valign='top'>
+       <select name='form_titles' size='<?php echo $GLOBALS['athletic_team'] ? 10 : 4; ?>' onchange='set_text()'>
+       </select> <?php echo xlt('(Select one of these, or type your own title)'); ?>
+      </td>
+     </tr>
 
- <tr id='row_titles'>
-  <td valign='top' nowrap>&nbsp;</td>
-  <td valign='top'>
-   <select name='form_titles' size='<?php echo $GLOBALS['athletic_team'] ? 10 : 4; ?>' onchange='set_text()'>
-   </select> <?php echo xlt('(Select one of these, or type your own title)'); ?>
-  </td>
- </tr>
+     <tr>
+      <td valign='top' id='title_diagnosis' nowrap><b><?php echo $GLOBALS['athletic_team'] ? xlt('Text Diagnosis') : xlt('Title'); ?>:</b></td>
+      <td>
+       <input type='text' size='40' name='form_title' value='<?php echo attr($irow['title']) ?>' style='width:100%' />
+      </td>
+     </tr>
 
- <tr>
-  <td valign='top' id='title_diagnosis' nowrap><b><?php echo $GLOBALS['athletic_team'] ? xlt('Text Diagnosis') : xlt('Title'); ?>:</b></td>
-  <td>
-   <input type='text' size='40' name='form_title' value='<?php echo attr($irow['title']) ?>' style='width:100%' />
-  </td>
- </tr>
+     <tr id='row_diagnosis'>
+      <td valign='top' nowrap><b><?php echo xlt('Diagnosis Code'); ?>:</b></td>
+      <td>
+       <input type='text' size='50' name='form_diagnosis'
+        value='<?php echo attr($irow['diagnosis']) ?>' onclick='sel_diagnosis()'
+        title='<?php echo xla('Click to select or change diagnoses'); ?>'
+        style='width:100%' readonly />
+      </td>
+     </tr>
 
- <tr id='row_diagnosis'>
-  <td valign='top' nowrap><b><?php echo xlt('Diagnosis Code'); ?>:</b></td>
-  <td>
-   <input type='text' size='50' name='form_diagnosis'
-    value='<?php echo attr($irow['diagnosis']) ?>' onclick='sel_diagnosis()'
-    title='<?php echo xla('Click to select or change diagnoses'); ?>'
-    style='width:100%' readonly />
-  </td>
- </tr>
 
- <!-- For Athletic Teams -->
+    <tr>
+      <td valign='top' nowrap><b><?php echo xlt('Begin Date'); ?>:</b></td>
+      <td>
 
- <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_injury_grade'>
-  <td valign='top' nowrap><b><?php echo xlt('Grade of Injury'); ?>:</b></td>
-  <td>
-<?php
-echo generate_select_list('form_injury_grade', 'injury_grade', $irow['injury_grade'], '');
-?>
-  </td>
- </tr>
+       <input type='text' size='10' name='form_begin' id='form_begin'
+        value='<?php echo attr($irow['begdate']) ?>'
+        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+        title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>' />
+       <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+        id='img_begin' border='0' alt='[?]' style='cursor:pointer'
+        title='<?php echo xla('Click here to choose a date'); ?>' />
+      </td>
+    </tr>
 
- <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_injury_part'>
-  <td valign='top' nowrap><b><?php echo xlt('Injured Body Part'); ?>:</b></td>
-  <td>
-<?php
-echo generate_select_list('form_injury_part', 'injury_part', $irow['injury_part'], '');
-?>
-  </td>
- </tr>
+     <tr id='row_enddate'>
+      <td valign='top' nowrap><b><?php echo xlt('End Date'); ?>:</b></td>
+      <td>
+       <input type='text' size='10' name='form_end' id='form_end'
+        value='<?php echo attr($irow['enddate']) ?>'
+        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+        title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
+       <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+        id='img_end' border='0' alt='[?]' style='cursor:pointer'
+        title='<?php echo xla('Click here to choose a date'); ?>' />
+        &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
+      </td>
+     </tr>
 
- <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_injury_type'>
-  <td valign='top' nowrap><b><?php echo xlt('Injury Type'); ?>:</b></td>
-  <td>
-<?php
-echo generate_select_list('form_injury_type', 'injury_type', $irow['injury_type'], '');
-?>
-  </td>
- </tr>
+     <tr id='row_active'>
+      <td valign='top' nowrap><b><?php echo xlt('Active'); ?>:</b></td>
+      <td>
+       <input type='checkbox' name='form_active' value='1' <?php echo attr($irow['enddate']) ? "" : "checked"; ?>
+        onclick='activeClicked(this);'
+        title='<?php echo xla('Indicates if this issue is currently active'); ?>' />
+      </td>
+     </tr>
 
- <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_medical_system'>
-  <td valign='top' nowrap><b><?php echo xlt('Medical System'); ?>:</b></td>
-  <td>
-<?php
-echo generate_select_list('form_medical_system', 'medical_system', $irow['injury_part'], '');
-?>
-  </td>
- </tr>
+     <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_returndate'>
+      <td valign='top' nowrap><b><?php echo xlt('Returned to Play'); ?>:</b></td>
+      <td>
+       <input type='text' size='10' name='form_return' id='form_return'
+        value='<?php echo attr($irow['returndate']) ?>'
+        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+        title='<?php echo xla('yyyy-mm-dd date returned to play'); ?>' />
+       <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+        id='img_return' border='0' alt='[?]' style='cursor:pointer'
+        title='<?php echo xla('Click here to choose a date'); ?>' />
+        &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
+      </td>
+     </tr>
 
- <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_medical_type'>
-  <td valign='top' nowrap><b><?php echo xlt('Medical Type'); ?>:</b></td>
-  <td>
-<?php
-echo generate_select_list('form_medical_type', 'medical_type', $irow['injury_type'], '');
-?>
-  </td>
- </tr>
+     <tr id='row_occurrence'>
+      <td valign='top' nowrap><b><?php echo xlt('Occurrence'); ?>:</b></td>
+      <td>
+       <?php
+        // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
+        generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
+       ?>
+      </td>
+     </tr>
 
- <!-- End For Athletic Teams -->
+     <tr id='row_classification'>
+      <td valign='top' nowrap><b><?php echo xlt('Classification'); ?>:</b></td>
+      <td>
+       <select name='form_classification'>
+    <?php
+     foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
+      echo "   <option value='".attr($key)."'";
+      if ($key == $irow['classification']) echo " selected";
+      echo ">".text($value)."\n";
+     }
+    ?>
+       </select>
+      </td>
+     </tr>
 
- <tr>
-  <td valign='top' nowrap><b><?php echo xlt('Begin Date'); ?>:</b></td>
-  <td>
+     <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_reinjury_id'>
+      <td valign='top' nowrap><b><?php echo xlt('Re-Injury?'); ?>:</b></td>
+      <td>
+       <select name='form_reinjury_id'>
+        <option value='0'><?php echo xlt('No'); ?></option>
+    <?php
+      $pres = sqlStatement(
+       "SELECT id, begdate, title " .
+       "FROM lists WHERE " .
+       "pid = ? AND " .
+       "type = 'football_injury' AND " .
+       "activity = 1 " .
+       "ORDER BY begdate DESC", array($thispid)
+      );
+      while ($prow = sqlFetchArray($pres)) {
+        echo "   <option value='" . attr($prow['id']) . "'";
+        if ($prow['id'] == $irow['reinjury_id']) echo " selected";
+        echo ">" . text($prow['begdate']) . " " . text($prow['title']) . "\n";
+      }
+    ?>
+       </select>
+      </td>
+     </tr>
+     <!-- Reaction For Medication Allergy -->
+      <tr id='row_reaction'>
+       <td valign='top' nowrap><b><?php echo xlt('Reaction'); ?>:</b></td>
+       <td>
+        <input type='text' size='40' name='form_reaction' value='<?php echo attr($irow['reaction']) ?>'
+         style='width:100%' title='<?php echo xla('Allergy Reaction'); ?>' />
+       </td>
+      </tr>
+     <!-- End of reaction -->
 
-   <input type='text' size='10' name='form_begin' id='form_begin'
-    value='<?php echo attr($irow['begdate']) ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_begin' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>' />
-  </td>
- </tr>
+     <tr<?php if (!$GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_referredby'>
+      <td valign='top' nowrap><b><?php echo xlt('Referred by'); ?>:</b></td>
+      <td>
+       <input type='text' size='40' name='form_referredby' value='<?php echo attr($irow['referredby']) ?>'
+        style='width:100%' title='<?php echo xla('Referring physician and practice'); ?>' />
+      </td>
+     </tr>
 
- <tr id='row_enddate'>
-  <td valign='top' nowrap><b><?php echo xlt('End Date'); ?>:</b></td>
-  <td>
-   <input type='text' size='10' name='form_end' id='form_end'
-    value='<?php echo attr($irow['enddate']) ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_end' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>' />
-    &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
-  </td>
- </tr>
+     <tr id='row_comments'>
+      <td valign='top' nowrap><b><?php echo xlt('Comments'); ?>:</b></td>
+      <td>
+       <textarea name='form_comments' rows='1' cols='40' wrap='virtual' style='width:100%'><?php echo text($irow['comments']) ?></textarea>
+      </td>
+     </tr>
 
- <tr id='row_active'>
-  <td valign='top' nowrap><b><?php echo xlt('Active'); ?>:</b></td>
-  <td>
-   <input type='checkbox' name='form_active' value='1' <?php echo attr($irow['enddate']) ? "" : "checked"; ?>
-    onclick='activeClicked(this);'
-    title='<?php echo xla('Indicates if this issue is currently active'); ?>' />
-  </td>
- </tr>
+     <tr<?php if ($GLOBALS['athletic_team'] || $GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
+      <td valign='top' nowrap><b><?php echo xlt('Outcome'); ?>:</b></td>
+      <td>
+       <?php
+        echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
+       ?>
+      </td>
+     </tr>
 
- <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_returndate'>
-  <td valign='top' nowrap><b><?php echo xlt('Returned to Play'); ?>:</b></td>
-  <td>
-   <input type='text' size='10' name='form_return' id='form_return'
-    value='<?php echo attr($irow['returndate']) ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?php echo xla('yyyy-mm-dd date returned to play'); ?>' />
-   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_return' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>' />
-    &nbsp;(<?php echo xlt('leave blank if still active'); ?>)
-  </td>
- </tr>
+     <tr<?php if (!$GLOBALS['athletic_team'] || $GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
+      <td valign='top' nowrap><b><?php echo xlt('Destination'); ?>:</b></td>
+      <td>
+    <?php if (true) { ?>
+       <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>'
+        style='width:100%' title='GP, Secondary care specialist, etc.' />
+    <?php } else { // leave this here for now, please -- Rod ?>
+       <?php echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
+       <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
+       <?php echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
+       <?php echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
+    <?php } ?>
+      </td>
+     </tr>
 
- <tr id='row_occurrence'>
-  <td valign='top' nowrap><b><?php echo xlt('Occurrence'); ?>:</b></td>
-  <td>
-   <?php
-    // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
-    generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
-   ?>
-  </td>
- </tr>
-
- <tr id='row_classification'>
-  <td valign='top' nowrap><b><?php echo xlt('Classification'); ?>:</b></td>
-  <td>
-   <select name='form_classification'>
-<?php
- foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
-  echo "   <option value='".attr($key)."'";
-  if ($key == $irow['classification']) echo " selected";
-  echo ">".text($value)."\n";
- }
-?>
-   </select>
-  </td>
- </tr>
-
- <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_reinjury_id'>
-  <td valign='top' nowrap><b><?php echo xlt('Re-Injury?'); ?>:</b></td>
-  <td>
-   <select name='form_reinjury_id'>
-    <option value='0'><?php echo xlt('No'); ?></option>
-<?php
-  $pres = sqlStatement(
-   "SELECT id, begdate, title " .
-   "FROM lists WHERE " .
-   "pid = ? AND " .
-   "type = 'football_injury' AND " .
-   "activity = 1 " .
-   "ORDER BY begdate DESC", array($thispid)
-  );
-  while ($prow = sqlFetchArray($pres)) {
-    echo "   <option value='" . attr($prow['id']) . "'";
-    if ($prow['id'] == $irow['reinjury_id']) echo " selected";
-    echo ">" . text($prow['begdate']) . " " . text($prow['title']) . "\n";
-  }
-?>
-   </select>
-  </td>
- </tr>
- <!-- Reaction For Medication Allergy -->
-  <tr id='row_reaction'>
-   <td valign='top' nowrap><b><?php echo xlt('Reaction'); ?>:</b></td>
-   <td>
-    <input type='text' size='40' name='form_reaction' value='<?php echo attr($irow['reaction']) ?>'
-     style='width:100%' title='<?php echo xla('Allergy Reaction'); ?>' />
-   </td>
-  </tr>
- <!-- End of reaction -->
-
- <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_referredby'>
-  <td valign='top' nowrap><b><?php echo xlt('Referred by'); ?>:</b></td>
-  <td>
-   <input type='text' size='40' name='form_referredby' value='<?php echo attr($irow['referredby']) ?>'
-    style='width:100%' title='<?php echo xla('Referring physician and practice'); ?>' />
-  </td>
- </tr>
-
- <tr id='row_comments'>
-  <td valign='top' nowrap><b><?php echo xlt('Comments'); ?>:</b></td>
-  <td>
-   <textarea name='form_comments' rows='4' cols='40' wrap='virtual' style='width:100%'><?php echo text($irow['comments']) ?></textarea>
-  </td>
- </tr>
-
- <tr<?php if ($GLOBALS['athletic_team'] || $GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
-  <td valign='top' nowrap><b><?php echo xlt('Outcome'); ?>:</b></td>
-  <td>
-   <?php
-    echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
-   ?>
-  </td>
- </tr>
-
- <tr<?php if ($GLOBALS['athletic_team'] || $GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
-  <td valign='top' nowrap><b><?php echo xlt('Destination'); ?>:</b></td>
-  <td>
-<?php if (true) { ?>
-   <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>'
-    style='width:100%' title='GP, Secondary care specialist, etc.' />
-<?php } else { // leave this here for now, please -- Rod ?>
-   <?php echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
-   <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
-   <?php echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
-   <?php echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
-<?php } ?>
-  </td>
- </tr>
-
-</table>
-
+    </table>
+</div>
 <?php
   if ($ISSUE_TYPES['football_injury']) {
     issue_football_injury_form($issue);

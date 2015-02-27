@@ -1335,7 +1335,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
         </div>
         */
         ?>
-        <div id="PMFSH_block_1" name="PMFSH_block_1" class="QP_block borderShadow text_clinical" >
+        <div id="PMFSH_block_1" name="PMFSH_block_1" class="QP_block borderShadow text_clinical" style="height:2.9in;">
             <?php
             $encount = 0;
             $lasttype = "";
@@ -1356,13 +1356,13 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     //    Only show this category
                  //  if ($focustype != $category) continue;
                 }
-                $column_length = '15';
+                $column_length = '11';
                 $disptype = $focustitles[0];
                 $dispzone_name= $ISSUE_TYPES[$counter];
-                $dispzone_name = str_replace(' ', '_', strtolower($focustitles[1]));
+                //str_replace(' ', '_', strtolower($focustitles[0]));
                 $dispzone_numb=$focustitles[2];
                 
-                $counter++; //at 19 lines we need to make a new row.
+                $counter++; //at 19 lines we make a new row
                 $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
                     "ORDER BY begdate", array($pid,$focustype) );
                 $counter_previous = $counter;
@@ -1376,16 +1376,19 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     }
                     ?>
                     </div>
-                    <div style="margin-left:10px;" id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" >
+                    <div style="margin-left:10px;" id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" style="height:2.9in;">
                     <?php
                 }
-                   ?>
-                 <a href="javascript:;" class="eye_button" onclick="alter_issue('0','<?php echo $disptype; ?>'); ?>);"><span style="color:white;">Add</span></a>
+                   
+
+                echo '<span class="left" style="font-weight:800;">'.$disptype."</span>";
+                ?>
+                    
+                    <input type="button" name="Add" value="Add" class="eye_button right" onclick="alter_issue('0','<?php echo xla($focustype); ?>')">
+                    
                     <?                  
                
-                
-
-                echo '<span class="left" style="font-weight:800;">'.$disptype."</span><br />";
+                echo "<br />";
                 echo "
                 <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.5in;
                 background-color: rgb(255, 248, 220); font-size:0.9em;'>
@@ -1491,7 +1494,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
             
 
             for ($j=$counter; $j > $counter_previous; $j--) {
-                        echo "<br />";
+                       // echo "<br />";
                     }
 
             ?>
@@ -2139,8 +2142,8 @@ function display($pid,$encounter,$category_value) {
 
         /*
         * 1. get the id for the categories under imaging:
-        *  We created them on form installation so they will be site 
-        *  specific - any previous categories added affects the id, 
+        *  We created them on form installation but they can easily be altered by the ned user
+        *  so they will be site specific - any previous categories added affects the id, 
         *  and they can name them soemthing else in the DB, so we can't use name
         *  what if they created a sub category for imaging and put images there?
         *  This will not get those yet?  Do we need them? Not now, just get this working.
@@ -2193,16 +2196,17 @@ function display($pid,$encounter,$category_value) {
  */
 function redirector($url) {
     global $form_folder;
-     ?><html>
-  <head>
-    <?php 
-     html_header_show();  //why use this at all?
+    
      ?>
+<html>
+    <head>
+    <?php html_header_show(); ?>
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
     <!-- Latest compiled JavaScript -->
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>  
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -2216,7 +2220,7 @@ function redirector($url) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <!-- link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" -->
     <link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/style.css" type="text/css">    
     <link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/css/font-awesome-4.2.0/css/font-awesome.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -325,10 +325,10 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <!-- start  PMH Right -->
               <div id="PMH_right" name="PMH_right" class="exam_section_right borderShadow">
                   <?php display_draw_section("PMH",$encounter,$pid); ?>
-                <div id="QP_PMH" name="QP_PMH" class="QP_class" style="text-align:left;max-height: 4.5in;overflow:auto;font-size:0.7em;">
+                <div id="QP_PMH" name="QP_PMH" class="QP_class" style="text-align:left;vertical align:middle; max-height: 4.5in;overflow:auto;font-size:0.7em;">
                   <div id="PMH_text_list" name="PMH_text_list" class="borderShadow  <?php echo attr($display_PMH_view); ?> ">
                     <h1></h1> &nbsp;<br />
-                    <span style="font-size:1.1em;text-align:left;"><ul>Deliverables:
+                    <span style="font-size:1.3em;text-align:left;"><ul>Deliverables:
                       <li>Add, delete or alter an issue </li>
                       <li>Inserting the popu-ups via ajax</li>
                       <li>Incorporating the OpenEMR functionality to add QP Problems and issues</li>
