@@ -77,8 +77,6 @@ $pat_data =  sqlQuery($query);
 $query = "SELECT * FROM users where id = '".$_SESSION['authUserID']."'";
 $prov_data =  sqlQuery($query);
 $providerID = $prov_data['fname']." ".$prov_data['lname'];
-                  
-
 
 $query="select form_encounter.date as encounter_date,form_encounter.*, form_eye_mag.* from form_eye_mag ,forms,form_encounter 
                     where 
@@ -99,6 +97,11 @@ if (!$form_id or !$encounter) { echo $encounter.$form_id."No encounter..."; exit
 There a global setting for displaying dates... Incorporate it here.
 formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
 */
+
+if ($refresh) {
+  display_section($refresh,$id,$id,$pid);
+  exit;
+}
 
 ?><html>
   <head>
@@ -124,6 +127,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     alert("<?php xl('You are not authorized to add/edit issues','e'); ?>");
     <?php endif; ?>
   }
+
   </script>
 <!-- Add HTML5 Draw program library -->
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/sketch.js"></script>
@@ -131,7 +135,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
     <!-- Add Font stuff for the look and feel.  -->
     <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
-     <meta charset="utf-8">
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
@@ -183,7 +187,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- start    HPI spinner -->
           <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;overflow:auto;" class="" id="HPI_sections_loading" 
               name="HPI_sections_loading">
-               <i class="fa fa-spinner"></i>
+               <i class="fa fa-spinner fa-spin"></i>
           </div> 
             <!-- end      HPI spinner -->
             <?php ($CLINICAL =='1') ? ($display_Add = "size100") : ($display_Add = "size50"); ?>
@@ -231,7 +235,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
               <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow text_clinical">
                   <?php display_draw_section ("HPI",$encounter,$pid); ?>
                 <div id="PRIORS_HPI_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_HPI_left_text" class="PRIORS_class PRIORS"> 
-                  <i class="fa fa-spinner"></i>
+                  <i class="fa fa-spinner fa-spin"></i>
                 </div>
                   <!-- start    QP_HPI_Build -->
                 <div id="QP_HPI" name="QP_HPI" class="QP_class" style="text-align:left;overflow:auto;">
@@ -365,7 +369,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- start of the clinical BOX -->
           <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;" class="" id="LayerTechnical_sections_loading" 
                 name="LayerTechnical_sections_loading">
-                 <i class="fa fa-spinner"></i>
+                 <i class="fa fa-spinner fa-spin"></i>
           </div> 
           <div id="LayerTechnical_sections" name="LayerTechnical_sections" class="section" style="vertical-align:text-top;position:relative;text-align:left;display:none;">
 
@@ -714,7 +718,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
             <!-- start of the refraction box -->
           <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;" class="" id="EXAM_sections_loading" 
             name="REFRACTION_sections_loading">
-             <i class="fa fa-spinner"></i>
+             <i class="fa fa-spinner fa-spin"></i>
           </div> 
           <div id="REFRACTION_sections" name="REFRACTION_sections" style="position:relative;text-align:center;display:none">
             <div id="LayerVision2" style="text-align:center;" class="section" >
@@ -1239,7 +1243,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
           <div style="margin: 0 auto;width:10px;text-align: center;font-size:1.0em;" class="" id="EXAM_sections_loading" 
               name="EXAM_sections_loading">
               <hr></hr>
-               <i class="fa fa-spinner"></i>
+               <i class="fa fa-spinner fa-spin"></i>
           </div> 
           
           <div style="margin: 0 auto;text-align: center;font-size:1.0em;display:none" id="EXAM_sections" name="EXAM_sections">   
@@ -1361,7 +1365,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <div id="EXT_right" name="EXT_right" class="exam_section_right borderShadow text_clinical">
                       <?php display_draw_section ("EXT",$encounter,$pid); ?>
                       <div id="PRIORS_EXT_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_EXT_left_text" class="PRIORS_class PRIORS"> 
-                        <i classX="fa fa-spinner"></i>
+                        <i classX="fa fa-spinner fa-spin"></i>
                       </div>
                       <div id="QP_EXT" name="QP_EXT" class="QP_class" style="text-align:left;max-height: 2.5in;">
                                   <input type="hidden" id="EXT_prefix" name="EXT_prefix" value="<?php echo attr($EXT_prefix); ?>">
@@ -1529,7 +1533,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   
                   <div id="ANTSEG_right" class="exam_section_right borderShadow text_clinical ">
                       <div id="PRIORS_ANTSEG_left_text" style="height: 2.5in;text-align:left;" name="PRIORS_ANTSEG_left_text" class="PRIORS_class PRIORS">                                     
-                                      <i class="fa fa-spinner"></i>
+                                      <i class="fa fa-spinner fa-spin"></i>
                       </div>
                       <?php display_draw_section ("ANTSEG",$encounter,$pid); ?>
                       <div id="QP_ANTSEG" name="QP_ANTSEG" class="QP_class"  style="text-align:left;height: 2.5in;">
@@ -1696,7 +1700,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <div id="RETINA_right" class="exam_section_right borderShadow text_clinical">
                       <div id="PRIORS_RETINA_left_text" style="height: 2.5in;text-align:left;" 
                            name="PRIORS_RETINA_left_text" 
-                           class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
+                           class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                       </div>
                       <?php display_draw_section ("RETINA",$encounter,$pid); ?>
                       <div id="QP_RETINA" name="QP_RETINA" class="QP_class" style="text-align:left;height: 2.5in;">
@@ -2434,7 +2438,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                   <div id="NEURO_right" class="exam_section_right borderShadow text_clinical">
                     <?php display_draw_section ("NEURO",$encounter,$pid); ?>
                       
-                    <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
+                    <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                     </div>
                     <div id="QP_NEURO" name="QP_NEURO" class="QP_class" style="text-align:left;height: 2.5in;">
                       <input type="hidden" id="NEURO_prefix" name="NEURO_prefix" value="">
@@ -2517,7 +2521,7 @@ formHeader("Chart: ".$pat_data['fname']." ".$pat_data['lname']." ".$visit_date);
                 <div id="IMPPLAN_right" class="exam_section_right borderShadow text_clinical">
                   <?php display_draw_section ("IMPPLAN",$encounter,$pid); ?>
                       
-                  <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner"></i>
+                  <div id="PRIORS_NEURO_left_text" style="height: 2.5in;text-align:left;font-size: 0.9em;" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                   </div>
                   <div id="QP_NEURO" name="QP_NEURO" class="QP_class" style="text-align:left;height: 2.5in;">
                   </div>

@@ -138,7 +138,38 @@ function finalize() {
            }
            });
 }
+function alter_issue(issue_number,issue_type) {
+    
+    result = '<center><iframe src="/openemr/interface/forms/eye_mag/add_edit_issue.php?issue=' + issue_number + '&thistype=' + issue_type +  '" title="MyForm" width="435" height="320" scrolling = "yes" frameBorder = "0" ></iframe></center>';
+    show_QP();
+    $("#QP_PMH").html(result);///QP_PMH
+}
 
+function delete_issue(issue_number,issue_type) {
+    result = '<center><iframe src="/openemr/interface/forms/eye_mag/add_edit_issue.php?issue=' + issue_number + '&thistype=' + issue_type +  '" title="MyForm" width="435" height="320" scrolling = "yes" frameBorder = "0" ></iframe></center>';
+    show_QP();
+    $("#QP_PMH").html(result);
+}
+
+function refreshIssues() {
+    var url = "../../forms/eye_mag/view.php?refresh=PMSFH&id=" + $("#form_id").val();
+    var formData = {
+        'action'           : "finalize",
+        'final'            : "1",
+        'id'               : $('#id').val(),
+        'encounter'        : $('#encounter').val(),
+        'pid'              : $('#pid').val()
+    };
+    $.ajax({
+           type 		: 'POST',
+           url          : url,
+           data 		: formData,
+           success      : function(result) {
+           $("#PMSFH_sections").html(result);
+           }
+           });
+    
+}
 function show_right() {
     $("#HPI_1").removeClass("size50").addClass("size100");
     $("#PMH_1").removeClass("size50").addClass("size100");
@@ -279,7 +310,6 @@ function show_QP() {
         //  menu_select("View","DRAW");
 }
 
-    //<i class="closeButton_2 fa fa-database" id="BUTTON_QP_PMH" name="BUTTON_QP_PMH"></i>
 function show_QP_section(zone) {
     show_left();
     $("#"+zone+"_right").addClass('canvas').show();
@@ -317,10 +347,9 @@ function hide_PRIORS() {
     $("#EXT_right").removeClass("PRIORS_color");
     
     $("#PRIORS_EXT_left_text").hide();
-     $("#PRIORS_ANTSEG_left_text").hide();
-     $("#PRIORS_RETINA_left_text").hide();
-     $("#PRIORS_NEURO_left_text").hide();
-    
+    $("#PRIORS_ANTSEG_left_text").hide();
+    $("#PRIORS_RETINA_left_text").hide();
+    $("#PRIORS_NEURO_left_text").hide();
 }
 
 function printElem(options){
@@ -398,16 +427,16 @@ shortcut.add("Shift+Alt+1", function() {
 shortcut.add("Ctrl+2", function() {
              //markCalled("ctrl2");
              });
-    /*shortcut.add("3", function() {
-             //markCalled("just3");
-             //             },{"disable_in_input":true});
-shortcut.add("Ctrl+a", function() {
-             //markCalled("ctrla");
-             },{"propagate":true});
-shortcut.add("",function() {
-             //markCalled("just4");
-             },{"keycode":52});
-*/
+/*shortcut.add("3", function() {
+ //markCalled("just3");
+ //             },{"disable_in_input":true});
+ shortcut.add("Ctrl+a", function() {
+ //markCalled("ctrla");
+ },{"propagate":true});
+ shortcut.add("",function() {
+ //markCalled("just4");
+ },{"keycode":52});
+ */
     // plot the current graph
     //------------------------------------------------------
 function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount){
@@ -758,6 +787,7 @@ $(document).ready(function() {
                   $("body").on("change", "select", function(e){
                                var new_section = this.name.match(/PRIOR_(.*)/);
                                var newValue = this.value;
+                               if (new_section[1] =='') new_section[1]='PMH';
                                $("#PRIORS_"+ new_section[1] +"_left_text").show();
                                $("#DRAWS_" + new_section[1] + "_right").hide();
                                $("#QP_" + new_section[1]).hide();
@@ -1540,7 +1570,7 @@ $(document).ready(function() {
                                                   }
                                                   });
                   $("[id^='BUTTON_QP_']").click(function() {
-                                                var zone =this.id.match(/BUTTON_QP_(.*)$/)[1];
+                                                var zone = this.id.match(/BUTTON_QP_(.*)$/)[1].replace(/_\d*/,'');
                                                 //hide_DRAW();
                                                 $("#PRIORS_"+zone+"_left_text").hide();
                                                 $("#Draw_"+zone).hide();

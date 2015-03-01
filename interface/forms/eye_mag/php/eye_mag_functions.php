@@ -1335,7 +1335,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
         </div>
         */
         ?>
-        <div id="PMFSH_block_1" name="PMFSH_block_1" class="QP_block borderShadow text_clinical" style="height:2.9in;">
+        <div id="PMFSH_block_1" name="PMFSH_block_1" class="QP_block borderShadow text_clinical" style="height:2.9in;overflow:auto;">
             <?php
             $encount = 0;
             $lasttype = "";
@@ -1356,7 +1356,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     //    Only show this category
                  //  if ($focustype != $category) continue;
                 }
-                $column_length = '11';
+                $column_length = '15';
                 $disptype = $focustitles[0];
                 $dispzone_name= $ISSUE_TYPES[$counter];
                 //str_replace(' ', '_', strtolower($focustitles[0]));
@@ -1376,29 +1376,35 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     }
                     ?>
                     </div>
-                    <div style="margin-left:10px;" id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical" style="height:2.9in;">
+                    <div style="margin-left:10px;height:2.9in;position:relative;overflow:auto;" id="PMFSH_block_2" name="PMFSH_block_2" class="QP_block borderShadow text_clinical">
                     <?php
                 }
-                   
-
-                echo '<span class="left" style="font-weight:800;">'.$disptype."</span>";
+                   ?>
+                   <table style="width:1.6in;">
+                        <tr>
+                            <td width="90%">
+                  <?php          
+                echo '<span class="left" style="font-weight:800;font-size:0.7em;">'.$disptype."</span>";
                 ?>
-                    
-                    <input type="button" name="Add" value="Add" class="eye_button right" onclick="alter_issue('0','<?php echo xla($focustype); ?>')">
-                    
+                            </td>
+                            <td >
+                                <a class="top-right btn-sm" href="#PMH_anchor" onclick="alter_issue('0','<?php echo xla($focustype); ?>');" style="text-align:right;font-size:8px;">New</a>
+                            </td>
+                        </tr>
+                        </table>
                     <?                  
                
-                echo "<br />";
+                //echo "<br />";
                 echo "
                 <table style='margin-bottom:20px;border:1pt solid black;max-height:1.5in;max-width:1.5in;
-                background-color: rgb(255, 248, 220); font-size:0.9em;'>
+                background-color: rgb(255, 248, 220); font-size:0.9em;overflow:auto;'>
                     <tr>
-                        <td style='min-height:1.2in;min-width:1.3in;padding-left:5px;'>
+                        <td style='min-height:1.2in;min-width:1.5in;padding-left:5px;'>
                         ";
 
                 // if no issues (will place a 'None' text vs. toggle algorithm here)
                 if (sqlNumRows($pres) < 1) {
-                    echo  "".xla("None") ."<br /><br /><br /><br />";
+                    echo  "".xla("None") ."<br /><br /><br />";
                     echo "</td></tr></table>";
                     $counter = $counter+4; 
                     continue;
@@ -1486,9 +1492,9 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                         <td style='min-height:1.2in;min-width:1.3in;padding-left:5px;'>";
 
                 // if no issues (will place a 'None' text vs. toggle algorithm here)
-                if (sqlNumRows($pres) < 1) {
-                    echo  xla("None") ."<br /><br /><br /><br />";
-                    echo " </td></tr></table>";
+                if ($count_ROS < 1) {
+                    echo  xla("None") ."<br /><br /><br />";
+                    echo " ";
                     $counter= $counter-3;
                 } //else { print out a ROS.  Give ?expand option to see full list in a pop-up?}
             
