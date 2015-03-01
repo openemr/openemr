@@ -1388,7 +1388,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                 ?>
                             </td>
                             <td >
-                                <a class="top-right btn-sm" href="#PMH_anchor" onclick="alter_issue('0','<?php echo xla($focustype); ?>');" style="text-align:right;font-size:8px;">New</a>
+                                <span class="top-right btn-sm" href="#PMH_anchor" onclick="alter_issue('0','<?php echo xla($focustype); ?>');" style="text-align:right;font-size:8px;">New</span>
                             </td>
                         </tr>
                         </table>
@@ -1453,7 +1453,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     $click_class='';
                     // output the TD row of info
                    
-                    echo "<a name='BUTTON_QP_PMH_".$rowid."' href='#PMH_anchor' id='BUTTON_QP_PMH_".$rowid."' onclick=\"alter_issue('".$rowid."','".$row[type]."');\">".xlt($disptitle)."</a>";
+                    echo "<span name='BUTTON_QP_PMH_".$rowid."' href='#PMH_anchor' id='BUTTON_QP_PMH_".$rowid."' onclick=\"alter_issue('".$rowid."','".$row[type]."');\">".xlt($disptitle)."</span>";
                       //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                       //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                         // both codetext and statusCompute have already been escaped above with htmlspecialchars)
@@ -1589,7 +1589,8 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                         else {
                        //   echo " <tr class='$bgclass detail $click_class' id='$rowid'>\n";
                         }
-                        echo "<a href='#' onclick='alter_issue(".",issue_type);'>".xlt($disptitle) . "</li>";  // this prints the actual entry into the box
+                        echo "<a href='#' onclick='alter_issue(".",issue_type);'>".xlt($disptitle) . "</li>";  
+                        // this prints the actual entry into the box
                           //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                           //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                             // both codetext and statusCompute have already been escaped above with htmlspecialchars)
