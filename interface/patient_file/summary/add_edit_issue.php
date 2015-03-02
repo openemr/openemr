@@ -290,7 +290,7 @@ div.section {
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
 <?php
- $i = 0;	
+ $i = 0;  
  foreach ($ISSUE_TYPES as $key => $value) {
   echo " aitypes[$i] = " . attr($value[3]) . ";\n";
   echo " aopts[$i] = new Array();\n";
@@ -433,19 +433,23 @@ function set_related(codetype, code, selector, codedesc) {
 
 // This invokes the find-code popup.
 function sel_diagnosis() {
-  <?php
-  if($irow['type'] == 'medical_problem')
-  {
-  ?>
- dlgopen('../encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem","csv")) ?>', '_blank', 500, 400);
-  <?php
+<?php
+$url = '../encounter/find_code_popup.php?codetype=';
+if($irow['type'] == 'medical_problem') {
+  $url .= collect_codetypes("medical_problem", "csv");
+}
+else {
+  $url .= collect_codetypes("diagnosis","csv");
+  $tmp  = collect_codetypes("drug","csv");
+  if($irow['type'] == 'allergy') {
+    if ($tmp) $url .= ",$tmp";
   }
-  else{
-  ?>
-  dlgopen('../encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
-  <?php
+  else if($irow['type'] == 'medication') {
+    if ($tmp) $url .= ",$tmp&default=$tmp";
   }
-  ?>
+}
+?>
+ dlgopen('<?php echo $url; ?>', '_blank', 700, 500);
 }
 
 // Check for errors when the form is submitted.
@@ -524,11 +528,11 @@ function divclick(cb, divid) {
  </tr>
 
  <tr id='row_diagnosis'>
-  <td valign='top' nowrap><b><?php echo xlt('Diagnosis Code'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php echo xlt('Coding'); ?>:</b></td>
   <td>
    <input type='text' size='50' name='form_diagnosis'
     value='<?php echo attr($irow['diagnosis']) ?>' onclick='sel_diagnosis()'
-    title='<?php echo xla('Click to select or change diagnoses'); ?>'
+    title='<?php echo xla('Click to select or change coding'); ?>'
     style='width:100%' readonly />
   </td>
  </tr>
