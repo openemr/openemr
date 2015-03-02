@@ -398,7 +398,7 @@ div.section {
   f.form_titles.selectedIndex = -1;
  }
 function refreshIssue(issue, title) {
- top.refreshIssues();
+ parent.refreshIssues;
 // location.reload();
 }
 function submit_this_form() {
@@ -419,7 +419,7 @@ function submit_this_form() {
            // alert(result);
            }
            }).done(function (){
-                                                          top.refreshIssues();
+                                                          parent.refreshIssues();
                                                            });
         //location.reload();
         //    refreshme();
@@ -435,7 +435,7 @@ function deleteme() {
            url    : url,      // the url where we want to POST
     //       data   : formData, // our data object
            success  : function(result)  {
-           top.refreshIssues();
+           parent.refreshIssues();
            //$("#page").html(result);
            // alert(result);
            }
@@ -604,6 +604,7 @@ function divclick(cb, divid) {
 
            <input type='text' size='10' name='form_begin' id='form_begin'
             value='<?php echo attr($irow['begdate']) ?>'
+            style="width: 75px;"
             onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
             title='<?php echo xla('yyyy-mm-dd date of onset, surgery or start of medication'); ?>' />
            <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -616,6 +617,7 @@ function divclick(cb, divid) {
           <td valign='top' nowrap><b><?php echo xlt('End Date'); ?>:</b></td>
           <td>
            <input type='text' size='10' name='form_end' id='form_end'
+            style="width: 75px;"
             value='<?php echo attr($irow['enddate']) ?>'
             onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
             title='<?php echo xla('yyyy-mm-dd date of recovery or end of medication'); ?>' />
