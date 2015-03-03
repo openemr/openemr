@@ -91,7 +91,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $tempName = $claim->billingFacilityName();
     $partsName = explode(' ', $tempName);// Loop 1000A submitter entity == person
     $num_parts = count($partsName);
-    switch ($partsName) {
+    switch ($num_parts) {
       case "2":
         $firstName = $partsName[0];
         $middleName = '';
@@ -192,7 +192,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     $tempName = $claim->billingFacilityName();
     $partsName = explode(' ', $tempName);// Loop 2010AA Billing Provider entity == person
     $num_parts = count($partsName);
-    switch ($partsName) {
+    switch ($num_parts) {
       case "2":
         $firstName = $partsName[0];
         $middleName = '';
