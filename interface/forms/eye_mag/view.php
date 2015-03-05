@@ -736,7 +736,7 @@ if ($refresh) {
                             <?php ($W ==1) ? ($display_W = "display") : ($display_W = "nodisplay"); ?>
                             <div id="LayerVision_W" class="refraction borderShadow <?php echo $display_W; ?>">
                             <span class="closeButton fa fa-close" id="Close_W" name="Close_W"></span>
-                            <a class="closeButton2 fa fa-print" onclick="top.restoreSession();  return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=W&id=<?php echo attr($pid); ?>"></a>
+                            <a class="closeButton2 fa fa-print" onclickX="top.restoreSession();  return false;" href="../../forms/<?php echo $form_folder; ?>/SpectacleRx.php?target=W&id=<?php echo attr($pid); ?>"></a>
                             
                                 <table id="wearing" >
                                     <tr>

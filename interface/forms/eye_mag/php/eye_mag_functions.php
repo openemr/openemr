@@ -1453,7 +1453,7 @@ function display_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     $click_class='';
                     // output the TD row of info
                    
-                    echo "<span name='BUTTON_QP_PMH_".$rowid."' href='#PMH_anchor' id='BUTTON_QP_PMH_".$rowid."' onclick=\"alter_issue('".$rowid."','".$row[type]."');\">".xlt($disptitle)."</span>";
+                    echo "<span name='QP_PMH_".$rowid."' href='#PMH_anchor' id='QP_PMH_".$rowid."' onclick=\"alter_issue('".$rowid."','".$row[type]."');\">".xlt($disptitle)."</span>";
                       //  echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                       //  echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
                         // both codetext and statusCompute have already been escaped above with htmlspecialchars)

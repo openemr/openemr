@@ -104,6 +104,8 @@ $pat_data =  sqlQuery($query,array($pid));
 
 $query = "SELECT * FROM users where id = ?";
 $prov_data =  sqlQuery($query,array($_SESSION['authUserID']));
+$query = "SELECT * FROM facilty where id = ?";
+$practice_data = sqlQuery($query,array('3'))
 
 ?><html>
     <head>
@@ -180,19 +182,22 @@ $prov_data =  sqlQuery($query,array($_SESSION['authUserID']));
                     <?php echo xlt("Fax"); ?>: <?php echo text($prov_data[fax]); ?><br />
                 </th>
             </tr>
+             <tr>
+                <td class="right" width="50%"><?php echo xlt('Date'); ?>: 
+                </td><td><u><?php echo xlt(date('F jS\,  Y')); ?></u>
+                </td>
+            </tr>
             <tr>
                 <td class="right"><?php echo xlt('Name'); ?>:
                 </td>   
-                <td class="left"><?php echo text($pat_data['fname']); ?> <?php echo text($pat_data['lname']); ?>
-                </td>
-                <td class="right"><?php echo xlt('Date'); ?>: <u><?php echo xlt(date('F jS\,  Y')); ?></u>
+                <td class="left" ><?php echo text($pat_data['fname']); ?> <?php echo text($pat_data['lname']); ?>
                 </td>
             </tr>
             <tr>
                 <td class="right">
                     <?php echo xlt('Address'); ?>:
                 </td>
-                <td colspan="2"> <?php echo text($pat_data['street']); ?><br /> <?php echo text($pat_data['city']); ?>, <?php echo text($pat_data['state']); ?>
+                <td > <?php echo text($pat_data['street']); ?><br /> <?php echo text($pat_data['city']); ?>, <?php echo text($pat_data['state']); ?>
                 </td>
             </tr>
             <tr>

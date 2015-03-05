@@ -313,6 +313,8 @@ function show_QP() {
 function show_QP_section(zone) {
     show_left();
     $("#"+zone+"_right").addClass('canvas').show();
+    if (zone == 'PMH') alter_issue('0','0');
+    
     $("#QP_"+zone).show();
 }
 

@@ -409,14 +409,18 @@
 
 $i='0';
 if ($category_id) {
-	for ($i='0';$i < count($documents['docs_in_cat_id'][$category_id]); $i++) {
+	$counter = count($documents['docs_in_cat_id'][$category_id]) -10;
+	if ($counter <0) $counter ='0';
+	for ($i=$counter;$i < count($documents['docs_in_cat_id'][$category_id]); $i++) {
 		echo '
 		<object><embed src="/openemr/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.$documents['docs_in_cat_id'][$category_id][$i][id].'&amp;as_file=false" frameborder="0"
 		 type="'.$documents['docs_in_cat_id'][$category_id][$i]['mimetype'].'" allowscriptaccess="always" allowfullscreen="true" width="800px" height="600px"></embed></object>
 		 ';
 	}
 } else {
-	for ($i='0';$i < count($documents['docs_in_zone'][$category_name]); $i++) {
+	$counter = count($documents['docs_in_zone'][$category_id]) -10;
+	if ($counter <0) $counter ='0';
+	for ($i=$counter;$i < count($documents['docs_in_zone'][$category_name]); $i++) {
 		echo '
 		<object><embed src="/openemr/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.$documents['docs_in_zone'][$category_name][$i][id].'&amp;as_file=false" frameborder="0"
 		 type="'.$documents['docs_in_zone'][$category_name][$i]['mimetype'].'" allowscriptaccess="always" allowfullscreen="true" width="800px" height="600px"></embed></object>
