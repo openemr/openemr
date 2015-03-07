@@ -106,7 +106,7 @@ function postError($msg) {
    $query .= "e.pc_eventDate = '$form_from_date' ";
   }
   if ($form_facility !== '') {
-   $query .= "AND e.pc_facility = '$form_facility' ";
+   $query .= "AND e.pc_facility = '" . add_escape_custom($form_facility) . "' ";
   }
   // $query .= "AND ( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
   $query .= "AND e.pc_pid != '' AND e.pc_apptstatus != '?' " .
@@ -134,7 +134,7 @@ function postError($msg) {
    $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
   }
   if ($form_facility !== '') {
-   $query .= "AND fe.facility_id = '$form_facility' ";
+   $query .= "AND fe.facility_id = '" . add_escape_custom($form_facility) . "' ";
   }
   $query .= ") ORDER BY docname, IFNULL(pc_eventDate, encdate), pc_startTime";
 
