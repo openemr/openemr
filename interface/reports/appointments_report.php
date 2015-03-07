@@ -365,7 +365,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 			?>
 		</td>
 
-		<td class="detail">&nbsp;<?php echo $appointment['pc_hometext'] ?></td>
+		<td class="detail">&nbsp;<?php echo text($appointment['pc_hometext']) ?></td>
 
 	</tr>
 
