@@ -946,54 +946,50 @@ class C_Document extends Controller {
 		
 		return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
 	}
-	
-	/*
-	*	This is a recursive function to rename a file to something that doesn't already exist.
-	*       Modified in version 3.2.0 to place a counter within the filename (previously was placed at end)
-	*        to ensure documents opened correctly by external browser viewers. If the counter is at the
-        *        end of the file, then will use it (to continue to work with older files), however all new
-	*        counters will be placed within filenames. 
-	*/
-	function _rename_file($fname) {
-		$file = basename($fname);
-		$fparts = split("\.",$fname);
-		$path = dirname($fname);
-	        if (count($fparts) > 1) {
-		  if (is_numeric($fparts[count($fparts) -2]) && (count($fparts) > 2)) {
-                        //increment the counter in filename
-			$fparts[count($fparts) -2] = $fparts[count($fparts) -2] + 1;
-		        $fname = join(".",$fparts);
-		  }
-		  elseif (is_numeric($fparts[count($fparts) -1]) && $fparts[count($fparts) -1] < 1000) {
-		        //increment counter at end of filename (so compatible with previous openemr version files
-			$fparts[count($fparts) -1] = $fparts[count($fparts) -1] + 1;
-		        $fname = join(".",$fparts);
-		  }
-	          elseif (is_numeric($fparts[count($fparts) -1])) {
-		        //leave date at end and place counter in filename
-			array_splice($fparts, -1, 0, "1");
-		        $fname = join(".",$fparts);
-		  } 		    
-		  else {
-		        //add the counter to filename
-		        array_splice($fparts, -1, 0, "1");
-		        $fname = join(".",$fparts);
-		  }
-	        }
-	        else { // (count($fparts) == 1)
-		  //place counter at end of filename
-		  array_push($fparts,"1");
-		  $fname = join(".",$fparts);
-		}
-	    
-		if (file_exists($fname)) {
-			return $this->_rename_file($fname);
-		}
-		else {
-			return($fname);	
-		}
-	}
-	
+
+    /*	This is a recursive function to rename a file to something that doesn't already exist.
+     *      Modified in version 3.2.0 to place a counter within the filename (previously was placed
+     *      at end) to ensure documents opened correctly by external browser viewers. If the
+     *      counter is at the end of the file, then will use it (to continue to work with older
+     *      files), however all new counters will be placed within filenames.
+     *
+     *      Modified to only deal with base file name when renaming, to avoid issues with directory
+     *      names with dots.
+     */
+    function _rename_file($fname) {
+        $path = dirname($fname);
+        $file = basename($fname);
+
+        $fparts = split("\.",$file);
+
+        if (count($fparts) > 1) {
+            if (is_numeric($fparts[count($fparts) -2]) && (count($fparts) > 2)) {
+                //increment the counter in filename
+                $fparts[count($fparts) -2] = $fparts[count($fparts) -2] + 1;
+            } elseif (is_numeric($fparts[count($fparts) -1]) && $fparts[count($fparts) -1] < 1000) {
+                //increment counter at end of filename (so compatible with previous openemr version files
+                $fparts[count($fparts) -1] = $fparts[count($fparts) -1] + 1;
+            } elseif (is_numeric($fparts[count($fparts) -1])) {
+                //leave date at end and place counter in filename
+                array_splice($fparts, -1, 0, "1");
+            } else {
+                //add the counter to filename
+                array_splice($fparts, -1, 0, "1");
+            }
+        } else { // (count($fparts) == 1)
+            //place counter at end of filename
+            array_push($fparts, "1");
+        }
+
+        $fname = $path.DIRECTORY_SEPARATOR.join(".", $fparts);
+
+        if (file_exists($fname)) {
+            return $this->_rename_file($fname);
+        } else {
+            return($fname);
+        }
+    }
+
 	function &_array_recurse($array,$categories = array()) {
 		if (!is_array($array)) {
 			$array = array();	
