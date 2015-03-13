@@ -61,11 +61,6 @@
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
 
-#IfNotIndex form_encounter encounter
-    CREATE INDEX encounter on form_encounter (`encounter`);
-#EndIf
-
 #IfNotIndex form_encounter encounter_date
     CREATE INDEX encounter_date on form_encounter (`date`);
 #EndIf
-
