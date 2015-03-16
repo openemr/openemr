@@ -1667,108 +1667,121 @@ $GLOBALS_METADATA = array(
       'https://len.mi-squared.com:29443/len/api',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.')
     ),
-    
+
     'erx_enable' => array(
       xl('Enable NewCrop eRx Service'),
-      'bool',                           // data type
+      'bool',
       '0',
-      xl('Enable NewCrop eRx Service')
-    ),    
-    
-    'erx_path_production' => array(
+      xl('Enable NewCrop eRx Service.') + ' ' +
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the NewCrop eRx service.')
+    ),
+
+    'erx_newcrop_path' => array(
       xl('NewCrop eRx Site Address'),
-      'text',                           // data type
+      'text',
       'https://secure.newcropaccounts.com/InterfaceV7/RxEntry.aspx',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('URL for NewCrop eRx Site Address.')
     ),
-    
-    'erx_path_soap_production' => array(
+
+    'erx_newcrop_path_soap' => array(
       xl('NewCrop eRx Web Service Address'),
-      'text',                           // data type
+      'text',
       'https://secure.newcropaccounts.com/v7/WebServices/Update1.asmx?WSDL;https://secure.newcropaccounts.com/v7/WebServices/Patient.asmx?WSDL',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('URLs for NewCrop eRx Service Address, separated by a simi-colon.')
     ),
-    
+
     'erx_soap_ttl_allergies' => array(
       xl('NewCrop eRx SOAP Request Time-To-Live for Allergies'),
       'num',
       '21600',
-      xl('Time-To-Live for Allergies SOAP Request in seconds')
+      xl('Time-To-Live for NewCrop eRx Allergies SOAP Request in seconds.')
     ),
-    
+
     'erx_soap_ttl_medications' => array(
       xl('NewCrop eRx SOAP Request Time-To-Live for Medications'),
       'num',
       '21600',
-      xl('Time-To-Live for Medications SOAP Request in seconds')
+      xl('Time-To-Live for NewCrop eRx Medications SOAP Request in seconds.')
     ),
-    
-    'partner_name_production' => array(
+
+    'erx_account_partner_name' => array(
       xl('NewCrop eRx Partner Name'),
-      'text',                           // data type
+      'text',
       '',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('Partner Name issued for NewCrop eRx service.')
     ),
-    
-    'erx_name_production' => array(
+
+    'erx_account_name' => array(
       xl('NewCrop eRx Name'),
-      'text',                           // data type
+      'text',
       '',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('Account Name issued for NewCrop eRx service.')
     ),
-    
-    'erx_password_production' => array(
+
+    'erx_account_password' => array(
       xl('NewCrop eRx Password'),
-      'pass',                           // data type
+      'pass',
       '',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('Account Password issued for NewCrop eRx service.')
     ),
-    
+
     'erx_account_id' => array(
       xl('NewCrop eRx Account Id'),
-      'text',                           // data type
+      'text',
       '1',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('Account Id issued for NewCrop eRx service, used to separate multi-facility accounts.')
     ),
-    
+
     'erx_upload_active' => array(
       xl('Only upload active prescriptions'),
-      'bool',                           // data type
+      'bool',
       '0',
-      xl('Only upload active prescriptions')
+      xl('Only upload active prescriptions to NewCrop eRx.')
     ),
-    
+
     'erx_import_status_message' => array(
-      xl('Enable import status message for NewCrop erx'),
-      'bool',                           // data type
+      xl('Enable NewCrop eRx import status message'),
+      'bool',
       '0',
-      xl('Enable import status message for NewCrop erx')
+      xl('Enable import status message after visiting NewCrop eRx.')
     ),
-    
+
     'erx_medication_display' => array(
-      xl('Do not display Medications uploaded to NewCrop'),
-      'bool',                           // data type
+      xl('Do not display NewCrop eRx Medications uploaded'),
+      'bool',
       '0',
-      xl('Do not display Medications uploaded to NewCrop')
+      xl('Do not display Medications uploaded after visiting NewCrop eRx.')
     ),
-	
-	'erx_allergy_display' => array(
-      xl('Do not display Allergy uploaded to NewCrop'),
-      'bool',                           // data type
+
+    'erx_allergy_display' => array(
+      xl('Do not display NewCrop eRx Allergy uploaded'),
+      'bool',
       '0',
-      xl('Do not display Allergy uploaded to NewCrop')
+      xl('Do not display Allergies uploaded after visiting NewCrop eRx.')
     ),
-        
+
     'erx_default_patient_country' => array(
-        xl('Default Patient Country'),
+        xl('NewCrop eRx Default Patient Country'),
         array(
             '' => '',
-            'US' => 'USA',
-            'CA' => 'Canada',
-            'MX' => 'Mexico'
+            'US' => xl('USA'),
+            'CA' => xl('Canada'),
+            'MX' => xl('Mexico'),
         ),
         '',
-        xl('Default Patient Country'),
+        xl('Default Patient Country sent to NewCrop eRx, only if patient country is not set.'),
+    ),
+
+    'erx_debug_setting' => array(
+        xl('NewCrop eRx Debug Setting'),
+        array(
+            0 => xl('None'),
+            1 => xl('Request Only'),
+            2 => xl('Response Only'),
+            3 => xl('Request & Response'),
+        ),
+        '0',
+        xl('Log all NewCrop eRx Requests and / or Responses.'),
     ),
 
     'phimail_enable' => array(
