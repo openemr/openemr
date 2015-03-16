@@ -68,3 +68,23 @@
 #IfNotColumnType prescriptions size varchar(16)
 ALTER TABLE `prescriptions` CHANGE `size` `size` varchar(16) DEFAULT NULL;
 #EndIf
+
+#IfNotRow globals gl_name erx_newcrop_path
+UPDATE `globals` SET `gl_name` = 'erx_newcrop_path' WHERE `gl_name` = 'erx_path_production';
+#EndIf
+
+#IfNotRow globals gl_name erx_newcrop_path_soap
+UPDATE `globals` SET `gl_name` = 'erx_newcrop_path_soap' WHERE `gl_name` = 'erx_path_soap_production';
+#EndIf
+
+#IfNotRow globals gl_name erx_account_partner_name
+UPDATE `globals` SET `gl_name` = 'erx_account_partner_name' WHERE `gl_name` = 'partner_name_production';
+#EndIf
+
+#IfNotRow globals gl_name erx_account_name
+UPDATE `globals` SET `gl_name` = 'erx_account_name' WHERE `gl_name` = 'erx_name_production';
+#EndIf
+
+#IfNotRow globals gl_name erx_account_password
+UPDATE `globals` SET `gl_name` = 'erx_account_password' WHERE `gl_name` = 'erx_password_production';
+#EndIf
