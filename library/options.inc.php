@@ -2523,6 +2523,8 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 		$list_id    = $frow['list_id'];
 		$currvalue  = '';
 
+		if (substr($this_group,1,8) === 'Employer' && $GLOBALS['omit_employers']) continue;
+		
 		$group_fields_query = sqlStatement("SELECT * FROM layout_options " .
 		"WHERE form_id = ? AND uor > 0 AND group_name = ? " .
 		"ORDER BY seq", array($formtype,$this_group) );
