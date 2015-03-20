@@ -648,7 +648,13 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
   // Diagnoses, up to $max_per_seg per HI segment.
   $max_per_seg = $CMS_5010 ? 12 : 8;
   $da = $claim->diagArray();
+  if ($claim->diagtype == "ICD9") {
   $diag_type_code = 'BK';
+  }
+  ELSE
+  {
+  $diag_type_code = 'ABK';
+  }
   $tmp = 0;
   foreach ($da as $diag) {
     if ($tmp % $max_per_seg == 0) {
@@ -657,7 +663,13 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       $out .= "HI";         // Health Diagnosis Codes
     }
     $out .= "*$diag_type_code:" . $diag;
-    $diag_type_code = 'BF';
+     if ($claim->diagtype == "ICD9") {
+         $diag_type_code = 'BF';
+      }
+      ELSE
+      {
+      $diag_type_code = 'ABF';
+      }
     ++$tmp;
   }
   if ($tmp) $out .= "~\n";
