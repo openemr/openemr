@@ -705,7 +705,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
    }
   
   // 32a. Service Facility NPI
-  put_hcfa(61, 24, 10, $claim->facilityNPI());
+  put_hcfa(61, 23, 10, $claim->facilityNPI());
 
   // 32b. Service Facility Other ID
   // Note that Medicare does NOT want this any more.
@@ -715,7 +715,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   }
 
   // 33a. Billing Facility NPI
-  put_hcfa(61, 51, 10, $claim->billingFacilityNPI());
+  put_hcfa(61, 50, 10, $claim->billingFacilityNPI());
 
   // 33b. Billing Facility Other ID
   // Note that Medicare does NOT want this any more.
@@ -726,7 +726,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
   // Put an extra line here for compatibility with old hcfa text generated form
     put_hcfa(62, 1, 1, ' ');
-
+  // put a couple more in so that multiple claims correctly print through the text file download
+    put_hcfa(63, 1, 1, ' ');
+    put_hcfa(64, 1, 1, ' ');
   return;
 }
 ?>
