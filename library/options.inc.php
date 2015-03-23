@@ -2378,6 +2378,7 @@ function display_layout_tabs($formtype, $result1, $result2='') {
   while ($frow = sqlFetchArray($fres)) {
 	  $this_group = $frow['group_name'];
       $group_name = substr($this_group, 1);
+	  if ($group_name === 'Employer' && $GLOBALS['omit_employers']) continue;
       ?>
 		<li <?php echo $first ? 'class="current"' : '' ?>>
 			<a href="/play/javascript-tabbed-navigation/" id="header_tab_<?php echo ".htmlspecialchars($group_name,ENT_QUOTES)."?>">
@@ -2405,6 +2406,8 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 		$list_id    = isset($frow['list_id']) ? $frow['list_id'] : "";
 		$currvalue  = '';
 
+		if (substr($this_group,1,8) === 'Employer' && $GLOBALS['omit_employers']) continue;
+		
 		$group_fields_query = sqlStatement("SELECT * FROM layout_options " .
 		"WHERE form_id = ? AND uor > 0 AND group_name = ? " .
 		"ORDER BY seq", array($formtype, $this_group) );
@@ -2520,6 +2523,8 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
 		$list_id    = $frow['list_id'];
 		$currvalue  = '';
 
+		if (substr($this_group,1,8) === 'Employer' && $GLOBALS['omit_employers']) continue;
+		
 		$group_fields_query = sqlStatement("SELECT * FROM layout_options " .
 		"WHERE form_id = ? AND uor > 0 AND group_name = ? " .
 		"ORDER BY seq", array($formtype,$this_group) );
