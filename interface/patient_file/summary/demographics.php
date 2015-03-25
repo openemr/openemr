@@ -670,12 +670,11 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
    xlt('Total Balance Due').
    " : " . text(oeFormatMoney($totalbalance)) .
    "</font></span></td></td></tr>";
-  if ($result['genericname2'] == 'Billing') {
    echo "<tr><td><span class='bold'><font color='red'>" .
     xlt('Billing Note') . ":" .
-    text($result['genericval2']) .
+    text($result['billing_note']) .
     "</font></span></td></tr>";
-  } 
+
   if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
    echo "<tr><td><span class='bold'>" .
     xlt('Primary Insurance') . ': ' . text($insco_name) .
