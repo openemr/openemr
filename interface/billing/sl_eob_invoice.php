@@ -456,7 +456,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
     $codes = get_invoice_summary($trans_id, true);
   }
 
-  $pdrow = sqlQuery("select genericname2, genericval2 " .
+  $pdrow = sqlQuery("select billing_note" .
     "from patient_data where pid = '$patient_id' limit 1");
 ?>
 <center>
@@ -672,13 +672,13 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
   }
 ?>
  </tr>
-<?php if ($pdrow['genericname2'] == 'Billing') { ?>
+<?php if ($pdrow['billing_note'] != NULL) { ?>
  <tr>
   <td>
    <?php xl('Billing Note:','e')?>
   </td>
   <td colspan='3' style='color:red'>
-   <?php echo $pdrow['genericval2'] ?>
+   <?php echo $pdrow['billing_note'] ?>
   </td>
  </tr>
 <?php } ?>
