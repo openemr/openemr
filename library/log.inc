@@ -41,7 +41,7 @@ function getEventByDate($date, $user="", $cols="DISTINCT date, event, user, grou
  * RETURNS:
  *   array of results
  ******************/
-function getEvents($params) 
+function getEvents($params)
 {
     // parse the parameters
     $cols = "DISTINCT date, event, user, groupname, patient_id, success, comments,checksum,crt_user, id ";
@@ -49,26 +49,26 @@ function getEvents($params)
 
     $date1 = date("Y-m-d H:i:s", time());
     if (isset($params['sdate']) && $params['sdate'] != "") $date1= $params['sdate'];
-    
+
     $date2 = date("Y-m-d H:i:s", time());
     if (isset($params['edate']) && $params['edate'] != "") $date2= $params['edate'];
-    
+
     $user = "";
     if (isset($params['user']) && $params['user'] != "") $user= $params['user'];
 
     //VicarePlus :: For Generating log with patient id.
     $patient = "";
     if (isset($params['patient']) && $params['patient'] != "") $patient= $params['patient'];
-    
+
     $sortby = "";
     if (isset($params['sortby']) && $params['sortby'] != "") $sortby = $params['sortby'];
-    
+
     $levent = "";
     if (isset($params['levent']) && $params['levent'] != "") $levent = $params['levent'];
-    
+
      $tevent = "";
     if (isset($params['tevent']) && $params['tevent'] != "") $tevent = $params['tevent'];
-    
+
      $event = "";
     if (isset($params['event']) && $params['event'] != "") $event = $params['event'];
     if ($event!=""){
@@ -148,7 +148,7 @@ function sql_checksum_of_modified_row($statement)
            }// if close
         }
 
-	else {		
+	else {
             return "";
           }
         }
@@ -160,7 +160,7 @@ function sql_checksum_of_modified_row($statement)
         $offset = 3;
         $total = count($tokens);
 
-        /* Identifying the primary key column for the updated record */ 
+        /* Identifying the primary key column for the updated record */
         if ($table == "form_physical_exam") {
             $id = "forms_id";
         }
@@ -188,7 +188,7 @@ function sql_checksum_of_modified_row($statement)
 	   else {
             $id = "id";
            }
-        
+
          /* Identifying the primary key value for the updated record */
         while ($offset < $total) {
             /* There are 4 possible ways that the id=123 can be parsed:
@@ -221,7 +221,7 @@ function sql_checksum_of_modified_row($statement)
                 if(is_numeric($tid))
                  $rid=$tid;
                 break;
-	      }	
+	      }
             $offset += 1;
         }//while ($offset < $total)
     }// else if ($tokens[0] == 'update' || $tokens[0] == 'UPDATE' )
@@ -229,7 +229,7 @@ function sql_checksum_of_modified_row($statement)
     if ($table == "" || $rid == "") {
         return "";
     }
-   /* Framing sql statements for calculating checksum */ 
+   /* Framing sql statements for calculating checksum */
    if ($table == "form_physical_exam") {
         $sql = "select * from $table where forms_id = $rid";
     }
@@ -259,7 +259,7 @@ function sql_checksum_of_modified_row($statement)
     }
     // When this function is working perfectly, can then shift to the
     // sqlQueryNoLog() function.
-    $results = sqlQueryNoLogIgnoreError($sql);    
+    $results = sqlQueryNoLogIgnoreError($sql);
     $column_values = "";
    /* Concatenating the column values for the row inserted/updated */
     if (is_array($results)) {
@@ -340,7 +340,7 @@ function create_rfc3881_msg($user, $group, $event, $patient_id, $outcome, $comme
     }
 
 
-   
+
 
     /* Variables used in ActiveParticipant section, which identifies
      * the IP address and application of the source and destination.
@@ -465,7 +465,14 @@ function create_tls_conn($host, $port, $localcert, $cafile) {
 function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comments)
 {
     /* If no ATNA repository server is configured, return */
-    if ($GLOBALS['atna_audit_host'] === null || $GLOBALS['atna_audit_host'] == "" || !($GLOBALS['enable_atna_audit'])) {
+    if (!array_key_exists('atna_audit_host', $GLOBALS)
+        || $GLOBALS['atna_audit_host'] === null
+        || $GLOBALS['atna_audit_host'] == ""
+        || !(
+            array_key_exists('enable_atna_audit', $GLOBALS)
+            && $GLOBALS['enable_atna_audit']
+        )
+    ) {
         return;
     }
     $host = $GLOBALS['atna_audit_host'];
@@ -591,7 +598,7 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
                     "x12_partners" => "security-administration",
                     "insurance_companies" => "security-administration",
                     "codes" => "security-administration",
-                    "registry" => "security-administration", 
+                    "registry" => "security-administration",
                     "users" => "security-administration",
                     "groups" => "security-administration",
                     "openemr_postcalendar_events" => "scheduling",
@@ -607,7 +614,7 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
     				"gacl_aco_sections_seq" => "security-administration",
     				"gacl_aco_seq" => "security-administration",
     				"gacl_aro" => "security-administration",
-    				"gacl_aro_groups" => "security-administration",    				
+    				"gacl_aro_groups" => "security-administration",
     				"gacl_aro_groups_id_seq" => "security-administration",
     				"gacl_aro_groups_map" => "security-administration",
     				"gacl_aro_map" => "security-administration",
@@ -621,7 +628,7 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
     				"gacl_axo_sections" => "security-administration",
     				"gacl_groups_aro_map" => "security-administration",
     				"gacl_groups_axo_map" => "security-administration",
-    				"gacl_phpgacl" => "security-administration"    				
+    				"gacl_phpgacl" => "security-administration"
                   );
 
     /* When searching for table names, truncate the SQL statement,
@@ -662,7 +669,7 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
     }
 
     /* Avoid filling the audit log with trivial SELECT statements.
-     * Skip SELECTs from unknown tables.  
+     * Skip SELECTs from unknown tables.
      * Skip SELECT count() statements.
      * Skip the SELECT made by the authCheckSession() function.
      */
@@ -685,48 +692,48 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
     }
 
     /* If query events are not enabled, don't log them */
-    if (($querytype == "select") && !($GLOBALS['audit_events_query']))
-    { 
+    if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && $GLOBALS['audit_events_query']))
+    {
        if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
        return;
     }
 
-    if (!($GLOBALS["audit_events_${event}"])) 
+    if (!($GLOBALS["audit_events_${event}"]))
     {
     	if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
     	return;
     }
-           
+
 
     $event = $event . "-" . $querytype;
 
     $adodb = $GLOBALS['adodb']['db'];
-   
+
     // ViSolve : Don't log sequences - to avoid the affect due to GenID calls
     if (strpos($comments, "sequences") !== FALSE) return;
-	
+
 	$encrypt_comment = 'No';
 	//July 1, 2014: Ensoftek: Check and encrypt audit logging
-	if ($GLOBALS["enable_auditlog_encryption"]) {
+	if (array_key_exists('enable_auditlog_encryption', $GLOBALS) && $GLOBALS["enable_auditlog_encryption"]) {
 		$comments =  aes256Encrypt($comments);
 		$encrypt_comment = 'Yes';
 	}
-	
+
 	$current_datetime = date("Y-m-d H:i:s");
     $SSL_CLIENT_S_DN_CN=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : '';
     $sql = "insert into log (date, event, user, groupname, comments, patient_id, success, checksum,crt_user) " .
          "values ( ".
 		 $adodb->qstr($current_datetime). ", ".
          $adodb->qstr($event) . ", " .
-         $adodb->qstr($user) . "," . 
+         $adodb->qstr($user) . "," .
          $adodb->qstr($group) . "," .
          $adodb->qstr($comments) . "," .
          $adodb->qstr($pid) . "," .
-         $adodb->qstr($success) . "," . 
+         $adodb->qstr($success) . "," .
          $adodb->qstr($checksum) . "," .
          $adodb->qstr($SSL_CLIENT_S_DN_CN) .")";
 	sqlInsertClean_audit($sql);
-	
+
 	$last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
 	$checksumGenerate = '';
 	//July 1, 2014: Ensoftek: Record the encryption checksum in a secondary table(log_comment_encrypt)
@@ -738,9 +745,9 @@ function auditSQLEvent($statement, $outcome, $binds=NULL)
 					 " VALUES ( ".
 					  $adodb->qstr($last_log_id) . "," .
 					  $adodb->qstr($encrypt_comment) . "," .
-					  $adodb->qstr($checksumGenerate) .")"; 
+					  $adodb->qstr($checksumGenerate) .")";
 	sqlInsertClean_audit($encryptLogQry);
-	
+
     send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);
     //return $ret;
 }
@@ -758,7 +765,7 @@ function auditSQLAuditTamper($enable)
 
 
     $adodb = $GLOBALS['adodb']['db'];
-   
+
 	if ($enable == "1")
 	{
 		$comments = "Audit Logging Enabled.";
@@ -767,16 +774,16 @@ function auditSQLAuditTamper($enable)
 	{
 		$comments = "Audit Logging Disabled.";
 	}
-	   
+
     $SSL_CLIENT_S_DN_CN=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : '';
     $sql = "insert into log (date, event, user, groupname, comments, patient_id, success, checksum,crt_user) " .
-         "values ( NOW(), " . 
+         "values ( NOW(), " .
          $adodb->qstr($event) . ", " .
-         $adodb->qstr($user) . "," . 
+         $adodb->qstr($user) . "," .
          $adodb->qstr($group) . "," .
          $adodb->qstr($comments) . "," .
          $adodb->qstr($pid) . "," .
-         $adodb->qstr($success) . "," . 
+         $adodb->qstr($success) . "," .
          $adodb->qstr($checksum) . "," .
          $adodb->qstr($SSL_CLIENT_S_DN_CN) .")";
 
@@ -840,13 +847,13 @@ function aes256Encrypt($sValue){
         base64_encode(
             mcrypt_encrypt(
                 MCRYPT_RIJNDAEL_256,
-                $sSecretKey, $sValue, 
-                MCRYPT_MODE_ECB, 
+                $sSecretKey, $sValue,
+                MCRYPT_MODE_ECB,
                 mcrypt_create_iv(
                     mcrypt_get_iv_size(
-                        MCRYPT_RIJNDAEL_256, 
+                        MCRYPT_RIJNDAEL_256,
                         MCRYPT_MODE_ECB
-                    ), 
+                    ),
                     MCRYPT_RAND)
                 )
             ), "\0"
@@ -858,15 +865,15 @@ function aes256Decrypt($sValue){
 	$sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
     return rtrim(
         mcrypt_decrypt(
-            MCRYPT_RIJNDAEL_256, 
-            $sSecretKey, 
-            base64_decode($sValue), 
+            MCRYPT_RIJNDAEL_256,
+            $sSecretKey,
+            base64_decode($sValue),
             MCRYPT_MODE_ECB,
             mcrypt_create_iv(
                 mcrypt_get_iv_size(
                     MCRYPT_RIJNDAEL_256,
                     MCRYPT_MODE_ECB
-                ), 
+                ),
                 MCRYPT_RAND
             )
         ), "\0"

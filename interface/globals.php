@@ -58,7 +58,7 @@ if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
 $webserver_root = dirname(dirname(__FILE__));
 if (IS_WINDOWS) {
  //convert windows path separators
- $webserver_root = str_replace("\\","/",$webserver_root); 
+ $webserver_root = str_replace("\\","/",$webserver_root);
 }
 // Collect the apache server document root (and convert to windows slashes, if needed)
 $server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);
@@ -141,7 +141,7 @@ require_once($GLOBALS['OE_SITE_DIR'] . "/config.php");
 // to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
 // then set to iso-8859-1.
 require_once(dirname(__FILE__) . "/../library/sqlconf.php");
-if (!$disable_utf8_flag) {    
+if (!$disable_utf8_flag) {
  ini_set('default_charset', 'utf-8');
  $HTML_CHARSET = "UTF-8";
 }
@@ -167,7 +167,7 @@ $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
 $GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
-// Variable set for Eligibility Verification [EDI-271] path 
+// Variable set for Eligibility Verification [EDI-271] path
 $GLOBALS['edi_271_file_path'] = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
 // Include the translation engine. This will also call sql.inc to
@@ -352,10 +352,15 @@ $GLOBALS['backpic'] = $backpic;
 
 // 1 = send email message to given id for Emergency Login user activation,
 // else 0.
-$GLOBALS['Emergency_Login_email'] = $GLOBALS['Emergency_Login_email_id'] ? 1 : 0;
+$GLOBALS['Emergency_Login_email'] = (
+  array_key_exists('Emergency_Login_email_id', $GLOBALS)
+  && $GLOBALS['Emergency_Login_email_id']
+)
+  ? 1
+  : 0;
 
 //set include_de_identification to enable De-identification (currently de-identification works fine only with linux machines)
-//Run de_identification_upgrade.php script to upgrade OpenEMR database to include procedures,  
+//Run de_identification_upgrade.php script to upgrade OpenEMR database to include procedures,
 //functions, tables for de-identification(Mysql root user and password is required for successful
 //execution of the de-identification upgrade script)
 $GLOBALS['include_de_identification']=0;
