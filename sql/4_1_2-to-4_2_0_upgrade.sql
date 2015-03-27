@@ -2972,3 +2972,7 @@ ALTER TABLE `layout_options` ADD COLUMN `source` char(1) NOT NULL default 'F'
 ALTER TABLE `layout_options` ADD COLUMN
   `conditions` text NOT NULL DEFAULT '' COMMENT 'serialized array of skip conditions';
 #EndIf
+
+#IfNotColumnType prescriptions size varchar(16)
+ALTER TABLE `prescriptions` CHANGE `size` `size` varchar(16) DEFAULT NULL;
+#EndIf
