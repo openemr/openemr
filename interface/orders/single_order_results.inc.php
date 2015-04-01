@@ -19,11 +19,11 @@
 * @author    Rod Roark <rod@sunsetsystems.com>
 */
 
-require_once("$srcdir/acl.inc");
-require_once("$srcdir/formdata.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/classes/Document.class.php");
+require_once($GLOBALS["srcdir"] . "/acl.inc");
+require_once($GLOBALS["srcdir"] . "/formdata.inc.php");
+require_once($GLOBALS["srcdir"] . "/options.inc.php");
+require_once($GLOBALS["srcdir"] . "/formatting.inc.php");
+require_once($GLOBALS["srcdir"] . "/classes/Document.class.php");
 
 function getListItem($listid, $value) {
   $lrow = sqlQuery("SELECT title FROM list_options " .

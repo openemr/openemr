@@ -15,7 +15,7 @@
  * remember that include paths are calculated relative to the including script, not this file.
  * to lock the path to this script (so if called from different scripts) use the dirname(FILE) variable
 */
-require_once('../../globals.php');
+require_once(dirname(__FILE__).'/../globals.php');
 
 /* For Controller, the class we're extending. */
 require_once ($GLOBALS['srcdir'] . '/classes/Controller.class.php');

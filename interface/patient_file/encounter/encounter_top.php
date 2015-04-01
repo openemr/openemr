@@ -1,7 +1,7 @@
 <?php
 // Cloned from patient_encounter.php.
 
-include_once("../../globals.php");
+include_once(dirname(__FILE__).'/../../globals.php');
 include_once("$srcdir/pid.inc");
 include_once("$srcdir/encounter.inc");
 
