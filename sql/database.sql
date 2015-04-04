@@ -4431,6 +4431,7 @@ CREATE TABLE `patient_data` (
   `migrantseasonal` varchar(255) NOT NULL default '',
   `family_size` varchar(255) NOT NULL default '',
   `monthly_income` varchar(255) NOT NULL default '',
+  `billing_note` varchar(255) NOT NULL default '',
   `homeless` varchar(255) NOT NULL default '',
   `financial_review` datetime default NULL,
   `pubpid` varchar(255) NOT NULL default '',

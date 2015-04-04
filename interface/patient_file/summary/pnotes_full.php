@@ -287,9 +287,9 @@ $urlparms = "docid=$docid&orderid=$orderid";
 $billing_note = "";
 $colorbeg = "";
 $colorend = "";
-$resnote = getPatientData($patient_id, "genericname2, genericval2");
-if($resnote && $resnote['genericname2'] == 'Billing') {
-  $billing_note = $resnote['genericval2'];
+$resnote = getPatientData($patient_id, "billing_note");
+if($resnote && $resnote['billing_note'] != NULL) {
+  $billing_note = $resnote['billing_note'];
   $colorbeg = "<span style='color:red'>";
   $colorend = "</span>";
 }
