@@ -88,3 +88,8 @@ UPDATE `globals` SET `gl_name` = 'erx_account_name' WHERE `gl_name` = 'erx_name_
 #IfNotRow globals gl_name erx_account_password
 UPDATE `globals` SET `gl_name` = 'erx_account_password' WHERE `gl_name` = 'erx_password_production';
 #EndIf
+
+#IfNotColumnType lang_custom constant_name mediumtext
+ALTER TABLE `lang_custom` CHANGE `constant_name` `constant_name` mediumtext NOT NULL default '';
+#EndIf
+

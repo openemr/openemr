@@ -2480,9 +2480,9 @@ INSERT INTO issue_types(`ordering`,`category`,`type`,`plural`,`singular`,`abbrev
 DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
-  `constant_name` varchar(255) BINARY default NULL,
+  `constant_name` mediumtext BINARY,
   UNIQUE KEY `cons_id` (`cons_id`),
-  KEY `constant_name` (`constant_name`)
+  KEY `constant_name` (`constant_name`(100))
 ) ENGINE=MyISAM ;
 
 -- 
@@ -2527,7 +2527,7 @@ DROP TABLE IF EXISTS `lang_custom`;
 CREATE TABLE `lang_custom` (
   `lang_description` varchar(100) NOT NULL default '',
   `lang_code` char(2) NOT NULL default '',
-  `constant_name` varchar(255) NOT NULL default '',
+  `constant_name` mediumtext NOT NULL default '',
   `definition` mediumtext NOT NULL default ''
 ) ENGINE=MyISAM ;
 
