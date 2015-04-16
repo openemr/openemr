@@ -1667,98 +1667,98 @@ $GLOBALS_METADATA = array(
       'https://len.mi-squared.com:29443/len/api',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.')
     ),
-    
+
     'erx_enable' => array(
       xl('Enable NewCrop eRx Service'),
       'bool',                           // data type
       '0',
       xl('Enable NewCrop eRx Service')
-    ),    
-    
-    'erx_path_production' => array(
+    ),
+
+    'erx_newcrop_path' => array(
       xl('NewCrop eRx Site Address'),
       'text',                           // data type
       'https://secure.newcropaccounts.com/InterfaceV7/RxEntry.aspx',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-    
-    'erx_path_soap_production' => array(
+
+    'erx_newcrop_path_soap' => array(
       xl('NewCrop eRx Web Service Address'),
       'text',                           // data type
       'https://secure.newcropaccounts.com/v7/WebServices/Update1.asmx?WSDL;https://secure.newcropaccounts.com/v7/WebServices/Patient.asmx?WSDL',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-    
+
     'erx_soap_ttl_allergies' => array(
       xl('NewCrop eRx SOAP Request Time-To-Live for Allergies'),
       'num',
       '21600',
       xl('Time-To-Live for Allergies SOAP Request in seconds')
     ),
-    
+
     'erx_soap_ttl_medications' => array(
       xl('NewCrop eRx SOAP Request Time-To-Live for Medications'),
       'num',
       '21600',
       xl('Time-To-Live for Medications SOAP Request in seconds')
     ),
-    
-    'partner_name_production' => array(
+
+    'erx_account_partner_name' => array(
       xl('NewCrop eRx Partner Name'),
       'text',                           // data type
       '',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-    
-    'erx_name_production' => array(
+
+    'erx_account_name' => array(
       xl('NewCrop eRx Name'),
       'text',                           // data type
       '',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-    
-    'erx_password_production' => array(
+
+    'erx_account_password' => array(
       xl('NewCrop eRx Password'),
       'pass',                           // data type
       '',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-    
+
     'erx_account_id' => array(
       xl('NewCrop eRx Account Id'),
       'text',                           // data type
       '1',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-    
+
     'erx_upload_active' => array(
       xl('Only upload active prescriptions'),
       'bool',                           // data type
       '0',
       xl('Only upload active prescriptions')
     ),
-    
+
     'erx_import_status_message' => array(
       xl('Enable import status message for NewCrop erx'),
       'bool',                           // data type
       '0',
       xl('Enable import status message for NewCrop erx')
     ),
-    
+
     'erx_medication_display' => array(
       xl('Do not display Medications uploaded to NewCrop'),
       'bool',                           // data type
       '0',
       xl('Do not display Medications uploaded to NewCrop')
     ),
-	
-	'erx_allergy_display' => array(
+
+    'erx_allergy_display' => array(
       xl('Do not display Allergy uploaded to NewCrop'),
       'bool',                           // data type
       '0',
       xl('Do not display Allergy uploaded to NewCrop')
     ),
-        
+
     'erx_default_patient_country' => array(
         xl('Default Patient Country'),
         array(
@@ -1769,6 +1769,18 @@ $GLOBALS_METADATA = array(
         ),
         '',
         xl('Default Patient Country'),
+    ),
+
+    'erx_debug_setting' => array(
+        xl('NewCrop eRx Debug Setting'),
+        array(
+            0 => 'None',
+            1 => 'Request Only',
+            2 => 'Response Only',
+            3 => 'Request & Response'
+        ),
+        '0',
+        xl('Log NewCrop eRx Requests and / or Responses'),
     ),
 
     'phimail_enable' => array(
