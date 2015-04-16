@@ -3,7 +3,7 @@
 /**
  * interface/eRxSOAP.php Functions for interacting with NewCrop SOAP calls.
  *
- * Copyright (C) 2013 Sam Likins <sam.likins@wsi-services.com>
+ * Copyright (C) 2013-2015 Sam Likins <sam.likins@wsi-services.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the Free
@@ -14,17 +14,12 @@
  * Public License for more details.  You should have received a copy of the GNU
  * General Public License along with this program.
  * If not, see <http://opensource.org/licenses/gpl-license.php>.
- * 
+ *
  * @package    OpenEMR
  * @subpackage NewCrop
  * @author     Sam Likins <sam.likins@wsi-services.com>
  * @link       http://www.open-emr.org
  */
-
-require_once($GLOBALS['fileroot'] . '/interface/eRxStore.php');
-require_once($GLOBALS['srcdir'] . '/xmltoarray_parser_htmlfix.php');
-require_once($GLOBALS['srcdir'] . '/lists.inc');
-require_once($GLOBALS['srcdir'] . '/amc.php');
 
 class eRxSOAP {
 
@@ -36,15 +31,14 @@ class eRxSOAP {
 	const FLAG_ALLERGY_PRESS		= '3';
 	const FLAG_ALLERGY_IMPORT		= '4';
 
+	private $globals;
 	private $store;
+
 	private $authUserId;
 	private $authUserDetails;
 	private $patientId;
-	private $credentials;
-	private $soapPath;
 	private $soapClient;
 	private $soapSettings = array();
-	private $accountId;
 	private $siteId;
 
 	/**
@@ -75,6 +69,25 @@ class eRxSOAP {
 	}
 
 	/**
+	 * Set Globals for retrieving eRx global configurations
+	 * @param  object  $globals The eRx Globals object to use for processing
+	 * @return eRxPage          This object is returned for method chaining
+	 */
+	public function setGlobals($globals) {
+		$this->globals = $globals;
+
+		return $this;
+	}
+
+	/**
+	 * Get Globals for retrieving eRx global configurations
+	 * @return object The eRx Globals object to use for processing
+	 */
+	public function getGlobals() {
+		return $this->globals;
+	}
+
+	/**
 	 * Set Store to handle eRx cashed data
 	 * @param  object  $store The eRx Store object to use for processing
 	 * @return eRxSOAP        This object is returned for method chaining
@@ -94,25 +107,11 @@ class eRxSOAP {
 	}
 
 	/**
-	 * Set Account Id for SOAP communications with NewCrop
-	 * @param  string  $id The Account Id to send with SOAP requests to NewCrop
-	 * @return eRxSOAP     This object is returned for method chaining
-	 */
-	public function setAccountId($id) {
-		$this->accountId = $id;
-
-		return $this;
-	}
-
-	/**
 	 * Get Account Id set for SOAP communications with NewCrop
 	 * @return string The Account Id sent with SOAP requests to NewCrop
 	 */
 	public function getAccountId() {
-		if(null === $this->accountId)
-			$this->accountId = $GLOBALS['erx_account_id'];
-
-		return $this->accountId;
+		return $this->getGlobals()->getAccountId();
 	}
 
 	/**
@@ -185,61 +184,18 @@ class eRxSOAP {
 	 * @return integer The Id of the current patient
 	 */
 	public function getPatientId() {
-		if(null === $this->patientId) {
-			if(array_key_exists('patient', $_REQUEST))
-				$this->patientId = $_REQUEST['patient'];
-			elseif(array_key_exists('pid', $GLOBALS))
-				$this->patientId = $GLOBALS['pid'];
-		}
-
 		return $this->patientId;
 	}
 
 	/**
-	 * Set the credentials for SOAP requests
-	 * @param  array   $credentials Set of credentials: index [0 = Partner Name, 1 = eRx Name, 2 = eRx Password]
-	 * @return eRxSOAP              This object is returned for method chaining
-	 */
-	public function setCredentials($credentials) {
-		$this->credentials = $credentials;
-
-		return $this;
-	}
-
-	/**
-	 * Get the credentials for SOAP requests
-	 * @return array Set of credentials: index [0 = Partner Name, 1 = eRx Name, 2 = eRx Password]
-	 */
-	public function getCredentials() {
-		return $this->credentials;
-	}
-
-	/**
-	 * Set SOAP Web Service Address paths
-	 * @param  array   $path Set of paths: index [0 = Update, 1 = Patient]
-	 * @return eRxSOAP       This object is returned for method chaining
-	 */
-	public function setSoapPath($path) {
-		$this->soapPath = (array) $path;
-
-		return $this;
-	}
-
-	/**
-	 * Get SOAP Web Service Address paths
-	 * @return array Set of paths: index [0 = Update, 1 = Patient]
-	 */
-	public function getSoapPath() {
-		return $this->soapPath;
-	}
-
-	/**
 	 * Generate and set a new SOAP client with provided Path Id
-	 * @param  integer    $pathId Id for path set with getSoapPath: index [0 = Update, 1 = Patient]
+	 * @param  integer    $pathId Id for NewCrop eRx SOAP path: index [0 = Update, 1 = Patient]
 	 * @return SoapClient         Soap Client
 	 */
 	public function initializeSoapClient($pathId) {
-		return $this->setSoapClient(new SoapClient($this->soapPath[(integer) $pathId]));
+		$paths = $this->getGlobals()->getSoapPaths();
+
+		return $this->setSoapClient(new SoapClient($paths[(integer) $pathId]));
 	}
 
 	/**
@@ -286,10 +242,16 @@ class eRxSOAP {
 	 * @return number|boolean          Number on success, false on failure
 	 */
 	public function getTTL($process) {
-		if(array_key_exists('erx_soap_ttl_'.$process, $GLOBALS))
-			return $GLOBALS['erx_soap_ttl_'.$process];
-		else
-			return false;
+		switch ($process) {
+			case self::ACTION_ALLERGIES:
+				$return = $this->getGlobals()->getTTLSoapAllergies();
+			case self::ACTION_MEDICATIONS:
+				$return = $this->getGlobals()->getTTLSoapMedications();
+			default:
+				$return = false;
+		}
+
+		return $return;
 	}
 
 	/**
@@ -310,7 +272,7 @@ class eRxSOAP {
 	}
 
 	/**
-	 * Update provided SOAP process TTL timestamp of current patient 
+	 * Update provided SOAP process TTL timestamp of current patient
 	 * @param  string  $process SOAP process to update TTL of current patient
 	 * @return eRxSOAP          This object is returned for method chaining
 	 */
@@ -359,10 +321,12 @@ class eRxSOAP {
 	 * @return eRxSOAP This object is returned for method chaining
 	 */
 	public function initializeCredentials() {
+		$credentials = $this->getGlobals()->getCredentials();
+
 		$this->soapSettings['credentials'] = array(
-			'PartnerName'	=> $this->credentials['0'],
-			'Name'			=> $this->credentials['1'],
-			'Password'		=> $this->credentials['2'],
+			'PartnerName'	=> $credentials['0'],
+			'Name'			=> $credentials['1'],
+			'Password'		=> $credentials['2'],
 		);
 
 		return $this;
@@ -374,7 +338,7 @@ class eRxSOAP {
 	 */
 	public function initializeAccountRequest() {
 		$this->soapSettings['accountRequest'] = array(
-			'AccountId'	=> $this->getAccountId(),
+			'AccountId'	=> $this->getGlobals()->getAccountId(),
 			'SiteId'	=> $this->getSiteId(),
 		);
 
