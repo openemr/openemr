@@ -1687,7 +1687,7 @@ $GLOBALS_METADATA = array(
       xl('NewCrop eRx Web Service Address'),
       'text',
       'https://secure.newcropaccounts.com/v7/WebServices/Update1.asmx?WSDL;https://secure.newcropaccounts.com/v7/WebServices/Patient.asmx?WSDL',
-      xl('URLs for NewCrop eRx Service Address, separated by a simi-colon.')
+      xl('URLs for NewCrop eRx Service Address, separated by a semi-colon.')
     ),
 
     'erx_soap_ttl_allergies' => array(
