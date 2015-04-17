@@ -328,6 +328,7 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
       echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // justify
     }
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n";             // provider
+    echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // note codes
     echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
     echo "  <td class='billcell' align='center'><input type='checkbox'" .   // del
       " disabled /></td>\n";
@@ -350,6 +351,7 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
       echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n"; // justify
     }
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n"; // provider
+    echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // note codes
     echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
     echo "  <td class='billcell' align='center'><input type='checkbox' name='prod[".attr($lino)."][del]' " .
       "value='1'" . ($del ? " checked" : "") . " /></td>\n";
