@@ -515,9 +515,9 @@ function educlick(codetype, codevalue) {
    <input type='button' value='<?php echo xla('Related Patient Notes'); ?>' 
     onclick='showpnotes(<?php echo $orderid; ?>)' />
 <?php } ?>
-<?php if ($input_form && $sign_list) { ?>
+<?php if ($input_form && $ctx['sign_list']) { ?>
    &nbsp;
-   <input type='hidden' name='form_sign_list' value='<?php echo attr($sign_list); ?>' />
+   <input type='hidden' name='form_sign_list' value='<?php echo attr($ctx['sign_list']); ?>' />
    <input type='submit' name='form_sign' value='<?php echo xla('Sign Results'); ?>'
     title='<?php echo xla('Mark these reports as reviewed'); ?>' />
 <?php
