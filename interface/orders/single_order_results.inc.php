@@ -525,7 +525,8 @@ function educlick(codetype, codevalue) {
     foreach ($aNotes as $key => $value) {
       echo " <tr>\n";
       echo "  <td valign='top'>" . ($key + 1) . "</td>\n";
-      echo "  <td>" . nl2br(text($value)) . "</td>\n";
+      // <pre> tag because white space and a fixed font are often used to line things up.
+      echo "  <td><pre>" . nl2br(text($value)) . "</pre></td>\n";
       echo " </tr>\n";
     }
     echo "</table>\n";
