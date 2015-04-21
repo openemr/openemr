@@ -24,6 +24,11 @@
 //           Paul Simon K <paul@zhservices.com> 
 //
 // +------------------------------------------------------------------------------+
+
+
+require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
+
+
 //===============================================================================
 //This section handles the events of payment screen.
 //===============================================================================
@@ -311,20 +316,27 @@ function InsertEvent($args,$from = 'general') {
     $pc_recurrtype = $args['recurrspec']['event_repeat_on_freq'] ? '2' : '1';
   }
   $form_pid = empty($args['form_pid']) ? '' : $args['form_pid'];
+  $form_room = empty($args['form_room']) ? '' : $args['form_room'];
 
 	if($from == 'general'){
-    return sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+    $pc_eid = sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 			"pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
 			"pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
 			"pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-			"pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location " .
-			") VALUES (?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?)",
+			"pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location,pc_room " .
+			") VALUES (?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)",
 			array($args['form_category'],(isset($args['new_multiple_value']) ? $args['new_multiple_value'] : ''),$args['form_provider'],$form_pid,
 			$args['form_title'],$args['form_comments'],$_SESSION['authUserID'],$args['event_date'],
 			fixDate($args['form_enddate']),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
 			$args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'],
-			$args['locationspec'],(int)$args['facility'],(int)$args['billing_facility'])
+			$args['locationspec'],(int)$args['facility'],(int)$args['billing_facility'],$form_room)
 		);
+
+            manage_tracker_status($args['event_date'],$args['starttime'],$pc_eid,$form_pid,$_SESSION['authUser'],$args['form_apptstatus'],$args['form_room']);
+            $GLOBALS['temporary-eid-for-manage-tracker'] = $pc_eid; //used by manage tracker module to set correct encounter in tracker when check in
+
+            return $pc_eid;
+
 	}elseif($from == 'payment'){
 		sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
 			"pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, " .

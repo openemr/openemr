@@ -93,3 +93,65 @@ UPDATE `globals` SET `gl_name` = 'erx_account_password' WHERE `gl_name` = 'erx_p
 ALTER TABLE `lang_custom` CHANGE `constant_name` `constant_name` mediumtext NOT NULL default '';
 #EndIf
 
+#IfNotTable patient_tracker
+CREATE TABLE `patient_tracker` (
+  `id`                     bigint(20)   NOT NULL auto_increment,
+  `date`                   datetime     DEFAULT NULL,
+  `apptdate`               date         DEFAULT NULL,
+  `appttime`               time         DEFAULT NULL,
+  `eid`                    bigint(20)   NOT NULL default '0',
+  `pid`                    bigint(20)   NOT NULL default '0',
+  `original_user`          varchar(255) NOT NULL default '' COMMENT 'This is the user that created the original record',
+  `encounter`              bigint(20)   NOT NULL default '0',
+  `lastseq`                varchar(4)   NOT NULL default '' COMMENT 'The element file should contain this number of elements',
+  `random_drug_test`       TINYINT(1)   DEFAULT NULL COMMENT 'NULL if not randomized. If randomized, 0 is no, 1 is yes', 
+  `drug_screen_completed`  TINYINT(1)   NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY (`eid`),
+  KEY (`pid`)
+) ENGINE=MyISAM AUTO_INCREMENT=1;
+#EndIf
+
+#IfNotTable patient_tracker_element
+CREATE TABLE `patient_tracker_element` (
+  `pt_tracker_id`      bigint(20)   NOT NULL default '0' COMMENT 'maps to id column in patient_tracker table',
+  `start_datetime`     datetime     DEFAULT NULL,
+  `room`               varchar(20)  NOT NULL default '',
+  `status`             varchar(31)  NOT NULL default '',
+  `seq`                varchar(4)   NOT NULL default '' COMMENT 'This is a numerical sequence for this pt_tracker_id events',
+  `user`               varchar(255) NOT NULL default '' COMMENT 'This is the user that created this element',
+  KEY  (`pt_tracker_id`,`seq`)
+) ENGINE=MyISAM;
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_events pc_room
+ALTER TABLE `openemr_postcalendar_events` ADD `pc_room` varchar(20) NOT NULL DEFAULT '' ;
+#EndIf
+
+#IfMissingColumn list_options toggle_setting_1
+ALTER TABLE `list_options` ADD COLUMN `toggle_setting_1` tinyint(1) NOT NULL default '0';
+UPDATE `list_options` SET `notes`='FF2414|10' , `toggle_setting_1`='1' WHERE `option_id`='@' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='FF6619|10' , `toggle_setting_1`='1' WHERE `option_id`='~' AND `list_id` = 'apptstat';
+#EndIf
+ 
+#IfMissingColumn list_options toggle_setting_2
+ALTER TABLE `list_options` ADD COLUMN `toggle_setting_2` tinyint(1) NOT NULL DEFAULT '0';
+UPDATE `list_options` SET `notes`='0BBA34|0' , `toggle_setting_2`='1' WHERE `option_id`='!' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='FEFDCF|0' , `toggle_setting_2`='1' WHERE `option_id`='>' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='FEFDCF|0' WHERE `option_id`='-' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='FFC9F8|0' WHERE `option_id`='*' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='87FF1F|0' WHERE `option_id`='+' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='BFBFBF|0' WHERE `option_id`='x' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='BFBFBF|0' WHERE `option_id`='?' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='FFFF2B|0' WHERE `option_id`='#' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='52D9DE|10' WHERE `option_id`='<' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='C0FF96|0' WHERE `option_id`='$' AND `list_id` = 'apptstat';
+UPDATE `list_options` SET `notes`='BFBFBF|0' WHERE `option_id`='%' AND `list_id` = 'apptstat';
+#EndIf
+
+#IfNotRow2D  list_id lists option_id patient_flow_board_rooms
+INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','patient_flow_board_rooms','Patient Flow Board Rooms');
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('patient_flow_board_rooms', '1', 'Room 1', 10);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('patient_flow_board_rooms', '2', 'Room 2', 20);
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('patient_flow_board_rooms', '3', 'Room 3', 30);
+#EndIf

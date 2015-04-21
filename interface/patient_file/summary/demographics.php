@@ -450,6 +450,15 @@ function setMyPatient() {
 <?php } // end setting new pid ?>
  parent.left_nav.setRadio(window.name, 'dem');
  parent.left_nav.syncRadios();
+<?php if ( (isset($_GET['set_pid']) ) && (isset($_GET['set_encounterid'])) && ( intval($_GET['set_encounterid']) > 0 ) ) {
+ $encounter = intval($_GET['set_encounterid']);
+ $_SESSION['encounter'] = $encounter; 
+ $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", array($encounter)); ?>
+ var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+ parent.left_nav.setEncounter('<?php echo oeFormatShortDate(date("Y-m-d", strtotime($query_result['date']))); ?>', '<?php echo attr($encounter); ?>', othername);
+ parent.left_nav.setRadio(othername, 'enc');
+ parent.frames[othername].location.href = '../encounter/encounter_top.php?set_encounter=' + <?php echo attr($encounter);?> + '&pid=' + <?php echo attr($pid);?>;
+<?php } // end setting new encounter id (only if new pid is also set) ?>
 <?php } // end concurrent layout ?>
 }
 
