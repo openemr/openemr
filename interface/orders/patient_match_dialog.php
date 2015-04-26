@@ -2,7 +2,7 @@
 /**
  * Patient matching and selection dialog.
  *
- * Copyright (C) 2012-2014 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2012-2015 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,13 +27,12 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/options.inc.php");
 
-$form_key1  = $_REQUEST['key1'];
-$form_key2  = $_REQUEST['key2'];
-$form_ss    = preg_replace('/[^0-9]/', '', $_REQUEST['ss']);
-$form_fname = $_REQUEST['fname'];
-$form_lname = $_REQUEST['lname'];
-$form_DOB   = $_REQUEST['DOB'];
-
+$form_key   = $_REQUEST['key'];
+$args = unserialize($form_key);
+$form_ss    = preg_replace('/[^0-9]/', '', $args['ss']);
+$form_fname = $args['fname'];
+$form_lname = $args['lname'];
+$form_DOB   = $args['DOB'];
 ?>
 <html>
 <head>
@@ -89,7 +88,7 @@ function myRestoreSession() {
 
 function openPatient(ptid) {
  var f = opener.document.forms[0];
- var ename = '<?php echo addslashes("select[$form_key1][$form_key2]"); ?>';
+ var ename = '<?php echo addslashes("select[$form_key]"); ?>';
  if (f[ename]) {
   f[ename].value = ptid;
   window.close();
@@ -107,7 +106,7 @@ function openPatient(ptid) {
 <form method='post' action='patient_select.php' onsubmit='return myRestoreSession()'>
 
 <?php
-if ($form_key1) {
+if ($form_key) {
   $clarr = array();
   $clsql = "0";
   // First name.
@@ -193,4 +192,3 @@ if ($form_key1) {
 </center>
 </body>
 </html>
-

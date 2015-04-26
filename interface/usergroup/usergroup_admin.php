@@ -247,7 +247,8 @@ if (isset($_POST["mode"])) {
     $clearUserPass=$_POST['stiltskin'];
     $password_err_msg="";
     $prov_id="";
-    $success=update_password($_SESSION['authId'],0,$clearAdminPass,$clearUserPass,$password_err_msg,true,$insertUserSQL,formData('rumple'),$prov_id);
+    $success = update_password($_SESSION['authId'], 0, $clearAdminPass, $clearUserPass,
+      $password_err_msg, true, $insertUserSQL, trim(formData('rumple')), $prov_id);
     error_log($password_err_msg);
     $alertmsg .=$password_err_msg;
     if($success)

@@ -2,6 +2,8 @@
 
 require_once(dirname(__FILE__) . "/ORDataObject.class.php");
 require_once(dirname(__FILE__) . "/CouchDB.class.php");
+require_once(dirname(__FILE__) . "/../pnotes.inc");
+require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
 /**
  * class Document
@@ -600,6 +602,29 @@ class Document extends ORDataObject{
       $this->_db->Execute($sql);
     }
     return '';
+  }
+
+  /**
+   * Post a patient note that is linked to this document.
+   *
+   * @param  string  $provider     Login name of the provider to receive this note.
+   * @param  integer $category_id  The desired document category ID
+   * @param  string  $message      Any desired message text for the note.
+   */
+  function postPatientNote($provider, $category_id, $message='') {
+    // Build note text in a way that identifies the new document.
+    // See pnotes_full.php which uses this to auto-display the document.
+    $note = $this->get_url_file();
+    for ($tmp = $category_id; $tmp;) {
+      $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", array($tmp));
+      $note = $catrow['name'] . "/$note";
+      $tmp = $catrow['parent'];
+    }
+    $note = "New scanned document " . $this->get_id() . ": $note";
+    if ($message) $note .= "\n" . $message;
+    $noteid = addPnote($this->get_foreign_id(), $note, 0, '1', 'New Document', $provider);
+    // Link the new note to the document.
+    setGpRelation(1, $this->get_id(), 6, $noteid);
   }
 
 } // end of Document
