@@ -101,20 +101,14 @@
  }
 
  // This mess gets all the info for the patient.
- //
+ //~Well, now it does...-Art
  $insrow = array();
  foreach (array('primary','secondary','tertiary') as $value) {
    $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
      "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
  }
  $query = "SELECT " .
-  "p.pubpid, p.fname, p.mname, p.lname, p.DOB, p.providerID, " .
-  "p.ss, p.street, p.city, p.state, p.postal_code, p.phone_home, p.sex, " .
-  "p.title, p.country_code, p.occupation, p.phone_biz, p.phone_contact, p.phone_cell, " .
-  "p.status, p.contact_relationship, p.referrer, p.referrerID, p.email, " .
-  "p.language, p.ethnoracial, p.interpretter, p.migrantseasonal, p.family_size, " .
-  "p.monthly_income, p.homeless, p.financial_review, p.hipaa_mail, p.hipaa_voice, " .
-  "p.genericname1, p.genericval1, p.genericname2, p.genericval2, " .
+  "p.*, " .
   "i1.policy_number AS policy1, i1.group_number AS group1, i1.provider as provider1, " .
   "i1.subscriber_fname AS fname1, i1.subscriber_mname AS mname1, i1.subscriber_lname AS lname1, " .
   "i1.subscriber_street AS sstreet1, i1.subscriber_city AS scity1, i1.subscriber_state AS sstate1, " .
