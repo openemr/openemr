@@ -133,7 +133,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $price = $fee / $units;
   $strike1 = ($id && $del) ? "<strike>" : "";
   $strike2 = ($id && $del) ? "</strike>" : "";
-  echo " <tr>\n";
+  echo " <tr class='sortable-codetype codetype-" . $codetype . "' data-billcell='" . attr($lino) . "'>\n";
   echo "  <td class='billcell'>$strike1" .
     ($codetype == 'COPAY' ? xl($codetype) : $codetype) . $strike2;
   //if the line to ouput is copay, show the date here passed as $ndc_info,
@@ -260,7 +260,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndc_info, $tmp)) {
       $ndcnum = $tmp[1]; $ndcuom = $tmp[2]; $ndcqty = $tmp[3];
     }
-    echo " <tr>\n";
+    echo " <tr data-billcell-sub='" . attr($lino) . "'>\n";
     echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
     echo "  <td class='billcell' colspan='6'>&nbsp;NDC:&nbsp;";
     echo "<input type='text' name='bill[".attr($lino)."][ndcnum]' value='" . attr($ndcnum) . "' " .
@@ -545,9 +545,9 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
         sqlQuery("UPDATE billing SET code = ?, " .
           "units = ?, fee = ?, modifier = ?, " .
           "authorized = ?, provider_id = ?, " .
-          "ndc_info = ?, justify = ?, notecodes = ? " .
+          "ndc_info = ?, justify = ?, notecodes = ?, billing_order_seq = ? " .
           "WHERE " .
-          "id = ? AND billed = 0 AND activity = 1", array($code,$units,$fee,$modifier,$auth,$provid,$ndc_info,$justify,$notecodes,$id) );
+          "id = ? AND billed = 0 AND activity = 1", array($code,$units,$fee,$modifier,$auth,$provid,$ndc_info,$justify,$notecodes,$lino,$id) );
       }
     }
 
@@ -686,10 +686,17 @@ $billresult = getBillingByEncounter($pid, $encounter, "*");
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
+.template {
+    display:none;
+}
+.highlight {
+    height: 30px;
+    color: white;
+    background-color: black;
+}
 </style>
 <script language="JavaScript">
-
-var diags = new Array();
+ var diags = new Array();
 
 <?php
 if ($billresult) {
@@ -991,27 +998,28 @@ echo " </tr>\n";
 
 <?php } // end encounter not billed ?>
 
-<table cellspacing='5'>
+<table cellspacing='5' width='95%' class="fee-entry-table">
+ <thead class="fee-entry-table-header">
  <tr>
-  <td class='billcell'><b><?php echo xlt('Type');?></b></td>
-  <td class='billcell'><b><?php echo xlt('Code');?></b></td>
+  <th class='billcell'><b><?php echo xlt('Type');?></b></th>
+  <th class='billcell'><b><?php echo xlt('Code');?></b></th>
 <?php if (modifiers_are_used(true)) { ?>
-  <td class='billcell'><b><?php echo xlt('Modifiers');?></b></td>
+  <th class='billcell'><b><?php echo xlt('Modifiers');?></b></th>
 <?php } ?>
 <?php if (fees_are_used()) { ?>
-  <td class='billcell' align='right'><b><?php echo xlt('Price');?></b>&nbsp;</td>
-  <td class='billcell' align='center'><b><?php echo xlt('Units');?></b></td>
+  <th class='billcell' align='right'><b><?php echo xlt('Price');?></b>&nbsp;</th>
+  <th class='billcell' align='center'><b><?php echo xlt('Units');?></b></th>
 <?php } ?>
 <?php if (justifiers_are_used()) { ?>
-  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Justify');?></b></td>
+  <th class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Justify');?></b></th>
 <?php } ?>
-  <td class='billcell' align='center'><b><?php echo xlt('Provider');?></b></td>
-  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Note Codes');?></b></td>
-  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></td>
-  <td class='billcell' align='center'><b><?php echo xlt('Delete');?></b></td>
-  <td class='billcell'><b><?php echo xlt('Description');?></b></td>
+  <th class='billcell' align='center'><b><?php echo xlt('Provider');?></b></th>
+  <th class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Note Codes');?></b></th>
+  <th class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></th>
+  <th class='billcell' align='center'><b><?php echo xlt('Delete');?></b></th>
+  <th class='billcell'><b><?php echo xlt('Description');?></b></th>
  </tr>
-
+ </thead>
 <?php
 $justinit = "var f = document.forms[0];\n";
 
@@ -1324,5 +1332,84 @@ if ($alertmsg) {
 ?>
 </script>
 </body>
+
+<div class="template">
+    <table>
+        <tr>
+            <td class="sort-controls-template">
+                <img class="up-control" src='<?php echo $rootdir; ?>/../images/upbtn.gif'> 
+                <img class="down-control"  src='<?php echo $rootdir; ?>/../images/downbtn.gif'>
+            </td>
+        </tr>
+    </table>
+</div>
+
 </html>
+
 <?php require_once("review/initialize_review.php"); ?>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+<script>
+    $(document).ready( function() {
+        $("table.fee-entry-table thead.fee-entry-table-header tr").prepend("<th>&nbsp;</th>");
+        $("table.fee-entry-table tbody tr").each( function( key, value ) {
+            var row = $(value);
+            if ( row.hasClass("sortable-codetype") ) {
+                row.prepend("<td class='grip'><img src='<?php echo $rootdir; ?>/../images/drag.png' width='16px'></td>");
+            } else {
+                row.prepend("<td>&nbsp;</td>");
+            }
+        });
+                
+        $("table.fee-entry-table tbody").sortable({
+            update: function(e, ui) {
+                if ( !ui.item.hasClass('sortable-codetype') ) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                if ( !ui.item.next().hasClass('sortable-codetype') ) {
+                    e.preventDefault();
+                    return;
+                }
+                    
+                var billCell = ui.item.attr('data-billcell');
+                var billCellSub = $("[data-billcell-sub=" + billCell + "]");
+                billCellSub.detach();
+                billCellSub.insertAfter(ui.item);
+            }
+        });
+        
+        $("td.grip").mouseover(function () {
+            $(this).parent().addClass("highlight");
+        });
+        $("td.grip").mouseout(function () {
+            $(this).parent().removeClass("highlight");
+        });
+        
+        $("input[name='bn_save']").click( function() {
+            debugger;
+           var i = 0;
+           var prev;
+           $("table.fee-entry-table td").parent().each( function( key, value ) {
+               var row = $(value);
+               if ( !prev || (!prev.attr('data-billcell') || prev.attr('data-billcell') !== row.attr('data-billcell-sub')) ) {
+                   i++;
+               }
+               row.find("input[name^=bill]").each( function( entryKey, entryValue) {
+                   var input = $(entryValue);
+                   var originalName = input.attr('name');
+                   var newName = originalName.replace( /(bill\[)([0-9]+)(.*)/, 
+                        function(a,b,c,d) { 
+                            return b + i + d; 
+                        } );
+                   input.attr('name', newName );
+               });
+               prev = row;
+           });
+           
+           
+        });
+        
+    });
+</script>

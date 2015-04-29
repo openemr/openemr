@@ -155,7 +155,7 @@ class Claim {
       "ON b.code_type = ct.ct_key " .
       "WHERE ct.ct_claim = '1' AND ct.ct_active = '1' AND " .
       "b.encounter = '{$this->encounter_id}' AND b.pid = '{$this->pid}' AND " .
-      "b.activity = '1' ORDER BY b.date, b.id";
+      "b.activity = '1' ORDER BY b.billing_order_seq ASC, b.date, b.id";
     $res = sqlStatement($sql);
     while ($row = sqlFetchArray($res)) {
       // Save all diagnosis codes.

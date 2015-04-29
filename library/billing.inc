@@ -15,7 +15,7 @@ function getBillingByPid ($pid, $cols = "*")
 
 function getBillingByEncounter ($pid,$encounter, $cols = "code_type, code, code_text")
 {
-    $res = sqlStatement("select $cols from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter,$pid) );
+    $res = sqlStatement("select $cols from billing where encounter = ? and pid=? and activity=1 order by billing_order_seq ASC, code_type, date ASC", array($encounter,$pid) );
 
     $all=array();
     for($iter=0; $row=sqlFetchArray($res); $iter++)
