@@ -440,7 +440,7 @@ class existingpatient {
             //D series for patient.
             case 'D1':
                     $query = "SELECT forms.encounter, forms.form_id, forms.id, forms.form_name, forms.formdir,forms.date AS fdate,
-                    form_encounter.date ,form_encounter.reason FROM forms LEFT OUTER JOIN form_encounter ON  forms.pid=form_encounter.pid
+                    form_encounter.date ,form_encounter.reason FROM forms LEFT OUTER JOIN form_encounter ON  forms.pid=form_encounter.pid AND forms.`form_id` = form_encounter.`id`  
                     WHERE forms.pid = ? AND forms.deleted=0 AND forms.formdir<>? GROUP BY id ORDER BY forms.encounter,fdate  ASC";
                     array_unshift($data[1],$pid);
                             return array($query,$data[1]);

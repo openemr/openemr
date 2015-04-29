@@ -4,7 +4,7 @@
 // The first level key is the displayed category name, and the second
 // level is the line_id for the database.  Be careful not to duplicate
 // these IDs!
-
+global $pelines;
 $pelines = array(
 	'GEN' => array(
 		'GENWELL'  => xl('Appearance')),
