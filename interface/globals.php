@@ -9,22 +9,6 @@ if (!defined('IS_WINDOWS'))
 //
 ini_set('session.gc_maxlifetime', '14400');
 
-/* If the includer didn't specify, assume they want us to "fake" register_globals. */
-if (!isset($fake_register_globals)) {
-	$fake_register_globals = TRUE;
-}
-
-/* Pages with "myadmin" in the URL don't need register_globals. */
-$fake_register_globals =
-	$fake_register_globals && (strpos($_SERVER['REQUEST_URI'],"myadmin") === FALSE);
-
-// Emulates register_globals = On.  Moved to here from the bottom of this file
-// to address security issues.  Need to change everything requiring this!
-if ($fake_register_globals) {
-  extract($_GET);
-  extract($_POST);
-}
-
 // This is for sanitization of all escapes.
 //  (ie. reversing magic quotes if it's set)
 if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
@@ -429,4 +413,22 @@ if (version_compare(phpversion(), "5.2.1", ">=")) {
 ini_set("session.bug_compat_warn","off");
 
 //////////////////////////////////////////////////////////////////
+
+/* If the includer didn't specify, assume they want us to "fake" register_globals. */
+if (!isset($fake_register_globals)) {
+	$fake_register_globals = TRUE;
+}
+
+/* Pages with "myadmin" in the URL don't need register_globals. */
+$fake_register_globals =
+	$fake_register_globals && (strpos($_SERVER['REQUEST_URI'],"myadmin") === FALSE);
+
+
+// Emulates register_globals = On.  Moved to the bottom of globals.php to prevent
+// overrides of any variables used during global setup.
+// EXTR_SKIP flag set to prevent overriding any variables defined earlier
+if ($fake_register_globals) {
+  extract($_GET,EXTR_SKIP);
+  extract($_POST,EXTR_SKIP);
+}
 ?>
