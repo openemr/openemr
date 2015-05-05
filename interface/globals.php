@@ -18,13 +18,6 @@ if (!isset($fake_register_globals)) {
 $fake_register_globals =
 	$fake_register_globals && (strpos($_SERVER['REQUEST_URI'],"myadmin") === FALSE);
 
-// Emulates register_globals = On.  Moved to here from the bottom of this file
-// to address security issues.  Need to change everything requiring this!
-if ($fake_register_globals) {
-  extract($_GET);
-  extract($_POST);
-}
-
 // This is for sanitization of all escapes.
 //  (ie. reversing magic quotes if it's set)
 if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
@@ -429,4 +422,11 @@ if (version_compare(phpversion(), "5.2.1", ">=")) {
 ini_set("session.bug_compat_warn","off");
 
 //////////////////////////////////////////////////////////////////
+
+// Emulates register_globals = On.  Moved to bottom of this file
+// to address security issues.  Need to change everything requiring this!
+if ($fake_register_globals) {
+  extract($_GET);
+  extract($_POST);
+}
 ?>
