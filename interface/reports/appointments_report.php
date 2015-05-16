@@ -16,6 +16,7 @@ require_once("$srcdir/formatting.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/formdata.inc.php";
 require_once "$srcdir/appointments.inc.php";
+require_once "$srcdir/clinical_rules.php";
 
 $alertmsg = ''; // not used yet but maybe later
 $patient = $_REQUEST['patient'];
@@ -49,6 +50,40 @@ $provider  = $_POST['form_provider'];
 $facility  = $_POST['form_facility'];  //(CHEMED) facility filter
 $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['form_orderby'] : 'date';
 
+// Reminders related stuff
+$incl_reminders = isset($_POST['incl_reminders']) ? 1 : 0;
+function fetch_rule_txt ($list_id, $option_id) {
+    $rs = sqlQuery('SELECT title, seq from list_options WHERE list_id=? AND option_id=?',
+            array($list_id, $option_id));
+    $rs['title'] = xl_list_label($rs['title']);
+    return $rs;
+}
+function fetch_reminders($pid, $appt_date) {
+    $rems = test_rules_clinic('','passive_alert',$appt_date,'reminders-due',$pid);
+    $seq_due = array();
+    $seq_cat = array();
+    $seq_act = array();
+    foreach ($rems as $ix => $rem) {
+        $rem_out = array();
+        $rule_txt = fetch_rule_txt ('rule_reminder_due_opt', $rem['due_status']);
+        $seq_due[$ix] = $rule_txt['seq'];
+        $rem_out['due_txt'] = $rule_txt['title'];
+        $rule_txt = fetch_rule_txt ('rule_action_category', $rem['category']);
+        $seq_cat[$ix] = $rule_txt['seq'];
+        $rem_out['cat_txt'] = $rule_txt['title'];
+        $rule_txt = fetch_rule_txt ('rule_action', $rem['item']);
+        $seq_act[$ix] = $rule_txt['seq'];
+        $rem_out['act_txt'] = $rule_txt['title'];
+        $rems_out[$ix] = $rem_out;
+    }
+    array_multisort($seq_due, SORT_DESC, $seq_cat, SORT_ASC, $seq_act, SORT_ASC, $rems_out);
+    $rems = array();
+    foreach ($rems_out as $ix => $rem) {
+        $rems[$rem['due_txt']] .= (isset($rems[$rem['due_txt']]) ? ', ':'').
+            $rem['act_txt'].' '.$rem['cat_txt'];
+    }
+    return $rems;
+}
 ?>
 
 <html>
@@ -160,11 +195,7 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
 				}
 
 				echo "   </select>\n";
-
-				?></td>
-				<td><input type='checkbox' name='form_show_available'
-					title='<?php xl('Show Available Times','e'); ?>'
-					<?php  if ( $show_available_times ) echo ' checked'; ?>> <?php  xl( 'Show Available Times','e' ); ?>
+                ?>
 				</td>
 			</tr>
 			<tr>
@@ -208,10 +239,21 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
                                     </select>
                                 </td>
 			</tr>
+			<tr>
+			    <td></td>
+				<td><input type='checkbox' name='form_show_available'
+					<?php  if ( $show_available_times ) echo ' checked'; ?>> <?php  xl( 'Show Available Times','e' ); ?>
+				</td>
+			    <td></td>
+                <td><input type="checkbox" name="incl_reminders" id="incl_reminders" 
+                    <?php echo ($incl_reminders ? ' checked':''); ?>>
+                    <?php xl('Show Reminders','e'); ?></td>
 			
 			<tr>
-				<td colspan="2"><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php if($chk_with_out_provider) echo "checked";?>>&nbsp;<?php xl('Without Provider','e'); ?></td>
-				<td colspan="2"><input type="checkbox" name="with_out_facility" id="with_out_facility" <?php if($chk_with_out_facility) echo "checked";?>>&nbsp;<?php xl('Without Facility','e'); ?></td>
+			    <td></td>
+				<td><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php if($chk_with_out_provider) echo "checked";?>>&nbsp;<?php xl('Without Provider','e'); ?></td>
+			    <td></td>
+				<td><input type="checkbox" name="with_out_facility" id="with_out_facility" <?php if($chk_with_out_facility) echo "checked";?>>&nbsp;<?php xl('Without Facility','e'); ?></td>
 			</tr>
 			
 		</table>
@@ -243,6 +285,7 @@ $form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['fo
 </div>
 <!-- end of search parameters --> <?php
 if ($_POST['form_refresh'] || $_POST['form_orderby']) {
+	$showDate = ($from_date != $to_date) || (!$to_date);
 	?>
 <div id="report_results">
 <table>
@@ -252,7 +295,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 	<?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>><?php  xl('Provider','e'); ?>
 		</a></th>
 
-		<th><a href="nojs.php" onclick="return dosort('date')"
+		<th <?php echo $showDate ? '' : 'style="display:none;"' ?>><a href="nojs.php" onclick="return dosort('date')"
 	<?php if ($form_orderby == "date") echo " style=\"color:#00cc00\"" ?>><?php  xl('Date','e'); ?></a>
 		</th>
 
@@ -279,11 +322,11 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 		<th><a href="nojs.php" onclick="return dosort('status')"
 			<?php if ($form_orderby == "status") echo " style=\"color:#00cc00\"" ?>><?php  xl('Status','e'); ?></a>
 		</th>
-
+	<?php if (FALSE) { // mdsupport - Comments column is removed ?>
 		<th><a href="nojs.php" onclick="return dosort('comment')"
 	<?php if ($form_orderby == "comment") echo " style=\"color:#00cc00\"" ?>><?php  xl('Comment','e'); ?></a>
 		</th>
-
+	<?php } // mdsupport - end change ?>
 	</thead>
 	<tbody>
 		<!-- added for better print-ability -->
@@ -333,11 +376,11 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
 		?>
 
-	<tr bgcolor='<?php echo $bgcolor ?>'>
-		<td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : $docname ?>
+        <tr valign='top' id='p1.<?php echo $patient_id ?>' bgcolor='<?php echo $bgcolor ?>'>
+        <td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : $docname ?>
 		</td>
 
-		<td class="detail"><?php echo oeFormatShortDate($appointment['pc_eventDate']) ?>
+		<td class="detail" <?php echo $showDate ? '' : 'style="display:none;"' ?>><?php echo oeFormatShortDate($appointment['pc_eventDate']) ?>
 		</td>
 
 		<td class="detail"><?php echo oeFormatTime($appointment['pc_startTime']) ?>
@@ -364,12 +407,32 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 				}
 			?>
 		</td>
-
-		<td class="detail">&nbsp;<?php echo text($appointment['pc_hometext']) ?></td>
-
 	</tr>
-
+    
+    <?php if ($patient_id) { // Not display of available slot ?> 
+	<tr valign='top' id='p2.<?php echo $patient_id ?>' >
+	   <td colspan=<?php echo $showDate ? '"3"' : '"2"' ?> class="detail" />
+	   <td colspan=<?php echo ($incl_reminders ? "3":"6") ?> class="detail" align='left'>
+		<?php
+		if (trim($appointment['pc_hometext'])) {
+            echo '<b>'.xl('Comments') .'</b>: '.$appointment['pc_hometext'];
+		}
+		if ($incl_reminders) {
+            echo "<td class='detail' colspan='3' align='left'>";
+            $rems = fetch_reminders ($patient_id, $appointment['pc_eventDate']);
+            $new_line = '';
+            foreach ($rems as $rem_due => $rem_items) {
+                echo "$new_line<b>$rem_due</b>: ".$rem_items;
+                $new_line = '<br>';
+            }
+            echo "</td>";
+        }
+        ?>
+        </td>
+	</tr>
 	<?php
+    } // End of row 2 display
+    
 	$lastdocname = $docname;
 	}
 	// assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
@@ -413,4 +476,3 @@ if ($alertmsg) { echo " alert('$alertmsg');\n"; }
 </script>
 
 </html>
-
