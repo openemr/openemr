@@ -322,11 +322,6 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 		<th><a href="nojs.php" onclick="return dosort('status')"
 			<?php if ($form_orderby == "status") echo " style=\"color:#00cc00\"" ?>><?php  xl('Status','e'); ?></a>
 		</th>
-	<?php if (FALSE) { // mdsupport - Comments column is removed ?>
-		<th><a href="nojs.php" onclick="return dosort('comment')"
-	<?php if ($form_orderby == "comment") echo " style=\"color:#00cc00\"" ?>><?php  xl('Comment','e'); ?></a>
-		</th>
-	<?php } // mdsupport - end change ?>
 	</thead>
 	<tbody>
 		<!-- added for better print-ability -->
@@ -409,7 +404,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 		</td>
 	</tr>
     
-    <?php if ($patient_id) { // Not display of available slot ?> 
+    <?php if ($patient_id && ($incl_reminders || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?> 
 	<tr valign='top' id='p2.<?php echo $patient_id ?>' >
 	   <td colspan=<?php echo $showDate ? '"3"' : '"2"' ?> class="detail" />
 	   <td colspan=<?php echo ($incl_reminders ? "3":"6") ?> class="detail" align='left'>
