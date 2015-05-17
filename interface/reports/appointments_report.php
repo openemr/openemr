@@ -403,8 +403,12 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 			?>
 		</td>
 	</tr>
-    
-    <?php if ($patient_id && ($incl_reminders || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?> 
+
+    <?php if ($patient_id && $incl_reminders) {
+        // collect reminders first, so can skip it if empty
+        $rems = fetch_reminders ($patient_id, $appointment['pc_eventDate']);
+    } ?>
+    <?php if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
 	<tr valign='top' id='p2.<?php echo $patient_id ?>' >
 	   <td colspan=<?php echo $showDate ? '"3"' : '"2"' ?> class="detail" />
 	   <td colspan=<?php echo ($incl_reminders ? "3":"6") ?> class="detail" align='left'>
@@ -414,7 +418,6 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 		}
 		if ($incl_reminders) {
             echo "<td class='detail' colspan='3' align='left'>";
-            $rems = fetch_reminders ($patient_id, $appointment['pc_eventDate']);
             $new_line = '';
             foreach ($rems as $rem_due => $rem_items) {
                 echo "$new_line<b>$rem_due</b>: ".$rem_items;
