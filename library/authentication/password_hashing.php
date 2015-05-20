@@ -51,7 +51,7 @@ function oemr_password_salt()
     $Allowed_Chars ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./';
     $Chars_Len = 63;
 
-    $Salt_Length = 21;
+    $Salt_Length = 22;
 
     $salt = "";
     
@@ -84,6 +84,7 @@ function oemr_password_salt()
  * This function either uses the built in PHP crypt() function, or sha1() depending
  * on a prefix in the salt.  This on systems without a strong enough built in algorithm
  * for crypt(), sha1() can be used as a fallback.
+ * If the crypt function returns an error or illegal hash, then will die.
  * </pre>
  * 
  * @param type $plaintext
@@ -98,8 +99,16 @@ function oemr_password_hash($plaintext,$salt)
         return SALT_PREFIX_SHA1 . sha1($salt.$plaintext);
     }
     else { // Otherwise use PHP crypt()
-        
-        return crypt($plaintext,$salt);
+        $crypt_return = crypt($plaintext,$salt);
+        if ( ($crypt_return == '*0') || ($crypt_return == '*1') || (strlen($crypt_return) < 6) ) {
+            // Error code returned by crypt or not hash, so die
+            error_log("FATAL ERROR: crypt() function is not working correctly in OpenEMR");
+            die("FATAL ERROR: crypt() function is not working correctly in OpenEMR");
+        }
+        else {
+            // Hash confirmed, so return the hash.
+            return $crypt_return;
+        }
     }
 }
 ?>
