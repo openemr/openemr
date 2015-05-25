@@ -1,3 +1,9 @@
+openemr (4.2.0-2) stable; urgency=low
+
+  * Security fix (patch number 3).
+
+ -- Brady Miller <brady@sparmy.com>  Mon, 25 May 2015 13:09:11 -0700
+
 openemr (4.2.0-1) stable; urgency=low
 
   * Fixes to work with Zend:
