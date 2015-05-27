@@ -6,9 +6,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
+
 require_once("api/PreBillingIssuesAPI.php");
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/htmlspecialchars.inc.php");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // main
@@ -39,7 +43,7 @@ function computeReport() {
     <head>
         <?php if (function_exists('html_header_show')) html_header_show(); ?>
         <link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
-        <title><?php xl('Pre-billing Issues Report', 'e') ?></title>
+        <title><?php xla('Pre-billing Issues Report', 'e') ?></title>
         <style type="text/css">
             .highlight {
                 color: white;
@@ -109,7 +113,7 @@ function computeReport() {
                     );
                 });
                 
-                $(".reportrow").attr('title', '<?php echo xl('Click through to correct this record', 'e') ?>');
+                $(".reportrow").attr('title', '<?php echo xla('Click through to correct this record', 'e') ?>');
             });
 
         </script>
@@ -118,111 +122,111 @@ function computeReport() {
 </head>
 
 <body class="body_top">
-    <span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Pre-billing Issues', 'e'); ?></span>
+    <span class='title'><?php xla('Report', 'e'); ?> - <?php xla('Pre-billing Issues', 'e'); ?></span>
     
     <p>
-        <?php xl('Use this report to discover billing errors. You may click through each row to drill into the record that requires an update.', 'e') ?>
+        <?php xla('Use this report to discover billing errors. You may click through each row to drill into the record that requires an update.', 'e') ?>
     </p>
 
-    <h5><?php xl('Encounters without rendering provider', 'e') ?></h5>
+    <h5><?php xla('Encounters without rendering provider', 'e') ?></h5>
     <div id="report_results">
         <table>
             <thead>
-               <th>&nbsp;<?php xl('Patient Name','e')?></th>
-               <th>&nbsp;<?php xl('Encounter Date','e')?></th>
+               <th>&nbsp;<?php xla('Patient Name','e')?></th>
+               <th>&nbsp;<?php xla('Encounter Date','e')?></th>
             </thead>
 
             <?php foreach ($reportData['encountersMissingProvider'] as $index => $row) { ?>
                 <tr class='encrow reportrow' 
                     bgcolor='<?php echo $index % 2 == 0 ? "#ffdddd" : "#ddddff" ?>'
-                    pid='<?php echo $row['Pt ID'] ?>' 
-                    pubpid='<?php echo $row['Pub Pt ID'] ?>' 
-                    pname='<?php echo $row['LName'] . ', ' . $row['FName'] ?>' 
-                    encid='<?php echo htmlspecialchars(oeFormatShortDate($row['Enc ID']), ENT_QUOTES) ?>'
-                    encdate='<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date']))), ENT_QUOTES) ?>'
-                    pdob='<?php echo $row['Pt DOB'] ?>' 
+                    pid='<?php echo attr($row['Pt ID']) ?>' 
+                    pubpid='<?php echo attr($row['Pub Pt ID']) ?>' 
+                    pname='<?php echo attr($row['LName'] . ', ' . $row['FName']) ?>' 
+                    encid='<?php echo attr(oeFormatShortDate($row['Enc ID'])) ?>'
+                    encdate='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date'])))) ?>'
+                    pdob='<?php echo attr($row['Pt DOB']) ?>' 
                 >
-                    <td class='detail'><?php echo $row['LName'] . ', ' . $row['FName'] ?></td>
+                    <td class='detail'><?php echo attr($row['LName'] . ', ' . $row['FName']) ?></td>
                     <td class='detail'><?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date']))), ENT_QUOTES) ?></td>
                 </tr>
             <?php } ?>
         </table>
 
-        <h5><?php xl('Incomplete patient insurance subscriber fields', 'e') ?></h5>
+        <h5><?php xla('Incomplete patient insurance subscriber fields', 'e') ?></h5>
         <table>
             <thead>
-               <th>&nbsp;<?php xl('Patient Name','e')?></th>
-               <th>&nbsp;<?php xl('Insurance Type','e')?></th>
-               <th>&nbsp;<?php xl('Subscriber Relationship','e')?></th>
-               <th>&nbsp;<?php xl('Errors','e')?></th>            
+               <th>&nbsp;<?php xla('Patient Name','e')?></th>
+               <th>&nbsp;<?php xla('Insurance Type','e')?></th>
+               <th>&nbsp;<?php xla('Subscriber Relationship','e')?></th>
+               <th>&nbsp;<?php xla('Errors','e')?></th>            
             </thead>
             
             <?php foreach ($reportData['patientInsuranceMissingSubscriberFields'] as $index => $row) { ?>
                 <tr class='ptrow reportrow' 
                     bgcolor='<?php echo $index % 2 == 0 ? "#ffdddd" : "#ddddff" ?>'
-                    pid='<?php echo $row['Pt ID'] ?>' 
-                    pubpid='<?php echo $row['Pub Pt ID'] ?>' 
-                    pname='<?php echo $row['LName'] . ', ' . $row['FName'] ?>' 
-                    encid='<?php echo htmlspecialchars($row['Enc ID'], ENT_QUOTES) ?>'
-                    encdate='<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date']))), ENT_QUOTES) ?>'
-                    pdob='<?php echo oeFormatShortDate($row['Pt DOB']) ?>' 
+                    pid='<?php echo attr($row['Pt ID']) ?>' 
+                    pubpid='<?php echo attr($row['Pub Pt ID']) ?>' 
+                    pname='<?php echo attr($row['LName'] . ', ' . $row['FName']) ?>' 
+                    encid='<?php echo attr($row['Enc ID']) ?>'
+                    encdate='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date'])))) ?>'
+                    pdob='<?php echo attr(oeFormatShortDate($row['Pt DOB'])) ?>' 
                 >
-                    <td class='detail'><?php echo $row['LName'] . ', ' . $row['FName'] ?></td>
-                    <td class='detail'><?php echo $row['Insurance Type'] ?></td>
-                    <td class='detail'><?php echo $row['Subscriber Relationship'] ?></td>
+                    <td class='detail'><?php echo attr($row['LName'] . ', ' . $row['FName']) ?></td>
+                    <td class='detail'><?php echo attr($row['Insurance Type']) ?></td>
+                    <td class='detail'><?php echo attr($row['Subscriber Relationship']) ?></td>
                     <td class='detail'>
                         <?php foreach ($row['decodedErrors'] as $error) { ?>
-                            <?php echo xl($error, 'e') ?> <br>
+                            <?php echo xla($error, 'e') ?> <br>
                         <?php } ?>
                     </td>                    
                 </tr>
             <?php } ?>
         </table>
 
-        <h5><?php xl('Incomplete patient insurance missing subscriber relationship', 'e') ?></h5>
+        <h5><?php xla('Incomplete patient insurance missing subscriber relationship', 'e') ?></h5>
         <table>
             <thead>
-               <th>&nbsp;<?php xl('Patient Name','e')?></th>
-               <th>&nbsp;<?php xl('Insurance Type','e')?></th>
+               <th>&nbsp;<?php xla('Patient Name','e')?></th>
+               <th>&nbsp;<?php xla('Insurance Type','e')?></th>
             </thead>
             <?php foreach ($reportData['patientInsuranceMissingSubscriberRelationship'] as $index => $row) { ?>
                 <tr class='ptrow reportrow' 
                     bgcolor='<?php echo $index % 2 == 0 ? "#ffdddd" : "#ddddff" ?>'
-                    pid='<?php echo $row['Pt ID'] ?>' 
-                    pubpid='<?php echo $row['Pub Pt ID'] ?>' 
-                    pname='<?php echo $row['LName'] . ', ' . $row['FName'] ?>' 
-                    encid='<?php echo htmlspecialchars($row['Enc ID'], ENT_QUOTES) ?>'
-                    encdate='<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date']))), ENT_QUOTES) ?>'
-                    pdob='<?php echo oeFormatShortDate($row['Pt DOB']) ?>' 
+                    pid='<?php echo attr($row['Pt ID']) ?>' 
+                    pubpid='<?php echo attr($row['Pub Pt ID']) ?>' 
+                    pname='<?php echo attr($row['LName'] . ', ' . $row['FName']) ?>' 
+                    encid='<?php echo attr($row['Enc ID']) ?>'
+                    encdate='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date'])))) ?>'
+                    pdob='<?php echo attr(oeFormatShortDate($row['Pt DOB'])) ?>' 
                 >
-                    <td class='detail'><?php echo $row['LName'] . ', ' . $row['FName'] ?></td>
-                    <td class='detail'><?php echo $row['Insurance Type'] ?></td>
+                    <td class='detail'><?php echo attr($row['LName'] . ', ' . $row['FName']) ?></td>
+                    <td class='detail'><?php echo attr($row['Insurance Type']) ?></td>
                 </tr>
             <?php } ?>
         </table>
 
-        <h5><?php xl('Incomplete patient insurance', 'e') ?></h5>
+        <h5><?php xla('Incomplete patient insurance', 'e') ?></h5>
         <table>
             <thead>
-               <th>&nbsp;<?php xl('Patient Name','e')?></th>
-               <th>&nbsp;<?php xl('Insurance Type','e')?></th>
-               <th>&nbsp;<?php xl('Errors','e')?></th>
+               <th>&nbsp;<?php xla('Patient Name','e')?></th>
+               <th>&nbsp;<?php xla('Insurance Type','e')?></th>
+               <th>&nbsp;<?php xla('Errors','e')?></th>
             </thead>            
             <?php foreach ($reportData['patientInsuranceMissingInsuranceFields'] as $index => $row) { ?>
                 <tr class='ptrow reportrow' 
                     bgcolor='<?php echo $index % 2 == 0 ? "#ffdddd" : "#ddddff" ?>'
-                    pid='<?php echo $row['Pt ID'] ?>' 
-                    pubpid='<?php echo $row['Pub Pt ID'] ?>' 
-                    pname='<?php echo $row['LName'] . ', ' . $row['FName'] ?>' 
-                    encid='<?php echo htmlspecialchars($row['Enc ID'], ENT_QUOTES) ?>'
-                    encdate='<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date']))), ENT_QUOTES) ?>'
-                    pdob='<?php echo oeFormatShortDate($row['Pt DOB']) ?>' 
+                    pid='<?php echo attr($row['Pt ID']) ?>' 
+                    pubpid='<?php echo attr($row['Pub Pt ID']) ?>' 
+                    pname='<?php echo attr($row['LName'] . ', ' . $row['FName']) ?>' 
+                    encid='<?php echo attr($row['Enc ID']) ?>'
+                    encdate='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date'])))) ?>'
+                    pdob='<?php echo attr(oeFormatShortDate($row['Pt DOB'])) ?>' 
                 >
-                    <td class='detail'><?php echo $row['LName'] . ', ' . $row['FName'] ?></td>
-                    <td class='detail'><?php echo $row['Insurance Type'] ?></td>
+                    <td class='detail'><?php echo attr($row['LName'] . ', ' . $row['FName']) ?></td>
+                    <td class='detail'><?php echo attr($row['Insurance Type']) ?></td>
                     <td class='detail'>
                         <?php foreach ($row['decodedErrors'] as $error) { ?>
-                            <?php echo xl($error, 'e') ?> <br>
+                            <?php echo xla($error, 'e') ?> <br>
                         <?php } ?>
                     </td>
                 </tr>
