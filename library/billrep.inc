@@ -104,7 +104,7 @@
             "LEFT OUTER JOIN claims on claims.patient_id = form_encounter.pid and claims.encounter_id = form_encounter.encounter " .
             "LEFT OUTER JOIN insurance_data on insurance_data.pid = form_encounter.pid and insurance_data.type = 'primary' ".
             "WHERE 1=1 $query_part  " . " $auth " ." $billstring " .
-            "ORDER BY form_encounter.encounter, form_encounter.pid, billing.code_type, billing.code ASC";
+            "ORDER BY form_encounter.encounter, form_encounter.pid, billing.billing_order_seq ASC, billing.code_type, billing.code ASC";
             //echo $sql;
         $res = sqlStatement($sql,array($code_type));
         $all = False;
