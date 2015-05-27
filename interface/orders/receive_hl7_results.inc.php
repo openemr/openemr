@@ -566,6 +566,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       } // end results-only/MDM logic
     }
 
+    else if ('PD1' == $a[0]) {
+      // TBD: Save primary care provider name ($a[4]) somewhere?
+    }
+
     else if ('PV1' == $a[0]) {
       if ('ORU' == $msgtype) {
         // Save placer encounter number if present.
@@ -841,7 +845,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       else if ($a[2] == 'SN') {
         $ares['result'] = trim(str_replace($d2, ' ', $a[5]));
       }
-      else if (strlen($a[5]) > 200) {
+      else if ($a[2] == 'TX' || strlen($a[5]) > 200) {
         // OBX-5 can be a very long string of text with "~" as line separators.
         // The first line of comments is reserved for such things.
         $ares['result_data_type'] = 'L';
