@@ -29,7 +29,7 @@ $is_due_pt      = false;
 $is_all         = false;
 
 function getInsName($payerid) {
-  $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = '$payerid'");
+  $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", array($payerid));
   return $tmp['name'];
 }
 
@@ -57,7 +57,7 @@ else {
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<title><?php xl('Aging Report','e')?></title>
+<title><?php echo xlt('Aging Report')?></title>
 <style type="text/css">
 
 @media print {
@@ -88,7 +88,7 @@ else {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Aging','e'); ?></span>
+<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Aging'); ?></span>
 
 <form method='post' action='aging_report.php' enctype='multipart/form-data' id='theform'>
 
@@ -109,35 +109,35 @@ else {
 
 					<tr>
 						<td class='label'>
-						   <?php xl('Service Date','e'); ?>:
+						   <?php echo xlt('Service Date'); ?>:
 						</td>
 						<td>
 						   <input type='text' name='form_date' id="form_date" size='10' value='<?php echo $form_date ?>'
 							onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 						   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
 							id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-							title='<?php xl('Click here to choose a date','e'); ?>'>
+							title='<?php echo xla('Click here to choose a date'); ?>'>
 						</td>
 						<td class='label'>
-						   <?php xl('To','e'); ?>:
+						   <?php echo xlt('To'); ?>:
 						</td>
 						<td>
 						   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
 							onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 						   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
 							id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-							title='<?php xl('Click here to choose a date','e'); ?>'>
+							title='<?php echo xla('Click here to choose a date'); ?>'>
 						</td>
 					</tr>
 
 					<tr>
 						<td class='label'>
-						   <?php xl('Category','e'); ?>:
+						   <?php echo xlt('Category'); ?>:
 						</td>
                                                 <td>
                                                     <select name='form_aging_category'>
                                                         <?php
-                                                         foreach (array('all' => xl('All'),'payor' => xl('Payor'), 'facility' => xl('Facility')) as $key => $value) {
+                                                         foreach (array('all' => xla('All'),'payor' => xla('Payor'), 'facility' => xla('Facility')) as $key => $value) {
                                                           echo "    <option value='$key'";
                                                           if ($_POST['form_aging_category'] == $key) echo " selected";
                                                           echo ">$value</option>\n";
@@ -162,19 +162,19 @@ else {
 				<div style='margin-left:15px'>
 					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
 					<span>
-						<?php xl('Submit','e'); ?>
+						<?php echo xlt('Submit'); ?>
 					</span>
 					</a>
 
 					<?php if ($_POST['form_refresh']) { ?>
 					<a href='#' class='css_button' onclick='window.print()'>
 						<span>
-							<?php xl('Print','e'); ?>
+							<?php echo xlt('Print'); ?>
 						</span>
 					</a>
                                         <a href='#' class='css_button' onclick='export_csv()'>
 						<span>
-							<?php xl('Export as CSV','e'); ?>
+							<?php echo xlt('Export as CSV'); ?>
 						</span>
 					</a>
 					<?php } ?>
@@ -373,9 +373,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 <table>
 
  <thead>
-    <th>&nbsp;<?php xl('Name','e')?></th>
-    <th>&nbsp;<?php xl('Average age (days) - Date of Service','e')?></th>
-    <th>&nbsp;<?php xl('Average age (days) - Last Activity Date','e')?></th>
+    <th>&nbsp;<?php echo xlt('Name')?></th>
+    <th>&nbsp;<?php echo xlt('Average age (days) - Date of Service')?></th>
+    <th>&nbsp;<?php echo xlt('Average age (days) - Last Activity Date')?></th>
 </thead>
 
 <?php
@@ -459,9 +459,9 @@ if ( $form_aging_category == 'all' ) {
       echo '"' . $allAccumulator['averageLAD']     . '"' . "\n";
   } else {
     ?><tr bgcolor='<?php echo $bgcolor ?>'>
-          <td class='detail'><?php xl('All','e')?></td>
-          <td class='detail'><?php echo $allAccumulator['averageDOS'] ?></td>
-          <td class='detail'><?php echo $allAccumulator['averageLAD'] ?></td>
+          <td class='detail'><?php echo xlt('All')?></td>
+          <td class='detail'><?php echo text($allAccumulator['averageDOS']) ?></td>
+          <td class='detail'><?php echo text($allAccumulator['averageLAD']) ?></td>
     </tr><?php   
   }
 }
@@ -476,9 +476,9 @@ if ( $form_aging_category == 'payor' ) {
       } else {
           $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
           ?><tr bgcolor='<?php echo $bgcolor ?>'>
-              <td class='detail'><?php echo $payor ?></td>
-              <td class='detail'><?php echo $payorInfo['averageDOS'] ?></td>
-              <td class='detail'><?php echo $payorInfo['averageLAD'] ?></td>
+              <td class='detail'><?php echo text($payor) ?></td>
+              <td class='detail'><?php echo text($payorInfo['averageDOS']) ?></td>
+              <td class='detail'><?php echo text($payorInfo['averageLAD']) ?></td>
           </tr><?php    
       }
   }
@@ -495,8 +495,8 @@ if ( $form_aging_category == 'facility' ) {
           $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
           ?><tr bgcolor='<?php echo $bgcolor ?>'>
               <td class='detail'><?php echo $facility ?></td>
-              <td class='detail'><?php echo $facilityInfo['averageDOS'] ?></td>
-              <td class='detail'><?php echo $facilityInfo['averageLAD'] ?></td>
+              <td class='detail'><?php echo text($facilityInfo['averageDOS']) ?></td>
+              <td class='detail'><?php echo text($facilityInfo['averageLAD']) ?></td>
           </tr><?php    
       }
   }
