@@ -12,7 +12,6 @@ $sanitize_all_escapes=true;
 require_once("api/PreBillingIssuesAPI.php");
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/htmlspecialchars.inc.php");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // main
@@ -43,7 +42,7 @@ function computeReport() {
     <head>
         <?php if (function_exists('html_header_show')) html_header_show(); ?>
         <link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
-        <title><?php xla('Pre-billing Issues Report', 'e') ?></title>
+        <title><?php echo xlt('Pre-billing Issues Report') ?></title>
         <style type="text/css">
             .highlight {
                 color: white;
@@ -113,7 +112,7 @@ function computeReport() {
                     );
                 });
                 
-                $(".reportrow").attr('title', '<?php echo xla('Click through to correct this record', 'e') ?>');
+                $(".reportrow").attr('title', '<?php echo xla('Click through to correct this record') ?>');
             });
 
         </script>
@@ -122,18 +121,18 @@ function computeReport() {
 </head>
 
 <body class="body_top">
-    <span class='title'><?php xla('Report', 'e'); ?> - <?php xla('Pre-billing Issues', 'e'); ?></span>
+    <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Pre-billing Issues'); ?></span>
     
     <p>
-        <?php xla('Use this report to discover billing errors. You may click through each row to drill into the record that requires an update.', 'e') ?>
+        <?php echo xlt('Use this report to discover billing errors. You may click through each row to drill into the record that requires an update.') ?>
     </p>
 
-    <h5><?php xla('Encounters without rendering provider', 'e') ?></h5>
+    <h5><?php echo xlt('Encounters without rendering provider') ?></h5>
     <div id="report_results">
         <table>
             <thead>
-               <th>&nbsp;<?php xla('Patient Name','e')?></th>
-               <th>&nbsp;<?php xla('Encounter Date','e')?></th>
+               <th>&nbsp;<?php echo xlt('Patient Name')?></th>
+               <th>&nbsp;<?php echo xlt('Encounter Date')?></th>
             </thead>
 
             <?php foreach ($reportData['encountersMissingProvider'] as $index => $row) { ?>
@@ -146,19 +145,19 @@ function computeReport() {
                     encdate='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date'])))) ?>'
                     pdob='<?php echo attr($row['Pt DOB']) ?>' 
                 >
-                    <td class='detail'><?php echo attr($row['LName'] . ', ' . $row['FName']) ?></td>
+                    <td class='detail'><?php echo text($row['LName'] . ', ' . $row['FName']) ?></td>
                     <td class='detail'><?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date']))), ENT_QUOTES) ?></td>
                 </tr>
             <?php } ?>
         </table>
 
-        <h5><?php xla('Incomplete patient insurance subscriber fields', 'e') ?></h5>
+        <h5><?php echo xla('Incomplete patient insurance subscriber fields') ?></h5>
         <table>
             <thead>
-               <th>&nbsp;<?php xla('Patient Name','e')?></th>
-               <th>&nbsp;<?php xla('Insurance Type','e')?></th>
-               <th>&nbsp;<?php xla('Subscriber Relationship','e')?></th>
-               <th>&nbsp;<?php xla('Errors','e')?></th>            
+               <th>&nbsp;<?php echo xlt('Patient Name')?></th>
+               <th>&nbsp;<?php echo xlt('Insurance Type')?></th>
+               <th>&nbsp;<?php echo xlt('Subscriber Relationship')?></th>
+               <th>&nbsp;<?php echo xlt('Errors')?></th>            
             </thead>
             
             <?php foreach ($reportData['patientInsuranceMissingSubscriberFields'] as $index => $row) { ?>
@@ -171,23 +170,23 @@ function computeReport() {
                     encdate='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date'])))) ?>'
                     pdob='<?php echo attr(oeFormatShortDate($row['Pt DOB'])) ?>' 
                 >
-                    <td class='detail'><?php echo attr($row['LName'] . ', ' . $row['FName']) ?></td>
-                    <td class='detail'><?php echo attr($row['Insurance Type']) ?></td>
-                    <td class='detail'><?php echo attr($row['Subscriber Relationship']) ?></td>
+                    <td class='detail'><?php echo text($row['LName'] . ', ' . $row['FName']) ?></td>
+                    <td class='detail'><?php echo text($row['Insurance Type']) ?></td>
+                    <td class='detail'><?php echo text($row['Subscriber Relationship']) ?></td>
                     <td class='detail'>
                         <?php foreach ($row['decodedErrors'] as $error) { ?>
-                            <?php echo xla($error, 'e') ?> <br>
+                            <?php echo xlt($error) ?> <br>
                         <?php } ?>
                     </td>                    
                 </tr>
             <?php } ?>
         </table>
 
-        <h5><?php xla('Incomplete patient insurance missing subscriber relationship', 'e') ?></h5>
+        <h5><?php echo xlt('Incomplete patient insurance missing subscriber relationship') ?></h5>
         <table>
             <thead>
-               <th>&nbsp;<?php xla('Patient Name','e')?></th>
-               <th>&nbsp;<?php xla('Insurance Type','e')?></th>
+               <th>&nbsp;<?php echo xlt('Patient Name')?></th>
+               <th>&nbsp;<?php echo xlt('Insurance Type')?></th>
             </thead>
             <?php foreach ($reportData['patientInsuranceMissingSubscriberRelationship'] as $index => $row) { ?>
                 <tr class='ptrow reportrow' 
@@ -199,18 +198,18 @@ function computeReport() {
                     encdate='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date'])))) ?>'
                     pdob='<?php echo attr(oeFormatShortDate($row['Pt DOB'])) ?>' 
                 >
-                    <td class='detail'><?php echo attr($row['LName'] . ', ' . $row['FName']) ?></td>
-                    <td class='detail'><?php echo attr($row['Insurance Type']) ?></td>
+                    <td class='detail'><?php echo text($row['LName'] . ', ' . $row['FName']) ?></td>
+                    <td class='detail'><?php echo text($row['Insurance Type']) ?></td>
                 </tr>
             <?php } ?>
         </table>
 
-        <h5><?php xla('Incomplete patient insurance', 'e') ?></h5>
+        <h5><?php echo xlt('Incomplete patient insurance') ?></h5>
         <table>
             <thead>
-               <th>&nbsp;<?php xla('Patient Name','e')?></th>
-               <th>&nbsp;<?php xla('Insurance Type','e')?></th>
-               <th>&nbsp;<?php xla('Errors','e')?></th>
+               <th>&nbsp;<?php echo xlt('Patient Name')?></th>
+               <th>&nbsp;<?php echo xlt('Insurance Type')?></th>
+               <th>&nbsp;<?php echo xlt('Errors')?></th>
             </thead>            
             <?php foreach ($reportData['patientInsuranceMissingInsuranceFields'] as $index => $row) { ?>
                 <tr class='ptrow reportrow' 
@@ -222,11 +221,11 @@ function computeReport() {
                     encdate='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['Encounter Date'])))) ?>'
                     pdob='<?php echo attr(oeFormatShortDate($row['Pt DOB'])) ?>' 
                 >
-                    <td class='detail'><?php echo attr($row['LName'] . ', ' . $row['FName']) ?></td>
-                    <td class='detail'><?php echo attr($row['Insurance Type']) ?></td>
+                    <td class='detail'><?php echo text($row['LName'] . ', ' . $row['FName']) ?></td>
+                    <td class='detail'><?php echo text($row['Insurance Type']) ?></td>
                     <td class='detail'>
                         <?php foreach ($row['decodedErrors'] as $error) { ?>
-                            <?php echo xla($error, 'e') ?> <br>
+                            <?php echo xlt($error) ?> <br>
                         <?php } ?>
                     </td>
                 </tr>

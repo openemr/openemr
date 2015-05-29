@@ -87,9 +87,9 @@ function out($text) {
  * PHP that includes / requires this file.  Either that, or write reasonable
  * documentation and clean up the name.
  */
-function hsc_private_xl_or_warn($key,$mode='r',$prepend='',$append='') {
+function hsc_private_xl_or_warn($key) {
 	if (function_exists('xl')) {
-		return xl($key,$mode,$prepend,$append);
+		return xl($key);
 	} else {
 		trigger_error(
 			'Translation via xl() was requested, but the xl()'
@@ -107,8 +107,8 @@ function hsc_private_xl_or_warn($key,$mode='r',$prepend='',$append='') {
  *                    or ">".
  * @return string The string, with "&", "<", and ">" escaped.
  */
-function xlt($key,$mode='r',$prepend='',$append='') {
-	return text(hsc_private_xl_or_warn($key,$mode,$prepend,$append));
+function xlt($key) {
+	return text(hsc_private_xl_or_warn($key));
 }
 
 /**
@@ -118,15 +118,15 @@ function xlt($key,$mode='r',$prepend='',$append='') {
  *                    (>), ('), and (").
  * @return string The string, with (&), (<), (>), ("), and (') escaped.
  */
-function xla($key,$mode='r',$prepend='',$append='') {
-	return attr(hsc_private_xl_or_warn($key,$mode,$prepend,$append));
+function xla($key) {
+	return attr(hsc_private_xl_or_warn($key));
 }
 
 /*
 Translate via xl() and then escape via addslashes for use with javascript literals
 */
-function xls($key,$mode='r',$prepend='',$append=''){
-	return addslashes(hsc_private_xl_or_warn($key,$mode,$prepend,$append));
+function xls($key){
+	return addslashes(hsc_private_xl_or_warn($key));
 }
 return; // Stop include / require from going any further (non-PHP)
 ?>
