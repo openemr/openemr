@@ -112,7 +112,7 @@ else {
 						   <?php echo xlt('Service Date'); ?>:
 						</td>
 						<td>
-						   <input type='text' name='form_date' id="form_date" size='10' value='<?php echo $form_date ?>'
+						   <input type='text' name='form_date' id="form_date" size='10' value='<?php echo attr($form_date) ?>'
 							onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 						   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
 							id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
@@ -122,7 +122,7 @@ else {
 						   <?php echo xlt('To'); ?>:
 						</td>
 						<td>
-						   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+						   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
 							onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 						   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
 							id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
@@ -137,10 +137,10 @@ else {
                                                 <td>
                                                     <select name='form_aging_category'>
                                                         <?php
-                                                         foreach (array('all' => xla('All'),'payor' => xla('Payor'), 'facility' => xla('Facility')) as $key => $value) {
-                                                          echo "    <option value='$key'";
+                                                         foreach (array('all' => xl('All'),'payor' => xl('Payor'), 'facility' => xl('Facility')) as $key => $value) {
+                                                          echo "    <option value='" . attr($key) ."'";
                                                           if ($_POST['form_aging_category'] == $key) echo " selected";
-                                                          echo ">$value</option>\n";
+                                                          echo ">". text($value) . "</option>\n";
                                                          }
                                                         ?>
                                                     </select>
@@ -494,7 +494,7 @@ if ( $form_aging_category == 'facility' ) {
       } else {
           $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
           ?><tr bgcolor='<?php echo $bgcolor ?>'>
-              <td class='detail'><?php echo $facility ?></td>
+              <td class='detail'><?php echo text($facility) ?></td>
               <td class='detail'><?php echo text($facilityInfo['averageDOS']) ?></td>
               <td class='detail'><?php echo text($facilityInfo['averageLAD']) ?></td>
           </tr><?php    

@@ -151,7 +151,7 @@ function computeReport() {
             <?php } ?>
         </table>
 
-        <h5><?php echo xla('Incomplete patient insurance subscriber fields') ?></h5>
+        <h5><?php echo xlt('Incomplete patient insurance subscriber fields') ?></h5>
         <table>
             <thead>
                <th>&nbsp;<?php echo xlt('Patient Name')?></th>
@@ -175,7 +175,7 @@ function computeReport() {
                     <td class='detail'><?php echo text($row['Subscriber Relationship']) ?></td>
                     <td class='detail'>
                         <?php foreach ($row['decodedErrors'] as $error) { ?>
-                            <?php echo xlt($error) ?> <br>
+                            <?php echo text($error) ?> <br>
                         <?php } ?>
                     </td>                    
                 </tr>
@@ -225,7 +225,7 @@ function computeReport() {
                     <td class='detail'><?php echo text($row['Insurance Type']) ?></td>
                     <td class='detail'>
                         <?php foreach ($row['decodedErrors'] as $error) { ?>
-                            <?php echo xlt($error) ?> <br>
+                            <?php echo text($error) ?> <br>
                         <?php } ?>
                     </td>
                 </tr>

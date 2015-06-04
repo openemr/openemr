@@ -117,19 +117,19 @@ class PreBillingIssuesAPI {
             $decodedErrors = array();
             foreach($result as $key => $value) {
                 if ( $key == 'Subscriber Last Name' && $value == "" ) {
-                    array_push($decodedErrors, xlt('Missing subscriber last name'));
+                    array_push($decodedErrors, xl('Missing subscriber last name'));
                 }
                 if ( $key == 'Pt Address Street' && $value == "" ) {
-                    array_push($decodedErrors, xlt('Missing address street'));
+                    array_push($decodedErrors, xl('Missing address street'));
                 }
                 if ( $key == 'Pt Address Code' && $value == "" ) {
-                    array_push($decodedErrors, xlt('Missing address zip code'));
+                    array_push($decodedErrors, xl('Missing address zip code'));
                 }
                 if ( $key == 'Pt Address City' && $value == "" ) {
-                    array_push($decodedErrors, xlt('Missing address city'));
+                    array_push($decodedErrors, xl('Missing address city'));
                 }
                 if ( $key == 'Pt Address State' && $value == "" ) {
-                    array_push($decodedErrors, xlt('Missing address state'));
+                    array_push($decodedErrors, xl('Missing address state'));
                 }
                 $dataRow[$key] = $value;
             }
@@ -155,16 +155,16 @@ class PreBillingIssuesAPI {
             $decodedErrors = array();
             foreach($result as $key => $value) {
                 if ( $key == 'Plan Name' && $value == "" ) {
-                    array_push($decodedErrors, xlt('Missing plan name'));
+                    array_push($decodedErrors, xl('Missing plan name'));
                 }
                 if ( $key == 'Effective Date' && $value == "000-00-00" ) {
-                    array_push($decodedErrors, xlt('Missing effective date'));
+                    array_push($decodedErrors, xl('Missing effective date'));
                 }
                 if ( $key == 'Policy Number' && $value == "" ) {
-                    array_push($decodedErrors, xlt('Missing policy number'));
+                    array_push($decodedErrors, xl('Missing policy number'));
                 }
                 if ( $key == 'Group Number' && $value == "" ) {
-                    array_push($decodedErrors, xlt('Missing group number'));
+                    array_push($decodedErrors, xl('Missing group number'));
                 }
                 $dataRow[$key] = $value;
             }
