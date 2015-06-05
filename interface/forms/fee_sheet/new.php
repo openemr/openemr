@@ -1396,7 +1396,7 @@ if ($alertmsg) {
                if ( !prev || (!prev.attr('data-billcell') || prev.attr('data-billcell') !== row.attr('data-billcell-sub')) ) {
                    i++;
                }
-               row.find("input[name^=bill]").each( function( entryKey, entryValue) {
+               row.find("[name^=bill]").each( function( entryKey, entryValue) {
                    var input = $(entryValue);
                    var originalName = input.attr('name');
                    var newName = originalName.replace( /(bill\[)([0-9]+)(.*)/, 
