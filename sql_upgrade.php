@@ -10,7 +10,7 @@
 // Its purpose is to upgrade the MySQL OpenEMR database as needed
 // for the new release.
 
-// Disable PHP timeout.  This will not work in safe mode.
+// Disable PHP timeout. This will not work in safe mode.
 ini_set('max_execution_time', '0');
 
 $ignoreAuth = true; // no login required
@@ -47,12 +47,11 @@ ksort($versions);
 <br>
 </center>
 <?php
-$version_info = sqlQuery("SELECT * FROM version");
-$version_from  = $version_info['v_major'] . '.' . $version_info['v_minor'] . '.' . $version_info['v_patch'];
-
 if (!empty($_POST['form_submit'])) {
+  $form_old_version = $_POST['form_old_version'];
+
   foreach ($versions as $version => $filename) {
-    if (strcmp($version, $version_from) < 0) continue;
+    if (strcmp($version, $form_old_version) < 0) continue;
     upgradeFromSqlFile($filename);
   }
 
@@ -105,7 +104,8 @@ if (!empty($_POST['form_submit'])) {
 ?>
 <center>
 <form method='post' action='sql_upgrade.php'>
-<p>Openemr prior release has being selected from the version table:
+<p>Please select the prior release you are converting from:
+<select name='form_old_version'>
 <?php
 foreach ($versions as $version => $filename) {
   echo " <option value='$version'";
@@ -114,8 +114,10 @@ foreach ($versions as $version => $filename) {
   echo ">$version</option>\n";
 }
 ?>
+</select>
 </p>
-<p>Click to continuo upgrade.</p>
+<p>If you are unsure or were using a development version between two
+releases, then choose the older of possible releases.</p>
 <p><input type='submit' name='form_submit' value='Upgrade Database' /></p>
 </form>
 </center>
