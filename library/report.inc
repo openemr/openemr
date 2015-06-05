@@ -234,7 +234,7 @@ function printPatientBilling($pid) {
     echo "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . " : </span>";
     echo "<span class=text>(".$result{"code_type"}.") ";
     echo $result['code_type'] == 'COPAY' ? oeFormatMoney($result['code']) : $result['code'];
-    echo " - ". $result['code_text']."</span>";
+    echo " - ". wordwrap($result['code_text'], 70, "\n", true)."</span>";
     echo "<br>\n";
 	}
 }

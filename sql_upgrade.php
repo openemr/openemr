@@ -107,7 +107,12 @@ if (!empty($_POST['form_submit'])) {
 <form method='post' action='sql_upgrade.php'>
 <p>Openemr prior release has being selected from the version table:
 <?php
-echo $version_from;
+foreach ($versions as $version => $filename) {
+  echo " <option value='$version'";
+  // Defaulting to most recent version, which is now 4.2.0.
+  if ($version === '4.2.0') echo " selected";
+  echo ">$version</option>\n";
+}
 ?>
 </p>
 <p>Click to continuo upgrade.</p>

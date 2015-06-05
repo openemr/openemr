@@ -224,6 +224,10 @@ function clickOptionsMigrate() {
 * #IfRow2D
 *   arguments: table_name colname value colname2 value2
 *   behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
+*   
+* #IfRow3D
+*   arguments: table_name colname value colname2 value2 colname3 value3
+*   behavior:  If the table table_name does have a row where colname = value AND colname2 = value2 AND colname3 = value3, the block will be executed.   
 *
 * #IfIndex
 *   desc:      This function is most often used for dropping of indexes/keys.
@@ -385,6 +389,16 @@ function upgradeFromSqlFile($filename) {
         $skipping = true;
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+    	if (tableExists($matches[1])) {
+    		$skipping = !(tableHasRow3D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6], $matches[7]));
+    	}
+    	else {
+    		// If no such table then should skip.
+    		$skipping = true;
+    	}
+    	if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
     else if (preg_match('/^#IfNotMigrateClickOptions/', $line)) {
       if (tableExists("issue_types")) {

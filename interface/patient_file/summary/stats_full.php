@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2005-2014 Rod Roark <rod@sunsetsystems.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,6 +35,9 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
  // Collect parameter(s)
  $category = empty($_REQUEST['category']) ? '' : $_REQUEST['category'];
 
+// Get patient's preferred language for the patient education URL.
+$tmp = getPatientData($pid, 'language');
+$language = $tmp['language'];
 ?>
 <html>
 
@@ -43,7 +46,7 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
-<title><?php echo htmlspecialchars( xl('Patient Issues'), ENT_NOQUOTES) ; ?></title>
+<title><?php echo xlt('Patient Issues'); ?></title>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js"></script>
@@ -68,6 +71,14 @@ function dopclick(id,category) {
 // Process click on number of encounters.
 function doeclick(id) {
     dlgopen('../problem_encounter.php?issue=' + id, '_blank', 550, 400);
+}
+
+// Process click on diagnosis for patient education popup.
+function educlick(codetype, codevalue) {
+  dlgopen('../education.php?type=' + encodeURIComponent(codetype) +
+    '&code=' + encodeURIComponent(codevalue) +
+    '&language=<?php echo urlencode($language); ?>',
+    '_blank', 1024, 750);
 }
 
 // Add Encounter button is clicked.
@@ -127,25 +138,26 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
   else
   echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" . htmlspecialchars($focustype,ENT_QUOTES)  . "\")'><span>" . htmlspecialchars( xl('Add'), ENT_NOQUOTES) . "</span></a>\n";
   echo "  <span class='title'>" . htmlspecialchars($disptype,ENT_NOQUOTES) . "</span>\n";
-  echo " <table style='margin-bottom:1em;text-align:center'>";
+  // echo " <table style='margin-bottom:1em;text-align:center'>";
+  echo " <table style='margin-bottom:1em;'>";
   ?>
   <tr class='head'>
-    <th><?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?></th>
-    <th><?php echo htmlspecialchars( xl('Begin'), ENT_NOQUOTES); ?></th>
-    <th><?php echo htmlspecialchars( xl('End'), ENT_NOQUOTES); ?></th>
-    <th><?php echo htmlspecialchars( xl('Diag'), ENT_NOQUOTES); ?></th>
-    <th><?php echo htmlspecialchars(xl('Status'),ENT_NOQUOTES); ?></th>
-    <th><?php echo htmlspecialchars( xl('Occurrence'), ENT_NOQUOTES); ?></th>
+    <th style='text-align:left'><?php echo xlt('Title'); ?></th>
+    <th style='text-align:left'><?php echo xlt('Begin'); ?></th>
+    <th style='text-align:left'><?php echo xlt('End'); ?></th>
+    <th style='text-align:left'><?php echo xlt('Coding (click for education)'); ?></th>
+    <th style='text-align:left'><?php echo xlt('Status'); ?></th>
+    <th style='text-align:left'><?php echo xlt('Occurrence'); ?></th>
     <?php if ($focustype == "allergy") { ?>
-      <th><?php echo htmlspecialchars( xl('Reaction'), ENT_NOQUOTES); ?></th>
+      <th style='text-align:left'><?php echo xlt('Reaction'); ?></th>
     <?php } ?>
     <?php if ($GLOBALS['athletic_team']) { ?>
-      <th><?php echo htmlspecialchars( xl('Missed'), ENT_NOQUOTES); ?></th>
+      <th style='text-align:left'><?php echo xlt('Missed'); ?></th>
     <?php } else { ?>
-      <th><?php echo htmlspecialchars( xl('Referred By'), ENT_NOQUOTES); ?></th>
+      <th style='text-align:left'><?php echo xlt('Referred By'); ?></th>
     <?php } ?>
-    <th><?php echo htmlspecialchars( xl('Comments'), ENT_NOQUOTES); ?></th>
-    <th><?php echo htmlspecialchars( xl('Enc'), ENT_NOQUOTES); ?></th>
+    <th style='text-align:left'><?php echo xlt('Comments'); ?></th>
+    <th><?php echo xlt('Enc'); ?></th>
     </tr>
   <?php
 
@@ -160,11 +172,12 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
   if (sqlNumRows($pres) < 1) {
     if ( getListTouch($pid,$focustype) ) {
       // Data entry has happened to this type, so can display an explicit None.
-      echo "<tr><td class='text'><b>" . htmlspecialchars( xl("None"), ENT_NOQUOTES) . "</b></td></tr>";
+      echo "<tr><td class='text'><b>" . xlt("None") . "</b></td></tr>";
     }
     else {
       // Data entry has not happened to this type, so can show the none selection option.
-      echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" . htmlspecialchars($focustype,ENT_QUOTES) . "' value='none' /><b>" . htmlspecialchars( xl("None"), ENT_NOQUOTES) . "</b></td></tr>";
+      echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
+        attr($focustype) . "' value='none' /><b>" . xlt("None") . "</b></td></tr>";
     }
   }
 
@@ -182,13 +195,18 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     ++$encount;
     $bgclass = (($encount & 1) ? "bg1" : "bg2");
 
+    $colorstyle = empty($row['enddate']) ? "style='color:red'" : "";
+
     // look up the diag codes
     $codetext = "";
     if ($row['diagnosis'] != "") {
         $diags = explode(";", $row['diagnosis']);
         foreach ($diags as $diag) {
             $codedesc = lookup_code_descriptions($diag);
-            $codetext .= htmlspecialchars($diag,ENT_NOQUOTES) . " (" . htmlspecialchars($codedesc,ENT_NOQUOTES) . ")<br>";
+            list($codetype, $code) = explode(':', $diag);
+            if ($codetext) $codetext .= "<br />";
+            $codetext .= "<a href='javascript:educlick(\"$codetype\",\"$code\")' $colorstyle>" .
+              text($diag . " (" . $codedesc . ")") . "</a>";
         }
     }
 
@@ -198,26 +216,19 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
       $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
     }
     else if($row['enddate'] == NULL) {
-      $statusCompute = htmlspecialchars( xl("Active") ,ENT_NOQUOTES);
+      $statusCompute = xlt("Active");
     }
     else {
-      $statusCompute = htmlspecialchars( xl("Inactive") ,ENT_NOQUOTES);
+      $statusCompute = xlt("Inactive");
     }
     $click_class='statrow';
-    if($row['erx_source']==1 && $focustype=='allergy')
-    $click_class='';
-    elseif($row['erx_uploaded']==1 && $focustype=='medication')
-    $click_class='';
-    // output the TD row of info
-    if ($row['enddate'] == NULL) {
-      echo " <tr class='$bgclass detail $click_class' style='color:red;font-weight:bold' id='$rowid'>\n";
-    }
-    else {
-      echo " <tr class='$bgclass detail $click_class' id='$rowid'>\n";
-    }
-    echo "  <td style='text-align:left'>" . htmlspecialchars($disptitle,ENT_NOQUOTES) . "</td>\n";
-    echo "  <td>" . htmlspecialchars($row['begdate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
-    echo "  <td>" . htmlspecialchars($row['enddate'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+    if($row['erx_source']==1 && $focustype=='allergy') $click_class='';
+    elseif($row['erx_uploaded']==1 && $focustype=='medication') $click_class='';
+
+    echo " <tr class='$bgclass detail' $colorstyle>\n";
+    echo "  <td style='text-align:left' class='$click_class' id='$rowid'>" . text($disptitle) . "</td>\n";
+    echo "  <td>" . text($row['begdate']) . "&nbsp;</td>\n";
+    echo "  <td>" . text($row['enddate']) . "&nbsp;</td>\n";
     // both codetext and statusCompute have already been escaped above with htmlspecialchars)
     echo "  <td>" . $codetext . "</td>\n";
     echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
@@ -225,17 +236,17 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
     echo "</td>\n";
     if ($focustype == "allergy") {
-      echo "  <td>" . htmlspecialchars($row['reaction'],ENT_NOQUOTES) . "&nbsp;</td>\n";
+      echo "  <td>" . text($row['reaction']) . "&nbsp;</td>\n";
     }
     if ($GLOBALS['athletic_team']) {
         echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
     }
     else {
-        echo "  <td>" . htmlspecialchars($row['referredby'],ENT_NOQUOTES) . "</td>\n";
+        echo "  <td>" . text($row['referredby']) . "</td>\n";
     }
-    echo "  <td>" . htmlspecialchars($row['comments'],ENT_NOQUOTES) . "</td>\n";
-    echo "  <td id='e_$rowid' class='noclick center' title='" . htmlspecialchars( xl('View related encounters'), ENT_QUOTES) . "'>";
-    echo "  <input type='button' value='" . htmlspecialchars($ierow['count'],ENT_QUOTES) . "' class='editenc' id='" . htmlspecialchars($rowid,ENT_QUOTES) . "' />";
+    echo "  <td>" . text($row['comments']) . "</td>\n";
+    echo "  <td id='e_$rowid' class='noclick center' title='" . xla('View related encounters') . "'>";
+    echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";
     echo "  </td>";
     echo " </tr>\n";
   }
@@ -258,7 +269,7 @@ $(document).ready(function(){
     $(".statrow").mouseout(function() { $(this).toggleClass("highlight"); });
 
     $(".statrow").click(function() { dopclick(this.id,0); });
-    $(".editenc").click(function(event) { doeclick(this.id); event.stopPropagation(); });
+    $(".editenc").click(function(event) { doeclick(this.id); });
     $("#newencounter").click(function() { newEncounter(); });
     $("#history").click(function() { GotoHistory(); });
     $("#back").click(function() { GoBack(); });

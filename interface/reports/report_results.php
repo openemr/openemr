@@ -191,9 +191,29 @@ require_once "$srcdir/report_database.inc";
     $type_title = xl('Clinical Quality Measures (CQM)');
     $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
   }
+  else if ($row['type'] == "cqm_2011") {
+    if (!$GLOBALS['enable_cqm']) continue;
+    $type_title = xl('2011 Clinical Quality Measures (CQM)');
+    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+  }
+  else if ($row['type'] == "cqm_2014") {
+    if (!$GLOBALS['enable_cqm']) continue;
+    $type_title = xl('2014 Clinical Quality Measures (CQM)');
+    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+  }
   else if ($row['type'] == "amc") {
     if (!$GLOBALS['enable_amc']) continue;
     $type_title = xl('Automated Measure Calculations (AMC)');
+    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+  }
+  else if ($row['type'] == "amc_2011") {
+    if (!$GLOBALS['enable_amc']) continue;
+    $type_title = xl('2011 Automated Measure Calculations (AMC)');
+    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+  }
+  else if ($row['type'] == "amc_2014") {
+    if (!$GLOBALS['enable_amc']) continue;
+    $type_title = xl('2014 Automated Measure Calculations (AMC)');
     $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
   }
   else if ($row['type'] == "process_reminders") {
@@ -223,7 +243,7 @@ require_once "$srcdir/report_database.inc";
   }
   else {
     // Not identified, so give an unknown title
-    $type_title = xl('Unknown');
+    $type_title = xl('Unknown') . "-" . $row['type'];
     $link="";
   }
 ?>

@@ -337,7 +337,7 @@ foreach ($insurance_layout as $lorow) {
 <p>
 <input type='submit' name='bn_save' value='<?php echo xla('Save and Delete Request'); ?>' />
 &nbsp;
-<input type='button' value='<?php echo xla('Back'); ?>' onclick="window.back()" />
+<input type='button' value='<?php echo xla('Back'); ?>' onclick="window.history.back()" />
 <!-- Was: onclick="myRestoreSession();location='list_requests.php'" -->
 </p>
 

@@ -66,7 +66,7 @@ $imagedir   = "$patientdir/demographics";
     if ($errmsg) {
       $errmsg = strtr($errmsg, "\r\n'", "   ");
       echo "window.alert('$errmsg')\n";
-      echo "window.back()\n";
+      echo "window.history.back()\n";
     } else {
       echo "opener.location.reload()\n";
       echo "window.close()\n";

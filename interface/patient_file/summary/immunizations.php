@@ -405,6 +405,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
         <span class='small' style='font-family:arial'><?php if ($sortby == 'date') { echo 'v'; } ?></span>
     </th>
 	<th><?php echo htmlspecialchars( xl('Amount'), ENT_NOQUOTES); ?></th>
+	<th><?php echo xlt('Expiration'); ?></th>
     <th><?php echo htmlspecialchars( xl('Manufacturer'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Lot Number'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Administered By'), ENT_NOQUOTES); ?></th>
@@ -471,7 +472,8 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
                         else {
                                echo "<td>&nbsp</td>";
                         }
-            echo "<td>" . $del_tag_open . htmlspecialchars( $row["manufacturer"], ENT_NOQUOTES) . $del_tag_close . "</td>";
+			echo "<td>" . $del_tag_open . text($row["expiration_date"]) . $del_tag_close . "</td>";
+                        echo "<td>" . $del_tag_open . htmlspecialchars( $row["manufacturer"], ENT_NOQUOTES) . $del_tag_close . "</td>";
             echo "<td>" . $del_tag_open . htmlspecialchars( $row["lot_number"], ENT_NOQUOTES) . $del_tag_close . "</td>";
             echo "<td>" . $del_tag_open . htmlspecialchars( $row["administered_by"], ENT_NOQUOTES) . $del_tag_close . "</td>";
             echo "<td>" . $del_tag_open . htmlspecialchars( $row["education_date"], ENT_NOQUOTES) . $del_tag_close . "</td>";

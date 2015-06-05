@@ -15,7 +15,7 @@
 
 /* for $GLOBALS['srcdir','pid'] */
 /* remember that include paths are calculated relative to the including script, not this file. */
-require_once('../../globals.php');
+require_once(dirname(__FILE__).'/../globals.php');
 
 /* for OrDataObject, the class we're extending. */
 require_once ($GLOBALS['srcdir'] . '/classes/ORDataObject.class.php');

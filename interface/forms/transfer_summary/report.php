@@ -21,7 +21,7 @@
 
 
  
-include_once("../../globals.php");
+include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
 function transfer_summary_report( $pid, $encounter, $cols, $id) {
 $count = 0;

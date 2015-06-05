@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2014 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -116,4 +116,62 @@ function DateToYYYYMMDD($DateValue)
 	 }
  }
 
+// Returns age in a desired format:
+//   0 = "xx month(s)" if < 2 years, else years
+//   1 = Years      : just a number
+//   2 = Months     : just a number
+//   3 = Gestational: "xx week(s) y day(s)"
+// $dobYMD is YYYYMMDD or YYYY-MM-DD
+// $nowYMD is same format but optional
+//
+function oeFormatAge($dobYMD, $nowYMD='', $format=0) {
+  // Strip any dashes from the dates.
+  $dobYMD = preg_replace('/-/', '', $dobYMD);
+  $nowYMD = preg_replace('/-/', '', $nowYMD);
+  $dobDay   = substr($dobYMD,6,2);
+  $dobMonth = substr($dobYMD,4,2);
+  $dobYear  = substr($dobYMD,0,4);
+
+  if ($nowYMD) {
+    $nowDay   = substr($nowYMD,6,2);
+    $nowMonth = substr($nowYMD,4,2);
+    $nowYear  = substr($nowYMD,0,4);
+  }
+  else {
+    $nowDay   = date("d");
+    $nowMonth = date("m");
+    $nowYear  = date("Y");
+  }
+
+  if ($format == 3) {
+    // Gestational age as weeks and days.
+    $secs = mktime(0, 0, 0, $nowMonth, $nowDay, $nowYear) -
+            mktime(0, 0, 0, $dobMonth, $dobDay, $dobYear);
+    $days  = intval($secs / (24 * 60 * 60));
+    $weeks = intval($days / 7);
+    $days  = $days % 7;
+    $age   = "$weeks " . ($weeks == 1 ? xl('week') : xl('weeks')) .
+             " $days " . ($days  == 1 ? xl('day' ) : xl('days' ));
+  }
+  else {
+    // Years or months.
+    $dayDiff   = $nowDay   - $dobDay;
+    $monthDiff = $nowMonth - $dobMonth;
+    $yearDiff  = $nowYear  - $dobYear;
+    $ageInMonths = $yearDiff * 12 + $monthDiff;
+    if ($dayDiff < 0) --$ageInMonths;
+    if ($format == 1 || ($format == 0 && $ageInMonths >= 24)) {
+      $age = $yearDiff;
+      if ($monthDiff < 0 || ($monthDiff == 0 && $dayDiff < 0)) --$age;
+    }
+    else {
+      $age = $ageInMonths;
+      if ($format == 0) {
+        $age .= ' ' . $ageInMonths == 1 ? xl('month') : xl('months'); 
+      }
+    }
+  }
+
+  return $age;
+}
 ?>

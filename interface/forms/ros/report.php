@@ -1,6 +1,6 @@
 <?php
 //------------Forms generated from formsWiz
-include_once("../../globals.php");
+include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
 
 function ros_report( $pid, $encounter, $cols, $id) {

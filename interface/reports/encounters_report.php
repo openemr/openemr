@@ -61,7 +61,7 @@ $query = "SELECT " .
   "FROM ( form_encounter AS fe, forms AS f ) " .
   "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
   "LEFT JOIN users AS u ON u.id = fe.provider_id " .
-  "WHERE f.encounter = fe.encounter AND f.formdir = 'newpatient' ";
+  "WHERE f.pid = fe.pid AND f.encounter = fe.encounter AND f.formdir = 'newpatient' ";
 if ($form_to_date) {
   $query .= "AND fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
 } else {

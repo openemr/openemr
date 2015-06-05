@@ -101,7 +101,7 @@ else if ($form_inactive) {
 else {
   $active = 'all';
   $activity_string_html = '';
-  $form_active = $form_inactive = '1';
+  $form_active = $form_inactive = '0';
 }
 
 // this code handles changing the state of activity tags when the user updates

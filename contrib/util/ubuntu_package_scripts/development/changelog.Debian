@@ -1,3 +1,9 @@
+git-openemr (1.0.0-4) stable; urgency=low
+
+  * Fix to work with Zend when using alias in apache.
+
+ -- Brady Miller <brady@sparmy.com>  Sat, 20 Dec 2014 11:29:16 -0800
+
 git-openemr (1.0.0-3) stable; urgency=low
 
   * Fixes to work with Zend:

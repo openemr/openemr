@@ -7,7 +7,7 @@
 // of the License, or (at your option) any later version.
 
 require_once("Claim.class.php");
-require_once("gen_hfca_1500_02_12.inc.php");
+require_once("gen_hcfa_1500_02_12.inc.php");
 
 $hcfa_curr_line = 1;
 $hcfa_curr_col = 1;
@@ -577,7 +577,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   // FrreB hard coded EIN. Changed it to included SSN as well.
   put_hcfa(56, 1, 15, $claim->billingFacilityETIN());
   if($claim->federalIdType()=='SY'){
-  put_hcfa(56, 16, 1, 'X'); // The SSN checkbox
+  put_hcfa(56, 17, 1, 'X'); // The SSN checkbox
   }
   else{
   put_hcfa(56, 19, 1, 'X'); // The EIN checkbox
@@ -611,14 +611,50 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   // 33. Billing Provider: Phone Number
   $tmp = $claim->billingContactPhone();
   put_hcfa(57, 66,  3, substr($tmp,0,3));
-  put_hcfa(57, 70,  7, substr($tmp,3));
+  put_hcfa(57, 70, 3, substr($tmp,3)); // slight adjustment for better look smw 030315
+  put_hcfa(57, 73, 1, '-');
+  put_hcfa(57, 74, 4, substr($tmp,6));  
 
   // 32. Service Facility Location Information: Name
   put_hcfa(58, 23, 25, $claim->facilityName());
 
   // 33. Billing Provider: Name
+  if($claim->federalIdType()=='SY'){
+    $tempName = $claim->billingFacilityName();
+    $partsName = explode(' ', $tempName);// entity == person 
+    $num_parts = count($partsName);
+    switch ($num_parts) {
+      case "2":
+        $firstName = $partsName[0];
+        $lastName = $partsName[1];
+        $billingProviderName = $lastName . ", " . $firstName;
+        break;
+      case "3":
+        $firstName = $partsName[0];
+        $middleName = $partsName[1];
+        $lastName = $partsName[2];
+        $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName;
+        break;
+      case "4":
+        $firstName = $partsName[0];
+        $middleName = $partsName[1];
+        $lastName = $partsName[2];
+        $suffixName = $partsName[3];
+        $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName. ", " . $suffixName;
+        break;
+      default:
+        $log .= "*** individual name has more than 4 parts and may not be desirable on the claim form\n";
+        $firstName = $partsName[0];
+        $middleName = $partsName[1];
+        $lastName = $partsName[2];
+        $suffixName = $partsName[3];
+        $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName. ", " . $suffixName;
+    }
+    put_hcfa(58, 50, 25, $billingProviderName);
+  }
+  else { 
   put_hcfa(58, 50, 25, $claim->billingFacilityName());
-
+  }
   // 32. Service Facility Location Information: Street
   put_hcfa(59, 23, 25, $claim->facilityStreet());
 
@@ -669,7 +705,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
    }
   
   // 32a. Service Facility NPI
-  put_hcfa(61, 24, 10, $claim->facilityNPI());
+  put_hcfa(61, 23, 10, $claim->facilityNPI());
 
   // 32b. Service Facility Other ID
   // Note that Medicare does NOT want this any more.
@@ -679,7 +715,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   }
 
   // 33a. Billing Facility NPI
-  put_hcfa(61, 51, 10, $claim->billingFacilityNPI());
+  put_hcfa(61, 50, 10, $claim->billingFacilityNPI());
 
   // 33b. Billing Facility Other ID
   // Note that Medicare does NOT want this any more.
@@ -690,7 +726,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
   // Put an extra line here for compatibility with old hcfa text generated form
     put_hcfa(62, 1, 1, ' ');
-
+  // put a couple more in so that multiple claims correctly print through the text file download
+    put_hcfa(63, 1, 1, ' ');
+    put_hcfa(64, 1, 1, ' ');
   return;
 }
 ?>

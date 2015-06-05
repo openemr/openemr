@@ -82,8 +82,8 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 
 	$facility_filter = '';
 	if ( $facility_id ) {
-		$event_facility_filter = " AND e.pc_facility = '$facility_id'";
-		$provider_facility_filter = " AND u.facility_id = '$facility_id'";
+		$event_facility_filter = " AND e.pc_facility = '" . add_escape_custom($facility_id) . "'"; //escape $facility_id
+		$provider_facility_filter = " AND u.facility_id = '" . add_escape_custom($facility_id) . "'"; //escape $facility_id 
 		$facility_filter = $event_facility_filter . $provider_facility_filter;
 	}
 	
@@ -104,8 +104,8 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 
 	$facility_filter = '';
 	if ( $facility_id ) {
-		$event_facility_filter = " AND e.pc_facility = '$facility_id'";
-		$provider_facility_filter = " AND u.facility_id = '$facility_id'";
+		$event_facility_filter = " AND e.pc_facility = '" . add_escape_custom($facility_id) . "'"; // escape $facility_id
+		$provider_facility_filter = " AND u.facility_id = '" . add_escape_custom($facility_id) . "'"; // escape $facility_id
 		$facility_filter = $event_facility_filter . $provider_facility_filter;
 	}
 	

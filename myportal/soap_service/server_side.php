@@ -1282,6 +1282,26 @@ static  public function batch_despatch($var,$func,$data_credentials){
 	   return 'notok';
        }
     }
+    
+    /**
+     * Checks whether a module is installed or not
+     * @param type $parameter_array
+     * @return type
+     */
+    public function checkModuleInstalled($parameter_array = array())
+    {
+       if($this->valid($parameter_array[0])){
+          $module_name = isset($parameter_array[1]) ? $parameter_array[1] : '';
+	  $sql = "SELECT mod_id FROM modules WHERE mod_name = ? AND mod_active = '1'";
+	  $res = sqlStatement($sql, array($module_name));
+	  $row = sqlFetchArray($res);   
+	  return !empty($row);
+	   
+       }
+       else{
+	   return 'noauth';
+       }
+    }    
 }
 $server = new SoapServer(null,array('uri' => "urn://portal/res"));
 $server->setClass('UserService');

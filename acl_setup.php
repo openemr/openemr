@@ -207,7 +207,7 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
  // If this script is being used by OpenEMR's setup, then will
  //   incorporate the installation values. Otherwise will
 //    hardcode the 'admin' user.
- if ( isset($this->iuser) ) {
+ if (isset($this) && isset($this->iuser)) {
   $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
   $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
  }

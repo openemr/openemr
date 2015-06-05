@@ -2,6 +2,8 @@
 
 require_once(dirname(__FILE__) . "/ORDataObject.class.php");
 require_once(dirname(__FILE__) . "/CouchDB.class.php");
+require_once(dirname(__FILE__) . "/../pnotes.inc");
+require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
 /**
  * class Document
@@ -98,6 +100,10 @@ class Document extends ORDataObject{
 	* @var int
 	*/
 	var $list_id;
+	
+	// For tagging with the encounter
+	var $encounter_id;
+	var $encounter_check;
 
   /*
 	*	Whether the file is already imported
@@ -128,6 +134,8 @@ class Document extends ORDataObject{
 		$this->docdate = date("Y-m-d");
 		$this->hash = "";
 		$this->list_id = 0;
+		$this->encounter_id = 0;
+		$this->encounter_check = "";
 		
 		if ($id != "") {
 			$this->populate();
@@ -227,7 +235,9 @@ class Document extends ORDataObject{
 		. "revision: " . $this->revision . "\n"
 		. "docdate: " . $this->docdate . "\n"
 		. "hash: " . $this->hash . "\n"
-		. "list_id: " . $this->list_id . "\n";
+		. "list_id: " . $this->list_id . "\n"
+		. "encounter_id: " . $this->encounter_id . "\n"
+		. "encounter_check: " . $this->encounter_check . "\n";
 
 		if ($html) {
 			return nl2br($string);
@@ -349,6 +359,19 @@ class Document extends ORDataObject{
 	function get_list_id() {
 		return $this->list_id;
 	}
+	function set_encounter_id($encounter_id) {
+		$this->encounter_id = $encounter_id;
+	}
+	function get_encounter_id() {
+		return $this->encounter_id;
+	}
+	function set_encounter_check($encounter_check) {
+		$this->encounter_check = $encounter_check;
+	}
+	function get_encounter_check() {
+		return $this->encounter_check;
+	}
+	
 	function get_ccr_type($doc_id){
     $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?",array($doc_id));
     return $type['name'];
@@ -579,6 +602,29 @@ class Document extends ORDataObject{
       $this->_db->Execute($sql);
     }
     return '';
+  }
+
+  /**
+   * Post a patient note that is linked to this document.
+   *
+   * @param  string  $provider     Login name of the provider to receive this note.
+   * @param  integer $category_id  The desired document category ID
+   * @param  string  $message      Any desired message text for the note.
+   */
+  function postPatientNote($provider, $category_id, $message='') {
+    // Build note text in a way that identifies the new document.
+    // See pnotes_full.php which uses this to auto-display the document.
+    $note = $this->get_url_file();
+    for ($tmp = $category_id; $tmp;) {
+      $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", array($tmp));
+      $note = $catrow['name'] . "/$note";
+      $tmp = $catrow['parent'];
+    }
+    $note = "New scanned document " . $this->get_id() . ": $note";
+    if ($message) $note .= "\n" . $message;
+    $noteid = addPnote($this->get_foreign_id(), $note, 0, '1', 'New Document', $provider);
+    // Link the new note to the document.
+    setGpRelation(1, $this->get_id(), 6, $noteid);
   }
 
 } // end of Document

@@ -28,6 +28,12 @@ class CqmResult implements RsResultIF
         $this->patientsExcluded = $patientsExcluded;
         $this->patientsIncluded = $patientsIncluded;
         $this->percentage = $percentage;
+
+        // If itemization is turned on, then record the itemized_test_id 
+        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+            $this->itemized_test_id = array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']);
+        }
+
     }
 
     public function format()
@@ -58,6 +64,11 @@ class CqmResult implements RsResultIF
             'pass_target' => $this->patientsIncluded,
             'percentage' => $this->percentage );
             $rowFormat = array_merge( $rowFormat, $this->rule );
+
+        // If itemization is turned on, then record the itemized_test_id 
+        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+            $rowFormat = array_merge( $rowFormat, $this->itemized_test_id );
+        }
         
         return $rowFormat;
     }

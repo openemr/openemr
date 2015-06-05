@@ -98,11 +98,11 @@ else {
 // Add the measure groups.
 if ( $nested == 'false' ) {
         // Collect results (note using the batch method to decrease memory overhead and improve performance)
-	$dataSheet = test_rules_clinic_batch_method('collate_outer','cqm',$target_date,'report','','');
+	$dataSheet = test_rules_clinic_batch_method('collate_outer','cqm_2011',$target_date,'report','','');
 }
 else {
         // Collect results (note using the batch method to decrease memory overhead and improve performance)
-	$dataSheet = test_rules_clinic_batch_method('collate_inner','cqm',$target_date,'report','cqm','plans');
+	$dataSheet = test_rules_clinic_batch_method('collate_inner','cqm_2011',$target_date,'report','cqm','plans');
 }
 
 $firstProviderFlag = TRUE;

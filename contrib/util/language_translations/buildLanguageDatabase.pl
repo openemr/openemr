@@ -43,7 +43,7 @@ use strict;
 # like originals in the end. If this number increases, a english constant
 # was likely modified in the spreadsheet, and can then use log output
 # to localize and fix the problem.
-my $mismatchesKnown = 101;
+my $mismatchesKnown = 57;
 
 # Hold variables to calculate language database statistics
 my $totalConstants;
@@ -472,9 +472,9 @@ sub createConstants() {
 DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
-  `constant_name` varchar(255) BINARY default NULL,
+  `constant_name` mediumtext BINARY,
   UNIQUE KEY `cons_id` (`cons_id`),
-  KEY `constant_name` (`constant_name`)
+  KEY `constant_name` (`constant_name`(100))
 ) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 

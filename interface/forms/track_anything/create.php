@@ -272,7 +272,7 @@ echo "<table width='100%'>\n";
  echo "<tr>\n";
   echo "<th width='30%'>" . xlt('Name') . "</th>\n";
   echo "<th width='45%'>" . xlt('Description') . "</th>\n";
-  echo "<th width='5%'>" . xlt('Pos') . ".</th>\n";
+  echo "<th width='5%'>" . xlt('Pos{{Abbreviation for Position}}') . ".</th>\n";
   echo "<th width='20%'>&nbsp; </th>\n";
  echo "</tr>\n";
 // get all track-setups

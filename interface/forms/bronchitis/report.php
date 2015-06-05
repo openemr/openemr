@@ -1,6 +1,6 @@
 <?php
 //------------Forms created by Nikolai Vitsyn 2004/01/23
-include_once("../../globals.php");
+include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
 function bronchitis_report( $pid, $encounter, $cols, $id) {
 $count = 0;

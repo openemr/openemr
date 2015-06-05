@@ -22,7 +22,7 @@
 $sanitize_all_escapes = true;
 $fake_register_globals = false;
 
-require_once("../globals.php");
+require_once(dirname(__FILE__) . '/../globals.php');
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
 // Check authorization.
@@ -30,6 +30,8 @@ $thisauth = acl_check('patients', 'med');
 if (!$thisauth) die(xl('Not authorized'));
 
 $orderid = intval($_GET['orderid']);
+
+$finals_only = empty($_POST['form_showall']);
 
 if (!empty($_POST['form_sign_list'])) {
   if (!acl_check('patients', 'sign')) {
@@ -58,7 +60,7 @@ if (!empty($_POST['form_send_to_portal'])) {
   echo "<link rel='stylesheet' type='text/css' href='$webserver_root/interface/themes/style_pdf.css'>\n";
   echo "<link rel='stylesheet' type='text/css' href='$webserver_root/library/ESign/css/esign_report.css'>\n";
   $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
-  generate_order_report($orderid, false);
+  generate_order_report($orderid, false, true, $finals_only);
   $GLOBALS['PATIENT_REPORT_ACTIVE'] = false;
   // echo ob_get_clean(); exit(); // debugging
   $pdf->writeHTML(ob_get_clean(), false);
@@ -88,10 +90,34 @@ body {
  font-size: 1em;
 }
 </style>
+
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<script language="JavaScript">
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+</script>
+
 </head>
 <body>
 <?php
-  generate_order_report($orderid, true);
+if (empty($_POST['form_sign_list'])) {
+  generate_order_report($orderid, true, true, $finals_only);
+}
+else {
+?>
+<script language='JavaScript'>
+ if (opener.document.forms && opener.document.forms[0]) {
+  // Opener should be list_reports.php. Make it refresh.
+  var f = opener.document.forms[0];
+  if (f.form_external_refresh) {
+   f.form_external_refresh.value = '1';
+   f.submit();
+  }
+ }
+ window.close();
+</script>
+<?php
+}
 ?>
 </body>
 </html>
+

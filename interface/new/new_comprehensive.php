@@ -212,20 +212,22 @@ function capitalizeMe(elem) {
 // Onkeyup handler for policy number.  Allows only A-Z and 0-9.
 function policykeyup(e) {
  var v = e.value.toUpperCase();
+ var filteredString="";
  for (var i = 0; i < v.length; ++i) {
   var c = v.charAt(i);
-  if (c >= '0' && c <= '9') continue;
-  if (c >= 'A' && c <= 'Z') continue;
-  if (c == '*') continue;
-  if (c == '-') continue;
-  if (c == '_') continue;
-  if (c == '(') continue;
-  if (c == ')') continue;
-  if (c == '#') continue;
-  v = v.substring(0, i) + v.substring(i + i);
-  --i;
+  if ((c >= '0' && c <= '9') ||
+     (c >= 'A' && c <= 'Z') ||
+     (c == '*') ||
+     (c == '-') ||     
+     (c == '_') ||
+     (c == '(') ||
+     (c == ')') ||
+     (c == '#'))
+     {
+         filteredString+=c;
+     }
  }
- e.value = v;
+ e.value = filteredString;
  return;
 }
 

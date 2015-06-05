@@ -550,7 +550,7 @@ Display red alert if entered password matched one of last three passwords/Displa
 ?>
 </table>
 
-<INPUT TYPE="HIDDEN" NAME="id" VALUE="<?php echo $_GET["id"]; ?>">
+<INPUT TYPE="HIDDEN" NAME="id" VALUE="<?php echo attr($_GET["id"]); ?>">
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="privatemode" VALUE="user_admin">
 

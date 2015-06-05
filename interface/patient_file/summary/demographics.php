@@ -994,8 +994,39 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 </div>
      </td>
     </tr>		
+<?php if ($GLOBALS['amendments']) { ?>
+  <tr>
+       <td width='650px'>
+       	<?php // Amendments widget
+       	$widgetTitle = xlt('Amendments');
+    $widgetLabel = "amendments";
+    $widgetButtonLabel = xlt("Edit");
+	$widgetButtonLink = $GLOBALS['webroot'] . "/interface/patient_file/summary/main_frameset.php?feature=amendment";
+	$widgetButtonClass = "iframe rx_modal";
+    $linkMethod = "html";
+    $bodyClass = "summary_item small";
+    $widgetAuth = true;
+    $fixedWidth = false;
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+       	$sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
+  $result = sqlStatement($sql, array($pid) );
 
+  if (sqlNumRows($result) == 0) {
+    echo " <table><tr>\n";
+    echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . xlt('None') . "</td>\n";
+    echo " </tr></table>\n";
+  }
+  
+  while ($row=sqlFetchArray($result)){
+    echo "&nbsp;&nbsp;";
+    echo "<a class= '" . $widgetButtonClass . "' href='" . $widgetButtonLink . "&id=" . attr($row['amendment_id']) . "' onclick='top.restoreSession()'>" . text($row['amendment_date']);
+	echo "&nbsp; " . text($row['amendment_desc']);
 
+    echo "</a><br>\n";
+  } ?>
+  </td>
+    </tr>
+<?php } ?>    		
  <?php // labdata ?>
     <tr>
      <td width='650px'>
@@ -1354,7 +1385,18 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     }
             
 	// Show PAST appointments.
-	if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['num_past_appointments_to_show'] > 0) {
+	// added by Terry Hill to allow reverse sorting of the appointments
+ 	$direction = "ASC";
+	if ($GLOBALS['num_past_appointments_to_show'] < 0) {
+	   $direction = "DESC";
+	   ($showpast = -1 * $GLOBALS['num_past_appointments_to_show'] );
+	   }
+	   else
+	   {
+	   $showpast = $GLOBALS['num_past_appointments_to_show'];
+	   }
+	   
+	if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0) {
 	 $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
 	  "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
 	  "c.pc_catname, e.pc_apptstatus " .
@@ -1362,8 +1404,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 	  "openemr_postcalendar_categories AS c WHERE " .
 	  "e.pc_pid = ? AND e.pc_eventDate < CURRENT_DATE AND " .
 	  "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
-	  "ORDER BY e.pc_eventDate, e.pc_startTime DESC " . 
-      "LIMIT " . $GLOBALS['num_past_appointments_to_show'];
+	  "ORDER BY e.pc_eventDate $direction , e.pc_startTime DESC " . 
+      "LIMIT " . $showpast;
 	
      $pres = sqlStatement($query, array($pid) );
 

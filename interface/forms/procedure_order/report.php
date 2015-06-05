@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-require_once("../../globals.php");
+require_once(dirname(__FILE__).'/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");

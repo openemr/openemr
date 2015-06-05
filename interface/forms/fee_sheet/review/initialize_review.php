@@ -45,7 +45,8 @@ require_once("code_check.php");
     }    
 </script>
 <script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/initialize_review.js"></script>
-<script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/js/fee_sheet_core.js"></script>
+<!-- Increment "v=" in the next line if you change fee_sheet_core.js. This makes sure the browser won't use the old cached version. -->
+<script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/js/fee_sheet_core.js?v=1"></script>
 <script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_review_view_model.js"></script>
 <script type="text/javascript" src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_justify_view_model.js"></script>
 

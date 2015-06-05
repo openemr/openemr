@@ -1,0 +1,66 @@
+.cdr-mappings {
+	display: table;
+	margin-left:15px;
+}
+
+.cdr-buttons-class {
+	float:right;
+}
+ 	
+/* Start by setting display:none to make this hidden.
+ Then we position it in relation to the viewport window
+ with position:fixed. Width, height, top and left speak
+ speak for themselves. Background we set to 80% white with
+ our animation centered, and no-repeating */
+.modal {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('ajax_wait.gif') 
+                50% 50% 
+                no-repeat;
+}
+
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+body.loading {
+    overflow: hidden;   
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+body.loading .modal {
+    display: block;
+}
+
+.delete_button { 
+    background-image: url('trash_icon.png');
+    background-position:  0px 0px;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    border: 0px;
+    background-color: none;
+    cursor: pointer;
+    outline: 1;
+}
+
+.delete_button:hover { 
+	-moz-box-shadow: 0 0 10px #ccc; 
+	-webkit-box-shadow: 0 0 10px #ccc; 
+	box-shadow: 0 0 10px #ccc; 
+	
+}
+
+.overlay {	
+    z-index:1001;
+    background-color: transparent; 
+    opacity:0.7; 
+    filter: alpha(opacity=00); 
+    pointer-events:none;
+}

@@ -60,11 +60,11 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
-
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <script type="text/javascript">
@@ -316,20 +316,22 @@ function submitme() {
 // Onkeyup handler for policy number.  Allows only A-Z and 0-9.
 function policykeyup(e) {
  var v = e.value.toUpperCase();
+ var filteredString="";
  for (var i = 0; i < v.length; ++i) {
   var c = v.charAt(i);
-  if (c >= '0' && c <= '9') continue;
-  if (c >= 'A' && c <= 'Z') continue;
-  if (c == '*') continue;
-  if (c == '-') continue;
-  if (c == '_') continue;
-  if (c == '(') continue;
-  if (c == ')') continue;
-  if (c == '#') continue;
-  v = v.substring(0, i) + v.substring(i + i);
-  --i;
+  if ((c >= '0' && c <= '9') ||
+     (c >= 'A' && c <= 'Z') ||
+     (c == '*') ||
+     (c == '-') ||
+     (c == '_') ||
+     (c == '(') ||
+     (c == ')') ||
+     (c == '#'))
+     {
+         filteredString+=c;
+     }
  }
- e.value = v;
+ e.value = filteredString;
  return;
 }
 

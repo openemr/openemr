@@ -36,7 +36,7 @@ function cms_portal_call($args) {
   curl_setopt($phandle, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($phandle, CURLOPT_POSTFIELDS    , $args);
   if (($presult = curl_exec($phandle)) === FALSE) {
-    die(text(xl('curl_exec failed') . ': ' . curl_error($phandle)));
+    die(text('curl_exec ' . xl('failed') . ': ' . curl_error($phandle)));
   }
   curl_close($phandle);
   // With JSON-over-HTTP we would use json_decode($presult,TRUE) here.

@@ -53,7 +53,7 @@ if ($_POST['bn_save']) {
     foreach ($_POST['form_filename'] as $uploadid => $filename) {
       $catid = $_POST['form_category'][$uploadid];
       if (!$catid) continue;
-      echo text(sprintf(xl('Fetching %s from portal...'), $filename)) . "<br />\n";
+      echo xlt('Fetching following file from portal') . ": " . $filename . " ...<br />\n";
       flush();
       if ($messageid) {
         $result = cms_portal_call(array('action' => 'getmsgup', 'uploadid' => $uploadid));

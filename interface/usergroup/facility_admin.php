@@ -134,7 +134,7 @@ function displayAlert()
     <input type=hidden name=mode value="facility">
     <input type=hidden name=newmode value="admin_facility">	<!--	Diffrentiate Admin and add post backs -->
     <input type=hidden name=fid value="<?php echo $my_fid;?>">
-    <?php $facility = sqlQuery("select * from facility where id='$my_fid'"); ?>
+    <?php $facility = sqlQuery("select * from facility where id=?", array($my_fid)); ?>
 
     <table border=0 cellpadding=0 cellspacing=1 style="width:630px;">
          <tr>
@@ -191,7 +191,7 @@ function displayAlert()
          </tr>
 	 <?php
 	 $disabled='';
-	 $resPBE=sqlStatement("select * from facility where primary_business_entity='1' and id!='".$my_fid."'");
+	 $resPBE=sqlStatement("select * from facility where primary_business_entity='1' and id!=?", array($my_fid));
 	 if(sqlNumRows($resPBE)>0)
 	 $disabled='disabled';
 	 ?>

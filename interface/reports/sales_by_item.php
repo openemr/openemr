@@ -330,6 +330,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
  </thead>
 <?php
   } // end not export
+}
 
   if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $from_date = $form_from_date;
@@ -473,6 +474,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   if (!$INTEGRATED_AR) SLClose();
 
   if (! $_POST['form_csvexport']) {
+      if($_POST['form_refresh']){
 ?>
 
 </table>

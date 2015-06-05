@@ -1,5 +1,5 @@
 <?php
-include_once("../../globals.php");
+include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
 require_once("date_qualifier_options.php");
 function misc_billing_options_report( $pid, $encounter, $cols, $id) {

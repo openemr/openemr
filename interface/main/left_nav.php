@@ -1,4 +1,4 @@
-<?php
+<?php
 use ESign\Api;
 /* Copyright (C) 2006-2012 Rod Roark <rod@sunsetsystems.com>
  *
@@ -146,8 +146,10 @@ use ESign\Api;
   'enc' => array(xl('Encounter') , 2, 'patient_file/encounter/encounter_top.php'),
   'erx' => array(xl('e-Rx') , 1, 'eRx.php'),
   'err' => array(xl('e-Rx Renewal') , 1, 'eRx.php?page=status'),
+  'ere' => array(xl('e-Rx EPCS') , 1, 'eRx.php?page=epcs-admin'),
   'pay' => array(xl('Payment') , 1, '../patient_file/front_payment.php'),
-  'edi' => array(xl('EDI History') , 0, 'billing/edih_view.php')
+  'edi' => array(xl('EDI History') , 0, 'billing/edih_view.php'),
+  'dld' => array(xl('Display Documents'), 0, 'main/display_documents.php')
  );
  $primary_docs['npa']=array(xl('Batch Payments')   , 0, 'billing/new_payment.php');
  if ($GLOBALS['use_charges_panel'] || $GLOBALS['concurrent_layout'] == 2) {
@@ -278,6 +280,15 @@ function genPopupsList($style='') {
 <?php } ?>
 <?php if (is_dir($GLOBALS['OE_SITE_DIR'] . "/letter_templates")) { ?>
  <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
+<?php } ?>
+<?php if ($GLOBALS['chart_label_type'] != '0') { ?>
+<option value='../patient_file/label.php'><?php xl('Chart Label','e'); ?></option>
+<?php } ?>
+<?php if ($GLOBALS['barcode_label_type'] != '0') { ?>
+<option value='../patient_file/barcode_label.php'><?php xl('Barcode Label','e'); ?></option>
+<?php } ?>
+<?php if ($GLOBALS['addr_label_type']) { ?>
+<option value='../patient_file/addr_label.php'><?php xl('Address Label','e'); ?></option>
 <?php } ?>
 </select>
 <?php
@@ -1386,23 +1397,29 @@ if (!empty($reg)) {
       <?php genTreeLink('RTop','lda',xl('Lab Overview')); ?>
       <?php genTreeLink('RTop','orb',xl('Batch Results')); ?>
       <?php genTreeLink('RTop','ore',xl('Electronic Reports')); ?>
+      <?php genTreeLink('RTop','dld',xl('Lab Documents'));?>
     </ul>
   </li>
   <?php
-  $newcrop_user_role=sqlQuery("select newcrop_user_role from users where username='".$_SESSION['authUser']."'");
-  if($newcrop_user_role['newcrop_user_role'] && $GLOBALS['erx_enable']) { ?>
+  if($GLOBALS['erx_enable']) {
+    $newcrop_user_role = sqlQuery("SELECT newcrop_user_role FROM users WHERE username = '".$_SESSION['authUser']."'");
+    if($newcrop_user_role['newcrop_user_role']) {
+  ?>
   <li><a class="collapsed" id="feeimg" ><span><?php xl('New Crop','e') ?></span></a>
     <ul>
       <li><a class="collapsed_lv2"><span><?php xl('Status','e') ?></span></a>
         <ul>
           <?php genTreeLink('RTop','erx',xl('e-Rx')); ?>
-          <?php //genTreeLink('RTop','err',xl('e-Rx Renewal')); ?>
           <?php genMiscLink('RTop','err','0',xl('e-Rx Renewal'),'eRx.php?page=status'); ?>
+          <?php if($newcrop_user_role['newcrop_user_role'] === 'erxadmin') genMiscLink('RTop','ere','0',xl('e-Rx EPCS'),'eRx.php?page=epcs-admin'); ?>
         </ul>
       </li>
     </ul>
   </li>
-  <?php } ?>
+  <?php
+    }
+  }
+  ?>
   <?php if (!$disallowed['adm']) { ?>
   <li><a class="collapsed" id="admimg" ><span><?php xl('Administration','e') ?></span></a>
     <ul>
@@ -1438,8 +1455,10 @@ if (!empty($reg)) {
           ?>
           <?php if ( (!$GLOBALS['disable_phpmyadmin_link']) && (acl_check('admin', 'database')) ) genMiscLink('RTop','adm','0',xl('Database'),'../phpmyadmin/index.php'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Certificates'),'usergroup/ssl_certificates_admin.php'); ?>
+          <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('Native Data Loads'),'../interface/super/load_codes.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('External Data Loads'),'../interface/code_systems/dataloads_ajax.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('Merge Patients'),'patient_file/merge_patients.php'); ?>
+		  <?php if ($GLOBALS['enable_auditlog_encryption']) genMiscLink('RTop','rep','0',xl('Audit Log Tamper'),'reports/audit_log_tamper_report.php'); ?>
         </ul>
       </li>
     </ul>
@@ -1487,6 +1506,7 @@ if (!empty($reg)) {
         <ul>
 	  <?php genMiscLink('RTop','rep','0',xl('List'),'reports/patient_list.php'); ?>
           <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genMiscLink('RTop','rep','0',xl('Rx'),'reports/prescriptions_report.php'); ?>
+		  <?php if (acl_check('patients', 'med')) genMiscLink('RTop','rep','0',xl('Patient List Creation'),'reports/patient_list_creation.php'); ?>
           <?php if (acl_check('patients', 'med')) genMiscLink('RTop','rep','0',xl('Clinical'),'reports/clinical_reports.php'); ?>
 	  <?php genMiscLink('RTop','rep','0',xl('Referrals'),'reports/referrals_report.php'); ?>
 	  <?php genMiscLink('RTop','rep','0',xl('Immunization Registry'),'reports/immunization_report.php'); ?>

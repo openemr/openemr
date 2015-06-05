@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2014 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -275,10 +275,16 @@ echo generate_select_list('form_procedure_type', 'proc_type', $row['procedure_ty
  <tr class='ordonly'>
   <td nowrap><b><?php echo xlt('Standard Code'); ?>:</b></td>
   <td>
+   <!--
    <input type='text' size='50' name='form_standard_code'
     value='<?php echo $row['standard_code'] ?>' onclick='sel_related("form_standard_code")'
     title='<?php echo xla('Click to select an industry-standard code for this procedure'); ?>'
     style='width:100%' readonly />
+   -->
+   <input type='text' size='50' name='form_standard_code'
+    value='<?php echo attr($row['standard_code']); ?>'
+    title='<?php echo xla('Enter the LOINC code for this procedure'); ?>'
+    style='width:100%' />
   </td>
  </tr>
 

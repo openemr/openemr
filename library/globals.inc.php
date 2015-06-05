@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,14 +31,18 @@
 //   English (Indian)               // xl('English (Indian)')
 //   English (Standard)             // xl('English (Standard)')
 //   Estonian                       // xl('Estonian')
+//   Finnish                        // xl('Finnish')
 //   French                         // xl('French (Standard)')
 //   French                         // xl('French (Canadian)')
+//   Georgian                       // xl('Georgian')
 //   German                         // xl('German')
 //   Greek                          // xl('Greek')
 //   Hebrew                         // xl('Hebrew')
 //   Hindi                          // xl('Hindi')
 //   Hungarian                      // xl('Hungarian')
 //   Italian                        // xl('Italian')
+//   Japanese                       // xl('Japanese')
+//   Korean                         // xl('Korean')
 //   Lithuanian                     // xl('Lithuanian')
 //   Norwegian                      // xl('Norwegian')
 //   Persian                        // xl('Persian')
@@ -124,6 +128,16 @@ $GLOBALS_METADATA = array(
       ),
       '3',                              // default = tree menu
       xl('Type of screen layout')
+    ),
+      
+    'default_encounter_view' => array(
+      xl('Default Encounter View'),               // descriptive name
+      array(
+        '0' => xl('Clinical View'),
+        '1' => xl('Billing View'),
+      ),
+      '0',                              // default = tree menu
+      xl('Choose your default encounter view')
     ),
 
     'css_header' => array(
@@ -637,7 +651,7 @@ $GLOBALS_METADATA = array(
       xl('Past Appointment Display Widget'),
       'num',                           // data type
       '0',                             // default = false
-      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen.')
+      xl('A positive number will show that many past appointments on a Widget in the Patient Summary screen (a negative number will show the past appointments in descending order)')
     ),      
 
     'activate_ccr_ccd_report' => array(
@@ -664,8 +678,8 @@ $GLOBALS_METADATA = array(
       'cms_1500' => array(
       xl('CMS 1500 Paper Form Format'),
       array(
-        '0' => xl('08/05'),
-        '1' => xl('02/12'),
+        '0' => xl('08/05{{CMS 1500 format date revision setting in globals}}'),
+        '1' => xl('02/12{{CMS 1500 format date revision setting in globals}}'),
       ),
       '0',                              // default
       xl('This specifies which revision of the form the billing module should generate')
@@ -692,6 +706,35 @@ $GLOBALS_METADATA = array(
       ),
       '0',                              // default
       xl('This specifies whether to include date in Box 31.')
+    ),
+	  
+	'amendments' => array (
+		xl('Amendments'),
+		'bool',                           // data type
+		'1',                              // default = true
+		xl('Enable amendments feature')
+	),
+	
+    'use_custom_daysheet' => array(
+      xl('Use Custom End of Day Report'),
+      array(
+        '0' => xl('None'),
+        '1' => xl('Print End of Day Report 1'),
+        '2' => xl('Print End of Day Report 2'),
+        '3' => xl('Print End of Day Report 3'),
+      ),                       // data type
+      '1',                     // default = Print End of Day Report 1
+      xl('This will allow the use of the custom End of Day report and indicate which report to use.')
+    ),
+     
+    'daysheet_provider_totals' => array(
+      xl('End of Day by Provider or allow Totals Only'),
+      array(
+        '0' => xl('Provider'),
+        '1' => xl('Totals Only'),
+		),
+      '1',                              // default
+      xl('This specifies the Printing of the Custom End of Day Report grouped Provider or allow the Printing of Totals Only')
     ),
 
   ),
@@ -809,6 +852,13 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       'Lab Report',                     // default
       xl('Document category name for storage of electronically received lab results.')
+    ),
+
+    'gbl_mdm_category_name' => array(
+      xl('MDM Document Category Name'),
+      'text',                           // data type
+      'Lab Report',                     // default
+      xl('Document category name for storage of electronically received MDM documents.')
     ),
 
   ),
@@ -1200,6 +1250,27 @@ $GLOBALS_METADATA = array(
       '',                               // default
       xl('Set processing priority for creation of Patient Reminders (in full clinic mode).')
     ),
+
+    'report_itemizing_standard' => array(
+      xl('Enable Standard Report Itemization'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Itemization of Standard Clinical Rules Reports')
+    ),
+
+    'report_itemizing_cqm' => array(
+      xl('Enable CQM Report Itemization'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Itemization of CQM Reports')
+    ),
+
+    'report_itemizing_amc' => array(
+      xl('Enable AMC Report Itemization'),
+      'bool',                           // data type
+      '1',                               // default
+      xl('Enable Itemization of AMC Reports')
+    ),
  
   ),
 
@@ -1303,6 +1374,24 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       '',                               // default
       xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
+    ),
+	
+	//July 1, 2014: Ensoftek: Flag to enable/disable audit log encryption
+	'enable_auditlog_encryption' => array(
+      xl('Enable Audit Log Encryption'),
+      'bool',                           // data type
+      '0',                              // default
+      xl('Enable Audit Log Encryption')
+    ),
+
+    'billing_log_option' => array(
+      xl('Billing Log Option'),
+      array(
+        '1' => xl('Billing Log Append'),
+        '2' => xl('Billing Log Overwrite')
+      ),
+      '1',                               // default
+      xl('Billing log setting to append or overwrite the log file.')
     ),
 
   ),
@@ -1585,108 +1674,121 @@ $GLOBALS_METADATA = array(
       'https://len.mi-squared.com:29443/len/api',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.')
     ),
-    
+
     'erx_enable' => array(
       xl('Enable NewCrop eRx Service'),
-      'bool',                           // data type
+      'bool',
       '0',
-      xl('Enable NewCrop eRx Service')
-    ),    
-    
-    'erx_path_production' => array(
+      xl('Enable NewCrop eRx Service.') + ' ' +
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the NewCrop eRx service.')
+    ),
+
+    'erx_newcrop_path' => array(
       xl('NewCrop eRx Site Address'),
-      'text',                           // data type
+      'text',
       'https://secure.newcropaccounts.com/InterfaceV7/RxEntry.aspx',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('URL for NewCrop eRx Site Address.')
     ),
-    
-    'erx_path_soap_production' => array(
+
+    'erx_newcrop_path_soap' => array(
       xl('NewCrop eRx Web Service Address'),
-      'text',                           // data type
+      'text',
       'https://secure.newcropaccounts.com/v7/WebServices/Update1.asmx?WSDL;https://secure.newcropaccounts.com/v7/WebServices/Patient.asmx?WSDL',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('URLs for NewCrop eRx Service Address, separated by a semi-colon.')
     ),
-    
+
     'erx_soap_ttl_allergies' => array(
       xl('NewCrop eRx SOAP Request Time-To-Live for Allergies'),
       'num',
       '21600',
-      xl('Time-To-Live for Allergies SOAP Request in seconds')
+      xl('Time-To-Live for NewCrop eRx Allergies SOAP Request in seconds.')
     ),
-    
+
     'erx_soap_ttl_medications' => array(
       xl('NewCrop eRx SOAP Request Time-To-Live for Medications'),
       'num',
       '21600',
-      xl('Time-To-Live for Medications SOAP Request in seconds')
+      xl('Time-To-Live for NewCrop eRx Medications SOAP Request in seconds.')
     ),
-    
-    'partner_name_production' => array(
+
+    'erx_account_partner_name' => array(
       xl('NewCrop eRx Partner Name'),
-      'text',                           // data type
+      'text',
       '',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('Partner Name issued for NewCrop eRx service.')
     ),
-    
-    'erx_name_production' => array(
+
+    'erx_account_name' => array(
       xl('NewCrop eRx Name'),
-      'text',                           // data type
+      'text',
       '',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('Account Name issued for NewCrop eRx service.')
     ),
-    
-    'erx_password_production' => array(
+
+    'erx_account_password' => array(
       xl('NewCrop eRx Password'),
-      'pass',                           // data type
+      'pass',
       '',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('Account Password issued for NewCrop eRx service.')
     ),
-    
+
     'erx_account_id' => array(
       xl('NewCrop eRx Account Id'),
-      'text',                           // data type
+      'text',
       '1',
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
+      xl('Account Id issued for NewCrop eRx service, used to separate multi-facility accounts.')
     ),
-    
+
     'erx_upload_active' => array(
       xl('Only upload active prescriptions'),
-      'bool',                           // data type
+      'bool',
       '0',
-      xl('Only upload active prescriptions')
+      xl('Only upload active prescriptions to NewCrop eRx.')
     ),
-    
+
     'erx_import_status_message' => array(
-      xl('Enable import status message for NewCrop erx'),
-      'bool',                           // data type
+      xl('Enable NewCrop eRx import status message'),
+      'bool',
       '0',
-      xl('Enable import status message for NewCrop erx')
+      xl('Enable import status message after visiting NewCrop eRx.')
     ),
-    
+
     'erx_medication_display' => array(
-      xl('Do not display Medications uploaded to NewCrop'),
-      'bool',                           // data type
+      xl('Do not display NewCrop eRx Medications uploaded'),
+      'bool',
       '0',
-      xl('Do not display Medications uploaded to NewCrop')
+      xl('Do not display Medications uploaded after visiting NewCrop eRx.')
     ),
-	
-	'erx_allergy_display' => array(
-      xl('Do not display Allergy uploaded to NewCrop'),
-      'bool',                           // data type
+
+    'erx_allergy_display' => array(
+      xl('Do not display NewCrop eRx Allergy uploaded'),
+      'bool',
       '0',
-      xl('Do not display Allergy uploaded to NewCrop')
+      xl('Do not display Allergies uploaded after visiting NewCrop eRx.')
     ),
-        
+
     'erx_default_patient_country' => array(
-        xl('Default Patient Country'),
+        xl('NewCrop eRx Default Patient Country'),
         array(
             '' => '',
-            'US' => 'USA',
-            'CA' => 'Canada',
-            'MX' => 'Mexico'
+            'US' => xl('USA'),
+            'CA' => xl('Canada'),
+            'MX' => xl('Mexico'),
         ),
         '',
-        xl('Default Patient Country'),
+        xl('Default Patient Country sent to NewCrop eRx, only if patient country is not set.'),
+    ),
+
+    'erx_debug_setting' => array(
+        xl('NewCrop eRx Debug Setting'),
+        array(
+            0 => xl('None'),
+            1 => xl('Request Only'),
+            2 => xl('Response Only'),
+            3 => xl('Request & Response'),
+        ),
+        '0',
+        xl('Log all NewCrop eRx Requests and / or Responses.'),
     ),
 
     'phimail_enable' => array(
@@ -2154,8 +2256,47 @@ $GLOBALS_METADATA = array(
        'D', //defaut
        xl("Choose Download or Display Inline"),
     ),
-      
+   	
+    'chart_label_type' => array(
+        xl('Patient Label Type'),
+        array(
+            '0' => xl('None'),
+            '1' => '5160',
+            '2' => '5161',
+            '3' => '5162'
+        ),
+        '1', // default	
+        xl('Avery Label type for printing patient labels from popups in left nav screen'),
+    ),   
+
+    'barcode_label_type' => array(
+        xl('Barcode Label Type'),
+       array(
+            '0'  => xl('None'),
+            '1'  => 'std25',
+            '2'  => 'int25',
+            '3'  => 'ean8',
+            '4'  => 'ean13',
+            '5'  => 'upc',
+            '6'  => 'code11',
+            '7'  => 'code39',
+            '8'  => 'code93',
+            '9'  => 'code128',
+            '10' => 'codabar',
+            '11' => 'msi',
+            '12' => 'datamatrix'
+	    ),
+        '9',                              // default = None
+        xl('Barcode type for printing barcode labels from popups in left nav screen.')
+    ),
+	
+    'addr_label_type' => array(
+        xl('Print Patient Address Label'),
+        'bool',                           // data type
+        '1',                              // default = false
+        xl('Select to print patient address labels from popups in left nav screen.')
+    ),
+	
    ),
 );
 ?>
-
