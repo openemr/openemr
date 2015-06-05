@@ -1347,7 +1347,7 @@ if ($alertmsg) {
 </html>
 
 <?php require_once("review/initialize_review.php"); ?>
-<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script src="<?php echo $web_root?>/library/js/jquery-ui-1.11.4.custom.min.js" type="text/javascript"></script> 
 
 <script>
     $(document).ready( function() {
