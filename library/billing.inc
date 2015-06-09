@@ -5,23 +5,90 @@ require_once(dirname(__FILE__) . "/sql.inc");
 
 function getBillingById ($id, $cols = "*")
 {
-    return sqlQuery("select $cols from billing where id='$id' and activity=1 order by date DESC limit 0,1");
+    return sortBilling(sqlQuery("select $cols from billing where id='$id' and activity=1 order by date DESC limit 0,1"));
 }
 
 function getBillingByPid ($pid, $cols = "*")
 {
-    return  sqlQuery("select $cols from billing where pid ='$pid' and activity=1 order by date DESC limit 0,1");
+    return sortBilling(sqlQuery("select $cols from billing where pid ='$pid' and activity=1 order by date DESC limit 0,1"));
 }
 
 function getBillingByEncounter ($pid,$encounter, $cols = "code_type, code, code_text")
 {
-    $res = sqlStatement("select $cols from billing where encounter = ? and pid=? and activity=1 order by billing_order_seq ASC, code_type, date ASC", array($encounter,$pid) );
+    $res = sqlStatement(
+            "select $cols from billing "
+            . "where encounter = ? and pid=? and activity=1 "
+            . "order by billing_order_seq ASC, code_type, date ASC", 
+            array($encounter,$pid) 
+            );
 
+    return sortBilling($res);
+}
+   
+function sortBilling ($res)
+{
     $all=array();
+    $orphans=array();
+    $buckets=array();
+    $toReturn = array();
+
+    // collect the list of explicitly 
     for($iter=0; $row=sqlFetchArray($res); $iter++)
     {
-        $all[$iter] = $row;
+        $thisCodeType = $row['code_type'];
+        if ( $row['billing_order_seq'] != NULL ) {
+            array_push($all, $row);
+        } else {
+            if ( !isset($orphans[$thisCodeType]) ) {
+                $orphans[$thisCodeType] = array();
+            }
+            array_push( $orphans[$thisCodeType], $row );            
+        }
     }
+ 
+    // post process any orphans found: embed them into the list of
+    // explicitly sorted items, in descending date order
+    foreach( $orphans as $orphanCodeType => $orphanBucket ) {
+        
+        foreach( $orphanBucket as $orphanKey => $orphan ) {
+            
+            // 1. first try to walk the list of explicitly ordered codes
+            // and append the orphan beneath the first one encountered
+            // which has the same code_type as the orphan, and has an earlier date.
+            $placed = false;
+            for($i = count($all) - 1; $i >= 0; $i--) {
+                $row = $all[$i];
+                if ( $row['code_type'] == $orphan['code_type'] && $row['date'] < $orphan['date'] ) {
+                    array_splice($all, $i+1, 0, array($orphan));
+                    unset($orphanBucket[$orphanKey]);
+                    $placed = true;
+                    break;
+                }
+            }
+            
+            // 2. if the orphan is not successfully placed, walk the list of explicitly ordered codes
+            // and append the orphan before the first code whose type is different than the orphan's
+            if ( !$placed ) {
+                for ($i = 0; $i < count($all); $i++ ) {
+                    $row = $all[$i];
+                    if ( $row['code_type'] > $orphan['code_type']  ) {
+                        $pos = $i > 1 ? $i-1 : 0;
+                        array_splice($all, $pos, 0, array($orphan));
+                        $placed = true;
+                        break;
+                    }
+                }
+            }
+            
+            // 3. if the orphan is not succesfully placed, append it to the bottom of the list
+            if ( !$placed ) {
+                array_push( $all, $orphan );
+                unset($orphanBucket[$orphanKey]);
+            }
+        }
+        
+    }
+
     return $all;
 }
 

@@ -556,7 +556,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
       $code_text = lookup_code_descriptions($code_type.":".$code);
       addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
         $provid, $modifier, $units, $fee, $ndc_info, $justify, 0, $notecodes);
-    }
+        }
   } // end for
   
   //if modifier is not inserted during loop update the record using the first
@@ -1333,83 +1333,13 @@ if ($alertmsg) {
 </script>
 </body>
 
-<div class="template">
-    <table>
-        <tr>
-            <td class="sort-controls-template">
-                <img class="up-control" src='<?php echo $rootdir; ?>/../images/upbtn.gif'> 
-                <img class="down-control"  src='<?php echo $rootdir; ?>/../images/downbtn.gif'>
-            </td>
-        </tr>
-    </table>
-</div>
-
-</html>
+</html> 
 
 <?php require_once("review/initialize_review.php"); ?>
 <script src="<?php echo $web_root?>/library/js/jquery-ui-1.11.4.custom.min.js" type="text/javascript"></script> 
 
 <script>
     $(document).ready( function() {
-        $("table.fee-entry-table thead.fee-entry-table-header tr").prepend("<th>&nbsp;</th>");
-        $("table.fee-entry-table tbody tr").each( function( key, value ) {
-            var row = $(value);
-            if ( row.hasClass("sortable-codetype") ) {
-                row.prepend("<td class='grip'><img src='<?php echo $rootdir; ?>/../images/drag.png' width='16px'></td>");
-            } else {
-                row.prepend("<td>&nbsp;</td>");
-            }
-        });
-                
-        $("table.fee-entry-table tbody").sortable({
-            update: function(e, ui) {
-                if ( !ui.item.hasClass('sortable-codetype') ) {
-                    e.preventDefault();
-                    return;
-                }
-                
-                if ( !ui.item.next().hasClass('sortable-codetype') ) {
-                    e.preventDefault();
-                    return;
-                }
-                    
-                var billCell = ui.item.attr('data-billcell');
-                var billCellSub = $("[data-billcell-sub=" + billCell + "]");
-                billCellSub.detach();
-                billCellSub.insertAfter(ui.item);
-            }
-        });
-        
-        $("td.grip").mouseover(function () {
-            $(this).parent().addClass("highlight");
-        });
-        $("td.grip").mouseout(function () {
-            $(this).parent().removeClass("highlight");
-        });
-        
-        $("input[name='bn_save']").click( function() {
-            debugger;
-           var i = 0;
-           var prev;
-           $("table.fee-entry-table td").parent().each( function( key, value ) {
-               var row = $(value);
-               if ( !prev || (!prev.attr('data-billcell') || prev.attr('data-billcell') !== row.attr('data-billcell-sub')) ) {
-                   i++;
-               }
-               row.find("[name^=bill]").each( function( entryKey, entryValue) {
-                   var input = $(entryValue);
-                   var originalName = input.attr('name');
-                   var newName = originalName.replace( /(bill\[)([0-9]+)(.*)/, 
-                        function(a,b,c,d) { 
-                            return b + i + d; 
-                        } );
-                   input.attr('name', newName );
-               });
-               prev = row;
-           });
-           
-           
-        });
-        
+        apply_sortable_rows($(this));
     });
 </script>
