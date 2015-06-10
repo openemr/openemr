@@ -250,7 +250,7 @@ if ($form_patient == '' ) $form_pid = '';
 			<input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
 			</td>
 			
-                <td colspan="2"><input type="checkbox" name="show_details" id="show_details" <?php if($chk_show_details) echo "checked";?>>&nbsp;<?php echo xlt('Show Details'); ?></td>
+                <td colspan="2"><label><input type="checkbox" name="show_details" id="show_details" <?php if($chk_show_details) echo "checked";?>>&nbsp;<?php echo xlt('Show Details'); ?></label></td>
             </tr>  			
             <tr>
  
@@ -260,8 +260,8 @@ if ($form_patient == '' ) $form_pid = '';
             <?php # these two selects will are for the drug screen entries the Show Selected for Drug Screens will show all
                   # that have a yes for selected. If you just check the Show Status of Drug Screens all drug screens will be displayed
                   # if both are selected then only completed drug screens will be displayed. ?>
-            <td colspan="2"><input type="checkbox" name="show_drug_screens" id="show_drug_screens" <?php if($chk_show_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Selected for Drug Screens'); ?></td>
-            <td colspan="2"><input type="checkbox" name="show_completed_drug_screens" id="show_completed_drug_screens" <?php if($chk_show_completed_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Status of Drug Screens'); ?></td>
+            <td colspan="2"><label><input type="checkbox" name="show_drug_screens" id="show_drug_screens" <?php if($chk_show_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Selected for Drug Screens'); ?></label></td>
+            <td colspan="2"><label><input type="checkbox" name="show_completed_drug_screens" id="show_completed_drug_screens" <?php if($chk_show_completed_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Status of Drug Screens'); ?></label></td>
             </tr>
             <?php } ?>
                       
