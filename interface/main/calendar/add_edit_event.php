@@ -42,6 +42,7 @@ require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/encounter_events.inc.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
+require_once($GLOBALS['srcdir'].'/patient_tracker.inc.php');
 
  //Check access control
  if (!acl_check('patients','appt','',array('write','wsome') ))
@@ -129,21 +130,44 @@ function DOBandEncounter()
    global $event_date,$info_msg;
 	 // Save new DOB if it's there.
 	 $patient_dob = trim($_POST['form_dob']);
+	 $tmph = $_POST['form_hour'] + 0;
+     $tmpm = $_POST['form_minute'] + 0;
+     if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
+     $appttime = "$tmph:$tmpm:00";
+
 	 if ($patient_dob && $_POST['form_pid']) {
 			 sqlStatement("UPDATE patient_data SET DOB = ? WHERE " .
 									 "pid = ?", array($patient_dob,$_POST['form_pid']) );
 	 }
-
+	 
 	 // Auto-create a new encounter if appropriate.
-	 //
-	 if ($GLOBALS['auto_create_new_encounters'] && $_POST['form_apptstatus'] == '@' && $event_date == date('Y-m-d'))
+	 //	 
+
+    if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && (is_checkin($_POST['form_apptstatus']) == '1') && !is_tracker_encounter_exist($event_date,$appttime,$_POST['form_pid'],$_GET['eid']))		 
 	 {
 		 $encounter = todaysEncounterCheck($_POST['form_pid'], $event_date, $_POST['form_comments'], $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false);
 		 if($encounter){
 				 $info_msg .= xl("New encounter created with id"); 
 				 $info_msg .= " $encounter";
 		 }
+             # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
+                 if ( isset($GLOBALS['temporary-eid-for-manage-tracker']) || !empty($_GET['eid']) ) {
+                    // Note that the temporary-eid-for-manage-tracker is used to capture the eid for new appointments and when separate a recurring
+                    // appointment. It is set in the InsertEvent() function. Note that in the case of spearating a recurrent appointment, the get eid
+                    // parameter is actually erroneous(is eid of the recurrent appt and not the new separated appt), so need to use the
+                    // temporary-eid-for-manage-tracker global instead.
+                    $temp_eid = (isset($GLOBALS['temporary-eid-for-manage-tracker'])) ? $GLOBALS['temporary-eid-for-manage-tracker'] : $_GET['eid'];
+	 	    manage_tracker_status($event_date,$appttime,$temp_eid,$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room'],$encounter);
 	 }
+	 }
+    else 
+     {
+             # Capture the appt status and room number for patient tracker. 
+             if (!empty($_GET['eid'])) {
+                manage_tracker_status($event_date,$appttime,$_GET['eid'],$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room']);
+             }
+     }
+
  }
 //================================================================================================================
 
@@ -429,6 +453,7 @@ if ($_POST['form_action'] == "save") {
                         "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                         "pc_time = NOW(), " .
                         "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
+                        "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
                         "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
                         "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                         "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
@@ -520,6 +545,7 @@ if ($_POST['form_action'] == "save") {
                     "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                     "pc_time = NOW(), " .
                     "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
+                    "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
                     "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
                     "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                     "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
@@ -650,10 +676,14 @@ if ($_POST['form_action'] == "save") {
  }
 
  if ($_POST['form_action'] != "") {
-  // Close this window and refresh the calendar display.
+  // Close this window and refresh the calendar (or the patient_tracker) display.
   echo "<html>\n<body>\n<script language='JavaScript'>\n";
   if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
-  echo " if (opener && !opener.closed && opener.refreshme) opener.refreshme();\n";
+  echo " if (opener && !opener.closed && opener.refreshme) {\n " .
+       "  opener.refreshme();\n " . // This is for standard calendar page refresh
+       " } else {\n " .
+       "  window.opener.pattrk.submit()\n " . // This is for patient flow board page refresh
+       " };\n";
   echo " window.close();\n";
   echo "</script>\n</body>\n</html>\n";
   exit();
@@ -689,6 +719,7 @@ if ($_POST['form_action'] == "save") {
  if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
  $patientname = xl('Click to select');
  $patienttitle = "";
+ $pcroom = "";
  $hometext = "";
  $row = array();
  $informant = "";
@@ -730,7 +761,7 @@ if ($_POST['form_action'] == "save") {
       $repeattype = 6;
     }
   }
-
+  $pcroom = $row['pc_room'];
   $hometext = $row['pc_hometext'];
   if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
  }
@@ -1438,7 +1469,20 @@ if ($repeatexdate != "") {
 ?>
   </td>
  </tr>
-
+ <?php
+ if($_GET['prov']!=true){
+ ?>
+ <tr>
+  <td nowrap>
+   <b><?php echo xlt('Room Number'); ?>:</b>
+  </td>
+  <td colspan='4' nowrap>
+<?php
+	echo generate_select_list('form_room', 'patient_flow_board_rooms',$pcroom, xl('Room Number'));
+?>
+  </td>
+ </tr>
+<?php } ?>
  <tr>
   <td nowrap>
    <b><?php echo xlt('Comments'); ?>:</b>
@@ -1448,6 +1492,7 @@ if ($repeatexdate != "") {
   </td>
  </tr>
 
+ 
 <?php
  // DOB is important for the clinic, so if it's missing give them a chance
  // to enter it right here.  We must display or hide this row dynamically

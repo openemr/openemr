@@ -10,14 +10,16 @@
  // Holds library functions (and hashes) used by the appointment reporting module
 
 $COMPARE_FUNCTION_HASH = array(
-	'doctor' => 'compareAppointmentsByDoctorName',
-	'patient' => 'compareAppointmentsByPatientName',
-	'pubpid' => 'compareAppointmentsByPatientId',
-	'date' => 'compareAppointmentsByDate',
-	'time' => 'compareAppointmentsByTime',
-	'type' => 'compareAppointmentsByType',
-	'comment' => 'compareAppointmentsByComment',
-	'status' => 'compareAppointmentsByStatus'
+    'doctor' => 'compareAppointmentsByDoctorName',
+    'patient' => 'compareAppointmentsByPatientName',
+    'pubpid' => 'compareAppointmentsByPatientId',
+    'date' => 'compareAppointmentsByDate',
+    'time' => 'compareAppointmentsByTime',
+    'type' => 'compareAppointmentsByType',
+    'comment' => 'compareAppointmentsByComment',
+    'status' => 'compareAppointmentsByStatus',
+    'completed' => 'compareAppointmentsByCompletedDrugScreen',
+    'trackerstatus' => 'compareAppointmentsByTrackerStatus'
 );
 
 $ORDERHASH = array(
@@ -28,28 +30,46 @@ $ORDERHASH = array(
   	'time' => array( 'time', 'date', 'patient' ),
   	'type' => array( 'type', 'date', 'time', 'patient' ),
   	'comment' => array( 'comment', 'date', 'time', 'patient' ),
-	'status' => array( 'status', 'date', 'time', 'patient' )
+    'status' => array( 'status', 'date', 'time', 'patient' ),
+    'completed' => array( 'completed', 'date', 'time', 'patient' ),
+    'trackerstatus' => array( 'trackerstatus', 'date', 'time', 'patient' ),    
 );
 
-function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null ) 
+function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false ) 
 {
-	$where =
-		"( (e.pc_endDate >= '$from_date' AND e.pc_eventDate <= '$to_date' AND e.pc_recurrtype = '1') OR " .
-  		  "(e.pc_eventDate >= '$from_date' AND e.pc_eventDate <= '$to_date') )";
-	if ( $where_param ) $where .= $where_param;
+   
+   $where =
+        "( (e.pc_endDate >= '$from_date' AND e.pc_eventDate <= '$to_date' AND e.pc_recurrtype = '1') OR " .
+  	    "(e.pc_eventDate >= '$from_date' AND e.pc_eventDate <= '$to_date') )";
+
+    if ( $where_param ) $where .= $where_param;
 	
-	$order_by = "e.pc_eventDate, e.pc_startTime";
-	if ( $orderby_param ) {
-		$order_by = $orderby_param;
-	}
-	
+    $order_by = "e.pc_eventDate, e.pc_startTime";
+    if ( $orderby_param ) {
+       $order_by = $orderby_param;
+    }
+
+    // Tracker Board specific stuff
+    $tracker_fields = '';
+    $tracker_joins = '';     
+    if ($tracker_board) {     
+    $tracker_fields = "e.pc_room, e.pc_pid, t.id, t.date, t.apptdate, t.appttime, t.eid, t.pid, t.original_user, t.encounter, t.lastseq, t.random_drug_test, t.drug_screen_completed, " .
+    "q.pt_tracker_id, q.start_datetime, q.room, q.status, q.seq, q.user, " .
+    "s.toggle_setting_1, s.toggle_setting_2, s.option_id, " ;
+    $tracker_joins = "LEFT OUTER JOIN patient_tracker AS t ON t.pid = e.pc_pid AND t.apptdate = e.pc_eventDate AND t.appttime = e.pc_starttime AND t.eid = e.pc_eid " .
+  	"LEFT OUTER JOIN patient_tracker_element AS q ON q.pt_tracker_id = t.id AND q.seq = t.lastseq " .
+    "LEFT OUTER JOIN list_options AS s ON s.list_id = 'apptstat' AND s.option_id = q.status " ;
+}
+
 	$query = "SELECT " .
   	"e.pc_eventDate, e.pc_endDate, e.pc_startTime, e.pc_endTime, e.pc_duration, e.pc_recurrtype, e.pc_recurrspec, e.pc_recurrfreq, e.pc_catid, e.pc_eid, " .
   	"e.pc_title, e.pc_hometext, e.pc_apptstatus, " .
   	"p.fname, p.mname, p.lname, p.pid, p.pubpid, p.phone_home, p.phone_cell, " .
   	"u.fname AS ufname, u.mname AS umname, u.lname AS ulname, u.id AS uprovider_id, " .
-  	"c.pc_catname, c.pc_catid " .
+  	"$tracker_fields" .
+    "c.pc_catname, c.pc_catid " .
   	"FROM openemr_postcalendar_events AS e " .
+    "$tracker_joins" .
   	"LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
   	"LEFT OUTER JOIN users AS u ON u.id = e.pc_aid " .
 	"LEFT OUTER JOIN openemr_postcalendar_categories AS c ON c.pc_catid = e.pc_catid " .
@@ -71,7 +91,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
 			}
 		}
 	}
-	
+
 	return $events;
 }
 
@@ -92,7 +112,7 @@ function fetchAllEvents( $from_date, $to_date, $provider_id = null, $facility_id
 	return $appointments;
 }
 
-function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null )
+function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false )
 {
 	$where = "";
 	if ( $provider_id ) $where .= " AND e.pc_aid = '$provider_id'";
@@ -137,7 +157,7 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	}
 	$where .= $filter_wofacility;
 	
-	$appointments = fetchEvents( $from_date, $to_date, $where );
+	$appointments = fetchEvents( $from_date, $to_date, $where, '', $tracker_board );
 	return $appointments;
 }
 
@@ -332,6 +352,7 @@ function getComparisonOrder( $code ) {
 	return $ORDERHASH[$code];
 }
 
+
 function sortAppointments( array $appointments, $orderBy = 'date' )
 {
 	global $appointment_sort_order;
@@ -440,6 +461,20 @@ function compareAppointmentsByStatus( $appointment1, $appointment2 )
 	$status1 = $appointment1['pc_apptstatus'];
 	$status2 = $appointment2['pc_apptstatus'];
 	return compareBasic( $status1, $status2 );
+}
+
+function compareAppointmentsByTrackerStatus( $appointment1, $appointment2 )
+{
+	$trackerstatus1 = $appointment1['status'];
+	$trackerstatus2 = $appointment2['status'];
+	return compareBasic( $trackerstatus1, $trackerstatus2 );
+}
+
+function compareAppointmentsByCompletedDrugScreen( $appointment1, $appointment2 )
+{
+	$completed1 = $appointment1['drug_screen_completed'];
+	$completed2 = $appointment2['drug_screen_completed'];
+	return compareBasic( $completed1, $completed2 );
 }
 
 function fetchAppointmentCategories()

@@ -73,7 +73,15 @@ if ($is_expired) {
 }
 else if (!empty($_POST['patientID'])) {
   $patientID = 0 + $_POST['patientID'];
-  $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID);
+  if (empty($_POST['encounterID'])) {
+    // Open patient summary screen (without a specific encounter)
+    $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID);
+  }
+  else {
+    // Open patient summary screen with a specific encounter
+    $encounterID = 0 + $_POST['encounterID'];
+    $frame1url = "../patient_file/summary/demographics.php?set_pid=".attr($patientID)."&set_encounterid=".attr($encounterID);
+  }
 }
 else if ($GLOBALS['athletic_team']) {
   $frame1url = "../reports/players_report.php?embed=1";
