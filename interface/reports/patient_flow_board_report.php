@@ -573,9 +573,9 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
               if($timecheck > $alert_time && ($alert_time != '0')) {
                  if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block.
             ?>             
-            <td class="detail" bgcolor='<?php echo $alert_color ?>'><b>&nbsp;<?php echo text($tracker_time); ?></b></td>
+            <td class="detail" bgcolor='<?php echo attr($alert_color) ?>'><b>&nbsp;<?php echo text($tracker_time); ?></b></td>
             <?php } else { ?>
-            <td class="detail" bgcolor='<?php echo $alert_color ?>'>&nbsp;<?php echo text($tracker_time); ?></td>
+            <td class="detail" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td>
             <?php } ?>             
             <?php } else { if (is_checkin($track_stat) || is_checkout($track_stat)) { #bold the check in and check out times in this block. ?>
             <td class="detail"><b>&nbsp;<?php echo text($tracker_time); ?></b></td>
