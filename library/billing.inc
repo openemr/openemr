@@ -5,12 +5,12 @@ require_once(dirname(__FILE__) . "/sql.inc");
 
 function getBillingById ($id, $cols = "*")
 {
-    return sortBilling(sqlQuery("select $cols from billing where id='$id' and activity=1 order by date DESC limit 0,1"));
+    return sqlQuery("select $cols from billing where id='$id' and activity=1 order by date DESC limit 0,1");
 }
 
 function getBillingByPid ($pid, $cols = "*")
 {
-    return sortBilling(sqlQuery("select $cols from billing where pid ='$pid' and activity=1 order by date DESC limit 0,1"));
+    return sqlQuery("select $cols from billing where pid ='$pid' and activity=1 order by date DESC limit 0,1");
 }
 
 function getBillingByEncounter ($pid,$encounter, $cols = "code_type, code, code_text")
