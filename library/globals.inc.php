@@ -1155,6 +1155,17 @@ $GLOBALS_METADATA = array(
       xl('Must be empty if SMTP authentication is not used.')
     ),
 
+    'SMTP_SECURE' => array(
+      xlt('SMTP security protocol to connect with'),
+      array(
+        '' => 'None',
+        'ssl'  => 'SSL',
+        'tls'  => 'TLS'
+      ),
+      '',
+      xla('SMTP security protocol to connect with. Required by some servers such as gmail.')
+    ),
+
     'EMAIL_NOTIFICATION_HOUR' => array(
       xl('Email Notification Hours'),
       'num',                            // data type
