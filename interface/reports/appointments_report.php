@@ -377,7 +377,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 		?>
 
         <tr valign='top' id='p1.<?php echo attr($patient_id) ?>' bgcolor='<?php echo $bgcolor ?>'>
-        <td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : $docname ?>
+        <td class="detail">&nbsp;<?php echo ($docname == $lastdocname) ? "" : text($docname) ?>
 		</td>
 
 		<td class="detail" <?php echo $showDate ? '' : 'style="display:none;"' ?>><?php echo text(oeFormatShortDate($appointment['pc_eventDate'])) ?>
