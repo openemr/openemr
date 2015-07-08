@@ -261,7 +261,8 @@ function generate_form_field($frow, $currvalue) {
 
   $disabled = strpos($frow['edit_options'], '0') === FALSE ? '' : 'disabled';
 
-  $lbfchange = strpos($frow['form_id'], 'LBF') === 0 ? "checkSkipConditions();" : "";
+  $lbfchange = (strpos($frow['form_id'], 'LBF') === 0 || strpos($frow['form_id'], 'LBT') === 0) ?
+    "checkSkipConditions();" : "";
   $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
   // generic single-selection list or Race and Ethnicity.

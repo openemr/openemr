@@ -236,6 +236,10 @@ function CreateReactionList() {
 *   argument: table_name
 *   behavior: if the table_name does exist, the block will be executed
 *
+* #IfColumn
+*   arguments: table_name colname
+*   behavior:  if the table and column exist,  the block will be executed
+*
 * #IfMissingColumn
 *   arguments: table_name colname
 *   behavior:  if the table exists but the column does not,  the block will be executed
@@ -331,6 +335,16 @@ function upgradeFromSqlFile($filename) {
     }
     else if (preg_match('/^#IfTable\s+(\S+)/', $line, $matches)) {
       $skipping = ! tableExists($matches[1]);
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+        $skipping = !columnExists($matches[1], $matches[2]);
+      }
+      else {
+        // If no such table then the column is deemed "missing".
+        $skipping = true;
+      }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
     else if (preg_match('/^#IfMissingColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {

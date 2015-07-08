@@ -9,6 +9,10 @@
 --    argument: table_name
 --    behavior: if the table_name does exist, the block will be executed
 
+--  #IfColumn
+--    arguments: table_name colname
+--    behavior:  if the table and column exist,  the block will be executed
+
 --  #IfMissingColumn
 --    arguments: table_name colname
 --    behavior:  if the table exists but the column does not,  the block will be executed
@@ -12322,4 +12326,125 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2015-10-01 load_filename Reimbursement_Mapping_pr_2016.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2015-10-01', 'Reimbursement_Mapping_pr_2016.zip', '3c780dd103d116aa57980decfddd4f19');
+#EndIf
+
+#IfNotRow2D list_options list_id transactions option_id LBTref
+UPDATE list_options SET title = 'Layout-Based Transaction Forms', seq = 9 WHERE list_id = 'lists' AND option_id = 'transactions';
+UPDATE list_options SET option_id = 'LBTref'   WHERE list_id = 'transactions' AND option_id = 'Referral';
+UPDATE list_options SET option_id = 'LBTptreq' WHERE list_id = 'transactions' AND option_id = 'Patient Request';
+UPDATE list_options SET option_id = 'LBTphreq' WHERE list_id = 'transactions' AND option_id = 'Physician Request';
+UPDATE list_options SET option_id = 'LBTlegal' WHERE list_id = 'transactions' AND option_id = 'Legal';
+UPDATE list_options SET option_id = 'LBTbill'  WHERE list_id = 'transactions' AND option_id = 'Billing';
+UPDATE transactions SET title     = 'LBTref'   WHERE title = 'Referral';
+UPDATE transactions SET title     = 'LBTptreq' WHERE title = 'Patient Request';
+UPDATE transactions SET title     = 'LBTphreq' WHERE title = 'Physician Request';
+UPDATE transactions SET title     = 'LBTlegal' WHERE title = 'Legal';
+UPDATE transactions SET title     = 'LBTbill'  WHERE title = 'Billing';
+UPDATE layout_options SET form_id = 'LBTref'   WHERE form_id = 'REF';
+
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,
+  `max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
+  VALUES ('LBTptreq','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
+
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,
+  `max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
+  VALUES ('LBTphreq','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
+
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,
+  `max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
+  VALUES ('LBTlegal','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
+
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_name`,`title`,`seq`,`data_type`,`uor`,`fld_length`,
+  `max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
+  VALUES ('LBTbill' ,'body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
+#EndIf
+
+#IfNotTable lbt_data
+CREATE TABLE `lbt_data` (
+  `form_id`     bigint(20)   NOT NULL COMMENT 'references transactions.id',
+  `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
+  `field_value` TEXT         NOT NULL,
+  PRIMARY KEY (`form_id`,`field_id`)
+) ENGINE=MyISAM COMMENT='contains all data from layout-based transactions';
+#EndIf
+
+#IfColumn transactions                                body
+INSERT INTO lbt_data SELECT id, 'body'              , body               FROM transactions WHERE body               != '';
+ALTER TABLE transactions DROP COLUMN                  body;
+#EndIf
+#IfColumn transactions                                refer_date
+INSERT INTO lbt_data SELECT id, 'refer_date'        , refer_date         FROM transactions WHERE refer_date         IS NOT NULL;
+ALTER TABLE transactions DROP COLUMN                  refer_date;
+#EndIf
+#IfColumn transactions                                refer_from
+INSERT INTO lbt_data SELECT id, 'refer_from'        , refer_from         FROM transactions WHERE refer_from         != 0;
+ALTER TABLE transactions DROP COLUMN                  refer_from;
+#EndIf
+#IfColumn transactions                                refer_to
+INSERT INTO lbt_data SELECT id, 'refer_to'          , refer_to           FROM transactions WHERE refer_to           != 0;
+ALTER TABLE transactions DROP COLUMN                  refer_to;
+#EndIf
+#IfColumn transactions                                refer_diag
+INSERT INTO lbt_data SELECT id, 'refer_diag'        , refer_diag         FROM transactions WHERE refer_diag         != '';
+ALTER TABLE transactions DROP COLUMN                  refer_diag;
+#EndIf
+#IfColumn transactions                                refer_risk_level
+INSERT INTO lbt_data SELECT id, 'refer_risk_level'  , refer_risk_level   FROM transactions WHERE refer_risk_level   != '';
+ALTER TABLE transactions DROP COLUMN                  refer_risk_level;
+#EndIf
+#IfColumn transactions                                refer_vitals
+INSERT INTO lbt_data SELECT id, 'refer_vitals'      , refer_vitals       FROM transactions WHERE refer_vitals       != 0;
+ALTER TABLE transactions DROP COLUMN                  refer_vitals;
+#EndIf
+#IfColumn transactions                                refer_external
+INSERT INTO lbt_data SELECT id, 'refer_external'    , refer_external     FROM transactions WHERE refer_external     != 0;
+ALTER TABLE transactions DROP COLUMN                  refer_external;
+#EndIf
+#IfColumn transactions                                refer_related_code
+INSERT INTO lbt_data SELECT id, 'refer_related_code', refer_related_code FROM transactions WHERE refer_related_code != '';
+ALTER TABLE transactions DROP COLUMN                  refer_related_code;
+#EndIf
+#IfColumn transactions                                refer_reply_date
+INSERT INTO lbt_data SELECT id, 'refer_reply_date'  , refer_reply_date   FROM transactions WHERE refer_reply_date   IS NOT NULL;
+ALTER TABLE transactions DROP COLUMN                  refer_reply_date;
+#EndIf
+#IfColumn transactions                                reply_date
+INSERT INTO lbt_data SELECT id, 'reply_date'        , reply_date         FROM transactions WHERE reply_date         IS NOT NULL;
+ALTER TABLE transactions DROP COLUMN                  reply_date;
+#EndIf
+#IfColumn transactions                                reply_from
+INSERT INTO lbt_data SELECT id, 'reply_from'        , reply_from         FROM transactions WHERE reply_from         != '';
+ALTER TABLE transactions DROP COLUMN                  reply_from;
+#EndIf
+#IfColumn transactions                                reply_init_diag
+INSERT INTO lbt_data SELECT id, 'reply_init_diag'   , reply_init_diag    FROM transactions WHERE reply_init_diag    != '';
+ALTER TABLE transactions DROP COLUMN                  reply_init_diag;
+#EndIf
+#IfColumn transactions                                reply_final_diag
+INSERT INTO lbt_data SELECT id, 'reply_final_diag'  , reply_final_diag   FROM transactions WHERE reply_final_diag   != '';
+ALTER TABLE transactions DROP COLUMN                  reply_final_diag;
+#EndIf
+#IfColumn transactions                                reply_documents
+INSERT INTO lbt_data SELECT id, 'reply_documents'   , reply_documents    FROM transactions WHERE reply_documents    != '';
+ALTER TABLE transactions DROP COLUMN                  reply_documents;
+#EndIf
+#IfColumn transactions                                reply_findings
+INSERT INTO lbt_data SELECT id, 'reply_findings'    , reply_findings     FROM transactions WHERE reply_findings     != '';
+ALTER TABLE transactions DROP COLUMN                  reply_findings;
+#EndIf
+#IfColumn transactions                                reply_services
+INSERT INTO lbt_data SELECT id, 'reply_services'    , reply_services     FROM transactions WHERE reply_services     != '';
+ALTER TABLE transactions DROP COLUMN                  reply_services;
+#EndIf
+#IfColumn transactions                                reply_recommend
+INSERT INTO lbt_data SELECT id, 'reply_recommend'   , reply_recommend    FROM transactions WHERE reply_recommend    != '';
+ALTER TABLE transactions DROP COLUMN                  reply_recommend;
+#EndIf
+#IfColumn transactions                                reply_rx_refer
+INSERT INTO lbt_data SELECT id, 'reply_rx_refer'    , reply_rx_refer     FROM transactions WHERE reply_rx_refer     != '';
+ALTER TABLE transactions DROP COLUMN                  reply_rx_refer;
+#EndIf
+#IfColumn transactions                                reply_related_code
+INSERT INTO lbt_data SELECT id, 'reply_related_code', reply_related_code FROM transactions WHERE reply_related_code != '';
+ALTER TABLE transactions DROP COLUMN                  reply_related_code;
 #EndIf

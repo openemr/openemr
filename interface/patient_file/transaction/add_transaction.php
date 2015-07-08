@@ -20,58 +20,64 @@ require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/amc.php");
 
-// Referral plugin support.
-$fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/REF.plugin.php";
+// This can come from the URL if it's an Add.
+$title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
+$form_id = $title;
+
+// Plugin support.
+$fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$form_id.plugin.php";
 if (file_exists($fname)) include_once($fname);
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
 $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
-$title   = empty($_POST['title']) ? '' : $_POST['title'];
-$inmode    = $_GET['inmode'];
-$body_onload_code="";
-if ($inmode) {		/*	For edit func */
-  $inedit = sqlStatement("SELECT * FROM transactions " .
-    "WHERE id = ?", array($transid) );
-  while ($inmoderow = sqlFetchArray($inedit)) {
-    $body = $inmoderow['body'];
-  }
-}
-if ($mode) {
-  //use sql placemaker
-  $sets = "title=?, user = ?, groupname = ?, authorized = ?, date = NOW()";
-  $sqlBindArray = array($_POST['title'], $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized);
+// $inmode    = $_GET['inmode'];
+$body_onload_code = "";
 
-  $fres = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'REF' AND uor > 0 AND field_id != '' " .
-    "ORDER BY group_name, seq");
-  while ($frow = sqlFetchArray($fres)) {
-    $data_type = $frow['data_type'];
-    $field_id  = $frow['field_id'];
-    $value = $_POST["form_$field_id"];
-    if ($field_id == 'body' && $title != 'Referral') {
-      $value = $_POST["body"];
-    }
-    if ($data_type == 4 && empty($value)) {
-      // empty dates should be null (note need to explicitly escape the column label)
-      $sets .= ", " . add_escape_custom($field_id) . " = NULL";
-    }
-    else {
-      // use sql placemaker (note need to explicitly escape the column label)
-      $sets .= ", " . add_escape_custom($field_id) . " = ?";
-      array_push($sqlBindArray, $value);
-    }
-  }
+if ($mode) {
+  $sets = "title = ?, user = ?, groupname = ?, authorized = ?, date = NOW()";
+  $sqlBindArray = array($form_id, $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized);
+
   if ($transid) {
-    //use sql placemaker
-    array_push($sqlBindArray,$transid);
+    array_push($sqlBindArray, $transid);
     sqlStatement("UPDATE transactions SET $sets WHERE id = ?", $sqlBindArray);
   }
   else {
-    //use sql placemaker
-    array_push($sqlBindArray,$pid);
+    array_push($sqlBindArray, $pid);
     $sets .= ", pid = ?";
-    $transid = sqlInsert("INSERT INTO transactions SET $sets", $sqlBindArray);
+    $newid = sqlInsert("INSERT INTO transactions SET $sets", $sqlBindArray);
   }
+
+  $fres = sqlStatement("SELECT * FROM layout_options " .
+    "WHERE form_id = ? AND uor > 0 AND field_id != '' " .
+    "ORDER BY group_name, seq", array($form_id));
+
+  while ($frow = sqlFetchArray($fres)) {
+    $data_type = $frow['data_type'];
+    $field_id  = $frow['field_id'];
+    $value = get_layout_form_value($frow);
+
+    if ($transid) { // existing form
+      if ($value === '') {
+        $query = "DELETE FROM lbt_data WHERE " .
+          "form_id = ? AND field_id = ?";
+        sqlStatement($query, array($transid, $field_id));
+      }
+      else {
+        $query = "REPLACE INTO lbt_data SET field_value = ?, " .
+          "form_id = ?, field_id = ?";
+        sqlStatement($query, array($value, $transid, $field_id));
+      }
+    }
+    else { // new form
+      if ($value !== '') {
+        sqlStatement("INSERT INTO lbt_data " .
+          "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
+          array($newid, $field_id, $value));
+      }
+    }
+  }
+
+  if (!$transid) $transid = $newid;
 
   // Set the AMC sent records flag
   if (!(empty($_POST['send_sum_flag']))) {
@@ -88,17 +94,6 @@ if ($mode) {
   else
     $body_onload_code = "javascript:parent.Transactions.location.href='transactions.php';";
 }
-
-/************************************
-//Migrated this to the list_options engine (transactions list)
-$trans_types = array(
-  'Referral'          => xl('Referral'),
-  'Patient Request'   => xl('Patient Request'),
-  'Physician Request' => xl('Physician Request'),
-  'Legal'             => xl('Legal'),
-  'Billing'           => xl('Billing'),
-);
-************************************/
 
 $CPR = 4; // cells per row
 
@@ -150,26 +145,31 @@ $trow = $transid ? getTransById($transid) : array();
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+
 <script type="text/javascript">
-$(document).ready(function(){
-    tabbify();
+$(document).ready(function() {
+  if (window.enable_modals) {
     enable_modals();
+  }
+  if(window.tabbify){
+    tabbify();
+  }
+  if (window.checkSkipConditions) {
+    checkSkipConditions();
+  }
 });
 </script>
+
 <script language="JavaScript">
 
 var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
 
 function titleChanged() {
  var sel = document.forms[0].title;
- var si = (sel.selectedIndex < 0) ? 0 : sel.selectedIndex;
- if (sel.options[si].value == 'Referral') {
-  document.getElementById('otherdiv').style.display = 'none';
-  document.getElementById('referdiv').style.display = 'block';
- } else {
-  document.getElementById('referdiv').style.display = 'none';
-  document.getElementById('otherdiv').style.display = 'block';
- }
+ // Layouts must not interfere with each other. Reload the document in Add mode.
+ top.restoreSession();
+ location.href = 'add_transaction.php?title=' + sel.value;
  return true;
 }
 
@@ -234,11 +234,7 @@ function validate(f) {
  var errCount = 0;
  var errMsgs = new Array();
 
- var sel = f.title;
- var si = (sel.selectedIndex < 0) ? 0 : sel.selectedIndex;
- if (sel.options[si].value == 'Referral') {
-    <?php generate_layout_validation('REF'); ?>
- }
+ <?php generate_layout_validation($form_id); ?>
 
  var msg = "";
  msg += "<?php echo htmlspecialchars( xl('The following fields are required'), ENT_QUOTES); ?>:\n\n";
@@ -262,10 +258,9 @@ function submitme() {
  }
 }
 
-<?php if (function_exists('REF_javascript')) call_user_func('REF_javascript'); ?>
+<?php if (function_exists($form_id . '_javascript')) call_user_func($form_id . '_javascript'); ?>
 
 </script>
-
 
 <style type="text/css">
 div.tab {
@@ -298,13 +293,13 @@ div.tab {
 	<table class="text">
 	    <tr><td>
         <?php echo htmlspecialchars( xl('Transaction Type'), ENT_NOQUOTES); ?>:&nbsp;</td><td>
-	<?php echo generate_select_list('title','transactions',$_REQUEST['title'],'','','','titleChanged()'); ?>
+	<?php echo generate_select_list('title','transactions',$form_id,'','','','titleChanged()'); ?>
         </td></tr>
 	</table>
 
 <div id='referdiv'>
 
-    <?php if ($GLOBALS['enable_amc_prompting']) { ?>
+    <?php if ($GLOBALS['enable_amc_prompting'] && 'LBTref' == $form_id) { ?>
         <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
             <div style='float:left;margin:5px 5px 5px 5px;'>
                 <?php // Display the send records checkbox (AMC prompting)
@@ -324,49 +319,28 @@ div.tab {
 						<ul class="tabNav">
 <?php
 $fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'REF' AND uor > 0 " .
-  "ORDER BY group_name, seq");
+  "WHERE form_id = ? AND uor > 0 " .
+  "ORDER BY group_name, seq", array($form_id));
 $last_group = '';
-$cell_count = 0;
-$item_count = 0;
-$display_style = 'block';
 
 while ($frow = sqlFetchArray($fres)) {
   $this_group = $frow['group_name'];
-  $titlecols  = $frow['titlecols'];
-  $datacols   = $frow['datacols'];
-  $data_type  = $frow['data_type'];
-  $field_id   = $frow['field_id'];
-  $list_id    = $frow['list_id'];
-
-  $currvalue  = '';
-  if (isset($trow[$field_id])) $currvalue = $trow[$field_id];
-
-  // Handle special-case default values.
-  if (!$currvalue && !$transid) {
-    if ($field_id == 'refer_date') {
-      $currvalue = date('Y-m-d');
-    }
-    else if ($field_id == 'body' ) {
-      $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
-        "pid = ? ORDER BY date DESC LIMIT 1", array($pid) );
-      if (!empty($tmp)) $currvalue = $tmp['reason'];
-    }
-  }
-
   // Handle a data category (group) change.
   if (strcmp($this_group, $last_group) != 0) {
     $group_seq  = substr($this_group, 0, 1);
     $group_name = substr($this_group, 1);
     $last_group = $this_group;
-	if($group_seq==1)	echo "<li class='current'>";
-	else				echo "<li class=''>";
-        $group_seq_esc = htmlspecialchars( $group_seq, ENT_QUOTES);
-        $group_name_show = htmlspecialchars( xl_layout_label($group_name), ENT_NOQUOTES);
-	echo "<a href='/play/javascript-tabbed-navigation/' id='div_$group_seq_esc'>".
-	    "$group_name_show</a></li>";
+    if ($group_seq == 1) {
+      echo "<li class='current'>";
+    }
+    else {
+      echo "<li class=''>";
+    }
+    $group_seq_esc = htmlspecialchars($group_seq, ENT_QUOTES);
+    $group_name_show = htmlspecialchars(xl_layout_label($group_name), ENT_NOQUOTES);
+    echo "<a href='/play/javascript-tabbed-navigation/' id='div_$group_seq_esc'>" .
+      "$group_name_show</a></li>";
   }
-  ++$item_count;
 }
 ?>
 						</ul>
@@ -374,12 +348,14 @@ while ($frow = sqlFetchArray($fres)) {
 
 								<?php
 $fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'REF' AND uor > 0 " .
-  "ORDER BY group_name, seq");
+  "WHERE form_id = ? AND uor > 0 " .
+  "ORDER BY group_name, seq", array($form_id));
+
 $last_group = '';
 $cell_count = 0;
 $item_count = 0;
 $display_style = 'block';
+$condition_str = '';
 
 while ($frow = sqlFetchArray($fres)) {
   $this_group = $frow['group_name'];
@@ -389,11 +365,27 @@ while ($frow = sqlFetchArray($fres)) {
   $field_id   = $frow['field_id'];
   $list_id    = $frow['list_id'];
 
+  // Accumulate skip conditions into a JSON expression for the browser side.
+  // Cloned from interface/forms/LBF/new.php.
+  $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
+  foreach ($conditions as $condition) {
+    if (empty($condition['id'])) continue;
+    $andor = empty($condition['andor']) ? '' : $condition['andor'];
+    if ($condition_str) $condition_str .= ",\n";
+    $condition_str .= "{" .
+      "target:'"   . addslashes($field_id)              . "', " .
+      "id:'"       . addslashes($condition['id'])       . "', " .
+      "itemid:'"   . addslashes($condition['itemid'])   . "', " .
+      "operator:'" . addslashes($condition['operator']) . "', " .
+      "value:'"    . addslashes($condition['value'])    . "', " .
+      "andor:'"    . addslashes($andor)                 . "'}";
+  }
+
   $currvalue  = '';
   if (isset($trow[$field_id])) $currvalue = $trow[$field_id];
 
   // Handle special-case default values.
-  if (!$currvalue && !$transid) {
+  if (!$currvalue && !$transid && $form_id == 'LBTref') {
     if ($field_id == 'refer_date') {
       $currvalue = date('Y-m-d');
     }
@@ -411,8 +403,8 @@ while ($frow = sqlFetchArray($fres)) {
     $group_name = substr($this_group, 1);
     $last_group = $this_group;
     $group_seq_esc = htmlspecialchars( $group_seq, ENT_QUOTES);
-	if($group_seq==1)	echo "<div class='tab current' id='div_$group_seq_esc'>";
-	else				echo "<div class='tab' id='div_$group_seq_esc'>";
+    if($group_seq == 1)	echo "<div class='tab current' id='div_$group_seq_esc'>";
+    else echo "<div class='tab' id='div_$group_seq_esc'>";
     echo " <table border='0' cellpadding='0'>\n";
     $display_style = 'none';
   }
@@ -432,6 +424,8 @@ while ($frow = sqlFetchArray($fres)) {
     echo "<td width='70' valign='top' colspan='$titlecols_esc'";
     echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
     if ($cell_count == 2) echo " style='padding-left:10pt'";
+    // This ID is used by skip conditions.
+    echo " id='label_id_" . attr($field_id) . "'";
     echo ">";
     $cell_count += $titlecols;
   }
@@ -449,6 +443,8 @@ while ($frow = sqlFetchArray($fres)) {
     end_cell();
     $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);
     echo "<td valign='top' colspan='$datacols_esc' class='text'";
+    // This ID is used by skip conditions.
+    echo " id='value_id_" . attr($field_id) . "'";
     if ($cell_count > 0) echo " style='padding-left:5pt'";
     echo ">";
     $cell_count += $datacols;
@@ -464,14 +460,8 @@ end_group();
 ?>
 </div></div>
 </div>
-<p>
-<div id='otherdiv' style='display:none'>
-<span class='bold'><?php echo htmlspecialchars( xl('Details'), ENT_NOQUOTES); ?>:</span><br>
-<textarea name='body' rows='6' cols='40' wrap='virtual'><?php echo htmlspecialchars( $body, ENT_NOQUOTES); ?>
-</textarea>
-</div>
 </form>
-</p>
+<p />
 
 <!-- include support for the list-add selectbox feature -->
 <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
@@ -479,11 +469,17 @@ end_group();
 </body>
 
 <script language="JavaScript">
+
+// Array of skip conditions for the checkSkipConditions() function.
+var skipArray = [
+<?php echo $condition_str; ?>
+];
+
 <?php echo $date_init; ?>
-titleChanged();
+// titleChanged();
 <?php
-if (function_exists('REF_javascript_onload')) {
-  call_user_func('REF_javascript_onload');
+if (function_exists($form_id . '_javascript_onload')) {
+  call_user_func($form_id . '_javascript_onload');
 }
 ?>
 
