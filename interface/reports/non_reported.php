@@ -1,6 +1,7 @@
 <?php
 // Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
 // Copyright (C) 2010 Tomasz Wyderka <wyderkat@cofoh.com>
+// Copyright (C) 2015 Ensoftek <rammohan@ensoftek.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -8,10 +9,50 @@
 // of the License, or (at your option) any later version.
 
 // This report lists non reported patient diagnoses for a given date range.
+// Ensoftek: Jul-2015: Modified HL7 generation to 2.5.1 spec and MU2 compliant.
+// This implementation is only for the A01 profile which will suffice for MU2 certification.                   
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
+
+
+// Ensoftek: Jul-2015: Get the facility of the logged in user.
+function getLoggedInUserFacility(){
+	$sql = "SELECT f.name, f.facility_npi FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
+	$res = sqlStatement($sql, array($_SESSION['authUserID']) );
+	 while ($arow = sqlFetchArray($res)) {
+		return $arow;
+	}
+    return null;
+}
+
+// Ensoftek: Jul-2015: Map codes to confirm to HL7.
+function mapCodeType($incode){
+	$outcode = null;
+    $code = explode(":", $incode);
+	switch ($code[0]) {
+		 case "ICD9":
+			 $outcode = "I9CDX";
+			 break;
+		 case "ICD10":
+			 $outcode = "I10";
+			 break;
+		 case "SNOMED-CT":
+			 $outcode = "SCT";
+			 break;
+		 case "US Ext SNOMEDCT":
+			 $outcode = "SCT";
+			 break;
+		 default:
+			 $outcode = "I9CDX"; // default to ICD9
+			 break;		 
+			 // Only ICD9, ICD10 and SNOMED codes allowed in Syndromic Surveillance
+    }
+    return $outcode;	
+}
+
 
 if(isset($_POST['form_from_date'])) {
   $from_date = $_POST['form_from_date'] !== "" ? 
@@ -64,7 +105,7 @@ function tr($a) {
       "l.date as issuedate, "  ;
   }
   $query .=
-  "l.id as issueid, l.title as issuetitle ".
+  "l.id as issueid, l.title as issuetitle, DATE_FORMAT(l.begdate,'%Y%m%d%H%i') as begin_date ". // Ensoftek: Jul-2015: Get begin date
   "from lists l, patient_data p, codes c ".
   "where ".
   "c.reportable=1 and ".
@@ -89,31 +130,38 @@ function tr($a) {
 //echo "<p> DEBUG query: $query </p>\n"; // debugging
 
 $D="\r";
-$nowdate = date('Ymd');
+$nowdate = date('YmdHi');
 $now = date('YmdGi');
 $now1 = date('Y-m-d G:i');
 $filename = "syn_sur_". $now . ".hl7";
 
+
+// Ensoftek: Jul-2015: Get logged in user's facility to be used in the MSH segment
+$facility_info = getLoggedInUserFacility();
+
 // GENERATE HL7 FILE
 if ($_POST['form_get_hl7']==='true') {
   $content = ''; 
-  //$content.="FHS|^~\&|OPENEMR||||$now||$filename||||$D";
-  //$content.="BHS|^~\&|OPENEMR||||$now||SyndromicSurveillance||||$D";
 
   $res = sqlStatement($query);
 
   while ($r = sqlFetchArray($res)) {
-    $content .= "MSH|^~\&|OPENEMR||||$nowdate||".
-      "ADT^A08|$nowdate|P^T|2.5.1|||||||||$D";
-    $content .= "EVN|" . // [[ 3.69 ]]
-        "A08|" . // 1.B Event Type Code
-        "$now|" . // 2.R Recorded Date/Time
-        "|" . // 3. Date/Time Planned Event
-        "|" . // 4. Event Reason Cod
-        "|" . // 5. Operator ID
-        "|" . // 6. Event Occurred
-        "" . // 7. Event Facility
+    // MSH
+    $content .= "MSH|^~\&|".strtoupper($openemr_name).
+		"|" . $facility_info['name'] . "^" . $facility_info['facility_npi'] . "^NPI" . 
+		"|||$now||".
+		"ADT^A01^ADT_A01" . // Hard-code to A01: Patient visits provider/facility
+		"|$nowdate|P^T|2.5.1|||||||||PH_SS-NoAck^SS Sender^2.16.840.1.114222.4.10.3^ISO" . // No acknowlegement
+		"$D";
+	  	  
+	// EVN
+    $content .= "EVN|" .
+        "|" . // 1.B Event Type Code
+        "$now" . // 2.R Recorded Date/Time
+        "||||" .
+		"|" . $facility_info['name'] . "^" . $facility_info['facility_npi'] . "^NPI" .
         "$D" ;
+		
     if ($r['sex']==='Male') $r['sex'] = 'M';
     if ($r['sex']==='Female') $r['sex'] = 'F';
     if ($r['status']==='married') $r['status'] = 'M';
@@ -122,86 +170,59 @@ if ($_POST['form_get_hl7']==='true') {
     if ($r['status']==='widowed') $r['status'] = 'W';
     if ($r['status']==='separated') $r['status'] = 'A';
     if ($r['status']==='domestic partner') $r['status'] = 'P';
-    $content .= "PID|" . // [[ 3.72 ]]
-        "|" . // 1. Set id
-        "|" . // 2. (B)Patient id
-        $r['patientid']."|". // 3. (R) Patient indentifier list
+	
+	// PID
+    $content .= "PID|" . 
+        "1|" . // 1. Set id
+        "|" . 
+        $r['patientid']."^^^^MR"."|". // 3. (R) Patient indentifier list
         "|" . // 4. (B) Alternate PID
-        $r['patientname']."|" . // 5.R. Name
+        "^^^^^^~^^^^^^S"."|" . // 5.R. Name
         "|" . // 6. Mather Maiden Name
         $r['DOB']."|" . // 7. Date, time of birth
-        $r['sex']."|" . // 8. Sex
-        "|" . // 9.B Patient Alias
-        //$r['ethnoracial']."|" . // 10. Race
-        "|" . // 10. Race
-        $r['address']."|" . // 11. Address
-        $r['country_code']."|" . // 12. country code
-        $r['phone_home']."|" . // 13. Phone Home
-        $r['phone_biz']."|" . // 14. Phone Bussines
-        "|" . // 15. Primary language
-        $r['status']."|" . // 16. Marital status
-        "|" . // 17. Religion
-        "|" . // 18. patient Account Number
-        "|" . // 19.B SSN Number
-        "|" . // 20.B Driver license number
-        "|" . // 21. Mathers Identifier
-        "|" . // 22. Ethnic Group
-        "|" . // 23. Birth Plase
-        "|" . // 24. Multiple birth indicator
-        "|" . // 25. Birth order
-        "|" . // 26. Citizenship
-        "|" . // 27. Veteran military status
-        "|" . // 28.B Nationality
-        "|" . // 29. Patient Death Date and Time
-        "|" . // 30. Patient Death Indicator
-        "|" . // 31. Identity Unknown Indicator
-        "|" . // 32. Identity Reliability Code
-        "|" . // 33. Last Update Date/Time
-        "|" . // 34. Last Update Facility
-        "|" . // 35. Species Code
-        "|" . // 36. Breed Code
-        "|" . // 37. Breed Code
-        "|" . // 38. Production Class Code
-        ""  . // 39. Tribal Citizenship
+        $r['sex'] . // 8. Sex
+		"|||^^^||||||||||||||||||||||||||||" .
         "$D" ;
-    $content .= "PV1|" . // [[ 3.86 ]]
-        "|" . // 1. Set ID
-        "U|" . // 2.R Patient Class (U - unknown)
-        "" . // 3. ... 52.
-        "$D" ;
-    $content .= "DG1|" . // [[ 6.24 ]]
+		
+    $content .= "PV1|" . 
         "1|" . // 1. Set ID
-        $r['diagnosis']."|" . // 2.B.R Diagnosis Coding Method
-        $r['code']."|" . // 3. Diagnosis Code - DG1
-        $r['code_text']."|" . // 4.B Diagnosis Description
-        $r['issuedate']."|" . // 5. Diagnosis Date/Time
-        "W|" . // 6.R Diagnosis Type  // A - Admiting, W - working
-        "|" . // 7.B Major Diagnostic Category
-        "|" . // 8.B Diagnostic Related Group
-        "|" . // 9.B DRG Approval Indicator 
-        "|" . // 10.B DRG Grouper Review Code
-        "|" . // 11.B Outlier Type 
-        "|" . // 12.B Outlier Days
-        "|" . // 13.B Outlier Cost
-        "|" . // 14.B Grouper Version And Type 
-        "|" . // 15. Diagnosis Priority
-        "|" . // 16. Diagnosing Clinician
-        "|" . // 17. Diagnosis Classification
-        "|" . // 18. Confidential Indicator
-        "|" . // 19. Attestation Date/Time
-        "|" . // 20.C Diagnosis Identifier
-        "" . // 21.C Diagnosis Action Code
+        "|||||||||||||||||" .
+		// Restrict the string to 15 characters. Will fail if longer.
+		substr($now . "_" . $r['patientid'], 0, 15) . "^^^^VN" . // Supposed to be visit number. Since, we don't have any encounter, we'll use the format 'date_pid' to make it unique
+		"|||||||||||||||||||||||||" .
+		$r['begin_date'] . 
         "$D" ;
+		
+	// OBX: Records chief complaint in LOINC code
+    $content .= "OBX|" . 
+        "1|" . // 1. Set ID
+		"CWE|8661-1^^LN||" . // LOINC code for chief complaint
+		"^^^^^^^^" . $r['issuetitle'] .
+		"||||||" .
+		"F" . 
+        "$D" ;
+		
+	// DG1
+	$r['diagnosis'] = mapCodeType($r['diagnosis']);  // Only ICD9, ICD10 and SNOMED
+	$r['code'] = str_replace(".", "", $r['code']); // strip periods code
+
+    $content .= "DG1|" . 
+        "1|" . // 1. Set ID
+		"|" .
+		$r['code'] . "^" . $r['code_text'] . "^" . $r['diagnosis'] .
+		"|||W" .
+        "$D" ;
+		
         
         // mark if issues generated/sent
         $query_insert = "insert into syndromic_surveillance(lists_id,submission_date,filename) " .
          "values (" . $r['issueid'] . ",'" . $now1 . "','" . $filename . "')"; 
         sqlStatement($query_insert);
 }
-  //$content.="BTS|||$D";
-  //$content.="FTS||$D";
 
-  $content = tr($content);
+  // Ensoftek: Jul-2015: No need to tr the content
+  //$content = tr($content);
+
   // send the header here
   header('Content-type: text/plain');
   header('Content-Disposition: attachment; filename=' . $filename );
