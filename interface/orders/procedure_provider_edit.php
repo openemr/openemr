@@ -70,8 +70,12 @@ td { font-size:10pt; }
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save']) {
-  $sets =
-    "name = "         . invalue('form_name')         . ", " .
+   $org_qry = "SELECT organization FROM users WHERE id = ?";
+   $org_res = sqlQuery($org_qry, array($_POST['form_name']));
+   $org_name = $org_res['organization'];
+   $sets =
+    "name = '"  .add_escape_custom($org_name). "', " .
+    "lab_director = "         . invalue('form_name')         . ", " .
     "npi = "          . invalue('form_npi')          . ", " .
     "send_app_id = "  . invalue('form_send_app_id')  . ", " .
     "send_fac_id = "  . invalue('form_send_fac_id')  . ", " .
@@ -114,6 +118,19 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 if ($ppid) {
   $row = sqlQuery("SELECT * FROM procedure_providers WHERE ppid = ?", array($ppid));
 }
+
+$lab_org_query = "SELECT id, organization FROM users WHERE abook_type = 'ord_lab'";
+$org_res = sqlStatement($lab_org_query);
+while ($org_row = sqlFetchArray($org_res)) {
+    $lab_org_name = $org_row['organization'];
+    $selected = '';
+    if ($ppid) {
+        if($row['lab_director'] == $org_row['id']){
+            $selected = "SELECTED";
+        }
+    }
+    $optionsStr .= "<option value='".attr($org_row['id'])."' $selected>".  text($lab_org_name)."</option>";
+}
 ?>
 
 <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr($ppid) ?>'>
@@ -124,9 +141,9 @@ if ($ppid) {
  <tr>
   <td nowrap><b><?php echo xlt('Name'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_name' maxlength='255'
-    value='<?php echo attr($row['name']); ?>'
-    style='width:100%' class='inputtext' />
+	<select name='form_name' id='form_name' class='inputtext' style='width:150px'> 
+          <?php echo $optionsStr; ?>
+    </select>
   </td>
  </tr>
 

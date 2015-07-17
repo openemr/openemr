@@ -17,7 +17,7 @@ class AMC_302h extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-        return "labs";
+        return "lab_orders";
     }
  
     public function createDenominator() 

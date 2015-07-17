@@ -235,6 +235,73 @@ abstract class AbstractAmcReport implements RsReportIF
                        "procedure_report.date_collected >= ? AND procedure_report.date_collected <= ?";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
+			
+			case "lab_radiology":
+				$sql = "SELECT  IF( u.cpoe = '1', 'Yes', 'No') as cpoe_stat FROM procedure_order pr ".
+					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
+					  "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
+					  "LEFT JOIN users u ON u.id = pp.lab_director ".
+					  "WHERE pr.patient_id = ? ".
+					  "AND prc.procedure_order_title LIKE '%Radiology%' ".
+					  "AND (pr.date_ordered BETWEEN ? AND ?)"; 
+				array_push($sqlBindArray, $patient->id, $begin, $end);
+                break;
+			
+			case "cpoe_lab_orders":
+				$sql = "SELECT IF( u.cpoe = '1', 'Yes', 'No') as cpoe_stat FROM procedure_order pr ".
+					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
+					  "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
+					  "LEFT JOIN users u ON u.id = pp.lab_director ".
+					  "WHERE pr.patient_id = ? ".
+					  "AND prc.procedure_order_title LIKE '%Laboratory Test%' ".
+					  "AND (pr.date_ordered BETWEEN ? AND ?)"; 
+				array_push($sqlBindArray, $patient->id, $begin, $end);
+                break;
+			
+			case "med_orders":
+				 $sql = "SELECT cpoe_flag as cpoe_stat " .
+                       "FROM `prescriptions` " .
+                       "WHERE `patient_id` = ? " .
+                       "AND `date_added` BETWEEN ? AND ?";
+                array_push($sqlBindArray, $patient->id, $begin, $end);
+                break;
+				
+			case "transitions-out-new":
+                $sql =  "SELECT fe.encounter FROM form_encounter fe ".
+					    "INNER JOIN transactions t ON  fe.pid = t.pid AND t.`title` = 'Referral'  ".
+					    "INNER JOIN amc_misc_data amd ON t.pid = amd.pid AND amd.map_category = 'transactions' AND amd.amc_id = 'send_sum_amc' ".
+					    "WHERE DATE(fe.date) = DATE(t.refer_date) AND fe.pid = ? ".
+					    "AND (fe.date BETWEEN ? AND ?) ";
+                array_push($sqlBindArray, $patient->id, $begin, $end);
+                break;
+				
+			case "lab_orders":
+               $sql = "SELECT procedure_order_id FROM " .
+                       "procedure_order " .
+                       "WHERE " .
+                       "patient_id = ? " .
+					   "AND (date_ordered BETWEEN ? AND ?)"; 
+                array_push($sqlBindArray, $patient->id, $begin, $end);
+                break;
+				
+			case "pres_non_substance":
+				$sql = "SELECT formulary, cpoe_flag as transmit_stat, eTransmit " .
+                       "FROM `prescriptions` " .
+                       "WHERE controlledsubstance = 'no' " .
+					   "AND `patient_id` = ? ".
+                       "AND `date_added` BETWEEN ? AND ?";
+                array_push($sqlBindArray, $patient->id, $begin, $end);
+                break;
+			
+			case "encounters_office_vist":
+                $sql = "SELECT * " .
+                       "FROM `form_encounter` fe " .
+					   "INNER JOIN openemr_postcalendar_categories opc ON fe.pc_catid = opc.pc_catid ".
+                       "WHERE opc.pc_catname = 'Office Visit' ".
+					   "AND`pid` = ? " .
+                       "AND `date` >= ? AND `date` <= ?";
+                array_push($sqlBindArray, $patient->id, $begin, $end);
+                break;
         }
 
         $rez = sqlStatement($sql, $sqlBindArray);
