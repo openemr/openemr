@@ -115,6 +115,10 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         if ( $this->_formDir == 'newpatient' ) {
             $table = "form_encounter";
         }
+	if( $this->_formDir == 'procedure_order' ) {
+            $table = "procedure_order";
+        }
+
         
         // Get row from forms table
         $statement = "SELECT F.id, F.date, F.encounter, F.form_name, F.form_id, F.pid, F.user, F.formdir FROM forms F ";
@@ -123,6 +127,9 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         
         // Get form-specific data
         $statement = "SELECT * FROM ".escape_table_name( $table )." ";
+        if( $this->_formDir == 'procedure_order' ) {
+        $statement .= "WHERE procedure_order_id = ? LIMIT 1";}
+	else
         $statement .= "WHERE id = ? LIMIT 1";
         $formRow = sqlQuery( $statement, array( $row['form_id']) );
         
