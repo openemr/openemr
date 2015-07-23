@@ -103,6 +103,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'us_weight_format',
                                'date_display_format',
                                'time_display_format',
+                               'calendar_view_type',
                                'event_color',
                                'pat_trkr_timer',
                                'checkout_roll_off',
@@ -917,6 +918,17 @@ $GLOBALS_METADATA = array(
       xl('The time granularity of the calendar and the smallest interval in minutes for an appointment slot.')
     ),
 
+    'calendar_view_type' => array(
+      xl('Default Calendar View'),
+      array(
+       'day' => xl('Day'),
+       'week' => xl('Week'),
+       'month' => xl('Month'),
+      ),
+      'day',                              // default
+      xl('This sets the Default Calendar View, Default is Day.')
+    ),
+    
     'calendar_appt_style' => array(
       xl('Appointment Display Style'),
       array(
