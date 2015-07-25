@@ -1,10 +1,26 @@
 <?php
- // Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+/**
+ *
+ * Script to find open appointmnent slots
+ *
+ * Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License 
+ * as published by the Free Software Foundation; either version 3 
+ * of the License, or (at your option) any later version. 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU General Public License for more details. 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Roberto Vasquez <robertogagliotta@gmail.com>
+ * @link http://www.open-emr.org
+*/
 
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
@@ -346,7 +362,7 @@ form {
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
+<form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr($providerid) ?>&catid=<?php echo attr($input_catid) ?>'>
    <?php xl('Start date:','e'); ?>
    <input type='text' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
     title='yyyy-mm-dd starting date for search' />
@@ -354,7 +370,7 @@ form {
     id='img_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
    <?php xl('for','e'); ?>
-   <input type='text' name='searchdays' size='3' value='<?php echo $searchdays ?>'
+   <input type='text' name='searchdays' size='3' value='<?php echo attr($searchdays) ?>'
     title='Number of days to search from the start date' />
    <?php xl('days','e'); ?>&nbsp;
    <input type='submit' value='<?php xl('Search','e'); ?>'>

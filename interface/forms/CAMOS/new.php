@@ -91,8 +91,6 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
         }
       }
 
-//    Not stripping slashes, unclear why, but will keep same functionality
-//     below just adds the escapes.
       $content = add_escape_custom($content);
 
       $query = "UPDATE ".mitigateSqlTableUpperCase("form_CAMOS_item")." set content = '".$content."' where id = ".$item_id;
@@ -101,41 +99,40 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
   }
 }
 elseif ($_POST['hidden_mode'] == 'delete') {
-  if ($delete_subdata) { //if set, allow for the deletion of all subdata
+  if ($delete_subdata) { 
     if ($_POST['hidden_selection'] == 'change_category') {
       $to_delete_id = $_POST['hidden_category'];
-      //first, look for associated subcategories, if any
-      $statement1 = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where category_id = $to_delete_id");
+      $statement1 = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where category_id = ?", array($to_delete_id));
       while ($result1 = sqlFetchArray($statement1)) {
-        $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE subcategory_id = " . $result1['id'];
-        sqlInsert($query);
+        $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE subcategory_id = ?";
+        sqlInsert($query, array($result1['id']));
       }
-      $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." WHERE category_id = $to_delete_id";
-      sqlInsert($query);
-      $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_category")." WHERE id = $to_delete_id";
-      sqlInsert($query);
+      $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." WHERE category_id = ?";
+      sqlInsert($query, array($to_delete_id));
+      $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_category")." WHERE id = ?";
+      sqlInsert($query, array($to_delete_id));
     }
     elseif ($_POST['hidden_selection'] == 'change_subcategory') {
       $to_delete_id = $_POST['hidden_subcategory'];
-      $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE subcategory_id = $to_delete_id";
-      sqlInsert($query);
-      $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." WHERE id = $to_delete_id";
-      sqlInsert($query);
+      $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE subcategory_id = ?";
+      sqlInsert($query, array($to_delete_id));
+      $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." WHERE id = ?";
+      sqlInsert($query, array($to_delete_id));
     }
     elseif ($_POST['hidden_selection'] == 'change_item') {
       if ((isset($_POST['select_item'])) && (count($_POST['select_item'])>1)) {
         foreach($_POST['select_item'] as $v) {
           $to_delete_id = $v;
-          $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE id = " .$to_delete_id;
-          sqlInsert($query);
+          $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE id = ?";
+          sqlInsert($query, array($to_delete_id));
         }
       } else {
         $to_delete_id = $_POST['hidden_item'];
-        $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE id = " .$to_delete_id;
-        sqlInsert($query);
+        $query = "DELETE FROM ".mitigateSqlTableUpperCase("form_CAMOS_item")." WHERE id = ?";
+        sqlInsert($query, array($to_delete_id));
       }
     }
-  } else { //delete only if subdata is empty, 'the old way'.
+  } else {
     if ($_POST['hidden_selection'] == 'change_category') {
       $to_delete_id = $_POST['hidden_category'];
       $to_delete_from_table = 'form_CAMOS_category';
@@ -160,24 +157,24 @@ elseif ($_POST['hidden_mode'] == 'delete') {
       $subtablename = '';
     }
   
-    if ($subtablename == '') { //deleting an item.  The simple case.
-      $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like '".$to_delete_id."'";
-      sqlInsert($query);
+    if ($subtablename == '') {
+      $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like ?";
+      sqlInsert($query, array($to_delete_id));
     }
-    else { //deleting a category or subcategory, check to see if related data below is empty first
-      $query = "SELECT count(id) FROM ".escape_table_name($to_delete_from_subtable)." WHERE ".$tablename."_id like '".$to_delete_id."'";
-      $statement = sqlStatement($query);
+    else {
+      $query = "SELECT count(id) FROM ".escape_table_name($to_delete_from_subtable)." WHERE ".$tablename."_id like ?";
+      $statement = sqlStatement($query, array($to_delete_id));
       if ($result = sqlFetchArray($statement)) {
         if ($result['count(id)'] == 0) {
-          $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like '".$to_delete_id."'";
-          sqlInsert($query);
+          $query = "DELETE FROM ".escape_table_name($to_delete_from_table)." WHERE id like ?";
+          sqlInsert($query, array($to_delete_id));
         }
         else {
           $error = $subtablename." not empty!";
         }
       }
     }
-  } //end of delete only if subdata is empty
+  }
 }
 elseif ($_POST['hidden_mode'] == 'alter') {
   $newval = $_POST[$_POST['hidden_selection']];
@@ -196,10 +193,8 @@ elseif ($_POST['hidden_mode'] == 'alter') {
     $to_alter_table = 'form_CAMOS_item';
     $to_alter_column = 'item';
   }
-  $query = "UPDATE ".escape_table_name($to_alter_table)." set ".$to_alter_column." = '".$newval."' where id = ".$to_alter_id; 
-  sqlInsert($query);
+    sqlInsert("UPDATE ".escape_table_name($to_alter_table)." set ".$to_alter_column." = ? where id =  ?", array($newval, $to_alter_id)); 
 }
-// end handle changes to database
 
   //preselect column items
   //either a database change has been made, so the user should be made to feel that they never left the same CAMOS screen
@@ -526,7 +521,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
       }
       $clone_search_term = " and content like '%$clone_search%'"; 
     }
-    if (substr($_POST['hidden_mode'],0,12) == 'clone others') { //clone from search box
+    if (substr($_POST['hidden_mode'],0,12) == 'clone others') {
 		
 		if (preg_match('/^(export)(.*)/',$clone_search,$matches)) { 
 			$query1 = "select id, category from ".mitigateSqlTableUpperCase("form_CAMOS_category");
@@ -535,8 +530,8 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
 				$tmp = $result1['category'];
 				$tmp = "/*import::category::$tmp*/"."\n";
 				$clone_data_array[$tmp] = $tmp;
-				$query2 = "select id,subcategory from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where category_id=".$result1['id'];
-				$statement2 = sqlStatement($query2);
+				$query2 = "select id,subcategory from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where category_id= ?";
+				$statement2 = sqlStatement($query2, $result1['id']);
 				while ($result2 = sqlFetchArray($statement2)) {
 					$tmp = $result2['subcategory'];
 					$tmp = "/*import::subcategory::$tmp*/"."\n";
@@ -561,8 +556,8 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
 			$line = $matches[2];
 			$line = '%'.trim($line).'%';
 			$search_term = preg_replace('/\s+/','%',$line);
-			$query = "select code, code_type,code_text,modifier,units,fee from $table where code_text like '$search_term' limit $limit";
-			$statement = sqlStatement($query);
+			$query = "select code, code_type,code_text,modifier,units,fee from $table where code_text like ? limit $limit";
+			$statement = sqlStatement($query, array($search_term));
 		        while ($result = sqlFetchArray($statement)) {
 				$code_type = $result['code_type'];
 				if ($code_type == 1) {$code_type = 'CPT4';}

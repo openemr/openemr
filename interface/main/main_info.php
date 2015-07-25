@@ -55,8 +55,8 @@ var framesrc = '<frame ';
 
 <?php
 
-// this allows us to keep our viewtype between screens -- JRM
-$viewtype = 'day';
+// this allows us to keep our viewtype between screens -- JRM calendar_view_type
+$viewtype = $GLOBALS['calendar_view_type'];
 if (isset($_SESSION['viewtype'])) { $viewtype = $_SESSION['viewtype']; }
 
 // this allows us to keep our selected providers between screens -- JRM
