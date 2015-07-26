@@ -2,10 +2,23 @@
 [-*****************************************************************************-]
 [-* Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com> and others      *-]
 [-*                                                                           *-]
-[-* This program is free software; you can redistribute it and/or             *-]
-[-* modify it under the terms of the GNU General Public License               *-]
-[-* as published by the Free Software Foundation; either version 2            *-]
+[-* LICENSE: This program is free software; you can redistribute it and/or    *-]
+[-* modify it under the terms of the GNU General Public License               *-]       
+[-* as published by the Free Software Foundation; either version 3            *-] 
 [-* of the License, or (at your option) any later version.                    *-]
+[-* This program is distributed in the hope that it will be useful,           *-]
+[-* but WITHOUT ANY WARRANTY; without even the implied warranty of            *-]
+[-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              *-]
+[-* GNU General Public License for more details.                              *-]
+[-* You should have received a copy of the GNU General Public License         *-]
+[-* along with this program. If not,                                          *-]
+[-* see <http://opensource.org/licenses/gpl-license.php>;.                    *-]
+[-*****************************************************************************-]
+[-* @package OpenEMR                                                          *-]
+[-* @author Rod Roark <rod@sunsetsystems.com>                                 *-] 
+[-* @author Roberto Vasquez <robertogagliotta@gmail.com>                      *-]
+[-* @link http://www.open-emr.org                                             *-]
+[-*                                                                           *-]
 [-*****************************************************************************-]
 [-config_load file="default.conf"-]
 [-*Load the Language Definitions*-]
@@ -258,15 +271,15 @@ if (count($facilities) > 1) {
  $atmp = array_keys($A_EVENTS);
 
 if ($MULTIDAY) {
-  echo "<a href='$PREV_WEEK_URL' onclick='top.restoreSession()'>&lt;&lt;</a>&nbsp;\n";
+  echo "<a href='" . attr($PREV_WEEK_URL) . "' onclick='top.restoreSession()'>&lt;&lt;</a>&nbsp;\n";
   echo dateformat(strtotime($atmp[0]));
   echo " - ";
   echo dateformat(strtotime($atmp[count($atmp)-1]));
-  echo "&nbsp;<a href='$NEXT_WEEK_URL' onclick='top.restoreSession()'>&gt;&gt;</a>\n";
+  echo "&nbsp;<a href='" . attr($NEXT_WEEK_URL) . "' onclick='top.restoreSession()'>&gt;&gt;</a>\n";
  } else {
-  echo "<a href='$PREV_DAY_URL' onclick='top.restoreSession()'>&lt;&lt;</a>&nbsp;\n";
+  echo "<a href='" . attr($PREV_DAY_URL) . "' onclick='top.restoreSession()'>&lt;&lt;</a>&nbsp;\n";
   echo dateformat(strtotime($atmp[0]), true);
-  echo "&nbsp;<a href='$NEXT_DAY_URL' onclick='top.restoreSession()'>&gt;&gt;</a>\n";
+  echo "&nbsp;<a href='" . attr($NEXT_DAY_URL) . "' onclick='top.restoreSession()'>&gt;&gt;</a>\n";
  }
  echo "  </td>\n";
  echo "  <td align='right' width='33%' nowrap>\n";
