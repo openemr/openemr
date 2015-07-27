@@ -168,3 +168,11 @@ ALTER TABLE  `clinical_rules` ADD  `funding_source` VARCHAR(255) NOT NULL DEFAUL
 ALTER TABLE  `clinical_rules` ADD  `release_version` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Release Version';
 #EndIf
 
+#IfNotRow2D list_options list_id proc_res_abnormal option_id vhigh
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('proc_res_abnormal', 'vhigh', 'Above upper panic limits', 50);
+#EndIf
+
+#IfNotRow2D list_options list_id proc_res_abnormal option_id vlow
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('proc_res_abnormal', 'vlow', 'Below lower panic limits', 60);
+#EndIf
+

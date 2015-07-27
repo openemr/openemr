@@ -17,6 +17,8 @@
 *
 * @package   OpenEMR
 * @author    Rod Roark <rod@sunsetsystems.com>
+*
+* 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
 */
 
 require_once("$srcdir/forms.inc");
@@ -172,6 +174,92 @@ function rhl7DecodeData($enctype, &$src) {
   return FALSE;
 }
 
+
+/**
+ * Parse the SPM segment and get the specimen display name and update the table.
+ *
+ * @param  string  $specimen  Encoding type from SPM.
+ * @param  int  &procedure_report_id   ID from the procedure_report table.
+ */
+function rhl7UpdateReportWithSpecimen($specimen, $procedure_report_id, $componentdelimiter) {
+  $specimen_display = null;
+  $specimen_condition =  null;
+  $specimen_reject_reason = null;
+
+  // SPM4: Specimen Type: Example: 119297000^BLD^SCT^BldSpc^Blood^99USA^^^Blood Specimen
+  $spm4_segs = explode($componentdelimiter, $specimen[4]);
+  if ( !empty($spm4_segs[8]) )
+  {
+	   $specimen_display = $spm4_segs[8];
+  }
+  else
+  {
+   	  $specimen_display = $spm4_segs[0];
+	  if ( isset($spm4_segs[1]) )
+	  {
+		 $specimen_display = $specimen_display . "(" . $spm4_segs[1] . ")";
+	  }
+  }
+      
+   sqlStatement("UPDATE procedure_report SET specimen_num = ? WHERE procedure_report_id = ?", array($specimen_display, $procedure_report_id)); 
+}
+
+/**
+ * Get the Performing Lab Details from the OBX segment. Mandatory for MU2.
+ *
+ * @param  string  $obx23  Encoding type from OBX23.
+ * @param  string  $obx23  Encoding type from OBX24.
+ * @param  string  $obx23  Encoding type from OBX25.
+ * @param  string  $obx23  New line character.
+ */
+function getPerformingOrganizationDetails($obx23, $obx24, $obx25, $componentdelimiter, $commentdelim) {
+  $s = null;
+
+
+  if ( !empty($obx24) || !empty($obx24) || !empty($obx25) )
+  {  
+
+      // Organization Name
+      // OBX23 Example: "Century Hospital^^^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^XX^^^987"
+      $obx23_segs = explode($componentdelimiter, $obx23);
+	  if ( !empty($obx23_segs[0]) )
+	  {
+		  $s .= $obx23_segs[0] . $commentdelim;
+	  }
+
+       // Medical Director
+  	  // OBX25 Example: "2343242^Knowsalot^Phil^J.^III^Dr.^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^L^^^DNSPM"
+      //             Dr. Phil Knowsalot J. III
+	  if ( !empty($obx25) )
+	  {
+		  $obx25_segs = explode($componentdelimiter, $obx25);
+
+		  $s .= "$obx25_segs[5] $obx25_segs[2] $obx25_segs[1] $obx25_segs[3] $obx25_segs[4]" . $commentdelim;
+	  }
+	  
+	  
+      // Organization Address
+	  // OBX24 Example: "2070 Test Park^^Los Angeles^CA^90067^USA^B^^06037"
+	  if ( !empty($obx24) )
+	  {
+		  $obx24_segs = explode($componentdelimiter, $obx24);
+
+		  //$s .= "$obx24_segs[0] $obx24_segs[1], $obx24_segs[2], $obx24_segs[3], $obx24_segs[4], $obx24_segs[5]" . $commentdelim;
+		  $s .= "$obx24_segs[0]$commentdelim$obx24_segs[2], $obx24_segs[3] $obx24_segs[4]$commentdelim$obx24_segs[5]$commentdelim";
+		  if ( !empty($obx24_segs[8]) )
+		  {
+		    $s .= "County/Parish Code: $obx24_segs[8]$commentdelim";
+		  }
+	  }
+	  
+
+  }
+  
+  return $s;
+}
+
+
+
 /**
  * Look for a patient matching the given data.
  * Return values are:
@@ -298,7 +386,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
   }
 
   // End-of-line delimiter for text in procedure_result.comments
-  $commentdelim = "\n";
+  // Ensoftek: Different labs seem to send different EOLs. Edit HL7 input to a character we know.
+  $commentdelim = "\r";
+  $hl7 = (string)str_replace(array("\r\n", "\r", "\n"), $commentdelim, $hl7);
 
   $today = time();
 
@@ -334,7 +424,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
   $mdm_text = '';
 
   // Delimiters
-  $d0 = "\r";
+  $d0 = $commentdelim; // Ensoftek: Convert all EOLs to \r, so we don't have to deal with inconsistencies.
   $d1 = substr($hl7, 3, 1); // typically |
   $d2 = substr($hl7, 4, 1); // typically ^
   $d3 = substr($hl7, 5, 1); // typically ~
@@ -380,7 +470,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
         $patient_id = 0;
       }
       $context = $a[0];
-      if ($a[8] == 'ORU^R01') {
+      // Ensoftek: Could come is as 'ORU^R01^ORU_R01'. Handle all cases when 'ORU^R01' is seen.
+	  if (strstr($a[8], "ORU^R01")){ 
         $msgtype = 'ORU';
       }
       else if ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
@@ -700,10 +791,20 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       $ares['result_text'] = rhl7Text($tmp[1]);
       $ares['date'] = rhl7DateTime($a[14]);
       $ares['facility'] = rhl7Text($a[15]);
-      $ares['units'] = rhl7Text($a[6]);
+ 	  // Ensoftek: Units may have mutiple segments(as seen in MU2 samples), parse and take just first segment.
+	  $tmp = explode($d2, $a[6]);
+	  $ares['units'] = rhl7Text($tmp[0]);
       $ares['range'] = rhl7Text($a[7]);
       $ares['abnormal'] = rhl7Abnormal($a[8]); // values are lab dependent
       $ares['result_status'] = rhl7ReportStatus($a[11]);
+	  
+	  // Ensoftek: Performing Organization Details. Goes into "Pending Review/Patient Results--->Notes--->Facility" section.
+	  $performingOrganization = getPerformingOrganizationDetails($a[23], $a[24], $a[25], $d2, $commentdelim);
+	  if ( isset($performingOrganization) )
+	  {
+		     $ares['facility'] .= $performingOrganization . $commentdelim;		
+	  }
+	  
     }
 
     else if ('OBX' == $a[0] && 'MDM' == $msgtype) {
@@ -747,8 +848,25 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
     else if ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
       $ares['comments'] .= rhl7Text($a[3]) . $commentdelim;
     }
-
+	
+    // Ensoftek: Get data from SPM segment for specimen.
+	// SPM segment always occurs after the OBX segment.
+    else if ('SPM' == $a[0] && 'ORU' == $msgtype) {	
+      if (!$dryrun) rhl7FlushResult($ares);
+      $ares = array();
+      if (!$procedure_report_id) {
+        if (!$dryrun) $procedure_report_id = rhl7FlushReport($arep);
+        $arep = array();
+      }	
+	  rhl7UpdateReportWithSpecimen($a, $procedure_report_id, $d2);
+    }
+	
     // Add code here for any other segment types that may be present.
+
+    // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
+    else if ('TQ1' == $a[0] && 'ORU' == $msgtype) {
+       // Ignore and do nothing.
+    }
 
     else {
       return rhl7LogMsg(xl('Segment name') . " '${a[0]}' " . xl('is misplaced or unknown'));
