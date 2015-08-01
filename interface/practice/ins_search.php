@@ -215,7 +215,7 @@ td { font-size:10pt; }
   if ($info_msg) echo " alert('$info_msg');\n";
   echo " parent.$.fn.fancybox.close();\n";
   echo " top.restoreSession();\n";
-  echo " if (parent.set_insurance) parent.set_insurance($ins_id,'".add_escape_custom($ins_name)."');\n";
+  echo " if (parent.set_insurance) parent.set_insurance($ins_id,'".addslashes($ins_name)."');\n";
   echo "</script></body></html>\n";
   exit();
  }
