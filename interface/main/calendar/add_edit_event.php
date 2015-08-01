@@ -226,7 +226,7 @@ if ($_POST['form_action'] == "duplicate" || $_POST['form_action'] == "save")
         $tmph = $_POST['form_hour'] + 0;
         $tmpm = $_POST['form_minute'] + 0;
         if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
-        $duration = $_POST['form_duration'];
+        $duration = abs($_POST['form_duration']); // fixes #395
     }
     $starttime = "$tmph:$tmpm:00";
     //
