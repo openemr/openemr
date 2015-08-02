@@ -41,34 +41,21 @@ include_once ("../globals.php");
 <?php
 $new_ui = true;
 if ($new_ui == true): ?>
-<!-- If you delete this meta tag World War Z will become a reality -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" href="../../library/assets/foundation-latest/css/normalize.css" type="text/css">
-<link rel="stylesheet" href="../../library/assets/foundation-latest/css/foundation.css" type="text/css">
-<link rel="stylesheet" href="../../library/assets/font-awesome/font-awesome.css" type="text/css">
-<link rel="stylesheet" href="../../interface/themes/style_light.css" type="text/css">
-<script src="../../library/assets/foundation-latest/js/foundation.js" type="javascript"></script>
-<link rel="stylesheet" href="../../library/assets/foundation-datepicker/stylesheets/foundation-datepicker.css" type="text/css">
-<link rel="stylesheet" href="../themes/style_light.css" type="text/css">
-<script src="../../library/assets/foundation-latest/js/foundation.min.js" type="javascript"></script>
+    <!-- If you delete this meta tag World War Z will become a reality -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../../library/assets/foundation-latest/css/normalize.css" type="text/css">
+    <link rel="stylesheet" href="../../library/assets/foundation-latest/css/foundation.css" type="text/css">
+    <link rel="stylesheet" href="../../library/assets/font-awesome/font-awesome.css" type="text/css">
+    <link rel="stylesheet" href="../../interface/themes/style_light.css" type="text/css">
+    <script src="../../library/assets/foundation-latest/js/foundation.js" type="javascript"></script>
+    <link rel="stylesheet" href="../../library/assets/foundation-datepicker/stylesheets/foundation-datepicker.css" type="text/css">
+    <link rel="stylesheet" href="../themes/style_light.css" type="text/css">
 <?php else: ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <?php endif; ?>
-</head>
-<body>
-<div class="row-fluid" style="background:#000000">
-<img src=" <?php echo $GLOBALS['webroot']?>/interface/pic/logo.gif" />    
-</div>
-
-<span class="title_bar">
-<div class="title_name"><?php echo "$openemr_name" ?></div>
-
-</span><br>
-<html>
-<head>
-<script language='JavaScript' src="../../library/js/jquery-1.4.3.min.js"></script>
-<script language='JavaScript'>
+<script language='javascript' src="../../library/js/jquery-1.9.1.js"></script>
+<script language='javascript'>
 function transmit_form()
 {
     document.forms[0].submit();
@@ -84,13 +71,21 @@ function imsubmitted() {
     return false; //Currently the submit action is handled by the encrypt_form(). 
 }
 </script>
-
+<style type="text/css">
+    .error {
+        background: #F04124;
+        padding: 10px;
+        margin-bottom: 10px;
+        color: #ffffff;
+    }
+</style>
 </head>
-<body onload="javascript:document.login_form.authUser.focus();" >
-<span class="text"></span>
+<body onload="javascript:document.login_form.authUser.focus();">
+<div class="row-fluid" style="background:#000000;margin-bottom:25px">
+    <img src=" <?php echo $GLOBALS['webroot']?>/interface/pic/logo.gif" />    
+</div>
 
-<div class="row">
-<div class="small-12 medium-6 medium-offset-3 columns">
+<div class="small-12 medium-4 medium-offset-4 columns">
     <div class="panel clearfix">
     <form method="POST"
           action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>"
@@ -154,8 +149,26 @@ function imsubmitted() {
             echo "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";   
         }
         ?>
+        <?php if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)): ?>
         <div class="row">
-            <?php if (count($result) > 0): ?>
+            <div class="small-12 columns error">
+                <?php echo xlt('Invalid username or password'); ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)): ?>
+        <div class="row">
+            <div class="small-12 columns">
+                <div class="error">
+                    <?php echo xlt('Password security has recently been upgraded.'); ?><br>
+                    <?php echo xlt('Please login again.'); ?>
+                    <?php unset($_SESSION['relogin']); ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php if (count($result) > 1): ?>
+        <div class="row">
             <div class="small-12 columns">
                 <label><?php echo xlt('Group:'); ?>
                     <select name="authProvider" id="">
@@ -167,8 +180,37 @@ function imsubmitted() {
                     </select>
                 </label>
             </div>
-            <?php endif; ?>
         </div>
+        <?php endif; ?>
+        <?php 
+        if ($GLOBALS['language_menu_login']):
+            if (count($result3) != 1): ?>
+        <div class="row small-12 columns">
+            <label for="">
+                <?php echo xlt('Language'); ?>
+                <select class="entryfield" name=languageChoice size="1">
+                    <?php
+                        echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" . xlt('Default') . " - " . xlt($defaultLangName) . "</option>\n";
+                        foreach ($result3 as $iter) {
+                            if ($GLOBALS['language_menu_showall']) {
+                                if ( !$GLOBALS['allow_debug_language'] && $iter[lang_description] == 'dummy') continue; // skip the dummy language
+                                    echo "<option value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
+                            }
+                            else {
+                                if (in_array($iter[lang_description], $GLOBALS['language_menu_show'])) {
+                                            if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
+                                    echo "<option value='".attr($iter['lang_id'])."'>" . text($iter['trans_lang_description']) . "</option>\n";
+                                }
+                            }
+                        }
+                    ?>
+                    </select>
+            </label>
+        </div>
+        <?php
+            endif; // Line 197
+        endif; // Line 196
+        ?>
         <div class="row">
             <div class="small-12 columns">
                 <label><?php echo xlt('Username:'); ?>
@@ -201,74 +243,13 @@ function imsubmitted() {
     </form>
     </div>
 </div>
-</div>
 
-<table width="100%" height="90%">
-<td align='center' valign='middle' width='34%'>
-<div class="login-box">
-<div class="logo-left"><?php echo $logocode;?></div>
 
-<div class="table-right">
-<table width="100%">
-<?php if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)): ?>
-<tr><td colspan='2' class='text' style='color:red'>
-<?php echo xlt('Invalid username or password'); ?>
-</td></tr>
-<?php endif; ?>
-
-<?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)): ?>
-<tr><td colspan='2' class='text' style='color:red;background-color:#dfdfdf;border:solid 1px #bfbfbf;text-align:center'>
-<b><?php echo xlt('Password security has recently been upgraded.'); ?><br>
-<?php echo xlt('Please login again.'); ?></b>
-<?php unset($_SESSION['relogin']); ?>
-</td></tr>
-<?php endif; ?>
-<?php
-if ($GLOBALS['language_menu_login']) {
-if (count($result3) != 1) { ?>
-<tr>
-<td><span class="text"><?php echo xlt('Language'); ?>:</span></td>
-<td>
-<select class="entryfield" name=languageChoice size="1">
-<?php
-        echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" . xlt('Default') . " - " . xlt($defaultLangName) . "</option>\n";
-        foreach ($result3 as $iter) {
-            if ($GLOBALS['language_menu_showall']) {
-                    if ( !$GLOBALS['allow_debug_language'] && $iter[lang_description] == 'dummy') continue; // skip the dummy language
-                    echo "<option value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
-        }
-            else {
-            if (in_array($iter[lang_description], $GLOBALS['language_menu_show'])) {
-                        if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
-                echo "<option value='".attr($iter['lang_id'])."'>" . text($iter['trans_lang_description']) . "</option>\n";
-            }
-        }
-        }
-?>
-</select>
-</td></tr>
-<?php }} ?>
-<tr><td colspan='2' class='text' style='color:red'>
-<?php
-$ip=$_SERVER['REMOTE_ADDR'];
-?>
-</div>
-</td></tr>
-</table>
-
-</div>
-
-</div>
 <div class="demo">
         <!-- Uncomment this for the OpenEMR demo installation
         <p><center>login = admin
         <br>password = pass
         -->
 </div>
-</td>
-</tr>
-</table>
-</form>
-</center>
 </body>
 </html>
