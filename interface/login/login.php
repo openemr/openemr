@@ -24,7 +24,6 @@
  * @author  cfapress
  * @author  markleeds
  * @author  Robert Down <robertdown@live.com
- * @license https://www.gnu.org/licenses/gpl.html GNU GPL 3
  * @link    http://www.open-emr.org
  */
 
