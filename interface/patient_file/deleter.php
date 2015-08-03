@@ -374,27 +374,27 @@ function popup_close() {
  }
 ?>
 
-<form method='post' name="deletefrm" action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo attr($document) ?>&payment=<?php echo $payment ?>&billing=<?php echo $billing ?>&transaction=<?php echo $transaction ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
+<form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr($patient) ?>&encounterid=<?php echo attr($encounterid) ?>&formid=<?php echo attr($formid) ?>&issue=<?php echo attr($issue) ?>&document=<?php echo attr($document) ?>&payment=<?php echo attr($payment) ?>&billing=<?php echo attr($billing) ?>&transaction=<?php echo attr($transaction) ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
 
 <p class="text">&nbsp;<br><?php xl('Do you really want to delete','e'); ?>
 
 <?php
  if ($patient) {
-  echo xl('patient') . " $patient";
+  echo xl('patient') . " " . text($patient);
  } else if ($encounterid) {
-  echo xl('encounter') . " $encounterid";
+  echo xl('encounter') . " " . text($encounterid);
  } else if ($formid) {
-  echo xl('form') . " $formid";
+  echo xl('form') . " " . text($formid);
  } else if ($issue) {
-  echo xl('issue') . " $issue";
+  echo xl('issue') . " " .text($issue);
  } else if ($document) {
   echo xl('document') . " " . text($document);
  } else if ($payment) {
-  echo xl('payment') . " $payment";
+  echo xl('payment') . " " .text($payment);
  } else if ($billing) {
-  echo xl('invoice') . " $billing";
+  echo xl('invoice') . " " . text($billing);
  } else if ($transaction) {
-  echo xl('transaction') . " $transaction";
+  echo xl('transaction') . " " . text($transaction);
  }
 ?> <?php xl('and all subordinate data? This action will be logged','e'); ?>!</p>
 

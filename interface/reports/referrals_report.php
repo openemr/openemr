@@ -1,12 +1,25 @@
 <?php
- // Copyright (C) 2008, 2010 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
-
- // This report lists referrals for a given date range.
+/**
+ * This report lists referrals for a given date range.
+ *
+ *  Copyright (C) 2008, 2010 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
@@ -205,7 +218,7 @@
    			echo $row['organization'];
    		}
    		else {
-   				echo $row['referer_to'];
+   				echo text($row['referer_to']);
    		}	 
    			
    	?>
@@ -225,7 +238,7 @@
    <?php echo $row['pubpid'] ?>
   </td>
   <td>
-   <?php echo $row['body'] ?>
+   <?php echo text($row['body']) ?>
   </td>
  </tr>
 <?php
