@@ -69,12 +69,12 @@ if ($_POST['confirm']) {
 <?php
 // output each GET variable as a hidden form input
 foreach ($_GET as $key => $value) {
-    echo '<input type="hidden" id="'.$key.'" name="'.$key.'" value="'.$value.'"/>'."\n";
+    echo '<input type="hidden" id="'.$key.'" name="'.$key.'" value="'.attr($value).'"/>'."\n";
 }
 ?>
 <input type="hidden" id="confirm" name="confirm" value="1"/>
 <p>
-You are about to delete the form '<?php echo $_GET['formname']; ?>' from <?php xl('This Encounter','e'); ?>.
+You are about to delete the form '<?php echo attr($_GET['formname']); ?>' from <?php xl('This Encounter','e'); ?>.
 </p>
 <input type="button" id="confirmbtn" name="confirmbtn" value="Yes, Delete this form">
 <input type="button" id="cancel" name="cancel" value="Cancel">
