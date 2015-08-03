@@ -678,7 +678,7 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
                         $prefix,
                         str_replace("'", "\\'", $nodeObj->text),
                         !empty($nodeObj->icon) ? "'" . $nodeObj->icon . "'" : 'null',
-                        !empty($nodeObj->link) ? "'" . $nodeObj->link . "'" : 'null',
+                        !empty($nodeObj->link) ? "'" . attr($nodeObj->link) . "'" : 'null',
                         $expanded,
                         $isDynamic,
                         $nodeObj->cssClass,

@@ -18,7 +18,7 @@
  function addwhere($where, $colname, $value) {
   if ($value) {
    $where .= " AND ";
-   $where .= "$colname LIKE '%$value%'";
+   $where .= "$colname LIKE '%" . add_escape_custom($value) . "%'";
   }
   return $where;
  }
