@@ -716,7 +716,6 @@ $GLOBALS_METADATA = array(
       xl('This specifies whether to include date in Box 31.')
     ),
 
-      
      'cms_1500_box_31_date' => array(
       xl('CMS 1500: Date in Box 31 (Signature)'),
       array(
@@ -734,7 +733,6 @@ $GLOBALS_METADATA = array(
 		'1',                              // default = true
 		xl('Enable amendments feature')
 	),
-    
    ),   
     // Report Tab
     //
@@ -792,9 +790,28 @@ $GLOBALS_METADATA = array(
       ),   
       '2',                              // default = 2
       xl('This will Display the Invoice Number in the Sales Report or the Patient Name and ID or Patient Name and Invoice Number.')
-    ),
-    
+    ), 
   ),
+    
+  // Billing Tab
+    
+  'Billing' => array(
+    
+    'support_fee_sheet_line_item_provider' => array(
+       xl('Support line item billing in fee sheet'),
+	   'bool',                           // data type
+	   '0',                              // default = false
+	   xl('This Enables line item billing in the fee sheet')
+    ),
+
+    'default_fee_sheet_line_item_provider' => array(
+       xl('Default to a provider for line item billing in the fee sheet'),
+	   'bool',                           // data type
+	   '0',                              // default = false
+	   xl('Default to a provider for line item billing in the fee sheet.(only applicable if Support line item billing in option above)')
+    ),	
+  
+  ),  
     // E-Sign Tab
     //
     'E-Sign' => array(
