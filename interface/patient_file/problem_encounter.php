@@ -371,7 +371,7 @@ in that section to add and delete relationships.','e'); ?>
 <?php
  echo $endjs;
  if ($_REQUEST['issue']) {
-  echo "doclick('p', " . $_REQUEST['issue'] . ");\n";
+  echo "doclick('p', " . attr($_REQUEST['issue']) . ");\n";
  }
  if ($alertmsg) echo "alert('$alertmsg');\n";
 ?>
