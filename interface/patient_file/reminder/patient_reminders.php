@@ -108,16 +108,16 @@ if($sortorder == "") {
   $sortorder = "asc";
 }
 for($i = 0; $i < count($sort); $i++) {
-  $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sort[$i]&sortorder=asc\" onclick=\"top.restoreSession()\">" .
+  $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
     "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
 }
 for($i = 0; $i < count($sort); $i++) {
   if($sortby == $sort[$i]) {
     switch($sortorder) {
-      case "asc"      : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=desc\" onclick=\"top.restoreSession()\">" .
+      case "asc"      : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\">" .
                           "<img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
                         break;
-      case "desc"     : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=asc\" onclick=\"top.restoreSession()\">" .
+      case "desc"     : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
                           "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."\"></a>";
                         break;
     } break;
