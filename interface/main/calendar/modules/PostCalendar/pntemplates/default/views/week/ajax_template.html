@@ -286,7 +286,11 @@ while ($currdate <= $enddate) {
     if (date('w', $currdate) == $DOWlist[6]) echo "</tr>\n";
 
     // time correction = plus 1000 seconds, for some unknown reason
-    $currdate += (60*60*24)+1000;
+    //$currdate += (60*60*24)+1000;
+
+    ////////
+    $currdate = strtotime("+1 day", $currdate);
+    ////////
 }
 [-/php-]
 </table>
