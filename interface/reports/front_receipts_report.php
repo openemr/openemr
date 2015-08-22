@@ -97,7 +97,7 @@ require_once("$srcdir/formatting.inc.php");
 			   <?php xl('From','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
 				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
 				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
@@ -107,7 +107,7 @@ require_once("$srcdir/formatting.inc.php");
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
 				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
 				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
