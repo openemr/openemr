@@ -18,7 +18,7 @@ $key=ucwords(str_replace("_"," ",$key));
     
 //modified by BM 07-2009 for internationalization
 if ($key == "Additional Notes") {
-        print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . "</span></td>";
+        print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . text($value) . "</span></td>";
 }
 else {
         print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . xl($value) . "</span></td>";   
