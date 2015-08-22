@@ -446,6 +446,10 @@ while ($row = sqlFetchArray($res)) {
     if ($review_status == "received") continue;
   }
 
+  $query_test=sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'",array($order_id)));
+  // skip the procedure that has been deleted from the encounter form
+  if($query_test['deleted']==1) continue;
+
   $selects = "pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units, " .
     "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
     "pt2.name AS name, pt2.description, pt2.seq AS seq, " .
