@@ -137,7 +137,7 @@ function vitals_report( $pid, $encounter, $cols, $id, $print = true) {
         }
       }
       else { 
-        $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>$value</span></td>"; 
+        $vitals .= "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . text($value) . "</span></td>"; 
       } 
 
       $count++;
