@@ -120,7 +120,7 @@ function add_diagnosis(&$hcfa_entries,$number,$diag)
     
     // First diagnosis row is 38
     $row_pos=38+$row_num;
-    $hcfa_entries[]=new hcfa_info($row_pos,$col_pos,6,$diag);
+    $hcfa_entries[]=new hcfa_info($row_pos,$col_pos,8,$diag);
     
     
 }
