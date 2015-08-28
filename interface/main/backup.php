@@ -408,7 +408,7 @@ if ($form_step == 102)
     }
     else
     {
-      $cmd = "echo \" SET character_set_client = utf8;\" > $EXPORT_FILE;";
+      $cmd = "echo 'SET character_set_client = utf8;' > $EXPORT_FILE;";
     } 
       if ($tables) 
       {
