@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS `form_snellen_peripheral` (
+  `id`                  bigint(20)   NOT NULL auto_increment,
+  `date`                datetime     DEFAULT NULL,
+  `pid`                 bigint(20)   NOT NULL DEFAULT 0,
+  `user`                varchar(255) DEFAULT NULL,
+  `groupname`           varchar(255) DEFAULT NULL,
+  `authorized`          tinyint(4)   NOT NULL DEFAULT 0,
+  `activity`            tinyint(4)   NOT NULL DEFAULT 0,
+  `left_1`           text NOT NULL DEFAULT '',
+  `left_2`           text NOT NULL DEFAULT '',
+  `right_1`          text NOT NULL DEFAULT '',
+  `right_2`          text NOT NULL DEFAULT '',
+  `both_1`           text NOT NULL DEFAULT '',
+  `both_2`           text NOT NULL DEFAULT '',
+  `peripheral_r1`     text NOT NULL DEFAULT '',
+  `peripheral_r2`     text NOT NULL DEFAULT '',
+  `peripheral_l1`     text NOT NULL DEFAULT '',
+  `peripheral_l2`     text NOT NULL DEFAULT '',
+  `colors`           varchar(3) NOT NULL default 'UNK',
+  `monocular`        varchar(3) NOT NULL default 'UNK',  
+  `notes`            text NOT NULL DEFAULT '', 
+  PRIMARY KEY (id)
+) ENGINE=MyISAM;
