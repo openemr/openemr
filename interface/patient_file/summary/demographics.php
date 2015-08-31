@@ -1331,7 +1331,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         // 
         $current_date2 = date('Y-m-d');
         $events = array();
-        $events = fetchAppointments($current_date2, null, $pid, null, null, null, null, null, null, null, true); //////
+        $events = fetchAppointments($current_date2, null, $pid, null, null, null, null, null, null, false, true); //////
         $events = sortAppointments($events);
         //////
 
