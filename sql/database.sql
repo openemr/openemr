@@ -431,6 +431,9 @@ CREATE TABLE `clinical_rules` (
   `amc_code` varchar(10) NOT NULL default '' COMMENT 'Automated Measure Calculation indentifier (MU rule)',
   `amc_code_2014` varchar(30) NOT NULL default '' COMMENT 'Automated Measure Calculation 2014 indentifier (MU rule)',
   `patient_reminder_flag` tinyint(1) COMMENT 'Clinical Reminder Module flag',
+  `developer` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Developer',
+  `funding_source` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Funding Source',
+  `release_version` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Release Version',
   PRIMARY KEY  (`id`,`pid`)
 ) ENGINE=MyISAM ;
 

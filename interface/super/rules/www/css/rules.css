@@ -117,7 +117,7 @@ root {
 }
 
 .rule_detail.edit.summry .left_col {
-    width: 60px;
+    width: 120px;
     text-align: right;
     margin-right: 10px;
     font-weight: bold;
