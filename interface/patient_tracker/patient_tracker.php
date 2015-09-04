@@ -223,17 +223,7 @@ $appointments = sortAppointments( $appointments, 'time' );
                 # Collect appt date and set up squashed date for use below
                 $date_appt = $appointment['pc_eventDate'];
                 $date_squash = str_replace("-","",$date_appt);
-    
-                if ($appointment['pc_recurrtype'] != 0) {
-                        # TODO: Note this block of code can likely be removed when the appointment recursion bug has been fixed.
-                        # don't show if date has been excluded
-                        # example of pc_recurrspec having "exdate" of "20150527,20150528,";
-                        $recurrent_info = unserialize($appointment['pc_recurrspec']);
-                        if (preg_match("/$date_squash/",$recurrent_info['exdate'])) {
-                                continue;
-                        }
-                }
-                
+
                 # Collect variables and do some processing
                 $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
                 if (strlen($docname)<= 3 ) continue;

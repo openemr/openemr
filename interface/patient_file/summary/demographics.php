@@ -39,7 +39,9 @@ $fake_register_globals=false;
  require_once("$srcdir/edi.inc");
  require_once("$srcdir/invoice_summary.inc.php");
  require_once("$srcdir/clinical_rules.php");
-
+ ////////////
+ require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+ 
   if ($GLOBALS['concurrent_layout'] && isset($_GET['set_pid'])) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
@@ -163,9 +165,9 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <script type="text/javascript" language="JavaScript">
 
  var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'],ENT_QUOTES); ?>';
-
- function oldEvt(eventid) {
-  dlgopen('../../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 350);
+ //////////
+ function oldEvt(apptdate, eventid) {
+  dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 550, 350);
  }
 
  function advdirconfigure() {
@@ -1326,15 +1328,12 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 	// Show current and upcoming appointments.
 	if (isset($pid) && !$GLOBALS['disable_calendar']) {
-	 $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
-	  "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
-	  "c.pc_catname, e.pc_apptstatus " .
-	  "FROM openemr_postcalendar_events AS e, users AS u, " .
-	  "openemr_postcalendar_categories AS c WHERE " .
-	  "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
-	  "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
-	  "ORDER BY e.pc_eventDate, e.pc_startTime";
-	 $res = sqlStatement($query, array($pid) );
+        // 
+        $current_date2 = date('Y-m-d');
+        $events = array();
+        $events = fetchAppointments($current_date2, null, $pid, null, null, null, null, null, null, false, true); //////
+        $events = sortAppointments($events);
+        //////
 
      if ( (acl_check('patients', 'med')) && ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) ) {
         // clinical summary expand collapse widget
@@ -1361,13 +1360,13 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetButtonClass = "";
         $linkMethod = "javascript";
         $bodyClass = "summary_item small";
-        $widgetAuth = (isset($res) && $res != null);
+        $widgetAuth = $resNotNull; // $resNotNull refects state of query (appts) in fetchAppointments()
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         $count = 0;
-        while($row = sqlFetchArray($res)) {
+        foreach($events as $row) { //////
             $count++;
-            $dayname = date("l", strtotime($row['pc_eventDate']));
+            $dayname = date("D", strtotime($row['pc_eventDate'])); //////
             $dispampm = "am";
             $disphour = substr($row['pc_startTime'], 0, 2) + 0;
             $dispmin  = substr($row['pc_startTime'], 3, 2);
@@ -1379,19 +1378,24 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             if ($row['pc_hometext'] != "") {
                 $etitle = xl('Comments').": ".($row['pc_hometext'])."\r\n".$etitle;
             }
-            echo "<a href='javascript:oldEvt(" . htmlspecialchars($row['pc_eid'],ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
-            echo "<b>" . htmlspecialchars(xl($dayname) . ", " . $row['pc_eventDate'],ENT_NOQUOTES) . "</b>" . xlt("Status") .  "(";
-            echo " " .  generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'),$row['pc_apptstatus']) . ")<br>";   // can't use special char parser on this
-            echo htmlspecialchars("$disphour:$dispmin " . xl($dispampm) . " " . xl_appt_category($row['pc_catname']),ENT_NOQUOTES) . "<br>\n";
-            echo htmlspecialchars($row['fname'] . " " . $row['lname'],ENT_NOQUOTES) . "</a><br>\n";
+            ////////////
+            echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']),ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'],ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
+            ////////////
+            echo "<b>" . htmlspecialchars($row['pc_eventDate'] . " (" . xl($dayname),ENT_NOQUOTES) . ")</b><br>";
+            echo htmlspecialchars("$disphour:$dispmin " . xl($dispampm),ENT_NOQUOTES) . " ";
+            if ($row['pc_recurrtype']) echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
+            echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'),$row['pc_apptstatus']) . "'> ( " . htmlspecialchars($row['pc_apptstatus'],ENT_NOQUOTES) . " )</span>";
+            if ($row['pc_hometext']) echo "<font color='green'> CMT</font>";
+            echo "<br>" . htmlspecialchars(xl_appt_category($row['pc_catname']),ENT_NOQUOTES) . "<br>\n";
+            echo htmlspecialchars($row['ufname'] . " " . $row['ulname'],ENT_NOQUOTES) . "</a><br>\n";
         }
-        if (isset($res) && $res != null) {
+        if ($resNotNull) { //////
             if ( $count < 1 ) { 
                 echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'),ENT_NOQUOTES); 
             }
             echo "</div>";
+        }
       }
-    }
             
 	// Show PAST appointments.
 	// added by Terry Hill to allow reverse sorting of the appointments
