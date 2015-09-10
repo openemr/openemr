@@ -155,3 +155,16 @@ INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('patient_flow_boa
 INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('patient_flow_board_rooms', '2', 'Room 2', 20);
 INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('patient_flow_board_rooms', '3', 'Room 3', 30);
 #EndIf
+
+#IfMissingColumn clinical_rules developer
+ALTER TABLE  `clinical_rules` ADD  `developer` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Developer';
+#EndIf
+
+#IfMissingColumn clinical_rules funding_source
+ALTER TABLE  `clinical_rules` ADD  `funding_source` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Funding Source';
+#EndIf
+
+#IfMissingColumn clinical_rules release_version
+ALTER TABLE  `clinical_rules` ADD  `release_version` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Release Version';
+#EndIf
+
