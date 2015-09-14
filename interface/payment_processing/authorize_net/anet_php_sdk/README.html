@@ -1,0 +1,358 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html lang='en'>
+<head>
+<title> PHP SDK README </title>
+<style type="text/css">
+body {
+	min-width: 768px;
+	font-family: "Helvetica Neue","Lucida Grande","Segoe UI",Arial,Helvetica,Verdana,sans-serif;
+	color: #333333;
+	font-size: 0.8em;
+}
+code {
+	font-family: 'Courier New';
+	font-size: 1.0em;
+	color: #000000;
+	background-color: #f1f1f1;
+	white-space: pre;
+	line-height: 1;
+	display: block;
+	margin-left: 3%;
+	margin-right: 3%;
+	padding: 10px;
+}
+table {
+	border-collapse: collapse;
+	width: 94%;
+	margin: 3%;
+	margin-right: 3%;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+td {
+	padding: 3px;
+	border: solid 1px #cccccc;
+}
+ul {
+	margin-top: 0px;
+}
+h1,h2,h3,h6 {
+	margin: 0px;
+	padding: 0px;
+	text-align: center;
+}
+h4,h5 {
+	margin-bottom: 0px;
+	padding-bottom: 5px;
+}
+.indent {
+	display: block;
+	margin-left: 3%;
+}
+.sc0 {
+	font-weight: bold;
+}
+.sc18 {
+	color: #FF0000;
+}
+.sc119 {
+	color: #808080;
+}
+.sc120 {
+	color: #808080;
+}
+.sc121 {
+	font-weight: bold;
+	color: #0000FF;
+}
+.sc123 {
+	color: #000080;
+}
+.sc125 {
+	color: #008000;
+}
+.sc127 {
+	color: #8000FF;
+}
+</style>
+</head>
+
+<body>
+<h1>Authorize.Net PHP SDK</h1>
+<h2>version 3.1.2</h2>
+<h6><a href='http://developer.authorize.net'>http://developer.authorize.net</a></h6>
+<h6><a href='http://community.developer.authorize.net'>http://community.developer.authorize.net</a></h6>
+
+<br/>
+<h4>License</h4>
+<span class='indent'>Authorize.Net<br />
+    See <a href='./License.pdf'>License.pdf</a>
+</span>
+
+<br/>
+<h4>About</h4>
+<span class='indent'>A PHP library for working with all Authorize.Net APIs.
+</span>
+
+<br/>
+<h4>Files</h4>
+<table>
+<tr><td>Authorize.Net.php</td><td>Includes all classes. Include this file in your project.</td></tr>
+<tr><td>AuthorizeNet.php</td><td>Includes all classes. Include this file in your project.</td></tr>
+<tr><td>lib/AuthorizeNetAIM.php</td><td>AIM API.</td></tr>
+<tr><td>lib/AuthorizeNetARB.php</td><td>-> ARB API.</td></tr>
+<tr><td>lib/AuthorizeNetCIM.php</td><td>CIM API.</td></tr>
+<tr><td>lib/AuthorizeNetSIM.php</td><td>SIM API.</td></tr>
+<tr><td>lib/AuthorizeNetTD.php</td><td>Reporting API.</td></tr>
+<tr><td>lib/AuthorizeNetCP.php</td><td>Card Present API.</td></tr>
+<tr><td>lib/AuthorizeNetDPM.php</td><td>Direct Post Method Helpers.</td></tr>
+<tr><td>lib/AuthorizeNetSOAP.php</td><td>Class to assist with using the SOAP API.</td></tr>
+<tr><td>lib/shared/AuthorizeNetRequest.php</td><td>Class to connect to AuthorizeNet.</td></tr>
+<tr><td>lib/shared/AuthorizeNetTypes.php</td><td>Classes for AuthorizeNet Datatypes.</td></tr>
+<tr><td>lib/shared/AuthorizeNetResponse.php</td><td>Class to parse AuthorizeNet NVP Responses.</td></tr>
+<tr><td>lib/shared/AuthorizeNetXMLResponse.php</td><td>Class to parse AuthorizeNet XML Responses.</td></tr>
+<tr><td>lib/ssl/cert.pem</td><td>The AuthorizeNet Certificate bundle.</td></tr>
+<tr><td>tests/</td><td>Tests &amp; examples for each of the API methods.</td></tr>
+<tr><td>README</td><td>Plain text version of this file.</td></tr>
+<tr><td>README.html</td><td>This file.</td></tr>
+</table>
+
+<br />
+<h4>Requirements</h4>
+<ul>
+    <li>cURL PHP Extension</li>
+    <li>PHP 5.2+</li>
+    <li>An Authorize.Net Merchant Account or Test Account. You can get a free test account at <a href='http://developer.authorize.net/testaccount/'>http://developer.authorize.net/testaccount/</a></li>
+</ul>
+
+<h4>Install</h4>
+<ul>
+    <li>Include the 'AuthorizeNet.php' file in your application.
+    <li>Use your desired API.
+</ul>
+    
+<h4>Usage Examples:</h4>
+	<span class='indent'>See below for basic usage examples. View the tests/ folder for more examples of each API.</span>
+      
+<h5>AuthorizeNetAIM.php Quick Usage Example</h5>
+<code><span class="sc18">&lt;?php</span><span class="sc118">
+    </span><span class="sc121">require_once</span><span class="sc118"> </span><span class="sc120">'anet_php_sdk/AuthorizeNet.php'</span><span class="sc127">;</span><span class="sc118"> 
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_API_LOGIN_ID"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURLOGIN"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_TRANSACTION_KEY"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURKEY"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_SANDBOX"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc121">true</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$sale</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetAIM</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$sale</span><span class="sc127">-&gt;</span><span class="sc118">amount </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"5.99"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$sale</span><span class="sc127">-&gt;</span><span class="sc118">card_num </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc120">'6011000000000012'</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$sale</span><span class="sc127">-&gt;</span><span class="sc118">exp_date </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc120">'04/15'</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$response</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$sale</span><span class="sc127">-&gt;</span><span class="sc118">authorizeAndCapture</span><span class="sc127">();</span><span class="sc118">
+    </span><span class="sc121">if</span><span class="sc118"> </span><span class="sc127">(</span><span class="sc123">$response</span><span class="sc127">-&gt;</span><span class="sc118">approved</span><span class="sc127">)</span><span class="sc118"> </span><span class="sc127">{</span><span class="sc118">
+        </span><span class="sc123">$transaction_id</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$response</span><span class="sc127">-&gt;</span><span class="sc118">transaction_id</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc127">}</span><span class="sc118">
+</span><span class="sc18">?&gt;</span><span class="sc0"></span>
+</code>
+
+<h5>AuthorizeNetAIM.php Advanced Usage Example</h5>
+<code><span class="sc18">&lt;?php</span><span class="sc118">
+    </span><span class="sc121">require_once</span><span class="sc118"> </span><span class="sc120">'anet_php_sdk/AuthorizeNet.php'</span><span class="sc127">;</span><span class="sc118"> 
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_API_LOGIN_ID"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURLOGIN"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_TRANSACTION_KEY"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURKEY"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_SANDBOX"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc121">true</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$auth</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetAIM</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$auth</span><span class="sc127">-&gt;</span><span class="sc118">amount </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"45.00"</span><span class="sc127">;</span><span class="sc118">
+
+    </span><span class="sc125">// Use eCheck:</span><span class="sc118">
+    </span><span class="sc123">$auth</span><span class="sc127">-&gt;</span><span class="sc118">setECheck</span><span class="sc127">(</span><span class="sc118">
+        </span><span class="sc120">'121042882'</span><span class="sc127">,</span><span class="sc118">
+        </span><span class="sc120">'123456789123'</span><span class="sc127">,</span><span class="sc118">
+        </span><span class="sc120">'CHECKING'</span><span class="sc127">,</span><span class="sc118">
+        </span><span class="sc120">'Bank of Earth'</span><span class="sc127">,</span><span class="sc118">
+        </span><span class="sc120">'Jane Doe'</span><span class="sc127">,</span><span class="sc118">
+        </span><span class="sc120">'WEB'</span><span class="sc118">
+    </span><span class="sc127">);</span><span class="sc118">
+    
+    </span><span class="sc125">// Set multiple line items:</span><span class="sc118">
+    </span><span class="sc123">$auth</span><span class="sc127">-&gt;</span><span class="sc118">addLineItem</span><span class="sc127">(</span><span class="sc120">'item1'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'Golf tees'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'Blue tees'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'2'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'5.00'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'N'</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$auth</span><span class="sc127">-&gt;</span><span class="sc118">addLineItem</span><span class="sc127">(</span><span class="sc120">'item2'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'Golf shirt'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'XL'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'1'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'40.00'</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc120">'N'</span><span class="sc127">);</span><span class="sc118">
+    
+    </span><span class="sc125">// Set Invoice Number:</span><span class="sc118">
+    </span><span class="sc123">$auth</span><span class="sc127">-&gt;</span><span class="sc118">invoice_num </span><span class="sc127">=</span><span class="sc118"> time</span><span class="sc127">();</span><span class="sc118">
+    
+    </span><span class="sc125">// Set a Merchant Defined Field:</span><span class="sc118">
+    </span><span class="sc123">$auth</span><span class="sc127">-&gt;</span><span class="sc118">setCustomField</span><span class="sc127">(</span><span class="sc119">"entrance_source"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"Search Engine"</span><span class="sc127">);</span><span class="sc118">
+    
+    </span><span class="sc125">// Authorize Only:</span><span class="sc118">
+    </span><span class="sc123">$response</span><span class="sc118">  </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$auth</span><span class="sc127">-&gt;</span><span class="sc118">authorizeOnly</span><span class="sc127">();</span><span class="sc118">
+
+    </span><span class="sc121">if</span><span class="sc118"> </span><span class="sc127">(</span><span class="sc123">$response</span><span class="sc127">-&gt;</span><span class="sc118">approved</span><span class="sc127">)</span><span class="sc118"> </span><span class="sc127">{</span><span class="sc118">
+        </span><span class="sc123">$auth_code</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$response</span><span class="sc127">-&gt;</span><span class="sc118">transaction_id</span><span class="sc127">;</span><span class="sc118">
+        
+        </span><span class="sc125">// Now capture:</span><span class="sc118">
+        </span><span class="sc123">$capture</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetAIM</span><span class="sc127">;</span><span class="sc118">
+        </span><span class="sc123">$capture_response</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$capture</span><span class="sc127">-&gt;</span><span class="sc118">priorAuthCapture</span><span class="sc127">(</span><span class="sc123">$auth_code</span><span class="sc127">);</span><span class="sc118">
+        
+        </span><span class="sc125">// Now void:</span><span class="sc118">
+        </span><span class="sc123">$void</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetAIM</span><span class="sc127">;</span><span class="sc118">
+        </span><span class="sc123">$void_response</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$void</span><span class="sc127">-&gt;</span><span class="sc118">void</span><span class="sc127">(</span><span class="sc123">$capture_response</span><span class="sc127">-&gt;</span><span class="sc118">transaction_id</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc127">}</span><span class="sc118">
+</span><span class="sc18">?&gt;</span><span class="sc0"></span>
+</code>
+	
+<h5>AuthorizeNetARB.php Usage Example</h5>
+<code><span class="sc18">&lt;?php</span><span class="sc118">
+    </span><span class="sc121">require_once</span><span class="sc118"> </span><span class="sc120">'anet_php_sdk/AuthorizeNet.php'</span><span class="sc127">;</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_API_LOGIN_ID"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURLOGIN"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_TRANSACTION_KEY"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURKEY"</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc118">                          </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNet_Subscription</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">name                    </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"PHP Monthly Magazine"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">intervalLength          </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"1"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">intervalUnit            </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"months"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">startDate               </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"2011-03-12"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">totalOccurrences        </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"12"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">amount                  </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"12.99"</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">creditCardCardNumber    </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"6011000000000012"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">creditCardExpirationDate</span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"2018-10"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">creditCardCardCode      </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"123"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">billToFirstName         </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"Rasmus"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$subscription</span><span class="sc127">-&gt;</span><span class="sc118">billToLastName          </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"Doe"</span><span class="sc127">;</span><span class="sc118">
+
+    </span><span class="sc125">// Create the subscription.</span><span class="sc118">
+    </span><span class="sc123">$request</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetARB</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$response</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$request</span><span class="sc127">-&gt;</span><span class="sc118">createSubscription</span><span class="sc127">(</span><span class="sc123">$subscription</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$subscription_id</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$response</span><span class="sc127">-&gt;</span><span class="sc118">getSubscriptionId</span><span class="sc127">();</span><span class="sc118">
+</span><span class="sc18">?&gt;</span><span class="sc0"></span>
+</code>
+
+<h5>AuthorizeNetCIM.php Usage Example</h5>
+<code><span class="sc18">&lt;?php</span><span class="sc118">
+    </span><span class="sc121">require_once</span><span class="sc118"> </span><span class="sc120">'anet_php_sdk/AuthorizeNet.php'</span><span class="sc127">;</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_API_LOGIN_ID"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURLOGIN"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_TRANSACTION_KEY"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURKEY"</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$request</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetCIM</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc125">// Create new customer profile</span><span class="sc118">
+    </span><span class="sc123">$customerProfile</span><span class="sc118">                    </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetCustomer</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$customerProfile</span><span class="sc127">-&gt;</span><span class="sc118">description       </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"Description of customer"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$customerProfile</span><span class="sc127">-&gt;</span><span class="sc118">merchantCustomerId</span><span class="sc127">=</span><span class="sc118"> time</span><span class="sc127">();</span><span class="sc118">
+    </span><span class="sc123">$customerProfile</span><span class="sc127">-&gt;</span><span class="sc118">email             </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"test@domain.com"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$response</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$request</span><span class="sc127">-&gt;</span><span class="sc118">createCustomerProfile</span><span class="sc127">(</span><span class="sc123">$customerProfile</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc121">if</span><span class="sc118"> </span><span class="sc127">(</span><span class="sc123">$response</span><span class="sc127">-&gt;</span><span class="sc118">isOk</span><span class="sc127">())</span><span class="sc118"> </span><span class="sc127">{</span><span class="sc118">
+        </span><span class="sc123">$customerProfileId</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$response</span><span class="sc127">-&gt;</span><span class="sc118">getCustomerProfileId</span><span class="sc127">();</span><span class="sc118">
+    </span><span class="sc127">}</span><span class="sc118">
+</span><span class="sc18">?&gt;</span><span class="sc0"></span>
+</code>
+
+<h5>AuthorizeNetSIM.php Usage Example</h5>
+<code><span class="sc18">&lt;?php</span><span class="sc118">
+    </span><span class="sc121">require_once</span><span class="sc118"> </span><span class="sc120">'anet_php_sdk/AuthorizeNet.php'</span><span class="sc127">;</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_API_LOGIN_ID"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURLOGIN"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_MD5_SETTING"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">""</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$message</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetSIM</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc121">if</span><span class="sc118"> </span><span class="sc127">(</span><span class="sc123">$message</span><span class="sc127">-&gt;</span><span class="sc118">isAuthorizeNet</span><span class="sc127">())</span><span class="sc118"> </span><span class="sc127">{</span><span class="sc118">
+        </span><span class="sc123">$transactionId</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$message</span><span class="sc127">-&gt;</span><span class="sc118">transaction_id</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc127">}</span><span class="sc118">
+</span><span class="sc18">?&gt;</span><span class="sc0"></span>
+</code>
+
+<h5>AuthorizeNetDPM.php Usage Example</h5>
+<code><span class="sc18">&lt;?php</span><span class="sc118"> </span><span class="sc125">// Filename: direct_post.php</span><span class="sc118">
+    </span><span class="sc121">require_once</span><span class="sc118"> </span><span class="sc120">'anet_php_sdk/AuthorizeNet.php'</span><span class="sc127">;</span><span class="sc118"> </span><span class="sc125">// The SDK</span><span class="sc118">
+    </span><span class="sc123">$url</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"http://YOUR_DOMAIN.com/direct_post.php"</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$api_login_id</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc120">'YOUR_API_LOGIN_ID'</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$transaction_key</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc120">'YOUR_TRANSACTION_KEY'</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$md5_setting</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc120">'YOUR_MD5_SETTING'</span><span class="sc127">;</span><span class="sc118"> </span><span class="sc125">// Your MD5 Setting</span><span class="sc118">
+    </span><span class="sc123">$amount</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc119">"5.99"</span><span class="sc127">;</span><span class="sc118">
+    AuthorizeNetDPM</span><span class="sc127">::</span><span class="sc118">directPostDemo</span><span class="sc127">(</span><span class="sc123">$url</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc123">$api_login_id</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc123">$transaction_key</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc123">$amount</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc123">$md5_setting</span><span class="sc127">);</span><span class="sc118">
+</span><span class="sc18">?&gt;</span><span class="sc0"></span>
+</code>
+
+<h5>AuthorizeNetCP.php Usage Example</h5>
+<code><span class="sc18">&lt;?php</span><span class="sc118">
+    </span><span class="sc121">require_once</span><span class="sc118"> </span><span class="sc120">'anet_php_sdk/AuthorizeNet.php'</span><span class="sc127">;</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_API_LOGIN_ID"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURLOGIN"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_TRANSACTION_KEY"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURKEY"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_MD5_SETTING"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">""</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$sale</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetCP</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$sale</span><span class="sc127">-&gt;</span><span class="sc118">amount </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc120">'59.99'</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$sale</span><span class="sc127">-&gt;</span><span class="sc118">device_type </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc120">'4'</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$sale</span><span class="sc127">-&gt;</span><span class="sc118">setTrack1Data</span><span class="sc127">(</span><span class="sc120">'%B4111111111111111^CARDUSER/JOHN^1803101000000000020000831000000?'</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$response</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$sale</span><span class="sc127">-&gt;</span><span class="sc118">authorizeAndCapture</span><span class="sc127">();</span><span class="sc118">
+    </span><span class="sc123">$trans_id</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$response</span><span class="sc127">-&gt;</span><span class="sc118">transaction_id</span><span class="sc127">;</span><span class="sc118">
+</span><span class="sc18">?&gt;</span><span class="sc0"></span>
+</code>
+
+<h5>AuthorizeNetTD.php Usage Example</h5>
+<code><span class="sc18">&lt;?php</span><span class="sc118">
+    </span><span class="sc121">require_once</span><span class="sc118"> </span><span class="sc120">'anet_php_sdk/AuthorizeNet.php'</span><span class="sc127">;</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_API_LOGIN_ID"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURLOGIN"</span><span class="sc127">);</span><span class="sc118">
+    define</span><span class="sc127">(</span><span class="sc119">"AUTHORIZENET_TRANSACTION_KEY"</span><span class="sc127">,</span><span class="sc118"> </span><span class="sc119">"YOURKEY"</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc123">$request</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc121">new</span><span class="sc118"> AuthorizeNetTD</span><span class="sc127">;</span><span class="sc118">
+    </span><span class="sc123">$response</span><span class="sc118"> </span><span class="sc127">=</span><span class="sc118"> </span><span class="sc123">$request</span><span class="sc127">-&gt;</span><span class="sc118">getTransactionDetails</span><span class="sc127">(</span><span class="sc119">"12345"</span><span class="sc127">);</span><span class="sc118">
+    </span><span class="sc121">echo</span><span class="sc118"> </span><span class="sc123">$response</span><span class="sc127">-&gt;</span><span class="sc118">xml</span><span class="sc127">-&gt;</span><span class="sc118">transaction</span><span class="sc127">-&gt;</span><span class="sc118">transactionStatus</span><span class="sc127">;</span><span class="sc118">
+</span><span class="sc18">?&gt;</span>
+</code>
+    
+<br />
+<h4>Test Credit Card Numbers</h4>
+<table>
+	<tr><td>American Express Test Card</td><td>370000000000002</td></tr>
+	<tr><td>Discover Test Card</td><td>6011000000000012</td></tr>
+	<tr><td>Visa Test Card</td><td>4007000000027</td></tr>
+	<tr><td>Second Visa Test Card</td><td>4012888818888</td></tr>
+	<tr><td>JCB</td><td>3088000000000017</td></tr>
+	<tr><td>Diners Club/ Carte Blanche</td><td>38000000000006</td></tr>
+</table>
+<span class='indent'><small>Set the expiration date to anytime in the future.</small></span>
+<br />
+
+<h4>PHPDoc:</h4>
+  <span class='indent'>To autogenerate PHPDocs run</span>
+  <code>phpdoc -t phpdocs/ -f AuthorizeNet.php -d lib</code>
+
+<h4>Release Notes</h4>
+    <span class='indent'>
+    <em>Version 1.1.8</em>
+    <ul>
+        <li>
+            Fixed an issue with validationMode in CIM::updateCustomerPaymentProfile. Note: The behavior where validationMode persisted across transactions using the same request object has been removed. This was unsupported behavior.
+        </li>
+        <li>
+            Removed an unused validationMode argument in CIM::updateCustomerProfile. The parameter used to be ignored, now its removed.
+        </li>
+        <li>
+            Enhanced the tests with checks for single digit months in expiration date support and SSL certificate validity.
+        </li>
+    </ul>
+  <em>Version 1.1.7</em>
+  <ul>
+    <li>Added getBatchStatisticsRequest and getUnsettledTransactionListRequest support to the SDK.</li>
+  </ul>
+  <em>Version 1.1.6</em>
+  <ul>
+    <li>Added the HTML version of the README to the distributed bundle. It was missing in version 1.1.5.</li>
+  </ul>
+  <em>Version 1.1.5</em>
+  <ul>
+    <li>Added HTML version of README.</li>
+  </ul>
+  <em>Version 1.1.4</em>
+  <ul>
+    <li>Updated the cert.pem bundle to include the new secure.authorize.net SSL certificate.</li>
+  </ul>
+	<em>Version 1.1.3</em>
+	<ul>
+    <li>Added more documentation</li>
+    <li>Improved support for all Transaction Details API methods.</li>
+    <li>Added support for the Card Present API.</li>
+    <li>Added easier xpath support to XML Response class.</li>
+    <li>Added ability to use DPM sample app with production account.</li>
+	</ul>
+    <em>Version 1.1.2</em>
+	<ul>
+    <li>Added getValidationResponses method to CIM Response for parsing the validation results when validating payment profiles.</li>
+    <li>Added support for UpdateSplitTenderGroup method to CIM request.</li>
+    <li>Bug fix. In CIM requests using validation mode the the validation mode element should have been added to the end of the request.</li>
+    <li>Bug fix. In AIM Response class where $response->account_number was returning the wrong value.</li>
+	</ul>
+	</span>
+</body>
+</html>
