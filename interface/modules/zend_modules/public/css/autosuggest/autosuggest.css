@@ -1,0 +1,255 @@
+/* 
+    Document   : autosuggest
+    Created on : Dec 2, 2013, 10:54:13 AM
+    Author     : Ramesh
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+  display: block;
+}
+
+.suggestionsBox {
+	position: absolute;
+	z-index:999;
+	left: auto;
+	margin: 10px 0px 0px 0px;
+	width: 325px;
+	background-color: #336699;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+	border: 2px solid #000;	
+	color: #fff;
+	font-size: 10px;
+
+}
+
+.suggestionList {
+	margin: 0px;
+	padding: 0px;
+	background-color: #336699;
+}
+
+.suggestionList li {
+	margin: 0px 0px 0px 0px;
+	padding: 0px;
+	cursor: pointer;
+	width: 325px;
+	background-color: #336699;
+}
+
+.suggestionList li:hover { 
+	position: relative;
+	float:left;
+	background-color: #659CD8; 
+	width: 325px;
+}
+
+li{
+	list-style: none;
+}
+
+.itemHead {
+	position: relative;
+	left: 0px;
+	margin-left: 10px;
+	width: 160px;
+	color: #575765;
+	font-weight:bold;
+	float:left;
+  text-size: 10px;
+}
+.itemBox {
+	position: relative;
+	padding: 0px;
+	left: 0px;
+	margin-left: 10px;
+	width: 160px;
+	/* word-wrap: break-word; */
+	color: #111;
+	float:left;
+}
+
+.highlight {
+	color: #0000FF;
+	font-weight: bold;
+}
+
+.highlight_i {
+	color: #CC3300;
+	font-weight: bold;
+}
+
+a{
+	color: #24476B; 
+	text-decoration:none;
+}
+
+a:hover {
+	color: #0000FF; 
+	text-decoration:none;
+}
+
+.row {
+		position: relative;
+		float:left;
+		width: 100%;
+		/*background-color: #659CD8;*/
+		padding-top:1px;
+		padding-bottom: 1px;
+}
+	
+.row1 {
+	position: relative;
+	float:left;
+	width: 100%;
+	/*background-color: #A4D1FF;*/
+	padding-top:1px;
+	padding-bottom: 1px;
+}
+
+.row2 {
+	position: relative;
+	float:left;
+	width: 100%;
+	/*background-color: #EAF4FF;*/
+}
+
+/** auto-suggest.phtml */
+
+.top_panel_head {
+     background:linear-gradient(to bottom,#EFF5FF 0,#E0ECFF 100%); 
+     padding: 5px 0;
+     font-size: 11px;
+  }
+  .top_panel_head a{
+    color: rgb(58, 171, 214) !important;
+  }
+  .bottom_panel_head{
+    background:linear-gradient(to bottom,#F9F9F9 0,#efefef 100%); 
+    padding: 5px 0;
+    font-size: 11px; 
+    border-bottom: 1px solid #dddddd;
+    border-top:1px solid #dddddd; 
+  }
+  .panel-head {
+    border-top:1px solid #D3D3D3;
+    position: relative;
+    /*margin-top: 37px;*/
+  }
+  
+  .panel-title {
+    color: #575765;
+    font-size: 11px;
+    font-weight: bold;
+    height: 16px;
+    line-height: 16px;
+  }
+  
+  .panel-bod {
+    background-color: #FFFFFF;
+    color: #000000;
+    font-size: 12px;
+  }
+  .panel_content{
+     max-height:300px; 
+     overflow: auto   ;
+     background-color: rgb(255, 255, 255);
+  }
+  .panel_content_wrapper { 
+   /* width: 32%; */
+    border:1px solid #95B8E7;
+  }
+  .panel_row { 
+    display: block;
+    font-size: 11px;
+    border: 1px dotted #ccc; 
+    border-left: 0;
+    border-right: 0; 
+    border-bottom: 0; 
+  }
+  .itemBox { 
+    padding: 5px 0; 
+    border-right: 1px dotted #CCC;
+    height: 15px;
+  }
+  
+  /** Selected Items */
+  
+ /* selected_items {
+    -moz-user-select: none;
+    background-color: #F4F4F4;
+    border: thin solid #7C7C7C;
+    border-radius: 2px;
+    float: left;
+    margin: 0.5% 1%;
+    width: 47%;
+  }*/
+ 
+ .autosuggest_label { 
+    -moz-border-radius: 5px 0 0 5px; 
+    -webkit-border-radius: 5px 0 0 5px;
+    background: linear-gradient(to bottom, rgb(239, 245, 255) 0px, rgb(224, 236, 255) 100%) repeat-x scroll 0 0 rgba(0, 0, 0, 0);
+    border: 1px solid rgb(149, 184, 231);
+   /* background: #EEE; */
+    border: 1px solid #CCC; 
+    border-radius: 5px 0 0 5px; 
+    border-right: 1px solid #FFF; 
+    display: inline-block; 
+    height: 25px; 
+    width: 275px; 
+    line-height: 36px; 
+    margin-right: 0; 
+    width: 35px!important; 
+    float: left;
+  } 
+  #target{ 
+    -moz-border-radius: 0 5px 5px 0; 
+    -webkit-border-radius: 0 5px 5px 0; 
+    background: #FFF; 
+    border: 1px solid #CCC; 
+    border-radius: 0 5px 5px 0; 
+    color: #333; 
+    font: 13px/1.6 'Helvetica Neue' , Arial, 'Liberation Sans' , FreeSans, sans-serif; 
+    min-height: 25px;
+    max-height: auto;
+    line-height: 24px; 
+    margin: 0px 8px 0px -5px; 
+    outline: none; 
+    padding: 0 3px; 
+    min-width: 115px;
+    max-width: 30%;
+  } 
+
+  label { 
+    display: block; 
+    height: 25px; 
+    line-height: 25px; 
+    padding: 0 0 0 30px; 
+  } 
+  .selected_search {
+    float: left;
+  }
+
+  .string_id {
+      background: white; 
+      border: 1px solid #DDD; 
+      border-radius: 5px; 
+      box-shadow: 0 0 1px #DDD inset; 
+      color: #666; 
+      outline: none; 
+      height:24px; 
+      width: 50px;
+      text-align: center;
+  }
+  
+  .lookup {
+    
+  }
+  
+   #autoSuggestionsList
+  {
+    position: absolute;
+    width: 40%;
+  }

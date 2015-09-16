@@ -188,7 +188,7 @@ if ($_POST['formaction']=='save' && $list_id) {
              }
               // Insert the list item
               sqlInsert("INSERT INTO list_options ( " .
-                "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2 " .
+                "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity " .
                 ") VALUES ( " .
                 "'$list_id', "                       .
                 "'" . $id                        . "', " .
@@ -200,7 +200,8 @@ if ($_POST['formaction']=='save' && $list_id) {
                 "'" . $notes                 . "', " .
                 "'" . formTrim($iter['codes'])   . "', " .
                 "'" . formTrim($iter['toggle_setting_1'])   . "', " .
-                "'" . formTrim($iter['toggle_setting_2'])   . "' " .								
+                "'" . formTrim($iter['toggle_setting_2'])   . "', " .
+                "'" . formTrim($iter['activity'])   . "' " .
                 ")");
             }
         }
@@ -267,13 +268,14 @@ function getCodeDescriptions($codes) {
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping='', $notes='', $codes='', $tog1='', $tog2='') {
+function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping='', $notes='', $codes='', $tog1='', $tog2='', $active='') {
   global $opt_line_no, $list_id;
   ++$opt_line_no;
   $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
   $checked = $default ? " checked" : "";
   $checked_tog1 = $tog1 ? " checked" : "";
-  $checked_tog2 = $tog2 ? " checked" : "";  
+  $checked_tog2 = $tog2 ? " checked" : "";
+  $checked_active = $active ? " checked" : "";
 
   echo " <tr bgcolor='$bgcolor'>\n";
 
@@ -302,6 +304,11 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
     "onclick='defClicked($opt_line_no)' class='optin'$checked />";
   echo "</td>\n";
 
+    echo "  <td align='center' class='optcell'>";
+    echo "<input type='checkbox' name='opt[$opt_line_no][activity]' value='1' " .
+        " class='optin'$checked_active />";
+    echo "</td>\n";
+  
   // Tax rates, contraceptive methods and LBF names have an additional attribute.
   //
   if ($list_id == 'taxrate' || $list_id == 'contrameth' || $list_id == 'lbfnames') {
@@ -895,6 +902,7 @@ while ($row = sqlFetchArray($res)) {
   } ?>  
   <td><b><?php xl('Order'  ,'e'); ?></b></td>
   <td><b><?php xl('Default','e'); ?></b></td>
+  <td><b><?php xl('Active','e'); ?></b></td>
  <?php if ($list_id == 'taxrate') { ?>
   <td><b><?php xl('Rate'   ,'e'); ?></b></td>
 <?php } else if ($list_id == 'contrameth') { ?>
@@ -913,6 +921,18 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php 
 		  if ($list_id == 'language') {
 		  	xl('ISO 639-2 Code','e');
+		  } else if ($list_id == 'personal_relationship' || $list_id == 'religious_affiliation' || $list_id == 'ethnicity' || $list_id == 'race' || $list_id == 'drug_route'){
+                        xl('HL7-V3 Concept Code','e');
+                  } else if ($list_id == 'Immunization_Completion_Status'){
+                        xl('Treatment Completion Status','e');
+                  } else if ($list_id == 'race') {
+                        xl('CDC Code','e');
+                  } else if ($list_id == 'Immunization_Manufacturer') {
+                        xl('MVX Code','e');
+                  } else if ($list_id == 'marital') {
+                        xl('Marital Status','e');
+                  } else if ( $list_id == 'county' ) {
+                        xl('INCITS Code','e'); //International Committee for Information Technology Standards
 		  } else {
 		  	xl('Notes','e');
 		  } 
@@ -962,7 +982,7 @@ if ($list_id) {
     while ($row = sqlFetchArray($res)) {
       writeOptionLine($row['option_id'], $row['title'], $row['seq'],
         $row['is_default'], $row['option_value'], $row['mapping'],
-        $row['notes'],$row['codes'],$row['toggle_setting_1'],$row['toggle_setting_2']);
+        $row['notes'],$row['codes'],$row['toggle_setting_1'],$row['toggle_setting_2'],$row['activity']);
     }
     for ($i = 0; $i < 3; ++$i) {
       writeOptionLine('', '', '', '', 0);

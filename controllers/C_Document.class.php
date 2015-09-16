@@ -384,7 +384,7 @@ class C_Document extends Controller {
     }
 	
 	
-	function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true) {
+	function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true,$disable_exit=false) {
 	    
 	    $encrypted = $_POST['encrypted'];
 		$passphrase = $_POST['passphrase'];
@@ -430,6 +430,9 @@ class C_Document extends Controller {
 				$this->document_upload_download_log($d->get_foreign_id(),$log_content);
 				die(xl("File retrieval from CouchDB failed"));
 			}
+                        if($disable_exit == true) {
+                            return base64_decode($content);
+                        }
 			header('Content-Description: File Transfer');
 			header('Content-Transfer-Encoding: binary');
 			header('Expires: 0');
@@ -507,14 +510,17 @@ class C_Document extends Controller {
 		else {
 		        if ($original_file) {
 			    //normal case when serving the file referenced in database
+                            $f = fopen($url,"r");
+                            $filetext = fread( $f, filesize($url) );
+                            if($disable_exit == true) {
+                                return $filetext;
+                            }
                 header('Content-Description: File Transfer');
                 header('Content-Transfer-Encoding: binary');
                 header('Expires: 0');
                 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
                 header('Pragma: public');
-			    $f = fopen($url,"r");
 			    if ( $doEncryption ) {
-			  		$filetext = fread( $f, filesize($url) );
 			        $ciphertext = $this->encrypt( $filetext, $passphrase );
 			        $tmpfilepath = $GLOBALS['temporary_files_dir'];
 			        $tmpfilename = "/encrypted_".$d->get_url_file();
@@ -545,6 +551,9 @@ class C_Document extends Controller {
 				else{
 				$url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
                 }
+                                if($disable_exit == true) {
+                                    return ;
+                                }
 				header("Pragma: public");
 			    header("Expires: 0");
 			    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");

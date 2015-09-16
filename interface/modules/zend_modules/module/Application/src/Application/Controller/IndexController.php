@@ -69,4 +69,47 @@ class IndexController extends AbstractActionController
       }
       return $this->applicationTable;
     }
+    
+    /**
+     * Search Mechanism
+     * Auto Suggest
+     * 
+     * @return string
+     */
+    public function searchAction()
+    {
+      $request      = $this->getRequest();
+      $result       = $this->forward()->dispatch('Application\Controller\Index', array(
+                                                      'action' => 'auto-suggest'
+                                                 ));
+      return $result;
+    }
+    
+    public function autoSuggestAction()
+    {
+      $request      = $this->getRequest();
+      $post         = $request->getPost();
+      $keyword      = $request->getPost()->queryString;
+      $page         = $request->getPost()->page;
+      $searchType   = $request->getPost()->searchType;
+      $searchEleNo  = $request->getPost()->searchEleNo;
+      $searchMode   = $request->getPost()->searchMode;
+      $limit        = 20;
+      $result       = $this->getApplicationTable()->listAutoSuggest($post, $limit);
+      /** disable layout **/
+      $index        = new ViewModel(); 
+      $index->setTerminal(true);
+      $index->setVariables(array(
+                                        'result'        => $result,
+                                        'keyword'       => $keyword,
+                                        'page'          => $page,
+                                        'searchType'    => $searchType,
+                                        'searchEleNo'   => $searchEleNo,
+                                        'searchMode'    => $searchMode,
+                                        'limit'         => $limit,
+                                        'CommonPlugin'  => $this->CommonPlugin(),
+                                        'listenerObject'=>$this->listenerObject,
+                                    ));
+      return $index;
+    }
 }

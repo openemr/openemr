@@ -428,5 +428,300 @@ class Userforms extends UserAudit{
 	    <?php
 	}
     }
+	
+	/**
+     * Method to fetch CCDA
+     * @param type $data
+     * @return type
+     */
+    public function ccdaFetching($data)
+    {
+	  global $pid;
+	  global $server_url;
+        
+	  if (UserService::valid($data[0])=='existingpatient') {
+		if ($this->checkModuleInstalled($moduleName = 'Carecoordination')) {
+		  $site_id = $data[0][0];
+		  try {
+			  $ch = curl_init();
+			  $url =  $server_url . "/interface/modules/zend_modules/public/encounterccdadispatch/index?cron=1&pid=$pid&site=$site_id";
+
+			  curl_setopt($ch, CURLOPT_URL, $url);
+			  curl_setopt($ch, CURLOPT_COOKIEFILE, "cookiefile");
+			  curl_setopt($ch, CURLOPT_COOKIEJAR, "cookiefile");
+			  curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
+			  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+			  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+			  $result = curl_exec($ch) or die(curl_error($ch));
+			  curl_close($ch);
+		  }
+		  catch (Exception $e) {
+
+		  }
+
+		  try {
+			  $event = isset ($data['event']) ? $data['event'] : 'patient-record';
+			  $menu_item = isset($data['menu_item']) ? $data['menu_item'] : 'Dashboard';
+			  newEvent($event, 1, '', 1, '', $pid,$log_from = 'patient-portal', $menu_item  );
+		  }catch (Exception $e) {
+
+		  }
+		  return $result;
+		}
+		else {
+		  return '<?xml version="1.0" encoding="UTF-8"?>
+			<note>
+			<heading>WARNING!</heading>
+			<body>Unable to fetch CCDA Carecoordination module not installed!</body>
+			</note>';
+		}
+	  }
+	  else {
+		return '<?xml version="1.0" encoding="UTF-8"?>
+			<note>
+			<heading>WARNING!</heading>
+			<body>Existing patient checking failed!</body>
+			</note>';
+	  }
+	  return '<?xml version="1.0" encoding="UTF-8"?>
+		  <note>
+		  <heading>WARNING!</heading>
+		  <body>Un known error occured</body>
+		  </note>';
+    }
+    
+    public function checkModuleInstalled($moduleName  = 'Carecoordination')
+    {
+	  $sql = "SELECT mod_id FROM modules WHERE mod_name = ? AND mod_active = '1'";
+	  $res = sqlStatement($sql, array($moduleName));
+	  $row = sqlFetchArray($res);   
+	  return !empty($row);
+    }
+    
+	/**
+    * @param mysql_resource - $inputArray - mysql query result
+    * @param string - $rootElementName - root element name
+    * @param string - $childElementName - child element name
+    */
+	public function arrayToXml($inputArray, $rootElementName = 'root', $childElementName = 'RowItem')
+	{ 
+	  $xmlData = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n"; 
+	  $xmlData .= "<" . $rootElementName . ">";
+	  foreach ($inputArray as $rowItem) {
+		$xmlData .= "<" . $childElementName . ">";
+		foreach($rowItem as $fieldName => $fieldValue) {
+		  $xmlData .= "<" . $fieldName . ">";
+		  $xmlData .= !empty($fieldValue) ? $fieldValue : "null";
+		  $xmlData .= "</" . $fieldName . ">";
+		}
+		$xmlData .= "</" . $childElementName . ">";
+	  }
+	  $xmlData .= "</" . $rootElementName . ">"; 
+
+      return $xmlData; 
+	}
+   
+	/**
+    * 
+    * @param type $data
+    * @return type
+    */
+    public function getEventLog($data)
+    {
+      global $pid;
+	  if (UserService::valid($data[0])=='existingpatient') {
+		$date1 = $data['start_date'];
+		$date2 = $data['end_date'];
+		$keyword = $data['keyword'];
+		$arrBinds = array();
+		$cols = "DISTINCT log.date, event, user, groupname, patient_id, success, comments,checksum,crt_user";
+		$sql = "SELECT $cols, CONCAT(fname, ' ', lname) as patient_ful_name, patient_portal_menu.`menu_name`, 
+            patient_portal_menu_group.`menu_group_name`, ccda_doc_id FROM log 
+			JOIN patient_data ON log.patient_id = patient_data.pid
+			JOIN patient_access_offsite ON log.patient_id = patient_access_offsite.pid
+			JOIN patient_portal_menu ON patient_portal_menu.`patient_portal_menu_id` = log.menu_item_id
+			JOIN patient_portal_menu_group ON patient_portal_menu_group.`patient_portal_menu_group_id` = patient_portal_menu.`patient_portal_menu_group_id`
+			WHERE log.date >= ? AND log.date <= ?";
+		  
+		$sql .= " AND log_from = 'patient-portal'";
+		$sql .= " AND patient_id = ?";
+		$arrBinds = array($date1  . ' 00:00:00', $date2 . ' 23:59:59', $pid);
+		if(!empty($keyword)) {
+		  $sql .= " AND (log.date LIKE ?
+					  OR LOWER(event) LIKE ?
+					  OR LOWER(user) LIKE ?
+						  OR LOWER(CONCAT(fname, ' ', lname)) LIKE ? 
+					  OR LOWER(groupname) LIKE ?  
+					  OR LOWER(comments) LIKE ?
+					  OR LOWER(user) LIKE ?
+					  ) ";
+		  $arrBinds[] = '%' . $keyword . '%' ;
+		  $arrBinds[] = '%' . strtolower($keyword) . '%';
+		  $arrBinds[] = '%' . strtolower($keyword) . '%';
+		  $arrBinds[] = '%' . strtolower($keyword) . '%';
+		  $arrBinds[] = '%' . strtolower($keyword) . '%';
+		  $arrBinds[] = '%' . strtolower($keyword) . '%';
+		  $arrBinds[] = '%' . strtolower($keyword) . '%';
+		}
+		$sql .= "  ORDER BY date DESC LIMIT 5000";
+		
+		$res = sqlStatement($sql, $arrBinds);                
+		$all = array();
+		for($iter=0; $row=sqlFetchArray($res); $iter++) {
+		  $all[$iter] = $row;
+		}
+
+		$responseString = $this->arrayToXml($all );
+
+		return $responseString;
+	  }
+    }
+    
+    /*
+     * Connect to a phiMail Direct Messaging server and transmit
+     * a CCD document to the specified recipient. If the message is accepted by the
+     * server, the script will return "SUCCESS", otherwise it will return an error msg. 
+     * @param DOMDocument ccd the xml data to transmit, a CCDA document is assumed
+     * @param string recipient the Direct Address of the recipient
+     * @param string requested_by user | patient
+     * @return string result of operation
+     */
+    function transmitCCD($data  = array()) { 
+        $ccd = $data['ccd'];
+        $recipient =  $data['recipient'];
+        $requested_by = $data['requested_by'];
+        $xml_type = $data['xml_type'];
+       
+        if (UserService::valid($data[0])=='existingpatient') {
+                        
+        try {
+            $_SESSION['authProvider'] = 1;
+            global $pid;
+            //get patient name in Last_First format (used for CCDA filename) and
+            //First Last for the message text.
+            $patientData = getPatientPID(array("pid"=>$pid));
+            if (empty($patientData[0]['lname'])) {
+               $att_filename = "";
+               $patientName2 = "";
+            } else {
+               //spaces are the argument delimiter for the phiMail API calls and must be removed
+               $extension = $xml_type == 'CCDA' ? 'xml' : strtolower($xml_type);
+               $att_filename = " " . 
+                  str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname'] 
+                  . "_" . $patientData[0]['fname']) . "." . $extension;
+               $patientName2 = $patientData[0]['fname'] . " " . $patientData[0]['lname'];
+            }
+
+            $config_err = xl("Direct messaging is currently unavailable.")." EC:";
+            if ($GLOBALS['phimail_enable']==false) return("$config_err 1");
+
+            $fp = phimail_connect($err);
+            if ($fp===false) return("$config_err $err");
+
+            $phimail_username = $GLOBALS['phimail_username'];
+            $phimail_password = $GLOBALS['phimail_password'];
+            $ret = phimail_write_expect_OK($fp,"AUTH $phimail_username $phimail_password\n");
+            if($ret!==TRUE) return("$config_err 4");
+
+            $ret = phimail_write_expect_OK($fp,"TO $recipient\n");
+            if($ret!==TRUE) return( xl("Delivery is not allowed to the specified Direct Address.") );
+
+            $ret=fgets($fp,1024); //ignore extra server data
+
+            if($requested_by=="patient")
+             $text_out = xl("Delivery of the attached clinical document was requested by the patient") . 
+                     ($patientName2=="" ? "." : ", " . $patientName2 . ".");
+            else
+             $text_out = xl("A clinical document is attached") . 
+                     ($patientName2=="" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
+
+            $text_len=strlen($text_out);
+            phimail_write($fp,"TEXT $text_len\n");
+            $ret=@fgets($fp,256);
+            
+            if($ret!="BEGIN\n") {
+                phimail_close($fp);
+                return("$config_err 5");
+            }
+            $ret=phimail_write_expect_OK($fp,$text_out);
+            if($ret!==TRUE) return("$config_err 6");
+
+            if(in_array($xml_type, array('CCR', 'CCDA', 'CDA')))
+            { 
+                $ccd = simplexml_load_string($ccd);
+                $ccd_out = $ccd->saveXml();
+                $ccd_len = strlen($ccd_out);
+                phimail_write($fp,"ADD " . ($xml_type=="CCR" ? $xml_type . ' ' : "CDA ") . $ccd_len . $att_filename . "\n");
+                //phimail_write($fp,"ADD " . (isset($xml_type) ? $xml_type . ' ' : "CDA ") . $ccd_len . $att_filename . "\n");
+            } else if(strtolower($xml_type) == 'html' || strtolower($xml_type) == 'pdf') {
+                $ccd_out = base64_decode($ccd);
+                $message_length = strlen($ccd_out);
+                $add_type = (strtolower($xml_type) == 'html') ? 'TEXT' : 'RAW';
+                phimail_write($fp, "ADD " . $add_type . " " . $message_length . "" . $att_filename . "\n");
+            }
+            
+
+            $ret=fgets($fp,256);
+
+            if($ret!="BEGIN\n") {
+                phimail_close($fp);
+                return("$config_err 7");
+            }
+            $ret=phimail_write_expect_OK($fp,$ccd_out);
+
+            if($ret!==TRUE) return("$config_err 8");
+
+            
+            phimail_write($fp,"SEND\n");
+            $ret=fgets($fp,256);
+            phimail_close($fp);
+
+            if($requested_by=="patient")  {
+             $reqBy="portal-user";
+             $sql = "SELECT id FROM users WHERE username='portal-user'";
+             
+             if (($r = sqlStatement($sql)) === FALSE ||
+                 ($u = sqlFetchArray($r)) === FALSE) {
+                 $reqID = 1; //default if we don't have a service user
+             } else {
+                 $reqID = $u['id'];
+             }
+
+            } else {
+             $reqBy=$_SESSION['authUser'];
+                 $reqID=$_SESSION['authUserID'];
+            }
+
+            if(substr($ret,5)=="ERROR") {
+                //log the failure
+                newEvent("transmit-ccd",$reqBy,$_SESSION['authProvider'],0,$ret,$pid);
+                return( xl("The message could not be sent at this time."));
+            }
+
+            /**
+             * If we get here, the message was successfully sent and the return
+             * value $ret is of the form "QUEUED recipient message-id" which
+             * is suitable for logging. 
+             */
+            $msg_id=explode(" ",trim($ret),4);
+            if($msg_id[0]!="QUEUED" || !isset($msg_id[2])) { //unexpected response
+             $ret = "UNEXPECTED RESPONSE: " . $ret;
+             newEvent("transmit-ccd",$reqBy,$_SESSION['authProvider'],0,$ret,$pid);
+             return( xl("There was a problem sending the message."));
+            }
+            newEvent("transmit-".$xml_type,$reqBy,$_SESSION['authProvider'],1,$ret,$pid);
+            $adodb=$GLOBALS['adodb']['db'];
+            
+	//            $sql="INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
+	//             "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";
+	//            $res=@sqlStatement($sql,array($msg_id[2],$phimail_username,$recipient,$pid,$reqID));
+
+            return("SUCCESS");
+         }catch (Exception $e) {
+             return 'Error: ' . $e->getMessage();
+         }
+        }
+    }
 }
 ?>

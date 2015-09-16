@@ -159,6 +159,7 @@ if ($_POST['form_save']) {
     "outcome = '"     . add_escape_custom($_POST['form_outcome'])      . "', " .
     "destination = '" . add_escape_custom($_POST['form_destination'])   . "', " .
     "reaction ='"     . add_escape_custom($_POST['form_reaction'])     . "', " .
+    "severity_al ='"     . add_escape_custom($_POST['form_severity_id'])     . "', " .
     "erx_uploaded = '0', " .
     "modifydate = NOW() " .
     "WHERE id = '" . add_escape_custom($issue) . "'";
@@ -176,7 +177,7 @@ if ($_POST['form_save']) {
     "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
     "diagnosis, occurrence, classification, referredby, user, groupname, " .
     "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
-    "reaction " .
+    "reaction, severity_al " .
     ") VALUES ( " .
     "NOW(), " .
     "'" . add_escape_custom($thispid) . "', " .
@@ -199,7 +200,8 @@ if ($_POST['form_save']) {
     "'" . add_escape_custom($_POST['form_injury_grade']) . "', " .
     "'" . add_escape_custom($form_injury_part)          . "', " .
     "'" . add_escape_custom($form_injury_type)          . "', " .
-    "'" . add_escape_custom($_POST['form_reaction'])         . "' " .
+    "'" . add_escape_custom($_POST['form_reaction'])         . "', " .
+    "'" . add_escape_custom($_POST['form_severity_id'])         . "' " .
    ")");
 
   }
@@ -333,6 +335,7 @@ div.section {
   document.getElementById('row_occurrence'    ).style.display = comdisp;
   document.getElementById('row_classification').style.display = injdisp;
   document.getElementById('row_reinjury_id'   ).style.display = injdisp;
+  document.getElementById('row_severity'      ).style.display = alldisp;
   document.getElementById('row_reaction'      ).style.display = alldisp;
   document.getElementById('row_referredby'    ).style.display = (f.form_referredby.value) ? '' : comdisp;
   document.getElementById('row_comments'      ).style.display = (f.form_comments.value  ) ? '' : revdisp;
@@ -686,11 +689,20 @@ echo generate_select_list('form_medical_type', 'medical_type', $irow['injury_typ
   </td>
  </tr>
  <!-- Reaction For Medication Allergy -->
+  <tr id='row_severity'>
+    <td valign='top' nowrap><b><?php echo xlt('Severity'); ?>:</b></td>
+    <td><?php
+        $severity=$irow['severity_al'];
+        generate_form_field(array('data_type'=>1,'field_id'=>'severity_id','list_id'=>'severity_ccda','empty_title'=>'SKIP'), $severity);
+      ?>  
+    </td>
+  </tr>
   <tr id='row_reaction'>
    <td valign='top' nowrap><b><?php echo xlt('Reaction'); ?>:</b></td>
    <td>
-    <input type='text' size='40' name='form_reaction' value='<?php echo attr($irow['reaction']) ?>'
-     style='width:100%' title='<?php echo xla('Allergy Reaction'); ?>' />
+     <?php
+        echo generate_select_list('form_reaction', 'reaction', $irow['reaction'], '', '', '', '');
+     ?>
    </td>
   </tr>
  <!-- End of reaction -->

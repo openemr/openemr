@@ -236,7 +236,9 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
     echo "</td>\n";
     if ($focustype == "allergy") {
-      echo "  <td>" . text($row['reaction']) . "&nbsp;</td>\n";
+      echo "  <td>";
+        echo generate_display_field(array('data_type'=>'1','list_id'=>'reaction'), $row['reaction']);
+      echo "</td>\n";
     }
     if ($GLOBALS['athletic_team']) {
         echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
