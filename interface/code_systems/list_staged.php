@@ -129,7 +129,7 @@ if (is_dir($mainPATH)) {
             }
             else if ($db == 'SNOMED_RF2') {
             	if (preg_match("/SnomedCT_RF2Release_([A-Z]+)_([0-9]{8}).zip/", $file, $matches)) {	//import RF2-format
-            		$version = $matches[1];				//'INT' signals the (English) core, NL the Dutch Extension
+            		$version = $matches[1];				//'INT' signals the International core
             		$snomed_extension = "_".$matches[1]."_".$matches[2];
             		$date_release = substr($matches[2],0,4)."-".substr($matches[2],4,-2)."-".substr($matches[2],6);
             		$temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);

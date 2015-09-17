@@ -241,7 +241,7 @@ function snomed_import($us_extension=FALSE) {
  */
 function snomed_rf2_import($version, $file_extension) {
 	// set up array
-	$table_array_for_snomed=array(
+	$table_array_for_snomed=array(			//concept table
 			"sct_concepts_drop"=>"DROP TABLE IF EXISTS `sct_rf2_concepts`",
 			"sct_concepts_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_concepts` (
             `conceptId` bigint(18) NOT NULL,
@@ -251,7 +251,7 @@ function snomed_rf2_import($version, $file_extension) {
             `definitionStatusId` bigint(18) NOT NULL,
             PRIMARY KEY (`conceptId`)
             ) ENGINE=MyISAM",
-			"sct_descriptions_drop"=>"DROP TABLE IF EXISTS `sct_rf2_descriptions`",
+			"sct_descriptions_drop"=>"DROP TABLE IF EXISTS `sct_rf2_descriptions`",		//description table
 			"sct_descriptions_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_descriptions` (
             `descriptionId` bigint(18) NOT NULL,
 			`effectiveTime` int(8) NOT NULL,
@@ -264,7 +264,7 @@ function snomed_rf2_import($version, $file_extension) {
             `caseSignificanceId` bigint(18) NOT NULL,
             PRIMARY KEY (`descriptionId`)
             ) ENGINE=MyISAM",
-			"sct_relationships_drop"=>"DROP TABLE IF EXISTS `sct_rf2_relationships`",
+			"sct_relationships_drop"=>"DROP TABLE IF EXISTS `sct_rf2_relationships`",	//relation table
 			"sct_relationships_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_relationships` (
             `relationshipId` bigint(18) NOT NULL,
 			`effectiveTime` int(8) NOT NULL,
@@ -278,7 +278,7 @@ function snomed_rf2_import($version, $file_extension) {
             `modifierId`  bigint(18) NOT NULL,
             PRIMARY KEY (`relationshipId`)
             ) ENGINE=MyISAM",
-			"sct_simplerefsets_drop"=>"DROP TABLE IF EXISTS `sct_rf2_simplerefsets`",
+			"sct_simplerefsets_drop"=>"DROP TABLE IF EXISTS `sct_rf2_simplerefsets`",	//simple refset (pick list) table
 			"sct_simplerefsets_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_simplerefsets` (
             `id` bigint(36) NOT NULL,
 			`effectiveTime` int(8) NOT NULL,
@@ -288,7 +288,7 @@ function snomed_rf2_import($version, $file_extension) {
             `referencedComponentId` bigint(18) NOT NULL,
             PRIMARY KEY (`id`)
             ) ENGINE=MyISAM",
-			"sct_languagerefsets_drop"=>"DROP TABLE IF EXISTS `sct_rf2_languagerefsets`",
+			"sct_languagerefsets_drop"=>"DROP TABLE IF EXISTS `sct_rf2_languagerefsets`",	//language refset (to identify preferred terms)
 			"sct_languagefsets_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_languagerefsets` (
             `id` bigint(36) NOT NULL,
 			`effectiveTime` int(8) NOT NULL,
@@ -299,8 +299,8 @@ function snomed_rf2_import($version, $file_extension) {
 			`acceptabilityId` bigint(18) NOT NULL,
             PRIMARY KEY (`id`)
             ) ENGINE=MyISAM",
-			"sct_extendedmaprefsets_drop"=>"DROP TABLE IF EXISTS `sct_rf2_extendedmaprefsets`",
-			"sct_extendedmaprefsets_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_extendedmaprefsets` (
+			"sct_extendedmaprefsets_drop"=>"DROP TABLE IF EXISTS `sct_rf2_extendedmaprefsets`",	//mapping table (only included mappings to ICD-10)
+			"sct_extendedmaprefsets_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_extendedmaprefsets` (	
             `id` bigint(36) NOT NULL,
 			`effectiveTime` int(8) NOT NULL,
 			`active` tinyint(1) NOT NULL,
@@ -325,7 +325,7 @@ function snomed_rf2_import($version, $file_extension) {
 	}
 	
 	 // set up paths
-    $dir_snomed = $GLOBALS['temporary_files_dir']."/SNOMED_RF2/SnomedCT_RF2Release".$file_extension."/Snapshot/";
+    $dir_snomed = $GLOBALS['temporary_files_dir']."/SNOMED_RF2/SnomedCT_RF2Release".$file_extension."/";
     $dir_snomed=str_replace('\\','/',$dir_snomed);
 	
 	if(!(is_dir($dir_snomed) && $handle = opendir($dir_snomed))) {
@@ -339,33 +339,55 @@ function snomed_rf2_import($version, $file_extension) {
 			"#TABLE#"
 	);
 	
-	$dir_terminology=$dir_snomed."Terminology/";
-	$conceptFile = $dir_terminology."sct2_Concept_Snapshot".$file_extension.".txt";
-	import_snomed_rf2_file($conceptFile, "sct_rf2_concepts", $load_script, $array_replace);
+	$dir_terminology=$dir_snomed."Snapshot/Terminology/";
+	$dir_refset=$dir_snomed."Snapshot/Refset/";
+	$language = "-en";		//TODO If you can figure out the language from the filename (not consistent among SNOMED distributions)
+							//then change this variable, e.g. to "-es"
+	//import the core tables. This should also work for US and Spanish Editions (Extensions are no longer distributed by these NRC's)
+	import_snomed_rf2_file($dir_terminology, "sct2_Concept_Snapshot", $file_extension, "sct_rf2_concepts", $load_script, $array_replace);
+	import_snomed_rf2_file($dir_terminology, "sct2_Description_Snapshot".$language, $file_extension, "sct_rf2_descriptions", $load_script, $array_replace);
+	import_snomed_rf2_file($dir_terminology, "sct2_Relationship_Snapshot", $file_extension, "sct_rf2_relationships", $load_script, $array_replace);
+	import_snomed_rf2_file($dir_refset, "Content/der2_Refset_SimpleSnapshot", $file_extension, "sct_rf2_simplerefsets", $load_script, $array_replace);
+	import_snomed_rf2_file($dir_refset, "Language/der2_cRefset_LanguageSnapshot".$language, $file_extension, "sct_rf2_languagerefsets", $load_script, $array_replace);
+	import_snomed_rf2_file($dir_refset, "Map/der2_iisssccRefset_ExtendedMapSnapshot", $file_extension, "sct_rf2_extendedmaprefsets", $load_script, $array_replace);
 	
-	$descriptionFile = $dir_terminology."sct2_Description_Snapshot-en".$file_extension.".txt";	//TODO in extensions language might be other than 'en'
-	import_snomed_rf2_file($descriptionFile, "sct_rf2_descriptions", $load_script, $array_replace);
-	
-	$relationFile = $dir_terminology."sct2_Relationship_Snapshot".$file_extension.".txt";	//TODO in extensions language might be other than 'en'
-	import_snomed_rf2_file($relationFile, "sct_rf2_relationships", $load_script, $array_replace);
-	
-	$dir_refset=$dir_snomed."Refset/";
-	$simpleRefsetFile = $dir_refset."Content/der2_Refset_SimpleSnapshot".$file_extension.".txt";
-	import_snomed_rf2_file($simpleRefsetFile, "sct_rf2_simplerefsets", $load_script, $array_replace);
-	
-	$languageRefsetFile = $dir_refset."Language/der2_cRefset_LanguageSnapshot-en".$file_extension.".txt";	//TODO language in extension
-	import_snomed_rf2_file($languageRefsetFile, "sct_rf2_languagerefsets", $load_script, $array_replace);
-	
-	$extendedmapRefsetFile = $dir_refset."Map/der2_iisssccRefset_ExtendedMapSnapshot".$file_extension.".txt";
-	import_snomed_rf2_file($extendedmapRefsetFile, "sct_rf2_extendedmaprefsets", $load_script, $array_replace);
-	
+	$dir_extension = $dir_snomed."NL_Extension/";	//if the Dutch Extension is included, import that as well
+	if (is_dir($dir_extension))			//Extension is distributed within Dutch Edition alongside the INT-version. Just add the extra lines to each table
+	{
+		$language_nl = "";				//Dutch extension contains English and Dutch descriptions, therefore does not include language in filename
+		$dir_terminology_extension = $dir_extension."Snapshot/Terminology/";
+		$dir_refset_extension = $dir_extension."Snapshot/Refset/";
+		$files_array = scandir($dir_terminology_extension);
+		$file_extension_nl = $file_extension;
+		
+		foreach ($files_array as $file)	//Dutch extension is generated 1-2 months later than core (of necessity), so find new file extension
+		{
+			if (preg_match("/sct2_Concept_Snapshot(_[A-Z]+_[0-9]{8}).txt/", $file, $matches))
+			{
+				$file_extension_nl = $matches[1];
+				break;
+			}
+		}
+		
+		import_snomed_rf2_file($dir_terminology_extension, "sct2_Concept_Snapshot", $file_extension_nl, "sct_rf2_concepts", $load_script, $array_replace);
+		import_snomed_rf2_file($dir_terminology_extension, "sct2_Description_Snapshot".$language_nl, $file_extension_nl, "sct_rf2_descriptions", $load_script, $array_replace);
+		import_snomed_rf2_file($dir_terminology_extension, "sct2_Relationship_Snapshot", $file_extension_nl, "sct_rf2_relationships", $load_script, $array_replace);
+		import_snomed_rf2_file($dir_refset_extension, "Content/der2_Refset_SimpleSnapshot", $file_extension_nl, "sct_rf2_simplerefsets", $load_script, $array_replace);
+		import_snomed_rf2_file($dir_refset_extension, "Language/der2_cRefset_LanguageSnapshot".$language_nl, $file_extension_nl, "sct_rf2_languagerefsets", $load_script, $array_replace);
+		import_snomed_rf2_file($dir_refset_extension, "Map/der2_iisssccRefset_ExtendedMapSnapshot", $file_extension_nl, "sct_rf2_extendedmaprefsets", $load_script, $array_replace);
+	}
+
 	return true; 
 }
 
-function import_snomed_rf2_file($file, $table, $load_script, $array_replace)
+function import_snomed_rf2_file($dir, $filename, $fileextension, $table, $load_script, $array_replace)
 {
-	$conceptSql = str_replace($array_replace, array($file, $table), $load_script);
-	sqlStatement($conceptSql);
+	$file = $dir.$filename.$fileextension.".txt";
+	if (file_exists($file))
+	{
+		$sql = str_replace($array_replace, array($file, $table), $load_script);
+		sqlStatement($sql);
+	}
 }
 
 // Function to import ICD tables $type differentiates ICD 9, 10 and eventually 11 (circa 2018 :-) etc.
