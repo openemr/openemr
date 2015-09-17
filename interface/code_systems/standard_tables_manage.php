@@ -49,6 +49,7 @@ if (!acl_check('admin', 'super')) {
 
 $db = isset($_GET['db']) ? $_GET['db'] : '0';
 $version = isset($_GET['version']) ? $_GET['version'] : '0';
+$snomed_extension = isset($_GET['snomed_extension']) ? $_GET['snomed_extension'] : '0';
 $file_revision_date = isset($_GET['file_revision_date']) ? $_GET['file_revision_date'] : '0';
 $file_checksum = isset($_GET['file_checksum']) ? $_GET['file_checksum'] : '0';
 $newInstall = 	isset($_GET['newInstall']) ? $_GET['newInstall'] : '0';
@@ -75,6 +76,12 @@ if ($db == 'RXNORM') {
         temp_dir_cleanup($db);
         exit;
     }
+} else if ($db == 'SNOMED_RF2') {		//attempt RF2 import
+	if (!snomed_rf2_import($version, $snomed_extension)) {
+		echo htmlspecialchars( xl('ERROR: Unable to load the file into the database.'), ENT_NOQUOTES)."<br>";
+		temp_dir_cleanup($db);
+		exit;
+	}
 } else if ( $db == 'SNOMED') {
     if ($version == "US Extension") {
         if (!snomed_import(TRUE)) {

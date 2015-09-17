@@ -27,13 +27,13 @@
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
 function temp_copy($filename,$type) {
-
     if(!file_exists($filename)) {
         return false;
     }
 
     if(!file_exists($GLOBALS['temporary_files_dir']."/".$type)) {
         if(!mkdir($GLOBALS['temporary_files_dir']."/".$type, 0777, true)) {
+        		error_log("Could not make dir ".$GLOBALS['temporary_files_dir']."/".$type);
                 return false;
         }
     }
@@ -42,6 +42,7 @@ function temp_copy($filename,$type) {
         return true;
     }
     else {
+    	error_log("Could not copy file to".$GLOBALS['temporary_files_dir']."/".$type."/".basename($filename));
         return false;
     }
 }
@@ -55,7 +56,7 @@ function temp_unarchive($filename,$type) {
     }
     else {
 
-	// let's uzip the file
+	// let's unzip the file
 	// use checksums to determine the "version" 
 	//
         $zip = new ZipArchive;
@@ -235,6 +236,138 @@ function snomed_import($us_extension=FALSE) {
     return true;
 }
 
+/** Function to import SNOMED CT through the RF2 format. To start with, only
+ * import the core. TODO: accommodate RF2 extensions.
+ */
+function snomed_rf2_import($version, $file_extension) {
+	// set up array
+	$table_array_for_snomed=array(
+			"sct_concepts_drop"=>"DROP TABLE IF EXISTS `sct_rf2_concepts`",
+			"sct_concepts_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_concepts` (
+            `conceptId` bigint(18) NOT NULL,
+            `effectiveTime` int(8) NOT NULL,
+			`active` tinyint(1) NOT NULL,
+            `moduleId` bigint(18) NOT NULL,
+            `definitionStatusId` bigint(18) NOT NULL,
+            PRIMARY KEY (`conceptId`)
+            ) ENGINE=MyISAM",
+			"sct_descriptions_drop"=>"DROP TABLE IF EXISTS `sct_rf2_descriptions`",
+			"sct_descriptions_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_descriptions` (
+            `descriptionId` bigint(18) NOT NULL,
+			`effectiveTime` int(8) NOT NULL,
+			`active` tinyint(1) NOT NULL,
+            `moduleId` bigint(18) NOT NULL,
+            `conceptId` bigint(18) NOT NULL,
+			`languageCode` varchar(8) NOT NULL,
+			`typeId` bigint(18) NOT NULL,
+            `term` varchar(255) NOT NULL,
+            `caseSignificanceId` bigint(18) NOT NULL,
+            PRIMARY KEY (`descriptionId`)
+            ) ENGINE=MyISAM",
+			"sct_relationships_drop"=>"DROP TABLE IF EXISTS `sct_rf2_relationships`",
+			"sct_relationships_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_relationships` (
+            `relationshipId` bigint(18) NOT NULL,
+			`effectiveTime` int(8) NOT NULL,
+			`active` tinyint(1) NOT NULL,
+            `moduleId` bigint(18) NOT NULL,
+            `sourceId` bigint(18) NOT NULL,
+            `destinationId` bigint(18) NOT NULL,
+            `relationshipGroup` tinyint(1) NOT NULL,
+			`typeId` bigint(18) NOT NULL,
+            `characteristicTypeId`  bigint(18) NOT NULL,
+            `modifierId`  bigint(18) NOT NULL,
+            PRIMARY KEY (`relationshipId`)
+            ) ENGINE=MyISAM",
+			"sct_simplerefsets_drop"=>"DROP TABLE IF EXISTS `sct_rf2_simplerefsets`",
+			"sct_simplerefsets_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_simplerefsets` (
+            `id` bigint(36) NOT NULL,
+			`effectiveTime` int(8) NOT NULL,
+			`active` tinyint(1) NOT NULL,
+            `moduleId` bigint(18) NOT NULL,
+            `refsetId` bigint(18) NOT NULL,
+            `referencedComponentId` bigint(18) NOT NULL,
+            PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM",
+			"sct_languagerefsets_drop"=>"DROP TABLE IF EXISTS `sct_rf2_languagerefsets`",
+			"sct_languagefsets_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_languagerefsets` (
+            `id` bigint(36) NOT NULL,
+			`effectiveTime` int(8) NOT NULL,
+			`active` tinyint(1) NOT NULL,
+            `moduleId` bigint(18) NOT NULL,
+            `refsetId` bigint(18) NOT NULL,
+            `referencedComponentId` bigint(18) NOT NULL,
+			`acceptabilityId` bigint(18) NOT NULL,
+            PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM",
+			"sct_extendedmaprefsets_drop"=>"DROP TABLE IF EXISTS `sct_rf2_extendedmaprefsets`",
+			"sct_extendedmaprefsets_structure"=>"CREATE TABLE IF NOT EXISTS `sct_rf2_extendedmaprefsets` (
+            `id` bigint(36) NOT NULL,
+			`effectiveTime` int(8) NOT NULL,
+			`active` tinyint(1) NOT NULL,
+            `moduleId` bigint(18) NOT NULL,
+            `refsetId` bigint(18) NOT NULL,
+            `referencedComponentId` bigint(18) NOT NULL,
+			`mapGroup` int(8) NOT NULL,
+			`mapPriority` int(8) NOT NULL,
+			`mapRule` varchar(255) NOT NULL,
+			`mapAdvice` varchar(255) NOT NULL,
+			`mapTarget` varchar(36) NOT NULL,
+			`correlationId` bigint(18) NOT NULL,
+            PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM"
+	);
+		
+	// executing the create statement for tables,
+	foreach ( $table_array_for_snomed as $val ) {
+		if (trim ( $val ) != '') {
+			sqlStatement ( $val );
+		}
+	}
+	
+	 // set up paths
+    $dir_snomed = $GLOBALS['temporary_files_dir']."/SNOMED_RF2/SnomedCT_RF2Release".$file_extension."/Snapshot/";
+    $dir_snomed=str_replace('\\','/',$dir_snomed);
+	
+	if(!(is_dir($dir_snomed) && $handle = opendir($dir_snomed))) {
+		echo "Cannot open $dir<br>";
+		return false;
+	}
+
+	$load_script = "Load data local infile '#FILENAME#' into table #TABLE# fields terminated by '\\t' ESCAPED BY '' lines terminated by '\\n' ignore 1 lines   ";
+	$array_replace = array (
+			"#FILENAME#",
+			"#TABLE#"
+	);
+	
+	$dir_terminology=$dir_snomed."Terminology/";
+	$conceptFile = $dir_terminology."sct2_Concept_Snapshot".$file_extension.".txt";
+	import_snomed_rf2_file($conceptFile, "sct_rf2_concepts", $load_script, $array_replace);
+	
+	$descriptionFile = $dir_terminology."sct2_Description_Snapshot-en".$file_extension.".txt";	//TODO in extensions language might be other than 'en'
+	import_snomed_rf2_file($descriptionFile, "sct_rf2_descriptions", $load_script, $array_replace);
+	
+	$relationFile = $dir_terminology."sct2_Relationship_Snapshot".$file_extension.".txt";	//TODO in extensions language might be other than 'en'
+	import_snomed_rf2_file($relationFile, "sct_rf2_relationships", $load_script, $array_replace);
+	
+	$dir_refset=$dir_snomed."Refset/";
+	$simpleRefsetFile = $dir_refset."Content/der2_Refset_SimpleSnapshot".$file_extension.".txt";
+	import_snomed_rf2_file($simpleRefsetFile, "sct_rf2_simplerefsets", $load_script, $array_replace);
+	
+	$languageRefsetFile = $dir_refset."Language/der2_cRefset_LanguageSnapshot-en".$file_extension.".txt";	//TODO language in extension
+	import_snomed_rf2_file($languageRefsetFile, "sct_rf2_languagerefsets", $load_script, $array_replace);
+	
+	$extendedmapRefsetFile = $dir_refset."Map/der2_iisssccRefset_ExtendedMapSnapshot".$file_extension.".txt";
+	import_snomed_rf2_file($extendedmapRefsetFile, "sct_rf2_extendedmaprefsets", $load_script, $array_replace);
+	
+	return true; 
+}
+
+function import_snomed_rf2_file($file, $table, $load_script, $array_replace)
+{
+	$conceptSql = str_replace($array_replace, array($file, $table), $load_script);
+	sqlStatement($conceptSql);
+}
+
 // Function to import ICD tables $type differentiates ICD 9, 10 and eventually 11 (circa 2018 :-) etc.
 //
 function icd_import($type) {
@@ -408,6 +541,10 @@ function update_tracker_table($type,$revision,$version,$file_checksum) {
     else if ($type == 'SNOMED') {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'SNOMED',?,?,?)", array($revision, $version, $file_checksum) );
         return true;
+    }
+    else if ($type == 'SNOMED_RF2') {
+    	sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'SNOMED_RF2',?,?,?)", array($revision, $version, $file_checksum) );
+    	return true;
     }
     else if ($type == 'ICD9') {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD9',?,?,?)", array($revision, $version, $file_checksum) );
