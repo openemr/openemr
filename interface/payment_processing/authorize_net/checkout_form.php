@@ -1,3 +1,14 @@
+<?php
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes = true;
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals = false;
+
+require_once('../../globals.php');
+
+?>
+
 <!doctype html>
 <html>
   <head>
@@ -13,10 +24,11 @@
       </script>
   </head>
   <body>
-    <h1>Your Store</h1>
+    <h1>Your Store</h1> 
     <h2>Checkout</h2>
     <?php
     require_once 'coffee_store_settings.php';
+    //include 'anet_php_sdk/AuthorizeNet.php';
     
     if ($METHOD_TO_USE == "AIM") {
         ?>
@@ -40,6 +52,7 @@
             'x_relay_url'     => $coffee_store_relay_url,
             'x_login'         => AUTHORIZENET_API_LOGIN_ID,
             'x_test_request'  => TEST_REQUEST,
+            
             )
         );
         echo $sim->getHiddenFieldString();

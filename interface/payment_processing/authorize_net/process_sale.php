@@ -32,6 +32,10 @@ if ($METHOD_TO_USE == "AIM") {
         // Transaction approved! Do your logic here.
         header('Location: thank_you_page.php?transaction_id=' . $response->transaction_id);
     } else {
+        /*
+        echo "Something went wrong";
+        var_dump($transaction);
+        exit;*/
         header('Location: error_page.php?response_reason_code='.$response->response_reason_code.'&response_code='.$response->response_code.'&response_reason_text=' .$response->response_reason_text);
     }
 } elseif (count($_POST)) {

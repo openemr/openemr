@@ -1182,6 +1182,7 @@ if ($GLOBALS['athletic_team']) {
     <ul>
       <?php genMiscLink('RBot','cod','2',xl('Fee Sheet'),'patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
       <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?>
+
     </ul>
   </li> 
   <?php } ?>

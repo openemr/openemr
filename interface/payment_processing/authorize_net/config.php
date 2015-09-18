@@ -17,8 +17,8 @@ require_once('anet_php_sdk/AuthorizeNet.php');
 if($GLOBALS['enable_authoriz_net'] = '1'){
 
 
-//$METHOD_TO_USE = "AIM";
-$METHOD_TO_USE = "DIRECT_POST";         // Uncomment this line to test DPM
+$METHOD_TO_USE = "AIM";
+//$METHOD_TO_USE = "DIRECT_POST";         // Uncomment this line to test DPM
 
 $a = $GLOBALS['aapi_login_id'];
 $b = $GLOBALS['atransaction_key'];

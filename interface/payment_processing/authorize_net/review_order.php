@@ -7,6 +7,7 @@
   </head>
   <body>
     <h1>Your Store</h1>
+   
     <h2>Order</h2>
     <table>
       <tfoot>

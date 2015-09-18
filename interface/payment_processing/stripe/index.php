@@ -1,4 +1,15 @@
 <?php
+
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * Added to be able to process credit cards within the system
+ * Sherwin Gaddis sherwingaddis@gmail.com
+ * 
+ */
+
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
 //
@@ -7,6 +18,12 @@ $sanitize_all_escapes=true;
 $fake_register_globals=false;
 
 require_once("../../globals.php");
+
+$pid = $GLOBALS['pid'];
+if($pid == 0){
+ echo "Please select a patient first.";
+ exit;
+}
 ?>
 <html>
 <title>CC Processing</title>

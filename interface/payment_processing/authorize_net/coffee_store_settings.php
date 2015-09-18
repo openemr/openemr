@@ -1,9 +1,9 @@
 <?php
 
 require_once 'config.php';
+//include '/anet_php_sdk/AuthorizeNet.php';
 
-
-$coffee_store_relay_url = $site_root . "process_sale.php";
+$coffee_store_relay_url = $site_root . "/process_sale.php";
 
 /**
  * Sets the possible coffee choices.

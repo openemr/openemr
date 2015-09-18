@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+      <?php if(!empty($_SERVER['SSL_SESSION_ID'])){ echo "Session Active!"; } ?> 
     <h1>Your Store</h1>
     <h2>Select Size</h2>
     <form method="post" action="review_order.php">

@@ -1,5 +1,8 @@
 <?php 
 //SANITIZE ALL ESCAPES
+
+$session = $GET_['session'];
+echo $session;
 $sanitize_all_escapes = true;
 
 //STOP FAKE REGISTER GLOBALS
@@ -7,16 +10,19 @@ $fake_register_globals = false;
 
 require_once('../../globals.php');
 
+require_once 'coffee_store_settings.php';
 
-
-require_once 'coffee_store_settings.php';?>
+?>
 
 <!doctype html>
 <html>
   <head>
-    <title>Your Store</title>
+    <title>Your Store</title><?php if(!empty($_SERVER['SSL_SESSION_ID'])){ echo "Session Active!"; } ?> 
     <link rel="stylesheet" href="style.css">
   </head>
+  <script>
+      top.restoreSession();
+  </script>
   <body>
     <h1>Your Store</h1>
     <h2>Thank You</h2>
