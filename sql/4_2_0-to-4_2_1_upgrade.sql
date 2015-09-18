@@ -162,6 +162,46 @@ INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('patient_flow_boa
 INSERT INTO list_options (list_id,option_id,title,seq) VALUES ('patient_flow_board_rooms', '3', 'Room 3', 30);
 #EndIf
 
+#IfMissingColumn clinical_rules developer
+ALTER TABLE  `clinical_rules` ADD  `developer` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Developer';
+#EndIf
+
+#IfMissingColumn clinical_rules funding_source
+ALTER TABLE  `clinical_rules` ADD  `funding_source` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Funding Source';
+#EndIf
+
+#IfMissingColumn clinical_rules release_version
+ALTER TABLE  `clinical_rules` ADD  `release_version` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Release Version';
+#EndIf
+
+#IfNotRow2D list_options list_id proc_res_abnormal option_id vhigh
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('proc_res_abnormal', 'vhigh', 'Above upper panic limits', 50);
+#EndIf
+
+#IfNotRow2D list_options list_id proc_res_abnormal option_id vlow
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('proc_res_abnormal', 'vlow', 'Below lower panic limits', 60);
+#EndIf
+
+#IfNotRow code_types ct_key LOINC
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (`id` int(11) NOT NULL DEFAULT '0',`seq` int(11) NOT NULL DEFAULT '0') ENGINE=MyISAM;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES (
+  IF(((SELECT MAX(`ct_id` ) FROM `code_types`) >= 100), ((SELECT MAX(`ct_id` ) FROM `code_types`) + 1), 100),
+  IF(((SELECT MAX(`ct_seq`) FROM `code_types`) >= 100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100));
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('LOINC', (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 0, '', 0, 0, 1, 0, 1, 'LOINC', 0, 0, 0, 0, 0);
+DROP TABLE `temp_table_one`;
+#EndIf
+
+#IfNotRow code_types ct_key PHIN Questions
+DROP TABLE IF EXISTS `temp_table_one`;
+CREATE TABLE `temp_table_one` (`id` int(11) NOT NULL DEFAULT '0',`seq` int(11) NOT NULL DEFAULT '0') ENGINE=MyISAM;
+INSERT INTO `temp_table_one` (`id`, `seq`) VALUES (
+  IF(((SELECT MAX(`ct_id` ) FROM `code_types`) >= 100), ((SELECT MAX(`ct_id` ) FROM `code_types`) + 1), 100),
+  IF(((SELECT MAX(`ct_seq`) FROM `code_types`) >= 100), ((SELECT MAX(`ct_seq`) FROM `code_types`) + 1), 100));
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('PHIN Questions', (SELECT MAX(`id`) FROM `temp_table_one`), (SELECT MAX(`seq`) FROM `temp_table_one`), 0, '', 0, 0, 1, 0, 1, 'PHIN Questions', 0, 0, 0, 0, 0);
+DROP TABLE `temp_table_one`;
+#EndIf
+
 #IfMissingColumn list_options activity
 ALTER TABLE `list_options` ADD COLUMN `activity` TINYINT DEFAULT 1 NOT NULL;
 #EndIf
@@ -172,7 +212,7 @@ CREATE TABLE ccda_components (
   ccda_components_field varchar(100) DEFAULT NULL,
   ccda_components_name varchar(100) DEFAULT NULL,
   PRIMARY KEY (ccda_components_id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB AUTO_INCREMENT=10 ;
 insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('1','progress_note','Progress Notes');
 insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('2','consultation_note','Consultation Note');
 insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('3','continuity_care_document','Continuity Care Document');
@@ -192,7 +232,7 @@ CREATE TABLE ccda_sections (
   ccda_sections_name varchar(100) DEFAULT NULL,
   ccda_sections_req_mapping tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (ccda_sections_id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB AUTO_INCREMENT=46;
 insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('1','1','assessment_plan','Assessment and Plan','1');
 insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('2','2','assessment_plan','Assessment and Plan','1');
 insert into ccda_sections (ccda_sections_id, ccda_components_id, ccda_sections_field, ccda_sections_name, ccda_sections_req_mapping) values('3','2','history_of_present_illness','History of Present Illness','1');
@@ -249,7 +289,7 @@ CREATE TABLE ccda_table_mapping (
   deleted tinyint(4) NOT NULL DEFAULT '0',
   timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 #EndIf
 
 #IfNotTable ccda_field_mapping
@@ -258,7 +298,7 @@ CREATE TABLE ccda_field_mapping (
   table_id int(11) DEFAULT NULL,
   ccda_field varchar(100) DEFAULT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 #EndIf
 
 #IfNotTable ccda
@@ -279,7 +319,7 @@ CREATE TABLE ccda (
   `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (id),
   UNIQUE KEY unique_key (pid,encounter,time)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id religious_affiliation
@@ -413,8 +453,33 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('person
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('personal_relationship','FRND','Unrelated Friend','FRND','400');
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id declne_to_specfy title Declined To Specify
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, activity ) VALUES ('race', 'declne_to_specfy', 'Declined To Specify', 0, 0, '', 0);
+#IfNotRow3D list_options list_id ethnicity option_id hisp_or_latin notes 2135-2
+UPDATE `list_options` SET `notes` = '2135-2' WHERE `option_id` = 'hisp_or_latin' AND `list_id` = 'ethnicity';
+#EndIf
+
+
+#IfNotRow3D list_options list_id ethnicity option_id not_hisp_or_latin notes 2186-5
+UPDATE `list_options` SET `notes` = '2186-5' WHERE `option_id` = 'not_hisp_or_latin' AND `list_id` = 'ethnicity';
+#EndIf
+
+#IfNotRow3D list_options list_id race option_id amer_ind_or_alaska_native notes 1002-5
+UPDATE `list_options` SET `notes` = '1002-5' WHERE `option_id` = 'amer_ind_or_alaska_native' AND `list_id` = 'race';
+#EndIf
+
+#IfNotRow3D list_options list_id race option_id Asian notes 2028-9
+UPDATE `list_options` SET `notes` = '2028-9' WHERE `option_id` = 'Asian' AND `list_id` = 'race';
+#EndIf
+
+#IfNotRow3D list_options list_id race option_id black_or_afri_amer notes 2054-5
+UPDATE `list_options` SET `notes` = '2054-5' WHERE `option_id` = 'black_or_afri_amer' AND `list_id` = 'race';
+#EndIf
+
+#IfNotRow3D list_options list_id race option_id native_hawai_or_pac_island notes 2076-8
+UPDATE `list_options` SET `notes` = '2076-8' WHERE `option_id` = 'native_hawai_or_pac_island' AND `list_id` = 'race';
+#EndIf
+
+#IfNotRow3D list_options list_id race option_id white notes 2106-3
+UPDATE `list_options` SET `notes` = '2106-3' WHERE `option_id` = 'white' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id abenaki title Abenaki
@@ -885,18 +950,6 @@ UPDATE `list_options` SET `notes` = '1004-1' WHERE `option_id` = 'american_india
 UPDATE `list_options` SET `notes` = '1004-1' WHERE `title` = 'American Indian' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id american_indian_or_alaska title American Indian or Alaska Native
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','american_indian_or_alaska','American Indian or Alaska Native','450', '0',' 1002-5', 1);
-#EndIf
-
-#IfRow2D list_options list_id race option_id american_indian_or_alaska
-UPDATE `list_options` SET `notes` = '1002-5' WHERE `option_id` = 'american_indian_or_alaska' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title American Indian or Alaska Native
-UPDATE `list_options` SET `notes` = '1002-5' WHERE `title` = 'American Indian or Alaska Native' AND `list_id` = 'race';
-#EndIf
-
 #IfNotRow2Dx2 list_options list_id race option_id anaktuvuk title Anaktuvuk
 INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','anaktuvuk','Anaktuvuk','460', '0',' 1846-5', 0);
 #EndIf
@@ -1087,18 +1140,6 @@ UPDATE `list_options` SET `notes` = '1366-4' WHERE `option_id` = 'aroostook' AND
 
 #IfRow2D list_options list_id race title Aroostook
 UPDATE `list_options` SET `notes` = '1366-4' WHERE `title` = 'Aroostook' AND `list_id` = 'race';
-#EndIf
-
-#IfNotRow2Dx2 list_options list_id race option_id asian title Asian
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','asian','Asian','620', '0',' 2028-9', 1);
-#EndIf
-
-#IfRow2D list_options list_id race option_id asian
-UPDATE `list_options` SET `notes` = '2028-9' WHERE `option_id` = 'asian' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Asian
-UPDATE `list_options` SET `notes` = '2028-9' WHERE `title` = 'Asian' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id asian_indian title Asian Indian
@@ -1401,16 +1442,12 @@ UPDATE `list_options` SET `notes` = '1567-7' WHERE `option_id` = 'big_cypress' A
 UPDATE `list_options` SET `notes` = '1567-7' WHERE `title` = 'Big Cypress' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id bill_moores_slough title Bill Moore's Slough
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','bill_moores_slough','Bill Moore's Slough','880', '0',' 1905-9', 0);
+#IfNotRow2D list_options list_id race option_id bill_moores_slough
+INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','bill_moores_slough',"Bill Moore's Slough",'880', '0',' 1905-9', 0);
 #EndIf
 
 #IfRow2D list_options list_id race option_id bill_moores_slough
 UPDATE `list_options` SET `notes` = '1905-9' WHERE `option_id` = 'bill_moores_slough' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Bill Moore's Slough
-UPDATE `list_options` SET `notes` = '1905-9' WHERE `title` = 'Bill Moore's Slough' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id biloxi title Biloxi
@@ -1459,18 +1496,6 @@ UPDATE `list_options` SET `notes` = '2056-0' WHERE `option_id` = 'black' AND `li
 
 #IfRow2D list_options list_id race title Black
 UPDATE `list_options` SET `notes` = '2056-0' WHERE `title` = 'Black' AND `list_id` = 'race';
-#EndIf
-
-#IfNotRow2Dx2 list_options list_id race option_id black_or_african_american title Black or African American
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','black_or_african_american','Black or African American','930', '0',' 2054-5', 1);
-#EndIf
-
-#IfRow2D list_options list_id race option_id black_or_african_american
-UPDATE `list_options` SET `notes` = '2054-5' WHERE `option_id` = 'black_or_african_american' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Black or African American
-UPDATE `list_options` SET `notes` = '2054-5' WHERE `title` = 'Black or African American' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id blackfeet title Blackfeet
@@ -2469,16 +2494,12 @@ UPDATE `list_options` SET `notes` = '1479-5' WHERE `option_id` = 'citizen_band_p
 UPDATE `list_options` SET `notes` = '1479-5' WHERE `title` = 'Citizen Band Potawatomi' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id clarks_point title Clark's Point
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','clarks_point','Clark's Point','1770', '0',' 1911-7', 0);
+#IfNotRow2D list_options list_id race option_id clarks_point
+INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','clarks_point',"Clark's Point",'1770', '0',' 1911-7', 0);
 #EndIf
 
 #IfRow2D list_options list_id race option_id clarks_point
 UPDATE `list_options` SET `notes` = '1911-7' WHERE `option_id` = 'clarks_point' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Clark's Point
-UPDATE `list_options` SET `notes` = '1911-7' WHERE `title` = 'Clark's Point' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id clatsop title Clatsop
@@ -2565,16 +2586,12 @@ UPDATE `list_options` SET `notes` = '1725-1' WHERE `option_id` = 'cocopah' AND `
 UPDATE `list_options` SET `notes` = '1725-1' WHERE `title` = 'Cocopah' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id coeur_dalene title Coeur D'Alene
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','coeur_dalene','Coeur D'Alene','1850', '0',' 1167-6', 0);
+#IfNotRow2D list_options list_id race option_id coeur_dalene
+INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','coeur_dalene',"Coeur D'Alene",'1850', '0',' 1167-6', 0);
 #EndIf
 
 #IfRow2D list_options list_id race option_id coeur_dalene
 UPDATE `list_options` SET `notes` = '1167-6' WHERE `option_id` = 'coeur_dalene' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Coeur D'Alene
-UPDATE `list_options` SET `notes` = '1167-6' WHERE `title` = 'Coeur D'Alene' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id coharie title Coharie
@@ -5841,16 +5858,12 @@ UPDATE `list_options` SET `notes` = '1454-8' WHERE `option_id` = 'marshantucket_
 UPDATE `list_options` SET `notes` = '1454-8' WHERE `title` = 'Marshantucket Pequot' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id marys_igloo title Mary's Igloo
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','marys_igloo','Mary's Igloo','4580', '0',' 1889-5', 0);
+#IfNotRow2D list_options list_id race option_id marys_igloo
+INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','marys_igloo',"Mary's Igloo",'4580', '0',' 1889-5', 0);
 #EndIf
 
 #IfRow2D list_options list_id race option_id marys_igloo
 UPDATE `list_options` SET `notes` = '1889-5' WHERE `option_id` = 'marys_igloo' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Mary's Igloo
-UPDATE `list_options` SET `notes` = '1889-5' WHERE `title` = 'Mary's Igloo' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id mashpee_wampanoag title Mashpee Wampanoag
@@ -6523,18 +6536,6 @@ UPDATE `list_options` SET `notes` = '2079-2' WHERE `option_id` = 'native_hawaiia
 
 #IfRow2D list_options list_id race title Native Hawaiian
 UPDATE `list_options` SET `notes` = '2079-2' WHERE `title` = 'Native Hawaiian' AND `list_id` = 'race';
-#EndIf
-
-#IfNotRow2Dx2 list_options list_id race option_id nativehawaiian_pacificislander title Native Hawaiian or Other Pacific Islander
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','nativehawaiian_pacificislander','Native Hawaiian or Other Pacific Islander','5150', '0',' 2076-8', 1);
-#EndIf
-
-#IfRow2D list_options list_id race option_id nativehawaiian_pacificislander
-UPDATE `list_options` SET `notes` = '2076-8' WHERE `option_id` = 'nativehawaiian_pacificislander' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Native Hawaiian or Other Pacific Islander
-UPDATE `list_options` SET `notes` = '2076-8' WHERE `title` = 'Native Hawaiian or Other Pacific Islander' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id nausu_waiwash title Nausu Waiwash
@@ -8277,16 +8278,12 @@ UPDATE `list_options` SET `notes` = '1547-9' WHERE `option_id` = 'reno-sparks' A
 UPDATE `list_options` SET `notes` = '1547-9' WHERE `title` = 'Reno-Sparks' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id rocky_boys_chippewa_cree title Rocky Boy's Chippewa Cree
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','rocky_boys_chippewa_cree','Rocky Boy's Chippewa Cree','6610', '0',' 1151-0', 0);
+#IfNotRow2D list_options list_id race option_id rocky_boys_chippewa_cree
+INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','rocky_boys_chippewa_cree',"Rocky Boy's Chippewa Cree",'6610', '0',' 1151-0', 0);
 #EndIf
 
 #IfRow2D list_options list_id race option_id rocky_boys_chippewa_cree
 UPDATE `list_options` SET `notes` = '1151-0' WHERE `option_id` = 'rocky_boys_chippewa_cree' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Rocky Boy's Chippewa Cree
-UPDATE `list_options` SET `notes` = '1151-0' WHERE `title` = 'Rocky Boy's Chippewa Cree' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id rosebud_sioux title Rosebud Sioux
@@ -8985,16 +8982,12 @@ UPDATE `list_options` SET `notes` = '1578-4' WHERE `option_id` = 'shawnee' AND `
 UPDATE `list_options` SET `notes` = '1578-4' WHERE `title` = 'Shawnee' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id sheldons_point title Sheldon's Point
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','sheldons_point','Sheldon's Point','7200', '0',' 1953-9', 0);
+#IfNotRow2D list_options list_id race option_id sheldons_point
+INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','sheldons_point',"Sheldon's Point",'7200', '0',' 1953-9', 0);
 #EndIf
 
 #IfRow2D list_options list_id race option_id sheldons_point
 UPDATE `list_options` SET `notes` = '1953-9' WHERE `option_id` = 'sheldons_point' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Sheldon's Point
-UPDATE `list_options` SET `notes` = '1953-9' WHERE `title` = 'Sheldon's Point' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id shinnecock title Shinnecock
@@ -9489,16 +9482,12 @@ UPDATE `list_options` SET `notes` = '2021-4' WHERE `option_id` = 'st_george' AND
 UPDATE `list_options` SET `notes` = '2021-4' WHERE `title` = 'St. George' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id st_marys title St. Mary's
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','st_marys','St. Mary's','7620', '0',' 1963-8', 0);
+#IfNotRow2D list_options list_id race option_id st_marys
+INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','st_marys',"St. Mary's",'7620', '0',' 1963-8', 0);
 #EndIf
 
 #IfRow2D list_options list_id race option_id st_marys
 UPDATE `list_options` SET `notes` = '1963-8' WHERE `option_id` = 'st_marys' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title St. Mary's
-UPDATE `list_options` SET `notes` = '1963-8' WHERE `title` = 'St. Mary's' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id st_michael title St. Michael
@@ -10173,16 +10162,12 @@ UPDATE `list_options` SET `notes` = '1956-2' WHERE `option_id` = 'togiak' AND `l
 UPDATE `list_options` SET `notes` = '1956-2' WHERE `title` = 'Togiak' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id tohono_oodham title Tohono O'Odham
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','tohono_oodham','Tohono O'Odham','8190', '0',' 1653-5', 0);
+#IfNotRow2D list_options list_id race option_id tohono_oodham
+INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','tohono_oodham',"Tohono O'Odham",'8190', '0',' 1653-5', 0);
 #EndIf
 
 #IfRow2D list_options list_id race option_id tohono_oodham
 UPDATE `list_options` SET `notes` = '1653-5' WHERE `option_id` = 'tohono_oodham' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title Tohono O'Odham
-UPDATE `list_options` SET `notes` = '1653-5' WHERE `title` = 'Tohono O'Odham' AND `list_id` = 'race';
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id race option_id tok title Tok
@@ -10965,18 +10950,6 @@ UPDATE `list_options` SET `notes` = '1273-2' WHERE `option_id` = 'whilkut' AND `
 UPDATE `list_options` SET `notes` = '1273-2' WHERE `title` = 'Whilkut' AND `list_id` = 'race';
 #EndIf
 
-#IfNotRow2Dx2 list_options list_id race option_id white title White
-INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','white','White','8850', '0',' 2106-3', 1);
-#EndIf
-
-#IfRow2D list_options list_id race option_id white
-UPDATE `list_options` SET `notes` = '2106-3' WHERE `option_id` = 'white' AND `list_id` = 'race';
-#EndIf
-
-#IfRow2D list_options list_id race title White
-UPDATE `list_options` SET `notes` = '2106-3' WHERE `title` = 'White' AND `list_id` = 'race';
-#EndIf
-
 #IfNotRow2Dx2 list_options list_id race option_id white_earth title White Earth
 INSERT INTO list_options (list_id, option_id,  title, seq, is_default, notes, activity) VALUES ('race','white_earth','White Earth','8860', '0',' 1148-6', 0);
 #EndIf
@@ -11470,7 +11443,7 @@ UPDATE `list_options` SET `notes` = '1516-4' WHERE `title` = 'Zuni' AND `list_id
 #EndIf
 
 #IfMissingColumn lists severity_al
-ALTER TABLE lists ADD COLUMN severity_al VARCHAR(50) NULL;
+ALTER TABLE lists ADD COLUMN severity_al VARCHAR(50) DEFAULT NULL;
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id severity_ccda
@@ -11546,15 +11519,15 @@ UPDATE list_options SET list_options.notes = 'OTH' WHERE list_options.list_id = 
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id drug_route title intradermal title Intradermal
-INSERT INTO list_options ( list_id, title, title, seq,  notes ) VALUES ('drug_route', 'intradermal', 'Intradermal', 20, 'ID');
+INSERT INTO list_options ( list_id, option_id, title, seq,  notes ) VALUES ('drug_route', 'intradermal', 'Intradermal', 20, 'ID');
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id drug_route title other title Other/Miscellaneous
-INSERT INTO list_options ( list_id, title, title, seq, notes ) VALUES ('drug_route', 'other', 'Other/Miscellaneous', 30, 'OTH');
+INSERT INTO list_options ( list_id, option_id, title, seq, notes ) VALUES ('drug_route', 'other', 'Other/Miscellaneous', 30, 'OTH');
 #EndIf
 
 #IfNotRow2Dx2 list_options list_id drug_route title transdermal title Transdermal
-INSERT INTO list_options ( list_id, title, title, seq, notes ) VALUES ('drug_route', 'transdermal', 'Transdermal', 40, 'TD');
+INSERT INTO list_options ( list_id, option_id, title, seq, notes ) VALUES ('drug_route', 'transdermal', 'Transdermal', 40, 'TD');
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id physician_type
@@ -11594,18 +11567,15 @@ update list_options set notes = 'W' where list_id = 'marital' and option_id = 'w
 
 #IfNotRow3D list_options list_id marital option_id separated notes L
 update list_options set notes = 'L' where list_id = 'marital' and option_id = 'separated';
-#EndIf
-
-#IfNotRow3D list_options list_id marital option_id domestic partner notes T
 update list_options set notes = 'T' where list_id = 'marital' and option_id = 'domestic partner';
 #EndIf
 
 #IfMissingColumn users physician_type
-ALTER TABLE users ADD COLUMN physician_type VARCHAR(50);
+ALTER TABLE users ADD COLUMN physician_type VARCHAR(50) DEFAULT NULL;
 #EndIf
 
 #IfMissingColumn facility facility_code
-ALTER TABLE facility ADD COLUMN facility_code VARCHAR(31);
+ALTER TABLE facility ADD COLUMN facility_code VARCHAR(31) default NULL;
 #EndIf
 
 #IfMissingColumn documents audit_master_approval_status
@@ -11616,15 +11586,11 @@ ALTER TABLE documents ADD COLUMN audit_master_approval_status TINYINT DEFAULT 1 
 ALTER TABLE documents ADD COLUMN  audit_master_id int(11) default NULL;
 #EndIf
 
-#IfNotRow2D list_options list_id abook_type option_id ccda
-INSERT INTO list_options (list_id, option_id, title) VALUES ('abook_type', 'ccda', 'Care Coordination');
-#EndIf
-
 #IfMissingColumn patient_data religion
 SET @group_name = (SELECT group_name FROM layout_options WHERE field_id='ethnicity' AND form_id='DEM');
 SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name=@group_name AND form_id='DEM');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'religion', @group_name, 'Religion', @seq+1, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '', 'Patient Religion' ) ;
-ALTER TABLE patient_data ADD COLUMN religion TEXT DEFAULT NULL;
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'religion', @group_name, 'Religion', @seq+1, 1, 1, 0, 0, 'religious_affiliation', 1, 3, '', '', 'Patient Religion' ) ;
+ALTER TABLE patient_data ADD COLUMN religion varchar(40) NOT NULL default '';
 #EndIf
 
 #IfNotRow categories name CCDA
@@ -11633,16 +11599,20 @@ UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
 UPDATE categories_seq SET id = (select MAX(id) from categories);
 #Endif
 
+#IfNotRow2D list_options list_id abook_type option_id ccda
+INSERT INTO list_options (list_id, option_id, title, seq, option_value) VALUES ('abook_type', 'ccda', 'Care Coordination', 35, 2);
+#EndIf
+
 #IfNotRow2D list_options list_id abook_type option_id emr_direct
-INSERT INTO list_options (list_id, option_id, title , seq) VALUES ('abook_type', 'emr_direct', 'EMR Direct' ,105);
+INSERT INTO list_options (list_id, option_id, title , seq, option_value) VALUES ('abook_type', 'emr_direct', 'EMR Direct' ,105, 4);
 #EndIf
 
 #IfNotRow2D list_options list_id abook_type option_id external_provider
-INSERT INTO list_options (list_id, option_id, title , seq) VALUES ('abook_type', 'external_provider', 'External Provider' ,110);
+INSERT INTO list_options (list_id, option_id, title , seq, option_value) VALUES ('abook_type', 'external_provider', 'External Provider' ,110, 1);
 #EndIf
 
 #IfNotRow2D list_options list_id abook_type option_id external_org
-INSERT INTO list_options (list_id, option_id, title , seq) VALUES ('abook_type', 'external_org', 'External Organization' ,120);
+INSERT INTO list_options (list_id, option_id, title , seq, option_value) VALUES ('abook_type', 'external_org', 'External Organization' ,120, 1);
 #EndIf
 
 #IfMissingColumn immunizations external_id
@@ -11690,10 +11660,6 @@ INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Industry', 
 #IfNotListOccupation
 #EndIf
 
-#IfNotRow2D list_options list_id Occupation option_id unassigned
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'unassigned', 'Unassigned', 0);
-#EndIf
-
 #IfNotRow2D list_options list_id Occupation option_id lawyer
 SET @max_list_id = (SELECT MAX(seq) FROM list_options WHERE list_id='Occupation');
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'lawyer', 'Lawyer', (@max_list_id+10));
@@ -11710,11 +11676,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation'
 #EndIf
 
 #IfNotRow3D layout_options field_id occupation form_id DEM data_type 26
-UPDATE layout_options SET list_id='Occupation', data_type='26' WHERE field_id='occupation' AND form_id='DEM';
-#EndIf
-
-#IfRow2D list_options option_id lists option_id Portal_Relationship
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `mapping`, `notes`, `codes`, `activity`) VALUES('lists','Portal_Relationship','Portal Relationship','303','0','','','','1');
+UPDATE layout_options SET list_id='Occupation', data_type='26', fld_length='0', max_length='0', edit_options='' WHERE field_id='occupation' AND form_id='DEM';
 #EndIf
 
 #IfMissingColumn patient_access_offsite portal_relation
@@ -11745,7 +11707,7 @@ CREATE TABLE `patient_portal_menu` (
   `menu_order` SMALLINT(4) DEFAULT NULL,
   `menu_status` TINYINT(2) DEFAULT '1',
   PRIMARY KEY (`patient_portal_menu_id`)
-) ENGINE=INNODB;
+) ENGINE=INNODB AUTO_INCREMENT=14;
 
 INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu_group_id`,`menu_name`,`menu_order`,`menu_status`) VALUES (1,1,'Dashboard',3,1);
 INSERT  INTO `patient_portal_menu`(`patient_portal_menu_id`,`patient_portal_menu_group_id`,`menu_name`,`menu_order`,`menu_status`) VALUES (2,1,'My Profile',6,1);
@@ -11784,10 +11746,6 @@ SET @max_list_id = (SELECT MAX(seq) FROM list_options WHERE list_id='reaction');
 INSERT INTO list_options ( list_id, option_id, title, seq, codes ) VALUES ('reaction', 'nausea', 'Nausea', (@max_list_id+10), 'SNOMED-CT:422587007');
 #EndIf
 
-#IfNotRow2D list_options list_id outcome title Resolved
-update list_options set codes = 'SNOMED-CT:413322009' where list_id = 'outcome' and title = 'Resolved';
-#EndIf
-
 #IfNotRow2D list_options list_id lists option_id county
 INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','county','County');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('county','adair','ADAIR','001', '10');
@@ -11798,19 +11756,11 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('county
 #EndIf
 
 #IfMissingColumn patient_data county
-ALTER TABLE `patient_data` ADD COLUMN `county` varchar(255) NOT NULL default '';
+ALTER TABLE `patient_data` ADD COLUMN `county` varchar(40) NOT NULL default '';
 SET @group_name = (SELECT group_name FROM layout_options WHERE field_id='country_code' AND form_id='DEM');
 SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name=@group_name AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'county', @group_name, 'County', @seq+1, 26, 1, 0, 0, 'county', 1, 1, '', '', 'County' ) ;
 #EndIf 
-
-#IfMissingColumn form_care_plan external_id
-ALTER TABLE form_care_plan ADD COLUMN `external_id` VARCHAR(30) DEFAULT NULL;
-#EndIf
-
-#IfMissingColumn form_functional_cognitive_status external_id
-ALTER TABLE form_functional_cognitive_status ADD COLUMN `external_id` VARCHAR(30) DEFAULT NULL;
-#EndIf
 
 #IfNotRow2D list_options list_id lists option_id Immunization_Manufacturer
 INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','Immunization_Manufacturer','Immunization Manufacturer');
@@ -11881,7 +11831,6 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('Immuni
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('Immunization_Manufacturer','WAL','Wyeth','WAL','650');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('Immunization_Manufacturer','WA','Wyeth-Ayerst','WA','660');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('Immunization_Manufacturer','ZLB','ZLB Behring','ZLB','670');
-
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id Immunization_Completion_Status
@@ -11943,42 +11892,6 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq
 alter table patient_data add column care_team int(11) DEFAULT NULL;
 #EndIf
 
-#IfNotTable form_care_plan
-CREATE TABLE `form_care_plan` (
-  `id` bigint(20) NOT NULL,
-  `date` DATE DEFAULT NULL,
-  `pid` bigint(20) DEFAULT NULL,
-  `encounter` varchar(255) DEFAULT NULL,
-  `user` varchar(255) DEFAULT NULL,
-  `groupname` varchar(255) DEFAULT NULL,
-  `authorized` tinyint(4) DEFAULT NULL,
-  `activity` tinyint(4) DEFAULT NULL,
-  `code` varchar(255) DEFAULT NULL,
-  `codetext` text,
-  `description` text,
-  `external_id` VARCHAR(30) DEFAULT NULL
-);
-INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
-#EndIf
-
-#IfNotTable form_functional_cognitive_status
-CREATE TABLE `form_functional_cognitive_status` (
-  `id` bigint(20) NOT NULL,
-  `date` DATE DEFAULT NULL,
-  `pid` bigint(20) DEFAULT NULL,
-  `encounter` varchar(255) DEFAULT NULL,
-  `user` varchar(255) DEFAULT NULL,
-  `groupname` varchar(255) DEFAULT NULL,
-  `authorized` tinyint(4) DEFAULT NULL,
-  `activity` tinyint(4) DEFAULT NULL,
-  `code` varchar(255) DEFAULT NULL,
-  `codetext` text,
-  `description` text,
-  `external_id` VARCHAR(30) DEFAULT NULL
-);
-INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
-#EndIf
-
 #IfNotTable form_observation
 CREATE TABLE `form_observation` (
   `id` bigint(20) NOT NULL,
@@ -11996,8 +11909,47 @@ CREATE TABLE `form_observation` (
   `description` varchar(255),
   `code_type` varchar(255),
   `table_code` varchar(255)
-);
-INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
+) ENGINE=InnoDB;
+SET @seq = (SELECT MAX(id) FROM registry);
+INSERT INTO `registry` (`name`,`state`,`directory`,`id`,`sql_run`,`unpackaged`,`date`,`priority`,`category`,`nickname`) VALUES ('Observation', 1, 'observation', @seq+1, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
+#EndIf
+
+#IfNotTable form_care_plan
+CREATE TABLE `form_care_plan` (
+  `id` bigint(20) NOT NULL,
+  `date` DATE DEFAULT NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `encounter` varchar(255) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) DEFAULT NULL,
+  `activity` tinyint(4) DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `codetext` text,
+  `description` text,
+  `external_id` VARCHAR(30) DEFAULT NULL
+) ENGINE=InnoDB;
+SET @seq = (SELECT MAX(id) FROM registry);
+INSERT INTO `registry` (`name`,`state`,`directory`,`id`,`sql_run`,`unpackaged`,`date`,`priority`,`category`,`nickname`) VALUES ('Care Plan', 1, 'care_plan', @seq+1, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
+#EndIf
+
+#IfNotTable form_functional_cognitive_status
+CREATE TABLE `form_functional_cognitive_status` (
+  `id` bigint(20) NOT NULL,
+  `date` DATE DEFAULT NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `encounter` varchar(255) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) DEFAULT NULL,
+  `activity` tinyint(4) DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `codetext` text,
+  `description` text,
+  `external_id` VARCHAR(30) DEFAULT NULL
+) ENGINE=InnoDB;
+SET @seq = (SELECT MAX(id) FROM registry);
+INSERT INTO `registry` (`name`,`state`,`directory`,`id`,`sql_run`,`unpackaged`,`date`,`priority`,`category`,`nickname`) VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', @seq+1, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
 #EndIf
 
 UPDATE `clinical_rules` SET `cqm_2014_flag` = 1 WHERE `id` = 'rule_htn_bp_measure_cqm' AND `pid` = 0;

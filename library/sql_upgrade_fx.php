@@ -195,11 +195,12 @@ function CreateOccupationList() {
    while($row = sqlFetchArray($res)) {
     $records[] = $row['occupation'];  
    }
-   sqlQuery("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'Occupation', 'Occupation')");
+   sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'Occupation', 'Occupation')");
    if(count($records)>0) {
     $seq = 0;    
     foreach ($records as $key => $value) {
-     sqlQuery("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq+10)));     
+     sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq+10)));
+     $seq = $seq + 10;     
     }   
    }
 }
@@ -212,11 +213,12 @@ function CreateReactionList() {
    while($row = sqlFetchArray($res)) {
     $records[] = $row['reaction'];  
    }
-   sqlQuery("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'reaction', 'Reaction')");
+   sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'reaction', 'Reaction')");
    if(count($records)>0) {
     $seq = 0;    
     foreach ($records as $key => $value) {
-     sqlQuery("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq+10)));
+     sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq+10)));
+     $seq = $seq + 10;
     }   
    }
 }
