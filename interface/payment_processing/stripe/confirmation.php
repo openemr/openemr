@@ -24,7 +24,10 @@ $a = $_POST['amount'];
 
 $remove_decimal = explode('.', $a);
 $amount = $remove_decimal[0].$remove_decimal[1];
- 
+
+$sql = "SELECT name FROM facility ";
+$fn = sqlStatement($sql);
+$fna = sqlFetchArray($fn);
 
 ?>
 <center>
@@ -32,6 +35,7 @@ $amount = $remove_decimal[0].$remove_decimal[1];
 <form action="charge.php" method="post">
   <script src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
           data-key="<?php echo $stripe['publishable_key']; ?>"
+          data-name="<?php echo $fna['name']; ?>"
           data-amount="<?php echo $amount; ?>" 
           data-zip-code=""
           data-description="Patient Payment"></script>
