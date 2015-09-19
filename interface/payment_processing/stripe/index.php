@@ -29,13 +29,45 @@ if($pid == 0){
 <title>CC Processing</title>
 <head>
 
+
+<script language="javascript">
+    //form validation of amount is valid and is a number
+function checkvalue() { 
+    var amount = document.getElementById('amount').value; 
+        
+    if(!amount.match(/\S/)) {
+        alert ('Empty value is not allowed');
+        return false;       
+    }
+    
+    var regex = /^[1-9]\d*(((,\d{3}){1})?(\.\d{0,2})?)$/;
+    if(!amount.match(regex)){
+        alert ('Numbers only');
+        return false;
+    }
+    
+    var twoDecimalPlaces = /\.\d{2}$/g;
+    var oneDecimalPlace = /\.\d{1}$/g;
+    var noDecimalPlacesWithDecimal = /\.\d{0}$/g;
+    
+    if(!amount.match(twoDecimalPlaces)){
+      alert ('Please add .00 to amount');
+      return false;
+    }
+        
+};
+
+
+        
+</script>
 </head>
 <body>
 <br>
 <center>
 <h3>Enter payment amount</h3>
-<form method = "post" action="confirmation.php">
-<input type="text" size="5" name="amount" autocomplete="off" >
+
+<form method = "post" action="confirmation.php" onsubmit="return checkvalue(this)">
+<input type="text" size="5" id="amount" name="amount" autocomplete="off" value="" />
 <input type="submit" value="Next">
 
 </form>
