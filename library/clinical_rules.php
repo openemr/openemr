@@ -269,7 +269,7 @@ function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mo
   // Set ability to itemize report if this feature is turned on
   if ( ( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
        ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) ||
-       ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014") && ($GLOBALS['report_itemizing_amc'])      ) ) {
+       ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      ) ) {
     $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
   }
   else {

@@ -179,4 +179,16 @@ class Immunizations
         
         return false;
     }
+	
+	public static function checkRotavirus_2014( CqmPatient $patient, $beginDate, $endDate )
+    {
+        $options = array( Medication::OPTION_COUNT => 2 );
+        $dobPlus42Days = date( 'Y-m-d 00:00:00', strtotime( '+42 day', strtotime( $patient->dob ) ) );
+        $dobPlus2Years = date( 'Y-m-d 00:00:00', strtotime( '+2 year', strtotime( $patient->dob ) ) );  
+        if ( Helper::checkMed( Medication::ROTAVIRUS_VAC, $patient, $dobPlus42Days, $dobPlus2Years, $options ) &&
+            !Helper::checkAllergy( Allergy::ROTAVIRUS_VAC, $patient, $patient->dob, $endDate ) ) {
+            return true;
+        }
+        return false;
+    }
 }
