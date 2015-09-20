@@ -516,16 +516,17 @@ class C_Document extends Controller {
 		else {
 		        if ($original_file) {
 			    //normal case when serving the file referenced in database
+                            if($disable_exit == true) {
+                                $f = fopen($url,"r");
+                                $filetext = fread( $f, filesize($url) );
+                                return $filetext;
+                            }
                 header('Content-Description: File Transfer');
                 header('Content-Transfer-Encoding: binary');
                 header('Expires: 0');
                 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
                 header('Pragma: public');
                             $f = fopen($url,"r");
-                            if($disable_exit == true) {
-                                $filetext = fread( $f, filesize($url) );
-                                return $filetext;
-                            }
 			    if ( $doEncryption ) {
                                 $filetext = fread( $f, filesize($url) );
 			        $ciphertext = $this->encrypt( $filetext, $passphrase );
