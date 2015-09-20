@@ -3,9 +3,23 @@
 require_once(dirname(__FILE__). "/sql.inc");
 require_once(dirname(__FILE__). "/formdata.inc.php");
 
-function newEvent($event, $user, $groupname, $success, $comments="", $patient_id=null) {
+function newEvent($event, $user, $groupname, $success, $comments="", $patient_id=null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0) {
     $adodb = $GLOBALS['adodb']['db'];
     $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
+    
+    if ($log_from == 'patient-portal') {
+        $sqlMenuItems = "SELECT * FROM patient_portal_menu";
+
+        $resMenuItems = sqlStatement($sqlMenuItems);
+        for($iter=0; $rowMenuItem=sqlFetchArray($resMenuItems); $iter++) {
+            $menuItems[$rowMenuItem['patient_portal_menu_id']] = $rowMenuItem['menu_name'];
+        }
+
+        $menuItemId = array_search($menu_item, $menuItems);
+        $sql = "insert into log ( date, event, user, patient_id, groupname, success, comments, 
+                log_from, menu_item_id, crt_user, ccda_doc_id) values ( NOW(), ?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
+        $ret = sqlStatementNoLog($sql, array($event, $user, $patient_id, $groupname, $success, $comments,$log_from, $menuItemId,$crt_user, $ccda_doc_id));
+    } else {    
     /* More details added to the log */
     $sql = "insert into log ( date, event, user, groupname, success, comments, crt_user, patient_id) " .
             "values ( NOW(), " . $adodb->qstr($event) . "," . $adodb->qstr($user) .
@@ -14,6 +28,7 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
             $adodb->qstr($crt_user) ."," . $adodb->qstr($patient_id). ")";
 
     $ret = sqlInsertClean_audit($sql);
+    }
     if(($patient_id=="NULL") || ($patient_id==null))$patient_id=0;
 
     send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);

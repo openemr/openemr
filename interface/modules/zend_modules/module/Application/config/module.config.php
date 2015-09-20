@@ -84,7 +84,9 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Application\Controller\Index' => 'Application\Controller\IndexController'
+            'Application\Controller\Index' => 'Application\Controller\IndexController',
+			'Application\Controller\Sendto' => 'Application\Controller\SendtoController',
+            'Application\Controller\Soap' => 'Application\Controller\SoapController',
         ),
     ),
     'view_manager' => array(
@@ -102,5 +104,11 @@ return array(
         'template_path_stack' => array(
             __DIR__ . '/../view',
         ),
+    ),
+    'view_helpers' => array(
+        'invokables'=> array(
+            'getVariables'      => 'Application\Helper\Getvariables',
+            'javascriptGlobals' => 'Application\Helper\Javascript',
+        )
     ),
 );

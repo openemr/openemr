@@ -87,8 +87,9 @@ class InstallerController extends AbstractActionController
         $fName = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir'].$GLOBALS['zendModDir']."/config/application.config.php";
         $tmp = include $fName;
         $modName = trim($request->getPost('mod_name'));
+        $module_exist_in_config = false;
         if (in_array($modName, $tmp['modules'], true)) {
-          die($this->listenerObject->z_xlt("Failure") . " : " . $this->listenerObject->z_xlt("Module name already exist"));
+          $module_exist_in_config = true;
         }
         if($this -> getInstallerTable() -> register($request->getPost('mod_name'),$rel_path,0,$GLOBALS['zendModDir'])){
           //add the Module name in the application config file if not already present
@@ -98,10 +99,12 @@ class InstallerController extends AbstractActionController
           $data['modules'] = array_merge($data['modules'],array($request->getPost('mod_name')));
           //recreate the config file
           if(is_writable ($fileName)){
+            if(!$module_exist_in_config){
             $content = "<?php return array(";
             $content .= $this->getContent($data);
             $content .= ");";    					
             file_put_contents($fileName, $content);    					
+            }
           } else {
             die($this->listenerObject->z_xlt("Unable to modify application config Please give write permission to")." $fileName");
           }

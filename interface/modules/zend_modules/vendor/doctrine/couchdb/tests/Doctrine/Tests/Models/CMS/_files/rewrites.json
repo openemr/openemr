@@ -1,0 +1,16 @@
+[
+  { "from" : "/from/url",
+    "to"   : "/to/url",
+    "query": {
+      "descending"  : "true",
+      "include_docs": "true"
+    }
+  },
+  { "from"  : "/from/url2",
+    "to"    : "/to/url2",
+    "query" : {
+      "descending"  : "true",
+      "include_docs": "true"
+    }
+  }
+]

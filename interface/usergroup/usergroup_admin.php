@@ -199,6 +199,11 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
 	$erxrole = formData('erxrole','P');
 	sqlStatement("update users set newcrop_user_role = '$erxrole' where id = {$_POST["id"]}");
 
+	  if ($_POST["physician_type"]) {
+		$physician_type = formData('physician_type');
+		sqlStatement("update users set physician_type = '$physician_type' where id = {$_POST["id"]}");
+	  }
+	  
       if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
         // Set the access control group of user
         $user_data = mysql_fetch_array(sqlStatement("select username from users where id={$_POST["id"]}"));
@@ -248,6 +253,7 @@ if (isset($_POST["mode"])) {
             "', federaltaxid = '"  . trim(formData('federaltaxid' )) .
             "', state_license_number = '"  . trim(formData('state_license_number' )) .
             "', newcrop_user_role = '"  . trim(formData('erxrole' )) .
+			"', physician_type = '"  . trim(formData('physician_type' )) .
             "', authorized = '"    . trim(formData('authorized'   )) .
             "', info = '"          . trim(formData('info'         )) .
             "', federaldrugid = '" . trim(formData('federaldrugid')) .

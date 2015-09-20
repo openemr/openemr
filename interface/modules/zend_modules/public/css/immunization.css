@@ -1,0 +1,93 @@
+#search_form_button{
+  float: right;
+  width: 50% !important;
+  margin-right: 12px;
+  background: #F8F8F8;
+  box-shadow: none;
+  border: 1px solid #c6c6c6;
+}
+#hl7button {
+    border: none;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    height: 30px;
+    outline: none;
+    padding: 2px 6px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background: #4285f4;
+    background: -webkit-linear-gradient(top,#4387fd,#4683ea);
+    background: linear-gradient(top,#4387fd,#4683ea);
+    float: left;
+    line-height: 30px;
+    color: #FFF;
+    cursor: pointer;
+    border-radius: 2px;
+    line-height: 27px;
+    margin-right: 10px;
+    font-size:12px !important;
+  }
+ 
+  #searchbutton {
+    border: none;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    height: 26px;
+    outline: none;
+    padding: 2px 6px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background: #4285f4;
+    background: -webkit-linear-gradient(top,#4387fd,#4683ea);
+    background: linear-gradient(top,#4387fd,#4683ea);
+    float: left;
+    line-height: 30px;
+    color: #FFF;
+    cursor: pointer;
+    border-radius: 2px;
+    line-height: 27px;
+    margin-right: 10px;
+    font-size:12px !important;
+  }
+  
+  #printbutton {
+    border: none;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    height: 26px;
+    outline: none;
+    padding: 2px 6px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background: #4285f4;
+    background: -webkit-linear-gradient(top,#4387fd,#4683ea);
+    background: linear-gradient(top,#4387fd,#4683ea);
+    float: left;
+    line-height: 30px;
+    color: #FFF;
+    cursor: pointer;
+    border-radius: 2px;
+    line-height: 27px;
+    margin-right: 10px;
+    font-size:12px !important;
+  }
+  
+  
+  @media print {
+    #report_parameters_daterange {
+          visibility: visible !important;
+          display: inline !important;
+          margin-bottom: 10px !important;
+    }
+    #print_table {
+          display: none !important; 
+    }
+ }
+ 
+ @media screen{
+     #report_parameters_daterange {
+        visibility: hidden !important;
+        display: none !important;
+       
+    } 
+ }

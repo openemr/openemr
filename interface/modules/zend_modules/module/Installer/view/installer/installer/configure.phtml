@@ -97,7 +97,7 @@ if($TabSettings[3]['cnt'] > 0){
                                         }
                                     ?>
                                         <td align="center">
-                                            <input type="checkbox" <?php echo $this->escapeHtml($checked); ?>
+                                            <input type="checkbox" <?php echo $checked; ?>
                                                 name="hook_hanger[<?php echo $this->escapeHtml($obj_hooks['name']);?>][<?php echo $this->escapeHtml($value); ?>]"
                                                 id="hook_hanger_<?php echo $this->escapeHtml($obj_hooks['name']);?>_<?php echo $this->escapeHtml($value); ?>"
                                                 value="<?php echo $this->escapeHtml($obj_hooks['name']).",".$this->escapeHtml($value);?>"
@@ -193,7 +193,7 @@ if($TabSettings[3]['cnt'] > 0){
 } else if (count($setup) > 0) { ?>
   <div class="easyui-tabs" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="width:800px;height:auto;">
     <div title="<?php echo $listener->z_xla($setup['title']);?>" 
-         id="tab_config<?php echo $mod_id; ?>" 
+         id="tab_config<?php echo $this->escapeHtml($mod_id); ?>" 
          iconCls="icon-setup">
       <iframe scrolling="yes" frameborder="0"  
               src="<?php echo $this->basePath() . '/' . $this->escapeHtml($setup[module_dir]); ?>/setup/index" 
