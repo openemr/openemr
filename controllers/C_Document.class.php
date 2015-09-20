@@ -408,6 +408,12 @@ class C_Document extends Controller {
 	        else if ($original_file == "false") {
 		        $original_file=false;   
 		}
+                if ($disable_exit == "true") {
+                        $disable_exit=true;
+                }
+                else if ($disable_exit == "false") {
+                        $disable_exit=false;
+                }
 	    
 		$d = new Document($document_id);
 		$url =  $d->get_url();
@@ -510,17 +516,18 @@ class C_Document extends Controller {
 		else {
 		        if ($original_file) {
 			    //normal case when serving the file referenced in database
-                            $f = fopen($url,"r");
-                            $filetext = fread( $f, filesize($url) );
-                            if($disable_exit == true) {
-                                return $filetext;
-                            }
                 header('Content-Description: File Transfer');
                 header('Content-Transfer-Encoding: binary');
                 header('Expires: 0');
                 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
                 header('Pragma: public');
+                            $f = fopen($url,"r");
+                            if($disable_exit == true) {
+                                $filetext = fread( $f, filesize($url) );
+                                return $filetext;
+                            }
 			    if ( $doEncryption ) {
+                                $filetext = fread( $f, filesize($url) );
 			        $ciphertext = $this->encrypt( $filetext, $passphrase );
 			        $tmpfilepath = $GLOBALS['temporary_files_dir'];
 			        $tmpfilename = "/encrypted_".$d->get_url_file();
