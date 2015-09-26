@@ -11662,7 +11662,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Industry', 
 
 #IfNotRow2D list_options list_id Occupation option_id lawyer
 SET @max_list_id = (SELECT MAX(seq) FROM list_options WHERE list_id='Occupation');
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'lawyer', 'Lawyer', (@max_list_id+10));
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('Occupation', 'lawyer', 'Lawyer', IFNULL(@max_list_id,0) + 10);
 #EndIf
 
 #IfNotRow2D list_options list_id Occupation option_id engineer

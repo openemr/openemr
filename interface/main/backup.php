@@ -583,13 +583,15 @@ $BACKUP_EVENTLOG_DIR = $GLOBALS['backup_log_dir'] . "/emr_eventlog_backup";
 # Frame the Eventlog Backup File Name
 $BACKUP_EVENTLOG_FILE=$BACKUP_EVENTLOG_DIR.'/eventlog_'.$backuptime.'.sql';
 # Create a new table similar to event table, rename the existing table as backup table, and rename the new table to event log table.  Then export the contents of the table into a text file and drop the table.
+$res=sqlStatement("create table if not exists log_comment_encrypt_new like log_comment_encrypt");
+$res=sqlStatement("rename table log_comment_encrypt to log_comment_encrypt_backup,log_comment_encrypt_new to log_comment_encrypt");
 $res=sqlStatement("create table if not exists log_new like log");
 $res=sqlStatement("rename table log to log_backup,log_new to log");
 echo "<br>";
   $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " --opt --quote-names -r $BACKUP_EVENTLOG_FILE " .
-    escapeshellarg($sqlconf["dbase"]) ." --tables log_backup";
+    escapeshellarg($sqlconf["dbase"]) ." --tables log_comment_encrypt_backup log_backup";
 # Set Eventlog Flag when it is done
 $eventlog=1;
 // 301 If ends here.
@@ -618,6 +620,8 @@ if ($cmd) {
     if ($eventlog==1)
      {
 	// ViSolve : Restore previous state, if backup fails.
+         $res=sqlStatement("drop table if exists log_comment_encrypt");
+       	 $res=sqlStatement("rename table log_comment_encrypt_backup to log_comment_encrypt");
          $res=sqlStatement("drop table if exists log");
          $res=sqlStatement("rename table log_backup to log");
      }
@@ -626,6 +630,7 @@ if ($cmd) {
   //  ViSolve:  If the Eventlog is set, then clear the temporary table  -- Start here
   if ($eventlog==1)       {
         $res=sqlStatement("drop table if exists log_backup");
+        $res=sqlStatement("drop table if exists log_comment_encrypt_backup");
         echo "<br><b>";
         echo xl('Backup Successfully taken in')." ";
         echo  $BACKUP_EVENTLOG_DIR; 
