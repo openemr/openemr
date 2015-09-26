@@ -390,7 +390,7 @@ if ($res) {
 	      foreach ($encarr as $enc) {
 	        if ($enc['formdir'] == 'newpatient') continue;
 	        if ($encnames) $encnames .= '<br />';
-	        $encnames .= $enc['form_name'];
+	        $encnames .= text($enc['form_name']); // need to html escape it here for output below
 	      }
       }     
 
@@ -447,7 +447,7 @@ if ($res) {
    <?php echo text($row['encounter']); ?>&nbsp;
   </td>
   <td>
-   <?php echo text($encnames); ?>&nbsp;
+   <?php echo $encnames; //since this variable contains html, have already html escaped it above ?>&nbsp;
   </td>
   <td>
    <?php echo text($coded); ?>
