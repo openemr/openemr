@@ -197,14 +197,14 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
 
   foreach ($displayCodeSets as $akey => $displayCodeSet) {
 
-    echo "listBoxOptionSets[$akey] = new Array();\n";
+    echo "listBoxOptionSets[" . attr($akey) . "] = new Array();\n";
   
     if ($displayCodeSet) {
 
       foreach ($displayCodeSet as $dispCode2) {
 
         $codeDesc2 = lookup_code_descriptions($dispCode2);
-        echo "listBoxOptionSets[$akey][listBoxOptionSets[$akey].length] = new Option('" . $dispCode2 . " (" . attr(trim($codeDesc2)) . ") ' ,'" . $dispCode2 . "' , false, false);\n";
+        echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option('" . attr($dispCode2) . " (" . attr(trim($codeDesc2)) . ") ' ,'" . attr($dispCode2) . "' , false, false);\n";
 
       }
     
@@ -227,7 +227,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
   echo "\nvar listBoxOptions2 = new Array();\n\n";
 
   foreach ($modeIssueTypes as $akey2 => $isJunk) {
-    echo "listBoxOptions2[$akey2] = listBoxOptionSets[$modeIndexMapping[$akey2]];\n";
+    echo "listBoxOptions2[" . attr($akey2) . "] = listBoxOptionSets[" . attr($modeIndexMapping[$akey2]) . "];\n";
   }
 ///////////////////////////////////////////////////////////////////////
 // End of Active Issue Code Recycle Function main code block         //
@@ -676,7 +676,7 @@ function divclick(cb, divid) {
  </tr>
 
  <tr id='row_codeSelect2'>
- <td><b>Active Issue Codes: </b>
+ <td><b><?php echo xlt('Active Issue Codes'); ?>:</b>
  </td>
  <td>
   <select name='form_codeSelect2' size='4' onchange="codeBoxFunction2()" style="max-width:100%;">
