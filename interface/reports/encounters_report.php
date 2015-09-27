@@ -78,7 +78,6 @@ $orderby = $ORDERHASH[$form_orderby];
 //
     $esign_fields = '';
     $esign_joins = '';
-    $esign_from = '';    
   if ($form_encounter_esigned) {
     $esign_fields = ", es.table, es.tid ";
     $esign_joins = "LEFT OUTER JOIN esign_signatures AS es ON es.tid = fe.encounter ";
@@ -98,7 +97,7 @@ $query = "SELECT " .
   "p.fname, p.mname, p.lname, p.pid, p.pubpid, " .
   "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
   "$esign_fields" .
-  "FROM ( form_encounter AS fe, forms AS f $esign_from ) " .
+  "FROM ( form_encounter AS fe, forms AS f ) " .
   "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
   "LEFT JOIN users AS u ON u.id = fe.provider_id " .
   "$esign_joins" .
