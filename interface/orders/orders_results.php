@@ -655,11 +655,11 @@ while ($row = sqlFetchArray($res)) {
       "<tr><td class='bold' width='1%' nowrap>" . xlt('Status') . ": </td>" .
       "<td>" . generate_select_list("form_result_status[$lino]", 'proc_res_status',
         $result_status, xl('Result Status'), '') . "</td></tr>\n" .
-      "<tr><td class='bold' nowrap>" . xlt('Facility') . ": </td>" .
-      "<td><input type='text' size='15' name='form_facility[$lino]'" .
-      " value='$result_facility' " .
+	  "<tr><td class='bold' nowrap>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
+      "<td><textarea rows='3' cols='15' name='form_facility[$lino]'" .
       " title='" . xla('Supplier facility name') . "'" .
-      " style='width:100%' /></td></tr>\n" .
+      " style='width:100%' />" . htmlspecialchars($result_facility) .
+      "</textarea></td></tr>\n" .	  
       "<tr><td class='bold' nowrap>" . xlt('Comments') . ": </td>" .
       "<td><textarea rows='3' cols='15' name='form_comments[$lino]'" .
       " title='" . xla('Comments for this result or recommendation') . "'" .

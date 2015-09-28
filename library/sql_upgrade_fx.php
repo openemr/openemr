@@ -143,7 +143,17 @@ function tableHasIndex($tblname, $colname) {
   $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
   return (empty($row)) ? false : true;
 }
-
+/**
+* Check if a list exists.
+*
+* @param  string  $option_id  Sql List Option ID
+* @return boolean           returns true if the list exists
+*/
+function listExists($option_id) {
+  $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", array($option_id));
+  if (empty($row)) return false;
+  return true;  
+}
 /**
 * Function to migrate the Clickoptions settings (if exist) from the codebase into the database.
 *  Note this function is only run once in the sql upgrade script (from 4.1.1 to 4.1.2) if the
@@ -175,6 +185,42 @@ function clickOptionsMigrate() {
     }
     fclose($file_handle);
   }
+}
+/**
+*  Function to create list Occupation.
+*  Note this function is only run once in the sql upgrade script  if the list Occupation does not exist
+*/
+function CreateOccupationList() {
+   $res = sqlStatement("SELECT DISTINCT occupation FROM patient_data WHERE occupation <> ''"); 
+   while($row = sqlFetchArray($res)) {
+    $records[] = $row['occupation'];  
+   }
+   sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'Occupation', 'Occupation')");
+   if(count($records)>0) {
+    $seq = 0;    
+    foreach ($records as $key => $value) {
+     sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq+10)));
+     $seq = $seq + 10;     
+    }   
+   }
+}
+/**
+*  Function to create list reaction.
+*  Note this function is only run once in the sql upgrade script  if the list reaction does not exist
+*/
+function CreateReactionList() {
+   $res = sqlStatement("SELECT DISTINCT reaction FROM lists WHERE reaction <> ''"); 
+   while($row = sqlFetchArray($res)) {
+    $records[] = $row['reaction'];  
+   }
+   sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'reaction', 'Reaction')");
+   if(count($records)>0) {
+    $seq = 0;    
+    foreach ($records as $key => $value) {
+     sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq+10)));
+     $seq = $seq + 10;
+    }   
+   }
 }
 
 /**
@@ -242,6 +288,12 @@ function clickOptionsMigrate() {
 * #IfNotMigrateClickOptions
 *   Custom function for the importing of the Clickoptions settings (if exist) from the codebase into the database
 *
+* #IfNotListOccupation
+* Custom function for creating Occupation List
+* 
+* #IfNotListReaction
+* Custom function for creating Reaction List
+* 
 * #EndIf
 *   all blocks are terminated with a #EndIf statement.
 *
@@ -408,6 +460,30 @@ function upgradeFromSqlFile($filename) {
         // Create issue_types table and import the Issue Types and clickoptions settings from codebase into the database
         clickOptionsMigrate(); 
         $skipping = false;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfNotListOccupation/', $line)) {
+      if (listExists("Occupation")) {
+        $skipping = true;
+      }
+      else {
+        // Create Occupation list
+        CreateOccupationList(); 
+        $skipping = false;
+        echo "<font color='green'>Built Occupation List</font><br />\n";
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfNotListReaction/', $line)) {
+      if (listExists("reaction")) {
+        $skipping = true;
+      }
+      else {
+        // Create Reaction list
+        CreateReactionList(); 
+        $skipping = false;
+        echo "<font color='green'>Built Reaction List</font><br />\n";        
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }

@@ -123,7 +123,7 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 	$selectEmptyName = xlt($empty_name);
 	if ($empty_name)
 		$s .= "<option value=''>" . $selectEmptyName . "</option>";
-	$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? ORDER BY seq, title", array($list_id));
+	$lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", array($list_id));
 	$got_selected = FALSE;
 	
 	while ( $lrow = sqlFetchArray ( $lres ) ) {
@@ -140,6 +140,21 @@ function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_na
 		$optionLabel = text(xl_list_label($lrow ['title']));
 		$s .= ">$optionLabel</option>\n";
 	}
+
+	/*
+	  To show the inactive item in the list if the value is saved to database
+	  */
+	  if (!$got_selected && strlen($currvalue) > 0)
+	  {
+	    $lres_inactive = sqlStatement("SELECT * FROM list_options " .
+	    "WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title", array($list_id, $currvalue));
+	    $lrow_inactive = sqlFetchArray($lres_inactive);
+	    if($lrow_inactive['option_id']) {
+	      $optionValue = htmlspecialchars( $lrow_inactive['option_id'], ENT_QUOTES);
+	      $s .= "<option value='$optionValue' selected>" . htmlspecialchars( xl_list_label($lrow_inactive['title']), ENT_NOQUOTES) . "</option>\n";
+	      $got_selected = TRUE;
+	    }
+	  }
 
 	if (!$got_selected && strlen ( $currvalue ) > 0 && !$multiple) {
 		$list_id = $backup_list;

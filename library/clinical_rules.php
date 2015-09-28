@@ -69,10 +69,11 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 
     if ($action['custom_flag']) {
       // Start link for reminders that use the custom rules input screen
-      echo "<a href='../rules/patient_data.php?category=" .
-        htmlspecialchars( $action['category'], ENT_QUOTES) . "&item=" . 
-        htmlspecialchars( $action['item'], ENT_QUOTES) . 
-        "' class='iframe  medium_modal' onclick='top.restoreSession()'>";
+      $url = "../rules/patient_data.php?category=".htmlspecialchars( $action['category'], ENT_QUOTES);
+	  $url .= "&item=".htmlspecialchars( $action['item'], ENT_QUOTES);
+	  if(!empty($action['rule_id']))
+	  $url .= "&rule=".htmlspecialchars( $action['rule_id'], ENT_QUOTES);
+      echo "<a href='".$url."' class='iframe medium_modal' onclick='top.restoreSession()'>";
     }
     else if ($action['clin_rem_link']) {
       // Start link for reminders that use the custom rules input screen
@@ -268,7 +269,7 @@ function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mo
   // Set ability to itemize report if this feature is turned on
   if ( ( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
        ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) ||
-       ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014") && ($GLOBALS['report_itemizing_amc'])      ) ) {
+       ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      ) ) {
     $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
   }
   else {
@@ -599,6 +600,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
                 $action_plus = $action;
                 $action_plus['due_status'] = "not_due";
                 $action_plus['pid'] = $rowPatient['pid'];
+                $action_plus['rule_id'] = $rowRule['id'];
                 $results = reminder_results_integrate($results, $action_plus);
               }
             }
@@ -613,6 +615,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
                 $action_plus = $action;
                 $action_plus['due_status'] = $reminder_due;
                 $action_plus['pid'] = $rowPatient['pid'];
+                $action_plus['rule_id'] = $rowRule['id'];
                 $results = reminder_results_integrate($results, $action_plus);
               }
             }
@@ -721,6 +724,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
                   $action_plus = $action;
                   $action_plus['due_status'] = "not_due";
                   $action_plus['pid'] = $rowPatient['pid'];
+                  $action_plus['rule_id'] = $rowRule['id'];
                   $results = reminder_results_integrate($results, $action_plus);
                 }
               }
@@ -735,6 +739,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
                   $action_plus = $action;
                   $action_plus['due_status'] = $reminder_due;
                   $action_plus['pid'] = $rowPatient['pid'];
+                  $action_plus['rule_id'] = $rowRule['id'];
                   $results = reminder_results_integrate($results, $action_plus);
                 }
               }

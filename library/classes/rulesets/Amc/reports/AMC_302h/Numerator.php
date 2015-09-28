@@ -17,7 +17,13 @@ class AMC_302h_Numerator implements AmcFilterIF
     
     public function test( AmcPatient $patient, $beginDate, $endDate ) 
     {
-        // All electronic labs within dates that have already been selected
-        return true;
+        $procedure_order_id = $patient->object['procedure_order_id'];
+		$sql =  "SELECT count(r.result) as cnt FROM procedure_result r ".
+				"INNER JOIN procedure_report pr ON pr.procedure_report_id = r.procedure_report_id ".
+				"INNER JOIN procedure_order po ON po.procedure_order_id = pr.procedure_order_id ".
+				"WHERE r.result !=  '' ".
+				"AND po.procedure_order_id = ?";
+		$check = sqlQuery( $sql, array($procedure_order_id) );  
+		return $check['cnt'];
     }
 }

@@ -22,6 +22,7 @@
 namespace Application;
 
 use Application\Model\ApplicationTable;
+use Application\Model\SendtoTable;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 
@@ -43,7 +44,12 @@ class Module
             $sm = $sm->getServiceLocator();
             return new Plugin\CommonPlugin($sm);
           }
-        )
+        ),
+		
+		'Phimail' => function($sm) {
+            $sm = $sm->getServiceLocator();
+            return new Plugin\Phimail($sm);
+          },
       );
     }
 
@@ -56,6 +62,11 @@ class Module
             $table = new ApplicationTable($dbAdapter);
             return $table;
           },
+			'Application\Model\SendtoTable' =>  function($sm) {
+                    $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
+                    $table = new SendtoTable($dbAdapter);
+                    return $table;
+          	},
         ),
       );
     }

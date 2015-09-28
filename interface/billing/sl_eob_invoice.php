@@ -1,14 +1,27 @@
 <?php
-  // Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
-  //
-  // This program is free software; you can redistribute it and/or
-  // modify it under the terms of the GNU General Public License
-  // as published by the Free Software Foundation; either version 2
-  // of the License, or (at your option) any later version.
-
-  // This provides for manual posting of EOBs.  It is invoked from
-  // sl_eob_search.php.  For automated (X12 835) remittance posting
-  // see sl_eob_process.php.
+/**
+ * This provides for manual posting of EOBs.  It is invoked from
+ * sl_eob_search.php.  For automated (X12 835) remittance posting
+ * see sl_eob_process.php.
+ *
+ * Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+ * 
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
   require_once("../globals.php");
   require_once("$srcdir/log.inc");
@@ -518,7 +531,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
   if ($INTEGRATED_AR) {
     $tmp = sqlQuery("SELECT fname, mname, lname " .
       "FROM users WHERE id = " . $ferow['provider_id']);
-    echo $tmp['fname'] . ' ' . $tmp['mname'] . ' ' . $tmp['lname'];
+    echo text($tmp['fname']) . ' ' . text($tmp['mname']) . ' ' . text($tmp['lname']);
     $tmp = sqlQuery("SELECT bill_date FROM billing WHERE " .
       "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
       "activity = 1 ORDER BY fee DESC, id ASC LIMIT 1");

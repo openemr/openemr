@@ -139,7 +139,11 @@ function authorized_clicked() {
 }
 
 </script>
-
+<style type="text/css">
+  .physician_type_class{
+    width: 120px !important;
+  }
+</style>
 </head>
 <body class="body_top">
 <table><tr><td>
@@ -235,6 +239,15 @@ if ($fres) {
 <tr>
 <td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" style="width:120px;"></td>
 <td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" style="width:120px;"></td>
+</tr>
+
+<tr>
+	<td>
+		<span class="text"><?php xl('Provider Type','e'); ?>: </span>
+	</td>
+	<td>
+		<?php echo generate_select_list("physician_type", "physician_type", '','',xl('Select Type'),'physician_type_class','','',''); ?>
+	</td>
 </tr>
 
 <!-- (CHEMED) Calendar UI preference -->

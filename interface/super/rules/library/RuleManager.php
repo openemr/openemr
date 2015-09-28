@@ -69,12 +69,15 @@ class RuleManager {
             passive_alert_flag = ?,
             cqm_flag = ?,
             amc_flag = ?,
-            patient_reminder_flag = ?
+            patient_reminder_flag = ?,
+			developer = ?, 
+			funding_source = ?, 
+			release_version = ?
       WHERE id = ? AND pid = 0";
 
     const SQL_UPDATE_TITLE =
     "UPDATE list_options
-        SET title = ?
+        SET title = ?       
       WHERE list_id = 'clinical_rules' AND option_id = ?";
 
     const SQL_REMOVE_INTERVALS =
@@ -130,6 +133,11 @@ class RuleManager {
         }
 
         $rule = new Rule($id, $ruleResult['title']);
+
+        $rule->setDeveloper($ruleResult['developer']);
+        $rule->setFunding($ruleResult['funding_source']);
+        $rule->setRelease($ruleResult['release_version']);
+
         $this->fillRuleTypes( $rule, $ruleResult );
         $this->fillRuleReminderIntervals( $rule );
         $this->fillRuleFilterCriteria( $rule );
@@ -429,15 +437,15 @@ class RuleManager {
         sqlStatement( "DELETE FROM rule_filter WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = '". $guid . "'" );
     }
 
-    function updateSummary( $ruleId, $types, $title ) {
+    function updateSummary( $ruleId, $types, $title, $developer, $funding, $release  ) {
         $rule = $this->getRule( $ruleId );
 
         if ( is_null($rule) ) {
             // add
             $result = sqlQuery( "select count(*)+1 AS id from clinical_rules" );
             $ruleId = "rule_" . $result['id'];
-            sqlStatement( "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag ) " . 
-                    "VALUES (?,?,?,?,?,?,?) ",
+            sqlStatement( "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version ) " . 
+                    "VALUES (?,?,?,?,?,?,?,?,?,?) ",
                     array(
                         $ruleId,
                         0,
@@ -445,7 +453,10 @@ class RuleManager {
                         in_array(RuleType::PassiveAlert, $types) ? 1 : 0,
                         in_array(RuleType::CQM, $types) ? 1 : 0,
                         in_array(RuleType::AMC, $types) ? 1 : 0,
-                        in_array(RuleType::PatientReminder, $types) ? 1 : 0
+                        in_array(RuleType::PatientReminder, $types) ? 1 : 0,
+						$developer,
+						$funding,
+						$release
                     )
             );
 
@@ -461,6 +472,9 @@ class RuleManager {
                 in_array(RuleType::CQM, $types) ? 1 : 0,
                 in_array(RuleType::AMC, $types) ? 1 : 0,
                 in_array(RuleType::PatientReminder, $types) ? 1 : 0,
+                $developer,
+                $funding,
+                $release,
                 $rule->id )
             );
 
@@ -710,7 +724,7 @@ class RuleManager {
         }
     }
 
-    private function doRuleLabel( $exists, $listId, $optionId, $title ) {
+    private function doRuleLabel( $exists, $listId, $optionId, $title) {
         if ( $exists) {
             // edit
             sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = ? AND option_id = ?", array(

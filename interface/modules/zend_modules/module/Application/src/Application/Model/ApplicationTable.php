@@ -236,4 +236,176 @@ class ApplicationTable extends AbstractTableGateway
         else
             return false;
     }
+
+    /**
+     * Auto Suggest
+     */
+    public function listAutoSuggest($post, $limit)
+    {
+      $pages        = 0;
+      $limitEnd     =  \Application\Plugin\CommonPlugin::escapeLimit($limit);
+      
+        if (isset($GLOBALS['set_autosuggest_options'])) {
+          
+            if ($GLOBALS['set_autosuggest_options'] == 1) {
+                $leading        = '%';
+            } else {
+                $leading        = $post->leading;
+            }
+            if ($GLOBALS['set_autosuggest_options'] == 2) {
+                $trailing       = '%';
+            } else {
+                $trailing       = $post->trailing;
+            }
+            if ($GLOBALS['set_autosuggest_options'] == 3) {
+                $leading        = '%';
+                $trailing       = '%';
+            }
+        } else {
+            $leading        = $post->leading;
+            $trailing       = $post->trailing;
+        }
+      
+      $queryString  = $post->queryString;
+      
+      
+      $page         = $post->page;
+      $searchType   = $post->searchType;
+      $searchEleNo  = $post->searchEleNo;
+      
+      if ($page == '') {
+        $limitStart = 0;
+      } else {
+        $limitStart = \Application\Plugin\CommonPlugin::escapeLimit($page);
+      }
+
+      $keyword = $leading . $queryString . $trailing;
+      if (strtolower($searchType) == 'patient') {
+        $sql = "SELECT fname, mname, lname, pid, DOB FROM patient_data 
+                WHERE pid LIKE ? 
+                OR  CONCAT(fname, ' ', lname) LIKE ?  
+                OR  CONCAT(lname, ' ', fname) LIKE ? 
+                OR DATE_FORMAT(DOB,'%m-%d-%Y') LIKE ?  
+                OR DATE_FORMAT(DOB,'%d-%m-%Y') LIKE ?  
+                OR DATE_FORMAT(DOB,'%Y-%m-%d') LIKE ?  
+                ORDER BY fname ";
+        $result = $this->zQuery($sql, array(
+                                          $keyword,                               
+                                          $keyword, 
+                                          $keyword, 
+                                          $keyword, 
+                                          $keyword, 
+                                          $keyword
+                                      ));
+        $rowCount   =  $result->count();  
+        $sql        .= "LIMIT $limitStart, $limitEnd";
+        $result     = $this->zQuery($sql, array(
+                                          $keyword,                               
+                                          $keyword, 
+                                          $keyword, 
+                                          $keyword, 
+                                          $keyword, 
+                                          $keyword,
+
+                                      ));
+      }
+      elseif (strtolower($searchType) == 'emrdirect') {
+        $sql = "SELECT fname, mname, lname,email,id FROM users 
+                WHERE (CONCAT(fname, ' ', lname) LIKE ?  
+                OR  CONCAT(lname, ' ', fname) LIKE ? 
+                OR email LIKE ?)   
+                AND abook_type = 'emr_direct' 
+                AND active = 1
+                ORDER BY fname ";
+        $result = $this->zQuery($sql, array(
+                                          $keyword,                               
+                                          $keyword, 
+                                          $keyword,  
+                                      ));
+        $rowCount   =  $result->count();  
+        $sql        .= "LIMIT $limitStart, $limitEnd";
+        $result     = $this->zQuery($sql, array(
+                                          $keyword,                               
+                                          $keyword, 
+                                          $keyword, 
+                                      ));
+      }
+      $arr = array();
+      if ($result) {
+        foreach ($result as $row) {
+          $arr[] = $row;
+        }
+        $arr['rowCount'] = $rowCount;
+      }
+      return $arr;
+    }
+    
+    /*
+    * Retrive the data format from GLOBALS
+    *
+    * @param    Date format set in GLOBALS
+    * @return   Date format in PHP
+    **/
+    public function dateFormat($format)
+    {
+        if($format == "0")
+            $date_format = 'yyyy/mm/dd';
+        else if($format == 1)
+            $date_format = 'mm/dd/yyyy';
+        else if($format == 2)
+            $date_format = 'dd/mm/yyyy';
+        else
+            $date_format = $format;
+        return $date_format;
+    }
+    /**
+    * fixDate - Date Conversion Between Different Formats
+    * @param String $input_date Date to be converted
+    * @param String $date_format Target Date Format
+    */
+    public function fixDate($input_date, $output_format=null, $input_format=null)
+    {
+        if(!$input_date) return;
+        
+        $input_date = preg_replace('/T|Z/', ' ', $input_date);
+        
+        $temp 	= explode(' ',$input_date); //split using space and consider the first portion, in case of date with time
+        $input_date = $temp[0];
+        
+        $output_format = \Application\Model\ApplicationTable::dateFormat($output_format);
+        $input_format = \Application\Model\ApplicationTable::dateFormat($input_format);        
+        
+        preg_match("/[^ymd]/", $output_format,$date_seperator_output);
+        $seperator_output   = $date_seperator_output[0];
+        $output_date_arr    = explode($seperator_output, $output_format);
+        
+        preg_match("/[^ymd]/", $input_format,$date_seperator_input);
+        $seperator_input    = $date_seperator_input[0];
+        $input_date_array   = explode($seperator_input, $input_format);
+        
+        preg_match("/[^1234567890]/", $input_date,$date_seperator_input);
+        $seperator_input    = $date_seperator_input[0];
+        $input_date_arr     = explode($seperator_input, $input_date);
+  
+        foreach($output_date_arr as $key => $format) {
+            $index = array_search($format,$input_date_array);
+            $output_date_arr[$key] = $input_date_arr[$index];
+        }
+        
+        $output_date = implode($seperator_output, $output_date_arr);
+        
+        $output_date = $temp[1] ? $output_date." ".$temp[1] : $output_date; //append the time, if exists, with the new formatted date
+        return $output_date;
+    }
+    
+    /*
+    * Using generate id function from OpenEMR sql.inc library file
+    * @param  string  $seqname     table name containing sequence (default is adodbseq)
+    * @param  integer $startID     id to start with for a new sequence (default is 1)
+    * @return integer              returns the sequence integer
+    */
+    public function generateSequenceID()
+    {
+        return generate_id();
+    }
 }

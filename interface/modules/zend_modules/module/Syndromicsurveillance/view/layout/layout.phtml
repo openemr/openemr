@@ -1,0 +1,60 @@
+<?php
+//    +-----------------------------------------------------------------------------+ 
+//    OpenEMR - Open Source Electronic Medical Record
+//    Copyright (C) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU Affero General Public License as
+//    published by the Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU Affero General Public License for more details.
+//
+//    You should have received a copy of the GNU Affero General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//    Author:   Vinish K <vinish@zhservices.com>
+//
+// +------------------------------------------------------------------------------+
+?>
+<?php echo $this->doctype(); ?>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <?php echo $this->headTitle($this->translate('Syndromic Surveillance - Non Reported Issues'))->setSeparator(' - ')->setAutoEscape(false) ?>
+
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+
+        <!-- styles -->
+        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
+        ->prependStylesheet($this->basePath() . '/css/responsive-tables.css')
+        ->prependStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
+        ->prependStylesheet($this->basePath() . '/css/carecoordination_style.css')
+        ->prependStylesheet($this->basePath() . '/css/style.css')
+        ->prependStylesheet($this->basePath() . '/css/sendTo.css')
+        ->prependStylesheet($this->basePath() . '/css/bootstrap.min.css')                                    
+        ?>        
+        <!-- Scripts -->
+        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/scripts/syndromicsurveillance.js')
+        ->prependFile($this->basePath() . '/js/application/sendTo.js')
+        ->prependFile($this->basePath() . '/js/application/common.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/jquery-ui.custom.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/jquery.ui.datepicker.js')
+        ->prependFile($this->basePath() . '/js/carecoordination/jquery.ui.core.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery-ui.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery-1.10.2.min.js')
+        ->prependFile($this->basePath() . '/js/lib/modernizr-2.6.2.min.js')
+        ?>
+       
+    </head>
+    <body class="body_top">
+        <div class="container" style="width:100%">
+            <?php echo $this->javascriptGlobals(); ?>
+            <?php echo $this->content; ?>
+        </div>
+        <?php echo $this->inlineScript() ?>
+    </body>
+</html>

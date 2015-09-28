@@ -47,7 +47,7 @@ $listener = $this->listenerObject;
 										<?php
 										foreach($this->active_modules as $mod_id => $mod_name) :
 										?>
-									<option value="<?php echo $this->escapeHtml($mod_id);?>"><?php echo $this->escapeHtml($mod_name);?></option>
+									<option value="<?php echo $this->escapeHtml($mod_id);?>"><?php echo $listener->z_xlt($mod_name);?></option>
 										<?php
 										endforeach
 										?>

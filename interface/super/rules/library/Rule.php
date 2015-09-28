@@ -22,7 +22,9 @@ class Rule {
     var $ruleTypes;
     var $id;
     var $title;
-
+    var $developer;
+    var $funding_source;
+    var $release;
     /**
      * @var ReminderIntervals
      */
@@ -46,6 +48,18 @@ class Rule {
 
     function getTitle() {
         return $this->title;
+    }
+
+    function setDeveloper($s) {
+        $this->developer = $s;
+    }
+    
+    function setFunding($s) {
+        $this->funding_source = $s;
+    }
+
+    function setRelease($s) {
+        $this->release = $s;
     }
 
     /**
@@ -136,5 +150,6 @@ class Rule {
         }
         return $labels;
     }
+    
 }
 ?>

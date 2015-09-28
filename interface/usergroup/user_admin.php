@@ -312,7 +312,11 @@ function authorized_clicked() {
 }
 
 </script>
-
+<style type="text/css">
+  .physician_type_class{
+    width: 150px !important;
+  }
+</style>
 </head>
 <body class="body_top">
 <table><tr><td>
@@ -487,10 +491,14 @@ foreach($result as $iter2) {
 <td><input type="text" name="state_license_number" style="width:150px;"  value="<?php echo $iter["state_license_number"]?>"></td>
 <td class='text'><?php xl('NewCrop eRX Role','e'); ?>:</td>
 <td>
-  <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'],'','--Select Role--','','','',array('style'=>'width:150px')); ?>
+  <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'],'',xl('Select Role'),'','','',array('style'=>'width:150px')); ?>
 </td>
 </tr>
 
+<tr>
+  <td><span class="text"><?php xl('Provider Type','e'); ?>: </span></td>
+  <td><?php echo generate_select_list("physician_type", "physician_type", $iter['physician_type'],'',xl('Select Type'),'physician_type_class','','',''); ?></td>
+</tr>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>
  <td class="text"><?php xl('Default Warehouse','e'); ?>: </td>
