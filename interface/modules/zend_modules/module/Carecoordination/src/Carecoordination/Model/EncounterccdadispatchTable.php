@@ -884,7 +884,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 	    JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id
 	    WHERE po.patient_id = ? AND prs.result NOT IN ('DNR','TNP')";
         $appTable   = new ApplicationTable();
-	$res        = $appTable->zQuery($query, array($pid, $pid));
+	$res        = $appTable->zQuery($query, array($pid));
         
 	$results_list = array();
 	foreach($res as $row){
