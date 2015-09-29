@@ -12,32 +12,51 @@
 
   require_once('config.php');
 
-  $token  = $_POST['stripeToken'];
-  $email  = $_POST['stripeEmail'];
-  $amount = $_POST['chargeAmount'];
-  echo $email . $amount;
+/* @var $_POST type */
+  $token  = filter_input(INPUT_POST, 'stripeToken');
+  $email  = filter_input(INPUT_POST, 'stripeEmail');
+  $amount = filter_input(INPUT_POST, 'chargeAmount');
+
   
   $customer = \Stripe\Customer::create(array(
       'email' => $email,
       'card'  => $token
   ));
 
+try{  
   $charge = \Stripe\Charge::create(array(
       'customer' => $customer->id,
       'amount'   => $amount,
-      'currency' => 'usd',
+      'currency' => 'usd'
 
       
   ));
-  
-   echo '<h1>Successfully charged</h1>';
-    echo "Charge Code: " .$charge->id . "<br>";
+} catch(\Stripe\Error\Card $e){
+    echo "The card has been declined";
+    exit;
+}
+  $amt = sprintf('%.2f', $charge['amount']/100);
+  $pid = $GLOBALS['pid'];
+  $user = $_SESSION['authUser'];
+  $date = date("Y-m-d");
+                //Translate if necessary
+   echo '<h1>'. htmlspecialchars( xl_list_label('Successfully charged'), ENT_NOQUOTES) . '</h1>';
+    echo "Transaction ID: " .$charge->id . "<br>";
 
-   echo "Amount Charged: ". sprintf('%.2f', $charge['amount']/100) . "<br>"  
-     . "Patient ID: ". $GLOBALS['pid'] . "<br>";
+   echo "Amount Charged: ". $amt . "<br>"  
+     . "Patient ID: ". $pid . "<br>";
    
-   echo "Person running Charge: ". $_SESSION['authUser'] . "<br>" ;
+   echo "Person Processing Charge: ". $user . "<br>" ;
    
-   
+ $sql = "INSERT INTO cc_ledger SET " .
+                " id = '' " .
+           ", trans_id = '" . $charge->id .
+            "', amount = '" . $amt . 
+               "', pid = '" . $pid . 
+             "', clerk = '" . $user . 
+              "', date = '" . $date . "'";
+ 
+    sqlStatement($sql);
+ 
   ?>
   <button><a href="index.php">New Charge</a></button>
