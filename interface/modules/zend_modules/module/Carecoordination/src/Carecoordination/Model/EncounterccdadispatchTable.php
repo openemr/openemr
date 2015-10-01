@@ -878,39 +878,39 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         $results = '';
         $query = "SELECT prs.result AS result_value, prs.units, prs.range, prs.result_text as order_title, prs.result_code as result_code,
-	    prs.result_text as result_desc, prs.code_suffix AS test_code, po.date_ordered, prs.date AS result_time, prs.abnormal AS abnormal_flag
+	    prs.result_text as result_desc, prs.result_code, prs.procedure_result_id, po.date_ordered, prs.date AS result_time, prs.abnormal AS abnormal_flag
 	    FROM procedure_order AS po
 	    JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id
 	    JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id
 	    WHERE po.patient_id = ? AND prs.result NOT IN ('DNR','TNP')";
         $appTable   = new ApplicationTable();
-	$res        = $appTable->zQuery($query, array($pid, $pid));
+	$res        = $appTable->zQuery($query, array($pid));
         
 	$results_list = array();
 	foreach($res as $row){
-	    $results_list[$row['test_code']]['test_code'] = $row['test_code'];
-	    $results_list[$row['test_code']]['order_title'] = $row['order_title'];
-	    $results_list[$row['test_code']]['date_ordered'] = substr(preg_replace('/-/', '', $row['date_ordered']), 0, 8);
-	    $results_list[$row['test_code']]['date_ordered_table'] = $row['date_ordered'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['result_code'] = ($row['result_code'] ? $row['result_code'] : 0);
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['result_desc'] = $row['result_desc'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['units'] = $row['units'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['range'] = $row['range'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['result_value'] = $row['result_value'];
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['result_time'] = substr(preg_replace('/-/', '', $row['result_time']), 0, 8);
-	    $results_list[$row['test_code']]['subtest'][$row['result_code']]['abnormal_flag'] = $row['abnormal_flag'];
+	    $results_list[$row['procedure_result_id']]['test_code'] = $row['result_code'];
+	    $results_list[$row['procedure_result_id']]['order_title'] = $row['order_title'];
+	    $results_list[$row['procedure_result_id']]['date_ordered'] = substr(preg_replace('/-/', '', $row['date_ordered']), 0, 8);
+	    $results_list[$row['procedure_result_id']]['date_ordered_table'] = $row['date_ordered'];
+	    $results_list[$row['procedure_result_id']]['subtest'][$row['result_code']]['result_code'] = ($row['result_code'] ? $row['result_code'] : 0);
+	    $results_list[$row['procedure_result_id']]['subtest'][$row['result_code']]['result_desc'] = $row['result_desc'];
+	    $results_list[$row['procedure_result_id']]['subtest'][$row['result_code']]['units'] = $row['units'];
+	    $results_list[$row['procedure_result_id']]['subtest'][$row['result_code']]['range'] = $row['range'];
+	    $results_list[$row['procedure_result_id']]['subtest'][$row['result_code']]['result_value'] = $row['result_value'];
+	    $results_list[$row['procedure_result_id']]['subtest'][$row['result_code']]['result_time'] = substr(preg_replace('/-/', '', $row['result_time']), 0, 8);
+	    $results_list[$row['procedure_result_id']]['subtest'][$row['result_code']]['abnormal_flag'] = $row['abnormal_flag'];
 	}
 	
 	$results = '<results>';
         foreach($results_list as $row){
             $results .= '
             <result>
-		<extension>'.htmlspecialchars(base64_encode($_SESSION['site_id'].$row['test_code']), ENT_QUOTES).'</extension>
+		<extension>'.htmlspecialchars(base64_encode($_SESSION['site_id'].$row['result_code']), ENT_QUOTES).'</extension>
 		<root>'.htmlspecialchars("7d5a02b0-67a4-11db-bd13-0800200c9a66", ENT_QUOTES).'</root>
 		<date_ordered>'.htmlspecialchars($row['date_ordered'],ENT_QUOTES).'</date_ordered>
 		<date_ordered_table>'.htmlspecialchars($row['date_ordered_table'],ENT_QUOTES).'</date_ordered_table>
                 <title>'.htmlspecialchars($row['order_title'],ENT_QUOTES).'</title>		
-		<test_code>'.htmlspecialchars($row['test_code'],ENT_QUOTES).'</test_code>';
+		<test_code>'.htmlspecialchars($row['result_code'],ENT_QUOTES).'</test_code>';
 		foreach($row['subtest'] as $row_1){
 		    $units = $row_1['units'] ? $row_1['units'] : 'Unit';
 		    $results .= '
