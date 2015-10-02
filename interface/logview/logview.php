@@ -234,7 +234,7 @@ else{
   for($k=0;$k<$lcount;$k++) {
   echo " <option value='" .$event_types[$k]. "'";
   if ($event_types[$k] == $type_event && $event_types[$k]!= "") echo " selected";
-  echo ">" . $event_types[$k];
+  echo ">" . preg_replace('/^select$/','Query',$event_types[$k]); // Convert select to Query for MU2 requirement
   echo "</option>\n";
 }
 echo "</select>\n";
@@ -324,13 +324,13 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
 ?>
  <TR class="oneresult">
   <TD class="text"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
-  <TD class="text"><?php echo xl($iter["event"])?></TD>
+  <TD class="text"><?php echo preg_replace('/select$/','Query',$iter["event"]); //Convert select term to Query for MU2 requirements ?></TD>
   <TD class="text"><?php echo $iter["user"]?></TD>
   <TD class="text"><?php echo $iter["crt_user"]?></TD>
   <TD class="text"><?php echo $iter["groupname"]?></TD>
   <TD class="text"><?php echo $iter["patient_id"]?></TD>
   <TD class="text"><?php echo $iter["success"]?></TD>
-  <TD class="text"><?php echo $trans_comments?></TD>
+  <TD class="text"><?php echo preg_replace('/^select/i','Query',$trans_comments); //Convert select term to Query for MU2 requirements ?></TD>
   <?php  if($check_sum) { ?>
   <TD class="text"><?php echo $iter["checksum"]?></TD>
   <?php } ?>
