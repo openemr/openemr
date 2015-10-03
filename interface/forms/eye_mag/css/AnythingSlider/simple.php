@@ -268,7 +268,7 @@
 						<?php 
 					} else {
 						?>
-						<object><embed src="../../../../forms/<?=$form_folder?>/images/anon.gif" frameborder="0"
+						<object><embed src="../../../../forms/<?php echo $form_folder?>/images/anon.gif" frameborder="0"
 						 type="image/gif" width="80"></embed></object>
 						<?php
 					}

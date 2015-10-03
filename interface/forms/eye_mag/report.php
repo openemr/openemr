@@ -144,7 +144,7 @@
                   $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=$pid&document_id=$doc[id]&as_file=false";
                   ?><div class='xbordershadow' style='position:relative;float:left;width:100px;height:75px;'>
                   <img src='<?php echo $filetoshow; ?>' width=100 heght=75>
-                  </div> <?
+                  </div> <?php
                 } else {
                        // $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
                 } 
@@ -177,13 +177,13 @@
 
                 <?php display_draw_section ("IMPPLAN",$encounter,$pid); ?>
               </div>
-              <? 
+              <?php
             } else if ($choice !="narrative") {
               narrative($pid, $encounter, $cols, $id);
              //   echo "hello $pid, $encounter, $cols, $form_id";
             }
             ?>
-            <?
+            <?php
           }
           function left_overs() {
             /***************************************/
@@ -457,7 +457,7 @@
                             }
                             ?>
                           </div>
-                          <?
+                          <?php
                         }
                         if ($CC3) {
                           ?>
@@ -497,7 +497,7 @@
                           </div>
                           <div id="tab2_HPI_text" class="nodisplay tab_content" style="min-height: 2.0in;text-align:left;">                 
                           </div>
-                          <? 
+                          <?php
                         } 
                         ?>
                         
@@ -519,91 +519,91 @@
                           <td style="width:50px;text-align:center;text-decoration:underline;">OD</td>
                           <td style="width:50px;text-align:center;text-decoration:underline;">OS</td>
                         </tr>
-                        <? if ($SCODVA||$SCOSVA) { ?>
+                        <?php if ($SCODVA||$SCOSVA) { ?>
                         <tr>
                           <td><?php echo xlt('sc'); ?></td>
                           <td><?php echo attr($SCODVA); ?></td>
                           <td><?php echo attr($SCOSVA); ?></td>
                         </tr>
-                        <? } if ($WODVA||$WOSVA) { ?>
+                        <?php } if ($WODVA||$WOSVA) { ?>
                         <tr>
                           <td><?php echo xlt('cc'); ?></td>
                           <td><?php echo attr($WODVA); ?></td>
                           <td><?php echo attr($WOSVA); ?></td>
                         </tr>
-                        <? } if ($ARODVA||$AROSVA) { ?>
+                        <?php } if ($ARODVA||$AROSVA) { ?>
                         <tr>
                           <td><?php echo xlt('AR'); ?></td>
                           <td><?php echo attr($ARODVA); ?></td>
                           <td><?php echo attr($AROSVA); ?></td>
                         </tr>
-                        <? } if ($MRODVA||$MROSVA) { ?>
+                        <?php } if ($MRODVA||$MROSVA) { ?>
                         <tr>
                           <td><?php echo xlt('MR'); ?></td>
                           <td><?php echo attr($MRODVA); ?></td>
                           <td><?php echo attr($MROSVA); ?></td>
                         </tr>
-                        <? } if ($CRODVA||$CROSVA) { ?>
+                        <?php } if ($CRODVA||$CROSVA) { ?>
                         <tr>
                           <td><?php echo xlt('CR'); ?></td>
                           <td><?php echo attr($CRODVA); ?></td>
                           <td><?php echo attr($CROSVA); ?></td>
                         </tr>
-                        <? } if ($PHODVA||$PHOSVA) { ?>
+                        <?php } if ($PHODVA||$PHOSVA) { ?>
                         <tr>
                           <td><?php echo xlt('PH'); ?></td>
                           <td><?php echo attr($PHODVA); ?></td>
                           <td><?php echo attr($PHOSVA); ?></td>
                         </tr>
-                        <? } if ($CTLODVA||$CTLOSVA) { ?>
+                        <?php } if ($CTLODVA||$CTLOSVA) { ?>
                         <tr>
                           <td><?php echo xlt('CTL'); ?></td>
                           <td><?php echo attr($CTLODVA); ?></td>
                           <td><?php echo attr($CTLOSVA); ?></td>
                         </tr>
-                        <? } if ($SCNEARODVA||$SCNEAROSVA) { ?>
+                        <?php } if ($SCNEARODVA||$SCNEAROSVA) { ?>
                         <tr>
                           <td><?php echo xlt('scNear'); ?></td>
                           <td><?php echo attr($SCNEARODVA); ?></td>
                           <td><?php echo attr($SCNEAROSVA); ?></td>
                         </tr>
-                        <? } if ($WNEARODVA||$WNEAROSVA) { ?>
+                        <?php } if ($WNEARODVA||$WNEAROSVA) { ?>
                         <tr>
                           <td><?php echo xlt('ccNear'); ?></td>
                           <td><?php echo attr($WNEARODVA); ?></td>
                           <td><?php echo attr($WNEAROSVA); ?></td>
                         </tr>
-                        <? } if ($ARNEARODVA||$ARNEAROSVA) { ?>
+                        <?php } if ($ARNEARODVA||$ARNEAROSVA) { ?>
                         <tr>
                           <td><?php echo xlt('ARNear'); ?></td>
                           <td><?php echo attr($ARNEARODVA); ?></td>
                           <td><?php echo attr($ARNEAROSVA); ?></td>
                         </tr>
-                        <? } if ($SCNEARODVA||$SCNEAROSVA) { ?>
+                        <?php } if ($SCNEARODVA||$SCNEAROSVA) { ?>
                         <tr>
                           <td><?php echo xlt('MRNear'); ?></td>
                           <td><?php echo attr($MRNEARODVA); ?></td>
                           <td><?php echo attr($MRNEAROSVA); ?></td>
                         </tr>
-                        <? } if ($SCNEARODVA||$SCNEAROSVA) { ?>
+                        <?php } if ($SCNEARODVA||$SCNEAROSVA) { ?>
                         <tr>
                           <td><?php echo xlt('PAM'); ?></td>
                           <td><?php echo attr($PAMODVA); ?></td>
                           <td><?php echo attr($PAMOSVA); ?></td>
                         </tr>
-                        <? } if ($GLAREODVA||$GLAREOSVA) { ?>
+                        <?php } if ($GLAREODVA||$GLAREOSVA) { ?>
                         <tr>
                           <td><?php echo xlt('Glare'); ?></td>
                           <td><?php echo attr($GLAREODVA); ?></td>
                           <td><?php echo attr($GLAREOSVA); ?></td>
                         </tr>
-                        <? } if ($CONTRASTODVA||$CONTRASTOSVA) { ?>
+                        <?php } if ($CONTRASTODVA||$CONTRASTOSVA) { ?>
                         <tr>
                           <td><?php echo xlt('Contrast'); ?></td>
                           <td><?php echo attr($CONTRASTODVA); ?></td>
                           <td><?php echo attr($CONTRASTOSVA); ?></td>
                         </tr>
-                        <? } ?>
+                        <?php } ?>
                       </table>
                     </div>
 
@@ -735,7 +735,7 @@
                   </div>
 
                   <div style="float:left;text-align:center;padding-left:10px;margin-bottom:20px;">
-                    <? if ($PUPIL_NORMAL =='1') { ?>
+                    <?php if ($PUPIL_NORMAL =='1') { ?>
                         <b class="underline">Pupils:</b>&nbsp;&nbsp;R + R
                         <?php } elseif ($ODPUPILSIZE1||$OSPUPILSIZE1) { ?>
                       <table cellspacing="2" style="margin:2;text-align:center;font-size:1.0em;">
@@ -789,7 +789,7 @@
                               </table>
                             </div>  
                           </div>
-                            <? if ($DIMODPUPILSIZE1||$DIMOSPUPILSIZE1) { ?>
+                            <?php if ($DIMODPUPILSIZE1||$DIMOSPUPILSIZE1) { ?>
                             <!-- start of slide down pupils_panel --> 
                             <?php (($DIMODPUPILSIZE1) || ($DIMOSPUPILSIZE1)) ? ($display_DP='display') : ($display_DP='nodisplay'); ?>
                             <div id="dim_pupils_panel" class="<?php echo $display_DP; ?>" style="margin:2;float:left; padding: 5; border: 1.00pt solid #000000; ">  
@@ -831,7 +831,7 @@
                           
                         </td>
                         <!-- end of the Pupils box -->
-                        <? } ?>
+                        <?php } ?>
                       </tr>
                       </table>
                     <?php } ?>
@@ -1439,7 +1439,7 @@
                           <td class="middle"><?php echo xlt('Central Macular Thickness'); ?> </td>
                           <td class="report_text " >&nbsp;<?php echo $OSCMT; ?></td>
                         </tr>
-                        <? } ?>  
+                        <?php } ?>  
                         <tr>
                           <td colspan="3"  style="font-size:0.7em;">
 
@@ -1523,7 +1523,7 @@
                         <?php echo xlt('Hertel Exophthalmometry'); ?>
                       </span>
                       <br />
-                      <? 
+                      <?php
                       if ($HERTELBASE) { ?>
 
                       <span style="border:1pt solid black;width:30px;text-align:center;padding:0 5;">
@@ -1537,7 +1537,7 @@
                       <span style="border:1pt solid black;width:30px;text-align:center;padding:0 5;">
                         <?php echo attr($OSHERTEL); ?>
                       </span>
-                      <? 
+                      <?php
                     } ?>
                     </td>
                   </tr>
@@ -1578,7 +1578,7 @@
                   <td style="text-decoration:underline;font-size:0.8em;"><?php echo xlt('OD'); ?></td>
                   <td style="text-decoration:underline;font-size:0.8em;"><?php echo xlt('OS'); ?></td>
                 </tr>
-                                        <? 
+                                        <?php
                                 //get motility values to be '' for 0, and negative for the rest...
                     $zone = array("MOTILITY_RSR","MOTILITY_RS","MOTILITY_RSL","MOTILITY_RR","MOTILITY_R0","MOTILITY_RL","MOTILITY_RIR","MOTILITY_RI","MOTILITY_RIL","MOTILITY_LSR","MOTILITY_LS","MOTILITY_LSL","MOTILITY_LR","MOTILITY_L0","MOTILITY_LL","MOTILITY_LIR","MOTILITY_LI","MOTILITY_LIL");
 

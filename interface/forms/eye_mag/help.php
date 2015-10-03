@@ -762,7 +762,7 @@ scDist;5.8ix 1rht;4.10ix;6.6ix;2.15xt;8.5ix;ccDist;4.5ix;5.ortho;6.ortho
 		</div>
 	</body>
 </html>
-	<?
+	<?php
 exit;
 
 

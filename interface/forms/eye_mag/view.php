@@ -203,7 +203,7 @@ require_once("$incdir/patient_file/encounter/new_form.php");
   </head>
   <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" topmargin=0 rightmargin=0 leftmargin=0 bottommargin=0 marginwidth=0 marginheight=0>
 
-  <?
+  <?php
     if ($display=="fullscreen") { 
       // trial fullscreen with mobile menu will lead to tablet versions and bootstrap menu 
       // this function is in php/eye_mag_functions.php
@@ -1803,7 +1803,7 @@ require_once("$incdir/patient_file/encounter/new_form.php");
                       </div>   
                            
                       <div id="EXT_QP_block1" name="EXT_QP_block1" class="QP_block borderShadow text_clinical" >
-                          <?
+                          <?php
                           $query = "SELECT * FROM form_eye_mag_prefs where PEZONE = 'EXT' and (id=?) ORDER BY id,ZONE_ORDER,ordering ASC";
                           $result = sqlStatement($query,array($_SESSION['authUserID']));
                           $number_rows=0;
@@ -1822,12 +1822,12 @@ require_once("$incdir/patient_file/encounter/new_form.php");
                               <a class="underline QP" onclick="fill_QP_field('EXT','R','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>','<?php echo attr($Select_data['FILL_ACTION']); ?>');fill_QP_field('EXT','L','<?php echo attr($Select_data['LOCATION_text']); ?>','<?php echo attr($Select_data['selection']); ?>','<?php echo attr($Select_data['FILL_ACTION']); ?>');"><?php echo xlt('B'); ?></a> </span>
                               &nbsp;    <?php echo text($Select_data['LOCATION']); ?>: <?php echo text($string); ?>
                               <br />
-                              <?
+                              <?php
                               if ($number_rows==16) {
                                   ?>
                                    </div>
                                    <div id="EXT_QP_block2" name="EXT_QP_block2" class="QP_block_outer  borderShadow text_clinical" >
-                                      <?
+                                      <?php
                               }
                               if ($number_rows==32) break;
                           }
@@ -2032,7 +2032,7 @@ require_once("$incdir/patient_file/encounter/new_form.php");
                           <span  class="eye_button" id="ANTSEG_prefix_deep" name="ANTSEG_prefix_deep"  onclick="$('#ANTSEG_prefix').val('deep').trigger('change');"><?php echo xlt('deep'); ?></span> 
                       </div>         
                       <div class="QP_block borderShadow text_clinical " >
-                         <?
+                         <?php
                                   $query = "SELECT * FROM form_eye_mag_prefs where PEZONE = 'ANTSEG' and (id=?) ORDER BY ZONE_ORDER,ordering";
                                   $result = sqlStatement($query,array($_SESSION['authUserID']));
                                   if (sqlNumRows($result) < '10') {
@@ -2088,7 +2088,7 @@ require_once("$incdir/patient_file/encounter/new_form.php");
                       <i class="closeButton_2 fa fa-database" id="BUTTON_QP_RETINA" name="BUTTON_QP_RETINA"></i>
                 
                         <b><?php echo xlt('Retina'); ?>:</b>
-                              <?
+                              <?php
                                 /*
                                       OCT, FA/ICG,Photos - External,Photos - AntSeg,Optic Disc,Photos - Retina,Radiology, VF
                                       are the Imaging categories we started with.  If you add more they are listed
@@ -2105,7 +2105,7 @@ require_once("$incdir/patient_file/encounter/new_form.php");
                                         ?>
                                         <input style="margin-left:100px;" type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php if ($DIL_RISKS =='on') echo "checked='checked'"; ?>>
                                             <label for="DIL_RISKS" class="input-helper input-helper--checkbox"><?php echo xlt('Dilation orders/risks reviewed'); ?></label>
-                                        <?
+                                        <?php
                                       
                                       ?><br />
 
@@ -2256,7 +2256,7 @@ require_once("$incdir/patient_file/encounter/new_form.php");
                             &nbsp;    <?php echo text($Select_data['LOCATION']); ?>: <?php echo text($string); ?>
 
                             <br />
-                            <?
+                            <?php
                             if ($number_rows=='16') {
                                 ?>
                             </div>
@@ -3109,7 +3109,7 @@ require_once("$incdir/patient_file/encounter/new_form.php");
 
 
                   
-                  <?  //forach $PMSFH[0]['POH'] print + Code enter
+                  <?php  //forach $PMSFH[0]['POH'] print + Code enter
                   $PMSFH = build_PMSFH($pid); 
                   if (count($PMSFH[0]['POH']) > 0) {
                     foreach ($PMSFH[0]['POH'] as $k => $v) {

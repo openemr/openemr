@@ -658,7 +658,7 @@ if ($_REQUEST['dispensed']) {
                             <tr>
                             </tr>
                         </table>
-                    <? } ?>
+                    <?php } ?>
                 </td>
             </tr>
             <tr>
@@ -690,6 +690,6 @@ if ($_REQUEST['dispensed']) {
     </body>
     </html>
 
-    <? 
+    <?php 
 exit;
 ?> 

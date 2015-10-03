@@ -304,7 +304,7 @@ function display_PRIOR_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                   <textarea disabled id="PRIOR_EXT_COMMENTS" name="PRIOR_EXT_COMMENTS" style="width:4.0in;height:3em;"><?php echo text($EXT_COMMENTS); ?></textarea>
             </div>  
 
-            <?
+            <?php
             return;
     } elseif ($zone =="ANTSEG") {
         if ($report =='0') $output = priors_select($zone,$orig_id,$id_to_show,$pid);
@@ -389,7 +389,7 @@ function display_PRIOR_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
             <textarea disabled id="PRIOR_ANTSEG_COMMENTS" name="PRIOR_ANTSEG_COMMENTS" style="width:4.0in;height:3.0em;"><?php echo text($ANTSEG_COMMENTS); ?></textarea>
         </div>   
        
-        <?
+        <?php
         return;
     } elseif ($zone=="RETINA") {
         if ($report =='0') $output = priors_select($zone,$orig_id,$id_to_show,$pid);
@@ -826,7 +826,7 @@ function display_PRIOR_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                     </table>
                 </div>
             </div>
-            <?
+            <?php
                 $hash_tag = '<i class="fa fa-minus"></i>';
                
                 if ($MOTILITY_RS > '0') {
@@ -1529,7 +1529,7 @@ function display_PRIOR_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                         ?>
                         <span href="#PMH_anchor" 
                         onclick="alter_issue('0','FH','');" style="text-align:right;">Negative</span><br />
-                        <?
+                        <?php
                     }
 
                    
@@ -1562,7 +1562,7 @@ function display_PRIOR_section ($zone,$orig_id,$id_to_show,$pid,$report = '0') {
                         ?>
                         <span href="#PMH_anchor" 
                         onclick="alter_issue('0','SOCH','');" style="text-align:right;">Not documented</span><br />
-                        <?
+                        <?php
                     }
                     ?>
                     </td>
@@ -1968,7 +1968,7 @@ function show_PMSFH_panel($PMSFH) {
       } else { ?>
         <span href="#PMH_anchor" 
         onclick="alter_issue('0','surgery','');" style="text-align:right;">None</span><br />
-        <?
+        <?php
       }
       
       //<!-- Allergies -->
@@ -1985,7 +1985,7 @@ function show_PMSFH_panel($PMSFH) {
       } else { ?>
         <span href="#PMH_anchor" 
         onclick="alter_issue('0','allergy','');" style="text-align:right;">NKDA</span><br />
-        <?
+        <?php
       }
       
        //<!-- Social History -->
@@ -2005,7 +2005,7 @@ function show_PMSFH_panel($PMSFH) {
             ?>
             <span href="#PMH_anchor" 
             onclick="alter_issue('0','SOCH','');" style="text-align:right;">Negative</span><br />
-            <?
+            <?php
         }
 
         //<!-- Family History -->
@@ -2027,7 +2027,7 @@ function show_PMSFH_panel($PMSFH) {
             ?>
             <span href="#PMH_anchor" 
             onclick="alter_issue('0','FH','');" style="text-align:right;">Negative</span><br />
-            <?
+            <?php
         }
 
       echo "<br /><span class='panel_title'>ROS:</span>";
@@ -2046,7 +2046,7 @@ function show_PMSFH_panel($PMSFH) {
               ?>
         <span href="#PMH_anchor" 
         onclick="alter_issue('0','ROS','');" style="text-align:right;">Negative</span><br />
-        <?
+        <?php
       }
 }
 function show_PMSFH_report($PMSFH) {
@@ -2102,7 +2102,7 @@ function show_PMSFH_report($PMSFH) {
         }
       } else { ?>
         None<br />
-        <?
+        <?php
 
       }
       
@@ -2117,7 +2117,7 @@ function show_PMSFH_report($PMSFH) {
         } 
       } else { ?>
         NKDA<br />
-        <?
+        <?php
       }
       
        //<!-- SocHx -->
@@ -2134,7 +2134,7 @@ function show_PMSFH_report($PMSFH) {
       if (!$PSOCH) {
         ?>
         Negative<br />
-        <?
+        <?php
       }
 
       echo "<br /><span class='panel_title'>FH:</span>";
@@ -3002,7 +3002,7 @@ function menu_overhaul_left($pid,$encounter) {
     list($documents) = document_engine($pid);
         ?>    
     <div id="left_menu" name="left_menu" class="borderShadow col-sm-3" style="position:relative;margin-left:18px;text-align:center;padding:5px 0px 5px 5px;">
-            <?
+            <?php
             //if the patient has a photograph, use it else use generic avitar thing.
         if ($documents['docs_in_name']['Patient Photograph'][0]['id']) {
             ?>
@@ -3034,7 +3034,7 @@ function menu_overhaul_left($pid,$encounter) {
                                           * <tr><td class='middle' colspan='2'>
                                           *     <select>
                                           *         <option><?php global $visit_date; echo $visit_date; ?> (<?php echo $encounter; ?>)</option>
-                                          * <?
+                                          * <?php
                                           * List out the prior eye_mag encounters as options.  
                                           * The one above is today.  
                                           * This will run a function to go back a day, changing all the form's values to that day, 
