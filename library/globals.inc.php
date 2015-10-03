@@ -1662,6 +1662,13 @@ $GLOBALS_METADATA = array(
       'https://your_web_site.com/openemr/patients',
       xl('Website link for the Onsite Patient Portal.')
     ),
+
+    'portal_onsite_document_download' => array(
+      xl('Enable Onsite Patient Portal Document Download'),
+      'bool',                           // data type
+      '1',
+      xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
+    ),
     
     'portal_offsite_enable' => array(
       xl('Enable Offsite Patient Portal'),

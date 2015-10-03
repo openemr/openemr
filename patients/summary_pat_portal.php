@@ -76,11 +76,11 @@ global $ignoreAuth;
  function toggleIndicator(target,div) {
 
     $mode = $(target).find(".indicator").text();
-    if ( $mode == "<?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?>" ) {
-        $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('expand'),ENT_QUOTES); ?>" );
+    if ( $mode == "<?php echo xla('collapse'); ?>" ) {
+        $(target).find(".indicator").text( "<?php echo xla('expand'); ?>" );
         $("#"+div).hide();
     } else {
-        $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?>" );
+        $(target).find(".indicator").text( "<?php echo xla('collapse'); ?>" );
         $("#"+div).show();
     }
  }
@@ -178,6 +178,7 @@ $(document).ready(function(){
           });
       });
       
+      
       refreshAppointments();
 
     // fancy box
@@ -215,7 +216,7 @@ $(document).ready(function(){
         function() {
                 if(document.getElementById('show_date').checked == true){
                         if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
+                                alert('<?php echo xls('Please select a start date and end date') ?>');
                                 return false;
                         }
                 }
@@ -249,7 +250,7 @@ $(document).ready(function(){
         function() {
                 if(document.getElementById('show_date').checked == true){
                         if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
+                                alert('<?php echo xls('Please select a start date and end date') ?>');
                                 return false;
                         }
                 }
@@ -287,6 +288,10 @@ $(document).ready(function(){
                 raw[0].value = 'pure';
                 $("#ccr_form").submit();
         });
+        $(".generateDoc_download").click(
+        function() {
+                $("#doc_form").submit();
+        });
 <?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
         $(".viewCCR_send_dialog").click(
         function() {
@@ -302,19 +307,19 @@ $(document).ready(function(){
                 raw[0].value = 'send '+ccrRecipient;
                 if(ccrRecipient=="") {
                   $("#ccr_send_message").html("<?php
-       echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
+       echo xla('Please enter a valid Direct Address above.');?>");
                   $("#ccr_send_result").show();
                 } else {
                   $(".viewCCR_transmit").attr('disabled','disabled');
                   $("#ccr_send_message").html("<?php
-       echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
+       echo xla('Working... this may take a minute.');?>");
                   $("#ccr_send_result").show();
                   var action=$("#ccr_form").attr('action');
                   $.post(action, {ccrAction:'generate',raw:'send '+ccrRecipient,requested_by:'patient'},
                      function(data) {
                        if(data=="SUCCESS") {
                          $("#ccr_send_message").html("<?php
-       echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
+       echo xla('Your message was submitted for delivery to');
                            ?> "+ccrRecipient);
                          $("#ccr_send_to").val("");
                        } else {
@@ -340,19 +345,19 @@ $(document).ready(function(){
                 raw[0].value = 'send '+ccdRecipient;
                 if(ccdRecipient=="") {
                   $("#ccd_send_message").html("<?php
-       echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
+       echo xla('Please enter a valid Direct Address above.');?>");
                   $("#ccd_send_result").show();
                 } else {
                   $(".viewCCD_transmit").attr('disabled','disabled');
                   $("#ccd_send_message").html("<?php
-       echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
+       echo xla('Working... this may take a minute.');?>");
                   $("#ccd_send_result").show();
                   var action=$("#ccr_form").attr('action');
                   $.post(action, {ccrAction:'viewccd',raw:'send '+ccdRecipient,requested_by:'patient'},
                      function(data) {
                        if(data=="SUCCESS") {
                          $("#ccd_send_message").html("<?php
-       echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
+       echo xla('Your message was submitted for delivery to');
                            ?> "+ccdRecipient);
                          $("#ccd_send_to").val("");
                        } else {
@@ -373,12 +378,12 @@ $(document).ready(function(){
 <body class="body_top">
 
 <div id="wrapper" class="lefttop" style="width: 700px;">
-<h2 class="heading"><?php echo htmlspecialchars( xl('Patient Portal'), ENT_NOQUOTES); ?></h2>
+<h2 class="heading"><?php echo xlt("Patient Portal"); ?></h2>
 
 <?php
  $result = getPatientData($pid);
 ?>
-<?php echo htmlspecialchars( xl('Welcome'), ENT_NOQUOTES); ?> <b><?php echo htmlspecialchars($result['fname']." ".$result['lname'],ENT_NOQUOTES); ?></b>
+<?php echo xlt('Welcome'); ?> <b><?php echo text($result['fname']." ".$result['lname']); ?></b>
 
 <div style='margin-top:10px'> <!-- start main content div -->
  <table border="0" cellspacing="0" cellpadding="0" width="100%">
@@ -408,44 +413,44 @@ $(document).ready(function(){
            <div style='margin-left:3em; margin-right:3em; padding:1em; border:1px solid blue;' class='text'>
             <div id="ccr_report">
              <form name='ccr_form' id='ccr_form' method='post' action='../ccr/createCCR.php?portal_auth=1'>
-             <span class='text'><b><?php echo htmlspecialchars( xl('Continuity of Care Record (CCR)'), ENT_NOQUOTES); ?></b></span>&nbsp;&nbsp;
+             <span class='text'><b><?php echo xlt('Continuity of Care Record (CCR)'); ?></b></span>&nbsp;&nbsp;
              <br/>
-             <span class='text'>(<?php echo htmlspecialchars( xl('Pop ups need to be enabled to see these reports'), ENT_NOQUOTES); ?>)</span>
+             <span class='text'>(<?php echo xlt('Pop ups need to be enabled to see these reports'); ?>)</span>
              <br/>
              <br/>
              <input type='hidden' name='ccrAction'>
              <input type='hidden' name='raw'>
-             <input type="checkbox" name="show_date" id="show_date" onchange="show_date_fun();" ><span class='text'><?php echo htmlspecialchars( xl('Use Date Range'), ENT_NOQUOTES); ?>
+             <input type="checkbox" name="show_date" id="show_date" onchange="show_date_fun();" ><span class='text'><?php echo xlt('Use Date Range'); ?>
              <br>
              <div id="date_div" style="display:none" >
               <br>
               <table border="0" cellpadding="0" cellspacing="0" >
                <tr>
                 <td>
-                 <span class='bold'><?php echo htmlspecialchars( xl('Start Date'), ENT_NOQUOTES);?>: </span>
+                 <span class='bold'><?php echo xlt('Start Date');?>: </span>
                 </td>
                 <td>
                  <input type='text' size='10' name='Start' id='Start'
                  onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-                 title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />
+                 title='<?php echo xla('yyyy-mm-dd'); ?>' />
                  <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
                  id='img_start' border='0' alt='[?]' style='cursor:pointer'
-                 title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' >
+                 title='<?php echo xla('Click here to choose a date'); ?>' >
                  <script LANGUAGE="JavaScript">
                   Calendar.setup({inputField:"Start", ifFormat:"%Y-%m-%d", button:"img_start"});
                  </script>
                 </td>
                 <td>
                  &nbsp;
-                 <span class='bold'><?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES);?>: </span>
+                 <span class='bold'><?php echo xlt('End Date');?>: </span>
                 </td>
                 <td>
                  <input type='text' size='10' name='End' id='End'
                  onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-                 title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />
+                 title='<?php echo xla('yyyy-mm-dd'); ?>' />
                  <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
                  id='img_end' border='0' alt='[?]' style='cursor:pointer'
-                 title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' >
+                 title='<?php echo xla('Click here to choose a date'); ?>' >
                  <script LANGUAGE="JavaScript">
                   Calendar.setup({inputField:"End", ifFormat:"%Y-%m-%d", button:"img_end"});
                  </script>
@@ -454,21 +459,21 @@ $(document).ready(function(){
               </table>
              </div>
              <br>
-             <input type="button" class="generateCCR" value="<?php echo htmlspecialchars( xl('View/Print'), ENT_QUOTES); ?>" />
-             <!-- <input type="button" class="generateCCR_download_h" value="<?php echo htmlspecialchars( xl('Download'), ENT_QUOTES); ?>" /> -->
-             <input type="button" class="generateCCR_download_p" value="<?php echo htmlspecialchars( xl('Download'), ENT_QUOTES); ?>" />
-             <!-- <input type="button" class="generateCCR_raw" value="<?php echo htmlspecialchars( xl('Raw Report'), ENT_QUOTES); ?>" /> -->
+             <input type="button" class="generateCCR" value="<?php echo xla('View/Print'); ?>" />
+             <!-- <input type="button" class="generateCCR_download_h" value="<?php echo xla('Download'); ?>" /> -->
+             <input type="button" class="generateCCR_download_p" value="<?php echo xla('Download'); ?>" />
+             <!-- <input type="button" class="generateCCR_raw" value="<?php echo xla('Raw Report'); ?>" /> -->
 <?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
-             <input type="button" class="viewCCR_send_dialog" value="<?php echo htmlspecialchars( xl('Transmit', ENT_QUOTES)); ?>" />
+             <input type="button" class="viewCCR_send_dialog" value="<?php echo xla('Transmit'); ?>" />
              <br>
              <div id="ccr_send_dialog" style="display:none" >
               <br>
               <table border="0" cellpadding="0" cellspacing="0" >
                <tr>
                 <td>
-                 <span class='bold'><?php echo htmlspecialchars( xl('Enter Recipient\'s Direct Address'), ENT_NOQUOTES);?>: </span>
+                 <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
                 <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="">
-                <input type="button" class="viewCCR_transmit" value="<?php echo htmlspecialchars( xl('Send', ENT_QUOTES)); ?>" />
+                <input type="button" class="viewCCR_transmit" value="<?php echo xla('Send'); ?>" />
                 <div id="ccr_send_result" style="display:none" >
                  <span class="text" id="ccr_send_message"></span>
                 </div>
@@ -478,25 +483,25 @@ $(document).ready(function(){
              </div>
 <?php } ?>
              <hr/>
-             <span class='text'><b><?php echo htmlspecialchars( xl('Continuity of Care Document (CCD)'), ENT_NOQUOTES); ?></b></span>&nbsp;&nbsp;
+             <span class='text'><b><?php echo xlt('Continuity of Care Document (CCD)'); ?></b></span>&nbsp;&nbsp;
              <br/>
-             <span class='text'>(<?php echo htmlspecialchars( xl('Pop ups need to be enabled to see these reports'), ENT_NOQUOTES); ?>)</span>
+             <span class='text'>(<?php echo xlt('Pop ups need to be enabled to see these reports'); ?>)</span>
              <br/>
              <br/>
-             <input type="button" class="viewCCD" value="<?php echo htmlspecialchars( xl('View/Print', ENT_QUOTES)); ?>" />
-             <input type="button" class="viewCCD_download" value="<?php echo htmlspecialchars( xl('Download', ENT_QUOTES)); ?>" />
-             <!-- <input type="button" class="viewCCD_raw" value="<?php echo htmlspecialchars( xl('Raw Report', ENT_QUOTES)); ?>" /> -->
+             <input type="button" class="viewCCD" value="<?php echo xla('View/Print'); ?>" />
+             <input type="button" class="viewCCD_download" value="<?php echo xla('Download'); ?>" />
+             <!-- <input type="button" class="viewCCD_raw" value="<?php echo xla('Raw Report'); ?>" /> -->
 <?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
-             <input type="button" class="viewCCD_send_dialog" value="<?php echo htmlspecialchars( xl('Transmit', ENT_QUOTES)); ?>" />
+             <input type="button" class="viewCCD_send_dialog" value="<?php echo xla('Transmit'); ?>" />
              <br>
              <div id="ccd_send_dialog" style="display:none" >
               <br>
               <table border="0" cellpadding="0" cellspacing="0" >
                <tr>
                 <td>
-                 <span class='bold'><?php echo htmlspecialchars( xl('Enter Recipient\'s Direct Address'), ENT_NOQUOTES);?>: </span>
+                 <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
                 <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="">
-                <input type="button" class="viewCCD_transmit" value="<?php echo htmlspecialchars( xl('Send', ENT_QUOTES)); ?>" />
+                <input type="button" class="viewCCD_transmit" value="<?php echo xla('Send'); ?>" />
                 <div id="ccd_send_result" style="display:none" >
                  <span class="text" id="ccd_send_message"></span>
                 </div>
@@ -509,11 +514,34 @@ $(document).ready(function(){
            </div>
           </div>
           <br/>
+          
          </div>
         </td>
        </tr>
 <?php } // end CCR/CCD reporting options ?>
-
+<?php if ( $GLOBALS['portal_onsite_document_download'] ) { ?>
+<?php echo "<tr><td width='650px'>";
+$widgetTitle = xl('Documents');
+$widgetLabel = "documents";
+$widgetButtonLabel = xl('Download');
+$widgetButtonClass = "hidden";
+$linkMethod = "html";
+$bodyClass = "notab";
+$widgetAuth = false;
+$fixedWidth = true;
+expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+ $widgetAuth, $fixedWidth);
+?>
+<span class="text"><?php echo xlt('Download all patient documents');?></span>
+<br /><br />
+<form name='doc_form' id='doc_form' action='get_patient_documents.php' method='post'>
+	<input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
+</form>
+</div>
+</td>
+</tr>
+<?php } ?>
 <?php echo "<tr><td width='650px'>";
 // Lab tests results expand collapse widget
 $widgetTitle = xl("Lab Test Results");
@@ -531,7 +559,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
                     <br/>
                     <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
-                </div>
+                  </div>
+
 			</td>
 		</tr>
                 <?php echo "<tr><td width='650px'>";
@@ -546,7 +575,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $fixedWidth = true;
                 expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
 
-                </div>
+                </div>         
+
+           
                         </td>
                 </tr>
               
@@ -569,6 +600,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                     <br/>
                     <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
                 </div>
+
      </td>
     </tr>		
 
@@ -590,6 +622,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       <br/>
       <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
       </div>
+
      </td>
     </tr>
 	
@@ -615,12 +648,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 	<div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
 	</td>
 	</tr>		
-
 <?php } ?>
-
-	<tr>
-		<td>
-			
+    <tr>
+      <td width='650px'>
 <?php
 	// Show current and upcoming appointments.
 	 $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
@@ -642,42 +672,39 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetButtonClass = "edit_event iframe";
 	$linkMethod = "";
 	$bodyClass = "summary_item small";
-        if ($GLOBALS['portal_onsite_appt_modify']) {
-	    $widgetAuth = true;
-        }
-        else {
-            $widgetAuth = false;
-        }
+    if ($GLOBALS['portal_onsite_appt_modify']) 
+    {
+      $widgetAuth = true;
+    }
+    else 
+    {
+      $widgetAuth = false;
+    }
 	$fixedWidth = false;
-
 	expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-
 			 $count = 0;
-			 
-			?>
+?>
 			<div id='stats_div' style="display:none">
             	<div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div>
         	</div>
-
 		</td>
 	</tr>
    </table>
 
-  </div>
+   </div>
 
   </td>
 
  </tr>
+
 </table>
 
 </div> <!-- end main content div -->
 
-<input type="button" style="text-align: right;" value="<?php echo xl('Log Out'); ?>" onclick="window.location = 'logout.php'"/>
+<input type="button" style="text-align: right;" value="<?php echo xla('Log Out'); ?>" onclick="window.location = 'logout.php'"/>
 
-<input type="button" style="text-align: right;" value="<?php echo xl('Change Password'); ?>" onclick="window.location = '<?php echo $landingpage."&password_update=1";?>'"/>
+<input type="button" style="text-align: right;" value="<?php echo xla('Change Password'); ?>" onclick="window.location = '<?php echo $landingpage."&password_update=1";?>'"/>
 
-
-</wrapper>
-
+</div>
 </body>
 </html>
