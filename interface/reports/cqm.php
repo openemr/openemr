@@ -123,6 +123,11 @@ else {
 
  var mypcc = '<?php echo text($GLOBALS['phone_country_code']) ?>';
 
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
  function runReport() {
 
    // Validate first
@@ -574,7 +579,7 @@ else {
                                     <?php } ?>
 
                                     <?php if (!empty($report_id)) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
+					<a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?>
 						</span>

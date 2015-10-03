@@ -353,7 +353,8 @@ else {
 	print "</div>";
 ?>
         <script language='JavaScript'>
-        window.print();
+        var win = top.printLogPrint ? top : opener.top;
+        win.printLogPrint(window);
         </script>
 	</div>
         </body>

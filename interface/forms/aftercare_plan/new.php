@@ -49,6 +49,15 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+<script language="JavaScript">
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+</script>
+
 </head>
 <body class="body_top">
 <p><span class="forms-title"><?php echo xlt('AfterCare Planning'); ?></span></p>
@@ -176,9 +185,9 @@ echo "<form method='post' name='my_form' " .
 	</tr>
 	<tr>
 		<td></td>
-    <td><input type='submit'  value='<?php echo xlt('Save');?>' class="button-css">&nbsp;
-<input type='button'  value="Print" onclick="window.print()" class="button-css">&nbsp;
-	<input type='button' class="button-css" value='<?php echo xlt('Cancel');?>'
+    <td><input type='submit' value='<?php echo xla('Save'); ?>' class='button-css' />&nbsp;
+    <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' class='button-css' />&nbsp;
+    <input type='button' class='button-css' value='<?php echo xla('Cancel'); ?>'
  onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" /></td>
 	</tr>
 </table>

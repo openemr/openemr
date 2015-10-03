@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -63,6 +63,11 @@ if (!$INTEGRATED_AR) SLConnect();
 
 <script language="JavaScript">
 
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
 </script>
 
 </head>
@@ -122,7 +127,7 @@ if (!$INTEGRATED_AR) SLConnect();
 					</a>
 
 					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
+					<a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php xl('Print','e'); ?>
 						</span>

@@ -1489,6 +1489,17 @@ $GLOBALS_METADATA = array(
       xl('Billing log setting to append or overwrite the log file.')
     ),
 
+    'gbl_print_log_option' => array(
+      xl('Printing Log Option'),
+      array(
+        '0' => xl('No logging'),
+        '1' => xl('Hide print feature where not implemented'),
+        '2' => xl('Log entire document where not implemented'),
+      ),
+      '0',                               // default
+      xl('How to handle printer logging.')
+    ),
+
   ),
 
   // Miscellaneous Tab

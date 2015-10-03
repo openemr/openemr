@@ -250,6 +250,12 @@ if ($_POST['form_get_hl7']==='true') {
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 <script language="JavaScript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
 </script>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
@@ -369,7 +375,7 @@ onsubmit='return top.restoreSession()'>
             </spain>
             </a>
             <?php if ($_POST['form_refresh']) { ?>
-              <a href='#' class='css_button' onclick='window.print()'>
+              <a href='#' class='css_button' id='printbutton'>
                 <span>
                   <?php xl('Print','e'); ?>
                 </span>

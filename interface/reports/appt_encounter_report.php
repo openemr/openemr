@@ -172,6 +172,18 @@ function postError($msg) {
 
 </style>
 <title><?php  xl('Appointments and Encounters','e'); ?></title>
+
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
+<script language="JavaScript">
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
+</script>
+
 </head>
 
 <body class="body_top">
@@ -261,7 +273,7 @@ function postError($msg) {
 					</a>
 
 					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
+					<a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php xl('Print','e'); ?>
 						</span>
@@ -507,7 +519,6 @@ function postError($msg) {
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
 <script language="Javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});

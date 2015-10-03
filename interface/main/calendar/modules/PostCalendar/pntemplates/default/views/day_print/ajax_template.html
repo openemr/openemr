@@ -545,7 +545,8 @@ echo "<P>";
 <script type="text/javascript" src="../../../library/js/jquery-1.2.2.min.js"></script>
 <script>
 $(document).ready(function(){
-    window.print();
+    var win = top.printLogPrint ? top : opener.top;
+    win.printLogPrint(window);
     window.close();
 });
 </script>

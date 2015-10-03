@@ -78,7 +78,7 @@ if ($noteid) {
 <p><?php echo nl2br(htmlspecialchars( $body, ENT_NOQUOTES)); ?></p>
 
 <script language='JavaScript'>
-window.print();
+opener.top.printLogPrint(window);
 </script>
 
 </body>

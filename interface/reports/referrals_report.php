@@ -51,6 +51,11 @@
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
  // The OnClick handler for referral display.
  function show_referral(transid) {
   dlgopen('../patient_file/transaction/print_referral.php?transid=' + transid,
@@ -152,7 +157,7 @@
 					</a>
 
 					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
+					<a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php xl('Print','e'); ?>
 						</span>

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -213,6 +213,16 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 </style>
 
 <title><?php xl('Sales by Item','e') ?></title>
+
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
+<script language="JavaScript">
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+</script>
+
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
@@ -282,7 +292,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 					</a>
 
 					<?php if ($_POST['form_refresh'] || $_POST['form_csvexport']) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
+					<a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php xl('Print','e'); ?>
 						</span>
@@ -495,7 +505,6 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
 <script language="Javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});

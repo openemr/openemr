@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006, 2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -31,6 +31,11 @@
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
 </script>
 </head>
 
@@ -65,7 +70,7 @@
    &nbsp;
    <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
    &nbsp;
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+   <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
   </td>
  </tr>
 

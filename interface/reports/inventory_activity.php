@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -384,14 +384,24 @@ else {
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+
 <script language='JavaScript'>
+
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
  function mysubmit(action) {
   var f = document.forms[0];
   f.form_action.value = action;
   top.restoreSession();
   f.submit();
  }
+
 </script>
 
 </head>
@@ -484,7 +494,7 @@ echo "      </select>\n";
        <span><?php echo htmlspecialchars(xl('Submit')); ?></span>
       </a>
 <?php if ($form_action) { ?>
-      <a href='#' class='css_button' onclick='window.print()' style='margin-left:1em'>
+      <a href='#' class='css_button' id='printbutton' style='margin-left:1em'>
        <span><?php echo htmlspecialchars(xl('Print')); ?></span>
       </a>
       <a href='#' class='css_button' onclick='mysubmit("export")' style='margin-left:1em'>

@@ -75,6 +75,17 @@ else { // not export
 <head>
 <?php html_header_show();?>
 <title><?php xl('Pending Orders','e') ?></title>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+<script language="JavaScript">
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
+</script>
+
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -106,7 +117,7 @@ else { // not export
    &nbsp;
    <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
    &nbsp;
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+   <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
   </td>
  </tr>
 

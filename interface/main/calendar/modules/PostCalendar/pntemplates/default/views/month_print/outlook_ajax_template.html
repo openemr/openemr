@@ -518,7 +518,8 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
 
 <script language='JavaScript'>
 $(document).ready(function(){
-    window.print();
+    var win = top.printLogPrint ? top : opener.top;
+    win.printLogPrint(window);
     window.close();
 });
 </script>

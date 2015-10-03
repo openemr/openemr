@@ -34,7 +34,6 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 $formid = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
 $obj = $formid ? formFetch("form_treatment_plan", $formid) : array();
 
-
 // Get the providers list.
  $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
   "authorized != 0 AND active = 1 ORDER BY lname, fname");
@@ -50,6 +49,15 @@ $obj = $formid ? formFetch("form_treatment_plan", $formid) : array();
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+<script language="JavaScript">
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+</script>
+
 </head>
 <body class="body_top">
 <p><span class="forms-title"><?php echo xlt('Treatment Planning'); ?></span></p>
@@ -86,10 +94,7 @@ echo "<form method='post' name='my_form' " .
 		</td>
 		</tr>
 	<tr>
- 	
-	
-	
-		<td align="left"  class="forms"><?php echo xlt('Client Number'); ?>:</td>
+ 	  <td align="left"  class="forms"><?php echo xlt('Client Number'); ?>:</td>
 		<td class="forms">
 			<label class="forms-data" > <?php if (is_numeric($pid)) {
     
@@ -186,7 +191,8 @@ echo "<form method='post' name='my_form' " .
 	<tr>
 		<td></td>
     <td><input type='submit'  value='<?php echo xlt('Save');?>' class="button-css">&nbsp;
-	<input type='button'  value="Print" onclick="window.print()" class="button-css">&nbsp;
+  <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />&nbsp;
+
 	<input type='button' class="button-css" value='<?php echo xlt('Cancel');?>'
  onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" /></td>
 	</tr>
