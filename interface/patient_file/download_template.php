@@ -93,7 +93,7 @@ function getIssues($type) {
 
 // Top level function for scanning and replacement of a file's contents.
 function doSubs($s) {
-  global $ptrow, $enrow, $nextLocation, $keyLocation, $keyLength;
+  global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength;
   global $groupLevel, $groupCount, $itemSeparator, $pid, $encounter;
 
   $nextLocation = 0;
@@ -251,6 +251,30 @@ function doSubs($s) {
       $s = keyReplace($s, dataFixup($data, $title));
     }
 
+    // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
+    else if (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+      $formname = $matches[1];
+      $fieldid  = $matches[2];
+      $keyLength = 3 + strlen($formname) + strlen($fieldid);
+      $data = '';
+      $currvalue = '';
+      $title = '';
+      $frow = sqlQuery("SELECT * FROM layout_options " .
+        "WHERE form_id = ? AND field_id = ? LIMIT 1",
+        array($formname, $fieldid));
+      if (!empty($frow)) {
+        $tmprow = $formname == 'DEM' ? $ptrow : $hisrow;
+        if (isset($tmprow[$fieldid])) {
+          $currvalue = $tmprow[$fieldid];
+          $title = $frow['title'];
+        }
+        if ($currvalue !== '') {
+          $data = generate_plaintext_field($frow, $currvalue);
+        }
+      }
+      $s = keyReplace($s, dataFixup($data, $title));
+    }
+
   } // End if { character found.
 
   return $s;
@@ -264,6 +288,10 @@ $ptrow = sqlQuery("SELECT pd.*, " .
   "FROM patient_data AS pd " .
   "LEFT JOIN users AS ur ON ur.id = pd.ref_providerID " .
   "WHERE pd.pid = ?", array($pid));
+
+$hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " .
+  "ORDER BY date DESC LIMIT 1", array($pid));
+
 $enrow = array();
 
 // Get some info for the currently selected encounter.

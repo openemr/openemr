@@ -16,7 +16,7 @@
  * Public License for more details.  You should have received a copy of the GNU
  * General Public License along with this program.
  * If not, see <http://opensource.org/licenses/gpl-license.php>.
- * 
+ *
  * @package    OpenEMR
  * @subpackage NewCrop
  * @author     Eldho Chacko <eldho@zhservices.com>
@@ -29,17 +29,27 @@ $sanitize_all_escapes = true;		// SANITIZE ALL ESCAPES
 
 $fake_register_globals = false;		// STOP FAKE REGISTER GLOBALS
 
-require_once('../globals.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRx_xml.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxSOAP.php');
+require_once(__DIR__.'/../globals.php');
+require_once($GLOBALS['fileroot'].'/interface/eRxGlobals.php');
+require_once($GLOBALS['fileroot'].'/interface/eRxStore.php');
+require_once($GLOBALS['srcdir'].'/xmltoarray_parser_htmlfix.php');
+require_once($GLOBALS['srcdir'].'/lists.inc');
+require_once($GLOBALS['srcdir'].'/amc.php');
+require_once($GLOBALS['fileroot'].'/interface/eRxSOAP.php');
+require_once($GLOBALS['fileroot'].'/interface/eRx_xml.php');
 
 set_time_limit(0);
 
 $eRxSOAP = new eRxSOAP;
-$eRxSOAP->setStore(new eRxStore)
-	->setAuthUserId($_SESSION['authUserID'])
-	->setSoapPath(explode(';', getErxSoapPath()))
-	->setCredentials(getErxCredentials());
+$eRxSOAP->setGlobals(new eRxGlobals($GLOBALS))
+	->setStore(new eRxStore)
+	->setAuthUserId($_SESSION['authUserID']);
+
+if(array_key_exists('patient', $_REQUEST)) {
+	$eRxSOAP->setPatientId($_REQUEST['patient']);
+} elseif(array_key_exists('pid', $GLOBALS)) {
+	$eRxSOAP->setPatientId($GLOBALS['pid']);
+}
 
 if((array_key_exists('refresh', $_REQUEST)
 		&& $_REQUEST['refresh'] == 'true')

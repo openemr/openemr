@@ -1,4 +1,4 @@
-<?php
+<?php
 use ESign\Api;
 /* Copyright (C) 2006-2012 Rod Roark <rod@sunsetsystems.com>
  *
@@ -146,6 +146,7 @@ use ESign\Api;
   'enc' => array(xl('Encounter') , 2, 'patient_file/encounter/encounter_top.php'),
   'erx' => array(xl('e-Rx') , 1, 'eRx.php'),
   'err' => array(xl('e-Rx Renewal') , 1, 'eRx.php?page=status'),
+  'ere' => array(xl('e-Rx EPCS') , 1, 'eRx.php?page=epcs-admin'),
   'pay' => array(xl('Payment') , 1, '../patient_file/front_payment.php'),
   'edi' => array(xl('EDI History') , 0, 'billing/edih_view.php'),
   'dld' => array(xl('Display Documents'), 0, 'main/display_documents.php')
@@ -1400,20 +1401,25 @@ if (!empty($reg)) {
     </ul>
   </li>
   <?php
-  $newcrop_user_role=sqlQuery("select newcrop_user_role from users where username='".$_SESSION['authUser']."'");
-  if($newcrop_user_role['newcrop_user_role'] && $GLOBALS['erx_enable']) { ?>
+  if($GLOBALS['erx_enable']) {
+    $newcrop_user_role = sqlQuery("SELECT newcrop_user_role FROM users WHERE username = '".$_SESSION['authUser']."'");
+    if($newcrop_user_role['newcrop_user_role']) {
+  ?>
   <li><a class="collapsed" id="feeimg" ><span><?php xl('New Crop','e') ?></span></a>
     <ul>
       <li><a class="collapsed_lv2"><span><?php xl('Status','e') ?></span></a>
         <ul>
           <?php genTreeLink('RTop','erx',xl('e-Rx')); ?>
-          <?php //genTreeLink('RTop','err',xl('e-Rx Renewal')); ?>
           <?php genMiscLink('RTop','err','0',xl('e-Rx Renewal'),'eRx.php?page=status'); ?>
+          <?php if($newcrop_user_role['newcrop_user_role'] === 'erxadmin') genMiscLink('RTop','ere','0',xl('e-Rx EPCS'),'eRx.php?page=epcs-admin'); ?>
         </ul>
       </li>
     </ul>
   </li>
-  <?php } ?>
+  <?php
+    }
+  }
+  ?>
   <?php if (!$disallowed['adm']) { ?>
   <li><a class="collapsed" id="admimg" ><span><?php xl('Administration','e') ?></span></a>
     <ul>

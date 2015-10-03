@@ -14,7 +14,7 @@
  * Public License for more details.  You should have received a copy of the GNU
  * General Public License along with this program.
  * If not, see <http://opensource.org/licenses/gpl-license.php>.
- * 
+ *
  * @package    OpenEMR
  * @subpackage NewCrop
  * @author     Eldho Chacko <eldho@zhservices.com>
@@ -24,35 +24,21 @@
 
 function getErxPath()
 {
-    //if($GLOBALS['erx_source']==1)
-    //return $GLOBALS['erx_path'];
-    //else if($GLOBALS['erx_source']==2)
-    return $GLOBALS['erx_path_production'];
+    return $GLOBALS['erx_newcrop_path'];
 }
 
 function getErxSoapPath()
 {
-    //if($GLOBALS['erx_source']==1)
-    //return $GLOBALS['erx_path_soap'];
-    //else if($GLOBALS['erx_source']==2)
-    return $GLOBALS['erx_path_soap_production'];
+    return $GLOBALS['erx_newcrop_path_soap'];
 }
 
 function getErxCredentials()
 {
     $cred=array();
-    //if($GLOBALS['erx_source']==1)
-    //{
-    //    $cred[]=$GLOBALS['partner_name'];
-    //    $cred[]=$GLOBALS['erx_name'];
-    //    $cred[]=$GLOBALS['erx_password'];
-    //}
-    //else if($GLOBALS['erx_source']==2)
-    //{
-        $cred[]=$GLOBALS['partner_name_production'];
-        $cred[]=$GLOBALS['erx_name_production'];
-        $cred[]=$GLOBALS['erx_password_production'];
-    //}
+    $cred[]=$GLOBALS['erx_account_partner_name'];
+    $cred[]=$GLOBALS['erx_account_name'];
+    $cred[]=$GLOBALS['erx_account_password'];
+
     return $cred;
 }
 
@@ -88,7 +74,7 @@ function trimData($str,$length)
 }
 
 function stringToNumeric($str)
-{	
+{
 	if(is_numeric($str)){
     return array($str,"");
     }
@@ -100,7 +86,7 @@ function stringToNumeric($str)
         }
         else{
         $txt.=$x;
-        
+
         }
     }
     return array($num,$txt);
@@ -186,7 +172,7 @@ function destination($doc,$r,$page='',$pid)
         if($userRole['newcrop_user_role']=='admin')
         $page='admin';
         elseif($userRole['newcrop_user_role']=='manager')
-        $page='manager';        
+        $page='manager';
     }
     $b = $doc->createElement( "Destination" );
     $requestedPage = $doc->createElement( "requestedPage" );
@@ -269,13 +255,13 @@ function account($doc,$r)
         $country = $doc->createElement( "country" );
         $country->appendChild(
             $doc->createTextNode( $county_code )
-        );    
+        );
         $AccountAddress->appendChild( $country );
     $b->appendChild( $AccountAddress );
     $msg = validation(xl('Facility Phone'),$erxSiteID['phone'],$msg);
     $accountPrimaryPhoneNumber = $doc->createElement( "accountPrimaryPhoneNumber" );
     $erxSiteID['phone'] = stripPhoneSlashes($erxSiteID['phone']);
-    $accountPrimaryPhoneNumber->appendChild(        
+    $accountPrimaryPhoneNumber->appendChild(
         $doc->createTextNode( $erxSiteID['phone'] )
     );
     $b->appendChild( $accountPrimaryPhoneNumber );
@@ -588,7 +574,7 @@ function Patient($doc,$r,$pid)
     $b = $doc->createElement( "Patient" );
     $b->setAttribute('ID',$patient_data['pid']);
     $PatientName = $doc->createElement( "PatientName" );
-        $patient_data['lname']=stripSpecialCharacter($patient_data['lname']);    
+        $patient_data['lname']=stripSpecialCharacter($patient_data['lname']);
         $patient_data['lname']=trimData($patient_data['lname'],35);
         //$msg = validation(xl('Patient Last name'),$patient_data['lname'],$msg);
         if($patient_data['lname']=='')
@@ -674,7 +660,7 @@ function Patient($doc,$r,$pid)
     $PatientCharacteristics = $doc->createElement( "PatientCharacteristics" );
         if(trim($patient_data['date_of_birth'])=='' || $patient_data['date_of_birth']=='00000000')
             $warning_msg .= "<br>".htmlspecialchars( xl("Patient Date Of Birth is missing"), ENT_NOQUOTES);
-        if($patient_data['date_of_birth'] && $patient_data['date_of_birth']!='00000000'){        
+        if($patient_data['date_of_birth'] && $patient_data['date_of_birth']!='00000000'){
         $dob = $doc->createElement( "dob" );
         $dob->appendChild(
             $doc->createTextNode( $patient_data['date_of_birth'] )
@@ -693,7 +679,7 @@ function Patient($doc,$r,$pid)
         }
     $b->appendChild( $PatientCharacteristics );
     PatientFreeformHealthplans($doc,$b,$pid);
-    $allergyId=PatientFreeformAllergy($doc,$b,$pid);    
+    $allergyId=PatientFreeformAllergy($doc,$b,$pid);
     $r->appendChild( $b );
 	return $allergyId;
 }
@@ -748,7 +734,7 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
             );
             $b->appendChild( $sig );
             $refillCount = $doc->createElement( "refillCount" );
-            $x=stringToNumeric($prec['per_refill']); 
+            $x=stringToNumeric($prec['per_refill']);
             $refillCount->appendChild(
                 $doc->createTextNode( $x[0])
             );
@@ -768,11 +754,11 @@ function PatientMedication($doc,$r,$pid,$med_limit)
     $active='';
     if($GLOBALS['erx_upload_active']==1)
         $active = " and (enddate is null or enddate = '' or enddate = '0000-00-00' )";
-    $res_med=sqlStatement("select * from lists where type='medication' and pid=? and title<>'' 
+    $res_med=sqlStatement("select * from lists where type='medication' and pid=? and title<>''
 	and erx_uploaded='0' $active order by enddate limit 0,$med_limit",array($pid));
 	$uploaded_med_arr="";
     while($row_med=sqlFetchArray($res_med))
-    {	
+    {
 		$uploaded_med_arr[]=$row_med['id'];
         $b = $doc->createElement( "OutsidePrescription" );
             $externalId = $doc->createElement( "externalId" );
@@ -817,7 +803,7 @@ function PatientMedication($doc,$r,$pid,$med_limit)
             );
             $b->appendChild( $prescriptionType );
         $r->appendChild( $b );
-        
+
     }
 	return $uploaded_med_arr;
 }
@@ -828,7 +814,7 @@ function PatientFreeformAllergy($doc,$r,$pid)
     LEFT JOIN list_options AS lo ON l.outcome=lo.option_id AND lo.list_id='outcome'
 	WHERE `type`='allergy' AND pid=? AND erx_source='0' and erx_uploaded='0' AND (enddate is null or enddate = '' or enddate = '0000-00-00')",array($pid));
 	$allergyId=array();
-    while($row=sqlFetchArray($res))    
+    while($row=sqlFetchArray($res))
     {
         $val=array();
         $val['id']=$row['id'];
@@ -912,24 +898,24 @@ function PrescriptionRenewalResponse($doc,$r,$pid)
 }
 
 function checkError($xml)
-{    
+{
     $ch = curl_init($xml);
-    
+
     $data = array('RxInput' => $xml);
-    
+
     curl_setopt($ch, CURLOPT_URL, getErxPath());
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "RxInput=".$xml);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($ch, CURLOPT_COOKIESESSION, TRUE); 
+    curl_setopt($ch, CURLOPT_COOKIESESSION, TRUE);
     //curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_COOKIEFILE, "cookiefile"); 
+    curl_setopt($ch, CURLOPT_COOKIEFILE, "cookiefile");
     curl_setopt($ch, CURLOPT_COOKIEJAR, "cookiefile");
     curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
     curl_setopt($ch, CURLOPT_USERAGENT,"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    
+
     $result=curl_exec($ch)  or die( curl_error($ch)) ;
     preg_match('/<textarea.*>(.*)Original XML:/is',$result,$error_message);
     if(strpos($result,'RxEntry.aspx')){
@@ -976,4 +962,3 @@ function stripStrings($str,$pattern)
     }
     return $result;
 }
-?>
