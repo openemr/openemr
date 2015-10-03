@@ -87,8 +87,9 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
       $query = sqlStatement("select content from ".mitigateSqlTableUpperCase("form_CAMOS")." where id =" . 
         substr($key,3));
       if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
+
   	if ($_POST['print_html']) { //do this change to formatting only for html output
-        	$content = preg_replace('|\n|','<br/>', $result['content']);
+        	$content = preg_replace('|\n|','<br/>', text($result['content']));
 	        $content = preg_replace('|<br/><br/>|','<br/>', $content);
 	} else {
 		$content = $result['content'];
@@ -100,16 +101,16 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
       $rx = new Prescription(substr($key,5));
       //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
       $content = '' 
-      . $rx->drug . ' '
-      . $rx->size . ''
-      . $rx->unit_array[$rx->unit] . '<br/>' 
-      . $rx->quantity. ' '
-      . $rx->form_array[$rx->form]. '<br/>'
-      . $rx->dosage . ' '
-      . $rx->form_array[$rx->form]. ' '
-      . $rx->route_array[$rx->route] . ' '
-      . $rx->interval_array[$rx->interval] . '<br/>'
-      . $rx->note . '<br/>'
+      . text($rx->drug) . ' '
+      . text($rx->size) . ''
+      . text($rx->unit_array[$rx->unit]) . '<br/>' 
+      . text($rx->quantity). ' '
+      . text($rx->form_array[$rx->form]). '<br/>'
+      . text($rx->dosage) . ' '
+      . text($rx->form_array[$rx->form]). ' '
+      . text($rx->route_array[$rx->route]) . ' '
+      . text($rx->interval_array[$rx->interval]) . '<br/>'
+      . text($rx->note) . '<br/>'
       . 'refills:' . $rx->refills . '';
 //      . $rx->substitute_array[$rx->substitute]. ''
 //      . $rx->per_refill . '';
