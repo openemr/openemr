@@ -330,7 +330,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
   <TD class="text"><?php echo $iter["groupname"]?></TD>
   <TD class="text"><?php echo $iter["patient_id"]?></TD>
   <TD class="text"><?php echo $iter["success"]?></TD>
-  <TD class="text"><?php echo text(preg_replace('/^select/i','Query',$trans_comments)); //Convert select term to Query for MU2 requirements ?></TD>
+  <TD class="text"><?php echo nl2br(text(preg_replace('/^select/i','Query',$trans_comments))); //Convert select term to Query for MU2 requirements ?></TD>
   <?php  if($check_sum) { ?>
   <TD class="text"><?php echo $iter["checksum"]?></TD>
   <?php } ?>
@@ -406,4 +406,3 @@ Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img
 </script>
 
 </html>
-

@@ -25,6 +25,11 @@ $sanitize_all_escapes  = true;
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/log.inc");
+require_once("$srcdir/classes/html2text.class.php");
 
-newEvent("print", $_SESSION['authUser'], $_SESSION['authProvider'], 1, strip_tags($_POST['comments']));
+$h2t =& new html2text($_POST['comments']);
+$h2t->width = 0;
+$h2t->_convert(false);
+
+newEvent("print", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $h2t->get_text());
 ?>
