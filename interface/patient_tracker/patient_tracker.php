@@ -231,6 +231,7 @@ $appointments = sortAppointments( $appointments, 'time' );
                 $appt_enc = $appointment['encounter'];
                 $appt_eid = (!empty($appointment['eid'])) ? $appointment['eid'] : $appointment['pc_eid'];
                 $appt_pid = (!empty($appointment['pid'])) ? $appointment['pid'] : $appointment['pc_pid'];
+                if ($appt_pid ==0 ) continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
                 $status = (!empty($appointment['status'])) ? $appointment['status'] : $appointment['pc_apptstatus'];
                 $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
                 $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
