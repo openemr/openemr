@@ -435,7 +435,7 @@ document.onclick=HideTheAjaxDivs;
 				<table  border="0" cellspacing="0" cellpadding="0">
 				  <tr>
 					<td align="left" class="text"><?php echo htmlspecialchars( xl('From'), ENT_QUOTES).':' ?></td>
-					<td><input type='text'  style="width:90px;" name='FromDate' id='FromDate' class="text" value='<?php echo htmlspecialchars($FromDate); ?>' />
+					<td><input type='text'  style="width:90px;" name='FromDate' id='FromDate' class="text" value='<?php echo attr($FromDate); ?>' />
 					   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
 						id='img_FromDate' border='0' alt='[?]' style='cursor:pointer'
 						title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
@@ -444,7 +444,7 @@ document.onclick=HideTheAjaxDivs;
 					   </script></td>
 					<td width="53">&nbsp;</td>
 					<td align="left" class="text"><?php echo htmlspecialchars( xl('To'), ENT_QUOTES).':' ?></td>
-					<td><input type='text'  style="width:103px;"  name='ToDate' id='ToDate' class="text" value='<?php echo htmlspecialchars($ToDate); ?>' />
+					<td><input type='text'  style="width:103px;"  name='ToDate' id='ToDate' class="text" value='<?php echo attr($ToDate); ?>' />
 					   <img src='../../interface/main/calendar/modules/PostCalendar/pntemplates/default/images/new.jpg' align="texttop"
 						id='img_ToDate' border='0' alt='[?]' style='cursor:pointer'
 						title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>' />
@@ -652,8 +652,8 @@ document.onclick=HideTheAjaxDivs;
 <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
 <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo htmlspecialchars(formData('hidden_type_code'));?>"/>
 <input type='hidden' name='DeletePaymentId' id='DeletePaymentId' value='' />
-<input type='hidden' name='SortFieldOld' id='SortFieldOld' value='<?php echo htmlspecialchars($PaymentSortBy);?>' />
-<input type='hidden' name='Sort' id='Sort' value='<?php echo htmlspecialchars($Sort);?>' />
+<input type='hidden' name='SortFieldOld' id='SortFieldOld' value='<?php echo attr($PaymentSortBy);?>' />
+<input type='hidden' name='Sort' id='Sort' value='<?php echo attr($Sort);?>' />
 <input type="hidden" name="after_value" id="after_value" value="<?php echo htmlspecialchars($Message);?>"/>
 </form>
 </body>
