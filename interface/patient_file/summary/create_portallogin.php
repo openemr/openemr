@@ -65,7 +65,8 @@ function generatePassword($length=6, $strength=1) {
 }
 
 function validEmail($email){
-    if(eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email)) {
+    //.mobi is a valid domain terminator
+    if(eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$", $email)) {
     return true;
     }
     return false;
@@ -212,7 +213,7 @@ function transmit(){
 	?>
         <tr class="text">
             <td><?php echo htmlspecialchars(xl('User Name').':',ENT_QUOTES);?></td>
-            <td><input type="text" name="uname" value="<?php if($row['portal_username']) echo htmlspecialchars($row['portal_username'],ENT_QUOTES); else echo htmlspecialchars($row['fname'].$row['id'],ENT_QUOTES);?>" size="10" readonly></td>
+            <td><input type="text" name="uname" value="<?php if($row['cmsportal_login']) echo htmlspecialchars($row['cmsportal_login'],ENT_QUOTES); else echo htmlspecialchars($row['fname'].$row['id'],ENT_QUOTES);?>" size="10"></td>
         </tr>
         <tr class="text">
             <td><?php echo htmlspecialchars(xl('Password').':',ENT_QUOTES);?></td>

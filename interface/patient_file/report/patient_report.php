@@ -21,8 +21,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
   $ptdata = getPatientData($pid, 'cmsportal_login');
   $cmsportal = $ptdata['cmsportal_login'] !== '';
 }
-?>
-<html>
+?><html>
 <head>
 <?php html_header_show();?>
 
@@ -330,7 +329,7 @@ while($result2 = sqlFetchArray($res2)) {
 }
 while($result = sqlFetchArray($res)) {
     if ($result{"form_name"} == "New Patient Encounter") {
-        if ($isfirst == 0) {
+      if ($isfirst == 0) {
             foreach($registry_form_name as $var) {
                 if ($toprint = $html_strings[$var]) { 
                     foreach($toprint as $var) {print $var;}
