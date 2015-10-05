@@ -608,8 +608,7 @@ $(document).ready(function(){
         $("#weekcal *").css("font-size", "80%");
     }
     var win = top.printLogPrint ? top : opener.top;
-    win.printLogPrint(window);
-    window.close();
+    if (win.printLogPrint(window)) window.close();
 });
 </script>
 

@@ -1493,11 +1493,11 @@ $GLOBALS_METADATA = array(
       xl('Printing Log Option'),
       array(
         '0' => xl('No logging'),
-        '1' => xl('Hide print feature where not implemented'),
-        '2' => xl('Log entire document where not implemented'),
+        '1' => xl('Hide print feature'),
+        '2' => xl('Log entire document'),
       ),
       '0',                               // default
-      xl('How to handle printer logging.')
+      xl('Individual pages can override 2nd and 3rd options by implementing a log message.')
     ),
 
   ),

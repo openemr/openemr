@@ -26,6 +26,8 @@ function restoreSession() {
 
 // Pages that have a Print button or link should call this to initialize it for logging.
 // This is done at page load time in case we want to hide or disable the element.
+// The second argument, if present, specifies a log message to be used instead of logging
+// the entire document and will always prevent hiding of the button or link.
 //
 function printLogSetup(elem, logdata) {
  if (elem == null) return;
@@ -46,8 +48,10 @@ function printLogSetup(elem, logdata) {
 }
 
 // Pages that would otherwise call window.print() at load time should call this instead
-// to support print logging. In this case the passed argument is normally the window and
-// data to log, if specified, should be in the caller's window.printlogdata.
+// to support print logging. In this case the passed argument is normally the window,
+// and data to log, if specified, should be in the caller's window.printlogdata.
+// If no log data is specified and the global option to hide the print feature is set,
+// then no printing is done and the function returns false.
 //
 function printLogPrint(elem) {
  var win = elem;
