@@ -35,7 +35,7 @@ function update_display_table(data)
     // This creates a jquery object representing new DOM elements built from
     // HTML returned by the AJAX call to new.php.
     var new_info=$(data);
-
+    
     // This finds the element "table[cellspacing='5']".
     // That is, the table element whose cellspacing attribute has a value of 5.
     // This happens to be the main table with all the line items in it.
@@ -71,6 +71,8 @@ function update_display_table(data)
     justifications.change();
     
     tag_justify_rows($(display_table_selector));
+    
+    apply_sortable_rows($(document));
 
     return rc;
 }
@@ -173,6 +175,66 @@ function setup_core()
 {
     codeselect=codeselect_and_save;
     tag_justify_rows($(display_table_selector));
+}
+
+function apply_sortable_rows(parent) {
+    parent.find("table.fee-entry-table thead.fee-entry-table-header tr").prepend("<th>&nbsp;</th>");
+    parent.find("table.fee-entry-table tbody tr").each( function( key, value ) {
+        var row = $(value);
+        if ( row.hasClass("sortable-codetype") ) {
+            row.prepend("<td class='grip'><img src='" + webroot + "/images/drag.png' width='16px'></td>");
+        } else {
+            row.prepend("<td>&nbsp;</td>");
+        }
+    });
+
+    parent.find("table.fee-entry-table tbody").sortable({
+        update: function(e, ui) {
+            if ( !ui.item.hasClass('sortable-codetype') ) {
+                e.preventDefault();
+                return;
+            }
+
+            if ( !ui.item.next().hasClass('sortable-codetype') ) {
+                e.preventDefault();
+                return;
+            }
+
+            var billCell = ui.item.attr('data-billcell');
+            var billCellSub = $("[data-billcell-sub=" + billCell + "]");
+            billCellSub.detach();
+            billCellSub.insertAfter(ui.item);
+        }
+    });
+
+    parent.find("td.grip").mouseover(function () {
+        $(this).parent().addClass("highlight");
+    });
+    parent.find("td.grip").mouseout(function () {
+        $(this).parent().removeClass("highlight");
+    });
+
+    parent.find("input[name='bn_save']").click( function() {
+        debugger;
+       var i = 0;
+       var prev;
+       $("table.fee-entry-table td").parent().each( function( key, value ) {
+           var row = $(value);
+           if ( !prev || (!prev.attr('data-billcell') || prev.attr('data-billcell') !== row.attr('data-billcell-sub')) ) {
+               i++;
+           }
+           row.find("[name^=bill]").each( function( entryKey, entryValue) {
+               var input = $(entryValue);
+               var originalName = input.attr('name');
+               var newName = originalName.replace( /(bill\[)([0-9]+)(.*)/, 
+                    function(a,b,c,d) { 
+                        return b + i + d; 
+                    } );
+               input.attr('name', newName );
+           });
+           prev = row;
+       });
+    });
 }
 
 setup_core();

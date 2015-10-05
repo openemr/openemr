@@ -133,7 +133,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $price = $fee / $units;
   $strike1 = ($id && $del) ? "<strike>" : "";
   $strike2 = ($id && $del) ? "</strike>" : "";
-  echo " <tr>\n";
+  echo " <tr class='sortable-codetype codetype-" . $codetype . "' data-billcell='" . attr($lino) . "'>\n";
   echo "  <td class='billcell'>$strike1" .
     ($codetype == 'COPAY' ? xl($codetype) : $codetype) . $strike2;
   //if the line to ouput is copay, show the date here passed as $ndc_info,
@@ -260,7 +260,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndc_info, $tmp)) {
       $ndcnum = $tmp[1]; $ndcuom = $tmp[2]; $ndcqty = $tmp[3];
     }
-    echo " <tr>\n";
+    echo " <tr data-billcell-sub='" . attr($lino) . "'>\n";
     echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
     echo "  <td class='billcell' colspan='6'>&nbsp;NDC:&nbsp;";
     echo "<input type='text' name='bill[".attr($lino)."][ndcnum]' value='" . attr($ndcnum) . "' " .
@@ -545,9 +545,9 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
         sqlQuery("UPDATE billing SET code = ?, " .
           "units = ?, fee = ?, modifier = ?, " .
           "authorized = ?, provider_id = ?, " .
-          "ndc_info = ?, justify = ?, notecodes = ? " .
+          "ndc_info = ?, justify = ?, notecodes = ?, billing_order_seq = ? " .
           "WHERE " .
-          "id = ? AND billed = 0 AND activity = 1", array($code,$units,$fee,$modifier,$auth,$provid,$ndc_info,$justify,$notecodes,$id) );
+          "id = ? AND billed = 0 AND activity = 1", array($code,$units,$fee,$modifier,$auth,$provid,$ndc_info,$justify,$notecodes,$lino,$id) );
       }
     }
 
@@ -556,7 +556,7 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
       $code_text = lookup_code_descriptions($code_type.":".$code);
       addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
         $provid, $modifier, $units, $fee, $ndc_info, $justify, 0, $notecodes);
-    }
+        }
   } // end for
   
   //if modifier is not inserted during loop update the record using the first
@@ -686,10 +686,17 @@ $billresult = getBillingByEncounter($pid, $encounter, "*");
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
+.template {
+    display:none;
+}
+.highlight {
+    height: 30px;
+    color: white;
+    background-color: black;
+}
 </style>
 <script language="JavaScript">
-
-var diags = new Array();
+ var diags = new Array();
 
 <?php
 if ($billresult) {
@@ -991,27 +998,28 @@ echo " </tr>\n";
 
 <?php } // end encounter not billed ?>
 
-<table cellspacing='5'>
+<table cellspacing='5' width='95%' class="fee-entry-table">
+ <thead class="fee-entry-table-header">
  <tr>
-  <td class='billcell'><b><?php echo xlt('Type');?></b></td>
-  <td class='billcell'><b><?php echo xlt('Code');?></b></td>
+  <th class='billcell'><b><?php echo xlt('Type');?></b></th>
+  <th class='billcell'><b><?php echo xlt('Code');?></b></th>
 <?php if (modifiers_are_used(true)) { ?>
-  <td class='billcell'><b><?php echo xlt('Modifiers');?></b></td>
+  <th class='billcell'><b><?php echo xlt('Modifiers');?></b></th>
 <?php } ?>
 <?php if (fees_are_used()) { ?>
-  <td class='billcell' align='right'><b><?php echo xlt('Price');?></b>&nbsp;</td>
-  <td class='billcell' align='center'><b><?php echo xlt('Units');?></b></td>
+  <th class='billcell' align='right'><b><?php echo xlt('Price');?></b>&nbsp;</th>
+  <th class='billcell' align='center'><b><?php echo xlt('Units');?></b></th>
 <?php } ?>
 <?php if (justifiers_are_used()) { ?>
-  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Justify');?></b></td>
+  <th class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Justify');?></b></th>
 <?php } ?>
-  <td class='billcell' align='center'><b><?php echo xlt('Provider');?></b></td>
-  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Note Codes');?></b></td>
-  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></td>
-  <td class='billcell' align='center'><b><?php echo xlt('Delete');?></b></td>
-  <td class='billcell'><b><?php echo xlt('Description');?></b></td>
+  <th class='billcell' align='center'><b><?php echo xlt('Provider');?></b></th>
+  <th class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Note Codes');?></b></th>
+  <th class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php echo xlt('Auth');?></b></th>
+  <th class='billcell' align='center'><b><?php echo xlt('Delete');?></b></th>
+  <th class='billcell'><b><?php echo xlt('Description');?></b></th>
  </tr>
-
+ </thead>
 <?php
 $justinit = "var f = document.forms[0];\n";
 
@@ -1324,5 +1332,14 @@ if ($alertmsg) {
 ?>
 </script>
 </body>
-</html>
+
+</html> 
+
 <?php require_once("review/initialize_review.php"); ?>
+<script src="<?php echo $web_root?>/library/js/jquery-ui-1.11.4.custom.min.js" type="text/javascript"></script> 
+
+<script>
+    $(document).ready( function() {
+        apply_sortable_rows($(this));
+    });
+</script>
