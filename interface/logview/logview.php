@@ -113,7 +113,7 @@ $sqlQuery = "SELECT username, fname, lname FROM users " .
 $ures = sqlStatement($sqlQuery);
 ?>
 
-<?php 
+<?php
 $get_sdate=$start_date ? $start_date : date("Y-m-d H:i:s");
 $get_edate=$end_date ? $end_date : date("Y-m-d H:i:s");
 
@@ -131,13 +131,13 @@ $sortby = formData('sortby','G') ;
 <tr><td>
 <span class="text"><?php  xl('Start Date','e'); ?>: </span>
 </td><td>
-<input type="text" size="18" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : date('Y-m-d H:i:s'); ?>" title="<?php  xl('yyyy-mm-dd H:m Start Date','e'); ?>" onkeyup="datekeyup(this,mypcc,true)" onblur="dateblur(this,mypcc,true)" />
+<input type="text" size="18" name="start_date" id="start_date" value="<?php echo $start_date ? $start_date : (date("Y-m-d") . " 00:00:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m Start Date','e'); ?>" onkeyup="datekeyup(this,mypcc,true)" onblur="dateblur(this,mypcc,true)" />
 <img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_begin_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php  xl('Click here to choose date time','e'); ?>">&nbsp;
 </td>
 <td>
 <span class="text"><?php  xl('End Date','e'); ?>: </span>
 </td><td>
-<input type="text" size="18" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : date('Y-m-d H:i:s'); ?>" title="<?php  xl('yyyy-mm-dd H:m End Date','e'); ?>" onkeyup="datekeyup(this,mypcc,true)" onblur="dateblur(this,mypcc,true)" />
+<input type="text" size="18" name="end_date" id="end_date" value="<?php echo $end_date ? $end_date : (date("Y-m-d") . " 23:59:00"); ?>" title="<?php  xl('yyyy-mm-dd H:m End Date','e'); ?>" onkeyup="datekeyup(this,mypcc,true)" onblur="dateblur(this,mypcc,true)" />
 <img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_end_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php  xl('Click here to choose date time','e'); ?>">&nbsp;
 </td>
 <!--VicarePlus :: Feature For Generating Log For The Selected Patient --!>
