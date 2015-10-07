@@ -91,7 +91,7 @@ else {
 // List of user specific tabs and globals
 $USER_SPECIFIC_TABS = array('Appearance',
                             'Locale',
-                            'Features',
+                            'Report',
                             'Calendar',
                             'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
@@ -732,6 +732,11 @@ $GLOBALS_METADATA = array(
 		'1',                              // default = true
 		xl('Enable amendments feature')
 	),
+    
+   ),   
+    // Report Tab
+    //
+    'Report' => array(
 	
     'use_custom_daysheet' => array(
       xl('Use Custom End of Day Report'),
@@ -769,6 +774,17 @@ $GLOBALS_METADATA = array(
       xl('This is the Beginning date for the Ledger Report.')
     ),
 	
+    'sales_report_invoice' => array(
+      xl('Display Invoice Number or Patient Name or Both in the Sales Report'),
+      array(
+        '0' => xl('Invoice Number'),
+        '1' => xl('Patient Name and ID'),
+        '2' => xl('Patient Name and Invoice'),   
+      ),   
+		'1',                              // default = true
+      xl('This will Display the Invoice Number in the Sales Report or the Patient Name and ID or Patient Name and Invoice Number.')
+    ),
+    
   ),
     // E-Sign Tab
     //
