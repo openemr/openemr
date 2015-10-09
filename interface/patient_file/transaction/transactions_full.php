@@ -54,7 +54,7 @@ if ($result = getTransByPid($pid)) {
                         echo "<a href='print_referral.php?transid=".
 				htmlspecialchars( $iter{"id"}, ENT_NOQUOTES).
                         	"' onclick='top.restoreSession()' class='css_button_small'><span>".
-                        	htmlspecialchars( xl('Print'), ENT_NOQUOTES)."</span></a>";
+                        	htmlspecialchars( xl('View'), ENT_NOQUOTES)."</span></a>";
 		}
 		else {
 			echo "&nbsp;";

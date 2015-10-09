@@ -457,7 +457,7 @@ if(!$printable){
 		foreach($_POST['value_code'] as $this_valuecode) {
 			echo "<input type='hidden' name='value_code[]' value='". attr($this_valuecode) . "'>";
 		}	
-		echo "<input type='submit' name='print' value='" . xla('Print') . "' />";
+		echo "<input type='submit' name='print' value='" . xla('View Printable Version') . "' />";
 		echo "</form>";
   	    echo "<br><a href='../summary/demographics.php' ";
 		if (!$GLOBALS['concurrent_layout']){ echo "target='Main'"; }
