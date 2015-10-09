@@ -212,6 +212,7 @@ $html .= "
 body {
 font-family: sans-serif;
 font-weight: normal;
+float: none;
 }
 .bordertbl {
 width: 100%;
@@ -232,7 +233,7 @@ td.fsgroup {
 height: ${lheight}pt;
 font-family: sans-serif;
 font-weight: bold;
-font-size: $fontsize pt;
+font-size: ${fontsize}pt;
 background-color: #cccccc;
 padding: ${padding}pt 2pt 0pt 2pt;
 border-style: solid;
@@ -276,10 +277,20 @@ vertical-align: top;
 text-align: right;
 font-size: 9pt;
 }
-div.pagebreak {
-page-break-after: always;
-height: ${page_height}pt;
+
+@media print {
+  body {
+    font-family: sans-serif;
+    font-weight: normal;
+    float: none;
+  }
+    .pagebreak {
+    page-break-after: always;
+    border: none;
+    visibility: hidden;
+  }
 }
+
 </style>";
 
 $html .= "<title>" . htmlspecialchars($frow['name']) . "</title>
@@ -304,14 +315,8 @@ function printlog_before_print() {
 <body bgcolor='#ffffff'>
 <form name='theform' method='post' action='printed_fee_sheet.php?fill=$form_fill'
 onsubmit='return opener.top.restoreSession()'>
-<center>";
-
-// Set Pagebreak for multi forms
-if ($form_fill == 2) {
-    $html .= "<div class=pagebreak>\n";
-} else {
-    $html .= "<div>\n";
-}
+<center>
+<div>";
 
 $today = date('Y-m-d');
 
@@ -538,7 +543,7 @@ foreach ($pid_list as $pid) {
 </tr>
 
 </table>";
-        
+        $html .= "<hr class='pagebreak'>";
         $html .= "</div>";  //end of div.pageLetter
         
     } // end while
@@ -557,8 +562,8 @@ $html .="' id='printbutton' />
 }
 
 $html .= "
-</form>
 </center>
+</form>
 </body>
 </html>";
 
