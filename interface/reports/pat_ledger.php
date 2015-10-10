@@ -499,6 +499,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
       if(!$form_facility) $form_facility = '3';
       $facility = sqlQuery("SELECT * FROM facility WHERE id=?", array($form_facility));
       $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
+      $pat_dob = $patient['DOB'];
+      $pat_name = $patient['fname']. ' ' . $patient['lname'];
 ?>
 <div id="report_header">
 <table width="98%"  border="0" cellspacing="0" cellpadding="0">
@@ -534,9 +536,17 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     <td class='bold' ><?php echo xlt('Date')?>:
 		<?php echo text(date('Y-m-d')); ?></td>
     <td class='bold' ><?php echo xlt('Patient')?>:
-		<?php echo text($form_patient); ?></td>
+        <?php if($type_form == '1') { ?>
+           <?php echo text($pat_name); ?></td>
+        <?php }else{ ?>
+           <?php echo text($form_patient); ?></td>
+        <?php } ?>
     <td class='bold' ><?php echo xlt('DOB')?>:
-		<?php echo text($form_dob);?></td>
+        <?php if($type_form == '1') { ?>
+           <?php echo text($pat_dob);?></td>
+        <?php }else{ ?>
+           <?php echo text($form_dob); ?></td>
+        <?php } ?>
     <td class='bold' > <?php echo xlt('ID')?>:
 		<?php echo text($form_pid);?></td>
   </tr>
