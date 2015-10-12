@@ -60,8 +60,9 @@ function checkvalue() {
 
         
 </script>
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 </head>
-<body>
+<body class="body_top">
 <br>
 <center>
 <h3>Enter payment amount</h3>
