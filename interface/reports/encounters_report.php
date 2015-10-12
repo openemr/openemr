@@ -175,6 +175,11 @@ $res = sqlStatement($query);
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
  function dosort(orderby) {
   var f = document.forms[0];
   f.form_orderby.value = orderby;
@@ -303,7 +308,7 @@ $res = sqlStatement($query);
 					</a>
 
 					<?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
+            <a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php echo xlt('Print'); ?>
 						</span>

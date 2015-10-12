@@ -201,7 +201,8 @@ end_group();
 
 <!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
 <script language='JavaScript'>
-window.print();
+ var win = top.printLogPrint ? top : opener.top;
+ win.printLogPrint(window);
 </script>
 
 </body>

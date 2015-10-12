@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -33,6 +33,11 @@ require_once("$srcdir/formatting.inc.php");
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
 
  // The OnClick handler for receipt display.
  function show_receipt(pid,timestamp) {
@@ -131,7 +136,7 @@ require_once("$srcdir/formatting.inc.php");
 					</a>
 
 					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
+					<a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php xl('Print','e'); ?>
 						</span>

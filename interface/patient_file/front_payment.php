@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -364,18 +364,22 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 ?>
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
- // Process click on Print button.
- function printme() {
+$(document).ready(function() {
+ opener.top.printLogSetup(document.getElementById('printbutton'));
+});
+
+ // This is action to take before printing and is called from restoreSession.php.
+ function printlog_before_print() {
   var divstyle = document.getElementById('hideonprint').style;
   divstyle.display = 'none';
-  window.print();
-  // divstyle.display = 'block';
  }
+
  // Process click on Delete button.
  function deleteme() {
   dlgopen('deleter.php?payment=<?php echo $payment_key ?>', '_blank', 500, 450);
@@ -453,7 +457,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 
 <div id='hideonprint'>
 <p>
-<input type='button' value='<?php echo xla('Print'); ?>' onclick='printme()' />
+<input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
 
 <?php
   $todaysenc = todaysEncounterIf($pid);

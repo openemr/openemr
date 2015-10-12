@@ -607,8 +607,8 @@ $(document).ready(function(){
     else if ($("#bigCal").height() > 1200) {
         $("#weekcal *").css("font-size", "80%");
     }
-    window.print();
-    window.close();
+    var win = top.printLogPrint ? top : opener.top;
+    if (win.printLogPrint(window)) window.close();
 });
 </script>
 

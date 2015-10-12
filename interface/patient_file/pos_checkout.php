@@ -366,17 +366,21 @@ function generate_receipt($patient_id, $encounter=0) {
 <?php html_header_show(); ?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <title><?php echo xlt('Receipt for Payment'); ?></title>
+<script type="text/javascript" src="../../library/js/jquery-1.2.2.min.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
  // Process click on Print button.
- function printme() {
+ function printlog_before_print() {
   var divstyle = document.getElementById('hideonprint').style;
   divstyle.display = 'none';
-  window.print();
-  return false;
  }
 
  // Process click on Delete button.
@@ -554,7 +558,7 @@ function generate_receipt($patient_id, $encounter=0) {
 <div id='hideonprint'>
 <p>
 &nbsp;
-<a href='#' onclick='return printme();'><?php echo xlt('Print'); ?></a>
+<a href='#' id='printbutton'><?php echo xlt('Print'); ?></a>
 <?php if (acl_check('acct','disc')) { ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href='#' onclick='return deleteme();'><?php echo xlt('Undo Checkout'); ?></a>

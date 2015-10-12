@@ -507,7 +507,8 @@ $(document).ready(function(){
     $(".oneresult").click(function() { SelectPatient(this); });
     // $(".event").dblclick(function() { EditEvent(this); });
     <?php if($print_patients) { ?>
-      window.print();
+      var win = top.printLogPrint ? top : opener.top;
+      win.printLogPrint(window);
     <?php } ?>
 });
 
@@ -537,4 +538,3 @@ else {
 
 </body>
 </html>
-

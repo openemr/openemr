@@ -193,7 +193,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
         <div>
             <?php if ($noteid) { ?>
             <!-- existing note -->
-            <a href="#" class="css_button" id="printnote"><span><?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?></span></a>
+            <a href="#" class="css_button" id="printnote"><span><?php echo xlt('View Printable Version'); ?></span></a>
             <?php } ?>
             <a class="css_button large_button" id='cancel' href='javascript:;'>
             <span class='css_button_span large_button_span'><?php echo htmlspecialchars( xl('Cancel'), ENT_NOQUOTES);?></span>

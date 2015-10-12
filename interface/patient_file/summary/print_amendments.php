@@ -120,7 +120,7 @@ function printAmendment($amendmentID,$lastAmendment) {
 	?>
 
 <script language='JavaScript'>
-	window.print();
+	opener.top.printLogPrint(window);
 </script>
 	
 </body>

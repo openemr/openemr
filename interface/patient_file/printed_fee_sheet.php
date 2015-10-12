@@ -283,15 +283,20 @@ height: ${page_height}pt;
 </style>";
 
 $html .= "<title>" . htmlspecialchars($frow['name']) . "</title>
+<script type='text/javascript' src='../../library/js/jquery-1.2.2.min.js'></script>
 <script type=\"text/javascript\" src=\"../../library/dialog.js\"></script>
 <script language=\"JavaScript\">";
 
 $html .= "
+$(document).ready(function() {
+ var win = top.printLogSetup ? top : opener.top;
+ win.printLogSetup(document.getElementById('printbutton'));
+});
+
 // Process click on Print button.
-function printme() {
-var divstyle = document.getElementById('hideonprint').style;
-divstyle.display = 'none';
-window.print();
+function printlog_before_print() {
+ var divstyle = document.getElementById('hideonprint').style;
+ divstyle.display = 'none';
 }
 
 </script>
@@ -546,8 +551,8 @@ $html .= "<div id='hideonprint'>
 <p>
 <input type='button' value='";
 
-$html .= xl('Print', 'r');
-$html .="' onclick='printme()' /> 
+$html .= xla('Print');
+$html .="' id='printbutton' /> 
 </div>";
 }
 

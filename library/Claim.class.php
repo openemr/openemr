@@ -1118,7 +1118,7 @@ class Claim {
   }
 
   function frequencyTypeCode() {
-    return empty($this->billing_options['replacement_claim']) ? '1' : '7';
+    return ($this->billing_options['replacement_claim'] == 1) ? '7' : '1';
   }
 
   function additionalNotes() {

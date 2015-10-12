@@ -49,7 +49,8 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
 <?php } ?>
 
 <script type="text/javascript">
-$(document).ready( function() {
+$.noConflict();
+jQuery(document).ready( function($) {
 	var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
     $(".esign-button-form").esign( 
     	formConfig,

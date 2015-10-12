@@ -122,18 +122,18 @@ $(document).ready(function(){
                 <table>
                     <tr>
                         <td>
-                            <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='PDF'})</span></a>
+                            <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'} ({xl t='PDF'})</span></a>
                         </td>
                         <td>
                           <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
-                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='HTML'})</span></a>
+                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'} ({xl t='HTML'})</span></a>
                         </td>
                         <td style="border-style:none;">
-                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='Fax'})</span></a>
+                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'} ({xl t='Fax'})</span></a>
                         </td>
                         {if $CAMOS_FORM == true}
                         <td>
-                            <a id="four_panel_rx" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print Four Panel'}</span></a>
+                            <a id="four_panel_rx" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Four Panel'}</span></a>
                         </td>
                         {/if}
                     </tr>

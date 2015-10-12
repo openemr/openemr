@@ -75,6 +75,11 @@ $fake_register_globals=false;
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
 	   function toggle(id) {
                 var tr = document.getElementById(id);
                 if (tr==null) { return; }
@@ -342,8 +347,8 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 									<?php echo htmlspecialchars(xl('Submit'),ENT_NOQUOTES); ?>
 									</span> </a>
 									<?php if ($_POST['form_refresh']) { ?>
-									<a href='#' class='css_button' onclick='window.print()'> <span>
-									<?php echo htmlspecialchars(xl('Print'),ENT_NOQUOTES); ?>
+									<a href='#' class='css_button' id='printbutton'> <span>
+									<?php echo xlt('Print'); ?>
 									</span> </a>
 									<?php } ?>
 							</div></td>

@@ -307,10 +307,11 @@ function cssHeader() {
 	    	}	
 	    }	
 	}	
-	function pagePrint(title) {
-            changeStyle(title);
-	    window.print();
-        }	
+  function pagePrint(title) {
+    changeStyle(title);
+    var win = top.printLogPrint ? top : opener.top;
+    win.printLogPrint(window);
+  }
     </SCRIPT>
     <title><?php xl('Growth Chart','e'); ?></title>
     </head>

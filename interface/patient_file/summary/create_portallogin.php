@@ -134,7 +134,7 @@ function displayLogin($patient_id,$message,$emailFlag){
                    htmlspecialchars($patientData['email'],ENT_NOQUOTES) . "<br><br>" .
                    $message;
     }
-    echo "<html><body onload='window.print();'>" . $message . "</body></html>";
+    echo "<html><body onload='top.printLogPrint(window);'>" . $message . "</body></html>";
 }
 
 if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){

@@ -485,7 +485,7 @@ class C_Prescription extends Controller {
 
         function multiprintcss_postfooter() {
                 echo("<script language='JavaScript'>\n");
-                echo("window.print();\n");
+                echo("opener.top.printLogPrint(window);\n");
                 echo("</script>\n");
                 echo("</body>\n");
                 echo("</html>\n");

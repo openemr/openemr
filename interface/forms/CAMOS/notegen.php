@@ -228,7 +228,8 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 	}
 ?>
         <script language='JavaScript'>
-        window.print();
+        var win = top.printLogPrint ? top : opener.top;
+        win.printLogPrint(window);
         </script>
         </div>
         </body>

@@ -27,4 +27,9 @@ function check_file_dir_name($label) {
     die(xlt("ERROR: The following variable contains invalid characters").": ". attr($label));
 }
 
+// Convert all illegal characters to _
+function convert_safe_file_dir_name($label) {
+  return preg_replace('/[^A-Za-z0-9_.-]/','_',$label);
+}
+
 ?>

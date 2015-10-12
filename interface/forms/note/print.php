@@ -63,8 +63,8 @@ if ($obj['date_of_signature'] != "") {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    window.print();
-    window.close();
+    var win = top.printLogPrint ? top : opener.top;
+    if (win.printLogPrint(window)) window.close();
 });
 
 </script>
