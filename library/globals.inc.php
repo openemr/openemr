@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2015 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,7 +34,6 @@
 //   Finnish                        // xl('Finnish')
 //   French                         // xl('French (Standard)')
 //   French                         // xl('French (Canadian)')
-//   Georgian                       // xl('Georgian')
 //   German                         // xl('German')
 //   Greek                          // xl('Greek')
 //   Hebrew                         // xl('Hebrew')
@@ -88,7 +87,6 @@ else {
 // List of user specific tabs and globals
 $USER_SPECIFIC_TABS = array('Appearance',
                             'Locale',
-                            'Features',
                             'Calendar',
                             'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
@@ -100,11 +98,6 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'us_weight_format',
                                'date_display_format',
                                'time_display_format',
-<<<<<<< HEAD
-=======
-                               'ledger_begin_date',
-                               'calendar_view_type',
->>>>>>> upstream/master
                                'event_color',
                                'erx_import_status_message');
 
@@ -134,16 +127,6 @@ $GLOBALS_METADATA = array(
       ),
       '3',                              // default = tree menu
       xl('Type of screen layout')
-    ),
-      
-    'default_encounter_view' => array(
-      xl('Default Encounter View'),               // descriptive name
-      array(
-        '0' => xl('Clinical View'),
-        '1' => xl('Billing View'),
-      ),
-      '0',                              // default = tree menu
-      xl('Choose your default encounter view')
     ),
 
     'css_header' => array(
@@ -327,7 +310,7 @@ $GLOBALS_METADATA = array(
     'allow_debug_language' => array(
       xl('Allow Debugging Language'),
       'bool',                           // data type
-      '1',                              // default = true during development and false for production releases
+      '0',                              // default = true during development and false for production releases
       xl('This will allow selection of the debugging (\'dummy\') language.')
     ),
 
@@ -713,13 +696,7 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('This specifies whether to include date in Box 31.')
     ),
-	
-	'prior_authorization_no' => array(
-	   xl('Prior Authorization No Box 23'),
-	   'text',
-	   '',
-	   xl('CLIA number for Box 23'),
-	),
+	  
 	'amendments' => array (
 		xl('Amendments'),
 		'bool',                           // data type
@@ -749,20 +726,6 @@ $GLOBALS_METADATA = array(
       xl('This specifies the Printing of the Custom End of Day Report grouped Provider or allow the Printing of Totals Only')
     ),
 
-    'ledger_begin_date' => array(
-      xl('Beginning Date for Ledger Report'),
-      array(
-        'Y1' => xl('One Year Ago'),
-        'Y2' => xl('Two Years Ago'),
-        'M6' => xl('Six Months Ago'),
-        'M3' => xl('Three Months Ago'),
-        'M1' => xl('One Month Ago'),
-        'D1' => xl('One Day Ago'),        
-      ),                       
-      'Y1',                     // default = One Year
-      xl('This is the Beginning date for the Ledger Report.')
-    ),
-	
   ),
     // E-Sign Tab
     //
@@ -813,6 +776,12 @@ $GLOBALS_METADATA = array(
   ),
     //Documents Tab
     'Documents' => array(
+	    'care_plan' => array(
+		    xl('Enable Care Plan'),
+			'bool',
+			'0',
+		    xl('Enable Care Plan in Patient Demographics'),
+		),
         'document_storage_method' => array(
             xl('Document Storage Method'),
             array(
@@ -878,13 +847,6 @@ $GLOBALS_METADATA = array(
       'text',                           // data type
       'Lab Report',                     // default
       xl('Document category name for storage of electronically received lab results.')
-    ),
-
-    'gbl_mdm_category_name' => array(
-      xl('MDM Document Category Name'),
-      'text',                           // data type
-      'Lab Report',                     // default
-      xl('Document category name for storage of electronically received MDM documents.')
     ),
 
   ),
@@ -1420,17 +1382,6 @@ $GLOBALS_METADATA = array(
       xl('Billing log setting to append or overwrite the log file.')
     ),
 
-    'gbl_print_log_option' => array(
-      xl('Printing Log Option'),
-      array(
-        '0' => xl('No logging'),
-        '1' => xl('Hide print feature'),
-        '2' => xl('Log entire document'),
-      ),
-      '0',                               // default
-      xl('Individual pages can override 2nd and 3rd options by implementing a log message.')
-    ),
-
   ),
 
   // Miscellaneous Tab
@@ -1586,58 +1537,7 @@ $GLOBALS_METADATA = array(
     ),
 
   ),
-//CC Tab
-//
-  'CC Gateway' => array(
-      
-      'enable_authoriz_net' => array(
-          xl('Enable Auhorize Net'),
-          'bool',
-          '0',
-          xl('Enable Authorize Net.')
-      ),
-      'aapi_login_id' => array(
-          xl('API Login ID'),
-          'text',
-          '',
-          xl('API Login ID is inside your account setting at authorize.net ')
-      ),
-      'atransaction_key' => array(
-          xl('Transaction Key'),
-          'text',
-          '',
-          xl('Enter your Transaction Key that you generated in your account settings')
-      ),
-	  'authorizenet_md5_setting' => array(
-	      xl('Hash Key'),
-		  'text',
-		  '',
-		  xl('Enter the MD5 Hash value from your Authorize.Net account settings' )
-	  ),
-	  
-	  'enable_stripe' => array(
-	      xl('Enable Stripe CC Processing'),
-		 'bool',
-         '0',
-          xl('Enable the stripe.com credit card processing of payments')		 
-	  ),
-	  
-	  's_key_stripe' => array(
-	      xl('S_KEY'),
-		  'text',
-		  'sk_test_BQokikJOvBiI2HlWgH4olfQ2',
-		  xl('This is the demo secret key, it must be replaced with your account key'), 
-	  ),
-	  
-	  'pk_key_stripe' => array(
-	      xl('PK_KEY'),
-		  'text',
-		  'pk_test_6pRNASCoBOKtIshFeQd4XMUh',
-		  xl('This is the demo key, it must be replaced with your account key'),	  
-	  ),
-	  
-  ), 
-    
+
   // Portal Tab
   //
   'Portal' => array(
@@ -1649,18 +1549,69 @@ $GLOBALS_METADATA = array(
       xl('Enable Onsite Patient Portal.')
     ),
 
+ 
+    'portal_onsite_appt_modify' => array(
+      xl('Allow Patient Modification of Appointments'),
+      'bool',                           // data type
+      '0',
+      xl('Allow Patient Modification of Appointments in Onsite Patient Portal.')
+    ),
+   
+    'portal_delete_change_appt' => array(
+      xl('Allow Patient to Delete or Change Appointments'),
+      'bool',                           // data type
+      '0',
+      xl('Allow Patient to Delete or Change Appointments in Onsite Patient Portal.')
+    ),
+   
+    'portal_start_days' => array(
+      xl('Number of Days from today to start Patients choice of Appointments'),
+      'num',                           // data type
+      '14',                             // Default
+      xl('Number of Days from today to start Patients choice of Appointments in Onsite Patient Portal.')
+    ),
+    
+    'portal_search_days' => array(
+      xl('Number of Days for Patient choice of Appointments'),
+      'num',                           // data type
+      '7',                             // Default
+      xl('Number of Days for Patient choice of Appointments in Onsite Patient Portal.')
+    ),
+    
+    'portal_first_dow' => array(
+      xl('Number for the first Day of the Work Week for Patient Portal'),
+      'num',                           // data type
+      '0',                             // Default
+      xl('Number for the first Day of the Work Week for Patient Portal. Zero is Sunday. ')
+    ),
+    
+    'portal_last_dow' => array(
+      xl('Number for the Last Day of the Work Week for Patient Portal'),
+      'num',                           // data type
+      '6',                             // Default
+      xl('Number for the Last Day of the Work Week for Patient Portal. Six is Saturday. ')
+    ),
+    
+    'portal_omit_dow' => array(
+      xl('Number for the Day of the Work Week to Omit from Patient Portal'),
+      'num',                           // data type
+      '3',                             // Default
+      xl('Number for the Day of the Work Week to Omit from Patient Portal. Three is Wednesday. ')
+    ),
+   
+    'portal_default_status' => array(
+      xl('Default Appointment Status from Patient Portal'),
+      'text',                           // data type
+      '-',                             // Default
+      xl('Default Appointment Status from Patient Portal.')
+    ),
+    
+
     'portal_onsite_address' => array(
       xl('Onsite Patient Portal Site Address'),
       'text',                           // data type
       'https://your_web_site.com/openemr/patients',
       xl('Website link for the Onsite Patient Portal.')
-    ),
-
-    'portal_onsite_document_download' => array(
-      xl('Enable Onsite Patient Portal Document Download'),
-      'bool',                           // data type
-      '1',
-      xl('Enables the ability to download documents in the Onsite Patient Portal by the user.')
     ),
     
     'portal_offsite_enable' => array(
@@ -1769,121 +1720,108 @@ $GLOBALS_METADATA = array(
       'https://len.mi-squared.com:29443/len/api',
       xl('Contact Medical Information Integration, LLC at http://mi-squared.com for Lab Exchange Service.')
     ),
-
+    
     'erx_enable' => array(
       xl('Enable NewCrop eRx Service'),
-      'bool',
+      'bool',                           // data type
       '0',
-      xl('Enable NewCrop eRx Service.') + ' ' +
-      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing to the NewCrop eRx service.')
-    ),
-
-    'erx_newcrop_path' => array(
+      xl('Enable NewCrop eRx Service')
+    ),    
+    
+    'erx_path_production' => array(
       xl('NewCrop eRx Site Address'),
-      'text',
+      'text',                           // data type
       'https://secure.newcropaccounts.com/InterfaceV7/RxEntry.aspx',
-      xl('URL for NewCrop eRx Site Address.')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-
-    'erx_newcrop_path_soap' => array(
+    
+    'erx_path_soap_production' => array(
       xl('NewCrop eRx Web Service Address'),
-      'text',
+      'text',                           // data type
       'https://secure.newcropaccounts.com/v7/WebServices/Update1.asmx?WSDL;https://secure.newcropaccounts.com/v7/WebServices/Patient.asmx?WSDL',
-      xl('URLs for NewCrop eRx Service Address, separated by a semi-colon.')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-
+    
     'erx_soap_ttl_allergies' => array(
       xl('NewCrop eRx SOAP Request Time-To-Live for Allergies'),
       'num',
       '21600',
-      xl('Time-To-Live for NewCrop eRx Allergies SOAP Request in seconds.')
+      xl('Time-To-Live for Allergies SOAP Request in seconds')
     ),
-
+    
     'erx_soap_ttl_medications' => array(
       xl('NewCrop eRx SOAP Request Time-To-Live for Medications'),
       'num',
       '21600',
-      xl('Time-To-Live for NewCrop eRx Medications SOAP Request in seconds.')
+      xl('Time-To-Live for Medications SOAP Request in seconds')
     ),
-
-    'erx_account_partner_name' => array(
+    
+    'partner_name_production' => array(
       xl('NewCrop eRx Partner Name'),
-      'text',
+      'text',                           // data type
       '',
-      xl('Partner Name issued for NewCrop eRx service.')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-
-    'erx_account_name' => array(
+    
+    'erx_name_production' => array(
       xl('NewCrop eRx Name'),
-      'text',
+      'text',                           // data type
       '',
-      xl('Account Name issued for NewCrop eRx service.')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-
-    'erx_account_password' => array(
+    
+    'erx_password_production' => array(
       xl('NewCrop eRx Password'),
-      'pass',
+      'pass',                           // data type
       '',
-      xl('Account Password issued for NewCrop eRx service.')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-
+    
     'erx_account_id' => array(
       xl('NewCrop eRx Account Id'),
-      'text',
+      'text',                           // data type
       '1',
-      xl('Account Id issued for NewCrop eRx service, used to separate multi-facility accounts.')
+      xl('Contact Medical Information Integration, LLC at http://mi-squared.com or ZH Healthcare at http://zhservices.com for subscribing the eRx service')
     ),
-
+    
     'erx_upload_active' => array(
       xl('Only upload active prescriptions'),
-      'bool',
+      'bool',                           // data type
       '0',
-      xl('Only upload active prescriptions to NewCrop eRx.')
+      xl('Only upload active prescriptions')
     ),
-
+    
     'erx_import_status_message' => array(
-      xl('Enable NewCrop eRx import status message'),
-      'bool',
+      xl('Enable import status message for NewCrop erx'),
+      'bool',                           // data type
       '0',
-      xl('Enable import status message after visiting NewCrop eRx.')
+      xl('Enable import status message for NewCrop erx')
     ),
-
+    
     'erx_medication_display' => array(
-      xl('Do not display NewCrop eRx Medications uploaded'),
-      'bool',
+      xl('Do not display Medications uploaded to NewCrop'),
+      'bool',                           // data type
       '0',
-      xl('Do not display Medications uploaded after visiting NewCrop eRx.')
+      xl('Do not display Medications uploaded to NewCrop')
     ),
-
-    'erx_allergy_display' => array(
-      xl('Do not display NewCrop eRx Allergy uploaded'),
-      'bool',
+	
+	'erx_allergy_display' => array(
+      xl('Do not display Allergy uploaded to NewCrop'),
+      'bool',                           // data type
       '0',
-      xl('Do not display Allergies uploaded after visiting NewCrop eRx.')
+      xl('Do not display Allergy uploaded to NewCrop')
     ),
-
+        
     'erx_default_patient_country' => array(
-        xl('NewCrop eRx Default Patient Country'),
+        xl('Default Patient Country'),
         array(
             '' => '',
-            'US' => xl('USA'),
-            'CA' => xl('Canada'),
-            'MX' => xl('Mexico'),
+            'US' => 'USA',
+            'CA' => 'Canada',
+            'MX' => 'Mexico'
         ),
         '',
-        xl('Default Patient Country sent to NewCrop eRx, only if patient country is not set.'),
-    ),
-
-    'erx_debug_setting' => array(
-        xl('NewCrop eRx Debug Setting'),
-        array(
-            0 => xl('None'),
-            1 => xl('Request Only'),
-            2 => xl('Response Only'),
-            3 => xl('Request & Response'),
-        ),
-        '0',
-        xl('Log all NewCrop eRx Requests and / or Responses.'),
+        xl('Default Patient Country'),
     ),
 
     'phimail_enable' => array(
