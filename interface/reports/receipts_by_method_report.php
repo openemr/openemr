@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -211,7 +211,15 @@ $form_proc_code = $tmp_code_array[1];
 </style>
 
 <script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
 <script language="JavaScript">
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
 // This is for callback by the find-code popup.
 // Erases the current entry
 function set_related(codetype, code, selector, codedesc) {
@@ -229,6 +237,7 @@ function set_related(codetype, code, selector, codedesc) {
 function sel_procedure() {
  dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("procedure","csv")) ?>', '_blank', 500, 400);
 }
+
 </script>
 
 <title><?xl('Receipts Summary','e')?></title>
@@ -323,7 +332,7 @@ function sel_procedure() {
 					</a>
 
 					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
+					<a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php xl('Print','e'); ?>
 						</span>
@@ -673,7 +682,6 @@ if (!$INTEGRATED_AR) SLClose();
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 <script language="Javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});

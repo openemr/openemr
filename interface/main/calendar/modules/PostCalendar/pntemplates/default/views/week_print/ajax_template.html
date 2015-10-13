@@ -704,8 +704,8 @@ foreach ($providers as $provider) {
 <script type="text/javascript" src="../../../library/js/jquery-1.2.2.min.js"></script>
 <script>
 $(document).ready(function(){
-    window.print();
-    window.close();
+    var win = top.printLogPrint ? top : opener.top;
+    if (win.printLogPrint(window)) window.close();
 });
 </script>
 

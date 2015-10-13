@@ -44,7 +44,9 @@ $(document).ready(function(){
         $('#printbutton').click(function(){
             $('.header_wrap').hide();
             $('#printtable').hide();
-            window.print();
+            // Can't test this so avoiding printLogSetup(). --Rod
+            var win = top.printLogPrint ? top : opener.top;
+            win.printLogPrint(window);
             $('.header_wrap').show();
         });
         

@@ -23,3 +23,54 @@ function restoreSession() {
 <?php } ?>
  return true;
 }
+
+// Pages that have a Print button or link should call this to initialize it for logging.
+// This is done at page load time in case we want to hide or disable the element.
+// The second argument, if present, specifies a log message to be used instead of logging
+// the entire document and will always prevent hiding of the button or link.
+//
+function printLogSetup(elem, logdata) {
+ if (elem == null) return;
+ var doc = elem.ownerDocument;
+ var win = doc.defaultView || doc.parentWindow;
+ if (typeof(logdata) == 'undefined') logdata = null;
+<?php if ($GLOBALS['gbl_print_log_option'] == 1) { ?>
+ if (logdata == null) {
+  elem.style.display = 'none';
+  return;
+ }
+<?php } ?>
+ win.printlogdata = logdata;
+ elem.onclick = function () {
+  // This is a function definition and variables here will be evaluated when the function executes.
+  top.printLogPrint(this);
+ }
+}
+
+// Pages that would otherwise call window.print() at load time should call this instead
+// to support print logging. In this case the passed argument is normally the window,
+// and data to log, if specified, should be in the caller's window.printlogdata.
+// If no log data is specified and the global option to hide the print feature is set,
+// then no printing is done and the function returns false.
+//
+function printLogPrint(elem) {
+ var win = elem;
+ if (elem.ownerDocument) {
+  var doc = elem.ownerDocument;
+  win = doc.defaultView || doc.parentWindow;
+ }
+<?php if ($GLOBALS['gbl_print_log_option'] == 1) { ?>
+ // Returning false means we didn't print.
+ if (!win.printlogdata) return false;
+<?php } ?>
+ if (win.printlog_before_print) win.printlog_before_print();
+ win.print();
+<?php if (!empty($GLOBALS['gbl_print_log_option'])) { ?>
+ comments = win.printlogdata || win.document.body.innerHTML;
+ top.restoreSession();
+ $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/log_print_action_ajax.php",
+  { comments: comments }
+ );
+<?php } ?>
+ return true;
+}

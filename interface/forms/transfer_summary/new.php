@@ -47,6 +47,15 @@ $obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
+<script language="JavaScript">
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+</script>
+
 </head>
 
 <body class="body_top">
@@ -142,8 +151,8 @@ echo "<form method='post' name='my_form' " .
 	<tr>
 		<td></td>
     <td><input type='submit'  value='<?php echo xlt('Save');?>' class="button-css">&nbsp;
-	 <input type='button'  value="Print" onclick="window.print()" class="button-css">&nbsp;
-	<input type='button' class="button-css" value='<?php echo xlt('Cancel');?>'
+    <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />&nbsp;
+    <input type='button' class="button-css" value='<?php echo xla('Cancel'); ?>'
  onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 
  </td>

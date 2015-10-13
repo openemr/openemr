@@ -244,8 +244,16 @@ if ($_POST['form_get_hl7']==='true') {
 <?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
 <script language="JavaScript">
+
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
 </script>
 
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
@@ -369,9 +377,9 @@ onsubmit='return top.restoreSession()'>
             </spain>
             </a>
             <?php if ($_POST['form_refresh']) { ?>
-              <a href='#' class='css_button' onclick='window.print()'>
+              <a href='#' class='css_button' id='printbutton'>
                 <span>
-                  <?php xl('Print','e'); ?>
+                  <?php echo xlt('Print'); ?>
                 </span>
               </a>
               <a href='#' class='css_button' onclick=

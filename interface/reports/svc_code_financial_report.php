@@ -8,7 +8,7 @@
  * Administration->Service section by assigning code with
  * 'Service Reporting'.
  *
- * Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2006-2015 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -102,6 +102,16 @@ $grand_total_amt_balance  = 0;
 </style>
 
 <title><?php echo xlt('Financial Summary by Service Code') ?></title>
+
+<script language="JavaScript">
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
+</script>
+
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Financial Summary by Service Code'); ?></span>
@@ -179,7 +189,7 @@ $grand_total_amt_balance  = 0;
 
 					<?php if ($_POST['form_refresh'] || $_POST['form_csvexport']) { ?>
 					<div id="controls">
-					<a href='#' class='css_button' onclick='window.print()'>
+					<a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php echo xlt('Print'); ?>
 						</span>

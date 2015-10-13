@@ -47,6 +47,11 @@ $provider  = trim($_POST['form_provider']);
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
  function send_sum(patient_id,transaction_id) {
    if ( $('#send_sum_flag').attr('checked') ) {
      var mode = "add";
@@ -241,7 +246,7 @@ $provider  = trim($_POST['form_provider']);
 					</span>
 					</a>
                                         <?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' onclick='window.print()'>
+					<a href='#' class='css_button' id='printbutton'>
 						<span>
 							<?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?>
 						</span>

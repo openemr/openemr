@@ -338,7 +338,8 @@ if ($form_output != 3) {
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
 <?php if ($form_output == 2) { ?>
- window.print();
+ var win = top.printLogPrint ? top : opener.top;
+ win.printLogPrint(window);
 <?php } ?>
 </script>
 

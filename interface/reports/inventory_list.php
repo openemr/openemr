@@ -75,14 +75,22 @@ a, a:visited, a:hover { color:#0000cc; }
 </style>
 
 <script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.9.1.min.js"></script>
 
 <script language="JavaScript">
+
+ $(document).ready(function() {
+  var win = top.printLogSetup ? top : opener.top;
+  win.printLogSetup(document.getElementById('printbutton'));
+ });
+
  function mysubmit(action) {
   var f = document.forms[0];
   f.form_action.value = action;
   top.restoreSession();
   f.submit();
  }
+
 </script>
 
 </head>
@@ -119,7 +127,7 @@ a, a:visited, a:hover { color:#0000cc; }
        <span><?php echo htmlspecialchars(xl('Submit'), ENT_NOQUOTES); ?></span>
       </a>
 <?php if ($form_action) { ?>
-      <a href='#' class='css_button' onclick='window.print()' style='margin-left:1em'>
+      <a href='#' class='css_button' id='printbutton' style='margin-left:1em'>
        <span><?php echo htmlspecialchars(xl('Print'), ENT_NOQUOTES); ?></span>
       </a>
 <?php } ?>

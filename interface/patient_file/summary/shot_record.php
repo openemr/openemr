@@ -288,7 +288,7 @@ function printHTML($res, $res2, $data) {
   ?>
     
   <script language='JavaScript'>
-    window.print();
+    opener.top.printLogPrint(window);
   </script>
   </body>
   </html>

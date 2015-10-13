@@ -14,21 +14,21 @@
 
     <div style="float:left">
         <form name="genform1" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" target="_new" onsubmit="return top.restoreSession()">
-        <input type="submit" name="submit" value="{xl t='Print'} ({xl t='PDF'})" style="width:100;font-size:9pt;"/>
+        <input type="submit" name="submit" value="{xl t='Download'} ({xl t='PDF'})" style="width:100;font-size:9pt;"/>
         <input type="hidden" name="process" value="{$PROCESS}" />
         </form>
     </div>
 
     <div style="float:left">
         <form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" target="_new" onsubmit="return top.restoreSession()">
-        <input type="submit" name="submit" value="{xl t='Print'} ({xl t='HTML'})" style="width:100;font-size:9pt;"/>
+        <input type="submit" name="submit" value="{xl t='View Printable'} ({xl t='HTML'})" style="width:100;font-size:9pt;"/>
         <input type="hidden" name="process" value="{$PROCESS}" />
         </form>
     </div>
 
     <div style="float:none">
         <form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}&print_to_fax=true" target="_new" onsubmit="return top.restoreSession()">
-        <input type="submit" name="submit" value="{xl t='Print To Fax'}" style="width:100;font-size:9pt;"/>
+        <input type="submit" name="submit" value="{xl t='Download Fax'}" style="width:100;font-size:9pt;"/>
         <input type="hidden" name="process" value="{$PROCESS}" />
         </form>
     </div>
