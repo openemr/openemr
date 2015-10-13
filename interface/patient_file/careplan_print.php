@@ -10,6 +10,7 @@
  // This report lists prescriptions and their dispensations according
  // to various input selection criteria.
  //
+ // @author Sherwin Gaddis sherwingaddis@gmail.com
  
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -283,11 +284,7 @@ Orders/results: Meds, labs, imaging,
   border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
   height:18.75pt">
   
-  <?php 
-  
-       if($active_2 == 1){  //Hide row if inactive 
-       
-   ?>
+
   
 
   </td>
@@ -343,14 +340,8 @@ Orders/results: Meds, labs, imaging,
   </td>
 
  </tr>
- <?php
-       }
- ?>
- <?php 
-     
-            if($active_3 == 1){  //Hide row if inactive 
-     
-     ?>
+
+
   <tr style="mso-yfti-irow:2;height:18.75pt"><!--Third Diagnosis Row -->
   <td width="102" valign="top" style="width:76.7pt;border:solid windowtext 1.0pt;
   border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
@@ -412,15 +403,11 @@ Orders/results: Meds, labs, imaging,
 
  </tr>
  
- <?php } ?>
+
  
  <!-- auto Show row  4 -->
  
-  <?php 
-     //hide row if inactive is set
-      if($active_4 == 1){ 
-     
-     ?>
+
   <tr style="mso-yfti-irow:2;height:18.75pt"><!--Forth Diagnosis Row -->
   <td width="102" valign="top" style="width:76.7pt;border:solid windowtext 1.0pt;
   border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
@@ -482,14 +469,9 @@ Orders/results: Meds, labs, imaging,
 
  </tr>
  
- <?php } ?>
+
  
  <!-- auto show row 5 -->
-<?php 
-
-    if($active_5 == 1){  //Hide row if inactive 
-    
-    ?> 
 
   <tr style="mso-yfti-irow:2;height:18.75pt"><!--Fifth Diagnosis Row -->
   <td width="102" valign="top" style="width:76.7pt;border:solid windowtext 1.0pt;
@@ -553,7 +535,7 @@ Orders/results: Meds, labs, imaging,
   </td>
 
  </tr>
-  <?php } // to hid or display a row based on inactive status ?>
+ 
  
  <!-- Bottom three row -->
  <tr style="mso-yfti-irow:3;height:23.2pt"> 
