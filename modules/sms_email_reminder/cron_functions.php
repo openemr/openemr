@@ -12,6 +12,9 @@ global $data_info;
 global $SMS_NOTIFICATION_HOUR;
 global $EMAIL_NOTIFICATION_HOUR;
 
+require_once("../../library/classes/class.phpmailer.php");  //added by Sherwin Gaddis
+require_once("../../library/classes/class.smtp.php"); 
+
 ////////////////////////////////////////////////////////////////////
 // Function:	cron_SendMail
 // Purpose:	send mail
@@ -56,6 +59,28 @@ function cron_SendMail( $to, $subject, $vBody, $from )
 		// larry :: debug
 		//echo "\nDEBUG :email: send email from=".$from." to=".$to." sbj=".$subject." body=".$vBody." head=".$headers."\n";
 		//echo "\nDEBUG :email: send status=".$mstatus."\n";
+		
+		//Added PHPMail function  here to send messages from the SMTP information in the Globals
+		//freeing this up from the mercury mail. Now should just set info and set cron job.
+		//Added by Sherwing Gaddis
+                $mail = new PHPMailer();
+		$mail->IsSMTP();
+		$mail->SMTPAuth = true;
+		$mail->Host = $GLOBALS['SMTP_HOST'];
+		$mail->Port = $GLOBALS['SMTP_PORT'];
+		$mail->Username = $GLOBALS['SMTP_USER'];
+		$mail->Password = $GLOBALS['SMTP_PASS'];
+		
+		$mail->SetFrom($from);
+		$mail->Subject = $subject;
+		$mail->MsgHTML($vBody);
+		$mail->AddAddress($to);
+		
+		if($mail->Send()){
+		  echo "Message Sent";
+		 }else{
+		 echo "Mailer Error: " . $mail->ErrorInfo;
+		 }
 	} else
 	{
 		// larry :: debug
