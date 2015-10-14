@@ -1,3 +1,6 @@
+
+{if $drag_drop == 0}
+
 <form method=post enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
 
@@ -67,3 +70,83 @@
 	{/foreach}
 {/if}
 
+<input type="hidden" name="patient_id" value="{$patient_id}" />
+<input type="hidden" name="category_id" value="{$category_id}" />
+<input type="hidden" name="process" value="{$PROCESS}" />
+</form>
+{else}
+<div class="text bold">
+    {xl t="Upload Document"} {if $category_name} {xl t="to category"} '{$category_name}'{/if}
+	<p>{xl t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}</p>
+	<p>After upload select category to refresh screen to see newly uploaded doc</p>
+	<p>Upload one file at a time</p>
+		<img src="./images/drag-drop.png" height="75px">
+</div>
+<!-- Bootstrap styles -->
+<link rel="stylesheet" href="./library/js/jQuery-File-Upload-9.11.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="./library/js/jQuery-File-Upload-9.11.0/css/style.css">
+<!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+<link rel="stylesheet" href="./library/js/jQuery-File-Upload-9.11.0/css/jquery.fileupload.css">
+<h3>Drag and Drop File Here</h3>
+    <!-- The global progress bar -->
+    <div id="progress" class="progress">
+	   <div class="progress-bar progress-bar-success"></div>
+    </div>
+	<div id="dragdrop" class="dragdrop">
+	<form id="drag_drop" enctype="multipart/form-data" onsubmit="return top.restoreSession()">
+	  
+      <input id="fileupload" type="file" name="files[]" data-url="./sites/default/documents/dropdoc.php" >
+      <input type="hidden" name="patient_id" value="{$patient_id}" >
+	  <input type="hidden" name="category_id" value="{$category_id}" />
+	  
+	
+	  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+			<script src="./library/js/jQuery-File-Upload-9.11.0/js/vendor/jquery.ui.widget.js"></script>
+			<script src="./library/js/jQuery-File-Upload-9.11.0/js/jquery.iframe-transport.js"></script>
+			<script src="./library/js/jQuery-File-Upload-9.11.0/js/jquery.fileupload.js"></script>
+			<link rel="stylesheet" href="./library/js/jQuery-File-Upload-9.11.0/css/style.css">
+			<!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+			<link rel="stylesheet" href="./library/js/jQuery-File-Upload-9.11.0/css/jquery.fileupload.css">
+				{literal}
+				<script>
+					
+				$(function () {
+
+					$('#fileupload').fileupload({
+						dataType: 'json',
+						done: function (e, data) {
+							$.each(data.result.files, function (index, file) {
+								$('<p/>').text(file.name).appendTo(document.body);
+							});
+							setTimeout(function() {
+							$('#progress .progress-bar').css('width',0);
+							}, 1500);
+						},
+						progressall: function (e, data) {
+							var progress = parseInt(data.loaded / data.total * 100, 10);
+							$('#progress .progress-bar').css(
+								'width',
+								progress + '%'
+							);
+						}
+					}).prop('disabled', !$.support.fileInput) 
+					   .parent().addClass($.support.fileInput ? undefined : 'disabled');
+				});
+
+				</script>
+				{/literal}
+     </div>
+    </form><br>
+		<!-- Section for document template download -->
+			<form method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
+			<input type='hidden' name='patient_id' value='{$patient_id}' />
+			<p class='text bold'>
+			 {xl t="Download document template for this patient and visit"}
+			</p>
+			<p class='text'>
+			 <select name='form_filename'>{$TEMPLATES_LIST}</select> &nbsp;
+			 <input type='submit' value='{xl t="Fetch"}' />
+			</p>
+			</form>
+		<!-- End document template download section -->
+{/if}

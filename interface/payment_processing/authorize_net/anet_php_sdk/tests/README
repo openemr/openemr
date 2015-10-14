@@ -1,0 +1,17 @@
+By:
+    Authorize.Net
+    http://developer.authorize.net
+    http://community.developer.authorize.net
+
+About:
+    Integration tests for the AuthorizeNet SDK. These tests are mainly
+    for SDK development. However, you can also browse through these
+    tests to find more usage examples for the various APIs.
+
+Requirements:
+    - PHPUnit
+    - An Authorize.Net Test Account and/or Merchant Account. You can get a 
+      free test account at http://developer.authorize.net/testaccount/
+    
+Usage:
+    - On the command line in this folder run: phpunit .

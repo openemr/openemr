@@ -1,0 +1,15 @@
+
+build
+.DS_Store
+*.log
+.idea
+
+# IDE
+.project
+.settings
+.buildpath
+*.bak
+
+# Composer
+vendor
+composer.lock

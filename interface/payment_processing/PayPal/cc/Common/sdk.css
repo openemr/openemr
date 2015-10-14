@@ -1,0 +1,92 @@
+body {
+	
+}
+
+table th {
+	font-weight: normal;	
+}
+
+#permissionsdata {
+	margin-top: 20px;
+}
+
+#permissionsdata td {
+	padding: 10px 20px;
+}
+
+#permissionsdata td.left {
+	border-right: solid 1px gray;
+}
+
+.overview {
+	padding: 10px 20px;
+	font-style: italic;
+	width: 75%;
+}
+
+input.smallfield, select.smallfield {
+	width: 105px;
+	font-size: 12px;
+}
+
+input.xsmallfield, select.xsmallfield {
+	width: 75px;
+	font-size: 12px;
+}
+
+.open {
+	display: block;
+}
+
+.closed {
+	display: none;
+}
+
+#apidetails {
+	padding: 10px 20px 30px 20px;
+	font-style: italic;
+	width: 75%;
+}
+
+.note {
+	margin: 10px 10px;
+	font-style: italic;
+	width: 700px;
+}
+
+.section_header {
+	margin: 20px 0px;
+	font-weight: bold;
+}
+
+.submit {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+ul.wizard {
+	font-size: 16px;
+	color: gray;
+	list-style-type: none;
+}
+
+ul.wizard li {
+	width: 20%;
+}
+
+ul.wizard li.current {
+	color: black;
+	font-weight: bold;
+}
+
+ul.wizard li.complete {
+	color: black;
+	background-image: url(images/tick.png);
+	background-repeat: no-repeat;
+	background-position: center right;
+	padding-right: 50px;
+}
+
+#apiResponse {
+	width: 700px;
+}
