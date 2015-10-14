@@ -464,7 +464,7 @@ function upgradeFromSqlFile($filename) {
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
     else if (preg_match('/^#IfNotListOccupation/', $line)) {
-      if (listExists("Occupation")) {
+      if ( (listExists("Occupation")) || (!columnExists('patient_data','occupation')) ) {
         $skipping = true;
       }
       else {
@@ -476,7 +476,7 @@ function upgradeFromSqlFile($filename) {
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
     else if (preg_match('/^#IfNotListReaction/', $line)) {
-      if (listExists("reaction")) {
+      if ( (listExists("reaction")) || (!columnExists('lists','reaction')) ) {
         $skipping = true;
       }
       else {
