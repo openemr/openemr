@@ -103,11 +103,10 @@ use ESign\Api;
  $primary_docs = array(
   'ros' => array(xl('Roster')    , 0, 'reports/players_report.php?embed=1'),
   'cal' => array(xl('Calendar')  , 0, 'main/main_info.php'),
-  'pfb' => array(xl('Patient Flow Board')  , 0, '../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1'),
   'app' => array(xl('Portal Activity')  , 0, '../myportal/index.php'),
   'msg' => array(xl('Messages')  , 0, 'main/messages/messages.php?form_active=1'),
   'pwd' => array(xl('Password')  , 0, 'usergroup/user_info.php'),
-  'prf' => array(xl('Preferences')  , 0, 'super/edit_globals.php?mode=user'),
+  'prf' => array(xl('Preferences'), 0, 'super/edit_globals.php?mode=user'),
   'adm' => array(xl('Admin')     , 0, 'usergroup/admin_frameset.php'),
   'rep' => array(xl('Reports')   , 0, 'reports/index.php'),
   'ono' => array(xl('Ofc Notes') , 0, 'main/onotes/office_comments.php'),
@@ -122,6 +121,8 @@ use ESign\Api;
   'cht' => array(xl('Chart Trk') , 0, '../custom/chart_tracker.php'),
   'imp' => array(xl('Import')    , 0, '../custom/import.php'),
   'bil' => array(xl('Billing')   , 0, 'billing/billing_report.php'),
+  'str' => array(xl('Stripe'),      0, 'payment_processing/stripe/index.php'),
+  'anc' => array(xl('Authorizenet'),      0, 'payment_processing/authorize_net/index.php'),
   'sup' => array(xl('Superbill') , 0, 'patient_file/encounter/superbill_custom_full.php'),
   'aun' => array(xl('Authorizations'), 0, 'main/authorizations/authorizations.php'),
   'new' => array(xl('New Pt')    , 0, 'new/new.php'),
@@ -388,6 +389,7 @@ function genFindBlock() {
 </style>
 
 <link rel="stylesheet" href="../../library/js/jquery.treeview-1.4.1/jquery.treeview.css" />
+<link rel="stylesheet" href="../../library/font-awesome/latest/css/font-awesome.css" />
 <script src="../../library/js/jquery-1.6.4.min.js" type="text/javascript"></script>
 <script src="../../library/js/jquery.treeview-1.4.1/jquery.treeview.js" type="text/javascript"></script>
 
@@ -416,10 +418,6 @@ function genFindBlock() {
  $(document).ready(function (){
    getReminderCount();//
    parent.loadedFrameCount += 1;
-   <?php if ($GLOBALS['drop_bottom'] ==1) { ?>   
-   $("input[name=cb_bot]").trigger('click');
-   toggleFrame(2);
-   <?php } ?>
  }) 
  // end of tajemo work dated reminders counter
  
@@ -1010,20 +1008,19 @@ $(document).ready(function(){
       $("#navigation-slide > li > a.expanded").next("ul").find("li > a.expanded_lv2").not(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
       $(this).toggleClass("expanded_lv2").toggleClass("collapsed_lv2").parent().find('> ul').slideToggle("medium");
     });
-    $("#navigation-slide > li  > a#cal0").prepend('<img src="../../images/calendar.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#pfb0").prepend('<img src="../../images/pfb.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#msg0").prepend('<img src="../../images/messages.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#patimg").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#app0").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#ppo0").prepend('<img src="../../images/patient.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#repimg").prepend('<img src="../../images/reports.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#feeimg").prepend('<img src="../../images/fee.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#adm0").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#invimg").prepend('<img src="../../images/inventory.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#admimg").prepend('<img src="../../images/admin.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#misimg").prepend('<img src="../../images/misc.png" class="nav-menu-img" />');
-    $("#navigation-slide > li  > a#proimg").prepend('<img src="../../images/procedures.png" class="nav-menu-img" />');
-		$("#navigation-slide > li  > a#modimg").prepend('<img src="../../images/module.png" class="nav-menu-img" />');
+    $("#navigation-slide > li  > a#cal0").prepend('<i class="fa fa-fw fa-2x fa-calendar-o"></i>&nbsp;');
+    $("#navigation-slide > li  > a#msg0").prepend('<i class="fa fa-fw fa-2x fa-envelope"></i>&nbsp;');
+    $("#navigation-slide > li  > a#patimg").prepend('<i class="fa fa-fw fa-2x fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#app0").prepend('<i class="fa fa-fw fa-2x fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#ppo0").prepend('<i class="fa fa-fw fa-2x fa-user"></i>&nbsp;');
+    $("#navigation-slide > li  > a#repimg").prepend('<i class="fa fa-fw fa-2x fa-pie-chart"></i>&nbsp;');
+    $("#navigation-slide > li  > a#feeimg").prepend('<i class="fa fa-fw fa-2x fa-dollar"></i>&nbsp;');
+    $("#navigation-slide > li  > a#adm0").prepend('<i class="fa fa-fw fa-2x fa-th-list"></i>&nbsp;');
+    $("#navigation-slide > li  > a#invimg").prepend('<i class="fa fa-fw fa-2x fa-th-list"></i>&nbsp;');
+    $("#navigation-slide > li  > a#admimg").prepend('<i class="fa fa-fw fa-2x fa-cog"></i>&nbsp;');
+    $("#navigation-slide > li  > a#misimg").prepend('<i class="fa fa-fw fa-2x fa-archive"></i>&nbsp;');
+    $("#navigation-slide > li  > a#proimg").prepend('<i class="fa fa-fw fa-2x fa-heartbeat"></i>&nbsp;');
+		$("#navigation-slide > li  > a#modimg").prepend('<i class="fa fa-fw fa-2x fa-puzzle-piece"></i>&nbsp;');
     $("#navigation-slide > li").each(function(index) {
       if($(" > ul > li", this).size() == 0){
         $(" > a", this).addClass("collapsed");
@@ -1185,6 +1182,7 @@ if ($GLOBALS['athletic_team']) {
     <ul>
       <?php genMiscLink('RBot','cod','2',xl('Fee Sheet'),'patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
       <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?>
+
     </ul>
   </li> 
   <?php } ?>
@@ -1262,8 +1260,8 @@ if ($GLOBALS['athletic_team']) {
   </li>
 
 <?php } else { // not athletic team ?>
+
   <?php if (!$GLOBALS['disable_calendar'] && !$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
-  <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar']) genTreeLink('RTop','pfb',xl('Flow Board')); ?>
   <?php genTreeLink('RBot','msg',xl('Messages')); ?> 
   <?php if ($GLOBALS['lab_exchange_enable']) genTreeLink('RTop', 'lab', xl('Check Lab Results'));?>
   <?php if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address'] && acl_check('patientportal','portal'))  genTreeLink('RTop','app',xl('Portal Activity')); ?>
@@ -1346,6 +1344,8 @@ if (!empty($reg)) {
       <?php if ($GLOBALS['use_charges_panel']) genTreeLink('RBot','cod',xl('Charges')); ?>
       <?php genMiscLink('RBot','pay','1',xl('Payment'),'patient_file/front_payment.php'); ?>
       <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?> 
+	  <?php if ($GLOBALS['enable_stripe']) genTreeLink('RTop','str',xl('Stripe Credit Card')); ?>
+	  <?php if ($GLOBALS['enable_authoriz_net']) genTreeLink('RTop','anc',xl('Authorize net Credit Card')); ?>	  
       <?php if (! $GLOBALS['simplified_demographics']) genTreeLink('RTop','bil',xl('Billing')); ?>
 	  <?php genTreeLink('RTop','npa',xl('Batch Payments'),false,2);?>
       <?php if ($GLOBALS['enable_edihistory_in_left_menu'] && acl_check('acct', 'eob')) genTreeLink('RTop','edi',xl('EDI History'),false,2);?>
@@ -1530,7 +1530,6 @@ if (!empty($reg)) {
       <li><a class="collapsed_lv2"><span><?php xl('Visits','e') ?></span></a>
         <ul>
           <?php if (!$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Appointments'),'reports/appointments_report.php'); ?>
-          <?php if (!$GLOBALS['disable_pat_trkr'] && !$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Patient Flow Board'),'reports/patient_flow_board_report.php'); ?>          
           <?php  genMiscLink('RTop','rep','0',xl('Encounters'),'reports/encounters_report.php'); ?>
           <?php if (!$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Appt-Enc'),'reports/appt_encounter_report.php'); ?>
 <?php if (empty($GLOBALS['code_types']['IPPF'])) { ?>

@@ -1,0 +1,24 @@
+By:
+    Authorize.Net
+    http://developer.authorize.net
+    http://community.developer.authorize.net
+
+License:
+    See License.pdf
+
+About:
+    A sample coffee store application that demonstrates the AIM and DPM integration methods.
+
+Requirements:
+    - PHP 5.2+
+    - A web server such as Apache.
+    - The Authorize.Net PHP SDK
+    - For DPM, a public web server that is accessible from a domain name and/or IP address.
+    
+Usage:
+    - Update the config.php file with the path to your copy of the Authorize.Net PHP SDK, as well
+      as your API Login and Transaction Key.
+    - If you want to try out AIM, you can now try the demo by accessing your_store/index.php from your
+      web browser.
+    - To try the Direct Post Method, you'll also have to update a few more settings as documented in the 
+      config.php file and make sure your web server is publicly accessible.

@@ -1,0 +1,24 @@
+{
+    "name": "paypal/adaptivepayments-sdk-php",
+    "description": "PayPal adaptivepayments SDK for PHP",
+    "keywords": ["paypal", "php", "sdk"],
+    "homepage": "https://developer.paypal.com",
+    "license": "Apache2",
+    "authors": [
+        {
+            "name": "PayPal",
+            "homepage": "https://github.com/paypal/adaptivepayments-sdk-php/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "ext-curl": "*",
+        "paypal/sdk-core-php":"2.5.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "PayPal\\Service": "lib/",
+            "PayPal\\Types": "lib/"
+        }
+    }    
+}
