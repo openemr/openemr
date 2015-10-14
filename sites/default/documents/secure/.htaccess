@@ -1,0 +1,9 @@
+ForceType application/octet-stream
+Header set Content-Disposition attachment
+<FilesMatch "(?i)\.(gif|jpe?g|png|pdf|doc|docx|odt|txt|tiff)$">
+    ForceType none
+    Header unset Content-Disposition
+</FilesMatch>
+Header set X-Content-Type-Options nosniff
+Allow From None
+Deny From All
