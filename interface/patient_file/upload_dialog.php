@@ -42,6 +42,7 @@ $imagedir   = "$patientdir/demographics";
   if ($_POST["form_submit"] || $_POST["form_delete"]) {
     if (!file_exists($patientdir)) mkdir($patientdir);
     if (!file_exists($imagedir  )) mkdir($imagedir  );
+    check_file_dir_name($what);
     $filename = "$imagedir/$what.jpg";
 
     if ($_POST["form_delete"]) {
