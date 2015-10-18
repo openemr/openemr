@@ -11588,8 +11588,9 @@ ALTER TABLE documents ADD COLUMN  audit_master_id int(11) default NULL;
 
 #IfMissingColumn patient_data religion
 SET @group_name = (SELECT group_name FROM layout_options WHERE field_id='ethnicity' AND form_id='DEM');
-SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name=@group_name AND form_id='DEM');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'religion', @group_name, 'Religion', @seq+1, 1, 1, 0, 0, 'religious_affiliation', 1, 3, '', '', 'Patient Religion' ) ;
+SET @backup_group_name = (SELECT group_name FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name = IFNULL(@group_name,@backup_group_name) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'religion', IFNULL(@group_name,@backup_group_name), 'Religion', @seq+1, 1, 1, 0, 0, 'religious_affiliation', 1, 3, '', '', 'Patient Religion' ) ;
 ALTER TABLE patient_data ADD COLUMN religion varchar(40) NOT NULL default '';
 #EndIf
 
@@ -11645,8 +11646,9 @@ ALTER TABLE `procedure_order` ADD COLUMN `external_id` VARCHAR(20) DEFAULT NULL;
 
 #IfMissingColumn patient_data industry
 SET @group_name = (SELECT group_name FROM layout_options WHERE field_id='occupation' AND form_id='DEM');
-SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name=@group_name AND form_id='DEM');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'industry', @group_name, 'Industry', @seq+1, 1, 1, 0, 0, 'Industry', 1, 1, '', '', 'Industry' ) ;
+SET @backup_group_name = (SELECT group_name FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name = IFNULL(@group_name,@backup_group_name) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'industry', IFNULL(@group_name,@backup_group_name), 'Industry', @seq+1, 1, 1, 0, 0, 'Industry', 1, 1, '', '', 'Industry' ) ;
 ALTER TABLE patient_data ADD COLUMN industry TEXT NOT NULL;
 #EndIf
 
@@ -11756,10 +11758,11 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('county
 #EndIf
 
 #IfMissingColumn patient_data county
-ALTER TABLE `patient_data` ADD COLUMN `county` varchar(40) NOT NULL default '';
 SET @group_name = (SELECT group_name FROM layout_options WHERE field_id='country_code' AND form_id='DEM');
-SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name=@group_name AND form_id='DEM');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'county', @group_name, 'County', @seq+1, 26, 1, 0, 0, 'county', 1, 1, '', '', 'County' ) ;
+SET @backup_group_name = (SELECT group_name FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name = IFNULL(@group_name,@backup_group_name) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'county', IFNULL(@group_name,@backup_group_name), 'County', @seq+1, 26, 1, 0, 0, 'county', 1, 1, '', '', 'County' ) ;
+ALTER TABLE `patient_data` ADD COLUMN `county` varchar(40) NOT NULL default '';
 #EndIf 
 
 #IfNotRow2D list_options list_id lists option_id Immunization_Manufacturer
@@ -11887,8 +11890,9 @@ ALTER TABLE prescriptions ADD COLUMN `prn` VARCHAR(30) DEFAULT NULL;
 
 #IfMissingColumn patient_data care_team
 SET @group_name = (SELECT group_name FROM layout_options WHERE field_id='ref_providerID' AND form_id='DEM');
-SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name=@group_name AND form_id='DEM');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'care_team', @group_name, 'Care Team', @seq+1, 11, 1, 0, 0, '', 1, 1, '', '', '' ) ;
+SET @backup_group_name = (SELECT group_name FROM layout_options WHERE field_id='DOB' AND form_id='DEM');
+SET @seq = (SELECT MAX(seq) FROM layout_options WHERE group_name = IFNULL(@group_name,@backup_group_name) AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`) VALUES ('DEM', 'care_team', IFNULL(@group_name,@backup_group_name), 'Care Team', @seq+1, 11, 1, 0, 0, '', 1, 1, '', '', '' ) ;
 alter table patient_data add column care_team int(11) DEFAULT NULL;
 #EndIf
 
