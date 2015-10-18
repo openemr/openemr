@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `care_plan` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   KEY `pid` (`pid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=66 ;
+) ENGINE=InnoDB  AUTO_INCREMENT=66 ;
 #EndIf
 
 #IfNotTable care_plan_audit
@@ -187,7 +187,7 @@ CREATE TABLE IF NOT EXISTS `care_plan_audit` (
   `pid` varchar(5) NOT NULL,
   `encounter` varchar(5) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  AUTO_INCREMENT=6 ;
 #EndIf
 
 #IfMissingColumn form_misc_billing_options box_14_date_qual
