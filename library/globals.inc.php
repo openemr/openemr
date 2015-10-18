@@ -781,7 +781,7 @@ $GLOBALS_METADATA = array(
         '1' => xl('Patient Name and ID'),
         '2' => xl('Patient Name and Invoice'),   
       ),   
-		'1',                              // default = true
+      '2',                              // default = 2
       xl('This will Display the Invoice Number in the Sales Report or the Patient Name and ID or Patient Name and Invoice Number.')
     ),
     

@@ -69,9 +69,9 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   
   $pat_name = $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'];
   
-  if (empty($rowcat)) $rowcat = 'None';
+  if (empty($rowcat)) $rowcat = xl('None');
   $rowproduct = $description;
-  if (! $rowproduct) $rowproduct = 'Unknown';
+  if (! $rowproduct) $rowproduct = xl('Unknown');
 
   if ($product != $rowproduct || $category != $rowcat) {
     if ($product) {
@@ -88,7 +88,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 ?>
  <tr bgcolor="#ddddff">
   <td class="detail">
-   <?php echo display_desc($catleft); $catleft = "&nbsp;"; ?>
+   <?php echo text(display_desc($catleft)); $catleft = " "; ?>
   </td>
   <td class="detail" colspan="3">
    <?php if ($_POST['form_details']) echo xlt('Total for') . ' '; echo text(display_desc($product)); ?>
@@ -168,10 +168,10 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
  <tr>
   <td class="detail">
-   <?php echo display_desc($catleft); $catleft = "&nbsp;"; ?>
+   <?php echo text(display_desc($catleft)); $catleft = " "; ?>
   </td>
   <td class="detail">
-   <?php echo display_desc($productleft); $productleft = "&nbsp;"; ?>
+   <?php echo text(display_desc($productleft)); $productleft = " "; ?>
   </td>
   <td>
    <?php echo text(oeFormatShortDate($transdate)); ?>
@@ -337,11 +337,13 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
                 title='<?php echo xla('Click here to choose a date'); ?>'>
             </td>
         </tr>
+    </table>
+    <table class='text'>
         <tr>
           <td class='label'>
             <?php echo xlt('Provider'); ?>:
-            </td>
-            <td>
+          </td>
+          <td>
             <?php
                 if (acl_check('acct', 'rep_a')) {
                     // Build a drop-down list of providers.
@@ -362,11 +364,11 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
                     }
             ?>
             &nbsp;
-            </td>
-            <td>
+          </td>
+          <td>
                <label><input type='checkbox' name='form_details'<?php  if ($form_details) echo ' checked'; ?>>
                <?php echo xlt('Details'); ?></label>
-            </td>
+          </td>
         </tr>
     </table>
   </div>
@@ -484,7 +486,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         "LEFT JOIN list_options AS lo ON lo.list_id = 'superbill' AND lo.option_id = c.superbill " .
         "WHERE b.code_type != 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
         "fe.date >= ? AND fe.date <= ?";
-        array_push($sqlBindArray,$from_date,$to_date,$form_pid);
+        array_push($sqlBindArray,$from_date,$to_date);
       // If a facility was specified.
       if ($form_facility) {
         $query .= " AND fe.facility_id = ?";
@@ -512,7 +514,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         "fe.pid = s.pid AND fe.encounter = s.encounter AND " .
         "fe.date >= ? AND fe.date <= ? " .
         "WHERE s.fee != 0";
-        array_push($sqlBindArray,$from_date,$to_date,$form_pid);
+        array_push($sqlBindArray,$from_date,$to_date);
       // If a facility was specified.
       if ($form_facility) {
         $query .= " AND fe.facility_id = ?";
@@ -567,7 +569,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
  <tr bgcolor="#ddddff">
   <td class="detail">
-   <?php echo display_desc($catleft); $catleft = "&nbsp;"; ?>
+   <?php echo text(display_desc($catleft)); $catleft = " "; ?>
   </td>
   <td class="detail" colspan="3">
    <?php if ($_POST['form_details']) echo xlt('Total for') . ' '; echo text(display_desc($product)); ?>
@@ -630,8 +632,8 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
    <?php text(bucks($grandtotal)); ?>
   </b></td>
  </tr>
- <?php $report_from_date = date("m/d/y",strtotime($form_from_date))  ;
-       $report_to_date = date("m/d/y",strtotime($form_to_date))  ;
+ <?php $report_from_date = oeFormatShortDate($form_from_date)  ;
+       $report_to_date = oeFormatShortDate($form_to_date)  ;
  ?>
 <div align='right'><span class='title' ><?php echo xlt('Report Date'). ' '; ?><?php echo text($report_from_date);?> - <?php echo text($report_to_date);?></span></div>
 <?php
