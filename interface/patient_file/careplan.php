@@ -276,34 +276,34 @@ function refresh() {
 <div style="text-align:center" class="buttons">
      <a href='../patient_file/summary/demographics.php' class='css_button' id='back'><span><?php echo htmlspecialchars( xl('Back'), ENT_NOQUOTES); ?></span></a>
 </div>
-  <br><br>last edited by:<?php echo " " . $ledit['user']; ?>
-<center><h1> Care Plan </h1></center>
+  <br><br><?php echo htmlspecialchars( xl('last edited by:'), ENT_NOQUOTES); ?><?php echo " " . $ledit['user']; ?>
+<center><h1> <?php echo htmlspecialchars( xl('Care Plan'), ENT_NOQUOTES); ?> </h1></center>
 <p> </p>
 <center>
 <table width="800" height="75"  >
     <tr>
          <td width="200">
-             Patient: <?php echo $getData['lname'] . " " . $getData['fname']; ?>   <br>
-             Address:   <?php echo $getData['street']; ?> <br>
-             Phone: <?php echo $getData['phone_home']; ?>     <br>
-             Email:  <?php echo $getData['email']; ?>          
+             <?php echo htmlspecialchars( xl('Patient:'), ENT_NOQUOTES); ?> <?php echo $getData['lname'] . " " . $getData['fname']; ?>   <br>
+             <?php echo htmlspecialchars( xl('Address:'), ENT_NOQUOTES); ?>   <?php echo $getData['street']; ?> <br>
+             <?php echo htmlspecialchars( xl('Phone:'), ENT_NOQUOTES); ?> <?php echo $getData['phone_home']; ?>     <br>
+             <?php echo htmlspecialchars( xl('Email:'), ENT_NOQUOTES); ?>  <?php echo $getData['email']; ?>          
          
          </td>
          
          <td width="200">
-             Age: <?php echo $age; ?><br>
-             DOB: <?php echo $getData['DOB']; ?><br>
-             Allergies:  <?php while($rows=  sqlFetchArray($allergy)){ echo $rows['title'] . " ";} ?><br>
-             Pharmacy Phone:   Fax:<br> 
+             <?php echo htmlspecialchars( xl('Age:'), ENT_NOQUOTES); ?> <?php echo $age; ?><br>
+             <?php echo htmlspecialchars( xl('DOB:'), ENT_NOQUOTES); ?> <?php echo $getData['DOB']; ?><br>
+             <?php echo htmlspecialchars( xl('Allergies:'), ENT_NOQUOTES); ?>  <?php while($rows=  sqlFetchArray($allergy)){ echo $rows['title'] . " ";} ?><br>
+             <?php echo htmlspecialchars( xl('Pharmacy Phone'), ENT_NOQUOTES); ?>:   <?php echo htmlspecialchars( xl('Fax:'), ENT_NOQUOTES); ?><br> 
   
          </td>
         <td width="200">
-            <button class="nav"><a class="fancybox fancybox.iframe" href="../patient_file/summary/rx_noframeset.php" onclick='top.restoreSession()'>Prescription</a></button><br>
+            <button class="nav"><a class="fancybox fancybox.iframe" href="../patient_file/summary/rx_noframeset.php" onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Prescription'), ENT_NOQUOTES); ?></a></button><br>
          
             <button class="nav"><a class="fancybox fancybox.iframe" href="../patient_file/encounter/load_form.php?formname=LBFlabs<?php
-             if(!empty($lab_id)){ echo "&id=".$lab_id['form_id'];} ?>"  onclick='top.restoreSession()'> Lab Order Form</a></button><br>
+             if(!empty($lab_id)){ echo "&id=".$lab_id['form_id'];} ?>"  onclick='top.restoreSession()'> <?php echo htmlspecialchars( xl('Lab Order Form'), ENT_NOQUOTES); ?></a></button><br>
          
-         <button class="nav"><a class="fancybox fancybox.iframe" href="../patient_file/summary/stats_full.php?active=all&category=medication" onclick='top.restoreSession()'>Medications</a></button><br>
+         <button class="nav"><a class="fancybox fancybox.iframe" href="../patient_file/summary/stats_full.php?active=all&category=medication" onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Medications'), ENT_NOQUOTES); ?></a></button><br>
 		 
     <?php if(empty($rosid)){
           echo "<button class='nav'><a class='fancybox fancybox.iframe' href='../patient_file/encounter/load_form.php?formname=ros' onclick='top.restoreSession()'>Review of Systems</a></button>";
@@ -321,14 +321,14 @@ function refresh() {
         
 	?>
          
-         <button class="nav"><a class="fancybox fancybox.iframe" href="../patient_file/transaction/add_transaction.php" onclick='top.restoreSession()'>Referal</a></button><br>
+         <button class="nav"><a class="fancybox fancybox.iframe" href="../patient_file/transaction/add_transaction.php" onclick='top.restoreSession()'><?php echo htmlspecialchars( xl('Referal'), ENT_NOQUOTES); ?></a></button><br>
         </td>
     </tr>  
 </table>
     <table width="800" >
             <tr>
         <td width="700">
-               Vitals: <?php if(!empty($encounter)){ echo "BP: ".$v_res['bps']."/"
+               <?php echo htmlspecialchars( xl('Vitals:'), ENT_NOQUOTES); ?> <?php if(!empty($encounter)){ echo "BP: ".$v_res['bps']."/"
                                                                 .$v_res['bpd']." HR: "
                                                                 .$v_res['pulse']." Temp: "
                                                                 .$v_res['temperature']." Wt: "
@@ -339,11 +339,7 @@ function refresh() {
     </tr>
     <tr>
         <td>
-            <!-- <font color="blue">Medications:</font> --> <?php 
-               //while($rows=sqlFetchArray($meds)){
-                  // echo $rows['title'] . ", ";
-               //}
-         ?>
+
         </td>
     </tr>
     </table>
@@ -365,49 +361,47 @@ function refresh() {
  <tbody><tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:26.6pt">
   <td width="102" valign="top" style="width:76.7pt;border:solid windowtext 1.0pt;
   mso-border-alt:solid windowtext .5pt;height:41.6pt">
-  <b>Diagnoses</b>
+  <b><?php echo htmlspecialchars( xl('Diagnoses'), ENT_NOQUOTES); ?></b>
   </td>
   <td width="68" valign="top" style="width:50.9pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;height:41.6pt">
-Active / Inactive<o:p></o:p></span></b></p>
+<?php echo htmlspecialchars( xl('Active / Inactive'), ENT_NOQUOTES); ?><o:p></o:p></span></b></p>
   </td>
   <td width="89" valign="top" style="width:66.7pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;height:41.6pt">
-  Risk Factors (compliance, clinical)
+  <?php echo htmlspecialchars( xl('Risk Factors (compliance, clinical)'), ENT_NOQUOTES); ?>
   </td>
   <td width="103" valign="top" style="width:77.45pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;height:41.6pt">
-Assessment / Plan
+<?php echo htmlspecialchars( xl('Assessment / Plan'), ENT_NOQUOTES); ?>
   </td>
   <td width="105" valign="top" style="width:78.95pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;height:41.6pt">
-Medication
+<?php echo htmlspecialchars( xl('Medication'), ENT_NOQUOTES); ?>
   </td>
     <td width="105" valign="top" style="width:78.95pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;height:41.6pt">
-Orders/results: Meds, labs, imaging,
-  referrals
+<?php echo htmlspecialchars( xl('Orders/results: Meds, labs, imaging,referrals'), ENT_NOQUOTES); ?>
   </td>
   <td width="61" valign="top" style="width:45.6pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;height:41.6pt">
-   Goals
+   <?php echo htmlspecialchars( xl('Goals'), ENT_NOQUOTES); ?>
   </td>
   <td width="69" valign="top" style="width:51.7pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;height:41.6pt">
-   Provider
+   <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>
   </td>
   <td width="69" valign="top" style="width:51.45pt;border:solid windowtext 1.0pt;
   border-left:none;mso-border-left-alt:solid windowtext .5pt;mso-border-alt:
   solid windowtext .5pt;height:41.6pt">
-
-Delete
+<?php echo htmlspecialchars( xl('Delete'), ENT_NOQUOTES); ?>
   </td>
  </tr>
 <tr style="mso-yfti-irow:1;height:18.75pt"><!-- First Row -->
@@ -424,8 +418,8 @@ Delete
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   mso-border-alt:solid windowtext .5pt;height:18.75pt">
   <select name="active_1">
-      <option value = '1' >Active</option> 
-      <option value = '2' <?php if($result['active_1'] == 2){echo "selected";} ?>>Inactive</option>
+      <option value = '1' ><?php echo htmlspecialchars( xl('Active'), ENT_NOQUOTES); ?></option> 
+      <option value = '2' <?php if($result['active_1'] == 2){echo "selected";} ?>><?php echo htmlspecialchars( xl('Inactive'), ENT_NOQUOTES); ?></option>
   </select>
   
   </td>
@@ -436,9 +430,9 @@ Delete
 
     <select name="risk_factor_1">
     <option value=""> </option>
-        <option value="compliant" <?php if($result['risk_1'] == 'compliant'){echo "selected";} ?>>Compliant</option>
-	<option value="Non-Compliant" <?php if($result['risk_1'] == 'Non-Compliant'){echo "selected";} ?>>Non-Compliant</option> 
-	<option value="Other" <?php if($result['risk_1'] == 'Other'){echo "selected";} ?>>Other</option>   
+        <option value="compliant" <?php if($result['risk_1'] == 'compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Compliant'), ENT_NOQUOTES); ?></option>
+	<option value="Non-Compliant" <?php if($result['risk_1'] == 'Non-Compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Non-Compliant'), ENT_NOQUOTES); ?></option> 
+	<option value="Other" <?php if($result['risk_1'] == 'Other'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Other'), ENT_NOQUOTES); ?></option>   
   </select>
 
   <td width="103" valign="top" style="width:77.45pt;border-top:none;border-left:
@@ -472,7 +466,7 @@ Delete
   none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   mso-border-alt:solid windowtext .5pt;height:18.75pt"><br>
-  <?php if(!empty($lab_id)){echo " View Results"; }else{echo " No labs";} ?>
+  <?php if(!empty($lab_id)){echo htmlspecialchars( xl(' View Results'), ENT_NOQUOTES); }else{echo htmlspecialchars( xl(' No labs'), ENT_NOQUOTES);} ?>
   </td>
   <td width="61" valign="top" style="width:45.6pt;border-top:none;border-left:none;
   border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
@@ -520,8 +514,8 @@ Delete
   mso-border-alt:solid windowtext .5pt;height:18.75pt">
 
     <select name="active_2">
-      <option value = '1' >Active</option> 
-      <option value = '2' <?php if($result['active_2'] == 2){echo "selected";} ?>>Inactive</option>
+      <option value = '1' ><?php echo htmlspecialchars( xl('Active'), ENT_NOQUOTES); ?></option> 
+      <option value = '2' <?php if($result['active_2'] == 2){echo "selected";} ?>><?php echo htmlspecialchars( xl('Inactive'), ENT_NOQUOTES); ?></option>
   </select>  
  
   </td>
@@ -532,8 +526,8 @@ Delete
 
     <select name="risk_factor_2">
     <option value=""> </option>
-	<option value="compliant" <?php if($result['risk_2'] == 'compliant'){echo "selected";} ?>>Compliant</option>
-	<option value="Non-Compliant" <?php if($result['risk_2'] == 'Non-Compliant'){echo "selected";} ?>>Non-Compliant</option>
+	<option value="compliant" <?php if($result['risk_2'] == 'compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Compliant'), ENT_NOQUOTES); ?></option>
+	<option value="Non-Compliant" <?php if($result['risk_2'] == 'Non-Compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Non-Compliant'), ENT_NOQUOTES); ?></option>
 	<option value="Other" <?php if($result['risk_2'] == 'Other'){echo "selected";} ?>>Other</option>   
   </select>
   </td>
@@ -617,8 +611,8 @@ Delete
   mso-border-alt:solid windowtext .5pt;height:18.75pt">
 
     <select name="active_3">
-      <option value = '1' >Active</option> 
-      <option value = '2' <?php if($result['active_3'] == 2){echo "selected";} ?>>Inactive</option>
+      <option value = '1' ><?php echo htmlspecialchars( xl('Active'), ENT_NOQUOTES); ?></option> 
+      <option value = '2' <?php if($result['active_3'] == 2){echo "selected";} ?>><?php echo htmlspecialchars( xl('Inactive'), ENT_NOQUOTES); ?></option>
   </select>  
 
   </td>
@@ -629,8 +623,8 @@ Delete
 
     <select name="risk_factor_3">
     <option value=""> </option>
-	<option value="compliant" <?php if($result['risk_3'] == 'compliant'){echo "selected";} ?>>Compliant</option>
-	<option value="Non-Compliant" <?php if($result['risk_3'] == 'Non-Compliant'){echo "selected";} ?>>Non-Compliant</option>
+	<option value="compliant" <?php if($result['risk_3'] == 'compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Compliant'), ENT_NOQUOTES); ?></option>
+	<option value="Non-Compliant" <?php if($result['risk_3'] == 'Non-Compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Non-Compliant'), ENT_NOQUOTES); ?></option>
 	<option value="Other" <?php if($result['risk_3'] == 'Other'){echo "selected";} ?>>Other</option>   
   </select>
   </td>
@@ -717,8 +711,8 @@ Delete
   mso-border-alt:solid windowtext .5pt;height:18.75pt">
 
     <select name="active_4">
-      <option value = '1'>Active</option> 
-      <option value = '2' <?php if($result['active_4'] == 2){echo "selected";} ?>>Inactive</option> 
+      <option value = '1'><?php echo htmlspecialchars( xl('Active'), ENT_NOQUOTES); ?></option> 
+      <option value = '2' <?php if($result['active_4'] == 2){echo "selected";} ?>><?php echo htmlspecialchars( xl('Inactive'), ENT_NOQUOTES); ?></option> 
   </select>  
 
   </td>
@@ -729,8 +723,8 @@ Delete
 
   <select name="risk_factor_4">
     <option value=""> </option>
-	<option value="compliant" <?php if($result['risk_4'] == 'compliant'){echo "selected";} ?>>Compliant</option>
-	<option value="Non-Compliant" <?php if($result['risk_4'] == 'Non-Compliant'){echo "selected";} ?>>Non-Compliant</option>
+	<option value="compliant" <?php if($result['risk_4'] == 'compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Compliant'), ENT_NOQUOTES); ?></option>
+	<option value="Non-Compliant" <?php if($result['risk_4'] == 'Non-Compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Non-Compliant'), ENT_NOQUOTES); ?></option>
 	<option value="Other" <?php if($result['risk_4'] == 'Other'){echo "selected";} ?>>Other</option>   
   </select>
   </td>
@@ -824,8 +818,8 @@ Delete
   mso-border-alt:solid windowtext .5pt;height:18.75pt">
 
     <select name="active_5">
-      <option value = '1' >Active</option> 
-      <option value = '2' <?php if($result['active_5'] == 2){echo "selected";} ?>>Inactive</option> 
+      <option value = '1' ><?php echo htmlspecialchars( xl('Active'), ENT_NOQUOTES); ?></option> 
+      <option value = '2' <?php if($result['active_5'] == 2){echo "selected";} ?>><?php echo htmlspecialchars( xl('Inactive'), ENT_NOQUOTES); ?></option> 
   </select>  
 
   </td>
@@ -836,8 +830,8 @@ Delete
 
   <select name="risk_factor_5">
     <option value=""> </option>
-	<option value="compliant" <?php if($result['risk_5'] == 'compliant'){echo "selected";} ?>>Compliant</option>
-	<option value="Non-Compliant" <?php if($result['risk_5'] == 'Non-Compliant'){echo "selected";} ?>>Non-Compliant</option> 
+	<option value="compliant" <?php if($result['risk_5'] == 'compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Compliant'), ENT_NOQUOTES); ?></option>
+	<option value="Non-Compliant" <?php if($result['risk_5'] == 'Non-Compliant'){echo "selected";} ?>><?php echo htmlspecialchars( xl('Non-Compliant'), ENT_NOQUOTES); ?></option> 
 	<option value="Other" <?php if($result['risk_5'] == 'Other'){echo "selected";} ?>>Other</option>   
   </select>
   </td>
@@ -908,7 +902,7 @@ Delete
   <td width="102" valign="top" style="width:76.7pt;border:solid windowtext 1.0pt;
   border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
   height:23.2pt">
-      Prevention
+      <?php echo htmlspecialchars( xl('Prevention'), ENT_NOQUOTES); ?>
   </td>
   <td width="68" valign="top" style="width:50.9pt;border-top:none;border-left:none;
   border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
@@ -924,14 +918,11 @@ Delete
   mso-border-alt:solid windowtext .5pt;height:23.2pt">
  &nbsp;
   <textarea  name='prevention' cols="90" <?php if($result['audit'] == 1){echo "readonly"; } ?> >
-      <?php 
-      if(!empty($result['prevention'])){
+<?php if(!empty($result['prevention'])){
          echo $result['prevention'] . "\n"; 
          echo $date . "--";
       }
-      ?> 
-  
-  </textarea>
+      ?></textarea>
   </td>
   <td width="69" valign="top" style="width:51.45pt;border-top:none;border-left:
   none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
@@ -945,7 +936,7 @@ Delete
   <td width="102" valign="top" style="width:76.7pt;border:solid windowtext 1.0pt;
   border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
   height:19.75pt">
-     PMH
+     <?php echo htmlspecialchars( xl('PMH'), ENT_NOQUOTES); ?>
   </td>
   <td width="68" valign="top" style="width:50.9pt;border-top:none;border-left:none;
   border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
@@ -1007,7 +998,7 @@ Delete
   <td width="102" valign="top" style="width:76.7pt;border:solid windowtext 1.0pt;
   border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
   height:19.75pt">
-     PSH
+     <?php echo htmlspecialchars( xl('PSH'), ENT_NOQUOTES); ?>
   </td>
   <td width="68" valign="top" style="width:50.9pt;border-top:none;border-left:none;
   border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
@@ -1041,7 +1032,7 @@ Delete
   <td width="102" valign="top" style="width:76.7pt;border:solid windowtext 1.0pt;
   border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
   height:24.95pt">
-     FH
+     <?php echo htmlspecialchars( xl('FH'), ENT_NOQUOTES); ?>
   </td>
   <td width="68" valign="top" style="width:50.9pt;border-top:none;border-left:none;
   border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
@@ -1056,7 +1047,6 @@ Delete
   mso-border-alt:solid windowtext .5pt;height:24.95pt">
     &nbsp;
   <textarea name='fhsh' cols="90" <?php if($result['audit'] == 1){echo "readonly"; } ?>><?php
-
   echo "Notes:\n";
   echo "-----\n";
    $his_date = explode( " ", $his_array['date']);
@@ -1155,7 +1145,7 @@ Delete
   <td width="102" valign="top" style="width:76.7pt;border:solid windowtext 1.0pt;
   border-top:none;mso-border-top-alt:solid windowtext .5pt;mso-border-alt:solid windowtext .5pt;
   height:24.95pt">
-     SH
+    <?php echo htmlspecialchars( xl('SH'), ENT_NOQUOTES); ?>
   </td>
   <td width="68" valign="top" style="width:50.9pt;border-top:none;border-left:none;
   border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
@@ -1218,9 +1208,9 @@ Delete
  </tr>
 </tbody></table>
     <p></p>
-    <input type="submit" value="Save" title="Always save before leaving file or your work could be edited by someone other than you." ><input type="submit" value="Edit" title="Click here to edit, your user ID will be recorded" >
+    <input type="submit" value="Save" title="Always save before leaving file or your work could be edited by someone other than you." ><input type="submit" value="Edit" title="<?php echo htmlspecialchars( xl('Click here to edit, your user ID will be recorded'), ENT_NOQUOTES); ?>" >
 </form>
-    <button><a href="careplan_print.php">Print Preview</a></button>
+    <button><a href="careplan_print.php"><?php echo htmlspecialchars( xl('Print Preview'), ENT_NOQUOTES); ?></a></button>
 </center>
 
 </body>
