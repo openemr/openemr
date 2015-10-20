@@ -105,6 +105,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'date_display_format',
                                'time_display_format',
                                'ledger_begin_date',
+                               'print_next_appointment_on_ledger',
                                'calendar_view_type',
                                'event_color',
                                'pat_trkr_timer',
@@ -774,6 +775,13 @@ $GLOBALS_METADATA = array(
       xl('This is the Beginning date for the Ledger Report.')
     ),
 	
+    'print_next_appointment_on_ledger' => array(
+       xl('Print the Next Appointment on the Bottom of the Ledger'),
+	   'bool',                           // data type
+	   '0',                              // default = false
+	   xl('This Will Print the Next Appointment on the Bottom of the Patient Ledger')
+    ),
+    
     'sales_report_invoice' => array(
       xl('Display Invoice Number or Patient Name or Both in the Sales Report'),
       array(

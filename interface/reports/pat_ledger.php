@@ -505,16 +505,23 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
 <div id="report_header">
 <table width="98%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class="title" ><?php echo xlt('Patient Ledger'); ?></td>
-  </tr>
-  <tr>
     <td class="title" ><?php echo text($facility{'name'}); ?></td>
   </tr>
   <tr>
-    <td class="title" ><?php echo text($facility{'addr'}); ?></td>
+    <td class="title" ><?php echo text($facility{'street'}); ?></td>
   </tr>
   <tr>
     <td class="title" ><?php echo text($facility{'city'}).", ".text($facility{'state'})." ".text($facility{'postal_code'}); ?></td>
+  </tr>
+  <tr>
+    <td class="title" ><?php echo xlt('Phone').': ' .text($facility{'phone'}); ?></td>
+  </tr>
+  <tr>
+    <td class="title" ><?php echo xlt('Tax Id').': ' .text($facility{'federal_ein'}); ?></td>
+  </tr>
+  <tr><td>&nbsp;</td></tr>
+  <tr>
+    <td class="title" ><?php echo xlt('Patient Ledger'); ?></td>
   </tr>
 	<tr>
 		<?php 
@@ -672,7 +679,33 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
       echo " </tr>\n";
     ?>
     </table>
+  <tr><td>&nbsp;</td></tr><br><br>
+    <?php if($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+                    $pid = $form_pid; # just to make sure we have a pid           
+                    $next_day = mktime(0,0,0,date('m'),date('d')+1,date('Y'));
+                    # add one day to date so it will not get todays appointment
+                    $current_date2 = date('Y-m-d', $next_day);
+                    $events = array();
+                    $events = fetchAppointments($current_date2, null, $pid, null, null, null, null, null, null, false, true);
+                    $events = sortAppointments($events);
+                    $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
+                    $next_appoint_time = substr($events[0]['pc_startTime'],0,5);
+                    if(strlen(umname) != 0 ) {
+                        $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname']; 
+                    }
+                    else
+                    {
+                        $next_appoint_provider = $events[0]['ufname'] . ' ' .  $events[0]['ulname'];
+                    }
+                    if(strlen($next_appoint_time) != 0) {
+    ?>
+  <tr>
+    <td class="title" ><?php echo xlt('Next Appointment') . ': ' . text($next_appoint_date) . ' ' . xlt('at') . ' ' . text($next_appoint_time) . ' ' . xlt('with') . ' ' . text($next_appoint_provider); ?></td>
+  </tr>
+  
     <?php
+                   }
+          }
     }
       echo "</div>\n";
 }
