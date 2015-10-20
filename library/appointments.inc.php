@@ -49,8 +49,8 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
   if($flagPSM) { // Patient Summary Mode
 
     $where =
-      "((e.pc_endDate >= CURRENT_DATE AND e.pc_recurrtype > '0') OR " .
-      "(e.pc_eventDate >= CURRENT_DATE))";
+      "((e.pc_endDate >= '$from_date' AND e.pc_recurrtype > '0') OR " .
+      "(e.pc_eventDate >= '$from_date'))";
 
   } else {
   //////
