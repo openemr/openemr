@@ -43,6 +43,19 @@ $ORDERHASH = array(
     'trackerstatus' => array( 'trackerstatus', 'date', 'time', 'patient' ),    
 );
 
+// Returns the next appointment.
+// (typically is used to collect the next appointment for a patient, although the patient id is not required) 
+// will return as an arrayed structure for the elements of the next appointment
+// (note it returns data in the first array element of the array (so same code can support functions in future that return multiple elements)
+function collect_next_appointment($from_date,$patient_id=null) {
+  $events = array();
+  $events = fetchAppointments($from_date, null, $patient_id, null, null, null, null, null, null, false, true);
+  $events = sortAppointments($events);
+  $return_event = array();
+  $return_event[0] = $events[0];
+  return $return_event;
+}
+
 function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $flagPSM = false ) 
 {
   //////

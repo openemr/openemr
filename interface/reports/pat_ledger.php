@@ -681,13 +681,10 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     </table>
   <tr><td>&nbsp;</td></tr><br><br>
     <?php if($GLOBALS['print_next_appointment_on_ledger'] == 1) {
-                    $pid = $form_pid; # just to make sure we have a pid           
                     $next_day = mktime(0,0,0,date('m'),date('d')+1,date('Y'));
                     # add one day to date so it will not get todays appointment
                     $current_date2 = date('Y-m-d', $next_day);
-                    $events = array();
-                    $events = fetchAppointments($current_date2, null, $pid, null, null, null, null, null, null, false, true);
-                    $events = sortAppointments($events);
+                    $events = collect_next_appointment($current_date2,$form_pid);
                     $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
                     $next_appoint_time = substr($events[0]['pc_startTime'],0,5);
                     if(strlen(umname) != 0 ) {
@@ -705,8 +702,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
   
     <?php
                    }
-          }
-    }
+          } // end ($GLOBALS['print_next_appointment_on_ledger'] == 1)
+    } // end (!$_REQUEST['form_csvexport'] && $orow)
       echo "</div>\n";
 }
 if (! $_REQUEST['form_csvexport']) {

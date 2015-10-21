@@ -778,7 +778,7 @@ $GLOBALS_METADATA = array(
     'print_next_appointment_on_ledger' => array(
        xl('Print the Next Appointment on the Bottom of the Ledger'),
 	   'bool',                           // data type
-	   '0',                              // default = false
+	   '1',                              // default = true
 	   xl('This Will Print the Next Appointment on the Bottom of the Patient Ledger')
     ),
     
