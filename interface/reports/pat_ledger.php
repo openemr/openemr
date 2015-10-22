@@ -671,11 +671,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
       echo "<tr bgcolor='#DDFFFF'>\n";
       echo " <td colspan='2'>&nbsp;</td>";
       echo " <td class='bold' colspan='2'>" . xlt("Grand Total") ."</td>\n"; 
-      echo " <td class='bold' style='text-align: right;'>". text($total_units) ."&nbsp;&nbsp;</td>\n";
-      echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_chg)) ."&nbsp;</td>\n";
-      echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_pmt)) ."&nbsp;</td>\n";
-      echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_adj)) ."&nbsp;</td>\n";
-      echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_bal)) . "&nbsp;</td>\n";
+      echo " <td class='bold' style='text-align: right;'>". text($total_units) ."</td>\n";
+      echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_chg)) ."</td>\n";
+      echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_pmt)) ."</td>\n";
+      echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_adj)) ."</td>\n";
+      echo " <td class='bold' style='text-align: right;'>". text(oeFormatMoney($total_bal)) . "</td>\n";
       echo " </tr>\n";
     ?>
     </table>
@@ -697,7 +697,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                     if(strlen($next_appoint_time) != 0) {
     ?>
   <tr>
-    <td class="title" ><?php echo xlt('Next Appointment') . ': ' . text($next_appoint_date) . ' ' . xlt('at') . ' ' . text($next_appoint_time) . ' ' . xlt('with') . ' ' . text($next_appoint_provider); ?></td>
+    <td class="title" ><?php echo xlt('Next Appointment Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider); ?></td>
   </tr>
   
     <?php
