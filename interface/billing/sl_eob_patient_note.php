@@ -1,12 +1,25 @@
-<?php 
-  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-  //
-  // This program is free software; you can redistribute it and/or
-  // modify it under the terms of the GNU General Public License
-  // as published by the Free Software Foundation; either version 2
-  // of the License, or (at your option) any later version.
-
-  // This allows entry and editing of a "billing note" for the patient.
+<?php
+/**
+ * This allos entry and editing of a "billing note" for the patient.
+ * 
+ * Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
   include_once("../globals.php");
   include_once("../../library/patient.inc");
@@ -30,9 +43,9 @@
     $thename = $thevalue ? "Billing" : "";
 
     sqlStatement("UPDATE patient_data SET " .
-      "genericname2 = '$thename', " .
-      "genericval2 = '$thevalue' " .
-      "WHERE pid = '$patient_id'");
+      "genericname2 = ?, " .
+      "genericval2 = ? " .
+      "WHERE pid = ? ", array($thename, $thevalue, $patient_id));
 
     echo "<script language='JavaScript'>\n";
     if ($info_msg) echo " alert('$info_msg');\n";

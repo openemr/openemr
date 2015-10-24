@@ -5,14 +5,22 @@
  * Called from many different pages.
  *
  *  Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
+ *  Copyright (C) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  *
- * This program is free software; you can redistribute it and/or
+ * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -313,7 +321,7 @@ function popup_close() {
     list($patient_id, $encounter_id) = explode(".", $billing);
     if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
       sqlStatement("DELETE FROM ar_activity WHERE " .
-        "pid = '$patient_id' AND encounter = '$encounter_id'");
+        "pid = ? AND encounter = ? ", array($patient_id, $encounter_id) );
       sqlStatement("DELETE ar_session FROM ar_session LEFT JOIN " .
         "ar_activity ON ar_session.session_id = ar_activity.session_id " .
         "WHERE ar_activity.session_id IS NULL");
