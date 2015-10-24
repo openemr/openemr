@@ -76,7 +76,9 @@
 {else}
 <div class="text bold">
     {xl t="Upload Document"} {if $category_name} {xl t="to category"} '{$category_name}'{/if}
-	<p>After upload select category to refresh screen to see newly uploaded doc</p>
+    <p>{xl t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed 
+    (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}</p>
+	
 	<p>Upload one file at a time</p>
 		<img src="./images/drag-drop.png">
 </div>
@@ -126,6 +128,9 @@
 								'width',
 								progress + '%'
 							);
+							setTimeout(function(){
+								location.reload(); // sets a 3 sec delay before reloading page
+							}, 3000)
 						}
 					}).prop('disabled', !$.support.fileInput) 
 					   .parent().addClass($.support.fileInput ? undefined : 'disabled');
