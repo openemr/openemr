@@ -21,6 +21,8 @@ class C_Document extends Controller {
 	var $document_categories;
 	var $tree;
 	var $_config;
+	var $file_path;
+	
         var $manual_set_owner=false; // allows manual setting of a document owner/service
 
 	function C_Document($template_mod = "general") {
@@ -46,6 +48,7 @@ class C_Document extends Controller {
 		$this->assign("category_id", $category_id);
 		$this->assign("category_name", $category_name);
 		$this->assign("hide_encryption", $GLOBALS['hide_document_encryption'] );
+		$this->assign("drag_drop", $GLOBALS['drag_drop'] );
 		$this->assign("patient_id", $patient_id);
 
     // Added by Rod to support document template download from general_upload.html.
