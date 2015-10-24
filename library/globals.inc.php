@@ -46,6 +46,7 @@
 //   Japanese                       // xl('Japanese')
 //   Korean                         // xl('Korean')
 //   Lithuanian                     // xl('Lithuanian')
+//   Marathi                        // xl('Marathi')
 //   Norwegian                      // xl('Norwegian')
 //   Persian                        // xl('Persian')
 //   Polish                         // xl('Polish')
@@ -91,7 +92,7 @@ else {
 // List of user specific tabs and globals
 $USER_SPECIFIC_TABS = array('Appearance',
                             'Locale',
-                            'Features',
+                            'Report',
                             'Calendar',
                             'Connectors');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
@@ -105,6 +106,7 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'date_display_format',
                                'time_display_format',
                                'ledger_begin_date',
+                               'print_next_appointment_on_ledger',
                                'calendar_view_type',
                                'event_color',
                                'pat_trkr_timer',
@@ -732,6 +734,11 @@ $GLOBALS_METADATA = array(
 		'1',                              // default = true
 		xl('Enable amendments feature')
 	),
+    
+   ),   
+    // Report Tab
+    //
+    'Report' => array(
 	
     'use_custom_daysheet' => array(
       xl('Use Custom End of Day Report'),
@@ -769,6 +776,24 @@ $GLOBALS_METADATA = array(
       xl('This is the Beginning date for the Ledger Report.')
     ),
 	
+    'print_next_appointment_on_ledger' => array(
+       xl('Print the Next Appointment on the Bottom of the Ledger'),
+	   'bool',                           // data type
+	   '1',                              // default = true
+	   xl('This Will Print the Next Appointment on the Bottom of the Patient Ledger')
+    ),
+    
+    'sales_report_invoice' => array(
+      xl('Display Invoice Number or Patient Name or Both in the Sales Report'),
+      array(
+        '0' => xl('Invoice Number'),
+        '1' => xl('Patient Name and ID'),
+        '2' => xl('Patient Name and Invoice'),   
+      ),   
+      '2',                              // default = 2
+      xl('This will Display the Invoice Number in the Sales Report or the Patient Name and ID or Patient Name and Invoice Number.')
+    ),
+    
   ),
     // E-Sign Tab
     //
