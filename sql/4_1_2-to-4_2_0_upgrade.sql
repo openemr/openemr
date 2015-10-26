@@ -131,6 +131,65 @@ CREATE TABLE `erx_ttl_touch` (
 ENGINE = InnoDB COMMENT = 'Store records last update per patient data process';
 #EndIf
 
+#IfNotTable care_plan
+CREATE TABLE IF NOT EXISTS `care_plan` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `encounter` int(10) NOT NULL,
+  `pid` int(11) NOT NULL,
+  `diag_1` varchar(35) NOT NULL,
+  `diag_2` varchar(35) NOT NULL,
+  `diag_3` varchar(25) NOT NULL,
+  `diag_4` varchar(25) NOT NULL,
+  `diag_5` varchar(25) NOT NULL,
+  `active_1` varchar(2) NOT NULL,
+  `active_2` varchar(2) NOT NULL,
+  `active_3` varchar(2) NOT NULL,
+  `active_4` varchar(2) NOT NULL,
+  `active_5` varchar(2) NOT NULL,
+  `risk_1` varchar(255) NOT NULL,
+  `risk_2` varchar(255) NOT NULL,
+  `risk_3` varchar(35) NOT NULL,
+  `risk_4` varchar(255) NOT NULL,
+  `risk_5` varchar(255) NOT NULL,
+  `assessment_1` varchar(255) NOT NULL,
+  `assessment_2` varchar(255) NOT NULL,
+  `assessment_3` varchar(35) NOT NULL,
+  `assessment_4` varchar(255) NOT NULL,
+  `assessment_5` varchar(255) NOT NULL,
+  `goal_1` varchar(255) NOT NULL,
+  `goal_2` varchar(255) NOT NULL,
+  `goal_3` text NOT NULL,
+  `goal_4` varchar(255) NOT NULL,
+  `goal_5` varchar(255) NOT NULL,
+  `provider_1` varchar(30) NOT NULL,
+  `provider_2` varchar(30) NOT NULL,
+  `provider_3` int(3) NOT NULL,
+  `provider_4` int(3) NOT NULL,
+  `provider_5` int(3) NOT NULL,
+  `prevention` text NOT NULL,
+  `pmh` text NOT NULL,
+  `psh` varchar(255) NOT NULL,
+  `fhsh` text NOT NULL,
+  `sh` varchar(255) NOT NULL,
+  `audit` int(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `pid` (`pid`)
+) ENGINE=InnoDB  AUTO_INCREMENT=66 ;
+#EndIf
+
+#IfNotTable care_plan_audit
+CREATE TABLE IF NOT EXISTS `care_plan_audit` (
+  `id` int(5) NOT NULL AUTO_INCREMENT,
+  `user` varchar(10) NOT NULL,
+  `date` date NOT NULL,
+  `pid` varchar(5) NOT NULL,
+  `encounter` varchar(5) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  AUTO_INCREMENT=6 ;
+#EndIf
+
 #IfMissingColumn form_misc_billing_options box_14_date_qual
 ALTER TABLE `form_misc_billing_options` 
 ADD COLUMN `box_14_date_qual` CHAR(3) NULL DEFAULT NULL;
@@ -258,11 +317,116 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('ins
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('insurance_types','tertiary' ,'Tertiary' ,30);
 #EndIf
 
+#IfNotRow2D list_options list_id lbfnames option_id LBFlabs 
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lbfnames', 'LBFlabs', 'Laboratory Orders', 2);
+#EndIf
+
+#IfNotRow2D list_options list_id lbfnames option_id LBFPHEX
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lbfnames', 'LBFPHEX', 'Physical Exam', 1);
+#EndIf
+
+#IfNotRow list_options list_id Lab_GYN_Cytology 
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_GYN_Cytology', '100100', '14471 Pap', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_GYN_Cytology', '100101', '14499 Pap with HPV /ascus', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_GYN_Cytology', '100102', '18828 Pap, HPV, CT/NG', 3);
+#EndIf
+
+#IfNotRow list_options list_id Lab_Hematology
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Hematology', '100100', '6399 CBC with Diff/Plt', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Hematology', '100101', '8847 PT with INR', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Hematology', '100102', '763   PTT', 3);
+#EndIf
+
+#IfNotRow list_options list_id Lab_Microbiology
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Microbiology', '100100', '4558   Culture Genital', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Microbiology', '100101', '394     Culture Throat', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Microbiology', '100102', '395     Culture Urine', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Microbiology', '100103', '10108 Culture Stool', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Microbiology', '100104', '4485   Culture, Group A Stp', 5);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Microbiology', '100105', '5617   Culture, Group B Stp', 6);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Microbiology', '100106', '11290 Fecal blood', 7);
+#EndIf
+
+#IfNotRow list_options list_id Lab_Other_Tests
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100100', '978      CEA', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100101', '374      CK Total', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100102', '4021    Estradiol', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100103', '457      Ferritin', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100104', '466      Folic acid', 5);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100105', '470      FSH', 6);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100106', '8345    HCG', 7);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100107', '496      HgbA1C', 8);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100108', '499      Hep B surface', 9);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100109', '8472    Hep C', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100110', '19728  HIV', 11);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100111', '31789  Homocysteine', 12);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Tests', '100112', '571       Iron, Total', 13);
+#EndIf
+
+#IfNotRow list_options list_id Lab_Other_Test_2
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100100', '606      Lipase', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100101', '745      Progesterone', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100102', '746      Prolactic', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100103', '5363    PSA', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100104', '799      RPR', 5);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100105', '899      TSH', 6);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100106', '36127  TSH/ T4', 7);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100107', '859      T3', 8);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100108', '5463    UA Dip / Micro', 9);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100110', '7065    Vitamin B12', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Other_Test_2', '100111', '17306  Vitamin D', 11);
+#EndIf
+
+#IfNotRow list_options list_id Lab_Panel
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Panel', '100100', '10165 Basic Metabolic', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Panel', '100101', '10231 Comp Metabolic', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Panel', '100102', 'B7600 Lipid Panel (Fasting)', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES('Lab_Panel', '100103', '10306 Acute Hepatitis', 4);
+#EndIf
+
+#IfNotRow list_options list_id PHEXGEN
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN', 'gen001', 'Normal appearance and cognition', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN10', 'NEU001', 'Normal CN II-XII', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN10', 'NEU002', 'Motor', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN10', 'NEU003', 'Sensory', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN10', 'NEU004', 'DTRs', 4); 
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN2', 'heent001', 'No lesions', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN2', 'heent002', 'PERRLA', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN2', 'heent003', 'TMs clear', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN3', 'nn001', 'Thyroid without masses', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN3', 'nn002', 'no adenopathy', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN3', 'nn003', '', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN4', 'JVD005', 'JVD', 5);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN4', 'NM004', 'No Murmur', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN4', 'PU003', 'Pulses  Normal', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN4', 'RRR', 'RRR', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN4', 'S1S2', 'S1/S2', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN4', 'S3006', 'S3', 6);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN5', 'CTA001', 'CTA', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN5', 'NWA002', 'No Wheezes', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN5', 'RALE', 'Rales', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN5', 'RH004', 'Rhonci', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN6', 'BRE001', 'No lumps,', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN6', 'BRE002', 'Discharge', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN6', 'BRE003', 'Dimpling', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN7', 'ADB001', 'Normal BS', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN7', 'ADB002', 'Soft', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN7', 'ADB003', 'Non-tender', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN7', 'ADB004', 'No hernias', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN8', 'SKIN001', 'No breakdown', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN8', 'SKIN002', 'Rashes', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN8', 'SKIN003', 'Moles', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN8', 'SKIN004', 'Skin tags', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('PHEXGEN9', 'MUS002', 'No joint swelling', 0);
+#EndIf
+
 #IfMissingColumn patient_data cmsportal_login
 ALTER TABLE `patient_data` ADD COLUMN `cmsportal_login` varchar(60) NOT NULL default '';
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES
   ('DEM', 'cmsportal_login', '3Choices', 'CMS Portal Login', 15, 2, 1, 30, 60, '', 1, 1, '', '', 'Login ID for the CMS Patient Portal', 0);
 #EndIf
+
+
 
 #IfNotColumnType procedure_order control_id varchar(255)
 ALTER TABLE `procedure_order` CHANGE `control_id`
@@ -2856,6 +3020,36 @@ UPDATE `clinical_rules` SET `amc_2014_flag` = 1 , `amc_code_2014` = '170.314(g)(
 #IfMissingColumn history_data dc_offspring
 	ALTER TABLE `history_data` ADD `dc_offspring` text;
 #EndIf
+
+#IfNotRow2D layout_options form_id LBFlabs field_id gyn 
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`) VALUES
+('LBFlabs', 'gyn', '1Lab Request', 'GYN Cytology', 180, 21, 1, 1, 30, 'Lab_GYN_Cytology', 1, 0, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'hematology', '1Lab Request', 'Hematology', 170, 21, 1, 1, 30, 'Lab_Hematology', 1, 0, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'icd_4', '1Lab Request', 'ICD Codes', 140, 15, 1, 40, 45, '', 1, 1, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'insur', '1Lab Request', 'Insurance Name', 110, 2, 1, 30, 30, '', 1, 1, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'insur_group', '1Lab Request', 'Insurance Group', 130, 2, 1, 30, 30, '', 1, 1, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'insur_id', '1Lab Request', 'Insurance ID', 120, 2, 1, 30, 30, '', 1, 1, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'micro', '1Lab Request', 'Microbiology', 190, 21, 1, 1, 30, 'Lab_Microbiology', 1, 0, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'Other1', '1Lab Request', 'Other Tests', 210, 21, 1, 1, 30, 'Lab_Other_Tests', 1, 0, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'other2', '1Lab Request', '', 220, 21, 1, 1, 30, 'Lab_Other_Test_2', 1, 0, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'Other3', '1Lab Request', 'Other', 230, 3, 1, 45, 180, '', 1, 0, '', '', '', 3, '', 'F', ''),
+('LBFlabs', 'panel', '1Lab Request', 'Panel', 160, 21, 1, 1, 30, 'Lab_Panel', 1, 0, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'spacer2', '1Lab Request', '', 200, 0, 1, 0, 1, '', 1, 0, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'spacer_1', '1Lab Request', '', 150, 0, 1, 0, 1, '', 1, 3, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'tech1', '1Lab Request', 'Technician', 100, 2, 1, 15, 15, '', 1, 1, '', '', '', 0, '', 'F', ''),
+('LBFlabs', 'timestamp', '1Lab Request', 'Time Collected', 90, 2, 1, 15, 15, '', 1, 1, '', '', '', 0, '', 'F', '');
+#EndIf
+
+#IfNotRow2D layout_options form_id LBFPHEX field_id breast
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`) VALUES
+('LBFPHEX', 'breast', '1Normal', 'Breasts', 60, 25, 1, 55, 0, 'PHEXGEN6', 10, 10, '', '', '', 0, '', 'F', ''),
+('LBFPHEX', 'gen', '1Normal', 'General', 10, 25, 1, 55, 0, 'PHEXGEN', 10, 10, '', '', '', 0, '', 'F', ''),
+('LBFPHEX', 'heart', '1Normal', 'Heart', 40, 25, 1, 55, 0, 'PHEXGEN4', 10, 10, '', '', '', 0, '', 'F', ''),
+('LBFPHEX', 'heent', '1Normal', 'HEENT', 20, 25, 1, 55, 0, 'PHEXGEN2', 10, 10, '', '', '', 0, '', 'F', ''),
+('LBFPHEX', 'lungs', '1Normal', 'Lungs', 50, 25, 1, 55, 0, 'PHEXGEN5', 10, 10, '', '', '', 0, '', 'F', ''),
+('LBFPHEX', 'neck', '1Normal', 'Neck/Nodes', 30, 25, 1, 55, 0, 'PHEXGEN3', 10, 10, '', '', '', 0, '', 'F', '');
+#EndIf
+
 #IfNotRow2D layout_options form_id HIS field_id dc_father
 	INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`) VALUES ('HIS', 'dc_father', '2Family History', 'Diagnosis Code', 2, 15, 1, 0, 255, '', 1, 1, '', '', '', 0, '');
         UPDATE `layout_options` SET `seq` = '3' WHERE `layout_options`.`form_id` = 'HIS' AND `layout_options`.`field_id` = 'history_mother';

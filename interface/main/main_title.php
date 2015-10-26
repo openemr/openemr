@@ -87,6 +87,12 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
             <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.left_nav.clearactive();return false;">
             <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
+    <td style="vertical-align:text-bottom;" >
+	<?php if($GLOBALS['care_plan'] == 1){?>
+            <a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='care_plan' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','patient_file/careplan.php')">
+            <span><?php echo htmlspecialchars( xl('CARE PLAN'), ENT_QUOTES); ?></span></a> 
+     <?php } ?>			
+    </td>
 </tr>
 <?php } //end of acl_check('patients','demo','',array('write','addonly') if ?>
 
