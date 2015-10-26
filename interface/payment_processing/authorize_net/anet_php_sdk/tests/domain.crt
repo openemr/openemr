@@ -1,0 +1,51 @@
+CONNECTED(00000003)
+---
+Certificate chain
+ 0 s:/C=US/ST=Utah/L=American Fork/O=Authorize.Net Corp./OU=AUTHORIZE.NET CORP./CN=secure.authorize.net
+   i:/C=ZA/O=Thawte Consulting (Pty) Ltd./CN=Thawte SGC CA
+ 1 s:/C=ZA/O=Thawte Consulting (Pty) Ltd./CN=Thawte SGC CA
+   i:/C=US/O=VeriSign, Inc./OU=Class 3 Public Primary Certification Authority
+---
+Server certificate
+-----BEGIN CERTIFICATE-----
+MIIDSTCCArKgAwIBAgIQfmO9EP9/fYY45sRzhqgfGzANBgkqhkiG9w0BAQUFADBM
+MQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg
+THRkLjEWMBQGA1UEAxMNVGhhd3RlIFNHQyBDQTAeFw0wOTA0MDkwMDAwMDBaFw0x
+MTA0MTEyMzU5NTlaMIGPMQswCQYDVQQGEwJVUzENMAsGA1UECBMEVXRhaDEWMBQG
+A1UEBxMNQW1lcmljYW4gRm9yazEcMBoGA1UEChMTQXV0aG9yaXplLk5ldCBDb3Jw
+LjEcMBoGA1UECxMTQVVUSE9SSVpFLk5FVCBDT1JQLjEdMBsGA1UEAxMUc2VjdXJl
+LmF1dGhvcml6ZS5uZXQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN0dh86L
+70MHbun7wTNGV0pNXsnebt3z9mCpndLUiBp5J/b57hQO5/HvevkhkDyCrky/Dn7y
+4SEJh6RHYuP4ZBk30DS8iH5dWCRHqSQgpMKhUl/+D7KHbVqgPzOpOR44TiSa1P5m
+Fv0qicvRR3iwSK/6ESywNvEJk1iiYPnpnnlvAgMBAAGjgecwgeQwDAYDVR0TAQH/
+BAIwADA2BgNVHR8ELzAtMCugKaAnhiVodHRwOi8vY3JsLnRoYXd0ZS5jb20vVGhh
+d3RlU0dDQ0EuY3JsMCgGA1UdJQQhMB8GCCsGAQUFBwMBBggrBgEFBQcDAgYJYIZI
+AYb4QgQBMHIGCCsGAQUFBwEBBGYwZDAiBggrBgEFBQcwAYYWaHR0cDovL29jc3Au
+dGhhd3RlLmNvbTA+BggrBgEFBQcwAoYyaHR0cDovL3d3dy50aGF3dGUuY29tL3Jl
+cG9zaXRvcnkvVGhhd3RlX1NHQ19DQS5jcnQwDQYJKoZIhvcNAQEFBQADgYEARa0l
+PaGn4TOw3KOMVu8eiSdho4Nmal6u9AWE3rWHDakO2/a1AkZTM2/Wpt6KI3fp6WWK
+LSsa9wLoVYSJ6pI7bmiJTvyx42yPP0PZXQSz05PHgTEGyW2jAn4N1hFvbTj28mZT
+jv2jd12xgrmX34nulLdydNaM8J7CauhMvqwwvZ0=
+-----END CERTIFICATE-----
+subject=/C=US/ST=Utah/L=American Fork/O=Authorize.Net Corp./OU=AUTHORIZE.NET CORP./CN=secure.authorize.net
+issuer=/C=ZA/O=Thawte Consulting (Pty) Ltd./CN=Thawte SGC CA
+---
+No client certificate CA names sent
+---
+SSL handshake has read 1791 bytes and written 306 bytes
+---
+New, TLSv1/SSLv3, Cipher is RC4-MD5
+Server public key is 1024 bit
+Compression: NONE
+Expansion: NONE
+SSL-Session:
+    Protocol  : TLSv1
+    Cipher    : RC4-MD5
+    Session-ID: 03130000B43AEDC6A4B731EB5FA519E70B6CAC52856869A8593521601F677C28
+    Session-ID-ctx: 
+    Master-Key: C92AA33E812EFC279AAFF16922CFB3519F94FDA820ED3158A72BD97D3BB2D0EC938E7E71817958DB545EA2E147CCC84A
+    Key-Arg   : None
+    Start Time: 1297707939
+    Timeout   : 300 (sec)
+    Verify return code: 20 (unable to get local issuer certificate)
+---

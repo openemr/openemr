@@ -23,10 +23,8 @@
 //   Armenian                       // xl('Armenian')
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
 //   Bengali                        // xl('Bengali')
-//   Bosnian                        // xl('Bosnian')
 //   Chinese (Simplified)           // xl('Chinese (Simplified)')
 //   Chinese (Traditional)          // xl('Chinese (Traditional)')
-//   Croatian                       // xl('Croatian')
 //   Czech                          // xl('Czech')
 //   Danish                         // xl('Danish')
 //   Dutch                          // xl('Dutch')
@@ -54,7 +52,6 @@
 //   Portuguese (European)          // xl('Portuguese (European)')
 //   Romanian                       // xl('Romanian')
 //   Russian                        // xl('Russian')
-//   Serbian                        // xl('Serbian')
 //   Sinhala                        // xl('Sinhala')
 //   Slovak                         // xl('Slovak')
 //   Spanish (Latin American)       // xl('Spanish (Latin American)')
@@ -100,18 +97,17 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
                                'css_header',
                                'gbl_pt_list_page_size',
                                'gbl_pt_list_new_window',
-                               'drop_bottom',
                                'units_of_measurement',
                                'us_weight_format',
                                'date_display_format',
                                'time_display_format',
+<<<<<<< HEAD
+=======
                                'ledger_begin_date',
                                'print_next_appointment_on_ledger',
                                'calendar_view_type',
+>>>>>>> upstream/master
                                'event_color',
-                               'pat_trkr_timer',
-                               'checkout_roll_off',
-                               'ptkr_pt_list_new_window',                               
                                'erx_import_status_message');
 
 $GLOBALS_METADATA = array(
@@ -125,7 +121,6 @@ $GLOBALS_METADATA = array(
       array(
         'main_info.php' => xl('Calendar Screen'),
         '../new/new.php' => xl('Patient Search/Add Screen'),
-        '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),		
       ),
       'main_info.php',                  // default = calendar
       xl('Type of screen layout')
@@ -259,14 +254,7 @@ $GLOBALS_METADATA = array(
       'http://open-emr.org/',
       xl('URL for OpenEMR support.')
     ),
-
-   'drop_bottom' => array(
-      xl('Remove Bottom Pane'),
-      'bool',                           // data type
-      '0',                              // default = false
-      xl('Removes the bottom pane by default on start up.')
-    ),
-	
+      
     'encounter_page_size' => array(
       xl('Encounter Page Size'),
       array(
@@ -701,7 +689,7 @@ $GLOBALS_METADATA = array(
         '0' => xl('08/05{{CMS 1500 format date revision setting in globals}}'),
         '1' => xl('02/12{{CMS 1500 format date revision setting in globals}}'),
       ),
-      '1',                              // default
+      '0',                              // default
       xl('This specifies which revision of the form the billing module should generate')
     ),
      
@@ -727,7 +715,13 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('This specifies whether to include date in Box 31.')
     ),
-	  
+	
+	'prior_authorization_no' => array(
+	   xl('Prior Authorization No Box 23'),
+	   'text',
+	   '',
+	   xl('CLIA number for Box 23'),
+	),
 	'amendments' => array (
 		xl('Amendments'),
 		'bool',                           // data type
@@ -959,17 +953,6 @@ $GLOBALS_METADATA = array(
       xl('The time granularity of the calendar and the smallest interval in minutes for an appointment slot.')
     ),
 
-    'calendar_view_type' => array(
-      xl('Default Calendar View'),
-      array(
-       'day' => xl('Day'),
-       'week' => xl('Week'),
-       'month' => xl('Month'),
-      ),
-      'day',                              // default
-      xl('This sets the Default Calendar View, Default is Day.')
-    ),
-    
     'calendar_appt_style' => array(
       xl('Appointment Display Style'),
       array(
@@ -993,7 +976,7 @@ $GLOBALS_METADATA = array(
       xl('Auto-Create New Encounters'),
       'bool',                           // data type
       '1',                              // default
-      xl('Automatically create a new encounter when an appointment check in status is selected.')
+      xl('Automatically create a new encounter when appointment status is set to "@" (arrived).')
     ),
     
     'event_color' => array(
@@ -1006,63 +989,6 @@ $GLOBALS_METADATA = array(
       xl('This determines which color schema used for appointment')
     ),
 
-    'disable_pat_trkr' => array(
-      xl('Disable Patient Flow Board'),
-      'bool',                           // data type
-      '0',                              // default
-      xl('Do not display the patient flow board.')
-    ),
-
-    'ptkr_pt_list_new_window' => array(
-      xl('Open Demographics in New Window from Patient Flow Board'),
-      'bool',                           // data type
-      '0',                              // default = false
-      xl('When Checked, Demographics Will Open in New Window from Patient Flow Board.')
-    ),
-	
-    'pat_trkr_timer' => array(
-      xl('Patient Flow Board Timer Interval'),
-      array(
-       '0' => 'No automatic refresh',
-       '0:10' => '10',
-       '0:20' => '20',
-       '0:30' => '30',
-       '0:40' => '40',
-       '0:50' => '50',
-       '0:59' => '60',
-      ),
-      '0:20',                              // default
-      xl('The screen refresh time in Seconds for the Patient Flow Board Screen.')
-    ),
-	
-    'checkout_roll_off' => array(
-      xl('Number of Minutes to display completed checkouts'),
-      'num',
-      '0',                       // default
-      xl('Number of Minutes to display completed checkouts. Zero is continuous display')
-    ),
-    
-    'drug_screen' => array(
-      xl('Enable Random Drug Testing'),
-     'bool',                           // data type
-      '0',                              // default
-      xl('Allow Patient Flow Board to Select Patients for Drug Testing.')
-    ),
-	
-    'drug_testing_percentage' => array(
-      xl('Percentage of Patients to Drug Test'),
-      'num',
-      '33',                       // default
-      xl('Percentage of Patients to select for Random Drug Testing.')
-    ),
-	
-    'maximum_drug_test_yearly' => array(
-      xl('Maximum number of times a Patient can be tested in a year'),
-      'num',
-      '0',                       // default
-      xl('Maximum number of times a Patient can be tested in a year. Zero is no limit.')
-    ),
-    
   ),
 
   // Security Tab
@@ -1211,17 +1137,6 @@ $GLOBALS_METADATA = array(
       xl('Must be empty if SMTP authentication is not used.')
     ),
 
-    'SMTP_SECURE' => array(
-      xl('SMTP Security Protocol'),
-      array(
-        '' => xl('None'),
-        'ssl'  => 'SSL',
-        'tls'  => 'TLS'
-      ),
-      '',
-      xl('SMTP security protocol to connect with. Required by some servers such as gmail.')
-    ),
-	
     'EMAIL_NOTIFICATION_HOUR' => array(
       xl('Email Notification Hours'),
       'num',                            // data type
@@ -1696,7 +1611,58 @@ $GLOBALS_METADATA = array(
     ),
 
   ),
-
+//CC Tab
+//
+  'CC Gateway' => array(
+      
+      'enable_authoriz_net' => array(
+          xl('Enable Auhorize Net'),
+          'bool',
+          '0',
+          xl('Enable Authorize Net.')
+      ),
+      'aapi_login_id' => array(
+          xl('API Login ID'),
+          'text',
+          '',
+          xl('API Login ID is inside your account setting at authorize.net ')
+      ),
+      'atransaction_key' => array(
+          xl('Transaction Key'),
+          'text',
+          '',
+          xl('Enter your Transaction Key that you generated in your account settings')
+      ),
+	  'authorizenet_md5_setting' => array(
+	      xl('Hash Key'),
+		  'text',
+		  '',
+		  xl('Enter the MD5 Hash value from your Authorize.Net account settings' )
+	  ),
+	  
+	  'enable_stripe' => array(
+	      xl('Enable Stripe CC Processing'),
+		 'bool',
+         '0',
+          xl('Enable the stripe.com credit card processing of payments')		 
+	  ),
+	  
+	  's_key_stripe' => array(
+	      xl('S_KEY'),
+		  'text',
+		  'sk_test_BQokikJOvBiI2HlWgH4olfQ2',
+		  xl('This is the demo secret key, it must be replaced with your account key'), 
+	  ),
+	  
+	  'pk_key_stripe' => array(
+	      xl('PK_KEY'),
+		  'text',
+		  'pk_test_6pRNASCoBOKtIshFeQd4XMUh',
+		  xl('This is the demo key, it must be replaced with your account key'),	  
+	  ),
+	  
+  ), 
+    
   // Portal Tab
   //
   'Portal' => array(

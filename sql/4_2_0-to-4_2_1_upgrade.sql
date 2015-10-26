@@ -322,6 +322,25 @@ CREATE TABLE ccda (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 #EndIf
 
+#IfNotTable cc_ledger
+CREATE TABLE IF NOT EXISTS `cc_ledger` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `trans_id` varchar(40) NOT NULL,
+  `pay_amount` decimal(12,2) NOT NULL,
+  `account_code` varchar(3) NOT NULL,
+  `pid` int(11) NOT NULL,
+  `post_user` int(11) NOT NULL,
+  `chrg_date` datetime NOT NULL,
+  `processor` varchar(5) NOT NULL,
+  `processed` int(2) NOT NULL,
+  `process_date` datetime NOT NULL,
+  `transaction_type` varchar(1) NOT NULL,
+  `encounter` int(11) NOT NULL,
+  `session_id` int(10) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
+#EndIf
+
 #IfNotRow2D list_options list_id lists option_id religious_affiliation
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','religious_affiliation','Religious Affiliation');
 INSERT INTO list_options (list_id, option_id, notes,title, seq) VALUES ('religious_affiliation','adventist','1001','Adventist','5');

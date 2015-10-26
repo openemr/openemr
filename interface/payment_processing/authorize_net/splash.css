@@ -1,0 +1,34 @@
+body {
+  background: #cbad8d url('splash.png') no-repeat top center;
+  width: 544px;
+  height: 213px;
+  padding: 557px 0 0 436px;
+}
+
+a.submit {
+  float: left;
+  font-size: 24px;
+  text-decoration: none;
+  padding: 14px 12px;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  border-radius: 20px;
+}
+
+* html .clearfix {
+  height: 1%;
+  overflow: visible;
+}
+
+* + html .clearfix {
+  min-height: 1%;
+}
+
+.clearfix:after {
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
+  font-size: 0;
+}
