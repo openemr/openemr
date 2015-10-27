@@ -70,7 +70,8 @@ class C_Document extends Controller {
       }
     }
     $this->assign("TEMPLATES_LIST", $templates_options);
-
+    $this->assign("UPLOAD_PATH", $GLOBALS['OE_SITE_DIR']);
+    
 		$activity = $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
 		$this->assign("activity", $activity);
 		return $this->list_action($patient_id);
