@@ -7,6 +7,7 @@
 // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
+require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/globals.inc.php");
@@ -446,6 +447,19 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         if ($row['lang_description'] == $fldvalue) echo " selected";
         echo ">";
         echo xl($row['lang_description']);
+        echo "</option>\n";
+      }
+      echo "  </select>\n";
+    }
+
+    else if ($fldtype == 'all_code_types') {
+      global $code_types;
+      echo "  <select name='form_$i' id='form_$i'>\n";
+      foreach (array_keys($code_types) as $code_key ) {
+        echo "   <option value='" . attr($code_key) . "'";
+        if ($code_key == $fldvalue) echo " selected";
+        echo ">";
+        echo xlt($code_types[$code_key]['label']);
         echo "</option>\n";
       }
       echo "  </select>\n";

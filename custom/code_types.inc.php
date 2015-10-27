@@ -60,7 +60,6 @@
 require_once(dirname(__FILE__)."/../library/csv_like_join.php");
 
 $code_types = array();
-$default_search_type = '';
 $ctres = sqlStatement("SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key");
 while ($ctrow = sqlFetchArray($ctres)) {
   $code_types[$ctrow['ct_key']] = array(
@@ -81,7 +80,15 @@ while ($ctrow = sqlFetchArray($ctres)) {
     'problem'=> $ctrow['ct_problem'],
     'drug'=> $ctrow['ct_drug']
   );
-  if ($default_search_type === '') $default_search_type = $ctrow['ct_key'];
+  if(array_key_exists($GLOBALS['default_search_code_type'], $code_types)){
+    $default_search_type = $GLOBALS['default_search_code_type'];
+  }else
+  {
+    reset($code_types);
+    $default_search_type = key($code_types);
+  }
+   
+
 }
 
 /** This array contains metadata describing the arrangement of the external data

@@ -1026,7 +1026,7 @@ echo " </tr>\n";
 <?php
   foreach ($nofs_code_types as $key => $value) {
     echo "   <option value='" . attr($key) . "'";
-    if ($key == $default_search_type) echo " selected";
+    if ($key == $search_type) echo " selected";
     echo " />" . xlt($value['label']) . "</option>";
   }
 ?>
