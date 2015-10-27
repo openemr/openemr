@@ -88,6 +88,15 @@ $upload_handler = new UploadHandler($options);
 	}
 	save_file($nid, $tname, $size, $pid, $docdate, $owner, $mtype, $category_id);
     
+    	  /*
+	   * This will be to have the system generate the hash for the file after upload is complete 
+	   */
+	      
+    $file_hash = hash_file('sha1', $tname);
+
+	     $sql = "UPDATE documents SET hash = '" . $file_hash . "' WHERE id = '" . $nid . "'";
+		 sqlQuery($sql);
+    
     //===================== Security ==============    
    //Check for the htaccess file in the patient folder 
    // if not there copy to location
