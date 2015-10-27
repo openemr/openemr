@@ -95,7 +95,7 @@
 	<div id="dragdrop" class="dragdrop">
 	<form id="drag_drop" enctype="multipart/form-data" onsubmit="return top.restoreSession()">
 	  
-      <input id="fileupload" type="file" name="files[]" data-url="./sites/default/uploader/dropdoc.php" >
+      <input id="fileupload" type="file" name="files[]" data-url="{$UPLOAD_PATH}/uploader/dropdoc.php" >
       <input type="hidden" name="patient_id" value="{$patient_id}" >
 	  <input type="hidden" name="category_id" value="{$category_id}" />
 	  
