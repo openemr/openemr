@@ -627,7 +627,7 @@ a.disabled_button:hover {
  * TABS
 */
 
-ul.tabNav { margin: 0; padding: 0; }
+/*ul.tabNav { margin: 0; padding: 0; }
 ul.tabNav { float: left; list-style: none; width: 100%; }
 ul.tabNav li { float: left; margin: 0 1px 0 0; padding: 6px 0 0;
   font-size: 0.8em;
@@ -641,7 +641,7 @@ ul.tabNav li.current { padding-top: 0;
   text-align: left;
 }
 ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
-ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }
+ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }*/
 
 div.tabContainer { clear: both; float: left; width: 100%; }
 div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
@@ -1073,5 +1073,19 @@ div.notab-right {
   content: ' <<';
 }
 
+ul.tabNav > li > a, .tabContainer {
+  font-size: 10pt;
+}
 
+td.label {
+  color: black !important;
+}
+
+ul.tabNav {
+  @extend .nav, .nav-tabs;
+}
+
+li.current {
+  @extend li.active;
+}
 

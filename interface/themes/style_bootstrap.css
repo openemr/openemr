@@ -6213,40 +6213,42 @@ select[multiple].input-group-sm > .input-group-btn > .css_button,
 }
 
 /* line 4022, bootstrap/css/bootstrap.scss */
-.nav {
+.nav, ul.tabNav {
   padding-left: 0;
   margin-bottom: 0;
   list-style: none;
 }
 
 /* line 4027, bootstrap/css/bootstrap.scss */
-.nav > li {
+.nav > li, ul.tabNav > li {
   position: relative;
   display: block;
 }
 
 /* line 4031, bootstrap/css/bootstrap.scss */
-.nav > li > a {
+.nav > li > a, ul.tabNav > li > a {
   position: relative;
   display: block;
   padding: 10px 15px;
 }
 
 /* line 4036, bootstrap/css/bootstrap.scss */
-.nav > li > a:hover,
-.nav > li > a:focus {
+.nav > li > a:hover, ul.tabNav > li > a:hover,
+.nav > li > a:focus,
+ul.tabNav > li > a:focus {
   text-decoration: none;
   background-color: #eee;
 }
 
 /* line 4041, bootstrap/css/bootstrap.scss */
-.nav > li.disabled > a {
+.nav > li.disabled > a, ul.tabNav > li.disabled > a {
   color: #777;
 }
 
 /* line 4044, bootstrap/css/bootstrap.scss */
-.nav > li.disabled > a:hover,
-.nav > li.disabled > a:focus {
+.nav > li.disabled > a:hover, ul.tabNav > li.disabled > a:hover,
+.nav > li.disabled > a:focus,
+ul.tabNav > li.disabled > a:focus {
   color: #777;
   text-decoration: none;
   cursor: not-allowed;
@@ -6254,15 +6256,17 @@ select[multiple].input-group-sm > .input-group-btn > .css_button,
 }
 
 /* line 4051, bootstrap/css/bootstrap.scss */
-.nav .open > a,
+.nav .open > a, ul.tabNav .open > a,
 .nav .open > a:hover,
-.nav .open > a:focus {
+ul.tabNav .open > a:hover,
+.nav .open > a:focus,
+ul.tabNav .open > a:focus {
   background-color: #eee;
   border-color: #337ab7;
 }
 
 /* line 4057, bootstrap/css/bootstrap.scss */
-.nav .nav-divider {
+.nav .nav-divider, ul.tabNav .nav-divider {
   height: 1px;
   margin: 9px 0;
   overflow: hidden;
@@ -6270,23 +6274,23 @@ select[multiple].input-group-sm > .input-group-btn > .css_button,
 }
 
 /* line 4063, bootstrap/css/bootstrap.scss */
-.nav > li > a > img {
+.nav > li > a > img, ul.tabNav > li > a > img {
   max-width: none;
 }
 
 /* line 4066, bootstrap/css/bootstrap.scss */
-.nav-tabs {
+.nav-tabs, ul.tabNav {
   border-bottom: 1px solid #ddd;
 }
 
 /* line 4069, bootstrap/css/bootstrap.scss */
-.nav-tabs > li {
+.nav-tabs > li, ul.tabNav > li {
   float: left;
   margin-bottom: -1px;
 }
 
 /* line 4073, bootstrap/css/bootstrap.scss */
-.nav-tabs > li > a {
+.nav-tabs > li > a, ul.tabNav > li > a {
   margin-right: 2px;
   line-height: 1.42857143;
   border: 1px solid transparent;
@@ -6294,14 +6298,20 @@ select[multiple].input-group-sm > .input-group-btn > .css_button,
 }
 
 /* line 4079, bootstrap/css/bootstrap.scss */
-.nav-tabs > li > a:hover {
+.nav-tabs > li > a:hover, ul.tabNav > li > a:hover {
   border-color: #eee #eee #ddd;
 }
 
 /* line 4082, bootstrap/css/bootstrap.scss */
-.nav-tabs > li.active > a,
+.nav-tabs > li.active > a, ul.tabNav > li.active > a, .nav-tabs > li.current > a, ul.tabNav > li.current > a,
 .nav-tabs > li.active > a:hover,
-.nav-tabs > li.active > a:focus {
+ul.tabNav > li.active > a:hover,
+.nav-tabs > li.current > a:hover,
+ul.tabNav > li.current > a:hover,
+.nav-tabs > li.active > a:focus,
+ul.tabNav > li.active > a:focus,
+.nav-tabs > li.current > a:focus,
+ul.tabNav > li.current > a:focus {
   color: #555;
   cursor: default;
   background-color: #fff;
@@ -6310,64 +6320,68 @@ select[multiple].input-group-sm > .input-group-btn > .css_button,
 }
 
 /* line 4091, bootstrap/css/bootstrap.scss */
-.nav-tabs.nav-justified {
+.nav-tabs.nav-justified, ul.nav-justified.tabNav {
   width: 100%;
   border-bottom: 0;
 }
 
 /* line 4095, bootstrap/css/bootstrap.scss */
-.nav-tabs.nav-justified > li {
+.nav-tabs.nav-justified > li, ul.nav-justified.tabNav > li {
   float: none;
 }
 
 /* line 4098, bootstrap/css/bootstrap.scss */
-.nav-tabs.nav-justified > li > a {
+.nav-tabs.nav-justified > li > a, ul.nav-justified.tabNav > li > a {
   margin-bottom: 5px;
   text-align: center;
 }
 
 /* line 4102, bootstrap/css/bootstrap.scss */
-.nav-tabs.nav-justified > .dropdown .dropdown-menu {
+.nav-tabs.nav-justified > .dropdown .dropdown-menu, ul.nav-justified.tabNav > .dropdown .dropdown-menu {
   top: auto;
   left: auto;
 }
 
 @media (min-width: 768px) {
   /* line 4107, bootstrap/css/bootstrap.scss */
-  .nav-tabs.nav-justified > li {
+  .nav-tabs.nav-justified > li, ul.nav-justified.tabNav > li {
     display: table-cell;
     width: 1%;
   }
 
   /* line 4111, bootstrap/css/bootstrap.scss */
-  .nav-tabs.nav-justified > li > a {
+  .nav-tabs.nav-justified > li > a, ul.nav-justified.tabNav > li > a {
     margin-bottom: 0;
   }
 }
 /* line 4115, bootstrap/css/bootstrap.scss */
-.nav-tabs.nav-justified > li > a {
+.nav-tabs.nav-justified > li > a, ul.nav-justified.tabNav > li > a {
   margin-right: 0;
   border-radius: 4px;
 }
 
 /* line 4119, bootstrap/css/bootstrap.scss */
-.nav-tabs.nav-justified > .active > a,
+.nav-tabs.nav-justified > .active > a, ul.nav-justified.tabNav > .active > a,
 .nav-tabs.nav-justified > .active > a:hover,
-.nav-tabs.nav-justified > .active > a:focus {
+ul.nav-justified.tabNav > .active > a:hover,
+.nav-tabs.nav-justified > .active > a:focus,
+ul.nav-justified.tabNav > .active > a:focus {
   border: 1px solid #ddd;
 }
 
 @media (min-width: 768px) {
   /* line 4125, bootstrap/css/bootstrap.scss */
-  .nav-tabs.nav-justified > li > a {
+  .nav-tabs.nav-justified > li > a, ul.nav-justified.tabNav > li > a {
     border-bottom: 1px solid #ddd;
     border-radius: 4px 4px 0 0;
   }
 
   /* line 4129, bootstrap/css/bootstrap.scss */
-  .nav-tabs.nav-justified > .active > a,
+  .nav-tabs.nav-justified > .active > a, ul.nav-justified.tabNav > .active > a,
   .nav-tabs.nav-justified > .active > a:hover,
-  .nav-tabs.nav-justified > .active > a:focus {
+  ul.nav-justified.tabNav > .active > a:hover,
+  .nav-tabs.nav-justified > .active > a:focus,
+  ul.nav-justified.tabNav > .active > a:focus {
     border-bottom-color: #fff;
   }
 }
@@ -6387,9 +6401,11 @@ select[multiple].input-group-sm > .input-group-btn > .css_button,
 }
 
 /* line 4144, bootstrap/css/bootstrap.scss */
-.nav-pills > li.active > a,
+.nav-pills > li.active > a, .nav-pills > li.current > a,
 .nav-pills > li.active > a:hover,
-.nav-pills > li.active > a:focus {
+.nav-pills > li.current > a:hover,
+.nav-pills > li.active > a:focus,
+.nav-pills > li.current > a:focus {
   color: #fff;
   background-color: #337ab7;
 }
@@ -6482,7 +6498,7 @@ select[multiple].input-group-sm > .input-group-btn > .css_button,
 }
 
 /* line 4209, bootstrap/css/bootstrap.scss */
-.nav-tabs .dropdown-menu {
+.nav-tabs .dropdown-menu, ul.tabNav .dropdown-menu {
   margin-top: -1px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -9625,7 +9641,9 @@ button.close {
 .btn-group-vertical > .btn-group:before,
 .btn-group-vertical > .btn-group:after,
 .nav:before,
+ul.tabNav:before,
 .nav:after,
+ul.tabNav:after,
 .navbar:before,
 .navbar:after,
 .navbar-header:before,
@@ -9652,6 +9670,7 @@ button.close {
 .btn-toolbar:after,
 .btn-group-vertical > .btn-group:after,
 .nav:after,
+ul.tabNav:after,
 .navbar:after,
 .navbar-header:after,
 .navbar-collapse:after,
@@ -11676,55 +11695,21 @@ a.disabled_button:hover {
 /*
  * TABS
 */
-/* line 630, bootstrap/sass/style_bootstrap.scss */
-ul.tabNav {
-  margin: 0;
-  padding: 0;
-}
-
-/* line 631, bootstrap/sass/style_bootstrap.scss */
-ul.tabNav {
-  float: left;
-  list-style: none;
-  width: 100%;
-}
-
-/* line 632, bootstrap/sass/style_bootstrap.scss */
-ul.tabNav li {
-  float: left;
-  margin: 0 1px 0 0;
-  padding: 6px 0 0;
+/*ul.tabNav { margin: 0; padding: 0; }
+ul.tabNav { float: left; list-style: none; width: 100%; }
+ul.tabNav li { float: left; margin: 0 1px 0 0; padding: 6px 0 0;
   font-size: 0.8em;
   vertical-align: bottom;
   text-align: left;
 }
-
-/* line 637, bootstrap/sass/style_bootstrap.scss */
-ul.tabNav li.current {
-  padding-top: 0;
+ul.tabNav li.current { padding-top: 0;
   font-weight: bold;
   font-size: 0.8em;
   vertical-align: bottom;
   text-align: left;
 }
-
-/* line 643, bootstrap/sass/style_bootstrap.scss */
-ul.tabNav a {
-  background: #A7A7A7;
-  border: 1px solid #ffffff;
-  border-width: 1px 1px 0;
-  color: #333;
-  display: block;
-  padding: 4px 4px 5px 4px;
-  text-decoration: none;
-}
-
-/* line 644, bootstrap/sass/style_bootstrap.scss */
-ul.tabNav li.current a {
-  background: #FFFFFF;
-  padding: 8px;
-}
-
+ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
+ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }*/
 /* line 646, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer {
   clear: both;
@@ -12234,12 +12219,12 @@ div.notab-right {
 }
 
 /* line 1009, bootstrap/sass/style_bootstrap.scss */
-.example_menu li.active a {
+.example_menu li.active a, .example_menu li.current a {
   background: #fff;
 }
 
 /* line 1012, bootstrap/sass/style_bootstrap.scss */
-.example_menu li.active li a {
+.example_menu li.active li a, .example_menu li.current li a {
   background: #e8e8e8;
 }
 
@@ -12307,4 +12292,14 @@ div.notab-right {
 /* line 1072, bootstrap/sass/style_bootstrap.scss */
 #showMenuLink::after {
   content: ' <<';
+}
+
+/* line 1076, bootstrap/sass/style_bootstrap.scss */
+ul.tabNav > li > a, .tabContainer {
+  font-size: 10pt;
+}
+
+/* line 1080, bootstrap/sass/style_bootstrap.scss */
+td.label {
+  color: black !important;
 }
