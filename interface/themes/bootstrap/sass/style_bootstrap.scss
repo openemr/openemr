@@ -172,7 +172,7 @@ a:hover {
  * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
-.body_top { background-color: #fefdcf; margin: 8px }    /* $top_bg_line */
+.body_top { background-color: lightblue; margin: 8px }    /* $top_bg_line */
 .bgcolor2 { background-color: #fefdcf; }    /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
 .body_title { background-color: #fedf98; }  /* $title_bg_line */
@@ -1048,4 +1048,30 @@ div.notab-right {
   padding: 3px 5px !important;
   font-size: 8pt !important;
 }
+//body > table:nth-child(13) > tbody > tr > td > table:nth-child(2) > tbody > tr > td:nth-child(1) > span > a:nth-child(1)
+
+.css_button_link a {
+  @extend .btn, .btn-sm, .btn-primary;
+  margin: 5px 3px !important;
+  padding: 3px 5px !important;
+  font-size: 8pt !important;
+}
+
+.css_button_link span.css_button_separator {
+  display: none;
+}
+
+#showMenuLink {
+  @extend .css_button_small;
+}
+
+#showMenuLink.active::after {
+  content: ' >>';
+}
+
+#showMenuLink::after {
+  content: ' <<';
+}
+
+
 

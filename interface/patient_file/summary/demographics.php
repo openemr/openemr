@@ -570,25 +570,27 @@ if ($GLOBALS['patient_id_category_name']) {
 <table cellspacing='0' cellpadding='0' border='0'>
  <tr>
   <td class="small" colspan='4'>
+<span class="css_button_link">
 <a href="../history/history.php" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
-|
+<span class="css_button_separator">|</span>
 <?php //note that we have temporarily removed report screen from the modal view ?>
 <a href="../report/patient_report.php" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
-|
+<span class="css_button_separator">|</span>
 <?php //note that we have temporarily removed document screen from the modal view ?>
 <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
-|
+<span class="css_button_separator">|</span>
 <a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
-|
+<span class="css_button_separator">|</span>
 <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
 <?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
-|
+<span class="css_button_separator">|</span>
 <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
 <?php echo xlt('Ledger'); ?></a>
+</span>
 
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php

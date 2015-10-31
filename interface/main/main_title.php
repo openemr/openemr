@@ -57,12 +57,16 @@ function toencounter(rawdata) {
 function showhideMenu() {
 	var m = parent.document.getElementById("fsbody");
 	var targetWidth = '0,*';
+	var showMenuLink = document.getElementById("showMenuLink");
+
 	if (m.cols == targetWidth) {
-		m.cols = '<?php echo $GLOBALS['gbl_nav_area_width'] ?>,*';
-		document.getElementById("showMenuLink").innerHTML = '<?php echo htmlspecialchars( xl('Hide Menu'), ENT_QUOTES); ?>';
+		m.cols = '<?php echo $GLOBALS['gbl_nav_area_width'] ?>,*'
+		showMenuLink.innerHTML = '<?php echo htmlspecialchars( xl('Hide Menu'), ENT_QUOTES); ?>';
+		showMenuLink.setAttribute('class', '');
 	} else {
 		m.cols = targetWidth;
-		document.getElementById("showMenuLink").innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
+		showMenuLink.innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
+		showMenuLink.setAttribute('class', 'active');
 	}
 }
 </script>
@@ -115,10 +119,10 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <td align="right">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
-		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
-		&nbsp;|&nbsp;
+		<td align="right" class="text" style="vertical-align:text-bottom;"><span class="css_button_link"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
+		<span class="css_button_separator">&nbsp;|&nbsp;</span>
 		<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.0_Users_Guide" target="_blank" id="help_link" >
-			<?php xl('Manual','e'); ?></a>&nbsp;</td>
+			<?php xl('Manual','e'); ?></a></span>&nbsp;</td>
 		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
 			<span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
 	</tr><tr>
