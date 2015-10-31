@@ -8,10 +8,10 @@
 @import '../css/bootstrap-theme.scss';
 
 body {
-  margin: 0px 0px 0px 2px;
+  margin: 0px 0px 0px 0px;
   /* set the base font and size for all DOM children */
   font-family: sans-serif;
-  font-size: 1em;  /* set the base font size for all DOM children */
+  font-size: 10pt;  /* set the base font size for all DOM children */
 }
 
 a {
@@ -20,7 +20,7 @@ a {
 }
 
 a:visited {
-  color: #0000cc;
+  //color: #0000cc;
 }
 
 a:hover {
@@ -609,46 +609,7 @@ a:hover {
 }
 
 
-/*
- * CSS BUTTONS
-*/
-.css_button_small {
-  background: transparent url( '../../images/bg_button_a_small.gif' ) no-repeat scroll top right;
-  color: #444;
-  display: block;
-  float: left;
-  font: bold 9px arial, sans-serif;
-  height: 19px;
-  margin-right: 3px;
-  padding-right: 10px; /* sliding doors padding */
-  text-decoration: none;
-}
 
-.css_button_small span {
-  background: transparent url( '../../images/bg_button_span_small.gif' ) no-repeat;
-  display: block;
-  line-height: 20px;
-  padding: 0px 0px 0px 10px;
-}
-
-.css_button {
-  background: transparent url( '../../images/bg_button_a.gif' ) no-repeat scroll top right;
-  color: #444;
-  display: block;
-  float: left;
-  font: bold 10px arial, sans-serif;
-  height: 24px;
-  margin-right: 3px;
-  padding-right: 10px; /* sliding doors padding */
-  text-decoration: none;
-}
-
-.css_button span {
-  background: transparent url( '../../images/bg_button_span.gif' ) no-repeat;
-  display: block;
-  line-height: 14px;
-  padding: 5px 0 5px 10px;
-}
 .sellistclass {
   float:left;
 }
@@ -1077,3 +1038,14 @@ div.notab-right {
 .report_search_bar{
   background-color:#EADDB4;
 }
+
+
+// Bootstrap UI Renovations
+
+.css_button_small,.css_button {
+  @extend .btn, .btn-sm, .btn-primary;
+  margin: 5px 3px !important;
+  padding: 3px 5px !important;
+  font-size: 8pt !important;
+}
+

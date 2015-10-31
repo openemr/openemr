@@ -414,8 +414,9 @@ th {
   }
 
   /* line 244, bootstrap/css/bootstrap.scss */
-  .btn > .caret,
-  .dropup > .btn > .caret {
+  .btn > .caret, .css_button_small > .caret,
+  .dropup > .btn > .caret,
+  .dropup > .css_button_small > .caret {
     border-top-color: #000 !important;
   }
 
@@ -4553,7 +4554,7 @@ select[multiple].input-lg {
   }
 }
 /* line 3001, bootstrap/css/bootstrap.scss */
-.btn {
+.btn, .css_button_small {
   display: inline-block;
   padding: 6px 12px;
   margin-bottom: 0;
@@ -4576,28 +4577,36 @@ select[multiple].input-lg {
 }
 
 /* line 3022, bootstrap/css/bootstrap.scss */
-.btn:focus,
+.btn:focus, .css_button_small:focus,
 .btn:active:focus,
+.css_button_small:active:focus,
 .btn.active:focus,
+.active.css_button_small:focus,
 .btn.focus,
+.focus.css_button_small,
 .btn:active.focus,
-.btn.active.focus {
+.css_button_small:active.focus,
+.btn.active.focus,
+.active.focus.css_button_small {
   outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
 
 /* line 3032, bootstrap/css/bootstrap.scss */
-.btn:hover,
+.btn:hover, .css_button_small:hover,
 .btn:focus,
-.btn.focus {
+.css_button_small:focus,
+.btn.focus,
+.focus.css_button_small {
   color: #333;
   text-decoration: none;
 }
 
 /* line 3038, bootstrap/css/bootstrap.scss */
-.btn:active,
-.btn.active {
+.btn:active, .css_button_small:active,
+.btn.active,
+.active.css_button_small {
   background-image: none;
   outline: 0;
   -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
@@ -4605,9 +4614,11 @@ select[multiple].input-lg {
 }
 
 /* line 3045, bootstrap/css/bootstrap.scss */
-.btn.disabled,
+.btn.disabled, .disabled.css_button_small,
 .btn[disabled],
-fieldset[disabled] .btn {
+[disabled].css_button_small,
+fieldset[disabled] .btn,
+fieldset[disabled] .css_button_small {
   cursor: not-allowed;
   filter: alpha(opacity=65);
   -webkit-box-shadow: none;
@@ -4616,8 +4627,9 @@ fieldset[disabled] .btn {
 }
 
 /* line 3054, bootstrap/css/bootstrap.scss */
-a.btn.disabled,
-fieldset[disabled] a.btn {
+a.btn.disabled, a.disabled.css_button_small,
+fieldset[disabled] a.btn,
+fieldset[disabled] a.css_button_small {
   pointer-events: none;
 }
 
@@ -4704,83 +4716,113 @@ fieldset[disabled] .btn-default.active {
 }
 
 /* line 3124, bootstrap/css/bootstrap.scss */
-.btn-primary {
+.btn-primary, .css_button_small {
   color: #fff;
   background-color: #337ab7;
   border-color: #2e6da4;
 }
 
 /* line 3129, bootstrap/css/bootstrap.scss */
-.btn-primary:focus,
-.btn-primary.focus {
+.btn-primary:focus, .css_button_small:focus,
+.btn-primary.focus,
+.focus.css_button_small {
   color: #fff;
   background-color: #286090;
   border-color: #122b40;
 }
 
 /* line 3135, bootstrap/css/bootstrap.scss */
-.btn-primary:hover {
+.btn-primary:hover, .css_button_small:hover {
   color: #fff;
   background-color: #286090;
   border-color: #204d74;
 }
 
 /* line 3140, bootstrap/css/bootstrap.scss */
-.btn-primary:active,
+.btn-primary:active, .css_button_small:active,
 .btn-primary.active,
-.open > .dropdown-toggle.btn-primary {
+.active.css_button_small,
+.open > .dropdown-toggle.btn-primary,
+.open > .dropdown-toggle.css_button_small {
   color: #fff;
   background-color: #286090;
   border-color: #204d74;
 }
 
 /* line 3147, bootstrap/css/bootstrap.scss */
-.btn-primary:active:hover,
+.btn-primary:active:hover, .css_button_small:active:hover,
 .btn-primary.active:hover,
+.active.css_button_small:hover,
 .open > .dropdown-toggle.btn-primary:hover,
+.open > .dropdown-toggle.css_button_small:hover,
 .btn-primary:active:focus,
+.css_button_small:active:focus,
 .btn-primary.active:focus,
+.active.css_button_small:focus,
 .open > .dropdown-toggle.btn-primary:focus,
+.open > .dropdown-toggle.css_button_small:focus,
 .btn-primary:active.focus,
+.css_button_small:active.focus,
 .btn-primary.active.focus,
-.open > .dropdown-toggle.btn-primary.focus {
+.active.focus.css_button_small,
+.open > .dropdown-toggle.btn-primary.focus,
+.open > .dropdown-toggle.focus.css_button_small {
   color: #fff;
   background-color: #204d74;
   border-color: #122b40;
 }
 
 /* line 3160, bootstrap/css/bootstrap.scss */
-.btn-primary:active,
+.btn-primary:active, .css_button_small:active,
 .btn-primary.active,
-.open > .dropdown-toggle.btn-primary {
+.active.css_button_small,
+.open > .dropdown-toggle.btn-primary,
+.open > .dropdown-toggle.css_button_small {
   background-image: none;
 }
 
 /* line 3165, bootstrap/css/bootstrap.scss */
-.btn-primary.disabled,
+.btn-primary.disabled, .disabled.css_button_small,
 .btn-primary[disabled],
+[disabled].css_button_small,
 fieldset[disabled] .btn-primary,
+fieldset[disabled] .css_button_small,
 .btn-primary.disabled:hover,
+.disabled.css_button_small:hover,
 .btn-primary[disabled]:hover,
+[disabled].css_button_small:hover,
 fieldset[disabled] .btn-primary:hover,
+fieldset[disabled] .css_button_small:hover,
 .btn-primary.disabled:focus,
+.disabled.css_button_small:focus,
 .btn-primary[disabled]:focus,
+[disabled].css_button_small:focus,
 fieldset[disabled] .btn-primary:focus,
+fieldset[disabled] .css_button_small:focus,
 .btn-primary.disabled.focus,
+.disabled.focus.css_button_small,
 .btn-primary[disabled].focus,
+[disabled].focus.css_button_small,
 fieldset[disabled] .btn-primary.focus,
+fieldset[disabled] .focus.css_button_small,
 .btn-primary.disabled:active,
+.disabled.css_button_small:active,
 .btn-primary[disabled]:active,
+[disabled].css_button_small:active,
 fieldset[disabled] .btn-primary:active,
+fieldset[disabled] .css_button_small:active,
 .btn-primary.disabled.active,
+.disabled.active.css_button_small,
 .btn-primary[disabled].active,
-fieldset[disabled] .btn-primary.active {
+[disabled].active.css_button_small,
+fieldset[disabled] .btn-primary.active,
+fieldset[disabled] .active.css_button_small {
   background-color: #337ab7;
   border-color: #2e6da4;
 }
 
 /* line 3186, bootstrap/css/bootstrap.scss */
-.btn-primary .badge {
+.btn-primary .badge, .css_button_small .badge {
   color: #337ab7;
   background-color: #fff;
 }
@@ -5158,7 +5200,8 @@ fieldset[disabled] .btn-link:focus {
 
 /* line 3487, bootstrap/css/bootstrap.scss */
 .btn-lg,
-.btn-group-lg > .btn {
+.btn-group-lg > .btn,
+.btn-group-lg > .css_button_small {
   padding: 10px 16px;
   font-size: 18px;
   line-height: 1.3333333;
@@ -5166,8 +5209,9 @@ fieldset[disabled] .btn-link:focus {
 }
 
 /* line 3494, bootstrap/css/bootstrap.scss */
-.btn-sm,
-.btn-group-sm > .btn {
+.btn-sm, .css_button_small,
+.btn-group-sm > .btn,
+.btn-group-sm > .css_button_small {
   padding: 5px 10px;
   font-size: 12px;
   line-height: 1.5;
@@ -5176,7 +5220,8 @@ fieldset[disabled] .btn-link:focus {
 
 /* line 3501, bootstrap/css/bootstrap.scss */
 .btn-xs,
-.btn-group-xs > .btn {
+.btn-group-xs > .btn,
+.btn-group-xs > .css_button_small {
   padding: 1px 5px;
   font-size: 12px;
   line-height: 1.5;
@@ -5445,28 +5490,38 @@ tbody.collapse.in {
 }
 
 /* line 3704, bootstrap/css/bootstrap.scss */
-.btn-group > .btn,
-.btn-group-vertical > .btn {
+.btn-group > .btn, .btn-group > .css_button_small,
+.btn-group-vertical > .btn,
+.btn-group-vertical > .css_button_small {
   position: relative;
   float: left;
 }
 
 /* line 3709, bootstrap/css/bootstrap.scss */
-.btn-group > .btn:hover,
+.btn-group > .btn:hover, .btn-group > .css_button_small:hover,
 .btn-group-vertical > .btn:hover,
+.btn-group-vertical > .css_button_small:hover,
 .btn-group > .btn:focus,
+.btn-group > .css_button_small:focus,
 .btn-group-vertical > .btn:focus,
+.btn-group-vertical > .css_button_small:focus,
 .btn-group > .btn:active,
+.btn-group > .css_button_small:active,
 .btn-group-vertical > .btn:active,
+.btn-group-vertical > .css_button_small:active,
 .btn-group > .btn.active,
-.btn-group-vertical > .btn.active {
+.btn-group > .active.css_button_small,
+.btn-group-vertical > .btn.active,
+.btn-group-vertical > .active.css_button_small {
   z-index: 2;
 }
 
 /* line 3719, bootstrap/css/bootstrap.scss */
-.btn-group .btn + .btn,
+.btn-group .btn + .btn, .btn-group .css_button_small + .btn, .btn-group .btn + .css_button_small, .btn-group .css_button_small + .css_button_small,
 .btn-group .btn + .btn-group,
+.btn-group .css_button_small + .btn-group,
 .btn-group .btn-group + .btn,
+.btn-group .btn-group + .css_button_small,
 .btn-group .btn-group + .btn-group {
   margin-left: -1px;
 }
@@ -5477,37 +5532,37 @@ tbody.collapse.in {
 }
 
 /* line 3728, bootstrap/css/bootstrap.scss */
-.btn-toolbar .btn,
+.btn-toolbar .btn, .btn-toolbar .css_button_small,
 .btn-toolbar .btn-group,
 .btn-toolbar .input-group {
   float: left;
 }
 
 /* line 3733, bootstrap/css/bootstrap.scss */
-.btn-toolbar > .btn,
+.btn-toolbar > .btn, .btn-toolbar > .css_button_small,
 .btn-toolbar > .btn-group,
 .btn-toolbar > .input-group {
   margin-left: 5px;
 }
 
 /* line 3738, bootstrap/css/bootstrap.scss */
-.btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+.btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle), .btn-group > .css_button_small:not(:first-child):not(:last-child):not(.dropdown-toggle) {
   border-radius: 0;
 }
 
 /* line 3741, bootstrap/css/bootstrap.scss */
-.btn-group > .btn:first-child {
+.btn-group > .btn:first-child, .btn-group > .css_button_small:first-child {
   margin-left: 0;
 }
 
 /* line 3744, bootstrap/css/bootstrap.scss */
-.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
+.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle), .btn-group > .css_button_small:first-child:not(:last-child):not(.dropdown-toggle) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
 /* line 3748, bootstrap/css/bootstrap.scss */
-.btn-group > .btn:last-child:not(:first-child),
+.btn-group > .btn:last-child:not(:first-child), .btn-group > .css_button_small:last-child:not(:first-child),
 .btn-group > .dropdown-toggle:not(:first-child) {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
@@ -5519,19 +5574,19 @@ tbody.collapse.in {
 }
 
 /* line 3756, bootstrap/css/bootstrap.scss */
-.btn-group > .btn-group:not(:first-child):not(:last-child) > .btn {
+.btn-group > .btn-group:not(:first-child):not(:last-child) > .btn, .btn-group > .btn-group:not(:first-child):not(:last-child) > .css_button_small {
   border-radius: 0;
 }
 
 /* line 3759, bootstrap/css/bootstrap.scss */
-.btn-group > .btn-group:first-child:not(:last-child) > .btn:last-child,
+.btn-group > .btn-group:first-child:not(:last-child) > .btn:last-child, .btn-group > .btn-group:first-child:not(:last-child) > .css_button_small:last-child,
 .btn-group > .btn-group:first-child:not(:last-child) > .dropdown-toggle {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
 /* line 3764, bootstrap/css/bootstrap.scss */
-.btn-group > .btn-group:last-child:not(:first-child) > .btn:first-child {
+.btn-group > .btn-group:last-child:not(:first-child) > .btn:first-child, .btn-group > .btn-group:last-child:not(:first-child) > .css_button_small:first-child {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -5543,7 +5598,7 @@ tbody.collapse.in {
 }
 
 /* line 3772, bootstrap/css/bootstrap.scss */
-.btn-group > .btn + .dropdown-toggle {
+.btn-group > .btn + .dropdown-toggle, .btn-group > .css_button_small + .dropdown-toggle {
   padding-right: 8px;
   padding-left: 8px;
 }
@@ -5567,7 +5622,7 @@ tbody.collapse.in {
 }
 
 /* line 3788, bootstrap/css/bootstrap.scss */
-.btn .caret {
+.btn .caret, .css_button_small .caret {
   margin-left: 0;
 }
 
@@ -5583,9 +5638,10 @@ tbody.collapse.in {
 }
 
 /* line 3798, bootstrap/css/bootstrap.scss */
-.btn-group-vertical > .btn,
+.btn-group-vertical > .btn, .btn-group-vertical > .css_button_small,
 .btn-group-vertical > .btn-group,
-.btn-group-vertical > .btn-group > .btn {
+.btn-group-vertical > .btn-group > .btn,
+.btn-group-vertical > .btn-group > .css_button_small {
   display: block;
   float: none;
   width: 100%;
@@ -5593,52 +5649,54 @@ tbody.collapse.in {
 }
 
 /* line 3806, bootstrap/css/bootstrap.scss */
-.btn-group-vertical > .btn-group > .btn {
+.btn-group-vertical > .btn-group > .btn, .btn-group-vertical > .btn-group > .css_button_small {
   float: none;
 }
 
 /* line 3809, bootstrap/css/bootstrap.scss */
-.btn-group-vertical > .btn + .btn,
+.btn-group-vertical > .btn + .btn, .btn-group-vertical > .css_button_small + .btn, .btn-group-vertical > .btn + .css_button_small, .btn-group-vertical > .css_button_small + .css_button_small,
 .btn-group-vertical > .btn + .btn-group,
+.btn-group-vertical > .css_button_small + .btn-group,
 .btn-group-vertical > .btn-group + .btn,
+.btn-group-vertical > .btn-group + .css_button_small,
 .btn-group-vertical > .btn-group + .btn-group {
   margin-top: -1px;
   margin-left: 0;
 }
 
 /* line 3816, bootstrap/css/bootstrap.scss */
-.btn-group-vertical > .btn:not(:first-child):not(:last-child) {
+.btn-group-vertical > .btn:not(:first-child):not(:last-child), .btn-group-vertical > .css_button_small:not(:first-child):not(:last-child) {
   border-radius: 0;
 }
 
 /* line 3819, bootstrap/css/bootstrap.scss */
-.btn-group-vertical > .btn:first-child:not(:last-child) {
+.btn-group-vertical > .btn:first-child:not(:last-child), .btn-group-vertical > .css_button_small:first-child:not(:last-child) {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
 
 /* line 3824, bootstrap/css/bootstrap.scss */
-.btn-group-vertical > .btn:last-child:not(:first-child) {
+.btn-group-vertical > .btn:last-child:not(:first-child), .btn-group-vertical > .css_button_small:last-child:not(:first-child) {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-bottom-left-radius: 4px;
 }
 
 /* line 3829, bootstrap/css/bootstrap.scss */
-.btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .btn {
+.btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .btn, .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .css_button_small {
   border-radius: 0;
 }
 
 /* line 3832, bootstrap/css/bootstrap.scss */
-.btn-group-vertical > .btn-group:first-child:not(:last-child) > .btn:last-child,
+.btn-group-vertical > .btn-group:first-child:not(:last-child) > .btn:last-child, .btn-group-vertical > .btn-group:first-child:not(:last-child) > .css_button_small:last-child,
 .btn-group-vertical > .btn-group:first-child:not(:last-child) > .dropdown-toggle {
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
 
 /* line 3837, bootstrap/css/bootstrap.scss */
-.btn-group-vertical > .btn-group:last-child:not(:first-child) > .btn:first-child {
+.btn-group-vertical > .btn-group:last-child:not(:first-child) > .btn:first-child, .btn-group-vertical > .btn-group:last-child:not(:first-child) > .css_button_small:first-child {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
@@ -5652,7 +5710,7 @@ tbody.collapse.in {
 }
 
 /* line 3847, bootstrap/css/bootstrap.scss */
-.btn-group-justified > .btn,
+.btn-group-justified > .btn, .btn-group-justified > .css_button_small,
 .btn-group-justified > .btn-group {
   display: table-cell;
   float: none;
@@ -5660,7 +5718,7 @@ tbody.collapse.in {
 }
 
 /* line 3853, bootstrap/css/bootstrap.scss */
-.btn-group-justified > .btn-group .btn {
+.btn-group-justified > .btn-group .btn, .btn-group-justified > .btn-group .css_button_small {
   width: 100%;
 }
 
@@ -5670,10 +5728,13 @@ tbody.collapse.in {
 }
 
 /* line 3859, bootstrap/css/bootstrap.scss */
-[data-toggle="buttons"] > .btn input[type="radio"],
+[data-toggle="buttons"] > .btn input[type="radio"], [data-toggle="buttons"] > .css_button_small input[type="radio"],
 [data-toggle="buttons"] > .btn-group > .btn input[type="radio"],
+[data-toggle="buttons"] > .btn-group > .css_button_small input[type="radio"],
 [data-toggle="buttons"] > .btn input[type="checkbox"],
-[data-toggle="buttons"] > .btn-group > .btn input[type="checkbox"] {
+[data-toggle="buttons"] > .css_button_small input[type="checkbox"],
+[data-toggle="buttons"] > .btn-group > .btn input[type="checkbox"],
+[data-toggle="buttons"] > .btn-group > .css_button_small input[type="checkbox"] {
   position: absolute;
   clip: rect(0, 0, 0, 0);
   pointer-events: none;
@@ -5705,7 +5766,8 @@ tbody.collapse.in {
 /* line 3884, bootstrap/css/bootstrap.scss */
 .input-group-lg > .form-control,
 .input-group-lg > .input-group-addon,
-.input-group-lg > .input-group-btn > .btn {
+.input-group-lg > .input-group-btn > .btn,
+.input-group-lg > .input-group-btn > .css_button_small {
   height: 46px;
   padding: 10px 16px;
   font-size: 18px;
@@ -5716,7 +5778,8 @@ tbody.collapse.in {
 /* line 3893, bootstrap/css/bootstrap.scss */
 select.input-group-lg > .form-control,
 select.input-group-lg > .input-group-addon,
-select.input-group-lg > .input-group-btn > .btn {
+select.input-group-lg > .input-group-btn > .btn,
+select.input-group-lg > .input-group-btn > .css_button_small {
   height: 46px;
   line-height: 46px;
 }
@@ -5725,16 +5788,19 @@ select.input-group-lg > .input-group-btn > .btn {
 textarea.input-group-lg > .form-control,
 textarea.input-group-lg > .input-group-addon,
 textarea.input-group-lg > .input-group-btn > .btn,
+textarea.input-group-lg > .input-group-btn > .css_button_small,
 select[multiple].input-group-lg > .form-control,
 select[multiple].input-group-lg > .input-group-addon,
-select[multiple].input-group-lg > .input-group-btn > .btn {
+select[multiple].input-group-lg > .input-group-btn > .btn,
+select[multiple].input-group-lg > .input-group-btn > .css_button_small {
   height: auto;
 }
 
 /* line 3907, bootstrap/css/bootstrap.scss */
 .input-group-sm > .form-control,
 .input-group-sm > .input-group-addon,
-.input-group-sm > .input-group-btn > .btn {
+.input-group-sm > .input-group-btn > .btn,
+.input-group-sm > .input-group-btn > .css_button_small {
   height: 30px;
   padding: 5px 10px;
   font-size: 12px;
@@ -5745,7 +5811,8 @@ select[multiple].input-group-lg > .input-group-btn > .btn {
 /* line 3916, bootstrap/css/bootstrap.scss */
 select.input-group-sm > .form-control,
 select.input-group-sm > .input-group-addon,
-select.input-group-sm > .input-group-btn > .btn {
+select.input-group-sm > .input-group-btn > .btn,
+select.input-group-sm > .input-group-btn > .css_button_small {
   height: 30px;
   line-height: 30px;
 }
@@ -5754,9 +5821,11 @@ select.input-group-sm > .input-group-btn > .btn {
 textarea.input-group-sm > .form-control,
 textarea.input-group-sm > .input-group-addon,
 textarea.input-group-sm > .input-group-btn > .btn,
+textarea.input-group-sm > .input-group-btn > .css_button_small,
 select[multiple].input-group-sm > .form-control,
 select[multiple].input-group-sm > .input-group-addon,
-select[multiple].input-group-sm > .input-group-btn > .btn {
+select[multiple].input-group-sm > .input-group-btn > .btn,
+select[multiple].input-group-sm > .input-group-btn > .css_button_small {
   height: auto;
 }
 
@@ -5819,10 +5888,14 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .input-group .form-control:first-child,
 .input-group-addon:first-child,
 .input-group-btn:first-child > .btn,
+.input-group-btn:first-child > .css_button_small,
 .input-group-btn:first-child > .btn-group > .btn,
+.input-group-btn:first-child > .btn-group > .css_button_small,
 .input-group-btn:first-child > .dropdown-toggle,
 .input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle),
-.input-group-btn:last-child > .btn-group:not(:last-child) > .btn {
+.input-group-btn:last-child > .css_button_small:not(:last-child):not(.dropdown-toggle),
+.input-group-btn:last-child > .btn-group:not(:last-child) > .btn,
+.input-group-btn:last-child > .btn-group:not(:last-child) > .css_button_small {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -5836,10 +5909,14 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .input-group .form-control:last-child,
 .input-group-addon:last-child,
 .input-group-btn:last-child > .btn,
+.input-group-btn:last-child > .css_button_small,
 .input-group-btn:last-child > .btn-group > .btn,
+.input-group-btn:last-child > .btn-group > .css_button_small,
 .input-group-btn:last-child > .dropdown-toggle,
 .input-group-btn:first-child > .btn:not(:first-child),
-.input-group-btn:first-child > .btn-group:not(:first-child) > .btn {
+.input-group-btn:first-child > .css_button_small:not(:first-child),
+.input-group-btn:first-child > .btn-group:not(:first-child) > .btn,
+.input-group-btn:first-child > .btn-group:not(:first-child) > .css_button_small {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -5857,30 +5934,32 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 4002, bootstrap/css/bootstrap.scss */
-.input-group-btn > .btn {
+.input-group-btn > .btn, .input-group-btn > .css_button_small {
   position: relative;
 }
 
 /* line 4005, bootstrap/css/bootstrap.scss */
-.input-group-btn > .btn + .btn {
+.input-group-btn > .btn + .btn, .input-group-btn > .css_button_small + .btn, .input-group-btn > .btn + .css_button_small, .input-group-btn > .css_button_small + .css_button_small {
   margin-left: -1px;
 }
 
 /* line 4008, bootstrap/css/bootstrap.scss */
-.input-group-btn > .btn:hover,
+.input-group-btn > .btn:hover, .input-group-btn > .css_button_small:hover,
 .input-group-btn > .btn:focus,
-.input-group-btn > .btn:active {
+.input-group-btn > .css_button_small:focus,
+.input-group-btn > .btn:active,
+.input-group-btn > .css_button_small:active {
   z-index: 2;
 }
 
 /* line 4013, bootstrap/css/bootstrap.scss */
-.input-group-btn:first-child > .btn,
+.input-group-btn:first-child > .btn, .input-group-btn:first-child > .css_button_small,
 .input-group-btn:first-child > .btn-group {
   margin-right: -1px;
 }
 
 /* line 4017, bootstrap/css/bootstrap.scss */
-.input-group-btn:last-child > .btn,
+.input-group-btn:last-child > .btn, .input-group-btn:last-child > .css_button_small,
 .input-group-btn:last-child > .btn-group {
   z-index: 2;
   margin-left: -1px;
@@ -6557,7 +6636,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 4512, bootstrap/css/bootstrap.scss */
-.navbar-btn.btn-sm {
+.navbar-btn.btn-sm, .navbar-btn.css_button_small {
   margin-top: 10px;
   margin-bottom: 10px;
 }
@@ -7117,7 +7196,7 @@ a.label:focus {
 }
 
 /* line 4914, bootstrap/css/bootstrap.scss */
-.btn .label {
+.btn .label, .css_button_small .label {
   position: relative;
   top: -1px;
 }
@@ -7210,14 +7289,15 @@ a.label:focus {
 }
 
 /* line 4977, bootstrap/css/bootstrap.scss */
-.btn .badge {
+.btn .badge, .css_button_small .badge {
   position: relative;
   top: -1px;
 }
 
 /* line 4981, bootstrap/css/bootstrap.scss */
 .btn-xs .badge,
-.btn-group-xs > .btn .badge {
+.btn-group-xs > .btn .badge,
+.btn-group-xs > .css_button_small .badge {
   top: 0;
   padding: 1px 5px;
 }
@@ -8623,13 +8703,13 @@ button.close {
 }
 
 /* line 6001, bootstrap/css/bootstrap.scss */
-.modal-footer .btn + .btn {
+.modal-footer .btn + .btn, .modal-footer .css_button_small + .btn, .modal-footer .btn + .css_button_small, .modal-footer .css_button_small + .css_button_small {
   margin-bottom: 0;
   margin-left: 5px;
 }
 
 /* line 6005, bootstrap/css/bootstrap.scss */
-.modal-footer .btn-group .btn + .btn {
+.modal-footer .btn-group .btn + .btn, .modal-footer .btn-group .css_button_small + .btn, .modal-footer .btn-group .btn + .css_button_small, .modal-footer .btn-group .css_button_small + .css_button_small {
   margin-left: -1px;
 }
 
@@ -9237,7 +9317,7 @@ button.close {
 }
 
 /* line 6477, bootstrap/css/bootstrap.scss */
-.carousel-caption .btn {
+.carousel-caption .btn, .carousel-caption .css_button_small {
   text-shadow: none;
 }
 
@@ -9668,6 +9748,7 @@ button.close {
 /* line 6, bootstrap/css/bootstrap-theme.scss */
 .btn-default,
 .btn-primary,
+.css_button_small,
 .btn-success,
 .btn-info,
 .btn-warning,
@@ -9680,12 +9761,14 @@ button.close {
 /* line 16, bootstrap/css/bootstrap-theme.scss */
 .btn-default:active,
 .btn-primary:active,
+.css_button_small:active,
 .btn-success:active,
 .btn-info:active,
 .btn-warning:active,
 .btn-danger:active,
 .btn-default.active,
 .btn-primary.active,
+.active.css_button_small,
 .btn-success.active,
 .btn-info.active,
 .btn-warning.active,
@@ -9697,18 +9780,21 @@ button.close {
 /* line 31, bootstrap/css/bootstrap-theme.scss */
 .btn-default.disabled,
 .btn-primary.disabled,
+.disabled.css_button_small,
 .btn-success.disabled,
 .btn-info.disabled,
 .btn-warning.disabled,
 .btn-danger.disabled,
 .btn-default[disabled],
 .btn-primary[disabled],
+[disabled].css_button_small,
 .btn-success[disabled],
 .btn-info[disabled],
 .btn-warning[disabled],
 .btn-danger[disabled],
 fieldset[disabled] .btn-default,
 fieldset[disabled] .btn-primary,
+fieldset[disabled] .css_button_small,
 fieldset[disabled] .btn-success,
 fieldset[disabled] .btn-info,
 fieldset[disabled] .btn-warning,
@@ -9720,6 +9806,7 @@ fieldset[disabled] .btn-danger {
 /* line 52, bootstrap/css/bootstrap-theme.scss */
 .btn-default .badge,
 .btn-primary .badge,
+.css_button_small .badge,
 .btn-success .badge,
 .btn-info .badge,
 .btn-warning .badge,
@@ -9728,8 +9815,9 @@ fieldset[disabled] .btn-danger {
 }
 
 /* line 60, bootstrap/css/bootstrap-theme.scss */
-.btn:active,
-.btn.active {
+.btn:active, .css_button_small:active,
+.btn.active,
+.active.css_button_small {
   background-image: none;
 }
 
@@ -9785,7 +9873,7 @@ fieldset[disabled] .btn-default.active {
 }
 
 /* line 107, bootstrap/css/bootstrap-theme.scss */
-.btn-primary {
+.btn-primary, .css_button_small {
   background-image: -webkit-linear-gradient(top, #337ab7 0%, #265a88 100%);
   background-image: -o-linear-gradient(top, #337ab7 0%, #265a88 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#337ab7), to(#265a88));
@@ -9797,38 +9885,57 @@ fieldset[disabled] .btn-default.active {
 }
 
 /* line 117, bootstrap/css/bootstrap-theme.scss */
-.btn-primary:hover,
-.btn-primary:focus {
+.btn-primary:hover, .css_button_small:hover,
+.btn-primary:focus,
+.css_button_small:focus {
   background-color: #265a88;
   background-position: 0 -15px;
 }
 
 /* line 122, bootstrap/css/bootstrap-theme.scss */
-.btn-primary:active,
-.btn-primary.active {
+.btn-primary:active, .css_button_small:active,
+.btn-primary.active,
+.active.css_button_small {
   background-color: #265a88;
   border-color: #245580;
 }
 
 /* line 127, bootstrap/css/bootstrap-theme.scss */
-.btn-primary.disabled,
+.btn-primary.disabled, .disabled.css_button_small,
 .btn-primary[disabled],
+[disabled].css_button_small,
 fieldset[disabled] .btn-primary,
+fieldset[disabled] .css_button_small,
 .btn-primary.disabled:hover,
+.disabled.css_button_small:hover,
 .btn-primary[disabled]:hover,
+[disabled].css_button_small:hover,
 fieldset[disabled] .btn-primary:hover,
+fieldset[disabled] .css_button_small:hover,
 .btn-primary.disabled:focus,
+.disabled.css_button_small:focus,
 .btn-primary[disabled]:focus,
+[disabled].css_button_small:focus,
 fieldset[disabled] .btn-primary:focus,
+fieldset[disabled] .css_button_small:focus,
 .btn-primary.disabled.focus,
+.disabled.focus.css_button_small,
 .btn-primary[disabled].focus,
+[disabled].focus.css_button_small,
 fieldset[disabled] .btn-primary.focus,
+fieldset[disabled] .focus.css_button_small,
 .btn-primary.disabled:active,
+.disabled.css_button_small:active,
 .btn-primary[disabled]:active,
+[disabled].css_button_small:active,
 fieldset[disabled] .btn-primary:active,
+fieldset[disabled] .css_button_small:active,
 .btn-primary.disabled.active,
+.disabled.active.css_button_small,
 .btn-primary[disabled].active,
-fieldset[disabled] .btn-primary.active {
+[disabled].active.css_button_small,
+fieldset[disabled] .btn-primary.active,
+fieldset[disabled] .active.css_button_small {
   background-color: #265a88;
   background-image: none;
 }
@@ -10908,7 +11015,7 @@ a:hover {
 }
 
 /* line 389, bootstrap/sass/screen.scss */
-#patient_stats .btn {
+#patient_stats .btn, #patient_stats .css_button_small {
   background-color: transparent;
 }
 
@@ -11885,4 +11992,10 @@ div.notab-right {
 /* line 1077, bootstrap/sass/screen.scss */
 .report_search_bar {
   background-color: #EADDB4;
+}
+
+/* line 1082, bootstrap/sass/screen.scss */
+.css_button_small {
+  margin: 5px !important;
+  font-size: 10pt !important;
 }

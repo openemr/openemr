@@ -1077,3 +1077,10 @@ div.notab-right {
 .report_search_bar{
   background-color:#EADDB4;
 }
+
+// Bootstrap UI Renovations start here
+.css_button_small {
+  @extend .btn, .btn-sm, .btn-primary;
+  margin: 5px !important;
+  font-size: 10pt !important;
+}
