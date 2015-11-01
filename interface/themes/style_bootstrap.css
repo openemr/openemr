@@ -6213,42 +6213,44 @@ select[multiple].input-group-sm > .input-group-btn > .css_button,
 }
 
 /* line 4022, bootstrap/css/bootstrap.scss */
-.nav, ul.tabNav {
+.nav, ul.tabNav, .nav-sm {
   padding-left: 0;
   margin-bottom: 0;
   list-style: none;
 }
 
 /* line 4027, bootstrap/css/bootstrap.scss */
-.nav > li, ul.tabNav > li {
+.nav > li, ul.tabNav > li, .nav-sm > li {
   position: relative;
   display: block;
 }
 
 /* line 4031, bootstrap/css/bootstrap.scss */
-.nav > li > a, ul.tabNav > li > a {
+.nav > li > a, ul.tabNav > li > a, .nav-sm > li > a {
   position: relative;
   display: block;
   padding: 10px 15px;
 }
 
 /* line 4036, bootstrap/css/bootstrap.scss */
-.nav > li > a:hover, ul.tabNav > li > a:hover,
+.nav > li > a:hover, ul.tabNav > li > a:hover, .nav-sm > li > a:hover,
 .nav > li > a:focus,
-ul.tabNav > li > a:focus {
+ul.tabNav > li > a:focus,
+.nav-sm > li > a:focus {
   text-decoration: none;
   background-color: #eee;
 }
 
 /* line 4041, bootstrap/css/bootstrap.scss */
-.nav > li.disabled > a, ul.tabNav > li.disabled > a {
+.nav > li.disabled > a, ul.tabNav > li.disabled > a, .nav-sm > li.disabled > a {
   color: #777;
 }
 
 /* line 4044, bootstrap/css/bootstrap.scss */
-.nav > li.disabled > a:hover, ul.tabNav > li.disabled > a:hover,
+.nav > li.disabled > a:hover, ul.tabNav > li.disabled > a:hover, .nav-sm > li.disabled > a:hover,
 .nav > li.disabled > a:focus,
-ul.tabNav > li.disabled > a:focus {
+ul.tabNav > li.disabled > a:focus,
+.nav-sm > li.disabled > a:focus {
   color: #777;
   text-decoration: none;
   cursor: not-allowed;
@@ -6256,17 +6258,19 @@ ul.tabNav > li.disabled > a:focus {
 }
 
 /* line 4051, bootstrap/css/bootstrap.scss */
-.nav .open > a, ul.tabNav .open > a,
+.nav .open > a, ul.tabNav .open > a, .nav-sm .open > a,
 .nav .open > a:hover,
 ul.tabNav .open > a:hover,
+.nav-sm .open > a:hover,
 .nav .open > a:focus,
-ul.tabNav .open > a:focus {
+ul.tabNav .open > a:focus,
+.nav-sm .open > a:focus {
   background-color: #eee;
   border-color: #337ab7;
 }
 
 /* line 4057, bootstrap/css/bootstrap.scss */
-.nav .nav-divider, ul.tabNav .nav-divider {
+.nav .nav-divider, ul.tabNav .nav-divider, .nav-sm .nav-divider {
   height: 1px;
   margin: 9px 0;
   overflow: hidden;
@@ -6274,7 +6278,7 @@ ul.tabNav .open > a:focus {
 }
 
 /* line 4063, bootstrap/css/bootstrap.scss */
-.nav > li > a > img, ul.tabNav > li > a > img {
+.nav > li > a > img, ul.tabNav > li > a > img, .nav-sm > li > a > img {
   max-width: none;
 }
 
@@ -6386,26 +6390,30 @@ ul.nav-justified.tabNav > .active > a:focus {
   }
 }
 /* line 4135, bootstrap/css/bootstrap.scss */
-.nav-pills > li {
+.nav-pills > li, .nav-pills-sm > li {
   float: left;
 }
 
 /* line 4138, bootstrap/css/bootstrap.scss */
-.nav-pills > li > a {
+.nav-pills > li > a, .nav-pills-sm > li > a {
   border-radius: 4px;
 }
 
 /* line 4141, bootstrap/css/bootstrap.scss */
-.nav-pills > li + li {
+.nav-pills > li + li, .nav-pills-sm > li + li {
   margin-left: 2px;
 }
 
 /* line 4144, bootstrap/css/bootstrap.scss */
-.nav-pills > li.active > a, .nav-pills > li.current > a,
+.nav-pills > li.active > a, .nav-pills-sm > li.active > a, .nav-pills > li.current > a, .nav-pills-sm > li.current > a,
 .nav-pills > li.active > a:hover,
+.nav-pills-sm > li.active > a:hover,
 .nav-pills > li.current > a:hover,
+.nav-pills-sm > li.current > a:hover,
 .nav-pills > li.active > a:focus,
-.nav-pills > li.current > a:focus {
+.nav-pills-sm > li.active > a:focus,
+.nav-pills > li.current > a:focus,
+.nav-pills-sm > li.current > a:focus {
   color: #fff;
   background-color: #337ab7;
 }
@@ -7578,7 +7586,8 @@ a.badge:focus {
 
 /* line 4992, bootstrap/css/bootstrap.scss */
 .list-group-item.active > .badge,
-.nav-pills > .active > a > .badge {
+.nav-pills > .active > a > .badge,
+.nav-pills-sm > .active > a > .badge {
   color: #337ab7;
   background-color: #fff;
 }
@@ -7594,7 +7603,7 @@ a.badge:focus {
 }
 
 /* line 5003, bootstrap/css/bootstrap.scss */
-.nav-pills > li > a > .badge {
+.nav-pills > li > a > .badge, .nav-pills-sm > li > a > .badge {
   margin-left: 3px;
 }
 
@@ -9642,8 +9651,10 @@ button.close {
 .btn-group-vertical > .btn-group:after,
 .nav:before,
 ul.tabNav:before,
+.nav-sm:before,
 .nav:after,
 ul.tabNav:after,
+.nav-sm:after,
 .navbar:before,
 .navbar:after,
 .navbar-header:before,
@@ -9671,6 +9682,7 @@ ul.tabNav:after,
 .btn-group-vertical > .btn-group:after,
 .nav:after,
 ul.tabNav:after,
+.nav-sm:after,
 .navbar:after,
 .navbar-header:after,
 .navbar-collapse:after,
@@ -12280,7 +12292,7 @@ div.notab-right {
 }
 
 /* line 1060, bootstrap/sass/style_bootstrap.scss */
-.css_button_link span.css_button_separator {
+span.css_button_separator {
   display: none;
 }
 
@@ -12302,4 +12314,9 @@ ul.tabNav > li > a, .tabContainer {
 /* line 1080, bootstrap/sass/style_bootstrap.scss */
 td.label {
   color: black !important;
+}
+
+/* line 1100, bootstrap/sass/style_bootstrap.scss */
+.nav-sm > li > a, .nav-pill-sm > li > a {
+  padding: 5px 8px !important;
 }

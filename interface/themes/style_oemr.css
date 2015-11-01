@@ -1068,3 +1068,15 @@ height: 300px !important;
 .report_search_bar{
 	background-color:#EADDB4;
 }
+
+ul.nav-pills-sm > li {
+    display: inline-block;
+    zoom:1;
+    *display:inline;
+}
+
+ul.nav-pills-sm > li.active > a {
+    pointer-events:none;
+    text-decoration: none;
+    color: black !important;
+}

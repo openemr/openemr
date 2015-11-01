@@ -108,26 +108,33 @@ else {
 ?>
 <br>
 <table><tr><td><span class="title"><?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href=<?php echo $lnkvar; ?></a></td></tr></table>
+
+
 <?php
 //show the activity links
-if (empty($task) || $task=="add" || $task=="delete") { ?>
-  <?php if ($active == "all") { ?>
-    <span><?php echo xlt('Show All'); ?></span>
-  <?php } else { ?>
-    <a href="messages.php" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
-  <?php } ?>
-  |
-  <?php if ($active == '1') { ?>
-    <span><?php echo xlt('Show Active'); ?></span>
-  <?php } else { ?>
-    <a href="messages.php?form_active=1" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
-  <?php } ?>
-  |
-  <?php if ($active == '0') { ?>
-    <span><?php echo xlt('Show Inactive'); ?></span>
-  <?php } else { ?>
-    <a href="messages.php?form_inactive=1" class="link" onclick="top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
-  <?php } ?>
+if (empty($task) || $task=="add" || $task=="delete") {
+
+    $show_all = '<li><a href="messages.php" onclick="top.restoreSession()"><span>';
+    $show_active = '<li><a href="messages.php?form_active=1"  onclick="top.restoreSession()"><span>';
+    $show_inactive = '<li><a href="messages.php?form_inactive=1"  onclick="top.restoreSession()"><span>';
+
+    if ($active == "all") {
+        $show_all = '<li class="active"><a ><span>';
+    }
+    if ($active == '1') {
+        $show_active = '<li class="active"><a ><span>';
+    }
+    if ($active == '0') {
+        $show_inactive = '<li class="active"><a ><span>';
+    }
+
+?>
+
+    <ul class="nav-sm nav-pills-sm">
+        <?php echo $show_all . xlt('Show All') ?></span></a><span class="css_button_separator">&nbsp;|&nbsp;</span></li>
+        <?php echo $show_active . xlt('Show Active') ?></span></a><span class="css_button_separator">&nbsp;|&nbsp;</span></li>
+        <?php echo $show_inactive . xlt('Show Inactive') ?></span></a></li>
+    </ul>
 <?php } ?>
 
 <?php

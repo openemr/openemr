@@ -1057,7 +1057,7 @@ div.notab-right {
   font-size: 8pt !important;
 }
 
-.css_button_link span.css_button_separator {
+span.css_button_separator {
   display: none;
 }
 
@@ -1089,3 +1089,14 @@ li.current {
   @extend li.active;
 }
 
+.nav-sm {
+  @extend .nav;
+}
+
+.nav-pills-sm {
+  @extend .nav-pills;
+}
+
+.nav-sm > li > a, .nav-pill-sm > li > a {
+  padding: 5px 8px !important;
+}
