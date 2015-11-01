@@ -798,17 +798,17 @@ $GLOBALS_METADATA = array(
   'Billing' => array(
     
     'support_fee_sheet_line_item_provider' => array(
-       xl('Support line item billing in fee sheet'),
+       xl('Support provider in line item in fee sheet'),
 	   'bool',                           // data type
 	   '0',                              // default = false
-	   xl('This Enables line item billing in the fee sheet')
+	   xl('This Enables provider in line item in the fee sheet')
     ),
 
     'default_fee_sheet_line_item_provider' => array(
-       xl('Default to a provider for line item billing in the fee sheet'),
+       xl('Default to a provider for line item in the fee sheet'),
 	   'bool',                           // data type
 	   '0',                              // default = false
-	   xl('Default to a provider for line item billing in the fee sheet.(only applicable if Support line item billing in option above)')
+	   xl('Default to a provider for line item in the fee sheet.(only applicable if Support line item billing in option above)')
     ),	
   
   ),  
