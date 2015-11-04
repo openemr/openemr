@@ -251,6 +251,7 @@ th {
   .table {
     border-collapse: collapse !important;
   }
+  .tableheader,    
   .table td,
   .table th {
     background-color: #fff !important;
@@ -4861,6 +4862,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
 .pager li {
   display: inline;
 }
+.pagerelement,
 .pager li > a,
 .pager li > span {
   display: inline-block;

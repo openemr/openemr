@@ -1100,3 +1100,40 @@ li.current {
 .nav-sm > li > a, .nav-pill-sm > li > a {
   padding: 5px 8px !important;
 }
+
+
+.pager a,
+.pager  span {
+@extend .pagerelement;    
+//  display: inline-block;
+//  padding: 5px 14px;
+//  background-color: #fff;
+//  border: 1px solid #ddd;
+//  border-radius: 15px;
+}
+
+.paginate_disabled_previous,
+.paginate_disabled_next{
+    @extend .pagerelement;
+    background: #fff !important;
+    height: auto !important;
+    padding: 5px 14px !important;
+}
+
+
+.tabNav{
+    @extend .nav-tabs;
+}
+.search_init, input[type='text']{
+    @extend .form-control;
+    margin-bottom: 5px;
+}
+.dataTables_filter input, select{
+    @extend .form-control;
+    margin-bottom: 5px;
+    display: inline-block;
+    width: auto;
+}
+.dataTable th{
+    @extend .tableheader;
+}

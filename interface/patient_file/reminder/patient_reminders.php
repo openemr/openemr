@@ -218,7 +218,7 @@ else {
                 <?php } ?>
               </div>
             </td>
-            <td align=right class='text'><?php echo $prevlink." ".$end." of ".$total." ".$nextlink; ?></td>
+            <td align=right class='text pager'><?php echo "<span>".$prevlink."</span>"."  "."<span>".$end." of ".$total."</span><span>".$nextlink."</span>"; ?></td>
           </tr>
         </table>
       </td>

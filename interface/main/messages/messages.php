@@ -563,7 +563,7 @@ else {
             <td class=\"text\"><span class=\"css_button_link\"><a href=\"messages.php?showall=".attr($showall)."&sortby=".attr($sortby)."&sortorder=".attr($sortorder)."&begin=".attr($begin)."&task=addnew&$activity_string_html\" onclick=\"top.restoreSession()\">" .
               htmlspecialchars( xl('Add New'), ENT_NOQUOTES) . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" onclick=\"top.restoreSession()\">" .
               htmlspecialchars( xl('Delete'), ENT_NOQUOTES) . "</a></span></td>
-            <td align=right class=\"text\">$prevlink &nbsp; $end of $total &nbsp; $nextlink</td>
+            <td align=right class=\"text pager\"><span>$prevlink</span> &nbsp; <span>$end of $total</span> &nbsp; <span>$nextlink</span></td>
         </tr>
     </table></td></tr></table><br>";
 ?>

@@ -1641,7 +1641,7 @@ if (!empty($reg)) {
       <?php if (acl_check('patients','docs')) genMiscLink('RTop','adm','0',xl('Document Templates'),'super/manage_document_templates.php'); ?>
     </ul>
   </li>
-
+  
 <?php } // end not athletic team ?>
 
 </ul>
