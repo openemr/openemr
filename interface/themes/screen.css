@@ -430,8 +430,7 @@ th {
     border-collapse: collapse !important;
   }
 
-  /* line 254, bootstrap/css/bootstrap.scss */
-  .tableheader,
+  /* line 255, bootstrap/css/bootstrap.scss */
   .table td,
   .table th {
     background-color: #fff !important;

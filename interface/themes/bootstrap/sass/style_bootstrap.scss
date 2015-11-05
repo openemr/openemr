@@ -172,11 +172,12 @@ a:hover {
  * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
-.body_top { background-color: lightblue; margin: 8px }    /* $top_bg_line */
+$body-color: #E2A07C;
+.body_top { background-color: $body-color; margin: 8px }    /* $top_bg_line */
 .bgcolor2 { background-color: #fefdcf; }    /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
-.body_title { background-color: #fedf98; }  /* $title_bg_line */
-.body_nav { background-color: #fefdcf; }    /* $nav_bg_line */
+.body_title { background-color: $body-color; }  /* $title_bg_line */
+.body_nav { background-color: $body-color; }    /* $nav_bg_line */
 .body_filler { background-color: #f7f0d5; } /* $login_filler_line */
 .body_login { background: url('../pic/aquabg.gif') repeat; } /* $login_body_line */
 .table_bg { background-color: #ccc; }           /* $table_bg */
@@ -623,6 +624,7 @@ a.disabled_button:hover {
   color: grey;
 }
 
+
 /*
  * TABS
 */
@@ -642,6 +644,8 @@ ul.tabNav li.current { padding-top: 0;
 }
 ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
 ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }*/
+
+
 
 div.tabContainer { clear: both; float: left; width: 100%; }
 div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
@@ -849,32 +853,54 @@ div.notab-right {
   width: 150px;
 }
 
+.collapse-custom {
+  background-color: hsl(190, 79%, 35%) !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#5fd4ec", endColorstr="#12889f");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#5fd4ec), to(#12889f));
+  background-image: -moz-linear-gradient(top, #5fd4ec, #12889f);
+  background-image: -ms-linear-gradient(top, #5fd4ec, #12889f);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5fd4ec), color-stop(100%, #12889f));
+  background-image: -webkit-linear-gradient(top, #5fd4ec, #12889f);
+  background-image: -o-linear-gradient(top, #5fd4ec, #12889f);
+  background-image: linear-gradient(#5fd4ec, #12889f);
+  border-color: #12889f #12889f hsl(190, 79%, 27.5%);
+  color: #333 !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.49);
+  -webkit-font-smoothing: antialiased;
+}
+
+.collapse-inner{
+  background-color: hsl(193, 79%, 63%) !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#e8f7fc", endColorstr="#56caeb");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#e8f7fc), to(#56caeb));
+  background-image: -moz-linear-gradient(top, #e8f7fc, #56caeb);
+  background-image: -ms-linear-gradient(top, #e8f7fc, #56caeb);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e8f7fc), color-stop(100%, #56caeb));
+  background-image: -webkit-linear-gradient(top, #e8f7fc, #56caeb);
+  background-image: -o-linear-gradient(top, #e8f7fc, #56caeb);
+  background-image: linear-gradient(#e8f7fc, #56caeb);
+  border-color: #56caeb #56caeb hsl(193, 79%, 55%);
+  color: #333 !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.52);
+  -webkit-font-smoothing: antialiased;
+}
+
 #navigation-slide li a.collapsed{
-  background: #999; /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf'); /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#fe5301), to(#fefdcf)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #fe5301,  #fefdcf); /* for firefox 3.6+ */
+  @extend .collapse-custom;
 }
 
 #navigation-slide li a.expanded{
-  background: #999; /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fe5301'); /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#fe5301)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #fefdcf,  #fe5301); /* for firefox 3.6+ */
+  @extend .collapse-custom;
 }
 
 #navigation-slide ul li a.collapsed_lv2{
-  background: #999; /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffac84', endColorstr='#fefdcf'); /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#ffac84), to(#fefdcf)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #ffac84,  #fefdcf); /* for firefox 3.6+ */
+  @extend .collapse-inner;
 }
 
 #navigation-slide ul li a.expanded_lv2{
-  background: #999; /* for non-css3 browsers */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#ffac84'); /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#ffac84)); /* for webkit browsers */
-  background: -moz-linear-gradient(top,  #fefdcf,  #ffac84); /* for firefox 3.6+ */
+  @extend .collapse-inner;
 }
 
 #sddm li
@@ -1041,9 +1067,41 @@ div.notab-right {
 
 
 // Bootstrap UI Renovations
+.btn-custom {
+  background-color: hsl(191, 94%, 31%) !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#34d4f8", endColorstr="#047e99");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#34d4f8), to(#047e99));
+  background-image: -moz-linear-gradient(top, #34d4f8, #047e99);
+  background-image: -ms-linear-gradient(top, #34d4f8, #047e99);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #34d4f8), color-stop(100%, #047e99));
+  background-image: -webkit-linear-gradient(top, #34d4f8, #047e99);
+  background-image: -o-linear-gradient(top, #34d4f8, #047e99);
+  background-image: linear-gradient(#34d4f8, #047e99);
+  border-color: #047e99 #047e99 hsl(191, 94%, 24%);
+  color: #fff !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.46);
+  -webkit-font-smoothing: antialiased;
+}
+.btn-submit {
+  background-color: hsl(126, 48%, 51%) !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#b7e5bb", endColorstr="#46be52");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#b7e5bb), to(#46be52));
+  background-image: -moz-linear-gradient(top, #b7e5bb, #46be52);
+  background-image: -ms-linear-gradient(top, #b7e5bb, #46be52);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #b7e5bb), color-stop(100%, #46be52));
+  background-image: -webkit-linear-gradient(top, #b7e5bb, #46be52);
+  background-image: -o-linear-gradient(top, #b7e5bb, #46be52);
+  background-image: linear-gradient(#b7e5bb, #46be52);
+  border-color: #46be52 #46be52 hsl(126, 48%, 43.5%);
+  color: #333 !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.49);
+  -webkit-font-smoothing: antialiased;
+}
 
 .css_button_small,.css_button {
-  @extend .btn, .btn-sm, .btn-primary;
+  @extend .btn-custom;
   margin: 5px 3px !important;
   padding: 3px 5px !important;
   font-size: 8pt !important;
@@ -1051,9 +1109,9 @@ div.notab-right {
 //body > table:nth-child(13) > tbody > tr > td > table:nth-child(2) > tbody > tr > td:nth-child(1) > span > a:nth-child(1)
 
 .css_button_link a {
-  @extend .btn, .btn-sm, .btn-primary;
-  margin: 5px 3px !important;
-  padding: 3px 5px !important;
+  @extend .btn-custom;
+  margin: 10px 3px !important;
+  padding: 5px 25px !important;
   font-size: 8pt !important;
 }
 
@@ -1101,15 +1159,21 @@ li.current {
   padding: 5px 8px !important;
 }
 
+/*********** styling from 2 Nov 2015 ***************/
+
+/****** responsive sizes ******/
+$break-xsmall: 480px;
+$break-small: 767px;
+$break-large: 991px;
+$break-exlarge: 1199px;
+/****** responsive sizes ******/
+
+
+$button-color : '#245580';
 
 .pager a,
 .pager  span {
 @extend .pagerelement;    
-//  display: inline-block;
-//  padding: 5px 14px;
-//  background-color: #fff;
-//  border: 1px solid #ddd;
-//  border-radius: 15px;
 }
 
 .paginate_disabled_previous,
@@ -1122,11 +1186,26 @@ li.current {
 
 
 .tabNav{
-    @extend .nav-tabs;
+    @extend .nav-tabs; 
+    border-bottom: 0 !important;
+    
 }
-.search_init, input[type='text']{
+.tabNav a{
+    background-color: hsl(191, 94%, 31%) !important;
+    color: #fff;
+}
+.tabNav li.active a{    
+    color: #fff;
+    border-bottom: 3px solid #000 !important
+}
+.search_init, input[type='text'], input[type='entry']{
     @extend .form-control;
     margin-bottom: 5px;
+}
+form[name="demographics_form"] input[type="text"],
+form[name="demographics_form"] input[type="entry"]{
+    display: inline-block;
+    width: auto;
 }
 .dataTables_filter input, select{
     @extend .form-control;
@@ -1135,5 +1214,63 @@ li.current {
     width: auto;
 }
 .dataTable th{
-    @extend .tableheader;
+    background: #eee;
+}
+
+//@media(max-width: $break-small){
+//    #fsright{
+//        width: 100%;
+//        border: 1px solid;
+//        clear: both;
+//    }
+//}
+
+input[type="button"]{
+    @extend .btn-custom;
+    padding: 4px 17px;
+    margin: 0 10px;
+    border-radius: 5px;
+}
+input[type="submit"]{
+    @extend .btn-submit;
+    padding: 4px 17px;
+    margin: 0 10px;
+    border-radius: 5px;
+        width: auto !important;
+}
+div.section{
+    border-color: transparent !important;
+    box-shadow: 0px 0 2px #50B4D4;
+}
+td b{
+    margin-bottom: 5px;
+}
+td .css_button_small{
+    float: none !important;
+    padding: 5px 10px !important;
+    margin: 0 !important;
+}
+select[name="sel_frame"]{    
+    font-size: 9pt;
+    width: 100%;
+    background: #E47C43 !important;
+    
+    border-radius: 5px;
+}
+img#prevday{
+    padding: 0 !important;
+}
+td.top-secondary-nav table{
+    float: right;
+}
+.top-primary-nav a{
+    float: left !important;
+    margin-bottom: 7px !important;
+}
+.billingButton input[type="text"]{
+    width: auto !important;
+    display: inline-block !important;
+}
+input[name="type_code"]{
+    @extend .form-control;
 }

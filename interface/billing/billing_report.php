@@ -559,7 +559,7 @@ if(!isset($_REQUEST['mode']))//default case
 </table>
 </form>
 <form name='update_form' method='post' action='billing_process.php' onsubmit='return top.restoreSession()' style="display:inline">
-<center>
+<center class="billingButton">
 <span class='text' style="display:inline">
 <?php if (file_exists($EXPORT_INC)) { ?>
 <input type="submit" class="subbtn" name="bn_external" value="Export Billing" title="<?php echo xla('Export to external billing system') ?>">
