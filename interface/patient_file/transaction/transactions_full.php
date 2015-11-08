@@ -43,13 +43,14 @@ if ($result = getTransByPid($pid)) {
 		// Print Heading .. to have better Understanding of the Listed Transactions   -- ends here
 
 	foreach ($result as $iter) {
+    if (!isset($iter['body'])) $iter['body'] = '';
 		if (getdate() == strtotime($iter{"date"})) {
 			$date_string = "Today, " . date( "D F dS" ,strtotime($iter{"date"}));
 		} else {
 			$date_string = date( "D F dS" ,strtotime($iter{"date"}));
 		}
 		echo "<tr height='25'><td>";
-		if ($iter{"title"} == "Referral") {
+		if ($iter{"title"} == "LBTref") {
 			//show the print button for referral forms only
                         echo "<a href='print_referral.php?transid=".
 				htmlspecialchars( $iter{"id"}, ENT_NOQUOTES).

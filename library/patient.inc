@@ -391,26 +391,27 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray=array())
 function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     // Allow the last name to be followed by a comma and some part of a first name.
-    // New behavior for searches:
-    // Allows comma alone followed by some part of a first name
+    // Allows comma alone followed by some part of a first name.
+    // Allows comma alone preceded by some part of a last name.
+    // If no comma, then will search both last name and first name.
     // If the first letter of either name is capital, searches for name starting
-    // with given substring (the expected behavior).  If it is lower case, it
-    // it searches for the substring anywhere in the name.  This applies to either
-    // last name or first name or both.  The arbitrary limit of 100 results is set
-    // in the sql query below. --Mark Leeds
-    $lname = trim($lname);
-    $fname = '';
-     if (preg_match('/^(.*),(.*)/', $lname, $matches)) {
+    //   with given substring (the expected behavior). If it is lower case, it
+    //   it searches for the substring anywhere in the name. This applies to either
+    //   last name or first name or both.
+    $fname = $lname = trim($lname);
+    $where = "lname LIKE ? OR fname LIKE ? ";
+    if (preg_match('/^(.*),(.*)/', $lname, $matches)) {
          $lname = trim($matches[1]);
          $fname = trim($matches[2]);
+         $where = "lname LIKE ? AND fname LIKE ? ";
     }
+
     $search_for_pieces1 = '';
     $search_for_pieces2 = '';
     if ((strlen($lname) < 1)|| ($lname{0} != strtoupper($lname{0}))) {$search_for_pieces1 = '%';}
     if ((strlen($fname) < 1)|| ($fname{0} != strtoupper($fname{0}))) {$search_for_pieces2 = '%';}
 
     $sqlBindArray = array();
-    $where = "lname LIKE ? AND fname LIKE ? ";
     array_push($sqlBindArray, $search_for_pieces1.$lname."%", $search_for_pieces2.$fname."%");
         if (!empty($GLOBALS['pt_restrict_field'])) {
                 if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {

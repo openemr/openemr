@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2014-2015 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,13 +26,18 @@ require_once("$srcdir/formdata.inc.php");
 $layouts = array(
   'DEM' => xl('Demographics'),
   'HIS' => xl('History'),
-  'REF' => xl('Referrals'),
   'FACUSR' => xl('Facility Specific User Information')
 );
 if ($GLOBALS['ippf_specific']) {
   $layouts['GCA'] = xl('Abortion Issues');
   $layouts['CON'] = xl('Contraception Issues');
-  // $layouts['SRH'] = xl('SRH Visit Form');
+}
+
+// Include Layout Based Transaction Forms.
+$lres = sqlStatement("SELECT * FROM list_options " .
+  "WHERE list_id = 'transactions' ORDER BY seq, title");
+while ($lrow = sqlFetchArray($lres)) {
+  $layouts[$lrow['option_id']] = $lrow['title'];
 }
 
 // Include Layout Based Encounter Forms.
@@ -87,6 +92,40 @@ function nextGroupOrder($order) {
   return $order;
 }
 
+// Call this when adding or removing a layout field.  This will create or drop
+// the corresponding table column when appropriate.  Table columns are not
+// dropped if they contain any non-empty values.
+function addOrDeleteColumn($layout_id, $field_id, $add=TRUE) {
+  if (substr($layout_id,0,3) == 'LBF' || substr($layout_id,0,3) == 'LBT' || $layout_id == "FACUSR") return;
+
+  if      ($layout_id == "DEM") $tablename = "patient_data";
+  else if ($layout_id == "HIS") $tablename = "history_data";
+  else if ($layout_id == "SRH") $tablename = "lists_ippf_srh";
+  else if ($layout_id == "CON") $tablename = "lists_ippf_con";
+  else if ($layout_id == "GCA") $tablename = "lists_ippf_gcac";
+  else die(xlt('Internal error in addOrDeleteColumn()'));
+
+  // Check if the column currently exists.
+  $tmp = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE '$field_id'");
+  $column_exists = !empty($tmp);
+
+  if ($add && !$column_exists) {
+    sqlStatement("ALTER TABLE `$tablename` ADD `$field_id` TEXT NOT NULL");
+    newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
+      "$tablename ADD $field_id");
+  }
+  else if (!$add && $column_exists) {
+    // Do not drop a column that has any data.
+    $tmp = sqlQuery("SELECT `$field_id` FROM `$tablename` WHERE " .
+      "`$field_id` IS NOT NULL AND `$field_id` != '' LIMIT 1");
+    if (!isset($tmp['field_id'])) {
+      sqlStatement("ALTER TABLE `$tablename` DROP `$field_id`");
+      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
+        "$tablename DROP $field_id ");
+    }
+  }
+}
+
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
 if (!$thisauth) die(xl('Not authorized'));
@@ -94,7 +133,7 @@ if (!$thisauth) die(xl('Not authorized'));
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
 
-// Tag style for stuff to hide if not an LBF layout.
+// Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
 $lbfonly = substr($layout_id,0,3) == 'LBF' ? "" : "style='display:none;'";
 
 // Handle the Form actions
@@ -175,21 +214,7 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       ",'" . $listval . "'" .
       ",'" . formTrim($_POST['newbackuplistid']) . "'" .
       " )");
-
-    if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
-      // Add the field to the table too (this is critical)
-      if ($layout_id == "DEM") { $tablename = "patient_data"; }
-      else if ($layout_id == "HIS") { $tablename = "history_data"; }
-      else if ($layout_id == "REF") { $tablename = "transactions"; }
-      else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
-      else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
-      else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
-      sqlStatement("ALTER TABLE `" . $tablename . "` ADD ".
-                      "`" . formTrim($_POST['newid']) . "`" .
-                      " TEXT NOT NULL");
-      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
-        $tablename . " ADD " . formTrim($_POST['newid']));
-    }
+    addOrDeleteColumn($layout_id, formTrim($_POST['newid']), TRUE);
 }
 
 else if ($_POST['formaction'] == "movefields" && $layout_id) {
@@ -221,19 +246,8 @@ else if ($_POST['formaction'] == "deletefields" && $layout_id) {
     }
     $sqlstmt .= ")";
     sqlStatement($sqlstmt);
-
-    if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
-        // drop the field from the table too (this is critical) 
-        if ($layout_id == "DEM") { $tablename = "patient_data"; }
-        else if ($layout_id == "HIS") { $tablename = "history_data"; }
-        else if ($layout_id == "REF") { $tablename = "transactions"; }
-        else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
-        else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
-        else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
-        foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
-            sqlStatement("ALTER TABLE `".$tablename."` DROP `".$onefield."`");
-            newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $tablename." DROP ".$onefield);
-        }
+    foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+      addOrDeleteColumn($layout_id, $onefield, FALSE);
     }
 }
 
@@ -279,43 +293,17 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       ",'" . $listval       . "'" .
       ",'" . formTrim($_POST['gnewbackuplistid']        ) . "'" .
       " )");
-
-    if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
-      // Add the field to the table too (this is critical)
-      if ($layout_id == "DEM") { $tablename = "patient_data"; }
-      else if ($layout_id == "HIS") { $tablename = "history_data"; }
-      else if ($layout_id == "REF") { $tablename = "transactions"; }
-      else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
-      else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
-      else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
-      sqlStatement("ALTER TABLE `" . $tablename . "` ADD ".
-                      "`" . formTrim($_POST['gnewid']) . "`" .
-                      " TEXT NOT NULL");
-      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
-        $tablename . " ADD " . formTrim($_POST['gnewid']));
-    }
+    addOrDeleteColumn($layout_id, formTrim($_POST['gnewid']), TRUE);
 }
 
 else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     // drop the fields from the related table (this is critical)
-    if (substr($layout_id,0,3) != 'LBF' && $layout_id != "FACUSR") {
-        $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
-                            " form_id = '".$_POST['layout_id']."' ".
-                            " AND group_name = '".$_POST['deletegroupname']."'"
-                            );
-        while ($row = sqlFetchArray($res)) {
-            // drop the field from the table too (this is critical) 
-            if ($layout_id == "DEM") { $tablename = "patient_data"; }
-            else if ($layout_id == "HIS") { $tablename = "history_data"; }
-            else if ($layout_id == "REF") { $tablename = "transactions"; }
-            else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
-            else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
-            else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
-            sqlStatement("ALTER TABLE `".$tablename."` DROP `".$row['field_id']."`");
-            newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $tablename." DROP ".trim($row['field_id']));
-        }
+    $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
+      "form_id = '" . $_POST['layout_id'] . "' ".
+      "AND group_name = '" . $_POST['deletegroupname'] . "'");
+    while ($row = sqlFetchArray($res)) {
+      addOrDeleteColumn($layout_id, $row['field_id'], FALSE);
     }
-
     // Delete an entire group from the form
     sqlStatement("DELETE FROM layout_options WHERE ".
                 " form_id = '".$_POST['layout_id']."' ".

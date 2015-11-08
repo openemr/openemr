@@ -261,7 +261,8 @@ function generate_form_field($frow, $currvalue) {
 
   $disabled = strpos($frow['edit_options'], '0') === FALSE ? '' : 'disabled';
 
-  $lbfchange = strpos($frow['form_id'], 'LBF') === 0 ? "checkSkipConditions();" : "";
+  $lbfchange = (strpos($frow['form_id'], 'LBF') === 0 || strpos($frow['form_id'], 'LBT') === 0) ?
+    "checkSkipConditions();" : "";
   $lbfonchange = $lbfchange ? "onchange='$lbfchange'" : "";
 
   // generic single-selection list or Race and Ethnicity.
@@ -2759,11 +2760,10 @@ function generate_layout_validation($form_id) {
       case 14:
       case 26:
       case 33:
-      case 36:
         echo
         " if (f.$fldname.selectedIndex <= 0) {\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-        "  		errMsgs[errMsgs.length] = '" . htmlspecialchars( (xl_layout_label($fldtitle)), ENT_QUOTES) . "'; \n" .
+        "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
         " }\n";
         break;
       case 27: // radio buttons
@@ -2771,7 +2771,7 @@ function generate_layout_validation($form_id) {
         " var i = 0;\n" .
         " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
         " if (i >= f.$fldname.length) {\n" .
-        "  		errMsgs[errMsgs.length] = '" . htmlspecialchars( (xl_layout_label($fldtitle)), ENT_QUOTES) . "'; \n" .
+        "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
         " }\n";
         break;
       case  2:
@@ -2783,12 +2783,23 @@ function generate_layout_validation($form_id) {
         "  		if (f.$fldname.focus) f.$fldname.focus();\n" .
 		"  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','red'); } ); " .
 		"  		$('#" . $fldname . "').attr('style','background:red'); \n" .
-        "  		errMsgs[errMsgs.length] = '" . htmlspecialchars( (xl_layout_label($fldtitle)), ENT_QUOTES) . "'; \n" .
+        "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
         " } else { " .
 		" 		$('#" . $fldname . "').attr('style',''); " .
 		"  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
 		" } \n";
         break;
+      case 36: // multi select
+        echo
+        " var multi_select=f['$fldname"."[]']; \n " .
+        " var multi_choice_made=false; \n".
+        " for (var options_index=0; options_index < multi_select.length; options_index++) { ".
+              " multi_choice_made=multi_choice_made || multi_select.options[options_index].selected; \n".
+        "    } \n" .
+        " if(!multi_choice_made)
+            errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
+        "";
+          break;
     }
   }
 }

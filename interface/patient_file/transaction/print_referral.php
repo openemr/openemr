@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2015 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -87,6 +87,9 @@ if ($patient_id) {
   $patient_age = '';
 }
 
+if (empty($trow['refer_from'])) $trow['refer_from'] = 0;
+if (empty($trow['refer_to'  ])) $trow['refer_to'  ] = 0;
+
 $frrow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_from']) );
 if (empty($frrow)) $frrow = array();
 
@@ -134,7 +137,7 @@ $s = str_replace("{ref_pid}"         , $patient_id            , $s);
 $s = str_replace("{pt_age}"          , $patient_age           , $s);
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'REF' ORDER BY group_name, seq");
+  "WHERE form_id = 'LBTref' ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
   $data_type = $frow['data_type'];
   $field_id  = $frow['field_id'];

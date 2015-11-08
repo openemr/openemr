@@ -207,7 +207,7 @@ function amcTrackingRequest($amc_id,$start='',$end='',$provider_id='') {
         $where .= " AND `date`<=? ";
         array_push($sqlBindArray,$end);
       }
-      $rez = sqlStatement("SELECT `id`, `date` FROM `transactions` WHERE `title`='Referral' AND `pid`=? $where ORDER BY `date` DESC", $sqlBindArray);
+      $rez = sqlStatement("SELECT `id`, `date` FROM `transactions` WHERE `title` = 'LBTref' AND `pid` = ? $where ORDER BY `date` DESC", $sqlBindArray);
       while ($res = sqlFetchArray($rez)) {
         $amcCheck = amcCollect("send_sum_amc",$patient['pid'],"transactions",$res['id']);
         if (empty($amcCheck)) {

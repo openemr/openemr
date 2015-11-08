@@ -8,6 +8,7 @@ require_once("{$GLOBALS['srcdir']}/sql.inc");
 require_once("{$GLOBALS['srcdir']}/acl.inc");
 require_once("{$GLOBALS['srcdir']}/formatting.inc.php");
 require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
+require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 $patient_data_array = array(
 title => xl('Title') . ": ",
@@ -216,15 +217,51 @@ function printPatientNotes($pid) {
   }
 }
 
+// Get the current value for a layout based transaction field.
+//
+function lbt_current_value($frow, $formid) {
+  $formname = $frow['form_id'];
+  $field_id = $frow['field_id'];
+  $currvalue = '';
+  if ($formid) {
+    $ldrow = sqlQuery("SELECT field_value FROM lbt_data WHERE " .
+      "form_id = ? AND field_id = ?", array($formid, $field_id) );
+    if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
+  }
+  return $currvalue;
+}
+
+// Display a particular transaction.
+//
+function lbt_report($id, $formname) {
+  $arr = array();
+  $fres = sqlStatement("SELECT * FROM layout_options " .
+    "WHERE form_id = ? AND uor > 0 " .
+    "ORDER BY group_name, seq", array($formname));
+  while ($frow = sqlFetchArray($fres)) {
+    $field_id  = $frow['field_id'];
+    $currvalue = lbt_current_value($frow, $id);
+    // For brevity, skip fields without a value.
+    if ($currvalue === '') continue;
+    $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+  }
+  echo "<table>\n";
+  display_layout_rows($formname, $arr);
+  echo "</table>\n";
+}
+
+// Display all transactions for the specified patient.
+//
 function printPatientTransactions($pid) {
-	$res = sqlStatement("select * from transactions where pid=? order by date", array($pid) );
-	while($result = sqlFetchArray($res)) {
-		print "<span class=bold>" .
-		htmlspecialchars( oeFormatSDFT(strtotime($result{"date"})), ENT_NOQUOTES) .
-		":</span><span class=text>(" .
-		generate_display_field(array('data_type'=>'1','list_id'=>'transactions'), $result{"title"}) .
-		") " . htmlspecialchars( $result{"body"}, ENT_NOQUOTES) .
-		"</span><br>\n";
+	$res = sqlStatement("SELECT * FROM transactions WHERE pid = ? ORDER BY date", array($pid));
+	while($row = sqlFetchArray($res)) {
+    echo "<p><span class='bold'>" .
+      text(oeFormatSDFT(strtotime($row['date']))) .
+      " (" .
+      generate_display_field(array('data_type'=>'1','list_id'=>'transactions'), $row['title']) .
+      ")</span><br />\n";
+    lbt_report($row['id'], $row['title']);
+    echo "</p>\n";
 	}
 }
 

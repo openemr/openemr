@@ -2,7 +2,7 @@
 /**
  * Administration Lists Module.
  *
- * Copyright (C) 2007-2014 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2007-2015 Rod Roark <rod@sunsetsystems.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -179,6 +179,10 @@ if ($_POST['formaction']=='save' && $list_id) {
               if ($list_id == 'lbfnames' && substr($id,0,3) != 'LBF')
                 $id = "LBF$id";
 
+              // Force Transaction Form names to start with LBT.
+              if ($list_id == 'transactions' && substr($id,0,3) != 'LBT')
+                $id = "LBT$id";
+
              if ($list_id == 'apptstat') {
                 $notes = formTrim($iter['apptstat_color']) .'|'. formTrim($iter['apptstat_timealert']);
              }
@@ -311,7 +315,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
   
   // Tax rates, contraceptive methods and LBF names have an additional attribute.
   //
-  if ($list_id == 'taxrate' || $list_id == 'contrameth' || $list_id == 'lbfnames') {
+  if ($list_id == 'taxrate' || $list_id == 'contrameth' || $list_id == 'lbfnames' || $list_id == 'transactions') {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][value]' value='" .
         htmlspecialchars($value, ENT_QUOTES) . "' size='8' maxlength='15' class='optin' />";
@@ -907,7 +911,7 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Rate'   ,'e'); ?></b></td>
 <?php } else if ($list_id == 'contrameth') { ?>
   <td><b><?php xl('Effectiveness','e'); ?></b></td>
-<?php } else if ($list_id == 'lbfnames') { ?>
+<?php } else if ($list_id == 'lbfnames' || $list_id == 'transactions') { ?>
   <td title='<?php xl('Number of past history columns','e'); ?>'><b><?php xl('Repeats','e'); ?></b></td>
 <?php } else if ($list_id == 'fitness') { ?>
   <td><b><?php xl('Color:Abbr','e'); ?></b></td>
