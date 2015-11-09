@@ -454,7 +454,7 @@ class eRxXMLBuilder {
 
 		$element = $this->getDocument()->createElement('MidlevelPrescriber');
 		$element->setAttribute('ID', $userDetails['npi']);
-		$element->appendChild($this->LicensedPrescriberName($userDetails, xl('Midlevel Prescriber'), true));
+		$element->appendChild($this->getLicensedPrescriberName($userDetails, xl('Midlevel Prescriber'), true));
 		$element->appendChild($this->createElementTextFieldEmpty('dea', $userDetails['federaldrugid'], xl('Midlevel Prescriber DEA')));
 		if($userDetails['upin']) $element->appendChild($this->createElementText('upin', $userDetails['upin']));
 		$element->appendChild($this->createElementText('licenseNumber', $userDetails['state_license_number']));
@@ -618,17 +618,14 @@ class eRxXMLBuilder {
 				$prescription = $this->getStore()
 					->getPrescriptionById($prescriptionId);
 
-				$prescription['quantity'] = stringToNumeric($prescription['quantity']);
-				$prescription['per_refill'] = stringToNumeric($prescription['per_refill']);
-
 				$element = $this->getOutsidePrescription(array(
 					'externalId'		=> $prescription['prescid'],
 					'date'				=> $prescription['date_added'],
 					'doctorName'		=> $prescription['docname'],
 					'drug'				=> $this->trimData($this->stripSpecialCharacter($prescription['drug']), 80),
-					'dispenseNumber'	=> $prescription['quantity'][0],
+					'dispenseNumber'	=> intval($prescription['quantity']),
 					'sig'				=> $this->trimData($this->stripSpecialCharacter($prescription['quantity'][1].$prescription['size'].' '.$prescription['title4'].' '.$prescription['dosage'].' In '.$prescription['title1'].' '.$prescription['title2'].' '.$prescription['title3'], 140)),
-					'refillCount'		=> $prescription['per_refill'][0],
+					'refillCount'		=> intval($prescription['per_refill']),
 					'prescriptionType'	=> 'reconcile'
 				));
 
