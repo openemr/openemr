@@ -198,7 +198,7 @@ class eRxGlobals {
 
 	/**
 	 * Return Debug NewCrop eRx settings
-	 * @return integer Debug settings: flags [ 1 = XML, 2 = RESUTL ]
+	 * @return integer Debug settings: flags [ 1 = XML, 2 = RESULT ]
 	 */
 	public function getDebugSetting() {
 		return $this->getGlobalValue('erx_debug_setting');
