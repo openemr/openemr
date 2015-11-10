@@ -371,7 +371,8 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
 $(document).ready(function() {
- opener.top.printLogSetup(document.getElementById('printbutton'));
+ var win = top.printLogSetup ? top : opener.top;
+ win.printLogSetup(document.getElementById('printbutton'));
 });
 
  // This is action to take before printing and is called from restoreSession.php.
