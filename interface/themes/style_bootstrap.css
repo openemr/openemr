@@ -3951,7 +3951,7 @@ output {
 }
 
 /* line 2552, bootstrap/css/bootstrap.scss */
-.form-control, .search_init, input[type='text'], input[type='entry'], .dataTables_filter input, select, input[name="type_code"] {
+.form-control, .search_init, input[type='text'], input[type='password'], input[type='entry'], .dataTables_filter input, select, input[name="type_code"] {
   display: block;
   width: 100%;
   height: 34px;
@@ -3971,7 +3971,7 @@ output {
 }
 
 /* line 2570, bootstrap/css/bootstrap.scss */
-.form-control:focus, .search_init:focus, input[type='text']:focus, input[type='entry']:focus, .dataTables_filter input:focus, select:focus, input[name="type_code"]:focus {
+.form-control:focus, .search_init:focus, input[type='text']:focus, input[type='password']:focus, input[type='entry']:focus, .dataTables_filter input:focus, select:focus, input[name="type_code"]:focus {
   border-color: #66afe9;
   outline: 0;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
@@ -3979,26 +3979,27 @@ output {
 }
 
 /* line 2576, bootstrap/css/bootstrap.scss */
-.form-control::-moz-placeholder, .search_init::-moz-placeholder, input[type='text']::-moz-placeholder, input[type='entry']::-moz-placeholder, .dataTables_filter input::-moz-placeholder, select::-moz-placeholder, input[name="type_code"]::-moz-placeholder {
+.form-control::-moz-placeholder, .search_init::-moz-placeholder, input[type='text']::-moz-placeholder, input[type='password']::-moz-placeholder, input[type='entry']::-moz-placeholder, .dataTables_filter input::-moz-placeholder, select::-moz-placeholder, input[name="type_code"]::-moz-placeholder {
   color: #999;
   opacity: 1;
 }
 
 /* line 2580, bootstrap/css/bootstrap.scss */
-.form-control:-ms-input-placeholder, .search_init:-ms-input-placeholder, input[type='text']:-ms-input-placeholder, input[type='entry']:-ms-input-placeholder, .dataTables_filter input:-ms-input-placeholder, select:-ms-input-placeholder, input[name="type_code"]:-ms-input-placeholder {
+.form-control:-ms-input-placeholder, .search_init:-ms-input-placeholder, input[type='text']:-ms-input-placeholder, input[type='password']:-ms-input-placeholder, input[type='entry']:-ms-input-placeholder, .dataTables_filter input:-ms-input-placeholder, select:-ms-input-placeholder, input[name="type_code"]:-ms-input-placeholder {
   color: #999;
 }
 
 /* line 2583, bootstrap/css/bootstrap.scss */
-.form-control::-webkit-input-placeholder, .search_init::-webkit-input-placeholder, input[type='text']::-webkit-input-placeholder, input[type='entry']::-webkit-input-placeholder, .dataTables_filter input::-webkit-input-placeholder, select::-webkit-input-placeholder, input[name="type_code"]::-webkit-input-placeholder {
+.form-control::-webkit-input-placeholder, .search_init::-webkit-input-placeholder, input[type='text']::-webkit-input-placeholder, input[type='password']::-webkit-input-placeholder, input[type='entry']::-webkit-input-placeholder, .dataTables_filter input::-webkit-input-placeholder, select::-webkit-input-placeholder, input[name="type_code"]::-webkit-input-placeholder {
   color: #999;
 }
 
 /* line 2586, bootstrap/css/bootstrap.scss */
-.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"],
+.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"],
 .form-control[readonly],
 [readonly].search_init,
 input[readonly][type='text'],
+input[readonly][type='password'],
 input[readonly][type='entry'],
 .dataTables_filter input[readonly],
 select[readonly],
@@ -4006,6 +4007,7 @@ input[readonly][name="type_code"],
 fieldset[disabled] .form-control,
 fieldset[disabled] .search_init,
 fieldset[disabled] input[type='text'],
+fieldset[disabled] input[type='password'],
 fieldset[disabled] input[type='entry'],
 fieldset[disabled] .dataTables_filter input,
 .dataTables_filter fieldset[disabled] input,
@@ -4016,10 +4018,11 @@ fieldset[disabled] input[name="type_code"] {
 }
 
 /* line 2592, bootstrap/css/bootstrap.scss */
-.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"],
+.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"],
 fieldset[disabled] .form-control,
 fieldset[disabled] .search_init,
 fieldset[disabled] input[type='text'],
+fieldset[disabled] input[type='password'],
 fieldset[disabled] input[type='entry'],
 fieldset[disabled] .dataTables_filter input,
 .dataTables_filter fieldset[disabled] input,
@@ -4040,22 +4043,25 @@ input[type="search"] {
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   /* line 2603, bootstrap/css/bootstrap.scss */
-  input[type="date"].form-control, input[type="date"].search_init, input[type="date"][type='text'], input[type="date"][type='entry'], .dataTables_filter input[type="date"], input[type="date"][name="type_code"],
+  input[type="date"].form-control, input[type="date"].search_init, input[type="date"][type='text'], input[type="date"][type='password'], input[type="date"][type='entry'], .dataTables_filter input[type="date"], input[type="date"][name="type_code"],
   input[type="time"].form-control,
   input[type="time"].search_init,
   input[type="time"][type='text'],
+  input[type="time"][type='password'],
   input[type="time"][type='entry'],
   .dataTables_filter input[type="time"],
   input[type="time"][name="type_code"],
   input[type="datetime-local"].form-control,
   input[type="datetime-local"].search_init,
   input[type="datetime-local"][type='text'],
+  input[type="datetime-local"][type='password'],
   input[type="datetime-local"][type='entry'],
   .dataTables_filter input[type="datetime-local"],
   input[type="datetime-local"][name="type_code"],
   input[type="month"].form-control,
   input[type="month"].search_init,
   input[type="month"][type='text'],
+  input[type="month"][type='password'],
   input[type="month"][type='entry'],
   .dataTables_filter input[type="month"],
   input[type="month"][name="type_code"] {
@@ -4208,7 +4214,7 @@ select[multiple].input-sm {
 }
 
 /* line 2721, bootstrap/css/bootstrap.scss */
-.form-group-sm .form-control, .form-group-sm .search_init, .form-group-sm input[type='text'], .form-group-sm input[type='entry'], .form-group-sm .dataTables_filter input, .dataTables_filter .form-group-sm input, .form-group-sm select, .form-group-sm input[name="type_code"] {
+.form-group-sm .form-control, .form-group-sm .search_init, .form-group-sm input[type='text'], .form-group-sm input[type='password'], .form-group-sm input[type='entry'], .form-group-sm .dataTables_filter input, .dataTables_filter .form-group-sm input, .form-group-sm select, .form-group-sm input[name="type_code"] {
   height: 30px;
   padding: 5px 10px;
   font-size: 12px;
@@ -4261,7 +4267,7 @@ select[multiple].input-lg {
 }
 
 /* line 2758, bootstrap/css/bootstrap.scss */
-.form-group-lg .form-control, .form-group-lg .search_init, .form-group-lg input[type='text'], .form-group-lg input[type='entry'], .form-group-lg .dataTables_filter input, .dataTables_filter .form-group-lg input, .form-group-lg select, .form-group-lg input[name="type_code"] {
+.form-group-lg .form-control, .form-group-lg .search_init, .form-group-lg input[type='text'], .form-group-lg input[type='password'], .form-group-lg input[type='entry'], .form-group-lg .dataTables_filter input, .dataTables_filter .form-group-lg input, .form-group-lg select, .form-group-lg input[name="type_code"] {
   height: 46px;
   padding: 10px 16px;
   font-size: 18px;
@@ -4298,7 +4304,7 @@ select[multiple].input-lg {
 }
 
 /* line 2783, bootstrap/css/bootstrap.scss */
-.has-feedback .form-control, .has-feedback .search_init, .has-feedback input[type='text'], .has-feedback input[type='entry'], .has-feedback .dataTables_filter input, .dataTables_filter .has-feedback input, .has-feedback select, .has-feedback input[name="type_code"] {
+.has-feedback .form-control, .has-feedback .search_init, .has-feedback input[type='text'], .has-feedback input[type='password'], .has-feedback input[type='entry'], .has-feedback .dataTables_filter input, .dataTables_filter .has-feedback input, .has-feedback select, .has-feedback input[name="type_code"] {
   padding-right: 42.5px;
 }
 
@@ -4322,6 +4328,7 @@ select[multiple].input-lg {
 .form-group-lg .form-control + .form-control-feedback,
 .form-group-lg .search_init + .form-control-feedback,
 .form-group-lg input[type='text'] + .form-control-feedback,
+.form-group-lg input[type='password'] + .form-control-feedback,
 .form-group-lg input[type='entry'] + .form-control-feedback,
 .form-group-lg .dataTables_filter input + .form-control-feedback,
 .dataTables_filter .form-group-lg input + .form-control-feedback,
@@ -4338,6 +4345,7 @@ select[multiple].input-lg {
 .form-group-sm .form-control + .form-control-feedback,
 .form-group-sm .search_init + .form-control-feedback,
 .form-group-sm input[type='text'] + .form-control-feedback,
+.form-group-sm input[type='password'] + .form-control-feedback,
 .form-group-sm input[type='entry'] + .form-control-feedback,
 .form-group-sm .dataTables_filter input + .form-control-feedback,
 .dataTables_filter .form-group-sm input + .form-control-feedback,
@@ -4363,14 +4371,14 @@ select[multiple].input-lg {
 }
 
 /* line 2824, bootstrap/css/bootstrap.scss */
-.has-success .form-control, .has-success .search_init, .has-success input[type='text'], .has-success input[type='entry'], .has-success .dataTables_filter input, .dataTables_filter .has-success input, .has-success select, .has-success input[name="type_code"] {
+.has-success .form-control, .has-success .search_init, .has-success input[type='text'], .has-success input[type='password'], .has-success input[type='entry'], .has-success .dataTables_filter input, .dataTables_filter .has-success input, .has-success select, .has-success input[name="type_code"] {
   border-color: #3c763d;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 /* line 2829, bootstrap/css/bootstrap.scss */
-.has-success .form-control:focus, .has-success .search_init:focus, .has-success input[type='text']:focus, .has-success input[type='entry']:focus, .has-success .dataTables_filter input:focus, .dataTables_filter .has-success input:focus, .has-success select:focus, .has-success input[name="type_code"]:focus {
+.has-success .form-control:focus, .has-success .search_init:focus, .has-success input[type='text']:focus, .has-success input[type='password']:focus, .has-success input[type='entry']:focus, .has-success .dataTables_filter input:focus, .dataTables_filter .has-success input:focus, .has-success select:focus, .has-success input[name="type_code"]:focus {
   border-color: #2b542c;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
@@ -4403,14 +4411,14 @@ select[multiple].input-lg {
 }
 
 /* line 2854, bootstrap/css/bootstrap.scss */
-.has-warning .form-control, .has-warning .search_init, .has-warning input[type='text'], .has-warning input[type='entry'], .has-warning .dataTables_filter input, .dataTables_filter .has-warning input, .has-warning select, .has-warning input[name="type_code"] {
+.has-warning .form-control, .has-warning .search_init, .has-warning input[type='text'], .has-warning input[type='password'], .has-warning input[type='entry'], .has-warning .dataTables_filter input, .dataTables_filter .has-warning input, .has-warning select, .has-warning input[name="type_code"] {
   border-color: #8a6d3b;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 /* line 2859, bootstrap/css/bootstrap.scss */
-.has-warning .form-control:focus, .has-warning .search_init:focus, .has-warning input[type='text']:focus, .has-warning input[type='entry']:focus, .has-warning .dataTables_filter input:focus, .dataTables_filter .has-warning input:focus, .has-warning select:focus, .has-warning input[name="type_code"]:focus {
+.has-warning .form-control:focus, .has-warning .search_init:focus, .has-warning input[type='text']:focus, .has-warning input[type='password']:focus, .has-warning input[type='entry']:focus, .has-warning .dataTables_filter input:focus, .dataTables_filter .has-warning input:focus, .has-warning select:focus, .has-warning input[name="type_code"]:focus {
   border-color: #66512c;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
@@ -4443,14 +4451,14 @@ select[multiple].input-lg {
 }
 
 /* line 2884, bootstrap/css/bootstrap.scss */
-.has-error .form-control, .has-error .search_init, .has-error input[type='text'], .has-error input[type='entry'], .has-error .dataTables_filter input, .dataTables_filter .has-error input, .has-error select, .has-error input[name="type_code"] {
+.has-error .form-control, .has-error .search_init, .has-error input[type='text'], .has-error input[type='password'], .has-error input[type='entry'], .has-error .dataTables_filter input, .dataTables_filter .has-error input, .has-error select, .has-error input[name="type_code"] {
   border-color: #a94442;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 /* line 2889, bootstrap/css/bootstrap.scss */
-.has-error .form-control:focus, .has-error .search_init:focus, .has-error input[type='text']:focus, .has-error input[type='entry']:focus, .has-error .dataTables_filter input:focus, .dataTables_filter .has-error input:focus, .has-error select:focus, .has-error input[name="type_code"]:focus {
+.has-error .form-control:focus, .has-error .search_init:focus, .has-error input[type='text']:focus, .has-error input[type='password']:focus, .has-error input[type='entry']:focus, .has-error .dataTables_filter input:focus, .dataTables_filter .has-error input:focus, .has-error select:focus, .has-error input[name="type_code"]:focus {
   border-color: #843534;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
@@ -4495,7 +4503,7 @@ select[multiple].input-lg {
   }
 
   /* line 2920, bootstrap/css/bootstrap.scss */
-  .form-inline .form-control, .form-inline .search_init, .form-inline input[type='text'], .form-inline input[type='entry'], .form-inline .dataTables_filter input, .dataTables_filter .form-inline input, .form-inline select, .form-inline input[name="type_code"] {
+  .form-inline .form-control, .form-inline .search_init, .form-inline input[type='text'], .form-inline input[type='password'], .form-inline input[type='entry'], .form-inline .dataTables_filter input, .dataTables_filter .form-inline input, .form-inline select, .form-inline input[name="type_code"] {
     display: inline-block;
     width: auto;
     vertical-align: middle;
@@ -4518,6 +4526,7 @@ select[multiple].input-lg {
   .form-inline .input-group .form-control,
   .form-inline .input-group .search_init,
   .form-inline .input-group input[type='text'],
+  .form-inline .input-group input[type='password'],
   .form-inline .input-group input[type='entry'],
   .form-inline .input-group .dataTables_filter input,
   .dataTables_filter .form-inline .input-group input,
@@ -4527,7 +4536,7 @@ select[multiple].input-lg {
   }
 
   /* line 2937, bootstrap/css/bootstrap.scss */
-  .form-inline .input-group > .form-control, .form-inline .input-group > .search_init, .form-inline .input-group > input[type='text'], .form-inline .input-group > input[type='entry'], .form-inline .dataTables_filter .input-group > input, .dataTables_filter .form-inline .input-group > input, .form-inline .input-group > select, .form-inline .input-group > input[name="type_code"] {
+  .form-inline .input-group > .form-control, .form-inline .input-group > .search_init, .form-inline .input-group > input[type='text'], .form-inline .input-group > input[type='password'], .form-inline .input-group > input[type='entry'], .form-inline .dataTables_filter .input-group > input, .dataTables_filter .form-inline .input-group > input, .form-inline .input-group > select, .form-inline .input-group > input[name="type_code"] {
     width: 100%;
   }
 
@@ -5755,7 +5764,7 @@ tbody.collapse.in {
 }
 
 /* line 3878, bootstrap/css/bootstrap.scss */
-.input-group .form-control, .input-group .search_init, .input-group input[type='text'], .input-group input[type='entry'], .input-group .dataTables_filter input, .dataTables_filter .input-group input, .input-group select, .input-group input[name="type_code"] {
+.input-group .form-control, .input-group .search_init, .input-group input[type='text'], .input-group input[type='password'], .input-group input[type='entry'], .input-group .dataTables_filter input, .dataTables_filter .input-group input, .input-group select, .input-group input[name="type_code"] {
   position: relative;
   z-index: 2;
   float: left;
@@ -5764,7 +5773,7 @@ tbody.collapse.in {
 }
 
 /* line 3885, bootstrap/css/bootstrap.scss */
-.input-group-lg > .form-control, .input-group-lg > .search_init, .input-group-lg > input[type='text'], .input-group-lg > input[type='entry'], .dataTables_filter .input-group-lg > input, .input-group-lg > select, .input-group-lg > input[name="type_code"],
+.input-group-lg > .form-control, .input-group-lg > .search_init, .input-group-lg > input[type='text'], .input-group-lg > input[type='password'], .input-group-lg > input[type='entry'], .dataTables_filter .input-group-lg > input, .input-group-lg > select, .input-group-lg > input[name="type_code"],
 .input-group-lg > .input-group-addon,
 .input-group-lg > .input-group-btn > .btn {
   height: 46px;
@@ -5775,7 +5784,7 @@ tbody.collapse.in {
 }
 
 /* line 3894, bootstrap/css/bootstrap.scss */
-select.input-group-lg > .form-control, select.input-group-lg > .search_init, select.input-group-lg > input[type='text'], select.input-group-lg > input[type='entry'], .dataTables_filter select.input-group-lg > input, select.input-group-lg > select, select.input-group-lg > input[name="type_code"],
+select.input-group-lg > .form-control, select.input-group-lg > .search_init, select.input-group-lg > input[type='text'], select.input-group-lg > input[type='password'], select.input-group-lg > input[type='entry'], .dataTables_filter select.input-group-lg > input, select.input-group-lg > select, select.input-group-lg > input[name="type_code"],
 select.input-group-lg > .input-group-addon,
 select.input-group-lg > .input-group-btn > .btn {
   height: 46px;
@@ -5783,12 +5792,13 @@ select.input-group-lg > .input-group-btn > .btn {
 }
 
 /* line 3900, bootstrap/css/bootstrap.scss */
-textarea.input-group-lg > .form-control, textarea.input-group-lg > .search_init, textarea.input-group-lg > input[type='text'], textarea.input-group-lg > input[type='entry'], .dataTables_filter textarea.input-group-lg > input, textarea.input-group-lg > select, textarea.input-group-lg > input[name="type_code"],
+textarea.input-group-lg > .form-control, textarea.input-group-lg > .search_init, textarea.input-group-lg > input[type='text'], textarea.input-group-lg > input[type='password'], textarea.input-group-lg > input[type='entry'], .dataTables_filter textarea.input-group-lg > input, textarea.input-group-lg > select, textarea.input-group-lg > input[name="type_code"],
 textarea.input-group-lg > .input-group-addon,
 textarea.input-group-lg > .input-group-btn > .btn,
 select[multiple].input-group-lg > .form-control,
 select[multiple].input-group-lg > .search_init,
 select[multiple].input-group-lg > input[type='text'],
+select[multiple].input-group-lg > input[type='password'],
 select[multiple].input-group-lg > input[type='entry'],
 .dataTables_filter select[multiple].input-group-lg > input,
 select[multiple].input-group-lg > select,
@@ -5799,7 +5809,7 @@ select[multiple].input-group-lg > .input-group-btn > .btn {
 }
 
 /* line 3908, bootstrap/css/bootstrap.scss */
-.input-group-sm > .form-control, .input-group-sm > .search_init, .input-group-sm > input[type='text'], .input-group-sm > input[type='entry'], .dataTables_filter .input-group-sm > input, .input-group-sm > select, .input-group-sm > input[name="type_code"],
+.input-group-sm > .form-control, .input-group-sm > .search_init, .input-group-sm > input[type='text'], .input-group-sm > input[type='password'], .input-group-sm > input[type='entry'], .dataTables_filter .input-group-sm > input, .input-group-sm > select, .input-group-sm > input[name="type_code"],
 .input-group-sm > .input-group-addon,
 .input-group-sm > .input-group-btn > .btn {
   height: 30px;
@@ -5810,7 +5820,7 @@ select[multiple].input-group-lg > .input-group-btn > .btn {
 }
 
 /* line 3917, bootstrap/css/bootstrap.scss */
-select.input-group-sm > .form-control, select.input-group-sm > .search_init, select.input-group-sm > input[type='text'], select.input-group-sm > input[type='entry'], .dataTables_filter select.input-group-sm > input, select.input-group-sm > select, select.input-group-sm > input[name="type_code"],
+select.input-group-sm > .form-control, select.input-group-sm > .search_init, select.input-group-sm > input[type='text'], select.input-group-sm > input[type='password'], select.input-group-sm > input[type='entry'], .dataTables_filter select.input-group-sm > input, select.input-group-sm > select, select.input-group-sm > input[name="type_code"],
 select.input-group-sm > .input-group-addon,
 select.input-group-sm > .input-group-btn > .btn {
   height: 30px;
@@ -5818,12 +5828,13 @@ select.input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 3923, bootstrap/css/bootstrap.scss */
-textarea.input-group-sm > .form-control, textarea.input-group-sm > .search_init, textarea.input-group-sm > input[type='text'], textarea.input-group-sm > input[type='entry'], .dataTables_filter textarea.input-group-sm > input, textarea.input-group-sm > select, textarea.input-group-sm > input[name="type_code"],
+textarea.input-group-sm > .form-control, textarea.input-group-sm > .search_init, textarea.input-group-sm > input[type='text'], textarea.input-group-sm > input[type='password'], textarea.input-group-sm > input[type='entry'], .dataTables_filter textarea.input-group-sm > input, textarea.input-group-sm > select, textarea.input-group-sm > input[name="type_code"],
 textarea.input-group-sm > .input-group-addon,
 textarea.input-group-sm > .input-group-btn > .btn,
 select[multiple].input-group-sm > .form-control,
 select[multiple].input-group-sm > .search_init,
 select[multiple].input-group-sm > input[type='text'],
+select[multiple].input-group-sm > input[type='password'],
 select[multiple].input-group-sm > input[type='entry'],
 .dataTables_filter select[multiple].input-group-sm > input,
 select[multiple].input-group-sm > select,
@@ -5839,6 +5850,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .input-group .form-control,
 .input-group .search_init,
 .input-group input[type='text'],
+.input-group input[type='password'],
 .input-group input[type='entry'],
 .input-group .dataTables_filter input,
 .dataTables_filter .input-group input,
@@ -5853,6 +5865,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .input-group .form-control:not(:first-child):not(:last-child),
 .input-group .search_init:not(:first-child):not(:last-child),
 .input-group input[type='text']:not(:first-child):not(:last-child),
+.input-group input[type='password']:not(:first-child):not(:last-child),
 .input-group input[type='entry']:not(:first-child):not(:last-child),
 .input-group .dataTables_filter input:not(:first-child):not(:last-child),
 .dataTables_filter .input-group input:not(:first-child):not(:last-child),
@@ -5903,7 +5916,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 3972, bootstrap/css/bootstrap.scss */
-.input-group .form-control:first-child, .input-group .search_init:first-child, .input-group input[type='text']:first-child, .input-group input[type='entry']:first-child, .input-group .dataTables_filter input:first-child, .dataTables_filter .input-group input:first-child, .input-group select:first-child, .input-group input[name="type_code"]:first-child,
+.input-group .form-control:first-child, .input-group .search_init:first-child, .input-group input[type='text']:first-child, .input-group input[type='password']:first-child, .input-group input[type='entry']:first-child, .input-group .dataTables_filter input:first-child, .dataTables_filter .input-group input:first-child, .input-group select:first-child, .input-group input[name="type_code"]:first-child,
 .input-group-addon:first-child,
 .input-group-btn:first-child > .btn,
 .input-group-btn:first-child > .btn-group > .btn,
@@ -5920,7 +5933,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 3985, bootstrap/css/bootstrap.scss */
-.input-group .form-control:last-child, .input-group .search_init:last-child, .input-group input[type='text']:last-child, .input-group input[type='entry']:last-child, .input-group .dataTables_filter input:last-child, .dataTables_filter .input-group input:last-child, .input-group select:last-child, .input-group input[name="type_code"]:last-child,
+.input-group .form-control:last-child, .input-group .search_init:last-child, .input-group input[type='text']:last-child, .input-group input[type='password']:last-child, .input-group input[type='entry']:last-child, .input-group .dataTables_filter input:last-child, .dataTables_filter .input-group input:last-child, .input-group select:last-child, .input-group input[name="type_code"]:last-child,
 .input-group-addon:last-child,
 .input-group-btn:last-child > .btn,
 .input-group-btn:last-child > .btn-group > .btn,
@@ -6584,7 +6597,7 @@ ul.tabNav .open > a:focus,
   }
 
   /* line 4433, bootstrap/css/bootstrap.scss */
-  .navbar-form .form-control, .navbar-form .search_init, .navbar-form input[type='text'], .navbar-form input[type='entry'], .navbar-form .dataTables_filter input, .dataTables_filter .navbar-form input, .navbar-form select, .navbar-form input[name="type_code"] {
+  .navbar-form .form-control, .navbar-form .search_init, .navbar-form input[type='text'], .navbar-form input[type='password'], .navbar-form input[type='entry'], .navbar-form .dataTables_filter input, .dataTables_filter .navbar-form input, .navbar-form select, .navbar-form input[name="type_code"] {
     display: inline-block;
     width: auto;
     vertical-align: middle;
@@ -6607,6 +6620,7 @@ ul.tabNav .open > a:focus,
   .navbar-form .input-group .form-control,
   .navbar-form .input-group .search_init,
   .navbar-form .input-group input[type='text'],
+  .navbar-form .input-group input[type='password'],
   .navbar-form .input-group input[type='entry'],
   .navbar-form .input-group .dataTables_filter input,
   .dataTables_filter .navbar-form .input-group input,
@@ -6616,7 +6630,7 @@ ul.tabNav .open > a:focus,
   }
 
   /* line 4450, bootstrap/css/bootstrap.scss */
-  .navbar-form .input-group > .form-control, .navbar-form .input-group > .search_init, .navbar-form .input-group > input[type='text'], .navbar-form .input-group > input[type='entry'], .navbar-form .dataTables_filter .input-group > input, .dataTables_filter .navbar-form .input-group > input, .navbar-form .input-group > select, .navbar-form .input-group > input[name="type_code"] {
+  .navbar-form .input-group > .form-control, .navbar-form .input-group > .search_init, .navbar-form .input-group > input[type='text'], .navbar-form .input-group > input[type='password'], .navbar-form .input-group > input[type='entry'], .navbar-form .dataTables_filter .input-group > input, .dataTables_filter .navbar-form .input-group > input, .navbar-form .input-group > select, .navbar-form .input-group > input[name="type_code"] {
     width: 100%;
   }
 
@@ -12029,7 +12043,7 @@ td.label {
 }
 
 /* line 1211, bootstrap/sass/style_bootstrap.scss */
-.search_init, input[type='text'], input[type='entry'] {
+.search_init, input[type='text'], input[type='password'], input[type='entry'] {
   margin-bottom: 5px;
 }
 
@@ -12216,4 +12230,38 @@ div.borderbox {
 /* line 1351, bootstrap/sass/style_bootstrap.scss */
 frameset.sidebar, frameset.main-section {
   width: 100%;
+}
+
+/* line 1354, bootstrap/sass/style_bootstrap.scss */
+form[name="theform"] td {
+  width: auto !important;
+}
+
+/* line 1357, bootstrap/sass/style_bootstrap.scss */
+form[name="theform"] td input,
+form[id="theform"] td input {
+  display: inline-block;
+  width: auto;
+}
+
+/* line 1362, bootstrap/sass/style_bootstrap.scss */
+form[name="theform"] td,
+form[id="theform"] td {
+  vertical-align: middle;
+  font-size: 12px;
+}
+
+/* line 1367, bootstrap/sass/style_bootstrap.scss */
+#img_date,
+#img_to_date,
+#img_from_date,
+#img_begin_date,
+#img_target_date,
+#img_DOB {
+  display: inline-block;
+  box-sizing: border-box;
+  padding-left: 27px;
+  background: url("../pic/calendar_full.png") no-repeat;
+  width: 21px;
+  height: 21px;
 }

@@ -1208,7 +1208,7 @@ $button-color : '#245580';
     color: #fff;
     border-bottom: 3px solid #000 !important
 }
-.search_init, input[type='text'], input[type='entry']{
+.search_init, input[type='text'], input[type='password'], input[type='entry']{
     @extend .form-control;
     margin-bottom: 5px;
 }
@@ -1350,5 +1350,32 @@ div.borderbox {
 
 frameset.sidebar, frameset.main-section{
     width: 100%
+}
+form[name="theform"] td{
+    width: auto !important;
+}
+form[name="theform"] td input,
+form[id="theform"] td input{
+    display: inline-block;
+    width: auto;
+}
+form[name="theform"] td,
+form[id="theform"] td{
+    vertical-align: middle;
+    font-size: 12px;
+}
+#img_date,
+#img_to_date,
+#img_from_date,
+#img_begin_date,
+#img_target_date,
+#img_DOB{
+    display: inline-block;
+    box-sizing: border-box;    
+    padding-left: 27px;
+    background: url("../pic/calendar_full.png") no-repeat;  
+    width: 21px;
+    height: 21px;
+    
 }
 
