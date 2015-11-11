@@ -832,7 +832,7 @@ while ($row = sqlFetchArray($res)) {
 
 <center>
 
-<table cellpadding='2' cellspacing='0'>
+<table cellpadding='2' cellspacing='0' class="table table-responsive table-striped table-bordered">
  <tr class='head'>
 <?php if ($list_id == 'feesheet') { ?>
   <td><b><?php xl('Group'    ,'e'); ?></b></td>

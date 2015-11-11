@@ -1189,7 +1189,9 @@ $button-color : '#245580';
     height: auto !important;
     padding: 5px 14px !important;
 }
-
+.btn-green{
+    @extend .btn-submit 
+}
 .tabNav,
 .nav-pills-sm{
     @extend .nav-tabs; 
@@ -1368,6 +1370,7 @@ form[id="theform"] td{
 #img_to_date,
 #img_from_date,
 #img_begin_date,
+#img_end_date,
 #img_target_date,
 #img_DOB{
     display: inline-block;
@@ -1379,3 +1382,34 @@ form[id="theform"] td{
     
 }
 
+.bottom-panel{
+    @extend div.section;
+    padding-top: 15px;
+}
+.bottom-panel .title-bigger{
+    font-size: 17px;
+    display: block;
+    text-align: center;
+    border-bottom: 1px dashed #000;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    
+}
+
+.pager span{
+    content: '';
+    max-height: 31px;
+    overflow: hidden;
+}
+.pager span:first-child:before{
+    content: '\f0d9 ';
+    font-family: 'fontawesome';
+    display: block;
+        padding-bottom: 50px;
+}
+.pager span:last-child:before{
+    content: '\f0da';
+    font-family: 'fontawesome';
+    display: block;
+        padding-bottom: 50px;
+}

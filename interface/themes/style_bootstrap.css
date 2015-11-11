@@ -11952,7 +11952,7 @@ div.notab-right {
 }
 
 /* line 1092, bootstrap/sass/style_bootstrap.scss */
-.btn-submit, input[type="submit"] {
+.btn-submit, .btn-green, input[type="submit"] {
   background-color: #46be52 !important;
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#b7e5bb", endColorstr="#46be52");
@@ -12024,56 +12024,56 @@ td.label {
   padding: 5px 14px !important;
 }
 
-/* line 1193, bootstrap/sass/style_bootstrap.scss */
+/* line 1195, bootstrap/sass/style_bootstrap.scss */
 .tabNav,
 .nav-pills-sm {
   border-bottom: 0 !important;
 }
 
-/* line 1203, bootstrap/sass/style_bootstrap.scss */
+/* line 1205, bootstrap/sass/style_bootstrap.scss */
 .tabNav a {
   background-color: #057e99 !important;
   color: #fff;
 }
 
-/* line 1207, bootstrap/sass/style_bootstrap.scss */
+/* line 1209, bootstrap/sass/style_bootstrap.scss */
 .tabNav li.active a, .tabNav li.current a {
   color: #fff;
   border-bottom: 3px solid #000 !important;
 }
 
-/* line 1211, bootstrap/sass/style_bootstrap.scss */
+/* line 1213, bootstrap/sass/style_bootstrap.scss */
 .search_init, input[type='text'], input[type='password'], input[type='entry'] {
   margin-bottom: 5px;
 }
 
-/* line 1215, bootstrap/sass/style_bootstrap.scss */
+/* line 1217, bootstrap/sass/style_bootstrap.scss */
 form[name="demographics_form"] input[type="text"],
 form[name="demographics_form"] input[type="entry"] {
   display: inline-block;
   width: auto;
 }
 
-/* line 1220, bootstrap/sass/style_bootstrap.scss */
+/* line 1222, bootstrap/sass/style_bootstrap.scss */
 .dataTables_filter input, select {
   margin-bottom: 5px;
   display: inline-block;
   width: auto;
 }
 
-/* line 1226, bootstrap/sass/style_bootstrap.scss */
+/* line 1228, bootstrap/sass/style_bootstrap.scss */
 .dataTable th {
   background: #eee;
 }
 
-/* line 1238, bootstrap/sass/style_bootstrap.scss */
+/* line 1240, bootstrap/sass/style_bootstrap.scss */
 input[type="button"] {
   padding: 4px 17px;
   margin: 0 10px;
   border-radius: 5px;
 }
 
-/* line 1244, bootstrap/sass/style_bootstrap.scss */
+/* line 1246, bootstrap/sass/style_bootstrap.scss */
 input[type="submit"] {
   padding: 4px 17px;
   margin: 0 10px;
@@ -12081,26 +12081,26 @@ input[type="submit"] {
   width: auto !important;
 }
 
-/* line 1251, bootstrap/sass/style_bootstrap.scss */
-div.section {
+/* line 1253, bootstrap/sass/style_bootstrap.scss */
+div.section, .bottom-panel {
   border-color: transparent !important;
   box-shadow: 0px 0 2px #50B4D4;
   background: #D0E9C6;
 }
 
-/* line 1256, bootstrap/sass/style_bootstrap.scss */
+/* line 1258, bootstrap/sass/style_bootstrap.scss */
 td b {
   margin-bottom: 5px;
 }
 
-/* line 1259, bootstrap/sass/style_bootstrap.scss */
+/* line 1261, bootstrap/sass/style_bootstrap.scss */
 td .css_button_small, td #showMenuLink {
   float: none !important;
   padding: 5px 10px !important;
   margin: 0 !important;
 }
 
-/* line 1264, bootstrap/sass/style_bootstrap.scss */
+/* line 1266, bootstrap/sass/style_bootstrap.scss */
 select[name="sel_frame"] {
   font-size: 9pt;
   width: 100%;
@@ -12108,55 +12108,55 @@ select[name="sel_frame"] {
   border-radius: 5px;
 }
 
-/* line 1270, bootstrap/sass/style_bootstrap.scss */
+/* line 1272, bootstrap/sass/style_bootstrap.scss */
 select:disabled {
   background: #dddddd !important;
 }
 
-/* line 1273, bootstrap/sass/style_bootstrap.scss */
+/* line 1275, bootstrap/sass/style_bootstrap.scss */
 img#prevday {
   padding: 0 !important;
 }
 
-/* line 1276, bootstrap/sass/style_bootstrap.scss */
+/* line 1278, bootstrap/sass/style_bootstrap.scss */
 td.top-secondary-nav table {
   float: right;
 }
 
-/* line 1279, bootstrap/sass/style_bootstrap.scss */
+/* line 1281, bootstrap/sass/style_bootstrap.scss */
 .top-primary-nav a {
   float: left !important;
   margin-bottom: 7px !important;
 }
 
-/* line 1283, bootstrap/sass/style_bootstrap.scss */
+/* line 1285, bootstrap/sass/style_bootstrap.scss */
 .billingButton input[type="text"] {
   width: auto !important;
   display: inline-block !important;
 }
 
-/* line 1290, bootstrap/sass/style_bootstrap.scss */
+/* line 1292, bootstrap/sass/style_bootstrap.scss */
 div.borderbox {
   background: #D0E9C6;
 }
 
-/* line 1293, bootstrap/sass/style_bootstrap.scss */
+/* line 1295, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:hover {
   text-decoration: none;
   cursor: pointer;
 }
 
-/* line 1298, bootstrap/sass/style_bootstrap.scss */
+/* line 1300, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li ul ul {
   padding-left: 5px;
 }
 
-/* line 1301, bootstrap/sass/style_bootstrap.scss */
+/* line 1303, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a > img {
   display: none;
 }
 
-/* line 1304, bootstrap/sass/style_bootstrap.scss */
+/* line 1306, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:before {
   font-family: 'fontawesome';
   margin-right: 5px;
@@ -12164,98 +12164,99 @@ div.borderbox {
   font-size: 14px;
 }
 
-/* line 1311, bootstrap/sass/style_bootstrap.scss */
+/* line 1313, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:after {
   font-family: 'fontawesome';
   margin-left: 5px;
   color: #000;
 }
 
-/* line 1316, bootstrap/sass/style_bootstrap.scss */
+/* line 1318, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#cal0:before {
   content: "\f073";
 }
 
-/* line 1319, bootstrap/sass/style_bootstrap.scss */
+/* line 1321, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#pfb0:before {
   content: "\f15c";
 }
 
-/* line 1322, bootstrap/sass/style_bootstrap.scss */
+/* line 1324, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#msg0:before {
   content: "\f003";
 }
 
-/* line 1325, bootstrap/sass/style_bootstrap.scss */
+/* line 1327, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#patimg:before {
   content: "\f007";
 }
 
-/* line 1328, bootstrap/sass/style_bootstrap.scss */
+/* line 1330, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#feeimg:before {
   content: "\f0d6";
 }
 
-/* line 1331, bootstrap/sass/style_bootstrap.scss */
+/* line 1333, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#modimg:before {
   content: "\f0fa";
 }
 
-/* line 1334, bootstrap/sass/style_bootstrap.scss */
+/* line 1336, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:before {
   content: "\f0fa";
 }
 
-/* line 1337, bootstrap/sass/style_bootstrap.scss */
+/* line 1339, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:after,
 #navigation-slide li > a#admimg:after {
   content: "\f0d7";
 }
 
-/* line 1341, bootstrap/sass/style_bootstrap.scss */
+/* line 1343, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#admimg:before {
   content: "\f085";
 }
 
-/* line 1344, bootstrap/sass/style_bootstrap.scss */
+/* line 1346, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#repimg:before {
   content: "\f080";
 }
 
-/* line 1347, bootstrap/sass/style_bootstrap.scss */
+/* line 1349, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#misimg:before {
   content: "\f01c";
 }
 
-/* line 1351, bootstrap/sass/style_bootstrap.scss */
+/* line 1353, bootstrap/sass/style_bootstrap.scss */
 frameset.sidebar, frameset.main-section {
   width: 100%;
 }
 
-/* line 1354, bootstrap/sass/style_bootstrap.scss */
+/* line 1356, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td {
   width: auto !important;
 }
 
-/* line 1357, bootstrap/sass/style_bootstrap.scss */
+/* line 1359, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td input,
 form[id="theform"] td input {
   display: inline-block;
   width: auto;
 }
 
-/* line 1362, bootstrap/sass/style_bootstrap.scss */
+/* line 1364, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td,
 form[id="theform"] td {
   vertical-align: middle;
   font-size: 12px;
 }
 
-/* line 1367, bootstrap/sass/style_bootstrap.scss */
+/* line 1369, bootstrap/sass/style_bootstrap.scss */
 #img_date,
 #img_to_date,
 #img_from_date,
 #img_begin_date,
+#img_end_date,
 #img_target_date,
 #img_DOB {
   display: inline-block;
@@ -12264,4 +12265,42 @@ form[id="theform"] td {
   background: url("../pic/calendar_full.png") no-repeat;
   width: 21px;
   height: 21px;
+}
+
+/* line 1385, bootstrap/sass/style_bootstrap.scss */
+.bottom-panel {
+  padding-top: 15px;
+}
+
+/* line 1389, bootstrap/sass/style_bootstrap.scss */
+.bottom-panel .title-bigger {
+  font-size: 17px;
+  display: block;
+  text-align: center;
+  border-bottom: 1px dashed #000;
+  text-transform: uppercase;
+  padding-bottom: 10px;
+}
+
+/* line 1399, bootstrap/sass/style_bootstrap.scss */
+.pager span {
+  content: '';
+  max-height: 31px;
+  overflow: hidden;
+}
+
+/* line 1404, bootstrap/sass/style_bootstrap.scss */
+.pager span:first-child:before {
+  content: '\f0d9 ';
+  font-family: 'fontawesome';
+  display: block;
+  padding-bottom: 50px;
+}
+
+/* line 1410, bootstrap/sass/style_bootstrap.scss */
+.pager span:last-child:before {
+  content: '\f0da';
+  font-family: 'fontawesome';
+  display: block;
+  padding-bottom: 50px;
 }

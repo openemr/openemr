@@ -54,9 +54,9 @@ require_once("$srcdir/formatting.inc.php");
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js"></script>
 </head>
 
-<body class="body_top">
+<body class="body_top bottom-panel">
 
-<span class="title"><?php echo xlt('Message and Reminder Center'); ?></span>
+<span class="title title-bigger"><?php echo xlt('Message and Reminder Center'); ?></span>
 <br /><br />
 <span class="title"><?php echo xlt('Reminders'); ?></span>
 

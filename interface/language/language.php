@@ -31,7 +31,7 @@ require_once("$srcdir/formdata.inc.php");
 <input type='hidden' name='m' value='<?php echo htmlspecialchars($_GET['m'],ENT_QUOTES); ?>' />
 <input type='hidden' name='edit' value='<?php echo htmlspecialchars($_GET['edit'],ENT_QUOTES); ?>' />
 <span class="title"><?php echo htmlspecialchars(xl('Multi Language Tool'),ENT_NOQUOTES); ?></span>
-<table>
+<table class="table table-responsive table-striped table-bordered">
  <tr>
   <td class="small" colspan='4'>
    <a href="?m=definition" onclick="top.restoreSession()"><?php echo htmlspecialchars(xl('Edit Definitions'),ENT_NOQUOTES); ?></a> | 
@@ -60,6 +60,6 @@ switch ($_GET['m']):
 endswitch;
 ?>
 
-<BR><A HREF="lang.info.html" TARGET="_blank"><?php echo htmlspecialchars(xl('Info'),ENT_NOQUOTES); ?></A>
+<BR><A class="btn btn-small btn-green" HREF="lang.info.html" TARGET="_blank"><?php echo htmlspecialchars(xl('Info'),ENT_NOQUOTES); ?></A>
 </body>
 </html>

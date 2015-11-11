@@ -105,7 +105,7 @@ $(document).ready(function(){
 
 <div>
     <div>
-	<table><tr><td>
+	<table class="table table-bordered table-striped"><tr><td>
         <b><?php xl('Facilities','e'); ?></b>&nbsp;</td><td>
 		 <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add','e');?></span></a>
 		 </td></tr>
@@ -113,7 +113,7 @@ $(document).ready(function(){
     </div>
     <div class="tabContainer" style="width:550px;">
         <div>
-<table cellpadding="1" cellspacing="0" class="showborder">
+<table cellpadding="1" cellspacing="0" class="showborder table table-bordered table-striped">
 	<tr class="showborder_head" height="22">
 		<th style="border-style:1px solid #000" width="140px"><?php xl('Name','e'); ?></th>
 		<th style="border-style:1px solid #000" width="320px"><?php xl('Address','e'); ?></th>
