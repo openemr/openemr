@@ -146,8 +146,7 @@ a:hover {
 
 .title {
   font-family: sans-serif;
-  font-size: 12pt;
-  font-weight: bold;
+  font-size: 14pt;  
   text-decoration: none;
 }
 
@@ -1108,9 +1107,9 @@ div.notab-right {
 
 .css_button_small,.css_button {
   @extend .btn-custom;
-  margin: 5px 3px !important;
-  padding: 3px 5px !important;
-  font-size: 8pt !important;
+      margin: 0px 2px !important;
+    padding: 2px 7px !important;
+    font-size: 10pt !important;
 }
 //body > table:nth-child(13) > tbody > tr > td > table:nth-child(2) > tbody > tr > td:nth-child(1) > span > a:nth-child(1)
 
@@ -1118,9 +1117,11 @@ div.notab-right {
   @extend .btn-custom;
   margin: 10px 3px !important;
   padding: 5px 25px !important;
-  font-size: 8pt !important;
+  font-size: 10pt !important;
 }
-
+#topToolbarRight {
+    padding-top: 4px;
+}
 span.css_button_separator {
   display: none;
 }
@@ -1176,7 +1177,7 @@ $break-exlarge: 1199px;
 
 
 $button-color : '#245580';
-
+$tableHeader-bg : #BBCCFF;
 .pager a,
 .pager  span {
 @extend .pagerelement;    
@@ -1387,12 +1388,13 @@ form[id="theform"] td{
     padding-top: 15px;
 }
 .bottom-panel .title-bigger{
-    font-size: 17px;
+        font-size: 18px;
     display: block;
     text-align: center;
     border-bottom: 1px dashed #000;
     text-transform: uppercase;
     padding-bottom: 10px;
+    font-weight: bold;
     
 }
 
@@ -1412,4 +1414,41 @@ form[id="theform"] td{
     font-family: 'fontawesome';
     display: block;
         padding-bottom: 50px;
+}
+ul.nav-sm.nav-pills-sm li {
+    border: 1px solid;
+    border-radius: 5px 5px 0 0;
+    padding: 0;
+}
+ul.nav-sm.nav-pills-sm li a {
+    color: #000;
+    margin: 0;
+}
+#dateNAV {
+    font-size: 12pt !important;
+    margin-top: -3px;
+    margin-bottom: 5px;
+}
+#times table, .view2, .view1, #datePicker .currentDate,
+#datePicker .tdDatePickerHighlight{
+    background-color: #BBCCFF !important;
+}
+.dr_container{
+    padding: 0 !important;
+}
+.drHide{    
+    position: relative;
+    top: 5px;
+}
+.drHide p{
+    display: inline-flex;
+    margin-right: 3px !important;
+}
+.bottom-panel .panel {
+    background-color: #B8D8AB;
+    padding: 15px;
+}
+.tableHead-bg{
+//    @extend .btn-custom;
+  background: $tableHeader-bg !important;   
 }

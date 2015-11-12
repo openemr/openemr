@@ -56,8 +56,9 @@ require_once("$srcdir/formatting.inc.php");
 
 <body class="body_top bottom-panel">
 
-<span class="title title-bigger"><?php echo xlt('Message and Reminder Center'); ?></span>
+<span class="title-bigger"><?php echo xlt('Message and Reminder Center'); ?></span>
 <br /><br />
+<div class="panel">    
 <span class="title"><?php echo xlt('Reminders'); ?></span>
 
 <?php       
@@ -110,6 +111,7 @@ else {
 <table><tr><td><span class="title"><?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href=<?php echo $lnkvar; ?></a></td></tr></table>
 
 
+</div>
 <?php
 //show the activity links
 if (empty($task) || $task=="add" || $task=="delete") {
@@ -136,7 +138,6 @@ if (empty($task) || $task=="add" || $task=="delete") {
         <?php echo $show_inactive . xlt('Show Inactive') ?></span></a></li>
     </ul>
 <?php } ?>
-
 <?php
 switch($task) {
     case "add" :
@@ -506,7 +507,7 @@ else {
     <table width=100%><tr><td><table border=0 cellpadding=1 cellspacing=0 width=90%  style=\"border-left: 1px #000000 solid; border-right: 1px #000000 solid; border-top: 1px #000000 solid;\">
     <form name=MessageList action=\"messages.php?showall=".attr($showall)."&sortby=".attr($sortby)."&sortorder=".attr($sortorder)."&begin=".attr($begin)."&$activity_string_html\" method=post>
     <input type=hidden name=task value=delete>
-        <tr height=\"24\" style=\"background:lightgrey\">
+        <tr height=\"24\" class=\"tableHead-bg\" style=\"background:lightgrey\">
             <td align=\"center\" width=\"25\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><input type=checkbox id=\"checkAll\" onclick=\"selectAll()\"></td>
             <td width=\"20%\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\" class=bold>&nbsp;<b>" .
               htmlspecialchars( xl('From'), ENT_NOQUOTES) . "</b> $sortlink[0]</td>

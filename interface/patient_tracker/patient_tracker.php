@@ -153,7 +153,7 @@ function openNewTopWindow(newpid,newencounterid) {
 </table>
 <?php } ?>
 
-<table border='0' cellpadding='1' cellspacing='2' width='100%'>
+<table border='0' cellpadding='1' cellspacing='2' width='100%' class="table table-bordered table-striped">
 
  <tr bgcolor="#cccff">
    <td class="dehead" align="center">

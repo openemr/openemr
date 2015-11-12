@@ -42,7 +42,7 @@ require_once(dirname(__FILE__) . "/../globals.php");
 <body class="body_top" >
 <center>
 <p><b><?php echo xlt("Steps for uploading CCR XML");?></b></p>
-<table style="width:85%;font-size:14px;" >
+<table style="width:85%;font-size:14px;" class="table table-bordered table-striped">
   <tr>
     <td>1.</td>
     <td><?php echo xlt('To upload CCR document of already existing patient use Patient Summary Screen->Documents. For CCR document of a new patient use Miscellanous->New Documents screen').'.'; ?></td>
