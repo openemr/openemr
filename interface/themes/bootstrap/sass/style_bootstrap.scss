@@ -690,7 +690,7 @@ div.notab-right {
 */
 
 #report_parameters {
-  background-color: #ececec;
+  background-color: #D0E9C6;
   margin-top:10px;
 }
 
@@ -1072,52 +1072,64 @@ div.notab-right {
 
 
 // Bootstrap UI Renovations
-.btn-custom {
-  background-color: hsl(191, 94%, 31%) !important;
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#34d4f8", endColorstr="#047e99");
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#34d4f8), to(#047e99));
-  background-image: -moz-linear-gradient(top, #34d4f8, #047e99);
-  background-image: -ms-linear-gradient(top, #34d4f8, #047e99);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #34d4f8), color-stop(100%, #047e99));
-  background-image: -webkit-linear-gradient(top, #34d4f8, #047e99);
-  background-image: -o-linear-gradient(top, #34d4f8, #047e99);
-  background-image: linear-gradient(#34d4f8, #047e99);
-  border-color: #047e99 #047e99 hsl(191, 94%, 24%);
-  color: #fff !important;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.46);
-  -webkit-font-smoothing: antialiased;
-}
-.btn-submit {
-  background-color: hsl(126, 48%, 51%) !important;
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#b7e5bb", endColorstr="#46be52");
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#b7e5bb), to(#46be52));
-  background-image: -moz-linear-gradient(top, #b7e5bb, #46be52);
-  background-image: -ms-linear-gradient(top, #b7e5bb, #46be52);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #b7e5bb), color-stop(100%, #46be52));
-  background-image: -webkit-linear-gradient(top, #b7e5bb, #46be52);
-  background-image: -o-linear-gradient(top, #b7e5bb, #46be52);
-  background-image: linear-gradient(#b7e5bb, #46be52);
-  border-color: #46be52 #46be52 hsl(126, 48%, 43.5%);
-  color: #333 !important;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.49);
-  -webkit-font-smoothing: antialiased;
-}
 
-.css_button_small,.css_button {
+/****** variables ******/
+$break-xsmall: 480px;
+$break-small: 767px;
+$break-large: 991px;
+$break-exlarge: 1199px;
+
+/***** colors *********/
+$button-color : #245580;
+$tableHeader-bg : #BBCCFF;
+$solidgreen : #B8D8AB;
+$lightgreen: #D0E9C6;
+
+/***** colors *********/
+$btn-lg-curve: 5px;
+$btn-sm-curve: 3px;
+
+
+.btn-custom, .btn-submit {
+  @extend .btn-primary;
+        
+}
+//.btn-submit {
+//  background-color: hsl(126, 48%, 51%) !important;
+//  background-repeat: repeat-x;
+//  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#b7e5bb", endColorstr="#46be52");
+//  background-image: -khtml-gradient(linear, left top, left bottom, from(#b7e5bb), to(#46be52));
+//  background-image: -moz-linear-gradient(top, #b7e5bb, #46be52);
+//  background-image: -ms-linear-gradient(top, #b7e5bb, #46be52);
+//  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #b7e5bb), color-stop(100%, #46be52));
+//  background-image: -webkit-linear-gradient(top, #b7e5bb, #46be52);
+//  background-image: -o-linear-gradient(top, #b7e5bb, #46be52);
+//  background-image: linear-gradient(#b7e5bb, #46be52);
+//  border-color: #46be52 #46be52 hsl(126, 48%, 43.5%);
+//  color: #333 !important;
+//  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.49);
+//  -webkit-font-smoothing: antialiased;
+//}
+
+.css_button_small,.css_button{
   @extend .btn-custom;
-      margin: 0px 2px !important;
+    margin: 0px 2px !important;
     padding: 2px 7px !important;
     font-size: 10pt !important;
 }
-//body > table:nth-child(13) > tbody > tr > td > table:nth-child(2) > tbody > tr > td:nth-child(1) > span > a:nth-child(1)
-
 .css_button_link a {
-  @extend .btn-custom;
-  margin: 10px 3px !important;
-  padding: 5px 25px !important;
-  font-size: 10pt !important;
+    @extend .btn-custom;
+    margin: 10px 3px !important;
+    padding: 5px 25px !important;
+    font-size: 10pt !important;
+    border-radius: $btn-lg-curve;
+}
+.css_button_link a:hover,
+.css_button_small:hover,.css_button:hover{
+    text-decoration: none;
+}
+.css_button_small, #showMenuLink, .css_button{
+    border-radius: $btn-lg-curve;
 }
 #topToolbarRight {
     padding-top: 4px;
@@ -1166,18 +1178,6 @@ li.current {
   padding: 5px 8px !important;
 }
 
-/*********** styling from 2 Nov 2015 ***************/
-
-/****** responsive sizes ******/
-$break-xsmall: 480px;
-$break-small: 767px;
-$break-large: 991px;
-$break-exlarge: 1199px;
-/****** responsive sizes ******/
-
-
-$button-color : '#245580';
-$tableHeader-bg : #BBCCFF;
 .pager a,
 .pager  span {
 @extend .pagerelement;    
@@ -1230,45 +1230,42 @@ form[name="demographics_form"] input[type="entry"]{
     background: #eee;
 }
 
-//@media(max-width: $break-small){
-//    #fsright{
-//        width: 100%;
-//        border: 1px solid;
-//        clear: both;
-//    }
-//}
 
 input[type="button"]{
     @extend .btn-custom;
     padding: 4px 17px;
     margin: 0 10px;
-    border-radius: 5px;
+    border-radius: $btn-lg-curve;
 }
 input[type="submit"]{
     @extend .btn-submit;
     padding: 4px 17px;
     margin: 0 10px;
     border-radius: 5px;
-        width: auto !important;
+    width: auto !important;
 }
 div.section{
     border-color: transparent !important;
     box-shadow: 0px 0 2px #50B4D4;
-        background: #D0E9C6;
+        background: $lightgreen;
 }
 td b{
     margin-bottom: 5px;
 }
 td .css_button_small{
     float: none !important;
-    padding: 5px 10px !important;
+    padding: 5px 25px !important;
     margin: 0 !important;
+    border-radius: $btn-lg-curve;
+}
+.css_button_small:hover{
+    text-decoration: none;
 }
 select[name="sel_frame"]{    
     font-size: 9pt;
     width: 100%;
     background: #fff !important;    
-    border-radius: 5px;
+    border-radius: $btn-lg-curve;
 }
 select:disabled {
     background: #dddddd !important;
@@ -1308,7 +1305,7 @@ div.borderbox {
     font-family: 'fontawesome';
     margin-right: 5px;
     color: #000;
-        font-size: 14px;
+    font-size: 14px;
     
 }
 #navigation-slide li > a:after{
@@ -1373,7 +1370,13 @@ form[id="theform"] td{
 #img_begin_date,
 #img_end_date,
 #img_target_date,
-#img_DOB{
+#img_DOB,
+#img_depositdate,
+#img_checkdate,
+#img_post_to_date,
+#img_from_doc_date,
+#img_to_doc_date,
+#img_start_date{
     display: inline-block;
     box-sizing: border-box;    
     padding-left: 27px;
@@ -1388,7 +1391,7 @@ form[id="theform"] td{
     padding-top: 15px;
 }
 .bottom-panel .title-bigger{
-        font-size: 18px;
+    font-size: 18px;
     display: block;
     text-align: center;
     border-bottom: 1px dashed #000;
@@ -1420,8 +1423,7 @@ ul.nav-sm.nav-pills-sm li {
     border-radius: 5px 5px 0 0;
     padding: 0;
 }
-ul.nav-sm.nav-pills-sm li a {
-    color: #000;
+ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
     margin: 0;
 }
 #dateNAV {
@@ -1430,7 +1432,7 @@ ul.nav-sm.nav-pills-sm li a {
     margin-bottom: 5px;
 }
 #times table, .view2, .view1, #datePicker .currentDate,
-#datePicker .tdDatePickerHighlight{
+#datePicker .tdDatePickerHighlight, #report_results table thead{
     background-color: #BBCCFF !important;
 }
 .dr_container{
@@ -1444,11 +1446,59 @@ ul.nav-sm.nav-pills-sm li a {
     display: inline-flex;
     margin-right: 3px !important;
 }
-.bottom-panel .panel {
-    background-color: #B8D8AB;
+.bottom-panel .panel{
+    background: $solidgreen;
     padding: 15px;
 }
-.tableHead-bg{
-//    @extend .btn-custom;
+.ui-accordion .ui-accordion-header{
+    background: $solidgreen;
+    padding: 5px;
+}
+
+.ui-accordion-content{
+    background: $lightgreen !important;
+}
+.tableHead-bg,
+.table-striped > tbody > tr:nth-of-type(odd){
   background: $tableHeader-bg !important;   
+}
+.table-pendigApproval,
+.formsAdministration-table,
+.unregisteredForm-table{
+    display: block;
+    width: 100% !important;
+}
+.table-pendigApproval tbody th,
+.showborder_head th{
+  background: $tableHeader-bg !important;   
+}
+#TdContainingButtons{
+    width: 100%;
+}
+#TdContainingButtons table{
+    width: 40%;
+}
+.showborder,
+.rule_container {
+    width: 100% !important;
+}
+.rule_container, .rule_row{
+   
+    @extend div.section;  
+        padding-bottom: 20px;
+    margin-left: 15px;
+    padding-top: 0;
+}
+.rule_row:before,
+.rule_row:after{
+    content: '';
+    width: 100%;
+    clear: both;
+}
+.formsAdministration-table td,
+.unregisteredForm-table td{
+    text-align: center;
+}
+#report_parameters .custom-width{
+    width: 800px !important;
 }

@@ -140,7 +140,7 @@ tbody tr.odd {
 </center>
 <form method="post" name="approve" "onsubmit='return top.restoreSession()'" >
 <center>
-<table style="width:80%;" border="0" >
+<table style="width:80%;" border="0" class="table table-responsive table-striped table-bordered table-pendigApproval">
 	<tr>
 		<th>
 			<?php echo xlt('Patient Name'); ?>

@@ -67,7 +67,7 @@ if ($err)
 <form method=POST action ='./forms_admin.php'<?php echo $formtarget; ?>>
 <i><?php xl('click here to update priority, category and nickname settings','e'); ?></i>
 <input type=submit name=update value='<?php xl('update','e'); ?>'><br> 
-<table border=0 cellpadding=1 cellspacing=2 width="500">
+<table border=0 cellpadding=1 cellspacing=2 width="500" class="formsAdministration-table">
 	<tr>
 		<td> </td>
 		<td> </td>
@@ -136,7 +136,7 @@ foreach($bigdata as $registry)
 
 <?php  //UNREGISTERED SECTION ?>
 <span class=bold><?php xl('Unregistered','e');?></span><br>
-<table border=0 cellpadding=1 cellspacing=2 width="500">
+<table border=0 cellpadding=1 cellspacing=2 width="500" class="unregisteredForm-table">
 <?php
 $dpath = "$srcdir/../interface/forms/";
 $dp = opendir($dpath);

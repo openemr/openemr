@@ -84,7 +84,7 @@ if (!$INTEGRATED_AR) SLConnect();
 
 <table>
  <tr>
-  <td width='410px'>
+  <td width='410px' class="custom-width">
 	<div style='float:left'>
 
 	<table class='text'>

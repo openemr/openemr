@@ -200,7 +200,7 @@ function postError($msg) {
 
 <table>
  <tr>
-  <td width='630px'>
+  <td width='630px' class="custom-width">
 	<div style='float:left'>
 
 	<table class='text'>

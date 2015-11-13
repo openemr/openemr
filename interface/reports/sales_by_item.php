@@ -323,7 +323,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
 <table>
  <tr>
-  <td width='630px'>
+  <td width='630px' class="custom-width">
     <div style='float:left'>
     <table class='text'>
         <tr>

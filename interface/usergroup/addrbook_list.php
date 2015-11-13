@@ -95,7 +95,7 @@ $res = sqlStatement($query,$sqlBindArray);
 <div id="addressbook_list">
 <form method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
 
-<table>
+<table class="table table-responsive table-bordered">
  <tr class='search'> <!-- bgcolor='#ddddff' -->
   <td>
    <?php echo xlt('Organization')?>:

@@ -156,7 +156,7 @@ function sel_diagnosis() {
 
 <table>
  <tr>
-  <td width='660px'>
+  <td width='660px' class="custom-width">
 	<div style='float:left'>
 
 	<table class='text'>

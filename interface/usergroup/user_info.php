@@ -55,7 +55,7 @@ $row = sqlFetchArray($res);
 <FORM NAME="user_form" METHOD="POST" ACTION="user_info.php"
  onsubmit="top.restoreSession()">
 <input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
-<TABLE>
+<TABLE class="table table-striped table-bordered">
 <TR>
 <TD><span class=text><?php xl('Full Name','e'); ?>: </span></TD>
 <TD><span class=text><?php echo htmlspecialchars($iter["fname"] . " " . $iter["lname"], ENT_NOQUOTES); ?></span></td>

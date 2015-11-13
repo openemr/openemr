@@ -4774,83 +4774,475 @@ fieldset[disabled] .btn-default.active {
 }
 
 /* line 3125, bootstrap/css/bootstrap.scss */
-.btn-primary {
+.btn-primary, .btn-custom, .css_button_small, #showMenuLink, .css_button, .css_button_link a, .nav-pills-sm li.active a, .nav-pills-sm li.current a,
+.nav-pills-sm li:hover a, input[type="button"], .btn-submit, .btn-green, input[type="submit"] {
   color: #fff;
   background-color: #337ab7;
   border-color: #2e6da4;
 }
 
 /* line 3130, bootstrap/css/bootstrap.scss */
-.btn-primary:focus,
-.btn-primary.focus {
+.btn-primary:focus, .btn-custom:focus, .css_button_small:focus, #showMenuLink:focus, .css_button:focus, .css_button_link a:focus, .nav-pills-sm li.active a:focus, .nav-pills-sm li.current a:focus,
+.nav-pills-sm li:hover a:focus, input[type="button"]:focus, .btn-submit:focus, .btn-green:focus, input[type="submit"]:focus,
+.btn-primary.focus,
+.focus.btn-custom,
+.focus.css_button_small,
+.focus#showMenuLink,
+.focus.css_button,
+.css_button_link a.focus,
+.nav-pills-sm li.active a.focus,
+.nav-pills-sm li.current a.focus,
+.nav-pills-sm li:hover a.focus,
+input.focus[type="button"],
+.focus.btn-submit,
+.focus.btn-green,
+input.focus[type="submit"] {
   color: #fff;
   background-color: #286090;
   border-color: #122b40;
 }
 
 /* line 3136, bootstrap/css/bootstrap.scss */
-.btn-primary:hover {
+.btn-primary:hover, .btn-custom:hover, .css_button_small:hover, #showMenuLink:hover, .css_button:hover, .css_button_link a:hover, .nav-pills-sm li.active a:hover, .nav-pills-sm li.current a:hover,
+.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover {
   color: #fff;
   background-color: #286090;
   border-color: #204d74;
 }
 
 /* line 3141, bootstrap/css/bootstrap.scss */
-.btn-primary:active,
+.btn-primary:active, .btn-custom:active, .css_button_small:active, #showMenuLink:active, .css_button:active, .css_button_link a:active, .nav-pills-sm li.active a:active, .nav-pills-sm li.current a:active,
+.nav-pills-sm li:hover a:active, input[type="button"]:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active,
 .btn-primary.active,
-.open > .dropdown-toggle.btn-primary {
+.active.btn-custom,
+.active.css_button_small,
+.active#showMenuLink,
+.active.css_button,
+.css_button_link a.active,
+.nav-pills-sm li.active a.active,
+.nav-pills-sm li.current a.active,
+.nav-pills-sm li:hover a.active,
+input.active[type="button"],
+.active.btn-submit,
+.active.btn-green,
+input.active[type="submit"],
+.open > .dropdown-toggle.btn-primary,
+.open > .dropdown-toggle.btn-custom,
+.open > .dropdown-toggle.css_button_small,
+.open > .dropdown-toggle#showMenuLink,
+.open > .dropdown-toggle.css_button,
+.css_button_link .open > a.dropdown-toggle,
+.nav-pills-sm li.active .open > a.dropdown-toggle,
+.nav-pills-sm li.current .open > a.dropdown-toggle,
+.nav-pills-sm li:hover .open > a.dropdown-toggle,
+.open > input.dropdown-toggle[type="button"],
+.open > .dropdown-toggle.btn-submit,
+.open > .dropdown-toggle.btn-green,
+.open > input.dropdown-toggle[type="submit"] {
   color: #fff;
   background-color: #286090;
   border-color: #204d74;
 }
 
 /* line 3148, bootstrap/css/bootstrap.scss */
-.btn-primary:active:hover,
+.btn-primary:active:hover, .btn-custom:active:hover, .css_button_small:active:hover, #showMenuLink:active:hover, .css_button:active:hover, .css_button_link a:active:hover, .nav-pills-sm li.active a:active:hover, .nav-pills-sm li.current a:active:hover,
+.nav-pills-sm li:hover a:active:hover, input[type="button"]:active:hover, .btn-submit:active:hover, .btn-green:active:hover, input[type="submit"]:active:hover,
 .btn-primary.active:hover,
+.active.btn-custom:hover,
+.active.css_button_small:hover,
+.active#showMenuLink:hover,
+.active.css_button:hover,
+.css_button_link a.active:hover,
+.nav-pills-sm li.active a.active:hover,
+.nav-pills-sm li.current a.active:hover,
+.nav-pills-sm li:hover a.active:hover,
+input.active[type="button"]:hover,
+.active.btn-submit:hover,
+.active.btn-green:hover,
+input.active[type="submit"]:hover,
 .open > .dropdown-toggle.btn-primary:hover,
+.open > .dropdown-toggle.btn-custom:hover,
+.open > .dropdown-toggle.css_button_small:hover,
+.open > .dropdown-toggle#showMenuLink:hover,
+.open > .dropdown-toggle.css_button:hover,
+.css_button_link .open > a.dropdown-toggle:hover,
+.nav-pills-sm li.active .open > a.dropdown-toggle:hover,
+.nav-pills-sm li.current .open > a.dropdown-toggle:hover,
+.nav-pills-sm li:hover .open > a.dropdown-toggle:hover,
+.open > input.dropdown-toggle[type="button"]:hover,
+.open > .dropdown-toggle.btn-submit:hover,
+.open > .dropdown-toggle.btn-green:hover,
+.open > input.dropdown-toggle[type="submit"]:hover,
 .btn-primary:active:focus,
+.btn-custom:active:focus,
+.css_button_small:active:focus,
+#showMenuLink:active:focus,
+.css_button:active:focus,
+.css_button_link a:active:focus,
+.nav-pills-sm li.active a:active:focus,
+.nav-pills-sm li.current a:active:focus,
+.nav-pills-sm li:hover a:active:focus,
+input[type="button"]:active:focus,
+.btn-submit:active:focus,
+.btn-green:active:focus,
+input[type="submit"]:active:focus,
 .btn-primary.active:focus,
+.active.btn-custom:focus,
+.active.css_button_small:focus,
+.active#showMenuLink:focus,
+.active.css_button:focus,
+.css_button_link a.active:focus,
+.nav-pills-sm li.active a.active:focus,
+.nav-pills-sm li.current a.active:focus,
+.nav-pills-sm li:hover a.active:focus,
+input.active[type="button"]:focus,
+.active.btn-submit:focus,
+.active.btn-green:focus,
+input.active[type="submit"]:focus,
 .open > .dropdown-toggle.btn-primary:focus,
+.open > .dropdown-toggle.btn-custom:focus,
+.open > .dropdown-toggle.css_button_small:focus,
+.open > .dropdown-toggle#showMenuLink:focus,
+.open > .dropdown-toggle.css_button:focus,
+.css_button_link .open > a.dropdown-toggle:focus,
+.nav-pills-sm li.active .open > a.dropdown-toggle:focus,
+.nav-pills-sm li.current .open > a.dropdown-toggle:focus,
+.nav-pills-sm li:hover .open > a.dropdown-toggle:focus,
+.open > input.dropdown-toggle[type="button"]:focus,
+.open > .dropdown-toggle.btn-submit:focus,
+.open > .dropdown-toggle.btn-green:focus,
+.open > input.dropdown-toggle[type="submit"]:focus,
 .btn-primary:active.focus,
+.btn-custom:active.focus,
+.css_button_small:active.focus,
+#showMenuLink:active.focus,
+.css_button:active.focus,
+.css_button_link a:active.focus,
+.nav-pills-sm li.active a:active.focus,
+.nav-pills-sm li.current a:active.focus,
+.nav-pills-sm li:hover a:active.focus,
+input[type="button"]:active.focus,
+.btn-submit:active.focus,
+.btn-green:active.focus,
+input[type="submit"]:active.focus,
 .btn-primary.active.focus,
-.open > .dropdown-toggle.btn-primary.focus {
+.active.focus.btn-custom,
+.active.focus.css_button_small,
+.active.focus#showMenuLink,
+.active.focus.css_button,
+.css_button_link a.active.focus,
+.nav-pills-sm li.active a.active.focus,
+.nav-pills-sm li.current a.active.focus,
+.nav-pills-sm li:hover a.active.focus,
+input.active.focus[type="button"],
+.active.focus.btn-submit,
+.active.focus.btn-green,
+input.active.focus[type="submit"],
+.open > .dropdown-toggle.btn-primary.focus,
+.open > .dropdown-toggle.focus.btn-custom,
+.open > .dropdown-toggle.focus.css_button_small,
+.open > .dropdown-toggle.focus#showMenuLink,
+.open > .dropdown-toggle.focus.css_button,
+.css_button_link .open > a.dropdown-toggle.focus,
+.nav-pills-sm li.active .open > a.dropdown-toggle.focus,
+.nav-pills-sm li.current .open > a.dropdown-toggle.focus,
+.nav-pills-sm li:hover .open > a.dropdown-toggle.focus,
+.open > input.dropdown-toggle.focus[type="button"],
+.open > .dropdown-toggle.focus.btn-submit,
+.open > .dropdown-toggle.focus.btn-green,
+.open > input.dropdown-toggle.focus[type="submit"] {
   color: #fff;
   background-color: #204d74;
   border-color: #122b40;
 }
 
 /* line 3161, bootstrap/css/bootstrap.scss */
-.btn-primary:active,
+.btn-primary:active, .btn-custom:active, .css_button_small:active, #showMenuLink:active, .css_button:active, .css_button_link a:active, .nav-pills-sm li.active a:active, .nav-pills-sm li.current a:active,
+.nav-pills-sm li:hover a:active, input[type="button"]:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active,
 .btn-primary.active,
-.open > .dropdown-toggle.btn-primary {
+.active.btn-custom,
+.active.css_button_small,
+.active#showMenuLink,
+.active.css_button,
+.css_button_link a.active,
+.nav-pills-sm li.active a.active,
+.nav-pills-sm li.current a.active,
+.nav-pills-sm li:hover a.active,
+input.active[type="button"],
+.active.btn-submit,
+.active.btn-green,
+input.active[type="submit"],
+.open > .dropdown-toggle.btn-primary,
+.open > .dropdown-toggle.btn-custom,
+.open > .dropdown-toggle.css_button_small,
+.open > .dropdown-toggle#showMenuLink,
+.open > .dropdown-toggle.css_button,
+.css_button_link .open > a.dropdown-toggle,
+.nav-pills-sm li.active .open > a.dropdown-toggle,
+.nav-pills-sm li.current .open > a.dropdown-toggle,
+.nav-pills-sm li:hover .open > a.dropdown-toggle,
+.open > input.dropdown-toggle[type="button"],
+.open > .dropdown-toggle.btn-submit,
+.open > .dropdown-toggle.btn-green,
+.open > input.dropdown-toggle[type="submit"] {
   background-image: none;
 }
 
 /* line 3166, bootstrap/css/bootstrap.scss */
-.btn-primary.disabled,
+.btn-primary.disabled, .disabled.btn-custom, .disabled.css_button_small, .disabled#showMenuLink, .disabled.css_button, .css_button_link a.disabled, .nav-pills-sm li.active a.disabled, .nav-pills-sm li.current a.disabled,
+.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"],
 .btn-primary[disabled],
+[disabled].btn-custom,
+[disabled].css_button_small,
+[disabled]#showMenuLink,
+[disabled].css_button,
+.css_button_link a[disabled],
+.nav-pills-sm li.active a[disabled],
+.nav-pills-sm li.current a[disabled],
+.nav-pills-sm li:hover a[disabled],
+input[disabled][type="button"],
+[disabled].btn-submit,
+[disabled].btn-green,
+input[disabled][type="submit"],
 fieldset[disabled] .btn-primary,
+fieldset[disabled] .btn-custom,
+fieldset[disabled] .css_button_small,
+fieldset[disabled] #showMenuLink,
+fieldset[disabled] .css_button,
+fieldset[disabled] .css_button_link a,
+.css_button_link fieldset[disabled] a,
+fieldset[disabled] .nav-pills-sm li.active a,
+.nav-pills-sm li.active fieldset[disabled] a,
+fieldset[disabled] .nav-pills-sm li.current a,
+.nav-pills-sm li.current fieldset[disabled] a,
+fieldset[disabled] .nav-pills-sm li:hover a,
+.nav-pills-sm li:hover fieldset[disabled] a,
+fieldset[disabled] input[type="button"],
+fieldset[disabled] .btn-submit,
+fieldset[disabled] .btn-green,
+fieldset[disabled] input[type="submit"],
 .btn-primary.disabled:hover,
+.disabled.btn-custom:hover,
+.disabled.css_button_small:hover,
+.disabled#showMenuLink:hover,
+.disabled.css_button:hover,
+.css_button_link a.disabled:hover,
+.nav-pills-sm li.active a.disabled:hover,
+.nav-pills-sm li.current a.disabled:hover,
+.nav-pills-sm li:hover a.disabled:hover,
+input.disabled[type="button"]:hover,
+.disabled.btn-submit:hover,
+.disabled.btn-green:hover,
+input.disabled[type="submit"]:hover,
 .btn-primary[disabled]:hover,
+[disabled].btn-custom:hover,
+[disabled].css_button_small:hover,
+[disabled]#showMenuLink:hover,
+[disabled].css_button:hover,
+.css_button_link a[disabled]:hover,
+.nav-pills-sm li.active a[disabled]:hover,
+.nav-pills-sm li.current a[disabled]:hover,
+.nav-pills-sm li:hover a[disabled]:hover,
+input[disabled][type="button"]:hover,
+[disabled].btn-submit:hover,
+[disabled].btn-green:hover,
+input[disabled][type="submit"]:hover,
 fieldset[disabled] .btn-primary:hover,
+fieldset[disabled] .btn-custom:hover,
+fieldset[disabled] .css_button_small:hover,
+fieldset[disabled] #showMenuLink:hover,
+fieldset[disabled] .css_button:hover,
+fieldset[disabled] .css_button_link a:hover,
+.css_button_link fieldset[disabled] a:hover,
+fieldset[disabled] .nav-pills-sm li.active a:hover,
+.nav-pills-sm li.active fieldset[disabled] a:hover,
+fieldset[disabled] .nav-pills-sm li.current a:hover,
+.nav-pills-sm li.current fieldset[disabled] a:hover,
+fieldset[disabled] .nav-pills-sm li:hover a:hover,
+.nav-pills-sm li:hover fieldset[disabled] a:hover,
+fieldset[disabled] input[type="button"]:hover,
+fieldset[disabled] .btn-submit:hover,
+fieldset[disabled] .btn-green:hover,
+fieldset[disabled] input[type="submit"]:hover,
 .btn-primary.disabled:focus,
+.disabled.btn-custom:focus,
+.disabled.css_button_small:focus,
+.disabled#showMenuLink:focus,
+.disabled.css_button:focus,
+.css_button_link a.disabled:focus,
+.nav-pills-sm li.active a.disabled:focus,
+.nav-pills-sm li.current a.disabled:focus,
+.nav-pills-sm li:hover a.disabled:focus,
+input.disabled[type="button"]:focus,
+.disabled.btn-submit:focus,
+.disabled.btn-green:focus,
+input.disabled[type="submit"]:focus,
 .btn-primary[disabled]:focus,
+[disabled].btn-custom:focus,
+[disabled].css_button_small:focus,
+[disabled]#showMenuLink:focus,
+[disabled].css_button:focus,
+.css_button_link a[disabled]:focus,
+.nav-pills-sm li.active a[disabled]:focus,
+.nav-pills-sm li.current a[disabled]:focus,
+.nav-pills-sm li:hover a[disabled]:focus,
+input[disabled][type="button"]:focus,
+[disabled].btn-submit:focus,
+[disabled].btn-green:focus,
+input[disabled][type="submit"]:focus,
 fieldset[disabled] .btn-primary:focus,
+fieldset[disabled] .btn-custom:focus,
+fieldset[disabled] .css_button_small:focus,
+fieldset[disabled] #showMenuLink:focus,
+fieldset[disabled] .css_button:focus,
+fieldset[disabled] .css_button_link a:focus,
+.css_button_link fieldset[disabled] a:focus,
+fieldset[disabled] .nav-pills-sm li.active a:focus,
+.nav-pills-sm li.active fieldset[disabled] a:focus,
+fieldset[disabled] .nav-pills-sm li.current a:focus,
+.nav-pills-sm li.current fieldset[disabled] a:focus,
+fieldset[disabled] .nav-pills-sm li:hover a:focus,
+.nav-pills-sm li:hover fieldset[disabled] a:focus,
+fieldset[disabled] input[type="button"]:focus,
+fieldset[disabled] .btn-submit:focus,
+fieldset[disabled] .btn-green:focus,
+fieldset[disabled] input[type="submit"]:focus,
 .btn-primary.disabled.focus,
+.disabled.focus.btn-custom,
+.disabled.focus.css_button_small,
+.disabled.focus#showMenuLink,
+.disabled.focus.css_button,
+.css_button_link a.disabled.focus,
+.nav-pills-sm li.active a.disabled.focus,
+.nav-pills-sm li.current a.disabled.focus,
+.nav-pills-sm li:hover a.disabled.focus,
+input.disabled.focus[type="button"],
+.disabled.focus.btn-submit,
+.disabled.focus.btn-green,
+input.disabled.focus[type="submit"],
 .btn-primary[disabled].focus,
+[disabled].focus.btn-custom,
+[disabled].focus.css_button_small,
+[disabled].focus#showMenuLink,
+[disabled].focus.css_button,
+.css_button_link a[disabled].focus,
+.nav-pills-sm li.active a[disabled].focus,
+.nav-pills-sm li.current a[disabled].focus,
+.nav-pills-sm li:hover a[disabled].focus,
+input[disabled].focus[type="button"],
+[disabled].focus.btn-submit,
+[disabled].focus.btn-green,
+input[disabled].focus[type="submit"],
 fieldset[disabled] .btn-primary.focus,
+fieldset[disabled] .focus.btn-custom,
+fieldset[disabled] .focus.css_button_small,
+fieldset[disabled] .focus#showMenuLink,
+fieldset[disabled] .focus.css_button,
+fieldset[disabled] .css_button_link a.focus,
+.css_button_link fieldset[disabled] a.focus,
+fieldset[disabled] .nav-pills-sm li.active a.focus,
+.nav-pills-sm li.active fieldset[disabled] a.focus,
+fieldset[disabled] .nav-pills-sm li.current a.focus,
+.nav-pills-sm li.current fieldset[disabled] a.focus,
+fieldset[disabled] .nav-pills-sm li:hover a.focus,
+.nav-pills-sm li:hover fieldset[disabled] a.focus,
+fieldset[disabled] input.focus[type="button"],
+fieldset[disabled] .focus.btn-submit,
+fieldset[disabled] .focus.btn-green,
+fieldset[disabled] input.focus[type="submit"],
 .btn-primary.disabled:active,
+.disabled.btn-custom:active,
+.disabled.css_button_small:active,
+.disabled#showMenuLink:active,
+.disabled.css_button:active,
+.css_button_link a.disabled:active,
+.nav-pills-sm li.active a.disabled:active,
+.nav-pills-sm li.current a.disabled:active,
+.nav-pills-sm li:hover a.disabled:active,
+input.disabled[type="button"]:active,
+.disabled.btn-submit:active,
+.disabled.btn-green:active,
+input.disabled[type="submit"]:active,
 .btn-primary[disabled]:active,
+[disabled].btn-custom:active,
+[disabled].css_button_small:active,
+[disabled]#showMenuLink:active,
+[disabled].css_button:active,
+.css_button_link a[disabled]:active,
+.nav-pills-sm li.active a[disabled]:active,
+.nav-pills-sm li.current a[disabled]:active,
+.nav-pills-sm li:hover a[disabled]:active,
+input[disabled][type="button"]:active,
+[disabled].btn-submit:active,
+[disabled].btn-green:active,
+input[disabled][type="submit"]:active,
 fieldset[disabled] .btn-primary:active,
+fieldset[disabled] .btn-custom:active,
+fieldset[disabled] .css_button_small:active,
+fieldset[disabled] #showMenuLink:active,
+fieldset[disabled] .css_button:active,
+fieldset[disabled] .css_button_link a:active,
+.css_button_link fieldset[disabled] a:active,
+fieldset[disabled] .nav-pills-sm li.active a:active,
+.nav-pills-sm li.active fieldset[disabled] a:active,
+fieldset[disabled] .nav-pills-sm li.current a:active,
+.nav-pills-sm li.current fieldset[disabled] a:active,
+fieldset[disabled] .nav-pills-sm li:hover a:active,
+.nav-pills-sm li:hover fieldset[disabled] a:active,
+fieldset[disabled] input[type="button"]:active,
+fieldset[disabled] .btn-submit:active,
+fieldset[disabled] .btn-green:active,
+fieldset[disabled] input[type="submit"]:active,
 .btn-primary.disabled.active,
+.disabled.active.btn-custom,
+.disabled.active.css_button_small,
+.disabled.active#showMenuLink,
+.disabled.active.css_button,
+.css_button_link a.disabled.active,
+.nav-pills-sm li.active a.disabled.active,
+.nav-pills-sm li.current a.disabled.active,
+.nav-pills-sm li:hover a.disabled.active,
+input.disabled.active[type="button"],
+.disabled.active.btn-submit,
+.disabled.active.btn-green,
+input.disabled.active[type="submit"],
 .btn-primary[disabled].active,
-fieldset[disabled] .btn-primary.active {
+[disabled].active.btn-custom,
+[disabled].active.css_button_small,
+[disabled].active#showMenuLink,
+[disabled].active.css_button,
+.css_button_link a[disabled].active,
+.nav-pills-sm li.active a[disabled].active,
+.nav-pills-sm li.current a[disabled].active,
+.nav-pills-sm li:hover a[disabled].active,
+input[disabled].active[type="button"],
+[disabled].active.btn-submit,
+[disabled].active.btn-green,
+input[disabled].active[type="submit"],
+fieldset[disabled] .btn-primary.active,
+fieldset[disabled] .active.btn-custom,
+fieldset[disabled] .active.css_button_small,
+fieldset[disabled] .active#showMenuLink,
+fieldset[disabled] .active.css_button,
+fieldset[disabled] .css_button_link a.active,
+.css_button_link fieldset[disabled] a.active,
+fieldset[disabled] .nav-pills-sm li.active a.active,
+.nav-pills-sm li.active fieldset[disabled] a.active,
+fieldset[disabled] .nav-pills-sm li.current a.active,
+.nav-pills-sm li.current fieldset[disabled] a.active,
+fieldset[disabled] .nav-pills-sm li:hover a.active,
+.nav-pills-sm li:hover fieldset[disabled] a.active,
+fieldset[disabled] input.active[type="button"],
+fieldset[disabled] .active.btn-submit,
+fieldset[disabled] .active.btn-green,
+fieldset[disabled] input.active[type="submit"] {
   background-color: #337ab7;
   border-color: #2e6da4;
 }
 
 /* line 3187, bootstrap/css/bootstrap.scss */
-.btn-primary .badge {
+.btn-primary .badge, .btn-custom .badge, .css_button_small .badge, #showMenuLink .badge, .css_button .badge, .css_button_link a .badge, .nav-pills-sm li.active a .badge, .nav-pills-sm li.current a .badge,
+.nav-pills-sm li:hover a .badge, input[type="button"] .badge, .btn-submit .badge, .btn-green .badge, input[type="submit"] .badge {
   color: #337ab7;
   background-color: #fff;
 }
@@ -9835,6 +10227,18 @@ ul.tabNav:after,
 /* line 6, bootstrap/css/bootstrap-theme.scss */
 .btn-default,
 .btn-primary,
+.btn-custom,
+.css_button_small,
+#showMenuLink,
+.css_button,
+.css_button_link a,
+.nav-pills-sm li.active a,
+.nav-pills-sm li.current a,
+.nav-pills-sm li:hover a,
+input[type="button"],
+.btn-submit,
+.btn-green,
+input[type="submit"],
 .btn-success,
 .btn-info,
 .btn-warning,
@@ -9847,12 +10251,36 @@ ul.tabNav:after,
 /* line 16, bootstrap/css/bootstrap-theme.scss */
 .btn-default:active,
 .btn-primary:active,
+.btn-custom:active,
+.css_button_small:active,
+#showMenuLink:active,
+.css_button:active,
+.css_button_link a:active,
+.nav-pills-sm li.active a:active,
+.nav-pills-sm li.current a:active,
+.nav-pills-sm li:hover a:active,
+input[type="button"]:active,
+.btn-submit:active,
+.btn-green:active,
+input[type="submit"]:active,
 .btn-success:active,
 .btn-info:active,
 .btn-warning:active,
 .btn-danger:active,
 .btn-default.active,
 .btn-primary.active,
+.active.btn-custom,
+.active.css_button_small,
+.active#showMenuLink,
+.active.css_button,
+.css_button_link a.active,
+.nav-pills-sm li.active a.active,
+.nav-pills-sm li.current a.active,
+.nav-pills-sm li:hover a.active,
+input.active[type="button"],
+.active.btn-submit,
+.active.btn-green,
+input.active[type="submit"],
 .btn-success.active,
 .btn-info.active,
 .btn-warning.active,
@@ -9864,18 +10292,58 @@ ul.tabNav:after,
 /* line 31, bootstrap/css/bootstrap-theme.scss */
 .btn-default.disabled,
 .btn-primary.disabled,
+.disabled.btn-custom,
+.disabled.css_button_small,
+.disabled#showMenuLink,
+.disabled.css_button,
+.css_button_link a.disabled,
+.nav-pills-sm li.active a.disabled,
+.nav-pills-sm li.current a.disabled,
+.nav-pills-sm li:hover a.disabled,
+input.disabled[type="button"],
+.disabled.btn-submit,
+.disabled.btn-green,
+input.disabled[type="submit"],
 .btn-success.disabled,
 .btn-info.disabled,
 .btn-warning.disabled,
 .btn-danger.disabled,
 .btn-default[disabled],
 .btn-primary[disabled],
+[disabled].btn-custom,
+[disabled].css_button_small,
+[disabled]#showMenuLink,
+[disabled].css_button,
+.css_button_link a[disabled],
+.nav-pills-sm li.active a[disabled],
+.nav-pills-sm li.current a[disabled],
+.nav-pills-sm li:hover a[disabled],
+input[disabled][type="button"],
+[disabled].btn-submit,
+[disabled].btn-green,
+input[disabled][type="submit"],
 .btn-success[disabled],
 .btn-info[disabled],
 .btn-warning[disabled],
 .btn-danger[disabled],
 fieldset[disabled] .btn-default,
 fieldset[disabled] .btn-primary,
+fieldset[disabled] .btn-custom,
+fieldset[disabled] .css_button_small,
+fieldset[disabled] #showMenuLink,
+fieldset[disabled] .css_button,
+fieldset[disabled] .css_button_link a,
+.css_button_link fieldset[disabled] a,
+fieldset[disabled] .nav-pills-sm li.active a,
+.nav-pills-sm li.active fieldset[disabled] a,
+fieldset[disabled] .nav-pills-sm li.current a,
+.nav-pills-sm li.current fieldset[disabled] a,
+fieldset[disabled] .nav-pills-sm li:hover a,
+.nav-pills-sm li:hover fieldset[disabled] a,
+fieldset[disabled] input[type="button"],
+fieldset[disabled] .btn-submit,
+fieldset[disabled] .btn-green,
+fieldset[disabled] input[type="submit"],
 fieldset[disabled] .btn-success,
 fieldset[disabled] .btn-info,
 fieldset[disabled] .btn-warning,
@@ -9887,6 +10355,18 @@ fieldset[disabled] .btn-danger {
 /* line 52, bootstrap/css/bootstrap-theme.scss */
 .btn-default .badge,
 .btn-primary .badge,
+.btn-custom .badge,
+.css_button_small .badge,
+#showMenuLink .badge,
+.css_button .badge,
+.css_button_link a .badge,
+.nav-pills-sm li.active a .badge,
+.nav-pills-sm li.current a .badge,
+.nav-pills-sm li:hover a .badge,
+input[type="button"] .badge,
+.btn-submit .badge,
+.btn-green .badge,
+input[type="submit"] .badge,
 .btn-success .badge,
 .btn-info .badge,
 .btn-warning .badge,
@@ -9952,7 +10432,8 @@ fieldset[disabled] .btn-default.active {
 }
 
 /* line 107, bootstrap/css/bootstrap-theme.scss */
-.btn-primary {
+.btn-primary, .btn-custom, .css_button_small, #showMenuLink, .css_button, .css_button_link a, .nav-pills-sm li.active a, .nav-pills-sm li.current a,
+.nav-pills-sm li:hover a, input[type="button"], .btn-submit, .btn-green, input[type="submit"] {
   background-image: -webkit-linear-gradient(top, #337ab7 0%, #265a88 100%);
   background-image: -o-linear-gradient(top, #337ab7 0%, #265a88 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#337ab7), to(#265a88));
@@ -9964,38 +10445,293 @@ fieldset[disabled] .btn-default.active {
 }
 
 /* line 117, bootstrap/css/bootstrap-theme.scss */
-.btn-primary:hover,
-.btn-primary:focus {
+.btn-primary:hover, .btn-custom:hover, .css_button_small:hover, #showMenuLink:hover, .css_button:hover, .css_button_link a:hover, .nav-pills-sm li.active a:hover, .nav-pills-sm li.current a:hover,
+.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover,
+.btn-primary:focus,
+.btn-custom:focus,
+.css_button_small:focus,
+#showMenuLink:focus,
+.css_button:focus,
+.css_button_link a:focus,
+.nav-pills-sm li.active a:focus,
+.nav-pills-sm li.current a:focus,
+.nav-pills-sm li:hover a:focus,
+input[type="button"]:focus,
+.btn-submit:focus,
+.btn-green:focus,
+input[type="submit"]:focus {
   background-color: #265a88;
   background-position: 0 -15px;
 }
 
 /* line 122, bootstrap/css/bootstrap-theme.scss */
-.btn-primary:active,
-.btn-primary.active {
+.btn-primary:active, .btn-custom:active, .css_button_small:active, #showMenuLink:active, .css_button:active, .css_button_link a:active, .nav-pills-sm li.active a:active, .nav-pills-sm li.current a:active,
+.nav-pills-sm li:hover a:active, input[type="button"]:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active,
+.btn-primary.active,
+.active.btn-custom,
+.active.css_button_small,
+.active#showMenuLink,
+.active.css_button,
+.css_button_link a.active,
+.nav-pills-sm li.active a.active,
+.nav-pills-sm li.current a.active,
+.nav-pills-sm li:hover a.active,
+input.active[type="button"],
+.active.btn-submit,
+.active.btn-green,
+input.active[type="submit"] {
   background-color: #265a88;
   border-color: #245580;
 }
 
 /* line 127, bootstrap/css/bootstrap-theme.scss */
-.btn-primary.disabled,
+.btn-primary.disabled, .disabled.btn-custom, .disabled.css_button_small, .disabled#showMenuLink, .disabled.css_button, .css_button_link a.disabled, .nav-pills-sm li.active a.disabled, .nav-pills-sm li.current a.disabled,
+.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"],
 .btn-primary[disabled],
+[disabled].btn-custom,
+[disabled].css_button_small,
+[disabled]#showMenuLink,
+[disabled].css_button,
+.css_button_link a[disabled],
+.nav-pills-sm li.active a[disabled],
+.nav-pills-sm li.current a[disabled],
+.nav-pills-sm li:hover a[disabled],
+input[disabled][type="button"],
+[disabled].btn-submit,
+[disabled].btn-green,
+input[disabled][type="submit"],
 fieldset[disabled] .btn-primary,
+fieldset[disabled] .btn-custom,
+fieldset[disabled] .css_button_small,
+fieldset[disabled] #showMenuLink,
+fieldset[disabled] .css_button,
+fieldset[disabled] .css_button_link a,
+.css_button_link fieldset[disabled] a,
+fieldset[disabled] .nav-pills-sm li.active a,
+.nav-pills-sm li.active fieldset[disabled] a,
+fieldset[disabled] .nav-pills-sm li.current a,
+.nav-pills-sm li.current fieldset[disabled] a,
+fieldset[disabled] .nav-pills-sm li:hover a,
+.nav-pills-sm li:hover fieldset[disabled] a,
+fieldset[disabled] input[type="button"],
+fieldset[disabled] .btn-submit,
+fieldset[disabled] .btn-green,
+fieldset[disabled] input[type="submit"],
 .btn-primary.disabled:hover,
+.disabled.btn-custom:hover,
+.disabled.css_button_small:hover,
+.disabled#showMenuLink:hover,
+.disabled.css_button:hover,
+.css_button_link a.disabled:hover,
+.nav-pills-sm li.active a.disabled:hover,
+.nav-pills-sm li.current a.disabled:hover,
+.nav-pills-sm li:hover a.disabled:hover,
+input.disabled[type="button"]:hover,
+.disabled.btn-submit:hover,
+.disabled.btn-green:hover,
+input.disabled[type="submit"]:hover,
 .btn-primary[disabled]:hover,
+[disabled].btn-custom:hover,
+[disabled].css_button_small:hover,
+[disabled]#showMenuLink:hover,
+[disabled].css_button:hover,
+.css_button_link a[disabled]:hover,
+.nav-pills-sm li.active a[disabled]:hover,
+.nav-pills-sm li.current a[disabled]:hover,
+.nav-pills-sm li:hover a[disabled]:hover,
+input[disabled][type="button"]:hover,
+[disabled].btn-submit:hover,
+[disabled].btn-green:hover,
+input[disabled][type="submit"]:hover,
 fieldset[disabled] .btn-primary:hover,
+fieldset[disabled] .btn-custom:hover,
+fieldset[disabled] .css_button_small:hover,
+fieldset[disabled] #showMenuLink:hover,
+fieldset[disabled] .css_button:hover,
+fieldset[disabled] .css_button_link a:hover,
+.css_button_link fieldset[disabled] a:hover,
+fieldset[disabled] .nav-pills-sm li.active a:hover,
+.nav-pills-sm li.active fieldset[disabled] a:hover,
+fieldset[disabled] .nav-pills-sm li.current a:hover,
+.nav-pills-sm li.current fieldset[disabled] a:hover,
+fieldset[disabled] .nav-pills-sm li:hover a:hover,
+.nav-pills-sm li:hover fieldset[disabled] a:hover,
+fieldset[disabled] input[type="button"]:hover,
+fieldset[disabled] .btn-submit:hover,
+fieldset[disabled] .btn-green:hover,
+fieldset[disabled] input[type="submit"]:hover,
 .btn-primary.disabled:focus,
+.disabled.btn-custom:focus,
+.disabled.css_button_small:focus,
+.disabled#showMenuLink:focus,
+.disabled.css_button:focus,
+.css_button_link a.disabled:focus,
+.nav-pills-sm li.active a.disabled:focus,
+.nav-pills-sm li.current a.disabled:focus,
+.nav-pills-sm li:hover a.disabled:focus,
+input.disabled[type="button"]:focus,
+.disabled.btn-submit:focus,
+.disabled.btn-green:focus,
+input.disabled[type="submit"]:focus,
 .btn-primary[disabled]:focus,
+[disabled].btn-custom:focus,
+[disabled].css_button_small:focus,
+[disabled]#showMenuLink:focus,
+[disabled].css_button:focus,
+.css_button_link a[disabled]:focus,
+.nav-pills-sm li.active a[disabled]:focus,
+.nav-pills-sm li.current a[disabled]:focus,
+.nav-pills-sm li:hover a[disabled]:focus,
+input[disabled][type="button"]:focus,
+[disabled].btn-submit:focus,
+[disabled].btn-green:focus,
+input[disabled][type="submit"]:focus,
 fieldset[disabled] .btn-primary:focus,
+fieldset[disabled] .btn-custom:focus,
+fieldset[disabled] .css_button_small:focus,
+fieldset[disabled] #showMenuLink:focus,
+fieldset[disabled] .css_button:focus,
+fieldset[disabled] .css_button_link a:focus,
+.css_button_link fieldset[disabled] a:focus,
+fieldset[disabled] .nav-pills-sm li.active a:focus,
+.nav-pills-sm li.active fieldset[disabled] a:focus,
+fieldset[disabled] .nav-pills-sm li.current a:focus,
+.nav-pills-sm li.current fieldset[disabled] a:focus,
+fieldset[disabled] .nav-pills-sm li:hover a:focus,
+.nav-pills-sm li:hover fieldset[disabled] a:focus,
+fieldset[disabled] input[type="button"]:focus,
+fieldset[disabled] .btn-submit:focus,
+fieldset[disabled] .btn-green:focus,
+fieldset[disabled] input[type="submit"]:focus,
 .btn-primary.disabled.focus,
+.disabled.focus.btn-custom,
+.disabled.focus.css_button_small,
+.disabled.focus#showMenuLink,
+.disabled.focus.css_button,
+.css_button_link a.disabled.focus,
+.nav-pills-sm li.active a.disabled.focus,
+.nav-pills-sm li.current a.disabled.focus,
+.nav-pills-sm li:hover a.disabled.focus,
+input.disabled.focus[type="button"],
+.disabled.focus.btn-submit,
+.disabled.focus.btn-green,
+input.disabled.focus[type="submit"],
 .btn-primary[disabled].focus,
+[disabled].focus.btn-custom,
+[disabled].focus.css_button_small,
+[disabled].focus#showMenuLink,
+[disabled].focus.css_button,
+.css_button_link a[disabled].focus,
+.nav-pills-sm li.active a[disabled].focus,
+.nav-pills-sm li.current a[disabled].focus,
+.nav-pills-sm li:hover a[disabled].focus,
+input[disabled].focus[type="button"],
+[disabled].focus.btn-submit,
+[disabled].focus.btn-green,
+input[disabled].focus[type="submit"],
 fieldset[disabled] .btn-primary.focus,
+fieldset[disabled] .focus.btn-custom,
+fieldset[disabled] .focus.css_button_small,
+fieldset[disabled] .focus#showMenuLink,
+fieldset[disabled] .focus.css_button,
+fieldset[disabled] .css_button_link a.focus,
+.css_button_link fieldset[disabled] a.focus,
+fieldset[disabled] .nav-pills-sm li.active a.focus,
+.nav-pills-sm li.active fieldset[disabled] a.focus,
+fieldset[disabled] .nav-pills-sm li.current a.focus,
+.nav-pills-sm li.current fieldset[disabled] a.focus,
+fieldset[disabled] .nav-pills-sm li:hover a.focus,
+.nav-pills-sm li:hover fieldset[disabled] a.focus,
+fieldset[disabled] input.focus[type="button"],
+fieldset[disabled] .focus.btn-submit,
+fieldset[disabled] .focus.btn-green,
+fieldset[disabled] input.focus[type="submit"],
 .btn-primary.disabled:active,
+.disabled.btn-custom:active,
+.disabled.css_button_small:active,
+.disabled#showMenuLink:active,
+.disabled.css_button:active,
+.css_button_link a.disabled:active,
+.nav-pills-sm li.active a.disabled:active,
+.nav-pills-sm li.current a.disabled:active,
+.nav-pills-sm li:hover a.disabled:active,
+input.disabled[type="button"]:active,
+.disabled.btn-submit:active,
+.disabled.btn-green:active,
+input.disabled[type="submit"]:active,
 .btn-primary[disabled]:active,
+[disabled].btn-custom:active,
+[disabled].css_button_small:active,
+[disabled]#showMenuLink:active,
+[disabled].css_button:active,
+.css_button_link a[disabled]:active,
+.nav-pills-sm li.active a[disabled]:active,
+.nav-pills-sm li.current a[disabled]:active,
+.nav-pills-sm li:hover a[disabled]:active,
+input[disabled][type="button"]:active,
+[disabled].btn-submit:active,
+[disabled].btn-green:active,
+input[disabled][type="submit"]:active,
 fieldset[disabled] .btn-primary:active,
+fieldset[disabled] .btn-custom:active,
+fieldset[disabled] .css_button_small:active,
+fieldset[disabled] #showMenuLink:active,
+fieldset[disabled] .css_button:active,
+fieldset[disabled] .css_button_link a:active,
+.css_button_link fieldset[disabled] a:active,
+fieldset[disabled] .nav-pills-sm li.active a:active,
+.nav-pills-sm li.active fieldset[disabled] a:active,
+fieldset[disabled] .nav-pills-sm li.current a:active,
+.nav-pills-sm li.current fieldset[disabled] a:active,
+fieldset[disabled] .nav-pills-sm li:hover a:active,
+.nav-pills-sm li:hover fieldset[disabled] a:active,
+fieldset[disabled] input[type="button"]:active,
+fieldset[disabled] .btn-submit:active,
+fieldset[disabled] .btn-green:active,
+fieldset[disabled] input[type="submit"]:active,
 .btn-primary.disabled.active,
+.disabled.active.btn-custom,
+.disabled.active.css_button_small,
+.disabled.active#showMenuLink,
+.disabled.active.css_button,
+.css_button_link a.disabled.active,
+.nav-pills-sm li.active a.disabled.active,
+.nav-pills-sm li.current a.disabled.active,
+.nav-pills-sm li:hover a.disabled.active,
+input.disabled.active[type="button"],
+.disabled.active.btn-submit,
+.disabled.active.btn-green,
+input.disabled.active[type="submit"],
 .btn-primary[disabled].active,
-fieldset[disabled] .btn-primary.active {
+[disabled].active.btn-custom,
+[disabled].active.css_button_small,
+[disabled].active#showMenuLink,
+[disabled].active.css_button,
+.css_button_link a[disabled].active,
+.nav-pills-sm li.active a[disabled].active,
+.nav-pills-sm li.current a[disabled].active,
+.nav-pills-sm li:hover a[disabled].active,
+input[disabled].active[type="button"],
+[disabled].active.btn-submit,
+[disabled].active.btn-green,
+input[disabled].active[type="submit"],
+fieldset[disabled] .btn-primary.active,
+fieldset[disabled] .active.btn-custom,
+fieldset[disabled] .active.css_button_small,
+fieldset[disabled] .active#showMenuLink,
+fieldset[disabled] .active.css_button,
+fieldset[disabled] .css_button_link a.active,
+.css_button_link fieldset[disabled] a.active,
+fieldset[disabled] .nav-pills-sm li.active a.active,
+.nav-pills-sm li.active fieldset[disabled] a.active,
+fieldset[disabled] .nav-pills-sm li.current a.active,
+.nav-pills-sm li.current fieldset[disabled] a.active,
+fieldset[disabled] .nav-pills-sm li:hover a.active,
+.nav-pills-sm li:hover fieldset[disabled] a.active,
+fieldset[disabled] input.active[type="button"],
+fieldset[disabled] .active.btn-submit,
+fieldset[disabled] .active.btn-green,
+fieldset[disabled] input.active[type="submit"] {
   background-color: #265a88;
   background-image: none;
 }
@@ -11508,7 +12244,7 @@ div.notab-right {
 */
 /* line 692, bootstrap/sass/style_bootstrap.scss */
 #report_parameters {
-  background-color: #ececec;
+  background-color: #D0E9C6;
   margin-top: 10px;
 }
 
@@ -11931,95 +12667,71 @@ div.notab-right {
   background-color: #EADDB4;
 }
 
-/* line 1075, bootstrap/sass/style_bootstrap.scss */
-.btn-custom, .css_button_small, #showMenuLink, .css_button, .css_button_link a, .nav-pills-sm li.active a, .nav-pills-sm li.current a,
-.nav-pills-sm li:hover a, input[type="button"] {
-  background-color: #057e99 !important;
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#34d4f8", endColorstr="#047e99");
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#34d4f8), to(#047e99));
-  background-image: -moz-linear-gradient(top, #34d4f8, #047e99);
-  background-image: -ms-linear-gradient(top, #34d4f8, #047e99);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #34d4f8), color-stop(100%, #047e99));
-  background-image: -webkit-linear-gradient(top, #34d4f8, #047e99);
-  background-image: -o-linear-gradient(top, #34d4f8, #047e99);
-  background-image: linear-gradient(#34d4f8, #047e99);
-  border-color: #047e99 #047e99 #046277;
-  color: #fff !important;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.46);
-  -webkit-font-smoothing: antialiased;
-}
-
-/* line 1091, bootstrap/sass/style_bootstrap.scss */
-.btn-submit, .btn-green, input[type="submit"] {
-  background-color: #46be52 !important;
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#b7e5bb", endColorstr="#46be52");
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#b7e5bb), to(#46be52));
-  background-image: -moz-linear-gradient(top, #b7e5bb, #46be52);
-  background-image: -ms-linear-gradient(top, #b7e5bb, #46be52);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #b7e5bb), color-stop(100%, #46be52));
-  background-image: -webkit-linear-gradient(top, #b7e5bb, #46be52);
-  background-image: -o-linear-gradient(top, #b7e5bb, #46be52);
-  background-image: linear-gradient(#b7e5bb, #46be52);
-  border-color: #46be52 #46be52 #3aa444;
-  color: #333 !important;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.49);
-  -webkit-font-smoothing: antialiased;
-}
-
-/* line 1108, bootstrap/sass/style_bootstrap.scss */
+/****** variables ******/
+/***** colors *********/
+/***** colors *********/
+/* line 1114, bootstrap/sass/style_bootstrap.scss */
 .css_button_small, #showMenuLink, .css_button {
   margin: 0px 2px !important;
   padding: 2px 7px !important;
   font-size: 10pt !important;
 }
 
-/* line 1116, bootstrap/sass/style_bootstrap.scss */
+/* line 1120, bootstrap/sass/style_bootstrap.scss */
 .css_button_link a {
   margin: 10px 3px !important;
   padding: 5px 25px !important;
   font-size: 10pt !important;
+  border-radius: 5px;
 }
 
-/* line 1122, bootstrap/sass/style_bootstrap.scss */
+/* line 1127, bootstrap/sass/style_bootstrap.scss */
+.css_button_link a:hover,
+.css_button_small:hover,
+#showMenuLink:hover, .css_button:hover {
+  text-decoration: none;
+}
+
+/* line 1131, bootstrap/sass/style_bootstrap.scss */
+.css_button_small, #showMenuLink, #showMenuLink, .css_button {
+  border-radius: 5px;
+}
+
+/* line 1134, bootstrap/sass/style_bootstrap.scss */
 #topToolbarRight {
   padding-top: 4px;
 }
 
-/* line 1125, bootstrap/sass/style_bootstrap.scss */
+/* line 1137, bootstrap/sass/style_bootstrap.scss */
 span.css_button_separator {
   display: none;
 }
 
-/* line 1133, bootstrap/sass/style_bootstrap.scss */
+/* line 1145, bootstrap/sass/style_bootstrap.scss */
 #showMenuLink.active::after {
   content: ' >>';
 }
 
-/* line 1137, bootstrap/sass/style_bootstrap.scss */
+/* line 1149, bootstrap/sass/style_bootstrap.scss */
 #showMenuLink::after {
   content: ' <<';
 }
 
-/* line 1141, bootstrap/sass/style_bootstrap.scss */
+/* line 1153, bootstrap/sass/style_bootstrap.scss */
 ul.tabNav > li > a, .tabContainer {
   font-size: 10pt;
 }
 
-/* line 1145, bootstrap/sass/style_bootstrap.scss */
+/* line 1157, bootstrap/sass/style_bootstrap.scss */
 td.label {
   color: black !important;
 }
 
-/* line 1165, bootstrap/sass/style_bootstrap.scss */
+/* line 1177, bootstrap/sass/style_bootstrap.scss */
 .nav-sm > li > a, .nav-pill-sm > li > a {
   padding: 5px 8px !important;
 }
 
-/*********** styling from 2 Nov 2015 ***************/
-/****** responsive sizes ******/
-/****** responsive sizes ******/
 /* line 1186, bootstrap/sass/style_bootstrap.scss */
 .paginate_disabled_previous,
 .paginate_disabled_next {
@@ -12070,14 +12782,14 @@ form[name="demographics_form"] input[type="entry"] {
   background: #eee;
 }
 
-/* line 1241, bootstrap/sass/style_bootstrap.scss */
+/* line 1234, bootstrap/sass/style_bootstrap.scss */
 input[type="button"] {
   padding: 4px 17px;
   margin: 0 10px;
   border-radius: 5px;
 }
 
-/* line 1247, bootstrap/sass/style_bootstrap.scss */
+/* line 1240, bootstrap/sass/style_bootstrap.scss */
 input[type="submit"] {
   padding: 4px 17px;
   margin: 0 10px;
@@ -12085,26 +12797,32 @@ input[type="submit"] {
   width: auto !important;
 }
 
-/* line 1254, bootstrap/sass/style_bootstrap.scss */
-div.section, .bottom-panel {
+/* line 1247, bootstrap/sass/style_bootstrap.scss */
+div.section, .bottom-panel, .rule_container, .rule_row {
   border-color: transparent !important;
   box-shadow: 0px 0 2px #50B4D4;
   background: #D0E9C6;
 }
 
-/* line 1259, bootstrap/sass/style_bootstrap.scss */
+/* line 1252, bootstrap/sass/style_bootstrap.scss */
 td b {
   margin-bottom: 5px;
 }
 
-/* line 1262, bootstrap/sass/style_bootstrap.scss */
+/* line 1255, bootstrap/sass/style_bootstrap.scss */
 td .css_button_small, td #showMenuLink {
   float: none !important;
-  padding: 5px 10px !important;
+  padding: 5px 25px !important;
   margin: 0 !important;
+  border-radius: 5px;
 }
 
-/* line 1267, bootstrap/sass/style_bootstrap.scss */
+/* line 1261, bootstrap/sass/style_bootstrap.scss */
+.css_button_small:hover, #showMenuLink:hover {
+  text-decoration: none;
+}
+
+/* line 1264, bootstrap/sass/style_bootstrap.scss */
 select[name="sel_frame"] {
   font-size: 9pt;
   width: 100%;
@@ -12112,55 +12830,55 @@ select[name="sel_frame"] {
   border-radius: 5px;
 }
 
-/* line 1273, bootstrap/sass/style_bootstrap.scss */
+/* line 1270, bootstrap/sass/style_bootstrap.scss */
 select:disabled {
   background: #dddddd !important;
 }
 
-/* line 1276, bootstrap/sass/style_bootstrap.scss */
+/* line 1273, bootstrap/sass/style_bootstrap.scss */
 img#prevday {
   padding: 0 !important;
 }
 
-/* line 1279, bootstrap/sass/style_bootstrap.scss */
+/* line 1276, bootstrap/sass/style_bootstrap.scss */
 td.top-secondary-nav table {
   float: right;
 }
 
-/* line 1282, bootstrap/sass/style_bootstrap.scss */
+/* line 1279, bootstrap/sass/style_bootstrap.scss */
 .top-primary-nav a {
   float: left !important;
   margin-bottom: 7px !important;
 }
 
-/* line 1286, bootstrap/sass/style_bootstrap.scss */
+/* line 1283, bootstrap/sass/style_bootstrap.scss */
 .billingButton input[type="text"] {
   width: auto !important;
   display: inline-block !important;
 }
 
-/* line 1293, bootstrap/sass/style_bootstrap.scss */
+/* line 1290, bootstrap/sass/style_bootstrap.scss */
 div.borderbox {
   background: #D0E9C6;
 }
 
-/* line 1296, bootstrap/sass/style_bootstrap.scss */
+/* line 1293, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:hover {
   text-decoration: none;
   cursor: pointer;
 }
 
-/* line 1301, bootstrap/sass/style_bootstrap.scss */
+/* line 1298, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li ul ul {
   padding-left: 5px;
 }
 
-/* line 1304, bootstrap/sass/style_bootstrap.scss */
+/* line 1301, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a > img {
   display: none;
 }
 
-/* line 1307, bootstrap/sass/style_bootstrap.scss */
+/* line 1304, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:before {
   font-family: 'fontawesome';
   margin-right: 5px;
@@ -12168,101 +12886,107 @@ div.borderbox {
   font-size: 14px;
 }
 
-/* line 1314, bootstrap/sass/style_bootstrap.scss */
+/* line 1311, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:after {
   font-family: 'fontawesome';
   margin-left: 5px;
   color: #000;
 }
 
-/* line 1319, bootstrap/sass/style_bootstrap.scss */
+/* line 1316, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#cal0:before {
   content: "\f073";
 }
 
-/* line 1322, bootstrap/sass/style_bootstrap.scss */
+/* line 1319, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#pfb0:before {
   content: "\f15c";
 }
 
-/* line 1325, bootstrap/sass/style_bootstrap.scss */
+/* line 1322, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#msg0:before {
   content: "\f003";
 }
 
-/* line 1328, bootstrap/sass/style_bootstrap.scss */
+/* line 1325, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#patimg:before {
   content: "\f007";
 }
 
-/* line 1331, bootstrap/sass/style_bootstrap.scss */
+/* line 1328, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#feeimg:before {
   content: "\f0d6";
 }
 
-/* line 1334, bootstrap/sass/style_bootstrap.scss */
+/* line 1331, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#modimg:before {
   content: "\f0fa";
 }
 
-/* line 1337, bootstrap/sass/style_bootstrap.scss */
+/* line 1334, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:before {
   content: "\f0fa";
 }
 
-/* line 1340, bootstrap/sass/style_bootstrap.scss */
+/* line 1337, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:after,
 #navigation-slide li > a#admimg:after {
   content: "\f0d7";
 }
 
-/* line 1344, bootstrap/sass/style_bootstrap.scss */
+/* line 1341, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#admimg:before {
   content: "\f085";
 }
 
-/* line 1347, bootstrap/sass/style_bootstrap.scss */
+/* line 1344, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#repimg:before {
   content: "\f080";
 }
 
-/* line 1350, bootstrap/sass/style_bootstrap.scss */
+/* line 1347, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#misimg:before {
   content: "\f01c";
 }
 
-/* line 1354, bootstrap/sass/style_bootstrap.scss */
+/* line 1351, bootstrap/sass/style_bootstrap.scss */
 frameset.sidebar, frameset.main-section {
   width: 100%;
 }
 
-/* line 1357, bootstrap/sass/style_bootstrap.scss */
+/* line 1354, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td {
   width: auto !important;
 }
 
-/* line 1360, bootstrap/sass/style_bootstrap.scss */
+/* line 1357, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td input,
 form[id="theform"] td input {
   display: inline-block;
   width: auto;
 }
 
-/* line 1365, bootstrap/sass/style_bootstrap.scss */
+/* line 1362, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td,
 form[id="theform"] td {
   vertical-align: middle;
   font-size: 12px;
 }
 
-/* line 1370, bootstrap/sass/style_bootstrap.scss */
+/* line 1367, bootstrap/sass/style_bootstrap.scss */
 #img_date,
 #img_to_date,
 #img_from_date,
 #img_begin_date,
 #img_end_date,
 #img_target_date,
-#img_DOB {
+#img_DOB,
+#img_depositdate,
+#img_checkdate,
+#img_post_to_date,
+#img_from_doc_date,
+#img_to_doc_date,
+#img_start_date {
   display: inline-block;
   box-sizing: border-box;
   padding-left: 27px;
@@ -12271,12 +12995,12 @@ form[id="theform"] td {
   height: 21px;
 }
 
-/* line 1386, bootstrap/sass/style_bootstrap.scss */
+/* line 1389, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel {
   padding-top: 15px;
 }
 
-/* line 1390, bootstrap/sass/style_bootstrap.scss */
+/* line 1393, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .title-bigger {
   font-size: 18px;
   display: block;
@@ -12287,14 +13011,14 @@ form[id="theform"] td {
   font-weight: bold;
 }
 
-/* line 1401, bootstrap/sass/style_bootstrap.scss */
+/* line 1404, bootstrap/sass/style_bootstrap.scss */
 .pager span {
   content: '';
   max-height: 31px;
   overflow: hidden;
 }
 
-/* line 1406, bootstrap/sass/style_bootstrap.scss */
+/* line 1409, bootstrap/sass/style_bootstrap.scss */
 .pager span:first-child:before {
   content: '\f0d9 ';
   font-family: 'fontawesome';
@@ -12302,7 +13026,7 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1412, bootstrap/sass/style_bootstrap.scss */
+/* line 1415, bootstrap/sass/style_bootstrap.scss */
 .pager span:last-child:before {
   content: '\f0da';
   font-family: 'fontawesome';
@@ -12310,56 +13034,123 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1418, bootstrap/sass/style_bootstrap.scss */
+/* line 1421, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li {
   border: 1px solid;
   border-radius: 5px 5px 0 0;
   padding: 0;
 }
 
-/* line 1423, bootstrap/sass/style_bootstrap.scss */
-ul.nav-sm.nav-pills-sm li a {
-  color: #000;
+/* line 1426, bootstrap/sass/style_bootstrap.scss */
+ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   margin: 0;
 }
 
-/* line 1427, bootstrap/sass/style_bootstrap.scss */
+/* line 1429, bootstrap/sass/style_bootstrap.scss */
 #dateNAV {
   font-size: 12pt !important;
   margin-top: -3px;
   margin-bottom: 5px;
 }
 
-/* line 1432, bootstrap/sass/style_bootstrap.scss */
+/* line 1434, bootstrap/sass/style_bootstrap.scss */
 #times table, .view2, .view1, #datePicker .currentDate,
-#datePicker .tdDatePickerHighlight {
+#datePicker .tdDatePickerHighlight, #report_results table thead {
   background-color: #BBCCFF !important;
 }
 
-/* line 1436, bootstrap/sass/style_bootstrap.scss */
+/* line 1438, bootstrap/sass/style_bootstrap.scss */
 .dr_container {
   padding: 0 !important;
 }
 
-/* line 1439, bootstrap/sass/style_bootstrap.scss */
+/* line 1441, bootstrap/sass/style_bootstrap.scss */
 .drHide {
   position: relative;
   top: 5px;
 }
 
-/* line 1443, bootstrap/sass/style_bootstrap.scss */
+/* line 1445, bootstrap/sass/style_bootstrap.scss */
 .drHide p {
   display: inline-flex;
   margin-right: 3px !important;
 }
 
-/* line 1447, bootstrap/sass/style_bootstrap.scss */
+/* line 1449, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .panel {
-  background-color: #B8D8AB;
+  background: #B8D8AB;
   padding: 15px;
 }
 
-/* line 1451, bootstrap/sass/style_bootstrap.scss */
-.tableHead-bg {
+/* line 1453, bootstrap/sass/style_bootstrap.scss */
+.ui-accordion .ui-accordion-header {
+  background: #B8D8AB;
+  padding: 5px;
+}
+
+/* line 1458, bootstrap/sass/style_bootstrap.scss */
+.ui-accordion-content {
+  background: #D0E9C6 !important;
+}
+
+/* line 1461, bootstrap/sass/style_bootstrap.scss */
+.tableHead-bg,
+.table-striped > tbody > tr:nth-of-type(odd) {
   background: #BBCCFF !important;
+}
+
+/* line 1465, bootstrap/sass/style_bootstrap.scss */
+.table-pendigApproval,
+.formsAdministration-table,
+.unregisteredForm-table {
+  display: block;
+  width: 100% !important;
+}
+
+/* line 1471, bootstrap/sass/style_bootstrap.scss */
+.table-pendigApproval tbody th,
+.showborder_head th {
+  background: #BBCCFF !important;
+}
+
+/* line 1475, bootstrap/sass/style_bootstrap.scss */
+#TdContainingButtons {
+  width: 100%;
+}
+
+/* line 1478, bootstrap/sass/style_bootstrap.scss */
+#TdContainingButtons table {
+  width: 40%;
+}
+
+/* line 1481, bootstrap/sass/style_bootstrap.scss */
+.showborder,
+.rule_container {
+  width: 100% !important;
+}
+
+/* line 1485, bootstrap/sass/style_bootstrap.scss */
+.rule_container, .rule_row {
+  padding-bottom: 20px;
+  margin-left: 15px;
+  padding-top: 0;
+}
+
+/* line 1492, bootstrap/sass/style_bootstrap.scss */
+.rule_row:before,
+.rule_row:after {
+  content: '';
+  width: 100%;
+  clear: both;
+}
+
+/* line 1498, bootstrap/sass/style_bootstrap.scss */
+.formsAdministration-table td,
+.unregisteredForm-table td {
+  text-align: center;
+}
+
+/* line 1502, bootstrap/sass/style_bootstrap.scss */
+#report_parameters .custom-width {
+  width: 800px !important;
 }
