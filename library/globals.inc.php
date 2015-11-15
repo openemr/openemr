@@ -733,6 +733,7 @@ $GLOBALS_METADATA = array(
 		'1',                              // default = true
 		xl('Enable amendments feature')
 	),
+
    ),   
     // Report Tab
     //
@@ -796,6 +797,13 @@ $GLOBALS_METADATA = array(
   // Billing Tab
     
   'Billing' => array(
+
+    'default_search_code_type' => array(
+      xl('Default Search Code Type'),
+      'all_code_types',                           // data type
+      'ICD10',                 // default
+      xl('The default code type to search for in the Fee Sheet.')
+    ),
     
     'support_fee_sheet_line_item_provider' => array(
        xl('Support provider in line item in fee sheet'),
@@ -1711,7 +1719,6 @@ $GLOBALS_METADATA = array(
       '/mnt/scan_docs',                 // default
       xl('Location where scans are stored.')
     ),
-
   ),
 
   // Portal Tab
