@@ -201,6 +201,7 @@ $body-color: #E8B151;
 #addressbook_list tr.search {
   font-size:9pt;
   font-weight:bold;
+   background: #D0E9C6;
 }
 #addressbook_list tr.head {
   font-size:10pt;
@@ -1094,22 +1095,7 @@ $btn-sm-curve: 3px;
   @extend .btn-primary;
         
 }
-//.btn-submit {
-//  background-color: hsl(126, 48%, 51%) !important;
-//  background-repeat: repeat-x;
-//  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#b7e5bb", endColorstr="#46be52");
-//  background-image: -khtml-gradient(linear, left top, left bottom, from(#b7e5bb), to(#46be52));
-//  background-image: -moz-linear-gradient(top, #b7e5bb, #46be52);
-//  background-image: -ms-linear-gradient(top, #b7e5bb, #46be52);
-//  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #b7e5bb), color-stop(100%, #46be52));
-//  background-image: -webkit-linear-gradient(top, #b7e5bb, #46be52);
-//  background-image: -o-linear-gradient(top, #b7e5bb, #46be52);
-//  background-image: linear-gradient(#b7e5bb, #46be52);
-//  border-color: #46be52 #46be52 hsl(126, 48%, 43.5%);
-//  color: #333 !important;
-//  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.49);
-//  -webkit-font-smoothing: antialiased;
-//}
+
 
 .css_button_small,.css_button{
   @extend .btn-custom;
@@ -1376,7 +1362,8 @@ form[id="theform"] td{
 #img_post_to_date,
 #img_from_doc_date,
 #img_to_doc_date,
-#img_start_date{
+#img_start_date,
+.calandar-img{
     display: inline-block;
     box-sizing: border-box;    
     padding-left: 27px;
@@ -1485,7 +1472,7 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
 .rule_container, .rule_row{
    
     @extend div.section;  
-        padding-bottom: 20px;
+    padding-bottom: 20px;
     margin-left: 15px;
     padding-top: 0;
 }
@@ -1501,4 +1488,47 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
 }
 #report_parameters .custom-width{
     width: 800px !important;
+}
+.batchCom input[type='text']{
+    display: inline-block;
+    width: 75%;
+}
+.batchCom textarea{
+    @extend .form-control;
+}
+.batchCom select{
+    width: 80%;
+}
+.batchCom table{
+    border: 1px solid #DDD;
+}
+
+/*** collapse *****/
+#objTreeMenu_1_node_1,
+#objTreeMenu_1_node_1_1,
+#objTreeMenu_1_node_1_2,
+#objTreeMenu_1_node_1_3,
+#objTreeMenu_1_node_1_4,
+#objTreeMenu_1_node_1_5,
+#objTreeMenu_1_node_1_6,
+#objTreeMenu_1_node_1_7{
+    @extend .panel-heading;
+    color: #333;    
+    border-color: #ddd;
+    display: block !important;
+    background-color: $solidgreen;
+}
+#objTreeMenu_1_node_1_7_1,
+#objTreeMenu_1_node_1_7_2,
+#objTreeMenu_1_node_1_1_1,
+#objTreeMenu_1_node_1_1_2,
+#objTreeMenu_1_node_1_1_3{
+    margin: 15px 0;
+}
+
+#documents_list table{
+    width: 100%;
+}
+div#documents_list span {
+    color: #000;
 }

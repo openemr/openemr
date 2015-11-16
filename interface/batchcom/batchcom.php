@@ -177,7 +177,7 @@ if ($_POST['form_action']=='Process') {
 
 
 </head>
-<body class="body_top">
+<body class="body_top batchCom">
 <!-- larry's sms/email notification -->
 <span class="title"><?php include_once("batch_navigation.php");?></span>
 <!--- end of larry's insert -->
@@ -189,7 +189,7 @@ if ($_POST['form_action']=='Process') {
 <FORM name="select_form" METHOD=POST ACTION="" onsubmit='return top.restoreSession()'>
 <div class="text">
 <div class="main_box">
-    <table class="table" ><tr><td >
+    <table class="table table-striped"><tr><td >
         <?php
         if ($form_err) {
             echo (xl('The following errors occurred')."<br>$form_err<br><br>");
@@ -231,22 +231,22 @@ if ($_POST['form_action']=='Process') {
         -->
       <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="OR"></td><td> <?php xl('Appointment within','e')?>:</td><td><INPUT TYPE='text' size='12' NAME='app_s'> <a href="javascript:show_calendar('select_form.app_s')"
     title="<?php xl('Click here to choose a date','e')?>"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a></td><td>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' class="calandar-img"></a></td><td>
 
         <?php xl('And','e')?> :  <INPUT TYPE='text' size='12' NAME='app_e'> <a href="javascript:show_calendar('select_form.app_e')"
     title="<?php xl('Click here to choose a date','e')?>"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a></td>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'  class="calandar-img"></a></td>
      </tr><tr><td>
    
      <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"></td><td> <?php xl('Seen since','e')?> :</td><td><INPUT TYPE='text' size='12' NAME='seen_since'> <a href="javascript:show_calendar('select_form.seen_since')"
     title="<?php xl('Click here to choose a date','e')?>"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a></td>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'  class="calandar-img"></a></td>
   <td>&nbsp;</td>
    </tr><tr><td>
 
         <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"></td><td> <?php xl('Not seen since','e')?> :</td><td><INPUT TYPE='text' size='12' NAME='not_seen_since'> <a href="javascript:show_calendar('select_form.not_seen_since')"
     title="<?php xl('Click here to choose a date','e')?>"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a></td>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'  class="calandar-img"></a></td>
  <td>&nbsp;</td>
    </tr><tr><td>
         <?php xl('Sort by','e')?> :</td><td><SELECT NAME="sort_by">
@@ -259,7 +259,7 @@ if ($_POST['form_action']=='Process') {
      <td>&nbsp;</td><td>&nbsp;</td>
        </tr><tr><td colspan='3'>
     (<?php xl('Fill here only if sending email notification to patients','e')?>)</td>
-   <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+   <td>&nbsp;</td>
    </tr><tr><td>
     <?php xl('Email Sender','e')?> :</td><td><INPUT TYPE="text" NAME="email_sender" value="your@example.com"></td>
   <td>&nbsp;</td><td>&nbsp;</td>
@@ -268,10 +268,10 @@ if ($_POST['form_action']=='Process') {
   <td>&nbsp;</td><td>&nbsp;</td>
   </tr><tr><td colspan='3'>
     <?php echo xlt('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***{{Do Not translate the ***NAME*** elements of this constant.}}')?></td>
-   <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+   <td>&nbsp;</td></tr>
    <tr><td colspan='4'>
     <TEXTAREA NAME="email_body" ROWS="8" COLS="40"></TEXTAREA></td>
-    <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+    
      </tr><tr><td>
 
     <INPUT TYPE="submit" name="form_action" value=<?php xl('Process','e','\'','\''); ?>> </td><td><?php xl('Process takes some time','e')?></td> <td>&nbsp;</td><td>&nbsp;</td></tr>

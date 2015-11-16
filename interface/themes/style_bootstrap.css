@@ -3951,7 +3951,7 @@ output {
 }
 
 /* line 2552, bootstrap/css/bootstrap.scss */
-.form-control, .search_init, input[type='text'], input[type='password'], input[type='entry'], .dataTables_filter input, select, input[name="type_code"] {
+.form-control, .search_init, input[type='text'], input[type='password'], input[type='entry'], .dataTables_filter input, select, input[name="type_code"], .batchCom textarea {
   display: block;
   width: 100%;
   height: 34px;
@@ -3971,7 +3971,7 @@ output {
 }
 
 /* line 2570, bootstrap/css/bootstrap.scss */
-.form-control:focus, .search_init:focus, input[type='text']:focus, input[type='password']:focus, input[type='entry']:focus, .dataTables_filter input:focus, select:focus, input[name="type_code"]:focus {
+.form-control:focus, .search_init:focus, input[type='text']:focus, input[type='password']:focus, input[type='entry']:focus, .dataTables_filter input:focus, select:focus, input[name="type_code"]:focus, .batchCom textarea:focus {
   border-color: #66afe9;
   outline: 0;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
@@ -3979,23 +3979,23 @@ output {
 }
 
 /* line 2576, bootstrap/css/bootstrap.scss */
-.form-control::-moz-placeholder, .search_init::-moz-placeholder, input[type='text']::-moz-placeholder, input[type='password']::-moz-placeholder, input[type='entry']::-moz-placeholder, .dataTables_filter input::-moz-placeholder, select::-moz-placeholder, input[name="type_code"]::-moz-placeholder {
+.form-control::-moz-placeholder, .search_init::-moz-placeholder, input[type='text']::-moz-placeholder, input[type='password']::-moz-placeholder, input[type='entry']::-moz-placeholder, .dataTables_filter input::-moz-placeholder, select::-moz-placeholder, input[name="type_code"]::-moz-placeholder, .batchCom textarea::-moz-placeholder {
   color: #999;
   opacity: 1;
 }
 
 /* line 2580, bootstrap/css/bootstrap.scss */
-.form-control:-ms-input-placeholder, .search_init:-ms-input-placeholder, input[type='text']:-ms-input-placeholder, input[type='password']:-ms-input-placeholder, input[type='entry']:-ms-input-placeholder, .dataTables_filter input:-ms-input-placeholder, select:-ms-input-placeholder, input[name="type_code"]:-ms-input-placeholder {
+.form-control:-ms-input-placeholder, .search_init:-ms-input-placeholder, input[type='text']:-ms-input-placeholder, input[type='password']:-ms-input-placeholder, input[type='entry']:-ms-input-placeholder, .dataTables_filter input:-ms-input-placeholder, select:-ms-input-placeholder, input[name="type_code"]:-ms-input-placeholder, .batchCom textarea:-ms-input-placeholder {
   color: #999;
 }
 
 /* line 2583, bootstrap/css/bootstrap.scss */
-.form-control::-webkit-input-placeholder, .search_init::-webkit-input-placeholder, input[type='text']::-webkit-input-placeholder, input[type='password']::-webkit-input-placeholder, input[type='entry']::-webkit-input-placeholder, .dataTables_filter input::-webkit-input-placeholder, select::-webkit-input-placeholder, input[name="type_code"]::-webkit-input-placeholder {
+.form-control::-webkit-input-placeholder, .search_init::-webkit-input-placeholder, input[type='text']::-webkit-input-placeholder, input[type='password']::-webkit-input-placeholder, input[type='entry']::-webkit-input-placeholder, .dataTables_filter input::-webkit-input-placeholder, select::-webkit-input-placeholder, input[name="type_code"]::-webkit-input-placeholder, .batchCom textarea::-webkit-input-placeholder {
   color: #999;
 }
 
 /* line 2586, bootstrap/css/bootstrap.scss */
-.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"],
+.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"], .batchCom textarea[disabled],
 .form-control[readonly],
 [readonly].search_init,
 input[readonly][type='text'],
@@ -4004,6 +4004,7 @@ input[readonly][type='entry'],
 .dataTables_filter input[readonly],
 select[readonly],
 input[readonly][name="type_code"],
+.batchCom textarea[readonly],
 fieldset[disabled] .form-control,
 fieldset[disabled] .search_init,
 fieldset[disabled] input[type='text'],
@@ -4012,13 +4013,15 @@ fieldset[disabled] input[type='entry'],
 fieldset[disabled] .dataTables_filter input,
 .dataTables_filter fieldset[disabled] input,
 fieldset[disabled] select,
-fieldset[disabled] input[name="type_code"] {
+fieldset[disabled] input[name="type_code"],
+fieldset[disabled] .batchCom textarea,
+.batchCom fieldset[disabled] textarea {
   background-color: #eee;
   opacity: 1;
 }
 
 /* line 2592, bootstrap/css/bootstrap.scss */
-.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"],
+.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"], .batchCom textarea[disabled],
 fieldset[disabled] .form-control,
 fieldset[disabled] .search_init,
 fieldset[disabled] input[type='text'],
@@ -4027,12 +4030,14 @@ fieldset[disabled] input[type='entry'],
 fieldset[disabled] .dataTables_filter input,
 .dataTables_filter fieldset[disabled] input,
 fieldset[disabled] select,
-fieldset[disabled] input[name="type_code"] {
+fieldset[disabled] input[name="type_code"],
+fieldset[disabled] .batchCom textarea,
+.batchCom fieldset[disabled] textarea {
   cursor: not-allowed;
 }
 
 /* line 2596, bootstrap/css/bootstrap.scss */
-textarea.form-control, textarea.search_init {
+textarea.form-control, textarea.search_init, .batchCom textarea {
   height: auto;
 }
 
@@ -4214,7 +4219,7 @@ select[multiple].input-sm {
 }
 
 /* line 2721, bootstrap/css/bootstrap.scss */
-.form-group-sm .form-control, .form-group-sm .search_init, .form-group-sm input[type='text'], .form-group-sm input[type='password'], .form-group-sm input[type='entry'], .form-group-sm .dataTables_filter input, .dataTables_filter .form-group-sm input, .form-group-sm select, .form-group-sm input[name="type_code"] {
+.form-group-sm .form-control, .form-group-sm .search_init, .form-group-sm input[type='text'], .form-group-sm input[type='password'], .form-group-sm input[type='entry'], .form-group-sm .dataTables_filter input, .dataTables_filter .form-group-sm input, .form-group-sm select, .form-group-sm input[name="type_code"], .form-group-sm .batchCom textarea, .batchCom .form-group-sm textarea {
   height: 30px;
   padding: 5px 10px;
   font-size: 12px;
@@ -4229,7 +4234,7 @@ select[multiple].input-sm {
 }
 
 /* line 2732, bootstrap/css/bootstrap.scss */
-.form-group-sm textarea.form-control, .form-group-sm textarea.search_init,
+.form-group-sm textarea.form-control, .form-group-sm textarea.search_init, .form-group-sm .batchCom textarea, .batchCom .form-group-sm textarea,
 .form-group-sm select[multiple].form-control,
 .form-group-sm select[multiple].search_init,
 .form-group-sm select[multiple] {
@@ -4267,7 +4272,7 @@ select[multiple].input-lg {
 }
 
 /* line 2758, bootstrap/css/bootstrap.scss */
-.form-group-lg .form-control, .form-group-lg .search_init, .form-group-lg input[type='text'], .form-group-lg input[type='password'], .form-group-lg input[type='entry'], .form-group-lg .dataTables_filter input, .dataTables_filter .form-group-lg input, .form-group-lg select, .form-group-lg input[name="type_code"] {
+.form-group-lg .form-control, .form-group-lg .search_init, .form-group-lg input[type='text'], .form-group-lg input[type='password'], .form-group-lg input[type='entry'], .form-group-lg .dataTables_filter input, .dataTables_filter .form-group-lg input, .form-group-lg select, .form-group-lg input[name="type_code"], .form-group-lg .batchCom textarea, .batchCom .form-group-lg textarea {
   height: 46px;
   padding: 10px 16px;
   font-size: 18px;
@@ -4282,7 +4287,7 @@ select[multiple].input-lg {
 }
 
 /* line 2769, bootstrap/css/bootstrap.scss */
-.form-group-lg textarea.form-control, .form-group-lg textarea.search_init,
+.form-group-lg textarea.form-control, .form-group-lg textarea.search_init, .form-group-lg .batchCom textarea, .batchCom .form-group-lg textarea,
 .form-group-lg select[multiple].form-control,
 .form-group-lg select[multiple].search_init,
 .form-group-lg select[multiple] {
@@ -4304,7 +4309,7 @@ select[multiple].input-lg {
 }
 
 /* line 2783, bootstrap/css/bootstrap.scss */
-.has-feedback .form-control, .has-feedback .search_init, .has-feedback input[type='text'], .has-feedback input[type='password'], .has-feedback input[type='entry'], .has-feedback .dataTables_filter input, .dataTables_filter .has-feedback input, .has-feedback select, .has-feedback input[name="type_code"] {
+.has-feedback .form-control, .has-feedback .search_init, .has-feedback input[type='text'], .has-feedback input[type='password'], .has-feedback input[type='entry'], .has-feedback .dataTables_filter input, .dataTables_filter .has-feedback input, .has-feedback select, .has-feedback input[name="type_code"], .has-feedback .batchCom textarea, .batchCom .has-feedback textarea {
   padding-right: 42.5px;
 }
 
@@ -4333,7 +4338,9 @@ select[multiple].input-lg {
 .form-group-lg .dataTables_filter input + .form-control-feedback,
 .dataTables_filter .form-group-lg input + .form-control-feedback,
 .form-group-lg select + .form-control-feedback,
-.form-group-lg input[name="type_code"] + .form-control-feedback {
+.form-group-lg input[name="type_code"] + .form-control-feedback,
+.form-group-lg .batchCom textarea + .form-control-feedback,
+.batchCom .form-group-lg textarea + .form-control-feedback {
   width: 46px;
   height: 46px;
   line-height: 46px;
@@ -4350,7 +4357,9 @@ select[multiple].input-lg {
 .form-group-sm .dataTables_filter input + .form-control-feedback,
 .dataTables_filter .form-group-sm input + .form-control-feedback,
 .form-group-sm select + .form-control-feedback,
-.form-group-sm input[name="type_code"] + .form-control-feedback {
+.form-group-sm input[name="type_code"] + .form-control-feedback,
+.form-group-sm .batchCom textarea + .form-control-feedback,
+.batchCom .form-group-sm textarea + .form-control-feedback {
   width: 30px;
   height: 30px;
   line-height: 30px;
@@ -4371,14 +4380,14 @@ select[multiple].input-lg {
 }
 
 /* line 2824, bootstrap/css/bootstrap.scss */
-.has-success .form-control, .has-success .search_init, .has-success input[type='text'], .has-success input[type='password'], .has-success input[type='entry'], .has-success .dataTables_filter input, .dataTables_filter .has-success input, .has-success select, .has-success input[name="type_code"] {
+.has-success .form-control, .has-success .search_init, .has-success input[type='text'], .has-success input[type='password'], .has-success input[type='entry'], .has-success .dataTables_filter input, .dataTables_filter .has-success input, .has-success select, .has-success input[name="type_code"], .has-success .batchCom textarea, .batchCom .has-success textarea {
   border-color: #3c763d;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 /* line 2829, bootstrap/css/bootstrap.scss */
-.has-success .form-control:focus, .has-success .search_init:focus, .has-success input[type='text']:focus, .has-success input[type='password']:focus, .has-success input[type='entry']:focus, .has-success .dataTables_filter input:focus, .dataTables_filter .has-success input:focus, .has-success select:focus, .has-success input[name="type_code"]:focus {
+.has-success .form-control:focus, .has-success .search_init:focus, .has-success input[type='text']:focus, .has-success input[type='password']:focus, .has-success input[type='entry']:focus, .has-success .dataTables_filter input:focus, .dataTables_filter .has-success input:focus, .has-success select:focus, .has-success input[name="type_code"]:focus, .has-success .batchCom textarea:focus, .batchCom .has-success textarea:focus {
   border-color: #2b542c;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
@@ -4411,14 +4420,14 @@ select[multiple].input-lg {
 }
 
 /* line 2854, bootstrap/css/bootstrap.scss */
-.has-warning .form-control, .has-warning .search_init, .has-warning input[type='text'], .has-warning input[type='password'], .has-warning input[type='entry'], .has-warning .dataTables_filter input, .dataTables_filter .has-warning input, .has-warning select, .has-warning input[name="type_code"] {
+.has-warning .form-control, .has-warning .search_init, .has-warning input[type='text'], .has-warning input[type='password'], .has-warning input[type='entry'], .has-warning .dataTables_filter input, .dataTables_filter .has-warning input, .has-warning select, .has-warning input[name="type_code"], .has-warning .batchCom textarea, .batchCom .has-warning textarea {
   border-color: #8a6d3b;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 /* line 2859, bootstrap/css/bootstrap.scss */
-.has-warning .form-control:focus, .has-warning .search_init:focus, .has-warning input[type='text']:focus, .has-warning input[type='password']:focus, .has-warning input[type='entry']:focus, .has-warning .dataTables_filter input:focus, .dataTables_filter .has-warning input:focus, .has-warning select:focus, .has-warning input[name="type_code"]:focus {
+.has-warning .form-control:focus, .has-warning .search_init:focus, .has-warning input[type='text']:focus, .has-warning input[type='password']:focus, .has-warning input[type='entry']:focus, .has-warning .dataTables_filter input:focus, .dataTables_filter .has-warning input:focus, .has-warning select:focus, .has-warning input[name="type_code"]:focus, .has-warning .batchCom textarea:focus, .batchCom .has-warning textarea:focus {
   border-color: #66512c;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
@@ -4451,14 +4460,14 @@ select[multiple].input-lg {
 }
 
 /* line 2884, bootstrap/css/bootstrap.scss */
-.has-error .form-control, .has-error .search_init, .has-error input[type='text'], .has-error input[type='password'], .has-error input[type='entry'], .has-error .dataTables_filter input, .dataTables_filter .has-error input, .has-error select, .has-error input[name="type_code"] {
+.has-error .form-control, .has-error .search_init, .has-error input[type='text'], .has-error input[type='password'], .has-error input[type='entry'], .has-error .dataTables_filter input, .dataTables_filter .has-error input, .has-error select, .has-error input[name="type_code"], .has-error .batchCom textarea, .batchCom .has-error textarea {
   border-color: #a94442;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 /* line 2889, bootstrap/css/bootstrap.scss */
-.has-error .form-control:focus, .has-error .search_init:focus, .has-error input[type='text']:focus, .has-error input[type='password']:focus, .has-error input[type='entry']:focus, .has-error .dataTables_filter input:focus, .dataTables_filter .has-error input:focus, .has-error select:focus, .has-error input[name="type_code"]:focus {
+.has-error .form-control:focus, .has-error .search_init:focus, .has-error input[type='text']:focus, .has-error input[type='password']:focus, .has-error input[type='entry']:focus, .has-error .dataTables_filter input:focus, .dataTables_filter .has-error input:focus, .has-error select:focus, .has-error input[name="type_code"]:focus, .has-error .batchCom textarea:focus, .batchCom .has-error textarea:focus {
   border-color: #843534;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
@@ -4503,7 +4512,7 @@ select[multiple].input-lg {
   }
 
   /* line 2920, bootstrap/css/bootstrap.scss */
-  .form-inline .form-control, .form-inline .search_init, .form-inline input[type='text'], .form-inline input[type='password'], .form-inline input[type='entry'], .form-inline .dataTables_filter input, .dataTables_filter .form-inline input, .form-inline select, .form-inline input[name="type_code"] {
+  .form-inline .form-control, .form-inline .search_init, .form-inline input[type='text'], .form-inline input[type='password'], .form-inline input[type='entry'], .form-inline .dataTables_filter input, .dataTables_filter .form-inline input, .form-inline select, .form-inline input[name="type_code"], .form-inline .batchCom textarea, .batchCom .form-inline textarea {
     display: inline-block;
     width: auto;
     vertical-align: middle;
@@ -4531,12 +4540,14 @@ select[multiple].input-lg {
   .form-inline .input-group .dataTables_filter input,
   .dataTables_filter .form-inline .input-group input,
   .form-inline .input-group select,
-  .form-inline .input-group input[name="type_code"] {
+  .form-inline .input-group input[name="type_code"],
+  .form-inline .input-group .batchCom textarea,
+  .batchCom .form-inline .input-group textarea {
     width: auto;
   }
 
   /* line 2937, bootstrap/css/bootstrap.scss */
-  .form-inline .input-group > .form-control, .form-inline .input-group > .search_init, .form-inline .input-group > input[type='text'], .form-inline .input-group > input[type='password'], .form-inline .input-group > input[type='entry'], .form-inline .dataTables_filter .input-group > input, .dataTables_filter .form-inline .input-group > input, .form-inline .input-group > select, .form-inline .input-group > input[name="type_code"] {
+  .form-inline .input-group > .form-control, .form-inline .input-group > .search_init, .form-inline .input-group > input[type='text'], .form-inline .input-group > input[type='password'], .form-inline .input-group > input[type='entry'], .form-inline .dataTables_filter .input-group > input, .dataTables_filter .form-inline .input-group > input, .form-inline .input-group > select, .form-inline .input-group > input[name="type_code"], .form-inline .batchCom .input-group > textarea, .batchCom .form-inline .input-group > textarea {
     width: 100%;
   }
 
@@ -6156,7 +6167,7 @@ tbody.collapse.in {
 }
 
 /* line 3878, bootstrap/css/bootstrap.scss */
-.input-group .form-control, .input-group .search_init, .input-group input[type='text'], .input-group input[type='password'], .input-group input[type='entry'], .input-group .dataTables_filter input, .dataTables_filter .input-group input, .input-group select, .input-group input[name="type_code"] {
+.input-group .form-control, .input-group .search_init, .input-group input[type='text'], .input-group input[type='password'], .input-group input[type='entry'], .input-group .dataTables_filter input, .dataTables_filter .input-group input, .input-group select, .input-group input[name="type_code"], .input-group .batchCom textarea, .batchCom .input-group textarea {
   position: relative;
   z-index: 2;
   float: left;
@@ -6165,7 +6176,7 @@ tbody.collapse.in {
 }
 
 /* line 3885, bootstrap/css/bootstrap.scss */
-.input-group-lg > .form-control, .input-group-lg > .search_init, .input-group-lg > input[type='text'], .input-group-lg > input[type='password'], .input-group-lg > input[type='entry'], .dataTables_filter .input-group-lg > input, .input-group-lg > select, .input-group-lg > input[name="type_code"],
+.input-group-lg > .form-control, .input-group-lg > .search_init, .input-group-lg > input[type='text'], .input-group-lg > input[type='password'], .input-group-lg > input[type='entry'], .dataTables_filter .input-group-lg > input, .input-group-lg > select, .input-group-lg > input[name="type_code"], .batchCom .input-group-lg > textarea,
 .input-group-lg > .input-group-addon,
 .input-group-lg > .input-group-btn > .btn {
   height: 46px;
@@ -6176,7 +6187,7 @@ tbody.collapse.in {
 }
 
 /* line 3894, bootstrap/css/bootstrap.scss */
-select.input-group-lg > .form-control, select.input-group-lg > .search_init, select.input-group-lg > input[type='text'], select.input-group-lg > input[type='password'], select.input-group-lg > input[type='entry'], .dataTables_filter select.input-group-lg > input, select.input-group-lg > select, select.input-group-lg > input[name="type_code"],
+select.input-group-lg > .form-control, select.input-group-lg > .search_init, select.input-group-lg > input[type='text'], select.input-group-lg > input[type='password'], select.input-group-lg > input[type='entry'], .dataTables_filter select.input-group-lg > input, select.input-group-lg > select, select.input-group-lg > input[name="type_code"], .batchCom select.input-group-lg > textarea,
 select.input-group-lg > .input-group-addon,
 select.input-group-lg > .input-group-btn > .btn {
   height: 46px;
@@ -6184,7 +6195,7 @@ select.input-group-lg > .input-group-btn > .btn {
 }
 
 /* line 3900, bootstrap/css/bootstrap.scss */
-textarea.input-group-lg > .form-control, textarea.input-group-lg > .search_init, textarea.input-group-lg > input[type='text'], textarea.input-group-lg > input[type='password'], textarea.input-group-lg > input[type='entry'], .dataTables_filter textarea.input-group-lg > input, textarea.input-group-lg > select, textarea.input-group-lg > input[name="type_code"],
+textarea.input-group-lg > .form-control, textarea.input-group-lg > .search_init, textarea.input-group-lg > input[type='text'], textarea.input-group-lg > input[type='password'], textarea.input-group-lg > input[type='entry'], .dataTables_filter textarea.input-group-lg > input, textarea.input-group-lg > select, textarea.input-group-lg > input[name="type_code"], .batchCom textarea.input-group-lg > textarea,
 textarea.input-group-lg > .input-group-addon,
 textarea.input-group-lg > .input-group-btn > .btn,
 select[multiple].input-group-lg > .form-control,
@@ -6195,13 +6206,14 @@ select[multiple].input-group-lg > input[type='entry'],
 .dataTables_filter select[multiple].input-group-lg > input,
 select[multiple].input-group-lg > select,
 select[multiple].input-group-lg > input[name="type_code"],
+.batchCom select[multiple].input-group-lg > textarea,
 select[multiple].input-group-lg > .input-group-addon,
 select[multiple].input-group-lg > .input-group-btn > .btn {
   height: auto;
 }
 
 /* line 3908, bootstrap/css/bootstrap.scss */
-.input-group-sm > .form-control, .input-group-sm > .search_init, .input-group-sm > input[type='text'], .input-group-sm > input[type='password'], .input-group-sm > input[type='entry'], .dataTables_filter .input-group-sm > input, .input-group-sm > select, .input-group-sm > input[name="type_code"],
+.input-group-sm > .form-control, .input-group-sm > .search_init, .input-group-sm > input[type='text'], .input-group-sm > input[type='password'], .input-group-sm > input[type='entry'], .dataTables_filter .input-group-sm > input, .input-group-sm > select, .input-group-sm > input[name="type_code"], .batchCom .input-group-sm > textarea,
 .input-group-sm > .input-group-addon,
 .input-group-sm > .input-group-btn > .btn {
   height: 30px;
@@ -6212,7 +6224,7 @@ select[multiple].input-group-lg > .input-group-btn > .btn {
 }
 
 /* line 3917, bootstrap/css/bootstrap.scss */
-select.input-group-sm > .form-control, select.input-group-sm > .search_init, select.input-group-sm > input[type='text'], select.input-group-sm > input[type='password'], select.input-group-sm > input[type='entry'], .dataTables_filter select.input-group-sm > input, select.input-group-sm > select, select.input-group-sm > input[name="type_code"],
+select.input-group-sm > .form-control, select.input-group-sm > .search_init, select.input-group-sm > input[type='text'], select.input-group-sm > input[type='password'], select.input-group-sm > input[type='entry'], .dataTables_filter select.input-group-sm > input, select.input-group-sm > select, select.input-group-sm > input[name="type_code"], .batchCom select.input-group-sm > textarea,
 select.input-group-sm > .input-group-addon,
 select.input-group-sm > .input-group-btn > .btn {
   height: 30px;
@@ -6220,7 +6232,7 @@ select.input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 3923, bootstrap/css/bootstrap.scss */
-textarea.input-group-sm > .form-control, textarea.input-group-sm > .search_init, textarea.input-group-sm > input[type='text'], textarea.input-group-sm > input[type='password'], textarea.input-group-sm > input[type='entry'], .dataTables_filter textarea.input-group-sm > input, textarea.input-group-sm > select, textarea.input-group-sm > input[name="type_code"],
+textarea.input-group-sm > .form-control, textarea.input-group-sm > .search_init, textarea.input-group-sm > input[type='text'], textarea.input-group-sm > input[type='password'], textarea.input-group-sm > input[type='entry'], .dataTables_filter textarea.input-group-sm > input, textarea.input-group-sm > select, textarea.input-group-sm > input[name="type_code"], .batchCom textarea.input-group-sm > textarea,
 textarea.input-group-sm > .input-group-addon,
 textarea.input-group-sm > .input-group-btn > .btn,
 select[multiple].input-group-sm > .form-control,
@@ -6231,6 +6243,7 @@ select[multiple].input-group-sm > input[type='entry'],
 .dataTables_filter select[multiple].input-group-sm > input,
 select[multiple].input-group-sm > select,
 select[multiple].input-group-sm > input[name="type_code"],
+.batchCom select[multiple].input-group-sm > textarea,
 select[multiple].input-group-sm > .input-group-addon,
 select[multiple].input-group-sm > .input-group-btn > .btn {
   height: auto;
@@ -6247,7 +6260,9 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .input-group .dataTables_filter input,
 .dataTables_filter .input-group input,
 .input-group select,
-.input-group input[name="type_code"] {
+.input-group input[name="type_code"],
+.input-group .batchCom textarea,
+.batchCom .input-group textarea {
   display: table-cell;
 }
 
@@ -6262,7 +6277,9 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .input-group .dataTables_filter input:not(:first-child):not(:last-child),
 .dataTables_filter .input-group input:not(:first-child):not(:last-child),
 .input-group select:not(:first-child):not(:last-child),
-.input-group input[name="type_code"]:not(:first-child):not(:last-child) {
+.input-group input[name="type_code"]:not(:first-child):not(:last-child),
+.input-group .batchCom textarea:not(:first-child):not(:last-child),
+.batchCom .input-group textarea:not(:first-child):not(:last-child) {
   border-radius: 0;
 }
 
@@ -6308,7 +6325,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 3972, bootstrap/css/bootstrap.scss */
-.input-group .form-control:first-child, .input-group .search_init:first-child, .input-group input[type='text']:first-child, .input-group input[type='password']:first-child, .input-group input[type='entry']:first-child, .input-group .dataTables_filter input:first-child, .dataTables_filter .input-group input:first-child, .input-group select:first-child, .input-group input[name="type_code"]:first-child,
+.input-group .form-control:first-child, .input-group .search_init:first-child, .input-group input[type='text']:first-child, .input-group input[type='password']:first-child, .input-group input[type='entry']:first-child, .input-group .dataTables_filter input:first-child, .dataTables_filter .input-group input:first-child, .input-group select:first-child, .input-group input[name="type_code"]:first-child, .input-group .batchCom textarea:first-child, .batchCom .input-group textarea:first-child,
 .input-group-addon:first-child,
 .input-group-btn:first-child > .btn,
 .input-group-btn:first-child > .btn-group > .btn,
@@ -6325,7 +6342,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 3985, bootstrap/css/bootstrap.scss */
-.input-group .form-control:last-child, .input-group .search_init:last-child, .input-group input[type='text']:last-child, .input-group input[type='password']:last-child, .input-group input[type='entry']:last-child, .input-group .dataTables_filter input:last-child, .dataTables_filter .input-group input:last-child, .input-group select:last-child, .input-group input[name="type_code"]:last-child,
+.input-group .form-control:last-child, .input-group .search_init:last-child, .input-group input[type='text']:last-child, .input-group input[type='password']:last-child, .input-group input[type='entry']:last-child, .input-group .dataTables_filter input:last-child, .dataTables_filter .input-group input:last-child, .input-group select:last-child, .input-group input[name="type_code"]:last-child, .input-group .batchCom textarea:last-child, .batchCom .input-group textarea:last-child,
 .input-group-addon:last-child,
 .input-group-btn:last-child > .btn,
 .input-group-btn:last-child > .btn-group > .btn,
@@ -6989,7 +7006,7 @@ ul.tabNav .open > a:focus,
   }
 
   /* line 4433, bootstrap/css/bootstrap.scss */
-  .navbar-form .form-control, .navbar-form .search_init, .navbar-form input[type='text'], .navbar-form input[type='password'], .navbar-form input[type='entry'], .navbar-form .dataTables_filter input, .dataTables_filter .navbar-form input, .navbar-form select, .navbar-form input[name="type_code"] {
+  .navbar-form .form-control, .navbar-form .search_init, .navbar-form input[type='text'], .navbar-form input[type='password'], .navbar-form input[type='entry'], .navbar-form .dataTables_filter input, .dataTables_filter .navbar-form input, .navbar-form select, .navbar-form input[name="type_code"], .navbar-form .batchCom textarea, .batchCom .navbar-form textarea {
     display: inline-block;
     width: auto;
     vertical-align: middle;
@@ -7017,12 +7034,14 @@ ul.tabNav .open > a:focus,
   .navbar-form .input-group .dataTables_filter input,
   .dataTables_filter .navbar-form .input-group input,
   .navbar-form .input-group select,
-  .navbar-form .input-group input[name="type_code"] {
+  .navbar-form .input-group input[name="type_code"],
+  .navbar-form .input-group .batchCom textarea,
+  .batchCom .navbar-form .input-group textarea {
     width: auto;
   }
 
   /* line 4450, bootstrap/css/bootstrap.scss */
-  .navbar-form .input-group > .form-control, .navbar-form .input-group > .search_init, .navbar-form .input-group > input[type='text'], .navbar-form .input-group > input[type='password'], .navbar-form .input-group > input[type='entry'], .navbar-form .dataTables_filter .input-group > input, .dataTables_filter .navbar-form .input-group > input, .navbar-form .input-group > select, .navbar-form .input-group > input[name="type_code"] {
+  .navbar-form .input-group > .form-control, .navbar-form .input-group > .search_init, .navbar-form .input-group > input[type='text'], .navbar-form .input-group > input[type='password'], .navbar-form .input-group > input[type='entry'], .navbar-form .dataTables_filter .input-group > input, .dataTables_filter .navbar-form .input-group > input, .navbar-form .input-group > select, .navbar-form .input-group > input[name="type_code"], .navbar-form .batchCom .input-group > textarea, .batchCom .navbar-form .input-group > textarea {
     width: 100%;
   }
 
@@ -8496,7 +8515,14 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5509, bootstrap/css/bootstrap.scss */
-.panel-heading {
+.panel-heading, #objTreeMenu_1_node_1,
+#objTreeMenu_1_node_1_1,
+#objTreeMenu_1_node_1_2,
+#objTreeMenu_1_node_1_3,
+#objTreeMenu_1_node_1_4,
+#objTreeMenu_1_node_1_5,
+#objTreeMenu_1_node_1_6,
+#objTreeMenu_1_node_1_7 {
   padding: 10px 15px;
   border-bottom: 1px solid transparent;
   border-top-left-radius: 3px;
@@ -8504,7 +8530,14 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5515, bootstrap/css/bootstrap.scss */
-.panel-heading > .dropdown .dropdown-toggle {
+.panel-heading > .dropdown .dropdown-toggle, #objTreeMenu_1_node_1 > .dropdown .dropdown-toggle,
+#objTreeMenu_1_node_1_1 > .dropdown .dropdown-toggle,
+#objTreeMenu_1_node_1_2 > .dropdown .dropdown-toggle,
+#objTreeMenu_1_node_1_3 > .dropdown .dropdown-toggle,
+#objTreeMenu_1_node_1_4 > .dropdown .dropdown-toggle,
+#objTreeMenu_1_node_1_5 > .dropdown .dropdown-toggle,
+#objTreeMenu_1_node_1_6 > .dropdown .dropdown-toggle,
+#objTreeMenu_1_node_1_7 > .dropdown .dropdown-toggle {
   color: inherit;
 }
 
@@ -8564,13 +8597,27 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5559, bootstrap/css/bootstrap.scss */
-.panel > .panel-heading + .panel-collapse > .list-group .list-group-item:first-child {
+.panel > .panel-heading + .panel-collapse > .list-group .list-group-item:first-child, .panel > #objTreeMenu_1_node_1 + .panel-collapse > .list-group .list-group-item:first-child,
+.panel > #objTreeMenu_1_node_1_1 + .panel-collapse > .list-group .list-group-item:first-child,
+.panel > #objTreeMenu_1_node_1_2 + .panel-collapse > .list-group .list-group-item:first-child,
+.panel > #objTreeMenu_1_node_1_3 + .panel-collapse > .list-group .list-group-item:first-child,
+.panel > #objTreeMenu_1_node_1_4 + .panel-collapse > .list-group .list-group-item:first-child,
+.panel > #objTreeMenu_1_node_1_5 + .panel-collapse > .list-group .list-group-item:first-child,
+.panel > #objTreeMenu_1_node_1_6 + .panel-collapse > .list-group .list-group-item:first-child,
+.panel > #objTreeMenu_1_node_1_7 + .panel-collapse > .list-group .list-group-item:first-child {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
 
 /* line 5563, bootstrap/css/bootstrap.scss */
-.panel-heading + .list-group .list-group-item:first-child {
+.panel-heading + .list-group .list-group-item:first-child, #objTreeMenu_1_node_1 + .list-group .list-group-item:first-child,
+#objTreeMenu_1_node_1_1 + .list-group .list-group-item:first-child,
+#objTreeMenu_1_node_1_2 + .list-group .list-group-item:first-child,
+#objTreeMenu_1_node_1_3 + .list-group .list-group-item:first-child,
+#objTreeMenu_1_node_1_4 + .list-group .list-group-item:first-child,
+#objTreeMenu_1_node_1_5 + .list-group .list-group-item:first-child,
+#objTreeMenu_1_node_1_6 + .list-group .list-group-item:first-child,
+#objTreeMenu_1_node_1_7 + .list-group .list-group-item:first-child {
   border-top-width: 0;
 }
 
@@ -8773,13 +8820,35 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5720, bootstrap/css/bootstrap.scss */
-.panel-group .panel-heading {
+.panel-group .panel-heading, .panel-group #objTreeMenu_1_node_1,
+.panel-group #objTreeMenu_1_node_1_1,
+.panel-group #objTreeMenu_1_node_1_2,
+.panel-group #objTreeMenu_1_node_1_3,
+.panel-group #objTreeMenu_1_node_1_4,
+.panel-group #objTreeMenu_1_node_1_5,
+.panel-group #objTreeMenu_1_node_1_6,
+.panel-group #objTreeMenu_1_node_1_7 {
   border-bottom: 0;
 }
 
 /* line 5723, bootstrap/css/bootstrap.scss */
-.panel-group .panel-heading + .panel-collapse > .panel-body,
-.panel-group .panel-heading + .panel-collapse > .list-group {
+.panel-group .panel-heading + .panel-collapse > .panel-body, .panel-group #objTreeMenu_1_node_1 + .panel-collapse > .panel-body,
+.panel-group #objTreeMenu_1_node_1_1 + .panel-collapse > .panel-body,
+.panel-group #objTreeMenu_1_node_1_2 + .panel-collapse > .panel-body,
+.panel-group #objTreeMenu_1_node_1_3 + .panel-collapse > .panel-body,
+.panel-group #objTreeMenu_1_node_1_4 + .panel-collapse > .panel-body,
+.panel-group #objTreeMenu_1_node_1_5 + .panel-collapse > .panel-body,
+.panel-group #objTreeMenu_1_node_1_6 + .panel-collapse > .panel-body,
+.panel-group #objTreeMenu_1_node_1_7 + .panel-collapse > .panel-body,
+.panel-group .panel-heading + .panel-collapse > .list-group,
+.panel-group #objTreeMenu_1_node_1 + .panel-collapse > .list-group,
+.panel-group #objTreeMenu_1_node_1_1 + .panel-collapse > .list-group,
+.panel-group #objTreeMenu_1_node_1_2 + .panel-collapse > .list-group,
+.panel-group #objTreeMenu_1_node_1_3 + .panel-collapse > .list-group,
+.panel-group #objTreeMenu_1_node_1_4 + .panel-collapse > .list-group,
+.panel-group #objTreeMenu_1_node_1_5 + .panel-collapse > .list-group,
+.panel-group #objTreeMenu_1_node_1_6 + .panel-collapse > .list-group,
+.panel-group #objTreeMenu_1_node_1_7 + .panel-collapse > .list-group {
   border-top: 1px solid #ddd;
 }
 
@@ -8799,19 +8868,40 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5736, bootstrap/css/bootstrap.scss */
-.panel-default > .panel-heading {
+.panel-default > .panel-heading, .panel-default > #objTreeMenu_1_node_1,
+.panel-default > #objTreeMenu_1_node_1_1,
+.panel-default > #objTreeMenu_1_node_1_2,
+.panel-default > #objTreeMenu_1_node_1_3,
+.panel-default > #objTreeMenu_1_node_1_4,
+.panel-default > #objTreeMenu_1_node_1_5,
+.panel-default > #objTreeMenu_1_node_1_6,
+.panel-default > #objTreeMenu_1_node_1_7 {
   color: #333;
   background-color: #f5f5f5;
   border-color: #ddd;
 }
 
 /* line 5741, bootstrap/css/bootstrap.scss */
-.panel-default > .panel-heading + .panel-collapse > .panel-body {
+.panel-default > .panel-heading + .panel-collapse > .panel-body, .panel-default > #objTreeMenu_1_node_1 + .panel-collapse > .panel-body,
+.panel-default > #objTreeMenu_1_node_1_1 + .panel-collapse > .panel-body,
+.panel-default > #objTreeMenu_1_node_1_2 + .panel-collapse > .panel-body,
+.panel-default > #objTreeMenu_1_node_1_3 + .panel-collapse > .panel-body,
+.panel-default > #objTreeMenu_1_node_1_4 + .panel-collapse > .panel-body,
+.panel-default > #objTreeMenu_1_node_1_5 + .panel-collapse > .panel-body,
+.panel-default > #objTreeMenu_1_node_1_6 + .panel-collapse > .panel-body,
+.panel-default > #objTreeMenu_1_node_1_7 + .panel-collapse > .panel-body {
   border-top-color: #ddd;
 }
 
 /* line 5744, bootstrap/css/bootstrap.scss */
-.panel-default > .panel-heading .badge {
+.panel-default > .panel-heading .badge, .panel-default > #objTreeMenu_1_node_1 .badge,
+.panel-default > #objTreeMenu_1_node_1_1 .badge,
+.panel-default > #objTreeMenu_1_node_1_2 .badge,
+.panel-default > #objTreeMenu_1_node_1_3 .badge,
+.panel-default > #objTreeMenu_1_node_1_4 .badge,
+.panel-default > #objTreeMenu_1_node_1_5 .badge,
+.panel-default > #objTreeMenu_1_node_1_6 .badge,
+.panel-default > #objTreeMenu_1_node_1_7 .badge {
   color: #f5f5f5;
   background-color: #333;
 }
@@ -8827,19 +8917,40 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5754, bootstrap/css/bootstrap.scss */
-.panel-primary > .panel-heading {
+.panel-primary > .panel-heading, .panel-primary > #objTreeMenu_1_node_1,
+.panel-primary > #objTreeMenu_1_node_1_1,
+.panel-primary > #objTreeMenu_1_node_1_2,
+.panel-primary > #objTreeMenu_1_node_1_3,
+.panel-primary > #objTreeMenu_1_node_1_4,
+.panel-primary > #objTreeMenu_1_node_1_5,
+.panel-primary > #objTreeMenu_1_node_1_6,
+.panel-primary > #objTreeMenu_1_node_1_7 {
   color: #fff;
   background-color: #337ab7;
   border-color: #337ab7;
 }
 
 /* line 5759, bootstrap/css/bootstrap.scss */
-.panel-primary > .panel-heading + .panel-collapse > .panel-body {
+.panel-primary > .panel-heading + .panel-collapse > .panel-body, .panel-primary > #objTreeMenu_1_node_1 + .panel-collapse > .panel-body,
+.panel-primary > #objTreeMenu_1_node_1_1 + .panel-collapse > .panel-body,
+.panel-primary > #objTreeMenu_1_node_1_2 + .panel-collapse > .panel-body,
+.panel-primary > #objTreeMenu_1_node_1_3 + .panel-collapse > .panel-body,
+.panel-primary > #objTreeMenu_1_node_1_4 + .panel-collapse > .panel-body,
+.panel-primary > #objTreeMenu_1_node_1_5 + .panel-collapse > .panel-body,
+.panel-primary > #objTreeMenu_1_node_1_6 + .panel-collapse > .panel-body,
+.panel-primary > #objTreeMenu_1_node_1_7 + .panel-collapse > .panel-body {
   border-top-color: #337ab7;
 }
 
 /* line 5762, bootstrap/css/bootstrap.scss */
-.panel-primary > .panel-heading .badge {
+.panel-primary > .panel-heading .badge, .panel-primary > #objTreeMenu_1_node_1 .badge,
+.panel-primary > #objTreeMenu_1_node_1_1 .badge,
+.panel-primary > #objTreeMenu_1_node_1_2 .badge,
+.panel-primary > #objTreeMenu_1_node_1_3 .badge,
+.panel-primary > #objTreeMenu_1_node_1_4 .badge,
+.panel-primary > #objTreeMenu_1_node_1_5 .badge,
+.panel-primary > #objTreeMenu_1_node_1_6 .badge,
+.panel-primary > #objTreeMenu_1_node_1_7 .badge {
   color: #337ab7;
   background-color: #fff;
 }
@@ -8855,19 +8966,40 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5772, bootstrap/css/bootstrap.scss */
-.panel-success > .panel-heading {
+.panel-success > .panel-heading, .panel-success > #objTreeMenu_1_node_1,
+.panel-success > #objTreeMenu_1_node_1_1,
+.panel-success > #objTreeMenu_1_node_1_2,
+.panel-success > #objTreeMenu_1_node_1_3,
+.panel-success > #objTreeMenu_1_node_1_4,
+.panel-success > #objTreeMenu_1_node_1_5,
+.panel-success > #objTreeMenu_1_node_1_6,
+.panel-success > #objTreeMenu_1_node_1_7 {
   color: #3c763d;
   background-color: #dff0d8;
   border-color: #d6e9c6;
 }
 
 /* line 5777, bootstrap/css/bootstrap.scss */
-.panel-success > .panel-heading + .panel-collapse > .panel-body {
+.panel-success > .panel-heading + .panel-collapse > .panel-body, .panel-success > #objTreeMenu_1_node_1 + .panel-collapse > .panel-body,
+.panel-success > #objTreeMenu_1_node_1_1 + .panel-collapse > .panel-body,
+.panel-success > #objTreeMenu_1_node_1_2 + .panel-collapse > .panel-body,
+.panel-success > #objTreeMenu_1_node_1_3 + .panel-collapse > .panel-body,
+.panel-success > #objTreeMenu_1_node_1_4 + .panel-collapse > .panel-body,
+.panel-success > #objTreeMenu_1_node_1_5 + .panel-collapse > .panel-body,
+.panel-success > #objTreeMenu_1_node_1_6 + .panel-collapse > .panel-body,
+.panel-success > #objTreeMenu_1_node_1_7 + .panel-collapse > .panel-body {
   border-top-color: #d6e9c6;
 }
 
 /* line 5780, bootstrap/css/bootstrap.scss */
-.panel-success > .panel-heading .badge {
+.panel-success > .panel-heading .badge, .panel-success > #objTreeMenu_1_node_1 .badge,
+.panel-success > #objTreeMenu_1_node_1_1 .badge,
+.panel-success > #objTreeMenu_1_node_1_2 .badge,
+.panel-success > #objTreeMenu_1_node_1_3 .badge,
+.panel-success > #objTreeMenu_1_node_1_4 .badge,
+.panel-success > #objTreeMenu_1_node_1_5 .badge,
+.panel-success > #objTreeMenu_1_node_1_6 .badge,
+.panel-success > #objTreeMenu_1_node_1_7 .badge {
   color: #dff0d8;
   background-color: #3c763d;
 }
@@ -8883,19 +9015,40 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5790, bootstrap/css/bootstrap.scss */
-.panel-info > .panel-heading {
+.panel-info > .panel-heading, .panel-info > #objTreeMenu_1_node_1,
+.panel-info > #objTreeMenu_1_node_1_1,
+.panel-info > #objTreeMenu_1_node_1_2,
+.panel-info > #objTreeMenu_1_node_1_3,
+.panel-info > #objTreeMenu_1_node_1_4,
+.panel-info > #objTreeMenu_1_node_1_5,
+.panel-info > #objTreeMenu_1_node_1_6,
+.panel-info > #objTreeMenu_1_node_1_7 {
   color: #31708f;
   background-color: #d9edf7;
   border-color: #bce8f1;
 }
 
 /* line 5795, bootstrap/css/bootstrap.scss */
-.panel-info > .panel-heading + .panel-collapse > .panel-body {
+.panel-info > .panel-heading + .panel-collapse > .panel-body, .panel-info > #objTreeMenu_1_node_1 + .panel-collapse > .panel-body,
+.panel-info > #objTreeMenu_1_node_1_1 + .panel-collapse > .panel-body,
+.panel-info > #objTreeMenu_1_node_1_2 + .panel-collapse > .panel-body,
+.panel-info > #objTreeMenu_1_node_1_3 + .panel-collapse > .panel-body,
+.panel-info > #objTreeMenu_1_node_1_4 + .panel-collapse > .panel-body,
+.panel-info > #objTreeMenu_1_node_1_5 + .panel-collapse > .panel-body,
+.panel-info > #objTreeMenu_1_node_1_6 + .panel-collapse > .panel-body,
+.panel-info > #objTreeMenu_1_node_1_7 + .panel-collapse > .panel-body {
   border-top-color: #bce8f1;
 }
 
 /* line 5798, bootstrap/css/bootstrap.scss */
-.panel-info > .panel-heading .badge {
+.panel-info > .panel-heading .badge, .panel-info > #objTreeMenu_1_node_1 .badge,
+.panel-info > #objTreeMenu_1_node_1_1 .badge,
+.panel-info > #objTreeMenu_1_node_1_2 .badge,
+.panel-info > #objTreeMenu_1_node_1_3 .badge,
+.panel-info > #objTreeMenu_1_node_1_4 .badge,
+.panel-info > #objTreeMenu_1_node_1_5 .badge,
+.panel-info > #objTreeMenu_1_node_1_6 .badge,
+.panel-info > #objTreeMenu_1_node_1_7 .badge {
   color: #d9edf7;
   background-color: #31708f;
 }
@@ -8911,19 +9064,40 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5808, bootstrap/css/bootstrap.scss */
-.panel-warning > .panel-heading {
+.panel-warning > .panel-heading, .panel-warning > #objTreeMenu_1_node_1,
+.panel-warning > #objTreeMenu_1_node_1_1,
+.panel-warning > #objTreeMenu_1_node_1_2,
+.panel-warning > #objTreeMenu_1_node_1_3,
+.panel-warning > #objTreeMenu_1_node_1_4,
+.panel-warning > #objTreeMenu_1_node_1_5,
+.panel-warning > #objTreeMenu_1_node_1_6,
+.panel-warning > #objTreeMenu_1_node_1_7 {
   color: #8a6d3b;
   background-color: #fcf8e3;
   border-color: #faebcc;
 }
 
 /* line 5813, bootstrap/css/bootstrap.scss */
-.panel-warning > .panel-heading + .panel-collapse > .panel-body {
+.panel-warning > .panel-heading + .panel-collapse > .panel-body, .panel-warning > #objTreeMenu_1_node_1 + .panel-collapse > .panel-body,
+.panel-warning > #objTreeMenu_1_node_1_1 + .panel-collapse > .panel-body,
+.panel-warning > #objTreeMenu_1_node_1_2 + .panel-collapse > .panel-body,
+.panel-warning > #objTreeMenu_1_node_1_3 + .panel-collapse > .panel-body,
+.panel-warning > #objTreeMenu_1_node_1_4 + .panel-collapse > .panel-body,
+.panel-warning > #objTreeMenu_1_node_1_5 + .panel-collapse > .panel-body,
+.panel-warning > #objTreeMenu_1_node_1_6 + .panel-collapse > .panel-body,
+.panel-warning > #objTreeMenu_1_node_1_7 + .panel-collapse > .panel-body {
   border-top-color: #faebcc;
 }
 
 /* line 5816, bootstrap/css/bootstrap.scss */
-.panel-warning > .panel-heading .badge {
+.panel-warning > .panel-heading .badge, .panel-warning > #objTreeMenu_1_node_1 .badge,
+.panel-warning > #objTreeMenu_1_node_1_1 .badge,
+.panel-warning > #objTreeMenu_1_node_1_2 .badge,
+.panel-warning > #objTreeMenu_1_node_1_3 .badge,
+.panel-warning > #objTreeMenu_1_node_1_4 .badge,
+.panel-warning > #objTreeMenu_1_node_1_5 .badge,
+.panel-warning > #objTreeMenu_1_node_1_6 .badge,
+.panel-warning > #objTreeMenu_1_node_1_7 .badge {
   color: #fcf8e3;
   background-color: #8a6d3b;
 }
@@ -8939,19 +9113,40 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5826, bootstrap/css/bootstrap.scss */
-.panel-danger > .panel-heading {
+.panel-danger > .panel-heading, .panel-danger > #objTreeMenu_1_node_1,
+.panel-danger > #objTreeMenu_1_node_1_1,
+.panel-danger > #objTreeMenu_1_node_1_2,
+.panel-danger > #objTreeMenu_1_node_1_3,
+.panel-danger > #objTreeMenu_1_node_1_4,
+.panel-danger > #objTreeMenu_1_node_1_5,
+.panel-danger > #objTreeMenu_1_node_1_6,
+.panel-danger > #objTreeMenu_1_node_1_7 {
   color: #a94442;
   background-color: #f2dede;
   border-color: #ebccd1;
 }
 
 /* line 5831, bootstrap/css/bootstrap.scss */
-.panel-danger > .panel-heading + .panel-collapse > .panel-body {
+.panel-danger > .panel-heading + .panel-collapse > .panel-body, .panel-danger > #objTreeMenu_1_node_1 + .panel-collapse > .panel-body,
+.panel-danger > #objTreeMenu_1_node_1_1 + .panel-collapse > .panel-body,
+.panel-danger > #objTreeMenu_1_node_1_2 + .panel-collapse > .panel-body,
+.panel-danger > #objTreeMenu_1_node_1_3 + .panel-collapse > .panel-body,
+.panel-danger > #objTreeMenu_1_node_1_4 + .panel-collapse > .panel-body,
+.panel-danger > #objTreeMenu_1_node_1_5 + .panel-collapse > .panel-body,
+.panel-danger > #objTreeMenu_1_node_1_6 + .panel-collapse > .panel-body,
+.panel-danger > #objTreeMenu_1_node_1_7 + .panel-collapse > .panel-body {
   border-top-color: #ebccd1;
 }
 
 /* line 5834, bootstrap/css/bootstrap.scss */
-.panel-danger > .panel-heading .badge {
+.panel-danger > .panel-heading .badge, .panel-danger > #objTreeMenu_1_node_1 .badge,
+.panel-danger > #objTreeMenu_1_node_1_1 .badge,
+.panel-danger > #objTreeMenu_1_node_1_2 .badge,
+.panel-danger > #objTreeMenu_1_node_1_3 .badge,
+.panel-danger > #objTreeMenu_1_node_1_4 .badge,
+.panel-danger > #objTreeMenu_1_node_1_5 .badge,
+.panel-danger > #objTreeMenu_1_node_1_6 .badge,
+.panel-danger > #objTreeMenu_1_node_1_7 .badge {
   color: #f2dede;
   background-color: #a94442;
 }
@@ -11202,7 +11397,14 @@ fieldset[disabled] .btn-danger.active {
 }
 
 /* line 528, bootstrap/css/bootstrap-theme.scss */
-.panel-default > .panel-heading {
+.panel-default > .panel-heading, .panel-default > #objTreeMenu_1_node_1,
+.panel-default > #objTreeMenu_1_node_1_1,
+.panel-default > #objTreeMenu_1_node_1_2,
+.panel-default > #objTreeMenu_1_node_1_3,
+.panel-default > #objTreeMenu_1_node_1_4,
+.panel-default > #objTreeMenu_1_node_1_5,
+.panel-default > #objTreeMenu_1_node_1_6,
+.panel-default > #objTreeMenu_1_node_1_7 {
   background-image: -webkit-linear-gradient(top, #f5f5f5 0%, #e8e8e8 100%);
   background-image: -o-linear-gradient(top, #f5f5f5 0%, #e8e8e8 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f5f5f5), to(#e8e8e8));
@@ -11212,7 +11414,14 @@ fieldset[disabled] .btn-danger.active {
 }
 
 /* line 536, bootstrap/css/bootstrap-theme.scss */
-.panel-primary > .panel-heading {
+.panel-primary > .panel-heading, .panel-primary > #objTreeMenu_1_node_1,
+.panel-primary > #objTreeMenu_1_node_1_1,
+.panel-primary > #objTreeMenu_1_node_1_2,
+.panel-primary > #objTreeMenu_1_node_1_3,
+.panel-primary > #objTreeMenu_1_node_1_4,
+.panel-primary > #objTreeMenu_1_node_1_5,
+.panel-primary > #objTreeMenu_1_node_1_6,
+.panel-primary > #objTreeMenu_1_node_1_7 {
   background-image: -webkit-linear-gradient(top, #337ab7 0%, #2e6da4 100%);
   background-image: -o-linear-gradient(top, #337ab7 0%, #2e6da4 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#337ab7), to(#2e6da4));
@@ -11222,7 +11431,14 @@ fieldset[disabled] .btn-danger.active {
 }
 
 /* line 544, bootstrap/css/bootstrap-theme.scss */
-.panel-success > .panel-heading {
+.panel-success > .panel-heading, .panel-success > #objTreeMenu_1_node_1,
+.panel-success > #objTreeMenu_1_node_1_1,
+.panel-success > #objTreeMenu_1_node_1_2,
+.panel-success > #objTreeMenu_1_node_1_3,
+.panel-success > #objTreeMenu_1_node_1_4,
+.panel-success > #objTreeMenu_1_node_1_5,
+.panel-success > #objTreeMenu_1_node_1_6,
+.panel-success > #objTreeMenu_1_node_1_7 {
   background-image: -webkit-linear-gradient(top, #dff0d8 0%, #d0e9c6 100%);
   background-image: -o-linear-gradient(top, #dff0d8 0%, #d0e9c6 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#dff0d8), to(#d0e9c6));
@@ -11232,7 +11448,14 @@ fieldset[disabled] .btn-danger.active {
 }
 
 /* line 552, bootstrap/css/bootstrap-theme.scss */
-.panel-info > .panel-heading {
+.panel-info > .panel-heading, .panel-info > #objTreeMenu_1_node_1,
+.panel-info > #objTreeMenu_1_node_1_1,
+.panel-info > #objTreeMenu_1_node_1_2,
+.panel-info > #objTreeMenu_1_node_1_3,
+.panel-info > #objTreeMenu_1_node_1_4,
+.panel-info > #objTreeMenu_1_node_1_5,
+.panel-info > #objTreeMenu_1_node_1_6,
+.panel-info > #objTreeMenu_1_node_1_7 {
   background-image: -webkit-linear-gradient(top, #d9edf7 0%, #c4e3f3 100%);
   background-image: -o-linear-gradient(top, #d9edf7 0%, #c4e3f3 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#d9edf7), to(#c4e3f3));
@@ -11242,7 +11465,14 @@ fieldset[disabled] .btn-danger.active {
 }
 
 /* line 560, bootstrap/css/bootstrap-theme.scss */
-.panel-warning > .panel-heading {
+.panel-warning > .panel-heading, .panel-warning > #objTreeMenu_1_node_1,
+.panel-warning > #objTreeMenu_1_node_1_1,
+.panel-warning > #objTreeMenu_1_node_1_2,
+.panel-warning > #objTreeMenu_1_node_1_3,
+.panel-warning > #objTreeMenu_1_node_1_4,
+.panel-warning > #objTreeMenu_1_node_1_5,
+.panel-warning > #objTreeMenu_1_node_1_6,
+.panel-warning > #objTreeMenu_1_node_1_7 {
   background-image: -webkit-linear-gradient(top, #fcf8e3 0%, #faf2cc 100%);
   background-image: -o-linear-gradient(top, #fcf8e3 0%, #faf2cc 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#fcf8e3), to(#faf2cc));
@@ -11252,7 +11482,14 @@ fieldset[disabled] .btn-danger.active {
 }
 
 /* line 568, bootstrap/css/bootstrap-theme.scss */
-.panel-danger > .panel-heading {
+.panel-danger > .panel-heading, .panel-danger > #objTreeMenu_1_node_1,
+.panel-danger > #objTreeMenu_1_node_1_1,
+.panel-danger > #objTreeMenu_1_node_1_2,
+.panel-danger > #objTreeMenu_1_node_1_3,
+.panel-danger > #objTreeMenu_1_node_1_4,
+.panel-danger > #objTreeMenu_1_node_1_5,
+.panel-danger > #objTreeMenu_1_node_1_6,
+.panel-danger > #objTreeMenu_1_node_1_7 {
   background-image: -webkit-linear-gradient(top, #f2dede 0%, #ebcccc 100%);
   background-image: -o-linear-gradient(top, #f2dede 0%, #ebcccc 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f2dede), to(#ebcccc));
@@ -11569,21 +11806,22 @@ a:hover {
 #addressbook_list tr.search {
   font-size: 9pt;
   font-weight: bold;
+  background: #D0E9C6;
 }
 
-/* line 205, bootstrap/sass/style_bootstrap.scss */
+/* line 206, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.head {
   font-size: 10pt;
   background-color: #cccccc;
   font-weight: bold;
 }
 
-/* line 210, bootstrap/sass/style_bootstrap.scss */
+/* line 211, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.detail {
   font-size: 10pt;
 }
 
-/* line 213, bootstrap/sass/style_bootstrap.scss */
+/* line 214, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list .inputtext {
   font-family: monospace;
   font-size: 9pt;
@@ -11594,7 +11832,7 @@ a:hover {
   background-color: transparent;
 }
 
-/* line 222, bootstrap/sass/style_bootstrap.scss */
+/* line 223, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list .button {
   font-family: sans-serif;
   font-size: 8pt;
@@ -11602,43 +11840,43 @@ a:hover {
 }
 
 /* styles taken out of templates/report/general_default.html */
-/* line 229, bootstrap/sass/style_bootstrap.scss */
+/* line 230, bootstrap/sass/style_bootstrap.scss */
 #reports_list td {
   font-size: 8pt;
   font-family: helvetica;
 }
 
-/* line 233, bootstrap/sass/style_bootstrap.scss */
+/* line 234, bootstrap/sass/style_bootstrap.scss */
 #reports_list a {
   font-size: 8pt;
   font-family: helvetica;
 }
 
 /* styles taken out of templates/documents/general_list.html */
-/* line 239, bootstrap/sass/style_bootstrap.scss */
+/* line 240, bootstrap/sass/style_bootstrap.scss */
 #documents_list td {
   font-size: 8pt;
   font-family: helvetica;
 }
 
-/* line 243, bootstrap/sass/style_bootstrap.scss */
+/* line 244, bootstrap/sass/style_bootstrap.scss */
 #documents_list a {
   font-size: 8pt;
   font-family: helvetica;
 }
 
-/* line 247, bootstrap/sass/style_bootstrap.scss */
+/* line 248, bootstrap/sass/style_bootstrap.scss */
 #documents_list .treeMenuDefault {
   font-style: italic;
 }
 
-/* line 250, bootstrap/sass/style_bootstrap.scss */
+/* line 251, bootstrap/sass/style_bootstrap.scss */
 #documents_list .treeMenuBold {
   font-style: italic;
   font-weight: bold;
 }
 
-/* line 254, bootstrap/sass/style_bootstrap.scss */
+/* line 255, bootstrap/sass/style_bootstrap.scss */
 #documents_list {
   width: 29%;
   height: 95%;
@@ -11647,7 +11885,7 @@ a:hover {
   border-right: dashed 1px;
 }
 
-/* line 261, bootstrap/sass/style_bootstrap.scss */
+/* line 262, bootstrap/sass/style_bootstrap.scss */
 #documents_actions {
   padding-top: 10px;
   width: 70%;
@@ -11656,7 +11894,7 @@ a:hover {
   overflow: auto;
 }
 
-/* line 268, bootstrap/sass/style_bootstrap.scss */
+/* line 269, bootstrap/sass/style_bootstrap.scss */
 #documents_actions iframe {
   display: inline;
   border: none;
@@ -11665,13 +11903,13 @@ a:hover {
   overflow: auto;
 }
 
-/* line 275, bootstrap/sass/style_bootstrap.scss */
+/* line 276, bootstrap/sass/style_bootstrap.scss */
 #documents_actions form {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 278, bootstrap/sass/style_bootstrap.scss */
+/* line 279, bootstrap/sass/style_bootstrap.scss */
 #documents_actions table {
   width: 100%;
   height: 95%;
@@ -11682,7 +11920,7 @@ a:hover {
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
  *============================================================*/
-/* line 288, bootstrap/sass/style_bootstrap.scss */
+/* line 289, bootstrap/sass/style_bootstrap.scss */
 #DEM .groupname {
   font-weight: bold;
   color: #080;
@@ -11691,7 +11929,7 @@ a:hover {
   vertical-align: top;
 }
 
-/* line 295, bootstrap/sass/style_bootstrap.scss */
+/* line 296, bootstrap/sass/style_bootstrap.scss */
 #DEM .label {
   font-weight: bold;
   font-size: 0.8em;
@@ -11699,7 +11937,7 @@ a:hover {
   text-align: right;
 }
 
-/* line 301, bootstrap/sass/style_bootstrap.scss */
+/* line 302, bootstrap/sass/style_bootstrap.scss */
 #DEM .data {
   font-size: 0.8em;
   vertical-align: top;
@@ -11709,7 +11947,7 @@ a:hover {
 }
 
 /* Patient History */
-/* line 310, bootstrap/sass/style_bootstrap.scss */
+/* line 311, bootstrap/sass/style_bootstrap.scss */
 #HIS .groupname {
   font-weight: bold;
   color: #080;
@@ -11719,14 +11957,14 @@ a:hover {
   height: 2em;
 }
 
-/* line 318, bootstrap/sass/style_bootstrap.scss */
+/* line 319, bootstrap/sass/style_bootstrap.scss */
 #HIS .label {
   font-weight: bold;
   font-size: 9pt;
   vertical-align: top;
 }
 
-/* line 323, bootstrap/sass/style_bootstrap.scss */
+/* line 324, bootstrap/sass/style_bootstrap.scss */
 #HIS .data {
   font-size: 9pt;
   vertical-align: top;
@@ -11738,27 +11976,27 @@ a:hover {
  * Patient Notes
  * seen in the patient summary and notes screens
  *============================================================*/
-/* line 335, bootstrap/sass/style_bootstrap.scss */
+/* line 336, bootstrap/sass/style_bootstrap.scss */
 #pnotes .billing {
   background-color: #dfd;
 }
 
-/* line 339, bootstrap/sass/style_bootstrap.scss */
+/* line 340, bootstrap/sass/style_bootstrap.scss */
 #pnotes .highlight {
   background-color: #fff;
 }
 
-/* line 343, bootstrap/sass/style_bootstrap.scss */
+/* line 344, bootstrap/sass/style_bootstrap.scss */
 #pnotes table {
   border-collapse: collapse;
 }
 
-/* line 347, bootstrap/sass/style_bootstrap.scss */
+/* line 348, bootstrap/sass/style_bootstrap.scss */
 #pnotes .noterow {
   cursor: pointer;
 }
 
-/* line 351, bootstrap/sass/style_bootstrap.scss */
+/* line 352, bootstrap/sass/style_bootstrap.scss */
 #pnotes .noterow td {
   border-bottom: 1px dashed black;
   vertical-align: top;
@@ -11770,56 +12008,56 @@ a:hover {
  * Patient Stats
  * seen in the patient stats screens
  *============================================================*/
-/* line 363, bootstrap/sass/style_bootstrap.scss */
+/* line 364, bootstrap/sass/style_bootstrap.scss */
 #patient_stats {
   padding: 10px;
 }
 
-/* line 367, bootstrap/sass/style_bootstrap.scss */
+/* line 368, bootstrap/sass/style_bootstrap.scss */
 #patient_stats table {
   width: 100%;
   border-collapse: collapse;
 }
 
-/* line 371, bootstrap/sass/style_bootstrap.scss */
+/* line 372, bootstrap/sass/style_bootstrap.scss */
 #patient_stats td {
   padding: 3px;
 }
 
-/* line 374, bootstrap/sass/style_bootstrap.scss */
+/* line 375, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .statrow {
   cursor: pointer;
 }
 
-/* line 378, bootstrap/sass/style_bootstrap.scss */
+/* line 379, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .head {
   font-size: 10pt;
   background-color: #cccccc;
   text-align: center;
 }
 
-/* line 384, bootstrap/sass/style_bootstrap.scss */
+/* line 385, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .detail {
   font-size: 10pt;
   vertical-align: top;
 }
 
-/* line 389, bootstrap/sass/style_bootstrap.scss */
+/* line 390, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .btn {
   background-color: transparent;
 }
 
-/* line 393, bootstrap/sass/style_bootstrap.scss */
+/* line 394, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .bg1 {
   background-color: #ddddff;
 }
 
-/* line 396, bootstrap/sass/style_bootstrap.scss */
+/* line 397, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .bg2 {
   background-color: #ffdddd;
 }
 
-/* line 400, bootstrap/sass/style_bootstrap.scss */
+/* line 401, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .center {
   text-align: center;
 }
@@ -11828,47 +12066,47 @@ a:hover {
  * Patient Stats Summary
  * seen in the patient summary screen
  *============================================================*/
-/* line 409, bootstrap/sass/style_bootstrap.scss */
+/* line 410, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary table {
   border-collapse: collapse;
 }
 
-/* line 412, bootstrap/sass/style_bootstrap.scss */
+/* line 413, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .noend_noreturn {
   color: #ee0000;
 }
 
-/* line 415, bootstrap/sass/style_bootstrap.scss */
+/* line 416, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .noend {
   color: #dd5500;
 }
 
-/* line 418, bootstrap/sass/style_bootstrap.scss */
+/* line 419, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .noreturn {
   color: #0000ff;
 }
 
-/* line 421, bootstrap/sass/style_bootstrap.scss */
+/* line 422, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .title {
   font-size: 1.1em;
 }
 
-/* line 424, bootstrap/sass/style_bootstrap.scss */
+/* line 425, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_issues {
   width: 100%;
 }
 
-/* line 427, bootstrap/sass/style_bootstrap.scss */
+/* line 428, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_spreadsheets {
   width: 100%;
 }
 
-/* line 430, bootstrap/sass/style_bootstrap.scss */
+/* line 431, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_imm {
   width: 100%;
 }
 
-/* line 433, bootstrap/sass/style_bootstrap.scss */
+/* line 434, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_prescriptions {
   width: 100%;
 }
@@ -11877,51 +12115,51 @@ a:hover {
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
  *============================================================*/
-/* line 441, bootstrap/sass/style_bootstrap.scss */
+/* line 442, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc {
   width: 100%;
 }
 
-/* line 445, bootstrap/sass/style_bootstrap.scss */
+/* line 446, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .billing_note {
   width: 25%;
 }
 
-/* line 448, bootstrap/sass/style_bootstrap.scss */
+/* line 449, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .billing_note_text {
   padding: 5px;
   border: 2px outset black;
   background-color: lightgrey;
 }
 
-/* line 453, bootstrap/sass/style_bootstrap.scss */
+/* line 454, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .billing_note_text_highlight {
   background-color: #f7f5d1;
 }
 
-/* line 456, bootstrap/sass/style_bootstrap.scss */
+/* line 457, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc table {
   border-collapse: collapse;
   width: 100%;
 }
 
-/* line 460, bootstrap/sass/style_bootstrap.scss */
+/* line 461, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc tr {
   cursor: pointer;
 }
 
-/* line 463, bootstrap/sass/style_bootstrap.scss */
+/* line 464, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc td {
   border-top: 1px solid black;
   vertical-align: top;
 }
 
-/* line 467, bootstrap/sass/style_bootstrap.scss */
+/* line 468, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc th {
   text-align: left;
 }
 
-/* line 470, bootstrap/sass/style_bootstrap.scss */
+/* line 471, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc #tooltipdiv {
   position: absolute;
   width: 500px;
@@ -11933,12 +12171,12 @@ a:hover {
   font-size: 9pt;
 }
 
-/* line 480, bootstrap/sass/style_bootstrap.scss */
+/* line 481, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .highlight {
   background-color: #fff;
 }
 
-/* line 483, bootstrap/sass/style_bootstrap.scss */
+/* line 484, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .tooltip {
   position: absolute;
   border: 1px solid #333;
@@ -11952,42 +12190,42 @@ a:hover {
  * Patient Reports
  * seen in the patient reports screens
  *============================================================*/
-/* line 497, bootstrap/sass/style_bootstrap.scss */
+/* line 498, bootstrap/sass/style_bootstrap.scss */
 #patient_reports {
   width: 100%;
 }
 
-/* line 500, bootstrap/sass/style_bootstrap.scss */
+/* line 501, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .issues {
   padding-right: 30px;
 }
 
-/* line 503, bootstrap/sass/style_bootstrap.scss */
+/* line 504, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .issues table {
   margin: 10px 0px 10px 0px;
 }
 
-/* line 506, bootstrap/sass/style_bootstrap.scss */
+/* line 507, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .issues td {
   padding: 2px;
 }
 
-/* line 509, bootstrap/sass/style_bootstrap.scss */
+/* line 510, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .encounters td {
   padding: 2px;
 }
 
-/* line 512, bootstrap/sass/style_bootstrap.scss */
+/* line 513, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .encounter_forms {
   margin: 5px 15px 5px 15px;
 }
 
-/* line 515, bootstrap/sass/style_bootstrap.scss */
+/* line 516, bootstrap/sass/style_bootstrap.scss */
 #patient_reports td {
   vertical-align: top;
 }
 
-/* line 518, bootstrap/sass/style_bootstrap.scss */
+/* line 519, bootstrap/sass/style_bootstrap.scss */
 #patient_reports ul {
   list-style: none;
 }
@@ -11996,94 +12234,94 @@ a:hover {
  * Report - Custom
  * seen as the patient report (custom_report.php)
  *============================================================*/
-/* line 527, bootstrap/sass/style_bootstrap.scss */
+/* line 528, bootstrap/sass/style_bootstrap.scss */
 #report_custom {
   width: 100%;
 }
 
-/* line 530, bootstrap/sass/style_bootstrap.scss */
+/* line 531, bootstrap/sass/style_bootstrap.scss */
 #report_custom hr {
   border: 2px dotted black;
 }
 
-/* line 533, bootstrap/sass/style_bootstrap.scss */
+/* line 534, bootstrap/sass/style_bootstrap.scss */
 #report_custom .billing {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 537, bootstrap/sass/style_bootstrap.scss */
+/* line 538, bootstrap/sass/style_bootstrap.scss */
 #report_custom h1 {
   font-size: 120%;
   margin: 0px 0px 5px 0px;
   padding: 0px;
 }
 
-/* line 542, bootstrap/sass/style_bootstrap.scss */
+/* line 543, bootstrap/sass/style_bootstrap.scss */
 #report_custom .immunizations {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 546, bootstrap/sass/style_bootstrap.scss */
+/* line 547, bootstrap/sass/style_bootstrap.scss */
 #report_custom .notes {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 550, bootstrap/sass/style_bootstrap.scss */
+/* line 551, bootstrap/sass/style_bootstrap.scss */
 #report_custom .transactions {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 554, bootstrap/sass/style_bootstrap.scss */
+/* line 555, bootstrap/sass/style_bootstrap.scss */
 #report_custom .communications {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 558, bootstrap/sass/style_bootstrap.scss */
+/* line 559, bootstrap/sass/style_bootstrap.scss */
 #report_custom .documents {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 562, bootstrap/sass/style_bootstrap.scss */
+/* line 563, bootstrap/sass/style_bootstrap.scss */
 #report_custom .demographics {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 566, bootstrap/sass/style_bootstrap.scss */
+/* line 567, bootstrap/sass/style_bootstrap.scss */
 #report_custom .insurance {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 570, bootstrap/sass/style_bootstrap.scss */
+/* line 571, bootstrap/sass/style_bootstrap.scss */
 #report_custom .history {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 574, bootstrap/sass/style_bootstrap.scss */
+/* line 575, bootstrap/sass/style_bootstrap.scss */
 #report_custom .issue {
   margin-left: 20px;
 }
 
-/* line 577, bootstrap/sass/style_bootstrap.scss */
+/* line 578, bootstrap/sass/style_bootstrap.scss */
 #report_custom .issue_type {
   font-weight: bold;
   padding: 5px 0px 5px 0px;
 }
 
-/* line 581, bootstrap/sass/style_bootstrap.scss */
+/* line 582, bootstrap/sass/style_bootstrap.scss */
 #report_custom .issue_diag {
   margin: 0px 20px 0px 20px;
 }
 
-/* line 588, bootstrap/sass/style_bootstrap.scss */
+/* line 589, bootstrap/sass/style_bootstrap.scss */
 #report_custom .encounter {
   width: 100%;
   border-top: 2px dotted black;
@@ -12091,41 +12329,41 @@ a:hover {
   margin-top: 10px;
 }
 
-/* line 594, bootstrap/sass/style_bootstrap.scss */
+/* line 595, bootstrap/sass/style_bootstrap.scss */
 #report_custom .encounter h1 {
   font-size: 140%;
   margin: 0px;
   padding: 0px;
 }
 
-/* line 599, bootstrap/sass/style_bootstrap.scss */
+/* line 600, bootstrap/sass/style_bootstrap.scss */
 #report_custom .encounter_form {
   margin: 10px;
   padding: 10px;
   border-top: 1px solid gray;
 }
 
-/* line 604, bootstrap/sass/style_bootstrap.scss */
+/* line 605, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.evenrow {
   background-color: #ddddff;
 }
 
-/* line 607, bootstrap/sass/style_bootstrap.scss */
+/* line 608, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.oddrow {
   background-color: #ffffff;
 }
 
-/* line 613, bootstrap/sass/style_bootstrap.scss */
+/* line 614, bootstrap/sass/style_bootstrap.scss */
 .sellistclass {
   float: left;
 }
 
-/* line 617, bootstrap/sass/style_bootstrap.scss */
+/* line 618, bootstrap/sass/style_bootstrap.scss */
 .disabled_button {
   color: grey;
 }
 
-/* line 622, bootstrap/sass/style_bootstrap.scss */
+/* line 623, bootstrap/sass/style_bootstrap.scss */
 a.disabled_button:hover {
   color: grey;
 }
@@ -12148,14 +12386,14 @@ ul.tabNav li.current { padding-top: 0;
 }
 ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
 ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }*/
-/* line 649, bootstrap/sass/style_bootstrap.scss */
+/* line 650, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer {
   clear: both;
   float: left;
   width: 100%;
 }
 
-/* line 650, bootstrap/sass/style_bootstrap.scss */
+/* line 651, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.tab {
   border: 1px solid #ffffff;
   color: #000;
@@ -12163,12 +12401,12 @@ div.tabContainer div.tab {
   padding: 10px;
 }
 
-/* line 651, bootstrap/sass/style_bootstrap.scss */
+/* line 652, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.current {
   display: block;
 }
 
-/* line 652, bootstrap/sass/style_bootstrap.scss */
+/* line 653, bootstrap/sass/style_bootstrap.scss */
 div.tab {
   min-height: 180px;
   background: #ffffff none repeat scroll 0 0;
@@ -12176,7 +12414,7 @@ div.tab {
   width: 665px;
 }
 
-/* line 653, bootstrap/sass/style_bootstrap.scss */
+/* line 654, bootstrap/sass/style_bootstrap.scss */
 div.tab_long {
   min-height: 180px;
   background: #ffffff none repeat scroll 0 0;
@@ -12184,56 +12422,56 @@ div.tab_long {
   width: 100%;
 }
 
-/* line 654, bootstrap/sass/style_bootstrap.scss */
+/* line 655, bootstrap/sass/style_bootstrap.scss */
 div.tab p:last-child {
   margin-bottom: 0;
 }
 
-/* line 656, bootstrap/sass/style_bootstrap.scss */
+/* line 657, bootstrap/sass/style_bootstrap.scss */
 div.tab table td {
   padding-right: 1px;
   padding-bottom: 0px;
 }
 
-/* line 660, bootstrap/sass/style_bootstrap.scss */
+/* line 661, bootstrap/sass/style_bootstrap.scss */
 div.tab table td.label {
   min-width: 80px;
 }
 
-/* line 664, bootstrap/sass/style_bootstrap.scss */
+/* line 665, bootstrap/sass/style_bootstrap.scss */
 div.tab table td.data {
   min-width: 120px;
   /*170px*/
 }
 
-/* line 668, bootstrap/sass/style_bootstrap.scss */
+/* line 669, bootstrap/sass/style_bootstrap.scss */
 div.notab {
   background: #FFFFFF none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
 }
 
-/* line 672, bootstrap/sass/style_bootstrap.scss */
+/* line 673, bootstrap/sass/style_bootstrap.scss */
 div.notab-right {
   background: #FFFFFF none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
 }
 
-/* line 676, bootstrap/sass/style_bootstrap.scss */
+/* line 677, bootstrap/sass/style_bootstrap.scss */
 .section-header {
   margin-bottom: 5px;
   width: 685px;
   border-bottom: 1px solid;
 }
 
-/* line 680, bootstrap/sass/style_bootstrap.scss */
+/* line 681, bootstrap/sass/style_bootstrap.scss */
 .section-header-dynamic {
   margin-bottom: 5px;
   border-bottom: 1px solid;
 }
 
-/* line 684, bootstrap/sass/style_bootstrap.scss */
+/* line 685, bootstrap/sass/style_bootstrap.scss */
 .summary_item {
   background: #FFFFFF;
   padding: 8px;
@@ -12242,37 +12480,37 @@ div.notab-right {
 /*
 * REPORTS
 */
-/* line 692, bootstrap/sass/style_bootstrap.scss */
+/* line 693, bootstrap/sass/style_bootstrap.scss */
 #report_parameters {
   background-color: #D0E9C6;
   margin-top: 10px;
 }
 
-/* line 697, bootstrap/sass/style_bootstrap.scss */
+/* line 698, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table {
   border: solid 1px;
   width: 100%;
   border-collapse: collapse;
 }
 
-/* line 702, bootstrap/sass/style_bootstrap.scss */
+/* line 703, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table td {
   padding: 5px;
 }
 
-/* line 706, bootstrap/sass/style_bootstrap.scss */
+/* line 707, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table table {
   border: 0px;
   border-collapse: collapse;
   font-size: 0.8em;
 }
 
-/* line 712, bootstrap/sass/style_bootstrap.scss */
+/* line 713, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table table td.label {
   text-align: right;
 }
 
-/* line 716, bootstrap/sass/style_bootstrap.scss */
+/* line 717, bootstrap/sass/style_bootstrap.scss */
 #report_results table {
   border-top: 1px solid black;
   border-bottom: 1px solid black;
@@ -12283,7 +12521,7 @@ div.notab-right {
   margin-top: 1px;
 }
 
-/* line 725, bootstrap/sass/style_bootstrap.scss */
+/* line 726, bootstrap/sass/style_bootstrap.scss */
 #report_results table thead {
   padding: 5px;
   display: table-header-group;
@@ -12293,20 +12531,20 @@ div.notab-right {
   font-size: 0.7em;
 }
 
-/* line 733, bootstrap/sass/style_bootstrap.scss */
+/* line 734, bootstrap/sass/style_bootstrap.scss */
 #report_results table th {
   border-bottom: 1px solid black;
   padding: 5px;
 }
 
-/* line 737, bootstrap/sass/style_bootstrap.scss */
+/* line 738, bootstrap/sass/style_bootstrap.scss */
 #report_results table td {
   padding: 5px;
   border-bottom: 1px dashed;
   font-size: 0.8em;
 }
 
-/* line 742, bootstrap/sass/style_bootstrap.scss */
+/* line 743, bootstrap/sass/style_bootstrap.scss */
 .report_totals td {
   background-color: #77ff77;
   font-weight: bold;
@@ -12315,37 +12553,37 @@ div.notab-right {
 /**
 * List-table formatting
 **/
-/* line 750, bootstrap/sass/style_bootstrap.scss */
+/* line 751, bootstrap/sass/style_bootstrap.scss */
 .showborder {
   width: 650px;
 }
 
-/* line 753, bootstrap/sass/style_bootstrap.scss */
+/* line 754, bootstrap/sass/style_bootstrap.scss */
 .showborder td {
   border-bottom: 1px dashed #000000;
   text-align: left;
   font-size: 9pt;
 }
 
-/* line 758, bootstrap/sass/style_bootstrap.scss */
+/* line 759, bootstrap/sass/style_bootstrap.scss */
 .showborder_head th {
   border-bottom: 1px solid #000000;
   text-align: left;
   font-size: 9pt;
 }
 
-/* line 763, bootstrap/sass/style_bootstrap.scss */
+/* line 764, bootstrap/sass/style_bootstrap.scss */
 .shownoborder td {
   text-align: left;
   font-size: 9pt;
 }
 
-/* line 767, bootstrap/sass/style_bootstrap.scss */
+/* line 768, bootstrap/sass/style_bootstrap.scss */
 .showborder_long {
   width: 100%;
 }
 
-/* line 770, bootstrap/sass/style_bootstrap.scss */
+/* line 771, bootstrap/sass/style_bootstrap.scss */
 .showborder_long tr td {
   border-bottom: 1px dashed #000000;
   text-align: left;
@@ -12355,7 +12593,7 @@ div.notab-right {
 /**
 * Drug lookup
 **/
-/* line 779, bootstrap/sass/style_bootstrap.scss */
+/* line 780, bootstrap/sass/style_bootstrap.scss */
 .drug_lookup {
   font-family: helvetica;
   font-size: 8pt;
@@ -12367,7 +12605,7 @@ div.notab-right {
 }
 
 /* Password alert styles */
-/* line 790, bootstrap/sass/style_bootstrap.scss */
+/* line 791, bootstrap/sass/style_bootstrap.scss */
 .pwdalert {
   display: block;
   width: 390pt;
@@ -12376,19 +12614,19 @@ div.notab-right {
   color: black;
 }
 
-/* line 797, bootstrap/sass/style_bootstrap.scss */
+/* line 798, bootstrap/sass/style_bootstrap.scss */
 .alertmsg1 {
   border: 3px solid #fe7b7a;
   background-color: #ffd6d6;
 }
 
-/* line 801, bootstrap/sass/style_bootstrap.scss */
+/* line 802, bootstrap/sass/style_bootstrap.scss */
 .alertmsg2 {
   border: 3px solid #f56fff;
   background-color: #fabfff;
 }
 
-/* line 805, bootstrap/sass/style_bootstrap.scss */
+/* line 806, bootstrap/sass/style_bootstrap.scss */
 .alertmsg3 {
   border: 3px solid #9acc2e;
   background-color: #eef7dd;
@@ -12396,7 +12634,7 @@ div.notab-right {
 
 /* Password alert styles */
 /* Style for red font */
-/* line 812, bootstrap/sass/style_bootstrap.scss */
+/* line 813, bootstrap/sass/style_bootstrap.scss */
 .redtext {
   font-family: sans-serif;
   text-decoration: none;
@@ -12405,37 +12643,37 @@ div.notab-right {
 }
 
 /* Style for red font */
-/* line 820, bootstrap/sass/style_bootstrap.scss */
+/* line 821, bootstrap/sass/style_bootstrap.scss */
 .de_identification_status_message {
   width: 50%;
   border: 1px solid #0000FF;
 }
 
-/* line 825, bootstrap/sass/style_bootstrap.scss */
+/* line 826, bootstrap/sass/style_bootstrap.scss */
 .de_identification_input_controls_box {
   width: 100%;
   border: 1px solid #0000FF;
 }
 
-/* line 830, bootstrap/sass/style_bootstrap.scss */
+/* line 831, bootstrap/sass/style_bootstrap.scss */
 .de_id_upgrade_login {
   width: 40%;
   border: 1px solid Black;
   background-color: #ffffff;
 }
 
-/* line 836, bootstrap/sass/style_bootstrap.scss */
+/* line 837, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide, #navigation-slide * {
   padding-left: 0px;
   margin-left: 0px;
 }
 
-/* line 841, bootstrap/sass/style_bootstrap.scss */
+/* line 842, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li {
   list-style: none;
 }
 
-/* line 845, bootstrap/sass/style_bootstrap.scss */
+/* line 846, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide a {
   background: #FFFFFF;
   border-top: 2px solid #EAE6FF;
@@ -12446,19 +12684,19 @@ div.notab-right {
   width: 150px;
 }
 
-/* line 855, bootstrap/sass/style_bootstrap.scss */
+/* line 856, bootstrap/sass/style_bootstrap.scss */
 .collapse-custom, #navigation-slide li a.collapsed, #navigation-slide li a.expanded {
   color: #3c763d;
   background-color: #d0e9c6;
 }
 
-/* line 875, bootstrap/sass/style_bootstrap.scss */
+/* line 876, bootstrap/sass/style_bootstrap.scss */
 .collapse-inner, #navigation-slide ul li a.collapsed_lv2, #navigation-slide ul li a.expanded_lv2, #navigation-slide li > a:hover {
   color: #3c763d;
   background-color: #d0e9c6;
 }
 
-/* line 911, bootstrap/sass/style_bootstrap.scss */
+/* line 912, bootstrap/sass/style_bootstrap.scss */
 #sddm li {
   margin: 0;
   padding: 0;
@@ -12475,7 +12713,7 @@ div.notab-right {
   /* for firefox 3.6+ */
 }
 
-/* line 923, bootstrap/sass/style_bootstrap.scss */
+/* line 924, bootstrap/sass/style_bootstrap.scss */
 #sddm li a {
   display: block;
   margin: 0 1px 0 0;
@@ -12487,12 +12725,12 @@ div.notab-right {
   font-weight: bold;
 }
 
-/* line 934, bootstrap/sass/style_bootstrap.scss */
+/* line 935, bootstrap/sass/style_bootstrap.scss */
 #sddm li a:hover {
   background: #ffac84;
 }
 
-/* line 939, bootstrap/sass/style_bootstrap.scss */
+/* line 940, bootstrap/sass/style_bootstrap.scss */
 #sddm div {
   position: absolute;
   visibility: hidden;
@@ -12505,7 +12743,7 @@ div.notab-right {
   border-bottom: 1px solid #000000;
 }
 
-/* line 952, bootstrap/sass/style_bootstrap.scss */
+/* line 953, bootstrap/sass/style_bootstrap.scss */
 #sddm div a {
   position: relative;
   display: block;
@@ -12521,13 +12759,13 @@ div.notab-right {
   font-weight: normal;
 }
 
-/* line 968, bootstrap/sass/style_bootstrap.scss */
+/* line 969, bootstrap/sass/style_bootstrap.scss */
 #sddm div a:hover {
   background: #ffac84;
   color: #000000;
 }
 
-/* line 973, bootstrap/sass/style_bootstrap.scss */
+/* line 974, bootstrap/sass/style_bootstrap.scss */
 .text-area {
   background-color: #FFFFFF;
   border: 1px solid black;
@@ -12537,7 +12775,7 @@ div.notab-right {
   text-align: left;
 }
 
-/* line 981, bootstrap/sass/style_bootstrap.scss */
+/* line 982, bootstrap/sass/style_bootstrap.scss */
 .example_menu {
   font-size: 70%;
   list-style: none;
@@ -12547,13 +12785,13 @@ div.notab-right {
   width: 136px;
 }
 
-/* line 989, bootstrap/sass/style_bootstrap.scss */
+/* line 990, bootstrap/sass/style_bootstrap.scss */
 .expand_all,
 .collapse_all {
   cursor: pointer;
 }
 
-/* line 993, bootstrap/sass/style_bootstrap.scss */
+/* line 994, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul {
   display: none;
   list-style: none;
@@ -12561,7 +12799,7 @@ div.notab-right {
   padding: 0;
 }
 
-/* line 999, bootstrap/sass/style_bootstrap.scss */
+/* line 1000, bootstrap/sass/style_bootstrap.scss */
 #menu1 li, #menu2 li, #menu3 li, #menu4 li, #menu5 li, .example_menu li {
   background-image: none;
   margin: 0;
@@ -12569,12 +12807,12 @@ div.notab-right {
   border-bottom: 1px solid white;
 }
 
-/* line 1005, bootstrap/sass/style_bootstrap.scss */
+/* line 1006, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul ul {
   display: block;
 }
 
-/* line 1008, bootstrap/sass/style_bootstrap.scss */
+/* line 1009, bootstrap/sass/style_bootstrap.scss */
 .example_menu a {
   color: #000;
   cursor: pointer;
@@ -12585,22 +12823,22 @@ div.notab-right {
   width: 160px;
 }
 
-/* line 1017, bootstrap/sass/style_bootstrap.scss */
+/* line 1018, bootstrap/sass/style_bootstrap.scss */
 .example_menu a.expanded {
   background: #bbb url("collapse.gif") no-repeat 3px 50%;
 }
 
-/* line 1020, bootstrap/sass/style_bootstrap.scss */
+/* line 1021, bootstrap/sass/style_bootstrap.scss */
 .example_menu a.collapsed {
   background: #bbb url("expand.gif") no-repeat 3px 50%;
 }
 
-/* line 1023, bootstrap/sass/style_bootstrap.scss */
+/* line 1024, bootstrap/sass/style_bootstrap.scss */
 .example_menu a:hover {
   text-decoration: none;
 }
 
-/* line 1026, bootstrap/sass/style_bootstrap.scss */
+/* line 1027, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul li span {
   background: #d9d1a4;
   color: #000;
@@ -12609,28 +12847,28 @@ div.notab-right {
   width: 100%;
 }
 
-/* line 1033, bootstrap/sass/style_bootstrap.scss */
+/* line 1034, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul a:Subjective {
   font-weight: normal;
 }
 
-/* line 1036, bootstrap/sass/style_bootstrap.scss */
+/* line 1037, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul a:hover {
   background: #f5f5f5;
   text-decoration: underline;
 }
 
-/* line 1040, bootstrap/sass/style_bootstrap.scss */
+/* line 1041, bootstrap/sass/style_bootstrap.scss */
 .example_menu li.active a, .example_menu li.current a {
   background: #fff;
 }
 
-/* line 1043, bootstrap/sass/style_bootstrap.scss */
+/* line 1044, bootstrap/sass/style_bootstrap.scss */
 .example_menu li.active li a, .example_menu li.current li a {
   background: #e8e8e8;
 }
 
-/* line 1046, bootstrap/sass/style_bootstrap.scss */
+/* line 1047, bootstrap/sass/style_bootstrap.scss */
 #menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 li.footer, .example_menu .footer {
   background: transparent url("footer.jpg") no-repeat 0 0;
   border-top: 2px solid #fff;
@@ -12640,29 +12878,29 @@ div.notab-right {
   width: 131px;
 }
 
-/* line 1054, bootstrap/sass/style_bootstrap.scss */
+/* line 1055, bootstrap/sass/style_bootstrap.scss */
 .example_menu .footer span {
   display: none;
 }
 
-/* line 1057, bootstrap/sass/style_bootstrap.scss */
+/* line 1058, bootstrap/sass/style_bootstrap.scss */
 .cke_contents {
   height: 300px !important;
 }
 
 /* Form styles */
-/* line 1062, bootstrap/sass/style_bootstrap.scss */
+/* line 1063, bootstrap/sass/style_bootstrap.scss */
 .formtable {
   font-size: 13px;
   line-height: 24px;
 }
 
-/* line 1066, bootstrap/sass/style_bootstrap.scss */
+/* line 1067, bootstrap/sass/style_bootstrap.scss */
 .formtable tr td {
   line-height: 24px;
 }
 
-/* line 1069, bootstrap/sass/style_bootstrap.scss */
+/* line 1070, bootstrap/sass/style_bootstrap.scss */
 .report_search_bar {
   background-color: #EADDB4;
 }
@@ -12670,14 +12908,14 @@ div.notab-right {
 /****** variables ******/
 /***** colors *********/
 /***** colors *********/
-/* line 1114, bootstrap/sass/style_bootstrap.scss */
+/* line 1100, bootstrap/sass/style_bootstrap.scss */
 .css_button_small, #showMenuLink, .css_button {
   margin: 0px 2px !important;
   padding: 2px 7px !important;
   font-size: 10pt !important;
 }
 
-/* line 1120, bootstrap/sass/style_bootstrap.scss */
+/* line 1106, bootstrap/sass/style_bootstrap.scss */
 .css_button_link a {
   margin: 10px 3px !important;
   padding: 5px 25px !important;
@@ -12685,54 +12923,54 @@ div.notab-right {
   border-radius: 5px;
 }
 
-/* line 1127, bootstrap/sass/style_bootstrap.scss */
+/* line 1113, bootstrap/sass/style_bootstrap.scss */
 .css_button_link a:hover,
 .css_button_small:hover,
 #showMenuLink:hover, .css_button:hover {
   text-decoration: none;
 }
 
-/* line 1131, bootstrap/sass/style_bootstrap.scss */
+/* line 1117, bootstrap/sass/style_bootstrap.scss */
 .css_button_small, #showMenuLink, #showMenuLink, .css_button {
   border-radius: 5px;
 }
 
-/* line 1134, bootstrap/sass/style_bootstrap.scss */
+/* line 1120, bootstrap/sass/style_bootstrap.scss */
 #topToolbarRight {
   padding-top: 4px;
 }
 
-/* line 1137, bootstrap/sass/style_bootstrap.scss */
+/* line 1123, bootstrap/sass/style_bootstrap.scss */
 span.css_button_separator {
   display: none;
 }
 
-/* line 1145, bootstrap/sass/style_bootstrap.scss */
+/* line 1131, bootstrap/sass/style_bootstrap.scss */
 #showMenuLink.active::after {
   content: ' >>';
 }
 
-/* line 1149, bootstrap/sass/style_bootstrap.scss */
+/* line 1135, bootstrap/sass/style_bootstrap.scss */
 #showMenuLink::after {
   content: ' <<';
 }
 
-/* line 1153, bootstrap/sass/style_bootstrap.scss */
+/* line 1139, bootstrap/sass/style_bootstrap.scss */
 ul.tabNav > li > a, .tabContainer {
   font-size: 10pt;
 }
 
-/* line 1157, bootstrap/sass/style_bootstrap.scss */
+/* line 1143, bootstrap/sass/style_bootstrap.scss */
 td.label {
   color: black !important;
 }
 
-/* line 1177, bootstrap/sass/style_bootstrap.scss */
+/* line 1163, bootstrap/sass/style_bootstrap.scss */
 .nav-sm > li > a, .nav-pill-sm > li > a {
   padding: 5px 8px !important;
 }
 
-/* line 1186, bootstrap/sass/style_bootstrap.scss */
+/* line 1172, bootstrap/sass/style_bootstrap.scss */
 .paginate_disabled_previous,
 .paginate_disabled_next {
   background: #fff !important;
@@ -12740,56 +12978,56 @@ td.label {
   padding: 5px 14px !important;
 }
 
-/* line 1196, bootstrap/sass/style_bootstrap.scss */
+/* line 1182, bootstrap/sass/style_bootstrap.scss */
 .tabNav,
 .nav-pills-sm {
   border-bottom: 0 !important;
 }
 
-/* line 1206, bootstrap/sass/style_bootstrap.scss */
+/* line 1192, bootstrap/sass/style_bootstrap.scss */
 .tabNav a {
   background-color: #057e99 !important;
   color: #fff;
 }
 
-/* line 1210, bootstrap/sass/style_bootstrap.scss */
+/* line 1196, bootstrap/sass/style_bootstrap.scss */
 .tabNav li.active a, .tabNav li.current a {
   color: #fff;
   border-bottom: 3px solid #000 !important;
 }
 
-/* line 1214, bootstrap/sass/style_bootstrap.scss */
+/* line 1200, bootstrap/sass/style_bootstrap.scss */
 .search_init, input[type='text'], input[type='password'], input[type='entry'] {
   margin-bottom: 5px;
 }
 
-/* line 1218, bootstrap/sass/style_bootstrap.scss */
+/* line 1204, bootstrap/sass/style_bootstrap.scss */
 form[name="demographics_form"] input[type="text"],
 form[name="demographics_form"] input[type="entry"] {
   display: inline-block;
   width: auto;
 }
 
-/* line 1223, bootstrap/sass/style_bootstrap.scss */
+/* line 1209, bootstrap/sass/style_bootstrap.scss */
 .dataTables_filter input, select {
   margin-bottom: 5px;
   display: inline-block;
   width: auto;
 }
 
-/* line 1229, bootstrap/sass/style_bootstrap.scss */
+/* line 1215, bootstrap/sass/style_bootstrap.scss */
 .dataTable th {
   background: #eee;
 }
 
-/* line 1234, bootstrap/sass/style_bootstrap.scss */
+/* line 1220, bootstrap/sass/style_bootstrap.scss */
 input[type="button"] {
   padding: 4px 17px;
   margin: 0 10px;
   border-radius: 5px;
 }
 
-/* line 1240, bootstrap/sass/style_bootstrap.scss */
+/* line 1226, bootstrap/sass/style_bootstrap.scss */
 input[type="submit"] {
   padding: 4px 17px;
   margin: 0 10px;
@@ -12797,19 +13035,19 @@ input[type="submit"] {
   width: auto !important;
 }
 
-/* line 1247, bootstrap/sass/style_bootstrap.scss */
+/* line 1233, bootstrap/sass/style_bootstrap.scss */
 div.section, .bottom-panel, .rule_container, .rule_row {
   border-color: transparent !important;
   box-shadow: 0px 0 2px #50B4D4;
   background: #D0E9C6;
 }
 
-/* line 1252, bootstrap/sass/style_bootstrap.scss */
+/* line 1238, bootstrap/sass/style_bootstrap.scss */
 td b {
   margin-bottom: 5px;
 }
 
-/* line 1255, bootstrap/sass/style_bootstrap.scss */
+/* line 1241, bootstrap/sass/style_bootstrap.scss */
 td .css_button_small, td #showMenuLink {
   float: none !important;
   padding: 5px 25px !important;
@@ -12817,12 +13055,12 @@ td .css_button_small, td #showMenuLink {
   border-radius: 5px;
 }
 
-/* line 1261, bootstrap/sass/style_bootstrap.scss */
+/* line 1247, bootstrap/sass/style_bootstrap.scss */
 .css_button_small:hover, #showMenuLink:hover {
   text-decoration: none;
 }
 
-/* line 1264, bootstrap/sass/style_bootstrap.scss */
+/* line 1250, bootstrap/sass/style_bootstrap.scss */
 select[name="sel_frame"] {
   font-size: 9pt;
   width: 100%;
@@ -12830,55 +13068,55 @@ select[name="sel_frame"] {
   border-radius: 5px;
 }
 
-/* line 1270, bootstrap/sass/style_bootstrap.scss */
+/* line 1256, bootstrap/sass/style_bootstrap.scss */
 select:disabled {
   background: #dddddd !important;
 }
 
-/* line 1273, bootstrap/sass/style_bootstrap.scss */
+/* line 1259, bootstrap/sass/style_bootstrap.scss */
 img#prevday {
   padding: 0 !important;
 }
 
-/* line 1276, bootstrap/sass/style_bootstrap.scss */
+/* line 1262, bootstrap/sass/style_bootstrap.scss */
 td.top-secondary-nav table {
   float: right;
 }
 
-/* line 1279, bootstrap/sass/style_bootstrap.scss */
+/* line 1265, bootstrap/sass/style_bootstrap.scss */
 .top-primary-nav a {
   float: left !important;
   margin-bottom: 7px !important;
 }
 
-/* line 1283, bootstrap/sass/style_bootstrap.scss */
+/* line 1269, bootstrap/sass/style_bootstrap.scss */
 .billingButton input[type="text"] {
   width: auto !important;
   display: inline-block !important;
 }
 
-/* line 1290, bootstrap/sass/style_bootstrap.scss */
+/* line 1276, bootstrap/sass/style_bootstrap.scss */
 div.borderbox {
   background: #D0E9C6;
 }
 
-/* line 1293, bootstrap/sass/style_bootstrap.scss */
+/* line 1279, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:hover {
   text-decoration: none;
   cursor: pointer;
 }
 
-/* line 1298, bootstrap/sass/style_bootstrap.scss */
+/* line 1284, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li ul ul {
   padding-left: 5px;
 }
 
-/* line 1301, bootstrap/sass/style_bootstrap.scss */
+/* line 1287, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a > img {
   display: none;
 }
 
-/* line 1304, bootstrap/sass/style_bootstrap.scss */
+/* line 1290, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:before {
   font-family: 'fontawesome';
   margin-right: 5px;
@@ -12886,94 +13124,94 @@ div.borderbox {
   font-size: 14px;
 }
 
-/* line 1311, bootstrap/sass/style_bootstrap.scss */
+/* line 1297, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:after {
   font-family: 'fontawesome';
   margin-left: 5px;
   color: #000;
 }
 
-/* line 1316, bootstrap/sass/style_bootstrap.scss */
+/* line 1302, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#cal0:before {
   content: "\f073";
 }
 
-/* line 1319, bootstrap/sass/style_bootstrap.scss */
+/* line 1305, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#pfb0:before {
   content: "\f15c";
 }
 
-/* line 1322, bootstrap/sass/style_bootstrap.scss */
+/* line 1308, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#msg0:before {
   content: "\f003";
 }
 
-/* line 1325, bootstrap/sass/style_bootstrap.scss */
+/* line 1311, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#patimg:before {
   content: "\f007";
 }
 
-/* line 1328, bootstrap/sass/style_bootstrap.scss */
+/* line 1314, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#feeimg:before {
   content: "\f0d6";
 }
 
-/* line 1331, bootstrap/sass/style_bootstrap.scss */
+/* line 1317, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#modimg:before {
   content: "\f0fa";
 }
 
-/* line 1334, bootstrap/sass/style_bootstrap.scss */
+/* line 1320, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:before {
   content: "\f0fa";
 }
 
-/* line 1337, bootstrap/sass/style_bootstrap.scss */
+/* line 1323, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:after,
 #navigation-slide li > a#admimg:after {
   content: "\f0d7";
 }
 
-/* line 1341, bootstrap/sass/style_bootstrap.scss */
+/* line 1327, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#admimg:before {
   content: "\f085";
 }
 
-/* line 1344, bootstrap/sass/style_bootstrap.scss */
+/* line 1330, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#repimg:before {
   content: "\f080";
 }
 
-/* line 1347, bootstrap/sass/style_bootstrap.scss */
+/* line 1333, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#misimg:before {
   content: "\f01c";
 }
 
-/* line 1351, bootstrap/sass/style_bootstrap.scss */
+/* line 1337, bootstrap/sass/style_bootstrap.scss */
 frameset.sidebar, frameset.main-section {
   width: 100%;
 }
 
-/* line 1354, bootstrap/sass/style_bootstrap.scss */
+/* line 1340, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td {
   width: auto !important;
 }
 
-/* line 1357, bootstrap/sass/style_bootstrap.scss */
+/* line 1343, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td input,
 form[id="theform"] td input {
   display: inline-block;
   width: auto;
 }
 
-/* line 1362, bootstrap/sass/style_bootstrap.scss */
+/* line 1348, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td,
 form[id="theform"] td {
   vertical-align: middle;
   font-size: 12px;
 }
 
-/* line 1367, bootstrap/sass/style_bootstrap.scss */
+/* line 1353, bootstrap/sass/style_bootstrap.scss */
 #img_date,
 #img_to_date,
 #img_from_date,
@@ -12986,7 +13224,8 @@ form[id="theform"] td {
 #img_post_to_date,
 #img_from_doc_date,
 #img_to_doc_date,
-#img_start_date {
+#img_start_date,
+.calandar-img {
   display: inline-block;
   box-sizing: border-box;
   padding-left: 27px;
@@ -12995,12 +13234,12 @@ form[id="theform"] td {
   height: 21px;
 }
 
-/* line 1389, bootstrap/sass/style_bootstrap.scss */
+/* line 1376, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel {
   padding-top: 15px;
 }
 
-/* line 1393, bootstrap/sass/style_bootstrap.scss */
+/* line 1380, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .title-bigger {
   font-size: 18px;
   display: block;
@@ -13011,14 +13250,14 @@ form[id="theform"] td {
   font-weight: bold;
 }
 
-/* line 1404, bootstrap/sass/style_bootstrap.scss */
+/* line 1391, bootstrap/sass/style_bootstrap.scss */
 .pager span {
   content: '';
   max-height: 31px;
   overflow: hidden;
 }
 
-/* line 1409, bootstrap/sass/style_bootstrap.scss */
+/* line 1396, bootstrap/sass/style_bootstrap.scss */
 .pager span:first-child:before {
   content: '\f0d9 ';
   font-family: 'fontawesome';
@@ -13026,7 +13265,7 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1415, bootstrap/sass/style_bootstrap.scss */
+/* line 1402, bootstrap/sass/style_bootstrap.scss */
 .pager span:last-child:before {
   content: '\f0da';
   font-family: 'fontawesome';
@@ -13034,72 +13273,72 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1421, bootstrap/sass/style_bootstrap.scss */
+/* line 1408, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li {
   border: 1px solid;
   border-radius: 5px 5px 0 0;
   padding: 0;
 }
 
-/* line 1426, bootstrap/sass/style_bootstrap.scss */
+/* line 1413, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   margin: 0;
 }
 
-/* line 1429, bootstrap/sass/style_bootstrap.scss */
+/* line 1416, bootstrap/sass/style_bootstrap.scss */
 #dateNAV {
   font-size: 12pt !important;
   margin-top: -3px;
   margin-bottom: 5px;
 }
 
-/* line 1434, bootstrap/sass/style_bootstrap.scss */
+/* line 1421, bootstrap/sass/style_bootstrap.scss */
 #times table, .view2, .view1, #datePicker .currentDate,
 #datePicker .tdDatePickerHighlight, #report_results table thead {
   background-color: #BBCCFF !important;
 }
 
-/* line 1438, bootstrap/sass/style_bootstrap.scss */
+/* line 1425, bootstrap/sass/style_bootstrap.scss */
 .dr_container {
   padding: 0 !important;
 }
 
-/* line 1441, bootstrap/sass/style_bootstrap.scss */
+/* line 1428, bootstrap/sass/style_bootstrap.scss */
 .drHide {
   position: relative;
   top: 5px;
 }
 
-/* line 1445, bootstrap/sass/style_bootstrap.scss */
+/* line 1432, bootstrap/sass/style_bootstrap.scss */
 .drHide p {
   display: inline-flex;
   margin-right: 3px !important;
 }
 
-/* line 1449, bootstrap/sass/style_bootstrap.scss */
+/* line 1436, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .panel {
   background: #B8D8AB;
   padding: 15px;
 }
 
-/* line 1453, bootstrap/sass/style_bootstrap.scss */
+/* line 1440, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion .ui-accordion-header {
   background: #B8D8AB;
   padding: 5px;
 }
 
-/* line 1458, bootstrap/sass/style_bootstrap.scss */
+/* line 1445, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion-content {
   background: #D0E9C6 !important;
 }
 
-/* line 1461, bootstrap/sass/style_bootstrap.scss */
+/* line 1448, bootstrap/sass/style_bootstrap.scss */
 .tableHead-bg,
 .table-striped > tbody > tr:nth-of-type(odd) {
   background: #BBCCFF !important;
 }
 
-/* line 1465, bootstrap/sass/style_bootstrap.scss */
+/* line 1452, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval,
 .formsAdministration-table,
 .unregisteredForm-table {
@@ -13107,36 +13346,36 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   width: 100% !important;
 }
 
-/* line 1471, bootstrap/sass/style_bootstrap.scss */
+/* line 1458, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval tbody th,
 .showborder_head th {
   background: #BBCCFF !important;
 }
 
-/* line 1475, bootstrap/sass/style_bootstrap.scss */
+/* line 1462, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons {
   width: 100%;
 }
 
-/* line 1478, bootstrap/sass/style_bootstrap.scss */
+/* line 1465, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons table {
   width: 40%;
 }
 
-/* line 1481, bootstrap/sass/style_bootstrap.scss */
+/* line 1468, bootstrap/sass/style_bootstrap.scss */
 .showborder,
 .rule_container {
   width: 100% !important;
 }
 
-/* line 1485, bootstrap/sass/style_bootstrap.scss */
+/* line 1472, bootstrap/sass/style_bootstrap.scss */
 .rule_container, .rule_row {
   padding-bottom: 20px;
   margin-left: 15px;
   padding-top: 0;
 }
 
-/* line 1492, bootstrap/sass/style_bootstrap.scss */
+/* line 1479, bootstrap/sass/style_bootstrap.scss */
 .rule_row:before,
 .rule_row:after {
   content: '';
@@ -13144,13 +13383,64 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   clear: both;
 }
 
-/* line 1498, bootstrap/sass/style_bootstrap.scss */
+/* line 1485, bootstrap/sass/style_bootstrap.scss */
 .formsAdministration-table td,
 .unregisteredForm-table td {
   text-align: center;
 }
 
-/* line 1502, bootstrap/sass/style_bootstrap.scss */
+/* line 1489, bootstrap/sass/style_bootstrap.scss */
 #report_parameters .custom-width {
   width: 800px !important;
+}
+
+/* line 1492, bootstrap/sass/style_bootstrap.scss */
+.batchCom input[type='text'] {
+  display: inline-block;
+  width: 75%;
+}
+
+/* line 1499, bootstrap/sass/style_bootstrap.scss */
+.batchCom select {
+  width: 80%;
+}
+
+/* line 1502, bootstrap/sass/style_bootstrap.scss */
+.batchCom table {
+  border: 1px solid #DDD;
+}
+
+/*** collapse *****/
+/* line 1507, bootstrap/sass/style_bootstrap.scss */
+#objTreeMenu_1_node_1,
+#objTreeMenu_1_node_1_1,
+#objTreeMenu_1_node_1_2,
+#objTreeMenu_1_node_1_3,
+#objTreeMenu_1_node_1_4,
+#objTreeMenu_1_node_1_5,
+#objTreeMenu_1_node_1_6,
+#objTreeMenu_1_node_1_7 {
+  color: #333;
+  border-color: #ddd;
+  display: block !important;
+  background-color: #B8D8AB;
+}
+
+/* line 1521, bootstrap/sass/style_bootstrap.scss */
+#objTreeMenu_1_node_1_7_1,
+#objTreeMenu_1_node_1_7_2,
+#objTreeMenu_1_node_1_1_1,
+#objTreeMenu_1_node_1_1_2,
+#objTreeMenu_1_node_1_1_3 {
+  margin: 15px 0;
+}
+
+/* line 1529, bootstrap/sass/style_bootstrap.scss */
+#documents_list table {
+  width: 100%;
+}
+
+/* line 1532, bootstrap/sass/style_bootstrap.scss */
+div#documents_list span {
+  color: #000;
 }
