@@ -1728,10 +1728,15 @@ function generate_display_field($frow, $currvalue) {
 
   // address book
   else if ($data_type == 14) {
-    $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+    $urow = sqlQuery("SELECT fname, lname, specialty, organization FROM users " .
       "WHERE id = ?", array($currvalue));
-    $uname = $urow['lname'];
-    if ($urow['fname']) $uname .= ", " . $urow['fname'];
+    //ViSolve: To display the Organization Name if it exist. Else it will display the user name.
+    if($urow['organization'] !=""){
+    	$uname = $urow['organization'];
+    }else{
+    	$uname = $urow['lname'];
+    	if ($urow['fname']) $uname .= ", " . $urow['fname'];    	
+    }
     $s = htmlspecialchars($uname,ENT_NOQUOTES);
   }
 
