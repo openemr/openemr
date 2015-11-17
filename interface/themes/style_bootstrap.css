@@ -6467,20 +6467,20 @@ ul.tabNav .open > a:focus,
 
 /* line 4067, bootstrap/css/bootstrap.scss */
 .nav-tabs, ul.tabNav, .tabNav,
-.nav-pills-sm {
+.nav-pills-sm, .ui-corner-top a {
   border-bottom: 1px solid #ddd;
 }
 
 /* line 4070, bootstrap/css/bootstrap.scss */
 .nav-tabs > li, .tabNav > li,
-.nav-pills-sm > li {
+.nav-pills-sm > li, .ui-corner-top a > li {
   float: left;
   margin-bottom: -1px;
 }
 
 /* line 4074, bootstrap/css/bootstrap.scss */
 .nav-tabs > li > a, .tabNav > li > a,
-.nav-pills-sm > li > a {
+.nav-pills-sm > li > a, .ui-corner-top a > li > a {
   margin-right: 2px;
   line-height: 1.42857143;
   border: 1px solid transparent;
@@ -6489,26 +6489,30 @@ ul.tabNav .open > a:focus,
 
 /* line 4080, bootstrap/css/bootstrap.scss */
 .nav-tabs > li > a:hover, .tabNav > li > a:hover,
-.nav-pills-sm > li > a:hover {
+.nav-pills-sm > li > a:hover, .ui-corner-top a > li > a:hover {
   border-color: #eee #eee #ddd;
 }
 
 /* line 4083, bootstrap/css/bootstrap.scss */
 .nav-tabs > li.active > a, .tabNav > li.active > a,
-.nav-pills-sm > li.active > a, .nav-tabs > li.current > a, .tabNav > li.current > a,
-.nav-pills-sm > li.current > a,
+.nav-pills-sm > li.active > a, .ui-corner-top a > li.active > a, .nav-tabs > li.current > a, .tabNav > li.current > a,
+.nav-pills-sm > li.current > a, .ui-corner-top a > li.current > a,
 .nav-tabs > li.active > a:hover,
 .tabNav > li.active > a:hover,
 .nav-pills-sm > li.active > a:hover,
+.ui-corner-top a > li.active > a:hover,
 .nav-tabs > li.current > a:hover,
 .tabNav > li.current > a:hover,
 .nav-pills-sm > li.current > a:hover,
+.ui-corner-top a > li.current > a:hover,
 .nav-tabs > li.active > a:focus,
 .tabNav > li.active > a:focus,
 .nav-pills-sm > li.active > a:focus,
+.ui-corner-top a > li.active > a:focus,
 .nav-tabs > li.current > a:focus,
 .tabNav > li.current > a:focus,
-.nav-pills-sm > li.current > a:focus {
+.nav-pills-sm > li.current > a:focus,
+.ui-corner-top a > li.current > a:focus {
   color: #555;
   cursor: default;
   background-color: #fff;
@@ -6518,27 +6522,27 @@ ul.tabNav .open > a:focus,
 
 /* line 4092, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified, .nav-justified.tabNav,
-.nav-justified.nav-pills-sm {
+.nav-justified.nav-pills-sm, .ui-corner-top a.nav-justified {
   width: 100%;
   border-bottom: 0;
 }
 
 /* line 4096, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > li, .nav-justified.tabNav > li,
-.nav-justified.nav-pills-sm > li {
+.nav-justified.nav-pills-sm > li, .ui-corner-top a.nav-justified > li {
   float: none;
 }
 
 /* line 4099, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > li > a, .nav-justified.tabNav > li > a,
-.nav-justified.nav-pills-sm > li > a {
+.nav-justified.nav-pills-sm > li > a, .ui-corner-top a.nav-justified > li > a {
   margin-bottom: 5px;
   text-align: center;
 }
 
 /* line 4103, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > .dropdown .dropdown-menu, .nav-justified.tabNav > .dropdown .dropdown-menu,
-.nav-justified.nav-pills-sm > .dropdown .dropdown-menu {
+.nav-justified.nav-pills-sm > .dropdown .dropdown-menu, .ui-corner-top a.nav-justified > .dropdown .dropdown-menu {
   top: auto;
   left: auto;
 }
@@ -6546,53 +6550,57 @@ ul.tabNav .open > a:focus,
 @media (min-width: 768px) {
   /* line 4108, bootstrap/css/bootstrap.scss */
   .nav-tabs.nav-justified > li, .nav-justified.tabNav > li,
-  .nav-justified.nav-pills-sm > li {
+  .nav-justified.nav-pills-sm > li, .ui-corner-top a.nav-justified > li {
     display: table-cell;
     width: 1%;
   }
 
   /* line 4112, bootstrap/css/bootstrap.scss */
   .nav-tabs.nav-justified > li > a, .nav-justified.tabNav > li > a,
-  .nav-justified.nav-pills-sm > li > a {
+  .nav-justified.nav-pills-sm > li > a, .ui-corner-top a.nav-justified > li > a {
     margin-bottom: 0;
   }
 }
 /* line 4116, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > li > a, .nav-justified.tabNav > li > a,
-.nav-justified.nav-pills-sm > li > a {
+.nav-justified.nav-pills-sm > li > a, .ui-corner-top a.nav-justified > li > a {
   margin-right: 0;
   border-radius: 4px;
 }
 
 /* line 4120, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > .active > a, .nav-justified.tabNav > .active > a,
-.nav-justified.nav-pills-sm > .active > a,
+.nav-justified.nav-pills-sm > .active > a, .ui-corner-top a.nav-justified > .active > a,
 .nav-tabs.nav-justified > .active > a:hover,
 .nav-justified.tabNav > .active > a:hover,
 .nav-justified.nav-pills-sm > .active > a:hover,
+.ui-corner-top a.nav-justified > .active > a:hover,
 .nav-tabs.nav-justified > .active > a:focus,
 .nav-justified.tabNav > .active > a:focus,
-.nav-justified.nav-pills-sm > .active > a:focus {
+.nav-justified.nav-pills-sm > .active > a:focus,
+.ui-corner-top a.nav-justified > .active > a:focus {
   border: 1px solid #ddd;
 }
 
 @media (min-width: 768px) {
   /* line 4126, bootstrap/css/bootstrap.scss */
   .nav-tabs.nav-justified > li > a, .nav-justified.tabNav > li > a,
-  .nav-justified.nav-pills-sm > li > a {
+  .nav-justified.nav-pills-sm > li > a, .ui-corner-top a.nav-justified > li > a {
     border-bottom: 1px solid #ddd;
     border-radius: 4px 4px 0 0;
   }
 
   /* line 4130, bootstrap/css/bootstrap.scss */
   .nav-tabs.nav-justified > .active > a, .nav-justified.tabNav > .active > a,
-  .nav-justified.nav-pills-sm > .active > a,
+  .nav-justified.nav-pills-sm > .active > a, .ui-corner-top a.nav-justified > .active > a,
   .nav-tabs.nav-justified > .active > a:hover,
   .nav-justified.tabNav > .active > a:hover,
   .nav-justified.nav-pills-sm > .active > a:hover,
+  .ui-corner-top a.nav-justified > .active > a:hover,
   .nav-tabs.nav-justified > .active > a:focus,
   .nav-justified.tabNav > .active > a:focus,
-  .nav-justified.nav-pills-sm > .active > a:focus {
+  .nav-justified.nav-pills-sm > .active > a:focus,
+  .ui-corner-top a.nav-justified > .active > a:focus {
     border-bottom-color: #fff;
   }
 }
@@ -6714,7 +6722,7 @@ ul.tabNav .open > a:focus,
 
 /* line 4210, bootstrap/css/bootstrap.scss */
 .nav-tabs .dropdown-menu, .tabNav .dropdown-menu,
-.nav-pills-sm .dropdown-menu {
+.nav-pills-sm .dropdown-menu, .ui-corner-top a .dropdown-menu {
   margin-top: -1px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -13098,25 +13106,26 @@ td.top-secondary-nav table {
 /* line 1276, bootstrap/sass/style_bootstrap.scss */
 div.borderbox {
   background: #D0E9C6;
+  width: 100%;
 }
 
-/* line 1279, bootstrap/sass/style_bootstrap.scss */
+/* line 1280, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:hover {
   text-decoration: none;
   cursor: pointer;
 }
 
-/* line 1284, bootstrap/sass/style_bootstrap.scss */
+/* line 1285, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li ul ul {
   padding-left: 5px;
 }
 
-/* line 1287, bootstrap/sass/style_bootstrap.scss */
+/* line 1288, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a > img {
   display: none;
 }
 
-/* line 1290, bootstrap/sass/style_bootstrap.scss */
+/* line 1291, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:before {
   font-family: 'fontawesome';
   margin-right: 5px;
@@ -13124,94 +13133,94 @@ div.borderbox {
   font-size: 14px;
 }
 
-/* line 1297, bootstrap/sass/style_bootstrap.scss */
+/* line 1298, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:after {
   font-family: 'fontawesome';
   margin-left: 5px;
   color: #000;
 }
 
-/* line 1302, bootstrap/sass/style_bootstrap.scss */
+/* line 1303, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#cal0:before {
   content: "\f073";
 }
 
-/* line 1305, bootstrap/sass/style_bootstrap.scss */
+/* line 1306, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#pfb0:before {
   content: "\f15c";
 }
 
-/* line 1308, bootstrap/sass/style_bootstrap.scss */
+/* line 1309, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#msg0:before {
   content: "\f003";
 }
 
-/* line 1311, bootstrap/sass/style_bootstrap.scss */
+/* line 1312, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#patimg:before {
   content: "\f007";
 }
 
-/* line 1314, bootstrap/sass/style_bootstrap.scss */
+/* line 1315, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#feeimg:before {
   content: "\f0d6";
 }
 
-/* line 1317, bootstrap/sass/style_bootstrap.scss */
+/* line 1318, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#modimg:before {
   content: "\f0fa";
 }
 
-/* line 1320, bootstrap/sass/style_bootstrap.scss */
+/* line 1321, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:before {
   content: "\f0fa";
 }
 
-/* line 1323, bootstrap/sass/style_bootstrap.scss */
+/* line 1324, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:after,
 #navigation-slide li > a#admimg:after {
   content: "\f0d7";
 }
 
-/* line 1327, bootstrap/sass/style_bootstrap.scss */
+/* line 1328, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#admimg:before {
   content: "\f085";
 }
 
-/* line 1330, bootstrap/sass/style_bootstrap.scss */
+/* line 1331, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#repimg:before {
   content: "\f080";
 }
 
-/* line 1333, bootstrap/sass/style_bootstrap.scss */
+/* line 1334, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#misimg:before {
   content: "\f01c";
 }
 
-/* line 1337, bootstrap/sass/style_bootstrap.scss */
+/* line 1338, bootstrap/sass/style_bootstrap.scss */
 frameset.sidebar, frameset.main-section {
   width: 100%;
 }
 
-/* line 1340, bootstrap/sass/style_bootstrap.scss */
+/* line 1341, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td {
   width: auto !important;
 }
 
-/* line 1343, bootstrap/sass/style_bootstrap.scss */
+/* line 1344, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td input,
 form[id="theform"] td input {
   display: inline-block;
   width: auto;
 }
 
-/* line 1348, bootstrap/sass/style_bootstrap.scss */
+/* line 1349, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td,
 form[id="theform"] td {
   vertical-align: middle;
   font-size: 12px;
 }
 
-/* line 1353, bootstrap/sass/style_bootstrap.scss */
+/* line 1354, bootstrap/sass/style_bootstrap.scss */
 #img_date,
 #img_to_date,
 #img_from_date,
@@ -13234,12 +13243,12 @@ form[id="theform"] td {
   height: 21px;
 }
 
-/* line 1376, bootstrap/sass/style_bootstrap.scss */
+/* line 1377, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel {
   padding-top: 15px;
 }
 
-/* line 1380, bootstrap/sass/style_bootstrap.scss */
+/* line 1381, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .title-bigger {
   font-size: 18px;
   display: block;
@@ -13250,14 +13259,14 @@ form[id="theform"] td {
   font-weight: bold;
 }
 
-/* line 1391, bootstrap/sass/style_bootstrap.scss */
+/* line 1392, bootstrap/sass/style_bootstrap.scss */
 .pager span {
   content: '';
   max-height: 31px;
   overflow: hidden;
 }
 
-/* line 1396, bootstrap/sass/style_bootstrap.scss */
+/* line 1397, bootstrap/sass/style_bootstrap.scss */
 .pager span:first-child:before {
   content: '\f0d9 ';
   font-family: 'fontawesome';
@@ -13265,7 +13274,7 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1402, bootstrap/sass/style_bootstrap.scss */
+/* line 1403, bootstrap/sass/style_bootstrap.scss */
 .pager span:last-child:before {
   content: '\f0da';
   font-family: 'fontawesome';
@@ -13273,72 +13282,72 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1408, bootstrap/sass/style_bootstrap.scss */
+/* line 1409, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li {
   border: 1px solid;
   border-radius: 5px 5px 0 0;
   padding: 0;
 }
 
-/* line 1413, bootstrap/sass/style_bootstrap.scss */
+/* line 1414, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   margin: 0;
 }
 
-/* line 1416, bootstrap/sass/style_bootstrap.scss */
+/* line 1417, bootstrap/sass/style_bootstrap.scss */
 #dateNAV {
   font-size: 12pt !important;
   margin-top: -3px;
   margin-bottom: 5px;
 }
 
-/* line 1421, bootstrap/sass/style_bootstrap.scss */
+/* line 1422, bootstrap/sass/style_bootstrap.scss */
 #times table, .view2, .view1, #datePicker .currentDate,
 #datePicker .tdDatePickerHighlight, #report_results table thead {
   background-color: #BBCCFF !important;
 }
 
-/* line 1425, bootstrap/sass/style_bootstrap.scss */
+/* line 1426, bootstrap/sass/style_bootstrap.scss */
 .dr_container {
   padding: 0 !important;
 }
 
-/* line 1428, bootstrap/sass/style_bootstrap.scss */
+/* line 1429, bootstrap/sass/style_bootstrap.scss */
 .drHide {
   position: relative;
   top: 5px;
 }
 
-/* line 1432, bootstrap/sass/style_bootstrap.scss */
+/* line 1433, bootstrap/sass/style_bootstrap.scss */
 .drHide p {
   display: inline-flex;
   margin-right: 3px !important;
 }
 
-/* line 1436, bootstrap/sass/style_bootstrap.scss */
+/* line 1437, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .panel {
   background: #B8D8AB;
   padding: 15px;
 }
 
-/* line 1440, bootstrap/sass/style_bootstrap.scss */
+/* line 1441, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion .ui-accordion-header {
   background: #B8D8AB;
   padding: 5px;
 }
 
-/* line 1445, bootstrap/sass/style_bootstrap.scss */
+/* line 1446, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion-content {
   background: #D0E9C6 !important;
 }
 
-/* line 1448, bootstrap/sass/style_bootstrap.scss */
+/* line 1449, bootstrap/sass/style_bootstrap.scss */
 .tableHead-bg,
 .table-striped > tbody > tr:nth-of-type(odd) {
   background: #BBCCFF !important;
 }
 
-/* line 1452, bootstrap/sass/style_bootstrap.scss */
+/* line 1453, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval,
 .formsAdministration-table,
 .unregisteredForm-table {
@@ -13346,36 +13355,36 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   width: 100% !important;
 }
 
-/* line 1458, bootstrap/sass/style_bootstrap.scss */
+/* line 1459, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval tbody th,
 .showborder_head th {
   background: #BBCCFF !important;
 }
 
-/* line 1462, bootstrap/sass/style_bootstrap.scss */
+/* line 1463, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons {
   width: 100%;
 }
 
-/* line 1465, bootstrap/sass/style_bootstrap.scss */
+/* line 1466, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons table {
   width: 40%;
 }
 
-/* line 1468, bootstrap/sass/style_bootstrap.scss */
+/* line 1469, bootstrap/sass/style_bootstrap.scss */
 .showborder,
 .rule_container {
   width: 100% !important;
 }
 
-/* line 1472, bootstrap/sass/style_bootstrap.scss */
+/* line 1473, bootstrap/sass/style_bootstrap.scss */
 .rule_container, .rule_row {
   padding-bottom: 20px;
   margin-left: 15px;
   padding-top: 0;
 }
 
-/* line 1479, bootstrap/sass/style_bootstrap.scss */
+/* line 1480, bootstrap/sass/style_bootstrap.scss */
 .rule_row:before,
 .rule_row:after {
   content: '';
@@ -13383,35 +13392,44 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   clear: both;
 }
 
-/* line 1485, bootstrap/sass/style_bootstrap.scss */
+/* line 1486, bootstrap/sass/style_bootstrap.scss */
 .formsAdministration-table td,
 .unregisteredForm-table td {
   text-align: center;
 }
 
-/* line 1489, bootstrap/sass/style_bootstrap.scss */
+/* line 1490, bootstrap/sass/style_bootstrap.scss */
 #report_parameters .custom-width {
   width: 800px !important;
 }
 
-/* line 1492, bootstrap/sass/style_bootstrap.scss */
-.batchCom input[type='text'] {
+/* line 1493, bootstrap/sass/style_bootstrap.scss */
+.batchCom input[type='text'],
+.eraPosting input[type='text'] {
   display: inline-block;
   width: 75%;
 }
 
 /* line 1499, bootstrap/sass/style_bootstrap.scss */
+.batchResults input[type='text'],
+.table-eleReports input[type='text'],
+#docfilterdiv input[type='text'] {
+  display: inline-block;
+  width: auto;
+}
+
+/* line 1508, bootstrap/sass/style_bootstrap.scss */
 .batchCom select {
   width: 80%;
 }
 
-/* line 1502, bootstrap/sass/style_bootstrap.scss */
+/* line 1511, bootstrap/sass/style_bootstrap.scss */
 .batchCom table {
   border: 1px solid #DDD;
 }
 
 /*** collapse *****/
-/* line 1507, bootstrap/sass/style_bootstrap.scss */
+/* line 1516, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1,
 #objTreeMenu_1_node_1_1,
 #objTreeMenu_1_node_1_2,
@@ -13426,7 +13444,7 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   background-color: #B8D8AB;
 }
 
-/* line 1521, bootstrap/sass/style_bootstrap.scss */
+/* line 1530, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1_7_1,
 #objTreeMenu_1_node_1_7_2,
 #objTreeMenu_1_node_1_1_1,
@@ -13435,12 +13453,48 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   margin: 15px 0;
 }
 
-/* line 1529, bootstrap/sass/style_bootstrap.scss */
+/* line 1538, bootstrap/sass/style_bootstrap.scss */
 #documents_list table {
   width: 100%;
 }
 
-/* line 1532, bootstrap/sass/style_bootstrap.scss */
+/* line 1541, bootstrap/sass/style_bootstrap.scss */
 div#documents_list span {
   color: #000;
+}
+
+/* line 1544, bootstrap/sass/style_bootstrap.scss */
+div.tabContainer div.tab,
+.table-fullwidth,
+.tableSearch {
+  width: 100% !important;
+}
+
+/* line 1549, bootstrap/sass/style_bootstrap.scss */
+.tableBilling td,
+.tableBatchPayments td,
+.eraPosting tr {
+  background: #D0E9C6 !important;
+}
+
+/* line 1554, bootstrap/sass/style_bootstrap.scss */
+.eraPosting tbody > tr > td {
+  padding: 0;
+}
+
+/* line 1557, bootstrap/sass/style_bootstrap.scss */
+.tableBilling a.css_button_small, .tableBilling a#showMenuLink {
+  display: inline-block;
+  margin-bottom: 5px !important;
+}
+
+/* line 1561, bootstrap/sass/style_bootstrap.scss */
+.searchPaymentInputTD input {
+  width: 100px !important;
+  display: inline;
+}
+
+/* line 1565, bootstrap/sass/style_bootstrap.scss */
+.tableSearch {
+  width: 100%;
 }

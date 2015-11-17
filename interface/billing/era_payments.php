@@ -171,7 +171,7 @@ document.onclick=HideTheAjaxDivs;
 </head>
 <body class="body_top" onLoad="OnloadAction()">
 <form enctype="multipart/form-data" method='post'  action='era_payments.php'  style="display:inline"  >
-<table width="455" border="0"  cellspacing="0" cellpadding="0">
+<table width="455" border="0"  cellspacing="0" cellpadding="0" class="tableSearch">
   <tr>
     <td colspan="3" align="left"><b><?php echo htmlspecialchars( xl('Payments'), ENT_QUOTES) ?></b></td>
   </tr>
@@ -188,8 +188,8 @@ document.onclick=HideTheAjaxDivs;
   </tr>
   <tr>
     <td colspan="3" align="left" >
-    <table width="455" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-	<table width="435" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
+    <table width="455" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE" class="table table-striped table-bordered tableSearch eraPosting"><tr><td>
+	<table width="435" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0" class="tableSearch">
 	  <tr height="5">
 	    <td width="5"  align="left" ></td>
 		<td width="85"  align="left" ></td>

@@ -337,7 +337,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
   echo " <div class='tab" . ($i ? "" : " current") .
     "' style='height:auto;width:97%;'>\n";
 
-  echo " <table>";
+  echo " <table class=\"table table-striped table-bordered\">";
 
   if ($_GET['mode'] == "user") {
    echo "<tr>";

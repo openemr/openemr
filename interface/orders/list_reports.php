@@ -306,7 +306,7 @@ $form_patient = !empty($_POST['form_patient']);
 $form_provider = empty($_POST['form_provider']) ? '' : intval($_POST['form_provider']);
 ?>
 
-<table width='100%'>
+<table width='100%' class="table table-striped table-bordered table-eleReports">
  <tr>
   <td class='text' align='center'>
    &nbsp;<?php echo xlt('From'); ?>:

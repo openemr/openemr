@@ -1275,6 +1275,7 @@ input[name="type_code"]{
 }
 div.borderbox {
     background: #D0E9C6;
+    width: 100%;
 }
 #navigation-slide li > a:hover{
     @extend .collapse-inner;
@@ -1489,9 +1490,17 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
 #report_parameters .custom-width{
     width: 800px !important;
 }
-.batchCom input[type='text']{
+.batchCom input[type='text'],
+.eraPosting input[type='text']
+{
     display: inline-block;
     width: 75%;
+}
+.batchResults input[type='text'],
+.table-eleReports input[type='text'],
+#docfilterdiv input[type='text']{
+    display: inline-block;
+    width: auto;
 }
 .batchCom textarea{
     @extend .form-control;
@@ -1531,4 +1540,31 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
 }
 div#documents_list span {
     color: #000;
+}
+div.tabContainer div.tab,
+.table-fullwidth,
+.tableSearch{
+    width: 100% !important;
+}
+.tableBilling td,
+.tableBatchPayments td,
+.eraPosting tr{
+    background: $lightgreen !important;
+}
+.eraPosting tbody > tr > td{
+    padding: 0;
+}
+.tableBilling a.css_button_small {
+    display: inline-block;
+    margin-bottom: 5px !important;
+}
+.searchPaymentInputTD input {
+    width: 100px !important;
+    display: inline;
+}
+.tableSearch{
+    width: 100%;
+}
+.ui-corner-top a{
+    @extend .nav-tabs;
 }

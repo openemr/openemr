@@ -292,7 +292,7 @@ function validate(f) {
 <form method='post' action='orders_results.php?batch=<?php echo $form_batch; ?>&review=<?php echo $form_review; ?>'
  onsubmit='return validate(this)'>
 
-<table>
+<table class="table table-striped table-bordered batchResults">
  <tr>
   <td class='text'>
 <?php

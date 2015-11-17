@@ -136,8 +136,8 @@ if($payment_id>0)
 if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $payment_id*1>0))
  {//New entry or edit in edit screen comes here.
 ?>
-<table width="1024" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-	<table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
+<table width="1024" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE" class="table"><tr><td>
+	<table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0" class="table table-striped tableBatchPayments">
 	  <tr height="5">
 		<td colspan="14" align="left" ></td>
 	  </tr>
