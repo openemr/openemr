@@ -74,12 +74,12 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 <title><?php echo xlt('Load Lab Configuration'); ?></title>
 </head>
 
-<body class="body_top">
+<body class="body_top loadCompendium">
 <center>
 &nbsp;<br />
 <form method='post' action='load_compendium.php' enctype='multipart/form-data'>
 
-<table>
+<table class="table table-striped table-bordered">
 
 <?php
 if ($form_step == 0) {

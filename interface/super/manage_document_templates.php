@@ -111,7 +111,7 @@ if (!empty($_POST['bn_upload'])) {
 <h2><?php echo xlt('Document Template Management'); ?></h2>
 
 <p>
-<table border='1' width='95%'>
+<table border='1' width='95%' class="table table-striped table-bordered">
 
  <tr bgcolor='#dddddd' class='dehead'>
   <td align='center'><?php echo xlt('Upload a Template'); ?></td>
@@ -133,7 +133,7 @@ if (!empty($_POST['bn_upload'])) {
 </p>
 
 <p>
-<table border='1' width='95%'>
+<table border='1' width='95%' class="table table-striped table-bordered">
 
  <tr bgcolor='#dddddd' class='dehead'>
   <td align='center'><?php echo xlt('Download or Delete a Template'); ?></td>

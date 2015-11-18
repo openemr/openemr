@@ -80,7 +80,7 @@ function doedclick_edit(ppid) {
 <form method='post' action='procedure_provider_list.php'>
 
 <table>
- <tr class='search'> <!-- bgcolor='#ddddff' -->
+ <tr class='search no-bg'> <!-- bgcolor='#ddddff' -->
   <td>
    <input type='submit' class='button' name='form_search' value='<?php echo xla("Refresh")?>' />
    <input type='button' class='button' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add()' />
@@ -88,7 +88,7 @@ function doedclick_edit(ppid) {
  </tr>
 </table>
 
-<table>
+<table class="table table-striped table-bordered">
  <tr class='head'>
   <td title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Name'); ?></td>
   <td><?php echo xlt('NPI'); ?></td>

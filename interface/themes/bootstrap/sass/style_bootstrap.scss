@@ -12,6 +12,7 @@ body {
   /* set the base font and size for all DOM children */
   font-family: sans-serif;
   font-size: 10pt;  /* set the base font size for all DOM children */
+    
 }
 
 a {
@@ -212,13 +213,7 @@ $body-color: #E8B151;
   font-size:10pt;
 }
 #addressbook_list .inputtext {
-  font-family:monospace;
-  font-size:9pt;
-  font-weight:normal;
-  border-style:solid;
-  border-width:1px;
-  border-color: #000000;
-  background-color:transparent;
+    @extend .form-control;
 }
 #addressbook_list .button {
   font-family:sans-serif;
@@ -1175,6 +1170,8 @@ li.current {
     background: #fff !important;
     height: auto !important;
     padding: 5px 14px !important;
+    width: 42px;
+    text-align: center;
 }
 .btn-green{
     @extend .btn-submit 
@@ -1351,20 +1348,9 @@ form[id="theform"] td{
     vertical-align: middle;
     font-size: 12px;
 }
-#img_date,
-#img_to_date,
-#img_from_date,
-#img_begin_date,
-#img_end_date,
-#img_target_date,
-#img_DOB,
-#img_depositdate,
-#img_checkdate,
-#img_post_to_date,
-#img_from_doc_date,
-#img_to_doc_date,
-#img_start_date,
-.calandar-img{
+#img_date, #img_to_date, #img_from_date, #img_begin_date, #img_end_date,
+#img_target_date, #img_DOB, #img_depositdate, #img_checkdate, #img_post_to_date,
+#img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate{
     display: inline-block;
     box-sizing: border-box;    
     padding-left: 27px;
@@ -1389,18 +1375,21 @@ form[id="theform"] td{
     
 }
 
-.pager span{
+.pager span,
+.dataTables_paginate a{
     content: '';
     max-height: 31px;
     overflow: hidden;
 }
-.pager span:first-child:before{
+.pager span:first-child:before,
+.dataTables_paginate .paginate_disabled_previous:before{
     content: '\f0d9 ';
     font-family: 'fontawesome';
     display: block;
         padding-bottom: 50px;
 }
-.pager span:last-child:before{
+.pager span:last-child:before,
+.dataTables_paginate .paginate_disabled_next:before{
     content: '\f0da';
     font-family: 'fontawesome';
     display: block;
@@ -1565,6 +1554,57 @@ div.tabContainer div.tab,
 .tableSearch{
     width: 100%;
 }
-.ui-corner-top a{
-    @extend .nav-tabs;
+.Clear li a,
+#tabs{
+    background: #000;
+//    @extend .nav-tabs;
+}
+.no-bg{
+    background: transparent!important;
+}
+.confirguration #con0 table{
+    @extend .table, .table-bordered, .table-striped;
+}
+.confirguration #con0 .col5 {
+    text-align: center;
+    width: 160px !important;
+}
+.confirguration #con0 .col5 span{
+    @extend .btn-primary;
+    display: inline-block;
+    padding: inherit;
+    border-radius: 5px;
+    margin: 3px;
+    content: '';
+    overflow: hidden;
+    width: 62px;
+    height: 30px;
+    max-height: 31px;
+    text-align: center;
+}
+.confirguration #con0 .col5 span:first-child:before{
+    content: 'Edit';
+    padding-bottom: 35px;
+    display: block;
+}
+.confirguration #con0 .col5 span:last-child:before{
+    content: 'Add';
+    padding-bottom: 35px;
+    display: block;
+}
+.loadCompendium,
+#pt_table_wrapper .dataTable{
+    background: $lightgreen;
+}
+.pager span,
+.dataTables_paginate{
+    margin-top: 10px;
+}
+#docfilterdiv > table{
+    margin: 0 !important;
+}
+#docfilterdiv .table .label{
+    font-size: inherit;
+    vertical-align: middle;
+    text-align: right;
 }

@@ -156,7 +156,7 @@ $display_collapse_msg = "display:inline;";
     <span id='doccollapse' onclick='expandOrCollapse(2,"doc")' style='cursor:pointer;<?php echo $display_collapse_msg ?>'>(collapse)</span>
 	<br><br>
     <div id='docfilterdiv'<?php echo $display_div; ?>>
-	<table style="margin-left:10px; " width='40%' class="table table-bordered table-striped">
+	<table style="margin-left:10px; " width='40%' class="table table-striped">
 		<tr>
 			<td scope="row" class='label'><?php echo xlt('From'); ?>:</td>
 			<td><input type='text' name='form_from_doc_date' id="form_from_doc_date"
@@ -214,7 +214,7 @@ $display_collapse_msg = "display:inline;";
 	$resultSet = sqlStatement($query,$query_array);
 	?>
 	
-	<table border="1" cellpadding=3 cellspacing=0>
+	<table class="table table-striped table-bordered" border="1" cellpadding=3 cellspacing=0>
 	<tr class='text bold'>
 		<th align="left" width="10%"><?php echo xlt('Date'); ?></th>
 		<th align="left" class="linkcell" width="20%" ><?php echo xlt('Name'); ?></th>

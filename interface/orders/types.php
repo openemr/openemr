@@ -236,7 +236,7 @@ function recolor() {
 
 </head>
 
-<body class="body_nav">
+<body class="body_nav confirguration">
 <center>
 
 <h3 style='margin-top:0'><?php xl('Types of Orders and Results','e') ?></h3>
@@ -247,7 +247,7 @@ if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
 if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
 ?>'>
 
-<table width='100%' cellspacing='0' cellpadding='0' border='0'>
+<table width='100%' cellspacing='0' cellpadding='0' border='0' class="table table-bordered table-striped">
  <tr class='head'>
   <th class='col1' align='left'>&nbsp;&nbsp;<?php xl('Name','e') ?></th>
   <th class='col2' align='left'><?php xl('Order','e') ?></th>

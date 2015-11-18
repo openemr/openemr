@@ -426,19 +426,21 @@ th {
   }
 
   /* line 251, bootstrap/css/bootstrap.scss */
-  .table {
+  .table, .confirguration #con0 table {
     border-collapse: collapse !important;
   }
 
   /* line 255, bootstrap/css/bootstrap.scss */
-  .table td,
-  .table th {
+  .table td, .confirguration #con0 table td,
+  .table th,
+  .confirguration #con0 table th {
     background-color: #fff !important;
   }
 
   /* line 259, bootstrap/css/bootstrap.scss */
-  .table-bordered th,
-  .table-bordered td {
+  .table-bordered th, .confirguration #con0 table th,
+  .table-bordered td,
+  .confirguration #con0 table td {
     border: 1px solid #ddd !important;
   }
 }
@@ -3581,19 +3583,24 @@ th {
 }
 
 /* line 2265, bootstrap/css/bootstrap.scss */
-.table {
+.table, .confirguration #con0 table {
   width: 100%;
   max-width: 100%;
   margin-bottom: 20px;
 }
 
 /* line 2270, bootstrap/css/bootstrap.scss */
-.table > thead > tr > th,
+.table > thead > tr > th, .confirguration #con0 table > thead > tr > th,
 .table > tbody > tr > th,
+.confirguration #con0 table > tbody > tr > th,
 .table > tfoot > tr > th,
+.confirguration #con0 table > tfoot > tr > th,
 .table > thead > tr > td,
+.confirguration #con0 table > thead > tr > td,
 .table > tbody > tr > td,
-.table > tfoot > tr > td {
+.confirguration #con0 table > tbody > tr > td,
+.table > tfoot > tr > td,
+.confirguration #con0 table > tfoot > tr > td {
   padding: 8px;
   line-height: 1.42857143;
   vertical-align: top;
@@ -3601,28 +3608,33 @@ th {
 }
 
 /* line 2281, bootstrap/css/bootstrap.scss */
-.table > thead > tr > th {
+.table > thead > tr > th, .confirguration #con0 table > thead > tr > th {
   vertical-align: bottom;
   border-bottom: 2px solid #ddd;
 }
 
 /* line 2285, bootstrap/css/bootstrap.scss */
-.table > caption + thead > tr:first-child > th,
+.table > caption + thead > tr:first-child > th, .confirguration #con0 table > caption + thead > tr:first-child > th,
 .table > colgroup + thead > tr:first-child > th,
+.confirguration #con0 table > colgroup + thead > tr:first-child > th,
 .table > thead:first-child > tr:first-child > th,
+.confirguration #con0 table > thead:first-child > tr:first-child > th,
 .table > caption + thead > tr:first-child > td,
+.confirguration #con0 table > caption + thead > tr:first-child > td,
 .table > colgroup + thead > tr:first-child > td,
-.table > thead:first-child > tr:first-child > td {
+.confirguration #con0 table > colgroup + thead > tr:first-child > td,
+.table > thead:first-child > tr:first-child > td,
+.confirguration #con0 table > thead:first-child > tr:first-child > td {
   border-top: 0;
 }
 
 /* line 2293, bootstrap/css/bootstrap.scss */
-.table > tbody + tbody {
+.table > tbody + tbody, .confirguration #con0 table > tbody + tbody {
   border-top: 2px solid #ddd;
 }
 
 /* line 2296, bootstrap/css/bootstrap.scss */
-.table .table {
+.table .table, .confirguration #con0 table .table, .table .confirguration #con0 table, .confirguration #con0 .table table, .confirguration #con0 table table {
   background-color: #fff;
 }
 
@@ -3637,28 +3649,34 @@ th {
 }
 
 /* line 2307, bootstrap/css/bootstrap.scss */
-.table-bordered {
+.table-bordered, .confirguration #con0 table {
   border: 1px solid #ddd;
 }
 
 /* line 2310, bootstrap/css/bootstrap.scss */
-.table-bordered > thead > tr > th,
+.table-bordered > thead > tr > th, .confirguration #con0 table > thead > tr > th,
 .table-bordered > tbody > tr > th,
+.confirguration #con0 table > tbody > tr > th,
 .table-bordered > tfoot > tr > th,
+.confirguration #con0 table > tfoot > tr > th,
 .table-bordered > thead > tr > td,
+.confirguration #con0 table > thead > tr > td,
 .table-bordered > tbody > tr > td,
-.table-bordered > tfoot > tr > td {
+.confirguration #con0 table > tbody > tr > td,
+.table-bordered > tfoot > tr > td,
+.confirguration #con0 table > tfoot > tr > td {
   border: 1px solid #ddd;
 }
 
 /* line 2318, bootstrap/css/bootstrap.scss */
-.table-bordered > thead > tr > th,
-.table-bordered > thead > tr > td {
+.table-bordered > thead > tr > th, .confirguration #con0 table > thead > tr > th,
+.table-bordered > thead > tr > td,
+.confirguration #con0 table > thead > tr > td {
   border-bottom-width: 2px;
 }
 
 /* line 2322, bootstrap/css/bootstrap.scss */
-.table-striped > tbody > tr:nth-of-type(odd) {
+.table-striped > tbody > tr:nth-of-type(odd), .confirguration #con0 table > tbody > tr:nth-of-type(odd) {
   background-color: #f9f9f9;
 }
 
@@ -3683,18 +3701,29 @@ table th[class*="col-"] {
 }
 
 /* line 2339, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.active,
+.table > thead > tr > td.active, .confirguration #con0 table > thead > tr > td.active,
 .table > tbody > tr > td.active,
+.confirguration #con0 table > tbody > tr > td.active,
 .table > tfoot > tr > td.active,
+.confirguration #con0 table > tfoot > tr > td.active,
 .table > thead > tr > th.active,
+.confirguration #con0 table > thead > tr > th.active,
 .table > tbody > tr > th.active,
+.confirguration #con0 table > tbody > tr > th.active,
 .table > tfoot > tr > th.active,
+.confirguration #con0 table > tfoot > tr > th.active,
 .table > thead > tr.active > td,
+.confirguration #con0 table > thead > tr.active > td,
 .table > tbody > tr.active > td,
+.confirguration #con0 table > tbody > tr.active > td,
 .table > tfoot > tr.active > td,
+.confirguration #con0 table > tfoot > tr.active > td,
 .table > thead > tr.active > th,
+.confirguration #con0 table > thead > tr.active > th,
 .table > tbody > tr.active > th,
-.table > tfoot > tr.active > th {
+.confirguration #con0 table > tbody > tr.active > th,
+.table > tfoot > tr.active > th,
+.confirguration #con0 table > tfoot > tr.active > th {
   background-color: #f5f5f5;
 }
 
@@ -3708,18 +3737,29 @@ table th[class*="col-"] {
 }
 
 /* line 2360, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.success,
+.table > thead > tr > td.success, .confirguration #con0 table > thead > tr > td.success,
 .table > tbody > tr > td.success,
+.confirguration #con0 table > tbody > tr > td.success,
 .table > tfoot > tr > td.success,
+.confirguration #con0 table > tfoot > tr > td.success,
 .table > thead > tr > th.success,
+.confirguration #con0 table > thead > tr > th.success,
 .table > tbody > tr > th.success,
+.confirguration #con0 table > tbody > tr > th.success,
 .table > tfoot > tr > th.success,
+.confirguration #con0 table > tfoot > tr > th.success,
 .table > thead > tr.success > td,
+.confirguration #con0 table > thead > tr.success > td,
 .table > tbody > tr.success > td,
+.confirguration #con0 table > tbody > tr.success > td,
 .table > tfoot > tr.success > td,
+.confirguration #con0 table > tfoot > tr.success > td,
 .table > thead > tr.success > th,
+.confirguration #con0 table > thead > tr.success > th,
 .table > tbody > tr.success > th,
-.table > tfoot > tr.success > th {
+.confirguration #con0 table > tbody > tr.success > th,
+.table > tfoot > tr.success > th,
+.confirguration #con0 table > tfoot > tr.success > th {
   background-color: #dff0d8;
 }
 
@@ -3733,18 +3773,29 @@ table th[class*="col-"] {
 }
 
 /* line 2381, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.info,
+.table > thead > tr > td.info, .confirguration #con0 table > thead > tr > td.info,
 .table > tbody > tr > td.info,
+.confirguration #con0 table > tbody > tr > td.info,
 .table > tfoot > tr > td.info,
+.confirguration #con0 table > tfoot > tr > td.info,
 .table > thead > tr > th.info,
+.confirguration #con0 table > thead > tr > th.info,
 .table > tbody > tr > th.info,
+.confirguration #con0 table > tbody > tr > th.info,
 .table > tfoot > tr > th.info,
+.confirguration #con0 table > tfoot > tr > th.info,
 .table > thead > tr.info > td,
+.confirguration #con0 table > thead > tr.info > td,
 .table > tbody > tr.info > td,
+.confirguration #con0 table > tbody > tr.info > td,
 .table > tfoot > tr.info > td,
+.confirguration #con0 table > tfoot > tr.info > td,
 .table > thead > tr.info > th,
+.confirguration #con0 table > thead > tr.info > th,
 .table > tbody > tr.info > th,
-.table > tfoot > tr.info > th {
+.confirguration #con0 table > tbody > tr.info > th,
+.table > tfoot > tr.info > th,
+.confirguration #con0 table > tfoot > tr.info > th {
   background-color: #d9edf7;
 }
 
@@ -3758,18 +3809,29 @@ table th[class*="col-"] {
 }
 
 /* line 2402, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.warning,
+.table > thead > tr > td.warning, .confirguration #con0 table > thead > tr > td.warning,
 .table > tbody > tr > td.warning,
+.confirguration #con0 table > tbody > tr > td.warning,
 .table > tfoot > tr > td.warning,
+.confirguration #con0 table > tfoot > tr > td.warning,
 .table > thead > tr > th.warning,
+.confirguration #con0 table > thead > tr > th.warning,
 .table > tbody > tr > th.warning,
+.confirguration #con0 table > tbody > tr > th.warning,
 .table > tfoot > tr > th.warning,
+.confirguration #con0 table > tfoot > tr > th.warning,
 .table > thead > tr.warning > td,
+.confirguration #con0 table > thead > tr.warning > td,
 .table > tbody > tr.warning > td,
+.confirguration #con0 table > tbody > tr.warning > td,
 .table > tfoot > tr.warning > td,
+.confirguration #con0 table > tfoot > tr.warning > td,
 .table > thead > tr.warning > th,
+.confirguration #con0 table > thead > tr.warning > th,
 .table > tbody > tr.warning > th,
-.table > tfoot > tr.warning > th {
+.confirguration #con0 table > tbody > tr.warning > th,
+.table > tfoot > tr.warning > th,
+.confirguration #con0 table > tfoot > tr.warning > th {
   background-color: #fcf8e3;
 }
 
@@ -3783,18 +3845,29 @@ table th[class*="col-"] {
 }
 
 /* line 2423, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.danger,
+.table > thead > tr > td.danger, .confirguration #con0 table > thead > tr > td.danger,
 .table > tbody > tr > td.danger,
+.confirguration #con0 table > tbody > tr > td.danger,
 .table > tfoot > tr > td.danger,
+.confirguration #con0 table > tfoot > tr > td.danger,
 .table > thead > tr > th.danger,
+.confirguration #con0 table > thead > tr > th.danger,
 .table > tbody > tr > th.danger,
+.confirguration #con0 table > tbody > tr > th.danger,
 .table > tfoot > tr > th.danger,
+.confirguration #con0 table > tfoot > tr > th.danger,
 .table > thead > tr.danger > td,
+.confirguration #con0 table > thead > tr.danger > td,
 .table > tbody > tr.danger > td,
+.confirguration #con0 table > tbody > tr.danger > td,
 .table > tfoot > tr.danger > td,
+.confirguration #con0 table > tfoot > tr.danger > td,
 .table > thead > tr.danger > th,
+.confirguration #con0 table > thead > tr.danger > th,
 .table > tbody > tr.danger > th,
-.table > tfoot > tr.danger > th {
+.confirguration #con0 table > tbody > tr.danger > th,
+.table > tfoot > tr.danger > th,
+.confirguration #con0 table > tfoot > tr.danger > th {
   background-color: #f2dede;
 }
 
@@ -3824,50 +3897,68 @@ table th[class*="col-"] {
   }
 
   /* line 2456, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table {
+  .table-responsive > .table, .confirguration #con0 .table-responsive > table {
     margin-bottom: 0;
   }
 
   /* line 2459, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table > thead > tr > th,
+  .table-responsive > .table > thead > tr > th, .confirguration #con0 .table-responsive > table > thead > tr > th,
   .table-responsive > .table > tbody > tr > th,
+  .confirguration #con0 .table-responsive > table > tbody > tr > th,
   .table-responsive > .table > tfoot > tr > th,
+  .confirguration #con0 .table-responsive > table > tfoot > tr > th,
   .table-responsive > .table > thead > tr > td,
+  .confirguration #con0 .table-responsive > table > thead > tr > td,
   .table-responsive > .table > tbody > tr > td,
-  .table-responsive > .table > tfoot > tr > td {
+  .confirguration #con0 .table-responsive > table > tbody > tr > td,
+  .table-responsive > .table > tfoot > tr > td,
+  .confirguration #con0 .table-responsive > table > tfoot > tr > td {
     white-space: nowrap;
   }
 
   /* line 2467, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table-bordered {
+  .table-responsive > .table-bordered, .confirguration #con0 .table-responsive > table {
     border: 0;
   }
 
   /* line 2470, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table-bordered > thead > tr > th:first-child,
+  .table-responsive > .table-bordered > thead > tr > th:first-child, .confirguration #con0 .table-responsive > table > thead > tr > th:first-child,
   .table-responsive > .table-bordered > tbody > tr > th:first-child,
+  .confirguration #con0 .table-responsive > table > tbody > tr > th:first-child,
   .table-responsive > .table-bordered > tfoot > tr > th:first-child,
+  .confirguration #con0 .table-responsive > table > tfoot > tr > th:first-child,
   .table-responsive > .table-bordered > thead > tr > td:first-child,
+  .confirguration #con0 .table-responsive > table > thead > tr > td:first-child,
   .table-responsive > .table-bordered > tbody > tr > td:first-child,
-  .table-responsive > .table-bordered > tfoot > tr > td:first-child {
+  .confirguration #con0 .table-responsive > table > tbody > tr > td:first-child,
+  .table-responsive > .table-bordered > tfoot > tr > td:first-child,
+  .confirguration #con0 .table-responsive > table > tfoot > tr > td:first-child {
     border-left: 0;
   }
 
   /* line 2478, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table-bordered > thead > tr > th:last-child,
+  .table-responsive > .table-bordered > thead > tr > th:last-child, .confirguration #con0 .table-responsive > table > thead > tr > th:last-child,
   .table-responsive > .table-bordered > tbody > tr > th:last-child,
+  .confirguration #con0 .table-responsive > table > tbody > tr > th:last-child,
   .table-responsive > .table-bordered > tfoot > tr > th:last-child,
+  .confirguration #con0 .table-responsive > table > tfoot > tr > th:last-child,
   .table-responsive > .table-bordered > thead > tr > td:last-child,
+  .confirguration #con0 .table-responsive > table > thead > tr > td:last-child,
   .table-responsive > .table-bordered > tbody > tr > td:last-child,
-  .table-responsive > .table-bordered > tfoot > tr > td:last-child {
+  .confirguration #con0 .table-responsive > table > tbody > tr > td:last-child,
+  .table-responsive > .table-bordered > tfoot > tr > td:last-child,
+  .confirguration #con0 .table-responsive > table > tfoot > tr > td:last-child {
     border-right: 0;
   }
 
   /* line 2486, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table-bordered > tbody > tr:last-child > th,
+  .table-responsive > .table-bordered > tbody > tr:last-child > th, .confirguration #con0 .table-responsive > table > tbody > tr:last-child > th,
   .table-responsive > .table-bordered > tfoot > tr:last-child > th,
+  .confirguration #con0 .table-responsive > table > tfoot > tr:last-child > th,
   .table-responsive > .table-bordered > tbody > tr:last-child > td,
-  .table-responsive > .table-bordered > tfoot > tr:last-child > td {
+  .confirguration #con0 .table-responsive > table > tbody > tr:last-child > td,
+  .table-responsive > .table-bordered > tfoot > tr:last-child > td,
+  .confirguration #con0 .table-responsive > table > tfoot > tr:last-child > td {
     border-bottom: 0;
   }
 }
@@ -3951,7 +4042,7 @@ output {
 }
 
 /* line 2552, bootstrap/css/bootstrap.scss */
-.form-control, .search_init, input[type='text'], input[type='password'], input[type='entry'], .dataTables_filter input, select, input[name="type_code"], .batchCom textarea {
+.form-control, #addressbook_list .inputtext, .search_init, input[type='text'], input[type='password'], input[type='entry'], .dataTables_filter input, select, input[name="type_code"], .batchCom textarea {
   display: block;
   width: 100%;
   height: 34px;
@@ -3971,7 +4062,7 @@ output {
 }
 
 /* line 2570, bootstrap/css/bootstrap.scss */
-.form-control:focus, .search_init:focus, input[type='text']:focus, input[type='password']:focus, input[type='entry']:focus, .dataTables_filter input:focus, select:focus, input[name="type_code"]:focus, .batchCom textarea:focus {
+.form-control:focus, #addressbook_list .inputtext:focus, .search_init:focus, input[type='text']:focus, input[type='password']:focus, input[type='entry']:focus, .dataTables_filter input:focus, select:focus, input[name="type_code"]:focus, .batchCom textarea:focus {
   border-color: #66afe9;
   outline: 0;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
@@ -3979,24 +4070,25 @@ output {
 }
 
 /* line 2576, bootstrap/css/bootstrap.scss */
-.form-control::-moz-placeholder, .search_init::-moz-placeholder, input[type='text']::-moz-placeholder, input[type='password']::-moz-placeholder, input[type='entry']::-moz-placeholder, .dataTables_filter input::-moz-placeholder, select::-moz-placeholder, input[name="type_code"]::-moz-placeholder, .batchCom textarea::-moz-placeholder {
+.form-control::-moz-placeholder, #addressbook_list .inputtext::-moz-placeholder, .search_init::-moz-placeholder, input[type='text']::-moz-placeholder, input[type='password']::-moz-placeholder, input[type='entry']::-moz-placeholder, .dataTables_filter input::-moz-placeholder, select::-moz-placeholder, input[name="type_code"]::-moz-placeholder, .batchCom textarea::-moz-placeholder {
   color: #999;
   opacity: 1;
 }
 
 /* line 2580, bootstrap/css/bootstrap.scss */
-.form-control:-ms-input-placeholder, .search_init:-ms-input-placeholder, input[type='text']:-ms-input-placeholder, input[type='password']:-ms-input-placeholder, input[type='entry']:-ms-input-placeholder, .dataTables_filter input:-ms-input-placeholder, select:-ms-input-placeholder, input[name="type_code"]:-ms-input-placeholder, .batchCom textarea:-ms-input-placeholder {
+.form-control:-ms-input-placeholder, #addressbook_list .inputtext:-ms-input-placeholder, .search_init:-ms-input-placeholder, input[type='text']:-ms-input-placeholder, input[type='password']:-ms-input-placeholder, input[type='entry']:-ms-input-placeholder, .dataTables_filter input:-ms-input-placeholder, select:-ms-input-placeholder, input[name="type_code"]:-ms-input-placeholder, .batchCom textarea:-ms-input-placeholder {
   color: #999;
 }
 
 /* line 2583, bootstrap/css/bootstrap.scss */
-.form-control::-webkit-input-placeholder, .search_init::-webkit-input-placeholder, input[type='text']::-webkit-input-placeholder, input[type='password']::-webkit-input-placeholder, input[type='entry']::-webkit-input-placeholder, .dataTables_filter input::-webkit-input-placeholder, select::-webkit-input-placeholder, input[name="type_code"]::-webkit-input-placeholder, .batchCom textarea::-webkit-input-placeholder {
+.form-control::-webkit-input-placeholder, #addressbook_list .inputtext::-webkit-input-placeholder, .search_init::-webkit-input-placeholder, input[type='text']::-webkit-input-placeholder, input[type='password']::-webkit-input-placeholder, input[type='entry']::-webkit-input-placeholder, .dataTables_filter input::-webkit-input-placeholder, select::-webkit-input-placeholder, input[name="type_code"]::-webkit-input-placeholder, .batchCom textarea::-webkit-input-placeholder {
   color: #999;
 }
 
 /* line 2586, bootstrap/css/bootstrap.scss */
-.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"], .batchCom textarea[disabled],
+.form-control[disabled], #addressbook_list [disabled].inputtext, [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"], .batchCom textarea[disabled],
 .form-control[readonly],
+#addressbook_list [readonly].inputtext,
 [readonly].search_init,
 input[readonly][type='text'],
 input[readonly][type='password'],
@@ -4006,6 +4098,8 @@ select[readonly],
 input[readonly][name="type_code"],
 .batchCom textarea[readonly],
 fieldset[disabled] .form-control,
+fieldset[disabled] #addressbook_list .inputtext,
+#addressbook_list fieldset[disabled] .inputtext,
 fieldset[disabled] .search_init,
 fieldset[disabled] input[type='text'],
 fieldset[disabled] input[type='password'],
@@ -4021,8 +4115,10 @@ fieldset[disabled] .batchCom textarea,
 }
 
 /* line 2592, bootstrap/css/bootstrap.scss */
-.form-control[disabled], [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"], .batchCom textarea[disabled],
+.form-control[disabled], #addressbook_list [disabled].inputtext, [disabled].search_init, input[disabled][type='text'], input[disabled][type='password'], input[disabled][type='entry'], .dataTables_filter input[disabled], select[disabled], input[disabled][name="type_code"], .batchCom textarea[disabled],
 fieldset[disabled] .form-control,
+fieldset[disabled] #addressbook_list .inputtext,
+#addressbook_list fieldset[disabled] .inputtext,
 fieldset[disabled] .search_init,
 fieldset[disabled] input[type='text'],
 fieldset[disabled] input[type='password'],
@@ -4037,7 +4133,7 @@ fieldset[disabled] .batchCom textarea,
 }
 
 /* line 2596, bootstrap/css/bootstrap.scss */
-textarea.form-control, textarea.search_init, .batchCom textarea {
+textarea.form-control, #addressbook_list textarea.inputtext, textarea.search_init, .batchCom textarea {
   height: auto;
 }
 
@@ -4048,8 +4144,9 @@ input[type="search"] {
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   /* line 2603, bootstrap/css/bootstrap.scss */
-  input[type="date"].form-control, input[type="date"].search_init, input[type="date"][type='text'], input[type="date"][type='password'], input[type="date"][type='entry'], .dataTables_filter input[type="date"], input[type="date"][name="type_code"],
+  input[type="date"].form-control, #addressbook_list input[type="date"].inputtext, input[type="date"].search_init, input[type="date"][type='text'], input[type="date"][type='password'], input[type="date"][type='entry'], .dataTables_filter input[type="date"], input[type="date"][name="type_code"],
   input[type="time"].form-control,
+  #addressbook_list input[type="time"].inputtext,
   input[type="time"].search_init,
   input[type="time"][type='text'],
   input[type="time"][type='password'],
@@ -4057,6 +4154,7 @@ input[type="search"] {
   .dataTables_filter input[type="time"],
   input[type="time"][name="type_code"],
   input[type="datetime-local"].form-control,
+  #addressbook_list input[type="datetime-local"].inputtext,
   input[type="datetime-local"].search_init,
   input[type="datetime-local"][type='text'],
   input[type="datetime-local"][type='password'],
@@ -4064,6 +4162,7 @@ input[type="search"] {
   .dataTables_filter input[type="datetime-local"],
   input[type="datetime-local"][name="type_code"],
   input[type="month"].form-control,
+  #addressbook_list input[type="month"].inputtext,
   input[type="month"].search_init,
   input[type="month"][type='text'],
   input[type="month"][type='password'],
@@ -4219,7 +4318,7 @@ select[multiple].input-sm {
 }
 
 /* line 2721, bootstrap/css/bootstrap.scss */
-.form-group-sm .form-control, .form-group-sm .search_init, .form-group-sm input[type='text'], .form-group-sm input[type='password'], .form-group-sm input[type='entry'], .form-group-sm .dataTables_filter input, .dataTables_filter .form-group-sm input, .form-group-sm select, .form-group-sm input[name="type_code"], .form-group-sm .batchCom textarea, .batchCom .form-group-sm textarea {
+.form-group-sm .form-control, .form-group-sm #addressbook_list .inputtext, #addressbook_list .form-group-sm .inputtext, .form-group-sm .search_init, .form-group-sm input[type='text'], .form-group-sm input[type='password'], .form-group-sm input[type='entry'], .form-group-sm .dataTables_filter input, .dataTables_filter .form-group-sm input, .form-group-sm select, .form-group-sm input[name="type_code"], .form-group-sm .batchCom textarea, .batchCom .form-group-sm textarea {
   height: 30px;
   padding: 5px 10px;
   font-size: 12px;
@@ -4228,14 +4327,16 @@ select[multiple].input-sm {
 }
 
 /* line 2728, bootstrap/css/bootstrap.scss */
-.form-group-sm select.form-control, .form-group-sm select.search_init, .form-group-sm select {
+.form-group-sm select.form-control, .form-group-sm #addressbook_list select.inputtext, #addressbook_list .form-group-sm select.inputtext, .form-group-sm select.search_init, .form-group-sm select {
   height: 30px;
   line-height: 30px;
 }
 
 /* line 2732, bootstrap/css/bootstrap.scss */
-.form-group-sm textarea.form-control, .form-group-sm textarea.search_init, .form-group-sm .batchCom textarea, .batchCom .form-group-sm textarea,
+.form-group-sm textarea.form-control, .form-group-sm #addressbook_list textarea.inputtext, #addressbook_list .form-group-sm textarea.inputtext, .form-group-sm textarea.search_init, .form-group-sm .batchCom textarea, .batchCom .form-group-sm textarea,
 .form-group-sm select[multiple].form-control,
+.form-group-sm #addressbook_list select[multiple].inputtext,
+#addressbook_list .form-group-sm select[multiple].inputtext,
 .form-group-sm select[multiple].search_init,
 .form-group-sm select[multiple] {
   height: auto;
@@ -4272,7 +4373,7 @@ select[multiple].input-lg {
 }
 
 /* line 2758, bootstrap/css/bootstrap.scss */
-.form-group-lg .form-control, .form-group-lg .search_init, .form-group-lg input[type='text'], .form-group-lg input[type='password'], .form-group-lg input[type='entry'], .form-group-lg .dataTables_filter input, .dataTables_filter .form-group-lg input, .form-group-lg select, .form-group-lg input[name="type_code"], .form-group-lg .batchCom textarea, .batchCom .form-group-lg textarea {
+.form-group-lg .form-control, .form-group-lg #addressbook_list .inputtext, #addressbook_list .form-group-lg .inputtext, .form-group-lg .search_init, .form-group-lg input[type='text'], .form-group-lg input[type='password'], .form-group-lg input[type='entry'], .form-group-lg .dataTables_filter input, .dataTables_filter .form-group-lg input, .form-group-lg select, .form-group-lg input[name="type_code"], .form-group-lg .batchCom textarea, .batchCom .form-group-lg textarea {
   height: 46px;
   padding: 10px 16px;
   font-size: 18px;
@@ -4281,14 +4382,16 @@ select[multiple].input-lg {
 }
 
 /* line 2765, bootstrap/css/bootstrap.scss */
-.form-group-lg select.form-control, .form-group-lg select.search_init, .form-group-lg select {
+.form-group-lg select.form-control, .form-group-lg #addressbook_list select.inputtext, #addressbook_list .form-group-lg select.inputtext, .form-group-lg select.search_init, .form-group-lg select {
   height: 46px;
   line-height: 46px;
 }
 
 /* line 2769, bootstrap/css/bootstrap.scss */
-.form-group-lg textarea.form-control, .form-group-lg textarea.search_init, .form-group-lg .batchCom textarea, .batchCom .form-group-lg textarea,
+.form-group-lg textarea.form-control, .form-group-lg #addressbook_list textarea.inputtext, #addressbook_list .form-group-lg textarea.inputtext, .form-group-lg textarea.search_init, .form-group-lg .batchCom textarea, .batchCom .form-group-lg textarea,
 .form-group-lg select[multiple].form-control,
+.form-group-lg #addressbook_list select[multiple].inputtext,
+#addressbook_list .form-group-lg select[multiple].inputtext,
 .form-group-lg select[multiple].search_init,
 .form-group-lg select[multiple] {
   height: auto;
@@ -4309,7 +4412,7 @@ select[multiple].input-lg {
 }
 
 /* line 2783, bootstrap/css/bootstrap.scss */
-.has-feedback .form-control, .has-feedback .search_init, .has-feedback input[type='text'], .has-feedback input[type='password'], .has-feedback input[type='entry'], .has-feedback .dataTables_filter input, .dataTables_filter .has-feedback input, .has-feedback select, .has-feedback input[name="type_code"], .has-feedback .batchCom textarea, .batchCom .has-feedback textarea {
+.has-feedback .form-control, .has-feedback #addressbook_list .inputtext, #addressbook_list .has-feedback .inputtext, .has-feedback .search_init, .has-feedback input[type='text'], .has-feedback input[type='password'], .has-feedback input[type='entry'], .has-feedback .dataTables_filter input, .dataTables_filter .has-feedback input, .has-feedback select, .has-feedback input[name="type_code"], .has-feedback .batchCom textarea, .batchCom .has-feedback textarea {
   padding-right: 42.5px;
 }
 
@@ -4331,6 +4434,8 @@ select[multiple].input-lg {
 .input-lg + .form-control-feedback,
 .input-group-lg + .form-control-feedback,
 .form-group-lg .form-control + .form-control-feedback,
+.form-group-lg #addressbook_list .inputtext + .form-control-feedback,
+#addressbook_list .form-group-lg .inputtext + .form-control-feedback,
 .form-group-lg .search_init + .form-control-feedback,
 .form-group-lg input[type='text'] + .form-control-feedback,
 .form-group-lg input[type='password'] + .form-control-feedback,
@@ -4350,6 +4455,8 @@ select[multiple].input-lg {
 .input-sm + .form-control-feedback,
 .input-group-sm + .form-control-feedback,
 .form-group-sm .form-control + .form-control-feedback,
+.form-group-sm #addressbook_list .inputtext + .form-control-feedback,
+#addressbook_list .form-group-sm .inputtext + .form-control-feedback,
 .form-group-sm .search_init + .form-control-feedback,
 .form-group-sm input[type='text'] + .form-control-feedback,
 .form-group-sm input[type='password'] + .form-control-feedback,
@@ -4380,14 +4487,14 @@ select[multiple].input-lg {
 }
 
 /* line 2824, bootstrap/css/bootstrap.scss */
-.has-success .form-control, .has-success .search_init, .has-success input[type='text'], .has-success input[type='password'], .has-success input[type='entry'], .has-success .dataTables_filter input, .dataTables_filter .has-success input, .has-success select, .has-success input[name="type_code"], .has-success .batchCom textarea, .batchCom .has-success textarea {
+.has-success .form-control, .has-success #addressbook_list .inputtext, #addressbook_list .has-success .inputtext, .has-success .search_init, .has-success input[type='text'], .has-success input[type='password'], .has-success input[type='entry'], .has-success .dataTables_filter input, .dataTables_filter .has-success input, .has-success select, .has-success input[name="type_code"], .has-success .batchCom textarea, .batchCom .has-success textarea {
   border-color: #3c763d;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 /* line 2829, bootstrap/css/bootstrap.scss */
-.has-success .form-control:focus, .has-success .search_init:focus, .has-success input[type='text']:focus, .has-success input[type='password']:focus, .has-success input[type='entry']:focus, .has-success .dataTables_filter input:focus, .dataTables_filter .has-success input:focus, .has-success select:focus, .has-success input[name="type_code"]:focus, .has-success .batchCom textarea:focus, .batchCom .has-success textarea:focus {
+.has-success .form-control:focus, .has-success #addressbook_list .inputtext:focus, #addressbook_list .has-success .inputtext:focus, .has-success .search_init:focus, .has-success input[type='text']:focus, .has-success input[type='password']:focus, .has-success input[type='entry']:focus, .has-success .dataTables_filter input:focus, .dataTables_filter .has-success input:focus, .has-success select:focus, .has-success input[name="type_code"]:focus, .has-success .batchCom textarea:focus, .batchCom .has-success textarea:focus {
   border-color: #2b542c;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
@@ -4420,14 +4527,14 @@ select[multiple].input-lg {
 }
 
 /* line 2854, bootstrap/css/bootstrap.scss */
-.has-warning .form-control, .has-warning .search_init, .has-warning input[type='text'], .has-warning input[type='password'], .has-warning input[type='entry'], .has-warning .dataTables_filter input, .dataTables_filter .has-warning input, .has-warning select, .has-warning input[name="type_code"], .has-warning .batchCom textarea, .batchCom .has-warning textarea {
+.has-warning .form-control, .has-warning #addressbook_list .inputtext, #addressbook_list .has-warning .inputtext, .has-warning .search_init, .has-warning input[type='text'], .has-warning input[type='password'], .has-warning input[type='entry'], .has-warning .dataTables_filter input, .dataTables_filter .has-warning input, .has-warning select, .has-warning input[name="type_code"], .has-warning .batchCom textarea, .batchCom .has-warning textarea {
   border-color: #8a6d3b;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 /* line 2859, bootstrap/css/bootstrap.scss */
-.has-warning .form-control:focus, .has-warning .search_init:focus, .has-warning input[type='text']:focus, .has-warning input[type='password']:focus, .has-warning input[type='entry']:focus, .has-warning .dataTables_filter input:focus, .dataTables_filter .has-warning input:focus, .has-warning select:focus, .has-warning input[name="type_code"]:focus, .has-warning .batchCom textarea:focus, .batchCom .has-warning textarea:focus {
+.has-warning .form-control:focus, .has-warning #addressbook_list .inputtext:focus, #addressbook_list .has-warning .inputtext:focus, .has-warning .search_init:focus, .has-warning input[type='text']:focus, .has-warning input[type='password']:focus, .has-warning input[type='entry']:focus, .has-warning .dataTables_filter input:focus, .dataTables_filter .has-warning input:focus, .has-warning select:focus, .has-warning input[name="type_code"]:focus, .has-warning .batchCom textarea:focus, .batchCom .has-warning textarea:focus {
   border-color: #66512c;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
@@ -4460,14 +4567,14 @@ select[multiple].input-lg {
 }
 
 /* line 2884, bootstrap/css/bootstrap.scss */
-.has-error .form-control, .has-error .search_init, .has-error input[type='text'], .has-error input[type='password'], .has-error input[type='entry'], .has-error .dataTables_filter input, .dataTables_filter .has-error input, .has-error select, .has-error input[name="type_code"], .has-error .batchCom textarea, .batchCom .has-error textarea {
+.has-error .form-control, .has-error #addressbook_list .inputtext, #addressbook_list .has-error .inputtext, .has-error .search_init, .has-error input[type='text'], .has-error input[type='password'], .has-error input[type='entry'], .has-error .dataTables_filter input, .dataTables_filter .has-error input, .has-error select, .has-error input[name="type_code"], .has-error .batchCom textarea, .batchCom .has-error textarea {
   border-color: #a94442;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
 /* line 2889, bootstrap/css/bootstrap.scss */
-.has-error .form-control:focus, .has-error .search_init:focus, .has-error input[type='text']:focus, .has-error input[type='password']:focus, .has-error input[type='entry']:focus, .has-error .dataTables_filter input:focus, .dataTables_filter .has-error input:focus, .has-error select:focus, .has-error input[name="type_code"]:focus, .has-error .batchCom textarea:focus, .batchCom .has-error textarea:focus {
+.has-error .form-control:focus, .has-error #addressbook_list .inputtext:focus, #addressbook_list .has-error .inputtext:focus, .has-error .search_init:focus, .has-error input[type='text']:focus, .has-error input[type='password']:focus, .has-error input[type='entry']:focus, .has-error .dataTables_filter input:focus, .dataTables_filter .has-error input:focus, .has-error select:focus, .has-error input[name="type_code"]:focus, .has-error .batchCom textarea:focus, .batchCom .has-error textarea:focus {
   border-color: #843534;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
@@ -4512,7 +4619,7 @@ select[multiple].input-lg {
   }
 
   /* line 2920, bootstrap/css/bootstrap.scss */
-  .form-inline .form-control, .form-inline .search_init, .form-inline input[type='text'], .form-inline input[type='password'], .form-inline input[type='entry'], .form-inline .dataTables_filter input, .dataTables_filter .form-inline input, .form-inline select, .form-inline input[name="type_code"], .form-inline .batchCom textarea, .batchCom .form-inline textarea {
+  .form-inline .form-control, .form-inline #addressbook_list .inputtext, #addressbook_list .form-inline .inputtext, .form-inline .search_init, .form-inline input[type='text'], .form-inline input[type='password'], .form-inline input[type='entry'], .form-inline .dataTables_filter input, .dataTables_filter .form-inline input, .form-inline select, .form-inline input[name="type_code"], .form-inline .batchCom textarea, .batchCom .form-inline textarea {
     display: inline-block;
     width: auto;
     vertical-align: middle;
@@ -4533,6 +4640,8 @@ select[multiple].input-lg {
   .form-inline .input-group .input-group-addon,
   .form-inline .input-group .input-group-btn,
   .form-inline .input-group .form-control,
+  .form-inline .input-group #addressbook_list .inputtext,
+  #addressbook_list .form-inline .input-group .inputtext,
   .form-inline .input-group .search_init,
   .form-inline .input-group input[type='text'],
   .form-inline .input-group input[type='password'],
@@ -4547,7 +4656,7 @@ select[multiple].input-lg {
   }
 
   /* line 2937, bootstrap/css/bootstrap.scss */
-  .form-inline .input-group > .form-control, .form-inline .input-group > .search_init, .form-inline .input-group > input[type='text'], .form-inline .input-group > input[type='password'], .form-inline .input-group > input[type='entry'], .form-inline .dataTables_filter .input-group > input, .dataTables_filter .form-inline .input-group > input, .form-inline .input-group > select, .form-inline .input-group > input[name="type_code"], .form-inline .batchCom .input-group > textarea, .batchCom .form-inline .input-group > textarea {
+  .form-inline .input-group > .form-control, .form-inline #addressbook_list .input-group > .inputtext, #addressbook_list .form-inline .input-group > .inputtext, .form-inline .input-group > .search_init, .form-inline .input-group > input[type='text'], .form-inline .input-group > input[type='password'], .form-inline .input-group > input[type='entry'], .form-inline .dataTables_filter .input-group > input, .dataTables_filter .form-inline .input-group > input, .form-inline .input-group > select, .form-inline .input-group > input[name="type_code"], .form-inline .batchCom .input-group > textarea, .batchCom .form-inline .input-group > textarea {
     width: 100%;
   }
 
@@ -4786,7 +4895,7 @@ fieldset[disabled] .btn-default.active {
 
 /* line 3125, bootstrap/css/bootstrap.scss */
 .btn-primary, .btn-custom, .css_button_small, #showMenuLink, .css_button, .css_button_link a, .nav-pills-sm li.active a, .nav-pills-sm li.current a,
-.nav-pills-sm li:hover a, input[type="button"], .btn-submit, .btn-green, input[type="submit"] {
+.nav-pills-sm li:hover a, input[type="button"], .btn-submit, .btn-green, input[type="submit"], .confirguration #con0 .col5 span {
   color: #fff;
   background-color: #337ab7;
   border-color: #2e6da4;
@@ -4794,7 +4903,7 @@ fieldset[disabled] .btn-default.active {
 
 /* line 3130, bootstrap/css/bootstrap.scss */
 .btn-primary:focus, .btn-custom:focus, .css_button_small:focus, #showMenuLink:focus, .css_button:focus, .css_button_link a:focus, .nav-pills-sm li.active a:focus, .nav-pills-sm li.current a:focus,
-.nav-pills-sm li:hover a:focus, input[type="button"]:focus, .btn-submit:focus, .btn-green:focus, input[type="submit"]:focus,
+.nav-pills-sm li:hover a:focus, input[type="button"]:focus, .btn-submit:focus, .btn-green:focus, input[type="submit"]:focus, .confirguration #con0 .col5 span:focus,
 .btn-primary.focus,
 .focus.btn-custom,
 .focus.css_button_small,
@@ -4807,7 +4916,8 @@ fieldset[disabled] .btn-default.active {
 input.focus[type="button"],
 .focus.btn-submit,
 .focus.btn-green,
-input.focus[type="submit"] {
+input.focus[type="submit"],
+.confirguration #con0 .col5 span.focus {
   color: #fff;
   background-color: #286090;
   border-color: #122b40;
@@ -4815,7 +4925,7 @@ input.focus[type="submit"] {
 
 /* line 3136, bootstrap/css/bootstrap.scss */
 .btn-primary:hover, .btn-custom:hover, .css_button_small:hover, #showMenuLink:hover, .css_button:hover, .css_button_link a:hover, .nav-pills-sm li.active a:hover, .nav-pills-sm li.current a:hover,
-.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover {
+.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover, .confirguration #con0 .col5 span:hover {
   color: #fff;
   background-color: #286090;
   border-color: #204d74;
@@ -4823,7 +4933,7 @@ input.focus[type="submit"] {
 
 /* line 3141, bootstrap/css/bootstrap.scss */
 .btn-primary:active, .btn-custom:active, .css_button_small:active, #showMenuLink:active, .css_button:active, .css_button_link a:active, .nav-pills-sm li.active a:active, .nav-pills-sm li.current a:active,
-.nav-pills-sm li:hover a:active, input[type="button"]:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active,
+.nav-pills-sm li:hover a:active, input[type="button"]:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active, .confirguration #con0 .col5 span:active,
 .btn-primary.active,
 .active.btn-custom,
 .active.css_button_small,
@@ -4837,6 +4947,7 @@ input.active[type="button"],
 .active.btn-submit,
 .active.btn-green,
 input.active[type="submit"],
+.confirguration #con0 .col5 span.active,
 .open > .dropdown-toggle.btn-primary,
 .open > .dropdown-toggle.btn-custom,
 .open > .dropdown-toggle.css_button_small,
@@ -4849,7 +4960,8 @@ input.active[type="submit"],
 .open > input.dropdown-toggle[type="button"],
 .open > .dropdown-toggle.btn-submit,
 .open > .dropdown-toggle.btn-green,
-.open > input.dropdown-toggle[type="submit"] {
+.open > input.dropdown-toggle[type="submit"],
+.confirguration #con0 .col5 .open > span.dropdown-toggle {
   color: #fff;
   background-color: #286090;
   border-color: #204d74;
@@ -4857,7 +4969,7 @@ input.active[type="submit"],
 
 /* line 3148, bootstrap/css/bootstrap.scss */
 .btn-primary:active:hover, .btn-custom:active:hover, .css_button_small:active:hover, #showMenuLink:active:hover, .css_button:active:hover, .css_button_link a:active:hover, .nav-pills-sm li.active a:active:hover, .nav-pills-sm li.current a:active:hover,
-.nav-pills-sm li:hover a:active:hover, input[type="button"]:active:hover, .btn-submit:active:hover, .btn-green:active:hover, input[type="submit"]:active:hover,
+.nav-pills-sm li:hover a:active:hover, input[type="button"]:active:hover, .btn-submit:active:hover, .btn-green:active:hover, input[type="submit"]:active:hover, .confirguration #con0 .col5 span:active:hover,
 .btn-primary.active:hover,
 .active.btn-custom:hover,
 .active.css_button_small:hover,
@@ -4871,6 +4983,7 @@ input.active[type="button"]:hover,
 .active.btn-submit:hover,
 .active.btn-green:hover,
 input.active[type="submit"]:hover,
+.confirguration #con0 .col5 span.active:hover,
 .open > .dropdown-toggle.btn-primary:hover,
 .open > .dropdown-toggle.btn-custom:hover,
 .open > .dropdown-toggle.css_button_small:hover,
@@ -4884,6 +4997,7 @@ input.active[type="submit"]:hover,
 .open > .dropdown-toggle.btn-submit:hover,
 .open > .dropdown-toggle.btn-green:hover,
 .open > input.dropdown-toggle[type="submit"]:hover,
+.confirguration #con0 .col5 .open > span.dropdown-toggle:hover,
 .btn-primary:active:focus,
 .btn-custom:active:focus,
 .css_button_small:active:focus,
@@ -4897,6 +5011,7 @@ input[type="button"]:active:focus,
 .btn-submit:active:focus,
 .btn-green:active:focus,
 input[type="submit"]:active:focus,
+.confirguration #con0 .col5 span:active:focus,
 .btn-primary.active:focus,
 .active.btn-custom:focus,
 .active.css_button_small:focus,
@@ -4910,6 +5025,7 @@ input.active[type="button"]:focus,
 .active.btn-submit:focus,
 .active.btn-green:focus,
 input.active[type="submit"]:focus,
+.confirguration #con0 .col5 span.active:focus,
 .open > .dropdown-toggle.btn-primary:focus,
 .open > .dropdown-toggle.btn-custom:focus,
 .open > .dropdown-toggle.css_button_small:focus,
@@ -4923,6 +5039,7 @@ input.active[type="submit"]:focus,
 .open > .dropdown-toggle.btn-submit:focus,
 .open > .dropdown-toggle.btn-green:focus,
 .open > input.dropdown-toggle[type="submit"]:focus,
+.confirguration #con0 .col5 .open > span.dropdown-toggle:focus,
 .btn-primary:active.focus,
 .btn-custom:active.focus,
 .css_button_small:active.focus,
@@ -4936,6 +5053,7 @@ input[type="button"]:active.focus,
 .btn-submit:active.focus,
 .btn-green:active.focus,
 input[type="submit"]:active.focus,
+.confirguration #con0 .col5 span:active.focus,
 .btn-primary.active.focus,
 .active.focus.btn-custom,
 .active.focus.css_button_small,
@@ -4949,6 +5067,7 @@ input.active.focus[type="button"],
 .active.focus.btn-submit,
 .active.focus.btn-green,
 input.active.focus[type="submit"],
+.confirguration #con0 .col5 span.active.focus,
 .open > .dropdown-toggle.btn-primary.focus,
 .open > .dropdown-toggle.focus.btn-custom,
 .open > .dropdown-toggle.focus.css_button_small,
@@ -4961,7 +5080,8 @@ input.active.focus[type="submit"],
 .open > input.dropdown-toggle.focus[type="button"],
 .open > .dropdown-toggle.focus.btn-submit,
 .open > .dropdown-toggle.focus.btn-green,
-.open > input.dropdown-toggle.focus[type="submit"] {
+.open > input.dropdown-toggle.focus[type="submit"],
+.confirguration #con0 .col5 .open > span.dropdown-toggle.focus {
   color: #fff;
   background-color: #204d74;
   border-color: #122b40;
@@ -4969,7 +5089,7 @@ input.active.focus[type="submit"],
 
 /* line 3161, bootstrap/css/bootstrap.scss */
 .btn-primary:active, .btn-custom:active, .css_button_small:active, #showMenuLink:active, .css_button:active, .css_button_link a:active, .nav-pills-sm li.active a:active, .nav-pills-sm li.current a:active,
-.nav-pills-sm li:hover a:active, input[type="button"]:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active,
+.nav-pills-sm li:hover a:active, input[type="button"]:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active, .confirguration #con0 .col5 span:active,
 .btn-primary.active,
 .active.btn-custom,
 .active.css_button_small,
@@ -4983,6 +5103,7 @@ input.active[type="button"],
 .active.btn-submit,
 .active.btn-green,
 input.active[type="submit"],
+.confirguration #con0 .col5 span.active,
 .open > .dropdown-toggle.btn-primary,
 .open > .dropdown-toggle.btn-custom,
 .open > .dropdown-toggle.css_button_small,
@@ -4995,13 +5116,14 @@ input.active[type="submit"],
 .open > input.dropdown-toggle[type="button"],
 .open > .dropdown-toggle.btn-submit,
 .open > .dropdown-toggle.btn-green,
-.open > input.dropdown-toggle[type="submit"] {
+.open > input.dropdown-toggle[type="submit"],
+.confirguration #con0 .col5 .open > span.dropdown-toggle {
   background-image: none;
 }
 
 /* line 3166, bootstrap/css/bootstrap.scss */
 .btn-primary.disabled, .disabled.btn-custom, .disabled.css_button_small, .disabled#showMenuLink, .disabled.css_button, .css_button_link a.disabled, .nav-pills-sm li.active a.disabled, .nav-pills-sm li.current a.disabled,
-.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"],
+.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"], .confirguration #con0 .col5 span.disabled,
 .btn-primary[disabled],
 [disabled].btn-custom,
 [disabled].css_button_small,
@@ -5015,6 +5137,7 @@ input[disabled][type="button"],
 [disabled].btn-submit,
 [disabled].btn-green,
 input[disabled][type="submit"],
+.confirguration #con0 .col5 span[disabled],
 fieldset[disabled] .btn-primary,
 fieldset[disabled] .btn-custom,
 fieldset[disabled] .css_button_small,
@@ -5032,6 +5155,8 @@ fieldset[disabled] input[type="button"],
 fieldset[disabled] .btn-submit,
 fieldset[disabled] .btn-green,
 fieldset[disabled] input[type="submit"],
+fieldset[disabled] .confirguration #con0 .col5 span,
+.confirguration #con0 .col5 fieldset[disabled] span,
 .btn-primary.disabled:hover,
 .disabled.btn-custom:hover,
 .disabled.css_button_small:hover,
@@ -5045,6 +5170,7 @@ input.disabled[type="button"]:hover,
 .disabled.btn-submit:hover,
 .disabled.btn-green:hover,
 input.disabled[type="submit"]:hover,
+.confirguration #con0 .col5 span.disabled:hover,
 .btn-primary[disabled]:hover,
 [disabled].btn-custom:hover,
 [disabled].css_button_small:hover,
@@ -5058,6 +5184,7 @@ input[disabled][type="button"]:hover,
 [disabled].btn-submit:hover,
 [disabled].btn-green:hover,
 input[disabled][type="submit"]:hover,
+.confirguration #con0 .col5 span[disabled]:hover,
 fieldset[disabled] .btn-primary:hover,
 fieldset[disabled] .btn-custom:hover,
 fieldset[disabled] .css_button_small:hover,
@@ -5075,6 +5202,8 @@ fieldset[disabled] input[type="button"]:hover,
 fieldset[disabled] .btn-submit:hover,
 fieldset[disabled] .btn-green:hover,
 fieldset[disabled] input[type="submit"]:hover,
+fieldset[disabled] .confirguration #con0 .col5 span:hover,
+.confirguration #con0 .col5 fieldset[disabled] span:hover,
 .btn-primary.disabled:focus,
 .disabled.btn-custom:focus,
 .disabled.css_button_small:focus,
@@ -5088,6 +5217,7 @@ input.disabled[type="button"]:focus,
 .disabled.btn-submit:focus,
 .disabled.btn-green:focus,
 input.disabled[type="submit"]:focus,
+.confirguration #con0 .col5 span.disabled:focus,
 .btn-primary[disabled]:focus,
 [disabled].btn-custom:focus,
 [disabled].css_button_small:focus,
@@ -5101,6 +5231,7 @@ input[disabled][type="button"]:focus,
 [disabled].btn-submit:focus,
 [disabled].btn-green:focus,
 input[disabled][type="submit"]:focus,
+.confirguration #con0 .col5 span[disabled]:focus,
 fieldset[disabled] .btn-primary:focus,
 fieldset[disabled] .btn-custom:focus,
 fieldset[disabled] .css_button_small:focus,
@@ -5118,6 +5249,8 @@ fieldset[disabled] input[type="button"]:focus,
 fieldset[disabled] .btn-submit:focus,
 fieldset[disabled] .btn-green:focus,
 fieldset[disabled] input[type="submit"]:focus,
+fieldset[disabled] .confirguration #con0 .col5 span:focus,
+.confirguration #con0 .col5 fieldset[disabled] span:focus,
 .btn-primary.disabled.focus,
 .disabled.focus.btn-custom,
 .disabled.focus.css_button_small,
@@ -5131,6 +5264,7 @@ input.disabled.focus[type="button"],
 .disabled.focus.btn-submit,
 .disabled.focus.btn-green,
 input.disabled.focus[type="submit"],
+.confirguration #con0 .col5 span.disabled.focus,
 .btn-primary[disabled].focus,
 [disabled].focus.btn-custom,
 [disabled].focus.css_button_small,
@@ -5144,6 +5278,7 @@ input[disabled].focus[type="button"],
 [disabled].focus.btn-submit,
 [disabled].focus.btn-green,
 input[disabled].focus[type="submit"],
+.confirguration #con0 .col5 span[disabled].focus,
 fieldset[disabled] .btn-primary.focus,
 fieldset[disabled] .focus.btn-custom,
 fieldset[disabled] .focus.css_button_small,
@@ -5161,6 +5296,8 @@ fieldset[disabled] input.focus[type="button"],
 fieldset[disabled] .focus.btn-submit,
 fieldset[disabled] .focus.btn-green,
 fieldset[disabled] input.focus[type="submit"],
+fieldset[disabled] .confirguration #con0 .col5 span.focus,
+.confirguration #con0 .col5 fieldset[disabled] span.focus,
 .btn-primary.disabled:active,
 .disabled.btn-custom:active,
 .disabled.css_button_small:active,
@@ -5174,6 +5311,7 @@ input.disabled[type="button"]:active,
 .disabled.btn-submit:active,
 .disabled.btn-green:active,
 input.disabled[type="submit"]:active,
+.confirguration #con0 .col5 span.disabled:active,
 .btn-primary[disabled]:active,
 [disabled].btn-custom:active,
 [disabled].css_button_small:active,
@@ -5187,6 +5325,7 @@ input[disabled][type="button"]:active,
 [disabled].btn-submit:active,
 [disabled].btn-green:active,
 input[disabled][type="submit"]:active,
+.confirguration #con0 .col5 span[disabled]:active,
 fieldset[disabled] .btn-primary:active,
 fieldset[disabled] .btn-custom:active,
 fieldset[disabled] .css_button_small:active,
@@ -5204,6 +5343,8 @@ fieldset[disabled] input[type="button"]:active,
 fieldset[disabled] .btn-submit:active,
 fieldset[disabled] .btn-green:active,
 fieldset[disabled] input[type="submit"]:active,
+fieldset[disabled] .confirguration #con0 .col5 span:active,
+.confirguration #con0 .col5 fieldset[disabled] span:active,
 .btn-primary.disabled.active,
 .disabled.active.btn-custom,
 .disabled.active.css_button_small,
@@ -5217,6 +5358,7 @@ input.disabled.active[type="button"],
 .disabled.active.btn-submit,
 .disabled.active.btn-green,
 input.disabled.active[type="submit"],
+.confirguration #con0 .col5 span.disabled.active,
 .btn-primary[disabled].active,
 [disabled].active.btn-custom,
 [disabled].active.css_button_small,
@@ -5230,6 +5372,7 @@ input[disabled].active[type="button"],
 [disabled].active.btn-submit,
 [disabled].active.btn-green,
 input[disabled].active[type="submit"],
+.confirguration #con0 .col5 span[disabled].active,
 fieldset[disabled] .btn-primary.active,
 fieldset[disabled] .active.btn-custom,
 fieldset[disabled] .active.css_button_small,
@@ -5246,14 +5389,16 @@ fieldset[disabled] .nav-pills-sm li:hover a.active,
 fieldset[disabled] input.active[type="button"],
 fieldset[disabled] .active.btn-submit,
 fieldset[disabled] .active.btn-green,
-fieldset[disabled] input.active[type="submit"] {
+fieldset[disabled] input.active[type="submit"],
+fieldset[disabled] .confirguration #con0 .col5 span.active,
+.confirguration #con0 .col5 fieldset[disabled] span.active {
   background-color: #337ab7;
   border-color: #2e6da4;
 }
 
 /* line 3187, bootstrap/css/bootstrap.scss */
 .btn-primary .badge, .btn-custom .badge, .css_button_small .badge, #showMenuLink .badge, .css_button .badge, .css_button_link a .badge, .nav-pills-sm li.active a .badge, .nav-pills-sm li.current a .badge,
-.nav-pills-sm li:hover a .badge, input[type="button"] .badge, .btn-submit .badge, .btn-green .badge, input[type="submit"] .badge {
+.nav-pills-sm li:hover a .badge, input[type="button"] .badge, .btn-submit .badge, .btn-green .badge, input[type="submit"] .badge, .confirguration #con0 .col5 span .badge {
   color: #337ab7;
   background-color: #fff;
 }
@@ -6167,7 +6312,7 @@ tbody.collapse.in {
 }
 
 /* line 3878, bootstrap/css/bootstrap.scss */
-.input-group .form-control, .input-group .search_init, .input-group input[type='text'], .input-group input[type='password'], .input-group input[type='entry'], .input-group .dataTables_filter input, .dataTables_filter .input-group input, .input-group select, .input-group input[name="type_code"], .input-group .batchCom textarea, .batchCom .input-group textarea {
+.input-group .form-control, .input-group #addressbook_list .inputtext, #addressbook_list .input-group .inputtext, .input-group .search_init, .input-group input[type='text'], .input-group input[type='password'], .input-group input[type='entry'], .input-group .dataTables_filter input, .dataTables_filter .input-group input, .input-group select, .input-group input[name="type_code"], .input-group .batchCom textarea, .batchCom .input-group textarea {
   position: relative;
   z-index: 2;
   float: left;
@@ -6176,7 +6321,7 @@ tbody.collapse.in {
 }
 
 /* line 3885, bootstrap/css/bootstrap.scss */
-.input-group-lg > .form-control, .input-group-lg > .search_init, .input-group-lg > input[type='text'], .input-group-lg > input[type='password'], .input-group-lg > input[type='entry'], .dataTables_filter .input-group-lg > input, .input-group-lg > select, .input-group-lg > input[name="type_code"], .batchCom .input-group-lg > textarea,
+.input-group-lg > .form-control, #addressbook_list .input-group-lg > .inputtext, .input-group-lg > .search_init, .input-group-lg > input[type='text'], .input-group-lg > input[type='password'], .input-group-lg > input[type='entry'], .dataTables_filter .input-group-lg > input, .input-group-lg > select, .input-group-lg > input[name="type_code"], .batchCom .input-group-lg > textarea,
 .input-group-lg > .input-group-addon,
 .input-group-lg > .input-group-btn > .btn {
   height: 46px;
@@ -6187,7 +6332,7 @@ tbody.collapse.in {
 }
 
 /* line 3894, bootstrap/css/bootstrap.scss */
-select.input-group-lg > .form-control, select.input-group-lg > .search_init, select.input-group-lg > input[type='text'], select.input-group-lg > input[type='password'], select.input-group-lg > input[type='entry'], .dataTables_filter select.input-group-lg > input, select.input-group-lg > select, select.input-group-lg > input[name="type_code"], .batchCom select.input-group-lg > textarea,
+select.input-group-lg > .form-control, #addressbook_list select.input-group-lg > .inputtext, select.input-group-lg > .search_init, select.input-group-lg > input[type='text'], select.input-group-lg > input[type='password'], select.input-group-lg > input[type='entry'], .dataTables_filter select.input-group-lg > input, select.input-group-lg > select, select.input-group-lg > input[name="type_code"], .batchCom select.input-group-lg > textarea,
 select.input-group-lg > .input-group-addon,
 select.input-group-lg > .input-group-btn > .btn {
   height: 46px;
@@ -6195,10 +6340,11 @@ select.input-group-lg > .input-group-btn > .btn {
 }
 
 /* line 3900, bootstrap/css/bootstrap.scss */
-textarea.input-group-lg > .form-control, textarea.input-group-lg > .search_init, textarea.input-group-lg > input[type='text'], textarea.input-group-lg > input[type='password'], textarea.input-group-lg > input[type='entry'], .dataTables_filter textarea.input-group-lg > input, textarea.input-group-lg > select, textarea.input-group-lg > input[name="type_code"], .batchCom textarea.input-group-lg > textarea,
+textarea.input-group-lg > .form-control, #addressbook_list textarea.input-group-lg > .inputtext, textarea.input-group-lg > .search_init, textarea.input-group-lg > input[type='text'], textarea.input-group-lg > input[type='password'], textarea.input-group-lg > input[type='entry'], .dataTables_filter textarea.input-group-lg > input, textarea.input-group-lg > select, textarea.input-group-lg > input[name="type_code"], .batchCom textarea.input-group-lg > textarea,
 textarea.input-group-lg > .input-group-addon,
 textarea.input-group-lg > .input-group-btn > .btn,
 select[multiple].input-group-lg > .form-control,
+#addressbook_list select[multiple].input-group-lg > .inputtext,
 select[multiple].input-group-lg > .search_init,
 select[multiple].input-group-lg > input[type='text'],
 select[multiple].input-group-lg > input[type='password'],
@@ -6213,7 +6359,7 @@ select[multiple].input-group-lg > .input-group-btn > .btn {
 }
 
 /* line 3908, bootstrap/css/bootstrap.scss */
-.input-group-sm > .form-control, .input-group-sm > .search_init, .input-group-sm > input[type='text'], .input-group-sm > input[type='password'], .input-group-sm > input[type='entry'], .dataTables_filter .input-group-sm > input, .input-group-sm > select, .input-group-sm > input[name="type_code"], .batchCom .input-group-sm > textarea,
+.input-group-sm > .form-control, #addressbook_list .input-group-sm > .inputtext, .input-group-sm > .search_init, .input-group-sm > input[type='text'], .input-group-sm > input[type='password'], .input-group-sm > input[type='entry'], .dataTables_filter .input-group-sm > input, .input-group-sm > select, .input-group-sm > input[name="type_code"], .batchCom .input-group-sm > textarea,
 .input-group-sm > .input-group-addon,
 .input-group-sm > .input-group-btn > .btn {
   height: 30px;
@@ -6224,7 +6370,7 @@ select[multiple].input-group-lg > .input-group-btn > .btn {
 }
 
 /* line 3917, bootstrap/css/bootstrap.scss */
-select.input-group-sm > .form-control, select.input-group-sm > .search_init, select.input-group-sm > input[type='text'], select.input-group-sm > input[type='password'], select.input-group-sm > input[type='entry'], .dataTables_filter select.input-group-sm > input, select.input-group-sm > select, select.input-group-sm > input[name="type_code"], .batchCom select.input-group-sm > textarea,
+select.input-group-sm > .form-control, #addressbook_list select.input-group-sm > .inputtext, select.input-group-sm > .search_init, select.input-group-sm > input[type='text'], select.input-group-sm > input[type='password'], select.input-group-sm > input[type='entry'], .dataTables_filter select.input-group-sm > input, select.input-group-sm > select, select.input-group-sm > input[name="type_code"], .batchCom select.input-group-sm > textarea,
 select.input-group-sm > .input-group-addon,
 select.input-group-sm > .input-group-btn > .btn {
   height: 30px;
@@ -6232,10 +6378,11 @@ select.input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 3923, bootstrap/css/bootstrap.scss */
-textarea.input-group-sm > .form-control, textarea.input-group-sm > .search_init, textarea.input-group-sm > input[type='text'], textarea.input-group-sm > input[type='password'], textarea.input-group-sm > input[type='entry'], .dataTables_filter textarea.input-group-sm > input, textarea.input-group-sm > select, textarea.input-group-sm > input[name="type_code"], .batchCom textarea.input-group-sm > textarea,
+textarea.input-group-sm > .form-control, #addressbook_list textarea.input-group-sm > .inputtext, textarea.input-group-sm > .search_init, textarea.input-group-sm > input[type='text'], textarea.input-group-sm > input[type='password'], textarea.input-group-sm > input[type='entry'], .dataTables_filter textarea.input-group-sm > input, textarea.input-group-sm > select, textarea.input-group-sm > input[name="type_code"], .batchCom textarea.input-group-sm > textarea,
 textarea.input-group-sm > .input-group-addon,
 textarea.input-group-sm > .input-group-btn > .btn,
 select[multiple].input-group-sm > .form-control,
+#addressbook_list select[multiple].input-group-sm > .inputtext,
 select[multiple].input-group-sm > .search_init,
 select[multiple].input-group-sm > input[type='text'],
 select[multiple].input-group-sm > input[type='password'],
@@ -6253,6 +6400,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .input-group-addon,
 .input-group-btn,
 .input-group .form-control,
+.input-group #addressbook_list .inputtext,
+#addressbook_list .input-group .inputtext,
 .input-group .search_init,
 .input-group input[type='text'],
 .input-group input[type='password'],
@@ -6270,6 +6419,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .input-group-addon:not(:first-child):not(:last-child),
 .input-group-btn:not(:first-child):not(:last-child),
 .input-group .form-control:not(:first-child):not(:last-child),
+.input-group #addressbook_list .inputtext:not(:first-child):not(:last-child),
+#addressbook_list .input-group .inputtext:not(:first-child):not(:last-child),
 .input-group .search_init:not(:first-child):not(:last-child),
 .input-group input[type='text']:not(:first-child):not(:last-child),
 .input-group input[type='password']:not(:first-child):not(:last-child),
@@ -6325,7 +6476,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 3972, bootstrap/css/bootstrap.scss */
-.input-group .form-control:first-child, .input-group .search_init:first-child, .input-group input[type='text']:first-child, .input-group input[type='password']:first-child, .input-group input[type='entry']:first-child, .input-group .dataTables_filter input:first-child, .dataTables_filter .input-group input:first-child, .input-group select:first-child, .input-group input[name="type_code"]:first-child, .input-group .batchCom textarea:first-child, .batchCom .input-group textarea:first-child,
+.input-group .form-control:first-child, .input-group #addressbook_list .inputtext:first-child, #addressbook_list .input-group .inputtext:first-child, .input-group .search_init:first-child, .input-group input[type='text']:first-child, .input-group input[type='password']:first-child, .input-group input[type='entry']:first-child, .input-group .dataTables_filter input:first-child, .dataTables_filter .input-group input:first-child, .input-group select:first-child, .input-group input[name="type_code"]:first-child, .input-group .batchCom textarea:first-child, .batchCom .input-group textarea:first-child,
 .input-group-addon:first-child,
 .input-group-btn:first-child > .btn,
 .input-group-btn:first-child > .btn-group > .btn,
@@ -6342,7 +6493,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 
 /* line 3985, bootstrap/css/bootstrap.scss */
-.input-group .form-control:last-child, .input-group .search_init:last-child, .input-group input[type='text']:last-child, .input-group input[type='password']:last-child, .input-group input[type='entry']:last-child, .input-group .dataTables_filter input:last-child, .dataTables_filter .input-group input:last-child, .input-group select:last-child, .input-group input[name="type_code"]:last-child, .input-group .batchCom textarea:last-child, .batchCom .input-group textarea:last-child,
+.input-group .form-control:last-child, .input-group #addressbook_list .inputtext:last-child, #addressbook_list .input-group .inputtext:last-child, .input-group .search_init:last-child, .input-group input[type='text']:last-child, .input-group input[type='password']:last-child, .input-group input[type='entry']:last-child, .input-group .dataTables_filter input:last-child, .dataTables_filter .input-group input:last-child, .input-group select:last-child, .input-group input[name="type_code"]:last-child, .input-group .batchCom textarea:last-child, .batchCom .input-group textarea:last-child,
 .input-group-addon:last-child,
 .input-group-btn:last-child > .btn,
 .input-group-btn:last-child > .btn-group > .btn,
@@ -6467,20 +6618,20 @@ ul.tabNav .open > a:focus,
 
 /* line 4067, bootstrap/css/bootstrap.scss */
 .nav-tabs, ul.tabNav, .tabNav,
-.nav-pills-sm, .ui-corner-top a {
+.nav-pills-sm {
   border-bottom: 1px solid #ddd;
 }
 
 /* line 4070, bootstrap/css/bootstrap.scss */
 .nav-tabs > li, .tabNav > li,
-.nav-pills-sm > li, .ui-corner-top a > li {
+.nav-pills-sm > li {
   float: left;
   margin-bottom: -1px;
 }
 
 /* line 4074, bootstrap/css/bootstrap.scss */
 .nav-tabs > li > a, .tabNav > li > a,
-.nav-pills-sm > li > a, .ui-corner-top a > li > a {
+.nav-pills-sm > li > a {
   margin-right: 2px;
   line-height: 1.42857143;
   border: 1px solid transparent;
@@ -6489,30 +6640,26 @@ ul.tabNav .open > a:focus,
 
 /* line 4080, bootstrap/css/bootstrap.scss */
 .nav-tabs > li > a:hover, .tabNav > li > a:hover,
-.nav-pills-sm > li > a:hover, .ui-corner-top a > li > a:hover {
+.nav-pills-sm > li > a:hover {
   border-color: #eee #eee #ddd;
 }
 
 /* line 4083, bootstrap/css/bootstrap.scss */
 .nav-tabs > li.active > a, .tabNav > li.active > a,
-.nav-pills-sm > li.active > a, .ui-corner-top a > li.active > a, .nav-tabs > li.current > a, .tabNav > li.current > a,
-.nav-pills-sm > li.current > a, .ui-corner-top a > li.current > a,
+.nav-pills-sm > li.active > a, .nav-tabs > li.current > a, .tabNav > li.current > a,
+.nav-pills-sm > li.current > a,
 .nav-tabs > li.active > a:hover,
 .tabNav > li.active > a:hover,
 .nav-pills-sm > li.active > a:hover,
-.ui-corner-top a > li.active > a:hover,
 .nav-tabs > li.current > a:hover,
 .tabNav > li.current > a:hover,
 .nav-pills-sm > li.current > a:hover,
-.ui-corner-top a > li.current > a:hover,
 .nav-tabs > li.active > a:focus,
 .tabNav > li.active > a:focus,
 .nav-pills-sm > li.active > a:focus,
-.ui-corner-top a > li.active > a:focus,
 .nav-tabs > li.current > a:focus,
 .tabNav > li.current > a:focus,
-.nav-pills-sm > li.current > a:focus,
-.ui-corner-top a > li.current > a:focus {
+.nav-pills-sm > li.current > a:focus {
   color: #555;
   cursor: default;
   background-color: #fff;
@@ -6522,27 +6669,27 @@ ul.tabNav .open > a:focus,
 
 /* line 4092, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified, .nav-justified.tabNav,
-.nav-justified.nav-pills-sm, .ui-corner-top a.nav-justified {
+.nav-justified.nav-pills-sm {
   width: 100%;
   border-bottom: 0;
 }
 
 /* line 4096, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > li, .nav-justified.tabNav > li,
-.nav-justified.nav-pills-sm > li, .ui-corner-top a.nav-justified > li {
+.nav-justified.nav-pills-sm > li {
   float: none;
 }
 
 /* line 4099, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > li > a, .nav-justified.tabNav > li > a,
-.nav-justified.nav-pills-sm > li > a, .ui-corner-top a.nav-justified > li > a {
+.nav-justified.nav-pills-sm > li > a {
   margin-bottom: 5px;
   text-align: center;
 }
 
 /* line 4103, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > .dropdown .dropdown-menu, .nav-justified.tabNav > .dropdown .dropdown-menu,
-.nav-justified.nav-pills-sm > .dropdown .dropdown-menu, .ui-corner-top a.nav-justified > .dropdown .dropdown-menu {
+.nav-justified.nav-pills-sm > .dropdown .dropdown-menu {
   top: auto;
   left: auto;
 }
@@ -6550,57 +6697,53 @@ ul.tabNav .open > a:focus,
 @media (min-width: 768px) {
   /* line 4108, bootstrap/css/bootstrap.scss */
   .nav-tabs.nav-justified > li, .nav-justified.tabNav > li,
-  .nav-justified.nav-pills-sm > li, .ui-corner-top a.nav-justified > li {
+  .nav-justified.nav-pills-sm > li {
     display: table-cell;
     width: 1%;
   }
 
   /* line 4112, bootstrap/css/bootstrap.scss */
   .nav-tabs.nav-justified > li > a, .nav-justified.tabNav > li > a,
-  .nav-justified.nav-pills-sm > li > a, .ui-corner-top a.nav-justified > li > a {
+  .nav-justified.nav-pills-sm > li > a {
     margin-bottom: 0;
   }
 }
 /* line 4116, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > li > a, .nav-justified.tabNav > li > a,
-.nav-justified.nav-pills-sm > li > a, .ui-corner-top a.nav-justified > li > a {
+.nav-justified.nav-pills-sm > li > a {
   margin-right: 0;
   border-radius: 4px;
 }
 
 /* line 4120, bootstrap/css/bootstrap.scss */
 .nav-tabs.nav-justified > .active > a, .nav-justified.tabNav > .active > a,
-.nav-justified.nav-pills-sm > .active > a, .ui-corner-top a.nav-justified > .active > a,
+.nav-justified.nav-pills-sm > .active > a,
 .nav-tabs.nav-justified > .active > a:hover,
 .nav-justified.tabNav > .active > a:hover,
 .nav-justified.nav-pills-sm > .active > a:hover,
-.ui-corner-top a.nav-justified > .active > a:hover,
 .nav-tabs.nav-justified > .active > a:focus,
 .nav-justified.tabNav > .active > a:focus,
-.nav-justified.nav-pills-sm > .active > a:focus,
-.ui-corner-top a.nav-justified > .active > a:focus {
+.nav-justified.nav-pills-sm > .active > a:focus {
   border: 1px solid #ddd;
 }
 
 @media (min-width: 768px) {
   /* line 4126, bootstrap/css/bootstrap.scss */
   .nav-tabs.nav-justified > li > a, .nav-justified.tabNav > li > a,
-  .nav-justified.nav-pills-sm > li > a, .ui-corner-top a.nav-justified > li > a {
+  .nav-justified.nav-pills-sm > li > a {
     border-bottom: 1px solid #ddd;
     border-radius: 4px 4px 0 0;
   }
 
   /* line 4130, bootstrap/css/bootstrap.scss */
   .nav-tabs.nav-justified > .active > a, .nav-justified.tabNav > .active > a,
-  .nav-justified.nav-pills-sm > .active > a, .ui-corner-top a.nav-justified > .active > a,
+  .nav-justified.nav-pills-sm > .active > a,
   .nav-tabs.nav-justified > .active > a:hover,
   .nav-justified.tabNav > .active > a:hover,
   .nav-justified.nav-pills-sm > .active > a:hover,
-  .ui-corner-top a.nav-justified > .active > a:hover,
   .nav-tabs.nav-justified > .active > a:focus,
   .nav-justified.tabNav > .active > a:focus,
-  .nav-justified.nav-pills-sm > .active > a:focus,
-  .ui-corner-top a.nav-justified > .active > a:focus {
+  .nav-justified.nav-pills-sm > .active > a:focus {
     border-bottom-color: #fff;
   }
 }
@@ -6722,7 +6865,7 @@ ul.tabNav .open > a:focus,
 
 /* line 4210, bootstrap/css/bootstrap.scss */
 .nav-tabs .dropdown-menu, .tabNav .dropdown-menu,
-.nav-pills-sm .dropdown-menu, .ui-corner-top a .dropdown-menu {
+.nav-pills-sm .dropdown-menu {
   margin-top: -1px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -7014,7 +7157,7 @@ ul.tabNav .open > a:focus,
   }
 
   /* line 4433, bootstrap/css/bootstrap.scss */
-  .navbar-form .form-control, .navbar-form .search_init, .navbar-form input[type='text'], .navbar-form input[type='password'], .navbar-form input[type='entry'], .navbar-form .dataTables_filter input, .dataTables_filter .navbar-form input, .navbar-form select, .navbar-form input[name="type_code"], .navbar-form .batchCom textarea, .batchCom .navbar-form textarea {
+  .navbar-form .form-control, .navbar-form #addressbook_list .inputtext, #addressbook_list .navbar-form .inputtext, .navbar-form .search_init, .navbar-form input[type='text'], .navbar-form input[type='password'], .navbar-form input[type='entry'], .navbar-form .dataTables_filter input, .dataTables_filter .navbar-form input, .navbar-form select, .navbar-form input[name="type_code"], .navbar-form .batchCom textarea, .batchCom .navbar-form textarea {
     display: inline-block;
     width: auto;
     vertical-align: middle;
@@ -7035,6 +7178,8 @@ ul.tabNav .open > a:focus,
   .navbar-form .input-group .input-group-addon,
   .navbar-form .input-group .input-group-btn,
   .navbar-form .input-group .form-control,
+  .navbar-form .input-group #addressbook_list .inputtext,
+  #addressbook_list .navbar-form .input-group .inputtext,
   .navbar-form .input-group .search_init,
   .navbar-form .input-group input[type='text'],
   .navbar-form .input-group input[type='password'],
@@ -7049,7 +7194,7 @@ ul.tabNav .open > a:focus,
   }
 
   /* line 4450, bootstrap/css/bootstrap.scss */
-  .navbar-form .input-group > .form-control, .navbar-form .input-group > .search_init, .navbar-form .input-group > input[type='text'], .navbar-form .input-group > input[type='password'], .navbar-form .input-group > input[type='entry'], .navbar-form .dataTables_filter .input-group > input, .dataTables_filter .navbar-form .input-group > input, .navbar-form .input-group > select, .navbar-form .input-group > input[name="type_code"], .navbar-form .batchCom .input-group > textarea, .batchCom .navbar-form .input-group > textarea {
+  .navbar-form .input-group > .form-control, .navbar-form #addressbook_list .input-group > .inputtext, #addressbook_list .navbar-form .input-group > .inputtext, .navbar-form .input-group > .search_init, .navbar-form .input-group > input[type='text'], .navbar-form .input-group > input[type='password'], .navbar-form .input-group > input[type='entry'], .navbar-form .dataTables_filter .input-group > input, .dataTables_filter .navbar-form .input-group > input, .navbar-form .input-group > select, .navbar-form .input-group > input[name="type_code"], .navbar-form .batchCom .input-group > textarea, .batchCom .navbar-form .input-group > textarea {
     width: 100%;
   }
 
@@ -8635,173 +8780,252 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5569, bootstrap/css/bootstrap.scss */
-.panel > .table,
+.panel > .table, .confirguration #con0 .panel > table,
 .panel > .table-responsive > .table,
-.panel > .panel-collapse > .table {
+.confirguration #con0 .panel > .table-responsive > table,
+.panel > .panel-collapse > .table,
+.confirguration #con0 .panel > .panel-collapse > table {
   margin-bottom: 0;
 }
 
 /* line 5574, bootstrap/css/bootstrap.scss */
-.panel > .table caption,
+.panel > .table caption, .confirguration #con0 .panel > table caption,
 .panel > .table-responsive > .table caption,
-.panel > .panel-collapse > .table caption {
+.confirguration #con0 .panel > .table-responsive > table caption,
+.panel > .panel-collapse > .table caption,
+.confirguration #con0 .panel > .panel-collapse > table caption {
   padding-right: 15px;
   padding-left: 15px;
 }
 
 /* line 5580, bootstrap/css/bootstrap.scss */
-.panel > .table:first-child,
-.panel > .table-responsive:first-child > .table:first-child {
+.panel > .table:first-child, .confirguration #con0 .panel > table:first-child,
+.panel > .table-responsive:first-child > .table:first-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child {
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
 
 /* line 5585, bootstrap/css/bootstrap.scss */
-.panel > .table:first-child > thead:first-child > tr:first-child,
+.panel > .table:first-child > thead:first-child > tr:first-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child,
-.panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child {
+.confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child,
+.panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child {
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
 
 /* line 5592, bootstrap/css/bootstrap.scss */
-.panel > .table:first-child > thead:first-child > tr:first-child td:first-child,
+.panel > .table:first-child > thead:first-child > tr:first-child td:first-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child td:first-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:first-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:first-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child td:first-child,
+.confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child td:first-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child td:first-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:first-child,
 .panel > .table:first-child > thead:first-child > tr:first-child th:first-child,
+.confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child th:first-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:first-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:first-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child th:first-child,
-.panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:first-child {
+.confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child th:first-child,
+.panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:first-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child {
   border-top-left-radius: 3px;
 }
 
 /* line 5602, bootstrap/css/bootstrap.scss */
-.panel > .table:first-child > thead:first-child > tr:first-child td:last-child,
+.panel > .table:first-child > thead:first-child > tr:first-child td:last-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child td:last-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:last-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:last-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child td:last-child,
+.confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child td:last-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child td:last-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:last-child,
 .panel > .table:first-child > thead:first-child > tr:first-child th:last-child,
+.confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child th:last-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:last-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:last-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child th:last-child,
-.panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:last-child {
+.confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child th:last-child,
+.panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:last-child,
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child {
   border-top-right-radius: 3px;
 }
 
 /* line 5612, bootstrap/css/bootstrap.scss */
-.panel > .table:last-child,
-.panel > .table-responsive:last-child > .table:last-child {
+.panel > .table:last-child, .confirguration #con0 .panel > table:last-child,
+.panel > .table-responsive:last-child > .table:last-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child {
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
 /* line 5617, bootstrap/css/bootstrap.scss */
-.panel > .table:last-child > tbody:last-child > tr:last-child,
+.panel > .table:last-child > tbody:last-child > tr:last-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child,
-.panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child {
+.confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child,
+.panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child {
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
 /* line 5624, bootstrap/css/bootstrap.scss */
-.panel > .table:last-child > tbody:last-child > tr:last-child td:first-child,
+.panel > .table:last-child > tbody:last-child > tr:last-child td:first-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child td:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:first-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:first-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child td:first-child,
+.confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:first-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .panel > .table:last-child > tbody:last-child > tr:last-child th:first-child,
+.confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child th:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:first-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:first-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child th:first-child,
-.panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:first-child {
+.confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child th:first-child,
+.panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:first-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child {
   border-bottom-left-radius: 3px;
 }
 
 /* line 5634, bootstrap/css/bootstrap.scss */
-.panel > .table:last-child > tbody:last-child > tr:last-child td:last-child,
+.panel > .table:last-child > tbody:last-child > tr:last-child td:last-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child td:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:last-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:last-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .panel > .table:last-child > tbody:last-child > tr:last-child th:last-child,
+.confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child th:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:last-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:last-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child th:last-child,
-.panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:last-child {
+.confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child th:last-child,
+.panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:last-child,
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child {
   border-bottom-right-radius: 3px;
 }
 
 /* line 5644, bootstrap/css/bootstrap.scss */
-.panel > .panel-body + .table,
+.panel > .panel-body + .table, .confirguration #con0 .panel > .panel-body + table,
 .panel > .panel-body + .table-responsive,
 .panel > .table + .panel-body,
+.confirguration #con0 .panel > table + .panel-body,
 .panel > .table-responsive + .panel-body {
   border-top: 1px solid #ddd;
 }
 
 /* line 5650, bootstrap/css/bootstrap.scss */
-.panel > .table > tbody:first-child > tr:first-child th,
-.panel > .table > tbody:first-child > tr:first-child td {
+.panel > .table > tbody:first-child > tr:first-child th, .confirguration #con0 .panel > table > tbody:first-child > tr:first-child th,
+.panel > .table > tbody:first-child > tr:first-child td,
+.confirguration #con0 .panel > table > tbody:first-child > tr:first-child td {
   border-top: 0;
 }
 
 /* line 5654, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered,
-.panel > .table-responsive > .table-bordered {
+.panel > .table-bordered, .confirguration #con0 .panel > table,
+.panel > .table-responsive > .table-bordered,
+.confirguration #con0 .panel > .table-responsive > table {
   border: 0;
 }
 
 /* line 5658, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered > thead > tr > th:first-child,
+.panel > .table-bordered > thead > tr > th:first-child, .confirguration #con0 .panel > table > thead > tr > th:first-child,
 .panel > .table-responsive > .table-bordered > thead > tr > th:first-child,
+.confirguration #con0 .panel > .table-responsive > table > thead > tr > th:first-child,
 .panel > .table-bordered > tbody > tr > th:first-child,
+.confirguration #con0 .panel > table > tbody > tr > th:first-child,
 .panel > .table-responsive > .table-bordered > tbody > tr > th:first-child,
+.confirguration #con0 .panel > .table-responsive > table > tbody > tr > th:first-child,
 .panel > .table-bordered > tfoot > tr > th:first-child,
+.confirguration #con0 .panel > table > tfoot > tr > th:first-child,
 .panel > .table-responsive > .table-bordered > tfoot > tr > th:first-child,
+.confirguration #con0 .panel > .table-responsive > table > tfoot > tr > th:first-child,
 .panel > .table-bordered > thead > tr > td:first-child,
+.confirguration #con0 .panel > table > thead > tr > td:first-child,
 .panel > .table-responsive > .table-bordered > thead > tr > td:first-child,
+.confirguration #con0 .panel > .table-responsive > table > thead > tr > td:first-child,
 .panel > .table-bordered > tbody > tr > td:first-child,
+.confirguration #con0 .panel > table > tbody > tr > td:first-child,
 .panel > .table-responsive > .table-bordered > tbody > tr > td:first-child,
+.confirguration #con0 .panel > .table-responsive > table > tbody > tr > td:first-child,
 .panel > .table-bordered > tfoot > tr > td:first-child,
-.panel > .table-responsive > .table-bordered > tfoot > tr > td:first-child {
+.confirguration #con0 .panel > table > tfoot > tr > td:first-child,
+.panel > .table-responsive > .table-bordered > tfoot > tr > td:first-child,
+.confirguration #con0 .panel > .table-responsive > table > tfoot > tr > td:first-child {
   border-left: 0;
 }
 
 /* line 5672, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered > thead > tr > th:last-child,
+.panel > .table-bordered > thead > tr > th:last-child, .confirguration #con0 .panel > table > thead > tr > th:last-child,
 .panel > .table-responsive > .table-bordered > thead > tr > th:last-child,
+.confirguration #con0 .panel > .table-responsive > table > thead > tr > th:last-child,
 .panel > .table-bordered > tbody > tr > th:last-child,
+.confirguration #con0 .panel > table > tbody > tr > th:last-child,
 .panel > .table-responsive > .table-bordered > tbody > tr > th:last-child,
+.confirguration #con0 .panel > .table-responsive > table > tbody > tr > th:last-child,
 .panel > .table-bordered > tfoot > tr > th:last-child,
+.confirguration #con0 .panel > table > tfoot > tr > th:last-child,
 .panel > .table-responsive > .table-bordered > tfoot > tr > th:last-child,
+.confirguration #con0 .panel > .table-responsive > table > tfoot > tr > th:last-child,
 .panel > .table-bordered > thead > tr > td:last-child,
+.confirguration #con0 .panel > table > thead > tr > td:last-child,
 .panel > .table-responsive > .table-bordered > thead > tr > td:last-child,
+.confirguration #con0 .panel > .table-responsive > table > thead > tr > td:last-child,
 .panel > .table-bordered > tbody > tr > td:last-child,
+.confirguration #con0 .panel > table > tbody > tr > td:last-child,
 .panel > .table-responsive > .table-bordered > tbody > tr > td:last-child,
+.confirguration #con0 .panel > .table-responsive > table > tbody > tr > td:last-child,
 .panel > .table-bordered > tfoot > tr > td:last-child,
-.panel > .table-responsive > .table-bordered > tfoot > tr > td:last-child {
+.confirguration #con0 .panel > table > tfoot > tr > td:last-child,
+.panel > .table-responsive > .table-bordered > tfoot > tr > td:last-child,
+.confirguration #con0 .panel > .table-responsive > table > tfoot > tr > td:last-child {
   border-right: 0;
 }
 
 /* line 5686, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered > thead > tr:first-child > td,
+.panel > .table-bordered > thead > tr:first-child > td, .confirguration #con0 .panel > table > thead > tr:first-child > td,
 .panel > .table-responsive > .table-bordered > thead > tr:first-child > td,
+.confirguration #con0 .panel > .table-responsive > table > thead > tr:first-child > td,
 .panel > .table-bordered > tbody > tr:first-child > td,
+.confirguration #con0 .panel > table > tbody > tr:first-child > td,
 .panel > .table-responsive > .table-bordered > tbody > tr:first-child > td,
+.confirguration #con0 .panel > .table-responsive > table > tbody > tr:first-child > td,
 .panel > .table-bordered > thead > tr:first-child > th,
+.confirguration #con0 .panel > table > thead > tr:first-child > th,
 .panel > .table-responsive > .table-bordered > thead > tr:first-child > th,
+.confirguration #con0 .panel > .table-responsive > table > thead > tr:first-child > th,
 .panel > .table-bordered > tbody > tr:first-child > th,
-.panel > .table-responsive > .table-bordered > tbody > tr:first-child > th {
+.confirguration #con0 .panel > table > tbody > tr:first-child > th,
+.panel > .table-responsive > .table-bordered > tbody > tr:first-child > th,
+.confirguration #con0 .panel > .table-responsive > table > tbody > tr:first-child > th {
   border-bottom: 0;
 }
 
 /* line 5696, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered > tbody > tr:last-child > td,
+.panel > .table-bordered > tbody > tr:last-child > td, .confirguration #con0 .panel > table > tbody > tr:last-child > td,
 .panel > .table-responsive > .table-bordered > tbody > tr:last-child > td,
+.confirguration #con0 .panel > .table-responsive > table > tbody > tr:last-child > td,
 .panel > .table-bordered > tfoot > tr:last-child > td,
+.confirguration #con0 .panel > table > tfoot > tr:last-child > td,
 .panel > .table-responsive > .table-bordered > tfoot > tr:last-child > td,
+.confirguration #con0 .panel > .table-responsive > table > tfoot > tr:last-child > td,
 .panel > .table-bordered > tbody > tr:last-child > th,
+.confirguration #con0 .panel > table > tbody > tr:last-child > th,
 .panel > .table-responsive > .table-bordered > tbody > tr:last-child > th,
+.confirguration #con0 .panel > .table-responsive > table > tbody > tr:last-child > th,
 .panel > .table-bordered > tfoot > tr:last-child > th,
-.panel > .table-responsive > .table-bordered > tfoot > tr:last-child > th {
+.confirguration #con0 .panel > table > tfoot > tr:last-child > th,
+.panel > .table-responsive > .table-bordered > tfoot > tr:last-child > th,
+.confirguration #con0 .panel > .table-responsive > table > tfoot > tr:last-child > th {
   border-bottom: 0;
 }
 
@@ -10442,6 +10666,7 @@ input[type="button"],
 .btn-submit,
 .btn-green,
 input[type="submit"],
+.confirguration #con0 .col5 span,
 .btn-success,
 .btn-info,
 .btn-warning,
@@ -10466,6 +10691,7 @@ input[type="button"]:active,
 .btn-submit:active,
 .btn-green:active,
 input[type="submit"]:active,
+.confirguration #con0 .col5 span:active,
 .btn-success:active,
 .btn-info:active,
 .btn-warning:active,
@@ -10484,6 +10710,7 @@ input.active[type="button"],
 .active.btn-submit,
 .active.btn-green,
 input.active[type="submit"],
+.confirguration #con0 .col5 span.active,
 .btn-success.active,
 .btn-info.active,
 .btn-warning.active,
@@ -10507,6 +10734,7 @@ input.disabled[type="button"],
 .disabled.btn-submit,
 .disabled.btn-green,
 input.disabled[type="submit"],
+.confirguration #con0 .col5 span.disabled,
 .btn-success.disabled,
 .btn-info.disabled,
 .btn-warning.disabled,
@@ -10525,6 +10753,7 @@ input[disabled][type="button"],
 [disabled].btn-submit,
 [disabled].btn-green,
 input[disabled][type="submit"],
+.confirguration #con0 .col5 span[disabled],
 .btn-success[disabled],
 .btn-info[disabled],
 .btn-warning[disabled],
@@ -10547,6 +10776,8 @@ fieldset[disabled] input[type="button"],
 fieldset[disabled] .btn-submit,
 fieldset[disabled] .btn-green,
 fieldset[disabled] input[type="submit"],
+fieldset[disabled] .confirguration #con0 .col5 span,
+.confirguration #con0 .col5 fieldset[disabled] span,
 fieldset[disabled] .btn-success,
 fieldset[disabled] .btn-info,
 fieldset[disabled] .btn-warning,
@@ -10570,6 +10801,7 @@ input[type="button"] .badge,
 .btn-submit .badge,
 .btn-green .badge,
 input[type="submit"] .badge,
+.confirguration #con0 .col5 span .badge,
 .btn-success .badge,
 .btn-info .badge,
 .btn-warning .badge,
@@ -10636,7 +10868,7 @@ fieldset[disabled] .btn-default.active {
 
 /* line 107, bootstrap/css/bootstrap-theme.scss */
 .btn-primary, .btn-custom, .css_button_small, #showMenuLink, .css_button, .css_button_link a, .nav-pills-sm li.active a, .nav-pills-sm li.current a,
-.nav-pills-sm li:hover a, input[type="button"], .btn-submit, .btn-green, input[type="submit"] {
+.nav-pills-sm li:hover a, input[type="button"], .btn-submit, .btn-green, input[type="submit"], .confirguration #con0 .col5 span {
   background-image: -webkit-linear-gradient(top, #337ab7 0%, #265a88 100%);
   background-image: -o-linear-gradient(top, #337ab7 0%, #265a88 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#337ab7), to(#265a88));
@@ -10649,7 +10881,7 @@ fieldset[disabled] .btn-default.active {
 
 /* line 117, bootstrap/css/bootstrap-theme.scss */
 .btn-primary:hover, .btn-custom:hover, .css_button_small:hover, #showMenuLink:hover, .css_button:hover, .css_button_link a:hover, .nav-pills-sm li.active a:hover, .nav-pills-sm li.current a:hover,
-.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover,
+.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover, .confirguration #con0 .col5 span:hover,
 .btn-primary:focus,
 .btn-custom:focus,
 .css_button_small:focus,
@@ -10662,14 +10894,15 @@ fieldset[disabled] .btn-default.active {
 input[type="button"]:focus,
 .btn-submit:focus,
 .btn-green:focus,
-input[type="submit"]:focus {
+input[type="submit"]:focus,
+.confirguration #con0 .col5 span:focus {
   background-color: #265a88;
   background-position: 0 -15px;
 }
 
 /* line 122, bootstrap/css/bootstrap-theme.scss */
 .btn-primary:active, .btn-custom:active, .css_button_small:active, #showMenuLink:active, .css_button:active, .css_button_link a:active, .nav-pills-sm li.active a:active, .nav-pills-sm li.current a:active,
-.nav-pills-sm li:hover a:active, input[type="button"]:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active,
+.nav-pills-sm li:hover a:active, input[type="button"]:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active, .confirguration #con0 .col5 span:active,
 .btn-primary.active,
 .active.btn-custom,
 .active.css_button_small,
@@ -10682,14 +10915,15 @@ input[type="submit"]:focus {
 input.active[type="button"],
 .active.btn-submit,
 .active.btn-green,
-input.active[type="submit"] {
+input.active[type="submit"],
+.confirguration #con0 .col5 span.active {
   background-color: #265a88;
   border-color: #245580;
 }
 
 /* line 127, bootstrap/css/bootstrap-theme.scss */
 .btn-primary.disabled, .disabled.btn-custom, .disabled.css_button_small, .disabled#showMenuLink, .disabled.css_button, .css_button_link a.disabled, .nav-pills-sm li.active a.disabled, .nav-pills-sm li.current a.disabled,
-.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"],
+.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"], .confirguration #con0 .col5 span.disabled,
 .btn-primary[disabled],
 [disabled].btn-custom,
 [disabled].css_button_small,
@@ -10703,6 +10937,7 @@ input[disabled][type="button"],
 [disabled].btn-submit,
 [disabled].btn-green,
 input[disabled][type="submit"],
+.confirguration #con0 .col5 span[disabled],
 fieldset[disabled] .btn-primary,
 fieldset[disabled] .btn-custom,
 fieldset[disabled] .css_button_small,
@@ -10720,6 +10955,8 @@ fieldset[disabled] input[type="button"],
 fieldset[disabled] .btn-submit,
 fieldset[disabled] .btn-green,
 fieldset[disabled] input[type="submit"],
+fieldset[disabled] .confirguration #con0 .col5 span,
+.confirguration #con0 .col5 fieldset[disabled] span,
 .btn-primary.disabled:hover,
 .disabled.btn-custom:hover,
 .disabled.css_button_small:hover,
@@ -10733,6 +10970,7 @@ input.disabled[type="button"]:hover,
 .disabled.btn-submit:hover,
 .disabled.btn-green:hover,
 input.disabled[type="submit"]:hover,
+.confirguration #con0 .col5 span.disabled:hover,
 .btn-primary[disabled]:hover,
 [disabled].btn-custom:hover,
 [disabled].css_button_small:hover,
@@ -10746,6 +10984,7 @@ input[disabled][type="button"]:hover,
 [disabled].btn-submit:hover,
 [disabled].btn-green:hover,
 input[disabled][type="submit"]:hover,
+.confirguration #con0 .col5 span[disabled]:hover,
 fieldset[disabled] .btn-primary:hover,
 fieldset[disabled] .btn-custom:hover,
 fieldset[disabled] .css_button_small:hover,
@@ -10763,6 +11002,8 @@ fieldset[disabled] input[type="button"]:hover,
 fieldset[disabled] .btn-submit:hover,
 fieldset[disabled] .btn-green:hover,
 fieldset[disabled] input[type="submit"]:hover,
+fieldset[disabled] .confirguration #con0 .col5 span:hover,
+.confirguration #con0 .col5 fieldset[disabled] span:hover,
 .btn-primary.disabled:focus,
 .disabled.btn-custom:focus,
 .disabled.css_button_small:focus,
@@ -10776,6 +11017,7 @@ input.disabled[type="button"]:focus,
 .disabled.btn-submit:focus,
 .disabled.btn-green:focus,
 input.disabled[type="submit"]:focus,
+.confirguration #con0 .col5 span.disabled:focus,
 .btn-primary[disabled]:focus,
 [disabled].btn-custom:focus,
 [disabled].css_button_small:focus,
@@ -10789,6 +11031,7 @@ input[disabled][type="button"]:focus,
 [disabled].btn-submit:focus,
 [disabled].btn-green:focus,
 input[disabled][type="submit"]:focus,
+.confirguration #con0 .col5 span[disabled]:focus,
 fieldset[disabled] .btn-primary:focus,
 fieldset[disabled] .btn-custom:focus,
 fieldset[disabled] .css_button_small:focus,
@@ -10806,6 +11049,8 @@ fieldset[disabled] input[type="button"]:focus,
 fieldset[disabled] .btn-submit:focus,
 fieldset[disabled] .btn-green:focus,
 fieldset[disabled] input[type="submit"]:focus,
+fieldset[disabled] .confirguration #con0 .col5 span:focus,
+.confirguration #con0 .col5 fieldset[disabled] span:focus,
 .btn-primary.disabled.focus,
 .disabled.focus.btn-custom,
 .disabled.focus.css_button_small,
@@ -10819,6 +11064,7 @@ input.disabled.focus[type="button"],
 .disabled.focus.btn-submit,
 .disabled.focus.btn-green,
 input.disabled.focus[type="submit"],
+.confirguration #con0 .col5 span.disabled.focus,
 .btn-primary[disabled].focus,
 [disabled].focus.btn-custom,
 [disabled].focus.css_button_small,
@@ -10832,6 +11078,7 @@ input[disabled].focus[type="button"],
 [disabled].focus.btn-submit,
 [disabled].focus.btn-green,
 input[disabled].focus[type="submit"],
+.confirguration #con0 .col5 span[disabled].focus,
 fieldset[disabled] .btn-primary.focus,
 fieldset[disabled] .focus.btn-custom,
 fieldset[disabled] .focus.css_button_small,
@@ -10849,6 +11096,8 @@ fieldset[disabled] input.focus[type="button"],
 fieldset[disabled] .focus.btn-submit,
 fieldset[disabled] .focus.btn-green,
 fieldset[disabled] input.focus[type="submit"],
+fieldset[disabled] .confirguration #con0 .col5 span.focus,
+.confirguration #con0 .col5 fieldset[disabled] span.focus,
 .btn-primary.disabled:active,
 .disabled.btn-custom:active,
 .disabled.css_button_small:active,
@@ -10862,6 +11111,7 @@ input.disabled[type="button"]:active,
 .disabled.btn-submit:active,
 .disabled.btn-green:active,
 input.disabled[type="submit"]:active,
+.confirguration #con0 .col5 span.disabled:active,
 .btn-primary[disabled]:active,
 [disabled].btn-custom:active,
 [disabled].css_button_small:active,
@@ -10875,6 +11125,7 @@ input[disabled][type="button"]:active,
 [disabled].btn-submit:active,
 [disabled].btn-green:active,
 input[disabled][type="submit"]:active,
+.confirguration #con0 .col5 span[disabled]:active,
 fieldset[disabled] .btn-primary:active,
 fieldset[disabled] .btn-custom:active,
 fieldset[disabled] .css_button_small:active,
@@ -10892,6 +11143,8 @@ fieldset[disabled] input[type="button"]:active,
 fieldset[disabled] .btn-submit:active,
 fieldset[disabled] .btn-green:active,
 fieldset[disabled] input[type="submit"]:active,
+fieldset[disabled] .confirguration #con0 .col5 span:active,
+.confirguration #con0 .col5 fieldset[disabled] span:active,
 .btn-primary.disabled.active,
 .disabled.active.btn-custom,
 .disabled.active.css_button_small,
@@ -10905,6 +11158,7 @@ input.disabled.active[type="button"],
 .disabled.active.btn-submit,
 .disabled.active.btn-green,
 input.disabled.active[type="submit"],
+.confirguration #con0 .col5 span.disabled.active,
 .btn-primary[disabled].active,
 [disabled].active.btn-custom,
 [disabled].active.css_button_small,
@@ -10918,6 +11172,7 @@ input[disabled].active[type="button"],
 [disabled].active.btn-submit,
 [disabled].active.btn-green,
 input[disabled].active[type="submit"],
+.confirguration #con0 .col5 span[disabled].active,
 fieldset[disabled] .btn-primary.active,
 fieldset[disabled] .active.btn-custom,
 fieldset[disabled] .active.css_button_small,
@@ -10934,7 +11189,9 @@ fieldset[disabled] .nav-pills-sm li:hover a.active,
 fieldset[disabled] input.active[type="button"],
 fieldset[disabled] .active.btn-submit,
 fieldset[disabled] .active.btn-green,
-fieldset[disabled] input.active[type="submit"] {
+fieldset[disabled] input.active[type="submit"],
+fieldset[disabled] .confirguration #con0 .col5 span.active,
+.confirguration #con0 .col5 fieldset[disabled] span.active {
   background-color: #265a88;
   background-image: none;
 }
@@ -11529,18 +11786,18 @@ body {
   /* set the base font size for all DOM children */
 }
 
-/* line 17, bootstrap/sass/style_bootstrap.scss */
+/* line 18, bootstrap/sass/style_bootstrap.scss */
 a {
   color: #0000cc;
   text-decoration: none;
 }
 
-/* line 26, bootstrap/sass/style_bootstrap.scss */
+/* line 27, bootstrap/sass/style_bootstrap.scss */
 a:hover {
   color: #ff5555;
 }
 
-/* line 30, bootstrap/sass/style_bootstrap.scss */
+/* line 31, bootstrap/sass/style_bootstrap.scss */
 .menu {
   font-family: sans-serif;
   font-style: italic;
@@ -11550,7 +11807,7 @@ a:hover {
   text-align: left;
 }
 
-/* line 39, bootstrap/sass/style_bootstrap.scss */
+/* line 40, bootstrap/sass/style_bootstrap.scss */
 .menu_selected {
   font-family: sans-serif;
   font-style: italic;
@@ -11560,7 +11817,7 @@ a:hover {
   text-align: left;
 }
 
-/* line 48, bootstrap/sass/style_bootstrap.scss */
+/* line 49, bootstrap/sass/style_bootstrap.scss */
 .logout {
   font-family: sans-serif;
   font-style: italic;
@@ -11570,7 +11827,7 @@ a:hover {
   text-align: right;
 }
 
-/* line 57, bootstrap/sass/style_bootstrap.scss */
+/* line 58, bootstrap/sass/style_bootstrap.scss */
 .text {
   font-family: sans-serif;
   text-decoration: none;
@@ -11578,7 +11835,7 @@ a:hover {
   font-size: 10pt;
 }
 
-/* line 64, bootstrap/sass/style_bootstrap.scss */
+/* line 65, bootstrap/sass/style_bootstrap.scss */
 .required {
   font-family: sans-serif;
   text-decoration: none;
@@ -11587,7 +11844,7 @@ a:hover {
   font-weight: bold;
 }
 
-/* line 72, bootstrap/sass/style_bootstrap.scss */
+/* line 73, bootstrap/sass/style_bootstrap.scss */
 .bold {
   font-family: sans-serif;
   text-decoration: none;
@@ -11596,7 +11853,7 @@ a:hover {
   font-weight: bold;
 }
 
-/* line 80, bootstrap/sass/style_bootstrap.scss */
+/* line 81, bootstrap/sass/style_bootstrap.scss */
 .alert {
   font-family: sans-serif;
   font-size: 70%;
@@ -11604,7 +11861,7 @@ a:hover {
   text-decoration: none;
 }
 
-/* line 87, bootstrap/sass/style_bootstrap.scss */
+/* line 88, bootstrap/sass/style_bootstrap.scss */
 .small {
   text-decoration: none;
   color: #000000;
@@ -11612,7 +11869,7 @@ a:hover {
   font-size: 80%;
 }
 
-/* line 94, bootstrap/sass/style_bootstrap.scss */
+/* line 95, bootstrap/sass/style_bootstrap.scss */
 .link {
   font-family: sans-serif;
   text-decoration: none;
@@ -11620,21 +11877,21 @@ a:hover {
   font-size: 70%;
 }
 
-/* line 101, bootstrap/sass/style_bootstrap.scss */
+/* line 102, bootstrap/sass/style_bootstrap.scss */
 .more {
   font-family: sans-serif;
   text-decoration: none;
   font-size: 70%;
 }
 
-/* line 107, bootstrap/sass/style_bootstrap.scss */
+/* line 108, bootstrap/sass/style_bootstrap.scss */
 .back {
   font-family: sans-serif;
   text-decoration: none;
   font-size: 70%;
 }
 
-/* line 113, bootstrap/sass/style_bootstrap.scss */
+/* line 114, bootstrap/sass/style_bootstrap.scss */
 .link_selected {
   font-family: sans-serif;
   text-decoration: none;
@@ -11642,7 +11899,7 @@ a:hover {
   font-size: 70%;
 }
 
-/* line 120, bootstrap/sass/style_bootstrap.scss */
+/* line 121, bootstrap/sass/style_bootstrap.scss */
 .link_selected:visited {
   font-family: sans-serif;
   text-decoration: none;
@@ -11650,7 +11907,7 @@ a:hover {
   font-size: 70%;
 }
 
-/* line 127, bootstrap/sass/style_bootstrap.scss */
+/* line 128, bootstrap/sass/style_bootstrap.scss */
 .link_submit {
   font-family: sans-serif;
   text-decoration: none;
@@ -11658,23 +11915,23 @@ a:hover {
   font-size: 10pt;
 }
 
-/* line 134, bootstrap/sass/style_bootstrap.scss */
+/* line 135, bootstrap/sass/style_bootstrap.scss */
 .link_submit a:visited {
   color: #000077;
 }
 
-/* line 138, bootstrap/sass/style_bootstrap.scss */
+/* line 139, bootstrap/sass/style_bootstrap.scss */
 .link_submit a:hover {
   color: #ff5555;
 }
 
-/* line 142, bootstrap/sass/style_bootstrap.scss */
+/* line 143, bootstrap/sass/style_bootstrap.scss */
 .items {
   font-family: sans-serif;
   font-size: 6pt;
 }
 
-/* line 147, bootstrap/sass/style_bootstrap.scss */
+/* line 148, bootstrap/sass/style_bootstrap.scss */
 .title {
   font-family: sans-serif;
   font-size: 14pt;
@@ -11682,7 +11939,7 @@ a:hover {
 }
 
 /* see .titlebar below */
-/* line 154, bootstrap/sass/style_bootstrap.scss */
+/* line 155, bootstrap/sass/style_bootstrap.scss */
 .title_bar {
   font-family: sans-serif;
   font-size: 12pt;
@@ -11691,7 +11948,7 @@ a:hover {
   color: #000000;
 }
 
-/* line 162, bootstrap/sass/style_bootstrap.scss */
+/* line 163, bootstrap/sass/style_bootstrap.scss */
 .title_bar_top {
   font-family: sans-serif;
   font-size: 13px;
@@ -11704,143 +11961,132 @@ a:hover {
  * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
-/* line 175, bootstrap/sass/style_bootstrap.scss */
+/* line 176, bootstrap/sass/style_bootstrap.scss */
 .body_top {
   background-color: #E8B151;
   margin: 8px;
 }
 
 /* $top_bg_line */
-/* line 176, bootstrap/sass/style_bootstrap.scss */
+/* line 177, bootstrap/sass/style_bootstrap.scss */
 .bgcolor2 {
   background-color: #fefdcf;
 }
 
 /* $GLOBALS['style']['BGCOLOR2'] */
-/* line 177, bootstrap/sass/style_bootstrap.scss */
+/* line 178, bootstrap/sass/style_bootstrap.scss */
 .body_bottom {
   background: url("../pic/aquabg.gif") repeat;
   margin: 8px;
 }
 
 /* $bottom_bg_line */
-/* line 178, bootstrap/sass/style_bootstrap.scss */
+/* line 179, bootstrap/sass/style_bootstrap.scss */
 .body_title {
   background-color: #E8B151;
 }
 
 /* $title_bg_line */
-/* line 179, bootstrap/sass/style_bootstrap.scss */
+/* line 180, bootstrap/sass/style_bootstrap.scss */
 .body_nav {
   background-color: #E8B151;
 }
 
 /* $nav_bg_line */
-/* line 180, bootstrap/sass/style_bootstrap.scss */
+/* line 181, bootstrap/sass/style_bootstrap.scss */
 .body_filler {
   background-color: #f7f0d5;
 }
 
 /* $login_filler_line */
-/* line 181, bootstrap/sass/style_bootstrap.scss */
+/* line 182, bootstrap/sass/style_bootstrap.scss */
 .body_login {
   background: url("../pic/aquabg.gif") repeat;
 }
 
 /* $login_body_line */
-/* line 182, bootstrap/sass/style_bootstrap.scss */
+/* line 183, bootstrap/sass/style_bootstrap.scss */
 .table_bg {
   background-color: #ccc;
 }
 
 /* $table_bg */
-/* line 183, bootstrap/sass/style_bootstrap.scss */
+/* line 184, bootstrap/sass/style_bootstrap.scss */
 .bgcolor1 {
   background-color: #ccc;
 }
 
 /* $GLOBALS['style']['BGCOLOR1'] */
-/* line 184, bootstrap/sass/style_bootstrap.scss */
+/* line 185, bootstrap/sass/style_bootstrap.scss */
 .textcolor11 {
   background-color: #222;
 }
 
 /* $GLOBALS['style']['TEXTCOLOR11'] */
-/* line 185, bootstrap/sass/style_bootstrap.scss */
+/* line 186, bootstrap/sass/style_bootstrap.scss */
 .highlightcolor {
   background-color: #ddd;
 }
 
 /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
-/* line 186, bootstrap/sass/style_bootstrap.scss */
+/* line 187, bootstrap/sass/style_bootstrap.scss */
 .bottom_line {
   background: url("../pic/aquabg.gif") repeat;
 }
 
 /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
-/* line 187, bootstrap/sass/style_bootstrap.scss */
+/* line 188, bootstrap/sass/style_bootstrap.scss */
 .logobar {
   background-color: #24262c;
   height: 110px;
 }
 
 /* $GLOBALS['logoBarHeight'] */
-/* line 188, bootstrap/sass/style_bootstrap.scss */
+/* line 189, bootstrap/sass/style_bootstrap.scss */
 .navbar {
   height: 22px;
 }
 
 /* $GLOBALS['navBarHeight'] */
-/* line 189, bootstrap/sass/style_bootstrap.scss */
+/* line 190, bootstrap/sass/style_bootstrap.scss */
 .titlebar {
   height: 20px;
 }
 
 /* $GLOBALS['titleBarHeight'] */
 /* style taken out of the addressbook code and put here instead */
-/* line 193, bootstrap/sass/style_bootstrap.scss */
+/* line 194, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list td {
   font-family: Arial, Helvetica, sans-serif;
   padding-left: 4px;
   padding-right: 4px;
 }
 
-/* line 198, bootstrap/sass/style_bootstrap.scss */
+/* line 199, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list a, #addressbook_list a:visited, #addressbook_list a:hover {
   color: #0000cc;
 }
 
-/* line 201, bootstrap/sass/style_bootstrap.scss */
+/* line 202, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.search {
   font-size: 9pt;
   font-weight: bold;
   background: #D0E9C6;
 }
 
-/* line 206, bootstrap/sass/style_bootstrap.scss */
+/* line 207, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.head {
   font-size: 10pt;
   background-color: #cccccc;
   font-weight: bold;
 }
 
-/* line 211, bootstrap/sass/style_bootstrap.scss */
+/* line 212, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.detail {
   font-size: 10pt;
 }
 
-/* line 214, bootstrap/sass/style_bootstrap.scss */
-#addressbook_list .inputtext {
-  font-family: monospace;
-  font-size: 9pt;
-  font-weight: normal;
-  border-style: solid;
-  border-width: 1px;
-  border-color: #000000;
-  background-color: transparent;
-}
-
-/* line 223, bootstrap/sass/style_bootstrap.scss */
+/* line 218, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list .button {
   font-family: sans-serif;
   font-size: 8pt;
@@ -11848,43 +12094,43 @@ a:hover {
 }
 
 /* styles taken out of templates/report/general_default.html */
-/* line 230, bootstrap/sass/style_bootstrap.scss */
+/* line 225, bootstrap/sass/style_bootstrap.scss */
 #reports_list td {
   font-size: 8pt;
   font-family: helvetica;
 }
 
-/* line 234, bootstrap/sass/style_bootstrap.scss */
+/* line 229, bootstrap/sass/style_bootstrap.scss */
 #reports_list a {
   font-size: 8pt;
   font-family: helvetica;
 }
 
 /* styles taken out of templates/documents/general_list.html */
-/* line 240, bootstrap/sass/style_bootstrap.scss */
+/* line 235, bootstrap/sass/style_bootstrap.scss */
 #documents_list td {
   font-size: 8pt;
   font-family: helvetica;
 }
 
-/* line 244, bootstrap/sass/style_bootstrap.scss */
+/* line 239, bootstrap/sass/style_bootstrap.scss */
 #documents_list a {
   font-size: 8pt;
   font-family: helvetica;
 }
 
-/* line 248, bootstrap/sass/style_bootstrap.scss */
+/* line 243, bootstrap/sass/style_bootstrap.scss */
 #documents_list .treeMenuDefault {
   font-style: italic;
 }
 
-/* line 251, bootstrap/sass/style_bootstrap.scss */
+/* line 246, bootstrap/sass/style_bootstrap.scss */
 #documents_list .treeMenuBold {
   font-style: italic;
   font-weight: bold;
 }
 
-/* line 255, bootstrap/sass/style_bootstrap.scss */
+/* line 250, bootstrap/sass/style_bootstrap.scss */
 #documents_list {
   width: 29%;
   height: 95%;
@@ -11893,7 +12139,7 @@ a:hover {
   border-right: dashed 1px;
 }
 
-/* line 262, bootstrap/sass/style_bootstrap.scss */
+/* line 257, bootstrap/sass/style_bootstrap.scss */
 #documents_actions {
   padding-top: 10px;
   width: 70%;
@@ -11902,7 +12148,7 @@ a:hover {
   overflow: auto;
 }
 
-/* line 269, bootstrap/sass/style_bootstrap.scss */
+/* line 264, bootstrap/sass/style_bootstrap.scss */
 #documents_actions iframe {
   display: inline;
   border: none;
@@ -11911,13 +12157,13 @@ a:hover {
   overflow: auto;
 }
 
-/* line 276, bootstrap/sass/style_bootstrap.scss */
+/* line 271, bootstrap/sass/style_bootstrap.scss */
 #documents_actions form {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 279, bootstrap/sass/style_bootstrap.scss */
+/* line 274, bootstrap/sass/style_bootstrap.scss */
 #documents_actions table {
   width: 100%;
   height: 95%;
@@ -11928,7 +12174,7 @@ a:hover {
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
  *============================================================*/
-/* line 289, bootstrap/sass/style_bootstrap.scss */
+/* line 284, bootstrap/sass/style_bootstrap.scss */
 #DEM .groupname {
   font-weight: bold;
   color: #080;
@@ -11937,7 +12183,7 @@ a:hover {
   vertical-align: top;
 }
 
-/* line 296, bootstrap/sass/style_bootstrap.scss */
+/* line 291, bootstrap/sass/style_bootstrap.scss */
 #DEM .label {
   font-weight: bold;
   font-size: 0.8em;
@@ -11945,7 +12191,7 @@ a:hover {
   text-align: right;
 }
 
-/* line 302, bootstrap/sass/style_bootstrap.scss */
+/* line 297, bootstrap/sass/style_bootstrap.scss */
 #DEM .data {
   font-size: 0.8em;
   vertical-align: top;
@@ -11955,7 +12201,7 @@ a:hover {
 }
 
 /* Patient History */
-/* line 311, bootstrap/sass/style_bootstrap.scss */
+/* line 306, bootstrap/sass/style_bootstrap.scss */
 #HIS .groupname {
   font-weight: bold;
   color: #080;
@@ -11965,14 +12211,14 @@ a:hover {
   height: 2em;
 }
 
-/* line 319, bootstrap/sass/style_bootstrap.scss */
+/* line 314, bootstrap/sass/style_bootstrap.scss */
 #HIS .label {
   font-weight: bold;
   font-size: 9pt;
   vertical-align: top;
 }
 
-/* line 324, bootstrap/sass/style_bootstrap.scss */
+/* line 319, bootstrap/sass/style_bootstrap.scss */
 #HIS .data {
   font-size: 9pt;
   vertical-align: top;
@@ -11984,27 +12230,27 @@ a:hover {
  * Patient Notes
  * seen in the patient summary and notes screens
  *============================================================*/
-/* line 336, bootstrap/sass/style_bootstrap.scss */
+/* line 331, bootstrap/sass/style_bootstrap.scss */
 #pnotes .billing {
   background-color: #dfd;
 }
 
-/* line 340, bootstrap/sass/style_bootstrap.scss */
+/* line 335, bootstrap/sass/style_bootstrap.scss */
 #pnotes .highlight {
   background-color: #fff;
 }
 
-/* line 344, bootstrap/sass/style_bootstrap.scss */
+/* line 339, bootstrap/sass/style_bootstrap.scss */
 #pnotes table {
   border-collapse: collapse;
 }
 
-/* line 348, bootstrap/sass/style_bootstrap.scss */
+/* line 343, bootstrap/sass/style_bootstrap.scss */
 #pnotes .noterow {
   cursor: pointer;
 }
 
-/* line 352, bootstrap/sass/style_bootstrap.scss */
+/* line 347, bootstrap/sass/style_bootstrap.scss */
 #pnotes .noterow td {
   border-bottom: 1px dashed black;
   vertical-align: top;
@@ -12016,56 +12262,56 @@ a:hover {
  * Patient Stats
  * seen in the patient stats screens
  *============================================================*/
-/* line 364, bootstrap/sass/style_bootstrap.scss */
+/* line 359, bootstrap/sass/style_bootstrap.scss */
 #patient_stats {
   padding: 10px;
 }
 
-/* line 368, bootstrap/sass/style_bootstrap.scss */
+/* line 363, bootstrap/sass/style_bootstrap.scss */
 #patient_stats table {
   width: 100%;
   border-collapse: collapse;
 }
 
-/* line 372, bootstrap/sass/style_bootstrap.scss */
+/* line 367, bootstrap/sass/style_bootstrap.scss */
 #patient_stats td {
   padding: 3px;
 }
 
-/* line 375, bootstrap/sass/style_bootstrap.scss */
+/* line 370, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .statrow {
   cursor: pointer;
 }
 
-/* line 379, bootstrap/sass/style_bootstrap.scss */
+/* line 374, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .head {
   font-size: 10pt;
   background-color: #cccccc;
   text-align: center;
 }
 
-/* line 385, bootstrap/sass/style_bootstrap.scss */
+/* line 380, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .detail {
   font-size: 10pt;
   vertical-align: top;
 }
 
-/* line 390, bootstrap/sass/style_bootstrap.scss */
+/* line 385, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .btn {
   background-color: transparent;
 }
 
-/* line 394, bootstrap/sass/style_bootstrap.scss */
+/* line 389, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .bg1 {
   background-color: #ddddff;
 }
 
-/* line 397, bootstrap/sass/style_bootstrap.scss */
+/* line 392, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .bg2 {
   background-color: #ffdddd;
 }
 
-/* line 401, bootstrap/sass/style_bootstrap.scss */
+/* line 396, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .center {
   text-align: center;
 }
@@ -12074,47 +12320,47 @@ a:hover {
  * Patient Stats Summary
  * seen in the patient summary screen
  *============================================================*/
-/* line 410, bootstrap/sass/style_bootstrap.scss */
+/* line 405, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary table {
   border-collapse: collapse;
 }
 
-/* line 413, bootstrap/sass/style_bootstrap.scss */
+/* line 408, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .noend_noreturn {
   color: #ee0000;
 }
 
-/* line 416, bootstrap/sass/style_bootstrap.scss */
+/* line 411, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .noend {
   color: #dd5500;
 }
 
-/* line 419, bootstrap/sass/style_bootstrap.scss */
+/* line 414, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .noreturn {
   color: #0000ff;
 }
 
-/* line 422, bootstrap/sass/style_bootstrap.scss */
+/* line 417, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .title {
   font-size: 1.1em;
 }
 
-/* line 425, bootstrap/sass/style_bootstrap.scss */
+/* line 420, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_issues {
   width: 100%;
 }
 
-/* line 428, bootstrap/sass/style_bootstrap.scss */
+/* line 423, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_spreadsheets {
   width: 100%;
 }
 
-/* line 431, bootstrap/sass/style_bootstrap.scss */
+/* line 426, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_imm {
   width: 100%;
 }
 
-/* line 434, bootstrap/sass/style_bootstrap.scss */
+/* line 429, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_prescriptions {
   width: 100%;
 }
@@ -12123,51 +12369,51 @@ a:hover {
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
  *============================================================*/
-/* line 442, bootstrap/sass/style_bootstrap.scss */
+/* line 437, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc {
   width: 100%;
 }
 
-/* line 446, bootstrap/sass/style_bootstrap.scss */
+/* line 441, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .billing_note {
   width: 25%;
 }
 
-/* line 449, bootstrap/sass/style_bootstrap.scss */
+/* line 444, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .billing_note_text {
   padding: 5px;
   border: 2px outset black;
   background-color: lightgrey;
 }
 
-/* line 454, bootstrap/sass/style_bootstrap.scss */
+/* line 449, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .billing_note_text_highlight {
   background-color: #f7f5d1;
 }
 
-/* line 457, bootstrap/sass/style_bootstrap.scss */
+/* line 452, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc table {
   border-collapse: collapse;
   width: 100%;
 }
 
-/* line 461, bootstrap/sass/style_bootstrap.scss */
+/* line 456, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc tr {
   cursor: pointer;
 }
 
-/* line 464, bootstrap/sass/style_bootstrap.scss */
+/* line 459, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc td {
   border-top: 1px solid black;
   vertical-align: top;
 }
 
-/* line 468, bootstrap/sass/style_bootstrap.scss */
+/* line 463, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc th {
   text-align: left;
 }
 
-/* line 471, bootstrap/sass/style_bootstrap.scss */
+/* line 466, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc #tooltipdiv {
   position: absolute;
   width: 500px;
@@ -12179,12 +12425,12 @@ a:hover {
   font-size: 9pt;
 }
 
-/* line 481, bootstrap/sass/style_bootstrap.scss */
+/* line 476, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .highlight {
   background-color: #fff;
 }
 
-/* line 484, bootstrap/sass/style_bootstrap.scss */
+/* line 479, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .tooltip {
   position: absolute;
   border: 1px solid #333;
@@ -12198,42 +12444,42 @@ a:hover {
  * Patient Reports
  * seen in the patient reports screens
  *============================================================*/
-/* line 498, bootstrap/sass/style_bootstrap.scss */
+/* line 493, bootstrap/sass/style_bootstrap.scss */
 #patient_reports {
   width: 100%;
 }
 
-/* line 501, bootstrap/sass/style_bootstrap.scss */
+/* line 496, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .issues {
   padding-right: 30px;
 }
 
-/* line 504, bootstrap/sass/style_bootstrap.scss */
+/* line 499, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .issues table {
   margin: 10px 0px 10px 0px;
 }
 
-/* line 507, bootstrap/sass/style_bootstrap.scss */
+/* line 502, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .issues td {
   padding: 2px;
 }
 
-/* line 510, bootstrap/sass/style_bootstrap.scss */
+/* line 505, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .encounters td {
   padding: 2px;
 }
 
-/* line 513, bootstrap/sass/style_bootstrap.scss */
+/* line 508, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .encounter_forms {
   margin: 5px 15px 5px 15px;
 }
 
-/* line 516, bootstrap/sass/style_bootstrap.scss */
+/* line 511, bootstrap/sass/style_bootstrap.scss */
 #patient_reports td {
   vertical-align: top;
 }
 
-/* line 519, bootstrap/sass/style_bootstrap.scss */
+/* line 514, bootstrap/sass/style_bootstrap.scss */
 #patient_reports ul {
   list-style: none;
 }
@@ -12242,94 +12488,94 @@ a:hover {
  * Report - Custom
  * seen as the patient report (custom_report.php)
  *============================================================*/
-/* line 528, bootstrap/sass/style_bootstrap.scss */
+/* line 523, bootstrap/sass/style_bootstrap.scss */
 #report_custom {
   width: 100%;
 }
 
-/* line 531, bootstrap/sass/style_bootstrap.scss */
+/* line 526, bootstrap/sass/style_bootstrap.scss */
 #report_custom hr {
   border: 2px dotted black;
 }
 
-/* line 534, bootstrap/sass/style_bootstrap.scss */
+/* line 529, bootstrap/sass/style_bootstrap.scss */
 #report_custom .billing {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 538, bootstrap/sass/style_bootstrap.scss */
+/* line 533, bootstrap/sass/style_bootstrap.scss */
 #report_custom h1 {
   font-size: 120%;
   margin: 0px 0px 5px 0px;
   padding: 0px;
 }
 
-/* line 543, bootstrap/sass/style_bootstrap.scss */
+/* line 538, bootstrap/sass/style_bootstrap.scss */
 #report_custom .immunizations {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 547, bootstrap/sass/style_bootstrap.scss */
+/* line 542, bootstrap/sass/style_bootstrap.scss */
 #report_custom .notes {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 551, bootstrap/sass/style_bootstrap.scss */
+/* line 546, bootstrap/sass/style_bootstrap.scss */
 #report_custom .transactions {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 555, bootstrap/sass/style_bootstrap.scss */
+/* line 550, bootstrap/sass/style_bootstrap.scss */
 #report_custom .communications {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 559, bootstrap/sass/style_bootstrap.scss */
+/* line 554, bootstrap/sass/style_bootstrap.scss */
 #report_custom .documents {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 563, bootstrap/sass/style_bootstrap.scss */
+/* line 558, bootstrap/sass/style_bootstrap.scss */
 #report_custom .demographics {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 567, bootstrap/sass/style_bootstrap.scss */
+/* line 562, bootstrap/sass/style_bootstrap.scss */
 #report_custom .insurance {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 571, bootstrap/sass/style_bootstrap.scss */
+/* line 566, bootstrap/sass/style_bootstrap.scss */
 #report_custom .history {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 575, bootstrap/sass/style_bootstrap.scss */
+/* line 570, bootstrap/sass/style_bootstrap.scss */
 #report_custom .issue {
   margin-left: 20px;
 }
 
-/* line 578, bootstrap/sass/style_bootstrap.scss */
+/* line 573, bootstrap/sass/style_bootstrap.scss */
 #report_custom .issue_type {
   font-weight: bold;
   padding: 5px 0px 5px 0px;
 }
 
-/* line 582, bootstrap/sass/style_bootstrap.scss */
+/* line 577, bootstrap/sass/style_bootstrap.scss */
 #report_custom .issue_diag {
   margin: 0px 20px 0px 20px;
 }
 
-/* line 589, bootstrap/sass/style_bootstrap.scss */
+/* line 584, bootstrap/sass/style_bootstrap.scss */
 #report_custom .encounter {
   width: 100%;
   border-top: 2px dotted black;
@@ -12337,41 +12583,41 @@ a:hover {
   margin-top: 10px;
 }
 
-/* line 595, bootstrap/sass/style_bootstrap.scss */
+/* line 590, bootstrap/sass/style_bootstrap.scss */
 #report_custom .encounter h1 {
   font-size: 140%;
   margin: 0px;
   padding: 0px;
 }
 
-/* line 600, bootstrap/sass/style_bootstrap.scss */
+/* line 595, bootstrap/sass/style_bootstrap.scss */
 #report_custom .encounter_form {
   margin: 10px;
   padding: 10px;
   border-top: 1px solid gray;
 }
 
-/* line 605, bootstrap/sass/style_bootstrap.scss */
+/* line 600, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.evenrow {
   background-color: #ddddff;
 }
 
-/* line 608, bootstrap/sass/style_bootstrap.scss */
+/* line 603, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.oddrow {
   background-color: #ffffff;
 }
 
-/* line 614, bootstrap/sass/style_bootstrap.scss */
+/* line 609, bootstrap/sass/style_bootstrap.scss */
 .sellistclass {
   float: left;
 }
 
-/* line 618, bootstrap/sass/style_bootstrap.scss */
+/* line 613, bootstrap/sass/style_bootstrap.scss */
 .disabled_button {
   color: grey;
 }
 
-/* line 623, bootstrap/sass/style_bootstrap.scss */
+/* line 618, bootstrap/sass/style_bootstrap.scss */
 a.disabled_button:hover {
   color: grey;
 }
@@ -12394,14 +12640,14 @@ ul.tabNav li.current { padding-top: 0;
 }
 ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
 ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }*/
-/* line 650, bootstrap/sass/style_bootstrap.scss */
+/* line 645, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer {
   clear: both;
   float: left;
   width: 100%;
 }
 
-/* line 651, bootstrap/sass/style_bootstrap.scss */
+/* line 646, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.tab {
   border: 1px solid #ffffff;
   color: #000;
@@ -12409,12 +12655,12 @@ div.tabContainer div.tab {
   padding: 10px;
 }
 
-/* line 652, bootstrap/sass/style_bootstrap.scss */
+/* line 647, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.current {
   display: block;
 }
 
-/* line 653, bootstrap/sass/style_bootstrap.scss */
+/* line 648, bootstrap/sass/style_bootstrap.scss */
 div.tab {
   min-height: 180px;
   background: #ffffff none repeat scroll 0 0;
@@ -12422,7 +12668,7 @@ div.tab {
   width: 665px;
 }
 
-/* line 654, bootstrap/sass/style_bootstrap.scss */
+/* line 649, bootstrap/sass/style_bootstrap.scss */
 div.tab_long {
   min-height: 180px;
   background: #ffffff none repeat scroll 0 0;
@@ -12430,56 +12676,56 @@ div.tab_long {
   width: 100%;
 }
 
-/* line 655, bootstrap/sass/style_bootstrap.scss */
+/* line 650, bootstrap/sass/style_bootstrap.scss */
 div.tab p:last-child {
   margin-bottom: 0;
 }
 
-/* line 657, bootstrap/sass/style_bootstrap.scss */
+/* line 652, bootstrap/sass/style_bootstrap.scss */
 div.tab table td {
   padding-right: 1px;
   padding-bottom: 0px;
 }
 
-/* line 661, bootstrap/sass/style_bootstrap.scss */
+/* line 656, bootstrap/sass/style_bootstrap.scss */
 div.tab table td.label {
   min-width: 80px;
 }
 
-/* line 665, bootstrap/sass/style_bootstrap.scss */
+/* line 660, bootstrap/sass/style_bootstrap.scss */
 div.tab table td.data {
   min-width: 120px;
   /*170px*/
 }
 
-/* line 669, bootstrap/sass/style_bootstrap.scss */
+/* line 664, bootstrap/sass/style_bootstrap.scss */
 div.notab {
   background: #FFFFFF none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
 }
 
-/* line 673, bootstrap/sass/style_bootstrap.scss */
+/* line 668, bootstrap/sass/style_bootstrap.scss */
 div.notab-right {
   background: #FFFFFF none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
 }
 
-/* line 677, bootstrap/sass/style_bootstrap.scss */
+/* line 672, bootstrap/sass/style_bootstrap.scss */
 .section-header {
   margin-bottom: 5px;
   width: 685px;
   border-bottom: 1px solid;
 }
 
-/* line 681, bootstrap/sass/style_bootstrap.scss */
+/* line 676, bootstrap/sass/style_bootstrap.scss */
 .section-header-dynamic {
   margin-bottom: 5px;
   border-bottom: 1px solid;
 }
 
-/* line 685, bootstrap/sass/style_bootstrap.scss */
+/* line 680, bootstrap/sass/style_bootstrap.scss */
 .summary_item {
   background: #FFFFFF;
   padding: 8px;
@@ -12488,37 +12734,37 @@ div.notab-right {
 /*
 * REPORTS
 */
-/* line 693, bootstrap/sass/style_bootstrap.scss */
+/* line 688, bootstrap/sass/style_bootstrap.scss */
 #report_parameters {
   background-color: #D0E9C6;
   margin-top: 10px;
 }
 
-/* line 698, bootstrap/sass/style_bootstrap.scss */
+/* line 693, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table {
   border: solid 1px;
   width: 100%;
   border-collapse: collapse;
 }
 
-/* line 703, bootstrap/sass/style_bootstrap.scss */
+/* line 698, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table td {
   padding: 5px;
 }
 
-/* line 707, bootstrap/sass/style_bootstrap.scss */
+/* line 702, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table table {
   border: 0px;
   border-collapse: collapse;
   font-size: 0.8em;
 }
 
-/* line 713, bootstrap/sass/style_bootstrap.scss */
+/* line 708, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table table td.label {
   text-align: right;
 }
 
-/* line 717, bootstrap/sass/style_bootstrap.scss */
+/* line 712, bootstrap/sass/style_bootstrap.scss */
 #report_results table {
   border-top: 1px solid black;
   border-bottom: 1px solid black;
@@ -12529,7 +12775,7 @@ div.notab-right {
   margin-top: 1px;
 }
 
-/* line 726, bootstrap/sass/style_bootstrap.scss */
+/* line 721, bootstrap/sass/style_bootstrap.scss */
 #report_results table thead {
   padding: 5px;
   display: table-header-group;
@@ -12539,20 +12785,20 @@ div.notab-right {
   font-size: 0.7em;
 }
 
-/* line 734, bootstrap/sass/style_bootstrap.scss */
+/* line 729, bootstrap/sass/style_bootstrap.scss */
 #report_results table th {
   border-bottom: 1px solid black;
   padding: 5px;
 }
 
-/* line 738, bootstrap/sass/style_bootstrap.scss */
+/* line 733, bootstrap/sass/style_bootstrap.scss */
 #report_results table td {
   padding: 5px;
   border-bottom: 1px dashed;
   font-size: 0.8em;
 }
 
-/* line 743, bootstrap/sass/style_bootstrap.scss */
+/* line 738, bootstrap/sass/style_bootstrap.scss */
 .report_totals td {
   background-color: #77ff77;
   font-weight: bold;
@@ -12561,37 +12807,37 @@ div.notab-right {
 /**
 * List-table formatting
 **/
-/* line 751, bootstrap/sass/style_bootstrap.scss */
+/* line 746, bootstrap/sass/style_bootstrap.scss */
 .showborder {
   width: 650px;
 }
 
-/* line 754, bootstrap/sass/style_bootstrap.scss */
+/* line 749, bootstrap/sass/style_bootstrap.scss */
 .showborder td {
   border-bottom: 1px dashed #000000;
   text-align: left;
   font-size: 9pt;
 }
 
-/* line 759, bootstrap/sass/style_bootstrap.scss */
+/* line 754, bootstrap/sass/style_bootstrap.scss */
 .showborder_head th {
   border-bottom: 1px solid #000000;
   text-align: left;
   font-size: 9pt;
 }
 
-/* line 764, bootstrap/sass/style_bootstrap.scss */
+/* line 759, bootstrap/sass/style_bootstrap.scss */
 .shownoborder td {
   text-align: left;
   font-size: 9pt;
 }
 
-/* line 768, bootstrap/sass/style_bootstrap.scss */
+/* line 763, bootstrap/sass/style_bootstrap.scss */
 .showborder_long {
   width: 100%;
 }
 
-/* line 771, bootstrap/sass/style_bootstrap.scss */
+/* line 766, bootstrap/sass/style_bootstrap.scss */
 .showborder_long tr td {
   border-bottom: 1px dashed #000000;
   text-align: left;
@@ -12601,7 +12847,7 @@ div.notab-right {
 /**
 * Drug lookup
 **/
-/* line 780, bootstrap/sass/style_bootstrap.scss */
+/* line 775, bootstrap/sass/style_bootstrap.scss */
 .drug_lookup {
   font-family: helvetica;
   font-size: 8pt;
@@ -12613,7 +12859,7 @@ div.notab-right {
 }
 
 /* Password alert styles */
-/* line 791, bootstrap/sass/style_bootstrap.scss */
+/* line 786, bootstrap/sass/style_bootstrap.scss */
 .pwdalert {
   display: block;
   width: 390pt;
@@ -12622,19 +12868,19 @@ div.notab-right {
   color: black;
 }
 
-/* line 798, bootstrap/sass/style_bootstrap.scss */
+/* line 793, bootstrap/sass/style_bootstrap.scss */
 .alertmsg1 {
   border: 3px solid #fe7b7a;
   background-color: #ffd6d6;
 }
 
-/* line 802, bootstrap/sass/style_bootstrap.scss */
+/* line 797, bootstrap/sass/style_bootstrap.scss */
 .alertmsg2 {
   border: 3px solid #f56fff;
   background-color: #fabfff;
 }
 
-/* line 806, bootstrap/sass/style_bootstrap.scss */
+/* line 801, bootstrap/sass/style_bootstrap.scss */
 .alertmsg3 {
   border: 3px solid #9acc2e;
   background-color: #eef7dd;
@@ -12642,7 +12888,7 @@ div.notab-right {
 
 /* Password alert styles */
 /* Style for red font */
-/* line 813, bootstrap/sass/style_bootstrap.scss */
+/* line 808, bootstrap/sass/style_bootstrap.scss */
 .redtext {
   font-family: sans-serif;
   text-decoration: none;
@@ -12651,37 +12897,37 @@ div.notab-right {
 }
 
 /* Style for red font */
-/* line 821, bootstrap/sass/style_bootstrap.scss */
+/* line 816, bootstrap/sass/style_bootstrap.scss */
 .de_identification_status_message {
   width: 50%;
   border: 1px solid #0000FF;
 }
 
-/* line 826, bootstrap/sass/style_bootstrap.scss */
+/* line 821, bootstrap/sass/style_bootstrap.scss */
 .de_identification_input_controls_box {
   width: 100%;
   border: 1px solid #0000FF;
 }
 
-/* line 831, bootstrap/sass/style_bootstrap.scss */
+/* line 826, bootstrap/sass/style_bootstrap.scss */
 .de_id_upgrade_login {
   width: 40%;
   border: 1px solid Black;
   background-color: #ffffff;
 }
 
-/* line 837, bootstrap/sass/style_bootstrap.scss */
+/* line 832, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide, #navigation-slide * {
   padding-left: 0px;
   margin-left: 0px;
 }
 
-/* line 842, bootstrap/sass/style_bootstrap.scss */
+/* line 837, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li {
   list-style: none;
 }
 
-/* line 846, bootstrap/sass/style_bootstrap.scss */
+/* line 841, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide a {
   background: #FFFFFF;
   border-top: 2px solid #EAE6FF;
@@ -12692,19 +12938,19 @@ div.notab-right {
   width: 150px;
 }
 
-/* line 856, bootstrap/sass/style_bootstrap.scss */
+/* line 851, bootstrap/sass/style_bootstrap.scss */
 .collapse-custom, #navigation-slide li a.collapsed, #navigation-slide li a.expanded {
   color: #3c763d;
   background-color: #d0e9c6;
 }
 
-/* line 876, bootstrap/sass/style_bootstrap.scss */
+/* line 871, bootstrap/sass/style_bootstrap.scss */
 .collapse-inner, #navigation-slide ul li a.collapsed_lv2, #navigation-slide ul li a.expanded_lv2, #navigation-slide li > a:hover {
   color: #3c763d;
   background-color: #d0e9c6;
 }
 
-/* line 912, bootstrap/sass/style_bootstrap.scss */
+/* line 907, bootstrap/sass/style_bootstrap.scss */
 #sddm li {
   margin: 0;
   padding: 0;
@@ -12721,7 +12967,7 @@ div.notab-right {
   /* for firefox 3.6+ */
 }
 
-/* line 924, bootstrap/sass/style_bootstrap.scss */
+/* line 919, bootstrap/sass/style_bootstrap.scss */
 #sddm li a {
   display: block;
   margin: 0 1px 0 0;
@@ -12733,12 +12979,12 @@ div.notab-right {
   font-weight: bold;
 }
 
-/* line 935, bootstrap/sass/style_bootstrap.scss */
+/* line 930, bootstrap/sass/style_bootstrap.scss */
 #sddm li a:hover {
   background: #ffac84;
 }
 
-/* line 940, bootstrap/sass/style_bootstrap.scss */
+/* line 935, bootstrap/sass/style_bootstrap.scss */
 #sddm div {
   position: absolute;
   visibility: hidden;
@@ -12751,7 +12997,7 @@ div.notab-right {
   border-bottom: 1px solid #000000;
 }
 
-/* line 953, bootstrap/sass/style_bootstrap.scss */
+/* line 948, bootstrap/sass/style_bootstrap.scss */
 #sddm div a {
   position: relative;
   display: block;
@@ -12767,13 +13013,13 @@ div.notab-right {
   font-weight: normal;
 }
 
-/* line 969, bootstrap/sass/style_bootstrap.scss */
+/* line 964, bootstrap/sass/style_bootstrap.scss */
 #sddm div a:hover {
   background: #ffac84;
   color: #000000;
 }
 
-/* line 974, bootstrap/sass/style_bootstrap.scss */
+/* line 969, bootstrap/sass/style_bootstrap.scss */
 .text-area {
   background-color: #FFFFFF;
   border: 1px solid black;
@@ -12783,7 +13029,7 @@ div.notab-right {
   text-align: left;
 }
 
-/* line 982, bootstrap/sass/style_bootstrap.scss */
+/* line 977, bootstrap/sass/style_bootstrap.scss */
 .example_menu {
   font-size: 70%;
   list-style: none;
@@ -12793,13 +13039,13 @@ div.notab-right {
   width: 136px;
 }
 
-/* line 990, bootstrap/sass/style_bootstrap.scss */
+/* line 985, bootstrap/sass/style_bootstrap.scss */
 .expand_all,
 .collapse_all {
   cursor: pointer;
 }
 
-/* line 994, bootstrap/sass/style_bootstrap.scss */
+/* line 989, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul {
   display: none;
   list-style: none;
@@ -12807,7 +13053,7 @@ div.notab-right {
   padding: 0;
 }
 
-/* line 1000, bootstrap/sass/style_bootstrap.scss */
+/* line 995, bootstrap/sass/style_bootstrap.scss */
 #menu1 li, #menu2 li, #menu3 li, #menu4 li, #menu5 li, .example_menu li {
   background-image: none;
   margin: 0;
@@ -12815,12 +13061,12 @@ div.notab-right {
   border-bottom: 1px solid white;
 }
 
-/* line 1006, bootstrap/sass/style_bootstrap.scss */
+/* line 1001, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul ul {
   display: block;
 }
 
-/* line 1009, bootstrap/sass/style_bootstrap.scss */
+/* line 1004, bootstrap/sass/style_bootstrap.scss */
 .example_menu a {
   color: #000;
   cursor: pointer;
@@ -12831,22 +13077,22 @@ div.notab-right {
   width: 160px;
 }
 
-/* line 1018, bootstrap/sass/style_bootstrap.scss */
+/* line 1013, bootstrap/sass/style_bootstrap.scss */
 .example_menu a.expanded {
   background: #bbb url("collapse.gif") no-repeat 3px 50%;
 }
 
-/* line 1021, bootstrap/sass/style_bootstrap.scss */
+/* line 1016, bootstrap/sass/style_bootstrap.scss */
 .example_menu a.collapsed {
   background: #bbb url("expand.gif") no-repeat 3px 50%;
 }
 
-/* line 1024, bootstrap/sass/style_bootstrap.scss */
+/* line 1019, bootstrap/sass/style_bootstrap.scss */
 .example_menu a:hover {
   text-decoration: none;
 }
 
-/* line 1027, bootstrap/sass/style_bootstrap.scss */
+/* line 1022, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul li span {
   background: #d9d1a4;
   color: #000;
@@ -12855,28 +13101,28 @@ div.notab-right {
   width: 100%;
 }
 
-/* line 1034, bootstrap/sass/style_bootstrap.scss */
+/* line 1029, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul a:Subjective {
   font-weight: normal;
 }
 
-/* line 1037, bootstrap/sass/style_bootstrap.scss */
+/* line 1032, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul a:hover {
   background: #f5f5f5;
   text-decoration: underline;
 }
 
-/* line 1041, bootstrap/sass/style_bootstrap.scss */
+/* line 1036, bootstrap/sass/style_bootstrap.scss */
 .example_menu li.active a, .example_menu li.current a {
   background: #fff;
 }
 
-/* line 1044, bootstrap/sass/style_bootstrap.scss */
+/* line 1039, bootstrap/sass/style_bootstrap.scss */
 .example_menu li.active li a, .example_menu li.current li a {
   background: #e8e8e8;
 }
 
-/* line 1047, bootstrap/sass/style_bootstrap.scss */
+/* line 1042, bootstrap/sass/style_bootstrap.scss */
 #menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 li.footer, .example_menu .footer {
   background: transparent url("footer.jpg") no-repeat 0 0;
   border-top: 2px solid #fff;
@@ -12886,29 +13132,29 @@ div.notab-right {
   width: 131px;
 }
 
-/* line 1055, bootstrap/sass/style_bootstrap.scss */
+/* line 1050, bootstrap/sass/style_bootstrap.scss */
 .example_menu .footer span {
   display: none;
 }
 
-/* line 1058, bootstrap/sass/style_bootstrap.scss */
+/* line 1053, bootstrap/sass/style_bootstrap.scss */
 .cke_contents {
   height: 300px !important;
 }
 
 /* Form styles */
-/* line 1063, bootstrap/sass/style_bootstrap.scss */
+/* line 1058, bootstrap/sass/style_bootstrap.scss */
 .formtable {
   font-size: 13px;
   line-height: 24px;
 }
 
-/* line 1067, bootstrap/sass/style_bootstrap.scss */
+/* line 1062, bootstrap/sass/style_bootstrap.scss */
 .formtable tr td {
   line-height: 24px;
 }
 
-/* line 1070, bootstrap/sass/style_bootstrap.scss */
+/* line 1065, bootstrap/sass/style_bootstrap.scss */
 .report_search_bar {
   background-color: #EADDB4;
 }
@@ -12916,14 +13162,14 @@ div.notab-right {
 /****** variables ******/
 /***** colors *********/
 /***** colors *********/
-/* line 1100, bootstrap/sass/style_bootstrap.scss */
+/* line 1095, bootstrap/sass/style_bootstrap.scss */
 .css_button_small, #showMenuLink, .css_button {
   margin: 0px 2px !important;
   padding: 2px 7px !important;
   font-size: 10pt !important;
 }
 
-/* line 1106, bootstrap/sass/style_bootstrap.scss */
+/* line 1101, bootstrap/sass/style_bootstrap.scss */
 .css_button_link a {
   margin: 10px 3px !important;
   padding: 5px 25px !important;
@@ -12931,111 +13177,113 @@ div.notab-right {
   border-radius: 5px;
 }
 
-/* line 1113, bootstrap/sass/style_bootstrap.scss */
+/* line 1108, bootstrap/sass/style_bootstrap.scss */
 .css_button_link a:hover,
 .css_button_small:hover,
 #showMenuLink:hover, .css_button:hover {
   text-decoration: none;
 }
 
-/* line 1117, bootstrap/sass/style_bootstrap.scss */
+/* line 1112, bootstrap/sass/style_bootstrap.scss */
 .css_button_small, #showMenuLink, #showMenuLink, .css_button {
   border-radius: 5px;
 }
 
-/* line 1120, bootstrap/sass/style_bootstrap.scss */
+/* line 1115, bootstrap/sass/style_bootstrap.scss */
 #topToolbarRight {
   padding-top: 4px;
 }
 
-/* line 1123, bootstrap/sass/style_bootstrap.scss */
+/* line 1118, bootstrap/sass/style_bootstrap.scss */
 span.css_button_separator {
   display: none;
 }
 
-/* line 1131, bootstrap/sass/style_bootstrap.scss */
+/* line 1126, bootstrap/sass/style_bootstrap.scss */
 #showMenuLink.active::after {
   content: ' >>';
 }
 
-/* line 1135, bootstrap/sass/style_bootstrap.scss */
+/* line 1130, bootstrap/sass/style_bootstrap.scss */
 #showMenuLink::after {
   content: ' <<';
 }
 
-/* line 1139, bootstrap/sass/style_bootstrap.scss */
+/* line 1134, bootstrap/sass/style_bootstrap.scss */
 ul.tabNav > li > a, .tabContainer {
   font-size: 10pt;
 }
 
-/* line 1143, bootstrap/sass/style_bootstrap.scss */
+/* line 1138, bootstrap/sass/style_bootstrap.scss */
 td.label {
   color: black !important;
 }
 
-/* line 1163, bootstrap/sass/style_bootstrap.scss */
+/* line 1158, bootstrap/sass/style_bootstrap.scss */
 .nav-sm > li > a, .nav-pill-sm > li > a {
   padding: 5px 8px !important;
 }
 
-/* line 1172, bootstrap/sass/style_bootstrap.scss */
+/* line 1167, bootstrap/sass/style_bootstrap.scss */
 .paginate_disabled_previous,
 .paginate_disabled_next {
   background: #fff !important;
   height: auto !important;
   padding: 5px 14px !important;
+  width: 42px;
+  text-align: center;
 }
 
-/* line 1182, bootstrap/sass/style_bootstrap.scss */
+/* line 1179, bootstrap/sass/style_bootstrap.scss */
 .tabNav,
 .nav-pills-sm {
   border-bottom: 0 !important;
 }
 
-/* line 1192, bootstrap/sass/style_bootstrap.scss */
+/* line 1189, bootstrap/sass/style_bootstrap.scss */
 .tabNav a {
   background-color: #057e99 !important;
   color: #fff;
 }
 
-/* line 1196, bootstrap/sass/style_bootstrap.scss */
+/* line 1193, bootstrap/sass/style_bootstrap.scss */
 .tabNav li.active a, .tabNav li.current a {
   color: #fff;
   border-bottom: 3px solid #000 !important;
 }
 
-/* line 1200, bootstrap/sass/style_bootstrap.scss */
+/* line 1197, bootstrap/sass/style_bootstrap.scss */
 .search_init, input[type='text'], input[type='password'], input[type='entry'] {
   margin-bottom: 5px;
 }
 
-/* line 1204, bootstrap/sass/style_bootstrap.scss */
+/* line 1201, bootstrap/sass/style_bootstrap.scss */
 form[name="demographics_form"] input[type="text"],
 form[name="demographics_form"] input[type="entry"] {
   display: inline-block;
   width: auto;
 }
 
-/* line 1209, bootstrap/sass/style_bootstrap.scss */
+/* line 1206, bootstrap/sass/style_bootstrap.scss */
 .dataTables_filter input, select {
   margin-bottom: 5px;
   display: inline-block;
   width: auto;
 }
 
-/* line 1215, bootstrap/sass/style_bootstrap.scss */
+/* line 1212, bootstrap/sass/style_bootstrap.scss */
 .dataTable th {
   background: #eee;
 }
 
-/* line 1220, bootstrap/sass/style_bootstrap.scss */
+/* line 1217, bootstrap/sass/style_bootstrap.scss */
 input[type="button"] {
   padding: 4px 17px;
   margin: 0 10px;
   border-radius: 5px;
 }
 
-/* line 1226, bootstrap/sass/style_bootstrap.scss */
+/* line 1223, bootstrap/sass/style_bootstrap.scss */
 input[type="submit"] {
   padding: 4px 17px;
   margin: 0 10px;
@@ -13043,19 +13291,19 @@ input[type="submit"] {
   width: auto !important;
 }
 
-/* line 1233, bootstrap/sass/style_bootstrap.scss */
+/* line 1230, bootstrap/sass/style_bootstrap.scss */
 div.section, .bottom-panel, .rule_container, .rule_row {
   border-color: transparent !important;
   box-shadow: 0px 0 2px #50B4D4;
   background: #D0E9C6;
 }
 
-/* line 1238, bootstrap/sass/style_bootstrap.scss */
+/* line 1235, bootstrap/sass/style_bootstrap.scss */
 td b {
   margin-bottom: 5px;
 }
 
-/* line 1241, bootstrap/sass/style_bootstrap.scss */
+/* line 1238, bootstrap/sass/style_bootstrap.scss */
 td .css_button_small, td #showMenuLink {
   float: none !important;
   padding: 5px 25px !important;
@@ -13063,12 +13311,12 @@ td .css_button_small, td #showMenuLink {
   border-radius: 5px;
 }
 
-/* line 1247, bootstrap/sass/style_bootstrap.scss */
+/* line 1244, bootstrap/sass/style_bootstrap.scss */
 .css_button_small:hover, #showMenuLink:hover {
   text-decoration: none;
 }
 
-/* line 1250, bootstrap/sass/style_bootstrap.scss */
+/* line 1247, bootstrap/sass/style_bootstrap.scss */
 select[name="sel_frame"] {
   font-size: 9pt;
   width: 100%;
@@ -13076,56 +13324,56 @@ select[name="sel_frame"] {
   border-radius: 5px;
 }
 
-/* line 1256, bootstrap/sass/style_bootstrap.scss */
+/* line 1253, bootstrap/sass/style_bootstrap.scss */
 select:disabled {
   background: #dddddd !important;
 }
 
-/* line 1259, bootstrap/sass/style_bootstrap.scss */
+/* line 1256, bootstrap/sass/style_bootstrap.scss */
 img#prevday {
   padding: 0 !important;
 }
 
-/* line 1262, bootstrap/sass/style_bootstrap.scss */
+/* line 1259, bootstrap/sass/style_bootstrap.scss */
 td.top-secondary-nav table {
   float: right;
 }
 
-/* line 1265, bootstrap/sass/style_bootstrap.scss */
+/* line 1262, bootstrap/sass/style_bootstrap.scss */
 .top-primary-nav a {
   float: left !important;
   margin-bottom: 7px !important;
 }
 
-/* line 1269, bootstrap/sass/style_bootstrap.scss */
+/* line 1266, bootstrap/sass/style_bootstrap.scss */
 .billingButton input[type="text"] {
   width: auto !important;
   display: inline-block !important;
 }
 
-/* line 1276, bootstrap/sass/style_bootstrap.scss */
+/* line 1273, bootstrap/sass/style_bootstrap.scss */
 div.borderbox {
   background: #D0E9C6;
   width: 100%;
 }
 
-/* line 1280, bootstrap/sass/style_bootstrap.scss */
+/* line 1277, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:hover {
   text-decoration: none;
   cursor: pointer;
 }
 
-/* line 1285, bootstrap/sass/style_bootstrap.scss */
+/* line 1282, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li ul ul {
   padding-left: 5px;
 }
 
-/* line 1288, bootstrap/sass/style_bootstrap.scss */
+/* line 1285, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a > img {
   display: none;
 }
 
-/* line 1291, bootstrap/sass/style_bootstrap.scss */
+/* line 1288, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:before {
   font-family: 'fontawesome';
   margin-right: 5px;
@@ -13133,108 +13381,97 @@ div.borderbox {
   font-size: 14px;
 }
 
-/* line 1298, bootstrap/sass/style_bootstrap.scss */
+/* line 1295, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:after {
   font-family: 'fontawesome';
   margin-left: 5px;
   color: #000;
 }
 
-/* line 1303, bootstrap/sass/style_bootstrap.scss */
+/* line 1300, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#cal0:before {
   content: "\f073";
 }
 
-/* line 1306, bootstrap/sass/style_bootstrap.scss */
+/* line 1303, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#pfb0:before {
   content: "\f15c";
 }
 
-/* line 1309, bootstrap/sass/style_bootstrap.scss */
+/* line 1306, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#msg0:before {
   content: "\f003";
 }
 
-/* line 1312, bootstrap/sass/style_bootstrap.scss */
+/* line 1309, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#patimg:before {
   content: "\f007";
 }
 
-/* line 1315, bootstrap/sass/style_bootstrap.scss */
+/* line 1312, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#feeimg:before {
   content: "\f0d6";
 }
 
-/* line 1318, bootstrap/sass/style_bootstrap.scss */
+/* line 1315, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#modimg:before {
   content: "\f0fa";
 }
 
-/* line 1321, bootstrap/sass/style_bootstrap.scss */
+/* line 1318, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:before {
   content: "\f0fa";
 }
 
-/* line 1324, bootstrap/sass/style_bootstrap.scss */
+/* line 1321, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:after,
 #navigation-slide li > a#admimg:after {
   content: "\f0d7";
 }
 
-/* line 1328, bootstrap/sass/style_bootstrap.scss */
+/* line 1325, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#admimg:before {
   content: "\f085";
 }
 
-/* line 1331, bootstrap/sass/style_bootstrap.scss */
+/* line 1328, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#repimg:before {
   content: "\f080";
 }
 
-/* line 1334, bootstrap/sass/style_bootstrap.scss */
+/* line 1331, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#misimg:before {
   content: "\f01c";
 }
 
-/* line 1338, bootstrap/sass/style_bootstrap.scss */
+/* line 1335, bootstrap/sass/style_bootstrap.scss */
 frameset.sidebar, frameset.main-section {
   width: 100%;
 }
 
-/* line 1341, bootstrap/sass/style_bootstrap.scss */
+/* line 1338, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td {
   width: auto !important;
 }
 
-/* line 1344, bootstrap/sass/style_bootstrap.scss */
+/* line 1341, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td input,
 form[id="theform"] td input {
   display: inline-block;
   width: auto;
 }
 
-/* line 1349, bootstrap/sass/style_bootstrap.scss */
+/* line 1346, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td,
 form[id="theform"] td {
   vertical-align: middle;
   font-size: 12px;
 }
 
-/* line 1354, bootstrap/sass/style_bootstrap.scss */
-#img_date,
-#img_to_date,
-#img_from_date,
-#img_begin_date,
-#img_end_date,
-#img_target_date,
-#img_DOB,
-#img_depositdate,
-#img_checkdate,
-#img_post_to_date,
-#img_from_doc_date,
-#img_to_doc_date,
-#img_start_date,
-.calandar-img {
+/* line 1351, bootstrap/sass/style_bootstrap.scss */
+#img_date, #img_to_date, #img_from_date, #img_begin_date, #img_end_date,
+#img_target_date, #img_DOB, #img_depositdate, #img_checkdate, #img_post_to_date,
+#img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate {
   display: inline-block;
   box-sizing: border-box;
   padding-left: 27px;
@@ -13243,12 +13480,12 @@ form[id="theform"] td {
   height: 21px;
 }
 
-/* line 1377, bootstrap/sass/style_bootstrap.scss */
+/* line 1363, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel {
   padding-top: 15px;
 }
 
-/* line 1381, bootstrap/sass/style_bootstrap.scss */
+/* line 1367, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .title-bigger {
   font-size: 18px;
   display: block;
@@ -13259,95 +13496,99 @@ form[id="theform"] td {
   font-weight: bold;
 }
 
-/* line 1392, bootstrap/sass/style_bootstrap.scss */
-.pager span {
+/* line 1378, bootstrap/sass/style_bootstrap.scss */
+.pager span,
+.dataTables_paginate a {
   content: '';
   max-height: 31px;
   overflow: hidden;
 }
 
-/* line 1397, bootstrap/sass/style_bootstrap.scss */
-.pager span:first-child:before {
+/* line 1384, bootstrap/sass/style_bootstrap.scss */
+.pager span:first-child:before,
+.dataTables_paginate .paginate_disabled_previous:before {
   content: '\f0d9 ';
   font-family: 'fontawesome';
   display: block;
   padding-bottom: 50px;
 }
 
-/* line 1403, bootstrap/sass/style_bootstrap.scss */
-.pager span:last-child:before {
+/* line 1391, bootstrap/sass/style_bootstrap.scss */
+.pager span:last-child:before,
+.dataTables_paginate .paginate_disabled_next:before {
   content: '\f0da';
   font-family: 'fontawesome';
   display: block;
   padding-bottom: 50px;
 }
 
-/* line 1409, bootstrap/sass/style_bootstrap.scss */
+/* line 1398, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li {
   border: 1px solid;
   border-radius: 5px 5px 0 0;
   padding: 0;
 }
 
-/* line 1414, bootstrap/sass/style_bootstrap.scss */
+/* line 1403, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   margin: 0;
 }
 
-/* line 1417, bootstrap/sass/style_bootstrap.scss */
+/* line 1406, bootstrap/sass/style_bootstrap.scss */
 #dateNAV {
   font-size: 12pt !important;
   margin-top: -3px;
   margin-bottom: 5px;
 }
 
-/* line 1422, bootstrap/sass/style_bootstrap.scss */
+/* line 1411, bootstrap/sass/style_bootstrap.scss */
 #times table, .view2, .view1, #datePicker .currentDate,
 #datePicker .tdDatePickerHighlight, #report_results table thead {
   background-color: #BBCCFF !important;
 }
 
-/* line 1426, bootstrap/sass/style_bootstrap.scss */
+/* line 1415, bootstrap/sass/style_bootstrap.scss */
 .dr_container {
   padding: 0 !important;
 }
 
-/* line 1429, bootstrap/sass/style_bootstrap.scss */
+/* line 1418, bootstrap/sass/style_bootstrap.scss */
 .drHide {
   position: relative;
   top: 5px;
 }
 
-/* line 1433, bootstrap/sass/style_bootstrap.scss */
+/* line 1422, bootstrap/sass/style_bootstrap.scss */
 .drHide p {
   display: inline-flex;
   margin-right: 3px !important;
 }
 
-/* line 1437, bootstrap/sass/style_bootstrap.scss */
+/* line 1426, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .panel {
   background: #B8D8AB;
   padding: 15px;
 }
 
-/* line 1441, bootstrap/sass/style_bootstrap.scss */
+/* line 1430, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion .ui-accordion-header {
   background: #B8D8AB;
   padding: 5px;
 }
 
-/* line 1446, bootstrap/sass/style_bootstrap.scss */
+/* line 1435, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion-content {
   background: #D0E9C6 !important;
 }
 
-/* line 1449, bootstrap/sass/style_bootstrap.scss */
+/* line 1438, bootstrap/sass/style_bootstrap.scss */
 .tableHead-bg,
-.table-striped > tbody > tr:nth-of-type(odd) {
+.table-striped > tbody > tr:nth-of-type(odd),
+.confirguration #con0 table > tbody > tr:nth-of-type(odd) {
   background: #BBCCFF !important;
 }
 
-/* line 1453, bootstrap/sass/style_bootstrap.scss */
+/* line 1442, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval,
 .formsAdministration-table,
 .unregisteredForm-table {
@@ -13355,36 +13596,36 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   width: 100% !important;
 }
 
-/* line 1459, bootstrap/sass/style_bootstrap.scss */
+/* line 1448, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval tbody th,
 .showborder_head th {
   background: #BBCCFF !important;
 }
 
-/* line 1463, bootstrap/sass/style_bootstrap.scss */
+/* line 1452, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons {
   width: 100%;
 }
 
-/* line 1466, bootstrap/sass/style_bootstrap.scss */
+/* line 1455, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons table {
   width: 40%;
 }
 
-/* line 1469, bootstrap/sass/style_bootstrap.scss */
+/* line 1458, bootstrap/sass/style_bootstrap.scss */
 .showborder,
 .rule_container {
   width: 100% !important;
 }
 
-/* line 1473, bootstrap/sass/style_bootstrap.scss */
+/* line 1462, bootstrap/sass/style_bootstrap.scss */
 .rule_container, .rule_row {
   padding-bottom: 20px;
   margin-left: 15px;
   padding-top: 0;
 }
 
-/* line 1480, bootstrap/sass/style_bootstrap.scss */
+/* line 1469, bootstrap/sass/style_bootstrap.scss */
 .rule_row:before,
 .rule_row:after {
   content: '';
@@ -13392,25 +13633,25 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   clear: both;
 }
 
-/* line 1486, bootstrap/sass/style_bootstrap.scss */
+/* line 1475, bootstrap/sass/style_bootstrap.scss */
 .formsAdministration-table td,
 .unregisteredForm-table td {
   text-align: center;
 }
 
-/* line 1490, bootstrap/sass/style_bootstrap.scss */
+/* line 1479, bootstrap/sass/style_bootstrap.scss */
 #report_parameters .custom-width {
   width: 800px !important;
 }
 
-/* line 1493, bootstrap/sass/style_bootstrap.scss */
+/* line 1482, bootstrap/sass/style_bootstrap.scss */
 .batchCom input[type='text'],
 .eraPosting input[type='text'] {
   display: inline-block;
   width: 75%;
 }
 
-/* line 1499, bootstrap/sass/style_bootstrap.scss */
+/* line 1488, bootstrap/sass/style_bootstrap.scss */
 .batchResults input[type='text'],
 .table-eleReports input[type='text'],
 #docfilterdiv input[type='text'] {
@@ -13418,18 +13659,18 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   width: auto;
 }
 
-/* line 1508, bootstrap/sass/style_bootstrap.scss */
+/* line 1497, bootstrap/sass/style_bootstrap.scss */
 .batchCom select {
   width: 80%;
 }
 
-/* line 1511, bootstrap/sass/style_bootstrap.scss */
+/* line 1500, bootstrap/sass/style_bootstrap.scss */
 .batchCom table {
   border: 1px solid #DDD;
 }
 
 /*** collapse *****/
-/* line 1516, bootstrap/sass/style_bootstrap.scss */
+/* line 1505, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1,
 #objTreeMenu_1_node_1_1,
 #objTreeMenu_1_node_1_2,
@@ -13444,7 +13685,7 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   background-color: #B8D8AB;
 }
 
-/* line 1530, bootstrap/sass/style_bootstrap.scss */
+/* line 1519, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1_7_1,
 #objTreeMenu_1_node_1_7_2,
 #objTreeMenu_1_node_1_1_1,
@@ -13453,48 +13694,117 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   margin: 15px 0;
 }
 
-/* line 1538, bootstrap/sass/style_bootstrap.scss */
+/* line 1527, bootstrap/sass/style_bootstrap.scss */
 #documents_list table {
   width: 100%;
 }
 
-/* line 1541, bootstrap/sass/style_bootstrap.scss */
+/* line 1530, bootstrap/sass/style_bootstrap.scss */
 div#documents_list span {
   color: #000;
 }
 
-/* line 1544, bootstrap/sass/style_bootstrap.scss */
+/* line 1533, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.tab,
 .table-fullwidth,
 .tableSearch {
   width: 100% !important;
 }
 
-/* line 1549, bootstrap/sass/style_bootstrap.scss */
+/* line 1538, bootstrap/sass/style_bootstrap.scss */
 .tableBilling td,
 .tableBatchPayments td,
 .eraPosting tr {
   background: #D0E9C6 !important;
 }
 
-/* line 1554, bootstrap/sass/style_bootstrap.scss */
+/* line 1543, bootstrap/sass/style_bootstrap.scss */
 .eraPosting tbody > tr > td {
   padding: 0;
 }
 
-/* line 1557, bootstrap/sass/style_bootstrap.scss */
+/* line 1546, bootstrap/sass/style_bootstrap.scss */
 .tableBilling a.css_button_small, .tableBilling a#showMenuLink {
   display: inline-block;
   margin-bottom: 5px !important;
 }
 
-/* line 1561, bootstrap/sass/style_bootstrap.scss */
+/* line 1550, bootstrap/sass/style_bootstrap.scss */
 .searchPaymentInputTD input {
   width: 100px !important;
   display: inline;
 }
 
-/* line 1565, bootstrap/sass/style_bootstrap.scss */
+/* line 1554, bootstrap/sass/style_bootstrap.scss */
 .tableSearch {
   width: 100%;
+}
+
+/* line 1557, bootstrap/sass/style_bootstrap.scss */
+.Clear li a,
+#tabs {
+  background: #000;
+}
+
+/* line 1562, bootstrap/sass/style_bootstrap.scss */
+.no-bg {
+  background: transparent !important;
+}
+
+/* line 1568, bootstrap/sass/style_bootstrap.scss */
+.confirguration #con0 .col5 {
+  text-align: center;
+  width: 160px !important;
+}
+
+/* line 1572, bootstrap/sass/style_bootstrap.scss */
+.confirguration #con0 .col5 span {
+  display: inline-block;
+  padding: inherit;
+  border-radius: 5px;
+  margin: 3px;
+  content: '';
+  overflow: hidden;
+  width: 62px;
+  height: 30px;
+  max-height: 31px;
+  text-align: center;
+}
+
+/* line 1585, bootstrap/sass/style_bootstrap.scss */
+.confirguration #con0 .col5 span:first-child:before {
+  content: 'Edit';
+  padding-bottom: 35px;
+  display: block;
+}
+
+/* line 1590, bootstrap/sass/style_bootstrap.scss */
+.confirguration #con0 .col5 span:last-child:before {
+  content: 'Add';
+  padding-bottom: 35px;
+  display: block;
+}
+
+/* line 1595, bootstrap/sass/style_bootstrap.scss */
+.loadCompendium,
+#pt_table_wrapper .dataTable {
+  background: #D0E9C6;
+}
+
+/* line 1599, bootstrap/sass/style_bootstrap.scss */
+.pager span,
+.dataTables_paginate {
+  margin-top: 10px;
+}
+
+/* line 1603, bootstrap/sass/style_bootstrap.scss */
+#docfilterdiv > table {
+  margin: 0 !important;
+}
+
+/* line 1606, bootstrap/sass/style_bootstrap.scss */
+#docfilterdiv .table .label, #docfilterdiv .confirguration #con0 table .label, .confirguration #con0 #docfilterdiv table .label {
+  font-size: inherit;
+  vertical-align: middle;
+  text-align: right;
 }

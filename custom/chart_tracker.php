@@ -110,7 +110,7 @@ if ($form_newid) {
 }
 ?>
 
-<table>
+<table class="table table-striped table-bordered">
 
 <?php
 if (!empty($row)) {

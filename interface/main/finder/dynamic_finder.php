@@ -144,7 +144,7 @@ function openNewTopWindow(pid) {
 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
 
 <!-- Class "display" is defined in demo_table.css -->
-<table cellpadding="0" cellspacing="0" border="0" class="display" id="pt_table">
+<table cellpadding="0" cellspacing="0" border="0" class="display table table-striped table-bordered" id="pt_table">
  <thead>
   <tr>
 <?php echo $header0; ?>
