@@ -22,6 +22,13 @@
  */
 
 class AMC_314g_1_2_20_Numerator implements AmcFilterIF{
+
+    //
+    // AMC MU2 TODO :
+    // 1. Remove the $patArr stuff.
+    // 2. In this case want a counter that lists the orders.
+    //    Then can screen for the imaging orders in the denominator screening.
+    //
     public $patArr = array();
 	public function getTitle(){
         return "AMC_314g_1_2_20 Numerator";
@@ -30,6 +37,10 @@ class AMC_314g_1_2_20_Numerator implements AmcFilterIF{
     public function test( AmcPatient $patient, $beginDate, $endDate ){
 		if(!in_array($patient->id, $this->patArr)){
 			$this->patArr[] = $patient->id;
+                        //
+                        // AMC MU2 TODO :
+                        // These mechanism seems really odd. Will need to research this a bit.
+                        //
 			$docLabQry = "SELECT count(*) as cnt FROM documents d ".
 						 "INNER JOIN categories_to_documents cd ON d.id = cd.document_id ".
 						 "INNER JOIN categories dlc ON cd.category_id = dlc.id AND dlc.name = 'Lab Report' ".

@@ -31,7 +31,7 @@ class AMC_314g_1_2_19 extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-        return "encounters";
+        return "patients";
     }
  
     public function createDenominator() 

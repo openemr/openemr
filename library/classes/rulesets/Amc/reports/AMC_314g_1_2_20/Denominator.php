@@ -23,6 +23,12 @@
 
 class AMC_314g_1_2_20_Denominator implements AmcFilterIF
 {
+    //
+    // AMC MU2 TODO :
+    // 1. Remove the $patArr stuff.
+    // 2. In this case want a counter that lists the orders.
+    //    Then can screen for the imaging orders in the denominator screening.
+    // 
 	public $patArr = array();
     public function getTitle()
     {

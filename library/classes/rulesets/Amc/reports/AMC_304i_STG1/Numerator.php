@@ -31,6 +31,10 @@ class AMC_304i_STG1_Numerator implements AmcFilterIF
     public function test( AmcPatient $patient, $beginDate, $endDate ) 
     {
 		//The number of transitions of care and referrals in the denominator where a summary of care record was provided.(VIEW/TRANSMITTED)
+                //
+                // AMC MU2 TODO :
+                // Note from_ccda is not in the main OpenEMR codebase. Should ask Z&H on strategy for this one.
+                //
 		$sumQry =   "SELECT count(*) as cnt FROM amc_misc_data ".
 					"WHERE map_category = 'form_encounter' ".
 					"AND amc_id IN( 'med_reconc_amc', 'provide_sum_pat_amc' ) ".
