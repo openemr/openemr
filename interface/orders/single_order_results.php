@@ -2,7 +2,7 @@
 /**
 * Script to display results for a given procedure order.
 *
-* Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
+* Copyright (C) 2013-2015 Rod Roark <rod@sunsetsystems.com>
 *
 * LICENSE: This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -33,7 +33,7 @@ $orderid = intval($_GET['orderid']);
 
 $finals_only = empty($_POST['form_showall']);
 
-if (!empty($_POST['form_sign_list'])) {
+if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
   if (!acl_check('patients', 'sign')) {
     die(xl('Not authorized to sign results'));
   }
@@ -99,7 +99,7 @@ body {
 </head>
 <body>
 <?php
-if (empty($_POST['form_sign_list'])) {
+if (empty($_POST['form_sign'])) {
   generate_order_report($orderid, true, true, $finals_only);
 }
 else {
@@ -120,4 +120,3 @@ else {
 ?>
 </body>
 </html>
-
