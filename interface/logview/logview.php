@@ -127,7 +127,7 @@ $sortby = formData('sortby','G') ;
 ?>
 <input type="hidden" name="sortby" id="sortby" value="<?php echo $sortby; ?>">
 <input type=hidden name=csum value="">
-<table>
+<table class="table table-bordered table-striped">
 <tr><td>
 <span class="text"><?php  xl('Start Date','e'); ?>: </span>
 </td><td>

@@ -199,7 +199,7 @@ if (!empty($_POST['form_submit'])) {
 
 <form method='post' action='merge_patients.php'>
 <center>
-<table style='width:90%'>
+<table style='width:90%' class="table table-striped table-bordered mergePatients-table">
  <tr>
   <td>
    <?php echo xlt('Target Patient') ?>

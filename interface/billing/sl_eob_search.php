@@ -444,7 +444,7 @@ function npopup(pid) {
 
 <form method='post' action='sl_eob_search.php' enctype='multipart/form-data'>
 
-<table border='0' cellpadding='5' cellspacing='0'>
+<table class="table table-bordered table-striped" border='0' cellpadding='5' cellspacing='0'>
  <tr>
 
 <?php
@@ -508,7 +508,7 @@ if ($INTEGRATED_AR) {
  </tr>
 </table>
 
-<table border='0' cellpadding='5' cellspacing='0'>
+<table class="table table-bordered table-striped" border='0' cellpadding='5' cellspacing='0'>
 
  <tr bgcolor='#ddddff'>
   <td>
@@ -804,7 +804,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   } // end not $INTEGRATED_AR
 ?>
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<table class="table table-bordered table-striped" border='0' cellpadding='1' cellspacing='2' width='98%'>
 
  <tr bgcolor="#dddddd">
   <td class="dehead">

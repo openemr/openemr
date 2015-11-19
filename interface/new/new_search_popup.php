@@ -200,7 +200,7 @@ if ($fend > $count) $fend = $count;
 </table>
 
 <div id="searchResultsHeader">
-<table>
+<table class="table table-striped table-bordered">
 <tr>
 <th class="srID"   ><?php echo htmlspecialchars( xl('Hits'), ENT_NOQUOTES);?></th>
 <th class="srName" ><?php echo htmlspecialchars( xl('Name'), ENT_NOQUOTES);?></th>
@@ -226,7 +226,7 @@ while ($trow = sqlFetchArray($tres)) {
 
 <div id="searchResults">
 
-<table>
+<table class="table table-striped table-bordered">
 <tr>
 <?php
 $pubpid_matched = false;

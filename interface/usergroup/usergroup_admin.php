@@ -422,7 +422,7 @@ function authorized_clicked() {
 </script>
 
 </head>
-<body class="body_top">
+<body class="body_top usergroup-admin">
 
 <div>
     <div>
@@ -436,7 +436,7 @@ function authorized_clicked() {
 	  </tr>
 	</table>
     </div>
-    <div style="width:650px;">
+    <div class="tabContainer" style="width:650px;">
         <div>
 
 <form name='userlist' method='post' action='usergroup_admin.php' onsubmit='return top.restoreSession()'>

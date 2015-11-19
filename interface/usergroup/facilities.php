@@ -101,7 +101,7 @@ $(document).ready(function(){
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 
-<body class="body_top">
+<body class="body_top facilities-panel">
 
 <div>
     <div>

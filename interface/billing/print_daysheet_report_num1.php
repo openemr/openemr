@@ -936,7 +936,7 @@ if ($totals_only != 1) {
 	   }
 	   
 	  if ($first_time) {
-       print "<table border=0><tr>\n";     // small table
+       print "<table class=\"table table-striped table-bordered\" border=0><tr>\n";     // small table
        $first_time=0;
       }
       print "<td width=70><span class=text><b><center>" . xlt("Date"). "</b></center>"; 
@@ -1514,7 +1514,7 @@ print "<br><br>";
 }
  if ($run_provider != 1) {
 
-    print "<table border=0><tr>\n";
+    print "<table class=\"table table-striped table-bordered\" border=0><tr>\n";
     print "<br><br>";
     print  "<td width=25><span class=text>";		
     Print  "</span></td><td width=250><span class=text><b><center>". xlt("User"). "</center></b>";

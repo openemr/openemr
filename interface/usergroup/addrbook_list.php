@@ -124,7 +124,7 @@ $res = sqlStatement($query,$sqlBindArray);
 </tr>
 </table>
 
-<table>
+<table class="table table-bordered table-responsive">
  <tr class='head'>
   <td title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Organization'); ?></td>
   <td><?php echo xlt('Name'); ?></td>

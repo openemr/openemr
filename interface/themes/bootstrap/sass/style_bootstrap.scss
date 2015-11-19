@@ -1348,8 +1348,8 @@ form[id="theform"] td{
     vertical-align: middle;
     font-size: 12px;
 }
-#img_date, #img_to_date, #img_from_date, #img_begin_date, #img_end_date,
-#img_target_date, #img_DOB, #img_depositdate, #img_checkdate, #img_post_to_date,
+#img_date, #img_to_date, #img_from_date, #img_begin_date, #img_end_date, #img_deceased_date, #img_i1effective_date, #img_i1dob_date,
+#img_target_date, #img_DOB, #img_depositdate, #img_checkdate, #img_post_to_date, #img_i2effective_date, #img_i3effective_date, #img_i3dob_date,
 #img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate{
     display: inline-block;
     box-sizing: border-box;    
@@ -1607,4 +1607,21 @@ div.tabContainer div.tab,
     font-size: inherit;
     vertical-align: middle;
     text-align: right;
+}
+#newlistitem{
+    background: $solidgreen;
+}
+input[type="textbox"]{
+    @extend .form-control;
+}
+.iframe.medium_modal{
+    @extend .btn-primary, input[type="button"];
+}
+.iframe.medium_modal:hover{
+    text-decoration: none;
+}
+.facilities-panel .tabContainer,
+.usergroup-admin .tabContainer,
+.mergePatients-table{
+    width: 100% !important;
 }
