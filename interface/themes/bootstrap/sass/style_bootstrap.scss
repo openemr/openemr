@@ -6,6 +6,21 @@
 @import "compass/reset";
 @import '../css/bootstrap.scss';
 @import '../css/bootstrap-theme.scss';
+/****** variables ******/
+$break-xsmall: 480px;
+$break-small: 767px;
+$break-large: 991px;
+$break-exlarge: 1199px;
+
+/***** colors *********/
+$button-color : #245580;
+$tableHeader-bg : #BBCCFF;
+$solidgreen : #B8D8AB;
+$lightgreen: #D0E9C6;
+$requiredColor: #EF2525;
+/***** colors *********/
+$btn-lg-curve: 5px;
+$btn-sm-curve: 3px;
 
 body {
   margin: 0px 0px 0px 0px;
@@ -66,7 +81,7 @@ a:hover {
   font-family: sans-serif;
   text-decoration: none;
   font-size: 10pt;
-  color: #880000;
+  color: $requiredColor;
   font-weight: bold;
 }
 
@@ -91,11 +106,13 @@ a:hover {
   font-family: sans-serif;
   font-size: 80%;
 }
-
+.layouts_title{
+    background: transparent !important;
+}
 .link {
   font-family: sans-serif;
   text-decoration: none;
-  color: #0000cc;
+//  color: #0000cc;
   font-size: 70%;
 }
 
@@ -645,7 +662,7 @@ ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }*/
 div.tabContainer { clear: both; float: left; width: 100%; }
 div.tabContainer div.tab { border: 1px solid #ffffff; color: #000; display: none; padding: 10px; }
 div.tabContainer div.current { display: block; }
-div.tab { 	min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:665px;}
+div.tab { 	min-height: 180px; background: $lightgreen none repeat scroll 0 0; margin-bottom: 10px;width:665px;}
 div.tab_long { 	min-height: 180px; background: #ffffff none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
 div.tab p:last-child { margin-bottom: 0; }
 
@@ -849,41 +866,11 @@ div.notab-right {
 }
 
 .collapse-custom {
-//  background-color: hsl(190, 79%, 35%) !important;
-//  background-repeat: repeat-x;
-//  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#5fd4ec", endColorstr="#12889f");
-//  background-image: -khtml-gradient(linear, left top, left bottom, from(#5fd4ec), to(#12889f));
-//  background-image: -moz-linear-gradient(top, #5fd4ec, #12889f);
-//  background-image: -ms-linear-gradient(top, #5fd4ec, #12889f);
-//  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5fd4ec), color-stop(100%, #12889f));
-//  background-image: -webkit-linear-gradient(top, #5fd4ec, #12889f);
-//  background-image: -o-linear-gradient(top, #5fd4ec, #12889f);
-//  background-image: linear-gradient(#5fd4ec, #12889f);
-//  border-color: #12889f #12889f hsl(190, 79%, 27.5%);
-//  color: #333 !important;
-//  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.49);
-//  -webkit-font-smoothing: antialiased;
-    
     color: #3c763d;
     background-color: #d0e9c6;
 }
 
 .collapse-inner{
-//  background-color: hsl(193, 79%, 63%) !important;
-//  background-repeat: repeat-x;
-//  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#e8f7fc", endColorstr="#56caeb");
-//  background-image: -khtml-gradient(linear, left top, left bottom, from(#e8f7fc), to(#56caeb));
-//  background-image: -moz-linear-gradient(top, #e8f7fc, #56caeb);
-//  background-image: -ms-linear-gradient(top, #e8f7fc, #56caeb);
-//  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e8f7fc), color-stop(100%, #56caeb));
-//  background-image: -webkit-linear-gradient(top, #e8f7fc, #56caeb);
-//  background-image: -o-linear-gradient(top, #e8f7fc, #56caeb);
-//  background-image: linear-gradient(#e8f7fc, #56caeb);
-//  border-color: #56caeb #56caeb hsl(193, 79%, 55%);
-//  color: #333 !important;
-//  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.52);
-//  -webkit-font-smoothing: antialiased;
-
     color: #3c763d;
     background-color: #d0e9c6;
 }
@@ -1069,21 +1056,7 @@ div.notab-right {
 
 // Bootstrap UI Renovations
 
-/****** variables ******/
-$break-xsmall: 480px;
-$break-small: 767px;
-$break-large: 991px;
-$break-exlarge: 1199px;
 
-/***** colors *********/
-$button-color : #245580;
-$tableHeader-bg : #BBCCFF;
-$solidgreen : #B8D8AB;
-$lightgreen: #D0E9C6;
-
-/***** colors *********/
-$btn-lg-curve: 5px;
-$btn-sm-curve: 3px;
 
 
 .btn-custom, .btn-submit {
@@ -1491,7 +1464,8 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
     display: inline-block;
     width: auto;
 }
-.batchCom textarea{
+.batchCom textarea,
+#officenotes_edit textarea{
     @extend .form-control;
 }
 .batchCom select{
@@ -1624,4 +1598,14 @@ input[type="textbox"]{
 .usergroup-admin .tabContainer,
 .mergePatients-table{
     width: 100% !important;
+}
+.small{
+    @extend .css_button_link;
+}
+.small > a{
+    @extend .btn-primary;    
+}
+#accordion h3 span,
+#accordion h3 a{
+    color: #000;
 }

@@ -13,7 +13,7 @@
 &nbsp;
 
 <form name="cdralertmgr" method="post" action="index.php?action=alerts!submitactmgr" onsubmit="return top.restoreSession()">
-<table cellpadding="1" cellspacing="0" class="showborder">
+<table cellpadding="1" cellspacing="0" class="showborder table table-bordered table-striped">
         <tr class="showborder_head">
                 <th width="250px"><?php echo out( xl('Title') ); ?></th>
                 <th width="40px">&nbsp;</th>
