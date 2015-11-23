@@ -12448,3 +12448,8 @@ ALTER TABLE transactions DROP COLUMN                  reply_rx_refer;
 INSERT INTO lbt_data SELECT id, 'reply_related_code', reply_related_code FROM transactions WHERE reply_related_code != '';
 ALTER TABLE transactions DROP COLUMN                  reply_related_code;
 #EndIf
+
+#IfRow2D clinical_rules id secure_messaging_amc amc_code_2014 170.314(g)(1)/(2)
+UPDATE `clinical_rules` SET `amc_code_2014` = '170.314(g)(1)/(2)-19' WHERE `id` = 'secure_messaging_amc' AND `amc_code_2014` = '170.314(g)(1)/(2)'; 
+#EndIf
+

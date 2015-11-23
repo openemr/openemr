@@ -4,6 +4,7 @@
  * AMC 304h STAGE2
  *
  * Copyright (C) 2015 Ensoftek, Inc
+ * Copyright (C) 2015 Brady Miller <brady@sparmy.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +19,7 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
+ * @author  Brady Miller <brady@sparmy.com>
  * @link    http://www.open-emr.org
  */
 
@@ -30,7 +32,7 @@ class AMC_304h_STG2 extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-        return "encounters_office_vist";
+        return "encounters_office_visit";
     }
  
     public function createDenominator() 
