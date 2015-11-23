@@ -23,11 +23,9 @@
 
 class AMC_314g_1_2_20_Numerator implements AmcFilterIF{
 
-    //
+    // Still TODO
     // AMC MU2 TODO :
     // 1. Remove the $patArr stuff.
-    // 2. In this case want a counter that lists the orders.
-    //    Then can screen for the imaging orders in the denominator screening.
     //
     public $patArr = array();
 	public function getTitle(){
@@ -38,6 +36,7 @@ class AMC_314g_1_2_20_Numerator implements AmcFilterIF{
 		if(!in_array($patient->id, $this->patArr)){
 			$this->patArr[] = $patient->id;
                         //
+                        // Still TODO
                         // AMC MU2 TODO :
                         // These mechanism seems really odd. Will need to research this a bit.
                         //

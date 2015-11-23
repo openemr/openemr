@@ -32,6 +32,7 @@ class AMC_304b_STG1_Numerator implements AmcFilterIF
     {
        //The number of prescriptions in the denominator transmitted electronically	
        //
+       // Still TODO
        // AMC MU2 TODO :
        // Note OpenEMR official codebase does not support the eTransmit item
        //

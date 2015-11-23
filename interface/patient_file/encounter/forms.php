@@ -94,6 +94,103 @@ jQuery(document).ready( function($) {
             }
 		}
     );
+
+    $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".onerow").click(function() { GotoForm(this); });
+
+    $("#prov_edu_res").click(function() {
+        if ( $('#prov_edu_res').attr('checked') ) {
+            var mode = "add";
+        }
+        else {
+            var mode = "remove";
+        }
+        top.restoreSession();
+        $.post( "../../../library/ajax/amc_misc_data.php",
+            { amc_id: "patient_edu_amc",
+              complete: true,
+              mode: mode,
+              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              object_category: "form_encounter",
+              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+            }
+        );
+    });
+
+    $("#provide_sum_pat_flag").click(function() {
+        if ( $('#provide_sum_pat_flag').attr('checked') ) {
+            var mode = "add";
+        }
+        else {
+            var mode = "remove";
+        }
+        top.restoreSession();
+        $.post( "../../../library/ajax/amc_misc_data.php",
+            { amc_id: "provide_sum_pat_amc",
+              complete: true,
+              mode: mode,
+              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              object_category: "form_encounter",
+              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+            }
+        );
+    });
+
+    $("#trans_trand_care").click(function() {
+        if ( $('#trans_trand_care').attr('checked') ) {
+            var mode = "add";
+            // Enable the reconciliation checkbox
+            $("#med_reconc_perf").removeAttr("disabled");
+        }
+        else {
+            var mode = "remove";
+            //Disable the reconciliation checkbox (also uncheck it if applicable)
+            $("#med_reconc_perf").attr("disabled", true);
+            $("#med_reconc_perf").removeAttr("checked");
+        }
+        top.restoreSession();
+        $.post( "../../../library/ajax/amc_misc_data.php",
+            { amc_id: "med_reconc_amc",
+              complete: false,
+              mode: mode,
+              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              object_category: "form_encounter",
+              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+            }
+        );
+    });
+
+    $("#med_reconc_perf").click(function() {
+        if ( $('#med_reconc_perf').attr('checked') ) {
+            var mode = "complete";
+        }
+        else {
+            var mode = "uncomplete";
+        }
+        top.restoreSession();
+        $.post( "../../../library/ajax/amc_misc_data.php",
+            { amc_id: "med_reconc_amc",
+              complete: true,
+              mode: mode,
+              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              object_category: "form_encounter",
+              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+            }
+        );
+    });
+
+    // $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
+
+    var GotoForm = function(obj) {
+        var parts = $(obj).attr("id").split("~");
+        top.restoreSession();
+        <?php if ($GLOBALS['concurrent_layout']): ?>
+        parent.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
+        <?php else: ?>
+        top.Main.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
+        <?php endif; ?>
+    }
 });
 
  // Process click on Delete link.
@@ -499,109 +596,5 @@ if ( $esign->isButtonViewable() ) {
 
 </div> <!-- end large encounter_forms DIV -->
 </body>
-
-<script language="javascript">
-// jQuery stuff to make the page a little easier to use
-
-$(document).ready(function(){
-    $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".onerow").click(function() { GotoForm(this); });
-
-    $("#prov_edu_res").click(function() {
-        if ( $('#prov_edu_res').attr('checked') ) {
-            var mode = "add";
-        }
-        else {
-            var mode = "remove";
-        }
-        top.restoreSession();
-        $.post( "../../../library/ajax/amc_misc_data.php",
-            { amc_id: "patient_edu_amc",
-              complete: true,
-              mode: mode,
-              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
-              object_category: "form_encounter",
-              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
-            }
-        );
-    });
-
-    $("#provide_sum_pat_flag").click(function() {
-        if ( $('#provide_sum_pat_flag').attr('checked') ) {
-            var mode = "add";
-        }
-        else {
-            var mode = "remove";
-        }
-        top.restoreSession();
-        $.post( "../../../library/ajax/amc_misc_data.php",
-            { amc_id: "provide_sum_pat_amc",
-              complete: true,
-              mode: mode,
-              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
-              object_category: "form_encounter",
-              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
-            }
-        );
-    });
-
-    $("#trans_trand_care").click(function() {
-        if ( $('#trans_trand_care').attr('checked') ) {
-            var mode = "add";
-            // Enable the reconciliation checkbox
-            $("#med_reconc_perf").removeAttr("disabled");
-        }
-        else {
-            var mode = "remove";
-            //Disable the reconciliation checkbox (also uncheck it if applicable)
-            $("#med_reconc_perf").attr("disabled", true);
-            $("#med_reconc_perf").removeAttr("checked");
-        }
-        top.restoreSession();
-        $.post( "../../../library/ajax/amc_misc_data.php",
-            { amc_id: "med_reconc_amc",
-              complete: false,
-              mode: mode,
-              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
-              object_category: "form_encounter",
-              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
-            }
-        );
-    });
-
-    $("#med_reconc_perf").click(function() {
-        if ( $('#med_reconc_perf').attr('checked') ) {
-            var mode = "complete";
-        }
-        else {
-            var mode = "uncomplete";
-        }
-        top.restoreSession();
-        $.post( "../../../library/ajax/amc_misc_data.php",
-            { amc_id: "med_reconc_amc",
-              complete: true,
-              mode: mode,
-              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
-              object_category: "form_encounter",
-              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
-            }
-        );
-    });
-
-    // $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
-
-    var GotoForm = function(obj) {
-        var parts = $(obj).attr("id").split("~");
-        top.restoreSession();
-        <?php if ($GLOBALS['concurrent_layout']): ?>
-        parent.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
-        <?php else: ?>
-        top.Main.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
-        <?php endif; ?>
-    }
-});
-
-</script>
 
 </html>

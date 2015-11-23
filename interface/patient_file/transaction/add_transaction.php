@@ -82,11 +82,15 @@ if ($mode) {
   // Set the AMC sent records flag
   if (!(empty($_POST['send_sum_flag']))) {
     // add the sent records flag
-    processAmcCall('send_sum_amc', true, 'add', $pid, 'transactions', $transid); 
+    processAmcCall('send_sum_amc', true, 'add', $pid, 'transactions', $transid);
+    if (!(empty($_POST['send_sum_elec_flag']))) {
+      processAmcCall('send_sum_elec_amc', true, 'add', $pid, 'transactions', $transid);
+    }
   }
   else {
-    // remove the sent records flag
+    // remove the sent records flags
     processAmcCall('send_sum_amc', true, 'remove', $pid, 'transactions', $transid);
+    processAmcCall('send_sum_elec_amc', true, 'remove', $pid, 'transactions', $transid);
   }
 
   if ($GLOBALS['concurrent_layout'])
@@ -164,6 +168,20 @@ $(document).ready(function() {
 <script language="JavaScript">
 
 var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
+
+$(document).ready(function(){
+  $("#send_sum_flag").click(function() {
+    if ( $('#send_sum_flag').attr('checked') ) {
+      // Enable the send_sum_elec_flag checkbox
+      $("#send_sum_elec_flag").removeAttr("disabled");
+    }
+    else {
+      //Disable the send_sum_elec_flag checkbox (also uncheck it if applicable)
+      $("#send_sum_elec_flag").attr("disabled", true);
+      $("#send_sum_elec_flag").removeAttr("checked");
+    }
+  });
+});
 
 function titleChanged() {
  var sel = document.forms[0].title;
@@ -302,15 +320,30 @@ div.tab {
     <?php if ($GLOBALS['enable_amc_prompting'] && 'LBTref' == $form_id) { ?>
         <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
             <div style='float:left;margin:5px 5px 5px 5px;'>
-                <?php // Display the send records checkbox (AMC prompting)
+
+                <?php // Display the send records checkboxes (AMC prompting)
                     $itemAMC = amcCollect("send_sum_amc", $pid, 'transactions', $transid);
+                    $itemAMC_elec = amcCollect("send_sum_elec_amc", $pid, 'transactions', $transid);
                 ?>
+
                 <?php if (!(empty($itemAMC))) { ?>
                     <input type="checkbox" id="send_sum_flag" name="send_sum_flag" checked>
                 <?php } else { ?>
                     <input type="checkbox" id="send_sum_flag" name="send_sum_flag">
                 <?php } ?>
-                <span class="text"><?php echo xl('Sent Medical Records?') ?></span><br>
+
+                <span class="text"><?php echo xlt('Sent Summary of Care?') ?></span><br>
+
+                <?php if (!(empty($itemAMC)) && !(empty($itemAMC_elec))) { ?>
+                    &nbsp;&nbsp;<input type="checkbox" id="send_sum_elec_flag" name="send_sum_elec_flag" checked>
+                <?php } else if (!(empty($itemAMC))) { ?>
+                    &nbsp;&nbsp;<input type="checkbox" id="send_sum_elec_flag" name="send_sum_elec_flag">
+                <?php } else { ?>
+                    &nbsp;&nbsp;<input type="checkbox" id="send_sum_elec_flag" name="send_sum_elec_flag" disabled>
+                <?php } ?>
+
+                <span class="text"><?php echo xlt('Sent Summary of Care Electronically?') ?></span><br>
+
             </div>
         </div>
     <?php } ?>
