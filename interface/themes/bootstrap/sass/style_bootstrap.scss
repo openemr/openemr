@@ -128,25 +128,33 @@ a:hover {
   font-size: 70%;
 }
 
-.link_selected {
-  font-family: sans-serif;
-  text-decoration: none;
-  color: #0000FF;
-  font-size: 70%;
-}
+//.link_selected , .link {
+//    @extend .btn-primary;
+//    
+//    
+////  font-family: sans-serif;
+////  text-decoration: none;
+////  color: #0000FF;
+////  font-size: 70%;
+//}
 
-.link_selected:visited {
-  font-family: sans-serif;
-  text-decoration: none;
-  color: #0000FF;
-  font-size: 70%;
-}
+//.link_selected:visited {
+//  font-family: sans-serif;
+//  text-decoration: none;
+//  color: #0000FF;
+//  font-size: 70%;
+//}
 
-.link_submit {
-  font-family: sans-serif;
-  text-decoration: none;
-  color: #000077;
-  font-size: 10pt;
+.link_submit, .link_selected , .link{
+    @extend .btn-primary;
+    display: inline-block;
+    margin: 3px 3px !important;
+    padding: 5px 25px !important;
+    font-size: 10pt !important;
+    border-radius: 5px;
+}
+#officenotes_edit .text{
+    display: block;
 }
 
 .link_submit a:visited {
@@ -1410,7 +1418,14 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
 }
 .tableHead-bg,
 .table-striped > tbody > tr:nth-of-type(odd){
-  background: $tableHeader-bg !important;   
+  background: #fff !important;   
+}
+tr.tableHead-bg td {
+    height: 40px !important;
+}
+tr.tableHead-bg td img {
+    width: 8px;
+    margin-left: 5px;
 }
 .table-pendigApproval,
 .formsAdministration-table,
@@ -1608,4 +1623,29 @@ input[type="textbox"]{
 #accordion h3 span,
 #accordion h3 a{
     color: #000;
+}
+.calendar thead .title{
+    border: 1px solid #BBECA7;
+    background: $solidgreen !important;
+}
+.calendar .button,
+.rowhilite td{
+    background: $lightgreen !important;
+}
+.calendar table{
+    background: $solidgreen !important;
+}
+.calendar table .wn,
+.calendar thead .name,
+.calendar tfoot .ttip,
+.calendar tbody td.selected{
+    background: $tableHeader-bg !important;
+}
+.calendar tbody td.today,
+.calendar tbody td.selected{
+    color: $requiredColor !important;
+}
+
+tr.tableHead-bg td:first-child{
+    text-align: center;
 }
