@@ -12163,7 +12163,7 @@ fieldset[disabled] .btn-danger.active {
 /****** variables ******/
 /***** colors *********/
 /***** colors *********/
-/* line 25, bootstrap/sass/style_bootstrap.scss */
+/* line 26, bootstrap/sass/style_bootstrap.scss */
 body {
   margin: 0px 0px 0px 0px;
   /* set the base font and size for all DOM children */
@@ -12172,18 +12172,18 @@ body {
   /* set the base font size for all DOM children */
 }
 
-/* line 33, bootstrap/sass/style_bootstrap.scss */
+/* line 34, bootstrap/sass/style_bootstrap.scss */
 a {
   color: #0000cc;
   text-decoration: none;
 }
 
-/* line 42, bootstrap/sass/style_bootstrap.scss */
+/* line 43, bootstrap/sass/style_bootstrap.scss */
 a:hover {
   color: #ff5555;
 }
 
-/* line 46, bootstrap/sass/style_bootstrap.scss */
+/* line 47, bootstrap/sass/style_bootstrap.scss */
 .menu {
   font-family: sans-serif;
   font-style: italic;
@@ -12193,7 +12193,7 @@ a:hover {
   text-align: left;
 }
 
-/* line 55, bootstrap/sass/style_bootstrap.scss */
+/* line 56, bootstrap/sass/style_bootstrap.scss */
 .menu_selected {
   font-family: sans-serif;
   font-style: italic;
@@ -12203,7 +12203,7 @@ a:hover {
   text-align: left;
 }
 
-/* line 64, bootstrap/sass/style_bootstrap.scss */
+/* line 65, bootstrap/sass/style_bootstrap.scss */
 .logout {
   font-family: sans-serif;
   font-style: italic;
@@ -12213,7 +12213,7 @@ a:hover {
   text-align: right;
 }
 
-/* line 73, bootstrap/sass/style_bootstrap.scss */
+/* line 74, bootstrap/sass/style_bootstrap.scss */
 .text {
   font-family: sans-serif;
   text-decoration: none;
@@ -12221,7 +12221,7 @@ a:hover {
   font-size: 10pt;
 }
 
-/* line 80, bootstrap/sass/style_bootstrap.scss */
+/* line 81, bootstrap/sass/style_bootstrap.scss */
 .required {
   font-family: sans-serif;
   text-decoration: none;
@@ -12230,7 +12230,7 @@ a:hover {
   font-weight: bold;
 }
 
-/* line 88, bootstrap/sass/style_bootstrap.scss */
+/* line 89, bootstrap/sass/style_bootstrap.scss */
 .bold {
   font-family: sans-serif;
   text-decoration: none;
@@ -12239,7 +12239,7 @@ a:hover {
   font-weight: bold;
 }
 
-/* line 96, bootstrap/sass/style_bootstrap.scss */
+/* line 97, bootstrap/sass/style_bootstrap.scss */
 .alert {
   font-family: sans-serif;
   font-size: 70%;
@@ -12247,7 +12247,7 @@ a:hover {
   text-decoration: none;
 }
 
-/* line 103, bootstrap/sass/style_bootstrap.scss */
+/* line 104, bootstrap/sass/style_bootstrap.scss */
 .small {
   text-decoration: none;
   color: #000000;
@@ -12255,33 +12255,33 @@ a:hover {
   font-size: 80%;
 }
 
-/* line 109, bootstrap/sass/style_bootstrap.scss */
+/* line 110, bootstrap/sass/style_bootstrap.scss */
 .layouts_title {
   background: transparent !important;
 }
 
-/* line 112, bootstrap/sass/style_bootstrap.scss */
+/* line 113, bootstrap/sass/style_bootstrap.scss */
 .link {
   font-family: sans-serif;
   text-decoration: none;
   font-size: 70%;
 }
 
-/* line 119, bootstrap/sass/style_bootstrap.scss */
+/* line 120, bootstrap/sass/style_bootstrap.scss */
 .more {
   font-family: sans-serif;
   text-decoration: none;
   font-size: 70%;
 }
 
-/* line 125, bootstrap/sass/style_bootstrap.scss */
+/* line 126, bootstrap/sass/style_bootstrap.scss */
 .back {
   font-family: sans-serif;
   text-decoration: none;
   font-size: 70%;
 }
 
-/* line 148, bootstrap/sass/style_bootstrap.scss */
+/* line 149, bootstrap/sass/style_bootstrap.scss */
 .link_submit, .link_selected, .link {
   display: inline-block;
   margin: 3px 3px !important;
@@ -12290,28 +12290,28 @@ a:hover {
   border-radius: 5px;
 }
 
-/* line 156, bootstrap/sass/style_bootstrap.scss */
+/* line 157, bootstrap/sass/style_bootstrap.scss */
 #officenotes_edit .text {
   display: block;
 }
 
-/* line 160, bootstrap/sass/style_bootstrap.scss */
+/* line 161, bootstrap/sass/style_bootstrap.scss */
 .link_submit a:visited {
   color: #000077;
 }
 
-/* line 164, bootstrap/sass/style_bootstrap.scss */
+/* line 165, bootstrap/sass/style_bootstrap.scss */
 .link_submit a:hover {
   color: #ff5555;
 }
 
-/* line 168, bootstrap/sass/style_bootstrap.scss */
+/* line 169, bootstrap/sass/style_bootstrap.scss */
 .items {
   font-family: sans-serif;
   font-size: 6pt;
 }
 
-/* line 173, bootstrap/sass/style_bootstrap.scss */
+/* line 174, bootstrap/sass/style_bootstrap.scss */
 .title {
   font-family: sans-serif;
   font-size: 14pt;
@@ -12319,7 +12319,7 @@ a:hover {
 }
 
 /* see .titlebar below */
-/* line 180, bootstrap/sass/style_bootstrap.scss */
+/* line 181, bootstrap/sass/style_bootstrap.scss */
 .title_bar {
   font-family: sans-serif;
   font-size: 12pt;
@@ -12328,7 +12328,7 @@ a:hover {
   color: #000000;
 }
 
-/* line 188, bootstrap/sass/style_bootstrap.scss */
+/* line 189, bootstrap/sass/style_bootstrap.scss */
 .title_bar_top {
   font-family: sans-serif;
   font-size: 13px;
@@ -12341,132 +12341,132 @@ a:hover {
  * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
-/* line 201, bootstrap/sass/style_bootstrap.scss */
+/* line 202, bootstrap/sass/style_bootstrap.scss */
 .body_top {
   background-color: #E8B151;
   margin: 8px;
 }
 
 /* $top_bg_line */
-/* line 202, bootstrap/sass/style_bootstrap.scss */
+/* line 203, bootstrap/sass/style_bootstrap.scss */
 .bgcolor2 {
   background-color: #fefdcf;
 }
 
 /* $GLOBALS['style']['BGCOLOR2'] */
-/* line 203, bootstrap/sass/style_bootstrap.scss */
+/* line 204, bootstrap/sass/style_bootstrap.scss */
 .body_bottom {
   background: url("../pic/aquabg.gif") repeat;
   margin: 8px;
 }
 
 /* $bottom_bg_line */
-/* line 204, bootstrap/sass/style_bootstrap.scss */
+/* line 205, bootstrap/sass/style_bootstrap.scss */
 .body_title {
   background-color: #E8B151;
 }
 
 /* $title_bg_line */
-/* line 205, bootstrap/sass/style_bootstrap.scss */
+/* line 206, bootstrap/sass/style_bootstrap.scss */
 .body_nav {
   background-color: #E8B151;
 }
 
 /* $nav_bg_line */
-/* line 206, bootstrap/sass/style_bootstrap.scss */
+/* line 207, bootstrap/sass/style_bootstrap.scss */
 .body_filler {
   background-color: #f7f0d5;
 }
 
 /* $login_filler_line */
-/* line 207, bootstrap/sass/style_bootstrap.scss */
+/* line 208, bootstrap/sass/style_bootstrap.scss */
 .body_login {
   background: url("../pic/aquabg.gif") repeat;
 }
 
 /* $login_body_line */
-/* line 208, bootstrap/sass/style_bootstrap.scss */
+/* line 209, bootstrap/sass/style_bootstrap.scss */
 .table_bg {
   background-color: #ccc;
 }
 
 /* $table_bg */
-/* line 209, bootstrap/sass/style_bootstrap.scss */
+/* line 210, bootstrap/sass/style_bootstrap.scss */
 .bgcolor1 {
   background-color: #ccc;
 }
 
 /* $GLOBALS['style']['BGCOLOR1'] */
-/* line 210, bootstrap/sass/style_bootstrap.scss */
+/* line 211, bootstrap/sass/style_bootstrap.scss */
 .textcolor11 {
   background-color: #222;
 }
 
 /* $GLOBALS['style']['TEXTCOLOR11'] */
-/* line 211, bootstrap/sass/style_bootstrap.scss */
+/* line 212, bootstrap/sass/style_bootstrap.scss */
 .highlightcolor {
   background-color: #ddd;
 }
 
 /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
-/* line 212, bootstrap/sass/style_bootstrap.scss */
+/* line 213, bootstrap/sass/style_bootstrap.scss */
 .bottom_line {
   background: url("../pic/aquabg.gif") repeat;
 }
 
 /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
-/* line 213, bootstrap/sass/style_bootstrap.scss */
+/* line 214, bootstrap/sass/style_bootstrap.scss */
 .logobar {
   background-color: #24262c;
   height: 110px;
 }
 
 /* $GLOBALS['logoBarHeight'] */
-/* line 214, bootstrap/sass/style_bootstrap.scss */
+/* line 215, bootstrap/sass/style_bootstrap.scss */
 .navbar {
   height: 22px;
 }
 
 /* $GLOBALS['navBarHeight'] */
-/* line 215, bootstrap/sass/style_bootstrap.scss */
+/* line 216, bootstrap/sass/style_bootstrap.scss */
 .titlebar {
   height: 20px;
 }
 
 /* $GLOBALS['titleBarHeight'] */
 /* style taken out of the addressbook code and put here instead */
-/* line 219, bootstrap/sass/style_bootstrap.scss */
+/* line 220, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list td {
   font-family: Arial, Helvetica, sans-serif;
   padding-left: 4px;
   padding-right: 4px;
 }
 
-/* line 224, bootstrap/sass/style_bootstrap.scss */
+/* line 225, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list a, #addressbook_list a:visited, #addressbook_list a:hover {
   color: #0000cc;
 }
 
-/* line 227, bootstrap/sass/style_bootstrap.scss */
+/* line 228, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.search {
   font-size: 9pt;
   font-weight: bold;
   background: #D0E9C6;
 }
 
-/* line 232, bootstrap/sass/style_bootstrap.scss */
+/* line 233, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.head {
   font-size: 10pt;
   background-color: #cccccc;
   font-weight: bold;
 }
 
-/* line 237, bootstrap/sass/style_bootstrap.scss */
+/* line 238, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.detail {
   font-size: 10pt;
 }
 
-/* line 243, bootstrap/sass/style_bootstrap.scss */
+/* line 244, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list .button {
   font-family: sans-serif;
   font-size: 8pt;
@@ -12474,43 +12474,43 @@ a:hover {
 }
 
 /* styles taken out of templates/report/general_default.html */
-/* line 250, bootstrap/sass/style_bootstrap.scss */
+/* line 251, bootstrap/sass/style_bootstrap.scss */
 #reports_list td {
   font-size: 8pt;
   font-family: helvetica;
 }
 
-/* line 254, bootstrap/sass/style_bootstrap.scss */
+/* line 255, bootstrap/sass/style_bootstrap.scss */
 #reports_list a {
   font-size: 8pt;
   font-family: helvetica;
 }
 
 /* styles taken out of templates/documents/general_list.html */
-/* line 260, bootstrap/sass/style_bootstrap.scss */
+/* line 261, bootstrap/sass/style_bootstrap.scss */
 #documents_list td {
   font-size: 8pt;
   font-family: helvetica;
 }
 
-/* line 264, bootstrap/sass/style_bootstrap.scss */
+/* line 265, bootstrap/sass/style_bootstrap.scss */
 #documents_list a {
   font-size: 8pt;
   font-family: helvetica;
 }
 
-/* line 268, bootstrap/sass/style_bootstrap.scss */
+/* line 269, bootstrap/sass/style_bootstrap.scss */
 #documents_list .treeMenuDefault {
   font-style: italic;
 }
 
-/* line 271, bootstrap/sass/style_bootstrap.scss */
+/* line 272, bootstrap/sass/style_bootstrap.scss */
 #documents_list .treeMenuBold {
   font-style: italic;
   font-weight: bold;
 }
 
-/* line 275, bootstrap/sass/style_bootstrap.scss */
+/* line 276, bootstrap/sass/style_bootstrap.scss */
 #documents_list {
   width: 29%;
   height: 95%;
@@ -12519,7 +12519,7 @@ a:hover {
   border-right: dashed 1px;
 }
 
-/* line 282, bootstrap/sass/style_bootstrap.scss */
+/* line 283, bootstrap/sass/style_bootstrap.scss */
 #documents_actions {
   padding-top: 10px;
   width: 70%;
@@ -12528,7 +12528,7 @@ a:hover {
   overflow: auto;
 }
 
-/* line 289, bootstrap/sass/style_bootstrap.scss */
+/* line 290, bootstrap/sass/style_bootstrap.scss */
 #documents_actions iframe {
   display: inline;
   border: none;
@@ -12537,13 +12537,13 @@ a:hover {
   overflow: auto;
 }
 
-/* line 296, bootstrap/sass/style_bootstrap.scss */
+/* line 297, bootstrap/sass/style_bootstrap.scss */
 #documents_actions form {
   margin: 0px;
   padding: 0px;
 }
 
-/* line 299, bootstrap/sass/style_bootstrap.scss */
+/* line 300, bootstrap/sass/style_bootstrap.scss */
 #documents_actions table {
   width: 100%;
   height: 95%;
@@ -12554,7 +12554,7 @@ a:hover {
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
  *============================================================*/
-/* line 309, bootstrap/sass/style_bootstrap.scss */
+/* line 310, bootstrap/sass/style_bootstrap.scss */
 #DEM .groupname {
   font-weight: bold;
   color: #080;
@@ -12563,7 +12563,7 @@ a:hover {
   vertical-align: top;
 }
 
-/* line 316, bootstrap/sass/style_bootstrap.scss */
+/* line 317, bootstrap/sass/style_bootstrap.scss */
 #DEM .label {
   font-weight: bold;
   font-size: 0.8em;
@@ -12571,7 +12571,7 @@ a:hover {
   text-align: right;
 }
 
-/* line 322, bootstrap/sass/style_bootstrap.scss */
+/* line 323, bootstrap/sass/style_bootstrap.scss */
 #DEM .data {
   font-size: 0.8em;
   vertical-align: top;
@@ -12581,7 +12581,7 @@ a:hover {
 }
 
 /* Patient History */
-/* line 331, bootstrap/sass/style_bootstrap.scss */
+/* line 332, bootstrap/sass/style_bootstrap.scss */
 #HIS .groupname {
   font-weight: bold;
   color: #080;
@@ -12591,14 +12591,14 @@ a:hover {
   height: 2em;
 }
 
-/* line 339, bootstrap/sass/style_bootstrap.scss */
+/* line 340, bootstrap/sass/style_bootstrap.scss */
 #HIS .label {
   font-weight: bold;
   font-size: 9pt;
   vertical-align: top;
 }
 
-/* line 344, bootstrap/sass/style_bootstrap.scss */
+/* line 345, bootstrap/sass/style_bootstrap.scss */
 #HIS .data {
   font-size: 9pt;
   vertical-align: top;
@@ -12610,27 +12610,27 @@ a:hover {
  * Patient Notes
  * seen in the patient summary and notes screens
  *============================================================*/
-/* line 356, bootstrap/sass/style_bootstrap.scss */
+/* line 357, bootstrap/sass/style_bootstrap.scss */
 #pnotes .billing {
   background-color: #dfd;
 }
 
-/* line 360, bootstrap/sass/style_bootstrap.scss */
+/* line 361, bootstrap/sass/style_bootstrap.scss */
 #pnotes .highlight {
   background-color: #fff;
 }
 
-/* line 364, bootstrap/sass/style_bootstrap.scss */
+/* line 365, bootstrap/sass/style_bootstrap.scss */
 #pnotes table {
   border-collapse: collapse;
 }
 
-/* line 368, bootstrap/sass/style_bootstrap.scss */
+/* line 369, bootstrap/sass/style_bootstrap.scss */
 #pnotes .noterow {
   cursor: pointer;
 }
 
-/* line 372, bootstrap/sass/style_bootstrap.scss */
+/* line 373, bootstrap/sass/style_bootstrap.scss */
 #pnotes .noterow td {
   border-bottom: 1px dashed black;
   vertical-align: top;
@@ -12642,56 +12642,56 @@ a:hover {
  * Patient Stats
  * seen in the patient stats screens
  *============================================================*/
-/* line 384, bootstrap/sass/style_bootstrap.scss */
+/* line 385, bootstrap/sass/style_bootstrap.scss */
 #patient_stats {
   padding: 10px;
 }
 
-/* line 388, bootstrap/sass/style_bootstrap.scss */
+/* line 389, bootstrap/sass/style_bootstrap.scss */
 #patient_stats table {
   width: 100%;
   border-collapse: collapse;
 }
 
-/* line 392, bootstrap/sass/style_bootstrap.scss */
+/* line 393, bootstrap/sass/style_bootstrap.scss */
 #patient_stats td {
   padding: 3px;
 }
 
-/* line 395, bootstrap/sass/style_bootstrap.scss */
+/* line 396, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .statrow {
   cursor: pointer;
 }
 
-/* line 399, bootstrap/sass/style_bootstrap.scss */
+/* line 400, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .head {
   font-size: 10pt;
   background-color: #cccccc;
   text-align: center;
 }
 
-/* line 405, bootstrap/sass/style_bootstrap.scss */
+/* line 406, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .detail {
   font-size: 10pt;
   vertical-align: top;
 }
 
-/* line 410, bootstrap/sass/style_bootstrap.scss */
+/* line 411, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .btn {
   background-color: transparent;
 }
 
-/* line 414, bootstrap/sass/style_bootstrap.scss */
+/* line 415, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .bg1 {
   background-color: #ddddff;
 }
 
-/* line 417, bootstrap/sass/style_bootstrap.scss */
+/* line 418, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .bg2 {
   background-color: #ffdddd;
 }
 
-/* line 421, bootstrap/sass/style_bootstrap.scss */
+/* line 422, bootstrap/sass/style_bootstrap.scss */
 #patient_stats .center {
   text-align: center;
 }
@@ -12700,47 +12700,47 @@ a:hover {
  * Patient Stats Summary
  * seen in the patient summary screen
  *============================================================*/
-/* line 430, bootstrap/sass/style_bootstrap.scss */
+/* line 431, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary table {
   border-collapse: collapse;
 }
 
-/* line 433, bootstrap/sass/style_bootstrap.scss */
+/* line 434, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .noend_noreturn {
   color: #ee0000;
 }
 
-/* line 436, bootstrap/sass/style_bootstrap.scss */
+/* line 437, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .noend {
   color: #dd5500;
 }
 
-/* line 439, bootstrap/sass/style_bootstrap.scss */
+/* line 440, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .noreturn {
   color: #0000ff;
 }
 
-/* line 442, bootstrap/sass/style_bootstrap.scss */
+/* line 443, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_summary .title {
   font-size: 1.1em;
 }
 
-/* line 445, bootstrap/sass/style_bootstrap.scss */
+/* line 446, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_issues {
   width: 100%;
 }
 
-/* line 448, bootstrap/sass/style_bootstrap.scss */
+/* line 449, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_spreadsheets {
   width: 100%;
 }
 
-/* line 451, bootstrap/sass/style_bootstrap.scss */
+/* line 452, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_imm {
   width: 100%;
 }
 
-/* line 454, bootstrap/sass/style_bootstrap.scss */
+/* line 455, bootstrap/sass/style_bootstrap.scss */
 #patient_stats_prescriptions {
   width: 100%;
 }
@@ -12749,51 +12749,51 @@ a:hover {
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
  *============================================================*/
-/* line 462, bootstrap/sass/style_bootstrap.scss */
+/* line 463, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc {
   width: 100%;
 }
 
-/* line 466, bootstrap/sass/style_bootstrap.scss */
+/* line 467, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .billing_note {
   width: 25%;
 }
 
-/* line 469, bootstrap/sass/style_bootstrap.scss */
+/* line 470, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .billing_note_text {
   padding: 5px;
   border: 2px outset black;
   background-color: lightgrey;
 }
 
-/* line 474, bootstrap/sass/style_bootstrap.scss */
+/* line 475, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .billing_note_text_highlight {
   background-color: #f7f5d1;
 }
 
-/* line 477, bootstrap/sass/style_bootstrap.scss */
+/* line 478, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc table {
   border-collapse: collapse;
   width: 100%;
 }
 
-/* line 481, bootstrap/sass/style_bootstrap.scss */
+/* line 482, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc tr {
   cursor: pointer;
 }
 
-/* line 484, bootstrap/sass/style_bootstrap.scss */
+/* line 485, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc td {
   border-top: 1px solid black;
   vertical-align: top;
 }
 
-/* line 488, bootstrap/sass/style_bootstrap.scss */
+/* line 489, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc th {
   text-align: left;
 }
 
-/* line 491, bootstrap/sass/style_bootstrap.scss */
+/* line 492, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc #tooltipdiv {
   position: absolute;
   width: 500px;
@@ -12805,12 +12805,12 @@ a:hover {
   font-size: 9pt;
 }
 
-/* line 501, bootstrap/sass/style_bootstrap.scss */
+/* line 502, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .highlight {
   background-color: #fff;
 }
 
-/* line 504, bootstrap/sass/style_bootstrap.scss */
+/* line 505, bootstrap/sass/style_bootstrap.scss */
 #patient_pastenc .tooltip {
   position: absolute;
   border: 1px solid #333;
@@ -12824,42 +12824,42 @@ a:hover {
  * Patient Reports
  * seen in the patient reports screens
  *============================================================*/
-/* line 518, bootstrap/sass/style_bootstrap.scss */
+/* line 519, bootstrap/sass/style_bootstrap.scss */
 #patient_reports {
   width: 100%;
 }
 
-/* line 521, bootstrap/sass/style_bootstrap.scss */
+/* line 522, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .issues {
   padding-right: 30px;
 }
 
-/* line 524, bootstrap/sass/style_bootstrap.scss */
+/* line 525, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .issues table {
   margin: 10px 0px 10px 0px;
 }
 
-/* line 527, bootstrap/sass/style_bootstrap.scss */
+/* line 528, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .issues td {
   padding: 2px;
 }
 
-/* line 530, bootstrap/sass/style_bootstrap.scss */
+/* line 531, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .encounters td {
   padding: 2px;
 }
 
-/* line 533, bootstrap/sass/style_bootstrap.scss */
+/* line 534, bootstrap/sass/style_bootstrap.scss */
 #patient_reports .encounter_forms {
   margin: 5px 15px 5px 15px;
 }
 
-/* line 536, bootstrap/sass/style_bootstrap.scss */
+/* line 537, bootstrap/sass/style_bootstrap.scss */
 #patient_reports td {
   vertical-align: top;
 }
 
-/* line 539, bootstrap/sass/style_bootstrap.scss */
+/* line 540, bootstrap/sass/style_bootstrap.scss */
 #patient_reports ul {
   list-style: none;
 }
@@ -12868,94 +12868,94 @@ a:hover {
  * Report - Custom
  * seen as the patient report (custom_report.php)
  *============================================================*/
-/* line 548, bootstrap/sass/style_bootstrap.scss */
+/* line 549, bootstrap/sass/style_bootstrap.scss */
 #report_custom {
   width: 100%;
 }
 
-/* line 551, bootstrap/sass/style_bootstrap.scss */
+/* line 552, bootstrap/sass/style_bootstrap.scss */
 #report_custom hr {
   border: 2px dotted black;
 }
 
-/* line 554, bootstrap/sass/style_bootstrap.scss */
+/* line 555, bootstrap/sass/style_bootstrap.scss */
 #report_custom .billing {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 558, bootstrap/sass/style_bootstrap.scss */
+/* line 559, bootstrap/sass/style_bootstrap.scss */
 #report_custom h1 {
   font-size: 120%;
   margin: 0px 0px 5px 0px;
   padding: 0px;
 }
 
-/* line 563, bootstrap/sass/style_bootstrap.scss */
+/* line 564, bootstrap/sass/style_bootstrap.scss */
 #report_custom .immunizations {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 567, bootstrap/sass/style_bootstrap.scss */
+/* line 568, bootstrap/sass/style_bootstrap.scss */
 #report_custom .notes {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 571, bootstrap/sass/style_bootstrap.scss */
+/* line 572, bootstrap/sass/style_bootstrap.scss */
 #report_custom .transactions {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 575, bootstrap/sass/style_bootstrap.scss */
+/* line 576, bootstrap/sass/style_bootstrap.scss */
 #report_custom .communications {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 579, bootstrap/sass/style_bootstrap.scss */
+/* line 580, bootstrap/sass/style_bootstrap.scss */
 #report_custom .documents {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 583, bootstrap/sass/style_bootstrap.scss */
+/* line 584, bootstrap/sass/style_bootstrap.scss */
 #report_custom .demographics {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 587, bootstrap/sass/style_bootstrap.scss */
+/* line 588, bootstrap/sass/style_bootstrap.scss */
 #report_custom .insurance {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 591, bootstrap/sass/style_bootstrap.scss */
+/* line 592, bootstrap/sass/style_bootstrap.scss */
 #report_custom .history {
   margin: 5px;
   padding: 5px;
 }
 
-/* line 595, bootstrap/sass/style_bootstrap.scss */
+/* line 596, bootstrap/sass/style_bootstrap.scss */
 #report_custom .issue {
   margin-left: 20px;
 }
 
-/* line 598, bootstrap/sass/style_bootstrap.scss */
+/* line 599, bootstrap/sass/style_bootstrap.scss */
 #report_custom .issue_type {
   font-weight: bold;
   padding: 5px 0px 5px 0px;
 }
 
-/* line 602, bootstrap/sass/style_bootstrap.scss */
+/* line 603, bootstrap/sass/style_bootstrap.scss */
 #report_custom .issue_diag {
   margin: 0px 20px 0px 20px;
 }
 
-/* line 609, bootstrap/sass/style_bootstrap.scss */
+/* line 610, bootstrap/sass/style_bootstrap.scss */
 #report_custom .encounter {
   width: 100%;
   border-top: 2px dotted black;
@@ -12963,41 +12963,41 @@ a:hover {
   margin-top: 10px;
 }
 
-/* line 615, bootstrap/sass/style_bootstrap.scss */
+/* line 616, bootstrap/sass/style_bootstrap.scss */
 #report_custom .encounter h1 {
   font-size: 140%;
   margin: 0px;
   padding: 0px;
 }
 
-/* line 620, bootstrap/sass/style_bootstrap.scss */
+/* line 621, bootstrap/sass/style_bootstrap.scss */
 #report_custom .encounter_form {
   margin: 10px;
   padding: 10px;
   border-top: 1px solid gray;
 }
 
-/* line 625, bootstrap/sass/style_bootstrap.scss */
+/* line 626, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.evenrow {
-  background-color: #ddddff;
+  background-color: #fbfbfb !important;
 }
 
-/* line 628, bootstrap/sass/style_bootstrap.scss */
+/* line 629, bootstrap/sass/style_bootstrap.scss */
 #addressbook_list tr.oddrow {
   background-color: #ffffff;
 }
 
-/* line 634, bootstrap/sass/style_bootstrap.scss */
+/* line 635, bootstrap/sass/style_bootstrap.scss */
 .sellistclass {
   float: left;
 }
 
-/* line 638, bootstrap/sass/style_bootstrap.scss */
+/* line 639, bootstrap/sass/style_bootstrap.scss */
 .disabled_button {
   color: grey;
 }
 
-/* line 643, bootstrap/sass/style_bootstrap.scss */
+/* line 644, bootstrap/sass/style_bootstrap.scss */
 a.disabled_button:hover {
   color: grey;
 }
@@ -13020,14 +13020,14 @@ ul.tabNav li.current { padding-top: 0;
 }
 ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
 ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }*/
-/* line 670, bootstrap/sass/style_bootstrap.scss */
+/* line 671, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer {
   clear: both;
   float: left;
   width: 100%;
 }
 
-/* line 671, bootstrap/sass/style_bootstrap.scss */
+/* line 672, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.tab {
   border: 1px solid #ffffff;
   color: #000;
@@ -13035,12 +13035,12 @@ div.tabContainer div.tab {
   padding: 10px;
 }
 
-/* line 672, bootstrap/sass/style_bootstrap.scss */
+/* line 673, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.current {
   display: block;
 }
 
-/* line 673, bootstrap/sass/style_bootstrap.scss */
+/* line 674, bootstrap/sass/style_bootstrap.scss */
 div.tab {
   min-height: 180px;
   background: #D0E9C6 none repeat scroll 0 0;
@@ -13048,7 +13048,7 @@ div.tab {
   width: 665px;
 }
 
-/* line 674, bootstrap/sass/style_bootstrap.scss */
+/* line 675, bootstrap/sass/style_bootstrap.scss */
 div.tab_long {
   min-height: 180px;
   background: #ffffff none repeat scroll 0 0;
@@ -13056,56 +13056,56 @@ div.tab_long {
   width: 100%;
 }
 
-/* line 675, bootstrap/sass/style_bootstrap.scss */
+/* line 676, bootstrap/sass/style_bootstrap.scss */
 div.tab p:last-child {
   margin-bottom: 0;
 }
 
-/* line 677, bootstrap/sass/style_bootstrap.scss */
+/* line 678, bootstrap/sass/style_bootstrap.scss */
 div.tab table td {
   padding-right: 1px;
   padding-bottom: 0px;
 }
 
-/* line 681, bootstrap/sass/style_bootstrap.scss */
+/* line 682, bootstrap/sass/style_bootstrap.scss */
 div.tab table td.label {
   min-width: 80px;
 }
 
-/* line 685, bootstrap/sass/style_bootstrap.scss */
+/* line 686, bootstrap/sass/style_bootstrap.scss */
 div.tab table td.data {
   min-width: 120px;
   /*170px*/
 }
 
-/* line 689, bootstrap/sass/style_bootstrap.scss */
+/* line 690, bootstrap/sass/style_bootstrap.scss */
 div.notab {
   background: #FFFFFF none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
 }
 
-/* line 693, bootstrap/sass/style_bootstrap.scss */
+/* line 694, bootstrap/sass/style_bootstrap.scss */
 div.notab-right {
   background: #FFFFFF none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
 }
 
-/* line 697, bootstrap/sass/style_bootstrap.scss */
+/* line 698, bootstrap/sass/style_bootstrap.scss */
 .section-header {
   margin-bottom: 5px;
   width: 685px;
   border-bottom: 1px solid;
 }
 
-/* line 701, bootstrap/sass/style_bootstrap.scss */
+/* line 702, bootstrap/sass/style_bootstrap.scss */
 .section-header-dynamic {
   margin-bottom: 5px;
   border-bottom: 1px solid;
 }
 
-/* line 705, bootstrap/sass/style_bootstrap.scss */
+/* line 706, bootstrap/sass/style_bootstrap.scss */
 .summary_item {
   background: #FFFFFF;
   padding: 8px;
@@ -13114,37 +13114,37 @@ div.notab-right {
 /*
 * REPORTS
 */
-/* line 713, bootstrap/sass/style_bootstrap.scss */
+/* line 714, bootstrap/sass/style_bootstrap.scss */
 #report_parameters {
   background-color: #D0E9C6;
   margin-top: 10px;
 }
 
-/* line 718, bootstrap/sass/style_bootstrap.scss */
+/* line 719, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table {
   border: solid 1px;
   width: 100%;
   border-collapse: collapse;
 }
 
-/* line 723, bootstrap/sass/style_bootstrap.scss */
+/* line 724, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table td {
   padding: 5px;
 }
 
-/* line 727, bootstrap/sass/style_bootstrap.scss */
+/* line 728, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table table {
   border: 0px;
   border-collapse: collapse;
   font-size: 0.8em;
 }
 
-/* line 733, bootstrap/sass/style_bootstrap.scss */
+/* line 734, bootstrap/sass/style_bootstrap.scss */
 #report_parameters table table td.label {
   text-align: right;
 }
 
-/* line 737, bootstrap/sass/style_bootstrap.scss */
+/* line 738, bootstrap/sass/style_bootstrap.scss */
 #report_results table {
   border-top: 1px solid black;
   border-bottom: 1px solid black;
@@ -13155,7 +13155,7 @@ div.notab-right {
   margin-top: 1px;
 }
 
-/* line 746, bootstrap/sass/style_bootstrap.scss */
+/* line 747, bootstrap/sass/style_bootstrap.scss */
 #report_results table thead {
   padding: 5px;
   display: table-header-group;
@@ -13165,20 +13165,20 @@ div.notab-right {
   font-size: 0.7em;
 }
 
-/* line 754, bootstrap/sass/style_bootstrap.scss */
+/* line 755, bootstrap/sass/style_bootstrap.scss */
 #report_results table th {
   border-bottom: 1px solid black;
   padding: 5px;
 }
 
-/* line 758, bootstrap/sass/style_bootstrap.scss */
+/* line 759, bootstrap/sass/style_bootstrap.scss */
 #report_results table td {
   padding: 5px;
   border-bottom: 1px dashed;
   font-size: 0.8em;
 }
 
-/* line 763, bootstrap/sass/style_bootstrap.scss */
+/* line 764, bootstrap/sass/style_bootstrap.scss */
 .report_totals td {
   background-color: #77ff77;
   font-weight: bold;
@@ -13187,37 +13187,37 @@ div.notab-right {
 /**
 * List-table formatting
 **/
-/* line 771, bootstrap/sass/style_bootstrap.scss */
+/* line 772, bootstrap/sass/style_bootstrap.scss */
 .showborder {
   width: 650px;
 }
 
-/* line 774, bootstrap/sass/style_bootstrap.scss */
+/* line 775, bootstrap/sass/style_bootstrap.scss */
 .showborder td {
   border-bottom: 1px dashed #000000;
   text-align: left;
   font-size: 9pt;
 }
 
-/* line 779, bootstrap/sass/style_bootstrap.scss */
+/* line 780, bootstrap/sass/style_bootstrap.scss */
 .showborder_head th {
   border-bottom: 1px solid #000000;
   text-align: left;
   font-size: 9pt;
 }
 
-/* line 784, bootstrap/sass/style_bootstrap.scss */
+/* line 785, bootstrap/sass/style_bootstrap.scss */
 .shownoborder td {
   text-align: left;
   font-size: 9pt;
 }
 
-/* line 788, bootstrap/sass/style_bootstrap.scss */
+/* line 789, bootstrap/sass/style_bootstrap.scss */
 .showborder_long {
   width: 100%;
 }
 
-/* line 791, bootstrap/sass/style_bootstrap.scss */
+/* line 792, bootstrap/sass/style_bootstrap.scss */
 .showborder_long tr td {
   border-bottom: 1px dashed #000000;
   text-align: left;
@@ -13227,7 +13227,7 @@ div.notab-right {
 /**
 * Drug lookup
 **/
-/* line 800, bootstrap/sass/style_bootstrap.scss */
+/* line 801, bootstrap/sass/style_bootstrap.scss */
 .drug_lookup {
   font-family: helvetica;
   font-size: 8pt;
@@ -13239,7 +13239,7 @@ div.notab-right {
 }
 
 /* Password alert styles */
-/* line 811, bootstrap/sass/style_bootstrap.scss */
+/* line 812, bootstrap/sass/style_bootstrap.scss */
 .pwdalert {
   display: block;
   width: 390pt;
@@ -13248,19 +13248,19 @@ div.notab-right {
   color: black;
 }
 
-/* line 818, bootstrap/sass/style_bootstrap.scss */
+/* line 819, bootstrap/sass/style_bootstrap.scss */
 .alertmsg1 {
   border: 3px solid #fe7b7a;
   background-color: #ffd6d6;
 }
 
-/* line 822, bootstrap/sass/style_bootstrap.scss */
+/* line 823, bootstrap/sass/style_bootstrap.scss */
 .alertmsg2 {
   border: 3px solid #f56fff;
   background-color: #fabfff;
 }
 
-/* line 826, bootstrap/sass/style_bootstrap.scss */
+/* line 827, bootstrap/sass/style_bootstrap.scss */
 .alertmsg3 {
   border: 3px solid #9acc2e;
   background-color: #eef7dd;
@@ -13268,7 +13268,7 @@ div.notab-right {
 
 /* Password alert styles */
 /* Style for red font */
-/* line 833, bootstrap/sass/style_bootstrap.scss */
+/* line 834, bootstrap/sass/style_bootstrap.scss */
 .redtext {
   font-family: sans-serif;
   text-decoration: none;
@@ -13277,37 +13277,37 @@ div.notab-right {
 }
 
 /* Style for red font */
-/* line 841, bootstrap/sass/style_bootstrap.scss */
+/* line 842, bootstrap/sass/style_bootstrap.scss */
 .de_identification_status_message {
   width: 50%;
   border: 1px solid #0000FF;
 }
 
-/* line 846, bootstrap/sass/style_bootstrap.scss */
+/* line 847, bootstrap/sass/style_bootstrap.scss */
 .de_identification_input_controls_box {
   width: 100%;
   border: 1px solid #0000FF;
 }
 
-/* line 851, bootstrap/sass/style_bootstrap.scss */
+/* line 852, bootstrap/sass/style_bootstrap.scss */
 .de_id_upgrade_login {
   width: 40%;
   border: 1px solid Black;
   background-color: #ffffff;
 }
 
-/* line 857, bootstrap/sass/style_bootstrap.scss */
+/* line 858, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide, #navigation-slide * {
   padding-left: 0px;
   margin-left: 0px;
 }
 
-/* line 862, bootstrap/sass/style_bootstrap.scss */
+/* line 863, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li {
   list-style: none;
 }
 
-/* line 866, bootstrap/sass/style_bootstrap.scss */
+/* line 867, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide a {
   background: #FFFFFF;
   border-top: 2px solid #EAE6FF;
@@ -13318,19 +13318,19 @@ div.notab-right {
   width: 150px;
 }
 
-/* line 876, bootstrap/sass/style_bootstrap.scss */
+/* line 877, bootstrap/sass/style_bootstrap.scss */
 .collapse-custom, #navigation-slide li a.collapsed, #navigation-slide li a.expanded {
   color: #3c763d;
   background-color: #d0e9c6;
 }
 
-/* line 881, bootstrap/sass/style_bootstrap.scss */
+/* line 882, bootstrap/sass/style_bootstrap.scss */
 .collapse-inner, #navigation-slide ul li a.collapsed_lv2, #navigation-slide ul li a.expanded_lv2, #navigation-slide li > a:hover {
   color: #3c763d;
   background-color: #d0e9c6;
 }
 
-/* line 902, bootstrap/sass/style_bootstrap.scss */
+/* line 903, bootstrap/sass/style_bootstrap.scss */
 #sddm li {
   margin: 0;
   padding: 0;
@@ -13347,7 +13347,7 @@ div.notab-right {
   /* for firefox 3.6+ */
 }
 
-/* line 914, bootstrap/sass/style_bootstrap.scss */
+/* line 915, bootstrap/sass/style_bootstrap.scss */
 #sddm li a {
   display: block;
   margin: 0 1px 0 0;
@@ -13359,12 +13359,12 @@ div.notab-right {
   font-weight: bold;
 }
 
-/* line 925, bootstrap/sass/style_bootstrap.scss */
+/* line 926, bootstrap/sass/style_bootstrap.scss */
 #sddm li a:hover {
   background: #ffac84;
 }
 
-/* line 930, bootstrap/sass/style_bootstrap.scss */
+/* line 931, bootstrap/sass/style_bootstrap.scss */
 #sddm div {
   position: absolute;
   visibility: hidden;
@@ -13377,7 +13377,7 @@ div.notab-right {
   border-bottom: 1px solid #000000;
 }
 
-/* line 943, bootstrap/sass/style_bootstrap.scss */
+/* line 944, bootstrap/sass/style_bootstrap.scss */
 #sddm div a {
   position: relative;
   display: block;
@@ -13393,13 +13393,13 @@ div.notab-right {
   font-weight: normal;
 }
 
-/* line 959, bootstrap/sass/style_bootstrap.scss */
+/* line 960, bootstrap/sass/style_bootstrap.scss */
 #sddm div a:hover {
   background: #ffac84;
   color: #000000;
 }
 
-/* line 964, bootstrap/sass/style_bootstrap.scss */
+/* line 965, bootstrap/sass/style_bootstrap.scss */
 .text-area {
   background-color: #FFFFFF;
   border: 1px solid black;
@@ -13409,7 +13409,7 @@ div.notab-right {
   text-align: left;
 }
 
-/* line 972, bootstrap/sass/style_bootstrap.scss */
+/* line 973, bootstrap/sass/style_bootstrap.scss */
 .example_menu {
   font-size: 70%;
   list-style: none;
@@ -13419,13 +13419,13 @@ div.notab-right {
   width: 136px;
 }
 
-/* line 980, bootstrap/sass/style_bootstrap.scss */
+/* line 981, bootstrap/sass/style_bootstrap.scss */
 .expand_all,
 .collapse_all {
   cursor: pointer;
 }
 
-/* line 984, bootstrap/sass/style_bootstrap.scss */
+/* line 985, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul {
   display: none;
   list-style: none;
@@ -13433,7 +13433,7 @@ div.notab-right {
   padding: 0;
 }
 
-/* line 990, bootstrap/sass/style_bootstrap.scss */
+/* line 991, bootstrap/sass/style_bootstrap.scss */
 #menu1 li, #menu2 li, #menu3 li, #menu4 li, #menu5 li, .example_menu li {
   background-image: none;
   margin: 0;
@@ -13441,12 +13441,12 @@ div.notab-right {
   border-bottom: 1px solid white;
 }
 
-/* line 996, bootstrap/sass/style_bootstrap.scss */
+/* line 997, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul ul {
   display: block;
 }
 
-/* line 999, bootstrap/sass/style_bootstrap.scss */
+/* line 1000, bootstrap/sass/style_bootstrap.scss */
 .example_menu a {
   color: #000;
   cursor: pointer;
@@ -13457,22 +13457,22 @@ div.notab-right {
   width: 160px;
 }
 
-/* line 1008, bootstrap/sass/style_bootstrap.scss */
+/* line 1009, bootstrap/sass/style_bootstrap.scss */
 .example_menu a.expanded {
   background: #bbb url("collapse.gif") no-repeat 3px 50%;
 }
 
-/* line 1011, bootstrap/sass/style_bootstrap.scss */
+/* line 1012, bootstrap/sass/style_bootstrap.scss */
 .example_menu a.collapsed {
   background: #bbb url("expand.gif") no-repeat 3px 50%;
 }
 
-/* line 1014, bootstrap/sass/style_bootstrap.scss */
+/* line 1015, bootstrap/sass/style_bootstrap.scss */
 .example_menu a:hover {
   text-decoration: none;
 }
 
-/* line 1017, bootstrap/sass/style_bootstrap.scss */
+/* line 1018, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul li span {
   background: #d9d1a4;
   color: #000;
@@ -13481,28 +13481,28 @@ div.notab-right {
   width: 100%;
 }
 
-/* line 1024, bootstrap/sass/style_bootstrap.scss */
+/* line 1025, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul a:Subjective {
   font-weight: normal;
 }
 
-/* line 1027, bootstrap/sass/style_bootstrap.scss */
+/* line 1028, bootstrap/sass/style_bootstrap.scss */
 .example_menu ul a:hover {
   background: #f5f5f5;
   text-decoration: underline;
 }
 
-/* line 1031, bootstrap/sass/style_bootstrap.scss */
+/* line 1032, bootstrap/sass/style_bootstrap.scss */
 .example_menu li.active a, .example_menu li.current a {
   background: #fff;
 }
 
-/* line 1034, bootstrap/sass/style_bootstrap.scss */
+/* line 1035, bootstrap/sass/style_bootstrap.scss */
 .example_menu li.active li a, .example_menu li.current li a {
   background: #e8e8e8;
 }
 
-/* line 1037, bootstrap/sass/style_bootstrap.scss */
+/* line 1038, bootstrap/sass/style_bootstrap.scss */
 #menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 li.footer, .example_menu .footer {
   background: transparent url("footer.jpg") no-repeat 0 0;
   border-top: 2px solid #fff;
@@ -13512,41 +13512,41 @@ div.notab-right {
   width: 131px;
 }
 
-/* line 1045, bootstrap/sass/style_bootstrap.scss */
+/* line 1046, bootstrap/sass/style_bootstrap.scss */
 .example_menu .footer span {
   display: none;
 }
 
-/* line 1048, bootstrap/sass/style_bootstrap.scss */
+/* line 1049, bootstrap/sass/style_bootstrap.scss */
 .cke_contents {
   height: 300px !important;
 }
 
 /* Form styles */
-/* line 1053, bootstrap/sass/style_bootstrap.scss */
+/* line 1054, bootstrap/sass/style_bootstrap.scss */
 .formtable {
   font-size: 13px;
   line-height: 24px;
 }
 
-/* line 1057, bootstrap/sass/style_bootstrap.scss */
+/* line 1058, bootstrap/sass/style_bootstrap.scss */
 .formtable tr td {
   line-height: 24px;
 }
 
-/* line 1060, bootstrap/sass/style_bootstrap.scss */
+/* line 1061, bootstrap/sass/style_bootstrap.scss */
 .report_search_bar {
   background-color: #EADDB4;
 }
 
-/* line 1076, bootstrap/sass/style_bootstrap.scss */
+/* line 1077, bootstrap/sass/style_bootstrap.scss */
 .css_button_small, #showMenuLink, .css_button {
   margin: 0px 2px !important;
   padding: 2px 7px !important;
   font-size: 10pt !important;
 }
 
-/* line 1082, bootstrap/sass/style_bootstrap.scss */
+/* line 1083, bootstrap/sass/style_bootstrap.scss */
 .css_button_link a, .small a {
   margin: 10px 3px !important;
   padding: 5px 25px !important;
@@ -13554,54 +13554,54 @@ div.notab-right {
   border-radius: 5px;
 }
 
-/* line 1089, bootstrap/sass/style_bootstrap.scss */
+/* line 1090, bootstrap/sass/style_bootstrap.scss */
 .css_button_link a:hover, .small a:hover,
 .css_button_small:hover,
 #showMenuLink:hover, .css_button:hover {
   text-decoration: none;
 }
 
-/* line 1093, bootstrap/sass/style_bootstrap.scss */
+/* line 1094, bootstrap/sass/style_bootstrap.scss */
 .css_button_small, #showMenuLink, #showMenuLink, .css_button {
   border-radius: 5px;
 }
 
-/* line 1096, bootstrap/sass/style_bootstrap.scss */
+/* line 1097, bootstrap/sass/style_bootstrap.scss */
 #topToolbarRight {
   padding-top: 4px;
 }
 
-/* line 1099, bootstrap/sass/style_bootstrap.scss */
+/* line 1100, bootstrap/sass/style_bootstrap.scss */
 span.css_button_separator {
   display: none;
 }
 
-/* line 1107, bootstrap/sass/style_bootstrap.scss */
+/* line 1108, bootstrap/sass/style_bootstrap.scss */
 #showMenuLink.active::after {
   content: ' >>';
 }
 
-/* line 1111, bootstrap/sass/style_bootstrap.scss */
+/* line 1112, bootstrap/sass/style_bootstrap.scss */
 #showMenuLink::after {
   content: ' <<';
 }
 
-/* line 1115, bootstrap/sass/style_bootstrap.scss */
+/* line 1116, bootstrap/sass/style_bootstrap.scss */
 ul.tabNav > li > a, .tabContainer {
   font-size: 10pt;
 }
 
-/* line 1119, bootstrap/sass/style_bootstrap.scss */
+/* line 1120, bootstrap/sass/style_bootstrap.scss */
 td.label {
   color: black !important;
 }
 
-/* line 1139, bootstrap/sass/style_bootstrap.scss */
+/* line 1140, bootstrap/sass/style_bootstrap.scss */
 .nav-sm > li > a, .nav-pill-sm > li > a {
   padding: 5px 8px !important;
 }
 
-/* line 1148, bootstrap/sass/style_bootstrap.scss */
+/* line 1149, bootstrap/sass/style_bootstrap.scss */
 .paginate_disabled_previous,
 .paginate_disabled_next {
   background: #fff !important;
@@ -13611,56 +13611,56 @@ td.label {
   text-align: center;
 }
 
-/* line 1160, bootstrap/sass/style_bootstrap.scss */
+/* line 1161, bootstrap/sass/style_bootstrap.scss */
 .tabNav,
 .nav-pills-sm {
   border-bottom: 0 !important;
 }
 
-/* line 1170, bootstrap/sass/style_bootstrap.scss */
+/* line 1171, bootstrap/sass/style_bootstrap.scss */
 .tabNav a {
   background-color: #057e99 !important;
   color: #fff;
 }
 
-/* line 1174, bootstrap/sass/style_bootstrap.scss */
+/* line 1175, bootstrap/sass/style_bootstrap.scss */
 .tabNav li.active a, .tabNav li.current a {
   color: #fff;
   border-bottom: 3px solid #000 !important;
 }
 
-/* line 1178, bootstrap/sass/style_bootstrap.scss */
+/* line 1179, bootstrap/sass/style_bootstrap.scss */
 .search_init, input[type='text'], input[type='password'], input[type='entry'] {
   margin-bottom: 5px;
 }
 
-/* line 1182, bootstrap/sass/style_bootstrap.scss */
+/* line 1183, bootstrap/sass/style_bootstrap.scss */
 form[name="demographics_form"] input[type="text"],
 form[name="demographics_form"] input[type="entry"] {
   display: inline-block;
   width: auto;
 }
 
-/* line 1187, bootstrap/sass/style_bootstrap.scss */
+/* line 1188, bootstrap/sass/style_bootstrap.scss */
 .dataTables_filter input, select {
   margin-bottom: 5px;
   display: inline-block;
   width: auto;
 }
 
-/* line 1193, bootstrap/sass/style_bootstrap.scss */
+/* line 1194, bootstrap/sass/style_bootstrap.scss */
 .dataTable th {
   background: #eee;
 }
 
-/* line 1198, bootstrap/sass/style_bootstrap.scss */
+/* line 1199, bootstrap/sass/style_bootstrap.scss */
 input[type="button"], .iframe.medium_modal {
   padding: 4px 17px;
   margin: 0 10px;
   border-radius: 5px;
 }
 
-/* line 1204, bootstrap/sass/style_bootstrap.scss */
+/* line 1205, bootstrap/sass/style_bootstrap.scss */
 input[type="submit"] {
   padding: 4px 17px;
   margin: 0 10px;
@@ -13668,19 +13668,19 @@ input[type="submit"] {
   width: auto !important;
 }
 
-/* line 1211, bootstrap/sass/style_bootstrap.scss */
+/* line 1212, bootstrap/sass/style_bootstrap.scss */
 div.section, .bottom-panel, .rule_container, .rule_row {
   border-color: transparent !important;
   box-shadow: 0px 0 2px #50B4D4;
   background: #D0E9C6;
 }
 
-/* line 1216, bootstrap/sass/style_bootstrap.scss */
+/* line 1217, bootstrap/sass/style_bootstrap.scss */
 td b {
   margin-bottom: 5px;
 }
 
-/* line 1219, bootstrap/sass/style_bootstrap.scss */
+/* line 1220, bootstrap/sass/style_bootstrap.scss */
 td .css_button_small, td #showMenuLink {
   float: none !important;
   padding: 5px 25px !important;
@@ -13688,12 +13688,12 @@ td .css_button_small, td #showMenuLink {
   border-radius: 5px;
 }
 
-/* line 1225, bootstrap/sass/style_bootstrap.scss */
+/* line 1226, bootstrap/sass/style_bootstrap.scss */
 .css_button_small:hover, #showMenuLink:hover {
   text-decoration: none;
 }
 
-/* line 1228, bootstrap/sass/style_bootstrap.scss */
+/* line 1229, bootstrap/sass/style_bootstrap.scss */
 select[name="sel_frame"] {
   font-size: 9pt;
   width: 100%;
@@ -13701,56 +13701,56 @@ select[name="sel_frame"] {
   border-radius: 5px;
 }
 
-/* line 1234, bootstrap/sass/style_bootstrap.scss */
+/* line 1235, bootstrap/sass/style_bootstrap.scss */
 select:disabled {
   background: #dddddd !important;
 }
 
-/* line 1237, bootstrap/sass/style_bootstrap.scss */
+/* line 1238, bootstrap/sass/style_bootstrap.scss */
 img#prevday {
   padding: 0 !important;
 }
 
-/* line 1240, bootstrap/sass/style_bootstrap.scss */
+/* line 1241, bootstrap/sass/style_bootstrap.scss */
 td.top-secondary-nav table {
   float: right;
 }
 
-/* line 1243, bootstrap/sass/style_bootstrap.scss */
+/* line 1244, bootstrap/sass/style_bootstrap.scss */
 .top-primary-nav a {
   float: left !important;
   margin-bottom: 7px !important;
 }
 
-/* line 1247, bootstrap/sass/style_bootstrap.scss */
+/* line 1248, bootstrap/sass/style_bootstrap.scss */
 .billingButton input[type="text"] {
   width: auto !important;
   display: inline-block !important;
 }
 
-/* line 1254, bootstrap/sass/style_bootstrap.scss */
+/* line 1255, bootstrap/sass/style_bootstrap.scss */
 div.borderbox {
   background: #D0E9C6;
   width: 100%;
 }
 
-/* line 1258, bootstrap/sass/style_bootstrap.scss */
+/* line 1259, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:hover {
   text-decoration: none;
   cursor: pointer;
 }
 
-/* line 1263, bootstrap/sass/style_bootstrap.scss */
+/* line 1264, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li ul ul {
   padding-left: 5px;
 }
 
-/* line 1266, bootstrap/sass/style_bootstrap.scss */
+/* line 1267, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a > img {
   display: none;
 }
 
-/* line 1269, bootstrap/sass/style_bootstrap.scss */
+/* line 1270, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:before {
   font-family: 'fontawesome';
   margin-right: 5px;
@@ -13758,94 +13758,94 @@ div.borderbox {
   font-size: 14px;
 }
 
-/* line 1276, bootstrap/sass/style_bootstrap.scss */
+/* line 1277, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:after {
   font-family: 'fontawesome';
   margin-left: 5px;
   color: #000;
 }
 
-/* line 1281, bootstrap/sass/style_bootstrap.scss */
+/* line 1282, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#cal0:before {
   content: "\f073";
 }
 
-/* line 1284, bootstrap/sass/style_bootstrap.scss */
+/* line 1285, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#pfb0:before {
   content: "\f15c";
 }
 
-/* line 1287, bootstrap/sass/style_bootstrap.scss */
+/* line 1288, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#msg0:before {
   content: "\f003";
 }
 
-/* line 1290, bootstrap/sass/style_bootstrap.scss */
+/* line 1291, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#patimg:before {
   content: "\f007";
 }
 
-/* line 1293, bootstrap/sass/style_bootstrap.scss */
+/* line 1294, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#feeimg:before {
   content: "\f0d6";
 }
 
-/* line 1296, bootstrap/sass/style_bootstrap.scss */
+/* line 1297, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#modimg:before {
   content: "\f0fa";
 }
 
-/* line 1299, bootstrap/sass/style_bootstrap.scss */
+/* line 1300, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:before {
   content: "\f0fa";
 }
 
-/* line 1302, bootstrap/sass/style_bootstrap.scss */
+/* line 1303, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:after,
 #navigation-slide li > a#admimg:after {
   content: "\f0d7";
 }
 
-/* line 1306, bootstrap/sass/style_bootstrap.scss */
+/* line 1307, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#admimg:before {
   content: "\f085";
 }
 
-/* line 1309, bootstrap/sass/style_bootstrap.scss */
+/* line 1310, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#repimg:before {
   content: "\f080";
 }
 
-/* line 1312, bootstrap/sass/style_bootstrap.scss */
+/* line 1313, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#misimg:before {
   content: "\f01c";
 }
 
-/* line 1316, bootstrap/sass/style_bootstrap.scss */
+/* line 1317, bootstrap/sass/style_bootstrap.scss */
 frameset.sidebar, frameset.main-section {
   width: 100%;
 }
 
-/* line 1319, bootstrap/sass/style_bootstrap.scss */
+/* line 1320, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td {
   width: auto !important;
 }
 
-/* line 1322, bootstrap/sass/style_bootstrap.scss */
+/* line 1323, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td input,
 form[id="theform"] td input {
   display: inline-block;
   width: auto;
 }
 
-/* line 1327, bootstrap/sass/style_bootstrap.scss */
+/* line 1328, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td,
 form[id="theform"] td {
   vertical-align: middle;
   font-size: 12px;
 }
 
-/* line 1332, bootstrap/sass/style_bootstrap.scss */
+/* line 1333, bootstrap/sass/style_bootstrap.scss */
 #img_date, #img_to_date, #img_from_date, #img_begin_date, #img_end_date, #img_deceased_date, #img_i1effective_date, #img_i1dob_date,
 #img_target_date, #img_DOB, #img_depositdate, #img_checkdate, #img_post_to_date, #img_i2effective_date, #img_i3effective_date, #img_i3dob_date,
 #img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate {
@@ -13857,12 +13857,12 @@ form[id="theform"] td {
   height: 21px;
 }
 
-/* line 1344, bootstrap/sass/style_bootstrap.scss */
+/* line 1345, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel {
   padding-top: 15px;
 }
 
-/* line 1348, bootstrap/sass/style_bootstrap.scss */
+/* line 1349, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .title-bigger {
   font-size: 18px;
   display: block;
@@ -13873,7 +13873,7 @@ form[id="theform"] td {
   font-weight: bold;
 }
 
-/* line 1359, bootstrap/sass/style_bootstrap.scss */
+/* line 1360, bootstrap/sass/style_bootstrap.scss */
 .pager span,
 .dataTables_paginate a {
   content: '';
@@ -13881,7 +13881,7 @@ form[id="theform"] td {
   overflow: hidden;
 }
 
-/* line 1365, bootstrap/sass/style_bootstrap.scss */
+/* line 1366, bootstrap/sass/style_bootstrap.scss */
 .pager span:first-child:before,
 .dataTables_paginate .paginate_disabled_previous:before {
   content: '\f0d9 ';
@@ -13890,7 +13890,7 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1372, bootstrap/sass/style_bootstrap.scss */
+/* line 1373, bootstrap/sass/style_bootstrap.scss */
 .pager span:last-child:before,
 .dataTables_paginate .paginate_disabled_next:before {
   content: '\f0da';
@@ -13899,84 +13899,87 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1379, bootstrap/sass/style_bootstrap.scss */
+/* line 1380, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li {
   border: 1px solid;
   border-radius: 5px 5px 0 0;
   padding: 0;
 }
 
-/* line 1384, bootstrap/sass/style_bootstrap.scss */
+/* line 1385, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   margin: 0;
 }
 
-/* line 1387, bootstrap/sass/style_bootstrap.scss */
+/* line 1388, bootstrap/sass/style_bootstrap.scss */
 #dateNAV {
   font-size: 12pt !important;
   margin-top: -3px;
   margin-bottom: 5px;
 }
 
-/* line 1392, bootstrap/sass/style_bootstrap.scss */
+/* line 1393, bootstrap/sass/style_bootstrap.scss */
 #times table, .view2, .view1, #datePicker .currentDate,
-#datePicker .tdDatePickerHighlight, #report_results table thead {
+#datePicker .tdDatePickerHighlight {
   background-color: #BBCCFF !important;
 }
 
-/* line 1396, bootstrap/sass/style_bootstrap.scss */
+/* line 1397, bootstrap/sass/style_bootstrap.scss */
 .dr_container {
   padding: 0 !important;
 }
 
-/* line 1399, bootstrap/sass/style_bootstrap.scss */
+/* line 1400, bootstrap/sass/style_bootstrap.scss */
 .drHide {
   position: relative;
   top: 5px;
 }
 
-/* line 1403, bootstrap/sass/style_bootstrap.scss */
+/* line 1404, bootstrap/sass/style_bootstrap.scss */
 .drHide p {
   display: inline-flex;
   margin-right: 3px !important;
 }
 
-/* line 1407, bootstrap/sass/style_bootstrap.scss */
+/* line 1408, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .panel {
   background: #B8D8AB;
   padding: 15px;
 }
 
-/* line 1411, bootstrap/sass/style_bootstrap.scss */
+/* line 1412, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion .ui-accordion-header {
   background: #B8D8AB;
   padding: 5px;
 }
 
-/* line 1416, bootstrap/sass/style_bootstrap.scss */
+/* line 1417, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion-content {
   background: #D0E9C6 !important;
 }
 
-/* line 1419, bootstrap/sass/style_bootstrap.scss */
+/* line 1420, bootstrap/sass/style_bootstrap.scss */
 .tableHead-bg,
+#report_results thead,
 .table-striped > tbody > tr:nth-of-type(odd),
 .confirguration #con0 table > tbody > tr:nth-of-type(odd) {
   background: #fff !important;
 }
 
-/* line 1423, bootstrap/sass/style_bootstrap.scss */
-tr.tableHead-bg td {
+/* line 1425, bootstrap/sass/style_bootstrap.scss */
+tr.tableHead-bg td,
+#report_results th {
   height: 40px !important;
 }
 
-/* line 1426, bootstrap/sass/style_bootstrap.scss */
-tr.tableHead-bg td img {
+/* line 1429, bootstrap/sass/style_bootstrap.scss */
+tr.tableHead-bg td img,
+#report_results th img {
   width: 8px;
   margin-left: 5px;
 }
 
-/* line 1430, bootstrap/sass/style_bootstrap.scss */
+/* line 1434, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval,
 .formsAdministration-table,
 .unregisteredForm-table {
@@ -13984,36 +13987,36 @@ tr.tableHead-bg td img {
   width: 100% !important;
 }
 
-/* line 1436, bootstrap/sass/style_bootstrap.scss */
+/* line 1440, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval tbody th,
 .showborder_head th {
-  background: #BBCCFF !important;
+  background: #fff !important;
 }
 
-/* line 1440, bootstrap/sass/style_bootstrap.scss */
+/* line 1444, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons {
   width: 100%;
 }
 
-/* line 1443, bootstrap/sass/style_bootstrap.scss */
+/* line 1447, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons table {
   width: 40%;
 }
 
-/* line 1446, bootstrap/sass/style_bootstrap.scss */
+/* line 1450, bootstrap/sass/style_bootstrap.scss */
 .showborder,
 .rule_container {
   width: 100% !important;
 }
 
-/* line 1450, bootstrap/sass/style_bootstrap.scss */
+/* line 1454, bootstrap/sass/style_bootstrap.scss */
 .rule_container, .rule_row {
   padding-bottom: 20px;
   margin-left: 15px;
   padding-top: 0;
 }
 
-/* line 1457, bootstrap/sass/style_bootstrap.scss */
+/* line 1461, bootstrap/sass/style_bootstrap.scss */
 .rule_row:before,
 .rule_row:after {
   content: '';
@@ -14021,25 +14024,25 @@ tr.tableHead-bg td img {
   clear: both;
 }
 
-/* line 1463, bootstrap/sass/style_bootstrap.scss */
+/* line 1467, bootstrap/sass/style_bootstrap.scss */
 .formsAdministration-table td,
 .unregisteredForm-table td {
   text-align: center;
 }
 
-/* line 1467, bootstrap/sass/style_bootstrap.scss */
+/* line 1471, bootstrap/sass/style_bootstrap.scss */
 #report_parameters .custom-width {
   width: 800px !important;
 }
 
-/* line 1470, bootstrap/sass/style_bootstrap.scss */
+/* line 1474, bootstrap/sass/style_bootstrap.scss */
 .batchCom input[type='text'],
 .eraPosting input[type='text'] {
   display: inline-block;
   width: 75%;
 }
 
-/* line 1476, bootstrap/sass/style_bootstrap.scss */
+/* line 1480, bootstrap/sass/style_bootstrap.scss */
 .batchResults input[type='text'],
 .table-eleReports input[type='text'],
 #docfilterdiv input[type='text'] {
@@ -14047,18 +14050,18 @@ tr.tableHead-bg td img {
   width: auto;
 }
 
-/* line 1486, bootstrap/sass/style_bootstrap.scss */
+/* line 1490, bootstrap/sass/style_bootstrap.scss */
 .batchCom select {
   width: 80%;
 }
 
-/* line 1489, bootstrap/sass/style_bootstrap.scss */
+/* line 1493, bootstrap/sass/style_bootstrap.scss */
 .batchCom table {
   border: 1px solid #DDD;
 }
 
 /*** collapse *****/
-/* line 1494, bootstrap/sass/style_bootstrap.scss */
+/* line 1498, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1,
 #objTreeMenu_1_node_1_1,
 #objTreeMenu_1_node_1_2,
@@ -14073,7 +14076,7 @@ tr.tableHead-bg td img {
   background-color: #B8D8AB;
 }
 
-/* line 1508, bootstrap/sass/style_bootstrap.scss */
+/* line 1512, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1_7_1,
 #objTreeMenu_1_node_1_7_2,
 #objTreeMenu_1_node_1_1_1,
@@ -14082,70 +14085,70 @@ tr.tableHead-bg td img {
   margin: 15px 0;
 }
 
-/* line 1516, bootstrap/sass/style_bootstrap.scss */
+/* line 1520, bootstrap/sass/style_bootstrap.scss */
 #documents_list table {
   width: 100%;
 }
 
-/* line 1519, bootstrap/sass/style_bootstrap.scss */
+/* line 1523, bootstrap/sass/style_bootstrap.scss */
 div#documents_list span {
   color: #000;
 }
 
-/* line 1522, bootstrap/sass/style_bootstrap.scss */
+/* line 1526, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.tab,
 .table-fullwidth,
 .tableSearch {
   width: 100% !important;
 }
 
-/* line 1527, bootstrap/sass/style_bootstrap.scss */
+/* line 1531, bootstrap/sass/style_bootstrap.scss */
 .tableBilling td,
 .tableBatchPayments td,
 .eraPosting tr {
   background: #D0E9C6 !important;
 }
 
-/* line 1532, bootstrap/sass/style_bootstrap.scss */
+/* line 1536, bootstrap/sass/style_bootstrap.scss */
 .eraPosting tbody > tr > td {
   padding: 0;
 }
 
-/* line 1535, bootstrap/sass/style_bootstrap.scss */
+/* line 1539, bootstrap/sass/style_bootstrap.scss */
 .tableBilling a.css_button_small, .tableBilling a#showMenuLink {
   display: inline-block;
   margin-bottom: 5px !important;
 }
 
-/* line 1539, bootstrap/sass/style_bootstrap.scss */
+/* line 1543, bootstrap/sass/style_bootstrap.scss */
 .searchPaymentInputTD input {
   width: 100px !important;
   display: inline;
 }
 
-/* line 1543, bootstrap/sass/style_bootstrap.scss */
+/* line 1547, bootstrap/sass/style_bootstrap.scss */
 .tableSearch {
   width: 100%;
 }
 
-/* line 1546, bootstrap/sass/style_bootstrap.scss */
+/* line 1550, bootstrap/sass/style_bootstrap.scss */
 .Clear li a,
 #tabs {
   background: #000;
 }
 
-/* line 1551, bootstrap/sass/style_bootstrap.scss */
+/* line 1555, bootstrap/sass/style_bootstrap.scss */
 .no-bg {
   background: transparent !important;
 }
 
-/* line 1557, bootstrap/sass/style_bootstrap.scss */
+/* line 1561, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 {
   text-align: center;
   width: 160px !important;
 }
 
-/* line 1561, bootstrap/sass/style_bootstrap.scss */
+/* line 1565, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 span {
   display: inline-block;
   padding: inherit;
@@ -14159,99 +14162,117 @@ div.tabContainer div.tab,
   text-align: center;
 }
 
-/* line 1574, bootstrap/sass/style_bootstrap.scss */
+/* line 1578, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 span:first-child:before {
   content: 'Edit';
   padding-bottom: 35px;
   display: block;
 }
 
-/* line 1579, bootstrap/sass/style_bootstrap.scss */
+/* line 1583, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 span:last-child:before {
   content: 'Add';
   padding-bottom: 35px;
   display: block;
 }
 
-/* line 1584, bootstrap/sass/style_bootstrap.scss */
+/* line 1588, bootstrap/sass/style_bootstrap.scss */
 .loadCompendium,
 #pt_table_wrapper .dataTable {
   background: #D0E9C6;
 }
 
-/* line 1588, bootstrap/sass/style_bootstrap.scss */
+/* line 1592, bootstrap/sass/style_bootstrap.scss */
 .pager span,
 .dataTables_paginate {
   margin-top: 10px;
 }
 
-/* line 1592, bootstrap/sass/style_bootstrap.scss */
+/* line 1596, bootstrap/sass/style_bootstrap.scss */
 #docfilterdiv > table {
   margin: 0 !important;
 }
 
-/* line 1595, bootstrap/sass/style_bootstrap.scss */
+/* line 1599, bootstrap/sass/style_bootstrap.scss */
 #docfilterdiv .table .label, #docfilterdiv .confirguration #con0 table .label, .confirguration #con0 #docfilterdiv table .label {
   font-size: inherit;
   vertical-align: middle;
   text-align: right;
 }
 
-/* line 1600, bootstrap/sass/style_bootstrap.scss */
+/* line 1604, bootstrap/sass/style_bootstrap.scss */
 #newlistitem {
   background: #B8D8AB;
 }
 
-/* line 1609, bootstrap/sass/style_bootstrap.scss */
+/* line 1613, bootstrap/sass/style_bootstrap.scss */
 .iframe.medium_modal:hover {
   text-decoration: none;
 }
 
-/* line 1612, bootstrap/sass/style_bootstrap.scss */
+/* line 1616, bootstrap/sass/style_bootstrap.scss */
 .facilities-panel .tabContainer,
 .usergroup-admin .tabContainer,
 .mergePatients-table {
   width: 100% !important;
 }
 
-/* line 1623, bootstrap/sass/style_bootstrap.scss */
+/* line 1627, bootstrap/sass/style_bootstrap.scss */
 #accordion h3 span,
 #accordion h3 a {
   color: #000;
 }
 
-/* line 1627, bootstrap/sass/style_bootstrap.scss */
+/* line 1631, bootstrap/sass/style_bootstrap.scss */
 .calendar thead .title {
   border: 1px solid #BBECA7;
   background: #B8D8AB !important;
 }
 
-/* line 1631, bootstrap/sass/style_bootstrap.scss */
+/* line 1635, bootstrap/sass/style_bootstrap.scss */
 .calendar .button,
 .rowhilite td {
   background: #D0E9C6 !important;
 }
 
-/* line 1635, bootstrap/sass/style_bootstrap.scss */
+/* line 1639, bootstrap/sass/style_bootstrap.scss */
 .calendar table {
   background: #B8D8AB !important;
 }
 
-/* line 1638, bootstrap/sass/style_bootstrap.scss */
+/* line 1642, bootstrap/sass/style_bootstrap.scss */
 .calendar table .wn,
 .calendar thead .name,
 .calendar tfoot .ttip,
 .calendar tbody td.selected {
-  background: #BBCCFF !important;
+  background: #fff !important;
 }
 
-/* line 1644, bootstrap/sass/style_bootstrap.scss */
+/* line 1648, bootstrap/sass/style_bootstrap.scss */
 .calendar tbody td.today,
 .calendar tbody td.selected {
   color: #EF2525 !important;
 }
 
-/* line 1649, bootstrap/sass/style_bootstrap.scss */
+/* line 1653, bootstrap/sass/style_bootstrap.scss */
 tr.tableHead-bg td:first-child {
   text-align: center;
+}
+
+/* line 1657, bootstrap/sass/style_bootstrap.scss */
+.input-block {
+  width: 100% !important;
+}
+
+/* line 1661, bootstrap/sass/style_bootstrap.scss */
+#pnotes select,
+#pnotes textarea {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* line 1666, bootstrap/sass/style_bootstrap.scss */
+.rule_detail p {
+  margin-bottom: -5px;
+  margin-left: 5px;
 }

@@ -14,10 +14,11 @@ $break-exlarge: 1199px;
 
 /***** colors *********/
 $button-color : #245580;
-$tableHeader-bg : #BBCCFF;
+$tableHeader-bg : #fff;
 $solidgreen : #B8D8AB;
 $lightgreen: #D0E9C6;
 $requiredColor: #EF2525;
+$stripedTableOdd : rgb(251, 251, 251);
 /***** colors *********/
 $btn-lg-curve: 5px;
 $btn-sm-curve: 3px;
@@ -623,7 +624,7 @@ $body-color: #E8B151;
   border-top: 1px solid gray;
 }
 #addressbook_list tr.evenrow {
-  background-color:#ddddff;
+  background-color: $stripedTableOdd;
 }
 #addressbook_list tr.oddrow {
   background-color:#ffffff;
@@ -1390,7 +1391,7 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
     margin-bottom: 5px;
 }
 #times table, .view2, .view1, #datePicker .currentDate,
-#datePicker .tdDatePickerHighlight, #report_results table thead{
+#datePicker .tdDatePickerHighlight{
     background-color: #BBCCFF !important;
 }
 .dr_container{
@@ -1417,13 +1418,16 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
     background: $lightgreen !important;
 }
 .tableHead-bg,
+#report_results thead,
 .table-striped > tbody > tr:nth-of-type(odd){
   background: #fff !important;   
 }
-tr.tableHead-bg td {
+tr.tableHead-bg td,
+#report_results th{
     height: 40px !important;
 }
-tr.tableHead-bg td img {
+tr.tableHead-bg td img,
+#report_results th img{
     width: 8px;
     margin-left: 5px;
 }
@@ -1648,4 +1652,18 @@ input[type="textbox"]{
 
 tr.tableHead-bg td:first-child{
     text-align: center;
+}
+
+.input-block{
+    width: 100% !important;
+}
+
+#pnotes select,
+#pnotes textarea{
+    width: 100% !important;
+    display: block !important;
+}
+.rule_detail p {
+    margin-bottom: -5px;
+    margin-left: 5px;
 }

@@ -224,7 +224,7 @@ echo "
 <input type=hidden name=task id=task value=add>";
 ?>
 <div id="pnotes"><center>
-<table border='0' cellspacing='8'>
+<table border='0' cellspacing='8' class="table table-striped table-bordered">
  <tr>
   <td class='text'>
    <b><?php echo htmlspecialchars( xl('Type'), ENT_NOQUOTES); ?>:</b>
@@ -250,12 +250,12 @@ echo "
    if ($patientname == '') {
        $patientname = xl('Click to select');
    } ?>
-   <input type='text' size='10' name='form_patient' style='width:150px;<?php
+   <input class="form-control input-block" type='text' size='10' name='form_patient' style='width:150px;<?php
       echo ($task=="addnew"?"cursor:pointer;cursor:hand;":"") ?>' value='<?php
       echo htmlspecialchars($patientname, ENT_QUOTES); ?>' <?php
       echo (($task=="addnew" || $result['pid']==0) ? "onclick='sel_patient()' readonly":"disabled") ?> title='<?php
       echo ($task=="addnew"?(htmlspecialchars( xl('Click to select patient'), ENT_QUOTES)):"") ?>'  />
-   <input type='hidden' name='reply_to' id='reply_to' value='<?php echo htmlspecialchars( $reply_to, ENT_QUOTES) ?>' />
+   <input class="form-control input-block" type='hidden' name='reply_to' id='reply_to' value='<?php echo htmlspecialchars( $reply_to, ENT_QUOTES) ?>' />
    &nbsp; &nbsp;
    <b><?php echo htmlspecialchars( xl('Status'), ENT_NOQUOTES); ?>:</b>
     <?php
@@ -270,8 +270,8 @@ echo "
    <b><?php echo htmlspecialchars( xl('To'), ENT_QUOTES); ?>:</b>
    <input type='textbox' name='assigned_to_text' id='assigned_to_text' size='40' readonly='readonly'
     value='<?php echo htmlspecialchars(xl("Select Users From The Dropdown List"), ENT_QUOTES)?>' >
-   <input type='hidden' name='assigned_to' id='assigned_to' >
-   <select name='users' id='users' onchange='addtolist(this);' >
+   <input type='hidden' name='assigned_to' id='assigned_to'  class="form-control">
+   <select class="form-control" name='users' id='users' onchange='addtolist(this);' >
 <?php
   echo "<option value='" . htmlspecialchars( '--', ENT_QUOTES) . "'";
   echo ">" . htmlspecialchars( xl('Select User'), ENT_NOQUOTES);
@@ -351,7 +351,7 @@ if ($noteid) {
 }
 
 ?>
-   <textarea name='note' id='note' rows='8' style="width: 660px; "><?php echo htmlspecialchars( $note, ENT_NOQUOTES) ?></textarea>
+   <textarea class="form-control" name='note' id='note' rows='8' style="width: 660px; "><?php echo htmlspecialchars( $note, ENT_NOQUOTES) ?></textarea>
   </td>
  </tr>
 </table>
