@@ -203,7 +203,7 @@ if ($typeid) {
 
 <center>
 
-<table border='0' width='100%'>
+<table border='0' width='100%' class="table table-striped">
 
  <tr>
   <td width='1%' nowrap><b><?php echo xlt('Procedure Type'); ?>:</b></td>

@@ -39,7 +39,7 @@ require_once(dirname(__FILE__) . "/../globals.php");
 <title><?php echo xlt('Import');?></title>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 </head>
-<body class="body_top" >
+<body class="body_top uploadCcrDoc">
 <center>
 <p><b><?php echo xlt("Steps for uploading CCR XML");?></b></p>
 <table style="width:85%;font-size:14px;" class="table table-bordered table-striped">

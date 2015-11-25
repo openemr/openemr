@@ -676,7 +676,8 @@ div.tab_long { 	min-height: 180px; background: #ffffff none repeat scroll 0 0; m
 div.tab p:last-child { margin-bottom: 0; }
 
 div.tab table td {
-  padding-right: 1px; padding-bottom: 0px
+  padding-right: 1px; 
+//    padding-bottom: 0px
 }
 
 div.tab table td.label {
@@ -1172,7 +1173,9 @@ li.current {
     background-color: hsl(191, 94%, 31%) !important;
     color: #fff;
 }
-.tabNav li.active a{    
+.tabNav li.active a,
+.tabNav li.active:focus a,
+.tabNav li.active:hover a{    
     color: #fff;
     border-bottom: 3px solid #000 !important
 }
@@ -1666,4 +1669,13 @@ tr.tableHead-bg td:first-child{
 .rule_detail p {
     margin-bottom: -5px;
     margin-left: 5px;
+}
+.loadCompendium select,
+.tabContainer .tab.current select,
+.tabContainer .tab.current input[type="text"],
+.tabContainer .tab.current input[type="password"]{
+    width: 99%;
+}
+.uploadCcrDoc table.table-striped{
+    width: 100% !important;
 }

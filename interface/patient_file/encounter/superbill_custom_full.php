@@ -543,7 +543,7 @@ foreach ($code_types as $key => $value) {
    <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'>
   </td>
 
-  <td class='text' align='right'>
+  <td class='text pager' align='right'>
 <?php if ($fstart) { ?>
    <a href="javascript:submitList(-<?php echo attr($pagesize) ?>)">
     &lt;&lt;
