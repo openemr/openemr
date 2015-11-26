@@ -1,16 +1,28 @@
 <?php
-// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// Windows compatibility and statement downloading:
-//     2009 Bill Cernansky and Tony McCormick [mi-squared.com]
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This is the first of two pages to support posting of EOBs.
-// The second is sl_eob_invoice.php.
+/**
+ * This the first of two pages to support posting of EOBs.
+ * The second is sl_eob_invoice.php.
+ * Windows compatibility and statement downloading:
+ *      2009 Bill Cernansky and Tony McCormick [mi-squared.com]
+ *
+ * Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -133,9 +145,12 @@ if ($INTEGRATED_AR) {
   if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $_POST['form_cb']) {
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
-
+    $sqlBindArray = array();
     $where = "";
-    foreach ($_POST['form_cb'] as $key => $value) $where .= " OR f.id = $key";
+    foreach ($_POST['form_cb'] as $key => $value) {
+        $where .= " OR f.id = ?";
+        array_push($sqlBindArray, $key);
+    }
     $where = substr($where, 4);
 
     $res = sqlStatement("SELECT " .
@@ -144,7 +159,7 @@ if ($INTEGRATED_AR) {
       "FROM form_encounter AS f, patient_data AS p " .
       "WHERE ( $where ) AND " .
       "p.pid = f.pid " .
-      "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter");
+      "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter", $sqlBindArray);
 
     $stmt = array();
     $stmt_count = 0;
