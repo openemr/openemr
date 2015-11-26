@@ -579,9 +579,9 @@ function pnVarCleanFromInput()
         }
 
         // Clean var
-        if (get_magic_quotes_gpc()) {
-            pnStripslashes($ourvar);
-        }
+//        if (get_magic_quotes_gpc()) {
+        strip_escape_custom($ourvar);
+//        }
         if (!pnSecAuthAction(0, '::', '::', ACCESS_ADMIN)) {
             $ourvar = preg_replace($search, $replace, $ourvar);
         }

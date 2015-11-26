@@ -8,8 +8,8 @@ $is_local = in_array($_SERVER['REMOTE_ADDR'], $local);
 
 if ( isset( $_POST["html"] ) && $is_local ) {
 
-  if ( get_magic_quotes_gpc() )
-    $_POST["html"] = stripslashes($_POST["html"]);
+//  if ( get_magic_quotes_gpc() )
+    $_POST["html"] = strip_escape_custom($_POST["html"]);
   
   $dompdf = new DOMPDF();
   $dompdf->load_html($_POST["html"]);

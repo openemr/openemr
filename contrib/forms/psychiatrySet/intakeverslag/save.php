@@ -12,7 +12,7 @@ include_once("$srcdir/forms.inc");
 
 foreach ($_POST as $k => $var)
 {
-  $_POST[$k] = mysql_real_escape_string($var);
+  $_POST[$k] = add_escape_custom($var);
   // echo "$var\n";
 }
 

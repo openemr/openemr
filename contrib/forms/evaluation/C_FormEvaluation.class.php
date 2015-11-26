@@ -2,6 +2,7 @@
 
 require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once ($GLOBALS['fileroot'] . "/library/formdata.inc");
 require_once ($GLOBALS['fileroot'] . "/library/sql.inc");
 require_once("FormEvaluation.class.php");
 
@@ -52,7 +53,7 @@ class C_FormEvaluation extends Controller {
 		addForm($GLOBALS['encounter'], "Evaluation Form", $this->evaluation->id, "evaluation", $GLOBALS['pid'], $_SESSION['userauthorized']);
 		
 		if (!empty($_POST['cpt_code'])) {
-			$sql = "select * from codes where code ='" . mysql_real_escape_string($_POST['cpt_code']) . "' order by id";
+			$sql = "select * from codes where code ='" . add_escape_custom($_POST['cpt_code']) . "' order by id";
 			
 			$results = sqlQ($sql);	
 			
