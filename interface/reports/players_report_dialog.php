@@ -39,13 +39,13 @@ $form_issue   = formData('form_issue') + 0;
 $form_to      = formData('form_to');
 
 $form_note = empty($_POST['form_note']) ? '' : $_POST['form_note'];
-if (get_magic_quotes_gpc()) $form_note = stripslashes($form_note);
+$form_note = strip_escape_custom($form_note);
 
 $form_am = empty($_POST['form_am']) ? '' : $_POST['form_am'];
-if (get_magic_quotes_gpc()) $form_am = stripslashes($form_am);
+$form_am = strip_escape_custom($form_am);
 
 $form_pm = empty($_POST['form_pm']) ? '' : $_POST['form_pm'];
-if (get_magic_quotes_gpc()) $form_pm = stripslashes($form_pm);
+$form_pm = strip_escape_custom($form_pm);
 
 function gen_list_options($list_id, $default='') {
   $res = sqlStatement("SELECT * FROM list_options WHERE " .

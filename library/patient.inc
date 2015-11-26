@@ -263,7 +263,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     }
     $query = "select distinct id, username, lname, fname, authorized, info, facility " .
         "from users where username != '' and active = 1 and id $command '" .
-        mysql_real_escape_string($providerID) . "' " . $param1 . $param2;
+        add_escape_custom($providerID) . "' " . $param1 . $param2;
     // sort by last name -- JRM June 2008
     $query .= " ORDER BY lname, fname ";
     $rez = sqlStatement($query);
@@ -294,7 +294,7 @@ function getCalendarProviderInfo($providerID = "%", $providers_only = true) {
     }
     $query = "select distinct id, username, lname, fname, authorized, info, facility " .
         "from users where active = 1 and username != '' and id $command '" .
-        mysql_real_escape_string($providerID) . "' " . $param1;
+        add_escape_custom($providerID) . "' " . $param1;
 
     $rez = sqlStatement($query);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)

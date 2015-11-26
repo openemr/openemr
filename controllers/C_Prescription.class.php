@@ -249,7 +249,7 @@ class C_Prescription extends Controller {
 		$pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'],'','50','','center','');
 		$pdf->ezColumnsStart(array('num'=>2, 'gap'=>10));
 		$res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
-			mysql_real_escape_string($p->provider->id) . "'");
+			add_escape_custom($p->provider->id) . "'");
 		$pdf->ezText($res['addr'],12);
 		$my_y = $pdf->y;
 		$pdf->ezNewPage();
@@ -295,7 +295,7 @@ class C_Prescription extends Controller {
 		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
 		$pdf->ezText('<b>' . xl('Patient Name & Address') . '</b>',6);
 		$pdf->ezText($p->patient->get_name_display(),10);
-		$res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". mysql_real_escape_string ($p->patient->id));
+		$res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". add_escape_custom($p->patient->id));
 		$pdf->ezText($res['addr']);
 		$my_y = $pdf->y;
 		$pdf->ezNewPage();
@@ -328,7 +328,7 @@ class C_Prescription extends Controller {
 	        echo ("</tr>\n");
 	        echo ("<tr>\n");
 	        echo ("<td>\n");
-	        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . mysql_real_escape_string($p->provider->id) . "'");
+	        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($p->provider->id) . "'");
 	        $patterns = array ('/\n/','/Tel:/','/Fax:/');
 	        $replace = array ('<br>', xl('Tel').':', xl('Fax').':');
 	        $res = preg_replace($patterns, $replace, $res);
@@ -367,7 +367,7 @@ class C_Prescription extends Controller {
 	        echo ("<td rowspan='2' class='bordered'>\n");
                 echo ('<b><span class="small">' . xl('Patient Name & Address') . '</span></b>'. '<br>');
                 echo ($p->patient->get_name_display() . '<br>');
-                $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". mysql_real_escape_string ($p->patient->id));
+                $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". add_escape_custom($p->patient->id));
                 $patterns = array ('/\n/');
 	        $replace = array ('<br>');
 	        $res = preg_replace($patterns, $replace, $res);

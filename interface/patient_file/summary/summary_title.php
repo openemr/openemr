@@ -1,5 +1,6 @@
 <?php
 include_once("../../globals.php");
+require_once($GLOBALS['srcdir'].'/formdata.inc.php');
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/calendar.inc");
 require_once("$srcdir/classes/Pharmacy.class.php");

@@ -38,8 +38,8 @@ class Tree {
 	*/
 	function Tree($root,$root_type = ROOT_TYPE_ID) {
 		$this->_db = $GLOBALS['adodb']['db'];
-		$this->_root = mysql_real_escape_string($root);
-		$this->_root_type = mysql_real_escape_string($root_type);
+		$this->_root = add_escape_custom($root);
+		$this->_root_type = add_escape_custom($root_type);
 		$this->load_tree();
 	}
 	

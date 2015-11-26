@@ -51,7 +51,7 @@ class C_FormProsthesis extends Controller {
 		addForm($GLOBALS['encounter'], "Prosthesis & Orthotics Form", $this->prosthesis->id, "prosthesis", $GLOBALS['pid'], $_SESSION['userauthorized']);
 		
 		if (!empty($_POST['cpt_code'])) {
-			$sql = "select * from codes where code ='" . mysql_real_escape_string($_POST['cpt_code']) . "' order by id";
+			$sql = "select * from codes where code ='" . add_escape_custom($_POST['cpt_code']) . "' order by id";
 			
 			$results = sqlQ($sql);	
 			
