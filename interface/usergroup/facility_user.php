@@ -126,7 +126,7 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
 
 <div>
     <div>
-       <table>
+       <table class="table table-striped table-bordered">
 	  <tr >
 		<td><b><?php echo xlt('Facility Specific User Information'); ?></b></td>
 		<td><a href="usergroup_admin.php" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Back to Users'); ?></span></a>
@@ -135,10 +135,10 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
 	</table>
     </div>
 	
-	<div style="width:400px;">
+	<div style="width:400px;" class="viewfacilities">
 		<div>
 
-			<table cellpadding="1" cellspacing="0" class="showborder">
+			<table cellpadding="1" cellspacing="0" class="showborder table table-striped table-bordered">
 				<tbody><tr height="22" class="showborder_head">
 					<th width="180px"><b><?php echo xlt('Username'); ?></b></th>
 					<th width="270px"><b><?php echo xlt('Full Name'); ?></b></th>

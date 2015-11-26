@@ -533,7 +533,7 @@ if (!isset($phpgacl_location)) {
   <div id='div_acl_add_form' style='display: none;'>
    <form class="section" id="acl_add_form" action="no_javascript" method="post">
     <span class='bold'><?php xl('New Group Information','e'); ?></span><span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php xl('LOADING','e'); ?>...</span>
-    <table>
+    <table  class="table table-striped table-bordered">
      <tr>
       <td>
        <span class='text'><?php xl('Title','e'); ?>:</span>
@@ -575,7 +575,7 @@ if (!isset($phpgacl_location)) {
   <div id='div_acl_remove_form' style='display: none;'>
    <form class="section" id="acl_remove_form" action="no_javascript" method="post">
     <span class='bold'><?php xl('Remove Group Form','e'); ?></span><span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php xl('LOADING','e'); ?>...</span>
-    <table>
+    <table  class="table table-striped table-bordered">
      <tr>
       <td align="right">
        <span class='text'><?php xl('Group','e'); ?>:</span>

@@ -251,7 +251,8 @@ button,
 html input[type="button"],
 html .iframe.medium_modal,
 input[type="reset"],
-input[type="submit"] {
+input[type="submit"],
+#div_acl_add_form .button_acl_add {
   -webkit-appearance: button;
   cursor: pointer;
 }
@@ -427,21 +428,28 @@ th {
   }
 
   /* line 251, bootstrap/css/bootstrap.scss */
-  .table, .confirguration #con0 table {
+  .table, .confirguration #con0 table, .section#acl table,
+  #membership #admin table {
     border-collapse: collapse !important;
   }
 
   /* line 255, bootstrap/css/bootstrap.scss */
-  .table td, .confirguration #con0 table td,
+  .table td, .confirguration #con0 table td, .section#acl table td,
+  #membership #admin table td,
   .table th,
-  .confirguration #con0 table th {
+  .confirguration #con0 table th,
+  .section#acl table th,
+  #membership #admin table th {
     background-color: #fff !important;
   }
 
   /* line 259, bootstrap/css/bootstrap.scss */
-  .table-bordered th, .confirguration #con0 table th,
+  .table-bordered th, .confirguration #con0 table th, .section#acl table th,
+  #membership #admin table th,
   .table-bordered td,
-  .confirguration #con0 table td {
+  .confirguration #con0 table td,
+  .section#acl table td,
+  #membership #admin table td {
     border: 1px solid #ddd !important;
   }
 }
@@ -3584,24 +3592,36 @@ th {
 }
 
 /* line 2265, bootstrap/css/bootstrap.scss */
-.table, .confirguration #con0 table {
+.table, .confirguration #con0 table, .section#acl table,
+#membership #admin table {
   width: 100%;
   max-width: 100%;
   margin-bottom: 20px;
 }
 
 /* line 2270, bootstrap/css/bootstrap.scss */
-.table > thead > tr > th, .confirguration #con0 table > thead > tr > th,
+.table > thead > tr > th, .confirguration #con0 table > thead > tr > th, .section#acl table > thead > tr > th,
+#membership #admin table > thead > tr > th,
 .table > tbody > tr > th,
 .confirguration #con0 table > tbody > tr > th,
+.section#acl table > tbody > tr > th,
+#membership #admin table > tbody > tr > th,
 .table > tfoot > tr > th,
 .confirguration #con0 table > tfoot > tr > th,
+.section#acl table > tfoot > tr > th,
+#membership #admin table > tfoot > tr > th,
 .table > thead > tr > td,
 .confirguration #con0 table > thead > tr > td,
+.section#acl table > thead > tr > td,
+#membership #admin table > thead > tr > td,
 .table > tbody > tr > td,
 .confirguration #con0 table > tbody > tr > td,
+.section#acl table > tbody > tr > td,
+#membership #admin table > tbody > tr > td,
 .table > tfoot > tr > td,
-.confirguration #con0 table > tfoot > tr > td {
+.confirguration #con0 table > tfoot > tr > td,
+.section#acl table > tfoot > tr > td,
+#membership #admin table > tfoot > tr > td {
   padding: 8px;
   line-height: 1.42857143;
   vertical-align: top;
@@ -3609,33 +3629,52 @@ th {
 }
 
 /* line 2281, bootstrap/css/bootstrap.scss */
-.table > thead > tr > th, .confirguration #con0 table > thead > tr > th {
+.table > thead > tr > th, .confirguration #con0 table > thead > tr > th, .section#acl table > thead > tr > th,
+#membership #admin table > thead > tr > th {
   vertical-align: bottom;
   border-bottom: 2px solid #ddd;
 }
 
 /* line 2285, bootstrap/css/bootstrap.scss */
-.table > caption + thead > tr:first-child > th, .confirguration #con0 table > caption + thead > tr:first-child > th,
+.table > caption + thead > tr:first-child > th, .confirguration #con0 table > caption + thead > tr:first-child > th, .section#acl table > caption + thead > tr:first-child > th,
+#membership #admin table > caption + thead > tr:first-child > th,
 .table > colgroup + thead > tr:first-child > th,
 .confirguration #con0 table > colgroup + thead > tr:first-child > th,
+.section#acl table > colgroup + thead > tr:first-child > th,
+#membership #admin table > colgroup + thead > tr:first-child > th,
 .table > thead:first-child > tr:first-child > th,
 .confirguration #con0 table > thead:first-child > tr:first-child > th,
+.section#acl table > thead:first-child > tr:first-child > th,
+#membership #admin table > thead:first-child > tr:first-child > th,
 .table > caption + thead > tr:first-child > td,
 .confirguration #con0 table > caption + thead > tr:first-child > td,
+.section#acl table > caption + thead > tr:first-child > td,
+#membership #admin table > caption + thead > tr:first-child > td,
 .table > colgroup + thead > tr:first-child > td,
 .confirguration #con0 table > colgroup + thead > tr:first-child > td,
+.section#acl table > colgroup + thead > tr:first-child > td,
+#membership #admin table > colgroup + thead > tr:first-child > td,
 .table > thead:first-child > tr:first-child > td,
-.confirguration #con0 table > thead:first-child > tr:first-child > td {
+.confirguration #con0 table > thead:first-child > tr:first-child > td,
+.section#acl table > thead:first-child > tr:first-child > td,
+#membership #admin table > thead:first-child > tr:first-child > td {
   border-top: 0;
 }
 
 /* line 2293, bootstrap/css/bootstrap.scss */
-.table > tbody + tbody, .confirguration #con0 table > tbody + tbody {
+.table > tbody + tbody, .confirguration #con0 table > tbody + tbody, .section#acl table > tbody + tbody,
+#membership #admin table > tbody + tbody {
   border-top: 2px solid #ddd;
 }
 
 /* line 2296, bootstrap/css/bootstrap.scss */
-.table .table, .confirguration #con0 table .table, .table .confirguration #con0 table, .confirguration #con0 .table table, .confirguration #con0 table table {
+.table .table, .confirguration #con0 table .table, .section#acl table .table,
+#membership #admin table .table, .table .confirguration #con0 table, .confirguration #con0 .table table, .confirguration #con0 table table, .table .section#acl table, .section#acl .table table, .section#acl table table,
+.table #membership #admin table,
+#membership #admin .table table,
+.confirguration #con0 table #membership #admin table,
+.section#acl table #membership #admin table,
+#membership #admin table table {
   background-color: #fff;
 }
 
@@ -3650,34 +3689,50 @@ th {
 }
 
 /* line 2307, bootstrap/css/bootstrap.scss */
-.table-bordered, .confirguration #con0 table {
+.table-bordered, .confirguration #con0 table, .section#acl table,
+#membership #admin table {
   border: 1px solid #ddd;
 }
 
 /* line 2310, bootstrap/css/bootstrap.scss */
-.table-bordered > thead > tr > th, .confirguration #con0 table > thead > tr > th,
+.table-bordered > thead > tr > th, .confirguration #con0 table > thead > tr > th, .section#acl table > thead > tr > th,
+#membership #admin table > thead > tr > th,
 .table-bordered > tbody > tr > th,
 .confirguration #con0 table > tbody > tr > th,
+.section#acl table > tbody > tr > th,
+#membership #admin table > tbody > tr > th,
 .table-bordered > tfoot > tr > th,
 .confirguration #con0 table > tfoot > tr > th,
+.section#acl table > tfoot > tr > th,
+#membership #admin table > tfoot > tr > th,
 .table-bordered > thead > tr > td,
 .confirguration #con0 table > thead > tr > td,
+.section#acl table > thead > tr > td,
+#membership #admin table > thead > tr > td,
 .table-bordered > tbody > tr > td,
 .confirguration #con0 table > tbody > tr > td,
+.section#acl table > tbody > tr > td,
+#membership #admin table > tbody > tr > td,
 .table-bordered > tfoot > tr > td,
-.confirguration #con0 table > tfoot > tr > td {
+.confirguration #con0 table > tfoot > tr > td,
+.section#acl table > tfoot > tr > td,
+#membership #admin table > tfoot > tr > td {
   border: 1px solid #ddd;
 }
 
 /* line 2318, bootstrap/css/bootstrap.scss */
-.table-bordered > thead > tr > th, .confirguration #con0 table > thead > tr > th,
+.table-bordered > thead > tr > th, .confirguration #con0 table > thead > tr > th, .section#acl table > thead > tr > th,
+#membership #admin table > thead > tr > th,
 .table-bordered > thead > tr > td,
-.confirguration #con0 table > thead > tr > td {
+.confirguration #con0 table > thead > tr > td,
+.section#acl table > thead > tr > td,
+#membership #admin table > thead > tr > td {
   border-bottom-width: 2px;
 }
 
 /* line 2322, bootstrap/css/bootstrap.scss */
-.table-striped > tbody > tr:nth-of-type(odd), .confirguration #con0 table > tbody > tr:nth-of-type(odd) {
+.table-striped > tbody > tr:nth-of-type(odd), .confirguration #con0 table > tbody > tr:nth-of-type(odd), .section#acl table > tbody > tr:nth-of-type(odd),
+#membership #admin table > tbody > tr:nth-of-type(odd) {
   background-color: #f9f9f9;
 }
 
@@ -3702,29 +3757,52 @@ table th[class*="col-"] {
 }
 
 /* line 2339, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.active, .confirguration #con0 table > thead > tr > td.active,
+.table > thead > tr > td.active, .confirguration #con0 table > thead > tr > td.active, .section#acl table > thead > tr > td.active,
+#membership #admin table > thead > tr > td.active,
 .table > tbody > tr > td.active,
 .confirguration #con0 table > tbody > tr > td.active,
+.section#acl table > tbody > tr > td.active,
+#membership #admin table > tbody > tr > td.active,
 .table > tfoot > tr > td.active,
 .confirguration #con0 table > tfoot > tr > td.active,
+.section#acl table > tfoot > tr > td.active,
+#membership #admin table > tfoot > tr > td.active,
 .table > thead > tr > th.active,
 .confirguration #con0 table > thead > tr > th.active,
+.section#acl table > thead > tr > th.active,
+#membership #admin table > thead > tr > th.active,
 .table > tbody > tr > th.active,
 .confirguration #con0 table > tbody > tr > th.active,
+.section#acl table > tbody > tr > th.active,
+#membership #admin table > tbody > tr > th.active,
 .table > tfoot > tr > th.active,
 .confirguration #con0 table > tfoot > tr > th.active,
+.section#acl table > tfoot > tr > th.active,
+#membership #admin table > tfoot > tr > th.active,
 .table > thead > tr.active > td,
 .confirguration #con0 table > thead > tr.active > td,
+.section#acl table > thead > tr.active > td,
+#membership #admin table > thead > tr.active > td,
 .table > tbody > tr.active > td,
 .confirguration #con0 table > tbody > tr.active > td,
+.section#acl table > tbody > tr.active > td,
+#membership #admin table > tbody > tr.active > td,
 .table > tfoot > tr.active > td,
 .confirguration #con0 table > tfoot > tr.active > td,
+.section#acl table > tfoot > tr.active > td,
+#membership #admin table > tfoot > tr.active > td,
 .table > thead > tr.active > th,
 .confirguration #con0 table > thead > tr.active > th,
+.section#acl table > thead > tr.active > th,
+#membership #admin table > thead > tr.active > th,
 .table > tbody > tr.active > th,
 .confirguration #con0 table > tbody > tr.active > th,
+.section#acl table > tbody > tr.active > th,
+#membership #admin table > tbody > tr.active > th,
 .table > tfoot > tr.active > th,
-.confirguration #con0 table > tfoot > tr.active > th {
+.confirguration #con0 table > tfoot > tr.active > th,
+.section#acl table > tfoot > tr.active > th,
+#membership #admin table > tfoot > tr.active > th {
   background-color: #f5f5f5;
 }
 
@@ -3738,29 +3816,52 @@ table th[class*="col-"] {
 }
 
 /* line 2360, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.success, .confirguration #con0 table > thead > tr > td.success,
+.table > thead > tr > td.success, .confirguration #con0 table > thead > tr > td.success, .section#acl table > thead > tr > td.success,
+#membership #admin table > thead > tr > td.success,
 .table > tbody > tr > td.success,
 .confirguration #con0 table > tbody > tr > td.success,
+.section#acl table > tbody > tr > td.success,
+#membership #admin table > tbody > tr > td.success,
 .table > tfoot > tr > td.success,
 .confirguration #con0 table > tfoot > tr > td.success,
+.section#acl table > tfoot > tr > td.success,
+#membership #admin table > tfoot > tr > td.success,
 .table > thead > tr > th.success,
 .confirguration #con0 table > thead > tr > th.success,
+.section#acl table > thead > tr > th.success,
+#membership #admin table > thead > tr > th.success,
 .table > tbody > tr > th.success,
 .confirguration #con0 table > tbody > tr > th.success,
+.section#acl table > tbody > tr > th.success,
+#membership #admin table > tbody > tr > th.success,
 .table > tfoot > tr > th.success,
 .confirguration #con0 table > tfoot > tr > th.success,
+.section#acl table > tfoot > tr > th.success,
+#membership #admin table > tfoot > tr > th.success,
 .table > thead > tr.success > td,
 .confirguration #con0 table > thead > tr.success > td,
+.section#acl table > thead > tr.success > td,
+#membership #admin table > thead > tr.success > td,
 .table > tbody > tr.success > td,
 .confirguration #con0 table > tbody > tr.success > td,
+.section#acl table > tbody > tr.success > td,
+#membership #admin table > tbody > tr.success > td,
 .table > tfoot > tr.success > td,
 .confirguration #con0 table > tfoot > tr.success > td,
+.section#acl table > tfoot > tr.success > td,
+#membership #admin table > tfoot > tr.success > td,
 .table > thead > tr.success > th,
 .confirguration #con0 table > thead > tr.success > th,
+.section#acl table > thead > tr.success > th,
+#membership #admin table > thead > tr.success > th,
 .table > tbody > tr.success > th,
 .confirguration #con0 table > tbody > tr.success > th,
+.section#acl table > tbody > tr.success > th,
+#membership #admin table > tbody > tr.success > th,
 .table > tfoot > tr.success > th,
-.confirguration #con0 table > tfoot > tr.success > th {
+.confirguration #con0 table > tfoot > tr.success > th,
+.section#acl table > tfoot > tr.success > th,
+#membership #admin table > tfoot > tr.success > th {
   background-color: #dff0d8;
 }
 
@@ -3774,29 +3875,52 @@ table th[class*="col-"] {
 }
 
 /* line 2381, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.info, .confirguration #con0 table > thead > tr > td.info,
+.table > thead > tr > td.info, .confirguration #con0 table > thead > tr > td.info, .section#acl table > thead > tr > td.info,
+#membership #admin table > thead > tr > td.info,
 .table > tbody > tr > td.info,
 .confirguration #con0 table > tbody > tr > td.info,
+.section#acl table > tbody > tr > td.info,
+#membership #admin table > tbody > tr > td.info,
 .table > tfoot > tr > td.info,
 .confirguration #con0 table > tfoot > tr > td.info,
+.section#acl table > tfoot > tr > td.info,
+#membership #admin table > tfoot > tr > td.info,
 .table > thead > tr > th.info,
 .confirguration #con0 table > thead > tr > th.info,
+.section#acl table > thead > tr > th.info,
+#membership #admin table > thead > tr > th.info,
 .table > tbody > tr > th.info,
 .confirguration #con0 table > tbody > tr > th.info,
+.section#acl table > tbody > tr > th.info,
+#membership #admin table > tbody > tr > th.info,
 .table > tfoot > tr > th.info,
 .confirguration #con0 table > tfoot > tr > th.info,
+.section#acl table > tfoot > tr > th.info,
+#membership #admin table > tfoot > tr > th.info,
 .table > thead > tr.info > td,
 .confirguration #con0 table > thead > tr.info > td,
+.section#acl table > thead > tr.info > td,
+#membership #admin table > thead > tr.info > td,
 .table > tbody > tr.info > td,
 .confirguration #con0 table > tbody > tr.info > td,
+.section#acl table > tbody > tr.info > td,
+#membership #admin table > tbody > tr.info > td,
 .table > tfoot > tr.info > td,
 .confirguration #con0 table > tfoot > tr.info > td,
+.section#acl table > tfoot > tr.info > td,
+#membership #admin table > tfoot > tr.info > td,
 .table > thead > tr.info > th,
 .confirguration #con0 table > thead > tr.info > th,
+.section#acl table > thead > tr.info > th,
+#membership #admin table > thead > tr.info > th,
 .table > tbody > tr.info > th,
 .confirguration #con0 table > tbody > tr.info > th,
+.section#acl table > tbody > tr.info > th,
+#membership #admin table > tbody > tr.info > th,
 .table > tfoot > tr.info > th,
-.confirguration #con0 table > tfoot > tr.info > th {
+.confirguration #con0 table > tfoot > tr.info > th,
+.section#acl table > tfoot > tr.info > th,
+#membership #admin table > tfoot > tr.info > th {
   background-color: #d9edf7;
 }
 
@@ -3810,29 +3934,52 @@ table th[class*="col-"] {
 }
 
 /* line 2402, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.warning, .confirguration #con0 table > thead > tr > td.warning,
+.table > thead > tr > td.warning, .confirguration #con0 table > thead > tr > td.warning, .section#acl table > thead > tr > td.warning,
+#membership #admin table > thead > tr > td.warning,
 .table > tbody > tr > td.warning,
 .confirguration #con0 table > tbody > tr > td.warning,
+.section#acl table > tbody > tr > td.warning,
+#membership #admin table > tbody > tr > td.warning,
 .table > tfoot > tr > td.warning,
 .confirguration #con0 table > tfoot > tr > td.warning,
+.section#acl table > tfoot > tr > td.warning,
+#membership #admin table > tfoot > tr > td.warning,
 .table > thead > tr > th.warning,
 .confirguration #con0 table > thead > tr > th.warning,
+.section#acl table > thead > tr > th.warning,
+#membership #admin table > thead > tr > th.warning,
 .table > tbody > tr > th.warning,
 .confirguration #con0 table > tbody > tr > th.warning,
+.section#acl table > tbody > tr > th.warning,
+#membership #admin table > tbody > tr > th.warning,
 .table > tfoot > tr > th.warning,
 .confirguration #con0 table > tfoot > tr > th.warning,
+.section#acl table > tfoot > tr > th.warning,
+#membership #admin table > tfoot > tr > th.warning,
 .table > thead > tr.warning > td,
 .confirguration #con0 table > thead > tr.warning > td,
+.section#acl table > thead > tr.warning > td,
+#membership #admin table > thead > tr.warning > td,
 .table > tbody > tr.warning > td,
 .confirguration #con0 table > tbody > tr.warning > td,
+.section#acl table > tbody > tr.warning > td,
+#membership #admin table > tbody > tr.warning > td,
 .table > tfoot > tr.warning > td,
 .confirguration #con0 table > tfoot > tr.warning > td,
+.section#acl table > tfoot > tr.warning > td,
+#membership #admin table > tfoot > tr.warning > td,
 .table > thead > tr.warning > th,
 .confirguration #con0 table > thead > tr.warning > th,
+.section#acl table > thead > tr.warning > th,
+#membership #admin table > thead > tr.warning > th,
 .table > tbody > tr.warning > th,
 .confirguration #con0 table > tbody > tr.warning > th,
+.section#acl table > tbody > tr.warning > th,
+#membership #admin table > tbody > tr.warning > th,
 .table > tfoot > tr.warning > th,
-.confirguration #con0 table > tfoot > tr.warning > th {
+.confirguration #con0 table > tfoot > tr.warning > th,
+.section#acl table > tfoot > tr.warning > th,
+#membership #admin table > tfoot > tr.warning > th {
   background-color: #fcf8e3;
 }
 
@@ -3846,29 +3993,52 @@ table th[class*="col-"] {
 }
 
 /* line 2423, bootstrap/css/bootstrap.scss */
-.table > thead > tr > td.danger, .confirguration #con0 table > thead > tr > td.danger,
+.table > thead > tr > td.danger, .confirguration #con0 table > thead > tr > td.danger, .section#acl table > thead > tr > td.danger,
+#membership #admin table > thead > tr > td.danger,
 .table > tbody > tr > td.danger,
 .confirguration #con0 table > tbody > tr > td.danger,
+.section#acl table > tbody > tr > td.danger,
+#membership #admin table > tbody > tr > td.danger,
 .table > tfoot > tr > td.danger,
 .confirguration #con0 table > tfoot > tr > td.danger,
+.section#acl table > tfoot > tr > td.danger,
+#membership #admin table > tfoot > tr > td.danger,
 .table > thead > tr > th.danger,
 .confirguration #con0 table > thead > tr > th.danger,
+.section#acl table > thead > tr > th.danger,
+#membership #admin table > thead > tr > th.danger,
 .table > tbody > tr > th.danger,
 .confirguration #con0 table > tbody > tr > th.danger,
+.section#acl table > tbody > tr > th.danger,
+#membership #admin table > tbody > tr > th.danger,
 .table > tfoot > tr > th.danger,
 .confirguration #con0 table > tfoot > tr > th.danger,
+.section#acl table > tfoot > tr > th.danger,
+#membership #admin table > tfoot > tr > th.danger,
 .table > thead > tr.danger > td,
 .confirguration #con0 table > thead > tr.danger > td,
+.section#acl table > thead > tr.danger > td,
+#membership #admin table > thead > tr.danger > td,
 .table > tbody > tr.danger > td,
 .confirguration #con0 table > tbody > tr.danger > td,
+.section#acl table > tbody > tr.danger > td,
+#membership #admin table > tbody > tr.danger > td,
 .table > tfoot > tr.danger > td,
 .confirguration #con0 table > tfoot > tr.danger > td,
+.section#acl table > tfoot > tr.danger > td,
+#membership #admin table > tfoot > tr.danger > td,
 .table > thead > tr.danger > th,
 .confirguration #con0 table > thead > tr.danger > th,
+.section#acl table > thead > tr.danger > th,
+#membership #admin table > thead > tr.danger > th,
 .table > tbody > tr.danger > th,
 .confirguration #con0 table > tbody > tr.danger > th,
+.section#acl table > tbody > tr.danger > th,
+#membership #admin table > tbody > tr.danger > th,
 .table > tfoot > tr.danger > th,
-.confirguration #con0 table > tfoot > tr.danger > th {
+.confirguration #con0 table > tfoot > tr.danger > th,
+.section#acl table > tfoot > tr.danger > th,
+#membership #admin table > tfoot > tr.danger > th {
   background-color: #f2dede;
 }
 
@@ -3898,68 +4068,110 @@ table th[class*="col-"] {
   }
 
   /* line 2456, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table, .confirguration #con0 .table-responsive > table {
+  .table-responsive > .table, .confirguration #con0 .table-responsive > table, .section#acl .table-responsive > table,
+  #membership #admin .table-responsive > table {
     margin-bottom: 0;
   }
 
   /* line 2459, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table > thead > tr > th, .confirguration #con0 .table-responsive > table > thead > tr > th,
+  .table-responsive > .table > thead > tr > th, .confirguration #con0 .table-responsive > table > thead > tr > th, .section#acl .table-responsive > table > thead > tr > th,
+  #membership #admin .table-responsive > table > thead > tr > th,
   .table-responsive > .table > tbody > tr > th,
   .confirguration #con0 .table-responsive > table > tbody > tr > th,
+  .section#acl .table-responsive > table > tbody > tr > th,
+  #membership #admin .table-responsive > table > tbody > tr > th,
   .table-responsive > .table > tfoot > tr > th,
   .confirguration #con0 .table-responsive > table > tfoot > tr > th,
+  .section#acl .table-responsive > table > tfoot > tr > th,
+  #membership #admin .table-responsive > table > tfoot > tr > th,
   .table-responsive > .table > thead > tr > td,
   .confirguration #con0 .table-responsive > table > thead > tr > td,
+  .section#acl .table-responsive > table > thead > tr > td,
+  #membership #admin .table-responsive > table > thead > tr > td,
   .table-responsive > .table > tbody > tr > td,
   .confirguration #con0 .table-responsive > table > tbody > tr > td,
+  .section#acl .table-responsive > table > tbody > tr > td,
+  #membership #admin .table-responsive > table > tbody > tr > td,
   .table-responsive > .table > tfoot > tr > td,
-  .confirguration #con0 .table-responsive > table > tfoot > tr > td {
+  .confirguration #con0 .table-responsive > table > tfoot > tr > td,
+  .section#acl .table-responsive > table > tfoot > tr > td,
+  #membership #admin .table-responsive > table > tfoot > tr > td {
     white-space: nowrap;
   }
 
   /* line 2467, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table-bordered, .confirguration #con0 .table-responsive > table {
+  .table-responsive > .table-bordered, .confirguration #con0 .table-responsive > table, .section#acl .table-responsive > table,
+  #membership #admin .table-responsive > table {
     border: 0;
   }
 
   /* line 2470, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table-bordered > thead > tr > th:first-child, .confirguration #con0 .table-responsive > table > thead > tr > th:first-child,
+  .table-responsive > .table-bordered > thead > tr > th:first-child, .confirguration #con0 .table-responsive > table > thead > tr > th:first-child, .section#acl .table-responsive > table > thead > tr > th:first-child,
+  #membership #admin .table-responsive > table > thead > tr > th:first-child,
   .table-responsive > .table-bordered > tbody > tr > th:first-child,
   .confirguration #con0 .table-responsive > table > tbody > tr > th:first-child,
+  .section#acl .table-responsive > table > tbody > tr > th:first-child,
+  #membership #admin .table-responsive > table > tbody > tr > th:first-child,
   .table-responsive > .table-bordered > tfoot > tr > th:first-child,
   .confirguration #con0 .table-responsive > table > tfoot > tr > th:first-child,
+  .section#acl .table-responsive > table > tfoot > tr > th:first-child,
+  #membership #admin .table-responsive > table > tfoot > tr > th:first-child,
   .table-responsive > .table-bordered > thead > tr > td:first-child,
   .confirguration #con0 .table-responsive > table > thead > tr > td:first-child,
+  .section#acl .table-responsive > table > thead > tr > td:first-child,
+  #membership #admin .table-responsive > table > thead > tr > td:first-child,
   .table-responsive > .table-bordered > tbody > tr > td:first-child,
   .confirguration #con0 .table-responsive > table > tbody > tr > td:first-child,
+  .section#acl .table-responsive > table > tbody > tr > td:first-child,
+  #membership #admin .table-responsive > table > tbody > tr > td:first-child,
   .table-responsive > .table-bordered > tfoot > tr > td:first-child,
-  .confirguration #con0 .table-responsive > table > tfoot > tr > td:first-child {
+  .confirguration #con0 .table-responsive > table > tfoot > tr > td:first-child,
+  .section#acl .table-responsive > table > tfoot > tr > td:first-child,
+  #membership #admin .table-responsive > table > tfoot > tr > td:first-child {
     border-left: 0;
   }
 
   /* line 2478, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table-bordered > thead > tr > th:last-child, .confirguration #con0 .table-responsive > table > thead > tr > th:last-child,
+  .table-responsive > .table-bordered > thead > tr > th:last-child, .confirguration #con0 .table-responsive > table > thead > tr > th:last-child, .section#acl .table-responsive > table > thead > tr > th:last-child,
+  #membership #admin .table-responsive > table > thead > tr > th:last-child,
   .table-responsive > .table-bordered > tbody > tr > th:last-child,
   .confirguration #con0 .table-responsive > table > tbody > tr > th:last-child,
+  .section#acl .table-responsive > table > tbody > tr > th:last-child,
+  #membership #admin .table-responsive > table > tbody > tr > th:last-child,
   .table-responsive > .table-bordered > tfoot > tr > th:last-child,
   .confirguration #con0 .table-responsive > table > tfoot > tr > th:last-child,
+  .section#acl .table-responsive > table > tfoot > tr > th:last-child,
+  #membership #admin .table-responsive > table > tfoot > tr > th:last-child,
   .table-responsive > .table-bordered > thead > tr > td:last-child,
   .confirguration #con0 .table-responsive > table > thead > tr > td:last-child,
+  .section#acl .table-responsive > table > thead > tr > td:last-child,
+  #membership #admin .table-responsive > table > thead > tr > td:last-child,
   .table-responsive > .table-bordered > tbody > tr > td:last-child,
   .confirguration #con0 .table-responsive > table > tbody > tr > td:last-child,
+  .section#acl .table-responsive > table > tbody > tr > td:last-child,
+  #membership #admin .table-responsive > table > tbody > tr > td:last-child,
   .table-responsive > .table-bordered > tfoot > tr > td:last-child,
-  .confirguration #con0 .table-responsive > table > tfoot > tr > td:last-child {
+  .confirguration #con0 .table-responsive > table > tfoot > tr > td:last-child,
+  .section#acl .table-responsive > table > tfoot > tr > td:last-child,
+  #membership #admin .table-responsive > table > tfoot > tr > td:last-child {
     border-right: 0;
   }
 
   /* line 2486, bootstrap/css/bootstrap.scss */
-  .table-responsive > .table-bordered > tbody > tr:last-child > th, .confirguration #con0 .table-responsive > table > tbody > tr:last-child > th,
+  .table-responsive > .table-bordered > tbody > tr:last-child > th, .confirguration #con0 .table-responsive > table > tbody > tr:last-child > th, .section#acl .table-responsive > table > tbody > tr:last-child > th,
+  #membership #admin .table-responsive > table > tbody > tr:last-child > th,
   .table-responsive > .table-bordered > tfoot > tr:last-child > th,
   .confirguration #con0 .table-responsive > table > tfoot > tr:last-child > th,
+  .section#acl .table-responsive > table > tfoot > tr:last-child > th,
+  #membership #admin .table-responsive > table > tfoot > tr:last-child > th,
   .table-responsive > .table-bordered > tbody > tr:last-child > td,
   .confirguration #con0 .table-responsive > table > tbody > tr:last-child > td,
+  .section#acl .table-responsive > table > tbody > tr:last-child > td,
+  #membership #admin .table-responsive > table > tbody > tr:last-child > td,
   .table-responsive > .table-bordered > tfoot > tr:last-child > td,
-  .confirguration #con0 .table-responsive > table > tfoot > tr:last-child > td {
+  .confirguration #con0 .table-responsive > table > tfoot > tr:last-child > td,
+  .section#acl .table-responsive > table > tfoot > tr:last-child > td,
+  #membership #admin .table-responsive > table > tfoot > tr:last-child > td {
     border-bottom: 0;
   }
 }
@@ -4950,7 +5162,7 @@ fieldset[disabled] .btn-default.active {
 
 /* line 3125, bootstrap/css/bootstrap.scss */
 .btn-primary, .link_submit, .link_selected, .link, .btn-custom, .css_button_small, #showMenuLink, .css_button, .css_button_link a, .small a, .nav-pills-sm li.active a, .nav-pills-sm li.current a,
-.nav-pills-sm li:hover a, input[type="button"], .iframe.medium_modal, .btn-submit, .btn-green, input[type="submit"], .confirguration #con0 .col5 span {
+.nav-pills-sm li:hover a, input[type="button"], .iframe.medium_modal, .btn-submit, .btn-green, input[type="submit"], #div_acl_add_form .button_acl_add, .confirguration #con0 .col5 span {
   color: #fff;
   background-color: #337ab7;
   border-color: #2e6da4;
@@ -4958,7 +5170,7 @@ fieldset[disabled] .btn-default.active {
 
 /* line 3130, bootstrap/css/bootstrap.scss */
 .btn-primary:focus, .link_submit:focus, .link_selected:focus, .link:focus, .btn-custom:focus, .css_button_small:focus, #showMenuLink:focus, .css_button:focus, .css_button_link a:focus, .small a:focus, .nav-pills-sm li.active a:focus, .nav-pills-sm li.current a:focus,
-.nav-pills-sm li:hover a:focus, input[type="button"]:focus, .iframe.medium_modal:focus, .btn-submit:focus, .btn-green:focus, input[type="submit"]:focus, .confirguration #con0 .col5 span:focus,
+.nav-pills-sm li:hover a:focus, input[type="button"]:focus, .iframe.medium_modal:focus, .btn-submit:focus, .btn-green:focus, input[type="submit"]:focus, #div_acl_add_form .button_acl_add:focus, .confirguration #con0 .col5 span:focus,
 .btn-primary.focus,
 .focus.link_submit,
 .focus.link_selected,
@@ -4977,6 +5189,7 @@ input.focus[type="button"],
 .focus.btn-submit,
 .focus.btn-green,
 input.focus[type="submit"],
+#div_acl_add_form .focus.button_acl_add,
 .confirguration #con0 .col5 span.focus {
   color: #fff;
   background-color: #286090;
@@ -4985,7 +5198,7 @@ input.focus[type="submit"],
 
 /* line 3136, bootstrap/css/bootstrap.scss */
 .btn-primary:hover, .link_submit:hover, .link_selected:hover, .link:hover, .btn-custom:hover, .css_button_small:hover, #showMenuLink:hover, .css_button:hover, .css_button_link a:hover, .small a:hover, .nav-pills-sm li.active a:hover, .nav-pills-sm li.current a:hover,
-.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .iframe.medium_modal:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover, .confirguration #con0 .col5 span:hover {
+.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .iframe.medium_modal:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover, #div_acl_add_form .button_acl_add:hover, .confirguration #con0 .col5 span:hover {
   color: #fff;
   background-color: #286090;
   border-color: #204d74;
@@ -4993,7 +5206,7 @@ input.focus[type="submit"],
 
 /* line 3141, bootstrap/css/bootstrap.scss */
 .btn-primary:active, .link_submit:active, .link_selected:active, .link:active, .btn-custom:active, .css_button_small:active, #showMenuLink:active, .css_button:active, .css_button_link a:active, .small a:active, .nav-pills-sm li.active a:active, .nav-pills-sm li.current a:active,
-.nav-pills-sm li:hover a:active, input[type="button"]:active, .iframe.medium_modal:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active, .confirguration #con0 .col5 span:active,
+.nav-pills-sm li:hover a:active, input[type="button"]:active, .iframe.medium_modal:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active, #div_acl_add_form .button_acl_add:active, .confirguration #con0 .col5 span:active,
 .btn-primary.active,
 .active.link_submit,
 .active.link_selected,
@@ -5012,6 +5225,7 @@ input.active[type="button"],
 .active.btn-submit,
 .active.btn-green,
 input.active[type="submit"],
+#div_acl_add_form .active.button_acl_add,
 .confirguration #con0 .col5 span.active,
 .open > .dropdown-toggle.btn-primary,
 .open > .dropdown-toggle.link_submit,
@@ -5031,6 +5245,7 @@ input.active[type="submit"],
 .open > .dropdown-toggle.btn-submit,
 .open > .dropdown-toggle.btn-green,
 .open > input.dropdown-toggle[type="submit"],
+#div_acl_add_form .open > .dropdown-toggle.button_acl_add,
 .confirguration #con0 .col5 .open > span.dropdown-toggle,
 .small.open > a.dropdown-toggle {
   color: #fff;
@@ -5040,7 +5255,7 @@ input.active[type="submit"],
 
 /* line 3148, bootstrap/css/bootstrap.scss */
 .btn-primary:active:hover, .link_submit:active:hover, .link_selected:active:hover, .link:active:hover, .btn-custom:active:hover, .css_button_small:active:hover, #showMenuLink:active:hover, .css_button:active:hover, .css_button_link a:active:hover, .small a:active:hover, .nav-pills-sm li.active a:active:hover, .nav-pills-sm li.current a:active:hover,
-.nav-pills-sm li:hover a:active:hover, input[type="button"]:active:hover, .iframe.medium_modal:active:hover, .btn-submit:active:hover, .btn-green:active:hover, input[type="submit"]:active:hover, .confirguration #con0 .col5 span:active:hover,
+.nav-pills-sm li:hover a:active:hover, input[type="button"]:active:hover, .iframe.medium_modal:active:hover, .btn-submit:active:hover, .btn-green:active:hover, input[type="submit"]:active:hover, #div_acl_add_form .button_acl_add:active:hover, .confirguration #con0 .col5 span:active:hover,
 .btn-primary.active:hover,
 .active.link_submit:hover,
 .active.link_selected:hover,
@@ -5059,6 +5274,7 @@ input.active[type="button"]:hover,
 .active.btn-submit:hover,
 .active.btn-green:hover,
 input.active[type="submit"]:hover,
+#div_acl_add_form .active.button_acl_add:hover,
 .confirguration #con0 .col5 span.active:hover,
 .open > .dropdown-toggle.btn-primary:hover,
 .open > .dropdown-toggle.link_submit:hover,
@@ -5078,6 +5294,7 @@ input.active[type="submit"]:hover,
 .open > .dropdown-toggle.btn-submit:hover,
 .open > .dropdown-toggle.btn-green:hover,
 .open > input.dropdown-toggle[type="submit"]:hover,
+#div_acl_add_form .open > .dropdown-toggle.button_acl_add:hover,
 .confirguration #con0 .col5 .open > span.dropdown-toggle:hover,
 .small.open > a.dropdown-toggle:hover,
 .btn-primary:active:focus,
@@ -5098,6 +5315,7 @@ input[type="button"]:active:focus,
 .btn-submit:active:focus,
 .btn-green:active:focus,
 input[type="submit"]:active:focus,
+#div_acl_add_form .button_acl_add:active:focus,
 .confirguration #con0 .col5 span:active:focus,
 .btn-primary.active:focus,
 .active.link_submit:focus,
@@ -5117,6 +5335,7 @@ input.active[type="button"]:focus,
 .active.btn-submit:focus,
 .active.btn-green:focus,
 input.active[type="submit"]:focus,
+#div_acl_add_form .active.button_acl_add:focus,
 .confirguration #con0 .col5 span.active:focus,
 .open > .dropdown-toggle.btn-primary:focus,
 .open > .dropdown-toggle.link_submit:focus,
@@ -5136,6 +5355,7 @@ input.active[type="submit"]:focus,
 .open > .dropdown-toggle.btn-submit:focus,
 .open > .dropdown-toggle.btn-green:focus,
 .open > input.dropdown-toggle[type="submit"]:focus,
+#div_acl_add_form .open > .dropdown-toggle.button_acl_add:focus,
 .confirguration #con0 .col5 .open > span.dropdown-toggle:focus,
 .small.open > a.dropdown-toggle:focus,
 .btn-primary:active.focus,
@@ -5156,6 +5376,7 @@ input[type="button"]:active.focus,
 .btn-submit:active.focus,
 .btn-green:active.focus,
 input[type="submit"]:active.focus,
+#div_acl_add_form .button_acl_add:active.focus,
 .confirguration #con0 .col5 span:active.focus,
 .btn-primary.active.focus,
 .active.focus.link_submit,
@@ -5175,6 +5396,7 @@ input.active.focus[type="button"],
 .active.focus.btn-submit,
 .active.focus.btn-green,
 input.active.focus[type="submit"],
+#div_acl_add_form .active.focus.button_acl_add,
 .confirguration #con0 .col5 span.active.focus,
 .open > .dropdown-toggle.btn-primary.focus,
 .open > .dropdown-toggle.focus.link_submit,
@@ -5194,6 +5416,7 @@ input.active.focus[type="submit"],
 .open > .dropdown-toggle.focus.btn-submit,
 .open > .dropdown-toggle.focus.btn-green,
 .open > input.dropdown-toggle.focus[type="submit"],
+#div_acl_add_form .open > .dropdown-toggle.focus.button_acl_add,
 .confirguration #con0 .col5 .open > span.dropdown-toggle.focus,
 .small.open > a.dropdown-toggle.focus {
   color: #fff;
@@ -5203,7 +5426,7 @@ input.active.focus[type="submit"],
 
 /* line 3161, bootstrap/css/bootstrap.scss */
 .btn-primary:active, .link_submit:active, .link_selected:active, .link:active, .btn-custom:active, .css_button_small:active, #showMenuLink:active, .css_button:active, .css_button_link a:active, .small a:active, .nav-pills-sm li.active a:active, .nav-pills-sm li.current a:active,
-.nav-pills-sm li:hover a:active, input[type="button"]:active, .iframe.medium_modal:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active, .confirguration #con0 .col5 span:active,
+.nav-pills-sm li:hover a:active, input[type="button"]:active, .iframe.medium_modal:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active, #div_acl_add_form .button_acl_add:active, .confirguration #con0 .col5 span:active,
 .btn-primary.active,
 .active.link_submit,
 .active.link_selected,
@@ -5222,6 +5445,7 @@ input.active[type="button"],
 .active.btn-submit,
 .active.btn-green,
 input.active[type="submit"],
+#div_acl_add_form .active.button_acl_add,
 .confirguration #con0 .col5 span.active,
 .open > .dropdown-toggle.btn-primary,
 .open > .dropdown-toggle.link_submit,
@@ -5241,6 +5465,7 @@ input.active[type="submit"],
 .open > .dropdown-toggle.btn-submit,
 .open > .dropdown-toggle.btn-green,
 .open > input.dropdown-toggle[type="submit"],
+#div_acl_add_form .open > .dropdown-toggle.button_acl_add,
 .confirguration #con0 .col5 .open > span.dropdown-toggle,
 .small.open > a.dropdown-toggle {
   background-image: none;
@@ -5248,7 +5473,7 @@ input.active[type="submit"],
 
 /* line 3166, bootstrap/css/bootstrap.scss */
 .btn-primary.disabled, .disabled.link_submit, .disabled.link_selected, .disabled.link, .disabled.btn-custom, .disabled.css_button_small, .disabled#showMenuLink, .disabled.css_button, .css_button_link a.disabled, .small a.disabled, .nav-pills-sm li.active a.disabled, .nav-pills-sm li.current a.disabled,
-.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.iframe.medium_modal, .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"], .confirguration #con0 .col5 span.disabled,
+.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.iframe.medium_modal, .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"], #div_acl_add_form .disabled.button_acl_add, .confirguration #con0 .col5 span.disabled,
 .btn-primary[disabled],
 [disabled].link_submit,
 [disabled].link_selected,
@@ -5267,6 +5492,7 @@ input[disabled][type="button"],
 [disabled].btn-submit,
 [disabled].btn-green,
 input[disabled][type="submit"],
+#div_acl_add_form [disabled].button_acl_add,
 .confirguration #con0 .col5 span[disabled],
 fieldset[disabled] .btn-primary,
 fieldset[disabled] .link_submit,
@@ -5291,6 +5517,8 @@ fieldset[disabled] .iframe.medium_modal,
 fieldset[disabled] .btn-submit,
 fieldset[disabled] .btn-green,
 fieldset[disabled] input[type="submit"],
+fieldset[disabled] #div_acl_add_form .button_acl_add,
+#div_acl_add_form fieldset[disabled] .button_acl_add,
 fieldset[disabled] .confirguration #con0 .col5 span,
 .confirguration #con0 .col5 fieldset[disabled] span,
 .btn-primary.disabled:hover,
@@ -5311,6 +5539,7 @@ input.disabled[type="button"]:hover,
 .disabled.btn-submit:hover,
 .disabled.btn-green:hover,
 input.disabled[type="submit"]:hover,
+#div_acl_add_form .disabled.button_acl_add:hover,
 .confirguration #con0 .col5 span.disabled:hover,
 .btn-primary[disabled]:hover,
 [disabled].link_submit:hover,
@@ -5330,6 +5559,7 @@ input[disabled][type="button"]:hover,
 [disabled].btn-submit:hover,
 [disabled].btn-green:hover,
 input[disabled][type="submit"]:hover,
+#div_acl_add_form [disabled].button_acl_add:hover,
 .confirguration #con0 .col5 span[disabled]:hover,
 fieldset[disabled] .btn-primary:hover,
 fieldset[disabled] .link_submit:hover,
@@ -5354,6 +5584,8 @@ fieldset[disabled] .iframe.medium_modal:hover,
 fieldset[disabled] .btn-submit:hover,
 fieldset[disabled] .btn-green:hover,
 fieldset[disabled] input[type="submit"]:hover,
+fieldset[disabled] #div_acl_add_form .button_acl_add:hover,
+#div_acl_add_form fieldset[disabled] .button_acl_add:hover,
 fieldset[disabled] .confirguration #con0 .col5 span:hover,
 .confirguration #con0 .col5 fieldset[disabled] span:hover,
 .btn-primary.disabled:focus,
@@ -5374,6 +5606,7 @@ input.disabled[type="button"]:focus,
 .disabled.btn-submit:focus,
 .disabled.btn-green:focus,
 input.disabled[type="submit"]:focus,
+#div_acl_add_form .disabled.button_acl_add:focus,
 .confirguration #con0 .col5 span.disabled:focus,
 .btn-primary[disabled]:focus,
 [disabled].link_submit:focus,
@@ -5393,6 +5626,7 @@ input[disabled][type="button"]:focus,
 [disabled].btn-submit:focus,
 [disabled].btn-green:focus,
 input[disabled][type="submit"]:focus,
+#div_acl_add_form [disabled].button_acl_add:focus,
 .confirguration #con0 .col5 span[disabled]:focus,
 fieldset[disabled] .btn-primary:focus,
 fieldset[disabled] .link_submit:focus,
@@ -5417,6 +5651,8 @@ fieldset[disabled] .iframe.medium_modal:focus,
 fieldset[disabled] .btn-submit:focus,
 fieldset[disabled] .btn-green:focus,
 fieldset[disabled] input[type="submit"]:focus,
+fieldset[disabled] #div_acl_add_form .button_acl_add:focus,
+#div_acl_add_form fieldset[disabled] .button_acl_add:focus,
 fieldset[disabled] .confirguration #con0 .col5 span:focus,
 .confirguration #con0 .col5 fieldset[disabled] span:focus,
 .btn-primary.disabled.focus,
@@ -5437,6 +5673,7 @@ input.disabled.focus[type="button"],
 .disabled.focus.btn-submit,
 .disabled.focus.btn-green,
 input.disabled.focus[type="submit"],
+#div_acl_add_form .disabled.focus.button_acl_add,
 .confirguration #con0 .col5 span.disabled.focus,
 .btn-primary[disabled].focus,
 [disabled].focus.link_submit,
@@ -5456,6 +5693,7 @@ input[disabled].focus[type="button"],
 [disabled].focus.btn-submit,
 [disabled].focus.btn-green,
 input[disabled].focus[type="submit"],
+#div_acl_add_form [disabled].focus.button_acl_add,
 .confirguration #con0 .col5 span[disabled].focus,
 fieldset[disabled] .btn-primary.focus,
 fieldset[disabled] .focus.link_submit,
@@ -5480,6 +5718,8 @@ fieldset[disabled] .focus.iframe.medium_modal,
 fieldset[disabled] .focus.btn-submit,
 fieldset[disabled] .focus.btn-green,
 fieldset[disabled] input.focus[type="submit"],
+fieldset[disabled] #div_acl_add_form .focus.button_acl_add,
+#div_acl_add_form fieldset[disabled] .focus.button_acl_add,
 fieldset[disabled] .confirguration #con0 .col5 span.focus,
 .confirguration #con0 .col5 fieldset[disabled] span.focus,
 .btn-primary.disabled:active,
@@ -5500,6 +5740,7 @@ input.disabled[type="button"]:active,
 .disabled.btn-submit:active,
 .disabled.btn-green:active,
 input.disabled[type="submit"]:active,
+#div_acl_add_form .disabled.button_acl_add:active,
 .confirguration #con0 .col5 span.disabled:active,
 .btn-primary[disabled]:active,
 [disabled].link_submit:active,
@@ -5519,6 +5760,7 @@ input[disabled][type="button"]:active,
 [disabled].btn-submit:active,
 [disabled].btn-green:active,
 input[disabled][type="submit"]:active,
+#div_acl_add_form [disabled].button_acl_add:active,
 .confirguration #con0 .col5 span[disabled]:active,
 fieldset[disabled] .btn-primary:active,
 fieldset[disabled] .link_submit:active,
@@ -5543,6 +5785,8 @@ fieldset[disabled] .iframe.medium_modal:active,
 fieldset[disabled] .btn-submit:active,
 fieldset[disabled] .btn-green:active,
 fieldset[disabled] input[type="submit"]:active,
+fieldset[disabled] #div_acl_add_form .button_acl_add:active,
+#div_acl_add_form fieldset[disabled] .button_acl_add:active,
 fieldset[disabled] .confirguration #con0 .col5 span:active,
 .confirguration #con0 .col5 fieldset[disabled] span:active,
 .btn-primary.disabled.active,
@@ -5563,6 +5807,7 @@ input.disabled.active[type="button"],
 .disabled.active.btn-submit,
 .disabled.active.btn-green,
 input.disabled.active[type="submit"],
+#div_acl_add_form .disabled.active.button_acl_add,
 .confirguration #con0 .col5 span.disabled.active,
 .btn-primary[disabled].active,
 [disabled].active.link_submit,
@@ -5582,6 +5827,7 @@ input[disabled].active[type="button"],
 [disabled].active.btn-submit,
 [disabled].active.btn-green,
 input[disabled].active[type="submit"],
+#div_acl_add_form [disabled].active.button_acl_add,
 .confirguration #con0 .col5 span[disabled].active,
 fieldset[disabled] .btn-primary.active,
 fieldset[disabled] .active.link_submit,
@@ -5606,6 +5852,8 @@ fieldset[disabled] .active.iframe.medium_modal,
 fieldset[disabled] .active.btn-submit,
 fieldset[disabled] .active.btn-green,
 fieldset[disabled] input.active[type="submit"],
+fieldset[disabled] #div_acl_add_form .active.button_acl_add,
+#div_acl_add_form fieldset[disabled] .active.button_acl_add,
 fieldset[disabled] .confirguration #con0 .col5 span.active,
 .confirguration #con0 .col5 fieldset[disabled] span.active {
   background-color: #337ab7;
@@ -5614,7 +5862,7 @@ fieldset[disabled] .confirguration #con0 .col5 span.active,
 
 /* line 3187, bootstrap/css/bootstrap.scss */
 .btn-primary .badge, .link_submit .badge, .link_selected .badge, .link .badge, .btn-custom .badge, .css_button_small .badge, #showMenuLink .badge, .css_button .badge, .css_button_link a .badge, .small a .badge, .nav-pills-sm li.active a .badge, .nav-pills-sm li.current a .badge,
-.nav-pills-sm li:hover a .badge, input[type="button"] .badge, .iframe.medium_modal .badge, .btn-submit .badge, .btn-green .badge, input[type="submit"] .badge, .confirguration #con0 .col5 span .badge {
+.nav-pills-sm li:hover a .badge, input[type="button"] .badge, .iframe.medium_modal .badge, .btn-submit .badge, .btn-green .badge, input[type="submit"] .badge, #div_acl_add_form .button_acl_add .badge, .confirguration #con0 .col5 span .badge {
   color: #337ab7;
   background-color: #fff;
 }
@@ -6029,7 +6277,7 @@ fieldset[disabled] .btn-link:focus {
 }
 
 /* line 3516, bootstrap/css/bootstrap.scss */
-input[type="submit"].btn-block,
+input[type="submit"].btn-block, #div_acl_add_form .btn-block.button_acl_add,
 input[type="reset"].btn-block,
 input[type="button"].btn-block,
 .btn-block.iframe.medium_modal {
@@ -9026,252 +9274,427 @@ button.list-group-item-danger.active:focus {
 }
 
 /* line 5569, bootstrap/css/bootstrap.scss */
-.panel > .table, .confirguration #con0 .panel > table,
+.panel > .table, .confirguration #con0 .panel > table, .section#acl .panel > table,
+#membership #admin .panel > table,
 .panel > .table-responsive > .table,
 .confirguration #con0 .panel > .table-responsive > table,
+.section#acl .panel > .table-responsive > table,
+#membership #admin .panel > .table-responsive > table,
 .panel > .panel-collapse > .table,
-.confirguration #con0 .panel > .panel-collapse > table {
+.confirguration #con0 .panel > .panel-collapse > table,
+.section#acl .panel > .panel-collapse > table,
+#membership #admin .panel > .panel-collapse > table {
   margin-bottom: 0;
 }
 
 /* line 5574, bootstrap/css/bootstrap.scss */
-.panel > .table caption, .confirguration #con0 .panel > table caption,
+.panel > .table caption, .confirguration #con0 .panel > table caption, .section#acl .panel > table caption,
+#membership #admin .panel > table caption,
 .panel > .table-responsive > .table caption,
 .confirguration #con0 .panel > .table-responsive > table caption,
+.section#acl .panel > .table-responsive > table caption,
+#membership #admin .panel > .table-responsive > table caption,
 .panel > .panel-collapse > .table caption,
-.confirguration #con0 .panel > .panel-collapse > table caption {
+.confirguration #con0 .panel > .panel-collapse > table caption,
+.section#acl .panel > .panel-collapse > table caption,
+#membership #admin .panel > .panel-collapse > table caption {
   padding-right: 15px;
   padding-left: 15px;
 }
 
 /* line 5580, bootstrap/css/bootstrap.scss */
-.panel > .table:first-child, .confirguration #con0 .panel > table:first-child,
+.panel > .table:first-child, .confirguration #con0 .panel > table:first-child, .section#acl .panel > table:first-child,
+#membership #admin .panel > table:first-child,
 .panel > .table-responsive:first-child > .table:first-child,
-.confirguration #con0 .panel > .table-responsive:first-child > table:first-child {
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child {
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
 
 /* line 5585, bootstrap/css/bootstrap.scss */
-.panel > .table:first-child > thead:first-child > tr:first-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child,
+.panel > .table:first-child > thead:first-child > tr:first-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child, .section#acl .panel > table:first-child > thead:first-child > tr:first-child,
+#membership #admin .panel > table:first-child > thead:first-child > tr:first-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child,
+.section#acl .panel > table:first-child > tbody:first-child > tr:first-child,
+#membership #admin .panel > table:first-child > tbody:first-child > tr:first-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child,
-.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child {
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child {
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
 
 /* line 5592, bootstrap/css/bootstrap.scss */
-.panel > .table:first-child > thead:first-child > tr:first-child td:first-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child td:first-child,
+.panel > .table:first-child > thead:first-child > tr:first-child td:first-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child td:first-child, .section#acl .panel > table:first-child > thead:first-child > tr:first-child td:first-child,
+#membership #admin .panel > table:first-child > thead:first-child > tr:first-child td:first-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:first-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:first-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:first-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child td:first-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child td:first-child,
+.section#acl .panel > table:first-child > tbody:first-child > tr:first-child td:first-child,
+#membership #admin .panel > table:first-child > tbody:first-child > tr:first-child td:first-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child td:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:first-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:first-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:first-child,
 .panel > .table:first-child > thead:first-child > tr:first-child th:first-child,
 .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child th:first-child,
+.section#acl .panel > table:first-child > thead:first-child > tr:first-child th:first-child,
+#membership #admin .panel > table:first-child > thead:first-child > tr:first-child th:first-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:first-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:first-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:first-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child th:first-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child th:first-child,
+.section#acl .panel > table:first-child > tbody:first-child > tr:first-child th:first-child,
+#membership #admin .panel > table:first-child > tbody:first-child > tr:first-child th:first-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:first-child,
-.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child {
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child {
   border-top-left-radius: 3px;
 }
 
 /* line 5602, bootstrap/css/bootstrap.scss */
-.panel > .table:first-child > thead:first-child > tr:first-child td:last-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child td:last-child,
+.panel > .table:first-child > thead:first-child > tr:first-child td:last-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child td:last-child, .section#acl .panel > table:first-child > thead:first-child > tr:first-child td:last-child,
+#membership #admin .panel > table:first-child > thead:first-child > tr:first-child td:last-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:last-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:last-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:last-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:last-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child td:last-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child td:last-child,
+.section#acl .panel > table:first-child > tbody:first-child > tr:first-child td:last-child,
+#membership #admin .panel > table:first-child > tbody:first-child > tr:first-child td:last-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child td:last-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:last-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:last-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:last-child,
 .panel > .table:first-child > thead:first-child > tr:first-child th:last-child,
 .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child th:last-child,
+.section#acl .panel > table:first-child > thead:first-child > tr:first-child th:last-child,
+#membership #admin .panel > table:first-child > thead:first-child > tr:first-child th:last-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:last-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:last-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:last-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:last-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child th:last-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child th:last-child,
+.section#acl .panel > table:first-child > tbody:first-child > tr:first-child th:last-child,
+#membership #admin .panel > table:first-child > tbody:first-child > tr:first-child th:last-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:last-child,
-.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child {
+.confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child,
+.section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child,
+#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child {
   border-top-right-radius: 3px;
 }
 
 /* line 5612, bootstrap/css/bootstrap.scss */
-.panel > .table:last-child, .confirguration #con0 .panel > table:last-child,
+.panel > .table:last-child, .confirguration #con0 .panel > table:last-child, .section#acl .panel > table:last-child,
+#membership #admin .panel > table:last-child,
 .panel > .table-responsive:last-child > .table:last-child,
-.confirguration #con0 .panel > .table-responsive:last-child > table:last-child {
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child {
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
 /* line 5617, bootstrap/css/bootstrap.scss */
-.panel > .table:last-child > tbody:last-child > tr:last-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child,
+.panel > .table:last-child > tbody:last-child > tr:last-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child, .section#acl .panel > table:last-child > tbody:last-child > tr:last-child,
+#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child,
+.section#acl .panel > table:last-child > tfoot:last-child > tr:last-child,
+#membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child,
-.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child {
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child {
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
 /* line 5624, bootstrap/css/bootstrap.scss */
-.panel > .table:last-child > tbody:last-child > tr:last-child td:first-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child td:first-child,
+.panel > .table:last-child > tbody:last-child > tr:last-child td:first-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child td:first-child, .section#acl .panel > table:last-child > tbody:last-child > tr:last-child td:first-child,
+#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child td:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:first-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:first-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:first-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:first-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child td:first-child,
+.section#acl .panel > table:last-child > tfoot:last-child > tr:last-child td:first-child,
+#membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:first-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:first-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .panel > .table:last-child > tbody:last-child > tr:last-child th:first-child,
 .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child th:first-child,
+.section#acl .panel > table:last-child > tbody:last-child > tr:last-child th:first-child,
+#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child th:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:first-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:first-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:first-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:first-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child th:first-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child th:first-child,
+.section#acl .panel > table:last-child > tfoot:last-child > tr:last-child th:first-child,
+#membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child th:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:first-child,
-.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child {
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child {
   border-bottom-left-radius: 3px;
 }
 
 /* line 5634, bootstrap/css/bootstrap.scss */
-.panel > .table:last-child > tbody:last-child > tr:last-child td:last-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child td:last-child,
+.panel > .table:last-child > tbody:last-child > tr:last-child td:last-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child td:last-child, .section#acl .panel > table:last-child > tbody:last-child > tr:last-child td:last-child,
+#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child td:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:last-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:last-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:last-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.section#acl .panel > table:last-child > tfoot:last-child > tr:last-child td:last-child,
+#membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:last-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .panel > .table:last-child > tbody:last-child > tr:last-child th:last-child,
 .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child th:last-child,
+.section#acl .panel > table:last-child > tbody:last-child > tr:last-child th:last-child,
+#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child th:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:last-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:last-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:last-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child th:last-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child th:last-child,
+.section#acl .panel > table:last-child > tfoot:last-child > tr:last-child th:last-child,
+#membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child th:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:last-child,
-.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child {
+.confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child,
+.section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child,
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child {
   border-bottom-right-radius: 3px;
 }
 
 /* line 5644, bootstrap/css/bootstrap.scss */
-.panel > .panel-body + .table, .confirguration #con0 .panel > .panel-body + table,
+.panel > .panel-body + .table, .confirguration #con0 .panel > .panel-body + table, .section#acl .panel > .panel-body + table,
+#membership #admin .panel > .panel-body + table,
 .panel > .panel-body + .table-responsive,
 .panel > .table + .panel-body,
 .confirguration #con0 .panel > table + .panel-body,
+.section#acl .panel > table + .panel-body,
+#membership #admin .panel > table + .panel-body,
 .panel > .table-responsive + .panel-body {
   border-top: 1px solid #ddd;
 }
 
 /* line 5650, bootstrap/css/bootstrap.scss */
-.panel > .table > tbody:first-child > tr:first-child th, .confirguration #con0 .panel > table > tbody:first-child > tr:first-child th,
+.panel > .table > tbody:first-child > tr:first-child th, .confirguration #con0 .panel > table > tbody:first-child > tr:first-child th, .section#acl .panel > table > tbody:first-child > tr:first-child th,
+#membership #admin .panel > table > tbody:first-child > tr:first-child th,
 .panel > .table > tbody:first-child > tr:first-child td,
-.confirguration #con0 .panel > table > tbody:first-child > tr:first-child td {
+.confirguration #con0 .panel > table > tbody:first-child > tr:first-child td,
+.section#acl .panel > table > tbody:first-child > tr:first-child td,
+#membership #admin .panel > table > tbody:first-child > tr:first-child td {
   border-top: 0;
 }
 
 /* line 5654, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered, .confirguration #con0 .panel > table,
+.panel > .table-bordered, .confirguration #con0 .panel > table, .section#acl .panel > table,
+#membership #admin .panel > table,
 .panel > .table-responsive > .table-bordered,
-.confirguration #con0 .panel > .table-responsive > table {
+.confirguration #con0 .panel > .table-responsive > table,
+.section#acl .panel > .table-responsive > table,
+#membership #admin .panel > .table-responsive > table {
   border: 0;
 }
 
 /* line 5658, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered > thead > tr > th:first-child, .confirguration #con0 .panel > table > thead > tr > th:first-child,
+.panel > .table-bordered > thead > tr > th:first-child, .confirguration #con0 .panel > table > thead > tr > th:first-child, .section#acl .panel > table > thead > tr > th:first-child,
+#membership #admin .panel > table > thead > tr > th:first-child,
 .panel > .table-responsive > .table-bordered > thead > tr > th:first-child,
 .confirguration #con0 .panel > .table-responsive > table > thead > tr > th:first-child,
+.section#acl .panel > .table-responsive > table > thead > tr > th:first-child,
+#membership #admin .panel > .table-responsive > table > thead > tr > th:first-child,
 .panel > .table-bordered > tbody > tr > th:first-child,
 .confirguration #con0 .panel > table > tbody > tr > th:first-child,
+.section#acl .panel > table > tbody > tr > th:first-child,
+#membership #admin .panel > table > tbody > tr > th:first-child,
 .panel > .table-responsive > .table-bordered > tbody > tr > th:first-child,
 .confirguration #con0 .panel > .table-responsive > table > tbody > tr > th:first-child,
+.section#acl .panel > .table-responsive > table > tbody > tr > th:first-child,
+#membership #admin .panel > .table-responsive > table > tbody > tr > th:first-child,
 .panel > .table-bordered > tfoot > tr > th:first-child,
 .confirguration #con0 .panel > table > tfoot > tr > th:first-child,
+.section#acl .panel > table > tfoot > tr > th:first-child,
+#membership #admin .panel > table > tfoot > tr > th:first-child,
 .panel > .table-responsive > .table-bordered > tfoot > tr > th:first-child,
 .confirguration #con0 .panel > .table-responsive > table > tfoot > tr > th:first-child,
+.section#acl .panel > .table-responsive > table > tfoot > tr > th:first-child,
+#membership #admin .panel > .table-responsive > table > tfoot > tr > th:first-child,
 .panel > .table-bordered > thead > tr > td:first-child,
 .confirguration #con0 .panel > table > thead > tr > td:first-child,
+.section#acl .panel > table > thead > tr > td:first-child,
+#membership #admin .panel > table > thead > tr > td:first-child,
 .panel > .table-responsive > .table-bordered > thead > tr > td:first-child,
 .confirguration #con0 .panel > .table-responsive > table > thead > tr > td:first-child,
+.section#acl .panel > .table-responsive > table > thead > tr > td:first-child,
+#membership #admin .panel > .table-responsive > table > thead > tr > td:first-child,
 .panel > .table-bordered > tbody > tr > td:first-child,
 .confirguration #con0 .panel > table > tbody > tr > td:first-child,
+.section#acl .panel > table > tbody > tr > td:first-child,
+#membership #admin .panel > table > tbody > tr > td:first-child,
 .panel > .table-responsive > .table-bordered > tbody > tr > td:first-child,
 .confirguration #con0 .panel > .table-responsive > table > tbody > tr > td:first-child,
+.section#acl .panel > .table-responsive > table > tbody > tr > td:first-child,
+#membership #admin .panel > .table-responsive > table > tbody > tr > td:first-child,
 .panel > .table-bordered > tfoot > tr > td:first-child,
 .confirguration #con0 .panel > table > tfoot > tr > td:first-child,
+.section#acl .panel > table > tfoot > tr > td:first-child,
+#membership #admin .panel > table > tfoot > tr > td:first-child,
 .panel > .table-responsive > .table-bordered > tfoot > tr > td:first-child,
-.confirguration #con0 .panel > .table-responsive > table > tfoot > tr > td:first-child {
+.confirguration #con0 .panel > .table-responsive > table > tfoot > tr > td:first-child,
+.section#acl .panel > .table-responsive > table > tfoot > tr > td:first-child,
+#membership #admin .panel > .table-responsive > table > tfoot > tr > td:first-child {
   border-left: 0;
 }
 
 /* line 5672, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered > thead > tr > th:last-child, .confirguration #con0 .panel > table > thead > tr > th:last-child,
+.panel > .table-bordered > thead > tr > th:last-child, .confirguration #con0 .panel > table > thead > tr > th:last-child, .section#acl .panel > table > thead > tr > th:last-child,
+#membership #admin .panel > table > thead > tr > th:last-child,
 .panel > .table-responsive > .table-bordered > thead > tr > th:last-child,
 .confirguration #con0 .panel > .table-responsive > table > thead > tr > th:last-child,
+.section#acl .panel > .table-responsive > table > thead > tr > th:last-child,
+#membership #admin .panel > .table-responsive > table > thead > tr > th:last-child,
 .panel > .table-bordered > tbody > tr > th:last-child,
 .confirguration #con0 .panel > table > tbody > tr > th:last-child,
+.section#acl .panel > table > tbody > tr > th:last-child,
+#membership #admin .panel > table > tbody > tr > th:last-child,
 .panel > .table-responsive > .table-bordered > tbody > tr > th:last-child,
 .confirguration #con0 .panel > .table-responsive > table > tbody > tr > th:last-child,
+.section#acl .panel > .table-responsive > table > tbody > tr > th:last-child,
+#membership #admin .panel > .table-responsive > table > tbody > tr > th:last-child,
 .panel > .table-bordered > tfoot > tr > th:last-child,
 .confirguration #con0 .panel > table > tfoot > tr > th:last-child,
+.section#acl .panel > table > tfoot > tr > th:last-child,
+#membership #admin .panel > table > tfoot > tr > th:last-child,
 .panel > .table-responsive > .table-bordered > tfoot > tr > th:last-child,
 .confirguration #con0 .panel > .table-responsive > table > tfoot > tr > th:last-child,
+.section#acl .panel > .table-responsive > table > tfoot > tr > th:last-child,
+#membership #admin .panel > .table-responsive > table > tfoot > tr > th:last-child,
 .panel > .table-bordered > thead > tr > td:last-child,
 .confirguration #con0 .panel > table > thead > tr > td:last-child,
+.section#acl .panel > table > thead > tr > td:last-child,
+#membership #admin .panel > table > thead > tr > td:last-child,
 .panel > .table-responsive > .table-bordered > thead > tr > td:last-child,
 .confirguration #con0 .panel > .table-responsive > table > thead > tr > td:last-child,
+.section#acl .panel > .table-responsive > table > thead > tr > td:last-child,
+#membership #admin .panel > .table-responsive > table > thead > tr > td:last-child,
 .panel > .table-bordered > tbody > tr > td:last-child,
 .confirguration #con0 .panel > table > tbody > tr > td:last-child,
+.section#acl .panel > table > tbody > tr > td:last-child,
+#membership #admin .panel > table > tbody > tr > td:last-child,
 .panel > .table-responsive > .table-bordered > tbody > tr > td:last-child,
 .confirguration #con0 .panel > .table-responsive > table > tbody > tr > td:last-child,
+.section#acl .panel > .table-responsive > table > tbody > tr > td:last-child,
+#membership #admin .panel > .table-responsive > table > tbody > tr > td:last-child,
 .panel > .table-bordered > tfoot > tr > td:last-child,
 .confirguration #con0 .panel > table > tfoot > tr > td:last-child,
+.section#acl .panel > table > tfoot > tr > td:last-child,
+#membership #admin .panel > table > tfoot > tr > td:last-child,
 .panel > .table-responsive > .table-bordered > tfoot > tr > td:last-child,
-.confirguration #con0 .panel > .table-responsive > table > tfoot > tr > td:last-child {
+.confirguration #con0 .panel > .table-responsive > table > tfoot > tr > td:last-child,
+.section#acl .panel > .table-responsive > table > tfoot > tr > td:last-child,
+#membership #admin .panel > .table-responsive > table > tfoot > tr > td:last-child {
   border-right: 0;
 }
 
 /* line 5686, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered > thead > tr:first-child > td, .confirguration #con0 .panel > table > thead > tr:first-child > td,
+.panel > .table-bordered > thead > tr:first-child > td, .confirguration #con0 .panel > table > thead > tr:first-child > td, .section#acl .panel > table > thead > tr:first-child > td,
+#membership #admin .panel > table > thead > tr:first-child > td,
 .panel > .table-responsive > .table-bordered > thead > tr:first-child > td,
 .confirguration #con0 .panel > .table-responsive > table > thead > tr:first-child > td,
+.section#acl .panel > .table-responsive > table > thead > tr:first-child > td,
+#membership #admin .panel > .table-responsive > table > thead > tr:first-child > td,
 .panel > .table-bordered > tbody > tr:first-child > td,
 .confirguration #con0 .panel > table > tbody > tr:first-child > td,
+.section#acl .panel > table > tbody > tr:first-child > td,
+#membership #admin .panel > table > tbody > tr:first-child > td,
 .panel > .table-responsive > .table-bordered > tbody > tr:first-child > td,
 .confirguration #con0 .panel > .table-responsive > table > tbody > tr:first-child > td,
+.section#acl .panel > .table-responsive > table > tbody > tr:first-child > td,
+#membership #admin .panel > .table-responsive > table > tbody > tr:first-child > td,
 .panel > .table-bordered > thead > tr:first-child > th,
 .confirguration #con0 .panel > table > thead > tr:first-child > th,
+.section#acl .panel > table > thead > tr:first-child > th,
+#membership #admin .panel > table > thead > tr:first-child > th,
 .panel > .table-responsive > .table-bordered > thead > tr:first-child > th,
 .confirguration #con0 .panel > .table-responsive > table > thead > tr:first-child > th,
+.section#acl .panel > .table-responsive > table > thead > tr:first-child > th,
+#membership #admin .panel > .table-responsive > table > thead > tr:first-child > th,
 .panel > .table-bordered > tbody > tr:first-child > th,
 .confirguration #con0 .panel > table > tbody > tr:first-child > th,
+.section#acl .panel > table > tbody > tr:first-child > th,
+#membership #admin .panel > table > tbody > tr:first-child > th,
 .panel > .table-responsive > .table-bordered > tbody > tr:first-child > th,
-.confirguration #con0 .panel > .table-responsive > table > tbody > tr:first-child > th {
+.confirguration #con0 .panel > .table-responsive > table > tbody > tr:first-child > th,
+.section#acl .panel > .table-responsive > table > tbody > tr:first-child > th,
+#membership #admin .panel > .table-responsive > table > tbody > tr:first-child > th {
   border-bottom: 0;
 }
 
 /* line 5696, bootstrap/css/bootstrap.scss */
-.panel > .table-bordered > tbody > tr:last-child > td, .confirguration #con0 .panel > table > tbody > tr:last-child > td,
+.panel > .table-bordered > tbody > tr:last-child > td, .confirguration #con0 .panel > table > tbody > tr:last-child > td, .section#acl .panel > table > tbody > tr:last-child > td,
+#membership #admin .panel > table > tbody > tr:last-child > td,
 .panel > .table-responsive > .table-bordered > tbody > tr:last-child > td,
 .confirguration #con0 .panel > .table-responsive > table > tbody > tr:last-child > td,
+.section#acl .panel > .table-responsive > table > tbody > tr:last-child > td,
+#membership #admin .panel > .table-responsive > table > tbody > tr:last-child > td,
 .panel > .table-bordered > tfoot > tr:last-child > td,
 .confirguration #con0 .panel > table > tfoot > tr:last-child > td,
+.section#acl .panel > table > tfoot > tr:last-child > td,
+#membership #admin .panel > table > tfoot > tr:last-child > td,
 .panel > .table-responsive > .table-bordered > tfoot > tr:last-child > td,
 .confirguration #con0 .panel > .table-responsive > table > tfoot > tr:last-child > td,
+.section#acl .panel > .table-responsive > table > tfoot > tr:last-child > td,
+#membership #admin .panel > .table-responsive > table > tfoot > tr:last-child > td,
 .panel > .table-bordered > tbody > tr:last-child > th,
 .confirguration #con0 .panel > table > tbody > tr:last-child > th,
+.section#acl .panel > table > tbody > tr:last-child > th,
+#membership #admin .panel > table > tbody > tr:last-child > th,
 .panel > .table-responsive > .table-bordered > tbody > tr:last-child > th,
 .confirguration #con0 .panel > .table-responsive > table > tbody > tr:last-child > th,
+.section#acl .panel > .table-responsive > table > tbody > tr:last-child > th,
+#membership #admin .panel > .table-responsive > table > tbody > tr:last-child > th,
 .panel > .table-bordered > tfoot > tr:last-child > th,
 .confirguration #con0 .panel > table > tfoot > tr:last-child > th,
+.section#acl .panel > table > tfoot > tr:last-child > th,
+#membership #admin .panel > table > tfoot > tr:last-child > th,
 .panel > .table-responsive > .table-bordered > tfoot > tr:last-child > th,
-.confirguration #con0 .panel > .table-responsive > table > tfoot > tr:last-child > th {
+.confirguration #con0 .panel > .table-responsive > table > tfoot > tr:last-child > th,
+.section#acl .panel > .table-responsive > table > tfoot > tr:last-child > th,
+#membership #admin .panel > .table-responsive > table > tfoot > tr:last-child > th {
   border-bottom: 0;
 }
 
@@ -10917,6 +11340,7 @@ input[type="button"],
 .btn-submit,
 .btn-green,
 input[type="submit"],
+#div_acl_add_form .button_acl_add,
 .confirguration #con0 .col5 span,
 .btn-success,
 .btn-info,
@@ -10947,6 +11371,7 @@ input[type="button"]:active,
 .btn-submit:active,
 .btn-green:active,
 input[type="submit"]:active,
+#div_acl_add_form .button_acl_add:active,
 .confirguration #con0 .col5 span:active,
 .btn-success:active,
 .btn-info:active,
@@ -10971,6 +11396,7 @@ input.active[type="button"],
 .active.btn-submit,
 .active.btn-green,
 input.active[type="submit"],
+#div_acl_add_form .active.button_acl_add,
 .confirguration #con0 .col5 span.active,
 .btn-success.active,
 .btn-info.active,
@@ -11000,6 +11426,7 @@ input.disabled[type="button"],
 .disabled.btn-submit,
 .disabled.btn-green,
 input.disabled[type="submit"],
+#div_acl_add_form .disabled.button_acl_add,
 .confirguration #con0 .col5 span.disabled,
 .btn-success.disabled,
 .btn-info.disabled,
@@ -11024,6 +11451,7 @@ input[disabled][type="button"],
 [disabled].btn-submit,
 [disabled].btn-green,
 input[disabled][type="submit"],
+#div_acl_add_form [disabled].button_acl_add,
 .confirguration #con0 .col5 span[disabled],
 .btn-success[disabled],
 .btn-info[disabled],
@@ -11053,6 +11481,8 @@ fieldset[disabled] .iframe.medium_modal,
 fieldset[disabled] .btn-submit,
 fieldset[disabled] .btn-green,
 fieldset[disabled] input[type="submit"],
+fieldset[disabled] #div_acl_add_form .button_acl_add,
+#div_acl_add_form fieldset[disabled] .button_acl_add,
 fieldset[disabled] .confirguration #con0 .col5 span,
 .confirguration #con0 .col5 fieldset[disabled] span,
 fieldset[disabled] .btn-success,
@@ -11083,6 +11513,7 @@ input[type="button"] .badge,
 .btn-submit .badge,
 .btn-green .badge,
 input[type="submit"] .badge,
+#div_acl_add_form .button_acl_add .badge,
 .confirguration #con0 .col5 span .badge,
 .btn-success .badge,
 .btn-info .badge,
@@ -11150,7 +11581,7 @@ fieldset[disabled] .btn-default.active {
 
 /* line 107, bootstrap/css/bootstrap-theme.scss */
 .btn-primary, .link_submit, .link_selected, .link, .btn-custom, .css_button_small, #showMenuLink, .css_button, .css_button_link a, .small a, .nav-pills-sm li.active a, .nav-pills-sm li.current a,
-.nav-pills-sm li:hover a, input[type="button"], .iframe.medium_modal, .btn-submit, .btn-green, input[type="submit"], .confirguration #con0 .col5 span {
+.nav-pills-sm li:hover a, input[type="button"], .iframe.medium_modal, .btn-submit, .btn-green, input[type="submit"], #div_acl_add_form .button_acl_add, .confirguration #con0 .col5 span {
   background-image: -webkit-linear-gradient(top, #337ab7 0%, #265a88 100%);
   background-image: -o-linear-gradient(top, #337ab7 0%, #265a88 100%);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#337ab7), to(#265a88));
@@ -11163,7 +11594,7 @@ fieldset[disabled] .btn-default.active {
 
 /* line 117, bootstrap/css/bootstrap-theme.scss */
 .btn-primary:hover, .link_submit:hover, .link_selected:hover, .link:hover, .btn-custom:hover, .css_button_small:hover, #showMenuLink:hover, .css_button:hover, .css_button_link a:hover, .small a:hover, .nav-pills-sm li.active a:hover, .nav-pills-sm li.current a:hover,
-.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .iframe.medium_modal:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover, .confirguration #con0 .col5 span:hover,
+.nav-pills-sm li:hover a:hover, input[type="button"]:hover, .iframe.medium_modal:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover, #div_acl_add_form .button_acl_add:hover, .confirguration #con0 .col5 span:hover,
 .btn-primary:focus,
 .link_submit:focus,
 .link_selected:focus,
@@ -11182,6 +11613,7 @@ input[type="button"]:focus,
 .btn-submit:focus,
 .btn-green:focus,
 input[type="submit"]:focus,
+#div_acl_add_form .button_acl_add:focus,
 .confirguration #con0 .col5 span:focus {
   background-color: #265a88;
   background-position: 0 -15px;
@@ -11189,7 +11621,7 @@ input[type="submit"]:focus,
 
 /* line 122, bootstrap/css/bootstrap-theme.scss */
 .btn-primary:active, .link_submit:active, .link_selected:active, .link:active, .btn-custom:active, .css_button_small:active, #showMenuLink:active, .css_button:active, .css_button_link a:active, .small a:active, .nav-pills-sm li.active a:active, .nav-pills-sm li.current a:active,
-.nav-pills-sm li:hover a:active, input[type="button"]:active, .iframe.medium_modal:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active, .confirguration #con0 .col5 span:active,
+.nav-pills-sm li:hover a:active, input[type="button"]:active, .iframe.medium_modal:active, .btn-submit:active, .btn-green:active, input[type="submit"]:active, #div_acl_add_form .button_acl_add:active, .confirguration #con0 .col5 span:active,
 .btn-primary.active,
 .active.link_submit,
 .active.link_selected,
@@ -11208,6 +11640,7 @@ input.active[type="button"],
 .active.btn-submit,
 .active.btn-green,
 input.active[type="submit"],
+#div_acl_add_form .active.button_acl_add,
 .confirguration #con0 .col5 span.active {
   background-color: #265a88;
   border-color: #245580;
@@ -11215,7 +11648,7 @@ input.active[type="submit"],
 
 /* line 127, bootstrap/css/bootstrap-theme.scss */
 .btn-primary.disabled, .disabled.link_submit, .disabled.link_selected, .disabled.link, .disabled.btn-custom, .disabled.css_button_small, .disabled#showMenuLink, .disabled.css_button, .css_button_link a.disabled, .small a.disabled, .nav-pills-sm li.active a.disabled, .nav-pills-sm li.current a.disabled,
-.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.iframe.medium_modal, .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"], .confirguration #con0 .col5 span.disabled,
+.nav-pills-sm li:hover a.disabled, input.disabled[type="button"], .disabled.iframe.medium_modal, .disabled.btn-submit, .disabled.btn-green, input.disabled[type="submit"], #div_acl_add_form .disabled.button_acl_add, .confirguration #con0 .col5 span.disabled,
 .btn-primary[disabled],
 [disabled].link_submit,
 [disabled].link_selected,
@@ -11234,6 +11667,7 @@ input[disabled][type="button"],
 [disabled].btn-submit,
 [disabled].btn-green,
 input[disabled][type="submit"],
+#div_acl_add_form [disabled].button_acl_add,
 .confirguration #con0 .col5 span[disabled],
 fieldset[disabled] .btn-primary,
 fieldset[disabled] .link_submit,
@@ -11258,6 +11692,8 @@ fieldset[disabled] .iframe.medium_modal,
 fieldset[disabled] .btn-submit,
 fieldset[disabled] .btn-green,
 fieldset[disabled] input[type="submit"],
+fieldset[disabled] #div_acl_add_form .button_acl_add,
+#div_acl_add_form fieldset[disabled] .button_acl_add,
 fieldset[disabled] .confirguration #con0 .col5 span,
 .confirguration #con0 .col5 fieldset[disabled] span,
 .btn-primary.disabled:hover,
@@ -11278,6 +11714,7 @@ input.disabled[type="button"]:hover,
 .disabled.btn-submit:hover,
 .disabled.btn-green:hover,
 input.disabled[type="submit"]:hover,
+#div_acl_add_form .disabled.button_acl_add:hover,
 .confirguration #con0 .col5 span.disabled:hover,
 .btn-primary[disabled]:hover,
 [disabled].link_submit:hover,
@@ -11297,6 +11734,7 @@ input[disabled][type="button"]:hover,
 [disabled].btn-submit:hover,
 [disabled].btn-green:hover,
 input[disabled][type="submit"]:hover,
+#div_acl_add_form [disabled].button_acl_add:hover,
 .confirguration #con0 .col5 span[disabled]:hover,
 fieldset[disabled] .btn-primary:hover,
 fieldset[disabled] .link_submit:hover,
@@ -11321,6 +11759,8 @@ fieldset[disabled] .iframe.medium_modal:hover,
 fieldset[disabled] .btn-submit:hover,
 fieldset[disabled] .btn-green:hover,
 fieldset[disabled] input[type="submit"]:hover,
+fieldset[disabled] #div_acl_add_form .button_acl_add:hover,
+#div_acl_add_form fieldset[disabled] .button_acl_add:hover,
 fieldset[disabled] .confirguration #con0 .col5 span:hover,
 .confirguration #con0 .col5 fieldset[disabled] span:hover,
 .btn-primary.disabled:focus,
@@ -11341,6 +11781,7 @@ input.disabled[type="button"]:focus,
 .disabled.btn-submit:focus,
 .disabled.btn-green:focus,
 input.disabled[type="submit"]:focus,
+#div_acl_add_form .disabled.button_acl_add:focus,
 .confirguration #con0 .col5 span.disabled:focus,
 .btn-primary[disabled]:focus,
 [disabled].link_submit:focus,
@@ -11360,6 +11801,7 @@ input[disabled][type="button"]:focus,
 [disabled].btn-submit:focus,
 [disabled].btn-green:focus,
 input[disabled][type="submit"]:focus,
+#div_acl_add_form [disabled].button_acl_add:focus,
 .confirguration #con0 .col5 span[disabled]:focus,
 fieldset[disabled] .btn-primary:focus,
 fieldset[disabled] .link_submit:focus,
@@ -11384,6 +11826,8 @@ fieldset[disabled] .iframe.medium_modal:focus,
 fieldset[disabled] .btn-submit:focus,
 fieldset[disabled] .btn-green:focus,
 fieldset[disabled] input[type="submit"]:focus,
+fieldset[disabled] #div_acl_add_form .button_acl_add:focus,
+#div_acl_add_form fieldset[disabled] .button_acl_add:focus,
 fieldset[disabled] .confirguration #con0 .col5 span:focus,
 .confirguration #con0 .col5 fieldset[disabled] span:focus,
 .btn-primary.disabled.focus,
@@ -11404,6 +11848,7 @@ input.disabled.focus[type="button"],
 .disabled.focus.btn-submit,
 .disabled.focus.btn-green,
 input.disabled.focus[type="submit"],
+#div_acl_add_form .disabled.focus.button_acl_add,
 .confirguration #con0 .col5 span.disabled.focus,
 .btn-primary[disabled].focus,
 [disabled].focus.link_submit,
@@ -11423,6 +11868,7 @@ input[disabled].focus[type="button"],
 [disabled].focus.btn-submit,
 [disabled].focus.btn-green,
 input[disabled].focus[type="submit"],
+#div_acl_add_form [disabled].focus.button_acl_add,
 .confirguration #con0 .col5 span[disabled].focus,
 fieldset[disabled] .btn-primary.focus,
 fieldset[disabled] .focus.link_submit,
@@ -11447,6 +11893,8 @@ fieldset[disabled] .focus.iframe.medium_modal,
 fieldset[disabled] .focus.btn-submit,
 fieldset[disabled] .focus.btn-green,
 fieldset[disabled] input.focus[type="submit"],
+fieldset[disabled] #div_acl_add_form .focus.button_acl_add,
+#div_acl_add_form fieldset[disabled] .focus.button_acl_add,
 fieldset[disabled] .confirguration #con0 .col5 span.focus,
 .confirguration #con0 .col5 fieldset[disabled] span.focus,
 .btn-primary.disabled:active,
@@ -11467,6 +11915,7 @@ input.disabled[type="button"]:active,
 .disabled.btn-submit:active,
 .disabled.btn-green:active,
 input.disabled[type="submit"]:active,
+#div_acl_add_form .disabled.button_acl_add:active,
 .confirguration #con0 .col5 span.disabled:active,
 .btn-primary[disabled]:active,
 [disabled].link_submit:active,
@@ -11486,6 +11935,7 @@ input[disabled][type="button"]:active,
 [disabled].btn-submit:active,
 [disabled].btn-green:active,
 input[disabled][type="submit"]:active,
+#div_acl_add_form [disabled].button_acl_add:active,
 .confirguration #con0 .col5 span[disabled]:active,
 fieldset[disabled] .btn-primary:active,
 fieldset[disabled] .link_submit:active,
@@ -11510,6 +11960,8 @@ fieldset[disabled] .iframe.medium_modal:active,
 fieldset[disabled] .btn-submit:active,
 fieldset[disabled] .btn-green:active,
 fieldset[disabled] input[type="submit"]:active,
+fieldset[disabled] #div_acl_add_form .button_acl_add:active,
+#div_acl_add_form fieldset[disabled] .button_acl_add:active,
 fieldset[disabled] .confirguration #con0 .col5 span:active,
 .confirguration #con0 .col5 fieldset[disabled] span:active,
 .btn-primary.disabled.active,
@@ -11530,6 +11982,7 @@ input.disabled.active[type="button"],
 .disabled.active.btn-submit,
 .disabled.active.btn-green,
 input.disabled.active[type="submit"],
+#div_acl_add_form .disabled.active.button_acl_add,
 .confirguration #con0 .col5 span.disabled.active,
 .btn-primary[disabled].active,
 [disabled].active.link_submit,
@@ -11549,6 +12002,7 @@ input[disabled].active[type="button"],
 [disabled].active.btn-submit,
 [disabled].active.btn-green,
 input[disabled].active[type="submit"],
+#div_acl_add_form [disabled].active.button_acl_add,
 .confirguration #con0 .col5 span[disabled].active,
 fieldset[disabled] .btn-primary.active,
 fieldset[disabled] .active.link_submit,
@@ -11573,6 +12027,8 @@ fieldset[disabled] .active.iframe.medium_modal,
 fieldset[disabled] .active.btn-submit,
 fieldset[disabled] .active.btn-green,
 fieldset[disabled] input.active[type="submit"],
+fieldset[disabled] #div_acl_add_form .active.button_acl_add,
+#div_acl_add_form fieldset[disabled] .active.button_acl_add,
 fieldset[disabled] .confirguration #con0 .col5 span.active,
 .confirguration #con0 .col5 fieldset[disabled] span.active {
   background-color: #265a88;
@@ -13664,7 +14120,7 @@ input[type="button"], .iframe.medium_modal {
 }
 
 /* line 1208, bootstrap/sass/style_bootstrap.scss */
-input[type="submit"] {
+input[type="submit"], #div_acl_add_form .button_acl_add {
   padding: 4px 17px;
   margin: 0 10px;
   border-radius: 5px;
@@ -13965,7 +14421,9 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
 .tableHead-bg,
 #report_results thead,
 .table-striped > tbody > tr:nth-of-type(odd),
-.confirguration #con0 table > tbody > tr:nth-of-type(odd) {
+.confirguration #con0 table > tbody > tr:nth-of-type(odd),
+.section#acl table > tbody > tr:nth-of-type(odd),
+#membership #admin table > tbody > tr:nth-of-type(odd) {
   background: #fff !important;
 }
 
@@ -14017,9 +14475,16 @@ tr.tableHead-bg td img,
   padding-bottom: 20px;
   margin-left: 15px;
   padding-top: 0;
+  box-shadow: none;
 }
 
-/* line 1464, bootstrap/sass/style_bootstrap.scss */
+/* line 1465, bootstrap/sass/style_bootstrap.scss */
+.rule_row {
+  border: 1px solid #dddddd !important;
+  padding: 20px 0;
+}
+
+/* line 1469, bootstrap/sass/style_bootstrap.scss */
 .rule_row:before,
 .rule_row:after {
   content: '';
@@ -14027,25 +14492,25 @@ tr.tableHead-bg td img,
   clear: both;
 }
 
-/* line 1470, bootstrap/sass/style_bootstrap.scss */
+/* line 1475, bootstrap/sass/style_bootstrap.scss */
 .formsAdministration-table td,
 .unregisteredForm-table td {
   text-align: center;
 }
 
-/* line 1474, bootstrap/sass/style_bootstrap.scss */
+/* line 1479, bootstrap/sass/style_bootstrap.scss */
 #report_parameters .custom-width {
   width: 800px !important;
 }
 
-/* line 1477, bootstrap/sass/style_bootstrap.scss */
+/* line 1482, bootstrap/sass/style_bootstrap.scss */
 .batchCom input[type='text'],
 .eraPosting input[type='text'] {
   display: inline-block;
   width: 75%;
 }
 
-/* line 1483, bootstrap/sass/style_bootstrap.scss */
+/* line 1488, bootstrap/sass/style_bootstrap.scss */
 .batchResults input[type='text'],
 .table-eleReports input[type='text'],
 #docfilterdiv input[type='text'] {
@@ -14053,18 +14518,18 @@ tr.tableHead-bg td img,
   width: auto;
 }
 
-/* line 1493, bootstrap/sass/style_bootstrap.scss */
+/* line 1498, bootstrap/sass/style_bootstrap.scss */
 .batchCom select {
   width: 80%;
 }
 
-/* line 1496, bootstrap/sass/style_bootstrap.scss */
+/* line 1501, bootstrap/sass/style_bootstrap.scss */
 .batchCom table {
   border: 1px solid #DDD;
 }
 
 /*** collapse *****/
-/* line 1501, bootstrap/sass/style_bootstrap.scss */
+/* line 1506, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1,
 #objTreeMenu_1_node_1_1,
 #objTreeMenu_1_node_1_2,
@@ -14079,7 +14544,7 @@ tr.tableHead-bg td img,
   background-color: #B8D8AB;
 }
 
-/* line 1515, bootstrap/sass/style_bootstrap.scss */
+/* line 1520, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1_7_1,
 #objTreeMenu_1_node_1_7_2,
 #objTreeMenu_1_node_1_1_1,
@@ -14088,70 +14553,70 @@ tr.tableHead-bg td img,
   margin: 15px 0;
 }
 
-/* line 1523, bootstrap/sass/style_bootstrap.scss */
+/* line 1528, bootstrap/sass/style_bootstrap.scss */
 #documents_list table {
   width: 100%;
 }
 
-/* line 1526, bootstrap/sass/style_bootstrap.scss */
+/* line 1531, bootstrap/sass/style_bootstrap.scss */
 div#documents_list span {
   color: #000;
 }
 
-/* line 1529, bootstrap/sass/style_bootstrap.scss */
+/* line 1534, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.tab,
 .table-fullwidth,
 .tableSearch {
   width: 100% !important;
 }
 
-/* line 1534, bootstrap/sass/style_bootstrap.scss */
+/* line 1539, bootstrap/sass/style_bootstrap.scss */
 .tableBilling td,
 .tableBatchPayments td,
 .eraPosting tr {
   background: #D0E9C6 !important;
 }
 
-/* line 1539, bootstrap/sass/style_bootstrap.scss */
+/* line 1544, bootstrap/sass/style_bootstrap.scss */
 .eraPosting tbody > tr > td {
   padding: 0;
 }
 
-/* line 1542, bootstrap/sass/style_bootstrap.scss */
+/* line 1547, bootstrap/sass/style_bootstrap.scss */
 .tableBilling a.css_button_small, .tableBilling a#showMenuLink {
   display: inline-block;
   margin-bottom: 5px !important;
 }
 
-/* line 1546, bootstrap/sass/style_bootstrap.scss */
+/* line 1551, bootstrap/sass/style_bootstrap.scss */
 .searchPaymentInputTD input {
   width: 100px !important;
   display: inline;
 }
 
-/* line 1550, bootstrap/sass/style_bootstrap.scss */
+/* line 1555, bootstrap/sass/style_bootstrap.scss */
 .tableSearch {
   width: 100%;
 }
 
-/* line 1553, bootstrap/sass/style_bootstrap.scss */
+/* line 1558, bootstrap/sass/style_bootstrap.scss */
 .Clear li a,
 #tabs {
   background: #000;
 }
 
-/* line 1558, bootstrap/sass/style_bootstrap.scss */
+/* line 1563, bootstrap/sass/style_bootstrap.scss */
 .no-bg {
   background: transparent !important;
 }
 
-/* line 1564, bootstrap/sass/style_bootstrap.scss */
+/* line 1569, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 {
   text-align: center;
   width: 160px !important;
 }
 
-/* line 1568, bootstrap/sass/style_bootstrap.scss */
+/* line 1573, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 span {
   display: inline-block;
   padding: inherit;
@@ -14165,85 +14630,87 @@ div.tabContainer div.tab,
   text-align: center;
 }
 
-/* line 1581, bootstrap/sass/style_bootstrap.scss */
+/* line 1586, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 span:first-child:before {
   content: 'Edit';
   padding-bottom: 35px;
   display: block;
 }
 
-/* line 1586, bootstrap/sass/style_bootstrap.scss */
+/* line 1591, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 span:last-child:before {
   content: 'Add';
   padding-bottom: 35px;
   display: block;
 }
 
-/* line 1591, bootstrap/sass/style_bootstrap.scss */
+/* line 1596, bootstrap/sass/style_bootstrap.scss */
 .loadCompendium,
 #pt_table_wrapper .dataTable {
   background: #D0E9C6;
 }
 
-/* line 1595, bootstrap/sass/style_bootstrap.scss */
+/* line 1600, bootstrap/sass/style_bootstrap.scss */
 .pager span,
 .dataTables_paginate {
   margin-top: 10px;
 }
 
-/* line 1599, bootstrap/sass/style_bootstrap.scss */
+/* line 1604, bootstrap/sass/style_bootstrap.scss */
 #docfilterdiv > table {
   margin: 0 !important;
 }
 
-/* line 1602, bootstrap/sass/style_bootstrap.scss */
-#docfilterdiv .table .label, #docfilterdiv .confirguration #con0 table .label, .confirguration #con0 #docfilterdiv table .label {
+/* line 1607, bootstrap/sass/style_bootstrap.scss */
+#docfilterdiv .table .label, #docfilterdiv .confirguration #con0 table .label, .confirguration #con0 #docfilterdiv table .label, #docfilterdiv .section#acl table .label, .section#acl #docfilterdiv table .label,
+#docfilterdiv #membership #admin table .label,
+#membership #admin #docfilterdiv table .label {
   font-size: inherit;
   vertical-align: middle;
   text-align: right;
 }
 
-/* line 1607, bootstrap/sass/style_bootstrap.scss */
+/* line 1612, bootstrap/sass/style_bootstrap.scss */
 #newlistitem {
   background: #B8D8AB;
 }
 
-/* line 1616, bootstrap/sass/style_bootstrap.scss */
+/* line 1621, bootstrap/sass/style_bootstrap.scss */
 .iframe.medium_modal:hover {
   text-decoration: none;
 }
 
-/* line 1619, bootstrap/sass/style_bootstrap.scss */
+/* line 1624, bootstrap/sass/style_bootstrap.scss */
 .facilities-panel .tabContainer,
 .usergroup-admin .tabContainer,
 .mergePatients-table {
   width: 100% !important;
 }
 
-/* line 1630, bootstrap/sass/style_bootstrap.scss */
+/* line 1635, bootstrap/sass/style_bootstrap.scss */
 #accordion h3 span,
 #accordion h3 a {
   color: #000;
 }
 
-/* line 1634, bootstrap/sass/style_bootstrap.scss */
+/* line 1639, bootstrap/sass/style_bootstrap.scss */
 .calendar thead .title {
   border: 1px solid #BBECA7;
   background: #B8D8AB !important;
 }
 
-/* line 1638, bootstrap/sass/style_bootstrap.scss */
+/* line 1643, bootstrap/sass/style_bootstrap.scss */
 .calendar .button,
 .rowhilite td {
   background: #D0E9C6 !important;
 }
 
-/* line 1642, bootstrap/sass/style_bootstrap.scss */
+/* line 1647, bootstrap/sass/style_bootstrap.scss */
 .calendar table {
   background: #B8D8AB !important;
 }
 
-/* line 1645, bootstrap/sass/style_bootstrap.scss */
+/* line 1650, bootstrap/sass/style_bootstrap.scss */
 .calendar table .wn,
 .calendar thead .name,
 .calendar tfoot .ttip,
@@ -14251,36 +14718,36 @@ div.tabContainer div.tab,
   background: #fff !important;
 }
 
-/* line 1651, bootstrap/sass/style_bootstrap.scss */
+/* line 1656, bootstrap/sass/style_bootstrap.scss */
 .calendar tbody td.today,
 .calendar tbody td.selected {
   color: #EF2525 !important;
 }
 
-/* line 1656, bootstrap/sass/style_bootstrap.scss */
+/* line 1661, bootstrap/sass/style_bootstrap.scss */
 tr.tableHead-bg td:first-child {
   text-align: center;
 }
 
-/* line 1660, bootstrap/sass/style_bootstrap.scss */
+/* line 1665, bootstrap/sass/style_bootstrap.scss */
 .input-block {
   width: 100% !important;
 }
 
-/* line 1664, bootstrap/sass/style_bootstrap.scss */
+/* line 1669, bootstrap/sass/style_bootstrap.scss */
 #pnotes select,
 #pnotes textarea {
   width: 100% !important;
   display: block !important;
 }
 
-/* line 1669, bootstrap/sass/style_bootstrap.scss */
+/* line 1674, bootstrap/sass/style_bootstrap.scss */
 .rule_detail p {
-  margin-bottom: -5px;
+  margin-bottom: 0 !important;
   margin-left: 5px;
 }
 
-/* line 1673, bootstrap/sass/style_bootstrap.scss */
+/* line 1678, bootstrap/sass/style_bootstrap.scss */
 .loadCompendium select,
 .tabContainer .tab.current select,
 .tabContainer .tab.current input[type="text"],
@@ -14288,7 +14755,21 @@ tr.tableHead-bg td:first-child {
   width: 99%;
 }
 
-/* line 1679, bootstrap/sass/style_bootstrap.scss */
-.uploadCcrDoc table.table-striped, .uploadCcrDoc .confirguration #con0 table, .confirguration #con0 .uploadCcrDoc table {
+/* line 1684, bootstrap/sass/style_bootstrap.scss */
+.uploadCcrDoc table.table-striped, .uploadCcrDoc .confirguration #con0 table, .confirguration #con0 .uploadCcrDoc table, .uploadCcrDoc .section#acl table, .section#acl .uploadCcrDoc table,
+.uploadCcrDoc #membership #admin table,
+#membership #admin .uploadCcrDoc table {
   width: 100% !important;
+}
+
+/* line 1687, bootstrap/sass/style_bootstrap.scss */
+.viewfacilities,
+#membership #admin select,
+.section#acl table select {
+  width: 100% !important;
+}
+
+/* line 1699, bootstrap/sass/style_bootstrap.scss */
+.rule_detail .section.text {
+  box-shadow: none;
 }

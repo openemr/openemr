@@ -1460,6 +1460,11 @@ tr.tableHead-bg td img,
     padding-bottom: 20px;
     margin-left: 15px;
     padding-top: 0;
+    box-shadow: none;
+}
+.rule_row{
+    border: 1px solid rgb(221, 221, 221) !important;
+    padding: 20px 0;
 }
 .rule_row:before,
 .rule_row:after{
@@ -1667,7 +1672,7 @@ tr.tableHead-bg td:first-child{
     display: block !important;
 }
 .rule_detail p {
-    margin-bottom: -5px;
+    margin-bottom: 0 !important;
     margin-left: 5px;
 }
 .loadCompendium select,
@@ -1678,4 +1683,19 @@ tr.tableHead-bg td:first-child{
 }
 .uploadCcrDoc table.table-striped{
     width: 100% !important;
+}
+.viewfacilities,
+#membership #admin select,
+.section#acl table select{
+    width: 100% !important;
+}
+.section#acl table,
+#membership #admin table{
+    @extend .table, .table-striped, .table-bordered;
+}
+#div_acl_add_form .button_acl_add{
+    @extend .btn-primary, input[type="submit"];
+}
+.rule_detail .section.text {
+    box-shadow: none;
 }

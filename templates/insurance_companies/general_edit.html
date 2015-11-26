@@ -24,7 +24,7 @@ function jsWaitForDelay(delay) {
 <!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
 		if it were called last, the settings from the form would be overwritten with the old information-->
 <input type="hidden" name="form_id" value="{$insurancecompany->id}" />
-<table style="font-size:9pt;" width="500px" CELLSPACING="0" CELLPADDING="3">
+<table style="font-size:9pt;" width="500px" CELLSPACING="0" CELLPADDING="3" class="table table-striped table-bordered">
 <tr>
 	<td width="220px" VALIGN="MIDDLE" >{xl t='Name'}</td>
 	<td VALIGN="MIDDLE" >
