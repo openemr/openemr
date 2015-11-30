@@ -168,6 +168,7 @@ class Claim {
       // the using_modifiers flag that is referenced below.
       if (empty($this->procs)) $this->loadPayerInfo($row);
       // Consolidate duplicate procedures.
+	  /*
       foreach ($this->procs as $key => $trash) {
         if (strcmp($this->procs[$key]['code'],$row['code']) == 0 &&
             (strcmp($this->procs[$key]['modifier'],$row['modifier']) == 0 ||
@@ -178,7 +179,7 @@ class Claim {
           continue 2; // skip to next table row
         }
       }
-
+     */
       // If there is a row-specific provider then get its details.
       if (!empty($row['provider_id'])) {
         // Get service provider data for this row.
