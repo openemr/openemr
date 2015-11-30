@@ -2,7 +2,6 @@
 
 require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
-require_once ($GLOBALS['fileroot'] . "/library/formdata.inc.php");
 require_once("FormHpTjePrimary.class.php");
 
 class C_FormHpTje extends Controller {

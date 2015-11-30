@@ -14,7 +14,6 @@
 // Important - Ensure that display_errors=Off in php.ini settings.
 //
 include_once("../../interface/globals.php");
-require_once("$srcdir]/formdata.inc.php");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/user.inc");
 include_once("$srcdir/calendar.inc");

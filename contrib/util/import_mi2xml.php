@@ -739,7 +739,7 @@ function get_patientid( $medics ) {
 //
 function form2db($fldval) {
  $fldval = trim($fldval);
- $fldval = addslashes($fldval);
+ $fldval = formDataCore($fldval);
  return $fldval;
 }
 

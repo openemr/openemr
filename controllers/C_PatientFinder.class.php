@@ -35,9 +35,9 @@ class C_PatientFinder extends Controller {
 		$isPid = false;
 		//fix any magic quotes meddling
 		
-		$form_id = add_escape_custom($form_id);
-		$form_name = add_escape_custom($form_name);
-		$pid = add_escape_custom($pid);
+		$form_id = strip_escape_custom($form_id);
+		$form_name = strip_escape_custom($form_name);
+		$pid = strip_escape_custom($pid);
 		
         //prevent javascript injection, whitespace and semi-colons are the worry
         $form_id = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS","",urldecode($form_id));

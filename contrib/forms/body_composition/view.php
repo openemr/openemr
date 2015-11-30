@@ -32,7 +32,7 @@ if (! $encounter) { // comes from globals.php
 // encode a string from a form field for database writing.
 function form2db($fldval) {
  $fldval = trim($fldval);
- $fldval = addslashes($fldval);
+ $fldval = formDataCore($fldval);
  return $fldval;
 }
 

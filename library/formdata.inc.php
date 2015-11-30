@@ -287,4 +287,13 @@ function strip_escape_custom($s) {
 function formTrim($s) {
   return formDataCore($s,true);
 }
+
+/**
+ * Wrapper function for get_magic_quotes_gpc()
+ *
+ * @return int
+ */
+function check_magic_quotes() {
+  return get_magic_quotes_gpc();
+}
 ?>

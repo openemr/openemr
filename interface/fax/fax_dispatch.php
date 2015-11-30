@@ -227,11 +227,9 @@ if ($_POST['form_save']) {
     $form_message  = trim($_POST['form_message']);
     $form_finemode = $_POST['form_finemode'] ? '-m' : '-l';
 
-//    if (get_magic_quotes_gpc()) {
-      $form_from    = strip_escape_custom($form_from);
-      $form_to      = strip_escape_custom($form_to);
-      $form_message = strip_escape_custom($form_message);
-//    }
+    $form_from    = strip_escape_custom($form_from);
+    $form_to      = strip_escape_custom($form_to);
+    $form_message = strip_escape_custom($form_message);
 
     // Generate a cover page using enscript.  This can be a cool thing
     // to do, as enscript is very powerful.
