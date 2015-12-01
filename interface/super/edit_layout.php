@@ -1007,7 +1007,7 @@ while ($row = sqlFetchArray($res)) {
     $firstgroup = false;
 ?>
 
-<table>
+<table class="table table-responsive table-bordered">
 <thead>
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
@@ -1078,7 +1078,8 @@ while ($row = sqlFetchArray($res)) {
 <span class='bold'>
 <?php xl('Group Name','e'); ?>:	<input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
 <br>
-<table style="border-collapse: collapse; margin-top: 5px;">
+<div class="table-responsive">
+<table style="border-collapse: collapse; margin-top: 5px;" class="table table-striped table-bordered">
 <thead>
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
@@ -1152,6 +1153,7 @@ foreach ($datatypes as $key=>$value) {
 </tr>
 </tbody>
 </table>
+    </div>    
 <br>
 <input type="button" class="savenewgroup" value=<?php xl('Save New Group','e','\'','\''); ?>>
 <input type="button" class="cancelnewgroup" value=<?php xl('Cancel','e','\'','\''); ?>>
@@ -1161,7 +1163,8 @@ foreach ($datatypes as $key=>$value) {
 <!-- template DIV that appears when user chooses to add a new field to a group -->
 <div id="fielddetail" class="fielddetail" style="display: none; visibility: hidden">
 <input type="hidden" name="newfieldgroupid" id="newfieldgroupid" value="">
-<table style="border-collapse: collapse;">
+<div class="table-responsive">
+<table style="border-collapse: collapse;" class="table table-striped table-responsive">
  <thead>
   <tr class='head'>
    <th><?php xl('Order','e'); ?></th>
@@ -1241,8 +1244,8 @@ foreach ($datatypes as $key=>$value) {
   </tr>
  </tbody>
 </table>
+</div>    
 </div>
-
 </body>
 
 <script language="javascript">

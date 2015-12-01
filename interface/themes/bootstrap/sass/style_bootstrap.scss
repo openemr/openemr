@@ -109,6 +109,7 @@ a:hover {
 }
 .layouts_title{
     background: transparent !important;
+    margin-bottom: 10px;
 }
 .link {
   font-family: sans-serif;
@@ -1698,4 +1699,12 @@ tr.tableHead-bg td:first-child{
 }
 .rule_detail .section.text {
     box-shadow: none;
+}
+div#groupdetail {
+    margin: 25px 10px !important;
+    padding: 10px !important;
+    background: $lightgreen !important;
+}
+div#groupdetail select{
+    margin-bottom: 0 !important;
 }
