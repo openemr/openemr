@@ -40,7 +40,8 @@ if (isset($_GET['mode'])) {
 					  amount_administered_unit = ?,
 					  expiration_date = if(?,?,NULL),
 					  route = ?,
-					  administration_site = ? ";
+					  administration_site = ? ,
+                                          completion_status = ?";
 	$sqlBindArray = array(
 	             trim($_GET['id']),
 		     trim($_GET['administered_date']), trim($_GET['administered_date']),
@@ -60,7 +61,8 @@ if (isset($_GET['mode'])) {
 			 trim($_GET['form_drug_units']),
 			 trim($_GET['immuniz_exp_date']), trim($_GET['immuniz_exp_date']),
 			 trim($_GET['immuniz_route']),
-			 trim($_GET['immuniz_admin_ste'])			 
+			 trim($_GET['immuniz_admin_ste']),
+                         trim($_GET['immuniz_completion_status'])
 		     );
         sqlStatement($sql,$sqlBindArray);
         $administered_date=date('Y-m-d H:i');
@@ -129,6 +131,7 @@ if (isset($_GET['mode'])) {
         $note = $result['note'];
 		$isAddedError = $result['added_erroneously'];
 		
+	$immuniz_completion_status = $result['completion_status'];	
 	//set id for page
 	$id = $_GET['id'];
 	
@@ -294,7 +297,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             <span class=text>
               <?php echo htmlspecialchars( xl('Immunization Manufacturer'), ENT_NOQUOTES); ?>            </span>          </td>
           <td>
-            <input class='text' type='text' name="manufacturer" size="25" value="<?php echo htmlspecialchars( $manufacturer, ENT_QUOTES); ?>">          </td>
+              <?php echo generate_select_list('immuniz_manufacturer', 'Immunization_Manufacturer', $manufacturer, 'Select Manufacturer', '');?>
         </tr>
         <tr>
           <td align="right">
@@ -375,6 +378,12 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             <textarea class='text' name="note" id="note" rows=5 cols=25><?php echo htmlspecialchars( $note, ENT_NOQUOTES); ?></textarea>          </td>
         </tr>
         <tr>
+          <td align="right" class='text'>
+              <?php echo htmlspecialchars( xl('Completion Status'), ENT_NOQUOTES); ?>          </td>
+          <td>
+            <?php echo generate_select_list('immuniz_completion_status', 'Immunization_Completion_Status', $immuniz_completion_status, 'Select Completion Status', ' ');?>          </td>
+        </tr>
+        <tr>
           <td colspan="3" align="center">
 
 	    <input type="button" name="save" id="save" value="<?php echo htmlspecialchars( xl('Save Immunization'), ENT_QUOTES); ?>">
@@ -413,6 +422,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
 	<th><?php echo htmlspecialchars( xl('Route'), ENT_NOQUOTES); ?></th>
 	<th><?php echo htmlspecialchars( xl('Administered Site'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Notes'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Completion Status'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Error'), ENT_NOQUOTES); ?></th>
 	<th>&nbsp;</th>
     </tr>
@@ -480,6 +490,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
 			echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) . $del_tag_close . "</td>";			
 			echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'proc_body_site'), $row['administration_site']) . $del_tag_close . "</td>";
 			echo "<td>" . $del_tag_open . htmlspecialchars( $row["note"], ENT_NOQUOTES) . $del_tag_close . "</td>";
+                        echo "<td>" . $del_tag_open . htmlspecialchars( $row["completion_status"], ENT_NOQUOTES) . $del_tag_close . "</td>";
 			
 			if ($isError) {
 				$checkbox = "checked";

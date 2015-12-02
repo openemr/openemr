@@ -223,6 +223,25 @@ function CreateReactionList() {
    }
 }
 
+/*
+* Function to add existing values in the immunization table to the new immunization manufacturer list
+* This function will be executed always, but only missing values will ne inserted to the list
+*/
+function CreateImmunizationManufacturerList() {
+  $res = sqlStatement("SELECT DISTINCT manufacturer FROM immunizations WHERE manufacturer <> ''");
+  while($row = sqlFetchArray($res)) {
+    $records[] = $row['manufacturer'];  
+  }
+  sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','Immunization_Manufacturer','Immunization Manufacturer')");    
+  if(count($records)>0) {
+    $seq = 0;
+    foreach ($records as $key => $value) {      
+      sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", array($value, $value, ($seq+10)));
+      $seq = $seq + 10;
+    }   
+  }
+}
+
 /**
 * Upgrade or patch the database with a selected upgrade/patch file.
 *
@@ -498,6 +517,18 @@ function upgradeFromSqlFile($filename) {
         CreateReactionList(); 
         $skipping = false;
         echo "<font color='green'>Built Reaction List</font><br />\n";        
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfNotListImmunizationManufacturer/', $line)){      
+      if ( listExists("Immunization_Manufacturer") ) {
+        $skipping = true;
+      }
+      else {
+        // Create Immunization Manufacturer list
+        CreateImmunizationManufacturerList(); 
+        $skipping = false;
+        echo "<font color='green'>Built Immunization Manufacturer List</font><br />\n";        
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }

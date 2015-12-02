@@ -59,6 +59,16 @@ class CcrController extends AbstractActionController
             $_REQUEST["batch_import"]   = 'YES';
             $this->importAction();
         }
+        else{
+            $result = \Documents\Plugin\Documents::fetchXmlDocuments();
+            foreach($result as $row){
+                if($row['doc_type'] == 'CCR'){
+                    $_REQUEST["document_id"] = $row['doc_id'];
+                    $this->importAction();
+                    \Documents\Model\DocumentsTable::updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
+                }
+            }
+        }
   
         $records = $this->getCcrTable()->document_fetch(array('cat_title' => 'CCR'));
         $view = new ViewModel(array(
@@ -227,12 +237,12 @@ class CcrController extends AbstractActionController
                 return;
             }
             else{
-                echo('Imported');
-                exit;
+                //echo('Imported');
+                //exit;
             }            
         }
         else{
-            exit('Could not read the file');
+            //exit('Could not read the file');
         }        
     }
     

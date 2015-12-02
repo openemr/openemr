@@ -128,7 +128,7 @@ class CommonPlugin extends AbstractPlugin
           $detail_query_array[] = trim($field_name);
           if(is_array($field_value)) {
             if($field_value['status']||$field_value['enddate']) {
-              $detail_query_array[] = trim($field_value['value'])."|".trim($field_value['status'])."|".trim($field_value['enddate']);
+              $detail_query_array[] = trim($field_value['value'])."|".trim($field_value['status'])."|".trim($field_value['begdate']);
             }
             else {
               $detail_query_array[] = trim($field_value['value']);
@@ -180,5 +180,15 @@ class CommonPlugin extends AbstractPlugin
       $i++;
     }
     return $rows;
+  }
+  
+  /*
+  * $this->escapeHtml() cannot be used in any files other than view.
+  * This function will enable a user to use escapeHtml in any files like controller model etc.
+  */
+  public function escape($string){
+      $viewHelperManager  = $this->getServiceLocator()->get('ViewHelperManager');
+      $escapeHtml         = $viewHelperManager->get('escapeHtml'); // $escapeHtml can be called as function because of its __invoke method
+      return $escapeHtml($string);
   }
 }

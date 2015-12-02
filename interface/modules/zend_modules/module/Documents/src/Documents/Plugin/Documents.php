@@ -22,6 +22,8 @@ namespace Documents\Plugin;
 
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Documents\Model\DocumentsTable;
+use Application\Model\ApplicationTable;
+use Application\Listener\Listener;
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 use C_Document;
 
@@ -122,5 +124,31 @@ class Documents extends AbstractPlugin
                 $obj = new \C_Document();
                 $document = $obj->retrieve_action("", $documentId, true, true, true);
 		return $document;
+	}
+	
+	public function fetchXmlDocuments(){
+	  $obj = new ApplicationTable();
+	  $query = "SELECT doc.id 
+	    FROM categories_to_documents AS cat_doc
+	    JOIN documents AS doc ON doc.imported = 0 AND doc.id = cat_doc.document_id AND doc.mimetype = 'text/xml'
+	    WHERE cat_doc.category_id = 1";
+	  $result = $obj->zQuery($query);
+	  $count  = 0;
+	  $module = array();
+	  foreach($result as $row) {			
+	    $content = \Documents\Plugin\Documents::getDocument($row['id']);			
+	    $module[$count]['doc_id']   = $row['id'];
+	    if (preg_match("/<ClinicalDocument/", $content)) {
+	      if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)){    					
+		$module[$count]['doc_type'] = 'CCD';				  
+	      }
+	      else
+		$module[$count]['doc_type'] = 'CCDA';
+	    }
+	    elseif (preg_match("/<ccr:ContinuityOfCareRecord/", $content))
+	      $module[$count]['doc_type'] = 'CCR';	    	    
+	    $count++;
+	  }
+	  return $module;
 	}
 }

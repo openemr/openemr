@@ -158,4 +158,19 @@ class DocumentsTable extends AbstractTableGateway
           WHERE `id` = ?";
     $obj->zQuery($sql,array(0,$docid));
   }
+  
+  /**
+   *Update document category using category name
+   *@param $category_name - Name of the category to which the document has to be moved
+   *@param $document_id - Documents whose category has to be updated with $category_name
+   */
+  public function updateDocumentCategoryUsingCatname($category_name, $document_id)
+  {
+    $obj  = new ApplicationTable();
+    $sql = "UPDATE categories_to_documents 
+            JOIN categories ON `name` = ?
+            SET category_id=id
+            WHERE document_id = ?";
+    $result = $obj->zQuery($sql, array($category_name, $document_id));
+  }
 }

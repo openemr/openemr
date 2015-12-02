@@ -36,7 +36,10 @@ $download_format		= $this->download_format;
 		<div class="ap-st-st-1" style="<?php if(!in_array('download',$required_buttons)) echo "display:none;"?>"><input class="ap-st-st-3" type="radio" name="send_to" id="download" value="download" <?php if($this->send_via == "download") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('Print To')?></span></div>
     <div class="ap-st-st-1" style="<?php if(!in_array('download_all',$required_buttons)) echo "display:none;"?>"><input class="ap-st-st-3" type="radio" name="send_to" id="download_all" value="download_all" <?php if($this->send_via == "download_all") echo "checked"; ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('Download')?></span></div>
 	</div>
-	
+	<div style="padding-left: 10px;padding-top: 1%;" id="adv-op-div" class="ap-st-st-13">
+           <div style="float:left;"><span class="showcomponentsForCCDA-div"><?php echo $this->listenerObject->z_xlt('Advance Options')?></span></div>
+           <div id="advance-opt" class="showcomponentsForCCDA-div"></div> 
+       </div>
 	<!--HIE-->
 	<div id="hie_div" <?php if($this->send_via == "hie") echo "class='display_block'"; ?>>
 	       <div class="ap-st-st-13">
@@ -52,7 +55,7 @@ $download_format		= $this->download_format;
 			      </table>
 			      <table style="display: none;">
 			      <?php
-			      foreach($this->ccda_components as $key_ccda => $value_ccda){
+			      foreach($this->ccda_sections as $key_ccda => $value_ccda){
 			      ?>
 			      <tr>
 					     <td width="5%">
@@ -95,14 +98,14 @@ $download_format		= $this->download_format;
 					<div class="autoSuggestionsList" id="autoSuggestionsList1">&nbsp;</div>
 				</div>
 			</div>
-			<?php if(count($this->ccda_components) > 0) {?>
+			<?php if(count($this->ccda_sections) > 0) {?>
 			<div id="chkall_cmp_div" style="margin-left:10px;">
 				<input type="checkbox" id="chkall_comp" checked="true" /><?php echo $this->listenerObject->z_xlt('Check All');?>
 			</div>
 			<div class="ap-st-st-11 ap-st-st-5" >
 				<?php 
 				$i = 0;
-				foreach($this->ccda_components as $key_ccda => $value_ccda) { 
+				foreach($this->ccda_sections as $key_ccda => $value_ccda) { 
 					if($i%2 == 0 && $i!=0){ ?>
 						<div class="clear"></div>
 					<?php  } ?>
@@ -152,6 +155,25 @@ $download_format		= $this->download_format;
       </table>
     </div>
   </div>
+  <div id="componentsForCCDA" style="height:160px!important;display:none;" class="ap-st-st-13">
+           <?php if(count($this->ccda_components) > 0) {?>
+             <div id="chkall_cmp_div1" style="margin-left: 70%;">
+              <input type="checkbox" id="chkall_cmp1" checked="true" /><?php echo $this->listenerObject->z_xlt('Check All - Components');?>
+             </div>
+              <?php 
+              $i = 0;
+              foreach($this->ccda_components as $key_ccda => $value_ccda) { 
+                if($i%2 == 0 && $i!=0){ ?>
+                <div class="clear"></div>
+                <?php  } ?>
+                <div style="float:left;margin-top:2px;width:50%" class="chkdivcmp1" id="chkbxcmp_click1<?php echo $i;?>">
+                  <input type="checkbox" class="check_component1 chkbxcmp_click1" id="chkbxcmp_click1<?php echo $i;?>" value="<?php echo $this->escapeHtml($key_ccda);?>" checked="true">
+                  <span><?php echo $this->escapeHtml($value_ccda);?></span>
+                </div>
+                <?php 
+                $i++; }
+                 }?>
+        </div>
   <!--End Download All-->
 	<div class="ap-st-st-6">
 	        <div class="activity_indicator"><img src="<?php echo $this->basePath(); ?>/css/images/gl.gif" alt="" /></div>
