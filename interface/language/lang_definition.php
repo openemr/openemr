@@ -1,5 +1,5 @@
 
-  <table>
+  <table class="table table-striped table-bordered">
     <form name='filterform' id='filterform' method='post' action='?m=definition' onsubmit="return top.restoreSession()">
     <tr>
       <td><?php echo htmlspecialchars(xl('Filter for Constants','','',':'),ENT_NOQUOTES); ?></td>
@@ -154,7 +154,7 @@ if ($_POST['edit']){
 	$res = SqlStatement($sql,$bind_sql_array);
 	    
         $isResults = false; //flag to record whether there are any results
-	echo ('<table><FORM METHOD=POST ACTION="?m=definition" onsubmit="return top.restoreSession()">');
+	echo ('<table class="table table-striped table-bordered"><FORM METHOD=POST ACTION="?m=definition" onsubmit="return top.restoreSession()">');
 	// only english definitions
 	if ($lang_id==1) {
 		while ($row=SqlFetchArray($res)){

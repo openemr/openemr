@@ -146,7 +146,7 @@ $file_to_compress = '';  // if named, this iteration's file will be gzipped afte
 $eventlog=0;  // Eventlog Flag
 
 if ($form_step == 0) {
-  echo "<table>\n";
+  echo "<table class=\"table table-responsive table-striped table-bordered\">\n";
   echo " <tr>\n";
   echo "  <td><input type='submit' name='form_create' value='$BTN_TEXT_CREATE' /></td>\n";
   echo "  <td>" . xl('Create and download a full backup') . "</td>\n";

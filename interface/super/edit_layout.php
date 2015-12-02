@@ -666,7 +666,7 @@ function writeFieldLine($linedata) {
       "style='position:absolute;width:750px;border:1px solid black;" .
       "padding:2px;background-color:#cccccc;visibility:hidden;" .
       "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
-      "<table width='100%'>\n" .
+      "<table width='100%' class='table table-bordered'>\n" .
       " <tr>\n" .
       "  <th colspan='3' align='left' class='bold'>\"" . text($linedata['field_id']) . "\" " .
       xlt('will be hidden if') . ":</th>\n" .
@@ -1057,7 +1057,7 @@ while ($row = sqlFetchArray($res)) {
 <input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete','e'); ?>' style="font-size:90%" disabled="disabled" />
 <input type='button' name='movefields' id='movefields' value='<?php xl('Move to...','e'); ?>' style="font-size:90%" disabled="disabled" />
 </span>
-<p>
+<p class="button-submit-div">
 <input type='button' name='save' id='save' value='<?php xl('Save Changes','e'); ?>' />
 </p>
 <?php } ?>

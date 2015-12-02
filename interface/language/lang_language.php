@@ -31,7 +31,7 @@ if ($_POST['add']){
 
 ?>
 
-<TABLE>
+<TABLE class="table table-striped table-bordered">
 <FORM name="lang_form" METHOD=POST ACTION="?m=language" onsubmit="return top.restoreSession()">
 <TR>
 	<TD><?php  echo htmlspecialchars(xl('Language Code'),ENT_NOQUOTES); ?>:</TD>

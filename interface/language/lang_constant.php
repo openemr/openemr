@@ -34,7 +34,7 @@ if ($_POST['add']){
 
 ?>
 
-<TABLE>
+<TABLE class="table table-striped table-bordered">
 <FORM name="cons_form" METHOD=POST ACTION="?m=constant" onsubmit="return top.restoreSession()">
 <TR>
 	<TD><?php echo htmlspecialchars(xl('constant name'),ENT_NOQUOTES); ?></TD>

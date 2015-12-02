@@ -129,7 +129,7 @@ function msfFileChanged() {
 <center>
 
 <p>
-<table border='1' width='95%'>
+<table border='1' width='95%' class="table table-striped table-bordered">
 
  <tr bgcolor='#dddddd' class='dehead'>
   <td colspan='2' align='center'><?php echo htmlspecialchars(xl('Edit File in') . " $OE_SITE_DIR"); ?></td>

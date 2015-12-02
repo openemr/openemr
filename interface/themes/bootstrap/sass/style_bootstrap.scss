@@ -1708,3 +1708,27 @@ div#groupdetail {
 div#groupdetail select{
     margin-bottom: 0 !important;
 }
+.fielddetail {
+    margin-top: 7px;
+}
+.button-submit-div{
+    display: block;
+    margin: 10px 0;
+}
+.odd td {
+    background-color: rgb(251, 251, 251) !important;
+}
+.even td {
+    background-color: #D0E9C6 !important;
+}
+tr.head {
+    font-size: 10pt;
+    background-color: $tableHeader-bg !important;
+}
+.selectfield {
+    margin-right: 3px !important;
+}
+#newlistdetail{
+    padding: 15px 10px !important;
+    background: $lightgreen !important;
+}

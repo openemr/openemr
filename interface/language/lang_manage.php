@@ -148,7 +148,7 @@ if ($_POST['check'] || $_POST['synchronize']){
 }
 ?>
 
-<TABLE>
+<TABLE class="table table-striped table-bordered">
 <FORM name="manage_form" METHOD=POST ACTION="?m=manage" onsubmit="return top.restoreSession()">
   <TR>
     <TD><INPUT TYPE="submit" name="check" value="<?php echo htmlspecialchars(xl('Check'),ENT_QUOTES); ?>"></TD>
