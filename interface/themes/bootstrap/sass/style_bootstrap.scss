@@ -19,6 +19,11 @@ $solidgreen : #B8D8AB;
 $lightgreen: #D0E9C6;
 $requiredColor: #EF2525;
 $stripedTableOdd : rgb(251, 251, 251);
+$sidebarBg : #CFE7FB;
+$sidebarColor : #2A6497;
+$sidebarSeparator : #A9C4DA;
+$whiteColor : #fff;
+$silverColor : #EFF1EF;
 /***** colors *********/
 $btn-lg-curve: 5px;
 $btn-sm-curve: 3px;
@@ -199,12 +204,12 @@ a:hover {
  * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
-$body-color: #E8B151;
+$body-color: #fff;
 .body_top { background-color: $body-color; margin: 8px }    /* $top_bg_line */
 .bgcolor2 { background-color: #fefdcf; }    /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
-.body_title { background-color: $body-color; }  /* $title_bg_line */
-.body_nav { background-color: $body-color; }    /* $nav_bg_line */
+.body_title { background-color: $silverColor; }  /* $title_bg_line */
+.body_nav { background-color: $silverColor; }    /* $nav_bg_line */
 .body_filler { background-color: #f7f0d5; } /* $login_filler_line */
 .body_login { background: url('../pic/aquabg.gif') repeat; } /* $login_body_line */
 .table_bg { background-color: #ccc; }           /* $table_bg */
@@ -868,7 +873,7 @@ div.notab-right {
 
 #navigation-slide a{
   background: #FFFFFF;
-  border-top: 2px solid #EAE6FF;
+  border-top: 2px solid $sidebarSeparator;
   color: #000;
   display: block;
   font-weight: bold;
@@ -876,14 +881,15 @@ div.notab-right {
   width: 150px;
 }
 
+
 .collapse-custom {
-    color: #3c763d;
-    background-color: #d0e9c6;
+    color: $sidebarColor;
+    background-color: $sidebarBg;
 }
 
 .collapse-inner{
-    color: #3c763d;
-    background-color: #d0e9c6;
+    color: $sidebarColor;
+    background-color: $sidebarBg;
 }
 
 #navigation-slide li a.collapsed{
@@ -1098,6 +1104,7 @@ div.notab-right {
 }
 #topToolbarRight {
     padding-top: 4px;
+    background: $silverColor !important;
 }
 span.css_button_separator {
   display: none;
@@ -1216,7 +1223,7 @@ input[type="submit"]{
 div.section{
     border-color: transparent !important;
     box-shadow: 0px 0 2px #50B4D4;
-        background: $lightgreen;
+    background: $silverColor;
 }
 td b{
     margin-bottom: 5px;
@@ -1274,7 +1281,7 @@ div.borderbox {
 #navigation-slide li > a:before{
     font-family: 'fontawesome';
     margin-right: 5px;
-    color: #000;
+    color: $sidebarColor;
     font-size: 14px;
     
 }
@@ -1396,7 +1403,11 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
 }
 #times table, .view2, .view1, #datePicker .currentDate,
 #datePicker .tdDatePickerHighlight{
-    background-color: #BBCCFF !important;
+    background-color: $silverColor !important;
+    color: #333!important;
+}
+#timeslot a{
+    color: #000 !important;
 }
 .dr_container{
     padding: 0 !important;
@@ -1410,8 +1421,12 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
     margin-right: 3px !important;
 }
 .bottom-panel .panel{
-    background: $solidgreen;
+    background: $whiteColor;
     padding: 15px;
+}
+
+.providerheader{
+    background: $silverColor !important;
 }
 .ui-accordion .ui-accordion-header{
     background: $solidgreen;
@@ -1429,6 +1444,9 @@ ul.nav-sm.nav-pills-sm li a ,.rule_title a, .rule_type a {
 tr.tableHead-bg td,
 #report_results th{
     height: 40px !important;
+}
+#datePicker .tdDOW-small{
+    background: $silverColor !important;
 }
 tr.tableHead-bg td img,
 #report_results th img{
