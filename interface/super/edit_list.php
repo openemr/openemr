@@ -277,7 +277,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
   $checked_tog2 = $tog2 ? " checked" : "";
   $checked_active = $active ? " checked" : "";
 
-  echo " <tr bgcolor='$bgcolor'>\n";
+  echo " <tr>\n";
 
   echo "  <td align='center' class='optcell'>";
   echo "<input type='text' name='opt[$opt_line_no][id]' value='" .
