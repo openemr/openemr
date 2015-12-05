@@ -81,7 +81,7 @@ if (is_numeric($query_id)) {
 	if (!empty($_GET['var1'])) {
 
 	  //escape the value the user supplied
-	  $var1 = mysql_real_escape_string($_GET['var1']);
+	  $var1 = add_escape_custom($_GET['var1']);
 
 	  //use a regex to replace the piece token with the user supplied value
 	  $current_query = preg_replace('|/\*(.*)\[VARIABLE\](.*)\*/|imSU', '${1}' . $var1 . '${2}', $current_query);
@@ -92,7 +92,7 @@ if (is_numeric($query_id)) {
 	
 	//repeat process if a second value was entered
 	if (!empty($_GET['var2'])) {
-	  $var2 = mysql_real_escape_string($_GET['var2']);
+	  $var2 = add_escape_custom($_GET['var2']);
 	  $current_query = preg_replace('|/\*(.*)\[VARIABLE2\](.*)\*/|imSU', '${1}' . $var2 . '${2}', $current_query);
 	  $current_query = preg_replace('|\[VARIABLE2\]|imU', '${1}' . $var2 . '${2}', $current_query);
 

@@ -579,7 +579,7 @@ function pnVarCleanFromInput()
         }
 
         // Clean var
-        if (get_magic_quotes_gpc()) {
+        if (check_magic_quotes()) {
             pnStripslashes($ourvar);
         }
         if (!pnSecAuthAction(0, '::', '::', ACCESS_ADMIN)) {

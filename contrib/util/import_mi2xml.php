@@ -739,7 +739,7 @@ function get_patientid( $medics ) {
 //
 function form2db($fldval) {
  $fldval = trim($fldval);
- if (!get_magic_quotes_gpc()) $fldval = addslashes($fldval);
+ $fldval = formDataCore($fldval);
  return $fldval;
 }
 

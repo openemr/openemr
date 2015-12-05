@@ -75,7 +75,7 @@ class FormReviewOfSystems extends ORDataObject {
 	function populate() {
 		parent::populate();
 		
-		$sql = "SELECT name from form_review_of_systems_checks where foreign_id = '" . mysql_real_escape_string($this->id) . "'";
+		$sql = "SELECT name from form_review_of_systems_checks where foreign_id = '" . add_escape_custom($this->id) . "'";
 		$results = sqlQ($sql);
 
 		while ($row = mysql_fetch_array($results, MYSQL_ASSOC)) {
@@ -91,7 +91,7 @@ class FormReviewOfSystems extends ORDataObject {
 			sqlQuery($sql);
 			foreach ($this->checks as $check) {
 				if (!empty($check)) {
-					$sql = "INSERT INTO form_review_of_systems_checks set foreign_id='"  . mysql_real_escape_string($this->id) . "', name = '" . mysql_real_escape_string($check) . "'";
+					$sql = "INSERT INTO form_review_of_systems_checks set foreign_id='"  . add_escape_custom($this->id) . "', name = '" . add_escape_custom($check) . "'";
 					sqlQuery($sql);
 					//echo "$sql<br>";
 				}

@@ -51,7 +51,7 @@ class PhoneNumber extends ORDataObject{
 			 $foreign_id= "like '%'";
 		}
 		else {
-			$foreign_id= " = '" . mysql_real_escape_string(strval($foreign_id)) . "'";
+			$foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
 		}
 		$phone_numbers = array();
 		$p = new PhoneNumber();

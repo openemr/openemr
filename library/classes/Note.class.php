@@ -79,7 +79,7 @@ class Note extends ORDataObject{
 			 $foreign_id= "like '%'";
 		}
 		else {
-			$foreign_id= " = '" . mysql_real_escape_string(strval($foreign_id)) . "'";
+			$foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
 		}
 		
 		$d = new note();

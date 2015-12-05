@@ -305,11 +305,11 @@ class InsuranceCompany extends ORDataObject{
 			 $city= "";
 		}
 		else {
-			$city = " WHERE city = " . mysql_real_escape_string($foreign_id);
+			$city = " WHERE city = " . add_escape_custom($foreign_id);
 		}
 		$p = new InsuranceCompany();
 		$icompanies = array();
-		$sql = "SELECT p.id, a.city FROM  " . $p->_table . " as p INNER JOIN addresses as a on p.id = a.foreign_id " .$city . " " . mysql_real_escape_string($sort);
+		$sql = "SELECT p.id, a.city FROM  " . $p->_table . " as p INNER JOIN addresses as a on p.id = a.foreign_id " .$city . " " . add_escape_custom($sort);
 
 		//echo $sql . "<bR />";
 		$results = sqlQ($sql);

@@ -79,7 +79,7 @@ if (isset($mode)) {
 				foreach ($diags as $diag) {
 					$justify_string .= $diag . ":"; 
 				}
-				$sql[] = "UPDATE billing set justify = concat(justify,'" . mysql_real_escape_string($justify_string)  ."') where encounter = '" . mysql_real_escape_string($_POST['encounter_id']) . "' and pid = '" . mysql_real_escape_string($_POST['patient_id']) . "' and code = '" . mysql_real_escape_string($proc) . "'";
+				$sql[] = "UPDATE billing set justify = concat(justify,'" . add_escape_custom($justify_string)  ."') where encounter = '" . add_escape_custom($_POST['encounter_id']) . "' and pid = '" . add_escape_custom($_POST['patient_id']) . "' and code = '" . add_escape_custom($proc) . "'";
 			}
 		
 		}
@@ -99,9 +99,9 @@ if (isset($mode)) {
           trim($ndc['ndcqty']);
       }
       sqlStatement("UPDATE billing SET ndc_info = '$ndc_info' WHERE " .
-        "encounter = '" . mysql_real_escape_string($_POST['encounter_id']) . "' AND " .
-        "pid = '" . mysql_real_escape_string($_POST['patient_id']) . "' AND " .
-        "code = '" . mysql_real_escape_string($ndc['code']) . "'");
+        "encounter = '" . add_escape_custom($_POST['encounter_id']) . "' AND " .
+        "pid = '" . add_escape_custom($_POST['patient_id']) . "' AND " .
+        "code = '" . add_escape_custom($ndc['code']) . "'");
     }
 
   }

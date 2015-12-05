@@ -1,0 +1,4 @@
+.idea/
+!interface/main/calendar/modules/PostCalendar/pntemplates/compiled
+interface/main/calendar/modules/PostCalendar/pntemplates/compiled/*
+!interface/main/calendar/modules/PostCalendar/pntemplates/compiled/README

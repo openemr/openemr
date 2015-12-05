@@ -5,7 +5,7 @@ include_once($GLOBALS["srcdir"]."/api.inc");
 function review_of_systems_report( $pid, $encounter, $cols, $id) {
 $count = 0;
 $data = formFetch("form_review_of_systems", $id);
-$sql = "SELECT name from form_review_of_systems_checks where foreign_id = '" . mysql_real_escape_string($id) . "'";
+$sql = "SELECT name from form_review_of_systems_checks where foreign_id = '" . add_escape_custom($id) . "'";
 $results = sqlQ($sql);
 $data2 = array();
 	while ($row = mysql_fetch_array($results, MYSQL_ASSOC)) {
