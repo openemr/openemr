@@ -7761,7 +7761,7 @@ CREATE TABLE ccda_components (
   ccda_components_name varchar(100) DEFAULT NULL,
   ccda_type int(11) NOT NULL COMMENT '0=>sections,1=>components',
   PRIMARY KEY (ccda_components_id)
-) ENGINE=InnoDB AUTO_INCREMENT=10 ;
+) ENGINE=InnoDB AUTO_INCREMENT=23 ;
 insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('1','progress_note','Progress Notes',0);
 insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('2','consultation_note','Consultation Note',0);
 insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('3','continuity_care_document','Continuity Care Document',0);
