@@ -685,7 +685,7 @@ function postcalendar_user_submit($args)
             $old_dur_hours = $eventdata['event_dur_hours'];
             $old_dur_min = $eventdata['event_dur_minutes'];
             $old_duration = $eventdata['event_duration'];
-            $eventdata['event_subject'] = mysql_real_escape_string($ekey);
+            $eventdata['event_subject'] = add_escape_custom($ekey);
             $eventdata['event_status'] = _EVENT_TEMPORARY;
 
             if (!pnModAPIFunc(__POSTCALENDAR__,'user','submitEvent',$eventdata)) {

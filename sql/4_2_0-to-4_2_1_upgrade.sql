@@ -11769,6 +11769,9 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_name`, `title`, `seq
 ALTER TABLE `patient_data` ADD COLUMN `county` varchar(40) NOT NULL default '';
 #EndIf 
 
+#IfNotListImmunizationManufacturer
+#EndIf
+
 #IfNotRow2D list_options list_id lists option_id Immunization_Manufacturer
 INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','Immunization_Manufacturer','Immunization Manufacturer');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('Immunization_Manufacturer','AB','Abbott Laboratories','AB','10');
@@ -12453,3 +12456,76 @@ ALTER TABLE transactions DROP COLUMN                  reply_related_code;
 UPDATE `clinical_rules` SET `amc_code_2014` = '170.314(g)(1)/(2)-19' WHERE `id` = 'secure_messaging_amc' AND `amc_code_2014` = '170.314(g)(1)/(2)'; 
 #EndIf
 
+#IfMissingColumn documents documentationOf
+ALTER TABLE `documents` ADD `documentationOf` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn ccda_components ccda_type
+ALTER TABLE `ccda_components` ADD ccda_type int(11) NOT NULL COMMENT '0=>sections,1=>components';
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field allergies ccda_components_name Allergies
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('allergies','Allergies',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field medications ccda_components_name Medications
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('medications','Medications',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field problems ccda_components_name Problems
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('problems','Problems',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field immunizations ccda_components_name Immunizations
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('immunizations','Immunizations',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field procedures ccda_components_name Procedures
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('procedures','Procedures',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field results ccda_components_name Results
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('results','Results',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field plan_of_care ccda_components_name Plan Of Care
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('plan_of_care','Plan Of Care',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field vitals ccda_components_name Vitals
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('vitals','Vitals',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field social_history ccda_components_name Social History
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('social_history','Social History',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field encounters ccda_components_name Encounters
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('encounters','Encounters',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field functional_status ccda_components_name Functional Status
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('functional_status','Functional Status',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field referral ccda_components_name Reason for Referral
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('referral','Reason for Referral',1);
+#EndIf
+
+#IfNotRow2D ccda_components ccda_components_field instructions ccda_components_name Instructions
+INSERT INTO ccda_components (ccda_components_field, ccda_components_name, ccda_type) VALUES ('instructions','Instructions',1);
+#EndIf
+
+#IfNotTable form_clinical_instructions
+CREATE TABLE `form_clinical_instructions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pid` bigint(20) DEFAULT NULL,
+  `encounter` varchar(255) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `instruction` text,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `activity` TINYINT DEFAULT 1 NULL,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB;
+INSERT INTO `registry` (`name`,`state`,`directory`,`sql_run`,`unpackaged`,`date`,`priority`,`category`,`nickname`) VALUES ('Clinical Instructions', 1, 'clinical_instructions', 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
+#EndIf

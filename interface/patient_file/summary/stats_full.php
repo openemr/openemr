@@ -156,6 +156,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     <?php } else { ?>
       <th style='text-align:left'><?php echo xlt('Referred By'); ?></th>
     <?php } ?>
+    <th style='text-align:left'><?php echo xlt('Modify Date'); ?></th>
     <th style='text-align:left'><?php echo xlt('Comments'); ?></th>
     <th><?php echo xlt('Enc'); ?></th>
     </tr>
@@ -246,6 +247,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     else {
         echo "  <td>" . text($row['referredby']) . "</td>\n";
     }
+    echo "  <td>" . text($row['modifydate']) . "</td>\n";
     echo "  <td>" . text($row['comments']) . "</td>\n";
     echo "  <td id='e_$rowid' class='noclick center' title='" . xla('View related encounters') . "'>";
     echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";

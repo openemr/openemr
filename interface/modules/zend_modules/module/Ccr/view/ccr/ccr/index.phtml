@@ -265,7 +265,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     <div class="header_wrap">
       <div id="uploader">
         <input type="file" id="file_uploader" multiple>
-      </div>  
+      </div>
+      <div id="refresh" onclick="javascript:document.getElementById('form_ccr_import').submit();">&nbsp;</div>
     </div>
     <div class="clear"></div>    
     <!--Display upload status-->

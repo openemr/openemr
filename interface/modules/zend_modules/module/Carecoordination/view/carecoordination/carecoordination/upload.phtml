@@ -80,6 +80,38 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             $('#form_ccda_import').attr('action','<?php echo $this->basePath();?>/carecoordination/revandapprove');
             document.getElementById('form_ccda_import').submit();
         });
+        
+        $('.expandAuditDetails').click(function(){
+          var arr = (this.id).split('_');
+          
+          if($('#'+this.id).hasClass('se_in_23')){
+            $('#'+this.id).addClass("se_in_24");
+            $('#'+this.id).removeClass("se_in_23");
+            $('#hide_'+arr[1]).show('slow');
+            getCCDAComponents(arr[1]);
+          }
+          else if($('#'+this.id).hasClass('se_in_24')){
+            $('#'+this.id).addClass("se_in_23");
+            $('#'+this.id).removeClass("se_in_24");
+            $('#hide_'+arr[1]).hide('slow');
+          }
+        });
+        $("body").on("click",".expandCompDetails",function(){
+          var arr   = (this.id).split('-');
+          component = $('#'+this.id).attr('component');        
+          amid      = $('#'+this.id).attr('amid');        
+          if($('#'+this.id).hasClass('se_in_23')){
+            $('#'+this.id).addClass("se_in_24");
+            $('#'+this.id).removeClass("se_in_23");
+            $('#hideComp-'+arr[1]).show('slow');
+            getEachCCDAComponentDetails(arr[1],component,amid);
+          }
+          else if($('#'+this.id).hasClass('se_in_24')){
+            $('#'+this.id).addClass("se_in_23");
+            $('#'+this.id).removeClass("se_in_24");
+            $('#hideComp-'+arr[1]).hide('slow');
+          }
+        });
     });
   
     $(document).ready(function()
@@ -240,6 +272,46 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
         }
         $('#status1').show('clip','',500,'');
     }
+    
+    function getCCDAComponents(id)
+    {
+        $.ajax({
+        type: "POST",
+        url: '<?php echo $this->basePath();?>/carecoordination/getCCDAComponents?id='+id,
+        dataType: "text",
+        beforeSend: function(){
+         appendLoader = '<img src="<?php echo $this->basePath();?>/images/pulling.gif" style="width:1%;margin-left:50%">';
+         $('#hide_'+id).html(appendLoader);
+        },
+        data: {},
+        success: function(thedata){
+         $('#hide_'+id).html(thedata);
+        },
+        error: function(xhr, status, error) {
+         alert(xhr.responseText);
+        }
+      });
+    }
+    
+    function getEachCCDAComponentDetails(id,component,amid)
+    {
+        $.ajax({
+        type: "POST",
+        url: '<?php echo $this->basePath();?>/carecoordination/getEachCCDAComponentDetails?id='+id+'&component='+component+'&amid='+amid,
+        dataType: "text",
+        beforeSend: function(){
+         appendLoader = '<img src="<?php echo $this->basePath();?>/images/pulling.gif" style="width:1%;margin-left:50%">';
+         $('#hideComp-'+id).html(appendLoader);
+        },
+        data: {},
+        success: function(thedata){
+         $('#hideComp-'+id).html(thedata);
+        },
+        error: function(xhr, status, error) {
+         alert(xhr.responseText);
+        }
+      });
+    }
 </script>
 <body id="dragandrophandler" style="min-height: 600px">
     <form method="post" enctype="multipart/form-data" id="form_ccda_import">
@@ -278,7 +350,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             <div class="header_wrap">
               <div id="uploader">
                 <input type="file" id="file_uploader" multiple>
-              </div>  
+              </div>
+              <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
             </div>
             <div class="clear"></div>
             
@@ -293,6 +366,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     ?>
                     <table class="responsive">
                         <tr class="se_in_9">
+                            <th>&nbsp;</th>
                             <th style="height: 20px;">#</th>
                             <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
                             <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
@@ -307,6 +381,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     foreach($this->records as $row){ 
                         ?>
                         <tr>
+                            <td id="expandAuditDetails_<?php echo $this->escapeHtml($row['amid']).'-'.$this->escapeHtml($row['pid']);?>" class="expandAuditDetails se_in_23"></td>
                             <td style="height: 20px;"><?php echo ++$slno; ?></td>
                             <td><?php echo \Application\Model\ApplicationTable::fixDate($row['date'],'dd/mm/yyyy','yyyy-mm-dd'); ?></td>
                             <td><?php echo $this->escapeHtml($row['fname']." ".$row['lname']); ?></td>
@@ -361,6 +436,9 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                 }
                                 ?>
                             </td>
+                        </tr>
+                        <tr>
+                         <td colspan="9" id="hide_<?php echo $this->escapeHtml($row['amid']).'-'.$this->escapeHtml($row['pid']);?>" class="imported_ccda_details" style="display: none;"></td>
                         </tr>
                         <?php
                     }

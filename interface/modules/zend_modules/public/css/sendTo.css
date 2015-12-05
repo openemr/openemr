@@ -174,3 +174,12 @@
                         background: none repeat scroll 0 0 #F0F8FF;
                         font-size: 12px;
 }
+#advance-opt {
+    height: 12px;
+    width: 5%;
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///9mZmaO7mygAAAAAXRSTlMAQObYZgAAABtJREFUCB1jwATyPxj4PzCwP2BgPsDA2MCACgBiNwRCJW+9iwAAAABJRU5ErkJggg==") no-repeat right center;
+    margin-left: 18%;
+}
+.showcomponentsForCCDA-div {
+   cursor:pointer; 
+}

@@ -48,15 +48,17 @@ class SendtoController extends AbstractActionController
         $default_send_via       = $default_send_via ? $default_send_via : 'printer';
         $encounter              = $GLOBALS['encounter'];        
         $faxRecievers           = $this->getSendtoTable()->getFaxRecievers();
-        $ccda_components        = $this->getSendtoTable()->getCCDAComponents();
+        $ccda_sections          = $this->getSendtoTable()->getCCDAComponents(0);
+        $ccda_components        = $this->getSendtoTable()->getCCDAComponents(1);
         $this->layout('layout/sendto');
         $view =  new ViewModel(array(                                
                                 'send_via'            => $default_send_via,
                                 'faxRecievers'        => $faxRecievers,
-                                'ccda_components'     => $ccda_components,
+                                'ccda_sections'       => $ccda_sections,
                                 'required_butons'     => $required_butons,
                                 'selected_form'       => $selected_cform,
-                                'listenerObject'=> $this->listenerObject,
+                                'listenerObject'      => $this->listenerObject,
+                                'ccda_components'     => $ccda_components,
                             ));
         if($button_only == 1) {
             $this->layout('layout/embedded_button');

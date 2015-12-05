@@ -59,7 +59,17 @@ class CcdController extends AbstractActionController
             $_REQUEST["batch_import"]   = 'YES';
             $this->importAction();
         }
-      } 
+      }
+      else{
+            $result = \Documents\Plugin\Documents::fetchXmlDocuments();
+            foreach($result as $row){
+                if($row['doc_type'] == 'CCD'){
+                    $_REQUEST["document_id"] = $row['doc_id'];
+                    $this->importAction();
+                    \Documents\Model\DocumentsTable::updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
+                }
+            }
+        }
       
       $records = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->document_fetch(array('cat_title' => 'CCD','type' => '13'));
       $view = new ViewModel(array(

@@ -154,7 +154,7 @@ class Document extends ORDataObject{
 			 $foreign_id= "like '%'";
 		}
 		else {
-			$foreign_id= " = '" . mysql_real_escape_string(strval($foreign_id)) . "'";
+			$foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
 		}
 		
 		$d = new Document();
@@ -185,7 +185,7 @@ class Document extends ORDataObject{
 			die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");	
 		}
 		
-		$sql = "SELECT id FROM  " . $d->_table . " WHERE url= '" . mysql_real_escape_string($url) ."'" ;
+		$sql = "SELECT id FROM  " . $d->_table . " WHERE url= '" . add_escape_custom($url) ."'" ;
 		$result = $d->_db->Execute($sql);
 		
 		if ($result && !$result->EOF) {

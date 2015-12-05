@@ -42,7 +42,7 @@ function getProviderUsernames() {
 
 
 function getIDfromUser($name) {
-	$query = "select id from users where username=\"" . mysql_real_escape_string($name) . "\" limit 1";
+	$query = "select id from users where username=\"" . add_escape_custom($name) . "\" limit 1";
 	$rez = sqlStatement($query);
 	$row = sqlFetchArray($rez);
 	if (!is_numeric($row['id']))

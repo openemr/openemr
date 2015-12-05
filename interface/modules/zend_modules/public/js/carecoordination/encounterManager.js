@@ -1,5 +1,14 @@
 function validate_search()
 {
+	if($('#downloadccda').val()) {
+     $('#downloadccda').val('');
+    }
+    if($('#downloadccr').val()) {
+     $('#downloadccr').val('');
+    }
+    if($('#downloadccd').val()) {
+     $('#downloadccd').val('');
+    }
 	var from_date 	= document.getElementsByName('form_date_from')[0].value;
 	var to_date 	= document.getElementsByName('form_date_to')[0].value;
 	var from_date_arr = from_date.split('/');

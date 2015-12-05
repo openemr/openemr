@@ -86,10 +86,12 @@ class EncountermanagerController extends AbstractActionController
             else
               $pids .= $combination[$i].'|';
           }
+          $components   = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;
           $this->forward()->dispatch('encounterccdadispatch',array('action'       => 'index',
                                                                    'pids'         => $pids,
                                                                    'view'         => 1,
-                                                                   'downloadccda' => $downloadccda));
+                                                                   'downloadccda' => $downloadccda,
+                                                                   'components'   => $components));
         }
         
         $params     = array(

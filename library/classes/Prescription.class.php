@@ -1,6 +1,7 @@
 <?php
 require_once (dirname(__FILE__) . "/../sql.inc");
 require_once (dirname(__FILE__) . "/../lists.inc");
+require_once (dirname(__FILE__) . "/../formdata.inc.php");
 require_once("ORDataObject.class.php");
 require_once("Patient.class.php");
 require_once("Person.class.php");
@@ -525,7 +526,7 @@ class Prescription extends ORDataObject {
                 break;
         }
 
-        $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . mysql_real_escape_string($this->provider->id) . "'";
+        $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($this->provider->id) . "'";
         $db = get_db();
         $results = $db->Execute($sql);
         if (!$results->EOF) {
@@ -568,7 +569,7 @@ class Prescription extends ORDataObject {
         
         $string .= $gnd . $this->provider->federal_drug_id . "\n"; 
         
-        $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . mysql_real_escape_string($this->provider->id) . "'";
+        $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($this->provider->id) . "'";
         $results = $db->Execute($sql);
         
         if (!$results->EOF) {
@@ -622,8 +623,8 @@ class Prescription extends ORDataObject {
         require_once (dirname(__FILE__) . "/../translation.inc.php");
         $p = new Prescription();
         $sql = "SELECT id FROM  " . $p->_table . " WHERE patient_id = " .
-                mysql_real_escape_string($patient_id) .
-                " ORDER BY " . mysql_real_escape_string($order_by);
+                add_escape_custom($patient_id) .
+                " ORDER BY " . add_escape_custom($order_by);
         $results = sqlQ($sql);
         while ($row = mysql_fetch_array($results) ) {
             $prescriptions[] = new Prescription($row['id']);

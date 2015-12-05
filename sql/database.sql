@@ -817,6 +817,7 @@ CREATE TABLE `documents` (
   `encounter_check`	TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'If encounter is created while tagging',
   `audit_master_approval_status` TINYINT NOT NULL DEFAULT 1 COMMENT 'approval_status from audit_master table',
   `audit_master_id` int(11) default NULL,
+  `documentationOf` varchar(255) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
@@ -5372,7 +5373,7 @@ CREATE TABLE `registry` (
   `category` varchar(255) default NULL,
   `nickname` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=20 ;
+) ENGINE=MyISAM AUTO_INCREMENT=21 ;
 
 -- 
 -- Dumping data for table `registry`
@@ -5390,6 +5391,7 @@ INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1
 INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
 INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
 INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
+INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instructions', 20, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
 
 -- --------------------------------------------------------
 
@@ -7757,17 +7759,31 @@ CREATE TABLE ccda_components (
   ccda_components_id int(11) NOT NULL AUTO_INCREMENT,
   ccda_components_field varchar(100) DEFAULT NULL,
   ccda_components_name varchar(100) DEFAULT NULL,
+  ccda_type int(11) NOT NULL COMMENT '0=>sections,1=>components',
   PRIMARY KEY (ccda_components_id)
-) ENGINE=InnoDB AUTO_INCREMENT=10 ;
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('1','progress_note','Progress Notes');
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('2','consultation_note','Consultation Note');
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('3','continuity_care_document','Continuity Care Document');
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('4','diagnostic_image_reporting','Diagnostic Image Reporting');
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('5','discharge_summary','Discharge Summary');
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('6','history_physical_note','History and Physical Note');
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('7','operative_note','Operative Note');
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('8','procedure_note','Procedure Note');
-insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name) values('9','unstructured_document','Unstructured Document');
+) ENGINE=InnoDB AUTO_INCREMENT=23 ;
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('1','progress_note','Progress Notes',0);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('2','consultation_note','Consultation Note',0);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('3','continuity_care_document','Continuity Care Document',0);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('4','diagnostic_image_reporting','Diagnostic Image Reporting',0);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('5','discharge_summary','Discharge Summary',0);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('6','history_physical_note','History and Physical Note',0);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('7','operative_note','Operative Note',0);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('8','procedure_note','Procedure Note',0);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('9','unstructured_document','Unstructured Document',0);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('10','allergies','Allergies',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('11','medications','Medications',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('12','problems','Problems',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('13','immunizations','Immunizations',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('14','procedures','Procedures',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('15','results','Results',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('16','plan_of_care','Plan Of Care',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('17','vitals','Vitals',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('18','social_history','Social History',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('19','encounters','Encounters',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('20','functional_status','Functional Status',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('21','referral','Reason for Referral',1);
+insert into ccda_components (ccda_components_id, ccda_components_field, ccda_components_name, ccda_type) values ('22','instructions','Instructions',1);
 -- --------------------------------------------------------
 
 
@@ -7978,4 +7994,20 @@ CREATE TABLE `form_observation` (
   `code_type` varchar(255),
   `table_code` varchar(255)
 ) ENGINE=InnoDB;
+-- --------------------------------------------------------
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `form_clinical_instructions`
+--
+CREATE TABLE `form_clinical_instructions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pid` bigint(20) DEFAULT NULL,
+  `encounter` varchar(255) DEFAULT NULL,
+  `user` varchar(255) DEFAULT NULL,
+  `instruction` text,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `activity` TINYINT DEFAULT 1 NULL,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB;
 -- --------------------------------------------------------

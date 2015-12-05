@@ -589,6 +589,9 @@ if ($GLOBALS['patient_id_category_name']) {
 |
 <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
 <?php echo xlt('Ledger'); ?></a>
+|
+<a href="../../reports/external_data.php" onclick='top.restoreSession()'>
+<?php echo xlt('External Data'); ?></a>
 
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php

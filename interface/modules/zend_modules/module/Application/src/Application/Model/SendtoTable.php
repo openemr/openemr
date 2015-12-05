@@ -72,15 +72,15 @@ class SendtoTable extends AbstractTableGateway
     /*
     * CCDA component list
     *
-    * @param    None
+    * @param    $type
     * @return   $components     Array of CCDA components
     **/
-    public function getCCDAComponents()
+    public function getCCDAComponents($type)
     {
         $components = array();
-        $query      = "select * from ccda_components";
+        $query      = "select * from ccda_components where ccda_type = ?";
         $appTable   = new ApplicationTable();
-        $result     = $appTable->zQuery($query, array());
+        $result     = $appTable->zQuery($query, array($type));
         
         foreach($result as $row){
             $components[$row['ccda_components_field']] = $row['ccda_components_name'];

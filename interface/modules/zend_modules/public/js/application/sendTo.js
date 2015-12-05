@@ -184,7 +184,45 @@ $(document).ready(function(){
 		}
 		return false;
 	});
-	
+        
+        $(".showcomponentsForCCDA-div").click(function(){
+          $("#componentsForCCDA").slideToggle('slow');
+        });
+              
+	//check all for component 
+            $('#chkall_cmp1').click(function(event) {  
+                if(this.checked) { 
+                  $("#chkall_cmp_div1").removeClass("selected_check");
+                  $('.chkbxcmp_click1').each(function() { 
+                    this.checked = true; 
+                    $(".selected_check").removeClass("selected_check");
+                  });
+                }
+                else {
+                  $("#chkall_cmp_div1").addClass("selected_check");
+                  $('.chkbxcmp_click1').each(function() { 
+                    this.checked = false;  
+                    $(".chkdivcmp1").addClass("selected_check");
+                  });         
+                }
+              });
+              $(".chkbxcmp_click1").click(function(){
+                chk_cmp_id = $(this).attr('id');
+                if($(this).is(":checked")){
+                  $("#"+chk_cmp_id).removeClass("selected_check");
+                }else{
+                  $("#"+chk_cmp_id).addClass("selected_check");
+                }
+                chkbx_click_len         = $(".chkbxcmp_click1").length;
+                chkbx_click_checked_len = $(".chkbxcmp_click1:checked").length;
+                if(chkbx_click_checked_len == chkbx_click_len){                  
+                $("#chkall_cmp1").attr("checked",true);
+                $("#chkall_cmp_div1").removeClass("selected_check");
+                }else{
+                   $("#chkall_cmp1").attr("checked",false); 
+                   $("#chkall_cmp_div1").addClass("selected_check");
+                }
+              });
 });
 function getComponents(val){
 	$.ajax({
@@ -228,6 +266,14 @@ function send(){
   $("#downloadccda").val('');
   $("#downloadccr").val('');
   $("#downloadccd").val('');
+  var comp = '';
+    $(".check_component1").each(function(){
+			if($(this).is(":checked")){
+				i++;
+                                if(comp) comp +="|";
+				comp += $(this).val();
+			}
+    });
 	if(send_to == "printer" || send_to == "fax"){
 		formnames 			= "";
 		formnames_title	= "";
@@ -311,7 +357,7 @@ function send(){
             
             $.ajax({
                 type: "POST",
-                url : APP_URL+"/encounterccdadispatch/index?combination="+combination+"&sections="+str+"&send=1&recipient=hie",
+                url : APP_URL+"/encounterccdadispatch/index?combination="+combination+"&sections="+str+"&send=1&recipient=hie&components="+comp,
                 dataType: "html",
                 data: {
                 },
@@ -380,7 +426,7 @@ function send(){
 		if(recipients != '') {
 			$.ajax({
 			type: "POST",
-			url : APP_URL+"/encounterccdadispatch/index?combination="+combination+"&sections="+components+"&view=1&emr_transfer=1&recipient=emr_direct&param="+recipients+"&referral_reason="+referral_reason,
+			url : APP_URL+"/encounterccdadispatch/index?combination="+combination+"&sections="+components+"&view=1&emr_transfer=1&recipient=emr_direct&param="+recipients+"&referral_reason="+referral_reason+"&components="+comp,
 			dataType: "html",
 			data: {
 			},
@@ -439,9 +485,10 @@ function send(){
       var download_format = $('input:radio[name="downloadformat"]:checked').val();	
       if(download_format == 'ccda') {
         if($('#ccda_pid').val()) {
-          window.location.assign(WEB_ROOT+"/interface/modules/zend_modules/public/encountermanager/index?pid_ccda="+pid+"&downloadccda=download_ccda");
+          window.location.assign(WEB_ROOT+"/interface/modules/zend_modules/public/encountermanager/index?pid_ccda="+pid+"&downloadccda=download_ccda&components="+comp);
         }
         else {
+          $('#components').val(comp);
           $('#download_ccda').trigger("click"); 
           $(".check_pid").prop("checked",false);
         }

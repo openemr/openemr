@@ -126,11 +126,14 @@ closedir($dh);
 if (!empty($_POST['form_submit'])) {
   upgradeFromSqlFile_de("database_de_identification.sql");
 
-  // grant file privilege to user
-  if ($sqlconf["host"] == "localhost")
-	$dbh = mysql_connect($sqlconf['host'],$_POST['root_user_name'],$_POST['root_user_pass'],$sqlconf['host']) or die(mysql_error());
-  else
-	$dbh = mysql_connect($sqlconf['host'].":".$sqlconf['port'],$_POST['root_user_name'],$_POST['root_user_pass']) or die(mysql_error());
+//  grant file privilege to user
+//  if ($sqlconf["host"] == "localhost")
+//	$dbh = mysql_connect($sqlconf['host'],$_POST['root_user_name'],$_POST['root_user_pass'],$sqlconf['host']) or die(mysql_error());
+//  else
+//	$dbh = mysql_connect($sqlconf['host'].":".$sqlconf['port'],$_POST['root_user_name'],$_POST['root_user_pass']) or die(mysql_error());
+
+  $dbh = $GLOBALS['dbh'];
+
   if ($dbh == FALSE) {
 	echo "\n";
 	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
