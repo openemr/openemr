@@ -386,11 +386,11 @@ class CarecoordinationController extends AbstractActionController
         $temp = '<table>';
         foreach($components as $key=>$value) {
          $temp .='<tr class="se_in_9">
-           <th colspan="1" id="expandCompDetails-'.$key.$amid.$pid.'" class="expandCompDetails se_in_23" component="'.$key.'" amid="'.$amid.'" style="padding: 0px 5px!important;"></th>
+           <th colspan="1" id="expandCompDetails-'.\Application\Plugin\CommonPlugin::escape($key.$amid.$pid).'" class="expandCompDetails se_in_23" component="'.\Application\Plugin\CommonPlugin::escape($key).'" amid="'.\Application\Plugin\CommonPlugin::escape($amid).'" style="padding: 0px 5px!important;"></th>
            <th colspan="8" style="padding: 0px 0px!important;"><label>'.\Application\Plugin\CommonPlugin::escape($value).'</th> 
          </tr>
          <tr>
-          <td colspan="9" id="hideComp-'.$key.$amid.$pid.'" class="imported_ccdaComp_details" style="display: none;"></td>
+          <td colspan="9" id="hideComp-'.\Application\Plugin\CommonPlugin::escape($key.$amid.$pid).'" class="imported_ccdaComp_details" style="display: none;"></td>
          </tr>';
         } 
         $temp .= '</table>'; 
@@ -426,7 +426,7 @@ class CarecoordinationController extends AbstractActionController
                                             $status = 'active';
                                           }
                                           $temp .='<tr class="narr_tr">
-                                                    <td>'.\Application\Listener\Listener::z_xlt($val['list_code_text']).'</td>
+                                                    <td>'.\Application\Plugin\CommonPlugin::escape($val['list_code_text']).'</td>
                                                     <td>'.\Application\Listener\Listener::z_xlt($val['reaction_text']).'</td>
                                                     <td>'.\Application\Listener\Listener::z_xlt($severity_text).'</td>
                                                     <td>'.\Application\Listener\Listener::z_xlt($status).'</td>
@@ -456,11 +456,11 @@ class CarecoordinationController extends AbstractActionController
                                            else
                                             $active = 'active';
                                            $temp .='<tr class="narr_tr">
-                                                        <td>'.\Application\Listener\Listener::z_xlt($val['drug_text']).'</td>
+                                                        <td>'.\Application\Plugin\CommonPlugin::escape($val['drug_text']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['rate']." ".$val['rate_unit']." ".$val['route_display']." ".$val['dose']." ".$val['dose_unit']).'</td>
                                                         <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                                         <td>'.\Application\Listener\Listener::z_xlt($active).'</td>
-                                                        <td>'.\Application\Listener\Listener::z_xlt($val['indication']).'</td>
+                                                        <td>'.\Application\Plugin\CommonPlugin::escape($val['indication']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['note']).'</td>
                                                     </tr>';
                                            }   
@@ -481,7 +481,7 @@ class CarecoordinationController extends AbstractActionController
                                           else{
                                             $status = 'Active';
                                           }
-                                          $temp .='<li>'.$i.'. '.\Application\Listener\Listener::z_xlt($val['list_code_text']).','.substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2).', '.\Application\Listener\Listener::z_xlt('Status').' :'.\Application\Listener\Listener::z_xlt($status).'</li>';  
+                                          $temp .='<li>'.$i.'. '.\Application\Plugin\CommonPlugin::escape($val['list_code_text']).','.substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2).', '.\Application\Listener\Listener::z_xlt('Status').' :'.\Application\Listener\Listener::z_xlt($status).'</li>';  
                                           $i++;
                                          }
                                          $temp .='</ul></div>';
@@ -501,7 +501,7 @@ class CarecoordinationController extends AbstractActionController
                                             <tbody>';
                                           foreach($immunizations_audit['immunization'] as $key => $val) { 
                                            $temp .='<tr class="narr_tr">
-                                                <td>'.\Application\Listener\Listener::z_xlt($val['cvx_code_text']).'</td>
+                                                <td>'.\Application\Plugin\CommonPlugin::escape($val['cvx_code_text']).'</td>
                                                 <td>'.$this->getCarecoordinationTable()->getMonthString(substr($val['administered_date'], 4, 2)).' '.substr($val['administered_date'],0,4).'</td>
                                                 <td>'.\Application\Listener\Listener::z_xlt('Completed').'</td>
                                             </tr>';
