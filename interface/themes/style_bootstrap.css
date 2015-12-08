@@ -7271,30 +7271,34 @@ ul.tabNav .open > a:focus,
   }
 }
 /* line 4136, bootstrap/css/bootstrap.scss */
-.nav-pills > li, .nav-pills-sm > li {
+.nav-pills > li, .nav-pills-sm > li, .moduleInstallerPage .current.divMenu > li {
   float: left;
 }
 
 /* line 4139, bootstrap/css/bootstrap.scss */
-.nav-pills > li > a, .nav-pills-sm > li > a {
+.nav-pills > li > a, .nav-pills-sm > li > a, .moduleInstallerPage .current.divMenu > li > a {
   border-radius: 4px;
 }
 
 /* line 4142, bootstrap/css/bootstrap.scss */
-.nav-pills > li + li, .nav-pills-sm > li + li {
+.nav-pills > li + li, .nav-pills-sm > li + li, .moduleInstallerPage .current.divMenu > li + li {
   margin-left: 2px;
 }
 
 /* line 4145, bootstrap/css/bootstrap.scss */
-.nav-pills > li.active > a, .nav-pills-sm > li.active > a, .nav-pills > li.current > a, .nav-pills-sm > li.current > a,
+.nav-pills > li.active > a, .nav-pills-sm > li.active > a, .moduleInstallerPage .current.divMenu > li.active > a, .nav-pills > li.current > a, .nav-pills-sm > li.current > a, .moduleInstallerPage .current.divMenu > li.current > a,
 .nav-pills > li.active > a:hover,
 .nav-pills-sm > li.active > a:hover,
+.moduleInstallerPage .current.divMenu > li.active > a:hover,
 .nav-pills > li.current > a:hover,
 .nav-pills-sm > li.current > a:hover,
+.moduleInstallerPage .current.divMenu > li.current > a:hover,
 .nav-pills > li.active > a:focus,
 .nav-pills-sm > li.active > a:focus,
+.moduleInstallerPage .current.divMenu > li.active > a:focus,
 .nav-pills > li.current > a:focus,
-.nav-pills-sm > li.current > a:focus {
+.nav-pills-sm > li.current > a:focus,
+.moduleInstallerPage .current.divMenu > li.current > a:focus {
   color: #fff;
   background-color: #337ab7;
 }
@@ -8487,7 +8491,8 @@ a.badge:focus {
 /* line 4994, bootstrap/css/bootstrap.scss */
 .list-group-item.active > .badge,
 .nav-pills > .active > a > .badge,
-.nav-pills-sm > .active > a > .badge {
+.nav-pills-sm > .active > a > .badge,
+.moduleInstallerPage .current.divMenu > .active > a > .badge {
   color: #337ab7;
   background-color: #fff;
 }
@@ -8503,7 +8508,7 @@ a.badge:focus {
 }
 
 /* line 5005, bootstrap/css/bootstrap.scss */
-.nav-pills > li > a > .badge, .nav-pills-sm > li > a > .badge {
+.nav-pills > li > a > .badge, .nav-pills-sm > li > a > .badge, .moduleInstallerPage .current.divMenu > li > a > .badge {
   margin-left: 3px;
 }
 
@@ -14941,4 +14946,21 @@ tr.head {
 /* line 1769, bootstrap/sass/style_bootstrap.scss */
 tr.search.no-bg input {
   margin-bottom: 15px;
+}
+
+/* line 1772, bootstrap/sass/style_bootstrap.scss */
+.moduleInstallerPage .activate {
+  width: auto !important;
+}
+
+/* line 1778, bootstrap/sass/style_bootstrap.scss */
+.moduleInstallerPage table.imagetable td,
+.moduleInstallerPage table.imagetable th,
+.moduleInstallerPage div.installer {
+  background: #fff !important;
+}
+
+/* line 1783, bootstrap/sass/style_bootstrap.scss */
+.moduleInstallerPage h1 img {
+  display: none;
 }

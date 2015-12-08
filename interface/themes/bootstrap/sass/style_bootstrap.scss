@@ -1769,3 +1769,17 @@ tr.head {
 tr.search.no-bg input {
     margin-bottom: 15px;
 }
+.moduleInstallerPage .activate{
+    width: auto !important;
+}
+.moduleInstallerPage .current.divMenu{
+    @extend .nav-pills;
+}
+.moduleInstallerPage table.imagetable td, 
+.moduleInstallerPage table.imagetable th,
+.moduleInstallerPage div.installer{
+    background: #fff !important;
+}
+.moduleInstallerPage h1 img{
+    display: none;
+}
