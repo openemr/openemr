@@ -2142,15 +2142,18 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ALTER TABLE `log` ADD `category` varchar(255) default NULL;
 #EndIf
 
--- Table to copy log contents for audit log tamper resistance check
 #IfNotTable log_validator
 CREATE TABLE `log_validator` (
   `log_id` bigint(20) NOT NULL,
   `log_checksum` longtext,
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB;
+#EndIf
 
--- Add Image Result note type for electronic indication - a12
 #IfNotRow2D list_options list_id note_type option_id Image Results
-	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`is_default`) VALUES ('note_type', 'Image Results', 'Image Results', 30, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`is_default`) VALUES ('note_type', 'Image Results', 'Image Results', 30, 0);
+#EndIf
+
+#IfMissingColumn insurance_companies inactive
+ALTER TABLE `insurance_companies` ADD `inactive` INT(1) NOT NULL DEFAULT '0' ;
 #EndIf

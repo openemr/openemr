@@ -2502,6 +2502,7 @@ CREATE TABLE `insurance_companies` (
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
   `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
+  `inactive` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
