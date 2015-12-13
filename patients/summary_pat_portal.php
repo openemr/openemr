@@ -380,7 +380,17 @@ $(document).ready(function(){
 });
 
 </script>
-
+<?php
+// To hide statements
+$a = $GLOBALS['portal_statements'];
+   if($a == 0){
+   echo "
+	 .hideMe
+	{
+		display: none;
+	}";}
+?>
+</style>
 </head>
 
 <body class="body_top">
@@ -585,7 +595,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
      </td>
     </tr>
            <tr>
-       <td width='650px'>
+       <td width='650px' class='hideMe'>
 <?php
 // statements expand collapse widget
 $widgetTitle = xl("Statements");
