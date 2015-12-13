@@ -2153,7 +2153,12 @@ $GLOBALS_METADATA = array(
       '0',
       xl('Enable Onsite Patient Portal.')
     ),
-
+    'portal_statements' => array(
+      xl('Enable Patient Statements'),
+      'bool',                           // data type
+      '0',
+      xl('Enable Patient Statements Printing by patients at home.')
+    ),
     'portal_onsite_address' => array(
       xl('Onsite Patient Portal Site Address'),
       'text',                           // data type
