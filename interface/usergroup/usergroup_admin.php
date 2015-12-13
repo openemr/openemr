@@ -64,7 +64,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         $tqvar = trim(formData('username','P'));
         $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", array($_POST["id"])));
         sqlStatement("update users set username='$tqvar' where id= ? ", array($_POST["id"]));
-        //sqlStatement("update groups set user='$tqvar' where user='". $user_data["username"]  ."'");
         sqlStatement("update groups set user='$tqvar' where user= ?", array($user_data["username"]));
         //echo "query was: " ."update groups set user='$tqvar' where user='". $user_data["username"]  ."'" ;
       }
