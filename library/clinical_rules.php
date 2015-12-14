@@ -67,13 +67,40 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
       continue;
     }
 
+    // Collect the Rule Title, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
+    $tooltip = '';
+    if (!empty($action['rule_id'])) {
+      $rule_title = getListItemTitle("clinical_rules",$action['rule_id']);
+      $ruleData = sqlQuery("SELECT `developer`, `funding_source`, `release_version` " .
+                           "FROM `clinical_rules` " .
+                           "WHERE  `id`=? AND `pid`=0", array($action['rule_id']) );
+      $developer = $ruleData['developer'];
+      $funding_source = $ruleData['funding_source'];
+      $release = $ruleData['release_version'];
+      if (!empty($rule_title)) {
+        $tooltip = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
+      }
+      if (!empty($developer)) {
+        $tooltip .= xla('Rule Developer') . ": " . attr($developer) . "&#013;";
+      }
+      if (!empty($funding_source)) {
+        $tooltip .= xla('Rule Funding Source') . ": " . attr($funding_source) . "&#013;";
+      }
+      if (!empty($release)) {
+        $tooltip .= xla('Rule Release') . ": " . attr($release);
+      }
+      if (!empty($tooltip)) {
+        $tooltip = "style='white-space: pre-line;' title='".$tooltip."'";
+      }
+    }
+
     if ($action['custom_flag']) {
       // Start link for reminders that use the custom rules input screen
       $url = "../rules/patient_data.php?category=".htmlspecialchars( $action['category'], ENT_QUOTES);
 	  $url .= "&item=".htmlspecialchars( $action['item'], ENT_QUOTES);
 	  if(!empty($action['rule_id']))
 	  $url .= "&rule=".htmlspecialchars( $action['rule_id'], ENT_QUOTES);
-      echo "<a href='".$url."' class='iframe medium_modal' onclick='top.restoreSession()'>";
+      echo "<a href='".$url."' ".$tooltip." class='iframe medium_modal' onclick='top.restoreSession()'>";
     }
     else if ($action['clin_rem_link']) {
       // Start link for reminders that use the custom rules input screen
@@ -81,14 +108,15 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 	  $url_prefix = $pieces_url['scheme'];
 	  if($url_prefix == 'https' || $url_prefix == 'http'){
 		echo "<a href='" . $action['clin_rem_link'] .
-        "' class='iframe  medium_modal' onclick='top.restoreSession()'>";
+        "' ".$tooltip." class='iframe  medium_modal' onclick='top.restoreSession()'>";
 	  }else{
 		echo "<a href='../../../" . $action['clin_rem_link'] .
-        "' class='iframe  medium_modal' onclick='top.restoreSession()'>";
+        "' ".$tooltip." class='iframe  medium_modal' onclick='top.restoreSession()'>";
 	  }
     }
     else {
-      // continue, since no link will be created
+      // continue with just a span to allow the tooltip (no link will be created)
+      echo "<span ".$tooltip.">";
     }
 
     // Display Reminder Details
@@ -98,6 +126,9 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
     if ($action['custom_flag'] || $action['clin_rem_link']) {
       // End link for reminders that use an html link
       echo "</a>";
+    }
+    else {
+      echo "</span>";
     }
 
     // Display due status
