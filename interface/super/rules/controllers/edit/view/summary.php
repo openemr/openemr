@@ -63,6 +63,11 @@
     <span class="end_col"><input type="text" name="fld_release" class="field" id="fld_release" value="<?php echo out( $rule->release ); ?>" maxlength="255"></span>
     </p>
 
+    <p class="row">
+    <span class="left_col colhead" data-fld="fld_web_reference"><?php echo out( xl( 'Web Reference' ) ); ?></span>
+    <span class="end_col"><input type="text" name="fld_web_reference" class="field" id="fld_web_reference" value="<?php echo out( $rule->web_ref ); ?>" maxlength="255"></span>
+    </p>
+
     </form>
     
 </div>

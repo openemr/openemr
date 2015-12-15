@@ -71,12 +71,13 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
     $tooltip = '';
     if (!empty($action['rule_id'])) {
       $rule_title = getListItemTitle("clinical_rules",$action['rule_id']);
-      $ruleData = sqlQuery("SELECT `developer`, `funding_source`, `release_version` " .
+      $ruleData = sqlQuery("SELECT `developer`, `funding_source`, `release_version`, `web_reference` " .
                            "FROM `clinical_rules` " .
                            "WHERE  `id`=? AND `pid`=0", array($action['rule_id']) );
       $developer = $ruleData['developer'];
       $funding_source = $ruleData['funding_source'];
       $release = $ruleData['release_version'];
+      $web_reference = $ruleData['web_reference'];
       if (!empty($rule_title)) {
         $tooltip = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
       }
@@ -89,8 +90,13 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
       if (!empty($release)) {
         $tooltip .= xla('Rule Release') . ": " . attr($release);
       }
-      if (!empty($tooltip)) {
-        $tooltip = "style='white-space: pre-line;' title='".$tooltip."'";
+      if ( (!empty($tooltip)) || (!empty($web_reference)) ) {
+        if (!empty($web_reference)) {
+          $tooltip = "<a href='".attr($web_reference)."' target='_blank' style='white-space: pre-line;' title='".$tooltip."'>?</a>";
+        }
+        else {
+          $tooltip = "<span style='white-space: pre-line;' title='".$tooltip."'>?</span>";
+        }
       }
     }
 
@@ -100,7 +106,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 	  $url .= "&item=".htmlspecialchars( $action['item'], ENT_QUOTES);
 	  if(!empty($action['rule_id']))
 	  $url .= "&rule=".htmlspecialchars( $action['rule_id'], ENT_QUOTES);
-      echo "<a href='".$url."' ".$tooltip." class='iframe medium_modal' onclick='top.restoreSession()'>";
+      echo "<a href='".$url."' class='iframe medium_modal' onclick='top.restoreSession()'>";
     }
     else if ($action['clin_rem_link']) {
       // Start link for reminders that use the custom rules input screen
@@ -108,15 +114,14 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 	  $url_prefix = $pieces_url['scheme'];
 	  if($url_prefix == 'https' || $url_prefix == 'http'){
 		echo "<a href='" . $action['clin_rem_link'] .
-        "' ".$tooltip." class='iframe  medium_modal' onclick='top.restoreSession()'>";
+        "' class='iframe  medium_modal' onclick='top.restoreSession()'>";
 	  }else{
 		echo "<a href='../../../" . $action['clin_rem_link'] .
-        "' ".$tooltip." class='iframe  medium_modal' onclick='top.restoreSession()'>";
+        "' class='iframe  medium_modal' onclick='top.restoreSession()'>";
 	  }
     }
     else {
-      // continue with just a span to allow the tooltip (no link will be created)
-      echo "<span ".$tooltip.">";
+      // continue since no link is needed
     }
 
     // Display Reminder Details
@@ -126,9 +131,6 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
     if ($action['custom_flag'] || $action['clin_rem_link']) {
       // End link for reminders that use an html link
       echo "</a>";
-    }
-    else {
-      echo "</span>";
     }
 
     // Display due status
@@ -146,7 +148,12 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
       else {
         echo "&nbsp;&nbsp;(<span>";
       }
-      echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$action['due_status']) . "</span>)<br>";
+      echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$action['due_status']) . "</span>)";
+    }
+
+    // Display the tooltip
+    if (!empty($tooltip)) {
+      echo "&nbsp;".$tooltip."<br>";
     }
     else {
       echo "<br>";

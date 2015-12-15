@@ -12529,3 +12529,8 @@ CREATE TABLE `form_clinical_instructions` (
 )ENGINE=InnoDB;
 INSERT INTO `registry` (`name`,`state`,`directory`,`sql_run`,`unpackaged`,`date`,`priority`,`category`,`nickname`) VALUES ('Clinical Instructions', 1, 'clinical_instructions', 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
 #EndIf
+
+#IfMissingColumn clinical_rules web_reference
+ALTER TABLE  `clinical_rules` ADD  `web_reference` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Web Reference';
+#EndIf
+
