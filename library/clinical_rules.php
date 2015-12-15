@@ -104,8 +104,6 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
       // Start link for reminders that use the custom rules input screen
       $url = "../rules/patient_data.php?category=".htmlspecialchars( $action['category'], ENT_QUOTES);
 	  $url .= "&item=".htmlspecialchars( $action['item'], ENT_QUOTES);
-	  if(!empty($action['rule_id']))
-	  $url .= "&rule=".htmlspecialchars( $action['rule_id'], ENT_QUOTES);
       echo "<a href='".$url."' class='iframe medium_modal' onclick='top.restoreSession()'>";
     }
     else if ($action['clin_rem_link']) {
