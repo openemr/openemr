@@ -56,6 +56,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
   $actions = test_rules_clinic('','passive_alert',$dateTarget,$mode,$patient_id,'',$organize_mode);
 
   // Display the actions
+  $current_targets = array();
   foreach ($actions as $action) {
 
     // Deal with plan names first
@@ -157,7 +158,75 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
       echo "<br>";
     }
 
+    // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
+    // Only when $mode is reminders-due
+    if ($mode == "reminders-due") {
+      $target_temp = $action['category'].":".$action['item'];
+      $current_targets[$target_temp] =  array('rule_id'=>$action['rule_id'],'due_status'=>$action['due_status']);
+    }
   }
+
+  // Compare the current with most recent action log (this function will also log the current actions)
+  // Only when $mode is reminders-due
+  if ($mode == "reminders-due") {
+    $new_targets = compare_clinical_summary_widget($patient_id,$current_targets);
+    if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
+      // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
+      //  Note I am taking advantage of a slight hack in order to run javascript within code that
+      //  is being passed via an ajax call by using a dummy image.
+      echo '<img src="../../pic/empty.gif" onload="alert(\''.xls('New Due Clinical Reminders').'\n\n';
+      foreach ($new_targets as $key => $value) {
+        $category_item = explode(":",$key);
+        $category = $category_item[0];
+        $item = $category_item[1];
+        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
+             ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$item). '\n';
+      }
+      echo '\n' . '('. xls('See the Clinical Reminders widget for more details'). ')';
+      echo '\');this.parentNode.removeChild(this);" />';
+    }
+  }
+}
+
+/**
+ * Compare current clinical summary widget actions with prior (in order to find new actions)
+ * Also functions to log the actions.
+ *
+ * @param  integer  $patient_id      pid of selected patient
+ * @param  array    $current_targets array of targets
+ * @param  integer  $userid          user id of user.
+ * @return array                     array with targets with associated rule.
+ */
+function compare_clinical_summary_widget($patient_id,$current_targets,$userid='') {
+
+  if (empty($userid)) {
+    $userid = $_SESSION['authId'];
+  }
+
+  if (empty($current_targets)) {
+    $current_targets = array();
+  }
+
+  // Collect most recent action_log
+  $prior_targets_sql = sqlQuery("SELECT `value` FROM `clinical_rules_log` " .
+                                 "WHERE `category` = 'clinical_reminder_widget' AND `pid` = ? AND `uid` = ? " .
+                                 "ORDER BY `id` DESC LIMIT 1", array($patient_id,$userid) );
+  $prior_targets = array();
+  if (!empty($prior_targets_sql['value'])) {
+    $prior_targets = json_decode($prior_targets_sql['value'], true);
+  }
+
+  // Store current action_log
+  $current_targets_json = json_encode($current_targets);
+  sqlInsert("INSERT INTO `clinical_rules_log` " .
+            "(`date`,`pid`,`uid`,`category`,`value`) " .
+            "VALUES (NOW(),?,?,'clinical_reminder_widget',?)", array($patient_id,$userid,$current_targets_json) );
+
+  // Compare the current with most recent action log
+  $new_targets = array_diff_key($current_targets,$prior_targets);
+
+  // Return news actions (if there are any)
+  return $new_targets;
 }
 
 /**

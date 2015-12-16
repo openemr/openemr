@@ -648,6 +648,27 @@ INSERT INTO `clinical_rules`
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `clinical_rules_log
+--
+
+DROP TABLE IF EXISTS `clinical_rules_log`;
+CREATE TABLE `clinical_rules_log` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime DEFAULT NULL,
+  `pid` bigint(20) NOT NULL DEFAULT '0',
+  `uid` bigint(20) NOT NULL DEFAULT '0',
+  `category` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'An example category is clinical_reminder_widget',
+  `value` TEXT NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pid` (`pid`),
+  KEY `uid` (`uid`),
+  KEY `category` (`category`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+
+
+-- --------------------------------------------------------
+
 -- 
 -- Table structure for table `codes`
 -- 

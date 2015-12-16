@@ -12534,3 +12534,18 @@ INSERT INTO `registry` (`name`,`state`,`directory`,`sql_run`,`unpackaged`,`date`
 ALTER TABLE  `clinical_rules` ADD  `web_reference` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Web Reference';
 #EndIf
 
+#IfNotTable clinical_rules_log
+CREATE TABLE `clinical_rules_log` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime DEFAULT NULL,
+  `pid` bigint(20) NOT NULL DEFAULT '0',
+  `uid` bigint(20) NOT NULL DEFAULT '0',
+  `category` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'An example category is clinical_reminder_widget',
+  `value` TEXT NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pid` (`pid`),
+  KEY `uid` (`uid`),
+  KEY `category` (`category`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+#EndIf
+
