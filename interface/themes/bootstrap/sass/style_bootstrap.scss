@@ -1783,3 +1783,17 @@ tr.search.no-bg input {
 .moduleInstallerPage h1 img{
     display: none;
 }
+.login-box{
+    margin: auto;
+}
+.logo-left{
+    float: none !important;
+    margin: auto;
+    text-align: center;
+}
+.login-box table{
+    @extend .table;
+}
+.login-box table td{
+    border-color: transparent !important;
+}

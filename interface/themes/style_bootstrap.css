@@ -429,17 +429,18 @@ th {
 
   /* line 251, bootstrap/css/bootstrap.scss */
   .table, .confirguration #con0 table, .section#acl table,
-  #membership #admin table {
+  #membership #admin table, .login-box table {
     border-collapse: collapse !important;
   }
 
   /* line 255, bootstrap/css/bootstrap.scss */
   .table td, .confirguration #con0 table td, .section#acl table td,
-  #membership #admin table td,
+  #membership #admin table td, .login-box table td,
   .table th,
   .confirguration #con0 table th,
   .section#acl table th,
-  #membership #admin table th {
+  #membership #admin table th,
+  .login-box table th {
     background-color: #fff !important;
   }
 
@@ -3593,7 +3594,7 @@ th {
 
 /* line 2265, bootstrap/css/bootstrap.scss */
 .table, .confirguration #con0 table, .section#acl table,
-#membership #admin table {
+#membership #admin table, .login-box table {
   width: 100%;
   max-width: 100%;
   margin-bottom: 20px;
@@ -3601,27 +3602,32 @@ th {
 
 /* line 2270, bootstrap/css/bootstrap.scss */
 .table > thead > tr > th, .confirguration #con0 table > thead > tr > th, .section#acl table > thead > tr > th,
-#membership #admin table > thead > tr > th,
+#membership #admin table > thead > tr > th, .login-box table > thead > tr > th,
 .table > tbody > tr > th,
 .confirguration #con0 table > tbody > tr > th,
 .section#acl table > tbody > tr > th,
 #membership #admin table > tbody > tr > th,
+.login-box table > tbody > tr > th,
 .table > tfoot > tr > th,
 .confirguration #con0 table > tfoot > tr > th,
 .section#acl table > tfoot > tr > th,
 #membership #admin table > tfoot > tr > th,
+.login-box table > tfoot > tr > th,
 .table > thead > tr > td,
 .confirguration #con0 table > thead > tr > td,
 .section#acl table > thead > tr > td,
 #membership #admin table > thead > tr > td,
+.login-box table > thead > tr > td,
 .table > tbody > tr > td,
 .confirguration #con0 table > tbody > tr > td,
 .section#acl table > tbody > tr > td,
 #membership #admin table > tbody > tr > td,
+.login-box table > tbody > tr > td,
 .table > tfoot > tr > td,
 .confirguration #con0 table > tfoot > tr > td,
 .section#acl table > tfoot > tr > td,
-#membership #admin table > tfoot > tr > td {
+#membership #admin table > tfoot > tr > td,
+.login-box table > tfoot > tr > td {
   padding: 8px;
   line-height: 1.42857143;
   vertical-align: top;
@@ -3630,51 +3636,57 @@ th {
 
 /* line 2281, bootstrap/css/bootstrap.scss */
 .table > thead > tr > th, .confirguration #con0 table > thead > tr > th, .section#acl table > thead > tr > th,
-#membership #admin table > thead > tr > th {
+#membership #admin table > thead > tr > th, .login-box table > thead > tr > th {
   vertical-align: bottom;
   border-bottom: 2px solid #ddd;
 }
 
 /* line 2285, bootstrap/css/bootstrap.scss */
 .table > caption + thead > tr:first-child > th, .confirguration #con0 table > caption + thead > tr:first-child > th, .section#acl table > caption + thead > tr:first-child > th,
-#membership #admin table > caption + thead > tr:first-child > th,
+#membership #admin table > caption + thead > tr:first-child > th, .login-box table > caption + thead > tr:first-child > th,
 .table > colgroup + thead > tr:first-child > th,
 .confirguration #con0 table > colgroup + thead > tr:first-child > th,
 .section#acl table > colgroup + thead > tr:first-child > th,
 #membership #admin table > colgroup + thead > tr:first-child > th,
+.login-box table > colgroup + thead > tr:first-child > th,
 .table > thead:first-child > tr:first-child > th,
 .confirguration #con0 table > thead:first-child > tr:first-child > th,
 .section#acl table > thead:first-child > tr:first-child > th,
 #membership #admin table > thead:first-child > tr:first-child > th,
+.login-box table > thead:first-child > tr:first-child > th,
 .table > caption + thead > tr:first-child > td,
 .confirguration #con0 table > caption + thead > tr:first-child > td,
 .section#acl table > caption + thead > tr:first-child > td,
 #membership #admin table > caption + thead > tr:first-child > td,
+.login-box table > caption + thead > tr:first-child > td,
 .table > colgroup + thead > tr:first-child > td,
 .confirguration #con0 table > colgroup + thead > tr:first-child > td,
 .section#acl table > colgroup + thead > tr:first-child > td,
 #membership #admin table > colgroup + thead > tr:first-child > td,
+.login-box table > colgroup + thead > tr:first-child > td,
 .table > thead:first-child > tr:first-child > td,
 .confirguration #con0 table > thead:first-child > tr:first-child > td,
 .section#acl table > thead:first-child > tr:first-child > td,
-#membership #admin table > thead:first-child > tr:first-child > td {
+#membership #admin table > thead:first-child > tr:first-child > td,
+.login-box table > thead:first-child > tr:first-child > td {
   border-top: 0;
 }
 
 /* line 2293, bootstrap/css/bootstrap.scss */
 .table > tbody + tbody, .confirguration #con0 table > tbody + tbody, .section#acl table > tbody + tbody,
-#membership #admin table > tbody + tbody {
+#membership #admin table > tbody + tbody, .login-box table > tbody + tbody {
   border-top: 2px solid #ddd;
 }
 
 /* line 2296, bootstrap/css/bootstrap.scss */
 .table .table, .confirguration #con0 table .table, .section#acl table .table,
-#membership #admin table .table, .table .confirguration #con0 table, .confirguration #con0 .table table, .confirguration #con0 table table, .table .section#acl table, .section#acl .table table, .section#acl table table,
+#membership #admin table .table, .login-box table .table, .table .confirguration #con0 table, .confirguration #con0 .table table, .confirguration #con0 table table, .login-box table .confirguration #con0 table, .table .section#acl table, .section#acl .table table, .section#acl table table, .login-box table .section#acl table,
 .table #membership #admin table,
 #membership #admin .table table,
 .confirguration #con0 table #membership #admin table,
 .section#acl table #membership #admin table,
-#membership #admin table table {
+#membership #admin table table,
+.login-box table #membership #admin table, .table .login-box table, .login-box .table table, .login-box table table {
   background-color: #fff;
 }
 
@@ -3758,51 +3770,62 @@ table th[class*="col-"] {
 
 /* line 2339, bootstrap/css/bootstrap.scss */
 .table > thead > tr > td.active, .confirguration #con0 table > thead > tr > td.active, .section#acl table > thead > tr > td.active,
-#membership #admin table > thead > tr > td.active,
+#membership #admin table > thead > tr > td.active, .login-box table > thead > tr > td.active,
 .table > tbody > tr > td.active,
 .confirguration #con0 table > tbody > tr > td.active,
 .section#acl table > tbody > tr > td.active,
 #membership #admin table > tbody > tr > td.active,
+.login-box table > tbody > tr > td.active,
 .table > tfoot > tr > td.active,
 .confirguration #con0 table > tfoot > tr > td.active,
 .section#acl table > tfoot > tr > td.active,
 #membership #admin table > tfoot > tr > td.active,
+.login-box table > tfoot > tr > td.active,
 .table > thead > tr > th.active,
 .confirguration #con0 table > thead > tr > th.active,
 .section#acl table > thead > tr > th.active,
 #membership #admin table > thead > tr > th.active,
+.login-box table > thead > tr > th.active,
 .table > tbody > tr > th.active,
 .confirguration #con0 table > tbody > tr > th.active,
 .section#acl table > tbody > tr > th.active,
 #membership #admin table > tbody > tr > th.active,
+.login-box table > tbody > tr > th.active,
 .table > tfoot > tr > th.active,
 .confirguration #con0 table > tfoot > tr > th.active,
 .section#acl table > tfoot > tr > th.active,
 #membership #admin table > tfoot > tr > th.active,
+.login-box table > tfoot > tr > th.active,
 .table > thead > tr.active > td,
 .confirguration #con0 table > thead > tr.active > td,
 .section#acl table > thead > tr.active > td,
 #membership #admin table > thead > tr.active > td,
+.login-box table > thead > tr.active > td,
 .table > tbody > tr.active > td,
 .confirguration #con0 table > tbody > tr.active > td,
 .section#acl table > tbody > tr.active > td,
 #membership #admin table > tbody > tr.active > td,
+.login-box table > tbody > tr.active > td,
 .table > tfoot > tr.active > td,
 .confirguration #con0 table > tfoot > tr.active > td,
 .section#acl table > tfoot > tr.active > td,
 #membership #admin table > tfoot > tr.active > td,
+.login-box table > tfoot > tr.active > td,
 .table > thead > tr.active > th,
 .confirguration #con0 table > thead > tr.active > th,
 .section#acl table > thead > tr.active > th,
 #membership #admin table > thead > tr.active > th,
+.login-box table > thead > tr.active > th,
 .table > tbody > tr.active > th,
 .confirguration #con0 table > tbody > tr.active > th,
 .section#acl table > tbody > tr.active > th,
 #membership #admin table > tbody > tr.active > th,
+.login-box table > tbody > tr.active > th,
 .table > tfoot > tr.active > th,
 .confirguration #con0 table > tfoot > tr.active > th,
 .section#acl table > tfoot > tr.active > th,
-#membership #admin table > tfoot > tr.active > th {
+#membership #admin table > tfoot > tr.active > th,
+.login-box table > tfoot > tr.active > th {
   background-color: #f5f5f5;
 }
 
@@ -3817,51 +3840,62 @@ table th[class*="col-"] {
 
 /* line 2360, bootstrap/css/bootstrap.scss */
 .table > thead > tr > td.success, .confirguration #con0 table > thead > tr > td.success, .section#acl table > thead > tr > td.success,
-#membership #admin table > thead > tr > td.success,
+#membership #admin table > thead > tr > td.success, .login-box table > thead > tr > td.success,
 .table > tbody > tr > td.success,
 .confirguration #con0 table > tbody > tr > td.success,
 .section#acl table > tbody > tr > td.success,
 #membership #admin table > tbody > tr > td.success,
+.login-box table > tbody > tr > td.success,
 .table > tfoot > tr > td.success,
 .confirguration #con0 table > tfoot > tr > td.success,
 .section#acl table > tfoot > tr > td.success,
 #membership #admin table > tfoot > tr > td.success,
+.login-box table > tfoot > tr > td.success,
 .table > thead > tr > th.success,
 .confirguration #con0 table > thead > tr > th.success,
 .section#acl table > thead > tr > th.success,
 #membership #admin table > thead > tr > th.success,
+.login-box table > thead > tr > th.success,
 .table > tbody > tr > th.success,
 .confirguration #con0 table > tbody > tr > th.success,
 .section#acl table > tbody > tr > th.success,
 #membership #admin table > tbody > tr > th.success,
+.login-box table > tbody > tr > th.success,
 .table > tfoot > tr > th.success,
 .confirguration #con0 table > tfoot > tr > th.success,
 .section#acl table > tfoot > tr > th.success,
 #membership #admin table > tfoot > tr > th.success,
+.login-box table > tfoot > tr > th.success,
 .table > thead > tr.success > td,
 .confirguration #con0 table > thead > tr.success > td,
 .section#acl table > thead > tr.success > td,
 #membership #admin table > thead > tr.success > td,
+.login-box table > thead > tr.success > td,
 .table > tbody > tr.success > td,
 .confirguration #con0 table > tbody > tr.success > td,
 .section#acl table > tbody > tr.success > td,
 #membership #admin table > tbody > tr.success > td,
+.login-box table > tbody > tr.success > td,
 .table > tfoot > tr.success > td,
 .confirguration #con0 table > tfoot > tr.success > td,
 .section#acl table > tfoot > tr.success > td,
 #membership #admin table > tfoot > tr.success > td,
+.login-box table > tfoot > tr.success > td,
 .table > thead > tr.success > th,
 .confirguration #con0 table > thead > tr.success > th,
 .section#acl table > thead > tr.success > th,
 #membership #admin table > thead > tr.success > th,
+.login-box table > thead > tr.success > th,
 .table > tbody > tr.success > th,
 .confirguration #con0 table > tbody > tr.success > th,
 .section#acl table > tbody > tr.success > th,
 #membership #admin table > tbody > tr.success > th,
+.login-box table > tbody > tr.success > th,
 .table > tfoot > tr.success > th,
 .confirguration #con0 table > tfoot > tr.success > th,
 .section#acl table > tfoot > tr.success > th,
-#membership #admin table > tfoot > tr.success > th {
+#membership #admin table > tfoot > tr.success > th,
+.login-box table > tfoot > tr.success > th {
   background-color: #dff0d8;
 }
 
@@ -3876,51 +3910,62 @@ table th[class*="col-"] {
 
 /* line 2381, bootstrap/css/bootstrap.scss */
 .table > thead > tr > td.info, .confirguration #con0 table > thead > tr > td.info, .section#acl table > thead > tr > td.info,
-#membership #admin table > thead > tr > td.info,
+#membership #admin table > thead > tr > td.info, .login-box table > thead > tr > td.info,
 .table > tbody > tr > td.info,
 .confirguration #con0 table > tbody > tr > td.info,
 .section#acl table > tbody > tr > td.info,
 #membership #admin table > tbody > tr > td.info,
+.login-box table > tbody > tr > td.info,
 .table > tfoot > tr > td.info,
 .confirguration #con0 table > tfoot > tr > td.info,
 .section#acl table > tfoot > tr > td.info,
 #membership #admin table > tfoot > tr > td.info,
+.login-box table > tfoot > tr > td.info,
 .table > thead > tr > th.info,
 .confirguration #con0 table > thead > tr > th.info,
 .section#acl table > thead > tr > th.info,
 #membership #admin table > thead > tr > th.info,
+.login-box table > thead > tr > th.info,
 .table > tbody > tr > th.info,
 .confirguration #con0 table > tbody > tr > th.info,
 .section#acl table > tbody > tr > th.info,
 #membership #admin table > tbody > tr > th.info,
+.login-box table > tbody > tr > th.info,
 .table > tfoot > tr > th.info,
 .confirguration #con0 table > tfoot > tr > th.info,
 .section#acl table > tfoot > tr > th.info,
 #membership #admin table > tfoot > tr > th.info,
+.login-box table > tfoot > tr > th.info,
 .table > thead > tr.info > td,
 .confirguration #con0 table > thead > tr.info > td,
 .section#acl table > thead > tr.info > td,
 #membership #admin table > thead > tr.info > td,
+.login-box table > thead > tr.info > td,
 .table > tbody > tr.info > td,
 .confirguration #con0 table > tbody > tr.info > td,
 .section#acl table > tbody > tr.info > td,
 #membership #admin table > tbody > tr.info > td,
+.login-box table > tbody > tr.info > td,
 .table > tfoot > tr.info > td,
 .confirguration #con0 table > tfoot > tr.info > td,
 .section#acl table > tfoot > tr.info > td,
 #membership #admin table > tfoot > tr.info > td,
+.login-box table > tfoot > tr.info > td,
 .table > thead > tr.info > th,
 .confirguration #con0 table > thead > tr.info > th,
 .section#acl table > thead > tr.info > th,
 #membership #admin table > thead > tr.info > th,
+.login-box table > thead > tr.info > th,
 .table > tbody > tr.info > th,
 .confirguration #con0 table > tbody > tr.info > th,
 .section#acl table > tbody > tr.info > th,
 #membership #admin table > tbody > tr.info > th,
+.login-box table > tbody > tr.info > th,
 .table > tfoot > tr.info > th,
 .confirguration #con0 table > tfoot > tr.info > th,
 .section#acl table > tfoot > tr.info > th,
-#membership #admin table > tfoot > tr.info > th {
+#membership #admin table > tfoot > tr.info > th,
+.login-box table > tfoot > tr.info > th {
   background-color: #d9edf7;
 }
 
@@ -3935,51 +3980,62 @@ table th[class*="col-"] {
 
 /* line 2402, bootstrap/css/bootstrap.scss */
 .table > thead > tr > td.warning, .confirguration #con0 table > thead > tr > td.warning, .section#acl table > thead > tr > td.warning,
-#membership #admin table > thead > tr > td.warning,
+#membership #admin table > thead > tr > td.warning, .login-box table > thead > tr > td.warning,
 .table > tbody > tr > td.warning,
 .confirguration #con0 table > tbody > tr > td.warning,
 .section#acl table > tbody > tr > td.warning,
 #membership #admin table > tbody > tr > td.warning,
+.login-box table > tbody > tr > td.warning,
 .table > tfoot > tr > td.warning,
 .confirguration #con0 table > tfoot > tr > td.warning,
 .section#acl table > tfoot > tr > td.warning,
 #membership #admin table > tfoot > tr > td.warning,
+.login-box table > tfoot > tr > td.warning,
 .table > thead > tr > th.warning,
 .confirguration #con0 table > thead > tr > th.warning,
 .section#acl table > thead > tr > th.warning,
 #membership #admin table > thead > tr > th.warning,
+.login-box table > thead > tr > th.warning,
 .table > tbody > tr > th.warning,
 .confirguration #con0 table > tbody > tr > th.warning,
 .section#acl table > tbody > tr > th.warning,
 #membership #admin table > tbody > tr > th.warning,
+.login-box table > tbody > tr > th.warning,
 .table > tfoot > tr > th.warning,
 .confirguration #con0 table > tfoot > tr > th.warning,
 .section#acl table > tfoot > tr > th.warning,
 #membership #admin table > tfoot > tr > th.warning,
+.login-box table > tfoot > tr > th.warning,
 .table > thead > tr.warning > td,
 .confirguration #con0 table > thead > tr.warning > td,
 .section#acl table > thead > tr.warning > td,
 #membership #admin table > thead > tr.warning > td,
+.login-box table > thead > tr.warning > td,
 .table > tbody > tr.warning > td,
 .confirguration #con0 table > tbody > tr.warning > td,
 .section#acl table > tbody > tr.warning > td,
 #membership #admin table > tbody > tr.warning > td,
+.login-box table > tbody > tr.warning > td,
 .table > tfoot > tr.warning > td,
 .confirguration #con0 table > tfoot > tr.warning > td,
 .section#acl table > tfoot > tr.warning > td,
 #membership #admin table > tfoot > tr.warning > td,
+.login-box table > tfoot > tr.warning > td,
 .table > thead > tr.warning > th,
 .confirguration #con0 table > thead > tr.warning > th,
 .section#acl table > thead > tr.warning > th,
 #membership #admin table > thead > tr.warning > th,
+.login-box table > thead > tr.warning > th,
 .table > tbody > tr.warning > th,
 .confirguration #con0 table > tbody > tr.warning > th,
 .section#acl table > tbody > tr.warning > th,
 #membership #admin table > tbody > tr.warning > th,
+.login-box table > tbody > tr.warning > th,
 .table > tfoot > tr.warning > th,
 .confirguration #con0 table > tfoot > tr.warning > th,
 .section#acl table > tfoot > tr.warning > th,
-#membership #admin table > tfoot > tr.warning > th {
+#membership #admin table > tfoot > tr.warning > th,
+.login-box table > tfoot > tr.warning > th {
   background-color: #fcf8e3;
 }
 
@@ -3994,51 +4050,62 @@ table th[class*="col-"] {
 
 /* line 2423, bootstrap/css/bootstrap.scss */
 .table > thead > tr > td.danger, .confirguration #con0 table > thead > tr > td.danger, .section#acl table > thead > tr > td.danger,
-#membership #admin table > thead > tr > td.danger,
+#membership #admin table > thead > tr > td.danger, .login-box table > thead > tr > td.danger,
 .table > tbody > tr > td.danger,
 .confirguration #con0 table > tbody > tr > td.danger,
 .section#acl table > tbody > tr > td.danger,
 #membership #admin table > tbody > tr > td.danger,
+.login-box table > tbody > tr > td.danger,
 .table > tfoot > tr > td.danger,
 .confirguration #con0 table > tfoot > tr > td.danger,
 .section#acl table > tfoot > tr > td.danger,
 #membership #admin table > tfoot > tr > td.danger,
+.login-box table > tfoot > tr > td.danger,
 .table > thead > tr > th.danger,
 .confirguration #con0 table > thead > tr > th.danger,
 .section#acl table > thead > tr > th.danger,
 #membership #admin table > thead > tr > th.danger,
+.login-box table > thead > tr > th.danger,
 .table > tbody > tr > th.danger,
 .confirguration #con0 table > tbody > tr > th.danger,
 .section#acl table > tbody > tr > th.danger,
 #membership #admin table > tbody > tr > th.danger,
+.login-box table > tbody > tr > th.danger,
 .table > tfoot > tr > th.danger,
 .confirguration #con0 table > tfoot > tr > th.danger,
 .section#acl table > tfoot > tr > th.danger,
 #membership #admin table > tfoot > tr > th.danger,
+.login-box table > tfoot > tr > th.danger,
 .table > thead > tr.danger > td,
 .confirguration #con0 table > thead > tr.danger > td,
 .section#acl table > thead > tr.danger > td,
 #membership #admin table > thead > tr.danger > td,
+.login-box table > thead > tr.danger > td,
 .table > tbody > tr.danger > td,
 .confirguration #con0 table > tbody > tr.danger > td,
 .section#acl table > tbody > tr.danger > td,
 #membership #admin table > tbody > tr.danger > td,
+.login-box table > tbody > tr.danger > td,
 .table > tfoot > tr.danger > td,
 .confirguration #con0 table > tfoot > tr.danger > td,
 .section#acl table > tfoot > tr.danger > td,
 #membership #admin table > tfoot > tr.danger > td,
+.login-box table > tfoot > tr.danger > td,
 .table > thead > tr.danger > th,
 .confirguration #con0 table > thead > tr.danger > th,
 .section#acl table > thead > tr.danger > th,
 #membership #admin table > thead > tr.danger > th,
+.login-box table > thead > tr.danger > th,
 .table > tbody > tr.danger > th,
 .confirguration #con0 table > tbody > tr.danger > th,
 .section#acl table > tbody > tr.danger > th,
 #membership #admin table > tbody > tr.danger > th,
+.login-box table > tbody > tr.danger > th,
 .table > tfoot > tr.danger > th,
 .confirguration #con0 table > tfoot > tr.danger > th,
 .section#acl table > tfoot > tr.danger > th,
-#membership #admin table > tfoot > tr.danger > th {
+#membership #admin table > tfoot > tr.danger > th,
+.login-box table > tfoot > tr.danger > th {
   background-color: #f2dede;
 }
 
@@ -4069,33 +4136,38 @@ table th[class*="col-"] {
 
   /* line 2456, bootstrap/css/bootstrap.scss */
   .table-responsive > .table, .confirguration #con0 .table-responsive > table, .section#acl .table-responsive > table,
-  #membership #admin .table-responsive > table {
+  #membership #admin .table-responsive > table, .login-box .table-responsive > table {
     margin-bottom: 0;
   }
 
   /* line 2459, bootstrap/css/bootstrap.scss */
   .table-responsive > .table > thead > tr > th, .confirguration #con0 .table-responsive > table > thead > tr > th, .section#acl .table-responsive > table > thead > tr > th,
-  #membership #admin .table-responsive > table > thead > tr > th,
+  #membership #admin .table-responsive > table > thead > tr > th, .login-box .table-responsive > table > thead > tr > th,
   .table-responsive > .table > tbody > tr > th,
   .confirguration #con0 .table-responsive > table > tbody > tr > th,
   .section#acl .table-responsive > table > tbody > tr > th,
   #membership #admin .table-responsive > table > tbody > tr > th,
+  .login-box .table-responsive > table > tbody > tr > th,
   .table-responsive > .table > tfoot > tr > th,
   .confirguration #con0 .table-responsive > table > tfoot > tr > th,
   .section#acl .table-responsive > table > tfoot > tr > th,
   #membership #admin .table-responsive > table > tfoot > tr > th,
+  .login-box .table-responsive > table > tfoot > tr > th,
   .table-responsive > .table > thead > tr > td,
   .confirguration #con0 .table-responsive > table > thead > tr > td,
   .section#acl .table-responsive > table > thead > tr > td,
   #membership #admin .table-responsive > table > thead > tr > td,
+  .login-box .table-responsive > table > thead > tr > td,
   .table-responsive > .table > tbody > tr > td,
   .confirguration #con0 .table-responsive > table > tbody > tr > td,
   .section#acl .table-responsive > table > tbody > tr > td,
   #membership #admin .table-responsive > table > tbody > tr > td,
+  .login-box .table-responsive > table > tbody > tr > td,
   .table-responsive > .table > tfoot > tr > td,
   .confirguration #con0 .table-responsive > table > tfoot > tr > td,
   .section#acl .table-responsive > table > tfoot > tr > td,
-  #membership #admin .table-responsive > table > tfoot > tr > td {
+  #membership #admin .table-responsive > table > tfoot > tr > td,
+  .login-box .table-responsive > table > tfoot > tr > td {
     white-space: nowrap;
   }
 
@@ -9316,248 +9388,290 @@ button.list-group-item-danger.active:focus {
 
 /* line 5569, bootstrap/css/bootstrap.scss */
 .panel > .table, .confirguration #con0 .panel > table, .section#acl .panel > table,
-#membership #admin .panel > table,
+#membership #admin .panel > table, .login-box .panel > table,
 .panel > .table-responsive > .table,
 .confirguration #con0 .panel > .table-responsive > table,
 .section#acl .panel > .table-responsive > table,
 #membership #admin .panel > .table-responsive > table,
+.login-box .panel > .table-responsive > table,
 .panel > .panel-collapse > .table,
 .confirguration #con0 .panel > .panel-collapse > table,
 .section#acl .panel > .panel-collapse > table,
-#membership #admin .panel > .panel-collapse > table {
+#membership #admin .panel > .panel-collapse > table,
+.login-box .panel > .panel-collapse > table {
   margin-bottom: 0;
 }
 
 /* line 5574, bootstrap/css/bootstrap.scss */
 .panel > .table caption, .confirguration #con0 .panel > table caption, .section#acl .panel > table caption,
-#membership #admin .panel > table caption,
+#membership #admin .panel > table caption, .login-box .panel > table caption,
 .panel > .table-responsive > .table caption,
 .confirguration #con0 .panel > .table-responsive > table caption,
 .section#acl .panel > .table-responsive > table caption,
 #membership #admin .panel > .table-responsive > table caption,
+.login-box .panel > .table-responsive > table caption,
 .panel > .panel-collapse > .table caption,
 .confirguration #con0 .panel > .panel-collapse > table caption,
 .section#acl .panel > .panel-collapse > table caption,
-#membership #admin .panel > .panel-collapse > table caption {
+#membership #admin .panel > .panel-collapse > table caption,
+.login-box .panel > .panel-collapse > table caption {
   padding-right: 15px;
   padding-left: 15px;
 }
 
 /* line 5580, bootstrap/css/bootstrap.scss */
 .panel > .table:first-child, .confirguration #con0 .panel > table:first-child, .section#acl .panel > table:first-child,
-#membership #admin .panel > table:first-child,
+#membership #admin .panel > table:first-child, .login-box .panel > table:first-child,
 .panel > .table-responsive:first-child > .table:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child,
-#membership #admin .panel > .table-responsive:first-child > table:first-child {
+#membership #admin .panel > .table-responsive:first-child > table:first-child,
+.login-box .panel > .table-responsive:first-child > table:first-child {
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
 
 /* line 5585, bootstrap/css/bootstrap.scss */
 .panel > .table:first-child > thead:first-child > tr:first-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child, .section#acl .panel > table:first-child > thead:first-child > tr:first-child,
-#membership #admin .panel > table:first-child > thead:first-child > tr:first-child,
+#membership #admin .panel > table:first-child > thead:first-child > tr:first-child, .login-box .panel > table:first-child > thead:first-child > tr:first-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child,
 #membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child,
 .section#acl .panel > table:first-child > tbody:first-child > tr:first-child,
 #membership #admin .panel > table:first-child > tbody:first-child > tr:first-child,
+.login-box .panel > table:first-child > tbody:first-child > tr:first-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child,
-#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child {
+#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child {
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
 
 /* line 5592, bootstrap/css/bootstrap.scss */
 .panel > .table:first-child > thead:first-child > tr:first-child td:first-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child td:first-child, .section#acl .panel > table:first-child > thead:first-child > tr:first-child td:first-child,
-#membership #admin .panel > table:first-child > thead:first-child > tr:first-child td:first-child,
+#membership #admin .panel > table:first-child > thead:first-child > tr:first-child td:first-child, .login-box .panel > table:first-child > thead:first-child > tr:first-child td:first-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:first-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:first-child,
 #membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:first-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:first-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child td:first-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child td:first-child,
 .section#acl .panel > table:first-child > tbody:first-child > tr:first-child td:first-child,
 #membership #admin .panel > table:first-child > tbody:first-child > tr:first-child td:first-child,
+.login-box .panel > table:first-child > tbody:first-child > tr:first-child td:first-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child td:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:first-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:first-child,
 #membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:first-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:first-child,
 .panel > .table:first-child > thead:first-child > tr:first-child th:first-child,
 .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child th:first-child,
 .section#acl .panel > table:first-child > thead:first-child > tr:first-child th:first-child,
 #membership #admin .panel > table:first-child > thead:first-child > tr:first-child th:first-child,
+.login-box .panel > table:first-child > thead:first-child > tr:first-child th:first-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:first-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:first-child,
 #membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:first-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:first-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child th:first-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child th:first-child,
 .section#acl .panel > table:first-child > tbody:first-child > tr:first-child th:first-child,
 #membership #admin .panel > table:first-child > tbody:first-child > tr:first-child th:first-child,
+.login-box .panel > table:first-child > tbody:first-child > tr:first-child th:first-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:first-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child,
-#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child {
+#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:first-child {
   border-top-left-radius: 3px;
 }
 
 /* line 5602, bootstrap/css/bootstrap.scss */
 .panel > .table:first-child > thead:first-child > tr:first-child td:last-child, .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child td:last-child, .section#acl .panel > table:first-child > thead:first-child > tr:first-child td:last-child,
-#membership #admin .panel > table:first-child > thead:first-child > tr:first-child td:last-child,
+#membership #admin .panel > table:first-child > thead:first-child > tr:first-child td:last-child, .login-box .panel > table:first-child > thead:first-child > tr:first-child td:last-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:last-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:last-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:last-child,
 #membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:last-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child td:last-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child td:last-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child td:last-child,
 .section#acl .panel > table:first-child > tbody:first-child > tr:first-child td:last-child,
 #membership #admin .panel > table:first-child > tbody:first-child > tr:first-child td:last-child,
+.login-box .panel > table:first-child > tbody:first-child > tr:first-child td:last-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child td:last-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:last-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:last-child,
 #membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:last-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child td:last-child,
 .panel > .table:first-child > thead:first-child > tr:first-child th:last-child,
 .confirguration #con0 .panel > table:first-child > thead:first-child > tr:first-child th:last-child,
 .section#acl .panel > table:first-child > thead:first-child > tr:first-child th:last-child,
 #membership #admin .panel > table:first-child > thead:first-child > tr:first-child th:last-child,
+.login-box .panel > table:first-child > thead:first-child > tr:first-child th:last-child,
 .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:last-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:last-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:last-child,
 #membership #admin .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:last-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > thead:first-child > tr:first-child th:last-child,
 .panel > .table:first-child > tbody:first-child > tr:first-child th:last-child,
 .confirguration #con0 .panel > table:first-child > tbody:first-child > tr:first-child th:last-child,
 .section#acl .panel > table:first-child > tbody:first-child > tr:first-child th:last-child,
 #membership #admin .panel > table:first-child > tbody:first-child > tr:first-child th:last-child,
+.login-box .panel > table:first-child > tbody:first-child > tr:first-child th:last-child,
 .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:last-child,
 .confirguration #con0 .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child,
 .section#acl .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child,
-#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child {
+#membership #admin .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child,
+.login-box .panel > .table-responsive:first-child > table:first-child > tbody:first-child > tr:first-child th:last-child {
   border-top-right-radius: 3px;
 }
 
 /* line 5612, bootstrap/css/bootstrap.scss */
 .panel > .table:last-child, .confirguration #con0 .panel > table:last-child, .section#acl .panel > table:last-child,
-#membership #admin .panel > table:last-child,
+#membership #admin .panel > table:last-child, .login-box .panel > table:last-child,
 .panel > .table-responsive:last-child > .table:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child,
-#membership #admin .panel > .table-responsive:last-child > table:last-child {
+#membership #admin .panel > .table-responsive:last-child > table:last-child,
+.login-box .panel > .table-responsive:last-child > table:last-child {
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
 /* line 5617, bootstrap/css/bootstrap.scss */
 .panel > .table:last-child > tbody:last-child > tr:last-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child, .section#acl .panel > table:last-child > tbody:last-child > tr:last-child,
-#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child,
+#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child, .login-box .panel > table:last-child > tbody:last-child > tr:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child,
 #membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child,
 .section#acl .panel > table:last-child > tfoot:last-child > tr:last-child,
 #membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child,
+.login-box .panel > table:last-child > tfoot:last-child > tr:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child,
-#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child {
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child {
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
 /* line 5624, bootstrap/css/bootstrap.scss */
 .panel > .table:last-child > tbody:last-child > tr:last-child td:first-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child td:first-child, .section#acl .panel > table:last-child > tbody:last-child > tr:last-child td:first-child,
-#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child td:first-child,
+#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child td:first-child, .login-box .panel > table:last-child > tbody:last-child > tr:last-child td:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:first-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:first-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:first-child,
 #membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:first-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:first-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .section#acl .panel > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 #membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child td:first-child,
+.login-box .panel > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 #membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:first-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:first-child,
 .panel > .table:last-child > tbody:last-child > tr:last-child th:first-child,
 .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child th:first-child,
 .section#acl .panel > table:last-child > tbody:last-child > tr:last-child th:first-child,
 #membership #admin .panel > table:last-child > tbody:last-child > tr:last-child th:first-child,
+.login-box .panel > table:last-child > tbody:last-child > tr:last-child th:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:first-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:first-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:first-child,
 #membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:first-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:first-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child th:first-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child th:first-child,
 .section#acl .panel > table:last-child > tfoot:last-child > tr:last-child th:first-child,
 #membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child th:first-child,
+.login-box .panel > table:last-child > tfoot:last-child > tr:last-child th:first-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:first-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child,
-#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child {
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:first-child {
   border-bottom-left-radius: 3px;
 }
 
 /* line 5634, bootstrap/css/bootstrap.scss */
 .panel > .table:last-child > tbody:last-child > tr:last-child td:last-child, .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child td:last-child, .section#acl .panel > table:last-child > tbody:last-child > tr:last-child td:last-child,
-#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child td:last-child,
+#membership #admin .panel > table:last-child > tbody:last-child > tr:last-child td:last-child, .login-box .panel > table:last-child > tbody:last-child > tr:last-child td:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:last-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:last-child,
 #membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:last-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child td:last-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .section#acl .panel > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 #membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.login-box .panel > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 #membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child td:last-child,
 .panel > .table:last-child > tbody:last-child > tr:last-child th:last-child,
 .confirguration #con0 .panel > table:last-child > tbody:last-child > tr:last-child th:last-child,
 .section#acl .panel > table:last-child > tbody:last-child > tr:last-child th:last-child,
 #membership #admin .panel > table:last-child > tbody:last-child > tr:last-child th:last-child,
+.login-box .panel > table:last-child > tbody:last-child > tr:last-child th:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:last-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:last-child,
 #membership #admin .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:last-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tbody:last-child > tr:last-child th:last-child,
 .panel > .table:last-child > tfoot:last-child > tr:last-child th:last-child,
 .confirguration #con0 .panel > table:last-child > tfoot:last-child > tr:last-child th:last-child,
 .section#acl .panel > table:last-child > tfoot:last-child > tr:last-child th:last-child,
 #membership #admin .panel > table:last-child > tfoot:last-child > tr:last-child th:last-child,
+.login-box .panel > table:last-child > tfoot:last-child > tr:last-child th:last-child,
 .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:last-child,
 .confirguration #con0 .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child,
 .section#acl .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child,
-#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child {
+#membership #admin .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child,
+.login-box .panel > .table-responsive:last-child > table:last-child > tfoot:last-child > tr:last-child th:last-child {
   border-bottom-right-radius: 3px;
 }
 
 /* line 5644, bootstrap/css/bootstrap.scss */
 .panel > .panel-body + .table, .confirguration #con0 .panel > .panel-body + table, .section#acl .panel > .panel-body + table,
-#membership #admin .panel > .panel-body + table,
+#membership #admin .panel > .panel-body + table, .login-box .panel > .panel-body + table,
 .panel > .panel-body + .table-responsive,
 .panel > .table + .panel-body,
 .confirguration #con0 .panel > table + .panel-body,
 .section#acl .panel > table + .panel-body,
 #membership #admin .panel > table + .panel-body,
+.login-box .panel > table + .panel-body,
 .panel > .table-responsive + .panel-body {
   border-top: 1px solid #ddd;
 }
 
 /* line 5650, bootstrap/css/bootstrap.scss */
 .panel > .table > tbody:first-child > tr:first-child th, .confirguration #con0 .panel > table > tbody:first-child > tr:first-child th, .section#acl .panel > table > tbody:first-child > tr:first-child th,
-#membership #admin .panel > table > tbody:first-child > tr:first-child th,
+#membership #admin .panel > table > tbody:first-child > tr:first-child th, .login-box .panel > table > tbody:first-child > tr:first-child th,
 .panel > .table > tbody:first-child > tr:first-child td,
 .confirguration #con0 .panel > table > tbody:first-child > tr:first-child td,
 .section#acl .panel > table > tbody:first-child > tr:first-child td,
-#membership #admin .panel > table > tbody:first-child > tr:first-child td {
+#membership #admin .panel > table > tbody:first-child > tr:first-child td,
+.login-box .panel > table > tbody:first-child > tr:first-child td {
   border-top: 0;
 }
 
@@ -14767,7 +14881,7 @@ div.tabContainer div.tab,
 /* line 1632, bootstrap/sass/style_bootstrap.scss */
 #docfilterdiv .table .label, #docfilterdiv .confirguration #con0 table .label, .confirguration #con0 #docfilterdiv table .label, #docfilterdiv .section#acl table .label, .section#acl #docfilterdiv table .label,
 #docfilterdiv #membership #admin table .label,
-#membership #admin #docfilterdiv table .label {
+#membership #admin #docfilterdiv table .label, #docfilterdiv .login-box table .label, .login-box #docfilterdiv table .label {
   font-size: inherit;
   vertical-align: middle;
   text-align: right;
@@ -14963,4 +15077,21 @@ tr.search.no-bg input {
 /* line 1783, bootstrap/sass/style_bootstrap.scss */
 .moduleInstallerPage h1 img {
   display: none;
+}
+
+/* line 1786, bootstrap/sass/style_bootstrap.scss */
+.login-box {
+  margin: auto;
+}
+
+/* line 1789, bootstrap/sass/style_bootstrap.scss */
+.logo-left {
+  float: none !important;
+  margin: auto;
+  text-align: center;
+}
+
+/* line 1797, bootstrap/sass/style_bootstrap.scss */
+.login-box table td {
+  border-color: transparent !important;
 }
