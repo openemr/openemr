@@ -46,14 +46,15 @@ require_once(dirname(__FILE__) . "/jsonwrapper/jsonwrapper.php");
  * @param  string   $mode           choose either 'reminders-all' or 'reminders-due' (required)
  * @param  string   $dateTarget     target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  * @param  string   $organize_mode  Way to organize the results (default or plans)
+ * @param  string   $user           If a user is set, then will only show rules that user has permission to see.
  */
-function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode='default') {
+function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode='default',$user='') {
   
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Collect active actions
-  $actions = test_rules_clinic('','passive_alert',$dateTarget,$mode,$patient_id,'',$organize_mode);
+  $actions = test_rules_clinic('','passive_alert',$dateTarget,$mode,$patient_id,'',$organize_mode, array(),'primary',NULL,NULL,$user);
 
   // Display the actions
   $current_targets = array();
@@ -236,15 +237,16 @@ function compare_clinical_summary_widget($patient_id,$current_targets,$userid=''
  * @param  string   $mode           choose either 'reminders-all' or 'reminders-due' (required)
  * @param  string   $dateTarget     target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  * @param  string   $organize_mode  Way to organize the results (default or plans)
+ * @param  string   $user           If a user is set, then will only show rules that user has permission to see
  * @return string                   html display output.
  */
-function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='default') {
+function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='default',$user='') {
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Collect active actions
-  $actions = test_rules_clinic('','active_alert',$dateTarget,$mode,$patient_id,'',$organize_mode);
+  $actions = test_rules_clinic('','active_alert',$dateTarget,$mode,$patient_id,'',$organize_mode, array(),'primary',NULL,NULL,$user);
 
   if (empty($actions)) {
     return false;
@@ -450,9 +452,10 @@ function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mo
  * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $start         applicable patient to start at (when batching process)
  * @param  integer      $batchSize     number of patients to batch (when batching process)
+ * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$start=NULL,$batchSize=NULL) {
+function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$start=NULL,$batchSize=NULL,$user='') {
 
   // If dateTarget is an array, then organize them.
   if (is_array($dateTarget)) {
@@ -474,7 +477,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     $ures = sqlStatementCdrEngine($query);
     // Second, run through each provider recursively
     while ($urow = sqlFetchArray($ures)) {
-      $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan,$organize_mode,$options,$pat_prov_rel,$start,$batchSize);
+      $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan,$organize_mode,$options,$pat_prov_rel,$start,$batchSize,$user);
       if (!empty($newResults)) {
         $provider_item['is_provider'] = TRUE;
         $provider_item['prov_lname'] = $urow['lname'];
@@ -504,7 +507,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         // Second, run through each provider recursively
         $provider_results = array();
         while ($urow = sqlFetchArray($ures)) {
-          $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize);
+          $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize,$user);
           if (!empty($newResults)) {
             $provider_item['is_provider'] = TRUE;
             $provider_item['prov_lname'] = $urow['lname'];
@@ -523,7 +526,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       }
       else {
         // (not collate_inner, so do not nest providers within each plan)
-        $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize);
+        $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize,$user);
         if (!empty($newResults)) {
           $plan_item['is_plan'] = TRUE;
           array_push($results,$plan_item);
@@ -559,11 +562,11 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   if ($mode != "report") {
     // Use per patient custom rules (if exist)
     // Note as discussed above, this only works for single patient instances.
-    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan);
+    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan,$user);
   }
   else { // $mode = "report"
     // Only use default rules (do not use patient custom rules)
-    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan);
+    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan,$user);
   }
 
   foreach( $rules as $rowRule ) {
@@ -1254,9 +1257,10 @@ function set_plan_activity_patient($plan,$type,$setting,$patient_id) {
  * @param  integer  $patient_id       pid of selected patient. (if custom rule does not exist then will use the default rule)
  * @param  boolean  $configurableOnly true if only want the configurable (per patient) rules (ie. ignore cqm and amc rules)
  * @param  string   $plan             collect rules for specific plan
+ * @param  string   $user             If a user is set, then will only show rules that user has permission to see
  * @return array                      rules
  */
-function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$plan='') {
+function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$plan='',$user='') {
 
   if ($configurableOnly) {
     // Collect all default, configurable (per patient) rules into an array
@@ -1290,6 +1294,19 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$pla
 
   // Need to select rules (use custom if exist)
   foreach ($returnArray as $rule) {
+
+    // If user is set, then check if user has access to the rule
+    if (!empty($user)) {
+      $access_control = explode(':',$rule['access_control']);
+      if ( !empty($access_control[0]) && !empty($access_control[1]) ) {
+        // Section and ACO filters are not empty, so do the test for access.
+        if (!acl_check($access_control[0],$access_control[1],$user)) {
+          // User does not have access to this rule, so skip the rule.
+          continue;
+        }
+      }
+    }
+
     $customRule = sqlQueryCdrEngine("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule['id'],$patient_id) );
 
     // Decide if use default vs custom rule (preference given to custom rule)
@@ -1374,19 +1391,23 @@ function set_rule_activity_patient($rule,$type,$setting,$patient_id) {
     $setting = NULL;
   }
 
+  //Collect main rule to allow setting of the access_control
+  $original_query = "SELECT * FROM `clinical_rules` WHERE `id` = ? AND `pid` = 0";
+  $patient_rule_original = sqlQueryCdrEngine($original_query, array($rule) );
+
   // Collect patient specific rule, if already exists.
   $query = "SELECT * FROM `clinical_rules` WHERE `id` = ? AND `pid` = ?";
   $patient_rule = sqlQueryCdrEngine($query, array($rule,$patient_id) );
 
   if (empty($patient_rule)) {
     // Create a new patient specific rule with flags all set to default
-    $query = "INSERT into `clinical_rules` (`id`, `pid`) VALUES (?,?)";
-    sqlStatementCdrEngine($query, array($rule, $patient_id) ); 
+    $query = "INSERT into `clinical_rules` (`id`, `pid`, `access_control`) VALUES (?,?,?)";
+    sqlStatementCdrEngine($query, array($rule, $patient_id, $patient_rule_original['access_control']) ); 
   }
 
   // Update patient specific row
-  $query = "UPDATE `clinical_rules` SET `" . add_escape_custom($type) . "_flag`= ? WHERE id = ? AND pid = ?";
-  sqlStatementCdrEngine($query, array($setting,$rule,$patient_id) );
+  $query = "UPDATE `clinical_rules` SET `" . add_escape_custom($type) . "_flag`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
+  sqlStatementCdrEngine($query, array($setting,$patient_rule_original['access_control'],$rule,$patient_id) );
 
 }
 

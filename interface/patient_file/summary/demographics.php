@@ -48,9 +48,9 @@ $fake_register_globals=false;
  }
 
   $active_reminders = false;
-  if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && acl_check('patients', 'med') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crp']) {
+  if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crp']) {
     // showing a new patient, so check for active reminders
-    $active_reminders = active_alert_summary($pid,"reminders-due");
+    $active_reminders = active_alert_summary($pid,"reminders-due",'','default',$_SESSION['authUser']);
   }
 
 function print_as_money($money) {
@@ -1341,7 +1341,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $events = sortAppointments($events);
         //////
 
-     if ( (acl_check('patients', 'med')) && ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) ) {
+     // Show Clinical Reminders for any user that has rules that are permitted.
+     $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']); 
+     if ( (!empty($clin_rem_check)) && ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) ) {
         // clinical summary expand collapse widget
         $widgetTitle = xl("Clinical Reminders");
         $widgetLabel = "clinical_reminders";

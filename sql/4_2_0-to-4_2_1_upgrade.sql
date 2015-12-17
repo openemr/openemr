@@ -12549,3 +12549,38 @@ CREATE TABLE `clinical_rules_log` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 #EndIf
 
+#IfMissingColumn clinical_rules access_control
+ALTER TABLE `clinical_rules` ADD `access_control` VARCHAR(255) NOT NULL DEFAULT 'patients:med' COMMENT 'ACO link for access control';
+#EndIf
+
+#IfNotRow clinical_rules id rule_socsec_entry
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `access_control` ) VALUES ('rule_socsec_entry', 0, 0, 0, 0, '', '', 0, '', 0, 'admin:practice');
+#EndIf
+
+#IfNotRow2D list_options list_id clinical_rules option_id rule_socsec_entry
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_socsec_entry', 'Data Entry - Social Security Number', 1500, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id rule_action option_id act_soc_sec
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_soc_sec', 'Social Security Number', 155, 0);
+#EndIf
+
+#IfNotRow rule_action id rule_socsec_entry
+INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_socsec_entry', 1, 'act_cat_assess', 'act_soc_sec');
+#EndIf
+
+#IfNotRow2D rule_action_item category act_cat_assess item act_soc_sec
+INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_assess', 'act_soc_sec', '', '', 0);
+#EndIf
+
+#IfNotRow rule_reminder id rule_socsec_entry
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'clinical_reminder_pre', 'week', '2');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'clinical_reminder_post', 'month', '1');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'patient_reminder_pre', 'week', '2');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'patient_reminder_post', 'month', '1');
+#EndIf
+
+#IfNotRow rule_target id rule_socsec_entry
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_socsec_entry', 1, 1, 1, 'target_database', '::patient_data::ss::::::ge::1', 0);
+#EndIf
+
