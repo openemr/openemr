@@ -60,6 +60,12 @@ function show_date_fun(){
 </head>
 
 <body class="body_top">
+
+<p>&nbsp;</p>    
+<p>
+    <?php include('../pills.php'); ?>
+</p>    
+    
 <div id="patient_reports"> <!-- large outer DIV -->
 
 <?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>

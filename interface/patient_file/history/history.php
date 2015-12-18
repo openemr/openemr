@@ -33,6 +33,10 @@ $(document).ready(function(){
 </head>
 <body class="body_top">
 
+    <p>&nbsp;</p>
+<p>
+    <?php include('../pills.php'); ?>    
+</p>
 <?php
  if (acl_check('patients','med')) {
   $tmp = getPatientData($pid, "squad");
@@ -76,7 +80,7 @@ $(document).ready(function(){
 <?php } ?>
 
 <div style='float:none; margin-top: 10px; margin-right:20px'>
-    <table>
+    <table class="table table-striped table-bordered">
     <tr>
         <td>
             <!-- Demographics -->
