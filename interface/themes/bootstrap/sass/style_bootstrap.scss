@@ -1797,3 +1797,54 @@ tr.search.no-bg input {
 .login-box table td{
     border-color: transparent !important;
 }
+
+
+/*********** Patient Home Window ****************/
+
+.patient-home .section-header,
+.patient-home .section-header-dynamic{
+//  @extend .panel-heading;
+    color: #333;
+    background-color: #f5f5f5;
+    border-color: #ddd;
+    padding: 15px 10px;
+    border-radius: 3px;
+}
+.patient-home .section-header .css_button_small,
+.patient-home .section-header-dynamic .css_button_small{
+    margin: 0px 2px !important;
+    padding: 2px 7px !important;
+    font-size: 10pt !important;
+//    background: none;
+}
+//.patient-home .section-header .css_button_small span{
+//    display: none;
+//}
+//.patient-home .section-header .css_button_small:before{
+//     width: 16px;
+//    content: "asdf";    
+//    height:20px;
+//    background-color: red;
+//    
+//}
+
+.section-header a.small{
+    display: block;
+    width: 100%;
+}
+.section-header ~ div .tabContainer,
+.section-header ~ div.notab,
+.section-header-dynamic ~ div.summary_item,
+.section-header ~ div.summary_item small{
+    box-shadow: 1px 1px 2px #000;
+    clear: both;
+    display: block;
+    padding: 5px 5px 0;
+    margin-bottom: 5px;
+}
+.section-header ~ div{
+   padding-top: 5px; 
+}
+.section-header ~ div .tabNav li a{
+    padding: 3px 8px;
+}

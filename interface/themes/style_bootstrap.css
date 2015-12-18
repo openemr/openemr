@@ -15095,3 +15095,51 @@ tr.search.no-bg input {
 .login-box table td {
   border-color: transparent !important;
 }
+
+/*********** Patient Home Window ****************/
+/* line 1804, bootstrap/sass/style_bootstrap.scss */
+.patient-home .section-header,
+.patient-home .section-header-dynamic {
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: #ddd;
+  padding: 15px 10px;
+  border-radius: 3px;
+}
+
+/* line 1813, bootstrap/sass/style_bootstrap.scss */
+.patient-home .section-header .css_button_small, .patient-home .section-header #showMenuLink,
+.patient-home .section-header-dynamic .css_button_small,
+.patient-home .section-header-dynamic #showMenuLink {
+  margin: 0px 2px !important;
+  padding: 2px 7px !important;
+  font-size: 10pt !important;
+}
+
+/* line 1831, bootstrap/sass/style_bootstrap.scss */
+.section-header a.small {
+  display: block;
+  width: 100%;
+}
+
+/* line 1835, bootstrap/sass/style_bootstrap.scss */
+.section-header ~ div .tabContainer,
+.section-header ~ div.notab,
+.section-header-dynamic ~ div.summary_item,
+.section-header ~ div.summary_item small {
+  box-shadow: 1px 1px 2px #000;
+  clear: both;
+  display: block;
+  padding: 5px 5px 0;
+  margin-bottom: 5px;
+}
+
+/* line 1845, bootstrap/sass/style_bootstrap.scss */
+.section-header ~ div {
+  padding-top: 5px;
+}
+
+/* line 1848, bootstrap/sass/style_bootstrap.scss */
+.section-header ~ div .tabNav li a {
+  padding: 3px 8px;
+}
