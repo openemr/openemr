@@ -428,29 +428,36 @@ function educlick(codetype, codevalue) {
 
     if ($finals_only) {
       // We are consolidating reports.
-      $rrowsets = array();
-      // First pass creates a $rrowsets[$key] for each unique result code in *this* report, with
-      // the value being an array of the corresponding result rows. This caters to multiple
-      // occurrences of the same result code in the same report.
-      while ($rrow = sqlFetchArray($rres)) {
-        $result_code = empty($rrow['result_code']) ? '' : $rrow['result_code'];
-        $key = sprintf('%05d/', $row['procedure_order_seq']) . $result_code;
-        if (!isset($rrowsets[$key])) $rrowsets[$key] = array();
-        $rrowsets[$key][] = $rrow;
-      }
-      // Second pass builds onto the array of final results for *all* reports, where each final
-      // result for a given result code is its *array* of result rows from *one* of the reports.
-      foreach ($rrowsets as $key => $rrowset) {
-        // When two reports have the same date, use the result date to decide which is "latest".
-        if (isset($finals[$key]) &&
-          $row['date_report'] == $finals[$key][0]['date_report'] &&
-          !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
-          $rrow['date'] < $finals[$key][1]['date'])
-        {
-          $finals[$key][2] = true;
-          continue;
+      if (sqlNumRows($rres)) {
+        $rrowsets = array();
+        // First pass creates a $rrowsets[$key] for each unique result code in *this* report, with
+        // the value being an array of the corresponding result rows. This caters to multiple
+        // occurrences of the same result code in the same report.
+        while ($rrow = sqlFetchArray($rres)) {
+          $result_code = empty($rrow['result_code']) ? '' : $rrow['result_code'];
+          $key = sprintf('%05d/', $row['procedure_order_seq']) . $result_code;
+          if (!isset($rrowsets[$key])) $rrowsets[$key] = array();
+          $rrowsets[$key][] = $rrow;
         }
-        $finals[$key] = array($row, $rrowset, isset($finals[$key]));
+        // Second pass builds onto the array of final results for *all* reports, where each final
+        // result for a given result code is its *array* of result rows from *one* of the reports.
+        foreach ($rrowsets as $key => $rrowset) {
+          // When two reports have the same date, use the result date to decide which is "latest".
+          if (isset($finals[$key]) &&
+            $row['date_report'] == $finals[$key][0]['date_report'] &&
+            !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
+            $rrow['date'] < $finals[$key][1]['date'])
+          {
+            $finals[$key][2] = true;
+            continue;
+          }
+          $finals[$key] = array($row, $rrowset, isset($finals[$key]));
+        }
+      }
+      else {
+        // We have no results for this report.
+        $key = sprintf('%05d/', $row['procedure_order_seq']);
+        $finals[$key] = array($row, array($empty_results), false);
       }
     }
     else {
@@ -467,9 +474,6 @@ function educlick(codetype, codevalue) {
   }
 
   if ($finals_only) {
-    if (empty($finals) && !empty($row)) {
-      $finals[''] = array($row, array($empty_results), false);
-    }
     ksort($finals);
     foreach ($finals as $final) {
       foreach ($final[1] as $rrow) {

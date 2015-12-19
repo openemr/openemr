@@ -269,7 +269,9 @@ if($value_select){
 				}
 				echo "<td class='list_item'>" . text($myrow['range']) 		. "</td>";
 				
-				echo "<td class='list_item'>" . generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) . "</td>";
+				// echo "<td class='list_item'>" . generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) . "</td>";
+				echo "<td class='list_item'>" . text($myrow['units']) . "</td>";
+
 				echo "<td class='list_log'>"  . text($myrow['date_collected']) . "</td>";
 				echo "<td class='list_log'>"  . text($myrow['review_status']) . "</td>";
 				echo "<td class='list_log'>";
@@ -353,7 +355,8 @@ if($value_select){
 				$value_matrix[$i][result_code] 			= $myrow['result_code'];
 				$value_matrix[$i][result_text] 			= $myrow['result_text'];
 				$value_matrix[$i][result] 				= $myrow['result'];
-				$value_matrix[$i][units] 				= generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) ;
+				// $value_matrix[$i][units] 				= generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) ;
+				$value_matrix[$i][units] 				= $myrow['units'];
 				$value_matrix[$i][range] 				= $myrow['range'];
 				$value_matrix[$i][abnormal] 			= $myrow['abnormal'];
 				$value_matrix[$i][review_status] 		= $myrow['review_status'];

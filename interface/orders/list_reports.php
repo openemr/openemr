@@ -45,7 +45,7 @@ function getListItem($listid, $value) {
     "WHERE list_id = ? AND option_id = ?",
     array($listid, $value));
   $tmp = xl_list_label($lrow['title']);
-  if (empty($tmp)) $tmp = "($report_status)";
+  if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
   return $tmp;
 }
 
