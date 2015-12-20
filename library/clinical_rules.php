@@ -1305,6 +1305,13 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$pla
           continue;
         }
       }
+      else {
+        // Section or ACO filters are empty, so use default patients:med aco
+        if (!acl_check('patients','med',$user)) {
+          // User does not have access to this rule, so skip the rule.
+          continue;
+        }
+      }
     }
 
     $customRule = sqlQueryCdrEngine("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule['id'],$patient_id) );
