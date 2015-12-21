@@ -120,8 +120,8 @@ if ($parameters['go'] == "Go") {
         $sqlstmt .= " LIMIT 0,".$parameters['limit'];
     }
 
-    $qResults = mysql_query($sqlstmt, $oemrdb);
-    while ($row = mysql_fetch_assoc($qResults)) {
+    $qResults = sqlStatement($sqlstmt);
+    while ($row = sqlFetchArray($qResults)) {
 
         if ($dupelist[$row['id']] == 1) continue;
 
@@ -145,10 +145,10 @@ if ($parameters['go'] == "Go") {
             $sqlstmt .= $sqland . " dob='".$row['dob']."'";
             $sqland = " AND ";
         }
-        $mResults = mysql_query($sqlstmt, $oemrdb);
+        $mResults = sqlStatement($sqlstmt);
 
         if (! $mResults) continue;
-        if (mysql_num_rows($mResults) <= 1) continue;
+        if (sqlNumRows($mResults) <= 1) continue;
 
 
         echo "<div class='match_block' style='padding: 5px 0px 5px 0px;' id='dupediv".$dupecount."'>";
@@ -162,7 +162,7 @@ if ($parameters['go'] == "Go") {
         echo "<td><input type='button' value=' ? ' class='moreinfo' oemrid='".$row['pid']."' title='More info'></td>";
         echo "</tr>";
 
-        while ($mrow = mysql_fetch_assoc($mResults)) {
+        while ($mrow = sqlFetchArray($mResults)) {
             if ($row['id'] == $mrow['id']) continue;
             echo "<tr class='onerow' id='".$mrow['id']."' oemrid='".$mrow['id']."' dupecount='".$dupecount."' title='Merge duplicates into this record'>";
             echo "<td>".$mrow['lname'].", ".$mrow['fname']."</td>";

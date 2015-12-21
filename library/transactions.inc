@@ -29,9 +29,9 @@ function getTransByPid ($pid, $cols = "*")
 function newTransaction($pid, $body, $title, $authorized = "0",
   $status = "1", $assigned_to = "*")
 {
-  $body = mysql_escape_string($body);
-  $id = sqlInsert("INSERT INTO transactions ( " .
-    "date, title, pid, user, groupname, authorized " .
+  $body = add_escape_custom($body);
+  $id = sqlInsert("insert into transactions ( " .
+    "date, title, body, pid, user, groupname, authorized " .
     ") values ( " .
     "NOW(), '$title', '$pid', '" . $_SESSION['authUser'] .
     "', '" . $_SESSION['authProvider'] . "', '$authorized' " .

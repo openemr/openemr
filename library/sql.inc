@@ -47,6 +47,9 @@ class ADODB_mysql_log extends ADODB_mysql
               // Stash the error into last_mysql_error so it doesn't get clobbered when
               // we insert into the audit log.
               $GLOBALS['last_mysql_error']=$this->ErrorMsg();
+
+              // Last error no
+              $GLOBALS['last_mysql_error_no']=$this->ErrorNo();
             }
             else {
               $outcome = true;
@@ -497,6 +500,27 @@ function getSqlLastError($mode="adodb") {
 }
 
 /**
+ * Function that will safely return the last error no,
+ * and accounts for the audit engine.
+ *
+ * @param   string  $mode either adodb(default) or native_mysql
+ * @return  string        last mysql error no
+ */
+function getSqlLastErrorNo($mode="adodb") {
+    if (!empty($GLOBALS['last_mysql_error_no'])) {
+        return $GLOBALS['last_mysql_error_no'];
+    }
+    else {
+        if ($mode == "adodb") {
+            return $GLOBALS['adodb']['db']->ErrorNo();
+        }
+        else { // $mode = "native_mysql"
+            return mysql_errno($GLOBALS['dbh']);
+        }
+    }
+}
+
+/**
 * Function that will return an array listing
 * of columns that exist in a table.
 *
@@ -688,6 +712,40 @@ function sqlClose()
 */
 function get_db() {
   return $GLOBALS['adodb']['db'];
+}
+
+/**
+ * Generic mysql select db function
+ *
+ * @param string $database
+ */
+function generic_sql_select_db($database)
+{
+  mysql_select_db($database);
+}
+
+/**
+ * Generic mysql affected rows function
+ *
+ * @param resource $link
+ */
+function generic_sql_affected_rows($link = null)
+{
+  if (is_null($link))
+    $link = $GLOBALS['dbh'];
+  mysql_affected_rows($link);
+}
+
+/**
+ * Generic mysql insert id function
+ *
+ * @param resource $link
+ */
+function generic_sql_insert_id($link = null)
+{
+  if (is_null($link))
+    $link = $GLOBALS['dbh'];
+  mysql_insert_id($link);
 }
 
 

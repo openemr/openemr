@@ -56,7 +56,7 @@ class Address extends ORDataObject{
 		//echo $sql . "<bR />";
 		$results = sqlQ($sql);
 		//echo "sql: $sql";
-		$row = mysql_fetch_array($results);
+		$row = sqlFetchArray($results);
 		if (!empty($row)) {
 			$a = new Address($row['id']);
 		}

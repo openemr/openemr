@@ -74,31 +74,31 @@ function upgradeFromSqlFile_de($filename) {
 
     if($proc == 1) $query .= "\n";
     $query = $query . $line;
-      
+
   if (substr($query, -1) == '$')
   {
   $query = rtrim($query, '$');
   if($proc == 0)
   $proc = 1;
-  else 
+  else
   {
     $proc = 0; //executes procedures and functions
     if (!sqlStatement($query))
       {
         echo "<font color='red'>"; echo xl("The above statement failed"); echo ": " .
-          mysql_error() . "<br />"; echo xl("Upgrading will continue"); echo ".<br /></font>\n";
+          getSqlLastError() . "<br />"; echo xl("Upgrading will continue"); echo ".<br /></font>\n";
       }
          $query = '';
-     
+
     }
    }
-    
+
     if (substr($query, -1) == ';'and $proc == 0) {
       $query = rtrim($query, ';');
       echo "$query<br />\n";  //executes sql statements
       if (!sqlStatement($query)) {
         echo "<font color='red'>"; echo xl("The above statement failed"); echo ": " .
-          mysql_error() . "<br />"; echo xl("Upgrading will continue"); echo ".<br /></font>\n";
+          getSqlLastError() . "<br />"; echo xl("Upgrading will continue"); echo ".<br /></font>\n";
       }
       $query = '';
     }
@@ -127,22 +127,18 @@ if (!empty($_POST['form_submit'])) {
   upgradeFromSqlFile_de("database_de_identification.sql");
 
 //  grant file privilege to user
-//  if ($sqlconf["host"] == "localhost")
-//	$dbh = mysql_connect($sqlconf['host'],$_POST['root_user_name'],$_POST['root_user_pass'],$sqlconf['host']) or die(mysql_error());
-//  else
-//	$dbh = mysql_connect($sqlconf['host'].":".$sqlconf['port'],$_POST['root_user_name'],$_POST['root_user_pass']) or die(mysql_error());
 
   $dbh = $GLOBALS['dbh'];
 
   if ($dbh == FALSE) {
 	echo "\n";
-	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
+	echo "<p>".getSqlLastError()." (#".getSqlLastErrorNo().")\n";
 	break;
   }  $login=$sqlconf["login"];   $loginhost=$sqlconf["host"];
-  mysql_select_db($sqlconf['dbase']) or die(mysql_error());
-  if (mysql_query("GRANT FILE ON *.* TO '$login'@'$loginhost'",$dbh) == FALSE) {
+  generic_sql_select_db($sqlconf['dbase']) or die(getSqlLastError());
+  if (sqlQ("GRANT FILE ON *.* TO '$login'@'$loginhost'",$dbh) == FALSE) {
 		echo xl("Error when granting file privilege to the OpenEMR user."); echo "\n";
-      echo "<p>".mysql_error()." (#".mysql_errno().")\n";
+      echo "<p>".getSqlLastError()." (#".getSqlLastErrorNo().")\n";
 		echo xl("Error"); echo "\n";
 		break;
 	}
@@ -152,7 +148,7 @@ if (!empty($_POST['form_submit'])) {
   echo "<p><font color='green'>"; echo xl("Database upgrade finished."); echo "</font></p>\n";
   echo "<p><font color='red'>"; echo xl("Please restart the apache server before playing with de-identification"); echo "</font></p>\n";
   echo "<p><font color='red'>"; echo xl("Please set de_identification_config variable back to zero"); echo "</font></p>\n"; echo "</body></html>\n";
-  mysql_close($dbh);
+  sqlClose($dbh);
   exit();
 }
 ?>
@@ -161,12 +157,12 @@ if (!empty($_POST['form_submit'])) {
 function form_validate()
 {
  if(document.forms[0].root_user_name.value == "")
- { 
+ {
   alert("<?php echo xl('Enter Database root Username');?>");
   return false;
  }
  /*if(document.forms[0].root_user_pass.value == "")
- { 
+ {
   alert("<?php echo xl('Enter Database root Password');?>");
   return false;
  }*/
@@ -183,11 +179,11 @@ function form_validate()
  echo xl("Please set"); echo " 'de_identification_config' "; echo xl("variable to one to run de-identification upgrade script"); echo "</br></br>";
  echo "([OPENEMR]/contrib/util/de_identification_upgrade.php)";
 }
-else 
+else
 {
   xl('Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process','e');?></p></br>
         <table class="de_id_upgrade_login" align="center">
-	<tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr> 
+	<tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
 	<tr valign="top">
 		<td>&nbsp;</td>
 		<td><?php xl('Enter Database root Username','e'); ?></td>
@@ -203,8 +199,8 @@ else
 		<td><input type='password' size='20' name='root_user_pass' id='root_user_pass'
 			value= "" title="<?php xl('Enter Database root Password','e'); ?>" /> </td>
 		<td>&nbsp;</td>
-	</tr>   
-	<tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>  
+	</tr>
+	<tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
 
 	</table>
 <p><input type='submit' name='form_submit' value="<?php xl('Upgrade Database','e');?>"  /></p>

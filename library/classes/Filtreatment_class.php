@@ -218,7 +218,7 @@ function ft_dbsql($value, $db_type = 'MYSQL') {
         }*/
         // trick to not modify the openemr genuine code who put the string (already quoted) in quotes!
         switch ($db_type) {
-            case 'MYSQL': $value = mysql_real_escape_string($value); break;
+            case 'MYSQL': $value = add_escape_custom($value); break;
             case 'PGSQL': $value = pg_escape_string($value); break;
         }
     }

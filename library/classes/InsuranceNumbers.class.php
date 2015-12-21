@@ -52,7 +52,7 @@ class InsuranceNumbers extends ORDataObject{
                 $sql = "SELECT id FROM "  . $this->_table . " where provider_id = '" . $provider_id . "' order by insurance_company_id";
                 $results = sqlQ($sql);
 
-                while($row = mysql_fetch_array($results) ) {
+                while($row = sqlFetchArray($results) ) {
                                 $ins[] = new InsuranceNumbers($row['id']);
                 }
 

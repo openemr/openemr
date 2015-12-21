@@ -125,7 +125,7 @@ if ($_POST['form_action']=='Process') {
         $res = sqlStatement($sql);
 
         // if no results.
-        if (mysql_num_rows($res)==0){
+        if (sqlNumRows($res)==0){
 	?>
         <html>
 	<head>

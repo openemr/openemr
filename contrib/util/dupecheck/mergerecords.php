@@ -18,9 +18,9 @@ if (! isset($parameters['otherid'])) { echo "Missing a Other matching IDs"; exit
 
 // get the PID matching the masterid
 $sqlstmt = "select pid from patient_data where id='".$parameters['masterid']."'";
-$qResults = mysql_query($sqlstmt, $oemrdb);
+$qResults = sqlStatement($sqlstmt);
 if (! $qResults) { echo "Error fetching master PID."; exit; }
-$row = mysql_fetch_assoc($qResults);
+$row = sqlFetchArray($qResults);
 $masterPID = $row['pid'];
 
 $commitchanges = false;
@@ -31,9 +31,9 @@ foreach ($parameters['otherid'] as $otherID) {
 
     // get info about the "otherID"
     $sqlstmt = "select lname, pid from patient_data where id='".$otherID."'";
-    $qResults = mysql_query($sqlstmt, $oemrdb);
+    $qResults = sqlStatement($sqlstmt);
     if (! $qResults) { echo "Error fetching master PID."; exit; }
-    $orow = mysql_fetch_assoc($qResults);
+    $orow = sqlFetchArray($qResults);
     $otherPID = $orow['pid'];
     
     echo "Merging PID ".$otherPID." into the master PID ".$masterPID."<br>";
@@ -58,8 +58,8 @@ foreach ($parameters['otherid'] as $otherID) {
    
     // update all the forms* tables
     $sqlstmt = "show tables like 'form%'";
-    $qResults = mysql_query($sqlstmt, $oemrdb);
-    while ($row = mysql_fetch_assoc($qResults)) {
+    $qResults = sqlStatement($sqlstmt);
+    while ($row = sqlFetchArray($qResults)) {
         UpdateTable($row['Tables_in_'.$sqlconf["dbase"].' (form%)'], "pid", $otherPID, $masterPID);
     }
     
@@ -74,7 +74,7 @@ foreach ($parameters['otherid'] as $otherID) {
     // alter the patient's last name to indicate they have been merged into another record
     $newlname = "~~~MERGED~~~".$orow['lname'];
     $sqlstmt = "update patient_data set lname='".$newlname."' where pid='".$otherPID."'";
-    if ($commitchanges == true) $qResults = mysql_query($sqlstmt, $oemrdb);
+    if ($commitchanges == true) $qResults = sqlStatement($sqlstmt);
     echo "<li>Altered last name of PID ".$otherPID." to '".$newlname."'</li>";
 
     // add patient notes regarding the merged data
@@ -97,16 +97,16 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue) {
     global $commitchanges, $oemrdb;
 
     $sqlstmt = "select count(*) as numrows from ".$tablename." where ".$pid_col."='".$oldvalue."'";
-    $qResults = mysql_query($sqlstmt, $oemrdb);
+    $qResults = sqlStatement($sqlstmt);
 
     if ($qResults) { 
-        $row = mysql_fetch_assoc($qResults);
+        $row = sqlFetchArray($qResults);
         if ($row['numrows'] > 0) {
             $sqlstmt = "update ".$tablename." set ".$pid_col."='".$newvalue."' where ".$pid_col."='".$oldvalue."'";
             if ($commitchanges == true) {
-                $qResults = mysql_query($sqlstmt, $oemrdb);
+                $qResults = sqlStatement($sqlstmt);
             }
-            $rowsupdated = mysql_affected_rows($oemrdb);
+            $rowsupdated = generic_sql_affected_rows($oemrdb);
             echo "<li>";
             echo "".$tablename.": ".$rowsupdated." row(s) updated<br>";
             echo "</li>";
