@@ -30,16 +30,14 @@ class AMC_304b_2_STG2_Numerator implements AmcFilterIF
     
     public function test( AmcPatient $patient, $beginDate, $endDate ) 
     {
-       //The number of prescriptions in the denominator generated, queried for a drug formulary and transmitted electronically.
-       //
-       // Still TODO
-       // AMC MU2 TODO :
-       // Note OpenEMR official codebase does not support the eTransmit and forumulary items
-       //
-       if ( ($patient->object['eTransmit'] == 1) && ($patient->object['formulary'] == 'yes') )  {
-		   return true;
-	    }else{
-		   return false;
-	    }
+        //The number of prescriptions in the denominator generated, queried for a drug formulary and transmitted electronically
+        $eprescribe = amcCollect('e_prescribe_amc',$patient->id,'prescriptions',$patient->object['id']);
+        $checkformulary = amcCollect('e_prescribe_chk_formulary_amc',$patient->id,'prescriptions',$patient->object['id']);
+        if ( !(empty($eprescribe)) && !(empty($checkformulary)) ) {
+          return true;
+        }
+        else {
+          return false;
+        }
     }
 }

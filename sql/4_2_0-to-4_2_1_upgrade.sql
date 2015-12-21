@@ -12259,7 +12259,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 
 #IfNotRow2D list_options list_id clinical_rules option_id e_prescribe_stage1_amc
 	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
-	('clinical_rules', 'e_prescribe_stage1_amc', 'Generate and transmit permissible prescriptions electronically (Uncontrolled Substances).', 50, 0, 0, '', '', '', 0, 0);
+	('clinical_rules', 'e_prescribe_stage1_amc', 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).', 50, 0, 0, '', '', '', 0, 0);
 #EndIf
 
 #IfNotRow clinical_rules id e_prescribe_1_stage2_amc
@@ -12281,7 +12281,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 
 #IfNotRow2D list_options list_id clinical_rules option_id e_prescribe_2_stage2_amc
 	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
-	('clinical_rules', 'e_prescribe_2_stage2_amc', 'Generate and transmit permissible prescriptions electronically (Uncontrolled substances with drug formulary).', 50, 0, 0, '', '', '', 0, 0);
+	('clinical_rules', 'e_prescribe_2_stage2_amc', 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).', 50, 0, 0, '', '', '', 0, 0);
 #EndIf
 
 #IfMissingColumn users cpoe
@@ -12582,5 +12582,13 @@ INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES 
 
 #IfNotRow rule_target id rule_socsec_entry
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_socsec_entry', 1, 1, 1, 'target_database', '::patient_data::ss::::::ge::1', 0);
+#EndIf
+
+#IfRow2D list_options list_id clinical_rules option_id e_prescribe_stage1_amc
+UPDATE `list_options` SET `title` = 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).'  WHERE list_id = 'clinical_rules' AND option_id = 'e_prescribe_stage1_amc';
+#EndIf
+
+#IfRow2D list_options list_id clinical_rules option_id e_prescribe_2_stage2_amc 
+UPDATE `list_options` SET `title` = 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).'  WHERE list_id = 'clinical_rules' AND option_id = 'e_prescribe_2_stage2_amc';
 #EndIf
 
