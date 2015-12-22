@@ -15143,3 +15143,44 @@ tr.search.no-bg input {
 .section-header ~ div .tabNav li a {
   padding: 3px 8px;
 }
+
+/* line 1851, bootstrap/sass/style_bootstrap.scss */
+.accordionToggle {
+  font-family: sans-serif;
+  font-size: 14pt;
+  font-weight: normal;
+  cursor: pointer;
+  background: #eee;
+  border: 1px solid #D4D2D2;
+  border-radius: 5px;
+  padding-left: 15px;
+  padding-bottom: 3px;
+  padding-top: 3px;
+  margin-top: 3px;
+  transition: all 1s;
+}
+
+/* line 1865, bootstrap/sass/style_bootstrap.scss */
+.accordionToggle:before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  background: url(../pic/arrow.png);
+  display: inline-block;
+  margin-right: 5px;
+}
+
+/* line 1873, bootstrap/sass/style_bootstrap.scss */
+.arrow-down .accordionToggle:before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  background: url(../pic/arrow-down.png);
+  display: inline-block;
+  margin-right: 5px;
+}
+
+/* line 1881, bootstrap/sass/style_bootstrap.scss */
+div.section, .bottom-panel, .rule_container, .rule_row {
+  margin: 0 !important;
+}

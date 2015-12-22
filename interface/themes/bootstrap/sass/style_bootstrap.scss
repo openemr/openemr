@@ -1848,3 +1848,36 @@ tr.search.no-bg input {
 .section-header ~ div .tabNav li a{
     padding: 3px 8px;
 }
+.accordionToggle{
+    font-family: sans-serif;
+    font-size: 14pt;
+    font-weight: normal;
+    cursor: pointer;
+    background: #eee;
+    border: 1px solid #D4D2D2;
+    border-radius: 5px;
+    padding-left: 15px;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    margin-top: 3px;
+    transition: all 1s;
+}
+.accordionToggle:before{
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: url(../pic/arrow.png);
+    display: inline-block;
+    margin-right: 5px;
+}
+.arrow-down .accordionToggle:before{
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: url(../pic/arrow-down.png);
+    display: inline-block;
+    margin-right: 5px;
+}
+div.section {
+    margin: 0 !important;
+}

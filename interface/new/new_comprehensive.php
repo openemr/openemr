@@ -243,6 +243,8 @@ function divclick(cb, divid) {
  }
  return true;
 }
+    
+
 
 // Compute the length of a string without leading and trailing spaces.
 function trimlen(s) {
@@ -408,7 +410,7 @@ function end_group() {
   if (strlen($last_group) > 0) {
     end_row();
     echo " </table>\n";
-    if (!$SHORT_FORM) echo "</div>\n";
+    if (!$SHORT_FORM) echo "</div></div>\n";
   }
 }
 
@@ -418,6 +420,7 @@ $item_count    = 0;
 $display_style = 'block';
 $group_seq     = 0; // this gives the DIV blocks unique IDs
 
+$varCount = 1;
 while ($frow = sqlFetchArray($fres)) {
   $this_group = $frow['group_name'];
   $titlecols  = $frow['titlecols'];
@@ -441,13 +444,16 @@ while ($frow = sqlFetchArray($fres)) {
       end_group();
       $group_seq++;    // ID for DIV tags
       $group_name = substr($this_group, 1);
-      if (strlen($last_group) > 0) echo "<br />";
-      echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' id='form_cb_$group_seq' value='1' " .
-        "onclick='return divclick(this,\"div_$group_seq\");'";
-      if ($display_style == 'block') echo " checked";
+     // if (strlen($last_group) > 0);
+     if($varCount==1){
+          echo "<div class=\"parent arrow-down\"><div class=\"accordionToggle\""; 
+     }else{
+          echo "<div class=\"parent\"><div class=\"accordionToggle\""; 
+     }
+          
         
       // Modified 6-09 by BM - Translate if applicable  
-      echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
+      echo " >" . xl_layout_label($group_name) . "</div>\n";
         
       echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
       echo " <table border='0' cellpadding='0'>\n";
@@ -493,7 +499,7 @@ while ($frow = sqlFetchArray($fres)) {
     echo ">";
     $cell_count += $datacols;
   }
-
+ $varCount++;
   ++$item_count;
   generate_form_field($frow, $currvalue);
 }
@@ -511,10 +517,9 @@ if (! $GLOBALS['simplified_demographics']) {
   $insurance_info[2] = getInsuranceData($pid,"secondary");
   $insurance_info[3] = getInsuranceData($pid,"tertiary");
 
-  echo "<br /><span class='bold'><input type='checkbox' name='form_cb_ins' value='1' " .
-    "onclick='return divclick(this,\"div_ins\");'";
-  if ($display_style == 'block') echo " checked";
-  echo " /><b>" . xl('Insurance') . "</b></span>\n";
+  echo "<div class=\"parent\"><div class=\"accordionToggle\">";
+  if ($display_style == 'block');
+  echo xl('Insurance')."</div>\n";
   echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
 
   for($i=1;$i<=3;$i++) {
@@ -715,7 +720,7 @@ if (! $GLOBALS['simplified_demographics']) {
 <hr />
 <?php
   }
-  echo "</div>\n";
+  echo "</div></div>\n";
  } // end of "if not simplified_demographics"
 ?>
 
@@ -761,6 +766,10 @@ if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 // var override = false; // flag that overrides the duplication warning
 
 $(document).ready(function() {
+    $('.accordionToggle').click(function(){        
+      $(this).siblings().toggle();
+      $(this).parent().toggleClass('arrow-down');
+    });
 enable_modals();
  $(".medium_modal").fancybox( {
                 'overlayOpacity' : 0.0,
