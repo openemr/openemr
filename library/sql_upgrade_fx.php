@@ -545,7 +545,7 @@ function upgradeFromSqlFile($filename) {
       echo "$query<br />\n";
       if (!sqlStatement($query)) {
         echo "<font color='red'>The above statement failed: " .
-          mysql_error() . "<br />Upgrading will continue.<br /></font>\n";
+          getSqlLastError() . "<br />Upgrading will continue.<br /></font>\n";
       }
       $query = '';
     }

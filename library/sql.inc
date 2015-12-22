@@ -47,6 +47,9 @@ class ADODB_mysql_log extends ADODB_mysql
               // Stash the error into last_mysql_error so it doesn't get clobbered when
               // we insert into the audit log.
               $GLOBALS['last_mysql_error']=$this->ErrorMsg();
+
+              // Last error no
+              $GLOBALS['last_mysql_error_no']=$this->ErrorNo();
             }
             else {
               $outcome = true;
@@ -494,6 +497,27 @@ function getSqlLastError($mode="adodb") {
       return mysql_error($GLOBALS['dbh']);
     }
   }
+}
+
+/**
+ * Function that will safely return the last error no,
+ * and accounts for the audit engine.
+ *
+ * @param   string  $mode either adodb(default) or native_mysql
+ * @return  string        last mysql error no
+ */
+function getSqlLastErrorNo($mode="adodb") {
+    if (!empty($GLOBALS['last_mysql_error_no'])) {
+        return $GLOBALS['last_mysql_error_no'];
+    }
+    else {
+        if ($mode == "adodb") {
+            return $GLOBALS['adodb']['db']->ErrorNo();
+        }
+        else { // $mode = "native_mysql"
+            return mysql_errno($GLOBALS['dbh']);
+        }
+    }
 }
 
 /**

@@ -386,7 +386,7 @@
      array_push($current_user_groups, $group);
     }
    }
-   $user_data = mysql_fetch_array(sqlStatement("select * from users where username='" .
+   $user_data = sqlFetchArray(sqlStatement("select * from users where username='" .
     $username . "'"));
    set_user_aro($current_user_groups, $username, $user_data["fname"],
     $user_data["mname"], $user_data["lname"]);
@@ -416,7 +416,7 @@
      }
     }
    }
-   $user_data = mysql_fetch_array(sqlStatement("select * from users where username='" .
+   $user_data = sqlFetchArray(sqlStatement("select * from users where username='" .
     $username . "'"));
    set_user_aro($new_user_groups, $username, $user_data["fname"],
     $user_data["mname"], $user_data["lname"]);

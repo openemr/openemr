@@ -214,7 +214,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 
 			$query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
 				"(t1.user like t2.username) where t1.pid=$pid and t1.encounter=$encounter");
-			if ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
+			if ($results = sqlFetchArray($query)) {
 				$name = $results['fname']." ".$results['lname'].", ".$results['title'];
 				$user_id = $results['id'];
 			}
@@ -323,7 +323,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 
 			$query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
 				"(t1.user like t2.username) where t1.pid=$pid and t1.encounter=$encounter");
-			if ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
+			if ($results = sqlFetchArray($query)) {
 				$name = $results['fname']." ".$results['lname'].", ".$results['title'];
 				$user_id = $results['id'];
 			}
@@ -366,7 +366,7 @@ function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql forma
 		$date_clause .
 		$name_clause .
 		"order by date,pid");
-	while ($results1 = mysql_fetch_array($query1, MYSQL_ASSOC)) {
+	while ($results1 = sqlFetchArray($query1)) {
 		if (!$dates[$results1['datekey']]) {
 			$dates[$results1['datekey']] = array();
 		}
@@ -387,21 +387,21 @@ function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql forma
 		// get icd9 codes for this encounter
 		$query2 = sqlStatement("select * from billing where encounter = ".
 			$results1['enc']." and pid = ".$results1['pid']." and code_type like 'ICD9' and activity=1");
-                while ($results2 = mysql_fetch_array($query2, MYSQL_ASSOC)) {
+                while ($results2 = sqlFetchArray($query2)) {
 			array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['billing'],
 				$results2['code'].' '.$results2['code_text']);
 		}
 		if (strtolower($results1['form_name']) == 'vitals') { // deal with Vitals
 			$query2 = sqlStatement("select * from form_vitals where id = " .
 			    	$results1['form_id']);	
-	                if ($results2 = mysql_fetch_array($query2, MYSQL_ASSOC)) {
+	                if ($results2 = sqlFetchArray($query2)) {
 				$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['vitals'] = formatVitals($results2);
 			}
 		}
 		if (substr(strtolower($results1['form_name']),0,5) == 'camos') { // deal with camos
 			$query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from ".mitigateSqlTableUpperCase("form_CAMOS")." where id = " .
 			    	$results1['form_id']);	
-	                if ($results2 = mysql_fetch_array($query2, MYSQL_ASSOC)) {
+	                if ($results2 = sqlFetchArray($query2)) {
 				if ($results2['category'] == 'exam') {
 					array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['exam'],$results2['content']);
 				}
