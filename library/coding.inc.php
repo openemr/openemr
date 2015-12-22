@@ -148,7 +148,7 @@ if ($_POST['bn_search'] && $_POST['search_term']) {
 		"code_type = '" . $code_types[$search_type]['id'] . "' " .
 		"order by code";
 	$res = sqlStatement($query);
-	$numrows = mysql_num_rows($res); // FIXME - not portable!
+	$numrows = sqlNumRows($res); // FIXME - not portable!
 }
 
 echo "   <select name='Search Results' style='width:98%' " .

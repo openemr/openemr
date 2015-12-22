@@ -62,7 +62,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
       if (isset($_POST["username"])) {
         // $tqvar = addslashes(trim($_POST["username"]));
         $tqvar = trim(formData('username','P'));
-        $user_data = mysql_fetch_array(sqlStatement("select * from users where id={$_POST["id"]}"));
+        $user_data = sqlFetchArray(sqlStatement("select * from users where id={$_POST["id"]}"));
         sqlStatement("update users set username='$tqvar' where id={$_POST["id"]}");
         sqlStatement("update groups set user='$tqvar' where user='". $user_data["username"]  ."'");
         //echo "query was: " ."update groups set user='$tqvar' where user='". $user_data["username"]  ."'" ;
@@ -206,7 +206,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
 	  
       if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
         // Set the access control group of user
-        $user_data = mysql_fetch_array(sqlStatement("select username from users where id={$_POST["id"]}"));
+        $user_data = sqlFetchArray(sqlStatement("select username from users where id={$_POST["id"]}"));
         set_user_aro($_POST['access_group'], $user_data["username"],
           formData('fname','P'), formData('mname','P'), formData('lname','P'));
       }
@@ -228,7 +228,7 @@ if (isset($_POST["mode"])) {
 
     $res = sqlStatement("select distinct username from users where username != ''");
     $doit = true;
-    while ($row = mysql_fetch_array($res)) {
+    while ($row = sqlFetchArray($res)) {
       if ($doit == true && $row['username'] == trim(formData('rumple'))) {
         $doit = false;
       }

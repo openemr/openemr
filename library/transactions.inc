@@ -19,7 +19,7 @@ function getTransByPid ($pid, $cols = "*")
 function newTransaction($pid, $body, $title, $authorized = "0",
   $status = "1", $assigned_to = "*")
 {
-  $body = mysql_escape_string($body);
+  $body = add_escape_custom($body);
   return sqlInsert("insert into transactions ( " .
     "date, title, body, pid, user, groupname, authorized " .
     ") values ( " .

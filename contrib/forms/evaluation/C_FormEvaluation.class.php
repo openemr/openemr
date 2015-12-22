@@ -56,7 +56,7 @@ class C_FormEvaluation extends Controller {
 			
 			$results = sqlQ($sql);	
 			
-			$row = mysql_fetch_array($results);
+			$row = sqlFetchArray($results);
 			if (!empty($row)) {
 				addBilling(	date("Ymd"), 	'CPT4', 	$row['code'],	$row['code_text'],  $_SESSION['pid'], 	$_SESSION['userauthorized'], 	$_SESSION['authUserID'],$row['modifier'],$row['units'],$row['fee']);
 			}
