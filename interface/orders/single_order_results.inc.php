@@ -159,6 +159,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
     echo "</td>\n";
 
     echo "  <td>";
+    echo myCellText(oeFormatShortDate(substr($date_collected, 0, 10)) . substr($date_collected, 10));
+    echo "</td>\n";
+
+    echo "  <td>";
     echo myCellText($specimen_num);
     echo "</td>\n";
 
@@ -174,7 +178,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
     echo "</td>\n";
   }
   else {
-    echo "  <td colspan='4' style='background-color:transparent'>&nbsp;</td>\n";
+    echo "  <td colspan='5' style='background-color:transparent'>&nbsp;</td>\n";
   }
 
   if ($result_code !== '' || $result_document_id) {
@@ -385,12 +389,13 @@ function educlick(codetype, codevalue) {
 
  <tr class='head'>
   <td rowspan='2' valign='middle'><?php echo xlt('Ordered Procedure'); ?></td>
-  <td colspan='4'><?php echo xlt('Report'); ?></td>
+  <td colspan='5'><?php echo xlt('Report'); ?></td>
   <td colspan='7'><?php echo xlt('Results'); ?></td>
  </tr>
 
  <tr class='head'>
   <td><?php echo xlt('Reported'); ?></td>
+  <td><?php echo xlt('Collected'); ?></td>
   <td><?php echo xlt('Specimen'); ?></td>
   <td><?php echo xlt('Status'); ?></td>
   <td><?php echo xlt('Note'); ?></td>
