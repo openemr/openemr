@@ -67,15 +67,21 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status']; 
   $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
 
-  $report_noteid ='';
+  $report_noteid = '';
   if ($report_id && !isset($ctx['seen_report_ids'][$report_id])) {
     $ctx['seen_report_ids'][$report_id] = true;
     if ($review_status != 'reviewed') {
       if ($ctx['sign_list']) $ctx['sign_list'] .= ',';
       $ctx['sign_list'] .= $report_id;
     }
+    // Allowing for multiple report notes separated by newlines.
     if (!empty($row['report_notes'])) {
-      $report_noteid = 1 + storeNote($row['report_notes']);
+      $notes = explode("\n", $row['report_notes']);
+      foreach ($notes as $note) {
+        if ($note === '') continue;
+        if ($report_noteid) $report_noteid .= ', ';
+        $report_noteid .= 1 + storeNote($note);
+      }
     }
   }
 
@@ -89,6 +95,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   $result_range     = empty($rrow['range'           ]) ? '' : $rrow['range'];
   $result_status    = empty($rrow['result_status'   ]) ? '' : $rrow['result_status'];
   $result_document_id = empty($rrow['document_id'   ]) ? '' : $rrow['document_id'];
+
+  // Someone changed the delimiter in result comments from \n to \r.
+  // Have to make sure results are consistent with those before that change.
+  $result_comments = str_replace("\r", "\n", $result_comments);
 
   if ($i = strpos($result_comments, "\n")) { // "=" is not a mistake!
     // If the first line of comments is not empty, then it is actually a long textual
@@ -106,6 +116,13 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
     if ($result_noteid) $result_noteid .= ', ';
     $result_noteid .= 1 + storeNote(xl('This is the latest of multiple result values.'));
     $ctx['priors_omitted'] = true;
+  }
+
+  // If a performing organization is provided, make a note for it also.
+  $result_facility = trim(str_replace("\r", "\n", $result_facility));
+  if ($result_facility) {
+    if ($result_noteid) $result_noteid .= ', ';
+    $result_noteid .= 1 + storeNote(xl('Performing organization') . ":\n" . $result_facility);
   }
 
   if ($ctx['lastpcid'] != $order_seq) {
