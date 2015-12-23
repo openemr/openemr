@@ -31,7 +31,6 @@ class AMC_304b_2_STG2 extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-       //return "pres_non_substance";
 	   return "prescriptions";
     }
  

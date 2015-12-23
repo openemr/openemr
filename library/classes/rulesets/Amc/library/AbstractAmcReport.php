@@ -302,20 +302,6 @@ abstract class AbstractAmcReport implements RsReportIF
 					   "AND (date_ordered BETWEEN ? AND ?)"; 
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-				
-			case "pres_non_substance":
-                        // Still TODO
-                        // AMC MU2 TODO :
-                        //  Note the cpoe_flag, eTransmit, and formulary functionality does not exist in OpenEMR official codebase.
-                        //  Note that this was to be used in the AMC_304b rules (but is currently not being used yet, though).
-                        //
-				$sql = "SELECT formulary, cpoe_flag as transmit_stat, eTransmit " .
-                       "FROM `prescriptions` " .
-                       "WHERE controlledsubstance = 'no' " .
-					   "AND `patient_id` = ? ".
-                       "AND `date_added` BETWEEN ? AND ?";
-                array_push($sqlBindArray, $patient->id, $begin, $end);
-                break;
         }
 
         $rez = sqlStatement($sql, $sqlBindArray);

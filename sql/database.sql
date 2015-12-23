@@ -577,6 +577,7 @@ INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_
 -- Rule to specifically demonstrate MU2 for CDR engine
 --
 INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `access_control` ) VALUES ('rule_socsec_entry', 0, 0, 0, 0, '', '', 0, '', 0, 'admin:practice');
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_penicillin_allergy', 0, 0, 0, 0, '', '', 0, '', 0);
 --
 -- MU2 AMC rules
 --
@@ -3671,6 +3672,7 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_cs_prostate', 'Cancer Screening: Prostate Cancer Screening', 650, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_inr_monitor', 'Coumadin Management - INR Monitoring', 1000, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_socsec_entry', 'Data Entry - Social Security Number', 1500, 0);
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_penicillin_allergy', 'Assess Penicillin Allergy', 1600, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_appt_reminder', 'Appointment Reminder Rule', 2000, 0);
 
 
@@ -3716,11 +3718,11 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
 ('clinical_rules', 'send_sum_stage2_amc', 'The EP, eligible hospital or CAH who transitions their patient to another setting of care or provider of care or refers their patient to another provider of care should provide summary of care record for each transition of care or referral (Measure B).', 80, 0, 0, '', '', '', 0, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
-('clinical_rules', 'e_prescribe_stage1_amc', 'Generate and transmit permissible prescriptions electronically (Uncontrolled Substances).', 50, 0, 0, '', '', '', 0, 0);
+('clinical_rules', 'e_prescribe_stage1_amc', 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).', 50, 0, 0, '', '', '', 0, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
 ('clinical_rules', 'e_prescribe_1_stage2_amc', 'Generate and transmit permissible prescriptions electronically (All Prescriptions).', 50, 0, 0, '', '', '', 0, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
-('clinical_rules', 'e_prescribe_2_stage2_amc', 'Generate and transmit permissible prescriptions electronically (Uncontrolled substances with drug formulary).', 50, 0, 0, '', '', '', 0, 0);
+('clinical_rules', 'e_prescribe_2_stage2_amc', 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).', 50, 0, 0, '', '', '', 0, 0);
 
 -- order types
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','order_type','Order Types', 1,0);
@@ -3823,6 +3825,7 @@ INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_prostate_cancer_screen', 'Prostate Cancer Screening', 140, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_lab_inr', 'INR', 150, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_soc_sec', 'Social Security Number', 155, 0);
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_penicillin_allergy', 'Penicillin Allergy', 157, 0);
 INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_appointment', 'Appointment', 160, 0);
 
 -- Clinical Rule Reminder Intervals
@@ -5493,7 +5496,7 @@ INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_cs_prostate', 1, 'act_cat_assess', 'act_prostate_cancer_screen');
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_inr_monitor', 1, 'act_cat_measure', 'act_lab_inr');
 INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_socsec_entry', 1, 'act_cat_assess', 'act_soc_sec');
-
+INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_penicillin_allergy', 1, 'act_cat_assess', 'act_penicillin_allergy');
 
 -- --------------------------------------------------------
 
@@ -5531,6 +5534,7 @@ INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_
 INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_assess', 'act_prostate_cancer_screen', '', '', 1);
 INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_measure', 'act_lab_inr', '', '', 0);
 INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_assess', 'act_soc_sec', '', '', 0);
+INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_assess', 'act_penicillin_allergy', '', '', 1);
 
 -- --------------------------------------------------------
 
@@ -5859,6 +5863,8 @@ INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `me
 -- Coumadin Management - INR Monitoring
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_inr_monitor', 1, 0, 'filt_lists', 'medication', 'coumadin');
 INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_inr_monitor', 1, 0, 'filt_lists', 'medication', 'warfarin');
+-- Penicillin Allergy Assessment
+INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 1, 0, 'filt_lists', 'allergy', 'penicillin');
 
 -- --------------------------------------------------------
 
@@ -5980,6 +5986,11 @@ INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES 
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'clinical_reminder_post', 'month', '1');
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'patient_reminder_pre', 'week', '2');
 INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'patient_reminder_post', 'month', '1');
+-- Penicillin Allergy Assessment
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 'clinical_reminder_pre', 'week', '2');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 'clinical_reminder_post', 'month', '1');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 'patient_reminder_pre', 'week', '2');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 'patient_reminder_post', 'month', '1');
 
 -- --------------------------------------------------------
 
@@ -6071,8 +6082,11 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 -- Coumadin Management - INR Monitoring
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_inr_monitor', 1, 1, 1, 'target_interval', 'week', 3);
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_inr_monitor', 1, 1, 1, 'target_proc', 'INR::CPT4:85610::::::ge::1', 0);
-
+-- Data entry - Social security number.
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_socsec_entry', 1, 1, 1, 'target_database', '::patient_data::ss::::::ge::1', 0);
+-- Penicillin allergy assessment.
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_penicillin_allergy', 1, 1, 1, 'target_interval', 'year', 1);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_penicillin_allergy', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_assess::act_penicillin_allergy::YES::ge::1', 0);
 
 -- --------------------------------------------------------
 
