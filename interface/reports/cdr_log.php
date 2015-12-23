@@ -175,7 +175,11 @@ require_once "$srcdir/clinical_rules.php";
   </th>
 
   <th align='center'>
-   <?php echo xlt('Alerts'); ?>
+   <?php echo xlt('All Alerts'); ?>
+  </th>
+
+  <th align='center'>
+   <?php echo xlt('New Alerts'); ?>
   </th>
 
  </thead>
@@ -195,7 +199,10 @@ require_once "$srcdir/clinical_rules.php";
    $category_title = $row['category'];
   }
   //Prepare the targets
-  $alerts = json_decode($row['value'], true);
+  $all_alerts = json_decode($row['value'], true);
+  if (!empty($row['new_value'])) {
+   $new_alerts = json_decode($row['new_value'], true);
+  }
 ?>
   <tr>
     <td><?php echo text($row['date']); ?></td>
@@ -204,8 +211,8 @@ require_once "$srcdir/clinical_rules.php";
     <td><?php echo text($category_title); ?></td>
     <td>
      <?php
-      //list off targets with rule information shown when hover
-      foreach ($alerts as $targetInfo => $alert) {
+      //list off all targets with rule information shown when hover
+      foreach ($all_alerts as $targetInfo => $alert) {
        $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
        $catAndTarget = explode(':',$targetInfo);
        $category = $catAndTarget[0];
@@ -216,6 +223,27 @@ require_once "$srcdir/clinical_rules.php";
             " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
             "<span><br>"; 
       }
+     ?>
+    </td>
+    <td>
+     <?php
+     if (!empty($row['new_value'])) {
+      //list new targets with rule information shown when hover
+      foreach ($new_alerts as $targetInfo => $alert) {
+       $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
+       $catAndTarget = explode(':',$targetInfo);
+       $category = $catAndTarget[0];
+       $target = $catAndTarget[1];
+       echo "<span title='" .attr($rule_title) . "'>" .
+            generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
+            ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
+            " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
+            "<span><br>";
+      }
+     }
+     else {
+      echo "&nbsp;";
+     }
      ?>
     </td>
   </tr>

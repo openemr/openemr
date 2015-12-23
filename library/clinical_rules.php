@@ -53,7 +53,7 @@ function listingCDRReminderLog($begin_date='',$end_date='') {
   }
 
   $sqlArray = array();
-  $sql = "SELECT `date`, `pid`, `uid`, `category`, `value` FROM `clinical_rules_log` WHERE `date` <= ?";
+  $sql = "SELECT `date`, `pid`, `uid`, `category`, `value`, `new_value` FROM `clinical_rules_log` WHERE `date` <= ?";
   array_push($sqlArray,$end_date);
   if (!empty($begin_date)) {
     $sql .= " AND `date` >= ?";
@@ -334,14 +334,18 @@ function compare_log_alerts($patient_id,$current_targets,$category='clinical_rem
     $prior_targets = json_decode($prior_targets_sql['value'], true);
   }
 
-  // Store current action_log
-  $current_targets_json = json_encode($current_targets);
-  sqlInsert("INSERT INTO `clinical_rules_log` " .
-            "(`date`,`pid`,`uid`,`category`,`value`) " .
-            "VALUES (NOW(),?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json) );
-
   // Compare the current with most recent action log
   $new_targets = array_diff_key($current_targets,$prior_targets);
+
+  // Store current action_log and the new items
+  $current_targets_json = json_encode($current_targets);
+  $new_targets_json = '';
+  if (!empty($new_targets)) {
+    $new_targets_json = json_encode($new_targets);
+  }
+  sqlInsert("INSERT INTO `clinical_rules_log` " .
+            "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
+            "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json) );
 
   // Return news actions (if there are any)
   return $new_targets;

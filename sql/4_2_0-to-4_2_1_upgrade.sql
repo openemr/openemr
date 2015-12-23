@@ -12628,3 +12628,7 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_penicillin_allergy', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_assess::act_penicillin_allergy::YES::ge::1', 0);
 #EndIf
 
+#IfMissingColumn clinical_rules_log new_value
+ALTER TABLE  `clinical_rules_log` ADD `new_value` TEXT NOT NULL;
+#EndIf
+
