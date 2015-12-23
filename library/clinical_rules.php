@@ -196,7 +196,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
   if ($mode == "reminders-due") {
-    $new_targets = compare_alerts($patient_id,$current_targets,'clinical_reminder_widget');
+    $new_targets = compare_log_alerts($patient_id,$current_targets,'clinical_reminder_widget');
     if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
       // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
       //  Note I am taking advantage of a slight hack in order to run javascript within code that
@@ -225,7 +225,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
  * @param  integer  $userid          user id of user.
  * @return array                     array with targets with associated rule.
  */
-function compare_alerts($patient_id,$current_targets,$category='clinical_reminder_widget',$userid='') {
+function compare_log_alerts($patient_id,$current_targets,$category='clinical_reminder_widget',$userid='') {
 
   if (empty($userid)) {
     $userid = $_SESSION['authId'];
@@ -331,7 +331,7 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due and $test is FALSE
   if (($mode == "reminders-due") && ($test === FALSE)) {
-    $new_targets = compare_alerts($patient_id,$current_targets,'active_reminder_popup');
+    $new_targets = compare_log_alerts($patient_id,$current_targets,'active_reminder_popup');
     if (!empty($new_targets)) {
       $returnOutput .="<br>" . xlt('New Items (see above for details)') . ":<br>";
       foreach ($new_targets as $key => $value) {
