@@ -216,48 +216,6 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 }
 
 /**
- * Compare current alerts with prior (in order to find new actions)
- * Also functions to log the actions.
- *
- * @param  integer  $patient_id      pid of selected patient
- * @param  array    $current_targets array of targets
- * @param  string   $category        clinical_reminder_widget or active_reminder_popup
- * @param  integer  $userid          user id of user.
- * @return array                     array with targets with associated rule.
- */
-function compare_log_alerts($patient_id,$current_targets,$category='clinical_reminder_widget',$userid='') {
-
-  if (empty($userid)) {
-    $userid = $_SESSION['authId'];
-  }
-
-  if (empty($current_targets)) {
-    $current_targets = array();
-  }
-
-  // Collect most recent action_log
-  $prior_targets_sql = sqlQuery("SELECT `value` FROM `clinical_rules_log` " .
-                                 "WHERE `category` = ? AND `pid` = ? AND `uid` = ? " .
-                                 "ORDER BY `id` DESC LIMIT 1", array($category,$patient_id,$userid) );
-  $prior_targets = array();
-  if (!empty($prior_targets_sql['value'])) {
-    $prior_targets = json_decode($prior_targets_sql['value'], true);
-  }
-
-  // Store current action_log
-  $current_targets_json = json_encode($current_targets);
-  sqlInsert("INSERT INTO `clinical_rules_log` " .
-            "(`date`,`pid`,`uid`,`category`,`value`) " .
-            "VALUES (NOW(),?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json) );
-
-  // Compare the current with most recent action log
-  $new_targets = array_diff_key($current_targets,$prior_targets);
-
-  // Return news actions (if there are any)
-  return $new_targets;
-}
-
-/**
  * Display the active screen reminder.
  *
  * @param  integer  $patient_id     pid of selected patient
@@ -345,6 +303,48 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
   }  
 
   return $returnOutput;
+}
+
+/**
+ * Compare current alerts with prior (in order to find new actions)
+ * Also functions to log the actions.
+ *
+ * @param  integer  $patient_id      pid of selected patient
+ * @param  array    $current_targets array of targets
+ * @param  string   $category        clinical_reminder_widget or active_reminder_popup
+ * @param  integer  $userid          user id of user.
+ * @return array                     array with targets with associated rule.
+ */
+function compare_log_alerts($patient_id,$current_targets,$category='clinical_reminder_widget',$userid='') {
+
+  if (empty($userid)) {
+    $userid = $_SESSION['authId'];
+  }
+
+  if (empty($current_targets)) {
+    $current_targets = array();
+  }
+
+  // Collect most recent action_log
+  $prior_targets_sql = sqlQuery("SELECT `value` FROM `clinical_rules_log` " .
+                                 "WHERE `category` = ? AND `pid` = ? AND `uid` = ? " .
+                                 "ORDER BY `id` DESC LIMIT 1", array($category,$patient_id,$userid) );
+  $prior_targets = array();
+  if (!empty($prior_targets_sql['value'])) {
+    $prior_targets = json_decode($prior_targets_sql['value'], true);
+  }
+
+  // Store current action_log
+  $current_targets_json = json_encode($current_targets);
+  sqlInsert("INSERT INTO `clinical_rules_log` " .
+            "(`date`,`pid`,`uid`,`category`,`value`) " .
+            "VALUES (NOW(),?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json) );
+
+  // Compare the current with most recent action log
+  $new_targets = array_diff_key($current_targets,$prior_targets);
+
+  // Return news actions (if there are any)
+  return $new_targets;
 }
 
 /**
