@@ -40,6 +40,32 @@ require_once(dirname(__FILE__) . "/report_database.inc");
 require_once(dirname(__FILE__) . "/jsonwrapper/jsonwrapper.php");
 
 /**
+ * Return listing of CDR reminders in log.
+ *
+ * @param  string   $begin_date  begin date (optional)
+ * @param  string   $end_date    end date (optional)
+ * @return sqlret                sql return query
+ */
+function listingCDRReminderLog($begin_date='',$end_date='') {
+
+  if (empty($end_date)) {
+    $end_date=date('Y-m-d H:i:s');
+  }
+
+  $sqlArray = array();
+  $sql = "SELECT `date`, `pid`, `uid`, `category`, `value` FROM `clinical_rules_log` WHERE `date` <= ?";
+  array_push($sqlArray,$end_date);
+  if (!empty($begin_date)) {
+    $sql .= " AND `date` >= ?";
+    array_push($sqlArray,$begin_date);
+  }
+  $sql .= " ORDER BY `date` DESC"; 
+
+  return sqlStatement($sql,$sqlArray);
+
+}
+
+/**
  * Display the clinical summary widget.
  *
  * @param  integer  $patient_id     pid of selected patient
@@ -170,7 +196,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
   if ($mode == "reminders-due") {
-    $new_targets = compare_clinical_summary_widget($patient_id,$current_targets);
+    $new_targets = compare_alerts($patient_id,$current_targets,'clinical_reminder_widget');
     if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
       // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
       //  Note I am taking advantage of a slight hack in order to run javascript within code that
@@ -190,15 +216,16 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 }
 
 /**
- * Compare current clinical summary widget actions with prior (in order to find new actions)
+ * Compare current alerts with prior (in order to find new actions)
  * Also functions to log the actions.
  *
  * @param  integer  $patient_id      pid of selected patient
  * @param  array    $current_targets array of targets
+ * @param  string   $category        clinical_reminder_widget or active_reminder_popup
  * @param  integer  $userid          user id of user.
  * @return array                     array with targets with associated rule.
  */
-function compare_clinical_summary_widget($patient_id,$current_targets,$userid='') {
+function compare_alerts($patient_id,$current_targets,$category='clinical_reminder_widget',$userid='') {
 
   if (empty($userid)) {
     $userid = $_SESSION['authId'];
@@ -210,8 +237,8 @@ function compare_clinical_summary_widget($patient_id,$current_targets,$userid=''
 
   // Collect most recent action_log
   $prior_targets_sql = sqlQuery("SELECT `value` FROM `clinical_rules_log` " .
-                                 "WHERE `category` = 'clinical_reminder_widget' AND `pid` = ? AND `uid` = ? " .
-                                 "ORDER BY `id` DESC LIMIT 1", array($patient_id,$userid) );
+                                 "WHERE `category` = ? AND `pid` = ? AND `uid` = ? " .
+                                 "ORDER BY `id` DESC LIMIT 1", array($category,$patient_id,$userid) );
   $prior_targets = array();
   if (!empty($prior_targets_sql['value'])) {
     $prior_targets = json_decode($prior_targets_sql['value'], true);
@@ -221,7 +248,7 @@ function compare_clinical_summary_widget($patient_id,$current_targets,$userid=''
   $current_targets_json = json_encode($current_targets);
   sqlInsert("INSERT INTO `clinical_rules_log` " .
             "(`date`,`pid`,`uid`,`category`,`value`) " .
-            "VALUES (NOW(),?,?,'clinical_reminder_widget',?)", array($patient_id,$userid,$current_targets_json) );
+            "VALUES (NOW(),?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json) );
 
   // Compare the current with most recent action log
   $new_targets = array_diff_key($current_targets,$prior_targets);
@@ -238,9 +265,10 @@ function compare_clinical_summary_widget($patient_id,$current_targets,$userid=''
  * @param  string   $dateTarget     target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  * @param  string   $organize_mode  Way to organize the results (default or plans)
  * @param  string   $user           If a user is set, then will only show rules that user has permission to see
+ * @param  string   $test           Set to true when only checking if there are alerts (skips the logging then)
  * @return string                   html display output.
  */
-function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='default',$user='') {
+function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='default',$user='',$test=FALSE) {
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
@@ -253,6 +281,7 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
   }
 
   $returnOutput = "";
+  $current_targets = array();
 
   // Display the actions
   foreach ($actions as $action) {
@@ -290,7 +319,31 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
     else {
       $returnOutput .= "<br>";
     }
+
+    // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
+    // Only when $mode is reminders-due and $test is FALSE
+    if (($mode == "reminders-due") && ($test === FALSE)) {
+      $target_temp = $action['category'].":".$action['item'];
+      $current_targets[$target_temp] =  array('rule_id'=>$action['rule_id'],'due_status'=>$action['due_status']);
+    }
   }
+
+  // Compare the current with most recent action log (this function will also log the current actions)
+  // Only when $mode is reminders-due and $test is FALSE
+  if (($mode == "reminders-due") && ($test === FALSE)) {
+    $new_targets = compare_alerts($patient_id,$current_targets,'active_reminder_popup');
+    if (!empty($new_targets)) {
+      $returnOutput .="<br>" . xlt('New Items (see above for details)') . ":<br>";
+      foreach ($new_targets as $key => $value) {
+        $category_item = explode(":",$key);
+        $category = $category_item[0];
+        $item = $category_item[1];
+        $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
+             ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$item). '<br>';
+      }
+    }
+  }  
+
   return $returnOutput;
 }
 
