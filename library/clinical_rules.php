@@ -187,7 +187,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 
     // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
     // Only when $mode is reminders-due
-    if ($mode == "reminders-due") {
+    if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
       $target_temp = $action['category'].":".$action['item'];
       $current_targets[$target_temp] =  array('rule_id'=>$action['rule_id'],'due_status'=>$action['due_status']);
     }
@@ -195,8 +195,8 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
-  if ($mode == "reminders-due") {
-    $new_targets = compare_log_alerts($patient_id,$current_targets,'clinical_reminder_widget');
+  if ($mode == "reminders-due" && $GLOBALS['enable_alert_log'] ) {
+    $new_targets = compare_log_alerts($patient_id,$current_targets,'clinical_reminder_widget',$_SESSION['authId']);
     if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
       // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
       //  Note I am taking advantage of a slight hack in order to run javascript within code that
@@ -280,7 +280,7 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
 
     // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
     // Only when $mode is reminders-due and $test is FALSE
-    if (($mode == "reminders-due") && ($test === FALSE)) {
+    if (($mode == "reminders-due") && ($test === FALSE) && ($GLOBALS['enable_alert_log'])) {
       $target_temp = $action['category'].":".$action['item'];
       $current_targets[$target_temp] =  array('rule_id'=>$action['rule_id'],'due_status'=>$action['due_status']);
     }
@@ -288,8 +288,8 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due and $test is FALSE
-  if (($mode == "reminders-due") && ($test === FALSE)) {
-    $new_targets = compare_log_alerts($patient_id,$current_targets,'active_reminder_popup');
+  if (($mode == "reminders-due") && ($test === FALSE) && ($GLOBALS['enable_alert_log'])) {
+    $new_targets = compare_log_alerts($patient_id,$current_targets,'active_reminder_popup',$_SESSION['authId']);
     if (!empty($new_targets)) {
       $returnOutput .="<br>" . xlt('New Items (see above for details)') . ":<br>";
       foreach ($new_targets as $key => $value) {
@@ -306,16 +306,99 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
 }
 
 /**
+ * Process and return allergy conflicts (when a active medication or presciption is on allergy list).
+ *
+ * @param  integer  $patient_id     pid of selected patient
+ * @param  string   $mode           either 'all' or 'new' (required)
+ * @param  string   $user           If a user is set, then will only show rules that user has permission to see
+ * @param  string   $test           Set to true when only checking if there are alerts (skips the logging then)
+ * @return  array/boolean           Array of allergy alerts or FALSE is empty.
+ */
+function allergy_conflict($patient_id,$mode,$user,$test=FALSE) {
+
+  // Collect allergies
+  $res_allergies = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='allergy' " .
+                                "AND `activity`=1 " .
+                                "AND ( `enddate` IS NULL OR `enddate`='' OR `enddate` > NOW() ) " .
+                                "AND `pid`=?", array($patient_id));
+  $allergies = array();
+  for($iter=0; $row=sqlFetchArray($res_allergies); $iter++) {
+    $allergies[$iter]=$row['title'];
+  }
+
+  // Build sql element of IN for below queries
+  $sqlParam = array();
+  $sqlIN = '';
+  $firstFlag = TRUE;
+  foreach ($allergies as $allergy) {
+    array_push($sqlParam,$allergy);
+    if ($firstFlag) {
+      $sqlIN .= "?";
+      $firstFlag = FALSE;
+    }
+    else {
+      $sqlIN .= ",?";
+    }
+  } 
+
+  // Check if allergies conflict with medications or prescriptions
+  $conflicts_unique = array();
+  if (!empty($sqlParam)) {
+    $conflicts = array();
+    array_push($sqlParam,$patient_id);
+    $res_meds = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='medication' " .
+                             "AND `activity`=1 " .
+                             "AND ( `enddate` IS NULL OR `enddate`='' OR `enddate` > NOW() ) " .
+                             "AND `title` IN (" . $sqlIN . ") AND `pid`=?", $sqlParam);
+    while ($urow = sqlFetchArray($res_meds)) {
+      array_push($conflicts, $urow['title']);
+    }
+    $res_rx = sqlStatement("SELECT `drug` FROM `prescriptions` WHERE `active`=1 " .
+                           "AND `drug` IN (" . $sqlIN . ") AND `patient_id`=?", $sqlParam);
+    while ($urow = sqlFetchArray($res_rx)) {
+      array_push($conflicts, $urow['drug']);
+    }
+    if (!empty($conflicts)) {
+      $conflicts_unique = array_unique($conflicts);
+    }
+  }
+ 
+  // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
+  $new_conflicts = array();
+  if ( (!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test===FALSE) ) {
+    $new_conflicts = compare_log_alerts($patient_id,$conflicts_unique,'allergy_alert',$_SESSION['authId'],$mode);
+  }
+
+  if ($mode == 'all') {
+    if (!empty($conflicts_unique)) {
+      return $conflicts_unique;
+    }
+    else {
+      return FALSE;
+    }
+  }
+  else { // $mode = 'new'
+    if (!empty($new_conflicts)) {
+      return $new_conflicts;
+    }
+    else {
+      return FALSE;
+    }
+  }
+}
+
+/**
  * Compare current alerts with prior (in order to find new actions)
  * Also functions to log the actions.
  *
  * @param  integer  $patient_id      pid of selected patient
  * @param  array    $current_targets array of targets
- * @param  string   $category        clinical_reminder_widget or active_reminder_popup
+ * @param  string   $category        clinical_reminder_widget, active_reminder_popup, or allergy_alert
  * @param  integer  $userid          user id of user.
+ * @param  string   $log_trigger     if 'all', then always log. If 'new', then only trigger log when a new item noted.
  * @return array                     array with targets with associated rule.
  */
-function compare_log_alerts($patient_id,$current_targets,$category='clinical_reminder_widget',$userid='') {
+function compare_log_alerts($patient_id,$current_targets,$category='clinical_reminder_widget',$userid='',$log_trigger='all') {
 
   if (empty($userid)) {
     $userid = $_SESSION['authId'];
@@ -334,20 +417,31 @@ function compare_log_alerts($patient_id,$current_targets,$category='clinical_rem
     $prior_targets = json_decode($prior_targets_sql['value'], true);
   }
 
-  // Compare the current with most recent action log
-  $new_targets = array_diff_key($current_targets,$prior_targets);
+  // Compare the current with most recent log
+  if ( ($category == 'clinical_reminder_widget') || ($category == 'active_reminder_popup') ) {
+    //using fancy structure to store multiple elements
+    $new_targets = array_diff_key($current_targets,$prior_targets);
+  }
+  else { // $category == 'allergy_alert'
+    //using simple array
+    $new_targets = array_diff($current_targets,$prior_targets);
+  }
 
   // Store current action_log and the new items
-  $current_targets_json = json_encode($current_targets);
-  $new_targets_json = '';
-  if (!empty($new_targets)) {
-    $new_targets_json = json_encode($new_targets);
+  //  If $log_trigger=='all'
+  //  or If $log_trigger=='new' and there are new items 
+  if ( ($log_trigger=='all') || (($log_trigger=='new')  && (!empty($new_targets))) ) {
+    $current_targets_json = json_encode($current_targets);
+    $new_targets_json = '';
+    if (!empty($new_targets)) {
+      $new_targets_json = json_encode($new_targets);
+    }
+    sqlInsert("INSERT INTO `clinical_rules_log` " .
+              "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
+              "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json) );
   }
-  sqlInsert("INSERT INTO `clinical_rules_log` " .
-            "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
-            "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json) );
 
-  // Return news actions (if there are any)
+  // Return new actions (if there are any)
   return $new_targets;
 }
 

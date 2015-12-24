@@ -195,6 +195,9 @@ require_once "$srcdir/clinical_rules.php";
   else if ($row['category'] == 'active_reminder_popup') {
    $category_title = xl("Active Alert");
   }
+  else if ($row['category'] == 'allergy_alert') {
+   $category_title = xl("Allergy Warning");
+  }
   else {
    $category_title = $row['category'];
   }
@@ -213,15 +216,20 @@ require_once "$srcdir/clinical_rules.php";
      <?php
       //list off all targets with rule information shown when hover
       foreach ($all_alerts as $targetInfo => $alert) {
-       $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
-       $catAndTarget = explode(':',$targetInfo);
-       $category = $catAndTarget[0];
-       $target = $catAndTarget[1];
-       echo "<span title='" .attr($rule_title) . "'>" .
-            generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
-            ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
-            " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
-            "<span><br>"; 
+       if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
+        $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
+        $catAndTarget = explode(':',$targetInfo);
+        $category = $catAndTarget[0];
+        $target = $catAndTarget[1];
+        echo "<span title='" .attr($rule_title) . "'>" .
+             generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
+             ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
+             " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
+             "<span><br>";
+       }
+       else { // $row['category'] == 'allergy_alert'
+         echo $alert . "<br>";
+       }
       }
      ?>
     </td>
@@ -230,15 +238,20 @@ require_once "$srcdir/clinical_rules.php";
      if (!empty($row['new_value'])) {
       //list new targets with rule information shown when hover
       foreach ($new_alerts as $targetInfo => $alert) {
-       $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
-       $catAndTarget = explode(':',$targetInfo);
-       $category = $catAndTarget[0];
-       $target = $catAndTarget[1];
-       echo "<span title='" .attr($rule_title) . "'>" .
-            generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
-            ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
-            " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
-            "<span><br>";
+       if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
+        $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
+        $catAndTarget = explode(':',$targetInfo);
+        $category = $catAndTarget[0];
+        $target = $catAndTarget[1];
+        echo "<span title='" .attr($rule_title) . "'>" .
+             generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
+             ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
+             " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
+             "<span><br>";
+       }
+       else { // $row['category'] == 'allergy_alert'
+        echo $alert . "<br>";
+       }
       }
      }
      else {
