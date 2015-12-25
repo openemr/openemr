@@ -12259,7 +12259,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 
 #IfNotRow2D list_options list_id clinical_rules option_id e_prescribe_stage1_amc
 	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
-	('clinical_rules', 'e_prescribe_stage1_amc', 'Generate and transmit permissible prescriptions electronically (Uncontrolled Substances).', 50, 0, 0, '', '', '', 0, 0);
+	('clinical_rules', 'e_prescribe_stage1_amc', 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).', 50, 0, 0, '', '', '', 0, 0);
 #EndIf
 
 #IfNotRow clinical_rules id e_prescribe_1_stage2_amc
@@ -12281,7 +12281,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 
 #IfNotRow2D list_options list_id clinical_rules option_id e_prescribe_2_stage2_amc
 	INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
-	('clinical_rules', 'e_prescribe_2_stage2_amc', 'Generate and transmit permissible prescriptions electronically (Uncontrolled substances with drug formulary).', 50, 0, 0, '', '', '', 0, 0);
+	('clinical_rules', 'e_prescribe_2_stage2_amc', 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).', 50, 0, 0, '', '', '', 0, 0);
 #EndIf
 
 #IfMissingColumn users cpoe
@@ -12529,3 +12529,106 @@ CREATE TABLE `form_clinical_instructions` (
 )ENGINE=InnoDB;
 INSERT INTO `registry` (`name`,`state`,`directory`,`sql_run`,`unpackaged`,`date`,`priority`,`category`,`nickname`) VALUES ('Clinical Instructions', 1, 'clinical_instructions', 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '');
 #EndIf
+
+#IfMissingColumn clinical_rules web_reference
+ALTER TABLE  `clinical_rules` ADD  `web_reference` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Web Reference';
+#EndIf
+
+#IfNotTable clinical_rules_log
+CREATE TABLE `clinical_rules_log` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime DEFAULT NULL,
+  `pid` bigint(20) NOT NULL DEFAULT '0',
+  `uid` bigint(20) NOT NULL DEFAULT '0',
+  `category` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'An example category is clinical_reminder_widget',
+  `value` TEXT NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pid` (`pid`),
+  KEY `uid` (`uid`),
+  KEY `category` (`category`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
+#EndIf
+
+#IfMissingColumn clinical_rules access_control
+ALTER TABLE `clinical_rules` ADD `access_control` VARCHAR(255) NOT NULL DEFAULT 'patients:med' COMMENT 'ACO link for access control';
+#EndIf
+
+#IfNotRow clinical_rules id rule_socsec_entry
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `access_control` ) VALUES ('rule_socsec_entry', 0, 0, 0, 0, '', '', 0, '', 0, 'admin:practice');
+#EndIf
+
+#IfNotRow2D list_options list_id clinical_rules option_id rule_socsec_entry
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_socsec_entry', 'Data Entry - Social Security Number', 1500, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id rule_action option_id act_soc_sec
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_soc_sec', 'Social Security Number', 155, 0);
+#EndIf
+
+#IfNotRow rule_action id rule_socsec_entry
+INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_socsec_entry', 1, 'act_cat_assess', 'act_soc_sec');
+#EndIf
+
+#IfNotRow2D rule_action_item category act_cat_assess item act_soc_sec
+INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_assess', 'act_soc_sec', '', '', 0);
+#EndIf
+
+#IfNotRow rule_reminder id rule_socsec_entry
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'clinical_reminder_pre', 'week', '2');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'clinical_reminder_post', 'month', '1');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'patient_reminder_pre', 'week', '2');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_socsec_entry', 'patient_reminder_post', 'month', '1');
+#EndIf
+
+#IfNotRow rule_target id rule_socsec_entry
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_socsec_entry', 1, 1, 1, 'target_database', '::patient_data::ss::::::ge::1', 0);
+#EndIf
+
+#IfRow2D list_options list_id clinical_rules option_id e_prescribe_stage1_amc
+UPDATE `list_options` SET `title` = 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).'  WHERE list_id = 'clinical_rules' AND option_id = 'e_prescribe_stage1_amc';
+#EndIf
+
+#IfRow2D list_options list_id clinical_rules option_id e_prescribe_2_stage2_amc 
+UPDATE `list_options` SET `title` = 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).'  WHERE list_id = 'clinical_rules' AND option_id = 'e_prescribe_2_stage2_amc';
+#EndIf
+
+#IfNotRow clinical_rules id rule_penicillin_allergy
+INSERT INTO `clinical_rules` ( `id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag` ) VALUES ('rule_penicillin_allergy', 0, 0, 0, 0, '', '', 0, '', 0);
+#EndIf
+
+#IfNotRow2D list_options list_id clinical_rules option_id rule_penicillin_allergy
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('clinical_rules', 'rule_penicillin_allergy', 'Assess Penicillin Allergy', 1600, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id rule_action option_id act_penicillin_allergy
+INSERT INTO `list_options` ( `list_id`, `option_id`, `title`, `seq`, `is_default` ) VALUES ('rule_action' ,'act_penicillin_allergy', 'Penicillin Allergy', 157, 0);
+#EndIf
+
+#IfNotRow rule_action id rule_penicillin_allergy
+INSERT INTO `rule_action` ( `id`, `group_id`, `category`, `item` ) VALUES ('rule_penicillin_allergy', 1, 'act_cat_assess', 'act_penicillin_allergy');
+#EndIf
+
+#IfNotRow2D rule_action_item category act_cat_assess item act_penicillin_allergy
+INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_message`, `custom_flag` ) VALUES ('act_cat_assess', 'act_penicillin_allergy', '', '', 1);
+#EndIf
+
+#IfNotRow rule_reminder id rule_penicillin_allergy
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 'clinical_reminder_pre', 'week', '2');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 'clinical_reminder_post', 'month', '1');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 'patient_reminder_pre', 'week', '2');
+INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 'patient_reminder_post', 'month', '1');
+#EndIf
+
+#IfNotRow rule_filter id rule_penicillin_allergy
+INSERT INTO `rule_filter` ( `id`, `include_flag`, `required_flag`, `method`, `method_detail`, `value` ) VALUES ('rule_penicillin_allergy', 1, 0, 'filt_lists', 'allergy', 'penicillin');
+#EndIf
+
+#IfNotRow rule_target id rule_penicillin_allergy
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_penicillin_allergy', 1, 1, 1, 'target_interval', 'year', 1);
+INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `method`, `value`, `interval` ) VALUES ('rule_penicillin_allergy', 1, 1, 1, 'target_database', 'CUSTOM::act_cat_assess::act_penicillin_allergy::YES::ge::1', 0);
+#EndIf
+
+#IfMissingColumn clinical_rules_log new_value
+ALTER TABLE  `clinical_rules_log` ADD `new_value` TEXT NOT NULL;
+#EndIf
+

@@ -133,16 +133,6 @@ if (isset($entryID)) {
   $form_result = $selectedEntry['result'];
 }
 
-if (isset($_GET['rule'])) {
-  $rule_title = getListItemTitle("clinical_rules",$_GET['rule']);
-  $ruleData = sqlQuery("SELECT `developer`, `funding_source`, `release_version` " .
-    "FROM `clinical_rules` " .
-    "WHERE  `id`=? AND `pid`=0", array($_GET['rule']) );
-  $developer = $ruleData['developer'];
-  $funding_source = $ruleData['funding_source'];
-  $release = $ruleData['release_version'];
-}
-
 ?>
 <table cellspacing='0' cellpadding='0' border='0'>
 <tr>
@@ -247,47 +237,5 @@ else { //no entries
   echo "<p>" . xlt('No previous entries.') . "</p>";
 } ?>
 </div>
-<?php if (isset($_GET['rule'])) { ?>
- <br>
- <hr />
- <br>
- <?php echo "<p class='text'>" .  xlt('See below for the details of the rule that created this action') . ":</p>"; ?>
- <table border=0 cellpadding=1 cellspacing=1>
-  <?php
-  echo "<tr>";
-  echo "<td class='text'>";
-  echo xlt('Rule Title');
-  echo ":</td><td class='text'>";
-  echo text($rule_title);
-  echo "</td>";
-  echo "</tr>";
-
-  echo "<tr>";
-  echo "<td class='text'>";
-  echo xlt('Rule Developer');
-  echo ":</td><td class='text'>";
-  echo text($developer);
-  echo "</td>";
-  echo "</tr>";
-
-  echo "<tr>";
-  echo "<td class='text'>";
-  echo xlt('Rule Funding Source');
-  echo ":</td><td class='text'>";
-  echo text($funding_source);
-  echo "</td>";
-  echo "</tr>";
-
-  echo "<tr>";
-  echo "<td class='text'>";
-  echo xlt('Rule Release');
-  echo ":</td><td class='text'>";
-  echo text($release);
-  echo "</td>";
-  echo "</tr>";
-  ?>
- </table>
-<?php } ?>
-
 </body>
 </html>

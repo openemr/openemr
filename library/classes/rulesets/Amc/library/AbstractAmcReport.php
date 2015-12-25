@@ -283,6 +283,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 break;
 			
 			case "med_orders":
+                        // Still TODO
                         // AMC MU2 TODO :
                         //  Note the cpoe_flag and functionality does not exist in OpenEMR official codebase.
                         //
@@ -293,35 +294,12 @@ abstract class AbstractAmcReport implements RsReportIF
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
 				
-			case "transitions-out-new":
-                $sql =  "SELECT fe.encounter FROM form_encounter fe ".
-					    "INNER JOIN transactions t ON fe.pid = t.pid AND t.`title` = 'LBTref' " .
-              "JOIN lbt_data AS l ON l.form_id = t.id AND l.field_id = 'refer_date' AND l.field_value IS NOT NULL " .
-					    "INNER JOIN amc_misc_data amd ON t.pid = amd.pid AND amd.map_category = 'transactions' AND amd.amc_id = 'send_sum_amc' ".
-					    "WHERE DATE(fe.date) = DATE(l.field_value) AND fe.pid = ? " .
-					    "AND (fe.date BETWEEN ? AND ?) ";
-                array_push($sqlBindArray, $patient->id, $begin, $end);
-                break;
-				
 			case "lab_orders":
                $sql = "SELECT procedure_order_id FROM " .
                        "procedure_order " .
                        "WHERE " .
                        "patient_id = ? " .
 					   "AND (date_ordered BETWEEN ? AND ?)"; 
-                array_push($sqlBindArray, $patient->id, $begin, $end);
-                break;
-				
-			case "pres_non_substance":
-                        // AMC MU2 TODO :
-                        //  Note the cpoe_flag, eTransmit, and formulary functionality does not exist in OpenEMR official codebase.
-                        //  Note that this was to be used in the AMC_304b rules (but is currently not being used yet, though).
-                        //
-				$sql = "SELECT formulary, cpoe_flag as transmit_stat, eTransmit " .
-                       "FROM `prescriptions` " .
-                       "WHERE controlledsubstance = 'no' " .
-					   "AND `patient_id` = ? ".
-                       "AND `date_added` BETWEEN ? AND ?";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
         }

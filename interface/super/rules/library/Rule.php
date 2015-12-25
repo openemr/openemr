@@ -25,6 +25,7 @@ class Rule {
     var $developer;
     var $funding_source;
     var $release;
+    var $web_ref;
     /**
      * @var ReminderIntervals
      */
@@ -60,6 +61,10 @@ class Rule {
 
     function setRelease($s) {
         $this->release = $s;
+    }
+
+    function setWeb_ref($s) {
+        $this->web_ref = $s;
     }
 
     /**

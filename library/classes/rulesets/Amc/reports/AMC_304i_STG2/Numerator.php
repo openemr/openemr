@@ -30,21 +30,15 @@ class AMC_304i_STG2_Numerator implements AmcFilterIF
     
     public function test( AmcPatient $patient, $beginDate, $endDate ) 
     {
-		//The number of transitions of care and referrals in the denominator where a summary of care record was electronically transmitted using CEHRT to a recipient.
-                //
-                // AMC MU2 TODO :
-                // Note from_ccda is not in the main OpenEMR codebase. Should ask Z&H on strategy for this one.
-                //
-		$sumQry =   "SELECT count(*) as cnt FROM amc_misc_data ".
-					"WHERE map_category = 'form_encounter' ".
-					"AND amc_id IN( 'med_reconc_amc' ) ".
-					"AND from_ccda = 1 ".
-					"AND map_id = ? ";
-		$check = sqlQuery($sumQry, array($patient->object['encounter'])); 
-		if ($check['cnt'] > 0){
-			return true;
-		}else{
-			return false;
-		}
+        //The number of transitions of care and referrals in the denominator where a summary of care record was electronically transmitted using CEHRT to a recipient.
+        //  (so basically both amc elements of send_sum_amc and send_sum_elec_amc needs to exist)
+        $amcElement = amcCollect('send_sum_amc',$patient->id,'transactions',$patient->object['id']);
+        $amcElement_elec = amcCollect('send_sum_elec_amc',$patient->id,'transactions',$patient->object['id']);
+        if (!(empty($amcElement)) && !(empty($amcElement_elec))) {
+          return true;
+        }
+        else {
+          return false;
+        }
     }
 }

@@ -31,7 +31,7 @@ class AMC_304i_STG1 extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-        return "transitions-out-new";
+        return "transitions-out";
     }
  
     public function createDenominator() 

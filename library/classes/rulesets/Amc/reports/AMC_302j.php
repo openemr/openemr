@@ -17,7 +17,7 @@ class AMC_302j extends AbstractAmcReport
 
     public function getObjectToCount()
     {
-        return "encounters";
+        return "transitions-in";
     }
  
     public function createDenominator() 

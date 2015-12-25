@@ -415,8 +415,12 @@ else {
                         </td>
                         <td>
                             <select <?php echo $dis_text; ?> id='form_rule_filter' name='form_rule_filter'>
-                            <option value='amc' <?php if ($rule_filter == "amc") echo "selected"; ?>>
-                            <?php echo xlt('All Automated Measure Calculations (AMC)'); ?></option>
+
+                            <?php if ($rule_filter == "amc") { //only show this when displaying old reports. Not available option for new reports ?>
+                              <option value='amc' selected>
+                              <?php echo xlt('All Automated Measure Calculations (AMC)'); ?></option>
+                            <?php } ?>
+
                             <option value='amc_2011' <?php if ($rule_filter == "amc_2011") echo "selected"; ?>>
                             <?php  echo xlt('2011 Automated Measure Calculations (AMC)'); ?></option>
 							<option value='amc_2014_stage1' <?php if ($rule_filter == "amc_2014_stage1") echo "selected"; ?>>

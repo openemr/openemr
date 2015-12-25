@@ -297,7 +297,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             <span class=text>
               <?php echo htmlspecialchars( xl('Immunization Manufacturer'), ENT_NOQUOTES); ?>            </span>          </td>
           <td>
-              <?php echo generate_select_list('immuniz_manufacturer', 'Immunization_Manufacturer', $manufacturer, 'Select Manufacturer', '');?>
+              <?php echo generate_select_list('manufacturer', 'Immunization_Manufacturer', $manufacturer, 'Select Manufacturer', '');?>
         </tr>
         <tr>
           <td align="right">

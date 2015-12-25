@@ -67,15 +67,21 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status']; 
   $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
 
-  $report_noteid ='';
+  $report_noteid = '';
   if ($report_id && !isset($ctx['seen_report_ids'][$report_id])) {
     $ctx['seen_report_ids'][$report_id] = true;
     if ($review_status != 'reviewed') {
       if ($ctx['sign_list']) $ctx['sign_list'] .= ',';
       $ctx['sign_list'] .= $report_id;
     }
+    // Allowing for multiple report notes separated by newlines.
     if (!empty($row['report_notes'])) {
-      $report_noteid = 1 + storeNote($row['report_notes']);
+      $notes = explode("\n", $row['report_notes']);
+      foreach ($notes as $note) {
+        if ($note === '') continue;
+        if ($report_noteid) $report_noteid .= ', ';
+        $report_noteid .= 1 + storeNote($note);
+      }
     }
   }
 
@@ -89,6 +95,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   $result_range     = empty($rrow['range'           ]) ? '' : $rrow['range'];
   $result_status    = empty($rrow['result_status'   ]) ? '' : $rrow['result_status'];
   $result_document_id = empty($rrow['document_id'   ]) ? '' : $rrow['document_id'];
+
+  // Someone changed the delimiter in result comments from \n to \r.
+  // Have to make sure results are consistent with those before that change.
+  $result_comments = str_replace("\r", "\n", $result_comments);
 
   if ($i = strpos($result_comments, "\n")) { // "=" is not a mistake!
     // If the first line of comments is not empty, then it is actually a long textual
@@ -106,6 +116,13 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
     if ($result_noteid) $result_noteid .= ', ';
     $result_noteid .= 1 + storeNote(xl('This is the latest of multiple result values.'));
     $ctx['priors_omitted'] = true;
+  }
+
+  // If a performing organization is provided, make a note for it also.
+  $result_facility = trim(str_replace("\r", "\n", $result_facility));
+  if ($result_facility) {
+    if ($result_noteid) $result_noteid .= ', ';
+    $result_noteid .= 1 + storeNote(xl('Performing organization') . ":\n" . $result_facility);
   }
 
   if ($ctx['lastpcid'] != $order_seq) {
@@ -142,6 +159,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
     echo "</td>\n";
 
     echo "  <td>";
+    echo myCellText(oeFormatShortDate(substr($date_collected, 0, 10)) . substr($date_collected, 10));
+    echo "</td>\n";
+
+    echo "  <td>";
     echo myCellText($specimen_num);
     echo "</td>\n";
 
@@ -157,7 +178,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
     echo "</td>\n";
   }
   else {
-    echo "  <td colspan='4' style='background-color:transparent'>&nbsp;</td>\n";
+    echo "  <td colspan='5' style='background-color:transparent'>&nbsp;</td>\n";
   }
 
   if ($result_code !== '' || $result_document_id) {
@@ -368,12 +389,13 @@ function educlick(codetype, codevalue) {
 
  <tr class='head'>
   <td rowspan='2' valign='middle'><?php echo xlt('Ordered Procedure'); ?></td>
-  <td colspan='4'><?php echo xlt('Report'); ?></td>
+  <td colspan='5'><?php echo xlt('Report'); ?></td>
   <td colspan='7'><?php echo xlt('Results'); ?></td>
  </tr>
 
  <tr class='head'>
   <td><?php echo xlt('Reported'); ?></td>
+  <td><?php echo xlt('Collected'); ?></td>
   <td><?php echo xlt('Specimen'); ?></td>
   <td><?php echo xlt('Status'); ?></td>
   <td><?php echo xlt('Note'); ?></td>
@@ -428,29 +450,36 @@ function educlick(codetype, codevalue) {
 
     if ($finals_only) {
       // We are consolidating reports.
-      $rrowsets = array();
-      // First pass creates a $rrowsets[$key] for each unique result code in *this* report, with
-      // the value being an array of the corresponding result rows. This caters to multiple
-      // occurrences of the same result code in the same report.
-      while ($rrow = sqlFetchArray($rres)) {
-        $result_code = empty($rrow['result_code']) ? '' : $rrow['result_code'];
-        $key = sprintf('%05d/', $row['procedure_order_seq']) . $result_code;
-        if (!isset($rrowsets[$key])) $rrowsets[$key] = array();
-        $rrowsets[$key][] = $rrow;
-      }
-      // Second pass builds onto the array of final results for *all* reports, where each final
-      // result for a given result code is its *array* of result rows from *one* of the reports.
-      foreach ($rrowsets as $key => $rrowset) {
-        // When two reports have the same date, use the result date to decide which is "latest".
-        if (isset($finals[$key]) &&
-          $row['date_report'] == $finals[$key][0]['date_report'] &&
-          !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
-          $rrow['date'] < $finals[$key][1]['date'])
-        {
-          $finals[$key][2] = true;
-          continue;
+      if (sqlNumRows($rres)) {
+        $rrowsets = array();
+        // First pass creates a $rrowsets[$key] for each unique result code in *this* report, with
+        // the value being an array of the corresponding result rows. This caters to multiple
+        // occurrences of the same result code in the same report.
+        while ($rrow = sqlFetchArray($rres)) {
+          $result_code = empty($rrow['result_code']) ? '' : $rrow['result_code'];
+          $key = sprintf('%05d/', $row['procedure_order_seq']) . $result_code;
+          if (!isset($rrowsets[$key])) $rrowsets[$key] = array();
+          $rrowsets[$key][] = $rrow;
         }
-        $finals[$key] = array($row, $rrowset, isset($finals[$key]));
+        // Second pass builds onto the array of final results for *all* reports, where each final
+        // result for a given result code is its *array* of result rows from *one* of the reports.
+        foreach ($rrowsets as $key => $rrowset) {
+          // When two reports have the same date, use the result date to decide which is "latest".
+          if (isset($finals[$key]) &&
+            $row['date_report'] == $finals[$key][0]['date_report'] &&
+            !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
+            $rrow['date'] < $finals[$key][1]['date'])
+          {
+            $finals[$key][2] = true;
+            continue;
+          }
+          $finals[$key] = array($row, $rrowset, isset($finals[$key]));
+        }
+      }
+      else {
+        // We have no results for this report.
+        $key = sprintf('%05d/', $row['procedure_order_seq']);
+        $finals[$key] = array($row, array($empty_results), false);
       }
     }
     else {
@@ -467,9 +496,6 @@ function educlick(codetype, codevalue) {
   }
 
   if ($finals_only) {
-    if (empty($finals) && !empty($row)) {
-      $finals[''] = array($row, array($empty_results), false);
-    }
     ksort($finals);
     foreach ($finals as $final) {
       foreach ($final[1] as $rrow) {

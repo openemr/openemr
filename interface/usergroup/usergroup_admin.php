@@ -40,7 +40,7 @@ $mail_id = explode(".",$SMTP_HOST);
 for($i=0;$i<$bg_count;$i++){
 if(($_GET['access_group'][$i] == "Emergency Login") && ($_GET['active'] == 'on') && ($_GET['pre_active'] == 0)){
   if(($_GET['get_admin_id'] == 1) && ($_GET['admin_id'] != "")){
-	$res = sqlStatement("select username from users where id={$_GET["id"]}");
+	$res = sqlStatement("select username from users where id= ? ", array($_GET["id"]));
 	$row = sqlFetchArray($res);
 	$uname=$row['username'];
 	$mail = new MyMailer();
@@ -62,50 +62,50 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
       if (isset($_POST["username"])) {
         // $tqvar = addslashes(trim($_POST["username"]));
         $tqvar = trim(formData('username','P'));
-        $user_data = mysql_fetch_array(sqlStatement("select * from users where id={$_POST["id"]}"));
-        sqlStatement("update users set username='$tqvar' where id={$_POST["id"]}");
-        sqlStatement("update groups set user='$tqvar' where user='". $user_data["username"]  ."'");
+        $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", array($_POST["id"])));
+        sqlStatement("update users set username='$tqvar' where id= ? ", array($_POST["id"]));
+        sqlStatement("update groups set user='$tqvar' where user= ?", array($user_data["username"]));
         //echo "query was: " ."update groups set user='$tqvar' where user='". $user_data["username"]  ."'" ;
       }
       if ($_POST["taxid"]) {
         $tqvar = formData('taxid','P');
-        sqlStatement("update users set federaltaxid='$tqvar' where id={$_POST["id"]}");
+        sqlStatement("update users set federaltaxid='$tqvar' where id= ? ", array($_POST["id"]));
       }
       if ($_POST["state_license_number"]) {
         $tqvar = formData('state_license_number','P');
-        sqlStatement("update users set state_license_number='$tqvar' where id={$_POST["id"]}");
+        sqlStatement("update users set state_license_number='$tqvar' where id= ? ", array($_POST["id"]));
       }
       if ($_POST["drugid"]) {
         $tqvar = formData('drugid','P');
-        sqlStatement("update users set federaldrugid='$tqvar' where id={$_POST["id"]}");
+        sqlStatement("update users set federaldrugid='$tqvar' where id= ? ", array($_POST["id"]));
       }
       if ($_POST["upin"]) {
         $tqvar = formData('upin','P');
-        sqlStatement("update users set upin='$tqvar' where id={$_POST["id"]}");
+        sqlStatement("update users set upin='$tqvar' where id= ? ", array($_POST["id"]));
       }
       if ($_POST["npi"]) {
         $tqvar = formData('npi','P');
-        sqlStatement("update users set npi='$tqvar' where id={$_POST["id"]}");
+        sqlStatement("update users set npi='$tqvar' where id= ? ", array($_POST["id"]));
       }
       if ($_POST["taxonomy"]) {
         $tqvar = formData('taxonomy','P');
-        sqlStatement("update users set taxonomy = '$tqvar' where id= {$_POST["id"]}");
+        sqlStatement("update users set taxonomy = '$tqvar' where id= ? ", array($_POST["id"]));
       }
       if ($_POST["lname"]) {
         $tqvar = formData('lname','P');
-        sqlStatement("update users set lname='$tqvar' where id={$_POST["id"]}");
+        sqlStatement("update users set lname='$tqvar' where id= ? ", array($_POST["id"]));
       }
       if ($_POST["job"]) {
         $tqvar = formData('job','P');
-        sqlStatement("update users set specialty='$tqvar' where id={$_POST["id"]}");
+        sqlStatement("update users set specialty='$tqvar' where id= ? ", array($_POST["id"]));
       }
       if ($_POST["mname"]) {
               $tqvar = formData('mname','P');
-              sqlStatement("update users set mname='$tqvar' where id={$_POST["id"]}");
+              sqlStatement("update users set mname='$tqvar' where id= ? ", array($_POST["id"]));
       }
       if ($_POST["facility_id"]) {
               $tqvar = formData('facility_id','P');
-              sqlStatement("update users set facility_id = '$tqvar' where id = {$_POST["id"]}");
+              sqlStatement("update users set facility_id = '$tqvar' where id = ? ", array($_POST["id"]));
               //(CHEMED) Update facility name when changing the id
               sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '$tqvar' AND users.id = {$_POST["id"]}");
               //END (CHEMED)
@@ -113,8 +113,8 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
       if ($GLOBALS['restrict_user_facility'] && $_POST["schedule_facility"]) {
           sqlStatement("delete from users_facility
             where tablename='users'
-            and table_id={$_POST["id"]}
-            and facility_id not in (" . implode(",", $_POST['schedule_facility']) . ")");
+            and table_id= ?
+            and facility_id not in (" . implode(",", $_POST['schedule_facility']) . ")", array($_POST["id"]));
           foreach($_POST["schedule_facility"] as $tqvar) {
           sqlStatement("replace into users_facility set
                 facility_id = '$tqvar',
@@ -124,13 +124,13 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
       }
       if ($_POST["fname"]) {
               $tqvar = formData('fname','P');
-              sqlStatement("update users set fname='$tqvar' where id={$_POST["id"]}");
+              sqlStatement("update users set fname='$tqvar' where id= ? ", array($_POST["id"]));
       }
 
       //(CHEMED) Calendar UI preference
       if ($_POST["cal_ui"]) {
               $tqvar = formData('cal_ui','P');
-              sqlStatement("update users set cal_ui = '$tqvar' where id = {$_POST["id"]}");
+              sqlStatement("update users set cal_ui = '$tqvar' where id = ? ", array($_POST["id"]));
 
               // added by bgm to set this session variable if the current user has edited
           //   their own settings
@@ -168,7 +168,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
       // for relay health single sign-on
       if (isset($_POST["ssi_relayhealth"]) && $_POST["ssi_relayhealth"]) {
         $tqvar = formData('ssi_relayhealth','P');
-        sqlStatement("update users set ssi_relayhealth = '$tqvar' where id = {$_POST["id"]}");
+        sqlStatement("update users set ssi_relayhealth = '$tqvar' where id = ? ", array($_POST["id"]));
       }
 
       $tqvar  = $_POST["authorized"] ? 1 : 0;
@@ -176,8 +176,8 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
       $calvar = $_POST["calendar"]   ? 1 : 0;
   
       sqlStatement("UPDATE users SET authorized = $tqvar, active = $actvar, " .
-        "calendar = $calvar, see_auth = '" . $_POST['see_auth'] . "' WHERE " .
-        "id = {$_POST["id"]}");
+        "calendar = $calvar, see_auth = ? WHERE " .
+        "id = ? ", array($_POST['see_auth'], $_POST["id"]));
       //Display message when Emergency Login user was activated 
       $bg_count=count($_POST['access_group']);
       for($i=0;$i<$bg_count;$i++){
@@ -194,19 +194,19 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
     }	
       if ($_POST["comments"]) {
         $tqvar = formData('comments','P');
-        sqlStatement("update users set info = '$tqvar' where id = {$_POST["id"]}");
+        sqlStatement("update users set info = '$tqvar' where id = ? ", array($_POST["id"]));
       }
 	$erxrole = formData('erxrole','P');
-	sqlStatement("update users set newcrop_user_role = '$erxrole' where id = {$_POST["id"]}");
+	sqlStatement("update users set newcrop_user_role = '$erxrole' where id = ? ", array($_POST["id"]));
 
 	  if ($_POST["physician_type"]) {
 		$physician_type = formData('physician_type');
-		sqlStatement("update users set physician_type = '$physician_type' where id = {$_POST["id"]}");
+		sqlStatement("update users set physician_type = '$physician_type' where id = ? ", array($_POST["id"]));
 	  }
 	  
       if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
         // Set the access control group of user
-        $user_data = mysql_fetch_array(sqlStatement("select username from users where id={$_POST["id"]}"));
+        $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
         set_user_aro($_POST['access_group'], $user_data["username"],
           formData('fname','P'), formData('mname','P'), formData('lname','P'));
       }
@@ -228,7 +228,7 @@ if (isset($_POST["mode"])) {
 
     $res = sqlStatement("select distinct username from users where username != ''");
     $doit = true;
-    while ($row = mysql_fetch_array($res)) {
+    while ($row = sqlFetchArray($res)) {
       if ($doit == true && $row['username'] == trim(formData('rumple'))) {
         $doit = false;
       }
@@ -352,19 +352,18 @@ if (isset($_GET["mode"])) {
   *******************************************************************/
 
   if ($_GET["mode"] == "delete_group") {
-    $res = sqlStatement("select distinct user from groups where id = '" .
-      $_GET["id"] . "'");
+    $res = sqlStatement("select distinct user from groups where id = ?", array($_GET["id"]));
     for ($iter = 0; $row = sqlFetchArray($res); $iter++)
       $result[$iter] = $row;
     foreach($result as $iter)
       $un = $iter{"user"};
     $res = sqlStatement("select name, user from groups where user = '$un' " .
-      "and id != '" . $_GET["id"] . "'");
+      "and id != ?", array($_GET["id"]));
 
     // Remove the user only if they are also in some other group.  I.e. every
     // user must be a member of at least one group.
     if (sqlFetchArray($res) != FALSE) {
-      sqlStatement("delete from groups where id = '" . $_GET["id"] . "'");
+      sqlStatement("delete from groups where id = ?", array($_GET["id"]));
     } else {
       $alertmsg .= "You must add this user to some other group before " .
         "removing them from this group. ";

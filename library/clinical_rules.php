@@ -40,22 +40,50 @@ require_once(dirname(__FILE__) . "/report_database.inc");
 require_once(dirname(__FILE__) . "/jsonwrapper/jsonwrapper.php");
 
 /**
+ * Return listing of CDR reminders in log.
+ *
+ * @param  string   $begin_date  begin date (optional)
+ * @param  string   $end_date    end date (optional)
+ * @return sqlret                sql return query
+ */
+function listingCDRReminderLog($begin_date='',$end_date='') {
+
+  if (empty($end_date)) {
+    $end_date=date('Y-m-d H:i:s');
+  }
+
+  $sqlArray = array();
+  $sql = "SELECT `date`, `pid`, `uid`, `category`, `value`, `new_value` FROM `clinical_rules_log` WHERE `date` <= ?";
+  array_push($sqlArray,$end_date);
+  if (!empty($begin_date)) {
+    $sql .= " AND `date` >= ?";
+    array_push($sqlArray,$begin_date);
+  }
+  $sql .= " ORDER BY `date` DESC"; 
+
+  return sqlStatement($sql,$sqlArray);
+
+}
+
+/**
  * Display the clinical summary widget.
  *
  * @param  integer  $patient_id     pid of selected patient
  * @param  string   $mode           choose either 'reminders-all' or 'reminders-due' (required)
  * @param  string   $dateTarget     target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  * @param  string   $organize_mode  Way to organize the results (default or plans)
+ * @param  string   $user           If a user is set, then will only show rules that user has permission to see.
  */
-function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode='default') {
+function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode='default',$user='') {
   
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Collect active actions
-  $actions = test_rules_clinic('','passive_alert',$dateTarget,$mode,$patient_id,'',$organize_mode);
+  $actions = test_rules_clinic('','passive_alert',$dateTarget,$mode,$patient_id,'',$organize_mode, array(),'primary',NULL,NULL,$user);
 
   // Display the actions
+  $current_targets = array();
   foreach ($actions as $action) {
 
     // Deal with plan names first
@@ -67,12 +95,43 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
       continue;
     }
 
+    // Collect the Rule Title, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
+    $tooltip = '';
+    if (!empty($action['rule_id'])) {
+      $rule_title = getListItemTitle("clinical_rules",$action['rule_id']);
+      $ruleData = sqlQuery("SELECT `developer`, `funding_source`, `release_version`, `web_reference` " .
+                           "FROM `clinical_rules` " .
+                           "WHERE  `id`=? AND `pid`=0", array($action['rule_id']) );
+      $developer = $ruleData['developer'];
+      $funding_source = $ruleData['funding_source'];
+      $release = $ruleData['release_version'];
+      $web_reference = $ruleData['web_reference'];
+      if (!empty($rule_title)) {
+        $tooltip = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
+      }
+      if (!empty($developer)) {
+        $tooltip .= xla('Rule Developer') . ": " . attr($developer) . "&#013;";
+      }
+      if (!empty($funding_source)) {
+        $tooltip .= xla('Rule Funding Source') . ": " . attr($funding_source) . "&#013;";
+      }
+      if (!empty($release)) {
+        $tooltip .= xla('Rule Release') . ": " . attr($release);
+      }
+      if ( (!empty($tooltip)) || (!empty($web_reference)) ) {
+        if (!empty($web_reference)) {
+          $tooltip = "<a href='".attr($web_reference)."' target='_blank' style='white-space: pre-line;' title='".$tooltip."'>?</a>";
+        }
+        else {
+          $tooltip = "<span style='white-space: pre-line;' title='".$tooltip."'>?</span>";
+        }
+      }
+    }
+
     if ($action['custom_flag']) {
       // Start link for reminders that use the custom rules input screen
       $url = "../rules/patient_data.php?category=".htmlspecialchars( $action['category'], ENT_QUOTES);
 	  $url .= "&item=".htmlspecialchars( $action['item'], ENT_QUOTES);
-	  if(!empty($action['rule_id']))
-	  $url .= "&rule=".htmlspecialchars( $action['rule_id'], ENT_QUOTES);
       echo "<a href='".$url."' class='iframe medium_modal' onclick='top.restoreSession()'>";
     }
     else if ($action['clin_rem_link']) {
@@ -88,7 +147,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
 	  }
     }
     else {
-      // continue, since no link will be created
+      // continue since no link is needed
     }
 
     // Display Reminder Details
@@ -115,12 +174,44 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
       else {
         echo "&nbsp;&nbsp;(<span>";
       }
-      echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$action['due_status']) . "</span>)<br>";
+      echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$action['due_status']) . "</span>)";
+    }
+
+    // Display the tooltip
+    if (!empty($tooltip)) {
+      echo "&nbsp;".$tooltip."<br>";
     }
     else {
       echo "<br>";
     }
 
+    // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
+    // Only when $mode is reminders-due
+    if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
+      $target_temp = $action['category'].":".$action['item'];
+      $current_targets[$target_temp] =  array('rule_id'=>$action['rule_id'],'due_status'=>$action['due_status']);
+    }
+  }
+
+  // Compare the current with most recent action log (this function will also log the current actions)
+  // Only when $mode is reminders-due
+  if ($mode == "reminders-due" && $GLOBALS['enable_alert_log'] ) {
+    $new_targets = compare_log_alerts($patient_id,$current_targets,'clinical_reminder_widget',$_SESSION['authId']);
+    if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
+      // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
+      //  Note I am taking advantage of a slight hack in order to run javascript within code that
+      //  is being passed via an ajax call by using a dummy image.
+      echo '<img src="../../pic/empty.gif" onload="alert(\''.xls('New Due Clinical Reminders').'\n\n';
+      foreach ($new_targets as $key => $value) {
+        $category_item = explode(":",$key);
+        $category = $category_item[0];
+        $item = $category_item[1];
+        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
+             ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$item). '\n';
+      }
+      echo '\n' . '('. xls('See the Clinical Reminders widget for more details'). ')';
+      echo '\');this.parentNode.removeChild(this);" />';
+    }
   }
 }
 
@@ -131,21 +222,24 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
  * @param  string   $mode           choose either 'reminders-all' or 'reminders-due' (required)
  * @param  string   $dateTarget     target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  * @param  string   $organize_mode  Way to organize the results (default or plans)
+ * @param  string   $user           If a user is set, then will only show rules that user has permission to see
+ * @param  string   $test           Set to true when only checking if there are alerts (skips the logging then)
  * @return string                   html display output.
  */
-function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='default') {
+function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='default',$user='',$test=FALSE) {
 
   // Set date to current if not set
   $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Collect active actions
-  $actions = test_rules_clinic('','active_alert',$dateTarget,$mode,$patient_id,'',$organize_mode);
+  $actions = test_rules_clinic('','active_alert',$dateTarget,$mode,$patient_id,'',$organize_mode, array(),'primary',NULL,NULL,$user);
 
   if (empty($actions)) {
     return false;
   }
 
   $returnOutput = "";
+  $current_targets = array();
 
   // Display the actions
   foreach ($actions as $action) {
@@ -183,8 +277,172 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
     else {
       $returnOutput .= "<br>";
     }
+
+    // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
+    // Only when $mode is reminders-due and $test is FALSE
+    if (($mode == "reminders-due") && ($test === FALSE) && ($GLOBALS['enable_alert_log'])) {
+      $target_temp = $action['category'].":".$action['item'];
+      $current_targets[$target_temp] =  array('rule_id'=>$action['rule_id'],'due_status'=>$action['due_status']);
+    }
   }
+
+  // Compare the current with most recent action log (this function will also log the current actions)
+  // Only when $mode is reminders-due and $test is FALSE
+  if (($mode == "reminders-due") && ($test === FALSE) && ($GLOBALS['enable_alert_log'])) {
+    $new_targets = compare_log_alerts($patient_id,$current_targets,'active_reminder_popup',$_SESSION['authId']);
+    if (!empty($new_targets)) {
+      $returnOutput .="<br>" . xlt('New Items (see above for details)') . ":<br>";
+      foreach ($new_targets as $key => $value) {
+        $category_item = explode(":",$key);
+        $category = $category_item[0];
+        $item = $category_item[1];
+        $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
+             ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$item). '<br>';
+      }
+    }
+  }  
+
   return $returnOutput;
+}
+
+/**
+ * Process and return allergy conflicts (when a active medication or presciption is on allergy list).
+ *
+ * @param  integer  $patient_id     pid of selected patient
+ * @param  string   $mode           either 'all' or 'new' (required)
+ * @param  string   $user           If a user is set, then will only show rules that user has permission to see
+ * @param  string   $test           Set to true when only checking if there are alerts (skips the logging then)
+ * @return  array/boolean           Array of allergy alerts or FALSE is empty.
+ */
+function allergy_conflict($patient_id,$mode,$user,$test=FALSE) {
+
+  // Collect allergies
+  $res_allergies = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='allergy' " .
+                                "AND `activity`=1 " .
+                                "AND ( `enddate` IS NULL OR `enddate`='' OR `enddate` > NOW() ) " .
+                                "AND `pid`=?", array($patient_id));
+  $allergies = array();
+  for($iter=0; $row=sqlFetchArray($res_allergies); $iter++) {
+    $allergies[$iter]=$row['title'];
+  }
+
+  // Build sql element of IN for below queries
+  $sqlParam = array();
+  $sqlIN = '';
+  $firstFlag = TRUE;
+  foreach ($allergies as $allergy) {
+    array_push($sqlParam,$allergy);
+    if ($firstFlag) {
+      $sqlIN .= "?";
+      $firstFlag = FALSE;
+    }
+    else {
+      $sqlIN .= ",?";
+    }
+  } 
+
+  // Check if allergies conflict with medications or prescriptions
+  $conflicts_unique = array();
+  if (!empty($sqlParam)) {
+    $conflicts = array();
+    array_push($sqlParam,$patient_id);
+    $res_meds = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='medication' " .
+                             "AND `activity`=1 " .
+                             "AND ( `enddate` IS NULL OR `enddate`='' OR `enddate` > NOW() ) " .
+                             "AND `title` IN (" . $sqlIN . ") AND `pid`=?", $sqlParam);
+    while ($urow = sqlFetchArray($res_meds)) {
+      array_push($conflicts, $urow['title']);
+    }
+    $res_rx = sqlStatement("SELECT `drug` FROM `prescriptions` WHERE `active`=1 " .
+                           "AND `drug` IN (" . $sqlIN . ") AND `patient_id`=?", $sqlParam);
+    while ($urow = sqlFetchArray($res_rx)) {
+      array_push($conflicts, $urow['drug']);
+    }
+    if (!empty($conflicts)) {
+      $conflicts_unique = array_unique($conflicts);
+    }
+  }
+ 
+  // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
+  $new_conflicts = array();
+  if ( (!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test===FALSE) ) {
+    $new_conflicts = compare_log_alerts($patient_id,$conflicts_unique,'allergy_alert',$_SESSION['authId'],$mode);
+  }
+
+  if ($mode == 'all') {
+    if (!empty($conflicts_unique)) {
+      return $conflicts_unique;
+    }
+    else {
+      return FALSE;
+    }
+  }
+  else { // $mode = 'new'
+    if (!empty($new_conflicts)) {
+      return $new_conflicts;
+    }
+    else {
+      return FALSE;
+    }
+  }
+}
+
+/**
+ * Compare current alerts with prior (in order to find new actions)
+ * Also functions to log the actions.
+ *
+ * @param  integer  $patient_id      pid of selected patient
+ * @param  array    $current_targets array of targets
+ * @param  string   $category        clinical_reminder_widget, active_reminder_popup, or allergy_alert
+ * @param  integer  $userid          user id of user.
+ * @param  string   $log_trigger     if 'all', then always log. If 'new', then only trigger log when a new item noted.
+ * @return array                     array with targets with associated rule.
+ */
+function compare_log_alerts($patient_id,$current_targets,$category='clinical_reminder_widget',$userid='',$log_trigger='all') {
+
+  if (empty($userid)) {
+    $userid = $_SESSION['authId'];
+  }
+
+  if (empty($current_targets)) {
+    $current_targets = array();
+  }
+
+  // Collect most recent action_log
+  $prior_targets_sql = sqlQuery("SELECT `value` FROM `clinical_rules_log` " .
+                                 "WHERE `category` = ? AND `pid` = ? AND `uid` = ? " .
+                                 "ORDER BY `id` DESC LIMIT 1", array($category,$patient_id,$userid) );
+  $prior_targets = array();
+  if (!empty($prior_targets_sql['value'])) {
+    $prior_targets = json_decode($prior_targets_sql['value'], true);
+  }
+
+  // Compare the current with most recent log
+  if ( ($category == 'clinical_reminder_widget') || ($category == 'active_reminder_popup') ) {
+    //using fancy structure to store multiple elements
+    $new_targets = array_diff_key($current_targets,$prior_targets);
+  }
+  else { // $category == 'allergy_alert'
+    //using simple array
+    $new_targets = array_diff($current_targets,$prior_targets);
+  }
+
+  // Store current action_log and the new items
+  //  If $log_trigger=='all'
+  //  or If $log_trigger=='new' and there are new items 
+  if ( ($log_trigger=='all') || (($log_trigger=='new')  && (!empty($new_targets))) ) {
+    $current_targets_json = json_encode($current_targets);
+    $new_targets_json = '';
+    if (!empty($new_targets)) {
+      $new_targets_json = json_encode($new_targets);
+    }
+    sqlInsert("INSERT INTO `clinical_rules_log` " .
+              "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
+              "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json) );
+  }
+
+  // Return new actions (if there are any)
+  return $new_targets;
 }
 
 /**
@@ -345,9 +603,10 @@ function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mo
  * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $start         applicable patient to start at (when batching process)
  * @param  integer      $batchSize     number of patients to batch (when batching process)
+ * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$start=NULL,$batchSize=NULL) {
+function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$start=NULL,$batchSize=NULL,$user='') {
 
   // If dateTarget is an array, then organize them.
   if (is_array($dateTarget)) {
@@ -369,7 +628,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
     $ures = sqlStatementCdrEngine($query);
     // Second, run through each provider recursively
     while ($urow = sqlFetchArray($ures)) {
-      $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan,$organize_mode,$options,$pat_prov_rel,$start,$batchSize);
+      $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan,$organize_mode,$options,$pat_prov_rel,$start,$batchSize,$user);
       if (!empty($newResults)) {
         $provider_item['is_provider'] = TRUE;
         $provider_item['prov_lname'] = $urow['lname'];
@@ -399,7 +658,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
         // Second, run through each provider recursively
         $provider_results = array();
         while ($urow = sqlFetchArray($ures)) {
-          $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize);
+          $newResults = test_rules_clinic($urow['id'],$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize,$user);
           if (!empty($newResults)) {
             $provider_item['is_provider'] = TRUE;
             $provider_item['prov_lname'] = $urow['lname'];
@@ -418,7 +677,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
       }
       else {
         // (not collate_inner, so do not nest providers within each plan)
-        $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize);
+        $newResults = test_rules_clinic($provider,$type,$dateTarget,$mode,$patient_id,$plan_item['id'],'default',$options,$pat_prov_rel,$start,$batchSize,$user);
         if (!empty($newResults)) {
           $plan_item['is_plan'] = TRUE;
           array_push($results,$plan_item);
@@ -454,11 +713,11 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
   if ($mode != "report") {
     // Use per patient custom rules (if exist)
     // Note as discussed above, this only works for single patient instances.
-    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan);
+    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan,$user);
   }
   else { // $mode = "report"
     // Only use default rules (do not use patient custom rules)
-    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan);
+    $rules = resolve_rules_sql($type,$patient_id,FALSE,$plan,$user);
   }
 
   foreach( $rules as $rowRule ) {
@@ -1149,9 +1408,10 @@ function set_plan_activity_patient($plan,$type,$setting,$patient_id) {
  * @param  integer  $patient_id       pid of selected patient. (if custom rule does not exist then will use the default rule)
  * @param  boolean  $configurableOnly true if only want the configurable (per patient) rules (ie. ignore cqm and amc rules)
  * @param  string   $plan             collect rules for specific plan
+ * @param  string   $user             If a user is set, then will only show rules that user has permission to see
  * @return array                      rules
  */
-function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$plan='') {
+function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$plan='',$user='') {
 
   if ($configurableOnly) {
     // Collect all default, configurable (per patient) rules into an array
@@ -1185,6 +1445,26 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=FALSE,$pla
 
   // Need to select rules (use custom if exist)
   foreach ($returnArray as $rule) {
+
+    // If user is set, then check if user has access to the rule
+    if (!empty($user)) {
+      $access_control = explode(':',$rule['access_control']);
+      if ( !empty($access_control[0]) && !empty($access_control[1]) ) {
+        // Section and ACO filters are not empty, so do the test for access.
+        if (!acl_check($access_control[0],$access_control[1],$user)) {
+          // User does not have access to this rule, so skip the rule.
+          continue;
+        }
+      }
+      else {
+        // Section or ACO filters are empty, so use default patients:med aco
+        if (!acl_check('patients','med',$user)) {
+          // User does not have access to this rule, so skip the rule.
+          continue;
+        }
+      }
+    }
+
     $customRule = sqlQueryCdrEngine("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule['id'],$patient_id) );
 
     // Decide if use default vs custom rule (preference given to custom rule)
@@ -1269,19 +1549,23 @@ function set_rule_activity_patient($rule,$type,$setting,$patient_id) {
     $setting = NULL;
   }
 
+  //Collect main rule to allow setting of the access_control
+  $original_query = "SELECT * FROM `clinical_rules` WHERE `id` = ? AND `pid` = 0";
+  $patient_rule_original = sqlQueryCdrEngine($original_query, array($rule) );
+
   // Collect patient specific rule, if already exists.
   $query = "SELECT * FROM `clinical_rules` WHERE `id` = ? AND `pid` = ?";
   $patient_rule = sqlQueryCdrEngine($query, array($rule,$patient_id) );
 
   if (empty($patient_rule)) {
     // Create a new patient specific rule with flags all set to default
-    $query = "INSERT into `clinical_rules` (`id`, `pid`) VALUES (?,?)";
-    sqlStatementCdrEngine($query, array($rule, $patient_id) ); 
+    $query = "INSERT into `clinical_rules` (`id`, `pid`, `access_control`) VALUES (?,?,?)";
+    sqlStatementCdrEngine($query, array($rule, $patient_id, $patient_rule_original['access_control']) ); 
   }
 
   // Update patient specific row
-  $query = "UPDATE `clinical_rules` SET `" . add_escape_custom($type) . "_flag`= ? WHERE id = ? AND pid = ?";
-  sqlStatementCdrEngine($query, array($setting,$rule,$patient_id) );
+  $query = "UPDATE `clinical_rules` SET `" . add_escape_custom($type) . "_flag`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
+  sqlStatementCdrEngine($query, array($setting,$patient_rule_original['access_control'],$rule,$patient_id) );
 
 }
 

@@ -133,6 +133,7 @@ function rhl7ReportStatus($s) {
   if ($s == 'F') return 'final';
   if ($s == 'P') return 'prelim';
   if ($s == 'C') return 'correct';
+  if ($s == 'X') return 'error';
   return rhl7Text($s);
 }
 
@@ -174,6 +175,21 @@ function rhl7DecodeData($enctype, &$src) {
   return FALSE;
 }
 
+function rhl7CWE($s, $componentdelimiter) {
+  $out = '';
+  if ($s === '') return $out;
+  $arr = explode($componentdelimiter, $s);
+  if (!empty($arr[8])) {
+    $out = $arr[8];
+  }
+  else {
+    $out = $arr[0];
+    if (isset($arr[1])) {
+      $out .= " (" . $arr[1] . ")";
+    }
+  }
+  return $out;
+}
 
 /**
  * Parse the SPM segment and get the specimen display name and update the table.
@@ -187,21 +203,23 @@ function rhl7UpdateReportWithSpecimen($specimen, $procedure_report_id, $componen
   $specimen_reject_reason = null;
 
   // SPM4: Specimen Type: Example: 119297000^BLD^SCT^BldSpc^Blood^99USA^^^Blood Specimen
-  $spm4_segs = explode($componentdelimiter, $specimen[4]);
-  if ( !empty($spm4_segs[8]) )
-  {
-	   $specimen_display = $spm4_segs[8];
+  $specimen_display = rhl7CWE($specimen[4], $componentdelimiter);
+
+  $tmpnotes = xl('Specimen type') . ': ' . $specimen_display;
+  $tmp = rhl7CWE($specimen[21], $componentdelimiter);
+  if ($tmp) {
+    $tmpnotes .= '; ' . xl('Rejected') . ': ' . $tmp;
   }
-  else
-  {
-   	  $specimen_display = $spm4_segs[0];
-	  if ( isset($spm4_segs[1]) )
-	  {
-		 $specimen_display = $specimen_display . "(" . $spm4_segs[1] . ")";
-	  }
+  $tmp = rhl7CWE($specimen[24], $componentdelimiter);
+  if ($tmp) {
+    $tmpnotes .= '; ' . xl('Condition') . ': ' . $tmp;
   }
-      
-   sqlStatement("UPDATE procedure_report SET specimen_num = ? WHERE procedure_report_id = ?", array($specimen_display, $procedure_report_id)); 
+  $report_notes = rhl7Text($tmpnotes) . "\n";
+
+  sqlStatement("UPDATE procedure_report SET " .
+    "specimen_num = ?, report_notes = CONCAT(report_notes, ?) WHERE " .
+    "procedure_report_id = ?",
+    array($specimen_display, $report_notes, $procedure_report_id)); 
 }
 
 /**
@@ -848,24 +866,24 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
     else if ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
       $ares['comments'] .= rhl7Text($a[3]) . $commentdelim;
     }
-	
+
     // Ensoftek: Get data from SPM segment for specimen.
-	// SPM segment always occurs after the OBX segment.
-    else if ('SPM' == $a[0] && 'ORU' == $msgtype) {	
+    // SPM segment always occurs after the OBX segment.
+    else if ('SPM' == $a[0] && 'ORU' == $msgtype) {
       if (!$dryrun) rhl7FlushResult($ares);
       $ares = array();
       if (!$procedure_report_id) {
         if (!$dryrun) $procedure_report_id = rhl7FlushReport($arep);
         $arep = array();
-      }	
-	  rhl7UpdateReportWithSpecimen($a, $procedure_report_id, $d2);
+      }
+      rhl7UpdateReportWithSpecimen($a, $procedure_report_id, $d2);
     }
-	
+
     // Add code here for any other segment types that may be present.
 
     // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
     else if ('TQ1' == $a[0] && 'ORU' == $msgtype) {
-       // Ignore and do nothing.
+      // Ignore and do nothing.
     }
 
     else {

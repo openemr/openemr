@@ -48,9 +48,28 @@ $fake_register_globals=false;
  }
 
   $active_reminders = false;
-  if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && acl_check('patients', 'med') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crp']) {
-    // showing a new patient, so check for active reminders
-    $active_reminders = active_alert_summary($pid,"reminders-due");
+  $all_allergy_alerts = false;
+  if ($GLOBALS['enable_cdr']) {
+    //CDR Engine stuff
+    if ($GLOBALS['enable_allergy_check'] && $GLOBALS['enable_alert_log']) {
+      //Check for new allergies conflicts and throw popup if any exist(note need alert logging to support this)
+      $new_allergy_alerts = allergy_conflict($pid,'new',$_SESSION['authUser']);
+      if (!empty($new_allergy_alerts)) {
+        $pop_warning = '<script type="text/javascript">alert(\'' . xls('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ':\n';
+        foreach ($new_allergy_alerts as $new_allergy_alert) {
+          $pop_warning .= addslashes($new_allergy_alert) . '\n';
+        }
+        $pop_warning .= '\')</script>';
+        echo $pop_warning;
+      }
+    }
+    if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
+      // showing a new patient, so check for active reminders and allergy conflicts, which use in active reminder popup
+      $active_reminders = active_alert_summary($pid,"reminders-due",'','default',$_SESSION['authUser'],TRUE);
+      if ($GLOBALS['enable_allergy_check']) {
+        $all_allergy_alerts = allergy_conflict($pid,'all',$_SESSION['authUser'],TRUE);
+      }
+    }
   }
 
 function print_as_money($money) {
@@ -403,7 +422,7 @@ $(document).ready(function(){
             'centerOnScroll' : false
   });
 
-  <?php if ($active_reminders) { ?>
+  <?php if ($active_reminders || $all_allergy_alerts) { ?>
     // show the active reminder modal
     $("#reminder_popup_link").fancybox({
       'overlayOpacity' : 0.0,
@@ -1341,7 +1360,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $events = sortAppointments($events);
         //////
 
-     if ( (acl_check('patients', 'med')) && ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) ) {
+     // Show Clinical Reminders for any user that has rules that are permitted.
+     $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']); 
+     if ( (!empty($clin_rem_check)) && ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) ) {
         // clinical summary expand collapse widget
         $widgetTitle = xl("Clinical Reminders");
         $widgetLabel = "clinical_reminders";

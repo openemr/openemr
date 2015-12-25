@@ -208,6 +208,26 @@ class C_Prescription extends Controller {
       processAmcCall('e_prescribe_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
     }
 
+    // Set the AMC reporting flag (to record prescriptions that checked drug formulary)
+    if (!(empty($_POST['checked_formulary_flag']))) {
+      // add the e-prescribe flag
+      processAmcCall('e_prescribe_chk_formulary_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+    }
+    else {
+      // remove the e-prescribe flag
+      processAmcCall('e_prescribe_chk_formulary_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+    }
+
+    // Set the AMC reporting flag (to record prescriptions that are controlled substances)
+    if (!(empty($_POST['controlled_substance_flag']))) {
+      // add the e-prescribe flag
+      processAmcCall('e_prescribe_cont_subst_amc', true, 'add', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+    }
+    else {
+      // remove the e-prescribe flag
+      processAmcCall('e_prescribe_cont_subst_amc', true, 'remove', $this->prescriptions[0]->get_patient_id(), 'prescriptions', $this->prescriptions[0]->id);
+    }
+
 // TajEmo Work by CB 2012/05/29 02:58:29 PM to stop from going to send screen. Improves Work Flow 
 //     if ($this->prescriptions[0]->get_active() > 0) {
 //       return $this->send_action($this->prescriptions[0]->id);

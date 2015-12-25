@@ -72,7 +72,8 @@ class RuleManager {
             patient_reminder_flag = ?,
 			developer = ?, 
 			funding_source = ?, 
-			release_version = ?
+			release_version = ?,
+                        web_reference = ?
       WHERE id = ? AND pid = 0";
 
     const SQL_UPDATE_TITLE =
@@ -137,6 +138,7 @@ class RuleManager {
         $rule->setDeveloper($ruleResult['developer']);
         $rule->setFunding($ruleResult['funding_source']);
         $rule->setRelease($ruleResult['release_version']);
+        $rule->setWeb_ref($ruleResult['web_reference']);
 
         $this->fillRuleTypes( $rule, $ruleResult );
         $this->fillRuleReminderIntervals( $rule );
@@ -437,15 +439,15 @@ class RuleManager {
         sqlStatement( "DELETE FROM rule_filter WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = '". $guid . "'" );
     }
 
-    function updateSummary( $ruleId, $types, $title, $developer, $funding, $release  ) {
+    function updateSummary( $ruleId, $types, $title, $developer, $funding, $release, $web_ref  ) {
         $rule = $this->getRule( $ruleId );
 
         if ( is_null($rule) ) {
             // add
             $result = sqlQuery( "select count(*)+1 AS id from clinical_rules" );
             $ruleId = "rule_" . $result['id'];
-            sqlStatement( "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version ) " . 
-                    "VALUES (?,?,?,?,?,?,?,?,?,?) ",
+            sqlStatement( "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version, web_reference ) " . 
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?) ",
                     array(
                         $ruleId,
                         0,
@@ -456,7 +458,8 @@ class RuleManager {
                         in_array(RuleType::PatientReminder, $types) ? 1 : 0,
 						$developer,
 						$funding,
-						$release
+						$release,
+                                                $web_ref
                     )
             );
 
@@ -475,6 +478,7 @@ class RuleManager {
                 $developer,
                 $funding,
                 $release,
+                $web_ref,
                 $rule->id )
             );
 

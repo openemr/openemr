@@ -119,6 +119,23 @@
         <input type="checkbox" id="escribe_flag" name="escribe_flag" checked>
       {/if}
       <span class="text">{xl t='E-Prescription?'}</span><br>
+
+      {amcCollect amc_id='e_prescribe_chk_formulary_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
+      {if not $amcCollectReturn}
+        <input type="checkbox" id="checked_formulary_flag" name="checked_formulary_flag">
+      {else}
+        <input type="checkbox" id="checked_formulary_flag" name="checked_formulary_flag" checked>
+      {/if}
+      <span class="text">{xl t='Checked Drug Formulary?'}</span><br>
+
+      {amcCollect amc_id='e_prescribe_cont_subst_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
+      {if not $amcCollectReturn}
+        <input type="checkbox" id="controlled_substance_flag" name="controlled_substance_flag">
+      {else}
+        <input type="checkbox" id="controlled_substance_flag" name="controlled_substance_flag" checked>
+      {/if}
+      <span class="text">{xl t='Controlled Substance?'}</span><br>
+
     </div>
   </div>
 {php} } {/php}
