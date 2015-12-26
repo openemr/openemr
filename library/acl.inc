@@ -769,26 +769,35 @@
                         WHERE
                           garo.section_value = ? AND usr. id = ?";    
     $res_groups     = sqlStatement($sql_user_group,array('users',$user_id));
-    $groups = array();
-    while($row = sqlFetchArray($res_groups)){
-      array_push($groups,$row['group_id']);
-    }
-    $groups_str = implode(",",$groups);
-    $arr_temp = array();
-    $arr_count = count($groups);
-    for($i=0;$i<$arr_count;$i++){
-      $arr_temp[$i] = "?";
-    }
 
-    $sql_group_acl  = " SELECT 
+    // Prepare the group queries with the placemakers and binding array for the IN part
+    $groups_sql_param = array();
+    $groupPlacemakers = "";
+    $firstFlag = TRUE;
+    while($row = sqlFetchArray($res_groups)){
+      array_push($groups_sql_param,$row['group_id']);
+      if ($firstFlag) {
+        $groupPlacemakers = "?";
+        $firstFlag = FALSE;
+      }
+      else {
+        $groupPlacemakers .= ",?";
+      }
+    }
+    $sql_group_acl_base  = " SELECT 
                         COUNT(allowed) AS count 
                       FROM
                         module_acl_group_settings AS group_settings 
                         LEFT JOIN module_acl_sections AS  acl_sections
                           ON group_settings.section_id = acl_sections.section_id
                       WHERE
-                        acl_sections.`section_identifier` = ? AND group_settings.group_id IN (".implode('?,',$arr_temp).") AND group_settings.allowed = ?";
-                                    
+                        group_settings.group_id IN (".$groupPlacemakers.") AND acl_sections.`section_identifier` = ? ";
+    $sql_group_acl_denied  = $sql_group_acl_base . " AND group_settings.allowed = '0'";
+    $sql_group_acl_allowed = $sql_group_acl_base . " AND group_settings.allowed = '1'";
+
+    // Complete the group queries sql binding array
+    array_push($groups_sql_param, $section_identifier);
+                                
         $count_user_denied      = 0;
         $count_user_allowed     = 0;
         $count_group_denied     = 0;
@@ -799,11 +808,11 @@
         
         $res_user_allowed       = sqlQuery($sql_user_acl,array($section_identifier,$user_id,1));
         $count_user_allowed     = $res_user_allowed['count'];
-        
-        $res_group_denied       = sqlQuery($sql_group_acl,array($section_identifier,$groups_str,0));
+
+        $res_group_denied       = sqlQuery($sql_group_acl_denied, $groups_sql_param);
         $count_group_denied     = $res_group_denied['count'];
-        
-        $res_group_allowed      = sqlQuery($sql_group_acl,array($section_identifier,$groups_str,1));
+
+        $res_group_allowed      = sqlQuery($sql_group_acl_allowed, $groups_sql_param);
         $count_group_allowed    = $res_group_allowed['count'];
 
         if($count_user_denied > 0)
