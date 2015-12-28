@@ -666,6 +666,7 @@ CREATE TABLE `clinical_rules_log` (
   `uid` bigint(20) NOT NULL DEFAULT '0',
   `category` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'An example category is clinical_reminder_widget',
   `value` TEXT NOT NULL,
+  `new_value` TEXT NOT NULL,
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `uid` (`uid`),
