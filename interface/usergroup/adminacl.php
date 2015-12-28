@@ -35,8 +35,8 @@ if (!isset($phpgacl_location)) {
  $(document).ready(function(){	
   
   //Show membership section by default
-  $("#membership_show").click();
-  membership_show();
+//  $("#membership_show").click();
+//  membership_show();
   //Show membership section by default
 				
   $("a.link_submit").livequery("click", function(){	
@@ -194,11 +194,16 @@ if (!isset($phpgacl_location)) {
   });
   	    
   function membership_show() {		
-   if (!$("#membership_show").attr("checked")) {
+   
+      if( $("#membership").is(':visible')){
+         $("#membership").hide('slow');
+          $('#membership_show').parent().parent().removeClass('arrow-down');           
+          return;
+      }
+    $('#membership_show').parent().parent().addClass('arrow-down');      
     $("#membership_error").empty();
     $("#membership").hide("slow");
-    return;
-   }
+    
    //Send ajax request
    $.ajax({
     type: "POST",
@@ -238,15 +243,21 @@ if (!isset($phpgacl_location)) {
   }
 		
   function acl_show() {
-   if (!$("#acl_show").attr("checked")) {	
+   
+      if( $("#acl").is(':visible')){
+         $("#acl").hide('slow');
+          return;
+      }
+      
+      
     $("#acl_error").empty();
     $("#none_acl_returns").hide();
     $("#none_acl_list").hide();
     $("#acl").hide("slow");
     $("#div_acl_add_form").hide("slow");
     $("#div_acl_remove_form").hide("slow");
-    return;
-   }	
+    
+   
    //Send ajax request
    $.ajax({
     type: "POST",
@@ -516,18 +527,29 @@ if (!isset($phpgacl_location)) {
  } ?>
  <br><br>	
  <div id='membership_edit'>
-  <span class=bold><input type='checkbox' id='membership_show'><?php xl('User Memberships','e'); ?></span>
+  <div class="parent">
+        <div class="accordionToggle">
+                <span  id='membership_show'><?php xl('User Memberships','e'); ?></span>
+        </div>
+  </div>
+   
+     
   <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php xl('LOADING','e'); ?>...</span>
   <div id='membership_error'>
   </div>
   <div class=section id='membership' style='display: none;'>
   </div>
  </div>
+    
  <div id='acl_edit'>
-  <span class=bold><input type='checkbox' id='acl_show'><?php xl('Groups and Access Controls','e'); ?></span>
-  <a class='link_submit' href='no_javascript' id='none_acl_returns' title=<?php xl('Add New Group','e','\'','\''); ?> style='display: none;'>(<?php xl('Add New Group','e'); ?>)</a>
-  <a class='link_submit' href='no_javascript' id='none_acl_list' title=<?php xl('Remove Group','e','\'','\''); ?> style='display: none;'>(<?php xl('Remove Group','e'); ?>)</a>  
-  <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php xl('LOADING','e'); ?>...</span>
+  <div class="parent">
+     <div class="accordionToggle">
+          <span id='acl_show'><?php xl('Groups and Access Controls','e'); ?></span>
+          <a class='link_submit' href='no_javascript' id='none_acl_returns' title=<?php xl('Add New Group','e','\'','\''); ?> style='display: none;'>(<?php xl('Add New Group','e'); ?>)</a>
+          <a class='link_submit' href='no_javascript' id='none_acl_list' title=<?php xl('Remove Group','e','\'','\''); ?> style='display: none;'>(<?php xl('Remove Group','e'); ?>)</a>  
+          <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php xl('LOADING','e'); ?>...</span>
+     </div>
+  </div>
   <div id='acl_error'>
   </div>
   <div id='div_acl_add_form' style='display: none;'>
