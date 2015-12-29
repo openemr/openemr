@@ -27,8 +27,10 @@ Developer Guides
 .. toctree::
     :maxdepth: 2
 
-    third_party_form_api
     install
+    emergency_user
+    third_party_form_api
+
 
 Indices and tables
 ==================
