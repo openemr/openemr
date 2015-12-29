@@ -13,10 +13,12 @@ scheduling, electronic billing, internationalization, free support, a vibrant
 community, and a whole lot more. It can run on Windows, Linux, Mac OS X, and 
 many other platforms.
 
+
 .. toctree::
     :maxdepth: 1
 
     quick_reference
+    third_party_form_api
 
 Indices and tables
 ==================
