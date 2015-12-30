@@ -71,7 +71,7 @@ class gacl {
 	var $_db_table_prefix = 'gacl_';
 
 	/** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
-	var $_db_type = 'mysql';
+	var $_db_type = 'mysqli';
 
 	/** @var string The database server */
 	var $_db_host = '';
@@ -146,7 +146,7 @@ class gacl {
 
                 //collect openemr sql info from include at top of script - bm 05-2009
                 global $sqlconf, $disable_utf8_flag;
-                $this->_db_host = $sqlconf["host"].":".$sqlconf["port"];
+                $this->_db_host = $sqlconf["host"];
                 $this->_db_user = $sqlconf["login"];
                 $this->_db_password = $sqlconf["pass"];
                 $this->_db_name = $sqlconf["dbase"];
@@ -167,6 +167,10 @@ class gacl {
 			$this->db = ADONewConnection($this->_db_type);
 			//Use NUM for slight performance/memory reasons.
 			$this->db->SetFetchMode(ADODB_FETCH_NUM);
+
+			// Port to be used in connection
+			$this->db->port = $sqlconf["port"];
+
 			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 
 		        // Modified 5/2009 by BM for UTF-8 project

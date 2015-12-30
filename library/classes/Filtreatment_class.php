@@ -199,8 +199,7 @@ function ft_email($email) {
  * PREPARES THE INPUT FOR DATABASE
  * 
  * works with mysql/postgresql
- * NOTE: mysql_real_escape_string() requires that a valid mysql connection (mysql_connect()) exists to work
- * 
+ *
  * @param string $value - email to validate
  * @param string $db_type - allow two constants MYSQL | PGSQL
  * @return string|bool $value sanitized value
@@ -212,11 +211,6 @@ function ft_dbsql($value, $db_type = 'MYSQL') {
 
     // Quote if not a number or a numeric string
     if (!is_numeric($value)) {
-        /*switch ($db_type) {
-            case 'MYSQL': $value = "'" . mysql_real_escape_string($value) . "'"; break;
-            case 'PGSQL': $value = "'" . pg_escape_string($value) . "'"; break;
-        }*/
-        // trick to not modify the openemr genuine code who put the string (already quoted) in quotes!
         switch ($db_type) {
             case 'MYSQL': $value = add_escape_custom($value); break;
             case 'PGSQL': $value = pg_escape_string($value); break;

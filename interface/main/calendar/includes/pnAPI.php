@@ -477,6 +477,7 @@ function pnDBInit()
     global $pnconfig;
     $dbtype = $pnconfig['dbtype'];
     $dbhost = $pnconfig['dbhost'];
+    $dbport = $pnconfig['dbport'];
     $dbname = $pnconfig['dbname'];
     $dbuname = $pnconfig['dbuname'];
     $dbpass = $pnconfig['dbpass'];
@@ -486,6 +487,7 @@ function pnDBInit()
 
     // Start connection
     $dbconn = ADONewConnection($dbtype);
+    $dbconn->port = $dbport;
     $dbh = $dbconn->Connect($dbhost, $dbuname, $dbpass, $dbname);
     if (!$dbh) {
     	//$dbpass = "";
