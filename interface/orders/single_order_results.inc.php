@@ -378,7 +378,7 @@ function educlick(codetype, codevalue) {
  <tr bgcolor='#cccccc'>
   <td nowrap><?php echo xlt('Lab'); ?></td>
   <td><?php echo myCellText($orow['labname']); ?></td>
-  <td nowrap><?php echo xlt('Specimen Type'); ?></td>
+  <td nowrap><?php echo $orow['specimen_type'] ? xlt('Specimen Type') : '&nbsp;'; ?></td>
   <td><?php echo myCellText($orow['specimen_type']); ?></td>
  </tr>
 </table>
