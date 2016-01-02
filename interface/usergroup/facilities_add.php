@@ -10,9 +10,9 @@ require_once("$srcdir/erx_javascript.inc.php");
 $alertmsg = '';
 ?>
 <html>
-<head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+  <head>
+    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
@@ -155,30 +155,45 @@ function displayAlert()
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-</head>
-<body class="body_top">
-<table>
-<tr><td>
-    <span class="title"><?php xl('Add Facility','e'); ?></span>&nbsp;&nbsp;&nbsp;</td>
-    <td colspan=5 align=center style="padding-left:2px;">
-        <a onclick="submitform();" class="css_button large_button" name='form_save' id='form_save' href='#'>
-            <span class='css_button_span large_button_span'><?php xl('Save','e');?></span>
-        </a>
-        <a class="css_button large_button" id='cancel' href='#' >
-            <span class='css_button_span large_button_span'><?php xl('Cancel','e');?></span>
-        </a>
-</td></tr>
-</table>
+  </head>
+  <body class="body_top">
+    <table>
+      <tr>
+        <td>
+          <span class="title"><?php xl('Add Facility','e'); ?></span>
+        </td>
+        <td colspan=5 align=center style="padding-left:2px;">
+          <a onclick="submitform();" class="css_button large_button" name='form_save' id='form_save' href='#'>
+            <span class='css_button_span large_button_span'>
+              <?php xl('Save','e');?>
+            </span>
+          </a>
+          <a class="css_button large_button" id='cancel' href='#' >
+            <span class='css_button_span large_button_span'>
+              <?php xl('Cancel','e');?>
+            </span>
+          </a>
+        </td>
+      </tr>
+    </table>
 
-<br>
+    <br>
 
-<form name='facility' method='post' action="facilities.php" target='_parent'>
-    <input type=hidden name=mode value="facility">
-    <table border=0 cellpadding=0 cellspacing=0>
+    <form name='facility' method='post' action="facilities.php" target='_parent'>
+      <input type=hidden name=mode value="facility">
+      <table border=0 cellpadding=0 cellspacing=0>
         <tr>
-        <td><span class="text"><?php xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""><span class="mandatory">&nbsp;*</span></td>
-        <td width=20>&nbsp;</td>
-        <td><span class="text"><?php xl('Phone','e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
+          <td>
+            <span class="text"><?php xl('Name','e'); ?>:</span>
+          </td>
+          <td>
+            <input type="text" name="facility" size="20" value=""><span class="mandatory">*</span>
+          </td>
+          <td width="20"></td>
+          <td>
+            <span class="text"><?php xl('Phone','e'); ?>:</span>
+          </td>
+          <td><input type="text" name="phone" size="20" value=""></td>
         </tr>
         <tr>
         <td><span class="text"><?php xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>
@@ -261,13 +276,12 @@ function displayAlert()
     </table>
 </form>
 
-<script language="JavaScript">
-<?php
-  if ($alertmsg = trim($alertmsg)) {
-    echo "alert('$alertmsg');\n";
-  }
-?>
-</script>
-
-</body>
+    <script language="JavaScript">
+    <?php
+      if ($alertmsg = trim($alertmsg)) {
+        echo "alert('$alertmsg');\n";
+      }
+    ?>
+    </script>
+  </body>
 </html>
