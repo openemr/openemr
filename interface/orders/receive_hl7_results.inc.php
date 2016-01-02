@@ -783,7 +783,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       $arep['procedure_order_id'] = $in_orderid;
       $arep['procedure_order_seq'] = $pcrow['procedure_order_seq'];
       $arep['date_collected'] = rhl7DateTime($a[7]);
-      $arep['date_report'] = rhl7Date($a[22]);
+      $arep['date_report'] = rhl7DateTime($a[22]);
       $arep['report_status'] = $in_report_status;
       $arep['report_notes'] = '';
       $arep['specimen_num'] = '';

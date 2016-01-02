@@ -12632,3 +12632,6 @@ INSERT INTO `rule_target` ( `id`, `group_id`, `include_flag`, `required_flag`, `
 ALTER TABLE  `clinical_rules_log` ADD `new_value` TEXT NOT NULL;
 #EndIf
 
+#IfNotColumnType procedure_report date_report datetime
+ALTER TABLE `procedure_report` CHANGE `date_report` `date_report` datetime DEFAULT NULL;
+#EndIf

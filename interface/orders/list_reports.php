@@ -457,7 +457,7 @@ while ($row = sqlFetchArray($res)) {
   $procedure_code   = empty($row['procedure_code'     ]) ? '' : $row['procedure_code'];
   $procedure_name   = empty($row['procedure_name'     ]) ? '' : $row['procedure_name'];
   $report_id        = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
-  $date_report      = empty($row['date_report'        ]) ? '' : $row['date_report'];
+  $date_report      = empty($row['date_report'        ]) ? '' : substr($row['date_report'], 0, 16);
   $report_status    = empty($row['report_status'      ]) ? '' : $row['report_status']; 
   $review_status    = empty($row['review_status'      ]) ? '' : $row['review_status'];
 

@@ -432,7 +432,7 @@ while ($row = sqlFetchArray($res)) {
   $order_id       = empty($row['procedure_order_id' ]) ? 0 : ($row['procedure_order_id' ] + 0);
   $order_seq      = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
   $report_id      = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
-  $date_report    = empty($row['date_report'     ]) ? '' : $row['date_report'];
+  $date_report    = empty($row['date_report'     ]) ? '' : substr($row['date_report'], 0, 16);
   $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
   $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
   $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status']; 
@@ -556,13 +556,13 @@ while ($row = sqlFetchArray($res)) {
     //
     if ($report_id != $lastprid) {
       echo "  <td nowrap>";
-      echo "<input type='text' size='8' name='form_date_report[$lino]'" .
+      echo "<input type='text' size='13' name='form_date_report[$lino]'" .
         " id='form_date_report[$lino]' class='celltextfw' value='" . attr($date_report) . "' " .
-        " title='" . xl('Date of this report') . "'" .
-        " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'" .
+        " title='" . xl('Date and time of this report') . "'" .
+        " onkeyup='datekeyup(this,mypcc,true)' onblur='dateblur(this,mypcc,true)'" .
         " />";
       echo "<span class='bold' id='q_date_report[$lino]' style='cursor:pointer' " .
-        "title='" . xl('Click here to choose a date') . "' />?</span>";
+        "title='" . xl('Click here to choose a date and time') . "' />?</span>";
       echo "</td>\n";
 
       echo "  <td nowrap>";
@@ -750,8 +750,8 @@ Calendar.setup({inputField:'form_to_date', ifFormat:'%Y-%m-%d',
 var f = document.forms[0];
 for (var lino = 0; f['form_line['+lino+']']; ++lino) {
  if (f['form_date_report['+lino+']']) {
-  Calendar.setup({inputField:'form_date_report['+lino+']', ifFormat:'%Y-%m-%d',
-   button:'q_date_report['+lino+']'});
+  Calendar.setup({inputField:'form_date_report['+lino+']', ifFormat:'%Y-%m-%d %H:%M',
+   button:'q_date_report['+lino+']', showsTime:true});
   Calendar.setup({inputField:'form_date_collected['+lino+']', ifFormat:'%Y-%m-%d %H:%M',
    button:'q_date_collected['+lino+']', showsTime:true});
  }
