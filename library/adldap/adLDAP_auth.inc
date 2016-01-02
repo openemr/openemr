@@ -235,7 +235,7 @@ function validateGroupStatus ($user_to_be_checked, $group_user) {
 
         $usertbcGroups = array();
 
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = sqlFetchArray($result)) {
             $usertbcGroups[] = $row[0];
         }
 
@@ -245,7 +245,7 @@ function validateGroupStatus ($user_to_be_checked, $group_user) {
 
         $usergGroups = array();
 
-        while ($row = mysql_fetch_array($result)) {
+        while ($row = sqlFetchArray($result)) {
             $usergGroups[] = $row[0];
         }
         foreach ($usertbcGroups as $group) {

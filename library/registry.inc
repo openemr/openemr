@@ -17,7 +17,7 @@ function registerForm ( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
 		return sqlInsert("insert into registry set
 			name='$name',
 			state='$state',
-			directory='".mysql_escape_string($directory)."',
+			directory='".add_escape_custom($directory)."',
 			sql_run='$sql_run',
 			unpackaged='$unpackaged',
 			date=NOW()
