@@ -22,6 +22,27 @@ class ViewHelper {
     }
   }
 
+  public static function inputTag($type, $name, $value, $size = null) {
+    $input = '<input type="'.$type.'" name="'.$name.'" id="'.$name.'"';
+    if (!empty($size)) {
+      $input .= ' size="'.$size.'"';
+    }
+    $input .= ' value="'.$value.'" >';
+    return $input;
+  }
+
+  public static function textTag($name, $value, $size = null) {
+    return ViewHelper::inputTag('text', $name, $value, $size);
+  }
+
+  public static function checkboxTag($name, $checked = false) {
+    $input = '<input type="checkbox" name="'.$name.'" id="'.$name.'"';
+    if ($checked) {
+      $input .= ' checked';
+    }
+    $input .= ' >';
+    return $input;
+  }
 }
 
 ?>

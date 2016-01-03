@@ -76,11 +76,11 @@ class Facility extends Model {
       attn='" . $this->attn . "' ,
       tax_id_type='" . $this->tax_id_type . "'";
 
-      if (!empty($this->service_location)) $qry .= "service_location=" . $this->service_location;
-      if (!empty($this->billing_location)) $qry .= "billing_location=" . $this->billing_location;
-      if (!empty($this->accepts_assignment)) $qry .= "accepts_assignment=" . $this->accepts_assignment;
-      if (!empty($this->pos_code)) $qry .= "pos_code=" . $this->pos_code;
-      if (!empty($this->primary_business_entity)) $qry .= "primary_business_entity=" . $this->primary_business_entity;
+      if (!empty($this->service_location)) $qryProperties .= ", service_location=" . $this->service_location;
+      if (!empty($this->billing_location)) $qryProperties .= ", billing_location=" . $this->billing_location;
+      if (!empty($this->accepts_assignment)) $qryProperties .= ", accepts_assignment=" . $this->accepts_assignment;
+      if (!empty($this->pos_code)) $qryProperties .= ", pos_code=" . $this->pos_code;
+      if (!empty($this->primary_business_entity)) $qryProperties .= ", primary_business_entity=" . $this->primary_business_entity;
 
     return $qryProperties;
   }

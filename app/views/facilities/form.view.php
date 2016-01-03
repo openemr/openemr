@@ -1,54 +1,54 @@
-<form name='facility' method='post' action="facilities.php" target="_parent">
+<form id="facility" name="facility" method="post" action="facilities.php" target="_parent">
   <input type="hidden" name="mode" value="facility">
   <input type="hidden" name="newmode" value="admin_facility"> <!--  Diffrentiate Admin and add post backs -->
   <input type="hidden" name="fid" value="<?php echo $facility->getId(); ?>">
 
-  <table border=0 cellpadding=0 cellspacing=1 style="width:630px;">
+  <table border="0" cellpadding="0" cellspacing="1" style="width:630px;">
     <tr>
-      <td width='150px'>
-        <span class='text'><?php xl('Name','e'); ?>:</span>
+      <td width="150px">
+        <span class="text"><?php xl('Name','e'); ?>:</span>
       </td>
-      <td width='220px'>
-        <input type='text' name='facility' size='20' value='<?php echo htmlspecialchars($facility->name, ENT_QUOTES) ?>'>
+      <td width="220px">
+        <?php echo ViewHelper::textTag('facility', htmlspecialchars($facility->name, ENT_QUOTES), '20') ?>
         <font class="mandatory">*</font>
       </td>
-      <td width='200px'>
-        <span class='text'>
+      <td width="200px">
+        <span class="text">
           <?php xl('Phone','e'); ?> <?php xl('as','e'); ?> (000) 000-0000:
         </span>
       </td>
-      <td width='220px'>
-        <input type='text' name='phone' size='20' value='<?php echo htmlspecialchars($facility->phone, ENT_QUOTES) ?>'>
+      <td width="220px">
+        <?php echo ViewHelper::textTag('phone', htmlspecialchars($facility->phone, ENT_QUOTES), '20') ?>
       </td>
      </tr>
      <tr>
       <td>
-        <span class=text><?php xl('Address','e'); ?>:</span>
+        <span class="text"><?php xl('Address','e'); ?>:</span>
       </td>
       <td>
-        <input type="text" size="20" name="street" value="<?php echo htmlspecialchars($facility->street, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('street', htmlspecialchars($facility->street, ENT_QUOTES), '20') ?>
       </td>
       <td>
-        <span class='text'>
+        <span class="text">
           <?php xl('Fax','e'); ?> <?php xl('as','e'); ?> (000) 000-0000:
         </span>
       </td>
       <td>
-        <input type="text" name='fax' size='20' value='<?php echo htmlspecialchars($facility->fax, ENT_QUOTES) ?>'>
+        <?php echo ViewHelper::textTag('fax', htmlspecialchars($facility->fax, ENT_QUOTES), '20') ?>
       </td>
     </tr>
     <tr>
       <td>
-        <span class=text><?php xl('City','e'); ?>: </span>
+        <span class="text"><?php xl('City','e'); ?>: </span>
       </td>
       <td>
-        <input type=entry size=20 name=city value="<?php echo htmlspecialchars($facility->city, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('city', htmlspecialchars($facility->city, ENT_QUOTES), '20') ?>
       </td>
       <td>
-        <span class=text><?php xl('Zip Code','e'); ?>: </span>
+        <span class="text"><?php xl('Zip Code','e'); ?>: </span>
       </td>
       <td>
-        <input type="text" size=20 name="postal_code" value="<?php echo htmlspecialchars($facility->postal_code, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('postal_code', htmlspecialchars($facility->postal_code, ENT_QUOTES), '20') ?>
       </td>
     </tr>
     <?php 
@@ -65,7 +65,7 @@
         <span class="text"><?php xl('State','e'); ?>: </span>
       </td>
       <td>
-        <input type="text" size="20" name="state" value="<?php echo htmlspecialchars($facility->state, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('state', htmlspecialchars($facility->state, ENT_QUOTES), '20') ?>
       </td>
       <td>
         <span class=text><?php xl('Tax ID','e'); ?>: </span>
@@ -75,7 +75,7 @@
           <option value="EI" <?php echo $ein;?>><?php xl('EIN','e'); ?></option>
           <option value="SY" <?php echo $ssn;?>><?php xl('SSN','e'); ?></option>
         </select>
-        <input type=entry size=11 name=federal_ein value="<?php echo htmlspecialchars($facility->federal_ein, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('federal_ein', htmlspecialchars($facility->federal_ein, ENT_QUOTES), '20') ?>
       </td>
     </tr>
     <tr>
@@ -89,7 +89,7 @@
         <span class=text><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:</span>
       </td>
       <td>
-        <input type=entry size=20 name=facility_npi value="<?php echo htmlspecialchars($facility->facility_npi, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('facility_npi', htmlspecialchars($facility->facility_npi, ENT_QUOTES), '20') ?>
       </td>
     </tr>
     <tr>
@@ -97,13 +97,13 @@
         <span class=text><?php xl('Website','e'); ?>: </span>
       </td>
       <td>
-        <input type=entry size=20 name=website value="<?php echo htmlspecialchars($facility->website, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('website', htmlspecialchars($facility->website, ENT_QUOTES), '20') ?>
       </td>
       <td>
         <span class=text><?php xl('Email','e'); ?>:</span>
       </td>
       <td>
-        <input type=entry size=20 name=email value="<?php echo htmlspecialchars($facility->email, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('email', htmlspecialchars($facility->email, ENT_QUOTES), '20') ?>
       </td>
     </tr>
     <tr>
@@ -151,7 +151,7 @@
         <span class="mandatory">&nbsp;*</span>
       </td>
       <td>
-        <input type="text" name="ncolor" id="ncolor" size="20" value="<?php echo htmlspecialchars($facility->color, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('ncolor', htmlspecialchars($facility->color, ENT_QUOTES), '20') ?>
       </td>
       <td>
         [<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php  echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]
@@ -177,7 +177,7 @@
     <tr>
       <td><span class="text"><?php xl('Billing Attn','e'); ?>:</span></td>
       <td colspan="4">
-        <input type="text" name="attn" size="45" value="<?php echo htmlspecialchars($facility->attn, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('attn', htmlspecialchars($facility->attn, ENT_QUOTES), '20') ?>
       </td>
     </tr>
     <tr>
@@ -185,7 +185,7 @@
         <span class="text"><?php xl('CLIA Number','e'); ?>:</span>
       </td>
       <td colspan="4">
-        <input type="text" name="domain_identifier" size="45" value="<?php echo htmlspecialchars($facility->domain_identifier, ENT_QUOTES) ?>">
+        <?php echo ViewHelper::textTag('domain_identifier', htmlspecialchars($facility->domain_identifier, ENT_QUOTES), '45') ?>
       </td>
     </tr>
     <tr height="20" valign="bottom">
