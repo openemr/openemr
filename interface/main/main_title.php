@@ -55,16 +55,23 @@ function toencounter(rawdata) {
 <?php } ?>
 }
 function showhideMenu() {
+    
 	var m = parent.document.getElementById("fsbody");
-	var targetWidth = '0,*';
-	var showMenuLink = document.getElementById("showMenuLink");
-
-	if (m.cols == targetWidth) {
-		m.cols = '<?php echo $GLOBALS['gbl_nav_area_width'] ?>,*'
+    var n = parent.document.getElementById("mainSection");
+//    var nWidth = parseInt(n.style.width.replace(/[^a-zA-Z ]/g, ""));
+    
+	var targetWidth = '0';
+	var showMenuLink = document.getElementById("showMenuLink");    
+    
+	if (m.style.width == targetWidth+"px"){
+		m.style.width = '150';
+        n.style.width = '90.29%';
 		showMenuLink.innerHTML = '<?php echo htmlspecialchars( xl('Hide Menu'), ENT_QUOTES); ?>';
 		showMenuLink.setAttribute('class', '');
-	} else {
-		m.cols = targetWidth;
+        
+	}else {
+		m.style.width = targetWidth;
+        n.style.width = '99.80%';
 		showMenuLink.innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
 		showMenuLink.setAttribute('class', 'active');
 	}
@@ -84,7 +91,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
 <tr><td style="vertical-align:text-bottom;">
-		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
+		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick="return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
 		<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
     <td style="vertical-align:text-bottom;">

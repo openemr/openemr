@@ -208,7 +208,7 @@ $body-color: #fff;
 .body_top { background-color: $body-color; margin: 8px }    /* $top_bg_line */
 .bgcolor2 { background-color: #fefdcf; }    /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
-.body_title { background-color: $silverColor; }  /* $title_bg_line */
+.body_title { background-color: $silverColor; overflow: hidden;}  /* $title_bg_line */
 .body_nav { background-color: $silverColor; }    /* $nav_bg_line */
 .body_filler { background-color: #f7f0d5; } /* $login_filler_line */
 .body_login { background: url('../pic/aquabg.gif') repeat; } /* $login_body_line */

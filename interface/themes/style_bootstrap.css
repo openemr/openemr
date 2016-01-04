@@ -13009,6 +13009,7 @@ a:hover {
 /* line 211, bootstrap/sass/style_bootstrap.scss */
 .body_title {
   background-color: #EFF1EF;
+  overflow: hidden;
 }
 
 /* $title_bg_line */
