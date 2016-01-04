@@ -716,7 +716,7 @@ function get_db() {
 
 /**
  * Generic mysql select db function
- *
+ * Used when converted to mysqli to centralize special circumstances.
  * @param string $database
  */
 function generic_sql_select_db($database)
@@ -726,28 +726,22 @@ function generic_sql_select_db($database)
 
 /**
  * Generic mysql affected rows function
+ * Used when converted to mysqli to centralize special circumstances.
  *
- * @param resource $link
  */
-function generic_sql_affected_rows($link = null)
+function generic_sql_affected_rows()
 {
-  if (is_null($link))
-    $link = $GLOBALS['dbh'];
-  mysql_affected_rows($link);
+  return mysql_affected_rows($GLOBALS['dbh']);
 }
 
 /**
  * Generic mysql insert id function
+ * Used when converted to mysqli to centralize special circumstances.
  *
- * @param resource $link
  */
-function generic_sql_insert_id($link = null)
+function generic_sql_insert_id()
 {
-  if (is_null($link))
-    $link = $GLOBALS['dbh'];
-  mysql_insert_id($link);
+  return mysql_insert_id($GLOBALS['dbh']);
 }
-
-
 
 ?>

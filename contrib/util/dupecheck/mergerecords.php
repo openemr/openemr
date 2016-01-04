@@ -106,7 +106,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue) {
             if ($commitchanges == true) {
                 $qResults = sqlStatement($sqlstmt);
             }
-            $rowsupdated = generic_sql_affected_rows($oemrdb);
+            $rowsupdated = generic_sql_affected_rows();
             echo "<li>";
             echo "".$tablename.": ".$rowsupdated." row(s) updated<br>";
             echo "</li>";

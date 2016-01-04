@@ -136,7 +136,7 @@ if (!empty($_POST['form_submit'])) {
 	break;
   }  $login=$sqlconf["login"];   $loginhost=$sqlconf["host"];
   generic_sql_select_db($sqlconf['dbase']) or die(getSqlLastError());
-  if (sqlQ("GRANT FILE ON *.* TO '$login'@'$loginhost'",$dbh) == FALSE) {
+  if (sqlStatement("GRANT FILE ON *.* TO '$login'@'$loginhost'") == FALSE) {
 		echo xl("Error when granting file privilege to the OpenEMR user."); echo "\n";
       echo "<p>".getSqlLastError()." (#".getSqlLastErrorNo().")\n";
 		echo xl("Error"); echo "\n";
