@@ -135,6 +135,11 @@ else {
 }
 
 // Root directory, relative to the webserver root:
+$APP_ROOT = $webserver_root.'/app';
+$VIEW_ROOT = $APP_ROOT.'/views';
+$MODEL_ROOT = $APP_ROOT.'/models';
+$LIB_DIR = "$webserver_root/library";
+
 $GLOBALS['rootdir'] = "$web_root/interface";
 $rootdir = $GLOBALS['rootdir'];
 // Absolute path to the source code include and headers file directory (Full path):
