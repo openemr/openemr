@@ -434,17 +434,25 @@ function genFindBlock() {
 
  // Expand and/or collapse frames in response to checkbox clicks.
  // fnum indicates which checkbox was clicked (1=left, 2=right).
- function toggleFrame(fnum) {
-  var f = document.forms[0];
+ function toggleFrame(fnum) { 
+     
+ var iframeTop = parent.document.getElementById('RTop');
+ var iframeBot = parent.document.getElementById('RBot');
+     
+     
+     
+  var f = document.forms[0];  
   var fset = top.document.getElementById('fsright');
-  if (!f.cb_top.checked && !f.cb_bot.checked) {
+  if (!f.cb_top.checked && !f.cb_bot.checked){
    if (fnum == 1) f.cb_bot.checked = true;
    else f.cb_top.checked = true;
   }
-  var rows = f.cb_top.checked ? '*' :  '0';
-  rows += f.cb_bot.checked ? ',*' : ',0';
-  fset.rows = rows;
-  fset.rows = rows;
+     
+//     var height= f.cb_top.check true ? '0': '500px';
+
+    iframeTop.style.display = (f.cb_top.checked)? "block": "none";
+    iframeBot.style.display = (f.cb_bot.checked)? "block": "none";
+
  }
 
  // Load the specified url into the specified frame (RTop or RBot).
@@ -460,7 +468,7 @@ function genFindBlock() {
  // Load the specified url into a frame to be determined, with the specified
  // frame as the default; the url must be relative to interface.
  function loadFrame2(fname, frame, url) {
-  var usage = fname.substring(3);
+     var usage = fname.substring(3);
   if (active_pid == 0 && usage > '0') {
    alert('<?php xl('You must first select or add a patient.','e') ?>');
    return false;

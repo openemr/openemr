@@ -142,18 +142,18 @@ if ($GLOBALS['concurrent_layout']) {
     // not tall nav area ?>
     
 <!--<frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>-->
-<div style="height: <?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>; border-bottom: 3px solid #999;" onunload='imclosing()'>
+<div style="height: <?php echo attr($GLOBALS['titleBarHeight']) + 18 ?>; border-bottom: 4px solid #999;" onunload='imclosing()'>
     <!--    Top Bar-->
-    <div style="">
+    <div style="zoom: 90%;">
         <?php include('main_title.php'); ?>
     </div>
     <!--    Top Bar-->
 <!--    <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />-->
         
-        <div style="width: <?php echo attr($nav_area_width); ?>; border-right: 3px solid #D0D0D0;float: left; overflow-y: auto; max-height: 90vh;" id='fsbody'>
+        <div style="width: <?php echo attr($nav_area_width); ?>; border-right: 3px solid #D0D0D0; border-top: 3px solid #999;float: left; overflow-y: auto; max-height: 90vh; padding-top: 10px;" id='fsbody'>
 <!--    <frameset cols='<?php //echo attr($nav_area_width); ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4'>-->
       
-            <div style="width: 100%;">
+            <div style="width: 100%; padding-left: 5px; zoom: 90%;">
                 <?php include('left_nav.php'); ?>
                 <?php include('daemon_frame.php'); ?>                
             </div>
@@ -180,8 +180,8 @@ if ($GLOBALS['concurrent_layout']) {
         <?php } ?>
                   
                   
-                  <iframe src='<?php echo $frame1url ?>' name='RTop' scrolling='auto' style="width: 100%; min-height: 450px; border-bottom: 3px solid #7D7C7C"></iframe>
-                  <iframe src='messages/messages.php?form_active=1' name='RBot' style="width: 100%;min-height: 300px; overflow: auto;"></iframe>
+                  <iframe src='<?php echo $frame1url ?>' name='RTop' id="RTop" scrolling='auto' style="width: 100%; min-height: 450px; border-bottom: 3px solid #7D7C7C"></iframe>
+                  <iframe src='messages/messages.php?form_active=1'  id="RBot" name='RBot' style="width: 100%;min-height: 300px; overflow: auto;"></iframe>
                   <?php //include('messages/messages.php'); ?>
                     <!--<frame src='<?php //echo $frame1url ?>' name='RTop' scrolling='auto' />
                                <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' />-->
