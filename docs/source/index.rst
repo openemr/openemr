@@ -20,6 +20,8 @@ User Guides
     :maxdepth: 1
 
     quick_reference
+    access_control
+    adding_removing_user_permissions
 
 Developer Guides
 ==========
