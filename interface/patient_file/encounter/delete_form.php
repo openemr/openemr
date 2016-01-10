@@ -69,7 +69,7 @@ if ($_POST['confirm']) {
 <?php
 // output each GET variable as a hidden form input
 foreach ($_GET as $key => $value) {
-    echo '<input type="hidden" id="'.$key.'" name="'.$key.'" value="'.attr($value).'"/>'."\n";
+    echo '<input type="hidden" id="'.attr($key).'" name="'.attr($key).'" value="'.attr($value).'"/>'."\n";
 }
 ?>
 <input type="hidden" id="confirm" name="confirm" value="1"/>
