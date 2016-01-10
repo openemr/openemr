@@ -157,7 +157,7 @@ function sql_checksum_of_modified_row($statement)
     /* Identifying the id for insert/replace statements for calculating the checksum */
         if((strcasecmp($tokens[0],"INSERT")==0) || (strcasecmp($tokens[0],"REPLACE")==0)){
         $table = $tokens[2];
-        $rid = mysql_insert_id($GLOBALS['dbh']);
+        $rid = generic_sql_insert_id();
 	/* For handling the table that doesn't have auto-increment column */
         if ($rid === 0 || $rid === FALSE) {
           if($table == "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map")

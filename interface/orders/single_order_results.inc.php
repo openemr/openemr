@@ -61,7 +61,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   $report_id      = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
   $procedure_code = empty($row['procedure_code'  ]) ? '' : $row['procedure_code'];
   $procedure_name = empty($row['procedure_name'  ]) ? '' : $row['procedure_name'];
-  $date_report    = empty($row['date_report'     ]) ? '' : $row['date_report'];
+  $date_report    = empty($row['date_report'     ]) ? '' : substr($row['date_report'], 0, 16);
   $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
   $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
   $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status']; 
@@ -155,7 +155,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
   // If this starts a new report or a new order, generate the report fields.
   if ($report_id != $ctx['lastprid']) {
     echo "  <td>";
-    echo myCellText(oeFormatShortDate($date_report));
+    echo myCellText(oeFormatShortDate(substr($date_report, 0, 10)) . substr($date_report, 10));
     echo "</td>\n";
 
     echo "  <td>";
@@ -378,7 +378,7 @@ function educlick(codetype, codevalue) {
  <tr bgcolor='#cccccc'>
   <td nowrap><?php echo xlt('Lab'); ?></td>
   <td><?php echo myCellText($orow['labname']); ?></td>
-  <td nowrap><?php echo xlt('Specimen Type'); ?></td>
+  <td nowrap><?php echo $orow['specimen_type'] ? xlt('Specimen Type') : '&nbsp;'; ?></td>
   <td><?php echo myCellText($orow['specimen_type']); ?></td>
  </tr>
 </table>

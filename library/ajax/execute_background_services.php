@@ -122,7 +122,7 @@ function execute_background_service_calls() {
     $sql='UPDATE background_services SET running = 1, next_run = NOW()+ INTERVAL ?'
 	. ' MINUTE WHERE running < 1 ' . ($force ? '' : 'AND NOW() > next_run ') . 'AND name = ?';
     if(sqlStatementNoLog($sql,array($interval,$service_name))===FALSE) continue;
-    $acquiredLock =  mysql_affected_rows($GLOBALS['dbh']);
+    $acquiredLock =  generic_sql_affected_rows();
     if($acquiredLock<1) continue; //service is already running or not due yet
 
     if ($service['require_once'])

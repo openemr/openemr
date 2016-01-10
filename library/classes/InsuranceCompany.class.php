@@ -289,7 +289,7 @@ class InsuranceCompany extends ORDataObject{
 		$pharmacy_array = array();
 		$sql = "Select p.id, p.name, a.city, a.state from " . $this->_table ." as p INNER JOIN addresses as a on  p.id = a.foreign_id";
 		$res = sqlQ($sql);
-		while ($row = mysql_fetch_array($res) ) {
+		while ($row = sqlFetchArray($res) ) {
 				$d_string = $row['city'];
 				if (!empty($row['city']) && $row['state']) {
 					$d_string .= ", ";
@@ -315,7 +315,7 @@ class InsuranceCompany extends ORDataObject{
 		$results = sqlQ($sql);
 		//echo "sql: $sql";
 		//print_r($results);
-		while($row = mysql_fetch_array($results) ) {
+		while($row = sqlFetchArray($results) ) {
 				$icompanies[] = new InsuranceCompany($row['id']);
 		}
 		return $icompanies;

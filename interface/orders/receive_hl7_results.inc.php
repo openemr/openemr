@@ -58,19 +58,27 @@ function rhl7InsertRow(&$arr, $tablename) {
   return sqlInsert($query, $binds);
 }
 
-function rhl7FlushResult(&$ares) {
-  return rhl7InsertRow($ares, 'procedure_result');
-}
+// Write all of the accumulated reports and their results.
+function rhl7FlushMain(&$amain) {
+  // echo "<!--\n";   // debugging
+  // print_r($amain); // debugging
+  // echo " -->\n";   // debugging
 
-function rhl7FlushReport(&$arep) {
-  return rhl7InsertRow($arep, 'procedure_report');
+  foreach ($amain as $arr) {
+    $procedure_report_id = rhl7InsertRow($arr['rep'], 'procedure_report');
+    foreach ($arr['res'] as $ares) {
+      $ares['procedure_report_id'] = $procedure_report_id;
+      // obxkey was used to identify parent results but is not stored.
+      unset($ares['obxkey']);
+      rhl7InsertRow($ares, 'procedure_result');
+    }
+  }
 }
 
 // Write the MDM document if appropriate.
 //
 function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider) {
-  global $dryrun;
-  if ($patient_id && !$dryrun) {
+  if ($patient_id) {
     if (!empty($mdm_docname)) $mdm_docname .= '_';
     $mdm_docname .= preg_replace('/[^0-9]/', '', $mdm_datetime);
     $filename = $mdm_docname . '.txt';
@@ -105,11 +113,13 @@ function rhl7DateTime($s) {
   $s = preg_replace('/[^0-9]/', '', $s);
   if (empty($s)) return '0000-00-00 00:00:00';
   $ret = substr($s, 0, 4) . '-' . substr($s, 4, 2) . '-' . substr($s, 6, 2);
-  if (strlen($s) > 8) $ret .= ' ' . substr($s, 8, 2) . ':' . substr($s, 10, 2) . ':';
-  if (strlen($s) > 12) {
-    $ret .= substr($s, 12, 2);
-  } else {
-    $ret .= '00';
+  if (strlen($s) > 8) {
+    $ret .= ' ' . substr($s, 8, 2) . ':' . substr($s, 10, 2) . ':';
+    if (strlen($s) > 12) {
+      $ret .= substr($s, 12, 2);
+    } else {
+      $ret .= '00';
+    }
   }
   return $ret;
 }
@@ -195,31 +205,26 @@ function rhl7CWE($s, $componentdelimiter) {
  * Parse the SPM segment and get the specimen display name and update the table.
  *
  * @param  string  $specimen  Encoding type from SPM.
- * @param  int  &procedure_report_id   ID from the procedure_report table.
  */
-function rhl7UpdateReportWithSpecimen($specimen, $procedure_report_id, $componentdelimiter) {
-  $specimen_display = null;
-  $specimen_condition =  null;
-  $specimen_reject_reason = null;
+function rhl7UpdateReportWithSpecimen(&$amain, $specimen, $d2) {
+  $specimen_display = '';
 
   // SPM4: Specimen Type: Example: 119297000^BLD^SCT^BldSpc^Blood^99USA^^^Blood Specimen
-  $specimen_display = rhl7CWE($specimen[4], $componentdelimiter);
+  $specimen_display = rhl7CWE($specimen[4], $d2);
 
   $tmpnotes = xl('Specimen type') . ': ' . $specimen_display;
-  $tmp = rhl7CWE($specimen[21], $componentdelimiter);
+  $tmp = rhl7CWE($specimen[21], $d2);
   if ($tmp) {
     $tmpnotes .= '; ' . xl('Rejected') . ': ' . $tmp;
   }
-  $tmp = rhl7CWE($specimen[24], $componentdelimiter);
+  $tmp = rhl7CWE($specimen[24], $d2);
   if ($tmp) {
     $tmpnotes .= '; ' . xl('Condition') . ': ' . $tmp;
   }
-  $report_notes = rhl7Text($tmpnotes) . "\n";
 
-  sqlStatement("UPDATE procedure_report SET " .
-    "specimen_num = ?, report_notes = CONCAT(report_notes, ?) WHERE " .
-    "procedure_report_id = ?",
-    array($specimen_display, $report_notes, $procedure_report_id)); 
+  $alast = count($amain) - 1;
+  $amain[$alast]['rep']['specimen_num'] = $specimen_display;
+  $amain[$alast]['rep']['report_notes'] .= rhl7Text($tmpnotes) . "\n";
 }
 
 /**
@@ -233,50 +238,40 @@ function rhl7UpdateReportWithSpecimen($specimen, $procedure_report_id, $componen
 function getPerformingOrganizationDetails($obx23, $obx24, $obx25, $componentdelimiter, $commentdelim) {
   $s = null;
 
-
   if ( !empty($obx24) || !empty($obx24) || !empty($obx25) )
-  {  
+  {
+    // Organization Name
+    // OBX23 Example: "Century Hospital^^^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^XX^^^987"
+    $obx23_segs = explode($componentdelimiter, $obx23);
+    if ( !empty($obx23_segs[0]) )
+    {
+      $s .= $obx23_segs[0] . $commentdelim;
+    }
 
-      // Organization Name
-      // OBX23 Example: "Century Hospital^^^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^XX^^^987"
-      $obx23_segs = explode($componentdelimiter, $obx23);
-	  if ( !empty($obx23_segs[0]) )
-	  {
-		  $s .= $obx23_segs[0] . $commentdelim;
-	  }
+    // Medical Director
+    // OBX25 Example: "2343242^Knowsalot^Phil^J.^III^Dr.^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^L^^^DNSPM"
+    //             Dr. Phil Knowsalot J. III
+    if ( !empty($obx25) )
+    {
+      $obx25_segs = explode($componentdelimiter, $obx25);
+      $s .= "$obx25_segs[5] $obx25_segs[2] $obx25_segs[1] $obx25_segs[3] $obx25_segs[4]" . $commentdelim;
+    }
 
-       // Medical Director
-  	  // OBX25 Example: "2343242^Knowsalot^Phil^J.^III^Dr.^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^L^^^DNSPM"
-      //             Dr. Phil Knowsalot J. III
-	  if ( !empty($obx25) )
-	  {
-		  $obx25_segs = explode($componentdelimiter, $obx25);
-
-		  $s .= "$obx25_segs[5] $obx25_segs[2] $obx25_segs[1] $obx25_segs[3] $obx25_segs[4]" . $commentdelim;
-	  }
-	  
-	  
-      // Organization Address
-	  // OBX24 Example: "2070 Test Park^^Los Angeles^CA^90067^USA^B^^06037"
-	  if ( !empty($obx24) )
-	  {
-		  $obx24_segs = explode($componentdelimiter, $obx24);
-
-		  //$s .= "$obx24_segs[0] $obx24_segs[1], $obx24_segs[2], $obx24_segs[3], $obx24_segs[4], $obx24_segs[5]" . $commentdelim;
-		  $s .= "$obx24_segs[0]$commentdelim$obx24_segs[2], $obx24_segs[3] $obx24_segs[4]$commentdelim$obx24_segs[5]$commentdelim";
-		  if ( !empty($obx24_segs[8]) )
-		  {
-		    $s .= "County/Parish Code: $obx24_segs[8]$commentdelim";
-		  }
-	  }
-	  
-
+    // Organization Address
+    // OBX24 Example: "2070 Test Park^^Los Angeles^CA^90067^USA^B^^06037"
+    if ( !empty($obx24) )
+    {
+      $obx24_segs = explode($componentdelimiter, $obx24);
+      //$s .= "$obx24_segs[0] $obx24_segs[1], $obx24_segs[2], $obx24_segs[3], $obx24_segs[4], $obx24_segs[5]" . $commentdelim;
+      $s .= "$obx24_segs[0]$commentdelim$obx24_segs[2], $obx24_segs[3] $obx24_segs[4]$commentdelim$obx24_segs[5]$commentdelim";
+      if ( !empty($obx24_segs[8]) )
+      {
+        $s .= "County/Parish Code: $obx24_segs[8]$commentdelim";
+      }
+    }
   }
-  
   return $s;
 }
-
-
 
 /**
  * Look for a patient matching the given data.
@@ -403,10 +398,22 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
     return rhl7LogMsg(xl('Input does not begin with a MSH segment'), true);
   }
 
-  // End-of-line delimiter for text in procedure_result.comments
+  // This array holds everything to be written to the database.
+  // We save and postpone these writes in case of errors while processing the message,
+  // so we can look up data from parent results when child results are encountered,
+  // and for other logic simplification.
+  // Each element of this array is another array containing the following possible keys:
+  // 'rep' - row of data to write to procedure_report
+  // 'res' - array of rows to write to procedure_result for this procedure_report
+  // 'fid' - unique lab-provided identifier for this report
+  //
+  $amain = array();
+
+  // End-of-line delimiter for text in procedure_result.comments and other multi-line notes.
+  $commentdelim = "\n";
+
   // Ensoftek: Different labs seem to send different EOLs. Edit HL7 input to a character we know.
-  $commentdelim = "\r";
-  $hl7 = (string)str_replace(array("\r\n", "\r", "\n"), $commentdelim, $hl7);
+  $hl7 = (string)str_replace(array("\r\n", "\r", "\n"), "\r", $hl7);
 
   $today = time();
 
@@ -423,9 +430,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
   $porow = false;
   $pcrow = false;
   $oprow = false;
-  $procedure_report_id = 0;
-  $arep = array(); // holding area for OBR and its NTE data
-  $ares = array(); // holding area for OBX and its NTE data
+
   $code_seq_array = array(); // tracks sequence numbers of order codes
   $results_category_id = 0;  // document category ID for lab results
 
@@ -442,10 +447,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
   $mdm_text = '';
 
   // Delimiters
-  $d0 = $commentdelim; // Ensoftek: Convert all EOLs to \r, so we don't have to deal with inconsistencies.
+  $d0 = "\r";
   $d1 = substr($hl7, 3, 1); // typically |
   $d2 = substr($hl7, 4, 1); // typically ^
   $d3 = substr($hl7, 5, 1); // typically ~
+  $d4 = substr($hl7, 6, 1); // typically \
+  $d5 = substr($hl7, 7, 1); // typically &
 
   // We'll need the document category IDs for any embedded documents.
   $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?",
@@ -473,23 +480,21 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
     $a = explode($d1, $seg);
 
     if ($a[0] == 'MSH') {
-      // The following 2 cases happen only for multiple MSH segments in the same file.
-      // But that probably shouldn't happen anyway?
-      if ('ORU' == $msgtype && !$dryrun) {
-        rhl7FlushResult($ares);
-        rhl7FlushReport($arep);
-        $ares = array();
-        $arep = array();
+      if (!$dryrun) {
+        rhl7FlushMain($amain);
       }
+      $amain = array();
+
       if ('MDM' == $msgtype && !$dryrun) {
         $rc = rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id,
           $oprow ? $oprow['username'] : 0);
         if ($rc) return rhl7LogMsg($rc);
         $patient_id = 0;
       }
+
       $context = $a[0];
       // Ensoftek: Could come is as 'ORU^R01^ORU_R01'. Handle all cases when 'ORU^R01' is seen.
-	  if (strstr($a[8], "ORU^R01")){ 
+      if (strstr($a[8], "ORU^R01")) { 
         $msgtype = 'ORU';
       }
       else if ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
@@ -506,18 +511,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
 
     else if ($a[0] == 'PID') {
       $context = $a[0];
-      if ('ORU' == $msgtype && !$dryrun) {
-        // Note these calls do nothing if the passed array is empty.
-        rhl7FlushResult($ares);
-        rhl7FlushReport($arep);
-      }
+
       if ('MDM' == $msgtype && !$dryrun) {
         $rc = rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id,
           $oprow ? $oprow['username'] : 0);
         if ($rc) return rhl7LogMsg($rc);
       }
-      $ares = array();
-      $arep = array();
+
       $porow = false;
       $pcrow = false;
       $oprow = false;
@@ -527,11 +527,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       $tmp = explode($d2, $a[5]);
       $in_lname = rhl7Text($tmp[0]);
       $in_fname = rhl7Text($tmp[1]);
+      $in_mname = rhl7Text($tmp[2]);
       $patient_id = 0;
       // Patient matching is needed for a results-only interface or MDM message type.
       if ('R' == $direction || 'MDM' == $msgtype) {
         $ptarr = array('ss' => strtoupper($in_ss), 'fname' => strtoupper($in_fname),
-          'lname' => strtoupper($in_lname), 'DOB' => strtoupper($in_dob));
+          'lname' => strtoupper($in_lname), 'mname' => strtoupper($in_mname),
+          'DOB' => strtoupper($in_dob));
         $patient_id = match_patient($ptarr);
         if ($patient_id == -1) {
           // Result is indeterminate.
@@ -583,10 +585,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
 
     else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
       $context = $a[0];
-      if (!$dryrun) rhl7FlushResult($ares);
       $ares = array();
-      // Next line will do something only if there was a report with no results.
-      if (!$dryrun) rhl7FlushReport($arep);
       $arep = array();
       $porow = false;
       $pcrow = false;
@@ -605,12 +604,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
 
     else if ('OBR' == $a[0] && 'ORU' == $msgtype) {
       $context = $a[0];
-      if (!$dryrun) rhl7FlushResult($ares);
-      $ares = array();
-      // Next line will do something only if there was a report with no results.
-      if (!$dryrun) rhl7FlushReport($arep);
       $arep = array();
-      $procedure_report_id = 0;
       if ($direction != 'R' && $a[2]) {
         $in_orderid = intval($a[2]);
         $porow = false;
@@ -620,11 +614,42 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       $in_procedure_code = $tmp[0];
       $in_procedure_name = $tmp[1];
       $in_report_status = rhl7ReportStatus($a[25]);
-      //
+
+      // Filler identifier is supposed to be unique for each incoming report.
+      $in_filler_id = $a[3];
+      // Child results will have these pointers to their parent.
+      $in_parent_obrkey = '';
+      $in_parent_obxkey = '';
+      $parent_arep = false; // parent report, if any
+      $parent_ares = false; // parent result, if any
+      if (!empty($a[29])) {
+        // This is a child so there should be a parent.
+        $tmp = explode($d2, $a[29]);
+        $in_parent_obrkey = str_replace($d5, $d2, $tmp[1]);
+        $tmp = explode($d2, $a[26]);
+        $in_parent_obxkey = str_replace($d5, $d2, $tmp[0]) . $d1 . $tmp[1];
+        // Look for the parent report.
+        foreach ($amain as $arr) {
+          if (isset($arr['fid']) && $arr['fid'] == $in_parent_obrkey) {
+            $parent_arep = $arr['rep'];
+            // Now look for the parent result within that report.
+            foreach ($arr['res'] as $tmpres) {
+              if (isset($tmpres['obxkey']) && $tmpres['obxkey'] == $in_parent_obxkey) {
+                $parent_ares = $tmpres;
+                break;
+              }
+            }
+            break;
+          }
+        }
+      }
+
+      if ($parent_arep) {
+        $in_orderid = $parent_arep['procedure_order_id'];
+      }
+
       if ($direction == 'R') {
-        // $in_orderid will be 0 here.
         // Save their order ID to procedure_order.control_id.
-        // That column will need to change from bigint to varchar.
         // Look for an existing order using that plus lab_id.
         // Ordering provider is OBR.16 (NPI^Last^First).
         // Might not need to create a dummy encounter.
@@ -635,7 +660,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
 
         $external_order_id = empty($a[2]) ? $a[3] : $a[2];
         $porow = false;
-        if ($external_order_id) {
+
+        if (!$in_orderid && $external_order_id) {
           $porow = sqlQuery("SELECT * FROM procedure_order " .
             "WHERE lab_id = ? AND control_id = ? " .
             "ORDER BY procedure_order_id DESC LIMIT 1",
@@ -644,7 +670,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
         if (!empty($porow)) {
           $in_orderid = intval($porow['procedure_order_id']);
         }
-        else {
+
+        if (!$in_orderid) {
           // Create order.
           // Need to identify the ordering provider and, if possible, a recent encounter.
           $datetime_report = rhl7DateTime($a[22]);
@@ -756,24 +783,38 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       $arep['procedure_order_id'] = $in_orderid;
       $arep['procedure_order_seq'] = $pcrow['procedure_order_seq'];
       $arep['date_collected'] = rhl7DateTime($a[7]);
-      $arep['date_report'] = rhl7Date($a[22]);
+      $arep['date_report'] = rhl7DateTime($a[22]);
       $arep['report_status'] = $in_report_status;
       $arep['report_notes'] = '';
+      $arep['specimen_num'] = '';
+
+      // If this is a child report, add some info from the parent.
+      if (!empty($parent_ares)) {
+        $arep['report_notes'] .= xl('This is a child of result') . ' ' .
+          $parent_ares['result_code'] . ' ' . xl('with value') . ' "' .
+          $parent_ares['result'] . '".' . "\n";
+      }
+      if (!empty($parent_arep)) {
+        $arep['report_notes'] .= $parent_arep['report_notes'];
+        $arep['specimen_num']  = $parent_arep['specimen_num'];
+      }
+
+      // Create the main array entry for this report and its results.
+      $i = count($amain);
+      $amain[$i] = array();
+      $amain[$i]['rep'] = $arep;
+      $amain[$i]['fid'] = $in_filler_id;
+      $amain[$i]['res'] = array();
     }
 
     else if ($a[0] == 'NTE' && $context == 'OBR') {
-      $arep['report_notes'] .= rhl7Text($a[3]) . "\n";
+      // Append this note to those for the most recent report.
+      $amain[count($amain)-1]['rep']['report_notes'] .= rhl7Text($a[3]) . "\n";
     }
 
     else if ('OBX' == $a[0] && 'ORU' == $msgtype) {
       $context = $a[0];
-      if (!$dryrun) rhl7FlushResult($ares);
       $ares = array();
-      if (!$procedure_report_id) {
-        if (!$dryrun) $procedure_report_id = rhl7FlushReport($arep);
-        $arep = array();
-      }
-      $ares['procedure_report_id'] = $procedure_report_id;
       $ares['result_data_type'] = substr($a[2], 0, 1); // N, S, F or E
       $ares['comments'] = $commentdelim;
       if ($a[2] == 'ED') {
@@ -794,6 +835,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
           $ares['document_id'] = $d->get_id();
         }
       }
+      else if ($a[2] == 'CWE') {
+        $ares['result'] = rhl7CWE($a[5], $d2);
+      }
+      else if ($a[2] == 'SN') {
+        $ares['result'] = trim(str_replace($d2, ' ', $a[5]));
+      }
       else if (strlen($a[5]) > 200) {
         // OBX-5 can be a very long string of text with "~" as line separators.
         // The first line of comments is reserved for such things.
@@ -809,20 +856,32 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
       $ares['result_text'] = rhl7Text($tmp[1]);
       $ares['date'] = rhl7DateTime($a[14]);
       $ares['facility'] = rhl7Text($a[15]);
- 	  // Ensoftek: Units may have mutiple segments(as seen in MU2 samples), parse and take just first segment.
-	  $tmp = explode($d2, $a[6]);
-	  $ares['units'] = rhl7Text($tmp[0]);
+      // Ensoftek: Units may have mutiple segments(as seen in MU2 samples), parse and take just first segment.
+      $tmp = explode($d2, $a[6]);
+      $ares['units'] = rhl7Text($tmp[0]);
       $ares['range'] = rhl7Text($a[7]);
       $ares['abnormal'] = rhl7Abnormal($a[8]); // values are lab dependent
       $ares['result_status'] = rhl7ReportStatus($a[11]);
-	  
-	  // Ensoftek: Performing Organization Details. Goes into "Pending Review/Patient Results--->Notes--->Facility" section.
-	  $performingOrganization = getPerformingOrganizationDetails($a[23], $a[24], $a[25], $d2, $commentdelim);
-	  if ( isset($performingOrganization) )
-	  {
-		     $ares['facility'] .= $performingOrganization . $commentdelim;		
-	  }
-	  
+
+      // Ensoftek: Performing Organization Details. Goes into "Pending Review/Patient Results--->Notes--->Facility" section.
+      $performingOrganization = getPerformingOrganizationDetails($a[23], $a[24], $a[25], $d2, $commentdelim);
+      if (!empty($performingOrganization)) {
+        $ares['facility'] .= $performingOrganization . $commentdelim;		
+      }
+
+      /****
+      // Probably need a better way to report this, if it matters.
+      if (!empty($a[19])) {
+        $ares['comments'] .= xl('Analyzed') . ' ' . rhl7DateTime($a[19]) . '.' . $commentdelim;
+      }
+      ****/
+
+      // obxkey is to allow matching this as a parent result.
+      $ares['obxkey'] = $a[3] . $d1 . $a[4];
+
+      // Append this result to those for the most recent report.
+      // Note the 'procedure_report_id' item is not yet present.
+      $amain[count($amain)-1]['res'][] = $ares;
     }
 
     else if ('OBX' == $a[0] && 'MDM' == $msgtype) {
@@ -839,13 +898,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
     else if ('ZEF' == $a[0] && 'ORU' == $msgtype) {
       // ZEF segment is treated like an OBX with an embedded Base64-encoded PDF.
       $context = 'OBX';
-      if (!$dryrun) rhl7FlushResult($ares);
       $ares = array();
-      if (!$procedure_report_id) {
-        if (!$dryrun) $procedure_report_id = rhl7FlushReport($arep);
-        $arep = array();
-      }
-      $ares['procedure_report_id'] = $procedure_report_id;
       $ares['result_data_type'] = 'E';
       $ares['comments'] = $commentdelim;
       //
@@ -861,22 +914,22 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
         $ares['document_id'] = $d->get_id();
       }
       $ares['date'] = $arep['date_report'];
+      // Append this result to those for the most recent report.
+      // Note the 'procedure_report_id' item is not yet present.
+      $amain[count($amain)-1]['res'][] = $ares;
     }
 
     else if ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
-      $ares['comments'] .= rhl7Text($a[3]) . $commentdelim;
+      // Append this note to the most recent result item's comments.
+      $alast = count($amain) - 1;
+      $rlast = count($amain[$alast]['res']) - 1;
+      $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3]) . $commentdelim;
     }
 
     // Ensoftek: Get data from SPM segment for specimen.
     // SPM segment always occurs after the OBX segment.
     else if ('SPM' == $a[0] && 'ORU' == $msgtype) {
-      if (!$dryrun) rhl7FlushResult($ares);
-      $ares = array();
-      if (!$procedure_report_id) {
-        if (!$dryrun) $procedure_report_id = rhl7FlushReport($arep);
-        $arep = array();
-      }
-      rhl7UpdateReportWithSpecimen($a, $procedure_report_id, $d2);
+      rhl7UpdateReportWithSpecimen($amain, $a, $d2);
     }
 
     // Add code here for any other segment types that may be present.
@@ -891,13 +944,14 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryr
     }
   }
 
+  // Write all reports and their results to the database.
+  // This will do nothing if a dry run or MDM message type.
   if ('ORU' == $msgtype && !$dryrun) {
-    rhl7FlushResult($ares);
-    // Next line does something only for a report with no results.
-    rhl7FlushReport($arep);
+    rhl7FlushMain($amain);
   }
 
   if ('MDM' == $msgtype && !$dryrun) {
+    // Write documents.
     $rc = rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id,
       $oprow ? $oprow['username'] : 0);
     if ($rc) return rhl7LogMsg($rc);

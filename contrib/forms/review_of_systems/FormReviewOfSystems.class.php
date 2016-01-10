@@ -78,7 +78,7 @@ class FormReviewOfSystems extends ORDataObject {
 		$sql = "SELECT name from form_review_of_systems_checks where foreign_id = '" . add_escape_custom($this->id) . "'";
 		$results = sqlQ($sql);
 
-		while ($row = mysql_fetch_array($results, MYSQL_ASSOC)) {
+		while ($row = sqlFetchArray($results)) {
 			$this->checks[] = $row['name'];	
 		}
 					

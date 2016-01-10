@@ -79,7 +79,7 @@ class FormHpTjePrimary extends ORDataObject {
 		$sql = "SELECT name from form_hp_tje_checks where foreign_id = '" . add_escape_custom($this->id) . "'";
 		$results = sqlQ($sql);
 
-		while ($row = mysql_fetch_array($results, MYSQL_ASSOC)) {
+		while ($row = sqlFetchArray($results)) {
 			$this->checks[] = $row['name'];	
 		}
 		
@@ -87,14 +87,14 @@ class FormHpTjePrimary extends ORDataObject {
 		$sql = "SELECT doctor,specialty,tx_rendered,effectiveness,date from form_hp_tje_history where foreign_id = '" . add_escape_custom($this->id) . "'";
 		$results = sqlQ($sql);
 
-		while ($row = mysql_fetch_array($results, MYSQL_ASSOC)) {
+		while ($row = sqlFetchArray($results)) {
 			$this->history[] = $row;	
 		}
 		
 		$sql = "SELECT nature_of_accident,injuries,date from form_hp_tje_previous_accidents where foreign_id = '" . add_escape_custom($this->id) . "'";
 		$results = sqlQ($sql);
 
-		while ($row = mysql_fetch_array($results, MYSQL_ASSOC)) {
+		while ($row = sqlFetchArray($results)) {
 			$this->previous_accidents[] = $row;	
 		}
 		

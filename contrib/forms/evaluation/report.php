@@ -9,7 +9,7 @@ $data = formFetch("form_evaluation", $id);
 $sql = "SELECT name from form_evaluation_checks where foreign_id = '" . add_escape_custom($id) . "'";
 $results = sqlQ($sql);
 $data2 = array();
-while ($row = mysql_fetch_array($results, MYSQL_ASSOC)) {
+while ($row = sqlFetchArray($results)) {
 	$data2[] = $row['name'];
 }
 $data = array_merge($data,$data2);	

@@ -1280,7 +1280,7 @@ function searchName($string) { //match one or more names and return clause for q
   if ($name2 != '') {$name1 = "%".$name2."%";}
   $query = sqlStatement("select pid from patient_data where fname like '$name1' or fname like '$name2' or " .
     "lname like '$name1' or lname like '$name2' limit $limit");
-  while ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
+  while ($results = sqlFetchArray($query)) {
     array_push($data,$results['pid']);
   }
   if (count($data) > 0) {
@@ -1302,7 +1302,7 @@ function getMyPatientData($form_id, $show_phone_flag) {//return a string of pati
     "datediff(current_date(),t2.date) as days " .
     "from patient_data as t1 join forms as t2 on (t1.pid = t2.pid) where t2.form_id=$form_id " .
     "and form_name like 'CAMOS%'");
-  if ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
+  if ($results = sqlFetchArray($query)) {
     $pid = $results['pid'];
     $fname = $results['fname'];
     $mname = $results['mname'];
