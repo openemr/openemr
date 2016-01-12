@@ -310,7 +310,7 @@ $GLOBALS_METADATA = array(
       '0',                              // default
       xl('Special treatment for the Vitals form')
     ),
-
+    
   ),
 
   // Locale Tab
@@ -960,6 +960,7 @@ $GLOBALS_METADATA = array(
   ),
     //Documents Tab
     'Documents' => array(
+
         'document_storage_method' => array(
             xl('Document Storage Method'),
             array(
@@ -1005,6 +1006,13 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable log for document uploads/downloads to CouchDB'),
         ),
+
+    'expand_document_tree' => array(
+      xl('Expand All Document Categories'),
+      'bool',                           // data type
+      '0',                              // default = false
+      xl('Expand All Document Categories by Default')
+    ),
 
     'patient_id_category_name' => array(
       xl('Patient ID Category Name'),

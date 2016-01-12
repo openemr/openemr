@@ -10,7 +10,14 @@
 <script src="DocumentTreeMenu.js" language="JavaScript" type="text/javascript"></script>
 </head>
 <!--<body bgcolor="{$STYLE.BGCOLOR2}">-->
-<body class="body_top">
+
+<!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
+{php} if ($GLOBALS['expand_document_tree']) {  {/php}
+  <body class="body_top" onload="javascript:objTreeMenu_1.expandAll();return false;">
+{php} } else { {/php}
+  <body class="body_top">
+{php} } {/php}
+
 <div class="title">{xl t='Documents'}</div>
 <div id="documents_list">
 <table>
