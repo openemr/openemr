@@ -65,13 +65,13 @@ function showhideMenu() {
     
 	if (m.style.width == targetWidth+"px"){
 		m.style.width = '150';
-        n.style.width = '90.29%';
+        n.style.paddingLeft  = '142px';
 		showMenuLink.innerHTML = '<?php echo htmlspecialchars( xl('Hide Menu'), ENT_QUOTES); ?>';
 		showMenuLink.setAttribute('class', '');
         
 	}else {
 		m.style.width = targetWidth;
-        n.style.width = '99.80%';
+        n.style.paddingLeft = '0';
 		showMenuLink.innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
 		showMenuLink.setAttribute('class', 'active');
 	}
@@ -126,7 +126,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <td align="right" class="top-secondary-nav">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
-		<td align="right" class="text" style="vertical-align:text-bottom;"><span class="css_button_link"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
+		<td align="right" class="text" style="vertical-align:text-bottom;"><span class="css_button_link"><a href='main_title.php' onclick="javascript:parent.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		<span class="css_button_separator">&nbsp;|&nbsp;</span>
 		<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.0_Users_Guide" target="_blank" id="help_link" >
 			<?php xl('Manual','e'); ?></a></span>&nbsp;</td>

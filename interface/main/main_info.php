@@ -96,7 +96,7 @@ else {
 ?>
 
 framesrc += ' src="<?php echo $framesrc; ?>';
-framesrc += '&framewidth='+x+'" style="width: 100%; height: 430px; display: table;"  name="Calendar" scrolling="auto" frameborder="YES">';
+framesrc += '&framewidth='+x+'" style="width: 100%; height: 100vh; display: table;" id="calandarIframe"  name="Calendar" scrolling="auto" frameborder="YES">';
 
 </script>
 <!-- END (CHEMED) -->
@@ -116,5 +116,4 @@ framesrc += '&framewidth='+x+'" style="width: 100%; height: 430px; display: tabl
 <noframes><body bgcolor="#FFFFFF">
 <?php echo xlt('Frame support required'); ?>
 </body></noframes>
-
 </HTML>

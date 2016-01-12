@@ -438,6 +438,7 @@ function genFindBlock() {
      
  var iframeTop = parent.document.getElementById('RTop');
  var iframeBot = parent.document.getElementById('RBot');
+// var iframeInnerCalandar = parent.document.getElementById('calandarIframe');
      
      
      
@@ -449,9 +450,33 @@ function genFindBlock() {
   }
      
 //     var height= f.cb_top.check true ? '0': '500px';
-
-    iframeTop.style.display = (f.cb_top.checked)? "block": "none";
-    iframeBot.style.display = (f.cb_bot.checked)? "block": "none";
+//
+//    iframeTop.style.display = (f.cb_top.checked)? "block": "none";
+//    iframeBot.style.display = (f.cb_bot.checked)? "block": "none";
+     
+     if(f.cb_top.checked){
+         iframeTop.style.display = "block";
+//         iframeTop.style.height = "90vh";
+//         iframeBot.style.display: "none";
+//         iframeBot.style.height: "0";         
+     } 
+     else{
+        iframeTop.style.display = "none";
+     } 
+     if(f.cb_bot.checked){
+//         iframeTop.style.display = "none";
+         
+//         iframeBot.style.height="90vh";
+         iframeTop.style.height="0";
+         iframeBot.style.display="block";
+         
+         //console.log(iframeInnerCalandar);
+     }
+     else{
+        iframeBot.style.display="none";
+        iframeTop.style.height="90vh";
+//         iframeInnerCalandar.style.height="97vh";
+     }
 
  }
 

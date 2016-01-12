@@ -1,29 +1,50 @@
+<style>
+    a.active {
+        padding: 8px 25px !important;
+        top: -2px;
+        position: relative;
+        border-radius: 5px 5px 0 0 !important;
+    }
+</style>
+<div  class="patient-pills">
 <table cellspacing='0' cellpadding='0' border='0'>
  <tr>
   <td class="small" colspan='4'>
     <span class="css_button_link">
-    <a href="../summary/demographics_home.php" onclick='top.restoreSession()'>
-    <?php echo htmlspecialchars(xl('Home'),ENT_NOQUOTES); ?></a>
-    <span class="css_button_separator">|</span>
-    <a href="../history/history.php" onclick='top.restoreSession()'>
-    <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
-    <span class="css_button_separator">|</span>
-    <?php //note that we have temporarily removed report screen from the modal view ?>
-    <a href="../report/patient_report.php" onclick='top.restoreSession()'>
-    <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
-    <span class="css_button_separator">|</span>
-    <?php //note that we have temporarily removed document screen from the modal view ?>
-    <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
-    <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
-    <span class="css_button_separator">|</span>
-    <a href="../transaction/transactions.php" onclick='top.restoreSession()'>
-    <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
-    <span class="css_button_separator">|</span>
-    <a href="../summary/stats_full.php?active=all" onclick='top.restoreSession()'>
-    <?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
-    <span class="css_button_separator">|</span>
-    <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
-    <?php echo xlt('Ledger'); ?></a>
+        <a href="../summary/demographics_home.php?active=home" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='home')?'active':'no'; ?>">
+        <?php echo htmlspecialchars(xl('Home'),ENT_NOQUOTES);?></a>
+        
+        <span class="css_button_separator">|</span>
+        
+        <a href="../history/history.php?history" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='history')?'active':'no'; ?>">
+        <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
+        
+        <span class="css_button_separator">|</span>
+        
+        <?php //note that we have temporarily removed report screen from the modal view ?>
+        <a href="../report/patient_report.php?report" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='report')?'active':'no'; ?>">
+        <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
+        
+        <span class="css_button_separator">|</span>
+        
+        <?php //note that we have temporarily removed document screen from the modal view ?>
+        <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>&documents" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='documents')?'active':'no'; ?>">
+        <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
+        
+        <span class="css_button_separator">|</span>
+        
+        <a href="../transaction/transactions.php?transactions" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='transactions')?'active':'no'; ?>">
+        <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
+        
+        <span class="css_button_separator">|</span>
+        <a href="../summary/stats_full.php?active=all&active=Issues" onclick='top.restoreSession()' class="<?php echo ($_REQUEST['active']=='Issues')?'active':'no'; ?>">
+        <?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
+        
+        <span class="css_button_separator">|</span>
+        
+        <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>&active=ladger" onclick='top.restoreSession()' class="<?php echo ($_REQUEST['active']=='ladger')?'active':'no'; ?>">
+        <?php echo xlt('Ledger'); ?></a>
+        
     </span>
 
 <!-- DISPLAYING HOOKS STARTS HERE -->
@@ -67,3 +88,4 @@
  </tr>
  
 </table> 
+</div>    

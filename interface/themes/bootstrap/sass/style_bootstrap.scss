@@ -106,7 +106,9 @@ a:hover {
   color: #FF0000;
   text-decoration: none;
 }
-
+.top-nav{
+    background: #D0D1D2;
+}
 .small {
   text-decoration: none;
   color: #000000;
@@ -206,7 +208,7 @@ a:hover {
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
 $body-color: #fff;
-.body_top { background-color: $body-color; margin: 8px }    /* $top_bg_line */
+.body_top { background-color: $body-color; }    /* $top_bg_line */
 .bgcolor2 { background-color: #fefdcf; }    /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
 .body_title { background-color: $silverColor; overflow: hidden; padding: 0 !important;}  /* $title_bg_line */
@@ -1186,9 +1188,13 @@ li.current {
 }
 .tabNav li.active a,
 .tabNav li.active:focus a,
+.tabNav li.active:visited a,
 .tabNav li.active:hover a{    
-    color: #fff;
-    border-bottom: 3px solid #000 !important
+    color: #fff !important;
+    border-bottom: 3px solid #275E8E  !important;
+    padding-top: 12px;
+    margin-top: -4px;
+    
 }
 .search_init, input[type='text'], input[type='password'], input[type='entry']{
     @extend .form-control;
@@ -1881,4 +1887,11 @@ tr.search.no-bg input {
 }
 div.section {
     margin: 0 !important;
+}
+.patient-pills{
+    border-bottom: 2px solid #265a88;
+    padding-bottom: 3px;
+}
+.css_button_link a{
+    border-radius: 5px 5px 0 0 !important;
 }

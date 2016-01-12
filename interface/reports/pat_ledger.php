@@ -357,38 +357,46 @@ function sel_patient() {
   win.printLogSetup(document.getElementById('printbutton'));
  });
 </script>
-
+<style>
+    a.active {
+        padding: 8px 25px !important;
+        top: -2px;
+        position: relative;
+        border-radius: 5px 5px 0 0 !important;
+    }
+</style>
 </head>
 <body class="body_top">
     
 
 <p>&nbsp;</p>    
 <p>
+    <div  class="patient-pills">
     <table cellspacing='0' cellpadding='0' border='0'>
  <tr>
   <td class="small" colspan='4'>
     <span class="css_button_link">
-    <a href="../patient_file/summary/demographics_home.php" onclick='top.restoreSession()'>
+    <a href="../patient_file/summary/demographics_home.php?home" onclick='top.restoreSession()'>
     <?php echo htmlspecialchars(xl('Home'),ENT_NOQUOTES); ?></a>
     <span class="css_button_separator">|</span>    
-    <a href="../patient_file/history/history.php" onclick='top.restoreSession()'>
+    <a href="../patient_file/history/history.php?history" onclick='top.restoreSession()'>
     <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
     <span class="css_button_separator">|</span>
     <?php //note that we have temporarily removed report screen from the modal view ?>
-    <a href="../patient_file/report/patient_report.php" onclick='top.restoreSession()'>
+    <a href="../patient_file/report/patient_report.php?report" onclick='top.restoreSession()'>
     <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
     <span class="css_button_separator">|</span>
     <?php //note that we have temporarily removed document screen from the modal view ?>
-    <a href="../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
+    <a href="../../controller.php?document&list&patient_id=<?php echo $pid;?>&documents" onclick='top.restoreSession()'>
     <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
     <span class="css_button_separator">|</span>
-    <a href="../patient_file/transaction/transactions.php" onclick='top.restoreSession()'>
+    <a href="../patient_file/transaction/transactions.php?transactions" onclick='top.restoreSession()'>
     <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
     <span class="css_button_separator">|</span>
-    <a href="../patient_file/summary/stats_full.php?active=all" onclick='top.restoreSession()'>
+    <a href="../patient_file/summary/stats_full.php?active=all&active=Issues" onclick='top.restoreSession()'>
     <?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
     <span class="css_button_separator">|</span>
-    <a href="pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
+    <a href="pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>&active=ladger" onclick='top.restoreSession()' class="<?php echo ($_REQUEST['active']=='ladger')?'active':'no'; ?>">
     <?php echo xlt('Ledger'); ?></a>
     </span>
 
@@ -433,6 +441,7 @@ function sel_patient() {
  </tr>
  
 </table> 
+    </div>        
 </p>     
     
 <?php if($type_form == '0') { ?>

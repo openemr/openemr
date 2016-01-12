@@ -142,7 +142,7 @@ if ($GLOBALS['concurrent_layout']) {
     // not tall nav area ?>
     
 <!--<frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>-->
-<div style="height: <?php echo attr($GLOBALS['titleBarHeight']) + 18 ?>; border-bottom: 4px solid #999;" onunload='imclosing()'>
+<div style="height: <?php echo attr($GLOBALS['titleBarHeight']) + 18 ?>; border-bottom: 4px solid #999;" class="top-nav" onunload='imclosing()'>
     <!--    Top Bar-->
     <div style="zoom: 90%;">
         <?php include('main_title.php'); ?>
@@ -150,7 +150,14 @@ if ($GLOBALS['concurrent_layout']) {
     <!--    Top Bar-->
 <!--    <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />-->
         
-        <div style="width: <?php echo attr($nav_area_width); ?>; border-right: 3px solid #D0D0D0; border-top: 3px solid #999;float: left; overflow-y: auto; max-height: 90vh; padding-top: 10px;" id='fsbody'>
+        <div style="width: <?php echo attr($nav_area_width); ?>;
+    border-right: 3px solid #D0D0D0;
+    border-top: 3px solid #999;
+    overflow-y: auto;
+    padding-top: 10px;
+    position: absolute;
+    background: #EFF1EF;
+    max-height: 90vh;" id='fsbody'>
 <!--    <frameset cols='<?php //echo attr($nav_area_width); ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4'>-->
       
             <div style="width: 100%; padding-left: 5px; zoom: 90%;">
@@ -167,8 +174,9 @@ if ($GLOBALS['concurrent_layout']) {
         </div>
         <?php if (empty($GLOBALS['athletic_team'])) { ?>
         
-        <div class="main-section" id="mainSection" style="float: left;width: 90.29%;">
-            <div style="width: 100%; border: 1px solid #999;" id='fsright'>
+        <div class="main-section" id="mainSection" style="width: 100%;
+    padding-left: 142px;">
+            <div style="width: 100%;" id='fsright'>
             
             
             <!--          <frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1'>-->
@@ -180,8 +188,8 @@ if ($GLOBALS['concurrent_layout']) {
         <?php } ?>
                   
                   
-                  <iframe src='<?php echo $frame1url ?>' name='RTop' id="RTop" scrolling='auto' style="width: 100%; min-height: 450px; border-bottom: 3px solid #7D7C7C"></iframe>
-                  <iframe src='messages/messages.php?form_active=1'  id="RBot" name='RBot' style="width: 100%;min-height: 300px; overflow: auto;"></iframe>
+                  <iframe src='<?php echo $frame1url ?>' name='RTop' id="RTop" scrolling='auto' style="width: 100%; min-height: 450px; border-bottom: 3px solid #7D7C7C; padding-left: 10px; margin-top: 4px;"></iframe>
+                  <iframe src='messages/messages.php?form_active=1'  id="RBot" name='RBot' style="width: 100%;min-height: 350px; overflow: auto;padding-left: 20px;"></iframe>
                   <?php //include('messages/messages.php'); ?>
                     <!--<frame src='<?php //echo $frame1url ?>' name='RTop' scrolling='auto' />
                                <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' />-->
