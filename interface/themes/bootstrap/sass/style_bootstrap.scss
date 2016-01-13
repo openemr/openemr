@@ -1671,6 +1671,7 @@ input[type="textbox"]{
 .calendar thead .title{
     border: 1px solid darken($silverColor, 20%);
     background: $silverColor !important;
+    color: #000 !important;
 }
 .calendar .button,
 .rowhilite td{
@@ -1894,4 +1895,27 @@ div.section {
 }
 .css_button_link a{
     border-radius: 5px 5px 0 0 !important;
+}
+div#addressbook_list {
+    padding-top: 15px;
+}
+.rule_row {
+    padding-bottom: 13px !important;
+    margin-left: 15px;
+    padding-top: 13px;
+    border-bottom: 1px solid #C5CAC5 !important;
+    clear: both;
+    height: auto;
+}
+.rule_container .rule_row:first-child{
+    border-bottom: 0 !important;
+}
+.rule_type a{
+    @extend .btn-submit;
+    color: #fff;
+    padding:5px 25px !important;
+    border-radius: 5px !important;
+}
+.rule_type a:hover{
+    text-decoration: underline !important;
 }

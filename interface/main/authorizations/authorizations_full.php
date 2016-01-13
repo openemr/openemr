@@ -132,8 +132,11 @@ $authorize{$iter{"pid"}}{"forms"} .= "<span class=small>" .
 <table border=0 cellpadding=0 cellspacing=2 width=100%>
 <tr>
 <td valign=top>
-
+<script>
+alert('<pre>'.echo $_SESSION();.'</pre>');    
+</script>
 <?php
+
 if ($authorize) {
 
 while(list($ppid,$patient) = each($authorize)){

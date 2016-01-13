@@ -42,7 +42,7 @@
 </div>
 
 <!-- template -->
-<div class="rule_row data template">
+<div class="rule_row data template clearfix">
     <span class="rule_title"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></span>
     <span class="rule_type"><a href="index.php?action=detail!view" onclick="top.restoreSession()"></a></span>
 </div>
