@@ -673,7 +673,7 @@ function clearactive() {
 	  }
 	});
     
-	$(parent.Title.document.getElementById('clear_active')).hide();
+	$(parent.document.getElementById('clear_active')).hide();
 }
  // Reference to the search.php window.
  var my_window;
@@ -722,7 +722,7 @@ function clearactive() {
   setSomeContent(id, content, document);
  }
  function setTitleContent(id, content) {
-  setSomeContent(id, content, parent.Title.document);
+  setSomeContent(id, content, parent.document);
  }
 
  // This is called automatically when a new patient is set, to make sure
@@ -812,10 +812,11 @@ function clearactive() {
  // patient-specific information from the previous patient.  frname is the name
  // of the frame that the call came from, so we know to only reload content
  // from the *other* frame if it is patient-specific.
- function setPatient(pname, pid, pubpid, frname, str_dob) {
-  var str = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentPatientFromTitle()" title="PID = ' + pid + '"><b>' + pname + ' (' + pubpid + ')<br /></b></a>';
+ function setPatient(pname, pid, pubpid, frname, str_dob) {        
+  var str = '<a href=\'javascript:;\' onclick="parent.loadCurrentPatientFromTitle()" title="PID = ' + pid + '"><b>' + pname + ' (' + pubpid + ')<br /></b></a>';
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
+     
   if (pid == active_pid) return;
   setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
   active_pid = pid;
@@ -823,8 +824,8 @@ function clearactive() {
   encounter_locked = false;
   if (frname) reloadPatient(frname);
   syncRadios();
-  $(parent.Title.document.getElementById('current_patient_block')).show();
-  var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
+  $(parent.document.getElementById('current_patient_block')).show();
+  var encounter_block = $(parent.document.getElementById('current_encounter_block'));
   $(encounter_block).hide();
 
   // zero out the encounter frame, replace it with the encounter list frame
@@ -838,7 +839,7 @@ function clearactive() {
   }
 
   reloadIssues(pid);
-  $(parent.Title.document.getElementById('clear_active')).show();//To display Clear Active Patient button on selecting a patient
+  $(parent.document.getElementById('clear_active')).show();//To display Clear Active Patient button on selecting a patient
  }
  function setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray) {
  //This function lists all encounters of the patient.
@@ -853,8 +854,8 @@ function clearactive() {
     str+='<option value="'+EncounterIdArray[CountEncounter]+'~'+EncounterDateArray[CountEncounter]+'">'+EncounterDateArray[CountEncounter]+'-'+CalendarCategoryArray[CountEncounter]+'</option>';
    }
   str+='</Select>';
-  $(parent.Title.document.getElementById('past_encounter_block')).show();
-  top.window.parent.Title.document.getElementById('past_encounter').innerHTML=str;
+  $(parent.document.getElementById('past_encounter_block')).show();
+  top.window.parent.document.getElementById('past_encounter').innerHTML=str;
  }
 
 function loadCurrentPatientFromTitle() {
@@ -919,16 +920,16 @@ function isEncounterLocked( encounterId ) {
   encounter_locked=isEncounterLocked(active_encounter);
   reloadEncounter(frname);
   syncRadios();
-  var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
-  var encounter = $(parent.Title.document.getElementById('current_encounter'));
-  var estr = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentEncounterFromTitle()"><b>' + edate + ' (' + eid + ')</b></a>';
+  var encounter_block = $(parent.document.getElementById('current_encounter_block'));
+  var encounter = $(parent.document.getElementById('current_encounter'));
+  var estr = '<a href=\'javascript:;\' onclick="parent.loadCurrentEncounterFromTitle()"><b>' + edate + ' (' + eid + ')</b></a>';
   encounter.html( estr );
   encounter_block.show();
  }
 
  function loadCurrentEncounterFromTitle() {
       top.restoreSession();
-      top.frames[ parent.left_nav.getEncounterTargetFrame('enc') ].location='../patient_file/encounter/encounter_top.php';
+      top.frames[ parent.getEncounterTargetFrame('enc') ].location='../patient_file/encounter/encounter_top.php';
  }
 
  // You must call this if you delete the active patient (or if for any other
@@ -942,9 +943,9 @@ function isEncounterLocked( encounterId ) {
   active_encounter = 0;
   encounter_locked = false;
   setDivContent('current_patient', '<b><?php xl('None','e'); ?></b>');
-  $(parent.Title.document.getElementById('current_patient_block')).hide();
-  top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
-  $(parent.Title.document.getElementById('current_encounter_block')).hide();
+  $(parent.document.getElementById('current_patient_block')).hide();
+  top.window.parent.document.getElementById('past_encounter').innerHTML='';
+  $(parent.document.getElementById('current_encounter_block')).hide();
   reloadPatient('');
   syncRadios();
  }
@@ -955,7 +956,7 @@ function isEncounterLocked( encounterId ) {
  // stale content will be reloaded.
  function clearEncounter() {
   if (active_encounter == 0) return;
-  top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b>";
+  top.window.parent.document.getElementById('current_encounter').innerHTML="<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b>";
   active_encounter = 0;
   encounter_locked = false;
   reloadEncounter('');
@@ -963,7 +964,7 @@ function isEncounterLocked( encounterId ) {
  }
 function removeOptionSelected(EncounterId)
 {//Removes an item from the Encounter drop down.
-	var elSel = top.window.parent.Title.document.getElementById('EncounterHistory');
+	var elSel = top.window.parent.document.getElementById('EncounterHistory');
 	var i;
 	for (i = elSel.length - 1; i>=2; i--) {
 	 EncounterHistoryValue=elSel.options[i].value;

@@ -509,9 +509,9 @@ if ($taxline) {
    <?php if ($mode == "modify") { ?>
      <a href='javascript:submitModifyComplete();' class='link btn btn-small btn-green'>[<?php echo xlt('Update'); ?>]</a>
    <?php } else { ?>
-     <a href='javascript:submitUpdate();' class='link btn btn-small btn-green'>[<?php echo xlt('Update'); ?>]</a>
+     <a href='javascript:submitUpdate();' class='link btn btn-small btn-green'><?php echo xlt('Update'); ?></a>
      &nbsp;&nbsp;
-     <a  href='javascript:submitAdd();' class='link btn btn-small btn-green'>[<?php echo xlt('Add as New'); ?>]</a>
+     <a  href='javascript:submitAdd();' class='link btn btn-small btn-green'><?php echo xlt('Add as New'); ?></a>
    <?php } ?>
   </td>
  </tr>
