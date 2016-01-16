@@ -33,8 +33,9 @@ require_once("../../interface/globals.php");
 <div class="dialog"><p>
 <?php echo xlt("Steps to install the Snomed database"); ?>:
 <ol>
-<li><?php echo xlt("The first step is to open an account with the Unified Medical Language System web site"); ?> <b><a href="https://utslogin.nlm.nih.gov/cas/login"><?php echo xlt("here"); ?></a></b></li>
-<li><?php echo xlt("Then the raw data feed release can be obtained from"); ?> <b><a href="http://www.nlm.nih.gov/research/umls/licensedcontent/snomedctfiles.html"><?php echo xlt("this location"); ?></a></b>
+<li><?php echo xlt("The first step is to download the SNOMED CT release. Access to SNOMED CT is provided by IHTSDO and their member countries. For more information see") . 
+" <a href='http://www.ihtsdo.org/snomed-ct/get-snomed-ct'>http://www.ihtsdo.org/snomed-ct/get-snomed-ct</a>."; ?> 
+</li>
 <li><?php echo xlt("Place the downloaded Snomed database zip file into the following directory"); ?>: contrib/snomed 
 </li>
 <li><?php echo xlt("Return to this page and you will be able to complete the Snomed installation process by clicking on the SNOMED section header"); ?>
