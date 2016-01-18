@@ -2429,7 +2429,7 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 	?>
 
 		<div class="tab <?php echo $first ? 'current' : '' ?>">
-			<table border='0' cellpadding='0'>
+			<table border='0' cellpadding='0' class="table table-striped table-bordered">
 
 			<?php
 				while ($group_fields = sqlFetchArray($group_fields_query)) {
@@ -2483,7 +2483,7 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					if ($titlecols > 0) {
 					  disp_end_cell();
 					  $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
-					  echo "<td class='label' colspan='$titlecols_esc' ";
+					  echo "<td class='label tab-textLeft' colspan='$titlecols_esc' ";
 					  echo ">";
 					  $cell_count += $titlecols;
 					}

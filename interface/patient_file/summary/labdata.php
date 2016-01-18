@@ -180,7 +180,7 @@ if(!$printable){
 	echo "</div>";
 	
 	?><input type='checkbox' onclick="checkAll(this)" /> <?php echo xlt('Toggle All') . "<br/>";
-	echo "<table><tr>";
+	echo "<table class='table table-bordered table-striped'><tr>";
 	// Choose output mode [list vs. matrix]
 	echo "<td>" . xlt('Select output') . ":</td>";
 	echo "<td><input type='radio' name='mode' ";

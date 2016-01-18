@@ -31,7 +31,7 @@ $rule = $viewBean->rule ?>
         <p class="header">
             <?php echo out( xl( 'Summary' ) ); ?>
             <a href="index.php?action=edit!summary&id=<?php echo out( $rule->id ); ?>"
-               class="action_link" id="edit_summary" onclick="top.restoreSession()">(<?php echo out( xl( 'edit' ) ); ?>)</a>
+               class="action_link" id="edit_summary" onclick="top.restoreSession()"><?php echo out( xl( 'edit' ) ); ?></a>
         </p>
         <p><b><?php echo out( xl( $rule->title ) ); ?></b>
         (<?php echo implode_funcs( ", ", $rule->getRuleTypeLabels(), array( 'xl', 'out' ) ); ?>)
@@ -48,7 +48,7 @@ $rule = $viewBean->rule ?>
     <div class="section text">
         <p class="header">
             <?php echo out( xl( 'Reminder intervals' ) ); ?>
-            <a href="index.php?action=edit!intervals&id=<?php echo $rule->id ?>" class="action_link" onclick="top.restoreSession()">(<?php echo out( xl( 'edit' ) ); ?>)</a>
+            <a href="index.php?action=edit!intervals&id=<?php echo $rule->id ?>" class="action_link" onclick="top.restoreSession()"><?php echo out( xl( 'edit' ) ); ?></a>
         </p>
 
         <?php if ( $intervals->getTypes() ) {?>
@@ -78,7 +78,7 @@ $rule = $viewBean->rule ?>
     <!--                      -->
     <?php $filters = $rule->filters; if ( $filters ) { ?>
     <div class="section text">
-        <p class="header"><?php echo out( xl( 'Demographics filter criteria' ) ); ?> <a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&criteriaType=filter" class="action_link" onclick="top.restoreSession()">(<?php echo out( xl( 'add' ) ); ?>)</a></p>
+        <p class="header"><?php echo out( xl( 'Demographics filter criteria' ) ); ?> <a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&criteriaType=filter" class="action_link" onclick="top.restoreSession()"><?php echo out( xl( 'add' ) ); ?></a></p>
         <p>
             <?php if ( $filters->criteria ) { ?>
 
@@ -94,11 +94,11 @@ $rule = $viewBean->rule ?>
                         <span class="left_col">
                             <a href="index.php?action=edit!filter&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $criteria->guid ); ?>"
                                class="action_link" onclick="top.restoreSession()">
-                                (<?php echo out( xl( 'edit' ) ); ?>)
+                                <?php echo out( xl( 'edit' ) ); ?>
                             </a>
                             <a href="index.php?action=edit!delete_filter&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $criteria->guid ); ?>" 
                                class="action_link" onclick="top.restoreSession()">
-                                (<?php echo out( xl( 'delete' ) ); ?>)
+                                <?php echo out( xl( 'delete' ) ); ?>
                             </a>
                         </span>
                         <span class="mid_col"><?php echo( out( $criteria->getTitle() ) ); ?></span>
@@ -130,7 +130,7 @@ $rule = $viewBean->rule ?>
         <div class="section text">
             <p class="header"><?php echo out( xl( 'Clinical targets' ) ); ?> 
             	<a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo out( $group->groupId ); ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
-            		(<?php echo out( xl( 'add' ) ); ?>)
+            		<?php echo out( xl( 'add' ) ); ?>
             	</a>
             </p>
             <p>
@@ -148,11 +148,11 @@ $rule = $viewBean->rule ?>
                             <span class="left_col">
                                 <a href="index.php?action=edit!target&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $criteria->guid ); ?>"
                                    class="action_link" onclick="top.restoreSession()">
-                                    (<?php echo out( xl( 'edit' ) ); ?>)
+                                    <?php echo out( xl( 'edit' ) ); ?>
                                 </a>
                                 <a href="index.php?action=edit!delete_target&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $criteria->guid ); ?>"
                                    class="action_link" onclick="top.restoreSession()">
-                                    (<?php echo out( xl( 'delete' ) ); ?>)
+                                    <?php echo out( xl( 'delete' ) ); ?>
                                 </a>
                             </span>
                             <span class="mid_col"><?php echo( out( $criteria->getTitle() ) ); ?></span>
@@ -179,7 +179,7 @@ $rule = $viewBean->rule ?>
         <div class="section text">
             <p class="header"><?php echo out( xl( 'Actions' ) ); ?>
                 <a href="index.php?action=edit!add_action&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo out( $group->groupId );?>" class="action_link" onclick="top.restoreSession()">
-                    (<?php echo out( xl( 'add' ) ); ?>)
+                    <?php echo out( xl( 'add' ) ); ?>
                 </a>
             </p>
             <p>
@@ -194,10 +194,10 @@ $rule = $viewBean->rule ?>
                         <span class="left_col">
                             <a href="index.php?action=edit!action&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $action->guid ); ?>"
                                class="action_link" onclick="top.restoreSession()">
-                                (<?php echo out( xl( 'edit' ) ); ?>)</a>
+                                <?php echo out( xl( 'edit' ) ); ?></a>
                             <a href="index.php?action=edit!delete_action&id=<?php echo out( $rule->id ); ?>&guid=<?php echo out( $action->guid ); ?>"
                                class="action_link" onclick="top.restoreSession()">
-                                (<?php echo out( xl( 'delete' ) ); ?>)</a>
+                                <?php echo out( xl( 'delete' ) ); ?></a>
                         </span>
                         <span class="end_col"><?php echo out( $action->getTitle() ); ?></span>
                     <?php } ?>
@@ -215,14 +215,14 @@ $rule = $viewBean->rule ?>
     		<div class="section text">
         		<p class="header"><?php echo out( xl( 'Clinical targets' ) ); ?> 
         			<a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo $nextGroupId; ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
-        				(<?php echo out( xl( 'add' ) ); ?>)
+        				<?php echo out( xl( 'add' ) ); ?>
         			</a>
         		</p>
     		</div>
     		<div class="section text">
         		<p class="header"><?php echo out( xl( 'Actions' ) ); ?>
                     <a href="index.php?action=edit!add_action&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo $nextGroupId; ?>" class="action_link" onclick="top.restoreSession()">
-                        (<?php echo out( xl( 'add' ) ); ?>)
+                        <?php echo out( xl( 'add' ) ); ?>
                     </a>
                 </p>
             </div>

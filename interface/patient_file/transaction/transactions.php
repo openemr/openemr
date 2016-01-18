@@ -59,7 +59,7 @@ include_once("$srcdir/transactions.inc");
             <span class="title"><?php echo htmlspecialchars( xl('Patient Transactions'), ENT_NOQUOTES); ?></span>&nbsp;</td>
         <td>
             <!-- Define CSS Buttons -->
-            <a href="add_transaction.php"  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+            <a href="add_transaction.php?transactions"  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
             <span><?php echo htmlspecialchars( xl('Add'), ENT_NOQUOTES); ?></span></a>
         </td>
         <td>

@@ -83,13 +83,13 @@ function show_date_fun(){
 <br>
 <div id="date_div" style="display:none" >
   <br>
-  <table border="0" cellpadding="0" cellspacing="0" >
+  <table border="0" cellpadding="0" cellspacing="0" class="table table-striped table-bordered ccr-table">
     <tr>
       <td>
         <span class='bold'><?php xl('Start Date','e');?>: </span>
       </td>
       <td>
-        <input type='text' size='10' name='Start' id='Start'
+        <input style="max-width: 300px" type='text' size='10' name='Start' id='Start'
          onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
          title='<?php xl('yyyy-mm-dd','e'); ?>' />
         <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -104,7 +104,7 @@ function show_date_fun(){
         <span class='bold'><?php xl('End Date','e');?>: </span>
       </td>
       <td>
-        <input type='text' size='10' name='End' id='End'
+        <input style="max-width: 300px" type='text' size='10' name='End' id='End'
          onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
          title='<?php xl('yyyy-mm-dd','e'); ?>' />
         <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'

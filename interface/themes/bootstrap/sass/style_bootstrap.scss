@@ -185,6 +185,12 @@ a:hover {
   font-size: 14pt;  
   text-decoration: none;
 }
+.title a{
+    color: #2A6497;
+    font-size: 16px;
+    border-bottom: 1px dotted;
+    font-weight: bold;
+}
 
 /* see .titlebar below */
 .title_bar {
@@ -1356,7 +1362,8 @@ form[id="theform"] td{
 }
 #img_date, #img_to_date, #img_from_date, #img_begin_date, #img_end_date, #img_deceased_date, #img_i1effective_date, #img_i1dob_date,
 #img_target_date, #img_DOB, #img_depositdate, #img_checkdate, #img_post_to_date, #img_i2effective_date, #img_i3effective_date, #img_i3dob_date,
-#img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate{
+#img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate, #img_start, #img_end, #img_refer_date, #img_reply_date,
+#img_begin, #img_coffee, #img_tobacco, #img_alcohol, #img_recreational_drugs, #img_counseling, #img_hazardous_activities, #img_exercise_patterns{
     display: inline-block;
     box-sizing: border-box;    
     padding-left: 27px;
@@ -1918,4 +1925,29 @@ div#addressbook_list {
 }
 .rule_type a:hover{
     text-decoration: underline !important;
+}
+#search_options{
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+.ccr-table input[type="text"],
+.ccr-table #img_start,
+.ccr-table #img_end{
+    display: inline-block;
+}
+.tab-textLeft{
+    text-align: left;
+}
+.header .action_link{
+    @extend .btn-primary;
+    padding: 5px 15px !important;
+    border-radius: 5px;
+}
+a#clear_active {
+    background: #CFE7FB;
+    margin-left: 5px;
+}
+a#clear_active span {
+    color: #2A68A0;
 }

@@ -348,6 +348,7 @@ $(document).ready(function() {
 </head>
 
 <body class="body_top">
+    
 <form action='demographics_save.php' name='demographics_form' method='post' onsubmit='return validate(this)'>
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
