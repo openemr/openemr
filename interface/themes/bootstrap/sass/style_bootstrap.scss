@@ -1738,6 +1738,10 @@ tr.tableHead-bg td:first-child{
 }
 .rule_detail .section.text {
     box-shadow: none;
+    margin-bottom: 10px !important;
+    padding: 15px 5px;
+    border-top: 1px solid red;
+    border-bottom: 1px solid red;
 }
 div#groupdetail {
     margin: 25px 10px !important;
@@ -1950,4 +1954,7 @@ a#clear_active {
 }
 a#clear_active span {
     color: #2A68A0;
+}
+#RTop {
+    resize: vertical;    
 }

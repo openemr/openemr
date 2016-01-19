@@ -15146,115 +15146,119 @@ tr.tableHead-bg td:first-child {
 /* line 1739, bootstrap/sass/style_bootstrap.scss */
 .rule_detail .section.text {
   box-shadow: none;
+  margin-bottom: 10px !important;
+  padding: 15px 5px;
+  border-top: 1px solid red;
+  border-bottom: 1px solid red;
 }
 
-/* line 1742, bootstrap/sass/style_bootstrap.scss */
+/* line 1746, bootstrap/sass/style_bootstrap.scss */
 div#groupdetail {
   margin: 25px 10px !important;
   padding: 10px !important;
   background: #D0E9C6 !important;
 }
 
-/* line 1747, bootstrap/sass/style_bootstrap.scss */
+/* line 1751, bootstrap/sass/style_bootstrap.scss */
 div#groupdetail select {
   margin-bottom: 0 !important;
 }
 
-/* line 1750, bootstrap/sass/style_bootstrap.scss */
+/* line 1754, bootstrap/sass/style_bootstrap.scss */
 .fielddetail {
   margin-top: 7px;
 }
 
-/* line 1753, bootstrap/sass/style_bootstrap.scss */
+/* line 1757, bootstrap/sass/style_bootstrap.scss */
 .button-submit-div {
   display: block;
   margin: 10px 0;
 }
 
-/* line 1757, bootstrap/sass/style_bootstrap.scss */
+/* line 1761, bootstrap/sass/style_bootstrap.scss */
 .odd td {
   background-color: #fff !important;
 }
 
-/* line 1760, bootstrap/sass/style_bootstrap.scss */
+/* line 1764, bootstrap/sass/style_bootstrap.scss */
 .even td {
   background-color: #EFF1EF !important;
 }
 
-/* line 1763, bootstrap/sass/style_bootstrap.scss */
+/* line 1767, bootstrap/sass/style_bootstrap.scss */
 tr.head {
   font-size: 10pt;
   background-color: #fff !important;
 }
 
-/* line 1767, bootstrap/sass/style_bootstrap.scss */
+/* line 1771, bootstrap/sass/style_bootstrap.scss */
 .selectfield {
   margin-right: 3px !important;
 }
 
-/* line 1770, bootstrap/sass/style_bootstrap.scss */
+/* line 1774, bootstrap/sass/style_bootstrap.scss */
 #newlistdetail {
   padding: 15px 10px !important;
   background: #D0E9C6 !important;
 }
 
-/* line 1774, bootstrap/sass/style_bootstrap.scss */
+/* line 1778, bootstrap/sass/style_bootstrap.scss */
 .timeslot a {
   color: #333 !important;
 }
 
-/* line 1777, bootstrap/sass/style_bootstrap.scss */
+/* line 1781, bootstrap/sass/style_bootstrap.scss */
 #datePicker .tdMonthName-small {
   background: #EFF1EF !important;
 }
 
-/* line 1780, bootstrap/sass/style_bootstrap.scss */
+/* line 1784, bootstrap/sass/style_bootstrap.scss */
 #overDiv table,
 #overDiv table table {
   background: #EFF1EF !important;
 }
 
-/* line 1784, bootstrap/sass/style_bootstrap.scss */
+/* line 1788, bootstrap/sass/style_bootstrap.scss */
 tr.search.no-bg input {
   margin-bottom: 15px;
 }
 
-/* line 1787, bootstrap/sass/style_bootstrap.scss */
+/* line 1791, bootstrap/sass/style_bootstrap.scss */
 .moduleInstallerPage .activate {
   width: auto !important;
 }
 
-/* line 1793, bootstrap/sass/style_bootstrap.scss */
+/* line 1797, bootstrap/sass/style_bootstrap.scss */
 .moduleInstallerPage table.imagetable td,
 .moduleInstallerPage table.imagetable th,
 .moduleInstallerPage div.installer {
   background: #fff !important;
 }
 
-/* line 1798, bootstrap/sass/style_bootstrap.scss */
+/* line 1802, bootstrap/sass/style_bootstrap.scss */
 .moduleInstallerPage h1 img {
   display: none;
 }
 
-/* line 1801, bootstrap/sass/style_bootstrap.scss */
+/* line 1805, bootstrap/sass/style_bootstrap.scss */
 .login-box {
   margin: auto;
 }
 
-/* line 1804, bootstrap/sass/style_bootstrap.scss */
+/* line 1808, bootstrap/sass/style_bootstrap.scss */
 .logo-left {
   float: none !important;
   margin: auto;
   text-align: center;
 }
 
-/* line 1812, bootstrap/sass/style_bootstrap.scss */
+/* line 1816, bootstrap/sass/style_bootstrap.scss */
 .login-box table td {
   border-color: transparent !important;
 }
 
 /*********** Patient Home Window ****************/
-/* line 1819, bootstrap/sass/style_bootstrap.scss */
+/* line 1823, bootstrap/sass/style_bootstrap.scss */
 .patient-home .section-header,
 .patient-home .section-header-dynamic {
   color: #333;
@@ -15264,7 +15268,7 @@ tr.search.no-bg input {
   border-radius: 3px;
 }
 
-/* line 1828, bootstrap/sass/style_bootstrap.scss */
+/* line 1832, bootstrap/sass/style_bootstrap.scss */
 .patient-home .section-header .css_button_small, .patient-home .section-header #showMenuLink,
 .patient-home .section-header-dynamic .css_button_small,
 .patient-home .section-header-dynamic #showMenuLink {
@@ -15273,13 +15277,13 @@ tr.search.no-bg input {
   font-size: 10pt !important;
 }
 
-/* line 1846, bootstrap/sass/style_bootstrap.scss */
+/* line 1850, bootstrap/sass/style_bootstrap.scss */
 .section-header a.small {
   display: block;
   width: 100%;
 }
 
-/* line 1850, bootstrap/sass/style_bootstrap.scss */
+/* line 1854, bootstrap/sass/style_bootstrap.scss */
 .section-header ~ div .tabContainer,
 .section-header ~ div.notab,
 .section-header-dynamic ~ div.summary_item,
@@ -15291,17 +15295,17 @@ tr.search.no-bg input {
   margin-bottom: 5px;
 }
 
-/* line 1860, bootstrap/sass/style_bootstrap.scss */
+/* line 1864, bootstrap/sass/style_bootstrap.scss */
 .section-header ~ div {
   padding-top: 5px;
 }
 
-/* line 1863, bootstrap/sass/style_bootstrap.scss */
+/* line 1867, bootstrap/sass/style_bootstrap.scss */
 .section-header ~ div .tabNav li a {
   padding: 3px 8px;
 }
 
-/* line 1866, bootstrap/sass/style_bootstrap.scss */
+/* line 1870, bootstrap/sass/style_bootstrap.scss */
 .accordionToggle {
   font-family: sans-serif;
   font-size: 14pt;
@@ -15317,7 +15321,7 @@ tr.search.no-bg input {
   transition: all 1s;
 }
 
-/* line 1880, bootstrap/sass/style_bootstrap.scss */
+/* line 1884, bootstrap/sass/style_bootstrap.scss */
 .accordionToggle:before {
   content: '';
   width: 16px;
@@ -15327,7 +15331,7 @@ tr.search.no-bg input {
   margin-right: 5px;
 }
 
-/* line 1888, bootstrap/sass/style_bootstrap.scss */
+/* line 1892, bootstrap/sass/style_bootstrap.scss */
 .arrow-down .accordionToggle:before {
   content: '';
   width: 16px;
@@ -15337,28 +15341,28 @@ tr.search.no-bg input {
   margin-right: 5px;
 }
 
-/* line 1896, bootstrap/sass/style_bootstrap.scss */
+/* line 1900, bootstrap/sass/style_bootstrap.scss */
 div.section, .bottom-panel, .rule_container, .rule_row {
   margin: 0 !important;
 }
 
-/* line 1899, bootstrap/sass/style_bootstrap.scss */
+/* line 1903, bootstrap/sass/style_bootstrap.scss */
 .patient-pills {
   border-bottom: 2px solid #265a88;
   padding-bottom: 3px;
 }
 
-/* line 1903, bootstrap/sass/style_bootstrap.scss */
+/* line 1907, bootstrap/sass/style_bootstrap.scss */
 .css_button_link a, .small a {
   border-radius: 5px 5px 0 0 !important;
 }
 
-/* line 1906, bootstrap/sass/style_bootstrap.scss */
+/* line 1910, bootstrap/sass/style_bootstrap.scss */
 div#addressbook_list {
   padding-top: 15px;
 }
 
-/* line 1909, bootstrap/sass/style_bootstrap.scss */
+/* line 1913, bootstrap/sass/style_bootstrap.scss */
 .rule_row {
   padding-bottom: 13px !important;
   margin-left: 15px;
@@ -15368,55 +15372,60 @@ div#addressbook_list {
   height: auto;
 }
 
-/* line 1917, bootstrap/sass/style_bootstrap.scss */
+/* line 1921, bootstrap/sass/style_bootstrap.scss */
 .rule_container .rule_row:first-child {
   border-bottom: 0 !important;
 }
 
-/* line 1920, bootstrap/sass/style_bootstrap.scss */
+/* line 1924, bootstrap/sass/style_bootstrap.scss */
 .rule_type a {
   color: #fff;
   padding: 5px 25px !important;
   border-radius: 5px !important;
 }
 
-/* line 1926, bootstrap/sass/style_bootstrap.scss */
+/* line 1930, bootstrap/sass/style_bootstrap.scss */
 .rule_type a:hover {
   text-decoration: underline !important;
 }
 
-/* line 1929, bootstrap/sass/style_bootstrap.scss */
+/* line 1933, bootstrap/sass/style_bootstrap.scss */
 #search_options {
   position: relative;
   width: 100%;
   margin-bottom: 15px;
 }
 
-/* line 1934, bootstrap/sass/style_bootstrap.scss */
+/* line 1938, bootstrap/sass/style_bootstrap.scss */
 .ccr-table input[type="text"],
 .ccr-table #img_start,
 .ccr-table #img_end {
   display: inline-block;
 }
 
-/* line 1939, bootstrap/sass/style_bootstrap.scss */
+/* line 1943, bootstrap/sass/style_bootstrap.scss */
 .tab-textLeft {
   text-align: left;
 }
 
-/* line 1942, bootstrap/sass/style_bootstrap.scss */
+/* line 1946, bootstrap/sass/style_bootstrap.scss */
 .header .action_link {
   padding: 5px 15px !important;
   border-radius: 5px;
 }
 
-/* line 1947, bootstrap/sass/style_bootstrap.scss */
+/* line 1951, bootstrap/sass/style_bootstrap.scss */
 a#clear_active {
   background: #CFE7FB;
   margin-left: 5px;
 }
 
-/* line 1951, bootstrap/sass/style_bootstrap.scss */
+/* line 1955, bootstrap/sass/style_bootstrap.scss */
 a#clear_active span {
   color: #2A68A0;
+}
+
+/* line 1958, bootstrap/sass/style_bootstrap.scss */
+#RTop {
+  resize: vertical;
 }

@@ -253,6 +253,7 @@ function process_result_code($row) {
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 </script>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">    
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -263,7 +264,7 @@ function process_result_code($row) {
 
 <form name='theform' method='post' action='procedure_stats.php'>
 
-<table border='0' cellspacing='5' cellpadding='1'>
+<table border='0' cellspacing='5' cellpadding='1' class="table table-striped table-bordered">
 
  <tr>
   <td valign='top' class='dehead' nowrap>
@@ -283,9 +284,8 @@ function process_result_code($row) {
   <td valign='top' class='dehead' nowrap>
    <?php xl('Filters','e'); ?>:
   </td>
-  <td rowspan='2' colspan='2' class='detail'
-   style='border-style:solid;border-width:1px;border-color:#cccccc'>
-   <table>
+  <td rowspan='2' colspan='2' class='detail'>
+   <table class="table table-striped table-bordered">
     <tr>
      <td valign='top' class='detail' nowrap>
       <?php xl('Sex','e'); ?>:

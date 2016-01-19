@@ -85,7 +85,7 @@ else { // not export
  });
 
 </script>
-
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -95,7 +95,7 @@ else { // not export
 
 <form method='post' action='pending_orders.php'>
 
-<table border='0' cellpadding='3'>
+<table border='0' cellpadding='3' class="table table-bordered table-striped">
 
  <tr>
   <td>
@@ -128,7 +128,7 @@ else { // not export
 
 </table>
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<table border='0' cellpadding='1' cellspacing='2' width='98%' class="table table-bordered table-striped">
  <tr bgcolor="#dddddd">
   <td class="dehead"><?php xl('Patient','e'  ) ?></td>
   <td class="dehead"><?php xl('ID','e'       ) ?></td>
