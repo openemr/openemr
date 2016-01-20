@@ -1363,7 +1363,8 @@ form[id="theform"] td{
 #img_date, #img_to_date, #img_from_date, #img_begin_date, #img_end_date, #img_deceased_date, #img_i1effective_date, #img_i1dob_date,
 #img_target_date, #img_DOB, #img_depositdate, #img_checkdate, #img_post_to_date, #img_i2effective_date, #img_i3effective_date, #img_i3dob_date,
 #img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate, #img_start, #img_end, #img_refer_date, #img_reply_date,
-#img_begin, #img_coffee, #img_tobacco, #img_alcohol, #img_recreational_drugs, #img_counseling, #img_hazardous_activities, #img_exercise_patterns{
+#img_begin, #img_coffee, #img_tobacco, #img_alcohol, #img_recreational_drugs, #img_counseling, #img_hazardous_activities, #img_exercise_patterns, #img_form_date,
+#img_form_onset_date{
     display: inline-block;
     box-sizing: border-box;    
     padding-left: 27px;
@@ -1957,4 +1958,11 @@ a#clear_active span {
 }
 #RTop {
     resize: vertical;    
+}
+.payment-window input[type='radio']{
+    margin: 0 5px;
+    vertical-align: middle;
+}
+.payment-window .input[name="form_paytotal"]{
+    width: 55px !important;
 }

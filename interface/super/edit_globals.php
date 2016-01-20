@@ -116,7 +116,7 @@ if ($_POST['form_save'] && $_GET['mode'] == "user") {
     }
   }
   echo "<script type='text/javascript'>";
-  echo "parent.left_nav.location.reload();";
+  echo "parent.location.reload();";
   echo "parent.Title.location.reload();";
   echo "if(self.name=='RTop'){";
   echo "parent.RBot.location.reload();";
@@ -242,7 +242,7 @@ if ($_POST['form_save'] && $_GET['mode'] != "user") {
 	 auditSQLAuditTamper($auditLogStatusFieldNew);
   }
   echo "<script type='text/javascript'>";
-  echo "parent.left_nav.location.reload();";
+  echo "parent.location.reload();";
   echo "parent.Title.location.reload();";
   echo "if(self.name=='RTop'){";
   echo "parent.RBot.location.reload();";

@@ -46,8 +46,8 @@ function toencounter(rawdata) {
 
     top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-    parent.left_nav.setEncounter(datestr, enc, frame);
-    parent.left_nav.setRadio(frame, 'enc');
+    parent.setEncounter(datestr, enc, frame);
+    parent.setRadio(frame, 'enc');
     top.frames[frame].location.href  = '../patient_file/encounter/encounter_top.php?set_encounter=' + enc;
 <?php } else { ?>
     top.Title.location.href = '../patient_file/encounter/encounter_title.php?set_encounter='   + enc;
@@ -95,7 +95,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 		<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
     <td style="vertical-align:text-bottom;">
-            <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.left_nav.clearactive();return false;">
+            <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.clearactive();return false;">
             <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
 </tr>

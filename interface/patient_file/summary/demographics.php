@@ -314,7 +314,8 @@ $(document).ready(function(){
                 'frameWidth' : 800,
         	'centerOnScroll' : false,
         	'callbackOnClose' : function()  {
-                refreshme();
+                alert("Triggered");
+              //  refreshme();
         	}
         });
     });

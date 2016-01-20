@@ -100,7 +100,7 @@ div.section {
 <SCRIPT LANGUAGE="JavaScript"><!--
 //Visolve - sync the radio buttons - Start
 if((top.window.parent) && (parent.window)){
-        var wname = top.window.parent.left_nav;
+        var wname = top.window.parent;
         fname = (parent.window.name)?parent.window.name:window.name;
         wname.syncRadios();
         wname.setRadio(fname, "new");

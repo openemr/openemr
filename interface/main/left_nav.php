@@ -455,13 +455,12 @@ function genFindBlock() {
 //    iframeBot.style.display = (f.cb_bot.checked)? "block": "none";
      
      if(f.cb_top.checked){
-         iframeTop.style.display = "block";
-//         iframeTop.style.height = "90vh";
-//         iframeBot.style.display: "none";
-//         iframeBot.style.height: "0";         
+         iframeTop.style.display ="block";                           
+         iframeBot.style.height="";
      } 
      else{
         iframeTop.style.display = "none";
+         iframeBot.style.height="600px";
      } 
      if(f.cb_bot.checked){
 //         iframeTop.style.display = "none";

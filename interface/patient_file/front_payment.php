@@ -877,7 +877,7 @@ function make_insurance()
 
 </head>
 
-<body class="body_top" onunload='imclosing()' onLoad="cursor_pointer();">
+<body class="body_top payment-window" onunload='imclosing()' onLoad="cursor_pointer();">
 <center>
 
 <form method='post' action='front_payment.php<?php if ($payid) echo "?payid=$payid"; ?>'
@@ -885,7 +885,7 @@ function make_insurance()
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 
 
-<table border='0' cellspacing='0' cellpadding="0">
+<table border='0' cellspacing='0' cellpadding="0" class="table table-striped table-bordered">
 
  <tr height="10">
  	<td colspan="3">&nbsp;</td>
@@ -966,7 +966,7 @@ function make_insurance()
   </tr>
 </table>
 
-<table border='0' id="table_display" cellpadding='0' cellspacing='0' width='635'>
+<table border='0' id="table_display" cellpadding='0' cellspacing='0' width='635' class="table table-striped table-bordered">
  <tr bgcolor="#cccccc" id="tr_head">
   <td class="dehead" width="70">
    <?php echo htmlspecialchars( xl('DOS'), ENT_QUOTES) ?>

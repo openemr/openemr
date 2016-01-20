@@ -47,7 +47,7 @@
   return;
  }
 
- var ld = parent.left_nav.document;
+ var ld = parent.document;
 
  if (ld && ld.getElementById('searchFields')) {
   setTimeout('timerint()', <?php echo $daemon_interval * 1000; ?>);

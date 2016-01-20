@@ -251,7 +251,7 @@ $check_sum = formData('check_sum','G');
 </td>
 <td>
 <input type=hidden name="event" value=<?php echo $event ; ?>>
-<a href="javascript:document.theform.submit();" class='link_submit'>[<?php  xl('Refresh','e'); ?>]</a>
+<a href="javascript:document.theform.submit();" class='link_submit'><?php  xl('Refresh','e'); ?></a>
 </td>
 </tr>
 </table>

@@ -126,9 +126,9 @@ function openResults(orderid) {
  // To open results in the "other" frame:
  // var w = window;
  // var othername = (w.name == 'RTop') ? 'RBot' : 'RTop';
- // w.parent.left_nav.forceDual();
- // w.parent.left_nav.setRadio(othername, 'ore');
- // w.parent.left_nav.loadFrame('ore1', othername, 'orders/single_order_results.php?orderid=' + orderid);
+ // w.parent.forceDual();
+ // w.parent.setRadio(othername, 'ore');
+ // w.parent.loadFrame('ore1', othername, 'orders/single_order_results.php?orderid=' + orderid);
 }
 
 // Invokes the patient matching dialog.

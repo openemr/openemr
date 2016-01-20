@@ -45,7 +45,7 @@ function manage(id,action){
 	$.post("./Installer/manage", { modId: id, modAction: action,mod_enc_menu:modencmenu,mod_nick_name:modnickname},
 		function(data) {
 			if(data=="Success"){
-				parent.left_nav.location.reload();
+				parent.location.reload();
 				parent.Title.location.reload();
 				if(self.name=='RTop'){
 					parent.RBot.location.reload();

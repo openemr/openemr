@@ -25,9 +25,9 @@
  function showpnotes(docid) {literal}{{/literal}
 {php} if ($GLOBALS['concurrent_layout']) { {/php}
   var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
-  parent.left_nav.forceDual();
-  parent.left_nav.setRadio(othername, 'pno');
-  parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes.php?docid=' + docid);
+  parent.forceDual();
+  parent.setRadio(othername, 'pno');
+  parent.loadFrame('pno1', othername, 'patient_file/summary/pnotes.php?docid=' + docid);
 {php} } {/php}
   return false;
  {literal}}{/literal}
