@@ -40,7 +40,7 @@ class C_DocumentCategory extends Controller {
  		$rnode = $this->_array_recurse($this->tree->tree);
 
 		$menu->addItem($rnode);
-		$treeMenu = &new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
+		$treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
 		$this->assign("tree_html",$treeMenu->toHTML());
 		
 		return $this->fetch($GLOBALS['template_dir'] . "document_categories/" . $this->template_mod . "_list.html");

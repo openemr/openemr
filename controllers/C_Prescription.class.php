@@ -588,7 +588,7 @@ class C_Prescription extends Controller {
 			$this->function_argument_error();
 		}
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+		$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
 		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
 			,$GLOBALS['rx_bottom_margin']
 			,$GLOBALS['rx_left_margin']
@@ -723,7 +723,7 @@ class C_Prescription extends Controller {
 
 	function _print_prescription($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+		$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
 		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
 			,$GLOBALS['rx_bottom_margin']
 			,$GLOBALS['rx_left_margin']
@@ -761,7 +761,7 @@ class C_Prescription extends Controller {
 
 	function _print_prescription_old($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf($GLOBALS['rx_paper_size']);
+		$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
 		$pdf->ezSetMargins($GLOBALS['rx_top_margin']
                       ,$GLOBALS['rx_bottom_margin']
 		                  ,$GLOBALS['rx_left_margin']
