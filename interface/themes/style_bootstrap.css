@@ -14421,43 +14421,49 @@ td.label {
 
 /* line 1195, bootstrap/sass/style_bootstrap.scss */
 .tabNav li.active a, .tabNav li.current a,
+.tabNav li.active a,
+.tabNav li.current a,
 .tabNav li.active:focus a,
 .tabNav li.current:focus a,
+.tabNav li.active:focus a,
+.tabNav li.current:focus a,
+.tabNav li.active:visited a,
+.tabNav li.current:visited a,
 .tabNav li.active:visited a,
 .tabNav li.current:visited a,
 .tabNav li.active:hover a,
 .tabNav li.current:hover a {
   color: #fff !important;
   border-bottom: 3px solid #275E8E  !important;
-  padding-top: 12px;
+  padding-top: 5px !important;
   margin-top: -4px;
 }
 
-/* line 1205, bootstrap/sass/style_bootstrap.scss */
+/* line 1208, bootstrap/sass/style_bootstrap.scss */
 .search_init, input[type='text'], input[type='password'], input[type='entry'] {
   margin-bottom: 5px;
 }
 
-/* line 1209, bootstrap/sass/style_bootstrap.scss */
+/* line 1212, bootstrap/sass/style_bootstrap.scss */
 form[name="demographics_form"] input[type="text"],
 form[name="demographics_form"] input[type="entry"] {
   display: inline-block;
   width: auto;
 }
 
-/* line 1214, bootstrap/sass/style_bootstrap.scss */
+/* line 1217, bootstrap/sass/style_bootstrap.scss */
 .dataTables_filter input, select {
   margin-bottom: 5px;
   display: inline-block;
   width: auto;
 }
 
-/* line 1220, bootstrap/sass/style_bootstrap.scss */
+/* line 1223, bootstrap/sass/style_bootstrap.scss */
 .dataTable th {
   background: #fff;
 }
 
-/* line 1223, bootstrap/sass/style_bootstrap.scss */
+/* line 1226, bootstrap/sass/style_bootstrap.scss */
 .btn-primary:hover, .link_submit:hover, .link_selected:hover, .link:hover, .btn-custom:hover, .css_button_small:hover, #showMenuLink:hover, .css_button:hover, .css_button_link a:hover, .small a:hover, .nav-pills-sm li.active a:hover, .nav-pills-sm li.current a:hover,
 .nav-pills-sm li:hover a:hover, .tabNav a:hover, input[type="button"]:hover, .iframe.medium_modal:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover, #div_acl_add_form .button_acl_add:hover, .rule_type a:hover, .confirguration #con0 .col5 span:hover, .header .action_link:hover, .link_submit:hover, .link_selected:hover, .link:hover, .btn-custom:hover, .css_button_small:hover, #showMenuLink:hover, .css_button:hover, .css_button_link a:hover, .small a:hover, .nav-pills-sm li.active a:hover, .nav-pills-sm li.current a:hover,
 .nav-pills-sm li:hover a:hover, .tabNav a:hover, input[type="button"]:hover, .iframe.medium_modal:hover, .css_button_small:hover, #showMenuLink:hover, #showMenuLink:hover, .css_button:hover, .css_button_link a:hover, .small a:hover, .small a:hover, .nav-pills-sm li.active a:hover, .nav-pills-sm li.current a:hover, .nav-pills-sm li.current a:hover, .nav-pills-sm li:hover a:hover, .tabNav a:hover, input[type="button"]:hover, .iframe.medium_modal:hover, .iframe.medium_modal:hover, .btn-submit:hover, .btn-green:hover, input[type="submit"]:hover, #div_acl_add_form .button_acl_add:hover, .rule_type a:hover, .btn-green:hover, input[type="submit"]:hover, #div_acl_add_form .button_acl_add:hover, #div_acl_add_form .button_acl_add:hover, .confirguration #con0 .col5 span:hover, .btn-primary:focus, .link_submit:focus, .link_selected:focus, .link:focus, .btn-custom:focus, .css_button_small:focus, #showMenuLink:focus, .css_button:focus, .css_button_link a:focus, .small a:focus, .nav-pills-sm li.active a:focus, .nav-pills-sm li.current a:focus,
@@ -14466,19 +14472,19 @@ form[name="demographics_form"] input[type="entry"] {
   background-position: 0;
 }
 
-/* line 1226, bootstrap/sass/style_bootstrap.scss */
+/* line 1229, bootstrap/sass/style_bootstrap.scss */
 tr.evenrow {
   background-color: #f7f7f7 !important;
 }
 
-/* line 1229, bootstrap/sass/style_bootstrap.scss */
+/* line 1232, bootstrap/sass/style_bootstrap.scss */
 input[type="button"], .iframe.medium_modal {
   padding: 4px 17px;
   margin: 0 10px;
   border-radius: 5px;
 }
 
-/* line 1235, bootstrap/sass/style_bootstrap.scss */
+/* line 1238, bootstrap/sass/style_bootstrap.scss */
 input[type="submit"], #div_acl_add_form .button_acl_add {
   padding: 4px 17px;
   margin: 0 10px;
@@ -14486,19 +14492,19 @@ input[type="submit"], #div_acl_add_form .button_acl_add {
   width: auto !important;
 }
 
-/* line 1242, bootstrap/sass/style_bootstrap.scss */
+/* line 1245, bootstrap/sass/style_bootstrap.scss */
 div.section, .bottom-panel, .rule_container, .rule_row {
   border-color: transparent !important;
   box-shadow: 0px 0 2px #697869;
   background: #EFF1EF;
 }
 
-/* line 1247, bootstrap/sass/style_bootstrap.scss */
+/* line 1250, bootstrap/sass/style_bootstrap.scss */
 td b {
   margin-bottom: 5px;
 }
 
-/* line 1250, bootstrap/sass/style_bootstrap.scss */
+/* line 1253, bootstrap/sass/style_bootstrap.scss */
 td .css_button_small, td #showMenuLink {
   float: none !important;
   padding: 5px 25px !important;
@@ -14506,12 +14512,12 @@ td .css_button_small, td #showMenuLink {
   border-radius: 5px;
 }
 
-/* line 1256, bootstrap/sass/style_bootstrap.scss */
+/* line 1259, bootstrap/sass/style_bootstrap.scss */
 .css_button_small:hover, #showMenuLink:hover {
   text-decoration: none;
 }
 
-/* line 1259, bootstrap/sass/style_bootstrap.scss */
+/* line 1262, bootstrap/sass/style_bootstrap.scss */
 select[name="sel_frame"] {
   font-size: 9pt;
   width: 100%;
@@ -14519,56 +14525,56 @@ select[name="sel_frame"] {
   border-radius: 5px;
 }
 
-/* line 1265, bootstrap/sass/style_bootstrap.scss */
+/* line 1268, bootstrap/sass/style_bootstrap.scss */
 select:disabled {
   background: #dddddd !important;
 }
 
-/* line 1268, bootstrap/sass/style_bootstrap.scss */
+/* line 1271, bootstrap/sass/style_bootstrap.scss */
 img#prevday {
   padding: 0 !important;
 }
 
-/* line 1271, bootstrap/sass/style_bootstrap.scss */
+/* line 1274, bootstrap/sass/style_bootstrap.scss */
 td.top-secondary-nav table {
   float: right;
 }
 
-/* line 1274, bootstrap/sass/style_bootstrap.scss */
+/* line 1277, bootstrap/sass/style_bootstrap.scss */
 .top-primary-nav a {
   float: left !important;
   margin-bottom: 7px !important;
 }
 
-/* line 1278, bootstrap/sass/style_bootstrap.scss */
+/* line 1281, bootstrap/sass/style_bootstrap.scss */
 .billingButton input[type="text"] {
   width: auto !important;
   display: inline-block !important;
 }
 
-/* line 1285, bootstrap/sass/style_bootstrap.scss */
+/* line 1288, bootstrap/sass/style_bootstrap.scss */
 div.borderbox {
   background: #D0E9C6;
   width: 100%;
 }
 
-/* line 1289, bootstrap/sass/style_bootstrap.scss */
+/* line 1292, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:hover {
   text-decoration: none;
   cursor: pointer;
 }
 
-/* line 1294, bootstrap/sass/style_bootstrap.scss */
+/* line 1297, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li ul ul {
   padding-left: 5px;
 }
 
-/* line 1297, bootstrap/sass/style_bootstrap.scss */
+/* line 1300, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a > img {
   display: none;
 }
 
-/* line 1300, bootstrap/sass/style_bootstrap.scss */
+/* line 1303, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:before {
   font-family: 'fontawesome';
   margin-right: 5px;
@@ -14576,94 +14582,94 @@ div.borderbox {
   font-size: 14px;
 }
 
-/* line 1307, bootstrap/sass/style_bootstrap.scss */
+/* line 1310, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a:after {
   font-family: 'fontawesome';
   margin-left: 5px;
   color: #000;
 }
 
-/* line 1312, bootstrap/sass/style_bootstrap.scss */
+/* line 1315, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#cal0:before {
   content: "\f073";
 }
 
-/* line 1315, bootstrap/sass/style_bootstrap.scss */
+/* line 1318, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#pfb0:before {
   content: "\f15c";
 }
 
-/* line 1318, bootstrap/sass/style_bootstrap.scss */
+/* line 1321, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#msg0:before {
   content: "\f003";
 }
 
-/* line 1321, bootstrap/sass/style_bootstrap.scss */
+/* line 1324, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#patimg:before {
   content: "\f007";
 }
 
-/* line 1324, bootstrap/sass/style_bootstrap.scss */
+/* line 1327, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#feeimg:before {
   content: "\f0d6";
 }
 
-/* line 1327, bootstrap/sass/style_bootstrap.scss */
+/* line 1330, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#modimg:before {
   content: "\f0fa";
 }
 
-/* line 1330, bootstrap/sass/style_bootstrap.scss */
+/* line 1333, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:before {
   content: "\f0fa";
 }
 
-/* line 1333, bootstrap/sass/style_bootstrap.scss */
+/* line 1336, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#proimg:after,
 #navigation-slide li > a#admimg:after {
   content: "\f0d7";
 }
 
-/* line 1337, bootstrap/sass/style_bootstrap.scss */
+/* line 1340, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#admimg:before {
   content: "\f085";
 }
 
-/* line 1340, bootstrap/sass/style_bootstrap.scss */
+/* line 1343, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#repimg:before {
   content: "\f080";
 }
 
-/* line 1343, bootstrap/sass/style_bootstrap.scss */
+/* line 1346, bootstrap/sass/style_bootstrap.scss */
 #navigation-slide li > a#misimg:before {
   content: "\f01c";
 }
 
-/* line 1347, bootstrap/sass/style_bootstrap.scss */
+/* line 1350, bootstrap/sass/style_bootstrap.scss */
 frameset.sidebar, frameset.main-section {
   width: 100%;
 }
 
-/* line 1350, bootstrap/sass/style_bootstrap.scss */
+/* line 1353, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td {
   width: auto !important;
 }
 
-/* line 1353, bootstrap/sass/style_bootstrap.scss */
+/* line 1356, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td input,
 form[id="theform"] td input {
   display: inline-block;
   width: auto;
 }
 
-/* line 1358, bootstrap/sass/style_bootstrap.scss */
+/* line 1361, bootstrap/sass/style_bootstrap.scss */
 form[name="theform"] td,
 form[id="theform"] td {
   vertical-align: middle;
   font-size: 12px;
 }
 
-/* line 1363, bootstrap/sass/style_bootstrap.scss */
+/* line 1366, bootstrap/sass/style_bootstrap.scss */
 #img_date, #img_to_date, #img_from_date, #img_begin_date, #img_end_date, #img_deceased_date, #img_i1effective_date, #img_i1dob_date,
 #img_target_date, #img_DOB, #img_depositdate, #img_checkdate, #img_post_to_date, #img_i2effective_date, #img_i3effective_date, #img_i3dob_date,
 #img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate, #img_start, #img_end, #img_refer_date, #img_reply_date,
@@ -14677,12 +14683,12 @@ form[id="theform"] td {
   height: 21px;
 }
 
-/* line 1377, bootstrap/sass/style_bootstrap.scss */
+/* line 1380, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel {
   padding-top: 15px;
 }
 
-/* line 1381, bootstrap/sass/style_bootstrap.scss */
+/* line 1384, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .title-bigger {
   font-size: 18px;
   display: block;
@@ -14693,7 +14699,7 @@ form[id="theform"] td {
   font-weight: bold;
 }
 
-/* line 1392, bootstrap/sass/style_bootstrap.scss */
+/* line 1395, bootstrap/sass/style_bootstrap.scss */
 .pager span,
 .dataTables_paginate a {
   content: '';
@@ -14701,7 +14707,7 @@ form[id="theform"] td {
   overflow: hidden;
 }
 
-/* line 1398, bootstrap/sass/style_bootstrap.scss */
+/* line 1401, bootstrap/sass/style_bootstrap.scss */
 .pager span:first-child:before,
 .dataTables_paginate .paginate_disabled_previous:before {
   content: '\f0d9 ';
@@ -14710,7 +14716,7 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1405, bootstrap/sass/style_bootstrap.scss */
+/* line 1408, bootstrap/sass/style_bootstrap.scss */
 .pager span:last-child:before,
 .dataTables_paginate .paginate_disabled_next:before {
   content: '\f0da';
@@ -14719,72 +14725,72 @@ form[id="theform"] td {
   padding-bottom: 50px;
 }
 
-/* line 1412, bootstrap/sass/style_bootstrap.scss */
+/* line 1415, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li {
   border: 1px solid;
   border-radius: 5px 5px 0 0;
   padding: 0;
 }
 
-/* line 1417, bootstrap/sass/style_bootstrap.scss */
+/* line 1420, bootstrap/sass/style_bootstrap.scss */
 ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   margin: 0;
 }
 
-/* line 1420, bootstrap/sass/style_bootstrap.scss */
+/* line 1423, bootstrap/sass/style_bootstrap.scss */
 #dateNAV {
   font-size: 12pt !important;
   margin-top: -3px;
   margin-bottom: 5px;
 }
 
-/* line 1425, bootstrap/sass/style_bootstrap.scss */
+/* line 1428, bootstrap/sass/style_bootstrap.scss */
 #times table, .view2, .view1, #datePicker .currentDate,
 #datePicker .tdDatePickerHighlight {
   background-color: #EFF1EF !important;
   color: #333 !important;
 }
 
-/* line 1431, bootstrap/sass/style_bootstrap.scss */
+/* line 1434, bootstrap/sass/style_bootstrap.scss */
 .dr_container {
   padding: 0 !important;
 }
 
-/* line 1434, bootstrap/sass/style_bootstrap.scss */
+/* line 1437, bootstrap/sass/style_bootstrap.scss */
 .drHide {
   position: relative;
   top: 5px;
 }
 
-/* line 1438, bootstrap/sass/style_bootstrap.scss */
+/* line 1441, bootstrap/sass/style_bootstrap.scss */
 .drHide p {
   display: inline-flex;
   margin-right: 3px !important;
 }
 
-/* line 1442, bootstrap/sass/style_bootstrap.scss */
+/* line 1445, bootstrap/sass/style_bootstrap.scss */
 .bottom-panel .panel {
   background: #fff;
   padding: 15px;
 }
 
-/* line 1447, bootstrap/sass/style_bootstrap.scss */
+/* line 1450, bootstrap/sass/style_bootstrap.scss */
 .providerheader {
   background: #EFF1EF !important;
 }
 
-/* line 1450, bootstrap/sass/style_bootstrap.scss */
+/* line 1453, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion .ui-accordion-header {
   background: #B8D8AB;
   padding: 5px;
 }
 
-/* line 1455, bootstrap/sass/style_bootstrap.scss */
+/* line 1458, bootstrap/sass/style_bootstrap.scss */
 .ui-accordion-content {
   background: #D0E9C6 !important;
 }
 
-/* line 1458, bootstrap/sass/style_bootstrap.scss */
+/* line 1461, bootstrap/sass/style_bootstrap.scss */
 .tableHead-bg,
 #report_results thead,
 .table-striped > tbody > tr:nth-of-type(odd),
@@ -14794,25 +14800,25 @@ ul.nav-sm.nav-pills-sm li a, .rule_title a, .rule_type a {
   background: #fff !important;
 }
 
-/* line 1463, bootstrap/sass/style_bootstrap.scss */
+/* line 1466, bootstrap/sass/style_bootstrap.scss */
 tr.tableHead-bg td,
 #report_results th {
   height: 40px !important;
 }
 
-/* line 1467, bootstrap/sass/style_bootstrap.scss */
+/* line 1470, bootstrap/sass/style_bootstrap.scss */
 #datePicker .tdDOW-small {
   background: #EFF1EF !important;
 }
 
-/* line 1470, bootstrap/sass/style_bootstrap.scss */
+/* line 1473, bootstrap/sass/style_bootstrap.scss */
 tr.tableHead-bg td img,
 #report_results th img {
   width: 8px;
   margin-left: 5px;
 }
 
-/* line 1475, bootstrap/sass/style_bootstrap.scss */
+/* line 1478, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval,
 .formsAdministration-table,
 .unregisteredForm-table {
@@ -14820,46 +14826,46 @@ tr.tableHead-bg td img,
   width: 100% !important;
 }
 
-/* line 1481, bootstrap/sass/style_bootstrap.scss */
+/* line 1484, bootstrap/sass/style_bootstrap.scss */
 .table-pendigApproval tbody th,
 .showborder_head th {
   background: #fff !important;
 }
 
-/* line 1485, bootstrap/sass/style_bootstrap.scss */
+/* line 1488, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons {
   width: 100%;
 }
 
-/* line 1488, bootstrap/sass/style_bootstrap.scss */
+/* line 1491, bootstrap/sass/style_bootstrap.scss */
 #TdContainingButtons table {
   width: 40%;
 }
 
-/* line 1491, bootstrap/sass/style_bootstrap.scss */
+/* line 1494, bootstrap/sass/style_bootstrap.scss */
 .showborder,
 .rule_container {
   width: 100% !important;
 }
 
-/* line 1495, bootstrap/sass/style_bootstrap.scss */
+/* line 1498, bootstrap/sass/style_bootstrap.scss */
 .rule_container, .rule_row {
   padding-bottom: 20px;
   padding-top: 0;
   box-shadow: none;
 }
 
-/* line 1503, bootstrap/sass/style_bootstrap.scss */
+/* line 1506, bootstrap/sass/style_bootstrap.scss */
 .rule_row {
   padding: 20px 0;
 }
 
-/* line 1507, bootstrap/sass/style_bootstrap.scss */
+/* line 1510, bootstrap/sass/style_bootstrap.scss */
 .rule_detail.edit.summry.text .row {
   margin: 0 !important;
 }
 
-/* line 1510, bootstrap/sass/style_bootstrap.scss */
+/* line 1513, bootstrap/sass/style_bootstrap.scss */
 .rule_row:before,
 .rule_row:after {
   content: '';
@@ -14867,25 +14873,25 @@ tr.tableHead-bg td img,
   clear: both;
 }
 
-/* line 1516, bootstrap/sass/style_bootstrap.scss */
+/* line 1519, bootstrap/sass/style_bootstrap.scss */
 .formsAdministration-table td,
 .unregisteredForm-table td {
   text-align: center;
 }
 
-/* line 1520, bootstrap/sass/style_bootstrap.scss */
+/* line 1523, bootstrap/sass/style_bootstrap.scss */
 #report_parameters .custom-width {
   width: 800px !important;
 }
 
-/* line 1523, bootstrap/sass/style_bootstrap.scss */
+/* line 1526, bootstrap/sass/style_bootstrap.scss */
 .batchCom input[type='text'],
 .eraPosting input[type='text'] {
   display: inline-block;
   width: 75%;
 }
 
-/* line 1529, bootstrap/sass/style_bootstrap.scss */
+/* line 1532, bootstrap/sass/style_bootstrap.scss */
 .batchResults input[type='text'],
 .table-eleReports input[type='text'],
 #docfilterdiv input[type='text'] {
@@ -14893,18 +14899,18 @@ tr.tableHead-bg td img,
   width: auto;
 }
 
-/* line 1539, bootstrap/sass/style_bootstrap.scss */
+/* line 1542, bootstrap/sass/style_bootstrap.scss */
 .batchCom select {
   width: 80%;
 }
 
-/* line 1542, bootstrap/sass/style_bootstrap.scss */
+/* line 1545, bootstrap/sass/style_bootstrap.scss */
 .batchCom table {
   border: 1px solid #DDD;
 }
 
 /*** collapse *****/
-/* line 1547, bootstrap/sass/style_bootstrap.scss */
+/* line 1550, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1,
 #objTreeMenu_1_node_1_1,
 #objTreeMenu_1_node_1_2,
@@ -14919,7 +14925,7 @@ tr.tableHead-bg td img,
   background-color: #EFF1EF;
 }
 
-/* line 1561, bootstrap/sass/style_bootstrap.scss */
+/* line 1564, bootstrap/sass/style_bootstrap.scss */
 #objTreeMenu_1_node_1_7_1,
 #objTreeMenu_1_node_1_7_2,
 #objTreeMenu_1_node_1_1_1,
@@ -14928,69 +14934,69 @@ tr.tableHead-bg td img,
   margin: 15px 0;
 }
 
-/* line 1569, bootstrap/sass/style_bootstrap.scss */
+/* line 1572, bootstrap/sass/style_bootstrap.scss */
 #documents_list table {
   width: 100%;
 }
 
-/* line 1572, bootstrap/sass/style_bootstrap.scss */
+/* line 1575, bootstrap/sass/style_bootstrap.scss */
 div#documents_list span {
   color: #000;
 }
 
-/* line 1575, bootstrap/sass/style_bootstrap.scss */
+/* line 1578, bootstrap/sass/style_bootstrap.scss */
 div.tabContainer div.tab,
 .table-fullwidth,
 .tableSearch {
   width: 100% !important;
 }
 
-/* line 1580, bootstrap/sass/style_bootstrap.scss */
+/* line 1583, bootstrap/sass/style_bootstrap.scss */
 .tableBilling td,
 .eraPosting tr {
   background: #EFF1EF !important;
 }
 
-/* line 1584, bootstrap/sass/style_bootstrap.scss */
+/* line 1587, bootstrap/sass/style_bootstrap.scss */
 .eraPosting tbody > tr > td {
   padding: 0;
 }
 
-/* line 1587, bootstrap/sass/style_bootstrap.scss */
+/* line 1590, bootstrap/sass/style_bootstrap.scss */
 .tableBilling a.css_button_small, .tableBilling a#showMenuLink {
   display: inline-block;
   margin-bottom: 5px !important;
 }
 
-/* line 1591, bootstrap/sass/style_bootstrap.scss */
+/* line 1594, bootstrap/sass/style_bootstrap.scss */
 .searchPaymentInputTD input {
   width: 100px !important;
   display: inline;
 }
 
-/* line 1595, bootstrap/sass/style_bootstrap.scss */
+/* line 1598, bootstrap/sass/style_bootstrap.scss */
 .tableSearch {
   width: 100%;
 }
 
-/* line 1598, bootstrap/sass/style_bootstrap.scss */
+/* line 1601, bootstrap/sass/style_bootstrap.scss */
 .Clear li a,
 #tabs {
   background: #000;
 }
 
-/* line 1603, bootstrap/sass/style_bootstrap.scss */
+/* line 1606, bootstrap/sass/style_bootstrap.scss */
 .no-bg {
   background: transparent !important;
 }
 
-/* line 1609, bootstrap/sass/style_bootstrap.scss */
+/* line 1612, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 {
   text-align: center;
   width: 160px !important;
 }
 
-/* line 1613, bootstrap/sass/style_bootstrap.scss */
+/* line 1616, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 span {
   display: inline-block;
   padding: inherit;
@@ -15004,38 +15010,38 @@ div.tabContainer div.tab,
   text-align: center;
 }
 
-/* line 1626, bootstrap/sass/style_bootstrap.scss */
+/* line 1629, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 span:first-child:before {
   content: 'Edit';
   padding-bottom: 35px;
   display: block;
 }
 
-/* line 1631, bootstrap/sass/style_bootstrap.scss */
+/* line 1634, bootstrap/sass/style_bootstrap.scss */
 .confirguration #con0 .col5 span:last-child:before {
   content: 'Add';
   padding-bottom: 35px;
   display: block;
 }
 
-/* line 1636, bootstrap/sass/style_bootstrap.scss */
+/* line 1639, bootstrap/sass/style_bootstrap.scss */
 .loadCompendium,
 #pt_table_wrapper .dataTable {
   background: #fff;
 }
 
-/* line 1640, bootstrap/sass/style_bootstrap.scss */
+/* line 1643, bootstrap/sass/style_bootstrap.scss */
 .pager span,
 .dataTables_paginate {
   margin-top: 10px;
 }
 
-/* line 1644, bootstrap/sass/style_bootstrap.scss */
+/* line 1647, bootstrap/sass/style_bootstrap.scss */
 #docfilterdiv > table {
   margin: 0 !important;
 }
 
-/* line 1647, bootstrap/sass/style_bootstrap.scss */
+/* line 1650, bootstrap/sass/style_bootstrap.scss */
 #docfilterdiv .table .label, #docfilterdiv .confirguration #con0 table .label, .confirguration #con0 #docfilterdiv table .label, #docfilterdiv .section#acl table .label, .section#acl #docfilterdiv table .label,
 #docfilterdiv #membership #admin table .label,
 #membership #admin #docfilterdiv table .label, #docfilterdiv .login-box table .label, .login-box #docfilterdiv table .label {
@@ -15044,48 +15050,48 @@ div.tabContainer div.tab,
   text-align: right;
 }
 
-/* line 1652, bootstrap/sass/style_bootstrap.scss */
+/* line 1655, bootstrap/sass/style_bootstrap.scss */
 #newlistitem {
   background: #B8D8AB;
 }
 
-/* line 1661, bootstrap/sass/style_bootstrap.scss */
+/* line 1664, bootstrap/sass/style_bootstrap.scss */
 .iframe.medium_modal:hover {
   text-decoration: none;
 }
 
-/* line 1664, bootstrap/sass/style_bootstrap.scss */
+/* line 1667, bootstrap/sass/style_bootstrap.scss */
 .facilities-panel .tabContainer,
 .usergroup-admin .tabContainer,
 .mergePatients-table {
   width: 100% !important;
 }
 
-/* line 1675, bootstrap/sass/style_bootstrap.scss */
+/* line 1678, bootstrap/sass/style_bootstrap.scss */
 #accordion h3 span,
 #accordion h3 a {
   color: #000;
 }
 
-/* line 1679, bootstrap/sass/style_bootstrap.scss */
+/* line 1682, bootstrap/sass/style_bootstrap.scss */
 .calendar thead .title {
   border: 1px solid #b9c1b9;
   background: #EFF1EF !important;
   color: #000 !important;
 }
 
-/* line 1684, bootstrap/sass/style_bootstrap.scss */
+/* line 1687, bootstrap/sass/style_bootstrap.scss */
 .calendar .button,
 .rowhilite td {
   background: #EFF1EF !important;
 }
 
-/* line 1688, bootstrap/sass/style_bootstrap.scss */
+/* line 1691, bootstrap/sass/style_bootstrap.scss */
 .calendar table {
   background: #EFF1EF !important;
 }
 
-/* line 1691, bootstrap/sass/style_bootstrap.scss */
+/* line 1694, bootstrap/sass/style_bootstrap.scss */
 .calendar table .wn,
 .calendar thead .name,
 .calendar tfoot .ttip,
@@ -15093,36 +15099,36 @@ div.tabContainer div.tab,
   background: #fff !important;
 }
 
-/* line 1697, bootstrap/sass/style_bootstrap.scss */
+/* line 1700, bootstrap/sass/style_bootstrap.scss */
 .calendar tbody td.today,
 .calendar tbody td.selected {
   color: #EF2525 !important;
 }
 
-/* line 1702, bootstrap/sass/style_bootstrap.scss */
+/* line 1705, bootstrap/sass/style_bootstrap.scss */
 tr.tableHead-bg td:first-child {
   text-align: center;
 }
 
-/* line 1706, bootstrap/sass/style_bootstrap.scss */
+/* line 1709, bootstrap/sass/style_bootstrap.scss */
 .input-block {
   width: 100% !important;
 }
 
-/* line 1710, bootstrap/sass/style_bootstrap.scss */
+/* line 1713, bootstrap/sass/style_bootstrap.scss */
 #pnotes select,
 #pnotes textarea {
   width: 100% !important;
   display: block !important;
 }
 
-/* line 1715, bootstrap/sass/style_bootstrap.scss */
+/* line 1718, bootstrap/sass/style_bootstrap.scss */
 .rule_detail p {
   margin-bottom: 0 !important;
   margin-left: 5px;
 }
 
-/* line 1719, bootstrap/sass/style_bootstrap.scss */
+/* line 1722, bootstrap/sass/style_bootstrap.scss */
 .loadCompendium select,
 .tabContainer .tab.current select,
 .tabContainer .tab.current input[type="text"],
@@ -15130,21 +15136,21 @@ tr.tableHead-bg td:first-child {
   width: 99%;
 }
 
-/* line 1725, bootstrap/sass/style_bootstrap.scss */
+/* line 1728, bootstrap/sass/style_bootstrap.scss */
 .uploadCcrDoc table.table-striped, .uploadCcrDoc .confirguration #con0 table, .confirguration #con0 .uploadCcrDoc table, .uploadCcrDoc .section#acl table, .section#acl .uploadCcrDoc table,
 .uploadCcrDoc #membership #admin table,
 #membership #admin .uploadCcrDoc table {
   width: 100% !important;
 }
 
-/* line 1728, bootstrap/sass/style_bootstrap.scss */
+/* line 1731, bootstrap/sass/style_bootstrap.scss */
 .viewfacilities,
 #membership #admin select,
 .section#acl table select {
   width: 100% !important;
 }
 
-/* line 1740, bootstrap/sass/style_bootstrap.scss */
+/* line 1743, bootstrap/sass/style_bootstrap.scss */
 .rule_detail .section.text {
   box-shadow: none;
   margin-bottom: 10px !important;
@@ -15153,113 +15159,113 @@ tr.tableHead-bg td:first-child {
   border-bottom: 1px solid red;
 }
 
-/* line 1747, bootstrap/sass/style_bootstrap.scss */
+/* line 1750, bootstrap/sass/style_bootstrap.scss */
 div#groupdetail {
   margin: 25px 10px !important;
   padding: 10px !important;
   background: #D0E9C6 !important;
 }
 
-/* line 1752, bootstrap/sass/style_bootstrap.scss */
+/* line 1755, bootstrap/sass/style_bootstrap.scss */
 div#groupdetail select {
   margin-bottom: 0 !important;
 }
 
-/* line 1755, bootstrap/sass/style_bootstrap.scss */
+/* line 1758, bootstrap/sass/style_bootstrap.scss */
 .fielddetail {
   margin-top: 7px;
 }
 
-/* line 1758, bootstrap/sass/style_bootstrap.scss */
+/* line 1761, bootstrap/sass/style_bootstrap.scss */
 .button-submit-div {
   display: block;
   margin: 10px 0;
 }
 
-/* line 1762, bootstrap/sass/style_bootstrap.scss */
+/* line 1765, bootstrap/sass/style_bootstrap.scss */
 .odd td {
   background-color: #fff !important;
 }
 
-/* line 1765, bootstrap/sass/style_bootstrap.scss */
+/* line 1768, bootstrap/sass/style_bootstrap.scss */
 .even td {
   background-color: #EFF1EF !important;
 }
 
-/* line 1768, bootstrap/sass/style_bootstrap.scss */
+/* line 1771, bootstrap/sass/style_bootstrap.scss */
 tr.head {
   font-size: 10pt;
   background-color: #fff !important;
 }
 
-/* line 1772, bootstrap/sass/style_bootstrap.scss */
+/* line 1775, bootstrap/sass/style_bootstrap.scss */
 .selectfield {
   margin-right: 3px !important;
 }
 
-/* line 1775, bootstrap/sass/style_bootstrap.scss */
+/* line 1778, bootstrap/sass/style_bootstrap.scss */
 #newlistdetail {
   padding: 15px 10px !important;
   background: #D0E9C6 !important;
 }
 
-/* line 1779, bootstrap/sass/style_bootstrap.scss */
+/* line 1782, bootstrap/sass/style_bootstrap.scss */
 .timeslot a {
   color: #333 !important;
 }
 
-/* line 1782, bootstrap/sass/style_bootstrap.scss */
+/* line 1785, bootstrap/sass/style_bootstrap.scss */
 #datePicker .tdMonthName-small {
   background: #EFF1EF !important;
 }
 
-/* line 1785, bootstrap/sass/style_bootstrap.scss */
+/* line 1788, bootstrap/sass/style_bootstrap.scss */
 #overDiv table,
 #overDiv table table {
   background: #EFF1EF !important;
 }
 
-/* line 1789, bootstrap/sass/style_bootstrap.scss */
+/* line 1792, bootstrap/sass/style_bootstrap.scss */
 tr.search.no-bg input {
   margin-bottom: 15px;
 }
 
-/* line 1792, bootstrap/sass/style_bootstrap.scss */
+/* line 1795, bootstrap/sass/style_bootstrap.scss */
 .moduleInstallerPage .activate {
   width: auto !important;
 }
 
-/* line 1798, bootstrap/sass/style_bootstrap.scss */
+/* line 1801, bootstrap/sass/style_bootstrap.scss */
 .moduleInstallerPage table.imagetable td,
 .moduleInstallerPage table.imagetable th,
 .moduleInstallerPage div.installer {
   background: #fff !important;
 }
 
-/* line 1803, bootstrap/sass/style_bootstrap.scss */
+/* line 1806, bootstrap/sass/style_bootstrap.scss */
 .moduleInstallerPage h1 img {
   display: none;
 }
 
-/* line 1806, bootstrap/sass/style_bootstrap.scss */
+/* line 1809, bootstrap/sass/style_bootstrap.scss */
 .login-box {
   margin: auto;
 }
 
-/* line 1809, bootstrap/sass/style_bootstrap.scss */
+/* line 1812, bootstrap/sass/style_bootstrap.scss */
 .logo-left {
   float: none !important;
   margin: auto;
   text-align: center;
 }
 
-/* line 1817, bootstrap/sass/style_bootstrap.scss */
+/* line 1820, bootstrap/sass/style_bootstrap.scss */
 .login-box table td {
   border-color: transparent !important;
 }
 
 /*********** Patient Home Window ****************/
-/* line 1824, bootstrap/sass/style_bootstrap.scss */
+/* line 1827, bootstrap/sass/style_bootstrap.scss */
 .patient-home .section-header,
 .patient-home .section-header-dynamic {
   color: #333;
@@ -15269,7 +15275,7 @@ tr.search.no-bg input {
   border-radius: 3px;
 }
 
-/* line 1833, bootstrap/sass/style_bootstrap.scss */
+/* line 1836, bootstrap/sass/style_bootstrap.scss */
 .patient-home .section-header .css_button_small, .patient-home .section-header #showMenuLink,
 .patient-home .section-header-dynamic .css_button_small,
 .patient-home .section-header-dynamic #showMenuLink {
@@ -15278,35 +15284,35 @@ tr.search.no-bg input {
   font-size: 10pt !important;
 }
 
-/* line 1851, bootstrap/sass/style_bootstrap.scss */
+/* line 1854, bootstrap/sass/style_bootstrap.scss */
 .section-header a.small {
   display: block;
   width: 100%;
 }
 
-/* line 1855, bootstrap/sass/style_bootstrap.scss */
+/* line 1858, bootstrap/sass/style_bootstrap.scss */
 .section-header ~ div .tabContainer,
 .section-header ~ div.notab,
 .section-header-dynamic ~ div.summary_item,
 .section-header ~ div.summary_item small {
-  box-shadow: 1px 1px 2px #000;
+  box-shadow: 0px 0px 2px #EFF1EF;
   clear: both;
   display: block;
-  padding: 5px 5px 0;
+  padding: 2px 2px 0;
   margin-bottom: 5px;
 }
 
-/* line 1865, bootstrap/sass/style_bootstrap.scss */
+/* line 1868, bootstrap/sass/style_bootstrap.scss */
 .section-header ~ div {
   padding-top: 5px;
 }
 
-/* line 1868, bootstrap/sass/style_bootstrap.scss */
+/* line 1871, bootstrap/sass/style_bootstrap.scss */
 .section-header ~ div .tabNav li a {
   padding: 3px 8px;
 }
 
-/* line 1871, bootstrap/sass/style_bootstrap.scss */
+/* line 1874, bootstrap/sass/style_bootstrap.scss */
 .accordionToggle {
   font-family: sans-serif;
   font-size: 14pt;
@@ -15322,7 +15328,7 @@ tr.search.no-bg input {
   transition: all 1s;
 }
 
-/* line 1885, bootstrap/sass/style_bootstrap.scss */
+/* line 1888, bootstrap/sass/style_bootstrap.scss */
 .accordionToggle:before {
   content: '';
   width: 16px;
@@ -15332,7 +15338,7 @@ tr.search.no-bg input {
   margin-right: 5px;
 }
 
-/* line 1893, bootstrap/sass/style_bootstrap.scss */
+/* line 1896, bootstrap/sass/style_bootstrap.scss */
 .arrow-down .accordionToggle:before {
   content: '';
   width: 16px;
@@ -15342,28 +15348,28 @@ tr.search.no-bg input {
   margin-right: 5px;
 }
 
-/* line 1901, bootstrap/sass/style_bootstrap.scss */
+/* line 1904, bootstrap/sass/style_bootstrap.scss */
 div.section, .bottom-panel, .rule_container, .rule_row {
   margin: 0 !important;
 }
 
-/* line 1904, bootstrap/sass/style_bootstrap.scss */
+/* line 1907, bootstrap/sass/style_bootstrap.scss */
 .patient-pills {
   border-bottom: 2px solid #265a88;
   padding-bottom: 3px;
 }
 
-/* line 1908, bootstrap/sass/style_bootstrap.scss */
+/* line 1911, bootstrap/sass/style_bootstrap.scss */
 .css_button_link a, .small a {
   border-radius: 5px 5px 0 0 !important;
 }
 
-/* line 1911, bootstrap/sass/style_bootstrap.scss */
+/* line 1914, bootstrap/sass/style_bootstrap.scss */
 div#addressbook_list {
   padding-top: 15px;
 }
 
-/* line 1914, bootstrap/sass/style_bootstrap.scss */
+/* line 1917, bootstrap/sass/style_bootstrap.scss */
 .rule_row {
   padding-bottom: 13px !important;
   margin-left: 15px;
@@ -15373,71 +15379,71 @@ div#addressbook_list {
   height: auto;
 }
 
-/* line 1922, bootstrap/sass/style_bootstrap.scss */
+/* line 1925, bootstrap/sass/style_bootstrap.scss */
 .rule_container .rule_row:first-child {
   border-bottom: 0 !important;
 }
 
-/* line 1925, bootstrap/sass/style_bootstrap.scss */
+/* line 1928, bootstrap/sass/style_bootstrap.scss */
 .rule_type a {
   color: #fff;
   padding: 5px 25px !important;
   border-radius: 5px !important;
 }
 
-/* line 1931, bootstrap/sass/style_bootstrap.scss */
+/* line 1934, bootstrap/sass/style_bootstrap.scss */
 .rule_type a:hover {
   text-decoration: underline !important;
 }
 
-/* line 1934, bootstrap/sass/style_bootstrap.scss */
+/* line 1937, bootstrap/sass/style_bootstrap.scss */
 #search_options {
   position: relative;
   width: 100%;
   margin-bottom: 15px;
 }
 
-/* line 1939, bootstrap/sass/style_bootstrap.scss */
+/* line 1942, bootstrap/sass/style_bootstrap.scss */
 .ccr-table input[type="text"],
 .ccr-table #img_start,
 .ccr-table #img_end {
   display: inline-block;
 }
 
-/* line 1944, bootstrap/sass/style_bootstrap.scss */
+/* line 1947, bootstrap/sass/style_bootstrap.scss */
 .tab-textLeft {
   text-align: left;
 }
 
-/* line 1947, bootstrap/sass/style_bootstrap.scss */
+/* line 1950, bootstrap/sass/style_bootstrap.scss */
 .header .action_link {
   padding: 5px 15px !important;
   border-radius: 5px;
 }
 
-/* line 1952, bootstrap/sass/style_bootstrap.scss */
+/* line 1955, bootstrap/sass/style_bootstrap.scss */
 a#clear_active {
   background: #CFE7FB;
   margin-left: 5px;
 }
 
-/* line 1956, bootstrap/sass/style_bootstrap.scss */
+/* line 1959, bootstrap/sass/style_bootstrap.scss */
 a#clear_active span {
   color: #2A68A0;
 }
 
-/* line 1959, bootstrap/sass/style_bootstrap.scss */
+/* line 1962, bootstrap/sass/style_bootstrap.scss */
 #RTop {
   resize: vertical;
 }
 
-/* line 1962, bootstrap/sass/style_bootstrap.scss */
+/* line 1965, bootstrap/sass/style_bootstrap.scss */
 .payment-window input[type='radio'] {
   margin: 0 5px;
   vertical-align: middle;
 }
 
-/* line 1966, bootstrap/sass/style_bootstrap.scss */
+/* line 1969, bootstrap/sass/style_bootstrap.scss */
 .payment-window .input[name="form_paytotal"] {
   width: 55px !important;
 }

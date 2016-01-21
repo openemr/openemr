@@ -1193,12 +1193,15 @@ li.current {
     color: #fff;
 }
 .tabNav li.active a,
+.tabNav li.active a,
 .tabNav li.active:focus a,
+.tabNav li.active:focus a,
+.tabNav li.active:visited a,
 .tabNav li.active:visited a,
 .tabNav li.active:hover a{    
     color: #fff !important;
     border-bottom: 3px solid #275E8E  !important;
-    padding-top: 12px;
+    padding-top: 5px !important;
     margin-top: -4px;
     
 }
@@ -1856,10 +1859,10 @@ tr.search.no-bg input {
 .section-header ~ div.notab,
 .section-header-dynamic ~ div.summary_item,
 .section-header ~ div.summary_item small{
-    box-shadow: 1px 1px 2px #000;
+    box-shadow: 0px 0px 2px #EFF1EF;
     clear: both;
     display: block;
-    padding: 5px 5px 0;
+    padding: 2px 2px 0;
     margin-bottom: 5px;
 }
 .section-header ~ div{
