@@ -127,7 +127,7 @@ use ESign\Api;
   'new' => array(xl('New Pt')    , 0, 'new/new.php'),
   'ped' => array(xl('Patient Education'), 0, 'reports/patient_edu_web_lookup.php'),
   'lab' => array(xl('Check Lab Results')  , 0, 'orders/lab_exchange.php'),
-  'dem' => array(xl('Patient')   , 1,  "patient_file/summary/demographics.php"),
+  'dem' => array(xl('Patient')   , 1,  "patient_file/summary/demographics.php?home"),
   'his' => array(xl('History')   , 1, 'patient_file/history/history.php'),
   'ens' => array(xl('Visit History'), 1, 'patient_file/history/encounters.php'),
   'nen' => array(xl('Create Visit'), 1, 'forms/newpatient/new.php?autoloaded=1&calenc='),
@@ -859,7 +859,7 @@ function clearactive() {
 
 function loadCurrentPatientFromTitle() {
     top.restoreSession();
-    top.frames['RTop'].location='../patient_file/summary/demographics.php';
+    top.frames['RTop'].location='../patient_file/summary/demographics.php?home';
 }
 
 function getEncounterTargetFrame( name ) {

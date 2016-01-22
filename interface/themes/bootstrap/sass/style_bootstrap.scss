@@ -665,21 +665,7 @@ a.disabled_button:hover {
  * TABS
 */
 
-/*ul.tabNav { margin: 0; padding: 0; }
-ul.tabNav { float: left; list-style: none; width: 100%; }
-ul.tabNav li { float: left; margin: 0 1px 0 0; padding: 6px 0 0;
-  font-size: 0.8em;
-  vertical-align: bottom;
-  text-align: left;
-}
-ul.tabNav li.current { padding-top: 0;
-  font-weight: bold;
-  font-size: 0.8em;
-  vertical-align: bottom;
-  text-align: left;
-}
-ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
-ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }*/
+
 
 @import "bootstrap/css/font-awesome.min.css";
 
@@ -1142,6 +1128,7 @@ td.label {
 
 ul.tabNav {
   @extend .nav, .nav-tabs;
+ 
 }
 
 li.current {
@@ -1968,4 +1955,11 @@ a#clear_active span {
 }
 .payment-window .input[name="form_paytotal"]{
     width: 55px !important;
+}
+#HIS ul.tabNav > li > a{
+        padding: 4px 15px !important;
+}
+#HIS ul.tabNav > li.active > a{            
+    padding-top: 5px !important;
+    margin-top: -4px !important;
 }

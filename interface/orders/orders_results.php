@@ -349,7 +349,7 @@ if ($form_batch) {
 
 <?php if (!$form_batch || ($form_proc_type > 0 && $form_from_date)) { ?>
 
-<table width='100%' cellpadding='1' cellspacing='2'>
+<table width='100%' cellpadding='1' cellspacing='2' class="table table-striped table-bordered">
 
  <tr class='head'>
   <td colspan='2'><?php echo $form_batch ? xl('Patient') : xl('Order'); ?></td>

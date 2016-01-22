@@ -11,7 +11,7 @@
  <tr>
   <td class="small" colspan='4'>
     <span class="css_button_link">
-        <a href="../summary/demographics_home.php?home" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='home')?'active':'no'; ?>">
+        <a href="../summary/demographics.php?home" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='home')?'active':'no'; ?>">
         <?php echo htmlspecialchars(xl('Home'),ENT_NOQUOTES);?></a>
         
         <span class="css_button_separator">|</span>

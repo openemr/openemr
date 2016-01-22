@@ -376,7 +376,7 @@ function sel_patient() {
  <tr>
   <td class="small" colspan='4'>
     <span class="css_button_link">
-    <a href="../patient_file/summary/demographics_home.php?home" onclick='top.restoreSession()'>
+    <a href="../patient_file/summary/demographics.php?home" onclick='top.restoreSession()'>
     <?php echo htmlspecialchars(xl('Home'),ENT_NOQUOTES); ?></a>
     <span class="css_button_separator">|</span>    
     <a href="../patient_file/history/history.php?history" onclick='top.restoreSession()'>
