@@ -18,7 +18,11 @@ font-size: 8pt;
 </head>
 <body>
 <h3>The ADOdb Performance Monitoring Library</h3>
-<p>V5.14 8 Sept 2011  (c) 2000-2010 John Lim (jlim#natsoft.com)</p>
+
+<p>v5.20.2  27-Dec-2015<br>
+&copy; 2000-2013 John Lim (jlim#natsoft.com)<br>
+&copy; 2014 Damien Regad, Mark Newnham and the ADOdb community</p>
+
 <p><font size="1">This software is dual licensed using BSD-Style and
 LGPL. This means you can use it in compiled proprietary and commercial
 products.</font></p>
@@ -110,7 +114,7 @@ constant before calling $perf-&gt;UI(). </p>
 <table bgcolor="lightyellow" border="1" width="100%">
   <tbody>
     <tr>
-      <td> <b><a href="http://php.weblogs.com/adodb?perf=1">ADOdb</a>
+      <td> <b><a href="http://adodb.sourceforge.net/docs-perf.htm">ADOdb</a>
 Performance Monitor</b> for localhost, db=test<br>
       <font size="-1">PostgreSQL 7.3.2 on i686-pc-cygwin, compiled by
 GCC gcc (GCC) 3.2 20020927 (prerelease)</font></td>
@@ -299,7 +303,7 @@ $this-&gt;DBParameter("data cache size").</p>
 percentage. Only works for Linux and Windows. For Windows, WMI must be
 available.</p>
 <h3>$ADODB_PERF_MIN</h3>
-<p>New in adodb 4.97/5.03 is this global variable, which controls whether sql timings which are too small are not saved. Currently it defaults 
+<p>New in adodb 4.97/5.03 is this global variable, which controls whether sql timings which are too small are not saved. Currently it defaults
 to 0.05 (seconds). This means that all sql's which are faster than 0.05 seconds to execute are not saved.
 <h3>Format of $settings Property</h3>
 <p> To create new database parameters, you need to understand
@@ -370,7 +374,7 @@ generating tuning suggestions. For an example, see WarnCacheRatio().</li>
       <td>data cache buffers</td>
       <td>250 &nbsp; </td>
       <td>See <a
- href="http://www7b.boulder.ibm.com/dmdd/library/techarticle/anshum/0107anshum.html#bufferpoolsize">tuning
+ href="http://www.ibm.com/developerworks/data/library/techarticle/anshum/0107anshum.html">tuning
 reference</a>.</td>
     </tr>
     <tr bgcolor="#ffffff">

@@ -1,7 +1,9 @@
 <?php
 
 /**
- * @version V5.14 8 Sept 2011   (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
+ * @version   v5.20.2  27-Dec-2015
+ * @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+ * @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
  * Released under both BSD license and Lesser GPL library license.
  * Whenever there is any discrepancy between the two licenses,
  * the BSD license will take precedence.
@@ -14,7 +16,7 @@
  */
 
 
-if (!defined('ADODB_ERROR_HANDLER_TYPE')) define('ADODB_ERROR_HANDLER_TYPE',E_USER_ERROR); 
+if (!defined('ADODB_ERROR_HANDLER_TYPE')) define('ADODB_ERROR_HANDLER_TYPE',E_USER_ERROR);
 define('ADODB_ERROR_HANDLER','adodb_throw');
 
 class ADODB_Exception extends Exception {
@@ -24,16 +26,16 @@ var $sql = '';
 var $params = '';
 var $host = '';
 var $database = '';
-	
+
 	function __construct($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
 	{
 		switch($fn) {
 		case 'EXECUTE':
-			$this->sql = $p1;
+			$this->sql = is_array($p1) ? $p1[0] : $p1;
 			$this->params = $p2;
-			$s = "$dbms error: [$errno: $errmsg] in $fn(\"$p1\")\n";
+			$s = "$dbms error: [$errno: $errmsg] in $fn(\"$this->sql\")\n";
 			break;
-	
+
 		case 'PCONNECT':
 		case 'CONNECT':
 			$user = $thisConnection->user;
@@ -43,7 +45,7 @@ var $database = '';
 			$s = "$dbms error: [$errno: $errmsg] in $fn($p1, $p2)\n";
 			break;
 		}
-	
+
 		$this->dbms = $dbms;
 		if ($thisConnection) {
 			$this->host = $thisConnection->host;
@@ -51,7 +53,7 @@ var $database = '';
 		}
 		$this->fn = $fn;
 		$this->msg = $errmsg;
-				
+
 		if (!is_numeric($errno)) $errno = -1;
 		parent::__construct($s,$errno);
 	}
@@ -71,12 +73,9 @@ var $database = '';
 function adodb_throw($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
 {
 global $ADODB_EXCEPTION;
-	
+
 	if (error_reporting() == 0) return; // obey @ protocol
 	if (is_string($ADODB_EXCEPTION)) $errfn = $ADODB_EXCEPTION;
 	else $errfn = 'ADODB_EXCEPTION';
 	throw new $errfn($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection);
 }
-
-
-?>
