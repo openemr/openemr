@@ -237,9 +237,9 @@ function recolor() {
 </head>
 
 <body class="body_nav confirguration">
-<center>
 
-<h3 style='margin-top:0'><?php xl('Types of Orders and Results','e') ?></h3>
+
+<h3 style='margin-top:0 text-align: left;'><?php xl('Types of Orders and Results','e') ?></h3>
 
 <form method='post' name='theform' action='types.php?popup=<?php echo $popup ?>&order=<?php
 echo $order;
@@ -272,7 +272,7 @@ if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
 
 </form>
 
-</center>
+
 
 </body>
 </html>

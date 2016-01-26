@@ -301,7 +301,7 @@ input     { font-size:10pt; }
 </script>
 </head>
 
-<body class="body_top">
+<body class="body_top globalsTabs">
 
 <?php if ($_GET['mode'] == "user") { ?>
   <form method='post' name='theform' id='theform' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>

@@ -317,7 +317,7 @@ document.onclick=HideTheAjaxDivs;
 </style>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 </head>
-<body class="body_top" onLoad="OnloadAction()"  >
+<body class="body_top batchPaymentTab" onLoad="OnloadAction()"  >
 <form name='new_payment' method='post'  action="new_payment.php"  onsubmit='
 <?php
  if($payment_id*1==0)

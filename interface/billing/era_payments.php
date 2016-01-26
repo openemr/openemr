@@ -169,7 +169,7 @@ document.onclick=HideTheAjaxDivs;
 .right{border-right:1px solid black;}
 </style>
 </head>
-<body class="body_top" onLoad="OnloadAction()">
+<body class="body_top batchPaymentTab" onLoad="OnloadAction()">
 <form enctype="multipart/form-data" method='post'  action='era_payments.php'  style="display:inline"  >
 <table width="455" border="0"  cellspacing="0" cellpadding="0" class="tableSearch">
   <tr>

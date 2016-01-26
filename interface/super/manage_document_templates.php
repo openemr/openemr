@@ -106,9 +106,9 @@ if (!empty($_POST['bn_upload'])) {
 <form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
 
-<center>
 
-<h2><?php echo xlt('Document Template Management'); ?></h2>
+
+<span class="title"><?php echo xlt('Document Template Management'); ?></span>
 
 <p>
 <table border='1' width='95%' class="table table-striped table-bordered">
@@ -170,7 +170,7 @@ if (!empty($_POST['bn_upload'])) {
 </table>
 </p>
 
-</center>
+
 
 </form>
 </body>

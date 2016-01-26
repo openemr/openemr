@@ -1192,6 +1192,11 @@ li.current {
     margin-top: -4px;
     
 }
+.batchPaymentTab .tabNav li.current a,
+.batchPaymentTab .tabNav li.current:hover a{
+    padding-top: 11px !important;
+}
+
 .search_init, input[type='text'], input[type='password'], input[type='entry']{
     @extend .form-control;
     margin-bottom: 5px;
@@ -1962,4 +1967,8 @@ a#clear_active span {
 #HIS ul.tabNav > li.active > a{            
     padding-top: 5px !important;
     margin-top: -4px !important;
+}
+
+.globalsTabs .tabNav li.current a{
+    padding-top: 13px !important;
 }

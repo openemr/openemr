@@ -382,7 +382,7 @@ document.onclick=HideTheAjaxDivs;
 .right{border-right:1px solid black;}
 </style>
 </head>
-<body class="body_top" onLoad="OnloadAction()">
+<body class="body_top batchPaymentTab" onLoad="OnloadAction()">
 <form name='new_payment' method='post'  style="display:inline" >
 <table width="560" border="0"  cellspacing="0" cellpadding="0" class="tableSearch">
   <tr>

@@ -113,7 +113,6 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 </title>
 <script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
-
 <script language='JavaScript'>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 

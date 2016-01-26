@@ -93,6 +93,8 @@ $res = sqlStatement($query,$sqlBindArray);
 <body class="body_top">
 
 <div id="addressbook_list">
+
+<span class="title">Address Book</span>
 <form method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
 
 <table class="table table-responsive table-bordered">
