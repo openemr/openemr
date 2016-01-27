@@ -1,7 +1,7 @@
 From: Rich Tango-Lowy (richtl#arscognita.com)
 Date: Sat, May 29, 2004 11:20 am
 
-OK, I hacked out an ADOdb container for PEAR-Auth. The error handling's 
+OK, I hacked out an ADOdb container for PEAR-Auth. The error handling's
 a bit of a mess, but all the methods work.
 
 Copy ADOdb.php to your pear/Auth/Container/ directory.

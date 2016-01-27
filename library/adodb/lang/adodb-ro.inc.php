@@ -32,4 +32,3 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_NOSUCHDB           => 'nu exista baza de date',
             DB_ERROR_ACCESS_VIOLATION   => 'permisiuni insuficiente'
 );
-?>

@@ -348,7 +348,7 @@ class C_Document extends Controller {
 		//pass an empty array because we don't want the documents for each category showing up in this list box
  		$rnode = $this->_array_recurse($this->tree->tree,array());
 		$menu->addItem($rnode);
-		$treeMenu_listbox  = &new HTML_TreeMenu_Listbox($menu, array("promoText" => xl('Move Document to Category:')));
+		$treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array("promoText" => xl('Move Document to Category:')));
 		
 		$this->assign("tree_html_listbox",$treeMenu_listbox->toHTML());
 		
@@ -622,7 +622,7 @@ class C_Document extends Controller {
 		//pass an empty array because we don't want the documents for each category showing up in this list box
  		$rnode = $this->_array_recurse($this->tree->tree,array());
 		$menu->addItem($rnode);
-		$treeMenu_listbox  = &new HTML_TreeMenu_Listbox($menu, array());
+		$treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array());
 		
 		$this->assign("tree_html_listbox",$treeMenu_listbox->toHTML());
 		
@@ -956,8 +956,8 @@ class C_Document extends Controller {
 		$menu  = new HTML_TreeMenu();
  		$rnode = $this->_array_recurse($this->tree->tree,$categories_list);
 		$menu->addItem($rnode);
-		$treeMenu = &new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
-		$treeMenu_listbox  = &new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
+		$treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'images', 'defaultClass' => 'treeMenuDefault'));
+		$treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
 		
 		$this->assign("tree_html",$treeMenu->toHTML());
 		

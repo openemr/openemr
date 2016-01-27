@@ -8,7 +8,7 @@
       <KEY/>
       <NOTNULL/>
     </field>
- 
+
     <field name="EXPIRY" type="I" size="11">
       <descr></descr>
       <NOTNULL/>

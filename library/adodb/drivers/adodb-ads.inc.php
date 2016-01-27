@@ -1,6 +1,6 @@
 <?php
 /*
-  (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved.
+  (c) 2000-2014 John Lim (jlim#natsoft.com.my). All rights reserved.
   Portions Copyright (c) 2007-2009, iAnywhere Solutions, Inc.
   All rights reserved. All unpublished rights reserved.
 
@@ -66,7 +66,7 @@ class ADODB_ads extends ADOConnection {
   var $uCaseTables = true; // for meta* functions, uppercase table names
 
 
-  function ADODB_ads()
+  function __construct()
   {
     $this->_haserrorfunctions = ADODB_PHPVER >= 0x4050;
     $this->_has_stupid_odbc_fetch_api_change = ADODB_PHPVER >= 0x4200;
@@ -136,7 +136,7 @@ class ADODB_ads extends ADOConnection {
 
 
         // returns true or false
-        function CreateSequence( $seqname,$start=1)
+        function CreateSequence($seqname = 'adodbseq', $start = 1)
   {
                 $res =  $this->Execute("CREATE TABLE $seqname ( ID autoinc( 1 ) ) IN DATABASE");
                 if(!$res){
@@ -149,7 +149,7 @@ class ADODB_ads extends ADOConnection {
         }
 
         // returns true or false
-        function DropSequence($seqname)
+        function DropSequence($seqname = 'adodbseq')
   {
                 $res = $this->Execute("DROP TABLE $seqname");
                 if(!$res){
@@ -164,7 +164,7 @@ class ADODB_ads extends ADOConnection {
   // returns the generated ID or false
         // checks if the table already exists, else creates the table and inserts a record into the table
         // and gets the ID number of the last inserted record.
-        function GenID($seqname,$start=1)
+        function GenID($seqname = 'adodbseq', $start = 1)
         {
                 $go = $this->Execute("select * from $seqname");
                 if (!$go){
@@ -254,7 +254,7 @@ class ADODB_ads extends ADOConnection {
 
   // Returns tables,Views or both on succesfull execution. Returns
         // tables by default on succesfull execustion.
-  function &MetaTables($ttype)
+  function &MetaTables($ttype = false, $showSchema = false, $mask = false)
   {
           $recordSet1 = $this->Execute("select * from system.tables");
                 if(!$recordSet1){
@@ -294,7 +294,7 @@ class ADODB_ads extends ADOConnection {
 
   }
 
-        function &MetaPrimaryKeys($table)
+        function &MetaPrimaryKeys($table, $owner = false)
   {
           $recordSet = $this->Execute("select table_primary_key from system.tables where name='$table'");
                 if(!$recordSet){
@@ -378,7 +378,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
     }
   }
 
-  function &MetaColumns($table)
+  function &MetaColumns($table, $normalize = true)
   {
   global $ADODB_FETCH_MODE;
 
@@ -486,7 +486,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
   }
 
         // Returns an array of columns names for a given table
-        function &MetaColumnNames($table)
+        function &MetaColumnNames($table, $numIndexes = false, $useattnum = false)
         {
                 $recordSet = $this->Execute("select name from system.columns where parent='$table'");
                 if(!$recordSet){
@@ -654,7 +654,7 @@ class ADORecordSet_ads extends ADORecordSet {
   var $useFetchArray;
   var $_has_stupid_odbc_fetch_api_change;
 
-  function ADORecordSet_ads($id,$mode=false)
+  function __construct($id,$mode=false)
   {
     if ($mode === false) {
       global $ADODB_FETCH_MODE;
@@ -667,7 +667,7 @@ class ADORecordSet_ads extends ADORecordSet {
     // the following is required for mysql odbc driver in 4.3.1 -- why?
     $this->EOF = false;
     $this->_currentRow = -1;
-    //$this->ADORecordSet($id);
+    //parent::__construct($id);
   }
 
 
@@ -731,7 +731,7 @@ class ADORecordSet_ads extends ADORecordSet {
     $this->fetchMode = $savem;
 
     if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-      $this->fields =& $this->GetRowAssoc(ADODB_ASSOC_CASE);
+      $this->fields =& $this->GetRowAssoc();
     }
 
     $results = array();
@@ -749,18 +749,8 @@ class ADORecordSet_ads extends ADORecordSet {
   {
     if ($this->_numOfRows != 0 && !$this->EOF) {
       $this->_currentRow++;
-
-      if ($this->_has_stupid_odbc_fetch_api_change)
-        $rez = @ads_fetch_into($this->_queryID,$this->fields);
-      else {
-        $row = 0;
-        $rez = @ads_fetch_into($this->_queryID,$row,$this->fields);
-      }
-      if ($rez) {
-        if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-          $this->fields =& $this->GetRowAssoc(ADODB_ASSOC_CASE);
-        }
-        return true;
+      if( $this->_fetch() ) {
+          return true;
       }
     }
     $this->fields = false;
@@ -770,7 +760,7 @@ class ADORecordSet_ads extends ADORecordSet {
 
   function _fetch()
   {
-
+    $this->fields = false;
     if ($this->_has_stupid_odbc_fetch_api_change)
       $rez = @ads_fetch_into($this->_queryID,$this->fields);
     else {
@@ -779,11 +769,10 @@ class ADORecordSet_ads extends ADORecordSet {
     }
     if ($rez) {
       if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-        $this->fields =& $this->GetRowAssoc(ADODB_ASSOC_CASE);
+        $this->fields =& $this->GetRowAssoc();
       }
       return true;
     }
-    $this->fields = false;
     return false;
   }
 
@@ -793,4 +782,3 @@ class ADORecordSet_ads extends ADORecordSet {
   }
 
 }
-?>

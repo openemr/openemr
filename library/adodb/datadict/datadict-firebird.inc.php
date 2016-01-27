@@ -1,76 +1,78 @@
 <?php
 
 /**
-  V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
-  Released under both BSD license and Lesser GPL library license. 
-  Whenever there is any discrepancy between the two licenses, 
+  @version   v5.20.2  27-Dec-2015
+  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+  Released under both BSD license and Lesser GPL library license.
+  Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
-	
+
   Set tabs to 4 for best viewing.
- 
+
 */
 
 class ADODB2_firebird extends ADODB_DataDict {
-	
+
 	var $databaseType = 'firebird';
 	var $seqField = false;
 	var $seqPrefix = 'gen_';
-	var $blobSize = 40000;	
- 	
+	var $blobSize = 40000;
+
  	function ActualType($meta)
 	{
 		switch($meta) {
 		case 'C': return 'VARCHAR';
-		case 'XL': return 'VARCHAR(32000)'; 
-		case 'X': return 'VARCHAR(4000)'; 
-		
+		case 'XL': return 'VARCHAR(32000)';
+		case 'X': return 'VARCHAR(4000)';
+
 		case 'C2': return 'VARCHAR'; // up to 32K
 		case 'X2': return 'VARCHAR(4000)';
-		
+
 		case 'B': return 'BLOB';
-			
+
 		case 'D': return 'DATE';
 		case 'TS':
 		case 'T': return 'TIMESTAMP';
-		
+
 		case 'L': return 'SMALLINT';
 		case 'I': return 'INTEGER';
 		case 'I1': return 'SMALLINT';
 		case 'I2': return 'SMALLINT';
 		case 'I4': return 'INTEGER';
 		case 'I8': return 'INTEGER';
-		
+
 		case 'F': return 'DOUBLE PRECISION';
 		case 'N': return 'DECIMAL';
 		default:
 			return $meta;
 		}
 	}
-	
+
 	function NameQuote($name = NULL)
 	{
 		if (!is_string($name)) {
 			return FALSE;
 		}
-		
+
 		$name = trim($name);
-		
+
 		if ( !is_object($this->connection) ) {
 			return $name;
 		}
-		
+
 		$quote = $this->connection->nameQuote;
-		
+
 		// if name is of the form `name`, quote it
 		if ( preg_match('/^`(.+)`$/', $name, $matches) ) {
 			return $quote . $matches[1] . $quote;
 		}
-		
+
 		// if name contains special characters, quote it
 		if ( !preg_match('/^[' . $this->nameRegex . ']+$/', $name) ) {
 			return $quote . $name . $quote;
 		}
-		
+
 		return $quote . $name . $quote;
 	}
 
@@ -78,12 +80,12 @@ class ADODB2_firebird extends ADODB_DataDict {
 	{
 		$options = $this->_Options($options);
 		$sql = array();
-		
+
 		$sql[] = "DECLARE EXTERNAL FUNCTION LOWER CSTRING(80) RETURNS CSTRING(80) FREE_IT ENTRY_POINT 'IB_UDF_lower' MODULE_NAME 'ib_udf'";
-		
+
 		return $sql;
 	}
-	
+
 	function _DropAutoIncrement($t)
 	{
 		if (strpos($t,'.') !== false) {
@@ -92,20 +94,20 @@ class ADODB2_firebird extends ADODB_DataDict {
 		}
 		return 'DROP GENERATOR "GEN_'.$t;
 	}
-	
+
 
 	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
 		$suffix = '';
-		
+
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
 		if ($fnotnull) $suffix .= ' NOT NULL';
 		if ($fautoinc) $this->seqField = $fname;
 		if ($fconstraint) $suffix .= ' '.$fconstraint;
-		
+
 		return $suffix;
 	}
-	
+
 /*
 CREATE or replace TRIGGER jaddress_insert
 before insert on jaddress
@@ -116,9 +118,9 @@ IF ( NEW."seqField" IS NULL OR NEW."seqField" = 0 ) THEN
 end;
 */
 	function _Triggers($tabname,$tableoptions)
-	{	
+	{
 		if (!$this->seqField) return array();
-		
+
 		$tab1 = preg_replace( '/"/', '', $tabname );
 		if ($this->schema) {
 			$t = strpos($tab1,'.');
@@ -141,12 +143,9 @@ end;
 		{ $sql[] = "CREATE GENERATOR \"$seqname\"";
 		  $sql[] = "CREATE TRIGGER \"$trigname\" FOR $tabname BEFORE INSERT OR UPDATE AS BEGIN IF ( NEW.$seqField IS NULL OR NEW.$seqField = 0 ) THEN NEW.$seqField = GEN_ID(\"$seqname\", 1); END";
 		}
-		
+
 		$this->seqField = false;
 		return $sql;
 	}
 
 }
-
-
-?>

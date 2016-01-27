@@ -2,8 +2,10 @@
 
 
 /*
-V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
-         Contributed by Ross Smith (adodb@netebb.com). 
+@version   v5.20.2  27-Dec-2015
+@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+         Contributed by Ross Smith (adodb@netebb.com).
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -34,16 +36,16 @@ if (defined('ADODB_SESSION')) return 1;
 define('ADODB_SESSION', dirname(__FILE__));
 
 
-/* 
-	Unserialize session data manually. See http://phplens.com/lens/lensforum/msgs.php?id=9821 
-	
-	From Kerr Schere, to unserialize session data stored via ADOdb. 
-	1. Pull the session data from the db and loop through it. 
-	2. Inside the loop, you will need to urldecode the data column. 
+/*
+	Unserialize session data manually. See http://phplens.com/lens/lensforum/msgs.php?id=9821
+
+	From Kerr Schere, to unserialize session data stored via ADOdb.
+	1. Pull the session data from the db and loop through it.
+	2. Inside the loop, you will need to urldecode the data column.
 	3. After urldecode, run the serialized string through this function:
 
 */
-function adodb_unserialize( $serialized_string ) 
+function adodb_unserialize( $serialized_string )
 {
 	$variables = array( );
 	$a = preg_split( "/(\w+)\|/", $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
@@ -57,7 +59,7 @@ function adodb_unserialize( $serialized_string )
 	Thanks Joe Li. See http://phplens.com/lens/lensforum/msgs.php?id=11487&x=1
 	Since adodb 4.61.
 */
-function adodb_session_regenerate_id() 
+function adodb_session_regenerate_id()
 {
 	$conn = ADODB_Session::_conn();
 	if (!$conn) return false;
@@ -73,7 +75,7 @@ function adodb_session_regenerate_id()
 	}
 	$new_id = session_id();
 	$ok = $conn->Execute('UPDATE '. ADODB_Session::table(). ' SET sesskey='. $conn->qstr($new_id). ' WHERE sesskey='.$conn->qstr($old_id));
-	
+
 	/* it is possible that the update statement fails due to a collision */
 	if (!$ok) {
 		session_id($old_id);
@@ -81,7 +83,7 @@ function adodb_session_regenerate_id()
 		setcookie(session_name(), session_id(), false, $ck['path'], $ck['domain'], $ck['secure']);
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -111,13 +113,13 @@ class ADODB_Session {
 	/////////////////////
 	// getter/setter methods
 	/////////////////////
-	
+
 	/*
-	
+
 	function Lock($lock=null)
 	{
 	static $_lock = false;
-	
+
 		if (!is_null($lock)) $_lock = $lock;
 		return $lock;
 	}
@@ -219,7 +221,7 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function persist($persist = null) 
+	function persist($persist = null)
 	{
 		static $_persist = true;
 
@@ -492,7 +494,7 @@ class ADODB_Session {
 	/////////////////////
 	// public methods
 	/////////////////////
-	
+
 	function config($driver, $host, $user, $password, $database=false,$options=false)
 	{
 		ADODB_Session::driver($driver);
@@ -500,9 +502,9 @@ class ADODB_Session {
 		ADODB_Session::user($user);
 		ADODB_Session::password($password);
 		ADODB_Session::database($database);
-		
+
 		if ($driver == 'oci8' || $driver == 'oci8po') $options['lob'] = 'CLOB';
-		
+
 		if (isset($options['table'])) ADODB_Session::table($options['table']);
 		if (isset($options['lob'])) ADODB_Session::clob($options['lob']);
 		if (isset($options['debug'])) ADODB_Session::debug($options['debug']);
@@ -513,7 +515,7 @@ class ADODB_Session {
 
 		If $conn already exists, reuse that connection
 	*/
-	function open($save_path, $session_name, $persist = null) 
+	function open($save_path, $session_name, $persist = null)
 	{
 		$conn = ADODB_Session::_conn();
 
@@ -560,7 +562,7 @@ class ADODB_Session {
 		if ($ok) $GLOBALS['ADODB_SESS_CONN'] = $conn;
 		else
 			ADOConnection::outp('<p>Session: connection failed</p>', false);
-		
+
 
 		return $ok;
 	}
@@ -568,7 +570,7 @@ class ADODB_Session {
 	/*!
 		Close the connection
 	*/
-	function close() 
+	function close()
 	{
 /*
 		$conn = ADODB_Session::_conn();
@@ -580,7 +582,7 @@ class ADODB_Session {
 	/*
 		Slurp in the session variables and return the serialized string
 	*/
-	function read($key) 
+	function read($key)
 	{
 		$conn	= ADODB_Session::_conn();
 		$data	= ADODB_Session::dataFieldName();
@@ -595,15 +597,15 @@ class ADODB_Session {
 
 		$qkey = $conn->quote($key);
 		$binary = $conn->dataProvider === 'mysql' ? '/*! BINARY */' : '';
-	
+
 		$sql = "SELECT $data FROM $table WHERE sesskey = $binary $qkey AND expiry >= " . time();
-		/* Lock code does not work as it needs to hold transaction within whole page, and we don't know if 
+		/* Lock code does not work as it needs to hold transaction within whole page, and we don't know if
 		  developer has commited elsewhere... :(
 		 */
 		#if (ADODB_Session::Lock())
 		#	$rs = $conn->RowLock($table, "$binary sesskey = $qkey AND expiry >= " . time(), $data);
 		#else
-		
+
 			$rs = $conn->Execute($sql);
 		//ADODB_Session::_dumprs($rs);
 		if ($rs) {
@@ -634,12 +636,12 @@ class ADODB_Session {
 
 		If the data has not been modified since the last read(), we do not write.
 	*/
-	function write($key, $val) 
+	function write($key, $val)
 	{
 	global $ADODB_SESSION_READONLY;
-	
+
 		if (!empty($ADODB_SESSION_READONLY)) return;
-		
+
 		$clob			= ADODB_Session::clob();
 		$conn			= ADODB_Session::_conn();
 		$crc			= ADODB_Session::_crc();
@@ -650,12 +652,12 @@ class ADODB_Session {
 		$filter			= ADODB_Session::filter();
 		$lifetime		= ADODB_Session::lifetime();
 		$table			= ADODB_Session::table();
-	
+
 		if (!$conn) {
 			return false;
 		}
 		$qkey = $conn->qstr($key);
-	
+
 		//assert('$table');
 
 		$expiry = time() + $lifetime;
@@ -668,7 +670,7 @@ class ADODB_Session {
 			if ($debug) {
 				ADOConnection::outp( '<p>Session: Only updating date - crc32 not changed</p>');
 			}
-			
+
 			$expirevar = '';
 			if ($expire_notify) {
 				$var = reset($expire_notify);
@@ -677,8 +679,8 @@ class ADODB_Session {
 					$expirevar = $$var;
 				}
 			}
-			
-			
+
+
 			$sql = "UPDATE $table SET expiry = ".$conn->Param('0').",expireref=".$conn->Param('1')." WHERE $binary sesskey = ".$conn->Param('2')." AND expiry >= ".$conn->Param('3');
 			$rs = $conn->Execute($sql,array($expiry,$expirevar,$key,time()));
 			return true;
@@ -702,7 +704,7 @@ class ADODB_Session {
 		if (!$clob) {	// no lobs, simply use replace()
 			$arr[$data] = $val;
 			$rs = $conn->Replace($table, $arr, 'sesskey', $autoQuote = true);
-			
+
 		} else {
 			// what value shall we insert/update for lob row?
 			switch ($driver) {
@@ -719,7 +721,7 @@ class ADODB_Session {
 					$lob_value = 'null';
 					break;
 			}
-			
+
 			$conn->StartTrans();
 			$expiryref = $conn->qstr($arr['expireref']);
 			// do we insert or update? => as for sesskey
@@ -730,15 +732,15 @@ class ADODB_Session {
 				$sql = "INSERT INTO $table (expiry, $data, sesskey,expireref) VALUES ($expiry, $lob_value, $qkey,$expiryref)";
 			}
 			if ($rs)$rs->Close();
-			
+
 
 			$err = '';
 			$rs1 = $conn->Execute($sql);
 			if (!$rs1) $err = $conn->ErrorMsg()."\n";
-			
+
 			$rs2 = $conn->UpdateBlob($table, $data, $val, " sesskey=$qkey", strtoupper($clob));
 			if (!$rs2) $err .= $conn->ErrorMsg()."\n";
-			
+
 			$rs = ($rs && $rs2) ? true : false;
 			$conn->CompleteTrans();
 		}
@@ -810,7 +812,7 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function gc($maxlifetime) 
+	function gc($maxlifetime)
 	{
 		$conn			= ADODB_Session::_conn();
 		$debug			= ADODB_Session::debug();
@@ -846,11 +848,11 @@ class ADODB_Session {
 					$rs->MoveNext();
 				}
 				$rs->Close();
-				
+
 				$conn->CompleteTrans();
 			}
 		} else {
-		
+
 			if (1) {
 				$sql = "SELECT sesskey FROM $table WHERE expiry < $time";
 				$arr = $conn->GetAll($sql);
@@ -927,8 +929,6 @@ function adodb_sess_open($save_path, $session_name, $persist = true) {
 
 // for backwards compatability only
 function adodb_sess_gc($t)
-{	
+{
 	return ADODB_Session::gc($t);
 }
-
-?>

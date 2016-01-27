@@ -1,35 +1,33 @@
 <?php
 // Chinese language file contributed by "Cuiyan (cysoft)" cysoft#php.net.
-// Encode by GB2312
 // Simplified Chinese
 $ADODB_LANG_ARRAY = array (
 			'LANG'                      => 'cn',
-            DB_ERROR                    => 'Î´Öª´íÎó',
-            DB_ERROR_ALREADY_EXISTS     => 'ÒÑ¾­´æÔÚ',
-            DB_ERROR_CANNOT_CREATE      => '²»ÄÜ´´½¨',
-            DB_ERROR_CANNOT_DELETE      => '²»ÄÜÉ¾³ý',
-            DB_ERROR_CANNOT_DROP        => '²»ÄÜ¶ªÆú',
-            DB_ERROR_CONSTRAINT         => 'Ô¼ÊøÏÞÖÆ',
-            DB_ERROR_DIVZERO            => '±»0³ý',
-            DB_ERROR_INVALID            => 'ÎÞÐ§',
-            DB_ERROR_INVALID_DATE       => 'ÎÞÐ§µÄÈÕÆÚ»òÕßÊ±¼ä',
-            DB_ERROR_INVALID_NUMBER     => 'ÎÞÐ§µÄÊý×Ö',
-            DB_ERROR_MISMATCH           => '²»Æ¥Åä',
-            DB_ERROR_NODBSELECTED       => 'Ã»ÓÐÊý¾Ý¿â±»Ñ¡Ôñ',
-            DB_ERROR_NOSUCHFIELD        => 'Ã»ÓÐÏàÓ¦µÄ×Ö¶Î',
-            DB_ERROR_NOSUCHTABLE        => 'Ã»ÓÐÏàÓ¦µÄ±í',
-            DB_ERROR_NOT_CAPABLE        => 'Êý¾Ý¿âºóÌ¨²»¼æÈÝ',
-            DB_ERROR_NOT_FOUND          => 'Ã»ÓÐ·¢ÏÖ',
-            DB_ERROR_NOT_LOCKED         => 'Ã»ÓÐ±»Ëø¶¨',
-            DB_ERROR_SYNTAX             => 'Óï·¨´íÎó',
-            DB_ERROR_UNSUPPORTED        => '²»Ö§³Ö',
-            DB_ERROR_VALUE_COUNT_ON_ROW => 'ÔÚÐÐÉÏÀÛ¼ÆÖµ',
-            DB_ERROR_INVALID_DSN        => 'ÎÞÐ§µÄÊý¾ÝÔ´ (DSN)',
-            DB_ERROR_CONNECT_FAILED     => 'Á¬½ÓÊ§°Ü',
-            0	                       => 'Ã»ÓÐ´íÎó', // DB_OK
-            DB_ERROR_NEED_MORE_DATA     => 'Ìá¹©µÄÊý¾Ý²»ÄÜ·ûºÏÒªÇó',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'À©Õ¹Ã»ÓÐ±»·¢ÏÖ',
-            DB_ERROR_NOSUCHDB           => 'Ã»ÓÐÏàÓ¦µÄÊý¾Ý¿â',
-            DB_ERROR_ACCESS_VIOLATION   => 'Ã»ÓÐºÏÊÊµÄÈ¨ÏÞ'
+            DB_ERROR                    => 'æœªçŸ¥é”™è¯¯',
+            DB_ERROR_ALREADY_EXISTS     => 'å·²ç»å­˜åœ¨',
+            DB_ERROR_CANNOT_CREATE      => 'ä¸èƒ½åˆ›å»º',
+            DB_ERROR_CANNOT_DELETE      => 'ä¸èƒ½åˆ é™¤',
+            DB_ERROR_CANNOT_DROP        => 'ä¸èƒ½ä¸¢å¼ƒ',
+            DB_ERROR_CONSTRAINT         => 'çº¦æŸé™åˆ¶',
+            DB_ERROR_DIVZERO            => 'è¢«0é™¤',
+            DB_ERROR_INVALID            => 'æ— æ•ˆ',
+            DB_ERROR_INVALID_DATE       => 'æ— æ•ˆçš„æ—¥æœŸæˆ–è€…æ—¶é—´',
+            DB_ERROR_INVALID_NUMBER     => 'æ— æ•ˆçš„æ•°å­—',
+            DB_ERROR_MISMATCH           => 'ä¸åŒ¹é…',
+            DB_ERROR_NODBSELECTED       => 'æ²¡æœ‰æ•°æ®åº“è¢«é€‰æ‹©',
+            DB_ERROR_NOSUCHFIELD        => 'æ²¡æœ‰ç›¸åº”çš„å­—æ®µ',
+            DB_ERROR_NOSUCHTABLE        => 'æ²¡æœ‰ç›¸åº”çš„è¡¨',
+            DB_ERROR_NOT_CAPABLE        => 'æ•°æ®åº“åŽå°ä¸å…¼å®¹',
+            DB_ERROR_NOT_FOUND          => 'æ²¡æœ‰å‘çŽ°',
+            DB_ERROR_NOT_LOCKED         => 'æ²¡æœ‰è¢«é”å®š',
+            DB_ERROR_SYNTAX             => 'è¯­æ³•é”™è¯¯',
+            DB_ERROR_UNSUPPORTED        => 'ä¸æ”¯æŒ',
+            DB_ERROR_VALUE_COUNT_ON_ROW => 'åœ¨è¡Œä¸Šç´¯è®¡å€¼',
+            DB_ERROR_INVALID_DSN        => 'æ— æ•ˆçš„æ•°æ®æº (DSN)',
+            DB_ERROR_CONNECT_FAILED     => 'è¿žæŽ¥å¤±è´¥',
+            0	                       => 'æ²¡æœ‰é”™è¯¯', // DB_OK
+            DB_ERROR_NEED_MORE_DATA     => 'æä¾›çš„æ•°æ®ä¸èƒ½ç¬¦åˆè¦æ±‚',
+            DB_ERROR_EXTENSION_NOT_FOUND=> 'æ‰©å±•æ²¡æœ‰è¢«å‘çŽ°',
+            DB_ERROR_NOSUCHDB           => 'æ²¡æœ‰ç›¸åº”çš„æ•°æ®åº“',
+            DB_ERROR_ACCESS_VIOLATION   => 'æ²¡æœ‰åˆé€‚çš„æƒé™'
 );
-?>

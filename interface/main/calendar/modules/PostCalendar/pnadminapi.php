@@ -43,7 +43,7 @@ function postcalendar_adminapi_buildHourSelect($args)
         $hour = $time24hours ? date('H') : date('h'); 
     }
     
-    $output =& new pnHTML();
+    $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     
     $options = array();
@@ -102,7 +102,7 @@ function postcalendar_adminapi_getAdminListEvents($args)
 function postcalendar_adminapi_buildAdminList($args) 
 {
 	extract($args);
-	$output =& new pnHTML();
+	$output = new pnHTML();
 	$output->SetInputMode(_PNH_VERBATIMINPUT);
 	pnThemeLoad(pnUserGetTheme());
     // get the theme globals :: is there a better way to do this?
@@ -224,7 +224,7 @@ function postcalendar_adminapi_buildMinSelect($args)
         $min = date('i'); 
     }
     
-    $output =& new pnHTML();
+    $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     
     $options = array();
@@ -242,7 +242,7 @@ function postcalendar_adminapi_buildAMPMSelect($args)
 {   
     extract($args);
     
-    $output =& new pnHTML();
+    $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     
     $options = array();
@@ -262,7 +262,7 @@ function postcalendar_adminapi_buildAMPMSelect($args)
 }
 
 function postcalendar_adminapi_waiting($args) 
-{   $output =& new pnHTML();
+{   $output = new pnHTML();
     $output = "waiting<br />";
     return $output->GetOutput();
 }
