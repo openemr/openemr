@@ -40,8 +40,8 @@ require_once(dirname(__FILE__) . "/../globals.php");
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 </head>
 <body class="body_top uploadCcrDoc">
-<center>
-<p><b><?php echo xlt("Steps for uploading CCR XML");?></b></p>
+
+<p class="title-custom"><b><?php echo xlt("Steps for uploading CCR XML");?></b></p>
 <table style="width:85%;font-size:14px;" class="table table-bordered table-striped">
   <tr>
     <td>1.</td>
@@ -60,7 +60,7 @@ require_once(dirname(__FILE__) . "/../globals.php");
     <td><?php echo xlt('Approve the patient from Patient/Client->Import->Pending Approval').'.'; ?></td>
   </tr>
 </table>
-</center>
+
 </form>
 </body>
 </html>

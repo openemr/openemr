@@ -426,10 +426,10 @@ function authorized_clicked() {
 
 <div>
     <div>
-       <table class="table table-striped table-bordered">
+       <table class="table table-striped">
 	  <tr >
-		<td><b><?php xl('User / Groups','e'); ?></b></td>
-		<td><a href="usergroup_admin_add.php" class="iframe_medium css_button"><span><?php xl('Add User','e'); ?></span></a>
+		<td width="250"><p class="title-custom"><b><?php xl('User / Groups','e'); ?></b></p></td>
+		<td width="100"><a href="usergroup_admin_add.php" class="iframe_medium css_button"><span><?php xl('Add User','e'); ?></span></a>
 		</td>
 		<td><a href="facility_user.php" class="css_button"><span><?php xl('View Facility Specific User Information','e'); ?></span></a>
 		</td>

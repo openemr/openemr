@@ -336,7 +336,7 @@ return false;
 ' style="display:inline" >
 <table width="100%" border="0"  cellspacing="0" cellpadding="0">
   <tr>
-    <td colspan="3" align="left"><b><?php echo htmlspecialchars( xl('Payments'), ENT_QUOTES) ?></b></td>
+    <td colspan="3" align="left"><p class="title" class="title-custom"><?php echo htmlspecialchars( xl('Payments'), ENT_QUOTES) ?></p></td>
   </tr>
   <tr height="15">
     <td colspan="3" align="left" ></td>
@@ -347,7 +347,8 @@ return false;
 		 <li class='current'><a href='new_payment.php'><?php echo htmlspecialchars( xl('New Payment'), ENT_QUOTES) ?></a></li>
 		 <li><a href='search_payments.php'><?php echo htmlspecialchars( xl('Search Payment'), ENT_QUOTES) ?></a></li>
 		 <li><a href='era_payments.php'><?php echo htmlspecialchars( xl('ERA Posting'), ENT_QUOTES) ?></a></li>
-		</ul>	</td>
+		</ul>	
+    </td>
   </tr>
   <tr>
     <td colspan="3" align="left" >

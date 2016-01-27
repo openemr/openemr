@@ -187,7 +187,7 @@ if ($GLOBALS['concurrent_layout']) {
         <?php } ?>
                   
                   
-                  <iframe src='<?php echo $frame1url ?>' name='RTop' id="RTop" scrolling='auto' style="width: 100%; min-height: 450px; border-bottom: 3px solid #7D7C7C; padding-left: 10px; margin-top: 4px;"></iframe>
+                  <iframe src='<?php echo $frame1url ?>' name='RTop' id="RTop" scrolling='auto' style="width: 100%; min-height: 450px; border-bottom: 3px solid #7D7C7C; padding-left: 10px; margin-top: 4px; padding-top: 10px;"></iframe>
                   <iframe src='messages/messages.php?form_active=1'  id="RBot" name='RBot' style="width: 100%;min-height: 272px; overflow: auto;padding-left: 20px;"></iframe>
                   <?php //include('messages/messages.php'); ?>
                     <!--<frame src='<?php //echo $frame1url ?>' name='RTop' scrolling='auto' />

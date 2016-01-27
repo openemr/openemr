@@ -135,9 +135,9 @@ tbody tr.odd {
 </script>
 </head>
 <body class="body_top" >
-<center>
-<p><b><?php echo xlt('Pending Approval');?></b></p>
-</center>
+
+<p class="title-custom"><b><?php echo xlt('Pending Approval');?></b></p>
+
 <form method="post" name="approve" "onsubmit='return top.restoreSession()'" >
 <center>
 <table style="width:80%;" border="0" class="table table-responsive table-striped table-bordered table-pendigApproval">
