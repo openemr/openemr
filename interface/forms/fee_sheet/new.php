@@ -173,7 +173,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   if (empty($units)) $units = 1;
   $units = max(1, intval($units));
   // We put unit price on the screen, not the total line item fee.
-  $price = $fee / $units;
+  $price = $fee * $units;
   $strike1 = ($id && $del) ? "<strike>" : "";
   $strike2 = ($id && $del) ? "</strike>" : "";
   echo " <tr>\n";
