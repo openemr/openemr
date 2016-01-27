@@ -36,7 +36,7 @@
  */
 
 if ( !defined('ADODB_DIR') ) {
-	define('ADODB_DIR', dirname(__FILE__).'/adodb');
+	define('ADODB_DIR', dirname(__FILE__).'/../library/adodb');
 }
 
 //openemr configuration file - bm - 05-2009
