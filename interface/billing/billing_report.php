@@ -360,7 +360,7 @@ document.onclick=TakeActionOnHide;
 </head>
 <body class="body_top" onLoad="TestExpandCollapse()">
 
-<p style='margin-top:5px;margin-bottom:5px;margin-left:5px'>
+<p class="title title-custom">
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <font class='title'><?php echo xlt('Billing Manager') ?></font>

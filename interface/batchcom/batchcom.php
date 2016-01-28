@@ -137,9 +137,9 @@ if ($_POST['form_action']=='Process') {
 	</head>
 	<body class="body_top">
 	<!-- larry's sms/email notification -->
-	<span class="title"><?php include_once("batch_navigation.php");?></span>
+        <p class="title-custom"><b><?php include_once("batch_navigation.php");?></b></p>
 	<!--- end of larry's insert -->
-	<span class="title"><?php xl('Batch Communication Tool','e')?></span>
+	<p class="title-custom"><b><?php xl('Batch Communication Tool','e')?></b></p>
 	<br><br>
 	<div class="text">
         <?php    
@@ -179,10 +179,10 @@ if ($_POST['form_action']=='Process') {
 </head>
 <body class="body_top batchCom">
 <!-- larry's sms/email notification -->
-<span class="title"><?php include_once("batch_navigation.php");?></span>
+<p class="title-custom"><b><?php include_once("batch_navigation.php");?></b></p>
 <!--- end of larry's insert -->
-<span class="title"><?php xl('Batch Communication Tool','e')?></span>
-<br><br>
+<p class="title title-custom"><b><?php xl('Batch Communication Tool','e')?></b></p>
+
 
 <!-- for the popup date selector -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>

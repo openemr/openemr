@@ -146,7 +146,7 @@ function sel_diagnosis() {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Cash Receipts by Provider','e'); ?></span>
+<p class='title title-custom'><b><?php xl('Report','e'); ?> - <?php xl('Cash Receipts by Provider','e'); ?></b></p>
 
 <form method='post' action='sl_receipts_report.php' id='theform'>
 

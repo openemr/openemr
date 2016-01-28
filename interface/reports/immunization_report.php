@@ -290,7 +290,7 @@ if ($_POST['form_get_hl7']==='true') {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Immunization Registry','e'); ?></span>
+    <p class='title title-custom'><b><?php xl('Report','e'); ?> - <?php xl('Immunization Registry','e'); ?></b></p>
 
 <div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>

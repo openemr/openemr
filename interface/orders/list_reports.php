@@ -151,6 +151,7 @@ function openPatient(pid) {
 </head>
 
 <body class="body_top">
+<p class="title title-custom"><b>Electronic Reports</b></p>
 <form method='post' action='list_reports.php' enctype='multipart/form-data'>
 
 <!-- This might be set by the results window: -->

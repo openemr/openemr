@@ -289,6 +289,7 @@ function validate(f) {
 </head>
 
 <body class="body_top">
+<p class="title title-custom"><b>Batch Results</b></p>
 <form method='post' action='orders_results.php?batch=<?php echo $form_batch; ?>&review=<?php echo $form_review; ?>'
  onsubmit='return validate(this)'>
 

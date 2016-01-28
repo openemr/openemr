@@ -63,7 +63,7 @@ $form_patient_id = trim($_POST['form_patient_id']);
 
 <body class="body_top">
 
-<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Chart Location Activity'); ?></span>
+<p class='title title-custom'><b><?php echo xlt('Report'); ?> - <?php echo xlt('Chart Location Activity'); ?></b></p>
 
 <?php
 $curr_pid = $pid;

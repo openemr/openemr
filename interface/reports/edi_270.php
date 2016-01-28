@@ -271,7 +271,7 @@
 		<!-- Required for the popup date selectors -->
 		<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-		<span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> - <?php echo htmlspecialchars( xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></span>
+		<p class='title title-custom'><b><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> - <?php echo htmlspecialchars( xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></b></p>
 
 		<div id="report_parameters_daterange">
 			<?php echo htmlspecialchars( date("d F Y", strtotime($form_from_date)), ENT_NOQUOTES) .

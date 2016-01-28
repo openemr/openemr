@@ -196,9 +196,9 @@
 	<body class="body_top">
 		<!-- Required for the popup date selectors -->
 		<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-		<span class='title'>
-		<?php echo xlt('Report - Patient List Creation');?>
-		</span>
+		<p class='title title-custom'>
+		   <b><?php echo xlt('Report - Patient List Creation');?></b>
+		</p>
 		<!-- Search can be done using age range, gender, and ethnicity filters.
 		Search options include diagnosis, procedure, prescription, medical history, and lab results.
 		-->

@@ -15355,11 +15355,6 @@ div.section, .bottom-panel, .rule_container, .rule_row {
   border-radius: 5px 5px 0 0 !important;
 }
 
-/* line 1906, bootstrap/sass/style_bootstrap.scss */
-div#addressbook_list {
-  padding-top: 15px;
-}
-
 /* line 1909, bootstrap/sass/style_bootstrap.scss */
 .rule_row {
   padding-bottom: 13px !important;
@@ -15457,6 +15452,23 @@ a#clear_active span {
 
 /* line 1975, bootstrap/sass/style_bootstrap.scss */
 .title-custom {
-  margin-left: 5px;
-  margin-top: 5px;
+  padding: 12px !important;
+  font-size: 18px !important;
+  background: #3175B0 !important;
+}
+
+/* line 1981, bootstrap/sass/style_bootstrap.scss */
+.title-custom b {
+  color: #fff !important;
+}
+
+/* line 1985, bootstrap/sass/style_bootstrap.scss */
+#dynamic {
+  padding-top: 15px !important;
+}
+
+/* line 1988, bootstrap/sass/style_bootstrap.scss */
+form[name="new_encounter"] {
+  padding-top: 25px !important;
+  padding-left: 15px !important;
 }

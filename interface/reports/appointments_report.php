@@ -163,7 +163,7 @@ function fetch_reminders($pid, $appt_date) {
 <div id="overDiv"
 	style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
-<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Appointments'); ?></span>
+    <p class='title title-custom'><b><?php echo xlt('Report'); ?> - <?php echo xlt('Appointments'); ?></b></p>
 
 <div id="report_parameters_daterange"><?php echo date("d F Y", strtotime($from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($to_date)); #sets date range for calendars ?>
 </div>

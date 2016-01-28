@@ -48,7 +48,7 @@ require_once("$srcdir/formatting.inc.php");
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Charts Checked Out','e'); ?></span>
+<p class='title title-custom'><b><?php xl('Report','e'); ?> - <?php xl('Charts Checked Out','e'); ?></b></p>
 
 <div id="report_results">
 <br/>

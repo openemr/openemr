@@ -114,7 +114,7 @@ $grand_total_amt_balance  = 0;
 
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
-<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Financial Summary by Service Code'); ?></span>
+<p class='title title-custom'><b><?php echo xlt('Report'); ?> - <?php echo xlt('Financial Summary by Service Code'); ?></b></p>
 <form method='post' action='svc_code_financial_report.php' id='theform'>
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>

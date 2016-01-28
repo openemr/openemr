@@ -379,7 +379,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 <form action='new_comprehensive_save.php' name='demographics_form' method='post' onsubmit='return validate(this)'>
 
-<span class='title'><?php xl('Search or Add Patient','e'); ?></span>
+    <p class='title title-custom'><b><?php xl('Search or Add Patient','e'); ?></b></p>
 
 <table width='100%' cellpadding='0' cellspacing='8'>
  <tr>

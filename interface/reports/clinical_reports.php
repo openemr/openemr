@@ -222,9 +222,9 @@ function sel_procedure(e) {
 <body class="body_top">
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-<span class='title'>
-<?php echo htmlspecialchars(xl('Report - Clinical'),ENT_NOQUOTES); ?>
-</span>
+<p class='title title-custom'>
+<b><?php echo htmlspecialchars(xl('Report - Clinical'),ENT_NOQUOTES); ?></b>
+</p>
 <!-- Search can be done using age range, gender, and ethnicity filters.
 Search options include diagnosis, procedure, prescription, medical history, and lab results.
 -->

@@ -66,7 +66,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
 
 <body class="body_top">
 
-<span class='title'><?php echo htmlspecialchars( xl('Web Search'), ENT_NOQUOTES); ?> - <?php echo htmlspecialchars( xl('Patient Education Materials'), ENT_NOQUOTES); ?></span>
+<p class='title title-custom'><b><?php echo htmlspecialchars( xl('Web Search'), ENT_NOQUOTES); ?> - <?php echo htmlspecialchars( xl('Patient Education Materials'), ENT_NOQUOTES); ?></b></p>
 
 <form method='post' action='patient_edu_web_lookup.php' id='theform' onsubmit='return top.restoreSession()'>
 

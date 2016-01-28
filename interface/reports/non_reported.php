@@ -288,7 +288,7 @@ if ($_POST['form_get_hl7']==='true') {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Syndromic Surveillance - Non Reported Issues','e'); ?></span>
+<p class='title title-custom'><b><?php xl('Report','e'); ?> - <?php xl('Syndromic Surveillance - Non Reported Issues','e'); ?></b></p>
 
 <div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>

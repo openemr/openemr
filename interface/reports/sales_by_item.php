@@ -314,7 +314,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
 
-<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Sales by Item'); ?></span>
+<p class='title title-custom'><b><?php echo xlt('Report'); ?> - <?php echo xlt('Sales by Item'); ?></b></p>
 
 <form method='post' action='sales_by_item.php' id='theform'>
 

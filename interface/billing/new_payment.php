@@ -336,7 +336,7 @@ return false;
 ' style="display:inline" >
 <table width="100%" border="0"  cellspacing="0" cellpadding="0">
   <tr>
-    <td colspan="3" align="left"><p class="title" class="title-custom"><?php echo htmlspecialchars( xl('Payments'), ENT_QUOTES) ?></p></td>
+    <td colspan="3" align="left"><p class="title title-custom"><b><?php echo htmlspecialchars( xl('Payments'), ENT_QUOTES) ?></b></p></td>
   </tr>
   <tr height="15">
     <td colspan="3" align="left" ></td>

@@ -310,9 +310,9 @@ input     { font-size:10pt; }
 <?php } ?>
 
 <?php if ($_GET['mode'] == "user") { ?>
-  <p class="title-custom"><b><?php xl('Edit User Settings','e'); ?></b>
+  <p class="title title-custom"><b><?php xl('Edit User Settings','e'); ?></b>
 <?php } else { ?>
-  <p class="title-custom"><b><?php xl('Edit Global Settings','e'); ?></b>
+  <p class="title title-custom"><b><?php xl('Edit Global Settings','e'); ?></b>
 <?php } ?>
 
 <ul class="tabNav">

@@ -72,7 +72,7 @@ require_once("../globals.php");
 
 <body class="body_top">
 
-<span class='title'><?php echo xlt('Background Services'); ?></span>
+    <p class='title title-custom'><b><?php echo xlt('Background Services'); ?></b></p>
 
 <form method='post' name='theform' id='theform' action='background_services.php' onsubmit='return top.restoreSession()'>
 

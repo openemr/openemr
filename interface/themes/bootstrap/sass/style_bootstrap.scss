@@ -1903,9 +1903,9 @@ div.section {
 .css_button_link a{
     border-radius: 5px 5px 0 0 !important;
 }
-div#addressbook_list {
-    padding-top: 15px;
-}
+//div#addressbook_list {
+//    padding-top: 15px;
+//}
 .rule_row {
     padding-bottom: 13px !important;
     margin-left: 15px;
@@ -1973,6 +1973,18 @@ a#clear_active span {
     padding-top: 13px !important;
 }
 .title-custom{
-    margin-left: 5px; 
-    margin-top: 5px;
+       padding: 12px !important;
+    font-size: 18px !important;
+    background: #3175B0 !important;
+}
+.title-custom b{
+    color: #fff !important;    
+    
+}
+#dynamic{
+    padding-top: 15px !important;
+}
+form[name="new_encounter"]{
+    padding-top: 25px !important;
+    padding-left: 15px !important;
 }

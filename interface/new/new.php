@@ -76,7 +76,7 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
-<span class='title'><?php xl('Add Patient Record','e');?></span>
+<p class='title title-custom'><b><?php xl('Add Patient Record','e');?></b></p>
 <?php } else { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"
  target='_top' onsubmit='return validate()'>

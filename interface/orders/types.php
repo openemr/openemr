@@ -239,7 +239,7 @@ function recolor() {
 <body class="body_nav confirguration">
 
 
-<h3 style='margin-top:0 text-align: left;'><?php xl('Types of Orders and Results','e') ?></h3>
+<p class="title title-custom"><b><?php xl('Types of Orders and Results','e') ?></b></p>
 
 <form method='post' name='theform' action='types.php?popup=<?php echo $popup ?>&order=<?php
 echo $order;

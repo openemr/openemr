@@ -76,7 +76,7 @@ else $logtop = 0;
 
 <body class="body_top">
 
-<span class='title'><?php echo xlt('Direct Message Log'); ?></span>
+    <p class='title title-custom'><b><?php echo xlt('Direct Message Log'); ?></b></p>
 
 <form method='post' name='theform' id='theform' action='direct_message_log.php' onsubmit='return top.restoreSession()'>
 <input type='hidden' name='lognext' id='lognext' value=''>

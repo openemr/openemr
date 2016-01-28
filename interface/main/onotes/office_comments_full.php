@@ -68,8 +68,8 @@ else { $backurl="../main_info.php"; }
 <a href="<?php echo $backurl; ?>" target="Main">
 <?php } ?>
 
-<span class="title"><?php echo xlt('Office Notes'); ?></span>
-<span class="back"><?php echo text($tback); ?></span></a>
+    <p class="title title-custom"><b><?php echo xlt('Office Notes'); ?>
+<span class="back"><?php echo text($tback); ?></span></b></p></a>
 
 <br>
 <input type="hidden" name="mode" value="new">

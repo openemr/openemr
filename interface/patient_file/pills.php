@@ -7,33 +7,37 @@
     }
 </style>
 <div  class="patient-pills">
+    <?php 
+    $query_str   = explode('&',$_SERVER['QUERY_STRING']);
+    $pill_str    = $query_str[0];
+    ?>
 <table cellspacing='0' cellpadding='0' border='0'>
  <tr>
   <td class="small" colspan='4'>
     <span class="css_button_link">
-        <a href="../summary/demographics.php?home" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='home')?'active':'no'; ?>">
+        <a href="../summary/demographics.php?home" onclick='top.restoreSession()' class="<?php echo ($pill_str=='home')?'active':'no'; ?>">
         <?php echo htmlspecialchars(xl('Home'),ENT_NOQUOTES);?></a>
         
         <span class="css_button_separator">|</span>
         
-        <a href="../history/history.php?history" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='history')?'active':'no'; ?>">
+        <a href="../history/history.php?history" onclick='top.restoreSession()' class="<?php echo ($pill_str=='history')?'active':'no'; ?>">
         <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
         
         <span class="css_button_separator">|</span>
         
         <?php //note that we have temporarily removed report screen from the modal view ?>
-        <a href="../report/patient_report.php?report" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='report')?'active':'no'; ?>">
+        <a href="../report/patient_report.php?report" onclick='top.restoreSession()' class="<?php echo ($pill_str=='report')?'active':'no'; ?>">
         <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
         
         <span class="css_button_separator">|</span>
         
         <?php //note that we have temporarily removed document screen from the modal view ?>
-        <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>&documents" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='documents')?'active':'no'; ?>">
+        <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>&documents" onclick='top.restoreSession()' class="<?php echo ($pill_str=='documents')?'active':'no'; ?>">
         <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
         
         <span class="css_button_separator">|</span>
         
-        <a href="../transaction/transactions.php?transactions" onclick='top.restoreSession()' class="<?php echo ($_SERVER['QUERY_STRING']=='transactions')?'active':'no'; ?>">
+        <a href="../transaction/transactions.php?transactions" onclick='top.restoreSession()' class="<?php echo ($pill_str=='transactions')?'active':'no'; ?>">
         <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
         
         <span class="css_button_separator">|</span>
