@@ -155,7 +155,7 @@ class Prescription extends ORDataObject {
     * Constructor sets all Prescription attributes to their default value
     */
     
-    function Prescription($id= "", $_prefix = "") {
+    function __construct($id= "", $_prefix = "") {
     
 	// Modified 7-2009 by BM to load the arrays from the lists in lists_options.
 	// Plan for this to only be temporary, hopefully have the lists used directly

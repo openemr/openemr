@@ -35,7 +35,7 @@ class Pharmacy extends ORDataObject{
 	/**
 	 * Constructor sets all Prescription attributes to their default value
 	 */
-	function Pharmacy($id = "", $prefix = "")	{
+	function __construct($id = "", $prefix = "")	{
 		$this->id = $id;
 		$this->name = "";
 		$this->email = "";

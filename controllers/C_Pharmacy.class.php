@@ -8,8 +8,8 @@ class C_Pharmacy extends Controller {
 	var $template_mod;
 	var $pharmacies;
 
-	function C_Pharmacy($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->pharmacies = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);

@@ -9,8 +9,8 @@ class C_PatientFinder extends Controller {
 	var $template_mod;
 	var $_db;
 	
-	function C_PatientFinder($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->_db = $GLOBALS['adodb']['db']; 
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);

@@ -36,7 +36,7 @@ class Tree {
 	*	@param mixed $root name or id of desired root node
 	*	@param int $root_type optional flag indicating if $root is a name or id, defaults to id
 	*/
-	function Tree($root,$root_type = ROOT_TYPE_ID) {
+	function __construct($root,$root_type = ROOT_TYPE_ID) {
 		$this->_db = $GLOBALS['adodb']['db'];
 		$this->_root = add_escape_custom($root);
 		$this->_root_type = add_escape_custom($root_type);

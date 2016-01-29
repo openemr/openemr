@@ -16,10 +16,10 @@ class WSClaim extends WSWrapper{
   var $claim;
   var $_db;
 
-  function WSClaim($patient_id, $encounter) {
+  function __construct($patient_id, $encounter) {
     if (!is_numeric($patient_id) && is_numeric($encounter)) return;
 
-    parent::WSWrapper(null,false);
+    parent::__construct(null,false);
 
     $this->patient_id = $patient_id;
     $this->encounter = $encounter;

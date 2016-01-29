@@ -51,7 +51,7 @@ class FormVitals extends ORDataObject {
 	 * Constructor sets all Form attributes to their default value
 	 */
 
-	function FormVitals($id= "", $_prefix = "")	{
+	function __construct($id= "", $_prefix = "")	{
 		if ($id > 0) {
 			$this->id = $id;
 			

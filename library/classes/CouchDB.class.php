@@ -26,7 +26,7 @@
 // +------------------------------------------------------------------------------+
 
 class CouchDB {
-    function CouchDB() {
+    function __construct() {
         $this->host = $GLOBALS['couchdb_host'];
         $this->user = ($GLOBALS['couchdb_user'] != '') ? $GLOBALS['couchdb_user'] : null;
         $this->pass = ($GLOBALS['couchdb_pass'] != '') ? $GLOBALS['couchdb_pass'] : null;

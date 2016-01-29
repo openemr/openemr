@@ -32,7 +32,7 @@ class PhoneNumber extends ORDataObject{
 	/**
 	 * Constructor sets all Prescription attributes to their default value
 	 */
-	function PhoneNumber($id = "",$foreign_id = "")	{
+	function __construct($id = "",$foreign_id = "")	{
 		$this->id = $id;
 		$this->foreign_id = $foreign_id;
 		$this->country_code = "+1";

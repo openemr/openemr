@@ -115,9 +115,9 @@ class Document extends ORDataObject{
 	 * Constructor sets all Document attributes to their default value
 	 * @param int $id optional existing id of a specific document, if omitted a "blank" document is created 
 	 */
-	function Document($id = "")	{
+	function __construct($id = "")	{
 		//call the parent constructor so we have a _db to work with
-		parent::ORDataObject();
+		parent::__construct();
 		
 		//shore up the most basic ORDataObject bits
 		$this->id = $id;

@@ -23,8 +23,8 @@ class C_Document extends Controller {
 	var $_config;
         var $manual_set_owner=false; // allows manual setting of a document owner/service
 
-	function C_Document($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 		$this->documents = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);

@@ -36,8 +36,8 @@ class C_Prescription extends Controller {
 	var $is_faxing = false;
 	var $is_print_to_fax = false;
 
-	function C_Prescription($template_mod = "general") {
-		parent::Controller();
+	function __construct($template_mod = "general") {
+		parent::__construct();
 
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);

@@ -91,7 +91,7 @@ class PDF_Label extends FPDF {
 	);
 
 	// Constructor
-	function PDF_Label($format, $unit='mm', $posX=1, $posY=1) {
+	function __construct($format, $unit='mm', $posX=1, $posY=1) {
 		if (is_array($format)) {
 			// Custom format
 			$Tformat = $format;
@@ -102,7 +102,7 @@ class PDF_Label extends FPDF {
 			$Tformat = $this->_Avery_Labels[$format];
 		}
 
-		parent::FPDF('P', $unit, $Tformat['paper-size']);
+		parent::__construct('P', $unit, $Tformat['paper-size']);
 		$this->_Metric_Doc = $unit;
 		$this->_Set_Format($Tformat);
 		$this->SetFont('Arial');

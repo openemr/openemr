@@ -27,7 +27,7 @@ class styleHTML
 	 * @param	&pdf		référence à l'objet HTML2PDF parent
 	 * @return	null
 	 */
-	function styleHTML(&$pdf)
+	function __construct(&$pdf)
 	{
 		$this->init();		// initialisation
 		$this->setPdfParent($pdf);

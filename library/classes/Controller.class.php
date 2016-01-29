@@ -13,8 +13,8 @@ class Controller extends Smarty {
        var $_state;
        var $_args = array();
 
-       function Controller() {
-               parent::Smarty();
+       function __construct() {
+               parent::__construct();
                $this->template_mod = "general";
                $this->_current_action = "";
                $this->_state = true;

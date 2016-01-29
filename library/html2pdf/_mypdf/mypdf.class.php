@@ -3,7 +3,7 @@
  * Logiciel : HTML2PDF - classe MyPDF
  * 
  * Convertisseur HTML => PDF
- * Distribué sous la licence LGPL. 
+ * Distribuï¿½ sous la licence LGPL. 
  *
  * @author		Laurent MINGUET <webmaster@html2pdf.fr>
  * @version		3.31
@@ -25,13 +25,13 @@ if (!defined('__CLASS_MYPDF__'))
 		var $linethrough	= false;
 		var $overline		= false;
 		
-		function MyPDF($sens = 'P', $unit = 'mm', $format = 'A4')
+		function __construct($sens = 'P', $unit = 'mm', $format = 'A4')
 		{
 			$this->underline	= false;
 			$this->overline		= false;
 			$this->linethrough	= false;
 			
-			$this->FPDF_Protection($sens, $unit, $format);
+			parent::__construct($sens, $unit, $format);
 			$this->AliasNbPages();
 			$this->SetMyFooter();
 		}
@@ -106,7 +106,7 @@ if (!defined('__CLASS_MYPDF__'))
 			$this->linethrough = $value;
 		}
 		
-		// redéfinition de la methode Text de FPDF afin de rajouter la gestion des overline et linethrough
+		// redï¿½finition de la methode Text de FPDF afin de rajouter la gestion des overline et linethrough
 		function Text($x, $y, $txt)
 		{
 			//Output a string
@@ -126,7 +126,7 @@ if (!defined('__CLASS_MYPDF__'))
 			$this->_out($s);
 		}
 
-		// redéfinition de la methode Cell de FPDF afin de rajouter la gestion des overline et linethrough
+		// redï¿½finition de la methode Cell de FPDF afin de rajouter la gestion des overline et linethrough
 		function Cell($w, $h=0, $txt='', $border=0, $ln=0, $align='', $fill=false, $link='')
 		{
 			//Output a cell

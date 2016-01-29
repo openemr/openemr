@@ -7,7 +7,7 @@ class WSWrapper {
 	var $_config;
 	var $value;
 
-	function WSWrapper($function,$send = true) {
+	function __construct($function,$send = true) {
 		$this->_config = $GLOBALS['oer_config']['ws_accounting'];
 		//print_r($this->_config);
 		if (!$this->_config['enabled']) return;

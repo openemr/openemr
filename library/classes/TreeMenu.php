@@ -74,7 +74,7 @@ class HTML_TreeMenu
     *
     * @access public
     */
-    function HTML_TreeMenu()
+    function __construct()
     {
         // Not much to do here :(
     }
@@ -404,7 +404,7 @@ class HTML_TreeNode
     *                       for the 'onexpand', 'oncollapse' and 'ontoggle' events which will be fired
     *                       whenever a node is collapsed and/or expanded.
     */
-    function HTML_TreeNode($options = array(), $events = array())
+    function __construct($options = array(), $events = array())
     {
         $this->text          = '';
         $this->link          = '';
@@ -504,7 +504,7 @@ class HTML_TreeMenu_Presentation
     *
     * @param object $structure The menu structure
     */
-    function HTML_TreeMenu_Presentation(&$structure)
+    function __construct(&$structure)
     {
         $this->menu = &$structure;
     }
@@ -598,9 +598,9 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
     * @param array  $options   Array of options
     * @param bool   $isDynamic Whether the tree is dynamic or not
     */
-    function HTML_TreeMenu_DHTML(&$structure, $options = array(), $isDynamic = true)
+    function __construct(&$structure, $options = array(), $isDynamic = true)
     {
-        $this->HTML_TreeMenu_Presentation($structure);
+        parent::__construct($structure);
         $this->isDynamic = $isDynamic;
 
         // Defaults
@@ -757,9 +757,9 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     *                           o linkTarget Target for the links. Defaults to "_self"
     *                           o submitText Text for the submit button. Defaults to "Go"
     */
-    function HTML_TreeMenu_Listbox($structure, $options = array())
+    function __construct($structure, $options = array())
     {
-        $this->HTML_TreeMenu_Presentation($structure);
+        parent::__construct($structure);
 
         $this->promoText  = null;
         $this->indentChar = '&nbsp;';

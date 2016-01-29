@@ -38,7 +38,7 @@ class NumberToText {
 	var $capatalize;
 	var $and;
 	
-	function NumberToText($number, $currency = false, $capatalize = false, $and = false) {
+	function __construct($number, $currency = false, $capatalize = false, $and = false) {
 		$this->number = $number;
 		$this->currency = $currency;
 		$this->capatalize = $capatalize;

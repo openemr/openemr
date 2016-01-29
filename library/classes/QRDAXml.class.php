@@ -27,7 +27,7 @@ class QRDAXml extends XmlWriterOemr {
 	public $unique_id;
 
 	function __construct($indent = '  ') {
-		parent::XmlWriterOemr($indent);
+		parent::__construct($indent);
 	}
 	
 	
