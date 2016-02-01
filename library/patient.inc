@@ -389,18 +389,17 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray=array())
 }
 
 /**
- * Allow the last name to be followed by a comma and some part of a first name.
- * New behavior for searches:
- * Allows comma alone followed by some part of a first name
- * The arbitrary limit of 100 results is set
- * in the sql query below. --Mark Leeds    
+ * Allow the last name to be followed by a comma and some part of a first name(can
+ *   also place middle name after the first name with a space separating them)
+ * Allows comma alone followed by some part of a first name(can also place middle name
+ *   after the first name with a space separating them).
+ * Allows comma alone preceded by some part of a last name.
+ * If no comma or space, then will search both last name and first name.
  * If the first letter of either name is capital, searches for name starting
- * with given substring (the expected behavior).  If it is lower case, it
- * it searches for the substring anywhere in the name.  This applies to either
- * last name or first name or both.
- * Allow first name followed by middle and/or last name. Comma is accepted, but
- * assume that, if there are spaces, it will be FIRST MIDDLE LAST. --N.Dragon
- * 
+ *   with given substring (the expected behavior). If it is lower case, it
+ *   searches for the substring anywhere in the name. This applies to either
+ *   last name, first name, and middle name.
+ * Also allows first name followed by middle and/or last name when separated by spaces.
  * @param string $term
  * @param string $given
  * @param string $orderby
@@ -413,33 +412,56 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
     $names = getPatientNameSplit($term);
     
     foreach ($names as $key => $val) {
+      if (!empty($val)) {
         if ((strlen($val) > 1) && ($names[$key][0] != strtoupper($names[$key][0]))) {
             $names[$key] = '%' . $val . '%';            
         } else { 
             $names[$key] = $val . '%';            
         }
+      }
     }
-    
+
+    // Debugging section below
+    //if(array_key_exists('first',$names)) {
+    //    error_log("first name search term :".$names['first']);
+    //}
+    //if(array_key_exists('middle',$names)) {
+    //    error_log("middle name search term :".$names['middle']);
+    //}
+    //if(array_key_exists('last',$names)) {
+    //    error_log("last name search term :".$names['last']);
+    //}
+    // Debugging section above
+ 
     $sqlBindArray = array();
-    if($names['first'] == '' && $names['last'] != '%') {
-        // First name may have been entered instead of last name
+    if(array_key_exists('last',$names) && $names['last'] == '') {
+        // Do not search last name
+        $where = "fname LIKE ? ";
+        array_push($sqlBindArray, $names['first']);
+        if ($names['middle'] != '') {        
+            $where .= "AND mname LIKE ? ";  
+            array_push($sqlBindArray, $names['middle']);
+        }
+    } elseif(array_key_exists('first',$names) && $names['first'] == '') {
+        // Do not search first name or middle name
+        $where = "lname LIKE ? ";
+        array_push($sqlBindArray, $names['last']);
+    } elseif($names['first'] == '' && $names['last'] != '') {
+        // Search both first name and last name with same term
         $names['first'] = $names['last']; 
-    $where = "lname LIKE ? OR fname LIKE ? ";
+        $where = "lname LIKE ? OR fname LIKE ? ";
         array_push($sqlBindArray, $names['last'], $names['first']);
     } elseif ($names['middle'] != '') {        
-        $where = "lname LIKE ? AND fname LIKE ? AND mname LIKE ?";  
-        if ((strlen($names['middle']) > 1) && ($names['middle'][0] != strtoupper($names['middle'][0]))) {
-            $names['middle'] = '%' . $names['middle'] . '%';            
-        }
+        $where = "lname LIKE ? AND fname LIKE ? AND mname LIKE ? ";  
         array_push($sqlBindArray, $names['last'], $names['first'], $names['middle']);
     } else {
-         $where = "lname LIKE ? AND fname LIKE ? ";
+        $where = "lname LIKE ? AND fname LIKE ? ";
         array_push($sqlBindArray, $names['last'], $names['first']);
     }
 
         if (!empty($GLOBALS['pt_restrict_field'])) {
                 if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
-                        $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+                        $where .= " AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
                             " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
                             add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
 			array_push($sqlBindArray, $_SESSION{"authUser"});
@@ -461,7 +483,8 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
 /**
  * Accept a string used by a search function expected to find a patient name, 
  * then split up the string if a comma or space exists. Return an array having 
- * from 1 to 3 elements, named first, middle, and last. --N.Dragon
+ * from 1 to 3 elements, named first, middle, and last.
+ * See above getPatientLnames() function for details on how the splitting occurs.
  * @param string $term
  * @return array
  */
