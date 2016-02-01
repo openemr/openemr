@@ -330,7 +330,9 @@ foreach ($code_types as $key => $value) {
 
 </head>
 <body class="body_top" >
-
+<p class="title title-custom">
+    <b>Code</b>
+</p>
 <?php if ($GLOBALS['concurrent_layout']) {
 } else { ?>
 <a href='patient_encounter.php?codefrom=superbill' target='Main'>

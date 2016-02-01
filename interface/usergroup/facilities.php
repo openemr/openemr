@@ -105,8 +105,10 @@ $(document).ready(function(){
 
 <div>
     <div>
-	<table class="table table-striped"><tr><td width="200">
-        <b><?php xl('Facilities','e'); ?></b>&nbsp;</td><td>
+    <p class="title-custom">
+        <b><?php xl('Facilities','e'); ?></b>&nbsp;</b>    
+    </p>    
+	<table class="table table-striped"><tr><td>
 		 <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add','e');?></span></a>
 		 </td></tr>
 	</table>
