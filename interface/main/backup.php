@@ -130,6 +130,9 @@ if ($form_step == 104) {
 </head>
 
 <body class="body_top">
+<p class="title title-custom">
+	<b>Backup</b>
+</p>
 <center>
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data'>

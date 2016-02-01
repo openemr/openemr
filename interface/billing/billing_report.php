@@ -361,7 +361,7 @@ document.onclick=TakeActionOnHide;
 <body class="body_top" onLoad="TestExpandCollapse()">
 
 <p class="title title-custom">
-
+<b>
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <font class='title'><?php echo xlt('Billing Manager') ?></font>
 <?php } else if ($userauthorized) { ?>
@@ -369,7 +369,7 @@ document.onclick=TakeActionOnHide;
 <?php } else { ?>
 <a href="../main/onotes/office_comments.php" target='Main' onclick='top.restoreSession()'><font class=title><?php echo xlt('Billing Manager') ?></font><font class=more><?php echo $tback; ?></font></a>
 <?php } ?>
-
+</b>
 </p>
 
 <form name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()' style="display:inline">

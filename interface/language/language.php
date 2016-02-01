@@ -30,7 +30,7 @@ require_once("$srcdir/formdata.inc.php");
 <form name='translation' id='translation' method='get' action='language.php' onsubmit="return top.restoreSession()">
 <input type='hidden' name='m' value='<?php echo htmlspecialchars($_GET['m'],ENT_QUOTES); ?>' />
 <input type='hidden' name='edit' value='<?php echo htmlspecialchars($_GET['edit'],ENT_QUOTES); ?>' />
-<span class="title"><?php echo htmlspecialchars(xl('Multi Language Tool'),ENT_NOQUOTES); ?></span>
+<p class="title title-custom"><b><?php echo htmlspecialchars(xl('Multi Language Tool'),ENT_NOQUOTES); ?></b></p>
 <table class="table table-responsive table-striped table-bordered">
  <tr>
   <td class="small" colspan='4'>

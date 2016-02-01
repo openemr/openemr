@@ -131,15 +131,13 @@ if (!empty($_POST['bn_upload'])) {
 <form method='post' action='load_codes.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
 
-<center>
+
 
 <p class='text'>
+<p class="title title-custom">
+   <b><?php echo xlt('Install Code Set'); ?></b>
+</p>
 <table border='1' cellpadding='4' class="table table-striped table-bordered">
- <tr bgcolor='#dddddd' class='dehead'>
-  <td align='center' colspan='2'>
-   <?php echo xlt('Install Code Set'); ?>
-  </td>
- </tr>
  <tr>
   <td class='detail' nowrap>
    <?php echo xlt('Code Type'); ?>
@@ -181,7 +179,7 @@ foreach (array('RXCUI') as $codetype) {
 
 <p class='bold'><?php echo xlt('Be patient, some files can take several minutes to process!'); ?></p>
 
-</center>
+
 
 <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
 <p class='text'>

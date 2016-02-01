@@ -70,7 +70,7 @@ function eventTypeChange(eventname)
 </script>
 </head>
 <body class="body_top">
-<font class="title"><?php  xl('Logs Viewer','e'); ?></font>
+<p class="title title-custom"><b><?php  xl('Logs Viewer','e'); ?></b></p>
 <br>
 <?php 
 $err_message=0;

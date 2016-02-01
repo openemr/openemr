@@ -256,7 +256,7 @@ div.tooltip p {
 </style>
 </head>
 <body class="body_top">
-<h4><?php echo xlt("External Database Import Utility"); ?></h4>
+<p class="title title-custom"><b><?php echo xlt("External Database Import Utility"); ?></b></p>
 <div id="accordion">
 	<h3><a href="#"><?php echo xlt("Overview"); ?></a></h3>
 	<div id="overivew" class="stg">

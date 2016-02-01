@@ -36,7 +36,7 @@ $formtarget = $GLOBALS['concurrent_layout'] ? "" : " target='Main'";
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">
-<span class="title"><?php xl('Forms Administration','e');?></span>
+<p class="title title-custom"><b><?php xl('Forms Administration','e');?></b></p>
 <br><br>
 <?php
 	foreach($_POST as $key=>$val) {

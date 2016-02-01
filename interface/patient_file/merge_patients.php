@@ -69,7 +69,7 @@ function sel_patient(ename, epid) {
 
 <body class="body_top">
 
-<center><h2><?php echo xlt('Merge Patients') ?></h2></center>
+<p class="title title-custom"><b><?php echo xlt('Merge Patients') ?></b></p>
 
 <?php
 

@@ -792,7 +792,7 @@ function mysubmit() {
 <form method='post' name='theform' id='theform' action='edit_list.php'>
 <input type="hidden" name="formaction" id="formaction">
 
-<p><b><?php xl('Edit list','e'); ?>:</b>&nbsp;
+<p class="title title-custom"><b><?php xl('Edit list','e'); ?>:</b>&nbsp;
 <select name='list_id' id="list_id">
 <?php
 

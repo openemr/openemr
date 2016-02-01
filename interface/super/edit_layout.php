@@ -958,7 +958,7 @@ function cidChanged(lino, seq) {
 <input type="hidden" name="selectedfields" id="selectedfields" value="">
 <input type="hidden" id="targetgroup" name="targetgroup" value="">
 
-<p><b><?php xl('Edit layout','e'); ?>:</b>&nbsp;
+<p class="title title-custom"><b><?php xl('Edit layout','e'); ?>:</b>&nbsp;
 <select name='layout_id' id='layout_id'>
  <option value=''>-- <?php echo xl('Select') ?> --</option>
 <?php

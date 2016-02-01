@@ -1,8 +1,9 @@
-<table class="header">
-  <tr>
-        <td class="title"><?php echo out( xl('Clinical Decision Rules Alert Manager') ); ?></td>
+
+        <p class="title title-custom"><b><?php echo out( xl('Clinical Decision Rules Alert Manager') ); ?></b></p>
         
-  </tr>
+
+<table class="header">
+  
   <tr>
         <td>
         	<a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Save') ); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Reset') ); ?></span></a>

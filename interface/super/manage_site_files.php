@@ -123,6 +123,9 @@ function msfFileChanged() {
 </head>
 
 <body class="body_top">
+<p class="title title-custom">
+	<b>Edit Files</b>
+</p>
 <form method='post' action='manage_site_files.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
 
