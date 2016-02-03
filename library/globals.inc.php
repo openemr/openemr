@@ -311,6 +311,21 @@ $GLOBALS_METADATA = array(
       xl('Special treatment for the Vitals form')
     ),
     
+    'insurance_information' => array(
+      xl('Show Additional Insurance Information'),               // descriptive name
+      array(
+        '0' => xl('None'),
+        '1' => xl('Address Only'),
+        '2' => xl('Address and Postal Code'),
+        '3' => xl('Address and State'),
+        '4' => xl('Address, State and Postal Code'),
+        '5' => xl('Postal Code and Box Number'),
+      ),
+      '0',                              // default = NONE
+      xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
+    
+  ),
+
   ),
 
   // Locale Tab

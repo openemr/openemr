@@ -77,21 +77,8 @@ function getInsuranceProvider($ins_id) {
 function getInsuranceProviders() {
     $returnval = array();
 
-    if (true) {
-        $sql = "select name, id from insurance_companies order by name, id";
-        $rez = sqlStatement($sql);
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
-            $returnval[$row['id']] = $row['name'];
-        }
-    }
-
-    // Please leave this here. I have a user who wants to see zip codes and PO
-    // box numbers listed along with the insurance company names, as many companies
-    // have different billing addresses for different plans.  -- Rod Roark
-    //
-    else {
         $sql = "select insurance_companies.name, insurance_companies.id, " .
-          "addresses.zip, addresses.line1 " .
+          "addresses.zip, addresses.line1, addresses.state " .
           "from insurance_companies, addresses " .
           "where addresses.foreign_id = insurance_companies.id " .
           "order by insurance_companies.name, addresses.zip";
@@ -99,9 +86,28 @@ function getInsuranceProviders() {
         $rez = sqlStatement($sql);
 
         for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+    switch ($GLOBALS['insurance_information']) {
+        case $GLOBALS['insurance_information'] = '0':
+            $returnval[$row['id']] = $row['name'];
+        break;
+        case $GLOBALS['insurance_information'] = '1':
+            $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ")";
+        break; 
+        case $GLOBALS['insurance_information'] = '2':
+           $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . "," . $row['zip'] . ")";	
+        break;
+        case $GLOBALS['insurance_information'] = '3':
+           $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . "," . $row['state'] . ")";
+        break; 
+        case $GLOBALS['insurance_information'] = '4':
+	       $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . "," . $row['state'] .
+           "," . $row['zip'] . ")";
+        break;
+        case $GLOBALS['insurance_information'] = '5':
             preg_match("/\d+/", $row['line1'], $matches);
             $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
               "," . $matches[0] . ")";
+        break; 
         }
     }
 
