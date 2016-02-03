@@ -12,6 +12,11 @@
  */
 require_once './libraries/common.inc.php';
 
+/**
+ * Libraries needed for some functions
+ */
+require_once './libraries/server_privileges.lib.php';
+
 $response = PMA_Response::getInstance();
 $header   = $response->getHeader();
 $scripts  = $header->getScripts();
@@ -21,8 +26,8 @@ $scripts->addFile('server_privileges.js');
  * Displays an error message and exits if the user isn't allowed to use this
  * script
  */
-if (! $cfg['ShowChgPassword']) {
-    $cfg['ShowChgPassword'] = $GLOBALS['dbi']->selectDb('mysql');
+if (! $GLOBALS['cfg']['ShowChgPassword']) {
+    $GLOBALS['cfg']['ShowChgPassword'] = $GLOBALS['dbi']->selectDb('mysql');
 }
 if ($cfg['Server']['auth_type'] == 'config' || ! $cfg['ShowChgPassword']) {
     PMA_Message::error(
@@ -62,7 +67,8 @@ if (isset($msg)) {
 }
 
 require_once './libraries/display_change_password.lib.php';
-echo PMA_getHtmlForChangePassword($username, $hostname);
+
+echo PMA_getHtmlForChangePassword('change_pw', $username, $hostname);
 exit;
 
 /**
@@ -128,18 +134,62 @@ function PMA_setChangePasswordMsg()
  */
 function PMA_changePassword($password, $message, $change_password_message)
 {
-    // Defines the url to return to in case of error in the sql statement
-    $_url_params = array();
+    global $auth_plugin;
+
     $hashing_function = PMA_changePassHashingFunction();
+
+    $orig_auth_plugin = null;
+
+    $row = $GLOBALS['dbi']->fetchSingleRow('SELECT CURRENT_USER() as user');
+    $curr_user = $row['user'];
+    list($username, $hostname) = explode('@', $curr_user);
+
+    $serverType = PMA_Util::getServerType();
+
+    if (isset($_REQUEST['authentication_plugin'])
+        && ! empty($_REQUEST['authentication_plugin'])
+    ) {
+        $orig_auth_plugin = $_REQUEST['authentication_plugin'];
+    } else {
+        $orig_auth_plugin = PMA_getCurrentAuthenticationPlugin(
+            'change', $username, $hostname
+        );
+    }
+
     $sql_query = 'SET password = '
         . (($password == '') ? '\'\'' : $hashing_function . '(\'***\')');
+
+    if ($serverType == 'MySQL'
+        && PMA_MYSQL_INT_VERSION >= 50706
+    ) {
+        $sql_query = 'ALTER USER \'' . $username . '\'@\'' . $hostname
+            . '\' IDENTIFIED WITH ' . $orig_auth_plugin . ' BY '
+            . (($password == '') ? '\'\'' : '\'***\'');
+    } else if (($serverType == 'MySQL'
+        && PMA_MYSQL_INT_VERSION >= 50507)
+        || ($serverType == 'MariaDB'
+        && PMA_MYSQL_INT_VERSION >= 50200)
+    ) {
+        // For MySQL versions 5.5.7+ and MariaDB versions 5.2+,
+        // explicitly set value of `old_passwords` so that
+        // it does not give an error while using
+        // the PASSWORD() function
+        if ($orig_auth_plugin == 'sha256_password') {
+            $value = 2;
+        } else {
+            $value = 0;
+        }
+        $GLOBALS['dbi']->tryQuery('SET `old_passwords` = ' . $value . ';');
+    }
+
     PMA_changePassUrlParamsAndSubmitQuery(
-        $password, $_url_params, $sql_query, $hashing_function
+        $username, $hostname, $password,
+        $sql_query, $hashing_function, $orig_auth_plugin
     );
 
-    $new_url_params = PMA_changePassAuthType($_url_params, $password);
+    $auth_plugin->handlePasswordChange($password);
     PMA_getChangePassMessage($change_password_message, $sql_query);
-    PMA_changePassDisplayPage($message, $sql_query, $new_url_params);
+    PMA_changePassDisplayPage($message, $sql_query);
 }
 
 /**
@@ -149,7 +199,9 @@ function PMA_changePassword($password, $message, $change_password_message)
  */
 function PMA_changePassHashingFunction()
 {
-    if (PMA_isValid($_REQUEST['pw_hash'], 'identical', 'old')) {
+    if (PMA_isValid(
+        $_REQUEST['authentication_plugin'], 'identical', 'mysql_old_password'
+    )) {
         $hashing_function = 'OLD_PASSWORD';
     } else {
         $hashing_function = 'PASSWORD';
@@ -160,83 +212,77 @@ function PMA_changePassHashingFunction()
 /**
  * Generate the error url and submit the query
  *
- * @param string $password         Password
- * @param array  $_url_params      URL parameters
- * @param string $sql_query        SQL query
- * @param string $hashing_function Hashing function
+ * @param string $username              Username
+ * @param string $hostname              Hostname
+ * @param string $password              Password
+ * @param string $sql_query             SQL query
+ * @param string $hashing_function      Hashing function
+ * @param string $orig_auth_plugin      Original Authentication Plugin
  *
  * @return void
  */
 function PMA_changePassUrlParamsAndSubmitQuery(
-    $password, $_url_params, $sql_query, $hashing_function
+    $username, $hostname, $password, $sql_query, $hashing_function, $orig_auth_plugin
 ) {
-    $err_url = 'user_password.php' . PMA_URL_getCommon($_url_params);
-    $local_query = 'SET password = ' . (($password == '')
-        ? '\'\''
-        : $hashing_function . '(\'' . PMA_Util::sqlAddSlashes($password) . '\')');
+    $err_url = 'user_password.php' . PMA_URL_getCommon();
+    $serverType = PMA_Util::getServerType();
+
+    if ($serverType == 'MySQL' && PMA_MYSQL_INT_VERSION >= 50706) {
+        $local_query = 'ALTER USER \'' . $username . '\'@\'' . $hostname . '\''
+            . ' IDENTIFIED with ' . $orig_auth_plugin . ' BY '
+            . (($password == '')
+            ? '\'\''
+            : '\'' . PMA_Util::sqlAddSlashes($password) . '\'');
+    } else if ($serverType == 'MariaDB'
+        && PMA_MYSQL_INT_VERSION >= 50200
+    ) {
+        if ($orig_auth_plugin == 'mysql_native_password') {
+            // Set the hashing method used by PASSWORD()
+            // to be 'mysql_native_password' type
+            $GLOBALS['dbi']->tryQuery('SET old_passwords = 0;');
+        } else if ($orig_auth_plugin == 'sha256_password') {
+            // Set the hashing method used by PASSWORD()
+            // to be 'sha256_password' type
+            $GLOBALS['dbi']->tryQuery('SET `old_passwords` = 2;');
+        }
+
+        $hashedPassword = PMA_getHashedPassword($_POST['pma_pw']);
+
+        $local_query = "UPDATE `mysql`.`user` SET"
+            . " `authentication_string` = '" . $hashedPassword
+            . "', `Password` = '', "
+            . " `plugin` = '" . $orig_auth_plugin . "'"
+            . " WHERE `User` = '" . $username . "' AND Host = '"
+            . $hostname . "';";
+
+        $GLOBALS['dbi']->tryQuery("FLUSH PRIVILEGES;");
+    } else {
+        $local_query = 'SET password = ' . (($password == '')
+            ? '\'\''
+            : $hashing_function . '(\'' . PMA_Util::sqlAddSlashes($password)
+                . '\')');
+    }
     if (! @$GLOBALS['dbi']->tryQuery($local_query)) {
         PMA_Util::mysqlDie($GLOBALS['dbi']->getError(), $sql_query, false, $err_url);
     }
 }
 
 /**
- * Change password authentication type
- *
- * @param array  $_url_params URL parameters
- * @param string $password    Password
- *
- * @return array   $_url_params
- */
-function PMA_changePassAuthType($_url_params, $password)
-{
-    /**
-     * Changes password cookie if required
-     * Duration = till the browser is closed for password
-     * (we don't want this to be saved)
-     */
-
-    //    include_once "libraries/plugins/auth/AuthenticationCookie.class.php";
-    //    $auth_plugin = new AuthenticationCookie();
-    // the $auth_plugin is already defined in common.inc.php when this is used
-    global $auth_plugin;
-
-    if ($GLOBALS['cfg']['Server']['auth_type'] == 'cookie') {
-        $GLOBALS['PMA_Config']->setCookie(
-            'pmaPass-' . $GLOBALS['server'],
-            $auth_plugin->blowfishEncrypt(
-                $password,
-                $GLOBALS['cfg']['blowfish_secret']
-            )
-        );
-    }
-    /**
-     * For http auth. mode, the "back" link will also enforce new
-     * authentication
-     */
-    if ($GLOBALS['cfg']['Server']['auth_type'] == 'http') {
-        $_url_params['old_usr'] = 'relog';
-    }
-    return $_url_params;
-}
-
-/**
  * Display the page
  *
- * @param string $message     Message
- * @param string $sql_query   SQL query
- * @param array  $_url_params URL parameters
+ * @param string $message   Message
+ * @param string $sql_query SQL query
  *
  * @return void
  */
-function PMA_changePassDisplayPage($message, $sql_query, $_url_params)
+function PMA_changePassDisplayPage($message, $sql_query)
 {
     echo '<h1>' . __('Change password') . '</h1>' . "\n\n";
     echo PMA_Util::getMessage(
         $message, $sql_query, 'success'
     );
-    echo '<a href="index.php' . PMA_URL_getCommon($_url_params)
+    echo '<a href="index.php' . PMA_URL_getCommon()
         . ' target="_parent">' . "\n"
         . '<strong>' . __('Back') . '</strong></a>';
     exit;
 }
-?>

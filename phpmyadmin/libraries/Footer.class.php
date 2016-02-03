@@ -85,46 +85,62 @@ class PMA_Footer
     }
 
     /**
+     * Remove recursions and iterator objects from an object
+     *
+     * @param object|array &$object Object to clean
+     * @param array        $stack   Stack used to keep track of recursion,
+     *                              need not be passed for the first time
+     *
+     * @return object Reference passed object
+     */
+    private static function _removeRecursion(&$object, $stack = array())
+    {
+        if ((is_object($object) || is_array($object)) && $object) {
+            if ($object instanceof Traversable) {
+                $object = "***ITERATOR***";
+            } else if (!in_array($object, $stack, true)) {
+                $stack[] = $object;
+                foreach ($object as &$subobject) {
+                    self::_removeRecursion($subobject, $stack);
+                }
+            } else {
+                $object = "***RECURSION***";
+            }
+        }
+        return $object;
+    }
+
+    /**
      * Renders the debug messages
      *
      * @return string
      */
-    private function _getDebugMessage()
+    public function getDebugMessage()
     {
-        $retval = '';
-        if (! empty($_SESSION['debug'])) {
-            $sum_time = 0;
-            $sum_exec = 0;
-            foreach ($_SESSION['debug']['queries'] as $query) {
-                $sum_time += $query['count'] * $query['time'];
-                $sum_exec += $query['count'];
-            }
+        $retval = '\'null\'';
+        if ($GLOBALS['cfg']['DBG']['sql']
+            && empty($_REQUEST['no_debug'])
+            && !empty($_SESSION['debug'])
+        ) {
+            // Remove recursions and iterators from $_SESSION['debug']
+            self::_removeRecursion($_SESSION['debug']);
 
-            $retval .= '<div id="session_debug">';
-            $retval .= count($_SESSION['debug']['queries']) . ' queries executed ';
-            $retval .= $sum_exec . ' times in ' . $sum_time . ' seconds';
-            $retval .= '<pre>';
-
-            ob_start();
-            print_r($_SESSION['debug']);
-            $retval .= ob_get_contents();
-            ob_end_clean();
-
-            $retval .= '</pre>';
-            $retval .= '</div>';
+            $retval = JSON_encode($_SESSION['debug']);
             $_SESSION['debug'] = array();
+            return json_last_error() ? '\'false\'' : $retval;
         }
+        $_SESSION['debug'] = array();
         return $retval;
     }
 
     /**
      * Returns the url of the current page
      *
-     * @param mixed $encoding See PMA_URL_getCommon()
+     * @param string|null $encode See PMA_URL_getCommon()
      *
      * @return string
      */
-    public function getSelfUrl($encoding = null)
+    public function getSelfUrl($encode = 'html')
     {
         $db = ! empty($GLOBALS['db']) ? $GLOBALS['db'] : '';
         $table = ! empty($GLOBALS['table']) ? $GLOBALS['table'] : '';
@@ -141,17 +157,21 @@ class PMA_Footer
         ) {
             $params['viewing_mode'] = $_REQUEST['viewing_mode'];
         }
+        /*
+         * @todo    coming from server_privileges.php, here $db is not set,
+         *          add the following condition below when that is fixed
+         *          && $_REQUEST['checkprivsdb'] == $db
+         */
         if (isset($_REQUEST['checkprivsdb'])
-            //TODO: coming from server_privileges.php, here $db is not set,
-            //uncomment below line when that is fixed
-            //&& $_REQUEST['checkprivsdb'] == $db
         ) {
             $params['checkprivsdb'] = $_REQUEST['checkprivsdb'];
         }
+        /*
+         * @todo    coming from server_privileges.php, here $table is not set,
+         *          add the following condition below when that is fixed
+         *          && $_REQUEST['checkprivstable'] == $table
+         */
         if (isset($_REQUEST['checkprivstable'])
-            //TODO: coming from server_privileges.php, here $table is not set,
-            //uncomment below line when that is fixed
-            //&& $_REQUEST['checkprivstable'] == $table
         ) {
             $params['checkprivstable'] = $_REQUEST['checkprivstable'];
         }
@@ -162,7 +182,7 @@ class PMA_Footer
         }
         return basename(PMA_getenv('SCRIPT_NAME')) . PMA_URL_getCommon(
             $params,
-            $encoding
+            $encode
         );
     }
 
@@ -199,12 +219,17 @@ class PMA_Footer
      */
     public function getErrorMessages()
     {
-        $retval = '';
+        $retval = '<div class="clearfloat" id="pma_errors">';
         if ($GLOBALS['error_handler']->hasDisplayErrors()) {
-            $retval .= '<div class="clearfloat" id="pma_errors">';
             $retval .= $GLOBALS['error_handler']->getDispErrors();
-            $retval .= '</div>';
         }
+        $retval .= '</div>';
+
+        /**
+         * Report php errors
+         */
+        $GLOBALS['error_handler']->reportErrors();
+
         return $retval;
     }
 
@@ -240,15 +265,15 @@ class PMA_Footer
 
     /**
      * Set the ajax flag to indicate whether
-     * we are sevicing an ajax request
+     * we are servicing an ajax request
      *
-     * @param bool $isAjax Whether we are sevicing an ajax request
+     * @param bool $isAjax Whether we are servicing an ajax request
      *
      * @return void
      */
     public function setAjax($isAjax)
     {
-        $this->_isAjax = ($isAjax == true);
+        $this->_isAjax = !!$isAjax;
     }
 
     /**
@@ -297,7 +322,8 @@ class PMA_Footer
                     // prime the client-side cache
                     $this->_scripts->addCode(
                         sprintf(
-                            'AJAX.cache.primer = {'
+                            'if (! (history && history.pushState)) '
+                            . 'PMA_MicroHistory.primer = {'
                             . ' url: "%s",'
                             . ' scripts: %s,'
                             . ' menuHash: "%s"'
@@ -307,10 +333,16 @@ class PMA_Footer
                             PMA_escapeJsString($menuHash)
                         )
                     );
+                }
+                if (PMA_getenv('SCRIPT_NAME')
+                    && ! $this->_isAjax
+                ) {
                     $url = $this->getSelfUrl();
                     $retval .= $this->_getSelfLink($url);
                 }
-                $retval .= $this->_getDebugMessage();
+                $this->_scripts->addCode(
+                    'var debugSQLInfo = ' . $this->getDebugMessage() . ';'
+                );
                 $retval .= $this->getErrorMessages();
                 $retval .= $this->_scripts->getDisplay();
                 if ($GLOBALS['cfg']['DBG']['demo']) {

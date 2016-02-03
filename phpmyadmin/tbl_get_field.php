@@ -23,7 +23,7 @@ PMA_Util::checkParameters(
 if (!$GLOBALS['dbi']->selectDb($db)) {
     PMA_Util::mysqlDie(
         sprintf(__('\'%s\' database does not exist.'), htmlspecialchars($db)),
-        '', ''
+        '', false
     );
 }
 
@@ -40,7 +40,9 @@ $result = $GLOBALS['dbi']->fetchValue($sql);
 
 /* Check return code */
 if ($result === false) {
-    PMA_Util::mysqlDie(__('MySQL returned an empty result set (i.e. zero rows).'), $sql);
+    PMA_Util::mysqlDie(
+        __('MySQL returned an empty result set (i.e. zero rows).'), $sql
+    );
 }
 
 /* Avoid corrupting data */
@@ -49,7 +51,6 @@ if ($result === false) {
 PMA_downloadHeader(
     $table . '-' .  $_GET['transform_key'] . '.bin',
     PMA_detectMIME($result),
-    strlen($result)
+    /*overload*/mb_strlen($result, '8bit')
 );
 echo $result;
-?>

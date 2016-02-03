@@ -10,18 +10,18 @@
  * @package PhpMyAdmin
  */
 
-/*
+/**
  * This is needed for cookie based authentication to encrypt password in
  * cookie
  */
-$cfg['blowfish_secret'] = 'a8b7c6d'; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
+$cfg['blowfish_secret'] = ''; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
 
-/*
+/**
  * Servers configuration
  */
 $i = 0;
 
-/*
+/**
  * First server
  */
 $i++;
@@ -33,7 +33,7 @@ $cfg['Servers'][$i]['connect_type'] = 'tcp';
 $cfg['Servers'][$i]['compress'] = false;
 $cfg['Servers'][$i]['AllowNoPassword'] = false;
 
-/*
+/**
  * phpMyAdmin configuration storage settings.
  */
 
@@ -54,7 +54,6 @@ $cfg['Servers'][$i]['AllowNoPassword'] = false;
 // $cfg['Servers'][$i]['history'] = 'pma__history';
 // $cfg['Servers'][$i]['table_uiprefs'] = 'pma__table_uiprefs';
 // $cfg['Servers'][$i]['tracking'] = 'pma__tracking';
-// $cfg['Servers'][$i]['designer_coords'] = 'pma__designer_coords';
 // $cfg['Servers'][$i]['userconfig'] = 'pma__userconfig';
 // $cfg['Servers'][$i]['recent'] = 'pma__recent';
 // $cfg['Servers'][$i]['favorite'] = 'pma__favorite';
@@ -62,14 +61,17 @@ $cfg['Servers'][$i]['AllowNoPassword'] = false;
 // $cfg['Servers'][$i]['usergroups'] = 'pma__usergroups';
 // $cfg['Servers'][$i]['navigationhiding'] = 'pma__navigationhiding';
 // $cfg['Servers'][$i]['savedsearches'] = 'pma__savedsearches';
+// $cfg['Servers'][$i]['central_columns'] = 'pma__central_columns';
+// $cfg['Servers'][$i]['designer_settings'] = 'pma__designer_settings';
+// $cfg['Servers'][$i]['export_templates'] = 'pma__export_templates';
 /* Contrib / Swekey authentication */
 // $cfg['Servers'][$i]['auth_swekey_config'] = '/etc/swekey-pma.conf';
 
-/*
+/**
  * End of servers configuration
  */
 
-/*
+/**
  * Directories for saving/loading files from server
  */
 $cfg['UploadDir'] = '';
@@ -78,8 +80,9 @@ $cfg['SaveDir'] = '';
 /**
  * Whether to display icons or text or both icons and text in table row
  * action segment. Value can be either of 'icons', 'text' or 'both'.
+ * default = 'both'
  */
-//$cfg['RowActionType'] = 'both';
+//$cfg['RowActionType'] = 'icons';
 
 /**
  * Defines whether a user should be displayed a "show all (records)"
@@ -91,20 +94,21 @@ $cfg['SaveDir'] = '';
 /**
  * Number of rows displayed when browsing a result set. If the result
  * set contains more rows, "Previous" and "Next".
- * default = 30
+ * Possible values: 25, 50, 100, 250, 500
+ * default = 25
  */
 //$cfg['MaxRows'] = 50;
 
 /**
- * disallow editing of binary fields
+ * Disallow editing of binary fields
  * valid values are:
  *   false    allow editing
  *   'blob'   allow editing except for BLOB fields
  *   'noblob' disallow editing except for BLOB fields
  *   'all'    disallow editing
- * default = blob
+ * default = 'blob'
  */
-//$cfg['ProtectBinary'] = 'false';
+//$cfg['ProtectBinary'] = false;
 
 /**
  * Default language to use, if not browser-defined or user-defined
@@ -114,12 +118,6 @@ $cfg['SaveDir'] = '';
  */
 //$cfg['DefaultLang'] = 'en';
 //$cfg['DefaultLang'] = 'de';
-
-/**
- * default display direction (horizontal|vertical|horizontalflipped)
- */
-//$cfg['DefaultDisplay'] = 'vertical';
-
 
 /**
  * How many columns should be used for table display of a database?
@@ -139,20 +137,21 @@ $cfg['SaveDir'] = '';
 
 /**
  * When using DB-based query history, how many entries should be kept?
- *
  * default = 25
  */
 //$cfg['QueryHistoryMax'] = 100;
 
 /**
- * Should error reporting be enabled for JavaScript errors
+ * Whether or not to query the user before sending the error report to
+ * the phpMyAdmin team when a JavaScript error occurs
  *
+ * Available options
+ * ('ask' | 'always' | 'never')
  * default = 'ask'
  */
-//$cfg['SendErrorReports'] = 'ask';
+//$cfg['SendErrorReports'] = 'always';
 
-/*
+/**
  * You can find more configuration options in the documentation
  * in the doc/ folder or at <http://docs.phpmyadmin.net/>.
  */
-?>

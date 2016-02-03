@@ -9,17 +9,17 @@ if (! defined('PHPMYADMIN')) {
     exit;
 }
 
+require_once 'libraries/navigation/Nodes/Node_DatabaseChild_Container.class.php';
+
 /**
  * Represents a container for table nodes in the navigation tree
  *
  * @package PhpMyAdmin-Navigation
  */
-class Node_Table_Container extends Node
+class Node_Table_Container extends Node_DatabaseChild_Container
 {
     /**
      * Initialises the class
-     *
-     * @return Node_Table_Container
      */
     public function __construct()
     {
@@ -28,17 +28,11 @@ class Node_Table_Container extends Node
         $this->links = array(
             'text' => 'db_structure.php?server=' . $GLOBALS['server']
                     . '&amp;db=%1$s&amp;tbl_type=table'
-                    . '&amp;token=' . $GLOBALS['token'],
+                    . '&amp;token=' . $_SESSION[' PMA_token '],
             'icon' => 'db_structure.php?server=' . $GLOBALS['server']
                     . '&amp;db=%1$s&amp;tbl_type=table'
-                    . '&amp;token=' . $GLOBALS['token'],
+                    . '&amp;token=' . $_SESSION[' PMA_token '],
         );
-        if ($GLOBALS['cfg']['NavigationTreeEnableGrouping']) {
-            $this->separator       = $GLOBALS['cfg']['NavigationTreeTableSeparator'];
-            $this->separator_depth = (int)(
-                $GLOBALS['cfg']['NavigationTreeTableLevel']
-            );
-        }
         $this->real_name = 'tables';
         $this->classes   = 'tableContainer subContainer';
 
@@ -48,13 +42,12 @@ class Node_Table_Container extends Node
         $new->icon  = PMA_Util::getImage('b_table_add.png', $new_label);
         $new->links = array(
             'text' => 'tbl_create.php?server=' . $GLOBALS['server']
-                    . '&amp;db=%2$s&amp;token=' . $GLOBALS['token'],
+                    . '&amp;db=%2$s&amp;token=' . $_SESSION[' PMA_token '],
             'icon' => 'tbl_create.php?server=' . $GLOBALS['server']
-                    . '&amp;db=%2$s&amp;token=' . $GLOBALS['token'],
+                    . '&amp;db=%2$s&amp;token=' . $_SESSION[' PMA_token '],
         );
         $new->classes = 'new_table italics';
         $this->addChild($new);
     }
 }
 
-?>

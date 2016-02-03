@@ -9,17 +9,17 @@ if (! defined('PHPMYADMIN')) {
     exit;
 }
 
+require_once 'libraries/navigation/Nodes/Node_DatabaseChild_Container.class.php';
+
 /**
  * Represents a container for procedure nodes in the navigation tree
  *
  * @package PhpMyAdmin-Navigation
  */
-class Node_Procedure_Container extends Node
+class Node_Procedure_Container extends Node_DatabaseChild_Container
 {
     /**
      * Initialises the class
-     *
-     * @return Node_Procedure_Container
      */
     public function __construct()
     {
@@ -27,10 +27,10 @@ class Node_Procedure_Container extends Node
         $this->icon  = PMA_Util::getImage('b_routines.png', __('Procedures'));
         $this->links = array(
             'text' => 'db_routines.php?server=' . $GLOBALS['server']
-                    . '&amp;db=%1$s&amp;token=' . $GLOBALS['token']
+                    . '&amp;db=%1$s&amp;token=' . $_SESSION[' PMA_token ']
                     . '&amp;type=PROCEDURE',
             'icon' => 'db_routines.php?server=' . $GLOBALS['server']
-                    . '&amp;db=%1$s&amp;token=' . $GLOBALS['token']
+                    . '&amp;db=%1$s&amp;token=' . $_SESSION[' PMA_token ']
                     . '&amp;type=PROCEDURE',
         );
         $this->real_name = 'procedures';
@@ -41,10 +41,10 @@ class Node_Procedure_Container extends Node
         $new->icon  = PMA_Util::getImage('b_routine_add.png', $new_label);
         $new->links = array(
             'text' => 'db_routines.php?server=' . $GLOBALS['server']
-                    . '&amp;db=%2$s&amp;token=' . $GLOBALS['token']
+                    . '&amp;db=%2$s&amp;token=' . $_SESSION[' PMA_token ']
                     . '&add_item=1',
             'icon' => 'db_routines.php?server=' . $GLOBALS['server']
-                    . '&amp;db=%2$s&amp;token=' . $GLOBALS['token']
+                    . '&amp;db=%2$s&amp;token=' . $_SESSION[' PMA_token ']
                     . '&add_item=1',
         );
         $new->classes = 'new_procedure italics';
@@ -52,4 +52,3 @@ class Node_Procedure_Container extends Node
     }
 }
 
-?>

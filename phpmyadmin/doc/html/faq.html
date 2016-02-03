@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>FAQ - Frequently Asked Questions &mdash; phpMyAdmin 4.2.5 documentation</title>
+    <title>FAQ - Frequently Asked Questions &mdash; phpMyAdmin 4.5.4.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '4.2.5',
+        URL_ROOT:    './',
+        VERSION:     '4.5.4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,9 +24,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="copyright" title="Copyright" href="copyright.html" />
-    <link rel="top" title="phpMyAdmin 4.2.5 documentation" href="index.html" />
+    <link rel="top" title="phpMyAdmin 4.5.4.1 documentation" href="index.html" />
     <link rel="next" title="Developers Information" href="developers.html" />
-    <link rel="prev" title="Other sources of information" href="other.html" /> 
+    <link rel="prev" title="Import and export" href="import_export.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,9 +39,9 @@
           <a href="developers.html" title="Developers Information"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="other.html" title="Other sources of information"
+          <a href="import_export.html" title="Import and export"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">phpMyAdmin 4.2.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">phpMyAdmin 4.5.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,7 +52,7 @@
             
   <div class="section" id="faq-frequently-asked-questions">
 <span id="faq"></span><h1>FAQ - Frequently Asked Questions<a class="headerlink" href="#faq-frequently-asked-questions" title="Permalink to this headline">¶</a></h1>
-<p>Please have a look at our <a class="reference external" href="http://www.phpmyadmin.net/home_page/docs.php">Link section</a> on the official
+<p>Please have a look at our <a class="reference external" href="https://www.phpmyadmin.net/docs/">Link section</a> on the official
 phpMyAdmin homepage for in-depth coverage of phpMyAdmin&#8217;s features and
 or interface.</p>
 <div class="section" id="server">
@@ -70,7 +68,7 @@ or interface.</p>
 <p>You should first try the latest versions of Apache (and possibly MySQL). If
 your server keeps crashing, please ask for help in the various Apache support
 groups.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="#faq1-1"><em>1.1 My server is crashing each time a specific action is required or phpMyAdmin sends a blank page or a page full of cryptic characters to my browser, what can I do?</em></a></p>
 </div>
@@ -186,29 +184,20 @@ MySQL:</p>
 </li>
 </ul>
 </div>
-<div class="section" id="which-mysql-versions-does-phpmyadmin-support">
-<span id="faq1-17"></span><h3>1.17 Which MySQL versions does phpMyAdmin support?<a class="headerlink" href="#which-mysql-versions-does-phpmyadmin-support" title="Permalink to this headline">¶</a></h3>
-<p>Since phpMyAdmin 3.0.x, only MySQL 5.0.1 and newer are supported. For
-older MySQL versions, you need to use the latest 2.x branch.
-phpMyAdmin can connect to your MySQL server using PHP&#8217;s classic <a class="reference external" href="http://php.net/mysql">MySQL
-extension</a> as well as the <a class="reference external" href="http://php.net/mysqli">improved MySQL
-extension (MySQLi)</a> that is available in PHP
-5.0. The latter one should be used unless you have a good reason not
-to do so. When compiling PHP, we strongly recommend that you manually
-link the MySQL extension of your choice to a MySQL client library of
-at least the same minor version since the one that is bundled with
-some PHP distributions is rather old and might cause problems see
-<a class="reference internal" href="#faq1-17a"><em>1.17a I cannot connect to the MySQL server. It always returns the error message, &#8220;Client does not support authentication protocol requested by server; consider upgrading MySQL client&#8221;</em></a>. <a class="reference external" href="http://mariadb.org/">MariaDB</a> is also supported
-(versions 5.1 and 5.2 were tested).</p>
-<p class="versionchanged">
-<span class="versionmodified">Changed in version 3.5: </span>Since phpMyAdmin 3.5 <a class="reference external" href="http://www.drizzle.org/">Drizzle</a> is supported.</p>
+<div class="section" id="which-database-versions-does-phpmyadmin-support">
+<span id="faq1-17"></span><h3>1.17 Which Database versions does phpMyAdmin support?<a class="headerlink" href="#which-database-versions-does-phpmyadmin-support" title="Permalink to this headline">¶</a></h3>
+<p>For <a class="reference external" href="http://www.mysql.com/">MySQL</a>, versions 5.5 and newer are supported.
+For older MySQL versions, our <a class="reference external" href="https://www.phpmyadmin.net/downloads/">Downloads</a> page offers older phpMyAdmin versions
+(which may have become unsupported).</p>
+<p>For <a class="reference external" href="http://mariadb.org/">MariaDB</a>, versions 5.5 and newer are supported.</p>
+<p>For <a class="reference external" href="http://www.drizzle.org">Drizzle</a>, versions 7.1 and newer are supported.</p>
 </div>
 <div class="section" id="a-i-cannot-connect-to-the-mysql-server-it-always-returns-the-error-message-client-does-not-support-authentication-protocol-requested-by-server-consider-upgrading-mysql-client">
 <span id="faq1-17a"></span><h3>1.17a I cannot connect to the MySQL server. It always returns the error message, &#8220;Client does not support authentication protocol requested by server; consider upgrading MySQL client&#8221;<a class="headerlink" href="#a-i-cannot-connect-to-the-mysql-server-it-always-returns-the-error-message-client-does-not-support-authentication-protocol-requested-by-server-consider-upgrading-mysql-client" title="Permalink to this headline">¶</a></h3>
 <p>You tried to access MySQL with an old MySQL client library. The
 version of your MySQL client library can be checked in your phpinfo()
 output. In general, it should have at least the same minor version as
-your server - as mentioned in <a class="reference internal" href="#faq1-17"><em>1.17 Which MySQL versions does phpMyAdmin support?</em></a>. This problem is
+your server - as mentioned in <a class="reference internal" href="#faq1-17"><em>1.17 Which Database versions does phpMyAdmin support?</em></a>. This problem is
 generally caused by using MySQL version 4.1 or newer. MySQL changed
 the authentication hash and your PHP is trying to use the old method.
 The proper solution is to use the <a class="reference external" href="http://www.php.net/mysqli">mysqli extension</a> with the proper client library to match
@@ -330,8 +319,7 @@ MMCache but upgrading MMCache to version 2.3.21 solves the problem.</p>
 <div class="section" id="does-phpmyadmin-support-php-5">
 <span id="faq1-31"></span><h3>1.31 Does phpMyAdmin support PHP 5?<a class="headerlink" href="#does-phpmyadmin-support-php-5" title="Permalink to this headline">¶</a></h3>
 <p>Yes.</p>
-<p>Since release 4.1 phpMyAdmin supports only PHP 5.3 and newer. For PHP 5.2 you
-can use 4.0.x releases.</p>
+<p>Since release 4.5, phpMyAdmin supports only PHP 5.5 and newer. Since release 4.1 phpMyAdmin supports only PHP 5.3 and newer. For PHP 5.2 you can use 4.0.x releases.</p>
 </div>
 <div class="section" id="can-i-use-http-authentication-with-iis">
 <span id="faq1-32"></span><h3>1.32 Can I use HTTP authentication with IIS?<a class="headerlink" href="#can-i-use-http-authentication-with-iis" title="Permalink to this headline">¶</a></h3>
@@ -347,7 +335,7 @@ enabled.) Click <tt class="docutils literal"><span class="pre">OK</span></tt>.</
 <li>In <tt class="docutils literal"><span class="pre">Custom</span> <span class="pre">Errors</span></tt>, select the range of <tt class="docutils literal"><span class="pre">401;1</span></tt> through <tt class="docutils literal"><span class="pre">401;5</span></tt>
 and click the <tt class="docutils literal"><span class="pre">Set</span> <span class="pre">to</span> <span class="pre">Default</span></tt> button.</li>
 </ol>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><span class="target" id="index-4"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2616.html"><strong>RFC 2616</strong></a></p>
 </div>
@@ -444,7 +432,7 @@ slowdown</li>
 <span id="faq1-39"></span><h3>1.39 When I try to connect via https, I can log in, but then my connection is redirected back to http. What can cause this behavior?<a class="headerlink" href="#when-i-try-to-connect-via-https-i-can-log-in-but-then-my-connection-is-redirected-back-to-http-what-can-cause-this-behavior" title="Permalink to this headline">¶</a></h3>
 <p>Be sure that you have enabled <tt class="docutils literal"><span class="pre">SSLOptions</span></tt> and <tt class="docutils literal"><span class="pre">StdEnvVars</span></tt> in
 your Apache configuration.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last">&lt;<a class="reference external" href="http://httpd.apache.org/docs/2.0/mod/mod_ssl.html#ssloptions">http://httpd.apache.org/docs/2.0/mod/mod_ssl.html#ssloptions</a>&gt;</p>
 </div>
@@ -467,7 +455,7 @@ This is not specific to phpmyadmin, it&#8217;s just the behavior of Apache.</p>
 <span class="nb">ProxyPassReverseCookiePath</span> /%7Euser/phpmyadmin <span class="sx">/mirror/foo</span>
 </pre></div>
 </div>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last">&lt;<a class="reference external" href="http://httpd.apache.org/docs/2.2/mod/mod_proxy.html">http://httpd.apache.org/docs/2.2/mod/mod_proxy.html</a>&gt;</p>
 </div>
@@ -649,7 +637,7 @@ has to be enabled in your PHP.</p>
 <tt class="docutils literal"><span class="pre">session.upload_progress.enabled</span></tt> to <tt class="docutils literal"><span class="pre">1</span></tt> in your <tt class="file docutils literal"><span class="pre">php.ini</span></tt>. However,
 starting from phpMyAdmin version 4.0.4, session-based upload progress has
 been temporarily deactivated due to its problematic behavior.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><span class="target" id="index-16"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc1867.html"><strong>RFC 1867</strong></a></p>
 </div>
@@ -700,16 +688,13 @@ a # before it:  <tt class="docutils literal"><span class="pre">--</span> <span c
 times without any characters between them, or at the beginning/end of
 your table name. If you have to, think about using another
 TableSeparator or disabling that feature.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><span class="target" id="index-18"></span><a class="reference internal" href="config.html#cfg_NavigationTreeTableSeparator"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['NavigationTreeTableSeparator']</span></tt></a></p>
 </div>
 </div>
-<div class="section" id="what-is-currently-not-supported-in-phpmyadmin-about-innodb">
-<span id="faq3-6"></span><h3>3.6 What is currently not supported in phpMyAdmin about InnoDB?<a class="headerlink" href="#what-is-currently-not-supported-in-phpmyadmin-about-innodb" title="Permalink to this headline">¶</a></h3>
-<p>In Relation view, having more than one index column in the foreign key. In Query-by-
-example (Query), automatic generation of the query LEFT JOIN from the
-foreign table.</p>
+<div class="section" id="faq3-6">
+<span id="id7"></span><h3>3.6 (withdrawn).<a class="headerlink" href="#faq3-6" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="i-have-table-with-many-100-columns-and-when-i-try-to-browse-table-i-get-series-of-errors-like-warning-unable-to-parse-url-how-can-this-be-fixed">
 <span id="faq3-7"></span><h3>3.7 I have table with many (100+) columns and when I try to browse table I get series of errors like &#8220;Warning: unable to parse url&#8221;. How can this be fixed?<a class="headerlink" href="#i-have-table-with-many-100-columns-and-when-i-try-to-browse-table-i-get-series-of-errors-like-warning-unable-to-parse-url-how-can-this-be-fixed" title="Permalink to this headline">¶</a></h3>
@@ -727,7 +712,7 @@ the parent form-container with the target to tbl_row_delete.php and
 just put your own input-elements inside. If you use a custom submit
 input field, the form will submit itself to the displaying page again,
 where you can validate the $HTTP_POST_VARS in a transformation. For
-a tutorial on how to effectively use transformations, see our <a class="reference external" href="http://www.phpmyadmin.net/home_page/docs.php">Link
+a tutorial on how to effectively use transformations, see our <a class="reference external" href="https://www.phpmyadmin.net/docs/">Link
 section</a> on the
 official phpMyAdmin-homepage.</p>
 </div>
@@ -752,10 +737,13 @@ can use it for the Edit and Delete links.</p>
 <p>phpMyAdmin uses a quick method to get the row count, and this method only
 returns an approximate count in the case of InnoDB tables. See
 <span class="target" id="index-19"></span><a class="reference internal" href="config.html#cfg_MaxExactCount"><tt class="xref config config-option docutils literal"><span class="pre">$cfg['MaxExactCount']</span></tt></a> for a way to modify those results, but
-this could have a serious impact on performance.</p>
+this could have a serious impact on performance.
+However, one can easily replace the approximate row count with exact count by
+simply clicking on the approximate count. This can also be done for all tables
+at once by clicking on the rows sum displayed at the bottom.</p>
 </div>
 <div class="section" id="faq3-12">
-<span id="id8"></span><h3>3.12 (withdrawn).<a class="headerlink" href="#faq3-12" title="Permalink to this headline">¶</a></h3>
+<span id="id9"></span><h3>3.12 (withdrawn).<a class="headerlink" href="#faq3-12" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="i-get-an-error-when-entering-use-followed-by-a-db-name-containing-an-hyphen">
 <span id="faq3-13"></span><h3>3.13 I get an error when entering <tt class="docutils literal"><span class="pre">USE</span></tt> followed by a db name containing an hyphen.<a class="headerlink" href="#i-get-an-error-when-entering-use-followed-by-a-db-name-containing-an-hyphen" title="Permalink to this headline">¶</a></h3>
@@ -768,13 +756,13 @@ accept this syntax for the USE command.</p>
 it&#8217;s not likely to be solved in the future.</p>
 </div>
 <div class="section" id="faq3-15">
-<span id="id9"></span><h3>3.15 (withdrawn).<a class="headerlink" href="#faq3-15" title="Permalink to this headline">¶</a></h3>
+<span id="id10"></span><h3>3.15 (withdrawn).<a class="headerlink" href="#faq3-15" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="faq3-16">
-<span id="id10"></span><h3>3.16 (withdrawn).<a class="headerlink" href="#faq3-16" title="Permalink to this headline">¶</a></h3>
+<span id="id11"></span><h3>3.16 (withdrawn).<a class="headerlink" href="#faq3-16" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="faq3-17">
-<span id="id11"></span><h3>3.17 (withdrawn).<a class="headerlink" href="#faq3-17" title="Permalink to this headline">¶</a></h3>
+<span id="id12"></span><h3>3.17 (withdrawn).<a class="headerlink" href="#faq3-17" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="when-i-import-a-csv-file-that-contains-multiple-tables-they-are-lumped-together-into-a-single-table">
 <span id="faq3-18"></span><h3>3.18 When I import a CSV file that contains multiple tables, they are lumped together into a single table.<a class="headerlink" href="#when-i-import-a-csv-file-that-contains-multiple-tables-they-are-lumped-together-into-a-single-table" title="Permalink to this headline">¶</a></h3>
@@ -807,7 +795,7 @@ It&#8217;s better to recreate your bookmark from the newer phpMyAdmin version.</
 users. The development of this feature was kindly sponsored by NetCologne GmbH.
 This requires a properly setup MySQL user management and phpMyAdmin
 <a class="reference internal" href="glossary.html#term-http"><em class="xref std std-term">HTTP</em></a> or cookie authentication.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="setup.html#authentication-modes"><em>Using authentication modes</em></a></p>
 </div>
@@ -1221,7 +1209,7 @@ will usually let you create a database with a dot, but then you cannot
 work with it, nor delete it.</p>
 </div>
 <div class="section" id="faqsqlvalidator">
-<span id="id12"></span><h3>6.14 (withdrawn).<a class="headerlink" href="#faqsqlvalidator" title="Permalink to this headline">¶</a></h3>
+<span id="id13"></span><h3>6.14 (withdrawn).<a class="headerlink" href="#faqsqlvalidator" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="i-want-to-add-a-blob-column-and-put-an-index-on-it-but-mysql-says-blob-column-used-in-key-specification-without-a-key-length">
 <span id="faq6-15"></span><h3>6.15 I want to add a BLOB column and put an index on it, but MySQL says &#8220;BLOB column &#8216;...&#8217; used in key specification without a key length&#8221;.<a class="headerlink" href="#i-want-to-add-a-blob-column-and-put-an-index-on-it-but-mysql-says-blob-column-used-in-key-specification-without-a-key-length" title="Permalink to this headline">¶</a></h3>
@@ -1248,37 +1236,36 @@ functions or empty mimetype definitions.</p>
 <p>Plus, you have a whole overview of available mimetypes. Who knows all those
 mimetypes by heart so he/she can enter it at will?</p>
 </div>
-<div class="section" id="bookmarks-where-can-i-store-bookmarks-why-can-t-i-see-any-bookmarks-below-the-query-box-what-is-this-variable-for">
-<span id="faqbookmark"></span><h3>6.18 Bookmarks: Where can I store bookmarks? Why can&#8217;t I see any bookmarks below the query box? What is this variable for?<a class="headerlink" href="#bookmarks-where-can-i-store-bookmarks-why-can-t-i-see-any-bookmarks-below-the-query-box-what-is-this-variable-for" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="bookmarks-where-can-i-store-bookmarks-why-can-t-i-see-any-bookmarks-below-the-query-box-what-are-these-variables-for">
+<span id="faqbookmark"></span><h3>6.18 Bookmarks: Where can I store bookmarks? Why can&#8217;t I see any bookmarks below the query box? What are these variables for?<a class="headerlink" href="#bookmarks-where-can-i-store-bookmarks-why-can-t-i-see-any-bookmarks-below-the-query-box-what-are-these-variables-for" title="Permalink to this headline">¶</a></h3>
 <p>Any query you have executed can be stored as a bookmark on the page
 where the results are displayed. You will find a button labeled
 &#8216;Bookmark this query&#8217; just at the end of the page. As soon as you have
 stored a bookmark, it is related to the database you run the query on.
 You can now access a bookmark dropdown on each page, the query box
 appears on for that database.</p>
-<p>You can also have, inside the query, a placeholder for a variable.
-This is done by inserting into the query a SQL comment between <tt class="docutils literal"><span class="pre">/*</span></tt> and
-<tt class="docutils literal"><span class="pre">*/</span></tt>. Inside the comment, the special string <tt class="docutils literal"><span class="pre">[VARIABLE]</span></tt> is used.
-Be aware that the whole query minus the SQL comment must be
+<p>You can also have, inside the query, placeholders for variables.
+This is done by inserting into the query SQL comments between <tt class="docutils literal"><span class="pre">/*</span></tt> and
+<tt class="docutils literal"><span class="pre">*/</span></tt>. Inside the comments, the special strings <tt class="docutils literal"><span class="pre">[VARIABLE{variable-number}]</span></tt> is used.
+Be aware that the whole query minus the SQL comments must be
 valid by itself, otherwise you won&#8217;t be able to store it as a bookmark.</p>
-<p>When you execute the bookmark, everything typed into the <em>value</em>
-input box on the query box page will replace the string <tt class="docutils literal"><span class="pre">/*[VARIABLE]*/</span></tt> in
+<p>When you execute the bookmark, everything typed into the <em>Variables</em>
+input boxes on the query box page will replace the strings <tt class="docutils literal"><span class="pre">/*[VARIABLE{variable-number}]*/</span></tt> in
 your stored query.</p>
-<p>Also remember, that everything else inside the <tt class="docutils literal"><span class="pre">/*[VARIABLE]*/</span></tt> string for
+<p>Also remember, that everything else inside the <tt class="docutils literal"><span class="pre">/*[VARIABLE{variable-number}]*/</span></tt> string for
 your query will remain the way it is, but will be stripped of the <tt class="docutils literal"><span class="pre">/**/</span></tt>
 chars. So you can use:</p>
-<div class="highlight-mysql"><div class="highlight"><pre><span class="cm">/*, [VARIABLE] AS myname */</span>
+<div class="highlight-mysql"><div class="highlight"><pre><span class="cm">/*, [VARIABLE1] AS myname */</span>
 </pre></div>
 </div>
 <p>which will be expanded to</p>
-<div class="highlight-mysql"><div class="highlight"><pre><span class="p">,</span> <span class="n">VARIABLE</span> <span class="k">as</span> <span class="n">myname</span>
+<div class="highlight-mysql"><div class="highlight"><pre><span class="p">,</span> <span class="n">VARIABLE1</span> <span class="k">as</span> <span class="n">myname</span>
 </pre></div>
 </div>
-<p>in your query, where VARIABLE is the string you entered in the input box. If an
-empty string is provided, no replacements are made.</p>
+<p>in your query, where VARIABLE1 is the string you entered in the Variable 1 input box.</p>
 <p>A more complex example. Say you have stored
 this query:</p>
-<div class="highlight-mysql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Address</span> <span class="k">FROM</span> <span class="n">addresses</span> <span class="k">WHERE</span> <span class="mi">1</span> <span class="cm">/* AND Name LIKE &#39;%[VARIABLE]%&#39; */</span>
+<div class="highlight-mysql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Address</span> <span class="k">FROM</span> <span class="n">addresses</span> <span class="k">WHERE</span> <span class="mi">1</span> <span class="cm">/* AND Name LIKE &#39;%[VARIABLE1]%&#39; */</span>
 </pre></div>
 </div>
 <p>Say, you now enter &#8220;phpMyAdmin&#8221; as the variable for the stored query, the full
@@ -1286,15 +1273,10 @@ query will be:</p>
 <div class="highlight-mysql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Address</span> <span class="k">FROM</span> <span class="n">addresses</span> <span class="k">WHERE</span> <span class="mi">1</span> <span class="k">AND</span> <span class="n">Name</span> <span class="k">LIKE</span> <span class="s1">&#39;%phpMyAdmin%&#39;</span>
 </pre></div>
 </div>
-<p>You can use multiple occurrences of <tt class="docutils literal"><span class="pre">/*[VARIABLE]*/</span></tt> in a single query
-(that is, multiple occurrences of the <em>same</em> variable).</p>
 <p><strong>NOTE THE ABSENCE OF SPACES</strong> inside the <tt class="docutils literal"><span class="pre">/**/</span></tt> construct. Any spaces
 inserted there will be later also inserted as spaces in your query and may lead
 to unexpected results especially when using the variable expansion inside of a
 &#8220;LIKE &#8216;&#8217;&#8221; expression.</p>
-<p>Your initial query which is going to be stored as a bookmark has to yield at
-least one result row so you can store the bookmark. You may have that to work
-around using well positioned <tt class="docutils literal"><span class="pre">/**/</span></tt> comments.</p>
 </div>
 <div class="section" id="how-can-i-create-simple-latex-document-to-include-exported-table">
 <span id="faq6-19"></span><h3>6.19 How can I create simple LATEX document to include exported table?<a class="headerlink" href="#how-can-i-create-simple-latex-document-to-include-exported-table" title="Permalink to this headline">¶</a></h3>
@@ -1315,7 +1297,7 @@ have table exported in file <tt class="file docutils literal"><span class="pre">
 DATABASES, LOCK TABLES. Those privileges also enable users to see all the
 database names. So if your users do not need those privileges, you can remove
 them and their databases list will shorten.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last">&lt;<a class="reference external" href="http://bugs.mysql.com/179">http://bugs.mysql.com/179</a>&gt;</p>
 </div>
@@ -1342,9 +1324,10 @@ public bookmark, it will be executed.</p>
 <span id="faq6-23"></span><h3>6.23 Export: I heard phpMyAdmin can export Microsoft Excel files?<a class="headerlink" href="#export-i-heard-phpmyadmin-can-export-microsoft-excel-files" title="Permalink to this headline">¶</a></h3>
 <p>You can use <a class="reference internal" href="glossary.html#term-csv"><em class="xref std std-term">CSV</em></a> for Microsoft Excel,
 which works out of the box.</p>
-<p class="versionchanged">
-<span class="versionmodified">Changed in version 3.4.5: </span>Since phpMyAdmin 3.4.5 support for direct export to Microsoft Excel version
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 3.4.5: </span>Since phpMyAdmin 3.4.5 support for direct export to Microsoft Excel version
 97 and newer was dropped.</p>
+</div>
 </div>
 <div class="section" id="now-that-phpmyadmin-supports-native-mysql-4-1-x-column-comments-what-happens-to-my-column-comments-stored-in-pmadb">
 <span id="faq6-24"></span><h3>6.24 Now that phpMyAdmin supports native MySQL 4.1.x column comments, what happens to my column comments stored in pmadb?<a class="headerlink" href="#now-that-phpmyadmin-supports-native-mysql-4-1-x-column-comments-what-happens-to-my-column-comments-stored-in-pmadb" title="Permalink to this headline">¶</a></h3>
@@ -1352,7 +1335,7 @@ which works out of the box.</p>
 native ones is done whenever you enter Structure page for this table.</p>
 </div>
 <div class="section" id="faq6-25">
-<span id="id13"></span><h3>6.25 (withdrawn).<a class="headerlink" href="#faq6-25" title="Permalink to this headline">¶</a></h3>
+<span id="id14"></span><h3>6.25 (withdrawn).<a class="headerlink" href="#faq6-25" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="how-can-i-select-a-range-of-rows">
 <span id="faq6-26"></span><h3>6.26 How can I select a range of rows?<a class="headerlink" href="#how-can-i-select-a-range-of-rows" title="Permalink to this headline">¶</a></h3>
@@ -1464,7 +1447,7 @@ to display the plot.</p>
 <p>After the plot is generated, you can use the
 mousewheel to zoom in and out of the plot. In addition, panning
 feature is enabled to navigate through the plot. You can zoom-in to a
-certail level of detail and use panning to locate your area of
+certain level of detail and use panning to locate your area of
 interest. Clicking on a point opens a dialogue box, displaying field
 values of the data row represented by the point. You can edit the
 values if required and click on submit to issue an update query. Basic
@@ -1502,29 +1485,147 @@ wait until it turns <cite>Gray</cite> again.</p>
 file, you can define the  maximum number of favorite tables shown in the
 navigation panel. Its default value is <cite>10</cite>.</p>
 </div>
+<div class="section" id="how-can-i-use-the-range-search-feature">
+<span id="faq6-35"></span><h3>6.35 How can I use the Range search feature?<a class="headerlink" href="#how-can-i-use-the-range-search-feature" title="Permalink to this headline">¶</a></h3>
+<p>With the help of range search feature, one can specify a range of values for
+particular column(s) while performing search operation on a table from the <cite>Search</cite>
+tab.</p>
+<p>To use this feature simply click on the <cite>BETWEEN</cite> or <cite>NOT BETWEEN</cite> operators
+from the operator select list in front of the column name. On choosing one of the
+above options, a dialog box will show up asking for the <cite>Minimum</cite> and <cite>Maximum</cite>
+value for that column. Only the specified range of values will be included
+in case of <cite>BETWEEN</cite> and excluded in case of <cite>NOT BETWEEN</cite> from the final results.</p>
+<p>Note: The Range search feature will work only <cite>Numeric</cite> and <cite>Date</cite> data type columns.</p>
+</div>
+<div class="section" id="what-is-central-columns-and-how-can-i-use-this-feature">
+<span id="faq6-36"></span><h3>6.36 What is Central columns and How can I use this feature?<a class="headerlink" href="#what-is-central-columns-and-how-can-i-use-this-feature" title="Permalink to this headline">¶</a></h3>
+<p>As the name suggests, the Central columns feature enables to maintain a central list of
+columns per database to avoid similar name for the same data element and bring consistency
+of data type for the same data element. You can use the central list of columns to
+add an element to any table structure in that database which will save from writing
+similar column name and column definition.</p>
+<p>To add a column to central list, go to table structure page, check the columns you want
+to include and then simply click on &#8220;Add to central columns&#8221;. If you want to add all
+unique columns from more than one table from a database then go to database structure page,
+check the tables you want to include and then select &#8220;Add columns to central list&#8221;.</p>
+<p>To remove a column from central list, go to Table structure page, check the columns you want
+to remove and then simply click on &#8220;Remove from central columns&#8221;. If you want to remove all
+columns from more than one tables from a database then go to database structure page,
+check the tables you want to include and then select &#8220;Remove columns from central list&#8221;.</p>
+<p>To view and manage the central list, select the database you want to manage central columns
+for then from the top menu click on &#8220;Central columns&#8221;. You will be taken to a page where
+you will have options to edit, delete or add new columns to central list.</p>
+</div>
+<div class="section" id="how-can-i-use-improve-table-structure-feature">
+<span id="faq6-37"></span><h3>6.37 How can I use Improve Table structure feature?<a class="headerlink" href="#how-can-i-use-improve-table-structure-feature" title="Permalink to this headline">¶</a></h3>
+<p>Improve table structure feature helps to bring the table structure upto
+Third Normal Form. A wizard is presented to user which asks questions about the
+elements during the various steps for normalization and a new structure is proposed
+accordingly to bring the table into the First/Second/Third Normal form.
+On startup of the wizard, user gets to select upto what normal form they want to
+normalize the table structure.</p>
+<p>Here is an example table which you can use to test all of the three First, Second and
+Third Normal Form.</p>
+<div class="highlight-mysql"><div class="highlight"><pre><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="ss">`VetOffice`</span> <span class="p">(</span>
+ <span class="ss">`petName`</span> <span class="kt">varchar</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+ <span class="ss">`petBreed`</span> <span class="kt">varchar</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+ <span class="ss">`petType`</span> <span class="kt">varchar</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+ <span class="ss">`petDOB`</span> <span class="kt">date</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+ <span class="ss">`ownerLastName`</span> <span class="kt">varchar</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+ <span class="ss">`ownerFirstName`</span> <span class="kt">varchar</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+ <span class="ss">`ownerPhone1`</span> <span class="kt">int</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+ <span class="ss">`ownerPhone2`</span> <span class="kt">int</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+ <span class="ss">`ownerEmail`</span> <span class="kt">varchar</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<p>The above table is not in First normal Form as no primary key exists. Primary key
+is supposed to be (<cite>petName</cite>,`ownerLastName`,`ownerFirstName`) . If the primary key
+is chosen as suggested the resultant table won&#8217;t be in Second as well as Third Normal
+form as the following dependencies exists.</p>
+<div class="highlight-mysql"><div class="highlight"><pre><span class="p">(</span><span class="n">OwnerLastName</span><span class="p">,</span> <span class="n">OwnerFirstName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nf">OwnerEmail</span>
+<span class="p">(</span><span class="n">OwnerLastName</span><span class="p">,</span> <span class="n">OwnerFirstName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OwnerPhone</span>
+<span class="n">PetBreed</span> <span class="o">-&gt;</span> <span class="n">PetType</span>
+</pre></div>
+</div>
+<p>Which says, OwnerEmail depends on OwnerLastName and OwnerFirstName.
+OwnerPhone depends on OwnerLastName and OwnerFirstName.
+PetType depends on PetBreed.</p>
+</div>
+<div class="section" id="how-can-i-reassign-auto-incremented-values">
+<span id="faq6-38"></span><h3>6.38 How can I reassign auto-incremented values?<a class="headerlink" href="#how-can-i-reassign-auto-incremented-values" title="Permalink to this headline">¶</a></h3>
+<p>Some users prefer their AUTO_INCREMENT values to be consecutive; this is not
+always the case after row deletion.</p>
+<p>Here are the steps to accomplish this. These are manual steps because they
+involve a manual verification at one point.</p>
+<ul class="simple">
+<li>Ensure that you have exclusive access to the table to rearrange</li>
+<li>On your primary key column (i.e. id), remove the AUTO_INCREMENT setting</li>
+<li>Delete your primary key in Structure &gt; indexes</li>
+<li>Create a new column future_id as primary key, AUTO_INCREMENT</li>
+<li>Browse your table and verify that the new increments correspond to what
+you&#8217;re expecting</li>
+<li>Drop your old id column</li>
+<li>Rename the future_id column to id</li>
+<li>Move the new id column via Structure &gt; Move columns</li>
+</ul>
+</div>
+<div class="section" id="what-is-the-adjust-privileges-option-when-renaming-copying-or-moving-a-database-table-column-or-procedure">
+<span id="faq6-39"></span><h3>6.39 What is the &#8220;Adjust privileges&#8221; option when renaming, copying, or moving a database, table, column, or procedure?<a class="headerlink" href="#what-is-the-adjust-privileges-option-when-renaming-copying-or-moving-a-database-table-column-or-procedure" title="Permalink to this headline">¶</a></h3>
+<p>When renaming/copying/moving a database/table/column/procedure,
+MySQL does not adjust the original privileges relating to these objects
+on its own. By selecting this option, phpMyAdmin will adjust the privilege
+table so that users have the same privileges on the new items.</p>
+<p>For example: A user <a class="reference external" href="mailto:'bob'&#37;&#52;&#48;'localhost">'bob'<span>&#64;</span>'localhost</a>&#8216; has a &#8216;SELECT&#8217; privilege on a
+column named &#8216;id&#8217;. Now, if this column is renamed to &#8216;id_new&#8217;, MySQL,
+on its own, would <strong>not</strong> adjust the column privileges to the new column name.
+phpMyAdmin can make this adjustment for you automatically.</p>
+<p>Notes:</p>
+<ul class="simple">
+<li>While adjusting privileges for a database, the privileges of all
+database-related elements (tables, columns and procedures) are also adjusted
+to the database&#8217;s new name.</li>
+<li>Similarly, while adjusting privileges for a table, the privileges of all
+the columns inside the new table are also adjusted.</li>
+<li>While adjusting privileges, the user performing the operation <strong>must</strong> have the following
+privileges:<ul>
+<li>SELECT, INSERT, UPDATE, DELETE privileges on following tables:
+<cite>mysql</cite>.`db`, <cite>mysql</cite>.`columns_priv`, <cite>mysql</cite>.`tables_priv`, <cite>mysql</cite>.`procs_priv`</li>
+<li>FLUSH privilege (GLOBAL)</li>
+</ul>
+</li>
+</ul>
+<p>Thus, if you want to replicate the database/table/column/procedure as it is
+while renaming/copying/moving these objects, make sure you have checked this option.</p>
+</div>
+<div class="section" id="i-see-bind-parameters-checkbox-in-the-sql-page-how-do-i-write-parameterized-sql-queries">
+<span id="faq6-40"></span><h3>6.40 I see &#8220;Bind parameters&#8221; checkbox in the &#8220;SQL&#8221; page. How do I write parameterized SQL queries?<a class="headerlink" href="#i-see-bind-parameters-checkbox-in-the-sql-page-how-do-i-write-parameterized-sql-queries" title="Permalink to this headline">¶</a></h3>
+<p>From version 4.5, phpMyAdmin allows users to execute parameterized queries in the &#8220;SQL&#8221; page.
+Parameters should be prefixed with a colon(:) and when the &#8220;Bind parameters&#8221; checkbox is checked
+these parameters will be identified and input fields for these parameters will be presented.
+Values entered in these field will be substituted in the query before being executed.</p>
+</div>
 </div>
 <div class="section" id="phpmyadmin-project">
 <span id="faqproject"></span><h2>phpMyAdmin project<a class="headerlink" href="#phpmyadmin-project" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="i-have-found-a-bug-how-do-i-inform-developers">
 <span id="faq7-1"></span><h3>7.1 I have found a bug. How do I inform developers?<a class="headerlink" href="#i-have-found-a-bug-how-do-i-inform-developers" title="Permalink to this headline">¶</a></h3>
-<p>Our Bug Tracker is located at &lt;<a class="reference external" href="http://sf.net/projects/phpmyadmin/">http://sf.net/projects/phpmyadmin/</a>&gt; under the
-Bugs section. But please first discuss your bug with other users:
-&lt;<a class="reference external" href="https://sourceforge.net/projects/phpmyadmin/forums">https://sourceforge.net/projects/phpmyadmin/forums</a>&gt;.</p>
+<p>Our issues tracker is located at &lt;<a class="reference external" href="https://github.com/phpmyadmin/phpmyadmin/issues">https://github.com/phpmyadmin/phpmyadmin/issues</a>&gt;.</p>
 </div>
 <div class="section" id="i-want-to-translate-the-messages-to-a-new-language-or-upgrade-an-existing-language-where-do-i-start">
 <span id="faq7-2"></span><h3>7.2 I want to translate the messages to a new language or upgrade an existing language, where do I start?<a class="headerlink" href="#i-want-to-translate-the-messages-to-a-new-language-or-upgrade-an-existing-language-where-do-i-start" title="Permalink to this headline">¶</a></h3>
 <p>Translations are very welcome and all you need to have are the
-language skills. The easiest way is to use our <a class="reference external" href="https://l10n.cihar.com/projects/phpmyadmin/">online translation
+language skills. The easiest way is to use our <a class="reference external" href="https://hosted.weblate.org/projects/phpmyadmin/">online translation
 service</a>. You can check
-out all the possibilities to translate in the <a class="reference external" href="http://www.phpmyadmin.net/home_page/translate.php">translate section on
+out all the possibilities to translate in the <a class="reference external" href="https://www.phpmyadmin.net/translate/">translate section on
 our website</a>.</p>
 </div>
 <div class="section" id="i-would-like-to-help-out-with-the-development-of-phpmyadmin-how-should-i-proceed">
 <span id="faq7-3"></span><h3>7.3 I would like to help out with the development of phpMyAdmin. How should I proceed?<a class="headerlink" href="#i-would-like-to-help-out-with-the-development-of-phpmyadmin-how-should-i-proceed" title="Permalink to this headline">¶</a></h3>
 <p>We welcome every contribution to the development of phpMyAdmin. You
-can check out all the possibilities to contribute in the <a class="reference external" href="http://www.phpmyadmin.net/home_page/improve.php">contribute
+can check out all the possibilities to contribute in the <a class="reference external" href="https://www.phpmyadmin.net/contribute/">contribute
 section on our website</a>.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="developers.html#developers"><em>Developers Information</em></a></p>
 </div>
@@ -1534,7 +1635,7 @@ section on our website</a>.</p>
 <span id="faqsecurity"></span><h2>Security<a class="headerlink" href="#security" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="where-can-i-get-information-about-the-security-alerts-issued-for-phpmyadmin">
 <span id="faq8-1"></span><h3>8.1 Where can I get information about the security alerts issued for phpMyAdmin?<a class="headerlink" href="#where-can-i-get-information-about-the-security-alerts-issued-for-phpmyadmin" title="Permalink to this headline">¶</a></h3>
-<p>Please refer to &lt;<a class="reference external" href="http://www.phpmyadmin.net/home_page/security.php">http://www.phpmyadmin.net/home_page/security.php</a>&gt;.</p>
+<p>Please refer to &lt;<a class="reference external" href="https://www.phpmyadmin.net/security/">https://www.phpmyadmin.net/security/</a>&gt;.</p>
 </div>
 <div class="section" id="how-can-i-protect-phpmyadmin-against-brute-force-attacks">
 <span id="faq8-2"></span><h3>8.2 How can I protect phpMyAdmin against brute force attacks?<a class="headerlink" href="#how-can-i-protect-phpmyadmin-against-brute-force-attacks" title="Permalink to this headline">¶</a></h3>
@@ -1561,10 +1662,10 @@ attempts.</p>
 <div class="section" id="synchronization">
 <span id="faqsynchronization"></span><h2>Synchronization<a class="headerlink" href="#synchronization" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="faq9-1">
-<span id="id14"></span><h3>9.1 (withdrawn).<a class="headerlink" href="#faq9-1" title="Permalink to this headline">¶</a></h3>
+<span id="id15"></span><h3>9.1 (withdrawn).<a class="headerlink" href="#faq9-1" title="Permalink to this headline">¶</a></h3>
 </div>
 <div class="section" id="faq9-2">
-<span id="id15"></span><h3>9.2 (withdrawn).<a class="headerlink" href="#faq9-2" title="Permalink to this headline">¶</a></h3>
+<span id="id16"></span><h3>9.2 (withdrawn).<a class="headerlink" href="#faq9-2" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 </div>
@@ -1595,7 +1696,7 @@ attempts.</p>
 <li><a class="reference internal" href="#faq1-14">1.14 (withdrawn).</a></li>
 <li><a class="reference internal" href="#i-have-problems-with-mysql-user-column-names">1.15 I have problems with <em>mysql.user</em> column names.</a></li>
 <li><a class="reference internal" href="#i-cannot-upload-big-dump-files-memory-http-or-timeout-problems">1.16 I cannot upload big dump files (memory, HTTP or timeout problems).</a></li>
-<li><a class="reference internal" href="#which-mysql-versions-does-phpmyadmin-support">1.17 Which MySQL versions does phpMyAdmin support?</a></li>
+<li><a class="reference internal" href="#which-database-versions-does-phpmyadmin-support">1.17 Which Database versions does phpMyAdmin support?</a></li>
 <li><a class="reference internal" href="#a-i-cannot-connect-to-the-mysql-server-it-always-returns-the-error-message-client-does-not-support-authentication-protocol-requested-by-server-consider-upgrading-mysql-client">1.17a I cannot connect to the MySQL server. It always returns the error message, &#8220;Client does not support authentication protocol requested by server; consider upgrading MySQL client&#8221;</a></li>
 <li><a class="reference internal" href="#faq1-18">1.18 (withdrawn).</a></li>
 <li><a class="reference internal" href="#i-can-t-run-the-display-relations-feature-because-the-script-seems-not-to-know-the-font-face-i-m-using">1.19 I can&#8217;t run the &#8220;display relations&#8221; feature because the script seems not to know the font face I&#8217;m using!</a></li>
@@ -1643,7 +1744,7 @@ attempts.</p>
 <li><a class="reference internal" href="#with-innodb-tables-i-lose-foreign-key-relationships-when-i-rename-a-table-or-a-column">3.3 With InnoDB tables, I lose foreign key relationships when I rename a table or a column.</a></li>
 <li><a class="reference internal" href="#i-am-unable-to-import-dumps-i-created-with-the-mysqldump-tool-bundled-with-the-mysql-server-distribution">3.4 I am unable to import dumps I created with the mysqldump tool bundled with the MySQL server distribution.</a></li>
 <li><a class="reference internal" href="#when-using-nested-folders-multiple-hierarchies-are-displayed-in-a-wrong-manner">3.5 When using nested folders, multiple hierarchies are displayed in a wrong manner.</a></li>
-<li><a class="reference internal" href="#what-is-currently-not-supported-in-phpmyadmin-about-innodb">3.6 What is currently not supported in phpMyAdmin about InnoDB?</a></li>
+<li><a class="reference internal" href="#faq3-6">3.6 (withdrawn).</a></li>
 <li><a class="reference internal" href="#i-have-table-with-many-100-columns-and-when-i-try-to-browse-table-i-get-series-of-errors-like-warning-unable-to-parse-url-how-can-this-be-fixed">3.7 I have table with many (100+) columns and when I try to browse table I get series of errors like &#8220;Warning: unable to parse url&#8221;. How can this be fixed?</a></li>
 <li><a class="reference internal" href="#i-cannot-use-clickable-html-forms-in-columns-where-i-put-a-mime-transformation-onto">3.8 I cannot use (clickable) HTML-forms in columns where I put a MIME-Transformation onto!</a></li>
 <li><a class="reference internal" href="#i-get-error-messages-when-using-sql-mode-ansi-for-the-mysql-server">3.9 I get error messages when using &#8220;&#8211;sql_mode=ANSI&#8221; for the MySQL server.</a></li>
@@ -1711,7 +1812,7 @@ attempts.</p>
 <li><a class="reference internal" href="#i-want-to-add-a-blob-column-and-put-an-index-on-it-but-mysql-says-blob-column-used-in-key-specification-without-a-key-length">6.15 I want to add a BLOB column and put an index on it, but MySQL says &#8220;BLOB column &#8216;...&#8217; used in key specification without a key length&#8221;.</a></li>
 <li><a class="reference internal" href="#how-can-i-simply-move-in-page-with-plenty-editing-fields">6.16 How can I simply move in page with plenty editing fields?</a></li>
 <li><a class="reference internal" href="#transformations-i-can-t-enter-my-own-mimetype-wtf-is-this-feature-then-useful-for">6.17 Transformations: I can&#8217;t enter my own mimetype! WTF is this feature then useful for?</a></li>
-<li><a class="reference internal" href="#bookmarks-where-can-i-store-bookmarks-why-can-t-i-see-any-bookmarks-below-the-query-box-what-is-this-variable-for">6.18 Bookmarks: Where can I store bookmarks? Why can&#8217;t I see any bookmarks below the query box? What is this variable for?</a></li>
+<li><a class="reference internal" href="#bookmarks-where-can-i-store-bookmarks-why-can-t-i-see-any-bookmarks-below-the-query-box-what-are-these-variables-for">6.18 Bookmarks: Where can I store bookmarks? Why can&#8217;t I see any bookmarks below the query box? What are these variables for?</a></li>
 <li><a class="reference internal" href="#how-can-i-create-simple-latex-document-to-include-exported-table">6.19 How can I create simple LATEX document to include exported table?</a></li>
 <li><a class="reference internal" href="#i-see-a-lot-of-databases-which-are-not-mine-and-cannot-access-them">6.20 I see a lot of databases which are not mine, and cannot access them.</a></li>
 <li><a class="reference internal" href="#in-edit-insert-mode-how-can-i-see-a-list-of-possible-values-for-a-column-based-on-some-foreign-table">6.21 In edit/insert mode, how can I see a list of possible values for a column, based on some foreign table?</a></li>
@@ -1728,6 +1829,12 @@ attempts.</p>
 <li><a class="reference internal" href="#how-can-i-use-the-zoom-search-feature">6.32 How can I use the zoom search feature?</a></li>
 <li><a class="reference internal" href="#when-browsing-a-table-how-can-i-copy-a-column-name">6.33 When browsing a table, how can I copy a column name?</a></li>
 <li><a class="reference internal" href="#how-can-i-use-the-favorite-tables-feature">6.34 How can I use the Favorite Tables feature?</a></li>
+<li><a class="reference internal" href="#how-can-i-use-the-range-search-feature">6.35 How can I use the Range search feature?</a></li>
+<li><a class="reference internal" href="#what-is-central-columns-and-how-can-i-use-this-feature">6.36 What is Central columns and How can I use this feature?</a></li>
+<li><a class="reference internal" href="#how-can-i-use-improve-table-structure-feature">6.37 How can I use Improve Table structure feature?</a></li>
+<li><a class="reference internal" href="#how-can-i-reassign-auto-incremented-values">6.38 How can I reassign auto-incremented values?</a></li>
+<li><a class="reference internal" href="#what-is-the-adjust-privileges-option-when-renaming-copying-or-moving-a-database-table-column-or-procedure">6.39 What is the &#8220;Adjust privileges&#8221; option when renaming, copying, or moving a database, table, column, or procedure?</a></li>
+<li><a class="reference internal" href="#i-see-bind-parameters-checkbox-in-the-sql-page-how-do-i-write-parameterized-sql-queries">6.40 I see &#8220;Bind parameters&#8221; checkbox in the &#8220;SQL&#8221; page. How do I write parameterized SQL queries?</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#phpmyadmin-project">phpMyAdmin project</a><ul>
@@ -1751,8 +1858,8 @@ attempts.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="other.html"
-                        title="previous chapter">Other sources of information</a></p>
+  <p class="topless"><a href="import_export.html"
+                        title="previous chapter">Import and export</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="developers.html"
                         title="next chapter">Developers Information</a></p>
@@ -1788,14 +1895,14 @@ attempts.</p>
           <a href="developers.html" title="Developers Information"
              >next</a> |</li>
         <li class="right" >
-          <a href="other.html" title="Other sources of information"
+          <a href="import_export.html" title="Import and export"
              >previous</a> |</li>
-        <li><a href="index.html">phpMyAdmin 4.2.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">phpMyAdmin 4.5.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; <a href="copyright.html">Copyright</a> 2012 - 2014, The phpMyAdmin devel team.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

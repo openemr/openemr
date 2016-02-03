@@ -113,7 +113,7 @@ class PMA_Theme_Manager
      * Initialise the class
      *
      * @access public
-     * @return boolean|void
+     * @return void
      */
     public function init()
     {
@@ -122,7 +122,7 @@ class PMA_Theme_Manager
         $this->active_theme = '';
 
         if (! $this->setThemesPath($GLOBALS['cfg']['ThemePath'])) {
-            return false;
+            return;
         }
 
         $this->setThemePerServer($GLOBALS['cfg']['ThemePerServer']);
@@ -130,7 +130,6 @@ class PMA_Theme_Manager
         $this->loadThemes();
 
         $this->theme = new PMA_Theme;
-
 
         if (! $this->checkTheme($GLOBALS['cfg']['ThemeDefault'])) {
             trigger_error(
@@ -293,36 +292,36 @@ class PMA_Theme_Manager
     {
         $this->themes = array();
 
-        if ($handleThemes = opendir($this->getThemesPath())) {
-            // check for themes directory
-            while (false !== ($PMA_Theme = readdir($handleThemes))) {
-                // Skip non dirs, . and ..
-                if ($PMA_Theme == '.'
-                    || $PMA_Theme == '..'
-                    || ! is_dir($this->getThemesPath() . '/' . $PMA_Theme)
-                ) {
-                    continue;
-                }
-                if (array_key_exists($PMA_Theme, $this->themes)) {
-                    continue;
-                }
-                $new_theme = PMA_Theme::load(
-                    $this->getThemesPath() . '/' . $PMA_Theme
-                );
-                if ($new_theme) {
-                    $new_theme->setId($PMA_Theme);
-                    $this->themes[$PMA_Theme] = $new_theme;
-                }
-            } // end get themes
-            closedir($handleThemes);
-        } else {
+        if (false === ($handleThemes = opendir($this->getThemesPath()))) {
             trigger_error(
                 'phpMyAdmin-ERROR: cannot open themes folder: '
                 . $this->getThemesPath(),
                 E_USER_WARNING
             );
             return false;
-        } // end check for themes directory
+        }
+
+        // check for themes directory
+        while (false !== ($PMA_Theme = readdir($handleThemes))) {
+            // Skip non dirs, . and ..
+            if ($PMA_Theme == '.'
+                || $PMA_Theme == '..'
+                || ! is_dir($this->getThemesPath() . '/' . $PMA_Theme)
+            ) {
+                continue;
+            }
+            if (array_key_exists($PMA_Theme, $this->themes)) {
+                continue;
+            }
+            $new_theme = PMA_Theme::load(
+                $this->getThemesPath() . '/' . $PMA_Theme
+            );
+            if ($new_theme) {
+                $new_theme->setId($PMA_Theme);
+                $this->themes[$PMA_Theme] = $new_theme;
+            }
+        } // end get themes
+        closedir($handleThemes);
 
         ksort($this->themes);
         return true;
@@ -458,4 +457,3 @@ class PMA_Theme_Manager
         return false;
     }
 }
-?>

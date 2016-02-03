@@ -52,7 +52,7 @@ abstract class TextLinkTransformationsPlugin extends TransformationsPlugin
 
         $transform_options = array (
             'string' => '<a href="'
-                . PMA_linkURL((isset($options[0]) ? $options[0] : '') . $append_part)
+                . (isset($options[0]) ? $options[0] : '') . $append_part
                 . '" title="'
                 . htmlspecialchars(isset($options[1]) ? $options[1] : '')
                 . '" target="_new">'
@@ -65,22 +65,6 @@ abstract class TextLinkTransformationsPlugin extends TransformationsPlugin
             $transform_options
         );
     }
-
-    /**
-     * This method is called when any PluginManager to which the observer
-     * is attached calls PluginManager::notify()
-     *
-     * @param SplSubject $subject The PluginManager notifying the observer
-     *                            of an update.
-     *
-     * @todo implement
-     * @return void
-     */
-    public function update (SplSubject $subject)
-    {
-        ;
-    }
-
 
     /* ~~~~~~~~~~~~~~~~~~~~ Getters and Setters ~~~~~~~~~~~~~~~~~~~~ */
 
@@ -95,4 +79,3 @@ abstract class TextLinkTransformationsPlugin extends TransformationsPlugin
         return "TextLink";
     }
 }
-?>

@@ -38,13 +38,13 @@ $(function () {
 $(document).ready(function(){
     width = 0;
     $('ul.tabs li').each(function(){
-        tabWidth = $(this).width() + 10;
+        var tabWidth = $(this).width() + 10;
         width += tabWidth;
-     });
-     contentWidth = width;
-     width += 250;
-     $('body').css('min-width', width);
-     $('.tabs_contents').css('min-width', contentWidth);
+    });
+    var contentWidth = width;
+    width += 250;
+    $('body').css('min-width', width);
+    $('.tabs_contents').css('min-width', contentWidth);
 });
 
 //
@@ -115,7 +115,7 @@ function ajaxValidate(parent, id, values)
 /**
  * Automatic form submission on change.
  */
-$('.autosubmit').live('change', function (e) {
+$(document).on('change', '.autosubmit', function (e) {
     e.target.form.submit();
 });
 

@@ -23,8 +23,6 @@ class Node_Trigger extends Node
      * @param int    $type     Type of node, may be one of CONTAINER or OBJECT
      * @param bool   $is_group Whether this object has been created
      *                         while grouping nodes
-     *
-     * @return Node_Trigger
      */
     public function __construct($name, $type = Node::OBJECT, $is_group = false)
     {
@@ -33,13 +31,12 @@ class Node_Trigger extends Node
         $this->links = array(
             'text' => 'db_triggers.php?server=' . $GLOBALS['server']
                     . '&amp;db=%3$s&amp;item_name=%1$s&amp;edit_item=1'
-                    . '&amp;token=' . $GLOBALS['token'],
+                    . '&amp;token=' . $_SESSION[' PMA_token '],
             'icon' => 'db_triggers.php?server=' . $GLOBALS['server']
                     . '&amp;db=%3$s&amp;item_name=%1$s&amp;export_item=1'
-                    . '&amp;token=' . $GLOBALS['token']
+                    . '&amp;token=' . $_SESSION[' PMA_token ']
         );
         $this->classes = 'trigger';
     }
 }
 
-?>

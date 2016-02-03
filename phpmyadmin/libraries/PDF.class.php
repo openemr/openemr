@@ -31,7 +31,7 @@ class PMA_PDF extends TCPDF
      *
      * @param string  $orientation page orientation
      * @param string  $unit        unit
-     * @param mixed   $format      the format used for pages
+     * @param string  $format      the format used for pages
      * @param boolean $unicode     true means that the input text is unicode
      * @param string  $encoding    charset encoding; default is UTF-8.
      * @param boolean $diskcache   if true reduce the RAM memory usage by caching
@@ -59,7 +59,7 @@ class PMA_PDF extends TCPDF
      *
      * @return void
      */
-    function Footer()
+    public function Footer()
     {
         // Check if footer for this page already exists
         if (!isset($this->footerset[$this->page])) {
@@ -87,7 +87,7 @@ class PMA_PDF extends TCPDF
      *
      * @return void
      */
-    function SetAlias($name, $value)
+    public function SetAlias($name, $value)
     {
         $name = TCPDF_FONTS::UTF8ToUTF16BE(
             $name, false, true, $this->CurrentFont
@@ -102,7 +102,7 @@ class PMA_PDF extends TCPDF
      *
      * @return void
      */
-    function _putpages()
+    public function _putpages()
     {
         if (count($this->Alias) > 0) {
             $nbPages = count($this->pages);
@@ -116,11 +116,11 @@ class PMA_PDF extends TCPDF
     /**
      * Displays an error message
      *
-     * @param string $error_message the error mesage
+     * @param string $error_message the error message
      *
      * @return void
      */
-    function Error($error_message = '')
+    public function Error($error_message = '')
     {
         PMA_Message::error(
             __('Error while creating PDF:') . ' ' . $error_message
@@ -135,11 +135,15 @@ class PMA_PDF extends TCPDF
      *
      * @return void
      */
-    function Download($filename)
+    public function Download($filename)
     {
         $pdfData = $this->getPDFData();
         PMA_Response::getInstance()->disable();
-        PMA_downloadHeader($filename, 'application/pdf', strlen($pdfData));
+        PMA_downloadHeader(
+            $filename,
+            'application/pdf',
+            /*overload*/mb_strlen($pdfData)
+        );
         echo $pdfData;
     }
 }

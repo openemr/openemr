@@ -73,10 +73,6 @@ if (preg_match("/^[^\/]/",$web_root)) {
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
 // The session name names a cookie stored in the browser.
-// If you modify session_name, then need to place the identical name in
-// the phpmyadmin file here: openemr/phpmyadmin/libraries/session.inc.php
-// at line 71. This was required after embedded new phpmyadmin version on
-// 05-12-2009 by Brady. Hopefully will figure out a more appropriate fix.
 // Now that restore_session() is implemented in javaScript, session IDs are
 // effectively saved in the top level browser window and there is no longer
 // any need to change the session name for different OpenEMR instances.

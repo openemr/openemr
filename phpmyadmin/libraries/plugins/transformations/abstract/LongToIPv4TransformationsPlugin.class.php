@@ -28,8 +28,8 @@ abstract class LongToIPv4TransformationsPlugin extends TransformationsPlugin
     public static function getInfo()
     {
         return __(
-            'Converts an (IPv4) Internet network address into a string in'
-            . ' Internet standard dotted format.'
+            'Converts an (IPv4) Internet network address stored as a BIGINT'
+            . ' into a string in Internet standard dotted format.'
         );
     }
 
@@ -51,21 +51,6 @@ abstract class LongToIPv4TransformationsPlugin extends TransformationsPlugin
         return long2ip($buffer);
     }
 
-    /**
-     * This method is called when any PluginManager to which the observer
-     * is attached calls PluginManager::notify()
-     *
-     * @param SplSubject $subject The PluginManager notifying the observer
-     *                            of an update.
-     *
-     * @todo implement
-     * @return void
-     */
-    public function update (SplSubject $subject)
-    {
-        ;
-    }
-
 
     /* ~~~~~~~~~~~~~~~~~~~~ Getters and Setters ~~~~~~~~~~~~~~~~~~~~ */
 
@@ -80,4 +65,3 @@ abstract class LongToIPv4TransformationsPlugin extends TransformationsPlugin
         return "Long To IPv4";
     }
 }
-?>

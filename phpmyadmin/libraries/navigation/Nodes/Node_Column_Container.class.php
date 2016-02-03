@@ -18,8 +18,6 @@ class Node_Column_Container extends Node
 {
     /**
      * Initialises the class
-     *
-     * @return Node_Column_Container
      */
     public function __construct()
     {
@@ -28,10 +26,10 @@ class Node_Column_Container extends Node
         $this->links = array(
             'text' => 'tbl_structure.php?server=' . $GLOBALS['server']
                     . '&amp;db=%2$s&amp;table=%1$s'
-                    . '&amp;token=' . $GLOBALS['token'],
+                    . '&amp;token=' . $_SESSION[' PMA_token '],
             'icon' => 'tbl_structure.php?server=' . $GLOBALS['server']
                     . '&amp;db=%2$s&amp;table=%1$s'
-                    . '&amp;token=' . $GLOBALS['token'],
+                    . '&amp;token=' . $_SESSION[' PMA_token '],
         );
         $this->real_name = 'columns';
 
@@ -43,15 +41,14 @@ class Node_Column_Container extends Node
             'text' => 'tbl_addfield.php?server=' . $GLOBALS['server']
                     . '&amp;db=%3$s&amp;table=%2$s'
                     . '&amp;field_where=last&after_field='
-                    . '&amp;token=' . $GLOBALS['token'],
+                    . '&amp;token=' . $_SESSION[' PMA_token '],
             'icon' => 'tbl_addfield.php?server=' . $GLOBALS['server']
                     . '&amp;db=%3$s&amp;table=%2$s'
                     . '&amp;field_where=last&after_field='
-                    . '&amp;token=' . $GLOBALS['token'],
+                    . '&amp;token=' . $_SESSION[' PMA_token '],
         );
         $new->classes = 'new_column italics';
         $this->addChild($new);
     }
 }
 
-?>

@@ -83,7 +83,7 @@ class PMA_File
      */
     public function __construct($name = false)
     {
-        if ($name) {
+        if ($name && is_string($name)) {
             $this->setName($name);
         }
     }
@@ -159,16 +159,12 @@ class PMA_File
     /**
      * Gets file content
      *
-     * @param boolean $as_binary whether to return content as binary
-     * @param integer $offset    starting offset
-     * @param integer $length    length
-     *
-     * @return mixed   the binary file content as a string,
-     *                 or false if no content
+     * @return string|false the binary file content as a string,
+     *                      or false if no content
      *
      * @access  public
      */
-    public function getContent($as_binary = true, $offset = 0, $length = null)
+    public function getContent()
     {
         if (null === $this->_content) {
             if ($this->isUploaded() && ! $this->checkUploadedFile()) {
@@ -186,17 +182,7 @@ class PMA_File
             }
         }
 
-        if (! empty($this->_content) && $as_binary) {
-            return '0x' . bin2hex($this->_content);
-        }
-
-        if (null !== $length) {
-            return substr($this->_content, $offset, $length);
-        } elseif ($offset > 0) {
-            return substr($this->_content, $offset);
-        }
-
-        return $this->_content;
+        return '0x' . bin2hex($this->_content);
     }
 
     /**
@@ -272,17 +258,24 @@ class PMA_File
         // are given as comment
         case 0: //UPLOAD_ERR_OK:
             return $this->setUploadedFile($file['tmp_name']);
-            break;
         case 4: //UPLOAD_ERR_NO_FILE:
             break;
         case 1: //UPLOAD_ERR_INI_SIZE:
-            $this->_error_message = __('The uploaded file exceeds the upload_max_filesize directive in php.ini.');
+            $this->_error_message = __(
+                'The uploaded file exceeds the upload_max_filesize directive in '
+                . 'php.ini.'
+            );
             break;
         case 2: //UPLOAD_ERR_FORM_SIZE:
-            $this->_error_message = __('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.');
+            $this->_error_message = __(
+                'The uploaded file exceeds the MAX_FILE_SIZE directive that was '
+                . 'specified in the HTML form.'
+            );
             break;
         case 3: //UPLOAD_ERR_PARTIAL:
-            $this->_error_message = __('The uploaded file was only partially uploaded.');
+            $this->_error_message = __(
+                'The uploaded file was only partially uploaded.'
+            );
             break;
         case 6: //UPLOAD_ERR_NO_TMP_DIR:
             $this->_error_message = __('Missing a temporary folder.');
@@ -461,7 +454,7 @@ class PMA_File
      *
      * @todo move check of $cfg['TempDir'] into PMA_Config?
      * @access  public
-     * @return boolean whether uploaded fiel is fine or not
+     * @return boolean whether uploaded file is fine or not
      */
     public function checkUploadedFile()
     {
@@ -473,7 +466,9 @@ class PMA_File
             || ! is_writable($GLOBALS['cfg']['TempDir'])
         ) {
             // cannot create directory or access, point user to FAQ 1.11
-            $this->_error_message = __('Error moving the uploaded file, see [doc@faq1-11]FAQ 1.11[/doc].');
+            $this->_error_message = __(
+                'Error moving the uploaded file, see [doc@faq1-11]FAQ 1.11[/doc].'
+            );
             return false;
         }
 
@@ -499,7 +494,7 @@ class PMA_File
         $this->isTemp(true);
 
         if (! $this->isReadable()) {
-            $this->_error_message = __('Cannot read (moved) upload file.');
+            $this->_error_message = __('Cannot read uploaded file.');
             return false;
         }
 
@@ -512,8 +507,8 @@ class PMA_File
      * @todo    move file read part into readChunk() or getChunk()
      * @todo    add support for compression plugins
      * @access  protected
-     * @return  mixed false on error, otherwise string MIME type of
-     *                compression, none for none
+     * @return  string|false false on error, otherwise string MIME type of
+     *                       compression, none for none
      */
     protected function detectCompression()
     {
@@ -547,7 +542,7 @@ class PMA_File
     /**
      * Sets whether the content should be decompressed before returned
      *
-     * @param boolean $decompress whether to decompres
+     * @param boolean $decompress whether to decompress
      *
      * @return void
      */
@@ -572,7 +567,7 @@ class PMA_File
     /**
      * Sets the file handle
      *
-     * @param resource $handle file handle
+     * @param object $handle file handle
      *
      * @return void
      */
@@ -590,7 +585,11 @@ class PMA_File
     public function errorUnsupported()
     {
         $this->_error_message = sprintf(
-            __('You attempted to load file with unsupported compression (%s). Either support for it is not implemented or disabled by your configuration.'),
+            __(
+                'You attempted to load file with unsupported compression (%s). '
+                . 'Either support for it is not implemented or disabled by your '
+                . 'configuration.'
+            ),
             $this->getCompression()
         );
     }
@@ -630,10 +629,8 @@ class PMA_File
                 include_once './libraries/zip_extension.lib.php';
                 $result = PMA_getZipContents($this->getName());
                 if (! empty($result['error'])) {
-                    $this->_error_message = (string) PMA_Message::rawError($result['error']);
+                    $this->_error_message = PMA_Message::rawError($result['error']);
                     return false;
-                } else {
-                    $this->content_uncompressed = $result['data'];
                 }
                 unset($result);
             } else {
@@ -647,7 +644,6 @@ class PMA_File
         default:
             $this->errorUnsupported();
             return false;
-            break;
         }
 
         return true;
@@ -729,7 +725,7 @@ class PMA_File
      */
     public function getContentLength()
     {
-        return strlen($this->_content);
+        return /*overload*/mb_strlen($this->_content);
     }
 
     /**
@@ -747,4 +743,3 @@ class PMA_File
 
     }
 }
-?>

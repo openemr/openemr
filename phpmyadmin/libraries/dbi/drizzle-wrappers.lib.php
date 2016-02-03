@@ -60,15 +60,7 @@ class PMA_Drizzle extends Drizzle
     const BUFFER_ROW = 2;
 
     /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * Creates a new database conection using TCP
+     * Creates a new database connection using TCP
      *
      * @param string  $host     Drizzle host
      * @param integer $port     Drizzle port
@@ -114,6 +106,11 @@ class PMA_Drizzle extends Drizzle
  *
  * @package    PhpMyAdmin-DBI
  * @subpackage Drizzle
+ *
+ * @method string host() Get host
+ * @method int port() Get port
+ * @method int protocolVersion() Get protocol version
+ * @method resource selectDb(string $dbname) Select a DB
  */
 class PMA_DrizzleCon
 {
@@ -210,7 +207,7 @@ class PMA_DrizzleCon
 class PMA_DrizzleResult
 {
     /**
-     * Instamce of DrizzleResult class
+     * Instance of DrizzleResult class
      * @var DrizzleResult
      */
     private $_dresult;

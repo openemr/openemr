@@ -9,6 +9,8 @@ if (! defined('PHPMYADMIN')) {
     exit;
 }
 
+require_once './libraries/Template.class.php';
+
 /**
  * Common initialization for user preferences modification pages
  *
@@ -110,17 +112,18 @@ function PMA_saveUserprefs(array $config_array)
     $config_data = json_encode($config_array);
     if ($has_config) {
         $query = 'UPDATE ' . $query_table
-            . ' SET `config_data` = \''
+            . ' SET `timevalue` = NOW(), `config_data` = \''
             . PMA_Util::sqlAddSlashes($config_data)
             . '\''
             . ' WHERE `username` = \''
             . PMA_Util::sqlAddSlashes($cfgRelation['user'])
             . '\'';
     } else {
-        $query = 'INSERT INTO ' . $query_table . ' (`username`, `config_data`) '
+        $query = 'INSERT INTO ' . $query_table
+            . ' (`username`, `timevalue`,`config_data`) '
             . 'VALUES (\''
-            . PMA_Util::sqlAddSlashes($cfgRelation['user']) . '\', \''
-            . PMA_Util::sqlAddSlashes($config_data) . '\')';
+            . PMA_Util::sqlAddSlashes($cfgRelation['user']) . '\', NOW(), '
+            . '\'' . PMA_Util::sqlAddSlashes($config_data) . '\')';
     }
     if (isset($_SESSION['cache'][$cache_key]['userprefs'])) {
         unset($_SESSION['cache'][$cache_key]['userprefs']);
@@ -152,8 +155,6 @@ function PMA_applyUserprefs(array $config_data)
     $blacklist = array_flip($GLOBALS['cfg']['UserprefsDisallow']);
     if (!$GLOBALS['cfg']['UserprefsDeveloperTab']) {
         // disallow everything in the Developers tab
-        $blacklist['Error_Handler/display'] = true;
-        $blacklist['Error_Handler/gather'] = true;
         $blacklist['DBG/sql'] = true;
     }
     $whitelist = array_flip(PMA_readUserprefsFieldNames());
@@ -267,36 +268,23 @@ function PMA_userprefsRedirect($file_name,
  */
 function PMA_userprefsAutoloadGetHeader()
 {
-    $retval = '';
-
     if (isset($_REQUEST['prefs_autoload'])
         && $_REQUEST['prefs_autoload'] == 'hide'
     ) {
         $_SESSION['userprefs_autoload'] = true;
-    } else {
-        $script_name = basename(basename($GLOBALS['PMA_PHP_SELF']));
-        $return_url = htmlspecialchars(
-            $script_name . '?' . http_build_query($_GET, '', '&')
-        );
-
-        $retval .= '<div id="prefs_autoload" class="notice" style="display:none">';
-        $retval .= '<form action="prefs_manage.php" method="post">';
-        $retval .= PMA_URL_getHiddenInputs();
-        $retval .= '<input type="hidden" name="json" value="" />';
-        $retval .= '<input type="hidden" name="submit_import" value="1" />';
-        $retval .= '<input type="hidden" name="return_url" value="'
-            . $return_url . '" />';
-        $retval .=  __(
-            'Your browser has phpMyAdmin configuration for this domain. '
-            . 'Would you like to import it for current session?'
-        );
-        $retval .= '<br />';
-        $retval .= '<a href="#yes">' . __('Yes') . '</a>';
-        $retval .= ' / ';
-        $retval .= '<a href="#no">' . __('No') . '</a>';
-        $retval .= '</form>';
-        $retval .= '</div>';
+        return '';
     }
-    return $retval;
+
+    $script_name = basename(basename($GLOBALS['PMA_PHP_SELF']));
+    $return_url = htmlspecialchars(
+        $script_name . '?' . http_build_query($_GET, '', '&')
+    );
+
+    return PMA\Template::get('prefs_autoload')
+        ->render(
+            array(
+                'hiddenInputs' => PMA_URL_getHiddenInputs(),
+                'return_url' => $return_url,
+            )
+        );
 }
-?>

@@ -26,7 +26,6 @@ function PMA_getZipContents($file, $specific_entry = null)
     if (!is_resource($zip_handle)) {
         $error_message = __('Error in ZIP archive:')
             . ' ' . PMA_getZipError($zip_handle);
-        zip_close($zip_handle);
         return (array('error' => $error_message, 'data' => $file_data));
     }
 
@@ -101,7 +100,7 @@ function PMA_getZipContents($file, $specific_entry = null)
  *
  * @return string the file name of the first file that matches the given regexp
  */
-function PMA_findFileFromZipArchive ($file_regexp, $file)
+function PMA_findFileFromZipArchive($file_regexp, $file)
 {
     $zip_handle = zip_open($file);
     if (is_resource($zip_handle)) {
@@ -148,7 +147,7 @@ function PMA_getNoOfFilesInZip($file)
  * @param string $destination destination to extract files
  * @param array  $entries     files in archive that should be extracted
  *
- * @return bool true on sucess, false otherwise
+ * @return bool true on success, false otherwise
  */
 function PMA_zipExtract($zip_path, $destination, $entries)
 {
@@ -192,4 +191,3 @@ function PMA_getZipError($code)
     }
     return $message;
 }
-?>

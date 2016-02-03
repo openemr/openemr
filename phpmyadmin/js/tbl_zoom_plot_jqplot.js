@@ -12,7 +12,15 @@
  **  Display Help/Info
  **/
 function displayHelp() {
-    PMA_ajaxShowMessage(PMA_messages.strDisplayHelp, 10000);
+    $('<div />')
+        .append(PMA_messages.strDisplayHelp)
+        .appendTo('#page_content')
+        .dialog({
+            width: 450,
+            height: 'auto',
+            title: PMA_messages.strHelpTitle
+        });
+    return false;
 }
 
 /**
@@ -120,7 +128,7 @@ AJAX.registerTeardown('tbl_zoom_plot_jqplot.js', function () {
     $('#tableid_3').unbind('change');
     $('#inputFormSubmitId').unbind('click');
     $('#togglesearchformlink').unbind('click');
-    $("#dataDisplay").find(':input').die('keydown');
+    $(document).off('keydown', "#dataDisplay :input");
     $('button.button-reset').unbind('click');
     $('div#resizer').unbind('resizestop');
     $('div#querychart').unbind('jqplotDataClick');
@@ -142,7 +150,12 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
 
 
     // Get query result
-    var searchedData = jQuery.parseJSON($('#querydata').html());
+    var searchedData;
+    try {
+        searchedData = jQuery.parseJSON($('#querydata').html());
+    } catch (err) {
+        searchedData = null;
+    }
 
     /**
      ** Input form submit on field change
@@ -154,16 +167,17 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
         $.post('tbl_zoom_select.php', {
             'ajax_request' : true,
             'change_tbl_info' : true,
+            'server' : PMA_commonParams.get('server'),
             'db' : PMA_commonParams.get('db'),
             'table' : PMA_commonParams.get('table'),
             'field' : $('#tableid_0').val(),
             'it' : 0,
             'token' : PMA_commonParams.get('token')
         }, function (data) {
-            $('#tableFieldsId tr:eq(1) td:eq(0)').html(data.field_type);
-            $('#tableFieldsId tr:eq(1) td:eq(1)').html(data.field_collation);
-            $('#tableFieldsId tr:eq(1) td:eq(2)').html(data.field_operators);
-            $('#tableFieldsId tr:eq(1) td:eq(3)').html(data.field_value);
+            $('#tableFieldsId').find('tr:eq(1) td:eq(0)').html(data.field_type);
+            $('#tableFieldsId').find('tr:eq(1) td:eq(1)').html(data.field_collation);
+            $('#tableFieldsId').find('tr:eq(1) td:eq(2)').html(data.field_operators);
+            $('#tableFieldsId').find('tr:eq(1) td:eq(3)').html(data.field_value);
             xLabel = $('#tableid_0').val();
             $('#types_0').val(data.field_type);
             xType = data.field_type;
@@ -178,16 +192,17 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
         $.post('tbl_zoom_select.php', {
             'ajax_request' : true,
             'change_tbl_info' : true,
+            'server' : PMA_commonParams.get('server'),
             'db' : PMA_commonParams.get('db'),
             'table' : PMA_commonParams.get('table'),
             'field' : $('#tableid_1').val(),
             'it' : 1,
             'token' : PMA_commonParams.get('token')
         }, function (data) {
-            $('#tableFieldsId tr:eq(3) td:eq(0)').html(data.field_type);
-            $('#tableFieldsId tr:eq(3) td:eq(1)').html(data.field_collation);
-            $('#tableFieldsId tr:eq(3) td:eq(2)').html(data.field_operators);
-            $('#tableFieldsId tr:eq(3) td:eq(3)').html(data.field_value);
+            $('#tableFieldsId').find('tr:eq(3) td:eq(0)').html(data.field_type);
+            $('#tableFieldsId').find('tr:eq(3) td:eq(1)').html(data.field_collation);
+            $('#tableFieldsId').find('tr:eq(3) td:eq(2)').html(data.field_operators);
+            $('#tableFieldsId').find('tr:eq(3) td:eq(3)').html(data.field_value);
             yLabel = $('#tableid_1').val();
             $('#types_1').val(data.field_type);
             yType = data.field_type;
@@ -201,16 +216,17 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
         $.post('tbl_zoom_select.php', {
             'ajax_request' : true,
             'change_tbl_info' : true,
+            'server' : PMA_commonParams.get('server'),
             'db' : PMA_commonParams.get('db'),
             'table' : PMA_commonParams.get('table'),
             'field' : $('#tableid_2').val(),
             'it' : 2,
             'token' : PMA_commonParams.get('token')
         }, function (data) {
-            $('#tableFieldsId tr:eq(6) td:eq(0)').html(data.field_type);
-            $('#tableFieldsId tr:eq(6) td:eq(1)').html(data.field_collation);
-            $('#tableFieldsId tr:eq(6) td:eq(2)').html(data.field_operators);
-            $('#tableFieldsId tr:eq(6) td:eq(3)').html(data.field_value);
+            $('#tableFieldsId').find('tr:eq(6) td:eq(0)').html(data.field_type);
+            $('#tableFieldsId').find('tr:eq(6) td:eq(1)').html(data.field_collation);
+            $('#tableFieldsId').find('tr:eq(6) td:eq(2)').html(data.field_operators);
+            $('#tableFieldsId').find('tr:eq(6) td:eq(3)').html(data.field_value);
             $('#types_2').val(data.field_type);
             $('#collations_2').val(data.field_collations);
             addDateTimePicker();
@@ -222,16 +238,17 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
         $.post('tbl_zoom_select.php', {
             'ajax_request' : true,
             'change_tbl_info' : true,
+            'server' : PMA_commonParams.get('server'),
             'db' : PMA_commonParams.get('db'),
             'table' : PMA_commonParams.get('table'),
             'field' : $('#tableid_3').val(),
             'it' : 3,
             'token' : PMA_commonParams.get('token')
         }, function (data) {
-            $('#tableFieldsId tr:eq(8) td:eq(0)').html(data.field_type);
-            $('#tableFieldsId tr:eq(8) td:eq(1)').html(data.field_collation);
-            $('#tableFieldsId tr:eq(8) td:eq(2)').html(data.field_operators);
-            $('#tableFieldsId tr:eq(8) td:eq(3)').html(data.field_value);
+            $('#tableFieldsId').find('tr:eq(8) td:eq(0)').html(data.field_type);
+            $('#tableFieldsId').find('tr:eq(8) td:eq(1)').html(data.field_collation);
+            $('#tableFieldsId').find('tr:eq(8) td:eq(2)').html(data.field_operators);
+            $('#tableFieldsId').find('tr:eq(8) td:eq(3)').html(data.field_value);
             $('#types_3').val(data.field_type);
             $('#collations_3').val(data.field_collations);
             addDateTimePicker();
@@ -287,13 +304,14 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
         var xChange = false;
         var yChange = false;
         var key;
+        var tempGetVal = function () {
+            return $(this).val();
+        };
         for (key in selectedRow) {
             var oldVal = selectedRow[key];
             var newVal = ($('#edit_fields_null_id_' + it).prop('checked')) ? null : $('#edit_fieldID_' + it).val();
             if (newVal instanceof Array) { // when the column is of type SET
-                newVal =  $('#edit_fieldID_' + it).map(function () {
-                    return $(this).val();
-                }).get().join(",");
+                newVal =  $('#edit_fieldID_' + it).map(tempGetVal).get().join(",");
             }
             if (oldVal != newVal) {
                 selectedRow[key] = newVal;
@@ -328,6 +346,7 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
                     series[0][searchedDataKey][0] =
                         getTimeStamp(selectedRow[xLabel], $('#types_0').val());
                 } else {
+                    series[0][searchedDataKey][0] = '';
                     // TODO: text values
                 }
                 currentChart.series[0].data = series[0];
@@ -344,6 +363,7 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
                     series[0][searchedDataKey][1] =
                         getTimeStamp(selectedRow[yLabel], $('#types_1').val());
                 } else {
+                    series[0][searchedDataKey][1] = '';
                     // TODO: text values
                 }
                 currentChart.series[0].data = series[0];
@@ -391,14 +411,15 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
             //Post SQL query to sql.php
             $.post('sql.php', {
                     'token' : PMA_commonParams.get('token'),
+                    'server' : PMA_commonParams.get('server'),
                     'db' : PMA_commonParams.get('db'),
                     'ajax_request' : true,
                     'sql_query' : sql_query,
                     'inline_edit' : false
                 }, function (data) {
-                    if (data.success === true) {
-                        $('#sqlqueryresults').html(data.sql_query);
-                        $("#sqlqueryresults").trigger('appendAnchor');
+                    if (typeof data !== 'undefined' && data.success === true) {
+                        $('#sqlqueryresultsouter').html(data.sql_query);
+                        PMA_highlightSQL($('#sqlqueryresultsouter'));
                     } else {
                         PMA_ajaxShowMessage(data.error, false);
                     }
@@ -424,7 +445,7 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
      * in the dialog. Used to submit the Ajax
      * request when the ENTER key is pressed.
      */
-    $("#dataDisplay").find(':input').live('keydown', function (e) {
+    $(document).on('keydown', "#dataDisplay :input", function (e) {
         if (e.which === 13) { // 13 is the ENTER key
             e.preventDefault();
             if (typeof buttonOptions[PMA_messages.strSave] === 'function') {
@@ -587,6 +608,7 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
                 var post_params = {
                     'ajax_request' : true,
                     'get_data_row' : true,
+                    'server' : PMA_commonParams.get('server'),
                     'db' : PMA_commonParams.get('db'),
                     'table' : PMA_commonParams.get('table'),
                     'where_clause' : data[3],
@@ -598,8 +620,8 @@ AJAX.registerOnload('tbl_zoom_plot_jqplot.js', function () {
                     // now fill the displayResultForm with row values
                     var key;
                     for (key in data.row_info) {
-                        $field = $('#edit_fieldID_' + field_id);
-                        $field_null = $('#edit_fields_null_id_' + field_id);
+                        var $field = $('#edit_fieldID_' + field_id);
+                        var $field_null = $('#edit_fields_null_id_' + field_id);
                         if (data.row_info[key] === null) {
                             $field_null.prop('checked', true);
                             $field.val('');

@@ -33,7 +33,10 @@ if (is_readable($filename)) {
     }
 } else {
     printf(
-        __('The %s file is not available on this system, please visit www.phpmyadmin.net for more information.'),
+        __(
+            'The %s file is not available on this system, please visit '
+            . 'www.phpmyadmin.net for more information.'
+        ),
         $filename
     );
     exit;
@@ -91,6 +94,10 @@ $replaces = array(
     '/(?<!bug|RFE|patch) #?([0-9]{6,})/i'
     => '<a href="' . $tracker_url . '">bug #\\1</a>',
 
+    // GitHub issues
+    '/issue\s*#?([0-9]{4,5}) /i'
+    => '<a href="' . $github_url . 'issues/\\1">issue #\\1</a> ',
+
     // transitioned SF.net project bug/rfe/patch links
     // by the time we reach 6-digit numbers, we can probably retire the above links
     '/patch\s*#?([0-9]{4,5}) /i'
@@ -108,7 +115,7 @@ $replaces = array(
 
     // PMASAentries
     '/(PMASA-[0-9]+-[0-9]+)/'
-    => '<a href="http://www.phpmyadmin.net/home_page/security/\\1.php">\\1</a>',
+    => '<a href="https://www.phpmyadmin.net/security/\\1/">\\1</a>',
 
     // Highlight releases (with links)
     '/([0-9]+)\.([0-9]+)\.([0-9]+)\.0 (\([0-9-]+\))/'

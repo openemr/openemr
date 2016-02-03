@@ -13,6 +13,7 @@ if (! defined('PHPMYADMIN')) {
  * Include all other files that are common
  * to routines, triggers and events.
  */
+require_once './libraries/rte/rte_general.lib.php';
 require_once './libraries/rte/rte_words.lib.php';
 require_once './libraries/rte/rte_export.lib.php';
 require_once './libraries/rte/rte_list.lib.php';
@@ -27,7 +28,18 @@ if ($GLOBALS['is_ajax_request'] != true) {
     } else {
         $table = '';
         include_once './libraries/db_common.inc.php';
-        include_once './libraries/db_info.inc.php';
+
+        list(
+            $tables,
+            $num_tables,
+            $total_num_tables,
+            $sub_part,
+            $is_show_stats,
+            $db_is_system_schema,
+            $tooltip_truename,
+            $tooltip_aliasname,
+            $pos
+        ) = PMA_Util::getDbInfo($db, isset($sub_part) ? $sub_part : '');
     }
 } else {
     /**
@@ -35,10 +47,14 @@ if ($GLOBALS['is_ajax_request'] != true) {
      * to manually select the required database and
      * create the missing $url_query variable
      */
-    if (strlen($db)) {
+    if (/*overload*/mb_strlen($db)) {
         $GLOBALS['dbi']->selectDb($db);
         if (! isset($url_query)) {
-            $url_query = PMA_URL_getCommon($db, $table);
+            $url_query = PMA_URL_getCommon(
+                array(
+                    'db' => $db, 'table' => $table
+                )
+            );
         }
     }
 }
@@ -47,13 +63,6 @@ if ($GLOBALS['is_ajax_request'] != true) {
  * Generate the conditional classes that will
  * be used to attach jQuery events to links
  */
-$ajax_class = array(
-    'add'    => '',
-    'edit'   => '',
-    'exec'   => '',
-    'drop'   => '',
-    'export' => ''
-);
 $ajax_class = array(
     'add'    => 'class="ajax add_anchor"',
     'edit'   => 'class="ajax edit_anchor"',
@@ -93,4 +102,3 @@ case 'EVN':
     break;
 }
 
-?>

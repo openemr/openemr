@@ -21,7 +21,7 @@ require_once './libraries/DatabaseInterface.class.php';
  * assigned to a form element (formset name or field path). Even if there are
  * no errors, key must be set with an empty value.
  *
- * Valdiation functions are assigned in $cfg_db['_validators'] (config.values.php).
+ * Validation functions are assigned in $cfg_db['_validators'] (config.values.php).
  *
  * @package PhpMyAdmin
  */
@@ -59,9 +59,9 @@ class PMA_Validator
                     continue;
                 }
                 for ($i = 1, $nb = count($uv); $i < $nb; $i++) {
-                    if (substr($uv[$i], 0, 6) == 'value:') {
+                    if (/*overload*/mb_substr($uv[$i], 0, 6) == 'value:') {
                         $uv[$i] = PMA_arrayRead(
-                            substr($uv[$i], 6),
+                            /*overload*/mb_substr($uv[$i], 6),
                             $GLOBALS['PMA_Config']->base_settings
                         );
                     }
@@ -80,7 +80,7 @@ class PMA_Validator
      * Return values:
      * o array, keys - field path or formset id, values - array of errors
      *   when $isPostSource is true values is an empty array to allow for error list
-     *   cleanup in HTML documen
+     *   cleanup in HTML document
      * o false - when no validators match name(s) given by $validator_id
      *
      * @param ConfigFile   $cf           Config file instance
@@ -113,7 +113,9 @@ class PMA_Validator
         $key_map = array();
         foreach ($values as $k => $v) {
             $k2 = $isPostSource ? str_replace('-', '/', $k) : $k;
-            $k2 = strpos($k2, '/') ? $cf->getCanonicalPath($k2) : $k2;
+            $k2 = /*overload*/mb_strpos($k2, '/')
+                ? $cf->getCanonicalPath($k2)
+                : $k2;
             $key_map[$k2] = $k;
             $arguments[$k2] = $v;
         }
@@ -187,9 +189,9 @@ class PMA_Validator
             $old_track_errors = ini_get('track_errors');
             $old_display_errors = ini_get('display_errors');
             $old_error_reporting = error_reporting(E_ALL);
-            ini_set('html_errors', '0');
-            ini_set('track_errors', '1');
-            ini_set('display_errors', '1');
+            ini_set('html_errors', 'false');
+            ini_set('track_errors', 'true');
+            ini_set('display_errors', 'true');
             set_error_handler(array("PMA_Validator", "nullErrorHandler"));
             ob_start();
         } else {
@@ -225,13 +227,17 @@ class PMA_Validator
         $error_key = 'Server'
     ) {
         //    static::testPHPErrorMsg();
-        $socket = empty($socket) || $connect_type == 'tcp' ? null : $socket;
-        $port = empty($port) || $connect_type == 'socket' ? null : ':' . $port;
         $error = null;
 
         if (PMA_DatabaseInterface::checkDbExtension('mysqli')) {
+            $socket = empty($socket) || $connect_type == 'tcp' ? null : $socket;
+            $port = empty($port) || $connect_type == 'socket' ? null : $port;
             $extension = 'mysqli';
         } else {
+            $socket = empty($socket) || $connect_type == 'tcp'
+                ? null
+                : ':' . ($socket[0] == '/' ? '' : '/') . $socket;
+            $port = empty($port) || $connect_type == 'socket' ? null : ':' . $port;
             $extension = 'mysql';
         }
 
@@ -266,7 +272,7 @@ class PMA_Validator
                 break;
             }
         } else if ($extension == 'mysql') {
-            $conn = @mysql_connect($host . $socket . $port, $user, $pass);
+            $conn = @mysql_connect($host . $port . $socket, $user, $pass);
             if (! $conn) {
                 $error = __('Could not connect to the database server!');
             } else {
@@ -291,6 +297,8 @@ class PMA_Validator
      * Validate server config
      *
      * @param string $path   path to config, not used
+     *                       keep this parameter since the method is invoked using
+     *                       reflection along with other similar methods
      * @param array  $values config values
      *
      * @return array
@@ -307,8 +315,9 @@ class PMA_Validator
         if ($values['Servers/1/auth_type'] == 'config'
             && empty($values['Servers/1/user'])
         ) {
-            $result['Servers/1/user']
-                = __('Empty username while using [kbd]config[/kbd] authentication method!');
+            $result['Servers/1/user'] = __(
+                'Empty username while using [kbd]config[/kbd] authentication method!'
+            );
             $error = true;
         }
         if ($values['Servers/1/auth_type'] == 'signon'
@@ -323,8 +332,10 @@ class PMA_Validator
         if ($values['Servers/1/auth_type'] == 'signon'
             && empty($values['Servers/1/SignonURL'])
         ) {
-            $result['Servers/1/SignonURL']
-                = __('Empty signon URL while using [kbd]signon[/kbd] authentication method!');
+            $result['Servers/1/SignonURL'] = __(
+                'Empty signon URL while using [kbd]signon[/kbd] authentication '
+                . 'method!'
+            );
             $error = true;
         }
 
@@ -351,6 +362,8 @@ class PMA_Validator
      * Validate pmadb config
      *
      * @param string $path   path to config, not used
+     *                       keep this parameter since the method is invoked using
+     *                       reflection along with other similar methods
      * @param array  $values config values
      *
      * @return array
@@ -370,13 +383,17 @@ class PMA_Validator
 
         $result = array();
         if ($values['Servers/1/controluser'] == '') {
-            $result['Servers/1/controluser']
-                = __('Empty phpMyAdmin control user while using phpMyAdmin configuration storage!');
+            $result['Servers/1/controluser'] = __(
+                'Empty phpMyAdmin control user while using phpMyAdmin configuration '
+                . 'storage!'
+            );
             $error = true;
         }
         if ($values['Servers/1/controlpass'] == '') {
-            $result['Servers/1/controlpass']
-                = __('Empty phpMyAdmin control user password while using phpMyAdmin configuration storage!');
+            $result['Servers/1/controlpass'] = __(
+                'Empty phpMyAdmin control user password while using phpMyAdmin '
+                . 'configuration storage!'
+            );
             $error = true;
         }
         if (! $error) {
@@ -585,7 +602,7 @@ class PMA_Validator
      *
      * @param string $path   path to config
      * @param array  $values config values
-     * @param string $regex  regullar expression to match
+     * @param string $regex  regular expression to match
      *
      * @return array
      */
@@ -611,4 +628,3 @@ class PMA_Validator
             : sprintf(__('Value must be equal or lower than %s!'), $max_value)));
     }
 }
-?>

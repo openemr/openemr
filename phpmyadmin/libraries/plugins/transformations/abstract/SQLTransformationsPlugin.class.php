@@ -45,24 +45,7 @@ abstract class SQLTransformationsPlugin extends TransformationsPlugin
     {
         // see PMA_highlightSQL()
         $result = PMA_Util::formatSql($buffer);
-        // Need to clear error state not to break subsequent queries display.
-        PMA_SQP_resetError();
         return $result;
-    }
-
-    /**
-     * This method is called when any PluginManager to which the observer
-     * is attached calls PluginManager::notify()
-     *
-     * @param SplSubject $subject The PluginManager notifying the observer
-     *                            of an update.
-     *
-     * @todo implement
-     * @return void
-     */
-    public function update (SplSubject $subject)
-    {
-        ;
     }
 
 
@@ -79,4 +62,3 @@ abstract class SQLTransformationsPlugin extends TransformationsPlugin
         return "SQL";
     }
 }
-?>

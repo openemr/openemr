@@ -11,29 +11,35 @@
 var _change = 0; // variable to track any change in designer layout.
 var _staying = 0; //  variable to check if the user stayed after seeing the confirmation prompt.
 var show_relation_lines = true;
+var always_show_text = false;
 
 AJAX.registerTeardown('pmd/move.js', function () {
     if ($.FullScreen.supported) {
         $(document).unbind($.FullScreen.prefix + 'fullscreenchange');
     }
+
+    $('#selflink').show();
 });
 
 AJAX.registerOnload('pmd/move.js', function () {
     $('#page_content').css({'margin-left': '3px'});
-    $('#exitFullscreen').hide();
     if ($.FullScreen.supported) {
         $(document).fullScreenChange(function () {
             if (! $.FullScreen.isFullScreen()) {
                 $('#page_content').removeClass('content_fullscreen')
                     .css({'width': 'auto', 'height': 'auto'});
-                $('#enterFullscreen').show();
-                $('#exitFullscreen').hide();
-                Top_menu_reposition($('#key_Left_Right')[0]);
+                var $img = $('#toggleFullscreen').find('img');
+                var $span = $img.siblings('span');
+                $span.text($span.data('enter'));
+                $img.attr('src', $img.data('enter'))
+                    .attr('title', $span.data('enter'));
             }
         });
     } else {
-        $('#enterFullscreen').hide();
+        $('#toggleFullscreen').hide();
     }
+
+    $('#selflink').hide();
 });
 
 // Below is the function to bind onbeforeunload events with the content_frame as well as the top window.
@@ -65,6 +71,17 @@ function make_zero() {   // Function called if the user stays after seeing the c
     _staying = 0;
 }
 
+function MarkSaved()
+{
+    _change = 0;
+    $('#saved_state').text('');
+}
+
+function MarkUnsaved()
+{
+    _change = 1;
+    $('#saved_state').text('*');
+}
 
 var dx, dy, dy2;
 var cur_click = null;
@@ -94,6 +111,8 @@ var step = 10;
 var old_class;
 var from_array = [];
 var downer;
+var menu_moved = false;
+var grid_size = 10;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -120,67 +139,76 @@ if (isIE) {
 //document.onmouseup = function (){General_scroll_end();}
 function MouseDown(e)
 {
-    var offsetx, offsety;
+    Glob_X = dx = isIE ? e.clientX + document.body.scrollLeft : e.pageX;
+    Glob_Y = dy = isIE ? e.clientY + document.body.scrollTop : e.pageY;
     if (cur_click !== null) {
-        offsetx = isIE ? event.clientX + document.body.scrollLeft : e.pageX;
-        offsety = isIE ? event.clientY + document.body.scrollTop : e.pageY;
-        dx = offsetx - parseInt(cur_click.style.left, 10);
-        dy = offsety - parseInt(cur_click.style.top, 10);
-        //alert(" dx = " + dx + " dy = " +dy);
         document.getElementById("canvas").style.display = 'none';
-        /*
-        var left = parseInt(cur_click.style.left, 10);
-        var top  = parseInt(cur_click.style.top, 10);
-        dx = e.pageX - left;
-        dy = e.pageY - top;
-
-        alert(" dx = " + dx + " dy = " +dy);
-        */
         cur_click.style.zIndex = 2;
-    }
-    if (layer_menu_cur_click) {
-        offsetx = e.pageX;
-        dx = offsetx - parseInt(document.getElementById("layer_menu").style.width, 10);
     }
 }
 
 function MouseMove(e)
 {
-    //Glob_X = e.pageX;
-    //Glob_Y = e.pageY;
-    Glob_X = isIE ? event.clientX + document.body.scrollLeft : e.pageX;
-    Glob_Y = isIE ? event.clientY + document.body.scrollTop : e.pageY;
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
 
-    //mouseX = (bw.ns4||bw.ns6)? e.pageX: bw.ie&&bw.win&&!bw.ie4? (event.clientX-2)+document.body.scrollLeft : event.clientX+document.body.scrollLeft;
-    //mouseY = (bw.ns4||bw.ns6)? e.pageY: bw.ie&&bw.win&&!bw.ie4? (event.clientY-2)+document.body.scrollTop : event.clientY+document.body.scrollTop;
+    var new_dx = isIE ? e.clientX + document.body.scrollLeft : e.pageX;
+    var new_dy = isIE ? e.clientY + document.body.scrollTop : e.pageY;
 
-    //window.status = "X = "+ Glob_X + " Y = "+ Glob_Y;
+    var delta_x = Glob_X - new_dx;
+    var delta_y = Glob_Y - new_dy;
+
+    Glob_X = new_dx;
+    Glob_Y = new_dy;
 
     if (cur_click !== null) {
-        _change = 1;
-        var mGx = Glob_X - dx;
-        var mGy = Glob_Y - dy;
-        mGx = mGx > 0 ? mGx : 0;
-        mGy = mGy > 0 ? mGy : 0;
+        MarkUnsaved();
+
+        var $cur_click = $(cur_click);
+
+        var cur_x = parseFloat($cur_click.attr('data-left') || $cur_click.css('left'));
+        var cur_y = parseFloat($cur_click.attr('data-top') || $cur_click.css('top'));
+
+        var new_x = cur_x - delta_x;
+        var new_y = cur_y - delta_y;
+
+        dx = new_dx;
+        dy = new_dy;
+
+        $cur_click.attr('data-left', new_x);
+        $cur_click.attr('data-top', new_y);
 
         if (ON_grid) {
-            mGx = mGx % step < step / 2 ? mGx - mGx % step : mGx - mGx % step + step;
-            mGy = mGy % step < step / 2 ? mGy - mGy % step : mGy - mGy % step + step;
+            new_x = parseInt(new_x / grid_size) * grid_size;
+            new_y = parseInt(new_y / grid_size) * grid_size;
         }
 
-        cur_click.style.left = mGx + 'px';
-        cur_click.style.top  = mGy + 'px';
+        $cur_click.css('left', new_x + 'px');
+        $cur_click.css('top', new_y + 'px');
+    }
+
+    else if (layer_menu_cur_click) {
+
+        dx = new_dx;
+        dy = new_dy;
+        if (menu_moved) {
+            delta_x = -delta_x;
+        }
+        var $layer_menu = $('#layer_menu');
+        var new_width = $layer_menu.width() + delta_x;
+        if (new_width < 150) {
+            new_width = 150;
+        }
+        else {
+            dx = e.pageX;
+        }
+        $layer_menu.width(new_width);
     }
 
     if (ON_relation || ON_display_field) {
         document.getElementById('pmd_hint').style.left = (Glob_X + 20) + 'px';
         document.getElementById('pmd_hint').style.top  = (Glob_Y + 20) + 'px';
-    }
-
-    if (layer_menu_cur_click) {
-        document.getElementById("layer_menu").style.width = ((Glob_X - dx) >= 150 ? Glob_X - dx : 150) + 'px';
-        //document.getElementById("layer_menu").style.height = Glob_Y - dy>=200?Glob_Y - dy:200;
-        //document.getElementById("id_scroll_tab").style.height = Glob_Y - dy2;
     }
 }
 
@@ -222,6 +250,52 @@ function Osn_tab_pos()
     osn_tab_height = parseInt(document.getElementById('osn_tab').style.height, 10);
 }
 
+function setDefaultValuesFromSavedState()
+{
+    if ($('#angular_direct_button').attr('class') === 'M_butt') {
+        ON_angular_direct = 0;
+    } else {
+        ON_angular_direct = 1;
+    }
+    Angular_direct();
+
+    if ($('#grid_button').attr('class') === 'M_butt') {
+        ON_grid = 1;
+    } else {
+        ON_grid = 0;
+    }
+    Grid();
+
+    var $relLineInvert = $('#relLineInvert');
+    if ($relLineInvert.attr('class') === 'M_butt') {
+        show_relation_lines = false;
+        $relLineInvert.attr('class', 'M_butt');
+    } else {
+        show_relation_lines = true;
+        $relLineInvert.attr('class', 'M_butt_Selected_down');
+    }
+    Relation_lines_invert();
+
+    if ($('#pin_Text').attr('class') === 'M_butt_Selected_down') {
+        always_show_text = true;
+        Show_text();
+    } else {
+        always_show_text = false;
+    }
+
+    var $key_SB_all = $('#key_SB_all');
+    if ($key_SB_all.attr('class') === 'M_butt_Selected_down') {
+        $key_SB_all.click();
+        $key_SB_all.toggleClass('M_butt_Selected_down');
+        $key_SB_all.toggleClass('M_butt');
+    }
+
+    var $key_Left_Right = $('#key_Left_Right');
+    if ($key_Left_Right.attr('class') === 'M_butt_Selected_down') {
+        $key_Left_Right.click();
+    }
+
+}
 
 function Main()
 {
@@ -229,12 +303,13 @@ function Main()
     //---CROSS
 
     document.getElementById("layer_menu").style.top = -1000 + 'px'; //fast scroll
-    sm_x += document.getElementById('osn_tab').offsetLeft;
-    sm_y += document.getElementById('osn_tab').offsetTop;
+    // sm_x += document.getElementById('osn_tab').offsetLeft;
+    // sm_y += document.getElementById('osn_tab').offsetTop;
     Osn_tab_pos();
     Canvas_pos();
     Small_tab_refresh();
     Re_load();
+    setDefaultValuesFromSavedState();
     id_hint = document.getElementById('pmd_hint');
     if (isIE) {
         General_scroll();
@@ -336,32 +411,43 @@ function Re_load()
 
                     //alert(tab_hide_button.innerHTML);
                     if (tab_hide_button.innerHTML == 'v') {
-                        row_offset_top = document.getElementById(key2 + "." + key3).offsetTop;
+                        var fromColumn = document.getElementById(key2 + "." + key3);
+                        if (fromColumn) {
+                            row_offset_top = fromColumn.offsetTop;
+                        } else {
+                            continue;
+                        }
                     }
 
-                    var y1 = document.getElementById(key2).offsetTop
-                         + row_offset_top
-                         + height_field;
-                    //alert(1);
+                    var y1 = document.getElementById(key2).offsetTop +
+                        row_offset_top +
+                        height_field;
+
 
                     row_offset_top = 0;
-                    var tab_hide_button = document.getElementById('id_hide_tbody_' + contr[K][key][key2][key3][0]);
+                    tab_hide_button = document.getElementById('id_hide_tbody_' + contr[K][key][key2][key3][0]);
                     if (tab_hide_button.innerHTML == 'v') {
-                        row_offset_top = document.getElementById(contr[K][key][key2][key3][0]
-                            + '.' + contr[K][key][key2][key3][1]).offsetTop;
+                        var toColumn = document.getElementById(contr[K][key][key2][key3][0] +
+                            '.' + contr[K][key][key2][key3][1]);
+                        if (toColumn) {
+                            row_offset_top = toColumn.offsetTop;
+                        } else {
+                            continue;
+                        }
                     }
 
                     var y2 =
-                          document.getElementById(contr[K][key][key2][key3][0]).offsetTop
-                        + row_offset_top
-                        + height_field;
+                        document.getElementById(contr[K][key][key2][key3][0]).offsetTop +
+                        row_offset_top +
+                        height_field;
 
-                    //alert(y1 + ' - ' + key2 + "." + key3);
+                    var osn_tab = document.getElementById('osn_tab');
+
                     Line0(
-                        x1 - sm_x,
-                        y1 - sm_y,
-                        x2 - sm_x,
-                        y2 - sm_y,
+                        x1 + osn_tab.offsetLeft,
+                        y1 - osn_tab.offsetTop,
+                        x2 + osn_tab.offsetLeft,
+                        y2 - osn_tab.offsetTop,
                         getColorByTarget(contr[K][key][key2][key3][0] + '.' + contr[K][key][key2][key3][1])
                     );
                 }
@@ -498,25 +584,36 @@ function Rect(x1, y1, w, h, color)
     ctx.fillRect(x1, y1, w, h);
 }
 //--------------------------- FULLSCREEN -------------------------------------
-function Enter_fullscreen()
+function Toggle_fullscreen()
 {
+    var value_sent = '';
+    var $img = $('#toggleFullscreen').find('img');
+    var $span = $img.siblings('span');
     if (! $.FullScreen.isFullScreen()) {
-        $('#enterFullscreen').hide();
-        $('#exitFullscreen').show();
+        $img.attr('src', $img.data('exit'))
+            .attr('title', $span.data('exit'));
+        $span.text($span.data('exit'));
         $('#page_content')
             .addClass('content_fullscreen')
             .css({'width': screen.width - 5, 'height': screen.height - 5})
             .requestFullScreen();
-        Top_menu_reposition($('#key_Left_Right')[0]);
+        value_sent = 'on';
     }
-}
-
-function Exit_fullscreen()
-{
     if ($.FullScreen.isFullScreen()) {
         $.FullScreen.cancelFullScreen();
+        value_sent = 'off';
     }
+    saveValueInConfig('full_screen', value_sent);
 }
+// ------------------------------ NEW ------------------------------------------
+
+function New()
+{
+    Prompt_to_save_current_page(function() {
+        Load_page(-1);
+    });
+}
+
 //------------------------------ SAVE ------------------------------------------
 function Save(url) // (del?) no for pdf
 {
@@ -530,48 +627,509 @@ function Save(url) // (del?) no for pdf
     $(document.form1).submit();
 }
 
-function Get_url_pos()
+function Get_url_pos(forceString)
 {
-    var poststr = '';
-    for (var key in j_tabs) {
-        poststr += '&t_x[' + key + ']=' + parseInt(document.getElementById(key).style.left, 10);
-        poststr += '&t_y[' + key + ']=' + parseInt(document.getElementById(key).style.top, 10);
-        poststr += '&t_v[' + key + ']=' + (document.getElementById('id_tbody_' + key).style.display == 'none' ? 0 : 1);
-        poststr += '&t_h[' + key + ']=' + (document.getElementById('check_vis_' + key).checked ? 1 : 0);
+    if (pmd_tables_enabled || forceString) {
+        var poststr = '';
+        for (var key in j_tabs) {
+            poststr += '&t_x[' + key + ']=' + parseInt(document.getElementById(key).style.left, 10);
+            poststr += '&t_y[' + key + ']=' + parseInt(document.getElementById(key).style.top, 10);
+            poststr += '&t_v[' + key + ']=' + (document.getElementById('id_tbody_' + key).style.display == 'none' ? 0 : 1);
+            poststr += '&t_h[' + key + ']=' + (document.getElementById('check_vis_' + key).checked ? 1 : 0);
+        }
+        return poststr;
+    } else {
+        var coords = [];
+        for (var key in j_tabs) {
+            if (document.getElementById('check_vis_' + key).checked) {
+                var x = parseInt(document.getElementById(key).style.left, 10);
+                var y = parseInt(document.getElementById(key).style.top, 10);
+                var tbCoords = new TableCoordinate(db, key.split(".")[1], -1, x, y);
+                coords.push(tbCoords);
+            }
+        }
+        return coords;
     }
-    return poststr;
 }
 
-function Save2()
+function Save2(callback)
 {
-    _change = 0;
-    var poststr = 'IS_AJAX=1&server=' + server + '&db=' + db + '&token=' + token + '&die_save_pos=1';
-    poststr += Get_url_pos();
-    makeRequest('pmd_save_pos.php', poststr);
+    if (pmd_tables_enabled) {
+        var poststr = '&operation=savePage&save_page=same&ajax_request=true';
+        poststr += '&server=' + server + '&db=' + db + '&token=' + token + '&selected_page=' + selected_page;
+        poststr += Get_url_pos();
+
+        var $msgbox = PMA_ajaxShowMessage(PMA_messages.strProcessingRequest);
+        $.post('db_designer.php', poststr, function (data) {
+            if (data.success === false) {
+                PMA_ajaxShowMessage(data.error, false);
+            } else {
+                PMA_ajaxRemoveMessage($msgbox);
+                PMA_ajaxShowMessage(PMA_messages.strModificationSaved);
+                MarkSaved();
+                if (typeof callback !== 'undefined') {
+                    callback();
+                }
+            }
+        });
+    } else {
+        var name = $("#page_name").html().trim();
+        Save_to_selected_page(db, selected_page, name, Get_url_pos(), function (page) {
+            MarkSaved();
+            if (typeof callback !== 'undefined') {
+                callback();
+            }
+        });
+    }
+}
+
+function Save3(callback)
+{
+    if (parseInt(selected_page) !== -1) {
+        Save2(callback);
+    } else {
+        var button_options = {};
+        button_options[PMA_messages.strGo] = function () {
+            var $form = $("#save_page");
+            var name = $form.find('input[name="selected_value"]').val().trim();
+            if (name === '') {
+                PMA_ajaxShowMessage(PMA_messages.strEnterValidPageName, false);
+                return;
+            }
+            $(this).dialog('close');
+
+            if (pmd_tables_enabled) {
+                var $msgbox = PMA_ajaxShowMessage(PMA_messages.strProcessingRequest);
+                PMA_prepareForAjaxRequest($form);
+                $.post($form.attr('action'), $form.serialize() + Get_url_pos(), function (data) {
+                    if (data.success === false) {
+                        PMA_ajaxShowMessage(data.error, false);
+                    } else {
+                        PMA_ajaxRemoveMessage($msgbox);
+                        MarkSaved();
+                        if (data.id) {
+                            selected_page = data.id;
+                        }
+                        $('#page_name').text(name);
+                        if (typeof callback !== 'undefined') {
+                            callback();
+                        }
+                    }
+                });
+            } else {
+                Save_to_new_page(db, name, Get_url_pos(), function (page) {
+                    MarkSaved();
+                    if (page.pg_nr) {
+                        selected_page = page.pg_nr;
+                    }
+                    $('#page_name').text(page.page_descr);
+                    if (typeof callback !== 'undefined') {
+                        callback();
+                    }
+                });
+            }
+        };
+        button_options[PMA_messages.strCancel] = function () {
+            $(this).dialog('close');
+        };
+
+        var $form = $('<form action="db_designer.php" method="post" name="save_page" id="save_page" class="ajax"></form>')
+            .append('<input type="hidden" name="server" value="' + server + '" />')
+            .append('<input type="hidden" name="db" value="' + db + '" />')
+            .append('<input type="hidden" name="token" value="' + token + '" />')
+            .append('<input type="hidden" name="operation" value="savePage" />')
+            .append('<input type="hidden" name="save_page" value="new" />')
+            .append('<label for="selected_value">' + PMA_messages.strPageName +
+                '</label>:<input type="text" name="selected_value" />');
+        $('<div id="page_save_dialog"></div>')
+            .append($form)
+            .dialog({
+                appendTo: '#page_content',
+                title: PMA_messages.strSavePage,
+                width: 300,
+                modal: true,
+                buttons: button_options,
+                close: function () {
+                    $(this).remove();
+                }
+            });
+    }
+}
+
+//------------------------------ EDIT PAGES ------------------------------------------
+function Edit_pages()
+{
+    Prompt_to_save_current_page(function() {
+
+        var button_options = {};
+        button_options[PMA_messages.strGo] = function () {
+            var $form = $("#edit_delete_pages");
+            var selected = $form.find('select[name="selected_page"]').val();
+            if (selected === "0") {
+                PMA_ajaxShowMessage(PMA_messages.strSelectPage, 2000);
+                return;
+            }
+            $(this).dialog('close');
+            Load_page(selected);
+        };
+        button_options[PMA_messages.strCancel] = function () {
+            $(this).dialog('close');
+        };
+
+        var $msgbox = PMA_ajaxShowMessage();
+        var params = 'ajax_request=true&dialog=edit&server=' + server + '&token=' + token + '&db=' + db;
+        $.get("db_designer.php", params, function (data) {
+            if (data.success === false) {
+                PMA_ajaxShowMessage(data.error, false);
+            } else {
+                PMA_ajaxRemoveMessage($msgbox);
+
+                if (! pmd_tables_enabled) {
+                    Create_page_list(db, function (options) {
+                        $("#selected_page").append(options);
+                    });
+                }
+                $('<div id="page_edit_dialog"></div>')
+                    .append(data.message)
+                    .dialog({
+                        appendTo: '#page_content',
+                        title: PMA_messages.strOpenPage,
+                        width: 350,
+                        modal: true,
+                        buttons: button_options,
+                        close: function () {
+                            $(this).remove();
+                        }
+                    });
+            }
+        }); // end $.get()
+    });
+}
+
+// -----------------------------  DELETE PAGES ---------------------------------------
+function Delete_pages()
+{
+    var button_options = {};
+    button_options[PMA_messages.strGo] = function () {
+        var $form = $("#edit_delete_pages");
+        var selected = $form.find('select[name="selected_page"]').val();
+        if (selected === '0') {
+            PMA_ajaxShowMessage(PMA_messages.strSelectPage, 2000);
+            return;
+        }
+
+        var $msgbox = PMA_ajaxShowMessage(PMA_messages.strProcessingRequest);
+        var deleting_current_page = selected == selected_page;
+        PMA_prepareForAjaxRequest($form);
+
+        if (pmd_tables_enabled) {
+            $.post($form.attr('action'), $form.serialize(), function (data) {
+                if (data.success === false) {
+                    PMA_ajaxShowMessage(data.error, false);
+                } else {
+                    PMA_ajaxRemoveMessage($msgbox);
+                    if (deleting_current_page) {
+                        Load_page(null);
+                    } else {
+                        PMA_ajaxShowMessage(PMA_messages.strSuccessfulPageDelete);
+                    }
+                }
+            }); // end $.post()
+        } else {
+            Delete_page(selected, function (success) {
+                if (! success) {
+                    PMA_ajaxShowMessage("Error", false);
+                } else {
+                    PMA_ajaxRemoveMessage($msgbox);
+                    if (deleting_current_page) {
+                        Load_page(null);
+                    } else {
+                        PMA_ajaxShowMessage(PMA_messages.strSuccessfulPageDelete);
+                    }
+                }
+            });
+        }
+
+        $(this).dialog('close');
+    };
+    button_options[PMA_messages.strCancel] = function () {
+        $(this).dialog('close');
+    };
+
+    var $msgbox = PMA_ajaxShowMessage();
+    var params = 'ajax_request=true&dialog=delete&server=' + server + '&token=' + token + '&db=' + db;
+    $.get("db_designer.php", params, function (data) {
+        if (data.success === false) {
+            PMA_ajaxShowMessage(data.error, false);
+        } else {
+            PMA_ajaxRemoveMessage($msgbox);
+
+            if (! pmd_tables_enabled) {
+                Create_page_list(db, function (options) {
+                    $("#selected_page").append(options);
+                });
+            }
+
+            $('<div id="page_delete_dialog"></div>')
+                .append(data.message)
+                .dialog({
+                    appendTo: '#page_content',
+                    title: PMA_messages.strDeletePage,
+                    width: 350,
+                    modal: true,
+                    buttons: button_options,
+                    close: function () {
+                        $(this).remove();
+                    }
+                });
+        }
+    }); // end $.get()
+}
+
+//------------------------------ SAVE AS PAGES ---------------------------------------
+function Save_as()
+{
+    var button_options = {};
+    button_options[PMA_messages.strGo] = function () {
+        var $form           = $("#save_as_pages");
+        var selected_value  = $form.find('input[name="selected_value"]').val().trim();
+        var $selected_page  = $form.find('select[name="selected_page"]');
+        var choice          = $form.find('input[name="save_page"]:checked').val();
+        var name            = '';
+
+        if (choice === 'same') {
+            if ($selected_page.val() === '0') {
+                PMA_ajaxShowMessage(PMA_messages.strSelectPage, 2000);
+                return;
+            }
+            name = $selected_page.find('option:selected').text();
+        } else if (choice === 'new') {
+            if (selected_value === '') {
+                PMA_ajaxShowMessage(PMA_messages.strEnterValidPageName, 2000);
+                return;
+            }
+            name = selected_value;
+        }
+
+        var $msgbox = PMA_ajaxShowMessage(PMA_messages.strProcessingRequest);
+        if (pmd_tables_enabled) {
+            PMA_prepareForAjaxRequest($form);
+            $.post($form.attr('action'), $form.serialize() + Get_url_pos(), function (data) {
+                if (data.success === false) {
+                    PMA_ajaxShowMessage(data.error, false);
+                } else {
+                    PMA_ajaxRemoveMessage($msgbox);
+                    MarkSaved();
+                    if (data.id) {
+                        selected_page = data.id;
+                    }
+                    $('#page_name').text(name);
+                }
+            }); // end $.post()
+        } else {
+            if (choice === 'same') {
+                var selected_page_id = $selected_page.find('option:selected').val();
+                Save_to_selected_page(db, selected_page_id, name, Get_url_pos(), function (page) {
+                    PMA_ajaxRemoveMessage($msgbox);
+                    MarkSaved();
+                    if (page.pg_nr) {
+                        selected_page = page.pg_nr;
+                    }
+                    $('#page_name').text(page.page_descr);
+                });
+            } else if (choice === 'new') {
+                Save_to_new_page(db, name, Get_url_pos(), function (page) {
+                    PMA_ajaxRemoveMessage($msgbox);
+                    MarkSaved();
+                    if (page.pg_nr) {
+                        selected_page = page.pg_nr;
+                    }
+                    $('#page_name').text(page.page_descr);
+                });
+            }
+        }
+
+        $(this).dialog('close');
+    };
+    button_options[PMA_messages.strCancel] = function () {
+        $(this).dialog('close');
+    };
+
+    var $msgbox = PMA_ajaxShowMessage();
+    var params = 'ajax_request=true&dialog=save_as&server=' + server + '&token=' + token + '&db=' + db;
+    $.get("db_designer.php", params, function (data) {
+        if (data.success === false) {
+            PMA_ajaxShowMessage(data.error, false);
+        } else {
+            PMA_ajaxRemoveMessage($msgbox);
+
+            if (! pmd_tables_enabled) {
+                Create_page_list(db, function (options) {
+                    $("#selected_page").append(options);
+                });
+            }
+
+            $('<div id="page_save_as_dialog"></div>')
+                .append(data.message)
+                .dialog({
+                    appendTo: '#page_content',
+                    title: PMA_messages.strSavePageAs,
+                    width: 450,
+                    modal: true,
+                    buttons: button_options,
+                    close: function () {
+                        $(this).remove();
+                    }
+                });
+            // select current page by default
+            if (selected_page !== '-1') {
+                $('select[name="selected_page"]').val(selected_page);
+            }
+        }
+    }); // end $.get()
+}
+
+function Prompt_to_save_current_page(callback)
+{
+    if (_change == 1 || selected_page == '-1') {
+        var button_options = {};
+        button_options[PMA_messages.strYes] = function () {
+            $(this).dialog('close');
+            Save3(callback);
+        };
+        button_options[PMA_messages.strNo] = function () {
+            $(this).dialog('close');
+            callback();
+        };
+        button_options[PMA_messages.strCancel] = function () {
+            $(this).dialog('close');
+        };
+        $('<div id="prompt_save_dialog"></div>')
+            .append('<div>' + PMA_messages.strLeavingPage + '</div>')
+            .dialog({
+                appendTo: '#page_content',
+                title: PMA_messages.strSavePage,
+                width: 300,
+                modal: true,
+                buttons: button_options,
+                close: function () {
+                    $(this).remove();
+                }
+            });
+    } else {
+        callback();
+    }
+}
+
+//------------------------------ EXPORT PAGES ---------------------------------------
+function Export_pages()
+{
+    var button_options = {};
+    button_options[PMA_messages.strGo] = function () {
+        $("#id_export_pages").submit();
+        $(this).dialog('close');
+    };
+    button_options[PMA_messages.strCancel] = function () {
+        $(this).dialog('close');
+    };
+    var $msgbox = PMA_ajaxShowMessage();
+    var params = 'ajax_request=true&dialog=export&server=' + server + '&token=' + token + '&db=' + db + '&selected_page=' + selected_page;
+    $.get("db_designer.php", params, function (data) {
+        if (data.success === false) {
+            PMA_ajaxShowMessage(data.error, false);
+        } else {
+            PMA_ajaxRemoveMessage($msgbox);
+
+            var $form = $(data.message);
+            $form.attr('action', $form.attr('action') + '?' + (Get_url_pos(true).substring(1)));
+            if (!pmd_tables_enabled) {
+                $form.append('<input type="hidden" name="offline_export" value="true" />');
+            }
+            var $formatDropDown = $form.find('#plugins');
+            $formatDropDown.change(function() {
+                var format = $formatDropDown.val();
+                $form.find('.format_specific_options').hide();
+                $form.find('#' + format + '_options').show();
+            }).trigger('change');
+
+            $('<div id="page_export_dialog"></div>')
+                .append($form)
+                .dialog({
+                    appendTo: '#page_content',
+                    title: PMA_messages.strExportRelationalSchema,
+                    width: 550,
+                    modal: true,
+                    buttons: button_options,
+                    close: function () {
+                        $(this).remove();
+                    }
+                });
+        }
+    }); // end $.get()
+}// end export pages
+
+function Load_page(page) {
+    if (pmd_tables_enabled) {
+        var param_page = '';
+        if (page !== null) {
+            param_page = '&page=' + page;
+        }
+        $('<a href="db_designer.php?server=' + server + '&db=' + db + '&token=' + token + param_page + '"></a>')
+            .appendTo($('#page_content'))
+            .click();
+    } else {
+        if (page === null) {
+            Show_tables_in_landing_page(db);
+        } else if (page > -1) {
+            Load_HTML_for_page(page);
+        } else if (page === -1) {
+            Show_new_page_tables(true);
+        }
+    }
+    MarkSaved();
 }
 
 function Grid()
 {
+	var value_sent = '';
     if (!ON_grid) {
         ON_grid = 1;
+        value_sent = 'on';
         document.getElementById('grid_button').className = 'M_butt_Selected_down';
     } else {
         document.getElementById('grid_button').className = 'M_butt';
         ON_grid = 0;
+        value_sent = 'off';
     }
+    saveValueInConfig('snap_to_grid', value_sent);
 }
 
 function Angular_direct()
 {
+    var value_sent = '';
     if (ON_angular_direct) {
         ON_angular_direct = 0;
+        value_sent = 'angular';
         document.getElementById('angular_direct_button').className = 'M_butt_Selected_down';
     } else {
         ON_angular_direct = 1;
+        value_sent = 'direct';
         document.getElementById('angular_direct_button').className = 'M_butt';
     }
+    saveValueInConfig('angular_direct', value_sent);
     Re_load();
 }
+
+function saveValueInConfig(index_sent, value_sent) {
+    $.post('db_designer.php',
+        {operation: 'save_setting_value', index: index_sent, ajax_request: true, server: server, token: token, value: value_sent},
+        function (data) {
+        if (data.success === false) {
+            PMA_ajaxShowMessage(data.error, false);
+        }
+    });
+}
+
 //++++++++++++++++++++++++++++++ RELATION ++++++++++++++++++++++++++++++++++++++
 function Start_relation()
 {
@@ -596,6 +1154,7 @@ function Start_relation()
 
 function Click_field(T, f, PK) // table field
 {
+    PK = parseInt(PK);
     if (ON_relation) {
         if (!click_field) {
             //.style.display=='none'        .style.display = 'none'
@@ -646,19 +1205,38 @@ function Click_field(T, f, PK) // table field
         document.getElementById('pmd_hint').innerHTML = "";
         document.getElementById('pmd_hint').style.display = 'none';
         document.getElementById('display_field_button').className = 'M_butt';
-        makeRequest('pmd_display_field.php', 'T=' + T + '&F=' + f + '&server=' + server + '&db=' + db + '&token=' + token);
+
+        var $msgbox = PMA_ajaxShowMessage(PMA_messages.strProcessingRequest);
+        $.post('db_designer.php',
+            {operation: 'setDisplayField', ajax_request: true, server: server, token: token, db: db, table: T, field: f},
+            function (data) {
+            if (data.success === false) {
+                PMA_ajaxShowMessage(data.error, false);
+            } else {
+                PMA_ajaxRemoveMessage($msgbox);
+                PMA_ajaxShowMessage(PMA_messages.strModificationSaved);
+            }
+        });
     }
 }
 
 function New_relation()
 {
     document.getElementById('layer_new_relation').style.display = 'none';
-    link_relation += '&server=' + server + '&db=' + db + '&token=' + token + '&die_save_pos=0';
+    link_relation += '&server=' + server + '&db=' + db + '&token=' + token;
     link_relation += '&on_delete=' + document.getElementById('on_delete').value + '&on_update=' + document.getElementById('on_update').value;
-    link_relation += Get_url_pos();
+    link_relation += '&operation=addNewRelation&ajax_request=true';
 
-    //alert(link_relation);
-    makeRequest('pmd_relation_new.php', link_relation);
+    var $msgbox = PMA_ajaxShowMessage(PMA_messages.strProcessingRequest);
+    $.post('db_designer.php', link_relation, function (data) {
+        if (data.success === false) {
+            PMA_ajaxShowMessage(data.error, false);
+        } else {
+            PMA_ajaxRemoveMessage($msgbox);
+            // Load_page(selected_page);
+            $("#designer_tab").click();
+        }
+    }); // end $.post()
 }
 
 //-------------------------- create tables -------------------------------------
@@ -678,23 +1256,31 @@ function Start_tab_upd(table)
 
 function Small_tab_all(id_this) // max/min all tables
 {
-    if (id_this.alt == "v") {
-        for (var key in j_tabs) {
+    var icon = id_this.childNodes[0];
+    var key;
+    var value_sent = '';
+    if (icon.alt == "v") {
+        for (key in j_tabs) {
             if (document.getElementById('id_hide_tbody_' + key).innerHTML == "v") {
                 Small_tab(key, 0);
             }
         }
-        id_this.alt = ">";
-        id_this.src = pmaThemeImage + "pmd/rightarrow1.png";
+        icon.alt = ">";
+        icon.src = icon.dataset.right;
+        value_sent = 'v';
     } else {
-        for (var key in j_tabs) {
+        for (key in j_tabs) {
             if (document.getElementById('id_hide_tbody_' + key).innerHTML != "v") {
                 Small_tab(key, 0);
             }
         }
-        id_this.alt = "v";
-        id_this.src = pmaThemeImage + "pmd/downarrow1.png";
+        icon.alt = "v";
+        icon.src = icon.dataset.down;
+        value_sent = '>';
     }
+    saveValueInConfig('small_big_all', value_sent);
+    $('#key_SB_all').toggleClass('M_butt_Selected_down');
+    $('#key_SB_all').toggleClass('M_butt');
     Re_load();
 }
 
@@ -709,6 +1295,9 @@ function Small_tab_invert() // invert max/min all tables
 function Relation_lines_invert()
 {
     show_relation_lines = ! show_relation_lines;
+    saveValueInConfig('relation_lines', show_relation_lines);
+    $('#relLineInvert').toggleClass('M_butt_Selected_down');
+    $('#relLineInvert').toggleClass('M_butt');
     Re_load();
 }
 
@@ -727,7 +1316,6 @@ function Small_tab(t, re_load)
     var id      = document.getElementById('id_tbody_' + t);
     var id_this = document.getElementById('id_hide_tbody_' + t);
     var id_t    = document.getElementById(t);
-    id_t.style.width = id_t.offsetWidth + 'px';
     if (id_this.innerHTML == "v") {
         //---CROSS
         id.style.display = 'none';
@@ -761,7 +1349,7 @@ function Select_tab(t)
 }
 //------------------------------------------------------------------------------
 
-function Canvas_click(id)
+function Canvas_click(id, event)
 {
     var n = 0;
     var relation_name = 0;
@@ -769,15 +1357,17 @@ function Canvas_click(id)
     var a = [];
     var Key0, Key1, Key2, Key3, Key, x1, x2;
     var K, key, key2, key3;
-    var Local_X = $.FullScreen.isFullScreen() ? Glob_X : Glob_X - document.getElementById("canvas_outer").offsetLeft;
-    var Local_Y = Glob_Y - document.getElementById("canvas_outer").offsetTop;
+    var Local_X = isIE ? event.clientX + document.body.scrollLeft : event.pageX;
+    var Local_Y = isIE ? event.clientY + document.body.scrollTop : event.pageY;
+    Local_X -= $('#osn_tab').offset().left;
+    Local_Y -= $('#osn_tab').offset().top;
     Clear();
     for (K in contr) {
         for (key in contr[K]) {
             for (key2 in contr[K][key]) {
                 for (key3 in contr[K][key][key2]) {
-                    if (!document.getElementById("check_vis_" + key2).checked
-                        || !document.getElementById("check_vis_" + contr[K][key][key2][key3][0]).checked) {
+                    if (! document.getElementById("check_vis_" + key2).checked ||
+                        ! document.getElementById("check_vis_" + contr[K][key][key2][key3][0]).checked) {
                         continue; // if hide
                     }
                     var x1_left  = document.getElementById(key2).offsetLeft + 1;//document.getElementById(key2+"."+key3).offsetLeft;
@@ -822,8 +1412,15 @@ function Canvas_click(id)
                     var y1 = document.getElementById(key2).offsetTop + document.getElementById(key2 + "." + key3).offsetTop + height_field;
                     var y2 = document.getElementById(contr[K][key][key2][key3][0]).offsetTop +
                                      document.getElementById(contr[K][key][key2][key3][0] + "." + contr[K][key][key2][key3][1]).offsetTop + height_field;
+
                     if (!selected && Local_X > x1 - 10 && Local_X < x1 + 10 && Local_Y > y1 - 7 && Local_Y < y1 + 7) {
-                        Line0(x1 - sm_x, y1 - sm_y, x2 - sm_x, y2 - sm_y, "rgba(255,0,0,1)");
+                        Line0(
+                            x1 + osn_tab.offsetLeft,
+                            y1 - osn_tab.offsetTop,
+                            x2 + osn_tab.offsetLeft,
+                            y2 - osn_tab.offsetTop,
+                            "rgba(255,0,0,1)");
+
                         selected = 1; // Rect(x1-sm_x,y1-sm_y,10,10,"rgba(0,255,0,1)");
                         relation_name = key; //
                         Key0 = contr[K][key][key2][key3][0];
@@ -833,10 +1430,10 @@ function Canvas_click(id)
                         Key = K;
                     } else {
                         Line0(
-                            x1 - sm_x,
-                            y1 - sm_y,
-                            x2 - sm_x,
-                            y2 - sm_y,
+                            x1 + osn_tab.offsetLeft,
+                            y1 - osn_tab.offsetTop,
+                            x2 + osn_tab.offsetLeft,
+                            y2 - osn_tab.offsetTop,
                             getColorByTarget(contr[K][key][key2][key3][0] + '.' + contr[K][key][key2][key3][1])
                         );
                     }
@@ -859,9 +1456,19 @@ function Canvas_click(id)
 function Upd_relation()
 {
     document.getElementById('layer_upd_relation').style.display = 'none';
-    link_relation += '&server=' + server + '&db=' + db + '&token=' + token + '&die_save_pos=0';
-    link_relation += Get_url_pos();
-    makeRequest('pmd_relation_upd.php', link_relation);
+    link_relation += '&server=' + server + '&db=' + db + '&token=' + token;
+    link_relation += '&operation=removeRelation&ajax_request=true';
+
+    var $msgbox = PMA_ajaxShowMessage(PMA_messages.strProcessingRequest);
+    $.post('db_designer.php', link_relation, function (data) {
+        if (data.success === false) {
+            PMA_ajaxShowMessage(data.error, false);
+        } else {
+            PMA_ajaxRemoveMessage($msgbox);
+            // Load_page(selected_page);
+            $("#designer_tab").click();
+        }
+    }); // end $.post()
 }
 
 function VisibleTab(id, t_n)
@@ -878,10 +1485,10 @@ function Hide_tab_all(id_this) // max/min all tables
 {
     if (id_this.alt == 'v') {
         id_this.alt = '>';
-        id_this.src = pmaThemeImage + "pmd/rightarrow1.png";
+        id_this.src = id_this.dataset.right;
     } else {
         id_this.alt = 'v';
-        id_this.src = pmaThemeImage + "pmd/downarrow1.png";
+        id_this.src = id_this.dataset.down;
     }
     var E = document.form1;
     for (var i = 0; i < E.elements.length; i++) {
@@ -929,10 +1536,10 @@ function No_have_constr(id_this)
 
     if (id_this.alt == 'v') {
         id_this.alt = '>';
-        id_this.src = pmaThemeImage + "pmd/rightarrow2.png";
+        id_this.src = id_this.dataset.right;
     } else {
         id_this.alt = 'v';
-        id_this.src = pmaThemeImage + "pmd/downarrow2.png";
+        id_this.src = id_this.dataset.down;
     }
     var E = document.form1;
     for (var i = 0; i < E.elements.length; i++) {
@@ -948,13 +1555,6 @@ function No_have_constr(id_this)
             }
         }
     }
-}
-
-function PDF_save()
-{
-    // var WinPDF =
-    // window.open("pmd_pdf.php?token="+token+"&db="+db,"wind1", "top=200,left=200,width=200,height=100,resizable=yes,scrollbars=yes,menubar=no");
-    Save('pmd_pdf.php?server=' + server + '&token=' + token + '&db=' + db);
 }
 
 function General_scroll()
@@ -992,52 +1592,58 @@ function General_scroll_end()
 
 function Show_left_menu(id_this) // max/min all tables
 {
-    if (id_this.alt == "v") {
-        var pos = $("#top_menu").offset();
-        var height = $("#top_menu").height();
+    var icon = id_this.childNodes[0];
+    $('#key_Show_left_menu').toggleClass('M_butt_Selected_down');
+    if (icon.alt == "v") {
         document.getElementById("layer_menu").style.top = '0px';
         document.getElementById("layer_menu").style.display = 'block';
-        id_this.alt = ">";
-        id_this.src = pmaThemeImage + "pmd/uparrow2_m.png";
+        icon.alt = ">";
+        icon.src = icon.dataset.up;
         if (isIE) {
             General_scroll();
         }
     } else {
         document.getElementById("layer_menu").style.top = -1000 + 'px'; //fast scroll
         document.getElementById("layer_menu").style.display = 'none';
-        id_this.alt = "v";
-        id_this.src = pmaThemeImage + "pmd/downarrow2_m.png";
+        icon.alt = "v";
+        icon.src = icon.dataset.down;
     }
 }
 //------------------------------------------------------------------------------
-function Top_menu_right(id_this)
+function Side_menu_right(id_this)
 {
-    if (id_this.alt == ">") {
-        moveTopMenuToRight(id_this);
-        id_this.alt = "<";
-        id_this.src = pmaThemeImage + "pmd/2leftarrow_m.png";
-    } else {
-        document.getElementById('top_menu').style.paddingLeft = 0;
-        id_this.alt = ">";
-        id_this.src = pmaThemeImage + "pmd/2rightarrow_m.png";
+    $('#side_menu').toggleClass('right');
+    $('#layer_menu').toggleClass('left');
+    var icon = $(id_this.childNodes[0]);
+    var current = icon.attr('src');
+    icon.attr('src', icon.attr('data-right')).attr('data-right', current);
+
+    icon = $(document.getElementById('layer_menu_sizer').childNodes[0])
+        .toggleClass('floatleft')
+        .toggleClass('floatright')
+        .children();
+    current = icon.attr('src');
+    icon.attr('src', icon.attr('data-right'));
+    icon.attr('data-right', current);
+    menu_moved = !menu_moved;
+    saveValueInConfig('side_menu', $('#side_menu').hasClass('right'));
+    $('#key_Left_Right').toggleClass('M_butt_Selected_down');
+    $('#key_Left_Right').toggleClass('M_butt');
+}
+//------------------------------------------------------------------------------
+function Show_text () {
+    $('#side_menu').find('.hidable').show();
+}
+function Hide_text () {
+    if (!always_show_text) {
+        $('#side_menu').find('.hidable').hide();
     }
 }
-
-function Top_menu_reposition(id_this)
-{
-    if (id_this.alt == "<") {
-        moveTopMenuToRight(id_this);
-    }
-}
-
-function moveTopMenuToRight(id_this)
-{
-    var top_menu_width = 10;
-    $('#top_menu').children().each(function () {
-        top_menu_width += $(this).outerWidth(true);
-    });
-    var offset = parseInt(document.getElementById('canvas_outer').offsetWidth - top_menu_width, 10);
-    document.getElementById('top_menu').style.paddingLeft = offset + 'px';
+function Pin_text () {
+    always_show_text = !always_show_text;
+    $('#pin_Text').toggleClass('M_butt_Selected_down');
+    $('#pin_Text').toggleClass('M_butt');
+    saveValueInConfig('pin_text', always_show_text);
 }
 //------------------------------------------------------------------------------
 function Start_display_field()
@@ -1067,9 +1673,9 @@ function getColorByTarget(target)
 {
     var color = '';  //"rgba(0,100,150,1)";
 
-    for (var i in TargetColors) {
-        if (TargetColors[i][0] == target) {
-            color = TargetColors[i][1];
+    for (var a in TargetColors) {
+        if (TargetColors[a][0] == target) {
+            color = TargetColors[a][1];
             break;
         }
     }
@@ -1095,8 +1701,8 @@ function getColorByTarget(target)
 
         var r = Math.round(a * 200 * e);
         var g = Math.round(b * 200 * e);
-        var b = Math.round(c * 200 * e);
-        var color = "rgba(" + r + "," + g + "," + b + ",1)";
+        b = Math.round(c * 200 * e);
+        color = "rgba(" + r + "," + g + "," + b + ",1)";
 
         TargetColors.push(new Array(target, color));
     }
@@ -1111,7 +1717,7 @@ function Click_option(id_this, column_name, table_name)
     // var top = Glob_Y - document.getElementById(id_this).offsetHeight - 10;
     document.getElementById(id_this).style.top  = (screen.height / 4) + 'px';
     document.getElementById(id_this).style.display = 'block';
-    document.getElementById('option_col_name').innerHTML = '<strong>' + $.sprintf(PMA_messages.strAddOption, column_name) + '</strong>';
+    document.getElementById('option_col_name').innerHTML = '<strong>' + PMA_sprintf(PMA_messages.strAddOption, column_name) + '</strong>';
     col_name = column_name;
     tab_name = table_name;
 }
@@ -1162,6 +1768,7 @@ function Select_all(id_this, owner)
 
 function Table_onover(id_this, val, buil)
 {
+    buil = parseInt(buil);
     if (!val) {
         document.getElementById("id_zag_" + id_this).className = "tab_zag_2";
         if (buil) {
@@ -1205,12 +1812,13 @@ function store_column(id_this, owner, col)
 /**
  * This function builds object and adds them to history_array
  * first it does a few checks on each object, then makes an object(where,rename,groupby,aggregate,orderby)
- * then a new history object is made and finally all these history objects are addded to history_array[]
+ * then a new history object is made and finally all these history objects are added to history_array[]
  *
 **/
 
 function add_object()
 {
+    var p, where_obj;
     var rel = document.getElementById('rel_opt');
     var sum = 0;
     var init = history_array.length;
@@ -1220,28 +1828,28 @@ function add_object()
             document.getElementById('pmd_hint').style.display = 'block';
             return;
         }
-        var p = document.getElementById('Query');
-        var where_obj = new where(rel.value, p.value);//make where object
-        history_array.push(new history(col_name, where_obj, tab_name, h_tabs[downer + '.' + tab_name], "Where"));
+        p = document.getElementById('Query');
+        where_obj = new where(rel.value, p.value);//make where object
+        history_array.push(new history_obj(col_name, where_obj, tab_name, h_tabs[downer + '.' + tab_name], "Where"));
         sum = sum + 1;
         rel.value = '--';
         p.value = "";
     }
     if (document.getElementById('new_name').value !== "") {
         var rename_obj = new rename(document.getElementById('new_name').value);//make Rename object
-        history_array.push(new history(col_name, rename_obj, tab_name, h_tabs[downer + '.' + tab_name], "Rename"));
+        history_array.push(new history_obj(col_name, rename_obj, tab_name, h_tabs[downer + '.' + tab_name], "Rename"));
         sum = sum + 1;
         document.getElementById('new_name').value = "";
     }
     if (document.getElementById('operator').value != '---') {
         var aggregate_obj = new aggregate(document.getElementById('operator').value);
-        history_array.push(new history(col_name, aggregate_obj, tab_name, h_tabs[downer + '.' + tab_name], "Aggregate"));
+        history_array.push(new history_obj(col_name, aggregate_obj, tab_name, h_tabs[downer + '.' + tab_name], "Aggregate"));
         sum = sum + 1;
         document.getElementById('operator').value = '---';
         //make aggregate operator
     }
     if (document.getElementById('groupby').checked === true) {
-        history_array.push(new history(col_name, 'GroupBy', tab_name, h_tabs[downer + '.' + tab_name], "GroupBy"));
+        history_array.push(new history_obj(col_name, 'GroupBy', tab_name, h_tabs[downer + '.' + tab_name], "GroupBy"));
         sum = sum + 1;
         document.getElementById('groupby').checked = false;
         //make groupby
@@ -1252,28 +1860,237 @@ function add_object()
             document.getElementById('pmd_hint').style.display = 'block';
             return;
         }
-        var p = document.getElementById('having');
-        var where_obj = new having(
+        p = document.getElementById('having');
+        where_obj = new having(
             document.getElementById('h_rel_opt').value,
             p.value,
             document.getElementById('h_operator').value
         );//make where object
-        history_array.push(new history(col_name, where_obj, tab_name, h_tabs[downer + '.' + tab_name], "Having"));
+        history_array.push(new history_obj(col_name, where_obj, tab_name, h_tabs[downer + '.' + tab_name], "Having"));
         sum = sum + 1;
         document.getElementById('h_rel_opt').value = '--';
         document.getElementById('h_operator').value = '---';
         p.value = ""; //make having
     }
-    if (document.getElementById('orderby').checked === true) {
-        history_array.push(new history(col_name, 'OrderBy', tab_name, h_tabs[downer + '.' + tab_name], "OrderBy"));
+    if (document.getElementById('orderby').value != '---') {
+        var oderby_obj = new orderby(document.getElementById('orderby').value);
+        history_array.push(new history_obj(col_name, oderby_obj, tab_name, h_tabs[downer + '.' + tab_name], "OrderBy"));
         sum = sum + 1;
-        document.getElementById('orderby').checked = false;
+        document.getElementById('orderby').value = '---';
         //make orderby
     }
-    PMA_ajaxShowMessage($.sprintf(PMA_messages.strObjectsCreated, sum));
+    PMA_ajaxShowMessage(PMA_sprintf(PMA_messages.strObjectsCreated, sum));
     //output sum new objects created
     var existingDiv = document.getElementById('ab');
     existingDiv.innerHTML = display(init, history_array.length);
     Close_option();
-    panel(0);
+    $('#ab').accordion("refresh");
 }
+
+AJAX.registerTeardown('pmd/move.js', function () {
+    $('#side_menu').off('mouseenter mouseleave');
+    $("#key_Show_left_menu").unbind('click');
+    $("#toggleFullscreen").unbind('click');
+    $("#newPage").unbind('click');
+    $("#editPage").unbind('click');
+    $("#savePos").unbind('click');
+    $("#SaveAs").unbind('click');
+    $("#delPages").unbind('click');
+    $("#StartTableNew").unbind('click');
+    $("#rel_button").unbind('click');
+    $("#StartTableNew").unbind('click');
+    $("#display_field_button").unbind('click');
+    $("#reloadPage").unbind('click');
+    $("#angular_direct_button").unbind('click');
+    $("#grid_button").unbind('click');
+    $("#key_SB_all").unbind('click');
+    $("#SmallTabInvert").unbind('click');
+    $("#relLineInvert").unbind('click');
+    $("#exportPages").unbind('click');
+    $("#query_builder").unbind('click');
+    $("#key_Left_Right").unbind('click');
+    $("#pin_Text").unbind('click');
+    $("#canvas").unbind('click');
+    $("#key_HS_all").unbind('click');
+    $("#key_HS").unbind('click');
+    $('.scroll_tab_struct').unbind('click');
+    $('.scroll_tab_checkbox').unbind('click');
+    $('#id_scroll_tab').find('tr').off('click', '.pmd_Tabs2,.pmd_Tabs');
+    $('.pmd_tab').off('click', '.select_all_1');
+    $('.pmd_tab').off('click', '.small_tab,.small_tab2');
+    $('.pmd_tab').off('click', '.small_tab_pref_1');
+    $('.tab_zag_noquery').unbind('mouseover');
+    $('.tab_zag_noquery').unbind('mouseout');
+    $('.tab_zag_query').unbind('mouseover');
+    $('.tab_zag_query').unbind('mouseout');
+    $('.pmd_tab').off('click','.tab_field_2,.tab_field_3,.tab_field');
+    $('.pmd_tab').off('click', '.select_all_store_col');
+    $('.pmd_tab').off('click', '.small_tab_pref_click_opt');
+    $("#del_button").unbind('click');
+    $("#cancel_button").unbind('click');
+    $("#ok_add_object").unbind('click');
+    $("#cancel_close_option").unbind('click');
+    $("#ok_new_rel_panel").unbind('click');
+    $("#cancel_new_rel_panel").unbind('click');
+});
+
+AJAX.registerOnload('pmd/move.js', function () {
+    $("#key_Show_left_menu").click(function() {
+        Show_left_menu(this);
+        return false;
+    });
+    $("#toggleFullscreen").click(function() {
+        Toggle_fullscreen();
+        return false;
+    });
+    $("#newPage").click(function() {
+        New();
+        return false;
+    });
+    $("#editPage").click(function() {
+        Edit_pages();
+        return false;
+    });
+    $("#savePos").click(function() {
+        Save3();
+        return false;
+    });
+    $("#SaveAs").click(function() {
+        Save_as();
+        return false;
+    });
+    $("#delPages").click(function() {
+        Delete_pages();
+        return false;
+    });
+    $("#StartTableNew").click(function() {
+        Start_table_new();
+        return false;
+    });
+    $("#rel_button").click(function() {
+        Start_relation();
+        return false;
+    });
+    $("#display_field_button").click(function() {
+        Start_display_field();
+        return false;
+    });
+    $("#reloadPage").click(function() {
+        $("#designer_tab").click();
+    });
+    $("#angular_direct_button").click(function() {
+        Angular_direct();
+        return false;
+    });
+    $("#grid_button").click(function() {
+        Grid();
+        return false;
+    });
+    $("#key_SB_all").click(function() {
+        Small_tab_all(this);
+        return false;
+    });
+    $("#SmallTabInvert").click(function() {
+        Small_tab_invert();
+        return false;
+    });
+    $("#relLineInvert").click(function() {
+        Relation_lines_invert();
+        return false;
+    });
+    $("#exportPages").click(function() {
+        Export_pages();
+        return false;
+    });
+    $("#query_builder").click(function() {
+        build_query('SQL Query on Database', 0);
+    });
+    $("#key_Left_Right").click(function() {
+        Side_menu_right(this);
+        return false;
+    });
+    $('#side_menu').hover(function () {
+        Show_text();
+        return false;
+    }, function () {
+        Hide_text();
+        return false;
+    });
+    $("#pin_Text").click(function() {
+        Pin_text(this);
+        return false;
+    });
+    $("#canvas").click(function(event) {
+        Canvas_click(this, event);
+    });
+    $("#key_HS_all").click(function() {
+        Hide_tab_all(this);
+        return false;
+    });
+    $("#key_HS").click(function() {
+        No_have_constr(this);
+        return false;
+    });
+    $('.scroll_tab_struct').click(function() {
+        Start_tab_upd($(this).attr('table_name'));
+    });
+    $('.scroll_tab_checkbox').click(function() {
+        VisibleTab(this,$(this).val());
+    });
+    $('#id_scroll_tab').find('tr').on('click', '.pmd_Tabs2,.pmd_Tabs', function() {
+        Select_tab($(this).attr('pmd_url_table_name'));
+    });
+    $('.pmd_tab').on('click', '.select_all_1', function() {
+        Select_all($(this).attr('pmd_url_table_name'), $(this).attr('pmd_out_owner'));
+    });
+    $('.pmd_tab').on('click', '.small_tab,.small_tab2', function() {
+        Small_tab($(this).attr('table_name'), 1);
+    });
+    $('.pmd_tab').on('click', '.small_tab_pref_1', function() {
+        Start_tab_upd($(this).attr('table_name_small'));
+    });
+    $('.tab_zag_noquery').mouseover(function() {
+        Table_onover($(this).attr('table_name'),0, $(this).attr('query_set'));
+    });
+    $('.tab_zag_noquery').mouseout(function() {
+        Table_onover($(this).attr('table_name'),1, $(this).attr('query_set'));
+    });
+    $('.tab_zag_query').mouseover(function() {
+        Table_onover($(this).attr('table_name'),0, 1);
+    });
+    $('.tab_zag_query').mouseout(function() {
+        Table_onover($(this).attr('table_name'),1, 1);
+    });
+    $('.pmd_tab').on('click','.tab_field_2,.tab_field_3,.tab_field', function() {
+        var params = ($(this).attr('click_field_param')).split(",");
+        Click_field(params[0], params[1], params[2]);
+    });
+    $('.pmd_tab').on('click', '.select_all_store_col', function() {
+        var params = ($(this).attr('store_column_param')).split(",");
+        store_column(params[0], params[1], params[2]);
+    });
+    $('.pmd_tab').on('click', '.small_tab_pref_click_opt', function() {
+        var params = ($(this).attr('Click_option_param')).split(",");
+        Click_option(params[0], params[1], params[2]);
+    });
+    $("input#del_button").click(function() {
+        Upd_relation();
+    });
+    $("input#cancel_button").click(function() {
+        document.getElementById('layer_upd_relation').style.display = 'none';
+        Re_load();
+    });
+    $("input#ok_add_object").click(function() {
+        add_object();
+    });
+    $("input#cancel_close_option").click(function() {
+        Close_option();
+    });
+    $("input#ok_new_rel_panel").click(function() {
+        New_relation();
+    });
+    $("input#cancel_new_rel_panel").click(function() {
+        document.getElementById('layer_new_relation').style.display = 'none';
+    });
+
+});

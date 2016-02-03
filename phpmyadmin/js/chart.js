@@ -13,6 +13,16 @@ var ChartType = {
 };
 
 /**
+ * Column type enumeration
+ */
+var ColumnType = {
+    STRING : 'string',
+    NUMBER : 'number',
+    BOOLEAN : 'boolean',
+    DATE : 'date'
+};
+
+/**
  * Abstract chart factory which defines the contract for chart factories
  */
 var ChartFactory = function () {
@@ -41,6 +51,9 @@ Chart.prototype = {
     },
     destroy : function () {
         throw new Error("destroy must be implemented by a subclass");
+    },
+    toImageString : function() {
+        throw new Error("toImageString must be implemented by a subclass");
     }
 };
 
@@ -182,57 +195,9 @@ var DataTable = function () {
     };
 };
 
-/**
- * Column type enumeration
- */
-var ColumnType = {
-    STRING : 'string',
-    NUMBER : 'number',
-    BOOLEAN : 'boolean',
-    DATE : 'date'
-};
-
 /*******************************************************************************
  * JQPlot specific code
  ******************************************************************************/
-
-/**
- * Chart factory that returns JQPlotCharts
- */
-var JQPlotChartFactory = function () {
-};
-JQPlotChartFactory.prototype = new ChartFactory();
-JQPlotChartFactory.prototype.createChart = function (type, elementId) {
-    var chart = null;
-    switch (type) {
-    case ChartType.LINE:
-        chart = new JQPlotLineChart(elementId);
-        break;
-    case ChartType.SPLINE:
-        chart = new JQPlotSplineChart(elementId);
-        break;
-    case ChartType.TIMELINE:
-        chart = new JQPlotTimelineChart(elementId);
-        break;
-    case ChartType.AREA:
-        chart = new JQPlotAreaChart(elementId);
-        break;
-    case ChartType.BAR:
-        chart = new JQPlotBarChart(elementId);
-        break;
-    case ChartType.COLUMN:
-        chart = new JQPlotColumnChart(elementId);
-        break;
-    case ChartType.PIE:
-        chart = new JQPlotPieChart(elementId);
-        break;
-    case ChartType.SCATTER:
-        chart = new JQPlotScatterChart(elementId);
-        break;
-    }
-
-    return chart;
-};
 
 /**
  * Abstract JQplot chart
@@ -243,7 +208,7 @@ JQPlotChartFactory.prototype.createChart = function (type, elementId) {
 var JQPlotChart = function (elementId) {
     Chart.call(this, elementId);
     this.plot = null;
-    this.validator;
+    this.validator = null;
 };
 JQPlotChart.prototype = new Chart();
 JQPlotChart.prototype.constructor = JQPlotChart;
@@ -261,6 +226,11 @@ JQPlotChart.prototype.destroy = function () {
 JQPlotChart.prototype.redraw = function (options) {
     if (this.plot !== null) {
         this.plot.replot(options);
+    }
+};
+JQPlotChart.prototype.toImageString = function (options) {
+    if (this.plot !== null) {
+        return $('#' + this.elementId).jqplotToImageStr({});
     }
 };
 JQPlotChart.prototype.populateOptions = function (dataTable, options) {
@@ -315,8 +285,8 @@ JQPlotLineChart.prototype.populateOptions = function (dataTable, options) {
     }
     if (optional.axes.xaxis.ticks.length === 0) {
         var data = dataTable.getData();
-        for (var i = 0; i < data.length; i++) {
-            optional.axes.xaxis.ticks.push(data[i][0].toString());
+        for (var j = 0; j < data.length; j++) {
+            optional.axes.xaxis.ticks.push(data[j][0].toString());
         }
     }
     return optional;
@@ -604,9 +574,9 @@ JQPlotBarChart.prototype.populateOptions = function (dataTable, options) {
         }
     }
     if (optional.series.length === 0) {
-        for (var i = 1; i < columns.length; i++) {
+        for (var j = 1; j < columns.length; j++) {
             optional.series.push({
-                label : columns[i].name.toString()
+                label : columns[j].name.toString()
             });
         }
     }
@@ -653,3 +623,42 @@ JQPlotPieChart.prototype.prepareData = function (dataTable) {
     }
     return [ retData ];
 };
+
+/**
+ * Chart factory that returns JQPlotCharts
+ */
+var JQPlotChartFactory = function () {
+};
+JQPlotChartFactory.prototype = new ChartFactory();
+JQPlotChartFactory.prototype.createChart = function (type, elementId) {
+    var chart = null;
+    switch (type) {
+    case ChartType.LINE:
+        chart = new JQPlotLineChart(elementId);
+        break;
+    case ChartType.SPLINE:
+        chart = new JQPlotSplineChart(elementId);
+        break;
+    case ChartType.TIMELINE:
+        chart = new JQPlotTimelineChart(elementId);
+        break;
+    case ChartType.AREA:
+        chart = new JQPlotAreaChart(elementId);
+        break;
+    case ChartType.BAR:
+        chart = new JQPlotBarChart(elementId);
+        break;
+    case ChartType.COLUMN:
+        chart = new JQPlotColumnChart(elementId);
+        break;
+    case ChartType.PIE:
+        chart = new JQPlotPieChart(elementId);
+        break;
+    case ChartType.SCATTER:
+        chart = new JQPlotScatterChart(elementId);
+        break;
+    }
+
+    return chart;
+};
+
