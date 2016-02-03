@@ -1,28 +1,16 @@
 <?php
-/**
- * This the first of two pages to support posting of EOBs.
- * The second is sl_eob_invoice.php.
- * Windows compatibility and statement downloading:
- *      2009 Bill Cernansky and Tony McCormick [mi-squared.com]
- *
- * Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author  Rod Roark <rod@sunsetsystems.com>
- * @author  Roberto Vasquez <robertogagliotta@gmail.com>
- * @link    http://www.open-emr.org
- */
+// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+//
+// Windows compatibility and statement downloading:
+//     2009 Bill Cernansky and Tony McCormick [mi-squared.com]
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This is the first of two pages to support posting of EOBs.
+// The second is sl_eob_invoice.php.
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -145,21 +133,18 @@ if ($INTEGRATED_AR) {
   if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $_POST['form_cb']) {
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
-    $sqlBindArray = array();
+
     $where = "";
-    foreach ($_POST['form_cb'] as $key => $value) {
-        $where .= " OR f.id = ?";
-        array_push($sqlBindArray, $key);
-    }
+    foreach ($_POST['form_cb'] as $key => $value) $where .= " OR f.id = $key";
     $where = substr($where, 4);
 
     $res = sqlStatement("SELECT " .
-      "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note, " .
+      "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, " .
       "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code " .
       "FROM form_encounter AS f, patient_data AS p " .
       "WHERE ( $where ) AND " .
       "p.pid = f.pid " .
-      "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter", $sqlBindArray);
+      "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter");
 
     $stmt = array();
     $stmt_count = 0;
@@ -195,17 +180,12 @@ if ($INTEGRATED_AR) {
         fwrite($fhprint, create_statement($stmt));
         $stmt['cid'] = $row['pid'];
         $stmt['pid'] = $row['pid'];
-		$stmt['dun_count'] = $row['stmt_count'];
-		$stmt['bill_note'] = $row['billing_note'];
-		$stmt['bill_level'] = $row['last_level_billed'];
-		$stmt['level_closed'] = $row['last_level_closed'];
         $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
         $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
         if ($row['street']) $stmt['to'][] = $row['street'];
         $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
         $stmt['lines'] = array();
         $stmt['amount'] = '0.00';
-		$stmt['ins_paid'] = 0;
         $stmt['today'] = $today;
         $stmt['duedate'] = $duedate;
       } else {
@@ -223,13 +203,7 @@ if ($INTEGRATED_AR) {
       foreach ($invlines as $key => $value) {
         $line = array();
         $line['dos']     = $svcdate;
-        if ($GLOBALS['use_custom_statement']) {
-	      $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text']; 
-		}
-        else 
-		{ 
         $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
-	    } 
         $line['amount']  = sprintf("%.2f", $value['chg']);
         $line['adjust']  = sprintf("%.2f", $value['adj']);
         $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
@@ -237,7 +211,6 @@ if ($INTEGRATED_AR) {
         $line['detail']  = $value['dtl'];
         $stmt['lines'][] = $line;
         $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
-		$stmt['ins_paid']  = $stmt['ins_paid'] + $value['ins'];
       }
 
       // Record that this statement was run.
@@ -445,7 +418,9 @@ else {
 <script type="text/javascript" src="../../library/textformat.js"></script>
 
 <script language="JavaScript">
-
+<!--
+var debugScript = false;
+//-->
 var mypcc = '1';
 
 function checkAll(checked) {
@@ -461,12 +436,87 @@ function npopup(pid) {
  window.open('sl_eob_patient_note.php?patient_id=' + pid, '_blank', 'width=500,height=250,resizable=1');
  return false;
 }
+var debugScript = false;
+function computeTableColumnTotal(tableId, colNumber)
+{
+  // find the table with id attribute tableId
+  // return the total of the numerical elements in column colNumber
+  // skip the top row (headers) and bottom row (where the total will go)
+		
+  var result = 0;
+		
+  try
+  {
+    var tableElem = window.document.getElementById(tableId); 		   
+    var tableBody = tableElem.getElementsByTagName("tbody").item(0);
+    var i;
+    var howManyRows = tableBody.rows.length;
+    for (i=1; i<(howManyRows-1); i++) // skip first and last row (hence i=1, and howManyRows-1)
+    {
+       var thisTrElem = tableBody.rows[i];
+       var thisTdElem = thisTrElem.cells[colNumber];			
+       var thisTextNode = thisTdElem.childNodes.item(0);
+       if (debugScript)
+       {
+          window.alert("text is " + thisTextNode.data);
+       } // end if
 
+       // try to convert text to numeric
+       var thisNumber = parseFloat(thisTextNode.data);
+       // if you didn't get back the value NaN (i.e. not a number), add into result
+       if (!isNaN(thisNumber))
+         result += thisNumber;
+	 } // end for
+		 
+  } // end try
+  catch (ex)
+  {
+     //window.alert("Exception in function computeTableColumnTotal()\n" + ex);
+     result = 0;
+  }
+  finally
+  {
+     return result;
+  }
+	
+}
+<!--
+ 
+
+	function finishTable()
+	{
+		if (debugScript)
+		   window.alert("Beginning of function finishTable");
+		   
+			var tableElemName = "chargesTable";
+				
+		  var totalCharges = computeTableColumnTotal("chargesTable",4);
+		  var totalBalance = computeTableColumnTotal("chargesTable",7);
+
+			try 
+		  {
+			var totalChargesElem = window.document.getElementById("totalCharges");
+			totalChargesElem.innerHTML = totalCharges;
+
+			var totalBalanceElem = window.document.getElementById("totalBalance");
+			totalBalanceElem.innerHTML = totalBalance;
+
+		   }
+		   catch (ex)
+		   {
+			 //window.alert("Exception in function finishTable()\n" + ex);
+			 result = 0;
+		   }
+   
+		 return;
+	}
+   
+// -->
 </script>
 
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' onload="finishTable();">
 <center>
 
 <form method='post' action='sl_eob_search.php' enctype='multipart/form-data'>
@@ -718,7 +768,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
     $t_res = sqlStatement($query);
 
-    $num_invoices = sqlNumRows($t_res);
+    $num_invoices = mysql_num_rows($t_res);
     if ($eracount && $num_invoices != $eracount) {
       $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
         "matching encounters in OpenEMR. ";
@@ -831,8 +881,8 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   } // end not $INTEGRATED_AR
 ?>
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
-
+<table id="chargesTable" border='0' cellpadding='1' cellspacing='2' width='98%'>
+<tbody>
  <tr bgcolor="#dddddd">
   <td class="dehead">
    &nbsp;<?php xl('Patient','e'); ?>
@@ -846,7 +896,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   <td class="dehead">
    &nbsp;<?php xl($INTEGRATED_AR ? 'Last Stmt' : 'Due Date','e'); ?>
   </td>
-  <td class="dehead" align="right">
+  <td class="dehead" align="right" >
    <?php xl('Charge','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
@@ -855,7 +905,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   <td class="dehead" align="right">
    <?php xl('Paid','e'); ?>&nbsp;
   </td>
-  <td class="dehead" align="right">
+  <td class="dehead" align="right" >
    <?php xl('Balance','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="center">
@@ -1071,7 +1121,19 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
 if (!$INTEGRATED_AR) SLClose();
 ?>
-
+<tr bgcolor='<?php echo $bgcolor ?>'>
+<td>Totals</td>
+<td></td>
+<td></td>
+<td></td>
+<td id="totalCharges" align="right"></td>
+<td></td>
+<td></td>
+<td id="totalBalance" align="right"></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
 </table>
 
 <p>
