@@ -5,6 +5,8 @@
  */
 
 // Access control is dealt with by the ACL check
+$fake_register_globals=false;
+$sanitize_all_escapes=true;
 $ignoreAuth = true;
 require_once(dirname(__FILE__)."/../interface/globals.php");
 require_once(dirname(__FILE__)."/../library/acl.inc");
