@@ -51,7 +51,7 @@ function GetInnerX () {
 }
 
 var x = GetInnerX();
-var framesrc = '<iframe ';
+var framesrc = '<frame ';
 
 <?php
 
@@ -96,7 +96,7 @@ else {
 ?>
 
 framesrc += ' src="<?php echo $framesrc; ?>';
-framesrc += '&framewidth='+x+'" style="width: 100%; height: 100vh; display: table;" id="calandarIframe"  name="Calendar" scrolling="auto" frameborder="YES">';
+framesrc += '&framewidth='+x+'"   name="Calendar" scrolling="auto" frameborder="YES">';
 
 </script>
 <!-- END (CHEMED) -->
@@ -104,9 +104,9 @@ framesrc += '&framewidth='+x+'" style="width: 100%; height: 100vh; display: tabl
 
 <!-- (CHEMED) -->
 <script type='text/javascript' language='JavaScript'>
-    document.write('<div style="width: 100%; height: 100%" name="Main" <?php if ($_SESSION['cal_ui'] == 2) {echo 'onResize="window.location.href = window.location.href;"'; }?> >');
+    document.write('<frameset rows="*" cols="*" name="Main" frameborder="NO" border="0" framespacing="0"  <?php if ($_SESSION['cal_ui'] == 2) {echo 'onResize="window.location.href = window.location.href;"'; }?> >');
     document.write(framesrc);
-    document.write('</div>');
+    document.write('</frameset>');
     document.close();
 
 </script>
@@ -116,4 +116,5 @@ framesrc += '&framewidth='+x+'" style="width: 100%; height: 100vh; display: tabl
 <noframes><body bgcolor="#FFFFFF">
 <?php echo xlt('Frame support required'); ?>
 </body></noframes>
+
 </HTML>

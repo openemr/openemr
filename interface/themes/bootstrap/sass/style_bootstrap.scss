@@ -29,7 +29,6 @@ $btn-lg-curve: 5px;
 $btn-sm-curve: 3px;
 
 body {
-   
   margin: 0px 0px 0px 0px;
   /* set the base font and size for all DOM children */
   font-family: sans-serif;
@@ -88,7 +87,7 @@ a:hover {
   font-family: sans-serif;
   text-decoration: none;
   font-size: 10pt;
-//  color: $requiredColor;
+  color: $requiredColor;
   font-weight: bold;
 }
 
@@ -106,9 +105,7 @@ a:hover {
   color: #FF0000;
   text-decoration: none;
 }
-.top-nav{
-    background: #D0D1D2;
-}
+
 .small {
   text-decoration: none;
   color: #000000;
@@ -185,12 +182,6 @@ a:hover {
   font-size: 14pt;  
   text-decoration: none;
 }
-.title a{
-    color: #2A6497;
-    font-size: 16px;
-    border-bottom: 1px dotted;
-    font-weight: bold;
-}
 
 /* see .titlebar below */
 .title_bar {
@@ -214,10 +205,10 @@ a:hover {
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
 $body-color: #fff;
-.body_top { background-color: $body-color; }    /* $top_bg_line */
+.body_top { background-color: $body-color; margin: 8px }    /* $top_bg_line */
 .bgcolor2 { background-color: #fefdcf; }    /* $GLOBALS['style']['BGCOLOR2'] */
 .body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
-.body_title { background-color: $silverColor; overflow: hidden; padding: 0 !important;}  /* $title_bg_line */
+.body_title { background-color: $silverColor; }  /* $title_bg_line */
 .body_nav { background-color: $silverColor; }    /* $nav_bg_line */
 .body_filler { background-color: #f7f0d5; } /* $login_filler_line */
 .body_login { background: url('../pic/aquabg.gif') repeat; } /* $login_body_line */
@@ -665,7 +656,21 @@ a.disabled_button:hover {
  * TABS
 */
 
-
+/*ul.tabNav { margin: 0; padding: 0; }
+ul.tabNav { float: left; list-style: none; width: 100%; }
+ul.tabNav li { float: left; margin: 0 1px 0 0; padding: 6px 0 0;
+  font-size: 0.8em;
+  vertical-align: bottom;
+  text-align: left;
+}
+ul.tabNav li.current { padding-top: 0;
+  font-weight: bold;
+  font-size: 0.8em;
+  vertical-align: bottom;
+  text-align: left;
+}
+ul.tabNav a { background:#A7A7A7; border: 1px solid #ffffff; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
+ul.tabNav li.current a { background:#FFFFFF ;padding: 8px; }*/
 
 @import "bootstrap/css/font-awesome.min.css";
 
@@ -1128,7 +1133,6 @@ td.label {
 
 ul.tabNav {
   @extend .nav, .nav-tabs;
- 
 }
 
 li.current {
@@ -1180,23 +1184,11 @@ li.current {
     color: #fff;
 }
 .tabNav li.active a,
-.tabNav li.active a,
 .tabNav li.active:focus a,
-.tabNav li.active:focus a,
-.tabNav li.active:visited a,
-.tabNav li.active:visited a,
 .tabNav li.active:hover a{    
-    color: #fff !important;
-    border-bottom: 3px solid #275E8E  !important;
-    padding-top: 5px !important;
-    margin-top: -4px;
-    
+    color: #fff;
+    border-bottom: 3px solid #000 !important
 }
-.batchPaymentTab .tabNav li.current a,
-.batchPaymentTab .tabNav li.current:hover a{
-    padding-top: 11px !important;
-}
-
 .search_init, input[type='text'], input[type='password'], input[type='entry']{
     @extend .form-control;
     margin-bottom: 5px;
@@ -1357,9 +1349,7 @@ form[id="theform"] td{
 }
 #img_date, #img_to_date, #img_from_date, #img_begin_date, #img_end_date, #img_deceased_date, #img_i1effective_date, #img_i1dob_date,
 #img_target_date, #img_DOB, #img_depositdate, #img_checkdate, #img_post_to_date, #img_i2effective_date, #img_i3effective_date, #img_i3dob_date,
-#img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate, #img_start, #img_end, #img_refer_date, #img_reply_date,
-#img_begin, #img_coffee, #img_tobacco, #img_alcohol, #img_recreational_drugs, #img_counseling, #img_hazardous_activities, #img_exercise_patterns, #img_form_date,
-#img_form_onset_date{
+#img_from_doc_date, #img_to_doc_date, #img_start_date, .calandar-img, #img_FromDate, #img_ToDate{
     display: inline-block;
     box-sizing: border-box;    
     padding-left: 27px;
@@ -1674,7 +1664,6 @@ input[type="textbox"]{
 .calendar thead .title{
     border: 1px solid darken($silverColor, 20%);
     background: $silverColor !important;
-    color: #000 !important;
 }
 .calendar .button,
 .rowhilite td{
@@ -1734,10 +1723,6 @@ tr.tableHead-bg td:first-child{
 }
 .rule_detail .section.text {
     box-shadow: none;
-    margin-bottom: 10px !important;
-    padding: 15px 5px;
-    border-top: 1px solid red;
-    border-bottom: 1px solid red;
 }
 div#groupdetail {
     margin: 25px 10px !important;
@@ -1851,10 +1836,10 @@ tr.search.no-bg input {
 .section-header ~ div.notab,
 .section-header-dynamic ~ div.summary_item,
 .section-header ~ div.summary_item small{
-    box-shadow: 0px 0px 2px #EFF1EF;
+    box-shadow: 1px 1px 2px #000;
     clear: both;
     display: block;
-    padding: 2px 2px 0;
+    padding: 5px 5px 0;
     margin-bottom: 5px;
 }
 .section-header ~ div{
@@ -1895,96 +1880,4 @@ tr.search.no-bg input {
 }
 div.section {
     margin: 0 !important;
-}
-.patient-pills{
-    border-bottom: 2px solid #265a88;
-    padding-bottom: 3px;
-}
-.css_button_link a{
-    border-radius: 5px 5px 0 0 !important;
-}
-//div#addressbook_list {
-//    padding-top: 15px;
-//}
-.rule_row {
-    padding-bottom: 13px !important;
-    margin-left: 15px;
-    padding-top: 13px;
-    border-bottom: 1px solid #C5CAC5 !important;
-    clear: both;
-    height: auto;
-}
-.rule_container .rule_row:first-child{
-    border-bottom: 0 !important;
-}
-.rule_type a{
-    @extend .btn-submit;
-    color: #fff;
-    padding:5px 25px !important;
-    border-radius: 5px !important;
-}
-.rule_type a:hover{
-    text-decoration: underline !important;
-}
-#search_options{
-    position: relative;
-    width: 100%;
-    margin-bottom: 15px;
-}
-.ccr-table input[type="text"],
-.ccr-table #img_start,
-.ccr-table #img_end{
-    display: inline-block;
-}
-.tab-textLeft{
-    text-align: left;
-}
-.header .action_link{
-    @extend .btn-primary;
-    padding: 5px 15px !important;
-    border-radius: 5px;
-}
-a#clear_active {
-    background: #CFE7FB;
-    margin-left: 5px;
-}
-a#clear_active span {
-    color: #2A68A0;
-}
-#RTop {
-    resize: vertical;    
-}
-.payment-window input[type='radio']{
-    margin: 0 5px;
-    vertical-align: middle;
-}
-.payment-window .input[name="form_paytotal"]{
-    width: 55px !important;
-}
-#HIS ul.tabNav > li > a{
-        padding: 4px 15px !important;
-}
-#HIS ul.tabNav > li.active > a{            
-    padding-top: 5px !important;
-    margin-top: -4px !important;
-}
-
-.globalsTabs .tabNav li.current a{
-    padding-top: 13px !important;
-}
-.title-custom{
-       padding: 12px !important;
-    font-size: 18px !important;
-    background: #3175B0 !important;
-}
-.title-custom b{
-    color: #fff !important;    
-    
-}
-#dynamic{
-    padding-top: 15px !important;
-}
-form[name="new_encounter"]{
-    padding-top: 25px !important;
-    padding-left: 15px !important;
 }

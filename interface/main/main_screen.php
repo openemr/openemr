@@ -113,6 +113,7 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 </title>
 <script type="text/javascript" src="../../library/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
+
 <script language='JavaScript'>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -139,69 +140,26 @@ if ($GLOBALS['concurrent_layout']) {
   // start new layout
   if (empty($GLOBALS['gbl_tall_nav_area'])) {
     // not tall nav area ?>
-    
-<!--<frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>-->
-<div style="height: <?php echo attr($GLOBALS['titleBarHeight']) + 18 ?>; border-bottom: 4px solid #999;" class="top-nav" onunload='imclosing()'>
-    <!--    Top Bar-->
-    <div style="zoom: 90%;">
-        <?php include('main_title.php'); ?>
-    </div>
-    <!--    Top Bar-->
-<!--    <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />-->
-        
-        <div style="width: <?php echo attr($nav_area_width); ?>;
-    border-right: 3px solid #D0D0D0;
-    border-top: 3px solid #999;
-    overflow-y: auto;
-    padding-top: 10px;
-    position: absolute;
-    background: #EFF1EF;
-    max-height: 92vh;" id='fsbody'>
-<!--    <frameset cols='<?php //echo attr($nav_area_width); ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4'>-->
-      
-            <div style="width: 100%; padding-left: 5px; zoom: 90%;">
-                <?php include('left_nav.php'); ?>
-                <?php include('daemon_frame.php'); ?>                
-            </div>
-<!--        <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>-->
-<!--
-          <frame src='left_nav.php' name='left_nav' />
-          <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
-        border='0' framespacing='0' />
--->
-<!--        </frameset>-->
-        </div>
-        <?php if (empty($GLOBALS['athletic_team'])) { ?>
-        
-        <div class="main-section" id="mainSection" style="width: 100%;
-    padding-left: 142px;">
-            <div style="width: 100%;" id='fsright'>
-            
-            
-            <!--          <frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1'>-->
-              
-        <?php } else { ?>
-              <div style="width: 100%; border: 1px solid #999;" id='fsright'>
-                <!--<frameset rows='100%,*' id='fsright' bordercolor='#999999' frameborder='1'>-->
-              
-        <?php } ?>
-                  
-                  
-                  <iframe src='<?php echo $frame1url ?>' name='RTop' id="RTop" scrolling='auto' style="width: 100%; min-height: 450px; border-bottom: 3px solid #7D7C7C; padding-left: 10px; margin-top: 4px; padding-top: 10px;"></iframe>
-                  <iframe src='messages/messages.php?form_active=1'  id="RBot" name='RBot' style="width: 100%;min-height: 272px; overflow: auto;padding-left: 20px;"></iframe>
-                  <?php //include('messages/messages.php'); ?>
-                    <!--<frame src='<?php //echo $frame1url ?>' name='RTop' scrolling='auto' />
-                               <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' />-->
-              </div>
-                <!--</frameset>-->
-                
-              
-                <!--</frameset>-->
-            
-        </div>    
-    
-        </div>    
-        <!--    </frameset>-->
+<frameset rows='<?php echo attr($GLOBALS['titleBarHeight']) + 5 ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
+ <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
+ <frameset cols='<?php echo attr($nav_area_width); ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4'>
+  <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
+   <frame src='left_nav.php' name='left_nav' />
+   <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
+    border='0' framespacing='0' />
+  </frameset>
+<?php if (empty($GLOBALS['athletic_team'])) { ?>
+     <div class="main-section">
+  <frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1'>
+<?php } else { ?>
+  <frameset rows='100%,*' id='fsright' bordercolor='#999999' frameborder='1'>
+<?php } ?>
+   <frame src='<?php echo $frame1url ?>' name='RTop' scrolling='auto' />
+   <frame src='messages/messages.php?form_active=1' name='RBot' scrolling='auto' />
+  </frameset>
+ </frameset>
+</div>         
+</frameset>
 
 <?php } else { // use tall nav area ?>
 
@@ -239,7 +197,6 @@ if ($GLOBALS['concurrent_layout']) {
 <noframes><body bgcolor="#FFFFFF">
 <?php echo xlt('Frame support required'); ?>
 </body></noframes>
-    
 
 <?php } // end old layout ?>
 
