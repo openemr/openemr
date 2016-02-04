@@ -1,16 +1,28 @@
 <?php
-// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
-//
-// Windows compatibility and statement downloading:
-//     2009 Bill Cernansky and Tony McCormick [mi-squared.com]
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This is the first of two pages to support posting of EOBs.
-// The second is sl_eob_invoice.php.
+/**
+ * This the first of two pages to support posting of EOBs.
+ * The second is sl_eob_invoice.php.
+ * Windows compatibility and statement downloading:
+ *      2009 Bill Cernansky and Tony McCormick [mi-squared.com]
+ *
+ * Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -133,18 +145,21 @@ if ($INTEGRATED_AR) {
   if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $_POST['form_cb']) {
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
-
+    $sqlBindArray = array();
     $where = "";
-    foreach ($_POST['form_cb'] as $key => $value) $where .= " OR f.id = $key";
+    foreach ($_POST['form_cb'] as $key => $value) {
+        $where .= " OR f.id = ?";
+        array_push($sqlBindArray, $key);
+    }
     $where = substr($where, 4);
 
     $res = sqlStatement("SELECT " .
-      "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, " .
+      "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note, " .
       "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code " .
       "FROM form_encounter AS f, patient_data AS p " .
       "WHERE ( $where ) AND " .
       "p.pid = f.pid " .
-      "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter");
+      "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter", $sqlBindArray);
 
     $stmt = array();
     $stmt_count = 0;
@@ -180,12 +195,17 @@ if ($INTEGRATED_AR) {
         fwrite($fhprint, create_statement($stmt));
         $stmt['cid'] = $row['pid'];
         $stmt['pid'] = $row['pid'];
+		$stmt['dun_count'] = $row['stmt_count'];
+		$stmt['bill_note'] = $row['billing_note'];
+		$stmt['bill_level'] = $row['last_level_billed'];
+		$stmt['level_closed'] = $row['last_level_closed'];
         $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
         $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
         if ($row['street']) $stmt['to'][] = $row['street'];
         $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
         $stmt['lines'] = array();
         $stmt['amount'] = '0.00';
+		$stmt['ins_paid'] = 0;
         $stmt['today'] = $today;
         $stmt['duedate'] = $duedate;
       } else {
@@ -203,7 +223,13 @@ if ($INTEGRATED_AR) {
       foreach ($invlines as $key => $value) {
         $line = array();
         $line['dos']     = $svcdate;
+        if ($GLOBALS['use_custom_statement']) {
+	      $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text']; 
+		}
+        else 
+		{ 
         $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
+	    } 
         $line['amount']  = sprintf("%.2f", $value['chg']);
         $line['adjust']  = sprintf("%.2f", $value['adj']);
         $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
@@ -211,6 +237,7 @@ if ($INTEGRATED_AR) {
         $line['detail']  = $value['dtl'];
         $stmt['lines'][] = $line;
         $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
+		$stmt['ins_paid']  = $stmt['ins_paid'] + $value['ins'];
       }
 
       // Record that this statement was run.
@@ -418,9 +445,7 @@ else {
 <script type="text/javascript" src="../../library/textformat.js"></script>
 
 <script language="JavaScript">
-<!--
-var debugScript = false;
-//-->
+
 var mypcc = '1';
 
 function checkAll(checked) {
@@ -430,6 +455,11 @@ function checkAll(checked) {
   if (ename.indexOf('form_cb[') == 0)
    f.elements[i].checked = checked;
  }
+}
+
+function npopup(pid) {
+ window.open('sl_eob_patient_note.php?patient_id=' + pid, '_blank', 'width=500,height=250,resizable=1');
+ return false;
 }
 
 function npopup(pid) {
@@ -516,7 +546,7 @@ function computeTableColumnTotal(tableId, colNumber)
 
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' onload="finishTable();">
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
 <form method='post' action='sl_eob_search.php' enctype='multipart/form-data'>
@@ -768,7 +798,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
     $t_res = sqlStatement($query);
 
-    $num_invoices = mysql_num_rows($t_res);
+    $num_invoices = sqlNumRows($t_res);
     if ($eracount && $num_invoices != $eracount) {
       $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
         "matching encounters in OpenEMR. ";
@@ -896,7 +926,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   <td class="dehead">
    &nbsp;<?php xl($INTEGRATED_AR ? 'Last Stmt' : 'Due Date','e'); ?>
   </td>
-  <td class="dehead" align="right" >
+  <td class="dehead" align="right">
    <?php xl('Charge','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
@@ -905,7 +935,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   <td class="dehead" align="right">
    <?php xl('Paid','e'); ?>&nbsp;
   </td>
-  <td class="dehead" align="right" >
+  <td class="dehead" align="right">
    <?php xl('Balance','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="center">
