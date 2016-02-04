@@ -164,7 +164,7 @@ $encounter . "' and pid='$pid'"))
      $total = 0.00;
      $copays = 0.00;
      foreach ($ar['newpatient'] as $be) {
-      $ta = split(":",$be);
+      $ta = explode(":",$be);
       $billing = getPatientBillingEncounter($pid,$ta[1]);
       $billings[] = $billing;
       foreach ($billing as $b) {
@@ -241,7 +241,8 @@ $encounter . "' and pid='$pid'"))
      $fname = basename($d->get_url());
      $extension = substr($fname, strrpos($fname,"."));
      echo "Document '" . $fname ."'<br>";
-     $notes = Note::notes_factory($d->get_id());
+     $n = new Note();
+     $notes = $n->notes_factory($d->get_id());
      echo "<table>";
      foreach ($notes as $note) {
       echo '<tr>';
@@ -363,7 +364,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 				."</td><td>" . oeFormatMoney($iter['fee']) . "</td></tr>\n";
 			$billing_html[$iter["code_type"]] .= $html;
 			$total += $iter['fee'];
-			$js = split(":",$iter['justify']);
+			$js = explode(":",$iter['justify']);
 			$counter = 0;
 			foreach ($js as $j) {
 				if(!empty($j)) {

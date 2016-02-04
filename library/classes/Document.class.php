@@ -204,7 +204,7 @@ class Document extends ORDataObject{
 		  		
 		  	$command = $file_command." ".$cmd_args;
 		  	$mimetype = exec($command);
-		  	$mime_array = split(":", $mimetype);
+		  	$mime_array = explode(":", $mimetype);
 		  	$mimetype = $mime_array[1];
 		  	$d->set_mimetype($mimetype);
 			$d->url = $url;

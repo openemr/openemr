@@ -140,7 +140,7 @@ function process_form($ar) {
   $claim_count = 0;
   foreach ($ar['claims'] as $claimid => $claim_array) {
 
-    $ta = split("-",$claimid);
+    $ta = explode("-",$claimid);
     $patient_id = $ta[0];
     $encounter  = $ta[1];
     $payer_id   = substr($claim_array['payer'], 1);

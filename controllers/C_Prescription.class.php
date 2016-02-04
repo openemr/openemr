@@ -48,6 +48,7 @@ class C_Prescription extends Controller {
 		$this->pconfig = $GLOBALS['oer_config']['prescriptions'];
 	    $this->assign("CSS_HEADER",  $GLOBALS['css_header'] );
 	    $this->assign("WEB_ROOT", $GLOBALS['webroot'] );
+		$this->RxList = new RxList();
 
 		if ($GLOBALS['inhouse_pharmacy']) {
 			// Make an array of drug IDs and selectors for the template.
@@ -829,7 +830,7 @@ class C_Prescription extends Controller {
 		$this->assign("drug", $_POST['drug']);
 		$list = array();
 		if (!empty($_POST['drug'])) {
-			$list = @RxList::get_list($_POST['drug']);
+			$list = $this->RxList->get_list($_POST['drug']);
 		}
 
 		if (is_array($list)) {

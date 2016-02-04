@@ -65,7 +65,7 @@ class InstModuleTable
     if(file_exists($sqltext)) {
     if ($sqlarray = @file($sqltext)) {
       $sql = implode("", $sqlarray);
-      $sqla = split(";", $sql);
+      $sqla = explode(";", $sql);
       $this->getInstallerTable()->testingDir($dir);
       foreach ($sqla as $sqlq) {
         if (strlen($sqlq) > 5) {

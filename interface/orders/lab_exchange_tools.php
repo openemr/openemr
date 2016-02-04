@@ -29,10 +29,10 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
     */
     
     // If empty $externalId or externalId no matched
-    if (ereg_replace("[:space:]", "", $firstName) != "")
+    if (preg_replace("/[:space:]/", "", $firstName) != "")
         $where .= "fname = '".add_escape_custom($firstName)."' " ;
 
-    if (ereg_replace("[:space:]", "", $lastName) != "") {
+    if (preg_replace("/[:space:]/", "", $lastName) != "") {
         if ($where != "") $where .= "AND ";
         $where .= "lname = '".add_escape_custom($lastName)."' " ;
     }
@@ -42,12 +42,12 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
 //        $where .= "mname = '".add_escape_custom($middleName)."' " ;
 //    }
     
-    if (ereg_replace("[:space:]", "", $dob) != ""){
+    if (preg_replace("/[:space:]/", "", $dob) != ""){
         if ($where != "") $where .= "AND ";
         $where .= "DOB = DATE_FORMAT('".add_escape_custom($dob)."', '%Y-%m-%d') " ;
     }
 
-    if (ereg_replace("[:space:]", "", $gender) != "") {
+    if (preg_replace("/[:space:]/", "", $gender) != "") {
         if ($gender =="F") $sex = "Female";
         if ($gender =="M") $sex = "Male";
         
@@ -58,7 +58,7 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
         }
     }
 
-    if (ereg_replace("[:space:]", "", $ssn) != ""){
+    if (preg_replace("/[:space:]/", "", $ssn) != ""){
         if ($where != "") $where .= "AND ";
         // Change to xxx-xx-xxxx format.
         $ss = substr($ssn,0,3)."-".substr($ssn,3,2)."-".substr($ssn,5);

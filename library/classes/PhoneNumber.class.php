@@ -136,7 +136,7 @@ class PhoneNumber extends ORDataObject{
 			$this->number = substr ($num,6,4);
 		}
 		elseif (strlen($num) == 12) {
-			$nums = split("-",$num);
+			$nums = explode("-",$num);
 			if (count($nums) == 3) {
 				$this->area_code = $nums[0];
 				$this->prefix = $nums[1];

@@ -346,7 +346,7 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
             $copays = 0.00;
             //foreach ($patient as $be) {
 
-                $ta = split(":",$patient);
+                $ta = explode(":",$patient);
                 $billing = getPatientBillingEncounter($pids[$iCounter],$ta[1]);
 
                 $billings[] = $billing;

@@ -37,6 +37,7 @@ define ("FREEB_TYPE_MUTUALLY_DEFINED",26);
 
 require_once("PhoneNumber.class.php");
 require_once("Address.class.php");
+require_once("X12Partner.class.php");
 
 
 require_once("ORDataObject.class.php");
@@ -143,6 +144,7 @@ class InsuranceCompany extends ORDataObject{
 		if ($id != "") {
 			$this->populate();
 		}
+		$this->X12Partner = new X12Partner();
 	}
 
 	function set_id($id = "") {
@@ -267,7 +269,7 @@ class InsuranceCompany extends ORDataObject{
 	}
 
 	function get_x12_default_partner_name() {
-		$xa = $this->_utility_array(X12Partner::x12_partner_factory());
+		$xa = $this->_utility_array($this->X12Partner->x12_partner_factory());
 		return $xa[$this->get_x12_default_partner_id()];
 	}
 

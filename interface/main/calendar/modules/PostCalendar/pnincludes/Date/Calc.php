@@ -1535,7 +1535,7 @@ class Date_Calc {
         $month = strtolower($month);
         $months = Date_Calc::getMonthNames();
         while(list($id, $name) = each($months)){
-            if(ereg($month, strtolower($name))){
+            if(preg_match("/" . addcslashes($month, '/') . "/", strtolower($name))){
                 return($id);
             }
         }

@@ -142,7 +142,7 @@ function ft_float($input) {
  */
 function ft_validdate($str) {
     if ( preg_match("/([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})/", $str) ) {
-        $arr = split("-",$str);     // splitting the array
+        $arr = explode("-",$str);     // splitting the array
         $yy = $arr[0];            // first element of the array is year
         $mm = $arr[1];            // second element is month
         $dd = $arr[2];            // third element is days
@@ -167,25 +167,25 @@ function ft_email($email) {
     }
 
     // check for @ symbol and maximum allowed lengths
-    if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) { return FALSE; }
+    if (!preg_match("/^[^@]{1,64}@[^@]{1,255}$/", $email)) { return FALSE; }
 
     // split for sections
     $email_array = explode("@", $email);
     $local_array = explode(".", $email_array[0]);
 
     for ($i = 0; $i < sizeof($local_array); $i++) {
-        if ( !ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$", $local_array[$i]) ) {
+        if ( !preg_match("/^(([A-Za-z0-9!#$%&'*+\/=?^_`{|}~-][A-Za-z0-9!#$%&'*+\/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$/", $local_array[$i]) ) {
              return FALSE;
         }
     }
 
-    if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) { 
+    if (!preg_match("/^\[?[0-9\.]+\]?$/", $email_array[1])) {
     // verify if domain is IP. If not, it must be a valid domain name 
         $domain_array = explode(".", $email_array[1]);
         if (sizeof($domain_array) < 2) { return FALSE; }
 
         for ($i = 0; $i < sizeof($domain_array); $i++) {
-            if (!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]+))$", $domain_array[$i])) { 
+            if (!preg_match("/^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]+))$/", $domain_array[$i])) {
                 return false; 
             }	
         }

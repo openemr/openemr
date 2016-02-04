@@ -1236,20 +1236,20 @@ if (count($HTTP_GET_VARS) > 0) {
 
         foreach ($HTTP_GET_VARS as $secvalue) {
         	if (!is_array($secvalue)) {
-                if ((eregi("<[^>]*script*\"?[^>]*>", $secvalue)) ||
-                        (eregi(".*[[:space:]](or|and)[[:space:]].*(=|like).*", $secvalue)) ||
-                        (eregi("<[^>]*object*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*iframe*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*applet*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*meta*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*style*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*form*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*window.*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*alert*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*img*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*document.*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*cookie*\"?[^>]*>", $secvalue)) ||
-                        (eregi("\"", $secvalue))) {
+                if ((preg_match("/<[^>]*script*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/.*[[:space:]](or|and)[[:space:]].*(=|like).*/i", $secvalue)) ||
+                        (preg_match("/<[^>]*object*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*iframe*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*applet*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*meta*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*style*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*form*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*window.*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*alert*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*img*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*document.*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*cookie*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/\"/i", $secvalue))) {
                         //pnMailHackAttempt(__FILE__,__LINE__,'pnSecurity Alert','Intrusion detection.');
                         //Header("Location: index.php");
                 }
@@ -1264,15 +1264,15 @@ if ( count($HTTP_POST_VARS) > 0) {
 
         foreach ($HTTP_POST_VARS as $secvalue) {
         	if (!is_array($secvalue)) {
-                if ((eregi("<[^>]*script*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*object*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*iframe*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*applet*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*window.*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*alert*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*document.*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*cookie*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*meta*\"?[^>]*>", $secvalue))
+                if ((preg_match("/<[^>]*script*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*object*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*iframe*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*applet*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*window.*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*alert*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*document.*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*cookie*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*meta*\"?[^>]*>/i", $secvalue))
                         ) {
 
                         //pnMailHackAttempt(__FILE__,__LINE__,'pnSecurity Alert','Intrusion detection.');
@@ -1290,19 +1290,19 @@ if ( count($HTTP_COOKIE_VARS) > 0) {
 
         foreach ($HTTP_COOKIE_VARS as $secvalue) {
 			if (!is_array($secvalue)) {
-                if ((eregi("<[^>]*script*\"?[^>]*>", $secvalue)) ||
-                        (eregi(".*[[:space:]](or|and)[[:space:]].*(=|like).*", $secvalue)) ||
-                        (eregi("<[^>]*object*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*iframe*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*applet*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*meta*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*style*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*form*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*window.*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*alert*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*document.*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*cookie*\"?[^>]*>", $secvalue)) ||
-                        (eregi("<[^>]*img*\"?[^>]*>", $secvalue))
+                if ((preg_match("/<[^>]*script*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/.*[[:space:]](or|and)[[:space:]].*(=|like).*/i", $secvalue)) ||
+                        (preg_match("/<[^>]*object*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*iframe*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*applet*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*meta*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*style*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*form*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*window.*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*alert*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*document.*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*cookie*\"?[^>]*>/i", $secvalue)) ||
+                        (preg_match("/<[^>]*img*\"?[^>]*>/i", $secvalue))
                         ) {
 
                         pnMailHackAttempt(__FILE__,__LINE__,'pnSecurity Alert','Intrusion detection.');

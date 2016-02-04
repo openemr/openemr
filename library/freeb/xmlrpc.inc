@@ -149,14 +149,14 @@
 
 	function xmlrpc_entity_decode($string)
 	{
-		$top=split('&', $string);
+		$top=explode('&', $string);
 		$op='';
 		$i=0; 
 		while($i<sizeof($top))
 		{
-			if (ereg("^([#a-zA-Z0-9]+);", $top[$i], $regs))
+			if (preg_match("/^([#a-zA-Z0-9]+);/", $top[$i], $regs))
 			{
-				$op.=ereg_replace("^[#a-zA-Z0-9]+;",
+				$op.=preg_replace("/^[#a-zA-Z0-9]+;/",
 				xmlrpc_lookup_entity($regs[1]),
 				$top[$i]);
 			}
@@ -184,7 +184,7 @@
 		{
 			return $xmlEntities[strtolower($ent)];
 		}
-		if (ereg("^#([0-9]+)$", $ent, $regs))
+		if (preg_match("/^#([0-9]+)$/", $ent, $regs))
 		{
 			return chr($regs[1]);
 		}
@@ -322,7 +322,7 @@
 				{
 					// we have an I4, INT or a DOUBLE
 					// we must check that only 0123456789-.<space> are characters here
-					if (!ereg("^\-?[0123456789 \t\.]+$", $_xh[$parser]['ac']))
+					if (!preg_match("/^\-?[0123456789 \t\.]+$/", $_xh[$parser]['ac']))
 					{
 						// TODO: find a better way of throwing an error
 						// than this!
@@ -367,7 +367,7 @@
 				$_xh[$parser]['params'][]=$_xh[$parser]['st'];
 				break;
 			case 'METHODNAME':
-				$_xh[$parser]['method']=ereg_replace("^[\n\r\t ]+", '', $_xh[$parser]['ac']);
+				$_xh[$parser]['method']=preg_replace("/^[\n\r\t ]+/", '', $_xh[$parser]['ac']);
 				break;
 			case 'BOOLEAN':
 				// special case here: we translate boolean 1 or 0 into PHP
@@ -944,7 +944,7 @@
 			}
 			// see if we got an HTTP 200 OK, else bomb
 			// but only do this if we're using the HTTP protocol.
-			if(ereg("^HTTP",$data) && !ereg("^HTTP/[0-9\.]+ 200 ", $data))
+			if(preg_match("/^HTTP/",$data) && !preg_match("/^HTTP/[0-9\.]+ 200 /", $data))
 			{
 				$errstr= substr($data, 0, strpos($data, "\n")-1);
 				error_log('HTTP error, got response: ' .$errstr);
@@ -954,9 +954,9 @@
 			}
 
 			// separate HTTP headers from data
-			if (ereg("^HTTP", $data))
+			if (preg_match("/^HTTP/", $data))
 			{
-				$ar = split("\r\n", $data);
+				$ar = explode("\r\n", $data);
 				while (($line = array_shift($ar)))
 				{
 					if (strlen($line) < 1)
@@ -1450,7 +1450,7 @@
 	{
 		// return a timet in the localtime, or UTC
 		$t=0;
-		if (ereg("([0-9]{4})([0-9]{2})([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})", $idate, $regs))
+		if (preg_match("/([0-9]{4})([0-9]{2})([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})/", $idate, $regs))
 		{
 			if ($utc)
 			{

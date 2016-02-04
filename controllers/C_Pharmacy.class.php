@@ -16,6 +16,7 @@ class C_Pharmacy extends Controller {
 		$this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&pharmacy&");
 		$this->assign("STYLE", $GLOBALS['style']);
 		$this->assign("WEB_ROOT", $GLOBALS['webroot'] );
+		$this->Pharmacy = new Pharmacy();
 	}
 
 	function default_action() {
@@ -41,10 +42,10 @@ class C_Pharmacy extends Controller {
 	function list_action($sort = "") {
 
 		if (!empty($sort)) {
-			$this->assign("pharmacies", Pharmacy::pharmacies_factory("",$sort));
+			$this->assign("pharmacies", $this->Pharmacy->pharmacies_factory("",$sort));
 		}
 		else {
-			$this->assign("pharmacies", Pharmacy::pharmacies_factory());
+			$this->assign("pharmacies", $this->Pharmacy->pharmacies_factory());
 		}
 		//print_r(Prescription::prescriptions_factory($id));
 		return $this->fetch($GLOBALS['template_dir'] . "pharmacies/" . $this->template_mod . "_list.html");

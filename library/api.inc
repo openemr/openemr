@@ -43,7 +43,7 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
 		if (strpos($key,"openemr_net_cpt") === 0) {
 			//code to auto add cpt code
 			if (!empty($value)) {
-				$code_array = split(" ",$value,2);
+				$code_array = explode(" ",$value,2);
 				
 				addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
 			}
@@ -54,7 +54,7 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
 		elseif (strpos($key,"diagnosis") == (strlen($key) -10) && !(strpos($key,"diagnosis")=== false )) {
 			//icd auto add ICD9-CM
 			if (!empty($value)) {
-				$code_array = split(" ",$value,2);
+				$code_array = explode(" ",$value,2);
 				addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
 			}
 		}
