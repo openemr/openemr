@@ -321,7 +321,7 @@ $GLOBALS_METADATA = array(
         '4' => xl('Address, State and Postal Code'),
         '5' => xl('Postal Code and Box Number'),
       ),
-      '5',                              // default
+      '4',                              // default
       xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
     
   ),
