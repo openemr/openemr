@@ -115,12 +115,12 @@ ajax_bill_loc(pid,dte,facility);
 // Show demographics or encounters list depending on what frame we're in.
 function cancelClicked() {
  if (window.name == 'RBot') {
-  parent.setRadio(window.name, 'ens');
-  parent.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
+  parent.left_nav.setRadio(window.name, 'ens');
+  parent.left_nav.loadFrame('ens1', window.name, 'patient_file/history/encounters.php');
  }
  else {
-  parent.setRadio(window.name, 'dem');
-  parent.loadFrame('dem1', window.name, 'patient_file/summary/demographics.php');
+  parent.left_nav.setRadio(window.name, 'dem');
+  parent.left_nav.loadFrame('dem1', window.name, 'patient_file/summary/demographics.php');
  }
  return false;
 }
@@ -391,9 +391,9 @@ if (!$viewmode) { ?>
     if (!confirm('<?php echo xl("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one.") ?>')) {
             // User pressed the cancel button, so re-direct to today's encounter
             top.restoreSession();
-            parent.setEncounter(datestr, enc, window.name);
-            parent.setRadio(window.name, 'enc');
-            parent.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
+            parent.left_nav.setEncounter(datestr, enc, window.name);
+            parent.left_nav.setRadio(window.name, 'enc');
+            parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
             return;
         }
         // otherwise just continue normally

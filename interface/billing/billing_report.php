@@ -162,9 +162,9 @@ function toencounter(pid, pubpid, pname, enc, datestr, dobstr) {
  top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
- parent.setPatient(pname,pid,pubpid,'',dobstr);
- parent.setEncounter(datestr, enc, othername);
- parent.setRadio(othername, 'enc');
+ parent.left_nav.setPatient(pname,pid,pubpid,'',dobstr);
+ parent.left_nav.setEncounter(datestr, enc, othername);
+ parent.left_nav.setRadio(othername, 'enc');
  parent.frames[othername].location.href =
   '../patient_file/encounter/encounter_top.php?set_encounter='
   + enc + '&pid=' + pid;
@@ -178,7 +178,7 @@ function topatient(pid, pubpid, pname, enc, datestr, dobstr) {
  top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
- parent.setPatient(pname,pid,pubpid,'',dobstr);
+ parent.left_nav.setPatient(pname,pid,pubpid,'',dobstr);
  parent.frames[othername].location.href =
   '../patient_file/summary/demographics_full.php?pid=' + pid;
 <?php } else { ?>

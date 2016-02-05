@@ -81,7 +81,7 @@ jQuery(document).ready( function($) {
                     // Lock the form edit buttons
                 	$(".form-edit-button").replaceWith( response.editButtonHtml );
                 	// Disable the new-form capabilities in left nav
-                	top.window.parent.syncRadios();
+                	top.window.parent.left_nav.syncRadios();
                     // Disable the new-form capabilities in top nav of the encounter
                 	$(".encounter-form-category-li").remove();
                 }
@@ -104,8 +104,8 @@ jQuery(document).ready( function($) {
  // Called by the deleter.php window on a successful delete.
  function imdeleted(EncounterId) {
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-  top.window.parent.removeOptionSelected(EncounterId);
-  top.window.parent.clearEncounter();
+  top.window.parent.left_nav.removeOptionSelected(EncounterId);
+  top.window.parent.left_nav.clearEncounter();
 <?php } else { ?>
   top.restoreSession();
   top.Title.location.href = '../patient_file/encounter/encounter_title.php';
@@ -485,7 +485,7 @@ if ( $esign->isButtonViewable() ) {
 <?php if ($GLOBALS['athletic_team'] && $GLOBALS['concurrent_layout'] == 2) { ?>
 <script language='JavaScript'>
  // If this is the top frame then show the encounters list in the bottom frame.
- // var n  = parent.parent;
+ // var n  = parent.parent.left_nav;
  var n  = top.left_nav;
  var nf = n.document.forms[0];
  if (parent.window.name == 'RTop' && nf.cb_bot.checked) {

@@ -100,7 +100,7 @@ div.section {
 <SCRIPT LANGUAGE="JavaScript"><!--
 //Visolve - sync the radio buttons - Start
 if((top.window.parent) && (parent.window)){
-        var wname = top.window.parent;
+        var wname = top.window.parent.left_nav;
         fname = (parent.window.name)?parent.window.name:window.name;
         wname.syncRadios();
         wname.setRadio(fname, "new");
@@ -379,7 +379,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 <form action='new_comprehensive_save.php' name='demographics_form' method='post' onsubmit='return validate(this)'>
 
-    <p class='title title-custom'><b><?php xl('Search or Add Patient','e'); ?></b></p>
+<span class='title'><?php xl('Search or Add Patient','e'); ?></span>
 
 <table width='100%' cellpadding='0' cellspacing='8'>
  <tr>

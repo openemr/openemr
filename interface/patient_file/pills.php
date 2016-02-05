@@ -16,7 +16,7 @@
   <td class="small" colspan='4'>
     <span class="css_button_link">
         <a href="../summary/demographics.php?home" onclick='top.restoreSession()' class="<?php echo ($pill_str=='home')?'active':'no'; ?>">
-        <?php echo htmlspecialchars(xl('Home'),ENT_NOQUOTES);?></a>
+        <?php echo htmlspecialchars(xl('Patient'),ENT_NOQUOTES);?></a>
         
         <span class="css_button_separator">|</span>
         
