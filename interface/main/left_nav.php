@@ -434,49 +434,16 @@ function genFindBlock() {
 
  // Expand and/or collapse frames in response to checkbox clicks.
  // fnum indicates which checkbox was clicked (1=left, 2=right).
- function toggleFrame(fnum) { 
-     
- var iframeTop = parent.document.getElementById('RTop');
- var iframeBot = parent.document.getElementById('RBot');
-// var iframeInnerCalandar = parent.document.getElementById('calandarIframe');
-     
-     
-     
-  var f = document.forms[0];  
+ function toggleFrame(fnum) {
+  var f = document.forms[0];
   var fset = top.document.getElementById('fsright');
-  if (!f.cb_top.checked && !f.cb_bot.checked){
+  if (!f.cb_top.checked && !f.cb_bot.checked) {
    if (fnum == 1) f.cb_bot.checked = true;
    else f.cb_top.checked = true;
   }
-     
-//     var height= f.cb_top.check true ? '0': '500px';
-//
-//    iframeTop.style.display = (f.cb_top.checked)? "block": "none";
-//    iframeBot.style.display = (f.cb_bot.checked)? "block": "none";
-     
-     if(f.cb_top.checked){
-         iframeTop.style.display ="block";                           
-         iframeBot.style.height="";
-     } 
-     else{
-        iframeTop.style.display = "none";
-         iframeBot.style.height="600px";
-     } 
-     if(f.cb_bot.checked){
-//         iframeTop.style.display = "none";
-         
-//         iframeBot.style.height="90vh";
-         iframeTop.style.height="0";
-         iframeBot.style.display="block";
-         
-         //console.log(iframeInnerCalandar);
-     }
-     else{
-        iframeBot.style.display="none";
-        iframeTop.style.height="90vh";
-//         iframeInnerCalandar.style.height="97vh";
-     }
-
+  var rows = f.cb_top.checked ? '*' :  '0';
+  rows += f.cb_bot.checked ? ',*' : ',0';
+  fset.rows = rows;
  }
 
  // Load the specified url into the specified frame (RTop or RBot).
