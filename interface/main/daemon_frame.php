@@ -42,26 +42,26 @@
 <body bgcolor="#000000">
 <script language='JavaScript'>
 
-// function timerint() {
-//  location.reload();
-//  return;
-// }
-//
-// var ld = parent.document;
-//
-// if (ld && ld.getElementById('searchFields')) {
-//  setTimeout('timerint()', <?php echo $daemon_interval * 1000; ?>);
-//
-//  var elem = ld.getElementById('lbl_fax');
-//  if (elem) elem.style.color = '<?php echo $color_fax; ?>';
-//
-//  elem = ld.getElementById('lbl_aun');
-//  if (elem) elem.style.color = '<?php echo $color_aun; ?>';
-// }
-// else {
-//  // Nav frame is not fully loaded yet, so wait a few secs.
-//  setTimeout('timerint()', 5000);
-// }
+ function timerint() {
+  location.reload();
+  return;
+ }
+
+ var ld = parent.left_nav.document;
+
+ if (ld && ld.getElementById('searchFields')) {
+  setTimeout('timerint()', <?php echo $daemon_interval * 1000; ?>);
+
+  var elem = ld.getElementById('lbl_fax');
+  if (elem) elem.style.color = '<?php echo $color_fax; ?>';
+
+  elem = ld.getElementById('lbl_aun');
+  if (elem) elem.style.color = '<?php echo $color_aun; ?>';
+ }
+ else {
+  // Nav frame is not fully loaded yet, so wait a few secs.
+  setTimeout('timerint()', 5000);
+ }
 
 </script>
 </body>

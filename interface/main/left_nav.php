@@ -434,49 +434,16 @@ function genFindBlock() {
 
  // Expand and/or collapse frames in response to checkbox clicks.
  // fnum indicates which checkbox was clicked (1=left, 2=right).
- function toggleFrame(fnum) { 
-     
- var iframeTop = parent.document.getElementById('RTop');
- var iframeBot = parent.document.getElementById('RBot');
-// var iframeInnerCalandar = parent.document.getElementById('calandarIframe');
-     
-     
-     
-  var f = document.forms[0];  
+ function toggleFrame(fnum) {
+  var f = document.forms[0];
   var fset = top.document.getElementById('fsright');
-  if (!f.cb_top.checked && !f.cb_bot.checked){
+  if (!f.cb_top.checked && !f.cb_bot.checked) {
    if (fnum == 1) f.cb_bot.checked = true;
    else f.cb_top.checked = true;
   }
-     
-//     var height= f.cb_top.check true ? '0': '500px';
-//
-//    iframeTop.style.display = (f.cb_top.checked)? "block": "none";
-//    iframeBot.style.display = (f.cb_bot.checked)? "block": "none";
-     
-     if(f.cb_top.checked){
-         iframeTop.style.display ="block";                           
-         iframeBot.style.height="";
-     } 
-     else{
-        iframeTop.style.display = "none";
-         iframeBot.style.height="600px";
-     } 
-     if(f.cb_bot.checked){
-//         iframeTop.style.display = "none";
-         
-//         iframeBot.style.height="90vh";
-         iframeTop.style.height="0";
-         iframeBot.style.display="block";
-         
-         //console.log(iframeInnerCalandar);
-     }
-     else{
-        iframeBot.style.display="none";
-        iframeTop.style.height="90vh";
-//         iframeInnerCalandar.style.height="97vh";
-     }
-
+  var rows = f.cb_top.checked ? '*' :  '0';
+  rows += f.cb_bot.checked ? ',*' : ',0';
+  fset.rows = rows;
  }
 
  // Load the specified url into the specified frame (RTop or RBot).
@@ -672,7 +639,7 @@ function clearactive() {
 	  }
 	});
     
-	$(parent.document.getElementById('clear_active')).hide();
+	$(parent.Title.document.getElementById('clear_active')).hide();
 }
  // Reference to the search.php window.
  var my_window;
@@ -721,7 +688,7 @@ function clearactive() {
   setSomeContent(id, content, document);
  }
  function setTitleContent(id, content) {
-  setSomeContent(id, content, parent.document);
+  setSomeContent(id, content, parent.Title.document);
  }
 
  // This is called automatically when a new patient is set, to make sure
@@ -823,8 +790,8 @@ function clearactive() {
   encounter_locked = false;
   if (frname) reloadPatient(frname);
   syncRadios();
-  $(parent.document.getElementById('current_patient_block')).show();
-  var encounter_block = $(parent.document.getElementById('current_encounter_block'));
+  $(parent.Title.document.getElementById('current_patient_block')).show();
+  var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
   $(encounter_block).hide();
 
   // zero out the encounter frame, replace it with the encounter list frame
@@ -838,7 +805,7 @@ function clearactive() {
   }
 
   reloadIssues(pid);
-  $(parent.document.getElementById('clear_active')).show();//To display Clear Active Patient button on selecting a patient
+  $(parent.Title.document.getElementById('clear_active')).show();//To display Clear Active Patient button on selecting a patient
  }
  function setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray) {
  //This function lists all encounters of the patient.
@@ -853,8 +820,8 @@ function clearactive() {
     str+='<option value="'+EncounterIdArray[CountEncounter]+'~'+EncounterDateArray[CountEncounter]+'">'+EncounterDateArray[CountEncounter]+'-'+CalendarCategoryArray[CountEncounter]+'</option>';
    }
   str+='</Select>';
-  $(parent.document.getElementById('past_encounter_block')).show();
-  top.window.parent.document.getElementById('past_encounter').innerHTML=str;
+  $(parent.Title.document.getElementById('past_encounter_block')).show();
+  top.window.parent.Title.document.getElementById('past_encounter').innerHTML=str;
  }
 
 function loadCurrentPatientFromTitle() {
@@ -919,8 +886,8 @@ function isEncounterLocked( encounterId ) {
   encounter_locked=isEncounterLocked(active_encounter);
   reloadEncounter(frname);
   syncRadios();
-  var encounter_block = $(parent.document.getElementById('current_encounter_block'));
-  var encounter = $(parent.document.getElementById('current_encounter'));
+  var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
+  var encounter = $(parent.Title.document.getElementById('current_encounter'));
   var estr = '<a href=\'javascript:;\' onclick="parent.loadCurrentEncounterFromTitle()"><b>' + edate + ' (' + eid + ')</b></a>';
   encounter.html( estr );
   encounter_block.show();
@@ -942,9 +909,9 @@ function isEncounterLocked( encounterId ) {
   active_encounter = 0;
   encounter_locked = false;
   setDivContent('current_patient', '<b><?php xl('None','e'); ?></b>');
-  $(parent.document.getElementById('current_patient_block')).hide();
-  top.window.parent.document.getElementById('past_encounter').innerHTML='';
-  $(parent.document.getElementById('current_encounter_block')).hide();
+  $(parent.Title.document.getElementById('current_patient_block')).hide();
+  top.window.parent.Title.document.getElementById('past_encounter').innerHTML='';
+  $(parent.Title.document.getElementById('current_encounter_block')).hide();
   reloadPatient('');
   syncRadios();
  }
@@ -955,7 +922,7 @@ function isEncounterLocked( encounterId ) {
  // stale content will be reloaded.
  function clearEncounter() {
   if (active_encounter == 0) return;
-  top.window.parent.document.getElementById('current_encounter').innerHTML="<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b>";
+  top.window.parent.Title.document.getElementById('current_encounter').innerHTML="<b><?php echo htmlspecialchars( xl('None'), ENT_QUOTES) ?></b>";
   active_encounter = 0;
   encounter_locked = false;
   reloadEncounter('');
@@ -963,7 +930,7 @@ function isEncounterLocked( encounterId ) {
  }
 function removeOptionSelected(EncounterId)
 {//Removes an item from the Encounter drop down.
-	var elSel = top.window.parent.document.getElementById('EncounterHistory');
+	var elSel = top.window.parent.Title.document.getElementById('EncounterHistory');
 	var i;
 	for (i = elSel.length - 1; i>=2; i--) {
 	 EncounterHistoryValue=elSel.options[i].value;

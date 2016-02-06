@@ -34,7 +34,7 @@ function openNewForm(sel) {
 }
 function toggleFrame1(fnum) {
   top.frames['left_nav'].document.forms[0].cb_top.checked=false;
-  top.window.parent.toggleFrame(fnum);
+  top.window.parent.left_nav.toggleFrame(fnum);
  }
 </script>
 <style type="text/css">
@@ -176,7 +176,7 @@ if (!empty($reg)) {
   if(isset($hide)){
     $StringEcho.= "<li><a id='enc2' >" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
   }else{
-    $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
+    $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
   }
   if ( $encounterLocked === false ) {
       foreach ($reg as $entry) {

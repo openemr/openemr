@@ -29,25 +29,25 @@ function toencounter(rawdata) {
 	 }
 	else if(rawdata=='New Encounter')
 	 {
-	 	top.window.loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=')
+	 	top.window.parent.left_nav.loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=')
 		return true;
 	 }
 	else if(rawdata=='Past Encounter List')
 	 {
-	 	top.window.loadFrame2('pel1','RBot','patient_file/history/encounters.php')
+	 	top.window.parent.left_nav.loadFrame2('pel1','RBot','patient_file/history/encounters.php')
 		return true;
 	 }
     var parts = rawdata.split("~");
     var enc = parts[0];
     var datestr = parts[1];
-    var f = top.window.document.forms[0];
+    var f = top.window.parent.left_nav.document.forms[0];
 	frame = 'RBot';
     if (!f.cb_bot.checked) frame = 'RTop'; else if (!f.cb_top.checked) frame = 'RBot';
 
     top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-    parent.setEncounter(datestr, enc, frame);
-    parent.setRadio(frame, 'enc');
+    parent.left_nav.setEncounter(datestr, enc, frame);
+    parent.left_nav.setRadio(frame, 'enc');
     top.frames[frame].location.href  = '../patient_file/encounter/encounter_top.php?set_encounter=' + enc;
 <?php } else { ?>
     top.Title.location.href = '../patient_file/encounter/encounter_title.php?set_encounter='   + enc;
@@ -55,23 +55,16 @@ function toencounter(rawdata) {
 <?php } ?>
 }
 function showhideMenu() {
-    
 	var m = parent.document.getElementById("fsbody");
-    var n = parent.document.getElementById("mainSection");
-//    var nWidth = parseInt(n.style.width.replace(/[^a-zA-Z ]/g, ""));
-    
-	var targetWidth = '0';
-	var showMenuLink = document.getElementById("showMenuLink");    
-    
-	if (m.style.width == targetWidth+"px"){
-		m.style.width = '150';
-        n.style.paddingLeft  = '142px';
+	var targetWidth = '0,*';
+	var showMenuLink = document.getElementById("showMenuLink");
+
+	if (m.cols == targetWidth) {
+		m.cols = '<?php echo $GLOBALS['gbl_nav_area_width'] ?>,*'
 		showMenuLink.innerHTML = '<?php echo htmlspecialchars( xl('Hide Menu'), ENT_QUOTES); ?>';
 		showMenuLink.setAttribute('class', '');
-        
-	}else {
-		m.style.width = targetWidth;
-        n.style.paddingLeft = '0';
+	} else {
+		m.cols = targetWidth;
 		showMenuLink.innerHTML = '<?php echo htmlspecialchars( xl('Show Menu'), ENT_QUOTES); ?>';
 		showMenuLink.setAttribute('class', 'active');
 	}
@@ -91,11 +84,11 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
 <tr><td style="vertical-align:text-bottom;">
-		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick="return top.window.parent.loadFrame2('new0','RTop','new/new.php')">
+		<a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
 		<span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
     <td style="vertical-align:text-bottom;">
-            <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.clearactive();return false;">
+            <a href='' class="css_button_small" style="margin:0px;vertical-align:top;display:none;" id='clear_active' onClick="javascript:parent.left_nav.clearactive();return false;">
             <span><?php echo htmlspecialchars( xl('CLEAR ACTIVE PATIENT'), ENT_QUOTES); ?></span></a>
     </td>
 </tr>
@@ -126,7 +119,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <td align="right" class="top-secondary-nav">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
-		<td align="right" class="text" style="vertical-align:text-bottom;"><span class="css_button_link"><a href='main_title.php' onclick="javascript:parent.goHome();return false;" ><?php xl('Home','e'); ?></a>
+		<td align="right" class="text" style="vertical-align:text-bottom;"><span class="css_button_link"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		<span class="css_button_separator">&nbsp;|&nbsp;</span>
 		<a href="http://open-emr.org/wiki/index.php/OpenEMR_4.2.0_Users_Guide" target="_blank" id="help_link" >
 			<?php xl('Manual','e'); ?></a></span>&nbsp;</td>
