@@ -4,28 +4,28 @@
  * 
  * @author		Klemen Vodopivec
  * 
- * Ce script permet de protï¿½ger le PDF, c'est-ï¿½-dire empï¿½cher l'utilisateur de copier son contenu, de l'imprimer ou de le modifier.
+ * Ce script permet de protéger le PDF, c'est-à-dire empêcher l'utilisateur de copier son contenu, de l'imprimer ou de le modifier.
  * 
  * SetProtection([array permissions [, string user_pass [, string owner_pass]]])
  * 
- * permissions : l'ensemble des permissions. Vide par dï¿½faut (seule la lecture est autorisï¿½e).
- * user_pass : mot de passe utilisateur. Vide par dï¿½faut.
- * owner_pass : mot de passe propriï¿½taire. Par dï¿½faut, une valeur alï¿½atoire est choisie.
+ * permissions : l'ensemble des permissions. Vide par défaut (seule la lecture est autorisée).
+ * user_pass : mot de passe utilisateur. Vide par défaut.
+ * owner_pass : mot de passe propriétaire. Par défaut, une valeur aléatoire est choisie.
  * 
- * Le tableau des permissions est composï¿½ de valeurs prises parmi les suivantes :
+ * Le tableau des permissions est composé de valeurs prises parmi les suivantes :
  *		* copy : copie du texte et des images dans le presse-papier
  *		* print : impression du document
  *		* modify : modification (autre ques les annotations et les formulaires)
  *		* annot-forms : ajout d'annotations ou de formulaires 
  * 
- * Remarque : la protection contre la modification concerne les personnes possï¿½dant la version complï¿½te d'Acrobat.
+ * Remarque : la protection contre la modification concerne les personnes possédant la version complète d'Acrobat.
  * 
- * Si vous ne spï¿½cifiez pas de mot de passe, le document s'ouvrira normalement. Si vous indiquez un mot de passe utilisateur,
- * le lecteur de PDF le demandera avant d'afficher le document. Le mot de passe propriï¿½taire, s'il est diffï¿½rent de celui utilisateur,
- * permet d'obtenir l'accï¿½s complet.
+ * Si vous ne spécifiez pas de mot de passe, le document s'ouvrira normalement. Si vous indiquez un mot de passe utilisateur,
+ * le lecteur de PDF le demandera avant d'afficher le document. Le mot de passe propriétaire, s'il est différent de celui utilisateur,
+ * permet d'obtenir l'accès complet.
  * 
- * Note : protï¿½ger un document nï¿½cessite de le crypter, ce qui augmente le temps de traitement de maniï¿½re importante.
- * Cela peut dans certains cas entraï¿½ner un time-out au niveau de PHP, en particulier si le document contient des
+ * Note : protéger un document nécessite de le crypter, ce qui augmente le temps de traitement de manière importante.
+ * Cela peut dans certains cas entraîner un time-out au niveau de PHP, en particulier si le document contient des
  * images ou des polices.
  ************************************************************************/
 
