@@ -1013,7 +1013,7 @@ td { font-size:0.8em; }
   }
   var lasttext = '';
   var tmp = new Date(d.getUTCFullYear(), d.getUTCMonth() + 1, 0);
-  if (tmp.getUTCDate() - d.getUTCDate() < 7) {
+  if (tmp.getDate() - d.getUTCDate() < 7) { // Modified by epsdky 2016 (details in commit)
    // This is a last occurrence of the specified weekday in the month,
    // so permit that as an option.
    lasttext = '<?php echo xls("Last"); ?> ' + downame;
@@ -1024,6 +1024,7 @@ td { font-size:0.8em; }
   if (nthtext ) opts[opts.length] = new Option(nthtext , '5');
   if (lasttext) opts[opts.length] = new Option(lasttext, '6');
   if (si < opts.length) f.form_repeat_type.selectedIndex = si;
+  else f.form_repeat_type.selectedIndex = 5; // Added by epsdky 2016 (details in commit)
  }
 
  // This is for callback by the find-available popup.
