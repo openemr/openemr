@@ -462,6 +462,82 @@ function npopup(pid) {
  return false;
 }
 
+function computeTableColumnTotal(tableId, colNumber)
+{
+  // find the table with id attribute tableId
+  // return the total of the numerical elements in column colNumber
+  // skip the top row (headers) and bottom row (where the total will go)
+		
+  var result = 0;
+		
+  try
+  {
+    var tableElem = window.document.getElementById(tableId); 		   
+    var tableBody = tableElem.getElementsByTagName("tbody").item(0);
+    var i;
+    var howManyRows = tableBody.rows.length;
+    for (i=1; i<(howManyRows-1); i++) // skip first and last row (hence i=1, and howManyRows-1)
+    {
+       var thisTrElem = tableBody.rows[i];
+       var thisTdElem = thisTrElem.cells[colNumber];			
+       var thisTextNode = thisTdElem.childNodes.item(0);
+       if (debugScript)
+       {
+          window.alert("text is " + thisTextNode.data);
+       } // end if
+
+       // try to convert text to numeric
+       var thisNumber = parseFloat(thisTextNode.data);
+       // if you didn't get back the value NaN (i.e. not a number), add into result
+       if (!isNaN(thisNumber))
+         result += thisNumber;
+	 } // end for
+		 
+  } // end try
+  catch (ex)
+  {
+     //window.alert("Exception in function computeTableColumnTotal()\n" + ex);
+     result = 0;
+  }
+  finally
+  {
+     return result;
+  }
+	
+}
+<!--
+ 
+
+	function finishTable()
+	{
+		if (debugScript)
+		   window.alert("Beginning of function finishTable");
+		   
+			var tableElemName = "chargesTable";
+				
+		  var totalCharges = computeTableColumnTotal("chargesTable",4);
+		  var totalBalance = computeTableColumnTotal("chargesTable",7);
+
+			try 
+		  {
+			var totalChargesElem = window.document.getElementById("totalCharges");
+			totalChargesElem.innerHTML = totalCharges;
+
+			var totalBalanceElem = window.document.getElementById("totalBalance");
+			totalBalanceElem.innerHTML = totalBalance;
+
+		   }
+		   catch (ex)
+		   {
+			 //window.alert("Exception in function finishTable()\n" + ex);
+			 result = 0;
+		   }
+   
+		 return;
+	}
+   
+// -->
+
 </script>
 
 </head>
@@ -831,8 +907,8 @@ if ($_POST['form_search'] || $_POST['form_print']) {
   } // end not $INTEGRATED_AR
 ?>
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
-
+<table id="chargesTable" border='0' cellpadding='1' cellspacing='2' width='98%'>
+<tbody>
  <tr bgcolor="#dddddd">
   <td class="dehead">
    &nbsp;<?php xl('Patient','e'); ?>
@@ -1071,7 +1147,19 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
 if (!$INTEGRATED_AR) SLClose();
 ?>
-
+<tr bgcolor='<?php echo $bgcolor ?>'>
+<td>Totals</td>
+<td></td>
+<td></td>
+<td></td>
+<td id="totalCharges" align="right"></td>
+<td></td>
+<td></td>
+<td id="totalBalance" align="right"></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
 </table>
 
 <p>
