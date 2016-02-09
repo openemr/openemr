@@ -695,7 +695,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
     // in the ar_activity table marked with a PCP in the account_code column.
     $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
       "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
-      "p.fname, p.mname, p.lname, p.pubpid, p.genericname2, p.genericval2, " .
+      "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
       "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
@@ -911,7 +911,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
       // Determine if customer is in collections.
       //
-      $billnote = ($row['genericname2'] == 'Billing') ? $row['genericval2'] : '';
+      $billnote = $row['billing_note'];
       $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
@@ -1018,12 +1018,12 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
       // Get billing note to determine if customer is in collections.
       //
-      $pdrow = sqlQuery("SELECT pd.genericname2, pd.genericval2 FROM " .
+      $pdrow = sqlQuery("SELECT pd.billing_note FROM " .
         "integration_mapping AS im, patient_data AS pd WHERE " .
         "im.foreign_id = " . $row['custid'] . " AND " .
         "im.foreign_table = 'customer' AND " .
         "pd.id = im.local_id");
-      $row['billnote'] = ($pdrow['genericname2'] == 'Billing') ? $pdrow['genericval2'] : '';
+      $row['billnote'] = $pdrow['billing_note'] ;
       $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
