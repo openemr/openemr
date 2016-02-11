@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -40,7 +40,8 @@ class Atom extends AbstractAtom implements Renderer\RendererInterface
         $this->dom = new DOMDocument('1.0', $this->container->getEncoding());
         $this->dom->formatOutput = true;
         $root = $this->dom->createElementNS(
-            Writer\Writer::NAMESPACE_ATOM_10, 'feed'
+            Writer\Writer::NAMESPACE_ATOM_10,
+            'feed'
         );
         $this->setRootElement($root);
         $this->dom->appendChild($root);
@@ -76,7 +77,8 @@ class Atom extends AbstractAtom implements Renderer\RendererInterface
             } else {
                 if (!$this->dom->documentElement->hasAttribute('xmlns:at')) {
                     $this->dom->documentElement->setAttribute(
-                        'xmlns:at', 'http://purl.org/atompub/tombstones/1.0'
+                        'xmlns:at',
+                        'http://purl.org/atompub/tombstones/1.0'
                     );
                 }
                 $renderer = new Renderer\Entry\AtomDeleted($entry);
@@ -88,7 +90,8 @@ class Atom extends AbstractAtom implements Renderer\RendererInterface
             $renderer->setRootElement($this->dom->documentElement);
             $renderer->render();
             $element = $renderer->getElement();
-            $imported = $this->dom->importNode($element, true);
+            $deep = version_compare(PHP_VERSION, '7', 'ge') ? 1 : true;
+            $imported = $this->dom->importNode($element, $deep);
             $root->appendChild($imported);
         }
         return $this;

@@ -3,13 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\XmlRpc;
 
 use SimpleXMLElement;
+use ZendXml\Security as XmlSecurity;
 
 /**
  * XMLRPC Faults
@@ -82,6 +83,8 @@ class Fault
     /**
      * Constructor
      *
+     * @param int    $code
+     * @param string $message
      */
     public function __construct($code = 404, $message = '')
     {
@@ -91,7 +94,7 @@ class Fault
         if (empty($message) && isset($this->internal[$code])) {
             $message = $this->internal[$code];
         } elseif (empty($message)) {
-            $message = 'Unknown error';
+            $message = $this->internal[404];
         }
         $this->setMessage($message);
     }
@@ -180,10 +183,10 @@ class Fault
 
         $xmlErrorsFlag = libxml_use_internal_errors(true);
         try {
-            $xml = new SimpleXMLElement($fault);
-        } catch (\Exception $e) {
-            // Not valid XML
-            throw new Exception\InvalidArgumentException('Failed to parse XML fault: ' .  $e->getMessage(), 500, $e);
+            $xml = XmlSecurity::scan($fault);
+        } catch (\ZendXml\Exception\RuntimeException $e) {
+            // Unsecure XML
+            throw new Exception\RuntimeException('Failed to parse XML fault: ' .  $e->getMessage(), 500, $e);
         }
         if (!$xml instanceof SimpleXMLElement) {
             $errors = libxml_get_errors();
@@ -232,7 +235,7 @@ class Fault
             if (isset($this->internal[$code])) {
                 $message = $this->internal[$code];
             } else {
-                $message = 'Unknown Error';
+                $message = $this->internal[404];
             }
         }
 

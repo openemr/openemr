@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -53,10 +53,10 @@ abstract class AbstractAdapter implements AdapterInterface
             $found = true;
         } elseif ($length == 'even') {
             $count = $fixum % 2;
-            $found = ($count == 0) ? true : false;
+            $found = (0 == $count);
         } elseif ($length == 'odd') {
             $count = $fixum % 2;
-            $found = ($count == 1) ? true : false;
+            $found = (1 == $count);
         }
 
         return $found;

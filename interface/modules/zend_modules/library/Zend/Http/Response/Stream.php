@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -156,8 +156,11 @@ class Stream extends Response
 
         $headerComplete = false;
         $headersString  = '';
+        $responseArray  = array();
 
-        $responseArray = explode("\n", $responseString);
+        if ($responseString) {
+            $responseArray = explode("\n", $responseString);
+        }
 
         while (count($responseArray)) {
             $nextLine        = array_shift($responseArray);
@@ -171,7 +174,6 @@ class Stream extends Response
 
         if (!$headerComplete) {
             while (false !== ($nextLine = fgets($stream))) {
-
                 $headersString .= trim($nextLine)."\r\n";
                 if ($nextLine == "\r\n" || $nextLine == "\n") {
                     $headerComplete = true;
@@ -228,7 +230,7 @@ class Stream extends Response
      */
     public function getBody()
     {
-        if ($this->stream != null) {
+        if ($this->stream !== null) {
             $this->readStream();
         }
         return parent::getBody();

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -61,9 +61,38 @@ class MethodGenerator extends AbstractMemberGenerator
             $method->setParameter(ParameterGenerator::fromReflection($reflectionParameter));
         }
 
-        $method->setBody($reflectionMethod->getBody());
+        $method->setBody(static::clearBodyIndention($reflectionMethod->getBody()));
 
         return $method;
+    }
+
+    /**
+     * Identify the space indention from the first line and remove this indention
+     * from all lines
+     *
+     * @param string $body
+     *
+     * @return string
+     */
+    protected static function clearBodyIndention($body)
+    {
+        if (empty($body)) {
+            return $body;
+        }
+
+        $lines = explode(PHP_EOL, $body);
+
+        $indention = str_replace(trim($lines[1]), '', $lines[1]);
+
+        foreach ($lines as $key => $line) {
+            if (substr($line, 0, strlen($indention)) == $indention) {
+                $lines[$key] = substr($line, strlen($indention));
+            }
+        }
+
+        $body = implode(PHP_EOL, $lines);
+
+        return $body;
     }
 
     /**
@@ -129,13 +158,17 @@ class MethodGenerator extends AbstractMemberGenerator
     /**
      * @param  string $name
      * @param  array $parameters
-     * @param  int|array $flags
+     * @param  int $flags
      * @param  string $body
      * @param  DocBlockGenerator|string $docBlock
      */
-    public function __construct($name = null, array $parameters = array(), $flags = self::FLAG_PUBLIC, $body = null,
-                                $docBlock = null)
-    {
+    public function __construct(
+        $name = null,
+        array $parameters = array(),
+        $flags = self::FLAG_PUBLIC,
+        $body = null,
+        $docBlock = null
+    ) {
         if ($name) {
             $this->setName($name);
         }
@@ -167,7 +200,7 @@ class MethodGenerator extends AbstractMemberGenerator
     }
 
     /**
-     * @param  ParameterGenerator|string $parameter
+     * @param  ParameterGenerator|array|string $parameter
      * @throws Exception\InvalidArgumentException
      * @return MethodGenerator
      */
@@ -175,7 +208,13 @@ class MethodGenerator extends AbstractMemberGenerator
     {
         if (is_string($parameter)) {
             $parameter = new ParameterGenerator($parameter);
-        } elseif (!$parameter instanceof ParameterGenerator) {
+        }
+
+        if (is_array($parameter)) {
+            $parameter = ParameterGenerator::fromArray($parameter);
+        }
+
+        if (!$parameter instanceof ParameterGenerator) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s is expecting either a string, array or an instance of %s\ParameterGenerator',
                 __METHOD__,
@@ -183,9 +222,7 @@ class MethodGenerator extends AbstractMemberGenerator
             ));
         }
 
-        $parameterName = $parameter->getName();
-
-        $this->parameters[$parameterName] = $parameter;
+        $this->parameters[$parameter->getName()] = $parameter;
 
         return $this;
     }
@@ -260,7 +297,7 @@ class MethodGenerator extends AbstractMemberGenerator
         $output .= self::LINE_FEED . $indent . '{' . self::LINE_FEED;
 
         if ($this->body) {
-            $output .= preg_replace('#^(.+?)$#m', $indent . $indent . '$1', trim($this->body))
+            $output .= preg_replace('#^((?![a-zA-Z0-9_-]+;).+?)$#m', $indent . $indent . '$1', trim($this->body))
                 . self::LINE_FEED;
         }
 

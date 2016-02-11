@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -11,7 +11,6 @@ namespace Zend\Text\Figlet;
 
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
-use Zend\Stdlib\ErrorHandler;
 use Zend\Stdlib\StringUtils;
 
 /**
@@ -652,7 +651,6 @@ class Figlet
             return false;
         }
 
-        $tempLine = '';
         for ($row = 0; $row < $this->charHeight; $row++) {
             if ($this->rightToLeft === 1) {
                 $tempLine = $this->currentChar[$row];
@@ -719,7 +717,6 @@ class Figlet
         }
 
         $maxSmush = $this->currentCharWidth;
-        $amount   = $maxSmush;
 
         for ($row = 0; $row < $this->charHeight; $row++) {
             if ($this->rightToLeft === 1) {
@@ -834,12 +831,12 @@ class Figlet
         if ($this->previousCharWidth < 2 || $this->currentCharWidth < 2) {
             // Disallows overlapping if the previous character or the current
             // character has a width of one or zero.
-            return null;
+            return;
         }
 
         if (($this->smushMode & self::SM_SMUSH) === 0) {
             // Kerning
-            return null;
+            return;
         }
 
         if (($this->smushMode & 63) === 0) {
@@ -867,7 +864,7 @@ class Figlet
         }
 
         if ($leftChar === $this->hardBlank && $rightChar === $this->hardBlank) {
-            return null;
+            return;
         }
 
         if (($this->smushMode & self::SM_EQUAL) > 0) {
@@ -934,7 +931,7 @@ class Figlet
             }
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -957,8 +954,7 @@ class Figlet
         // Check if gzip support is required
         if (substr($fontFile, -3) === '.gz') {
             if (!function_exists('gzcompress')) {
-                throw new Exception\RuntimeException('GZIP library is required for '
-                                                     . 'gzip compressed font files');
+                throw new Exception\RuntimeException('GZIP library is required for gzip compressed font files');
             }
 
             $fontFile   = 'compress.zlib://' . $fontFile;
@@ -982,15 +978,18 @@ class Figlet
         $magic = $this->_readMagic($fp);
 
         // Get the header
-        $numsRead = sscanf(fgets($fp, 1000),
-                           '%*c%c %d %*d %d %d %d %d %d',
-                           $this->hardBlank,
-                           $this->charHeight,
-                           $this->maxLength,
-                           $smush,
-                           $cmtLines,
-                           $rightToLeft,
-                           $this->fontSmush);
+        $line = fgets($fp, 1000) ?: '';
+        $numsRead = sscanf(
+            $line,
+            '%*c%c %d %*d %d %d %d %d %d',
+            $this->hardBlank,
+            $this->charHeight,
+            $this->maxLength,
+            $smush,
+            $cmtLines,
+            $rightToLeft,
+            $this->fontSmush
+        );
 
         if ($magic !== self::FONTFILE_MAGIC_NUMBER || $numsRead < 5) {
             throw new Exception\UnexpectedValueException($fontFile . ': Not a FIGlet 2 font file');
@@ -1059,7 +1058,13 @@ class Figlet
         // At the end fetch all extended characters
         while (!feof($fp)) {
             // Get the Unicode
-            list($uniCode) = explode(' ', fgets($fp, 2048));
+            $uniCode = fgets($fp, 2048);
+
+            if (false === $uniCode) {
+                continue;
+            }
+
+            list($uniCode) = explode(' ', $uniCode);
 
             if (empty($uniCode)) {
                 continue;

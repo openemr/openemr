@@ -3,17 +3,15 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\Http\Header;
 
 use Zend\Uri\Exception as UriException;
-use Zend\Uri\Uri;
 use Zend\Uri\UriFactory;
 use Zend\Uri\UriInterface;
-
 
 /**
  * Abstract Location Header
@@ -56,6 +54,7 @@ abstract class AbstractLocation implements HeaderInterface
             );
         }
 
+        HeaderValue::assertValid($uri);
         $locationHeader->setUri(trim($uri));
 
         return $locationHeader;
@@ -75,9 +74,9 @@ abstract class AbstractLocation implements HeaderInterface
                 $uri = UriFactory::factory($uri);
             } catch (UriException\InvalidUriPartException $e) {
                 throw new Exception\InvalidArgumentException(
-                        sprintf('Invalid URI passed as string (%s)', (string) $uri),
-                        $e->getCode(),
-                        $e
+                    sprintf('Invalid URI passed as string (%s)', (string) $uri),
+                    $e->getCode(),
+                    $e
                 );
             }
         } elseif (!($uri instanceof UriInterface)) {

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -19,7 +19,6 @@ use Zend\Feed\Reader\Exception;
 */
 class Rss extends AbstractFeed
 {
-
     /**
      * Constructor
      *
@@ -70,7 +69,7 @@ class Rss extends AbstractFeed
             return $authors[$index];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -107,8 +106,6 @@ class Rss extends AbstractFeed
         if ($list->length) {
             foreach ($list as $author) {
                 $string = trim($author->nodeValue);
-                $email = null;
-                $name = null;
                 $data = array();
                 // Pretty rough parsing - but it's a catchall
                 if (preg_match("/^.*@[^ ]*/", $string, $matches)) {
@@ -195,7 +192,6 @@ class Rss extends AbstractFeed
             return $this->data['datemodified'];
         }
 
-        $dateModified = null;
         $date = null;
 
         if ($this->getType() !== Reader\Reader::TYPE_RSS_10 &&
@@ -216,7 +212,7 @@ class Rss extends AbstractFeed
                             $date = DateTime::createFromFormat($standard, $dateModified);
                             break;
                         } catch (\Exception $e) {
-                            if ($standard == null) {
+                            if ($standard === null) {
                                 throw new Exception\RuntimeException(
                                     'Could not load date due to unrecognised'
                                     .' format (should follow RFC 822 or 2822):'
@@ -259,7 +255,6 @@ class Rss extends AbstractFeed
             return $this->data['lastBuildDate'];
         }
 
-        $lastBuildDate = null;
         $date = null;
 
         if ($this->getType() !== Reader\Reader::TYPE_RSS_10 &&
@@ -277,7 +272,7 @@ class Rss extends AbstractFeed
                             $date = DateTime::createFromFormat($standard, $lastBuildDateParsed);
                             break;
                         } catch (\Exception $e) {
-                            if ($standard == null) {
+                            if ($standard === null) {
                                 throw new Exception\RuntimeException(
                                     'Could not load date due to unrecognised'
                                     .' format (should follow RFC 822 or 2822):'
@@ -310,8 +305,6 @@ class Rss extends AbstractFeed
         if (array_key_exists('description', $this->data)) {
             return $this->data['description'];
         }
-
-        $description = null;
 
         if ($this->getType() !== Reader\Reader::TYPE_RSS_10 &&
             $this->getType() !== Reader\Reader::TYPE_RSS_090) {
@@ -482,8 +475,6 @@ class Rss extends AbstractFeed
             return $this->data['link'];
         }
 
-        $link = null;
-
         if ($this->getType() !== Reader\Reader::TYPE_RSS_10 &&
             $this->getType() !== Reader\Reader::TYPE_RSS_090) {
             $link = $this->xpath->evaluate('string(/rss/channel/link)');
@@ -514,8 +505,6 @@ class Rss extends AbstractFeed
         if (array_key_exists('feedlink', $this->data)) {
             return $this->data['feedlink'];
         }
-
-        $link = null;
 
         $link = $this->getExtension('Atom')->getFeedLink();
 
@@ -578,8 +567,6 @@ class Rss extends AbstractFeed
         if (array_key_exists('title', $this->data)) {
             return $this->data['title'];
         }
-
-        $title = null;
 
         if ($this->getType() !== Reader\Reader::TYPE_RSS_10 &&
             $this->getType() !== Reader\Reader::TYPE_RSS_090) {
@@ -675,8 +662,6 @@ class Rss extends AbstractFeed
      */
     protected function indexEntries()
     {
-        $entries = array();
-
         if ($this->getType() !== Reader\Reader::TYPE_RSS_10 && $this->getType() !== Reader\Reader::TYPE_RSS_090) {
             $entries = $this->xpath->evaluate('//item');
         } else {

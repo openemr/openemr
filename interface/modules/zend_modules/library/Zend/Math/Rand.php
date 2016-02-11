@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -16,7 +16,6 @@ use RandomLib;
  */
 abstract class Rand
 {
-
     /**
      * Alternative random byte generator using RandomLib
      *
@@ -34,23 +33,19 @@ abstract class Rand
      */
     public static function getBytes($length, $strong = false)
     {
+        $length = (int) $length;
+
         if ($length <= 0) {
             return false;
         }
-        $bytes = '';
-        if (function_exists('openssl_random_pseudo_bytes')
-            && (version_compare(PHP_VERSION, '5.3.4') >= 0
-            || strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
-        ) {
+
+        if (function_exists('openssl_random_pseudo_bytes')) {
             $bytes = openssl_random_pseudo_bytes($length, $usable);
             if (true === $usable) {
                 return $bytes;
             }
         }
-        if (function_exists('mcrypt_create_iv')
-            && (version_compare(PHP_VERSION, '5.3.7') >= 0
-            || strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
-        ) {
+        if (function_exists('mcrypt_create_iv')) {
             $bytes = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
             if ($bytes !== false && strlen($bytes) === $length) {
                 return $bytes;
@@ -59,7 +54,7 @@ abstract class Rand
         $checkAlternatives = (file_exists('/dev/urandom') && is_readable('/dev/urandom'))
             || class_exists('\\COM', false);
         if (true === $strong && false === $checkAlternatives) {
-            throw new Exception\RuntimeException (
+            throw new Exception\RuntimeException(
                 'This PHP environment doesn\'t support secure random number generation. ' .
                 'Please consider installing the OpenSSL and/or Mcrypt extensions'
             );
@@ -75,7 +70,7 @@ abstract class Rand
      */
     public static function getAlternativeGenerator()
     {
-        if (!is_null(static::$generator)) {
+        if (null !== static::$generator) {
             return static::$generator;
         }
         if (!class_exists('RandomLib\\Factory')) {
@@ -130,13 +125,22 @@ abstract class Rand
                 'The supplied range is too great to generate'
             );
         }
-        $log    = log($range, 2);
-        $bytes  = (int) ($log / 8) + 1;
-        $bits   = (int) $log + 1;
-        $filter = (int) (1 << $bits) - 1;
+
+        // calculate number of bits required to store range on this machine
+        $r = $range;
+        $bits = 0;
+        while ($r) {
+            $bits++;
+            $r >>= 1;
+        }
+
+        $bits   = (int) max($bits, 1);
+        $bytes  = (int) max(ceil($bits / 8), 1);
+        $filter = (int) ((1 << $bits) - 1);
+
         do {
-            $rnd = hexdec(bin2hex(self::getBytes($bytes, $strong)));
-            $rnd = $rnd & $filter;
+            $rnd  = hexdec(bin2hex(static::getBytes($bytes, $strong)));
+            $rnd &= $filter;
         } while ($rnd > $range);
 
         return ($min + $rnd);

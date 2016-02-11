@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -12,8 +12,6 @@ namespace Zend\Soap;
 use Zend\Server\Reflection;
 use Zend\Soap\AutoDiscover\DiscoveryStrategy\DiscoveryStrategyInterface as DiscoveryStrategy;
 use Zend\Soap\AutoDiscover\DiscoveryStrategy\ReflectionDiscovery;
-use Zend\Soap\Exception;
-use Zend\Soap\Wsdl;
 use Zend\Soap\Wsdl\ComplexTypeStrategy\ComplexTypeStrategyInterface as ComplexTypeStrategy;
 use Zend\Uri;
 
@@ -152,7 +150,7 @@ class AutoDiscover
     /**
      * Set the class map of php to wsdl mappings.
      *
-     * @param  array $classmap
+     * @param  array $classMap
      * @return self
      * @throws Exception\InvalidArgumentException
      */
@@ -208,7 +206,6 @@ class AutoDiscover
         }
         return $this->serviceName;
     }
-
 
     /**
      * Set the location at which the WSDL file will be available.
@@ -356,7 +353,7 @@ class AutoDiscover
     public function addFunction($function)
     {
         if (is_array($function)) {
-            foreach($function as $row) {
+            foreach ($function as $row) {
                 $this->addFunction($row);
             }
         } elseif (is_string($function)) {
@@ -367,7 +364,6 @@ class AutoDiscover
                     'Argument to Zend\Soap\AutoDiscover::addFunction should be a valid function name.'
                 );
             }
-
         } else {
             throw new Exception\InvalidArgumentException(
                 'Argument to Zend\Soap\AutoDiscover::addFunction should be string or array of strings.'
@@ -485,7 +481,6 @@ class AutoDiscover
 
             // Add the wrapper element part, which must be named 'parameters'
             $args['parameters'] = array('element' => $wsdl->addElement($element));
-
         } else {
             // RPC style: add each parameter as a typed part
             foreach ($prototype->getParameters() as $param) {
@@ -518,7 +513,6 @@ class AutoDiscover
 
                 // Add the wrapper element part, which must be named 'parameters'
                 $args['parameters'] = array('element' => $wsdl->addElement($element));
-
             } elseif ($prototype->getReturnType() != "void") {
                 // RPC style: add the return value as a typed part
                 $args['return'] = array(

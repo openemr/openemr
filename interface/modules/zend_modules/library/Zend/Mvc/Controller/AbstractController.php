@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -29,8 +29,8 @@ use Zend\Stdlib\ResponseInterface as Response;
  * Convenience methods for pre-built plugins (@see __call):
  *
  * @method \Zend\View\Model\ModelInterface acceptableViewModelSelector(array $matchAgainst = null, bool $returnDefault = true, \Zend\Http\Header\Accept\FieldValuePart\AbstractFieldValuePart $resultReference = null)
- * @method bool|array|\Zend\Http\Response fileprg(\Zend\Form\Form $form, $redirect = null, $redirectToUrl = false)
- * @method bool|array|\Zend\Http\Response filePostRedirectGet(\Zend\Form\Form $form, $redirect = null, $redirectToUrl = false)
+ * @method bool|array|\Zend\Http\Response fileprg(\Zend\Form\FormInterface $form, $redirect = null, $redirectToUrl = false)
+ * @method bool|array|\Zend\Http\Response filePostRedirectGet(\Zend\Form\FormInterface $form, $redirect = null, $redirectToUrl = false)
  * @method \Zend\Mvc\Controller\Plugin\FlashMessenger flashMessenger()
  * @method \Zend\Mvc\Controller\Plugin\Forward forward()
  * @method mixed|null identity()
@@ -40,6 +40,8 @@ use Zend\Stdlib\ResponseInterface as Response;
  * @method \Zend\Http\Response|array postRedirectGet(string $redirect = null, bool $redirectToUrl = false)
  * @method \Zend\Mvc\Controller\Plugin\Redirect redirect()
  * @method \Zend\Mvc\Controller\Plugin\Url url()
+ * @method \Zend\View\Model\ConsoleModel createConsoleNotFoundModel()
+ * @method \Zend\View\Model\ViewModel createHttpNotFoundModel()
  */
 abstract class AbstractController implements
     Dispatchable,
@@ -78,7 +80,7 @@ abstract class AbstractController implements
     protected $serviceLocator;
 
     /**
-     * @var string
+     * @var null|string|string[]
      */
     protected $eventIdentifier;
 
@@ -89,7 +91,6 @@ abstract class AbstractController implements
      * @return mixed
      */
     abstract public function onDispatch(MvcEvent $e);
-
 
     /**
      * Dispatch a request
@@ -159,13 +160,19 @@ abstract class AbstractController implements
      */
     public function setEventManager(EventManagerInterface $events)
     {
-        $events->setIdentifiers(array(
-            'Zend\Stdlib\DispatchableInterface',
-            __CLASS__,
-            get_class($this),
-            $this->eventIdentifier,
-            substr(get_class($this), 0, strpos(get_class($this), '\\'))
+        $className = get_class($this);
+
+        $nsPos = strpos($className, '\\') ?: 0;
+        $events->setIdentifiers(array_merge(
+            array(
+                __CLASS__,
+                $className,
+                substr($className, 0, $nsPos)
+            ),
+            array_values(class_implements($className)),
+            (array) $this->eventIdentifier
         ));
+
         $this->events = $events;
         $this->attachDefaultListeners();
 

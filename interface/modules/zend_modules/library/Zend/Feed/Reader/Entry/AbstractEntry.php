@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -122,8 +122,9 @@ abstract class AbstractEntry
      */
     public function saveXml()
     {
-        $dom = new DOMDocument('1.0', $this->getEncoding());
-        $entry = $dom->importNode($this->getElement(), true);
+        $dom   = new DOMDocument('1.0', $this->getEncoding());
+        $deep  = version_compare(PHP_VERSION, '7', 'ge') ? 1 : true;
+        $entry = $dom->importNode($this->getElement(), $deep);
         $dom->appendChild($entry);
         return $dom->saveXml();
     }
@@ -184,7 +185,7 @@ abstract class AbstractEntry
         if (array_key_exists($name . '\\Entry', $this->extensions)) {
             return $this->extensions[$name . '\\Entry'];
         }
-        return null;
+        return;
     }
 
     /**
@@ -202,8 +203,10 @@ abstract class AbstractEntry
                 return call_user_func_array(array($extension, $method), $args);
             }
         }
-        throw new Exception\RuntimeException('Method: ' . $method
-            . ' does not exist and could not be located on a registered Extension');
+        throw new Exception\RuntimeException(sprintf(
+            'Method: %s does not exist and could not be located on a registered Extension',
+            $method
+        ));
     }
 
     /**

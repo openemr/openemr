@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -445,10 +445,8 @@ class Dn implements ArrayAccess
             case self::ATTR_CASEFOLD_UPPER:
             case self::ATTR_CASEFOLD_LOWER:
                 return $caseFold;
-                break;
             default:
                 return $default;
-                break;
         }
     }
 
@@ -474,7 +472,7 @@ class Dn implements ArrayAccess
         foreach ($values as $key => $val) {
             // Escaping of filter meta characters
             $val = str_replace(
-                array('\\', ',', '+', '"', '<', '>', ';', '#', '=',),
+                array('\\', ',', '+', '"', '<', '>', ';', '#', '='),
                 array('\\\\', '\,', '\+', '\"', '\<', '\>', '\;', '\#', '\='), $val
             );
             $val = Converter\Converter::ascToHex32($val);
@@ -518,7 +516,7 @@ class Dn implements ArrayAccess
             // strip slashes from special chars
             $val          = str_replace(
                 array('\\\\', '\,', '\+', '\"', '\<', '\>', '\;', '\#', '\='),
-                array('\\', ',', '+', '"', '<', '>', ';', '#', '=',), $val
+                array('\\', ',', '+', '"', '<', '>', ';', '#', '=', ), $val
             );
             $values[$key] = Converter\Converter::hex32ToAsc($val);
         }
@@ -555,9 +553,9 @@ class Dn implements ArrayAccess
         }
         $ret = array();
         for ($i = 0, $count = count($k); $i < $count; $i++) {
-            if (is_array($k[$i]) && is_array($v[$i]) && (count($k[$i]) === count($v[$i]))) {
+            if (is_array($k[$i]) && is_array($v[$i]) && (($keyCount = count($k[$i])) === count($v[$i]))) {
                 $multi = array();
-                for ($j = 0; $j < count($k[$i]); $j++) {
+                for ($j = 0; $j < $keyCount; $j++) {
                     $key         = $k[$i][$j];
                     $val         = $v[$i][$j];
                     $multi[$key] = $val;
@@ -594,8 +592,6 @@ class Dn implements ArrayAccess
          * to state 1. If a backslash (\) is encountered, state 3 is used to collect the
          * following character without engaging the logic of other states.
          */
-        $key   = null;
-        $value = null;
         $slen  = strlen($dn);
         $state = 1;
         $ko    = $vo = 0;

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -14,7 +14,6 @@ use FirePHP as FirePHPService;
 use Zend\Log\Exception;
 use Zend\Log\Formatter\FirePhp as FirePhpFormatter;
 use Zend\Log\Logger;
-use FirePhp\FirePhpInterface;
 
 class FirePhp extends AbstractWriter
 {
@@ -42,10 +41,9 @@ class FirePhp extends AbstractWriter
             $instance = isset($instance['instance']) ? $instance['instance'] : null;
         }
 
-        if ($instance instanceof FirePhpInterface) {
+        if ($instance !== null && !($instance instanceof FirePhp\FirePhpInterface)) {
             throw new Exception\InvalidArgumentException('You must pass a valid FirePhp\FirePhpInterface');
         }
-
 
         $this->firephp   = $instance;
         $this->formatter = new FirePhpFormatter();

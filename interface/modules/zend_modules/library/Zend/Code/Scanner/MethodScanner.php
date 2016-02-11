@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -252,6 +252,55 @@ class MethodScanner implements ScannerInterface
     }
 
     /**
+     * Override the given name for a method, this is necessary to
+     * support traits.
+     *
+     * @param $name
+     * @return self
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * Visibility must be of T_PUBLIC, T_PRIVATE or T_PROTECTED
+     * Needed to support traits
+     *
+     * @param $visibility   T_PUBLIC | T_PRIVATE | T_PROTECTED
+     * @return self
+     * @throws \Zend\Code\Exception
+     */
+    public function setVisibility($visibility)
+    {
+        switch (strtolower($visibility)) {
+            case T_PUBLIC:
+                $this->isPublic = true;
+                $this->isPrivate = false;
+                $this->isProtected = false;
+                break;
+
+            case T_PRIVATE:
+                $this->isPublic = false;
+                $this->isPrivate = true;
+                $this->isProtected = false;
+                break;
+
+            case T_PROTECTED:
+                $this->isPublic = false;
+                $this->isPrivate = false;
+                $this->isProtected = true;
+                break;
+
+            default:
+                throw new Exception("Invalid visibility argument passed to setVisibility.");
+        }
+
+        return $this;
+    }
+
+    /**
      * @return int
      */
     public function getNumberOfParameters()
@@ -372,7 +421,14 @@ class MethodScanner implements ScannerInterface
         /*
          * MACRO creation
          */
-        $MACRO_TOKEN_ADVANCE = function () use (&$tokens, &$tokenIndex, &$token, &$tokenType, &$tokenContent, &$tokenLine) {
+        $MACRO_TOKEN_ADVANCE = function () use (
+            &$tokens,
+            &$tokenIndex,
+            &$token,
+            &$tokenType,
+            &$tokenContent,
+            &$tokenLine
+        ) {
             static $lastTokenArray = null;
             $tokenIndex = ($tokenIndex === null) ? 0 : $tokenIndex + 1;
             if (!isset($tokens[$tokenIndex])) {
@@ -387,8 +443,10 @@ class MethodScanner implements ScannerInterface
             if (is_string($token)) {
                 $tokenType    = null;
                 $tokenContent = $token;
-                $tokenLine    = $tokenLine + substr_count($lastTokenArray[1],
-                                                          "\n"); // adjust token line by last known newline count
+                $tokenLine    = $tokenLine + substr_count(
+                    $lastTokenArray[1],
+                    "\n"
+                ); // adjust token line by last known newline count
             } else {
                 list($tokenType, $tokenContent, $tokenLine) = $token;
             }
@@ -432,32 +490,37 @@ class MethodScanner implements ScannerInterface
                     $this->docComment = $tokenContent;
                 }
                 goto SCANNER_CONTINUE_SIGNATURE;
+                //goto (no break needed);
 
             case T_FINAL:
                 $this->isFinal = true;
                 goto SCANNER_CONTINUE_SIGNATURE;
+                //goto (no break needed);
 
             case T_ABSTRACT:
                 $this->isAbstract = true;
                 goto SCANNER_CONTINUE_SIGNATURE;
+                //goto (no break needed);
 
             case T_PUBLIC:
                 // use defaults
                 goto SCANNER_CONTINUE_SIGNATURE;
+                //goto (no break needed);
 
             case T_PROTECTED:
-                $this->isProtected = true;
-                $this->isPublic    = false;
+                $this->setVisibility(T_PROTECTED);
                 goto SCANNER_CONTINUE_SIGNATURE;
+                //goto (no break needed);
 
             case T_PRIVATE:
-                $this->isPrivate = true;
-                $this->isPublic  = false;
+                $this->setVisibility(T_PRIVATE);
                 goto SCANNER_CONTINUE_SIGNATURE;
+                //goto (no break needed);
 
             case T_STATIC:
                 $this->isStatic = true;
                 goto SCANNER_CONTINUE_SIGNATURE;
+                //goto (no break needed);
 
             case T_VARIABLE:
             case T_STRING:
@@ -476,6 +539,7 @@ class MethodScanner implements ScannerInterface
                 }
 
                 goto SCANNER_CONTINUE_SIGNATURE;
+                //goto (no break needed);
 
             case null:
 
@@ -485,11 +549,16 @@ class MethodScanner implements ScannerInterface
                             $MACRO_INFO_START();
                         }
                         goto SCANNER_CONTINUE_SIGNATURE;
+                        //goto (no break needed);
                     case '(':
                         $parentCount++;
                         goto SCANNER_CONTINUE_SIGNATURE;
+                        //goto (no break needed);
                     case ')':
                         $parentCount--;
+                        if ($parentCount > 0) {
+                            goto SCANNER_CONTINUE_SIGNATURE;
+                        }
                         if ($parentCount === 0) {
                             if ($infos) {
                                 $MACRO_INFO_ADVANCE();
@@ -497,6 +566,7 @@ class MethodScanner implements ScannerInterface
                             $context = 'body';
                         }
                         goto SCANNER_CONTINUE_BODY;
+                        //goto (no break needed);
                     case ',':
                         if ($parentCount === 1) {
                             $MACRO_INFO_ADVANCE();

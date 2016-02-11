@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -105,7 +105,7 @@ abstract class AbstractAdapter extends BaseAdapter
      * setTableName() - set the table name to be used in the select query
      *
      * @param  string $tableName
-     * @return DbTable Provides a fluent interface
+     * @return self Provides a fluent interface
      */
     public function setTableName($tableName)
     {
@@ -117,7 +117,7 @@ abstract class AbstractAdapter extends BaseAdapter
      * setIdentityColumn() - set the column name to be used as the identity column
      *
      * @param  string $identityColumn
-     * @return DbTable Provides a fluent interface
+     * @return self Provides a fluent interface
      */
     public function setIdentityColumn($identityColumn)
     {
@@ -129,7 +129,7 @@ abstract class AbstractAdapter extends BaseAdapter
      * setCredentialColumn() - set the column name to be used as the credential column
      *
      * @param  string $credentialColumn
-     * @return DbTable Provides a fluent interface
+     * @return self Provides a fluent interface
      */
     public function setCredentialColumn($credentialColumn)
     {
@@ -143,12 +143,12 @@ abstract class AbstractAdapter extends BaseAdapter
      * false) parameters. Default is false.
      *
      * @param  int|bool $flag
-     * @return DbTable Provides a fluent interface
+     * @return self Provides a fluent interface
      */
     public function setAmbiguityIdentity($flag)
     {
         if (is_int($flag)) {
-            $this->ambiguityIdentity = (1 === $flag ? true : false);
+            $this->ambiguityIdentity = (1 === $flag);
         } elseif (is_bool($flag)) {
             $this->ambiguityIdentity = $flag;
         }
@@ -173,7 +173,7 @@ abstract class AbstractAdapter extends BaseAdapter
      */
     public function getDbSelect()
     {
-        if ($this->dbSelect == null) {
+        if ($this->dbSelect === null) {
             $this->dbSelect = new Sql\Select();
         }
         return $this->dbSelect;
@@ -195,7 +195,6 @@ abstract class AbstractAdapter extends BaseAdapter
         $returnObject = new stdClass();
 
         if (null !== $returnColumns) {
-
             $availableColumns = array_keys($this->resultRow);
             foreach ((array) $returnColumns as $returnColumn) {
                 if (in_array($returnColumn, $availableColumns)) {
@@ -203,9 +202,7 @@ abstract class AbstractAdapter extends BaseAdapter
                 }
             }
             return $returnObject;
-
         } elseif (null !== $omitColumns) {
-
             $omitColumns = (array) $omitColumns;
             foreach ($this->resultRow as $resultColumn => $resultValue) {
                 if (!in_array($resultColumn, $omitColumns)) {
@@ -213,7 +210,6 @@ abstract class AbstractAdapter extends BaseAdapter
                 }
             }
             return $returnObject;
-
         }
 
         foreach ($this->resultRow as $resultColumn => $resultValue) {
@@ -324,13 +320,20 @@ abstract class AbstractAdapter extends BaseAdapter
             $resultIdentities = array();
             // iterate result, most cross platform way
             foreach ($result as $row) {
+                // ZF-6428 - account for db engines that by default return uppercase column names
+                if (isset($row['ZEND_AUTH_CREDENTIAL_MATCH'])) {
+                    $row['zend_auth_credential_match'] = $row['ZEND_AUTH_CREDENTIAL_MATCH'];
+                    unset($row['ZEND_AUTH_CREDENTIAL_MATCH']);
+                }
                 $resultIdentities[] = $row;
             }
         } catch (\Exception $e) {
             throw new Exception\RuntimeException(
                 'The supplied parameters to DbTable failed to '
-                    . 'produce a valid sql statement, please check table and column names '
-                    . 'for validity.', 0, $e
+                . 'produce a valid sql statement, please check table and column names '
+                . 'for validity.',
+                0,
+                $e
             );
         }
         return $resultIdentities;
@@ -345,7 +348,6 @@ abstract class AbstractAdapter extends BaseAdapter
      */
     protected function authenticateValidateResultSet(array $resultIdentities)
     {
-
         if (count($resultIdentities) < 1) {
             $this->authenticateResultInfo['code']       = AuthenticationResult::FAILURE_IDENTITY_NOT_FOUND;
             $this->authenticateResultInfo['messages'][] = 'A record with the supplied identity could not be found.';

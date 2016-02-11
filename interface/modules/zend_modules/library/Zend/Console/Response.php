@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -14,7 +14,6 @@ use Zend\Stdlib\ResponseInterface;
 
 class Response extends Message implements ResponseInterface
 {
-
     /**
      * @var bool
      */
@@ -39,6 +38,10 @@ class Response extends Message implements ResponseInterface
      */
     public function setErrorLevel($errorLevel)
     {
+        if (is_string($errorLevel) && !ctype_digit($errorLevel)) {
+            return $this;
+        }
+
         $this->setMetadata('errorLevel', $errorLevel);
         return $this;
     }
@@ -75,8 +78,7 @@ class Response extends Message implements ResponseInterface
     public function send()
     {
         $this->sendContent();
-        $errorLevel = (int) $this->getMetadata('errorLevel',0);
+        $errorLevel = (int) $this->getMetadata('errorLevel', 0);
         exit($errorLevel);
     }
-
 }

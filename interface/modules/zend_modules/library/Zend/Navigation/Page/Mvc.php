@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -97,7 +97,14 @@ class Mvc extends AbstractPage
      *
      * @var RouteStackInterface
      */
-    protected static $defaultRouter= null;
+    protected static $defaultRouter = null;
+
+    /**
+     * Default route name
+     *
+     * @var string
+     */
+    protected static $defaultRoute = null;
 
     // Accessors:
 
@@ -123,18 +130,18 @@ class Mvc extends AbstractPage
                     $reqParams['controller'] = $reqParams[ModuleRouteListener::ORIGINAL_CONTROLLER];
                 }
 
-                $myParams   = $this->params;
+                $pageParams   = $this->params;
                 if (null !== $this->controller) {
-                    $myParams['controller'] = $this->controller;
+                    $pageParams['controller'] = $this->controller;
                 }
                 if (null !== $this->action) {
-                    $myParams['action'] = $this->action;
+                    $pageParams['action'] = $this->action;
                 }
 
                 if (null !== $this->getRoute()) {
                     if (
                         $this->routeMatch->getMatchedRouteName() === $this->getRoute()
-                        && (count(array_intersect_assoc($reqParams, $myParams)) == count($myParams))
+                        && (count(array_intersect_assoc($reqParams, $pageParams)) == count($pageParams))
                     ) {
                         $this->active = true;
                         return $this->active;
@@ -144,27 +151,27 @@ class Mvc extends AbstractPage
                 }
             }
 
-            $myParams = $this->params;
+            $pageParams = $this->params;
 
             if (null !== $this->controller) {
-                $myParams['controller'] = $this->controller;
+                $pageParams['controller'] = $this->controller;
             } else {
                 /**
                  * @todo In ZF1, this was configurable and pulled from the front controller
                  */
-                $myParams['controller'] = 'index';
+                $pageParams['controller'] = 'index';
             }
 
             if (null !== $this->action) {
-                $myParams['action'] = $this->action;
+                $pageParams['action'] = $this->action;
             } else {
                 /**
                  * @todo In ZF1, this was configurable and pulled from the front controller
                  */
-                $myParams['action'] = 'index';
+                $pageParams['action'] = 'index';
             }
 
-            if (count(array_intersect_assoc($reqParams, $myParams)) == count($myParams)) {
+            if (count(array_intersect_assoc($reqParams, $pageParams)) == count($pageParams)) {
                 $this->active = true;
                 return true;
             }
@@ -219,17 +226,17 @@ class Mvc extends AbstractPage
         }
 
 
-        if (($param = $this->getController()) != null) {
+        if (($param = $this->getController()) !== null) {
             $params['controller'] = $param;
         }
 
-        if (($param = $this->getAction()) != null) {
+        if (($param = $this->getAction()) !== null) {
             $params['action'] = $param;
         }
 
         switch (true) {
-            case ($this->getRoute() !== null):
-                $name = $this->getRoute();
+            case ($this->getRoute() !== null || static::getDefaultRoute() !== null):
+                $name = ($this->getRoute() !== null) ? $this->getRoute() : static::getDefaultRoute();
                 break;
             case ($this->getRouteMatch() !== null):
                 $name = $this->getRouteMatch()->getMatchedRouteName();
@@ -359,13 +366,7 @@ class Mvc extends AbstractPage
      */
     public function setParams(array $params = null)
     {
-        if (null === $params) {
-            $this->params = array();
-        } else {
-            // TODO: do this more intelligently?
-            $this->params = $params;
-        }
-
+        $this->params = empty($params) ? array() : $params;
         $this->hrefCache = null;
         return $this;
     }
@@ -506,6 +507,27 @@ class Mvc extends AbstractPage
     public static function getDefaultRouter()
     {
         return static::$defaultRouter;
+    }
+
+    /**
+     * Set default route name
+     *
+     * @param string $route
+     * @return void
+     */
+    public static function setDefaultRoute($route)
+    {
+        static::$defaultRoute = $route;
+    }
+
+    /**
+     * Get default route name
+     *
+     * @return string
+     */
+    public static function getDefaultRoute()
+    {
+        return static::$defaultRoute;
     }
 
     // Public methods:

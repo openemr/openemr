@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -84,15 +84,64 @@ class FileInput extends Input
     }
 
     /**
+     * Checks if the raw input value is an empty file input eg: no file was uploaded
+     *
+     * @param $rawValue
+     * @return bool
+     */
+    public function isEmptyFile($rawValue)
+    {
+        if (!is_array($rawValue)) {
+            return true;
+        }
+
+        if (isset($rawValue['error']) && $rawValue['error'] === UPLOAD_ERR_NO_FILE) {
+            return true;
+        }
+
+        if (count($rawValue) === 1 && isset($rawValue[0])) {
+            return $this->isEmptyFile($rawValue[0]);
+        }
+
+        return false;
+    }
+
+    /**
      * @param  mixed $context Extra "context" to provide the validator
      * @return bool
      */
     public function isValid($context = null)
     {
+        $rawValue        = $this->getRawValue();
+        $hasValue        = $this->hasValue();
+        $empty           = $this->isEmptyFile($rawValue);
+        $required        = $this->isRequired();
+        $allowEmpty      = $this->allowEmpty();
+        $continueIfEmpty = $this->continueIfEmpty();
+
+        if (! $hasValue && ! $required) {
+            return true;
+        }
+
+        if (! $hasValue && $required && ! $this->hasFallback()) {
+            if ($this->errorMessage === null) {
+                $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
+            }
+            return false;
+        }
+
+        if ($empty && ! $required && ! $continueIfEmpty) {
+            return true;
+        }
+
+        if ($empty && $allowEmpty && ! $continueIfEmpty) {
+            return true;
+        }
+
         $this->injectUploadValidator();
         $validator = $this->getValidatorChain();
         //$value   = $this->getValue(); // Do not run the filters yet for File uploads (see getValue())
-        $rawValue  = $this->getRawValue();
+
         if (!is_array($rawValue)) {
             // This can happen in an AJAX POST, where the input comes across as a string
             $rawValue = array(
@@ -144,6 +193,8 @@ class FileInput extends Input
     }
 
     /**
+     * @deprecated 2.4.8 See note on parent class. Removal does not affect this class.
+     *
      * No-op, NotEmpty validator does not apply for FileInputs.
      * See also: BaseInputFilter::isValid()
      *

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -13,6 +13,11 @@ use Zend\ServiceManager\AbstractPluginManager;
 
 class WriterPluginManager extends AbstractPluginManager
 {
+    protected $aliases = array(
+        'null'                 => 'noop',
+        'Zend\Log\Writer\Null' => 'noop',
+    );
+
     /**
      * Default set of writers
      *
@@ -25,7 +30,7 @@ class WriterPluginManager extends AbstractPluginManager
         'firephp'        => 'Zend\Log\Writer\FirePhp',
         'mail'           => 'Zend\Log\Writer\Mail',
         'mock'           => 'Zend\Log\Writer\Mock',
-        'null'           => 'Zend\Log\Writer\Null',
+        'noop'           => 'Zend\Log\Writer\Noop',
         'stream'         => 'Zend\Log\Writer\Stream',
         'syslog'         => 'Zend\Log\Writer\Syslog',
         'zendmonitor'    => 'Zend\Log\Writer\ZendMonitor',

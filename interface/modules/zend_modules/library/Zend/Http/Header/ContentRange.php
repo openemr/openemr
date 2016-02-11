@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -15,22 +15,35 @@ namespace Zend\Http\Header;
  */
 class ContentRange implements HeaderInterface
 {
+    /**
+     * @var string
+     */
+    protected $value;
 
     public static function fromString($headerLine)
     {
-        $header = new static();
-
         list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
 
         // check to ensure proper header type for this factory
         if (strtolower($name) !== 'content-range') {
-            throw new Exception\InvalidArgumentException('Invalid header line for Content-Range string: "' . $name . '"');
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Invalid header line for Content-Range string: "%s"',
+                $name
+            ));
         }
 
         // @todo implementation details
-        $header->value = $value;
+        $header = new static($value);
 
         return $header;
+    }
+
+    public function __construct($value = null)
+    {
+        if ($value) {
+            HeaderValue::assertValid($value);
+            $this->value = $value;
+        }
     }
 
     public function getFieldName()

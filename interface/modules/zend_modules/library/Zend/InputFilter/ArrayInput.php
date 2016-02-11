@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -18,6 +18,7 @@ class ArrayInput extends Input
 
     /**
      * @param  array $value
+     * @throws Exception\InvalidArgumentException
      * @return Input
      */
     public function setValue($value)
@@ -28,6 +29,16 @@ class ArrayInput extends Input
             );
         }
         return parent::setValue($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function resetValue()
+    {
+        $this->value = array();
+        $this->hasValue = false;
+        return $this;
     }
 
     /**
@@ -49,16 +60,43 @@ class ArrayInput extends Input
      */
     public function isValid($context = null)
     {
-        $this->injectNotEmptyValidator();
+        $hasValue = $this->hasValue();
+        $required = $this->isRequired();
+        $hasFallback = $this->hasFallback();
+
+        if (! $hasValue && $hasFallback) {
+            $this->setValue($this->getFallbackValue());
+            return true;
+        }
+
+        if (! $hasValue && $required) {
+            if ($this->errorMessage === null) {
+                $this->errorMessage = $this->prepareRequiredValidationFailureMessage();
+            }
+            return false;
+        }
+
+        if (!$this->continueIfEmpty() && !$this->allowEmpty()) {
+            $this->injectNotEmptyValidator();
+        }
         $validator = $this->getValidatorChain();
         $values    = $this->getValue();
         $result    = true;
         foreach ($values as $value) {
+            $empty = ($value === null || $value === '' || $value === array());
+            if ($empty && !$this->isRequired() && !$this->continueIfEmpty()) {
+                $result = true;
+                continue;
+            }
+            if ($empty && $this->allowEmpty() && !$this->continueIfEmpty()) {
+                $result = true;
+                continue;
+            }
             $result = $validator->isValid($value, $context);
             if (!$result) {
-                if ($fallbackValue = $this->getFallbackValue()) {
-                    $this->setValue($fallbackValue);
-                    $result = true;
+                if ($hasFallback) {
+                    $this->setValue($this->getFallbackValue());
+                    return true;
                 }
                 break;
             }

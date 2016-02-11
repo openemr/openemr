@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -14,7 +14,6 @@ use DOMDocument;
 use DOMDocumentFragment;
 use DOMElement;
 use DOMXPath;
-use Zend\Soap\Exception\InvalidArgumentException;
 use Zend\Soap\Wsdl\ComplexTypeStrategy\ComplexTypeStrategyInterface as ComplexTypeStrategy;
 use Zend\Uri\Uri;
 
@@ -166,9 +165,10 @@ class Wsdl
     /**
      * Set the class map of php to wsdl mappings..
      *
+     * @param  array $classMap
      * @return self
      */
-    public function setClassMap($classMap)
+    public function setClassMap(array $classMap)
     {
         $this->classMap = $classMap;
         return $this;
@@ -191,7 +191,7 @@ class Wsdl
         $oldUri = $this->uri;
         $this->uri = $uri;
 
-        if ($this->dom instanceof DOMDocument ) {
+        if ($this->dom instanceof DOMDocument) {
             // namespace declarations are NOT true attributes so one must explicitly set on root element
             //                                                                  xmlns:tns = $uri
             $this->dom->documentElement->setAttributeNS(self::XML_NS_URI, self::XML_NS . ':' . self::TYPES_NS, $uri);
@@ -550,7 +550,7 @@ class Wsdl
         if ($types instanceof DOMDocument) {
             $dom = $this->dom->importNode($types->documentElement);
             $this->wsdl->appendChild($dom);
-        } elseif ($types instanceof DOMNode || $types instanceof DOMElement || $types instanceof DOMDocumentFragment ) {
+        } elseif ($types instanceof DOMNode || $types instanceof DOMElement || $types instanceof DOMDocumentFragment) {
             $dom = $this->dom->importNode($types);
             $this->wsdl->appendChild($dom);
         }
@@ -588,7 +588,7 @@ class Wsdl
      */
     public function getSchema()
     {
-        if ($this->schema == null) {
+        if ($this->schema === null) {
             $this->addSchemaTypeSection();
         }
         return $this->schema;
@@ -714,7 +714,7 @@ class Wsdl
             return $this->classMap[$type];
         }
 
-        $type = trim($type,'\\');
+        $type = trim($type, '\\');
 
         // remove namespace,
         $pos = strrpos($type, '\\');
@@ -796,11 +796,9 @@ class Wsdl
             case 'soapaction':
             case 'location':
                 return $this->sanitizeUri($value);
-                break;
 
             default:
                 return $value;
-                break;
         }
     }
 
@@ -813,7 +811,7 @@ class Wsdl
      */
     protected function arrayToAttributes(\DOMNode $node, array $attributes, $withSanitizer = true)
     {
-        foreach($attributes as $attributeName => $attributeValue) {
+        foreach ($attributes as $attributeName => $attributeValue) {
             if ($withSanitizer) {
                 $this->setAttributeWithSanitization($node, $attributeName, $attributeValue);
             } else {
@@ -860,7 +858,7 @@ class Wsdl
      */
     protected function getSoapNamespaceUriByVersion($soapVersion)
     {
-        if ($soapVersion != SOAP_1_1 AND $soapVersion != SOAP_1_2) {
+        if ($soapVersion != SOAP_1_1 and $soapVersion != SOAP_1_2) {
             throw new Exception\InvalidArgumentException('Invalid SOAP version, use constants: SOAP_1_1 or SOAP_1_2');
         }
 

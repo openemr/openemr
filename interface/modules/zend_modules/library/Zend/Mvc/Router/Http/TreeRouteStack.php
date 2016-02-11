@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -148,6 +148,10 @@ class TreeRouteStack extends SimpleRouteStack
             $chainRoutes = array_merge(array($specs), $specs['chain_routes']);
             unset($chainRoutes[0]['chain_routes']);
 
+            if (isset($specs['child_routes'])) {
+                unset($chainRoutes[0]['child_routes']);
+            }
+
             $options = array(
                 'routes'        => $chainRoutes,
                 'route_plugins' => $this->routePluginManager,
@@ -231,7 +235,7 @@ class TreeRouteStack extends SimpleRouteStack
             return $this->prototypes[$name];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -246,7 +250,7 @@ class TreeRouteStack extends SimpleRouteStack
     public function match(Request $request, $pathOffset = null, array $options = array())
     {
         if (!method_exists($request, 'getUri')) {
-            return null;
+            return;
         }
 
         if ($this->baseUrl === null && method_exists($request, 'getBaseUrl')) {
@@ -287,7 +291,7 @@ class TreeRouteStack extends SimpleRouteStack
             }
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -367,9 +371,21 @@ class TreeRouteStack extends SimpleRouteStack
                 $uri->setScheme($this->requestUri->getScheme());
             }
 
-            return $uri->setPath($path)->normalize()->toString();
+            $uri->setPath($path);
+
+            if (!isset($options['normalize_path']) || $options['normalize_path']) {
+                $uri->normalize();
+            }
+
+            return $uri->toString();
         } elseif (!$uri->isAbsolute() && $uri->isValidRelative()) {
-            return $uri->setPath($path)->normalize()->toString();
+            $uri->setPath($path);
+
+            if (!isset($options['normalize_path']) || $options['normalize_path']) {
+                $uri->normalize();
+            }
+
+            return $uri->toString();
         }
 
         return $path;

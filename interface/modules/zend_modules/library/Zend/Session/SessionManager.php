@@ -3,13 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\Session;
 
 use Zend\EventManager\EventManagerInterface;
+use Zend\Stdlib\ArrayUtils;
 
 /**
  * Session ManagerInterface implementation utilizing ext/session
@@ -40,14 +41,19 @@ class SessionManager extends AbstractManager
     /**
      * Constructor
      *
-     * @param  Config\ConfigInterface|null $config
-     * @param  Storage\StorageInterface|null $storage
+     * @param  Config\ConfigInterface|null           $config
+     * @param  Storage\StorageInterface|null         $storage
      * @param  SaveHandler\SaveHandlerInterface|null $saveHandler
+     * @param  array                                 $validators
      * @throws Exception\RuntimeException
      */
-    public function __construct(Config\ConfigInterface $config = null, Storage\StorageInterface $storage = null, SaveHandler\SaveHandlerInterface $saveHandler = null)
-    {
-        parent::__construct($config, $storage, $saveHandler);
+    public function __construct(
+        Config\ConfigInterface $config = null,
+        Storage\StorageInterface $storage = null,
+        SaveHandler\SaveHandlerInterface $saveHandler = null,
+        array $validators = array()
+    ) {
+        parent::__construct($config, $storage, $saveHandler, $validators);
         register_shutdown_function(array($this, 'writeClose'));
     }
 
@@ -92,7 +98,18 @@ class SessionManager extends AbstractManager
             $this->registerSaveHandler($saveHandler);
         }
 
+        $oldSessionData = array();
+        if (isset($_SESSION)) {
+            $oldSessionData = $_SESSION;
+        }
+
         session_start();
+
+        if ($oldSessionData instanceof \Traversable
+            || (! empty($oldSessionData) && is_array($oldSessionData))
+        ) {
+            $_SESSION = ArrayUtils::merge($oldSessionData, $_SESSION, true);
+        }
 
         $storage = $this->getStorage();
 
@@ -107,8 +124,29 @@ class SessionManager extends AbstractManager
             $storage->init($_SESSION);
         }
 
+        $this->initializeValidatorChain();
+
         if (!$this->isValid()) {
             throw new Exception\RuntimeException('Session validation failed');
+        }
+    }
+
+    /**
+     * Create validators, insert reference value and add them to the validator chain
+     */
+    protected function initializeValidatorChain()
+    {
+        $validatorChain  = $this->getValidatorChain();
+        $validatorValues = $this->getStorage()->getMetadata('_VALID');
+
+        foreach ($this->validators as $validator) {
+            // Ignore validators which are already present in Storage
+            if (is_array($validatorValues) && array_key_exists($validator, $validatorValues)) {
+                continue;
+            }
+
+            $validator = new $validator(null);
+            $validatorChain->attach('session.validate', array($validator, 'isValid'));
         }
     }
 
@@ -331,8 +369,8 @@ class SessionManager extends AbstractManager
     public function isValid()
     {
         $validator = $this->getValidatorChain();
-        $responses = $validator->triggerUntil('session.validate', $this, array($this), function ($test) {
-            return !$test;
+        $responses = $validator->trigger('session.validate', $this, array($this), function ($test) {
+            return false === $test;
         });
         if ($responses->stopped()) {
             // If execution was halted, validation failed
@@ -356,8 +394,8 @@ class SessionManager extends AbstractManager
             return;
         }
         setcookie(
-            $this->getName(),                 // session name
-            '',                               // value
+            $this->getName(), // session name
+            '', // value
             $_SERVER['REQUEST_TIME'] - 42000, // TTL for cookie
             $config->getCookiePath(),
             $config->getCookieDomain(),

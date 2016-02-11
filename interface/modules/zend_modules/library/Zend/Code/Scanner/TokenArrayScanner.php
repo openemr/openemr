@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -225,7 +225,7 @@ class TokenArrayScanner implements ScannerInterface
         }
 
         if (!isset($info)) {
-            return null;
+            return;
         }
 
         return new NameInformation($info['namespace'], $info['uses']);
@@ -296,6 +296,13 @@ class TokenArrayScanner implements ScannerInterface
 
         if (!$this->tokens) {
             throw new Exception\RuntimeException('No tokens were provided');
+        }
+
+        /**
+         * Define PHP 5.4 'trait' token constant.
+         */
+        if (!defined('T_TRAIT')) {
+            define('T_TRAIT', 42001);
         }
 
         /**
@@ -390,6 +397,7 @@ class TokenArrayScanner implements ScannerInterface
 
                 $MACRO_DOC_COMMENT_START();
                 goto SCANNER_CONTINUE;
+                //goto no break needed
 
             case T_NAMESPACE:
 
@@ -434,6 +442,7 @@ class TokenArrayScanner implements ScannerInterface
 
                 $MACRO_INFO_ADVANCE();
                 goto SCANNER_CONTINUE;
+                //goto no break needed
 
             case T_USE:
 
@@ -471,7 +480,6 @@ class TokenArrayScanner implements ScannerInterface
 
                 // ANALYZE
                 if ($tokenType !== null) {
-
                     if ($tokenType == T_AS) {
                         $useAsContext = true;
                         goto SCANNER_USE_CONTINUE;
@@ -484,7 +492,6 @@ class TokenArrayScanner implements ScannerInterface
                             $infos[$infoIndex]['statements'][$useStatementIndex]['as'] = $tokenContent;
                         }
                     }
-
                 }
 
                 SCANNER_USE_CONTINUE:
@@ -498,6 +505,7 @@ class TokenArrayScanner implements ScannerInterface
 
                 $MACRO_INFO_ADVANCE();
                 goto SCANNER_CONTINUE;
+                //goto no break needed
 
             case T_INCLUDE:
             case T_INCLUDE_ONCE:
@@ -546,12 +554,14 @@ class TokenArrayScanner implements ScannerInterface
 
                 $MACRO_INFO_ADVANCE();
                 goto SCANNER_CONTINUE;
+                //goto no break needed
 
             case T_FUNCTION:
             case T_FINAL:
             case T_ABSTRACT:
             case T_CLASS:
             case T_INTERFACE:
+            case T_TRAIT:
 
                 $infos[$infoIndex] = array(
                     'type'        => ($tokenType === T_FUNCTION) ? 'function' : 'class',
@@ -573,11 +583,11 @@ class TokenArrayScanner implements ScannerInterface
 
                 // process the name
                 if ($infos[$infoIndex]['shortName'] == ''
-                    && (($tokenType === T_CLASS || $tokenType === T_INTERFACE) && $infos[$infoIndex]['type'] === 'class'
+                    && (($tokenType === T_CLASS || $tokenType === T_INTERFACE || $tokenType === T_TRAIT) && $infos[$infoIndex]['type'] === 'class'
                         || ($tokenType === T_FUNCTION && $infos[$infoIndex]['type'] === 'function'))
                 ) {
                     $infos[$infoIndex]['shortName'] = $tokens[$tokenIndex + 2][1];
-                    $infos[$infoIndex]['name']      = (($namespace != null) ? $namespace . '\\' : '') . $infos[$infoIndex]['shortName'];
+                    $infos[$infoIndex]['name']      = (($namespace !== null) ? $namespace . '\\' : '') . $infos[$infoIndex]['shortName'];
                 }
 
                 if ($tokenType === null) {
@@ -659,7 +669,7 @@ class TokenArrayScanner implements ScannerInterface
         } elseif (!is_string($namespace)) {
             throw new Exception\InvalidArgumentException('Invalid namespace provided');
         } elseif (!in_array($namespace, $namespaces)) {
-            return null;
+            return;
         }
 
         $uses = array();

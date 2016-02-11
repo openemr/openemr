@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -13,6 +13,7 @@ use Traversable;
 use Zend\Log\Exception;
 use Zend\Log\Formatter\Simple as SimpleFormatter;
 use Zend\Mail\Message as MailMessage;
+use Zend\Mail\MessageFactory as MailMessageFactory;
 use Zend\Mail\Transport;
 use Zend\Mail\Transport\Exception as TransportException;
 
@@ -86,6 +87,9 @@ class Mail extends AbstractWriter
             }
             $transport = isset($mail['transport']) ? $mail['transport'] : null;
             $mail      = isset($mail['mail']) ? $mail['mail'] : null;
+            if (is_array($mail)) {
+                $mail = MailMessageFactory::getInstance($mail);
+            }
         }
 
         // Ensure we have a valid mail message
@@ -192,10 +196,11 @@ class Mail extends AbstractWriter
         } catch (TransportException\ExceptionInterface $e) {
             trigger_error(
                 "unable to send log entries via email; " .
-                    "message = {$e->getMessage()}; " .
-                    "code = {$e->getCode()}; " .
-                        "exception class = " . get_class($e),
-                E_USER_WARNING);
+                "message = {$e->getMessage()}; " .
+                "code = {$e->getCode()}; " .
+                "exception class = " . get_class($e),
+                E_USER_WARNING
+            );
         }
     }
 

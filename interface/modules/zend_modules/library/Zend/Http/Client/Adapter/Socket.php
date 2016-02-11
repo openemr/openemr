@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -28,10 +28,10 @@ class Socket implements HttpAdapter, StreamInterface
      * @var array
      */
     protected static $sslCryptoTypes = array(
-            'ssl'   => STREAM_CRYPTO_METHOD_SSLv23_CLIENT,
-            'sslv2' => STREAM_CRYPTO_METHOD_SSLv2_CLIENT,
-            'sslv3' => STREAM_CRYPTO_METHOD_SSLv3_CLIENT,
-            'tls'   => STREAM_CRYPTO_METHOD_TLS_CLIENT
+        'ssl'   => STREAM_CRYPTO_METHOD_SSLv23_CLIENT,
+        'sslv2' => STREAM_CRYPTO_METHOD_SSLv2_CLIENT,
+        'sslv3' => STREAM_CRYPTO_METHOD_SSLv3_CLIENT,
+        'tls'   => STREAM_CRYPTO_METHOD_TLS_CLIENT,
     );
 
     /**
@@ -66,9 +66,10 @@ class Socket implements HttpAdapter, StreamInterface
         'sslcert'               => null,
         'sslpassphrase'         => null,
         'sslverifypeer'         => true,
+        'sslcafile'             => null,
         'sslcapath'             => null,
         'sslallowselfsigned'    => false,
-        'sslusecontext'         => false
+        'sslusecontext'         => false,
     );
 
     /**
@@ -143,10 +144,8 @@ class Socket implements HttpAdapter, StreamInterface
     {
         if (is_resource($context) && get_resource_type($context) == 'stream-context') {
             $this->context = $context;
-
         } elseif (is_array($context)) {
             $this->context = stream_context_create($context);
-
         } else {
             // Invalid parameter
             throw new AdapterException\InvalidArgumentException(
@@ -202,6 +201,12 @@ class Socket implements HttpAdapter, StreamInterface
                 if ($this->config['sslverifypeer'] !== null) {
                     if (!stream_context_set_option($context, 'ssl', 'verify_peer', $this->config['sslverifypeer'])) {
                         throw new AdapterException\RuntimeException('Unable to set sslverifypeer option');
+                    }
+                }
+
+                if ($this->config['sslcafile']) {
+                    if (!stream_context_set_option($context, 'ssl', 'cafile', $this->config['sslcafile'])) {
+                        throw new AdapterException\RuntimeException('Unable to set sslcafile option');
                     }
                 }
 
@@ -287,7 +292,11 @@ class Socket implements HttpAdapter, StreamInterface
 
                     if ((! $errorString) && $this->config['sslverifypeer']) {
                         // There's good chance our error is due to sslcapath not being properly set
-                        if (! ($this->config['sslcapath'] && is_dir($this->config['sslcapath']))) {
+                        if (! ($this->config['sslcafile'] || $this->config['sslcapath'])) {
+                            $errorString = 'make sure the "sslcafile" or "sslcapath" option are properly set for the environment.';
+                        } elseif ($this->config['sslcafile'] && !is_file($this->config['sslcafile'])) {
+                            $errorString = 'make sure the "sslcafile" option points to a valid SSL certificate file';
+                        } elseif ($this->config['sslcapath'] && !is_dir($this->config['sslcapath'])) {
                             $errorString = 'make sure the "sslcapath" option points to a valid SSL certificate directory';
                         }
                     }
@@ -343,10 +352,14 @@ class Socket implements HttpAdapter, StreamInterface
 
         // Build request headers
         $path = $uri->getPath();
-        if ($uri->getQuery()) $path .= '?' . $uri->getQuery();
+        if ($uri->getQuery()) {
+            $path .= '?' . $uri->getQuery();
+        }
         $request = "{$method} {$path} HTTP/{$httpVer}\r\n";
         foreach ($headers as $k => $v) {
-            if (is_string($k)) $v = ucfirst($k) . ": $v";
+            if (is_string($k)) {
+                $v = ucfirst($k) . ": $v";
+            }
             $request .= "$v\r\n";
         }
 
@@ -390,7 +403,9 @@ class Socket implements HttpAdapter, StreamInterface
             $gotStatus = $gotStatus || (strpos($line, 'HTTP') !== false);
             if ($gotStatus) {
                 $response .= $line;
-                if (rtrim($line) === '') break;
+                if (rtrim($line) === '') {
+                    break;
+                }
             }
         }
 
@@ -401,7 +416,9 @@ class Socket implements HttpAdapter, StreamInterface
         $statusCode = $responseObj->getStatusCode();
 
         // Handle 100 and 101 responses internally by restarting the read again
-        if ($statusCode == 100 || $statusCode == 101) return $this->read();
+        if ($statusCode == 100 || $statusCode == 101) {
+            return $this->read();
+        }
 
         // Check headers to see what kind of connection / transfer encoding we have
         $headers = $responseObj->getHeaders();
@@ -412,7 +429,6 @@ class Socket implements HttpAdapter, StreamInterface
          */
         if ($statusCode == 304 || $statusCode == 204 ||
             $this->method == \Zend\Http\Request::METHOD_HEAD) {
-
             // Close the connection if requested to do so by the server
             $connection = $headers->get('connection');
             if ($connection && $connection->getFieldValue() == 'close') {
@@ -425,9 +441,7 @@ class Socket implements HttpAdapter, StreamInterface
         $transferEncoding = $headers->get('transfer-encoding');
         $contentLength = $headers->get('content-length');
         if ($transferEncoding !== false) {
-
             if (strtolower($transferEncoding->getFieldValue()) == 'chunked') {
-
                 do {
                     $line  = fgets($this->socket);
                     $this->_checkSocketReadTimeout();
@@ -450,20 +464,22 @@ class Socket implements HttpAdapter, StreamInterface
 
                     do {
                         $currentPos = ftell($this->socket);
-                        if ($currentPos >= $readTo) break;
+                        if ($currentPos >= $readTo) {
+                            break;
+                        }
 
                         if ($this->outStream) {
                             if (stream_copy_to_stream($this->socket, $this->outStream, $readTo - $currentPos) == 0) {
-                              $this->_checkSocketReadTimeout();
-                              break;
-                             }
+                                $this->_checkSocketReadTimeout();
+                                break;
+                            }
                         } else {
                             $line = fread($this->socket, $readTo - $currentPos);
                             if ($line === false || strlen($line) === 0) {
                                 $this->_checkSocketReadTimeout();
                                 break;
                             }
-                                    $chunk .= $line;
+                            $chunk .= $line;
                         }
                     } while (! feof($this->socket));
 
@@ -489,7 +505,6 @@ class Socket implements HttpAdapter, StreamInterface
             }
         // Else, if we got the content-length header, read this number of bytes
         } elseif ($contentLength !== false) {
-
             // If we got more than one Content-Length header (see ZF-9404) use
             // the last value sent
             if (is_array($contentLength)) {
@@ -498,18 +513,16 @@ class Socket implements HttpAdapter, StreamInterface
             $contentLength = $contentLength->getFieldValue();
 
             $currentPos = ftell($this->socket);
-            $chunk = '';
 
             for ($readTo = $currentPos + $contentLength;
                  $readTo > $currentPos;
                  $currentPos = ftell($this->socket)) {
-
-                 if ($this->outStream) {
-                     if (stream_copy_to_stream($this->socket, $this->outStream, $readTo - $currentPos) == 0) {
-                          $this->_checkSocketReadTimeout();
-                          break;
-                     }
-                 } else {
+                if ($this->outStream) {
+                    if (stream_copy_to_stream($this->socket, $this->outStream, $readTo - $currentPos) == 0) {
+                        $this->_checkSocketReadTimeout();
+                        break;
+                    }
+                } else {
                     $chunk = fread($this->socket, $readTo - $currentPos);
                     if ($chunk === false || strlen($chunk) === 0) {
                         $this->_checkSocketReadTimeout();
@@ -520,18 +533,19 @@ class Socket implements HttpAdapter, StreamInterface
                 }
 
                 // Break if the connection ended prematurely
-                if (feof($this->socket)) break;
+                if (feof($this->socket)) {
+                    break;
+                }
             }
 
         // Fallback: just read the response until EOF
         } else {
-
             do {
                 if ($this->outStream) {
                     if (stream_copy_to_stream($this->socket, $this->outStream) == 0) {
-                          $this->_checkSocketReadTimeout();
-                          break;
-                     }
+                        $this->_checkSocketReadTimeout();
+                        break;
+                    }
                 } else {
                     $buff = fread($this->socket, 8192);
                     if ($buff === false || strlen($buff) === 0) {
@@ -541,7 +555,6 @@ class Socket implements HttpAdapter, StreamInterface
                         $response .= $buff;
                     }
                 }
-
             } while (feof($this->socket) === false);
 
             $this->close();
@@ -613,7 +626,9 @@ class Socket implements HttpAdapter, StreamInterface
     public function __destruct()
     {
         if (! $this->config['persistent']) {
-            if ($this->socket) $this->close();
+            if ($this->socket) {
+                $this->close();
+            }
         }
     }
 }

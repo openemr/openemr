@@ -3,13 +3,14 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\Filter;
 
 use Countable;
+use Traversable;
 use Zend\Stdlib\PriorityQueue;
 
 class FilterChain extends AbstractFilter implements Countable
@@ -52,7 +53,7 @@ class FilterChain extends AbstractFilter implements Countable
      */
     public function setOptions($options)
     {
-        if (!is_array($options) && !$options instanceof \Traversable) {
+        if (!is_array($options) && !$options instanceof Traversable) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Expected array or Traversable; received "%s"',
                 (is_object($options) ? get_class($options) : gettype($options))
@@ -240,7 +241,7 @@ class FilterChain extends AbstractFilter implements Countable
      *
      * Plugin manager (property 'plugins') cannot
      * be serialized. On wakeup the property remains unset
-     * and next invokation to getPluginManager() sets
+     * and next invocation to getPluginManager() sets
      * the default plugin manager instance (FilterPluginManager).
      */
     public function __sleep()

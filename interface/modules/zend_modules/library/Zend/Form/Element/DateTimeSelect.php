@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -11,8 +11,10 @@ namespace Zend\Form\Element;
 
 use DateTime as PhpDateTime;
 use Exception;
+use Traversable;
 use Zend\Form\FormInterface;
 use Zend\Form\Exception\InvalidArgumentException;
+use Zend\Stdlib\ArrayUtils;
 use Zend\Validator\ValidatorInterface;
 use Zend\Validator\Date as DateValidator;
 
@@ -62,18 +64,25 @@ class DateTimeSelect extends DateSelect
     }
 
     /**
-     * Accepted options for DateTimeSelect (plus the ones from DateSelect) :
+     * Set options for DateTimeSelect element.
+     *
+     * Accepted options for DateTimeSelect (plus the ones from DateSelect):
+     *
      * - hour_attributes: HTML attributes to be rendered with the hour element
      * - minute_attributes: HTML attributes to be rendered with the minute element
      * - second_attributes: HTML attributes to be rendered with the second element
      * - should_show_seconds: if set to true, the seconds select is shown
      *
-     * @param array|\Traversable $options
-     * @return DateSelect
+     * @param array|Traversable $options
+     * @return self
      */
     public function setOptions($options)
     {
         parent::setOptions($options);
+
+        if ($options instanceof Traversable) {
+            $options = ArrayUtils::iteratorToArray($options);
+        }
 
         if (isset($options['hour_attributes'])) {
             $this->setHourAttributes($options['hour_attributes']);
@@ -122,7 +131,7 @@ class DateTimeSelect extends DateSelect
      * Set the hour attributes
      *
      * @param  array $hourAttributes
-     * @return DateSelect
+     * @return self
      */
     public function setHourAttributes(array $hourAttributes)
     {
@@ -144,7 +153,7 @@ class DateTimeSelect extends DateSelect
      * Set the minute attributes
      *
      * @param  array $minuteAttributes
-     * @return DateSelect
+     * @return self
      */
     public function setMinuteAttributes(array $minuteAttributes)
     {
@@ -166,7 +175,7 @@ class DateTimeSelect extends DateSelect
      * Set the second attributes
      *
      * @param  array $secondAttributes
-     * @return DateSelect
+     * @return self
      */
     public function setSecondAttributes(array $secondAttributes)
     {
@@ -189,7 +198,7 @@ class DateTimeSelect extends DateSelect
      * assumed to always be 00
      *
      * @param  bool $shouldShowSeconds
-     * @return DateTimeSelect
+     * @return self
      */
     public function setShouldShowSeconds($shouldShowSeconds)
     {
@@ -207,8 +216,8 @@ class DateTimeSelect extends DateSelect
 
     /**
      * @param mixed $value
-     * @throws \Zend\Form\Exception\InvalidArgumentException
-     * @return void|\Zend\Form\Element
+     * @return self
+     * @throws InvalidArgumentException
      */
     public function setValue($value)
     {
@@ -218,6 +227,10 @@ class DateTimeSelect extends DateSelect
             } catch (Exception $e) {
                 throw new InvalidArgumentException('Value should be a parsable string or an instance of \DateTime');
             }
+        }
+
+        if (null === $value) {
+            $value = new PhpDateTime();
         }
 
         if ($value instanceof PhpDateTime) {
@@ -231,7 +244,7 @@ class DateTimeSelect extends DateSelect
             );
         }
 
-        if (!isset($value['second'])) {
+        if (! isset($value['second'])) {
             $value['second'] = '00';
         }
 
@@ -241,13 +254,31 @@ class DateTimeSelect extends DateSelect
         $this->hourElement->setValue($value['hour']);
         $this->minuteElement->setValue($value['minute']);
         $this->secondElement->setValue($value['second']);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValue()
+    {
+        return sprintf(
+            '%s-%s-%s %s:%s:%s',
+            $this->getYearElement()->getValue(),
+            $this->getMonthElement()->getValue(),
+            $this->getDayElement()->getValue(),
+            $this->getHourElement()->getValue(),
+            $this->getMinuteElement()->getValue(),
+            $this->getSecondElement()->getValue()
+        );
     }
 
     /**
      * Prepare the form element (mostly used for rendering purposes)
      *
      * @param  FormInterface $form
-     * @return mixed
+     * @return void
      */
     public function prepareElement(FormInterface $form)
     {
@@ -285,29 +316,11 @@ class DateTimeSelect extends DateSelect
             'name' => $this->getName(),
             'required' => false,
             'filters' => array(
-                array(
-                    'name'    => 'Callback',
-                    'options' => array(
-                        'callback' => function ($date) {
-                            // Convert the date to a specific format
-                            if (is_array($date)) {
-                                if (!isset($date['second'])) {
-                                    $date['second'] = '00';
-                                }
-                                $date = sprintf('%s-%s-%s %s:%s:%s',
-                                    $date['year'], $date['month'], $date['day'],
-                                    $date['hour'], $date['minute'], $date['second']
-                                );
-                            }
-
-                            return $date;
-                        }
-                    )
-                )
+                array('name' => 'DateTimeSelect')
             ),
             'validators' => array(
                 $this->getValidator(),
-            )
+            ),
         );
     }
 
@@ -319,7 +332,7 @@ class DateTimeSelect extends DateSelect
         $this->dayElement    = clone $this->dayElement;
         $this->monthElement  = clone $this->monthElement;
         $this->yearElement   = clone $this->yearElement;
-        $this->hourElement   = clone $this->monthElement;
+        $this->hourElement   = clone $this->hourElement;
         $this->minuteElement = clone $this->minuteElement;
         $this->secondElement = clone $this->secondElement;
     }

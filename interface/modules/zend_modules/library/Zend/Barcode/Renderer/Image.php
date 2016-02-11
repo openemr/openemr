@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -22,8 +22,8 @@ class Image extends AbstractRenderer
      * @var array
      */
     protected $allowedImageType = array('png',
-                                        'jpeg',
-                                        'gif'  );
+        'jpeg',
+        'gif'  );
 
     /**
      * Image format
@@ -194,22 +194,7 @@ class Image extends AbstractRenderer
         $barcodeWidth  = $this->barcode->getWidth(true);
         $barcodeHeight = $this->barcode->getHeight(true);
 
-        if ($this->resource !== null) {
-            $foreColor       = $this->barcode->getForeColor();
-            $backgroundColor = $this->barcode->getBackgroundColor();
-            $this->imageBackgroundColor = imagecolorallocate(
-                $this->resource,
-                ($backgroundColor & 0xFF0000) >> 16,
-                ($backgroundColor & 0x00FF00) >> 8,
-                $backgroundColor & 0x0000FF
-            );
-            $this->imageForeColor = imagecolorallocate(
-                $this->resource,
-                ($foreColor & 0xFF0000) >> 16,
-                ($foreColor & 0x00FF00) >> 8,
-                $foreColor & 0x0000FF
-            );
-        } else {
+        if (null === $this->resource) {
             $width = $barcodeWidth;
             $height = $barcodeHeight;
             if ($this->userWidth && $this->barcode->getType() != 'error') {
@@ -219,32 +204,49 @@ class Image extends AbstractRenderer
                 $height = $this->userHeight;
             }
 
-            $foreColor       = $this->barcode->getForeColor();
-            $backgroundColor = $this->barcode->getBackgroundColor();
+            // Cast width and height to ensure they are correct type for image
+            // operations
+            $width  = (int) $width;
+            $height = (int) $height;
+
             $this->resource = imagecreatetruecolor($width, $height);
 
-            $this->imageBackgroundColor = imagecolorallocate(
-                $this->resource,
-                ($backgroundColor & 0xFF0000) >> 16,
-                ($backgroundColor & 0x00FF00) >> 8,
-                $backgroundColor & 0x0000FF
-            );
-            $this->imageForeColor = imagecolorallocate(
-                $this->resource,
-                ($foreColor & 0xFF0000) >> 16,
-                ($foreColor & 0x00FF00) >> 8,
-                $foreColor & 0x0000FF
-            );
             $white = imagecolorallocate($this->resource, 255, 255, 255);
             imagefilledrectangle($this->resource, 0, 0, $width - 1, $height - 1, $white);
         }
+
+        $foreColor = $this->barcode->getForeColor();
+        $this->imageForeColor = imagecolorallocate(
+            $this->resource,
+            ($foreColor & 0xFF0000) >> 16,
+            ($foreColor & 0x00FF00) >> 8,
+            $foreColor & 0x0000FF
+        );
+
+        $backgroundColor = $this->barcode->getBackgroundColor();
+        $this->imageBackgroundColor = imagecolorallocate(
+            $this->resource,
+            ($backgroundColor & 0xFF0000) >> 16,
+            ($backgroundColor & 0x00FF00) >> 8,
+            $backgroundColor & 0x0000FF
+        );
+
+        // JPEG does not support transparency, if transparentBackground is true and
+        // image type is JPEG, ignore transparency
+        if ($this->getImageType() != "jpeg" && $this->transparentBackground) {
+            imagecolortransparent($this->resource, $this->imageBackgroundColor);
+        }
+
         $this->adjustPosition(imagesy($this->resource), imagesx($this->resource));
-        imagefilledrectangle($this->resource,
-                             $this->leftOffset,
-                             $this->topOffset,
-                             $this->leftOffset + $barcodeWidth - 1,
-                             $this->topOffset + $barcodeHeight - 1,
-                             $this->imageBackgroundColor);
+
+        imagefilledrectangle(
+            $this->resource,
+            $this->leftOffset,
+            $this->topOffset,
+            (int) ($this->leftOffset + $barcodeWidth - 1),
+            (int) ($this->topOffset + $barcodeHeight - 1),
+            $this->imageBackgroundColor
+        );
     }
 
     /**
@@ -330,18 +332,20 @@ class Image extends AbstractRenderer
     protected function drawPolygon($points, $color, $filled = true)
     {
         $newPoints = array($points[0][0] + $this->leftOffset,
-                           $points[0][1] + $this->topOffset,
-                           $points[1][0] + $this->leftOffset,
-                           $points[1][1] + $this->topOffset,
-                           $points[2][0] + $this->leftOffset,
-                           $points[2][1] + $this->topOffset,
-                           $points[3][0] + $this->leftOffset,
-                           $points[3][1] + $this->topOffset,   );
+            $points[0][1] + $this->topOffset,
+            $points[1][0] + $this->leftOffset,
+            $points[1][1] + $this->topOffset,
+            $points[2][0] + $this->leftOffset,
+            $points[2][1] + $this->topOffset,
+            $points[3][0] + $this->leftOffset,
+            $points[3][1] + $this->topOffset,   );
 
-        $allocatedColor = imagecolorallocate($this->resource,
-                                             ($color & 0xFF0000) >> 16,
-                                             ($color & 0x00FF00) >> 8,
-                                              $color & 0x0000FF         );
+        $allocatedColor = imagecolorallocate(
+            $this->resource,
+            ($color & 0xFF0000) >> 16,
+            ($color & 0x00FF00) >> 8,
+            $color & 0x0000FF
+        );
 
         if ($filled) {
             imagefilledpolygon($this->resource, $newPoints, 4, $allocatedColor);
@@ -359,17 +363,19 @@ class Image extends AbstractRenderer
      * @param string $font
      * @param int $color
      * @param string $alignment
-     * @param float $orientation
+     * @param float|int $orientation
      * @throws Exception\RuntimeException
      */
     protected function drawText($text, $size, $position, $font, $color, $alignment = 'center', $orientation = 0)
     {
-        $allocatedColor = imagecolorallocate($this->resource,
-                                             ($color & 0xFF0000) >> 16,
-                                             ($color & 0x00FF00) >> 8,
-                                              $color & 0x0000FF         );
+        $allocatedColor = imagecolorallocate(
+            $this->resource,
+            ($color & 0xFF0000) >> 16,
+            ($color & 0x00FF00) >> 8,
+            $color & 0x0000FF
+        );
 
-        if ($font == null) {
+        if ($font === null) {
             $font = 3;
         }
         $position[0] += $this->leftOffset;
@@ -381,7 +387,7 @@ class Image extends AbstractRenderer
                  * imagestring() doesn't allow orientation, if orientation
                  * needed: a TTF font is required.
                  * Throwing an exception here, allow to use automaticRenderError
-                 * to informe user of the problem instead of simply not drawing
+                 * to inform user of the problem instead of simply not drawing
                  * the text
                  */
                 throw new Exception\RuntimeException(
@@ -403,10 +409,10 @@ class Image extends AbstractRenderer
             }
             imagestring($this->resource, $font, $positionX, $positionY, $text, $color);
         } else {
-
             if (!function_exists('imagettfbbox')) {
                 throw new Exception\RuntimeException(
-                    'A font was provided, but this instance of PHP does not have TTF (FreeType) support');
+                    'A font was provided, but this instance of PHP does not have TTF (FreeType) support'
+                );
             }
 
             $box = imagettfbbox($size, 0, $font, $text);
@@ -421,14 +427,16 @@ class Image extends AbstractRenderer
                     $width = ($box[2] - $box[0]);
                     break;
             }
-            imagettftext($this->resource,
-                         $size,
-                         $orientation,
-                         $position[0] - ($width * cos(pi() * $orientation / 180)),
-                         $position[1] + ($width * sin(pi() * $orientation / 180)),
-                         $allocatedColor,
-                         $font,
-                         $text);
+            imagettftext(
+                $this->resource,
+                $size,
+                $orientation,
+                $position[0] - ($width * cos(pi() * $orientation / 180)),
+                $position[1] + ($width * sin(pi() * $orientation / 180)),
+                $allocatedColor,
+                $font,
+                $text
+            );
         }
     }
 }
